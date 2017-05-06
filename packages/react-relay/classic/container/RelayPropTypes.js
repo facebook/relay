@@ -8,6 +8,7 @@
  *
  * @providesModule RelayPropTypes
  * @flow
+ * @format
  */
 
 'use strict';
@@ -24,34 +25,37 @@ const RelayPropTypes = {
   Container(props: Object, propName: string, componentName: string): ?Error {
     const component = props[propName];
     if (component == null) {
-      return new Error(sprintf(
-        'Required prop `%s` was not specified in `%s`.',
-        propName,
-        componentName
-      ));
+      return new Error(
+        sprintf(
+          'Required prop `%s` was not specified in `%s`.',
+          propName,
+          componentName,
+        ),
+      );
     } else if (!isRelayContainer(component)) {
-      return new Error(sprintf(
-        'Invalid prop `%s` supplied to `%s`, expected a RelayContainer.',
-        propName,
-        componentName
-      ));
+      return new Error(
+        sprintf(
+          'Invalid prop `%s` supplied to `%s`, expected a RelayContainer.',
+          propName,
+          componentName,
+        ),
+      );
     }
     return null;
   },
 
   Environment(props: Object, propName: string, componentName: string): ?Error {
     const context = props[propName];
-    if (
-      !isClassicRelayEnvironment(context) ||
-      !isRelayEnvironment(context)
-    ) {
-      return new Error(sprintf(
-        'Invalid prop/context `%s` supplied to `%s`, expected `%s` to be ' +
-        'an object conforming to the `RelayEnvironment` interface.',
-        propName,
-        componentName,
-        context
-      ));
+    if (!isClassicRelayEnvironment(context) || !isRelayEnvironment(context)) {
+      return new Error(
+        sprintf(
+          'Invalid prop/context `%s` supplied to `%s`, expected `%s` to be ' +
+            'an object conforming to the `RelayEnvironment` interface.',
+          propName,
+          componentName,
+          context,
+        ),
+      );
     }
     return null;
   },
@@ -68,13 +72,15 @@ const RelayPropTypes = {
       !isRelayContext(relay) ||
       !isClassicRelayEnvironment(relay.environment)
     ) {
-      return new Error(sprintf(
-        'Invalid prop/context `%s` supplied to `%s`, expected `%s` to be ' +
-        'an object with a classic `environment` implementation and `variables`.',
-        propName,
-        componentName,
-        relay
-      ));
+      return new Error(
+        sprintf(
+          'Invalid prop/context `%s` supplied to `%s`, expected `%s` to be ' +
+            'an object with a classic `environment` implementation and `variables`.',
+          propName,
+          componentName,
+          relay,
+        ),
+      );
     }
     return null;
   },
@@ -82,13 +88,15 @@ const RelayPropTypes = {
   Relay(props: Object, propName: string, componentName: string): ?Error {
     const relay = props[propName];
     if (!isRelayContext(relay)) {
-      return new Error(sprintf(
-        'Invalid prop/context `%s` supplied to `%s`, expected `%s` to be ' +
-        'an object with an `environment` and `variables`.',
-        propName,
-        componentName,
-        relay
-      ));
+      return new Error(
+        sprintf(
+          'Invalid prop/context `%s` supplied to `%s`, expected `%s` to be ' +
+            'an object with an `environment` and `variables`.',
+          propName,
+          componentName,
+          relay,
+        ),
+      );
     }
     return null;
   },

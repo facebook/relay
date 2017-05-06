@@ -5,6 +5,8 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
@@ -25,13 +27,11 @@ describe('RelayExportTransform', () => {
 
   it('matches expected output', () => {
     expect('fixtures/export-transform').toMatchGolden(text => {
-      const schema = RelayExportTransform.transformSchema(
-        RelayTestSchema
-      );
+      const schema = RelayExportTransform.transformSchema(RelayTestSchema);
       const ast = RelayParser.parse(schema, text);
       const context = ast.reduce(
         (ctx, node) => ctx.add(node),
-        new RelayCompilerContext(schema)
+        new RelayCompilerContext(schema),
       );
       const nextContext = RelayExportTransform.transform(context);
       const documents = [];

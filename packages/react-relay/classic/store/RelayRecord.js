@@ -8,16 +8,13 @@
  *
  * @providesModule RelayRecord
  * @flow
+ * @format
  */
 
 'use strict';
 
 import type GraphQLRange from 'GraphQLRange';
-import type {
-  Call,
-  ClientMutationID,
-  DataID,
-} from 'RelayInternalTypes';
+import type {Call, ClientMutationID, DataID} from 'RelayInternalTypes';
 import type {QueryPath} from 'RelayQueryPath';
 import type {Variables} from 'RelayTypes';
 
@@ -66,7 +63,6 @@ Object.keys(MetadataKey).forEach(name => {
  * Records are plain objects with special metadata properties.
  */
 const RelayRecord = {
-
   MetadataKey,
 
   create(dataID: string): Record {
@@ -75,7 +71,7 @@ const RelayRecord = {
 
   createWithFields<Fields: Object>(
     dataID: string,
-    fields: Fields
+    fields: Fields,
   ): Record & Fields {
     return {__dataID__: dataID, ...fields};
   },
@@ -105,7 +101,7 @@ const RelayRecord = {
     return maybeRecord.__dataID__;
   },
 
- /**
+  /**
   * Checks whether the given ID was created on the client, as opposed to an ID
   * that's understood by the server as well.
   */

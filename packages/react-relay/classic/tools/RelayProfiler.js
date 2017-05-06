@@ -8,6 +8,7 @@
  *
  * @providesModule RelayProfiler
  * @flow
+ * @format
  */
 
 'use strict';
@@ -68,7 +69,6 @@ const shouldInstrument = name => {
  * if `__DEV__` is true. This should be used for very hot functions.
  */
 const RelayProfiler = {
-
   /**
    * Instruments methods on a class or object. This re-assigns the method in
    * order to preserve function names in stack traces (which are detected by
@@ -86,7 +86,7 @@ const RelayProfiler = {
    */
   instrumentMethods(
     object: Function | Object,
-    names: {[key: string]: string}
+    names: {[key: string]: string},
   ): void {
     forEachObject(names, (name, key) => {
       object[key] = RelayProfiler.instrument(name, object[key]);
@@ -155,7 +155,7 @@ const RelayProfiler = {
         returnValue = context[5];
         if (returnValue === NOT_INVOKED) {
           throw new Error(
-            'RelayProfiler: Handler did not invoke original function.'
+            'RelayProfiler: Handler did not invoke original function.',
           );
         }
       }
@@ -224,10 +224,11 @@ const RelayProfiler = {
     const hasCatchAllHandlers = profileHandlersByName['*'].length > 0;
     const hasNamedHandlers = profileHandlersByName.hasOwnProperty(name);
     if (hasNamedHandlers || hasCatchAllHandlers) {
-      const profileHandlers = hasNamedHandlers && hasCatchAllHandlers ?
-        profileHandlersByName[name].concat(profileHandlersByName['*']) :
-        (hasNamedHandlers ?
-          profileHandlersByName[name] : profileHandlersByName['*']);
+      const profileHandlers = hasNamedHandlers && hasCatchAllHandlers
+        ? profileHandlersByName[name].concat(profileHandlersByName['*'])
+        : hasNamedHandlers
+            ? profileHandlersByName[name]
+            : profileHandlersByName['*'];
       let stopHandlers;
       for (let ii = profileHandlers.length - 1; ii >= 0; ii--) {
         const profileHandler = profileHandlers[ii];
@@ -269,7 +270,6 @@ const RelayProfiler = {
       }
     }
   },
-
 };
 
 module.exports = RelayProfiler;

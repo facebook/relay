@@ -8,6 +8,7 @@
  *
  * @providesModule RelayOSSConnectionInterface
  * @flow
+ * @format
  */
 
 'use strict';
@@ -23,12 +24,12 @@ export type PageInfo = {
 
 const CLIENT_MUTATION_ID = 'clientMutationId';
 const CONNECTION_CALLS = {
-  'after': true,
-  'before': true,
-  'find': true,
-  'first': true,
-  'last': true,
-  'surrounds': true,
+  after: true,
+  before: true,
+  find: true,
+  first: true,
+  last: true,
+  surrounds: true,
 };
 const CURSOR = 'cursor';
 const EDGES = 'edges';
@@ -39,9 +40,9 @@ const NODE = 'node';
 const PAGE_INFO = 'pageInfo';
 const PAGE_INFO_TYPE = 'PageInfo';
 const REQUIRED_RANGE_CALLS = {
-  'find': true,
-  'first': true,
-  'last': true,
+  find: true,
+  first: true,
+  last: true,
 };
 const START_CURSOR = 'startCursor';
 

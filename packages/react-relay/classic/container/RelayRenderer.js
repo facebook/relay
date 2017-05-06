@@ -8,6 +8,7 @@
  *
  * @providesModule RelayRenderer
  * @flow
+ * @format
  */
 
 'use strict';
@@ -43,11 +44,11 @@ type Props = {
   forceFetch?: ?boolean,
   onForceFetch?: ?(
     querySet: RelayQuerySet,
-    callback: (readyState: ReadyState) => void
+    callback: (readyState: ReadyState) => void,
   ) => Abortable,
   onPrimeCache?: ?(
     querySet: RelayQuerySet,
-    callback: (readyState: ReadyState) => void
+    callback: (readyState: ReadyState) => void,
   ) => Abortable,
   onReadyStateChange?: ?(readyState: ReadyState) => void,
   queryConfig: RelayQueryConfigInterface,
@@ -152,8 +153,9 @@ class RelayRenderer extends React.Component<DefaultProps, Props, State> {
 
   constructor(props: Props, context: any) {
     super(props, context);
-    const garbageCollector =
-      this.props.environment.getStoreData().getGarbageCollector();
+    const garbageCollector = this.props.environment
+      .getStoreData()
+      .getGarbageCollector();
     this.gcHold = garbageCollector && garbageCollector.acquireHold();
     this.mounted = true;
     this.pendingRequest = null;
@@ -173,7 +175,11 @@ class RelayRenderer extends React.Component<DefaultProps, Props, State> {
    * @private
    */
   _validateProps(props: Props) {
-    const error = RelayRenderer.propTypes.Container(props, 'Container', 'RelayRenderer');
+    const error = RelayRenderer.propTypes.Container(
+      props,
+      'Container',
+      'RelayRenderer',
+    );
     if (error) {
       throw error;
     }
@@ -182,17 +188,15 @@ class RelayRenderer extends React.Component<DefaultProps, Props, State> {
   /**
    * @private
    */
-  _runQueries(
-    {
-      Container,
-      forceFetch,
-      onForceFetch,
-      onPrimeCache,
-      queryConfig,
-      environment,
-      shouldFetch,
-    }: Props
-  ): void {
+  _runQueries({
+    Container,
+    forceFetch,
+    onForceFetch,
+    onPrimeCache,
+    queryConfig,
+    environment,
+    shouldFetch,
+  }: Props): void {
     if (!shouldFetch) {
       return;
     }
@@ -223,17 +227,13 @@ class RelayRenderer extends React.Component<DefaultProps, Props, State> {
     }
 
     const querySet = getRelayQueries(Container, queryConfig);
-    const request = this.pendingRequest = forceFetch ?
-      (
-        onForceFetch ?
-          onForceFetch(querySet, onReadyStateChange) :
-          environment.forceFetch(querySet, onReadyStateChange)
-      ) :
-      (
-        onPrimeCache ?
-          onPrimeCache(querySet, onReadyStateChange) :
-          environment.primeCache(querySet, onReadyStateChange)
-      );
+    const request = (this.pendingRequest = forceFetch
+      ? onForceFetch
+          ? onForceFetch(querySet, onReadyStateChange)
+          : environment.forceFetch(querySet, onReadyStateChange)
+      : onPrimeCache
+          ? onPrimeCache(querySet, onReadyStateChange)
+          : environment.primeCache(querySet, onReadyStateChange));
     this.lastRequest = request;
   }
 
@@ -249,17 +249,20 @@ class RelayRenderer extends React.Component<DefaultProps, Props, State> {
   }
 
   componentWillReceiveProps(nextProps: Props): void {
-    if (nextProps.Container !== this.props.Container ||
-        nextProps.environment !== this.props.environment ||
-        nextProps.queryConfig !== this.props.queryConfig ||
-        nextProps.shouldFetch !== this.props.shouldFetch ||
-        (nextProps.forceFetch && !this.props.forceFetch)) {
+    if (
+      nextProps.Container !== this.props.Container ||
+      nextProps.environment !== this.props.environment ||
+      nextProps.queryConfig !== this.props.queryConfig ||
+      nextProps.shouldFetch !== this.props.shouldFetch ||
+      (nextProps.forceFetch && !this.props.forceFetch)
+    ) {
       if (nextProps.environment !== this.props.environment) {
         if (this.gcHold) {
           this.gcHold.release();
         }
-        const garbageCollector =
-          nextProps.environment.getStoreData().getGarbageCollector();
+        const garbageCollector = nextProps.environment
+          .getStoreData()
+          .getGarbageCollector();
         this.gcHold = garbageCollector && garbageCollector.acquireHold();
       }
       this._validateProps(nextProps);
@@ -268,10 +271,7 @@ class RelayRenderer extends React.Component<DefaultProps, Props, State> {
     }
   }
 
-  componentDidUpdate(
-    prevProps: Props,
-    prevState?: State
-  ): void {
+  componentDidUpdate(prevProps: Props, prevState?: State): void {
     // `prevState` should exist; the truthy check is for Flow soundness.
     const {readyState} = this.state;
     if (readyState) {
@@ -303,9 +303,9 @@ class RelayRenderer extends React.Component<DefaultProps, Props, State> {
   }
 
   render(): ?React.Element<*> {
-    const readyState = this.state.active ?
-      this.state.readyState :
-      INACTIVE_READY_STATE;
+    const readyState = this.state.active
+      ? this.state.readyState
+      : INACTIVE_READY_STATE;
 
     return (
       <RelayReadyStateRenderer

@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -56,24 +57,30 @@ describe('GraphQLStoreQueryResolver', () => {
     dataID = '1038750002';
     mockCallback = jest.fn();
     mockQueryFragment = getNode(Relay.QL`fragment on Node{id,name}`);
-    mockPluralQueryFragment = getNode(Relay.QL`
+    mockPluralQueryFragment = getNode(
+      Relay.QL`
       fragment on Node @relay(plural:true) {
         id
         name
       }
-    `);
+    `,
+    );
 
     jasmine.addMatchers(RelayTestUtils.matchers);
   });
 
   it('should resolve a pointer', () => {
-    const mockResult = {__dataID__: '1038750002', id: '1038750002', name: 'Tim'};
+    const mockResult = {
+      __dataID__: '1038750002',
+      id: '1038750002',
+      name: 'Tim',
+    };
     readRelayQueryData.mockReturnValue({data: mockResult});
 
     const resolver = new GraphQLStoreQueryResolver(
       storeData,
       mockQueryFragment,
-      mockCallback
+      mockCallback,
     );
     const resolved = resolver.resolve(mockQueryFragment, dataID);
 
@@ -93,7 +100,7 @@ describe('GraphQLStoreQueryResolver', () => {
     const resolver = new GraphQLStoreQueryResolver(
       storeData,
       mockQueryFragment,
-      mockCallback
+      mockCallback,
     );
     resolver.resolve(mockQueryFragment, dataID);
 
@@ -103,13 +110,21 @@ describe('GraphQLStoreQueryResolver', () => {
   });
 
   it('should not re-resolve pointers without change events', () => {
-    const mockResultA = {__dataID__: '1038750002', id: '1038750002', name: 'Tim'};
-    const mockResultB = {__dataID__: '1038750002', id: '1038750002', name: 'Tim'};
+    const mockResultA = {
+      __dataID__: '1038750002',
+      id: '1038750002',
+      name: 'Tim',
+    };
+    const mockResultB = {
+      __dataID__: '1038750002',
+      id: '1038750002',
+      name: 'Tim',
+    };
 
     const resolver = new GraphQLStoreQueryResolver(
       storeData,
       mockQueryFragment,
-      mockCallback
+      mockCallback,
     );
 
     readRelayQueryData.mockReturnValue({data: mockResultA});
@@ -123,13 +138,21 @@ describe('GraphQLStoreQueryResolver', () => {
   });
 
   it('should re-resolve pointers with change events', () => {
-    const mockResultA = {__dataID__: '1038750002', id: '1038750002', name: 'Tim'};
-    const mockResultB = {__dataID__: '1038750002', id: '1038750002', name: 'Tee'};
+    const mockResultA = {
+      __dataID__: '1038750002',
+      id: '1038750002',
+      name: 'Tim',
+    };
+    const mockResultB = {
+      __dataID__: '1038750002',
+      id: '1038750002',
+      name: 'Tee',
+    };
 
     const resolver = new GraphQLStoreQueryResolver(
       storeData,
       mockQueryFragment,
-      mockCallback
+      mockCallback,
     );
 
     mockReader({
@@ -157,7 +180,7 @@ describe('GraphQLStoreQueryResolver', () => {
     const resolver = new GraphQLStoreQueryResolver(
       storeData,
       mockQueryFragment,
-      mockCallback
+      mockCallback,
     );
 
     require('GraphQLStoreRangeUtils').getCanonicalClientID =
@@ -178,7 +201,7 @@ describe('GraphQLStoreQueryResolver', () => {
     const resolver = new GraphQLStoreQueryResolver(
       storeData,
       mockQueryFragment,
-      mockCallback
+      mockCallback,
     );
 
     mockReader(mockResult);
@@ -200,7 +223,7 @@ describe('GraphQLStoreQueryResolver', () => {
     const resolver = new GraphQLStoreQueryResolver(
       storeData,
       mockPluralQueryFragment,
-      mockCallback
+      mockCallback,
     );
 
     const resolved = resolver.resolve(mockPluralQueryFragment, ['1', '2']);
@@ -222,7 +245,7 @@ describe('GraphQLStoreQueryResolver', () => {
     const resolver = new GraphQLStoreQueryResolver(
       storeData,
       mockPluralQueryFragment,
-      mockCallback
+      mockCallback,
     );
 
     const resolvedA = resolver.resolve(mockPluralQueryFragment, ['1', '2']);
@@ -241,7 +264,7 @@ describe('GraphQLStoreQueryResolver', () => {
     const resolver = new GraphQLStoreQueryResolver(
       storeData,
       mockPluralQueryFragment,
-      mockCallback
+      mockCallback,
     );
 
     const resolvedA = resolver.resolve(mockPluralQueryFragment, ['1', '2']);
@@ -272,7 +295,7 @@ describe('GraphQLStoreQueryResolver', () => {
     const resolver = new GraphQLStoreQueryResolver(
       storeData,
       mockPluralQueryFragment,
-      mockCallback
+      mockCallback,
     );
 
     const resolvedA = resolver.resolve(mockPluralQueryFragment, ['1', '2']);
@@ -289,9 +312,11 @@ describe('GraphQLStoreQueryResolver', () => {
 
     beforeEach(() => {
       storeData.initializeGarbageCollector(run => {
-        while (run()) {}
+        while (run()) {
+        }
       });
-      const containerFragment = RelayTestUtils.createContainerFragment(Relay.QL`
+      const containerFragment = RelayTestUtils.createContainerFragment(
+        Relay.QL`
         fragment on NewsFeedConnection {
           edges {
             node {
@@ -299,7 +324,8 @@ describe('GraphQLStoreQueryResolver', () => {
             }
           }
         }
-      `);
+      `,
+      );
       const concreteFragment = Relay.QL`
         fragment on Viewer {
           actor {
@@ -310,13 +336,15 @@ describe('GraphQLStoreQueryResolver', () => {
           }
         }
       `;
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        Relay.QL`
         query {
           viewer {
             ${concreteFragment}
           }
         }
-      `);
+      `,
+      );
       const payload = {
         viewer: {
           actor: {
@@ -338,7 +366,7 @@ describe('GraphQLStoreQueryResolver', () => {
       storeData.handleQueryPayload(
         query,
         transformRelayQueryPayload(query, payload),
-        1
+        1,
       );
       dataID = 'client:1';
       fragment = getNode(concreteFragment);
@@ -348,7 +376,7 @@ describe('GraphQLStoreQueryResolver', () => {
       const queryResolver = new GraphQLStoreQueryResolver(
         storeData,
         fragment,
-        jest.fn()
+        jest.fn(),
       );
       // read data and set up subscriptions
       queryResolver.resolve(fragment, dataID);
@@ -357,7 +385,7 @@ describe('GraphQLStoreQueryResolver', () => {
       jest.runAllTimers();
       // nodes referenced by the fragment should not be evicted
       expect(Object.keys(storeData.getNodeData())).toEqual([
-        '123',      // viewer.actor
+        '123', // viewer.actor
         'client:1', // viewer
         'client:2', // viewer.newsFeed
       ]);
@@ -367,12 +395,12 @@ describe('GraphQLStoreQueryResolver', () => {
       const queryResolver = new GraphQLStoreQueryResolver(
         storeData,
         fragment,
-        jest.fn()
+        jest.fn(),
       );
       // read data and increment GC ref counts
       queryResolver.resolve(fragment, dataID);
-      const callback =
-        storeData.getChangeEmitter().addListenerForIDs.mock.calls[0][1];
+      const callback = storeData.getChangeEmitter().addListenerForIDs.mock
+        .calls[0][1];
 
       // Remove the link to viewer.actor and broadcast an update
       storeData.getRecordWriter().putField('client:1', 'actor', null);
@@ -397,7 +425,7 @@ describe('GraphQLStoreQueryResolver', () => {
       const queryResolver = new GraphQLStoreQueryResolver(
         storeData,
         fragment,
-        jest.fn()
+        jest.fn(),
       );
       // read data and increment GC ref counts
       queryResolver.resolve(fragment, dataID);

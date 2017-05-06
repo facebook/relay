@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -50,7 +51,7 @@ describe('RelayNetworkLayer', () => {
     it('complains if no implementation is injected', () => {
       expect(() => networkLayer.supports([])).toFailInvariant(
         'RelayNetworkLayer: Use `RelayEnvironment.injectNetworkLayer` to ' +
-        'configure a network layer.'
+          'configure a network layer.',
       );
     });
 
@@ -81,7 +82,7 @@ describe('RelayNetworkLayer', () => {
       expect(second.mock.calls.length).toBe(1);
       expect([
         'RelayNetworkLayer: Call received to injectDefaultImplementation(), ' +
-        'but a default layer was already injected.',
+          'but a default layer was already injected.',
       ]).toBeWarnedNTimes(1);
     });
 
@@ -95,7 +96,7 @@ describe('RelayNetworkLayer', () => {
       expect(second.mock.calls.length).toBe(1);
       expect([
         'RelayNetworkLayer: Call received to injectImplementation(), but ' +
-        'a layer was already injected.',
+          'a layer was already injected.',
       ]).toBeWarnedNTimes(1);
     });
   });
@@ -107,7 +108,7 @@ describe('RelayNetworkLayer', () => {
         networkLayer.sendQueries([]);
       }).toFailInvariant(
         'RelayNetworkLayer: Use `RelayEnvironment.injectNetworkLayer` to ' +
-        'configure a network layer.'
+          'configure a network layer.',
       );
     });
 
@@ -125,7 +126,7 @@ describe('RelayNetworkLayer', () => {
         networkLayer.sendQueries([]);
       }).toFailInvariant(
         'RelayNetworkLayer: Use `RelayEnvironment.injectNetworkLayer` to ' +
-        'configure a network layer.'
+          'configure a network layer.',
       );
     });
 
@@ -159,7 +160,7 @@ describe('RelayNetworkLayer', () => {
         networkLayer.sendMutation({mutation, variables, deferred});
       }).toFailInvariant(
         'RelayNetworkLayer: Use `RelayEnvironment.injectNetworkLayer` to ' +
-        'configure a network layer.'
+          'configure a network layer.',
       );
     });
 
@@ -211,12 +212,13 @@ describe('RelayNetworkLayer', () => {
     let changeSubscriber;
 
     beforeEach(() => {
-
       mutationCallback = jest.fn();
       queryCallback = jest.fn();
 
-      changeSubscriber =
-        networkLayer.addNetworkSubscriber(queryCallback, mutationCallback);
+      changeSubscriber = networkLayer.addNetworkSubscriber(
+        queryCallback,
+        mutationCallback,
+      );
     });
 
     it('calls subscriber with query', () => {

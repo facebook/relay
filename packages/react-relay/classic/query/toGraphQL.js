@@ -8,6 +8,7 @@
  *
  * @providesModule toGraphQL
  * @flow
+ * @format
  */
 
 'use strict';
@@ -42,18 +43,18 @@ const toGraphQL = {
     if (batchCall) {
       identifyingArgValue = QueryBuilder.createBatchCallVariable(
         batchCall.sourceQueryID,
-        batchCall.sourceQueryPath
+        batchCall.sourceQueryPath,
       );
     } else {
       const identifyingArg = node.getIdentifyingArg();
       if (identifyingArg) {
         if (Array.isArray(identifyingArg.value)) {
           identifyingArgValue = identifyingArg.value.map(
-            QueryBuilder.createCallValue
+            QueryBuilder.createCallValue,
           );
         } else {
           identifyingArgValue = QueryBuilder.createCallValue(
-            identifyingArg.value
+            identifyingArg.value,
           );
         }
       }
@@ -103,9 +104,7 @@ const toGraphQL = {
   },
 };
 
-function toGraphQLSelection(
-  node: RelayQuery.Node
-): ConcreteSelection  {
+function toGraphQLSelection(node: RelayQuery.Node): ConcreteSelection {
   if (node instanceof RelayQuery.Fragment) {
     return toGraphQL.Fragment(node);
   } else {

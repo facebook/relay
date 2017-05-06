@@ -7,13 +7,12 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
-jest
-  .disableAutomock()
-  .mock('ReactDOM', () => ({}));
+jest.disableAutomock().mock('ReactDOM', () => ({}));
 
 const React = require('React');
 const Relay = require('Relay');
@@ -40,9 +39,7 @@ describe('RelayMockRenderer', () => {
     });
     const mockViewer = {actor: {name: 'Zuck'}};
     const instance = ReactTestRenderer.create(
-      <RelayMockRenderer
-        render={() => <Container viewer={mockViewer} />}
-      />
+      <RelayMockRenderer render={() => <Container viewer={mockViewer} />} />,
     );
     expect(instance.toJSON()).toMatchSnapshot();
   });

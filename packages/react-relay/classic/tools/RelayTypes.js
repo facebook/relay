@@ -8,6 +8,7 @@
  *
  * @providesModule RelayTypes
  * @flow
+ * @format
  */
 
 'use strict';
@@ -32,20 +33,18 @@ import type RelayQueryRequest from 'RelayQueryRequest';
 import type {Record} from 'RelayRecord';
 import type URI from 'URI';
 
-type RelayContainerErrorEventType = (
-  'CACHE_RESTORE_FAILED' |
-  'NETWORK_QUERY_ERROR'
-);
-type RelayContainerLoadingEventType = (
-  'ABORT' |
-  'CACHE_RESTORED_REQUIRED' |
-  'CACHE_RESTORE_START' |
-  'NETWORK_QUERY_RECEIVED_ALL' |
-  'NETWORK_QUERY_RECEIVED_REQUIRED' |
-  'NETWORK_QUERY_START' |
-  'STORE_FOUND_ALL' |
-  'STORE_FOUND_REQUIRED'
-);
+type RelayContainerErrorEventType =
+  | 'CACHE_RESTORE_FAILED'
+  | 'NETWORK_QUERY_ERROR';
+type RelayContainerLoadingEventType =
+  | 'ABORT'
+  | 'CACHE_RESTORED_REQUIRED'
+  | 'CACHE_RESTORE_START'
+  | 'NETWORK_QUERY_RECEIVED_ALL'
+  | 'NETWORK_QUERY_RECEIVED_REQUIRED'
+  | 'NETWORK_QUERY_START'
+  | 'STORE_FOUND_ALL'
+  | 'STORE_FOUND_REQUIRED';
 type XHRErrorData = {
   errorCode: ?string,
   errorMsg: ?string,
@@ -61,14 +60,11 @@ export type CacheManager = {
   clear(): void,
   getMutationWriter(): CacheWriter,
   getQueryWriter(): CacheWriter,
-  readNode(
-    id: DataID,
-    callback: (error: any, value: any) => void
-  ): void,
+  readNode(id: DataID, callback: (error: any, value: any) => void): void,
   readRootCall(
     callName: string,
     callValue: string,
-    callback: (error: any, value: any) => void
+    callback: (error: any, value: any) => void,
   ): void,
 };
 export type CacheProcessorCallbacks = {
@@ -80,13 +76,13 @@ export type CacheWriter = {
     dataID: DataID,
     field: string,
     value: ?FieldValue,
-    typeName: ?string
+    typeName: ?string,
   ): void,
   writeNode(dataID: DataID, record: ?Record): void,
   writeRootCall(
     storageKey: string,
     identifyingArgValue: string,
-    dataID: DataID
+    dataID: DataID,
   ): void,
 };
 // Store Change Emitter
@@ -107,8 +103,9 @@ export type ComponentReadyState = {
   ready: boolean,
   stale: boolean,
 };
-export type ComponentReadyStateChangeCallback =
-  (readyState: ComponentReadyState) => void;
+export type ComponentReadyStateChangeCallback = (
+  readyState: ComponentReadyState,
+) => void;
 export type MultiObservable<T> = {
   subscribe(callbacks: SubscriptionCallbacks<Array<T>>): Subscription,
   setDataIDs(dataIDs: Array<DataID>): void,
@@ -143,36 +140,41 @@ export type ReadyStateChangeCallback = (readyState: ReadyState) => void;
 export type ReadyStateEvent = {
   type: RelayContainerLoadingEventType | RelayContainerErrorEventType,
   error?: Error,
-}
+};
 // Containers
 export type RelayContainer = ReactClass<any>;
-export type RelayMutationConfig = {
-  type: 'FIELDS_CHANGE',
-  fieldIDs: {[fieldName: string]: DataID | Array<DataID>},
-} | {
-  type: 'RANGE_ADD',
-  parentName: string,
-  parentID?: string,
-  connectionName: string,
-  edgeName: string,
-  rangeBehaviors: RangeBehaviors,
-} | {
-  type: 'NODE_DELETE',
-  parentName: string,
-  parentID?: string,
-  connectionName: string,
-  deletedIDFieldName: string,
-} | {
-  type: 'RANGE_DELETE',
-  parentName: string,
-  parentID?: string,
-  connectionName: string,
-  deletedIDFieldName: string | Array<string>,
-  pathToConnection: Array<string>,
-} | {
-  type: 'REQUIRED_CHILDREN',
-  children: Array<RelayConcreteNode>,
-};
+export type RelayMutationConfig =
+  | {
+      type: 'FIELDS_CHANGE',
+      fieldIDs: {[fieldName: string]: DataID | Array<DataID>},
+    }
+  | {
+      type: 'RANGE_ADD',
+      parentName: string,
+      parentID?: string,
+      connectionName: string,
+      edgeName: string,
+      rangeBehaviors: RangeBehaviors,
+    }
+  | {
+      type: 'NODE_DELETE',
+      parentName: string,
+      parentID?: string,
+      connectionName: string,
+      deletedIDFieldName: string,
+    }
+  | {
+      type: 'RANGE_DELETE',
+      parentName: string,
+      parentID?: string,
+      connectionName: string,
+      deletedIDFieldName: string | Array<string>,
+      pathToConnection: Array<string>,
+    }
+  | {
+      type: 'REQUIRED_CHILDREN',
+      children: Array<RelayConcreteNode>,
+    };
 export type RelayMutationTransactionCommitCallbacks = {
   onFailure?: ?RelayMutationTransactionCommitFailureCallback,
   onSuccess?: ?RelayMutationTransactionCommitSuccessCallback,
@@ -182,39 +184,35 @@ export type RelayMutationTransactionCommitFailureCallback = (
   transaction: RelayMutationTransaction,
   preventAutoRollback: () => void,
 ) => void;
-export type RelayMutationTransactionCommitSuccessCallback = (
-  response: {[key: string]: Object}
-) => void;
+export type RelayMutationTransactionCommitSuccessCallback = (response: {
+  [key: string]: Object,
+}) => void;
 export type RelayProp = {
   applyUpdate: (
     mutation: RelayMutation<any>,
-    callbacks?: RelayMutationTransactionCommitCallbacks
+    callbacks?: RelayMutationTransactionCommitCallbacks,
   ) => RelayMutationTransaction,
   commitUpdate: (
     mutation: RelayMutation<any>,
-    callbacks?: RelayMutationTransactionCommitCallbacks
+    callbacks?: RelayMutationTransactionCommitCallbacks,
   ) => RelayMutationTransaction,
   environment: RelayEnvironmentInterface,
   forceFetch: (
     partialVariables?: ?Variables,
-    callback?: ?ComponentReadyStateChangeCallback
+    callback?: ?ComponentReadyStateChangeCallback,
   ) => void,
   getPendingTransactions(record: Object): ?Array<RelayMutationTransaction>,
   hasFragmentData: (
     fragmentReference: RelayFragmentReference,
-    record: Object
+    record: Object,
   ) => boolean,
-  hasOptimisticUpdate: (
-    record: Object
-  ) => boolean,
-  hasPartialData: (
-    record: Object
-  ) => boolean,
+  hasOptimisticUpdate: (record: Object) => boolean,
+  hasPartialData: (record: Object) => boolean,
   pendingVariables: ?Variables,
   route: RelayQueryConfigInterface,
   setVariables: (
     partialVariables?: ?Variables,
-    callback?: ?ComponentReadyStateChangeCallback
+    callback?: ?ComponentReadyStateChangeCallback,
   ) => void,
   variables: Variables,
 };
@@ -227,7 +225,7 @@ export type RequestOptions = {
   responseHandler?: ?(
     responseText: string,
     responseHeaders: ?string,
-    isComplete: boolean
+    isComplete: boolean,
   ) => void,
   timeout?: ?number,
   timeoutHandler?: ?() => void,

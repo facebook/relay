@@ -5,6 +5,8 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
@@ -95,7 +97,7 @@ describe('RelayRecordSourceProxy', () => {
     mutator = new RelayRecordSourceMutator(
       baseSource,
       sinkSource,
-      backupSource
+      backupSource,
     );
     store = new RelayRecordSourceProxy(mutator);
   });
@@ -163,7 +165,7 @@ describe('RelayRecordSourceProxy', () => {
 
     it('throws if the root is deleted', () => {
       expect(() => store.delete(ROOT_ID)).toFailInvariant(
-        'RelayRecordSourceProxy#delete(): Cannot delete the root record.'
+        'RelayRecordSourceProxy#delete(): Cannot delete the root record.',
       );
     });
   });
@@ -186,7 +188,8 @@ describe('RelayRecordSourceProxy', () => {
   describe('commitPayload()', () => {
     const {generateWithTransforms} = RelayModernTestUtils;
     it('override current fields ', () => {
-      const {Query} = generateWithTransforms(`
+      const {Query} = generateWithTransforms(
+        `
         query Query {
           node(id: "sf") {
             id
@@ -194,7 +197,8 @@ describe('RelayRecordSourceProxy', () => {
             name
           }
         }
-      `);
+      `,
+      );
       const rawPayload = {
         node: {
           id: 'sf',
@@ -208,18 +212,19 @@ describe('RelayRecordSourceProxy', () => {
           node: Query,
           variables: {},
         },
-        rawPayload
+        rawPayload,
       );
       expect(sinkData.sf).toEqual({
-          [ID_KEY]: 'sf',
-          [TYPENAME_KEY]: 'Page',
-          id: 'sf',
-          name: 'SF',
+        [ID_KEY]: 'sf',
+        [TYPENAME_KEY]: 'Page',
+        id: 'sf',
+        name: 'SF',
       });
     });
 
     it('applies new records ', () => {
-      const {Query} = generateWithTransforms(`
+      const {Query} = generateWithTransforms(
+        `
         query Query {
           node(id: "seattle") {
             id
@@ -227,7 +232,8 @@ describe('RelayRecordSourceProxy', () => {
             name
           }
         }
-      `);
+      `,
+      );
       const rawPayload = {
         node: {
           id: 'seattle',
@@ -241,13 +247,13 @@ describe('RelayRecordSourceProxy', () => {
           node: Query,
           variables: {},
         },
-        rawPayload
+        rawPayload,
       );
       expect(sinkData.seattle).toEqual({
-          [ID_KEY]: 'seattle',
-          [TYPENAME_KEY]: 'Page',
-          id: 'seattle',
-          name: 'Seattle',
+        [ID_KEY]: 'seattle',
+        [TYPENAME_KEY]: 'Page',
+        id: 'seattle',
+        name: 'Seattle',
       });
     });
 
@@ -259,7 +265,8 @@ describe('RelayRecordSourceProxy', () => {
       const handlerProvider = name => handlers[name];
       store = new RelayRecordSourceProxy(mutator, handlerProvider);
 
-      const {Query} = generateWithTransforms(`
+      const {Query} = generateWithTransforms(
+        `
         query Query {
           node(id: "sf") {
             id
@@ -267,7 +274,8 @@ describe('RelayRecordSourceProxy', () => {
             name @__clientField(handle: "handlerName")
           }
         }
-      `);
+      `,
+      );
       const rawPayload = {
         node: {
           id: 'sf',
@@ -281,7 +289,7 @@ describe('RelayRecordSourceProxy', () => {
           node: Query,
           variables: {},
         },
-        rawPayload
+        rawPayload,
       );
 
       const fieldPayload = {
@@ -322,7 +330,7 @@ describe('RelayRecordSourceProxy', () => {
         store.create('4', 'User');
       }).toFailInvariant(
         'RelayRecordSourceMutator#create(): Cannot create a record with id ' +
-        '`4`, this record already exists.'
+          '`4`, this record already exists.',
       );
     });
   });
@@ -330,21 +338,22 @@ describe('RelayRecordSourceProxy', () => {
   describe('getOrCreateLinkedRecord', () => {
     it('retrieves a record if it already exists', () => {
       const zuck = store.get('4');
-      expect(
-        zuck.getOrCreateLinkedRecord('hometown').getValue('name')
-      ).toBe('Menlo Park');
+      expect(zuck.getOrCreateLinkedRecord('hometown').getValue('name')).toBe(
+        'Menlo Park',
+      );
     });
 
     it('creates a record if it does not already exist', () => {
       const greg = store.get('660361306');
       expect(greg.getLinkedRecord('hometown')).toBe(undefined);
 
-      greg.getOrCreateLinkedRecord('hometown', 'Page')
+      greg
+        .getOrCreateLinkedRecord('hometown', 'Page')
         .setValue('Adelaide', 'name');
 
-      expect(
-        greg.getLinkedRecord('hometown').getValue('name')
-      ).toBe('Adelaide');
+      expect(greg.getLinkedRecord('hometown').getValue('name')).toBe(
+        'Adelaide',
+      );
     });
   });
 

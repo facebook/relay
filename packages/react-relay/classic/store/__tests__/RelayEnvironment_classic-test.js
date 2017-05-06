@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -95,14 +96,14 @@ describe('RelayEnvironment', () => {
       environment.readAll(queries, dataIDs);
       expect(readRelayQueryData.mock.calls.length).toBe(dataIDs.length);
       expect(readRelayQueryData.mock.calls.map(call => call[2])).toEqual(
-        dataIDs
+        dataIDs,
       );
     });
 
     it('invokes `readRelayQueryData` with a filter', () => {
       environment.readAll(queries, dataIDs, filter);
       expect(readRelayQueryData.mock.calls.length).toBe(dataIDs.length);
-      readRelayQueryData.mock.calls.forEach((call) => {
+      readRelayQueryData.mock.calls.forEach(call => {
         expect(call[3]).toBe(filter);
       });
     });
@@ -117,26 +118,34 @@ describe('RelayEnvironment', () => {
     });
 
     it('accepts a query with arguments', () => {
-      environment.readQuery(getNode(Relay.QL`
+      environment.readQuery(
+        getNode(
+          Relay.QL`
         query {
           nodes(ids:["123","456"]) {
             id
           }
         }
-      `));
+      `,
+        ),
+      );
       expect(readRelayQueryData.mock.calls.length).toBe(2);
       expect(readRelayQueryData.mock.calls[0][2]).toBe('123');
       expect(readRelayQueryData.mock.calls[1][2]).toBe('456');
     });
 
     it('accepts a query with unrecognized arguments', () => {
-      const result = environment.readQuery(getNode(Relay.QL`
+      const result = environment.readQuery(
+        getNode(
+          Relay.QL`
         query {
           username(name:"foo") {
             id
           }
         }
-      `));
+      `,
+        ),
+      );
       expect(readRelayQueryData.mock.calls.length).toBe(0);
       expect(result).toEqual([undefined]);
     });
@@ -144,11 +153,13 @@ describe('RelayEnvironment', () => {
 
   describe('observe', () => {
     it('instantiates RelayQueryResultObservable', () => {
-      const fragment = getNode(Relay.QL`
+      const fragment = getNode(
+        Relay.QL`
         fragment on Node {
           id
         }
-      `);
+      `,
+      );
       GraphQLStoreQueryResolver.mockDefaultResolveImplementation(
         (pointerFragment, dataID) => {
           expect(pointerFragment).toBe(fragment);
@@ -157,7 +168,7 @@ describe('RelayEnvironment', () => {
             __dataID__: '123',
             id: '123',
           };
-        }
+        },
       );
 
       const observer = environment.observe(fragment, '123');
@@ -182,7 +193,9 @@ describe('RelayEnvironment', () => {
     beforeEach(() => {
       status = CREATED;
       mockQueue = {
-        applyOptimistic: () => { status = UNCOMMITTED; },
+        applyOptimistic: () => {
+          status = UNCOMMITTED;
+        },
         getStatus: jest.fn(() => status),
       };
       mockTransaction = new RelayMutationTransaction(mockQueue);
@@ -212,12 +225,14 @@ describe('RelayEnvironment', () => {
       });
 
       it('creates a new RelayMutationTransaction without committing it', () => {
-        const transaction =
-          environment.applyUpdate(mockMutation, mockCallbacks);
+        const transaction = environment.applyUpdate(
+          mockMutation,
+          mockCallbacks,
+        );
         expect(transaction).toEqual(mockTransaction);
         expect(createTransactionMock).toBeCalledWith(
           mockMutation,
-          mockCallbacks
+          mockCallbacks,
         );
         expect(mockTransaction.commit).not.toBeCalled();
       });
@@ -244,7 +259,7 @@ describe('RelayEnvironment', () => {
         environment.commitUpdate(mockMutation, mockCallbacks);
         expect(createTransactionMock).toBeCalledWith(
           mockMutation,
-          mockCallbacks
+          mockCallbacks,
         );
         expect(mockTransaction.commit).not.toBeCalled();
         jest.runAllTimers();
@@ -255,7 +270,7 @@ describe('RelayEnvironment', () => {
         environment.commitUpdate(mockMutation, mockCallbacks);
         expect(createTransactionMock).toBeCalledWith(
           mockMutation,
-          mockCallbacks
+          mockCallbacks,
         );
         expect(mockTransaction.commit).not.toBeCalled();
         status = ROLLED_BACK;
@@ -268,9 +283,9 @@ describe('RelayEnvironment', () => {
       it('passes down the cacheManager to the store data', () => {
         const mockCacheManager = {};
         environment.injectCacheManager(mockCacheManager);
-        expect(
-          environment.getStoreData().getCacheManager()
-        ).toBe(mockCacheManager);
+        expect(environment.getStoreData().getCacheManager()).toBe(
+          mockCacheManager,
+        );
       });
     });
   });

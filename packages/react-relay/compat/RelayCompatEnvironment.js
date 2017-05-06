@@ -8,6 +8,7 @@
  *
  * @providesModule RelayCompatEnvironment
  * @flow
+ * @format
  */
 
 'use strict';
@@ -20,13 +21,17 @@ import type {CompatEnvironment} from 'RelayCompatTypes';
 import type {RelayEnvironmentInterface} from 'RelayEnvironment';
 import type {Environment} from 'RelayStoreTypes';
 
-function getRelayModernEnvironment(environment: CompatEnvironment): ?Environment {
+function getRelayModernEnvironment(
+  environment: CompatEnvironment,
+): ?Environment {
   if (isRelayModernEnvironment(environment)) {
     return (environment: any);
   }
 }
 
-function getRelayClassicEnvironment(environment: CompatEnvironment): ?RelayEnvironmentInterface {
+function getRelayClassicEnvironment(
+  environment: CompatEnvironment,
+): ?RelayEnvironmentInterface {
   if (isClassicRelayEnvironment(environment)) {
     return (environment: any);
   }

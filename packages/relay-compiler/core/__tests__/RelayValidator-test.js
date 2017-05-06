@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails
+ * @format
  */
 
 'use strict';
@@ -31,13 +32,9 @@ test('non-scalar leaf', () => {
 });
 
 test('id alias validation', () => {
-  expect(
-    validateString('fragment Test on User { id }'),
-  ).not.toThrow();
+  expect(validateString('fragment Test on User { id }')).not.toThrow();
 
-  expect(
-    validateString('fragment Test on User { id: id }'),
-  ).not.toThrow();
+  expect(validateString('fragment Test on User { id: id }')).not.toThrow();
 
   expect(
     validateString('fragment Test on User { id: name }'),

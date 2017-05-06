@@ -8,6 +8,7 @@
  *
  * @providesModule RelayCompatPaginationContainer
  * @flow
+ * @format
  */
 
 'use strict';

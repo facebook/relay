@@ -8,6 +8,7 @@
  *
  * @providesModule commitRelayModernMutation
  * @flow
+ * @format
  */
 
 'use strict';
@@ -40,17 +41,14 @@ export type MutationConfig = {|
  */
 function commitRelayModernMutation(
   environment: Environment,
-  config: MutationConfig
+  config: MutationConfig,
 ): Disposable {
   invariant(
     isRelayModernEnvironment(environment),
     'commitRelayModernMutation: expect `environment` to be an instance of ' +
-    '`RelayModernEnvironment`.'
+      '`RelayModernEnvironment`.',
   );
-  const {
-    createOperationSelector,
-    getOperation,
-  } = environment.unstable_internal;
+  const {createOperationSelector, getOperation} = environment.unstable_internal;
   const mutation = getOperation(config.mutation);
   const {
     onError,

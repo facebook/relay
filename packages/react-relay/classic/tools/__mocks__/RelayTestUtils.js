@@ -5,6 +5,8 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
@@ -66,7 +68,7 @@ const RelayTestUtils = {
       render(render, environment, route) {
         invariant(
           environment == null || environment instanceof RelayEnvironment,
-          'render(): Expected an instance of `RelayEnvironment`.'
+          'render(): Expected an instance of `RelayEnvironment`.',
         );
         environment = environment || prevEnvironment || new RelayEnvironment();
         if (!relay || !prevEnvironment || prevEnvironment !== environment) {
@@ -94,20 +96,23 @@ const RelayTestUtils = {
                   const fragmentReference = element.type.getFragment(propName);
                   if (fragmentReference == null) {
                     throw new Error(
-                      'Query not found, `' + element.type.displayName + '.' +
-                      propName + '`.'
+                      'Query not found, `' +
+                        element.type.displayName +
+                        '.' +
+                        propName +
+                        '`.',
                     );
                   }
                   pointers[propName] = RelayTestUtils.getPointer(
                     propValue.dataID,
-                    RelayTestUtils.getNode(fragmentReference.getFragment({}))
+                    RelayTestUtils.getNode(fragmentReference.getFragment({})),
                   );
                 }
               }
               return React.cloneElement(element, {...pointers, ref});
             }}
           />,
-          container
+          container,
         );
         return result;
       },
@@ -121,12 +126,9 @@ const RelayTestUtils = {
 
     invariant(
       !!QueryBuilder.getFragment(fragment),
-      'conditionOnType(): Argument must be a GraphQL.QueryFragment.'
+      'conditionOnType(): Argument must be a GraphQL.QueryFragment.',
     );
-    const reference = new RelayFragmentReference(
-      () => fragment,
-      {}
-    );
+    const reference = new RelayFragmentReference(() => fragment, {});
     reference.conditionOnType();
     return reference;
   },
@@ -144,10 +146,7 @@ const RelayTestUtils = {
 
   createContainerFragment(fragment) {
     const RelayFragmentReference = require('RelayFragmentReference');
-    return RelayFragmentReference.createForContainer(
-      () => fragment,
-      {}
-    );
+    return RelayFragmentReference.createForContainer(() => fragment, {});
   },
 
   defer(fragment) {
@@ -157,12 +156,9 @@ const RelayTestUtils = {
 
     invariant(
       !!QueryBuilder.getFragment(fragment),
-      'defer(): Argument must be a GraphQL.QueryFragment.'
+      'defer(): Argument must be a GraphQL.QueryFragment.',
     );
-    const reference = new RelayFragmentReference(
-      () => fragment,
-      {}
-    );
+    const reference = new RelayFragmentReference(() => fragment, {});
     reference.defer();
     return reference;
   },
@@ -186,7 +182,7 @@ const RelayTestUtils = {
     return RelayQuery.Node.create(
       node,
       queryConfig || RelayMetaRoute.get('$RelayTestUtils'),
-      variables || {}
+      variables || {},
     );
   },
 
@@ -205,7 +201,7 @@ const RelayTestUtils = {
 
     invariant(
       false,
-      'RelayTestUtils.getJSONTokenError(): JSON.parse should have thrown.'
+      'RelayTestUtils.getJSONTokenError(): JSON.parse should have thrown.',
     );
   },
 
@@ -217,7 +213,7 @@ const RelayTestUtils = {
     invariant(
       fragment instanceof RelayQuery.Fragment,
       'getPointer(): expected a `RelayQueryFragment`, got `%s`.',
-      fragment.constructor.name
+      fragment.constructor.name,
     );
 
     return RelayFragmentPointer.create(dataID, fragment);
@@ -237,21 +233,21 @@ const RelayTestUtils = {
 
     invariant(
       node.fieldName === 'nodes',
-     'getRefNode(): Ref queries require `nodes()` roots.'
+      'getRefNode(): Ref queries require `nodes()` roots.',
     );
-    const callValue = Array.isArray(node.calls[0].value) ?
-      node.calls[0].value[0] :
-      node.calls[0].value;
+    const callValue = Array.isArray(node.calls[0].value)
+      ? node.calls[0].value[0]
+      : node.calls[0].value;
     invariant(
       !!QueryBuilder.getCallVariable(callValue),
       'getRefNode(): Expected a batch call variable, got `%s`.',
-      JSON.stringify(callValue)
+      JSON.stringify(callValue),
     );
     const name = callValue.callVariableName;
     const match = name.match(/^ref_(q\d+)$/);
     invariant(
       match,
-      'getRefNode(): Expected call variable of the form `<ref_q\\d+>`.'
+      'getRefNode(): Expected call variable of the form `<ref_q\\d+>`.',
     );
     // e.g. `q0`
     const id = match[1];
@@ -261,20 +257,22 @@ const RelayTestUtils = {
     return RelayQuery.Root.create(
       {
         ...node,
-        calls: [QueryBuilder.createCall(
-          'id',
-          QueryBuilder.createBatchCallVariable(id, refParam.path)
-        )],
+        calls: [
+          QueryBuilder.createCall(
+            'id',
+            QueryBuilder.createBatchCallVariable(id, refParam.path),
+          ),
+        ],
         isDeferred: true,
       },
       RelayMetaRoute.get('$RelayTestUtils'),
-      variables
+      variables,
     );
   },
 
   getVerbatimNode(node, variables) {
     return RelayTestUtils.filterGeneratedFields(
-      RelayTestUtils.getNode(node, variables)
+      RelayTestUtils.getNode(node, variables),
     );
   },
 
@@ -284,12 +282,11 @@ const RelayTestUtils = {
 
     return filterRelayQuery(
       query,
-      node => !(node instanceof RelayQuery.Field && node.isGenerated())
+      node => !(node instanceof RelayQuery.Field && node.isGenerated()),
     );
   },
 
   matchers: {
-
     /**
      * Checks if a RelayQuery.Root is `===` to another.
      */
@@ -335,27 +332,26 @@ const RelayTestUtils = {
           if (!warning.mock) {
             throw new Error(
               'expect(...).toBeWarnedNTimes(): Requires ' +
-              '`jest.mock(\'warning\');`.'
+                "`jest.mock('warning');`.",
             );
           }
           const expectedArgs = actual;
           if (!Array.isArray(expectedArgs)) {
             throw new Error(
               'expect(...).toBeWarnedNTimes(): Requires an array of ' +
-              'warning args.'
+                'warning args.',
             );
           }
           const [format, ...values] = expectedArgs;
           if (!format) {
             throw new Error(
-              'expect(...).toBeWarnedNTimes(): Requires a format string.'
+              'expect(...).toBeWarnedNTimes(): Requires a format string.',
             );
           }
 
           const callsWithExpectedFormatButArgs = [];
           const callsWithExpectedArgs = warning.mock.calls.filter(args => {
-            if (args[0] ||
-                args[1] !== format) {
+            if (args[0] || args[1] !== format) {
               return false;
             }
             if (values.some((value, ii) => value !== args[ii + 2])) {
@@ -366,14 +362,23 @@ const RelayTestUtils = {
           });
 
           let message =
-            'Expected to warn ' + expectedCount + ' time' +
-            (expectedCount === 1 ? '' : 's') + ' with arguments: ' +
-            JSON.stringify(expectedArgs) + '.';
+            'Expected to warn ' +
+            expectedCount +
+            ' time' +
+            (expectedCount === 1 ? '' : 's') +
+            ' with arguments: ' +
+            JSON.stringify(expectedArgs) +
+            '.';
           const unexpectedCount = callsWithExpectedFormatButArgs.length;
           if (unexpectedCount) {
-            message += ' Instead, called ' + unexpectedCount +
-            ' time' + (unexpectedCount === 1 ? '' : 's') + ' with arguments: ' +
-            JSON.stringify(callsWithExpectedFormatButArgs) + '.';
+            message +=
+              ' Instead, called ' +
+              unexpectedCount +
+              ' time' +
+              (unexpectedCount === 1 ? '' : 's') +
+              ' with arguments: ' +
+              JSON.stringify(callsWithExpectedFormatButArgs) +
+              '.';
           }
 
           return {
@@ -396,7 +401,7 @@ const RelayTestUtils = {
               message: printQueryComparison(
                 actual,
                 expected,
-                'to contain query node'
+                'to contain query node',
               ),
             };
           }
@@ -427,11 +432,9 @@ const RelayTestUtils = {
           if (minifiedActual !== minifiedExpected) {
             return {
               pass: false,
-              message: [
-                minifiedActual,
-                'to equal',
-                minifiedExpected,
-              ].join('\n'),
+              message: [minifiedActual, 'to equal', minifiedExpected].join(
+                '\n',
+              ),
             };
           }
           return {
@@ -487,9 +490,9 @@ const RelayTestUtils = {
     toWarn() {
       function compare(negative) {
         function formatItem(item) {
-          return item instanceof RegExp ?
-            item.toString() :
-            JSON.stringify(item);
+          return item instanceof RegExp
+            ? item.toString()
+            : JSON.stringify(item);
         }
 
         function formatArray(array) {
@@ -502,9 +505,11 @@ const RelayTestUtils = {
 
         function formatActual(calls) {
           if (calls.length) {
-            return calls.map(args => {
-              return formatArray([!!args[0]].concat(args.slice(1)));
-            }).join(', ');
+            return calls
+              .map(args => {
+                return formatArray([!!args[0]].concat(args.slice(1)));
+              })
+              .join(', ');
           } else {
             return '[]';
           }
@@ -513,9 +518,7 @@ const RelayTestUtils = {
         return function(actual, expected) {
           const warning = require('warning');
           if (!warning.mock) {
-            throw new Error(
-              'toWarn(): Requires `jest.mock(\'warning\')`.'
-            );
+            throw new Error("toWarn(): Requires `jest.mock('warning')`.");
           }
 
           const callsCount = warning.mock.calls.length;
@@ -527,11 +530,9 @@ const RelayTestUtils = {
             const warned = calls.filter(args => !args[0]).length;
             return {
               pass: !(negative ? warned : !warned),
-              message: (
-                `Expected ${negative ? 'not ' : ''}to warn but ` +
+              message: `Expected ${negative ? 'not ' : ''}to warn but ` +
                 '`warning` received the following calls: ' +
-                `${formatActual(calls)}.`
-              ),
+                `${formatActual(calls)}.`,
             };
           }
 
@@ -547,23 +548,19 @@ const RelayTestUtils = {
                   return !arg;
                 }
                 const other = expected[index - 1];
-                return (
-                  other instanceof RegExp ?
-                  other.test(arg) :
-                  arg === other
-                );
+                return other instanceof RegExp
+                  ? other.test(arg)
+                  : arg === other;
               })
             );
           });
 
           return {
             pass: !(negative ? call : !call),
-            message: (
-              `Expected ${negative ? 'not ' : ''}to warn: ` +
+            message: `Expected ${negative ? 'not ' : ''}to warn: ` +
               `${formatExpected(expected)} but ` +
               '`warning` received the following calls: ' +
-              `${formatActual(calls)}.`
-            ),
+              `${formatActual(calls)}.`,
           };
         };
       }
@@ -592,23 +589,25 @@ const RelayTestUtils = {
 
           const fragment = RelayQuery.Fragment.create(
             QueryBuilder.createFragment({
-              children: [QueryBuilder.createField({
-                fieldName: '__test__',
-              })],
+              children: [
+                QueryBuilder.createField({
+                  fieldName: '__test__',
+                }),
+              ],
               name: 'Test',
               type: 'Node',
             }),
             RelayMetaRoute.get('$RelayTestUtils'),
-            {}
+            {},
           );
           const mockStore = {
             getDataID(fieldName: string, identifyingArgValue: string): string {
               invariant(
                 fieldName === RelayNodeInterface.NODE,
                 'RelayTestUtils: Cannot `getDataID` for non-node root call ' +
-                '`%s` with identifying argument `%s`.',
+                  '`%s` with identifying argument `%s`.',
                 fieldName,
-                identifyingArgValue
+                identifyingArgValue,
               );
               return identifyingArgValue;
             },
@@ -617,10 +616,16 @@ const RelayTestUtils = {
             },
           };
 
-          const actualQuery =
-            RelayQueryPath.getQuery(mockStore, actual, fragment);
-          const expectedQuery =
-            RelayQueryPath.getQuery(mockStore, expected, fragment);
+          const actualQuery = RelayQueryPath.getQuery(
+            mockStore,
+            actual,
+            fragment,
+          );
+          const expectedQuery = RelayQueryPath.getQuery(
+            mockStore,
+            expected,
+            fragment,
+          );
 
           if (!actualQuery.equals(expectedQuery)) {
             return {
@@ -630,7 +635,9 @@ const RelayTestUtils = {
                 '  ' + printRelayQuery(actualQuery).text,
                 '\ntoMatchPath:',
                 '  ' + printRelayQuery(expectedQuery).text,
-              ].filter(token => token).join('\n'),
+              ]
+                .filter(token => token)
+                .join('\n'),
             };
           }
           return {
@@ -666,11 +673,9 @@ const RelayTestUtils = {
 
     if (node instanceof RelayQuery.Field) {
       // Normally can't print fields directly, so wrap it in a fake fragment.
-      node = RelayQuery.Fragment.build(
-        '__PrintableFieldWrapper',
-        '__Phony',
-        [node]
-      );
+      node = RelayQuery.Fragment.build('__PrintableFieldWrapper', '__Phony', [
+        node,
+      ]);
     }
 
     const indentSize = 2;
@@ -679,9 +684,11 @@ const RelayTestUtils = {
     /* eslint-disable no-console-disallow */
     console.log(
       'Node:\n' +
-      indent(prettifyQueryString(printedQuery.text, indentSize)) + '\n\n' +
-      'Variables:\n' +
-      indent(prettyStringify(printedQuery.variables, indentSize)) + '\n'
+        indent(prettifyQueryString(printedQuery.text, indentSize)) +
+        '\n\n' +
+        'Variables:\n' +
+        indent(prettyStringify(printedQuery.variables, indentSize)) +
+        '\n',
     );
     /* eslint-enable no-console-disallow */
   },
@@ -692,14 +699,7 @@ const RelayTestUtils = {
    * writing; property keys are rewritten from application names into
    * serialization keys matching the fields in the query.
    */
-  writePayload(
-    store,
-    writer,
-    query,
-    payload,
-    queryTracker,
-    options
-  ) {
+  writePayload(store, writer, query, payload, queryTracker, options) {
     const transformRelayQueryPayload = require('transformRelayQueryPayload');
 
     return RelayTestUtils.writeVerbatimPayload(
@@ -708,7 +708,7 @@ const RelayTestUtils = {
       query,
       transformRelayQueryPayload(query, payload),
       queryTracker,
-      options
+      options,
     );
   },
 
@@ -716,22 +716,15 @@ const RelayTestUtils = {
    * Helper to write the result payload into a store. Unlike `writePayload`,
    * the payload is not transformed first.
    */
-  writeVerbatimPayload(
-    store,
-    writer,
-    query,
-    payload,
-    queryTracker,
-    options,
-  ) {
+  writeVerbatimPayload(store, writer, query, payload, queryTracker, options) {
     const RelayChangeTracker = require('RelayChangeTracker');
     const RelayQueryTracker = require('RelayQueryTracker');
     const RelayQueryWriter = require('RelayQueryWriter');
     const writeRelayQueryPayload = require('writeRelayQueryPayload');
 
-    queryTracker = queryTracker === null ?
-      null :
-      queryTracker || new RelayQueryTracker();
+    queryTracker = queryTracker === null
+      ? null
+      : queryTracker || new RelayQueryTracker();
     options = options || {};
     const changeTracker = new RelayChangeTracker();
     const queryWriter = new RelayQueryWriter(
@@ -739,13 +732,9 @@ const RelayTestUtils = {
       writer,
       queryTracker,
       changeTracker,
-      options
+      options,
     );
-    writeRelayQueryPayload(
-      queryWriter,
-      query,
-      payload,
-    );
+    writeRelayQueryPayload(queryWriter, query, payload);
     return changeTracker.getChangeSet();
   },
 };
@@ -780,13 +769,13 @@ function checkQueryEquality(actual, expected, toBe) {
   const flatActual = sortRelayQuery(actual);
   const flatExpected = sortRelayQuery(expected);
 
-  if (toBe ? (actual !== expected) : (!flatActual.equals(flatExpected))) {
+  if (toBe ? actual !== expected : !flatActual.equals(flatExpected)) {
     return {
       pass: false,
       message: printQueryComparison(
         actual,
         expected,
-        toBe ? 'to be query' : 'to equal query'
+        toBe ? 'to be query' : 'to equal query',
       ),
     };
   }
@@ -802,9 +791,10 @@ function checkQueryEquality(actual, expected, toBe) {
 function printQueryComparison(actual, expected, message) {
   const printRelayQuery = require('printRelayQuery');
 
-  const formatRefParam = node => node.hasRefParam && node.hasRefParam() ?
-      '  [ref param: ' + JSON.stringify(node.getRefParam()) + ']' :
-      null;
+  const formatRefParam = node =>
+    (node.hasRefParam && node.hasRefParam()
+      ? '  [ref param: ' + JSON.stringify(node.getRefParam()) + ']'
+      : null);
 
   return [
     'Expected:',
@@ -813,7 +803,9 @@ function printQueryComparison(actual, expected, message) {
     message + ':',
     '  ' + printRelayQuery(expected).text,
     formatRefParam(expected),
-  ].filter(line => !!line).join('\n');
+  ]
+    .filter(line => !!line)
+    .join('\n');
 }
 
 /**
@@ -849,8 +841,9 @@ function prettifyQueryString(queryText, indentSize) {
   while ((match = regexp.exec(queryText))) {
     if (match[0] === '{') {
       indent += '  ';
-      const padding =
-        match.index && queryText[match.index - 1] !== ' ' ? ' ' : '';
+      const padding = match.index && queryText[match.index - 1] !== ' '
+        ? ' '
+        : '';
       output += padding + '{\n' + indent;
     } else if (match[0] === '}') {
       indent = indent.substr(0, indent.length - 2);
@@ -879,7 +872,7 @@ function prettyStringify(stringifiable, indentSize) {
  * Indents (potentially multiline) `string` by `indentSize` spaces.
  */
 function indentBy(indentSize, string) {
-  const indent = (new Array(indentSize + 1)).join(' ');
+  const indent = new Array(indentSize + 1).join(' ');
   return indent + string.replace(/\n/g, '\n' + indent);
 }
 
@@ -890,9 +883,9 @@ function sortRelayQuery(node) {
   const RelayQuery = require('RelayQuery');
 
   function getSortableKey(maybeFragment) {
-    return maybeFragment instanceof RelayQuery.Fragment ?
-      createFragmentSortKey(maybeFragment) :
-      maybeFragment.getShallowHash();
+    return maybeFragment instanceof RelayQuery.Fragment
+      ? createFragmentSortKey(maybeFragment)
+      : maybeFragment.getShallowHash();
   }
   function compare(a, b) {
     if (a === b) {
@@ -904,11 +897,16 @@ function sortRelayQuery(node) {
     }
   }
 
-  return node.clone(node.getChildren().sort((a, b) => {
-    const aKey = getSortableKey(a);
-    const bKey = getSortableKey(b);
-    return compare(aKey, bKey);
-  }).map(sortRelayQuery));
+  return node.clone(
+    node
+      .getChildren()
+      .sort((a, b) => {
+        const aKey = getSortableKey(a);
+        const bKey = getSortableKey(b);
+        return compare(aKey, bKey);
+      })
+      .map(sortRelayQuery),
+  );
 }
 
 module.exports = RelayTestUtils;

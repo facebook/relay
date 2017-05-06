@@ -8,6 +8,7 @@
  *
  * @providesModule RelayParser
  * @flow
+ * @format
  */
 
 'use strict';
@@ -106,7 +107,7 @@ const IF = 'if';
 function parseRelay(
   schema: GraphQLSchema,
   text: string,
-  filename?: string
+  filename?: string,
 ): Array<Root | Fragment> {
   const ast = parse(new Source(text, filename));
   const nodes = [];
@@ -125,7 +126,7 @@ function parseRelay(
  */
 function transform(
   schema: GraphQLSchema,
-  definition: OperationDefinitionNode | FragmentDefinitionNode
+  definition: OperationDefinitionNode | FragmentDefinitionNode,
 ): Root | Fragment {
   const parser = new RelayParser(schema, definition);
   return parser.transform();
@@ -138,7 +139,7 @@ class RelayParser {
 
   constructor(
     schema: GraphQLSchema,
-    definition: OperationDefinitionNode | FragmentDefinitionNode
+    definition: OperationDefinitionNode | FragmentDefinitionNode,
   ) {
     this._definition = definition;
     this._referencedVariables = {};
@@ -158,13 +159,13 @@ class RelayParser {
     if (type && prevType) {
       invariant(
         this._referencedVariables[name] == null ||
-        isTypeSubTypeOf(this._schema, this._referencedVariables[name], type),
+          isTypeSubTypeOf(this._schema, this._referencedVariables[name], type),
         'RelayParser: Variable `$%s` was used in locations expecting ' +
-        'the conflicting types `%s` and `%s`. Source: %s.',
+          'the conflicting types `%s` and `%s`. Source: %s.',
         getName(this._definition),
         prevType,
         type,
-        this._getErrorContext()
+        this._getErrorContext(),
       );
     }
     this._referencedVariables[name] = prevType || type;
@@ -181,37 +182,35 @@ class RelayParser {
           false,
           'RelayParser: Unknown AST kind `%s`. Source: %s.',
           this._definition.kind,
-          this._getErrorContext()
+          this._getErrorContext(),
         );
     }
   }
 
-  _transformFragment(
-    fragment: FragmentDefinitionNode
-  ): Fragment {
+  _transformFragment(fragment: FragmentDefinitionNode): Fragment {
     const argumentDefinitions = this._buildArgumentDefinitions(fragment);
     const directives = this._transformDirectives(
-      (fragment.directives || []).filter(
-        directive => getName(directive) !== ARGUMENT_DEFINITIONS
-      )
+      (fragment.directives || [])
+        .filter(directive => getName(directive) !== ARGUMENT_DEFINITIONS),
     );
-    const type = assertCompositeType(getTypeFromAST(this._schema, fragment.typeCondition));
-    const selections = this._transformSelections(
-      fragment.selectionSet,
-      type
+    const type = assertCompositeType(
+      getTypeFromAST(this._schema, fragment.typeCondition),
     );
+    const selections = this._transformSelections(fragment.selectionSet, type);
     forEachObject(this._referencedVariables, (variableType, name) => {
-      const localArgument = argumentDefinitions.find(argDef => argDef.name === name);
+      const localArgument = argumentDefinitions.find(
+        argDef => argDef.name === name,
+      );
       if (localArgument) {
         invariant(
           variableType == null ||
-          isTypeSubTypeOf(this._schema, localArgument.type, variableType),
+            isTypeSubTypeOf(this._schema, localArgument.type, variableType),
           'RelayParser: Variable `$%s` was defined as type `%s`, but used in a ' +
-          'location that expects type `%s`. Source: %s.',
+            'location that expects type `%s`. Source: %s.',
           name,
           localArgument.type,
           variableType,
-          this._getErrorContext()
+          this._getErrorContext(),
         );
       } else {
         argumentDefinitions.push({
@@ -239,21 +238,20 @@ class RelayParser {
    * to the `argumentDefinitions` property on queries/mutations/etc.
    */
   _buildArgumentDefinitions(
-    fragment: FragmentDefinitionNode
+    fragment: FragmentDefinitionNode,
   ): Array<ArgumentDefinition> {
-    const variableDirectives = (fragment.directives || []).filter(
-      directive => getName(directive) === ARGUMENT_DEFINITIONS
-    );
+    const variableDirectives = (fragment.directives || [])
+      .filter(directive => getName(directive) === ARGUMENT_DEFINITIONS);
     if (!variableDirectives.length) {
       return [];
     }
     invariant(
       variableDirectives.length === 1,
       'RelayParser: Directive %s may be defined at most once on fragment ' +
-      '`%s`. Source: %s.',
+        '`%s`. Source: %s.',
       ARGUMENT_DEFINITIONS,
       getName(fragment),
-      this._getErrorContext()
+      this._getErrorContext(),
     );
     const variableDirective = variableDirectives[0];
     // $FlowIssue: refining directly on `variableDirective.arguments` doesn't
@@ -265,10 +263,10 @@ class RelayParser {
     invariant(
       args.length,
       'RelayParser: Directive %s requires arguments: remove the directive to ' +
-      'skip defining local variables for this fragment `%s`. Source: %s.',
+        'skip defining local variables for this fragment `%s`. Source: %s.',
       ARGUMENT_DEFINITIONS,
       getName(fragment),
-      this._getErrorContext()
+      this._getErrorContext(),
     );
     return args.map(arg => {
       const argName = getName(arg);
@@ -276,31 +274,29 @@ class RelayParser {
       invariant(
         argValue.kind === 'Literal',
         'RelayParser: Expected definition for variable `%s` to be an object ' +
-        'with the following shape: `{type: string, defaultValue?: mixed}`, got ' +
-        '`%s`. Source: %s.',
+          'with the following shape: `{type: string, defaultValue?: mixed}`, got ' +
+          '`%s`. Source: %s.',
         argValue,
-        this._getErrorContext()
+        this._getErrorContext(),
       );
       const value = argValue.value;
       invariant(
         !Array.isArray(value) &&
-        typeof value === 'object' &&
-        value !== null &&
-        typeof value.type === 'string',
+          typeof value === 'object' &&
+          value !== null &&
+          typeof value.type === 'string',
         'RelayParser: Expected definition for variable `%s` to be an object ' +
-        'with the following shape: `{type: string, defaultValue?: mixed}`, got ' +
-        '`%s`. Source: %s.',
+          'with the following shape: `{type: string, defaultValue?: mixed}`, got ' +
+          '`%s`. Source: %s.',
         argName,
         argValue,
-        this._getErrorContext()
+        this._getErrorContext(),
       );
       const typeAST = parseType(value.type);
       const type = assertInputType(getTypeFromAST(this._schema, typeAST));
       return {
         kind: 'LocalArgumentDefinition',
-        defaultValue: value.defaultValue != null ?
-          value.defaultValue :
-          null,
+        defaultValue: value.defaultValue != null ? value.defaultValue : null,
         metadata: null,
         name: argName,
         type,
@@ -308,16 +304,12 @@ class RelayParser {
     });
   }
 
-  _transformOperation(
-    definition: OperationDefinitionNode
-  ): Root {
+  _transformOperation(definition: OperationDefinitionNode): Root {
     const name = getName(definition);
     const argumentDefinitions = this._transformArgumentDefinitions(
-      definition.variableDefinitions || []
+      definition.variableDefinitions || [],
     );
-    const directives = this._transformDirectives(
-      definition.directives || []
-    );
+    const directives = this._transformDirectives(definition.directives || []);
     let type;
     let operation;
     switch (definition.operation) {
@@ -338,7 +330,7 @@ class RelayParser {
           false,
           'RelayParser: Unknown AST kind `%s`. Source: %s.',
           definition.operation,
-          this._getErrorContext()
+          this._getErrorContext(),
         );
     }
     invariant(
@@ -346,12 +338,9 @@ class RelayParser {
       'RelayParser: Expected %s `%s` to have selections. Source: %s.',
       operation,
       name,
-      this._getErrorContext()
+      this._getErrorContext(),
     );
-    const selections = this._transformSelections(
-      definition.selectionSet,
-      type
-    );
+    const selections = this._transformSelections(definition.selectionSet, type);
     return {
       kind: 'Root',
       operation,
@@ -365,18 +354,18 @@ class RelayParser {
   }
 
   _transformArgumentDefinitions(
-    argumentDefinitions: Array<VariableDefinitionNode>
+    argumentDefinitions: Array<VariableDefinitionNode>,
   ): Array<LocalArgumentDefinition> {
     return argumentDefinitions.map(def => {
       const name = getName(def.variable);
       const type = assertInputType(getTypeFromAST(this._schema, def.type));
-      const defaultLiteral = def.defaultValue ?
-        this._transformValue(def.defaultValue) :
-        null;
+      const defaultLiteral = def.defaultValue
+        ? this._transformValue(def.defaultValue)
+        : null;
       invariant(
         defaultLiteral === null || defaultLiteral.kind === 'Literal',
         'RelayParser: Expected null or Literal default value, got: `%s`. ' +
-        'Source: %s.',
+          'Source: %s.',
         defaultLiteral && defaultLiteral.kind,
         this._getErrorContext(),
       );
@@ -407,21 +396,21 @@ class RelayParser {
           false,
           'RelayParser: Unexpected AST kind `%s`. Source: %s.',
           selection.kind,
-          this._getErrorContext()
+          this._getErrorContext(),
         );
       }
       const [conditions, directives] = this._splitConditions(node.directives);
       const conditionalNodes = applyConditions(
         conditions,
         // $FlowFixMe(>=0.28.0)
-        [{...node, directives}]
+        [{...node, directives}],
       );
       invariant(
         conditionalNodes.length === 1,
         'RelayParser: Expected exactly one conditional node, got `%s`. ' +
-        'Source: %s.',
+          'Source: %s.',
         conditionalNodes.length,
-        this._getErrorContext()
+        this._getErrorContext(),
       );
       return conditionalNodes[0];
     });
@@ -431,14 +420,15 @@ class RelayParser {
     fragment: InlineFragmentNode,
     parentType: GraphQLOutputType,
   ): InlineFragment {
-    const typeCondition = assertCompositeType(fragment.typeCondition ?
-      getTypeFromAST(this._schema, fragment.typeCondition) :
-      parentType
+    const typeCondition = assertCompositeType(
+      fragment.typeCondition
+        ? getTypeFromAST(this._schema, fragment.typeCondition)
+        : parentType,
     );
     const directives = this._transformDirectives(fragment.directives || []);
     const selections = this._transformSelections(
       fragment.selectionSet,
-      typeCondition
+      typeCondition,
     );
     return {
       kind: 'InlineFragment',
@@ -456,15 +446,15 @@ class RelayParser {
     const fragmentName = getName(fragment);
     const [otherDirectives, argumentDirectives] = partitionArray(
       fragment.directives || [],
-      directive => getName(directive) !== ARGUMENTS
+      directive => getName(directive) !== ARGUMENTS,
     );
     invariant(
       argumentDirectives.length <= 1,
       'RelayParser: Directive %s may be used at most once in fragment ' +
-      'spread `...%s`. Source: %s.',
+        'spread `...%s`. Source: %s.',
       ARGUMENTS,
       fragmentName,
-      this._getErrorContext()
+      this._getErrorContext(),
     );
     let args;
     if (argumentDirectives.length) {
@@ -473,7 +463,7 @@ class RelayParser {
         invariant(
           argValue.kind === 'Variable',
           'RelayParser: All @arguments() args must be variables, got %s. ' +
-          'Source: %s.',
+            'Source: %s.',
           argValue.kind,
           this._getErrorContext(),
         );
@@ -497,10 +487,7 @@ class RelayParser {
     };
   }
 
-  _transformField(
-    field: FieldNode,
-    parentType: GraphQLOutputType,
-  ): Field {
+  _transformField(field: FieldNode, parentType: GraphQLOutputType): Field {
     const name = getName(field);
     const fieldDef = getFieldDefinition(this._schema, parentType, name, field);
     invariant(
@@ -508,18 +495,13 @@ class RelayParser {
       'RelayParser: Unknown field `%s` on type `%s`. Source: %s.',
       name,
       parentType,
-      this._getErrorContext()
+      this._getErrorContext(),
     );
-    const alias = field.alias ?
-      field.alias.value :
-      null;
-    const args = this._transformArguments(
-      field.arguments || [],
-      fieldDef.args
-    );
+    const alias = field.alias ? field.alias.value : null;
+    const args = this._transformArguments(field.arguments || [], fieldDef.args);
     const [otherDirectives, clientFieldDirectives] = partitionArray(
       field.directives || [],
-      directive => getName(directive) !== CLIENT_FIELD
+      directive => getName(directive) !== CLIENT_FIELD,
     );
     const directives = this._transformDirectives(otherDirectives);
     const type = assertOutputType(fieldDef.type);
@@ -527,12 +509,12 @@ class RelayParser {
     if (isLeafType(getNamedType(type))) {
       invariant(
         !field.selectionSet ||
-        !field.selectionSet.selections ||
-        !field.selectionSet.selections.length,
+          !field.selectionSet.selections ||
+          !field.selectionSet.selections.length,
         'RelayParser: Expected no selections for scalar field `%s` on type ' +
-        '`%s`. Source: %s.',
+          '`%s`. Source: %s.',
         name,
-        this._getErrorContext()
+        this._getErrorContext(),
       );
       return {
         kind: 'ScalarField',
@@ -545,16 +527,16 @@ class RelayParser {
         type: assertScalarFieldType(type),
       };
     } else {
-      const selections = field.selectionSet ?
-        this._transformSelections(field.selectionSet, type) :
-        null;
+      const selections = field.selectionSet
+        ? this._transformSelections(field.selectionSet, type)
+        : null;
       invariant(
         selections && selections.length,
         'RelayParser: Expected at least one selection for non-scalar field ' +
-        '`%s` on type `%s`. Source: %s.',
+          '`%s` on type `%s`. Source: %s.',
         name,
         type,
-        this._getErrorContext()
+        this._getErrorContext(),
       );
       return {
         kind: 'LinkedField',
@@ -573,63 +555,61 @@ class RelayParser {
   _transformHandle(
     fieldName: string,
     fieldArgs: Array<Argument>,
-    clientFieldDirectives: Array<DirectiveNode>
+    clientFieldDirectives: Array<DirectiveNode>,
   ): ?Array<Handle> {
     let handles: ?Array<Handle>;
     clientFieldDirectives.forEach(clientFieldDirective => {
-      const handleArgument = (clientFieldDirective.arguments || []).find(
-        arg => getName(arg) === CLIENT_FIELD_HANDLE
-      );
+      const handleArgument = (clientFieldDirective.arguments || [])
+        .find(arg => getName(arg) === CLIENT_FIELD_HANDLE);
       if (handleArgument) {
         let name = null, key = DEFAULT_HANDLE_KEY, filters = null;
         const maybeHandle = this._transformValue(handleArgument.value);
         invariant(
           maybeHandle.kind === 'Literal' &&
-          typeof maybeHandle.value === 'string',
+            typeof maybeHandle.value === 'string',
           'RelayParser: Expected the %s argument to @%s to be a literal ' +
-          'string, got `%s` on field `%s`. Source: %s.',
+            'string, got `%s` on field `%s`. Source: %s.',
           CLIENT_FIELD_HANDLE,
           CLIENT_FIELD,
           maybeHandle,
           fieldName,
-          this._getErrorContext()
+          this._getErrorContext(),
         );
         name = maybeHandle.value;
 
-        const keyArgument = (clientFieldDirective.arguments || []).find(
-          arg => getName(arg) === CLIENT_FIELD_KEY
-        );
+        const keyArgument = (clientFieldDirective.arguments || [])
+          .find(arg => getName(arg) === CLIENT_FIELD_KEY);
         if (keyArgument) {
           const maybeKey = this._transformValue(keyArgument.value);
           invariant(
-            maybeKey.kind === 'Literal' &&
-            typeof maybeKey.value === 'string',
+            maybeKey.kind === 'Literal' && typeof maybeKey.value === 'string',
             'RelayParser: Expected %s argument to @%s to be a literal ' +
-            'string, got `%s` on field `%s`. Source: %s.',
+              'string, got `%s` on field `%s`. Source: %s.',
             CLIENT_FIELD_KEY,
             CLIENT_FIELD,
             maybeKey,
             fieldName,
-            this._getErrorContext()
+            this._getErrorContext(),
           );
           key = maybeKey.value;
         }
-        const filtersArgument = (clientFieldDirective.arguments || []).find(
-          arg => getName(arg) === CLIENT_FIELD_FILTERS
-        );
+        const filtersArgument = (clientFieldDirective.arguments || [])
+          .find(arg => getName(arg) === CLIENT_FIELD_FILTERS);
         if (filtersArgument) {
           const maybeFilters = this._transformValue(filtersArgument.value);
           invariant(
-            maybeFilters.kind === 'Literal'  &&
-            Array.isArray(maybeFilters.value) &&
-            maybeFilters.value.every(filter => fieldArgs.some(fieldArg => fieldArg.name === filter)),
+            maybeFilters.kind === 'Literal' &&
+              Array.isArray(maybeFilters.value) &&
+              maybeFilters.value.every(filter =>
+                fieldArgs.some(fieldArg => fieldArg.name === filter),
+              ),
             'RelayParser: Expected %s argument to @%s to be an array of ' +
-            'argument names on field `%s`, but get %s. Source: %s.',
+              'argument names on field `%s`, but get %s. Source: %s.',
             CLIENT_FIELD_FILTERS,
             CLIENT_FIELD,
             fieldName,
             maybeFilters,
-            this._getErrorContext()
+            this._getErrorContext(),
           );
           // $FlowFixMe
           filters = (maybeFilters.value: Array<string>);
@@ -641,9 +621,7 @@ class RelayParser {
     return handles;
   }
 
-  _transformDirectives(
-    directives: Array<DirectiveNode>
-  ): Array<Directive> {
+  _transformDirectives(directives: Array<DirectiveNode>): Array<Directive> {
     return directives.map(directive => {
       const name = getName(directive);
       const directiveDef = this._schema.getDirective(name);
@@ -651,11 +629,11 @@ class RelayParser {
         directiveDef,
         'RelayParser: Unknown directive `@%s`. Source: %s.',
         name,
-        this._getErrorContext()
+        this._getErrorContext(),
       );
       const args = this._transformArguments(
         directive.arguments || [],
-        directiveDef.args
+        directiveDef.args,
       );
       return {
         kind: 'Directive',
@@ -668,18 +646,16 @@ class RelayParser {
 
   _transformArguments(
     args: Array<ArgumentNode>,
-    argumentDefinitions: Array<GraphQLArgument>
+    argumentDefinitions: Array<GraphQLArgument>,
   ): Array<Argument> {
     return args.map(arg => {
       const argName = getName(arg);
-      const argDef = argumentDefinitions.find(
-        def => def.name === argName
-      );
+      const argDef = argumentDefinitions.find(def => def.name === argName);
       invariant(
         argDef,
         'RelayParser: Unknown argument `%s`. Source: %s.',
         argName,
-        this._getErrorContext()
+        this._getErrorContext(),
       );
       const value = this._transformValue(arg.value, argDef.type);
       return {
@@ -693,7 +669,7 @@ class RelayParser {
   }
 
   _splitConditions(
-    mixedDirectives: Array<Directive>
+    mixedDirectives: Array<Directive>,
   ): [Array<Condition>, Array<Directive>] {
     const conditions = [];
     const directives = [];
@@ -705,15 +681,14 @@ class RelayParser {
           arg && arg.name === IF,
           'RelayParser: Expected an `if` argument to @%s. Source: %s.',
           directive.name,
-          this._getErrorContext()
+          this._getErrorContext(),
         );
         invariant(
-          arg.value.kind === 'Variable' ||
-          arg.value.kind === 'Literal',
+          arg.value.kind === 'Variable' || arg.value.kind === 'Literal',
           'RelayParser: Expected the `if` argument to @%s to be a variable. ' +
-          'Source: %s.',
+            'Source: %s.',
           directive.name,
-          this._getErrorContext()
+          this._getErrorContext(),
         );
         conditions.push({
           kind: 'Condition',
@@ -728,14 +703,14 @@ class RelayParser {
     });
     const sortedConditions = [...conditions].sort((a, b) => {
       if (a.condition.kind === 'Variable' && b.condition.kind === 'Variable') {
-        return a.condition.variableName < b.condition.variableName ? -1 :
-          a.condition.variableName > b.condition.variableName ? 1 :
-          0;
+        return a.condition.variableName < b.condition.variableName
+          ? -1
+          : a.condition.variableName > b.condition.variableName ? 1 : 0;
       } else {
         // sort literals earlier, variables later
-        return a.condition.kind === 'Variable' ? 1 :
-          b.condition.kind === 'Variable' ? -1 :
-          0;
+        return a.condition.kind === 'Variable'
+          ? 1
+          : b.condition.kind === 'Variable' ? -1 : 0;
       }
     });
     return [sortedConditions, directives];
@@ -786,9 +761,9 @@ class RelayParser {
           invariant(
             listType instanceof GraphQLList,
             'RelayParser: Expected a value matching type `%s`, but ' +
-            'got a list value. Source: %s.',
+              'got a list value. Source: %s.',
             type,
-            this._getErrorContext()
+            this._getErrorContext(),
           );
           itemType = assertInputType(listType.ofType);
         }
@@ -830,9 +805,9 @@ class RelayParser {
             invariant(
               objectType instanceof GraphQLInputObjectType,
               'RelayParser: Expected a value matching type `%s`, but ' +
-              'got an object value. Source: %s.',
+                'got an object value. Source: %s.',
               type,
-              this._getErrorContext()
+              this._getErrorContext(),
             );
             const fieldConfig = objectType.getFields()[fieldName];
             invariant(
@@ -840,7 +815,7 @@ class RelayParser {
               'RelayParser: Unknown field `%s` on type `%s`. Source: %s.',
               fieldName,
               type,
-              this._getErrorContext()
+              this._getErrorContext(),
             );
             fieldType = assertInputType(fieldConfig.type);
           }
@@ -854,7 +829,8 @@ class RelayParser {
             name: fieldName,
             value: fieldValue,
           });
-          areAllFieldsScalar = areAllFieldsScalar && fieldValue.kind === 'Literal';
+          areAllFieldsScalar =
+            areAllFieldsScalar && fieldValue.kind === 'Literal';
         });
         if (areAllFieldsScalar) {
           return {
@@ -877,7 +853,7 @@ class RelayParser {
           false,
           'RelayParser: Unknown ast kind: %s. Source: %s.',
           ast.kind,
-          this._getErrorContext()
+          this._getErrorContext(),
         );
       // eslint-enable
     }
@@ -896,37 +872,36 @@ function assertScalarFieldType(type: GraphQLOutputType): ScalarFieldType {
   invariant(
     isScalarFieldType(type),
     'Expected %s to be a Scalar Field type.',
-    type
+    type,
   );
   return (type: any);
 }
 
 function applyConditions(
   conditions: Array<Condition>,
-  selections: Array<Selection>
+  selections: Array<Selection>,
 ): Array<Condition | Selection> {
   let nextSelections = selections;
   conditions.forEach(condition => {
-    nextSelections = [{
-      ...condition,
-      selections: nextSelections,
-    }];
+    nextSelections = [
+      {
+        ...condition,
+        selections: nextSelections,
+      },
+    ];
   });
   return nextSelections;
 }
 
 function getName(ast): string {
-  const name = ast.name ?
-      ast.name.value :
-      null;
+  const name = ast.name ? ast.name.value : null;
   invariant(
     typeof name === 'string',
     'RelayParser: Expected ast node `%s` to have a name.',
-    ast
+    ast,
   );
   return name;
 }
-
 
 /**
  * Find the definition of a field of the specified type.
@@ -935,7 +910,7 @@ function getFieldDefinition(
   schema: GraphQLSchema,
   parentType: GraphQLOutputType,
   fieldName: string,
-  fieldAST: FieldNode
+  fieldAST: FieldNode,
 ): ?GraphQLField<any, any> {
   const type = getRawType(parentType);
   const isQueryType = type === schema.getQueryType();
@@ -959,7 +934,12 @@ function getFieldDefinition(
   }
 
   if (!schemaFieldDef) {
-    schemaFieldDef = getClassicFieldDefinition(schema, type, fieldName, fieldAST);
+    schemaFieldDef = getClassicFieldDefinition(
+      schema,
+      type,
+      fieldName,
+      fieldAST,
+    );
   }
 
   return schemaFieldDef || null;
@@ -969,14 +949,14 @@ function getClassicFieldDefinition(
   schema: GraphQLSchema,
   type: GraphQLType,
   fieldName: string,
-  fieldAST: FieldNode
+  fieldAST: FieldNode,
 ): ?GraphQLField<any, any> {
   if (
     isAbstractType(type) &&
     fieldAST &&
     fieldAST.directives &&
     fieldAST.directives.some(
-      directive => getName(directive) === 'fixme_fat_interface'
+      directive => getName(directive) === 'fixme_fat_interface',
     )
   ) {
     const possibleTypes = schema.getPossibleTypes(assertAbstractType(type));
@@ -989,10 +969,10 @@ function getClassicFieldDefinition(
         // arguments do not match.
         schemaFieldDef = possibleField;
         if (fieldAST && fieldAST.arguments) {
-          const argumentsAllExist = fieldAST.arguments.every(
-            argument => possibleField.args.find(
-              argDef => argDef.name === getName(argument)
-            )
+          const argumentsAllExist = fieldAST.arguments.every(argument =>
+            possibleField.args.find(
+              argDef => argDef.name === getName(argument),
+            ),
           );
           if (argumentsAllExist) {
             break;

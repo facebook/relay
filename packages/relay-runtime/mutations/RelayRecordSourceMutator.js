@@ -8,6 +8,7 @@
  *
  * @providesModule RelayRecordSourceMutator
  * @flow
+ * @format
  */
 
 'use strict';
@@ -23,15 +24,10 @@ const {
   UNPUBLISH_RECORD_SENTINEL,
 } = require('RelayStoreUtils');
 
-import type {
-  Record,
-} from 'RelayCombinedEnvironmentTypes';
+import type {Record} from 'RelayCombinedEnvironmentTypes';
 import type {DataID} from 'RelayInternalTypes';
 import type {RecordState} from 'RelayRecordState';
-import type {
-  MutableRecordSource,
-  RecordSource,
-} from 'RelayStoreTypes';
+import type {MutableRecordSource, RecordSource} from 'RelayStoreTypes';
 
 /**
  * @internal
@@ -62,7 +58,7 @@ class RelayRecordSourceMutator {
   constructor(
     base: RecordSource,
     sink: MutableRecordSource,
-    backup?: ?MutableRecordSource
+    backup?: ?MutableRecordSource,
   ) {
     this._backup = backup;
     this._base = base;
@@ -122,9 +118,12 @@ class RelayRecordSourceMutator {
       invariant(
         baseRecord,
         'RelayRecordSourceMutator: Cannot modify non-existent record `%s`.',
-        dataID
+        dataID,
       );
-      sinkRecord = RelayModernRecord.create(dataID, RelayModernRecord.getType(baseRecord));
+      sinkRecord = RelayModernRecord.create(
+        dataID,
+        RelayModernRecord.getType(baseRecord),
+      );
       this._sink.set(dataID, sinkRecord);
     }
     return sinkRecord;
@@ -136,8 +135,8 @@ class RelayRecordSourceMutator {
     invariant(
       sinkSource || baseSource,
       'RelayRecordSourceMutator#copyFields(): Cannot copy fields from ' +
-      'non-existent record `%s`.',
-      sourceID
+        'non-existent record `%s`.',
+      sourceID,
     );
     this._createBackupRecord(sinkID);
     const sink = this._getSinkRecord(sinkID);
@@ -160,10 +159,10 @@ class RelayRecordSourceMutator {
   create(dataID: DataID, typeName: string): void {
     invariant(
       this._base.getStatus(dataID) !== EXISTENT &&
-      this._sink.getStatus(dataID) !== EXISTENT,
+        this._sink.getStatus(dataID) !== EXISTENT,
       'RelayRecordSourceMutator#create(): Cannot create a record with id ' +
-      '`%s`, this record already exists.',
-      dataID
+        '`%s`, this record already exists.',
+      dataID,
     );
     if (this._backup) {
       this._backup.set(dataID, UNPUBLISH_RECORD_SENTINEL);
@@ -178,9 +177,9 @@ class RelayRecordSourceMutator {
   }
 
   getStatus(dataID: DataID): RecordState {
-    return this._sink.has(dataID) ?
-      this._sink.getStatus(dataID) :
-      this._base.getStatus(dataID);
+    return this._sink.has(dataID)
+      ? this._sink.getStatus(dataID)
+      : this._base.getStatus(dataID);
   }
 
   getType(dataID: DataID): ?string {
@@ -219,7 +218,10 @@ class RelayRecordSourceMutator {
     for (let ii = 0; ii < this.__sources.length; ii++) {
       const record = this.__sources[ii].get(dataID);
       if (record) {
-        const linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
+        const linkedID = RelayModernRecord.getLinkedRecordID(
+          record,
+          storageKey,
+        );
         if (linkedID !== undefined) {
           return linkedID;
         }
@@ -229,7 +231,11 @@ class RelayRecordSourceMutator {
     }
   }
 
-  setLinkedRecordID(dataID: DataID, storageKey: string, linkedID: DataID): void {
+  setLinkedRecordID(
+    dataID: DataID,
+    storageKey: string,
+    linkedID: DataID,
+  ): void {
     this._createBackupRecord(dataID);
     const sinkRecord = this._getSinkRecord(dataID);
     RelayModernRecord.setLinkedRecordID(sinkRecord, storageKey, linkedID);
@@ -240,7 +246,10 @@ class RelayRecordSourceMutator {
     for (let ii = 0; ii < this.__sources.length; ii++) {
       const record = this.__sources[ii].get(dataID);
       if (record) {
-        const linkedIDs = RelayModernRecord.getLinkedRecordIDs(record, storageKey);
+        const linkedIDs = RelayModernRecord.getLinkedRecordIDs(
+          record,
+          storageKey,
+        );
         if (linkedIDs !== undefined) {
           return linkedIDs;
         }
@@ -250,7 +259,11 @@ class RelayRecordSourceMutator {
     }
   }
 
-  setLinkedRecordIDs(dataID: DataID, storageKey: string, linkedIDs: Array<?DataID>): void {
+  setLinkedRecordIDs(
+    dataID: DataID,
+    storageKey: string,
+    linkedIDs: Array<?DataID>,
+  ): void {
     this._createBackupRecord(dataID);
     const sinkRecord = this._getSinkRecord(dataID);
     RelayModernRecord.setLinkedRecordIDs(sinkRecord, storageKey, linkedIDs);

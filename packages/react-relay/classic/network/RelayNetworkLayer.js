@@ -8,6 +8,7 @@
  *
  * @providesModule RelayNetworkLayer
  * @flow
+ * @format
  */
 
 'use strict';
@@ -57,7 +58,7 @@ class RelayNetworkLayer {
       warning(
         false,
         'RelayNetworkLayer: Call received to injectDefaultImplementation(), ' +
-        'but a default layer was already injected.'
+          'but a default layer was already injected.',
       );
     }
     this._defaultImplementation = implementation;
@@ -68,7 +69,7 @@ class RelayNetworkLayer {
       warning(
         false,
         'RelayNetworkLayer: Call received to injectImplementation(), but ' +
-        'a layer was already injected.'
+          'a layer was already injected.',
       );
     }
     this._implementation = implementation;
@@ -76,8 +77,8 @@ class RelayNetworkLayer {
 
   addNetworkSubscriber(
     queryCallback?: ?QueryCallback,
-    mutationCallback?: ?MutationCallback
-  ) : ChangeSubscription {
+    mutationCallback?: ?MutationCallback,
+  ): ChangeSubscription {
     const index = this._subscribers.length;
     this._subscribers.push({queryCallback, mutationCallback});
     return {
@@ -126,7 +127,7 @@ class RelayNetworkLayer {
     invariant(
       implementation,
       'RelayNetworkLayer: Use `RelayEnvironment.injectNetworkLayer` to ' +
-      'configure a network layer.'
+        'configure a network layer.',
     );
     return implementation;
   }

@@ -5,6 +5,8 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
@@ -56,9 +58,9 @@ const RelayModernTestUtils = {
     toWarn() {
       function compare(negative) {
         function formatItem(item) {
-          return item instanceof RegExp ?
-            item.toString() :
-            JSON.stringify(item);
+          return item instanceof RegExp
+            ? item.toString()
+            : JSON.stringify(item);
         }
 
         function formatArray(array) {
@@ -71,9 +73,11 @@ const RelayModernTestUtils = {
 
         function formatActual(calls) {
           if (calls.length) {
-            return calls.map(args => {
-              return formatArray([!!args[0]].concat(args.slice(1)));
-            }).join(', ');
+            return calls
+              .map(args => {
+                return formatArray([!!args[0]].concat(args.slice(1)));
+              })
+              .join(', ');
           } else {
             return '[]';
           }
@@ -82,9 +86,7 @@ const RelayModernTestUtils = {
         return function(actual, expected) {
           const warning = require('warning');
           if (!warning.mock) {
-            throw new Error(
-              'toWarn(): Requires `jest.mock(\'warning\')`.'
-            );
+            throw new Error("toWarn(): Requires `jest.mock('warning')`.");
           }
 
           const callsCount = warning.mock.calls.length;
@@ -96,11 +98,9 @@ const RelayModernTestUtils = {
             const warned = calls.filter(args => !args[0]).length;
             return {
               pass: !(negative ? warned : !warned),
-              message: (
-                `Expected ${negative ? 'not ' : ''}to warn but ` +
+              message: `Expected ${negative ? 'not ' : ''}to warn but ` +
                 '`warning` received the following calls: ' +
-                `${formatActual(calls)}.`
-              ),
+                `${formatActual(calls)}.`,
             };
           }
 
@@ -116,23 +116,19 @@ const RelayModernTestUtils = {
                   return !arg;
                 }
                 const other = expected[index - 1];
-                return (
-                  other instanceof RegExp ?
-                  other.test(arg) :
-                  arg === other
-                );
+                return other instanceof RegExp
+                  ? other.test(arg)
+                  : arg === other;
               })
             );
           });
 
           return {
             pass: !(negative ? call : !call),
-            message: (
-              `Expected ${negative ? 'not ' : ''}to warn: ` +
+            message: `Expected ${negative ? 'not ' : ''}to warn: ` +
               `${formatExpected(expected)} but ` +
               '`warning` received the following calls: ' +
-              `${formatActual(calls)}.`
-            ),
+              `${formatActual(calls)}.`,
           };
         };
       }
@@ -169,8 +165,8 @@ const RelayModernTestUtils = {
   generateWithTransforms(
     text: string,
     transforms?: ?Array<{
-      transform: (context: RelayCompilerContext) => RelayCompilerContext
-    }>
+      transform: (context: RelayCompilerContext) => RelayCompilerContext,
+    }>,
   ): {[key: string]: ConcreteRoot | ConcreteFragment} {
     const RelayCodeGenerator = require('RelayCodeGenerator');
     // eslint-disable-next-line no-shadow
@@ -180,14 +176,9 @@ const RelayModernTestUtils = {
 
     const ast = RelayParser.parse(RelayTestSchema, text);
     let context = new RelayCompilerContext(RelayTestSchema);
-    context = ast.reduce(
-      (ctx, node) => ctx.add(node),
-      context
-    );
-    context = (transforms || []).reduce(
-      (ctx, {transform}) => transform(ctx),
-      context
-    );
+    context = ast.reduce((ctx, node) => ctx.add(node), context);
+    context = (transforms || [])
+      .reduce((ctx, {transform}) => transform(ctx), context);
     const documentMap = {};
     context.documents().forEach(node => {
       documentMap[node.name] = RelayCodeGenerator.generate(node);

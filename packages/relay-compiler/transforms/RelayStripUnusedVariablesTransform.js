@@ -8,6 +8,7 @@
  *
  * @providesModule RelayStripUnusedVariablesTransform
  * @flow
+ * @format
  */
 
 'use strict';
@@ -41,7 +42,7 @@ function transformRoot(context: RelayCompilerContext, root: Root): Root {
       Argument: visitArgument,
       Condition: visitCondition,
     },
-    () => state
+    () => state,
   );
   const transformedNode = newContext.getRoot(root.name);
   /**

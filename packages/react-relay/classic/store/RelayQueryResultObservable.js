@@ -8,6 +8,7 @@
  *
  * @providesModule RelayQueryResultObservable
  * @flow
+ * @format
  */
 
 'use strict';
@@ -57,7 +58,7 @@ class RelayQueryResultObservable {
   constructor(
     storeData: RelayStoreData,
     fragment: RelayQuery.Fragment,
-    dataID: DataID
+    dataID: DataID,
   ) {
     this._data = undefined;
     this._dataID = dataID;
@@ -75,7 +76,7 @@ class RelayQueryResultObservable {
       dispose: () => {
         invariant(
           this._subscriptionCallbacks[subscriptionIndex],
-          'RelayQueryResultObservable: Subscriptions may only be disposed once.'
+          'RelayQueryResultObservable: Subscriptions may only be disposed once.',
         );
         delete this._subscriptionCallbacks[subscriptionIndex];
         this._subscriptionCount--;
@@ -97,12 +98,12 @@ class RelayQueryResultObservable {
   _observe(): GraphQLStoreQueryResolver {
     invariant(
       !this._fragmentResolver,
-      'RelayQueryResultObservable: Initialized twice.'
+      'RelayQueryResultObservable: Initialized twice.',
     );
     const fragmentResolver = new GraphQLStoreQueryResolver(
       this._storeData,
       this._fragment,
-      () => this._onUpdate(fragmentResolver)
+      () => this._onUpdate(fragmentResolver),
     );
     this._fragmentResolver = fragmentResolver;
     return fragmentResolver;
@@ -129,7 +130,7 @@ class RelayQueryResultObservable {
     const data = fragmentResolver.resolve(this._fragment, this._dataID);
     invariant(
       !Array.isArray(data),
-      'RelayQueryResultObservable: Plural fragments are not supported.'
+      'RelayQueryResultObservable: Plural fragments are not supported.',
     );
     this._data = data;
   }

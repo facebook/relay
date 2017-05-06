@@ -8,6 +8,7 @@
  *
  * @providesModule RelayStoreUtils
  * @flow
+ * @format
  */
 
 'use strict';
@@ -17,10 +18,7 @@ const RelayConcreteNode = require('RelayConcreteNode');
 const invariant = require('invariant');
 const stableJSONStringify = require('stableJSONStringify');
 
-import type {
-  ConcreteArgument,
-  ConcreteField,
-} from 'RelayConcreteNode';
+import type {ConcreteArgument, ConcreteField} from 'RelayConcreteNode';
 import type {Variables} from 'RelayTypes';
 
 const {VARIABLE} = RelayConcreteNode;
@@ -31,7 +29,7 @@ const {VARIABLE} = RelayConcreteNode;
  */
 function getArgumentValues(
   args: Array<ConcreteArgument>,
-  variables: Variables
+  variables: Variables,
 ): Variables {
   const values = {};
   args.forEach(arg => {
@@ -47,7 +45,7 @@ function getArgumentValues(
 function getHandleFilterValues(
   args: Array<ConcreteArgument>,
   filters: Array<string>,
-  variables: Variables
+  variables: Variables,
 ): Variables {
   const filterArgs = args.filter(arg => filters.indexOf(arg.name) > -1);
   return getArgumentValues(filterArgs, variables);
@@ -93,7 +91,7 @@ function getVariableValue(name: string, variables: Variables): mixed {
   invariant(
     variables.hasOwnProperty(name),
     'getVariableValue(): Undefined variable `%s`.',
-    name
+    name,
   );
   return variables[name];
 }

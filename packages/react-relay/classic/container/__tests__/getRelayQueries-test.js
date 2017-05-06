@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -34,7 +35,7 @@ describe('getRelayQueries', () => {
 
     MockPageComponent = class _MockPageComponent extends React.Component {
       render() {
-        return <div/>;
+        return <div />;
       }
     };
 
@@ -83,20 +84,24 @@ describe('getRelayQueries', () => {
     const queries = getRelayQueries(MockPageContainer, route);
 
     const expected = {
-      first: getNode(Relay.QL`
+      first: getNode(
+        Relay.QL`
         query {
           node(id: "123") {
             ${Relay.QL`fragment on Node{id,firstName}`}
           }
         }
-      `),
-      last: getNode(Relay.QL`
+      `,
+      ),
+      last: getNode(
+        Relay.QL`
         query {
           node(id: "123") {
             ${Relay.QL`fragment on Node{id,lastName}`}
           }
         }
-      `),
+      `,
+      ),
     };
 
     expect(queries.first).toEqualQueryRoot(expected.first);
@@ -141,7 +146,7 @@ describe('getRelayQueries', () => {
       getRelayQueries(MockPageContainer, badRoute);
     }).toFailInvariant(
       'Relay.QL: query `BadRoute.queries.first` is invalid, a typical ' +
-      'query is defined using: () => Relay.QL`query { ... }`.'
+        'query is defined using: () => Relay.QL`query { ... }`.',
     );
   });
 
@@ -160,7 +165,7 @@ describe('getRelayQueries', () => {
 
     expect([
       'Relay.QL: query `%s.queries.%s` is invalid, expected fragment ' +
-      '`%s.fragments.%s` to be defined.',
+        '`%s.fragments.%s` to be defined.',
       'MockRoute',
       'last',
       'Relay(_MockPageComponent)',

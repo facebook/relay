@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -28,11 +29,7 @@ describe('RelayOptimisticMutationUtils', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    ({
-      HAS_NEXT_PAGE,
-      HAS_PREV_PAGE,
-      PAGE_INFO,
-    } = RelayConnectionInterface);
+    ({HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO} = RelayConnectionInterface);
 
     jasmine.addMatchers({
       ...RelayTestUtils.matchers,
@@ -54,24 +51,30 @@ describe('RelayOptimisticMutationUtils', () => {
       const query = RelayOptimisticMutationUtils.inferRelayFieldsFromData({
         id: '123',
       });
-      expect(query).toEqualFields(Relay.QL`
+      expect(query).toEqualFields(
+        Relay.QL`
         fragment on Actor {
           id
         }
-      `);
+      `,
+      );
       expect(query[0].isPlural()).toBe(false);
     });
 
     it('infers scalar fields from scalars', () => {
-      expect(RelayOptimisticMutationUtils.inferRelayFieldsFromData({
-        id: '123',
-        name: 'Alice',
-      })).toEqualFields(Relay.QL`
+      expect(
+        RelayOptimisticMutationUtils.inferRelayFieldsFromData({
+          id: '123',
+          name: 'Alice',
+        }),
+      ).toEqualFields(
+        Relay.QL`
         fragment on Actor {
           id
           name
         }
-      `);
+      `,
+      );
     });
 
     it('infers nested fields from objects', () => {
@@ -81,22 +84,26 @@ describe('RelayOptimisticMutationUtils', () => {
           city: 'Menlo Park',
         },
       });
-      expect(fields).toEqualFields(Relay.QL`
+      expect(fields).toEqualFields(
+        Relay.QL`
         fragment on Actor {
           id
           address {
             city
           }
         }
-      `);
+      `,
+      );
       expect(fields[1].canHaveSubselections()).toBe(true);
     });
 
     it('infers unterminated fields from null', () => {
-      const inferredFields = RelayOptimisticMutationUtils.inferRelayFieldsFromData({
-        id: '123',
-        address: null,
-      });
+      const inferredFields = RelayOptimisticMutationUtils.inferRelayFieldsFromData(
+        {
+          id: '123',
+          address: null,
+        },
+      );
 
       expect(inferredFields[0] instanceof RelayQuery.Field).toBe(true);
       expect(inferredFields[0].canHaveSubselections()).toBe(false);
@@ -112,97 +119,115 @@ describe('RelayOptimisticMutationUtils', () => {
     it('infers plural fields from arrays of scalars', () => {
       const fields = RelayOptimisticMutationUtils.inferRelayFieldsFromData({
         id: '123',
-        websites: [
-          'facebook.com',
-          'google.com',
-        ],
+        websites: ['facebook.com', 'google.com'],
       });
-      expect(fields).toEqualFields(Relay.QL`
+      expect(fields).toEqualFields(
+        Relay.QL`
         fragment on Actor {
           id
           websites
         }
-      `);
+      `,
+      );
       expect(fields[1].isPlural()).toBe(true);
     });
 
     it('infers plural nested fields from arrays of objects', () => {
       const fields = RelayOptimisticMutationUtils.inferRelayFieldsFromData({
         id: '123',
-        screennames: [
-          {service: 'GTALK'},
-          {service: 'TWITTER'},
-        ],
+        screennames: [{service: 'GTALK'}, {service: 'TWITTER'}],
       });
-      expect(fields).toEqualFields(Relay.QL`
+      expect(fields).toEqualFields(
+        Relay.QL`
         fragment on Actor {
           id
           screennames {
             service
           }
         }
-      `);
+      `,
+      );
       expect(fields[1].isPlural()).toBe(true);
     });
 
     it('infers unterminated fields from empty arrays', () => {
-      expect(RelayOptimisticMutationUtils.inferRelayFieldsFromData({
-        id: '123',
-        websites: [],
-      })).toEqualFields(Relay.QL`
+      expect(
+        RelayOptimisticMutationUtils.inferRelayFieldsFromData({
+          id: '123',
+          websites: [],
+        }),
+      ).toEqualFields(
+        Relay.QL`
         fragment on Actor {
           id
           websites
         }
-      `);
+      `,
+      );
     });
 
     it('infers unterminated fields from null elements in arrays', () => {
-      expect(RelayOptimisticMutationUtils.inferRelayFieldsFromData({
-        id: '123',
-        websites: [null],
-      })).toEqualFields(Relay.QL`
+      expect(
+        RelayOptimisticMutationUtils.inferRelayFieldsFromData({
+          id: '123',
+          websites: [null],
+        }),
+      ).toEqualFields(
+        Relay.QL`
         fragment on Actor {
           id
           websites
         }
-      `);
+      `,
+      );
     });
 
     it('infers String field arguments from keys', () => {
-      expect(RelayOptimisticMutationUtils.inferRelayFieldsFromData({
-        id: '123',
-        'url(site: "www")': 'https://...',
-      })).toEqualFields(Relay.QL`
+      expect(
+        RelayOptimisticMutationUtils.inferRelayFieldsFromData({
+          id: '123',
+          'url(site: "www")': 'https://...',
+        }),
+      ).toEqualFields(
+        Relay.QL`
         fragment on Actor {
           id
           url(site: "www")
         }
-      `);
+      `,
+      );
     });
 
     it('infers Boolean field arguments from keys', () => {
-      expect(RelayOptimisticMutationUtils.inferRelayFieldsFromData({
-        'url(relative: true)': '//...',
-      })).toEqualFields(Relay.QL`
+      expect(
+        RelayOptimisticMutationUtils.inferRelayFieldsFromData({
+          'url(relative: true)': '//...',
+        }),
+      ).toEqualFields(
+        Relay.QL`
         fragment on Actor {
           url(relative: true)
         }
-      `);
+      `,
+      );
     });
 
     it('infers Int field arguments from keys', () => {
-      expect(RelayOptimisticMutationUtils.inferRelayFieldsFromData({
-        'comments(last: 10)': {
-          count: 20,
-        },
-      })).toEqualFields(Relay.QL`
+      expect(
+        RelayOptimisticMutationUtils.inferRelayFieldsFromData({
+          'comments(last: 10)': {
+            count: 20,
+          },
+        }),
+      ).toEqualFields(
+        Relay.QL`
         fragment on Comment {
           comments(last: 10) {
             count
           }
         }
-      `);
+      `,
+      );
     });
 
     it('throws for keys with invalid call encodings', () => {
@@ -211,7 +236,7 @@ describe('RelayOptimisticMutationUtils', () => {
           'url.site': 'https://...',
         });
       }).toFailInvariant(
-        'RelayOptimisticMutationUtils: Malformed data key, `url.site`.'
+        'RelayOptimisticMutationUtils: Malformed data key, `url.site`.',
       );
 
       expect(() => {
@@ -220,26 +245,28 @@ describe('RelayOptimisticMutationUtils', () => {
         });
       }).toFailInvariant(
         'RelayOptimisticMutationUtils: Malformed or unsupported data key, ' +
-        '`url(site)`. Only booleans, strings, and numbers are currently ' +
-        'supported, and commas are required. Parse failure reason was ' +
-        '`' + RelayTestUtils.getJSONTokenError('s', 1) + '`.'
+          '`url(site)`. Only booleans, strings, and numbers are currently ' +
+          'supported, and commas are required. Parse failure reason was ' +
+          '`' +
+          RelayTestUtils.getJSONTokenError('s', 1) +
+          '`.',
       );
     });
 
     it('infers `id` and `cursor` fields for `node` data', () => {
-      expect(RelayOptimisticMutationUtils.inferRelayFieldsFromData({
-        id: '123',
-        'friends(first: 2)': {
-          edges: [
-            {node: {name: 'Alice'}},
-            {node: {name: 'Bob'}},
-          ],
-          [PAGE_INFO]: {
-            [HAS_NEXT_PAGE]: true,
-            [HAS_PREV_PAGE]: false,
+      expect(
+        RelayOptimisticMutationUtils.inferRelayFieldsFromData({
+          id: '123',
+          'friends(first: 2)': {
+            edges: [{node: {name: 'Alice'}}, {node: {name: 'Bob'}}],
+            [PAGE_INFO]: {
+              [HAS_NEXT_PAGE]: true,
+              [HAS_PREV_PAGE]: false,
+            },
           },
-        },
-      })).toEqualFields(Relay.QL`
+        }),
+      ).toEqualFields(
+        Relay.QL`
         fragment on Actor {
           id
           friends(first: 2) {
@@ -256,38 +283,47 @@ describe('RelayOptimisticMutationUtils', () => {
             }
           }
         }
-      `);
+      `,
+      );
     });
 
     it('infers field for mutation field named `node`', () => {
-      expect(RelayOptimisticMutationUtils.inferRelayFieldsFromData({
-        node: {
-          id: '123',
-          name: 'name',
-        },
-      })).toEqualFields(Relay.QL`
+      expect(
+        RelayOptimisticMutationUtils.inferRelayFieldsFromData({
+          node: {
+            id: '123',
+            name: 'name',
+          },
+        }),
+      ).toEqualFields(
+        Relay.QL`
         fragment on NodeSavedStateResponsePayload {
           node {
             id
             name
           }
         }
-      `);
+      `,
+      );
     });
 
     it('ignores metadata fields', () => {
-      expect(RelayOptimisticMutationUtils.inferRelayFieldsFromData({
-        __dataID__: '123',
-        __range__: null,
-        __status__: 0,
-        id: '123',
-        name: 'Alice',
-      })).toEqualFields(Relay.QL`
+      expect(
+        RelayOptimisticMutationUtils.inferRelayFieldsFromData({
+          __dataID__: '123',
+          __range__: null,
+          __status__: 0,
+          id: '123',
+          name: 'Alice',
+        }),
+      ).toEqualFields(
+        Relay.QL`
         fragment on Node {
           id
           name
         }
-      `);
+      `,
+      );
     });
   });
 
@@ -296,8 +332,9 @@ describe('RelayOptimisticMutationUtils', () => {
       const data = {
         id: '123',
       };
-      const payload =
-        RelayOptimisticMutationUtils.inferRelayPayloadFromData(data);
+      const payload = RelayOptimisticMutationUtils.inferRelayPayloadFromData(
+        data,
+      );
       expect(payload).toBe(data);
     });
 
@@ -305,8 +342,9 @@ describe('RelayOptimisticMutationUtils', () => {
       const data = {
         usernames: [{id: '123'}, {id: '456'}],
       };
-      const payload =
-        RelayOptimisticMutationUtils.inferRelayPayloadFromData(data);
+      const payload = RelayOptimisticMutationUtils.inferRelayPayloadFromData(
+        data,
+      );
       expect(payload).toBe(data);
     });
 
@@ -318,8 +356,9 @@ describe('RelayOptimisticMutationUtils', () => {
           },
         },
       };
-      const payload =
-        RelayOptimisticMutationUtils.inferRelayPayloadFromData(data);
+      const payload = RelayOptimisticMutationUtils.inferRelayPayloadFromData(
+        data,
+      );
       expect(payload).toBe(data);
     });
 
@@ -329,10 +368,12 @@ describe('RelayOptimisticMutationUtils', () => {
         fieldName: 'url',
       });
 
-      expect(RelayOptimisticMutationUtils.inferRelayPayloadFromData({
-        id: '123',
-        'url(site: "www")': 'https://...',
-      })).toEqual({
+      expect(
+        RelayOptimisticMutationUtils.inferRelayPayloadFromData({
+          id: '123',
+          'url(site: "www")': 'https://...',
+        }),
+      ).toEqual({
         id: '123',
         [field.getSerializationKey()]: 'https://...',
       });
@@ -343,9 +384,11 @@ describe('RelayOptimisticMutationUtils', () => {
         calls: [{name: 'relative', value: true}],
         fieldName: 'url',
       });
-      expect(RelayOptimisticMutationUtils.inferRelayPayloadFromData({
-        'url(relative: true)': '//...',
-      })).toEqual({
+      expect(
+        RelayOptimisticMutationUtils.inferRelayPayloadFromData({
+          'url(relative: true)': '//...',
+        }),
+      ).toEqual({
         [field.getSerializationKey()]: '//...',
       });
     });
@@ -355,11 +398,13 @@ describe('RelayOptimisticMutationUtils', () => {
         calls: [{name: 'last', value: 10}],
         fieldName: 'comments',
       });
-      expect(RelayOptimisticMutationUtils.inferRelayPayloadFromData({
-        'comments(last: 10)': {
-          count: 20,
-        },
-      })).toEqual({
+      expect(
+        RelayOptimisticMutationUtils.inferRelayPayloadFromData({
+          'comments(last: 10)': {
+            count: 20,
+          },
+        }),
+      ).toEqual({
         [field.getSerializationKey()]: {
           count: 20,
         },
@@ -372,7 +417,7 @@ describe('RelayOptimisticMutationUtils', () => {
           'url.site': 'https://...',
         });
       }).toFailInvariant(
-        'RelayOptimisticMutationUtils: Malformed data key, `url.site`.'
+        'RelayOptimisticMutationUtils: Malformed data key, `url.site`.',
       );
 
       expect(() => {
@@ -381,9 +426,11 @@ describe('RelayOptimisticMutationUtils', () => {
         });
       }).toFailInvariant(
         'RelayOptimisticMutationUtils: Malformed or unsupported data key, ' +
-        '`url(site)`. Only booleans, strings, and numbers are currently ' +
-        'supported, and commas are required. Parse failure reason was ' +
-        '`' + RelayTestUtils.getJSONTokenError('s', 1) + '`.'
+          '`url(site)`. Only booleans, strings, and numbers are currently ' +
+          'supported, and commas are required. Parse failure reason was ' +
+          '`' +
+          RelayTestUtils.getJSONTokenError('s', 1) +
+          '`.',
       );
     });
   });

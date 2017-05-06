@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -14,10 +15,7 @@
 require('configureForRelayOSS');
 
 jest.useFakeTimers();
-jest
-  .mock('warning')
-  .unmock('GraphQLQueryRunner')
-  .unmock('RelayTaskQueue');
+jest.mock('warning').unmock('GraphQLQueryRunner').unmock('RelayTaskQueue');
 
 const Relay = require('Relay');
 const RelayFetchMode = require('RelayFetchMode');
@@ -53,12 +51,10 @@ describe('GraphQLQueryRunner', () => {
   }
 
   function mockSplitDeferredQueries() {
-    splitDeferredRelayQueries.mockImplementation(
-      query => ({
-        required: query,
-        deferred: [],
-      })
-    );
+    splitDeferredRelayQueries.mockImplementation(query => ({
+      required: query,
+      deferred: [],
+    }));
   }
 
   beforeEach(() => {
@@ -145,14 +141,13 @@ describe('GraphQLQueryRunner', () => {
     jest.runAllTimers();
 
     expect(pendingQueryTracker.add.mock.calls.length).toBe(1);
-    expect(pendingQueryTracker.add.mock.calls[0][0].query)
-      .toBe(querySet.foo);
+    expect(pendingQueryTracker.add.mock.calls[0][0].query).toBe(querySet.foo);
     expect(splitDeferredRelayQueries).not.toBeCalled();
     expect(warning.mock.calls[0]).toEqual([
       false,
       'Relay: Query `%s` contains a deferred fragment (e.g. ' +
-      '`getFragment(\'foo\').defer()`) which is not supported by the ' +
-      'default network layer. This query will be sent without deferral.',
+        "`getFragment('foo').defer()`) which is not supported by the " +
+        'default network layer. This query will be sent without deferral.',
       querySet.foo.getName(),
     ]);
   });
@@ -193,10 +188,12 @@ describe('GraphQLQueryRunner', () => {
     jest.runAllTimers();
 
     expect(pendingQueryTracker.add.mock.calls.length).toBe(2);
-    expect(pendingQueryTracker.add.mock.calls[0][0].query)
-      .toEqualQueryNode(mockQuerySet.foo);
-    expect(pendingQueryTracker.add.mock.calls[1][0].query)
-      .toEqualQueryNode(mockQuerySet.bar);
+    expect(pendingQueryTracker.add.mock.calls[0][0].query).toEqualQueryNode(
+      mockQuerySet.foo,
+    );
+    expect(pendingQueryTracker.add.mock.calls[1][0].query).toEqualQueryNode(
+      mockQuerySet.bar,
+    );
   });
 
   it('waits for all required data before being ready', () => {
@@ -274,10 +271,12 @@ describe('GraphQLQueryRunner', () => {
     // Treat all queries as deferred.
     splitDeferredRelayQueries.mockImplementation(query => ({
       required: null,
-      deferred: [{
-        required: deferQuery(query),
-        deferred: [],
-      }],
+      deferred: [
+        {
+          required: deferQuery(query),
+          deferred: [],
+        },
+      ],
     }));
 
     queryRunner.run(mockQuerySet, mockCallback);
@@ -312,10 +311,12 @@ describe('GraphQLQueryRunner', () => {
         // Treat `mockQuerySet.bar` as deferred.
         return {
           query: null,
-          deferred: [{
-            required: deferQuery(query),
-            deferred: [],
-          }],
+          deferred: [
+            {
+              required: deferQuery(query),
+              deferred: [],
+            },
+          ],
         };
       }
     });
@@ -327,60 +328,66 @@ describe('GraphQLQueryRunner', () => {
     jest.runAllTimers();
 
     expect(mockCallback.mock.calls).toEqual([
-      [{
-        aborted: false,
-        done: false,
-        error: null,
-        events: [
-          {
-            type: 'NETWORK_QUERY_START',
-          },
-          {
-            type: 'CACHE_RESTORE_START',
-          },
-        ],
-        ready: false,
-        stale: false,
-      }],
-      [{
-        aborted: false,
-        done: false,
-        error: null,
-        events: [
-          {
-            type: 'NETWORK_QUERY_START',
-          },
-          {
-            type: 'CACHE_RESTORE_START',
-          },
-          {
-            type: 'CACHE_RESTORE_FAILED',
-          },
-        ],
-        ready: false,
-        stale: false,
-      }],
-      [{
-        aborted: false,
-        done: false,
-        error: null,
-        events: [
-          {
-            type: 'NETWORK_QUERY_START',
-          },
-          {
-            type: 'CACHE_RESTORE_START',
-          },
-          {
-            type: 'CACHE_RESTORE_FAILED',
-          },
-          {
-            type: 'NETWORK_QUERY_RECEIVED_REQUIRED',
-          },
-        ],
-        ready: true,
-        stale: false,
-      }],
+      [
+        {
+          aborted: false,
+          done: false,
+          error: null,
+          events: [
+            {
+              type: 'NETWORK_QUERY_START',
+            },
+            {
+              type: 'CACHE_RESTORE_START',
+            },
+          ],
+          ready: false,
+          stale: false,
+        },
+      ],
+      [
+        {
+          aborted: false,
+          done: false,
+          error: null,
+          events: [
+            {
+              type: 'NETWORK_QUERY_START',
+            },
+            {
+              type: 'CACHE_RESTORE_START',
+            },
+            {
+              type: 'CACHE_RESTORE_FAILED',
+            },
+          ],
+          ready: false,
+          stale: false,
+        },
+      ],
+      [
+        {
+          aborted: false,
+          done: false,
+          error: null,
+          events: [
+            {
+              type: 'NETWORK_QUERY_START',
+            },
+            {
+              type: 'CACHE_RESTORE_START',
+            },
+            {
+              type: 'CACHE_RESTORE_FAILED',
+            },
+            {
+              type: 'NETWORK_QUERY_RECEIVED_REQUIRED',
+            },
+          ],
+          ready: true,
+          stale: false,
+        },
+      ],
     ]);
 
     pendingQueryTracker.add.mock.fetches[1].resolve();
@@ -443,60 +450,66 @@ describe('GraphQLQueryRunner', () => {
     jest.runAllTimers();
 
     expect(mockCallback.mock.calls).toEqual([
-      [{
-        aborted: false,
-        done: false,
-        error: null,
-        events: [
-          {
-            type: 'NETWORK_QUERY_START',
-          },
-          {
-            type: 'CACHE_RESTORE_START',
-          },
-        ],
-        ready: false,
-        stale: false,
-      }],
-      [{
-        aborted: false,
-        done: false,
-        error: null,
-        events: [
-          {
-            type: 'NETWORK_QUERY_START',
-          },
-          {
-            type: 'CACHE_RESTORE_START',
-          },
-          {
-            type: 'CACHE_RESTORE_FAILED',
-          },
-        ],
-        ready: false,
-        stale: false,
-      }],
-      [{
-        aborted: false,
-        done: true,
-        error: null,
-        events: [
-          {
-            type: 'NETWORK_QUERY_START',
-          },
-          {
-            type: 'CACHE_RESTORE_START',
-          },
-          {
-            type: 'CACHE_RESTORE_FAILED',
-          },
-          {
-            type: 'NETWORK_QUERY_RECEIVED_ALL',
-          },
-        ],
-        ready: true,
-        stale: false,
-      }],
+      [
+        {
+          aborted: false,
+          done: false,
+          error: null,
+          events: [
+            {
+              type: 'NETWORK_QUERY_START',
+            },
+            {
+              type: 'CACHE_RESTORE_START',
+            },
+          ],
+          ready: false,
+          stale: false,
+        },
+      ],
+      [
+        {
+          aborted: false,
+          done: false,
+          error: null,
+          events: [
+            {
+              type: 'NETWORK_QUERY_START',
+            },
+            {
+              type: 'CACHE_RESTORE_START',
+            },
+            {
+              type: 'CACHE_RESTORE_FAILED',
+            },
+          ],
+          ready: false,
+          stale: false,
+        },
+      ],
+      [
+        {
+          aborted: false,
+          done: true,
+          error: null,
+          events: [
+            {
+              type: 'NETWORK_QUERY_START',
+            },
+            {
+              type: 'CACHE_RESTORE_START',
+            },
+            {
+              type: 'CACHE_RESTORE_FAILED',
+            },
+            {
+              type: 'NETWORK_QUERY_RECEIVED_ALL',
+            },
+          ],
+          ready: true,
+          stale: false,
+        },
+      ],
     ]);
   });
 
@@ -563,61 +576,67 @@ describe('GraphQLQueryRunner', () => {
 
   it('is ready if required data is in disk cache', () => {
     diffRelayQuery.mockImplementation(query => [query]);
-    RelayStoreData.prototype.hasCacheManager =
-      jest.fn(() => true);
-    RelayStoreData.prototype.restoreQueriesFromCache =
-      jest.fn((queries, callback) => {
+    RelayStoreData.prototype.hasCacheManager = jest.fn(() => true);
+    RelayStoreData.prototype.restoreQueriesFromCache = jest.fn(
+      (queries, callback) => {
         resolveImmediate(() => callback.onSuccess());
-      });
+      },
+    );
     mockSplitDeferredQueries();
 
     queryRunner.run(mockQuerySet, mockCallback);
     jest.runAllTimers();
 
     expect(mockCallback.mock.calls).toEqual([
-      [{
-        aborted: false,
-        done: false,
-        error: null,
-        events: [
-          {
-            type: 'NETWORK_QUERY_START',
-          },
-          {
-            type: 'CACHE_RESTORE_START',
-          },
-        ],
-        ready: false,
-        stale: false,
-      }],
-      [{
-        aborted: false,
-        done: false,
-        error: null,
-        events: [
-          {
-            type: 'NETWORK_QUERY_START',
-          },
-          {
-            type: 'CACHE_RESTORE_START',
-          },
-          {
-            type: 'CACHE_RESTORED_REQUIRED',
-          },
-        ],
-        ready: true,
-        stale: true,
-      }],
+      [
+        {
+          aborted: false,
+          done: false,
+          error: null,
+          events: [
+            {
+              type: 'NETWORK_QUERY_START',
+            },
+            {
+              type: 'CACHE_RESTORE_START',
+            },
+          ],
+          ready: false,
+          stale: false,
+        },
+      ],
+      [
+        {
+          aborted: false,
+          done: false,
+          error: null,
+          events: [
+            {
+              type: 'NETWORK_QUERY_START',
+            },
+            {
+              type: 'CACHE_RESTORE_START',
+            },
+            {
+              type: 'CACHE_RESTORED_REQUIRED',
+            },
+          ],
+          ready: true,
+          stale: true,
+        },
+      ],
     ]);
   });
 
   it('calls the callback if disk cache read completes after a network error', () => {
     diffRelayQuery.mockImplementation(query => [query]);
-    RelayStoreData.prototype.hasCacheManager =
-      jest.fn(() => true);
+    RelayStoreData.prototype.hasCacheManager = jest.fn(() => true);
     let cacheCallback;
-    RelayStoreData.prototype.restoreQueriesFromCache =
-      jest.fn((queries, callback) => {cacheCallback = callback.onSuccess;});
+    RelayStoreData.prototype.restoreQueriesFromCache = jest.fn(
+      (queries, callback) => {
+        cacheCallback = callback.onSuccess;
+      },
+    );
     mockSplitDeferredQueries();
     const error = {};
     queryRunner.run(mockQuerySet, mockCallback);
@@ -627,74 +646,81 @@ describe('GraphQLQueryRunner', () => {
     jest.runAllTimers();
 
     expect(mockCallback.mock.calls).toEqual([
-      [{
-        aborted: false,
-        done: false,
-        error: null,
-        events: [
-          {
-            type: 'NETWORK_QUERY_START',
-          },
-          {
-            type: 'CACHE_RESTORE_START',
-          },
-        ],
-        ready: false,
-        stale: false,
-      }],
-      [{
-        aborted: false,
-        done: false,
-        error,
-        events: [
-          {
-            type: 'NETWORK_QUERY_START',
-          },
-          {
-            type: 'CACHE_RESTORE_START',
-          },
-          {
-            type: 'NETWORK_QUERY_ERROR',
-            error,
-          },
-        ],
-        ready: false,
-        stale: false,
-      }],
-      [{
-        aborted: false,
-        done: false,
-        error,
-        events: [
-          {
-            type: 'NETWORK_QUERY_START',
-          },
-          {
-            type: 'CACHE_RESTORE_START',
-          },
-          {
-            type: 'NETWORK_QUERY_ERROR',
-            error,
-          },
-          {
-            type: 'CACHE_RESTORED_REQUIRED',
-          },
-        ],
-        ready: true,
-        stale: true,
-      }],
+      [
+        {
+          aborted: false,
+          done: false,
+          error: null,
+          events: [
+            {
+              type: 'NETWORK_QUERY_START',
+            },
+            {
+              type: 'CACHE_RESTORE_START',
+            },
+          ],
+          ready: false,
+          stale: false,
+        },
+      ],
+      [
+        {
+          aborted: false,
+          done: false,
+          error,
+          events: [
+            {
+              type: 'NETWORK_QUERY_START',
+            },
+            {
+              type: 'CACHE_RESTORE_START',
+            },
+            {
+              type: 'NETWORK_QUERY_ERROR',
+              error,
+            },
+          ],
+          ready: false,
+          stale: false,
+        },
+      ],
+      [
+        {
+          aborted: false,
+          done: false,
+          error,
+          events: [
+            {
+              type: 'NETWORK_QUERY_START',
+            },
+            {
+              type: 'CACHE_RESTORE_START',
+            },
+            {
+              type: 'NETWORK_QUERY_ERROR',
+              error,
+            },
+            {
+              type: 'CACHE_RESTORED_REQUIRED',
+            },
+          ],
+          ready: true,
+          stale: true,
+        },
+      ],
     ]);
     jest.runAllTimers();
-
   });
 
   it('calls the callback if disk cache ready complete after queries are resolved', () => {
     diffRelayQuery.mockImplementation(query => [query]);
-    RelayStoreData.prototype.hasCacheManager =
-      jest.fn(() => true);
+    RelayStoreData.prototype.hasCacheManager = jest.fn(() => true);
     let cacheCallback;
-    RelayStoreData.prototype.restoreQueriesFromCache =
-      jest.fn((queries, callback) => {cacheCallback = callback.onSuccess;});
+    RelayStoreData.prototype.restoreQueriesFromCache = jest.fn(
+      (queries, callback) => {
+        cacheCallback = callback.onSuccess;
+      },
+    );
     mockSplitDeferredQueries();
 
     queryRunner.run(mockQuerySet, mockCallback);
@@ -705,39 +731,43 @@ describe('GraphQLQueryRunner', () => {
     jest.runAllTimers();
 
     expect(mockCallback.mock.calls).toEqual([
-      [{
-        aborted: false,
-        done: false,
-        error: null,
-        events: [
-          {
-            type: 'NETWORK_QUERY_START',
-          },
-          {
-            type: 'CACHE_RESTORE_START',
-          },
-        ],
-        ready: false,
-        stale: false,
-      }],
-      [{
-        aborted: false,
-        done: true,
-        error: null,
-        events: [
-          {
-            type: 'NETWORK_QUERY_START',
-          },
-          {
-            type: 'CACHE_RESTORE_START',
-          },
-          {
-            type: 'NETWORK_QUERY_RECEIVED_ALL',
-          },
-        ],
-        ready: true,
-        stale: false,
-      }],
+      [
+        {
+          aborted: false,
+          done: false,
+          error: null,
+          events: [
+            {
+              type: 'NETWORK_QUERY_START',
+            },
+            {
+              type: 'CACHE_RESTORE_START',
+            },
+          ],
+          ready: false,
+          stale: false,
+        },
+      ],
+      [
+        {
+          aborted: false,
+          done: true,
+          error: null,
+          events: [
+            {
+              type: 'NETWORK_QUERY_START',
+            },
+            {
+              type: 'CACHE_RESTORE_START',
+            },
+            {
+              type: 'NETWORK_QUERY_RECEIVED_ALL',
+            },
+          ],
+          ready: true,
+          stale: false,
+        },
+      ],
     ]);
   });
 
@@ -750,8 +780,9 @@ describe('GraphQLQueryRunner', () => {
     jest.runAllTimers();
 
     expect(pendingQueryTracker.add.mock.calls.length).toBe(1);
-    expect(pendingQueryTracker.add.mock.calls[0][0].query)
-      .toEqualQueryNode(singleMockQuery.foo);
+    expect(pendingQueryTracker.add.mock.calls[0][0].query).toEqualQueryNode(
+      singleMockQuery.foo,
+    );
   });
 
   it('is completely ready on `forceFetch` when all data is available', () => {
@@ -763,39 +794,43 @@ describe('GraphQLQueryRunner', () => {
     jest.runAllTimers();
 
     expect(mockCallback.mock.calls).toEqual([
-      [{
-        aborted: false,
-        done: false,
-        error: null,
-        events: [
-          {
-            type: 'NETWORK_QUERY_START',
-          },
-          {
-            type: 'CACHE_RESTORE_START',
-          },
-        ],
-        ready: false,
-        stale: false,
-      }],
-      [{
-        aborted: false,
-        done: false,
-        error: null,
-        events: [
-          {
-            type: 'NETWORK_QUERY_START',
-          },
-          {
-            type: 'CACHE_RESTORE_START',
-          },
-          {
-            type: 'CACHE_RESTORED_REQUIRED',
-          },
-        ],
-        ready: true,
-        stale: true,
-      }],
+      [
+        {
+          aborted: false,
+          done: false,
+          error: null,
+          events: [
+            {
+              type: 'NETWORK_QUERY_START',
+            },
+            {
+              type: 'CACHE_RESTORE_START',
+            },
+          ],
+          ready: false,
+          stale: false,
+        },
+      ],
+      [
+        {
+          aborted: false,
+          done: false,
+          error: null,
+          events: [
+            {
+              type: 'NETWORK_QUERY_START',
+            },
+            {
+              type: 'CACHE_RESTORE_START',
+            },
+            {
+              type: 'CACHE_RESTORED_REQUIRED',
+            },
+          ],
+          ready: true,
+          stale: true,
+        },
+      ],
     ]);
     expect(pendingQueryTracker.add.mock.calls.length).toBe(1);
 
@@ -831,18 +866,22 @@ describe('GraphQLQueryRunner', () => {
     beforeEach(() => {
       diffRelayQuery.mockImplementation(query => [query]);
 
-      const mockQuery = getNode(Relay.QL`
+      const mockQuery = getNode(
+        Relay.QL`
         query {
           viewer{actor{id,firstName,lastName,name,address{city},hometown{id}}}
         }
-      `);
+      `,
+      );
 
       const mockSplitQueries = {
-        required: getNode(Relay.QL`
+        required: getNode(
+          Relay.QL`
           query {
             viewer{actor{id,name}}
           }
-        `),
+        `,
+        ),
         deferred: [
           Relay.QL`
             query {
@@ -879,11 +918,7 @@ describe('GraphQLQueryRunner', () => {
         pendingQueryTracker.add.mock.fetches[index].resolve();
       };
       runTest = () => {
-        queryRunner.run(
-          {foo: mockQuery},
-          mockCallback,
-          fetchMode
-        );
+        queryRunner.run({foo: mockQuery}, mockCallback, fetchMode);
         resolveSplitQueryByIndex(1);
         resolveSplitQueryByIndex(0);
         jest.runAllTimers();
@@ -899,23 +934,27 @@ describe('GraphQLQueryRunner', () => {
 
         // Only called once after both splitQuery#0 and splitQuery#1.
         expect(mockCallback.mock.calls).toEqual([
-          [{
-            ...defaultState,
-            events: [
-              {type: 'NETWORK_QUERY_START'},
-              {type: 'CACHE_RESTORE_START'},
-            ],
-          }],
-          [{
-            ...defaultState,
-            events: [
-              {type: 'NETWORK_QUERY_START'},
-              {type: 'CACHE_RESTORE_START'},
-              {type: 'CACHE_RESTORE_FAILED'},
-              {type: 'NETWORK_QUERY_RECEIVED_REQUIRED'},
-            ],
-            ready: true,
-          }],
+          [
+            {
+              ...defaultState,
+              events: [
+                {type: 'NETWORK_QUERY_START'},
+                {type: 'CACHE_RESTORE_START'},
+              ],
+            },
+          ],
+          [
+            {
+              ...defaultState,
+              events: [
+                {type: 'NETWORK_QUERY_START'},
+                {type: 'CACHE_RESTORE_START'},
+                {type: 'CACHE_RESTORE_FAILED'},
+                {type: 'NETWORK_QUERY_RECEIVED_REQUIRED'},
+              ],
+              ready: true,
+            },
+          ],
         ]);
 
         resolveSplitQueryByIndex(2);
@@ -924,55 +963,59 @@ describe('GraphQLQueryRunner', () => {
 
         // Only called once more after both splitQuery#2 and splitQuery#3.
         expect(mockCallback.mock.calls).toEqual([
-          [{
-            ...defaultState,
-            events: [
-              {type: 'NETWORK_QUERY_START'},
-              {type: 'CACHE_RESTORE_START'},
-            ],
-            ready: false,
-          }],
-          [{
-            ...defaultState,
-            events: [
-              {type: 'NETWORK_QUERY_START'},
-              {type: 'CACHE_RESTORE_START'},
-              {type: 'CACHE_RESTORE_FAILED'},
-              {type: 'NETWORK_QUERY_RECEIVED_REQUIRED'},
-            ],
-            ready: true,
-          }],
-          [{
-            ...defaultState,
-            events: [
-              {type: 'NETWORK_QUERY_START'},
-              {type: 'CACHE_RESTORE_START'},
-              {type: 'CACHE_RESTORE_FAILED'},
-              {type: 'NETWORK_QUERY_RECEIVED_REQUIRED'},
-              {type: 'NETWORK_QUERY_RECEIVED_REQUIRED'},
-            ],
-            ready: true,
-          }],
+          [
+            {
+              ...defaultState,
+              events: [
+                {type: 'NETWORK_QUERY_START'},
+                {type: 'CACHE_RESTORE_START'},
+              ],
+              ready: false,
+            },
+          ],
+          [
+            {
+              ...defaultState,
+              events: [
+                {type: 'NETWORK_QUERY_START'},
+                {type: 'CACHE_RESTORE_START'},
+                {type: 'CACHE_RESTORE_FAILED'},
+                {type: 'NETWORK_QUERY_RECEIVED_REQUIRED'},
+              ],
+              ready: true,
+            },
+          ],
+          [
+            {
+              ...defaultState,
+              events: [
+                {type: 'NETWORK_QUERY_START'},
+                {type: 'CACHE_RESTORE_START'},
+                {type: 'CACHE_RESTORE_FAILED'},
+                {type: 'NETWORK_QUERY_RECEIVED_REQUIRED'},
+                {type: 'NETWORK_QUERY_RECEIVED_REQUIRED'},
+              ],
+              ready: true,
+            },
+          ],
         ]);
 
         resolveSplitQueryByIndex(4);
         jest.runAllTimers();
 
-        expect(mockCallback).lastCalledWith(
-          {
-            ...defaultState,
-            done: true,
-            events: [
-              {type: 'NETWORK_QUERY_START'},
-              {type: 'CACHE_RESTORE_START'},
-              {type: 'CACHE_RESTORE_FAILED'},
-              {type: 'NETWORK_QUERY_RECEIVED_REQUIRED'},
-              {type: 'NETWORK_QUERY_RECEIVED_REQUIRED'},
-              {type: 'NETWORK_QUERY_RECEIVED_ALL'},
-            ],
-            ready: true,
-          }
-        );
+        expect(mockCallback).lastCalledWith({
+          ...defaultState,
+          done: true,
+          events: [
+            {type: 'NETWORK_QUERY_START'},
+            {type: 'CACHE_RESTORE_START'},
+            {type: 'CACHE_RESTORE_FAILED'},
+            {type: 'NETWORK_QUERY_RECEIVED_REQUIRED'},
+            {type: 'NETWORK_QUERY_RECEIVED_REQUIRED'},
+            {type: 'NETWORK_QUERY_RECEIVED_ALL'},
+          ],
+          ready: true,
+        });
       };
     });
 

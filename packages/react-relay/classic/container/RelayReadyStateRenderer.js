@@ -8,6 +8,7 @@
  *
  * @providesModule RelayReadyStateRenderer
  * @flow
+ * @format
  */
 
 'use strict';
@@ -20,7 +21,10 @@ const StaticContainer = require('StaticContainer.react');
 const getRelayQueries = require('getRelayQueries');
 const mapObject = require('mapObject');
 
-import type {ClassicRelayContext, RelayEnvironmentInterface} from 'RelayEnvironment';
+import type {
+  ClassicRelayContext,
+  RelayEnvironmentInterface,
+} from 'RelayEnvironment';
 import type {RelayQuerySet} from 'RelayInternalTypes';
 import type RelayQuery from 'RelayQuery';
 import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
@@ -35,7 +39,7 @@ type Props = {
   retry: RelayRetryCallback,
 };
 type RelayContainerProps = {
-  [propName: string]: mixed;
+  [propName: string]: mixed,
 };
 type RelayContainerPropsFactory = RelayContainerPropsFactory;
 type RelayRenderArgs = {
@@ -122,8 +126,7 @@ class RelayReadyStateRenderer extends React.Component {
     }
     const prevReadyState = prevProps.readyState;
     const nextReadyState = nextProps.readyState;
-    if (prevReadyState == null ||
-        nextReadyState == null) {
+    if (prevReadyState == null || nextReadyState == null) {
       return true;
     }
     if (
@@ -149,9 +152,9 @@ class RelayReadyStateRenderer extends React.Component {
           done: readyState.done,
           error: readyState.error,
           events: readyState.events,
-          props: readyState.ready ?
-            this.state.getContainerProps(this.props) :
-            null,
+          props: readyState.ready
+            ? this.state.getContainerProps(this.props)
+            : null,
           retry: this.props.retry,
           stale: readyState.stale,
         });
@@ -184,16 +187,12 @@ function createContainerPropsFactory(): RelayContainerPropsFactory {
       prevProps.Container !== nextProps.Container ||
       prevProps.queryConfig !== nextProps.queryConfig
     ) {
-      querySet = getRelayQueries(
-        nextProps.Container,
-        nextProps.queryConfig
-      );
+      querySet = getRelayQueries(nextProps.Container, nextProps.queryConfig);
     }
     const containerProps = {
       ...nextProps.queryConfig.params,
-      ...mapObject(
-        querySet,
-        query => createFragmentPointerForRoot(nextProps.environment, query)
+      ...mapObject(querySet, query =>
+        createFragmentPointerForRoot(nextProps.environment, query),
       ),
     };
     prevProps = nextProps;
@@ -203,14 +202,14 @@ function createContainerPropsFactory(): RelayContainerPropsFactory {
 
 function createFragmentPointerForRoot(
   environment: RelayEnvironmentInterface,
-  query: RelayQuery.Root
+  query: RelayQuery.Root,
 ) {
-  return query ?
-    RelayFragmentPointer.createForRoot(
-      environment.getStoreData().getQueuedStore(),
-      query
-    ) :
-    null;
+  return query
+    ? RelayFragmentPointer.createForRoot(
+        environment.getStoreData().getQueuedStore(),
+        query,
+      )
+    : null;
 }
 
 module.exports = RelayReadyStateRenderer;

@@ -8,6 +8,7 @@
  *
  * @providesModule RelayCacheProcessor
  * @flow
+ * @format
  */
 
 'use strict';
@@ -20,16 +21,9 @@ const invariant = require('invariant');
 const isEmpty = require('isEmpty');
 const warning = require('warning');
 
-import type {
-  DataID,
-} from 'RelayInternalTypes';
-import type {
-  Record,
-} from 'RelayRecord';
-import type {
-  CacheManager,
-  CacheProcessorCallbacks,
-} from 'RelayTypes';
+import type {DataID} from 'RelayInternalTypes';
+import type {Record} from 'RelayRecord';
+import type {CacheManager, CacheProcessorCallbacks} from 'RelayTypes';
 
 type ProcessorState = 'PENDING' | 'LOADING' | 'COMPLETED';
 
@@ -63,7 +57,7 @@ class RelayCacheProcessor<Ts> extends RelayQueryVisitor<Ts> {
   abort(): void {
     warning(
       this._state === 'LOADING',
-      'RelayCacheProcessor: Can only abort an in-progress read operation.'
+      'RelayCacheProcessor: Can only abort an in-progress read operation.',
     );
     this._state = 'COMPLETED';
   }
@@ -71,7 +65,7 @@ class RelayCacheProcessor<Ts> extends RelayQueryVisitor<Ts> {
   handleFailure(error: any): void {
     invariant(
       this._state !== 'COMPLETED',
-      'RelayStoreReader: Query set already failed/completed.'
+      'RelayStoreReader: Query set already failed/completed.',
     );
     this._state = 'COMPLETED';
     this._callbacks.onFailure && this._callbacks.onFailure(error);
@@ -81,7 +75,7 @@ class RelayCacheProcessor<Ts> extends RelayQueryVisitor<Ts> {
     node: RelayQuery.Node,
     dataID: DataID,
     record: ?Record,
-    nextState: Ts
+    nextState: Ts,
   ): void {
     return;
   }
@@ -90,7 +84,7 @@ class RelayCacheProcessor<Ts> extends RelayQueryVisitor<Ts> {
     query: RelayQuery.Root,
     dataID: ?DataID,
     identifyingArgKey: ?string,
-    nextState: Ts
+    nextState: Ts,
   ): void {
     return;
   }
@@ -98,7 +92,7 @@ class RelayCacheProcessor<Ts> extends RelayQueryVisitor<Ts> {
   process(processorFn: Function): void {
     invariant(
       this._state === 'PENDING',
-      'RelayCacheProcessor: A `read` is in progress.'
+      'RelayCacheProcessor: A `read` is in progress.',
     );
     this._state = 'LOADING';
     processorFn();
@@ -110,7 +104,7 @@ class RelayCacheProcessor<Ts> extends RelayQueryVisitor<Ts> {
   queueIdentifiedRoot(
     query: RelayQuery.Root,
     identifyingArgKey: ?string,
-    nextState: Ts
+    nextState: Ts,
   ): void {
     const storageKey = query.getStorageKey();
     this._cacheManager.readRootCall(
@@ -128,7 +122,7 @@ class RelayCacheProcessor<Ts> extends RelayQueryVisitor<Ts> {
           query,
           dataID,
           identifyingArgKey,
-          nextState
+          nextState,
         );
         const rootKey = this._getRootKey(storageKey, identifyingArgKey);
         const pendingRoots = this._pendingRoots[rootKey];
@@ -142,45 +136,38 @@ class RelayCacheProcessor<Ts> extends RelayQueryVisitor<Ts> {
         if (this._isDone()) {
           this._handleSuccess();
         }
-      }
+      },
     );
   }
 
-  queueNode(
-    node: RelayQuery.Node,
-    dataID: DataID,
-    nextState: Ts
-  ): void {
-    this._cacheManager.readNode(
-      dataID,
-      (error, record) => {
+  queueNode(node: RelayQuery.Node, dataID: DataID, nextState: Ts): void {
+    this._cacheManager.readNode(dataID, (error, record) => {
+      if (this._state === 'COMPLETED') {
+        return;
+      }
+      if (error) {
+        this.handleFailure(error);
+        return;
+      }
+      this.handleNodeVisited(node, dataID, record, nextState);
+      const pendingNextStates = this._pendingNextStates[dataID];
+      delete this._pendingNextStates[dataID];
+      for (let ii = 0; ii < pendingNextStates.length; ii++) {
         if (this._state === 'COMPLETED') {
           return;
         }
-        if (error) {
-          this.handleFailure(error);
-          return;
-        }
-        this.handleNodeVisited(node, dataID, record, nextState);
-        const pendingNextStates = this._pendingNextStates[dataID];
-        delete this._pendingNextStates[dataID];
-        for (let ii = 0; ii < pendingNextStates.length; ii++) {
-          if (this._state === 'COMPLETED') {
-            return;
-          }
-          this.traverse(node, pendingNextStates[ii]);
-        }
-        if (this._isDone()) {
-          this._handleSuccess();
-        }
+        this.traverse(node, pendingNextStates[ii]);
       }
-    );
+      if (this._isDone()) {
+        this._handleSuccess();
+      }
+    });
   }
 
   visitIdentifiedRoot(
     query: RelayQuery.Root,
     identifyingArgKey: ?string,
-    nextState: Ts
+    nextState: Ts,
   ): void {
     const storageKey = query.getStorageKey();
     const rootKey = this._getRootKey(storageKey, identifyingArgKey);
@@ -192,11 +179,7 @@ class RelayCacheProcessor<Ts> extends RelayQueryVisitor<Ts> {
     }
   }
 
-  visitNode(
-    node: RelayQuery.Node,
-    dataID: DataID,
-    nextState: Ts
-  ): void {
+  visitNode(node: RelayQuery.Node, dataID: DataID, nextState: Ts): void {
     if (this._pendingNextStates.hasOwnProperty(dataID)) {
       this._pendingNextStates[dataID].push(nextState);
     } else {
@@ -205,10 +188,7 @@ class RelayCacheProcessor<Ts> extends RelayQueryVisitor<Ts> {
     }
   }
 
-  visitRoot(
-    query: RelayQuery.Root,
-    nextState: Ts
-  ): void {
+  visitRoot(query: RelayQuery.Root, nextState: Ts): void {
     forEachRootCallArg(query, ({identifyingArgKey}) => {
       if (this._state === 'COMPLETED') {
         return;
@@ -224,7 +204,7 @@ class RelayCacheProcessor<Ts> extends RelayQueryVisitor<Ts> {
   _handleSuccess(): void {
     invariant(
       this._state !== 'COMPLETED',
-      'RelayStoreReader: Query set already failed/completed.'
+      'RelayStoreReader: Query set already failed/completed.',
     );
     this._state = 'COMPLETED';
     this._callbacks.onSuccess && this._callbacks.onSuccess();

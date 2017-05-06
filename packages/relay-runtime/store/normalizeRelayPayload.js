@@ -8,6 +8,7 @@
  *
  * @providesModule normalizeRelayPayload
  * @flow
+ * @format
  */
 
 'use strict';
@@ -18,7 +19,11 @@ const RelayResponseNormalizer = require('RelayResponseNormalizer');
 
 const {ROOT_ID, ROOT_TYPE} = require('RelayStoreUtils');
 
-import type {PayloadData, PayloadError, RelayResponsePayload} from 'RelayNetworkTypes';
+import type {
+  PayloadData,
+  PayloadError,
+  RelayResponsePayload,
+} from 'RelayNetworkTypes';
 import type {NormalizationOptions} from 'RelayResponseNormalizer';
 import type {Selector} from 'RelayStoreTypes';
 

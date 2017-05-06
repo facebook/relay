@@ -8,6 +8,7 @@
  *
  * @providesModule printRelayOSSQuery
  * @flow
+ * @format
  */
 
 'use strict';
@@ -99,24 +100,23 @@ function printOSSQuery(
   query: RelayQuery.OSSQuery,
   printerState: PrinterState,
 ): string {
-  const children = printChildren(query, printerState, oneIndent) || EMPTY_CHILDREN;
+  const children =
+    printChildren(query, printerState, oneIndent) || EMPTY_CHILDREN;
   const directives = printDirectives(query);
   // Note: variable definitions must be processed *after* traversing children
   const variableDefinitions = printVariableDefinitions(printerState);
-  return 'query ' + query.getName() + variableDefinitions +
-    directives + children;
+  return (
+    'query ' + query.getName() + variableDefinitions + directives + children
+  );
 }
 
 /**
  * Prints the output of a classic Relay.QL query.
  */
-function printRoot(
-  node: RelayQuery.Root,
-  printerState: PrinterState
-): string {
+function printRoot(node: RelayQuery.Root, printerState: PrinterState): string {
   invariant(
     !node.getBatchCall(),
-    'printRelayOSSQuery(): Deferred queries are not supported.'
+    'printRelayOSSQuery(): Deferred queries are not supported.',
   );
   const identifyingArg = node.getIdentifyingArg();
   const identifyingArgName = (identifyingArg && identifyingArg.name) || null;
@@ -127,13 +127,13 @@ function printRoot(
     invariant(
       identifyingArgName,
       'printRelayOSSQuery(): Expected an argument name for root field `%s`.',
-      fieldName
+      fieldName,
     );
     const rootArgString = printArgument(
       identifyingArgName,
       identifyingArgValue,
       identifyingArgType,
-      printerState
+      printerState,
     );
     if (rootArgString) {
       fieldName += '(' + rootArgString + ')';
@@ -148,40 +148,59 @@ function printRoot(
     return 'query ' + queryString + EMPTY_CHILDREN;
   }
 
-  return 'query ' + queryString + ' {' + newLine +
-    oneIndent + fieldName + children + newLine + '}';
+  return (
+    'query ' +
+    queryString +
+    ' {' +
+    newLine +
+    oneIndent +
+    fieldName +
+    children +
+    newLine +
+    '}'
+  );
 }
 
 function printOperation(
   node: RelayQuery.Operation,
-  printerState: PrinterState
+  printerState: PrinterState,
 ): string {
-  const operationKind = node instanceof RelayQuery.Mutation ?
-    'mutation' :
-    'subscription';
+  const operationKind = node instanceof RelayQuery.Mutation
+    ? 'mutation'
+    : 'subscription';
   const call = node.getCall();
   const inputString = printArgument(
     node.getCallVariableName(),
     call.value,
     node.getInputType(),
-    printerState
+    printerState,
   );
   invariant(
     inputString,
     'printRelayOSSQuery(): Expected %s `%s` to have a value for `%s`.',
     operationKind,
     node.getName(),
-    node.getCallVariableName()
+    node.getCallVariableName(),
   );
   // Note: children must be traversed before printing variable definitions
-  const children = printChildren(node, printerState, oneIndent) || EMPTY_CHILDREN;
+  const children =
+    printChildren(node, printerState, oneIndent) || EMPTY_CHILDREN;
   const operationString =
     node.getName() + printVariableDefinitions(printerState);
   const fieldName = call.name + '(' + inputString + ')';
 
-  return operationKind + ' ' + operationString + ' {' + newLine +
-    oneIndent + fieldName + children + newLine + '}';
-
+  return (
+    operationKind +
+    ' ' +
+    operationString +
+    ' {' +
+    newLine +
+    oneIndent +
+    fieldName +
+    children +
+    newLine +
+    '}'
+  );
 }
 
 function printVariableDefinitions({variableMap}: PrinterState): string {
@@ -207,17 +226,23 @@ function printNonNullType(type: string): string {
 
 function printFragment(
   node: RelayQuery.Fragment,
-  printerState: PrinterState
+  printerState: PrinterState,
 ): string {
   const directives = printDirectives(node);
-  return 'fragment ' + node.getDebugName() + ' on ' +
-    node.getType() + directives + nullthrows(printChildren(node, printerState, ''));
+  return (
+    'fragment ' +
+    node.getDebugName() +
+    ' on ' +
+    node.getType() +
+    directives +
+    nullthrows(printChildren(node, printerState, ''))
+  );
 }
 
 function printChildren(
   node: RelayQuery.Node,
   printerState: PrinterState,
-  indent: string
+  indent: string,
 ): ?string {
   const childrenText = [];
   const children = node.getChildren();
@@ -236,7 +261,7 @@ function printChildren(
             name,
             value,
             child.getCallType(name),
-            printerState
+            printerState,
           );
           if (argText) {
             argTexts.push(argText);
@@ -248,7 +273,11 @@ function printChildren(
       }
       fieldText += printDirectives(child);
       if (child.canHaveSubselections()) {
-        const childText = printChildren(child, printerState, indent + oneIndent);
+        const childText = printChildren(
+          child,
+          printerState,
+          indent + oneIndent,
+        );
         if (childText != null) {
           fieldText += childText;
           childrenText.push(fieldText);
@@ -272,11 +301,11 @@ function printChildren(
           fragmentName = fragmentNameByHash[fragmentHash];
         } else {
           // Avoid reprinting a fragment that is identical to another fragment.
-          const fragmentChildren = nullthrows(printChildren(child, printerState, ''));
+          const fragmentChildren = nullthrows(
+            printChildren(child, printerState, ''),
+          );
           const fragmentText =
-            child.getType() +
-            printDirectives(child) +
-            fragmentChildren;
+            child.getType() + printDirectives(child) + fragmentChildren;
           if (fragmentNameByText.hasOwnProperty(fragmentText)) {
             fragmentName = fragmentNameByText[fragmentText];
           } else {
@@ -284,7 +313,7 @@ function printChildren(
             fragmentNameByHash[fragmentHash] = fragmentName;
             fragmentNameByText[fragmentText] = fragmentName;
             fragmentTexts.push(
-              'fragment ' + fragmentName + ' on ' + fragmentText
+              'fragment ' + fragmentName + ' on ' + fragmentText,
             );
           }
         }
@@ -298,16 +327,23 @@ function printChildren(
       invariant(
         false,
         'printRelayOSSQuery(): Expected a field or fragment, got `%s`.',
-        child.constructor.name
+        child.constructor.name,
       );
     }
   }
   if (!childrenText.length) {
     return null;
   }
-  return ' {' + newLine + indent + oneIndent +
-    childrenText.join(',' + newLine + indent + oneIndent) + newLine +
-    indent + '}';
+  return (
+    ' {' +
+    newLine +
+    indent +
+    oneIndent +
+    childrenText.join(',' + newLine + indent + oneIndent) +
+    newLine +
+    indent +
+    '}'
+  );
 }
 
 function printDirectives(node) {
@@ -315,8 +351,7 @@ function printDirectives(node) {
   node.getDirectives().forEach(directive => {
     let dirString = '@' + directive.name;
     if (directive.args.length) {
-      dirString +=
-        '(' + directive.args.map(printDirective).join(',') + ')';
+      dirString += '(' + directive.args.map(printDirective).join(',') + ')';
     }
     directiveStrings = directiveStrings || [];
     directiveStrings.push(dirString);
@@ -330,12 +365,12 @@ function printDirectives(node) {
 function printDirective({name, value}) {
   invariant(
     typeof value === 'boolean' ||
-    typeof value === 'number' ||
-    typeof value === 'string',
+      typeof value === 'number' ||
+      typeof value === 'string',
     'printRelayOSSQuery(): Relay only supports directives with scalar values ' +
-    '(boolean, number, or string), got `%s: %s`.',
+      '(boolean, number, or string), got `%s: %s`.',
     name,
-    value
+    value,
   );
   return name + ':' + JSON.stringify(value);
 }
@@ -344,7 +379,7 @@ function printArgument(
   name: string,
   value: mixed,
   type: ?string,
-  printerState: PrinterState
+  printerState: PrinterState,
 ): ?string {
   if (value == null) {
     return value;
@@ -363,12 +398,12 @@ function createVariable(
   name: string,
   value: mixed,
   type: string,
-  printerState: PrinterState
+  printerState: PrinterState,
 ): string {
   invariant(
     value != null,
     'printRelayOSSQuery: Expected a non-null value for variable `%s`.',
-    name
+    name,
   );
   const valueKey = JSON.stringify(value);
   const nonNullType = printNonNullType(type);
@@ -392,5 +427,5 @@ function createVariable(
 
 module.exports = RelayProfiler.instrument(
   'printRelayQuery',
-  printRelayOSSQuery
+  printRelayOSSQuery,
 );

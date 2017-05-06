@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -38,9 +39,7 @@ describe('RelayContainer', function() {
       MockContainer = Relay.createContainer(component, {
         initialVariables: {site: 'mobile'},
         fragments: {
-          foo: jest.fn(
-            () => Relay.QL`fragment on Node{id,url(site:$site)}`
-          ),
+          foo: jest.fn(() => Relay.QL`fragment on Node{id,url(site:$site)}`),
         },
       });
     };
@@ -58,7 +57,7 @@ describe('RelayContainer', function() {
     mockRender = () => {
       return RelayTestRenderer.render(
         genMockPointer => <MockContainer foo={genMockPointer('42')} />,
-        environment
+        environment,
       );
     };
   });

@@ -8,6 +8,7 @@
  *
  * @providesModule RelayRecordProxy
  * @flow
+ * @format
  */
 
 'use strict';
@@ -36,7 +37,7 @@ class RelayRecordProxy implements RecordProxy {
   constructor(
     source: RelayRecordSourceProxy,
     mutator: RelayRecordSourceMutator,
-    dataID: DataID
+    dataID: DataID,
   ) {
     this._dataID = dataID;
     this._mutator = mutator;
@@ -56,7 +57,7 @@ class RelayRecordProxy implements RecordProxy {
     invariant(
       type != null,
       'RelayRecordProxy: Cannot get the type of deleted record `%s`.',
-      this._dataID
+      this._dataID,
     );
     return type;
   }
@@ -80,12 +81,14 @@ class RelayRecordProxy implements RecordProxy {
   getLinkedRecord(name: string, args?: ?Variables): ?RecordProxy {
     const storageKey = args ? formatStorageKey(name, args) : name;
     const linkedID = this._mutator.getLinkedRecordID(this._dataID, storageKey);
-    return linkedID != null ?
-      this._source.get(linkedID) :
-      linkedID;
+    return linkedID != null ? this._source.get(linkedID) : linkedID;
   }
 
-  setLinkedRecord(record: RecordProxy, name: string, args?: ?Variables): RecordProxy {
+  setLinkedRecord(
+    record: RecordProxy,
+    name: string,
+    args?: ?Variables,
+  ): RecordProxy {
     invariant(
       record instanceof RelayRecordProxy,
       'RelayRecordProxy#setLinkedRecord(): Expected a record, got `%s`.',
@@ -97,7 +100,11 @@ class RelayRecordProxy implements RecordProxy {
     return this;
   }
 
-  getOrCreateLinkedRecord(name: string, typeName: string, args?: ?Variables): RecordProxy {
+  getOrCreateLinkedRecord(
+    name: string,
+    typeName: string,
+    args?: ?Variables,
+  ): RecordProxy {
     let linkedRecord = this.getLinkedRecord(name, args);
     if (!linkedRecord) {
       const storageKey = args ? formatStorageKey(name, args) : name;
@@ -110,18 +117,23 @@ class RelayRecordProxy implements RecordProxy {
 
   getLinkedRecords(name: string, args?: ?Variables): ?Array<?RecordProxy> {
     const storageKey = args ? formatStorageKey(name, args) : name;
-    const linkedIDs = this._mutator.getLinkedRecordIDs(this._dataID, storageKey);
+    const linkedIDs = this._mutator.getLinkedRecordIDs(
+      this._dataID,
+      storageKey,
+    );
     if (linkedIDs == null) {
       return linkedIDs;
     }
     return linkedIDs.map(linkedID => {
-      return linkedID != null ?
-        this._source.get(linkedID) :
-        linkedID;
+      return linkedID != null ? this._source.get(linkedID) : linkedID;
     });
   }
 
-  setLinkedRecords(records: Array<?RecordProxy>, name: string, args?: ?Variables): RecordProxy {
+  setLinkedRecords(
+    records: Array<?RecordProxy>,
+    name: string,
+    args?: ?Variables,
+  ): RecordProxy {
     invariant(
       Array.isArray(records),
       'RelayRecordProxy#setLinkedRecords(): Expected records to be an array, got `%s`.',

@@ -8,11 +8,14 @@
  *
  * @providesModule RelayCompatTypes
  * @flow
+ * @format
  */
 
 'use strict';
 
-import type {RelayEnvironmentInterface as RelayClassicEnvironment} from 'RelayEnvironment';
+import type {
+  RelayEnvironmentInterface as RelayClassicEnvironment,
+} from 'RelayEnvironment';
 import type {Environment} from 'RelayStoreTypes';
 
 export type CompatEnvironment = Environment | RelayClassicEnvironment;

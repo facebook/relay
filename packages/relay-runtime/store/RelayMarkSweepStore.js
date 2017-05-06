@@ -8,6 +8,7 @@
  *
  * @providesModule RelayMarkSweepStore
  * @flow
+ * @format
  */
 
 'use strict';
@@ -118,29 +119,20 @@ class RelayMarkSweepStore implements Store {
   }
 
   publish(source: RecordSource): void {
-    updateTargetFromSource(
-      this._recordSource,
-      source,
-      this._updatedRecordIDs
-    );
+    updateTargetFromSource(this._recordSource, source, this._updatedRecordIDs);
   }
 
   resolve(
     target: MutableRecordSource,
     selector: Selector,
-    callback: AsyncLoadCallback
+    callback: AsyncLoadCallback,
   ): void {
-    RelayAsyncLoader.load(
-      this._recordSource,
-      target,
-      selector,
-      callback
-    );
+    RelayAsyncLoader.load(this._recordSource, target, selector, callback);
   }
 
   subscribe(
     snapshot: Snapshot,
-    callback: (snapshot: Snapshot) => void
+    callback: (snapshot: Snapshot) => void,
   ): Disposable {
     const subscription = {callback, snapshot};
     const dispose = () => {
@@ -186,11 +178,7 @@ class RelayMarkSweepStore implements Store {
     const references = new Set();
     // Mark all records that are traversable from a root
     this._roots.forEach(selector => {
-      RelayReferenceMarker.mark(
-        this._recordSource,
-        selector,
-        references
-      );
+      RelayReferenceMarker.mark(this._recordSource, selector, references);
     });
     // Short-circuit if *nothing* is referenced
     if (!references.size) {

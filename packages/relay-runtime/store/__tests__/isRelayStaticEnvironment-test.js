@@ -7,12 +7,12 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
-jest
-  .autoMockOff();
+jest.autoMockOff();
 
 const RelayEnvironment = require('RelayEnvironment');
 const RelayModernEnvironment = require('RelayModernEnvironment');

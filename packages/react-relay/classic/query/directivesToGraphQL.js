@@ -8,6 +8,7 @@
  *
  * @providesModule directivesToGraphQL
  * @flow
+ * @format
  */
 
 'use strict';
@@ -24,14 +25,14 @@ import type {Directive} from 'RelayInternalTypes';
  * nodes.
  */
 function directivesToGraphQL(
-  directives: Array<Directive>
+  directives: Array<Directive>,
 ): Array<ConcreteDirective> {
   return directives.map(({name: directiveName, args}) => {
     const concreteArguments = args.map(({name: argName, value}) => {
       let concreteArgument = null;
       if (Array.isArray(value)) {
         concreteArgument = value.map(QueryBuilder.createCallValue);
-      } else if (value != null)  {
+      } else if (value != null) {
         concreteArgument = QueryBuilder.createCallValue(value);
       }
       return QueryBuilder.createDirectiveArgument(argName, concreteArgument);

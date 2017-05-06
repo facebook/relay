@@ -8,6 +8,7 @@
  *
  * @providesModule RelayMutationRequest
  * @flow
+ * @format
  */
 
 'use strict';
@@ -31,10 +32,7 @@ class RelayMutationRequest extends Deferred<MutationResult, Error> {
   _printedQuery: ?PrintedQuery;
   _files: ?FileMap;
 
-  constructor(
-    mutation: RelayQuery.Mutation,
-    files: ?FileMap
-  ) {
+  constructor(mutation: RelayQuery.Mutation, files: ?FileMap) {
     super();
     this._mutation = mutation;
     this._printedQuery = null;

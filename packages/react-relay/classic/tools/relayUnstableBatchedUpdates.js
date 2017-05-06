@@ -8,6 +8,7 @@
  *
  * @providesModule relayUnstableBatchedUpdates
  * @flow
+ * @format
  */
 
 'use strict';

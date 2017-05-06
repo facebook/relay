@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -38,13 +39,15 @@ describe('RelayQueryPath', () => {
   });
 
   it('creates root paths', () => {
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       query {
         node(id:"123") {
           id
         }
       }
-    `);
+    `,
+    );
     const fragment = Relay.QL`
       fragment on Node {
         id
@@ -59,7 +62,9 @@ describe('RelayQueryPath', () => {
 
     writer.putRecord('123', 'User');
     const pathQuery = RelayQueryPath.getQuery(store, path, getNode(fragment));
-    expect(pathQuery).toEqualQueryRoot(getVerbatimNode(Relay.QL`
+    expect(pathQuery).toEqualQueryRoot(
+      getVerbatimNode(
+        Relay.QL`
       query {
         node(id:"123") {
           ... on User {
@@ -69,17 +74,21 @@ describe('RelayQueryPath', () => {
           }
         }
       }
-    `));
+    `,
+      ),
+    );
   });
 
   it('creates root paths for argument-less root calls with IDs', () => {
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       query {
         me {
           id
         }
       }
-    `);
+    `,
+    );
     const fragment = Relay.QL`
       fragment on Actor {
         name
@@ -87,20 +96,25 @@ describe('RelayQueryPath', () => {
     `;
     const path = RelayQueryPath.create(query);
     const pathQuery = RelayQueryPath.getQuery(store, path, getNode(fragment));
-    expect(pathQuery).toEqualQueryRoot(getNode(Relay.QL`
+    expect(pathQuery).toEqualQueryRoot(
+      getNode(
+        Relay.QL`
       query {
         me {
           id
           ${fragment}
         }
       }
-    `));
+    `,
+      ),
+    );
     expect(RelayQueryPath.getName(path)).toBe(query.getName());
     expect(RelayQueryPath.getRouteName(path)).toBe(query.getRoute().name);
   });
 
   it('creates root paths for argument-less root calls without IDs', () => {
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       query {
         viewer {
           actor {
@@ -108,7 +122,8 @@ describe('RelayQueryPath', () => {
           }
         }
       }
-    `);
+    `,
+    );
     const fragment = Relay.QL`
       fragment on Viewer {
         actor {
@@ -118,44 +133,56 @@ describe('RelayQueryPath', () => {
     `;
     const path = RelayQueryPath.create(query);
     const pathQuery = RelayQueryPath.getQuery(store, path, getNode(fragment));
-    expect(pathQuery).toEqualQueryRoot(getNode(Relay.QL`
+    expect(pathQuery).toEqualQueryRoot(
+      getNode(
+        Relay.QL`
       query {
         viewer {
           ${fragment}
         }
       }
-    `));
+    `,
+      ),
+    );
     expect(RelayQueryPath.getName(path)).toBe(query.getName());
     expect(RelayQueryPath.getRouteName(path)).toBe(query.getRoute().name);
   });
 
   it('creates paths to non-refetchable fields', () => {
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       query {
         node(id:"123") {
           id
         }
       }
-    `);
-    const address = getNode(Relay.QL`
+    `,
+    );
+    const address = getNode(
+      Relay.QL`
       fragment on Actor {
         address {
           city
         }
       }
-    `).getFieldByStorageKey('address');
-    const city = getNode(Relay.QL`
+    `,
+    ).getFieldByStorageKey('address');
+    const city = getNode(
+      Relay.QL`
       fragment on StreetAddress {
         city
       }
-    `).getFieldByStorageKey('city');
+    `,
+    ).getFieldByStorageKey('city');
 
     // address is not refetchable, has client ID
     writer.putRecord('123', 'User');
     const root = RelayQueryPath.create(query);
     const path = RelayQueryPath.getPath(root, address, 'client:1');
     const pathQuery = RelayQueryPath.getQuery(store, path, city);
-    expect(pathQuery).toEqualQueryRoot(getVerbatimNode(Relay.QL`
+    expect(pathQuery).toEqualQueryRoot(
+      getVerbatimNode(
+        Relay.QL`
       query {
         node(id:"123") {
           ... on User {
@@ -167,7 +194,9 @@ describe('RelayQueryPath', () => {
           }
         }
       }
-    `));
+    `,
+      ),
+    );
     expect(RelayQueryPath.getName(path)).toBe(query.getName());
     expect(pathQuery.getName()).toBe(query.getName());
     expect(pathQuery.getRoute().name).toBe(query.getRoute().name);
@@ -175,17 +204,19 @@ describe('RelayQueryPath', () => {
   });
 
   it('creates roots with route from child', () => {
-    let query = getNode(Relay.QL`
+    let query = getNode(
+      Relay.QL`
       query {
         node(id:"123") {
           id
         }
       }
-    `);
+    `,
+    );
 
     query = query.cloneWithRoute(
       query.getChildren(),
-      RelayMetaRoute.get('FooRoute')
+      RelayMetaRoute.get('FooRoute'),
     );
 
     const fragment = Relay.QL`
@@ -201,7 +232,9 @@ describe('RelayQueryPath', () => {
     writer.putRecord('123', 'User');
     const pathQuery = RelayQueryPath.getQuery(store, path, getNode(fragment));
     expect(pathQuery.getRoute()).toBe(getNode(fragment).getRoute());
-    expect(pathQuery).toEqualQueryRoot(getVerbatimNode(Relay.QL`
+    expect(pathQuery).toEqualQueryRoot(
+      getVerbatimNode(
+        Relay.QL`
       query {
         node(id:"123") {
           ... on User {
@@ -211,11 +244,14 @@ describe('RelayQueryPath', () => {
           }
         }
       }
-    `));
+    `,
+      ),
+    );
   });
 
   it('creates roots for refetchable fields', () => {
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       query {
         viewer {
           actor {
@@ -223,7 +259,8 @@ describe('RelayQueryPath', () => {
           }
         }
       }
-    `);
+    `,
+    );
     const actor = query.getFieldByStorageKey('actor');
     const fragment = Relay.QL`
       fragment on Node {
@@ -236,7 +273,9 @@ describe('RelayQueryPath', () => {
     const root = RelayQueryPath.create(query);
     const path = RelayQueryPath.getPath(root, actor, '123');
     const pathQuery = RelayQueryPath.getQuery(store, path, getNode(fragment));
-    expect(pathQuery).toEqualQueryRoot(getVerbatimNode(Relay.QL`
+    expect(pathQuery).toEqualQueryRoot(
+      getVerbatimNode(
+        Relay.QL`
       query {
         node(id:"123") {
           ... on User {
@@ -250,20 +289,25 @@ describe('RelayQueryPath', () => {
           }
         }
       }
-    `));
+    `,
+      ),
+    );
     expect(pathQuery.getName()).toBe(query.getName());
     expect(pathQuery.getRoute().name).toBe(query.getRoute().name);
   });
 
   it('creates paths to non-refetchable connection fields', () => {
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       query {
         node(id:"123") {
           id
         }
       }
-    `);
-    const friends = getNode(Relay.QL`
+    `,
+    );
+    const friends = getNode(
+      Relay.QL`
       fragment on User {
         friends(first: 1) {
           edges {
@@ -271,19 +315,24 @@ describe('RelayQueryPath', () => {
           }
         }
       }
-    `).getFieldByStorageKey('friends');
-    const edges = getNode(Relay.QL`
+    `,
+    ).getFieldByStorageKey('friends');
+    const edges = getNode(
+      Relay.QL`
       fragment on FriendsConnection {
         edges {
           cursor
         }
       }
-    `).getFieldByStorageKey('edges');
-    const cursor = getNode(Relay.QL`
+    `,
+    ).getFieldByStorageKey('edges');
+    const cursor = getNode(
+      Relay.QL`
       fragment on FriendsEdge {
         cursor
       }
-    `).getFieldByStorageKey('cursor');
+    `,
+    ).getFieldByStorageKey('cursor');
 
     // edges is not refetchable because it is tied to a connection.
     writer.putRecord('123', 'User');
@@ -292,7 +341,9 @@ describe('RelayQueryPath', () => {
     path = RelayQueryPath.getPath(path, edges, 'client:2');
 
     const pathQuery = RelayQueryPath.getQuery(store, path, cursor);
-    expect(pathQuery).toEqualQueryRoot(getVerbatimNode(Relay.QL`
+    expect(pathQuery).toEqualQueryRoot(
+      getVerbatimNode(
+        Relay.QL`
       query {
         node(id:"123") {
           ... on User {
@@ -306,11 +357,13 @@ describe('RelayQueryPath', () => {
           }
         }
       }
-    `));
+    `,
+      ),
+    );
     expect([
       'RelayQueryPath.getQuery(): Cannot generate accurate query for ' +
-      'path with connection `%s`. Consider adding an `id` field to each ' +
-      '`node` to make them refetchable.',
+        'path with connection `%s`. Consider adding an `id` field to each ' +
+        '`node` to make them refetchable.',
       'friends',
     ]).toBeWarnedNTimes(1);
     expect(RelayQueryPath.getName(path)).toBe(query.getName());
@@ -319,8 +372,9 @@ describe('RelayQueryPath', () => {
     expect(pathQuery.isAbstract()).toBe(true);
   });
 
-  it('warns if the root record\'s type is unknown', () => {
-    const query = getNode(Relay.QL`
+  it("warns if the root record's type is unknown", () => {
+    const query = getNode(
+      Relay.QL`
       query {
         viewer {
           actor {
@@ -328,7 +382,8 @@ describe('RelayQueryPath', () => {
           }
         }
       }
-    `);
+    `,
+    );
     const actor = query.getFieldByStorageKey('actor');
     const fragment = Relay.QL`
       fragment on Node {
@@ -340,7 +395,9 @@ describe('RelayQueryPath', () => {
     const root = RelayQueryPath.create(query);
     const path = RelayQueryPath.getPath(root, actor, '123');
     const pathQuery = RelayQueryPath.getQuery(store, path, getNode(fragment));
-    expect(pathQuery).toEqualQueryRoot(getVerbatimNode(Relay.QL`
+    expect(pathQuery).toEqualQueryRoot(
+      getVerbatimNode(
+        Relay.QL`
       query {
         node(id:"123") {
           # not wrapped in a concrete fragment because the type is unknown.
@@ -353,12 +410,14 @@ describe('RelayQueryPath', () => {
           __typename
         }
       }
-    `));
+    `,
+      ),
+    );
     expect(pathQuery.getName()).toBe(query.getName());
     expect(pathQuery.getRoute().name).toBe(query.getRoute().name);
     expect([
       'RelayQueryPath: No typename found for %s record `%s`. Generating a ' +
-      'possibly invalid query.',
+        'possibly invalid query.',
       'unknown',
       '123',
     ]).toBeWarnedNTimes(1);
@@ -366,7 +425,8 @@ describe('RelayQueryPath', () => {
 
   describe('getPath()', () => {
     it('returns a client path given no `dataID`', () => {
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        Relay.QL`
         query {
           viewer {
             actor {
@@ -374,9 +434,10 @@ describe('RelayQueryPath', () => {
             }
           }
         }
-      `);
+      `,
+      );
       const actor = query.getFieldByStorageKey('actor');
-      const path = RelayQueryPath.getPath(query, actor);  // No `dataID`
+      const path = RelayQueryPath.getPath(query, actor); // No `dataID`
       expect(path).toEqual({
         node: actor,
         parent: query,

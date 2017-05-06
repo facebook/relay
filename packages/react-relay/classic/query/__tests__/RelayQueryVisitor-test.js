@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -43,7 +44,8 @@ describe('RelayQueryVisitor', () => {
         }
       }
     `;
-    query = getNode(Relay.QL`
+    query = getNode(
+      Relay.QL`
       query {
         node(id:"4") {
           id
@@ -61,7 +63,10 @@ describe('RelayQueryVisitor', () => {
           }
         }
       }
-    `, null, variables);
+    `,
+      null,
+      variables,
+    );
   });
 
   it('traverses fields in-order', () => {
@@ -111,10 +116,7 @@ describe('RelayQueryVisitor', () => {
 
   it('does not automatically traverse subtrees when visitor is defined', () => {
     class NoTraversal extends RelayQueryVisitor<Array> {
-      visitField(
-        field: RelayQuery.Field,
-        state: Array
-      ): ?RelayQuery.Node {
+      visitField(field: RelayQuery.Field, state: Array): ?RelayQuery.Node {
         // should never get here
         state.push(field.getSchemaName());
         return field;
@@ -122,17 +124,14 @@ describe('RelayQueryVisitor', () => {
 
       visitFragment(
         fragment: RelayQuery.Fragment,
-        state: Array
+        state: Array,
       ): ?RelayQuery.Node {
         // should never get here
         state.push(fragment.getName());
         return fragment;
       }
 
-      visitRoot(
-        root: RelayQuery.Root,
-        state: Array
-      ): ?RelayQuery.Node {
+      visitRoot(root: RelayQuery.Root, state: Array): ?RelayQuery.Node {
         state.push(query.getName());
         // should stop transform from looking at fields/fragments
         return root;

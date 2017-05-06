@@ -7,12 +7,12 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
-jest
-  .autoMockOff();
+jest.autoMockOff();
 
 const RelayConcreteNode = require('RelayConcreteNode');
 const RelayModernTestUtils = require('RelayModernTestUtils');
@@ -20,27 +20,23 @@ const RelayModernTestUtils = require('RelayModernTestUtils');
 const cloneRelayHandleSourceField = require('cloneRelayHandleSourceField');
 const getRelayHandleKey = require('getRelayHandleKey');
 
-const {
-  generateWithTransforms,
-  matchers,
-} = RelayModernTestUtils;
-const {
-  LINKED_FIELD,
-  LINKED_HANDLE,
-} = RelayConcreteNode;
+const {generateWithTransforms, matchers} = RelayModernTestUtils;
+const {LINKED_FIELD, LINKED_HANDLE} = RelayConcreteNode;
 
 describe('cloneRelayHandleSourceField()', () => {
   let selections;
 
   beforeEach(() => {
     jest.addMatchers(matchers);
-    const input = generateWithTransforms(`
+    const input = generateWithTransforms(
+      `
       fragment A on User {
         address @__clientField(handle: "test") {
           street
         }
       }
-    `);
+    `,
+    );
     selections = input.A.selections;
   });
 
@@ -58,10 +54,11 @@ describe('cloneRelayHandleSourceField()', () => {
     const handleField = selections.find(node => node.kind === LINKED_HANDLE);
     selections = selections.filter(node => node.kind === LINKED_HANDLE);
 
-    expect(() => cloneRelayHandleSourceField(handleField, selections))
-      .toFailInvariant(
-        'cloneRelayHandleSourceField: Expected a corresponding source field ' +
-        'for handle `test`.'
-      );
+    expect(() =>
+      cloneRelayHandleSourceField(handleField, selections),
+    ).toFailInvariant(
+      'cloneRelayHandleSourceField: Expected a corresponding source field ' +
+        'for handle `test`.',
+    );
   });
 });

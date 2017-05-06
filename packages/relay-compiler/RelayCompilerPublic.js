@@ -8,6 +8,7 @@
  *
  * @flow
  * @providesModule RelayCompilerPublic
+ * @format
  */
 
 'use strict';

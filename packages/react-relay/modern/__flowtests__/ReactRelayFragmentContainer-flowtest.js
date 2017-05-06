@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @flow
+ * @format
  */
 
 'use strict';
@@ -20,7 +21,9 @@ const {graphql, createFragmentContainer} = require('ReactRelayPublic');
  * type-checked correctly on Relay components.
  */
 
-const FooComponent = ({requiredProp}: {requiredProp: string}) => <div>{requiredProp}</div>;
+const FooComponent = ({requiredProp}: {requiredProp: string}) => (
+  <div>{requiredProp}</div>
+);
 
 // Note that we must reassign to a new identifier to make sure flow doesn't propogate types without
 // the relay type definition doing the work.
@@ -56,7 +59,9 @@ class BarComponent extends React.Component {
     const missing = this.props.missingProp;
 
     const defLen = this.props.defaultProp.length; // always a valid string, so no error
-    return <div>{reqLen && optionalProp && optionalFoo && missing && defLen}</div>;
+    return (
+      <div>{reqLen && optionalProp && optionalFoo && missing && defLen}</div>
+    );
   }
 }
 const Bar = createFragmentContainer(
@@ -103,7 +108,9 @@ module.exports = {
   },
   checkAllPossibleProps() {
     // All is well
-    return <Bar defaultProp="bar" optionalProp={{foo: 42}} requiredProp="foo" />;
+    return (
+      <Bar defaultProp="bar" optionalProp={{foo: 42}} requiredProp="foo" />
+    );
   },
   checkMinimalPropSpread() {
     // All is well
@@ -130,7 +137,9 @@ module.exports = {
       render() {
         return (
           <Bar
-            ref={ref => {this._barRef = ref;}}
+            ref={ref => {
+              this._barRef = ref;
+            }}
             requiredProp="bar"
           />
         );

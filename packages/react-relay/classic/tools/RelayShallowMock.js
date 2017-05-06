@@ -8,6 +8,7 @@
  *
  * @providesModule RelayShallowMock
  * @flow
+ * @format
  */
 
 /**
@@ -46,7 +47,7 @@ const RelayShallowMock = {
   createContainer: (
     component: ReactClass<any>,
     spec: RelayContainerSpec,
-  ) : RelayLazyContainer => {
+  ): RelayLazyContainer => {
     return class extends React.Component {
       render() {
         return React.createElement(

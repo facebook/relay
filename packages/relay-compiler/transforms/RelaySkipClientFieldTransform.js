@@ -8,6 +8,7 @@
  *
  * @flow
  * @providesModule RelaySkipClientFieldTransform
+ * @format
  */
 
 'use strict';
@@ -95,7 +96,7 @@ type State = {
  */
 function transform(
   context: RelayCompilerContext,
-  schema: GraphQLSchema
+  schema: GraphQLSchema,
 ): RelayCompilerContext {
   return RelayIRTransformer.transform(
     context,
@@ -105,7 +106,7 @@ function transform(
       LinkedField: visitField,
       ScalarField: visitField,
     },
-    buildState.bind(null, schema)
+    buildState.bind(null, schema),
   );
 }
 
@@ -151,7 +152,7 @@ function visitField<F: Field>(field: F, state: State): ?F {
   if (
     // Field is defined in the original parent type definition:
     (canHaveSelections(state.parentType) &&
-     assertTypeWithFields(state.parentType).getFields()[field.name]) ||
+      assertTypeWithFields(state.parentType).getFields()[field.name]) ||
     // Allow metadata fields and fields defined on classic "fat" interfaces
     field.name === SchemaMetaFieldDef.name ||
     field.name === TypeMetaFieldDef.name ||
@@ -163,8 +164,8 @@ function visitField<F: Field>(field: F, state: State): ?F {
     invariant(
       type,
       'RelaySkipClientFieldTransform: Expected type `%s` to be defined in ' +
-      'the original schema.',
-      rawType.name
+        'the original schema.',
+      rawType.name,
     );
     return this.traverse(field, {
       ...state,
@@ -180,13 +181,16 @@ function visitField<F: Field>(field: F, state: State): ?F {
  * Skip fragment spreads where the referenced fragment is not defined in the
  * original schema.
  */
-function visitFragmentSpread(spread: FragmentSpread, state: State): ?FragmentSpread {
+function visitFragmentSpread(
+  spread: FragmentSpread,
+  state: State,
+): ?FragmentSpread {
   const context = this.getContext();
   const fragment = context.get(spread.name);
   invariant(
     fragment && fragment.kind === 'Fragment',
     'RelaySkipClientFieldTransform: Expected a fragment named `%s` to be defined.',
-    spread.name
+    spread.name,
   );
   if (state.schema.getType(fragment.type.name)) {
     return this.traverse(spread, state);
@@ -199,7 +203,10 @@ function visitFragmentSpread(spread: FragmentSpread, state: State): ?FragmentSpr
  *
  * Skip inline fragments where the type is not in the schema.
  */
-function visitInlineFragment(fragment: InlineFragment, state: State): ?InlineFragment {
+function visitInlineFragment(
+  fragment: InlineFragment,
+  state: State,
+): ?InlineFragment {
   const type = state.schema.getType(fragment.typeCondition.name);
   if (type) {
     return this.traverse(fragment, {
@@ -209,6 +216,5 @@ function visitInlineFragment(fragment: InlineFragment, state: State): ?InlineFra
   }
   return null;
 }
-
 
 module.exports = {transform};

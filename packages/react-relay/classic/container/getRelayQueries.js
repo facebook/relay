@@ -8,6 +8,7 @@
  *
  * @providesModule getRelayQueries
  * @flow
+ * @format
  */
 
 'use strict';
@@ -36,7 +37,7 @@ const queryCache = new Map();
  */
 function getRelayQueries(
   Component: RelayLazyContainer,
-  route: RelayQueryConfigInterface
+  route: RelayQueryConfigInterface,
 ): RelayQuerySet {
   const queryCachingEnabled = RelayQueryCaching.getEnabled();
   if (!queryCachingEnabled) {
@@ -61,7 +62,7 @@ function getRelayQueries(
  */
 function buildQuerySet(
   Component: RelayLazyContainer,
-  route: RelayQueryConfigInterface
+  route: RelayQueryConfigInterface,
 ): RelayQuerySet {
   const querySet = {};
   Component.getFragmentNames().forEach(fragmentName => {
@@ -72,11 +73,11 @@ function buildQuerySet(
       warning(
         false,
         'Relay.QL: query `%s.queries.%s` is invalid, expected fragment ' +
-        '`%s.fragments.%s` to be defined.',
+          '`%s.fragments.%s` to be defined.',
         route.name,
         queryName,
         Component.displayName,
-        queryName
+        queryName,
       );
       return;
     }
@@ -86,20 +87,20 @@ function buildQuerySet(
         queryBuilder,
         Component,
         queryName,
-        route.params
+        route.params,
       );
       invariant(
         concreteQuery !== undefined,
         'Relay.QL: query `%s.queries.%s` is invalid, a typical query is ' +
-        'defined using: () => Relay.QL`query { ... }`.',
+          'defined using: () => Relay.QL`query { ... }`.',
         route.name,
-        queryName
+        queryName,
       );
       if (concreteQuery) {
         const rootQuery = RelayQuery.Root.create(
           concreteQuery,
           RelayMetaRoute.get(route.name),
-          route.params
+          route.params,
         );
         const identifyingArg = rootQuery.getIdentifyingArg();
         if (!identifyingArg || identifyingArg.value !== undefined) {

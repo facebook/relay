@@ -8,6 +8,7 @@
  *
  * @providesModule buildReactRelayContainer
  * @flow
+ * @format
  */
 
 'use strict';

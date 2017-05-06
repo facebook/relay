@@ -8,6 +8,7 @@
  *
  * @providesModule RelayContainerComparators
  * @flow
+ * @format
  */
 
 'use strict';
@@ -22,7 +23,7 @@ function compareObjects(
   isEqual: (propA: any, propB: any, key: string) => boolean,
   objectA: Object,
   objectB: Object,
-  filter?: Object
+  filter?: Object,
 ): boolean {
   let key;
 
@@ -32,9 +33,11 @@ function compareObjects(
       continue;
     }
 
-    if (objectA.hasOwnProperty(key) && (
-          !objectB.hasOwnProperty(key) ||
-          !isEqual(objectA[key], objectB[key], key))) {
+    if (
+      objectA.hasOwnProperty(key) &&
+      (!objectB.hasOwnProperty(key) ||
+        !isEqual(objectA[key], objectB[key], key))
+    ) {
       return false;
     }
   }
@@ -59,7 +62,7 @@ function isQueryDataEqual(
   fragmentPointers: Object,
   currProp: mixed,
   nextProp: mixed,
-  propName: string
+  propName: string,
 ): boolean {
   return (
     // resolved data did not change
@@ -73,7 +76,7 @@ function isNonQueryPropEqual(
   fragments: Object,
   currProp: mixed,
   nextProp: mixed,
-  propName: string
+  propName: string,
 ): boolean {
   return (
     // ignore props with fragments (instead resolved values are compared)
@@ -91,31 +94,28 @@ const RelayContainerComparators = {
   areQueryResultsEqual(
     fragmentPointers: Object,
     prevQueryData: Object,
-    nextQueryData: Object
+    nextQueryData: Object,
   ): boolean {
     return compareObjects(
       isQueryDataEqual.bind(null, fragmentPointers),
       prevQueryData,
-      nextQueryData
+      nextQueryData,
     );
   },
 
   areNonQueryPropsEqual(
     fragments: Object,
     props: Object,
-    nextProps: Object
+    nextProps: Object,
   ): boolean {
     return compareObjects(
       isNonQueryPropEqual.bind(null, fragments),
       props,
-      nextProps
+      nextProps,
     );
   },
 
-  areQueryVariablesEqual(
-    variables: Object,
-    nextVariables: Object
-  ): boolean {
+  areQueryVariablesEqual(variables: Object, nextVariables: Object): boolean {
     return compareObjects(isScalarAndEqual, variables, nextVariables);
   },
 };

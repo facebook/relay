@@ -8,6 +8,7 @@
  *
  * @providesModule isCompatibleRelayFragmentType
  * @flow
+ * @format
  */
 
 'use strict';
@@ -27,12 +28,10 @@ import type RelayQuery from 'RelayQuery';
  */
 function isCompatibleRelayFragmentType(
   fragment: RelayQuery.Fragment,
-  recordType: ?string
+  recordType: ?string,
 ): boolean {
   return (
-    recordType === fragment.getType() ||
-    !recordType ||
-    fragment.isAbstract()
+    recordType === fragment.getType() || !recordType || fragment.isAbstract()
   );
 }
 

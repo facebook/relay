@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -66,10 +67,7 @@ describe('RelayDefaultNetworkLayer', () => {
     };
     // Spread properties to test that functions are bound correctly.
     networkLayer = {
-      ...new RelayDefaultNetworkLayer(
-        networkConfig.uri,
-        networkConfig.init
-      ),
+      ...new RelayDefaultNetworkLayer(networkConfig.uri, networkConfig.init),
     };
 
     jasmine.addMatchers(RelayTestUtils.matchers);
@@ -96,11 +94,13 @@ describe('RelayDefaultNetworkLayer', () => {
         'FeedbackLikeResponsePayload',
         'feedback_like',
         variables.input,
-        [RelayQuery.Field.build({
-          fieldName: 'does_viewer_like',
-          type: 'Boolean',
-        })],
-        {inputType: 'FeedbackLikeInput'}
+        [
+          RelayQuery.Field.build({
+            fieldName: 'does_viewer_like',
+            type: 'Boolean',
+          }),
+        ],
+        {inputType: 'FeedbackLikeInput'},
       );
       request = new RelayMutationRequest(mutation);
       request.then(responseCallback).catch(rejectCallback);
@@ -117,16 +117,18 @@ describe('RelayDefaultNetworkLayer', () => {
 
       expect(method).toBe('POST');
       expect(headers).toEqual({
-        'Accept': '*/*',
+        Accept: '*/*',
         'Content-Encoding': 'gzip',
         'Content-Type': 'application/json',
       });
-      expect(body).toEqual(JSON.stringify({
-        query: request.getQueryString(),
-        variables: {
-          input_0: variables.input,
-        },
-      }));
+      expect(body).toEqual(
+        JSON.stringify({
+          query: request.getQueryString(),
+          variables: {
+            input_0: variables.input,
+          },
+        }),
+      );
     });
 
     it('handles responses', () => {
@@ -154,13 +156,17 @@ describe('RelayDefaultNetworkLayer', () => {
 
     it('handles errors', () => {
       const response = {
-        errors: [{
-          message: 'Something went wrong.',
-          locations: [{
-            column: 10,
-            line: 1,
-          }],
-        }],
+        errors: [
+          {
+            message: 'Something went wrong.',
+            locations: [
+              {
+                column: 10,
+                line: 1,
+              },
+            ],
+          },
+        ],
       };
 
       expect(fetch.mock.calls.length).toBe(0);
@@ -173,27 +179,33 @@ describe('RelayDefaultNetworkLayer', () => {
       expect(rejectCallback.mock.calls.length).toBe(1);
       const error = rejectCallback.mock.calls[0][0];
       expect(error instanceof Error).toBe(true);
-      expect(error.message).toEqual([
-        'Server request for mutation \`FeedbackLikeMutation\` failed for the ' +
-          'following reasons:',
-        '',
-        '1. Something went wrong.',
-        '   ' + request.getQueryString().substr(0, 60),
-        '            ^^^',
-      ].join('\n'));
+      expect(error.message).toEqual(
+        [
+          'Server request for mutation \`FeedbackLikeMutation\` failed for the ' +
+            'following reasons:',
+          '',
+          '1. Something went wrong.',
+          '   ' + request.getQueryString().substr(0, 60),
+          '            ^^^',
+        ].join('\n'),
+      );
       expect(error.source).toEqual(response);
       expect(error.status).toEqual('200');
     });
 
     it('handles errors with column 0', () => {
       const response = {
-        errors: [{
-          message: 'Something went wrong.',
-          locations: [{
-            column: 0,
-            line: 1,
-          }],
-        }],
+        errors: [
+          {
+            message: 'Something went wrong.',
+            locations: [
+              {
+                column: 0,
+                line: 1,
+              },
+            ],
+          },
+        ],
       };
 
       networkLayer.sendMutation(request);
@@ -203,23 +215,27 @@ describe('RelayDefaultNetworkLayer', () => {
       expect(rejectCallback.mock.calls.length).toBe(1);
       const error = rejectCallback.mock.calls[0][0];
       expect(error instanceof Error).toBe(true);
-      expect(error.message).toEqual([
-        'Server request for mutation \`FeedbackLikeMutation\` failed for the ' +
-          'following reasons:',
-        '',
-        '1. Something went wrong.',
-        '   ' + request.getQueryString().substr(0, 60),
-        '   ^^^',
-      ].join('\n'));
+      expect(error.message).toEqual(
+        [
+          'Server request for mutation \`FeedbackLikeMutation\` failed for the ' +
+            'following reasons:',
+          '',
+          '1. Something went wrong.',
+          '   ' + request.getQueryString().substr(0, 60),
+          '   ^^^',
+        ].join('\n'),
+      );
       expect(error.source).toEqual(response);
       expect(error.status).toEqual('200');
     });
 
     it('handles custom errors', () => {
       const response = {
-        errors: [{
-          message: 'Something went wrong.',
-        }],
+        errors: [
+          {
+            message: 'Something went wrong.',
+          },
+        ],
       };
 
       expect(fetch.mock.calls.length).toBe(0);
@@ -232,21 +248,25 @@ describe('RelayDefaultNetworkLayer', () => {
       expect(rejectCallback.mock.calls.length).toBe(1);
       const error = rejectCallback.mock.calls[0][0];
       expect(error instanceof Error).toBe(true);
-      expect(error.message).toEqual([
-        'Server request for mutation \`FeedbackLikeMutation\` failed for the ' +
-          'following reasons:',
-        '',
-        '1. Something went wrong.',
-      ].join('\n'));
+      expect(error.message).toEqual(
+        [
+          'Server request for mutation \`FeedbackLikeMutation\` failed for the ' +
+            'following reasons:',
+          '',
+          '1. Something went wrong.',
+        ].join('\n'),
+      );
       expect(error.source).toEqual(response);
       expect(error.status).toEqual('200');
     });
 
     it('handles server-side non-2xx errors', () => {
       const response = {
-        errors: [{
-          message: 'Something went completely wrong.',
-        }],
+        errors: [
+          {
+            message: 'Something went completely wrong.',
+          },
+        ],
       };
 
       expect(fetch.mock.calls.length).toBe(0);
@@ -260,17 +280,19 @@ describe('RelayDefaultNetworkLayer', () => {
       expect(rejectCallback.mock.calls.length).toBe(1);
       const error = rejectCallback.mock.calls[0][0];
       expect(error instanceof Error).toBe(true);
-      expect(error.message).toEqual([
-        'Server request for mutation \`FeedbackLikeMutation\` failed for the ' +
-          'following reasons:',
-        '',
-        'Server response had an error status: 500',
-      ].join('\n'));
+      expect(error.message).toEqual(
+        [
+          'Server request for mutation \`FeedbackLikeMutation\` failed for the ' +
+            'following reasons:',
+          '',
+          'Server response had an error status: 500',
+        ].join('\n'),
+      );
       expect(error.status).toEqual(failureResponse.status);
-      expect(error.source).toBe('{"errors":[{"message":"Something went ' +
-        'completely wrong."}]}');
+      expect(error.source).toBe(
+        '{"errors":[{"message":"Something went ' + 'completely wrong."}]}',
+      );
     });
-
   });
 
   describe('sendQueries', () => {
@@ -280,10 +302,14 @@ describe('RelayDefaultNetworkLayer', () => {
     beforeEach(() => {
       const route = RelayMetaRoute.get('$fetchRelayQuery');
       const queryA = RelayQuery.Root.create(
-        Relay.QL`query{node(id:"123"){id}}`, route, {}
+        Relay.QL`query{node(id:"123"){id}}`,
+        route,
+        {},
       );
       const queryB = RelayQuery.Root.create(
-        Relay.QL`query{node(id:"456"){id}}`, route, {}
+        Relay.QL`query{node(id:"456"){id}}`,
+        route,
+        {},
       );
       requestA = new RelayQueryRequest(queryA);
       requestB = new RelayQueryRequest(queryB);
@@ -296,15 +322,17 @@ describe('RelayDefaultNetworkLayer', () => {
       const call = fetchWithRetries.mock.calls[0];
       expect(call[0]).toBe(networkConfig.uri);
       const {body, fetchTimeout, headers, method, retryDelays} = call[1];
-      expect(body).toBe(JSON.stringify({
-        query: requestA.getQueryString(),
-        variables: {
-          id_0: '123',
-        },
-      }));
+      expect(body).toBe(
+        JSON.stringify({
+          query: requestA.getQueryString(),
+          variables: {
+            id_0: '123',
+          },
+        }),
+      );
       expect(fetchTimeout).toBe(networkConfig.init.fetchTimeout);
       expect(headers).toEqual({
-        'Accept': '*/*',
+        Accept: '*/*',
         'Content-Encoding': 'gzip',
         'Content-Type': 'application/json',
       });
@@ -355,7 +383,7 @@ describe('RelayDefaultNetworkLayer', () => {
       expect(rejectCallback.mock.calls.length).toBeGreaterThan(0);
 
       expect(rejectCallback.mock.calls[0][0].message).toEqual(
-        RelayTestUtils.getJSONTokenError('/', 2)
+        RelayTestUtils.getJSONTokenError('/', 2),
       );
     });
 
@@ -367,27 +395,33 @@ describe('RelayDefaultNetworkLayer', () => {
 
       const payloadA = {
         data: {},
-        errors: [{
-          message: 'Something went wrong.',
-          locations: [{
-            column: 7,
-            line: 1,
-          }],
-        }],
+        errors: [
+          {
+            message: 'Something went wrong.',
+            locations: [
+              {
+                column: 7,
+                line: 1,
+              },
+            ],
+          },
+        ],
       };
       fetchWithRetries.mock.deferreds[0].resolve(genResponse(payloadA));
       jest.runAllTimers();
 
       expect(rejectCallback.mock.calls.length).toBeGreaterThan(0);
       const error = rejectCallback.mock.calls[0][0];
-      expect(error.message).toEqual([
-        'Server request for query `RelayDefaultNetworkLayer` failed for the ' +
-          'following reasons:',
-        '',
-        '1. Something went wrong.',
-        '   ' + requestA.getQueryString().substr(0, 43),
-        '         ^^^',
-      ].join('\n'));
+      expect(error.message).toEqual(
+        [
+          'Server request for query `RelayDefaultNetworkLayer` failed for the ' +
+            'following reasons:',
+          '',
+          '1. Something went wrong.',
+          '   ' + requestA.getQueryString().substr(0, 43),
+          '         ^^^',
+        ].join('\n'),
+      );
       expect(error.source).toEqual(payloadA);
       expect(error.status).toEqual('200');
     });
@@ -410,7 +444,7 @@ describe('RelayDefaultNetworkLayer', () => {
       expect(resolveBCallback.mock.calls.length).toBeGreaterThan(0);
       expect(rejectACallback.mock.calls.length).toBeGreaterThan(0);
       expect(rejectACallback.mock.calls[0][0].message).toEqual(
-        'Server response was missing for query `RelayDefaultNetworkLayer`.'
+        'Server response was missing for query `RelayDefaultNetworkLayer`.',
       );
     });
   });

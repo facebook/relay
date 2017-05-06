@@ -8,6 +8,7 @@
  *
  * @providesModule RelayModernOperationSelector
  * @flow
+ * @format
  */
 
 'use strict';

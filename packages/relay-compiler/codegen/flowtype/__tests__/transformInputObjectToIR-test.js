@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @fullSyntaxTransform
+ * @format
  */
 
 'use strict';
@@ -22,7 +23,6 @@ let GraphQLNonNull;
 let GraphQLString;
 
 describe('printFlowTypes', () => {
-
   beforeEach(() => {
     jest.resetModules();
     ({

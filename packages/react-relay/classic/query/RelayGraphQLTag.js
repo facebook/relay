@@ -8,6 +8,7 @@
  *
  * @providesModule RelayGraphQLTag
  * @flow
+ * @format
  */
 
 'use strict';
@@ -30,8 +31,8 @@ function graphql(): GraphQLTaggedNode {
   invariant(
     false,
     'graphql: Unexpected invocation at runtime. Either the Babel transform ' +
-    'was not set up, or it failed to identify this call site. Make sure it ' +
-    'is being used verbatim as `graphql`.'
+      'was not set up, or it failed to identify this call site. Make sure it ' +
+      'is being used verbatim as `graphql`.',
   );
 }
 
@@ -42,8 +43,8 @@ graphql.experimental = function(): GraphQLTaggedNode {
   invariant(
     false,
     'graphql.experimental: Unexpected invocation at runtime. Either the ' +
-    'Babel transform was not set up, or it failed to identify this call ' +
-    'site. Make sure it is being used verbatim as `graphql.experimental`.'
+      'Babel transform was not set up, or it failed to identify this call ' +
+      'site. Make sure it is being used verbatim as `graphql.experimental`.',
   );
 };
 
@@ -78,9 +79,9 @@ function getClassicFragment(
   invariant(
     fragment,
     'RelayGraphQLTag: Expected a fragment, got `%s`.\n' +
-    'The "relay" Babel plugin must enable "compat" mode to be used with ' +
-    '"react-relay/compat" or "react-relay/classic".\n' +
-    'See: https://facebook.github.io/relay/docs/babel-plugin-relay.html',
+      'The "relay" Babel plugin must enable "compat" mode to be used with ' +
+      '"react-relay/compat" or "react-relay/classic".\n' +
+      'See: https://facebook.github.io/relay/docs/babel-plugin-relay.html',
     concreteNode,
   );
   return fragment;
@@ -94,9 +95,9 @@ function getClassicOperation(
   invariant(
     operation,
     'RelayGraphQLTag: Expected an operation, got `%s`.\n' +
-    'The "relay" Babel plugin must enable "compat" mode to be used with ' +
-    '"react-relay/compat" or "react-relay/classic".\n' +
-    'See: https://facebook.github.io/relay/docs/babel-plugin-relay.html',
+      'The "relay" Babel plugin must enable "compat" mode to be used with ' +
+      '"react-relay/compat" or "react-relay/classic".\n' +
+      'See: https://facebook.github.io/relay/docs/babel-plugin-relay.html',
     concreteNode,
   );
   return operation;

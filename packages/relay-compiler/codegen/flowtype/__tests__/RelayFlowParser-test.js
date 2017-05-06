@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @fullSyntaxTransform
+ * @format
  */
 
 'use strict';
@@ -20,7 +21,6 @@ const getGoldenMatchers = require('getGoldenMatchers');
 const prettyStringify = require('prettyStringify');
 
 describe('RelayFlowParser', () => {
-
   beforeEach(() => {
     jest.resetModules();
     jasmine.addMatchers(getGoldenMatchers(__filename));

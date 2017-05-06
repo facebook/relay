@@ -8,6 +8,7 @@
  *
  * @providesModule cloneRelayHandleSourceField
  * @flow
+ * @format
  */
 
 'use strict';
@@ -42,24 +43,29 @@ function cloneRelayHandleSourceField(
   selections: Array<ConcreteSelection>,
   variables: Variables,
 ): ConcreteLinkedField {
-  const sourceField = selections.find(source => (
-    source.kind === LINKED_FIELD &&
-    source.name === handleField.name &&
-    source.alias === handleField.alias &&
-    areEqual(source.args, handleField.args)
-  ));
+  const sourceField = selections.find(
+    source =>
+      source.kind === LINKED_FIELD &&
+      source.name === handleField.name &&
+      source.alias === handleField.alias &&
+      areEqual(source.args, handleField.args),
+  );
   invariant(
     sourceField && sourceField.kind === LINKED_FIELD,
     'cloneRelayHandleSourceField: Expected a corresponding source field for ' +
-    'handle `%s`.',
-    handleField.handle
+      'handle `%s`.',
+    handleField.handle,
   );
-  let handleKey = getRelayHandleKey(handleField.handle, handleField.key, handleField.name);
+  let handleKey = getRelayHandleKey(
+    handleField.handle,
+    handleField.key,
+    handleField.name,
+  );
   if (handleField.filters && handleField.filters.length > 0) {
     const filterValues = getHandleFilterValues(
       handleField.args || [],
       handleField.filters,
-      variables
+      variables,
     );
     handleKey = formatStorageKey(handleKey, filterValues);
   }

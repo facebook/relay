@@ -8,6 +8,7 @@
  *
  * @providesModule RelayRouteFragment
  * @flow
+ * @format
  */
 
 'use strict';
@@ -39,9 +40,7 @@ class RelayRouteFragment {
   /**
    * Returns the query fragment that matches the given route, if any.
    */
-  getFragmentForRoute(
-    route: RelayMetaRoute
-  ): ?RelayConcreteNode {
+  getFragmentForRoute(route: RelayMetaRoute): ?RelayConcreteNode {
     return this._builder(route);
   }
 }

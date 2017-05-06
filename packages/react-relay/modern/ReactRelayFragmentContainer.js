@@ -8,6 +8,7 @@
  *
  * @providesModule ReactRelayFragmentContainer
  * @flow
+ * @format
  */
 
 'use strict';
@@ -83,7 +84,9 @@ function createContainerWithFragments<TBase: ReactClass<*>>(
       const context = nullthrows(nextContext);
       const relay = assertRelayContext(context.relay);
       if (relay !== this.context.relay) {
-        const {createFragmentSpecResolver} = relay.environment.unstable_internal;
+        const {
+          createFragmentSpecResolver,
+        } = relay.environment.unstable_internal;
         this._resolver.dispose();
         this._resolver = createFragmentSpecResolver(
           relay,
@@ -137,7 +140,7 @@ function createContainerWithFragments<TBase: ReactClass<*>>(
     _handleFragmentDataUpdate = () => {
       const data = this._resolver.resolve();
       const profiler = RelayProfiler.profile(
-        'ReactRelayFragmentContainer.handleFragmentDataUpdate'
+        'ReactRelayFragmentContainer.handleFragmentDataUpdate',
       );
       this.setState({data}, profiler.stop);
     };
@@ -173,8 +176,8 @@ function assertRelayContext(relay: mixed): RelayContext {
   invariant(
     isRelayContext(relay),
     'ReactRelayFragmentContainer: Expected `context.relay` to be an object ' +
-    'conforming to the `RelayContext` interface, got `%s`.',
-    relay
+      'conforming to the `RelayContext` interface, got `%s`.',
+    relay,
   );
   return (relay: any);
 }

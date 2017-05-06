@@ -6,6 +6,8 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
+ *
+ * @format
  */
 
 'use strict';
@@ -15,8 +17,7 @@ const GraphQLStoreRangeUtils = require.requireActual('GraphQLStoreRangeUtils');
 Object.getOwnPropertyNames(GraphQLStoreRangeUtils.prototype).forEach(name => {
   const property = GraphQLStoreRangeUtils.prototype[name];
   if (typeof property === 'function') {
-    GraphQLStoreRangeUtils.prototype[name] =
-      jest.fn(property);
+    GraphQLStoreRangeUtils.prototype[name] = jest.fn(property);
   }
 });
 

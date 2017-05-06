@@ -8,6 +8,7 @@
  *
  * @providesModule RelayModernFragmentSpecResolver
  * @flow
+ * @format
  */
 
 'use strict';
@@ -16,7 +17,10 @@ const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const isScalarAndEqual = require('isScalarAndEqual');
 
-const {areEqualSelectors, getSelectorsFromObject} = require('RelayModernSelector');
+const {
+  areEqualSelectors,
+  getSelectorsFromObject,
+} = require('RelayModernSelector');
 
 import type {
   Disposable,
@@ -129,7 +133,11 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
         resolver = null;
       } else if (Array.isArray(selector)) {
         if (resolver == null) {
-          resolver = new SelectorListResolver(this._context.environment, selector, this._onChange);
+          resolver = new SelectorListResolver(
+            this._context.environment,
+            selector,
+            this._onChange,
+          );
         } else {
           invariant(
             resolver instanceof SelectorListResolver,
@@ -140,7 +148,11 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
         }
       } else {
         if (resolver == null) {
-          resolver = new SelectorResolver(this._context.environment, selector, this._onChange);
+          resolver = new SelectorResolver(
+            this._context.environment,
+            selector,
+            this._onChange,
+          );
         } else {
           invariant(
             resolver instanceof SelectorResolver,
@@ -168,7 +180,7 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
   _onChange = (): void => {
     this._stale = true;
     this._callback();
-  }
+  };
 }
 
 /**
@@ -206,7 +218,10 @@ class SelectorResolver {
   }
 
   setSelector(selector: Selector): void {
-    if (this._subscription != null && areEqualSelectors(selector, this._selector)) {
+    if (
+      this._subscription != null &&
+      areEqualSelectors(selector, this._selector)
+    ) {
       return;
     }
     this.dispose();
@@ -227,7 +242,7 @@ class SelectorResolver {
   _onChange = (snapshot: Snapshot): void => {
     this._data = snapshot.data;
     this._callback();
-  }
+  };
 }
 
 /**
@@ -305,7 +320,7 @@ class SelectorListResolver {
   _onChange = (data: ?Object): void => {
     this._stale = true;
     this._callback();
-  }
+  };
 }
 
 function disposeCallback(disposable: ?Disposable): void {

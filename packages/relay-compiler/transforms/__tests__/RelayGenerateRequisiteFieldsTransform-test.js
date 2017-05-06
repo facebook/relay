@@ -5,6 +5,8 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
@@ -12,8 +14,7 @@
 jest.disableAutomock();
 
 const RelayCompilerContext = require('RelayCompilerContext');
-const RelayGenerateRequisiteFieldsTransform =
-  require('RelayGenerateRequisiteFieldsTransform');
+const RelayGenerateRequisiteFieldsTransform = require('RelayGenerateRequisiteFieldsTransform');
 const RelayParser = require('RelayParser');
 const RelayPrinter = require('RelayPrinter');
 const RelayTestSchema = require('RelayTestSchema');
@@ -25,13 +26,17 @@ describe('RelayGenerateRequisiteFieldsTransform', () => {
   });
 
   it('matches expected output', () => {
-    expect('fixtures/generate-requisite-fields-transform').toMatchGolden(text => {
+    expect(
+      'fixtures/generate-requisite-fields-transform',
+    ).toMatchGolden(text => {
       const ast = RelayParser.parse(RelayTestSchema, text);
       const context = ast.reduce(
         (ctx, node) => ctx.add(node),
-        new RelayCompilerContext(RelayTestSchema)
+        new RelayCompilerContext(RelayTestSchema),
       );
-      const nextContext = RelayGenerateRequisiteFieldsTransform.transform(context);
+      const nextContext = RelayGenerateRequisiteFieldsTransform.transform(
+        context,
+      );
       const documents = [];
       nextContext.documents().map(doc => {
         documents.push(RelayPrinter.print(doc));

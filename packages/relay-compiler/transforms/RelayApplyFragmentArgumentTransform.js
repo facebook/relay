@@ -8,6 +8,7 @@
  *
  * @providesModule RelayApplyFragmentArgumentTransform
  * @flow
+ * @format
  */
 
 'use strict';
@@ -33,10 +34,7 @@ import type {
   Selection,
 } from 'RelayIR';
 
-const {
-  getFragmentScope,
-  getRootScope,
-} = RelayCompilerScope;
+const {getFragmentScope, getRootScope} = RelayCompilerScope;
 
 /**
  * A tranform that converts a set of documents containing fragments/fragment
@@ -67,12 +65,7 @@ function transform(context: RelayCompilerContext): RelayCompilerContext {
   nextContext = documents.reduce((ctx: RelayCompilerContext, node) => {
     if (node.kind === 'Root') {
       const scope = getRootScope(node.argumentDefinitions);
-      const transformedNode = transformNode(
-        context,
-        fragments,
-        scope,
-        node
-      );
+      const transformedNode = transformNode(context, fragments, scope, node);
       return transformedNode ? ctx.add(transformedNode) : ctx;
     } else {
       // fragments are transformed when referenced; unreferenced fragments are
@@ -81,8 +74,9 @@ function transform(context: RelayCompilerContext): RelayCompilerContext {
     }
   }, nextContext);
   return Array.from(fragments.values()).reduce(
-    (ctx: RelayCompilerContext, fragment) => fragment ? ctx.add(fragment) : ctx,
-    nextContext
+    (ctx: RelayCompilerContext, fragment) =>
+      (fragment ? ctx.add(fragment) : ctx),
+    nextContext,
   );
 }
 
@@ -90,13 +84,13 @@ function transformNode<T: Node>(
   context: RelayCompilerContext,
   fragments: Map<string, ?Fragment>,
   scope: Scope,
-  node: T
+  node: T,
 ): ?T {
   const selections = transformSelections(
     context,
     fragments,
     scope,
-    node.selections
+    node.selections,
   );
   if (!selections) {
     return null;
@@ -104,7 +98,7 @@ function transformNode<T: Node>(
   if (node.hasOwnProperty('directives')) {
     const directives = transformDirectives(
       scope,
-      (node: $FlowIssue).directives
+      (node: $FlowIssue).directives,
     );
     // $FlowIssue: this is a valid `Node`:
     return ({
@@ -123,26 +117,23 @@ function transformFragmentSpread(
   context: RelayCompilerContext,
   fragments: Map<string, ?Fragment>,
   scope: Scope,
-  spread: FragmentSpread
+  spread: FragmentSpread,
 ): ?FragmentSpread {
-  const directives = transformDirectives(
-    scope,
-    spread.directives
-  );
+  const directives = transformDirectives(scope, spread.directives);
   const fragment = context.get(spread.name);
   invariant(
     fragment && fragment.kind === 'Fragment',
     'RelayApplyFragmentArgumentTransform: expected `%s` to be a fragment, ' +
-    'got `%s`.',
+      'got `%s`.',
     spread.name,
-    fragment && fragment.kind
+    fragment && fragment.kind,
   );
   const appliedFragment = transformFragment(
     context,
     fragments,
     scope,
     fragment,
-    spread.args
+    spread.args,
   );
   if (!appliedFragment) {
     return null;
@@ -159,22 +150,16 @@ function transformField<T: Field>(
   context: RelayCompilerContext,
   fragments: Map<string, ?Fragment>,
   scope: Scope,
-  field: T
+  field: T,
 ): ?T {
-  const args = transformArguments(
-    scope,
-    field.args
-  );
-  const directives = transformDirectives(
-    scope,
-    field.directives
-  );
+  const args = transformArguments(scope, field.args);
+  const directives = transformDirectives(scope, field.directives);
   if (field.kind === 'LinkedField') {
     const selections = transformSelections(
       context,
       fragments,
       scope,
-      field.selections
+      field.selections,
     );
     if (!selections) {
       return null;
@@ -199,20 +184,17 @@ function transformCondition(
   context: RelayCompilerContext,
   fragments: Map<string, ?Fragment>,
   scope: Scope,
-  node: Condition
+  node: Condition,
 ): ?Array<Selection> {
   const condition = transformValue(scope, node.condition);
   invariant(
     condition.kind === 'Literal' || condition.kind === 'Variable',
     'RelayApplyFragmentArgumentTransform: A non-scalar value was applied to ' +
-    'an @include or @skip directive, the `if` argument value must be a ' +
-    'variable or a Boolean, got `%s`.',
-    condition
+      'an @include or @skip directive, the `if` argument value must be a ' +
+      'variable or a Boolean, got `%s`.',
+    condition,
   );
-  if (
-    condition.kind === 'Literal' &&
-    condition.value !== node.passingValue
-  ) {
+  if (condition.kind === 'Literal' && condition.value !== node.passingValue) {
     // Dead code, no need to traverse further.
     return null;
   }
@@ -220,48 +202,55 @@ function transformCondition(
     context,
     fragments,
     scope,
-    node.selections
+    node.selections,
   );
   if (!selections) {
     return null;
   }
-  if (
-    condition.kind === 'Literal' &&
-    condition.value === node.passingValue
-  ) {
+  if (condition.kind === 'Literal' && condition.value === node.passingValue) {
     // Always passes, return inlined selections
     return selections;
   }
-  return [{
-    ...node,
-    condition,
-    selections,
-  }];
+  return [
+    {
+      ...node,
+      condition,
+      selections,
+    },
+  ];
 }
 
 function transformSelections(
   context: RelayCompilerContext,
   fragments: Map<string, ?Fragment>,
   scope: Scope,
-  selections: Array<Selection>
+  selections: Array<Selection>,
 ): ?Array<Selection> {
   let nextSelections = null;
   selections.forEach(selection => {
     let nextSelection;
     if (selection.kind === 'InlineFragment') {
-      nextSelection =  transformNode(context, fragments, scope, selection);
+      nextSelection = transformNode(context, fragments, scope, selection);
     } else if (selection.kind === 'FragmentSpread') {
-      nextSelection =
-        transformFragmentSpread(context, fragments, scope, selection);
+      nextSelection = transformFragmentSpread(
+        context,
+        fragments,
+        scope,
+        selection,
+      );
     } else if (selection.kind === 'Condition') {
-      const conditionSelections =
-        transformCondition(context, fragments, scope, selection);
+      const conditionSelections = transformCondition(
+        context,
+        fragments,
+        scope,
+        selection,
+      );
       if (conditionSelections) {
         nextSelections = nextSelections || [];
         nextSelections.push(...conditionSelections);
       }
     } else {
-      nextSelection =  transformField(context, fragments, scope, selection);
+      nextSelection = transformField(context, fragments, scope, selection);
     }
     if (nextSelection) {
       nextSelections = nextSelections || [];
@@ -273,7 +262,7 @@ function transformSelections(
 
 function transformDirectives(
   scope: Scope,
-  directives: Array<Directive>
+  directives: Array<Directive>,
 ): Array<Directive> {
   return directives.map(directive => {
     const args = transformArguments(scope, directive.args);
@@ -286,20 +275,15 @@ function transformDirectives(
 
 function transformArguments(
   scope: Scope,
-  args: Array<Argument>
+  args: Array<Argument>,
 ): Array<Argument> {
   return args.map(arg => {
     const value = transformValue(scope, arg.value);
-    return value === arg.value ?
-      arg :
-      {...arg, value};
+    return value === arg.value ? arg : {...arg, value};
   });
 }
 
-function transformValue(
-  scope: Scope,
-  value: ArgumentValue
-): ArgumentValue {
+function transformValue(scope: Scope, value: ArgumentValue): ArgumentValue {
   if (value.kind === 'Variable') {
     const scopeValue = scope[value.variableName];
     invariant(
@@ -334,12 +318,12 @@ function transformFragment(
   fragments: Map<string, ?Fragment>,
   parentScope: Scope,
   fragment: Fragment,
-  args: Array<Argument>
+  args: Array<Argument>,
 ): ?Fragment {
   const argumentsHash = hashArguments(args, parentScope);
-  const fragmentName = argumentsHash ?
-    `${fragment.name}_${argumentsHash}` :
-    fragment.name;
+  const fragmentName = argumentsHash
+    ? `${fragment.name}_${argumentsHash}`
+    : fragment.name;
   const appliedFragment = fragments.get(fragmentName);
   if (appliedFragment) {
     return appliedFragment;
@@ -347,13 +331,13 @@ function transformFragment(
   const fragmentScope = getFragmentScope(
     fragment.argumentDefinitions,
     args,
-    parentScope
+    parentScope,
   );
   invariant(
     !fragments.has(fragmentName) || fragments.get(fragmentName) !== undefined,
     'RelayApplyFragmentArgumentTransform: Found a circular reference from ' +
-    'fragment `%s`.',
-    fragment.name
+      'fragment `%s`.',
+    fragment.name,
   );
   fragments.set(fragmentName, undefined); // to detect circular references
   let transformedFragment = null;
@@ -361,7 +345,7 @@ function transformFragment(
     context,
     fragments,
     fragmentScope,
-    fragment.selections
+    fragment.selections,
   );
   if (selections) {
     transformedFragment = {
@@ -375,35 +359,32 @@ function transformFragment(
   return transformedFragment;
 }
 
-function hashArguments(
-  args: Array<Argument>,
-  scope: Scope
-): ?string {
+function hashArguments(args: Array<Argument>, scope: Scope): ?string {
   if (!args.length) {
     return null;
   }
   const sortedArgs = [...args].sort((a, b) => {
-    return a.name < b.name ? -1 :
-      a.name > b.name ? 1 :
-      0;
+    return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
   });
-  const printedArgs = JSON.stringify(sortedArgs.map(arg => {
-    let value;
-    if (arg.value.kind === 'Variable') {
-      value = scope[arg.value.variableName];
-      invariant(
-        value != null,
-        'RelayApplyFragmentArgumentTransform: variable `%s` is not in scope.',
-        arg.value.variableName,
-      );
-    } else {
-      value = arg.value;
-    }
-    return {
-      name: arg.name,
-      value: getIdentifierForRelayArgumentValue(value),
-    };
-  }));
+  const printedArgs = JSON.stringify(
+    sortedArgs.map(arg => {
+      let value;
+      if (arg.value.kind === 'Variable') {
+        value = scope[arg.value.variableName];
+        invariant(
+          value != null,
+          'RelayApplyFragmentArgumentTransform: variable `%s` is not in scope.',
+          arg.value.variableName,
+        );
+      } else {
+        value = arg.value;
+      }
+      return {
+        name: arg.name,
+        value: getIdentifierForRelayArgumentValue(value),
+      };
+    }),
+  );
   return murmurHash(printedArgs);
 }
 

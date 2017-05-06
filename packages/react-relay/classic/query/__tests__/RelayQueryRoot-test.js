@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -29,22 +30,26 @@ describe('RelayQueryRoot', () => {
 
     jasmine.addMatchers(RelayTestUtils.matchers);
 
-    me = getNode(Relay.QL`
+    me = getNode(
+      Relay.QL`
       query {
         me {
           name1: firstName
           name1: lastName
         }
       }
-    `);
+    `,
+    );
 
-    usernames = getNode(Relay.QL`
+    usernames = getNode(
+      Relay.QL`
       query {
         usernames(names:"mroch") {
           firstName
         }
       }
-    `);
+    `,
+    );
     usernames.getConcreteQueryNode().metadata = {
       isPlural: true,
       identifyingArgName: 'names',
@@ -77,7 +82,8 @@ describe('RelayQueryRoot', () => {
   });
 
   it('does not return skipped children', () => {
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       query {
         me {
           id
@@ -88,14 +94,17 @@ describe('RelayQueryRoot', () => {
           username @skip(if: $false) @include(if: false)
         }
       }
-    `, {true: true, false: false});
+    `,
+      {true: true, false: false},
+    );
     const children = query.getChildren();
     expect(children.length).toBe(1);
     expect(children[0].getSchemaName()).toBe('id');
   });
 
   it('returns included children', () => {
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       query {
         me {
           id
@@ -104,7 +113,9 @@ describe('RelayQueryRoot', () => {
           name @skip(if: false) @include(if: $true)
         }
       }
-    `, {false: false, true: true});
+    `,
+      {false: false, true: true},
+    );
     const children = query.getChildren();
     expect(children.length).toBe(4);
     expect(children[0].getSchemaName()).toBe('id');
@@ -117,9 +128,9 @@ describe('RelayQueryRoot', () => {
     let children = me.getChildren();
     expect(me.clone(children)).toBe(me);
     expect(me.clone(children.map(c => c))).toBe(me);
-    expect(me.clone(
-      [null, children[0], null, children[1], null, children[2], null]
-    )).toBe(me);
+    expect(
+      me.clone([null, children[0], null, children[1], null, children[2], null]),
+    ).toBe(me);
 
     children = usernames.getChildren();
     expect(usernames.clone(children)).toBe(usernames);
@@ -141,14 +152,16 @@ describe('RelayQueryRoot', () => {
   });
 
   it('clones with updated children', () => {
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       query {
         me {
           firstName
           lastName
         }
       }
-    `);
+    `,
+    );
     const clone = query.clone([query.getChildren()[0]]);
     expect(clone.getChildren().length).toBe(1);
     expect(clone.getChildren()[0].getSchemaName()).toBe('firstName');
@@ -158,23 +171,27 @@ describe('RelayQueryRoot', () => {
   it('returns root calls with values', () => {
     expect(me.getIdentifyingArg()).toEqual(undefined);
 
-    expect(usernames.getIdentifyingArg()).toEqual(
-      {name: 'names', type: '[String!]!', value: 'mroch'}
-    );
+    expect(usernames.getIdentifyingArg()).toEqual({
+      name: 'names',
+      type: '[String!]!',
+      value: 'mroch',
+    });
 
-    expect(getNode(Relay.QL`
+    expect(
+      getNode(
+        Relay.QL`
       query {
         usernames(names:["a","b","c"]) {
           firstName
         }
       }
-    `).getIdentifyingArg()).toEqual(
-      {
-        name: 'names',
-        type: '[String!]!',
-        value: ['a', 'b', 'c'],
-      }
-    );
+    `,
+      ).getIdentifyingArg(),
+    ).toEqual({
+      name: 'names',
+      type: '[String!]!',
+      value: ['a', 'b', 'c'],
+    });
   });
 
   it('returns ref params', () => {
@@ -190,10 +207,12 @@ describe('RelayQueryRoot', () => {
           }
         }
       `,
-      calls: [QueryBuilder.createCall(
-        'id',
-        QueryBuilder.createBatchCallVariable('q0', '$.*.actor.id')
-      )],
+      calls: [
+        QueryBuilder.createCall(
+          'id',
+          QueryBuilder.createBatchCallVariable('q0', '$.*.actor.id'),
+        ),
+      ],
     });
     const batchCall = root.getBatchCall();
     expect(batchCall).toEqual({
@@ -204,26 +223,30 @@ describe('RelayQueryRoot', () => {
   });
 
   it('is not equal to non-root nodes', () => {
-    const fragment = getNode(Relay.QL`
+    const fragment = getNode(
+      Relay.QL`
       fragment on Viewer {
         actor {
           id
         }
       }
-    `);
+    `,
+    );
     const id = fragment.getChildren()[0].getChildren()[0];
     expect(me.equals(fragment)).toBe(false);
     expect(me.equals(id)).toBe(false);
   });
 
   it('is not equal to queries with different root calls', () => {
-    const diffRoot = getNode(Relay.QL`
+    const diffRoot = getNode(
+      Relay.QL`
       query {
         usernames(names:"joesavona") {
           firstName
         }
       }
-    `);
+    `,
+    );
     expect(usernames.equals(diffRoot)).toBe(false);
   });
 
@@ -233,22 +256,26 @@ describe('RelayQueryRoot', () => {
   });
 
   it('equals equivalent queries', () => {
-    const me2 = getNode(Relay.QL`
+    const me2 = getNode(
+      Relay.QL`
       query {
         me {
           name1: firstName
           name1: lastName
         }
       }
-    `);
+    `,
+    );
 
-    const usernames2 = getNode(Relay.QL`
+    const usernames2 = getNode(
+      Relay.QL`
       query {
         usernames(names:"mroch") {
           firstName
         }
       }
-    `);
+    `,
+    );
     usernames2.getConcreteQueryNode().metadata = {
       isPlural: true,
       identifyingArgName: 'names',
@@ -261,23 +288,27 @@ describe('RelayQueryRoot', () => {
   });
 
   it('does not equal different queries with the same root', () => {
-    const me2 = getNode(Relay.QL`
+    const me2 = getNode(
+      Relay.QL`
       query {
         me {
           name1: firstName
           lastName
         }
       }
-    `);
+    `,
+    );
 
-    const usernames2 = getNode(Relay.QL`
+    const usernames2 = getNode(
+      Relay.QL`
       query {
         usernames(names:"mroch") {
           firstName
           lastName
         }
       }
-    `);
+    `,
+    );
     expect(me.equals(me2)).toBe(false);
     expect(usernames.equals(usernames2)).toBe(false);
     expect(me2.equals(me)).toBe(false);
@@ -287,17 +318,21 @@ describe('RelayQueryRoot', () => {
   it('equals identical ref queries with matching ref params', () => {
     const node = getNode({
       ...Relay.QL`query { node(id: "123") }`,
-      calls: [QueryBuilder.createCall(
-        'id',
-        QueryBuilder.createBatchCallVariable('q0', '$.*.actor.id')
-      )],
+      calls: [
+        QueryBuilder.createCall(
+          'id',
+          QueryBuilder.createBatchCallVariable('q0', '$.*.actor.id'),
+        ),
+      ],
     });
     const other = getNode({
       ...Relay.QL`query { node(id: "123") }`,
-      calls: [QueryBuilder.createCall(
-        'id',
-        QueryBuilder.createBatchCallVariable('q0', '$.*.actor.id')
-      )],
+      calls: [
+        QueryBuilder.createCall(
+          'id',
+          QueryBuilder.createBatchCallVariable('q0', '$.*.actor.id'),
+        ),
+      ],
     });
     expect(node.equals(other)).toBe(true);
   });
@@ -305,20 +340,24 @@ describe('RelayQueryRoot', () => {
   it('does not equal queries with different ref params', () => {
     const node = getNode({
       ...Relay.QL`query { node(id: "123") }`,
-      calls: [QueryBuilder.createCall(
-        'id',
-        QueryBuilder.createBatchCallVariable('q0', '$.*.actor.id')
-      )],
+      calls: [
+        QueryBuilder.createCall(
+          'id',
+          QueryBuilder.createBatchCallVariable('q0', '$.*.actor.id'),
+        ),
+      ],
     });
     const other = getNode({
       ...Relay.QL`query { node(id: "123") }`,
-      calls: [QueryBuilder.createCall(
-        'id',
-        QueryBuilder.createBatchCallVariable(
-          'q0',
-          '$.*.actor.current_city.id'
-        )
-      )],
+      calls: [
+        QueryBuilder.createCall(
+          'id',
+          QueryBuilder.createBatchCallVariable(
+            'q0',
+            '$.*.actor.current_city.id',
+          ),
+        ),
+      ],
     });
     expect(node.equals(other)).toBe(false);
   });
@@ -347,13 +386,15 @@ describe('RelayQueryRoot', () => {
   });
 
   it('returns numeric identifying arguments', () => {
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       query {
         task(number: 5) {
           title
         }
       }
-    `);
+    `,
+    );
     const nodeIdentifyingArg = query.getIdentifyingArg();
     expect(nodeIdentifyingArg).toEqual({
       name: 'number',
@@ -363,13 +404,15 @@ describe('RelayQueryRoot', () => {
   });
 
   it('returns input-object identifying arguments', () => {
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       query {
         checkinSearchQuery(query: {query: "Facebook"}) {
           query
         }
       }
-    `);
+    `,
+    );
     const nodeIdentifyingArg = query.getIdentifyingArg();
     expect(nodeIdentifyingArg).toEqual({
       name: 'query',
@@ -381,7 +424,8 @@ describe('RelayQueryRoot', () => {
   });
 
   it('returns array identifying arguments', () => {
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       query {
         route(waypoints: [
           {lat: "0.0", lon: "0.0"}
@@ -392,22 +436,19 @@ describe('RelayQueryRoot', () => {
           }
         }
       }
-    `);
-    const nodeIdentifyingArg = query.getIdentifyingArg();
-    expect(nodeIdentifyingArg).toEqual(
-      {
-        name: 'waypoints',
-        value: [
-          {lat: '0.0', lon: '0.0'},
-          {lat: '1.1', lon: '1.1'},
-        ],
-        type: '[WayPoint!]!',
-      }
+    `,
     );
+    const nodeIdentifyingArg = query.getIdentifyingArg();
+    expect(nodeIdentifyingArg).toEqual({
+      name: 'waypoints',
+      value: [{lat: '0.0', lon: '0.0'}, {lat: '1.1', lon: '1.1'}],
+      type: '[WayPoint!]!',
+    });
   });
 
   it('creates nodes', () => {
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       query {
         viewer {
           actor {
@@ -415,7 +456,8 @@ describe('RelayQueryRoot', () => {
           }
         }
       }
-    `);
+    `,
+    );
     const node = Relay.QL`
       fragment on Viewer {
         actor {
@@ -431,18 +473,19 @@ describe('RelayQueryRoot', () => {
   });
 
   it('returns directives', () => {
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       query {
         me @include(if: $cond) {
           id
         }
       }
-    `, {cond: true});
+    `,
+      {cond: true},
+    );
     expect(query.getDirectives()).toEqual([
       {
-        args: [
-          {name: 'if', value: true},
-        ],
+        args: [{name: 'if', value: true}],
         name: 'include',
       },
     ]);
@@ -488,7 +531,7 @@ describe('RelayQueryRoot', () => {
 
     it('strips identifying arguments', () => {
       const identifyingQuery = getNode(
-        Relay.QL`query { username(name:"yuzhi") }`
+        Relay.QL`query { username(name:"yuzhi") }`,
       );
       identifyingQuery.getConcreteQueryNode().metadata = {
         identifyingArgName: 'name',

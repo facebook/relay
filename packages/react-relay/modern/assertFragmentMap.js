@@ -8,6 +8,7 @@
  *
  * @providesModule assertFragmentMap
  * @flow
+ * @format
  */
 
 'use strict';
@@ -28,16 +29,17 @@ function assertFragmentMap(
   invariant(
     fragments && typeof fragments === 'object',
     'Could not create Relay Container for `%s`. ' +
-    'Expected a set of GraphQL fragments, got `%s` instead.',
+      'Expected a set of GraphQL fragments, got `%s` instead.',
     componentName,
     fragments,
   );
 
   forEachObject(fragments, (fragment, key) => {
     invariant(
-      fragment && (typeof fragment === 'object' || typeof fragment === 'function'),
+      fragment &&
+        (typeof fragment === 'object' || typeof fragment === 'function'),
       'Could not create Relay Container for `%s`. ' +
-      'The value of fragment `%s` was expected to be a fragment, got `%s` instead.',
+        'The value of fragment `%s` was expected to be a fragment, got `%s` instead.',
       componentName,
       key,
       fragment,

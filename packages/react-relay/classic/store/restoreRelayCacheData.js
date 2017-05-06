@@ -8,6 +8,7 @@
  *
  * @providesModule restoreRelayCacheData
  * @flow
+ * @format
  */
 
 'use strict';
@@ -24,25 +25,16 @@ const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 
 import type RelayGarbageCollector from 'RelayGarbageCollector';
-import type {
-  DataID,
-  RelayQuerySet,
-  RootCallMap,
-} from 'RelayInternalTypes';
+import type {DataID, RelayQuerySet, RootCallMap} from 'RelayInternalTypes';
 import type {QueryPath} from 'RelayQueryPath';
-import type {
-  Record,
-  RecordMap,
-} from 'RelayRecord';
+import type {Record, RecordMap} from 'RelayRecord';
 import type RelayRecordStore from 'RelayRecordStore';
 import type {
   Abortable,
   CacheManager,
   CacheProcessorCallbacks,
 } from 'RelayTypes';
-import type {
-  NodeState,
-} from 'findRelayQueryLeaves';
+import type {NodeState} from 'findRelayQueryLeaves';
 
 /**
  * @internal
@@ -68,7 +60,7 @@ function restoreFragmentDataFromCache(
     cachedRootCallMap,
     changeTracker,
     callbacks,
-    garbageCollector
+    garbageCollector,
   );
   restorator.restoreFragmentData(dataID, fragment, path);
 
@@ -96,7 +88,7 @@ function restoreQueriesDataFromCache(
     cachedRootCallMap,
     changeTracker,
     callbacks,
-    garbageCollector
+    garbageCollector,
   );
   restorator.restoreQueriesData(queries);
 
@@ -135,7 +127,7 @@ class RelayCachedDataRestorator extends RelayCacheProcessor<NodeState> {
     node: RelayQuery.Node,
     dataID: DataID,
     record: ?Record,
-    nextState: NodeState
+    nextState: NodeState,
   ): void {
     const recordState = this._store.getRecordState(dataID);
     this._cachedRecords[dataID] = record;
@@ -171,7 +163,7 @@ class RelayCachedDataRestorator extends RelayCacheProcessor<NodeState> {
     query: RelayQuery.Root,
     dataID: ?DataID,
     identifyingArgKey: ?string,
-    nextState: NodeState
+    nextState: NodeState,
   ): void {
     if (dataID == null) {
       // Read from cache and we still don't have a valid `dataID`.
@@ -179,8 +171,9 @@ class RelayCachedDataRestorator extends RelayCacheProcessor<NodeState> {
       return;
     }
     const storageKey = query.getStorageKey();
-    this._cachedRootCallMap[storageKey] =
-      this._cachedRootCallMap[storageKey] || {};
+    this._cachedRootCallMap[storageKey] = this._cachedRootCallMap[
+      storageKey
+    ] || {};
     this._cachedRootCallMap[storageKey][identifyingArgKey || ''] = dataID;
     nextState.dataID = dataID;
   }
@@ -188,7 +181,7 @@ class RelayCachedDataRestorator extends RelayCacheProcessor<NodeState> {
   restoreFragmentData(
     dataID: DataID,
     fragment: RelayQuery.Fragment,
-    path: QueryPath
+    path: QueryPath,
   ): void {
     this.process(() => {
       this.visitFragment(fragment, {
@@ -218,14 +211,11 @@ class RelayCachedDataRestorator extends RelayCacheProcessor<NodeState> {
     });
   }
 
-  traverse(
-    node: RelayQuery.Node,
-    nextState: NodeState
-  ): void {
+  traverse(node: RelayQuery.Node, nextState: NodeState): void {
     invariant(
       nextState.dataID != null,
       'RelayCachedDataRestorator: Attempted to traverse without a ' +
-      '`dataID`.'
+        '`dataID`.',
     );
     const {missingData, pendingNodeStates} = findRelayQueryLeaves(
       this._store,
@@ -233,7 +223,7 @@ class RelayCachedDataRestorator extends RelayCacheProcessor<NodeState> {
       nextState.node,
       nextState.dataID,
       nextState.path,
-      nextState.rangeCalls
+      nextState.rangeCalls,
     );
     if (missingData) {
       this.handleFailure();
@@ -246,12 +236,12 @@ class RelayCachedDataRestorator extends RelayCacheProcessor<NodeState> {
       invariant(
         pendingNodeStates[ii].dataID != null,
         'RelayCachedDataRestorator: Attempted to visit a node without ' +
-        'a `dataID`.'
+          'a `dataID`.',
       );
       this.visitNode(
         pendingNodeStates[ii].node,
         pendingNodeStates[ii].dataID,
-        pendingNodeStates[ii]
+        pendingNodeStates[ii],
       );
     }
   }
@@ -259,10 +249,12 @@ class RelayCachedDataRestorator extends RelayCacheProcessor<NodeState> {
   visitIdentifiedRoot(
     query: RelayQuery.Root,
     identifyingArgKey: ?string,
-    nextState: NodeState
+    nextState: NodeState,
   ): void {
-    const dataID =
-      this._store.getDataID(query.getStorageKey(), identifyingArgKey);
+    const dataID = this._store.getDataID(
+      query.getStorageKey(),
+      identifyingArgKey,
+    );
     if (dataID == null) {
       super.visitIdentifiedRoot(query, identifyingArgKey, nextState);
     } else {
@@ -277,8 +269,7 @@ class RelayCachedDataRestorator extends RelayCacheProcessor<NodeState> {
 }
 
 RelayProfiler.instrumentMethods(RelayCachedDataRestorator.prototype, {
-  handleIdentifiedRootVisited:
-    'RelayCachedDataRestorator.handleIdentifiedRootVisited',
+  handleIdentifiedRootVisited: 'RelayCachedDataRestorator.handleIdentifiedRootVisited',
   handleNodeVisited: 'RelayCachedDataRestorator.handleNodeVisited',
   queueIdentifiedRoot: 'RelayCachedDataRestorator.queueRoot',
   queueNode: 'RelayCachedDataRestorator.queueNode',

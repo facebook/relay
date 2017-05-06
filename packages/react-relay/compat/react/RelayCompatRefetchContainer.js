@@ -8,6 +8,7 @@
  *
  * @providesModule RelayCompatRefetchContainer
  * @flow
+ * @format
  */
 
 'use strict';

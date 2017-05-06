@@ -8,6 +8,7 @@
  *
  * @providesModule RelayModernRecord
  * @flow
+ * @format
  */
 
 'use strict';
@@ -25,9 +26,7 @@ const {
   UNPUBLISH_FIELD_SENTINEL,
 } = require('RelayStoreUtils');
 
-import type {
-  Record,
-} from 'RelayCombinedEnvironmentTypes';
+import type {Record} from 'RelayCombinedEnvironmentTypes';
 import type {DataID} from 'RelayInternalTypes';
 
 /**
@@ -143,13 +142,14 @@ function getValue(record: Record, storageKey: string): mixed {
   const value = record[storageKey];
   if (value && typeof value === 'object') {
     invariant(
-      !value.hasOwnProperty(REF_KEY) &&
-      !value.hasOwnProperty(REFS_KEY),
+      !value.hasOwnProperty(REF_KEY) && !value.hasOwnProperty(REFS_KEY),
       'RelayModernRecord.getValue(): Expected a scalar (non-link) value for `%s.%s` ' +
-      'but found %s.',
+        'but found %s.',
       record[ID_KEY],
       storageKey,
-      value.hasOwnProperty(REF_KEY) ? 'a linked record' : 'plural linked records'
+      value.hasOwnProperty(REF_KEY)
+        ? 'a linked record'
+        : 'plural linked records',
     );
   }
   return value;
@@ -169,10 +169,10 @@ function getLinkedRecordID(record: Record, storageKey: string): ?DataID {
   invariant(
     typeof link === 'object' && link && typeof link[REF_KEY] === 'string',
     'RelayModernRecord.getLinkedRecordID(): Expected `%s.%s` to be a linked ID, ' +
-    'was `%s`.',
+      'was `%s`.',
     record[ID_KEY],
     storageKey,
-    link
+    link,
   );
   return link[REF_KEY];
 }
@@ -183,19 +183,21 @@ function getLinkedRecordID(record: Record, storageKey: string): ?DataID {
  * Get the value of a field as a list of references to other records. Throws if
  * the field has a different type.
  */
-function getLinkedRecordIDs(record: Record, storageKey: string): ?Array<?DataID> {
+function getLinkedRecordIDs(
+  record: Record,
+  storageKey: string,
+): ?Array<?DataID> {
   const links = record[storageKey];
   if (links == null) {
     return links;
   }
   invariant(
-    typeof links === 'object' &&
-    Array.isArray(links[REFS_KEY]),
+    typeof links === 'object' && Array.isArray(links[REFS_KEY]),
     'RelayModernRecord.getLinkedRecordIDs(): Expected `%s.%s` to contain an array ' +
-    'of linked IDs, got `%s`.',
+      'of linked IDs, got `%s`.',
     record[ID_KEY],
     storageKey,
-    JSON.stringify(links)
+    JSON.stringify(links),
   );
   // assume items of the array are ids
   return (links[REFS_KEY]: any);
@@ -262,7 +264,7 @@ function setValue(record: Record, storageKey: string, value: mixed): void {
 function setLinkedRecordID(
   record: Record,
   storageKey: string,
-  linkedID: DataID
+  linkedID: DataID,
 ): void {
   // See perf note above for why we aren't using computed property access.
   const link = {};
@@ -278,7 +280,7 @@ function setLinkedRecordID(
 function setLinkedRecordIDs(
   record: Record,
   storageKey: string,
-  linkedIDs: Array<?DataID>
+  linkedIDs: Array<?DataID>,
 ): void {
   // See perf note above for why we aren't using computed property access.
   const links = {};

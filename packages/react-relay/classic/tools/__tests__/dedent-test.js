@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -65,11 +66,7 @@ describe('dedent()', () => {
         }
       `;
       expect(dedent(string)).toBe(
-        'query MyQuery {\n' +
-        '  example {\n' +
-        '    text\n' +
-        '  }\n' +
-        '}'
+        'query MyQuery {\n' + '  example {\n' + '    text\n' + '  }\n' + '}',
       );
     });
 
@@ -83,10 +80,10 @@ describe('dedent()', () => {
       `;
       expect(dedent(string, '    ')).toBe(
         '    query MyQuery {\n' +
-        '      example {\n' +
-        '        text\n' +
-        '      }\n' +
-        '    }'
+          '      example {\n' +
+          '        text\n' +
+          '      }\n' +
+          '    }',
       );
     });
 
@@ -102,12 +99,12 @@ describe('dedent()', () => {
       `;
       expect(dedent(string)).toBe(
         'query MyQuery {\n' +
-        '  example {\n' +
-        '    text\n' +
-        '  }\n' +
-        '\n' +
-        '  more\n' +
-        '}'
+          '  example {\n' +
+          '    text\n' +
+          '  }\n' +
+          '\n' +
+          '  more\n' +
+          '}',
       );
     });
 
@@ -123,12 +120,12 @@ describe('dedent()', () => {
       `;
       expect(dedent(string, '  ')).toBe(
         '  query MyQuery {\n' +
-        '    example {\n' +
-        '      text\n' +
-        '    }\n' +
-        '\n' +
-        '    more\n' +
-        '  }'
+          '    example {\n' +
+          '      text\n' +
+          '    }\n' +
+          '\n' +
+          '    more\n' +
+          '  }',
       );
     });
 
@@ -146,12 +143,12 @@ describe('dedent()', () => {
       /* eslint-enable no-trailing-spaces */
       expect(dedent(string, '  ')).toBe(
         '  query MyQuery {\n' +
-        '    example {\n' +
-        '      text\n' +
-        '    }\n' +
-        '\n' +
-        '    more\n' +
-        '  }'
+          '    example {\n' +
+          '      text\n' +
+          '    }\n' +
+          '\n' +
+          '    more\n' +
+          '  }',
       );
     });
   });

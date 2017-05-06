@@ -8,6 +8,7 @@
  *
  * @providesModule callsToGraphQL
  * @flow
+ * @format
  */
 
 'use strict';
@@ -27,7 +28,7 @@ function callsToGraphQL(calls: Array<Call>): Array<ConcreteCall> {
     let concreteValue = null;
     if (Array.isArray(value)) {
       concreteValue = value.map(QueryBuilder.createCallValue);
-    } else if (value != null)  {
+    } else if (value != null) {
       concreteValue = QueryBuilder.createCallValue(value);
     }
     return QueryBuilder.createCall(name, concreteValue, type);

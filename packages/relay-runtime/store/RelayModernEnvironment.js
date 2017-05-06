@@ -8,6 +8,7 @@
  *
  * @providesModule RelayModernEnvironment
  * @flow
+ * @format
  */
 
 'use strict';
@@ -51,9 +52,9 @@ class RelayModernEnvironment implements Environment {
   unstable_internal: UnstableEnvironmentCore;
 
   constructor(config: EnvironmentConfig) {
-    const handlerProvider = config.handlerProvider ?
-      config.handlerProvider :
-      RelayDefaultHandlerProvider;
+    const handlerProvider = config.handlerProvider
+      ? config.handlerProvider
+      : RelayDefaultHandlerProvider;
     this._network = config.network;
     this._publishQueue = new RelayPublishQueue(config.store, handlerProvider);
     this._store = config.store;
@@ -79,10 +80,7 @@ class RelayModernEnvironment implements Environment {
     return this._store.check(selector);
   }
 
-  commitPayload(
-    selector: Selector,
-    payload: PayloadData,
-  ): void {
+  commitPayload(selector: Selector, payload: PayloadData): void {
     // Do not handle stripped nulls when commiting a payload
     const relayPayload = normalizeRelayPayload(selector, payload);
     this._publishQueue.commitPayload(selector, relayPayload);
@@ -126,20 +124,23 @@ class RelayModernEnvironment implements Environment {
     const dispose = () => {
       isDisposed = true;
     };
-    this._network.request(operation.node, operation.variables, cacheConfig).then(payload => {
-      if (isDisposed) {
-        return;
-      }
-      this._publishQueue.commitPayload(operation.fragment, payload);
-      this._publishQueue.run();
-      onNext && onNext(payload);
-      onCompleted && onCompleted();
-    }).catch(error => {
-      if (isDisposed) {
-        return;
-      }
-      onError && onError(error);
-    });
+    this._network
+      .request(operation.node, operation.variables, cacheConfig)
+      .then(payload => {
+        if (isDisposed) {
+          return;
+        }
+        this._publishQueue.commitPayload(operation.fragment, payload);
+        this._publishQueue.run();
+        onNext && onNext(payload);
+        onCompleted && onCompleted();
+      })
+      .catch(error => {
+        if (isDisposed) {
+          return;
+        }
+        onError && onError(error);
+      });
     return {dispose};
   }
 
@@ -208,31 +209,29 @@ class RelayModernEnvironment implements Environment {
       }
       isDisposed = true;
     };
-    this._network.request(
-      operation.node,
-      operation.variables,
-      {force: true},
-      uploadables,
-    ).then(payload => {
-      if (isDisposed) {
-        return;
-      }
-      if (hasOptimisticUpdate) {
-        this._publishQueue.revertUpdate(optimisticUpdate);
-      }
-      this._publishQueue.commitPayload(operation.fragment, payload, updater);
-      this._publishQueue.run();
-      onCompleted && onCompleted(payload.errors);
-    }).catch(error => {
-      if (isDisposed) {
-        return;
-      }
-      if (hasOptimisticUpdate) {
-        this._publishQueue.revertUpdate(optimisticUpdate);
-      }
-      this._publishQueue.run();
-      onError && onError(error);
-    });
+    this._network
+      .request(operation.node, operation.variables, {force: true}, uploadables)
+      .then(payload => {
+        if (isDisposed) {
+          return;
+        }
+        if (hasOptimisticUpdate) {
+          this._publishQueue.revertUpdate(optimisticUpdate);
+        }
+        this._publishQueue.commitPayload(operation.fragment, payload, updater);
+        this._publishQueue.run();
+        onCompleted && onCompleted(payload.errors);
+      })
+      .catch(error => {
+        if (isDisposed) {
+          return;
+        }
+        if (hasOptimisticUpdate) {
+          this._publishQueue.revertUpdate(optimisticUpdate);
+        }
+        this._publishQueue.run();
+        onError && onError(error);
+      });
     return {dispose};
   }
 
@@ -257,7 +256,11 @@ class RelayModernEnvironment implements Environment {
         onCompleted,
         onError,
         onNext: payload => {
-          this._publishQueue.commitPayload(operation.fragment, payload, updater);
+          this._publishQueue.commitPayload(
+            operation.fragment,
+            payload,
+            updater,
+          );
           this._publishQueue.run();
           onNext && onNext(payload);
         },

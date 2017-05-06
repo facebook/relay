@@ -8,6 +8,7 @@
  *
  * @providesModule RelayMetaRoute
  * @flow
+ * @format
  */
 
 'use strict';
@@ -30,7 +31,6 @@ class RelayMetaRoute {
   static get(name: string) {
     return cache[name] || (cache[name] = new RelayMetaRoute(name));
   }
-
 }
 
 const cache: {[key: string]: RelayMetaRoute} = {};

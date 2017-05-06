@@ -8,6 +8,7 @@
  *
  * @providesModule RelayFilterDirectivesTransform
  * @flow
+ * @format
  */
 
 'use strict';
@@ -26,7 +27,7 @@ type State = GraphQLSchema;
  */
 function transform(
   context: RelayCompilerContext,
-  schema: GraphQLSchema
+  schema: GraphQLSchema,
 ): RelayCompilerContext {
   return RelayIRTransformer.transform(
     context,
@@ -41,9 +42,11 @@ function transform(
  * Skip directives not defined in the original schema.
  */
 function visitDirective(directive: Directive, state: State): ?Directive {
-  if (state.getDirectives().some(
-    schemaDirective => schemaDirective.name === directive.name
-  )) {
+  if (
+    state
+      .getDirectives()
+      .some(schemaDirective => schemaDirective.name === directive.name)
+  ) {
     return directive;
   }
   return null;

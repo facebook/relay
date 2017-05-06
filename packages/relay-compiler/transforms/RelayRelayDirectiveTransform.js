@@ -8,6 +8,7 @@
  *
  * @providesModule RelayRelayDirectiveTransform
  * @flow
+ * @format
  */
 
 'use strict';

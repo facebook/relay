@@ -8,6 +8,7 @@
  *
  * @flow
  * @providesModule RelayViewerHandleTransform
+ * @format
  */
 
 'use strict';
@@ -31,7 +32,7 @@ const VIEWER_TYPE = 'Viewer';
  */
 function transform(
   context: RelayCompilerContext,
-  schema: GraphQLSchema
+  schema: GraphQLSchema,
 ): RelayCompilerContext {
   const viewerType = schema.getType(VIEWER_TYPE);
   if (viewerType == null) {
@@ -42,7 +43,7 @@ function transform(
     {
       LinkedField: visitLinkedField,
     },
-    () => ({})
+    () => ({}),
   );
 }
 
@@ -63,9 +64,9 @@ function visitLinkedField(field: LinkedField, state: State): ?LinkedField {
   } else if (!handles) {
     handles = [viewerHandle];
   }
-  return handles !== transformedNode.handles ?
-    {...transformedNode, handles} :
-    transformedNode;
+  return handles !== transformedNode.handles
+    ? {...transformedNode, handles}
+    : transformedNode;
 }
 
 module.exports = {transform};

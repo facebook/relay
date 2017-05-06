@@ -8,6 +8,7 @@
  *
  * @providesModule RelayStore
  * @flow
+ * @format
  */
 
 'use strict';

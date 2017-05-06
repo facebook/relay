@@ -8,6 +8,7 @@
  *
  * @providesModule isClassicRelayEnvironment
  * @flow
+ * @format
  */
 
 'use strict';

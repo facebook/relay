@@ -8,6 +8,7 @@
  *
  * @providesModule findRelayQueryLeaves
  * @flow
+ * @format
  */
 
 'use strict';
@@ -20,10 +21,7 @@ const RelayQueryVisitor = require('RelayQueryVisitor');
 
 const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
 
-import type {
-  Call,
-  DataID,
-} from 'RelayInternalTypes';
+import type {Call, DataID} from 'RelayInternalTypes';
 import type RelayQuery from 'RelayQuery';
 import type {QueryPath} from 'RelayQueryPath';
 import type {RecordMap} from 'RelayRecord';
@@ -68,7 +66,7 @@ function findRelayQueryLeaves(
   queryNode: RelayQuery.Node,
   dataID: DataID,
   path: QueryPath,
-  rangeCalls: ?Array<Call>
+  rangeCalls: ?Array<Call>,
 ): FinderResult {
   const finder = new RelayQueryLeavesFinder(store, cachedRecords);
 
@@ -105,10 +103,7 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
   /**
    * Skip visiting children if missingData is already false.
    */
-  traverse<Tn: RelayQuery.Node>(
-    node: Tn,
-    state: FinderState
-  ): ?Tn {
+  traverse<Tn: RelayQuery.Node>(node: Tn, state: FinderState): ?Tn {
     const children = node.getChildren();
     for (let ii = 0; ii < children.length; ii++) {
       if (state.missingData) {
@@ -118,10 +113,7 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
     }
   }
 
-  visitFragment(
-    fragment: RelayQuery.Fragment,
-    state: FinderState
-  ): void {
+  visitFragment(fragment: RelayQuery.Fragment, state: FinderState): void {
     const dataID = state.dataID;
     const recordState = this._store.getRecordState(dataID);
     if (recordState === RelayClassicRecordState.UNKNOWN) {
@@ -131,18 +123,12 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
       return;
     }
 
-    if (isCompatibleRelayFragmentType(
-      fragment,
-      this._store.getType(dataID)
-    )) {
+    if (isCompatibleRelayFragmentType(fragment, this._store.getType(dataID))) {
       this.traverse(fragment, state);
     }
   }
 
-  visitField(
-    field: RelayQuery.Field,
-    state: FinderState
-  ): void {
+  visitField(field: RelayQuery.Field, state: FinderState): void {
     const dataID = state.dataID;
     const recordState = this._store.getRecordState(dataID);
     if (recordState === RelayClassicRecordState.UNKNOWN) {
@@ -184,7 +170,7 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
   _visitPlural(field: RelayQuery.Field, state: FinderState): void {
     const dataIDs = this._store.getLinkedRecordIDs(
       state.dataID,
-      field.getStorageKey()
+      field.getStorageKey(),
     );
     if (dataIDs === undefined) {
       this._handleMissingData(field, state);
@@ -212,7 +198,7 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
     const calls = field.getCallsWithValues();
     const dataID = this._store.getLinkedRecordID(
       state.dataID,
-      field.getStorageKey()
+      field.getStorageKey(),
     );
     if (dataID === undefined) {
       this._handleMissingData(field, state);
@@ -272,8 +258,10 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
   }
 
   _visitLinkedField(field: RelayQuery.Field, state: FinderState): void {
-    const dataID =
-      this._store.getLinkedRecordID(state.dataID, field.getStorageKey());
+    const dataID = this._store.getLinkedRecordID(
+      state.dataID,
+      field.getStorageKey(),
+    );
     if (dataID === undefined) {
       this._handleMissingData(field, state);
       return;
@@ -312,5 +300,5 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
 
 module.exports = RelayProfiler.instrument(
   'findRelayQueryLeaves',
-  findRelayQueryLeaves
+  findRelayQueryLeaves,
 );

@@ -8,6 +8,7 @@
  *
  * @providesModule RelayConnectionHandler
  * @flow
+ * @format
  */
 
 'use strict';
@@ -76,14 +77,14 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
     // Initial fetch with data: copy fields from the server record
     const connection = store.create(
       generateRelayClientID(record.getDataID(), payload.handleKey),
-      serverConnection.getType()
+      serverConnection.getType(),
     );
     connection.setValue(0, NEXT_EDGE_INDEX);
     connection.copyFieldsFrom(serverConnection);
     let serverEdges = serverConnection.getLinkedRecords(EDGES);
     if (serverEdges) {
       serverEdges = serverEdges.map(edge =>
-        buildConnectionEdge(store, connection, edge)
+        buildConnectionEdge(store, connection, edge),
       );
       connection.setLinkedRecords(serverEdges, EDGES);
     }
@@ -91,7 +92,7 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
 
     clientPageInfo = store.create(
       generateRelayClientID(connection.getDataID(), PAGE_INFO),
-      PAGE_INFO_TYPE
+      PAGE_INFO_TYPE,
     );
     clientPageInfo.setValue(false, HAS_NEXT_PAGE);
     clientPageInfo.setValue(false, HAS_PREV_PAGE);
@@ -109,7 +110,7 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
     let serverEdges = serverConnection.getLinkedRecords(EDGES);
     if (serverEdges) {
       serverEdges = serverEdges.map(edge =>
-        buildConnectionEdge(store, connection, edge)
+        buildConnectionEdge(store, connection, edge),
       );
     }
     const prevEdges = connection.getLinkedRecords(EDGES);
@@ -118,7 +119,10 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
     if (prevEdges && serverEdges) {
       if (args.after != null) {
         // Forward pagination from the end of the connection: append edges
-        if (clientPageInfo && args.after === clientPageInfo.getValue(END_CURSOR)) {
+        if (
+          clientPageInfo &&
+          args.after === clientPageInfo.getValue(END_CURSOR)
+        ) {
           const nodeIDs = new Set();
           mergeEdges(prevEdges, nextEdges, nodeIDs);
           mergeEdges(serverEdges, nextEdges, nodeIDs);
@@ -126,15 +130,18 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
           warning(
             false,
             'RelayConnectionHandler: Unexpected after cursor `%s`, edges must ' +
-            'be fetched from the end of the list (`%s`).',
+              'be fetched from the end of the list (`%s`).',
             args.after,
-            clientPageInfo && clientPageInfo.getValue(END_CURSOR)
+            clientPageInfo && clientPageInfo.getValue(END_CURSOR),
           );
           return;
         }
       } else if (args.before != null) {
         // Backward pagination from the start of the connection: prepend edges
-        if (clientPageInfo && args.before === clientPageInfo.getValue(START_CURSOR)) {
+        if (
+          clientPageInfo &&
+          args.before === clientPageInfo.getValue(START_CURSOR)
+        ) {
           const nodeIDs = new Set();
           mergeEdges(serverEdges, nextEdges, nodeIDs);
           mergeEdges(prevEdges, nextEdges, nodeIDs);
@@ -142,9 +149,9 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
           warning(
             false,
             'RelayConnectionHandler: Unexpected before cursor `%s`, edges must ' +
-            'be fetched from the beginning of the list (`%s`).',
+              'be fetched from the beginning of the list (`%s`).',
             args.before,
-            clientPageInfo && clientPageInfo.getValue(START_CURSOR)
+            clientPageInfo && clientPageInfo.getValue(START_CURSOR),
           );
           return;
         }
@@ -163,13 +170,19 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
       connection.setLinkedRecords(nextEdges, EDGES);
       if (clientPageInfo && serverPageInfo) {
         if (args.before != null || (args.after == null && args.last)) {
-          clientPageInfo.setValue(!!serverPageInfo.getValue(HAS_PREV_PAGE), HAS_PREV_PAGE);
+          clientPageInfo.setValue(
+            !!serverPageInfo.getValue(HAS_PREV_PAGE),
+            HAS_PREV_PAGE,
+          );
           const startCursor = serverPageInfo.getValue(START_CURSOR);
           if (typeof startCursor === 'string') {
             clientPageInfo.setValue(startCursor, START_CURSOR);
           }
         } else if (args.after != null || (args.before == null && args.first)) {
-          clientPageInfo.setValue(!!serverPageInfo.getValue(HAS_NEXT_PAGE), HAS_NEXT_PAGE);
+          clientPageInfo.setValue(
+            !!serverPageInfo.getValue(HAS_NEXT_PAGE),
+            HAS_NEXT_PAGE,
+          );
           const endCursor = serverPageInfo.getValue(END_CURSOR);
           if (typeof endCursor === 'string') {
             clientPageInfo.setValue(endCursor, END_CURSOR);
@@ -264,7 +277,7 @@ function getConnection(
 function insertEdgeAfter(
   record: RecordProxy,
   newEdge: RecordProxy,
-  cursor?: ?string
+  cursor?: ?string,
 ): void {
   const edges = record.getLinkedRecords(EDGES);
   if (!edges) {
@@ -313,10 +326,7 @@ function createEdge(
   // which will only conflict if the same node is added to the same connection
   // twice. This is acceptable since the `insertEdge*` functions ignore
   // duplicates.
-  const edgeID = generateRelayClientID(
-    record.getDataID(),
-    node.getDataID(),
-  );
+  const edgeID = generateRelayClientID(record.getDataID(), node.getDataID());
   const edge = store.create(edgeID, edgeType);
   edge.setLinkedRecord(node, NODE);
   return edge;
@@ -359,7 +369,7 @@ function createEdge(
 function insertEdgeBefore(
   record: RecordProxy,
   newEdge: RecordProxy,
-  cursor?: ?string
+  cursor?: ?string,
 ): void {
   const edges = record.getLinkedRecords(EDGES);
   if (!edges) {
@@ -395,10 +405,7 @@ function insertEdgeBefore(
  *
  * Remove any edges whose `node.id` matches the given id.
  */
-function deleteNode(
-  record: RecordProxy,
-  nodeID: DataID,
-): void {
+function deleteNode(record: RecordProxy, nodeID: DataID): void {
   const edges = record.getLinkedRecords(EDGES);
   if (!edges) {
     return;
@@ -448,11 +455,12 @@ function buildConnectionEdge(
     NEXT_EDGE_INDEX,
     edgeIndex,
   );
-  const edgeID = generateRelayClientID(connection.getDataID(), EDGES, edgeIndex);
-  const connectionEdge = store.create(
-    edgeID,
-    edge.getType(),
+  const edgeID = generateRelayClientID(
+    connection.getDataID(),
+    EDGES,
+    edgeIndex,
   );
+  const connectionEdge = store.create(edgeID, edge.getType());
   connectionEdge.copyFieldsFrom(edge);
   connection.setValue(edgeIndex + 1, NEXT_EDGE_INDEX);
   return connectionEdge;
@@ -467,7 +475,7 @@ function buildConnectionEdge(
 function mergeEdges(
   sourceEdges: Array<?RecordProxy>,
   targetEdges: Array<?RecordProxy>,
-  nodeIDs: Set<mixed>
+  nodeIDs: Set<mixed>,
 ): void {
   for (let ii = 0; ii < sourceEdges.length; ii++) {
     const edge = sourceEdges[ii];

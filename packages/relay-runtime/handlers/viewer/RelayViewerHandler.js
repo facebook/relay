@@ -8,6 +8,7 @@
  *
  * @providesModule RelayViewerHandler
  * @flow
+ * @format
  */
 
 'use strict';
@@ -16,10 +17,7 @@ const generateRelayClientID = require('generateRelayClientID');
 
 const {ROOT_ID} = require('RelayStoreUtils');
 
-import type {
-  HandleFieldPayload,
-  RecordSourceProxy,
-} from 'RelayStoreTypes';
+import type {HandleFieldPayload, RecordSourceProxy} from 'RelayStoreTypes';
 
 const VIEWER_ID = generateRelayClientID(ROOT_ID, 'viewer');
 const VIEWER_TYPE = 'Viewer';
@@ -55,7 +53,8 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
   // Other ways to access viewer such as mutations may have a different id for
   // viewer: synthesize a record at the canonical viewer id, copy its fields
   // from the server record, and delete the server record link to speed up GC.
-  const clientViewer = store.get(VIEWER_ID) || store.create(VIEWER_ID, VIEWER_TYPE);
+  const clientViewer =
+    store.get(VIEWER_ID) || store.create(VIEWER_ID, VIEWER_TYPE);
   clientViewer.copyFieldsFrom(serverViewer);
   record.setValue(null, payload.fieldKey);
   record.setLinkedRecord(clientViewer, payload.handleKey);

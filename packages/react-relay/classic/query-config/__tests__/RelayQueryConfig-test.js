@@ -1,4 +1,4 @@
- /**
+/**
  * Copyright (c) 2013-present, Facebook, Inc.
  * All rights reserved.
  *
@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -24,10 +25,11 @@ describe('RelayQueryConfig', () => {
     jest.resetModules();
 
     makeConfig = function() {
-      class MockConfig extends RelayQueryConfig <{
-        required: string,
-        optional?: string
-      }> {}
+      class MockConfig
+        extends RelayQueryConfig<{
+          required: string,
+          optional?: string,
+        }> {}
       MockConfig.routeName = 'MockConfig';
       MockConfig.queries = {
         required: Component => Relay.QL`
@@ -86,11 +88,11 @@ describe('RelayQueryConfig', () => {
 
   it('allows params to be processed if `prepareParams` is defined', () => {
     const MockConfig = makeConfig();
-    MockConfig.prototype.prepareVariables =
-      jest.fn(() => ({required: 'bar'}));
+    MockConfig.prototype.prepareVariables = jest.fn(() => ({required: 'bar'}));
     const config = new MockConfig({required: 'foo'});
-    expect(MockConfig.prototype.prepareVariables)
-      .toBeCalledWith({required: 'foo'});
+    expect(MockConfig.prototype.prepareVariables).toBeCalledWith({
+      required: 'foo',
+    });
     expect(config.params.required).toEqual('bar');
   });
 

@@ -5,13 +5,13 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
 
-jest
-  .autoMockOff()
-  .mock('generateClientID');
+jest.autoMockOff().mock('generateClientID');
 
 const RelayAsyncLoader = require('RelayAsyncLoader');
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
@@ -19,10 +19,7 @@ const RelayStoreUtils = require('RelayStoreUtils');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 const getRelayHandleKey = require('getRelayHandleKey');
 
-const {
-  check,
-  load,
-} = RelayAsyncLoader;
+const {check, load} = RelayAsyncLoader;
 const {ROOT_ID} = RelayStoreUtils;
 
 describe('RelayAsyncLoader', () => {
@@ -90,7 +87,8 @@ describe('RelayAsyncLoader', () => {
           'node{"id":"1"}': {__ref: '1'},
         },
       };
-      ({Query} = generateWithTransforms(`
+      ({Query} = generateWithTransforms(
+        `
         query Query($id: ID, $size: [Int]) {
           node(id: $id) {
             id
@@ -117,7 +115,8 @@ describe('RelayAsyncLoader', () => {
             }
           }
         }
-      `));
+      `,
+      ));
       target = new RelayInMemoryRecordSource();
     });
 
@@ -127,30 +126,24 @@ describe('RelayAsyncLoader', () => {
       });
 
       it('returns `true`', () => {
-        const status = check(
-          source,
-          target,
-          {
-            dataID: ROOT_ID,
-            node: Query,
-            variables: {id: '1', size: 32},
-          }
-        );
+        const status = check(source, target, {
+          dataID: ROOT_ID,
+          node: Query,
+          variables: {id: '1', size: 32},
+        });
         expect(status).toBe(true);
       });
 
       it('makes the checked data available in the target sink', () => {
-        check(
-          source,
-          target,
-          {
-            dataID: ROOT_ID,
-            node: Query,
-            variables: {id: '1', size: 32},
-          }
-        );
+        check(source, target, {
+          dataID: ROOT_ID,
+          node: Query,
+          variables: {id: '1', size: 32},
+        });
         expect(target.toJSON()).toEqual(source.toJSON());
-        expect(target.getRecordIDs().sort()).toEqual(source.getRecordIDs().sort());
+        expect(target.getRecordIDs().sort()).toEqual(
+          source.getRecordIDs().sort(),
+        );
       });
     });
 
@@ -158,15 +151,11 @@ describe('RelayAsyncLoader', () => {
       it('returns `false`', () => {
         delete data['client:3'];
         source = new RelayInMemoryRecordSource(data);
-        const status = check(
-          source,
-          target,
-          {
-            dataID: ROOT_ID,
-            node: Query,
-            variables: {id: '1', size: 32},
-          }
-        );
+        const status = check(source, target, {
+          dataID: ROOT_ID,
+          node: Query,
+          variables: {id: '1', size: 32},
+        });
         expect(status).toBe(false);
       });
     });
@@ -195,29 +184,21 @@ describe('RelayAsyncLoader', () => {
       });
 
       it('immediately returns `false`', () => {
-        const status = check(
-          source,
-          target,
-          {
-            dataID: ROOT_ID,
-            node: Query,
-            variables: {id: '1', size: 32},
-          }
-        );
+        const status = check(source, target, {
+          dataID: ROOT_ID,
+          node: Query,
+          variables: {id: '1', size: 32},
+        });
         expect(status).toBe(false);
       });
 
       it('cancels the async traversal by invoking `dispose`', () => {
         expect(loadCount).toBe(0);
-        check(
-          source,
-          target,
-          {
-            dataID: ROOT_ID,
-            node: Query,
-            variables: {id: '1', size: 32},
-          }
-        );
+        check(source, target, {
+          dataID: ROOT_ID,
+          node: Query,
+          variables: {id: '1', size: 32},
+        });
         expect(loadCount).toBe(1);
         jest.runAllTimers();
         expect(loadCount).toBe(1); // Without the `dispose`, this would be 8.
@@ -279,7 +260,8 @@ describe('RelayAsyncLoader', () => {
         },
       };
       const source = new RelayInMemoryRecordSource(data);
-      const {FooQuery} = generateWithTransforms(`
+      const {FooQuery} = generateWithTransforms(
+        `
         query FooQuery($id: ID, $size: [Int]) {
           node(id: $id) {
             id
@@ -306,7 +288,8 @@ describe('RelayAsyncLoader', () => {
             }
           }
         }
-      `);
+      `,
+      );
       const target = new RelayInMemoryRecordSource();
       const fn = jest.fn();
       load(
@@ -317,11 +300,13 @@ describe('RelayAsyncLoader', () => {
           node: FooQuery,
           variables: {id: '1', size: 32},
         },
-        fn
+        fn,
       );
       expect(fn.mock.calls[0][0]).toEqual({status: 'complete'});
       expect(target.toJSON()).toEqual(source.toJSON());
-      expect(target.getRecordIDs().sort()).toEqual(source.getRecordIDs().sort());
+      expect(target.getRecordIDs().sort()).toEqual(
+        source.getRecordIDs().sort(),
+      );
     });
 
     it('reads fragment data', () => {
@@ -360,7 +345,8 @@ describe('RelayAsyncLoader', () => {
         },
       };
       const source = new RelayInMemoryRecordSource(data);
-      const {BarFragment} = generateWithTransforms(`
+      const {BarFragment} = generateWithTransforms(
+        `
         fragment BarFragment on User @argumentDefinitions(
           size: {type: "[Int]"}
         ) {
@@ -379,7 +365,8 @@ describe('RelayAsyncLoader', () => {
             uri
           }
         }
-      `);
+      `,
+      );
       const target = new RelayInMemoryRecordSource();
       const fn = jest.fn();
       load(
@@ -390,12 +377,14 @@ describe('RelayAsyncLoader', () => {
           node: BarFragment,
           variables: {size: 32},
         },
-        fn
+        fn,
       );
       expect(fn).toBeCalled();
       expect(fn.mock.calls[0][0]).toEqual({status: 'complete'});
       expect(target.toJSON()).toEqual(source.toJSON());
-      expect(target.getRecordIDs().sort()).toEqual(source.getRecordIDs().sort());
+      expect(target.getRecordIDs().sort()).toEqual(
+        source.getRecordIDs().sort(),
+      );
     });
 
     it('reads handle fields', () => {
@@ -420,13 +409,15 @@ describe('RelayAsyncLoader', () => {
         },
       };
       const source = new RelayInMemoryRecordSource(data);
-      const {Fragment} = generateWithTransforms(`
+      const {Fragment} = generateWithTransforms(
+        `
         fragment Fragment on User {
           profilePicture(size: 32) @__clientField(handle: "test") {
             uri
           }
         }
-      `);
+      `,
+      );
       const target = new RelayInMemoryRecordSource();
       const fn = jest.fn();
       load(
@@ -437,12 +428,14 @@ describe('RelayAsyncLoader', () => {
           node: Fragment,
           variables: {},
         },
-        fn
+        fn,
       );
       expect(fn).toBeCalled();
       expect(fn.mock.calls[0][0]).toEqual({status: 'complete'});
       expect(target.toJSON()).toEqual(source.toJSON());
-      expect(target.getRecordIDs().sort()).toEqual(source.getRecordIDs().sort());
+      expect(target.getRecordIDs().sort()).toEqual(
+        source.getRecordIDs().sort(),
+      );
     });
 
     it('reports missing records', () => {
@@ -457,7 +450,8 @@ describe('RelayAsyncLoader', () => {
         // missing profilePicture record
       };
       const source = new RelayInMemoryRecordSource(data);
-      const {BarFragment} = generateWithTransforms(`
+      const {BarFragment} = generateWithTransforms(
+        `
         fragment BarFragment on User @argumentDefinitions(
           size: {type: "[Int]"}
         ) {
@@ -467,7 +461,8 @@ describe('RelayAsyncLoader', () => {
             uri
           }
         }
-      `);
+      `,
+      );
       const target = new RelayInMemoryRecordSource();
       const fn = jest.fn();
       load(
@@ -478,7 +473,7 @@ describe('RelayAsyncLoader', () => {
           node: BarFragment,
           variables: {size: 32},
         },
-        fn
+        fn,
       );
       expect(fn).toBeCalled();
       expect(fn.mock.calls[0][0]).toEqual({status: 'missing'});
@@ -499,7 +494,8 @@ describe('RelayAsyncLoader', () => {
         },
       };
       const source = new RelayInMemoryRecordSource(data);
-      const {BarFragment} = generateWithTransforms(`
+      const {BarFragment} = generateWithTransforms(
+        `
         fragment BarFragment on User @argumentDefinitions(
           size: {type: "[Int]"}
         ) {
@@ -509,7 +505,8 @@ describe('RelayAsyncLoader', () => {
             uri
           }
         }
-      `);
+      `,
+      );
       const target = new RelayInMemoryRecordSource();
       const fn = jest.fn();
       load(
@@ -520,7 +517,7 @@ describe('RelayAsyncLoader', () => {
           node: BarFragment,
           variables: {size: 32},
         },
-        fn
+        fn,
       );
       expect(fn).toBeCalled();
       expect(fn.mock.calls[0][0]).toEqual({status: 'missing'});

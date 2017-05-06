@@ -8,6 +8,7 @@
  *
  * @providesModule RelayPublic
  * @flow
+ * @format
  */
 
 'use strict';

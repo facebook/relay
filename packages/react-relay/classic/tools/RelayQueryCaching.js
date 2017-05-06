@@ -8,6 +8,7 @@
  *
  * @providesModule RelayQueryCaching
  * @flow
+ * @format
  */
 
 'use strict';

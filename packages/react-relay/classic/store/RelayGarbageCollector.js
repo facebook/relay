@@ -8,6 +8,7 @@
  *
  * @providesModule RelayGarbageCollector
  * @flow
+ * @format
  */
 
 'use strict';
@@ -43,7 +44,7 @@ class RelayGarbageCollector {
 
   constructor(
     storeData: RelayStoreData,
-    scheduler: GarbageCollectionScheduler
+    scheduler: GarbageCollectionScheduler,
   ) {
     this._activeHoldCount = 0;
     this._collectionQueue = [];
@@ -76,8 +77,8 @@ class RelayGarbageCollector {
       warning(
         false,
         'RelayGarbageCollector: Expected id `%s` be referenced before being ' +
-        'unreferenced.',
-        dataID
+          'unreferenced.',
+        dataID,
       );
       this._refCounts[dataID] = 0;
       return;
@@ -104,11 +105,11 @@ class RelayGarbageCollector {
       release: () => {
         invariant(
           !isReleased,
-          'RelayGarbageCollector: hold can only be released once.'
+          'RelayGarbageCollector: hold can only be released once.',
         );
         invariant(
           this._activeHoldCount > 0,
-          'RelayGarbageCollector: cannot decrease hold count below zero.'
+          'RelayGarbageCollector: cannot decrease hold count below zero.',
         );
         isReleased = true;
         this._activeHoldCount--;

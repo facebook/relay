@@ -8,6 +8,7 @@
  *
  * @providesModule RelayRecordStatusMap
  * @flow
+ * @format
  */
 
 'use strict';

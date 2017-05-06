@@ -8,6 +8,7 @@
  *
  * @providesModule getRelayLiteralArgumentValues
  * @flow
+ * @format
  */
 
 'use strict';

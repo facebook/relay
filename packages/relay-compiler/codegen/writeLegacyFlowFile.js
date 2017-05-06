@@ -8,6 +8,7 @@
  *
  * @providesModule writeLegacyFlowFile
  * @flow
+ * @format
  */
 
 'use strict';
@@ -56,11 +57,10 @@ function writeLegacyFlowFile(
 
 `;
 
-
   const fileName = platform ? moduleName + '.' + platform : moduleName;
   outputDirectory.writeFile(
     fileName + '.js',
-    SignedSource.signFile(header + flowTypes + '\n')
+    SignedSource.signFile(header + flowTypes + '\n'),
   );
 }
 

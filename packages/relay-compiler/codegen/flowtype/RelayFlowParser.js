@@ -8,6 +8,7 @@
  *
  * @flow
  * @providesModule RelayFlowParser
+ * @format
  */
 
 'use strict';
@@ -33,10 +34,7 @@ const {
   VariablesInAllowedPositionRule,
 } = require('graphql');
 
-import type {
-  Fragment,
-  Root,
-} from 'RelayIR';
+import type {Fragment, Root} from 'RelayIR';
 import type {DocumentNode, GraphQLSchema} from 'graphql';
 
 type GraphQLLocation = {
@@ -51,14 +49,14 @@ type GraphQLValidationError = {
 export type ExtractedRelayTags = {
   filename: string,
   tags: Array<string>,
-}
+};
 
 export type ExtractedGQLDocuments = {
   filename: string,
   documents: Array<Fragment | Root>,
-}
+};
 
-const RELAY_CLASSIC_MUTATION =  '__RelayClassicMutation__';
+const RELAY_CLASSIC_MUTATION = '__RelayClassicMutation__';
 
 /**
  * Validates that a given DocumentNode is properly formed. Returns an Array
@@ -67,14 +65,14 @@ const RELAY_CLASSIC_MUTATION =  '__RelayClassicMutation__';
 function validateDocument(
   document: DocumentNode,
   documentName: string,
-  schema: GraphQLSchema
+  schema: GraphQLSchema,
 ): ?Array<GraphQLValidationError> {
   invariant(
     document.definitions.length === 1,
     'You supplied a GraphQL document named `%s` with %d definitions, but ' +
-    'it must have exactly one definition.',
+      'it must have exactly one definition.',
     documentName,
-    document.definitions.length
+    document.definitions.length,
   );
   const definition = document.definitions[0];
   const isMutation =
@@ -114,12 +112,12 @@ function parseRelayGraphQL(
   // We need to ignore these directives. The RelayParser cannot handle these
   // directives, so this needs to happen here.
   const PATTERN_LIST = ['@relay(pattern:true)', '@fixme_fat_interface'];
-  const strippedSource = source.replace(/ /g,'');
+  const strippedSource = source.replace(/ /g, '');
   const patternFound = PATTERN_LIST.some(pattern => {
     const isSubstring = strippedSource.indexOf(pattern) !== -1;
     if (isSubstring) {
       console.warn(
-        `Skipping Relay.QL template string because it contains ${pattern}: ${sourceName}`
+        `Skipping Relay.QL template string because it contains ${pattern}: ${sourceName}`,
       );
     }
     return isSubstring;
@@ -133,10 +131,7 @@ function parseRelayGraphQL(
     ast = parse(new Source(source, sourceName));
   } catch (e) {
     console.error('\n-- GraphQL Parsing Error --\n');
-    console.error([
-      'File:  ' + sourceName,
-      'Error: ' + e.message,
-    ].join('\n'));
+    console.error(['File:  ' + sourceName, 'Error: ' + e.message].join('\n'));
     return [];
   }
 
@@ -146,22 +141,20 @@ function parseRelayGraphQL(
     var sourceLines = source.split('\n');
     validationErrors.forEach(({message, locations}) => {
       errorMessages.push(message);
+      console.error('\n-- GraphQL Validation Error --\n');
       console.error(
-        '\n-- GraphQL Validation Error --\n'
+        ['File:  ' + sourceName, 'Error: ' + message, 'Source:'].join('\n'),
       );
-      console.error([
-        'File:  ' + sourceName,
-        'Error: ' + message,
-        'Source:',
-      ].join('\n'));
       locations.forEach(location => {
         var preview = sourceLines[location.line - 1];
         if (preview) {
-          console.error([
-            '> ',
-            '> ' + preview,
-            '> ' + ' '.repeat(location.column - 1) + '^^^',
-          ].join('\n'));
+          console.error(
+            [
+              '> ',
+              '> ' + preview,
+              '> ' + ' '.repeat(location.column - 1) + '^^^',
+            ].join('\n'),
+          );
         }
       });
     });
@@ -170,23 +163,25 @@ function parseRelayGraphQL(
 
   const {definitions} = ast;
   definitions.forEach(definition => {
-    if (definition.kind !== 'OperationDefinition' ||
-        definition.operation !== 'mutation') {
-        return;
+    if (
+      definition.kind !== 'OperationDefinition' ||
+      definition.operation !== 'mutation'
+    ) {
+      return;
     }
 
     const selections = definition.selectionSet.selections;
     // As of now, FB mutations should only have one input.
     invariant(
       selections.length <= 1,
-      `Mutations should only have one argument, ${selections.length} found.`
+      `Mutations should only have one argument, ${selections.length} found.`,
     );
 
     const mutationField = selections[0];
     invariant(
       mutationField.kind === 'Field',
       'RelayFlowParser: Expected the first selection of a mutation to be a ' +
-      'field, got `%s`.',
+        'field, got `%s`.',
       mutationField.kind,
     );
     if (definition.name == null) {
@@ -235,11 +230,7 @@ function transformFiles(
   extractedTags.forEach(file => {
     const documents = [];
     file.tags.forEach(tag => {
-      const transformed = parseRelayGraphQL(
-        tag,
-        schema,
-        file.filename
-      );
+      const transformed = parseRelayGraphQL(tag, schema, file.filename);
       if (transformed.length) {
         documents.push(...transformed);
       }

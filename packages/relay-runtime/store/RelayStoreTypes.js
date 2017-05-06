@@ -8,6 +8,7 @@
  *
  * @providesModule RelayStoreTypes
  * @flow
+ * @format
  */
 
 'use strict';
@@ -23,7 +24,11 @@ import type {
   Disposable,
   Record,
 } from 'RelayCombinedEnvironmentTypes';
-import type {ConcreteBatch, ConcreteFragment, ConcreteSelectableNode} from 'RelayConcreteNode';
+import type {
+  ConcreteBatch,
+  ConcreteFragment,
+  ConcreteSelectableNode,
+} from 'RelayConcreteNode';
 import type {DataID} from 'RelayInternalTypes';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {
@@ -51,7 +56,7 @@ export type UnstableEnvironmentCore = CUnstableEnvironmentCore<
   TFragment,
   TGraphQLTaggedNode,
   TNode,
-  TOperation,
+  TOperation
 >;
 
 /**
@@ -64,7 +69,7 @@ export interface RecordSource {
   has(dataID: DataID): boolean,
   load(
     dataID: DataID,
-    callback: (error: ?Error, record: ?Record) => void
+    callback: (error: ?Error, record: ?Record) => void,
   ): void,
   size(): number,
 }
@@ -120,7 +125,7 @@ export interface Store {
   resolve(
     target: MutableRecordSource,
     selector: Selector,
-    callback: AsyncLoadCallback
+    callback: AsyncLoadCallback,
   ): void,
 
   /**
@@ -137,7 +142,7 @@ export interface Store {
    */
   subscribe(
     snapshot: Snapshot,
-    callback: (snapshot: Snapshot) => void
+    callback: (snapshot: Snapshot) => void,
   ): Disposable,
 }
 
@@ -152,11 +157,23 @@ export interface RecordProxy {
   getDataID(): DataID,
   getLinkedRecord(name: string, args?: ?Variables): ?RecordProxy,
   getLinkedRecords(name: string, args?: ?Variables): ?Array<?RecordProxy>,
-  getOrCreateLinkedRecord(name: string, typeName: string, args?: ?Variables): RecordProxy,
+  getOrCreateLinkedRecord(
+    name: string,
+    typeName: string,
+    args?: ?Variables,
+  ): RecordProxy,
   getType(): string,
   getValue(name: string, args?: ?Variables): mixed,
-  setLinkedRecord(record: RecordProxy, name: string, args?: ?Variables): RecordProxy,
-  setLinkedRecords(records: Array<?RecordProxy>, name: string, args?: ?Variables): RecordProxy,
+  setLinkedRecord(
+    record: RecordProxy,
+    name: string,
+    args?: ?Variables,
+  ): RecordProxy,
+  setLinkedRecords(
+    records: Array<?RecordProxy>,
+    name: string,
+    args?: ?Variables,
+  ): RecordProxy,
   setValue(value: mixed, name: string, args?: ?Variables): RecordProxy,
 }
 
@@ -190,14 +207,15 @@ export interface RecordSourceSelectorProxy {
  * The public API of Relay core. Represents an encapsulated environment with its
  * own in-memory cache.
  */
-export interface Environment extends CEnvironment<
-  TEnvironment,
-  TFragment,
-  TGraphQLTaggedNode,
-  TNode,
-  TOperation,
-  TPayload,
-> {
+export interface Environment
+  extends CEnvironment<
+    TEnvironment,
+    TFragment,
+    TGraphQLTaggedNode,
+    TNode,
+    TOperation,
+    TPayload
+  > {
   /**
    * Apply an optimistic update to the environment. The mutation can be reverted
    * by calling `dispose()` on the returned value.
@@ -288,10 +306,7 @@ export type UpdatedRecords = {[dataID: DataID]: boolean};
  * field payload.
  */
 export type Handler = {
-  update: (
-    store: RecordSourceProxy,
-    fieldPayload: HandleFieldPayload,
-  ) => void,
+  update: (store: RecordSourceProxy, fieldPayload: HandleFieldPayload) => void,
 };
 
 /**

@@ -5,12 +5,13 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
 
-jest
-  .autoMockOff();
+jest.autoMockOff();
 
 const fetchRelayModernQuery = require('fetchRelayModernQuery');
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
@@ -29,7 +30,8 @@ describe('fetchRelayModernQuery', () => {
     jest.resetModules();
 
     environment = createMockEnvironment();
-    ({ActorQuery: query} = generateAndCompile(`
+    ({ActorQuery: query} = generateAndCompile(
+      `
       query ActorQuery($fetchSize: Boolean!) {
         me {
           name
@@ -38,19 +40,15 @@ describe('fetchRelayModernQuery', () => {
           }
         }
       }
-    `));
+    `,
+    ));
     variables = {fetchSize: false};
     operation = createOperationSelector(query, variables);
   });
 
   it('fetches the query', () => {
     cacheConfig = {force: true};
-    fetchRelayModernQuery(
-      environment,
-      query,
-      variables,
-      cacheConfig,
-    );
+    fetchRelayModernQuery(environment, query, variables, cacheConfig);
     expect(environment.sendQuery.mock.calls.length).toBe(1);
     const args = environment.sendQuery.mock.calls[0][0];
     expect(args).toEqual({

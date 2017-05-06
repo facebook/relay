@@ -8,6 +8,7 @@
  *
  * @flow
  * @providesModule RelayConcreteVariables
+ * @format
  */
 
 'use strict';
@@ -15,10 +16,7 @@
 const invariant = require('invariant');
 const warning = require('warning');
 
-import type {
-  ConcreteBatch,
-  ConcreteFragment,
-} from 'RelayConcreteNode';
+import type {ConcreteBatch, ConcreteFragment} from 'RelayConcreteNode';
 import type {Variables} from 'RelayTypes';
 
 /**
@@ -47,7 +45,7 @@ function getFragmentVariables(
         invariant(
           rootVariables.hasOwnProperty(definition.name),
           'RelayConcreteVariables: Expected a defined query variable for `$%s` ' +
-          'in fragment `%s`.',
+            'in fragment `%s`.',
           definition.name,
           fragment.name,
         );
@@ -86,8 +84,8 @@ function getOperationVariables(
       warning(
         value != null || !def.type.endsWith('!'),
         'RelayConcreteVariables: Expected a value for non-nullable variable ' +
-        '`$%s: %s` on operation `%s`, got `%s`. Make sure you supply a ' +
-        'value for all non-nullable arguments.',
+          '`$%s: %s` on operation `%s`, got `%s`. Make sure you supply a ' +
+          'value for all non-nullable arguments.',
         def.name,
         def.type,
         operation.name,

@@ -8,6 +8,7 @@
  *
  * @providesModule RelayQueryTracker
  * @flow
+ * @format
  */
 
 'use strict';
@@ -22,19 +23,18 @@ import type {DataID} from 'RelayInternalTypes';
 const TYPE = '__type__';
 
 class RelayQueryTracker {
-  _trackedNodesByID: {[key: string]: {
-    isMerged: boolean,
-    trackedNodes: Array<RelayQuery.Node>,
-  }};
+  _trackedNodesByID: {
+    [key: string]: {
+      isMerged: boolean,
+      trackedNodes: Array<RelayQuery.Node>,
+    },
+  };
 
   constructor() {
     this._trackedNodesByID = {};
   }
 
-  trackNodeForID(
-    node: RelayQuery.Node,
-    dataID: DataID
-  ): void {
+  trackNodeForID(node: RelayQuery.Node, dataID: DataID): void {
     // Don't track legacy `__type__` fields
     if (node instanceof RelayQuery.Field && node.getSchemaName() === TYPE) {
       return;
@@ -51,9 +51,7 @@ class RelayQueryTracker {
   /**
    * Get the children that are tracked for the given `dataID`, if any.
    */
-  getTrackedChildrenForID(
-    dataID: DataID
-  ): Array<RelayQuery.Node> {
+  getTrackedChildrenForID(dataID: DataID): Array<RelayQuery.Node> {
     const trackedNodesByID = this._trackedNodesByID[dataID];
     if (!trackedNodesByID) {
       return [];
@@ -69,7 +67,7 @@ class RelayQueryTracker {
       let containerNode = RelayQuery.Fragment.build(
         'RelayQueryTracker',
         RelayNodeInterface.NODE_TYPE,
-        trackedChildren
+        trackedChildren,
       );
       containerNode = flattenRelayQuery(containerNode);
       if (containerNode) {
@@ -87,9 +85,7 @@ class RelayQueryTracker {
    * Removes all nodes that are tracking the given DataID from the
    * query-tracker.
    */
-  untrackNodesForID(
-    dataID: DataID
-  ): void {
+  untrackNodesForID(dataID: DataID): void {
     delete this._trackedNodesByID[dataID];
   }
 }

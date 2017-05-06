@@ -8,6 +8,7 @@
  *
  * @flow
  * @providesModule RelayPrinter
+ * @format
  */
 
 'use strict';
@@ -47,45 +48,47 @@ const INDENT = '  ';
  */
 function print(node: Root | Fragment): string {
   if (node.kind === 'Fragment') {
-    return `fragment ${node.name} on ${String(node.type)}` +
+    return (
+      `fragment ${node.name} on ${String(node.type)}` +
       printFragmentArgumentDefinitions(node.argumentDefinitions) +
       printDirectives(node.directives) +
-      printSelections(node, '') + '\n';
+      printSelections(node, '') +
+      '\n'
+    );
   } else if (node.kind === 'Root') {
-    return `${node.operation} ${node.name}` +
+    return (
+      `${node.operation} ${node.name}` +
       printArgumentDefinitions(node.argumentDefinitions) +
       printDirectives(node.directives) +
-      printSelections(node, '') + '\n';
-  } else {
-    invariant(
-      false,
-      'RelayPrinter: Unsupported IR node `%s`.',
-      node.kind
+      printSelections(node, '') +
+      '\n'
     );
+  } else {
+    invariant(false, 'RelayPrinter: Unsupported IR node `%s`.', node.kind);
   }
 }
 
 function printSelections(
   node: Node,
   indent: string,
-  parentCondition?: string
+  parentCondition?: string,
 ): string {
   const selections = node.selections;
   if (selections == null) {
     return '';
   }
-  const printed = selections.map(
-    selection => printSelection(selection, indent, parentCondition)
+  const printed = selections.map(selection =>
+    printSelection(selection, indent, parentCondition),
   );
-  return printed.length ?
-    ` {\n${indent + INDENT}${printed.join('\n' + indent + INDENT)}\n${indent}}` :
-    '';
+  return printed.length
+    ? ` {\n${indent + INDENT}${printed.join('\n' + indent + INDENT)}\n${indent}}`
+    : '';
 }
 
 function printSelection(
   selection: Selection,
   indent: string,
-  parentCondition?: string
+  parentCondition?: string,
 ): string {
   parentCondition = parentCondition || '';
   let str = '';
@@ -123,28 +126,28 @@ function printSelection(
     // For Flow
     invariant(
       value != null,
-      'RelayPrinter: Expected a variable for condition, got a literal `null`.'
+      'RelayPrinter: Expected a variable for condition, got a literal `null`.',
     );
     let condStr = selection.passingValue ? ' @include' : ' @skip';
     condStr += '(if: ' + value + ')';
     condStr += parentCondition;
     // For multi-selection conditions, pushes the condition down to each
-    const subSelections = selection.selections.map(
-      sel => printSelection(sel, indent, condStr)
+    const subSelections = selection.selections.map(sel =>
+      printSelection(sel, indent, condStr),
     );
     str += subSelections.join('\n' + INDENT);
   } else {
     invariant(
       false,
       'RelayPrinter: Unknown selection kind `%s`.',
-      selection.kind
+      selection.kind,
     );
   }
   return str;
 }
 
 function printArgumentDefinitions(
-  argumentDefinitions: Array<LocalArgumentDefinition>
+  argumentDefinitions: Array<LocalArgumentDefinition>,
 ): string {
   const printed = argumentDefinitions.map(def => {
     let str = `$${def.name}: ${def.type.toString()}`;
@@ -153,13 +156,11 @@ function printArgumentDefinitions(
     }
     return str;
   });
-  return printed.length ?
-    `(\n${INDENT}${printed.join('\n' + INDENT)}\n)` :
-    '';
+  return printed.length ? `(\n${INDENT}${printed.join('\n' + INDENT)}\n)` : '';
 }
 
 function printFragmentArgumentDefinitions(
-  argumentDefinitions: Array<ArgumentDefinition>
+  argumentDefinitions: Array<ArgumentDefinition>,
 ): string {
   let printed;
   argumentDefinitions.forEach(def => {
@@ -174,9 +175,9 @@ function printFragmentArgumentDefinitions(
     str += '}';
     printed.push(str);
   });
-  return printed && printed.length ?
-    ` @argumentDefinitions(\n${INDENT}${printed.join('\n' + INDENT)}\n)` :
-    '';
+  return printed && printed.length
+    ? ` @argumentDefinitions(\n${INDENT}${printed.join('\n' + INDENT)}\n)`
+    : '';
 }
 
 function printHandles(field: Field): string {
@@ -185,22 +186,22 @@ function printHandles(field: Field): string {
   }
   const printed = field.handles.map(handle => {
     // For backward compatibility and also because this module is shared by ComponentScript.
-    const key = handle.key === DEFAULT_HANDLE_KEY ? '' : `, key: "${handle.key}"`;
-    const filters = handle.filters == null ? '' : `, filters: ${JSON.stringify(handle.filters.sort())}`;
+    const key = handle.key === DEFAULT_HANDLE_KEY
+      ? ''
+      : `, key: "${handle.key}"`;
+    const filters = handle.filters == null
+      ? ''
+      : `, filters: ${JSON.stringify(handle.filters.sort())}`;
     return `@__clientField(handle: "${handle.name}"${key}${filters})`;
   });
-  return printed.length ?
-    ' ' + printed.join(' ') :
-    '';
+  return printed.length ? ' ' + printed.join(' ') : '';
 }
 
 function printDirectives(directives: Array<Directive>): string {
   const printed = directives.map(directive => {
     return '@' + directive.name + printArguments(directive.args);
   });
-  return printed.length ?
-    ' ' + printed.join(' ') :
-    '';
+  return printed.length ? ' ' + printed.join(' ') : '';
 }
 
 function printFragmentArguments(args: Array<Argument>) {
@@ -219,9 +220,7 @@ function printArguments(args: Array<Argument>): string {
       printed.push(arg.name + ': ' + printedValue);
     }
   });
-  return printed.length ?
-    '(' + printed.join(', ') + ')' :
-    '';
+  return printed.length ? '(' + printed.join(', ') + ')' : '';
 }
 
 function printValue(value: ArgumentValue, type: ?GraphQLInputType): ?string {
@@ -243,17 +242,19 @@ function printLiteral(value: mixed, type: ?GraphQLInputType): string {
       typeof value === 'string',
       'RelayPrinter: Expected value of type %s to be a string, got `%s`.',
       type.name,
-      value
+      value,
     );
     return value;
   }
   if (Array.isArray(value)) {
     invariant(
       type instanceof GraphQLList,
-      'RelayPrinter: Need a type in order to print arrays.'
+      'RelayPrinter: Need a type in order to print arrays.',
     );
     const itemType = type.ofType;
-    return '[' + value.map(item => printLiteral(item, itemType)).join(', ') + ']';
+    return (
+      '[' + value.map(item => printLiteral(item, itemType)).join(', ') + ']'
+    );
   } else if (typeof value === 'object' && value) {
     const fields = [];
     invariant(

@@ -8,6 +8,7 @@
  *
  * @providesModule RelayQL
  * @flow
+ * @format
  */
 
 'use strict';
@@ -42,18 +43,18 @@ function RelayQL(
   invariant(
     false,
     'RelayQL: Unexpected invocation at runtime. Either the Babel transform ' +
-    'was not set up, or it failed to identify this call site. Make sure it ' +
-    'is being used verbatim as `Relay.QL`.'
+      'was not set up, or it failed to identify this call site. Make sure it ' +
+      'is being used verbatim as `Relay.QL`.',
   );
 }
 
 function assertValidFragment(substitution: any): void {
   invariant(
     substitution instanceof RelayFragmentReference ||
-    QueryBuilder.getFragment(substitution) ||
-    QueryBuilder.getFragmentSpread(substitution),
+      QueryBuilder.getFragment(substitution) ||
+      QueryBuilder.getFragmentSpread(substitution),
     'RelayQL: Invalid fragment composition, use ' +
-    '`${Child.getFragment(\'name\')}`.'
+      "`${Child.getFragment('name')}`.",
   );
 }
 
@@ -81,8 +82,8 @@ Object.assign(RelayQL, {
       invariant(
         false,
         'RelayQL: Invalid argument `%s` supplied via template substitution. ' +
-        'Instead, use an inline variable (e.g. `comments(count: $count)`).',
-        variable.callVariableName
+          'Instead, use an inline variable (e.g. `comments(count: $count)`).',
+        variable.callVariableName,
       );
     }
     return QueryBuilder.createCallValue(expression);
@@ -92,13 +93,9 @@ Object.assign(RelayQL, {
   },
   __createFragment(
     fragment: ConcreteFragment,
-    variableMapping: VariableMapping
+    variableMapping: VariableMapping,
   ): RelayFragmentReference {
-    return new RelayFragmentReference(
-      () => fragment,
-      null,
-      variableMapping
-    );
+    return new RelayFragmentReference(() => fragment, null, variableMapping);
   },
 });
 

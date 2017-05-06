@@ -8,6 +8,7 @@
  *
  * @providesModule RelayCodegenWatcher
  * @flow
+ * @format
  */
 'use strict';
 
@@ -36,7 +37,7 @@ async function queryFiles(
   const resp = await client.command(
     'query',
     watchResp.root,
-    makeQuery(watchResp.relativePath, expression)
+    makeQuery(watchResp.relativePath, expression),
   );
   client.end();
   return updateFiles(new Set(), filter, resp.files);
@@ -60,7 +61,7 @@ async function watch(
     watchResp.root,
     watchResp.relativePath,
     expression,
-    callback
+    callback,
   );
 }
 
@@ -69,7 +70,7 @@ async function makeSubscription(
   root: string,
   relativePath: string,
   expression: WatchmanExpression,
-  callback
+  callback,
 ): Promise<void> {
   client.on('subscription', resp => {
     if (resp.subscription === SUBSCRIPTION_NAME) {
@@ -80,7 +81,7 @@ async function makeSubscription(
     'subscribe',
     root,
     SUBSCRIPTION_NAME,
-    makeQuery(relativePath, expression)
+    makeQuery(relativePath, expression),
   );
 }
 
@@ -95,7 +96,7 @@ async function watchFiles(
   callback: (files: Set<string>) => any,
 ): Promise<void> {
   let files = new Set();
-  await watch(baseDir, expression, (changes) => {
+  await watch(baseDir, expression, changes => {
     if (!changes.files) {
       // Watchmen fires a change without files when a watchman state changes,
       // for example during an hg update.
@@ -125,24 +126,19 @@ async function watchCompile(
   let needsCompiling = false;
   let latestFiles = null;
 
-  watchFiles(
-    baseDir,
-    expression,
-    filter,
-    async (files) => {
-      needsCompiling = true;
-      latestFiles = files;
-      if (compiling) {
-        return;
-      }
-      compiling = true;
-      while (needsCompiling) {
-        needsCompiling = false;
-        await compile(latestFiles);
-      }
-      compiling = false;
+  watchFiles(baseDir, expression, filter, async files => {
+    needsCompiling = true;
+    latestFiles = files;
+    if (compiling) {
+      return;
     }
-  );
+    compiling = true;
+    while (needsCompiling) {
+      needsCompiling = false;
+      await compile(latestFiles);
+    }
+    compiling = false;
+  });
 }
 
 function updateFiles(
@@ -188,7 +184,9 @@ class PromiseClient {
     });
   }
 
-  async watchProject(baseDir: string): Promise<{
+  async watchProject(
+    baseDir: string,
+  ): Promise<{
     root: string,
     relativePath: string,
   }> {

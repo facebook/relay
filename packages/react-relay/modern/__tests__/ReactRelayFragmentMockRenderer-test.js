@@ -7,13 +7,12 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
-jest
-  .disableAutomock()
-  .mock('ReactDOM', () => ({}));
+jest.disableAutomock().mock('ReactDOM', () => ({}));
 
 const React = require('React');
 const ReactTestRenderer = require('ReactTestRenderer');
@@ -32,7 +31,7 @@ describe('ReactRelayFragmentMockRenderer', () => {
 
     const ChildContainer = ReactRelayRefetchContainer.createContainer(
       ChildComponent,
-      {}, /* skip queries */
+      {} /* skip queries */,
     );
 
     class ParentComponent extends React.Component {
@@ -40,7 +39,7 @@ describe('ReactRelayFragmentMockRenderer', () => {
         return (
           <div>
             <h1>{this.props.viewer.actor.name}</h1>
-            <ChildContainer viewer={this.props.viewer}/>
+            <ChildContainer viewer={this.props.viewer} />
           </div>
         );
       }
@@ -48,7 +47,7 @@ describe('ReactRelayFragmentMockRenderer', () => {
 
     const ParentContainer = ReactRelayFragmentContainer.createContainer(
       ParentComponent,
-      {}, /* skip queries */
+      {} /* skip queries */,
     );
 
     const mockViewer = {
@@ -61,10 +60,8 @@ describe('ReactRelayFragmentMockRenderer', () => {
     const instance = ReactTestRenderer.create(
       <ReactRelayFragmentMockRenderer
         environment={RelayModernMockEnvironment.createMockEnvironment()}
-        render={() =>
-          <ParentContainer viewer={mockViewer}/>
-        }
-      />
+        render={() => <ParentContainer viewer={mockViewer} />}
+      />,
     );
     expect(instance.toJSON()).toMatchSnapshot();
   });

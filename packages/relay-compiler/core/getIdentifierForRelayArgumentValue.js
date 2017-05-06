@@ -8,6 +8,7 @@
  *
  * @providesModule getIdentifierForRelayArgumentValue
  * @flow
+ * @format
  */
 
 'use strict';
@@ -27,7 +28,9 @@ function getIdentifierForRelayArgumentValue(value: ArgumentValue): mixed {
     case 'Literal':
       return {value: value.value};
     case 'ListValue':
-      return {list: value.items.map(item => getIdentifierForRelayArgumentValue(item))};
+      return {
+        list: value.items.map(item => getIdentifierForRelayArgumentValue(item)),
+      };
     case 'ObjectValue':
       return {
         object: value.fields.map(field => ({
@@ -39,7 +42,7 @@ function getIdentifierForRelayArgumentValue(value: ArgumentValue): mixed {
       invariant(
         false,
         'getIdentifierForRelayArgumentValue(): Unsupported AST kind `%s`.',
-        value.kind
+        value.kind,
       );
   }
 }

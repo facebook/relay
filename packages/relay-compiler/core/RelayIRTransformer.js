@@ -8,6 +8,7 @@
  *
  * @providesModule RelayIRTransformer
  * @flow
+ * @format
  */
 
 'use strict';
@@ -131,10 +132,7 @@ class Transformer<S> {
   _states: Array<S>;
   _visitor: NodeVisitor<S>;
 
-  constructor(
-    context: RelayCompilerContext,
-    visitor: NodeVisitor<S>
-  ) {
+  constructor(context: RelayCompilerContext, visitor: NodeVisitor<S>) {
     this._context = context;
     this._states = [];
     this._visitor = visitor;
@@ -200,11 +198,7 @@ class Transformer<S> {
     let nextNode;
     switch (prevNode.kind) {
       case 'Argument':
-        nextNode = this._traverseChildren(
-          prevNode,
-          null,
-          ['value']
-        );
+        nextNode = this._traverseChildren(prevNode, null, ['value']);
         break;
       case 'Literal':
       case 'LocalArgumentDefinition':
@@ -213,62 +207,48 @@ class Transformer<S> {
         nextNode = prevNode;
         break;
       case 'Directive':
-        nextNode = this._traverseChildren(
-          prevNode,
-          ['args']
-        );
+        nextNode = this._traverseChildren(prevNode, ['args']);
         break;
       case 'FragmentSpread':
       case 'ScalarField':
-        nextNode = this._traverseChildren(
-          prevNode,
-          ['args', 'directives']
-        );
+        nextNode = this._traverseChildren(prevNode, ['args', 'directives']);
         break;
       case 'LinkedField':
-        nextNode = this._traverseChildren(
-          prevNode,
-          ['args', 'directives', 'selections']
-        );
+        nextNode = this._traverseChildren(prevNode, [
+          'args',
+          'directives',
+          'selections',
+        ]);
         if (!nextNode.selections.length) {
           nextNode = null;
         }
         break;
       case 'ListValue':
-        nextNode = this._traverseChildren(
-          prevNode,
-          ['items']
-        );
+        nextNode = this._traverseChildren(prevNode, ['items']);
         break;
       case 'ObjectFieldValue':
-        nextNode = this._traverseChildren(
-          prevNode,
-          null,
-          ['value']
-        );
+        nextNode = this._traverseChildren(prevNode, null, ['value']);
         break;
       case 'ObjectValue':
-        nextNode = this._traverseChildren(
-          prevNode,
-          ['fields']
-        );
+        nextNode = this._traverseChildren(prevNode, ['fields']);
         break;
       case 'Condition':
       case 'InlineFragment':
-        nextNode = this._traverseChildren(
-          prevNode,
-          ['directives', 'selections']
-        );
+        nextNode = this._traverseChildren(prevNode, [
+          'directives',
+          'selections',
+        ]);
         if (!nextNode.selections.length) {
           nextNode = null;
         }
         break;
       case 'Fragment':
       case 'Root':
-        nextNode = this._traverseChildren(
-          prevNode,
-          ['argumentDefinitions', 'directives', 'selections']
-        );
+        nextNode = this._traverseChildren(prevNode, [
+          'argumentDefinitions',
+          'directives',
+          'selections',
+        ]);
         if (!nextNode.selections.length) {
           nextNode = null;
         }
@@ -277,7 +257,7 @@ class Transformer<S> {
         invariant(
           false,
           'RelayIRTransformer: Unknown kind `%s`.',
-          prevNode.kind
+          prevNode.kind,
         );
     }
     return nextNode;
@@ -289,34 +269,36 @@ class Transformer<S> {
     singularKeys?: Array<string>,
   ): N {
     let nextNode;
-    pluralKeys && pluralKeys.forEach(key => {
-      const prevItems = prevNode[key];
-      if (!prevItems) {
-        return;
-      }
-      invariant(
-        Array.isArray(prevItems),
-        'RelayIRTransformer: Expected data for `%s` to be an array, got `%s`.',
-        key,
-        prevItems
-      );
-      const nextItems = this._map(prevItems);
-      if (nextNode || nextItems !== prevItems) {
-        nextNode = nextNode || {...prevNode};
-        nextNode[key] = nextItems;
-      }
-    });
-    singularKeys && singularKeys.forEach(key => {
-      const prevItem = prevNode[key];
-      if (!prevItem) {
-        return;
-      }
-      const nextItem = this._visit(prevItem);
-      if (nextNode || nextItem !== prevItem) {
-        nextNode = nextNode || {...prevNode};
-        nextNode[key] = nextItem;
-      }
-    });
+    pluralKeys &&
+      pluralKeys.forEach(key => {
+        const prevItems = prevNode[key];
+        if (!prevItems) {
+          return;
+        }
+        invariant(
+          Array.isArray(prevItems),
+          'RelayIRTransformer: Expected data for `%s` to be an array, got `%s`.',
+          key,
+          prevItems,
+        );
+        const nextItems = this._map(prevItems);
+        if (nextNode || nextItems !== prevItems) {
+          nextNode = nextNode || {...prevNode};
+          nextNode[key] = nextItems;
+        }
+      });
+    singularKeys &&
+      singularKeys.forEach(key => {
+        const prevItem = prevNode[key];
+        if (!prevItem) {
+          return;
+        }
+        const nextItem = this._visit(prevItem);
+        if (nextNode || nextItem !== prevItem) {
+          nextNode = nextNode || {...prevNode};
+          nextNode[key] = nextItem;
+        }
+      });
     return nextNode || prevNode;
   }
 
@@ -338,8 +320,8 @@ class Transformer<S> {
     invariant(
       this._states.length,
       'RelayIRTransformer: Expected a current state to be set but found none. ' +
-      'This is usually the result of mismatched number of pushState()/popState() ' +
-      'calls.'
+        'This is usually the result of mismatched number of pushState()/popState() ' +
+        'calls.',
     );
     return this._states[this._states.length - 1];
   }

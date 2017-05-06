@@ -8,6 +8,7 @@
  *
  * @providesModule ReactRelayRefetchContainer
  * @flow
+ * @format
  */
 
 'use strict';
@@ -178,13 +179,15 @@ function createContainerWithFragments<TBase: ReactClass<*>>(
      */
     _handleFragmentDataUpdate = () => {
       const profiler = RelayProfiler.profile(
-        'ReactRelayRefetchContainer.handleFragmentDataUpdate'
+        'ReactRelayRefetchContainer.handleFragmentDataUpdate',
       );
       this.setState({data: this._resolver.resolve()}, profiler.stop);
     };
 
     _getFragmentVariables(): Variables {
-      const {getVariablesFromObject} = this.context.relay.environment.unstable_internal;
+      const {
+        getVariablesFromObject,
+      } = this.context.relay.environment.unstable_internal;
       return getVariablesFromObject(
         this.context.relay.variables,
         fragments,
@@ -193,19 +196,23 @@ function createContainerWithFragments<TBase: ReactClass<*>>(
     }
 
     _refetch = (
-      refetchVariables: Variables | (fragmentVariables: Variables) => Variables,
+      refetchVariables:
+        | Variables
+        | ((fragmentVariables: Variables) => Variables),
       renderVariables: ?Variables,
       callback: ?(error: ?Error) => void,
-      options: ?RefetchOptions
+      options: ?RefetchOptions,
     ): Disposable => {
-      const {environment, variables: rootVariables} = assertRelayContext(this.context.relay);
-      let fetchVariables = typeof refetchVariables === 'function' ?
-        refetchVariables(this._getFragmentVariables()) :
-        refetchVariables;
+      const {environment, variables: rootVariables} = assertRelayContext(
+        this.context.relay,
+      );
+      let fetchVariables = typeof refetchVariables === 'function'
+        ? refetchVariables(this._getFragmentVariables())
+        : refetchVariables;
       fetchVariables = {...rootVariables, ...fetchVariables};
-      const fragmentVariables = renderVariables ?
-        {...rootVariables, ...renderVariables} :
-        fetchVariables;
+      const fragmentVariables = renderVariables
+        ? {...rootVariables, ...renderVariables}
+        : fetchVariables;
 
       const onNext = response => {
         if (!this._pendingRefetch) {
@@ -291,8 +298,8 @@ function assertRelayContext(relay: mixed): RelayContext {
   invariant(
     isRelayContext(relay),
     'ReactRelayRefetchContainer: Expected `context.relay` to be an object ' +
-    'conforming to the `RelayContext` interface, got `%s`.',
-    relay
+      'conforming to the `RelayContext` interface, got `%s`.',
+    relay,
   );
   return (relay: any);
 }
@@ -312,11 +319,8 @@ function createContainer<TBase: ReactClass<*>>(
   return buildReactRelayContainer(
     Component,
     fragmentSpec,
-    (ComponentClass, fragments) => createContainerWithFragments(
-      ComponentClass,
-      fragments,
-      taggedNode,
-    ),
+    (ComponentClass, fragments) =>
+      createContainerWithFragments(ComponentClass, fragments, taggedNode),
   );
 }
 

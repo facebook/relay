@@ -8,6 +8,7 @@
  *
  * @providesModule RelaySkipRedundantNodesTransform
  * @flow
+ * @format
  */
 
 'use strict';
@@ -18,10 +19,7 @@ const IMap = require('immutable').Map;
 const getIdentifierForRelaySelection = require('getIdentifierForRelaySelection');
 const invariant = require('invariant');
 
-import type {
-  Node,
-  Selection,
-} from 'RelayIR';
+import type {Node, Selection} from 'RelayIR';
 
 /**
  * A simplified representation of a document: keys in the map are unique
@@ -149,7 +147,7 @@ function transform(context: RelayCompilerContext): RelayCompilerContext {
  */
 function transformNode<T: Node>(
   node: T,
-  selectionMap: SelectionMap
+  selectionMap: SelectionMap,
 ): ?{selectionMap: SelectionMap, node: T} {
   const selections = [];
   sortSelections(node.selections).forEach(selection => {
@@ -192,7 +190,7 @@ function transformNode<T: Node>(
         invariant(
           false,
           'RelaySkipRedundantNodesTransform: Unexpected node kind `%s`.',
-          selection.kind
+          selection.kind,
         );
     }
   });
@@ -213,9 +211,9 @@ function transformNode<T: Node>(
  */
 function sortSelections(selections: Array<Selection>): Array<Selection> {
   return [...selections].sort((a, b) => {
-    return a.kind === 'InlineFragment' || a.kind === 'Condition' ? 1 :
-      b.kind === 'InlineFragment' || b.kind === 'Condition' ? -1 :
-      0;
+    return a.kind === 'InlineFragment' || a.kind === 'Condition'
+      ? 1
+      : b.kind === 'InlineFragment' || b.kind === 'Condition' ? -1 : 0;
   });
 }
 

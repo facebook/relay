@@ -8,6 +8,7 @@
  *
  * @providesModule RelaySchemaUtils
  * @flow
+ * @format
  */
 
 'use strict';
@@ -48,13 +49,13 @@ const ID = 'id';
 const ID_TYPE = 'ID';
 
 type GraphQLSingularType =
-  GraphQLScalarType |
-  GraphQLObjectType |
-  GraphQLInterfaceType |
-  GraphQLUnionType |
-  GraphQLEnumType |
-  GraphQLInputObjectType |
-  GraphQLNullableType<*>;
+  | GraphQLScalarType
+  | GraphQLObjectType
+  | GraphQLInterfaceType
+  | GraphQLUnionType
+  | GraphQLEnumType
+  | GraphQLInputObjectType
+  | GraphQLNullableType<*>;
 
 /**
  * Determine if the given type may implement the named type:
@@ -63,7 +64,11 @@ type GraphQLSingularType =
  * - it is an abstract type and *some* of its concrete types may
  *   implement the named type
  */
-function mayImplement(schema: GraphQLSchema, type: GraphQLType, typeName: string): boolean {
+function mayImplement(
+  schema: GraphQLSchema,
+  type: GraphQLType,
+  typeName: string,
+): boolean {
   const unmodifiedType = getRawType(type);
   return (
     unmodifiedType.toString() === typeName ||
@@ -75,8 +80,7 @@ function mayImplement(schema: GraphQLSchema, type: GraphQLType, typeName: string
 
 function canHaveSelections(type: GraphQLType): boolean {
   return (
-    type instanceof GraphQLObjectType ||
-    type instanceof GraphQLInterfaceType
+    type instanceof GraphQLObjectType || type instanceof GraphQLInterfaceType
   );
 }
 
@@ -91,10 +95,10 @@ function hasID(schema: GraphQLSchema, type: GraphQLCompositeType): boolean {
   const unmodifiedType = getRawType(type);
   invariant(
     unmodifiedType instanceof GraphQLObjectType ||
-    unmodifiedType instanceof GraphQLInterfaceType,
+      unmodifiedType instanceof GraphQLInterfaceType,
     'RelaySchemaUtils.hasID(): Expected a concrete type or interface, ' +
-    'got type `%s`.',
-    type
+      'got type `%s`.',
+    type,
   );
   const idType = schema.getType(ID_TYPE);
   const idField = unmodifiedType.getFields()[ID];
@@ -137,8 +141,13 @@ function getSingularType(type: GraphQLType): GraphQLSingularType {
 /**
  * @public
  */
-function implementsInterface(type: GraphQLType, interfaceName: string): boolean {
-  return getInterfaces(type).some(interfaceType => interfaceType.toString() === interfaceName);
+function implementsInterface(
+  type: GraphQLType,
+  interfaceName: string,
+): boolean {
+  return getInterfaces(type).some(
+    interfaceType => interfaceType.toString() === interfaceName,
+  );
 }
 
 /**
@@ -147,12 +156,12 @@ function implementsInterface(type: GraphQLType, interfaceName: string): boolean 
 function hasConcreteTypeThatImplements(
   schema: GraphQLSchema,
   type: GraphQLType,
-  interfaceName: string
+  interfaceName: string,
 ): boolean {
   return (
     isAbstractType(type) &&
-    getConcreteTypes(schema, type).some(
-      concreteType => implementsInterface(concreteType, interfaceName)
+    getConcreteTypes(schema, type).some(concreteType =>
+      implementsInterface(concreteType, interfaceName),
     )
   );
 }
@@ -160,7 +169,10 @@ function hasConcreteTypeThatImplements(
 /**
  * @private
  */
-function getConcreteTypes(schema: GraphQLSchema, type: GraphQLType): Array<GraphQLObjectType> {
+function getConcreteTypes(
+  schema: GraphQLSchema,
+  type: GraphQLType,
+): Array<GraphQLObjectType> {
   return schema.getPossibleTypes(assertAbstractType(type));
 }
 
@@ -181,8 +193,7 @@ function getInterfaces(type: GraphQLType): Array<GraphQLInterfaceType> {
  */
 function isOperationDefinitionAST(ast: ASTNode): boolean %checks {
   return (
-    ast.kind === 'FragmentDefinition' ||
-    ast.kind === 'OperationDefinition'
+    ast.kind === 'FragmentDefinition' || ast.kind === 'OperationDefinition'
   );
 }
 
@@ -204,12 +215,13 @@ function isSchemaDefinitionAST(ast: ASTNode): boolean %checks {
   );
 }
 
-function assertTypeWithFields(type: ?GraphQLType): GraphQLObjectType | GraphQLInterfaceType {
+function assertTypeWithFields(
+  type: ?GraphQLType,
+): GraphQLObjectType | GraphQLInterfaceType {
   invariant(
-    type instanceof GraphQLObjectType ||
-    type instanceof GraphQLInterfaceType,
+    type instanceof GraphQLObjectType || type instanceof GraphQLInterfaceType,
     'RelaySchemaUtils: Expected type `%s` to be an object or interface type.',
-    type
+    type,
   );
   return type;
 }
@@ -221,11 +233,7 @@ function assertTypeWithFields(type: ?GraphQLType): GraphQLObjectType | GraphQLIn
  */
 function getTypeFromAST(schema: GraphQLSchema, ast: TypeNode): GraphQLType {
   const type = typeFromAST(schema, ast);
-  invariant(
-    isType(type),
-    'RelaySchemaUtils: Unknown type `%s`.',
-    print(ast),
-  );
+  invariant(isType(type), 'RelaySchemaUtils: Unknown type `%s`.', print(ast));
   return (type: any);
 }
 

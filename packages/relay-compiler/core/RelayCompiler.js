@@ -8,6 +8,7 @@
  *
  * @flow
  * @providesModule RelayCompiler
+ * @format
  */
 
 'use strict';
@@ -26,7 +27,7 @@ import type {GraphQLSchema} from 'graphql';
 export type CompiledDocumentMap = Map<string, GeneratedNode>;
 export type TransformReducer = (
   ctx: RelayCompilerContext,
-  transform: (ctx: RelayCompilerContext) => RelayCompilerContext
+  transform: (ctx: RelayCompilerContext) => RelayCompilerContext,
 ) => RelayCompilerContext;
 
 export interface Compiler {
@@ -39,7 +40,7 @@ export type CompilerTransforms = {
   fragmentTransforms: Array<IRTransform>,
   printTransforms: Array<IRTransform>,
   queryTransforms: Array<IRTransform>,
-}
+};
 
 /**
  * A utility class for parsing a corpus of GraphQL documents, transforming them
@@ -92,8 +93,8 @@ class RelayCompiler {
   }
 
   compile(): CompiledDocumentMap {
-    const transformContext =
-      ((ctx, transform) => transform(ctx, this._schema): any);
+    const transformContext = ((ctx, transform) =>
+      transform(ctx, this._schema): any);
     const fragmentContext = this._transforms.fragmentTransforms.reduce(
       transformContext,
       this._context,
@@ -123,7 +124,10 @@ class RelayCompiler {
       const {name} = node;
       // The unflattened query is used for printing, since flattening creates an
       // invalid query.
-      const text = filterContextForNode(printContext.getRoot(name), printContext)
+      const text = filterContextForNode(
+        printContext.getRoot(name),
+        printContext,
+      )
         .documents()
         .map(RelayPrinter.print)
         .join('\n');

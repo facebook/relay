@@ -5,6 +5,8 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
@@ -12,7 +14,6 @@
 jest.autoMockOff();
 
 require('configureForRelayOSS');
-
 
 const {transformASTSchema} = require('ASTConvert');
 const RelayCompiler = require('RelayCompiler');
@@ -41,15 +42,15 @@ describe('RelayCompiler', () => {
         RelayIRTransforms,
       );
       compiler.addDefinitions(parseGraphQLText(relaySchema, text).definitions);
-      return Array.from(compiler.compile().values()).map(
-        ({text: queryText, ...ast}) => {
+      return Array.from(compiler.compile().values())
+        .map(({text: queryText, ...ast}) => {
           let stringified = prettyStringify(ast);
           if (queryText) {
             stringified += '\n\nQUERY:\n\n' + queryText;
           }
           return stringified;
-        }
-      ).join('\n\n');
+        })
+        .join('\n\n');
     });
   });
 });

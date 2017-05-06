@@ -8,6 +8,7 @@
  *
  * @providesModule commitLocalUpdate
  * @flow
+ * @format
  */
 
 'use strict';

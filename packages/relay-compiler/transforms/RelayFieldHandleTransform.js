@@ -8,6 +8,7 @@
  *
  * @providesModule RelayFieldHandleTransform
  * @flow
+ * @format
  */
 
 'use strict';
@@ -25,7 +26,7 @@ type State = true;
 
 function transform(
   context: RelayCompilerContext,
-  schema: GraphQLSchema
+  schema: GraphQLSchema,
 ): RelayCompilerContext {
   return RelayIRTransformer.transform(
     context,
@@ -33,7 +34,7 @@ function transform(
       LinkedField: visitField,
       ScalarField: visitField,
     },
-    () => true
+    () => true,
   );
 }
 
@@ -52,16 +53,16 @@ function visitField<F: Field>(field: F, state: State): F {
   invariant(
     handles.length === 1,
     'RelayFieldHandleTransform: Expected fields to have at most one ' +
-    '"handle" property, got `%s`.',
-    handles.join(', ')
+      '"handle" property, got `%s`.',
+    handles.join(', '),
   );
   const alias = field.alias || field.name;
   const handle = handles[0];
   const name = getRelayHandleKey(handle.name, handle.key, field.name);
   const filters = handle.filters;
-  const args = filters ?
-    field.args.filter(arg => filters.indexOf(arg.name) > -1) :
-    [];
+  const args = filters
+    ? field.args.filter(arg => filters.indexOf(arg.name) > -1)
+    : [];
 
   return ({
     ...field,

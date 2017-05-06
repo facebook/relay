@@ -8,6 +8,7 @@
  *
  * @providesModule RelayIRTransforms
  * @flow
+ * @format
  */
 
 'use strict';
@@ -30,7 +31,10 @@ import type CompilerContext from 'RelayCompilerContext';
 import type {GraphQLSchema} from 'graphql';
 
 export type SchemaTransform = (schema: GraphQLSchema) => GraphQLSchema;
-export type IRTransform = (context: CompilerContext, schema: GraphQLSchema) => CompilerContext;
+export type IRTransform = (
+  context: CompilerContext,
+  schema: GraphQLSchema,
+) => CompilerContext;
 
 // Transforms applied to the code used to process a query response.
 const SCHEMA_TRANSFORMS: Array<SchemaTransform> = [
@@ -45,9 +49,10 @@ const FRAGMENT_TRANSFORMS: Array<IRTransform> = [
   RelayViewerHandleTransform.transform,
   RelayRelayDirectiveTransform.transform,
   RelayFieldHandleTransform.transform,
-  (ctx: CompilerContext) => RelayFlattenTransform.transform(ctx, {
-    flattenAbstractTypes: true,
-  }),
+  (ctx: CompilerContext) =>
+    RelayFlattenTransform.transform(ctx, {
+      flattenAbstractTypes: true,
+    }),
   RelaySkipRedundantNodesTransform.transform,
 ];
 
@@ -56,9 +61,10 @@ const FRAGMENT_TRANSFORMS: Array<IRTransform> = [
 /* $FlowFixMe(>=0.44.0 site=react_native_fb) Flow error found while deploying
  * v0.44.0. Remove this comment to see the error */
 const QUERY_TRANSFORMS: Array<IRTransform> = [
-  (ctx: CompilerContext) => RelayConnectionTransform.transform(ctx, {
-    generateRequisiteFields: true,
-  }),
+  (ctx: CompilerContext) =>
+    RelayConnectionTransform.transform(ctx, {
+      generateRequisiteFields: true,
+    }),
   RelayViewerHandleTransform.transform,
   RelayApplyFragmentArgumentTransform.transform,
   RelaySkipClientFieldTransform.transform,
@@ -71,10 +77,11 @@ const QUERY_TRANSFORMS: Array<IRTransform> = [
 // Transforms applied to the code used to process a query response.
 const CODEGEN_TRANSFORMS: Array<IRTransform> = [
   RelayFilterDirectivesTransform.transform,
-  (ctx: CompilerContext) => RelayFlattenTransform.transform(ctx, {
-    flattenAbstractTypes: true,
-    flattenFragmentSpreads: true,
-  }),
+  (ctx: CompilerContext) =>
+    RelayFlattenTransform.transform(ctx, {
+      flattenAbstractTypes: true,
+      flattenFragmentSpreads: true,
+    }),
   RelaySkipRedundantNodesTransform.transform,
 ];
 

@@ -8,6 +8,7 @@
  *
  * @providesModule testEditDistance
  * @flow
+ * @format
  *
  */
 'use strict';
@@ -85,12 +86,7 @@ function testEditDistance(a: string, b: string, threshold: number): boolean {
       t2 = t + 1;
     }
 
-    t = Math.max(
-      t,
-      fkp[k - 1 + zeroK][p],
-      fkp[k + 1 + zeroK][p] + 1,
-      t2
-    );
+    t = Math.max(t, fkp[k - 1 + zeroK][p], fkp[k + 1 + zeroK][p] + 1, t2);
 
     while (a[t] === b[t + k] && t < Math.min(m, n - k)) {
       t++;

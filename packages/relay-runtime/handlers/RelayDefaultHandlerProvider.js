@@ -8,6 +8,7 @@
  *
  * @providesModule RelayDefaultHandlerProvider
  * @flow
+ * @format
  */
 
 'use strict';
@@ -22,13 +23,15 @@ export type HandlerProvider = (name: string) => ?Handler;
 
 function RelayDefaultHandlerProvider(handle: string): Handler {
   switch (handle) {
-    case 'connection': return RelayConnectionHandler;
-    case 'viewer': return RelayViewerHandler;
+    case 'connection':
+      return RelayConnectionHandler;
+    case 'viewer':
+      return RelayViewerHandler;
   }
   invariant(
     false,
     'RelayDefaultHandlerProvider: No handler provided for `%s`.',
-    handle
+    handle,
   );
 }
 

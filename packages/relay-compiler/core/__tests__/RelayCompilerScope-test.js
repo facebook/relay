@@ -5,6 +5,8 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
@@ -38,12 +40,14 @@ describe('scope', () => {
 
   describe('getRootScope()', () => {
     it('creates variables for optional definitions with defaults', () => {
-      const definitions = [{
-        kind: 'LocalArgumentDefinition',
-        name: 'size',
-        defaultValue: 42,
-        type: optionalIntType,
-      }];
+      const definitions = [
+        {
+          kind: 'LocalArgumentDefinition',
+          name: 'size',
+          defaultValue: 42,
+          type: optionalIntType,
+        },
+      ];
       const scope = getRootScope(definitions);
       expect(Object.keys(scope).length).toBe(1);
       expect(scope.size.kind).toBe('Variable');
@@ -51,12 +55,14 @@ describe('scope', () => {
     });
 
     it('creates variables for optional definitions w/o defaults', () => {
-      const definitions = [{
-        kind: 'LocalArgumentDefinition',
-        name: 'size',
-        defaultValue: null,
-        type: optionalIntType,
-      }];
+      const definitions = [
+        {
+          kind: 'LocalArgumentDefinition',
+          name: 'size',
+          defaultValue: null,
+          type: optionalIntType,
+        },
+      ];
       const scope = getRootScope(definitions);
       expect(Object.keys(scope).length).toBe(1);
       expect(scope.size.kind).toBe('Variable');
@@ -64,12 +70,14 @@ describe('scope', () => {
     });
 
     it('creates variables for required definitions', () => {
-      const definitions = [{
-        kind: 'LocalArgumentDefinition',
-        name: 'size',
-        defaultValue: null,
-        type: requiredIntType,
-      }];
+      const definitions = [
+        {
+          kind: 'LocalArgumentDefinition',
+          name: 'size',
+          defaultValue: null,
+          type: requiredIntType,
+        },
+      ];
       const scope = getRootScope(definitions);
       expect(Object.keys(scope).length).toBe(1);
       expect(scope.size.kind).toBe('Variable');
@@ -85,18 +93,22 @@ describe('scope', () => {
      * => size: $var
      */
     it('resolves variable arguments in parent scope (variable value)', () => {
-      const definitions = [{
-        kind: 'LocalArgumentDefinition',
-        name: 'size',
-        defaultValue: null,
-        type: optionalIntType,
-      }];
-      const calls = [{
-        kind: 'Argument',
-        name: 'size',
-        value: {kind: 'Variable', variableName: 'outerSize'},
-        type: optionalIntType,
-      }];
+      const definitions = [
+        {
+          kind: 'LocalArgumentDefinition',
+          name: 'size',
+          defaultValue: null,
+          type: optionalIntType,
+        },
+      ];
+      const calls = [
+        {
+          kind: 'Argument',
+          name: 'size',
+          value: {kind: 'Variable', variableName: 'outerSize'},
+          type: optionalIntType,
+        },
+      ];
       const outerScope = {
         outerSize: {kind: 'Variable', name: 'var'},
       };
@@ -113,18 +125,22 @@ describe('scope', () => {
      * => size: 42
      */
     it('resolves variable arguments in parent scope (literal value)', () => {
-      const definitions = [{
-        kind: 'LocalArgumentDefinition',
-        name: 'size',
-        defaultValue: null,
-        type: optionalIntType,
-      }];
-      const calls = [{
-        kind: 'Argument',
-        name: 'size',
-        value: {kind: 'Variable', variableName: 'outerSize'},
-        type: optionalIntType,
-      }];
+      const definitions = [
+        {
+          kind: 'LocalArgumentDefinition',
+          name: 'size',
+          defaultValue: null,
+          type: optionalIntType,
+        },
+      ];
+      const calls = [
+        {
+          kind: 'Argument',
+          name: 'size',
+          value: {kind: 'Variable', variableName: 'outerSize'},
+          type: optionalIntType,
+        },
+      ];
       const outerScope = {
         outerSize: {kind: 'Literal', value: 42},
       };
@@ -141,19 +157,23 @@ describe('scope', () => {
      * => size: 42
      */
     it('sets variables to literal argument values', () => {
-      const definitions = [{
-        kind: 'LocalArgumentDefinition',
-        name: 'size',
-        defaultValue: null,
-        type: optionalIntType,
-      }];
+      const definitions = [
+        {
+          kind: 'LocalArgumentDefinition',
+          name: 'size',
+          defaultValue: null,
+          type: optionalIntType,
+        },
+      ];
       const literal = {kind: 'Literal', value: 42};
-      const calls = [{
-        kind: 'Argument',
-        name: 'size',
-        value: literal,
-        type: optionalIntType,
-      }];
+      const calls = [
+        {
+          kind: 'Argument',
+          name: 'size',
+          value: literal,
+          type: optionalIntType,
+        },
+      ];
       const outerScope = {};
       const innerScope = getFragmentScope(definitions, calls, outerScope);
       expect(innerScope).toEqual({
@@ -169,12 +189,14 @@ describe('scope', () => {
      */
     it('sets variables to default values if defined and no argument', () => {
       const literal = {kind: 'Literal', value: 42};
-      const definitions = [{
-        kind: 'LocalArgumentDefinition',
-        name: 'size',
-        defaultValue: 42,
-        type: optionalIntType,
-      }];
+      const definitions = [
+        {
+          kind: 'LocalArgumentDefinition',
+          name: 'size',
+          defaultValue: 42,
+          type: optionalIntType,
+        },
+      ];
       const calls = [];
       const outerScope = {};
       const innerScope = getFragmentScope(definitions, calls, outerScope);
@@ -190,12 +212,14 @@ describe('scope', () => {
      * => Error: no value for required argument `size`
      */
     it('throws for required variables with no argument or default', () => {
-      const definitions = [{
-        kind: 'LocalArgumentDefinition',
-        name: 'size',
-        defaultValue: null,
-        type: requiredIntType,
-      }];
+      const definitions = [
+        {
+          kind: 'LocalArgumentDefinition',
+          name: 'size',
+          defaultValue: null,
+          type: requiredIntType,
+        },
+      ];
       const calls = [];
       const outerScope = {};
       expect(() => {
@@ -210,11 +234,13 @@ describe('scope', () => {
      * => size: $size
      */
     it('creates variables for import definitions', () => {
-      const definitions = [{
-        kind: 'RootArgumentDefinition',
-        name: 'size',
-        type: requiredIntType,
-      }];
+      const definitions = [
+        {
+          kind: 'RootArgumentDefinition',
+          name: 'size',
+          type: requiredIntType,
+        },
+      ];
       const calls = [];
       const outerScope = {};
       const innerScope = getFragmentScope(definitions, calls, outerScope);
@@ -233,20 +259,24 @@ describe('scope', () => {
      * => Error: cannot pass a value for an imported variable
      */
     it('throws if an argument is provided for an import definition', () => {
-      const definitions = [{
-        kind: 'RootArgumentDefinition',
-        name: 'size',
-        type: requiredIntType,
-      }];
-      const calls = [{
-        kind: 'Argument',
-        name: 'size',
-        value: {
-          kind: 'Literal',
-          value: 42,
+      const definitions = [
+        {
+          kind: 'RootArgumentDefinition',
+          name: 'size',
+          type: requiredIntType,
         },
-        type: requiredIntType,
-      }];
+      ];
+      const calls = [
+        {
+          kind: 'Argument',
+          name: 'size',
+          value: {
+            kind: 'Literal',
+            value: 42,
+          },
+          type: requiredIntType,
+        },
+      ];
       const outerScope = {};
       expect(() => {
         getFragmentScope(definitions, calls, outerScope);

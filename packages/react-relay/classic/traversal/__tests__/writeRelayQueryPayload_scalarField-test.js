@@ -7,15 +7,14 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
 require('configureForRelayOSS');
 
-jest
-  .unmock('GraphQLRange')
-  .unmock('GraphQLSegment');
+jest.unmock('GraphQLRange').unmock('GraphQLSegment');
 
 const Relay = require('Relay');
 const RelayTestUtils = require('RelayTestUtils');
@@ -40,13 +39,15 @@ describe('writeRelayQueryPayload()', () => {
       const records = {};
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        Relay.QL`
         query {
           node(id:"123") {
             name
           }
         }
-      `);
+      `,
+      );
       const payload = {
         node: {
           __typename: 'User',
@@ -73,13 +74,15 @@ describe('writeRelayQueryPayload()', () => {
       };
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        Relay.QL`
         query {
           node(id:"123") {
             name
           }
         }
-      `);
+      `,
+      );
       const payload = {
         node: {
           __typename: 'User',
@@ -107,13 +110,15 @@ describe('writeRelayQueryPayload()', () => {
       };
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        Relay.QL`
         query {
           node(id:"123") {
             name
           }
         }
-      `);
+      `,
+      );
       const payload = {
         node: {
           __typename: 'User',
@@ -141,13 +146,15 @@ describe('writeRelayQueryPayload()', () => {
       };
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        Relay.QL`
         query {
           node(id:"123") {
             name
           }
         }
-      `);
+      `,
+      );
       const payload = {
         node: {
           __typename: 'User',

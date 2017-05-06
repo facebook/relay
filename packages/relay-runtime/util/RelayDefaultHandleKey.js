@@ -8,6 +8,7 @@
  *
  * @providesModule RelayDefaultHandleKey
  * @flow
+ * @format
  */
 
 'use strict';

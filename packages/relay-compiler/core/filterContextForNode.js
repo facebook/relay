@@ -8,6 +8,7 @@
  *
  * @providesModule filterContextForNode
  * @flow
+ * @format
  */
 
 'use strict';
@@ -24,7 +25,7 @@ import type {Fragment, FragmentSpread, Root} from 'RelayIR';
  */
 function filterContextForNode(
   node: Fragment | Root,
-  context: RelayCompilerContext
+  context: RelayCompilerContext,
 ): RelayCompilerContext {
   const queue = [node];
   let filteredContext = new RelayCompilerContext(context.schema).add(node);

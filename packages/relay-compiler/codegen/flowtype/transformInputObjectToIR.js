@@ -8,6 +8,7 @@
  *
  * TODO @joesavona: enable flow
  * @providesModule transformInputObjectToIR
+ * @format
  */
 
 'use strict';
@@ -20,10 +21,7 @@ const {
   GraphQLScalarType,
 } = require('graphql');
 
-import type {
-  LinkedField,
-  ScalarField,
-} from 'RelayIR';
+import type {LinkedField, ScalarField} from 'RelayIR';
 
 /**
  * Transforms a GraphQLInputObjectType to a RelayIR LinkedField.
@@ -34,7 +32,7 @@ function transformInputObjectToIR(
     kind: string,
     name: string,
     type: GraphQLNonNull | GraphQLInputObjectType,
-  }
+  },
 ): LinkedField {
   const type = getRawType(node.type);
   const fields = type.getFields();
@@ -66,7 +64,7 @@ function transformFieldToIR(
     kind: string,
     name: string,
     type: GraphQLInputObjectType | GraphQLScalarType,
-  }
+  },
 ): LinkedField | ScalarField {
   const type = getRawType(node.type);
   if (type instanceof GraphQLInputObjectType) {
@@ -86,7 +84,7 @@ function transformFieldToIR(
  */
 function transformScalarToIR(
   name: string,
-  type: GraphQLEnumType | GraphQLScalarType
+  type: GraphQLEnumType | GraphQLScalarType,
 ): ScalarField {
   return {
     alias: null,

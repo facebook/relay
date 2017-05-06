@@ -8,6 +8,7 @@
  *
  * @providesModule RelayCompatMutations
  * @flow
+ * @format
  */
 
 'use strict';
@@ -28,7 +29,7 @@ import type {MutationConfig} from 'commitRelayModernMutation';
 const RelayCompatMutations = {
   commitUpdate(
     environment: CompatEnvironment,
-    config: MutationConfig
+    config: MutationConfig,
   ): Disposable {
     const relayStaticEnvironment = getRelayModernEnvironment(environment);
     if (relayStaticEnvironment) {
@@ -38,14 +39,14 @@ const RelayCompatMutations = {
       invariant(
         relayClassicEnvironment,
         'RelayCompatMutations: Expected an object that conforms to the ' +
-        '`RelayEnvironmentInterface`, got `%s`.',
-        environment
+          '`RelayEnvironmentInterface`, got `%s`.',
+        environment,
       );
       return commitRelay1Mutation(
         // getRelayClassicEnvironment returns a RelayEnvironmentInterface
         // (classic APIs), but we need the modern APIs on old core here.
         (relayClassicEnvironment: $FixMe),
-        config
+        config,
       );
     }
   },
@@ -61,7 +62,7 @@ function commitRelay1Mutation(
     optimisticResponse,
     variables,
     uploadables,
-  }: MutationConfig
+  }: MutationConfig,
 ): Disposable {
   const {getOperation} = environment.unstable_internal;
   const operation = getOperation(mutation);

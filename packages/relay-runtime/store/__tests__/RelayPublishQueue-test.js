@@ -5,12 +5,13 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
 
-jest
-  .autoMockOff();
+jest.autoMockOff();
 
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('RelayMarkSweepStore');
@@ -22,13 +23,7 @@ const getRelayHandleKey = require('getRelayHandleKey');
 const invariant = require('invariant');
 const simpleClone = require('simpleClone');
 
-const {
-  ID_KEY,
-  REF_KEY,
-  ROOT_ID,
-  ROOT_TYPE,
-  TYPENAME_KEY,
-} = RelayStoreUtils;
+const {ID_KEY, REF_KEY, ROOT_ID, ROOT_TYPE, TYPENAME_KEY} = RelayStoreUtils;
 
 describe('RelayPublishQueue', () => {
   const {generateAndCompile} = RelayModernTestUtils;
@@ -84,7 +79,8 @@ describe('RelayPublishQueue', () => {
       source = new RelayInMemoryRecordSource(sourceData);
       store = new RelayMarkSweepStore(source);
 
-      const mutationQuery = generateAndCompile(`
+      const mutationQuery = generateAndCompile(
+        `
         mutation ChangeNameMutation(
           $input: ActorNameChangeInput!
         ) {
@@ -94,7 +90,8 @@ describe('RelayPublishQueue', () => {
             }
           }
         }
-      `).ChangeNameMutation;
+      `,
+      ).ChangeNameMutation;
       const variables = {
         input: {
           clientMutationId: '0',
@@ -239,10 +236,7 @@ describe('RelayPublishQueue', () => {
       queue.applyUpdate({
         storeUpdater: storeProxy => {
           const zuck = storeProxy.get('4');
-          zuck.setValue(
-            zuck.getValue('name').toUpperCase(),
-            'name'
-          );
+          zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
         },
       });
       expect(sourceData).toEqual(initialData);
@@ -268,10 +262,7 @@ describe('RelayPublishQueue', () => {
       queue.applyUpdate({
         storeUpdater: storeProxy => {
           const zuck = storeProxy.get('4');
-          zuck.setValue(
-            zuck.getValue('name').toUpperCase(),
-            'name'
-          );
+          zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
         },
       });
       queue.run();
@@ -297,10 +288,7 @@ describe('RelayPublishQueue', () => {
       queue.applyUpdate({
         storeUpdater: storeProxy => {
           const zuck = storeProxy.get('4');
-          zuck.setValue(
-            zuck.getValue('name').toUpperCase(),
-            'name'
-          );
+          zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
         },
       });
       queue.run();
@@ -417,10 +405,7 @@ describe('RelayPublishQueue', () => {
       queue.applyUpdate({
         storeUpdater: storeProxy => {
           const zuck = storeProxy.get('4');
-          zuck.setValue(
-            zuck.getValue('name').toUpperCase(),
-            'name'
-          );
+          zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
         },
       });
       queue.run();
@@ -450,10 +435,7 @@ describe('RelayPublishQueue', () => {
       queue.applyUpdate({
         storeUpdater: storeProxy => {
           const zuck = storeProxy.get('4');
-          zuck.setValue(
-            zuck.getValue('name').toUpperCase(),
-            'name'
-          );
+          zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
         },
       });
       store.publish.mockClear();
@@ -479,10 +461,7 @@ describe('RelayPublishQueue', () => {
       queue.applyUpdate({
         storeUpdater: storeProxy => {
           const zuck = storeProxy.get('4');
-          zuck.setValue(
-            zuck.getValue('name').toUpperCase(),
-            'name'
-          );
+          zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
         },
       });
 
@@ -556,13 +535,15 @@ describe('RelayPublishQueue', () => {
       const store = {getSource: () => source, notify, publish};
       const queue = new RelayPublishQueue(store);
       const publishSource = new RelayInMemoryRecordSource();
-      const {ActorQuery} = generateAndCompile(`
+      const {ActorQuery} = generateAndCompile(
+        `
         query ActorQuery {
           me {
             name
           }
         }
-      `);
+      `,
+      );
 
       queue.commitPayload(
         {
@@ -586,7 +567,8 @@ describe('RelayPublishQueue', () => {
       const source = new RelayInMemoryRecordSource();
       const store = {getSource: () => source, notify, publish};
       const queue = new RelayPublishQueue(store);
-      const {ActorQuery} = generateAndCompile(`
+      const {ActorQuery} = generateAndCompile(
+        `
         query ActorQuery {
           me {
             name
@@ -595,7 +577,8 @@ describe('RelayPublishQueue', () => {
             name
           }
         }
-      `);
+      `,
+      );
 
       const updater = jest.fn(storeProxy => {
         const zuck = storeProxy.getRootField('me');
@@ -661,7 +644,10 @@ describe('RelayPublishQueue', () => {
         update(storeProxy, payload) {
           const record = storeProxy.get(payload.dataID);
           const linkedRecords = record.getLinkedRecords(payload.fieldKey);
-          record.setLinkedRecords([...linkedRecords].reverse(), payload.handleKey);
+          record.setLinkedRecords(
+            [...linkedRecords].reverse(),
+            payload.handleKey,
+          );
         },
       };
       const NameHandler = {
@@ -671,7 +657,7 @@ describe('RelayPublishQueue', () => {
           record.setValue(name.toUpperCase(), payload.handleKey);
         },
       };
-      const handleProvider = (name) => {
+      const handleProvider = name => {
         switch (name) {
           case 'handleScreennames':
             return ScreennameHandler;
@@ -681,7 +667,8 @@ describe('RelayPublishQueue', () => {
       };
       const queue = new RelayPublishQueue(store, handleProvider);
 
-      const {ActorQuery} = generateAndCompile(`
+      const {ActorQuery} = generateAndCompile(
+        `
         query ActorQuery {
           me {
             screennames @__clientField(handle: "handleScreennames") {
@@ -689,7 +676,8 @@ describe('RelayPublishQueue', () => {
             }
           }
         }
-      `);
+      `,
+      );
 
       queue.commitPayload(
         {
@@ -698,31 +686,38 @@ describe('RelayPublishQueue', () => {
           variables: {},
         },
         {
-          fieldPayloads: [{
-            dataID: '4',
-            fieldKey: 'screennames',
-            handleKey: getRelayHandleKey('handleScreennames', null, 'screennames'),
-            handle: 'handleScreennames',
-          }, {
-            dataID: 'client:4:screennames:0',
-            fieldKey: 'name',
-            handleKey: getRelayHandleKey('handleName', null, 'name'),
-            handle: 'handleName',
-          }, {
-            dataID: 'client:4:screennames:1',
-            fieldKey: 'name',
-            handleKey: getRelayHandleKey('handleName', null, 'name'),
-            handle: 'handleName',
-          }],
+          fieldPayloads: [
+            {
+              dataID: '4',
+              fieldKey: 'screennames',
+              handleKey: getRelayHandleKey(
+                'handleScreennames',
+                null,
+                'screennames',
+              ),
+              handle: 'handleScreennames',
+            },
+            {
+              dataID: 'client:4:screennames:0',
+              fieldKey: 'name',
+              handleKey: getRelayHandleKey('handleName', null, 'name'),
+              handle: 'handleName',
+            },
+            {
+              dataID: 'client:4:screennames:1',
+              fieldKey: 'name',
+              handleKey: getRelayHandleKey('handleName', null, 'name'),
+              handle: 'handleName',
+            },
+          ],
           source: new RelayInMemoryRecordSource({
             '4': {
               __id: '4',
               __typename: 'User',
               id: '4',
-              screennames: {__refs: [
-                'client:4:screennames:0',
-                'client:4:screennames:1',
-              ]},
+              screennames: {
+                __refs: ['client:4:screennames:0', 'client:4:screennames:1'],
+              },
             },
             'client:4:screennames:0': {
               __id: 'client:4:screennames:0',
@@ -752,29 +747,27 @@ describe('RelayPublishQueue', () => {
           __id: '4',
           __typename: 'User',
           id: '4',
-          screennames: {__refs: [
-            'client:4:screennames:0',
-            'client:4:screennames:1',
-          ]},
+          screennames: {
+            __refs: ['client:4:screennames:0', 'client:4:screennames:1'],
+          },
           // reversed order
-          '__screennames_handleScreennames': {__refs: [
-            'client:4:screennames:1',
-            'client:4:screennames:0',
-          ]},
+          __screennames_handleScreennames: {
+            __refs: ['client:4:screennames:1', 'client:4:screennames:0'],
+          },
         },
         'client:4:screennames:0': {
           __id: 'client:4:screennames:0',
           __typename: 'Screenname',
           name: 'zuck',
           // uppercase
-          '__name_handleName': 'ZUCK',
+          __name_handleName: 'ZUCK',
         },
         'client:4:screennames:1': {
           __id: 'client:4:screennames:1',
           __typename: 'Screenname',
           name: 'beast',
           // uppercase
-          '__name_handleName': 'BEAST',
+          __name_handleName: 'BEAST',
         },
         'client:root': {
           __id: 'client:root',
@@ -801,19 +794,18 @@ describe('RelayPublishQueue', () => {
       queue.applyUpdate({
         storeUpdater: storeProxy => {
           const zuck = storeProxy.get('4');
-          zuck.setValue(
-            zuck.getValue('name').toUpperCase(),
-            'name'
-          );
+          zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
         },
       });
-      const {NameQuery} = generateAndCompile(`
+      const {NameQuery} = generateAndCompile(
+        `
         query NameQuery {
           me {
             name
           }
         }
-      `);
+      `,
+      );
       // Query payload sets name to 'zuck'
       queue.commitPayload(
         {
@@ -834,7 +826,7 @@ describe('RelayPublishQueue', () => {
               name: 'zuck',
             },
           }),
-        }
+        },
       );
       // Run both the optimisitc and server update
       queue.run();
@@ -868,21 +860,20 @@ describe('RelayPublishQueue', () => {
       queue.applyUpdate({
         storeUpdater: storeProxy => {
           const zuck = storeProxy.get('4');
-          zuck.setValue(
-            zuck.getValue('name').toUpperCase(),
-            'name'
-          );
+          zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
         },
       });
       queue.run();
       // Query payload sets name to 'zuck'
-      const {NameQuery} = generateAndCompile(`
+      const {NameQuery} = generateAndCompile(
+        `
         query NameQuery {
           me {
             name
           }
         }
-      `);
+      `,
+      );
       queue.commitPayload(
         {
           dataID: ROOT_ID,
@@ -902,7 +893,7 @@ describe('RelayPublishQueue', () => {
               name: 'zuck',
             },
           }),
-        }
+        },
       );
       queue.run();
       // Optimistic update should rebase, capitalizing the new name
@@ -936,20 +927,19 @@ describe('RelayPublishQueue', () => {
       const mutation = {
         storeUpdater: storeProxy => {
           const zuck = storeProxy.get('4');
-          zuck.setValue(
-            zuck.getValue('name').toUpperCase(),
-            'name'
-          );
+          zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
         },
       };
       queue.applyUpdate(mutation);
-      const {NameQuery} = generateAndCompile(`
+      const {NameQuery} = generateAndCompile(
+        `
         query NameQuery {
           me {
             name
           }
         }
-      `);
+      `,
+      );
       // Query payload sets name to 'zuck'
       queue.commitPayload(
         {
@@ -970,7 +960,7 @@ describe('RelayPublishQueue', () => {
               name: 'zuck',
             },
           }),
-        }
+        },
       );
       queue.run();
 
@@ -1120,13 +1110,15 @@ describe('RelayPublishQueue', () => {
       const store = {getSource: () => source, notify, publish};
       const queue = new RelayPublishQueue(store);
 
-      const {NameQuery} = generateAndCompile(`
+      const {NameQuery} = generateAndCompile(
+        `
         query NameQuery {
           me {
             name
           }
         }
-      `);
+      `,
+      );
       // Query payload sets name to 'zuck'
       queue.commitPayload(
         {
@@ -1140,7 +1132,7 @@ describe('RelayPublishQueue', () => {
             __typename: 'User',
             name: 'zuck',
           },
-        }
+        },
       );
       expect(notify).not.toBeCalled();
       expect(publish).not.toBeCalled();

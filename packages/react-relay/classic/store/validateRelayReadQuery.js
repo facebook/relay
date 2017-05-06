@@ -8,6 +8,7 @@
  *
  * @providesModule validateRelayReadQuery
  * @flow
+ * @format
  */
 
 'use strict';
@@ -41,7 +42,7 @@ if (__DEV__) {
      */
     validateRelayReadQuery = function _validateRelayReadQuery(
       queryNode: RelayQuery.Node,
-      options?: StoreReaderOptions
+      options?: StoreReaderOptions,
     ): void {
       const validator = new RelayStoreReadValidator(options);
       validator.visit(queryNode, {
@@ -55,7 +56,7 @@ if (__DEV__) {
      */
     function getAliasMap(
       node: RelayQuery.Field,
-      parentAliasMap: AliasMap
+      parentAliasMap: AliasMap,
     ): AliasMap {
       const applicationName = node.getApplicationName();
       const hash = node.getShallowHash();
@@ -68,7 +69,7 @@ if (__DEV__) {
       } else if (children[applicationName].hash !== hash) {
         console.error(
           '`%s` is used as an alias more than once. Please use unique aliases.',
-          applicationName
+          applicationName,
         );
       }
       return children[applicationName];
@@ -77,18 +78,13 @@ if (__DEV__) {
     class RelayStoreReadValidator extends RelayQueryVisitor<AliasMap> {
       _traverseFragmentReferences: boolean;
 
-      constructor(
-        options?: StoreReaderOptions
-      ) {
+      constructor(options?: StoreReaderOptions) {
         super();
         this._traverseFragmentReferences =
           (options && options.traverseFragmentReferences) || false;
       }
 
-      visitField(
-        node: RelayQuery.Field,
-        parentAliasMap: AliasMap
-      ): void {
+      visitField(node: RelayQuery.Field, parentAliasMap: AliasMap): void {
         const aliasMap = getAliasMap(node, parentAliasMap);
 
         if (node.isGenerated()) {
@@ -103,10 +99,7 @@ if (__DEV__) {
         }
       }
 
-      visitFragment(
-        node: RelayQuery.Fragment,
-        aliasMap: AliasMap
-      ): void {
+      visitFragment(node: RelayQuery.Fragment, aliasMap: AliasMap): void {
         if (this._traverseFragmentReferences || !node.isContainerFragment()) {
           this.traverse(node, aliasMap);
         }
@@ -121,7 +114,7 @@ if (__DEV__) {
         this.traverse(node, aliasMap);
       }
     }
-  }());
+  })();
 }
 
 module.exports = validateRelayReadQuery;

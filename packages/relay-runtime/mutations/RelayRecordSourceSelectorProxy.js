@@ -8,6 +8,7 @@
  *
  * @providesModule RelayRecordSourceSelectorProxy
  * @flow
+ * @format
  */
 
 'use strict';
@@ -37,10 +38,7 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
   __recordSource: RecordSourceProxy;
   _selector: Selector;
 
-  constructor(
-    recordSource: RecordSourceProxy,
-    selector: Selector
-  ) {
+  constructor(recordSource: RecordSourceProxy, selector: Selector) {
     this.__recordSource = recordSource;
     this._selector = selector;
   }
@@ -61,23 +59,28 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
     return this.__recordSource.getRoot();
   }
 
-  _getRootField(selector: Selector, fieldName: string, plural: boolean): ConcreteLinkedField {
-    const field = selector.node.selections.find(selection =>
-      selection.kind === 'LinkedField' && selection.name === fieldName
+  _getRootField(
+    selector: Selector,
+    fieldName: string,
+    plural: boolean,
+  ): ConcreteLinkedField {
+    const field = selector.node.selections.find(
+      selection =>
+        selection.kind === 'LinkedField' && selection.name === fieldName,
     );
     invariant(
       field && field.kind === 'LinkedField',
       'RelayRecordSourceSelectorProxy#getRootField(): Cannot find root ' +
-      'field `%s`, no such field is defined on GraphQL document `%s`.',
+        'field `%s`, no such field is defined on GraphQL document `%s`.',
       fieldName,
       selector.node.name,
     );
     invariant(
       field.plural === plural,
       'RelayRecordSourceSelectorProxy#getRootField(): Expected root field ' +
-      '`%s` to be %s.',
+        '`%s` to be %s.',
       fieldName,
-      plural ? 'plural' : 'singular'
+      plural ? 'plural' : 'singular',
     );
     return field;
   }

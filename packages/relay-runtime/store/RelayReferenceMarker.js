@@ -8,6 +8,7 @@
  *
  * @providesModule RelayReferenceMarker
  * @flow
+ * @format
  */
 
 'use strict';
@@ -19,19 +20,14 @@ const RelayStoreUtils = require('RelayStoreUtils');
 const cloneRelayHandleSourceField = require('cloneRelayHandleSourceField');
 const invariant = require('invariant');
 
-import type {
-  Record,
-} from 'RelayCombinedEnvironmentTypes';
+import type {Record} from 'RelayCombinedEnvironmentTypes';
 import type {
   ConcreteLinkedField,
   ConcreteNode,
   ConcreteSelection,
 } from 'RelayConcreteNode';
 import type {DataID} from 'RelayInternalTypes';
-import type {
-  RecordSource,
-  Selector,
-} from 'RelayStoreTypes';
+import type {RecordSource, Selector} from 'RelayStoreTypes';
 import type {Variables} from 'RelayTypes';
 
 const {
@@ -48,7 +44,7 @@ const {getStorageKey} = RelayStoreUtils;
 function mark(
   recordSource: RecordSource,
   selector: Selector,
-  references: Set<DataID>
+  references: Set<DataID>,
 ): void {
   const {dataID, node, variables} = selector;
   const marker = new RelayReferenceMarker(recordSource, variables, references);
@@ -60,23 +56,20 @@ function mark(
  */
 class RelayReferenceMarker {
   _recordSource: RecordSource;
-  _references: Set<DataID>
+  _references: Set<DataID>;
   _variables: Variables;
 
   constructor(
     recordSource: RecordSource,
     variables: Variables,
-    references: Set<DataID>
+    references: Set<DataID>,
   ) {
     this._references = references;
     this._recordSource = recordSource;
     this._variables = variables;
   }
 
-  mark(
-    node: ConcreteNode,
-    dataID: DataID
-  ): void {
+  mark(node: ConcreteNode, dataID: DataID): void {
     this._traverse(node, dataID);
   }
 
@@ -93,7 +86,7 @@ class RelayReferenceMarker {
     invariant(
       this._variables.hasOwnProperty(name),
       'RelayReferenceMarker(): Undefined variable `%s`.',
-      name
+      name,
     );
     return this._variables[name];
   }
@@ -123,8 +116,8 @@ class RelayReferenceMarker {
         invariant(
           false,
           'RelayReferenceMarker(): Unexpected fragment spread `...%s`, ' +
-          'expected all fragments to be inlined.',
-          selection.name
+            'expected all fragments to be inlined.',
+          selection.name,
         );
       } else if (selection.kind === LINKED_HANDLE) {
         // The selections for a "handle" field are the same as those of the
@@ -136,7 +129,11 @@ class RelayReferenceMarker {
         // the concrete structure to allow shared subtrees, and have the linked
         // handle directly refer to the same selections as the LinkedField that
         // it was split from.
-        const handleField = cloneRelayHandleSourceField(selection, selections, this._variables);
+        const handleField = cloneRelayHandleSourceField(
+          selection,
+          selections,
+          this._variables,
+        );
         if (handleField.plural) {
           this._traversePluralLink(handleField, record);
         } else {
@@ -144,19 +141,15 @@ class RelayReferenceMarker {
         }
       } else {
         invariant(
-          selection.kind === SCALAR_FIELD ||
-          selection.kind === SCALAR_HANDLE,
+          selection.kind === SCALAR_FIELD || selection.kind === SCALAR_HANDLE,
           'RelayReferenceMarker(): Unexpected ast kind `%s`.',
-          selection.kind
+          selection.kind,
         );
       }
     });
   }
 
-  _traverseLink(
-    field: ConcreteLinkedField,
-    record: Record
-  ): void {
+  _traverseLink(field: ConcreteLinkedField, record: Record): void {
     const storageKey = getStorageKey(field, this._variables);
     const linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
 
@@ -166,13 +159,9 @@ class RelayReferenceMarker {
     this._traverse(field, linkedID);
   }
 
-  _traversePluralLink(
-    field: ConcreteLinkedField,
-    record: Record
-  ): void {
+  _traversePluralLink(field: ConcreteLinkedField, record: Record): void {
     const storageKey = getStorageKey(field, this._variables);
-    const linkedIDs =
-      RelayModernRecord.getLinkedRecordIDs(record, storageKey);
+    const linkedIDs = RelayModernRecord.getLinkedRecordIDs(record, storageKey);
 
     if (linkedIDs == null) {
       return;

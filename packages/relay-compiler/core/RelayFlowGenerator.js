@@ -8,6 +8,7 @@
  *
  * @providesModule RelayFlowGenerator
  * @flow
+ * @format
  */
 
 'use strict';

@@ -5,12 +5,13 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
 
-jest
-  .autoMockOff();
+jest.autoMockOff();
 
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('RelayMarkSweepStore');
@@ -55,14 +56,16 @@ describe('RelayStore', () => {
       initialData = simpleClone(data);
       source = new RelayInMemoryRecordSource(data);
       store = new RelayMarkSweepStore(source);
-      ({UserFragment} = generateWithTransforms(`
+      ({UserFragment} = generateWithTransforms(
+        `
         fragment UserFragment on User {
           name
           profilePicture(size: $size) {
             uri
           }
         }
-      `));
+      `,
+      ));
     });
 
     it('prevents data from being collected', () => {
@@ -88,7 +91,8 @@ describe('RelayStore', () => {
     });
 
     it('only collects unreferenced data', () => {
-      const {JoeFragment} = generateWithTransforms(`
+      const {JoeFragment} = generateWithTransforms(
+        `
         fragment JoeFragment on Query @argumentDefinitions(
           id: {type: "ID"}
         ) {
@@ -98,7 +102,8 @@ describe('RelayStore', () => {
             }
           }
         }
-      `);
+      `,
+      );
       const nextSource = new RelayInMemoryRecordSource({
         842472: {
           __id: '842472',
@@ -151,14 +156,16 @@ describe('RelayStore', () => {
       };
       source = new RelayInMemoryRecordSource(data);
       store = new RelayMarkSweepStore(source);
-      ({UserFragment} = generateWithTransforms(`
+      ({UserFragment} = generateWithTransforms(
+        `
         fragment UserFragment on User {
           name
           profilePicture(size: $size) {
             uri
           }
         }
-      `));
+      `,
+      ));
     });
 
     it('returns selector data', () => {
@@ -256,7 +263,8 @@ describe('RelayStore', () => {
       };
       source = new RelayInMemoryRecordSource(data);
       store = new RelayMarkSweepStore(source);
-      ({UserFragment} = generateWithTransforms(`
+      ({UserFragment} = generateWithTransforms(
+        `
         fragment UserFragment on User {
           name
           profilePicture(size: $size) {
@@ -264,7 +272,8 @@ describe('RelayStore', () => {
           }
           emailAddresses
         }
-      `));
+      `,
+      ));
     });
 
     it('calls subscribers whose data has changed since previous notify', () => {
@@ -567,14 +576,16 @@ describe('RelayStore', () => {
       };
       source = new RelayInMemoryRecordSource(data);
       store = new RelayMarkSweepStore(source);
-      ({UserFragment} = generateWithTransforms(`
+      ({UserFragment} = generateWithTransforms(
+        `
         fragment UserFragment on User {
           name
           profilePicture(size: $size) {
             uri
           }
         }
-      `));
+      `,
+      ));
     });
 
     it('returns true if all data exists in the cache', () => {
@@ -592,12 +603,14 @@ describe('RelayStore', () => {
         node: UserFragment,
         variables: {size: 32},
       };
-      store.publish(new RelayInMemoryRecordSource({
-        'client:1': {
-          __id: 'client:1',
-          uri: undefined, // unpublish the field
-        },
-      }));
+      store.publish(
+        new RelayInMemoryRecordSource({
+          'client:1': {
+            __id: 'client:1',
+            uri: undefined, // unpublish the field
+          },
+        }),
+      );
       expect(store.check(selector)).toBe(false);
     });
 
@@ -652,14 +665,16 @@ describe('RelayStore', () => {
       };
       source = new RelayInMemoryRecordSource(data);
       store = new RelayMarkSweepStore(source);
-      ({UserFragment} = generateWithTransforms(`
+      ({UserFragment} = generateWithTransforms(
+        `
         fragment UserFragment on User {
           name
           profilePicture(size: $size) {
             uri
           }
         }
-      `));
+      `,
+      ));
     });
 
     it('resolves data from cache', () => {

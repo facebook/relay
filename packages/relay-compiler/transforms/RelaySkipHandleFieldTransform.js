@@ -8,6 +8,7 @@
  *
  * @providesModule RelaySkipHandleFieldTransform
  * @flow
+ * @format
  */
 
 'use strict';
@@ -26,7 +27,7 @@ type State = true;
  */
 function transform(
   context: RelayCompilerContext,
-  schema: GraphQLSchema
+  schema: GraphQLSchema,
 ): RelayCompilerContext {
   return RelayIRTransformer.transform(
     context,
@@ -34,7 +35,7 @@ function transform(
       LinkedField: visitField,
       ScalarField: visitField,
     },
-    () => true
+    () => true,
   );
 }
 

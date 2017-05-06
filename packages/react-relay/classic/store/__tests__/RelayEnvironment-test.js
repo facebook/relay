@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -43,7 +44,8 @@ describe('RelayEnvironment', () => {
 
     environment = new RelayEnvironment();
 
-    UserQuery = getClassicOperation(graphql`
+    UserQuery = getClassicOperation(
+      graphql`
       query RelayEnvironmentUserQuery($id: ID!, $size: Int) {
         user: node(id: $id) {
           id
@@ -53,7 +55,8 @@ describe('RelayEnvironment', () => {
           }
         }
       }
-    `);
+    `,
+    );
 
     nodeAlias = generateRQLFieldAlias('node.user.id(4)');
     photoAlias = generateRQLFieldAlias('profilePicture.size(1)');
@@ -81,7 +84,8 @@ describe('RelayEnvironment', () => {
     let FeedbackQuery, FeedbackMutation;
 
     beforeEach(() => {
-      FeedbackQuery = getClassicOperation(graphql`
+      FeedbackQuery = getClassicOperation(
+        graphql`
         query RelayEnvironmentFeedbackQuery($id: ID!) {
           feedback: node(id: $id) {
             id
@@ -90,7 +94,8 @@ describe('RelayEnvironment', () => {
             }
           }
         }
-      `);
+      `,
+      );
 
       nodeAlias = generateRQLFieldAlias('node.feedback.id(123)');
       environment.commitPayload(
@@ -108,7 +113,8 @@ describe('RelayEnvironment', () => {
         },
       );
 
-      FeedbackMutation = getClassicOperation(graphql`
+      FeedbackMutation = getClassicOperation(
+        graphql`
         mutation RelayEnvironmentFeedbackMutation($input: FeedbackLikeData!) {
           feedbackLike {
             clientMutationId
@@ -118,7 +124,8 @@ describe('RelayEnvironment', () => {
             }
           }
         }
-      `);
+      `,
+      );
       jest.runAllTimers();
     });
     it('applies and disposes the optimistic response', () => {
@@ -207,7 +214,8 @@ describe('RelayEnvironment', () => {
       });
       environment.injectNetworkLayer({sendMutation});
 
-      FeedbackQuery = getClassicOperation(graphql`
+      FeedbackQuery = getClassicOperation(
+        graphql`
         query RelayEnvironmentFeedbackQuery($id: ID!) {
           feedback: node(id: $id) {
             id
@@ -216,7 +224,8 @@ describe('RelayEnvironment', () => {
             }
           }
         }
-      `);
+      `,
+      );
 
       nodeAlias = generateRQLFieldAlias('node.feedback.id(123)');
       environment.commitPayload(
@@ -234,7 +243,8 @@ describe('RelayEnvironment', () => {
         },
       );
 
-      FeedbackMutation = getClassicOperation(graphql`
+      FeedbackMutation = getClassicOperation(
+        graphql`
         mutation RelayEnvironmentFeedbackMutation($input: FeedbackLikeData!) {
           feedbackLike {
             clientMutationId
@@ -244,7 +254,8 @@ describe('RelayEnvironment', () => {
             }
           }
         }
-      `);
+      `,
+      );
       jest.runAllTimers();
 
       onCompleted = jest.fn();
@@ -373,8 +384,9 @@ describe('RelayEnvironment', () => {
       expect(nextSnapshot.data).not.toBe(snapshot.data);
       expect(nextSnapshot.data.user).not.toBe(snapshot.data.user);
       // Unchanged portions of the results are === to previous values
-      expect(nextSnapshot.data.user.profilePicture)
-        .toBe(snapshot.data.user.profilePicture);
+      expect(nextSnapshot.data.user.profilePicture).toBe(
+        snapshot.data.user.profilePicture,
+      );
     });
 
     it('does not call the callback if disposed', () => {
@@ -418,10 +430,10 @@ describe('RelayEnvironment', () => {
           sendQueries,
           supports: jest.fn(() => false),
         });
-        operation = RelayOperationSelector.createOperationSelector(
-          UserQuery,
-          {id: '4', size: 1},
-        );
+        operation = RelayOperationSelector.createOperationSelector(UserQuery, {
+          id: '4',
+          size: 1,
+        });
       });
 
       it('fetches queries', () => {
@@ -523,7 +535,8 @@ describe('RelayEnvironment', () => {
       });
 
       it('supports multiple root fields', () => {
-        UserQuery = getClassicOperation(graphql`
+        UserQuery = getClassicOperation(
+          graphql`
           query RelayEnvironmentUserQuery {
             viewer {
               actor {
@@ -534,7 +547,8 @@ describe('RelayEnvironment', () => {
               name
             }
           }
-        `);
+        `,
+        );
         operation = RelayOperationSelector.createOperationSelector(
           UserQuery,
           {},
@@ -597,7 +611,8 @@ describe('RelayEnvironment', () => {
       });
 
       it('ignores empty fields', () => {
-        UserQuery = getClassicOperation(graphql`
+        UserQuery = getClassicOperation(
+          graphql`
           query RelayEnvironmentUserQuery {
             viewer {
               actor @include(if: false) {
@@ -605,7 +620,8 @@ describe('RelayEnvironment', () => {
               }
             }
           }
-        `);
+        `,
+        );
         operation = RelayOperationSelector.createOperationSelector(
           UserQuery,
           {},
@@ -647,7 +663,8 @@ describe('RelayEnvironment', () => {
       });
 
       it('writes id-less root fields (e.g. viewer)', () => {
-        UserQuery = getClassicOperation(graphql`
+        UserQuery = getClassicOperation(
+          graphql`
           query RelayEnvironmentUserQuery {
             viewer {
               actor {
@@ -656,7 +673,8 @@ describe('RelayEnvironment', () => {
               }
             }
           }
-        `);
+        `,
+        );
         operation = RelayOperationSelector.createOperationSelector(
           UserQuery,
           {},
@@ -714,7 +732,8 @@ describe('RelayEnvironment', () => {
 
       it('force-fetches data', () => {
         // Populate initial data for the query
-        const FriendsQuery = getClassicOperation(graphql`
+        const FriendsQuery = getClassicOperation(
+          graphql`
           query RelayEnvironmentFriendsQuery($id: ID!) {
             user: node(id: $id) {
               id
@@ -727,7 +746,8 @@ describe('RelayEnvironment', () => {
               }
             }
           }
-        `);
+        `,
+        );
 
         nodeAlias = generateRQLFieldAlias('node.user.id(4)');
         const friendsAlias = generateRQLFieldAlias('friends.first(1)');
@@ -740,12 +760,14 @@ describe('RelayEnvironment', () => {
             id: '4',
             __typename: 'User',
             [friendsAlias]: {
-              edges: [{
-                cursor: 'cursor:beast',
-                node: {
-                  id: 'beast',
+              edges: [
+                {
+                  cursor: 'cursor:beast',
+                  node: {
+                    id: 'beast',
+                  },
                 },
-              }],
+              ],
               pageInfo: {
                 hasPreviousPage: false,
                 hasNextPage: true,
@@ -771,12 +793,14 @@ describe('RelayEnvironment', () => {
             id: '4',
             __typename: 'User',
             [friendsAlias]: {
-              edges: [{
-                cursor: 'cursor:foo',
-                node: {
-                  id: 'foo', // different node: beast -> foo
+              edges: [
+                {
+                  cursor: 'cursor:foo',
+                  node: {
+                    id: 'foo', // different node: beast -> foo
+                  },
                 },
-              }],
+              ],
               pageInfo: {
                 hasPreviousPage: false,
                 hasNextPage: true,
@@ -803,14 +827,16 @@ describe('RelayEnvironment', () => {
             id: '4',
             friends: {
               __dataID__: jasmine.any(String),
-              edges: [{
-                __dataID__: jasmine.any(String),
-                node: {
-                  // beast -> foo
-                  __dataID__: 'foo',
-                  id: 'foo',
+              edges: [
+                {
+                  __dataID__: jasmine.any(String),
+                  node: {
+                    // beast -> foo
+                    __dataID__: 'foo',
+                    id: 'foo',
+                  },
                 },
-              }],
+              ],
             },
           },
         });
@@ -842,17 +868,21 @@ describe('RelayEnvironment', () => {
           return {
             kind: 'FragmentSpread',
             args: args || {},
-            fragment: environment.unstable_internal.getFragment(fragments[fragmentName]),
+            fragment: environment.unstable_internal.getFragment(
+              fragments[fragmentName],
+            ),
           };
         },
       };
-      Query = environment.unstable_internal.getOperation(graphql`
+      Query = environment.unstable_internal.getOperation(
+        graphql`
         query RelayEnvironmentUserQuery($id: ID!, $size: Int) {
           user: node(id: $id) {
             ...Container_user
           }
         }
-      `);
+      `,
+      );
 
       sendQueries = jest.fn(queries => {
         expect(queries.length).toBe(1);
@@ -863,10 +893,10 @@ describe('RelayEnvironment', () => {
         sendQueries,
         supports: jest.fn(() => false),
       });
-      operation = environment.unstable_internal.createOperationSelector(
-        Query,
-        {id: '4', size: 1},
-      );
+      operation = environment.unstable_internal.createOperationSelector(Query, {
+        id: '4',
+        size: 1,
+      });
     });
 
     it('resolves fragment data with classic readQuery()', () => {
@@ -885,13 +915,16 @@ describe('RelayEnvironment', () => {
       });
       jest.runAllTimers();
 
-      const query = createRelayQuery(Relay.QL`
+      const query = createRelayQuery(
+        Relay.QL`
         query {
           node(id: $id) {
             ${Container.getFragment('user')}
           }
         }
-      `, {id: '4', size: 1});
+      `,
+        {id: '4', size: 1},
+      );
 
       // read the parent data using `readQuery()`
       const user = environment.readQuery(query)[0];

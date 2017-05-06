@@ -8,6 +8,7 @@
  *
  * @providesModule RelayQueryConfig
  * @flow
+ * @format
  */
 
 'use strict';
@@ -42,7 +43,7 @@ class RelayQueryConfig<Tv: Object> {
   constructor(initialVariables?: ?Tv) {
     invariant(
       this.constructor !== RelayQueryConfig,
-      'RelayQueryConfig: Abstract class cannot be instantiated.'
+      'RelayQueryConfig: Abstract class cannot be instantiated.',
     );
 
     Object.defineProperty(this, 'name', {

@@ -8,6 +8,7 @@
  *
  * @providesModule RelayInternalTypes
  * @flow
+ * @format
  */
 
 'use strict';
@@ -45,11 +46,11 @@ type InitialHeadConnectionArgumentMap = {
 type InitialTailConnectionArgumentMap = {
   last: number,
 };
-type RangeBehaviorsFunction = (
-  connectionArgs: {[argName: string]: CallValue},
-) => $Keys<GraphQLMutatorConstants.RANGE_OPERATIONS>;
+type RangeBehaviorsFunction = (connectionArgs: {
+  [argName: string]: CallValue,
+}) => $Keys<GraphQLMutatorConstants.RANGE_OPERATIONS>;
 type RangeBehaviorsObject = {
-  [key: string]: $Keys<GraphQLMutatorConstants.RANGE_OPERATIONS>;
+  [key: string]: $Keys<GraphQLMutatorConstants.RANGE_OPERATIONS>,
 };
 type TailConnectionArgumentMap = {
   after: string,
@@ -62,21 +63,19 @@ export type Call = {
   value: CallValue,
 };
 export type CallValue = ?(
-  boolean |
-  number |
-  string |
-  {[key: string]: CallValue} |
-  Array<CallValue>
-);
+  | boolean
+  | number
+  | string
+  | {[key: string]: CallValue}
+  | Array<CallValue>);
 export type ClientMutationID = string;
-export type ConnectionArgumentsMap = (
-  AfterConnectionArgumentMap |
-  BeforeConnectionArgumentMap |
-  HeadConnectionArgumentMap |
-  InitialHeadConnectionArgumentMap |
-  InitialTailConnectionArgumentMap |
-  TailConnectionArgumentMap
-);
+export type ConnectionArgumentsMap =
+  | AfterConnectionArgumentMap
+  | BeforeConnectionArgumentMap
+  | HeadConnectionArgumentMap
+  | InitialHeadConnectionArgumentMap
+  | InitialTailConnectionArgumentMap
+  | TailConnectionArgumentMap;
 export type DataID = string;
 export type Directive = {
   args: Array<Call>,
@@ -88,7 +87,7 @@ export type MutationVariables = {
 };
 // maps node IDs to the IDs of the connections that contain them
 export type NodeRangeMap = {
-  [dataID: DataID]: {[connectionID: DataID]: boolean}
+  [dataID: DataID]: {[connectionID: DataID]: boolean},
 };
 export type PrintedQuery = {
   text: string,

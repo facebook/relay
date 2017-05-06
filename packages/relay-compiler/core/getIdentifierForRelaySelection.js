@@ -8,6 +8,7 @@
  *
  * @flow
  * @providesModule getIdentifierForRelaySelection
+ * @format
  */
 
 'use strict';
@@ -53,7 +54,7 @@ function getIdentifierForRelaySelection(node: Selection): string {
       invariant(
         false,
         'RelayFlattenTransform: Unexpected kind `%s`.',
-        node.kind
+        node.kind,
       );
   }
   return stableJSONStringify(obj);

@@ -8,6 +8,7 @@
  *
  * @providesModule RelayNetwork
  * @flow
+ * @format
  */
 
 'use strict';
@@ -36,18 +37,15 @@ import type {Variables} from 'RelayTypes';
  * Creates an implementation of the `Network` interface defined in
  * `RelayNetworkTypes` given a single `fetch` function.
  */
-function create(
-  fetch: FetchFunction,
-  subscribe?: SubscribeFunction,
-): Network {
+function create(fetch: FetchFunction, subscribe?: SubscribeFunction): Network {
   function request(
     operation: ConcreteBatch,
     variables: Variables,
     cacheConfig?: ?CacheConfig,
     uploadables?: UploadableMap,
   ): Promise<RelayResponsePayload> {
-    return fetch(operation, variables, cacheConfig, uploadables).then(
-      payload => normalizePayload(operation, variables, payload)
+    return fetch(operation, variables, cacheConfig, uploadables).then(payload =>
+      normalizePayload(operation, variables, payload),
     );
   }
 
@@ -61,7 +59,7 @@ function create(
       invariant(
         subscribe,
         'The default network layer does not support GraphQL Subscriptions. To use ' +
-        'Subscriptions, provide a custom network layer.',
+          'Subscriptions, provide a custom network layer.',
       );
       return subscribe(operation, variables, null, {
         onCompleted,
@@ -158,7 +156,7 @@ function doFetchWithPolling(
       error => {
         dispose();
         onError && onError(error);
-      }
+      },
     );
   }
   timeout = setTimeout(poll, pollInterval);
@@ -196,12 +194,9 @@ function normalizePayload(
 }
 
 function rethrow(err) {
-  setTimeout(
-    () => {
-      throw err;
-    },
-    0,
-  );
+  setTimeout(() => {
+    throw err;
+  }, 0);
 }
 
 module.exports = {create};

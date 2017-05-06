@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @flow
+ * @format
  */
 
 'use strict';
@@ -42,7 +43,9 @@ class FooComponent extends React.Component {
     const missing = this.props.missingProp;
 
     const defLen = this.props.defaultProp.length; // always a valid string, so no error
-    return <div>{reqLen && optionalProp && optionalFoo && missing && defLen}</div>;
+    return (
+      <div>{reqLen && optionalProp && optionalFoo && missing && defLen}</div>
+    );
   }
 }
 // Note that we must reassign to a new identifier to make sure flow doesn't propogate types without
@@ -99,7 +102,9 @@ module.exports = {
   },
   checkAllPossibleProps() {
     // All is well
-    return <Foo defaultProp="bar" optionalProp={{foo: 42}} requiredProp="foo" />;
+    return (
+      <Foo defaultProp="bar" optionalProp={{foo: 42}} requiredProp="foo" />
+    );
   },
   checkMinimalPropSpread() {
     // All is well
@@ -126,7 +131,9 @@ module.exports = {
       render() {
         return (
           <Foo
-            ref={ref => {this._fooRef = ref;}}
+            ref={ref => {
+              this._fooRef = ref;
+            }}
             requiredProp="bar"
           />
         );

@@ -8,6 +8,7 @@
  *
  * @providesModule RelayNetworkTypes
  * @flow
+ * @format
  */
 
 'use strict';

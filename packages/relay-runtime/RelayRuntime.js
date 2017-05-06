@@ -8,6 +8,7 @@
  *
  * @providesModule RelayRuntime
  * @flow
+ * @format
  */
 
 'use strict';

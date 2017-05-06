@@ -8,6 +8,7 @@
  *
  * @providesModule generateRQLFieldAlias
  * @flow
+ * @format
  */
 
 'use strict';

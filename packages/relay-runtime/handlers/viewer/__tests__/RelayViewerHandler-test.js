@@ -5,12 +5,13 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
 
-jest
-  .autoMockOff();
+jest.autoMockOff();
 
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayModernRecord = require('RelayModernRecord');
@@ -23,13 +24,7 @@ const RelayViewerHandler = require('RelayViewerHandler');
 const generateRelayClientID = require('generateRelayClientID');
 const getRelayHandleKey = require('getRelayHandleKey');
 
-const {
-  ID_KEY,
-  REF_KEY,
-  ROOT_ID,
-  ROOT_TYPE,
-  TYPENAME_KEY,
-} = RelayStoreUtils;
+const {ID_KEY, REF_KEY, ROOT_ID, ROOT_TYPE, TYPENAME_KEY} = RelayStoreUtils;
 
 const VIEWER_ID = generateRelayClientID(ROOT_ID, 'viewer');
 
@@ -70,7 +65,11 @@ describe('RelayViewerHandler', () => {
 
   it('sets the handle as deleted if the server viewer is null', () => {
     baseSource.delete(VIEWER_ID);
-    RelayModernRecord.setLinkedRecordID(baseSource.get(ROOT_ID), 'viewer', VIEWER_ID);
+    RelayModernRecord.setLinkedRecordID(
+      baseSource.get(ROOT_ID),
+      'viewer',
+      VIEWER_ID,
+    );
 
     const payload = {
       dataID: ROOT_ID,
@@ -88,7 +87,11 @@ describe('RelayViewerHandler', () => {
   });
 
   it('sets the handle as deleted if the server viewer is undefined', () => {
-    RelayModernRecord.setLinkedRecordID(baseSource.get(ROOT_ID), 'viewer', VIEWER_ID);
+    RelayModernRecord.setLinkedRecordID(
+      baseSource.get(ROOT_ID),
+      'viewer',
+      VIEWER_ID,
+    );
 
     const payload = {
       dataID: ROOT_ID,
@@ -108,7 +111,11 @@ describe('RelayViewerHandler', () => {
   it('links the handle to the server viewer for query data', () => {
     const viewer = RelayModernRecord.create(VIEWER_ID, 'Viewer');
     baseSource.set(VIEWER_ID, viewer);
-    RelayModernRecord.setLinkedRecordID(baseSource.get(ROOT_ID), 'viewer', VIEWER_ID);
+    RelayModernRecord.setLinkedRecordID(
+      baseSource.get(ROOT_ID),
+      'viewer',
+      VIEWER_ID,
+    );
 
     const payload = {
       dataID: ROOT_ID,
@@ -129,14 +136,21 @@ describe('RelayViewerHandler', () => {
   it('copies the handle field from server viewer for mutation data', () => {
     const commentAlias = 'commentCreate{"input":{}}';
     const commentID = generateRelayClientID(ROOT_ID, commentAlias);
-    const comment = RelayModernRecord.create(commentID, 'CommentCreateResponsePayload');
+    const comment = RelayModernRecord.create(
+      commentID,
+      'CommentCreateResponsePayload',
+    );
     baseSource.set(commentID, comment);
     const viewerID = generateRelayClientID(commentID, 'viewer');
     const viewer = RelayModernRecord.create(viewerID, 'Viewer');
     RelayModernRecord.setLinkedRecordID(viewer, 'actor', '842472');
     baseSource.set(viewerID, viewer);
     RelayModernRecord.setLinkedRecordID(comment, 'viewer', viewerID);
-    RelayModernRecord.setLinkedRecordID(baseSource.get(ROOT_ID), commentAlias, commentID);
+    RelayModernRecord.setLinkedRecordID(
+      baseSource.get(ROOT_ID),
+      commentAlias,
+      commentID,
+    );
 
     const payload = {
       dataID: commentID,

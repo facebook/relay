@@ -8,6 +8,7 @@
  *
  * @providesModule RelayCompiledTypes
  * @flow
+ * @format
  */
 'use strict';
 
@@ -32,8 +33,7 @@ type $ExtractFragment<T, _Fragment: Fragment<T>> = T;
  * fragment is used in code via `graphql`, though that's currently unsupported
  * in Flow.
  */
-export type CompiledFragment<T: Fragment<*>> =
-  ConcreteFragment;
+export type CompiledFragment<T: Fragment<*>> = ConcreteFragment;
 
 /**
  * Fragments that are spread inside of a parent fragment are wrapped in the
@@ -42,8 +42,9 @@ export type CompiledFragment<T: Fragment<*>> =
  * to be passed down when a spread fragment is used.
  */
 declare class _FragmentReferenceClass<T> {}
-export type FragmentReference<T> =
-  _FragmentReferenceClass<$ExtractFragment<T, *>>;
+export type FragmentReference<T> = _FragmentReferenceClass<
+  $ExtractFragment<T, *>
+>;
 
 /**
  * ObjectWithMaskedFragments<T> takes an object type and converts any top-level

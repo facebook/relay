@@ -5,6 +5,8 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
@@ -35,7 +37,9 @@ describe('RelayStripUnusedVariablesTransform', () => {
   it('matches expected output', () => {
     expect('fixtures/strip-unused-variables-transform').toMatchGolden(text => {
       const {definitions} = parseGraphQLText(RelayTestSchema, text);
-      let context = (new RelayCompilerContext(RelayTestSchema)).addAll(definitions);
+      let context = new RelayCompilerContext(RelayTestSchema).addAll(
+        definitions,
+      );
       context = RelayStripUnusedVariablesTransform.transform(context);
       const documents = [];
       context.documents().forEach(doc => {

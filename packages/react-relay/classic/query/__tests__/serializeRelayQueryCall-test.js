@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -76,7 +77,7 @@ describe('serializeRelayQueryCall', () => {
       value: JSON.stringify({query: 'Menlo Park'}),
     };
     expect(serializeRelayQueryCall(call)).toEqual(
-      '.checkin_search_query({"query":"Menlo Park"})'
+      '.checkin_search_query({"query":"Menlo Park"})',
     );
   });
 
@@ -85,9 +86,7 @@ describe('serializeRelayQueryCall', () => {
       name: 'query',
       value: '',
     };
-    expect(serializeRelayQueryCall(call)).toEqual(
-      '.query()'
-    );
+    expect(serializeRelayQueryCall(call)).toEqual('.query()');
   });
 
   it('serializes string values with leading/trailing whitespace', () => {
@@ -95,8 +94,6 @@ describe('serializeRelayQueryCall', () => {
       name: 'query',
       value: ' ',
     };
-    expect(serializeRelayQueryCall(call)).toEqual(
-      '.query( )'
-    );
+    expect(serializeRelayQueryCall(call)).toEqual('.query( )');
   });
 });

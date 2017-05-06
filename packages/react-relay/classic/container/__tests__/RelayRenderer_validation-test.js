@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -51,7 +52,7 @@ describe('RelayRenderer.validation', () => {
           // React 15.2 changes the wording to "prop type" and adds stack traces
           // (which we'll ignore for now)
           .replace(/Failed propType/, 'Failed prop type')
-          .replace(/\n {4}in .*/, '')
+          .replace(/\n {4}in .*/, ''),
       );
     });
   });
@@ -61,65 +62,76 @@ describe('RelayRenderer.validation', () => {
   });
 
   it('requires a valid `Container` prop', () => {
-    expect(() => ShallowRenderer.render(
-      <RelayRenderer queryConfig={queryConfig} environment={environment} />
-    )).toThrowError(
+    expect(() =>
+      ShallowRenderer.render(
+        <RelayRenderer queryConfig={queryConfig} environment={environment} />,
+      ),
+    ).toThrowError(
       'Warning: Failed prop type: Required prop `Container` was not ' +
-      'specified in `RelayRenderer`.'
+        'specified in `RelayRenderer`.',
     );
 
-    expect(() => ShallowRenderer.render(
-      <RelayRenderer
-        Container={MockComponent}
-        queryConfig={queryConfig}
-        environment={environment}
-      />
-    )).toThrowError(
+    expect(() =>
+      ShallowRenderer.render(
+        <RelayRenderer
+          Container={MockComponent}
+          queryConfig={queryConfig}
+          environment={environment}
+        />,
+      ),
+    ).toThrowError(
       'Warning: Failed prop type: Invalid prop `Container` supplied to ' +
-      '`RelayRenderer`, expected a RelayContainer.'
+        '`RelayRenderer`, expected a RelayContainer.',
     );
   });
 
   it('requires a valid `queryConfig` prop', () => {
-    expect(() => ShallowRenderer.render(
-      <RelayRenderer Container={MockContainer} environment={environment} />
-    )).toThrowError(
+    expect(() =>
+      ShallowRenderer.render(
+        <RelayRenderer Container={MockContainer} environment={environment} />,
+      ),
+    ).toThrowError(
       'Warning: Failed prop type: The prop `queryConfig` is marked as ' +
-      'required in `RelayRenderer`, but its value is `undefined`.'
+        'required in `RelayRenderer`, but its value is `undefined`.',
     );
 
-    expect(() => ShallowRenderer.render(
-      <RelayRenderer
-        Container={MockContainer}
-        queryConfig={{}}
-        environment={environment}
-      />
-    )).toThrowError(
+    expect(() =>
+      ShallowRenderer.render(
+        <RelayRenderer
+          Container={MockContainer}
+          queryConfig={{}}
+          environment={environment}
+        />,
+      ),
+    ).toThrowError(
       'Warning: Failed prop type: The prop `queryConfig.name` is marked as ' +
-      'required in `RelayRenderer`, but its value is `undefined`.'
+        'required in `RelayRenderer`, but its value is `undefined`.',
     );
   });
 
   it('requires a valid `environment` prop', () => {
-    expect(() => ShallowRenderer.render(
-      <RelayRenderer Container={MockContainer} queryConfig={queryConfig} />
-    )).toThrowError(
+    expect(() =>
+      ShallowRenderer.render(
+        <RelayRenderer Container={MockContainer} queryConfig={queryConfig} />,
+      ),
+    ).toThrowError(
       'Warning: Failed prop type: Invalid prop/context `environment` ' +
-      'supplied to `RelayRenderer`, expected `undefined` to be an object ' +
-      'conforming to the `RelayEnvironment` interface.'
+        'supplied to `RelayRenderer`, expected `undefined` to be an object ' +
+        'conforming to the `RelayEnvironment` interface.',
     );
 
-    expect(() => ShallowRenderer.render(
-      <RelayRenderer
-        Container={MockContainer}
-        queryConfig={queryConfig}
-        environment={{}}
-      />
-    )).toThrowError(
+    expect(() =>
+      ShallowRenderer.render(
+        <RelayRenderer
+          Container={MockContainer}
+          queryConfig={queryConfig}
+          environment={{}}
+        />,
+      ),
+    ).toThrowError(
       'Warning: Failed prop type: Invalid prop/context `environment` ' +
-      'supplied to `RelayRenderer`, expected `[object Object]` to be an ' +
-      'object conforming to the `RelayEnvironment` interface.'
+        'supplied to `RelayRenderer`, expected `[object Object]` to be an ' +
+        'object conforming to the `RelayEnvironment` interface.',
     );
   });
-
 });

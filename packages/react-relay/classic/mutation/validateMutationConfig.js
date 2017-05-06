@@ -8,6 +8,7 @@
  *
  * @providesModule validateMutationConfig
  * @flow
+ * @format
  */
 
 'use strict';
@@ -20,7 +21,7 @@ const warning = require('warning');
 import type {RelayMutationConfig} from 'RelayTypes';
 
 type PropertyDescription = {
-  [name: string]: Validator;
+  [name: string]: Validator,
 };
 type Validator = {
   assert: Function,
@@ -66,13 +67,13 @@ function validateMutationConfig(
       if (!properties.hasOwnProperty(property)) {
         const message = sprintf(
           'validateMutationConfig: Unexpected key `%s` in `%s` config ' +
-          'for `%s`',
+            'for `%s`',
           property,
           config.type,
-          name
+          name,
         );
-        const suggestion = Object.keys(properties).find(
-          candidate => testEditDistance(candidate, property, FUZZY_THRESHOLD)
+        const suggestion = Object.keys(properties).find(candidate =>
+          testEditDistance(candidate, property, FUZZY_THRESHOLD),
         );
         if (suggestion) {
           invariant(false, '%s; did you mean `%s`?', message, suggestion);
@@ -90,17 +91,14 @@ function validateMutationConfig(
       const isRequired = validator.type === 'REQUIRED';
       const isDeprecated = validator.type === 'DEPRECATED';
       const present = config.hasOwnProperty(property);
-      if (
-        isRequired && !present ||
-        isDeprecated && present
-      ) {
+      if ((isRequired && !present) || (isDeprecated && present)) {
         validator.assert(
           false,
           'validateMutationConfig: `%s` config on `%s` %s `%s`.',
           config.type,
           name,
           validator.message,
-          property
+          property,
         );
       }
     });

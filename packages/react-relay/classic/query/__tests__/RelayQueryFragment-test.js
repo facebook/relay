@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -42,31 +43,34 @@ describe('RelayQueryFragment', () => {
   });
 
   it('does not equal non-fragments', () => {
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       query {
         me {
           firstName
         }
       }
-    `);
+    `,
+    );
     const field = query.getChildren()[0];
     expect(fragment.equals(query)).toBe(false);
     expect(fragment.equals(field)).toBe(false);
   });
 
   it('does not equal different fragment', () => {
-    const fragment2 = getNode(Relay.QL`
+    const fragment2 = getNode(
+      Relay.QL`
       fragment on StreetAddress {
         country
       }
-    `);
+    `,
+    );
     expect(fragment.equals(fragment2)).toBe(false);
     expect(fragment2.equals(fragment)).toBe(false);
   });
 
   it('does not return a source composite hash for un-cloned fragments', () => {
-    expect(fragment.getSourceCompositeHash())
-      .toBe(null);
+    expect(fragment.getSourceCompositeHash()).toBe(null);
   });
 
   it('does not equal equivalent fragments with a different structure', () => {
@@ -77,12 +81,14 @@ describe('RelayQueryFragment', () => {
         country
       }
     `;
-    const fragment2 = getNode(Relay.QL`
+    const fragment2 = getNode(
+      Relay.QL`
       fragment on StreetAddress {
         city
         ${subfrag}
       }
-    `);
+    `,
+    );
     expect(fragment.equals(fragment2)).toBe(false);
     expect(fragment2.equals(fragment)).toBe(false);
   });
@@ -94,12 +100,14 @@ describe('RelayQueryFragment', () => {
         city
       }
     `;
-    const fragment2 = getNode(Relay.QL`
+    const fragment2 = getNode(
+      Relay.QL`
       fragment on StreetAddress {
         country
         ${subfrag}
       }
-    `);
+    `,
+    );
     expect(fragment.equals(fragment2)).toBe(true);
     expect(fragment2.equals(fragment)).toBe(true);
   });
@@ -137,15 +145,16 @@ describe('RelayQueryFragment', () => {
   });
 
   it('returns the source composite hash for cloned fragments', () => {
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       fragment on StreetAddress {
         country
         city
       }
-    `);
+    `,
+    );
     const clone = fragment.clone([query.getChildren()[0]]);
-    expect(clone.getSourceCompositeHash())
-      .toBe(fragment.getCompositeHash());
+    expect(clone.getSourceCompositeHash()).toBe(fragment.getCompositeHash());
   });
 
   it('returns null when cloning without children', () => {
@@ -154,12 +163,14 @@ describe('RelayQueryFragment', () => {
   });
 
   it('clones with updated children', () => {
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       fragment on StreetAddress {
         country
         city
       }
-    `);
+    `,
+    );
     const clone = fragment.clone([query.getChildren()[0]]);
     expect(clone.getChildren().length).toBe(1);
     expect(clone.getChildren()[0].getSchemaName()).toBe('country');
@@ -189,16 +200,17 @@ describe('RelayQueryFragment', () => {
   });
 
   it('returns directives', () => {
-    fragment = getNode(Relay.QL`
+    fragment = getNode(
+      Relay.QL`
       fragment on Story @include(if: $cond) {
         feedback
       }
-    `, {cond: true});
+    `,
+      {cond: true},
+    );
     expect(fragment.getDirectives()).toEqual([
       {
-        args: [
-          {name: 'if', value: true},
-        ],
+        args: [{name: 'if', value: true}],
         name: 'include',
       },
     ]);
@@ -211,33 +223,41 @@ describe('RelayQueryFragment', () => {
 
       // fragment without children
       expect(
-        getNode(Relay.QL`fragment on Viewer { ${null} }`).canHaveSubselections()
+        getNode(
+          Relay.QL`fragment on Viewer { ${null} }`,
+        ).canHaveSubselections(),
       ).toBe(true);
     });
   });
 
   describe('variables argument of @relay directive', () => {
     it('maps listed variables', () => {
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        Relay.QL`
         fragment on User {
           ... on User @relay(variables: ["inner"]) {
             profilePicture(size: $inner)
           }
         }
-      `, {inner: 100});
+      `,
+        {inner: 100},
+      );
       const frag = query.getChildren()[1];
       expect(frag instanceof RelayQuery.Fragment).toBe(true);
       expect(frag.getVariables()).toEqual({inner: 100});
     });
 
     it('filters non-listed variables', () => {
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        Relay.QL`
         fragment on User {
           ... on User @relay(variables: []) {
             profilePicture(size: $inner)
           }
         }
-      `, {inner: 100});
+      `,
+        {inner: 100},
+      );
       const frag = query.getChildren()[1];
       expect(frag instanceof RelayQuery.Fragment).toBe(true);
       expect(frag.getVariables()).toEqual({});

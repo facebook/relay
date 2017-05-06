@@ -5,14 +5,16 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
 
 let count = 1;
 
-const generateClientID = jest.fn(
-  () => { return 'client:' + count++; }
-);
+const generateClientID = jest.fn(() => {
+  return 'client:' + count++;
+});
 
 module.exports = generateClientID;

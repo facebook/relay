@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -26,7 +27,8 @@ describe('flattenRelayQuery', () => {
   });
 
   it('flattens roots', () => {
-    const node = getNode(Relay.QL`
+    const node = getNode(
+      Relay.QL`
       query {
         viewer {
           ... on Viewer {
@@ -42,8 +44,10 @@ describe('flattenRelayQuery', () => {
           }
         }
       }
-    `);
-    const expected = getNode(Relay.QL`
+    `,
+    );
+    const expected = getNode(
+      Relay.QL`
       query {
         viewer {
           actor {
@@ -53,12 +57,14 @@ describe('flattenRelayQuery', () => {
           }
         }
       }
-    `);
+    `,
+    );
     expect(flattenRelayQuery(node)).toEqualQueryRoot(expected);
   });
 
   it('flattens fragments', () => {
-    const node = getNode(Relay.QL`
+    const node = getNode(
+      Relay.QL`
       fragment on Viewer {
         actor {
           firstName
@@ -73,8 +79,10 @@ describe('flattenRelayQuery', () => {
           }
         }
       }
-    `);
-    const expected = getNode(Relay.QL`
+    `,
+    );
+    const expected = getNode(
+      Relay.QL`
       fragment on Viewer {
         actor {
           firstName
@@ -85,12 +93,14 @@ describe('flattenRelayQuery', () => {
           }
         }
       }
-    `);
+    `,
+    );
     expect(flattenRelayQuery(node)).toEqualQueryNode(expected);
   });
 
   it('flattens fields', () => {
-    const node = getNode(Relay.QL`
+    const node = getNode(
+      Relay.QL`
       query {
         viewer {
           actor {
@@ -103,8 +113,10 @@ describe('flattenRelayQuery', () => {
           }
         }
       }
-    `).getFieldByStorageKey('actor');
-    const expected = getNode(Relay.QL`
+    `,
+    ).getFieldByStorageKey('actor');
+    const expected = getNode(
+      Relay.QL`
       query {
         viewer {
           actor {
@@ -114,7 +126,8 @@ describe('flattenRelayQuery', () => {
           }
         }
       }
-    `).getFieldByStorageKey('actor');
+    `,
+    ).getFieldByStorageKey('actor');
     expect(flattenRelayQuery(node)).toEqualQueryNode(expected);
   });
 
@@ -126,7 +139,8 @@ describe('flattenRelayQuery', () => {
     `;
 
     const fragmentNode = getNode(emptyFragment);
-    const rootNode = getNode(Relay.QL`
+    const rootNode = getNode(
+      Relay.QL`
       query {
         viewer {
           timezoneEstimate {
@@ -134,7 +148,8 @@ describe('flattenRelayQuery', () => {
           }
         }
       }
-    `);
+    `,
+    );
     const fieldNode = rootNode.getFieldByStorageKey('timezoneEstimate');
 
     expect(flattenRelayQuery(fragmentNode)).toBe(null);
@@ -143,7 +158,8 @@ describe('flattenRelayQuery', () => {
   });
 
   it('optionally removes fragments', () => {
-    const node = getNode(Relay.QL`
+    const node = getNode(
+      Relay.QL`
       query {
         viewer {
           ... on Viewer {
@@ -158,8 +174,10 @@ describe('flattenRelayQuery', () => {
           }
         }
       }
-    `);
-    const expected = getNode(Relay.QL`
+    `,
+    );
+    const expected = getNode(
+      Relay.QL`
       query {
         viewer {
           actor {
@@ -168,19 +186,24 @@ describe('flattenRelayQuery', () => {
           }
         }
       }
-    `);
-    expect(flattenRelayQuery(node, {
-      shouldRemoveFragments: true,
-    })).toEqualQueryNode(expected);
+    `,
+    );
+    expect(
+      flattenRelayQuery(node, {
+        shouldRemoveFragments: true,
+      }),
+    ).toEqualQueryNode(expected);
   });
 
   it('optionally preserves empty non-leaf nodes', () => {
-    const node = getNode(Relay.QL`
+    const node = getNode(
+      Relay.QL`
       fragment on Comment {
         likers # can have sub-selections, normally is removed
         doesViewerLike
       }
-    `);
+    `,
+    );
     const flattened = flattenRelayQuery(node, {
       preserveEmptyNodes: true,
     });

@@ -8,6 +8,7 @@
  *
  * @providesModule RelayFragmentReference
  * @flow
+ * @format
  */
 
 'use strict';
@@ -29,7 +30,7 @@ type Condition = {
 type FragmentGetter = () => ConcreteFragment;
 type PrepareVariablesCallback = (
   prevVariables: Variables,
-  route: RelayMetaRoute
+  route: RelayMetaRoute,
 ) => Variables;
 
 export type VariableMapping = {[key: string]: mixed};
@@ -108,13 +109,13 @@ class RelayFragmentReference {
     fragmentGetter: FragmentGetter,
     initialVariables?: ?Variables,
     variableMapping?: ?VariableMapping,
-    prepareVariables?: ?PrepareVariablesCallback
+    prepareVariables?: ?PrepareVariablesCallback,
   ): RelayFragmentReference {
     const reference = new RelayFragmentReference(
       fragmentGetter,
       initialVariables,
       variableMapping,
-      prepareVariables
+      prepareVariables,
     );
     reference._isContainerFragment = true;
     return reference;
@@ -124,7 +125,7 @@ class RelayFragmentReference {
     fragmentGetter: FragmentGetter,
     initialVariables?: ?Variables,
     variableMapping?: ?VariableMapping,
-    prepareVariables?: ?PrepareVariablesCallback
+    prepareVariables?: ?PrepareVariablesCallback,
   ) {
     this._conditions = null;
     this._initialVariables = initialVariables || {};
@@ -179,8 +180,8 @@ class RelayFragmentReference {
     invariant(
       callVariable,
       'RelayFragmentReference: Invalid value `%s` supplied to `if()`. ' +
-      'Expected a variable.',
-      callVariable
+        'Expected a variable.',
+      callVariable,
     );
     this._addCondition({
       passingValue: true,
@@ -197,8 +198,8 @@ class RelayFragmentReference {
     invariant(
       callVariable,
       'RelayFragmentReference: Invalid value `%s` supplied to `unless()`. ' +
-      'Expected a variable.',
-      callVariable
+        'Expected a variable.',
+      callVariable,
     );
     this._addCondition({
       passingValue: false,
@@ -213,9 +214,12 @@ class RelayFragmentReference {
   getFragment(variables: Variables): ?ConcreteFragment {
     // determine if the variables match the supplied if/unless conditions
     const conditions = this._conditions;
-    if (conditions && !conditions.every(({variable, passingValue}) => {
-      return !!variables[variable] === passingValue;
-    })) {
+    if (
+      conditions &&
+      !conditions.every(({variable, passingValue}) => {
+        return !!variables[variable] === passingValue;
+      })
+    ) {
       return null;
     }
     return this.getFragmentUnconditional();
@@ -240,9 +244,9 @@ class RelayFragmentReference {
           warning(
             false,
             'RelayFragmentReference: Variable `%s` is undefined in fragment ' +
-            '`%s`.',
+              '`%s`.',
             name,
-            this.getFragmentUnconditional().name
+            this.getFragmentUnconditional().name,
           );
         } else {
           innerVariables[name] = value;

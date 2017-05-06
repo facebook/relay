@@ -8,6 +8,7 @@
  *
  * @providesModule ReactRelayContainerProfiler
  * @flow
+ * @format
  */
 
 'use strict';
@@ -19,14 +20,10 @@ function profileContainer(
   containerName: string,
 ): void {
   RelayProfiler.instrumentMethods(Container.prototype, {
-    constructor:
-      `${containerName}.prototype.constructor`,
-    componentWillReceiveProps:
-      `${containerName}.prototype.componentWillReceiveProps`,
-    componentWillUnmount:
-      `${containerName}.prototype.componentWillUnmount`,
-    shouldComponentUpdate:
-      `${containerName}.prototype.shouldComponentUpdate`,
+    constructor: `${containerName}.prototype.constructor`,
+    componentWillReceiveProps: `${containerName}.prototype.componentWillReceiveProps`,
+    componentWillUnmount: `${containerName}.prototype.componentWillUnmount`,
+    shouldComponentUpdate: `${containerName}.prototype.shouldComponentUpdate`,
   });
 }
 

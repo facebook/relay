@@ -8,6 +8,7 @@
  *
  * @providesModule RelayRecordSourceInspector
  * @flow
+ * @format
  */
 
 'use strict';
@@ -21,14 +22,9 @@ const invariant = require('invariant');
 const simpleClone = require('simpleClone');
 
 const {ROOT_ID, ROOT_TYPE} = require('RelayStoreUtils');
-const {
-  REF_KEY,
-  REFS_KEY,
-} = require('RelayStoreUtils');
+const {REF_KEY, REFS_KEY} = require('RelayStoreUtils');
 
-import type {
-  Record,
-} from 'RelayCombinedEnvironmentTypes';
+import type {Record} from 'RelayCombinedEnvironmentTypes';
 import type {DataID} from 'RelayInternalTypes';
 import type {Environment, RecordSource} from 'RelayStoreTypes';
 import type {Variables} from 'RelayTypes';
@@ -41,7 +37,9 @@ class RelayRecordSourceInspector {
   _proxies: {[dataID: DataID]: ?RecordInspector};
   _source: RecordSource;
 
-  static getForEnvironment(environment: Environment): RelayRecordSourceInspector {
+  static getForEnvironment(
+    environment: Environment,
+  ): RelayRecordSourceInspector {
     return new RelayRecordSourceInspector(environment.getStore().getSource());
   }
 
@@ -103,7 +101,7 @@ class RelayRecordSourceInspector {
     invariant(
       root && root.getType() === ROOT_TYPE,
       'RelayRecordSourceProxy#getRoot(): Expected the source to contain a ' +
-      'root record.'
+        'root record.',
     );
     // Make viewer more accessible: if a record is not present on the original
     // field name but is present on the viewer handle field, rewrite the getter
@@ -112,13 +110,17 @@ class RelayRecordSourceInspector {
       const viewerHandle = getRelayHandleKey('viewer', null, 'viewer');
       const unsafeRoot = (root: any); // to access getter properties
       if (unsafeRoot[viewerHandle] != null) {
-        Object.defineProperty(unsafeRoot, 'viewer', ({
-          configurable: true,
-          enumerable: true,
-          get() {
-            return unsafeRoot[viewerHandle];
-          },
-        }: $FlowIssue));
+        Object.defineProperty(
+          unsafeRoot,
+          'viewer',
+          ({
+            configurable: true,
+            enumerable: true,
+            get() {
+              return unsafeRoot[viewerHandle];
+            },
+          }: $FlowIssue),
+        );
       }
     }
     return root;
@@ -132,10 +134,7 @@ class RecordInspector {
   _record: Record;
   _sourceInspector: RelayRecordSourceInspector;
 
-  constructor(
-    sourceInspector: RelayRecordSourceInspector,
-    record: Record,
-  ) {
+  constructor(sourceInspector: RelayRecordSourceInspector, record: Record) {
     this._record = record;
     this._sourceInspector = sourceInspector;
 
@@ -220,10 +219,11 @@ class RecordInspector {
    */
   getLinkedRecord(name: string, args?: ?Variables): ?RecordInspector {
     const storageKey = args ? formatStorageKey(name, args) : name;
-    const linkedID = RelayModernRecord.getLinkedRecordID(this._record, storageKey);
-    return linkedID != null ?
-      this._sourceInspector.get(linkedID) :
-      linkedID;
+    const linkedID = RelayModernRecord.getLinkedRecordID(
+      this._record,
+      storageKey,
+    );
+    return linkedID != null ? this._sourceInspector.get(linkedID) : linkedID;
   }
 
   /**
@@ -233,14 +233,15 @@ class RecordInspector {
    */
   getLinkedRecords(name: string, args?: ?Variables): ?Array<?RecordInspector> {
     const storageKey = args ? formatStorageKey(name, args) : name;
-    const linkedIDs = RelayModernRecord.getLinkedRecordIDs(this._record, storageKey);
+    const linkedIDs = RelayModernRecord.getLinkedRecordIDs(
+      this._record,
+      storageKey,
+    );
     if (linkedIDs == null) {
       return linkedIDs;
     }
     return linkedIDs.map(linkedID => {
-      return linkedID != null ?
-        this._sourceInspector.get(linkedID) :
-        linkedID;
+      return linkedID != null ? this._sourceInspector.get(linkedID) : linkedID;
     });
   }
 }
@@ -254,9 +255,7 @@ class RecordSummary {
   type: ?string;
 
   static createFromRecord(id: DataID, record: ?Record): RecordSummary {
-    const type = record ?
-      RelayModernRecord.getType(record) :
-      null;
+    const type = record ? RelayModernRecord.getType(record) : null;
     return new RecordSummary(id, type);
   }
 
@@ -266,9 +265,7 @@ class RecordSummary {
   }
 
   toString(): string {
-    return this.type ?
-      `${this.id}: ${this.type}` :
-      this.id;
+    return this.type ? `${this.id}: ${this.type}` : this.id;
   }
 }
 

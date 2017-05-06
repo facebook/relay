@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -112,10 +113,9 @@ describe('RelayProfiler', function() {
     });
 
     it('does not invoke detached handlers', () => {
-      const mockHandler = jest.fn()
-        .mockImplementation((name, callback) => {
-          callback();
-        });
+      const mockHandler = jest.fn().mockImplementation((name, callback) => {
+        callback();
+      });
 
       mockObject.mockMethod.attachHandler(mockHandler);
       mockObject.mockMethod.detachHandler(mockHandler);
@@ -130,7 +130,7 @@ describe('RelayProfiler', function() {
       expect(() => {
         mockObject.mockMethod();
       }).toThrowError(
-        'RelayProfiler: Handler did not invoke original function.'
+        'RelayProfiler: Handler did not invoke original function.',
       );
     });
 
@@ -218,13 +218,15 @@ describe('RelayProfiler', function() {
     });
 
     it('aggregates methods instrumented after being attached', () => {
-      const mockHandler = jest.fn()
-        .mockImplementation((name, callback) => {
-          callback();
-        });
+      const mockHandler = jest.fn().mockImplementation((name, callback) => {
+        callback();
+      });
       RelayProfiler.attachAggregateHandler('mockFuture', mockHandler);
 
-      const mockFutureMethod = RelayProfiler.instrument('mockFuture', mockMethod);
+      const mockFutureMethod = RelayProfiler.instrument(
+        'mockFuture',
+        mockMethod,
+      );
 
       expect(mockHandler).not.toBeCalled();
       mockFutureMethod();
@@ -232,10 +234,9 @@ describe('RelayProfiler', function() {
     });
 
     it('detaches aggregate handlers', () => {
-      const mockHandler = jest.fn()
-        .mockImplementation((name, callback) => {
-          callback();
-        });
+      const mockHandler = jest.fn().mockImplementation((name, callback) => {
+        callback();
+      });
 
       RelayProfiler.attachAggregateHandler('mock', mockHandler);
       RelayProfiler.detachAggregateHandler('mock', mockHandler);
@@ -249,7 +250,7 @@ describe('RelayProfiler', function() {
     it('invokes attached profile handlers', () => {
       const actualOrdering = [];
 
-      RelayProfiler.attachProfileHandler('mockBehavior', (name) => {
+      RelayProfiler.attachProfileHandler('mockBehavior', name => {
         expect(name).toBe('mockBehavior');
         actualOrdering.push('1: beforeEnd');
         return () => {
@@ -257,7 +258,7 @@ describe('RelayProfiler', function() {
         };
       });
 
-      RelayProfiler.attachProfileHandler('mockBehavior', (name) => {
+      RelayProfiler.attachProfileHandler('mockBehavior', name => {
         expect(name).toBe('mockBehavior');
         actualOrdering.push('2: beforeEnd');
         return () => {
@@ -267,10 +268,7 @@ describe('RelayProfiler', function() {
 
       const profiler = RelayProfiler.profile('mockBehavior');
 
-      expect(actualOrdering).toEqual([
-        '2: beforeEnd',
-        '1: beforeEnd',
-      ]);
+      expect(actualOrdering).toEqual(['2: beforeEnd', '1: beforeEnd']);
 
       profiler.stop();
 

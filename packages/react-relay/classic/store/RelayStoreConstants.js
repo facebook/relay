@@ -8,6 +8,7 @@
  *
  * @providesModule RelayStoreConstants
  * @flow
+ * @format
  */
 
 'use strict';

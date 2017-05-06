@@ -8,6 +8,7 @@
  *
  * @providesModule ReactRelayTypes
  * @flow
+ * @format
  */
 
 'use strict';
@@ -29,9 +30,9 @@ export type RelayPaginationProp = RelayProp & {
   loadMore: (
     pageSize: number,
     callback: (error: ?Error) => void,
-    options?: RefetchOptions
+    options?: RefetchOptions,
   ) => ?Disposable,
-  refetchConnection:(
+  refetchConnection: (
     totalCount: number,
     callback: (error: ?Error) => void,
   ) => ?Disposable,
@@ -39,10 +40,10 @@ export type RelayPaginationProp = RelayProp & {
 
 export type RelayRefetchProp = RelayProp & {
   refetch: (
-    refetchVariables: Variables | (fragmentVariables: Variables) => Variables,
+    refetchVariables: Variables | ((fragmentVariables: Variables) => Variables),
     renderVariables: ?Variables,
     callback: ?(error: ?Error) => void,
-    options?: RefetchOptions
+    options?: RefetchOptions,
   ) => Disposable,
 };
 

@@ -8,6 +8,7 @@
  *
  * @providesModule ReactRelayPropTypes
  * @flow
+ * @format
  */
 
 'use strict';
@@ -19,13 +20,15 @@ const ReactRelayPropTypes = {
   Relay(props: Object, propName: string, componentName: string): ?Error {
     const relay = props[propName];
     if (!isRelayModernContext(relay)) {
-      return new Error(sprintf(
-        'Invalid prop/context `%s` supplied to `%s`, expected `%s` to be ' +
-        'an object with an `environment` and `variables`.',
-        propName,
-        componentName,
-        relay
-      ));
+      return new Error(
+        sprintf(
+          'Invalid prop/context `%s` supplied to `%s`, expected `%s` to be ' +
+            'an object with an `environment` and `variables`.',
+          propName,
+          componentName,
+          relay,
+        ),
+      );
     }
     return null;
   },

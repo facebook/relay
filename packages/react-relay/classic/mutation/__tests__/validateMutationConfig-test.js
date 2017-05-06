@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -24,65 +25,100 @@ describe('validateMutationConfig()', () => {
 
   describe('validating a `FIELDS_CHANGE` config', () => {
     it('does nothing for a valid config', () => {
-      expect(() => validateMutationConfig({
-        type: 'FIELDS_CHANGE',
-        fieldIDs: {},
-      }, 'MyMutation')).not.toThrow();
+      expect(() =>
+        validateMutationConfig(
+          {
+            type: 'FIELDS_CHANGE',
+            fieldIDs: {},
+          },
+          'MyMutation',
+        ),
+      ).not.toThrow();
     });
 
     it('complains about missing keys', () => {
-      expect(() => validateMutationConfig({
-        type: 'FIELDS_CHANGE',
-      }, 'MyMutation')).toFailInvariant(
+      expect(() =>
+        validateMutationConfig(
+          {
+            type: 'FIELDS_CHANGE',
+          },
+          'MyMutation',
+        ),
+      ).toFailInvariant(
         'validateMutationConfig: `FIELDS_CHANGE` config on `MyMutation` ' +
-        'must have property `fieldIDs`.'
+          'must have property `fieldIDs`.',
       );
     });
 
     it('complains about extraneous keys', () => {
-      expect(() => validateMutationConfig({
-        type: 'FIELDS_CHANGE',
-        extraneous: '?',
-      }, 'MyMutation')).toFailInvariant(
+      expect(() =>
+        validateMutationConfig(
+          {
+            type: 'FIELDS_CHANGE',
+            extraneous: '?',
+          },
+          'MyMutation',
+        ),
+      ).toFailInvariant(
         'validateMutationConfig: Unexpected key `extraneous` in ' +
-        '`FIELDS_CHANGE` config for `MyMutation`.'
+          '`FIELDS_CHANGE` config for `MyMutation`.',
       );
     });
 
     it('suggests an alternative when one is appropriate', () => {
-      expect(() => validateMutationConfig({
-        type: 'FIELDS_CHANGE',
-        fieldIDS: {},
-      }, 'MyMutation')).toFailInvariant(
+      expect(() =>
+        validateMutationConfig(
+          {
+            type: 'FIELDS_CHANGE',
+            fieldIDS: {},
+          },
+          'MyMutation',
+        ),
+      ).toFailInvariant(
         'validateMutationConfig: Unexpected key `fieldIDS` in ' +
-        '`FIELDS_CHANGE` config for `MyMutation`; did you mean `fieldIDs`?'
+          '`FIELDS_CHANGE` config for `MyMutation`; did you mean `fieldIDs`?',
       );
 
       // Note that we keep getting warned as edit distance increases...
-      expect(() => validateMutationConfig({
-        type: 'FIELDS_CHANGE',
-        feildIDS: {},
-      }, 'MyMutation')).toFailInvariant(
+      expect(() =>
+        validateMutationConfig(
+          {
+            type: 'FIELDS_CHANGE',
+            feildIDS: {},
+          },
+          'MyMutation',
+        ),
+      ).toFailInvariant(
         'validateMutationConfig: Unexpected key `feildIDS` in ' +
-        '`FIELDS_CHANGE` config for `MyMutation`; did you mean `fieldIDs`?'
+          '`FIELDS_CHANGE` config for `MyMutation`; did you mean `fieldIDs`?',
       );
 
       // ...and increases...
-      expect(() => validateMutationConfig({
-        type: 'FIELDS_CHANGE',
-        feildiDS: {},
-      }, 'MyMutation')).toFailInvariant(
+      expect(() =>
+        validateMutationConfig(
+          {
+            type: 'FIELDS_CHANGE',
+            feildiDS: {},
+          },
+          'MyMutation',
+        ),
+      ).toFailInvariant(
         'validateMutationConfig: Unexpected key `feildiDS` in ' +
-        '`FIELDS_CHANGE` config for `MyMutation`; did you mean `fieldIDs`?'
+          '`FIELDS_CHANGE` config for `MyMutation`; did you mean `fieldIDs`?',
       );
 
       // ...until we go too far.
-      expect(() => validateMutationConfig({
-        type: 'FIELDS_CHANGE',
-        feildidz: {},
-      }, 'MyMutation')).toFailInvariant(
+      expect(() =>
+        validateMutationConfig(
+          {
+            type: 'FIELDS_CHANGE',
+            feildidz: {},
+          },
+          'MyMutation',
+        ),
+      ).toFailInvariant(
         'validateMutationConfig: Unexpected key `feildidz` in ' +
-        '`FIELDS_CHANGE` config for `MyMutation`.'
+          '`FIELDS_CHANGE` config for `MyMutation`.',
       );
     });
   });
@@ -102,62 +138,72 @@ describe('validateMutationConfig()', () => {
     });
 
     it('does nothing for a valid config', () => {
-      expect(() => validateMutationConfig(
-        config,
-        'MyMutation'
-      )).not.toThrow();
+      expect(() => validateMutationConfig(config, 'MyMutation')).not.toThrow();
     });
 
     it('complains about missing keys', () => {
       delete config.connectionName;
-      expect(() => validateMutationConfig(
-        config,
-        'MyMutation'
-      )).toFailInvariant(
+      expect(() =>
+        validateMutationConfig(config, 'MyMutation'),
+      ).toFailInvariant(
         'validateMutationConfig: `RANGE_ADD` config on `MyMutation` ' +
-        'must have property `connectionName`.'
+          'must have property `connectionName`.',
       );
     });
 
     it('does not complain if optional keys are missing', () => {
       delete config.parentName;
-      expect(() => validateMutationConfig(
-        config,
-        'MyMutation'
-      )).not.toThrowError();
+      expect(() =>
+        validateMutationConfig(config, 'MyMutation'),
+      ).not.toThrowError();
     });
 
     it('complains about extraneous keys', () => {
-      expect(() => validateMutationConfig({
-        ...config,
-        extraneous: '?',
-      }, 'MyMutation')).toFailInvariant(
+      expect(() =>
+        validateMutationConfig(
+          {
+            ...config,
+            extraneous: '?',
+          },
+          'MyMutation',
+        ),
+      ).toFailInvariant(
         'validateMutationConfig: Unexpected key `extraneous` in ' +
-        '`RANGE_ADD` config for `MyMutation`.'
+          '`RANGE_ADD` config for `MyMutation`.',
       );
     });
 
     it('suggests an alternative when one is appropriate', () => {
       delete config.connectionName;
-      expect(() => validateMutationConfig({
-        ...config,
-        connectoinname: 'todos',
-      }, 'MyMutation')).toFailInvariant(
+      expect(() =>
+        validateMutationConfig(
+          {
+            ...config,
+            connectoinname: 'todos',
+          },
+          'MyMutation',
+        ),
+      ).toFailInvariant(
         'validateMutationConfig: Unexpected key `connectoinname` in ' +
-        '`RANGE_ADD` config for `MyMutation`; did you mean ' +
-        '`connectionName`?'
+          '`RANGE_ADD` config for `MyMutation`; did you mean ' +
+          '`connectionName`?',
       );
     });
 
     it('suggests alternatives for optional keys', () => {
       delete config.parentName;
-      expect(() => validateMutationConfig({
-        ...config,
-        parentaNme: 'todos',
-      }, 'MyMutation')).toFailInvariant(
+      expect(() =>
+        validateMutationConfig(
+          {
+            ...config,
+            parentaNme: 'todos',
+          },
+          'MyMutation',
+        ),
+      ).toFailInvariant(
         'validateMutationConfig: Unexpected key `parentaNme` in ' +
-        '`RANGE_ADD` config for `MyMutation`; did you mean ' +
-        '`parentName`?'
+          '`RANGE_ADD` config for `MyMutation`; did you mean ' +
+          '`parentName`?',
       );
     });
   });
@@ -174,42 +220,48 @@ describe('validateMutationConfig()', () => {
     });
 
     it('does nothing for a valid config', () => {
-      expect(() => validateMutationConfig(
-        config,
-        'MyMutation'
-      )).not.toThrow();
+      expect(() => validateMutationConfig(config, 'MyMutation')).not.toThrow();
     });
 
     it('complains about missing keys', () => {
       delete config.connectionName;
-      expect(() => validateMutationConfig(
-        config,
-        'MyMutation'
-      )).toFailInvariant(
+      expect(() =>
+        validateMutationConfig(config, 'MyMutation'),
+      ).toFailInvariant(
         'validateMutationConfig: `NODE_DELETE` config on `MyMutation` ' +
-        'must have property `connectionName`.'
+          'must have property `connectionName`.',
       );
     });
 
     it('complains about extraneous keys', () => {
-      expect(() => validateMutationConfig({
-        ...config,
-        extraneous: '?',
-      }, 'MyMutation')).toFailInvariant(
+      expect(() =>
+        validateMutationConfig(
+          {
+            ...config,
+            extraneous: '?',
+          },
+          'MyMutation',
+        ),
+      ).toFailInvariant(
         'validateMutationConfig: Unexpected key `extraneous` in ' +
-        '`NODE_DELETE` config for `MyMutation`.'
+          '`NODE_DELETE` config for `MyMutation`.',
       );
     });
 
     it('suggests an alternative when one is appropriate', () => {
       delete config.connectionName;
-      expect(() => validateMutationConfig({
-        ...config,
-        connectoinname: 'todos',
-      }, 'MyMutation')).toFailInvariant(
+      expect(() =>
+        validateMutationConfig(
+          {
+            ...config,
+            connectoinname: 'todos',
+          },
+          'MyMutation',
+        ),
+      ).toFailInvariant(
         'validateMutationConfig: Unexpected key `connectoinname` in ' +
-        '`NODE_DELETE` config for `MyMutation`; did you mean ' +
-        '`connectionName`?'
+          '`NODE_DELETE` config for `MyMutation`; did you mean ' +
+          '`connectionName`?',
       );
     });
   });
@@ -227,42 +279,48 @@ describe('validateMutationConfig()', () => {
     });
 
     it('does nothing for a valid config', () => {
-      expect(() => validateMutationConfig(
-        config,
-        'MyMutation'
-      )).not.toThrow();
+      expect(() => validateMutationConfig(config, 'MyMutation')).not.toThrow();
     });
 
     it('complains about missing keys', () => {
       delete config.connectionName;
-      expect(() => validateMutationConfig(
-        config,
-        'MyMutation'
-      )).toFailInvariant(
+      expect(() =>
+        validateMutationConfig(config, 'MyMutation'),
+      ).toFailInvariant(
         'validateMutationConfig: `RANGE_DELETE` config on `MyMutation` ' +
-        'must have property `connectionName`.'
+          'must have property `connectionName`.',
       );
     });
 
     it('complains about extraneous keys', () => {
-      expect(() => validateMutationConfig({
-        ...config,
-        extraneous: '?',
-      }, 'MyMutation')).toFailInvariant(
+      expect(() =>
+        validateMutationConfig(
+          {
+            ...config,
+            extraneous: '?',
+          },
+          'MyMutation',
+        ),
+      ).toFailInvariant(
         'validateMutationConfig: Unexpected key `extraneous` in ' +
-        '`RANGE_DELETE` config for `MyMutation`.'
+          '`RANGE_DELETE` config for `MyMutation`.',
       );
     });
 
     it('suggests an alternative when one is appropriate', () => {
       delete config.connectionName;
-      expect(() => validateMutationConfig({
-        ...config,
-        connectoinname: 'todos',
-      }, 'MyMutation')).toFailInvariant(
+      expect(() =>
+        validateMutationConfig(
+          {
+            ...config,
+            connectoinname: 'todos',
+          },
+          'MyMutation',
+        ),
+      ).toFailInvariant(
         'validateMutationConfig: Unexpected key `connectoinname` in ' +
-        '`RANGE_DELETE` config for `MyMutation`; did you mean ' +
-        '`connectionName`?'
+          '`RANGE_DELETE` config for `MyMutation`; did you mean ' +
+          '`connectionName`?',
       );
     });
   });
@@ -276,41 +334,47 @@ describe('validateMutationConfig()', () => {
     });
 
     it('does nothing for a valid config', () => {
-      expect(() => validateMutationConfig(
-        config,
-        'MyMutation'
-      )).not.toThrow();
+      expect(() => validateMutationConfig(config, 'MyMutation')).not.toThrow();
     });
 
     it('complains about missing keys', () => {
       delete config.children;
-      expect(() => validateMutationConfig(
-        config,
-       'MyMutation'
-      )).toFailInvariant(
+      expect(() =>
+        validateMutationConfig(config, 'MyMutation'),
+      ).toFailInvariant(
         'validateMutationConfig: `REQUIRED_CHILDREN` config on `MyMutation` ' +
-        'must have property `children`.'
+          'must have property `children`.',
       );
     });
 
     it('complains about extraneous keys', () => {
-      expect(() => validateMutationConfig({
-        ...config,
-        extraneous: '?',
-      }, 'MyMutation')).toFailInvariant(
+      expect(() =>
+        validateMutationConfig(
+          {
+            ...config,
+            extraneous: '?',
+          },
+          'MyMutation',
+        ),
+      ).toFailInvariant(
         'validateMutationConfig: Unexpected key `extraneous` in ' +
-        '`REQUIRED_CHILDREN` config for `MyMutation`.'
+          '`REQUIRED_CHILDREN` config for `MyMutation`.',
       );
     });
 
     it('suggests an alternative when one is appropriate', () => {
       delete config.children;
-      expect(() => validateMutationConfig({
-        ...config,
-        Childan: [],
-      }, 'MyMutation')).toFailInvariant(
+      expect(() =>
+        validateMutationConfig(
+          {
+            ...config,
+            Childan: [],
+          },
+          'MyMutation',
+        ),
+      ).toFailInvariant(
         'validateMutationConfig: Unexpected key `Childan` in ' +
-        '`REQUIRED_CHILDREN` config for `MyMutation`; did you mean `children`?'
+          '`REQUIRED_CHILDREN` config for `MyMutation`; did you mean `children`?',
       );
     });
   });

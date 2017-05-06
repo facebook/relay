@@ -8,6 +8,7 @@
  *
  * @flow
  * @providesModule isScalarAndEqual
+ * @format
  */
 
 'use strict';
@@ -19,10 +20,7 @@
  * - returns false for complex values, since these cannot be cheaply tested for
  *   equality (use `areEquals` instead)
  */
-function isScalarAndEqual(
-  valueA: mixed,
-  valueB: mixed
-): boolean {
+function isScalarAndEqual(valueA: mixed, valueB: mixed): boolean {
   return valueA === valueB && (valueA === null || typeof valueA !== 'object');
 }
 

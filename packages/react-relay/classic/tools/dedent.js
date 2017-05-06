@@ -8,6 +8,7 @@
  *
  * @providesModule dedent
  * @flow
+ * @format
  */
 
 'use strict';
@@ -36,18 +37,17 @@ function dedent(string: string, padding: string = ''): string {
       return acc;
     }
     const leadingWhitespace = line.match(/^(\s*)/);
-    return Math.min(
-      acc,
-      leadingWhitespace ? leadingWhitespace[1].length : 0,
-    );
+    return Math.min(acc, leadingWhitespace ? leadingWhitespace[1].length : 0);
   }, Infinity);
 
-  return lines.map(line => {
-    if (line.match(blankLine)) {
-      return '';
-    }
-    return padding + line.slice(minLeadingSpace);
-  }).join('\n');
+  return lines
+    .map(line => {
+      if (line.match(blankLine)) {
+        return '';
+      }
+      return padding + line.slice(minLeadingSpace);
+    })
+    .join('\n');
 }
 
 module.exports = dedent;

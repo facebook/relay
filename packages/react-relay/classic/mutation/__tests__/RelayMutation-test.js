@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -70,10 +71,12 @@ describe('RelayMutation', function() {
     };
     const MockMutation = makeMockMutation();
 
-    const mockFooRequiredFragment =
-      MockMutation.getFragment('foo').getFragment({});
-    const mockBarRequiredFragment =
-      MockMutation.getFragment('bar').getFragment({});
+    const mockFooRequiredFragment = MockMutation.getFragment('foo').getFragment(
+      {},
+    );
+    const mockBarRequiredFragment = MockMutation.getFragment('bar').getFragment(
+      {},
+    );
     const mockFooPointer = getPointer('foo', getNode(mockFooRequiredFragment));
     const mockBarPointer = getPointer('bar', getNode(mockBarRequiredFragment));
 
@@ -88,12 +91,12 @@ describe('RelayMutation', function() {
     mockFooFragment = RelayQuery.Fragment.create(
       buildRQL.Fragment(MockMutation.fragments.foo, initialVariables),
       mockRoute,
-      initialVariables
+      initialVariables,
     );
     mockBarFragment = RelayQuery.Fragment.create(
       buildRQL.Fragment(MockMutation.fragments.bar, initialVariables),
       mockRoute,
-      initialVariables
+      initialVariables,
     );
 
     jasmine.addMatchers(RelayTestUtils.matchers);
@@ -105,7 +108,7 @@ describe('RelayMutation', function() {
       mockMutation.bindEnvironment(new RelayEnvironment());
     }).toFailInvariant(
       'MockMutationClass: Mutation instance cannot be used ' +
-      'in different Relay environments.'
+        'in different Relay environments.',
     );
   });
 
@@ -124,8 +127,8 @@ describe('RelayMutation', function() {
     mockMutation.bindEnvironment(environment);
     mockMutation.bindEnvironment(environment);
     expect(environment.read.mock.calls).toEqual([
-      [/* fragment */mockFooFragment, /* dataID */'foo'],
-      [/* fragment */mockBarFragment, /* dataID */'bar'],
+      [/* fragment */ mockFooFragment, /* dataID */ 'foo'],
+      [/* fragment */ mockBarFragment, /* dataID */ 'bar'],
     ]);
   });
 
@@ -137,8 +140,8 @@ describe('RelayMutation', function() {
     environment.read.mockImplementation((_, dataID) => resolvedProps[dataID]);
     mockMutation.bindEnvironment(environment);
     expect(environment.read.mock.calls).toEqual([
-      [/* fragment */mockFooFragment, /* dataID */'foo'],
-      [/* fragment */mockBarFragment, /* dataID */'bar'],
+      [/* fragment */ mockFooFragment, /* dataID */ 'foo'],
+      [/* fragment */ mockBarFragment, /* dataID */ 'bar'],
     ]);
     expect(mockMutation.props).toEqual(resolvedProps);
     expect(mockMutation.props.bar).toBe(resolvedProps.bar);
@@ -155,18 +158,20 @@ describe('RelayMutation', function() {
       badFragmentReference.getFragment();
     }).toFailInvariant(
       'Relay.QL defined on mutation `BadMutation` named `foo` is not a valid ' +
-      'fragment. A typical fragment is defined using: ' +
-      'Relay.QL`fragment on Type {...}`'
+        'fragment. A typical fragment is defined using: ' +
+        'Relay.QL`fragment on Type {...}`',
     );
   });
 
   it('validates mutation configs when applied', () => {
     class MisconfiguredMutation extends Relay.Mutation {
       getConfigs() {
-        return [{
-          type: 'FIELDS_CHANGE',
-          fieldIDS: ['4'],
-        }];
+        return [
+          {
+            type: 'FIELDS_CHANGE',
+            fieldIDS: ['4'],
+          },
+        ];
       }
     }
 
@@ -174,12 +179,11 @@ describe('RelayMutation', function() {
     // yet, and the config may depend on those.
     expect(() => new MisconfiguredMutation({})).not.toThrow();
 
-    expect(() => applyUpdate(new MisconfiguredMutation({})))
-      .toFailInvariant(
-        'validateMutationConfig: Unexpected key `fieldIDS` in ' +
+    expect(() => applyUpdate(new MisconfiguredMutation({}))).toFailInvariant(
+      'validateMutationConfig: Unexpected key `fieldIDS` in ' +
         '`FIELDS_CHANGE` config for `MisconfiguredMutation`; did you mean ' +
-        '`fieldIDs`?'
-      );
+        '`fieldIDs`?',
+    );
   });
 
   it('complains if mutation configs are not provided', () => {
@@ -189,10 +193,9 @@ describe('RelayMutation', function() {
     // yet, and the config may depend on those.
     expect(() => new UnconfiguredMutation({})).not.toThrow();
 
-    expect(() => applyUpdate(new UnconfiguredMutation({})))
-      .toThrowError(
-        'UnconfiguredMutation: Expected abstract method `getConfigs` to be ' +
-        'implemented.'
-      );
+    expect(() => applyUpdate(new UnconfiguredMutation({}))).toThrowError(
+      'UnconfiguredMutation: Expected abstract method `getConfigs` to be ' +
+        'implemented.',
+    );
   });
 });

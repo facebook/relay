@@ -8,6 +8,7 @@
  *
  * @providesModule RelayEnvironmentSerializer
  * @flow
+ * @format
  */
 
 'use strict';

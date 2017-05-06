@@ -8,6 +8,7 @@
  *
  * @providesModule filterExclusiveKeys
  * @flow
+ * @format
  */
 
 'use strict';
@@ -19,13 +20,12 @@ const hasOwnProperty = Object.prototype.hasOwnProperty;
  */
 function filterExclusiveKeys(
   a: ?Object,
-  b: ?Object
+  b: ?Object,
 ): [Array<string>, Array<string>] {
   const keysA = a ? Object.keys(a) : [];
   const keysB = b ? Object.keys(b) : [];
 
-  if (keysA.length === 0 ||
-      keysB.length === 0) {
+  if (keysA.length === 0 || keysB.length === 0) {
     return [keysA, keysB];
   }
   return [

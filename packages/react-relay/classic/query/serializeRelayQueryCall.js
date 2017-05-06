@@ -8,16 +8,14 @@
  *
  * @providesModule serializeRelayQueryCall
  * @flow
+ * @format
  */
 
 'use strict';
 
 const flattenArray = require('flattenArray');
 
-import type {
-  Call,
-  CallValue,
-} from 'RelayInternalTypes';
+import type {Call, CallValue} from 'RelayInternalTypes';
 
 /**
  * @internal

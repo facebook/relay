@@ -8,6 +8,7 @@
  *
  * @providesModule RelayNetworkDebug
  * @flow
+ * @format
  */
 
 'use strict';
@@ -36,17 +37,25 @@ class RelayNetworkDebugger {
 
   constructor(
     environment: RelayEnvironment,
-    graphiqlPrinter: ?((request: RelayQueryRequest | RelayMutationRequest) => string),
+    graphiqlPrinter: ?(
+      request: RelayQueryRequest | RelayMutationRequest,
+    ) => string,
   ) {
     this._initTime = performanceNow();
     this._queryID = 0;
     this._subscription = environment.addNetworkSubscriber(
-      request => this.logRequest(
-        createDebuggableFromRequest('Relay Query', request, graphiqlPrinter)
-      ),
-      request => this.logRequest(
-        createDebuggableFromRequest('Relay Mutation', request, graphiqlPrinter)
-      ),
+      request =>
+        this.logRequest(
+          createDebuggableFromRequest('Relay Query', request, graphiqlPrinter),
+        ),
+      request =>
+        this.logRequest(
+          createDebuggableFromRequest(
+            'Relay Mutation',
+            request,
+            graphiqlPrinter,
+          ),
+        ),
     );
   }
 
@@ -58,16 +67,14 @@ class RelayNetworkDebugger {
     const id = this._queryID++;
     const timerName = `[${id}] Request Duration`;
 
-    console.timeStamp && console.timeStamp(
-      `START: [${id}] ${type}: ${name} \u2192`
-    );
+    console.timeStamp &&
+      console.timeStamp(`START: [${id}] ${type}: ${name} \u2192`);
     console.time && console.time(timerName);
 
     const onSettled = (error, response) => {
       const time = (performanceNow() - this._initTime) / 1000;
-      console.timeStamp && console.timeStamp(
-        `\u2190 END: [${id}] ${type}: ${name}`
-      );
+      console.timeStamp &&
+        console.timeStamp(`\u2190 END: [${id}] ${type}: ${name}`);
       const groupName = `%c[${id}] ${type}: ${name} @ ${time}s`;
       console.groupCollapsed(groupName, `color:${error ? 'red' : 'black'};`);
       console.timeEnd && console.timeEnd(timerName);
@@ -85,7 +92,9 @@ class RelayNetworkDebugger {
 function createDebuggableFromRequest(
   type: string,
   request: RelayQueryRequest | RelayMutationRequest,
-  graphiqlPrinter: ?((request: RelayQueryRequest | RelayMutationRequest) => string),
+  graphiqlPrinter: ?(
+    request: RelayQueryRequest | RelayMutationRequest,
+  ) => string,
 ): RelayNetworkDebuggable {
   return {
     name: request.getDebugName(),
@@ -97,14 +106,11 @@ function createDebuggableFromRequest(
         xhrSimpleDataSerializer({
           q: request.getQueryString(),
           query_params: request.getVariables(),
-        }).length
+        }).length,
       );
       const requestVariables = request.getVariables();
 
-      console.groupCollapsed(
-        'Request Query (Estimated Size: %s)',
-        requestSize
-      );
+      console.groupCollapsed('Request Query (Estimated Size: %s)', requestSize);
 
       if (graphiqlPrinter) {
         console.groupCollapsed('GraphiQL Link');
@@ -116,8 +122,8 @@ function createDebuggableFromRequest(
       console.debug(
         '%c%s\n',
         'font-size:10px; color:#333; font-family:mplus-2m-regular,menlo,' +
-        'monospaced;',
-        request.getQueryString()
+          'monospaced;',
+        request.getQueryString(),
       );
       console.groupEnd();
 
@@ -151,7 +157,9 @@ let networkDebugger: ?RelayNetworkDebugger;
 const RelayNetworkDebug = {
   init(
     environment: RelayEnvironment = Relay.Store,
-    graphiqlPrinter: ?((request: RelayQueryRequest | RelayMutationRequest) => string),
+    graphiqlPrinter: ?(
+      request: RelayQueryRequest | RelayMutationRequest,
+    ) => string,
   ): void {
     networkDebugger && networkDebugger.uninstall();
     // Without `groupCollapsed`, RelayNetworkDebug is too noisy.

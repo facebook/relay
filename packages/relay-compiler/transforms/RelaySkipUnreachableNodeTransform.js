@@ -8,6 +8,7 @@
  *
  * @providesModule RelaySkipUnreachableNodeTransform
  * @flow
+ * @format
  */
 
 'use strict';
@@ -35,20 +36,18 @@ const VARIABLE = 'variable';
 function transform(context: RelayCompilerContext): RelayCompilerContext {
   const documents = context.documents();
   const fragments: Map<string, ?Fragment> = new Map();
-  const nextContext = documents.reduce(
-    (ctx: RelayCompilerContext, node) => {
-      if (node.kind === 'Root') {
-        const transformedNode = transformNode(context, fragments, node);
-        if (transformedNode) {
-          return ctx.add(transformedNode);
-        }
+  const nextContext = documents.reduce((ctx: RelayCompilerContext, node) => {
+    if (node.kind === 'Root') {
+      const transformedNode = transformNode(context, fragments, node);
+      if (transformedNode) {
+        return ctx.add(transformedNode);
       }
-      return ctx;
-    },
-    new RelayCompilerContext(context.schema),
-  );
+    }
+    return ctx;
+  }, new RelayCompilerContext(context.schema));
   return Array.from(fragments.values()).reduce(
-    (ctx: RelayCompilerContext, fragment) => fragment ? ctx.add(fragment) : ctx,
+    (ctx: RelayCompilerContext, fragment) =>
+      (fragment ? ctx.add(fragment) : ctx),
     nextContext,
   );
 }
@@ -87,7 +86,8 @@ function transformNode<T: Node>(
         nextSelection = selection;
       }
     } else if (
-      selection.kind === 'LinkedField' || selection.kind === 'InlineFragment'
+      selection.kind === 'LinkedField' ||
+      selection.kind === 'InlineFragment'
     ) {
       nextSelection = transformNode(context, fragments, selection);
     } else {

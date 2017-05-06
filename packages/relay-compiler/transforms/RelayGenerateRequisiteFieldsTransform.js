@@ -8,6 +8,7 @@
  *
  * @flow
  * @providesModule RelayGenerateRequisiteFieldsTransform
+ * @format
  */
 
 'use strict';
@@ -21,17 +22,8 @@ const {
   assertLeafType,
 } = require('graphql');
 
-import type {
-  InlineFragment,
-  LinkedField,
-  Node,
-  Selection,
-} from 'RelayIR';
-import type {
-  GraphQLCompositeType,
-  GraphQLLeafType,
-  GraphQLType,
-} from 'graphql';
+import type {InlineFragment, LinkedField, Node, Selection} from 'RelayIR';
+import type {GraphQLCompositeType, GraphQLLeafType, GraphQLType} from 'graphql';
 const {
   canHaveSelections,
   getRawType,
@@ -62,16 +54,13 @@ function transform(context: RelayCompilerContext): RelayCompilerContext {
   }, new RelayCompilerContext(context.schema));
 }
 
-function transformNode<T: Node>(
-  context: RelayCompilerContext,
-  node: T
-): T {
+function transformNode<T: Node>(context: RelayCompilerContext, node: T): T {
   const selections = node.selections.map(selection => {
     if (selection.kind === 'LinkedField') {
       return transformField(context, selection);
     } else if (
-        selection.kind === 'InlineFragment' ||
-        selection.kind === 'Condition'
+      selection.kind === 'InlineFragment' ||
+      selection.kind === 'Condition'
     ) {
       return transformNode(context, selection);
     } else {
@@ -86,7 +75,7 @@ function transformNode<T: Node>(
 
 function transformField(
   context: RelayCompilerContext,
-  field: LinkedField
+  field: LinkedField,
 ): LinkedField {
   const transformedNode = transformNode(context, field);
   const {type} = field;
@@ -138,7 +127,10 @@ function generateIDSelections(
   const unmodifiedType = assertCompositeType(getRawType(type));
   const generatedSelections = [];
   // Object or  Interface type that has `id` field
-  if (canHaveSelections(unmodifiedType) && hasID(context.schema, unmodifiedType)) {
+  if (
+    canHaveSelections(unmodifiedType) &&
+    hasID(context.schema, unmodifiedType)
+  ) {
     const idType = assertLeafType(context.schema.getType(ID_TYPE));
     generatedSelections.push({
       kind: 'ScalarField',
@@ -183,16 +175,18 @@ function buildIdFragment(
     directives: [],
     metadata: null,
     typeCondition: fragmentType,
-    selections: [{
-      kind: 'ScalarField',
-      alias: (null: ?string),
-      args: [],
-      directives: [],
-      handles: null,
-      metadata: null,
-      name: ID,
-      type: idType,
-    }],
+    selections: [
+      {
+        kind: 'ScalarField',
+        alias: (null: ?string),
+        args: [],
+        directives: [],
+        handles: null,
+        metadata: null,
+        name: ID,
+        type: idType,
+      },
+    ],
   };
 }
 
@@ -200,11 +194,12 @@ function buildIdFragment(
  * @internal
  */
 function hasUnaliasedSelection(field: LinkedField, fieldName: string): boolean {
-  return field.selections.some(selection => (
-    selection.kind === 'ScalarField' &&
-    selection.alias == null &&
-    selection.name === fieldName
-  ));
+  return field.selections.some(
+    selection =>
+      selection.kind === 'ScalarField' &&
+      selection.alias == null &&
+      selection.name === fieldName,
+  );
 }
 
 /**
@@ -214,9 +209,9 @@ function hasUnaliasedSelection(field: LinkedField, fieldName: string): boolean {
  */
 function sortSelections(selections: Array<$FlowIssue>): Array<$FlowIssue> {
   return [...selections].sort((a, b) => {
-    return a.kind === 'ScalarField' && a.name === TYPENAME_KEY ? -1 :
-      b.kind === 'ScalarField' && b.name === TYPENAME_KEY ? 1 :
-        0;
+    return a.kind === 'ScalarField' && a.name === TYPENAME_KEY
+      ? -1
+      : b.kind === 'ScalarField' && b.name === TYPENAME_KEY ? 1 : 0;
   });
 }
 

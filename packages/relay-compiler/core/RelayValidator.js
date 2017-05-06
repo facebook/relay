@@ -8,6 +8,7 @@
  *
  * @flow
  * @providesModule RelayValidator
+ * @format
  */
 
 'use strict';
@@ -56,10 +57,12 @@ function validateOrThrow(
   const validationErrors = validate(schema, document, rules);
   if (validationErrors && validationErrors.length > 0) {
     const formattedErrors = validationErrors.map(formatError);
-    const error = new Error(util.format(
-      'You supplied a GraphQL document with validation errors:\n%s',
-      formattedErrors.map(e => e.message).join('\n')
-    ));
+    const error = new Error(
+      util.format(
+        'You supplied a GraphQL document with validation errors:\n%s',
+        formattedErrors.map(e => e.message).join('\n'),
+      ),
+    );
     (error: any).validationErrors = formattedErrors;
     throw error;
   }
@@ -69,7 +72,9 @@ function DisallowIdAsAliasValidationRule(context: ValidationContext) {
   return {
     Field(field: GraphQLField<*, *>): void {
       if (
-        field.alias && field.alias.value === 'id' && field.name.value !== 'id'
+        field.alias &&
+        field.alias.value === 'id' &&
+        field.name.value !== 'id'
       ) {
         throw new Error(
           'RelayValidator: Relay does not allow aliasing fields to `id`. ' +

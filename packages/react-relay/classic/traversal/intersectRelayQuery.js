@@ -8,6 +8,7 @@
  *
  * @providesModule intersectRelayQuery
  * @flow
+ * @format
  */
 
 'use strict';
@@ -61,40 +62,44 @@ class RelayQueryIntersector extends RelayQueryTransform<RelayQuery.Node> {
       return subjectNode;
     }
     if (!hasChildren(patternNode)) {
-      if (subjectNode instanceof RelayQuery.Field &&
-          subjectNode.isConnection() &&
-          this._filterUnterminatedRange(subjectNode)) {
+      if (
+        subjectNode instanceof RelayQuery.Field &&
+        subjectNode.isConnection() &&
+        this._filterUnterminatedRange(subjectNode)
+      ) {
         return filterRangeFields(subjectNode);
       }
       // Unterminated `patternNode` is the same as containing every descendant
       // sub-field, so `subjectNode` must be in the intersection.
       return subjectNode;
     }
-    return subjectNode.clone(subjectNode.getChildren().map(subjectChild => {
-      if (subjectChild instanceof RelayQuery.Fragment) {
-        return this.visit(subjectChild, patternNode);
-      }
-      if (subjectChild instanceof RelayQuery.Field) {
-        const schemaName = subjectChild.getSchemaName();
-        let patternChild;
-        const patternChildren = patternNode.getChildren();
-        for (let ii = 0; ii < patternChildren.length; ii++) {
-          const child = patternChildren[ii];
-          invariant(
-            child instanceof RelayQuery.Field,
-            'intersectRelayQuery(): Nodes in `patternNode` must be fields.'
-          );
-          if (child.getSchemaName() === schemaName) {
-            patternChild = child;
-            break;
+    return subjectNode.clone(
+      subjectNode.getChildren().map(subjectChild => {
+        if (subjectChild instanceof RelayQuery.Fragment) {
+          return this.visit(subjectChild, patternNode);
+        }
+        if (subjectChild instanceof RelayQuery.Field) {
+          const schemaName = subjectChild.getSchemaName();
+          let patternChild;
+          const patternChildren = patternNode.getChildren();
+          for (let ii = 0; ii < patternChildren.length; ii++) {
+            const child = patternChildren[ii];
+            invariant(
+              child instanceof RelayQuery.Field,
+              'intersectRelayQuery(): Nodes in `patternNode` must be fields.',
+            );
+            if (child.getSchemaName() === schemaName) {
+              patternChild = child;
+              break;
+            }
+          }
+          if (patternChild) {
+            return this.visit(subjectChild, patternChild);
           }
         }
-        if (patternChild) {
-          return this.visit(subjectChild, patternChild);
-        }
-      }
-      return null;
-    }));
+        return null;
+      }),
+    );
   }
 }
 
@@ -104,8 +109,10 @@ class RelayQueryIntersector extends RelayQueryTransform<RelayQuery.Node> {
 class RelayQueryRangeFilter extends RelayQueryTransform<void> {
   visitField(node: RelayQuery.Field): ?RelayQuery.Node {
     const schemaName = node.getSchemaName();
-    if (schemaName === RelayConnectionInterface.EDGES ||
-        schemaName === RelayConnectionInterface.PAGE_INFO) {
+    if (
+      schemaName === RelayConnectionInterface.EDGES ||
+      schemaName === RelayConnectionInterface.PAGE_INFO
+    ) {
       return null;
     } else {
       return node;

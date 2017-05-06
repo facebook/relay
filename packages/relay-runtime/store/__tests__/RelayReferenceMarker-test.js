@@ -5,13 +5,13 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
 
-jest
-  .autoMockOff()
-  .mock('generateClientID');
+jest.autoMockOff().mock('generateClientID');
 
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayReferenceMarker = require('RelayReferenceMarker');
@@ -85,7 +85,8 @@ describe('RelayReferenceMarker', () => {
   });
 
   it('marks referenced records', () => {
-    const {FooQuery} = generateAndCompile(`
+    const {FooQuery} = generateAndCompile(
+      `
       query FooQuery($id: ID, $size: [Int]) {
         node(id: $id) {
           id
@@ -118,7 +119,8 @@ describe('RelayReferenceMarker', () => {
           }
         }
       }
-    `);
+    `,
+    );
     const references = new Set();
     mark(
       source,
@@ -127,7 +129,7 @@ describe('RelayReferenceMarker', () => {
         node: FooQuery.query,
         variables: {id: '1', size: 32},
       },
-      references
+      references,
     );
     expect(Array.from(references).sort()).toEqual([
       '1',
@@ -147,7 +149,7 @@ describe('RelayReferenceMarker', () => {
         __id: '1',
         __typename: 'User',
         'friends{"first":1}': {__ref: 'client:1'},
-        '__friends_bestFriends': {__ref: 'client:bestFriends'},
+        __friends_bestFriends: {__ref: 'client:bestFriends'},
       },
       '2': {
         __id: '2',
@@ -192,7 +194,8 @@ describe('RelayReferenceMarker', () => {
       },
     };
     source = new RelayInMemoryRecordSource(data);
-    const {UserProfile} = generateAndCompile(`
+    const {UserProfile} = generateAndCompile(
+      `
       query UserProfile($id: ID!) {
         node(id: $id) {
           ... on User {
@@ -208,7 +211,8 @@ describe('RelayReferenceMarker', () => {
           }
         }
       }
-    `);
+    `,
+    );
     const references = new Set();
     mark(
       source,
@@ -217,7 +221,7 @@ describe('RelayReferenceMarker', () => {
         node: UserProfile.query,
         variables: {id: '1'},
       },
-      references
+      references,
     );
     expect(Array.from(references).sort()).toEqual([
       '1',
@@ -237,8 +241,12 @@ describe('RelayReferenceMarker', () => {
         __id: '1',
         __typename: 'User',
         'friends{"first":1,"orderby":["first name"]}': {__ref: 'client:1'},
-        '__UserProfile_friends_bestFriends{"orderby":["first name"]}': {__ref: 'client:bestFriends'},
-        '__UserProfile_friends_bestFriends{"orderby":["last name"]}': {__ref: 'client:bestFriendsByLastName'},
+        '__UserProfile_friends_bestFriends{"orderby":["first name"]}': {
+          __ref: 'client:bestFriends',
+        },
+        '__UserProfile_friends_bestFriends{"orderby":["last name"]}': {
+          __ref: 'client:bestFriendsByLastName',
+        },
       },
       '2': {
         __id: '2',
@@ -290,7 +298,8 @@ describe('RelayReferenceMarker', () => {
       },
     };
     source = new RelayInMemoryRecordSource(data);
-    const {UserProfile} = generateAndCompile(`
+    const {UserProfile} = generateAndCompile(
+      `
       query UserProfile($id: ID!, $orderby: [String]) {
         node(id: $id) {
           ... on User {
@@ -310,7 +319,8 @@ describe('RelayReferenceMarker', () => {
           }
         }
       }
-    `);
+    `,
+    );
     let references = new Set();
     mark(
       source,
@@ -319,7 +329,7 @@ describe('RelayReferenceMarker', () => {
         node: UserProfile.query,
         variables: {id: '1', orderby: ['first name']},
       },
-      references
+      references,
     );
     expect(Array.from(references).sort()).toEqual([
       '1',
@@ -340,7 +350,7 @@ describe('RelayReferenceMarker', () => {
         node: UserProfile.query,
         variables: {id: '1', orderby: ['last name']},
       },
-      references
+      references,
     );
     expect(Array.from(references).sort()).toEqual([
       '1',

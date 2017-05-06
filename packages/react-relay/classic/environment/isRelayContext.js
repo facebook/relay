@@ -8,6 +8,7 @@
  *
  * @providesModule isRelayContext
  * @flow
+ * @format
  */
 
 'use strict';

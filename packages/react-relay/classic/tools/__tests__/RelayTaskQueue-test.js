@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -67,7 +68,7 @@ describe('RelayTaskQueue', () => {
       expect(mockOrdering).toEqual(['foo', 'bar', 'baz']);
     });
 
-    it('resolves to the task\'s return value', () => {
+    it("resolves to the task's return value", () => {
       const mockFunction = jest.fn();
       taskQueue.enqueue(() => 42).done(mockFunction);
       jest.runAllTimers();
@@ -76,20 +77,20 @@ describe('RelayTaskQueue', () => {
 
     it('forwards return values for multiple callbacks', () => {
       const mockOrdering = [];
-      taskQueue.enqueue(
-        () => {
-          mockOrdering.push('foo');
-          return 'bar';
-        },
-        prevValue => {
-          mockOrdering.push(prevValue);
-          return 'baz';
-        }
-      ).done(
-        returnValue => {
+      taskQueue
+        .enqueue(
+          () => {
+            mockOrdering.push('foo');
+            return 'bar';
+          },
+          prevValue => {
+            mockOrdering.push(prevValue);
+            return 'baz';
+          },
+        )
+        .done(returnValue => {
           mockOrdering.push(returnValue);
-        }
-      );
+        });
       jest.runAllTimers();
       expect(mockOrdering).toEqual(['foo', 'bar', 'baz']);
     });
@@ -98,11 +99,15 @@ describe('RelayTaskQueue', () => {
       const mockError = new Error('Expected error.');
       const mockCallback = jest.fn();
       const mockFailureCallback = jest.fn();
-      taskQueue.enqueue(
-        () => 'foo',
-        () => { throw mockError; },
-        mockCallback,
-      ).catch(mockFailureCallback);
+      taskQueue
+        .enqueue(
+          () => 'foo',
+          () => {
+            throw mockError;
+          },
+          mockCallback,
+        )
+        .catch(mockFailureCallback);
       jest.runAllTimers();
       expect(mockCallback).not.toBeCalled();
       expect(mockFailureCallback).toBeCalledWith(mockError);
@@ -113,12 +118,12 @@ describe('RelayTaskQueue', () => {
       const mockCallback = jest.fn();
       const mockFailureCallback = jest.fn();
       const mockSuccessCallback = jest.fn();
-      taskQueue.enqueue(
-        () => { throw mockError; },
-      ).catch(mockFailureCallback);
-      taskQueue.enqueue(
-        mockCallback,
-      ).done(mockSuccessCallback);
+      taskQueue
+        .enqueue(() => {
+          throw mockError;
+        })
+        .catch(mockFailureCallback);
+      taskQueue.enqueue(mockCallback).done(mockSuccessCallback);
       jest.runAllTimers();
       expect(mockFailureCallback).toBeCalledWith(mockError);
       expect(mockCallback).toBeCalled();
@@ -132,7 +137,7 @@ describe('RelayTaskQueue', () => {
 
     beforeEach(() => {
       mockTasks = [];
-      const mockScheduler = (executeTask) => {
+      const mockScheduler = executeTask => {
         resolveImmediate(() => mockTasks.push(executeTask));
       };
       taskQueue = new RelayTaskQueue(mockScheduler);
@@ -180,9 +185,7 @@ describe('RelayTaskQueue', () => {
       mockTasks[0]();
       expect(() => {
         mockTasks[0]();
-      }).toFailInvariant(
-        'RelayTaskQueue: Tasks can only be executed once.'
-      );
+      }).toFailInvariant('RelayTaskQueue: Tasks can only be executed once.');
     });
 
     it('preserves execution order despite scheduler changes', () => {
@@ -198,5 +201,4 @@ describe('RelayTaskQueue', () => {
       expect(mockOrdering).toEqual(['foo', 'bar']);
     });
   });
-
 });

@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -79,7 +80,7 @@ describe('buildRQL', () => {
       `;
       expect(() => buildRQL.Fragment(builder, {})).toFailInvariant(
         'RelayQL: Invalid fragment composition, use ' +
-        '`${Child.getFragment(\'name\')}`.'
+          "`${Child.getFragment('name')}`.",
       );
     });
 
@@ -132,9 +133,7 @@ describe('buildRQL', () => {
           id
         }
       `;
-      expect(
-        buildRQL.Query(builder, MockContainer, 'foo', {})
-      ).toBe(undefined);
+      expect(buildRQL.Query(builder, MockContainer, 'foo', {})).toBe(undefined);
     });
 
     it('creates queries with components and variables', () => {
@@ -159,9 +158,11 @@ describe('buildRQL', () => {
         type: 'ID',
         value: '123',
       });
-      expect(query.getChildren()[2].equals(
-        getNode(MockContainer.getFragment('foo'), variables)
-      )).toBe(true);
+      expect(
+        query
+          .getChildren()[2]
+          .equals(getNode(MockContainer.getFragment('foo'), variables)),
+      ).toBe(true);
     });
 
     it('returns === queries for the same component', () => {
@@ -222,12 +223,7 @@ describe('buildRQL', () => {
         id: 123,
         size: 32,
       };
-      const node = buildRQL.Query(
-        builder,
-        MockContainer,
-        'foo',
-        variables
-      );
+      const node = buildRQL.Query(builder, MockContainer, 'foo', variables);
       const query = getNode(node, variables);
       expect(query.getVariables()).toEqual(variables);
       expect(query.getChildren()[2].getVariables()).toEqual({
@@ -241,12 +237,7 @@ describe('buildRQL', () => {
           node(id:$id)
         }
       `;
-      const node = buildRQL.Query(
-        builder,
-        MockContainer,
-        'foo',
-        {id: null},
-      );
+      const node = buildRQL.Query(builder, MockContainer, 'foo', {id: null});
       expect(!!QueryBuilder.getQuery(node)).toBe(true);
 
       // Confirm that `${variables.id}` is a variable by applying
@@ -259,9 +250,11 @@ describe('buildRQL', () => {
         type: 'ID',
         value: '123',
       });
-      expect(query.getChildren()[2].equals(
-        getNode(MockContainer.getFragment('foo'), variables)
-      )).toBe(true);
+      expect(
+        query
+          .getChildren()[2]
+          .equals(getNode(MockContainer.getFragment('foo'), variables)),
+      ).toBe(true);
     });
 
     it('produces equal results for implicit and explicit definitions', () => {
@@ -314,15 +307,10 @@ describe('buildRQL', () => {
       `;
 
       expect(() => {
-        buildRQL.Query(
-          builder,
-          MockContainer,
-          'foo',
-          {}
-        );
+        buildRQL.Query(builder, MockContainer, 'foo', {});
       }).toFailInvariant(
         'Relay.QL: Expected query `viewer` to be empty. For example, use ' +
-        '`node(id: $id)`, not `node(id: $id) { ... }`.'
+          '`node(id: $id)`, not `node(id: $id) { ... }`.',
       );
     });
   });

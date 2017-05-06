@@ -8,6 +8,7 @@
  *
  * @providesModule formatStorageKey
  * @flow
+ * @format
  */
 
 'use strict';
@@ -22,7 +23,7 @@ const stableJSONStringify = require('stableJSONStringify');
  */
 function formatStorageKey(
   fieldName: string,
-  argsWithValues: ?{[arg: string]: mixed}
+  argsWithValues: ?{[arg: string]: mixed},
 ): string {
   if (!argsWithValues) {
     return fieldName;

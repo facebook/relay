@@ -8,6 +8,7 @@
  *
  * @flow
  * @providesModule RelayPublishQueue
+ * @format
  */
 
 'use strict';
@@ -37,13 +38,15 @@ type Payload = {
   updater: ?SelectorStoreUpdater,
 };
 
-type OptimisticUpdate = {|
-  storeUpdater: StoreUpdater,
-|} | {|
-  selectorStoreUpdater: ?SelectorStoreUpdater,
-  selector: Selector,
-  response: ?Object,
-|};
+type OptimisticUpdate =
+  | {|
+      storeUpdater: StoreUpdater,
+    |}
+  | {|
+      selectorStoreUpdater: ?SelectorStoreUpdater,
+      selector: Selector,
+      response: ?Object,
+    |};
 
 /**
  * Coordinates the concurrent modification of a `Store` due to optimistic and
@@ -77,10 +80,7 @@ class RelayPublishQueue {
   // rebase them.
   _appliedOptimisticUpdates: Set<OptimisticUpdate>;
 
-  constructor(
-    store: Store,
-    handlerProvider?: ?HandlerProvider
-  ) {
+  constructor(store: Store, handlerProvider?: ?HandlerProvider) {
     this._backup = new RelayInMemoryRecordSource();
     this._handlerProvider = handlerProvider || null;
     this._pendingBackupRebase = false;
@@ -97,9 +97,9 @@ class RelayPublishQueue {
   applyUpdate(updater: OptimisticUpdate): void {
     invariant(
       !this._appliedOptimisticUpdates.has(updater) &&
-      !this._pendingOptimisticUpdates.has(updater),
+        !this._pendingOptimisticUpdates.has(updater),
       'RelayPublishQueue: Cannot apply the same update function more than ' +
-      'once concurrently.'
+        'once concurrently.',
     );
     this._pendingOptimisticUpdates.add(updater);
   }
@@ -166,33 +166,39 @@ class RelayPublishQueue {
     if (!this._pendingPayloads.size) {
       return;
     }
-    this._pendingPayloads.forEach(({fieldPayloads, selector, source, updater}) => {
-      const mutator = new RelayRecordSourceMutator(
-        this._store.getSource(),
-        source
-      );
-      const store = new RelayRecordSourceProxy(mutator);
-      const selectorStore = new RelayRecordSourceSelectorProxy(store, selector);
-      if (fieldPayloads && fieldPayloads.length) {
-        fieldPayloads.forEach(fieldPayload => {
-          const handler =
-            this._handlerProvider && this._handlerProvider(fieldPayload.handle);
-          invariant(
-            handler,
-            'RelayModernEnvironment: Expected a handler to be provided for ' +
-              'handle `%s`.',
-            fieldPayload.handle,
-          );
-          handler.update(store, fieldPayload);
-        });
-      }
-      if (updater) {
-        updater(selectorStore);
-      }
-      // Publish the server data first so that it is reflected in the mutation
-      // backup created during the rebase
-      this._store.publish(source);
-    });
+    this._pendingPayloads.forEach(
+      ({fieldPayloads, selector, source, updater}) => {
+        const mutator = new RelayRecordSourceMutator(
+          this._store.getSource(),
+          source,
+        );
+        const store = new RelayRecordSourceProxy(mutator);
+        const selectorStore = new RelayRecordSourceSelectorProxy(
+          store,
+          selector,
+        );
+        if (fieldPayloads && fieldPayloads.length) {
+          fieldPayloads.forEach(fieldPayload => {
+            const handler =
+              this._handlerProvider &&
+              this._handlerProvider(fieldPayload.handle);
+            invariant(
+              handler,
+              'RelayModernEnvironment: Expected a handler to be provided for ' +
+                'handle `%s`.',
+              fieldPayload.handle,
+            );
+            handler.update(store, fieldPayload);
+          });
+        }
+        if (updater) {
+          updater(selectorStore);
+        }
+        // Publish the server data first so that it is reflected in the mutation
+        // backup created during the rebase
+        this._store.publish(source);
+      },
+    );
     this._pendingPayloads.clear();
   }
 
@@ -204,7 +210,7 @@ class RelayPublishQueue {
     this._pendingUpdaters.forEach(updater => {
       const mutator = new RelayRecordSourceMutator(
         this._store.getSource(),
-        sink
+        sink,
       );
       const store = new RelayRecordSourceProxy(mutator);
       updater(store);

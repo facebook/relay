@@ -5,6 +5,8 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
@@ -35,8 +37,11 @@ describe('RelaySkipClientFieldTransform', () => {
   it('skips fields/types not defined in the original schema', () => {
     expect('fixtures/skip-client-field-transform').toMatchGolden(text => {
       const {definitions, schema} = parseGraphQLText(RelayTestSchema, text);
-      let context = (new RelayCompilerContext(schema)).addAll(definitions);
-      context = RelaySkipClientFieldTransform.transform(context, RelayTestSchema);
+      let context = new RelayCompilerContext(schema).addAll(definitions);
+      context = RelaySkipClientFieldTransform.transform(
+        context,
+        RelayTestSchema,
+      );
       const documents = [];
       context.documents().forEach(doc => {
         documents.push(RelayPrinter.print(doc));

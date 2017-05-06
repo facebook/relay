@@ -8,6 +8,7 @@
  *
  * @providesModule fetchRelayModernQuery
  * @flow
+ * @format
  */
 
 'use strict';
@@ -42,10 +43,7 @@ function fetchRelayModernQuery(
     'fetchRelayModernQuery: Expected a valid Relay environment, got `%s`.',
     environment,
   );
-  const {
-    createOperationSelector,
-    getOperation,
-  } = environment.unstable_internal;
+  const {createOperationSelector, getOperation} = environment.unstable_internal;
   const query = getOperation(taggedNode);
   const operation = createOperationSelector(query, variables);
   return new Promise((resolve, reject) => {

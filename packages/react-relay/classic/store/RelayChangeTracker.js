@@ -8,6 +8,7 @@
  *
  * @providesModule RelayChangeTracker
  * @flow
+ * @format
  */
 
 'use strict';

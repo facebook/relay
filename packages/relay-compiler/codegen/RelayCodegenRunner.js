@@ -8,6 +8,7 @@
  *
  * @providesModule RelayCodegenRunner
  * @flow
+ * @format
  */
 
 'use strict';
@@ -26,7 +27,7 @@ import type {DocumentNode, GraphQLSchema} from 'graphql';
 /* eslint-disable no-console-disallow */
 
 interface FileWriter {
-  writeAll(): Promise<Map<string, CodegenDirectory>>
+  writeAll(): Promise<Map<string, CodegenDirectory>>,
 }
 
 export type ParserConfig = {|
@@ -42,7 +43,7 @@ type ParserConfigs = {
 };
 type Parsers = {
   [parser: string]: FileParser,
-}
+};
 
 export type WriterConfig = {
   parser: string,
@@ -68,12 +69,14 @@ class RelayCodegenRunner {
   // parser => writers that are affected by it
   parserWriters: {[parser: string]: Set<string>};
 
-  constructor(options: {
-    parserConfigs: ParserConfigs,
-    writerConfigs: WriterConfigs,
-    onlyValidate: boolean,
-    skipPersist: boolean,
-  }) {
+  constructor(
+    options: {
+      parserConfigs: ParserConfigs,
+      writerConfigs: WriterConfigs,
+      onlyValidate: boolean,
+      skipPersist: boolean,
+    },
+  ) {
     this.parserConfigs = options.parserConfigs;
     this.writerConfigs = options.writerConfigs;
     this.onlyValidate = options.onlyValidate;
@@ -86,9 +89,10 @@ class RelayCodegenRunner {
 
     for (const writer in options.writerConfigs) {
       const config = options.writerConfigs[writer];
-      config.baseParsers && config.baseParsers.forEach(
-        parser => this.parserWriters[parser].add(writer)
-      );
+      config.baseParsers &&
+        config.baseParsers.forEach(parser =>
+          this.parserWriters[parser].add(writer),
+        );
       this.parserWriters[config.parser].add(writer);
     }
   }
@@ -148,11 +152,7 @@ class RelayCodegenRunner {
     // this maybe should be await parser.parseFiles(files);
     parser.parseFiles(files);
     const tEnd = Date.now();
-    console.log(
-      'Parsed %s in %s',
-      parserName,
-      toSeconds(tStart, tEnd),
-    );
+    console.log('Parsed %s in %s', parserName, toSeconds(tStart, tEnd));
   }
 
   // We cannot do incremental writes right now.
@@ -162,18 +162,24 @@ class RelayCodegenRunner {
     const tStart = Date.now();
     const {getWriter, parser, baseParsers} = this.writerConfigs[writerName];
 
-
     let baseDocuments = ImmutableMap();
     if (baseParsers) {
       baseParsers.forEach(baseParserName => {
-        baseDocuments = baseDocuments.merge(this.parsers[baseParserName].documents());
+        baseDocuments = baseDocuments.merge(
+          this.parsers[baseParserName].documents(),
+        );
       });
     }
 
     // always create a new writer: we have to write everything anyways
     const documents = this.parsers[parser].documents();
     const schema = this.parserConfigs[parser].getSchema();
-    const writer = getWriter(this.onlyValidate, schema, documents, baseDocuments);
+    const writer = getWriter(
+      this.onlyValidate,
+      schema,
+      documents,
+      baseDocuments,
+    );
     const outputDirectories = await writer.writeAll();
     const tWritten = Date.now();
 
@@ -200,13 +206,9 @@ class RelayCodegenRunner {
       console.log('Unchanged: %s files', unchanged.length);
     }
 
-    console.log(
-      'Written %s in %s',
-      writerName,
-      toSeconds(tStart, tWritten),
-    );
+    console.log('Written %s in %s', writerName, toSeconds(tStart, tWritten));
 
-    const hasChanges = (created.length + updated.length + deleted.length) > 0;
+    const hasChanges = created.length + updated.length + deleted.length > 0;
     return hasChanges;
   }
 
@@ -233,7 +235,7 @@ class RelayCodegenRunner {
       parserConfig.getFileFilter
         ? parserConfig.getFileFilter(parserConfig.baseDir)
         : anyFileFilter,
-      async (files) => {
+      async files => {
         invariant(
           this.parsers[parserName],
           'Trying to watch an uncompiled parser config: %s',
@@ -244,7 +246,9 @@ class RelayCodegenRunner {
           return;
         }
         const dependentWriters = [];
-        this.parserWriters[parserName].forEach(writer => dependentWriters.push(writer));
+        this.parserWriters[parserName].forEach(writer =>
+          dependentWriters.push(writer),
+        );
         if (!this.parsers[parserName]) {
           // have to load the parser and make sure all of its dependents are set
           await this.parseEverything(parserName);
@@ -252,8 +256,8 @@ class RelayCodegenRunner {
           this.parseFileChanges(parserName, files);
         }
 
-        await Promise.all(dependentWriters.map((writer) => this.write(writer)));
-      }
+        await Promise.all(dependentWriters.map(writer => this.write(writer)));
+      },
     );
     console.log('Watching for changes to %s...', parserName);
   }

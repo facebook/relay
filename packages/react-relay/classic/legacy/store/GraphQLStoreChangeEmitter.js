@@ -8,6 +8,7 @@
  *
  * @providesModule GraphQLStoreChangeEmitter
  * @flow
+ * @format
  */
 
 'use strict';
@@ -52,7 +53,7 @@ class GraphQLStoreChangeEmitter {
 
   addListenerForIDs(
     ids: Array<string>,
-    callback: SubscriptionCallback
+    callback: SubscriptionCallback,
   ): ChangeSubscription {
     const subscribedIDs = ids.map(id => this._getBroadcastID(id));
     const index = this._subscribers.length;
@@ -93,13 +94,13 @@ class GraphQLStoreChangeEmitter {
    */
   _processSubscribers(): void {
     this._subscribers.forEach((subscriber, subscriberIndex) =>
-      this._processSubscriber(subscriber, subscriberIndex)
+      this._processSubscriber(subscriber, subscriberIndex),
     );
   }
 
   _processSubscriber(
     {subscribedIDs, callback}: Subscriber,
-    subscriberIndex: number
+    subscriberIndex: number,
   ): void {
     for (const broadcastID in this._executingIDs) {
       if (this._executingIDs.hasOwnProperty(broadcastID)) {
@@ -114,7 +115,7 @@ class GraphQLStoreChangeEmitter {
             null,
             null,
             null,
-            'GraphQLStoreChangeEmitter'
+            'GraphQLStoreChangeEmitter',
           );
           break;
         }

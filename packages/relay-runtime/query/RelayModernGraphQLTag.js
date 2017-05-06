@@ -8,6 +8,7 @@
  *
  * @providesModule RelayModernGraphQLTag
  * @flow
+ * @format
  */
 
 'use strict';
@@ -18,18 +19,15 @@ import type {
   ConcreteFragmentDefinition,
   ConcreteOperationDefinition,
 } from 'ConcreteQuery';
-import type {
-  ConcreteBatch,
-  ConcreteFragment,
-} from 'RelayConcreteNode';
+import type {ConcreteBatch, ConcreteFragment} from 'RelayConcreteNode';
 
 // The type of a graphql`...` tagged template expression.
 export type GraphQLTaggedNode =
-  (() => ConcreteFragment | ConcreteBatch) |
-  {
-    modern: () => ConcreteFragment | ConcreteBatch,
-    classic: () => ConcreteFragmentDefinition | ConcreteOperationDefinition,
-  };
+  | (() => ConcreteFragment | ConcreteBatch)
+  | {
+      modern: () => ConcreteFragment | ConcreteBatch,
+      classic: () => ConcreteFragmentDefinition | ConcreteOperationDefinition,
+    };
 
 /**
  * Runtime function to correspond to the `graphql` tagged template function.
@@ -39,8 +37,8 @@ function graphql(strings: Array<string>): GraphQLTaggedNode {
   invariant(
     false,
     'graphql: Unexpected invocation at runtime. Either the Babel transform ' +
-    'was not set up, or it failed to identify this call site. Make sure it ' +
-    'is being used verbatim as `graphql`.'
+      'was not set up, or it failed to identify this call site. Make sure it ' +
+      'is being used verbatim as `graphql`.',
   );
 }
 
@@ -51,8 +49,8 @@ graphql.experimental = function(strings: Array<string>): GraphQLTaggedNode {
   invariant(
     false,
     'graphql.experimental: Unexpected invocation at runtime. Either the ' +
-    'Babel transform was not set up, or it failed to identify this call ' +
-    'site. Make sure it is being used verbatim as `graphql`.'
+      'Babel transform was not set up, or it failed to identify this call ' +
+      'site. Make sure it is being used verbatim as `graphql`.',
   );
 };
 
@@ -65,24 +63,24 @@ function getNode(taggedNode) {
   return fn();
 }
 
-function getFragment(
-  taggedNode: GraphQLTaggedNode,
-): ConcreteFragment {
+function getFragment(taggedNode: GraphQLTaggedNode): ConcreteFragment {
   const fragment = getNode(taggedNode);
   invariant(
-    typeof fragment === 'object' && fragment !== null && fragment.kind === 'Fragment',
+    typeof fragment === 'object' &&
+      fragment !== null &&
+      fragment.kind === 'Fragment',
     'RelayModernGraphQLTag: Expected a fragment, got `%s`.',
     JSON.stringify(fragment),
   );
   return (fragment: any);
 }
 
-function getOperation(
-  taggedNode: GraphQLTaggedNode,
-): ConcreteBatch {
+function getOperation(taggedNode: GraphQLTaggedNode): ConcreteBatch {
   const operation = getNode(taggedNode);
   invariant(
-    typeof operation === 'object' && operation !== null && operation.kind === 'Batch',
+    typeof operation === 'object' &&
+      operation !== null &&
+      operation.kind === 'Batch',
     'RelayModernGraphQLTag: Expected an operation, got `%s`.',
     JSON.stringify(operation),
   );

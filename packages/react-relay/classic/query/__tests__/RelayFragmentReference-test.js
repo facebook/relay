@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -40,12 +41,9 @@ describe('RelayFragmentReference', () => {
       }
     `;
     // equivalent to `getQuery('foo')` without variables
-    const reference = new RelayFragmentReference(
-      () => node,
-      {
-        size: 'default',
-      }
-    );
+    const reference = new RelayFragmentReference(() => node, {
+      size: 'default',
+    });
     const variables = {size: 'ignored'};
     expect(reference instanceof RelayFragmentReference).toBe(true);
     // size ignored because no variables are passed into the fragment
@@ -71,7 +69,7 @@ describe('RelayFragmentReference', () => {
       },
       {
         size: QueryBuilder.createCallVariable('outerSize'),
-      }
+      },
     );
     // no outer variable, default is used
     let variables = {};
@@ -127,7 +125,7 @@ describe('RelayFragmentReference', () => {
         size: 'default',
       },
       {},
-      prepareVariables
+      prepareVariables,
     );
 
     const customVariables = {
@@ -150,7 +148,7 @@ describe('RelayFragmentReference', () => {
       {
         dynamic: QueryBuilder.createCallVariable('dynamic'),
         static: undefined,
-      }
+      },
     );
     const variables = {};
     expect(reference.getFragment(variables)).toBe(node);

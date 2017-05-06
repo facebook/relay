@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -14,9 +15,7 @@
 require('configureForRelayOSS');
 
 jest.mock('warning');
-jest
-  .unmock('GraphQLRange')
-  .unmock('GraphQLSegment');
+jest.unmock('GraphQLRange').unmock('GraphQLSegment');
 
 const Relay = require('Relay');
 const RelayQueryPath = require('RelayQueryPath');
@@ -42,7 +41,7 @@ describe('writePayload()', () => {
       invariant(
         node,
         'getField(): Expected node to have field named `%s`.',
-        fieldNames[ii]
+        fieldNames[ii],
       );
     }
     return node;
@@ -62,7 +61,8 @@ describe('writePayload()', () => {
       const records = {};
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        Relay.QL`
         query {
           viewer {
             actor {
@@ -70,7 +70,8 @@ describe('writePayload()', () => {
             }
           }
         }
-      `);
+      `,
+      );
       const payload = {
         viewer: {
           actor: {
@@ -101,13 +102,15 @@ describe('writePayload()', () => {
       const records = {};
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        Relay.QL`
         query {
           node(id:"123") {
             id
           }
         }
-      `);
+      `,
+      );
       const payload = {
         node: {
           id: '123',
@@ -130,7 +133,8 @@ describe('writePayload()', () => {
       const records = {};
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        Relay.QL`
         query {
           viewer {
             actor {
@@ -140,7 +144,8 @@ describe('writePayload()', () => {
             }
           }
         }
-      `);
+      `,
+      );
       const payload = {
         viewer: {
           actor: {
@@ -156,7 +161,8 @@ describe('writePayload()', () => {
 
       // linked nodes use a minimal path from the nearest refetchable node
       const addressID = store.getLinkedRecordID('123', 'address');
-      const pathQuery = getNode(Relay.QL`
+      const pathQuery = getNode(
+        Relay.QL`
         query {
           node(id:"123") {
             address {
@@ -164,11 +170,12 @@ describe('writePayload()', () => {
             }
           }
         }
-      `);
+      `,
+      );
       const path = RelayQueryPath.getPath(
         RelayQueryPath.create(pathQuery),
         getField(pathQuery, 'address'),
-        addressID
+        addressID,
       );
       expect(store.getPathToRecord(addressID)).toMatchPath(path);
     });
@@ -184,7 +191,8 @@ describe('writePayload()', () => {
           countryCode: '1',
         },
       };
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        Relay.QL`
         query {
           node(id:"123") {
             allPhones {
@@ -196,7 +204,8 @@ describe('writePayload()', () => {
             }
           }
         }
-      `);
+      `,
+      );
       const payload = {
         node: {
           __typename: 'User',
@@ -213,7 +222,7 @@ describe('writePayload()', () => {
       let path = RelayQueryPath.getPath(
         RelayQueryPath.create(query),
         getField(query, 'allPhones'),
-        allPhoneIDs[0]
+        allPhoneIDs[0],
       );
       expect(store.getPathToRecord(allPhoneIDs[0])).toMatchPath(path);
 
@@ -224,10 +233,10 @@ describe('writePayload()', () => {
         RelayQueryPath.getPath(
           RelayQueryPath.create(query),
           getField(query, 'allPhones'),
-          allPhoneIDs[0]
+          allPhoneIDs[0],
         ),
         getField(query, 'allPhones', 'phoneNumber'),
-        phoneNoID
+        phoneNoID,
       );
       expect(store.getPathToRecord(phoneNoID)).toMatchPath(path);
     });
@@ -236,7 +245,8 @@ describe('writePayload()', () => {
       const records = {};
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        Relay.QL`
         query {
           node(id:"123") {
             friends(first: 1) {
@@ -251,7 +261,8 @@ describe('writePayload()', () => {
             }
           }
         }
-      `);
+      `,
+      );
       const payload = {
         node: {
           __typename: 'User',
@@ -277,17 +288,17 @@ describe('writePayload()', () => {
       let path = RelayQueryPath.getPath(
         RelayQueryPath.create(query),
         getField(query, 'friends'),
-        'client:1'
+        'client:1',
       );
       expect(store.getPathToRecord('client:1')).toMatchPath(path);
       path = RelayQueryPath.getPath(
         RelayQueryPath.getPath(
           RelayQueryPath.create(query),
           getField(query, 'friends'),
-          'client:1'
+          'client:1',
         ),
         getField(query, 'friends', 'edges'),
-        'client:client:1:node1'
+        'client:client:1:node1',
       );
       expect(store.getPathToRecord('client:client:1:node1')).toMatchPath(path);
 
@@ -295,11 +306,13 @@ describe('writePayload()', () => {
       expect(store.getPathToRecord('node1')).toBe(undefined);
 
       // linked nodes use a minimal path from the nearest refetchable node
-      const pathQuery = getNode(Relay.QL`query{node(id:"node1"){address{city}}}`);
+      const pathQuery = getNode(
+        Relay.QL`query{node(id:"node1"){address{city}}}`,
+      );
       path = RelayQueryPath.getPath(
         RelayQueryPath.create(pathQuery),
         getField(pathQuery, 'address'),
-        'client:2'
+        'client:2',
       );
       expect(store.getField('client:2', 'city')).toBe('San Francisco');
       expect(store.getPathToRecord('client:2')).toMatchPath(path);
@@ -317,13 +330,15 @@ describe('writePayload()', () => {
           name
         }
       }`;
-      const query = getVerbatimNode(Relay.QL`
+      const query = getVerbatimNode(
+        Relay.QL`
         query {
           viewer {
             ${fragment}
           }
         }
-      `);
+      `,
+      );
       const payload = {
         viewer: {
           actor: {
@@ -341,10 +356,10 @@ describe('writePayload()', () => {
         RelayQueryPath.getPath(
           RelayQueryPath.create(query),
           getNode(fragment),
-          viewerID
+          viewerID,
         ),
         getNode(fragment).getChildren()[0],
-        actorID
+        actorID,
       );
       expect(store.getPathToRecord(actorID)).toMatchPath(path);
     });
@@ -356,14 +371,16 @@ describe('writePayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const tracker = new RelayQueryTracker();
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        Relay.QL`
         query {
           node(id:"123") {
             id
             name
           }
         }
-      `);
+      `,
+      );
       const payload = {
         node: {
           id: '123',
@@ -386,14 +403,16 @@ describe('writePayload()', () => {
 
       // `address` will be encountered twice, both occurrences must be tracked
       const fragment = Relay.QL`fragment on Node{address{city}}`;
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        Relay.QL`
         query {
           node(id:"123") {
             ${fragment}
             ${fragment}
           }
         }
-      `);
+      `,
+      );
       const payload = {
         node: {
           id: '123',
@@ -418,7 +437,8 @@ describe('writePayload()', () => {
       };
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        Relay.QL`
         query {
           viewer {
             actor {
@@ -426,7 +446,8 @@ describe('writePayload()', () => {
             }
           }
         }
-      `);
+      `,
+      );
       const payload = {
         viewer: {
           actor: {
@@ -453,7 +474,8 @@ describe('writePayload()', () => {
       };
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        Relay.QL`
         query {
           node(id:"123") {
             actors {
@@ -461,7 +483,8 @@ describe('writePayload()', () => {
             }
           }
         }
-      `);
+      `,
+      );
       const payload = {
         node: {
           __typename: 'User',
@@ -483,13 +506,9 @@ describe('writePayload()', () => {
       const trackedQueries = tracker.trackNodeForID.mock.calls;
       expect(trackedQueries.length).toBe(2);
       expect(trackedQueries[0][1]).toBe('456');
-      expect(trackedQueries[0][0]).toEqualQueryNode(
-        getField(query, 'actors')
-      );
+      expect(trackedQueries[0][0]).toEqualQueryNode(getField(query, 'actors'));
       expect(trackedQueries[1][1]).toBe('789');
-      expect(trackedQueries[1][0]).toEqualQueryNode(
-        getField(query, 'actors')
-      );
+      expect(trackedQueries[1][0]).toEqualQueryNode(getField(query, 'actors'));
     });
 
     it('tracks new connections', () => {
@@ -501,7 +520,8 @@ describe('writePayload()', () => {
       };
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        Relay.QL`
         query {
           node(id:"123") {
             friends(first: 1) {
@@ -513,7 +533,8 @@ describe('writePayload()', () => {
             }
           }
         }
-      `);
+      `,
+      );
       const payload = {
         node: {
           __typename: 'User',
@@ -538,7 +559,7 @@ describe('writePayload()', () => {
       // track edges.node
       expect(trackedQueries[0][1]).toBe('456');
       expect(trackedQueries[0][0]).toEqualQueryNode(
-        getField(query, 'friends', 'edges', 'node')
+        getField(query, 'friends', 'edges', 'node'),
       );
     });
 
@@ -552,7 +573,8 @@ describe('writePayload()', () => {
       };
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
-      let query = getNode(Relay.QL`
+      let query = getNode(
+        Relay.QL`
         query {
           node(id:"123") {
             friends(first: 1) {
@@ -564,7 +586,8 @@ describe('writePayload()', () => {
             }
           }
         }
-      `);
+      `,
+      );
       let payload = {
         node: {
           __typename: 'User',
@@ -588,7 +611,8 @@ describe('writePayload()', () => {
 
       // write an additional node and verify only the new edge and node are
       // tracked
-      query = getNode(Relay.QL`
+      query = getNode(
+        Relay.QL`
         query {
           node(id:"123") {
             friends(after:"c1",first: 1) {
@@ -600,7 +624,8 @@ describe('writePayload()', () => {
             }
           }
         }
-      `);
+      `,
+      );
       payload = {
         node: {
           id: '123',
@@ -625,7 +650,7 @@ describe('writePayload()', () => {
       // track new node
       expect(trackedQueries[0][1]).toBe('789');
       expect(trackedQueries[0][0]).toEqualQueryNode(
-        getField(query, 'friends', 'edges', 'node')
+        getField(query, 'friends', 'edges', 'node'),
       );
     });
 
@@ -633,7 +658,8 @@ describe('writePayload()', () => {
       const records = {};
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        Relay.QL`
         query {
           node(id:"123") {
             name
@@ -651,7 +677,8 @@ describe('writePayload()', () => {
             }
           }
         }
-      `);
+      `,
+      );
       const payload = {
         node: {
           id: '123',
@@ -680,13 +707,7 @@ describe('writePayload()', () => {
       // populate the store and record the original tracked queries
       let queryTracker = new RelayQueryTracker();
 
-      writePayload(
-        store,
-        writer,
-        query,
-        payload,
-        queryTracker
-      );
+      writePayload(store, writer, query, payload, queryTracker);
       const prevTracked = queryTracker.trackNodeForID.mock.calls.slice();
       expect(prevTracked.length).toBe(2);
       expect(prevTracked[0][1]).toBe('123'); // root
@@ -695,26 +716,15 @@ describe('writePayload()', () => {
       // rewriting the same payload by default does not track anything
       queryTracker = new RelayQueryTracker();
       queryTracker.trackNodeForID.mockClear();
-      writePayload(
-        store,
-        writer,
-        query,
-        payload,
-        queryTracker
-      );
+      writePayload(store, writer, query, payload, queryTracker);
       expect(queryTracker.trackNodeForID.mock.calls.length).toBe(0);
 
       // force-tracking should track the original nodes again
       queryTracker = new RelayQueryTracker();
       queryTracker.trackNodeForID.mockClear();
-      writePayload(
-        store,
-        writer,
-        query,
-        payload,
-        queryTracker,
-        {updateTrackedQueries: true}
-      );
+      writePayload(store, writer, query, payload, queryTracker, {
+        updateTrackedQueries: true,
+      });
       const nextTracked = queryTracker.trackNodeForID.mock.calls;
       expect(nextTracked.length).toBe(prevTracked.length);
       nextTracked.forEach((tracked, ii) => {
@@ -728,7 +738,8 @@ describe('writePayload()', () => {
     const records = {};
     const store = new RelayRecordStore({records});
     const writer = new RelayRecordWriter(records, {}, false);
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       query {
         node(id: "123") {
           ...on User {
@@ -744,7 +755,8 @@ describe('writePayload()', () => {
           }
         }
       }
-    `);
+    `,
+    );
     const payload = {
       node: {
         id: '123',

@@ -7,16 +7,14 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
 require('configureForRelayOSS');
 
-jest
-  .useFakeTimers()
-  .disableAutomock()
-  .mock('relayUnstableBatchedUpdates');
+jest.useFakeTimers().disableAutomock().mock('relayUnstableBatchedUpdates');
 
 const Relay = require('Relay');
 const RelayEnvironment = require('RelayEnvironment');
@@ -37,7 +35,7 @@ describe('RelayMutation', () => {
     feedbackID = '123';
 
     query = Relay.createQuery(
-        Relay.QL`
+      Relay.QL`
         query CreateFeedbackQuery($id: ID!) {
           node(id: $id) {
             ... on Feedback {
@@ -53,21 +51,18 @@ describe('RelayMutation', () => {
       `,
       {
         id: feedbackID,
-      }
+      },
     );
-    storeData.handleQueryPayload(
-      query,
-      {
-        node: {
-          id: feedbackID,
-          __typename: 'Feedback',
-          doesViewerLike: false,
-          body: {
-            text: 'Give Relay',
-          },
+    storeData.handleQueryPayload(query, {
+      node: {
+        id: feedbackID,
+        __typename: 'Feedback',
+        doesViewerLike: false,
+        body: {
+          text: 'Give Relay',
         },
-      }
-    );
+      },
+    });
     bodyID = storeData.getCachedStore().getLinkedRecordID(feedbackID, 'body');
   });
 

@@ -8,6 +8,7 @@
  *
  * @providesModule ReactRelayCompatContainerBuilder
  * @flow
+ * @format
  */
 
 'use strict';
@@ -49,7 +50,7 @@ let injectedDefaultVariablesProvider = null;
 function injectDefaultVariablesProvider(variablesProvider: VariablesProvider) {
   invariant(
     !injectedDefaultVariablesProvider,
-    'injectDefaultVariablesProvider must be called no more than once.'
+    'injectDefaultVariablesProvider must be called no more than once.',
   );
   injectedDefaultVariablesProvider = variablesProvider;
 }
@@ -79,9 +80,9 @@ function buildCompatContainer<TBase: ReactClass<*>>(
   let injectedDefaultVariables = null;
   function getDefaultVariables() {
     if (injectedDefaultVariables == null) {
-      injectedDefaultVariables = injectedDefaultVariablesProvider ?
-        injectedDefaultVariablesProvider() :
-        {};
+      injectedDefaultVariables = injectedDefaultVariablesProvider
+        ? injectedDefaultVariablesProvider()
+        : {};
     }
     return injectedDefaultVariables;
   }
@@ -96,9 +97,9 @@ function buildCompatContainer<TBase: ReactClass<*>>(
     invariant(
       taggedNode,
       'ReactRelayCompatContainerBuilder: Expected a fragment named `%s` to be defined ' +
-      'on `%s`.',
+        'on `%s`.',
       fragmentName,
-      containerName
+      containerName,
     );
     const fragment = RelayGraphQLTag.getClassicFragment(taggedNode);
 
@@ -116,8 +117,12 @@ function buildCompatContainer<TBase: ReactClass<*>>(
 
   function hasVariable(variableName: string): boolean {
     return Object.keys(fragmentSpec).some(fragmentName => {
-      const fragment = RelayGraphQLTag.getClassicFragment(fragmentSpec[fragmentName]);
-      return fragment.argumentDefinitions.some(argDef => argDef.name === variableName);
+      const fragment = RelayGraphQLTag.getClassicFragment(
+        fragmentSpec[fragmentName],
+      );
+      return fragment.argumentDefinitions.some(
+        argDef => argDef.name === variableName,
+      );
     });
   }
 

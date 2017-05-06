@@ -8,6 +8,7 @@
  *
  * @providesModule RelayQueryResponseCache
  * @flow
+ * @format
  */
 
 'use strict';
@@ -33,21 +34,23 @@ class RelayQueryResponseCache {
   _size: number;
   _ttl: number;
 
-  constructor({size, ttl}: {
+  constructor({
+    size,
+    ttl,
+  }: {
     size: number,
     ttl: number,
   }) {
     invariant(
       size > 0,
       'RelayQueryResponseCache: Expected the max cache size to be > 0, got ' +
-      '`%s`.',
-      size
+        '`%s`.',
+      size,
     );
     invariant(
       ttl > 0,
-      'RelayQueryResponseCache: Expected the max ttl to be > 0, got ' +
-      '`%s`.',
-      ttl
+      'RelayQueryResponseCache: Expected the max ttl to be > 0, got ' + '`%s`.',
+      ttl,
     );
     this._responses = new Map();
     this._size = size;
@@ -58,10 +61,7 @@ class RelayQueryResponseCache {
     this._responses.clear();
   }
 
-  get(
-    queryID: string,
-    variables: Variables,
-  ): ?QueryPayload {
+  get(queryID: string, variables: Variables): ?QueryPayload {
     const cacheKey = getCacheKey(queryID, variables);
     this._responses.forEach((response, key) => {
       if (!isCurrent(response.fetchTime, this._ttl)) {
@@ -72,11 +72,7 @@ class RelayQueryResponseCache {
     return response != null ? response.payload : null;
   }
 
-  set(
-    queryID: string,
-    variables: Variables,
-    payload: QueryPayload,
-  ): void {
+  set(queryID: string, variables: Variables, payload: QueryPayload): void {
     const fetchTime = Date.now();
     const cacheKey = getCacheKey(queryID, variables);
     this._responses.delete(cacheKey); // deletion resets key ordering

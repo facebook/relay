@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -39,7 +40,7 @@ describe('RelayRenderer.render', () => {
   function getRenderOutput() {
     return ReactTestUtils.findRenderedComponentWithType(
       renderedComponent,
-      StaticContainer
+      StaticContainer,
     );
   }
 
@@ -86,7 +87,7 @@ describe('RelayRenderer.render', () => {
         queryConfig={queryConfig}
         environment={environment}
         render={render}
-      />
+      />,
     );
     expect(render).toBeCalled();
     expect(initialView).toBeRenderedChild();
@@ -98,7 +99,7 @@ describe('RelayRenderer.render', () => {
         Container={MockContainer}
         queryConfig={queryConfig}
         environment={environment}
-      />
+      />,
     );
     const loadingView = <div />;
     renderElement(
@@ -107,7 +108,7 @@ describe('RelayRenderer.render', () => {
         queryConfig={RelayQueryConfig.genMockInstance()}
         environment={environment}
         render={() => loadingView}
-      />
+      />,
     );
     // Since RelayRenderer has not yet sent a request, view gets to update.
     expect(getRenderOutput()).toBeUpdated();
@@ -119,7 +120,7 @@ describe('RelayRenderer.render', () => {
         Container={MockContainer}
         queryConfig={queryConfig}
         environment={environment}
-      />
+      />,
     );
     environment.primeCache.mock.requests[0].block();
 
@@ -130,7 +131,7 @@ describe('RelayRenderer.render', () => {
         queryConfig={RelayQueryConfig.genMockInstance()}
         environment={environment}
         render={() => loadingView}
-      />
+      />,
     );
     // RelayRenderer does not synchronously update because the ready state (and
     // therefore render arguments) for the new `queryConfig` is not yet known.
@@ -148,7 +149,7 @@ describe('RelayRenderer.render', () => {
           queryConfig={queryConfig}
           environment={environment}
           render={render}
-        />
+        />,
       );
     }
     update();
@@ -182,7 +183,7 @@ describe('RelayRenderer.render', () => {
         queryConfig={queryConfig}
         environment={environment}
         render={render}
-      />
+      />,
     );
 
     const request = environment.primeCache.mock.requests[0];
@@ -215,21 +216,20 @@ describe('RelayRenderer.render', () => {
           Container={MockContainer}
           queryConfig={queryConfig}
           environment={environment}
-        />
+        />,
       );
       expect(garbageCollector.acquireHold).toBeCalled();
     });
 
     it('releases its GC hold when unmounted', () => {
       const release = jest.fn();
-      garbageCollector.acquireHold =
-        jest.fn(() => ({release}));
+      garbageCollector.acquireHold = jest.fn(() => ({release}));
       renderElement(
         <RelayRenderer
           Container={MockContainer}
           queryConfig={queryConfig}
           environment={environment}
-        />
+        />,
       );
       expect(release).not.toBeCalled();
       ReactDOM.unmountComponentAtNode(container);

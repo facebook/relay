@@ -8,6 +8,7 @@
  *
  * @providesModule RelayMutationQuery
  * @flow
+ * @format
  */
 
 'use strict';
@@ -42,35 +43,30 @@ type BasicMutationFragmentBuilderConfig = {
 type BasicOptimisticMutationFragmentBuilderConfig = {
   fatQuery: RelayQuery.Fragment,
 };
-type EdgeDeletionMutationFragmentBuilderConfig =
-  BasicMutationFragmentBuilderConfig & {
-    connectionName: string,
-    parentID: DataID,
-    parentName: string,
-  };
-type EdgeInsertionMutationFragmentBuilderConfig =
-  BasicMutationFragmentBuilderConfig & {
-    connectionName: string,
-    parentID: DataID,
-    edgeName: string,
-    parentName?: string,
-    rangeBehaviors: RangeBehaviors,
-  };
-type FieldsMutationFragmentBuilderConfig =
-  BasicMutationFragmentBuilderConfig & {
-    fieldIDs: {[fieldName: string]: DataID | Array<DataID>},
-  };
+type EdgeDeletionMutationFragmentBuilderConfig = BasicMutationFragmentBuilderConfig & {
+  connectionName: string,
+  parentID: DataID,
+  parentName: string,
+};
+type EdgeInsertionMutationFragmentBuilderConfig = BasicMutationFragmentBuilderConfig & {
+  connectionName: string,
+  parentID: DataID,
+  edgeName: string,
+  parentName?: string,
+  rangeBehaviors: RangeBehaviors,
+};
+type FieldsMutationFragmentBuilderConfig = BasicMutationFragmentBuilderConfig & {
+  fieldIDs: {[fieldName: string]: DataID | Array<DataID>},
+};
 // This should probably use disjoint unions.
 type MutationConfig = {[key: string]: $FlowFixMe};
-type OptimisticUpdateFragmentBuilderConfig =
-  BasicOptimisticMutationFragmentBuilderConfig & {
-    response: Object,
-  };
-type OptimisticUpdateQueryBuilderConfig =
-  BasicOptimisticMutationFragmentBuilderConfig & {
-    mutation: ConcreteMutation,
-    response: Object,
-  };
+type OptimisticUpdateFragmentBuilderConfig = BasicOptimisticMutationFragmentBuilderConfig & {
+  response: Object,
+};
+type OptimisticUpdateQueryBuilderConfig = BasicOptimisticMutationFragmentBuilderConfig & {
+  mutation: ConcreteMutation,
+  response: Object,
+};
 
 const {CLIENT_MUTATION_ID} = RelayConnectionInterface;
 const {ANY_TYPE, ID, TYPENAME} = RelayNodeInterface;
@@ -94,13 +90,11 @@ const RelayMutationQuery = {
    * The supplied mapping may contain multiple field names. In addition, each
    * field name may map to an array of data IDs if the field is plural.
    */
-  buildFragmentForFields(
-    {
-      fatQuery,
-      fieldIDs,
-      tracker,
-    }: FieldsMutationFragmentBuilderConfig
-  ): RelayQuery.Fragment {
+  buildFragmentForFields({
+    fatQuery,
+    fieldIDs,
+    tracker,
+  }: FieldsMutationFragmentBuilderConfig): RelayQuery.Fragment {
     const mutatedFields = [];
     forEachObject(fieldIDs, (dataIDOrIDs, fieldName) => {
       const fatField = getFieldFromFatQuery(fatQuery, fieldName);
@@ -158,15 +152,13 @@ const RelayMutationQuery = {
    *   Name of the top-level field in the fat query that corresponds to the
    *   parent record.
    */
-  buildFragmentForEdgeDeletion(
-    {
-      fatQuery,
-      connectionName,
-      parentID,
-      parentName,
-      tracker,
-    }: EdgeDeletionMutationFragmentBuilderConfig
-  ): RelayQuery.Fragment {
+  buildFragmentForEdgeDeletion({
+    fatQuery,
+    connectionName,
+    parentID,
+    parentName,
+    tracker,
+  }: EdgeDeletionMutationFragmentBuilderConfig): RelayQuery.Fragment {
     const fatParent = getFieldFromFatQuery(fatQuery, parentName);
 
     // The connection may not be explicit in the fat query, but if it is, we
@@ -175,16 +167,15 @@ const RelayMutationQuery = {
 
     const mutatedFields = [];
     const trackedParent = fatParent.clone(
-      tracker.getTrackedChildrenForID(parentID)
+      tracker.getTrackedChildrenForID(parentID),
     );
     if (trackedParent) {
-      const filterUnterminatedRange = node => (
-        node.getSchemaName() === connectionName
-      );
+      const filterUnterminatedRange = node =>
+        node.getSchemaName() === connectionName;
       const mutatedField = intersectRelayQuery(
         trackedParent,
         fatParent,
-        filterUnterminatedRange
+        filterUnterminatedRange,
       );
       if (mutatedField) {
         // If we skipped validation above, we get a second chance here.
@@ -216,24 +207,22 @@ const RelayMutationQuery = {
    *   parent record. If not supplied, metadata on the parent record and any
    *   connections without entries in `rangeBehaviors` will not be updated.
    */
-  buildFragmentForEdgeInsertion(
-    {
-      fatQuery,
-      connectionName,
-      parentID,
-      edgeName,
-      parentName,
-      rangeBehaviors,
-      tracker,
-    }: EdgeInsertionMutationFragmentBuilderConfig
-  ): RelayQuery.Fragment {
+  buildFragmentForEdgeInsertion({
+    fatQuery,
+    connectionName,
+    parentID,
+    edgeName,
+    parentName,
+    rangeBehaviors,
+    tracker,
+  }: EdgeInsertionMutationFragmentBuilderConfig): RelayQuery.Fragment {
     const mutatedFields = [];
     const keysWithoutRangeBehavior: {[hash: string]: boolean} = {};
     const trackedChildren = tracker.getTrackedChildrenForID(parentID);
     const trackedConnections = [];
     trackedChildren.forEach(trackedChild => {
       trackedConnections.push(
-        ...findDescendantFields(trackedChild, connectionName)
+        ...findDescendantFields(trackedChild, connectionName),
       );
     });
 
@@ -249,13 +238,14 @@ const RelayMutationQuery = {
         }
 
         const callsWithValues = trackedConnection.getRangeBehaviorCalls();
-        const rangeBehavior =
-          getRangeBehavior(rangeBehaviors, callsWithValues);
+        const rangeBehavior = getRangeBehavior(rangeBehaviors, callsWithValues);
         /* eslint-disable no-console */
         if (__DEV__ && console.groupCollapsed && console.groupEnd) {
           const serializeRelayQueryCall = require('serializeRelayQueryCall');
-          const serializedCalls =
-            callsWithValues.map(serializeRelayQueryCall).sort().join('');
+          const serializedCalls = callsWithValues
+            .map(serializeRelayQueryCall)
+            .sort()
+            .join('');
           console.log(serializedCalls + ': ' + (rangeBehavior || ''));
         }
         /* eslint-enable no-console */
@@ -271,22 +261,22 @@ const RelayMutationQuery = {
           warning(
             rangeBehavior === REFETCH,
             'RelayMutation: The connection `%s` on the mutation field `%s` ' +
-            'that corresponds to the ID `%s` did not match any of the ' +
-            '`rangeBehaviors` specified in your RANGE_ADD config. This means ' +
-            'that the entire connection will be refetched. Configure a range ' +
-            'behavior for this mutation in order to fetch only the new edge ' +
-            'and to enable optimistic mutations or use `refetch` to squelch ' +
-            'this warning.',
+              'that corresponds to the ID `%s` did not match any of the ' +
+              '`rangeBehaviors` specified in your RANGE_ADD config. This means ' +
+              'that the entire connection will be refetched. Configure a range ' +
+              'behavior for this mutation in order to fetch only the new edge ' +
+              'and to enable optimistic mutations or use `refetch` to squelch ' +
+              'this warning.',
             trackedConnection.getStorageKey(),
             parentName,
-            parentID
+            parentID,
           );
           keysWithoutRangeBehavior[trackedConnection.getShallowHash()] = true;
         }
       });
       if (mutatedEdgeFields.length) {
         mutatedFields.push(
-          buildEdgeField(parentID, edgeName, mutatedEdgeFields)
+          buildEdgeField(parentID, edgeName, mutatedEdgeFields),
         );
       }
     }
@@ -300,14 +290,13 @@ const RelayMutationQuery = {
 
       const trackedParent = fatParent.clone(trackedChildren);
       if (trackedParent) {
-        const filterUnterminatedRange = node => (
+        const filterUnterminatedRange = node =>
           node.getSchemaName() === connectionName &&
-          !keysWithoutRangeBehavior.hasOwnProperty(node.getShallowHash())
-        );
+          !keysWithoutRangeBehavior.hasOwnProperty(node.getShallowHash());
         const mutatedParent = intersectRelayQuery(
           trackedParent,
           fatParent,
-          filterUnterminatedRange
+          filterUnterminatedRange,
         );
         if (mutatedParent) {
           mutatedFields.push(mutatedParent);
@@ -321,33 +310,33 @@ const RelayMutationQuery = {
   /**
    * Creates a fragment used to fetch the given optimistic response.
    */
-  buildFragmentForOptimisticUpdate(
-    {response, fatQuery}: OptimisticUpdateFragmentBuilderConfig
-  ): RelayQuery.Fragment {
+  buildFragmentForOptimisticUpdate({
+    response,
+    fatQuery,
+  }: OptimisticUpdateFragmentBuilderConfig): RelayQuery.Fragment {
     // Silences RelayQueryNode being incompatible with sub-class RelayQueryField
     // A detailed error description is available in #7635477
-    const mutatedFields = (
-      RelayOptimisticMutationUtils.inferRelayFieldsFromData(response)
-      : $FlowIssue
-    );
+    const mutatedFields = (RelayOptimisticMutationUtils.inferRelayFieldsFromData(
+      response,
+    ): $FlowIssue);
     return buildMutationFragment(fatQuery, mutatedFields);
   },
 
   /**
    * Creates a RelayQuery.Mutation used to fetch the given optimistic response.
    */
-  buildQueryForOptimisticUpdate(
-    {
-      fatQuery,
-      mutation,
-      response,
-    }: OptimisticUpdateQueryBuilderConfig
-  ): RelayQuery.Mutation {
+  buildQueryForOptimisticUpdate({
+    fatQuery,
+    mutation,
+    response,
+  }: OptimisticUpdateQueryBuilderConfig): RelayQuery.Mutation {
     const children = [
-      nullthrows(RelayMutationQuery.buildFragmentForOptimisticUpdate({
-        response,
-        fatQuery,
-      })),
+      nullthrows(
+        RelayMutationQuery.buildFragmentForOptimisticUpdate({
+          response,
+          fatQuery,
+        }),
+      ),
     ];
     return RelayQuery.Mutation.build(
       'OptimisticQuery',
@@ -355,7 +344,7 @@ const RelayMutationQuery = {
       mutation.calls[0].name,
       null,
       children,
-      mutation.metadata
+      mutation.metadata,
     );
   },
 
@@ -365,28 +354,26 @@ const RelayMutationQuery = {
    * `buildFragmentForEdgeDeletion` and `buildFragmentForFields` methods above
    * for possible configs.
    */
-  buildQuery(
-    {
-      configs,
-      fatQuery,
-      input,
-      mutationName,
-      mutation,
-      tracker,
-    }: {
-      configs: Array<MutationConfig>,
-      fatQuery: RelayQuery.Fragment,
-      input: Variables,
-      mutationName: string,
-      mutation: ConcreteMutation,
-      tracker: RelayQueryTracker,
-    }
-  ): RelayQuery.Mutation {
+  buildQuery({
+    configs,
+    fatQuery,
+    input,
+    mutationName,
+    mutation,
+    tracker,
+  }: {
+    configs: Array<MutationConfig>,
+    fatQuery: RelayQuery.Fragment,
+    input: Variables,
+    mutationName: string,
+    mutation: ConcreteMutation,
+    tracker: RelayQueryTracker,
+  }): RelayQuery.Mutation {
     let children: Array<?RelayQuery.Node> = [
       RelayQuery.Field.build({
         fieldName: CLIENT_MUTATION_ID,
         type: 'String',
-        metadata: {isRequisite:true},
+        metadata: {isRequisite: true},
       }),
     ];
     /* eslint-disable no-console */
@@ -398,17 +385,16 @@ const RelayMutationQuery = {
       switch (config.type) {
         case RelayMutationType.REQUIRED_CHILDREN:
           const newChildren = config.children.map(child =>
-             RelayQuery.Fragment.create(
+            RelayQuery.Fragment.create(
               child,
               RelayMetaRoute.get('$buildQuery'),
-              {}
-            )
+              {},
+            ),
           );
           children = children.concat(newChildren);
           /* eslint-disable no-console */
           if (__DEV__ && console.groupCollapsed && console.groupEnd) {
-            const RelayMutationDebugPrinter =
-              require('RelayMutationDebugPrinter');
+            const RelayMutationDebugPrinter = require('RelayMutationDebugPrinter');
             console.groupCollapsed('REQUIRED_CHILDREN');
             newChildren.forEach((child, index) => {
               console.groupCollapsed(index);
@@ -426,15 +412,17 @@ const RelayMutationQuery = {
             console.groupCollapsed('RANGE_ADD');
           }
           /* eslint-enable no-console */
-          children.push(RelayMutationQuery.buildFragmentForEdgeInsertion({
-            connectionName: config.connectionName,
-            edgeName: config.edgeName,
-            fatQuery,
-            parentID: config.parentID,
-            parentName: config.parentName,
-            rangeBehaviors: sanitizeRangeBehaviors(config.rangeBehaviors),
-            tracker,
-          }));
+          children.push(
+            RelayMutationQuery.buildFragmentForEdgeInsertion({
+              connectionName: config.connectionName,
+              edgeName: config.edgeName,
+              fatQuery,
+              parentID: config.parentID,
+              parentName: config.parentName,
+              rangeBehaviors: sanitizeRangeBehaviors(config.rangeBehaviors),
+              tracker,
+            }),
+          );
           /* eslint-disable no-console */
           if (__DEV__ && console.groupCollapsed && console.groupEnd) {
             console.groupEnd();
@@ -452,29 +440,29 @@ const RelayMutationQuery = {
             tracker,
           });
           children.push(edgeDeletion);
-          const deletedIDFieldName = Array.isArray(config.deletedIDFieldName) ?
-            config.deletedIDFieldName.concat(ID) :
-            [config.deletedIDFieldName];
+          const deletedIDFieldName = Array.isArray(config.deletedIDFieldName)
+            ? config.deletedIDFieldName.concat(ID)
+            : [config.deletedIDFieldName];
           const nodeDeletion = buildFragmentForDeletedConnectionNodeID(
             deletedIDFieldName,
-            fatQuery
+            fatQuery,
           );
           children.push(nodeDeletion);
           /* eslint-disable no-console */
           if (__DEV__ && console.groupCollapsed && console.groupEnd) {
-            const configType = config === RelayMutationType.RANGE_DELETE ?
-              'RANGE_DELETE' : 'NODE_DELETE';
+            const configType = config === RelayMutationType.RANGE_DELETE
+              ? 'RANGE_DELETE'
+              : 'NODE_DELETE';
             console.groupCollapsed(configType);
 
-            const RelayMutationDebugPrinter =
-              require('RelayMutationDebugPrinter');
+            const RelayMutationDebugPrinter = require('RelayMutationDebugPrinter');
             RelayMutationDebugPrinter.printMutation(
               edgeDeletion,
-              'Edge Fragment'
+              'Edge Fragment',
             );
             RelayMutationDebugPrinter.printMutation(
               nodeDeletion,
-              'Node Fragment'
+              'Node Fragment',
             );
 
             console.groupEnd();
@@ -488,11 +476,13 @@ const RelayMutationQuery = {
             console.groupCollapsed('FIELDS_CHANGE');
           }
           /* eslint-enable no-console */
-          children.push(RelayMutationQuery.buildFragmentForFields({
-            fatQuery,
-            fieldIDs: config.fieldIDs,
-            tracker,
-          }));
+          children.push(
+            RelayMutationQuery.buildFragmentForFields({
+              fatQuery,
+              fieldIDs: config.fieldIDs,
+              tracker,
+            }),
+          );
           /* eslint-disable no-console */
           if (__DEV__ && console.groupCollapsed && console.groupEnd) {
             console.groupEnd();
@@ -505,7 +495,7 @@ const RelayMutationQuery = {
             false,
             'RelayMutationQuery: Unrecognized config key `%s` for `%s`.',
             config.type,
-            mutationName
+            mutationName,
           );
       }
     });
@@ -520,48 +510,48 @@ const RelayMutationQuery = {
       mutation.calls[0].name,
       input,
       (children.filter(child => child != null): any),
-      mutation.metadata
+      mutation.metadata,
     );
   },
 };
 
 function getFieldFromFatQuery(
   fatQuery: RelayQuery.Node,
-  fieldName: string
+  fieldName: string,
 ): RelayQuery.Field {
   const field = fatQuery.getFieldByStorageKey(fieldName);
   invariant(
     field,
     'RelayMutationQuery: Invalid field name on fat query, `%s`.',
-    fieldName
+    fieldName,
   );
   return field;
 }
 
 function buildMutationFragment(
   fatQuery: RelayQuery.Fragment,
-  fields: Array<RelayQuery.Node>
+  fields: Array<RelayQuery.Node>,
 ): RelayQuery.Fragment {
   const fragment = RelayQuery.Fragment.build(
     'MutationQuery',
     fatQuery.getType(),
-    fields
+    fields,
   );
 
   invariant(
     fragment instanceof RelayQuery.Fragment,
-    'RelayMutationQuery: Expected a fragment.'
+    'RelayMutationQuery: Expected a fragment.',
   );
   return fragment;
 }
 
 function buildFragmentForDeletedConnectionNodeID(
   fieldNames: Array<string>,
-  fatQuery: RelayQuery.Fragment
+  fatQuery: RelayQuery.Fragment,
 ): RelayQuery.Fragment {
   invariant(
     fieldNames.length > 0,
-    'RelayMutationQuery: Invalid deleted node id name.'
+    'RelayMutationQuery: Invalid deleted node id name.',
   );
   let field = RelayQuery.Field.build({
     fieldName: fieldNames[fieldNames.length - 1],
@@ -583,7 +573,7 @@ function buildFragmentForDeletedConnectionNodeID(
 function buildEdgeField(
   parentID: DataID,
   edgeName: string,
-  edgeFields: Array<RelayQuery.Node>
+  edgeFields: Array<RelayQuery.Node>,
 ): RelayQuery.Field {
   const fields = [
     RelayQuery.Field.build({
@@ -595,8 +585,10 @@ function buildEdgeField(
       type: 'String',
     }),
   ];
-  if (RelayConnectionInterface.EDGES_HAVE_SOURCE_FIELD &&
-      !RelayRecord.isClientID(parentID)) {
+  if (
+    RelayConnectionInterface.EDGES_HAVE_SOURCE_FIELD &&
+    !RelayRecord.isClientID(parentID)
+  ) {
     fields.push(
       RelayQuery.Field.build({
         children: [
@@ -612,25 +604,27 @@ function buildEdgeField(
         fieldName: 'source',
         metadata: {canHaveSubselections: true},
         type: ANY_TYPE,
-      })
+      }),
     );
   }
   fields.push(...edgeFields);
-  const edgeField = flattenRelayQuery(RelayQuery.Field.build({
-    children: fields,
-    fieldName: edgeName,
-    metadata: {canHaveSubselections: true},
-    type: ANY_TYPE,
-  }));
+  const edgeField = flattenRelayQuery(
+    RelayQuery.Field.build({
+      children: fields,
+      fieldName: edgeName,
+      metadata: {canHaveSubselections: true},
+      type: ANY_TYPE,
+    }),
+  );
   invariant(
     edgeField instanceof RelayQuery.Field,
-    'RelayMutationQuery: Expected a field.'
+    'RelayMutationQuery: Expected a field.',
   );
   return edgeField;
 }
 
 function sanitizeRangeBehaviors(
-  rangeBehaviors: RangeBehaviors
+  rangeBehaviors: RangeBehaviors,
 ): RangeBehaviors {
   // Prior to 0.4.1 you would have to specify the args in your range behaviors
   // in the same order they appeared in your query. From 0.4.1 onward, args in a
@@ -649,10 +643,8 @@ function sanitizeRangeBehaviors(
         .slice(0, -1)
         // Slice on unescaped parentheses followed immediately by a `.`
         .split(/\)\./);
-      const sortedKey = keyParts
-        .sort()
-        .join(').') +
-        (keyParts.length ? ')' : '');
+      const sortedKey =
+        keyParts.sort().join(').') + (keyParts.length ? ')' : '');
       if (sortedKey !== key) {
         unsortedKeys = unsortedKeys || [];
         unsortedKeys.push(key);
@@ -663,15 +655,15 @@ function sanitizeRangeBehaviors(
     invariant(
       false,
       'RelayMutation: To define a range behavior key without sorting ' +
-      'the arguments alphabetically is disallowed as of Relay 0.5.1. Please ' +
-      'sort the argument names of the range behavior key%s `%s`%s.',
+        'the arguments alphabetically is disallowed as of Relay 0.5.1. Please ' +
+        'sort the argument names of the range behavior key%s `%s`%s.',
       unsortedKeys.length === 1 ? '' : 's',
-      unsortedKeys.length === 1 ?
-        unsortedKeys[0] :
-        unsortedKeys.length === 2 ?
-          `${unsortedKeys[0]}\` and \`${unsortedKeys[1]}` :
-          unsortedKeys.slice(0, -1).join('`, `'),
-      unsortedKeys.length > 2 ? `, and \`${unsortedKeys.slice(-1)}\`` : ''
+      unsortedKeys.length === 1
+        ? unsortedKeys[0]
+        : unsortedKeys.length === 2
+            ? `${unsortedKeys[0]}\` and \`${unsortedKeys[1]}`
+            : unsortedKeys.slice(0, -1).join('`, `'),
+      unsortedKeys.length > 2 ? `, and \`${unsortedKeys.slice(-1)}\`` : '',
     );
   }
   return rangeBehaviors;
@@ -690,7 +682,7 @@ function validateConnection(
     connection.isConnection(),
     'RelayMutationQuery: Expected field `%s`%s to be a connection.',
     connectionName,
-    parentName ? ' on `' + parentName + '`' : ''
+    parentName ? ' on `' + parentName + '`' : '',
   );
 }
 
@@ -718,7 +710,7 @@ function getConnectionAndValidate(
  */
 function findDescendantFields(
   rootNode: RelayQuery.Node,
-  fieldName: string
+  fieldName: string,
 ): Array<RelayQuery.Field> {
   const fields = [];
   function traverse(node) {
@@ -728,10 +720,7 @@ function findDescendantFields(
         return;
       }
     }
-    if (
-      node === rootNode ||
-      node instanceof RelayQuery.Fragment
-    ) {
+    if (node === rootNode || node instanceof RelayQuery.Fragment) {
       // Search fragments and the root node for matching fields, but skip
       // descendant non-matching fields.
       node.getChildren().forEach(child => traverse(child));

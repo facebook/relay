@@ -8,6 +8,7 @@
  *
  * @providesModule requestRelaySubscription
  * @flow
+ * @format
  */
 
 'use strict';
@@ -31,18 +32,9 @@ function requestRelaySubscription(
   environment: Environment,
   config: GraphQLSubscriptionConfig,
 ): Disposable {
-  const {
-    createOperationSelector,
-    getOperation,
-  } = environment.unstable_internal;
+  const {createOperationSelector, getOperation} = environment.unstable_internal;
   const subscription = getOperation(config.subscription);
-  const {
-    onCompleted,
-    onError,
-    onNext,
-    updater,
-    variables,
-  } = config;
+  const {onCompleted, onError, onNext, updater, variables} = config;
   const operation = createOperationSelector(subscription, variables);
   return environment.sendSubscription({
     onCompleted,

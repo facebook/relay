@@ -8,6 +8,7 @@
  *
  * @providesModule isClassicRelayContext
  * @flow
+ * @format
  */
 
 'use strict';

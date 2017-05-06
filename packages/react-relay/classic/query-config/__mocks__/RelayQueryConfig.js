@@ -6,6 +6,8 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
+ *
+ * @format
  */
 
 'use strict';
@@ -20,7 +22,7 @@ RelayQueryConfig.genMock = jest.fn(staticProperties => {
 });
 
 RelayQueryConfig.genMockInstance = jest.fn(
-  () => new (RelayQueryConfig.genMock())()
+  () => new (RelayQueryConfig.genMock())(),
 );
 
 module.exports = RelayQueryConfig;

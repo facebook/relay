@@ -8,6 +8,7 @@
  *
  * @providesModule RelayPendingQueryTracker
  * @flow
+ * @format
  */
 
 'use strict';
@@ -104,11 +105,15 @@ class PendingFetch {
 
   constructor(
     {fetchMode, forceIndex, query}: PendingQueryParameters,
-    {pendingFetchMap, preloadQueryMap, storeData}: {
+    {
+      pendingFetchMap,
+      preloadQueryMap,
+      storeData,
+    }: {
       pendingFetchMap: {[queryID: string]: PendingState},
       preloadQueryMap: PromiseMap<Object, Error>,
       storeData: RelayStoreData,
-    }
+    },
   ) {
     const queryID = query.getID();
     this._forceIndex = forceIndex;
@@ -130,10 +135,12 @@ class PendingFetch {
       fetch: this,
       query: query,
     };
-    throwFailedPromise(this._fetchQueryPromise.then(
-      this._handleQuerySuccess.bind(this),
-      this._handleQueryFailure.bind(this),
-    ));
+    throwFailedPromise(
+      this._fetchQueryPromise.then(
+        this._handleQuerySuccess.bind(this),
+        this._handleQueryFailure.bind(this),
+      ),
+    );
   }
 
   isResolvable(): boolean {
@@ -148,33 +155,34 @@ class PendingFetch {
     return this._resolvedDeferred.getPromise();
   }
 
-  _handleQuerySuccess(
-    result: QueryResult
-  ): void {
+  _handleQuerySuccess(result: QueryResult): void {
     this._fetchedQuery = true;
 
-    throwFailedPromise(this._storeData.getTaskQueue().enqueue(() => {
-      const response = result.response;
-      invariant(
-        response && typeof response === 'object',
-        'RelayPendingQueryTracker: Expected response to be an object, got ' +
-        '`%s`.',
-        response ? typeof response : response
-      );
-      this._storeData.handleQueryPayload(
-        this._query,
-        response,
-        this._forceIndex
-      );
-    }).then(
-      this._markQueryAsResolved.bind(this),
-      this._markAsRejected.bind(this)
-    ));
+    throwFailedPromise(
+      this._storeData
+        .getTaskQueue()
+        .enqueue(() => {
+          const response = result.response;
+          invariant(
+            response && typeof response === 'object',
+            'RelayPendingQueryTracker: Expected response to be an object, got ' +
+              '`%s`.',
+            response ? typeof response : response,
+          );
+          this._storeData.handleQueryPayload(
+            this._query,
+            response,
+            this._forceIndex,
+          );
+        })
+        .then(
+          this._markQueryAsResolved.bind(this),
+          this._markAsRejected.bind(this),
+        ),
+    );
   }
 
-  _handleQueryFailure(
-    error: Error
-  ): void {
+  _handleQueryFailure(error: Error): void {
     this._markAsRejected(error);
   }
 
@@ -207,7 +215,7 @@ class PendingFetch {
   }
 
   _isSettled(): boolean {
-    return (!!this._error || this._resolvedQuery);
+    return !!this._error || this._resolvedQuery;
   }
 }
 

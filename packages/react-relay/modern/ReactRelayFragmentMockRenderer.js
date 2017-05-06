@@ -8,6 +8,7 @@
  *
  * @providesModule ReactRelayFragmentMockRenderer
  * @flow
+ * @format
  */
 
 'use strict';
@@ -20,8 +21,7 @@ class ReactRelayFragmentMockRenderer extends React.Component {
 
   static childContextTypes = {
     relay: RelayPropTypes.Relay,
-  }
-
+  };
   constructor(props: Object) {
     super();
     this.mockContext = {

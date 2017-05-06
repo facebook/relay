@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -36,7 +37,8 @@ describe('RelayQueryMutation', () => {
         text: 'comment!',
       },
     });
-    mutationQuery = getNode(Relay.QL`
+    mutationQuery = getNode(
+      Relay.QL`
       mutation {
         commentCreate(input:$input) {
           clientMutationId
@@ -46,13 +48,15 @@ describe('RelayQueryMutation', () => {
           }
         }
       }
-    `, {input});
+    `,
+      {input},
+    );
   });
 
   it('creates mutations', () => {
     expect(mutationQuery.getName()).toBe('RelayQueryMutation');
     expect(mutationQuery.getResponseType()).toBe(
-      'CommentCreateResponsePayload'
+      'CommentCreateResponsePayload',
     );
     expect(mutationQuery.getCall()).toEqual({
       name: 'commentCreate',
@@ -61,7 +65,7 @@ describe('RelayQueryMutation', () => {
     const children = mutationQuery.getChildren();
     expect(children.length).toBe(2);
     expect(children[0].getSchemaName()).toBe(
-      RelayConnectionInterface.CLIENT_MUTATION_ID
+      RelayConnectionInterface.CLIENT_MUTATION_ID,
     );
     expect(children[1].getSchemaName()).toBe('feedbackCommentEdge');
     const edgeChildren = children[1].getChildren();
@@ -75,13 +79,11 @@ describe('RelayQueryMutation', () => {
     let clone = mutationQuery.clone(mutationQuery.getChildren());
     expect(clone).toBe(mutationQuery);
 
-    clone = mutationQuery.clone(
-      mutationQuery.getChildren().slice(0, 1)
-    );
+    clone = mutationQuery.clone(mutationQuery.getChildren().slice(0, 1));
     expect(clone).not.toBe(mutationQuery);
     expect(clone.getChildren().length).toBe(1);
     expect(clone.getChildren()[0].getSchemaName()).toBe(
-      RelayConnectionInterface.CLIENT_MUTATION_ID
+      RelayConnectionInterface.CLIENT_MUTATION_ID,
     );
 
     clone = mutationQuery.clone([null]);
@@ -89,7 +91,8 @@ describe('RelayQueryMutation', () => {
   });
 
   it('tests for equality', () => {
-    const equivalentQuery = getNode(Relay.QL`
+    const equivalentQuery = getNode(
+      Relay.QL`
       mutation {
         commentCreate(input:$input) {
           clientMutationId
@@ -99,8 +102,11 @@ describe('RelayQueryMutation', () => {
           }
         }
       }
-    `, {input});
-    const differentQuery = getNode(Relay.QL`
+    `,
+      {input},
+    );
+    const differentQuery = getNode(
+      Relay.QL`
       mutation {
         commentCreate(input:$input) {
           clientMutationId
@@ -111,7 +117,9 @@ describe('RelayQueryMutation', () => {
           }
         }
       }
-    `, {input});
+    `,
+      {input},
+    );
 
     expect(mutationQuery).not.toBe(equivalentQuery);
     expect(mutationQuery.equals(equivalentQuery)).toBe(true);

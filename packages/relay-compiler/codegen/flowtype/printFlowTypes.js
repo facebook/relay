@@ -8,6 +8,7 @@
  *
  * @flow
  * @providesModule printFlowTypes
+ * @format
  */
 
 'use strict';
@@ -18,12 +19,7 @@ const t = require('babel-types');
 
 const {RELAY_CLASSIC_MUTATION} = require('RelayFlowParser');
 
-import type {
-  Fragment,
-  LinkedField,
-  Root,
-  Selection,
-} from 'RelayIR';
+import type {Fragment, LinkedField, Root, Selection} from 'RelayIR';
 import type {GraphQLType} from 'graphql';
 const generate = require('babel-generator').default;
 const {getRawType} = require('RelaySchemaUtils');
@@ -59,7 +55,8 @@ function printFlowTypes(node: Root | Fragment): ?string {
         }
         return normalize(transform(inputIR))
           .concat(response)
-          .map(n => generate(n).code).join('\n\n');
+          .map(n => generate(n).code)
+          .join('\n\n');
       }
     }
   } else if (node.kind === 'Fragment') {
@@ -105,10 +102,9 @@ function normalize(ast): Array<Annotation> {
           return;
         }
         const {name} = path.node.key;
-        path.traverse(
-          findObjectTypeAnnotation,
-          {name: `${this.prevName}_${name}`}
-        );
+        path.traverse(findObjectTypeAnnotation, {
+          name: `${this.prevName}_${name}`,
+        });
       }
     },
     noScope: true,
@@ -122,29 +118,27 @@ function normalize(ast): Array<Annotation> {
         // Add the node of that transformed path to the array
         normalizedRoots.push(
           t.exportNamedDeclaration(
-            t.typeAlias(
-              t.identifier(this.name),
-              null,
-              path.node,
-            ),
+            t.typeAlias(t.identifier(this.name), null, path.node),
             [],
             null,
-          )
+          ),
         );
 
         // Replace that path with a reference to the extracted type
         path.replaceWith(
-          t.genericTypeAnnotation(
-            t.identifier(this.name),
-            null
-          )
+          t.genericTypeAnnotation(t.identifier(this.name), null),
         );
       }
     },
     noScope: true,
   };
 
-  traverse(ast, findObjectTypeProperty, {}, {prevName: ast.declaration.id.name});
+  traverse(
+    ast,
+    findObjectTypeProperty,
+    {},
+    {prevName: ast.declaration.id.name},
+  );
 
   return normalizedRoots;
 }
@@ -155,7 +149,7 @@ function normalize(ast): Array<Annotation> {
  */
 function transformSelection(
   node: Selection,
-  forceNull: boolean = false
+  forceNull: boolean = false,
 ): ?Array<Annotation> {
   if (node.name && FIELD_BLACKLIST.indexOf(node.name) !== -1) {
     return;
@@ -168,30 +162,19 @@ function transformSelection(
     case 'ScalarField':
       body = wrapNullOrArray(
         node.type,
-        transformScalarField(
-          getRawType(node.type)
-        ),
+        transformScalarField(getRawType(node.type)),
       );
       if (body.type !== 'NullableTypeAnnotation' && forceNull) {
         body = t.nullableTypeAnnotation(body);
       }
-      annotation = t.objectTypeProperty(
-        t.identifier(name),
-        body
-      );
+      annotation = t.objectTypeProperty(t.identifier(name), body);
       break;
     case 'LinkedField':
-      body = wrapNullOrArray(
-        node.type,
-        transformLinkedField(node)
-      );
+      body = wrapNullOrArray(node.type, transformLinkedField(node));
       if (body.type !== 'NullableTypeAnnotation' && forceNull) {
         body = t.nullableTypeAnnotation(body);
       }
-      annotation = t.objectTypeProperty(
-        t.identifier(name),
-        body
-      );
+      annotation = t.objectTypeProperty(t.identifier(name), body);
       break;
     case 'Condition':
       annotation = node.selections
@@ -240,14 +223,10 @@ function transformSelection(
 /**
  * Wraps the given type annotation as a Flow Array.
  */
-function getArrayTypeAnnotation(
-  typeAnnotation: Annotation
-): Annotation {
+function getArrayTypeAnnotation(typeAnnotation: Annotation): Annotation {
   return t.genericTypeAnnotation(
     t.identifier('Array'),
-    t.typeParameterInstantiation([
-      typeAnnotation,
-    ])
+    t.typeParameterInstantiation([typeAnnotation]),
   );
 }
 
@@ -258,7 +237,7 @@ function getArrayTypeAnnotation(
 function wrapNullOrArray(
   type: GraphQLType,
   child: Annotation,
-  nullable: boolean = true
+  nullable: boolean = true,
 ): Annotation {
   if (!type) {
     return child;
@@ -268,9 +247,7 @@ function wrapNullOrArray(
   if (type instanceof GraphQLNonNull) {
     return wrapNullOrArray(type.ofType, child, false);
   } else if (type instanceof GraphQLList) {
-    annotation = getArrayTypeAnnotation(
-      wrapNullOrArray(type.ofType, child)
-    );
+    annotation = getArrayTypeAnnotation(wrapNullOrArray(type.ofType, child));
   } else {
     annotation = child;
   }
@@ -282,25 +259,22 @@ function wrapNullOrArray(
  * Transforms a LinkedField into a Flow objectTypeAnnotation.
  */
 function transformLinkedField(node: LinkedField): Annotation {
-  const selections = node.selections.map(selection => {
-    return transformSelection(selection);
-  })
-  .reduce((prev, curr) => {
-    if (!curr) {
-      return prev;
-    }
-    return prev.concat(curr);
-  }, []);
+  const selections = node.selections
+    .map(selection => {
+      return transformSelection(selection);
+    })
+    .reduce((prev, curr) => {
+      if (!curr) {
+        return prev;
+      }
+      return prev.concat(curr);
+    }, []);
 
   // If there are no selections, then we know the only child was a FragmentSpread
   // so we should make this field an 'any' type. (The alternative is an empty
   // object!)
   if (selections.length) {
-    return t.objectTypeAnnotation(
-      selections,
-      null,
-      null,
-    );
+    return t.objectTypeAnnotation(selections, null, null);
   } else {
     return t.anyTypeAnnotation();
   }
@@ -325,7 +299,9 @@ function transformScalarField(type: GraphQLType): Annotation {
       case 'Boolean':
         return t.booleanTypeAnnotation();
       default:
-        console.warn(`Could not convert GraphQLScalarType(${type.name}), using 'any'`);
+        console.warn(
+          `Could not convert GraphQLScalarType(${type.name}), using 'any'`,
+        );
         return t.anyTypeAnnotation();
     }
   } else if (type instanceof GraphQLEnumType) {

@@ -8,6 +8,7 @@
  *
  * @providesModule RelayIR
  * @flow
+ * @format
  */
 
 'use strict';
@@ -29,8 +30,8 @@ export type Argument = {
   value: ArgumentValue,
 };
 export type ArgumentDefinition =
-  LocalArgumentDefinition |
-  RootArgumentDefinition;
+  | LocalArgumentDefinition
+  | RootArgumentDefinition;
 export type ArgumentValue = ListValue | Literal | ObjectValue | Variable;
 export type Condition = {
   kind: 'Condition',
@@ -63,22 +64,22 @@ export type FragmentSpread = {
   name: string,
 };
 export type IR =
-  Argument |
-  Condition |
-  Directive |
-  Fragment |
-  FragmentSpread |
-  InlineFragment |
-  LinkedField |
-  ListValue |
-  Literal |
-  LocalArgumentDefinition |
-  ObjectFieldValue |
-  ObjectValue |
-  Root |
-  RootArgumentDefinition |
-  ScalarField |
-  Variable;
+  | Argument
+  | Condition
+  | Directive
+  | Fragment
+  | FragmentSpread
+  | InlineFragment
+  | LinkedField
+  | ListValue
+  | Literal
+  | LocalArgumentDefinition
+  | ObjectFieldValue
+  | ObjectValue
+  | Root
+  | RootArgumentDefinition
+  | ScalarField
+  | Variable;
 export type RootArgumentDefinition = {
   kind: 'RootArgumentDefinition',
   metadata: ?{[key: string]: mixed},
@@ -125,12 +126,7 @@ export type LocalArgumentDefinition = {
   name: string,
   type: GraphQLInputType,
 };
-export type Node =
-  Condition |
-  Fragment |
-  InlineFragment |
-  LinkedField |
-  Root;
+export type Node = Condition | Fragment | InlineFragment | LinkedField | Root;
 export type ObjectFieldValue = {
   kind: 'ObjectFieldValue',
   metadata: ?{[key: string]: mixed},
@@ -153,12 +149,9 @@ export type Root = {
   type: GraphQLCompositeType,
 };
 export type ScalarFieldType =
-  GraphQLLeafType |
-  GraphQLList<ScalarFieldType> |
-  GraphQLNonNull<
-    GraphQLLeafType |
-    GraphQLList<ScalarFieldType>
-  >;
+  | GraphQLLeafType
+  | GraphQLList<ScalarFieldType>
+  | GraphQLNonNull<GraphQLLeafType | GraphQLList<ScalarFieldType>>;
 export type ScalarField = {
   alias: ?string,
   args: Array<Argument>,
@@ -170,11 +163,11 @@ export type ScalarField = {
   type: ScalarFieldType,
 };
 export type Selection =
-  Condition |
-  FragmentSpread |
-  InlineFragment |
-  LinkedField |
-  ScalarField;
+  | Condition
+  | FragmentSpread
+  | InlineFragment
+  | LinkedField
+  | ScalarField;
 export type Variable = {
   kind: 'Variable',
   metadata: ?{[key: string]: mixed},

@@ -86,15 +86,15 @@ This is a specialization of the general-purpose refetch container that is tailor
 
 ### Relay Environment
 
-An instance of a [Relay Environment](./environment.html) encapsulates an in-memory cache of GraphQL data and a network layer that provides access to your GraphQL server. The Environment object is typically not used by developers directly, instead it is passed to each [`QueryRenderer`](./query-renderer.html), which uses the environment to access, modify, and fetch data. Within a container, the current environment can be accessed via `this.props.relay.environment`. This is most commonly used to [execute a mutation](./mutations.html).
+An instance of a [Relay Environment](./relay-environment.html) encapsulates an in-memory cache of GraphQL data and a network layer that provides access to your GraphQL server. The Environment object is typically not used by developers directly, instead it is passed to each [`QueryRenderer`](./query-renderer.html), which uses the environment to access, modify, and fetch data. Within a container, the current environment can be accessed via `this.props.relay.environment`. This is most commonly used to [execute a mutation](./mutations.html).
 
 ### Network layer
 
-Applications must supply a [Network Layer](./network-layer.html) when creating an instance of a Relay Environment. The network layer is an object confirming to a simple interface through which Relay can execute queries, mutations, and subscriptions. Essentially, this object teaches Relay how to talk to your GraphQL server.
+Applications must supply a [Network Layer](./network-layer.html) when creating an instance of a Relay Environment. The network layer is an object conforming to a simple interface through which Relay can execute queries, mutations, and subscriptions. Essentially, this object teaches Relay how to talk to your GraphQL server.
 
 ## Workflow
 
-One of the big ideas behind the new API is that execution can be made a lot more efficient by moving work ahead-of-time: from to runtime of the app to the build-time. As such, changes to GraphQL fragments require a build step to regenerate a set of artifacts. More on [the Relay Compiler](./relay-compiler.html).
+One of the big ideas behind the new API is that execution can be made a lot more efficient by moving work ahead-of-time: from the runtime of the app to the build-time. As such, changes to GraphQL fragments require a build step to regenerate a set of artifacts. More on [the Relay Compiler](./relay-compiler.html).
 
 ## Comparing Relay Classic and Relay Modern
 

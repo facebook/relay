@@ -7,15 +7,14 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
 require('configureForRelayOSS');
 
-jest
-  .unmock('GraphQLRange')
-  .unmock('GraphQLSegment');
+jest.unmock('GraphQLRange').unmock('GraphQLSegment');
 
 const Relay = require('Relay');
 const RelayQueryTracker = require('RelayQueryTracker');
@@ -43,7 +42,8 @@ describe('diffRelayQuery', () => {
     const store = new RelayRecordStore({records});
     const tracker = new RelayQueryTracker();
 
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       query {
         username(name:"joe") {
           id
@@ -51,7 +51,8 @@ describe('diffRelayQuery', () => {
           lastName
         }
       }
-    `);
+    `,
+    );
     const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toBeQueryRoot(query);
@@ -62,7 +63,8 @@ describe('diffRelayQuery', () => {
     const store = new RelayRecordStore({records});
     const tracker = new RelayQueryTracker();
 
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       query {
         node(id:"123") {
           id
@@ -70,7 +72,8 @@ describe('diffRelayQuery', () => {
           lastName
         }
       }
-    `);
+    `,
+    );
     const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toBeQueryRoot(query);
@@ -82,13 +85,15 @@ describe('diffRelayQuery', () => {
     const writer = new RelayRecordWriter(records, {}, false);
     const tracker = new RelayQueryTracker();
 
-    const writeQuery = getNode(Relay.QL`
+    const writeQuery = getNode(
+      Relay.QL`
       query {
         node(id:"123") {
           firstName
         }
       }
-    `);
+    `,
+    );
     const payload = {
       node: {
         id: '123',
@@ -98,7 +103,8 @@ describe('diffRelayQuery', () => {
     };
     writePayload(store, writer, writeQuery, payload, tracker);
 
-    const fetchQuery = getNode(Relay.QL`
+    const fetchQuery = getNode(
+      Relay.QL`
       query {
         node(id:"123") {
           id
@@ -106,15 +112,20 @@ describe('diffRelayQuery', () => {
           lastName
         }
       }
-    `);
+    `,
+    );
     const diffQueries = diffRelayQuery(fetchQuery, store, tracker);
     expect(diffQueries.length).toBe(1);
-    expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
+    expect(diffQueries[0]).toEqualQueryRoot(
+      getNode(
+        Relay.QL`
       query {
         node(id:"123") {
           lastName
         }
       }
-    `));
+    `,
+      ),
+    );
   });
 });

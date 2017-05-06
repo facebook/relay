@@ -8,6 +8,7 @@
  *
  * @providesModule RelayMetricsRecorder
  * @flow
+ * @format
  */
 
 'use strict';
@@ -126,7 +127,7 @@ class RelayMetricsRecorder {
         return 1;
       } else {
         // lower duration first
-        return (a.endTime - a.startTime) - (b.endTime - b.startTime);
+        return a.endTime - a.startTime - (b.endTime - b.startTime);
       }
     });
 
@@ -156,8 +157,9 @@ class RelayMetricsRecorder {
   }
 
   _startMeasurement(name: string): void {
-    this._measurements[name] =
-      this._measurements[name] || {...measurementDefaults};
+    this._measurements[name] = this._measurements[name] || {
+      ...measurementDefaults,
+    };
     this._profileStack.unshift(0);
     this._startTimesStack.unshift(performanceNow());
   }

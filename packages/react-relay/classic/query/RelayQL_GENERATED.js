@@ -8,6 +8,7 @@
  *
  * @providesModule RelayQL_GENERATED
  * @flow
+ * @format
  */
 
 'use strict';

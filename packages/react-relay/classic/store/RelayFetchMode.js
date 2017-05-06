@@ -8,6 +8,7 @@
  *
  * @providesModule RelayFetchMode
  * @flow
+ * @format
  */
 
 'use strict';

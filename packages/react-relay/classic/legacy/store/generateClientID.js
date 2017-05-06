@@ -8,6 +8,7 @@
  *
  * @providesModule generateClientID
  * @flow
+ * @format
  */
 
 'use strict';

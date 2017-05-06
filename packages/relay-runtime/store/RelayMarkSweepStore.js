@@ -8,15 +8,16 @@
  *
  * @providesModule RelayMarkSweepStore
  * @flow
+ * @format
  */
 
 'use strict';
 
 const RelayAsyncLoader = require('RelayAsyncLoader');
+const RelayModernRecord = require('RelayModernRecord');
 const RelayProfiler = require('RelayProfiler');
 const RelayReader = require('RelayReader');
 const RelayReferenceMarker = require('RelayReferenceMarker');
-const RelayStaticRecord = require('RelayStaticRecord');
 
 const deepFreeze = require('deepFreeze');
 const hasOverlappingIDs = require('hasOverlappingIDs');
@@ -68,7 +69,7 @@ class RelayMarkSweepStore implements Store {
       for (let ii = 0; ii < storeIDs.length; ii++) {
         const record = source.get(storeIDs[ii]);
         if (record) {
-          RelayStaticRecord.freeze(record);
+          RelayModernRecord.freeze(record);
         }
       }
     }
@@ -82,6 +83,14 @@ class RelayMarkSweepStore implements Store {
 
   getSource(): RecordSource {
     return this._recordSource;
+  }
+
+  check(selector: Selector): boolean {
+    return RelayAsyncLoader.check(
+      this._recordSource,
+      this._recordSource,
+      selector,
+    );
   }
 
   retain(selector: Selector): Disposable {
@@ -110,29 +119,20 @@ class RelayMarkSweepStore implements Store {
   }
 
   publish(source: RecordSource): void {
-    updateTargetFromSource(
-      this._recordSource,
-      source,
-      this._updatedRecordIDs
-    );
+    updateTargetFromSource(this._recordSource, source, this._updatedRecordIDs);
   }
 
   resolve(
     target: MutableRecordSource,
     selector: Selector,
-    callback: AsyncLoadCallback
+    callback: AsyncLoadCallback,
   ): void {
-    RelayAsyncLoader.load(
-      this._recordSource,
-      target,
-      selector,
-      callback
-    );
+    RelayAsyncLoader.load(this._recordSource, target, selector, callback);
   }
 
   subscribe(
     snapshot: Snapshot,
-    callback: (snapshot: Snapshot) => void
+    callback: (snapshot: Snapshot) => void,
   ): Disposable {
     const subscription = {callback, snapshot};
     const dispose = () => {
@@ -178,11 +178,7 @@ class RelayMarkSweepStore implements Store {
     const references = new Set();
     // Mark all records that are traversable from a root
     this._roots.forEach(selector => {
-      RelayReferenceMarker.mark(
-        this._recordSource,
-        selector,
-        references
-      );
+      RelayReferenceMarker.mark(this._recordSource, selector, references);
     });
     // Short-circuit if *nothing* is referenced
     if (!references.size) {
@@ -217,7 +213,7 @@ function updateTargetFromSource(
     // Prevent mutation of a record from outside the store.
     if (__DEV__) {
       if (sourceRecord) {
-        RelayStaticRecord.freeze(sourceRecord);
+        RelayModernRecord.freeze(sourceRecord);
       }
     }
     if (sourceRecord === UNPUBLISH_RECORD_SENTINEL) {
@@ -225,11 +221,11 @@ function updateTargetFromSource(
       target.remove(dataID);
       updatedRecordIDs[dataID] = true;
     } else if (sourceRecord && targetRecord) {
-      const nextRecord = RelayStaticRecord.update(targetRecord, sourceRecord);
+      const nextRecord = RelayModernRecord.update(targetRecord, sourceRecord);
       if (nextRecord !== targetRecord) {
         // Prevent mutation of a record from outside the store.
         if (__DEV__) {
-          RelayStaticRecord.freeze(nextRecord);
+          RelayModernRecord.freeze(nextRecord);
         }
         updatedRecordIDs[dataID] = true;
         target.set(dataID, nextRecord);

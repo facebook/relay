@@ -8,6 +8,7 @@
  *
  * @providesModule RelayMockRenderer
  * @flow
+ * @format
  */
 
 'use strict';

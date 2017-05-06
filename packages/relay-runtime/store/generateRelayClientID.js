@@ -8,6 +8,7 @@
  *
  * @providesModule generateRelayClientID
  * @flow
+ * @format
  */
 
 'use strict';
@@ -19,7 +20,7 @@ const PREFIX = 'client:';
 function generateRelayClientID(
   id: DataID,
   storageKey: string,
-  index?: number
+  index?: number,
 ): DataID {
   let key = id + ':' + storageKey;
   if (index != null) {

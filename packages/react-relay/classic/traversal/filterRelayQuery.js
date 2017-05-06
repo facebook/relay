@@ -8,6 +8,7 @@
  *
  * @providesModule filterRelayQuery
  * @flow
+ * @format
  */
 
 'use strict';
@@ -25,12 +26,12 @@ type Filter = (node: RelayQuery.Node) => boolean;
  */
 function filterRelayQuery(
   node: RelayQuery.Node,
-  callback: Filter
+  callback: Filter,
 ): ?RelayQuery.Node {
   if (callback(node)) {
-    return node.clone(node.getChildren().map(
-      child => filterRelayQuery(child, callback)
-    ));
+    return node.clone(
+      node.getChildren().map(child => filterRelayQuery(child, callback)),
+    );
   }
   return null;
 }

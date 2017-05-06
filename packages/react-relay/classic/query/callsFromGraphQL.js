@@ -8,6 +8,7 @@
  *
  * @providesModule callsFromGraphQL
  * @flow
+ * @format
  */
 
 'use strict';
@@ -38,7 +39,7 @@ type CallOrDirective = {
  */
 function callsFromGraphQL(
   concreteCalls: Array<ConcreteCall>,
-  variables: Variables
+  variables: Variables,
 ): Array<Call> {
   // $FlowIssue: ConcreteCall should flow into CallOrDirective
   const callsOrDirectives: Array<CallOrDirective> = (concreteCalls: $FlowIssue);
@@ -68,7 +69,7 @@ function callsFromGraphQL(
 
 function getCallValue(
   concreteValue: ConcreteCallValue | ConcreteCallVariable,
-  variables: Variables
+  variables: Variables,
 ): ?CallValue {
   let callValue;
   if (concreteValue.kind === 'CallValue') {
@@ -78,7 +79,7 @@ function getCallValue(
     invariant(
       variables.hasOwnProperty(variableName),
       'callsFromGraphQL(): Expected a declared value for variable, `$%s`.',
-      variableName
+      variableName,
     );
     callValue = variables[variableName];
   }
@@ -87,13 +88,13 @@ function getCallValue(
   const valueType = typeof callValue;
   invariant(
     callValue == null ||
-    valueType === 'boolean' ||
-    valueType === 'number' ||
-    valueType === 'string' ||
-    valueType === 'object',
+      valueType === 'boolean' ||
+      valueType === 'number' ||
+      valueType === 'string' ||
+      valueType === 'object',
     'callsFromGraphQL(): Expected argument value `%s` to either be null or a ' +
-    'boolean, number, string, or array/object.',
-    JSON.stringify(callValue)
+      'boolean, number, string, or array/object.',
+    JSON.stringify(callValue),
   );
   return (callValue: any);
 }

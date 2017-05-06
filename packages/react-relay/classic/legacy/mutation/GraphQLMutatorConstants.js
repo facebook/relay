@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule GraphQLMutatorConstants
+ * @format
  */
 
 'use strict';
@@ -33,29 +34,34 @@ const GraphQLMutatorConstants = {
   RANGE_OPERATIONS: {},
 };
 
-GraphQLMutatorConstants.HANDLER_TYPES
-  [GraphQLMutatorConstants.NODE_DELETE_HANDLER] = true;
-GraphQLMutatorConstants.HANDLER_TYPES
-  [GraphQLMutatorConstants.RANGE_ADD_HANDLER] = true;
-GraphQLMutatorConstants.HANDLER_TYPES
-  [GraphQLMutatorConstants.RANGE_DELETE_HANDLER] = true;
+GraphQLMutatorConstants.HANDLER_TYPES[
+  GraphQLMutatorConstants.NODE_DELETE_HANDLER
+] = true;
+GraphQLMutatorConstants.HANDLER_TYPES[
+  GraphQLMutatorConstants.RANGE_ADD_HANDLER
+] = true;
+GraphQLMutatorConstants.HANDLER_TYPES[
+  GraphQLMutatorConstants.RANGE_DELETE_HANDLER
+] = true;
 
-GraphQLMutatorConstants.UPDATE_TYPES
-  [GraphQLMutatorConstants.OPTIMISTIC_UPDATE] = true;
-GraphQLMutatorConstants.UPDATE_TYPES
-  [GraphQLMutatorConstants.SERVER_UPDATE] = true;
-GraphQLMutatorConstants.UPDATE_TYPES
-  [GraphQLMutatorConstants.POLLER_UPDATE] = true;
+GraphQLMutatorConstants.UPDATE_TYPES[
+  GraphQLMutatorConstants.OPTIMISTIC_UPDATE
+] = true;
+GraphQLMutatorConstants.UPDATE_TYPES[
+  GraphQLMutatorConstants.SERVER_UPDATE
+] = true;
+GraphQLMutatorConstants.UPDATE_TYPES[
+  GraphQLMutatorConstants.POLLER_UPDATE
+] = true;
 
-GraphQLMutatorConstants.RANGE_OPERATIONS
-  [GraphQLMutatorConstants.APPEND] = true;
-GraphQLMutatorConstants.RANGE_OPERATIONS
-  [GraphQLMutatorConstants.IGNORE] = true;
-GraphQLMutatorConstants.RANGE_OPERATIONS
-  [GraphQLMutatorConstants.PREPEND] = true;
-GraphQLMutatorConstants.RANGE_OPERATIONS
-  [GraphQLMutatorConstants.REFETCH] = true;
-GraphQLMutatorConstants.RANGE_OPERATIONS
-  [GraphQLMutatorConstants.REMOVE] = true;
+GraphQLMutatorConstants.RANGE_OPERATIONS[GraphQLMutatorConstants.APPEND] = true;
+GraphQLMutatorConstants.RANGE_OPERATIONS[GraphQLMutatorConstants.IGNORE] = true;
+GraphQLMutatorConstants.RANGE_OPERATIONS[
+  GraphQLMutatorConstants.PREPEND
+] = true;
+GraphQLMutatorConstants.RANGE_OPERATIONS[
+  GraphQLMutatorConstants.REFETCH
+] = true;
+GraphQLMutatorConstants.RANGE_OPERATIONS[GraphQLMutatorConstants.REMOVE] = true;
 
 module.exports = GraphQLMutatorConstants;

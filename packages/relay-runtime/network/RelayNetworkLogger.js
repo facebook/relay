@@ -8,6 +8,7 @@
  *
  * @providesModule RelayNetworkLogger
  * @flow
+ * @format
  */
 
 'use strict';
@@ -25,18 +26,19 @@ import type {
   UploadableMap,
 } from 'RelayNetworkTypes';
 import type {Observer} from 'RelayStoreTypes';
-import type {
-  Variables,
-} from 'RelayTypes';
+import type {Variables} from 'RelayTypes';
 
-export type GraphiQLPrinter = (batch: ConcreteBatch, variables: Variables) => string;
+export type GraphiQLPrinter = (
+  batch: ConcreteBatch,
+  variables: Variables,
+) => string;
 
 let queryID = 1;
 
 const RelayNetworkLogger = {
   wrapFetch(
     fetch: FetchFunction,
-    graphiQLPrinter: GraphiQLPrinter
+    graphiQLPrinter: GraphiQLPrinter,
   ): FetchFunction {
     return (
       operation: ConcreteBatch,
@@ -81,7 +83,7 @@ const RelayNetworkLogger = {
 
   wrapSubscribe(
     subscribe: SubscribeFunction,
-    graphiQLPrinter: GraphiQLPrinter
+    graphiQLPrinter: GraphiQLPrinter,
   ): SubscribeFunction {
     return (
       operation: ConcreteBatch,
@@ -94,7 +96,11 @@ const RelayNetworkLogger = {
 
       const idName = `[${id}] Relay Modern: ${name}`;
 
-      const onResponse = (error: ?Error, response: ?QueryPayload, status: ?string): void => {
+      const onResponse = (
+        error: ?Error,
+        response: ?QueryPayload,
+        status: ?string,
+      ): void => {
         console.groupCollapsed(`%c${idName}`, error ? 'color:red' : '');
         console.log('GraphiQL:', graphiQLPrinter(operation, variables));
         console.log('Cache Config:', cacheConfig);

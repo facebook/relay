@@ -8,6 +8,7 @@
  *
  * @flow
  * @providesModule throwFailedPromise
+ * @format
  */
 
 'use strict';
@@ -19,9 +20,10 @@
  * failure itself.
  */
 function throwFailedPromise(promise: Promise<mixed>): void {
-  promise.then(
-    undefined,
-    error => setTimeout(() => { throw error; }, 0)
+  promise.then(undefined, error =>
+    setTimeout(() => {
+      throw error;
+    }, 0),
   );
 }
 

@@ -8,16 +8,14 @@
  *
  * @providesModule RelayClassicCore
  * @flow
+ * @format
  */
 
 'use strict';
 
 const RelayFragmentSpecResolver = require('RelayFragmentSpecResolver');
 
-const {
-  getClassicFragment,
-  getClassicOperation,
-} = require('RelayGraphQLTag');
+const {getClassicFragment, getClassicOperation} = require('RelayGraphQLTag');
 const {createOperationSelector} = require('RelayOperationSelector');
 const {
   areEqualSelectors,
@@ -28,14 +26,8 @@ const {
   getVariablesFromObject,
 } = require('RelaySelector');
 
-import type {
-  FragmentSpecResolver,
-  Props,
-} from 'RelayCombinedEnvironmentTypes';
-import type {
-  FragmentMap,
-  RelayContext,
-} from 'RelayEnvironmentTypes';
+import type {FragmentSpecResolver, Props} from 'RelayCombinedEnvironmentTypes';
+import type {FragmentMap, RelayContext} from 'RelayEnvironmentTypes';
 
 function createFragmentSpecResolver(
   context: RelayContext,

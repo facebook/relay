@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -39,8 +40,8 @@ describe('validateRelayReadQuery', () => {
           compare(actual, alias) {
             expect(actual).toBeCalledWith(
               '`%s` is used as an alias more than once. Please use unique ' +
-              'aliases.',
-              alias
+                'aliases.',
+              alias,
             );
             return {
               pass: true,
@@ -63,7 +64,8 @@ describe('validateRelayReadQuery', () => {
         }
       }
     `;
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       query {
         node(id:"4") {
           profilePicture(size: 50) {
@@ -72,7 +74,8 @@ describe('validateRelayReadQuery', () => {
           ${fragment}
         }
       }
-    `);
+    `,
+    );
     validateRelayReadQuery(query);
     expect(mockConsoleError).toLogErrorFor('profilePicture');
   });
@@ -92,14 +95,16 @@ describe('validateRelayReadQuery', () => {
         }
       }
     `;
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       query {
         node(id:"4") {
           ${fragment}
           ${otherFragment}
         }
       }
-    `);
+    `,
+    );
     validateRelayReadQuery(query);
     expect(mockConsoleError).toLogErrorFor('profilePicture');
   });
@@ -124,19 +129,22 @@ describe('validateRelayReadQuery', () => {
         ${nestedFragment}
       }
     `;
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       query {
         viewer {
           ${fragment}
         }
       }
-    `);
+    `,
+    );
     validateRelayReadQuery(query);
     expect(mockConsoleError).toLogErrorFor('profilePicture');
   });
 
   it('logs an error for colliding fields within the same query', () => {
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       query {
         node(id:"4") {
           profilePicture(size: 50) {
@@ -147,13 +155,15 @@ describe('validateRelayReadQuery', () => {
           }
         }
       }
-    `);
+    `,
+    );
     validateRelayReadQuery(query);
     expect(mockConsoleError).toLogErrorFor('profilePicture');
   });
 
   it('logs an error if both fields have aliases but they collide', () => {
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       query {
         node(id:"4") {
           pic: profilePicture(size: 50) {
@@ -164,13 +174,15 @@ describe('validateRelayReadQuery', () => {
           }
         }
       }
-    `);
+    `,
+    );
     validateRelayReadQuery(query);
     expect(mockConsoleError).toLogErrorFor('pic');
   });
 
   it('logs an error for two different fields with colliding aliases', () => {
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       query {
         node(id:"4") {
           special: profilePicture(size: 50) {
@@ -179,7 +191,8 @@ describe('validateRelayReadQuery', () => {
           special: name
         }
       }
-    `);
+    `,
+    );
     validateRelayReadQuery(query);
     expect(mockConsoleError).toLogErrorFor('special');
   });
@@ -187,7 +200,8 @@ describe('validateRelayReadQuery', () => {
   it('logs an error when a collision occurs within pageInfo', () => {
     // We test this separately because we traverse pageInfo as though it were a
     // linked field.
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       query {
         node(id:"4") {
           friends(first: 1) {
@@ -198,19 +212,22 @@ describe('validateRelayReadQuery', () => {
           }
         }
       }
-    `);
+    `,
+    );
     validateRelayReadQuery(query);
     expect(mockConsoleError).toLogErrorFor('my_cursor');
   });
 
   it('logs no error when alias is the same as a connection subfield', () => {
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       fragment on User {
         count: friends {
           count
         }
       }
-    `);
+    `,
+    );
     validateRelayReadQuery(query);
     expect(mockConsoleError).not.toBeCalled();
   });
@@ -223,7 +240,8 @@ describe('validateRelayReadQuery', () => {
         }
       }
     `;
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       query {
         node(id:"4") {
           medium_profile: profilePicture(size: 50) {
@@ -232,7 +250,8 @@ describe('validateRelayReadQuery', () => {
           ${fragment}
         }
       }
-    `);
+    `,
+    );
     validateRelayReadQuery(query);
     expect(mockConsoleError).not.toBeCalled();
   });
@@ -245,7 +264,8 @@ describe('validateRelayReadQuery', () => {
         }
       }
     `;
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       query {
         node(id:"4") {
           profilePicture(size: 50) {
@@ -254,7 +274,8 @@ describe('validateRelayReadQuery', () => {
           ${fragment}
         }
       }
-    `);
+    `,
+    );
     validateRelayReadQuery(query);
     expect(mockConsoleError).not.toBeCalled();
   });
@@ -267,7 +288,8 @@ describe('validateRelayReadQuery', () => {
         }
       }
     `;
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       query {
         node(id:"4") {
           medium_profile: profilePicture(size: 50) {
@@ -276,13 +298,15 @@ describe('validateRelayReadQuery', () => {
           ${fragment}
         }
       }
-    `);
+    `,
+    );
     validateRelayReadQuery(query);
     expect(mockConsoleError).not.toBeCalled();
   });
 
   it('logs no error when one of two fields in a query has an alias', () => {
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       query {
         node(id:"4") {
           medium_profile: profilePicture(size: 50) {
@@ -293,13 +317,15 @@ describe('validateRelayReadQuery', () => {
           }
         }
       }
-    `);
+    `,
+    );
     validateRelayReadQuery(query);
     expect(mockConsoleError).not.toBeCalled();
   });
 
   it('logs no error when two fields in a query both have aliases', () => {
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       query {
         node(id:"4") {
           medium_profile: profilePicture(size: 50) {
@@ -310,7 +336,8 @@ describe('validateRelayReadQuery', () => {
           }
         }
       }
-    `);
+    `,
+    );
     validateRelayReadQuery(query);
     expect(mockConsoleError).not.toBeCalled();
   });
@@ -318,22 +345,25 @@ describe('validateRelayReadQuery', () => {
   it('logs no error for a non-local fragment which would collide', () => {
     const fragment = RelayFragmentReference.createForContainer(
       () => Relay.QL`fragment on User {profilePicture(size: 100){height}}`,
-      {}
+      {},
     );
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       fragment on User {
         profilePicture(size: 50) {
           height
         }
         ${fragment}
       }
-    `);
+    `,
+    );
     validateRelayReadQuery(query);
     expect(mockConsoleError).not.toBeCalled();
   });
 
   it('logs no error for fields at different levels', () => {
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       fragment on User {
         profilePicture(size: 50) {
           height
@@ -348,7 +378,8 @@ describe('validateRelayReadQuery', () => {
           }
         }
       }
-    `);
+    `,
+    );
     validateRelayReadQuery(query);
     expect(mockConsoleError).not.toBeCalled();
   });

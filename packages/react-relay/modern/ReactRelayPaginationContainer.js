@@ -8,6 +8,7 @@
  *
  * @providesModule ReactRelayPaginationContainer
  * @flow
+ * @format
  */
 
 'use strict';
@@ -17,13 +18,13 @@ const RelayProfiler = require('RelayProfiler');
 const RelayPropTypes = require('RelayPropTypes');
 
 const areEqual = require('areEqual');
+const buildReactRelayContainer = require('buildReactRelayContainer');
 const invariant = require('invariant');
 const isRelayContext = require('isRelayContext');
 const isScalarAndEqual = require('isScalarAndEqual');
 const nullthrows = require('nullthrows');
 const warning = require('warning');
 
-const {buildCompatContainer} = require('ReactRelayCompatContainerBuilder');
 const {profileContainer} = require('ReactRelayContainerProfiler');
 const {
   EDGES,
@@ -46,11 +47,8 @@ import type {
 } from 'RelayCombinedEnvironmentTypes';
 import type {ConnectionMetadata} from 'RelayConnectionHandler';
 import type {PageInfo} from 'RelayConnectionInterface';
-import type {GraphQLTaggedNode} from 'RelayStaticGraphQLTag';
-import type {
-  FragmentMap,
-  RelayContext,
-} from 'RelayStoreTypes';
+import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
+import type {FragmentMap, RelayContext} from 'RelayStoreTypes';
 import type {Variables} from 'RelayTypes';
 
 type ContainerState = {
@@ -86,12 +84,12 @@ export type ConnectionData = {
 };
 
 /**
- * Extends the functionality of RelayCompatContainer by providing a mechanism
+ * Extends the functionality of RelayFragmentContainer by providing a mechanism
  * to load more data from a connection.
  *
  * # Configuring a PaginationContainer
  *
- * PaginationContainer accepts the standard CompatContainer arguments and an
+ * PaginationContainer accepts the standard FragmentContainer arguments and an
  * additional `connectionConfig` argument:
  *
  * - `Component`: the component to be wrapped/rendered.
@@ -244,10 +242,7 @@ function createGetFragmentVariables(
     'ReactRelayPaginationContainer: Unable to synthesize a ' +
       'getFragmentVariables function.',
   );
-  return (
-    prevVars: Variables,
-    totalCount: number,
-  ) => ({
+  return (prevVars: Variables, totalCount: number) => ({
     ...prevVars,
     [countVariable]: totalCount,
   });
@@ -261,20 +256,20 @@ function findConnectionMetadata(fragments): ReactConnectionMetadata {
   let foundConnectionMetadata = null;
   for (const fragmentName in fragments) {
     const fragment = fragments[fragmentName];
-    const connectionMetadata: ?Array<ConnectionMetadata> =
-      (fragment.metadata && fragment.metadata.connection: any);
+    const connectionMetadata: ?Array<ConnectionMetadata> = (fragment.metadata &&
+      fragment.metadata.connection: any);
     if (connectionMetadata) {
       invariant(
         connectionMetadata.length === 1,
         'ReactRelayPaginationContainer: Only a single @connection is ' +
-        'supported, `%s` has %s.',
+          'supported, `%s` has %s.',
         fragmentName,
         connectionMetadata.length,
       );
       invariant(
         !foundConnectionMetadata,
         'ReactRelayPaginationContainer: Only a single fragment with ' +
-        '@connection is supported.',
+          '@connection is supported.',
       );
       foundConnectionMetadata = {
         ...connectionMetadata[0],
@@ -286,18 +281,19 @@ function findConnectionMetadata(fragments): ReactConnectionMetadata {
   return foundConnectionMetadata || ({}: any);
 }
 
-function createContainerWithFragments<TDefaultProps, TProps>(
-  Component: Class<React.Component<TDefaultProps, TProps, *>> | ReactClass<TProps>,
+function createContainerWithFragments<TBase: ReactClass<*>>(
+  Component: TBase,
   fragments: FragmentMap,
   connectionConfig: ConnectionConfig,
-): Class<React.Component<TDefaultProps, TProps, *>> {
+): TBase {
   const ComponentClass = getReactComponent(Component);
   const componentName = getComponentName(Component);
   const containerName = `Relay(${componentName})`;
 
   const metadata = findConnectionMetadata(fragments);
 
-  const getConnectionFromProps = connectionConfig.getConnectionFromProps ||
+  const getConnectionFromProps =
+    connectionConfig.getConnectionFromProps ||
     createGetConnectionFromProps(metadata);
 
   const direction = connectionConfig.direction || metadata.direction;
@@ -307,7 +303,8 @@ function createContainerWithFragments<TDefaultProps, TProps>(
       'connection, possibly because both first and last are provided.',
   );
 
-  const getFragmentVariables = connectionConfig.getFragmentVariables ||
+  const getFragmentVariables =
+    connectionConfig.getFragmentVariables ||
     createGetFragmentVariables(metadata);
 
   class Container extends React.Component {
@@ -420,7 +417,7 @@ function createContainerWithFragments<TDefaultProps, TProps>(
      */
     _handleFragmentDataUpdate = () => {
       const profiler = RelayProfiler.profile(
-        'ReactRelayPaginationContainer.handleFragmentDataUpdate'
+        'ReactRelayPaginationContainer.handleFragmentDataUpdate',
       );
       this.setState({data: this._resolver.resolve()}, profiler.stop);
     };
@@ -442,11 +439,11 @@ function createContainerWithFragments<TDefaultProps, TProps>(
       invariant(
         typeof connectionData === 'object',
         'ReactRelayPaginationContainer: Expected `getConnectionFromProps()` in `%s`' +
-        'to return `null` or a plain object with %s and %s properties, got `%s`.' +
-        componentName,
+          'to return `null` or a plain object with %s and %s properties, got `%s`.' +
+          componentName,
         EDGES,
         PAGE_INFO,
-        connectionData
+        connectionData,
       );
       const edges = connectionData[EDGES];
       const pageInfo = connectionData[PAGE_INFO];
@@ -456,30 +453,30 @@ function createContainerWithFragments<TDefaultProps, TProps>(
       invariant(
         Array.isArray(edges),
         'ReactRelayPaginationContainer: Expected `getConnectionFromProps()` in `%s`' +
-        'to return an object with %s: Array, got `%s`.',
+          'to return an object with %s: Array, got `%s`.',
         componentName,
         EDGES,
-        edges
+        edges,
       );
       invariant(
         typeof pageInfo === 'object',
         'ReactRelayPaginationContainer: Expected `getConnectionFromProps()` in `%s`' +
-        'to return an object with %s: Object, got `%s`.',
+          'to return an object with %s: Object, got `%s`.',
         componentName,
         PAGE_INFO,
-        pageInfo
+        pageInfo,
       );
-      const hasMore = direction === FORWARD ?
-        pageInfo[HAS_NEXT_PAGE] :
-        pageInfo[HAS_PREV_PAGE];
-      const cursor = direction === FORWARD ?
-        pageInfo[END_CURSOR] :
-        pageInfo[START_CURSOR];
+      const hasMore = direction === FORWARD
+        ? pageInfo[HAS_NEXT_PAGE]
+        : pageInfo[HAS_PREV_PAGE];
+      const cursor = direction === FORWARD
+        ? pageInfo[END_CURSOR]
+        : pageInfo[START_CURSOR];
       if (typeof hasMore !== 'boolean' || typeof cursor !== 'string') {
         warning(
           false,
           'ReactRelayPaginationContainer: Cannot paginate without %s fields in `%s`. ' +
-          'Be sure to fetch %s (got `%s`) and %s (got `%s`).',
+            'Be sure to fetch %s (got `%s`) and %s (got `%s`).',
           PAGE_INFO,
           componentName,
           direction === FORWARD ? HAS_NEXT_PAGE : HAS_PREV_PAGE,
@@ -520,7 +517,7 @@ function createContainerWithFragments<TDefaultProps, TProps>(
     _loadMore = (
       pageSize: number,
       callback: ?(error: ?Error) => void,
-      options: ?RefetchOptions
+      options: ?RefetchOptions,
     ): ?Disposable => {
       const connectionData = this._getConnectionData();
       if (!connectionData) {
@@ -545,7 +542,7 @@ function createContainerWithFragments<TDefaultProps, TProps>(
         totalCount: number,
       },
       callback: ?(error: ?Error) => void,
-      options: ?RefetchOptions
+      options: ?RefetchOptions,
     ): ?Disposable {
       const {environment} = assertRelayContext(this.context.relay);
       const {
@@ -574,9 +571,9 @@ function createContainerWithFragments<TDefaultProps, TProps>(
       invariant(
         typeof fetchVariables === 'object' && fetchVariables !== null,
         'ReactRelayPaginationContainer: Expected `getVariables()` to ' +
-        'return an object, got `%s` in `%s`.',
+          'return an object, got `%s` in `%s`.',
         fetchVariables,
-        componentName
+        componentName,
       );
       this._localVariables = fetchVariables;
 
@@ -623,7 +620,9 @@ function createContainerWithFragments<TDefaultProps, TProps>(
     }
 
     _updateSnapshots(totalCount: number): void {
-      const {getVariablesFromObject} = this.context.relay.environment.unstable_internal;
+      const {
+        getVariablesFromObject,
+      } = this.context.relay.environment.unstable_internal;
       const prevVariables = getVariablesFromObject(
         this.context.relay.variables,
         fragments,
@@ -689,8 +688,8 @@ function assertRelayContext(relay: mixed): RelayContext {
   invariant(
     isRelayContext(relay),
     'ReactRelayPaginationContainer: Expected `context.relay` to be an object ' +
-    'conforming to the `RelayContext` interface, got `%s`.',
-    relay
+      'conforming to the `RelayContext` interface, got `%s`.',
+    relay,
   );
   return (relay: any);
 }
@@ -707,16 +706,12 @@ function createContainer<TBase: ReactClass<*>>(
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
   connectionConfig: ConnectionConfig,
 ): TBase {
-  return buildCompatContainer(
+  return buildReactRelayContainer(
     Component,
-    (fragmentSpec: any),
-    (ComponentClass, fragments) => {
-      return createContainerWithFragments(ComponentClass, fragments, connectionConfig);
-    },
+    fragmentSpec,
+    (ComponentClass, fragments) =>
+      createContainerWithFragments(ComponentClass, fragments, connectionConfig),
   );
 }
 
-module.exports = {
-  createContainer,
-  createContainerWithFragments,
-};
+module.exports = {createContainer, createContainerWithFragments};

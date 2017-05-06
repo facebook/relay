@@ -8,6 +8,7 @@
  *
  * @providesModule RelayConnectionConstants
  * @flow
+ * @format
  */
 
 'use strict';

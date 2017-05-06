@@ -8,6 +8,7 @@
  *
  * @providesModule rangeOperationToMetadataKey
  * @flow
+ * @format
  */
 
 'use strict';
@@ -35,7 +36,7 @@ const rangeOperationToMetadataKey = mapObject(
       capitalizedKey +
       RANGE_OPERATION_METADATA_SUFFIX
     );
-  }
+  },
 );
 
 module.exports = Object.freeze(rangeOperationToMetadataKey);

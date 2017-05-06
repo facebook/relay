@@ -8,14 +8,15 @@
  *
  * @providesModule RelayConcreteNode
  * @flow
+ * @format
  */
 
 'use strict';
 
 export type ConcreteArgument = ConcreteLiteral | ConcreteVariable;
 export type ConcreteArgumentDefinition =
-  ConcreteLocalArgument |
-  ConcreteRootArgument;
+  | ConcreteLocalArgument
+  | ConcreteRootArgument;
 /**
  * Represents a single ConcreteRoot along with metadata for processing it at
  * runtime. The persisted `id` (or `text`) can be used to fetch the query,
@@ -100,11 +101,11 @@ export type ConcreteLocalArgument = {
   type: string,
 };
 export type ConcreteNode =
-  ConcreteCondition |
-  ConcreteLinkedField |
-  ConcreteFragment |
-  ConcreteInlineFragment |
-  ConcreteRoot;
+  | ConcreteCondition
+  | ConcreteLinkedField
+  | ConcreteFragment
+  | ConcreteInlineFragment
+  | ConcreteRoot;
 export type ConcreteRoot = {
   argumentDefinitions: Array<ConcreteLocalArgument>,
   kind: 'Root',
@@ -126,26 +127,22 @@ export type ConcreteScalarHandle = {
   name: string,
   handle: string,
   key: string,
-  filters : ?Array<string>,
+  filters: ?Array<string>,
 };
 export type ConcreteSelection =
-  ConcreteCondition |
-  ConcreteField |
-  ConcreteFragmentSpread |
-  ConcreteHandle |
-  ConcreteInlineFragment;
+  | ConcreteCondition
+  | ConcreteField
+  | ConcreteFragmentSpread
+  | ConcreteHandle
+  | ConcreteInlineFragment;
 export type ConcreteVariable = {
   kind: 'Variable',
   name: string,
   type: ?string,
   variableName: string,
 };
-export type ConcreteSelectableNode =
-  ConcreteFragment |
-  ConcreteRoot;
-export type GeneratedNode =
-  ConcreteBatch |
-  ConcreteFragment;
+export type ConcreteSelectableNode = ConcreteFragment | ConcreteRoot;
+export type GeneratedNode = ConcreteBatch | ConcreteFragment;
 
 const RelayConcreteNode = {
   CONDITION: 'Condition',

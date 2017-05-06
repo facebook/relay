@@ -8,6 +8,7 @@
  *
  * @providesModule ForceRelayClassicContext
  * @flow
+ * @format
  */
 
 'use strict';
@@ -46,6 +47,5 @@ class ForceRelayClassicContext extends React.Component {
     return this.props.children;
   }
 }
-
 
 module.exports = ForceRelayClassicContext;

@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -37,8 +38,8 @@ describe('RelayQL', () => {
       `;
     }).toFailInvariant(
       'RelayQL: Unexpected invocation at runtime. Either the Babel transform ' +
-      'was not set up, or it failed to identify this call site. Make sure it ' +
-      'is being used verbatim as `Relay.QL`.'
+        'was not set up, or it failed to identify this call site. Make sure it ' +
+        'is being used verbatim as `Relay.QL`.',
     );
   });
 
@@ -99,7 +100,7 @@ describe('RelayQL', () => {
       `;
     }).toFailInvariant(
       'RelayQL: Invalid argument `size` supplied via template substitution. ' +
-      'Instead, use an inline variable (e.g. `comments(count: $count)`).'
+        'Instead, use an inline variable (e.g. `comments(count: $count)`).',
     );
   });
 
@@ -146,7 +147,7 @@ describe('RelayQL', () => {
       `;
     }).toFailInvariant(
       'RelayQL: Invalid fragment composition, use ' +
-      '`${Child.getFragment(\'name\')}`.'
+        "`${Child.getFragment('name')}`.",
     );
 
     expect(() => {
@@ -159,7 +160,7 @@ describe('RelayQL', () => {
       `;
     }).toFailInvariant(
       'RelayQL: Invalid fragment composition, use ' +
-      '`${Child.getFragment(\'name\')}`.'
+        "`${Child.getFragment('name')}`.",
     );
 
     const fragment = QueryBuilder.createFragment({
@@ -176,7 +177,7 @@ describe('RelayQL', () => {
       `;
     }).toFailInvariant(
       'RelayQL: Invalid fragment composition, use ' +
-      '`${Child.getFragment(\'name\')}`.'
+        "`${Child.getFragment('name')}`.",
     );
   });
 
@@ -190,17 +191,5 @@ describe('RelayQL', () => {
     const nodeB = getFragment();
     expect(nodeA).not.toBe(nodeB);
     expect(nodeA.id).not.toBe(nodeB.id);
-  });
-
-  it('generates identical concrete IDs for static fragments', () => {
-    const getFragment = () => Relay.QL`
-      fragment on Node @relay(isStaticFragment: true) {
-        id
-      }
-    `;
-    const nodeA = getFragment();
-    const nodeB = getFragment();
-    expect(nodeA).not.toBe(nodeB);
-    expect(nodeA.id).toBe(nodeB.id);
   });
 });

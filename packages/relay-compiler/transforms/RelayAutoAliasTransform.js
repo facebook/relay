@@ -8,6 +8,7 @@
  *
  * @providesModule RelayAutoAliasTransform
  * @flow
+ * @format
  */
 
 'use strict';
@@ -19,12 +20,7 @@ const invariant = require('invariant');
 const murmurHash = require('murmurHash');
 const stableJSONStringify = require('stableJSONStringify');
 
-import type {
-  Argument,
-  LinkedField,
-  ScalarField,
-  Selection,
-} from 'RelayIR';
+import type {Argument, LinkedField, ScalarField, Selection} from 'RelayIR';
 
 /**
  * A transform to generate a unique alias for every combination of field name
@@ -43,7 +39,7 @@ function transform(context: RelayCompilerContext): RelayCompilerContext {
 }
 
 function transformSelections(
-  nodeSelections: Array<Selection>
+  nodeSelections: Array<Selection>,
 ): Array<Selection> {
   return nodeSelections.map(selection => {
     if (selection.kind === 'LinkedField') {
@@ -73,15 +69,15 @@ function transformSelections(
       invariant(
         !selection.args.length,
         'RelayAutoAliasTransform: Expected arguments to fragment spread ' +
-        '`%s` to be inlined.',
-        selection.name
+          '`%s` to be inlined.',
+        selection.name,
       );
       return selection;
     } else {
       invariant(
         false,
         'RelayAutoAliasTransform: Unexpected node kind `%s`.',
-        selection.kind
+        selection.kind,
       );
     }
   });
@@ -91,17 +87,15 @@ function generateAlias(field: LinkedField | ScalarField): ?string {
   if (!field.args.length) {
     return null;
   }
-  const args = [...field.args].sort(sortByName).map(
-    arg => getIdentifierForRelayArgumentValue(arg.value)
-  );
+  const args = [...field.args]
+    .sort(sortByName)
+    .map(arg => getIdentifierForRelayArgumentValue(arg.value));
   const hash = murmurHash(stableJSONStringify(args));
   return (field.alias || field.name) + '_' + hash;
 }
 
 function sortByName(a: Argument, b: Argument): number {
-  return a.name < b.name ? -1 :
-    a.name > b.name ? 1 :
-    0;
+  return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
 }
 
 module.exports = {transform};

@@ -8,6 +8,7 @@
  *
  * @providesModule ASTConvert
  * @flow
+ * @format
  */
 
 'use strict';
@@ -99,8 +100,8 @@ function convertASTDocumentsWithBase(
   }
 
   const definitionsToConvert = [];
-  requiredDefinitions.forEach(
-    definition => definitionsToConvert.push(definition)
+  requiredDefinitions.forEach(definition =>
+    definitionsToConvert.push(definition),
   );
   return convertASTDefinitions(schema, definitionsToConvert, validationRules);
 }
@@ -125,8 +126,8 @@ function convertASTDefinitions(
   };
   // Will throw an error if there are validation issues
   RelayValidator.validate(validationAST, schema, validationRules);
-  return operationDefinitions.map(
-    definition => RelayParser.transform(schema, definition),
+  return operationDefinitions.map(definition =>
+    RelayParser.transform(schema, definition),
   );
 }
 

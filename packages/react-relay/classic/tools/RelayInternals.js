@@ -8,6 +8,7 @@
  *
  * @providesModule RelayInternals
  * @flow
+ * @format
  */
 
 'use strict';

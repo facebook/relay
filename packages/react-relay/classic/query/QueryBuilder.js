@@ -8,6 +8,7 @@
  *
  * @providesModule QueryBuilder
  * @flow
+ * @format
  */
 
 'use strict';
@@ -61,7 +62,7 @@ if (__DEV__) {
 const QueryBuilder = {
   createBatchCallVariable(
     sourceQueryID: string,
-    jsonPath: string
+    jsonPath: string,
   ): ConcreteBatchCallVariable {
     return {
       kind: 'BatchCallVariable',
@@ -73,7 +74,7 @@ const QueryBuilder = {
   createCall(
     name: string,
     value: ?ConcreteValue,
-    type?: ?string
+    type?: ?string,
   ): ConcreteCall {
     return {
       kind: 'Call',
@@ -85,18 +86,14 @@ const QueryBuilder = {
     };
   },
 
-  createCallValue(
-    callValue: mixed
-  ): ConcreteCallValue {
+  createCallValue(callValue: mixed): ConcreteCallValue {
     return {
       kind: 'CallValue',
       callValue,
     };
   },
 
-  createCallVariable(
-    callVariableName: string
-  ): ConcreteCallVariable {
+  createCallVariable(callVariableName: string): ConcreteCallVariable {
     return {
       kind: 'CallVariable',
       callVariableName,
@@ -105,7 +102,7 @@ const QueryBuilder = {
 
   createDirective(
     name: string,
-    args: Array<ConcreteDirectiveArgument>
+    args: Array<ConcreteDirectiveArgument>,
   ): ConcreteDirective {
     return {
       args,
@@ -116,7 +113,7 @@ const QueryBuilder = {
 
   createDirectiveArgument(
     name: string,
-    value: ?ConcreteDirectiveValue
+    value: ?ConcreteDirectiveValue,
   ): ConcreteDirectiveArgument {
     return {
       name,
@@ -124,15 +121,17 @@ const QueryBuilder = {
     };
   },
 
-  createField(partialField: {
-    alias?: ?string,
-    calls?: ?Array<ConcreteCall>,
-    children?: ?Array<?ConcreteSelection>,
-    directives?: ?Array<ConcreteDirective>,
-    fieldName: string,
-    metadata?: ?ConcreteFieldMetadata,
-    type: string,
-  }): ConcreteField {
+  createField(
+    partialField: {
+      alias?: ?string,
+      calls?: ?Array<ConcreteCall>,
+      children?: ?Array<?ConcreteSelection>,
+      directives?: ?Array<ConcreteDirective>,
+      fieldName: string,
+      metadata?: ?ConcreteFieldMetadata,
+      type: string,
+    },
+  ): ConcreteField {
     const partialMetadata = partialField.metadata || EMPTY_METADATA;
     return {
       alias: partialField.alias,
@@ -156,14 +155,16 @@ const QueryBuilder = {
     };
   },
 
-  createFragment(partialFragment: {
-    children?: ?Array<?ConcreteSelection>,
-    directives?: ?Array<ConcreteDirective>,
-    isPlural?: boolean,
-    metadata?: ?ConcreteFragmentMetadata,
-    name: string,
-    type: string,
-  }): ConcreteFragment {
+  createFragment(
+    partialFragment: {
+      children?: ?Array<?ConcreteSelection>,
+      directives?: ?Array<ConcreteDirective>,
+      isPlural?: boolean,
+      metadata?: ?ConcreteFragmentMetadata,
+      name: string,
+      type: string,
+    },
+  ): ConcreteFragment {
     const metadata = partialFragment.metadata || EMPTY_METADATA;
     return {
       children: partialFragment.children || EMPTY_CHILDREN,
@@ -180,14 +181,16 @@ const QueryBuilder = {
     };
   },
 
-  createMutation(partialMutation: {
-    calls?: ?Array<ConcreteCall>,
-    children?: ?Array<?ConcreteSelection>,
-    directives?: ?Array<ConcreteDirective>,
-    metadata?: ?ConcreteOperationMetadata,
-    name: string,
-    responseType: string,
-  }): ConcreteMutation {
+  createMutation(
+    partialMutation: {
+      calls?: ?Array<ConcreteCall>,
+      children?: ?Array<?ConcreteSelection>,
+      directives?: ?Array<ConcreteDirective>,
+      metadata?: ?ConcreteOperationMetadata,
+      name: string,
+      responseType: string,
+    },
+  ): ConcreteMutation {
     const metadata = partialMutation.metadata || EMPTY_METADATA;
     return {
       calls: partialMutation.calls || EMPTY_CALLS,
@@ -202,16 +205,18 @@ const QueryBuilder = {
     };
   },
 
-  createQuery(partialQuery: {
-    children?: ?Array<?ConcreteSelection>,
-    directives?: ?Array<ConcreteDirective>,
-    fieldName: string,
-    identifyingArgValue: ?ConcreteValue,
-    isDeferred?: boolean,
-    metadata?: ?ConcreteQueryMetadata,
-    name: string,
-    type: string,
-  }): ConcreteQuery {
+  createQuery(
+    partialQuery: {
+      children?: ?Array<?ConcreteSelection>,
+      directives?: ?Array<ConcreteDirective>,
+      fieldName: string,
+      identifyingArgValue: ?ConcreteValue,
+      isDeferred?: boolean,
+      metadata?: ?ConcreteQueryMetadata,
+      name: string,
+      type: string,
+    },
+  ): ConcreteQuery {
     const metadata = partialQuery.metadata || EMPTY_METADATA;
     let calls = [];
     let identifyingArgName = metadata.identifyingArgName;
@@ -225,15 +230,17 @@ const QueryBuilder = {
       warning(
         partialQuery.identifyingArgValue != null,
         'QueryBuilder.createQuery(): An argument value may be required for ' +
-        'query `%s(%s: ???)`.',
+          'query `%s(%s: ???)`.',
         partialQuery.fieldName,
-        identifyingArgName
-      );
-      calls = [QueryBuilder.createCall(
         identifyingArgName,
-        partialQuery.identifyingArgValue,
-        metadata.identifyingArgType
-      )];
+      );
+      calls = [
+        QueryBuilder.createCall(
+          identifyingArgName,
+          partialQuery.identifyingArgValue,
+          metadata.identifyingArgType,
+        ),
+      ];
     }
     return {
       calls,
@@ -253,14 +260,16 @@ const QueryBuilder = {
     };
   },
 
-  createSubscription(partialSubscription: {
-    calls?: ?Array<ConcreteCall>,
-    children?: ?Array<?ConcreteSelection>,
-    directives?: ?Array<ConcreteDirective>,
-    metadata?: ?ConcreteOperationMetadata,
-    name: string,
-    responseType: string,
-  }): ConcreteSubscription {
+  createSubscription(
+    partialSubscription: {
+      calls?: ?Array<ConcreteCall>,
+      children?: ?Array<?ConcreteSelection>,
+      directives?: ?Array<ConcreteDirective>,
+      metadata?: ?ConcreteOperationMetadata,
+      name: string,
+      responseType: string,
+    },
+  ): ConcreteSubscription {
     const metadata = partialSubscription.metadata || EMPTY_METADATA;
     return {
       calls: partialSubscription.calls || EMPTY_CALLS,
@@ -337,11 +346,7 @@ const QueryBuilder = {
 };
 
 function isConcreteKind(node: mixed, kind: string): boolean {
-  return (
-    typeof node === 'object' &&
-    node !== null &&
-    node.kind === kind
-  );
+  return typeof node === 'object' && node !== null && node.kind === kind;
 }
 
 module.exports = QueryBuilder;

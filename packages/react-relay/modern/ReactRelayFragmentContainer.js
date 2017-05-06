@@ -8,6 +8,7 @@
  *
  * @providesModule ReactRelayFragmentContainer
  * @flow
+ * @format
  */
 
 'use strict';
@@ -16,24 +17,19 @@ const React = require('React');
 const RelayProfiler = require('RelayProfiler');
 const RelayPropTypes = require('RelayPropTypes');
 
+const buildReactRelayContainer = require('buildReactRelayContainer');
 const invariant = require('invariant');
 const isRelayContext = require('isRelayContext');
 const isScalarAndEqual = require('isScalarAndEqual');
 const nullthrows = require('nullthrows');
 
-const {buildCompatContainer} = require('ReactRelayCompatContainerBuilder');
 const {profileContainer} = require('ReactRelayContainerProfiler');
 const {getComponentName, getReactComponent} = require('RelayContainerUtils');
 
 import type {GeneratedNodeMap, RelayProp} from 'ReactRelayTypes';
-import type {
-  FragmentSpecResolver,
-} from 'RelayCombinedEnvironmentTypes';
-import type {GraphQLTaggedNode} from 'RelayStaticGraphQLTag';
-import type {
-  FragmentMap,
-  RelayContext,
-} from 'RelayStoreTypes';
+import type {FragmentSpecResolver} from 'RelayCombinedEnvironmentTypes';
+import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
+import type {FragmentMap, RelayContext} from 'RelayStoreTypes';
 
 type ContainerState = {
   data: {[key: string]: mixed},
@@ -49,10 +45,10 @@ const containerContextTypes = {
  * props, resolving them with the provided fragments and subscribing for
  * updates.
  */
-function createContainerWithFragments<TDefaultProps, TProps>(
-  Component: Class<React.Component<TDefaultProps, TProps, *>> | ReactClass<TProps>,
+function createContainerWithFragments<TBase: ReactClass<*>>(
+  Component: TBase,
   fragments: FragmentMap,
-): Class<React.Component<TDefaultProps, TProps, *>> {
+): TBase {
   const ComponentClass = getReactComponent(Component);
   const componentName = getComponentName(Component);
   const containerName = `Relay(${componentName})`;
@@ -88,7 +84,9 @@ function createContainerWithFragments<TDefaultProps, TProps>(
       const context = nullthrows(nextContext);
       const relay = assertRelayContext(context.relay);
       if (relay !== this.context.relay) {
-        const {createFragmentSpecResolver} = relay.environment.unstable_internal;
+        const {
+          createFragmentSpecResolver,
+        } = relay.environment.unstable_internal;
         this._resolver.dispose();
         this._resolver = createFragmentSpecResolver(
           relay,
@@ -142,7 +140,7 @@ function createContainerWithFragments<TDefaultProps, TProps>(
     _handleFragmentDataUpdate = () => {
       const data = this._resolver.resolve();
       const profiler = RelayProfiler.profile(
-        'ReactRelayFragmentContainer.handleFragmentDataUpdate'
+        'ReactRelayFragmentContainer.handleFragmentDataUpdate',
       );
       this.setState({data}, profiler.stop);
     };
@@ -178,8 +176,8 @@ function assertRelayContext(relay: mixed): RelayContext {
   invariant(
     isRelayContext(relay),
     'ReactRelayFragmentContainer: Expected `context.relay` to be an object ' +
-    'conforming to the `RelayContext` interface, got `%s`.',
-    relay
+      'conforming to the `RelayContext` interface, got `%s`.',
+    relay,
   );
   return (relay: any);
 }
@@ -195,14 +193,11 @@ function createContainer<TBase: ReactClass<*>>(
   Component: TBase,
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
 ): TBase {
-  return buildCompatContainer(
+  return buildReactRelayContainer(
     Component,
-    (fragmentSpec: any),
+    fragmentSpec,
     createContainerWithFragments,
   );
 }
 
-module.exports = {
-  createContainer,
-  createContainerWithFragments,
-};
+module.exports = {createContainer, createContainerWithFragments};

@@ -8,6 +8,7 @@
  *
  * @providesModule RelayCodeGenerator
  * @flow
+ * @format
  */
 
 'use strict';
@@ -27,17 +28,10 @@ import type {
   ConcreteRoot,
   ConcreteSelection,
 } from 'RelayConcreteNode';
-import type {
-  Fragment,
-  Root,
-} from 'RelayIR';
+import type {Fragment, Root} from 'RelayIR';
 
 const {GraphQLList} = GraphQL;
-const {
-  getRawType,
-  isAbstractType,
-  getNullableType,
-} = RelaySchemaUtils;
+const {getRawType, isAbstractType, getNullableType} = RelaySchemaUtils;
 
 declare function generate(node: Root): ConcreteRoot;
 declare function generate(node: Fragment): ConcreteFragment;
@@ -53,7 +47,7 @@ function generate(node: Root | Fragment): ConcreteRoot | ConcreteFragment {
     ['Root', 'Fragment'].indexOf(node.kind) >= 0,
     'RelayCodeGenerator: Unknown AST kind `%s`. Source: %s.',
     node.kind,
-    getErrorMessage(node)
+    getErrorMessage(node),
   );
   return RelayIRVisitor.visit(node, RelayCodeGenVisitor);
 }
@@ -94,9 +88,7 @@ const RelayCodeGenVisitor = {
       return {
         kind: 'RootArgument',
         name: node.name,
-        type: node.type ?
-          node.type.toString() :
-          null,
+        type: node.type ? node.type.toString() : null,
       };
     },
 
@@ -104,8 +96,8 @@ const RelayCodeGenVisitor = {
       invariant(
         node.condition.kind === 'Variable',
         'RelayCodeGenerator: Expected static `Condition` node to be ' +
-        'pruned or inlined. Source: %s.',
-        getErrorMessage(ancestors[0])
+          'pruned or inlined. Source: %s.',
+        getErrorMessage(ancestors[0]),
       );
       return {
         kind: 'Condition',
@@ -132,25 +124,25 @@ const RelayCodeGenVisitor = {
     },
 
     LinkedField(node): Array<ConcreteSelection> {
-      const handles = (node.handles && node.handles.map((handle) => {
-        return {
-          kind: 'LinkedHandle',
-          alias: node.alias,
-          args: valuesOrNull(sortByName(node.args)),
-          handle: handle.name,
-          name: node.name,
-          key: handle.key,
-          filters: handle.filters,
-        };
-      })) || [];
+      const handles = (node.handles &&
+        node.handles.map(handle => {
+          return {
+            kind: 'LinkedHandle',
+            alias: node.alias,
+            args: valuesOrNull(sortByName(node.args)),
+            handle: handle.name,
+            name: node.name,
+            key: handle.key,
+            filters: handle.filters,
+          };
+        })) || [];
       const type = getRawType(node.type);
-      return [{
+      return [
+        {
           kind: 'LinkedField',
           alias: node.alias,
           args: valuesOrNull(sortByName(node.args)),
-          concreteType: !isAbstractType(type) ?
-            type.toString() :
-            null,
+          concreteType: !isAbstractType(type) ? type.toString() : null,
           name: node.name,
           plural: isPlural(node.type),
           selections: flattenArray(node.selections),
@@ -161,18 +153,20 @@ const RelayCodeGenVisitor = {
     },
 
     ScalarField(node): Array<ConcreteSelection> {
-      const handles = (node.handles && node.handles.map((handle) => {
-        return {
-          kind: 'ScalarHandle',
-          alias: node.alias,
-          args: valuesOrNull(sortByName(node.args)),
-          handle: handle.name,
-          name: node.name,
-          key: handle.key,
-          filters: handle.filters,
-        };
-      })) || [];
-      return [{
+      const handles = (node.handles &&
+        node.handles.map(handle => {
+          return {
+            kind: 'ScalarHandle',
+            alias: node.alias,
+            args: valuesOrNull(sortByName(node.args)),
+            handle: handle.name,
+            name: node.name,
+            key: handle.key,
+            filters: handle.filters,
+          };
+        })) || [];
+      return [
+        {
           kind: 'ScalarField',
           alias: node.alias,
           args: valuesOrNull(sortByName(node.args)),
@@ -189,9 +183,7 @@ const RelayCodeGenVisitor = {
         kind: 'Variable',
         name: parent.name,
         variableName: node.variableName,
-        type: parent.type ?
-          parent.type.toString() :
-          null,
+        type: parent.type ? parent.type.toString() : null,
       };
     },
 
@@ -200,9 +192,7 @@ const RelayCodeGenVisitor = {
         kind: 'Literal',
         name: parent.name,
         value: node.value,
-        type: parent.type ?
-          parent.type.toString() :
-          null,
+        type: parent.type ? parent.type.toString() : null,
       };
     },
 
@@ -210,11 +200,11 @@ const RelayCodeGenVisitor = {
       invariant(
         ['Variable', 'Literal'].indexOf(node.value.kind) >= 0,
         'RelayCodeGenerator: Complex argument values (Lists or ' +
-        'InputObjects with nested variables) are not supported, argument ' +
-        '`%s` had value `%s`. Source: %s.',
+          'InputObjects with nested variables) are not supported, argument ' +
+          '`%s` had value `%s`. Source: %s.',
         node.name,
         prettyStringify(node.value),
-        getErrorMessage(ancestors[0])
+        getErrorMessage(ancestors[0]),
       );
       return node.value.value !== null ? node.value : null;
     },
@@ -226,28 +216,20 @@ function isPlural(type: any): boolean {
 }
 
 function valuesOrUndefined<T>(array: ?Array<T>): ?Array<T> {
-  return !array || array.length === 0
-    ? undefined
-    : array;
+  return !array || array.length === 0 ? undefined : array;
 }
 
 function valuesOrNull<T>(array: ?Array<T>): ?Array<T> {
-  return !array || array.length === 0
-    ? null
-    : array;
+  return !array || array.length === 0 ? null : array;
 }
 
 function flattenArray<T>(array: Array<Array<T>>): Array<T> {
-  return array
-    ? Array.prototype.concat.apply([], array)
-    : [];
+  return array ? Array.prototype.concat.apply([], array) : [];
 }
 
 function sortByName<T: {name: string}>(array: Array<T>): Array<T> {
   return array instanceof Array
-    ? array.sort((a, b) => (
-        a.name < b.name ? -1 : (a.name > b.name ? 1 : 0)
-      ))
+    ? array.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))
     : array;
 }
 
@@ -266,14 +248,14 @@ function getErrorMessage(node: any): string {
  */
 function getStorageKey(
   fieldName: string,
-  args: ?Array<ConcreteArgument>
+  args: ?Array<ConcreteArgument>,
 ): ?string {
   if (!args || !args.length) {
     return null;
   }
   let isLiteral = true;
   const preparedArgs = {};
-  args.forEach((arg) => {
+  args.forEach(arg => {
     if (arg.kind !== 'Literal') {
       isLiteral = false;
     } else {

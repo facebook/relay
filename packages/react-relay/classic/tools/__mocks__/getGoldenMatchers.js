@@ -5,6 +5,8 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
@@ -68,9 +70,9 @@ const COLOR = {
  */
 function getGoldenMatchers(...args) {
   const [testFile, options] = args;
-  const trimWhitespace = options && options.hasOwnProperty('trimWhitespace') ?
-    options.trimWhitespace :
-    true;
+  const trimWhitespace = options && options.hasOwnProperty('trimWhitespace')
+    ? options.trimWhitespace
+    : true;
 
   return {
     /**
@@ -104,12 +106,12 @@ function getGoldenMatchers(...args) {
 
       return {
         compare(fixtures, operation) {
-          const absoluteFixtures = path.isAbsolute(fixtures) ?
-            fixtures :
-            path.join(base, fixtures);
+          const absoluteFixtures = path.isAbsolute(fixtures)
+            ? fixtures
+            : path.join(base, fixtures);
           invariant(
             fs.statSync(absoluteFixtures).isDirectory(),
-            `toMatchGolden: "${fixtures}" is not a directory`
+            `toMatchGolden: "${fixtures}" is not a directory`,
           );
           const fixtureInfo = fs.readdirSync(absoluteFixtures).map(file => {
             const {ext, name: nameWithType} = path.parse(file);
@@ -118,11 +120,11 @@ function getGoldenMatchers(...args) {
             invariant(
               ext !== '' && (type === '.input' || type === '.golden'),
               `toMatchGolden: "${file}" must be named ` +
-              '"*.input.$EXTENSION" or "*.golden.$EXTENSION".'
+                '"*.input.$EXTENSION" or "*.golden.$EXTENSION".',
             );
             invariant(
               fs.statSync(fixture).isFile(),
-              `toMatchGolden: "${file}" must be a regular file.`
+              `toMatchGolden: "${file}" must be a regular file.`,
             );
             return {
               ext: ext.slice(1),
@@ -133,23 +135,23 @@ function getGoldenMatchers(...args) {
           });
           const inputFilesSet = new Set();
           const outputFilesMap = new Map();
-          const [inputFiles, outputFiles] = partitionArray(
-            fixtureInfo,
-            info => {
-              const {name, type} = info;
-              if (type === 'input') {
-                inputFilesSet.add(name);
-                return true;
-              } else {
-                outputFilesMap.set(name, info);
-              }
+          const [
+            inputFiles,
+            outputFiles,
+          ] = partitionArray(fixtureInfo, info => {
+            const {name, type} = info;
+            if (type === 'input') {
+              inputFilesSet.add(name);
+              return true;
+            } else {
+              outputFilesMap.set(name, info);
             }
-          );
+          });
           outputFiles.forEach(({ext, name, type}) => {
             invariant(
               inputFilesSet.has(name),
               `toMatchGolden: golden file "${name}.${type}.${ext}" does ` +
-              'not have a corresponding input file.'
+                'not have a corresponding input file.',
             );
           });
           const failures = [];
@@ -163,8 +165,8 @@ function getGoldenMatchers(...args) {
             } catch (e) {
               throw new Error(
                 'Failure applying function to input from file ' +
-                `"${inputFile}":\n` +
-                `${e.message}\n${e.stack}`
+                  `"${inputFile}":\n` +
+                  `${e.message}\n${e.stack}`,
               );
             }
 
@@ -173,9 +175,9 @@ function getGoldenMatchers(...args) {
               const expectedFile = expectedFileInfo.fixture;
               const expected = fs.readFileSync(expectedFile).toString();
               const trimmedOutput = trimWhitespace ? output.trim() : output;
-              const trimmedExpected = trimWhitespace ?
-                expected.trim() :
-                expected;
+              const trimmedExpected = trimWhitespace
+                ? expected.trim()
+                : expected;
               if (trimmedOutput !== trimmedExpected) {
                 if (process.env.GOLDEN_ACCEPT) {
                   log(COLOR.green(' ACK  ') + ' ' + name);
@@ -252,7 +254,7 @@ function printDiff(expectedText, actualText, info) {
         write('actual', normalize(actualText)),
       ],
       // Change into temporary directory to get prettier diff headers.
-      {cwd: temp}
+      {cwd: temp},
     );
   } catch (e) {
     if (e.status === 1) {

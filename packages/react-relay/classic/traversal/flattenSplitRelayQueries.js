@@ -8,6 +8,7 @@
  *
  * @providesModule flattenSplitRelayQueries
  * @flow
+ * @format
  */
 
 'use strict';
@@ -24,7 +25,7 @@ import type {SplitQueries} from 'splitDeferredRelayQueries';
  * @internal
  */
 function flattenSplitRelayQueries(
-  splitQueries: SplitQueries
+  splitQueries: SplitQueries,
 ): Array<RelayQuery.Root> {
   const flattenedQueries = [];
   const queue = [splitQueries];

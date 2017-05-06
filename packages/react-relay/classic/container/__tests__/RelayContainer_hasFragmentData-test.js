@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -58,7 +59,7 @@ describe('RelayContainer', () => {
       container = RelayTestRenderer.render(
         genMockPointer => <MockContainer foo={genMockPointer('42')} />,
         environment,
-        queryConfig
+        queryConfig,
       );
       store = environment.getStoreData().getCachedStore();
 
@@ -69,25 +70,25 @@ describe('RelayContainer', () => {
       store.hasFragmentData = jest.fn(() => true);
       const hasData = container.hasFragmentData(
         MockContainer.getFragment('foo').defer(),
-        RelayRecord.create('42')
+        RelayRecord.create('42'),
       );
       expect(hasData).toBe(true);
       expect(store.hasFragmentData).toBeCalledWith(
         '42',
-        getFragmentCompositeHash(MockContainer.getFragment('foo'), queryConfig)
+        getFragmentCompositeHash(MockContainer.getFragment('foo'), queryConfig),
       );
     });
 
     it('returns false for deferred fragments without resolved data', () => {
       store.hasFragmentData = jest.fn(() => false);
       const hasData = container.hasFragmentData(
-       MockContainer.getFragment('foo').defer(),
-       RelayRecord.create('42')
+        MockContainer.getFragment('foo').defer(),
+        RelayRecord.create('42'),
       );
       expect(hasData).toBe(false);
       expect(store.hasFragmentData).toBeCalledWith(
         '42',
-        getFragmentCompositeHash(MockContainer.getFragment('foo'), queryConfig)
+        getFragmentCompositeHash(MockContainer.getFragment('foo'), queryConfig),
       );
     });
   });

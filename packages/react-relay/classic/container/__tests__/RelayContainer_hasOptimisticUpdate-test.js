@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -50,37 +51,37 @@ describe('RelayContainer.hasOptimisticUpdate', () => {
   it('throws for invalid records', () => {
     const instance = RelayTestRenderer.render(
       genMockPointer => <MockContainer foo={genMockPointer('123')} />,
-      environment
+      environment,
     );
 
     expect(() => {
       instance.hasOptimisticUpdate({});
     }).toFailInvariant(
       'RelayContainer.hasOptimisticUpdate(): Expected a record in ' +
-      '`MockComponent`.',
+        '`MockComponent`.',
     );
   });
 
   it('is only true for queued records', () => {
     const storeData = environment.getStoreData();
-    const recordWriter =
-      storeData.getRecordWriterForOptimisticMutation('mutation');
+    const recordWriter = storeData.getRecordWriterForOptimisticMutation(
+      'mutation',
+    );
     recordWriter.putRecord('123', 'Type');
     const instance = RelayTestRenderer.render(
       genMockPointer => <MockContainer foo={genMockPointer('123')} />,
-      environment
+      environment,
     );
 
     expect(instance.hasOptimisticUpdate({__dataID__: '123'})).toBe(true);
   });
 
   it('is false for non-queued records', () => {
-    environment.getStoreData().getRecordWriter()
-      .putRecord('123', 'Type');
+    environment.getStoreData().getRecordWriter().putRecord('123', 'Type');
 
     const instance = RelayTestRenderer.render(
       genMockPointer => <MockContainer foo={genMockPointer('123')} />,
-      environment
+      environment,
     );
     expect(instance.hasOptimisticUpdate({__dataID__: '123'})).toBe(false);
   });

@@ -8,6 +8,7 @@
  *
  * @providesModule createRelayQuery
  * @flow
+ * @format
  */
 
 'use strict';
@@ -22,18 +23,18 @@ import type {Variables} from 'RelayTypes';
 
 function createRelayQuery(
   node: RelayConcreteNode,
-  variables: Variables
+  variables: Variables,
 ): RelayQuery.Root {
   invariant(
     typeof variables === 'object' &&
-    variables != null &&
-    !Array.isArray(variables),
-    'Relay.Query: Expected `variables` to be an object.'
+      variables != null &&
+      !Array.isArray(variables),
+    'Relay.Query: Expected `variables` to be an object.',
   );
   return RelayQuery.Root.create(
     node,
     RelayMetaRoute.get('$createRelayQuery'),
-    variables
+    variables,
   );
 }
 

@@ -8,10 +8,12 @@
  *
  * @providesModule RelayRootContainer
  * @flow
+ * @format
  */
 
 'use strict';
 
+const PropTypes = require('prop-types');
 const React = require('React');
 const RelayPropTypes = require('RelayPropTypes');
 const RelayRenderer = require('RelayRenderer');
@@ -19,11 +21,7 @@ const RelayStore = require('RelayStore');
 
 import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
 import type {RelayRetryCallback} from 'RelayReadyStateRenderer';
-import type {
-  ComponentFetchState,
-  ReadyState,
-  RelayContainer,
-} from 'RelayTypes';
+import type {ComponentFetchState, ReadyState, RelayContainer} from 'RelayTypes';
 
 type RootContainerProps = {
   Component: RelayContainer,
@@ -32,17 +30,15 @@ type RootContainerProps = {
   onReadyStateChange?: ?(readyState: ReadyState) => void,
   renderFailure?: ?(
     error: Error,
-    retry: RelayRetryCallback
+    retry: RelayRetryCallback,
   ) => ?React.Element<any>,
   renderFetched?: ?(
     data: Object,
-    fetchState: ComponentFetchState
+    fetchState: ComponentFetchState,
   ) => ?React.Element<any>,
   renderLoading?: ?() => ?React.Element<any>,
   route: RelayQueryConfigInterface,
 };
-
-const {PropTypes} = React;
 
 /**
  * @public

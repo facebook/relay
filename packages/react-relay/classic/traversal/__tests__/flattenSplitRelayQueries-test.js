@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -42,13 +43,16 @@ describe('flattenSplitRelayQueries', () => {
   it('returns a single deferred query', () => {
     const split = {
       required: null,
-      deferred: [{
-        required: getQuery(),
-        deferred: [],
-      }],
+      deferred: [
+        {
+          required: getQuery(),
+          deferred: [],
+        },
+      ],
     };
-    expect(flattenSplitRelayQueries(split))
-      .toEqual([split.deferred[0].required]);
+    expect(flattenSplitRelayQueries(split)).toEqual([
+      split.deferred[0].required,
+    ]);
   });
 
   it('returns required then deferred queries', () => {
@@ -65,12 +69,11 @@ describe('flattenSplitRelayQueries', () => {
         },
       ],
     };
-    expect(flattenSplitRelayQueries(split))
-      .toEqual([
-        split.required,
-        split.deferred[0].required,
-        split.deferred[1].required,
-      ]);
+    expect(flattenSplitRelayQueries(split)).toEqual([
+      split.required,
+      split.deferred[0].required,
+      split.deferred[1].required,
+    ]);
   });
 
   it('handles nested deferreds', () => {
@@ -79,18 +82,19 @@ describe('flattenSplitRelayQueries', () => {
       deferred: [
         {
           required: getQuery(),
-          deferred: [{
-            required: getQuery(),
-            deferred: [],
-          }],
+          deferred: [
+            {
+              required: getQuery(),
+              deferred: [],
+            },
+          ],
         },
       ],
     };
-    expect(flattenSplitRelayQueries(split))
-      .toEqual([
-        split.required,
-        split.deferred[0].required,
-        split.deferred[0].deferred[0].required,
-      ]);
+    expect(flattenSplitRelayQueries(split)).toEqual([
+      split.required,
+      split.deferred[0].required,
+      split.deferred[0].deferred[0].required,
+    ]);
   });
 });

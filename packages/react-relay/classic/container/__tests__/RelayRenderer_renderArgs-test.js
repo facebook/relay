@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -50,7 +51,7 @@ describe('RelayRenderer.renderArgs', () => {
         environment={environment}
         render={render}
       />,
-      container
+      container,
     );
     jasmine.addMatchers(RelayTestUtils.matchers);
     jasmine.addMatchers({
@@ -58,9 +59,9 @@ describe('RelayRenderer.renderArgs', () => {
         return {
           compare(actual, expected) {
             // Assume that if `forceFetch` requests exist, they were last.
-            const requests = environment.forceFetch.mock.requests.length > 0 ?
-              environment.forceFetch.mock.requests :
-              environment.primeCache.mock.requests;
+            const requests = environment.forceFetch.mock.requests.length > 0
+              ? environment.forceFetch.mock.requests
+              : environment.primeCache.mock.requests;
             actual(requests[requests.length - 1]);
             const renders = render.mock.calls;
             const renderArgs = renders[renders.length - 1][0];
@@ -113,7 +114,7 @@ describe('RelayRenderer.renderArgs', () => {
   });
 
   it('is `stale` and has `props` when request resolves from cache', () => {
-    expect(request => request.resolve({stale:true})).toRenderWithArgs({
+    expect(request => request.resolve({stale: true})).toRenderWithArgs({
       done: false,
       error: null,
       props: {},

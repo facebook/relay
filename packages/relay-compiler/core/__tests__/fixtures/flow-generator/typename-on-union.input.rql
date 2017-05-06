@@ -1,0 +1,38 @@
+fragment TypenameInside on Actor {
+  ... on User {
+    __typename
+    firstName
+  }
+  ... on Page {
+    __typename
+    username
+  }
+}
+
+fragment TypenameOutside on Actor {
+  __typename
+  ... on User {
+    firstName
+  }
+  ... on Page {
+    username
+  }
+}
+
+fragment TypenameOutsideWithAbstractType on Node {
+  __typename
+  ... on User {
+    firstName
+    address {
+      street # only here
+      city # common
+    }
+  }
+  ... on Actor {
+    username
+    address {
+      city # common
+      country # only here
+    }
+  }
+}

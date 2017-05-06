@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -31,21 +32,17 @@ describe('GraphQLStoreRangeUtils', () => {
 
     const firstCall = QueryBuilder.createCall(
       'first',
-      QueryBuilder.createCallVariable('count')
+      QueryBuilder.createCallVariable('count'),
     );
 
     const afterCall = QueryBuilder.createCall(
       'after',
-      QueryBuilder.createCallVariable('cursor')
+      QueryBuilder.createCallVariable('cursor'),
     );
 
     const calls = [firstCall, afterCall];
 
-    const rangeID = rangeData.getClientIDForRangeWithID(
-      calls,
-      callValues,
-      id
-    );
+    const rangeID = rangeData.getClientIDForRangeWithID(calls, callValues, id);
 
     // TODO: This is technically an implementation detail. We shouldn't test
     // the actual value of the string; instead we should just confirm that it's
@@ -61,16 +58,11 @@ describe('GraphQLStoreRangeUtils', () => {
 
   it('removes range data for records', () => {
     const id = 'client:1';
-    const calls = [QueryBuilder.createCall(
-      'first',
-      QueryBuilder.createCallValue(1)
-    )];
+    const calls = [
+      QueryBuilder.createCall('first', QueryBuilder.createCallValue(1)),
+    ];
     const callValues = {};
-    const rangeID = rangeData.getClientIDForRangeWithID(
-      calls,
-      callValues,
-      id
-    );
+    const rangeID = rangeData.getClientIDForRangeWithID(calls, callValues, id);
     expect(rangeData.parseRangeClientID(rangeID)).toEqual({
       dataID: id,
       calls,
@@ -80,5 +72,4 @@ describe('GraphQLStoreRangeUtils', () => {
     rangeData.removeRecord(id);
     expect(rangeData.parseRangeClientID(rangeID)).toBe(null);
   });
-
 });

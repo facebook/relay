@@ -8,6 +8,7 @@
  *
  * @flow
  * @providesModule stableJSONStringify
+ * @format
  */
 
 'use strict';
@@ -21,9 +22,7 @@ function stableJSONStringify(obj: mixed): string {
   if (Array.isArray(obj)) {
     const result = [];
     for (let ii = 0; ii < obj.length; ii++) {
-      const value = obj[ii] !== undefined ?
-        obj[ii] :
-        null;
+      const value = obj[ii] !== undefined ? obj[ii] : null;
       result.push(stableJSONStringify(value));
     }
     return '[' + result.join(',') + ']';

@@ -5,6 +5,8 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
@@ -38,14 +40,16 @@ describe('RelayFilterDirectivesTransform', () => {
     expect('fixtures/filter-directives-transform').toMatchGolden(text => {
       // Extend the schema with an `@export` directive for testing purposes.
       const extendedSchema = RelayExportTransform.transformSchema(
-        RelayTestSchema
+        RelayTestSchema,
       );
       const {definitions} = parseGraphQLText(extendedSchema, text);
-      let context = (new RelayCompilerContext(extendedSchema)).addAll(definitions);
+      let context = new RelayCompilerContext(extendedSchema).addAll(
+        definitions,
+      );
 
       context = RelayFilterDirectivesTransform.transform(
         context,
-        RelayTestSchema
+        RelayTestSchema,
       );
       const documents = [];
       context.documents().forEach(doc => {

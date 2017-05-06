@@ -8,6 +8,7 @@
  *
  * @flow
  * @providesModule RelayCompilerContext
+ * @format
  */
 
 'use strict';
@@ -15,10 +16,7 @@
 const immutable = require('immutable');
 const invariant = require('invariant');
 
-import type {
-  Fragment,
-  Root,
-} from 'RelayIR';
+import type {Fragment, Root} from 'RelayIR';
 import type {GraphQLSchema} from 'graphql';
 
 const {
@@ -63,20 +61,24 @@ class RelayCompilerContext {
     invariant(
       !this._documents.has(node.name),
       'RelayCompilerContext: Duplicate document named `%s`. GraphQL ' +
-      'fragments and roots must have unique names.',
-      node.name
+        'fragments and roots must have unique names.',
+      node.name,
     );
     return this._update(
-      (this._documents.set(node.name, new Document({
-        name: node.name,
-        node,
-      })): $FlowFixMe)
+      (this._documents.set(
+        node.name,
+        new Document({
+          name: node.name,
+          node,
+        }),
+      ): $FlowFixMe),
     );
   }
 
   addAll(nodes: Array<Fragment | Root>): RelayCompilerContext {
     return nodes.reduce(
-      (ctx: RelayCompilerContext, definition: Fragment | Root) => ctx.add(definition),
+      (ctx: RelayCompilerContext, definition: Fragment | Root) =>
+        ctx.add(definition),
       this,
     );
   }
@@ -90,7 +92,7 @@ class RelayCompilerContext {
       errors = ImmutableList([error]);
     }
     return this._update(
-      (this._documents.set(name, record.set('errors', errors)): $FlowFixMe)
+      (this._documents.set(name, record.set('errors', errors)): $FlowFixMe),
     );
   }
 
@@ -106,7 +108,7 @@ class RelayCompilerContext {
       node && node.kind === 'Fragment',
       'RelayCompilerContext: Expected `%s` to be a fragment, got `%s`.',
       name,
-      node && node.kind
+      node && node.kind,
     );
     return node;
   }
@@ -118,7 +120,7 @@ class RelayCompilerContext {
       node && node.kind === 'Root',
       'RelayCompilerContext: Expected `%s` to be a root, got `%s`.',
       name,
-      node && node.kind
+      node && node.kind,
     );
     return node;
   }
@@ -128,22 +130,18 @@ class RelayCompilerContext {
   }
 
   remove(name: string): RelayCompilerContext {
-    return this._update(
-      this._documents.delete(name)
-    );
+    return this._update(this._documents.delete(name));
   }
 
   _get(name: string): Document {
     const record = this._documents.get(name);
-    invariant(
-      record,
-      'RelayCompilerContext: Unknown document `%s`.',
-      name
-    );
+    invariant(record, 'RelayCompilerContext: Unknown document `%s`.', name);
     return record;
   }
 
-  _update(documents: ImmutableOrderedMap<string, Document>): RelayCompilerContext {
+  _update(
+    documents: ImmutableOrderedMap<string, Document>,
+  ): RelayCompilerContext {
     const context = new RelayCompilerContext(this.schema);
     context._documents = documents;
     return context;

@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -43,11 +44,11 @@ describe('createRelayQuery', () => {
       `,
       {
         count: 10,
-      }
+      },
     );
     expect(root instanceof RelayQuery.Root).toBe(true);
-    expect(root.getFieldByStorageKey('newsFeed').getCallsWithValues()).toEqual(
-      [{name: 'first', type: 'Int', value: 10}]
-    );
+    expect(root.getFieldByStorageKey('newsFeed').getCallsWithValues()).toEqual([
+      {name: 'first', type: 'Int', value: 10},
+    ]);
   });
 });

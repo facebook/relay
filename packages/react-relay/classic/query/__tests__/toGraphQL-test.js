@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -49,25 +50,20 @@ describe('toGraphQL', function() {
       return !!value && (!Array.isArray(value) || value.length);
     });
     if (node.calls) {
-      node.calls = node.calls.length ?
-        node.calls.map(filterGraphQLNode) :
-        null;
+      node.calls = node.calls.length ? node.calls.map(filterGraphQLNode) : null;
     }
     if (node.children) {
-      node.children = node.children.length ?
-        node.children.map(filterGraphQLNode) :
-        null;
+      node.children = node.children.length
+        ? node.children.map(filterGraphQLNode)
+        : null;
     }
     if (node.directives) {
-      node.directives = node.directives.length ?
-        node.directives.map(filterGraphQLNode) :
-        null;
+      node.directives = node.directives.length
+        ? node.directives.map(filterGraphQLNode)
+        : null;
     }
     if (node.metadata) {
-      node.metadata = filterObject(
-        node.metadata,
-        value => !!value
-      );
+      node.metadata = filterObject(node.metadata, value => !!value);
     }
     return node;
   }
@@ -96,7 +92,8 @@ describe('toGraphQL', function() {
   });
 
   it('converts query', () => {
-    expect(toGraphQL.Query).toConvert(Relay.QL`
+    expect(toGraphQL.Query).toConvert(
+      Relay.QL`
       query {
         viewer {
           actor {
@@ -105,33 +102,39 @@ describe('toGraphQL', function() {
           }
         }
       }
-    `);
+    `,
+    );
   });
 
   it('converts query with root args', () => {
-    expect(toGraphQL.Query).toConvert(Relay.QL`
+    expect(toGraphQL.Query).toConvert(
+      Relay.QL`
       query {
         nodes(ids:["1","2","3"]) {
           id
           name
         }
       }
-    `);
+    `,
+    );
   });
 
   it('converts fragment', () => {
-    expect(toGraphQL.Fragment).toConvert(Relay.QL`
+    expect(toGraphQL.Fragment).toConvert(
+      Relay.QL`
       fragment on Viewer {
         actor {
           id
           name
         }
       }
-    `);
+    `,
+    );
   });
 
   it('converts field with calls', () => {
-    expect(toGraphQL.Query).toConvert(Relay.QL`
+    expect(toGraphQL.Query).toConvert(
+      Relay.QL`
       query {
         viewer {
           actor {
@@ -140,11 +143,13 @@ describe('toGraphQL', function() {
           }
         }
       }
-    `);
+    `,
+    );
   });
 
   it('converts connection and generated fields', () => {
-    expect(toGraphQL.Query).toConvert(Relay.QL`
+    expect(toGraphQL.Query).toConvert(
+      Relay.QL`
       query {
         viewer {
           actor {
@@ -158,7 +163,8 @@ describe('toGraphQL', function() {
           }
         }
       }
-    `);
+    `,
+    );
   });
 
   it('preserves batch call information', () => {
@@ -187,15 +193,18 @@ describe('toGraphQL', function() {
 
   it('does not double-encode argument values', () => {
     const value = {query: 'Menlo Park'};
-    const relayQuery = getNode(Relay.QL`
+    const relayQuery = getNode(
+      Relay.QL`
       query {
         checkinSearchQuery(query:$q) {
           query
         }
       }
-    `, {
-      q: value,
-    });
+    `,
+      {
+        q: value,
+      },
+    );
     const identifyingArg = relayQuery.getIdentifyingArg();
     expect(identifyingArg).toBeDefined();
     expect(identifyingArg.value).toEqual(value);

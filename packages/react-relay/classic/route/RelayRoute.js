@@ -8,6 +8,7 @@
  *
  * @providesModule RelayRoute
  * @flow
+ * @format
  */
 
 'use strict';
@@ -47,21 +48,17 @@ class RelayRoute<Tv: Object> extends RelayQueryConfig<Tv> {
   constructor(initialVariables?: ?Tv, uri?: StringOrURI) {
     super(initialVariables);
     const constructor = this.constructor;
-    const {
-      routeName,
-      path,
-    } = constructor;
+    const {routeName, path} = constructor;
 
     invariant(
       constructor !== RelayRoute,
-      'RelayRoute: Abstract class cannot be instantiated.'
+      'RelayRoute: Abstract class cannot be instantiated.',
     );
     invariant(
       routeName,
       '%s: Subclasses of RelayRoute must define a `routeName`.',
-      constructor.name || '<<anonymous>>'
+      constructor.name || '<<anonymous>>',
     );
-
 
     // $FlowIssue #9905535 - Object.defineProperty doesn't understand getters
     Object.defineProperty(this, 'uri', {
@@ -76,11 +73,7 @@ class RelayRoute<Tv: Object> extends RelayQueryConfig<Tv> {
   }
 
   prepareVariables(prevVariables: ?Tv): ?Tv {
-    const {
-      paramDefinitions,
-      prepareParams,
-      routeName,
-    } = this.constructor;
+    const {paramDefinitions, prepareParams, routeName} = this.constructor;
     let params = prevVariables;
     if (prepareParams) {
       /* $FlowFixMe(>=0.17.0) - params is ?Tv but prepareParams expects Tv */
@@ -98,7 +91,7 @@ class RelayRoute<Tv: Object> extends RelayQueryConfig<Tv> {
       invariant(
         !paramDefinition.required,
         'RelayRoute: Missing required parameter `%s` in `%s`. Check the ' +
-        'supplied params or URI.',
+          'supplied params or URI.',
         paramName,
         routeName,
       );
@@ -109,7 +102,6 @@ class RelayRoute<Tv: Object> extends RelayQueryConfig<Tv> {
   static injectURICreator(creator: URICreator): void {
     createURI = creator;
   }
-
 }
 
 module.exports = RelayRoute;

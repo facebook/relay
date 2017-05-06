@@ -8,6 +8,7 @@
  *
  * @providesModule forEachRootCallArg
  * @flow
+ * @format
  */
 
 'use strict';
@@ -32,11 +33,11 @@ type IdentifyingArg = {
  */
 function forEachRootCallArg(
   query: RelayQuery.Root,
-  callback: (identifyingArg: IdentifyingArg) => void
+  callback: (identifyingArg: IdentifyingArg) => void,
 ): void {
   invariant(
     !query.getBatchCall(),
-    'forEachRootCallArg(): Cannot iterate over batch call variables.'
+    'forEachRootCallArg(): Cannot iterate over batch call variables.',
   );
   function each(identifyingArgValue, fn) {
     if (Array.isArray(identifyingArgValue)) {
@@ -44,11 +45,11 @@ function forEachRootCallArg(
     } else {
       fn({
         identifyingArgValue,
-        identifyingArgKey: identifyingArgValue == null ?
-          null :
-          typeof identifyingArgValue === 'string' ?
-            identifyingArgValue :
-            stableStringify(identifyingArgValue),
+        identifyingArgKey: identifyingArgValue == null
+          ? null
+          : typeof identifyingArgValue === 'string'
+              ? identifyingArgValue
+              : stableStringify(identifyingArgValue),
       });
     }
   }

@@ -8,6 +8,7 @@
  *
  * @providesModule RelayMutationType
  * @flow
+ * @format
  */
 
 'use strict';

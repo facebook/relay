@@ -7,15 +7,14 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
 require('configureForRelayOSS');
 
-jest
-  .unmock('GraphQLRange')
-  .unmock('GraphQLSegment');
+jest.unmock('GraphQLRange').unmock('GraphQLSegment');
 
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayQueryPath = require('RelayQueryPath');
@@ -44,7 +43,8 @@ describe('RelayStoreData', () => {
     it('writes responses to `records`', () => {
       const storeData = new RelayStoreData();
 
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        Relay.QL`
         query {
           node(id:"123") {
             id
@@ -54,7 +54,8 @@ describe('RelayStoreData', () => {
             }
           }
         }
-      `);
+      `,
+      );
       const response = {
         node: {
           id: '123',
@@ -71,8 +72,10 @@ describe('RelayStoreData', () => {
       const recordStore = storeData.getRecordStore();
       expect(recordStore.getRecordState('123')).toBe('EXISTENT');
       expect(recordStore.getField('123', 'doesViewerLike')).toBe(false);
-      const commentsID =
-        recordStore.getLinkedRecordID('123', 'topLevelComments');
+      const commentsID = recordStore.getLinkedRecordID(
+        '123',
+        'topLevelComments',
+      );
       expect(recordStore.getField(commentsID, 'count')).toBe(1);
 
       // `queuedRecords` is unchanged
@@ -82,7 +85,8 @@ describe('RelayStoreData', () => {
     it('broadcasts changes for created and updated records', () => {
       const storeData = new RelayStoreData();
 
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        Relay.QL`
         query {
           node(id:"123") {
             id
@@ -92,7 +96,8 @@ describe('RelayStoreData', () => {
             }
           }
         }
-      `);
+      `,
+      );
       const response = {
         node: {
           id: '123',
@@ -104,8 +109,9 @@ describe('RelayStoreData', () => {
         },
       };
       storeData.handleQueryPayload(query, response);
-      const commentsID =
-        storeData.getRecordStore().getLinkedRecordID('123', 'topLevelComments');
+      const commentsID = storeData
+        .getRecordStore()
+        .getLinkedRecordID('123', 'topLevelComments');
 
       const changeEmitter = storeData.getChangeEmitter();
       // broadcasts for created ids
@@ -133,7 +139,8 @@ describe('RelayStoreData', () => {
     it('uses cached IDs for root fields without IDs', () => {
       const storeData = new RelayStoreData();
 
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        Relay.QL`
         query {
           node(id:"123") {
             id
@@ -143,7 +150,8 @@ describe('RelayStoreData', () => {
             }
           }
         }
-      `);
+      `,
+      );
       const response = {
         node: {
           id: '123',
@@ -160,8 +168,10 @@ describe('RelayStoreData', () => {
       const recordStore = storeData.getRecordStore();
       expect(recordStore.getRecordState('123')).toBe('EXISTENT');
       expect(recordStore.getField('123', 'doesViewerLike')).toBe(false);
-      const commentsID =
-        recordStore.getLinkedRecordID('123', 'topLevelComments');
+      const commentsID = recordStore.getLinkedRecordID(
+        '123',
+        'topLevelComments',
+      );
       expect(recordStore.getField(commentsID, 'count')).toBe(1);
 
       // `queuedRecords` is unchanged
@@ -174,7 +184,8 @@ describe('RelayStoreData', () => {
     beforeEach(() => {
       storeData = new RelayStoreData();
 
-      fragment = getNode(Relay.QL`
+      fragment = getNode(
+        Relay.QL`
         fragment on Node {
           id
           doesViewerLike
@@ -182,14 +193,17 @@ describe('RelayStoreData', () => {
             count
           }
         }
-      `);
-      const query = getNode(Relay.QL`
+      `,
+      );
+      const query = getNode(
+        Relay.QL`
         query {
           node(id:"123") {
             id
           }
         }
-      `);
+      `,
+      );
       rootPath = RelayQueryPath.create(query);
       const response = {
         id: '123',
@@ -199,12 +213,7 @@ describe('RelayStoreData', () => {
         },
         __typename: 'Story',
       };
-      storeData.handleFragmentPayload(
-        '123',
-        fragment,
-        rootPath,
-        response
-      );
+      storeData.handleFragmentPayload('123', fragment, rootPath, response);
     });
 
     it('writes responses to `records`', () => {
@@ -212,8 +221,10 @@ describe('RelayStoreData', () => {
       const recordStore = storeData.getRecordStore();
       expect(recordStore.getRecordState('123')).toBe('EXISTENT');
       expect(recordStore.getField('123', 'doesViewerLike')).toBe(false);
-      const commentsID =
-        recordStore.getLinkedRecordID('123', 'topLevelComments');
+      const commentsID = recordStore.getLinkedRecordID(
+        '123',
+        'topLevelComments',
+      );
       expect(recordStore.getField(commentsID, 'count')).toBe(1);
 
       // `queuedRecords` is unchanged
@@ -221,8 +232,9 @@ describe('RelayStoreData', () => {
     });
 
     it('broadcasts changes for created and updated records', () => {
-      const commentsID =
-        storeData.getRecordStore().getLinkedRecordID('123', 'topLevelComments');
+      const commentsID = storeData
+        .getRecordStore()
+        .getLinkedRecordID('123', 'topLevelComments');
 
       const changeEmitter = storeData.getChangeEmitter();
       // broadcasts for created ids
@@ -242,7 +254,7 @@ describe('RelayStoreData', () => {
         '123',
         fragment,
         rootPath,
-        updatedResponse
+        updatedResponse,
       );
 
       // broadcasts for updated ids
@@ -257,7 +269,8 @@ describe('RelayStoreData', () => {
       // create the root node
       storeData.getRecordWriter().putRecord('123');
 
-      const mutationQuery = getNode(Relay.QL`
+      const mutationQuery = getNode(
+        Relay.QL`
         mutation {
           feedbackLike(input:$input) {
             clientMutationId
@@ -270,7 +283,8 @@ describe('RelayStoreData', () => {
             }
           }
         }
-      `);
+      `,
+      );
       const payload = {
         [RelayConnectionInterface.CLIENT_MUTATION_ID]: 'abc',
         feedback: {
@@ -290,8 +304,10 @@ describe('RelayStoreData', () => {
       const recordStore = storeData.getRecordStore();
       expect(recordStore.getRecordState('123')).toBe('EXISTENT');
       expect(recordStore.getField('123', 'doesViewerLike')).toBe(false);
-      const commentsID =
-        recordStore.getLinkedRecordID('123', 'topLevelComments');
+      const commentsID = recordStore.getLinkedRecordID(
+        '123',
+        'topLevelComments',
+      );
       expect(recordStore.getField(commentsID, 'count')).toBe(1);
 
       // `queuedRecords` is unchanged
@@ -303,7 +319,8 @@ describe('RelayStoreData', () => {
       // create the root node
       storeData.getRecordWriter().putRecord('123');
 
-      const mutationQuery = getNode(Relay.QL`
+      const mutationQuery = getNode(
+        Relay.QL`
         mutation {
           feedbackLike(input:$input) {
             clientMutationId
@@ -316,7 +333,8 @@ describe('RelayStoreData', () => {
             }
           }
         }
-      `);
+      `,
+      );
       const payload = {
         [RelayConnectionInterface.CLIENT_MUTATION_ID]: 'abc',
         feedback: {
@@ -337,8 +355,10 @@ describe('RelayStoreData', () => {
       const queuedStore = storeData.getQueuedStore();
       expect(queuedStore.getRecordState('123')).toBe('EXISTENT');
       expect(queuedStore.getField('123', 'doesViewerLike')).toBe(false);
-      const commentsID =
-        queuedStore.getLinkedRecordID('123', 'topLevelComments');
+      const commentsID = queuedStore.getLinkedRecordID(
+        '123',
+        'topLevelComments',
+      );
       expect(queuedStore.getField(commentsID, 'count')).toBe(1);
 
       // `records` is unchanged
@@ -352,7 +372,7 @@ describe('RelayStoreData', () => {
 
     it(
       'writes optimistic payloads to `queuedRecords` even if values are ' +
-      'identical to those in `records`',
+        'identical to those in `records`',
       () => {
         // Example case: With a story unliked, quickly like and unlike it. The
         // second unlike will have the same value as the store
@@ -362,7 +382,8 @@ describe('RelayStoreData', () => {
         const storeData = new RelayStoreData();
 
         // write starting values for a query
-        const query = getNode(Relay.QL`
+        const query = getNode(
+          Relay.QL`
           query {
             node(id:"123") {
               id
@@ -372,7 +393,8 @@ describe('RelayStoreData', () => {
               }
             }
           }
-        `);
+        `,
+        );
         let response = {
           node: {
             id: '123',
@@ -386,7 +408,8 @@ describe('RelayStoreData', () => {
         storeData.handleQueryPayload(query, response);
 
         // write an optimistic update with the same values as the store
-        const mutationQuery = getNode(Relay.QL`
+        const mutationQuery = getNode(
+          Relay.QL`
           mutation {
             feedbackLike(input:$input) {
               clientMutationId
@@ -399,7 +422,8 @@ describe('RelayStoreData', () => {
               }
             }
           }
-        `);
+        `,
+        );
         const payload = {
           [RelayConnectionInterface.CLIENT_MUTATION_ID]: 'abc',
           feedback: {
@@ -431,28 +455,31 @@ describe('RelayStoreData', () => {
         // server update
         const recordStore = storeData.getQueuedStore();
         expect(recordStore.getField('123', 'doesViewerLike')).toBe(false);
-        const commentsID =
-          recordStore.getLinkedRecordID('123', 'topLevelComments');
+        const commentsID = recordStore.getLinkedRecordID(
+          '123',
+          'topLevelComments',
+        );
         expect(commentsID).toBeTruthy();
         expect(recordStore.getField(commentsID, 'count')).toBe(1);
-      }
+      },
     );
   });
 
   describe('buildFragmentQueryForDataID()', () => {
     it('builds root queries for refetchable IDs', () => {
       const data = new RelayStoreData();
-      const fragment = getNode(Relay.QL`
+      const fragment = getNode(
+        Relay.QL`
         fragment on User {
           id
           name
         }
-      `);
-      const query = data.buildFragmentQueryForDataID(
-        fragment,
-        '123'
+      `,
       );
-      expect(query).toEqualQueryRoot(getNode(Relay.QL`
+      const query = data.buildFragmentQueryForDataID(fragment, '123');
+      expect(query).toEqualQueryRoot(
+        getNode(
+          Relay.QL`
         query {
           node(id:"123") {
             id
@@ -463,7 +490,9 @@ describe('RelayStoreData', () => {
             }
           }
         }
-      `));
+      `,
+        ),
+      );
       expect(query.getName()).toBe(fragment.getDebugName());
       expect(query.isAbstract()).toBe(true);
     });
@@ -471,14 +500,16 @@ describe('RelayStoreData', () => {
     it('builds root queries using the path for non-refetchable IDs', () => {
       const storeData = new RelayStoreData();
       const addressFragment = Relay.QL`fragment on User{id,address{city}}`;
-      const node = getNode(Relay.QL`
+      const node = getNode(
+        Relay.QL`
         query {
           node(id: "123") {
             id
             ${addressFragment}
           }
         }
-      `);
+      `,
+      );
       const payload = {
         node: {
           id: '123',
@@ -490,13 +521,17 @@ describe('RelayStoreData', () => {
       };
       storeData.handleQueryPayload(node, payload);
 
-      const fragment = getNode(Relay.QL`
+      const fragment = getNode(
+        Relay.QL`
         fragment on StreetAddress {
           city
         }
-      `);
+      `,
+      );
       const query = storeData.buildFragmentQueryForDataID(fragment, 'client:1');
-      expect(query).toEqualQueryRoot(getVerbatimNode(Relay.QL`
+      expect(query).toEqualQueryRoot(
+        getVerbatimNode(
+          Relay.QL`
         query RelayStoreData($id_0: ID!) {
           node(id: $id_0) {
             ... on User {
@@ -510,7 +545,10 @@ describe('RelayStoreData', () => {
             }
           }
         }
-      `, {id_0: '123'}));
+      `,
+          {id_0: '123'},
+        ),
+      );
       expect(query.getName()).toBe(node.getName());
       expect(query.isAbstract()).toBe(true);
     });
@@ -521,9 +559,9 @@ describe('RelayStoreData', () => {
       const data = new RelayStoreData();
       expect(data.getGarbageCollector()).toBe(undefined);
       expect(() => data.initializeGarbageCollector()).not.toThrow();
-      expect(
-        data.getGarbageCollector() instanceof RelayGarbageCollector
-      ).toBe(true);
+      expect(data.getGarbageCollector() instanceof RelayGarbageCollector).toBe(
+        true,
+      );
     });
 
     it('warns if initialized after data has been added', () => {
@@ -544,7 +582,7 @@ describe('RelayStoreData', () => {
 
     it(
       'registers created dataIDs in the garbage collector if it has been ' +
-      'initialized',
+        'initialized',
       () => {
         RelayGarbageCollector.prototype.register = jest.fn();
         const response = {node: {id: '123'}};
@@ -557,7 +595,7 @@ describe('RelayStoreData', () => {
         data.handleQueryPayload(query, response);
         expect(garbageCollector.register).toBeCalled();
         expect(garbageCollector.register.mock.calls[0][0]).toBe('123');
-      }
+      },
     );
   });
 
@@ -587,7 +625,8 @@ describe('RelayStoreData', () => {
 
   it('should toJSON', () => {
     const storeData = new RelayStoreData();
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       query {
         node(id:"123") {
           id
@@ -602,7 +641,8 @@ describe('RelayStoreData', () => {
           }
         }
       }
-    `);
+    `,
+    );
 
     const response = {
       node: {
@@ -629,55 +669,55 @@ describe('RelayStoreData', () => {
     const graphQLRangeData = storeData.getNodeData()['client:1']['__range__'];
 
     const expectedStoreData = {
-      'cachedRecords': {},
-      'cachedRootCallMap': {},
-      'queuedRecords': {},
-      'records': {
+      cachedRecords: {},
+      cachedRootCallMap: {},
+      queuedRecords: {},
+      records: {
         '123': {
-          '__dataID__': '123',
-          '__typename': 'User',
-          'id': '123',
-          'friends': {
-            '__dataID__': 'client:1',
+          __dataID__: '123',
+          __typename: 'User',
+          id: '123',
+          friends: {
+            __dataID__: 'client:1',
           },
         },
         '456': {
-          '__dataID__': '456',
-          '__typename': 'User',
-          'id': '456',
+          __dataID__: '456',
+          __typename: 'User',
+          id: '456',
         },
         '789': {
-          '__dataID__': '789',
-          '__typename': 'User',
-          'id': '789',
+          __dataID__: '789',
+          __typename: 'User',
+          id: '789',
         },
         'client:1': {
-          '__dataID__': 'client:1',
-          '__typename': null,
-          '__filterCalls__': [],
-          '__forceIndex__': 0,
+          __dataID__: 'client:1',
+          __typename: null,
+          __filterCalls__: [],
+          __forceIndex__: 0,
           // GraphQLRange implements toJSON/fromJSON
-          '__range__': graphQLRangeData,
+          __range__: graphQLRangeData,
         },
         'client:client:1:456': {
-          '__dataID__': 'client:client:1:456',
-          '__typename': null,
-          'node': {
-            '__dataID__': '456',
+          __dataID__: 'client:client:1:456',
+          __typename: null,
+          node: {
+            __dataID__: '456',
           },
-          'cursor': null,
+          cursor: null,
         },
         'client:client:1:789': {
-          '__dataID__': 'client:client:1:789',
-          '__typename': null,
-          'node': {
-            '__dataID__': '789',
+          __dataID__: 'client:client:1:789',
+          __typename: null,
+          node: {
+            __dataID__: '789',
           },
-          'cursor': null,
+          cursor: null,
         },
       },
-      'rootCallMap': {},
-      'nodeRangeMap': {
+      rootCallMap: {},
+      nodeRangeMap: {
         '456': {
           'client:1': true,
         },

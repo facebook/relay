@@ -5,6 +5,8 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
@@ -37,7 +39,7 @@ describe('RelaySkipRedundantNodesTransform', () => {
       const ast = RelayParser.parse(RelayTestSchema, text);
       const context = ast.reduce(
         (ctx, node) => ctx.add(node),
-        new RelayCompilerContext(RelayTestSchema)
+        new RelayCompilerContext(RelayTestSchema),
       );
       const nextContext = RelaySkipRedundantNodesTransform.transform(context);
       const documents = [];

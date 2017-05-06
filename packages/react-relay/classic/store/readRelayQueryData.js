@@ -8,6 +8,7 @@
  *
  * @providesModule readRelayQueryData
  * @flow
+ * @format
  */
 
 'use strict';
@@ -32,10 +33,7 @@ import type {DataID} from 'RelayInternalTypes';
 import type RelayRecordStore from 'RelayRecordStore';
 import type {RangeInfo} from 'RelayRecordStore';
 import type RelayStoreData from 'RelayStoreData';
-import type {
-  StoreReaderData,
-  StoreReaderOptions,
-} from 'RelayTypes';
+import type {StoreReaderData, StoreReaderOptions} from 'RelayTypes';
 
 const {MUTATION_STATUS} = RelayRecord.MetadataKey;
 
@@ -56,10 +54,7 @@ type State = {
 };
 
 const {EDGES, PAGE_INFO} = RelayConnectionInterface;
-const METADATA_KEYS = [
-  '__status__',
-  '__resolvedFragmentMapGeneration__',
-];
+const METADATA_KEYS = ['__status__', '__resolvedFragmentMapGeneration__'];
 
 /**
  * @internal
@@ -70,7 +65,7 @@ function readRelayQueryData(
   storeData: RelayStoreData,
   queryNode: RelayQuery.Node,
   dataID: DataID,
-  options?: StoreReaderOptions
+  options?: StoreReaderOptions,
 ): StoreReaderResult {
   const reader = new RelayStoreReader(storeData, options);
   const data = reader.retrieveData(queryNode, dataID);
@@ -89,10 +84,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
   _traverseFragmentReferences: boolean;
   _traverseGeneratedFields: boolean;
 
-  constructor(
-    storeData: RelayStoreData,
-    options?: StoreReaderOptions
-  ) {
+  constructor(storeData: RelayStoreData, options?: StoreReaderOptions) {
     super();
     this._rangeData = storeData.getRangeData();
     this._recordStore = storeData.getQueuedStore();
@@ -106,17 +98,14 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
   /**
    * Runs `queryNode` against the data in `dataID` and returns the result.
    */
-  retrieveData(
-    queryNode: RelayQuery.Node,
-    dataID: DataID
-  ): StoreReaderResult {
+  retrieveData(queryNode: RelayQuery.Node, dataID: DataID): StoreReaderResult {
     const result = {
       data: (undefined: $FlowIssue),
       dataIDs: {},
     };
     const rangeData = this._rangeData.parseRangeClientID(dataID);
     const status = this._recordStore.getRecordState(
-      rangeData ? rangeData.dataID : dataID
+      rangeData ? rangeData.dataID : dataID,
     );
     if (status === RelayClassicRecordState.EXISTENT) {
       const state = this._createState({
@@ -156,15 +145,9 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
       return;
     }
     const rangeInfo = state.rangeInfo;
-    if (
-      rangeInfo &&
-      node.getSchemaName() === EDGES
-    ) {
+    if (rangeInfo && node.getSchemaName() === EDGES) {
       this._readEdges(node, rangeInfo, state);
-    } else if (
-      rangeInfo &&
-      node.getSchemaName() === PAGE_INFO
-    ) {
+    } else if (rangeInfo && node.getSchemaName() === PAGE_INFO) {
       this._readPageInfo(node, rangeInfo, state);
     } else if (!node.canHaveSubselections()) {
       this._readScalar(node, state);
@@ -184,10 +167,9 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
       state.seenDataIDs[dataID] = true;
       const data = getDataObject(state);
       RelayFragmentPointer.addFragment(data, node);
-    } else if (isCompatibleRelayFragmentType(
-      node,
-      this._recordStore.getType(dataID)
-    )) {
+    } else if (
+      isCompatibleRelayFragmentType(node, this._recordStore.getType(dataID))
+    ) {
       this.traverse(node, state);
     }
   }
@@ -213,15 +195,17 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
       this._setDataValue(
         state,
         node.getApplicationName(),
-        Array.isArray(field) ? field.slice() : field
+        Array.isArray(field) ? field.slice() : field,
       );
     }
   }
 
   _readPlural(node: RelayQuery.Field, state: State): void {
     const storageKey = node.getStorageKey();
-    const dataIDs =
-      this._recordStore.getLinkedRecordIDs(state.storeDataID, storageKey);
+    const dataIDs = this._recordStore.getLinkedRecordIDs(
+      state.storeDataID,
+      storageKey,
+    );
     if (dataIDs) {
       const applicationName = node.getApplicationName();
       const previousData = getDataValue(state, applicationName);
@@ -255,7 +239,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     const calls = node.getCallsWithValues();
     const dataID = this._recordStore.getLinkedRecordID(
       state.storeDataID,
-      storageKey
+      storageKey,
     );
     if (!dataID) {
       state.isPartial = true;
@@ -314,13 +298,13 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
   _readPageInfo(
     node: RelayQuery.Field,
     rangeInfo: RangeInfo,
-    state: State
+    state: State,
   ): void {
     const {pageInfo} = rangeInfo;
     invariant(
       pageInfo,
       'readRelayQueryData(): Missing field, `%s`.',
-      PAGE_INFO
+      PAGE_INFO,
     );
     if (rangeInfo.diffCalls.length) {
       state.isPartial = true;
@@ -349,18 +333,15 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     };
     node.getChildren().forEach(read);
 
-    this._setDataValue(
-      state,
-      node.getApplicationName(),
-      nextData
-    );
+    this._setDataValue(state, node.getApplicationName(), nextData);
   }
 
   _readLinkedField(node: RelayQuery.Field, state: State): void {
     const storageKey = node.getStorageKey();
     const applicationName = node.getApplicationName();
     const dataID = this._recordStore.getLinkedRecordID(
-      state.storeDataID, storageKey
+      state.storeDataID,
+      storageKey,
     );
     if (dataID == null) {
       if (dataID === undefined) {
@@ -414,8 +395,10 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     });
     // Set the partial bit after metadata has been copied over.
     if (state.isPartial) {
-      data.__status__ =
-        RelayRecordStatusMap.setPartialStatus(data.__status__, true);
+      data.__status__ = RelayRecordStatusMap.setPartialStatus(
+        data.__status__,
+        true,
+      );
     }
     // Hash any pending mutation transactions.
     const mutationIDs = this._storeData.getClientMutationIDs(dataID);
@@ -438,10 +421,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
    * `node`, then a call-less connection ID (eg. `someDataID`) will be returned
    * instead.
    */
-  _getConnectionClientID(
-    node: RelayQuery.Field,
-    connectionID: DataID
-  ): DataID {
+  _getConnectionClientID(node: RelayQuery.Field, connectionID: DataID): DataID {
     const calls = node.getCallsWithValues();
     if (!RelayConnectionInterface.hasRangeCalls(calls)) {
       return connectionID;
@@ -449,7 +429,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     return this._rangeData.getClientIDForRangeWithID(
       callsToGraphQL(calls),
       {},
-      connectionID
+      connectionID,
     );
   }
 
@@ -458,15 +438,13 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
    * so, unpacks the range metadata, stashing it into (and overriding) `state`.
    */
   _handleRangeInfo(node: RelayQuery.Field, state: State): void {
-    const rangeData = this._rangeData.parseRangeClientID(
-      state.storeDataID
-    );
+    const rangeData = this._rangeData.parseRangeClientID(state.storeDataID);
     if (rangeData != null) {
       state.componentDataID = state.storeDataID;
       state.storeDataID = rangeData.dataID;
       state.rangeInfo = this._recordStore.getRangeMetadata(
         state.storeDataID,
-        callsFromGraphQL(rangeData.calls, rangeData.callValues)
+        callsFromGraphQL(rangeData.calls, rangeData.callValues),
       );
     }
   }
@@ -487,19 +465,15 @@ function enforceRangeCalls(parent: RelayQuery.Field): void {
   }
 }
 class RelayRangeCallEnforcer extends RelayQueryVisitor<RelayQuery.Field> {
-  visitField(
-    node: RelayQuery.Field,
-    parent: RelayQuery.Field
-  ): void {
+  visitField(node: RelayQuery.Field, parent: RelayQuery.Field): void {
     const schemaName = node.getSchemaName();
     invariant(
-      schemaName !== EDGES &&
-      schemaName !== PAGE_INFO,
+      schemaName !== EDGES && schemaName !== PAGE_INFO,
       'readRelayQueryData(): The field `%s` is a connection. Fields `%s` and ' +
-      '`%s` cannot be fetched without a `first`, `last` or `find` argument.',
+        '`%s` cannot be fetched without a `first`, `last` or `find` argument.',
       parent.getApplicationName(),
       EDGES,
-      PAGE_INFO
+      PAGE_INFO,
     );
   }
 }
@@ -533,7 +507,7 @@ function getDataObject(state: State): Object {
   }
   invariant(
     data instanceof Object,
-    'readRelayQueryData(): Unable to read field on non-object.'
+    'readRelayQueryData(): Unable to read field on non-object.',
   );
   return data;
 }
@@ -550,5 +524,5 @@ function getDataValue(state: State, key: string): mixed {
 
 module.exports = RelayProfiler.instrument(
   'readRelayQueryData',
-  readRelayQueryData
+  readRelayQueryData,
 );

@@ -5,24 +5,24 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
 
-jest
-  .autoMockOff()
-  .mock('generateClientID');
+jest.autoMockOff().mock('generateClientID');
 
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayReader = require('RelayReader');
 const RelayStoreUtils = require('RelayStoreUtils');
-const RelayStaticTestUtils = require('RelayStaticTestUtils');
+const RelayModernTestUtils = require('RelayModernTestUtils');
 
 const {read} = RelayReader;
 const {ROOT_ID} = RelayStoreUtils;
 
 describe('RelayReader', () => {
-  const {generateAndCompile, generateWithTransforms} = RelayStaticTestUtils;
+  const {generateAndCompile, generateWithTransforms} = RelayModernTestUtils;
   let source;
 
   beforeEach(() => {
@@ -84,7 +84,8 @@ describe('RelayReader', () => {
   });
 
   it('reads query data', () => {
-    const {FooQuery} = generateWithTransforms(`
+    const {FooQuery} = generateWithTransforms(
+      `
       query FooQuery($id: ID, $size: [Int]) {
         node(id: $id) {
           id
@@ -111,15 +112,13 @@ describe('RelayReader', () => {
           }
         }
       }
-    `);
-    const {data, seenRecords} = read(
-      source,
-      {
-        dataID: ROOT_ID,
-        node: FooQuery,
-        variables: {id: '1', size: 32},
-      }
+    `,
     );
+    const {data, seenRecords} = read(source, {
+      dataID: ROOT_ID,
+      node: FooQuery,
+      variables: {id: '1', size: 32},
+    });
     expect(data).toEqual({
       node: {
         id: '1',
@@ -162,7 +161,8 @@ describe('RelayReader', () => {
   });
 
   it('reads fragment data', () => {
-    const {BarFragment} = generateWithTransforms(`
+    const {BarFragment} = generateWithTransforms(
+      `
       fragment BarFragment on User @argumentDefinitions(
         size: {type: "[Int]"}
       ) {
@@ -181,15 +181,13 @@ describe('RelayReader', () => {
           uri
         }
       }
-    `);
-    const {data, seenRecords} = read(
-      source,
-      {
-        dataID: '1',
-        node: BarFragment,
-        variables: {size: 32},
-      }
+    `,
     );
+    const {data, seenRecords} = read(source, {
+      dataID: '1',
+      node: BarFragment,
+      variables: {size: 32},
+    });
     expect(data).toEqual({
       id: '1',
       firstName: 'Alice',
@@ -228,7 +226,8 @@ describe('RelayReader', () => {
   });
 
   it('creates fragment pointers', () => {
-    const {UserProfile} = generateAndCompile(`
+    const {UserProfile} = generateAndCompile(
+      `
       fragment UserProfile on User @argumentDefinitions(
         size: {type: "[Int]"}
       ) {
@@ -243,16 +242,14 @@ describe('RelayReader', () => {
           uri
         }
       }
-    `);
-
-    const {data, seenRecords} = read(
-      source,
-      {
-        dataID: '1',
-        node: UserProfile,
-        variables: {size: 42},
-      }
+    `,
     );
+
+    const {data, seenRecords} = read(source, {
+      dataID: '1',
+      node: UserProfile,
+      variables: {size: 42},
+    });
     expect(data).toEqual({
       id: '1',
       __id: '1',
@@ -266,11 +263,13 @@ describe('RelayReader', () => {
   });
 
   it('reads data when the root is deleted', () => {
-    const {UserProfile} = generateAndCompile(`
+    const {UserProfile} = generateAndCompile(
+      `
       fragment UserProfile on User {
         name
       }
-    `);
+    `,
+    );
     source = new RelayInMemoryRecordSource();
     source.delete('4');
     const {data, seenRecords} = read(source, {
@@ -283,11 +282,13 @@ describe('RelayReader', () => {
   });
 
   it('reads data when the root is unfetched', () => {
-    const {UserProfile} = generateAndCompile(`
+    const {UserProfile} = generateAndCompile(
+      `
       fragment UserProfile on User {
         name
       }
-    `);
+    `,
+    );
     source = new RelayInMemoryRecordSource();
     const {data, seenRecords} = read(source, {
       dataID: '4',
@@ -303,13 +304,13 @@ describe('RelayReader', () => {
       '1': {
         __id: '1',
         __typename: 'User',
-        '__friends_bestFriends': {__ref: 'client:bestFriends'},
+        __friends_bestFriends: {__ref: 'client:bestFriends'},
       },
       '2': {
         __id: '2',
         __typename: 'User',
         id: '2',
-        '__name_friendsName': 'handleName',
+        __name_friendsName: 'handleName',
       },
       'client:bestFriends': {
         __id: 'client:bestFriends',
@@ -331,7 +332,8 @@ describe('RelayReader', () => {
       },
     };
     source = new RelayInMemoryRecordSource(records);
-    const {UserFriends} = generateAndCompile(`
+    const {UserFriends} = generateAndCompile(
+      `
       query UserFriends($id: ID!) {
         node(id: $id) {
           ... on User {
@@ -347,25 +349,25 @@ describe('RelayReader', () => {
           }
         }
       }
-    `);
-    const {data, seenRecords} = read(
-      source,
-      {
-        dataID: ROOT_ID,
-        node: UserFriends.fragment,
-        variables: {id: '1'},
-      }
+    `,
     );
+    const {data, seenRecords} = read(source, {
+      dataID: ROOT_ID,
+      node: UserFriends.fragment,
+      variables: {id: '1'},
+    });
     expect(data).toEqual({
       node: {
         friends: {
-          edges: [{
-            cursor: 'cursor:bestFriendsEdge',
-            node: {
-              id: '2',
-              name: 'handleName',
+          edges: [
+            {
+              cursor: 'cursor:bestFriendsEdge',
+              node: {
+                id: '2',
+                name: 'handleName',
+              },
             },
-          }],
+          ],
         },
       },
     });
@@ -383,13 +385,13 @@ describe('RelayReader', () => {
       '1': {
         __id: '1',
         __typename: 'User',
-        '__friends_bestFriends': {__ref: 'client:bestFriends'},
+        __friends_bestFriends: {__ref: 'client:bestFriends'},
       },
       '2': {
         __id: '2',
         __typename: 'User',
         id: '2',
-        '__name_friendsName': 'handleName',
+        __name_friendsName: 'handleName',
       },
       'client:bestFriends': {
         __id: 'client:bestFriends',
@@ -406,7 +408,8 @@ describe('RelayReader', () => {
       },
     };
     source = new RelayInMemoryRecordSource(records);
-    const {UserFriends} = generateAndCompile(`
+    const {UserFriends} = generateAndCompile(
+      `
       fragment UserFriends on User {
         friends(first: 1) @__clientField(handle: "bestFriends") {
           edges {
@@ -418,24 +421,24 @@ describe('RelayReader', () => {
           }
         }
       }
-    `);
-    const {data, seenRecords} = read(
-      source,
-      {
-        dataID: '1',
-        node: UserFriends,
-        variables: {},
-      }
+    `,
     );
+    const {data, seenRecords} = read(source, {
+      dataID: '1',
+      node: UserFriends,
+      variables: {},
+    });
     expect(data).toEqual({
       friends: {
-        edges: [{
-          cursor: 'cursor:bestFriendsEdge',
-          node: {
-            id: '2',
-            name: 'handleName',
+        edges: [
+          {
+            cursor: 'cursor:bestFriendsEdge',
+            node: {
+              id: '2',
+              name: 'handleName',
+            },
           },
-        }],
+        ],
       },
     });
     expect(Object.keys(seenRecords).sort()).toEqual([

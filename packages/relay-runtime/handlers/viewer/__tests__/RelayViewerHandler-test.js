@@ -5,31 +5,26 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
 
-jest
-  .autoMockOff();
+jest.autoMockOff();
 
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
-const RelayStaticRecord = require('RelayStaticRecord');
+const RelayModernRecord = require('RelayModernRecord');
 const RelayRecordSourceMutator = require('RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('RelayRecordSourceProxy');
 const RelayStoreUtils = require('RelayStoreUtils');
-const RelayStaticTestUtils = require('RelayStaticTestUtils');
+const RelayModernTestUtils = require('RelayModernTestUtils');
 const RelayViewerHandler = require('RelayViewerHandler');
 
 const generateRelayClientID = require('generateRelayClientID');
-const getRelayStaticHandleKey = require('getRelayStaticHandleKey');
+const getRelayHandleKey = require('getRelayHandleKey');
 
-const {
-  ID_KEY,
-  REF_KEY,
-  ROOT_ID,
-  ROOT_TYPE,
-  TYPENAME_KEY,
-} = RelayStoreUtils;
+const {ID_KEY, REF_KEY, ROOT_ID, ROOT_TYPE, TYPENAME_KEY} = RelayStoreUtils;
 
 const VIEWER_ID = generateRelayClientID(ROOT_ID, 'viewer');
 
@@ -43,7 +38,7 @@ describe('RelayViewerHandler', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    jasmine.addMatchers(RelayStaticTestUtils.matchers);
+    jasmine.addMatchers(RelayModernTestUtils.matchers);
 
     baseData = {
       [ROOT_ID]: {
@@ -62,7 +57,7 @@ describe('RelayViewerHandler', () => {
     const payload = {
       dataID: 'unfetched',
       fieldKey: 'viewer',
-      handleKey: getRelayStaticHandleKey('viewer', null, 'viewer'),
+      handleKey: getRelayHandleKey('viewer', null, 'viewer'),
     };
     RelayViewerHandler.update(store, payload);
     expect(sinkData).toEqual({});
@@ -70,12 +65,16 @@ describe('RelayViewerHandler', () => {
 
   it('sets the handle as deleted if the server viewer is null', () => {
     baseSource.delete(VIEWER_ID);
-    RelayStaticRecord.setLinkedRecordID(baseSource.get(ROOT_ID), 'viewer', VIEWER_ID);
+    RelayModernRecord.setLinkedRecordID(
+      baseSource.get(ROOT_ID),
+      'viewer',
+      VIEWER_ID,
+    );
 
     const payload = {
       dataID: ROOT_ID,
       fieldKey: 'viewer',
-      handleKey: getRelayStaticHandleKey('viewer', null, 'viewer'),
+      handleKey: getRelayHandleKey('viewer', null, 'viewer'),
     };
     RelayViewerHandler.update(store, payload);
     expect(sinkData).toEqual({
@@ -88,12 +87,16 @@ describe('RelayViewerHandler', () => {
   });
 
   it('sets the handle as deleted if the server viewer is undefined', () => {
-    RelayStaticRecord.setLinkedRecordID(baseSource.get(ROOT_ID), 'viewer', VIEWER_ID);
+    RelayModernRecord.setLinkedRecordID(
+      baseSource.get(ROOT_ID),
+      'viewer',
+      VIEWER_ID,
+    );
 
     const payload = {
       dataID: ROOT_ID,
       fieldKey: 'viewer',
-      handleKey: getRelayStaticHandleKey('viewer', null, 'viewer'),
+      handleKey: getRelayHandleKey('viewer', null, 'viewer'),
     };
     RelayViewerHandler.update(store, payload);
     expect(sinkData).toEqual({
@@ -106,14 +109,18 @@ describe('RelayViewerHandler', () => {
   });
 
   it('links the handle to the server viewer for query data', () => {
-    const viewer = RelayStaticRecord.create(VIEWER_ID, 'Viewer');
+    const viewer = RelayModernRecord.create(VIEWER_ID, 'Viewer');
     baseSource.set(VIEWER_ID, viewer);
-    RelayStaticRecord.setLinkedRecordID(baseSource.get(ROOT_ID), 'viewer', VIEWER_ID);
+    RelayModernRecord.setLinkedRecordID(
+      baseSource.get(ROOT_ID),
+      'viewer',
+      VIEWER_ID,
+    );
 
     const payload = {
       dataID: ROOT_ID,
       fieldKey: 'viewer',
-      handleKey: getRelayStaticHandleKey('viewer', null, 'viewer'),
+      handleKey: getRelayHandleKey('viewer', null, 'viewer'),
     };
     RelayViewerHandler.update(store, payload);
     expect(sinkData).toEqual({
@@ -129,19 +136,26 @@ describe('RelayViewerHandler', () => {
   it('copies the handle field from server viewer for mutation data', () => {
     const commentAlias = 'commentCreate{"input":{}}';
     const commentID = generateRelayClientID(ROOT_ID, commentAlias);
-    const comment = RelayStaticRecord.create(commentID, 'CommentCreateResponsePayload');
+    const comment = RelayModernRecord.create(
+      commentID,
+      'CommentCreateResponsePayload',
+    );
     baseSource.set(commentID, comment);
     const viewerID = generateRelayClientID(commentID, 'viewer');
-    const viewer = RelayStaticRecord.create(viewerID, 'Viewer');
-    RelayStaticRecord.setLinkedRecordID(viewer, 'actor', '842472');
+    const viewer = RelayModernRecord.create(viewerID, 'Viewer');
+    RelayModernRecord.setLinkedRecordID(viewer, 'actor', '842472');
     baseSource.set(viewerID, viewer);
-    RelayStaticRecord.setLinkedRecordID(comment, 'viewer', viewerID);
-    RelayStaticRecord.setLinkedRecordID(baseSource.get(ROOT_ID), commentAlias, commentID);
+    RelayModernRecord.setLinkedRecordID(comment, 'viewer', viewerID);
+    RelayModernRecord.setLinkedRecordID(
+      baseSource.get(ROOT_ID),
+      commentAlias,
+      commentID,
+    );
 
     const payload = {
       dataID: commentID,
       fieldKey: 'viewer',
-      handleKey: getRelayStaticHandleKey('viewer', null, 'viewer'),
+      handleKey: getRelayHandleKey('viewer', null, 'viewer'),
     };
     RelayViewerHandler.update(store, payload);
     expect(sinkData).toEqual({

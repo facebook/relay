@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -52,9 +53,11 @@ describe('RelayReadyStateRenderer', () => {
    * Pretty printer that prints top-level React elements using JSX.
    */
   const ppReactElement = element => {
-    if (!ReactTestUtils.isElement(element) ||
-        !element.type ||
-        !element.type.name) {
+    if (
+      !ReactTestUtils.isElement(element) ||
+      !element.type ||
+      !element.type.name
+    ) {
       return jasmine.pp(element);
     }
     const ppProps = Object.keys(element.props)
@@ -106,18 +109,18 @@ describe('RelayReadyStateRenderer', () => {
         toRenderWithArgs: () => ({
           compare(elementOrReadyState, expected) {
             const render = jest.fn(() => <div />);
-            const element = ReactTestUtils.isElement(elementOrReadyState) ?
-              React.cloneElement(elementOrReadyState, {render}) :
-              <RelayReadyStateRenderer
-                {...defaultProps}
-                readyState={elementOrReadyState}
-                render={render}
-              />;
+            const element = ReactTestUtils.isElement(elementOrReadyState)
+              ? React.cloneElement(elementOrReadyState, {render})
+              : <RelayReadyStateRenderer
+                  {...defaultProps}
+                  readyState={elementOrReadyState}
+                  render={render}
+                />;
             ReactDOM.render(element, container);
             const actual = render.mock.calls[0][0];
             const pass = jasmine.matchersUtil.equals(
               actual,
-              jasmine.objectContaining(expected)
+              jasmine.objectContaining(expected),
             );
             return {
               get message() {
@@ -207,7 +210,7 @@ describe('RelayReadyStateRenderer', () => {
           {...defaultProps}
           queryConfig={anotherQueryConfig}
           readyState={{...defaultReadyState, ready: true}}
-        />
+        />,
       ).toRenderWithArgs({
         props: jasmine.objectContaining({
           foo: 123,
@@ -221,7 +224,7 @@ describe('RelayReadyStateRenderer', () => {
         <RelayReadyStateRenderer
           {...defaultProps}
           readyState={{...defaultReadyState, ready: true}}
-        />
+        />,
       ).toRenderWithArgs({
         props: {node: anyRecord({dataID: '123'})},
       });
@@ -237,7 +240,7 @@ describe('RelayReadyStateRenderer', () => {
           {...defaultProps}
           queryConfig={new AnotherQueryConfig()}
           readyState={{...defaultReadyState, ready: true}}
-        />
+        />,
       ).toRenderWithArgs({
         props: {node: anyRecord({dataID: '456'})},
       });
@@ -268,7 +271,7 @@ describe('RelayReadyStateRenderer', () => {
           {...defaultProps}
           queryConfig={anotherQueryConfig}
           readyState={{...defaultReadyState, ready: true}}
-        />
+        />,
       ).toRenderWithArgs({
         props: {me: anyRecord({dataID: '123'})},
       });
@@ -279,7 +282,7 @@ describe('RelayReadyStateRenderer', () => {
           {...defaultProps}
           queryConfig={anotherQueryConfig}
           readyState={{...defaultReadyState, ready: true}}
-        />
+        />,
       ).toRenderWithArgs({
         props: {me: anyRecord({dataID: '456'})},
       });
@@ -310,7 +313,7 @@ describe('RelayReadyStateRenderer', () => {
           {...defaultProps}
           queryConfig={anotherQueryConfig}
           readyState={{...defaultReadyState, ready: true}}
-        />
+        />,
       ).toRenderWithArgs({
         props: {me: null},
       });
@@ -321,7 +324,7 @@ describe('RelayReadyStateRenderer', () => {
           {...defaultProps}
           queryConfig={anotherQueryConfig}
           readyState={{...defaultReadyState, ready: true}}
-        />
+        />,
       ).toRenderWithArgs({
         props: {me: anyRecord({dataID: '123'})},
       });
@@ -332,7 +335,7 @@ describe('RelayReadyStateRenderer', () => {
         <RelayReadyStateRenderer
           {...defaultProps}
           readyState={{...defaultReadyState, ready: true}}
-        />
+        />,
       ).toRenderWithArgs({
         props: {
           node: anyRecord({
@@ -352,7 +355,7 @@ describe('RelayReadyStateRenderer', () => {
           {...defaultProps}
           Container={AnotherContainer}
           readyState={{...defaultReadyState, ready: true}}
-        />
+        />,
       ).toRenderWithArgs({
         props: {
           node: anyRecord({
@@ -372,7 +375,8 @@ describe('RelayReadyStateRenderer', () => {
         },
       });
 
-      defaultProps.environment.getStoreData()
+      defaultProps.environment
+        .getStoreData()
         .getRecordWriter()
         .putDataID('me', null, '123');
       expect(
@@ -380,7 +384,7 @@ describe('RelayReadyStateRenderer', () => {
           {...defaultProps}
           queryConfig={new AnotherQueryConfig()}
           readyState={{...defaultReadyState, ready: true}}
-        />
+        />,
       ).toRenderWithArgs({
         props: {
           node: anyRecord({dataID: '123'}),
@@ -388,7 +392,8 @@ describe('RelayReadyStateRenderer', () => {
       });
 
       const anotherEnvironment = new RelayEnvironment();
-      anotherEnvironment.getStoreData()
+      anotherEnvironment
+        .getStoreData()
         .getRecordWriter()
         .putDataID('me', null, '456');
       expect(
@@ -397,7 +402,7 @@ describe('RelayReadyStateRenderer', () => {
           environment={anotherEnvironment}
           queryConfig={new AnotherQueryConfig()}
           readyState={{...defaultReadyState, ready: true}}
-        />
+        />,
       ).toRenderWithArgs({
         props: {
           node: anyRecord({dataID: '456'}),
@@ -412,7 +417,7 @@ describe('RelayReadyStateRenderer', () => {
       function render(element) {
         return ReactTestUtils.findRenderedComponentWithType(
           ReactDOM.render(element, container),
-          StaticContainer
+          StaticContainer,
         );
       }
 
@@ -421,7 +426,7 @@ describe('RelayReadyStateRenderer', () => {
           compare(element, expected) {
             const pass = jasmine.matchersUtil.equals(
               render(element).props.children,
-              expected
+              expected,
             );
             return {
               get message() {
@@ -442,7 +447,7 @@ describe('RelayReadyStateRenderer', () => {
               get message() {
                 const not = pass ? ' not' : '';
                 return (
-                  `Expected ${ppReactElement(element)}${(not)} ` +
+                  `Expected ${ppReactElement(element)}${not} ` +
                   'to update child.'
                 );
               },
@@ -455,10 +460,7 @@ describe('RelayReadyStateRenderer', () => {
 
     it('renders null if `readyState` is initially omitted', () => {
       expect(
-        <RelayReadyStateRenderer
-          {...defaultProps}
-          render={() => <div />}
-        />
+        <RelayReadyStateRenderer {...defaultProps} render={() => <div />} />,
       ).toRenderChild(null);
     });
 
@@ -467,7 +469,7 @@ describe('RelayReadyStateRenderer', () => {
         <RelayReadyStateRenderer
           {...defaultProps}
           readyState={defaultReadyState}
-        />
+        />,
       ).toRenderChild(null);
     });
 
@@ -476,10 +478,8 @@ describe('RelayReadyStateRenderer', () => {
         <RelayReadyStateRenderer
           {...defaultProps}
           readyState={{...defaultReadyState, ready: true}}
-        />
-      ).toRenderChild(
-        jasmine.objectContaining({type: defaultProps.Container})
-      );
+        />,
+      ).toRenderChild(jasmine.objectContaining({type: defaultProps.Container}));
     });
 
     it('renders null if `render` returns null', () => {
@@ -488,7 +488,7 @@ describe('RelayReadyStateRenderer', () => {
           {...defaultProps}
           readyState={defaultReadyState}
           render={() => null}
-        />
+        />,
       ).toRenderChild(null);
     });
 
@@ -499,7 +499,7 @@ describe('RelayReadyStateRenderer', () => {
           {...defaultProps}
           readyState={defaultReadyState}
           render={() => prevChild}
-        />
+        />,
       ).toRenderChild(prevChild);
 
       expect(
@@ -507,7 +507,7 @@ describe('RelayReadyStateRenderer', () => {
           {...defaultProps}
           readyState={defaultReadyState}
           render={() => undefined}
-        />
+        />,
       ).not.toUpdateChild();
     });
 
@@ -518,7 +518,7 @@ describe('RelayReadyStateRenderer', () => {
           {...defaultProps}
           readyState={defaultReadyState}
           render={() => prevChild}
-        />
+        />,
       ).toRenderChild(prevChild);
 
       const nextChild = <div />;
@@ -527,7 +527,7 @@ describe('RelayReadyStateRenderer', () => {
           {...defaultProps}
           readyState={defaultReadyState}
           render={() => nextChild}
-        />
+        />,
       ).toUpdateChild(nextChild);
     });
   });
@@ -553,7 +553,7 @@ describe('RelayReadyStateRenderer', () => {
           readyState={defaultReadyState}
           render={() => <TestComponent onRenderContext={onRenderContext} />}
         />,
-        container
+        container,
       );
       expect(onRenderContext).toBeCalledWith({
         relay: {

@@ -8,14 +8,13 @@
  *
  * @providesModule RelayCombinedEnvironmentTypes
  * @flow
+ * @format
  */
 
 'use strict';
 
 import type {DataID} from 'RelayInternalTypes';
-import type {
-  Variables,
-} from 'RelayTypes';
+import type {Variables} from 'RelayTypes';
 
 /**
  * Settings for how a query response may be cached.
@@ -146,14 +145,12 @@ export interface CEnvironment<
   TGraphQLTaggedNode,
   TNode,
   TOperation,
-  TPayload,
+  TPayload
 > {
   /**
    * Read the results of a selector from in-memory records in the store.
    */
-  lookup(
-    selector: CSelector<TNode>,
-  ): CSnapshot<TNode>,
+  lookup(selector: CSelector<TNode>): CSnapshot<TNode>,
 
   /**
    * Subscribe to changes to the results of a selector. The callback is called
@@ -214,7 +211,7 @@ export interface CEnvironment<
     TFragment,
     TGraphQLTaggedNode,
     TNode,
-    TOperation,
+    TOperation
   >,
 }
 
@@ -223,7 +220,7 @@ export interface CUnstableEnvironmentCore<
   TFragment,
   TGraphQLTaggedNode,
   TNode,
-  TOperation,
+  TOperation
 > {
   /**
    * Create an instance of a FragmentSpecResolver.

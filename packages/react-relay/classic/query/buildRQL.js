@@ -8,6 +8,7 @@
  *
  * @providesModule buildRQL
  * @flow
+ * @format
  */
 
 'use strict';
@@ -21,17 +22,17 @@ const filterObject = require('filterObject');
 const invariant = require('invariant');
 const mapObject = require('mapObject');
 
-import type {
-  ConcreteFragment,
-  ConcreteQuery,
-} from 'ConcreteQuery';
+import type {ConcreteFragment, ConcreteQuery} from 'ConcreteQuery';
 import type {RelayConcreteNode} from 'RelayQL';
 import type {RelayContainer, Variables} from 'RelayTypes';
 
-export type RelayQLFragmentBuilder =
-  (variables: Variables) => RelayConcreteNode;
-export type RelayQLQueryBuilder =
-  (Component: RelayContainer, params: Variables) => RelayConcreteNode;
+export type RelayQLFragmentBuilder = (
+  variables: Variables,
+) => RelayConcreteNode;
+export type RelayQLQueryBuilder = (
+  Component: RelayContainer,
+  params: Variables,
+) => RelayConcreteNode;
 
 // Cache results of executing fragment query builders.
 const fragmentCache = new Map();
@@ -41,7 +42,7 @@ const queryCache = new Map();
 
 function isDeprecatedCallWithArgCountGreaterThan(
   nodeBuilder: Function,
-  count: number
+  count: number,
 ): boolean {
   let argLength = nodeBuilder.length;
   if (__DEV__) {
@@ -69,7 +70,7 @@ function isDeprecatedCallWithArgCountGreaterThan(
 const buildRQL = {
   Fragment(
     fragmentBuilder: RelayQLFragmentBuilder,
-    values: Variables
+    values: Variables,
   ): ?ConcreteFragment {
     let node = fragmentCache.get(fragmentBuilder);
     if (node) {
@@ -79,12 +80,10 @@ const buildRQL = {
     invariant(
       !isDeprecatedCallWithArgCountGreaterThan(fragmentBuilder, 1),
       'Relay.QL: Deprecated usage detected. If you are trying to define a ' +
-      'fragment, use `variables => Relay.QL`.'
+        'fragment, use `variables => Relay.QL`.',
     );
     node = fragmentBuilder(variables);
-    const fragment = node != null ?
-      QueryBuilder.getFragment(node) :
-      null;
+    const fragment = node != null ? QueryBuilder.getFragment(node) : null;
     if (!fragment) {
       return fragment;
     }
@@ -96,7 +95,7 @@ const buildRQL = {
     queryBuilder: RelayQLQueryBuilder,
     Component: any,
     queryName: string,
-    values: Variables
+    values: Variables,
   ): ?ConcreteQuery {
     const queryCacheEnabled = RelayQueryCaching.getEnabled();
     let node;
@@ -129,13 +128,13 @@ function buildNode(
   queryBuilder: RelayQLQueryBuilder,
   Component: any,
   queryName: string,
-  values: Variables
+  values: Variables,
 ): ?mixed {
   const variables = toVariables(values);
   invariant(
     !isDeprecatedCallWithArgCountGreaterThan(queryBuilder, 2),
     'Relay.QL: Deprecated usage detected. If you are trying to define a ' +
-    'query, use `(Component, variables) => Relay.QL`.'
+      'query, use `(Component, variables) => Relay.QL`.',
   );
   let node;
   if (isDeprecatedCallWithArgCountGreaterThan(queryBuilder, 0)) {
@@ -150,10 +149,10 @@ function buildNode(
         query.children.forEach(child => {
           if (child) {
             hasFragment = hasFragment || child.kind === 'Fragment';
-            hasScalarFieldsOnly = hasScalarFieldsOnly && (
-              child.kind === 'Field' &&
-              (!child.children || child.children.length === 0)
-            );
+            hasScalarFieldsOnly =
+              hasScalarFieldsOnly &&
+              (child.kind === 'Field' &&
+                (!child.children || child.children.length === 0));
           }
         });
       }
@@ -162,11 +161,11 @@ function buildNode(
         invariant(
           hasScalarFieldsOnly,
           'Relay.QL: Expected query `%s` to be empty. For example, use ' +
-          '`node(id: $id)`, not `node(id: $id) { ... }`.',
-          query.fieldName
+            '`node(id: $id)`, not `node(id: $id) { ... }`.',
+          query.fieldName,
         );
         const fragmentVariables = filterObject(variables, (_, name) =>
-          Component.hasVariable(name)
+          Component.hasVariable(name),
         );
         children.push(Component.getFragment(queryName, fragmentVariables));
         node = {
@@ -179,12 +178,13 @@ function buildNode(
   return node;
 }
 
-function toVariables(variables: Variables): {
-  [key: string]: $FlowIssue; // ConcreteCallVariable should flow into mixed
+function toVariables(
+  variables: Variables,
+): {
+  [key: string]: $FlowIssue, // ConcreteCallVariable should flow into mixed
 } {
-  return mapObject(
-    variables,
-    (_, name) => QueryBuilder.createCallVariable(name)
+  return mapObject(variables, (_, name) =>
+    QueryBuilder.createCallVariable(name),
   );
 }
 

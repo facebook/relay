@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -14,9 +15,7 @@
 require('configureForRelayOSS');
 
 jest.useFakeTimers();
-jest
-  .unmock('GraphQLRange')
-  .unmock('GraphQLSegment');
+jest.unmock('GraphQLRange').unmock('GraphQLSegment');
 
 const Relay = require('Relay');
 const RelayNodeInterface = require('RelayNodeInterface');
@@ -32,7 +31,8 @@ describe('RelayGarbageCollector', () => {
 
   function defaultScheduler(run) {
     // collect everything without pausing
-    while (run()) {}
+    while (run()) {
+    }
   }
 
   function createGC(records, scheduler) {
@@ -173,9 +173,9 @@ describe('RelayGarbageCollector', () => {
               {
                 cursor: 'c1',
                 node: {
-                  id:'s1',
-                  message:{
-                    text:'s1',
+                  id: 's1',
+                  message: {
+                    text: 's1',
                   },
                   __typename: 'Story',
                 },
@@ -188,7 +188,8 @@ describe('RelayGarbageCollector', () => {
           },
         },
       };
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        Relay.QL`
         query {
           viewer {
             newsFeed(first: 1) {
@@ -202,10 +203,11 @@ describe('RelayGarbageCollector', () => {
             }
           }
         }
-      `);
+      `,
+      );
       storeData.handleQueryPayload(
         query,
-        transformRelayQueryPayload(query, payload)
+        transformRelayQueryPayload(query, payload),
       );
       const viewerID = storeData.getRecordStore().getDataID('viewer', null);
       garbageCollector.collectFromNode(viewerID);
@@ -250,7 +252,7 @@ describe('RelayGarbageCollector', () => {
       const {release} = garbageCollector.acquireHold();
       release();
       expect(() => release()).toFailInvariant(
-        'RelayGarbageCollector: hold can only be released once.'
+        'RelayGarbageCollector: hold can only be released once.',
       );
     });
 

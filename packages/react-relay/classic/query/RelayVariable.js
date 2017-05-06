@@ -8,6 +8,7 @@
  *
  * @providesModule RelayVariable
  * @flow
+ * @format
  */
 
 'use strict';
@@ -20,10 +21,7 @@ class RelayVariable {
   }
 
   equals(other: mixed): boolean {
-    return (
-      other instanceof RelayVariable &&
-      other.getName() === this.name
-    );
+    return other instanceof RelayVariable && other.getName() === this.name;
   }
 
   getName(): string {

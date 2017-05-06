@@ -8,6 +8,7 @@
  *
  * @providesModule RelayExportTransform
  * @flow
+ * @format
  */
 
 'use strict';
@@ -30,9 +31,10 @@ type Metadata = {[key: string]: Path};
 type Path = Array<string>;
 
 function transformSchema(schema: GraphQLSchema): GraphQLSchema {
-  return GraphQL.extendSchema(schema, GraphQL.parse(
-    'directive @export(as: String!) on FIELD'
-  ));
+  return GraphQL.extendSchema(
+    schema,
+    GraphQL.parse('directive @export(as: String!) on FIELD'),
+  );
 }
 
 /**
@@ -40,9 +42,7 @@ function transformSchema(schema: GraphQLSchema): GraphQLSchema {
  * them to metadata that can be accessed at runtime.
  */
 function transform(context: RelayCompilerContext): RelayCompilerContext {
-  /* $FlowFixMe(>=0.44.0 site=react_native_fb) Flow error found while deploying
-   * v0.44.0. Remove this comment to see the error */
-  return context.documents().reduce((ctx, node) => {
+  return context.documents().reduce((ctx: RelayCompilerContext, node) => {
     if (node.kind === 'Root') {
       const metadata = {};
       const path = [];
@@ -51,58 +51,50 @@ function transform(context: RelayCompilerContext): RelayCompilerContext {
       if (Object.keys(metadata).length) {
         transformedNode.metadata[EXPORT] = metadata;
       }
-      /* $FlowFixMe(>=0.44.0 site=react_native_fb) Flow error found while
-       * deploying v0.44.0. Remove this comment to see the error */
       return ctx.add(transformedNode);
     } else {
-      /* $FlowFixMe(>=0.44.0 site=react_native_fb) Flow error found while
-       * deploying v0.44.0. Remove this comment to see the error */
       return ctx.add(node);
     }
   }, new RelayCompilerContext(context.schema));
 }
 
-function transformNode<T: Node>(
-  node: T,
-  path: Path,
-  metadata: Metadata
-): T {
+function transformNode<T: Node>(node: T, path: Path, metadata: Metadata): T {
   const selections: Array<Selection> = node.selections.map(selection => {
     let nextSelection = selection;
     if (selection.kind === 'ScalarField') {
       const [exports, directives] = partitionArray(
         selection.directives,
-        directive => directive.name === EXPORT
+        directive => directive.name === EXPORT,
       );
       if (exports.length) {
         // Extract export
         invariant(
           exports.length === 1,
           'RelayExportTransform: Expected at most one `@${EXPORT}` ' +
-          'directive on field `%s`, got %s.',
+            'directive on field `%s`, got %s.',
           selection.name,
-          exports.length
+          exports.length,
         );
         const exportAs = exports[0].args.find(arg => arg.name === AS);
         invariant(
           exportAs && exportAs.value.kind === 'Literal',
           'RelayExportTransform: Expected a literal `%s` argument on ' +
-          'the `@${EXPORT}` directive on field `%s`.',
+            'the `@${EXPORT}` directive on field `%s`.',
           AS,
-          selection.name
+          selection.name,
         );
         const exportName = exportAs.value.value;
         invariant(
           typeof exportName === 'string',
           'RelayExportTransform: Expected the export name to be a string, ' +
-          'got `%s`.',
-          exportName
+            'got `%s`.',
+          exportName,
         );
         invariant(
           !metadata.hasOwnProperty(exportName),
           'RelayExportTransform: Expected a given name to be exported at ' +
-          'most once within a given query, `%s` was exported multiple times.',
-          exportName
+            'most once within a given query, `%s` was exported multiple times.',
+          exportName,
         );
         const alias = selection.alias || selection.name;
         const fieldPath = [...path, alias];
@@ -119,8 +111,8 @@ function transformNode<T: Node>(
       invariant(
         selection.directives.every(directive => directive.name !== EXPORT),
         'RelayExportTransform: Unexpected `@${EXPORT}` directive on linked ' +
-        'field `%s`. Only scalar fields such as `id` can be exported.',
-        selection.name
+          'field `%s`. Only scalar fields such as `id` can be exported.',
+        selection.name,
       );
       const fieldPath = [...path, selection.alias || selection.name];
       if (selection.type instanceof GraphQLList) {

@@ -8,6 +8,7 @@
  *
  * @providesModule FindGraphQLTags
  * @flow
+ * @format
  */
 
 'use strict';
@@ -40,14 +41,17 @@ const BABYLON_OPTIONS = {
   strictMode: false,
 };
 
-function find(text: string, fileName: string): Array<{tag: string, template: string}> {
+function find(
+  text: string,
+  fileName: string,
+): Array<{tag: string, template: string}> {
   const result = [];
   const ast = babylon.parse(text, BABYLON_OPTIONS);
   const rawModuleName = extractModuleName(text) || fileName;
   invariant(
     rawModuleName,
     'FindGraphQLTags: Expected a module name to be defined with ' +
-    '`@providesModule <name>`.'
+      '`@providesModule <name>`.',
   );
   const moduleName = rawModuleName
     .replace(/\.react$/, '')
@@ -56,19 +60,15 @@ function find(text: string, fileName: string): Array<{tag: string, template: str
   const visitors = {
     CallExpression: node => {
       const callee = node.callee;
-      if (!(
-        (
-          callee.type === 'Identifier' &&
-          CREATE_CONTAINER_FUNCTIONS[callee.name]
-        ) ||
-        (
-          callee.kind === 'MemberExpression' &&
-          callee.object.type === 'Identifier' &&
-          callee.object.value === 'Relay' &&
-          callee.property.type === 'Identifier' &&
-          CREATE_CONTAINER_FUNCTIONS[callee.property.name]
-        )
-      )) {
+      if (
+        !((callee.type === 'Identifier' &&
+          CREATE_CONTAINER_FUNCTIONS[callee.name]) ||
+          (callee.kind === 'MemberExpression' &&
+            callee.object.type === 'Identifier' &&
+            callee.object.value === 'Relay' &&
+            callee.property.type === 'Identifier' &&
+            CREATE_CONTAINER_FUNCTIONS[callee.property.name]))
+      ) {
         traverse(node, visitors);
         return;
       }
@@ -77,28 +77,24 @@ function find(text: string, fileName: string): Array<{tag: string, template: str
         fragments.properties.forEach(property => {
           invariant(
             property.type === 'ObjectProperty' &&
-            property.key.type === 'Identifier' &&
-            property.value.type === 'TaggedTemplateExpression',
+              property.key.type === 'Identifier' &&
+              property.value.type === 'TaggedTemplateExpression',
             'FindGraphQLTags: `%s` expects fragment definitions to be ' +
-            '`key: graphql`.',
-            node.callee.name
+              '`key: graphql`.',
+            node.callee.name,
           );
           const keyName = property.key.name;
           const tagName = getGraphQLTagName(property.value.tag);
           invariant(
             tagName,
             'FindGraphQLTags: `%s` expects fragment definitions to be tagged ' +
-            'with `graphql`, got `%s`.',
+              'with `graphql`, got `%s`.',
             node.callee.name,
-            getSourceTextForLocation(text, property.value.tag.loc)
+            getSourceTextForLocation(text, property.value.tag.loc),
           );
           const template = getGraphQLText(property.value.quasi);
           if (tagName === 'graphql' || tagName === 'graphql.experimental') {
-            validateTemplate(
-              template,
-              moduleName,
-              keyName
-            );
+            validateTemplate(template, moduleName, keyName);
           }
           result.push({
             tag: tagName,
@@ -109,23 +105,20 @@ function find(text: string, fileName: string): Array<{tag: string, template: str
         invariant(
           fragments && fragments.type === 'TaggedTemplateExpression',
           'FindGraphQLTags: `%s` expects a second argument of fragment ' +
-          'definitions.',
-          node.callee.name
+            'definitions.',
+          node.callee.name,
         );
         const tagName = getGraphQLTagName(fragments.tag);
         invariant(
           tagName,
           'FindGraphQLTags: `%s` expects fragment definitions to be tagged ' +
-          'with `graphql`, got `%s`.',
+            'with `graphql`, got `%s`.',
           node.callee.name,
-          getSourceTextForLocation(text, fragments.tag.loc)
+          getSourceTextForLocation(text, fragments.tag.loc),
         );
         const template = getGraphQLText(fragments.quasi);
         if (tagName === 'graphql' || tagName === 'graphql.experimental') {
-          validateTemplate(
-            template,
-            moduleName
-          );
+          validateTemplate(template, moduleName);
         }
         result.push({
           tag: tagName,
@@ -143,10 +136,7 @@ function find(text: string, fileName: string): Array<{tag: string, template: str
       if (tagName != null) {
         const template = getGraphQLText(node.quasi);
         if (tagName === 'graphql' || tagName === 'graphql.experimental') {
-          validateTemplate(
-            template,
-            moduleName
-          );
+          validateTemplate(template, moduleName);
         }
         result.push({
           tag: tagName,
@@ -160,8 +150,15 @@ function find(text: string, fileName: string): Array<{tag: string, template: str
 }
 
 const cache = {};
-function memoizedFind(text: string, fileName: string): Array<{tag: string, template: string}> {
-  const hash = crypto.createHash('md5').update(fileName).update(text).digest('hex');
+function memoizedFind(
+  text: string,
+  fileName: string,
+): Array<{tag: string, template: string}> {
+  const hash = crypto
+    .createHash('md5')
+    .update(fileName)
+    .update(text)
+    .digest('hex');
   let result = cache[hash];
   if (!result) {
     result = find(text, fileName);
@@ -212,7 +209,7 @@ function getGraphQLText(quasi) {
   const quasis = quasi.quasis;
   invariant(
     quasis && quasis.length === 1,
-    'FindGraphQLTags: Substitutions are not allowed in graphql tags.'
+    'FindGraphQLTags: Substitutions are not allowed in graphql tags.',
   );
   return quasis[0].value.raw;
 }
@@ -230,35 +227,41 @@ function getSourceTextForLocation(text, loc) {
 function validateTemplate(template, moduleName, keyName) {
   const ast = graphql.parse(template);
   ast.definitions.forEach((def: any) => {
+    invariant(
+      def.name,
+      'FindGraphQLTags: In module `%s`, a definition of kind `%s` requires a name.',
+      moduleName,
+      def.kind,
+    );
     const definitionName = def.name.value;
     if (def.kind === 'OperationDefinition') {
-      const operationNameParts =
-        definitionName.match(/^(.*)(Mutation|Query|Subscription)$/);
+      const operationNameParts = definitionName.match(
+        /^(.*)(Mutation|Query|Subscription)$/,
+      );
       invariant(
-        operationNameParts &&
-        definitionName.startsWith(moduleName),
+        operationNameParts && definitionName.startsWith(moduleName),
         'FindGraphQLTags: Operation names in graphql tags must be prefixed ' +
-        'with the module name and end in "Mutation", "Query", or ' +
-        '"Subscription". Got `%s` in module `%s`.',
+          'with the module name and end in "Mutation", "Query", or ' +
+          '"Subscription". Got `%s` in module `%s`.',
         definitionName,
-        moduleName
+        moduleName,
       );
     } else if (def.kind === 'FragmentDefinition') {
       if (keyName) {
         invariant(
           definitionName === moduleName + '_' + keyName,
           'FindGraphQLTags: Container fragment names must be ' +
-          '`<ModuleName>_<propName>`. Got `%s`, expected `%s`.',
+            '`<ModuleName>_<propName>`. Got `%s`, expected `%s`.',
           definitionName,
-          moduleName + '_' + keyName
+          moduleName + '_' + keyName,
         );
       } else {
         invariant(
           definitionName.startsWith(moduleName),
           'FindGraphQLTags: Fragment names in graphql tags must be prefixed ' +
-          'with the module name. Got `%s` in module `%s`.',
+            'with the module name. Got `%s` in module `%s`.',
           definitionName,
-          moduleName
+          moduleName,
         );
       }
     }

@@ -8,6 +8,7 @@
  *
  * @flow
  * @providesModule RelayPublishQueue
+ * @format
  */
 
 'use strict';
@@ -37,6 +38,16 @@ type Payload = {
   updater: ?SelectorStoreUpdater,
 };
 
+type OptimisticUpdate =
+  | {|
+      storeUpdater: StoreUpdater,
+    |}
+  | {|
+      selectorStoreUpdater: ?SelectorStoreUpdater,
+      selector: Selector,
+      response: ?Object,
+    |};
+
 /**
  * Coordinates the concurrent modification of a `Store` due to optimistic and
  * non-revertable client updates and server payloads:
@@ -64,48 +75,45 @@ class RelayPublishQueue {
   // typically only mutate client schema extensions.
   _pendingUpdaters: Set<StoreUpdater>;
   // Optimistic updaters to add with the next `run()`.
-  _pendingOptimisticUpdaters: Set<StoreUpdater>;
+  _pendingOptimisticUpdates: Set<OptimisticUpdate>;
   // Optimistic updaters that are already added and might be rerun in order to
   // rebase them.
-  _appliedOptimisticUpdaters: Set<StoreUpdater>;
+  _appliedOptimisticUpdates: Set<OptimisticUpdate>;
 
-  constructor(
-    store: Store,
-    handlerProvider?: ?HandlerProvider
-  ) {
+  constructor(store: Store, handlerProvider?: ?HandlerProvider) {
     this._backup = new RelayInMemoryRecordSource();
     this._handlerProvider = handlerProvider || null;
     this._pendingBackupRebase = false;
     this._pendingPayloads = new Set();
     this._pendingUpdaters = new Set();
-    this._pendingOptimisticUpdaters = new Set();
+    this._pendingOptimisticUpdates = new Set();
     this._store = store;
-    this._appliedOptimisticUpdaters = new Set();
+    this._appliedOptimisticUpdates = new Set();
   }
 
   /**
    * Schedule applying an optimistic updates on the next `run()`.
    */
-  applyUpdate(updater: StoreUpdater): void {
+  applyUpdate(updater: OptimisticUpdate): void {
     invariant(
-      !this._appliedOptimisticUpdaters.has(updater) &&
-      !this._pendingOptimisticUpdaters.has(updater),
+      !this._appliedOptimisticUpdates.has(updater) &&
+        !this._pendingOptimisticUpdates.has(updater),
       'RelayPublishQueue: Cannot apply the same update function more than ' +
-      'once concurrently.'
+        'once concurrently.',
     );
-    this._pendingOptimisticUpdaters.add(updater);
+    this._pendingOptimisticUpdates.add(updater);
   }
 
   /**
    * Schedule reverting an optimistic updates on the next `run()`.
    */
-  revertUpdate(updater: StoreUpdater): void {
-    if (this._pendingOptimisticUpdaters.has(updater)) {
+  revertUpdate(updater: OptimisticUpdate): void {
+    if (this._pendingOptimisticUpdates.has(updater)) {
       // Reverted before it was applied
-      this._pendingOptimisticUpdaters.delete(updater);
-    } else if (this._appliedOptimisticUpdaters.has(updater)) {
+      this._pendingOptimisticUpdates.delete(updater);
+    } else if (this._appliedOptimisticUpdates.has(updater)) {
       this._pendingBackupRebase = true;
-      this._appliedOptimisticUpdaters.delete(updater);
+      this._appliedOptimisticUpdates.delete(updater);
     }
   }
 
@@ -114,8 +122,8 @@ class RelayPublishQueue {
    */
   revertAll(): void {
     this._pendingBackupRebase = true;
-    this._pendingOptimisticUpdaters.clear();
-    this._appliedOptimisticUpdaters.clear();
+    this._pendingOptimisticUpdates.clear();
+    this._appliedOptimisticUpdates.clear();
   }
 
   /**
@@ -158,32 +166,39 @@ class RelayPublishQueue {
     if (!this._pendingPayloads.size) {
       return;
     }
-    this._pendingPayloads.forEach(({fieldPayloads, selector, source, updater}) => {
-      const mutator = new RelayRecordSourceMutator(
-        this._store.getSource(),
-        source
-      );
-      const store = new RelayRecordSourceSelectorProxy(mutator, selector);
-      if (fieldPayloads && fieldPayloads.length) {
-        fieldPayloads.forEach(fieldPayload => {
-          const handler =
-            this._handlerProvider && this._handlerProvider(fieldPayload.handle);
-          invariant(
-            handler,
-            'RelayStaticEnvironment: Expected a handler to be provided for ' +
-              'handle `%s`.',
-            fieldPayload.handle,
-          );
-          handler.update(store, fieldPayload);
-        });
-      }
-      if (updater) {
-        updater(store);
-      }
-      // Publish the server data first so that it is reflected in the mutation
-      // backup created during the rebase
-      this._store.publish(source);
-    });
+    this._pendingPayloads.forEach(
+      ({fieldPayloads, selector, source, updater}) => {
+        const mutator = new RelayRecordSourceMutator(
+          this._store.getSource(),
+          source,
+        );
+        const store = new RelayRecordSourceProxy(mutator);
+        const selectorStore = new RelayRecordSourceSelectorProxy(
+          store,
+          selector,
+        );
+        if (fieldPayloads && fieldPayloads.length) {
+          fieldPayloads.forEach(fieldPayload => {
+            const handler =
+              this._handlerProvider &&
+              this._handlerProvider(fieldPayload.handle);
+            invariant(
+              handler,
+              'RelayModernEnvironment: Expected a handler to be provided for ' +
+                'handle `%s`.',
+              fieldPayload.handle,
+            );
+            handler.update(store, fieldPayload);
+          });
+        }
+        if (updater) {
+          updater(selectorStore);
+        }
+        // Publish the server data first so that it is reflected in the mutation
+        // backup created during the rebase
+        this._store.publish(source);
+      },
+    );
     this._pendingPayloads.clear();
   }
 
@@ -195,7 +210,7 @@ class RelayPublishQueue {
     this._pendingUpdaters.forEach(updater => {
       const mutator = new RelayRecordSourceMutator(
         this._store.getSource(),
-        sink
+        sink,
       );
       const store = new RelayRecordSourceProxy(mutator);
       updater(store);
@@ -206,8 +221,8 @@ class RelayPublishQueue {
 
   _applyUpdates(): void {
     if (
-      this._pendingOptimisticUpdaters.size ||
-      (this._pendingBackupRebase && this._appliedOptimisticUpdaters.size)
+      this._pendingOptimisticUpdates.size ||
+      (this._pendingBackupRebase && this._appliedOptimisticUpdates.size)
     ) {
       const sink = new RelayInMemoryRecordSource();
       const mutator = new RelayRecordSourceMutator(
@@ -218,17 +233,33 @@ class RelayPublishQueue {
       const store = new RelayRecordSourceProxy(mutator);
 
       // rerun all updaters in case we are running a rebase
-      if (this._pendingBackupRebase && this._appliedOptimisticUpdaters.size) {
-        this._appliedOptimisticUpdaters.forEach(updater => updater(store));
+      if (this._pendingBackupRebase && this._appliedOptimisticUpdates.size) {
+        this._appliedOptimisticUpdates.forEach(optimisticUpdate => {
+          if (optimisticUpdate.selector) {
+            const {selectorStoreUpdater, selector, response} = optimisticUpdate;
+            const selectorStore = store.commitPayload(selector, response);
+            selectorStoreUpdater && selectorStoreUpdater(selectorStore);
+          } else {
+            const {storeUpdater} = optimisticUpdate;
+            storeUpdater(store);
+          }
+        });
       }
 
       // apply any new updaters
-      if (this._pendingOptimisticUpdaters.size) {
-        this._pendingOptimisticUpdaters.forEach(updater => {
-          updater(store);
-          this._appliedOptimisticUpdaters.add(updater);
+      if (this._pendingOptimisticUpdates.size) {
+        this._pendingOptimisticUpdates.forEach(optimisticUpdate => {
+          if (optimisticUpdate.selector) {
+            const {selectorStoreUpdater, selector, response} = optimisticUpdate;
+            const selectorStore = store.commitPayload(selector, response);
+            selectorStoreUpdater && selectorStoreUpdater(selectorStore);
+          } else {
+            const {storeUpdater} = optimisticUpdate;
+            storeUpdater(store);
+          }
+          this._appliedOptimisticUpdates.add(optimisticUpdate);
         });
-        this._pendingOptimisticUpdaters.clear();
+        this._pendingOptimisticUpdates.clear();
       }
 
       this._store.publish(sink);

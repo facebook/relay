@@ -8,6 +8,7 @@
  *
  * @providesModule RelayMutationDebugPrinter
  * @flow
+ * @format
  */
 
 'use strict';
@@ -21,10 +22,7 @@ import type RelayQuery from 'RelayQuery';
  * Helper functions to print mutation queries for debugging purposes.
  */
 const RelayMutationDebugPrinter = {
-  printOptimisticMutation(
-    query: ?RelayQuery.Node,
-    response: ?Object
-  ): void {
+  printOptimisticMutation(query: ?RelayQuery.Node, response: ?Object): void {
     /* eslint-disable no-console */
     if (!console.groupCollapsed || !console.groupEnd) {
       return;
@@ -54,7 +52,6 @@ const RelayMutationDebugPrinter = {
     console.groupEnd();
     /* eslint-enable no-console */
   },
-
 };
 
 module.exports = RelayMutationDebugPrinter;

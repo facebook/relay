@@ -8,6 +8,7 @@
  *
  * @providesModule ReactRelayQueryRenderer
  * @flow
+ * @format
  */
 
 'use strict';
@@ -19,8 +20,10 @@ const areEqual = require('areEqual');
 const deepFreeze = require('deepFreeze');
 
 import type {CacheConfig, Disposable} from 'RelayCombinedEnvironmentTypes';
-import type {RelayEnvironmentInterface as ClassicEnvironment} from 'RelayEnvironment';
-import type {GraphQLTaggedNode} from 'RelayStaticGraphQLTag';
+import type {
+  RelayEnvironmentInterface as ClassicEnvironment,
+} from 'RelayEnvironment';
+import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {
   Environment,
   OperationSelector,
@@ -33,10 +36,7 @@ type Props = {
   cacheConfig?: ?CacheConfig,
   environment: Environment | ClassicEnvironment,
   query: ?GraphQLTaggedNode,
-  render: (
-    readyState: ReadyState,
-    prevState: ?ReadyState
-  ) => ?React.Element<*>,
+  render: (readyState: ReadyState, prevState: ?ReadyState) => ?React.Element<*>,
   variables: Variables,
 };
 type ReadyState = {
@@ -137,7 +137,7 @@ class ReactRelayQueryRenderer extends React.Component {
         } = environment.unstable_internal;
         const operation = createOperationSelector(
           getOperation(query),
-          variables
+          variables,
         );
         this._operation = operation;
         this._relayContext = {
@@ -193,10 +193,7 @@ class ReactRelayQueryRenderer extends React.Component {
     }
   }
 
-  _fetch(
-    operation: OperationSelector,
-    cacheConfig: ?CacheConfig,
-  ): void {
+  _fetch(operation: OperationSelector, cacheConfig: ?CacheConfig): void {
     const {environment} = this._relayContext;
 
     // Immediately retain the results of the new query to prevent relevant data
@@ -237,7 +234,9 @@ class ReactRelayQueryRenderer extends React.Component {
       readyState = {
         error: null,
         props: snapshot.data,
-        retry: null,
+        retry: () => {
+          this._fetch(operation, cacheConfig);
+        },
       };
 
       if (this._selectionReference) {
@@ -276,8 +275,7 @@ class ReactRelayQueryRenderer extends React.Component {
         props: snapshot.data,
       },
     });
-  }
-
+  };
   getChildContext(): Object {
     return {
       relay: this._relayContext,

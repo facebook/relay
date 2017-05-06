@@ -5,6 +5,8 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
@@ -28,7 +30,7 @@ describe('RelayAutoAliasTransform', () => {
       const ast = RelayParser.parse(RelayTestSchema, text);
       const context = ast.reduce(
         (ctx, node) => ctx.add(node),
-        new RelayCompilerContext(RelayTestSchema)
+        new RelayCompilerContext(RelayTestSchema),
       );
       const nextContext = RelayAutoAliasTransform.transform(context);
       const documents = [];
@@ -40,13 +42,16 @@ describe('RelayAutoAliasTransform', () => {
   });
 
   it('hashes argument variables and literals', () => {
-    const ast = RelayParser.parse(RelayTestSchema, `
+    const ast = RelayParser.parse(
+      RelayTestSchema,
+      `
       fragment TestFragment on User {
         friends(orderby: "recent", first: $count) {
           count
         }
       }
-    `);
+    `,
+    );
     const context = new RelayCompilerContext(RelayTestSchema).add(ast[0]);
     const nextContext = RelayAutoAliasTransform.transform(context);
     const fragment = nextContext.get('TestFragment');

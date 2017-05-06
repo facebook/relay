@@ -8,6 +8,7 @@
  *
  * @providesModule RelayMutationTransactionStatus
  * @flow
+ * @format
  */
 
 'use strict';

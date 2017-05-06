@@ -5,6 +5,8 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
@@ -19,7 +21,11 @@ const RelayFragmentSpecResolver = require('RelayFragmentSpecResolver');
 const {ROOT_ID} = require('RelayStoreConstants');
 const RelayTestUtils = require('RelayTestUtils');
 const generateRQLFieldAlias = require('generateRQLFieldAlias');
-const {graphql, getClassicFragment, getClassicOperation} = require('RelayGraphQLTag');
+const {
+  graphql,
+  getClassicFragment,
+  getClassicOperation,
+} = require('RelayGraphQLTag');
 
 describe('RelayFragmentSpecResolver', () => {
   let UserFragment;
@@ -110,7 +116,8 @@ describe('RelayFragmentSpecResolver', () => {
     mockDisposableMethod(environment, 'subscribe');
 
     const fragments = {
-      user: getClassicFragment(graphql`
+      user: getClassicFragment(
+        graphql`
         fragment RelayFragmentSpecResolver_user on User {
           id
           name
@@ -118,8 +125,10 @@ describe('RelayFragmentSpecResolver', () => {
             uri
           }
         }
-      `),
-      users: getClassicFragment(graphql`
+      `,
+      ),
+      users: getClassicFragment(
+        graphql`
         fragment RelayFragmentSpecResolver_users on User @relay(plural: true) {
           id
           name
@@ -127,7 +136,8 @@ describe('RelayFragmentSpecResolver', () => {
             uri
           }
         }
-      `),
+      `,
+      ),
     };
     // Fake a container: The `...Container_*` fragment spreads below are
     // transformed to `Container.getFragment('*')` calls.
@@ -142,14 +152,16 @@ describe('RelayFragmentSpecResolver', () => {
         };
       },
     };
-    UserQuery = getClassicOperation(graphql`
+    UserQuery = getClassicOperation(
+      graphql`
       query RelayFragmentSpecResolverQuery($id: ID!, $size: Int, $fetchSize: Boolean!) {
         node(id: $id) {
           ...Container_user
           ...Container_users
         }
       }
-    `);
+    `,
+    );
     UserFragment = fragments.user;
     UsersFragment = fragments.users;
 
@@ -531,11 +543,13 @@ describe('RelayFragmentSpecResolver', () => {
         jest.fn(),
       );
       expect(resolver.resolve()).toEqual({
-        user: [{
-          __dataID__: '4',
-          id: '4',
-          name: 'Zuck',
-        }],
+        user: [
+          {
+            __dataID__: '4',
+            id: '4',
+            name: 'Zuck',
+          },
+        ],
       });
     });
 
@@ -550,11 +564,13 @@ describe('RelayFragmentSpecResolver', () => {
       setName('4', 'Mark'); // Zuck -> Mark
       expect(callback).toBeCalled();
       expect(resolver.resolve()).toEqual({
-        user: [{
-          __dataID__: '4',
-          id: '4',
-          name: 'Mark',
-        }],
+        user: [
+          {
+            __dataID__: '4',
+            id: '4',
+            name: 'Mark',
+          },
+        ],
       });
     });
 
@@ -570,11 +586,13 @@ describe('RelayFragmentSpecResolver', () => {
       setName('4', 'Mark'); // Zuck -> Mark
       expect(callback).not.toBeCalled();
       expect(resolver.resolve()).toEqual({
-        user: [{
-          __dataID__: '4',
-          id: '4',
-          name: 'Zuck', // does not reflect latest changes
-        }],
+        user: [
+          {
+            __dataID__: '4',
+            id: '4',
+            name: 'Zuck', // does not reflect latest changes
+          },
+        ],
       });
     });
 
@@ -620,11 +638,13 @@ describe('RelayFragmentSpecResolver', () => {
         setName('4', 'Mark'); // Zuck -> Mark
         expect(callback).toBeCalled();
         expect(resolver.resolve()).toEqual({
-          user: [{
-            __dataID__: '4',
-            id: '4',
-            name: 'Mark', // reflects updated value
-          }],
+          user: [
+            {
+              __dataID__: '4',
+              id: '4',
+              name: 'Mark', // reflects updated value
+            },
+          ],
         });
       });
 
@@ -638,11 +658,13 @@ describe('RelayFragmentSpecResolver', () => {
       it('resolves fragment data if a prop changes', () => {
         resolver.setProps({user: [beast]}); // zuck -> beast
         expect(resolver.resolve()).toEqual({
-          user: [{
-            __dataID__: 'beast',
-            id: 'beast',
-            name: 'Beast',
-          }],
+          user: [
+            {
+              __dataID__: 'beast',
+              id: 'beast',
+              name: 'Beast',
+            },
+          ],
         });
       });
 
@@ -659,11 +681,13 @@ describe('RelayFragmentSpecResolver', () => {
         setName('beast', 'BEAST'); // all caps
         expect(callback).toBeCalled();
         expect(resolver.resolve()).toEqual({
-          user: [{
-            __dataID__: 'beast',
-            id: 'beast',
-            name: 'BEAST', // reflects updated value
-          }],
+          user: [
+            {
+              __dataID__: 'beast',
+              id: 'beast',
+              name: 'BEAST', // reflects updated value
+            },
+          ],
         });
       });
 
@@ -674,26 +698,31 @@ describe('RelayFragmentSpecResolver', () => {
         setName('beast', 'BEAST'); // all caps
         expect(callback).not.toBeCalled();
         expect(resolver.resolve()).toEqual({
-          user: [{
-            __dataID__: 'beast',
-            id: 'beast',
-            name: 'Beast', // does not update
-          }],
+          user: [
+            {
+              __dataID__: 'beast',
+              id: 'beast',
+              name: 'Beast', // does not update
+            },
+          ],
         });
       });
 
       it('resolves added items', () => {
         resolver.setProps({user: [zuck, beast]}); // add beast
         expect(resolver.resolve()).toEqual({
-          user: [{
-            __dataID__: '4',
-            id: '4',
-            name: 'Zuck',
-          }, {
-            __dataID__: 'beast',
-            id: 'beast',
-            name: 'Beast',
-          }],
+          user: [
+            {
+              __dataID__: '4',
+              id: '4',
+              name: 'Zuck',
+            },
+            {
+              __dataID__: 'beast',
+              id: 'beast',
+              name: 'Beast',
+            },
+          ],
         });
       });
 
@@ -705,15 +734,18 @@ describe('RelayFragmentSpecResolver', () => {
         setName('beast', 'BEAST'); // all caps
         expect(callback).toBeCalled();
         expect(resolver.resolve()).toEqual({
-          user: [{
-            __dataID__: '4',
-            id: '4',
-            name: 'Zuck',
-          }, {
-            __dataID__: 'beast',
-            id: 'beast',
-            name: 'BEAST', // updated value
-          }],
+          user: [
+            {
+              __dataID__: '4',
+              id: '4',
+              name: 'Zuck',
+            },
+            {
+              __dataID__: 'beast',
+              id: 'beast',
+              name: 'BEAST', // updated value
+            },
+          ],
         });
       });
 
@@ -722,15 +754,18 @@ describe('RelayFragmentSpecResolver', () => {
         setName('4', 'Mark'); // Zuck -> Mark
         expect(callback).toBeCalled();
         expect(resolver.resolve()).toEqual({
-          user: [{
-            __dataID__: '4',
-            id: '4',
-            name: 'Mark',
-          }, {
-            __dataID__: 'beast',
-            id: 'beast',
-            name: 'Beast',
-          }],
+          user: [
+            {
+              __dataID__: '4',
+              id: '4',
+              name: 'Mark',
+            },
+            {
+              __dataID__: 'beast',
+              id: 'beast',
+              name: 'Beast',
+            },
+          ],
         });
       });
 
@@ -785,15 +820,17 @@ describe('RelayFragmentSpecResolver', () => {
         expect(callback).not.toBeCalled();
         expect(dispose).toBeCalled();
         expect(resolver.resolve()).toEqual({
-          user: [{
-            __dataID__: '4',
-            id: '4',
-            name: 'Zuck',
-            profilePicture: {
-              __dataID__: jasmine.any(String),
-              uri: 'https://4.jpg',
+          user: [
+            {
+              __dataID__: '4',
+              id: '4',
+              name: 'Zuck',
+              profilePicture: {
+                __dataID__: jasmine.any(String),
+                uri: 'https://4.jpg',
+              },
             },
-          }],
+          ],
         });
       });
 
@@ -807,15 +844,17 @@ describe('RelayFragmentSpecResolver', () => {
         setPhotoUri('4', 1, 'https://zuck.jpg');
         expect(callback).toBeCalled();
         expect(resolver.resolve()).toEqual({
-          user: [{
-            __dataID__: '4',
-            id: '4',
-            name: 'Zuck',
-            profilePicture: {
-              __dataID__: jasmine.any(String),
-              uri: 'https://zuck.jpg',
+          user: [
+            {
+              __dataID__: '4',
+              id: '4',
+              name: 'Zuck',
+              profilePicture: {
+                __dataID__: jasmine.any(String),
+                uri: 'https://zuck.jpg',
+              },
             },
-          }],
+          ],
         });
       });
     });

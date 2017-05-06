@@ -8,6 +8,7 @@
  *
  * @providesModule RelayError
  * @flow
+ * @format
  */
 
 'use strict';
@@ -35,7 +36,7 @@ function createError(
   type: string,
   name: string,
   format: string,
-  args: Array<mixed>
+  args: Array<mixed>,
 ): Error {
   /*eslint-disable fb-www/sprintf-like-args */
   const error = new Error(sprintf(format, ...args));

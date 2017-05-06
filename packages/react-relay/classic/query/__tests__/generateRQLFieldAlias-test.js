@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -41,7 +42,6 @@ describe('GraphQLFieldEncoder', () => {
   it('returns the same hash for the same input', () => {
     const input = 'friends.orderby(importance).first(20)';
     expectEncode(input);
-    expect(generateRQLFieldAlias(input))
-      .toEqual(generateRQLFieldAlias(input));
+    expect(generateRQLFieldAlias(input)).toEqual(generateRQLFieldAlias(input));
   });
 });

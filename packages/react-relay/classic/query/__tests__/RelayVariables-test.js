@@ -5,16 +5,15 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
 
 jest.disableAutomock();
 
-const {
-  getFragmentVariables,
-  getOperationVariables,
-} = require('RelayVariables');
+const {getFragmentVariables, getOperationVariables} = require('RelayVariables');
 
 describe('RelayConcreteVariables', () => {
   beforeEach(() => {
@@ -31,18 +30,16 @@ describe('RelayConcreteVariables', () => {
     it('sets variables to literal argument values', () => {
       const fragment = {
         kind: 'FragmentDefinition',
-        argumentDefinitions: [{
-          kind: 'LocalArgument',
-          name: 'size',
-          defaultValue: null,
-        }],
+        argumentDefinitions: [
+          {
+            kind: 'LocalArgument',
+            name: 'size',
+            defaultValue: null,
+          },
+        ],
         node: {name: 'Fragment'},
       };
-      const variables = getFragmentVariables(
-        fragment,
-        {},
-        {size: 42}
-      );
+      const variables = getFragmentVariables(fragment, {}, {size: 42});
       expect(variables).toEqual({
         size: 42,
       });
@@ -57,18 +54,16 @@ describe('RelayConcreteVariables', () => {
     it('sets variables to default values if defined and no argument', () => {
       const fragment = {
         kind: 'FragmentDefinition',
-        argumentDefinitions: [{
-          kind: 'LocalArgument',
-          name: 'size',
-          defaultValue: 42,
-        }],
+        argumentDefinitions: [
+          {
+            kind: 'LocalArgument',
+            name: 'size',
+            defaultValue: 42,
+          },
+        ],
         node: {name: 'Fragment'},
       };
-      const variables = getFragmentVariables(
-        fragment,
-        {},
-        {}
-      );
+      const variables = getFragmentVariables(fragment, {}, {});
       expect(variables).toEqual({
         size: 42,
       });
@@ -83,17 +78,15 @@ describe('RelayConcreteVariables', () => {
     it('resolves imported values from root variables', () => {
       const fragment = {
         kind: 'FragmentDefinition',
-        argumentDefinitions: [{
-          kind: 'RootArgument',
-          name: 'size',
-        }],
+        argumentDefinitions: [
+          {
+            kind: 'RootArgument',
+            name: 'size',
+          },
+        ],
         node: {name: 'Fragment'},
       };
-      const variables = getFragmentVariables(
-        fragment,
-        {size: 42},
-        {}
-      );
+      const variables = getFragmentVariables(fragment, {size: 42}, {});
       expect(variables).toEqual({
         size: 42,
       });
@@ -104,20 +97,19 @@ describe('RelayConcreteVariables', () => {
     it('filters extraneous variables', () => {
       const query = {
         kind: 'OperationDefinition',
-        argumentDefinitions: [{
-          kind: 'LocalArgument',
-          name: 'id',
-          defaultValue: null,
-        }],
+        argumentDefinitions: [
+          {
+            kind: 'LocalArgument',
+            name: 'id',
+            defaultValue: null,
+          },
+        ],
         name: 'Query',
       };
-      const variables = getOperationVariables(
-        query,
-        {
-          id: '4',
-          count: 10, // not defined on Query
-        },
-      );
+      const variables = getOperationVariables(query, {
+        id: '4',
+        count: 10, // not defined on Query
+      });
       expect(variables).toEqual({
         id: '4',
         // count is filtered out
@@ -127,33 +119,34 @@ describe('RelayConcreteVariables', () => {
     it('sets default values', () => {
       const query = {
         kind: 'OperationDefinition',
-        argumentDefinitions: [{
-          kind: 'LocalArgument',
-          name: 'id',
-          defaultValue: 'beast',
-        }, {
-          kind: 'LocalArgument',
-          name: 'count',
-          defaultValue: 10,
-        }, {
-          kind: 'LocalArgument',
-          name: 'order',
-          defaultValue: ['name'],
-        }],
+        argumentDefinitions: [
+          {
+            kind: 'LocalArgument',
+            name: 'id',
+            defaultValue: 'beast',
+          },
+          {
+            kind: 'LocalArgument',
+            name: 'count',
+            defaultValue: 10,
+          },
+          {
+            kind: 'LocalArgument',
+            name: 'order',
+            defaultValue: ['name'],
+          },
+        ],
         name: 'Query',
       };
-      const variables = getOperationVariables(
-        query,
-        {
-          id: '4',
-          // no count
-          order: null,
-        },
-      );
+      const variables = getOperationVariables(query, {
+        id: '4',
+        // no count
+        order: null,
+      });
       expect(variables).toEqual({
-        id: '4',          // user value overwrites default
-        count: 10,        // set to default
-        order: ['name'],  // set to default
+        id: '4', // user value overwrites default
+        count: 10, // set to default
+        order: ['name'], // set to default
       });
     });
   });

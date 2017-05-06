@@ -8,6 +8,7 @@
  *
  * @providesModule RelayFragmentSpecResolver
  * @flow
+ * @format
  */
 
 'use strict';
@@ -122,7 +123,11 @@ class RelayFragmentSpecResolver implements FragmentSpecResolver {
         resolver = null;
       } else if (Array.isArray(selector)) {
         if (resolver == null) {
-          resolver = new SelectorListResolver(this._context.environment, selector, this._onChange);
+          resolver = new SelectorListResolver(
+            this._context.environment,
+            selector,
+            this._onChange,
+          );
         } else {
           invariant(
             resolver instanceof SelectorListResolver,
@@ -133,7 +138,11 @@ class RelayFragmentSpecResolver implements FragmentSpecResolver {
         }
       } else {
         if (resolver == null) {
-          resolver = new SelectorResolver(this._context.environment, selector, this._onChange);
+          resolver = new SelectorResolver(
+            this._context.environment,
+            selector,
+            this._onChange,
+          );
         } else {
           invariant(
             resolver instanceof SelectorResolver,
@@ -161,7 +170,7 @@ class RelayFragmentSpecResolver implements FragmentSpecResolver {
   _onChange = (): void => {
     this._stale = true;
     this._callback();
-  }
+  };
 }
 
 /**
@@ -199,7 +208,10 @@ class SelectorResolver {
   }
 
   setSelector(selector: Selector): void {
-    if (this._subscription != null && areEqualSelectors(selector, this._selector)) {
+    if (
+      this._subscription != null &&
+      areEqualSelectors(selector, this._selector)
+    ) {
       return;
     }
     this.dispose();
@@ -225,7 +237,7 @@ class SelectorResolver {
   _onChange = (snapshot: Snapshot): void => {
     this._data = snapshot.data;
     this._callback();
-  }
+  };
 }
 
 /**
@@ -303,7 +315,7 @@ class SelectorListResolver {
   _onChange = (data: ?Object): void => {
     this._stale = true;
     this._callback();
-  }
+  };
 }
 
 function disposeCallback(disposable: ?Disposable): void {

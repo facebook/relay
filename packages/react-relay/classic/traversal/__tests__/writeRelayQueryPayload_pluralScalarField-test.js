@@ -7,15 +7,14 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
 require('configureForRelayOSS');
 
-jest
-  .unmock('GraphQLRange')
-  .unmock('GraphQLSegment');
+jest.unmock('GraphQLRange').unmock('GraphQLSegment');
 
 const Relay = require('Relay');
 const RelayTestUtils = require('RelayTestUtils');
@@ -47,13 +46,15 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const newEmail = 'user2@example.com';
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        Relay.QL`
         query {
           node(id:"123") {
             emailAddresses
           }
         }
-      `);
+      `,
+      );
       const payload = {
         node: {
           __typename: 'User',
@@ -84,13 +85,15 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const newEmail = 'user2@example.com';
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        Relay.QL`
         query {
           node(id:"123") {
             emailAddresses
           }
         }
-      `);
+      `,
+      );
       const payload = {
         node: {
           __typename: 'User',
@@ -105,8 +108,10 @@ describe('writeRelayQueryPayload()', () => {
           '123': true,
         },
       });
-      expect(store.getField('123', 'emailAddresses'))
-        .toEqual([newEmail, email]);
+      expect(store.getField('123', 'emailAddresses')).toEqual([
+        newEmail,
+        email,
+      ]);
     });
 
     it('appends elements to a plural field', () => {
@@ -122,13 +127,15 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const newEmail = 'user2@example.com';
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        Relay.QL`
         query {
           node(id:"123") {
             emailAddresses
           }
         }
-      `);
+      `,
+      );
       const payload = {
         node: {
           __typename: 'User',
@@ -143,8 +150,10 @@ describe('writeRelayQueryPayload()', () => {
           '123': true,
         },
       });
-      expect(store.getField('123', 'emailAddresses'))
-        .toEqual([email, newEmail]);
+      expect(store.getField('123', 'emailAddresses')).toEqual([
+        email,
+        newEmail,
+      ]);
     });
 
     it('does not update if a plural field is unchanged', () => {
@@ -160,13 +169,15 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
 
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        Relay.QL`
         query {
           node(id:"123") {
             emailAddresses
           }
         }
-      `);
+      `,
+      );
       const payload = {
         node: {
           __typename: 'User',

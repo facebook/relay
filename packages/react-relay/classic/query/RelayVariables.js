@@ -8,6 +8,7 @@
  *
  * @providesModule RelayVariables
  * @flow
+ * @format
  */
 
 'use strict';
@@ -75,15 +76,15 @@ function getFragmentSpreadArguments(
   return mapObject(variableMapping, (value, name) => {
     const callVariable = QueryBuilder.getCallVariable(value);
     if (callVariable) {
-      value = parentVariables.hasOwnProperty(callVariable.callVariableName) ?
-        parentVariables[callVariable.callVariableName] :
-        rootVariables[callVariable.callVariableName];
+      value = parentVariables.hasOwnProperty(callVariable.callVariableName)
+        ? parentVariables[callVariable.callVariableName]
+        : rootVariables[callVariable.callVariableName];
     }
     if (value === undefined) {
       warning(
         false,
         'RelayVariables.getFragmentSpreadArguments(): Variable `%s` is ' +
-        'undefined in fragment `%s`.',
+          'undefined in fragment `%s`.',
         name,
         fragmentName,
       );

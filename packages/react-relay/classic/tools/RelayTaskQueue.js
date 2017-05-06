@@ -8,6 +8,7 @@
  *
  * @providesModule RelayTaskQueue
  * @flow
+ * @format
  */
 
 'use strict';
@@ -100,16 +101,18 @@ class RelayTaskQueue {
           resolve(value);
         } else {
           this._queue.push((): void => {
-            enqueueNext(((): any => {
-              const nextCallback = callbacks[nextIndex++];
-              try {
-                value = nextCallback(value);
-              } catch (e) {
-                error = e;
-                value = undefined;
-              }
-              return value;
-            })());
+            enqueueNext(
+              ((): any => {
+                const nextCallback = callbacks[nextIndex++];
+                try {
+                  value = nextCallback(value);
+                } catch (e) {
+                  error = e;
+                  value = undefined;
+                }
+                return value;
+              })(),
+            );
           });
         }
       };

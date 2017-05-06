@@ -8,21 +8,19 @@
  *
  * @providesModule RelayAsyncLoader
  * @flow
+ * @format
  */
 
 'use strict';
 
 const RelayConcreteNode = require('RelayConcreteNode');
-const RelayStaticRecord = require('RelayStaticRecord');
+const RelayModernRecord = require('RelayModernRecord');
 const RelayStoreUtils = require('RelayStoreUtils');
 
 const cloneRelayHandleSourceField = require('cloneRelayHandleSourceField');
 const invariant = require('invariant');
 
-import type {
-  Disposable,
-  Record,
-} from 'RelayCombinedEnvironmentTypes';
+import type {Disposable, Record} from 'RelayCombinedEnvironmentTypes';
 import type {
   ConcreteLinkedField,
   ConcreteNode,
@@ -59,7 +57,7 @@ const {getStorageKey} = RelayStoreUtils;
 function check(
   source: RecordSource,
   target: MutableRecordSource,
-  selector: Selector
+  selector: Selector,
 ): boolean {
   let state = null;
   const {dataID, node, variables} = selector;
@@ -69,10 +67,7 @@ function check(
   const loader = new RelayAsyncLoader(source, target, variables, callback);
   const disposable = loader.load(node, dataID);
   disposable.dispose();
-  return !!(
-    state &&
-    state.status === 'complete'
-  );
+  return !!(state && state.status === 'complete');
 }
 
 /**
@@ -93,7 +88,7 @@ function load(
   source: RecordSource,
   target: MutableRecordSource,
   selector: Selector,
-  callback: AsyncLoadCallback
+  callback: AsyncLoadCallback,
 ): Disposable {
   const {dataID, node, variables} = selector;
   const loader = new RelayAsyncLoader(source, target, variables, callback);
@@ -115,7 +110,7 @@ class RelayAsyncLoader {
     source: RecordSource,
     target: MutableRecordSource,
     variables: Variables,
-    callback: AsyncLoadCallback
+    callback: AsyncLoadCallback,
   ) {
     this._callback = callback;
     this._done = false;
@@ -125,10 +120,7 @@ class RelayAsyncLoader {
     this._variables = variables;
   }
 
-  load(
-    node: ConcreteNode,
-    dataID: DataID
-  ): Disposable {
+  load(node: ConcreteNode, dataID: DataID): Disposable {
     const dispose = () => this._handleAbort();
     this._traverse(node, dataID);
     return {dispose};
@@ -138,7 +130,7 @@ class RelayAsyncLoader {
     invariant(
       this._variables.hasOwnProperty(name),
       'RelayAsyncLoader(): Undefined variable `%s`.',
-      name
+      name,
     );
     return this._variables[name];
   }
@@ -174,10 +166,7 @@ class RelayAsyncLoader {
     }
   }
 
-  _traverse(
-    node: ConcreteNode,
-    dataID: DataID
-  ): void {
+  _traverse(node: ConcreteNode, dataID: DataID): void {
     // Don't load the same node twice:
     if (!this._target.has(dataID)) {
       this._loadAndTraverse(node, dataID);
@@ -194,10 +183,7 @@ class RelayAsyncLoader {
     }
   }
 
-  _loadAndTraverse(
-    node: ConcreteNode,
-    dataID: DataID
-  ): void {
+  _loadAndTraverse(node: ConcreteNode, dataID: DataID): void {
     this._loadingCount++;
     this._source.load(dataID, (error, record) => {
       if (this._done) {
@@ -224,7 +210,7 @@ class RelayAsyncLoader {
 
   _traverseSelections(
     selections: Array<ConcreteSelection>,
-    record: Record
+    record: Record,
   ): void {
     selections.every(selection => {
       switch (selection.kind) {
@@ -245,7 +231,7 @@ class RelayAsyncLoader {
           }
           break;
         case INLINE_FRAGMENT:
-          const typeName = RelayStaticRecord.getType(record);
+          const typeName = RelayModernRecord.getType(record);
           if (typeName != null && typeName === selection.type) {
             this._traverseSelections(selection.selections, record);
           }
@@ -253,7 +239,11 @@ class RelayAsyncLoader {
         case LINKED_HANDLE:
           // Handles have no selections themselves; traverse the original field
           // where the handle was set-up instead.
-          const handleField = cloneRelayHandleSourceField(selection, selections, this._variables);
+          const handleField = cloneRelayHandleSourceField(
+            selection,
+            selections,
+            this._variables,
+          );
           if (handleField.plural) {
             this._preparePluralLink(handleField, record);
           } else {
@@ -264,30 +254,24 @@ class RelayAsyncLoader {
           invariant(
             selection.kind === SCALAR_FIELD,
             'RelayAsyncLoader(): Unexpected ast kind `%s`.',
-            selection.kind
+            selection.kind,
           );
       }
       return !this._done;
     });
   }
 
-  _prepareScalar(
-    field: ConcreteScalarField,
-    record: Record
-  ): void {
+  _prepareScalar(field: ConcreteScalarField, record: Record): void {
     const storageKey = getStorageKey(field, this._variables);
-    const fieldValue = RelayStaticRecord.getValue(record, storageKey);
+    const fieldValue = RelayModernRecord.getValue(record, storageKey);
     if (fieldValue === undefined) {
       this._handleMissing();
     }
   }
 
-  _prepareLink(
-    field: ConcreteLinkedField,
-    record: Record
-  ): void {
+  _prepareLink(field: ConcreteLinkedField, record: Record): void {
     const storageKey = getStorageKey(field, this._variables);
-    const linkedID = RelayStaticRecord.getLinkedRecordID(record, storageKey);
+    const linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
 
     if (linkedID === undefined) {
       this._handleMissing();
@@ -296,13 +280,9 @@ class RelayAsyncLoader {
     }
   }
 
-  _preparePluralLink(
-    field: ConcreteLinkedField,
-    record: Record
-  ): void {
+  _preparePluralLink(field: ConcreteLinkedField, record: Record): void {
     const storageKey = getStorageKey(field, this._variables);
-    const linkedIDs =
-      RelayStaticRecord.getLinkedRecordIDs(record, storageKey);
+    const linkedIDs = RelayModernRecord.getLinkedRecordIDs(record, storageKey);
 
     if (linkedIDs === undefined) {
       this._handleMissing();

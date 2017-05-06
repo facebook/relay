@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -20,7 +21,6 @@ const React = require('React');
 const Relay = require('Relay');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayTestUtils = require('RelayTestUtils');
-const reactComponentExpect = require('reactComponentExpect');
 
 describe('RelayContainer', function() {
   let MockComponent;
@@ -39,9 +39,7 @@ describe('RelayContainer', function() {
       MockContainer = Relay.createContainer(component, {
         initialVariables: {site: 'mobile'},
         fragments: {
-          foo: jest.fn(
-            () => Relay.QL`fragment on Node{id,url(site:$site)}`
-          ),
+          foo: jest.fn(() => Relay.QL`fragment on Node{id,url(site:$site)}`),
         },
       });
     };
@@ -59,23 +57,18 @@ describe('RelayContainer', function() {
     mockRender = () => {
       return RelayTestRenderer.render(
         genMockPointer => <MockContainer foo={genMockPointer('42')} />,
-        environment
+        environment,
       );
     };
   });
 
-  it('creates and instance and renders', () => {
+  it('creates an instance and renders', () => {
     let instance;
     expect(() => {
       instance = mockRender();
     }).not.toThrow();
 
-    reactComponentExpect(instance)
-      .toBeCompositeComponentWithType(MockContainer)
-      .expectRenderedChild()
-      .toBeCompositeComponentWithType(MockComponent)
-      .expectRenderedChild()
-      .toBeComponentOfType('div');
+    expect(instance.refs.component instanceof MockComponent).toBe(true);
   });
 
   it('provides Relay statics', () => {
@@ -108,21 +101,15 @@ describe('RelayContainer', function() {
   });
 
   it('works with ES6 classes', () => {
+    const render = jest.fn().mockImplementation(() => <span />);
     class MyComponent extends React.Component {
-      render() {
-        return <span />;
-      }
+      render = render;
     }
 
     mockCreateContainer(MyComponent);
 
     const instance = mockRender();
-
-    reactComponentExpect(instance)
-      .toBeCompositeComponentWithType(MockContainer)
-      .expectRenderedChild()
-      .toBeCompositeComponentWithType(MyComponent)
-      .expectRenderedChild()
-      .toBeComponentOfType('span');
+    expect(instance.refs.component).toBeInstanceOf(MyComponent);
+    expect(render).toHaveBeenCalledTimes(1);
   });
 });

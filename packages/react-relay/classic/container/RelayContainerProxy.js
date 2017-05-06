@@ -8,6 +8,7 @@
  *
  * @providesModule RelayContainerProxy
  * @flow
+ * @format
  */
 
 'use strict';
@@ -18,15 +19,12 @@ import type {RelayContainer} from 'RelayTypes';
  * This feature is deprecated and unavailable in open source.
  */
 const RelayContainerProxy = {
-  proxyMethods(
-    Container: RelayContainer,
-    Component: ReactClass<any>
-  ): void {},
+  proxyMethods(Container: RelayContainer, Component: ReactClass<any>): void {},
   injectProxyMethods(
     proxyMethods: (
       Container: RelayContainer,
-      Component: ReactClass<any>
-    ) => void
+      Component: ReactClass<any>,
+    ) => void,
   ) {
     this.proxyMethods = proxyMethods;
   },

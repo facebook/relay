@@ -5,16 +5,20 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
 
-jest
-  .mock('warning')
-  .autoMockOff();
+jest.mock('warning').autoMockOff();
 
 const {ROOT_ID} = require('RelayStoreConstants');
-const {graphql, getClassicFragment, getClassicOperation} = require('RelayGraphQLTag');
+const {
+  graphql,
+  getClassicFragment,
+  getClassicOperation,
+} = require('RelayGraphQLTag');
 const generateRQLFieldAlias = require('generateRQLFieldAlias');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayTestUtils = require('RelayTestUtils');
@@ -41,7 +45,8 @@ describe('RelaySelector', () => {
     environment = new RelayEnvironment();
 
     const fragments = {
-      user: getClassicFragment(graphql`
+      user: getClassicFragment(
+        graphql`
         fragment RelaySelector_user on User {
           id
           name
@@ -49,8 +54,10 @@ describe('RelaySelector', () => {
             uri
           }
         }
-      `),
-      users: getClassicFragment(graphql`
+      `,
+      ),
+      users: getClassicFragment(
+        graphql`
         fragment RelaySelector_users on User @relay(plural: true) {
           id
           name
@@ -58,7 +65,8 @@ describe('RelaySelector', () => {
             uri
           }
         }
-      `),
+      `,
+      ),
     };
     // Fake a container: The `...Container_*` fragment spreads below are
     // transformed to `Container.getFragment('*')` calls.
@@ -73,14 +81,16 @@ describe('RelaySelector', () => {
         };
       },
     };
-    UserQuery = getClassicOperation(graphql`
+    UserQuery = getClassicOperation(
+      graphql`
       query RelaySelectorQuery($id: ID!, $size: Int, $cond: Boolean!) {
         node(id: $id) {
           ...Container_user
           ...Container_users
         }
       }
-    `);
+    `,
+    );
     UserFragment = fragments.user;
     UsersFragment = fragments.users;
 
@@ -112,17 +122,19 @@ describe('RelaySelector', () => {
 
   describe('getSelector()', () => {
     it('throws for invalid inputs', () => {
-      expect(() => getSelector(variables, UserFragment, 'zuck'))
-        .toFailInvariant(
-          'RelaySelector: Expected value for fragment `RelaySelector_user` to ' +
-          'be an object, got `"zuck"`.'
-        );
-      expect(() => getSelector(variables, UserFragment, [zuck]))
-        .toFailInvariant(
-          'RelaySelector: Expected value for fragment `RelaySelector_user` to ' +
+      expect(() =>
+        getSelector(variables, UserFragment, 'zuck'),
+      ).toFailInvariant(
+        'RelaySelector: Expected value for fragment `RelaySelector_user` to ' +
+          'be an object, got `"zuck"`.',
+      );
+      expect(() =>
+        getSelector(variables, UserFragment, [zuck]),
+      ).toFailInvariant(
+        'RelaySelector: Expected value for fragment `RelaySelector_user` to ' +
           'be an object, got `[{"__dataID__":"4","__fragments__":{"0::client":' +
-          '[{"size":null,"cond":false}],"1::client":[{"size":null,"cond":false}]}}]`.'
-        );
+          '[{"size":null,"cond":false}],"1::client":[{"size":null,"cond":false}]}}]`.',
+      );
     });
 
     it('returns null and warns for unfetched fragment data', () => {
@@ -131,8 +143,8 @@ describe('RelaySelector', () => {
         selector = getSelector(variables, UserFragment, {});
       }).toWarn([
         'RelaySelector: Expected object to contain data for fragment ' +
-        '`%s`, got `%s`. Make sure that the parent ' +
-        'operation/fragment included fragment `...%s`.',
+          '`%s`, got `%s`. Make sure that the parent ' +
+          'operation/fragment included fragment `...%s`.',
         'RelaySelector_user',
         '{}',
         'RelaySelector_user',
@@ -152,11 +164,12 @@ describe('RelaySelector', () => {
 
   describe('getSelectorList()', () => {
     it('throws for invalid inputs', () => {
-      expect(() => getSelectorList(variables, UserFragment, ['zuck']))
-        .toFailInvariant(
-          'RelaySelector: Expected value for fragment `RelaySelector_user` to be ' +
-          'an object, got `"zuck"`.'
-        );
+      expect(() =>
+        getSelectorList(variables, UserFragment, ['zuck']),
+      ).toFailInvariant(
+        'RelaySelector: Expected value for fragment `RelaySelector_user` to be ' +
+          'an object, got `"zuck"`.',
+      );
     });
 
     it('returns null and warns for unfetched fragment data', () => {
@@ -165,8 +178,8 @@ describe('RelaySelector', () => {
         selectors = getSelectorList(variables, UserFragment, [{}]);
       }).toWarn([
         'RelaySelector: Expected object to contain data for fragment ' +
-        '`%s`, got `%s`. Make sure that the parent ' +
-        'operation/fragment included fragment `...%s`.',
+          '`%s`, got `%s`. Make sure that the parent ' +
+          'operation/fragment included fragment `...%s`.',
         'RelaySelector_user',
         '{}',
         'RelaySelector_user',
@@ -176,23 +189,23 @@ describe('RelaySelector', () => {
 
     it('returns selectors', () => {
       const selectors = getSelectorList(variables, UserFragment, [zuck]);
-      expect(selectors).toEqual([{
-        dataID: '4',
-        node: UserFragment.node,
-        variables,
-      }]);
+      expect(selectors).toEqual([
+        {
+          dataID: '4',
+          node: UserFragment.node,
+          variables,
+        },
+      ]);
     });
   });
 
   describe('getSelectorsFromObject()', () => {
     it('throws for invalid inputs', () => {
-      expect(() => getSelectorsFromObject(
-        variables,
-        {user: UserFragment},
-        {user: 'zuck'},
-      )).toFailInvariant(
+      expect(() =>
+        getSelectorsFromObject(variables, {user: UserFragment}, {user: 'zuck'}),
+      ).toFailInvariant(
         'RelaySelector: Expected value for fragment `RelaySelector_user` to be an ' +
-        'object, got `"zuck"`.'
+          'object, got `"zuck"`.',
       );
     });
 
@@ -206,8 +219,8 @@ describe('RelaySelector', () => {
         );
       }).toWarn([
         'RelaySelector: Expected object to contain data for fragment ' +
-        '`%s`, got `%s`. Make sure that the parent ' +
-        'operation/fragment included fragment `...%s`.',
+          '`%s`, got `%s`. Make sure that the parent ' +
+          'operation/fragment included fragment `...%s`.',
         'RelaySelector_user',
         '{}',
         'RelaySelector_user',
@@ -275,37 +288,35 @@ describe('RelaySelector', () => {
         {user: [zuck]},
       );
       expect(selectors).toEqual({
-        user: [{
-          dataID: '4',
-          node: UsersFragment.node,
-          variables,
-        }],
+        user: [
+          {
+            dataID: '4',
+            node: UsersFragment.node,
+            variables,
+          },
+        ],
       });
     });
   });
 
   describe('getDataIDsFromObject()', () => {
     it('throws for invalid inputs', () => {
-      expect(() => getDataIDsFromObject(
-        {user: UserFragment},
-        {user: 'zuck'},
-      )).toFailInvariant(
+      expect(() =>
+        getDataIDsFromObject({user: UserFragment}, {user: 'zuck'}),
+      ).toFailInvariant(
         'RelaySelector: Expected value for fragment `RelaySelector_user` to be an ' +
-        'object, got `"zuck"`.'
+          'object, got `"zuck"`.',
       );
     });
 
     it('returns null and warns for unfetched fragment data', () => {
       let ids;
       expect(() => {
-        ids = getDataIDsFromObject(
-          {user: UserFragment},
-          {user: {}},
-        );
+        ids = getDataIDsFromObject({user: UserFragment}, {user: {}});
       }).toWarn([
         'RelaySelector: Expected object to contain data for fragment ' +
-        '`%s`, got `%s`. Make sure that the parent ' +
-        'operation/fragment included fragment `...%s`.',
+          '`%s`, got `%s`. Make sure that the parent ' +
+          'operation/fragment included fragment `...%s`.',
         'RelaySelector_user',
         '{}',
         'RelaySelector_user',
@@ -328,27 +339,18 @@ describe('RelaySelector', () => {
     });
 
     it('passes through null/undefined values', () => {
-      let dataIDs = getDataIDsFromObject(
-        {user: UserFragment},
-        {user: null},
-      );
+      let dataIDs = getDataIDsFromObject({user: UserFragment}, {user: null});
       expect(dataIDs).toEqual({
         user: null,
       });
-      dataIDs = getDataIDsFromObject(
-        {user: UserFragment},
-        {user: undefined},
-      );
+      dataIDs = getDataIDsFromObject({user: UserFragment}, {user: undefined});
       expect(dataIDs).toEqual({
         user: undefined,
       });
     });
 
     it('returns singular ids', () => {
-      const dataIDs = getDataIDsFromObject(
-        {user: UserFragment},
-        {user: zuck},
-      );
+      const dataIDs = getDataIDsFromObject({user: UserFragment}, {user: zuck});
       expect(dataIDs).toEqual({
         user: '4',
       });
@@ -382,13 +384,15 @@ describe('RelaySelector', () => {
     });
 
     it('throws for invalid inputs', () => {
-      expect(() => getVariablesFromObject(
-        inputVariables,
-        {user: UserFragment},
-        {user: 'zuck'},
-      )).toFailInvariant(
+      expect(() =>
+        getVariablesFromObject(
+          inputVariables,
+          {user: UserFragment},
+          {user: 'zuck'},
+        ),
+      ).toFailInvariant(
         'RelaySelector: Expected value for fragment `RelaySelector_user` to be an ' +
-        'object, got `"zuck"`.'
+          'object, got `"zuck"`.',
       );
     });
 
@@ -402,8 +406,8 @@ describe('RelaySelector', () => {
         );
       }).toWarn([
         'RelaySelector: Expected object to contain data for fragment ' +
-        '`%s`, got `%s`. Make sure that the parent ' +
-        'operation/fragment included fragment `...%s`.',
+          '`%s`, got `%s`. Make sure that the parent ' +
+          'operation/fragment included fragment `...%s`.',
         'RelaySelector_user',
         '{}',
         'RelaySelector_user',

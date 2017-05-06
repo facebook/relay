@@ -7,19 +7,19 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
-jest
-  .autoMockOff();
+jest.autoMockOff();
 
 const React = require('React');
 const ReactRelayRefetchContainer = require('ReactRelayRefetchContainer');
 const ReactRelayPropTypes = require('ReactRelayPropTypes');
 const ReactTestRenderer = require('ReactTestRenderer');
-const {createMockEnvironment} = require('RelayStaticMockEnvironment');
-const RelayStaticTestUtils = require('RelayStaticTestUtils');
+const {createMockEnvironment} = require('RelayModernMockEnvironment');
+const RelayModernTestUtils = require('RelayModernTestUtils');
 
 const {ROOT_ID} = require('RelayStoreUtils');
 
@@ -72,10 +72,11 @@ describe('ReactRelayRefetchContainer', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    jest.addMatchers(RelayStaticTestUtils.matchers);
+    jest.addMatchers(RelayModernTestUtils.matchers);
 
     environment = createMockEnvironment();
-    ({UserFragment, UserQuery} = environment.mock.compile(`
+    ({UserFragment, UserQuery} = environment.mock.compile(
+      `
       query UserQuery(
         $id: ID!
       ) {
@@ -90,9 +91,10 @@ describe('ReactRelayRefetchContainer', () => {
         id
         name @include(if: $cond)
       }
-    `));
+    `,
+    ));
 
-    render = jest.fn((props) => {
+    render = jest.fn(props => {
       refetch = props.relay.refetch;
       return <div />;
     });
@@ -101,7 +103,9 @@ describe('ReactRelayRefetchContainer', () => {
     TestComponent.displayName = 'TestComponent';
     TestContainer = ReactRelayRefetchContainer.createContainer(
       TestComponent,
-      {user: UserFragment},
+      {
+        user: () => UserFragment,
+      },
       UserQuery,
     );
 
@@ -118,7 +122,7 @@ describe('ReactRelayRefetchContainer', () => {
           __typename: 'User',
           name: 'Zuck',
         },
-      }
+      },
     );
     environment.commitPayload(
       {
@@ -132,7 +136,7 @@ describe('ReactRelayRefetchContainer', () => {
           __typename: 'User',
           name: 'Joe',
         },
-      }
+      },
     );
   });
 
@@ -146,9 +150,9 @@ describe('ReactRelayRefetchContainer', () => {
         foo: null,
       });
     }).toFailInvariant(
-      'ReactRelayCompatContainerBuilder: Could not create container for ' +
-      '`TestComponent`. The value of fragment `foo` was expected to be a ' +
-      'fragment, got `null` instead.'
+      'Could not create Relay Container for `TestComponent`. ' +
+        'The value of fragment `foo` was expected to be a fragment, ' +
+        'got `null` instead.',
     );
   });
 
@@ -156,7 +160,7 @@ describe('ReactRelayRefetchContainer', () => {
     ReactTestRenderer.create(
       <ContextSetter environment={environment} variables={variables}>
         <TestContainer bar={1} foo={'foo'} />
-      </ContextSetter>
+      </ContextSetter>,
     );
     expect(render.mock.calls.length).toBe(1);
     expect(render.mock.calls[0][0]).toEqual({
@@ -176,7 +180,7 @@ describe('ReactRelayRefetchContainer', () => {
     ReactTestRenderer.create(
       <ContextSetter environment={environment} variables={variables}>
         <TestContainer user={null} />
-      </ContextSetter>
+      </ContextSetter>,
     );
     // Data & Variables are passed to component
     expect(render.mock.calls.length).toBe(1);
@@ -201,7 +205,7 @@ describe('ReactRelayRefetchContainer', () => {
     ReactTestRenderer.create(
       <ContextSetter environment={environment} variables={variables}>
         <TestContainer user={userPointer} />
-      </ContextSetter>
+      </ContextSetter>,
     );
     // Data & Variables are passed to component
     expect(render.mock.calls.length).toBe(1);
@@ -239,7 +243,7 @@ describe('ReactRelayRefetchContainer', () => {
     ReactTestRenderer.create(
       <ContextSetter environment={environment} variables={variables}>
         <TestContainer user={userPointer} />
-      </ContextSetter>
+      </ContextSetter>,
     );
     const callback = environment.subscribe.mock.calls[0][1];
     render.mockClear();
@@ -283,7 +287,7 @@ describe('ReactRelayRefetchContainer', () => {
     const instance = ReactTestRenderer.create(
       <ContextSetter environment={environment} variables={variables}>
         <TestContainer user={userPointer} />
-      </ContextSetter>
+      </ContextSetter>,
     );
     render.mockClear();
     environment.lookup.mockClear();
@@ -333,7 +337,7 @@ describe('ReactRelayRefetchContainer', () => {
     const instance = ReactTestRenderer.create(
       <ContextSetter environment={environment} variables={variables}>
         <TestContainer user={userPointer} />
-      </ContextSetter>
+      </ContextSetter>,
     );
     render.mockClear();
     environment.lookup.mockClear();
@@ -358,13 +362,8 @@ describe('ReactRelayRefetchContainer', () => {
     const fn = () => null;
     const instance = ReactTestRenderer.create(
       <ContextSetter environment={environment} variables={variables}>
-        <TestContainer
-          fn={fn}
-          nil={null}
-          scalar={scalar}
-          user={userPointer}
-          />
-      </ContextSetter>
+        <TestContainer fn={fn} nil={null} scalar={scalar} user={userPointer} />
+      </ContextSetter>,
     );
     render.mockClear();
     environment.lookup.mockClear();
@@ -392,12 +391,8 @@ describe('ReactRelayRefetchContainer', () => {
     const fn = () => null;
     const instance = ReactTestRenderer.create(
       <ContextSetter environment={environment} variables={variables}>
-        <TestContainer
-          fn={fn}
-          scalar={scalar}
-          user={userPointer}
-          />
-      </ContextSetter>
+        <TestContainer fn={fn} scalar={scalar} user={userPointer} />
+      </ContextSetter>,
     );
     const initialProps = render.mock.calls[0][0];
     render.mockClear();
@@ -430,12 +425,8 @@ describe('ReactRelayRefetchContainer', () => {
     const fn = () => null;
     const instance = ReactTestRenderer.create(
       <ContextSetter environment={environment} variables={variables}>
-        <TestContainer
-          fn={fn}
-          scalar={scalar}
-          user={userPointer}
-          />
-      </ContextSetter>
+        <TestContainer fn={fn} scalar={scalar} user={userPointer} />
+      </ContextSetter>,
     );
     const initialProps = render.mock.calls[0][0];
     render.mockClear();
@@ -465,12 +456,8 @@ describe('ReactRelayRefetchContainer', () => {
     }).data.node;
     const instance = ReactTestRenderer.create(
       <ContextSetter environment={environment} variables={variables}>
-        <TestContainer
-          arr={[]}
-          obj={{}}
-          user={userPointer}
-          />
-      </ContextSetter>
+        <TestContainer arr={[]} obj={{}} user={userPointer} />
+      </ContextSetter>,
     );
     const initialProps = render.mock.calls[0][0];
     render.mockClear();
@@ -513,7 +500,7 @@ describe('ReactRelayRefetchContainer', () => {
       instance = ReactTestRenderer.create(
         <ContextSetter environment={environment} variables={variables}>
           <TestContainer user={userPointer} />
-        </ContextSetter>
+        </ContextSetter>,
       );
     });
 
@@ -524,7 +511,9 @@ describe('ReactRelayRefetchContainer', () => {
       };
       const fetchedVariables = {id: '4'};
       refetch(refetchVariables, null, jest.fn());
-      expect(environment.mock.isLoading(UserQuery, fetchedVariables)).toBe(true);
+      expect(environment.mock.isLoading(UserQuery, fetchedVariables)).toBe(
+        true,
+      );
       environment.mock.resolve(UserQuery, {
         data: {
           node: {

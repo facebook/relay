@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -22,15 +23,17 @@ RelayRecord.getDataIDForObject.mockImplementation(function(data) {
 
 const edges = [
   {
-    __dataID__:'edge1',
+    __dataID__: 'edge1',
     node: {__dataID__: 'id1'},
     cursor: 'cursor1',
-  }, {
-    __dataID__:'edge2',
+  },
+  {
+    __dataID__: 'edge2',
     node: {__dataID__: 'id2'},
     cursor: 'cursor2',
-  }, {
-    __dataID__:'edge3',
+  },
+  {
+    __dataID__: 'edge3',
     node: {__dataID__: 'id3'},
     cursor: 'cursor3',
   },
@@ -38,15 +41,17 @@ const edges = [
 
 const moreEdges = [
   {
-    __dataID__:'edge4',
+    __dataID__: 'edge4',
     node: {__dataID__: 'id4'},
     cursor: 'cursor4',
-  }, {
-    __dataID__:'edge5',
+  },
+  {
+    __dataID__: 'edge5',
     node: {__dataID__: 'id5'},
     cursor: 'cursor5',
-  }, {
-    __dataID__:'edge6',
+  },
+  {
+    __dataID__: 'edge6',
     node: {__dataID__: 'id6'},
     cursor: 'cursor6',
   },
@@ -54,15 +59,17 @@ const moreEdges = [
 
 const lastEdges = [
   {
-    __dataID__:'edge98',
+    __dataID__: 'edge98',
     node: {__dataID__: 'id98'},
     cursor: 'cursor98',
-  }, {
-    __dataID__:'edge99',
+  },
+  {
+    __dataID__: 'edge99',
     node: {__dataID__: 'id99'},
     cursor: 'cursor99',
-  }, {
-    __dataID__:'edge100',
+  },
+  {
+    __dataID__: 'edge100',
     node: {__dataID__: 'id100'},
     cursor: 'cursor100',
   },
@@ -70,28 +77,30 @@ const lastEdges = [
 
 const beforeLastEdges = [
   {
-    __dataID__:'edge95',
+    __dataID__: 'edge95',
     node: {__dataID__: 'id95'},
     cursor: 'cursor95',
-  }, {
-    __dataID__:'edge96',
+  },
+  {
+    __dataID__: 'edge96',
     node: {__dataID__: 'id96'},
     cursor: 'cursor96',
-  }, {
-    __dataID__:'edge97',
+  },
+  {
+    __dataID__: 'edge97',
     node: {__dataID__: 'id97'},
     cursor: 'cursor97',
   },
 ];
 
 const oneEdge = {
-  __dataID__:'edgeOneEdge',
+  __dataID__: 'edgeOneEdge',
   node: {__dataID__: 'idOneEdge'},
   cursor: 'cursorOneEdge',
 };
 
 const anotherEdge = {
-  __dataID__:'edgeAnotherEdge',
+  __dataID__: 'edgeAnotherEdge',
   node: {__dataID__: 'idAnotherEdge'},
   cursor: 'cursorAnotherEdge',
 };
@@ -126,13 +135,22 @@ describe('GraphQLSegment', () => {
     // Add more
     segment.addEdgesAfterCursor(moreEdges, 'cursor3');
     metadata = getAllMetadata(segment);
-    expect(metadata.edgeIDs).toEqual(
-      ['edge1', 'edge2', 'edge3', 'edge4', 'edge5', 'edge6']
-    );
-    expect(metadata.cursors).toEqual(
-      ['cursor1', 'cursor2', 'cursor3', 'cursor4', 'cursor5', 'cursor6']
-    );
-
+    expect(metadata.edgeIDs).toEqual([
+      'edge1',
+      'edge2',
+      'edge3',
+      'edge4',
+      'edge5',
+      'edge6',
+    ]);
+    expect(metadata.cursors).toEqual([
+      'cursor1',
+      'cursor2',
+      'cursor3',
+      'cursor4',
+      'cursor5',
+      'cursor6',
+    ]);
   });
 
   it('should add before', () => {
@@ -145,13 +163,22 @@ describe('GraphQLSegment', () => {
     // Add more
     segment.addEdgesBeforeCursor(beforeLastEdges, 'cursor98');
     metadata = getAllMetadata(segment);
-    expect(metadata.edgeIDs).toEqual(
-      ['edge95', 'edge96', 'edge97', 'edge98', 'edge99', 'edge100']
-    );
-    expect(metadata.cursors).toEqual(
-      ['cursor95', 'cursor96', 'cursor97', 'cursor98', 'cursor99', 'cursor100']
-    );
-
+    expect(metadata.edgeIDs).toEqual([
+      'edge95',
+      'edge96',
+      'edge97',
+      'edge98',
+      'edge99',
+      'edge100',
+    ]);
+    expect(metadata.cursors).toEqual([
+      'cursor95',
+      'cursor96',
+      'cursor97',
+      'cursor98',
+      'cursor99',
+      'cursor100',
+    ]);
   });
 
   it('should handle repeated edges', () => {
@@ -163,7 +190,7 @@ describe('GraphQLSegment', () => {
     expect(console.warn.mock.calls.length).toBe(1);
     expect(console.warn).toBeCalledWith(
       'Attempted to add an ID already in GraphQLSegment: %s',
-      'edge1'
+      'edge1',
     );
 
     // Should have skipped the repeated ones.
@@ -201,14 +228,8 @@ describe('GraphQLSegment', () => {
   });
 
   it('should retrieve metadata correctly', () => {
-    let before = segment.getMetadataBeforeCursor(
-      segment.getLength(),
-      null
-    );
-    let after = segment.getMetadataAfterCursor(
-      segment.getLength(),
-      null
-    );
+    let before = segment.getMetadataBeforeCursor(segment.getLength(), null);
+    let after = segment.getMetadataAfterCursor(segment.getLength(), null);
 
     expect(before.edgeIDs).toEqual([]);
     expect(before.edgeIDs).toEqual(after.edgeIDs);
@@ -216,14 +237,8 @@ describe('GraphQLSegment', () => {
     expect(before.cursors).toEqual(after.cursors);
 
     segment.addEdgesAfterCursor(edges, null);
-    before = segment.getMetadataBeforeCursor(
-      segment.getLength(),
-      null
-    );
-    after = segment.getMetadataAfterCursor(
-      segment.getLength(),
-      null
-    );
+    before = segment.getMetadataBeforeCursor(segment.getLength(), null);
+    after = segment.getMetadataAfterCursor(segment.getLength(), null);
     expect(before.edgeIDs).toEqual(['edge1', 'edge2', 'edge3']);
     expect(before.edgeIDs).toEqual(after.edgeIDs);
     expect(before.cursors).toEqual(['cursor1', 'cursor2', 'cursor3']);
@@ -279,7 +294,7 @@ describe('GraphQLSegment', () => {
     expect(concatResult).toBe(false);
     expect(console.warn).toBeCalledWith(
       'Attempt to concat an ID already in GraphQLSegment: %s',
-      'edge2'
+      'edge2',
     );
     expect(segment.getCount()).toBe(2);
     expect(segment.getLength()).toBe(2);
@@ -301,7 +316,7 @@ describe('GraphQLSegment', () => {
     expect(concatResult).toBe(false);
     expect(console.warn).toBeCalledWith(
       'Attempt to concat an ID already in GraphQLSegment: %s',
-      'edge2'
+      'edge2',
     );
     // Make sure it rolled back the deleted edge from indices map
     expect(segment.__debug().idToIndices.edge2.length).toBe(1);
@@ -373,7 +388,7 @@ describe('GraphQLSegment', () => {
     segment = new GraphQLSegment();
     segment.addEdgesAfterCursor(
       [{__dataID__: 'edgeid', cursor: null, node: {__dataID__: 'id'}}],
-      null
+      null,
     );
     expect(segment.getFirstCursor()).toBeNull();
     expect(segment.getLastCursor()).toBeNull();
@@ -414,12 +429,22 @@ describe('GraphQLSegment', () => {
     const concatenated = segment.concatSegment(segment2);
     expect(concatenated).toBe(true);
     const metadata = getAllMetadata(segment);
-    expect(metadata.edgeIDs).toEqual(
-      ['edge1', 'edge2', 'edge3', 'edge4', 'edge5', 'edge6']
-    );
-    expect(metadata.cursors).toEqual(
-      ['cursor1', 'cursor2', 'cursor3', 'cursor4', 'cursor5', 'cursor6']
-    );
+    expect(metadata.edgeIDs).toEqual([
+      'edge1',
+      'edge2',
+      'edge3',
+      'edge4',
+      'edge5',
+      'edge6',
+    ]);
+    expect(metadata.cursors).toEqual([
+      'cursor1',
+      'cursor2',
+      'cursor3',
+      'cursor4',
+      'cursor5',
+      'cursor6',
+    ]);
   });
 
   it('should concat with empty segments', () => {
@@ -449,11 +474,13 @@ describe('GraphQLSegment', () => {
         __dataID__: 'edge3',
         node: {__dataID__: 'id3'},
         cursor: 'cursor3',
-      }, {
+      },
+      {
         __dataID__: 'edge4',
         node: {__dataID__: 'id4'},
         cursor: 'cursor4',
-      }, {
+      },
+      {
         __dataID__: 'edge5',
         node: {__dataID__: 'id5'},
         cursor: 'cursor5',
@@ -468,12 +495,20 @@ describe('GraphQLSegment', () => {
     let concatenated = segment.concatSegment(segment2);
     expect(concatenated).toBe(true);
     let metadata = getAllMetadata(segment);
-    expect(metadata.edgeIDs).toEqual(
-      ['edge1', 'edge2', 'edge3', 'edge4', 'edge5']
-    );
-    expect(metadata.cursors).toEqual(
-      ['cursor1', 'cursor2', 'cursor3', 'cursor4', 'cursor5']
-    );
+    expect(metadata.edgeIDs).toEqual([
+      'edge1',
+      'edge2',
+      'edge3',
+      'edge4',
+      'edge5',
+    ]);
+    expect(metadata.cursors).toEqual([
+      'cursor1',
+      'cursor2',
+      'cursor3',
+      'cursor4',
+      'cursor5',
+    ]);
     expect(segment.containsEdgeWithID('edge3')).toBe(true);
     expect(segment.containsEdgeWithCursor('cursor3')).toBe(true);
 
@@ -486,12 +521,20 @@ describe('GraphQLSegment', () => {
     concatenated = segment.concatSegment(segment2);
     expect(concatenated).toBe(true);
     metadata = getAllMetadata(segment);
-    expect(metadata.edgeIDs).toEqual(
-      ['edge1', 'edge2', 'edge3', 'edge4', 'edge5']
-    );
-    expect(metadata.cursors).toEqual(
-      ['cursor1', 'cursor2', 'cursor3', 'cursor4', 'cursor5']
-    );
+    expect(metadata.edgeIDs).toEqual([
+      'edge1',
+      'edge2',
+      'edge3',
+      'edge4',
+      'edge5',
+    ]);
+    expect(metadata.cursors).toEqual([
+      'cursor1',
+      'cursor2',
+      'cursor3',
+      'cursor4',
+      'cursor5',
+    ]);
     expect(segment.containsEdgeWithID('edge3')).toBe(true);
     expect(segment.containsEdgeWithCursor('cursor3')).toBe(true);
   });
@@ -499,11 +542,12 @@ describe('GraphQLSegment', () => {
   it('should toJSON', () => {
     segment.addEdgesAfterCursor(edges, null);
     const actual = JSON.stringify(segment);
-    expect(actual).toEqual('[{"0":{"edgeID":"edge1","cursor":"cursor1",' +
-      '"deleted":false},"1":{"edgeID":"edge2","cursor":"cursor2",' +
-      '"deleted":false},"2":{"edgeID":"edge3","cursor":"cursor3","deleted"' +
-      ':false}},{"edge1":[0],"edge2":[1],"edge3":[2]},{"cursor1":0,' +
-      '"cursor2":1,"cursor3":2},0,2,3]'
+    expect(actual).toEqual(
+      '[{"0":{"edgeID":"edge1","cursor":"cursor1",' +
+        '"deleted":false},"1":{"edgeID":"edge2","cursor":"cursor2",' +
+        '"deleted":false},"2":{"edgeID":"edge3","cursor":"cursor3","deleted"' +
+        ':false}},{"edge1":[0],"edge2":[1],"edge3":[2]},{"cursor1":0,' +
+        '"cursor2":1,"cursor3":2},0,2,3]',
     );
 
     segment = GraphQLSegment.fromJSON(JSON.parse(actual));
@@ -524,20 +568,24 @@ describe('GraphQLSegment', () => {
     it('excludes deleted edges by default', () => {
       segment.addEdgesAfterCursor(edges, null);
       segment.removeEdge('edge2');
-      expect(segment.getEdgeIDs())
-        .toEqual(['edge1', 'edge3']);
+      expect(segment.getEdgeIDs()).toEqual(['edge1', 'edge3']);
     });
     it('excludes deleted edges when asked', () => {
       segment.addEdgesAfterCursor(edges, null);
       segment.removeEdge('edge2');
-      expect(segment.getEdgeIDs({includeDeleted: false}))
-        .toEqual(['edge1', 'edge3']);
+      expect(segment.getEdgeIDs({includeDeleted: false})).toEqual([
+        'edge1',
+        'edge3',
+      ]);
     });
     it('includes deleted edges when asked', () => {
       segment.addEdgesAfterCursor(edges, null);
       segment.removeEdge('edge2');
-      expect(segment.getEdgeIDs({includeDeleted: true}))
-        .toEqual(['edge1', 'edge2', 'edge3']);
+      expect(segment.getEdgeIDs({includeDeleted: true})).toEqual([
+        'edge1',
+        'edge2',
+        'edge3',
+      ]);
     });
   });
 });

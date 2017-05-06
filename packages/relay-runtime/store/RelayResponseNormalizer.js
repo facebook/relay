@@ -8,24 +8,23 @@
  *
  * @providesModule RelayResponseNormalizer
  * @flow
+ * @format
  */
 
 'use strict';
 
 const RelayConcreteNode = require('RelayConcreteNode');
+const RelayModernRecord = require('RelayModernRecord');
 const RelayProfiler = require('RelayProfiler');
-const RelayStaticRecord = require('RelayStaticRecord');
 const RelayStoreUtils = require('RelayStoreUtils');
 
 const formatStorageKey = require('formatStorageKey');
 const generateRelayClientID = require('generateRelayClientID');
-const getRelayStaticHandleKey = require('getRelayStaticHandleKey');
+const getRelayHandleKey = require('getRelayHandleKey');
 const invariant = require('invariant');
 const warning = require('warning');
 
-import type {
-  Record,
-} from 'RelayCombinedEnvironmentTypes';
+import type {Record} from 'RelayCombinedEnvironmentTypes';
 import type {
   ConcreteField,
   ConcreteLinkedField,
@@ -49,11 +48,7 @@ const {
   SCALAR_FIELD,
   SCALAR_HANDLE,
 } = RelayConcreteNode;
-const {
-  getArgumentValues,
-  getStorageKey,
-  TYPENAME_KEY,
-} = RelayStoreUtils;
+const {getArgumentValues, getStorageKey, TYPENAME_KEY} = RelayStoreUtils;
 
 export type NormalizationOptions = {handleStrippedNulls: boolean};
 
@@ -71,7 +66,11 @@ function normalize(
   options: NormalizationOptions = {handleStrippedNulls: false},
 ): Array<HandleFieldPayload> {
   const {dataID, node, variables} = selector;
-  const normalizer = new RelayResponseNormalizer(recordSource, variables, options);
+  const normalizer = new RelayResponseNormalizer(
+    recordSource,
+    variables,
+    options,
+  );
   return normalizer.normalizeResponse(node, dataID, response);
 }
 
@@ -100,13 +99,13 @@ class RelayResponseNormalizer {
   normalizeResponse(
     node: ConcreteNode,
     dataID: DataID,
-    data: PayloadData
+    data: PayloadData,
   ): Array<HandleFieldPayload> {
     const record = this._recordSource.get(dataID);
     invariant(
       record,
       'RelayResponseNormalizer(): Expected root record `%s` to exist.',
-      dataID
+      dataID,
     );
     this._traverseSelections(node.selections, record, data);
     return this._handleFieldPayloads;
@@ -116,7 +115,7 @@ class RelayResponseNormalizer {
     invariant(
       this._variables.hasOwnProperty(name),
       'RelayResponseNormalizer(): Undefined variable `%s`.',
-      name
+      name,
     );
     return this._variables[name];
   }
@@ -126,7 +125,7 @@ class RelayResponseNormalizer {
     invariant(
       typeName != null,
       'RelayResponseNormalizer(): Expected a typename for record `%s`.',
-      JSON.stringify(data, null, 2)
+      JSON.stringify(data, null, 2),
     );
     return typeName;
   }
@@ -134,13 +133,10 @@ class RelayResponseNormalizer {
   _traverseSelections(
     selections: Array<ConcreteSelection>,
     record: Record,
-    data: PayloadData
+    data: PayloadData,
   ): void {
     selections.forEach(selection => {
-      if (
-        selection.kind === SCALAR_FIELD ||
-        selection.kind === LINKED_FIELD
-      ) {
+      if (selection.kind === SCALAR_FIELD || selection.kind === LINKED_FIELD) {
         this._normalizeField(selection, record, data);
       } else if (selection.kind === CONDITION) {
         const conditionValue = this._getVariableValue(selection.condition);
@@ -148,7 +144,7 @@ class RelayResponseNormalizer {
           this._traverseSelections(selection.selections, record, data);
         }
       } else if (selection.kind === INLINE_FRAGMENT) {
-        const typeName = RelayStaticRecord.getType(record);
+        const typeName = RelayModernRecord.getType(record);
         if (typeName === selection.type) {
           this._traverseSelections(selection.selections, record, data);
         }
@@ -156,12 +152,12 @@ class RelayResponseNormalizer {
         selection.kind === LINKED_HANDLE ||
         selection.kind === SCALAR_HANDLE
       ) {
-        const args = selection.args ?
-          getArgumentValues(selection.args, this._variables) :
-          {};
+        const args = selection.args
+          ? getArgumentValues(selection.args, this._variables)
+          : {};
 
         const fieldKey = formatStorageKey(selection.name, args);
-        let handleKey = getRelayStaticHandleKey(
+        let handleKey = getRelayHandleKey(
           selection.handle,
           selection.key,
           selection.name,
@@ -176,7 +172,7 @@ class RelayResponseNormalizer {
         }
         this._handleFieldPayloads.push({
           args,
-          dataID: RelayStaticRecord.getDataID(record),
+          dataID: RelayModernRecord.getDataID(record),
           fieldKey,
           handle: selection.handle,
           handleKey,
@@ -185,21 +181,17 @@ class RelayResponseNormalizer {
         invariant(
           false,
           'RelayResponseNormalizer(): Unexpected ast kind `%s`.',
-          selection.kind
+          selection.kind,
         );
       }
     });
   }
 
-  _normalizeField(
-    selection: ConcreteField,
-    record: Record,
-    data: PayloadData
-  ) {
+  _normalizeField(selection: ConcreteField, record: Record, data: PayloadData) {
     invariant(
       typeof data === 'object' && data,
       'writeField(): Expected data for field `%s` to be an object.',
-      selection.name
+      selection.name,
     );
     const responseKey = selection.alias || selection.name;
     const storageKey = getStorageKey(selection, this._variables);
@@ -213,18 +205,18 @@ class RelayResponseNormalizer {
         warning(
           data.hasOwnProperty(responseKey),
           'RelayResponseNormalizer(): Payload did not contain a value ' +
-          'for field `%s: %s`. Check that you are parsing with the same ' +
-          'query that was used to fetch the payload.',
+            'for field `%s: %s`. Check that you are parsing with the same ' +
+            'query that was used to fetch the payload.',
           responseKey,
-          storageKey
+          storageKey,
         );
       }
-      RelayStaticRecord.setValue(record, storageKey, null);
+      RelayModernRecord.setValue(record, storageKey, null);
       return;
     }
 
     if (selection.kind === SCALAR_FIELD) {
-      RelayStaticRecord.setValue(record, storageKey, fieldValue);
+      RelayModernRecord.setValue(record, storageKey, fieldValue);
     } else if (selection.plural) {
       this._normalizePluralLink(selection, record, storageKey, fieldValue);
     } else {
@@ -236,29 +228,28 @@ class RelayResponseNormalizer {
     field: ConcreteLinkedField,
     record: Record,
     storageKey: string,
-    fieldValue: mixed
+    fieldValue: mixed,
   ): void {
     invariant(
       typeof fieldValue === 'object' && fieldValue,
       'RelayResponseNormalizer: Expected data for field `%s` to be an object.',
-      storageKey
+      storageKey,
     );
-    const nextID = (
+    const nextID =
       fieldValue.id ||
       // Reuse previously generated client IDs
-      RelayStaticRecord.getLinkedRecordID(record, storageKey) ||
-      generateRelayClientID(RelayStaticRecord.getDataID(record), storageKey)
-    );
+      RelayModernRecord.getLinkedRecordID(record, storageKey) ||
+      generateRelayClientID(RelayModernRecord.getDataID(record), storageKey);
     invariant(
       typeof nextID === 'string',
       'RelayResponseNormalizer: Expected id on field `%s` to be a string.',
-      storageKey
+      storageKey,
     );
-    RelayStaticRecord.setLinkedRecordID(record, storageKey, nextID);
+    RelayModernRecord.setLinkedRecordID(record, storageKey, nextID);
     let nextRecord = this._recordSource.get(nextID);
     if (!nextRecord) {
       const typeName = field.concreteType || this._getRecordType(fieldValue);
-      nextRecord = RelayStaticRecord.create(nextID, typeName);
+      nextRecord = RelayModernRecord.create(nextID, typeName);
       this._recordSource.set(nextID, nextRecord);
     } else if (__DEV__) {
       this._validateRecordType(nextRecord, field, fieldValue);
@@ -270,15 +261,15 @@ class RelayResponseNormalizer {
     field: ConcreteLinkedField,
     record: Record,
     storageKey: string,
-    fieldValue: mixed
+    fieldValue: mixed,
   ): void {
     invariant(
       Array.isArray(fieldValue),
       'RelayResponseNormalizer: Expected data for field `%s` to be an array ' +
-      'of objects.',
-      storageKey
+        'of objects.',
+      storageKey,
     );
-    const prevIDs = RelayStaticRecord.getLinkedRecordIDs(record, storageKey);
+    const prevIDs = RelayModernRecord.getLinkedRecordIDs(record, storageKey);
     const nextIDs = [];
     fieldValue.forEach((item, nextIndex) => {
       // validate response data
@@ -289,34 +280,37 @@ class RelayResponseNormalizer {
       invariant(
         typeof item === 'object',
         'RelayResponseNormalizer: Expected elements for field `%s` to be ' +
-        'objects.',
-        storageKey
+          'objects.',
+        storageKey,
       );
 
-      const nextID = (
+      const nextID =
         item.id ||
         (prevIDs && prevIDs[nextIndex]) || // Reuse previously generated client IDs
-        generateRelayClientID(RelayStaticRecord.getDataID(record), storageKey, nextIndex)
-      );
+        generateRelayClientID(
+          RelayModernRecord.getDataID(record),
+          storageKey,
+          nextIndex,
+        );
       invariant(
         typeof nextID === 'string',
         'RelayResponseNormalizer: Expected id of elements of field `%s` to ' +
-        'be strings.',
-        storageKey
+          'be strings.',
+        storageKey,
       );
 
       nextIDs.push(nextID);
       let nextRecord = this._recordSource.get(nextID);
       if (!nextRecord) {
         const typeName = field.concreteType || this._getRecordType(item);
-        nextRecord = RelayStaticRecord.create(nextID, typeName);
+        nextRecord = RelayModernRecord.create(nextID, typeName);
         this._recordSource.set(nextID, nextRecord);
       } else if (__DEV__) {
         this._validateRecordType(nextRecord, field, item);
       }
       this._traverseSelections(field.selections, nextRecord, item);
     });
-    RelayStaticRecord.setLinkedRecordIDs(record, storageKey, nextIDs);
+    RelayModernRecord.setLinkedRecordIDs(record, storageKey, nextIDs);
   }
 
   /**
@@ -329,20 +323,22 @@ class RelayResponseNormalizer {
   ): void {
     const typeName = field.concreteType || this._getRecordType(payload);
     warning(
-      RelayStaticRecord.getType(record) === typeName,
+      RelayModernRecord.getType(record) === typeName,
       'RelayResponseNormalizer: Invalid record `%s`. Expected %s to be ' +
-      'be consistent, but the record was assigned conflicting types ' +
-      '`%s` and `%s`.',
-      RelayStaticRecord.getDataID(record),
+        'be consistent, but the record was assigned conflicting types ' +
+        '`%s` and `%s`.',
+      RelayModernRecord.getDataID(record),
       TYPENAME_KEY,
-      RelayStaticRecord.getType(record),
+      RelayModernRecord.getType(record),
       typeName,
     );
   }
 }
 
-
 // eslint-disable-next-line no-func-assign
-normalize = RelayProfiler.instrument('RelayResponseNormalizer.normalize', normalize);
+normalize = RelayProfiler.instrument(
+  'RelayResponseNormalizer.normalize',
+  normalize,
+);
 
 module.exports = {normalize};

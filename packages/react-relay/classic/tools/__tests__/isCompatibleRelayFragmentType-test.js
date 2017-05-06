@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -22,30 +23,38 @@ describe('isCompatibleRelayFragmentType', () => {
   const {getNode} = RelayTestUtils;
 
   it('returns false for different concrete types', () => {
-    expect(isCompatibleRelayFragmentType(
-      getNode(Relay.QL`fragment on User{id}`),
-      'Page'
-    )).toBe(false);
+    expect(
+      isCompatibleRelayFragmentType(
+        getNode(Relay.QL`fragment on User{id}`),
+        'Page',
+      ),
+    ).toBe(false);
   });
 
   it('returns true for equal concrete types', () => {
-    expect(isCompatibleRelayFragmentType(
-      getNode(Relay.QL`fragment on User{id}`),
-      'User'
-    )).toBe(true);
+    expect(
+      isCompatibleRelayFragmentType(
+        getNode(Relay.QL`fragment on User{id}`),
+        'User',
+      ),
+    ).toBe(true);
   });
 
   it('returns true for abstract fragments', () => {
-    expect(isCompatibleRelayFragmentType(
-      getNode(Relay.QL`fragment on Node{id}`),
-      'User'
-    )).toBe(true);
+    expect(
+      isCompatibleRelayFragmentType(
+        getNode(Relay.QL`fragment on Node{id}`),
+        'User',
+      ),
+    ).toBe(true);
   });
 
   it('returns true for client records', () => {
-    expect(isCompatibleRelayFragmentType(
-      getNode(Relay.QL`fragment on User{id}`),
-      null
-    )).toBe(true);
+    expect(
+      isCompatibleRelayFragmentType(
+        getNode(Relay.QL`fragment on User{id}`),
+        null,
+      ),
+    ).toBe(true);
   });
 });

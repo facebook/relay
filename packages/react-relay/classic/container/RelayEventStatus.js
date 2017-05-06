@@ -8,6 +8,7 @@
  *
  * @providesModule RelayEventStatus
  * @flow
+ * @format
  */
 
 'use strict';

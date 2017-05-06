@@ -8,6 +8,7 @@
  *
  * @providesModule RelaySkipUnreachableNodeTransform
  * @flow
+ * @format
  */
 
 'use strict';
@@ -17,12 +18,7 @@ const RelayCompilerContext = require('RelayCompilerContext');
 
 const invariant = require('invariant');
 
-import type {
-  Condition,
-  Fragment,
-  Node,
-  Selection,
-} from 'RelayIR';
+import type {Condition, Fragment, Node, Selection} from 'RelayIR';
 
 type ConditionResult = 'fail' | 'pass' | 'variable';
 
@@ -39,31 +35,27 @@ const VARIABLE = 'variable';
  */
 function transform(context: RelayCompilerContext): RelayCompilerContext {
   const documents = context.documents();
-  const fragments = new Map();
-  const nextContext = documents.reduce((ctx, node) => {
+  const fragments: Map<string, ?Fragment> = new Map();
+  const nextContext = documents.reduce((ctx: RelayCompilerContext, node) => {
     if (node.kind === 'Root') {
       const transformedNode = transformNode(context, fragments, node);
       if (transformedNode) {
-        /* $FlowFixMe(>=0.44.0 site=react_native_fb) Flow error found while
-         * deploying v0.44.0. Remove this comment to see the error */
         return ctx.add(transformedNode);
       }
     }
     return ctx;
   }, new RelayCompilerContext(context.schema));
-  /* $FlowFixMe(>=0.44.0 site=react_native_fb) Flow error found while deploying
-   * v0.44.0. Remove this comment to see the error */
-  return Array.from(fragments.values()).reduce((ctx, fragment) => (
-    /* $FlowFixMe(>=0.44.0 site=react_native_fb) Flow error found while
-     * deploying v0.44.0. Remove this comment to see the error */
-    fragment ? ctx.add(fragment) : ctx
-  ), nextContext);
+  return Array.from(fragments.values()).reduce(
+    (ctx: RelayCompilerContext, fragment) =>
+      (fragment ? ctx.add(fragment) : ctx),
+    nextContext,
+  );
 }
 
 function transformNode<T: Node>(
   context: RelayCompilerContext,
   fragments: Map<string, ?Fragment>,
-  node: T
+  node: T,
 ): ?T {
   const queue: Array<Selection> = [...node.selections];
   let selections;
@@ -84,8 +76,8 @@ function transformNode<T: Node>(
         invariant(
           fragment && fragment.kind === 'Fragment',
           'RelaySkipUnreachableNodeTransform: Found a reference to undefined ' +
-          'fragment `%s`.',
-          selection.name
+            'fragment `%s`.',
+          selection.name,
         );
         const nextFragment = transformNode(context, fragments, fragment);
         fragments.set(selection.name, nextFragment);

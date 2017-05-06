@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -46,7 +47,7 @@ describe('RelayRenderer', function() {
         Container={MockContainer}
         queryConfig={queryConfig}
         environment={environment}
-      />
+      />,
     );
     expect(environment.forceFetch).not.toBeCalled();
     expect(environment.primeCache).not.toBeCalled();

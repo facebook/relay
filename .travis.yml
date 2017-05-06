@@ -1,29 +1,28 @@
 ---
 language: node_js
 install: true
+
 matrix:
   include:
-  - node_js: '6'
-    env: TEST=.
   - node_js: '7'
-    env: TEST=.
-
+    env: TEST=1
   - node_js: '6'
-    env: TEST=scripts/babel-relay-plugin
+    env: TEST=1
   - node_js: '7'
-    env: TEST=scripts/babel-relay-plugin
+    env: TYPECHECK=1
+  - node_js: '7'
+    env: LINT=1
 
-  - node_js: '6'
-    env: TYPECHECK=.
-
-  - node_js: '6'
-    env: TYPECHECK=scripts/babel-relay-plugin
 script:
 - |
     if [ $TEST ]; then
-      cd $TEST && npm install && npm run jest -- --runInBand --no-watchman
+      npm install && npm run jest -- --runInBand --no-watchman
     fi
 - |
     if [ $TYPECHECK ]; then
-      cd $TYPECHECK && npm install && npm run typecheck
+      npm install --ignore-scripts && npm run typecheck
+    fi
+- |
+    if [ $LINT ]; then
+      npm install --ignore-scripts && npm run lint
     fi

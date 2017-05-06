@@ -8,6 +8,7 @@
  *
  * @providesModule RelayCompilerScope
  * @flow
+ * @format
  */
 
 'use strict';
@@ -77,9 +78,7 @@ export type Scope = {[key: string]: ArgumentValue};
  * assume that this could be overridden at runtime. The value cannot be decided
  * statically and therefore is set to a variable.
  */
-function getRootScope(
-  definitions: Array<LocalArgumentDefinition>
-): Scope {
+function getRootScope(definitions: Array<LocalArgumentDefinition>): Scope {
   const scope = {};
   definitions.forEach(definition => {
     scope[definition.name] = {
@@ -135,7 +134,7 @@ function getRootScope(
 function getFragmentScope(
   definitions: Array<ArgumentDefinition>,
   args: Array<Argument>,
-  parentScope: Scope
+  parentScope: Scope,
 ): Scope {
   const argMap = {};
   args.forEach(arg => {
@@ -152,9 +151,9 @@ function getFragmentScope(
       invariant(
         !argMap.hasOwnProperty(definition.name),
         'RelayCompilerScope: Unexpected argument for global variable `%s`. ' +
-        '@arguments may only be provided for variables defined in the ' +
-        'fragment\'s @argumentDefinitions list.',
-        definition.name
+          '@arguments may only be provided for variables defined in the ' +
+          "fragment's @argumentDefinitions list.",
+        definition.name,
       );
       fragmentScope[definition.name] = {
         kind: 'Variable',
@@ -167,11 +166,11 @@ function getFragmentScope(
         // value.
         invariant(
           definition.defaultValue != null ||
-          !(definition.type instanceof GraphQLNonNull),
+            !(definition.type instanceof GraphQLNonNull),
           'RelayCompilerScope: No value found for required argument ' +
-          '`$%s: %s`.',
+            '`$%s: %s`.',
           definition.name,
-          definition.type.toString()
+          definition.type.toString(),
         );
         fragmentScope[definition.name] = {
           kind: 'Literal',

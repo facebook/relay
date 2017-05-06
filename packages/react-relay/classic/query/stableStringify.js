@@ -8,6 +8,7 @@
  *
  * @providesModule stableStringify
  * @flow
+ * @format
  */
 
 'use strict';

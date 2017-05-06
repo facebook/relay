@@ -10,6 +10,7 @@
  *
  * @providesModule murmurHash
  * @flow
+ * @format
  */
 
 'use strict';
@@ -35,8 +36,8 @@ function murmurHash(str: string): string {
 
     k =
       str.charCodeAt(i) ^
-      str.charCodeAt(i + 1) << 8 ^
-      str.charCodeAt(i + 2) << 16 ^
+      (str.charCodeAt(i + 1) << 8) ^
+      (str.charCodeAt(i + 2) << 16) ^
       ((ch4 & 0xff) << 24) ^
       ((ch4 & 0xff00) >> 8);
 
@@ -53,14 +54,17 @@ function murmurHash(str: string): string {
   k = 0;
   switch (rem) {
     /* eslint-disable no-fallthrough */
-    case 3: k ^= str.charCodeAt(len + 2) << 16;
-    case 2: k ^= str.charCodeAt(len + 1) << 8;
-    case 1: k ^= str.charCodeAt(len);
+    case 3:
+      k ^= str.charCodeAt(len + 2) << 16;
+    case 2:
+      k ^= str.charCodeAt(len + 1) << 8;
+    case 1:
+      k ^= str.charCodeAt(len);
 
-    k = (k * 0x2d51 + (k & 0xffff) * 0xcc9e0000) >>> 0;
-    k = (k << 15) | (k >>> 17);
-    k = (k * 0x3593 + (k & 0xffff) * 0x1b870000) >>> 0;
-    h ^= k;
+      k = (k * 0x2d51 + (k & 0xffff) * 0xcc9e0000) >>> 0;
+      k = (k << 15) | (k >>> 17);
+      k = (k * 0x3593 + (k & 0xffff) * 0x1b870000) >>> 0;
+      h ^= k;
   }
 
   h ^= length;

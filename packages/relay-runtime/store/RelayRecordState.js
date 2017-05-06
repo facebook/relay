@@ -8,6 +8,7 @@
  *
  * @providesModule RelayRecordState
  * @flow
+ * @format
  */
 
 'use strict';

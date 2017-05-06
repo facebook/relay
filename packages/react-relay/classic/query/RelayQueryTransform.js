@@ -8,6 +8,7 @@
  *
  * @providesModule RelayQueryTransform
  * @flow
+ * @format
  */
 
 'use strict';
@@ -50,24 +51,26 @@ import type RelayQuery from 'RelayQuery';
  * @see RelayQueryVisitor
  */
 class RelayQueryTransform<Ts> extends RelayQueryVisitor<Ts> {
-  traverse<Tn: RelayQuery.Node>(
-    node: Tn,
-    nextState: Ts
-  ): ?Tn {
+  traverse<Tn: RelayQuery.Node>(node: Tn, nextState: Ts): ?Tn {
     if (!node.canHaveSubselections()) {
       return node;
     }
     let nextChildren;
-    this.traverseChildren(node, nextState, function(child, index, children) {
-      const prevChild = children[index];
-      const nextChild = this.visit(prevChild, nextState);
-      if (nextChild !== prevChild) {
-        nextChildren = nextChildren || children.slice(0, index);
-      }
-      if (nextChildren && nextChild) {
-        nextChildren.push(nextChild);
-      }
-    }, this);
+    this.traverseChildren(
+      node,
+      nextState,
+      function(child, index, children) {
+        const prevChild = children[index];
+        const nextChild = this.visit(prevChild, nextState);
+        if (nextChild !== prevChild) {
+          nextChildren = nextChildren || children.slice(0, index);
+        }
+        if (nextChildren && nextChild) {
+          nextChildren.push(nextChild);
+        }
+      },
+      this,
+    );
     if (nextChildren) {
       if (!nextChildren.length) {
         return null;

@@ -5,6 +5,8 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
@@ -33,13 +35,14 @@ const RelayTestSchema = require('RelayTestSchema');
 const getGoldenMatchers = require('getGoldenMatchers');
 const {visit} = require('RelayIRVisitor');
 
-type VisitNodeWithName = Root |
-  Fragment |
-  Field |
-  FragmentSpread |
-  Argument |
-  Directive |
-  ArgumentDefinition;
+type VisitNodeWithName =
+  | Root
+  | Fragment
+  | Field
+  | FragmentSpread
+  | Argument
+  | Directive
+  | ArgumentDefinition;
 
 describe('RelayIRVisitor', () => {
   beforeEach(() => {
@@ -49,8 +52,7 @@ describe('RelayIRVisitor', () => {
   it('visits and does nothing with each node', () => {
     expect('fixtures/visitor/no-op-visit').toMatchGolden(text => {
       const ast = RelayParser.parse(RelayTestSchema, text);
-      const sameAst = ast.map(fragment => visit(fragment, {
-      }));
+      const sameAst = ast.map(fragment => visit(fragment, {}));
       return sameAst.map(doc => RelayPrinter.print(doc)).join('\n');
     });
   });
@@ -66,50 +68,52 @@ describe('RelayIRVisitor', () => {
         },
       };
 
-      const mutatedAst = ast.map(fragment => visit(fragment, {
-        Argument: mutateNameVisitor,
-        Directive: mutateNameVisitor,
-        Fragment: mutateNameVisitor,
-        FragmentSpread: mutateNameVisitor,
-        ImportArgumentDefinition: mutateNameVisitor,
-        LinkedField: mutateNameVisitor,
-        LocalArgumentDefinition: mutateNameVisitor,
-        Root: mutateNameVisitor,
-        ScalarField: mutateNameVisitor,
+      const mutatedAst = ast.map(fragment =>
+        visit(fragment, {
+          Argument: mutateNameVisitor,
+          Directive: mutateNameVisitor,
+          Fragment: mutateNameVisitor,
+          FragmentSpread: mutateNameVisitor,
+          ImportArgumentDefinition: mutateNameVisitor,
+          LinkedField: mutateNameVisitor,
+          LocalArgumentDefinition: mutateNameVisitor,
+          Root: mutateNameVisitor,
+          ScalarField: mutateNameVisitor,
 
-        Condition: {
-          leave(node: Condition) {
-            return {
-              ...node,
-              passingValue: !node.passingValue,
-            };
+          Condition: {
+            leave(node: Condition) {
+              return {
+                ...node,
+                passingValue: !node.passingValue,
+              };
+            },
           },
-        },
-        InlineFragment: {
-          leave(node: InlineFragment) {
-            return {
-              ...node,
-              typeCondition: 'Mutated',
-            };
+          InlineFragment: {
+            leave(node: InlineFragment) {
+              return {
+                ...node,
+                typeCondition: 'Mutated',
+              };
+            },
           },
-        },
-        Literal: {
-          leave(node: Literal) {
-            return {
-              ...node,
-              value: String(node.value) + '_mutated',
-            };
+          Literal: {
+            leave(node: Literal) {
+              return {
+                ...node,
+                value: String(node.value) + '_mutated',
+              };
+            },
           },
-        },
-        Variable: {
-          leave(node: Variable) {
-            return {
-              ...node,
-              variableName: node.variableName + '_mutated',
-            };
+          Variable: {
+            leave(node: Variable) {
+              return {
+                ...node,
+                variableName: node.variableName + '_mutated',
+              };
+            },
           },
-        },
-      }));
+        }),
+      );
 
       return mutatedAst.map(doc => RelayPrinter.print(doc)).join('\n');
     });

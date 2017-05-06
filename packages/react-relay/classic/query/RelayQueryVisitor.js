@@ -8,6 +8,7 @@
  *
  * @providesModule RelayQueryVisitor
  * @flow
+ * @format
  */
 
 'use strict';
@@ -46,10 +47,7 @@ const RelayQuery = require('RelayQuery');
  * @see RelayQueryTransform
  */
 class RelayQueryVisitor<Ts> {
-  visit(
-    node: RelayQuery.Node,
-    nextState: Ts
-  ): ?RelayQuery.Node {
+  visit(node: RelayQuery.Node, nextState: Ts): ?RelayQuery.Node {
     if (node instanceof RelayQuery.Field) {
       return this.visitField(node, nextState);
     } else if (node instanceof RelayQuery.Fragment) {
@@ -59,14 +57,16 @@ class RelayQueryVisitor<Ts> {
     }
   }
 
-  traverse<Tn: RelayQuery.Node>(
-    node: Tn,
-    nextState: Ts
-  ): ?Tn {
+  traverse<Tn: RelayQuery.Node>(node: Tn, nextState: Ts): ?Tn {
     if (node.canHaveSubselections()) {
-      this.traverseChildren(node, nextState, function(child) {
-        this.visit(child, nextState);
-      }, this);
+      this.traverseChildren(
+        node,
+        nextState,
+        function(child) {
+          this.visit(child, nextState);
+        },
+        this,
+      );
     }
     return node;
   }
@@ -77,9 +77,9 @@ class RelayQueryVisitor<Ts> {
     callback: (
       child: RelayQuery.Node,
       index: number,
-      children: Array<RelayQuery.Node>
+      children: Array<RelayQuery.Node>,
     ) => void,
-    context: any
+    context: any,
   ): void {
     const children = node.getChildren();
     for (let index = 0; index < children.length; index++) {
@@ -87,24 +87,15 @@ class RelayQueryVisitor<Ts> {
     }
   }
 
-  visitField(
-    node: RelayQuery.Field,
-    nextState: Ts
-  ): ?RelayQuery.Node {
+  visitField(node: RelayQuery.Field, nextState: Ts): ?RelayQuery.Node {
     return this.traverse(node, nextState);
   }
 
-  visitFragment(
-    node: RelayQuery.Fragment,
-    nextState: Ts
-  ): ?RelayQuery.Node {
+  visitFragment(node: RelayQuery.Fragment, nextState: Ts): ?RelayQuery.Node {
     return this.traverse(node, nextState);
   }
 
-  visitRoot(
-    node: RelayQuery.Root,
-    nextState: Ts
-  ): ?RelayQuery.Node {
+  visitRoot(node: RelayQuery.Root, nextState: Ts): ?RelayQuery.Node {
     return this.traverse(node, nextState);
   }
 }

@@ -8,6 +8,7 @@
  *
  * @providesModule diffRelayQuery
  * @flow
+ * @format
  */
 
 'use strict';
@@ -77,29 +78,25 @@ type DiffOutput = {
 function diffRelayQuery(
   root: RelayQuery.Root,
   store: RelayRecordStore,
-  queryTracker: ?RelayQueryTracker
+  queryTracker: ?RelayQueryTracker,
 ): Array<RelayQuery.Root> {
   const path = RelayQueryPath.create(root);
   const queries = [];
 
-  const visitor = new RelayDiffQueryBuilder(
-    store,
-    queryTracker
-  );
+  const visitor = new RelayDiffQueryBuilder(store, queryTracker);
   const rootIdentifyingArg = root.getIdentifyingArg();
   const rootIdentifyingArgValue =
     (rootIdentifyingArg && rootIdentifyingArg.value) || null;
-  const isPluralCall = (
+  const isPluralCall =
     Array.isArray(rootIdentifyingArgValue) &&
-    rootIdentifyingArgValue.length > 1
-  );
+    rootIdentifyingArgValue.length > 1;
   let metadata;
   if (rootIdentifyingArg != null) {
     metadata = {
       identifyingArgName: rootIdentifyingArg.name,
-      identifyingArgType: rootIdentifyingArg.type != null ?
-        rootIdentifyingArg.type :
-        ID_TYPE,
+      identifyingArgType: rootIdentifyingArg.type != null
+        ? rootIdentifyingArg.type
+        : ID_TYPE,
       isAbstract: root.isAbstract(),
       isDeferred: false,
       isPlural: false,
@@ -113,8 +110,8 @@ function diffRelayQuery(
       invariant(
         identifyingArgValue != null,
         'diffRelayQuery(): Unexpected null or undefined value in root call ' +
-        'argument array for query, `%s(...).',
-        fieldName
+          'argument array for query, `%s(...).',
+        fieldName,
       );
       nodeRoot = RelayQuery.Root.build(
         root.getName(),
@@ -122,7 +119,7 @@ function diffRelayQuery(
         [identifyingArgValue],
         root.getChildren(),
         metadata,
-        root.getType()
+        root.getType(),
       );
     } else {
       // Reuse `root` if it only maps to one result.
@@ -143,7 +140,7 @@ function diffRelayQuery(
     if (diffNode) {
       invariant(
         diffNode instanceof RelayQuery.Root,
-        'diffRelayQuery(): Expected result to be a root query.'
+        'diffRelayQuery(): Expected result to be a root query.',
       );
       queries.push(diffNode);
     }
@@ -175,18 +172,13 @@ class RelayDiffQueryBuilder {
   _splitQueries: Array<RelayQuery.Root>;
   _queryTracker: ?RelayQueryTracker;
 
-  constructor(
-    store: RelayRecordStore,
-    queryTracker: ?RelayQueryTracker
-  ) {
+  constructor(store: RelayRecordStore, queryTracker: ?RelayQueryTracker) {
     this._store = store;
     this._splitQueries = [];
     this._queryTracker = queryTracker;
   }
 
-  splitQuery(
-    root: RelayQuery.Root
-  ): void {
+  splitQuery(root: RelayQuery.Root): void {
     this._splitQueries.push(root);
   }
 
@@ -194,11 +186,7 @@ class RelayDiffQueryBuilder {
     return this._splitQueries;
   }
 
-  visit(
-    node: RelayQuery.Node,
-    path: QueryPath,
-    scope: DiffScope
-  ): ?DiffOutput {
+  visit(node: RelayQuery.Node, path: QueryPath, scope: DiffScope): ?DiffOutput {
     if (node instanceof RelayQuery.Field) {
       return this.visitField(node, path, scope);
     } else if (node instanceof RelayQuery.Fragment) {
@@ -211,7 +199,7 @@ class RelayDiffQueryBuilder {
   visitRoot(
     node: RelayQuery.Root,
     path: QueryPath,
-    scope: DiffScope
+    scope: DiffScope,
   ): ?DiffOutput {
     return this.traverse(node, path, scope);
   }
@@ -219,7 +207,7 @@ class RelayDiffQueryBuilder {
   visitFragment(
     node: RelayQuery.Fragment,
     path: QueryPath,
-    scope: DiffScope
+    scope: DiffScope,
   ): ?DiffOutput {
     return this.traverse(node, path, scope);
   }
@@ -231,7 +219,7 @@ class RelayDiffQueryBuilder {
   visitField(
     node: RelayQuery.Field,
     path: QueryPath,
-    {connectionField, dataID, edgeID, rangeInfo}: DiffScope
+    {connectionField, dataID, edgeID, rangeInfo}: DiffScope,
   ): ?DiffOutput {
     // special case when inside a connection traversal
     if (connectionField && rangeInfo) {
@@ -243,7 +231,7 @@ class RelayDiffQueryBuilder {
             node, // edge field
             RelayQueryPath.getPath(path, node, edgeID),
             edgeID,
-            rangeInfo
+            rangeInfo,
           );
         } else {
           return null;
@@ -256,12 +244,12 @@ class RelayDiffQueryBuilder {
           node.getSchemaName() === EDGES ||
           node.getSchemaName() === PAGE_INFO
         ) {
-          return rangeInfo.diffCalls.length > 0 ?
-            {
-              diffNode: node,
-              trackedNode: null,
-            } :
-            null;
+          return rangeInfo.diffCalls.length > 0
+            ? {
+                diffNode: node,
+                trackedNode: null,
+              }
+            : null;
         }
       }
     }
@@ -289,7 +277,7 @@ class RelayDiffQueryBuilder {
   traverse(
     node: RelayQuery.Node,
     path: QueryPath,
-    scope: DiffScope
+    scope: DiffScope,
   ): ?DiffOutput {
     let diffNode;
     let diffChildren;
@@ -302,9 +290,9 @@ class RelayDiffQueryBuilder {
       if (child instanceof RelayQuery.Field) {
         const diffOutput = this.visitField(child, path, scope);
         const diffChild = diffOutput ? diffOutput.diffNode : null;
-        const trackedChild = diffOutput && this._queryTracker ?
-          diffOutput.trackedNode :
-          null;
+        const trackedChild = diffOutput && this._queryTracker
+          ? diffOutput.trackedNode
+          : null;
 
         // Diff uses child nodes and keeps requisite fields
         if (diffChild) {
@@ -338,7 +326,7 @@ class RelayDiffQueryBuilder {
       } else if (child instanceof RelayQuery.Fragment) {
         const isCompatibleType = isCompatibleRelayFragmentType(
           child,
-          this._store.getType(scope.dataID)
+          this._store.getType(scope.dataID),
         );
         if (isCompatibleType) {
           if (child.isTrackingEnabled()) {
@@ -402,10 +390,7 @@ class RelayDiffQueryBuilder {
   /**
    * Diff a scalar field such as `name` or `id`.
    */
-  diffScalar(
-    field: RelayQuery.Field,
-    dataID: DataID,
-  ): ?DiffOutput {
+  diffScalar(field: RelayQuery.Field, dataID: DataID): ?DiffOutput {
     if (this._store.getField(dataID, field.getStorageKey()) === undefined) {
       return {
         diffNode: field,
@@ -424,8 +409,10 @@ class RelayDiffQueryBuilder {
     path: QueryPath,
     dataID: DataID,
   ): ?DiffOutput {
-    const nextDataID =
-      this._store.getLinkedRecordID(dataID, field.getStorageKey());
+    const nextDataID = this._store.getLinkedRecordID(
+      dataID,
+      field.getStorageKey(),
+    );
     if (nextDataID === undefined) {
       return {
         diffNode: field,
@@ -442,7 +429,7 @@ class RelayDiffQueryBuilder {
     return this.traverse(
       field,
       RelayQueryPath.getPath(path, field, nextDataID),
-      makeScope(nextDataID)
+      makeScope(nextDataID),
     );
   }
 
@@ -453,10 +440,12 @@ class RelayDiffQueryBuilder {
   diffPluralLink(
     field: RelayQuery.Field,
     path: QueryPath,
-    dataID: DataID
+    dataID: DataID,
   ): ?DiffOutput {
-    const linkedIDs =
-      this._store.getLinkedRecordIDs(dataID, field.getStorageKey());
+    const linkedIDs = this._store.getLinkedRecordIDs(
+      dataID,
+      field.getStorageKey(),
+    );
     if (linkedIDs === undefined) {
       // not fetched
       return {
@@ -479,7 +468,7 @@ class RelayDiffQueryBuilder {
         const itemState = this.traverse(
           field,
           RelayQueryPath.getPath(path, field, itemID),
-          makeScope(itemID)
+          makeScope(itemID),
         );
         if (itemState) {
           // If any child was tracked then `field` will also be tracked
@@ -487,13 +476,15 @@ class RelayDiffQueryBuilder {
             hasSplitQueries || !!itemState.trackedNode || !!itemState.diffNode;
           // split diff nodes into root queries
           if (itemState.diffNode) {
-            this.splitQuery(buildRoot(
-              itemID,
-              itemState.diffNode.getChildren(),
-              RelayQueryPath.getName(path),
-              field.getType(),
-              field.isAbstract()
-            ));
+            this.splitQuery(
+              buildRoot(
+                itemID,
+                itemState.diffNode.getChildren(),
+                RelayQueryPath.getName(path),
+                field.getType(),
+                field.isAbstract(),
+              ),
+            );
           }
         }
       });
@@ -517,7 +508,7 @@ class RelayDiffQueryBuilder {
         const itemState = this.traverse(
           field,
           RelayQueryPath.getPath(path, field, itemID),
-          makeScope(itemID)
+          makeScope(itemID),
         );
         if (itemState && itemState.diffNode) {
           atLeastOneItemHasMissingData = true;
@@ -554,7 +545,7 @@ class RelayDiffQueryBuilder {
     const connectionID = store.getLinkedRecordID(dataID, field.getStorageKey());
     const rangeInfo = store.getRangeMetadata(
       connectionID,
-      field.getCallsWithValues()
+      field.getCallsWithValues(),
     );
     // Keep the field if the connection is unfetched
     if (connectionID === undefined) {
@@ -566,10 +557,12 @@ class RelayDiffQueryBuilder {
     // Don't fetch if connection is null, but continue to track the fragment if
     // appropriate.
     if (connectionID === null) {
-      return this._queryTracker ? {
-        diffNode: null,
-        trackedNode: field,
-      } : null;
+      return this._queryTracker
+        ? {
+            diffNode: null,
+            trackedNode: field,
+          }
+        : null;
     }
     // If metadata fields but not edges are fetched, diff as a normal field.
     // In practice, `rangeInfo` is `undefined` if unfetched, `null` if the
@@ -578,7 +571,7 @@ class RelayDiffQueryBuilder {
       return this.traverse(
         field,
         RelayQueryPath.getPath(path, field, connectionID),
-        makeScope(connectionID)
+        makeScope(connectionID),
       );
     }
     const {diffCalls, filteredEdges} = rangeInfo;
@@ -595,7 +588,7 @@ class RelayDiffQueryBuilder {
       const diffOutput = this.traverse(
         field,
         RelayQueryPath.getPath(path, field, edge.edgeID),
-        scope
+        scope,
       );
       // If any edges were missing data (resulting in a split query),
       // then the entire original connection field must be tracked.
@@ -615,14 +608,14 @@ class RelayDiffQueryBuilder {
     const diffOutput = this.traverse(
       field,
       RelayQueryPath.getPath(path, field, connectionID),
-      scope
+      scope,
     );
     let diffNode = diffOutput ? diffOutput.diffNode : null;
     let trackedNode = diffOutput ? diffOutput.trackedNode : null;
     if (diffCalls.length && diffNode instanceof RelayQuery.Field) {
       diffNode = diffNode.cloneFieldWithCalls(
         diffNode.getChildren(),
-        diffCalls
+        diffCalls,
       );
     }
     // if a sub-query was split, then we must track the entire field, which will
@@ -657,14 +650,13 @@ class RelayDiffQueryBuilder {
     edgeField: RelayQuery.Field,
     path: QueryPath,
     edgeID: DataID,
-    rangeInfo: RangeInfo
+    rangeInfo: RangeInfo,
   ): ?DiffOutput {
-
     let hasSplitQueries = false;
     const diffOutput = this.traverse(
       edgeField,
       RelayQueryPath.getPath(path, edgeField, edgeID),
-      makeScope(edgeID)
+      makeScope(edgeID),
     );
     const diffNode = diffOutput ? diffOutput.diffNode : null;
     const trackedNode = diffOutput ? diffOutput.trackedNode : null;
@@ -675,12 +667,12 @@ class RelayDiffQueryBuilder {
         warning(
           connectionField.isConnectionWithoutNodeID(),
           'RelayDiffQueryBuilder: Field `node` on connection `%s` cannot be ' +
-          'retrieved if it does not have an `id` field. If you expect fields ' +
-          'to be retrieved on this field, add an `id` field in the schema. ' +
-          'If you choose to ignore this warning, you can silence it by ' +
-          'adding `@relay(isConnectionWithoutNodeID: true)` to the ' +
-          'connection field.',
-          connectionField.getStorageKey()
+            'retrieved if it does not have an `id` field. If you expect fields ' +
+            'to be retrieved on this field, add an `id` field in the schema. ' +
+            'If you choose to ignore this warning, you can silence it by ' +
+            'adding `@relay(isConnectionWithoutNodeID: true)` to the ' +
+            'connection field.',
+          connectionField.getStorageKey(),
         );
       } else {
         let {
@@ -695,38 +687,41 @@ class RelayDiffQueryBuilder {
           invariant(
             nodeField,
             'RelayDiffQueryBuilder: Expected connection `%s` to have a ' +
-            '`node` field.',
-            connectionField.getSchemaName()
+              '`node` field.',
+            connectionField.getSchemaName(),
           );
-          this.splitQuery(buildRoot(
-            nodeID,
-            diffNodeField.getChildren(),
-            RelayQueryPath.getName(path),
-            nodeField.getType(),
-            nodeField.isAbstract()
-          ));
+          this.splitQuery(
+            buildRoot(
+              nodeID,
+              diffNodeField.getChildren(),
+              RelayQueryPath.getName(path),
+              nodeField.getType(),
+              nodeField.isAbstract(),
+            ),
+          );
         }
 
         // split missing `edges` fields into a `connection.find(id)` query
         // if `find` is supported, otherwise warn
         if (diffEdgesField) {
           if (connectionField.isFindable()) {
-            diffEdgesField = diffEdgesField
-              .clone(diffEdgesField.getChildren().concat(nodeWithID));
+            diffEdgesField = diffEdgesField.clone(
+              diffEdgesField.getChildren().concat(nodeWithID),
+            );
             const connectionFind = connectionField.cloneFieldWithCalls(
               [diffEdgesField],
-              rangeInfo.filterCalls.concat({name: 'find', value: nodeID})
+              rangeInfo.filterCalls.concat({name: 'find', value: nodeID}),
             );
             if (connectionFind) {
               hasSplitQueries = true;
               // current path has `parent`, `connection`, `edges`; pop to parent
               const connectionParent = RelayQueryPath.getParent(
-                RelayQueryPath.getParent(path)
+                RelayQueryPath.getParent(path),
               );
               const connectionQuery = RelayQueryPath.getQuery(
                 this._store,
                 connectionParent,
-                connectionFind
+                connectionFind,
               );
               this.splitQuery(connectionQuery);
             }
@@ -734,9 +729,9 @@ class RelayDiffQueryBuilder {
             warning(
               false,
               'RelayDiffQueryBuilder: connection `edges{*}` fields can only ' +
-              'be refetched if the connection supports the `find` call. ' +
-              'Cannot refetch data for field `%s`.',
-              connectionField.getStorageKey()
+                'be refetched if the connection supports the `find` call. ' +
+                'Cannot refetch data for field `%s`.',
+              connectionField.getStorageKey(),
             );
           }
         }
@@ -749,10 +744,12 @@ class RelayDiffQueryBuilder {
     // The returned `trackedNode` is never tracked directly: instead it serves
     // as an indicator to `diffConnection` that the entire connection field must
     // be tracked.
-    return this._queryTracker ? {
-      diffNode: null,
-      trackedNode: hasSplitQueries ? edgeField : trackedNode,
-    } : null;
+    return this._queryTracker
+      ? {
+          diffNode: null,
+          trackedNode: hasSplitQueries ? edgeField : trackedNode,
+        }
+      : null;
   }
 }
 
@@ -811,10 +808,10 @@ function makeScope(dataID: DataID): DiffScope {
  *   }
  */
 function splitNodeAndEdgesFields(
-  edgeOrFragment: RelayQuery.Node
+  edgeOrFragment: RelayQuery.Node,
 ): {
   edges: ?RelayQuery.Node,
-  node: ?RelayQuery.Node
+  node: ?RelayQuery.Node,
 } {
   const children = edgeOrFragment.getChildren();
   const edgeChildren = [];
@@ -860,14 +857,15 @@ function splitNodeAndEdgesFields(
 
   return {
     edges: hasEdgeChild ? edgeOrFragment.clone(edgeChildren) : null,
-    node: nodeChild && RelayQuery.Fragment.build(
-      'diffRelayQuery',
-      nodeChild.getType(),
-      nodeChildren,
-      {
-        isAbstract: nodeChild.isAbstract(),
-      }
-    ),
+    node: nodeChild &&
+      RelayQuery.Fragment.build(
+        'diffRelayQuery',
+        nodeChild.getType(),
+        nodeChildren,
+        {
+          isAbstract: nodeChild.isAbstract(),
+        },
+      ),
   };
 }
 
@@ -876,7 +874,7 @@ function buildRoot(
   nodes: Array<RelayQuery.Node>,
   name: string,
   type: string,
-  isAbstract: boolean
+  isAbstract: boolean,
 ): RelayQuery.Root {
   const children = [idField, typeField];
   const fields = [];
@@ -887,12 +885,9 @@ function buildRoot(
       children.push(node);
     }
   });
-  children.push(RelayQuery.Fragment.build(
-    'diffRelayQuery',
-    type,
-    fields,
-    {isAbstract}
-  ));
+  children.push(
+    RelayQuery.Fragment.build('diffRelayQuery', type, fields, {isAbstract}),
+  );
 
   return RelayQuery.Root.build(
     name,
@@ -906,7 +901,7 @@ function buildRoot(
       isDeferred: false,
       isPlural: false,
     },
-    NODE_TYPE
+    NODE_TYPE,
   );
 }
 

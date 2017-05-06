@@ -13,7 +13,7 @@ Most applications will create a single Environment instance and use it throughou
 
 ## A simple example
 
-To create an environment instance in Relay modern, use the `RelayStaticEnvironment` class:
+To create an environment instance in Relay Modern, use the `RelayModernEnvironment` class:
 
 ```javascript
 const {
@@ -25,7 +25,7 @@ const {
 
 const source = new RecordSource();
 const store = new Store(source);
-const network = Network.create(/*...*/);
+const network = Network.create(/*...*/); // see note below
 const handlerProvider = null;
 
 const environment = new Environment({
@@ -35,7 +35,7 @@ const environment = new Environment({
 });
 ```
 
-For more details on creating a Network, see the ['network section'](./Network.html).
+For more details on creating a Network, see the [NetworkLayer guide](./network-layer.html).
 
 Once you have an environment, you can pass it in to your [`QueryRenderer`](./query-renderer.html) instance, or into mutations via the `commitUpdate` function (see "[Mutations](./mutations.html)").
 

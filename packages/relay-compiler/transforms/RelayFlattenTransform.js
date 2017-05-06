@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule RelayFlattenTransform
+ * @format
  */
 
 'use strict';
@@ -19,22 +20,10 @@ const getIdentifierForRelaySelection = require('getIdentifierForRelaySelection')
 const invariant = require('invariant');
 const stableJSONStringify = require('stableJSONStringify');
 
-const {
-  GraphQLNonNull,
-  GraphQLList,
-} = require('graphql');
+const {GraphQLNonNull, GraphQLList} = require('graphql');
 
-import type {
-  Field,
-  Handle,
-  Node,
-  Root,
-  ScalarField,
-  Selection,
-} from 'RelayIR';
-import type {
-  GraphQLType as Type,
-} from 'graphql';
+import type {Field, Handle, Node, Root, ScalarField, Selection} from 'RelayIR';
+import type {GraphQLType as Type} from 'graphql';
 
 const {getRawType, isAbstractType} = RelaySchemaUtils;
 
@@ -70,7 +59,7 @@ type FlattenState = {
  */
 function transform(
   context: RelayCompilerContext,
-  options?: FlattenOptions
+  options?: FlattenOptions,
 ): RelayCompilerContext {
   const flattenOptions = {
     flattenAbstractTypes: !!(options && options.flattenAbstractTypes),
@@ -93,8 +82,8 @@ function transform(
     invariant(
       flattenedNode.kind === 'Root' || flattenedNode.kind === 'Fragment',
       'RelayFlattenTransform: Expected Root `%s` to flatten back to a Root ' +
-      ' or Fragment.',
-      node.name
+        ' or Fragment.',
+      node.name,
     );
     return ctx.add(flattenedNode);
   }, new RelayCompilerContext(context.schema));
@@ -115,7 +104,7 @@ function buildNode(state: FlattenState): Root | Selection {
         invariant(
           node.kind !== 'Root' && node.kind !== 'Fragment',
           'RelayFlattenTransform: got a `%s`, expected a selection.',
-          node.kind
+          node.kind,
         );
         return node;
       } else {
@@ -123,7 +112,7 @@ function buildNode(state: FlattenState): Root | Selection {
         invariant(
           false,
           'RelayFlattenTransform: Unexpected kind `%s`.',
-          selectionState.kind
+          selectionState.kind,
         );
       }
     }),
@@ -137,24 +126,21 @@ function visitNode(
   context: RelayCompilerContext,
   options: FlattenOptions,
   state: FlattenState,
-  node: Node
+  node: Node,
 ): void {
   node.selections.forEach(selection => {
-    if (
-      selection.kind === 'FragmentSpread' &&
-      options.flattenFragmentSpreads
-    ) {
+    if (selection.kind === 'FragmentSpread' && options.flattenFragmentSpreads) {
       invariant(
         !selection.args.length,
         'RelayFlattenTransform: Cannot flatten fragment spread `%s` with ' +
-        'arguments. Use the `ApplyFragmentArgumentTransform` before flattening',
-        selection.name
+          'arguments. Use the `ApplyFragmentArgumentTransform` before flattening',
+        selection.name,
       );
       const fragment = context.get(selection.name);
       invariant(
         fragment && fragment.kind === 'Fragment',
         'RelayFlattenTransform: Unknown fragment `%s`.',
-        selection.name
+        selection.name,
       );
       // Replace the spread with an inline fragment containing the fragment's
       // contents
@@ -188,9 +174,9 @@ function visitNode(
           kind: 'FlattenState',
           node: selection,
           selections: {},
-          type: selection.kind === 'InlineFragment' ?
-            selection.typeCondition :
-            selection.type,
+          type: selection.kind === 'InlineFragment'
+            ? selection.typeCondition
+            : selection.type,
         };
       }
       visitNode(context, options, selectionState, selection);
@@ -211,10 +197,10 @@ function visitNode(
         invariant(
           areEqualFields(selection, prevSelection),
           'RelayFlattenTransform: Expected all fields with the alias `%s` ' +
-          'to have the same name/arguments. Got `%s` and `%s`.',
+            'to have the same name/arguments. Got `%s` and `%s`.',
           nodeIdentifier,
           showField(selection),
-          showField(prevSelection)
+          showField(prevSelection),
         );
         // merge fields
         const handles = dedupe(prevSelection.handles, selection.handles);
@@ -230,10 +216,10 @@ function visitNode(
         invariant(
           areEqualFields(selection, prevSelection),
           'RelayFlattenTransform: Expected all fields with the alias `%s` ' +
-          'to have the same name/arguments. Got `%s` and `%s`.',
+            'to have the same name/arguments. Got `%s` and `%s`.',
           nodeIdentifier,
           showField(selection),
-          showField(prevSelection)
+          showField(prevSelection),
         );
         if (selection.handles || prevSelection.handles) {
           const handles = dedupe(selection.handles, prevSelection.handles);
@@ -248,7 +234,7 @@ function visitNode(
       invariant(
         false,
         'RelayFlattenTransform: Unknown kind `%s`.',
-        selection.kind
+        selection.kind,
       );
     }
   });
@@ -260,7 +246,7 @@ function visitNode(
 function shouldFlattenFragment(
   fragment: InlineFragment,
   options: FlattenOptions,
-  state: FlattenState
+  state: FlattenState,
 ): boolean {
   // Right now, both the fragment's and state's types could be undefined.
   if (!fragment.typeCondition) {
@@ -271,10 +257,8 @@ function shouldFlattenFragment(
   return (
     isEquivalentType(fragment.typeCondition, state.type) ||
     options.flattenInlineFragments ||
-    (
-      options.flattenAbstractTypes &&
-      isAbstractType(getRawType(fragment.typeCondition))
-    )
+    (options.flattenAbstractTypes &&
+      isAbstractType(getRawType(fragment.typeCondition)))
   );
 }
 
@@ -292,10 +276,7 @@ function showField(field: Field) {
  * Verify that two fields are equal in all properties other than their
  * selections.
  */
-function areEqualFields(
-  thisField: Field,
-  thatField: Field
-): boolean {
+function areEqualFields(thisField: Field, thatField: Field): boolean {
   return (
     thisField.kind === thatField.kind &&
     thisField.name === thatField.name &&
@@ -310,9 +291,10 @@ function areEqualFields(
 function dedupe(...arrays: Array<?Array<Handle>>): Array<Handle> {
   const uniqueItems = new Map();
   arrays.forEach(items => {
-    items && items.forEach(item => {
-      uniqueItems.set(stableJSONStringify(item), item);
-    });
+    items &&
+      items.forEach(item => {
+        uniqueItems.set(stableJSONStringify(item), item);
+      });
   });
   return Array.from(uniqueItems.values());
 }

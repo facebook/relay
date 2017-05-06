@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -94,7 +95,7 @@ describe('GraphQLStoreChangeEmitter', () => {
 
   it('should correctly broadcast changes to range IDs', () => {
     rangeData.getCanonicalClientID.mockImplementation(
-      id => id === 'baz_first(5)' ? 'baz' : id
+      id => (id === 'baz_first(5)' ? 'baz' : id),
     );
 
     changeEmitter.addListenerForIDs(['baz_first(5)'], mockCallback);
@@ -124,13 +125,11 @@ describe('GraphQLStoreChangeEmitter', () => {
 
   it('should use the injected strategy to batch updates', () => {
     let mockBatching = false;
-    const mockBatchingStrategy = jest.fn(
-      callback => {
-        mockBatching = true;
-        callback();
-        mockBatching = false;
-      }
-    );
+    const mockBatchingStrategy = jest.fn(callback => {
+      mockBatching = true;
+      callback();
+      mockBatching = false;
+    });
     changeEmitter.injectBatchingStrategy(mockBatchingStrategy);
 
     mockCallback.mockImplementation(() => {
@@ -146,9 +145,7 @@ describe('GraphQLStoreChangeEmitter', () => {
   });
 
   it('schedules changes during broadcasts in the next execution loop', () => {
-    const mockBatchingStrategy = jest.fn(
-      callback => callback()
-    );
+    const mockBatchingStrategy = jest.fn(callback => callback());
     changeEmitter.injectBatchingStrategy(mockBatchingStrategy);
 
     changeEmitter.addListenerForIDs(['foo'], () => {

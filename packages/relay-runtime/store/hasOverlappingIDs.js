@@ -8,6 +8,7 @@
  *
  * @providesModule hasOverlappingIDs
  * @flow
+ * @format
  */
 
 'use strict';
@@ -16,7 +17,7 @@ import type {UpdatedRecords, Snapshot} from 'RelayStoreTypes';
 
 function hasOverlappingIDs(
   snapshot: Snapshot,
-  updatedRecordIDs: UpdatedRecords
+  updatedRecordIDs: UpdatedRecords,
 ): boolean {
   const keys = Object.keys(snapshot.seenRecords);
   for (let ii = 0; ii < keys.length; ii++) {

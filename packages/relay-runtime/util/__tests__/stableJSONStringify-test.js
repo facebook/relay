@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -67,11 +68,7 @@ describe('stableJSONStringify', () => {
           other: false,
         },
       },
-      top1: [
-        {first: true},
-        {first: false},
-        'random',
-      ],
+      top1: [{first: true}, {first: false}, 'random'],
       misc: true,
       extra: null,
     };

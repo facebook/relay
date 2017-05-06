@@ -7,13 +7,12 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
-jest
-  .disableAutomock()
-  .mock('performanceNow');
+jest.disableAutomock().mock('performanceNow');
 
 const Relay = require('Relay');
 const RelayProfiler = require('RelayProfiler');
@@ -30,7 +29,8 @@ describe('RelayMetricsRecorder', () => {
     jest.resetModules();
 
     const {getNode} = RelayTestUtils;
-    query = getNode(Relay.QL`
+    query = getNode(
+      Relay.QL`
       query {
         node(id: "123") {
           ... on User {
@@ -38,7 +38,8 @@ describe('RelayMetricsRecorder', () => {
           }
         }
       }
-    `);
+    `,
+    );
   });
 
   function mockPerformanceNowSequence(times) {

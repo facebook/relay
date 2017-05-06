@@ -8,6 +8,7 @@
  *
  * @providesModule printRelayQuery
  * @flow
+ * @format
  */
 
 'use strict';
@@ -31,7 +32,7 @@ module.exports = function printRelayQuery(node: RelayQuery.Node): PrintedQuery {
 };
 
 module.exports.injectImpl = function injectImpl(
-  impl: (node: RelayQuery.Node) => PrintedQuery
+  impl: (node: RelayQuery.Node) => PrintedQuery,
 ): void {
   printRelayQueryImpl = impl;
 };

@@ -5,18 +5,19 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
 
-jest
-  .autoMockOff();
+jest.autoMockOff();
 
 const React = require('React');
 const ReactRelayPropTypes = require('ReactRelayPropTypes');
 const ReactRelayQueryRenderer = require('ReactRelayQueryRenderer');
 const ReactTestRenderer = require('ReactTestRenderer');
-const {createMockEnvironment} = require('RelayStaticMockEnvironment');
+const {createMockEnvironment} = require('RelayModernMockEnvironment');
 
 const simpleClone = require('simpleClone');
 
@@ -65,7 +66,8 @@ describe('ReactRelayQueryRenderer', () => {
 
     environment = createMockEnvironment();
     store = environment.getStore();
-    ({TestQuery} = environment.mock.compile(`
+    ({TestQuery} = environment.mock.compile(
+      `
       query TestQuery($id: ID = "<default>") {
         node(id: $id) {
           id
@@ -76,7 +78,8 @@ describe('ReactRelayQueryRenderer', () => {
       fragment TestFragment on User {
         name
       }
-    `));
+    `,
+    ));
 
     render = jest.fn(() => <div />);
     variables = {id: '4'};
@@ -91,7 +94,7 @@ describe('ReactRelayQueryRenderer', () => {
           environment={environment}
           render={render}
           variables={variables}
-        />
+        />,
       );
       expect(environment.retain).toBeCalled();
       expect(environment.retain.mock.calls[0][0].dataID).toBe('client:root');
@@ -109,9 +112,11 @@ describe('ReactRelayQueryRenderer', () => {
           environment={environment}
           render={render}
           variables={variables}
-        />
+        />,
       );
-      expect(environment.mock.isLoading(TestQuery, variables, cacheConfig)).toBe(true);
+      expect(
+        environment.mock.isLoading(TestQuery, variables, cacheConfig),
+      ).toBe(true);
     });
 
     it('fetches the query with default variables', () => {
@@ -122,10 +127,12 @@ describe('ReactRelayQueryRenderer', () => {
           environment={environment}
           render={render}
           variables={{}}
-        />
+        />,
       );
       variables = {id: '<default>'};
-      expect(environment.mock.isLoading(TestQuery, variables, cacheConfig)).toBe(true);
+      expect(
+        environment.mock.isLoading(TestQuery, variables, cacheConfig),
+      ).toBe(true);
     });
 
     it('renders with a default ready state', () => {
@@ -136,7 +143,7 @@ describe('ReactRelayQueryRenderer', () => {
           environment={environment}
           render={render}
           variables={variables}
-        />
+        />,
       );
       expect({
         error: null,
@@ -185,7 +192,7 @@ describe('ReactRelayQueryRenderer', () => {
           query={TestQuery}
           render={render}
           variables={variables}
-        />
+        />,
       );
       environment.mock.resolve(TestQuery, response);
 
@@ -201,7 +208,7 @@ describe('ReactRelayQueryRenderer', () => {
           query={null}
           render={render}
           variables={variables}
-        />
+        />,
       );
 
       expect({
@@ -222,7 +229,7 @@ describe('ReactRelayQueryRenderer', () => {
             render={render}
             variables={variables}
           />
-        </PropsSetter>
+        </PropsSetter>,
       );
       environment.mock.resolve(TestQuery, response);
       environment = createMockEnvironment();
@@ -248,7 +255,7 @@ describe('ReactRelayQueryRenderer', () => {
             render={render}
             variables={variables}
           />
-        </PropsSetter>
+        </PropsSetter>,
       );
       environment.mock.resolve(TestQuery, response);
       TestQuery = {...TestQuery};
@@ -274,7 +281,7 @@ describe('ReactRelayQueryRenderer', () => {
             render={render}
             variables={variables}
           />
-        </PropsSetter>
+        </PropsSetter>,
       );
       environment.mock.resolve(TestQuery, response);
       variables = {};
@@ -303,7 +310,7 @@ describe('ReactRelayQueryRenderer', () => {
             render={render}
             variables={variables}
           />
-        </PropsSetter>
+        </PropsSetter>,
       );
       environment.mock.resolve(TestQuery, response);
       variables = simpleClone(variables);
@@ -334,7 +341,7 @@ describe('ReactRelayQueryRenderer', () => {
             render={render}
             variables={variables}
           />
-        </PropsSetter>
+        </PropsSetter>,
       );
     });
 
@@ -363,7 +370,7 @@ describe('ReactRelayQueryRenderer', () => {
             render={render}
             variables={variables}
           />
-        </PropsSetter>
+        </PropsSetter>,
       );
       environment.mockClear();
       render.mockClear();
@@ -386,7 +393,7 @@ describe('ReactRelayQueryRenderer', () => {
       render.mockClear();
 
       // update with new render prop
-      render = jest.fn(() => <div/>);
+      render = jest.fn(() => <div />);
       instance.getInstance().setProps({
         environment,
         query: TestQuery,
@@ -414,7 +421,9 @@ describe('ReactRelayQueryRenderer', () => {
         render,
         variables,
       });
-      expect(environment.mock.isLoading(TestQuery, variables, cacheConfig)).toBe(true);
+      expect(
+        environment.mock.isLoading(TestQuery, variables, cacheConfig),
+      ).toBe(true);
       expect({
         error: null,
         props: null,
@@ -439,7 +448,9 @@ describe('ReactRelayQueryRenderer', () => {
         render,
         variables,
       });
-      expect(environment.mock.isLoading(TestQuery, variables, cacheConfig)).toBe(true);
+      expect(
+        environment.mock.isLoading(TestQuery, variables, cacheConfig),
+      ).toBe(true);
       expect({
         error: null,
         props: null,
@@ -465,7 +476,9 @@ describe('ReactRelayQueryRenderer', () => {
         render,
         variables,
       });
-      expect(environment.mock.isLoading(TestQuery, expectedVariables, cacheConfig)).toBe(true);
+      expect(
+        environment.mock.isLoading(TestQuery, expectedVariables, cacheConfig),
+      ).toBe(true);
       expect({
         error: null,
         props: null,
@@ -491,7 +504,9 @@ describe('ReactRelayQueryRenderer', () => {
         render,
         variables,
       });
-      expect(environment.mock.isLoading(TestQuery, variables, cacheConfig)).toBe(true);
+      expect(
+        environment.mock.isLoading(TestQuery, variables, cacheConfig),
+      ).toBe(true);
       expect({
         error: null,
         props: null,
@@ -540,7 +555,7 @@ describe('ReactRelayQueryRenderer', () => {
           query={TestQuery}
           render={render}
           variables={variables}
-        />
+        />,
       );
     });
 
@@ -604,7 +619,7 @@ describe('ReactRelayQueryRenderer', () => {
           query={TestQuery}
           render={render}
           variables={variables}
-        />
+        />,
       );
       response = {
         data: {
@@ -637,7 +652,7 @@ describe('ReactRelayQueryRenderer', () => {
             __id: '4',
           },
         },
-        retry: null,
+        retry: jasmine.any(Function),
       }).toBeRendered();
     });
 
@@ -645,8 +660,12 @@ describe('ReactRelayQueryRenderer', () => {
       environment.mock.resolve(TestQuery, response);
       expect(environment.subscribe).toBeCalled();
       expect(environment.subscribe.mock.calls[0][0].dataID).toBe('client:root');
-      expect(environment.subscribe.mock.calls[0][0].node).toBe(TestQuery.fragment);
-      expect(environment.subscribe.mock.calls[0][0].variables).toEqual(variables);
+      expect(environment.subscribe.mock.calls[0][0].node).toBe(
+        TestQuery.fragment,
+      );
+      expect(environment.subscribe.mock.calls[0][0].variables).toEqual(
+        variables,
+      );
     });
   });
 
@@ -656,7 +675,8 @@ describe('ReactRelayQueryRenderer', () => {
     let nextProps;
 
     beforeEach(() => {
-      ({NextQuery} = environment.mock.compile(`
+      ({NextQuery} = environment.mock.compile(
+        `
         query NextQuery($id: ID!) {
           node(id: $id) {
             ... on User {
@@ -664,7 +684,8 @@ describe('ReactRelayQueryRenderer', () => {
             }
           }
         }
-      `));
+      `,
+      ));
 
       variables = {id: '4'};
       instance = ReactTestRenderer.create(
@@ -675,7 +696,7 @@ describe('ReactRelayQueryRenderer', () => {
             render={render}
             variables={variables}
           />
-        </PropsSetter>
+        </PropsSetter>,
       );
       nextProps = {
         environment,
@@ -752,7 +773,8 @@ describe('ReactRelayQueryRenderer', () => {
     let nextProps;
 
     beforeEach(() => {
-      ({NextQuery} = environment.mock.compile(`
+      ({NextQuery} = environment.mock.compile(
+        `
         query NextQuery($id: ID!) {
           node(id: $id) {
             ... on User {
@@ -760,7 +782,8 @@ describe('ReactRelayQueryRenderer', () => {
             }
           }
         }
-      `));
+      `,
+      ));
 
       variables = {id: '4'};
       instance = ReactTestRenderer.create(
@@ -771,7 +794,7 @@ describe('ReactRelayQueryRenderer', () => {
             render={render}
             variables={variables}
           />
-        </PropsSetter>
+        </PropsSetter>,
       );
       error = new Error('fail');
       environment.mock.reject(TestQuery, error);
@@ -794,7 +817,9 @@ describe('ReactRelayQueryRenderer', () => {
     it('fetches the new query', () => {
       environment.mockClear();
       instance.getInstance().setProps(nextProps);
-      expect(environment.mock.isLoading(NextQuery, variables, cacheConfig)).toBe(true);
+      expect(
+        environment.mock.isLoading(NextQuery, variables, cacheConfig),
+      ).toBe(true);
     });
 
     it('retains the new selection', () => {
@@ -845,7 +870,8 @@ describe('ReactRelayQueryRenderer', () => {
     let nextProps;
 
     beforeEach(() => {
-      ({NextQuery} = environment.mock.compile(`
+      ({NextQuery} = environment.mock.compile(
+        `
         query NextQuery($id: ID!) {
           node(id: $id) {
             ... on User {
@@ -853,7 +879,8 @@ describe('ReactRelayQueryRenderer', () => {
             }
           }
         }
-      `));
+      `,
+      ));
 
       instance = ReactTestRenderer.create(
         <PropsSetter>
@@ -863,7 +890,7 @@ describe('ReactRelayQueryRenderer', () => {
             render={render}
             variables={variables}
           />
-        </PropsSetter>
+        </PropsSetter>,
       );
       environment.mock.resolve(TestQuery, {
         data: {
@@ -900,7 +927,9 @@ describe('ReactRelayQueryRenderer', () => {
     it('fetches the new query', () => {
       environment.mockClear();
       instance.getInstance().setProps(nextProps);
-      expect(environment.mock.isLoading(NextQuery, variables, cacheConfig)).toBe(true);
+      expect(
+        environment.mock.isLoading(NextQuery, variables, cacheConfig),
+      ).toBe(true);
     });
 
     it('disposes the previous selection and retains the new one', () => {
@@ -956,7 +985,7 @@ describe('ReactRelayQueryRenderer', () => {
           query={TestQuery}
           render={render}
           variables={variables}
-        />
+        />,
       );
       const dispose = environment.retain.mock.dispose;
       expect(dispose).not.toBeCalled();
@@ -973,7 +1002,7 @@ describe('ReactRelayQueryRenderer', () => {
           query={TestQuery}
           render={render}
           variables={variables}
-        />
+        />,
       );
       const dispose = environment.retain.mock.dispose;
       expect(dispose).not.toBeCalled();
@@ -990,7 +1019,7 @@ describe('ReactRelayQueryRenderer', () => {
           query={TestQuery}
           render={render}
           variables={variables}
-        />
+        />,
       );
       const dispose = environment.streamQuery.mock.dispose;
       expect(dispose).not.toBeCalled();

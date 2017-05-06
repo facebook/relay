@@ -8,6 +8,7 @@
  *
  * @providesModule RelayEnvironmentTypes
  * @flow
+ * @format
  */
 
 'use strict';
@@ -27,7 +28,8 @@ import type {
   CUnstableEnvironmentCore,
   Disposable,
 } from 'RelayCombinedEnvironmentTypes';
-import type {GraphQLTaggedNode} from 'RelayStaticGraphQLTag';
+import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
+import type {UploadableMap} from 'RelayNetworkTypes';
 import type {Variables, RelayMutationConfig} from 'RelayTypes';
 
 type TEnvironment = Environment;
@@ -47,21 +49,22 @@ export type UnstableEnvironmentCore = CUnstableEnvironmentCore<
   TFragment,
   TGraphQLTaggedNode,
   TNode,
-  TOperation,
+  TOperation
 >;
 
 /**
  * The public API of Relay core. Represents an encapsulated environment with its
  * own in-memory cache.
  */
-export interface Environment extends CEnvironment<
-  TEnvironment,
-  TFragment,
-  TGraphQLTaggedNode,
-  TNode,
-  TOperation,
-  TPayload,
-> {
+export interface Environment
+  extends CEnvironment<
+    TEnvironment,
+    TFragment,
+    TGraphQLTaggedNode,
+    TNode,
+    TOperation,
+    TPayload
+  > {
   /**
    * Applies an optimistic mutation to the store without committing it to the
    * server. The returned Disposable can be used to revert this change at a
@@ -87,5 +90,6 @@ export interface Environment extends CEnvironment<
     optimisticOperation?: ?ConcreteOperationDefinition,
     optimisticResponse?: ?Object,
     variables: Variables,
+    uploadables?: UploadableMap,
   |}): Disposable,
 }

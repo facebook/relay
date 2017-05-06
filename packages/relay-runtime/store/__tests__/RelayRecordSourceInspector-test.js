@@ -5,12 +5,13 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
 
-jest
-  .autoMockOff();
+jest.autoMockOff();
 
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayRecordSourceInspector = require('RelayRecordSourceInspector');
@@ -50,7 +51,7 @@ describe('RelayRecordSourceInspector', () => {
       },
     };
     source = new RelayInMemoryRecordSource(data);
-    inspector  = new RelayRecordSourceInspector(source);
+    inspector = new RelayRecordSourceInspector(source);
   });
 
   describe('source inspector', () => {
@@ -74,11 +75,7 @@ describe('RelayRecordSourceInspector', () => {
 
     it('returns the fetched fields', () => {
       const root = inspector.getRoot();
-      expect(root.getFields()).toEqual([
-        ID_KEY,
-        TYPENAME_KEY,
-        'viewer',
-      ]);
+      expect(root.getFields()).toEqual([ID_KEY, TYPENAME_KEY, 'viewer']);
     });
 
     it('returns scalar values with getValue or getter', () => {
@@ -89,7 +86,9 @@ describe('RelayRecordSourceInspector', () => {
 
     it('returns linked records with getValue or getter', () => {
       const zuck = inspector.get('4');
-      expect(zuck.getLinkedRecord('profilePicture', {size: 32}).getDataID()).toBe('client:1');
+      expect(
+        zuck.getLinkedRecord('profilePicture', {size: 32}).getDataID(),
+      ).toBe('client:1');
       expect(zuck.profilePicture__size__32_.getDataID()).toBe('client:1');
     });
   });

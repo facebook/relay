@@ -265,18 +265,13 @@ module.exports = function(t: any, options: PrinterOptions): Function {
     }
 
     printFragmentID(fragment: RelayQLFragment): Printable {
-      const staticFragmentID = fragment.getStaticFragmentID();
-      if (staticFragmentID == null) {
-        return t.callExpression(
-          t.memberExpression(
-            identify(this.tagName),
-            t.identifier('__id')
-          ),
-          []
-        );
-      } else {
-        return t.valueToNode(staticFragmentID);
-      }
+      return t.callExpression(
+        t.memberExpression(
+          identify(this.tagName),
+          t.identifier('__id')
+        ),
+        []
+      );
     }
 
     printMutation(mutation: RelayQLMutation, enableValidation: boolean): Printable {
@@ -821,12 +816,12 @@ module.exports = function(t: any, options: PrinterOptions): Function {
     forEachRecursiveField(field, subfield => {
       if (subfield.getName() === FIELDS.edges ||
           subfield.getName() === FIELDS.pageInfo) {
-        const condition = field.isPattern() ||
+        const hasCondition = field.isPattern() ||
           field.hasArgument('find') ||
           field.hasArgument('first') ||
           field.hasArgument('last');
 
-        if (!condition) {
+        if (!hasCondition) {
           throw new RelayTransformError(
             util.format(
               'You supplied the `%s` field on a connection named `%s`, but you did ' +

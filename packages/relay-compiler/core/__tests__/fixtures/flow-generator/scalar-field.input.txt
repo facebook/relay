@@ -1,0 +1,13 @@
+fragment ScalarField on User {
+  id
+  name
+  websites
+  traits
+  aliasedLinkedField: birthdate {
+    aliasedField: year
+  }
+  screennames {
+    name
+    service
+  }
+}

@@ -8,6 +8,7 @@
  *
  * @providesModule ReactRelayRefetchContainer
  * @flow
+ * @format
  */
 
 'use strict';
@@ -17,12 +18,12 @@ const RelayProfiler = require('RelayProfiler');
 const RelayPropTypes = require('RelayPropTypes');
 
 const areEqual = require('areEqual');
+const buildReactRelayContainer = require('buildReactRelayContainer');
 const invariant = require('invariant');
 const isRelayContext = require('isRelayContext');
 const isScalarAndEqual = require('isScalarAndEqual');
 const nullthrows = require('nullthrows');
 
-const {buildCompatContainer} = require('ReactRelayCompatContainerBuilder');
 const {profileContainer} = require('ReactRelayContainerProfiler');
 const {getComponentName, getReactComponent} = require('RelayContainerUtils');
 
@@ -35,14 +36,9 @@ import type {
   Disposable,
   FragmentSpecResolver,
 } from 'RelayCombinedEnvironmentTypes';
-import type {GraphQLTaggedNode} from 'RelayStaticGraphQLTag';
-import type {
-  FragmentMap,
-  RelayContext,
-} from 'RelayStoreTypes';
-import type {
-  Variables,
-} from 'RelayTypes';
+import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
+import type {FragmentMap, RelayContext} from 'RelayStoreTypes';
+import type {Variables} from 'RelayTypes';
 
 type ContainerState = {
   data: {[key: string]: mixed},
@@ -57,11 +53,11 @@ const containerContextTypes = {
  * props, resolving them with the provided fragments and subscribing for
  * updates.
  */
-function createContainerWithFragments<TDefaultProps, TProps>(
-  Component: Class<React.Component<TDefaultProps, TProps, *>> | ReactClass<TProps>,
+function createContainerWithFragments<TBase: ReactClass<*>>(
+  Component: TBase,
   fragments: FragmentMap,
   taggedNode: GraphQLTaggedNode,
-): Class<React.Component<TDefaultProps, TProps, *>> {
+): TBase {
   const ComponentClass = getReactComponent(Component);
   const componentName = getComponentName(Component);
   const containerName = `Relay(${componentName})`;
@@ -183,13 +179,15 @@ function createContainerWithFragments<TDefaultProps, TProps>(
      */
     _handleFragmentDataUpdate = () => {
       const profiler = RelayProfiler.profile(
-        'ReactRelayRefetchContainer.handleFragmentDataUpdate'
+        'ReactRelayRefetchContainer.handleFragmentDataUpdate',
       );
       this.setState({data: this._resolver.resolve()}, profiler.stop);
     };
 
     _getFragmentVariables(): Variables {
-      const {getVariablesFromObject} = this.context.relay.environment.unstable_internal;
+      const {
+        getVariablesFromObject,
+      } = this.context.relay.environment.unstable_internal;
       return getVariablesFromObject(
         this.context.relay.variables,
         fragments,
@@ -198,19 +196,23 @@ function createContainerWithFragments<TDefaultProps, TProps>(
     }
 
     _refetch = (
-      refetchVariables: Variables | (fragmentVariables: Variables) => Variables,
+      refetchVariables:
+        | Variables
+        | ((fragmentVariables: Variables) => Variables),
       renderVariables: ?Variables,
       callback: ?(error: ?Error) => void,
-      options: ?RefetchOptions
+      options: ?RefetchOptions,
     ): Disposable => {
-      const {environment, variables: rootVariables} = assertRelayContext(this.context.relay);
-      let fetchVariables = typeof refetchVariables === 'function' ?
-        refetchVariables(this._getFragmentVariables()) :
-        refetchVariables;
+      const {environment, variables: rootVariables} = assertRelayContext(
+        this.context.relay,
+      );
+      let fetchVariables = typeof refetchVariables === 'function'
+        ? refetchVariables(this._getFragmentVariables())
+        : refetchVariables;
       fetchVariables = {...rootVariables, ...fetchVariables};
-      const fragmentVariables = renderVariables ?
-        {...rootVariables, ...renderVariables} :
-        fetchVariables;
+      const fragmentVariables = renderVariables
+        ? {...rootVariables, ...renderVariables}
+        : fetchVariables;
 
       const onNext = response => {
         if (!this._pendingRefetch) {
@@ -296,8 +298,8 @@ function assertRelayContext(relay: mixed): RelayContext {
   invariant(
     isRelayContext(relay),
     'ReactRelayRefetchContainer: Expected `context.relay` to be an object ' +
-    'conforming to the `RelayContext` interface, got `%s`.',
-    relay
+      'conforming to the `RelayContext` interface, got `%s`.',
+    relay,
   );
   return (relay: any);
 }
@@ -314,16 +316,12 @@ function createContainer<TBase: ReactClass<*>>(
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
   taggedNode: GraphQLTaggedNode,
 ): TBase {
-  return buildCompatContainer(
+  return buildReactRelayContainer(
     Component,
-    (fragmentSpec: any),
-    (ComponentClass, fragments) => {
-      return createContainerWithFragments(ComponentClass, fragments, taggedNode);
-    },
+    fragmentSpec,
+    (ComponentClass, fragments) =>
+      createContainerWithFragments(ComponentClass, fragments, taggedNode),
   );
 }
 
-module.exports = {
-  createContainer,
-  createContainerWithFragments,
-};
+module.exports = {createContainer, createContainerWithFragments};

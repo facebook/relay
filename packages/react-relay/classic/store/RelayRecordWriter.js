@@ -8,6 +8,7 @@
  *
  * @providesModule RelayRecordWriter
  * @flow
+ * @format
  */
 
 'use strict';
@@ -22,10 +23,7 @@ const RelayRecordStatusMap = require('RelayRecordStatusMap');
 const invariant = require('invariant');
 const rangeOperationToMetadataKey = require('rangeOperationToMetadataKey');
 
-import type {
-  EdgeRecord,
-  PageInfo,
-} from 'RelayConnectionInterface';
+import type {EdgeRecord, PageInfo} from 'RelayConnectionInterface';
 import type {
   Call,
   ClientMutationID,
@@ -35,10 +33,7 @@ import type {
   RootCallMap,
 } from 'RelayInternalTypes';
 import type {QueryPath} from 'RelayQueryPath';
-import type {
-  Record,
-  RecordMap,
-} from 'RelayRecord';
+import type {Record, RecordMap} from 'RelayRecord';
 import type {RecordState} from 'RelayRecordState';
 import type {CacheWriter} from 'RelayTypes';
 
@@ -77,7 +72,7 @@ class RelayRecordWriter {
     isOptimistic: boolean,
     nodeConnectionMap?: ?NodeRangeMap,
     cacheWriter?: ?CacheWriter,
-    clientMutationID?: ?ClientMutationID
+    clientMutationID?: ?ClientMutationID,
   ) {
     this._cacheWriter = cacheWriter;
     this._clientMutationID = clientMutationID;
@@ -91,24 +86,23 @@ class RelayRecordWriter {
    * Get the data ID associated with a storage key (and optionally an
    * identifying argument value) for a root query.
    */
-  getDataID(
-    storageKey: string,
-    identifyingArgValue: ?string
-  ): ?DataID {
+  getDataID(storageKey: string, identifyingArgValue: ?string): ?DataID {
     if (RelayNodeInterface.isNodeRootCall(storageKey)) {
       invariant(
         identifyingArgValue != null,
         'RelayRecordWriter.getDataID(): Argument to `%s()` ' +
-        'cannot be null or undefined.',
-        storageKey
+          'cannot be null or undefined.',
+        storageKey,
       );
       return identifyingArgValue;
     }
     if (identifyingArgValue == null) {
       identifyingArgValue = EMPTY;
     }
-    if (this._rootCallMap.hasOwnProperty(storageKey) &&
-        this._rootCallMap[storageKey].hasOwnProperty(identifyingArgValue)) {
+    if (
+      this._rootCallMap.hasOwnProperty(storageKey) &&
+      this._rootCallMap[storageKey].hasOwnProperty(identifyingArgValue)
+    ) {
       return this._rootCallMap[storageKey][identifyingArgValue];
     }
   }
@@ -120,14 +114,14 @@ class RelayRecordWriter {
   putDataID(
     storageKey: string,
     identifyingArgValue: ?string,
-    dataID: DataID
+    dataID: DataID,
   ): void {
     if (RelayNodeInterface.isNodeRootCall(storageKey)) {
       invariant(
         identifyingArgValue != null,
         'RelayRecordWriter.putDataID(): Argument to `%s()` ' +
-        'cannot be null or undefined.',
-        storageKey
+          'cannot be null or undefined.',
+        storageKey,
       );
       return;
     }
@@ -157,11 +151,7 @@ class RelayRecordWriter {
   /**
    * Create an empty record at `dataID` if a record does not already exist.
    */
-  putRecord(
-    dataID: DataID,
-    typeName: ?string,
-    path?: ?QueryPath
-  ): void {
+  putRecord(dataID: DataID, typeName: ?string, path?: ?QueryPath): void {
     const prevRecord = this._getRecordForWrite(dataID);
     if (prevRecord) {
       return;
@@ -185,9 +175,7 @@ class RelayRecordWriter {
   /**
    * Returns the path to a non-refetchable record.
    */
-  getPathToRecord(
-    dataID: DataID
-  ): ?QueryPath {
+  getPathToRecord(dataID: DataID): ?QueryPath {
     return (this._getField(dataID, PATH): any);
   }
 
@@ -199,10 +187,10 @@ class RelayRecordWriter {
     invariant(
       typeof resolvedFragmentMap === 'object' || resolvedFragmentMap == null,
       'RelayRecordWriter.hasFragmentData(): Expected the map of ' +
-      'resolved deferred fragments associated with record `%s` to be null or ' +
-      'an object. Found a(n) `%s`.',
+        'resolved deferred fragments associated with record `%s` to be null or ' +
+        'an object. Found a(n) `%s`.',
       dataID,
-      typeof resolvedFragmentMap
+      typeof resolvedFragmentMap,
     );
     return !!(resolvedFragmentMap && resolvedFragmentMap[fragmentID]);
   }
@@ -210,36 +198,30 @@ class RelayRecordWriter {
   /**
    * Mark a given record as having received data for a deferred fragment.
    */
-  setHasDeferredFragmentData(
-    dataID: DataID,
-    fragmentID: string
-  ): void {
+  setHasDeferredFragmentData(dataID: DataID, fragmentID: string): void {
     this._setHasFragmentData(dataID, fragmentID, true);
   }
 
   /**
    * Mark a given record as having received data for a fragment.
    */
-  setHasFragmentData(
-    dataID: DataID,
-    fragmentID: string
-  ): void {
+  setHasFragmentData(dataID: DataID, fragmentID: string): void {
     this._setHasFragmentData(dataID, fragmentID, false);
   }
 
   _setHasFragmentData(
     dataID: DataID,
     fragmentID: string,
-    updateFragmentGeneration: boolean
+    updateFragmentGeneration: boolean,
   ): void {
     const record = this._getRecordForWrite(dataID);
     invariant(
       record,
       'RelayRecordWriter.setHasFragmentData(): Expected record `%s` ' +
-      'to exist before marking it as having received data for the deferred ' +
-      'fragment with id `%s`.',
+        'to exist before marking it as having received data for the deferred ' +
+        'fragment with id `%s`.',
       dataID,
-      fragmentID
+      fragmentID,
     );
     let resolvedFragmentMap = record[RESOLVED_FRAGMENT_MAP];
     if (typeof resolvedFragmentMap !== 'object' || !resolvedFragmentMap) {
@@ -259,9 +241,7 @@ class RelayRecordWriter {
   /**
    * Delete the record at `dataID`, setting its value to `null`.
    */
-  deleteRecord(
-    dataID: DataID
-  ): void {
+  deleteRecord(dataID: DataID): void {
     this._records[dataID] = null;
 
     // Remove any links for this record
@@ -281,28 +261,21 @@ class RelayRecordWriter {
   /**
    * Returns the value of the field for the given dataID.
    */
-  getField(
-    dataID: DataID,
-    storageKey: string
-  ): ?FieldValue {
+  getField(dataID: DataID, storageKey: string): ?FieldValue {
     return this._getField(dataID, storageKey);
   }
 
   /**
    * Sets the value of a scalar field.
    */
-  putField(
-    dataID: DataID,
-    storageKey: string,
-    value: FieldValue
-  ) {
+  putField(dataID: DataID, storageKey: string, value: FieldValue) {
     const record = this._getRecordForWrite(dataID);
     invariant(
       record,
       'RelayRecordWriter.putField(): Expected record `%s` to exist before ' +
-      'writing field `%s`.',
+        'writing field `%s`.',
       dataID,
-      storageKey
+      storageKey,
     );
     record[storageKey] = value;
     if (!this._isOptimisticWrite && this._cacheWriter) {
@@ -314,17 +287,14 @@ class RelayRecordWriter {
   /**
    * Clears the value of a field by setting it to null/undefined.
    */
-  deleteField(
-    dataID: DataID,
-    storageKey: string
-  ): void {
+  deleteField(dataID: DataID, storageKey: string): void {
     const record = this._getRecordForWrite(dataID);
     invariant(
       record,
       'RelayRecordWriter.deleteField(): Expected record `%s` to exist before ' +
-      'deleting field `%s`.',
+        'deleting field `%s`.',
       dataID,
-      storageKey
+      storageKey,
     );
     record[storageKey] = null;
     if (!this._isOptimisticWrite && this._cacheWriter) {
@@ -336,10 +306,7 @@ class RelayRecordWriter {
    * Returns the Data ID of a linked record (eg the ID of the `address` record
    * in `actor{address}`).
    */
-  getLinkedRecordID(
-    dataID: DataID,
-    storageKey: string
-  ): ?DataID {
+  getLinkedRecordID(dataID: DataID, storageKey: string): ?DataID {
     const field = this._getField(dataID, storageKey);
     if (field == null) {
       return field;
@@ -348,9 +315,9 @@ class RelayRecordWriter {
     invariant(
       record,
       'RelayRecordWriter.getLinkedRecordID(): Expected field `%s` for record ' +
-      '`%s` to have a linked record.',
+        '`%s` to have a linked record.',
       storageKey,
-      dataID
+      dataID,
     );
     return RelayRecord.getDataID(record);
   }
@@ -361,15 +328,15 @@ class RelayRecordWriter {
   putLinkedRecordID(
     parentID: DataID,
     storageKey: string,
-    recordID: DataID
+    recordID: DataID,
   ): void {
     const parent = this._getRecordForWrite(parentID);
     invariant(
       parent,
       'RelayRecordWriter.putLinkedRecordID(): Expected record `%s` to exist ' +
-      'before linking to record `%s`.',
+        'before linking to record `%s`.',
       parentID,
-      recordID
+      recordID,
     );
     const fieldValue = RelayRecord.create(recordID);
     parent[storageKey] = fieldValue;
@@ -382,10 +349,7 @@ class RelayRecordWriter {
    * Returns an array of Data ID for a plural linked field (eg the actor IDs of
    * the `likers` in `story{likers}`).
    */
-  getLinkedRecordIDs(
-    dataID: DataID,
-    storageKey: string
-  ): ?Array<DataID> {
+  getLinkedRecordIDs(dataID: DataID, storageKey: string): ?Array<DataID> {
     const field = this._getField(dataID, storageKey);
     if (field == null) {
       return field;
@@ -393,19 +357,19 @@ class RelayRecordWriter {
     invariant(
       Array.isArray(field),
       'RelayRecordWriter.getLinkedRecordIDs(): Expected field `%s` for ' +
-      'record `%s` to have an array of linked records.',
+        'record `%s` to have an array of linked records.',
       storageKey,
-      dataID
+      dataID,
     );
     return field.map((element, ii) => {
       const record = RelayRecord.getRecord(element);
       invariant(
         record,
         'RelayRecordWriter.getLinkedRecordIDs(): Expected element at index ' +
-        '%s in field `%s` for record `%s` to be a linked record.',
+          '%s in field `%s` for record `%s` to be a linked record.',
         ii,
         storageKey,
-        dataID
+        dataID,
       );
       return RelayRecord.getDataID(record);
     });
@@ -417,14 +381,14 @@ class RelayRecordWriter {
   putLinkedRecordIDs(
     parentID: DataID,
     storageKey: string,
-    recordIDs: Array<DataID>
+    recordIDs: Array<DataID>,
   ): void {
     const parent = this._getRecordForWrite(parentID);
     invariant(
       parent,
       'RelayRecordWriter.putLinkedRecordIDs(): Expected record `%s` to exist ' +
-      'before linking records.',
-      parentID
+        'before linking records.',
+      parentID,
     );
     const records = recordIDs.map(recordID => {
       return RelayRecord.create(recordID);
@@ -438,11 +402,11 @@ class RelayRecordWriter {
   /**
    * Get the force index associated with the range at `connectionID`.
    */
-  getRangeForceIndex(
-    connectionID: DataID
-  ): number {
-    const forceIndex: ?number =
-      (this._getField(connectionID, FORCE_INDEX): any);
+  getRangeForceIndex(connectionID: DataID): number {
+    const forceIndex: ?number = (this._getField(
+      connectionID,
+      FORCE_INDEX,
+    ): any);
     if (forceIndex === null) {
       return -1;
     }
@@ -454,9 +418,7 @@ class RelayRecordWriter {
    * Ex: for a field `photos.orderby(recent)`, this would be
    * [{name: 'orderby', value: 'recent'}]
    */
-  getRangeFilterCalls(
-    connectionID: DataID
-  ): ?Array<Call> {
+  getRangeFilterCalls(connectionID: DataID): ?Array<Call> {
     return (this._getField(connectionID, FILTER_CALLS): any);
   }
 
@@ -466,18 +428,18 @@ class RelayRecordWriter {
   putRange(
     connectionID: DataID,
     calls: Array<Call>,
-    forceIndex?: ?number
+    forceIndex?: ?number,
   ): void {
     invariant(
       !this._isOptimisticWrite,
-      'RelayRecordWriter.putRange(): Cannot create a queued range.'
+      'RelayRecordWriter.putRange(): Cannot create a queued range.',
     );
     const record = this._getRecordForWrite(connectionID);
     invariant(
       record,
       'RelayRecordWriter.putRange(): Expected record `%s` to exist before ' +
-      'adding a range.',
-      connectionID
+        'adding a range.',
+      connectionID,
     );
     const range = new GraphQLRange();
     const filterCalls = getFilterCalls(calls);
@@ -508,14 +470,14 @@ class RelayRecordWriter {
     connectionID: DataID,
     calls: Array<Call>,
     pageInfo: PageInfo,
-    edges: Array<DataID>
+    edges: Array<DataID>,
   ): void {
     const range: ?GraphQLRange = (this._getField(connectionID, RANGE): any);
     invariant(
       range,
       'RelayRecordWriter.putRangeEdges(): Expected record `%s` to exist and ' +
-      'have a range.',
-      connectionID
+        'have a range.',
+      connectionID,
     );
     const edgeRecords = [];
     edges.forEach(edgeID => {
@@ -524,11 +486,7 @@ class RelayRecordWriter {
       const nodeID = RelayRecord.getDataID(edgeRecord.node);
       this._addConnectionForNode(connectionID, nodeID);
     });
-    range.addItems(
-      calls,
-      edgeRecords,
-      pageInfo
-    );
+    range.addItems(calls, edgeRecords, pageInfo);
     if (!this._isOptimisticWrite && this._cacheWriter) {
       this._cacheWriter.writeField(connectionID, RANGE, range);
     }
@@ -540,7 +498,7 @@ class RelayRecordWriter {
   applyRangeUpdate(
     connectionID: DataID,
     edgeID: DataID,
-    operation: RangeOperation
+    operation: RangeOperation,
   ): void {
     if (this._isOptimisticWrite) {
       this._applyOptimisticRangeUpdate(connectionID, edgeID, operation);
@@ -558,7 +516,7 @@ class RelayRecordWriter {
     invariant(
       nodeID,
       'RelayRecordWriter: Expected edge `%s` to have a `node` record.',
-      edgeID
+      edgeID,
     );
     return RelayRecord.createWithFields(edgeID, {
       cursor: this.getField(edgeID, CURSOR),
@@ -569,7 +527,7 @@ class RelayRecordWriter {
   _applyOptimisticRangeUpdate(
     connectionID: DataID,
     edgeID: DataID,
-    operation: RangeOperation
+    operation: RangeOperation,
   ): void {
     let record: ?Record = this._getRecordForWrite(connectionID);
     if (!record) {
@@ -593,15 +551,15 @@ class RelayRecordWriter {
   _applyServerRangeUpdate(
     connectionID: DataID,
     edgeID: DataID,
-    operation: RangeOperation
+    operation: RangeOperation,
   ): void {
     const range: ?GraphQLRange = (this._getField(connectionID, RANGE): any);
     invariant(
       range,
       'RelayRecordWriter: Cannot apply `%s` update to non-existent record ' +
-      '`%s`.',
+        '`%s`.',
       operation,
-      connectionID
+      connectionID,
     );
     if (operation === REMOVE) {
       range.removeEdgeWithID(edgeID);
@@ -627,10 +585,7 @@ class RelayRecordWriter {
   /**
    * Record that the node is contained in the connection.
    */
-  _addConnectionForNode(
-    connectionID: DataID,
-    nodeID: DataID
-  ): void {
+  _addConnectionForNode(connectionID: DataID, nodeID: DataID): void {
     let connectionMap = this._nodeConnectionMap[nodeID];
     if (!connectionMap) {
       connectionMap = {};
@@ -642,10 +597,7 @@ class RelayRecordWriter {
   /**
    * Record that the given node is no longer part of the connection.
    */
-  _removeConnectionForNode(
-    connectionID: DataID,
-    nodeID: DataID
-  ): void {
+  _removeConnectionForNode(connectionID: DataID, nodeID: DataID): void {
     const connectionMap = this._nodeConnectionMap[nodeID];
     if (connectionMap) {
       delete connectionMap[connectionID];
@@ -694,17 +646,14 @@ class RelayRecordWriter {
     const clientMutationID = this._clientMutationID;
     invariant(
       clientMutationID,
-      'RelayRecordWriter: _clientMutationID cannot be null/undefined.'
+      'RelayRecordWriter: _clientMutationID cannot be null/undefined.',
     );
     const mutationIDs: Array<ClientMutationID> = record[MUTATION_IDS] || [];
     if (mutationIDs.indexOf(clientMutationID) === -1) {
       mutationIDs.push(clientMutationID);
       record[MUTATION_IDS] = mutationIDs;
     }
-    record[STATUS] = RelayRecordStatusMap.setOptimisticStatus(
-      0,
-      true
-    );
+    record[STATUS] = RelayRecordStatusMap.setOptimisticStatus(0, true);
   }
 }
 

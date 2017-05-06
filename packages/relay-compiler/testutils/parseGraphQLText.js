@@ -8,6 +8,7 @@
  *
  * @providesModule parseGraphQLText
  * @flow
+ * @format
  */
 
 'use strict';
@@ -18,7 +19,10 @@ const {extendSchema, parse} = require('graphql');
 import type {Fragment, Root} from 'RelayIR';
 import type {GraphQLSchema} from 'graphql';
 
-function parseGraphQLText(schema: GraphQLSchema, text: string): {
+function parseGraphQLText(
+  schema: GraphQLSchema,
+  text: string,
+): {
   definitions: Array<Fragment | Root>,
   schema: ?GraphQLSchema,
 } {

@@ -5,6 +5,8 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
@@ -16,11 +18,11 @@ type Result = {
 };
 
 const METADATA_KEYS = {
-  '__dataID__': true,
-  '__range__': true,
-  '__resolvedFragmentMap__': true,
-  '__resolvedFragmentMapGeneration__': true,
-  '__status__': true,
+  __dataID__: true,
+  __range__: true,
+  __resolvedFragmentMap__: true,
+  __resolvedFragmentMapGeneration__: true,
+  __status__: true,
 };
 
 function toString(x) {
@@ -35,31 +37,21 @@ function getType(a) {
   return Object.prototype.toString.call(a);
 }
 
-function match(
-  actual: any,
-  expected: any,
-  path: Array<string>
-): Result {
-  if (
-    typeof actual !== 'object' ||
-    getType(actual) !== getType(expected)
-  ) {
+function match(actual: any, expected: any, path: Array<string>): Result {
+  if (typeof actual !== 'object' || getType(actual) !== getType(expected)) {
     return {
       isMatched: actual === expected,
-      message: (
-        'be ' +
-        toString(expected) +
-        ', but got ' +
-        toString(actual)
-      ),
+      message: 'be ' + toString(expected) + ', but got ' + toString(actual),
       path,
     };
   }
 
   // All properties (except metadata keys) of `actual` should be in `expected`.
   for (const key in actual) {
-    if (expected.hasOwnProperty(key) !== actual.hasOwnProperty(key) &&
-        !(key in METADATA_KEYS)) {
+    if (
+      expected.hasOwnProperty(key) !== actual.hasOwnProperty(key) &&
+      !(key in METADATA_KEYS)
+    ) {
       return {
         isMatched: false,
         message: 'not have key ' + key,
@@ -118,9 +110,7 @@ function matchRecord(actual: any, expected: any): Result {
   }
   return {
     pass: isMatched,
-    message: isMatched ?
-      null :
-      'Expected ' + location + ' to ' + message,
+    message: isMatched ? null : 'Expected ' + location + ' to ' + message,
   };
 }
 

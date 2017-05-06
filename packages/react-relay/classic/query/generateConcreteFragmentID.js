@@ -8,6 +8,7 @@
  *
  * @providesModule generateConcreteFragmentID
  * @flow
+ * @format
  */
 
 'use strict';

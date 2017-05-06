@@ -8,6 +8,7 @@
  *
  * @providesModule ReactRelayClassicExports
  * @flow
+ * @format
  */
 
 'use strict';
@@ -22,7 +23,7 @@ if (__DEV__) {
   warning(
     typeof Promise === 'function' && Array.prototype.find,
     'Relay relies on polyfills for ES6 features in older browsers. ' +
-    'Babel provides a good one: https://babeljs.io/docs/usage/polyfill/'
+      'Babel provides a good one: https://babeljs.io/docs/usage/polyfill/',
   );
 }
 

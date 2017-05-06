@@ -8,6 +8,7 @@
  *
  * @providesModule RelayMutationQueue
  * @flow
+ * @format
  */
 
 'use strict';
@@ -61,11 +62,11 @@ interface PendingTransaction {
   status: $Keys<typeof RelayMutationTransactionStatus>,
 }
 type PendingTransactionMap = {
-  [key: ClientMutationID]: PendingTransaction;
+  [key: ClientMutationID]: PendingTransaction,
 };
 type TransactionBuilder = (
   id: ClientMutationID,
-  transaction: RelayMutationTransaction
+  transaction: RelayMutationTransaction,
 ) => PendingTransaction;
 type TransactionData = {
   id: ClientMutationID,
@@ -108,17 +109,18 @@ class RelayMutationQueue {
    */
   createTransaction(
     mutation: RelayMutation<any>,
-    callbacks: ?RelayMutationTransactionCommitCallbacks
+    callbacks: ?RelayMutationTransactionCommitCallbacks,
   ): RelayMutationTransaction {
     return this.createTransactionWithPendingTransaction(
       null,
-      (id, mutationTransaction) => new RelayPendingTransaction({
-        id,
-        mutation,
-        mutationTransaction,
-        onFailure: callbacks && callbacks.onFailure,
-        onSuccess: callbacks && callbacks.onSuccess,
-      })
+      (id, mutationTransaction) =>
+        new RelayPendingTransaction({
+          id,
+          mutation,
+          mutationTransaction,
+          onFailure: callbacks && callbacks.onFailure,
+          onSuccess: callbacks && callbacks.onSuccess,
+        }),
     );
   }
 
@@ -135,18 +137,17 @@ class RelayMutationQueue {
    */
   createTransactionWithPendingTransaction(
     pendingTransaction: ?PendingTransaction,
-    transactionBuilder: ?TransactionBuilder
+    transactionBuilder: ?TransactionBuilder,
   ): RelayMutationTransaction {
     invariant(
       pendingTransaction || transactionBuilder,
       'RelayMutationQueue: `createTransactionWithPendingTransaction()` ' +
-      'expects a PendingTransaction or TransactionBuilder.'
+        'expects a PendingTransaction or TransactionBuilder.',
     );
     const id = getNextID();
     const mutationTransaction = new RelayMutationTransaction(this, id);
     const transaction =
-      pendingTransaction ||
-      (transactionBuilder: any)(id, mutationTransaction);
+      pendingTransaction || (transactionBuilder: any)(id, mutationTransaction);
     this._pendingTransactionMap[id] = transaction;
     this._queue.push(transaction);
     return mutationTransaction;
@@ -165,7 +166,7 @@ class RelayMutationQueue {
   }
 
   getStatus(
-    id: ClientMutationID
+    id: ClientMutationID,
   ): $Keys<typeof RelayMutationTransactionStatus> {
     return this._get(id).status;
   }
@@ -217,7 +218,7 @@ class RelayMutationQueue {
     invariant(
       transaction,
       'RelayMutationQueue: `%s` is not a valid pending transaction ID.',
-      id
+      id,
     );
     return transaction;
   }
@@ -228,37 +229,32 @@ class RelayMutationQueue {
     if (optimisticResponse && optimisticQuery) {
       const configs =
         transaction.getOptimisticConfigs() || transaction.getConfigs();
-      this._storeData.handleUpdatePayload(
-        optimisticQuery,
-        optimisticResponse,
-        {
-          configs,
-          isOptimisticUpdate: true,
-        }
-      );
+      this._storeData.handleUpdatePayload(optimisticQuery, optimisticResponse, {
+        configs,
+        isOptimisticUpdate: true,
+      });
     }
   }
 
-  _handleCommitFailure(
-    transaction: PendingTransaction,
-    error: ?Error
-  ): void {
-    const status = error ?
-      RelayMutationTransactionStatus.COMMIT_FAILED :
-      RelayMutationTransactionStatus.COLLISION_COMMIT_FAILED;
+  _handleCommitFailure(transaction: PendingTransaction, error: ?Error): void {
+    const status = error
+      ? RelayMutationTransactionStatus.COMMIT_FAILED
+      : RelayMutationTransactionStatus.COLLISION_COMMIT_FAILED;
     transaction.status = status;
     transaction.error = error;
 
     let shouldRollback = true;
     const onFailure = transaction.onFailure;
     if (onFailure) {
-      const preventAutoRollback = function() { shouldRollback = false; };
+      const preventAutoRollback = function() {
+        shouldRollback = false;
+      };
       ErrorUtils.applyWithGuard(
         onFailure,
         null,
         [transaction.mutationTransaction, preventAutoRollback],
         null,
-        'RelayMutationTransaction:onCommitFailure'
+        'RelayMutationTransaction:onCommitFailure',
       );
     }
 
@@ -278,7 +274,7 @@ class RelayMutationQueue {
 
   _handleCommitSuccess(
     transaction: PendingTransaction,
-    response: Object
+    response: Object,
   ): void {
     this._advanceCollisionQueue(transaction);
     this._clearPendingTransaction(transaction);
@@ -290,7 +286,7 @@ class RelayMutationQueue {
       {
         configs: transaction.getConfigs(),
         isOptimisticUpdate: false,
-      }
+      },
     );
 
     const onSuccess = transaction.onSuccess;
@@ -300,7 +296,7 @@ class RelayMutationQueue {
         null,
         [response],
         null,
-        'RelayMutationTransaction:onCommitSuccess'
+        'RelayMutationTransaction:onCommitSuccess',
       );
     }
   }
@@ -317,7 +313,7 @@ class RelayMutationQueue {
 
     request.done(
       result => this._handleCommitSuccess(transaction, result.response),
-      error => this._handleCommitFailure(transaction, error)
+      error => this._handleCommitFailure(transaction, error),
     );
   }
 
@@ -376,8 +372,8 @@ class RelayMutationQueue {
 
   _refreshQueuedData(): void {
     this._storeData.clearQueuedData();
-    this._queue.forEach(
-      transaction => this._handleOptimisticUpdate(transaction)
+    this._queue.forEach(transaction =>
+      this._handleOptimisticUpdate(transaction),
     );
   }
 }
@@ -413,9 +409,7 @@ class RelayPendingTransaction {
   _query: RelayQuery.Mutation;
   _rawOptimisticResponse: ?Object;
 
-  constructor(
-    transactionData: TransactionData
-  ) {
+  constructor(transactionData: TransactionData) {
     this.error = null;
     this.id = transactionData.id;
     this.mutation = transactionData.mutation;
@@ -452,11 +446,10 @@ class RelayPendingTransaction {
       invariant(
         fragment instanceof RelayQuery.Fragment,
         'RelayMutationQueue: Expected `getFatQuery` to return a GraphQL ' +
-        'Fragment'
+          'Fragment',
       );
-      this._fatQuery = nullthrows(flattenRelayQuery(
-        fragment,
-        {
+      this._fatQuery = nullthrows(
+        flattenRelayQuery(fragment, {
           // TODO #10341736
           // This used to be `preserveEmptyNodes: fragment.isPattern()`. We
           // discovered that products were not marking their fat queries as
@@ -471,8 +464,8 @@ class RelayPendingTransaction {
           // non-pattern fragment. Revert this when done.
           preserveEmptyNodes: true,
           shouldRemoveFragments: true,
-        }
-      ));
+        }),
+      );
     }
     return this._fatQuery;
   }
@@ -484,7 +477,7 @@ class RelayPendingTransaction {
     return this._files;
   }
 
-  getInputVariable(): Variables  {
+  getInputVariable(): Variables {
     if (!this._inputVariable) {
       const inputVariable = {
         ...this.mutation.getVariables(),
@@ -497,11 +490,13 @@ class RelayPendingTransaction {
 
   getMutationNode(): ConcreteMutation {
     if (!this._mutationNode) {
-      const mutationNode = QueryBuilder.getMutation(this.mutation.getMutation());
+      const mutationNode = QueryBuilder.getMutation(
+        this.mutation.getMutation(),
+      );
       invariant(
         mutationNode,
         'RelayMutation: Expected `getMutation` to return a mutation created ' +
-        'with Relay.QL`mutation { ... }`.'
+          'with Relay.QL`mutation { ... }`.',
       );
       this._mutationNode = mutationNode;
     }
@@ -520,7 +515,7 @@ class RelayPendingTransaction {
       /* eslint-disable no-console */
       if (__DEV__ && console.groupCollapsed && console.groupEnd) {
         console.groupCollapsed(
-          'Optimistic query for `' + this.getCallName() + '`'
+          'Optimistic query for `' + this.getCallName() + '`',
         );
       }
       /* eslint-enable no-console */
@@ -538,12 +533,13 @@ class RelayPendingTransaction {
             tracker,
           });
         } else {
-          this._optimisticQuery =
-            RelayMutationQuery.buildQueryForOptimisticUpdate({
+          this._optimisticQuery = RelayMutationQuery.buildQueryForOptimisticUpdate(
+            {
               response: optimisticResponse,
               fatQuery: this.getFatQuery(),
               mutation: this.getMutationNode(),
-            });
+            },
+          );
         }
       } else {
         this._optimisticQuery = null;
@@ -552,7 +548,7 @@ class RelayPendingTransaction {
       if (__DEV__ && console.groupCollapsed && console.groupEnd) {
         require('RelayMutationDebugPrinter').printOptimisticMutation(
           this._optimisticQuery,
-          optimisticResponse
+          optimisticResponse,
         );
 
         console.groupEnd();
@@ -577,10 +573,9 @@ class RelayPendingTransaction {
     if (this._optimisticResponse === undefined) {
       const optimisticResponse = this._getRawOptimisticResponse();
       if (optimisticResponse) {
-        this._optimisticResponse =
-          RelayOptimisticMutationUtils.inferRelayPayloadFromData(
-            optimisticResponse
-          );
+        this._optimisticResponse = RelayOptimisticMutationUtils.inferRelayPayloadFromData(
+          optimisticResponse,
+        );
       } else {
         this._optimisticResponse = optimisticResponse;
       }
@@ -593,7 +588,7 @@ class RelayPendingTransaction {
       /* eslint-disable no-console */
       if (__DEV__ && console.groupCollapsed && console.groupEnd) {
         console.groupCollapsed(
-          'Mutation query for `' + this.getCallName() + '`'
+          'Mutation query for `' + this.getCallName() + '`',
         );
       }
       /* eslint-enable no-console */
@@ -622,12 +617,12 @@ function getTracker(storeData: RelayStoreData): RelayQueryTracker {
   invariant(
     tracker,
     'RelayMutationQueue: a RelayQueryTracker was not configured but an ' +
-    'attempt to process a RelayMutation instance was made. Either use ' +
-    'RelayGraphQLMutation (which does not require a tracker), or use ' +
-    '`RelayStoreData.injectQueryTracker()` to configure a tracker. Be ' +
-    'aware that trackers are provided by default, so if you are seeing ' +
-    'this error it means that somebody has explicitly intended to opt ' +
-    'out of query tracking.'
+      'attempt to process a RelayMutation instance was made. Either use ' +
+      'RelayGraphQLMutation (which does not require a tracker), or use ' +
+      '`RelayStoreData.injectQueryTracker()` to configure a tracker. Be ' +
+      'aware that trackers are provided by default, so if you are seeing ' +
+      'this error it means that somebody has explicitly intended to opt ' +
+      'out of query tracking.',
   );
   return tracker;
 }

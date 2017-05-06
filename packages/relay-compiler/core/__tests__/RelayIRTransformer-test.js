@@ -5,6 +5,8 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
@@ -19,7 +21,9 @@ const parseGraphQLText = require('parseGraphQLText');
 
 describe('RelayIRTransformer', () => {
   it('visits all node types', () => {
-    const {definitions} = parseGraphQLText(RelayTestSchema, `
+    const {definitions} = parseGraphQLText(
+      RelayTestSchema,
+      `
       query TestQuery($id: ID!) {
         node(id: $id) {
           ...on User {
@@ -62,8 +66,11 @@ describe('RelayIRTransformer', () => {
       ) {
         uri
       }
-    `);
-    const context = (new RelayCompilerContext(RelayTestSchema)).addAll(definitions);
+    `,
+    );
+    const context = new RelayCompilerContext(RelayTestSchema).addAll(
+      definitions,
+    );
 
     const astKinds = [
       'Argument',
@@ -99,14 +106,10 @@ describe('RelayIRTransformer', () => {
     astKinds.forEach(kind => {
       visitors[kind] = createRecorder(kind);
     });
-    RelayIRTransformer.transform(
-      context,
-      visitors,
-      (node) => {
-        sequence.push(`init state: ${node.kind} ${node.name}`);
-        return {};
-      }
-    );
+    RelayIRTransformer.transform(context, visitors, node => {
+      sequence.push(`init state: ${node.kind} ${node.name}`);
+      return {};
+    });
 
     expect(Array.from(astKinds).sort()).toEqual(Array.from(seenKinds).sort());
     expect(sequence).toMatchSnapshot();

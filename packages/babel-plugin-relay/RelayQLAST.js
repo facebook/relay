@@ -165,9 +165,7 @@ class RelayQLFragment extends RelayQLDefinition<
   FragmentDefinitionNode |
   InlineFragmentNode
 > {
-  hasStaticFragmentID: boolean;
   parentType: ?RelayQLType;
-  staticFragmentID: ?string;
 
   constructor(
     context: RelayQLContext,
@@ -190,34 +188,8 @@ class RelayQLFragment extends RelayQLDefinition<
       relayDirectiveArgs.pattern.kind === 'BooleanValue' &&
       relayDirectiveArgs.pattern.value;
 
-    // @relay(isStaticFragment: true)
-    const isStaticFragment =
-      relayDirectiveArgs.isStaticFragment &&
-      relayDirectiveArgs.isStaticFragment.kind === 'BooleanValue' &&
-      relayDirectiveArgs.isStaticFragment.value;
-
     super({...context, isPattern}, ast);
-    this.hasStaticFragmentID = isStaticFragment;
     this.parentType = parentType;
-    this.staticFragmentID = null;
-  }
-
-  getStaticFragmentID(): ?string {
-    if (this.hasStaticFragmentID && this.staticFragmentID == null) {
-      const suffix = this.context.generateID();
-      const name = this.getName();
-      if (!name) {
-        throw new RelayTransformError(
-          util.format(
-            'Static fragments require a name. Use `fragment NAME on %s { ... }`.',
-            this.getType().getName({modifiers: true}),
-          ),
-          this.getLocation(),
-        );
-      }
-      this.staticFragmentID = name + ':' + suffix;
-    }
-    return this.staticFragmentID;
   }
 
   getType(): RelayQLType {
@@ -483,9 +455,9 @@ class RelayQLArgument {
     const value = this.ast.value;
     if (value.kind === 'ListValue') {
       return value.values.map(
-        value => new RelayQLArgument(
+        val => new RelayQLArgument(
           this.context,
-          {...this.ast, value},
+          {...this.ast, value: val},
           this.type.ofType()
         )
       );
@@ -762,7 +734,7 @@ class RelayQLFieldDefinition {
   getArgument(argName: string): RelayQLArgumentType {
     const schemaArg = find(
       this.schemaFieldDef.args,
-      schemaArg => schemaArg.name === argName
+      arg => arg.name === argName
     );
     invariant(
       schemaArg,

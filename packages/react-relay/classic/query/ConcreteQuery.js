@@ -8,6 +8,7 @@
  *
  * @providesModule ConcreteQuery
  * @flow
+ * @format
  */
 
 'use strict';
@@ -40,7 +41,7 @@ export type ConcreteCall = {
 export type ConcreteCallValue = {
   callValue: mixed,
   kind: 'CallValue',
-}
+};
 export type ConcreteCallVariable = {
   callVariableName: string,
   kind: 'CallVariable',
@@ -55,9 +56,9 @@ export type ConcreteDirectiveArgument = {
   value: ?ConcreteDirectiveValue,
 };
 export type ConcreteDirectiveValue =
-  ConcreteCallValue |
-  ConcreteCallVariable |
-  Array<ConcreteCallValue | ConcreteCallVariable>;
+  | ConcreteCallValue
+  | ConcreteCallVariable
+  | Array<ConcreteCallValue | ConcreteCallVariable>;
 export type ConcreteField = {
   alias?: ?string,
   calls?: ?Array<ConcreteCall>,
@@ -89,8 +90,8 @@ export type ConcreteFragment = {
     isAbstract?: boolean,
     isPlural?: boolean, // FB Printer
     isTrackingEnabled?: boolean,
-    pattern?: boolean,  // from @relay directive
-    plural?: boolean,   // OSS Printer from `@relay`
+    pattern?: boolean, // from @relay directive
+    plural?: boolean, // OSS Printer from `@relay`
   },
   name: string,
   type: string,
@@ -142,9 +143,9 @@ export type ConcreteQueryMetadata = {
   isPlural: ?boolean,
 };
 export type ConcreteSelection =
-  ConcreteField |
-  ConcreteFragment |
-  ConcreteFragmentSpread;
+  | ConcreteField
+  | ConcreteFragment
+  | ConcreteFragmentSpread;
 export type ConcreteSubscription = {
   calls: Array<ConcreteCall>,
   children?: ?Array<?ConcreteSelection>,
@@ -157,10 +158,10 @@ export type ConcreteSubscription = {
   },
 };
 export type ConcreteValue =
-  ConcreteBatchCallVariable |
-  ConcreteCallValue |
-  ConcreteCallVariable |
-  Array<ConcreteCallValue | ConcreteCallVariable>;
+  | ConcreteBatchCallVariable
+  | ConcreteCallValue
+  | ConcreteCallVariable
+  | Array<ConcreteCallValue | ConcreteCallVariable>;
 
 export type ConcreteFragmentSpread = {
   kind: 'FragmentSpread',
@@ -178,8 +179,8 @@ export type ConcreteFragmentDefinition = {
 };
 
 export type ConcreteArgumentDefinition =
-  ConcreteLocalArgumentDefinition |
-  ConcreteRootArgumentDefinition;
+  | ConcreteLocalArgumentDefinition
+  | ConcreteRootArgumentDefinition;
 
 export type ConcreteLocalArgumentDefinition = {
   kind: 'LocalArgument',

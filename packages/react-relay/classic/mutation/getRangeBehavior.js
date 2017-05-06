@@ -8,6 +8,7 @@
  *
  * @providesModule getRangeBehavior
  * @flow
+ * @format
  */
 
 'use strict';
@@ -15,11 +16,7 @@
 const invariant = require('invariant');
 const serializeRelayQueryCall = require('serializeRelayQueryCall');
 
-import type {
-  Call,
-  CallValue,
-  RangeBehaviors,
-} from 'RelayInternalTypes';
+import type {Call, CallValue, RangeBehaviors} from 'RelayInternalTypes';
 
 /**
  * Return the action (prepend/append) to use when adding an item to
@@ -33,14 +30,17 @@ import type {
  */
 function getRangeBehavior(
   rangeBehaviors: RangeBehaviors,
-  calls: Array<Call>
+  calls: Array<Call>,
 ): ?string {
   if (typeof rangeBehaviors === 'function') {
     const rangeFilterCalls = getObjectFromCalls(calls);
     return rangeBehaviors(rangeFilterCalls);
   } else {
-    const rangeBehaviorKey =
-      calls.map(serializeRelayQueryCall).sort().join('').slice(1);
+    const rangeBehaviorKey = calls
+      .map(serializeRelayQueryCall)
+      .sort()
+      .join('')
+      .slice(1);
     const behavior = rangeBehaviors[rangeBehaviorKey];
     if (behavior == null) {
       return null;
@@ -48,9 +48,9 @@ function getRangeBehavior(
     invariant(
       typeof behavior === 'string',
       'getRangeBehavior(): Expected range behavior for key `%s` to be a ' +
-      'string, got `%s`.',
+        'string, got `%s`.',
       rangeBehaviorKey,
-      behavior
+      behavior,
     );
     return behavior;
   }
@@ -67,7 +67,7 @@ function getRangeBehavior(
  * `{orderby: 'recent'}`
 */
 function getObjectFromCalls(
-  calls: Array<Call>
+  calls: Array<Call>,
 ): {[argName: string]: CallValue} {
   const behaviors: {[argName: string]: CallValue} = {};
   calls.forEach(call => {

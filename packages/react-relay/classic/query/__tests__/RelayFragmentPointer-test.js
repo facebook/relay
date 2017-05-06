@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -56,7 +57,7 @@ describe('RelayFragmentPointer', () => {
 
     it('adds plural fragments to objects', () => {
       const pluralFragment = getNode(
-        Relay.QL`fragment on Node @relay(plural:true) { id }`
+        Relay.QL`fragment on Node @relay(plural:true) { id }`,
       );
       const fragmentProp = RelayFragmentPointer.create(dataID, pluralFragment);
       expect(fragmentProp).toEqual({
@@ -76,10 +77,7 @@ describe('RelayFragmentPointer', () => {
       expect(fragmentProp).toEqual({
         __dataID__: dataID,
         __fragments__: {
-          [fragment1.getConcreteFragmentID()]: [
-            {foo: 'bar'},
-            {sizes: [42]},
-          ],
+          [fragment1.getConcreteFragmentID()]: [{foo: 'bar'}, {sizes: [42]}],
         },
       });
     });
@@ -109,18 +107,20 @@ describe('RelayFragmentPointer', () => {
     it('throws if multiple root fragments are present', () => {
       const rootFragmentA = Relay.QL`fragment on Node{id}`;
       const rootFragmentB = Relay.QL`fragment on Node{id}`;
-      const root = getNode(Relay.QL`
+      const root = getNode(
+        Relay.QL`
         query {
           username(name:"foo"){${rootFragmentA},${rootFragmentB}}
         }
-      `);
+      `,
+      );
 
       expect(() => {
         RelayFragmentPointer.createForRoot(recordStore, root);
       }).toFailInvariant(
         'Queries supplied at the root should contain exactly one fragment ' +
-        '(e.g. `${Component.getFragment(\'...\')}`). Query ' +
-        '`RelayFragmentPointer` contains more than one fragment.'
+          "(e.g. `${Component.getFragment('...')}`). Query " +
+          '`RelayFragmentPointer` contains more than one fragment.',
       );
     });
 
@@ -131,9 +131,9 @@ describe('RelayFragmentPointer', () => {
         RelayFragmentPointer.createForRoot(recordStore, root);
       }).toFailInvariant(
         'Queries supplied at the root should contain exactly one fragment ' +
-        'and no fields. Query `RelayFragmentPointer` contains a field, ' +
-        '`name`. If you need to fetch fields, declare them in a Relay ' +
-        'container.',
+          'and no fields. Query `RelayFragmentPointer` contains a field, ' +
+          '`name`. If you need to fetch fields, declare them in a Relay ' +
+          'container.',
       );
     });
 
@@ -141,14 +141,14 @@ describe('RelayFragmentPointer', () => {
       const rootFragment = Relay.QL`fragment on Node{id}`;
       const root = getRefNode(
         Relay.QL`query{nodes(ids:$ref_q0){${rootFragment}}}`,
-        {path: '$.*.id'}
+        {path: '$.*.id'},
       );
 
       expect(() => {
         RelayFragmentPointer.createForRoot(recordStore, root);
       }).toFailInvariant(
         'Queries supplied at the root cannot have batch call variables. ' +
-        'Query `RelayFragmentPointer` has a batch call variable, `ref_q0`.'
+          'Query `RelayFragmentPointer` has a batch call variable, `ref_q0`.',
       );
     });
 
@@ -158,9 +158,7 @@ describe('RelayFragmentPointer', () => {
       const ref = Relay.QL`fragment on Viewer { actor { id } }`;
       const root = getNode(Relay.QL`query{viewer{${ref}}}`);
 
-      expect(
-        RelayFragmentPointer.createForRoot(recordStore, root)
-      ).toBeNull();
+      expect(RelayFragmentPointer.createForRoot(recordStore, root)).toBeNull();
     });
   });
 
@@ -186,7 +184,7 @@ describe('RelayFragmentPointer', () => {
 
     it('adds plural fragments to objects', () => {
       const pluralFragment = getNode(
-        Relay.QL`fragment on Node @relay(plural:true) { id }`
+        Relay.QL`fragment on Node @relay(plural:true) { id }`,
       );
       RelayFragmentPointer.addFragment(obj, pluralFragment, dataID);
 

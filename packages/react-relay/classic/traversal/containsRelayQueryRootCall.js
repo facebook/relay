@@ -8,6 +8,7 @@
  *
  * @providesModule containsRelayQueryRootCall
  * @flow
+ * @format
  */
 
 'use strict';
@@ -22,7 +23,7 @@ import type RelayQuery from 'RelayQuery';
  */
 function containsRelayQueryRootCall(
   thisRoot: RelayQuery.Root,
-  thatRoot: RelayQuery.Root
+  thatRoot: RelayQuery.Root,
 ): boolean {
   if (thisRoot === thatRoot) {
     return true;
@@ -60,8 +61,8 @@ function containsRelayQueryRootCall(
 }
 
 const canonicalRootCalls = {
-  'nodes': 'node',
-  'usernames': 'username',
+  nodes: 'node',
+  usernames: 'username',
 };
 
 /**

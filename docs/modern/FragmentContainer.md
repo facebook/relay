@@ -67,14 +67,12 @@ module.exports = createFragmentContainer(TodoItem, {
   // For each of the props that depend on server data, we define a corresponding
   // key in this object. Here, the component expects server data to populate the
   // `item` prop, so we'll specify the fragment from above at the `item` key.
-  {
-    item: graphql`
-      fragment TodoItem_item on Todo {
-        text
-        isComplete
-      }
-    `,
-  },
+  item: graphql`
+    fragment TodoItem_item on Todo {
+      text
+      isComplete
+    }
+  `,
 });
 ```
 
@@ -150,7 +148,7 @@ Fragment composition works similarly — a parent container's fragment composes 
 class TodoList extends React.Component {/* as above */}
 
 module.exports = createFragmentContainer(
-  TodoList, {
+  TodoList,
   // This `_list` fragment name suffix corresponds to the prop named `list` that
   // is expected to be populated with server data by the `<TodoList>` component.
   graphql`

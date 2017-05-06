@@ -8,17 +8,15 @@
  *
  * @providesModule RelayCore
  * @flow
+ * @format
  */
 
 'use strict';
 
-const RelayStaticFragmentSpecResolver = require('RelayStaticFragmentSpecResolver');
+const RelayModernFragmentSpecResolver = require('RelayModernFragmentSpecResolver');
 
-const {
-  getFragment,
-  getOperation,
-} = require('RelayStaticGraphQLTag');
-const {createOperationSelector} = require('RelayStaticOperationSelector');
+const {getFragment, getOperation} = require('RelayModernGraphQLTag');
+const {createOperationSelector} = require('RelayModernOperationSelector');
 const {
   areEqualSelectors,
   getDataIDsFromObject,
@@ -26,16 +24,10 @@ const {
   getSelectorList,
   getSelectorsFromObject,
   getVariablesFromObject,
-} = require('RelayStaticSelector');
+} = require('RelayModernSelector');
 
-import type {
-  FragmentSpecResolver,
-  Props,
-} from 'RelayCombinedEnvironmentTypes';
-import type {
-  FragmentMap,
-  RelayContext,
-} from 'RelayStoreTypes';
+import type {FragmentSpecResolver, Props} from 'RelayCombinedEnvironmentTypes';
+import type {FragmentMap, RelayContext} from 'RelayStoreTypes';
 
 function createFragmentSpecResolver(
   context: RelayContext,
@@ -43,7 +35,12 @@ function createFragmentSpecResolver(
   props: Props,
   callback: () => void,
 ): FragmentSpecResolver {
-  return new RelayStaticFragmentSpecResolver(context, fragments, props, callback);
+  return new RelayModernFragmentSpecResolver(
+    context,
+    fragments,
+    props,
+    callback,
+  );
 }
 
 module.exports = {

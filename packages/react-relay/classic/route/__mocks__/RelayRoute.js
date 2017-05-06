@@ -6,6 +6,8 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
+ *
+ * @format
  */
 
 'use strict';
@@ -19,8 +21,6 @@ RelayRoute.genMock = jest.fn(() => {
   return MockRoute;
 });
 
-RelayRoute.genMockInstance = jest.fn(
-  () => new (RelayRoute.genMock())()
-);
+RelayRoute.genMockInstance = jest.fn(() => new (RelayRoute.genMock())());
 
 module.exports = RelayRoute;

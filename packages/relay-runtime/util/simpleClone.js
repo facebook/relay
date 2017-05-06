@@ -8,6 +8,7 @@
  *
  * @providesModule simpleClone
  * @flow
+ * @format
  */
 
 'use strict';

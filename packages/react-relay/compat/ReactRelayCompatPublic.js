@@ -8,6 +8,7 @@
  *
  * @providesModule ReactRelayCompatPublic
  * @flow
+ * @format
  */
 
 'use strict';
@@ -21,7 +22,7 @@ const RelayCompatRefetchContainer = require('RelayCompatRefetchContainer');
 
 const {graphql, fetchQuery} = require('RelayRuntime');
 
-export type {GraphQLTaggedNode} from 'RelayStaticGraphQLTag';
+export type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 export type {
   Environment,
   OperationSelector,
@@ -50,6 +51,5 @@ module.exports = {
   createRefetchContainer: (RelayCompatRefetchContainer.createContainer: $FlowFixMe),
   fetchQuery: fetchQuery,
   graphql: graphql,
-  injectDefaultVariablesProvider:
-    ReactRelayCompatContainerBuilder.injectDefaultVariablesProvider,
+  injectDefaultVariablesProvider: ReactRelayCompatContainerBuilder.injectDefaultVariablesProvider,
 };

@@ -5,13 +5,15 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
 
 jest.disableAutomock();
 
-import type { FlattenOptions } from 'RelayFlattenTransform';
+import type {FlattenOptions} from 'RelayFlattenTransform';
 
 describe('RelayFlattenTransform', () => {
   let RelayCompilerContext;
@@ -35,45 +37,47 @@ describe('RelayFlattenTransform', () => {
   });
 
   function printContextTransform(
-    options: FlattenOptions
+    options: FlattenOptions,
   ): (text: string) => string {
     return text => {
-      const context = new RelayCompilerContext(RelayTestSchema)
-        .addAll(RelayParser.parse(RelayTestSchema, text));
+      const context = new RelayCompilerContext(RelayTestSchema).addAll(
+        RelayParser.parse(RelayTestSchema, text),
+      );
       const nextContext = RelayFlattenTransform.transform(context, options);
-      return nextContext.documents().map(
-        doc => RelayPrinter.print(doc)
-      ).join('\n');
+      return nextContext
+        .documents()
+        .map(doc => RelayPrinter.print(doc))
+        .join('\n');
     };
   }
 
   it('flattens inline fragments with compatible types', () => {
     expect('fixtures/flatten-transform').toMatchGolden(
-      printContextTransform({})
+      printContextTransform({}),
     );
   });
 
   it('optionally flattens fragment spreads', () => {
     expect('fixtures/flatten-transform-option-flatten-spreads').toMatchGolden(
-      printContextTransform({flattenFragmentSpreads: true})
+      printContextTransform({flattenFragmentSpreads: true}),
     );
   });
 
   it('optionally flattens abstract fragments', () => {
     expect('fixtures/flatten-transform-option-flatten-abstract').toMatchGolden(
-      printContextTransform({flattenAbstractTypes: true})
+      printContextTransform({flattenAbstractTypes: true}),
     );
   });
 
   it('flattens conditions', () => {
-    expect('fixtures/flatten-transform-option-flatten-conditions').toMatchGolden(
-      printContextTransform({flattenConditions: true})
-    );
+    expect(
+      'fixtures/flatten-transform-option-flatten-conditions',
+    ).toMatchGolden(printContextTransform({flattenConditions: true}));
   });
 
   it('flattens inline fragments', () => {
     expect('fixtures/flatten-transform-option-flatten-inline').toMatchGolden(
-      printContextTransform({flattenInlineFragments: true})
+      printContextTransform({flattenInlineFragments: true}),
     );
   });
 

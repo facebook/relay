@@ -7,40 +7,36 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
-jest
-  .autoMockOff();
+jest.autoMockOff();
 
 const RelayConcreteNode = require('RelayConcreteNode');
-const RelayStaticTestUtils = require('RelayStaticTestUtils');
+const RelayModernTestUtils = require('RelayModernTestUtils');
 
 const cloneRelayHandleSourceField = require('cloneRelayHandleSourceField');
-const getRelayStaticHandleKey = require('getRelayStaticHandleKey');
+const getRelayHandleKey = require('getRelayHandleKey');
 
-const {
-  generateWithTransforms,
-  matchers,
-} = RelayStaticTestUtils;
-const {
-  LINKED_FIELD,
-  LINKED_HANDLE,
-} = RelayConcreteNode;
+const {generateWithTransforms, matchers} = RelayModernTestUtils;
+const {LINKED_FIELD, LINKED_HANDLE} = RelayConcreteNode;
 
 describe('cloneRelayHandleSourceField()', () => {
   let selections;
 
   beforeEach(() => {
     jest.addMatchers(matchers);
-    const input = generateWithTransforms(`
+    const input = generateWithTransforms(
+      `
       fragment A on User {
         address @__clientField(handle: "test") {
           street
         }
       }
-    `);
+    `,
+    );
     selections = input.A.selections;
   });
 
@@ -50,7 +46,7 @@ describe('cloneRelayHandleSourceField()', () => {
     const clone = cloneRelayHandleSourceField(handleField, selections);
 
     expect(clone.kind).toBe(LINKED_FIELD);
-    expect(clone.name).toBe(getRelayStaticHandleKey('test', null, 'address'));
+    expect(clone.name).toBe(getRelayHandleKey('test', null, 'address'));
     expect(clone.selections).toEqual(sourceField.selections);
   });
 
@@ -58,10 +54,11 @@ describe('cloneRelayHandleSourceField()', () => {
     const handleField = selections.find(node => node.kind === LINKED_HANDLE);
     selections = selections.filter(node => node.kind === LINKED_HANDLE);
 
-    expect(() => cloneRelayHandleSourceField(handleField, selections))
-      .toFailInvariant(
-        'cloneRelayHandleSourceField: Expected a corresponding source field ' +
-        'for handle `test`.'
-      );
+    expect(() =>
+      cloneRelayHandleSourceField(handleField, selections),
+    ).toFailInvariant(
+      'cloneRelayHandleSourceField: Expected a corresponding source field ' +
+        'for handle `test`.',
+    );
   });
 });

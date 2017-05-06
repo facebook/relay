@@ -8,6 +8,7 @@
  *
  * @providesModule CodegenDirectory
  * @flow
+ * @format
  */
 
 'use strict';
@@ -55,15 +56,18 @@ class CodegenDirectory {
   _dir: string;
   onlyValidate: boolean;
 
-  constructor(dir: string, options: {
-    onlyValidate?: boolean,
-  } = {}) {
+  constructor(
+    dir: string,
+    options: {
+      onlyValidate?: boolean,
+    } = {},
+  ) {
     this.onlyValidate = !!options.onlyValidate;
     if (fs.existsSync(dir)) {
       invariant(
         fs.statSync(dir).isDirectory(),
         'Expected `%s` to be a directory.',
-        dir
+        dir,
       );
     } else if (!this.onlyValidate) {
       fs.mkdirSync(dir);

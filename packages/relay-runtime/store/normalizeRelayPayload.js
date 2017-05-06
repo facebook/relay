@@ -8,17 +8,22 @@
  *
  * @providesModule normalizeRelayPayload
  * @flow
+ * @format
  */
 
 'use strict';
 
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
+const RelayModernRecord = require('RelayModernRecord');
 const RelayResponseNormalizer = require('RelayResponseNormalizer');
-const RelayStaticRecord = require('RelayStaticRecord');
 
 const {ROOT_ID, ROOT_TYPE} = require('RelayStoreUtils');
 
-import type {PayloadData, PayloadError, RelayResponsePayload} from 'RelayNetworkTypes';
+import type {
+  PayloadData,
+  PayloadError,
+  RelayResponsePayload,
+} from 'RelayNetworkTypes';
 import type {NormalizationOptions} from 'RelayResponseNormalizer';
 import type {Selector} from 'RelayStoreTypes';
 
@@ -29,7 +34,7 @@ function normalizeRelayPayload(
   options: NormalizationOptions = {handleStrippedNulls: false},
 ): RelayResponsePayload {
   const source = new RelayInMemoryRecordSource();
-  source.set(ROOT_ID, RelayStaticRecord.create(ROOT_ID, ROOT_TYPE));
+  source.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
   const fieldPayloads = RelayResponseNormalizer.normalize(
     source,
     selector,

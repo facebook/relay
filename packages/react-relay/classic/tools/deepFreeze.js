@@ -8,6 +8,7 @@
  *
  * @flow
  * @providesModule deepFreeze
+ * @format
  */
 
 'use strict';

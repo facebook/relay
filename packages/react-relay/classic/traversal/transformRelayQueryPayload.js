@@ -8,6 +8,7 @@
  *
  * @providesModule transformRelayQueryPayload
  * @flow
+ * @format
  */
 
 'use strict';
@@ -31,9 +32,9 @@ type TransformConfig = {
     callback: (
       child: RelayQuery.Node,
       index: number,
-      children: Array<RelayQuery.Node>
+      children: Array<RelayQuery.Node>,
     ) => void,
-    context: any
+    context: any,
   ) => void,
 };
 
@@ -46,7 +47,7 @@ type TransformConfig = {
 function transformRelayQueryPayload(
   root: RelayQuery.Root,
   clientData: QueryPayload,
-  config?: TransformConfig
+  config?: TransformConfig,
 ): QueryPayload {
   if (clientData == null) {
     return clientData;
@@ -55,9 +56,7 @@ function transformRelayQueryPayload(
       // Handle both FB & OSS formats for root payloads on plural calls: FB
       // returns objects, OSS returns arrays.
       if (Array.isArray(item)) {
-        return item.map(
-          innerItem => transform(root, innerItem, config)
-        );
+        return item.map(innerItem => transform(root, innerItem, config));
       }
       return transform(root, item, config);
     });
@@ -67,7 +66,7 @@ function transformRelayQueryPayload(
 function transform(
   root: RelayQuery.Root,
   clientData: QueryPayload,
-  config: ?TransformConfig
+  config: ?TransformConfig,
 ): QueryPayload {
   if (clientData == null) {
     return clientData;
@@ -88,9 +87,9 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
     callback: (
       child: RelayQuery.Node,
       index: number,
-      children: Array<RelayQuery.Node>
+      children: Array<RelayQuery.Node>,
     ) => void,
-    context: any
+    context: any,
   ) => void;
 
   constructor(config: ?TransformConfig) {
@@ -111,9 +110,9 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
     callback: (
       child: RelayQuery.Node,
       index: number,
-      children: Array<RelayQuery.Node>
+      children: Array<RelayQuery.Node>,
     ) => void,
-    context: any
+    context: any,
   ): void {
     if (this._traverseChildren) {
       this._traverseChildren(node, callback, context);
@@ -122,10 +121,7 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
     }
   }
 
-  visitField(
-    node: RelayQuery.Field,
-    state: PayloadState
-  ): void {
+  visitField(node: RelayQuery.Field, state: PayloadState): void {
     const {client, server} = state;
     const applicationName = this._getKeyForClientData(node);
     const serializationKey = node.getSerializationKey();
@@ -144,8 +140,8 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
         invariant(
           Array.isArray(serverData),
           'RelayPayloadTransformer: Got conflicting values for field `%s`: ' +
-          'expected values to be arrays.',
-          applicationName
+            'expected values to be arrays.',
+          applicationName,
         );
         if (clientItem == null) {
           serverData[index] = clientItem;
@@ -166,13 +162,13 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
       invariant(
         typeof clientData === 'object' && clientData !== null,
         'RelayPayloadTransformer: Expected an object value for field `%s`.',
-        applicationName
+        applicationName,
       );
       invariant(
         serverData == null || typeof serverData === 'object',
         'RelayPayloadTransformer: Got conflicting values for field `%s`: ' +
-        'expected values to be objects.',
-        applicationName
+          'expected values to be objects.',
+        applicationName,
       );
       if (serverData == null) {
         server[serializationKey] = serverData = {};

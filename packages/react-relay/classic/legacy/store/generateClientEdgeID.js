@@ -8,6 +8,7 @@
  *
  * @providesModule generateClientEdgeID
  * @flow
+ * @format
  */
 
 'use strict';
@@ -19,7 +20,7 @@
  * @internal
  */
 function generateClientEdgeID(rangeID: string, nodeID: string): string {
-  return 'client:' + rangeID + ':' +  nodeID;
+  return 'client:' + rangeID + ':' + nodeID;
 }
 
 module.exports = generateClientEdgeID;

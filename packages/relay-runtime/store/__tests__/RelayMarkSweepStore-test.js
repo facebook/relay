@@ -5,18 +5,19 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
 
-jest
-  .autoMockOff();
+jest.autoMockOff();
 
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('RelayMarkSweepStore');
-const RelayStaticRecord = require('RelayStaticRecord');
+const RelayModernRecord = require('RelayModernRecord');
 const RelayStoreUtils = require('RelayStoreUtils');
-const RelayStaticTestUtils = require('RelayStaticTestUtils');
+const RelayModernTestUtils = require('RelayModernTestUtils');
 
 const forEachObject = require('forEachObject');
 const simpleClone = require('simpleClone');
@@ -24,11 +25,11 @@ const simpleClone = require('simpleClone');
 const {REF_KEY, ROOT_ID, ROOT_TYPE} = RelayStoreUtils;
 
 describe('RelayStore', () => {
-  const {generateWithTransforms} = RelayStaticTestUtils;
+  const {generateWithTransforms} = RelayModernTestUtils;
 
   beforeEach(() => {
     jest.resetModules();
-    jasmine.addMatchers(RelayStaticTestUtils.matchers);
+    jasmine.addMatchers(RelayModernTestUtils.matchers);
   });
 
   describe('retain()', () => {
@@ -55,14 +56,16 @@ describe('RelayStore', () => {
       initialData = simpleClone(data);
       source = new RelayInMemoryRecordSource(data);
       store = new RelayMarkSweepStore(source);
-      ({UserFragment} = generateWithTransforms(`
+      ({UserFragment} = generateWithTransforms(
+        `
         fragment UserFragment on User {
           name
           profilePicture(size: $size) {
             uri
           }
         }
-      `));
+      `,
+      ));
     });
 
     it('prevents data from being collected', () => {
@@ -88,7 +91,8 @@ describe('RelayStore', () => {
     });
 
     it('only collects unreferenced data', () => {
-      const {JoeFragment} = generateWithTransforms(`
+      const {JoeFragment} = generateWithTransforms(
+        `
         fragment JoeFragment on Query @argumentDefinitions(
           id: {type: "ID"}
         ) {
@@ -98,7 +102,8 @@ describe('RelayStore', () => {
             }
           }
         }
-      `);
+      `,
+      );
       const nextSource = new RelayInMemoryRecordSource({
         842472: {
           __id: '842472',
@@ -151,14 +156,16 @@ describe('RelayStore', () => {
       };
       source = new RelayInMemoryRecordSource(data);
       store = new RelayMarkSweepStore(source);
-      ({UserFragment} = generateWithTransforms(`
+      ({UserFragment} = generateWithTransforms(
+        `
         fragment UserFragment on User {
           name
           profilePicture(size: $size) {
             uri
           }
         }
-      `));
+      `,
+      ));
     });
 
     it('returns selector data', () => {
@@ -256,7 +263,8 @@ describe('RelayStore', () => {
       };
       source = new RelayInMemoryRecordSource(data);
       store = new RelayMarkSweepStore(source);
-      ({UserFragment} = generateWithTransforms(`
+      ({UserFragment} = generateWithTransforms(
+        `
         fragment UserFragment on User {
           name
           profilePicture(size: $size) {
@@ -264,7 +272,8 @@ describe('RelayStore', () => {
           }
           emailAddresses
         }
-      `));
+      `,
+      ));
     });
 
     it('calls subscribers whose data has changed since previous notify', () => {
@@ -506,42 +515,131 @@ describe('RelayStore', () => {
     it('throws if source records are modified', () => {
       const zuck = source.get('4');
       expect(() => {
-        RelayStaticRecord.setValue(zuck, 'pet', 'Beast');
+        RelayModernRecord.setValue(zuck, 'pet', 'Beast');
       }).toThrowTypeError();
     });
 
     it('throws if published records are modified', () => {
       // Create and publish a source with a new record
       const nextSource = new RelayInMemoryRecordSource();
-      const beast = RelayStaticRecord.create('beast', 'Pet');
+      const beast = RelayModernRecord.create('beast', 'Pet');
       nextSource.set('beast', beast);
       store.publish(nextSource);
       expect(() => {
-        RelayStaticRecord.setValue(beast, 'name', 'Beast');
+        RelayModernRecord.setValue(beast, 'name', 'Beast');
       }).toThrowTypeError();
     });
 
     it('throws if updated records are modified', () => {
       // Create and publish a source with a record of the same id
       const nextSource = new RelayInMemoryRecordSource();
-      const beast = RelayStaticRecord.create('beast', 'Pet');
+      const beast = RelayModernRecord.create('beast', 'Pet');
       nextSource.set('beast', beast);
-      const zuck = RelayStaticRecord.create('4', 'User');
-      RelayStaticRecord.setLinkedRecordID(zuck, 'pet', 'beast');
+      const zuck = RelayModernRecord.create('4', 'User');
+      RelayModernRecord.setLinkedRecordID(zuck, 'pet', 'beast');
       nextSource.set('4', zuck);
       store.publish(nextSource);
 
       // Cannot modify merged record
       expect(() => {
         const mergedRecord = source.get('4');
-        RelayStaticRecord.setValue(mergedRecord, 'pet', null);
+        RelayModernRecord.setValue(mergedRecord, 'pet', null);
       }).toThrowTypeError();
       // Cannot modify the published record, even though it isn't in the store
       // This is for consistency because it is non-deterinistic if published
       // records will be merged into a new object or used as-is.
       expect(() => {
-        RelayStaticRecord.setValue(zuck, 'pet', null);
+        RelayModernRecord.setValue(zuck, 'pet', null);
       }).toThrowTypeError();
+    });
+  });
+
+  describe('check()', () => {
+    let UserFragment;
+    let data;
+    let source;
+    let store;
+
+    beforeEach(() => {
+      data = {
+        '4': {
+          __id: '4',
+          id: '4',
+          __typename: 'User',
+          name: 'Zuck',
+          'profilePicture{"size":32}': {[REF_KEY]: 'client:1'},
+        },
+        'client:1': {
+          __id: 'client:1',
+          uri: 'https://photo1.jpg',
+        },
+      };
+      source = new RelayInMemoryRecordSource(data);
+      store = new RelayMarkSweepStore(source);
+      ({UserFragment} = generateWithTransforms(
+        `
+        fragment UserFragment on User {
+          name
+          profilePicture(size: $size) {
+            uri
+          }
+        }
+      `,
+      ));
+    });
+
+    it('returns true if all data exists in the cache', () => {
+      const selector = {
+        dataID: '4',
+        node: UserFragment,
+        variables: {size: 32},
+      };
+      expect(store.check(selector)).toBe(true);
+    });
+
+    it('returns false if a scalar field is missing', () => {
+      const selector = {
+        dataID: '4',
+        node: UserFragment,
+        variables: {size: 32},
+      };
+      store.publish(
+        new RelayInMemoryRecordSource({
+          'client:1': {
+            __id: 'client:1',
+            uri: undefined, // unpublish the field
+          },
+        }),
+      );
+      expect(store.check(selector)).toBe(false);
+    });
+
+    it('returns false if a linked field is missing', () => {
+      const selector = {
+        dataID: '4',
+        node: UserFragment,
+        variables: {size: 64}, // unfetched size
+      };
+      expect(store.check(selector)).toBe(false);
+    });
+
+    it('returns false if a linked record is missing', () => {
+      const selector = {
+        dataID: '4',
+        node: UserFragment,
+        variables: {size: 32},
+      };
+      delete data['client:1']; // profile picture
+      expect(store.check(selector)).toBe(false);
+    });
+
+    it('returns false if the root record is missing', () => {
+      const selector = {
+        dataID: '842472', // unfetched record
+        node: UserFragment,
+        variables: {size: 32},
+      };
+      expect(store.check(selector)).toBe(false);
     });
   });
 
@@ -567,14 +665,16 @@ describe('RelayStore', () => {
       };
       source = new RelayInMemoryRecordSource(data);
       store = new RelayMarkSweepStore(source);
-      ({UserFragment} = generateWithTransforms(`
+      ({UserFragment} = generateWithTransforms(
+        `
         fragment UserFragment on User {
           name
           profilePicture(size: $size) {
             uri
           }
         }
-      `));
+      `,
+      ));
     });
 
     it('resolves data from cache', () => {

@@ -8,6 +8,7 @@
  *
  * @providesModule RelayGraphQLMutation
  * @flow
+ * @format
  */
 
 'use strict';
@@ -71,7 +72,7 @@ class RelayGraphQLMutation {
   static create(
     mutation: RelayConcreteNode,
     variables: Object,
-    environment: RelayEnvironmentInterface
+    environment: RelayEnvironmentInterface,
   ): RelayGraphQLMutation {
     return new RelayGraphQLMutation(mutation, variables, null, environment);
   }
@@ -85,7 +86,7 @@ class RelayGraphQLMutation {
     mutation: RelayConcreteNode,
     variables: Variables,
     files: FileMap,
-    environment: RelayEnvironmentInterface
+    environment: RelayEnvironmentInterface,
   ): RelayGraphQLMutation {
     return new RelayGraphQLMutation(mutation, variables, files, environment);
   }
@@ -140,7 +141,7 @@ class RelayGraphQLMutation {
     files: ?FileMap,
     environment: RelayEnvironmentInterface,
     callbacks: ?RelayMutationTransactionCommitCallbacks,
-    collisionKey: ?string
+    collisionKey: ?string,
   ) {
     this._query = query;
     this._variables = variables;
@@ -148,8 +149,7 @@ class RelayGraphQLMutation {
     this._environment = environment;
     this._callbacks = callbacks || null;
     this._collisionKey =
-      collisionKey ||
-      `${COUNTER_PREFIX}:collisionKey:${getNextCollisionID()}`;
+      collisionKey || `${COUNTER_PREFIX}:collisionKey:${getNextCollisionID()}`;
     this._transaction = null;
   }
 
@@ -167,12 +167,12 @@ class RelayGraphQLMutation {
   applyOptimistic(
     optimisticQuery: RelayConcreteNode,
     optimisticResponse: Object,
-    configs: ?Array<RelayMutationConfig>
+    configs: ?Array<RelayMutationConfig>,
   ): RelayMutationTransaction {
     invariant(
       !this._transaction,
       'RelayGraphQLMutation: `applyOptimistic()` was called on an instance ' +
-      'that already has a transaction in progress.'
+        'that already has a transaction in progress.',
     );
     this._transaction = this._createTransaction(
       optimisticQuery,
@@ -217,7 +217,7 @@ class RelayGraphQLMutation {
       optimisticQuery,
       optimisticResponse,
       this._collisionKey,
-      this._callbacks
+      this._callbacks,
     );
   }
 }
@@ -261,7 +261,7 @@ class PendingGraphQLTransaction {
     optimisticQuery: ?RelayConcreteNode,
     optimisticResponse: ?Object,
     collisionKey: string,
-    callbacks: ?RelayMutationTransactionCommitCallbacks
+    callbacks: ?RelayMutationTransactionCommitCallbacks,
   ) {
     this._configs = [];
     this._query = query;
@@ -292,7 +292,7 @@ class PendingGraphQLTransaction {
     invariant(
       this._mutation,
       'RelayGraphQLMutation: `getCallName()` called but no mutation exists ' +
-      '(`getQuery()` must be called first to construct the mutation).'
+        '(`getQuery()` must be called first to construct the mutation).',
     );
     return this._mutation.getCall().name;
   }
@@ -319,10 +319,9 @@ class PendingGraphQLTransaction {
       const mutation = RelayQuery.Mutation.create(
         concreteMutation,
         RelayMetaRoute.get('$RelayGraphQLMutation'),
-        this._getVariables()
+        this._getVariables(),
       );
-      this._optimisticMutation =
-        (mutation: any); // Cast RelayQuery.{Node -> Mutation}.
+      this._optimisticMutation = (mutation: any); // Cast RelayQuery.{Node -> Mutation}.
     }
     return this._optimisticMutation;
   }
@@ -340,7 +339,7 @@ class PendingGraphQLTransaction {
       const mutation = RelayQuery.Mutation.create(
         concreteMutation,
         RelayMetaRoute.get('$RelayGraphQLMutation'),
-        this._getVariables()
+        this._getVariables(),
       );
       this._mutation = (mutation: any); // Cast RelayQuery.{Node -> Mutation}.
     }
@@ -357,7 +356,7 @@ class PendingGraphQLTransaction {
   }
 
   applyOptimistic(
-    configs: ?Array<RelayMutationConfig>
+    configs: ?Array<RelayMutationConfig>,
   ): RelayMutationTransaction {
     if (configs) {
       this._optimisticConfigs = configs;
@@ -375,8 +374,8 @@ class PendingGraphQLTransaction {
       invariant(
         false,
         'RelayGraphQLMutation: Required `input` variable is missing ' +
-        '(supplied variables were: [%s]).',
-        Object.keys(this._variables).join(', ')
+          '(supplied variables were: [%s]).',
+        Object.keys(this._variables).join(', '),
       );
     }
     return {

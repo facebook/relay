@@ -35,11 +35,10 @@ The easiest way to get started for now is with the [Relay Starter Kit](https://g
 
 ### React Native Configuration
 
-The `babel-relay-plugin` must run before the `react-native` Babel preset. Thus, in `.babelrc`  `"react-native"` must come after `babelRelayPlugin`.
+The `babel-relay-plugin` must run before the `react-native` Babel preset. Thus, in `.babelrc` `"react-native"` must come after `babelRelayPlugin`.
 
 ```javascript
 {
-  "passPerPreset": true,
   "plugins": [
     "./plugins/babelRelayPlugin"
   ],
@@ -84,7 +83,7 @@ Use `introspectionQuery` to generate a Schema JSON for the Babel Relay Plugin, a
 import fs from 'fs';
 import path from 'path';
 import {graphql}  from 'graphql';
-import {introspectionQuery, printSchema} from 'graphql/utilities';
+import {introspectionQuery, printSchema} from 'graphql';
 
 // Assume your schema is in ../data/schema
 import {schema} from '../data/schema';

@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -94,8 +95,7 @@ describe('RelayRoute', () => {
 
   it('allows params to be processed if `prepareParams` is defined', () => {
     const MockRoute = makeRoute();
-    MockRoute.prepareParams =
-      jest.fn(() => ({required: 'bar'}));
+    MockRoute.prepareParams = jest.fn(() => ({required: 'bar'}));
     const route = new MockRoute({required: 'foo'});
     expect(MockRoute.prepareParams).toBeCalledWith({required: 'foo'});
     expect(route.params.required).toEqual('bar');
@@ -109,7 +109,7 @@ describe('RelayRoute', () => {
       /* eslint-enable no-new */
     }).toFailInvariant(
       'RelayRoute: Missing required parameter `required` in `MockRoute`. ' +
-      'Check the supplied params or URI.'
+        'Check the supplied params or URI.',
     );
   });
 
@@ -127,9 +127,7 @@ describe('RelayRoute', () => {
   });
 
   it('allows to inject a URI creator', () => {
-    RelayRoute.injectURICreator(
-      (_, params) => '/foo/' + params.required
-    );
+    RelayRoute.injectURICreator((_, params) => '/foo/' + params.required);
     const MockRoute = makeRoute();
     const route = new MockRoute({required: 'bar'});
 
@@ -156,7 +154,7 @@ describe('RelayRoute', () => {
       new InvalidRoute();
       /* eslint-enable no-new */
     }).toFailInvariant(
-      'InvalidRoute: Subclasses of RelayRoute must define a `routeName`.'
+      'InvalidRoute: Subclasses of RelayRoute must define a `routeName`.',
     );
   });
 });

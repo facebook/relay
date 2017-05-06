@@ -8,6 +8,7 @@
  *
  * @providesModule RelayGarbageCollection
  * @flow
+ * @format
  */
 
 'use strict';
@@ -39,8 +40,8 @@ const RelayGarbageCollection = {
     invariant(
       stepLength > 0,
       'RelayGarbageCollection: step length must be greater than zero, got ' +
-      '`%s`.',
-      stepLength
+        '`%s`.',
+      stepLength,
     );
     _stepLength = stepLength;
     RelayStore.getStoreData().initializeGarbageCollector(scheduler);
@@ -73,14 +74,13 @@ const RelayGarbageCollection = {
 };
 
 function scheduler(run: () => boolean): void {
-  const pendingQueryTracker =
-      RelayStore.getStoreData().getPendingQueryTracker();
+  const pendingQueryTracker = RelayStore.getStoreData().getPendingQueryTracker();
   const runIteration = () => {
     // TODO: #9366746: integrate RelayRenderer/Container with GC hold
     warning(
       !pendingQueryTracker.hasPendingQueries(),
       'RelayGarbageCollection: GC is executing during a fetch, but the ' +
-      'pending query may rely on data that is collected.'
+        'pending query may rely on data that is collected.',
     );
     let iterations = 0;
     let hasNext = true;

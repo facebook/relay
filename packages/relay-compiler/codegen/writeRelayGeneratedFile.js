@@ -133,6 +133,8 @@ function generateModule({
  * ${'@'}nogrep
  */
 
+/* eslint-disable */
+
 'use strict';
 
 /*::
@@ -140,7 +142,6 @@ import type {${documentType}} from '${relayRuntimeModule}';
 ${flowText || ''}
 */
 
-/* eslint-disable comma-dangle, quotes */
 ${docTextComment}
 const ${objectName} /*: ${documentType}*/ = ${concreteText};
 

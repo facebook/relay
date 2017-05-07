@@ -149,7 +149,7 @@ module.exports = createPaginationContainer(
     query: graphql`
       query FeedPaginationQuery(
         $count: Int!
-        $cursor: ID
+        $cursor: String
         $orderby: String!
       ) {
         user {

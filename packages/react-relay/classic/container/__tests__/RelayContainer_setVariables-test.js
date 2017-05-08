@@ -844,9 +844,9 @@ describe('RelayContainer.setVariables', function() {
         fragments: {
           entity: variables => Relay.QL`fragment on User {
             ${MockInnerContainer.getFragment('entity', {
-            query: variables.query,
-            size: variables.size,
-          })}
+              query: variables.query,
+              size: variables.size,
+            })}
           }`,
         },
         initialVariables: {

@@ -66,12 +66,10 @@ function mockDisposableMethod(object, key) {
  * - `storeInspector: RelayRecordSourceInspector`: An instance of a store
  *   inspector that allows introspecting the state of the store at any time.
  */
-function createMockEnvironment(
-  options: {
-    schema?: ?GraphQLSchema,
-    handlerProvider?: ?HandlerProvider,
-  },
-) {
+function createMockEnvironment(options: {
+  schema?: ?GraphQLSchema,
+  handlerProvider?: ?HandlerProvider,
+}) {
   const schema = options && options.schema;
   const handlerProvider = options && options.handlerProvider;
   const source = new RelayInMemoryRecordSource();

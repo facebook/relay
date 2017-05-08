@@ -69,14 +69,12 @@ class RelayCodegenRunner {
   // parser => writers that are affected by it
   parserWriters: {[parser: string]: Set<string>};
 
-  constructor(
-    options: {
-      parserConfigs: ParserConfigs,
-      writerConfigs: WriterConfigs,
-      onlyValidate: boolean,
-      skipPersist: boolean,
-    },
-  ) {
+  constructor(options: {
+    parserConfigs: ParserConfigs,
+    writerConfigs: WriterConfigs,
+    onlyValidate: boolean,
+    skipPersist: boolean,
+  }) {
     this.parserConfigs = options.parserConfigs;
     this.writerConfigs = options.writerConfigs;
     this.onlyValidate = options.onlyValidate;

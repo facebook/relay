@@ -27,12 +27,7 @@ class FileParser {
   _baseDir: string;
   _parse: ParseFn;
 
-  constructor(
-    config: {
-      baseDir: string,
-      parse: ParseFn,
-    },
-  ) {
+  constructor(config: {baseDir: string, parse: ParseFn}) {
     this._baseDir = config.baseDir;
     this._parse = config.parse;
   }

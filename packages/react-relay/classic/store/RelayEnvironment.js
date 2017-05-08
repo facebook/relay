@@ -374,15 +374,13 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
     return {dispose};
   }
 
-  streamQuery(
-    config: {
-      cacheConfig?: ?CacheConfig,
-      onCompleted?: ?() => void,
-      onError?: ?(error: Error) => void,
-      onNext?: ?(selector: Selector) => void,
-      operation: OperationSelector,
-    },
-  ): Disposable {
+  streamQuery(config: {
+    cacheConfig?: ?CacheConfig,
+    onCompleted?: ?() => void,
+    onError?: ?(error: Error) => void,
+    onNext?: ?(selector: Selector) => void,
+    operation: OperationSelector,
+  }): Disposable {
     return this.sendQuery(config);
   }
 

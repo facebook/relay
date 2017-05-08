@@ -792,9 +792,9 @@ function printQueryComparison(actual, expected, message) {
   const printRelayQuery = require('printRelayQuery');
 
   const formatRefParam = node =>
-    (node.hasRefParam && node.hasRefParam()
+    node.hasRefParam && node.hasRefParam()
       ? '  [ref param: ' + JSON.stringify(node.getRefParam()) + ']'
-      : null);
+      : null;
 
   return [
     'Expected:',

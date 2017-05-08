@@ -60,15 +60,13 @@ class RelayFileWriter {
   _baseDocuments: ImmutableMap<string, DocumentNode>;
   _documents: ImmutableMap<string, DocumentNode>;
 
-  constructor(
-    options: {
-      config: WriterConfig,
-      onlyValidate: boolean,
-      baseDocuments: ImmutableMap<string, DocumentNode>,
-      documents: ImmutableMap<string, DocumentNode>,
-      schema: GraphQLSchema,
-    },
-  ) {
+  constructor(options: {
+    config: WriterConfig,
+    onlyValidate: boolean,
+    baseDocuments: ImmutableMap<string, DocumentNode>,
+    documents: ImmutableMap<string, DocumentNode>,
+    schema: GraphQLSchema,
+  }) {
     const {config, onlyValidate, baseDocuments, documents, schema} = options;
     this._baseDocuments = baseDocuments || ImmutableMap();
     this._baseSchema = schema;

@@ -41,11 +41,7 @@ import type {GraphQLSchema} from 'graphql';
 
 const SCRIPT_NAME = 'relay-compiler';
 
-function buildWatchExpression(
-  options: {
-    extensions: Array<string>,
-  },
-) {
+function buildWatchExpression(options: {extensions: Array<string>}) {
   return [
     'allof',
     ['type', 'f'],
@@ -59,14 +55,12 @@ function buildWatchExpression(
 
 /* eslint-disable no-console-disallow */
 
-async function run(
-  options: {
-    schema: string,
-    src: string,
-    extensions: Array<string>,
-    watch?: ?boolean,
-  },
-) {
+async function run(options: {
+  schema: string,
+  src: string,
+  extensions: Array<string>,
+  watch?: ?boolean,
+}) {
   const schemaPath = path.resolve(process.cwd(), options.schema);
   if (!fs.existsSync(schemaPath)) {
     throw new Error(`--schema path does not exist: ${schemaPath}.`);

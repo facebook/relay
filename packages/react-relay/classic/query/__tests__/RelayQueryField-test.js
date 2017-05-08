@@ -830,18 +830,18 @@ describe('RelayQueryField', () => {
   });
 
   it('returns the inferred primary key', () => {
-    const field = getNode(Relay.QL`fragment on Story{feedback}`).getChildren()[
-      0
-    ];
+    const field = getNode(
+      Relay.QL`fragment on Story{feedback}`,
+    ).getChildren()[0];
     expect(field.getInferredPrimaryKey()).toBe('id');
 
     expect(friendsScalarField.getInferredPrimaryKey()).toBe(undefined);
   });
 
   it('returns the inferred root call name', () => {
-    const field = getNode(Relay.QL`fragment on Story{feedback}`).getChildren()[
-      0
-    ];
+    const field = getNode(
+      Relay.QL`fragment on Story{feedback}`,
+    ).getChildren()[0];
     expect(field.getInferredRootCallName()).toBe('node');
 
     expect(friendsScalarField.getInferredRootCallName()).toBe(undefined);

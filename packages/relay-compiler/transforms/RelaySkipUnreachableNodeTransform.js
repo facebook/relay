@@ -47,7 +47,7 @@ function transform(context: RelayCompilerContext): RelayCompilerContext {
   }, new RelayCompilerContext(context.schema));
   return Array.from(fragments.values()).reduce(
     (ctx: RelayCompilerContext, fragment) =>
-      (fragment ? ctx.add(fragment) : ctx),
+      fragment ? ctx.add(fragment) : ctx,
     nextContext,
   );
 }

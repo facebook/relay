@@ -333,9 +333,9 @@ class GraphQLStoreSingleQueryResolver {
   /**
    * Updates bookkeeping about the number of subscribers on each record.
    */
-  _updateGarbageCollectorSubscriptionCount(
-    nextDataIDs: {[dataID: DataID]: boolean},
-  ): void {
+  _updateGarbageCollectorSubscriptionCount(nextDataIDs: {
+    [dataID: DataID]: boolean,
+  }): void {
     if (this._garbageCollector) {
       const garbageCollector = this._garbageCollector;
       const rangeData = this._storeData.getRangeData();

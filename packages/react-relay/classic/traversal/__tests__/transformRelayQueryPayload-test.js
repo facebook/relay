@@ -281,9 +281,9 @@ describe('transformClientPayload()', () => {
     expect(
       queryInterface.traverseChildren.mock.calls.map(
         ([node]) =>
-          (node instanceof RelayQuery.Root
+          node instanceof RelayQuery.Root
             ? node.getFieldName()
-            : node.getApplicationName()),
+            : node.getApplicationName(),
       ),
     ).toEqual(['me', 'profilePicture']);
   });

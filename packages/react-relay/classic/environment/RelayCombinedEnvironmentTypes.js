@@ -145,7 +145,7 @@ export interface CEnvironment<
   TGraphQLTaggedNode,
   TNode,
   TOperation,
-  TPayload
+  TPayload,
 > {
   /**
    * Read the results of a selector from in-memory records in the store.
@@ -211,7 +211,7 @@ export interface CEnvironment<
     TFragment,
     TGraphQLTaggedNode,
     TNode,
-    TOperation
+    TOperation,
   >,
 }
 
@@ -220,7 +220,7 @@ export interface CUnstableEnvironmentCore<
   TFragment,
   TGraphQLTaggedNode,
   TNode,
-  TOperation
+  TOperation,
 > {
   /**
    * Create an instance of a FragmentSpecResolver.

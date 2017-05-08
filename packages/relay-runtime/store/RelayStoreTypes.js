@@ -56,7 +56,7 @@ export type UnstableEnvironmentCore = CUnstableEnvironmentCore<
   TFragment,
   TGraphQLTaggedNode,
   TNode,
-  TOperation
+  TOperation,
 >;
 
 /**
@@ -214,7 +214,7 @@ export interface Environment
     TGraphQLTaggedNode,
     TNode,
     TOperation,
-    TPayload
+    TPayload,
   > {
   /**
    * Apply an optimistic update to the environment. The mutation can be reverted

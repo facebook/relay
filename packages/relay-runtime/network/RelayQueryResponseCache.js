@@ -34,13 +34,7 @@ class RelayQueryResponseCache {
   _size: number;
   _ttl: number;
 
-  constructor({
-    size,
-    ttl,
-  }: {
-    size: number,
-    ttl: number,
-  }) {
+  constructor({size, ttl}: {size: number, ttl: number}) {
     invariant(
       size > 0,
       'RelayQueryResponseCache: Expected the max cache size to be > 0, got ' +

@@ -43,7 +43,7 @@ export type CompiledFragment<T: Fragment<*>> = ConcreteFragment;
  */
 declare class _FragmentReferenceClass<T> {}
 export type FragmentReference<T> = _FragmentReferenceClass<
-  $ExtractFragment<T, *>
+  $ExtractFragment<T, *>,
 >;
 
 /**

@@ -15,6 +15,7 @@
 
 const invariant = require('invariant');
 const isRelayModernEnvironment = require('isRelayModernEnvironment');
+const warning = require('warning');
 
 import type {Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
@@ -59,6 +60,20 @@ function commitRelayModernMutation(
     uploadables,
   } = config;
   const operation = createOperationSelector(mutation, variables);
+  if (
+    optimisticResponse &&
+    mutation.query.selections &&
+    mutation.query.selections.length === 1 &&
+    mutation.query.selections[0].kind === 'LinkedField'
+  ) {
+    const mutationRoot = mutation.query.selections[0].name;
+    warning(
+      optimisticResponse()[mutationRoot],
+      'commitRelayModernMutatuion: Expected result from optimisticResponse()' +
+        ' to be wrapped in mutation name `%s`',
+      mutationRoot,
+    );
+  }
   return environment.sendMutation({
     onError,
     operation,

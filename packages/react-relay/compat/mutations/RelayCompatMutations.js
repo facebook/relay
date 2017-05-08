@@ -14,6 +14,7 @@
 'use strict';
 
 const invariant = require('invariant');
+const warning = require('warning');
 
 const {
   getRelayClassicEnvironment,
@@ -66,6 +67,26 @@ function commitRelay1Mutation(
 ): Disposable {
   const {getOperation} = environment.unstable_internal;
   const operation = getOperation(mutation);
+  if (
+    optimisticResponse &&
+    operation.node.kind === 'Mutation' &&
+    operation.node.calls &&
+    operation.node.calls.length === 1
+  ) {
+    const mutationRoot = operation.node.calls[0].name;
+    const optimisticResponseObject = optimisticResponse();
+    if (optimisticResponseObject[mutationRoot]) {
+      optimisticResponse = () => optimisticResponseObject[mutationRoot];
+    } else {
+      warning(
+        false,
+        'RelayCompatMutations: Expected result from `optimisticResponse()`' +
+          'to contain the mutation name `%s` as a property, got `%s`',
+        mutationRoot,
+        optimisticResponseObject,
+      );
+    }
+  }
   return environment.sendMutation({
     configs: configs || [],
     operation,

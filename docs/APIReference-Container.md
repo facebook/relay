@@ -383,9 +383,11 @@ module.exports = Relay.createContainer(Feed, {
 });
 ```
 
-> Note
+> Notes
 >
 > `setVariables` does not immediately mutate `variables`, but creates a  pending state transition. `variables` will continue returning the previous values until `this.props` has been populated with data that fulfills the new variable values.
+>
+> If `setVariables` is used to change `first` and `hasNextPage` is `false` (also `last` and `hasPreviousPage`), Relay does not send a request to the server because there isn't any more data as far as Relay is concerned.
 
 See also: [Containers > Requesting Different Data](guides-containers.html#requesting-different-data), [Ready State](guides-ready-state.html)
 

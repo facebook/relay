@@ -1,6 +1,7 @@
 ---
 language: node_js
 install: true
+cache: yarn
 
 matrix:
   include:
@@ -16,13 +17,13 @@ matrix:
 script:
 - |
     if [ $TEST ]; then
-      npm install && npm run jest -- --runInBand --no-watchman
+      yarn install && yarn run jest -- --runInBand --no-watchman
     fi
 - |
     if [ $TYPECHECK ]; then
-      npm install --ignore-scripts && npm run typecheck
+      yarn install --ignore-scripts && yarn run typecheck
     fi
 - |
     if [ $LINT ]; then
-      npm install --ignore-scripts && npm run lint
+      yarn install --ignore-scripts && yarn run lint
     fi

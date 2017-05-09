@@ -127,3 +127,7 @@ window.addEventListener('popstate', () => {
   );
 });
 ```
+
+> Note
+>
+> In Relay, the arguments are restricted to String Type in query. These is a client-end restriction by Relay Store. As above illustration, the arguments must be String Type `user(id: "123")` rather than `user(id: 123)`. There is no such restriction in fragment, so if you want to do something like `user(age: 18)`, do it in sub-level or fragment.

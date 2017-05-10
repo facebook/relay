@@ -14,16 +14,38 @@
 jest.autoMockOff().mock('generateClientID');
 
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
+const RelayRecordSourceMutator = require('RelayRecordSourceMutator');
+const RelayRecordSourceProxy = require('RelayRecordSourceProxy');
+const RelayRecordProxyReader = require('RelayRecordProxyReader');
 const RelayReader = require('RelayReader');
 const RelayStoreUtils = require('RelayStoreUtils');
 const RelayModernTestUtils = require('RelayModernTestUtils');
+const RelayModernRecord = require('RelayModernRecord');
+
+const simpleClone = require('simpleClone');
 
 const {read} = RelayReader;
 const {ROOT_ID} = RelayStoreUtils;
 
+function getProxyStore(source) {
+  const backupData = {};
+  const sinkData = {};
+  const baseData = simpleClone(source);
+  const baseSource = new RelayInMemoryRecordSource(baseData);
+  const backupSource = new RelayInMemoryRecordSource(backupData);
+  const sinkSource = new RelayInMemoryRecordSource(sinkData);
+  const mutator = new RelayRecordSourceMutator(
+    baseSource,
+    sinkSource,
+    backupSource,
+  );
+  return new RelayRecordSourceProxy(mutator);
+}
+
 describe('RelayReader', () => {
   const {generateAndCompile, generateWithTransforms} = RelayModernTestUtils;
   let source;
+  let proxy;
 
   beforeEach(() => {
     jest.resetModules();
@@ -81,6 +103,7 @@ describe('RelayReader', () => {
     };
 
     source = new RelayInMemoryRecordSource(data);
+    proxy = getProxyStore(data);
   });
 
   it('reads query data', () => {
@@ -114,50 +137,67 @@ describe('RelayReader', () => {
       }
     `,
     );
-    const {data, seenRecords} = read(source, {
-      dataID: ROOT_ID,
-      node: FooQuery,
-      variables: {id: '1', size: 32},
-    });
-    expect(data).toEqual({
-      node: {
-        id: '1',
-        __typename: 'User',
-        firstName: 'Alice',
-        friends: {
-          edges: [
-            {
-              cursor: 'cursor:2',
-              node: {
-                id: '2',
-                firstName: 'Bob',
-              },
-            },
-            null,
-            {
-              cursor: 'cursor:3',
-              node: {
-                id: '3',
-                firstName: 'Claire',
-              },
-            },
-          ],
-        },
-        profilePicture: {
-          uri: 'https://...',
-        },
+    const instances = [
+      {
+        store: source,
+        reader: RelayModernRecord,
       },
+      {
+        store: proxy,
+        reader: RelayRecordProxyReader,
+      },
+    ];
+
+    instances.map(({store, reader}) => {
+      const {data, seenRecords} = read(
+        store,
+        {
+          dataID: ROOT_ID,
+          node: FooQuery,
+          variables: {id: '1', size: 32},
+        },
+        reader,
+      );
+      expect(data).toEqual({
+        node: {
+          id: '1',
+          __typename: 'User',
+          firstName: 'Alice',
+          friends: {
+            edges: [
+              {
+                cursor: 'cursor:2',
+                node: {
+                  id: '2',
+                  firstName: 'Bob',
+                },
+              },
+              null,
+              {
+                cursor: 'cursor:3',
+                node: {
+                  id: '3',
+                  firstName: 'Claire',
+                },
+              },
+            ],
+          },
+          profilePicture: {
+            uri: 'https://...',
+          },
+        },
+      });
+      expect(Object.keys(seenRecords)).toEqual([
+        '1',
+        '2',
+        '3',
+        'client:root',
+        'client:1',
+        'client:2',
+        'client:3',
+        'client:4',
+      ]);
     });
-    expect(Object.keys(seenRecords)).toEqual([
-      '1',
-      '2',
-      '3',
-      'client:root',
-      'client:1',
-      'client:2',
-      'client:3',
-      'client:4',
-    ]);
   });
 
   it('reads fragment data', () => {
@@ -183,46 +223,63 @@ describe('RelayReader', () => {
       }
     `,
     );
-    const {data, seenRecords} = read(source, {
-      dataID: '1',
-      node: BarFragment,
-      variables: {size: 32},
-    });
-    expect(data).toEqual({
-      id: '1',
-      firstName: 'Alice',
-      friends: {
-        edges: [
-          {
-            cursor: 'cursor:2',
-            node: {
-              id: '2',
-              firstName: 'Bob',
-            },
-          },
-          null,
-          {
-            cursor: 'cursor:3',
-            node: {
-              id: '3',
-              firstName: 'Claire',
-            },
-          },
-        ],
+    const instances = [
+      {
+        store: source,
+        reader: RelayModernRecord,
       },
-      profilePicture: {
-        uri: 'https://...',
+      {
+        store: proxy,
+        reader: RelayRecordProxyReader,
       },
+    ];
+
+    instances.map(({store, reader}) => {
+      const {data, seenRecords} = read(
+        store,
+        {
+          dataID: '1',
+          node: BarFragment,
+          variables: {size: 32},
+        },
+        reader,
+      );
+      expect(data).toEqual({
+        id: '1',
+        firstName: 'Alice',
+        friends: {
+          edges: [
+            {
+              cursor: 'cursor:2',
+              node: {
+                id: '2',
+                firstName: 'Bob',
+              },
+            },
+            null,
+            {
+              cursor: 'cursor:3',
+              node: {
+                id: '3',
+                firstName: 'Claire',
+              },
+            },
+          ],
+        },
+        profilePicture: {
+          uri: 'https://...',
+        },
+      });
+      expect(Object.keys(seenRecords)).toEqual([
+        '1',
+        '2',
+        '3',
+        'client:1',
+        'client:2',
+        'client:3',
+        'client:4',
+      ]);
     });
-    expect(Object.keys(seenRecords)).toEqual([
-      '1',
-      '2',
-      '3',
-      'client:1',
-      'client:2',
-      'client:3',
-      'client:4',
-    ]);
   });
 
   it('creates fragment pointers', () => {
@@ -244,22 +301,38 @@ describe('RelayReader', () => {
       }
     `,
     );
-
-    const {data, seenRecords} = read(source, {
-      dataID: '1',
-      node: UserProfile,
-      variables: {size: 42},
-    });
-    expect(data).toEqual({
-      id: '1',
-      __id: '1',
-      __fragments: {
-        UserProfilePicture: {
-          size: 42,
-        },
+    const instances = [
+      {
+        store: source,
+        reader: RelayModernRecord,
       },
+      {
+        store: proxy,
+        reader: RelayRecordProxyReader,
+      },
+    ];
+
+    instances.map(({store, reader}) => {
+      const {data, seenRecords} = read(
+        store,
+        {
+          dataID: '1',
+          node: UserProfile,
+          variables: {size: 42},
+        },
+        reader,
+      );
+      expect(data).toEqual({
+        id: '1',
+        __id: '1',
+        __fragments: {
+          UserProfilePicture: {
+            size: 42,
+          },
+        },
+      });
+      expect(Object.keys(seenRecords)).toEqual(['1']);
     });
-    expect(Object.keys(seenRecords)).toEqual(['1']);
   });
 
   it('reads data when the root is deleted', () => {
@@ -271,14 +344,32 @@ describe('RelayReader', () => {
     `,
     );
     source = new RelayInMemoryRecordSource();
-    source.delete('4');
-    const {data, seenRecords} = read(source, {
-      dataID: '4',
-      node: UserProfile,
-      variables: {},
+    proxy = getProxyStore({});
+    const instances = [
+      {
+        store: source,
+        reader: RelayModernRecord,
+      },
+      {
+        store: proxy,
+        reader: RelayRecordProxyReader,
+      },
+    ];
+
+    instances.map(({store, reader}) => {
+      store.delete('4');
+      const {data, seenRecords} = read(
+        store,
+        {
+          dataID: '4',
+          node: UserProfile,
+          variables: {},
+        },
+        reader,
+      );
+      expect(data).toBe(null);
+      expect(Object.keys(seenRecords)).toEqual(['4']);
     });
-    expect(data).toBe(null);
-    expect(Object.keys(seenRecords)).toEqual(['4']);
   });
 
   it('reads data when the root is unfetched', () => {
@@ -290,13 +381,31 @@ describe('RelayReader', () => {
     `,
     );
     source = new RelayInMemoryRecordSource();
-    const {data, seenRecords} = read(source, {
-      dataID: '4',
-      node: UserProfile,
-      variables: {},
+    proxy = getProxyStore({});
+    const instances = [
+      {
+        store: source,
+        reader: RelayModernRecord,
+      },
+      {
+        store: proxy,
+        reader: RelayRecordProxyReader,
+      },
+    ];
+
+    instances.map(({store, reader}) => {
+      const {data, seenRecords} = read(
+        store,
+        {
+          dataID: '4',
+          node: UserProfile,
+          variables: {},
+        },
+        reader,
+      );
+      expect(data).toBe(undefined);
+      expect(Object.keys(seenRecords)).toEqual(['4']);
     });
-    expect(data).toBe(undefined);
-    expect(Object.keys(seenRecords)).toEqual(['4']);
   });
 
   it('reads "handle" fields for query root fragments', () => {
@@ -332,52 +441,68 @@ describe('RelayReader', () => {
       },
     };
     source = new RelayInMemoryRecordSource(records);
-    const {UserFriends} = generateAndCompile(
-      `
-      query UserFriends($id: ID!) {
-        node(id: $id) {
-          ... on User {
-            friends(first: 1) @__clientField(handle: "bestFriends") {
-              edges {
-                cursor
-                node {
-                  id
-                  name @__clientField(handle: "friendsName")
+    proxy = getProxyStore(records);
+    const instances = [
+      {
+        store: source,
+        reader: RelayModernRecord,
+      },
+      {
+        store: proxy,
+        reader: RelayRecordProxyReader,
+      },
+    ];
+
+    instances.map(({store, reader}) => {
+      const {UserFriends} = generateAndCompile(`
+        query UserFriends($id: ID!) {
+          node(id: $id) {
+            ... on User {
+              friends(first: 1) @__clientField(handle: "bestFriends") {
+                edges {
+                  cursor
+                  node {
+                    id
+                    name @__clientField(handle: "friendsName")
+                  }
                 }
               }
             }
           }
         }
-      }
-    `,
-    );
-    const {data, seenRecords} = read(source, {
-      dataID: ROOT_ID,
-      node: UserFriends.fragment,
-      variables: {id: '1'},
-    });
-    expect(data).toEqual({
-      node: {
-        friends: {
-          edges: [
-            {
-              cursor: 'cursor:bestFriendsEdge',
-              node: {
-                id: '2',
-                name: 'handleName',
-              },
-            },
-          ],
+      `);
+      const {data, seenRecords} = read(
+        store,
+        {
+          dataID: ROOT_ID,
+          node: UserFriends.fragment,
+          variables: {id: '1'},
         },
-      },
+        reader,
+      );
+      expect(data).toEqual({
+        node: {
+          friends: {
+            edges: [
+              {
+                cursor: 'cursor:bestFriendsEdge',
+                node: {
+                  id: '2',
+                  name: 'handleName',
+                },
+              },
+            ],
+          },
+        },
+      });
+      expect(Object.keys(seenRecords).sort()).toEqual([
+        '1',
+        '2',
+        'client:bestFriends',
+        'client:bestFriendsEdge',
+        'client:root',
+      ]);
     });
-    expect(Object.keys(seenRecords).sort()).toEqual([
-      '1',
-      '2',
-      'client:bestFriends',
-      'client:bestFriendsEdge',
-      'client:root',
-    ]);
   });
 
   it('reads "handle" fields for fragments', () => {
@@ -408,44 +533,60 @@ describe('RelayReader', () => {
       },
     };
     source = new RelayInMemoryRecordSource(records);
-    const {UserFriends} = generateAndCompile(
-      `
-      fragment UserFriends on User {
-        friends(first: 1) @__clientField(handle: "bestFriends") {
-          edges {
-            cursor
-            node {
-              id
-              name @__clientField(handle: "friendsName")
+    proxy = getProxyStore(records);
+    const instances = [
+      {
+        store: source,
+        reader: RelayModernRecord,
+      },
+      {
+        store: proxy,
+        reader: RelayRecordProxyReader,
+      },
+    ];
+
+    instances.map(({store, reader}) => {
+      const {UserFriends} = generateAndCompile(`
+        fragment UserFriends on User {
+          friends(first: 1) @__clientField(handle: "bestFriends") {
+            edges {
+              cursor
+              node {
+                id
+                name @__clientField(handle: "friendsName")
+              }
             }
           }
         }
-      }
-    `,
-    );
-    const {data, seenRecords} = read(source, {
-      dataID: '1',
-      node: UserFriends,
-      variables: {},
-    });
-    expect(data).toEqual({
-      friends: {
-        edges: [
-          {
-            cursor: 'cursor:bestFriendsEdge',
-            node: {
-              id: '2',
-              name: 'handleName',
+      `);
+      const {data, seenRecords} = read(
+        store,
+        {
+          dataID: '1',
+          node: UserFriends,
+          variables: {},
+        },
+        reader,
+      );
+      expect(data).toEqual({
+        friends: {
+          edges: [
+            {
+              cursor: 'cursor:bestFriendsEdge',
+              node: {
+                id: '2',
+                name: 'handleName',
+              },
             },
-          },
-        ],
-      },
+          ],
+        },
+      });
+      expect(Object.keys(seenRecords).sort()).toEqual([
+        '1',
+        '2',
+        'client:bestFriends',
+        'client:bestFriendsEdge',
+      ]);
     });
-    expect(Object.keys(seenRecords).sort()).toEqual([
-      '1',
-      '2',
-      'client:bestFriends',
-      'client:bestFriendsEdge',
-    ]);
   });
 });

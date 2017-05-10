@@ -27,6 +27,7 @@ import type {
   CSnapshot,
   CUnstableEnvironmentCore,
   Disposable,
+  Record,
 } from 'RelayCombinedEnvironmentTypes';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {UploadableMap} from 'RelayNetworkTypes';
@@ -43,7 +44,7 @@ export type FragmentMap = CFragmentMap<TFragment>;
 export type OperationSelector = COperationSelector<TNode, TOperation>;
 export type RelayContext = CRelayContext<TEnvironment>;
 export type Selector = CSelector<TNode>;
-export type Snapshot = CSnapshot<TNode>;
+export type Snapshot = CSnapshot<TNode, Record>;
 export type UnstableEnvironmentCore = CUnstableEnvironmentCore<
   TEnvironment,
   TFragment,

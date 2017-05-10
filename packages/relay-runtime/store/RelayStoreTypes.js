@@ -50,7 +50,9 @@ export type FragmentMap = CFragmentMap<TFragment>;
 export type OperationSelector = COperationSelector<TNode, TOperation>;
 export type RelayContext = CRelayContext<TEnvironment>;
 export type Selector = CSelector<TNode>;
-export type Snapshot = CSnapshot<TNode>;
+export type TSnapshot<TRecord> = CSnapshot<TNode, TRecord>;
+export type Snapshot = TSnapshot<Record>;
+export type ProxySnapshot = TSnapshot<RecordProxy>;
 export type UnstableEnvironmentCore = CUnstableEnvironmentCore<
   TEnvironment,
   TFragment,
@@ -59,10 +61,14 @@ export type UnstableEnvironmentCore = CUnstableEnvironmentCore<
   TOperation,
 >;
 
+export interface IRecordSource<TRecord> {
+  get(dataID: DataID): ?TRecord,
+}
+
 /**
  * A read-only interface for accessing cached graph data.
  */
-export interface RecordSource {
+export interface RecordSource extends IRecordSource<Record> {
   get(dataID: DataID): ?Record,
   getRecordIDs(): Array<DataID>,
   getStatus(dataID: DataID): RecordState,
@@ -183,7 +189,7 @@ export interface RecordProxy {
  * allowing different implementations that may e.g. create a changeset of
  * the modifications.
  */
-export interface RecordSourceProxy {
+export interface RecordSourceProxy extends IRecordSource<RecordProxy> {
   create(dataID: DataID, typeName: string): RecordProxy,
   delete(dataID: DataID): void,
   get(dataID: DataID): ?RecordProxy,
@@ -194,13 +200,26 @@ export interface RecordSourceProxy {
  * Extends the RecordSourceProxy interface with methods for accessing the root
  * fields of a Selector.
  */
-export interface RecordSourceSelectorProxy {
+export interface RecordSourceSelectorProxy extends IRecordSource<RecordProxy> {
   create(dataID: DataID, typeName: string): RecordProxy,
   delete(dataID: DataID): void,
   get(dataID: DataID): ?RecordProxy,
   getRoot(): RecordProxy,
   getRootField(fieldName: string): ?RecordProxy,
   getPluralRootField(fieldName: string): ?Array<?RecordProxy>,
+  getResponse(): ?Object,
+}
+
+export interface IRecordReader<TRecord> {
+  getDataID(record: TRecord): DataID,
+  getType(record: TRecord): string,
+  getValue(record: TRecord, name: string, args?: ?Variables): mixed,
+  getLinkedRecordID(record: TRecord, name: string, args?: ?Variables): ?DataID,
+  getLinkedRecordIDs(
+    record: TRecord,
+    name: string,
+    args?: ?Variables,
+  ): ?Array<?DataID>,
 }
 
 /**

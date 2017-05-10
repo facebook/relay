@@ -13,8 +13,11 @@
 
 'use strict';
 
+const RelayRecordProxyReader = require('RelayRecordProxyReader');
+
 const invariant = require('invariant');
 
+const {read} = require('RelayReader');
 const {getStorageKey} = require('RelayStoreUtils');
 
 import type {ConcreteLinkedField} from 'RelayConcreteNode';
@@ -95,6 +98,11 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
     const field = this._getRootField(this._selector, fieldName, true);
     const storageKey = getStorageKey(field, this._selector.variables);
     return this.getRoot().getLinkedRecords(storageKey);
+  }
+
+  getResponse(): ?Object {
+    const snapshot = read(this, this._selector, RelayRecordProxyReader);
+    return snapshot.data;
   }
 }
 

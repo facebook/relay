@@ -27,9 +27,9 @@ const {EXISTENT, NONEXISTENT, UNKNOWN} = RelayRecordState;
  * `RelayStoreTypes`) that holds all records in memory.
  */
 class RelayInMemoryRecordSource implements MutableRecordSource {
-  _records: RecordMap;
+  _records: RecordMap<Record>;
 
-  constructor(records?: RecordMap) {
+  constructor(records?: RecordMap<Record>) {
     this._records = records || {};
   }
 

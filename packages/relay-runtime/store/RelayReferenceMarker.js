@@ -151,7 +151,10 @@ class RelayReferenceMarker {
 
   _traverseLink(field: ConcreteLinkedField, record: Record): void {
     const storageKey = getStorageKey(field, this._variables);
-    const linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
+    const linkedID = RelayModernRecord.getLinkedRecordIDByStorageKey(
+      record,
+      storageKey,
+    );
 
     if (linkedID == null) {
       return;
@@ -161,7 +164,10 @@ class RelayReferenceMarker {
 
   _traversePluralLink(field: ConcreteLinkedField, record: Record): void {
     const storageKey = getStorageKey(field, this._variables);
-    const linkedIDs = RelayModernRecord.getLinkedRecordIDs(record, storageKey);
+    const linkedIDs = RelayModernRecord.getLinkedRecordIDsByStorageKey(
+      record,
+      storageKey,
+    );
 
     if (linkedIDs == null) {
       return;

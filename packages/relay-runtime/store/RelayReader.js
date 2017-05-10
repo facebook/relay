@@ -14,12 +14,10 @@
 'use strict';
 
 const RelayConcreteNode = require('RelayConcreteNode');
-const RelayModernRecord = require('RelayModernRecord');
 const RelayStoreUtils = require('RelayStoreUtils');
 
 const invariant = require('invariant');
 
-import type {Record} from 'RelayCombinedEnvironmentTypes';
 import type {SelectorData} from 'RelayCombinedEnvironmentTypes';
 import type {
   ConcreteFragmentSpread,
@@ -30,7 +28,12 @@ import type {
   ConcreteSelectableNode,
 } from 'RelayConcreteNode';
 import type {DataID} from 'RelayInternalTypes';
-import type {RecordSource, Selector, Snapshot} from 'RelayStoreTypes';
+import type {
+  IRecordSource,
+  IRecordReader,
+  Selector,
+  TSnapshot,
+} from 'RelayStoreTypes';
 import type {Variables} from 'RelayTypes';
 
 const {
@@ -40,34 +43,39 @@ const {
   LINKED_FIELD,
   SCALAR_FIELD,
 } = RelayConcreteNode;
-const {
-  FRAGMENTS_KEY,
-  ID_KEY,
-  getArgumentValues,
-  getStorageKey,
-} = RelayStoreUtils;
+const {FRAGMENTS_KEY, ID_KEY, getArgumentValues} = RelayStoreUtils;
 
-function read(recordSource: RecordSource, selector: Selector): Snapshot {
+function read<TRecord>(
+  recordSource: IRecordSource<TRecord>,
+  selector: Selector,
+  recordReader: IRecordReader<TRecord>,
+): TSnapshot<TRecord> {
   const {dataID, node, variables} = selector;
-  const reader = new RelayReader(recordSource, variables);
+  const reader = new RelayReader(recordSource, variables, recordReader);
   return reader.read(node, dataID);
 }
 
 /**
  * @private
  */
-class RelayReader {
-  _recordSource: RecordSource;
-  _seenRecords: {[dataID: DataID]: ?Record};
+class RelayReader<TRecord> {
+  _recordSource: IRecordSource<TRecord>;
+  _seenRecords: {[dataID: DataID]: ?TRecord};
   _variables: Variables;
+  _recordReader: IRecordReader<TRecord>;
 
-  constructor(recordSource: RecordSource, variables: Variables) {
+  constructor(
+    recordSource: IRecordSource<TRecord>,
+    variables: Variables,
+    recordReader: IRecordReader<TRecord>,
+  ) {
     this._recordSource = recordSource;
     this._seenRecords = {};
     this._variables = variables;
+    this._recordReader = recordReader;
   }
 
-  read(node: ConcreteSelectableNode, dataID: DataID): Snapshot {
+  read(node: ConcreteSelectableNode, dataID: DataID): TSnapshot<TRecord> {
     const data = this._traverse(node, dataID, null);
     return {
       data,
@@ -104,7 +112,7 @@ class RelayReader {
 
   _traverseSelections(
     selections: Array<ConcreteSelection>,
-    record: Record,
+    record: TRecord,
     data: SelectorData,
   ): void {
     selections.forEach(selection => {
@@ -122,7 +130,7 @@ class RelayReader {
           this._traverseSelections(selection.selections, record, data);
         }
       } else if (selection.kind === INLINE_FRAGMENT) {
-        const typeName = RelayModernRecord.getType(record);
+        const typeName = this._recordReader.getType(record);
         if (typeName != null && typeName === selection.type) {
           this._traverseSelections(selection.selections, record, data);
         }
@@ -140,23 +148,31 @@ class RelayReader {
 
   _readScalar(
     field: ConcreteScalarField,
-    record: Record,
+    record: TRecord,
     data: SelectorData,
   ): void {
     const applicationName = field.alias || field.name;
-    const storageKey = getStorageKey(field, this._variables);
-    const value = RelayModernRecord.getValue(record, storageKey);
+    const variables = field.args
+      ? getArgumentValues(field.args, this._variables)
+      : null;
+    const value = this._recordReader.getValue(record, field.name, variables);
     data[applicationName] = value;
   }
 
   _readLink(
     field: ConcreteLinkedField,
-    record: Record,
+    record: TRecord,
     data: SelectorData,
   ): void {
     const applicationName = field.alias || field.name;
-    const storageKey = getStorageKey(field, this._variables);
-    const linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
+    const variables = field.args
+      ? getArgumentValues(field.args, this._variables)
+      : null;
+    const linkedID = this._recordReader.getLinkedRecordID(
+      record,
+      field.name,
+      variables,
+    );
 
     if (linkedID == null) {
       data[applicationName] = linkedID;
@@ -169,7 +185,7 @@ class RelayReader {
       'RelayReader(): Expected data for field `%s` on record `%s` ' +
         'to be an object, got `%s`.',
       applicationName,
-      RelayModernRecord.getDataID(record),
+      this._recordReader.getDataID(record),
       prevData,
     );
     data[applicationName] = this._traverse(field, linkedID, prevData);
@@ -177,12 +193,18 @@ class RelayReader {
 
   _readPluralLink(
     field: ConcreteLinkedField,
-    record: Record,
+    record: TRecord,
     data: SelectorData,
   ): void {
     const applicationName = field.alias || field.name;
-    const storageKey = getStorageKey(field, this._variables);
-    const linkedIDs = RelayModernRecord.getLinkedRecordIDs(record, storageKey);
+    const variables = field.args
+      ? getArgumentValues(field.args, this._variables)
+      : null;
+    const linkedIDs = this._recordReader.getLinkedRecordIDs(
+      record,
+      field.name,
+      variables,
+    );
 
     if (linkedIDs == null) {
       data[applicationName] = linkedIDs;
@@ -195,7 +217,7 @@ class RelayReader {
       'RelayReader(): Expected data for field `%s` on record `%s` ' +
         'to be an array, got `%s`.',
       applicationName,
-      RelayModernRecord.getDataID(record),
+      this._recordReader.getDataID(record),
       prevData,
     );
     const linkedArray = prevData || [];
@@ -210,7 +232,7 @@ class RelayReader {
         'RelayReader(): Expected data for field `%s` on record `%s` ' +
           'to be an object, got `%s`.',
         applicationName,
-        RelayModernRecord.getDataID(record),
+        this._recordReader.getDataID(record),
         prevItem,
       );
       const linkedItem = this._traverse(field, linkedID, prevItem);
@@ -221,7 +243,7 @@ class RelayReader {
 
   _createFragmentPointer(
     fragmentSpread: ConcreteFragmentSpread,
-    record: Record,
+    record: TRecord,
     data: SelectorData,
   ): void {
     let fragmentPointers = data[FRAGMENTS_KEY];
@@ -233,7 +255,7 @@ class RelayReader {
       'RelayReader: Expected fragment spread data to be an object, got `%s`.',
       fragmentPointers,
     );
-    data[ID_KEY] = data[ID_KEY] || RelayModernRecord.getDataID(record);
+    data[ID_KEY] = data[ID_KEY] || this._recordReader.getDataID(record);
     const variables = fragmentSpread.args
       ? getArgumentValues(fragmentSpread.args, this._variables)
       : {};

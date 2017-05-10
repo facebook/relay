@@ -203,7 +203,7 @@ class RelayResponseNormalizer {
       }
       if (__DEV__) {
         warning(
-          data.hasOwnProperty(responseKey),
+          Object.prototype.hasOwnProperty.call(data, responseKey),
           'RelayResponseNormalizer(): Payload did not contain a value ' +
             'for field `%s: %s`. Check that you are parsing with the same ' +
             'query that was used to fetch the payload.',

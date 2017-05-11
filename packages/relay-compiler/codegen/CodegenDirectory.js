@@ -128,9 +128,13 @@ class CodegenDirectory {
     }
   }
 
+  /**
+   * Deletes all non-generated files, except for invisible "dot" files (ie.
+   * files with names starting with ".").
+   */
   deleteExtraFiles(): void {
     fs.readdirSync(this._dir).forEach(actualFile => {
-      if (!this._files.has(actualFile)) {
+      if (!this._files.has(actualFile) && !/^\./.test(actualFile)) {
         if (!this.onlyValidate) {
           fs.unlinkSync(path.join(this._dir, actualFile));
         }

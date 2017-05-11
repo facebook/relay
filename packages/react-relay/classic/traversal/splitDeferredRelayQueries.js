@@ -124,9 +124,10 @@ function wrapNode(
   const identifyingArg = node.getIdentifyingArg();
   const identifyingArgName = (identifyingArg && identifyingArg.name) || null;
   const identifyingArgValue = (identifyingArg && identifyingArg.value) || null;
+  const identifyingArgType = (identifyingArg && identifyingArg.type) || RelayNodeInterface.ID_TYPE;
   const metadata = {
     identifyingArgName,
-    identifyingArgType: RelayNodeInterface.ID_TYPE,
+    identifyingArgType,
     isAbstract: true,
     isDeferred: true,
     isPlural: false,

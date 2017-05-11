@@ -60,7 +60,7 @@ const RelayNetworkLogger = {
         console.log('Cache Config:', cacheConfig);
         console.log('Variables:', prettyStringify(variables));
         if (error) {
-          console.error('Error:', error);
+          console.log('Error:', error);
         }
         if (response) {
           console.log('Response:', response);

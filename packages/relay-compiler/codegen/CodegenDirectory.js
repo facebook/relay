@@ -130,7 +130,7 @@ class CodegenDirectory {
 
   deleteExtraFiles(): void {
     fs.readdirSync(this._dir).forEach(actualFile => {
-      if (!this._files.has(actualFile)) {
+      if (!this._files.has(actualFile) && !/^\./.test(actualFile)) {
         if (!this.onlyValidate) {
           fs.unlinkSync(path.join(this._dir, actualFile));
         }

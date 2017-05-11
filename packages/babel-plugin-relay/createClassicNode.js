@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule createClassicNode
+ * @format
  */
 
 'use strict';
@@ -31,7 +32,9 @@ function createClassicNode(t, path, graphqlDefinition, state) {
 
   throw new Error(
     'BabelPluginRelay: Expected a fragment, mutation, query, or ' +
-    'subscription, got `' + graphqlDefinition.kind + '`.'
+      'subscription, got `' +
+      graphqlDefinition.kind +
+      '`.',
   );
 }
 
@@ -42,14 +45,18 @@ function createFragmentConcreteNode(t, path, definition, state) {
     variables,
     argumentDefinitions,
   } = createClassicAST(t, definition);
-  const substitutions = createSubstitutionsForFragmentSpreads(t, path, fragments);
+  const substitutions = createSubstitutionsForFragmentSpreads(
+    t,
+    path,
+    fragments,
+  );
 
   const transformedAST = createObject(t, {
     kind: t.stringLiteral('FragmentDefinition'),
     argumentDefinitions: createFragmentArguments(
       t,
       argumentDefinitions,
-      variables
+      variables,
     ),
     node: createRelayQLTemplate(t, classicAST, state),
   });
@@ -59,15 +66,19 @@ function createFragmentConcreteNode(t, path, definition, state) {
 
 function createOperationConcreteNode(t, path, definition, state) {
   const {classicAST, fragments} = createClassicAST(t, definition);
-  const substitutions = createSubstitutionsForFragmentSpreads(t, path, fragments);
-  const nodeAST = classicAST.operation === 'query' ?
-    createFragmentForOperation(t, classicAST, state) :
-    createRelayQLTemplate(t, classicAST, state);
+  const substitutions = createSubstitutionsForFragmentSpreads(
+    t,
+    path,
+    fragments,
+  );
+  const nodeAST = classicAST.operation === 'query'
+    ? createFragmentForOperation(t, classicAST, state)
+    : createRelayQLTemplate(t, classicAST, state);
   const transformedAST = createObject(t, {
     kind: t.stringLiteral('OperationDefinition'),
     argumentDefinitions: createOperationArguments(
       t,
-      definition.variableDefinitions
+      definition.variableDefinitions,
     ),
     name: t.stringLiteral(definition.name.value),
     operation: t.stringLiteral(classicAST.operation),
@@ -91,7 +102,7 @@ function createClassicAST(t, definition) {
           if (argumentDefinitions) {
             throw new Error(
               'BabelPluginRelay: Expected only one ' +
-              '@argumentDefinitions directive'
+                '@argumentDefinitions directive',
             );
           }
           argumentDefinitions = node.arguments;
@@ -115,14 +126,13 @@ function createClassicAST(t, definition) {
       } else {
         // TODO: add support for @include and other directives.
         const directive = directives[0];
-        if (
-          directives.length !== 1 ||
-          directive.name.value !== 'arguments'
-        ) {
+        if (directives.length !== 1 || directive.name.value !== 'arguments') {
           throw new Error(
             'BabelPluginRelay: Unsupported directive `' +
-            directive.name.value + '` on fragment spread `...' +
-            fragmentName + '`.'
+              directive.name.value +
+              '` on fragment spread `...' +
+              fragmentName +
+              '`.',
           );
         }
         const fragmentArgumentsObject = {};
@@ -166,12 +176,12 @@ function createConcreteNode(t, transformedAST, substitutions, state) {
   // Allow for an optional direct require to RelayQL,
   // otherwise default to `require('react-relay/classic').QL`.
   const relayQLModule = state.opts && state.opts.relayQLModule;
-  const relayQLRequire = relayQLModule ?
-    createRequireCall(t, relayQLModule) :
-    t.memberExpression(
-      createRequireCall(t, 'react-relay/classic'),
-      t.identifier('QL'),
-    );
+  const relayQLRequire = relayQLModule
+    ? createRequireCall(t, relayQLModule)
+    : t.memberExpression(
+        createRequireCall(t, 'react-relay/classic'),
+        t.identifier('QL'),
+      );
 
   return t.functionExpression(
     null,
@@ -180,40 +190,38 @@ function createConcreteNode(t, transformedAST, substitutions, state) {
       t.variableDeclaration(
         'const',
         [
-          t.variableDeclarator(
-            t.identifier(RELAYQL_GENERATED),
-            relayQLRequire
-          ),
-        ].concat(substitutions)
+          t.variableDeclarator(t.identifier(RELAYQL_GENERATED), relayQLRequire),
+        ].concat(substitutions),
       ),
       t.returnStatement(transformedAST),
-    ])
+    ]),
   );
 }
 
 function createOperationArguments(t, variableDefinitions) {
-  return t.arrayExpression(variableDefinitions.map(definition => {
-    const name = definition.variable.name.value;
-    const defaultValue = definition.defaultValue ?
-      parseValue(t, definition.defaultValue) :
-      t.nullLiteral();
-    return createLocalArgument(t, name, defaultValue);
-  }));
+  return t.arrayExpression(
+    variableDefinitions.map(definition => {
+      const name = definition.variable.name.value;
+      const defaultValue = definition.defaultValue
+        ? parseValue(t, definition.defaultValue)
+        : t.nullLiteral();
+      return createLocalArgument(t, name, defaultValue);
+    }),
+  );
 }
 
 function createFragmentArguments(t, argumentDefinitions, variables) {
   const concreteDefinitions = [];
   Object.keys(variables).forEach(name => {
-    const definition = (argumentDefinitions || []).find(
-      arg => arg.name.value === name
-    );
+    const definition = (argumentDefinitions || [])
+      .find(arg => arg.name.value === name);
     if (definition) {
       const defaultValueField = definition.value.fields.find(
-        field => field.name.value === 'defaultValue'
+        field => field.name.value === 'defaultValue',
       );
-      const defaultValue = defaultValueField ?
-        parseValue(t, defaultValueField.value) :
-        t.nullLiteral();
+      const defaultValue = defaultValueField
+        ? parseValue(t, defaultValueField.value)
+        : t.nullLiteral();
       concreteDefinitions.push(createLocalArgument(t, name, defaultValue));
     } else {
       concreteDefinitions.push(createRootArgument(t, name));
@@ -253,7 +261,7 @@ function parseValue(t, value) {
       return t.arrayExpression(value.values.map(item => parseValue(t, item)));
     default:
       throw new Error(
-        'BabelPluginRelay: Unsupported literal type `' + value.kind + '`.'
+        'BabelPluginRelay: Unsupported literal type `' + value.kind + '`.',
       );
   }
 }
@@ -278,17 +286,14 @@ function convertArgument(t, argNode) {
 
 function createObject(t, obj: any) {
   return t.objectExpression(
-    Object.keys(obj).map(
-      key => t.objectProperty(t.identifier(key), obj[key])
-    )
+    Object.keys(obj).map(key => t.objectProperty(t.identifier(key), obj[key])),
   );
 }
 
 function createRequireCall(t, requiredPath) {
-  return t.callExpression(
-    t.identifier('require'),
-    [t.stringLiteral(requiredPath)]
-  );
+  return t.callExpression(t.identifier('require'), [
+    t.stringLiteral(requiredPath),
+  ]);
 }
 
 function createFragmentForOperation(t, operation, state) {
@@ -306,7 +311,8 @@ function createFragmentForOperation(t, operation, state) {
     default:
       throw new Error(
         'BabelPluginRelay: Unexpected operation type: `' +
-        operation.operation + '`.'
+          operation.operation +
+          '`.',
       );
   }
   const fragmentNode = {
@@ -331,15 +337,12 @@ function createFragmentForOperation(t, operation, state) {
 
 function createRelayQLTemplate(t, node, state) {
   const schema = state.opts && state.opts.schema;
-  invariant(
-    schema,
-    'babel-plugin-relay: Missing schema option'
-  );
+  invariant(schema, 'babel-plugin-relay: Missing schema option');
   const [documentName, propName] = getFragmentNameParts(node.name.value);
   const text = GraphQL.print(node);
   const quasi = t.templateLiteral(
     [t.templateElement({raw: text, cooked: text}, true)],
-    []
+    [],
   );
 
   return compileRelayQLTag(
@@ -349,7 +352,7 @@ function createRelayQLTemplate(t, node, state) {
     documentName,
     propName,
     RELAYQL_GENERATED, // tagName
-    state
+    state,
   );
 }
 
@@ -359,7 +362,7 @@ function createSubstitutionsForFragmentSpreads(t, path, fragments) {
     const [module, propName] = getFragmentNameParts(fragment.name);
     return t.variableDeclarator(
       t.identifier(varName),
-      createGetFragmentCall(t, path, module, propName, fragment.args)
+      createGetFragmentCall(t, path, module, propName, fragment.args),
     );
   });
 }
@@ -378,17 +381,18 @@ function createGetFragmentCall(t, path, module, propName, fragmentArguments) {
   // container. It might be a bound reference to the React class itself.
   // To be safe, when defined locally, always check the __container__ property
   // first.
-  const container = isDefinedLocally(path, module) ?
-    t.logicalExpression('||',
-      // __container__ is defined via ReactRelayCompatContainerBuilder.
-      t.memberExpression(t.identifier(module), t.identifier('__container__')),
-      t.identifier(module)
-    ) :
-    t.identifier(module);
+  const container = isDefinedLocally(path, module)
+    ? t.logicalExpression(
+        '||',
+        // __container__ is defined via ReactRelayCompatContainerBuilder.
+        t.memberExpression(t.identifier(module), t.identifier('__container__')),
+        t.identifier(module),
+      )
+    : t.identifier(module);
 
   return t.callExpression(
     t.memberExpression(container, t.identifier('getFragment')),
-    args
+    args,
   );
 }
 

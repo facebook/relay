@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule compileRelayQLTag
+ * @format
  */
 
 'use strict';
@@ -27,7 +28,7 @@ function compileRelayQLTag(
   documentName,
   propName,
   tagName,
-  state
+  state,
 ) {
   try {
     const transformer = getClassicTransformer(schemaProvider, state.opts || {});

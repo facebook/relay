@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule createModernNode
+ * @format
  */
 
 'use strict';
@@ -25,12 +26,11 @@ function createModernNode(t, graphqlDefinition, isHasteMode): any {
     [],
     t.blockStatement([
       t.returnStatement(
-        t.callExpression(
-          t.identifier('require'),
-          [t.stringLiteral(requiredPath)]
-        )
+        t.callExpression(t.identifier('require'), [
+          t.stringLiteral(requiredPath),
+        ]),
       ),
-    ])
+    ]),
   );
 }
 

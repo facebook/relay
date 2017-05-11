@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule compileGraphQLTag
+ * @format
  */
 
 'use strict';
@@ -29,13 +30,13 @@ function compileGraphQLTag(t, path, state, ast) {
       if (ast.definitions.length !== 1) {
         throw new Error(
           'BabelPluginRelay: Expected exactly one fragment in the ' +
-          `graphql tag referenced by the property ${objPropName}.`
+            `graphql tag referenced by the property ${objPropName}.`,
         );
       }
       return replaceMemoized(
         t,
         path,
-        createAST(t, state, path, mainDefinition)
+        createAST(t, state, path, mainDefinition),
       );
     }
 
@@ -44,7 +45,7 @@ function compileGraphQLTag(t, path, state, ast) {
       if (definition.kind !== 'FragmentDefinition') {
         throw new Error(
           'BabelPluginRelay: Expected only fragments within this ' +
-          'graphql tag.'
+            'graphql tag.',
         );
       }
 
@@ -58,19 +59,17 @@ function compileGraphQLTag(t, path, state, ast) {
     if (ast.definitions.length !== 1) {
       throw new Error(
         'BabelPluginRelay: Expected exactly one operation ' +
-        '(query, mutation, or subscription) per graphql tag.'
+          '(query, mutation, or subscription) per graphql tag.',
       );
     }
-    return replaceMemoized(
-      t,
-      path,
-      createAST(t, state, path, mainDefinition)
-    );
+    return replaceMemoized(t, path, createAST(t, state, path, mainDefinition));
   }
 
   throw new Error(
     'BabelPluginRelay: Expected a fragment, mutation, query, or ' +
-    'subscription, got `' + mainDefinition.kind + '`.'
+      'subscription, got `' +
+      mainDefinition.kind +
+      '`.',
   );
 }
 
@@ -83,7 +82,7 @@ function createAST(t, state, path, graphqlDefinition) {
     return createCompatNode(
       t,
       modernNode,
-      createClassicNode(t, path, graphqlDefinition, state)
+      createClassicNode(t, path, graphqlDefinition, state),
     );
   }
   return modernNode;
@@ -100,16 +99,14 @@ function replaceMemoized(t, path, ast) {
   } else {
     const id = topScope.generateDeclaredUidIdentifier('graphql');
     path.replaceWith(
-      t.logicalExpression('||', id, t.assignmentExpression('=', id, ast))
+      t.logicalExpression('||', id, t.assignmentExpression('=', id, ast)),
     );
   }
 }
 
 function createObject(t, obj: any) {
   return t.objectExpression(
-    Object.keys(obj).map(
-      key => t.objectProperty(t.identifier(key), obj[key])
-    )
+    Object.keys(obj).map(key => t.objectProperty(t.identifier(key), obj[key])),
   );
 }
 

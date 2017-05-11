@@ -8,6 +8,7 @@
  *
  * @flow
  * @fullSyntaxTransform
+ * @format
  */
 
 'use strict';
@@ -65,9 +66,9 @@ type TemplateElement = {
   range: [number, number],
   loc: Object,
 };
-export type Validator<T> = () => ({
+export type Validator<T> = () => {
   validate: (schema: GraphQLSchema, ast: T) => Array<GraphQLError>,
-});
+};
 
 type TransformerOptions = {
   inputArgumentName: ?string,
@@ -98,7 +99,7 @@ class RelayQLTransformer {
   transform(
     t: any, // Babel
     node: TemplateLiteral,
-    options: TextTransformOptions
+    options: TextTransformOptions,
   ): Printable {
     const {
       substitutions,
@@ -109,8 +110,11 @@ class RelayQLTransformer {
     const definition = this.processDocumentText(documentText, options);
 
     const Printer = RelayQLPrinter(t, this.options);
-    return new Printer(options.tagName, variableNames)
-      .print(definition, substitutions, options.enableValidation);
+    return new Printer(options.tagName, variableNames).print(
+      definition,
+      substitutions,
+      options.enableValidation,
+    );
   }
 
   /**
@@ -120,7 +124,7 @@ class RelayQLTransformer {
    */
   processTemplateLiteral(
     node: TemplateLiteral,
-    documentName: string
+    documentName: string,
   ): {
     substitutions: Array<Substitution>,
     templateText: string,
@@ -140,9 +144,9 @@ class RelayQLTransformer {
           invariant(
             this.options.substituteVariables,
             'You supplied a GraphQL document named `%s` that uses template ' +
-            'substitution for an argument value, but variable substitution ' +
-            'has not been enabled.',
-            documentName
+              'substitution for an argument value, but variable substitution ' +
+              'has not been enabled.',
+            documentName,
           );
           chunks.push('$' + name);
           variableNames[name] = undefined;
@@ -159,24 +163,23 @@ class RelayQLTransformer {
    */
   processTemplateText(
     templateText: string,
-    {documentName, propName}: TextTransformOptions
+    {documentName, propName}: TextTransformOptions,
   ): string {
     const pattern = /^(fragment|mutation|query|subscription)\s*(\w*)?([\s\S]*)/;
     const matches = pattern.exec(templateText);
     invariant(
       matches,
       'You supplied a GraphQL document named `%s` with invalid syntax. It ' +
-      'must start with `fragment`, `mutation`, `query`, or `subscription`.',
-      documentName
+        'must start with `fragment`, `mutation`, `query`, or `subscription`.',
+      documentName,
     );
     const type = matches[1];
     let name = matches[2] || documentName;
     let rest = matches[3];
     // Allow `fragment on Type {...}`.
     if (type === 'fragment' && name === 'on') {
-      name = documentName +
-        (propName ? '_' + capitalize(propName) : '') +
-        'RelayQL';
+      name =
+        documentName + (propName ? '_' + capitalize(propName) : '') + 'RelayQL';
       rest = 'on' + rest;
     }
     const definitionName = capitalize(name);
@@ -188,17 +191,19 @@ class RelayQLTransformer {
    */
   processDocumentText(
     documentText: string,
-    {documentName, enableValidation}: TextTransformOptions
+    {documentName, enableValidation}: TextTransformOptions,
   ): RelayQLDefinition<any> {
     const document = parse(new Source(documentText, documentName));
-    const validationErrors = enableValidation ?
-      this.validateDocument(document, documentName) :
-      null;
+    const validationErrors = enableValidation
+      ? this.validateDocument(document, documentName)
+      : null;
     if (validationErrors) {
-      const error = new Error(util.format(
-        'You supplied a GraphQL document named `%s` with validation errors.',
-        documentName
-      ));
+      const error = new Error(
+        util.format(
+          'You supplied a GraphQL document named `%s` with validation errors.',
+          documentName,
+        ),
+      );
       (error: any).validationErrors = validationErrors;
       (error: any).sourceText = documentText;
       throw error;
@@ -235,9 +240,9 @@ class RelayQLTransformer {
     invariant(
       document.definitions.length === 1,
       'You supplied a GraphQL document named `%s` with %d definitions, but ' +
-      'it must have exactly one definition.',
+        'it must have exactly one definition.',
       documentName,
-      document.definitions.length
+      document.definitions.length,
     );
     const definition = document.definitions[0];
     const isMutation =
@@ -270,7 +275,6 @@ class RelayQLTransformer {
     }
     return null;
   }
-
 }
 
 function capitalize(string: string): string {

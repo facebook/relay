@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule getValidGraphQLTag
+ * @format
  */
 
 'use strict';
@@ -21,10 +22,11 @@ const GraphQL = require('graphql');
 function getValidGraphQLTag(path) {
   const tag = path.get('tag');
 
-  const tagName =
-    tag.isIdentifier({name: 'graphql'}) ? 'graphql' :
-    tag.matchesPattern('graphql.experimental') ? 'graphql.experimental' :
-    undefined;
+  const tagName = tag.isIdentifier({name: 'graphql'})
+    ? 'graphql'
+    : tag.matchesPattern('graphql.experimental')
+        ? 'graphql.experimental'
+        : undefined;
 
   if (!tagName) {
     return;
@@ -35,8 +37,8 @@ function getValidGraphQLTag(path) {
   if (quasis.length !== 1) {
     throw new Error(
       'BabelPluginRelay: Substitutions are not allowed in ' +
-      'graphql fragments. Included fragments should be referenced ' +
-      'as `...MyModule_propName`.'
+        'graphql fragments. Included fragments should be referenced ' +
+        'as `...MyModule_propName`.',
     );
   }
 
@@ -47,17 +49,16 @@ function getValidGraphQLTag(path) {
   if (tagName === 'graphql' && /@argument(Definition)?s\b/.test(text)) {
     throw new Error(
       'BabelPluginRelay: Unexpected use of fragment variables: ' +
-      '@arguments and @argumentDefinitions are only supported in ' +
-      'experimental mode. Source: ' + text
+        '@arguments and @argumentDefinitions are only supported in ' +
+        'experimental mode. Source: ' +
+        text,
     );
   }
 
   const ast = GraphQL.parse(text);
 
   if (ast.definitions.length === 0) {
-    throw new Error(
-      'BabelPluginRelay: Unexpected empty graphql tag.'
-    );
+    throw new Error('BabelPluginRelay: Unexpected empty graphql tag.');
   }
 
   return ast;

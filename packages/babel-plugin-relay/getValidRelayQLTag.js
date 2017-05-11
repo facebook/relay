@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule getValidRelayQLTag
+ * @format
  */
 
 'use strict';
@@ -21,11 +22,13 @@ function getValidRelayQLTag(path) {
   const {node} = path;
 
   const tag = path.get('tag');
-  const tagName =
-    tag.matchesPattern('Relay.QL') ? 'Relay.QL' :
-    tag.isIdentifier({name: 'RelayQL'}) ? 'RelayQL' :
-    tag.isIdentifier({name: RELAY_QL_GENERATED}) ? RELAY_QL_GENERATED :
-    null;
+  const tagName = tag.matchesPattern('Relay.QL')
+    ? 'Relay.QL'
+    : tag.isIdentifier({name: 'RelayQL'})
+        ? 'RelayQL'
+        : tag.isIdentifier({name: RELAY_QL_GENERATED})
+            ? RELAY_QL_GENERATED
+            : null;
   if (!tagName) {
     return [];
   }

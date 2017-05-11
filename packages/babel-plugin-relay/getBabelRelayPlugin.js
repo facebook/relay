@@ -9,6 +9,7 @@
  * @flow
  * @fullSyntaxTransform
  * @providesModule getBabelRelayPlugin
+ * @format
  */
 
 'use strict';
@@ -19,7 +20,7 @@ const getValidRelayQLTag = require('./getValidRelayQLTag');
 
 import type {Validator} from './RelayQLTransformer';
 
-type GraphQLSchemaProvider = (Object | () => Object);
+type GraphQLSchemaProvider = Object | (() => Object);
 
 /**
  * Returns a new Babel Transformer that uses the supplied schema to transform
@@ -35,7 +36,7 @@ function getBabelRelayPlugin(
     suppressWarnings?: ?boolean,
     substituteVariables?: ?boolean,
     validator?: ?Validator<any>,
-  }
+  },
 ): Function {
   const options = pluginOptions || {};
 
@@ -50,16 +51,18 @@ function getBabelRelayPlugin(
           const [quasi, tagName, propName] = getValidRelayQLTag(path);
           if (quasi) {
             const documentName = getDocumentName(path, state);
-            path.replaceWith(compileRelayQLTag(
-              t,
-              schemaProvider,
-              quasi,
-              documentName,
-              propName,
-              tagName,
-              state,
-              options
-            ));
+            path.replaceWith(
+              compileRelayQLTag(
+                t,
+                schemaProvider,
+                quasi,
+                documentName,
+                propName,
+                tagName,
+                state,
+                options,
+              ),
+            );
           }
         },
       },

@@ -8,6 +8,7 @@
  *
  * @flow
  * @fullSyntaxTransform
+ * @format
  */
 
 'use strict';
@@ -42,7 +43,7 @@ const {
 } = require('graphql');
 
 const GraphQLRelayDirectiveInstance = new GraphQLDirective(
-  GraphQLRelayDirective
+  GraphQLRelayDirective,
 );
 
 import type {
@@ -69,6 +70,8 @@ type RelayQLContext = {
   isPattern: boolean,
   schema: GraphQLSchema,
 };
+
+// prettier-ignore
 type RelayQLSelection =
   RelayQLField |
   RelayQLFragmentSpread |
@@ -123,7 +126,7 @@ class RelayQLNode<T: RelayQLNodeType> {
         return new RelayQLInlineFragment(
           this.context,
           selection,
-          this.getType()
+          this.getType(),
         );
       } else {
         throw new RelayTransformError(
@@ -136,9 +139,8 @@ class RelayQLNode<T: RelayQLNodeType> {
 
   getDirectives(): Array<RelayQLDirective> {
     // $FlowFixMe
-    return (this.ast.directives || []).map(
-      directive => new RelayQLDirective(this.context, directive)
-    );
+    return (this.ast.directives || [])
+      .map(directive => new RelayQLDirective(this.context, directive));
   }
 
   hasDirective(name: string): boolean {
@@ -154,27 +156,26 @@ class RelayQLNode<T: RelayQLNodeType> {
 class RelayQLDefinition<T: RelayQLNodeType> extends RelayQLNode<T> {
   getName(): ?string {
     // TODO: this.context.definitionName;
-    return this.ast.name ?
-      // $FlowFixMe
-      this.ast.name.value :
-      this.getType().getName({modifiers: false});
+    return this.ast.name
+      ? // $FlowFixMe
+        this.ast.name.value
+      : this.getType().getName({modifiers: false});
   }
 }
 
-class RelayQLFragment extends RelayQLDefinition<
-  FragmentDefinitionNode |
-  InlineFragmentNode
-> {
+class RelayQLFragment
+  extends RelayQLDefinition<FragmentDefinitionNode | InlineFragmentNode> {
   parentType: ?RelayQLType;
 
   constructor(
     context: RelayQLContext,
     ast: FragmentDefinitionNode | InlineFragmentNode,
-    parentType?: RelayQLType
+    parentType?: RelayQLType,
   ) {
     const relayDirectiveArgs = {};
-    const relayDirective = find((ast.directives || []),
-      directive => directive.name.value === 'relay'
+    const relayDirective = find(
+      ast.directives || [],
+      directive => directive.name.value === 'relay',
     );
     if (relayDirective) {
       (relayDirective.arguments || []).forEach(arg => {
@@ -201,7 +202,7 @@ class RelayQLFragment extends RelayQLDefinition<
       }
       return new RelayQLType(
         this.context,
-        this.context.schema.getType(type.name.value)
+        this.context.schema.getType(type.name.value),
       );
     } else if (this.ast.kind === 'InlineFragment') {
       // Inline fragments without type conditions fall back to parent type.
@@ -237,7 +238,7 @@ class RelayQLSubscription extends RelayQLDefinition<OperationDefinitionNode> {
   getType(): RelayQLType {
     return new RelayQLType(
       this.context,
-      this.context.schema.getSubscriptionType()
+      this.context.schema.getSubscriptionType(),
     );
   }
 }
@@ -245,7 +246,11 @@ class RelayQLSubscription extends RelayQLDefinition<OperationDefinitionNode> {
 class RelayQLField extends RelayQLNode<FieldNode> {
   fieldDef: RelayQLFieldDefinition;
 
-  constructor(context: RelayQLContext, ast: FieldNode, parentType: RelayQLType) {
+  constructor(
+    context: RelayQLContext,
+    ast: FieldNode,
+    parentType: RelayQLType,
+  ) {
     super(context, ast);
     const fieldName = this.ast.name.value;
     const fieldDef = parentType.getFieldDefinition(fieldName, ast);
@@ -253,7 +258,7 @@ class RelayQLField extends RelayQLNode<FieldNode> {
       throw new RelayTransformError(
         util.format(
           'You supplied a field named `%s` on type `%s`, but no such field ' +
-          'exists on that type.',
+            'exists on that type.',
           fieldName,
           parentType.getName({modifiers: false}),
         ),
@@ -292,7 +297,7 @@ class RelayQLField extends RelayQLNode<FieldNode> {
         throw new RelayTransformError(
           util.format(
             'You supplied an argument named `%s` on field `%s`, but no such ' +
-            'argument exists on that field.',
+              'argument exists on that field.',
             argName,
             this.getName(),
           ),
@@ -335,7 +340,7 @@ class RelayQLInlineFragment extends RelayQLNode<InlineFragmentNode> {
   constructor(
     context: RelayQLContext,
     ast: InlineFragmentNode,
-    parentType: RelayQLType
+    parentType: RelayQLType,
   ) {
     super(context, ast);
     this.parentType = parentType;
@@ -357,10 +362,9 @@ class RelayQLDirective {
     this.argTypes = {};
 
     const directiveName = ast.name.value;
-    const schemaDirective =
-      directiveName === GraphQLRelayDirective.name ?
-        GraphQLRelayDirectiveInstance :
-        context.schema.getDirective(directiveName);
+    const schemaDirective = directiveName === GraphQLRelayDirective.name
+      ? GraphQLRelayDirectiveInstance
+      : context.schema.getDirective(directiveName);
     if (!schemaDirective) {
       throw new RelayTransformError(
         util.format(
@@ -391,7 +395,7 @@ class RelayQLDirective {
         throw new RelayTransformError(
           util.format(
             'You supplied an argument named `%s` on directive `%s`, but no ' +
-            'such argument exists on that directive.',
+              'such argument exists on that directive.',
             argName,
             this.getName(),
           ),
@@ -411,7 +415,7 @@ class RelayQLArgument {
   constructor(
     context: RelayQLContext,
     ast: ArgumentNode,
-    type: RelayQLArgumentType
+    type: RelayQLArgumentType,
   ) {
     this.ast = ast;
     this.context = context;
@@ -455,11 +459,12 @@ class RelayQLArgument {
     const value = this.ast.value;
     if (value.kind === 'ListValue') {
       return value.values.map(
-        val => new RelayQLArgument(
-          this.context,
-          {...this.ast, value: val},
-          this.type.ofType()
-        )
+        val =>
+          new RelayQLArgument(
+            this.context,
+            {...this.ast, value: val},
+            this.type.ofType(),
+          ),
       );
     } else {
       return getLiteralValue(value);
@@ -476,11 +481,9 @@ class RelayQLType {
 
   constructor(context: RelayQLContext, schemaModifiedType: GraphQLSchemaType) {
     this.context = context;
-    const {
-      isListType,
-      isNonNullType,
-      schemaUnmodifiedType,
-    } = stripMarkerTypes(schemaModifiedType);
+    const {isListType, isNonNullType, schemaUnmodifiedType} = stripMarkerTypes(
+      schemaModifiedType,
+    );
     this.isListType = isListType;
     this.isNonNullType = isNonNullType;
     this.schemaUnmodifiedType = schemaUnmodifiedType;
@@ -488,16 +491,14 @@ class RelayQLType {
   }
 
   canHaveSubselections(): boolean {
-    return !(
-      this.schemaUnmodifiedType instanceof GraphQLScalarType ||
-      this.schemaUnmodifiedType instanceof GraphQLEnumType
-    );
+    return !(this.schemaUnmodifiedType instanceof GraphQLScalarType ||
+      this.schemaUnmodifiedType instanceof GraphQLEnumType);
   }
 
   getName({modifiers}: {modifiers: boolean}): string {
-    return modifiers ?
-      this.schemaModifiedType.toString() :
-      this.schemaUnmodifiedType.toString();
+    return modifiers
+      ? this.schemaModifiedType.toString()
+      : this.schemaUnmodifiedType.toString();
   }
 
   hasField(fieldName: string): boolean {
@@ -506,7 +507,7 @@ class RelayQLType {
 
   getFieldDefinition(
     fieldName: string,
-    fieldAST?: any
+    fieldAST?: any,
   ): ?RelayQLFieldDefinition {
     const type = this.schemaUnmodifiedType;
     const isQueryType = type === this.context.schema.getQueryType();
@@ -515,8 +516,7 @@ class RelayQLType {
       type instanceof GraphQLInterfaceType ||
       type instanceof GraphQLUnionType;
     const hasFields =
-      type instanceof GraphQLObjectType ||
-      type instanceof GraphQLInterfaceType;
+      type instanceof GraphQLObjectType || type instanceof GraphQLInterfaceType;
 
     let schemaFieldDef;
     if (isQueryType && fieldName === SchemaMetaFieldDef.name) {
@@ -544,7 +544,7 @@ class RelayQLType {
         fieldAST &&
         fieldAST.directives &&
         fieldAST.directives.some(
-          directive => directive.name.value === 'fixme_fat_interface'
+          directive => directive.name.value === 'fixme_fat_interface',
         )
       ) {
         const possibleTypes = this.context.schema.getPossibleTypes(type);
@@ -556,11 +556,11 @@ class RelayQLType {
             // arguments do not match.
             schemaFieldDef = possibleField;
             if (fieldAST && fieldAST.arguments) {
-              const argumentsAllExist = fieldAST.arguments.every(
-                argument => find(
+              const argumentsAllExist = fieldAST.arguments.every(argument =>
+                find(
                   possibleField.args,
-                  argDef => argDef.name === argument.name.value
-                )
+                  argDef => argDef.name === argument.name.value,
+                ),
               );
               if (argumentsAllExist) {
                 break;
@@ -571,16 +571,16 @@ class RelayQLType {
       }
     }
 
-    return schemaFieldDef ?
-      new RelayQLFieldDefinition(this.context, schemaFieldDef) :
-      null;
+    return schemaFieldDef
+      ? new RelayQLFieldDefinition(this.context, schemaFieldDef)
+      : null;
   }
 
   getInterfaces(): Array<RelayQLType> {
     if (this.schemaUnmodifiedType instanceof GraphQLObjectType) {
-      return this.schemaUnmodifiedType.getInterfaces().map(
-        schemaInterface => new RelayQLType(this.context, schemaInterface)
-      );
+      return this.schemaUnmodifiedType
+        .getInterfaces()
+        .map(schemaInterface => new RelayQLType(this.context, schemaInterface));
     }
     return [];
   }
@@ -588,11 +588,11 @@ class RelayQLType {
   getConcreteTypes(): Array<RelayQLType> {
     invariant(
       this.isAbstract(),
-      'Cannot get concrete types of a concrete type.'
+      'Cannot get concrete types of a concrete type.',
     );
-    return this.context.schema.getPossibleTypes(this.schemaUnmodifiedType).map(
-      concreteType => new RelayQLType(this.context, concreteType)
-    );
+    return this.context.schema
+      .getPossibleTypes(this.schemaUnmodifiedType)
+      .map(concreteType => new RelayQLType(this.context, concreteType));
   }
 
   getIdentifyingFieldDefinition(): ?RelayQLFieldDefinition {
@@ -653,12 +653,10 @@ class RelayQLType {
     return (
       this.getName({modifiers: false}) === typeName ||
       this.getInterfaces().some(
-        type => type.getName({modifiers: false}) === typeName
+        type => type.getName({modifiers: false}) === typeName,
       ) ||
-      (
-        this.isAbstract() &&
-        this.getConcreteTypes().every(type => type.alwaysImplements(typeName))
-      )
+      (this.isAbstract() &&
+        this.getConcreteTypes().every(type => type.alwaysImplements(typeName)))
     );
   }
 
@@ -666,12 +664,10 @@ class RelayQLType {
     return (
       this.getName({modifiers: false}) === typeName ||
       this.getInterfaces().some(
-        type => type.getName({modifiers: false}) === typeName
+        type => type.getName({modifiers: false}) === typeName,
       ) ||
-      (
-        this.isAbstract() &&
-        this.getConcreteTypes().some(type => type.alwaysImplements(typeName))
-      )
+      (this.isAbstract() &&
+        this.getConcreteTypes().some(type => type.alwaysImplements(typeName)))
     );
   }
 
@@ -709,10 +705,7 @@ class RelayQLFieldDefinition {
   context: RelayQLContext;
   schemaFieldDef: GraphQLSchemaField;
 
-  constructor(
-    context: RelayQLContext,
-    schemaFieldDef: GraphQLSchemaField
-  ) {
+  constructor(context: RelayQLContext, schemaFieldDef: GraphQLSchemaField) {
     this.context = context;
     this.schemaFieldDef = schemaFieldDef;
   }
@@ -727,21 +720,21 @@ class RelayQLFieldDefinition {
 
   hasArgument(argName: string): boolean {
     return this.schemaFieldDef.args.some(
-      schemaArg => schemaArg.name === argName
+      schemaArg => schemaArg.name === argName,
     );
   }
 
   getArgument(argName: string): RelayQLArgumentType {
     const schemaArg = find(
       this.schemaFieldDef.args,
-      arg => arg.name === argName
+      arg => arg.name === argName,
     );
     invariant(
       schemaArg,
       'You tried to get an argument named `%s` on field `%s`, but no such ' +
-      'argument exists on that field.',
+        'argument exists on that field.',
       argName,
-      this.getName()
+      this.getName(),
     );
     return new RelayQLArgumentType(schemaArg.type);
   }
@@ -762,11 +755,9 @@ class RelayQLArgumentType {
   schemaUnmodifiedArgType: GraphQLSchemaArgumentType;
 
   constructor(schemaModifiedArgType: GraphQLSchemaArgumentType) {
-    const {
-      isListType,
-      isNonNullType,
-      schemaUnmodifiedType,
-    } = stripMarkerTypes(schemaModifiedArgType);
+    const {isListType, isNonNullType, schemaUnmodifiedType} = stripMarkerTypes(
+      schemaModifiedArgType,
+    );
     this.isListType = isListType;
     this.isNonNullType = isNonNullType;
     this.schemaUnmodifiedArgType = schemaUnmodifiedType;
@@ -774,26 +765,27 @@ class RelayQLArgumentType {
   }
 
   getName({modifiers}: {modifiers: boolean}): string {
-    return modifiers ?
-      this.schemaModifiedArgType.toString() :
-      this.schemaUnmodifiedArgType.toString();
+    return modifiers
+      ? this.schemaModifiedArgType.toString()
+      : this.schemaUnmodifiedArgType.toString();
   }
 
   ofType(): RelayQLArgumentType {
     invariant(
       this.isList() || this.isNonNull(),
-      'Can only get type of list or non-null type.'
+      'Can only get type of list or non-null type.',
     );
     return new RelayQLArgumentType(this.schemaUnmodifiedArgType);
   }
 
   isCustomScalar(): boolean {
-    return this.isScalar() && !(
-      this.schemaUnmodifiedArgType === GraphQLBoolean ||
-      this.schemaUnmodifiedArgType === GraphQLFloat ||
-      this.schemaUnmodifiedArgType === GraphQLID ||
-      this.schemaUnmodifiedArgType === GraphQLInt ||
-      this.schemaUnmodifiedArgType === GraphQLString
+    return (
+      this.isScalar() &&
+      !(this.schemaUnmodifiedArgType === GraphQLBoolean ||
+        this.schemaUnmodifiedArgType === GraphQLFloat ||
+        this.schemaUnmodifiedArgType === GraphQLID ||
+        this.schemaUnmodifiedArgType === GraphQLInt ||
+        this.schemaUnmodifiedArgType === GraphQLString)
     );
   }
 
@@ -837,7 +829,9 @@ class RelayQLArgumentType {
   }
 }
 
-function stripMarkerTypes(schemaModifiedType: GraphQLSchemaType): {
+function stripMarkerTypes(
+  schemaModifiedType: GraphQLSchemaType,
+): {
   isListType: boolean,
   isNonNullType: boolean,
   schemaUnmodifiedType: GraphQLSchemaType,
@@ -882,8 +876,8 @@ function getLiteralValue(value: ValueNode): mixed {
       throw new RelayTransformError(
         util.format(
           'Unexpected nested variable `%s`; variables are supported as top-' +
-          'level arguments - `node(id: $id)` - or directly within lists - ' +
-          '`nodes(ids: [$id])`.',
+            'level arguments - `node(id: $id)` - or directly within lists - ' +
+            '`nodes(ids: [$id])`.',
           value.name.value,
         ),
         value.loc,

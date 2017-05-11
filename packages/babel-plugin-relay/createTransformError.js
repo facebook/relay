@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule createTransformError
+ * @format
  */
 
 'use strict';
@@ -22,9 +23,9 @@ const util = require('util');
  */
 function createTransformError(t, error, quasi, state) {
   const opts = state.opts || {};
-  const warning = opts.suppressWarnings ?
-    function() {} :
-    console.warn.bind(console);
+  const warning = opts.suppressWarnings
+    ? function() {}
+    : console.warn.bind(console);
 
   var basename = state.file.opts.basename || 'UnknownFile';
   var filename = state.file.opts.filename || 'UnknownFile';
@@ -32,22 +33,21 @@ function createTransformError(t, error, quasi, state) {
 
   if (error instanceof RelayTransformError) {
     errorMessages.push(error.message);
-    warning(
-      '\n-- Relay Transform Error -- %s --\n',
-      basename
-    );
+    warning('\n-- Relay Transform Error -- %s --\n', basename);
     const sourceLine = quasi.loc && quasi.loc.start.line;
     const relativeLocation = error.loc && computeLocation(error.loc);
     if (sourceLine && relativeLocation) {
-      warning([
-        'Within RelayQLDocument ' + filename + ':' + sourceLine,
-        '> ',
-        '> line ' + (relativeLocation.line) + ' (approximate)',
-        '> ' + relativeLocation.source,
-        '> ' + ' '.repeat(relativeLocation.column - 1) + '^^^',
-        'Error: ' + error.message,
-        'Stack: ' + error.stack,
-      ].join('\n'));
+      warning(
+        [
+          'Within RelayQLDocument ' + filename + ':' + sourceLine,
+          '> ',
+          '> line ' + relativeLocation.line + ' (approximate)',
+          '> ' + relativeLocation.source,
+          '> ' + ' '.repeat(relativeLocation.column - 1) + '^^^',
+          'Error: ' + error.message,
+          'Stack: ' + error.stack,
+        ].join('\n'),
+      );
     } else {
       warning(error.message);
     }
@@ -60,56 +60,47 @@ function createTransformError(t, error, quasi, state) {
       var sourceLines = sourceText.split('\n');
       validationErrors.forEach(({message, locations}) => {
         errorMessages.push(message);
+        warning('\n-- GraphQL Validation Error -- %s --\n', basename);
         warning(
-          '\n-- GraphQL Validation Error -- %s --\n',
-          basename
+          ['File:  ' + filename, 'Error: ' + message, 'Source:'].join('\n'),
         );
-        warning([
-          'File:  ' + filename,
-          'Error: ' + message,
-          'Source:',
-        ].join('\n'));
         locations.forEach(location => {
           var preview = sourceLines[location.line - 1];
           if (preview) {
-            warning([
-              '> ',
-              '> ' + preview,
-              '> ' + ' '.repeat(location.column - 1) + '^^^',
-            ].join('\n'));
+            warning(
+              [
+                '> ',
+                '> ' + preview,
+                '> ' + ' '.repeat(location.column - 1) + '^^^',
+              ].join('\n'),
+            );
           }
         });
       });
     } else {
       errorMessages.push(error.message);
-      warning(
-        '\n-- Relay Transform Error -- %s --\n',
-        basename
-      );
-      warning([
-        'File:  ' + filename,
-        'Error: ' + error.stack,
-      ].join('\n'));
+      warning('\n-- Relay Transform Error -- %s --\n', basename);
+      warning(['File:  ' + filename, 'Error: ' + error.stack].join('\n'));
     }
   }
   var runtimeMessage = util.format(
     '%s error ``%s`` in file `%s`. Try updating your GraphQL ' +
-    'schema if an argument/field/type was recently added.',
+      'schema if an argument/field/type was recently added.',
     isValidationError ? 'GraphQL validation' : 'Relay transform',
     errorMessages.join(' '),
-    filename
+    filename,
   );
 
   if (opts.enforceSchema) {
-    throw new Error(util.format(
-      errorMessages.length ?
-        'Aborting due to a %s error:\n\n%s\n' :
-        'Aborting due to %s errors:\n\n%s\n',
-      isValidationError ? 'GraphQL validation' : 'Relay transform',
-      errorMessages
-        .map(errorMessage => '  - ' + errorMessage)
-        .join('\n'),
-    ));
+    throw new Error(
+      util.format(
+        errorMessages.length
+          ? 'Aborting due to a %s error:\n\n%s\n'
+          : 'Aborting due to %s errors:\n\n%s\n',
+        isValidationError ? 'GraphQL validation' : 'Relay transform',
+        errorMessages.map(errorMessage => '  - ' + errorMessage).join('\n'),
+      ),
+    );
   } else if (opts.debug) {
     console.error(error.stack);
   }
@@ -120,14 +111,13 @@ function createTransformError(t, error, quasi, state) {
       [],
       t.blockStatement([
         t.throwStatement(
-          t.newExpression(
-            t.identifier('Error'),
-            [t.valueToNode(runtimeMessage)]
-          )
+          t.newExpression(t.identifier('Error'), [
+            t.valueToNode(runtimeMessage),
+          ]),
         ),
-      ])
+      ]),
     ),
-    []
+    [],
   );
 }
 

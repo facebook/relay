@@ -5,6 +5,8 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
@@ -19,7 +21,10 @@ const babel = require('babel-core');
 const getGoldenMatchers = require('getGoldenMatchers');
 const path = require('path');
 
-const SCHEMA_PATH = path.resolve(__dirname, '../../relay-compiler/testutils/testschema.graphql');
+const SCHEMA_PATH = path.resolve(
+  __dirname,
+  '../../relay-compiler/testutils/testschema.graphql',
+);
 const OLD_SCHEMA_PATH = path.resolve(__dirname, './testschema.rfc.graphql');
 
 describe('BabelPluginRelay', () => {
@@ -31,9 +36,7 @@ describe('BabelPluginRelay', () => {
     expect('fixtures-modern').toMatchGolden(text => {
       try {
         return babel.transform(text, {
-          plugins: [
-            BabelPluginRelay,
-          ],
+          plugins: [BabelPluginRelay],
           compact: false,
           parserOpts: {plugins: ['jsx']},
         }).code;
@@ -48,11 +51,14 @@ describe('BabelPluginRelay', () => {
       try {
         return babel.transform(text, {
           plugins: [
-            [BabelPluginRelay, {
-              compat: true,
-              schema: SCHEMA_PATH,
-              substituteVariables: true,
-            }],
+            [
+              BabelPluginRelay,
+              {
+                compat: true,
+                schema: SCHEMA_PATH,
+                substituteVariables: true,
+              },
+            ],
           ],
           compact: false,
           parserOpts: {plugins: ['jsx']},
@@ -67,9 +73,7 @@ describe('BabelPluginRelay', () => {
     expect('fixtures-modern-haste').toMatchGolden(text => {
       try {
         return babel.transform(text, {
-          plugins: [
-            [BabelPluginRelay, {haste: true}],
-          ],
+          plugins: [[BabelPluginRelay, {haste: true}]],
           compact: false,
           parserOpts: {plugins: ['jsx']},
         }).code;
@@ -84,13 +88,16 @@ describe('BabelPluginRelay', () => {
       try {
         return babel.transform(text, {
           plugins: [
-            [BabelPluginRelay, {
-              compat: true,
-              haste: true,
-              relayQLModule: 'RelayQL_GENERATED',
-              schema: SCHEMA_PATH,
-              substituteVariables: true,
-            }],
+            [
+              BabelPluginRelay,
+              {
+                compat: true,
+                haste: true,
+                relayQLModule: 'RelayQL_GENERATED',
+                schema: SCHEMA_PATH,
+                substituteVariables: true,
+              },
+            ],
           ],
           compact: false,
           parserOpts: {plugins: ['jsx']},
@@ -106,12 +113,15 @@ describe('BabelPluginRelay', () => {
       try {
         return babel.transform(text, {
           plugins: [
-            [BabelPluginRelay, {
-              schema: OLD_SCHEMA_PATH,
-              debug: true,
-              substituteVariables: true,
-              suppressWarnings: true,
-            }],
+            [
+              BabelPluginRelay,
+              {
+                schema: OLD_SCHEMA_PATH,
+                debug: true,
+                substituteVariables: true,
+                suppressWarnings: true,
+              },
+            ],
           ],
           compact: false,
           filename,
@@ -122,5 +132,4 @@ describe('BabelPluginRelay', () => {
       }
     });
   });
-
 });

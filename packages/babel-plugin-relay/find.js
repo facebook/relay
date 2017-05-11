@@ -8,6 +8,7 @@
  *
  * @flow
  * @fullSyntaxTransform
+ * @format
  */
 
 'use strict';
@@ -15,7 +16,7 @@
 function find<T>(
   array: Array<T>,
   predicate: (element: T, index: number, array: Array<T>) => boolean,
-  context: any
+  context: any,
 ): ?T {
   for (var ii = 0; ii < array.length; ii++) {
     if (predicate.call(context, array[ii], ii, array)) {

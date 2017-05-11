@@ -9,7 +9,6 @@
   "scripts": {
     "build": "gulp",
     "jest": "NODE_ENV=test jest \"$@\"",
-    "lint": "eslint .",
     "prepublish": "node node_modules/fbjs-scripts/node/check-dev-engines.js package.json && npm run build",
     "test": "f() { EXIT=0; npm run typecheck || EXIT=$?; npm run jest \"$@\" || EXIT=$?; exit $EXIT; }; f",
     "typecheck": "flow check"
@@ -17,7 +16,6 @@
   "devDependencies": {
     "babel-cli": "6.24.1",
     "babel-core": "6.24.1",
-    "babel-eslint": "6.1.2",
     "babel-generator": "6.24.1",
     "babel-plugin-transform-async-to-generator": "6.24.1",
     "babel-plugin-transform-es2015-modules-commonjs": "6.24.1",
@@ -31,11 +29,6 @@
     "babel-types": "6.24.1",
     "babylon": "6.16.1",
     "del": "2.2.2",
-    "eslint": "3.19.0",
-    "eslint-config-fbjs": "1.1.1",
-    "eslint-plugin-babel": "3.3.0",
-    "eslint-plugin-flowtype": "2.30.4",
-    "eslint-plugin-react": "5.2.2",
     "event-stream": "3.3.4",
     "fb-watchman": "2.0.0",
     "fbjs": "0.8.12",

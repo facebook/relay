@@ -2,6 +2,7 @@ query NodeQuery(
   $cond: Boolean = false
   $id: ID!
   $size: [Int] = [32]
+  $query: String!
 ) {
   node(id: $id) {
     id
@@ -9,6 +10,9 @@ query NodeQuery(
       name
     }
     ...UserFragment @include(if: $cond) @arguments(size: $size)
+  }
+  checkinSearchQuery(query: {query: $query, inputs: [{query: $query}, {query: "test"}]}) {
+    query
   }
 }
 

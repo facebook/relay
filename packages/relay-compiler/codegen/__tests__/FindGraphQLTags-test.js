@@ -291,6 +291,53 @@ describe('FindGraphQLTags', () => {
       ]);
     });
 
+    it('parses queries with valid names from filepath', () => {
+      expect(
+        FindGraphQLTags.find(
+          'graphql\`query TestComponentQuery { me { id } }\`;',
+          './PathTo/SuperDuper/TestComponent.js',
+        ),
+      ).toEqual([
+        {
+          tag: 'graphql',
+          template: 'query TestComponentQuery { me { id } }',
+        },
+      ]);
+      expect(
+        FindGraphQLTags.find(
+          'graphql\`query TestComponentQuery { me { id } }\`;',
+          './PathTo/SuperDuper/TestComponent.react.js',
+        ),
+      ).toEqual([
+        {
+          tag: 'graphql',
+          template: 'query TestComponentQuery { me { id } }',
+        },
+      ]);
+      expect(
+        FindGraphQLTags.find(
+          'graphql\`query TestComponentQuery { me { id } }\`;',
+          './PathTo/SuperDuper/TestComponent.react.jsx',
+        ),
+      ).toEqual([
+        {
+          tag: 'graphql',
+          template: 'query TestComponentQuery { me { id } }',
+        },
+      ]);
+      expect(
+        FindGraphQLTags.find(
+          'graphql\`query TestComponentQuery { me { id } }\`;',
+          './PathTo/SuperDuper/TestComponent/index.js',
+        ),
+      ).toEqual([
+        {
+          tag: 'graphql',
+          template: 'query TestComponentQuery { me { id } }',
+        },
+      ]);
+    });
+
     it('throws for invalid top-level fragment names', () => {
       expect(() =>
         find(

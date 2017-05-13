@@ -27,7 +27,6 @@ import type {DocumentNode} from 'graphql';
 // Throws an error if parsing the file fails
 function parseFile(file: string): ?DocumentNode {
   const text = fs.readFileSync(file, 'utf8');
-  const moduleName = path.basename(file, path.extname(file));
 
   invariant(
     text.indexOf('graphql') >= 0,
@@ -37,16 +36,12 @@ function parseFile(file: string): ?DocumentNode {
   );
 
   const astDefinitions = [];
-  FindGraphQLTags.memoizedFind(text, moduleName).forEach(({tag, template}) => {
+  FindGraphQLTags.memoizedFind(text, file).forEach(({tag, template}) => {
     if (!(tag === 'graphql' || tag === 'graphql.experimental')) {
       throw new Error(
-        'Invalid tag ' +
-          tag +
-          ' in module ' +
-          moduleName +
-          '. Expected `graphql` ' +
-          ' (common case) or `graphql.experimental` (if using experimental ' +
-          'directives).',
+        `Invalid tag ${tag} in ${file}. ` +
+          'Expected graphql`` (common case) or ' +
+          'graphql.experimental`` (if using experimental directives).',
       );
     }
     if (

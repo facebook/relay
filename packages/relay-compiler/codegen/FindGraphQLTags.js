@@ -16,6 +16,7 @@
 const babylon = require('babylon');
 const crypto = require('crypto');
 const graphql = require('graphql');
+const path = require('path');
 const util = require('util');
 
 // Attempt to be as inclusive as possible of source text.
@@ -43,19 +44,11 @@ const BABYLON_OPTIONS = {
 
 function find(
   text: string,
-  fileName: string,
+  filePath: string,
 ): Array<{tag: string, template: string}> {
   const result = [];
   const ast = babylon.parse(text, BABYLON_OPTIONS);
-  const rawModuleName = extractModuleName(text) || fileName;
-  invariant(
-    rawModuleName,
-    'FindGraphQLTags: Expected a module name to be defined with ' +
-      '`@providesModule <name>`.',
-  );
-  const moduleName = rawModuleName
-    .replace(/\.react$/, '')
-    .replace(/[-.:]/g, '_');
+  const moduleName = extractModuleName(text, filePath);
 
   const visitors = {
     CallExpression: node => {
@@ -152,16 +145,16 @@ function find(
 const cache = {};
 function memoizedFind(
   text: string,
-  fileName: string,
+  filePath: string,
 ): Array<{tag: string, template: string}> {
   const hash = crypto
     .createHash('md5')
-    .update(fileName)
+    .update(filePath)
     .update(text)
     .digest('hex');
   let result = cache[hash];
   if (!result) {
-    result = find(text, fileName);
+    result = find(text, filePath);
     cache[hash] = result;
   }
   return result;
@@ -268,7 +261,21 @@ function validateTemplate(template, moduleName, keyName) {
   });
 }
 
-function extractModuleName(text) {
+function extractModuleName(text, filePath) {
+  const rawModuleName =
+    extractProvidesModuleName(text) || extractFileModuleName(filePath);
+  return rawModuleName.replace(/\.react$/, '').replace(/[^a-zA-Z0-9_]/g, '_');
+}
+
+function extractFileModuleName(filePath) {
+  const filename = path.basename(filePath, path.extname(filePath));
+  if (filename !== 'index') {
+    return filename;
+  }
+  return path.basename(path.dirname(filePath));
+}
+
+function extractProvidesModuleName(text) {
   const propertyRegex = /@(\S+) *(\S*)/g;
   let captures;
   while ((captures = propertyRegex.exec(text))) {
@@ -278,7 +285,6 @@ function extractModuleName(text) {
       return value;
     }
   }
-  return null;
 }
 
 function invariant(condition, msg, ...args) {

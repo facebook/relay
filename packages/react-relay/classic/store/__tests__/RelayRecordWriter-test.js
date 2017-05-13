@@ -828,25 +828,22 @@ describe('RelayRecordWriter', () => {
       expect(resolvedFragmentMap.hasOwnProperty('otherFragID')).toBe(true);
     });
 
-    it(
-      "increments the generation when a fragment's resolvedness " + 'changes',
-      () => {
-        const records = {
-          // No resolved fragment map at all
-          a: {},
-          // Map does not contain a key corresponding to our fragment
-          b: {
-            __resolvedFragmentMap__: {otherFragID: true},
-            __resolvedFragmentMapGeneration__: 0,
-          },
-        };
-        const store = new RelayRecordWriter(records, {}, false);
-        store.setHasDeferredFragmentData('a', 'fragID');
-        expect(records.a.__resolvedFragmentMapGeneration__).toBe(0);
-        store.setHasDeferredFragmentData('b', 'fragID');
-        expect(records.b.__resolvedFragmentMapGeneration__).toBe(1);
-      },
-    );
+    it("increments generation when a fragment's resolvedness changes", () => {
+      const records = {
+        // No resolved fragment map at all
+        a: {},
+        // Map does not contain a key corresponding to our fragment
+        b: {
+          __resolvedFragmentMap__: {otherFragID: true},
+          __resolvedFragmentMapGeneration__: 0,
+        },
+      };
+      const store = new RelayRecordWriter(records, {}, false);
+      store.setHasDeferredFragmentData('a', 'fragID');
+      expect(records.a.__resolvedFragmentMapGeneration__).toBe(0);
+      store.setHasDeferredFragmentData('b', 'fragID');
+      expect(records.b.__resolvedFragmentMapGeneration__).toBe(1);
+    });
 
     it(
       "increments the generation even when a fragment's resolvedness " +

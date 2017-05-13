@@ -202,7 +202,7 @@ function transformSelection(
           return s;
         });
     default:
-      throw `Unknown Selection type: ${node.kind}`;
+      throw new Error(`Unknown Selection type: ${node.kind}`);
   }
 
   if (Array.isArray(annotation)) {

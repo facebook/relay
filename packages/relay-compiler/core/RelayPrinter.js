@@ -233,11 +233,10 @@ function printValue(value: ArgumentValue, type: ?GraphQLInputType): ?string {
     );
 
     const typeFields = type.getFields();
-    const pairs = value.fields.map(({ name, value }) => {
-      const innerValue = printValue(value, typeFields[name].type);
-      return innerValue == null ? null : (name + ': ' + innerValue);
-    })
-    .filter(Boolean);
+    const pairs = value.fields.map(field => {
+      const innerValue = printValue(field.value, typeFields[field.name].type);
+      return innerValue == null ? null : (field.name + ': ' + innerValue);
+    }).filter(Boolean);
 
     return '{' + pairs.join(', ') + '}';
   } else if (value.kind === 'ListValue') {
@@ -254,7 +253,6 @@ function printValue(value: ArgumentValue, type: ?GraphQLInputType): ?string {
     return null;
   }
 }
-
 
 function printLiteral(value: mixed, type: ?GraphQLInputType): string {
   if (type instanceof GraphQLNonNull) {

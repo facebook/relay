@@ -55,14 +55,14 @@ function callsArrayToObject(queryCalls) {
   if (calls.first) {
     invariant(
       !isNaN(calls.first),
-      'GraphQLRange: Expected `first` argument to be a number, got ' + '`%s`.',
+      'GraphQLRange: Expected `first` argument to be a number, got `%s`.',
       calls.first,
     );
     calls.first = +calls.first;
   } else if (calls.last) {
     invariant(
       !isNaN(calls.last),
-      'GraphQLRange: Expected `last` argument to be a number, got ' + '`%s`.',
+      'GraphQLRange: Expected `last` argument to be a number, got `%s`.',
       calls.last,
     );
     calls.last = +calls.last;

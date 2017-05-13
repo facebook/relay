@@ -43,7 +43,7 @@ class RelayQueryResponseCache {
     );
     invariant(
       ttl > 0,
-      'RelayQueryResponseCache: Expected the max ttl to be > 0, got ' + '`%s`.',
+      'RelayQueryResponseCache: Expected the max ttl to be > 0, got `%s`.',
       ttl,
     );
     this._responses = new Map();

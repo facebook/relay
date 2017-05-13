@@ -562,7 +562,9 @@ class RelayParser {
       const handleArgument = (clientFieldDirective.arguments || [])
         .find(arg => getName(arg) === CLIENT_FIELD_HANDLE);
       if (handleArgument) {
-        let name = null, key = DEFAULT_HANDLE_KEY, filters = null;
+        let name = null;
+        let key = DEFAULT_HANDLE_KEY;
+        let filters = null;
         const maybeHandle = this._transformValue(handleArgument.value);
         invariant(
           maybeHandle.kind === 'Literal' &&

@@ -6,3 +6,7 @@ extends:
 rules:
   # this is very noisy, so disable
   consistent-return: 0
+  # Prettier and ESLint may disagree on the following rules
+  indent: 0
+  array-bracket-spacing: 0
+  comma-dangle: 0

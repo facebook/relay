@@ -65,14 +65,13 @@ function transformFieldToIR(node: {
   const type = getRawType(node.type);
   if (type instanceof GraphQLInputObjectType) {
     return transformInputObjectToIR(node);
-  } else if (
-    type instanceof GraphQLEnumType ||
-    type instanceof GraphQLScalarType
-  ) {
-    return transformScalarToIR(node.name, type);
-  } else {
-    throw 'Unhandled node type';
   }
+
+  if (type instanceof GraphQLEnumType || type instanceof GraphQLScalarType) {
+    return transformScalarToIR(node.name, type);
+  }
+
+  throw new Error('Unhandled node type');
 }
 
 /**

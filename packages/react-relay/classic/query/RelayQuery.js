@@ -1030,8 +1030,10 @@ class RelayQueryFragment extends RelayQueryNode {
 
   isPlural(): boolean {
     const metadata = (this.__concreteNode__: ConcreteFragment).metadata;
-    return !!// FB Printer
-    (metadata.isPlural || metadata.plural); // OSS Printer from `@relay`
+    return Boolean(
+      /* FB Printer */ metadata.isPlural ||
+        /* OSS Printer from `@relay` */ metadata.plural,
+    );
   }
 
   isTrackingEnabled(): boolean {

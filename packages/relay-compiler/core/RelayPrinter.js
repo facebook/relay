@@ -233,28 +233,27 @@ function printValue(value: ArgumentValue, type: ?GraphQLInputType): ?string {
     );
 
     const typeFields = type.getFields();
-    const pairs = value.fields.map(({ name, value }) => {
-      const innerValue = printValue(value, typeFields[name].type);
-      return innerValue == null ? null : (name + ': ' + innerValue);
-    })
-    .filter(Boolean);
+    const pairs = value.fields
+      .map(field => {
+        const innerValue = printValue(field.value, typeFields[field.name].type);
+        return innerValue == null ? null : field.name + ': ' + innerValue;
+      })
+      .filter(Boolean);
 
     return '{' + pairs.join(', ') + '}';
   } else if (value.kind === 'ListValue') {
     invariant(
       type instanceof GraphQLList,
-      'RelayPrinter: Need a type in order to print arrays.'
+      'RelayPrinter: Need a type in order to print arrays.',
     );
     const innerType = type.ofType;
     return `[${value.items.map(i => printValue(i, innerType)).join(', ')}]`;
-
   } else if (value.value != null) {
     return printLiteral(value.value, type);
   } else {
     return null;
   }
 }
-
 
 function printLiteral(value: mixed, type: ?GraphQLInputType): string {
   if (type instanceof GraphQLNonNull) {

@@ -337,7 +337,13 @@ function createFragmentForOperation(t, operation, state) {
 
 function createRelayQLTemplate(t, node, state) {
   const schema = state.opts && state.opts.schema;
-  invariant(schema, 'babel-plugin-relay: Missing schema option');
+  invariant(
+    schema,
+    'babel-plugin-relay: Missing schema option. ' +
+      'Check your .babelrc file or wherever you configure your Babel ' +
+      'plugins to ensure the "relay" plugin has a "schema" option.\n' +
+      'https://facebook.github.io/relay/docs/babel-plugin-relay.html#additional-options',
+  );
   const [documentName, propName] = getFragmentNameParts(node.name.value);
   const text = GraphQL.print(node);
   const quasi = t.templateLiteral(

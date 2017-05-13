@@ -52,7 +52,13 @@ module.exports = function BabelPluginRelay({types: t}) {
         const [quasi, tagName, propName] = getValidRelayQLTag(path);
         if (quasi) {
           const schema = state.opts && state.opts.schema;
-          invariant(schema, 'babel-plugin-relay: Missing schema option');
+          invariant(
+            schema,
+            'babel-plugin-relay: Missing schema option. ' +
+              'Check your .babelrc file or wherever you configure your Babel ' +
+              'plugins to ensure the "relay" plugin has a "schema" option.\n' +
+              'https://facebook.github.io/relay/docs/babel-plugin-relay.html#additional-options',
+          );
           const documentName = getDocumentName(path, state);
           path.replaceWith(
             compileRelayQLTag(

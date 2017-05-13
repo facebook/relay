@@ -290,7 +290,7 @@ describe('RelayDefaultNetworkLayer', () => {
       );
       expect(error.status).toEqual(failureResponse.status);
       expect(error.source).toBe(
-        '{"errors":[{"message":"Something went ' + 'completely wrong."}]}',
+        '{"errors":[{"message":"Something went completely wrong."}]}',
       );
     });
   });

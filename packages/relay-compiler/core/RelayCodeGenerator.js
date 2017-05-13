@@ -33,6 +33,7 @@ import type {Fragment, Root} from 'RelayIR';
 const {GraphQLList} = GraphQL;
 const {getRawType, isAbstractType, getNullableType} = RelaySchemaUtils;
 
+/* eslint-disable no-redeclare */
 declare function generate(node: Root): ConcreteRoot;
 declare function generate(node: Fragment): ConcreteFragment;
 
@@ -51,6 +52,7 @@ function generate(node: Root | Fragment): ConcreteRoot | ConcreteFragment {
   );
   return RelayIRVisitor.visit(node, RelayCodeGenVisitor);
 }
+/* eslint-enable no-redeclare */
 
 const RelayCodeGenVisitor = {
   leave: {

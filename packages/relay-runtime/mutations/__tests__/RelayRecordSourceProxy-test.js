@@ -359,7 +359,6 @@ describe('RelayRecordSourceProxy', () => {
 
   it('combines operations', () => {
     const markBackup = baseSource.get('4');
-    const gregBackup = baseSource.get('660361306');
     const mark = store.get('4');
     mark.setValue('Marcus', 'name');
     mark.setValue('Marcus Jr.', 'name');

@@ -35,6 +35,7 @@ import type {Variables} from 'RelayTypes';
 type Props = {
   cacheConfig?: ?CacheConfig,
   environment: Environment | ClassicEnvironment,
+  lookup?: ?boolean,
   query: ?GraphQLTaggedNode,
   render: (readyState: ReadyState, prevState: ?ReadyState) => ?React.Element<*>,
   variables: Variables,
@@ -71,7 +72,7 @@ class ReactRelayQueryRenderer extends React.Component {
 
   constructor(props: Props, context: Object) {
     super(props, context);
-    let {query, variables} = props;
+    let {query, variables, lookup} = props;
     // TODO (#16225453) QueryRenderer works with old and new environment, but
     // the flow typing doesn't quite work abstracted.
     // $FlowFixMe
@@ -96,10 +97,26 @@ class ReactRelayQueryRenderer extends React.Component {
     };
     this._rootSubscription = null;
     this._selectionReference = null;
-    if (query) {
-      this.state = {
-        readyState: getDefaultState(),
-      };
+
+    if (operation) {
+      if (lookup && environment.check(operation.root)) {
+        // data is available in the store, render without making any requests
+        const snapshot = environment.lookup(operation.fragment);
+        this.state = {
+          readyState: {
+            error: null,
+            props: snapshot.data,
+            retry: () => {
+              this._fetch(operation, props.cacheConfig);
+            },
+          }
+        };
+      } else {
+        this.state = {
+          readyState: getDefaultState(),
+        };
+        this._fetch(operation, props.cacheConfig);
+      }
     } else {
       this.state = {
         readyState: {
@@ -108,10 +125,6 @@ class ReactRelayQueryRenderer extends React.Component {
           retry: null,
         },
       };
-    }
-
-    if (operation) {
-      this._fetch(operation, props.cacheConfig);
     }
   }
 
@@ -144,10 +157,23 @@ class ReactRelayQueryRenderer extends React.Component {
           environment,
           variables: operation.variables,
         };
-        this._fetch(operation, nextProps.cacheConfig);
-        this.setState({
-          readyState: getDefaultState(),
-        });
+        if (nextProps.lookup && environment.check(operation.root)) {
+          const snapshot = environment.lookup(operation.fragment);
+          this.setState({
+            readyState: {
+              error: null,
+              props: snapshot.data,
+              retry: () => {
+                  this._fetch(operation, nextProps.cacheConfig);
+              },
+            },
+          });
+        } else {
+          this._fetch(operation, nextProps.cacheConfig);
+          this.setState({
+            readyState: getDefaultState(),
+          });
+        }
       } else {
         this._operation = null;
         this._relayContext = {

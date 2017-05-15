@@ -49,6 +49,7 @@ export type WriterConfig = {
   fragmentsWithLegacyFlowTypes?: Set<string>,
   schemaTransforms: Array<SchemaTransform>,
   relayRuntimeModule?: string,
+  inputFieldWhiteListForFlow?: Array<string>,
 };
 
 /* eslint-disable no-console-disallow */
@@ -187,7 +188,10 @@ class RelayFileWriter {
           }
 
           const flowTypes = node.kind === 'Fragment'
-            ? RelayFlowGenerator.generate(node)
+            ? RelayFlowGenerator.generate(
+                node,
+                this._config.inputFieldWhiteListForFlow,
+              )
             : printFlowTypes(node);
           const compiledNode = compiledDocumentMap.get(node.name);
           invariant(

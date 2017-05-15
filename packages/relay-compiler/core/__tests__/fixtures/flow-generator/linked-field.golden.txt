@@ -15,7 +15,7 @@ export type LinkedField = {|
   |};
 |};
 
-export type UnionTypeTest = {|
+export type UnionTypeTestResponse = {|
   +neverNode: ?{|
     +__typename: "FakeNode";
     +id: string;

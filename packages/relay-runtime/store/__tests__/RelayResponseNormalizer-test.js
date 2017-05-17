@@ -437,8 +437,9 @@ describe('RelayResponseNormalizer', () => {
       );
     }).toWarn([
       'RelayResponseNormalizer: Invalid record `%s`. Expected %s to be ' +
-        'be consistent, but the record was assigned conflicting types ' +
-        '`%s` and `%s`.',
+        'be consistent, but the record was assigned conflicting types `%s` ' +
+        'and `%s`. The GraphQL server likely violated the globally unique ' +
+        'id requirement by returning the same id for different objects.',
       '1',
       '__typename',
       'User',
@@ -457,8 +458,9 @@ describe('RelayResponseNormalizer', () => {
       );
     }).toWarn([
       'RelayResponseNormalizer: Invalid record `%s`. Expected %s to be ' +
-        'be consistent, but the record was assigned conflicting types ' +
-        '`%s` and `%s`.',
+        'be consistent, but the record was assigned conflicting types `%s` ' +
+        'and `%s`. The GraphQL server likely violated the globally unique ' +
+        'id requirement by returning the same id for different objects.',
       '1',
       '__typename',
       'Actor', // `User` is already overwritten when the plural field is reached

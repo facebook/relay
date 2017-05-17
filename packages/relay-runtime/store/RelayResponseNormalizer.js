@@ -16,13 +16,19 @@
 const RelayConcreteNode = require('RelayConcreteNode');
 const RelayModernRecord = require('RelayModernRecord');
 const RelayProfiler = require('RelayProfiler');
-const RelayStoreUtils = require('RelayStoreUtils');
 
 const formatStorageKey = require('formatStorageKey');
 const generateRelayClientID = require('generateRelayClientID');
 const getRelayHandleKey = require('getRelayHandleKey');
 const invariant = require('invariant');
 const warning = require('warning');
+
+const {
+  getHandleFilterValues,
+  getArgumentValues,
+  getStorageKey,
+  TYPENAME_KEY,
+} = require('RelayStoreUtils');
 
 import type {Record} from 'RelayCombinedEnvironmentTypes';
 import type {
@@ -48,7 +54,6 @@ const {
   SCALAR_FIELD,
   SCALAR_HANDLE,
 } = RelayConcreteNode;
-const {getArgumentValues, getStorageKey, TYPENAME_KEY} = RelayStoreUtils;
 
 export type NormalizationOptions = {handleStrippedNulls: boolean};
 
@@ -163,7 +168,7 @@ class RelayResponseNormalizer {
           selection.name,
         );
         if (selection.filters) {
-          const filterValues = RelayStoreUtils.getHandleFilterValues(
+          const filterValues = getHandleFilterValues(
             selection.args || [],
             selection.filters,
             this._variables,
@@ -325,8 +330,9 @@ class RelayResponseNormalizer {
     warning(
       RelayModernRecord.getType(record) === typeName,
       'RelayResponseNormalizer: Invalid record `%s`. Expected %s to be ' +
-        'be consistent, but the record was assigned conflicting types ' +
-        '`%s` and `%s`.',
+        'be consistent, but the record was assigned conflicting types `%s` ' +
+        'and `%s`. The GraphQL server likely violated the globally unique ' +
+        'id requirement by returning the same id for different objects.',
       RelayModernRecord.getDataID(record),
       TYPENAME_KEY,
       RelayModernRecord.getType(record),

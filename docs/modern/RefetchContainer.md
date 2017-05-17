@@ -87,7 +87,7 @@ module.exports = createRefetchContainer(
       }
     `
   },
-  graphql`
+  graphql.experimental`
     query FeedStoriesRefetchQuery($count: Int) {
       feed {
         ...FeedStories_feed @arguments(count: $count)

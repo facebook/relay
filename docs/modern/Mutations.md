@@ -4,7 +4,7 @@ title: Mutations
 layout: docs
 category: Relay Modern
 permalink: docs/mutations.html
-next: babel-plugin-relay
+next: subscriptions
 ---
 
 Relay exposes the following APIs to perform mutations.

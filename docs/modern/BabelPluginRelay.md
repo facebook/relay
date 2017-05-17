@@ -68,7 +68,7 @@ Relay Classic `Relay.QL` literals. Most importantly, include a reference to your
 Please note that this replaces the [older Babel Relay plugin](./guides-babel-plugin.html). It is not necessary to include both plugins.
 
 
-### Using during conversion in "[compatibility mode](https://facebook.github.io/relay/docs/relay-compat.html)"
+### Using during conversion in "[compatibility mode](./relay-compat.html)"
 
 When incrementally converting a Relay Classic app to Relay Modern, `graphql`
 literals can be translated to be usable by *both* runtimes if configured to use

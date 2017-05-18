@@ -69,7 +69,7 @@ export type CacheManager = {
 };
 export type CacheProcessorCallbacks = {
   +onSuccess?: () => void,
-  +onFailure?: () => void,
+  +onFailure?: (error: mixed) => void,
 };
 export type CacheWriter = {
   writeField(

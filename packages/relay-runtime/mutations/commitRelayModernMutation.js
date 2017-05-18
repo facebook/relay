@@ -29,7 +29,7 @@ export type MutationConfig = {|
   mutation: GraphQLTaggedNode,
   variables: Variables,
   uploadables?: UploadableMap,
-  onCompleted?: ?(response: ?Object) => void,
+  onCompleted?: ?(response: ?Object, errors: ?Array<PayloadError>) => void,
   onError?: ?(error: Error) => void,
   optimisticUpdater?: ?(store: RecordSourceSelectorProxy) => void,
   optimisticResponse?: ?() => Object,

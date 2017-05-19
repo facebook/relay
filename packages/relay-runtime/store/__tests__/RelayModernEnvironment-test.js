@@ -50,7 +50,7 @@ describe('RelayModernEnvironment', () => {
   describe('check()', () => {
     let ParentQuery;
     let environment;
-    let selector;
+    let operationSelector;
 
     beforeEach(() => {
       ({ParentQuery} = generateAndCompile(
@@ -67,15 +67,11 @@ describe('RelayModernEnvironment', () => {
       `,
       ));
       environment = new RelayModernEnvironment(config);
-      selector = {
-        dataID: ROOT_ID,
-        node: ParentQuery.query,
-        variables: {size: 32},
-      };
+      operationSelector = createOperationSelector(ParentQuery, {size: 32});
     });
 
     it('returns true if all data exists in the environment', () => {
-      environment.commitPayload(selector, {
+      environment.commitPayload(operationSelector, {
         me: {
           id: '4',
           name: 'Zuck',
@@ -84,11 +80,11 @@ describe('RelayModernEnvironment', () => {
           },
         },
       });
-      expect(environment.check(selector)).toBe(true);
+      expect(environment.check(operationSelector.fragment)).toBe(true);
     });
 
     it('returns false if data is missing from the environment', () => {
-      environment.commitPayload(selector, {
+      environment.commitPayload(operationSelector, {
         me: {
           id: '4',
           name: 'Zuck',
@@ -97,7 +93,7 @@ describe('RelayModernEnvironment', () => {
           },
         },
       });
-      expect(environment.check(selector)).toBe(false);
+      expect(environment.check(operationSelector.fragment)).toBe(false);
     });
   });
 
@@ -121,19 +117,13 @@ describe('RelayModernEnvironment', () => {
       `,
       ));
       environment = new RelayModernEnvironment(config);
-      environment.commitPayload(
-        {
-          dataID: ROOT_ID,
-          node: ParentQuery.query,
-          variables: {},
+      const operationSelector = createOperationSelector(ParentQuery, {});
+      environment.commitPayload(operationSelector, {
+        me: {
+          id: '4',
+          name: 'Zuck',
         },
-        {
-          me: {
-            id: '4',
-            name: 'Zuck',
-          },
-        },
-      );
+      });
     });
 
     it('returns the results of executing a query', () => {
@@ -178,19 +168,13 @@ describe('RelayModernEnvironment', () => {
       `,
       ));
       environment = new RelayModernEnvironment(config);
-      environment.commitPayload(
-        {
-          dataID: ROOT_ID,
-          node: ParentQuery.query,
-          variables: {},
+      const operationSelector = createOperationSelector(ParentQuery, {});
+      environment.commitPayload(operationSelector, {
+        me: {
+          id: '4',
+          name: 'Zuck',
         },
-        {
-          me: {
-            id: '4',
-            name: 'Zuck',
-          },
-        },
-      );
+      });
     });
 
     it('calls the callback if data changes', () => {
@@ -246,19 +230,13 @@ describe('RelayModernEnvironment', () => {
       `,
       ));
       environment = new RelayModernEnvironment(config);
-      environment.commitPayload(
-        {
-          dataID: ROOT_ID,
-          node: ParentQuery.query,
-          variables: {},
+      const operationSelector = createOperationSelector(ParentQuery, {});
+      environment.commitPayload(operationSelector, {
+        me: {
+          id: '4',
+          name: 'Zuck',
         },
-        {
-          me: {
-            id: '4',
-            name: 'Zuck',
-          },
-        },
-      );
+      });
     });
 
     it('retains data when not disposed', () => {
@@ -368,6 +346,7 @@ describe('RelayModernEnvironment', () => {
   describe('commitPayload()', () => {
     let ActorQuery;
     let environment;
+    let operationSelector;
 
     beforeEach(() => {
       ({ActorQuery} = generateAndCompile(
@@ -379,35 +358,24 @@ describe('RelayModernEnvironment', () => {
         }
       `,
       ));
+      operationSelector = createOperationSelector(ActorQuery, {});
       store.notify = jest.fn(store.notify.bind(store));
       store.publish = jest.fn(store.publish.bind(store));
       environment = new RelayModernEnvironment(config);
     });
 
     it('applies server updates', () => {
-      const selector = {
-        dataID: ROOT_ID,
-        node: ActorQuery.fragment,
-        variables: {},
-      };
       const callback = jest.fn();
-      const snapshot = environment.lookup(selector);
+      const snapshot = environment.lookup(operationSelector.fragment);
       environment.subscribe(snapshot, callback);
 
-      environment.commitPayload(
-        {
-          dataID: ROOT_ID,
-          node: ActorQuery.query,
-          variables: {},
+      environment.commitPayload(operationSelector, {
+        me: {
+          id: '4',
+          __typename: 'User',
+          name: 'Zuck',
         },
-        {
-          me: {
-            id: '4',
-            __typename: 'User',
-            name: 'Zuck',
-          },
-        },
-      );
+      });
       expect(callback.mock.calls.length).toBe(1);
       expect(callback.mock.calls[0][0].data).toEqual({
         me: {
@@ -417,13 +385,8 @@ describe('RelayModernEnvironment', () => {
     });
 
     it('rebases optimistic updates', () => {
-      const selector = {
-        dataID: ROOT_ID,
-        node: ActorQuery.fragment,
-        variables: {},
-      };
       const callback = jest.fn();
-      const snapshot = environment.lookup(selector);
+      const snapshot = environment.lookup(operationSelector.fragment);
       environment.subscribe(snapshot, callback);
 
       environment.applyUpdate(store => {
@@ -434,20 +397,13 @@ describe('RelayModernEnvironment', () => {
         }
       });
 
-      environment.commitPayload(
-        {
-          dataID: ROOT_ID,
-          node: ActorQuery.query,
-          variables: {},
+      environment.commitPayload(operationSelector, {
+        me: {
+          id: '4',
+          __typename: 'User',
+          name: 'Zuck',
         },
-        {
-          me: {
-            id: '4',
-            __typename: 'User',
-            name: 'Zuck',
-          },
-        },
-      );
+      });
       expect(callback.mock.calls.length).toBe(1);
       expect(callback.mock.calls[0][0].data).toEqual({
         me: {
@@ -788,6 +744,7 @@ describe('RelayModernEnvironment', () => {
 
   describe('sendMutation()', () => {
     let CreateCommentMutation;
+    let CreateCommentWithSpreadMutation;
     let CommentFragment;
     let deferred;
     let fetch;
@@ -798,7 +755,11 @@ describe('RelayModernEnvironment', () => {
     let variables;
 
     beforeEach(() => {
-      ({CreateCommentMutation, CommentFragment} = generateAndCompile(
+      ({
+        CreateCommentMutation,
+        CreateCommentWithSpreadMutation,
+        CommentFragment,
+      } = generateAndCompile(
         `
         mutation CreateCommentMutation($input: CommentCreateInput!) {
           commentCreate(input: $input) {
@@ -810,10 +771,19 @@ describe('RelayModernEnvironment', () => {
             }
           }
         }
+
         fragment CommentFragment on Comment {
           id
           body {
             text
+          }
+        }
+
+        mutation CreateCommentWithSpreadMutation($input: CommentCreateInput!) {
+          commentCreate(input: $input) {
+            comment {
+              ...CommentFragment
+            }
           }
         }
       `,
@@ -1043,6 +1013,49 @@ describe('RelayModernEnvironment', () => {
       expect(onError).toBeCalled();
       expect(callback.mock.calls.length).toBe(1);
       expect(callback.mock.calls[0][0].data).toEqual(undefined);
+    });
+
+    it('commits optimistic response with fragment spread', () => {
+      operation = createOperationSelector(
+        CreateCommentWithSpreadMutation,
+        variables,
+      );
+
+      const commentID = 'comment';
+      const selector = {
+        dataID: commentID,
+        node: CommentFragment,
+        variables: {},
+      };
+      const snapshot = environment.lookup(selector);
+      const callback = jest.fn();
+      environment.subscribe(snapshot, callback);
+
+      environment.sendMutation({
+        onCompleted,
+        onError,
+        operation,
+        optimisticResponse: () => ({
+          commentCreate: {
+            comment: {
+              id: commentID,
+              body: {
+                text: 'Give Relay',
+              },
+            },
+          },
+        }),
+      });
+
+      expect(onCompleted).not.toBeCalled();
+      expect(onError).not.toBeCalled();
+      expect(callback.mock.calls.length).toBe(1);
+      expect(callback.mock.calls[0][0].data).toEqual({
+        id: commentID,
+        body: {
+          text: 'Give Relay',
+        },
+      });
     });
 
     it('does not commit the server payload if disposed', () => {

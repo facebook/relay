@@ -19,6 +19,7 @@ const RelayRecordSourceProxy = require('RelayRecordSourceProxy');
 const RelayRecordProxy = require('RelayRecordProxy');
 const RelayStoreUtils = require('RelayStoreUtils');
 const RelayModernTestUtils = require('RelayModernTestUtils');
+const {createOperationSelector} = require('RelayModernOperationSelector');
 
 const simpleClone = require('simpleClone');
 
@@ -186,9 +187,9 @@ describe('RelayRecordSourceProxy', () => {
   });
 
   describe('commitPayload()', () => {
-    const {generateWithTransforms} = RelayModernTestUtils;
+    const {generateAndCompile} = RelayModernTestUtils;
     it('override current fields ', () => {
-      const {Query} = generateWithTransforms(
+      const {Query} = generateAndCompile(
         `
         query Query {
           node(id: "sf") {
@@ -199,6 +200,7 @@ describe('RelayRecordSourceProxy', () => {
         }
       `,
       );
+      const operationSelector = createOperationSelector(Query, {});
       const rawPayload = {
         node: {
           id: 'sf',
@@ -206,14 +208,7 @@ describe('RelayRecordSourceProxy', () => {
           name: 'SF',
         },
       };
-      store.commitPayload(
-        {
-          dataID: ROOT_ID,
-          node: Query,
-          variables: {},
-        },
-        rawPayload,
-      );
+      store.commitPayload(operationSelector, rawPayload);
       expect(sinkData.sf).toEqual({
         [ID_KEY]: 'sf',
         [TYPENAME_KEY]: 'Page',
@@ -223,7 +218,7 @@ describe('RelayRecordSourceProxy', () => {
     });
 
     it('applies new records ', () => {
-      const {Query} = generateWithTransforms(
+      const {Query} = generateAndCompile(
         `
         query Query {
           node(id: "seattle") {
@@ -234,6 +229,7 @@ describe('RelayRecordSourceProxy', () => {
         }
       `,
       );
+      const operationSelector = createOperationSelector(Query, {});
       const rawPayload = {
         node: {
           id: 'seattle',
@@ -241,14 +237,7 @@ describe('RelayRecordSourceProxy', () => {
           name: 'Seattle',
         },
       };
-      store.commitPayload(
-        {
-          dataID: ROOT_ID,
-          node: Query,
-          variables: {},
-        },
-        rawPayload,
-      );
+      store.commitPayload(operationSelector, rawPayload);
       expect(sinkData.seattle).toEqual({
         [ID_KEY]: 'seattle',
         [TYPENAME_KEY]: 'Page',
@@ -265,7 +254,7 @@ describe('RelayRecordSourceProxy', () => {
       const handlerProvider = name => handlers[name];
       store = new RelayRecordSourceProxy(mutator, handlerProvider);
 
-      const {Query} = generateWithTransforms(
+      const {Query} = generateAndCompile(
         `
         query Query {
           node(id: "sf") {
@@ -276,6 +265,7 @@ describe('RelayRecordSourceProxy', () => {
         }
       `,
       );
+      const operationSelector = createOperationSelector(Query, {});
       const rawPayload = {
         node: {
           id: 'sf',
@@ -283,14 +273,7 @@ describe('RelayRecordSourceProxy', () => {
           name: 'SF',
         },
       };
-      store.commitPayload(
-        {
-          dataID: ROOT_ID,
-          node: Query,
-          variables: {},
-        },
-        rawPayload,
-      );
+      store.commitPayload(operationSelector, rawPayload);
 
       const fieldPayload = {
         args: {},

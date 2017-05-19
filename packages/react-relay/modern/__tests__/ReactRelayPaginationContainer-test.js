@@ -24,6 +24,7 @@ const RelayConnectionHandler = require('RelayConnectionHandler');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 const {ROOT_ID} = require('RelayStoreUtils');
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
+const {createOperationSelector} = require('RelayModernOperationSelector');
 const {
   END_CURSOR,
   HAS_NEXT_PAGE,
@@ -160,45 +161,34 @@ describe('ReactRelayPaginationContainer', () => {
     );
 
     // Pre-populate the store with data
-    environment.commitPayload(
-      {
-        dataID: ROOT_ID,
-        node: UserQuery.query,
-        variables,
-      },
-      {
-        node: {
-          id: '4',
-          __typename: 'User',
-          friends: {
-            edges: [
-              {
-                cursor: 'cursor:1',
-                node: {
-                  __typename: 'User',
-                  id: 'node:1',
-                },
+    environment.commitPayload(createOperationSelector(UserQuery, variables), {
+      node: {
+        id: '4',
+        __typename: 'User',
+        friends: {
+          edges: [
+            {
+              cursor: 'cursor:1',
+              node: {
+                __typename: 'User',
+                id: 'node:1',
               },
-            ],
-            pageInfo: {
-              endCursor: 'cursor:1',
-              hasNextPage: true,
-              hasPreviousPage: false,
-              startCursor: 'cursor:1',
             },
+          ],
+          pageInfo: {
+            endCursor: 'cursor:1',
+            hasNextPage: true,
+            hasPreviousPage: false,
+            startCursor: 'cursor:1',
           },
         },
       },
-    );
+    });
     environment.commitPayload(
-      {
-        dataID: ROOT_ID,
-        node: UserQuery.query,
-        variables: {
-          ...variables,
-          id: '842472',
-        },
-      },
+      createOperationSelector(UserQuery, {
+        ...variables,
+        id: '842472',
+      }),
       {
         node: {
           id: '842472',

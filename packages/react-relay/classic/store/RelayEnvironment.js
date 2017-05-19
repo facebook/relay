@@ -156,7 +156,11 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
     };
   }
 
-  commitPayload(selector: Selector, payload: QueryPayload): void {
+  commitPayload(
+    operationSelector: OperationSelector,
+    payload: QueryPayload,
+  ): void {
+    const selector = operationSelector.root;
     const fragment = RelayQuery.Fragment.create(
       selector.node,
       RelayMetaRoute.get('$RelayEnvironment'),

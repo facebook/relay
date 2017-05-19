@@ -26,6 +26,7 @@ const {
   getClassicFragment,
   getClassicOperation,
 } = require('RelayGraphQLTag');
+const {createOperationSelector} = require('RelayOperationSelector');
 
 describe('RelayFragmentSpecResolver', () => {
   let UserFragment;
@@ -59,15 +60,11 @@ describe('RelayFragmentSpecResolver', () => {
   function setName(id, name) {
     const nodeAlias = generateRQLFieldAlias(`node.id(${id})`);
     environment.commitPayload(
-      {
-        dataID: ROOT_ID,
-        node: UserQuery.node,
-        variables: {
-          fetchSize: false,
-          id,
-          size: null,
-        },
-      },
+      createOperationSelector(UserQuery, {
+        fetchSize: false,
+        id,
+        size: null,
+      }),
       {
         [nodeAlias]: {
           id,
@@ -85,15 +82,11 @@ describe('RelayFragmentSpecResolver', () => {
     // If name is not specified it will be nulled out
     const name = environment.getStoreData().getNodeData()[id].name;
     environment.commitPayload(
-      {
-        dataID: ROOT_ID,
-        node: UserQuery.node,
-        variables: {
-          fetchSize: true,
-          id,
-          size,
-        },
-      },
+      createOperationSelector(UserQuery, {
+        fetchSize: true,
+        id,
+        size,
+      }),
       {
         [nodeAlias]: {
           id,
@@ -167,11 +160,11 @@ describe('RelayFragmentSpecResolver', () => {
 
     let nodeAlias = generateRQLFieldAlias('node.id(4)');
     environment.commitPayload(
-      {
-        dataID: ROOT_ID,
-        node: UserQuery.node,
-        variables: {fetchSize: false, id: '4', size: null},
-      },
+      createOperationSelector(UserQuery, {
+        fetchSize: false,
+        id: '4',
+        size: null,
+      }),
       {
         [nodeAlias]: {
           id: '4',
@@ -182,11 +175,11 @@ describe('RelayFragmentSpecResolver', () => {
     );
     nodeAlias = generateRQLFieldAlias('node.id(beast)');
     environment.commitPayload(
-      {
-        dataID: ROOT_ID,
-        node: UserQuery.node,
-        variables: {fetchSize: false, id: 'beast', size: null},
-      },
+      createOperationSelector(UserQuery, {
+        fetchSize: false,
+        id: 'beast',
+        size: null,
+      }),
       {
         [nodeAlias]: {
           id: 'beast',

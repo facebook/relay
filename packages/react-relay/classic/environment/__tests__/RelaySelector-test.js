@@ -30,6 +30,7 @@ const {
   getSelectorsFromObject,
   getVariablesFromObject,
 } = require('RelaySelector');
+const {createOperationSelector} = require('RelayOperationSelector');
 
 describe('RelaySelector', () => {
   let UserFragment;
@@ -96,11 +97,7 @@ describe('RelaySelector', () => {
 
     const nodeAlias = generateRQLFieldAlias('node.id(4)');
     environment.commitPayload(
-      {
-        dataID: ROOT_ID,
-        node: UserQuery.node,
-        variables: {id: '4', size: null, cond: false},
-      },
+      createOperationSelector(UserQuery, {id: '4', size: null, cond: false}),
       {
         [nodeAlias]: {
           id: '4',

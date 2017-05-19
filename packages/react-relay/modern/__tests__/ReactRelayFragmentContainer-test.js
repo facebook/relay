@@ -21,6 +21,7 @@ const ReactTestRenderer = require('ReactTestRenderer');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 const {ROOT_ID} = require('RelayStoreUtils');
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
+const {createOperationSelector} = require('RelayModernOperationSelector');
 
 describe('ReactRelayFragmentContainer', () => {
   let TestComponent;
@@ -104,26 +105,15 @@ describe('ReactRelayFragmentContainer', () => {
     );
 
     // Pre-populate the store with data
+    environment.commitPayload(createOperationSelector(UserQuery, {id: '4'}), {
+      node: {
+        id: '4',
+        __typename: 'User',
+        name: 'Zuck',
+      },
+    });
     environment.commitPayload(
-      {
-        dataID: ROOT_ID,
-        node: UserQuery.query,
-        variables: {id: '4'},
-      },
-      {
-        node: {
-          id: '4',
-          __typename: 'User',
-          name: 'Zuck',
-        },
-      },
-    );
-    environment.commitPayload(
-      {
-        dataID: ROOT_ID,
-        node: UserQuery.query,
-        variables: {id: '842472'},
-      },
+      createOperationSelector(UserQuery, {id: '842472'}),
       {
         node: {
           id: '842472',

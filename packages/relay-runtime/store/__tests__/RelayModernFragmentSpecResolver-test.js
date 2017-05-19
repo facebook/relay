@@ -15,6 +15,7 @@ jest.autoMockOff();
 
 const RelayModernFragmentSpecResolver = require('RelayModernFragmentSpecResolver');
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
+const {createOperationSelector} = require('RelayModernOperationSelector');
 const {ROOT_ID} = require('RelayStoreUtils');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 
@@ -76,11 +77,11 @@ describe('RelayModernFragmentSpecResolver', () => {
     `,
     ));
     environment.commitPayload(
-      {
-        dataID: ROOT_ID,
-        node: UserQuery.query,
-        variables: {fetchSize: false, id: '4', size: null},
-      },
+      createOperationSelector(UserQuery, {
+        fetchSize: false,
+        id: '4',
+        size: null,
+      }),
       {
         node: {
           id: '4',
@@ -90,11 +91,11 @@ describe('RelayModernFragmentSpecResolver', () => {
       },
     );
     environment.commitPayload(
-      {
-        dataID: ROOT_ID,
-        node: UserQuery.query,
-        variables: {fetchSize: false, id: 'beast', size: null},
-      },
+      createOperationSelector(UserQuery, {
+        fetchSize: false,
+        id: 'beast',
+        size: null,
+      }),
       {
         node: {
           id: 'beast',

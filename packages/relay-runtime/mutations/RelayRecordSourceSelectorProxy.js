@@ -39,11 +39,11 @@ import type {
  */
 class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
   __recordSource: RecordSourceProxy;
-  _selector: Selector;
+  _readSelector: Selector;
 
-  constructor(recordSource: RecordSourceProxy, selector: Selector) {
+  constructor(recordSource: RecordSourceProxy, readSelector: Selector) {
     this.__recordSource = recordSource;
-    this._selector = selector;
+    this._readSelector = readSelector;
   }
 
   create(dataID: DataID, typeName: string): RecordProxy {
@@ -89,19 +89,19 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
   }
 
   getRootField(fieldName: string): ?RecordProxy {
-    const field = this._getRootField(this._selector, fieldName, false);
-    const storageKey = getStorageKey(field, this._selector.variables);
+    const field = this._getRootField(this._readSelector, fieldName, false);
+    const storageKey = getStorageKey(field, this._readSelector.variables);
     return this.getRoot().getLinkedRecord(storageKey);
   }
 
   getPluralRootField(fieldName: string): ?Array<?RecordProxy> {
-    const field = this._getRootField(this._selector, fieldName, true);
-    const storageKey = getStorageKey(field, this._selector.variables);
+    const field = this._getRootField(this._readSelector, fieldName, true);
+    const storageKey = getStorageKey(field, this._readSelector.variables);
     return this.getRoot().getLinkedRecords(storageKey);
   }
 
   getResponse(): ?Object {
-    const snapshot = read(this, this._selector, RelayRecordProxyReader);
+    const snapshot = read(this, this._readSelector, RelayRecordProxyReader);
     return snapshot.data;
   }
 }

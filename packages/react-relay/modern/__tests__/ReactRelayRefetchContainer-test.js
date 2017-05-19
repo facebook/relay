@@ -20,6 +20,7 @@ const ReactRelayPropTypes = require('ReactRelayPropTypes');
 const ReactTestRenderer = require('ReactTestRenderer');
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const RelayModernTestUtils = require('RelayModernTestUtils');
+const {createOperationSelector} = require('RelayModernOperationSelector');
 
 const {ROOT_ID} = require('RelayStoreUtils');
 
@@ -110,26 +111,15 @@ describe('ReactRelayRefetchContainer', () => {
     );
 
     // Pre-populate the store with data
+    environment.commitPayload(createOperationSelector(UserQuery, {id: '4'}), {
+      node: {
+        id: '4',
+        __typename: 'User',
+        name: 'Zuck',
+      },
+    });
     environment.commitPayload(
-      {
-        dataID: ROOT_ID,
-        node: UserQuery.query,
-        variables: {id: '4'},
-      },
-      {
-        node: {
-          id: '4',
-          __typename: 'User',
-          name: 'Zuck',
-        },
-      },
-    );
-    environment.commitPayload(
-      {
-        dataID: ROOT_ID,
-        node: UserQuery.query,
-        variables: {id: '842472'},
-      },
+      createOperationSelector(UserQuery, {id: '842472'}),
       {
         node: {
           id: '842472',

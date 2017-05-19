@@ -26,6 +26,7 @@ const createRelayQuery = require('createRelayQuery');
 const generateRQLFieldAlias = require('generateRQLFieldAlias');
 const mapObject = require('mapObject');
 const {graphql, getClassicOperation} = require('RelayGraphQLTag');
+const {createOperationSelector} = require('RelayOperationSelector');
 
 describe('RelayEnvironment', () => {
   let UserQuery;
@@ -61,11 +62,7 @@ describe('RelayEnvironment', () => {
     nodeAlias = generateRQLFieldAlias('node.user.id(4)');
     photoAlias = generateRQLFieldAlias('profilePicture.size(1)');
     environment.commitPayload(
-      {
-        dataID: ROOT_ID,
-        node: UserQuery.node,
-        variables: {id: '4', size: 1},
-      },
+      createOperationSelector(UserQuery, {id: '4', size: 1}),
       {
         [nodeAlias]: {
           id: '4',
@@ -99,11 +96,7 @@ describe('RelayEnvironment', () => {
 
       nodeAlias = generateRQLFieldAlias('node.feedback.id(123)');
       environment.commitPayload(
-        {
-          dataID: ROOT_ID,
-          node: FeedbackQuery.node,
-          variables: {id: '123'},
-        },
+        createOperationSelector(FeedbackQuery, {id: '123'}),
         {
           [nodeAlias]: {
             id: '123',
@@ -229,11 +222,7 @@ describe('RelayEnvironment', () => {
 
       nodeAlias = generateRQLFieldAlias('node.feedback.id(123)');
       environment.commitPayload(
-        {
-          dataID: ROOT_ID,
-          node: FeedbackQuery.node,
-          variables: {id: '123'},
-        },
+        createOperationSelector(FeedbackQuery, {id: '123'}),
         {
           [nodeAlias]: {
             id: '123',
@@ -755,7 +744,7 @@ describe('RelayEnvironment', () => {
           FriendsQuery,
           {id: '4'},
         );
-        environment.commitPayload(operation.root, {
+        environment.commitPayload(operation, {
           [nodeAlias]: {
             id: '4',
             __typename: 'User',

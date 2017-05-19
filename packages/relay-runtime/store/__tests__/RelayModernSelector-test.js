@@ -61,20 +61,32 @@ describe('RelayModernSelector', () => {
       }
     `,
     ));
-    environment.commitPayload(
-      {
-        dataID: ROOT_ID,
-        node: UserQuery.query,
-        variables: {id: '4', size: null, cond: false},
+    const dataID = ROOT_ID;
+    variables = {id: '4', size: null, cond: false};
+    const fragment = {
+      dataID,
+      node: UserQuery.fragment,
+      variables,
+    };
+    const root = {
+      dataID,
+      node: UserQuery.query,
+      variables,
+    };
+    const operationSelector = {
+      fragment,
+      root,
+      node: UserQuery,
+      variables,
+    };
+
+    environment.commitPayload(operationSelector, {
+      node: {
+        id: '4',
+        __typename: 'User',
+        name: 'Zuck',
       },
-      {
-        node: {
-          id: '4',
-          __typename: 'User',
-          name: 'Zuck',
-        },
-      },
-    );
+    });
     zuck = environment.lookup({
       dataID: ROOT_ID,
       node: UserQuery.fragment,

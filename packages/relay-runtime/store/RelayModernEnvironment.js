@@ -76,14 +76,17 @@ class RelayModernEnvironment implements Environment {
     return {dispose};
   }
 
-  check(selector: Selector): boolean {
-    return this._store.check(selector);
+  check(readSelector: Selector): boolean {
+    return this._store.check(readSelector);
   }
 
-  commitPayload(selector: Selector, payload: PayloadData): void {
+  commitPayload(
+    operationSelector: OperationSelector,
+    payload: PayloadData,
+  ): void {
     // Do not handle stripped nulls when commiting a payload
-    const relayPayload = normalizeRelayPayload(selector, payload);
-    this._publishQueue.commitPayload(selector, relayPayload);
+    const relayPayload = normalizeRelayPayload(operationSelector.root, payload);
+    this._publishQueue.commitPayload(operationSelector, relayPayload);
     this._publishQueue.run();
   }
 
@@ -92,8 +95,8 @@ class RelayModernEnvironment implements Environment {
     this._publishQueue.run();
   }
 
-  lookup(selector: Selector): Snapshot {
-    return this._store.lookup(selector);
+  lookup(readSelector: Selector): Snapshot {
+    return this._store.lookup(readSelector);
   }
 
   subscribe(
@@ -130,7 +133,7 @@ class RelayModernEnvironment implements Environment {
         if (isDisposed) {
           return;
         }
-        this._publishQueue.commitPayload(operation.fragment, payload);
+        this._publishQueue.commitPayload(operation, payload);
         this._publishQueue.run();
         onNext && onNext(payload);
         onCompleted && onCompleted();
@@ -165,7 +168,7 @@ class RelayModernEnvironment implements Environment {
         onCompleted,
         onError,
         onNext: payload => {
-          this._publishQueue.commitPayload(operation.fragment, payload);
+          this._publishQueue.commitPayload(operation, payload);
           this._publishQueue.run();
           onNext && onNext(payload);
         },
@@ -192,7 +195,7 @@ class RelayModernEnvironment implements Environment {
   }): Disposable {
     let hasOptimisticUpdate = optimisticResponse || optimisticUpdater;
     const optimisticUpdate = {
-      selector: operation.fragment,
+      operation: operation,
       selectorStoreUpdater: optimisticUpdater,
       response: optimisticResponse ? optimisticResponse() : null,
     };
@@ -218,7 +221,7 @@ class RelayModernEnvironment implements Environment {
         if (hasOptimisticUpdate) {
           this._publishQueue.revertUpdate(optimisticUpdate);
         }
-        this._publishQueue.commitPayload(operation.fragment, payload, updater);
+        this._publishQueue.commitPayload(operation, payload, updater);
         this._publishQueue.run();
         onCompleted && onCompleted(payload.errors);
       })
@@ -256,11 +259,7 @@ class RelayModernEnvironment implements Environment {
         onCompleted,
         onError,
         onNext: payload => {
-          this._publishQueue.commitPayload(
-            operation.fragment,
-            payload,
-            updater,
-          );
+          this._publishQueue.commitPayload(operation, payload, updater);
           this._publishQueue.run();
           onNext && onNext(payload);
         },

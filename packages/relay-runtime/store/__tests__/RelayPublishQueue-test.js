@@ -18,6 +18,7 @@ const RelayMarkSweepStore = require('RelayMarkSweepStore');
 const RelayPublishQueue = require('RelayPublishQueue');
 const RelayStoreUtils = require('RelayStoreUtils');
 const RelayModernTestUtils = require('RelayModernTestUtils');
+const {createOperationSelector} = require('RelayModernOperationSelector');
 
 const getRelayHandleKey = require('getRelayHandleKey');
 const invariant = require('invariant');
@@ -34,7 +35,7 @@ describe('RelayPublishQueue', () => {
   });
 
   describe('applyUpdate()/revertUpdate()', () => {
-    let selector;
+    let operationSelector;
     let initialData;
     let sourceData;
     let source;
@@ -98,11 +99,7 @@ describe('RelayPublishQueue', () => {
           newName: 'zuck',
         },
       };
-      selector = {
-        dataID: ROOT_ID,
-        node: mutationQuery.query,
-        variables,
-      };
+      operationSelector = createOperationSelector(mutationQuery, variables);
     });
 
     it('runs an `storeUpdater` and applies the changes to the store', () => {
@@ -128,7 +125,7 @@ describe('RelayPublishQueue', () => {
     it('runs an `selectorStoreUpdater` and applies the changes to the store', () => {
       const queue = new RelayPublishQueue(store);
       const optimisticUpdate = {
-        selector,
+        operation: operationSelector,
         response: {
           actorNameChange: {
             actor: {
@@ -163,7 +160,7 @@ describe('RelayPublishQueue', () => {
     it('unpublishes changes from `selectorStoreUpdater` when reverted in the same run()', () => {
       const queue = new RelayPublishQueue(store);
       const optimisticUpdate = {
-        selector,
+        operation: operationSelector,
         response: {
           actorNameChange: {
             actor: {
@@ -200,7 +197,7 @@ describe('RelayPublishQueue', () => {
     it('unpublishes changes from `selectorStoreUpdater` when reverted in a subsequent run()', () => {
       const queue = new RelayPublishQueue(store);
       const optimisticUpdate = {
-        selector,
+        operation: operationSelector,
         response: {
           actorNameChange: {
             actor: {
@@ -222,7 +219,7 @@ describe('RelayPublishQueue', () => {
     it('applies multiple updaters in the same run()', () => {
       const queue = new RelayPublishQueue(store);
       queue.applyUpdate({
-        selector,
+        operation: operationSelector,
         response: {
           actorNameChange: {
             actor: {
@@ -247,7 +244,7 @@ describe('RelayPublishQueue', () => {
     it('applies multiple updaters in subsequent run()s', () => {
       const queue = new RelayPublishQueue(store);
       queue.applyUpdate({
-        selector,
+        operation: operationSelector,
         response: {
           actorNameChange: {
             actor: {
@@ -272,7 +269,7 @@ describe('RelayPublishQueue', () => {
     it('rebases changes when an earlier change is reverted', () => {
       const queue = new RelayPublishQueue(store);
       const optimisticUpdate = {
-        selector,
+        operation: operationSelector,
         response: {
           actorNameChange: {
             actor: {
@@ -545,14 +542,9 @@ describe('RelayPublishQueue', () => {
       `,
       );
 
-      queue.commitPayload(
-        {
-          dataID: ROOT_ID,
-          node: ActorQuery.query,
-          variables: {},
-        },
-        {source: publishSource},
-      );
+      queue.commitPayload(createOperationSelector(ActorQuery, {}), {
+        source: publishSource,
+      });
       expect(notify).not.toBeCalled();
       expect(publish).not.toBeCalled();
       queue.run();
@@ -588,11 +580,7 @@ describe('RelayPublishQueue', () => {
         zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
       });
       queue.commitPayload(
-        {
-          dataID: ROOT_ID,
-          node: ActorQuery.query,
-          variables: {},
-        },
+        createOperationSelector(ActorQuery, {}),
         {
           source: new RelayInMemoryRecordSource({
             '4': {
@@ -679,64 +667,57 @@ describe('RelayPublishQueue', () => {
       `,
       );
 
-      queue.commitPayload(
-        {
-          dataID: ROOT_ID,
-          node: ActorQuery.query,
-          variables: {},
-        },
-        {
-          fieldPayloads: [
-            {
-              dataID: '4',
-              fieldKey: 'screennames',
-              handleKey: getRelayHandleKey(
-                'handleScreennames',
-                null,
-                'screennames',
-              ),
-              handle: 'handleScreennames',
+      queue.commitPayload(createOperationSelector(ActorQuery, {}), {
+        fieldPayloads: [
+          {
+            dataID: '4',
+            fieldKey: 'screennames',
+            handleKey: getRelayHandleKey(
+              'handleScreennames',
+              null,
+              'screennames',
+            ),
+            handle: 'handleScreennames',
+          },
+          {
+            dataID: 'client:4:screennames:0',
+            fieldKey: 'name',
+            handleKey: getRelayHandleKey('handleName', null, 'name'),
+            handle: 'handleName',
+          },
+          {
+            dataID: 'client:4:screennames:1',
+            fieldKey: 'name',
+            handleKey: getRelayHandleKey('handleName', null, 'name'),
+            handle: 'handleName',
+          },
+        ],
+        source: new RelayInMemoryRecordSource({
+          '4': {
+            __id: '4',
+            __typename: 'User',
+            id: '4',
+            screennames: {
+              __refs: ['client:4:screennames:0', 'client:4:screennames:1'],
             },
-            {
-              dataID: 'client:4:screennames:0',
-              fieldKey: 'name',
-              handleKey: getRelayHandleKey('handleName', null, 'name'),
-              handle: 'handleName',
-            },
-            {
-              dataID: 'client:4:screennames:1',
-              fieldKey: 'name',
-              handleKey: getRelayHandleKey('handleName', null, 'name'),
-              handle: 'handleName',
-            },
-          ],
-          source: new RelayInMemoryRecordSource({
-            '4': {
-              __id: '4',
-              __typename: 'User',
-              id: '4',
-              screennames: {
-                __refs: ['client:4:screennames:0', 'client:4:screennames:1'],
-              },
-            },
-            'client:4:screennames:0': {
-              __id: 'client:4:screennames:0',
-              __typename: 'Screenname',
-              name: 'zuck',
-            },
-            'client:4:screennames:1': {
-              __id: 'client:4:screennames:1',
-              __typename: 'Screenname',
-              name: 'beast',
-            },
-            'client:root': {
-              __id: 'client:root',
-              __typename: '__Root',
-              me: {__ref: '4'},
-            },
-          }),
-        },
-      );
+          },
+          'client:4:screennames:0': {
+            __id: 'client:4:screennames:0',
+            __typename: 'Screenname',
+            name: 'zuck',
+          },
+          'client:4:screennames:1': {
+            __id: 'client:4:screennames:1',
+            __typename: 'Screenname',
+            name: 'beast',
+          },
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            me: {__ref: '4'},
+          },
+        }),
+      });
       expect(notify).not.toBeCalled();
       expect(publish).not.toBeCalled();
       queue.run();
@@ -807,27 +788,20 @@ describe('RelayPublishQueue', () => {
       `,
       );
       // Query payload sets name to 'zuck'
-      queue.commitPayload(
-        {
-          dataID: ROOT_ID,
-          node: NameQuery.query,
-          variables: {id: '4'},
-        },
-        {
-          source: new RelayInMemoryRecordSource({
-            [ROOT_ID]: {
-              [ID_KEY]: ROOT_ID,
-              [TYPENAME_KEY]: ROOT_TYPE,
-              me: {[REF_KEY]: '4'},
-            },
-            4: {
-              id: '4',
-              __typename: 'User',
-              name: 'zuck',
-            },
-          }),
-        },
-      );
+      queue.commitPayload(createOperationSelector(NameQuery, {id: '4'}), {
+        source: new RelayInMemoryRecordSource({
+          [ROOT_ID]: {
+            [ID_KEY]: ROOT_ID,
+            [TYPENAME_KEY]: ROOT_TYPE,
+            me: {[REF_KEY]: '4'},
+          },
+          4: {
+            id: '4',
+            __typename: 'User',
+            name: 'zuck',
+          },
+        }),
+      });
       // Run both the optimisitc and server update
       queue.run();
       expect(sourceData).toEqual({
@@ -874,27 +848,20 @@ describe('RelayPublishQueue', () => {
         }
       `,
       );
-      queue.commitPayload(
-        {
-          dataID: ROOT_ID,
-          node: NameQuery.query,
-          variables: {id: '4'},
-        },
-        {
-          source: new RelayInMemoryRecordSource({
-            [ROOT_ID]: {
-              [ID_KEY]: ROOT_ID,
-              [TYPENAME_KEY]: ROOT_TYPE,
-              me: {[REF_KEY]: '4'},
-            },
-            4: {
-              id: '4',
-              __typename: 'User',
-              name: 'zuck',
-            },
-          }),
-        },
-      );
+      queue.commitPayload(createOperationSelector(NameQuery, {id: '4'}), {
+        source: new RelayInMemoryRecordSource({
+          [ROOT_ID]: {
+            [ID_KEY]: ROOT_ID,
+            [TYPENAME_KEY]: ROOT_TYPE,
+            me: {[REF_KEY]: '4'},
+          },
+          4: {
+            id: '4',
+            __typename: 'User',
+            name: 'zuck',
+          },
+        }),
+      });
       queue.run();
       // Optimistic update should rebase, capitalizing the new name
       expect(sourceData).toEqual({
@@ -941,27 +908,20 @@ describe('RelayPublishQueue', () => {
       `,
       );
       // Query payload sets name to 'zuck'
-      queue.commitPayload(
-        {
-          dataID: ROOT_ID,
-          node: NameQuery.query,
-          variables: {id: '4'},
-        },
-        {
-          source: new RelayInMemoryRecordSource({
-            [ROOT_ID]: {
-              [ID_KEY]: ROOT_ID,
-              [TYPENAME_KEY]: ROOT_TYPE,
-              me: {[REF_KEY]: '4'},
-            },
-            4: {
-              id: '4',
-              __typename: 'User',
-              name: 'zuck',
-            },
-          }),
-        },
-      );
+      queue.commitPayload(createOperationSelector(NameQuery, {id: '4'}), {
+        source: new RelayInMemoryRecordSource({
+          [ROOT_ID]: {
+            [ID_KEY]: ROOT_ID,
+            [TYPENAME_KEY]: ROOT_TYPE,
+            me: {[REF_KEY]: '4'},
+          },
+          4: {
+            id: '4',
+            __typename: 'User',
+            name: 'zuck',
+          },
+        }),
+      });
       queue.run();
 
       queue.revertUpdate(mutation);
@@ -1120,20 +1080,13 @@ describe('RelayPublishQueue', () => {
       `,
       );
       // Query payload sets name to 'zuck'
-      queue.commitPayload(
-        {
-          dataID: ROOT_ID,
-          node: NameQuery.query,
-          variables: {id: '4'},
+      queue.commitPayload(createOperationSelector(NameQuery, {id: '4'}), {
+        me: {
+          id: '4',
+          __typename: 'User',
+          name: 'zuck',
         },
-        {
-          me: {
-            id: '4',
-            __typename: 'User',
-            name: 'zuck',
-          },
-        },
-      );
+      });
       expect(notify).not.toBeCalled();
       expect(publish).not.toBeCalled();
       queue.run();

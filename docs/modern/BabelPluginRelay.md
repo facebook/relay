@@ -34,7 +34,7 @@ function () {
 First, install the plugin (typically as a `devDependency`):
 
 ```sh
-yarn add --dev babel-plugin-relay@dev
+yarn add --dev babel-plugin-relay
 ```
 
 Then, add `"relay"` to the list of plugins in your .babelrc file. For example:

@@ -852,8 +852,9 @@ module.exports = function(t: any, options: PrinterOptions): Function {
           throw new RelayTransformError(
             util.format(
               'You supplied the `%s` field on a connection named `%s`, but you did ' +
-                'not supply an argument necessary to do so. Use either the `find`, ' +
-                '`first`, or `last` argument.',
+                'not supply an argument necessary for Relay to handle the connection. ' +
+                'Please specify a limit argument like `first`, or `last` or ' +
+                'fetch a specific item with a `find` argument.',
               subfield.getName(),
               field.getName(),
             ),

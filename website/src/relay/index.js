@@ -64,7 +64,7 @@ const index = React.createClass({
 
           <section className="relay-modern">
             <div className="starburst">New</div>
-            <h2>Relay Modern (Release Candidate)</h2>
+            <h2>Relay Modern</h2>
             <p>
               Relay Modern is a new version of Relay designed from the ground up
               to be easier to use, more extensible and, most of all, able to

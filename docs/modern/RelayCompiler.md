@@ -38,7 +38,7 @@ brew install watchman
 Next, install the compiler (typically as a `devDependency`):
 
 ```sh
-yarn add --dev relay-compiler@dev
+yarn add --dev relay-compiler
 ```
 
 This installs the bin script `relay-compiler` in your node_modules folder. It's
@@ -61,7 +61,7 @@ Then after making edits to your application files, just run `yarn run relay` to 
 Alternatively, you can install `relay-compiler` globally so you can access it directly:
 
 ```sh
-yarn global add relay-compiler@dev
+yarn global add relay-compiler
 ```
 
 Then after making edits to your application files, run `relay-compiler --src ./src --schema path/schema.graphql` to generate new files, or `relay-compiler --src ./src --schema path/schema.graphql --watch` to run the compiler as a long-lived process which automatically generates new files whenever you save.

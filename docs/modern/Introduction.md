@@ -13,10 +13,10 @@ Relay Modern is a new version of Relay designed from the ground up to be easier 
 
 ### Upgrade to react-relay v1.0.0
 
-Relay v1.0 introduces the Relay Modern API. To get the release-candidate for Relay v1.0, install the `@dev` build:
+Relay v1.0 introduces the Relay Modern API:
 
 ```sh
-yarn add react-relay@dev
+yarn add react-relay
 ```
 
 When upgrading an existing Relay app, replace all `require('react-relay')` with `require('react-relay/classic')` to continue to import the Relay Classic API.
@@ -26,7 +26,7 @@ When upgrading an existing Relay app, replace all `require('react-relay')` with 
 Relay Modern requires a Babel plugin to convert GraphQL to runtime artifacts:
 
 ```sh
-yarn add --dev babel-plugin-relay@dev
+yarn add --dev babel-plugin-relay
 ```
 
 Add `"relay"` to the list of plugins your .babelrc file. See [the docs](./babel-plugin-relay.html) if upgrading an existing Relay app.
@@ -36,7 +36,7 @@ Add `"relay"` to the list of plugins your .babelrc file. See [the docs](./babel-
 Relay Modern's ahead-of-time compilation requires the new Relay Compiler:
 
 ```sh
-yarn add --dev relay-compiler@dev
+yarn add --dev relay-compiler
 ```
 
 Run the Relay Compiler after making changes to any GraphQL in your Relay application. It may be helpful to add it as a `yarn script`. Add an entry to `"scripts"` in your package.json file.

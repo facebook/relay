@@ -279,16 +279,16 @@ module.exports = {
       "layout": "docs",
       "category": "Relay Modern",
       "permalink": "docs/relay-environment.html",
-      "next": "QueryRenderer",
+      "next": "network-layer",
       "source": "Environment.md"
     },
     {
-      "id": "FragmentContainer",
+      "id": "fragment-container",
       "title": "FragmentContainer",
       "layout": "docs",
       "category": "Relay Modern",
-      "permalink": "docs/FragmentContainer.html",
-      "next": "PaginationContainer",
+      "permalink": "docs/fragment-container.html",
+      "next": "refetch-container",
       "source": "FragmentContainer.md"
     },
     {
@@ -301,6 +301,24 @@ module.exports = {
       "source": "Introduction.md"
     },
     {
+      "id": "mutations",
+      "title": "Mutations",
+      "layout": "docs",
+      "category": "Relay Modern",
+      "permalink": "docs/mutations.html",
+      "next": "subscriptions",
+      "source": "Mutations.md"
+    },
+    {
+      "id": "network-layer",
+      "title": "The Relay Network Layer",
+      "layout": "docs",
+      "category": "Relay Modern",
+      "permalink": "docs/network-layer.html",
+      "next": "query-renderer",
+      "source": "NetworkLayer.md"
+    },
+    {
       "id": "new-in-relay-modern",
       "title": "New in Relay Modern",
       "layout": "docs",
@@ -310,30 +328,30 @@ module.exports = {
       "source": "NewInRelayModern.md"
     },
     {
-      "id": "PaginationContainer",
+      "id": "pagination-container",
       "title": "PaginationContainer",
       "layout": "docs",
       "category": "Relay Modern",
-      "permalink": "docs/PaginationContainer.html",
-      "next": "RefetchContainer",
+      "permalink": "docs/pagination-container.html",
+      "next": "routing",
       "source": "PaginationContainer.md"
     },
     {
-      "id": "QueryRenderer",
+      "id": "query-renderer",
       "title": "QueryRenderer",
       "layout": "docs",
       "category": "Relay Modern",
-      "permalink": "docs/QueryRenderer.html",
-      "next": "FragmentContainer",
+      "permalink": "docs/query-renderer.html",
+      "next": "fragment-container",
       "source": "QueryRenderer.md"
     },
     {
-      "id": "RefetchContainer",
+      "id": "refetch-container",
       "title": "RefetchContainer",
       "layout": "docs",
       "category": "Relay Modern",
-      "permalink": "docs/RefetchContainer.html",
-      "next": "routing",
+      "permalink": "docs/refetch-container.html",
+      "next": "pagination-container",
       "source": "RefetchContainer.md"
     },
     {
@@ -364,13 +382,13 @@ module.exports = {
       "source": "Routing.md"
     },
     {
-      "id": "mutations",
-      "title": "Mutations",
+      "id": "subscriptions",
+      "title": "Subscriptions",
       "layout": "docs",
       "category": "Relay Modern",
-      "permalink": "docs/mutations.html",
+      "permalink": "docs/subscriptions.html",
       "next": "babel-plugin-relay",
-      "source": "SimpleMutationsUpdatingAField.md"
+      "source": "Subscriptions.md"
     },
     {
       "id": "upgrading-setvariables",

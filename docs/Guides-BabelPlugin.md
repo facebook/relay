@@ -7,6 +7,8 @@ permalink: docs/guides-babel-plugin.html
 next: graphql-relay-specification
 ---
 
+*`babel-relay-plugin` is deprecated. Use [`babel-plugin-relay`](./babel-plugin-relay.html#using-with-relay-classic) with Relay Classic.*
+
 Relay uses a **babel** plugin to convert from `Relay.QL` string templates to
 JavaScript code that describes each query and includes data from the GraphQL
 schema.

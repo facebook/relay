@@ -8,7 +8,7 @@ graphql<span class="token template-string"><span class="token string">`
 <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token keyword">return</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">&#x27;./__generated__/MyComponent.graphql&#x27;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span></pre><h3><a class="anchor" name="setting-up-babel-plugin-relay"></a>Setting up babel-plugin-relay <a class="hash-link" href="#setting-up-babel-plugin-relay">#</a></h3><p>First, install the plugin (typically as a <code>devDependency</code>):</p><pre class="prism language-javascript">
-yarn add <span class="token operator">--</span>dev babel<span class="token operator">-</span>plugin<span class="token operator">-</span>relay@dev</pre><p>Then, add <code>&quot;relay&quot;</code> to the list of plugins in your .babelrc file. For example:</p><pre class="prism language-javascript">
+yarn add <span class="token operator">--</span>dev babel<span class="token operator">-</span>plugin<span class="token operator">-</span>relay</pre><p>Then, add <code>&quot;relay&quot;</code> to the list of plugins in your .babelrc file. For example:</p><pre class="prism language-javascript">
 <span class="token punctuation">{</span>
   <span class="token string">&quot;plugins&quot;</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>
     <span class="token string">&quot;relay&quot;</span>

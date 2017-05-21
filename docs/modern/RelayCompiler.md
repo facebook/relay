@@ -29,7 +29,7 @@ The Relay Compiler is responsible for generating code as part of a build step wh
 
 ## Setting up Relay Compiler
 
-First, you need [watchman][https://facebook.github.io/watchman] installed:
+First, you need [watchman](https://facebook.github.io/watchman) installed:
 
 ```sh
 brew install watchman

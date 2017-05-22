@@ -13,7 +13,6 @@
 
 'use strict';
 
-const GraphQL = require('graphql');
 const RelayCompilerContext = require('RelayCompilerContext');
 const RelayIRTransformer = require('RelayIRTransformer');
 
@@ -21,20 +20,12 @@ const getRelayLiteralArgumentValues = require('getRelayLiteralArgumentValues');
 const invariant = require('invariant');
 
 import type {Fragment} from 'RelayIR';
-import type {GraphQLSchema} from 'graphql';
 
 const RELAY = 'relay';
 const PLURAL = 'plural';
 
-function transformSchema(schema: GraphQLSchema): GraphQLSchema {
-  if (schema.getDirectives().find(directive => directive.name === RELAY)) {
-    return schema;
-  }
-  return GraphQL.extendSchema(
-    schema,
-    GraphQL.parse('directive @relay(plural: Boolean) on FRAGMENT'),
-  );
-}
+const SCHEMA_EXTENSION =
+  'directive @relay(pattern: Boolean, plural: Boolean) on FRAGMENT | FIELD';
 
 /**
  * A transform that extracts `@relay(plural: Boolean)` directives and converts
@@ -76,6 +67,6 @@ function visitFragment(fragment: Fragment): Fragment {
 }
 
 module.exports = {
+  SCHEMA_EXTENSION,
   transform,
-  transformSchema,
 };

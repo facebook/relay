@@ -20,7 +20,6 @@ const invariant = require('invariant');
 const partitionArray = require('partitionArray');
 
 import type {Node, Selection} from 'RelayIR';
-import type {GraphQLSchema} from 'graphql';
 
 const {GraphQLList} = GraphQL;
 
@@ -30,12 +29,7 @@ const AS = 'as';
 type Metadata = {[key: string]: Path};
 type Path = Array<string>;
 
-function transformSchema(schema: GraphQLSchema): GraphQLSchema {
-  return GraphQL.extendSchema(
-    schema,
-    GraphQL.parse('directive @export(as: String!) on FIELD'),
-  );
-}
+const SCHEMA_EXTENSION = 'directive @export(as: String!) on FIELD';
 
 /**
  * A transform that extracts `@export(as: "<name>")` directives and converts
@@ -134,6 +128,6 @@ function transformNode<T: Node>(node: T, path: Path, metadata: Metadata): T {
 }
 
 module.exports = {
+  SCHEMA_EXTENSION,
   transform,
-  transformSchema,
 };

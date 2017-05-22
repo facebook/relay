@@ -43,7 +43,7 @@ import type {
   LinkedField,
   Root,
 } from 'RelayIR';
-import type {GraphQLSchema, GraphQLType} from 'graphql';
+import type {GraphQLType} from 'graphql';
 
 const {
   assertCompositeType,
@@ -98,19 +98,8 @@ function transform(
   );
 }
 
-/**
- * @public
- *
- * Extend the original schema with support for the `@connection` directive.
- */
-function transformSchema(schema: GraphQLSchema): GraphQLSchema {
-  return GraphQL.extendSchema(
-    schema,
-    GraphQL.parse(
-      'directive @connection(key: String!, filters: [String]) on FIELD',
-    ),
-  );
-}
+const SCHEMA_EXTENSION =
+  'directive @connection(key: String!, filters: [String]) on FIELD';
 
 /**
  * @internal
@@ -480,6 +469,6 @@ function validateConnectionType(
 
 module.exports = {
   CONNECTION,
+  SCHEMA_EXTENSION,
   transform,
-  transformSchema,
 };

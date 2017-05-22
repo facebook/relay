@@ -34,7 +34,7 @@ describe('RelayCompiler', () => {
     expect('fixtures/compiler').toMatchGolden(text => {
       const relaySchema = transformASTSchema(
         RelayTestSchema,
-        RelayIRTransforms.schemaTransforms,
+        RelayIRTransforms.schemaExtensions,
       );
       const compiler = new RelayCompiler(
         RelayTestSchema,

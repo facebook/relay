@@ -34,7 +34,7 @@ const {
   fragmentTransforms,
   printTransforms,
   queryTransforms,
-  schemaTransforms,
+  schemaExtensions,
 } = RelayIRTransforms;
 
 import type {GraphQLSchema} from 'graphql';
@@ -125,7 +125,7 @@ function getRelayFileWriter(baseDir: string) {
           queryTransforms,
         },
         baseDir,
-        schemaTransforms,
+        schemaExtensions,
       },
       onlyValidate,
       schema,
@@ -143,7 +143,6 @@ function getSchema(schemaPath: string): GraphQLSchema {
     source = `
   directive @include(if: Boolean) on FRAGMENT | FIELD
   directive @skip(if: Boolean) on FRAGMENT | FIELD
-  directive @relay(pattern: Boolean, plural: Boolean) on FRAGMENT | FIELD
 
   ${source}
   `;

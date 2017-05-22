@@ -21,6 +21,7 @@ describe('RelayFilterDirectivesTransform', () => {
   let RelayTestSchema;
   let getGoldenMatchers;
   let parseGraphQLText;
+  let transformASTSchema;
 
   beforeEach(() => {
     jest.resetModules();
@@ -33,15 +34,17 @@ describe('RelayFilterDirectivesTransform', () => {
     getGoldenMatchers = require('getGoldenMatchers');
     parseGraphQLText = require('parseGraphQLText');
 
+    ({transformASTSchema} = require('ASTConvert'));
+
     jasmine.addMatchers(getGoldenMatchers(__filename));
   });
 
   it('filters out directives not defined in the original schema', () => {
     expect('fixtures/filter-directives-transform').toMatchGolden(text => {
       // Extend the schema with an `@export` directive for testing purposes.
-      const extendedSchema = RelayExportTransform.transformSchema(
-        RelayTestSchema,
-      );
+      const extendedSchema = transformASTSchema(RelayTestSchema, [
+        RelayExportTransform.SCHEMA_EXTENSION,
+      ]);
       const {definitions} = parseGraphQLText(extendedSchema, text);
       let context = new RelayCompilerContext(extendedSchema).addAll(
         definitions,

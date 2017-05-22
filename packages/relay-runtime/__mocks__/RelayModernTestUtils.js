@@ -205,7 +205,7 @@ const RelayModernTestUtils = {
     schema = schema || RelayTestSchema;
     const relaySchema = transformASTSchema(
       schema,
-      RelayIRTransforms.schemaTransforms,
+      RelayIRTransforms.schemaExtensions,
     );
     const compiler = new RelayCompiler(
       schema,

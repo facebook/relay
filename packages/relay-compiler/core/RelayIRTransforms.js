@@ -30,17 +30,16 @@ const RelayViewerHandleTransform = require('RelayViewerHandleTransform');
 import type CompilerContext from 'RelayCompilerContext';
 import type {GraphQLSchema} from 'graphql';
 
-export type SchemaTransform = (schema: GraphQLSchema) => GraphQLSchema;
 export type IRTransform = (
   context: CompilerContext,
   schema: GraphQLSchema,
 ) => CompilerContext;
 
 // Transforms applied to the code used to process a query response.
-const SCHEMA_TRANSFORMS: Array<SchemaTransform> = [
-  RelayConnectionTransform.transformSchema,
-  RelayExportTransform.transformSchema,
-  RelayRelayDirectiveTransform.transformSchema,
+const schemaExtensions: Array<string> = [
+  RelayConnectionTransform.SCHEMA_EXTENSION,
+  RelayExportTransform.SCHEMA_EXTENSION,
+  RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
 ];
 
 // Transforms applied to fragments used for reading data from a store
@@ -97,5 +96,5 @@ module.exports = {
   fragmentTransforms: FRAGMENT_TRANSFORMS,
   printTransforms: PRINT_TRANSFORMS,
   queryTransforms: QUERY_TRANSFORMS,
-  schemaTransforms: SCHEMA_TRANSFORMS,
+  schemaExtensions,
 };

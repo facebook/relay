@@ -20,6 +20,8 @@ const RelayTestSchema = require('RelayTestSchema');
 const getGoldenMatchers = require('getGoldenMatchers');
 const prettyStringify = require('prettyStringify');
 
+const {transformASTSchema} = require('ASTConvert');
+
 describe('RelayRelayDirectiveTransform', () => {
   beforeEach(() => {
     jasmine.addMatchers(getGoldenMatchers(__filename));
@@ -27,9 +29,9 @@ describe('RelayRelayDirectiveTransform', () => {
 
   it('matches expected output', () => {
     expect('fixtures/relay-directive-transform').toMatchGolden(text => {
-      const schema = RelayRelayDirectiveTransform.transformSchema(
-        RelayTestSchema,
-      );
+      const schema = transformASTSchema(RelayTestSchema, [
+        RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
+      ]);
       const ast = RelayParser.parse(schema, text);
       const context = ast.reduce(
         (ctx, node) => ctx.add(node),

@@ -17,8 +17,11 @@ const RelayCompilerContext = require('RelayCompilerContext');
 const RelayExportTransform = require('RelayExportTransform');
 const RelayParser = require('RelayParser');
 const RelayTestSchema = require('RelayTestSchema');
+
 const getGoldenMatchers = require('getGoldenMatchers');
 const prettyStringify = require('prettyStringify');
+
+const {transformASTSchema} = require('ASTConvert');
 
 describe('RelayExportTransform', () => {
   beforeEach(() => {
@@ -27,7 +30,9 @@ describe('RelayExportTransform', () => {
 
   it('matches expected output', () => {
     expect('fixtures/export-transform').toMatchGolden(text => {
-      const schema = RelayExportTransform.transformSchema(RelayTestSchema);
+      const schema = transformASTSchema(RelayTestSchema, [
+        RelayExportTransform.SCHEMA_EXTENSION,
+      ]);
       const ast = RelayParser.parse(schema, text);
       const context = ast.reduce(
         (ctx, node) => ctx.add(node),

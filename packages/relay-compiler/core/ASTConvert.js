@@ -13,6 +13,7 @@
 
 'use strict';
 
+const GraphQL = require('graphql');
 const RelayParser = require('RelayParser');
 const RelayValidator = require('RelayValidator');
 
@@ -23,7 +24,6 @@ const {
 const {extendSchema, visit} = require('graphql');
 
 import type {Fragment, Root} from 'RelayIR';
-import type {SchemaTransform} from 'RelayIRTransforms';
 import type {
   DefinitionNode,
   DocumentNode,
@@ -142,12 +142,12 @@ function definitionsFromDocuments(
 }
 
 function transformASTSchema(
-  baseSchema: GraphQLSchema,
-  schemaTransforms: Array<SchemaTransform>,
+  schema: GraphQLSchema,
+  schemaExtensions: Array<string>,
 ): GraphQLSchema {
-  return schemaTransforms.reduce(
-    (acc, transform) => transform(acc),
-    baseSchema,
+  return GraphQL.extendSchema(
+    schema,
+    GraphQL.parse(schemaExtensions.join('\n')),
   );
 }
 
@@ -168,7 +168,8 @@ function extendASTSchema(
 
   return extendSchema(baseSchema, {
     kind: 'Document',
-    // Flow doesn't recognize that TypeSystemDefinitionNode is a subset of DefinitionNode
+    // Flow doesn't recognize that TypeSystemDefinitionNode is a subset of
+    // DefinitionNode
     definitions: (schemaExtensions: Array<$FlowFixMe>),
   });
 }

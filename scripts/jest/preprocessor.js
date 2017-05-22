@@ -39,7 +39,6 @@ const babelOptions = getBabelOptions({
       schema: SCHEMA_PATH,
     }],
     require('babel-plugin-transform-async-to-generator'),
-    require('babel-plugin-transform-regenerator'),
   ],
 });
 

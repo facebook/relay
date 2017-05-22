@@ -1206,7 +1206,7 @@ describe('ReactRelayPaginationContainer', () => {
       expect.assertions(1);
       render.mockClear();
       refetchConnection(1, jest.fn());
-      await environment.mock.reject(UserQuery, new Error('oops'))
+      await environment.mock.reject(UserQuery, new Error('oops'));
       expect(render.mock.calls.length).toBe(0);
     });
 

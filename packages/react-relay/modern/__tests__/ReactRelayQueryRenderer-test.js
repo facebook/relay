@@ -49,7 +49,7 @@ describe('ReactRelayQueryRenderer', () => {
     }
   }
 
-  beforeEach(function() {
+  beforeEach(() => {
     jest.resetModules();
     jasmine.addMatchers({
       toBeRendered() {
@@ -195,7 +195,8 @@ describe('ReactRelayQueryRenderer', () => {
           variables={variables}
         />,
       );
-      await environment.mock.resolve(TestQuery, response)
+      await environment.mock.resolve(TestQuery, response);
+
       expect(relayContext.environment).toBe(environment);
       expect(relayContext.variables).toEqual(variables);
     });
@@ -232,7 +233,7 @@ describe('ReactRelayQueryRenderer', () => {
           />
         </PropsSetter>,
       );
-      await environment.mock.resolve(TestQuery, response)
+      await environment.mock.resolve(TestQuery, response);
       environment = createMockEnvironment();
       const previousContext = relayContext;
       instance.getInstance().setProps({
@@ -316,7 +317,7 @@ describe('ReactRelayQueryRenderer', () => {
           />
         </PropsSetter>,
       );
-      await environment.mock.resolve(TestQuery, response)
+      await environment.mock.resolve(TestQuery, response);
       variables = simpleClone(variables);
       const previousContext = relayContext;
       const previousVariables = previousContext.variables;
@@ -647,7 +648,7 @@ describe('ReactRelayQueryRenderer', () => {
 
     it('publishes and notifies the store with changes', async () => {
       expect.assertions(2);
-      await environment.mock.resolve(TestQuery, response)
+      await environment.mock.resolve(TestQuery, response);
       expect(store.publish).toBeCalled();
       expect(store.notify).toBeCalled();
     });
@@ -991,7 +992,7 @@ describe('ReactRelayQueryRenderer', () => {
           },
         },
       };
-      await environment.mock.resolve(NextQuery, response)
+      await environment.mock.resolve(NextQuery, response);
       expect(store.publish).toBeCalled();
       expect(store.notify).toBeCalled();
     });

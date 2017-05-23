@@ -102,4 +102,4 @@ Relay Modern enables a variety of new features. Some are available via the Compa
 
 ## React Native
 
-Note that on Android, Relay Modern may not run properly because of an outstanding core-js issue.  [This polyfill](https://github.com/facebook/relay/issues/1704#issuecomment-297982006) is a workaround until this issue is fixed.
+Note that on Android, Relay Modern may not run properly (props don't load) because of an outstanding core-js issue.  [This polyfill](https://github.com/facebook/relay/issues/1704#issuecomment-297982006) is a workaround until this issue is fixed.

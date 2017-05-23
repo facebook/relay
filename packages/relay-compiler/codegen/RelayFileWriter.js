@@ -31,6 +31,7 @@ const {Map: ImmutableMap} = require('immutable');
 
 import type {CompilerTransforms} from 'RelayCompiler';
 import type {DocumentNode, GraphQLSchema} from 'graphql';
+import type {FormatModule} from 'writeRelayGeneratedFile';
 
 type GenerateExtraFiles = (
   getOutputDirectory: (path?: string) => CodegenDirectory,
@@ -39,7 +40,7 @@ type GenerateExtraFiles = (
 
 export type WriterConfig = {
   baseDir: string,
-  buildCommand: string,
+  formatModule: FormatModule,
   compilerTransforms: CompilerTransforms,
   generateExtraFiles?: GenerateExtraFiles,
   outputDir?: string,
@@ -180,7 +181,6 @@ class RelayFileWriter {
                 getGeneratedDirectory(node.name),
                 node.name,
                 legacyFlowTypes,
-                this._config.buildCommand,
                 this._config.platform,
               );
             }
@@ -201,7 +201,7 @@ class RelayFileWriter {
           await writeRelayGeneratedFile(
             getGeneratedDirectory(compiledNode.name),
             compiledNode,
-            this._config.buildCommand,
+            this._config.formatModule,
             flowTypes,
             this.skipPersist ? null : this._config.persistQuery,
             this._config.platform,

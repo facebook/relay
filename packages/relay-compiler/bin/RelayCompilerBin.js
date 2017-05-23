@@ -18,6 +18,7 @@ const RelayFileIRParser = require('RelayFileIRParser');
 const RelayFileWriter = require('RelayFileWriter');
 const RelayIRTransforms = require('RelayIRTransforms');
 
+const formatGeneratedModule = require('formatGeneratedModule');
 const fs = require('fs');
 const path = require('path');
 const yargs = require('yargs');
@@ -38,8 +39,6 @@ const {
 } = RelayIRTransforms;
 
 import type {GraphQLSchema} from 'graphql';
-
-const SCRIPT_NAME = 'relay-compiler';
 
 function buildWatchExpression(options: {extensions: Array<string>}) {
   return [
@@ -117,7 +116,7 @@ function getRelayFileWriter(baseDir: string) {
   return (onlyValidate, schema, documents, baseDocuments) =>
     new RelayFileWriter({
       config: {
-        buildCommand: SCRIPT_NAME,
+        formatModule: formatGeneratedModule,
         compilerTransforms: {
           codegenTransforms,
           fragmentTransforms,

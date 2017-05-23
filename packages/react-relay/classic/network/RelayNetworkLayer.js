@@ -162,7 +162,10 @@ function profileQueue(currentQueue: Array<RelayQueryRequest>): void {
   // TODO #8783781: remove aggregate `fetchRelayQuery` profiler
   let firstResultProfiler = RelayProfiler.profile('fetchRelayQuery');
   currentQueue.forEach(query => {
-    const profiler = RelayProfiler.profile('fetchRelayQuery.query');
+    const profiler = RelayProfiler.profile(
+      'fetchRelayQuery.query',
+      query.getQuery().getName(),
+    );
     const onSettle = () => {
       profiler.stop();
       if (firstResultProfiler) {

@@ -299,9 +299,7 @@ function transformScalarField(type: GraphQLType): Annotation {
       case 'Boolean':
         return t.booleanTypeAnnotation();
       default:
-        console.warn(
-          `Could not convert GraphQLScalarType(${type.name}), using 'any'`,
-        );
+        // Fallback to `any` for custom scalar types.
         return t.anyTypeAnnotation();
     }
   } else if (type instanceof GraphQLEnumType) {

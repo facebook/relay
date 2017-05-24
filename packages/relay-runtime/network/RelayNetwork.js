@@ -159,7 +159,7 @@ function doFetchWithPolling(
       },
     );
   }
-  timeout = setTimeout(poll, pollInterval);
+  poll();
 
   return {dispose};
 }

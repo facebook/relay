@@ -20,6 +20,9 @@ describe('RelayViewerHandleTransform', () => {
   let RelayTestSchema;
   let getGoldenMatchers;
   let parseGraphQLText;
+  let buildASTSchema;
+  let dedent;
+  let parse;
 
   beforeEach(() => {
     jest.resetModules();
@@ -30,6 +33,8 @@ describe('RelayViewerHandleTransform', () => {
     RelayTestSchema = require('RelayTestSchema');
     getGoldenMatchers = require('getGoldenMatchers');
     parseGraphQLText = require('parseGraphQLText');
+    dedent = require('dedent');
+    ({buildASTSchema, parse} = require('graphql'));
 
     jasmine.addMatchers(getGoldenMatchers(__filename));
   });
@@ -47,5 +52,32 @@ describe('RelayViewerHandleTransform', () => {
       });
       return documents.join('\n');
     });
+  });
+
+  it('ignores schemas where viewer has an id', () => {
+    const schema = buildASTSchema(parse(`
+      type Query {
+        viewer: Viewer
+      }
+      type Viewer {
+        id: ID!
+      }
+    `));
+    const text = `
+      query TestQuery {
+        viewer {
+          id
+        }
+      }
+    `;
+    const {definitions} = parseGraphQLText(schema, text);
+    let context = new RelayCompilerContext(schema).addAll(
+      definitions,
+    );
+    context = RelayViewerHandleTransform.transform(context, schema);
+    const TestQuery = context.getRoot('TestQuery');
+    const viewer = TestQuery.selections[0];
+    // No handle is added
+    expect(viewer.handles).toBe(undefined);
   });
 });

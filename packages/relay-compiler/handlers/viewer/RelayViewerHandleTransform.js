@@ -24,6 +24,7 @@ import type {GraphQLSchema} from 'graphql';
 
 type State = {};
 
+const ID = 'id';
 const VIEWER_HANDLE = 'viewer';
 const VIEWER_TYPE = 'Viewer';
 
@@ -35,7 +36,7 @@ function transform(
   schema: GraphQLSchema,
 ): RelayCompilerContext {
   const viewerType = schema.getType(VIEWER_TYPE);
-  if (viewerType == null) {
+  if (viewerType == null || viewerType.getFields()[ID] != null) {
     return context;
   }
   return RelayIRTransformer.transform(

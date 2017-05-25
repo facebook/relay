@@ -49,7 +49,7 @@ Some fields - especially those for paginated data - can require post-processing 
 
 An area we've gotten a lot of questions on was mutations and their configs. Relay Modern introduces a new mutation API that allows records and fields to be updated in a more direct manner.
 
-### Client Schema Extensions
+### Client Schema Extensions (Experimental)
 
 The Relay Modern Core adds support for client schema extensions. These allow Relay to conveniently store some extra information with data fetched from the server and be rendered like any other field fetched from the server. This should be able to replace some use cases that previously required a Flux/Redux store on the side.
 

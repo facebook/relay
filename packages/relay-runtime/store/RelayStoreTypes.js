@@ -23,6 +23,7 @@ import type {
   CUnstableEnvironmentCore,
   Disposable,
   Record,
+  SelectorData,
 } from 'RelayCombinedEnvironmentTypes';
 import type {
   ConcreteBatch,
@@ -354,6 +355,10 @@ export type StoreUpdater = (store: RecordSourceProxy) => void;
 
 /**
  * Similar to StoreUpdater, but accepts a proxy tied to a specific selector in
- * order to easily access the root fields of a query/mutation.
+ * order to easily access the root fields of a query/mutation as well as a
+ * second argument of the response object of the mutation.
  */
-export type SelectorStoreUpdater = (store: RecordSourceSelectorProxy) => void;
+export type SelectorStoreUpdater = (
+  store: RecordSourceSelectorProxy,
+  data: ?SelectorData,
+) => void;

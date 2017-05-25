@@ -14,12 +14,15 @@
 'use strict';
 
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
+const RelayModernRecord = require('RelayModernRecord');
+const RelayReader = require('RelayReader');
 const RelayRecordSourceMutator = require('RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('RelayRecordSourceProxy');
 const RelayRecordSourceSelectorProxy = require('RelayRecordSourceSelectorProxy');
 
 const invariant = require('invariant');
 
+import type {SelectorData} from 'RelayCombinedEnvironmentTypes';
 import type {HandlerProvider} from 'RelayDefaultHandlerProvider';
 import type {RelayResponsePayload} from 'RelayNetworkTypes';
 import type {
@@ -192,7 +195,8 @@ class RelayPublishQueue {
           });
         }
         if (updater) {
-          updater(selectorStore);
+          const selectorData = lookupSelector(source, operation.fragment);
+          updater(selectorStore, selectorData);
         }
         // Publish the server data first so that it is reflected in the mutation
         // backup created during the rebase
@@ -273,6 +277,18 @@ class RelayPublishQueue {
       this._store.publish(sink);
     }
   }
+}
+
+function lookupSelector(source, selector): ?SelectorData {
+  const selectorData = RelayReader.read(source, selector, RelayModernRecord)
+    .data;
+  if (__DEV__) {
+    const deepFreeze = require('deepFreeze');
+    if (selectorData) {
+      deepFreeze(selectorData);
+    }
+  }
+  return selectorData;
 }
 
 module.exports = RelayPublishQueue;

@@ -572,11 +572,14 @@ describe('RelayPublishQueue', () => {
       `,
       );
 
-      const updater = jest.fn(storeProxy => {
+      const updater = jest.fn((storeProxy, data) => {
         const zuck = storeProxy.getRootField('me');
         const nodes = storeProxy.getPluralRootField('nodes');
         expect(nodes.length).toBe(1);
         expect(nodes[0]).toBe(zuck);
+
+        expect(data).toEqual({me: {name: 'Zuck'}, nodes: [{name: 'Zuck'}]});
+
         zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
       });
       queue.commitPayload(

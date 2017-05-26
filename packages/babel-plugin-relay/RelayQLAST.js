@@ -42,6 +42,8 @@ const {
   TypeNameMetaFieldDef,
 } = require('graphql');
 
+/* $FlowFixMe(>=0.47.0) - Flow error noticed when v0.47.0 was deployed. To see
+ * the error, delete this comment and run flow */
 const GraphQLRelayDirectiveInstance = new GraphQLDirective(
   GraphQLRelayDirective,
 );

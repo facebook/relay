@@ -1,0 +1,3 @@
+fragment PluralFragment on Node @relay(plural: true) {
+  id
+}

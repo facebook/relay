@@ -13,6 +13,8 @@
 
 'use strict';
 
+require('babel-polyfill');
+
 const RelayCodegenRunner = require('RelayCodegenRunner');
 const RelayFileIRParser = require('RelayFileIRParser');
 const RelayFileWriter = require('RelayFileWriter');

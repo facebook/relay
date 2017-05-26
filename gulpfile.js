@@ -14,6 +14,7 @@ const babelOptions = require('./scripts/getBabelOptions')({
   moduleMap: {
     'babel-core': 'babel-core',
     'babel-generator': 'babel-generator',
+    'babel-polyfill': 'babel-polyfill',
     'babel-runtime/core-js/array/from': 'babel-runtime/core-js/array/from',
     'babel-runtime/core-js/json/stringify': 'babel-runtime/core-js/json/stringify',
     'babel-runtime/core-js/map': 'babel-runtime/core-js/map',

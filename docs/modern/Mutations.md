@@ -62,14 +62,16 @@ const mutation = graphql`
   }
 `;
 
-const variables = {
-  input: {
-    source,
-    storyID,
-  },
-};
+
 
 function markNotificationAsRead(source, storyID) {
+  const variables = {
+    input: {
+      source,
+      storyID,
+    },
+  };
+
   commitMutation(
     environment,
     {

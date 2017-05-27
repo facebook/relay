@@ -70,6 +70,23 @@ describe('getBabelRelayPlugin', () => {
         }
         ConsoleErrorQueue.clear();
       });
+
+      if (fixture.outputThrowsError) {
+        it('throws when enforceSchema is defined on plugin for `' + testName +'`', () => {
+          expect(() => {
+            transform(fixture.input, testName, {enforceSchema: true});
+          }).toThrow();
+          ConsoleErrorQueue.clear();
+        });
+
+        it('throws when enforceSchema is defined on babel options for `' + testName +'`', () => {
+          expect(() => {
+            transform(fixture.input, testName, null, {enforceSchema: true});
+          }).toThrow();
+          ConsoleErrorQueue.clear();
+        });
+
+      }
     } else {
       it('throws for GraphQL fixture: ' + testName, () => {
         let expected;

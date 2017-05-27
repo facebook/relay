@@ -36,17 +36,26 @@ function getSchema(schemaPath) {
   }
 }
 
-function transformGraphQL(schemaPath, source, filename) {
-  const relayPlugin = getBabelRelayPlugin(getSchema(schemaPath), {
+function transformGraphQL(schemaPath, source, filename, pluginOptions, babelOptions) {
+  const defaultPluginOptions = {
     debug: true,
     substituteVariables: true,
-    suppressWarnings: true,
-  });
-  return babel.transform(source, {
+    suppressWarnings: true
+  };
+
+  const relayPlugin = getBabelRelayPlugin(getSchema(schemaPath), 
+     Object.assign(defaultPluginOptions, pluginOptions || {})
+  );
+
+  const defaultBabelOptions = {
     plugins: [relayPlugin],
     compact: false,
     filename,
-  }).code;
+  }
+
+  return babel.transform(source, 
+    Object.assign(defaultBabelOptions, babelOptions || {})
+  ).code;
 }
 
 module.exports = transformGraphQL;

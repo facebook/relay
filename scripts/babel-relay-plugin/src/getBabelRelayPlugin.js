@@ -46,6 +46,7 @@ function getBabelRelayPlugin(
     suppressWarnings?: ?boolean,
     substituteVariables?: ?boolean,
     validator?: ?Validator<any>,
+    enforceSchema: ?boolean,
   }
 ): Function {
   const options = pluginOptions || {};
@@ -226,7 +227,7 @@ function getBabelRelayPlugin(
               []
             );
 
-            if (state.opts && state.opts.enforceSchema) {
+            if ((state.opts && state.opts.enforceSchema) || options.enforceSchema) {
               throw new Error(util.format(
                 errorMessages.length ?
                   'Aborting due to a %s error:\n\n%s\n' :

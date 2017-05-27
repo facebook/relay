@@ -41,9 +41,14 @@ function readFixtures(fixturePath) {
       ].join('\\n') + '$'
     ));
     if (parts) {
+      var input = parts[1].trim();
+      var output = parts[2].trim();
       fixtures[name] = {
-        input: parts[1].trim(),
-        output: parts[2].trim(),
+        input: input,
+        output: output,
+        outputHasError: output.match(new RegExp(
+         'throw new Error'
+        )) !== null
       };
       return;
     }

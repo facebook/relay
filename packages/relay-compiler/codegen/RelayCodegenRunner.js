@@ -256,12 +256,10 @@ class RelayCodegenRunner {
           }
           await Promise.all(dependentWriters.map(writer => this.write(writer)));
         }
-        catch (x){
-          console.log(x);
-          //return;
+        catch (error){
+          console.log('Error: ' + error);
         }
         console.log('Watching for changes to %s...', parserName);
-
       },
     );
     console.log('Watching for changes to %s...', parserName);

@@ -247,7 +247,8 @@ class RelayCodegenRunner {
         this.parserWriters[parserName].forEach(writer =>
           dependentWriters.push(writer),
         );
-        try{
+
+        try {
           if (!this.parsers[parserName]) {
             // have to load the parser and make sure all of its dependents are set
             await this.parseEverything(parserName);
@@ -255,8 +256,7 @@ class RelayCodegenRunner {
             this.parseFileChanges(parserName, files);
           }
           await Promise.all(dependentWriters.map(writer => this.write(writer)));
-        }
-        catch (error){
+        } catch (error) {
           console.log('Error: ' + error);
         }
         console.log('Watching for changes to %s...', parserName);

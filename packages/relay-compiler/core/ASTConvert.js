@@ -125,12 +125,12 @@ function convertASTDefinitions(
     definitions: (operationDefinitions: Array<$FlowFixMe>),
   };
   // Will throw an error if there are validation issues
-  try{
+  try {
     RelayValidator.validate(validationAST, schema, validationRules);
     return operationDefinitions.map(definition =>
       RelayParser.transform(schema, definition),
     );
-  }catch(error){
+  } catch (error) {
     console.log('Error: \n'+error);
   }
 }

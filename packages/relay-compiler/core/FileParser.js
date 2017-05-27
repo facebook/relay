@@ -42,7 +42,6 @@ class FileParser {
     let documents = ImmutableMap();
 
     files.forEach(file => {
-      //const doc = this._parse(path.join(this._baseDir, file));
       const doc = (() => {
       const filePath = path.join(this._baseDir, file);
        try {
@@ -50,7 +49,7 @@ class FileParser {
         } catch (error) {
           throw new Error(`Parse error: ${error} in "${filePath}"`);
         }
-      })();
+      });
 
       if (!doc) {
         this._documents.delete(file);

@@ -49,7 +49,7 @@ class FileParser {
         } catch (error) {
           throw new Error(`Parse error: ${error} in "${filePath}"`);
         }
-      });
+      })();
 
       if (!doc) {
         this._documents.delete(file);

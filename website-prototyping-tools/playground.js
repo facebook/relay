@@ -34,6 +34,11 @@ function setHash(object) {
   window.location.hash = queryString.stringify(object) || '/';
 }
 
+function setHash(object) {
+  // Caution: setting it to nothing causes the page to jump to the top, hence /.
+  window.location.hash = queryString.stringify(object) || '/';
+}
+
 // Don't trust location.hash not to have been unencoded by the browser
 var hash = window.location.href.split('#')[1];
 let queryParams = queryString.parse(hash);

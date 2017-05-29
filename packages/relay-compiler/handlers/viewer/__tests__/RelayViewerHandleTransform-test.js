@@ -54,6 +54,31 @@ describe('RelayViewerHandleTransform', () => {
     });
   });
 
+  it('ignores schemas where viewer is not an object', () => {
+    const schema = buildASTSchema(parse(`
+      type Query {
+        viewer: Viewer
+      }
+      scalar Viewer
+    `));
+    const text = `
+      query TestQuery {
+        viewer
+      }
+    `;
+    const {definitions} = parseGraphQLText(schema, text);
+    let context = new RelayCompilerContext(schema).addAll(
+      definitions,
+    );
+    context = RelayViewerHandleTransform.transform(context, schema);
+    const TestQuery = context.getRoot('TestQuery');
+    const viewer = TestQuery.selections[0];
+    expect(viewer.name).toBe('viewer');
+    expect(viewer.kind).toBe('ScalarField');
+    // No handle is added
+    expect(viewer.handles).toBe(undefined);
+  });
+
   it('ignores schemas where viewer has an id', () => {
     const schema = buildASTSchema(parse(`
       type Query {
@@ -77,6 +102,8 @@ describe('RelayViewerHandleTransform', () => {
     context = RelayViewerHandleTransform.transform(context, schema);
     const TestQuery = context.getRoot('TestQuery');
     const viewer = TestQuery.selections[0];
+    expect(viewer.name).toBe('viewer');
+    expect(viewer.kind).toBe('LinkedField');
     // No handle is added
     expect(viewer.handles).toBe(undefined);
   });

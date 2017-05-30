@@ -44,10 +44,7 @@
     "graphql": "0.9.6",
     "gulp": "3.9.1",
     "gulp-babel": "6.1.2",
-    "gulp-chmod": "2.0.0",
-    "gulp-derequire": "2.1.0",
     "gulp-flatten": "0.3.1",
-    "gulp-header": "1.8.8",
     "gulp-util": "3.0.8",
     "immutable": "3.8.1",
     "iterall": "1.0.3",
@@ -113,5 +110,12 @@
       "<rootDir>/node_modules/react-static-container/",
       "<rootDir>/node_modules/react/"
     ]
+  },
+  "dependencies": {
+    "enhanced-resolve": "^3.1.0",
+    "rollup": "^0.41.6",
+    "rollup-plugin-commonjs": "^8.0.2",
+    "rollup-plugin-replace": "^1.1.1",
+    "rollup-plugin-uglify": "^1.0.1"
   }
 }

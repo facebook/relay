@@ -13,6 +13,8 @@
 
 'use strict';
 
+const RelayCompilerUserError = require('RelayCompilerUserError');
+
 const immutable = require('immutable');
 const invariant = require('invariant');
 
@@ -104,12 +106,13 @@ class RelayCompilerContext {
   getFragment(name: string): Fragment {
     const record = this._documents.get(name);
     const node = record && record.get('node');
-    invariant(
-      node && node.kind === 'Fragment',
-      'RelayCompilerContext: Expected `%s` to be a fragment, got `%s`.',
-      name,
-      node && node.kind,
-    );
+    if (!(node && node.kind === 'Fragment')) {
+      const child_mod = name.substring(0, name.lastIndexOf('_'));
+      throw new RelayCompilerUserError(
+        `Relay cannot find fragment \`${name}\`.` +
+          ` Please make sure the fragment exists in \`${child_mod}\``,
+      );
+    }
     return node;
   }
 

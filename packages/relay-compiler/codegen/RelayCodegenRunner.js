@@ -14,6 +14,7 @@
 'use strict';
 
 const RelayCodegenWatcher = require('RelayCodegenWatcher');
+const RelayCompilerUserError = require('RelayCompilerUserError');
 
 const invariant = require('invariant');
 
@@ -178,11 +179,29 @@ class RelayCodegenRunner {
       documents,
       baseDocuments,
     );
-    const outputDirectories = await writer.writeAll();
+
+    let outputDirectories = null;
+
+    try {
+      outputDirectories = await writer.writeAll();
+    } catch (e) {
+      if (e instanceof RelayCompilerUserError) {
+        // TODO could use chalk here for red output
+        console.log('Error: ' + e.message);
+      } else {
+        throw e;
+      }
+      return true;
+    }
+
     const tWritten = Date.now();
 
     function combineChanges(accessor) {
       const combined = [];
+      invariant(
+        outputDirectories,
+        'RelayCodegenRunner: Expected outputDirectories to be set',
+      );
       for (const dir of outputDirectories.values()) {
         combined.push(...accessor(dir.changes));
       }

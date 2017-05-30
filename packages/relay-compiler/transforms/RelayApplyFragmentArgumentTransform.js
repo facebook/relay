@@ -120,14 +120,7 @@ function transformFragmentSpread(
   spread: FragmentSpread,
 ): ?FragmentSpread {
   const directives = transformDirectives(scope, spread.directives);
-  const fragment = context.get(spread.name);
-  invariant(
-    fragment && fragment.kind === 'Fragment',
-    'RelayApplyFragmentArgumentTransform: expected `%s` to be a fragment, ' +
-      'got `%s`.',
-    spread.name,
-    fragment && fragment.kind,
-  );
+  const fragment = context.getFragment(spread.name);
   const appliedFragment = transformFragment(
     context,
     fragments,

@@ -62,8 +62,6 @@ const mutation = graphql`
   }
 `;
 
-
-
 function markNotificationAsRead(source, storyID) {
   const variables = {
     input: {

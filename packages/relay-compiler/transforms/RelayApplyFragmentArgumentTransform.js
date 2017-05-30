@@ -73,7 +73,7 @@ function transform(context: RelayCompilerContext): RelayCompilerContext {
       return ctx;
     }
   }, nextContext);
-  return Array.from(fragments.values()).reduce(
+  return (Array.from(fragments.values()): Array<?Fragment>).reduce(
     (ctx: RelayCompilerContext, fragment) =>
       fragment ? ctx.add(fragment) : ctx,
     nextContext,

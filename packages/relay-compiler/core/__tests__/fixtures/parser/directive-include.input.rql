@@ -1,0 +1,7 @@
+fragment TestFragment on User {
+  id @include(if: $Cond)
+  ... on User @include(if: $Cond) {
+    firstName
+  }
+  ...Foo @include(if: $Cond)
+}

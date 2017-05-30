@@ -1,0 +1,14 @@
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule CompatCommentCreateMutation
+ */
+
+'use strict';
+
+const graphql = require('graphql');
+const CompatProfilePic = require('CompatProfilePic');
+
+const CompatCommentCreateMutation = function () {
+  return require('CompatCommentCreateMutation.graphql');
+};

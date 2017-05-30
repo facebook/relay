@@ -1,0 +1,10 @@
+query DontSkipDifferentIds {
+  viewer {
+    actor {
+      id
+      hometown {
+        id
+      }
+    }
+  }
+}

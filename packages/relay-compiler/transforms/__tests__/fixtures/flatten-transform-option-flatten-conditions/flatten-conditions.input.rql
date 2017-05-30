@@ -1,0 +1,26 @@
+query TestQuery(
+  $id: ID!
+) @skip(if: $cond) {
+  node(id: $id) @skip(if: $cond) {
+    ... on User @include(if: $cond) {
+      id
+      firstName @skip(if: $cond)
+      surname: lastName @skip(if: $cond)
+      friends(first: 10) @skip(if: $cond) {
+        edges {
+          node {
+            firstName
+          }
+        }
+      }
+    }
+  }
+  viewer {
+    ... on Node {
+      id
+    }
+    ... on User {
+      name
+    }
+  }
+}

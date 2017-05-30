@@ -6,19 +6,18 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
+
 'use strict';
+
+const BabelPluginRelay = require('../../dist/babel-plugin-relay');
 
 const assign = require('object-assign');
 const babel = require('babel-core');
 const createCacheKeyFunction = require('fbjs-scripts/jest/createCacheKeyFunction');
-const fs = require('fs');
 const getBabelOptions = require('../getBabelOptions');
-const getBabelRelayPlugin = require('../babel-relay-plugin');
 const path = require('path');
 
-const SCHEMA_PATH = path.resolve(__dirname, 'testschema.json');
-
-const schema = JSON.parse(fs.readFileSync(SCHEMA_PATH, 'utf8')).data;
+const SCHEMA_PATH = path.resolve(__dirname, '../../packages/relay-compiler/testutils/testschema.graphql');
 
 const babelOptions = getBabelOptions({
   env: 'test',
@@ -32,7 +31,15 @@ const babelOptions = getBabelOptions({
     'StaticContainer.react': 'react-static-container',
   },
   plugins: [
-    getBabelRelayPlugin(schema, {substituteVariables: true}),
+    [BabelPluginRelay, {
+      compat: true,
+      haste: true,
+      relayQLModule: 'RelayQL',
+      substituteVariables: true,
+      schema: SCHEMA_PATH,
+    }],
+    require('babel-plugin-transform-async-to-generator'),
+    require('babel-plugin-transform-regenerator'),
   ],
 });
 

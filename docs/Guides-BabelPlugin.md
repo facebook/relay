@@ -2,10 +2,12 @@
 id: guides-babel-plugin
 title: Babel Relay Plugin
 layout: docs
-category: Guides
+category: Relay Classic Guides
 permalink: docs/guides-babel-plugin.html
 next: graphql-relay-specification
 ---
+
+*`babel-relay-plugin` is deprecated. Use [`babel-plugin-relay`](./babel-plugin-relay.html#using-with-relay-classic) with Relay Classic.*
 
 Relay uses a **babel** plugin to convert from `Relay.QL` string templates to
 JavaScript code that describes each query and includes data from the GraphQL
@@ -35,11 +37,10 @@ The easiest way to get started for now is with the [Relay Starter Kit](https://g
 
 ### React Native Configuration
 
-The `babel-relay-plugin` must run before the `react-native` Babel preset. Thus, in `.babelrc`  `"react-native"` must come after `babelRelayPlugin`.
+The `babel-relay-plugin` must run before the `react-native` Babel preset. Thus, in `.babelrc` `"react-native"` must come after `babelRelayPlugin`.
 
 ```javascript
 {
-  "passPerPreset": true,
   "plugins": [
     "./plugins/babelRelayPlugin"
   ],
@@ -84,7 +85,7 @@ Use `introspectionQuery` to generate a Schema JSON for the Babel Relay Plugin, a
 import fs from 'fs';
 import path from 'path';
 import {graphql}  from 'graphql';
-import {introspectionQuery, printSchema} from 'graphql/utilities';
+import {introspectionQuery, printSchema} from 'graphql';
 
 // Assume your schema is in ../data/schema
 import {schema} from '../data/schema';

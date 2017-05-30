@@ -11,6 +11,7 @@
 
 'use strict';
 
+const Footer = require('Footer');
 const Marked = require('Marked');
 const React = require('React');
 const Site = require('Site');
@@ -26,6 +27,7 @@ const support = React.createClass({
             <Marked>{content}</Marked>
           </div>
         </section>
+        <Footer metadata={metadata} />
       </Site>
     );
   },

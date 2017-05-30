@@ -12,13 +12,10 @@
 
 'use strict';
 
-const GraphQL = require('./GraphQL');
-const {
-  error: {formatError},
-  language_parser: parser,
-  language_source: {Source},
-  validation: {validate},
-} = GraphQL;
+const RelayQLPrinter = require('./RelayQLPrinter');
+
+const invariant = require('./invariant');
+const util = require('./util');
 
 const {
   RelayQLDefinition,
@@ -27,18 +24,41 @@ const {
   RelayQLQuery,
   RelayQLSubscription,
 } = require('./RelayQLAST');
-const RelayQLPrinter = require('./RelayQLPrinter');
+const {
+  formatError,
+  parse,
+  Source,
+  validate,
+} = require('graphql');
 
-const invariant = require('./invariant');
-const util = require('util');
+const GraphQLWrapper = {
+  error: require('graphql/error'),
+  language: require('graphql/language'),
+  language_parser: require('graphql/language/parser'),
+  language_source: require('graphql/language/source'),
+  type: require('graphql/type'),
+  type_definition: require('graphql/type/definition'),
+  type_directives: require('graphql/type/directives'),
+  type_introspection: require('graphql/type/introspection'),
+  type_scalars: require('graphql/type/scalars'),
+  utilities: require('graphql/utilities'),
+  utilities_buildClientSchema: require('graphql/utilities/buildClientSchema'),
+  utilities_buildASTSchema: require('graphql/utilities/buildASTSchema'),
+  validation: require('graphql/validation'),
+  validation_rules_KnownFragmentNames: require('graphql/validation/rules/KnownFragmentNames'),
+  validation_rules_NoUndefinedVariables: require('graphql/validation/rules/NoUndefinedVariables'),
+  validation_rules_NoUnusedFragments: require('graphql/validation/rules/NoUnusedFragments'),
+  validation_rules_ScalarLeafs: require('graphql/validation/rules/ScalarLeafs'),
+  validation_validate: require('graphql/validation/validate'),
+};
 
+import type {Printable, Substitution} from './RelayQLPrinter';
 import type {
   DocumentNode,
   GraphQLError,
   GraphQLFormattedError,
   GraphQLSchema,
 } from 'graphql';
-import type {Printable, Substitution} from './RelayQLPrinter';
 
 type TemplateLiteral = {
   type: 'TemplateElement',
@@ -182,7 +202,7 @@ class RelayQLTransformer {
     documentText: string,
     {documentName, enableValidation}: TextTransformOptions
   ): RelayQLDefinition<any> {
-    const document = parser.parse(new Source(documentText, documentName));
+    const document = parse(new Source(documentText, documentName));
     const validationErrors = enableValidation ?
       this.validateDocument(document, documentName) :
       null;
@@ -239,8 +259,7 @@ class RelayQLTransformer {
     const validator = this.options.validator;
     let validationErrors;
     if (validator) {
-      const {validate} = validator(GraphQL);
-      validationErrors = validate(this.schema, document);
+      validationErrors = validator(GraphQLWrapper).validate(this.schema, document);
     } else {
       const rules = [
         require(

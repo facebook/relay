@@ -1,0 +1,11 @@
+query UnionQuery {
+  neverNode {
+    __typename
+    ... on NonNode {
+      name
+    }
+    ... on FakeNode {
+      id
+    }
+  }
+}

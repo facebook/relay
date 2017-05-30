@@ -26,8 +26,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var RelayTransformError = require('./RelayTransformError');
 
 var find = require('./find');
-var invariant = require('./invariant');
-var util = require('util');
+var util = require('./util');
 
 var _require = require('./RelayQLAST'),
     RelayQLArgument = _require.RelayQLArgument,
@@ -444,7 +443,6 @@ module.exports = function (t, options) {
           directives: this.printDirectives(field.getDirectives()),
           fieldName: t.valueToNode(field.getName()),
           kind: t.valueToNode('Field'),
-          // $FlowFixMe
           metadata: this.printRelayDirectiveMetadata(field, metadata),
           type: t.valueToNode(fieldType.getName({ modifiers: false }))
         });
@@ -531,7 +529,11 @@ module.exports = function (t, options) {
       }
     }, {
       key: 'printRelayDirectiveMetadata',
-      value: function printRelayDirectiveMetadata(node, maybeMetadata) {
+      value: function printRelayDirectiveMetadata(node,
+      /* $FlowFixMe(>=0.38.0 site=react_native_fb,oss) - Flow error detected during
+       * the deployment of v0.38.0. To see the error, remove this comment and
+       * run flow */
+      maybeMetadata) {
         var properties = [];
         var relayDirective = findRelayDirective(node);
         if (relayDirective) {
@@ -545,14 +547,12 @@ module.exports = function (t, options) {
           });
         }
         if (maybeMetadata) {
-          (function () {
-            var metadata = maybeMetadata;
-            Object.keys(metadata).forEach(function (key) {
-              if (metadata[key]) {
-                properties.push(property(key, t.valueToNode(metadata[key])));
-              }
-            });
-          })();
+          var metadata = maybeMetadata;
+          Object.keys(metadata).forEach(function (key) {
+            if (metadata[key]) {
+              properties.push(property(key, t.valueToNode(metadata[key])));
+            }
+          });
         }
         return t.objectExpression(properties);
       }
@@ -721,16 +721,10 @@ module.exports = function (t, options) {
     } else if (Array.isArray(value)) {
       return t.arrayExpression(value.map(printLiteralValue));
     } else if ((typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object' && value != null) {
-      var _ret2 = function () {
-        var objectValue = value;
-        return {
-          v: t.objectExpression(Object.keys(objectValue).map(function (key) {
-            return property(key, printLiteralValue(objectValue[key]));
-          }))
-        };
-      }();
-
-      if ((typeof _ret2 === 'undefined' ? 'undefined' : _typeof(_ret2)) === "object") return _ret2.v;
+      var objectValue = value;
+      return t.objectExpression(Object.keys(objectValue).map(function (key) {
+        return property(key, printLiteralValue(objectValue[key]));
+      }));
     } else {
       return t.valueToNode(value);
     }

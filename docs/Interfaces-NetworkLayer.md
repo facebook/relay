@@ -2,7 +2,7 @@
 id: interfaces-relay-network-layer
 title: RelayNetworkLayer
 layout: docs
-category: Interfaces
+category: Relay Classic Interfaces
 permalink: docs/interfaces-relay-network-layer.html
 next: interfaces-relay-mutation-request
 ---

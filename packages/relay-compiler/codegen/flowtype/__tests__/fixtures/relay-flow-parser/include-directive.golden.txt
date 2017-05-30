@@ -1,0 +1,51 @@
+[
+  {
+    "kind": "Fragment",
+    "directives": [],
+    "metadata": null,
+    "name": "myFragment",
+    "selections": [
+      {
+        "kind": "Condition",
+        "condition": {
+          "kind": "Variable",
+          "metadata": null,
+          "variableName": "conditional"
+        },
+        "metadata": null,
+        "passingValue": true,
+        "selections": [
+          {
+            "kind": "LinkedField",
+            "alias": null,
+            "args": [],
+            "directives": [],
+            "metadata": null,
+            "name": "actor",
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "args": [],
+                "directives": [],
+                "metadata": null,
+                "name": "id",
+                "type": "ID!"
+              }
+            ],
+            "type": "Actor"
+          }
+        ]
+      }
+    ],
+    "type": "User",
+    "argumentDefinitions": [
+      {
+        "kind": "RootArgumentDefinition",
+        "metadata": null,
+        "name": "conditional",
+        "type": "Boolean!"
+      }
+    ]
+  }
+]

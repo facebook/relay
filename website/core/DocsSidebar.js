@@ -108,7 +108,7 @@ const DocsSidebar = React.createClass({
     if (metadata.permalink.match(/^https?:/)) {
       return metadata.permalink;
     }
-    return '/relay/' + metadata.permalink + '#content';
+    return '/relay/' + metadata.permalink;
   },
 
   render: function() {

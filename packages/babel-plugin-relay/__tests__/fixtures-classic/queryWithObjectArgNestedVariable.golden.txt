@@ -1,0 +1,4 @@
+var Relay = require('Relay');
+var q = function () {
+  throw new Error('Relay transform error ``Unexpected nested variable `query`; variables are supported as top-level arguments - `node(id: $id)` - or directly within lists - `nodes(ids: [$id])`.`` in file `queryWithObjectArgNestedVariable.input.txt`. Try updating your GraphQL schema if an argument/field/type was recently added.');
+}();

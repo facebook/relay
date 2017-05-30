@@ -1,21 +1,29 @@
 ---
 language: node_js
-node_js:
-- '4'
-- '5'
-- '6'
 install: true
-env:
-- TEST=.
-- TEST=scripts/babel-relay-plugin
-- TYPECHECK=.
-- TYPECHECK=scripts/babel-relay-plugin
+cache: yarn
+
+matrix:
+  include:
+  - node_js: '7'
+    env: TEST=1
+  - node_js: '6'
+    env: TEST=1
+  - node_js: '7'
+    env: TYPECHECK=1
+  - node_js: '7'
+    env: LINT=1
+
 script:
 - |
     if [ $TEST ]; then
-      cd $TEST && npm install && npm run jest -- --runInBand --no-watchman
+      yarn install && yarn run jest -- --runInBand --no-watchman
     fi
 - |
     if [ $TYPECHECK ]; then
-      cd $TYPECHECK && npm install && npm run typecheck
+      yarn install --ignore-scripts && yarn run typecheck
+    fi
+- |
+    if [ $LINT ]; then
+      yarn install --ignore-scripts && yarn run lint
     fi

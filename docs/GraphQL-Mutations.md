@@ -4,7 +4,6 @@ title: Mutations
 layout: docs
 category: GraphQL
 permalink: docs/graphql-mutations.html
-indent: true
 next: graphql-further-reading
 ---
 

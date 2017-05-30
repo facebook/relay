@@ -1,0 +1,535 @@
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID!",
+        "defaultValue": null
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "NodeQuery",
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id",
+            "type": "ID"
+          }
+        ],
+        "concreteType": null,
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "args": null,
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "type": "Story",
+            "selections": [
+              {
+                "kind": "LinkedField",
+                "alias": "comments",
+                "args": null,
+                "concreteType": "CommentsConnection",
+                "name": "__NodeQuery_comments_connection",
+                "plural": false,
+                "selections": [
+                  {
+                    "kind": "LinkedField",
+                    "alias": null,
+                    "args": null,
+                    "concreteType": "CommentsEdge",
+                    "name": "edges",
+                    "plural": true,
+                    "selections": [
+                      {
+                        "kind": "LinkedField",
+                        "alias": null,
+                        "args": null,
+                        "concreteType": "Comment",
+                        "name": "node",
+                        "plural": false,
+                        "selections": [
+                          {
+                            "kind": "LinkedField",
+                            "alias": null,
+                            "args": null,
+                            "concreteType": null,
+                            "name": "actor",
+                            "plural": false,
+                            "selections": [
+                              {
+                                "kind": "ScalarField",
+                                "alias": null,
+                                "args": null,
+                                "name": "name",
+                                "storageKey": null
+                              },
+                              {
+                                "kind": "LinkedField",
+                                "alias": "friends",
+                                "args": null,
+                                "concreteType": "FriendsConnection",
+                                "name": "__NodeQuery_friends_connection",
+                                "plural": false,
+                                "selections": [
+                                  {
+                                    "kind": "LinkedField",
+                                    "alias": null,
+                                    "args": null,
+                                    "concreteType": "FriendsEdge",
+                                    "name": "edges",
+                                    "plural": true,
+                                    "selections": [
+                                      {
+                                        "kind": "LinkedField",
+                                        "alias": null,
+                                        "args": null,
+                                        "concreteType": "User",
+                                        "name": "node",
+                                        "plural": false,
+                                        "selections": [
+                                          {
+                                            "kind": "ScalarField",
+                                            "alias": null,
+                                            "args": null,
+                                            "name": "name",
+                                            "storageKey": null
+                                          }
+                                        ],
+                                        "storageKey": null
+                                      }
+                                    ],
+                                    "storageKey": null
+                                  }
+                                ],
+                                "storageKey": null
+                              }
+                            ],
+                            "storageKey": null
+                          }
+                        ],
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ]
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query"
+  },
+  "id": null,
+  "kind": "Batch",
+  "metadata": {
+    "connection": [
+      {
+        "count": null,
+        "cursor": null,
+        "direction": "forward",
+        "path": null
+      },
+      {
+        "count": null,
+        "cursor": null,
+        "direction": "forward",
+        "path": [
+          "node",
+          "comments"
+        ]
+      }
+    ]
+  },
+  "name": "NodeQuery",
+  "query": {
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID!",
+        "defaultValue": null
+      }
+    ],
+    "kind": "Root",
+    "name": "NodeQuery",
+    "operation": "query",
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id",
+            "type": "ID"
+          }
+        ],
+        "concreteType": null,
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "args": null,
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "args": null,
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "type": "Story",
+            "selections": [
+              {
+                "kind": "LinkedField",
+                "alias": null,
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "first",
+                    "value": 10,
+                    "type": "Int"
+                  }
+                ],
+                "concreteType": "CommentsConnection",
+                "name": "comments",
+                "plural": false,
+                "selections": [
+                  {
+                    "kind": "LinkedField",
+                    "alias": null,
+                    "args": null,
+                    "concreteType": "CommentsEdge",
+                    "name": "edges",
+                    "plural": true,
+                    "selections": [
+                      {
+                        "kind": "LinkedField",
+                        "alias": null,
+                        "args": null,
+                        "concreteType": "Comment",
+                        "name": "node",
+                        "plural": false,
+                        "selections": [
+                          {
+                            "kind": "LinkedField",
+                            "alias": null,
+                            "args": null,
+                            "concreteType": null,
+                            "name": "actor",
+                            "plural": false,
+                            "selections": [
+                              {
+                                "kind": "ScalarField",
+                                "alias": null,
+                                "args": null,
+                                "name": "__typename",
+                                "storageKey": null
+                              },
+                              {
+                                "kind": "ScalarField",
+                                "alias": null,
+                                "args": null,
+                                "name": "name",
+                                "storageKey": null
+                              },
+                              {
+                                "kind": "LinkedField",
+                                "alias": null,
+                                "args": [
+                                  {
+                                    "kind": "Literal",
+                                    "name": "first",
+                                    "value": 10,
+                                    "type": "Int"
+                                  }
+                                ],
+                                "concreteType": "FriendsConnection",
+                                "name": "friends",
+                                "plural": false,
+                                "selections": [
+                                  {
+                                    "kind": "LinkedField",
+                                    "alias": null,
+                                    "args": null,
+                                    "concreteType": "FriendsEdge",
+                                    "name": "edges",
+                                    "plural": true,
+                                    "selections": [
+                                      {
+                                        "kind": "LinkedField",
+                                        "alias": null,
+                                        "args": null,
+                                        "concreteType": "User",
+                                        "name": "node",
+                                        "plural": false,
+                                        "selections": [
+                                          {
+                                            "kind": "ScalarField",
+                                            "alias": null,
+                                            "args": null,
+                                            "name": "name",
+                                            "storageKey": null
+                                          },
+                                          {
+                                            "kind": "ScalarField",
+                                            "alias": null,
+                                            "args": null,
+                                            "name": "id",
+                                            "storageKey": null
+                                          },
+                                          {
+                                            "kind": "ScalarField",
+                                            "alias": null,
+                                            "args": null,
+                                            "name": "__typename",
+                                            "storageKey": null
+                                          }
+                                        ],
+                                        "storageKey": null
+                                      },
+                                      {
+                                        "kind": "ScalarField",
+                                        "alias": null,
+                                        "args": null,
+                                        "name": "cursor",
+                                        "storageKey": null
+                                      }
+                                    ],
+                                    "storageKey": null
+                                  },
+                                  {
+                                    "kind": "LinkedField",
+                                    "alias": null,
+                                    "args": null,
+                                    "concreteType": "PageInfo",
+                                    "name": "pageInfo",
+                                    "plural": false,
+                                    "selections": [
+                                      {
+                                        "kind": "ScalarField",
+                                        "alias": null,
+                                        "args": null,
+                                        "name": "endCursor",
+                                        "storageKey": null
+                                      },
+                                      {
+                                        "kind": "ScalarField",
+                                        "alias": null,
+                                        "args": null,
+                                        "name": "hasNextPage",
+                                        "storageKey": null
+                                      },
+                                      {
+                                        "kind": "ScalarField",
+                                        "alias": null,
+                                        "args": null,
+                                        "name": "hasPreviousPage",
+                                        "storageKey": null
+                                      },
+                                      {
+                                        "kind": "ScalarField",
+                                        "alias": null,
+                                        "args": null,
+                                        "name": "startCursor",
+                                        "storageKey": null
+                                      }
+                                    ],
+                                    "storageKey": null
+                                  }
+                                ],
+                                "storageKey": "friends{\"first\":10}"
+                              },
+                              {
+                                "kind": "LinkedHandle",
+                                "alias": null,
+                                "args": [
+                                  {
+                                    "kind": "Literal",
+                                    "name": "first",
+                                    "value": 10,
+                                    "type": "Int"
+                                  }
+                                ],
+                                "handle": "connection",
+                                "name": "friends",
+                                "key": "NodeQuery_friends",
+                                "filters": null
+                              },
+                              {
+                                "kind": "ScalarField",
+                                "alias": null,
+                                "args": null,
+                                "name": "id",
+                                "storageKey": null
+                              }
+                            ],
+                            "storageKey": null
+                          },
+                          {
+                            "kind": "ScalarField",
+                            "alias": null,
+                            "args": null,
+                            "name": "id",
+                            "storageKey": null
+                          },
+                          {
+                            "kind": "ScalarField",
+                            "alias": null,
+                            "args": null,
+                            "name": "__typename",
+                            "storageKey": null
+                          }
+                        ],
+                        "storageKey": null
+                      },
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "args": null,
+                        "name": "cursor",
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  },
+                  {
+                    "kind": "LinkedField",
+                    "alias": null,
+                    "args": null,
+                    "concreteType": "PageInfo",
+                    "name": "pageInfo",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "args": null,
+                        "name": "endCursor",
+                        "storageKey": null
+                      },
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "args": null,
+                        "name": "hasNextPage",
+                        "storageKey": null
+                      },
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "args": null,
+                        "name": "hasPreviousPage",
+                        "storageKey": null
+                      },
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "args": null,
+                        "name": "startCursor",
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": "comments{\"first\":10}"
+              },
+              {
+                "kind": "LinkedHandle",
+                "alias": null,
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "first",
+                    "value": 10,
+                    "type": "Int"
+                  }
+                ],
+                "handle": "connection",
+                "name": "comments",
+                "key": "NodeQuery_comments",
+                "filters": null
+              }
+            ]
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  }
+}
+
+QUERY:
+
+query NodeQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    __typename
+    id
+    ... on Story {
+      comments(first: 10) {
+        edges {
+          node {
+            actor {
+              __typename
+              name
+              friends(first: 10) {
+                edges {
+                  node {
+                    name
+                    id
+                    __typename
+                  }
+                  cursor
+                }
+                pageInfo {
+                  endCursor
+                  hasNextPage
+                  hasPreviousPage
+                  startCursor
+                }
+              }
+              id
+            }
+            id
+            __typename
+          }
+          cursor
+        }
+        pageInfo {
+          endCursor
+          hasNextPage
+          hasPreviousPage
+          startCursor
+        }
+      }
+    }
+  }
+}

@@ -4,7 +4,6 @@ title: Further Reading
 layout: docs
 category: GraphQL
 permalink: docs/graphql-further-reading.html
-indent: true
 next: api-reference-relay
 ---
 

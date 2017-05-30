@@ -1,0 +1,77 @@
+[
+  {
+    "kind": "Fragment",
+    "directives": [],
+    "metadata": null,
+    "name": "TestFragment",
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "size",
+            "value": {
+              "kind": "Variable",
+              "metadata": null,
+              "variableName": "PictureSize"
+            },
+            "type": "[Int]"
+          }
+        ],
+        "directives": [],
+        "metadata": null,
+        "name": "profilePicture",
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "args": [],
+            "directives": [],
+            "metadata": null,
+            "name": "uri",
+            "type": "String"
+          }
+        ],
+        "type": "Image"
+      },
+      {
+        "kind": "FragmentSpread",
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "localId",
+            "value": {
+              "kind": "Variable",
+              "metadata": null,
+              "variableName": "id"
+            },
+            "type": null
+          }
+        ],
+        "metadata": null,
+        "name": "Foo",
+        "directives": []
+      }
+    ],
+    "type": "User",
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgumentDefinition",
+        "defaultValue": null,
+        "metadata": null,
+        "name": "id",
+        "type": "ID"
+      },
+      {
+        "kind": "RootArgumentDefinition",
+        "metadata": null,
+        "name": "PictureSize",
+        "type": "[Int]"
+      }
+    ]
+  }
+]

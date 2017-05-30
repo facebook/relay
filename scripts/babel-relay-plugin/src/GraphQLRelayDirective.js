@@ -13,17 +13,11 @@
 'use strict';
 
 const {
-  type_directives: {
-    DirectiveLocation,
-  },
-  type_definition: {
-    GraphQLList,
-  },
-  type_scalars: {
-    GraphQLBoolean,
-    GraphQLString,
-  },
-} = require('./GraphQL');
+  DirectiveLocation,
+  GraphQLBoolean,
+  GraphQLList,
+  GraphQLString,
+} = require('graphql');
 
 module.exports = {
   name: 'relay',

@@ -15,6 +15,7 @@
 
 'use strict';
 
+const Footer = require('Footer');
 const H2 = require('H2');
 const React = require('React');
 const Site = require('Site');
@@ -46,6 +47,8 @@ const support = React.createClass({
             <p><center><a className="twitter-timeline" data-dnt="true" href="https://twitter.com/hashtag/relayjs" data-widget-id="630968322834628608" data-chrome="nofooter noheader transparent">#relayjs Tweets</a></center></p>
           </div>
         </section>
+
+        <Footer />
 
       </Site>
     );

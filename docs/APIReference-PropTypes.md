@@ -2,7 +2,7 @@
 id: api-reference-relay-proptypes
 title: Relay.PropTypes
 layout: docs
-category: API Reference
+category: Relay Classic API
 permalink: docs/api-reference-relay-proptypes.html
 next: api-reference-relay-store
 ---

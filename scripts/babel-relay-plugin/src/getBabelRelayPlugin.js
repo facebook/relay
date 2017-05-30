@@ -15,15 +15,14 @@
 const RelayQLTransformer = require('./RelayQLTransformer');
 const RelayTransformError = require('./RelayTransformError');
 
-const babelAdapter = require('./babelAdapter');
 const computeLocation = require('./computeLocation');
 const invariant = require('./invariant');
-const util = require('util');
+const util = require('./util');
 
 const {
-  utilities_buildClientSchema: {buildClientSchema},
-  utilities_buildASTSchema: {buildASTSchema},
-} = require('./GraphQL');
+  buildASTSchema,
+  buildClientSchema,
+} = require('graphql');
 
 import type {Validator} from './RelayQLTransformer';
 
@@ -62,8 +61,9 @@ function getBabelRelayPlugin(
     validator: options.validator,
   });
 
-  return function({Plugin, types, version}) {
-    return babelAdapter(Plugin, types, version, 'relay-query', t => ({
+  return function(babel) {
+    const t = babel.types;
+    return {
       visitor: {
         /**
          * Extract the module name from `@providesModule`.
@@ -240,15 +240,10 @@ function getBabelRelayPlugin(
               console.error(error.stack);
             }
           }
-          // For babel 5 compatibility
-          if (state.isLegacyState) {
-            return result; // eslint-disable-line consistent-return
-          } else {
-            path.replaceWith(result);
-          }
+          path.replaceWith(result);
         },
       },
-    }));
+    };
   };
 }
 

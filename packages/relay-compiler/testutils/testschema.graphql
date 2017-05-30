@@ -55,6 +55,8 @@ type RouteStep {
 }
 
 type Mutation {
+  mutateNoArguments: MutateResponsePayload,
+  mutateManyArguments(input1: MutationInput1, input2: MutationInput2): MutateResponsePayload,
   actorSubscribe(input: ActorSubscribeInput): ActorSubscribeResponsePayload
   actorNameChange(input: ActorNameChangeInput): ActorNameChangePayload
   applicationRequestDeleteAll(input: ApplicationRequestDeleteAllInput): ApplicationRequestDeleteAllResponsePayload
@@ -69,6 +71,16 @@ type Mutation {
 
 type Subscription {
   feedbackLikeSubscribe(input: FeedbackLikeInput): FeedbackLikeResponsePayload
+}
+
+input MutationInput1 {
+  k11: String
+  k21: Int
+}
+
+input MutationInput2 {
+  k21: Boolean
+  k22: String
 }
 
 input ActorSubscribeInput {
@@ -109,6 +121,10 @@ input NodeSaveStateInput {
 input UpdateAllSeenStateInput {
   clientMutationId: String
   storyIds: [ID]
+}
+
+type MutateResponsePayload {
+  succeed: Boolean
 }
 
 type ActorSubscribeResponsePayload {

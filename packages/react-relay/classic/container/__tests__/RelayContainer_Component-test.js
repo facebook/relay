@@ -31,9 +31,11 @@ describe('RelayContainer', function() {
   beforeEach(function() {
     jest.resetModules();
 
-    MockComponent = React.createClass({
-      render: jest.fn(() => <div />),
-    });
+    MockComponent = class MockComponent extends React.Component {
+      render() {
+        return <div />;
+      }
+    };
 
     mockCreateContainer = component => {
       MockContainer = Relay.createContainer(component, {

@@ -51,7 +51,9 @@ describe('RelayContainer', function() {
       render.mock.calls[render.mock.calls.length - 1].props = this.props;
       return <div />;
     });
-    MockComponent = React.createClass({render});
+    MockComponent = class MockComponent extends React.Component {
+      render = render;
+    };
     MockContainer = Relay.createContainer(MockComponent, {
       fragments: {
         foo: jest.fn(() => Relay.QL`fragment on Node{id,name}`),
@@ -176,7 +178,11 @@ describe('RelayContainer', function() {
     });
 
     it('creates query for a container with fragments', () => {
-      const anotherComponent = React.createClass({render: () => null});
+      class AnotherComponent extends React.Component {
+        render() {
+          return null;
+        }
+      }
       const MockProfile = Relay.createContainer(MockComponent, {
         fragments: {
           user: () => Relay.QL`
@@ -188,7 +194,7 @@ describe('RelayContainer', function() {
           `,
         },
       });
-      const MockProfileLink = Relay.createContainer(anotherComponent, {
+      const MockProfileLink = Relay.createContainer(AnotherComponent, {
         fragments: {
           user: () => Relay.QL`
             fragment on Actor {
@@ -202,19 +208,19 @@ describe('RelayContainer', function() {
       expect(fragment).toEqualQueryNode(
         getNode(
           Relay.QL`
-        fragment on Actor {
-          id
-          __typename
-          name
-          ${Relay.QL`
             fragment on Actor {
-              id,
-              __typename,
-              url,
+              id
+              __typename
+              name
+              ${Relay.QL`
+                fragment on Actor {
+                  id,
+                  __typename,
+                  url,
+                }
+              `},
             }
-          `},
-        }
-      `,
+          `,
         ),
       );
     });
@@ -1085,10 +1091,10 @@ describe('RelayContainer', function() {
     render = jest.fn(() => <div />);
     const shouldComponentUpdate = jest.fn();
 
-    const MockFastComponent = React.createClass({
-      render,
-      shouldComponentUpdate,
-    });
+    class MockFastComponent extends React.Component {
+      render = render;
+      shouldComponentUpdate = shouldComponentUpdate;
+    }
 
     const MockFastContainer = Relay.createContainer(MockFastComponent, {
       fragments: {

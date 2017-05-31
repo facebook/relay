@@ -27,7 +27,7 @@ const babelOptions = getBabelOptions({
     'ReactDOM': 'react-dom',
     'ReactDOMServer': 'react-dom/server',
     'ReactTestRenderer': 'react-test-renderer',
-    'ReactTestUtils': 'react-addons-test-utils',
+    'ReactTestUtils': 'react-dom/test-utils',
     'StaticContainer.react': 'react-static-container',
   },
   plugins: [

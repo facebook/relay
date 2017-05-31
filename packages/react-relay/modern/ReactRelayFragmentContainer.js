@@ -17,6 +17,7 @@ const React = require('React');
 const RelayProfiler = require('RelayProfiler');
 const RelayPropTypes = require('RelayPropTypes');
 
+const areEqual = require('areEqual');
 const buildReactRelayContainer = require('buildReactRelayContainer');
 const invariant = require('invariant');
 const isRelayContext = require('isRelayContext');
@@ -83,10 +84,22 @@ function createContainerWithFragments<TBase: ReactClass<*>>(
     componentWillReceiveProps(nextProps, nextContext) {
       const context = nullthrows(nextContext);
       const relay = assertRelayContext(context.relay);
-      if (relay !== this.context.relay) {
-        const {
-          createFragmentSpecResolver,
-        } = relay.environment.unstable_internal;
+      const {
+        createFragmentSpecResolver,
+        getDataIDsFromObject,
+      } = relay.environment.unstable_internal;
+      const prevIDs = getDataIDsFromObject(fragments, this.props);
+      const nextIDs = getDataIDsFromObject(fragments, nextProps);
+      // If the environment has changed or props point to new records then
+      // previously fetched data and any pending fetches no longer apply:
+      // - Existing references are on the old environment.
+      // - Existing references are based on old variables.
+      // - Pending fetches are for the previous records.
+      if (
+        this.context.relay.environment !== relay.environment ||
+        this.context.relay.variables !== relay.variables ||
+        !areEqual(prevIDs, nextIDs)
+      ) {
         this._resolver.dispose();
         this._resolver = createFragmentSpecResolver(
           relay,

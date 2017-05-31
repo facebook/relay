@@ -71,6 +71,10 @@ describe('ReactRelayPaginationContainer', () => {
     setProps(props) {
       this.setState({props});
     }
+    setContext(env, vars) {
+      this.relay = {environment: env, variables: vars};
+      this.setState({context: {environment: env, variables: vars}});
+    }
     render() {
       const child = React.Children.only(this.props.children);
       if (this.state.props) {
@@ -425,6 +429,112 @@ describe('ReactRelayPaginationContainer', () => {
     expect(environment.subscribe.mock.calls.length).toBe(1);
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
       dataID: '842472',
+      data: jasmine.any(Object),
+      node: UserFragment,
+      seenRecords: jasmine.any(Object),
+      variables: {
+        after: null,
+        count: 1,
+      },
+    });
+  });
+
+  it('resolves for new variables in context', () => {
+    const userPointer = environment.lookup({
+      dataID: ROOT_ID,
+      node: UserQuery.fragment,
+      variables,
+    }).data.node;
+
+    const instance = ReactTestRenderer.create(
+      <ContextSetter environment={environment} variables={variables}>
+        <TestContainer user={userPointer} />
+      </ContextSetter>,
+    );
+
+    render.mockClear();
+    environment.lookup.mockClear();
+    environment.subscribe.mockClear();
+
+    // Update the variables in context
+    const newVariables = {...variables, id: '6'};
+    instance.getInstance().setContext(environment, newVariables);
+
+    // Data & Variables are passed to component
+    expect(render.mock.calls.length).toBe(1);
+    expect(render.mock.calls[0][0]).toEqual({
+      user: {
+        id: '4',
+        friends: {
+          edges: [
+            {
+              node: {
+                id: 'node:1',
+              },
+            },
+          ],
+          pageInfo: {
+            endCursor: 'cursor:1',
+            hasNextPage: true,
+            hasPreviousPage: false,
+            startCursor: 'cursor:1',
+          },
+        },
+      },
+      relay: {
+        environment: jasmine.any(Object),
+        hasMore: jasmine.any(Function),
+        isLoading: jasmine.any(Function),
+        loadMore: jasmine.any(Function),
+        refetchConnection: jasmine.any(Function),
+      },
+    });
+    // Subscribes for updates
+    expect(environment.subscribe.mock.calls.length).toBe(1);
+    expect(environment.subscribe.mock.calls[0][0]).toEqual({
+      dataID: '4',
+      data: jasmine.any(Object),
+      node: UserFragment,
+      seenRecords: jasmine.any(Object),
+      variables: {
+        after: null,
+        count: 1,
+      },
+    });
+
+    // Data & Variables are passed to component
+    expect(render.mock.calls.length).toBe(1);
+    expect(render.mock.calls[0][0]).toEqual({
+      user: {
+        id: '4',
+        friends: {
+          edges: [
+            {
+              node: {
+                id: 'node:1',
+              },
+            },
+          ],
+          pageInfo: {
+            endCursor: 'cursor:1',
+            hasNextPage: true,
+            hasPreviousPage: false,
+            startCursor: 'cursor:1',
+          },
+        },
+      },
+      relay: {
+        environment: jasmine.any(Object),
+        hasMore: jasmine.any(Function),
+        isLoading: jasmine.any(Function),
+        loadMore: jasmine.any(Function),
+        refetchConnection: jasmine.any(Function),
+      },
+    });
+    // Subscribes for updates
+    expect(environment.subscribe.mock.calls.length).toBe(1);
+    expect(environment.subscribe.mock.calls[0][0]).toEqual({
+      dataID: '4',
       data: jasmine.any(Object),
       node: UserFragment,
       seenRecords: jasmine.any(Object),

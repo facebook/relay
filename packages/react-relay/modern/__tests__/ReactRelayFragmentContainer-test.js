@@ -58,6 +58,10 @@ describe('ReactRelayFragmentContainer', () => {
     setProps(props) {
       this.setState({props});
     }
+    setContext(env, vars) {
+      this.relay = {environment: env, variables: vars};
+      this.setState({context: {environment: env, variables: vars}});
+    }
     render() {
       const child = React.Children.only(this.props.children);
       if (this.state.props) {
@@ -317,6 +321,50 @@ describe('ReactRelayFragmentContainer', () => {
       data: {
         id: '842472',
         name: 'Joe',
+      },
+      node: UserFragment,
+      seenRecords: jasmine.any(Object),
+      variables: {cond: true},
+    });
+  });
+
+  it('resolves for new variables in context', () => {
+    const userPointer = environment.lookup({
+      dataID: ROOT_ID,
+      node: UserQuery.fragment,
+      variables: {id: '4'},
+    }).data.node;
+    const instance = ReactTestRenderer.create(
+      <ContextSetter environment={environment} variables={variables}>
+        <TestContainer user={userPointer} />
+      </ContextSetter>,
+    );
+    render.mockClear();
+    environment.lookup.mockClear();
+    environment.subscribe.mockClear();
+
+    // Update the variables in context
+    const newVariables = {id: '6'};
+    instance.getInstance().setContext(environment, newVariables);
+
+    // New data & variables are passed to component
+    expect(render.mock.calls.length).toBe(1);
+    expect(render.mock.calls[0][0]).toEqual({
+      relay: {
+        environment: jasmine.any(Object),
+      },
+      user: {
+        id: '4',
+        name: 'Zuck',
+      },
+    });
+    // Container subscribes for updates on new props
+    expect(environment.subscribe.mock.calls.length).toBe(1);
+    expect(environment.subscribe.mock.calls[0][0]).toEqual({
+      dataID: '4',
+      data: {
+        id: '4',
+        name: 'Zuck',
       },
       node: UserFragment,
       seenRecords: jasmine.any(Object),

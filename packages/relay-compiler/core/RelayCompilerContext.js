@@ -107,10 +107,10 @@ class RelayCompilerContext {
     const record = this._documents.get(name);
     const node = record && record.get('node');
     if (!(node && node.kind === 'Fragment')) {
-      const child_mod = name.substring(0, name.lastIndexOf('_'));
+      const childModule = name.substring(0, name.lastIndexOf('_'));
       throw new RelayCompilerUserError(
         `Relay cannot find fragment \`${name}\`.` +
-          ` Please make sure the fragment exists in \`${child_mod}\``,
+          ` Please make sure the fragment exists in \`${childModule}\``,
       );
     }
     return node;

@@ -55,7 +55,6 @@ module.exports = {
   getCacheKey: createCacheKeyFunction([
     __filename,
     SCHEMA_PATH,
-    path.join(__dirname, '..', 'babel-relay-plugin', 'package.json'),
     path.join(path.dirname(require.resolve('babel-preset-fbjs')), 'package.json'),
     path.join(__dirname, '..', 'getBabelOptions.js'),
   ]),

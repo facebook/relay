@@ -44,7 +44,7 @@ export type WriterConfig = {
   compilerTransforms: CompilerTransforms,
   generateExtraFiles?: GenerateExtraFiles,
   outputDir?: string,
-  persistQuery?: (text: string) => Promise<string>,
+  persistQuery?: ?(text: string) => Promise<string>,
   platform?: string,
   fragmentsWithLegacyFlowTypes?: Set<string>,
   schemaExtensions: Array<string>,

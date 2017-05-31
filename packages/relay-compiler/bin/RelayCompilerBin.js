@@ -60,6 +60,7 @@ async function run(options: {
   schema: string,
   src: string,
   extensions: Array<string>,
+  persist?: string,
   watch?: ?boolean,
 }) {
   const schemaPath = path.resolve(process.cwd(), options.schema);
@@ -70,6 +71,14 @@ async function run(options: {
   if (!fs.existsSync(srcDir)) {
     throw new Error(`--source path does not exist: ${srcDir}.`);
   }
+  const persistModule = options.persist && path.resolve(process.cwd(), options.persist);
+  if (persistModule && !fs.existsSync(persistModule)) {
+    throw new Error(`--persist path does not exist: ${persistModule}.`);
+  }
+  // Using eval here to prevent webpack from trying to rewrite the require and
+  // failing.
+  const persistQuery = persistModule &&
+    eval(`require(${JSON.stringify(persistModule)})`);
   if (options.watch && !hasWatchmanRootFile(srcDir)) {
     throw new Error(
       `
@@ -96,7 +105,7 @@ Ensure that one such file exists in ${srcDir} or its parents.
   };
   const writerConfigs = {
     default: {
-      getWriter: getRelayFileWriter(srcDir),
+      getWriter: getRelayFileWriter(srcDir, persistQuery),
       parser: 'default',
     },
   };
@@ -104,7 +113,6 @@ Ensure that one such file exists in ${srcDir} or its parents.
     parserConfigs,
     writerConfigs,
     onlyValidate: false,
-    skipPersist: true,
   });
   if (options.watch) {
     await codegenRunner.watchAll();
@@ -114,8 +122,12 @@ Ensure that one such file exists in ${srcDir} or its parents.
   }
 }
 
-function getRelayFileWriter(baseDir: string) {
+function getRelayFileWriter(
+  baseDir: string,
+  persistQuery: (text: string) => Promise<string>,
+) {
   return (onlyValidate, schema, documents, baseDocuments) =>
+
     new RelayFileWriter({
       config: {
         formatModule: formatGeneratedModule,
@@ -126,6 +138,7 @@ function getRelayFileWriter(baseDir: string) {
           queryTransforms,
         },
         baseDir,
+        persistQuery,
         schemaExtensions,
       },
       onlyValidate,
@@ -181,7 +194,7 @@ function hasWatchmanRootFile(testPath) {
 const argv = yargs
   .usage(
     'Create Relay generated files\n\n' +
-      '$0 --schema <path> --src <path> [--watch]',
+      '$0 --schema <path> --src <path> [--persist <module-path>] [--watch]',
   )
   .options({
     schema: {
@@ -192,6 +205,10 @@ const argv = yargs
     src: {
       describe: 'Root directory of application code',
       demandOption: true,
+      type: 'string',
+    },
+    persist: {
+      describe: 'Path to module exporting a `persistQuery` function',
       type: 'string',
     },
     extensions: {

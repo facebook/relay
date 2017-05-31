@@ -205,7 +205,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       let idFragment;
       if (fragmentType.hasField(ID)) {
         requisiteFields[ID] = true;
-      } else if (shouldGenerateIdFragment(fragment, fragmentType)) {
+      } else if (shouldGenerateIdFragment(fragment)) {
         idFragment = fragmentType.generateIdFragment();
       }
       if (fragmentType.isAbstract()) {
@@ -501,7 +501,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       let idFragment;
       if (fieldType.hasField(ID)) {
         requisiteFields[ID] = true;
-      } else if (shouldGenerateIdFragment(field, fieldType)) {
+      } else if (shouldGenerateIdFragment(field)) {
         idFragment = fieldType.generateIdFragment();
       }
 
@@ -735,10 +735,6 @@ module.exports = function(t: any, options: PrinterOptions): Function {
    * also implement `Node` but a `Node` fragment is not already present. If it
    * is present then `id` would be added as a requisite field.
    */
-  /* $FlowFixMe(site=react_native_fb) - Flow now prevents you from calling a
-   * function with more arguments than it expects. This comment suppresses an
-   * error that was noticed when we made this change. Delete this comment to
-   * see the error. */
   function shouldGenerateIdFragment(
     node: RelayQLField | RelayQLFragment,
   ): boolean {

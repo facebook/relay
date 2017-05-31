@@ -40,6 +40,7 @@ module.exports = {
     },
     variables: {
       description: 'Selectively pass variables down into a fragment.',
+      // $FlowFixMe: GraphQLList seems to have incorrect variance?
       type: new GraphQLList(GraphQLString),
     },
   },

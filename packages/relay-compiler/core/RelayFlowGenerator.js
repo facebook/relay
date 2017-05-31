@@ -192,6 +192,18 @@ function mergeSelections(a, b) {
   return merged;
 }
 
+function isPlural({directives}): boolean {
+  const relayDirective = directives.find(({name}) => name === 'relay');
+
+  if (relayDirective) {
+    return !!relayDirective.args.find(
+      ({name, value}) => name === 'plural' && value.value,
+    );
+  } else {
+    return false;
+  }
+}
+
 const RelayCodeGenVisitor = {
   leave: {
     Root(node) {
@@ -207,12 +219,11 @@ const RelayCodeGenVisitor = {
     },
 
     Fragment(node) {
+      const baseType = selectionsToBabel(node.selections);
+      const type = isPlural(node) ? arrayOfType(baseType) : baseType;
+
       return t.exportNamedDeclaration(
-        t.typeAlias(
-          t.identifier(node.name),
-          null,
-          selectionsToBabel(node.selections),
-        ),
+        t.typeAlias(t.identifier(node.name), null, type),
         [],
         null,
       );

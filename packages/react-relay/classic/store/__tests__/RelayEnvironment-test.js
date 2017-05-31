@@ -923,6 +923,7 @@ describe('RelayEnvironment', () => {
       };
       const resolver = environment.unstable_internal.createFragmentSpecResolver(
         context,
+        'TestContainerName',
         mapObject(fragments, environment.unstable_internal.getFragment),
         {user},
         jest.fn(),
@@ -963,6 +964,7 @@ describe('RelayEnvironment', () => {
       };
       const resolver = environment.unstable_internal.createFragmentSpecResolver(
         context,
+        'TestContainerName',
         mapObject(fragments, environment.unstable_internal.getFragment),
         {user},
         jest.fn(),

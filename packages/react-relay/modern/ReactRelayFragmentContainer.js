@@ -64,6 +64,7 @@ function createContainerWithFragments<TBase: ReactClass<*>>(
       const {createFragmentSpecResolver} = relay.environment.unstable_internal;
       this._resolver = createFragmentSpecResolver(
         relay,
+        containerName,
         fragments,
         props,
         this._handleFragmentDataUpdate,
@@ -103,6 +104,7 @@ function createContainerWithFragments<TBase: ReactClass<*>>(
         this._resolver.dispose();
         this._resolver = createFragmentSpecResolver(
           relay,
+          containerName,
           fragments,
           nextProps,
           this._handleFragmentDataUpdate,

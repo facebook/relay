@@ -78,6 +78,7 @@ function createContainerWithFragments<TBase: ReactClass<*>>(
       this._references = [];
       this._resolver = createFragmentSpecResolver(
         relay,
+        containerName,
         fragments,
         props,
         this._handleFragmentDataUpdate,
@@ -117,6 +118,7 @@ function createContainerWithFragments<TBase: ReactClass<*>>(
         this._localVariables = null;
         this._resolver = createFragmentSpecResolver(
           relay,
+          containerName,
           fragments,
           nextProps,
           this._handleFragmentDataUpdate,

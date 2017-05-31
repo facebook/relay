@@ -31,6 +31,7 @@ import type {FragmentMap, RelayContext} from 'RelayEnvironmentTypes';
 
 function createFragmentSpecResolver(
   context: RelayContext,
+  containerName: string,
   fragments: FragmentMap,
   props: Props,
   callback: () => void,

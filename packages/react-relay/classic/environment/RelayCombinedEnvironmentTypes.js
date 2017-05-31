@@ -231,6 +231,7 @@ export interface CUnstableEnvironmentCore<
    */
   createFragmentSpecResolver: (
     context: CRelayContext<TEnvironment>,
+    containerName: string,
     fragments: CFragmentMap<TFragment>,
     props: Props,
     callback: () => void,

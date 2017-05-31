@@ -266,14 +266,19 @@ class RelayCodegenRunner {
         this.parserWriters[parserName].forEach(writer =>
           dependentWriters.push(writer),
         );
-        if (!this.parsers[parserName]) {
-          // have to load the parser and make sure all of its dependents are set
-          await this.parseEverything(parserName);
-        } else {
-          this.parseFileChanges(parserName, files);
-        }
 
-        await Promise.all(dependentWriters.map(writer => this.write(writer)));
+        try {
+          if (!this.parsers[parserName]) {
+            // have to load the parser and make sure all of its dependents are set
+            await this.parseEverything(parserName);
+          } else {
+            this.parseFileChanges(parserName, files);
+          }
+          await Promise.all(dependentWriters.map(writer => this.write(writer)));
+        } catch (error) {
+          console.log('Error: ' + error);
+        }
+        console.log('Watching for changes to %s...', parserName);
       },
     );
     console.log('Watching for changes to %s...', parserName);

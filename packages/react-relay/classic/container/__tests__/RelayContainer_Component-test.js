@@ -31,9 +31,11 @@ describe('RelayContainer', function() {
   beforeEach(function() {
     jest.resetModules();
 
-    MockComponent = React.createClass({
-      render: jest.fn(() => <div />),
-    });
+    MockComponent = class MockComponent_ extends React.Component {
+      render() {
+        return <div />;
+      }
+    };
 
     mockCreateContainer = component => {
       MockContainer = Relay.createContainer(component, {
@@ -79,7 +81,7 @@ describe('RelayContainer', function() {
   });
 
   it('has the correct displayName when using class components', () => {
-    expect(MockContainer.displayName).toEqual('Relay(MockComponent)');
+    expect(MockContainer.displayName).toEqual('Relay(MockComponent_)');
   });
 
   it('has the correct displayName when using stateless components', () => {

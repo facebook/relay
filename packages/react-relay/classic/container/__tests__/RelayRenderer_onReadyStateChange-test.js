@@ -34,7 +34,11 @@ describe('RelayRenderer.onReadyStateChange', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    const MockComponent = React.createClass({render: () => <div />});
+    class MockComponent extends React.Component {
+      render() {
+        return <div />;
+      }
+    }
     MockContainer = Relay.createContainer(MockComponent, {
       fragments: {},
     });

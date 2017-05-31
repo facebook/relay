@@ -35,7 +35,11 @@ describe('RelayRenderer', function() {
   beforeEach(() => {
     jest.resetModules();
 
-    const MockComponent = React.createClass({render: () => <div />});
+    class MockComponent extends React.Component {
+      render() {
+        return <div />;
+      }
+    }
     MockContainer = Relay.createContainer(MockComponent, {
       fragments: {},
     });
@@ -87,7 +91,11 @@ describe('RelayRenderer', function() {
   });
 
   it('primes new queries when `Component` changes', () => {
-    const AnotherComponent = React.createClass({render: () => <div />});
+    class AnotherComponent extends React.Component {
+      render() {
+        return <div />;
+      }
+    }
     const AnotherContainer = Relay.createContainer(AnotherComponent, {
       fragments: {},
     });

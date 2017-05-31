@@ -37,7 +37,11 @@ describe('RelayRenderer.validation', () => {
     jest.resetModules();
     jasmine.addMatchers(RelayTestUtils.matchers);
 
-    MockComponent = React.createClass({render: () => <div />});
+    MockComponent = class extends React.Component {
+      render() {
+        return <div />;
+      }
+    };
     MockContainer = Relay.createContainer(MockComponent, {
       fragments: {},
     });

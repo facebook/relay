@@ -31,7 +31,7 @@ const warning = require('warning');
 
 describe('RelayContainer', function() {
   let MockContainer;
-  let MockComponent;
+  let MockComponent_;
   let RelayTestRenderer;
 
   let environment;
@@ -51,8 +51,10 @@ describe('RelayContainer', function() {
       render.mock.calls[render.mock.calls.length - 1].props = this.props;
       return <div />;
     });
-    MockComponent = React.createClass({render});
-    MockContainer = Relay.createContainer(MockComponent, {
+    MockComponent_ = class MockComponent extends React.Component {
+      render = render;
+    };
+    MockContainer = Relay.createContainer(MockComponent_, {
       fragments: {
         foo: jest.fn(() => Relay.QL`fragment on Node{id,name}`),
         bar: jest.fn(
@@ -79,7 +81,7 @@ describe('RelayContainer', function() {
   describe('fragments', () => {
     it('throws if fragments are missing from spec', () => {
       expect(() => {
-        Relay.createContainer(MockComponent, {});
+        Relay.createContainer(MockComponent_, {});
       }).toFailInvariant(
         'Relay.createContainer(MockComponent, ...): Missing `fragments`, ' +
           'which is expected to be an object mapping from `propName` to: ' +
@@ -88,7 +90,7 @@ describe('RelayContainer', function() {
     });
 
     it('throws if container defines invalid `Relay.QL` fragment', () => {
-      const BadContainer = Relay.createContainer(MockComponent, {
+      const BadContainer = Relay.createContainer(MockComponent_, {
         fragments: {
           viewer: () => Relay.QL`query{node(id:"123"){id}}`,
         },
@@ -104,7 +106,7 @@ describe('RelayContainer', function() {
     });
 
     it('throws if container defines a fragment without function', () => {
-      const BadContainer = Relay.createContainer(MockComponent, {
+      const BadContainer = Relay.createContainer(MockComponent_, {
         fragments: {
           viewer: Relay.QL`
             fragment on Viewer {
@@ -123,7 +125,7 @@ describe('RelayContainer', function() {
     });
 
     it('throws if fragment and variable names are not unique', () => {
-      Relay.createContainer(MockComponent, {
+      Relay.createContainer(MockComponent_, {
         initialVariables: {
           badName: 100,
         },
@@ -147,7 +149,7 @@ describe('RelayContainer', function() {
 
     it('creates query for a container without fragments', () => {
       // Test that scalar constants are substituted, not only query fragments.
-      const MockProfilePhoto = Relay.createContainer(MockComponent, {
+      const MockProfilePhoto = Relay.createContainer(MockComponent_, {
         initialVariables: {
           testPhotoSize: 100,
         },
@@ -176,8 +178,12 @@ describe('RelayContainer', function() {
     });
 
     it('creates query for a container with fragments', () => {
-      const anotherComponent = React.createClass({render: () => null});
-      const MockProfile = Relay.createContainer(MockComponent, {
+      class AnotherComponent extends React.Component {
+        render() {
+          return null;
+        }
+      }
+      const MockProfile = Relay.createContainer(MockComponent_, {
         fragments: {
           user: () => Relay.QL`
             fragment on Actor {
@@ -188,7 +194,7 @@ describe('RelayContainer', function() {
           `,
         },
       });
-      const MockProfileLink = Relay.createContainer(anotherComponent, {
+      const MockProfileLink = Relay.createContainer(AnotherComponent, {
         fragments: {
           user: () => Relay.QL`
             fragment on Actor {
@@ -202,19 +208,19 @@ describe('RelayContainer', function() {
       expect(fragment).toEqualQueryNode(
         getNode(
           Relay.QL`
-        fragment on Actor {
-          id
-          __typename
-          name
-          ${Relay.QL`
             fragment on Actor {
-              id,
-              __typename,
-              url,
+              id
+              __typename
+              name
+              ${Relay.QL`
+                fragment on Actor {
+                  id,
+                  __typename,
+                  url,
+                }
+              `},
             }
-          `},
-        }
-      `,
+          `,
         ),
       );
     });
@@ -231,7 +237,7 @@ describe('RelayContainer', function() {
     let profileFragment;
 
     beforeEach(() => {
-      MockProfile = Relay.createContainer(MockComponent, {
+      MockProfile = Relay.createContainer(MockComponent_, {
         fragments: {
           viewer: () => Relay.QL`
             fragment on Viewer {
@@ -248,7 +254,7 @@ describe('RelayContainer', function() {
     });
 
     it('can conditionally include a fragment based on variables', () => {
-      const MockSideshow = Relay.createContainer(MockComponent, {
+      const MockSideshow = Relay.createContainer(MockComponent_, {
         initialVariables: {
           hasSideshow: null,
         },
@@ -284,7 +290,7 @@ describe('RelayContainer', function() {
     });
 
     it('can conditionally exclude a fragment based on variables', () => {
-      const MockSideshow = Relay.createContainer(MockComponent, {
+      const MockSideshow = Relay.createContainer(MockComponent_, {
         initialVariables: {
           hasSideshow: null,
         },
@@ -359,7 +365,7 @@ describe('RelayContainer', function() {
 
   describe('props.relay.variables', () => {
     it('starts with initial variables', () => {
-      MockContainer = Relay.createContainer(MockComponent, {
+      MockContainer = Relay.createContainer(MockComponent_, {
         initialVariables: {
           public: 'instance',
           private: 'instance',
@@ -382,7 +388,7 @@ describe('RelayContainer', function() {
     });
 
     it('starts with initial + parent variables', () => {
-      MockContainer = Relay.createContainer(MockComponent, {
+      MockContainer = Relay.createContainer(MockComponent_, {
         initialVariables: {
           public: 'instance',
           private: 'instance',
@@ -412,7 +418,7 @@ describe('RelayContainer', function() {
           private: 'prepared',
         };
       });
-      MockContainer = Relay.createContainer(MockComponent, {
+      MockContainer = Relay.createContainer(MockComponent_, {
         initialVariables: {
           public: 'instance',
           private: 'instance',
@@ -443,7 +449,7 @@ describe('RelayContainer', function() {
           private: 'prepared',
         };
       });
-      MockContainer = Relay.createContainer(MockComponent, {
+      MockContainer = Relay.createContainer(MockComponent_, {
         initialVariables: {
           public: 'instance',
           private: 'instance',
@@ -474,7 +480,7 @@ describe('RelayContainer', function() {
           private: 'prepared1',
         };
       });
-      MockContainer = Relay.createContainer(MockComponent, {
+      MockContainer = Relay.createContainer(MockComponent_, {
         initialVariables: {
           public: 'instance',
           private: 'instance',
@@ -1085,10 +1091,10 @@ describe('RelayContainer', function() {
     render = jest.fn(() => <div />);
     const shouldComponentUpdate = jest.fn();
 
-    const MockFastComponent = React.createClass({
-      render,
-      shouldComponentUpdate,
-    });
+    class MockFastComponent extends React.Component {
+      render = render;
+      shouldComponentUpdate = shouldComponentUpdate;
+    }
 
     const MockFastContainer = Relay.createContainer(MockFastComponent, {
       fragments: {

@@ -50,7 +50,9 @@ describe('RelayContainer.setVariables', function() {
     prepareVariables = jest.fn((variables, route) => variables);
 
     // Make RQLTransform ignore this call.
-    MockComponent = React.createClass({render});
+    MockComponent = class extends React.Component {
+      render = render;
+    };
     const createContainer = Relay.createContainer;
     MockContainer = createContainer(MockComponent, {
       fragments: {
@@ -494,7 +496,9 @@ describe('RelayContainer.setVariables', function() {
       );
 
       // Make RQLTransform ignore this call.
-      MockComponent = React.createClass({render});
+      MockComponent = class extends React.Component {
+        render = render;
+      };
       const createContainer = Relay.createContainer;
       MockContainer = createContainer(MockComponent, {
         fragments: {

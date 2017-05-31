@@ -32,12 +32,11 @@ describe('buildRQL', () => {
   let MockContainer;
 
   beforeEach(() => {
-    const render = jest.fn(function() {
-      // Make it easier to expect prop values.
-      render.mock.calls[render.mock.calls.length - 1].props = this.props;
-      return <div />;
-    });
-    MockComponent = React.createClass({render});
+    MockComponent = class extends React.Component {
+      render() {
+        return <div />;
+      }
+    };
     MockContainer = Relay.createContainer(MockComponent, {
       initialVariables: {
         size: null,

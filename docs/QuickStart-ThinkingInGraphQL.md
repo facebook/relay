@@ -206,6 +206,7 @@ After initially fetching this story our cache might be as follows. Note that the
 Map {
   // `story(id: "1")`
   1: Map {
+    text: 'got GraphQL?',
     author: Link(2),
     comments: [Link(3)],
   },
@@ -216,6 +217,7 @@ Map {
   },
   // `story.comments[0]`
   3: Map {
+    text: 'Here\'s how to get one!',
     author: Link(2),
   },
 }

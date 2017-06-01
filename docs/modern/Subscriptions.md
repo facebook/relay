@@ -32,9 +32,9 @@ Now let's take a closer look at the `config`:
 * `subscription`: the `graphql` tagged subscription query.
 * `variables`: an object that contains the variables needed for the subscription.
 * `onCompleted`: a callback function executed when the subscription is closed by
-  the peer without error. 
+  the peer without error.
 * `onError`: a callback function executed when Relay or the server encounters an
-  error processing the subscription. 
+  error processing the subscription.
 * `onNext`: a callback function executed each time a response is received from
   the server, with the raw GraphQL response payload.
 * `updater`: an optional function that can supply custom logic for updating the
@@ -82,7 +82,7 @@ requestSubscription(
 
 # Updating the client on each response
 
-For more complex use-cases, you may wish to perform custom logic to update 
+For more complex use-cases, you may wish to perform custom logic to update
 Relay's in-memory cache when each subscription response is received. To do so,
 pass an `updater` function:
 
@@ -100,12 +100,12 @@ requestSubscription(
       const notification = rootField.getLinkedRecord('notification');
       // Add it to a connection
       const viewer = store.getRoot().getLinkedRecord('viewer');
-      const notifications = 
+      const notifications =
         ConnectionHandler.getConnection(viewer, 'notifications');
       const edge = ConnectionHandler.createEdge(
-        store, 
+        store,
         notifications,
-        notification, 
+        notification,
         '<TypeOfNotificationsEdge>',
       );
       ConnectionHandler.insertEdgeAfter(notifications, edge);

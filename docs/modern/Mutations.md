@@ -27,6 +27,7 @@ commitMutation(
   },
 );
 ```
+First, let's take a look at the `environment` input. To perform the mutation on the correct `environment` with the relevant data, it's a good idea to use the `environment` used to render the components. It's accessible at `this.props.relay.environment` from the component.
 
 Now let's take a closer look at the `config`:
 

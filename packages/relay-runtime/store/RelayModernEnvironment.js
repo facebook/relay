@@ -17,7 +17,9 @@ const RelayCore = require('RelayCore');
 const RelayDefaultHandlerProvider = require('RelayDefaultHandlerProvider');
 const RelayPublishQueue = require('RelayPublishQueue');
 
+const invariant = require('invariant');
 const normalizeRelayPayload = require('normalizeRelayPayload');
+const warning = require('warning');
 
 import type {CacheConfig, Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {HandlerProvider} from 'RelayDefaultHandlerProvider';
@@ -127,23 +129,47 @@ class RelayModernEnvironment implements Environment {
     const dispose = () => {
       isDisposed = true;
     };
-    this._network
-      .request(operation.node, operation.variables, cacheConfig)
-      .then(payload => {
-        if (isDisposed) {
-          return;
-        }
-        this._publishQueue.commitPayload(operation, payload);
-        this._publishQueue.run();
-        onNext && onNext(payload);
-        onCompleted && onCompleted();
-      })
-      .catch(error => {
-        if (isDisposed) {
-          return;
-        }
-        onError && onError(error);
-      });
+    const onRequestSuccess = payload => {
+      if (isDisposed) {
+        return;
+      }
+      this._publishQueue.commitPayload(operation, payload);
+      this._publishQueue.run();
+      onNext && onNext(payload);
+      onCompleted && onCompleted();
+    };
+    const onRequestError = error => {
+      if (isDisposed) {
+        return;
+      }
+      onError && onError(error);
+    };
+    const networkRequest = this._network.request(
+      operation.node,
+      operation.variables,
+      cacheConfig,
+    );
+
+    // TODO: invoke callbacks synchronously on synchronous response.
+    let promise;
+    switch (networkRequest.kind) {
+      case 'data':
+        promise = Promise.resolve(networkRequest.data);
+        break;
+      case 'error':
+        promise = Promise.reject(networkRequest.error);
+        break;
+      case 'promise':
+        promise = networkRequest.promise;
+        break;
+      default:
+        (networkRequest.kind: empty);
+        invariant(
+          false,
+          `RelayModernEnvionment: unsupported network request type "${networkRequest.kind}"`,
+        );
+    }
+    promise.then(onRequestSuccess).catch(onRequestError);
     return {dispose};
   }
 
@@ -212,29 +238,44 @@ class RelayModernEnvironment implements Environment {
       }
       isDisposed = true;
     };
-    this._network
-      .request(operation.node, operation.variables, {force: true}, uploadables)
-      .then(payload => {
-        if (isDisposed) {
-          return;
-        }
-        if (hasOptimisticUpdate) {
-          this._publishQueue.revertUpdate(optimisticUpdate);
-        }
-        this._publishQueue.commitPayload(operation, payload, updater);
-        this._publishQueue.run();
-        onCompleted && onCompleted(payload.errors);
-      })
-      .catch(error => {
-        if (isDisposed) {
-          return;
-        }
-        if (hasOptimisticUpdate) {
-          this._publishQueue.revertUpdate(optimisticUpdate);
-        }
-        this._publishQueue.run();
-        onError && onError(error);
-      });
+    const onRequestSuccess = payload => {
+      if (isDisposed) {
+        return;
+      }
+      if (hasOptimisticUpdate) {
+        this._publishQueue.revertUpdate(optimisticUpdate);
+      }
+      this._publishQueue.commitPayload(operation, payload, updater);
+      this._publishQueue.run();
+      onCompleted && onCompleted(payload.errors);
+    };
+
+    const onRequestError = error => {
+      if (isDisposed) {
+        return;
+      }
+      if (hasOptimisticUpdate) {
+        this._publishQueue.revertUpdate(optimisticUpdate);
+      }
+      this._publishQueue.run();
+      onError && onError(error);
+    };
+
+    const networkRequest = this._network.request(
+      operation.node,
+      operation.variables,
+      {force: true},
+      uploadables,
+    );
+
+    if (networkRequest.promise) {
+      networkRequest.promise.then(onRequestSuccess).catch(onRequestError);
+    } else {
+      warning(
+        false,
+        'RelayModernEnvironment: mutation request cannot be synchronous.',
+      );
+    }
     return {dispose};
   }
 

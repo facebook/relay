@@ -24,6 +24,7 @@ import type {
   SubscribeFunction,
   QueryPayload,
   UploadableMap,
+  SyncOrPromise,
 } from 'RelayNetworkTypes';
 import type {Observer} from 'RelayStoreTypes';
 import type {Variables} from 'RelayTypes';
@@ -45,7 +46,7 @@ const RelayNetworkLogger = {
       variables: Variables,
       cacheConfig: ?CacheConfig,
       uploadables?: UploadableMap,
-    ): Promise<QueryPayload> => {
+    ): SyncOrPromise<QueryPayload> => {
       const id = queryID++;
       const name = operation.name;
 
@@ -69,14 +70,23 @@ const RelayNetworkLogger = {
       };
 
       const request = fetch(operation, variables, cacheConfig, uploadables);
-      request.then(
-        response => {
-          onSettled(null, response);
-        },
-        error => {
-          onSettled(error, null);
-        },
-      );
+      switch (request.kind) {
+        case 'data':
+          onSettled(null, request.data);
+          break;
+        case 'error':
+          onSettled(request.error, null);
+          break;
+        case 'promise':
+          request.promise.then(
+            response => {
+              onSettled(null, response);
+            },
+            error => {
+              onSettled(error, null);
+            },
+          );
+      }
       return request;
     };
   },

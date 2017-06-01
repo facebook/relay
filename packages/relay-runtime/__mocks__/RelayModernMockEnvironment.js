@@ -80,7 +80,10 @@ function createMockEnvironment(options: {
   const fetch = (query, variables, cacheConfig) => {
     const deferred = new Deferred();
     pendingFetches.push({cacheConfig, deferred, query, variables});
-    return deferred.getPromise();
+    return {
+      kind: 'promise',
+      promise: deferred.getPromise(),
+    };
   };
 
   // Helper to compile a query with the given schema (or the test schema by

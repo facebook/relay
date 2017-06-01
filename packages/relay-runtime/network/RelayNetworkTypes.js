@@ -42,6 +42,20 @@ export interface Network {
 
 export type PayloadData = {[key: string]: mixed};
 
+export type SyncOrPromise<T> =
+  | {|
+      kind: 'error',
+      error: Error,
+    |}
+  | {|
+      kind: 'data',
+      data: T,
+    |}
+  | {|
+      kind: 'promise',
+      promise: Promise<T>,
+    |};
+
 export type PayloadError = {
   message: string,
   locations?: Array<{
@@ -78,7 +92,7 @@ export type FetchFunction = (
   variables: Variables,
   cacheConfig: ?CacheConfig,
   uploadables?: UploadableMap,
-) => Promise<QueryPayload>;
+) => SyncOrPromise<QueryPayload>;
 
 /**
  * A function that executes a GraphQL operation with request/subscription
@@ -113,7 +127,7 @@ export type RequestResponseFunction = (
   variables: Variables,
   cacheConfig?: ?CacheConfig,
   uploadables?: UploadableMap,
-) => Promise<RelayResponsePayload>;
+) => SyncOrPromise<RelayResponsePayload>;
 
 export type Uploadable = File | Blob;
 // $FlowFixMe this is compatible with classic api see D4658012

@@ -75,10 +75,9 @@ async function run(options: {
   if (persistModule && !fs.existsSync(persistModule)) {
     throw new Error(`--persist path does not exist: ${persistModule}.`);
   }
-  // Using eval here to prevent webpack from trying to rewrite the require and
-  // failing.
-  const persistQuery = persistModule &&
-    eval(`require(${JSON.stringify(persistModule)})`);
+  // Need to hide the `require` here to prevent webpack from rewriting
+  // it and failing.
+  const persistQuery = persistModule && global['require'](persistModule);
   if (options.watch && !hasWatchmanRootFile(srcDir)) {
     throw new Error(
       `

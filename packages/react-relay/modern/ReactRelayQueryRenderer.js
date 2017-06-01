@@ -228,7 +228,7 @@ class ReactRelayQueryRenderer extends React.Component {
       this._selectionReference = nextReference;
       this.setState({readyState});
     };
-    const onNext = data => {
+    const onNext = () => {
       // `onNext` can be called multiple times by network layers that support
       // data subscriptions. Wait until the first payload to render `props` and
       // subscribe for data updates.

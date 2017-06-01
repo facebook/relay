@@ -149,27 +149,22 @@ class RelayModernEnvironment implements Environment {
       operation.variables,
       cacheConfig,
     );
-
-    // TODO: invoke callbacks synchronously on synchronous response.
-    let promise;
     switch (networkRequest.kind) {
       case 'data':
-        promise = Promise.resolve(networkRequest.data);
+        onRequestSuccess(networkRequest.data);
         break;
       case 'error':
-        promise = Promise.reject(networkRequest.error);
+        onRequestError(networkRequest.error);
         break;
       case 'promise':
-        promise = networkRequest.promise;
+        networkRequest.promise.then(onRequestSuccess).catch(onRequestError);
         break;
       default:
-        (networkRequest.kind: empty);
         invariant(
           false,
           `RelayModernEnvionment: unsupported network request type "${networkRequest.kind}"`,
         );
     }
-    promise.then(onRequestSuccess).catch(onRequestError);
     return {dispose};
   }
 

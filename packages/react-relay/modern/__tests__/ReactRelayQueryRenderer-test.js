@@ -16,6 +16,10 @@ jest.autoMockOff();
 const React = require('React');
 const ReactRelayPropTypes = require('ReactRelayPropTypes');
 const ReactRelayQueryRenderer = require('ReactRelayQueryRenderer');
+const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
+const RelayMarkSweepStore = require('RelayMarkSweepStore');
+const RelayModernEnvironment = require('RelayModernEnvironment');
+const RelayNetwork = require('RelayNetwork');
 const ReactTestRenderer = require('ReactTestRenderer');
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
 
@@ -149,6 +153,51 @@ describe('ReactRelayQueryRenderer', () => {
         error: null,
         props: null,
         retry: null,
+      }).toBeRendered();
+    });
+
+    it('skip loading state when request could be resolved synchronously', () => {
+      const response = {
+        data: {
+          node: {
+            __typename: 'User',
+            id: '4',
+            name: 'Zuck',
+          },
+        },
+      };
+      const fetch = () => {
+        return {
+          kind: 'data',
+          data: response,
+        };
+      };
+      store = new RelayMarkSweepStore(new RelayInMemoryRecordSource());
+      environment = new RelayModernEnvironment({
+        network: RelayNetwork.create(fetch),
+        store,
+      });
+      ReactTestRenderer.create(
+        <ReactRelayQueryRenderer
+          query={TestQuery}
+          cacheConfig={cacheConfig}
+          environment={environment}
+          render={render}
+          variables={variables}
+        />,
+      );
+      expect({
+        error: null,
+        props: {
+          node: {
+            id: '4',
+            __fragments: {
+              TestFragment: {},
+            },
+            __id: '4',
+          },
+        },
+        retry: jasmine.any(Function),
       }).toBeRendered();
     });
   });
@@ -738,6 +787,7 @@ describe('ReactRelayQueryRenderer', () => {
         retry: null,
       }).toBeRendered();
     });
+
     it('renders if the `query` prop changes to null', () => {
       const disposeFetch = environment.streamQuery.mock.dispose;
       expect(disposeFetch).not.toBeCalled();

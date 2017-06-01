@@ -133,15 +133,13 @@ function create(fetch: FetchFunction, subscribe?: SubscribeFunction): Network {
       onError && onError(error);
     };
 
-    // TODO: currently, we cannot invoke callbacks synchronously on synchronous
-    // response without proper changes in `ReactRelayQueryRenderer`
     const requestResponse = fetch(operation, variables, cacheConfig);
     switch (requestResponse.kind) {
       case 'data':
-        Promise.resolve(requestResponse.data).then(onRequestSuccess);
+        onRequestSuccess(requestResponse.data);
         break;
       case 'error':
-        Promise.reject(requestResponse.error).then(onRequestError);
+        onRequestError(requestResponse.error);
         break;
       case 'promise':
         requestResponse.promise.then(onRequestSuccess, onRequestError);
@@ -196,29 +194,20 @@ function doFetchWithPolling(
       dispose();
       onError && onError(error);
     };
-
-    // TODO: currently, we cannot invoke callbacks synchronously on synchronous
-    // response without proper changes in `ReactRelayQueryRenderer`
-    let promise;
     switch (requestResponse.kind) {
       case 'data':
-        promise = Promise.resolve(requestResponse.data);
+        onRequestSuccess(requestResponse.data);
         break;
       case 'error':
-        promise = Promise.reject(requestResponse.error);
+        onRequestError(requestResponse.error);
         break;
       case 'promise':
-        promise = requestResponse.promise;
-        break;
-      default:
-        (requestResponse.kind: empty);
+        requestResponse.promise
+          .then(payload => {
+            onRequestSuccess(payload);
+          }, onRequestError)
+          .catch(rethrow);
     }
-    promise &&
-      promise
-        .then(payload => {
-          onRequestSuccess(payload);
-        }, onRequestError)
-        .catch(rethrow);
   }
   poll();
 

@@ -68,20 +68,20 @@ export type PayloadError = {
  * The shape of a GraphQL response as dictated by the
  * [spec](http://facebook.github.io/graphql/#sec-Response)
  */
-export type QueryPayload = {
+export type QueryPayload = {|
   data?: ?PayloadData,
   errors?: Array<PayloadError>,
-};
+|};
 
 /**
  * The shape of data that is returned by the Relay network layer for a given
  * query.
  */
-export type RelayResponsePayload = {
+export type RelayResponsePayload = {|
   fieldPayloads?: ?Array<HandleFieldPayload>,
   source: MutableRecordSource,
   errors: ?Array<PayloadError>,
-};
+|};
 
 /**
  * A function that executes a GraphQL operation with request/response semantics,

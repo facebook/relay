@@ -121,6 +121,10 @@ function createContainerWithFragments<TBase: ReactClass<*>>(
       ) {
         this._release();
         this._localVariables = null;
+        this._relayContext = {
+          environment: relay.environment,
+          variables: relay.variables
+        };
         this._resolver = createFragmentSpecResolver(
           relay,
           containerName,

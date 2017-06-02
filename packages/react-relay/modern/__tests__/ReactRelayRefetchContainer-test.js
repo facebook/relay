@@ -775,5 +775,36 @@ describe('ReactRelayRefetchContainer', () => {
       expect(references.length).toBe(1);
       expect(references[0].dispose).toBeCalled();
     });
+
+    it('updates child context if updated with new variables', async () => {
+      expect.assertions(2);
+      const refetchVariables = {
+        cond: false,
+        id: '4',
+      };
+      refetch(refetchVariables, null, jest.fn());
+      await environment.mock.resolve(UserQuery, {
+        data: {
+          node: {
+            id: '4',
+            __typename: 'User',
+            name: 'Zuck',
+          },
+        },
+      });
+
+      const updateVariables = {
+        cond: true,
+        id: '842472'
+      };
+      instance.getInstance().setContext(
+        environment,
+        updateVariables
+      );
+
+      expect(relayContext.environment).toBe(environment);
+      expect(relayContext.variables).toEqual(updateVariables);
+    });
+
   });
 });

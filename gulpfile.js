@@ -99,7 +99,7 @@ const PRODUCTION_HEADER = [
 const buildDist = function(filename, opts, isProduction) {
   const webpackOpts = {
     debug: !isProduction,
-    externals: [/^[-/a-zA-Z0-9]+$/],
+    externals: [/^[-a-z0-9]+(\/.+)?$/],
     target: opts.target,
     node: {
       fs: 'empty',

@@ -16,6 +16,7 @@
 const ErrorUtils = require('ErrorUtils');
 const PropTypes = require('prop-types');
 const React = require('React');
+const PropTypes = require('prop-types');
 const RelayContainerComparators = require('RelayContainerComparators');
 const RelayContainerProxy = require('RelayContainerProxy');
 const RelayFragmentPointer = require('RelayFragmentPointer');

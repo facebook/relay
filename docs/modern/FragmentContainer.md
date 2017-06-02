@@ -154,7 +154,7 @@ module.exports = createFragmentContainer(
   graphql`
     fragment TodoList_list on TodoList {
       # Specify any fields required by '<TodoList>' itself.
-      title,
+      title
       # Include a reference to the fragment from the child component.
       todoItems {
         ...TodoItem_item

@@ -36,7 +36,7 @@ type Props = {
   cacheConfig?: ?CacheConfig,
   environment: Environment | ClassicEnvironment,
   query: ?GraphQLTaggedNode,
-  render: (readyState: ReadyState, prevState: ?ReadyState) => ?React.Element<*>,
+  render: (readyState: ReadyState) => ?React.Element<*>,
   variables: Variables,
 };
 type ReadyState = {

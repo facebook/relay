@@ -576,7 +576,7 @@ describe('ReactRelayQueryRenderer', () => {
       expect.assertions(7);
       await environment.mock.resolve(TestQuery, {
         data: {
-          me: null,
+          node: null,
         },
       });
       const disposeHold = environment.retain.mock.dispose;
@@ -636,7 +636,7 @@ describe('ReactRelayQueryRenderer', () => {
       }).toBeRendered();
     });
 
-    it('refetch the query if `retry`', async() => {
+    it('refetch the query if `retry`', async () => {
       expect.assertions(4);
       render.mockClear();
       const error = new Error('network fails');

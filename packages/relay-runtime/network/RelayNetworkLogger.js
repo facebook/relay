@@ -39,7 +39,7 @@ let queryID = 1;
 const RelayNetworkLogger = {
   wrapFetch(
     fetch: FetchFunction,
-    graphiQLPrinter: GraphiQLPrinter,
+    graphiQLPrinter?: GraphiQLPrinter,
   ): FetchFunction {
     return (
       operation: ConcreteBatch,
@@ -57,7 +57,9 @@ const RelayNetworkLogger = {
       const onSettled = (error: ?Error, response: ?QueryPayload): void => {
         console.groupCollapsed(`%c${idName}`, error ? 'color:red' : '');
         console.timeEnd && console.timeEnd(idName);
-        console.log('GraphiQL:', graphiQLPrinter(operation, variables));
+        if (graphiQLPrinter) {
+          console.log('GraphiQL:', graphiQLPrinter(operation, variables));
+        }
         console.log('Cache Config:', cacheConfig);
         console.log('Variables:', prettyStringify(variables));
         if (error) {
@@ -93,7 +95,7 @@ const RelayNetworkLogger = {
 
   wrapSubscribe(
     subscribe: SubscribeFunction,
-    graphiQLPrinter: GraphiQLPrinter,
+    graphiQLPrinter?: GraphiQLPrinter,
   ): SubscribeFunction {
     return (
       operation: ConcreteBatch,
@@ -112,7 +114,9 @@ const RelayNetworkLogger = {
         status: ?string,
       ): void => {
         console.groupCollapsed(`%c${idName}`, error ? 'color:red' : '');
-        console.log('GraphiQL:', graphiQLPrinter(operation, variables));
+        if (graphiQLPrinter) {
+          console.log('GraphiQL:', graphiQLPrinter(operation, variables));
+        }
         console.log('Cache Config:', cacheConfig);
         console.log('Variables:', prettyStringify(variables));
         if (status) {

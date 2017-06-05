@@ -46,29 +46,42 @@ function create(fetch: FetchFunction, subscribe?: SubscribeFunction): Network {
     uploadables?: UploadableMap,
     observer: SingleObserver<RelayResponsePayload>,
   ): Disposable {
+    let isDisposed = false;
     const onCompleted = payload => {
-      const normalizedPayload = normalizePayload(operation, variables, payload);
-      observer.onCompleted(normalizedPayload);
+      if (isDisposed) {
+        return;
+      }
+      let relayPayload;
+      try {
+        relayPayload = normalizePayload(operation, variables, payload);
+      } catch (err) {
+        observer.onError(err);
+        return;
+      }
+      observer.onCompleted(relayPayload);
     };
     const onError = error => {
+      if (isDisposed) {
+        return;
+      }
       observer.onError(error);
-    };
-    const response = fetch(operation, variables, cacheConfig, uploadables, {
-      onCompleted,
-      onError,
-    });
+    }
+    const response = fetch(operation, variables, cacheConfig, uploadables);
     invariant(
       typeof response === 'object' && response !== null,
       'RelayNetwork: Expected fetch function to return an object, got `%s`.',
       response,
     );
     if (typeof response.then === 'function') {
-      response.then(onCompleted).catch(observer.onError);
+      response.then(onCompleted).catch(onError);
+    } else {
+      onCompleted((response: any));
     }
-    const dispose = typeof response.dispose === 'function'
-      ? () => response.dispose()
-      : emptyFunction;
-    return {dispose};
+    return {
+      dispose() {
+        isDisposed = true;
+      },
+    };
   }
 
   function requestStream(

@@ -166,10 +166,7 @@ describe('ReactRelayQueryRenderer', () => {
           },
         },
       };
-      const fetch = (operation, variables, cacheConfig, uploadables, observer) => {
-        observer.onCompleted(response);
-        return {};
-      };
+      const fetch = () => response;
       store = new RelayMarkSweepStore(new RelayInMemoryRecordSource());
       environment = new RelayModernEnvironment({
         network: RelayNetwork.create(fetch),

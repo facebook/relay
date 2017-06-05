@@ -70,10 +70,9 @@ export type RelayResponsePayload = {|
   errors: ?Array<PayloadError>,
 |};
 
-export type PromiseOrDisposable<T> =
-  | (Promise<T> & Disposable)
+export type PromiseOrValue<T> =
   | Promise<T>
-  | Disposable;
+  | T;
 
 /**
  * A function that executes a GraphQL operation with request/response semantics,
@@ -84,8 +83,7 @@ export type FetchFunction = (
   variables: Variables,
   cacheConfig: ?CacheConfig,
   uploadables?: UploadableMap,
-  observer: SingleObserver<QueryPayload>,
-) => PromiseOrDisposable<QueryPayload>;
+) => PromiseOrValue<QueryPayload>;
 
 /**
  * A function that executes a GraphQL operation with request/subscription

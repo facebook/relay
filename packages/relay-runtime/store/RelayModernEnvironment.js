@@ -126,10 +126,7 @@ class RelayModernEnvironment implements Environment {
     operation: OperationSelector,
   }): Disposable {
     let isDisposed = false;
-    const dispose = () => {
-      isDisposed = true;
-    };
-    const onRequestSuccess = payload => {
+    const onRequestCompleted = payload => {
       if (isDisposed) {
         return;
       }
@@ -144,28 +141,22 @@ class RelayModernEnvironment implements Environment {
       }
       onError && onError(error);
     };
-    const networkRequest = this._network.request(
+    const request = this._network.request(
       operation.node,
       operation.variables,
       cacheConfig,
+      null,
+      {
+        onCompleted: onRequestCompleted,
+        onError: onRequestError,
+      },
     );
-    switch (networkRequest.kind) {
-      case 'data':
-        onRequestSuccess(networkRequest.data);
-        break;
-      case 'error':
-        onRequestError(networkRequest.error);
-        break;
-      case 'promise':
-        networkRequest.promise.then(onRequestSuccess).catch(onRequestError);
-        break;
-      default:
-        invariant(
-          false,
-          `RelayModernEnvionment: unsupported network request type "${networkRequest.kind}"`,
-        );
-    }
-    return {dispose};
+    return {
+      dispose() {
+        isDisposed = true;
+        request.dispose();
+      },
+    };
   }
 
   streamQuery({
@@ -225,15 +216,7 @@ class RelayModernEnvironment implements Environment {
       this._publishQueue.run();
     }
     let isDisposed = false;
-    const dispose = () => {
-      if (hasOptimisticUpdate) {
-        this._publishQueue.revertUpdate(optimisticUpdate);
-        this._publishQueue.run();
-        hasOptimisticUpdate = false;
-      }
-      isDisposed = true;
-    };
-    const onRequestSuccess = payload => {
+    const onRequestCompleted = payload => {
       if (isDisposed) {
         return;
       }
@@ -256,22 +239,28 @@ class RelayModernEnvironment implements Environment {
       onError && onError(error);
     };
 
-    const networkRequest = this._network.request(
+    const request = this._network.request(
       operation.node,
       operation.variables,
       {force: true},
       uploadables,
+      {
+        onCompleted: onRequestCompleted,
+        onError: onRequestError,
+      },
     );
 
-    if (networkRequest.promise) {
-      networkRequest.promise.then(onRequestSuccess).catch(onRequestError);
-    } else {
-      warning(
-        false,
-        'RelayModernEnvironment: mutation request cannot be synchronous.',
-      );
-    }
-    return {dispose};
+    return {
+      dispose: () => {
+        isDisposed = true;
+        request.dispose();
+        if (hasOptimisticUpdate) {
+          this._publishQueue.revertUpdate(optimisticUpdate);
+          this._publishQueue.run();
+          hasOptimisticUpdate = false;
+        }
+      },
+    };
   }
 
   sendSubscription({

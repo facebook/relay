@@ -298,6 +298,11 @@ export type Observer<T> = {
   onNext?: ?(data: T) => void,
 };
 
+export type SingleObserver<T> = {
+  onCompleted?: ?(data: T) => void,
+  onError?: ?(error: Error) => void,
+};
+
 /**
  * The results of reading data for a fragment. This is similar to a `Selector`,
  * but references the (fragment) node by name rather than by value.

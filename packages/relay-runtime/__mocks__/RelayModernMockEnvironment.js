@@ -77,13 +77,11 @@ function createMockEnvironment(options: {
 
   // Mock the network layer
   let pendingFetches = [];
-  const fetch = (query, variables, cacheConfig) => {
+  const fetch = (query, variables, cacheConfig, uploadables, observer) => {
     const deferred = new Deferred();
+    deferred.getPromise().then(observer.onCompleted).catch(observer.onError);
     pendingFetches.push({cacheConfig, deferred, query, variables});
-    return {
-      kind: 'promise',
-      promise: deferred.getPromise(),
-    };
+    return {dispose() {}};
   };
 
   // Helper to compile a query with the given schema (or the test schema by

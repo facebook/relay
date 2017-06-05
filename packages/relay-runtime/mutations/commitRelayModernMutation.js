@@ -17,6 +17,8 @@ const invariant = require('invariant');
 const isRelayModernEnvironment = require('isRelayModernEnvironment');
 const warning = require('warning');
 
+import setRelayModernMutationConfigs from 'setRelayModernMutationConfigs';
+
 import type {Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {PayloadError, UploadableMap} from 'RelayNetworkTypes';
@@ -51,14 +53,8 @@ function commitRelayModernMutation(
   );
   const {createOperationSelector, getOperation} = environment.unstable_internal;
   const mutation = getOperation(config.mutation);
-  const {
-    onError,
-    optimisticResponse,
-    optimisticUpdater,
-    updater,
-    variables,
-    uploadables,
-  } = config;
+  let {optimisticUpdater, updater} = config;
+  const {configs, onError, optimisticResponse, variables, uploadables} = config;
   const operation = createOperationSelector(mutation, variables);
   if (
     optimisticResponse &&
@@ -73,6 +69,14 @@ function commitRelayModernMutation(
         ' to be wrapped in mutation name `%s`',
       mutationRoot,
     );
+  }
+  if (configs) {
+    ({optimisticUpdater, updater} = setRelayModernMutationConfigs(
+      configs,
+      mutation,
+      optimisticUpdater,
+      updater,
+    ));
   }
   return environment.sendMutation({
     onError,

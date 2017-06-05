@@ -167,7 +167,11 @@ export type RelayMutationConfig =
       type: 'RANGE_DELETE',
       parentName: string,
       parentID?: string,
-      connectionName: string,
+      connectionKeys?: Array<{
+        key: string,
+        filters?: Variables,
+      }>,
+      connectionName?: string,
       deletedIDFieldName: string | Array<string>,
       pathToConnection: Array<string>,
     }

@@ -70,9 +70,7 @@ export type RelayResponsePayload = {|
   errors: ?Array<PayloadError>,
 |};
 
-export type PromiseOrValue<T> =
-  | Promise<T>
-  | T;
+export type PromiseOrValue<T> = Promise<T> | T;
 
 /**
  * A function that executes a GraphQL operation with request/response semantics,

@@ -118,13 +118,12 @@ function createMockEnvironment(options: {
     pendingFetches = pendingFetches.filter(pending => pending !== pendingFetch);
     pendingFetch.deferred.reject(error);
     jest.runOnlyPendingTimers();
-    return new Promise((resolve) => {
-      pendingFetch.deferred.getPromise()
-        .catch(() => {
-          // setImmediate so all handlers for pendingFetch are called before
-          // tests are run
-          setImmediate(resolve);
-        });
+    return new Promise(resolve => {
+      pendingFetch.deferred.getPromise().catch(() => {
+        // setImmediate so all handlers for pendingFetch are called before
+        // tests are run
+        setImmediate(resolve);
+      });
     });
   };
   const resolve = (query, payload) => {
@@ -145,13 +144,12 @@ function createMockEnvironment(options: {
     pendingFetches = pendingFetches.filter(pending => pending !== pendingFetch);
     pendingFetch.deferred.resolve(payload);
     jest.runOnlyPendingTimers();
-    return new Promise((resolve) => {
-      pendingFetch.deferred.getPromise()
-        .then(() => {
-          // setImmediate so all handlers for pendingFetch are called before
-          // tests are run
-          setImmediate(resolve);
-        });
+    return new Promise(resolve => {
+      pendingFetch.deferred.getPromise().then(() => {
+        // setImmediate so all handlers for pendingFetch are called before
+        // tests are run
+        setImmediate(resolve);
+      });
     });
   };
 

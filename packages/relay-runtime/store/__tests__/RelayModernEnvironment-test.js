@@ -595,11 +595,12 @@ describe('RelayModernEnvironment', () => {
               return;
             }
             // Reuse RelayNetwork's helper for response processing
-            RelayNetwork.create(() => Promise.resolve(data))
-              .request(query, variables, cacheConfig, null, {
-                onCompleted: observer.onNext,
-                onError: observer.onError,
-              });
+            RelayNetwork.create(() =>
+              Promise.resolve(data),
+            ).request(query, variables, cacheConfig, null, {
+              onCompleted: observer.onNext,
+              onError: observer.onError,
+            });
           },
           complete() {
             if (!isDisposed) {

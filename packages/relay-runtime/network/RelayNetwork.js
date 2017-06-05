@@ -65,7 +65,7 @@ function create(fetch: FetchFunction, subscribe?: SubscribeFunction): Network {
         return;
       }
       observer.onError(error);
-    }
+    };
     const response = fetch(operation, variables, cacheConfig, uploadables);
     invariant(
       typeof response === 'object' && response !== null,
@@ -166,16 +166,21 @@ function doFetchWithPolling(
     }
   };
   function poll() {
-    requestResponse = request(operation, variables, {force: true}, {
-      onCompleted: payload => {
-        onNext && onNext(payload);
-        timeout = setTimeout(poll, pollInterval);
+    requestResponse = request(
+      operation,
+      variables,
+      {force: true},
+      {
+        onCompleted: payload => {
+          onNext && onNext(payload);
+          timeout = setTimeout(poll, pollInterval);
+        },
+        onError: error => {
+          dispose();
+          onError && onError(error);
+        },
       },
-      onError: error => {
-        dispose();
-        onError && onError(error);
-      },
-    });
+    );
   }
   poll();
 

@@ -5,6 +5,8 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
@@ -65,14 +67,16 @@ describe('Configs: RANGE_DELETE', () => {
         },
       },
     });
-    const configs = [{
-      type: 'RANGE_DELETE',
-      parentName: 'feedback',
-      parentID: '123',
-      connectionKeys: [{key: 'Feedback_comments'}],
-      deletedIDFieldName: 'deletedCommentId',
-      pathToConnection: ['feedback', 'comments'],
-    }];
+    const configs = [
+      {
+        type: 'RANGE_DELETE',
+        parentName: 'feedback',
+        parentID: '123',
+        connectionKeys: [{key: 'Feedback_comments'}],
+        deletedIDFieldName: 'deletedCommentId',
+        pathToConnection: ['feedback', 'comments'],
+      },
+    ];
     ({FeedbackCommentQuery} = generateAndCompile(`
     query FeedbackCommentQuery {
         node(id: "123") {
@@ -119,14 +123,8 @@ describe('Configs: RANGE_DELETE', () => {
         },
       },
     };
-    const operationSelector = createOperationSelector(
-      FeedbackCommentQuery,
-      {}
-    );
-    environment.commitPayload(
-      operationSelector,
-      payload,
-    );
+    const operationSelector = createOperationSelector(FeedbackCommentQuery, {});
+    environment.commitPayload(operationSelector, payload);
     const optimisticUpdater = jest.fn();
     const updater = jest.fn();
     const snapshot = store.lookup({
@@ -136,22 +134,20 @@ describe('Configs: RANGE_DELETE', () => {
     });
     const callback = jest.fn();
     store.subscribe(snapshot, callback);
-    commitMutation(
-      environment,
-      {
-        configs,
-        mutation,
-        optimisticResponse,
-        optimisticUpdater,
-        updater,
-        variables,
-      }
-    );
+    commitMutation(environment, {
+      configs,
+      mutation,
+      optimisticResponse,
+      optimisticUpdater,
+      updater,
+      variables,
+    });
     // Optimistically deletes properly
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
-    const sendMutation = environment.sendMutation.mock.calls[0][0].operation.node;
+    const sendMutation =
+      environment.sendMutation.mock.calls[0][0].operation.node;
     environment.mock.resolve(sendMutation, {
       data: {
         commentDelete: {
@@ -189,14 +185,16 @@ describe('Configs: RANGE_DELETE', () => {
         }
       }
     `).UnfriendMutation;
-    const configs = [{
-      type: 'RANGE_DELETE',
-      parentName: 'actor',
-      parentID: '123',
-      connectionKeys: [{key: 'Friends_friends'}],
-      deletedIDFieldName: ['formerFriend'],
-      pathToConnection: ['actor', 'friends'],
-    }];
+    const configs = [
+      {
+        type: 'RANGE_DELETE',
+        parentName: 'actor',
+        parentID: '123',
+        connectionKeys: [{key: 'Friends_friends'}],
+        deletedIDFieldName: ['formerFriend'],
+        pathToConnection: ['actor', 'friends'],
+      },
+    ];
     const variables = {
       input: {
         clientMutationId: '0',
@@ -243,14 +241,8 @@ describe('Configs: RANGE_DELETE', () => {
         },
       },
     };
-    const operationSelector = createOperationSelector(
-      FriendQuery,
-      {}
-    );
-    environment.commitPayload(
-      operationSelector,
-      payload,
-    );
+    const operationSelector = createOperationSelector(FriendQuery, {});
+    environment.commitPayload(operationSelector, payload);
     const optimisticResponse = () => ({
       unfriend: {
         clientMutationId: '0',
@@ -270,21 +262,19 @@ describe('Configs: RANGE_DELETE', () => {
     });
     const callback = jest.fn();
     store.subscribe(snapshot, callback);
-    commitMutation(
-      environment,
-      {
-        configs,
-        mutation,
-        optimisticUpdater,
-        optimisticResponse,
-        updater,
-        variables,
-      }
-    );
+    commitMutation(environment, {
+      configs,
+      mutation,
+      optimisticUpdater,
+      optimisticResponse,
+      updater,
+      variables,
+    });
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
-    const sendMutation = environment.sendMutation.mock.calls[0][0].operation.node;
+    const sendMutation =
+      environment.sendMutation.mock.calls[0][0].operation.node;
     environment.mock.resolve(sendMutation, {
       data: {
         unfriend: {

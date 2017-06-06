@@ -15,9 +15,11 @@ jest.autoMockOff();
 
 require('configureForRelayOSS');
 
-const {commitMutation} = require('ReactRelayPublic');
-const {createOperationSelector} = require('RelayModernOperationSelector');
+const commitRelayModernMutation = require('commitRelayModernMutation');
+
 const RelayModernTestUtils = require('RelayModernTestUtils');
+
+const {createOperationSelector} = require('RelayModernOperationSelector');
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {ROOT_ID} = require('RelayStoreUtils');
 
@@ -35,7 +37,7 @@ describe('Configs: RANGE_DELETE', () => {
   it('handles configs properly', () => {
     const mutation = generateAndCompile(`
     mutation CommentDeleteMutation(
-      $input: CommentDeleteInput 
+      $input: CommentDeleteInput
     ) {
       commentDelete(input: $input) {
         clientMutationId
@@ -134,7 +136,7 @@ describe('Configs: RANGE_DELETE', () => {
     });
     const callback = jest.fn();
     store.subscribe(snapshot, callback);
-    commitMutation(environment, {
+    commitRelayModernMutation(environment, {
       configs,
       mutation,
       optimisticResponse,
@@ -173,7 +175,7 @@ describe('Configs: RANGE_DELETE', () => {
     const updater = jest.fn();
     const mutation = generateAndCompile(`
       mutation UnfriendMutation(
-        $input: UnfriendInput 
+        $input: UnfriendInput
       ) {
         unfriend(input: $input) {
           actor {
@@ -262,7 +264,7 @@ describe('Configs: RANGE_DELETE', () => {
     });
     const callback = jest.fn();
     store.subscribe(snapshot, callback);
-    commitMutation(environment, {
+    commitRelayModernMutation(environment, {
       configs,
       mutation,
       optimisticUpdater,

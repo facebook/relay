@@ -11,7 +11,6 @@
 
 'use strict';
 
-const Deferred = require('Deferred');
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('RelayMarkSweepStore');
 const RelayModernEnvironment = require('RelayModernEnvironment');
@@ -78,11 +77,23 @@ function createMockEnvironment(options: {
   // Mock the network layer
   let pendingFetches = [];
   const fetch = (query, variables, cacheConfig) => {
-    const deferred = new Deferred();
-    pendingFetches.push({cacheConfig, deferred, query, variables});
+    let resolve;
+    let reject;
+    const promise = new Promise((_resolve, _reject) => {
+      resolve = _resolve;
+      reject = _reject;
+    });
+    pendingFetches.push({
+      cacheConfig,
+      promise,
+      resolve,
+      reject,
+      query,
+      variables,
+    });
     return {
       kind: 'promise',
-      promise: deferred.getPromise(),
+      promise,
     };
   };
 
@@ -119,15 +130,14 @@ function createMockEnvironment(options: {
       error = new Error(error);
     }
     pendingFetches = pendingFetches.filter(pending => pending !== pendingFetch);
-    pendingFetch.deferred.reject(error);
+    pendingFetch.reject(error);
     jest.runOnlyPendingTimers();
-    return new Promise((resolve) => {
-      pendingFetch.deferred.getPromise()
-        .catch(() => {
-          // setImmediate so all handlers for pendingFetch are called before
-          // tests are run
-          setImmediate(resolve);
-        });
+    return new Promise(resolve => {
+      pendingFetch.promise.catch(() => {
+        // setImmediate so all handlers for pendingFetch are called before
+        // tests are run
+        setImmediate(resolve);
+      });
     });
   };
   const resolve = (query, payload) => {
@@ -146,15 +156,14 @@ function createMockEnvironment(options: {
       query.name,
     );
     pendingFetches = pendingFetches.filter(pending => pending !== pendingFetch);
-    pendingFetch.deferred.resolve(payload);
+    pendingFetch.resolve(payload);
     jest.runOnlyPendingTimers();
-    return new Promise((resolve) => {
-      pendingFetch.deferred.getPromise()
-        .then(() => {
-          // setImmediate so all handlers for pendingFetch are called before
-          // tests are run
-          setImmediate(resolve);
-        });
+    return new Promise(_resolve => {
+      pendingFetch.promise.then(() => {
+        // setImmediate so all handlers for pendingFetch are called before
+        // tests are run
+        setImmediate(_resolve);
+      });
     });
   };
 

@@ -11,10 +11,12 @@
 
 jest.autoMockOff();
 
-const {commitMutation} = require('RelayModern');
+require('configureForRelayOSS');
+
+const {commitMutation} = require('ReactRelayPublic');
 const {createOperationSelector} = require('RelayModernOperationSelector');
 const RelayModernTestUtils = require('RelayModernTestUtils');
-const {createMockEnvironment} = require('RelayMockFBEnvironment');
+const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {ROOT_ID} = require('RelayStoreUtils');
 
 describe('Configs: RANGE_DELETE', () => {
@@ -71,7 +73,7 @@ describe('Configs: RANGE_DELETE', () => {
       deletedIDFieldName: 'deletedCommentId',
       pathToConnection: ['feedback', 'comments'],
     }];
-    ({FeedbackCommentQuery} = environment.mock.compile(`
+    ({FeedbackCommentQuery} = generateAndCompile(`
     query FeedbackCommentQuery {
         node(id: "123") {
           ...on Feedback {
@@ -204,7 +206,7 @@ describe('Configs: RANGE_DELETE', () => {
     environment = createMockEnvironment();
     store = environment.getStore();
 
-    const {FriendQuery} = environment.mock.compile(`
+    const {FriendQuery} = generateAndCompile(`
     query FriendQuery {
       viewer {
         actor {

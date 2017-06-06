@@ -15,7 +15,6 @@
 
 const RelayApplyFragmentArgumentTransform = require('RelayApplyFragmentArgumentTransform');
 const RelayConnectionTransform = require('RelayConnectionTransform');
-const RelayExportTransform = require('RelayExportTransform');
 const RelayFieldHandleTransform = require('RelayFieldHandleTransform');
 const RelayFilterDirectivesTransform = require('RelayFilterDirectivesTransform');
 const RelayFlattenTransform = require('RelayFlattenTransform');
@@ -38,7 +37,6 @@ export type IRTransform = (
 // Transforms applied to the code used to process a query response.
 const schemaExtensions: Array<string> = [
   RelayConnectionTransform.SCHEMA_EXTENSION,
-  RelayExportTransform.SCHEMA_EXTENSION,
   RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
 ];
 
@@ -68,7 +66,6 @@ const QUERY_TRANSFORMS: Array<IRTransform> = [
   RelayApplyFragmentArgumentTransform.transform,
   RelaySkipClientFieldTransform.transform,
   RelaySkipUnreachableNodeTransform.transform,
-  RelayExportTransform.transform,
   RelayRelayDirectiveTransform.transform,
   RelayGenerateRequisiteFieldsTransform.transform,
 ];

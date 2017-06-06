@@ -145,10 +145,9 @@ function transformASTSchema(
   schema: GraphQLSchema,
   schemaExtensions: Array<string>,
 ): GraphQLSchema {
-  return GraphQL.extendSchema(
-    schema,
-    GraphQL.parse(schemaExtensions.join('\n')),
-  );
+  return schemaExtensions.length > 0
+    ? GraphQL.extendSchema(schema, GraphQL.parse(schemaExtensions.join('\n')))
+    : schema;
 }
 
 function extendASTSchema(

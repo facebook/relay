@@ -77,35 +77,6 @@ describe('ReactRelayRefetchContainer', () => {
     relay: ReactRelayPropTypes.Relay,
   };
 
-  const _setUpContainerAndStore = graphqlQuery => {
-    TestContainer = ReactRelayRefetchContainer.createContainer(
-      TestComponent,
-      {
-        user: () => UserFragment,
-      },
-      graphqlQuery,
-    );
-    // Pre-populate the store with data
-    environment.commitPayload(createOperationSelector(graphqlQuery,
-      graphqlQuery === RefetchQuery ? {id: '4', cond: true} : {id: '4'}), {
-        node: {
-          id: '4',
-          __typename: 'User',
-          name: 'Zuck',
-        },
-      });
-    environment.commitPayload(createOperationSelector(graphqlQuery,
-      graphqlQuery === RefetchQuery ? {id: '842472', cond: true} : {id: '842472'}),
-      {
-        node: {
-          id: '842472',
-          __typename: 'User',
-          name: 'Joe',
-        },
-      },
-    );
-  };
-
   beforeEach(() => {
     jest.resetModules();
     jest.addMatchers(RelayModernTestUtils.matchers);
@@ -146,403 +117,423 @@ describe('ReactRelayRefetchContainer', () => {
     variables = {};
     TestComponent = render;
     TestComponent.displayName = 'TestComponent';
+    TestContainer = ReactRelayRefetchContainer.createContainer(
+      TestComponent,
+      {
+        user: () => UserFragment,
+      },
+      UserQuery,
+    );
+
+    // Pre-populate the store with data
+    environment.commitPayload(createOperationSelector(UserQuery, {id: '4'}), {
+      node: {
+        id: '4',
+        __typename: 'User',
+        name: 'Zuck',
+      },
+    });
+    environment.commitPayload(
+      createOperationSelector(UserQuery, {id: '842472'}),
+      {
+        node: {
+          id: '842472',
+          __typename: 'User',
+          name: 'Joe',
+        },
+      },
+    );
   });
 
-  describe(' Basics ', () => {
-    beforeEach(() => {
-      _setUpContainerAndStore(UserQuery);
-    });
+  it('generates a name for containers', () => {
+    expect(TestContainer.displayName).toBe('Relay(TestComponent)');
+  });
 
-    it('generates a name for containers', () => {
-      expect(TestContainer.displayName).toBe('Relay(TestComponent)');
-    });
-
-    it('throws for invalid fragments', () => {
-      expect(() => {
-        ReactRelayRefetchContainer.createContainer(TestComponent, {
-          foo: null,
-        });
-      }).toFailInvariant(
-        'Could not create Relay Container for `TestComponent`. ' +
+  it('throws for invalid fragments', () => {
+    expect(() => {
+      ReactRelayRefetchContainer.createContainer(TestComponent, {
+        foo: null,
+      });
+    }).toFailInvariant(
+      'Could not create Relay Container for `TestComponent`. ' +
         'The value of fragment `foo` was expected to be a fragment, ' +
         'got `null` instead.',
-      );
+    );
+  });
+
+  it('passes non-fragment props to the component', () => {
+    ReactTestRenderer.create(
+      <ContextSetter environment={environment} variables={variables}>
+        <TestContainer bar={1} foo={'foo'} />
+      </ContextSetter>,
+    );
+    expect(render.mock.calls.length).toBe(1);
+    expect(render.mock.calls[0][0]).toEqual({
+      bar: 1,
+      foo: 'foo',
+      relay: {
+        environment: jasmine.any(Object),
+        refetch: jasmine.any(Function),
+        getVariables: jasmine.any(Function),
+      },
+      user: null,
+    });
+    expect(environment.lookup.mock.calls.length).toBe(0);
+    expect(environment.subscribe.mock.calls.length).toBe(0);
+  });
+
+  it('passes through null props', () => {
+    ReactTestRenderer.create(
+      <ContextSetter environment={environment} variables={variables}>
+        <TestContainer user={null} />
+      </ContextSetter>,
+    );
+    // Data & Variables are passed to component
+    expect(render.mock.calls.length).toBe(1);
+    expect(render.mock.calls[0][0]).toEqual({
+      relay: {
+        environment: jasmine.any(Object),
+        refetch: jasmine.any(Function),
+        getVariables: jasmine.any(Function),
+      },
+      user: null,
+    });
+    // Does not subscribe to updates (id is unknown)
+    expect(environment.subscribe.mock.calls.length).toBe(0);
+  });
+
+  it('resolves & subscribes fragment props', () => {
+    const userPointer = environment.lookup({
+      dataID: ROOT_ID,
+      node: UserQuery.fragment,
+      variables: {id: '4'},
+    }).data.node;
+
+    ReactTestRenderer.create(
+      <ContextSetter environment={environment} variables={variables}>
+        <TestContainer user={userPointer} />
+      </ContextSetter>,
+    );
+    // Data & Variables are passed to component
+    expect(render.mock.calls.length).toBe(1);
+    expect(render.mock.calls[0][0]).toEqual({
+      user: {
+        id: '4',
+        name: 'Zuck',
+      },
+      relay: {
+        environment: jasmine.any(Object),
+        refetch: jasmine.any(Function),
+        getVariables: jasmine.any(Function),
+      },
+    });
+    // Subscribes for updates
+    expect(environment.subscribe.mock.calls.length).toBe(1);
+    expect(environment.subscribe.mock.calls[0][0]).toEqual({
+      dataID: '4',
+      data: {
+        id: '4',
+        name: 'Zuck',
+      },
+      node: UserFragment,
+      seenRecords: jasmine.any(Object),
+      variables: {cond: true},
+    });
+  });
+
+  it('re-renders on subscription callback', () => {
+    const userPointer = environment.lookup({
+      dataID: ROOT_ID,
+      node: UserQuery.fragment,
+      variables: {id: '4'},
+    }).data.node;
+
+    ReactTestRenderer.create(
+      <ContextSetter environment={environment} variables={variables}>
+        <TestContainer user={userPointer} />
+      </ContextSetter>,
+    );
+    const callback = environment.subscribe.mock.calls[0][1];
+    render.mockClear();
+    environment.lookup.mockClear();
+    environment.subscribe.mockClear();
+
+    callback({
+      dataID: '4',
+      node: UserFragment,
+      variables: {cond: true},
+      data: {
+        id: '4',
+        name: 'Mark', // !== 'Zuck'
+      },
+      seenRecords: {},
     });
 
-    it('passes non-fragment props to the component', () => {
-      ReactTestRenderer.create(
-        <ContextSetter environment={environment} variables={variables}>
-          <TestContainer bar={1} foo={'foo'} />
-        </ContextSetter>,
-      );
-      expect(render.mock.calls.length).toBe(1);
-      expect(render.mock.calls[0][0]).toEqual({
-        bar: 1,
-        foo: 'foo',
-        relay: {
-          environment: jasmine.any(Object),
-          refetch: jasmine.any(Function),
-          getVariables: jasmine.any(Function),
-        },
-        user: null,
-      });
-      expect(environment.lookup.mock.calls.length).toBe(0);
-      expect(environment.subscribe.mock.calls.length).toBe(0);
+    // No need to resolve props or resubscribe
+    expect(environment.lookup).not.toBeCalled();
+    expect(environment.subscribe).not.toBeCalled();
+    // Data & Variables are passed to component
+    expect(render.mock.calls.length).toBe(1);
+    expect(render.mock.calls[0][0]).toEqual({
+      user: {
+        id: '4',
+        name: 'Mark',
+      },
+      relay: {
+        environment: jasmine.any(Object),
+        refetch: jasmine.any(Function),
+        getVariables: jasmine.any(Function),
+      },
+    });
+  });
+
+  it('resolves new props', () => {
+    let userPointer = environment.lookup({
+      dataID: ROOT_ID,
+      node: UserQuery.fragment,
+      variables: {id: '4'},
+    }).data.node;
+    const instance = ReactTestRenderer.create(
+      <ContextSetter environment={environment} variables={variables}>
+        <TestContainer user={userPointer} />
+      </ContextSetter>,
+    );
+    render.mockClear();
+    environment.lookup.mockClear();
+    environment.subscribe.mockClear();
+
+    userPointer = environment.lookup({
+      dataID: ROOT_ID,
+      node: UserQuery.fragment,
+      variables: {id: '842472'},
+    }).data.node;
+    instance.getInstance().setProps({
+      user: userPointer,
     });
 
-    it('passes through null props', () => {
-      ReactTestRenderer.create(
-        <ContextSetter environment={environment} variables={variables}>
-          <TestContainer user={null} />
-        </ContextSetter>,
-      );
-      // Data & Variables are passed to component
-      expect(render.mock.calls.length).toBe(1);
-      expect(render.mock.calls[0][0]).toEqual({
-        relay: {
-          environment: jasmine.any(Object),
-          refetch: jasmine.any(Function),
-          getVariables: jasmine.any(Function),
-        },
-        user: null,
-      });
-      // Does not subscribe to updates (id is unknown)
-      expect(environment.subscribe.mock.calls.length).toBe(0);
+    // New data & variables are passed to component
+    expect(render.mock.calls.length).toBe(1);
+    expect(render.mock.calls[0][0]).toEqual({
+      user: {
+        id: '842472',
+        name: 'Joe',
+      },
+      relay: {
+        environment: jasmine.any(Object),
+        refetch: jasmine.any(Function),
+        getVariables: jasmine.any(Function),
+      },
+    });
+    // Container subscribes for updates on new props
+    expect(environment.subscribe.mock.calls.length).toBe(1);
+    expect(environment.subscribe.mock.calls[0][0]).toEqual({
+      dataID: '842472',
+      data: {
+        id: '842472',
+        name: 'Joe',
+      },
+      node: UserFragment,
+      seenRecords: jasmine.any(Object),
+      variables: {cond: true},
+    });
+  });
+
+  it('resolves for new variables in context', () => {
+    const userPointer = environment.lookup({
+      dataID: ROOT_ID,
+      node: UserQuery.fragment,
+      variables: {id: '4'},
+    }).data.node;
+    const instance = ReactTestRenderer.create(
+      <ContextSetter environment={environment} variables={variables}>
+        <TestContainer user={userPointer} />
+      </ContextSetter>,
+    );
+    render.mockClear();
+    environment.lookup.mockClear();
+    environment.subscribe.mockClear();
+
+    // Update the variables in context
+    const newVariables = {id: '4'};
+    instance.getInstance().setContext(environment, newVariables);
+
+    // New data & variables are passed to component
+    expect(render.mock.calls.length).toBe(1);
+    expect(render.mock.calls[0][0]).toEqual({
+      user: {
+        id: '4',
+        name: 'Zuck',
+      },
+      relay: {
+        environment: jasmine.any(Object),
+        refetch: jasmine.any(Function),
+        getVariables: jasmine.any(Function),
+      },
+    });
+    // Container subscribes for updates on new props
+    expect(environment.subscribe.mock.calls.length).toBe(1);
+    expect(environment.subscribe.mock.calls[0][0]).toEqual({
+      dataID: '4',
+      data: {
+        id: '4',
+        name: 'Zuck',
+      },
+      node: UserFragment,
+      seenRecords: jasmine.any(Object),
+      variables: {cond: true},
+    });
+  });
+
+  it('does not update for same props/data', () => {
+    const userPointer = environment.lookup({
+      dataID: ROOT_ID,
+      node: UserQuery.fragment,
+      variables: {id: '4'},
+    }).data.node;
+    const instance = ReactTestRenderer.create(
+      <ContextSetter environment={environment} variables={variables}>
+        <TestContainer user={userPointer} />
+      </ContextSetter>,
+    );
+    render.mockClear();
+    environment.lookup.mockClear();
+    environment.subscribe.mockClear();
+
+    instance.getInstance().setProps({
+      user: userPointer,
     });
 
-    it('resolves & subscribes fragment props', () => {
-      const userPointer = environment.lookup({
-        dataID: ROOT_ID,
-        node: UserQuery.fragment,
-        variables: {id: '4'},
-      }).data.node;
+    expect(render).not.toBeCalled();
+    expect(environment.lookup).not.toBeCalled();
+    expect(environment.subscribe).not.toBeCalled();
+  });
 
-      ReactTestRenderer.create(
-        <ContextSetter environment={environment} variables={variables}>
-          <TestContainer user={userPointer} />
-        </ContextSetter>,
-      );
-      // Data & Variables are passed to component
-      expect(render.mock.calls.length).toBe(1);
-      expect(render.mock.calls[0][0]).toEqual({
-        user: {
-          id: '4',
-          name: 'Zuck',
-        },
-        relay: {
-          environment: jasmine.any(Object),
-          refetch: jasmine.any(Function),
-          getVariables: jasmine.any(Function),
-        },
-      });
-      // Subscribes for updates
-      expect(environment.subscribe.mock.calls.length).toBe(1);
-      expect(environment.subscribe.mock.calls[0][0]).toEqual({
-        dataID: '4',
-        data: {
-          id: '4',
-          name: 'Zuck',
-        },
-        node: UserFragment,
-        seenRecords: jasmine.any(Object),
-        variables: {cond: true},
-      });
+  it('does not update for equal scalar props', () => {
+    const userPointer = environment.lookup({
+      dataID: ROOT_ID,
+      node: UserQuery.fragment,
+      variables: {id: '4'},
+    }).data.node;
+    const scalar = 42;
+    const fn = () => null;
+    const instance = ReactTestRenderer.create(
+      <ContextSetter environment={environment} variables={variables}>
+        <TestContainer fn={fn} nil={null} scalar={scalar} user={userPointer} />
+      </ContextSetter>,
+    );
+    render.mockClear();
+    environment.lookup.mockClear();
+    environment.subscribe.mockClear();
+
+    instance.getInstance().setProps({
+      fn,
+      nil: null,
+      scalar,
+      user: userPointer,
     });
 
-    it('re-renders on subscription callback', () => {
-      const userPointer = environment.lookup({
-        dataID: ROOT_ID,
-        node: UserQuery.fragment,
-        variables: {id: '4'},
-      }).data.node;
+    expect(render).not.toBeCalled();
+    expect(environment.lookup).not.toBeCalled();
+    expect(environment.subscribe).not.toBeCalled();
+  });
 
-      ReactTestRenderer.create(
-        <ContextSetter environment={environment} variables={variables}>
-          <TestContainer user={userPointer} />
-        </ContextSetter>,
-      );
-      const callback = environment.subscribe.mock.calls[0][1];
-      render.mockClear();
-      environment.lookup.mockClear();
-      environment.subscribe.mockClear();
+  it('updates for unequal function props', () => {
+    const userPointer = environment.lookup({
+      dataID: ROOT_ID,
+      node: UserQuery.fragment,
+      variables: {id: '4'},
+    }).data.node;
+    const scalar = 42;
+    const fn = () => null;
+    const instance = ReactTestRenderer.create(
+      <ContextSetter environment={environment} variables={variables}>
+        <TestContainer fn={fn} scalar={scalar} user={userPointer} />
+      </ContextSetter>,
+    );
+    const initialProps = render.mock.calls[0][0];
+    render.mockClear();
+    environment.lookup.mockClear();
+    environment.subscribe.mockClear();
 
-      callback({
-        dataID: '4',
-        node: UserFragment,
-        variables: {cond: true},
-        data: {
-          id: '4',
-          name: 'Mark', // !== 'Zuck'
-        },
-        seenRecords: {},
-      });
-
-      // No need to resolve props or resubscribe
-      expect(environment.lookup).not.toBeCalled();
-      expect(environment.subscribe).not.toBeCalled();
-      // Data & Variables are passed to component
-      expect(render.mock.calls.length).toBe(1);
-      expect(render.mock.calls[0][0]).toEqual({
-        user: {
-          id: '4',
-          name: 'Mark',
-        },
-        relay: {
-          environment: jasmine.any(Object),
-          refetch: jasmine.any(Function),
-          getVariables: jasmine.any(Function),
-        },
-      });
+    const nextFn = () => null;
+    instance.getInstance().setProps({
+      fn: nextFn,
+      scalar,
+      user: userPointer,
     });
 
-    it('resolves new props', () => {
-      let userPointer = environment.lookup({
-        dataID: ROOT_ID,
-        node: UserQuery.fragment,
-        variables: {id: '4'},
-      }).data.node;
-      const instance = ReactTestRenderer.create(
-        <ContextSetter environment={environment} variables={variables}>
-          <TestContainer user={userPointer} />
-        </ContextSetter>,
-      );
-      render.mockClear();
-      environment.lookup.mockClear();
-      environment.subscribe.mockClear();
+    expect(render.mock.calls.length).toBe(1);
+    expect(render.mock.calls[0][0]).toEqual({
+      ...initialProps,
+      fn: nextFn,
+    });
+    expect(environment.lookup).not.toBeCalled();
+    expect(environment.subscribe).not.toBeCalled();
+  });
 
-      userPointer = environment.lookup({
-        dataID: ROOT_ID,
-        node: UserQuery.fragment,
-        variables: {id: '842472'},
-      }).data.node;
-      instance.getInstance().setProps({
-        user: userPointer,
-      });
+  it('updates for unequal scalar props', () => {
+    const userPointer = environment.lookup({
+      dataID: ROOT_ID,
+      node: UserQuery.fragment,
+      variables: {id: '4'},
+    }).data.node;
+    const scalar = 42;
+    const fn = () => null;
+    const instance = ReactTestRenderer.create(
+      <ContextSetter environment={environment} variables={variables}>
+        <TestContainer fn={fn} scalar={scalar} user={userPointer} />
+      </ContextSetter>,
+    );
+    const initialProps = render.mock.calls[0][0];
+    render.mockClear();
+    environment.lookup.mockClear();
+    environment.subscribe.mockClear();
 
-      // New data & variables are passed to component
-      expect(render.mock.calls.length).toBe(1);
-      expect(render.mock.calls[0][0]).toEqual({
-        user: {
-          id: '842472',
-          name: 'Joe',
-        },
-        relay: {
-          environment: jasmine.any(Object),
-          refetch: jasmine.any(Function),
-          getVariables: jasmine.any(Function),
-        },
-      });
-      // Container subscribes for updates on new props
-      expect(environment.subscribe.mock.calls.length).toBe(1);
-      expect(environment.subscribe.mock.calls[0][0]).toEqual({
-        dataID: '842472',
-        data: {
-          id: '842472',
-          name: 'Joe',
-        },
-        node: UserFragment,
-        seenRecords: jasmine.any(Object),
-        variables: {cond: true},
-      });
+    instance.getInstance().setProps({
+      fn,
+      scalar: 43,
+      user: userPointer,
     });
 
-    it('resolves for new variables in context', () => {
-      const userPointer = environment.lookup({
-        dataID: ROOT_ID,
-        node: UserQuery.fragment,
-        variables: {id: '4'},
-      }).data.node;
-      const instance = ReactTestRenderer.create(
-        <ContextSetter environment={environment} variables={variables}>
-          <TestContainer user={userPointer} />
-        </ContextSetter>,
-      );
-      render.mockClear();
-      environment.lookup.mockClear();
-      environment.subscribe.mockClear();
+    expect(render.mock.calls.length).toBe(1);
+    expect(render.mock.calls[0][0]).toEqual({
+      ...initialProps,
+      scalar: 43,
+    });
+    expect(environment.lookup).not.toBeCalled();
+    expect(environment.subscribe).not.toBeCalled();
+  });
 
-      // Update the variables in context
-      const newVariables = {id: '4'};
-      instance.getInstance().setContext(environment, newVariables);
+  it('always updates for non-scalar props', () => {
+    const userPointer = environment.lookup({
+      dataID: ROOT_ID,
+      node: UserQuery.fragment,
+      variables: {id: '4'},
+    }).data.node;
+    const instance = ReactTestRenderer.create(
+      <ContextSetter environment={environment} variables={variables}>
+        <TestContainer arr={[]} obj={{}} user={userPointer} />
+      </ContextSetter>,
+    );
+    const initialProps = render.mock.calls[0][0];
+    render.mockClear();
+    environment.lookup.mockClear();
+    environment.subscribe.mockClear();
 
-      // New data & variables are passed to component
-      expect(render.mock.calls.length).toBe(1);
-      expect(render.mock.calls[0][0]).toEqual({
-        user: {
-          id: '4',
-          name: 'Zuck',
-        },
-        relay: {
-          environment: jasmine.any(Object),
-          refetch: jasmine.any(Function),
-          getVariables: jasmine.any(Function),
-        },
-      });
-      // Container subscribes for updates on new props
-      expect(environment.subscribe.mock.calls.length).toBe(1);
-      expect(environment.subscribe.mock.calls[0][0]).toEqual({
-        dataID: '4',
-        data: {
-          id: '4',
-          name: 'Zuck',
-        },
-        node: UserFragment,
-        seenRecords: jasmine.any(Object),
-        variables: {cond: true},
-      });
+    const nextArr = [];
+    const nextObj = {};
+    instance.getInstance().setProps({
+      arr: nextArr,
+      obj: nextObj,
+      user: userPointer,
     });
 
-    it('does not update for same props/data', () => {
-      const userPointer = environment.lookup({
-        dataID: ROOT_ID,
-        node: UserQuery.fragment,
-        variables: {id: '4'},
-      }).data.node;
-      const instance = ReactTestRenderer.create(
-        <ContextSetter environment={environment} variables={variables}>
-          <TestContainer user={userPointer} />
-        </ContextSetter>,
-      );
-      render.mockClear();
-      environment.lookup.mockClear();
-      environment.subscribe.mockClear();
-
-      instance.getInstance().setProps({
-        user: userPointer,
-      });
-
-      expect(render).not.toBeCalled();
-      expect(environment.lookup).not.toBeCalled();
-      expect(environment.subscribe).not.toBeCalled();
-    });
-
-    it('does not update for equal scalar props', () => {
-      const userPointer = environment.lookup({
-        dataID: ROOT_ID,
-        node: UserQuery.fragment,
-        variables: {id: '4'},
-      }).data.node;
-      const scalar = 42;
-      const fn = () => null;
-      const instance = ReactTestRenderer.create(
-        <ContextSetter environment={environment} variables={variables}>
-          <TestContainer fn={fn} nil={null} scalar={scalar} user={userPointer} />
-        </ContextSetter>,
-      );
-      render.mockClear();
-      environment.lookup.mockClear();
-      environment.subscribe.mockClear();
-
-      instance.getInstance().setProps({
-        fn,
-        nil: null,
-        scalar,
-        user: userPointer,
-      });
-
-      expect(render).not.toBeCalled();
-      expect(environment.lookup).not.toBeCalled();
-      expect(environment.subscribe).not.toBeCalled();
-    });
-
-    it('updates for unequal function props', () => {
-      const userPointer = environment.lookup({
-        dataID: ROOT_ID,
-        node: UserQuery.fragment,
-        variables: {id: '4'},
-      }).data.node;
-      const scalar = 42;
-      const fn = () => null;
-      const instance = ReactTestRenderer.create(
-        <ContextSetter environment={environment} variables={variables}>
-          <TestContainer fn={fn} scalar={scalar} user={userPointer} />
-        </ContextSetter>,
-      );
-      const initialProps = render.mock.calls[0][0];
-      render.mockClear();
-      environment.lookup.mockClear();
-      environment.subscribe.mockClear();
-
-      const nextFn = () => null;
-      instance.getInstance().setProps({
-        fn: nextFn,
-        scalar,
-        user: userPointer,
-      });
-
-      expect(render.mock.calls.length).toBe(1);
-      expect(render.mock.calls[0][0]).toEqual({
-        ...initialProps,
-        fn: nextFn,
-      });
-      expect(environment.lookup).not.toBeCalled();
-      expect(environment.subscribe).not.toBeCalled();
-    });
-
-    it('updates for unequal scalar props', () => {
-      const userPointer = environment.lookup({
-        dataID: ROOT_ID,
-        node: UserQuery.fragment,
-        variables: {id: '4'},
-      }).data.node;
-      const scalar = 42;
-      const fn = () => null;
-      const instance = ReactTestRenderer.create(
-        <ContextSetter environment={environment} variables={variables}>
-          <TestContainer fn={fn} scalar={scalar} user={userPointer} />
-        </ContextSetter>,
-      );
-      const initialProps = render.mock.calls[0][0];
-      render.mockClear();
-      environment.lookup.mockClear();
-      environment.subscribe.mockClear();
-
-      instance.getInstance().setProps({
-        fn,
-        scalar: 43,
-        user: userPointer,
-      });
-
-      expect(render.mock.calls.length).toBe(1);
-      expect(render.mock.calls[0][0]).toEqual({
-        ...initialProps,
-        scalar: 43,
-      });
-      expect(environment.lookup).not.toBeCalled();
-      expect(environment.subscribe).not.toBeCalled();
-    });
-
-    it('always updates for non-scalar props', () => {
-      const userPointer = environment.lookup({
-        dataID: ROOT_ID,
-        node: UserQuery.fragment,
-        variables: {id: '4'},
-      }).data.node;
-      const instance = ReactTestRenderer.create(
-        <ContextSetter environment={environment} variables={variables}>
-          <TestContainer arr={[]} obj={{}} user={userPointer} />
-        </ContextSetter>,
-      );
-      const initialProps = render.mock.calls[0][0];
-      render.mockClear();
-      environment.lookup.mockClear();
-      environment.subscribe.mockClear();
-
-      const nextArr = [];
-      const nextObj = {};
-      instance.getInstance().setProps({
-        arr: nextArr,
-        obj: nextObj,
-        user: userPointer,
-      });
-
-      expect(render.mock.calls.length).toBe(1);
-      expect(render.mock.calls[0][0]).toEqual(initialProps);
-      expect(render.mock.calls[0][0].arr).toBe(nextArr);
-      expect(render.mock.calls[0][0].obj).toBe(nextObj);
-      expect(environment.lookup).not.toBeCalled();
-      expect(environment.subscribe).not.toBeCalled();
-    });
+    expect(render.mock.calls.length).toBe(1);
+    expect(render.mock.calls[0][0]).toEqual(initialProps);
+    expect(render.mock.calls[0][0].arr).toBe(nextArr);
+    expect(render.mock.calls[0][0].obj).toBe(nextObj);
+    expect(environment.lookup).not.toBeCalled();
+    expect(environment.subscribe).not.toBeCalled();
   });
 
   describe('refetch()', () => {
@@ -550,8 +541,13 @@ describe('ReactRelayRefetchContainer', () => {
     let references;
 
     beforeEach(() => {
-      _setUpContainerAndStore(RefetchQuery);
-
+      TestContainer = ReactRelayRefetchContainer.createContainer(
+      TestComponent,
+      {
+        user: () => UserFragment,
+      },
+      RefetchQuery,
+      );
       references = [];
       environment.retain = () => {
         const dispose = jest.fn();
@@ -561,10 +557,9 @@ describe('ReactRelayRefetchContainer', () => {
       };
       const userPointer = environment.lookup({
         dataID: ROOT_ID,
-        node: RefetchQuery.fragment,
-        variables: {id: '4', cond: true},
+        node: UserQuery.fragment,
+        variables: {id: '4'},
       }).data.node;
-
       instance = ReactTestRenderer.create(
         <ContextSetter environment={environment} variables={variables}>
           <TestContainer user={userPointer} />
@@ -588,32 +583,6 @@ describe('ReactRelayRefetchContainer', () => {
             __typename: 'User',
           },
         },
-      });
-    });
-
-    it('getVariables()', async () => {
-      expect.assertions(2);
-      let fragmentVariables = getVariables();
-      expect(fragmentVariables).toEqual({
-        cond: true
-      });
-      const callback = jest.fn();
-      variables = {
-        cond: false,
-        id: '4',
-      };
-      refetch(variables, null, callback);
-      await environment.mock.resolve(RefetchQuery, {
-        data: {
-          node: {
-            id: '4',
-            __typename: 'User',
-          },
-        },
-      });
-      fragmentVariables = getVariables();
-      expect(fragmentVariables).toEqual({
-        cond: false
       });
     });
 
@@ -697,8 +666,8 @@ describe('ReactRelayRefetchContainer', () => {
       const dispose = environment.streamQuery.mock.dispose;
       const userPointer = environment.lookup({
         dataID: ROOT_ID,
-        node: RefetchQuery.fragment,
-        variables: {id: '4', cond: true}, // same user
+        node: UserQuery.fragment,
+        variables: {id: '4'}, // same user
       }).data.node;
       instance.getInstance().setProps({user: userPointer});
       expect(dispose).not.toBeCalled();
@@ -713,8 +682,8 @@ describe('ReactRelayRefetchContainer', () => {
       const dispose = environment.streamQuery.mock.dispose;
       const userPointer = environment.lookup({
         dataID: ROOT_ID,
-        node: RefetchQuery.fragment,
-        variables: {id: '842472', cond: true}, // different user
+        node: UserQuery.fragment,
+        variables: {id: '842472'}, // different user
       }).data.node;
       instance.getInstance().setProps({user: userPointer});
       expect(dispose).toBeCalled();
@@ -737,8 +706,8 @@ describe('ReactRelayRefetchContainer', () => {
       });
       const userPointer = environment.lookup({
         dataID: ROOT_ID,
-        node: RefetchQuery.fragment,
-        variables: {id: '4', cond: true}, // same user
+        node: UserQuery.fragment,
+        variables: {id: '4'}, // same user
       }).data.node;
       instance.getInstance().setProps({user: userPointer});
       expect(references.length).toBe(1);
@@ -762,12 +731,38 @@ describe('ReactRelayRefetchContainer', () => {
       });
       const userPointer = environment.lookup({
         dataID: ROOT_ID,
-        node: RefetchQuery.fragment,
-        variables: {id: '842472', cond: true}, // different user
+        node: UserQuery.fragment,
+        variables: {id: '842472'}, // different user
       }).data.node;
       instance.getInstance().setProps({user: userPointer});
       expect(references.length).toBe(1);
       expect(references[0].dispose).toBeCalled();
+    });
+
+      it('getVariables()', async () => {
+      expect.assertions(2);
+      let fragmentVariables = getVariables();
+      expect(fragmentVariables).toEqual({
+        cond: true
+      });
+      const callback = jest.fn();
+      variables = {
+        cond: false,
+        id: '4',
+      };
+      refetch(variables, null, callback);
+      await environment.mock.resolve(RefetchQuery, {
+        data: {
+          node: {
+            id: '4',
+            __typename: 'User',
+          },
+        },
+      });
+      fragmentVariables = getVariables();
+      expect(fragmentVariables).toEqual({
+        cond: false
+      });
     });
   });
 });

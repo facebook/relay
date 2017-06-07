@@ -47,7 +47,7 @@ const RelayCompatMutations = {
           '`RelayEnvironmentInterface`, got `%s`.',
         environment,
       );
-      return commitRelay1Mutation(
+      return commitRelayClassicMutation(
         // getRelayClassicEnvironment returns a RelayEnvironmentInterface
         // (classic APIs), but we need the modern APIs on old core here.
         (relayClassicEnvironment: $FixMe),
@@ -57,7 +57,7 @@ const RelayCompatMutations = {
   },
 };
 
-function commitRelay1Mutation(
+function commitRelayClassicMutation(
   environment: ClassicEnvironment,
   {
     configs,

@@ -4,8 +4,9 @@ query SampleQuery(
 ) {
   node(id: $id) {
     ... on User {
-      # The @export directive is defined as an extension, so will get stripped.
-      id @export(as: "id")
+      # The @exampleFilteredDirective directive is defined as an extension, so
+      # will get stripped.
+      id @exampleFilteredDirective
 
       # The @include directive is defined in the base schema, so survives.
       name @include(if: $gk)

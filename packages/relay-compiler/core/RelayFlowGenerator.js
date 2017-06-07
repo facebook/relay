@@ -392,7 +392,7 @@ function transformNonNullableInputType(
         }
         return property;
       });
-    return exactObjectTypeAnnotation(props);
+    return t.objectTypeAnnotation(props);
   } else {
     throw new Error(`Could not convert from GraphQL type ${type.toString()}`);
   }

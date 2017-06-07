@@ -59,8 +59,6 @@ type State = {
  * - Subscribes for updates to the root data and re-renders with any changes.
  */
 class ReactRelayQueryRenderer extends React.Component {
-  _mounted: boolean;
-  _operation: ?OperationSelector;
   _pendingFetch: ?Disposable;
   _relayContext: RelayContext;
   _rootSubscription: ?Disposable;
@@ -87,8 +85,6 @@ class ReactRelayQueryRenderer extends React.Component {
       variables = operation.variables;
     }
 
-    this._mounted = false;
-    this._operation = operation;
     this._pendingFetch = null;
     this._relayContext = {
       environment,
@@ -118,10 +114,6 @@ class ReactRelayQueryRenderer extends React.Component {
     }
   }
 
-  componentDidMount(): void {
-    this._mounted = true;
-  }
-
   componentWillReceiveProps(nextProps: Props): void {
     if (
       nextProps.query !== this.props.query ||
@@ -142,7 +134,6 @@ class ReactRelayQueryRenderer extends React.Component {
           getOperation(query),
           variables,
         );
-        this._operation = operation;
         this._relayContext = {
           environment,
           variables: operation.variables,
@@ -152,7 +143,6 @@ class ReactRelayQueryRenderer extends React.Component {
           readyState: readyState || getDefaultState(),
         });
       } else {
-        this._operation = null;
         this._relayContext = {
           environment,
           variables,
@@ -171,7 +161,6 @@ class ReactRelayQueryRenderer extends React.Component {
 
   componentWillUnmount(): void {
     this._release();
-    this._mounted = false;
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: State): boolean {

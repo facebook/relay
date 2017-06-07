@@ -17,10 +17,12 @@ const invariant = require('invariant');
 const isRelayModernEnvironment = require('isRelayModernEnvironment');
 const warning = require('warning');
 
+const setRelayModernMutationConfigs = require('setRelayModernMutationConfigs');
+
 import type {Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {PayloadError, UploadableMap} from 'RelayNetworkTypes';
-import type {Environment, RecordSourceSelectorProxy} from 'RelayStoreTypes';
+import type {Environment, SelectorStoreUpdater} from 'RelayStoreTypes';
 import type {RelayMutationConfig} from 'RelayTypes';
 import type {Variables} from 'RelayTypes';
 
@@ -31,9 +33,9 @@ export type MutationConfig = {|
   uploadables?: UploadableMap,
   onCompleted?: ?(response: ?Object, errors: ?Array<PayloadError>) => void,
   onError?: ?(error: Error) => void,
-  optimisticUpdater?: ?(store: RecordSourceSelectorProxy) => void,
+  optimisticUpdater?: ?SelectorStoreUpdater,
   optimisticResponse?: ?() => Object,
-  updater?: ?(store: RecordSourceSelectorProxy) => void,
+  updater?: ?SelectorStoreUpdater,
 |};
 
 /**
@@ -51,14 +53,8 @@ function commitRelayModernMutation(
   );
   const {createOperationSelector, getOperation} = environment.unstable_internal;
   const mutation = getOperation(config.mutation);
-  const {
-    onError,
-    optimisticResponse,
-    optimisticUpdater,
-    updater,
-    variables,
-    uploadables,
-  } = config;
+  let {optimisticUpdater, updater} = config;
+  const {configs, onError, optimisticResponse, variables, uploadables} = config;
   const operation = createOperationSelector(mutation, variables);
   if (
     optimisticResponse &&
@@ -73,6 +69,14 @@ function commitRelayModernMutation(
         ' to be wrapped in mutation name `%s`',
       mutationRoot,
     );
+  }
+  if (configs) {
+    ({optimisticUpdater, updater} = setRelayModernMutationConfigs(
+      configs,
+      mutation,
+      optimisticUpdater,
+      updater,
+    ));
   }
   return environment.sendMutation({
     onError,

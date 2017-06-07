@@ -21,6 +21,7 @@ const RelayRecordSourceProxy = require('RelayRecordSourceProxy');
 const RelayRecordSourceSelectorProxy = require('RelayRecordSourceSelectorProxy');
 
 const invariant = require('invariant');
+const normalizeRelayPayload = require('normalizeRelayPayload');
 
 import type {SelectorData} from 'RelayCombinedEnvironmentTypes';
 import type {HandlerProvider} from 'RelayDefaultHandlerProvider';
@@ -246,7 +247,14 @@ class RelayPublishQueue {
               response,
             } = optimisticUpdate;
             const selectorStore = store.commitPayload(operation, response);
-            selectorStoreUpdater && selectorStoreUpdater(selectorStore);
+            // TODO: Fix commitPayload so we don't have to run normalize twice
+            let selectorData, source;
+            if (response) {
+              ({source} = normalizeRelayPayload(operation.root, response));
+              selectorData = lookupSelector(source, operation.fragment);
+            }
+            selectorStoreUpdater &&
+              selectorStoreUpdater(selectorStore, selectorData);
           } else {
             const {storeUpdater} = optimisticUpdate;
             storeUpdater(store);
@@ -264,7 +272,14 @@ class RelayPublishQueue {
               response,
             } = optimisticUpdate;
             const selectorStore = store.commitPayload(operation, response);
-            selectorStoreUpdater && selectorStoreUpdater(selectorStore);
+            // TODO: Fix commitPayload so we don't have to run normalize twice
+            let selectorData, source;
+            if (response) {
+              ({source} = normalizeRelayPayload(operation.root, response));
+              selectorData = lookupSelector(source, operation.fragment);
+            }
+            selectorStoreUpdater &&
+              selectorStoreUpdater(selectorStore, selectorData);
           } else {
             const {storeUpdater} = optimisticUpdate;
             storeUpdater(store);

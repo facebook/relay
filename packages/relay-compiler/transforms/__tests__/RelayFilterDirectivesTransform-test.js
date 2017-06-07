@@ -15,9 +15,8 @@ jest.disableAutomock();
 
 describe('RelayFilterDirectivesTransform', () => {
   let RelayCompilerContext;
-  let RelayPrinter;
-  let RelayExportTransform;
   let RelayFilterDirectivesTransform;
+  let RelayPrinter;
   let RelayTestSchema;
   let getGoldenMatchers;
   let parseGraphQLText;
@@ -27,9 +26,8 @@ describe('RelayFilterDirectivesTransform', () => {
     jest.resetModules();
 
     RelayCompilerContext = require('RelayCompilerContext');
-    RelayPrinter = require('RelayPrinter');
-    RelayExportTransform = require('RelayExportTransform');
     RelayFilterDirectivesTransform = require('RelayFilterDirectivesTransform');
+    RelayPrinter = require('RelayPrinter');
     RelayTestSchema = require('RelayTestSchema');
     getGoldenMatchers = require('getGoldenMatchers');
     parseGraphQLText = require('parseGraphQLText');
@@ -41,9 +39,9 @@ describe('RelayFilterDirectivesTransform', () => {
 
   it('filters out directives not defined in the original schema', () => {
     expect('fixtures/filter-directives-transform').toMatchGolden(text => {
-      // Extend the schema with an `@export` directive for testing purposes.
+      // Extend the schema with a directive for testing purposes.
       const extendedSchema = transformASTSchema(RelayTestSchema, [
-        RelayExportTransform.SCHEMA_EXTENSION,
+        'directive @exampleFilteredDirective on FIELD',
       ]);
       const {definitions} = parseGraphQLText(extendedSchema, text);
       let context = new RelayCompilerContext(extendedSchema).addAll(

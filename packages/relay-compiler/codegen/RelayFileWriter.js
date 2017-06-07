@@ -186,12 +186,10 @@ class RelayFileWriter {
             }
           }
 
-          const flowTypes = node.kind === 'Fragment'
-            ? RelayFlowGenerator.generate(
-                node,
-                this._config.inputFieldWhiteListForFlow,
-              )
-            : printFlowTypes(node);
+          const flowTypes = RelayFlowGenerator.generate(
+            node,
+            this._config.inputFieldWhiteListForFlow,
+          );
           const compiledNode = compiledDocumentMap.get(node.name);
           invariant(
             compiledNode,

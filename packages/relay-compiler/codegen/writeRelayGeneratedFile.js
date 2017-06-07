@@ -62,7 +62,7 @@ async function writeRelayGeneratedFile(
     hash = md5(
       JSON.stringify(generatedNode) +
         (persistQuery ? 'persisted' : '') +
-        'cache-breaker-4',
+        'cache-breaker-5',
     );
     if (hash === extractHash(oldContent)) {
       codegenDir.markUnchanged(filename);

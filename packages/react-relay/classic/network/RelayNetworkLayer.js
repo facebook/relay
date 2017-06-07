@@ -102,6 +102,7 @@ class RelayNetworkLayer {
   }
 
   sendQueries(queryRequests: Array<RelayQueryRequest>): void {
+    profileQueue(queryRequests);
     const implementation = this._getImplementation();
     this._subscribers.forEach(({queryCallback}) => {
       if (queryCallback) {
@@ -145,7 +146,6 @@ class RelayNetworkLayer {
       this._queue = currentQueue;
       resolveImmediate(() => {
         this._queue = null;
-        profileQueue(currentQueue);
         this.sendQueries(currentQueue);
       });
     }

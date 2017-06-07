@@ -9,10 +9,10 @@ export type ExampleFragment = {|
 |};
 
 export type TestMutationVariables = {|
-  input: {|
+  input: {
     clientMutationId?: ?string;
     feedbackId?: ?string;
-  |};
+  };
 |};
 
 export type TestMutationResponse = {|
@@ -24,10 +24,10 @@ export type TestMutationResponse = {|
 |};
 
 export type TestSubscriptionVariables = {|
-  input?: ?{|
+  input?: ?{
     clientMutationId?: ?string;
     feedbackId?: ?string;
-  |};
+  };
 |};
 
 export type TestSubscriptionResponse = {|

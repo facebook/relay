@@ -196,7 +196,7 @@ describe('GraphQLQueryRunner', () => {
     );
   });
 
-  it('waits for all required data before being ready', () => {
+  it('waits for all required data before being ready', async () => {
     diffRelayQuery.mockImplementation(query => [query]);
     mockSplitDeferredQueries();
 
@@ -204,6 +204,7 @@ describe('GraphQLQueryRunner', () => {
     jest.runAllTimers();
 
     pendingQueryTracker.add.mock.fetches[0].resolve();
+    await pendingQueryTracker.add.mock.fetches[0].getResolvedPromise();
     jest.runAllTimers();
 
     expect(mockCallback).lastCalledWith({
@@ -226,6 +227,7 @@ describe('GraphQLQueryRunner', () => {
     });
 
     pendingQueryTracker.add.mock.fetches[1].resolve();
+    await pendingQueryTracker.add.mock.fetches[1].getResolvedPromise();
     jest.runAllTimers();
 
     expect(mockCallback).lastCalledWith({
@@ -299,7 +301,7 @@ describe('GraphQLQueryRunner', () => {
     });
   });
 
-  it('calls the callback for each deferred query', () => {
+  it('calls the callback for each deferred query', async () => {
     diffRelayQuery.mockImplementation(query => [query]);
     splitDeferredRelayQueries.mockImplementation(query => {
       if (query.getFieldName() === 'viewer') {
@@ -325,6 +327,7 @@ describe('GraphQLQueryRunner', () => {
     jest.runAllTimers();
 
     pendingQueryTracker.add.mock.fetches[0].resolve();
+    await pendingQueryTracker.add.mock.fetches[0].getResolvedPromise();
     jest.runAllTimers();
 
     expect(mockCallback.mock.calls).toEqual([
@@ -391,6 +394,7 @@ describe('GraphQLQueryRunner', () => {
     ]);
 
     pendingQueryTracker.add.mock.fetches[1].resolve();
+    await pendingQueryTracker.add.mock.fetches[1].getResolvedPromise();
     jest.runAllTimers();
 
     expect(mockCallback).lastCalledWith({
@@ -419,7 +423,7 @@ describe('GraphQLQueryRunner', () => {
     });
   });
 
-  it('calls the callback only once when completing all queries', () => {
+  it('calls the callback only once when completing all queries', async () => {
     diffRelayQuery.mockImplementation(query => [query]);
     mockSplitDeferredQueries();
 
@@ -446,7 +450,9 @@ describe('GraphQLQueryRunner', () => {
     });
 
     pendingQueryTracker.add.mock.fetches[0].resolve();
+    await pendingQueryTracker.add.mock.fetches[0].getResolvedPromise();
     pendingQueryTracker.add.mock.fetches[1].resolve();
+    await pendingQueryTracker.add.mock.fetches[1].getResolvedPromise();
     jest.runAllTimers();
 
     expect(mockCallback.mock.calls).toEqual([
@@ -513,7 +519,7 @@ describe('GraphQLQueryRunner', () => {
     ]);
   });
 
-  it('is done after all data is fetched', () => {
+  it('is done after all data is fetched', async () => {
     diffRelayQuery.mockImplementation(query => [query]);
     mockSplitDeferredQueries();
 
@@ -521,7 +527,9 @@ describe('GraphQLQueryRunner', () => {
     jest.runAllTimers();
 
     pendingQueryTracker.add.mock.fetches[0].resolve();
+    await pendingQueryTracker.add.mock.fetches[0].getResolvedPromise();
     pendingQueryTracker.add.mock.fetches[1].resolve();
+    await pendingQueryTracker.add.mock.fetches[1].getResolvedPromise();
     jest.runAllTimers();
 
     expect(mockCallback).lastCalledWith({
@@ -628,7 +636,7 @@ describe('GraphQLQueryRunner', () => {
     ]);
   });
 
-  it('calls the callback if disk cache read completes after a network error', () => {
+  it('calls the callback if disk cache read completes after a network error', async () => {
     diffRelayQuery.mockImplementation(query => [query]);
     RelayStoreData.prototype.hasCacheManager = jest.fn(() => true);
     let cacheCallback;
@@ -639,8 +647,15 @@ describe('GraphQLQueryRunner', () => {
     );
     mockSplitDeferredQueries();
     const error = {};
-    queryRunner.run(mockQuerySet, mockCallback);
+    await new Promise(resolve => queryRunner.run(
+      mockQuerySet,
+      result => {
+        mockCallback(result);
+        resolve();
+      }
+    ));
     pendingQueryTracker.add.mock.fetches[0].reject(error);
+    await pendingQueryTracker.add.mock.fetches[0].getResolvedPromise().catch(() => {});
     jest.runAllTimers();
     cacheCallback();
     jest.runAllTimers();
@@ -712,7 +727,7 @@ describe('GraphQLQueryRunner', () => {
     jest.runAllTimers();
   });
 
-  it('calls the callback if disk cache ready complete after queries are resolved', () => {
+  it('calls the callback if disk cache ready complete after queries are resolved', async () => {
     diffRelayQuery.mockImplementation(query => [query]);
     RelayStoreData.prototype.hasCacheManager = jest.fn(() => true);
     let cacheCallback;
@@ -723,9 +738,17 @@ describe('GraphQLQueryRunner', () => {
     );
     mockSplitDeferredQueries();
 
-    queryRunner.run(mockQuerySet, mockCallback);
+    await new Promise(resolve => queryRunner.run(
+      mockQuerySet,
+      result => {
+        mockCallback(result);
+        resolve();
+      }
+    ));
     pendingQueryTracker.add.mock.fetches[0].resolve();
+    await pendingQueryTracker.add.mock.fetches[0].getResolvedPromise();
     pendingQueryTracker.add.mock.fetches[1].resolve();
+    await pendingQueryTracker.add.mock.fetches[1].getResolvedPromise();
     jest.runAllTimers();
     cacheCallback();
     jest.runAllTimers();
@@ -785,13 +808,17 @@ describe('GraphQLQueryRunner', () => {
     );
   });
 
-  it('is completely ready on `forceFetch` when all data is available', () => {
+  it('is completely ready on `forceFetch` when all data is available', async () => {
     diffRelayQuery.mockImplementation(() => []);
     checkRelayQueryData.mockImplementation(() => true);
     mockSplitDeferredQueries();
     const singleMockQuery = {foo: mockQuerySet.foo};
-    queryRunner.forceFetch(singleMockQuery, mockCallback);
-    jest.runAllTimers();
+    await new Promise(resolve => {
+      queryRunner.forceFetch(singleMockQuery, result => {
+        mockCallback(result);
+        resolve();
+      });
+    });
 
     expect(mockCallback.mock.calls).toEqual([
       [
@@ -835,6 +862,7 @@ describe('GraphQLQueryRunner', () => {
     expect(pendingQueryTracker.add.mock.calls.length).toBe(1);
 
     pendingQueryTracker.add.mock.fetches[0].resolve();
+    await pendingQueryTracker.add.mock.fetches[0].getResolvedPromise();
     jest.runAllTimers();
 
     expect(mockCallback).lastCalledWith({
@@ -917,11 +945,23 @@ describe('GraphQLQueryRunner', () => {
       const resolveSplitQueryByIndex = index => {
         pendingQueryTracker.add.mock.fetches[index].resolve();
       };
-      runTest = () => {
-        queryRunner.run({foo: mockQuery}, mockCallback, fetchMode);
+      runTest = async () => {
+        const waits = [];
+        const runs = [];
+        const runCalled = () => new Promise(resolve => {
+          runs.length ? resolve(runs.shift()) : waits.push(resolve);
+        });
+        queryRunner.run({foo: mockQuery}, result => {
+          mockCallback(result);
+          waits.length ? waits.shift()(result) : runs.push(result);
+        }, fetchMode);
+
         resolveSplitQueryByIndex(1);
         resolveSplitQueryByIndex(0);
         jest.runAllTimers();
+        await runCalled();
+        await runCalled();
+        await runCalled();
 
         const defaultState = {
           aborted: false,
@@ -932,7 +972,6 @@ describe('GraphQLQueryRunner', () => {
           stale: false,
         };
 
-        // Only called once after both splitQuery#0 and splitQuery#1.
         expect(mockCallback.mock.calls).toEqual([
           [
             {
@@ -940,6 +979,16 @@ describe('GraphQLQueryRunner', () => {
               events: [
                 {type: 'NETWORK_QUERY_START'},
                 {type: 'CACHE_RESTORE_START'},
+              ],
+            },
+          ],
+          [
+            {
+              ...defaultState,
+              events: [
+                {type: 'NETWORK_QUERY_START'},
+                {type: 'CACHE_RESTORE_START'},
+                {type: 'CACHE_RESTORE_FAILED'},
               ],
             },
           ],
@@ -960,6 +1009,7 @@ describe('GraphQLQueryRunner', () => {
         resolveSplitQueryByIndex(2);
         resolveSplitQueryByIndex(3);
         jest.runAllTimers();
+        await runCalled();
 
         // Only called once more after both splitQuery#2 and splitQuery#3.
         expect(mockCallback.mock.calls).toEqual([
@@ -971,6 +1021,16 @@ describe('GraphQLQueryRunner', () => {
                 {type: 'CACHE_RESTORE_START'},
               ],
               ready: false,
+            },
+          ],
+          [
+            {
+              ...defaultState,
+              events: [
+                {type: 'NETWORK_QUERY_START'},
+                {type: 'CACHE_RESTORE_START'},
+                {type: 'CACHE_RESTORE_FAILED'},
+              ],
             },
           ],
           [
@@ -1002,6 +1062,7 @@ describe('GraphQLQueryRunner', () => {
 
         resolveSplitQueryByIndex(4);
         jest.runAllTimers();
+        await runCalled();
 
         expect(mockCallback).lastCalledWith({
           ...defaultState,
@@ -1021,12 +1082,12 @@ describe('GraphQLQueryRunner', () => {
 
     it('does in preload mode', () => {
       fetchMode = RelayFetchMode.PRELOAD;
-      runTest();
+      return runTest();
     });
 
     it('does in client mode', () => {
       fetchMode = RelayFetchMode.CLIENT;
-      runTest();
+      return runTest();
     });
   });
 });

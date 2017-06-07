@@ -12,7 +12,6 @@
 
 'use strict';
 
-jest.useFakeTimers();
 jest.unmock('RelayTaskQueue');
 
 const RelayTaskQueue = require('RelayTaskQueue');
@@ -33,51 +32,50 @@ describe('RelayTaskQueue', () => {
       taskQueue = new RelayTaskQueue();
     });
 
-    it('resolves to undefined when no callbacks are supplied', () => {
+    it('resolves to undefined when no callbacks are supplied', async () => {
       const mockFunction = jest.fn();
-      taskQueue.enqueue().done(mockFunction);
-      jest.runAllTimers();
+      await taskQueue.enqueue().then(mockFunction);
       expect(mockFunction).toBeCalledWith(undefined);
     });
 
-    it('immediately invokes tasks', () => {
+    it('immediately invokes tasks', async () => {
       const mockFunction = jest.fn();
-      taskQueue.enqueue(mockFunction);
-      jest.runAllTimers();
+      await taskQueue.enqueue(mockFunction);
       expect(mockFunction).toBeCalled();
     });
 
-    it('invokes multiple enqueued tasks in order', () => {
+    it('invokes multiple enqueued tasks in order', async () => {
       const mockOrdering = [];
-      taskQueue.enqueue(() => mockOrdering.push('foo'));
-      taskQueue.enqueue(() => mockOrdering.push('bar'));
-      taskQueue.enqueue(() => mockOrdering.push('baz'));
-      jest.runAllTimers();
+      await Promise.all([
+        taskQueue.enqueue(() => mockOrdering.push('foo')),
+        taskQueue.enqueue(() => mockOrdering.push('bar')),
+        taskQueue.enqueue(() => mockOrdering.push('baz')),
+      ]);
       expect(mockOrdering).toEqual(['foo', 'bar', 'baz']);
     });
 
-    it('enqueues tasks enqueued by other tasks contiguously', () => {
+    it('enqueues tasks enqueued by other tasks contiguously', async () => {
       const mockOrdering = [];
-      taskQueue.enqueue(() => {
-        mockOrdering.push('foo');
-        taskQueue.enqueue(() => mockOrdering.push('bar'));
-      });
-      // Although `baz` is enqueued before `bar`, `bar` should execute first.
-      taskQueue.enqueue(() => mockOrdering.push('baz'));
-      jest.runAllTimers();
+      await Promise.all([
+        taskQueue.enqueue(() => {
+          mockOrdering.push('foo');
+          taskQueue.enqueue(() => mockOrdering.push('bar'));
+        }),
+        // Although `baz` is enqueued before `bar`, `bar` should execute first.
+        taskQueue.enqueue(() => mockOrdering.push('baz')),
+      ]);
       expect(mockOrdering).toEqual(['foo', 'bar', 'baz']);
     });
 
-    it("resolves to the task's return value", () => {
+    it("resolves to the task's return value", async () => {
       const mockFunction = jest.fn();
-      taskQueue.enqueue(() => 42).done(mockFunction);
-      jest.runAllTimers();
+      await taskQueue.enqueue(() => 42).then(mockFunction);
       expect(mockFunction).toBeCalledWith(42);
     });
 
-    it('forwards return values for multiple callbacks', () => {
+    it('forwards return values for multiple callbacks', async () => {
       const mockOrdering = [];
-      taskQueue
+      await taskQueue
         .enqueue(
           () => {
             mockOrdering.push('foo');
@@ -88,18 +86,17 @@ describe('RelayTaskQueue', () => {
             return 'baz';
           },
         )
-        .done(returnValue => {
+        .then(returnValue => {
           mockOrdering.push(returnValue);
         });
-      jest.runAllTimers();
       expect(mockOrdering).toEqual(['foo', 'bar', 'baz']);
     });
 
-    it('aborts and rejects if a callback throws', () => {
+    it('aborts and rejects if a callback throws', async () => {
       const mockError = new Error('Expected error.');
       const mockCallback = jest.fn();
       const mockFailureCallback = jest.fn();
-      taskQueue
+      await taskQueue
         .enqueue(
           () => 'foo',
           () => {
@@ -108,23 +105,21 @@ describe('RelayTaskQueue', () => {
           mockCallback,
         )
         .catch(mockFailureCallback);
-      jest.runAllTimers();
       expect(mockCallback).not.toBeCalled();
       expect(mockFailureCallback).toBeCalledWith(mockError);
     });
 
-    it('does not affect next chain of callbacks after rejection', () => {
+    it('does not affect next chain of callbacks after rejection', async () => {
       const mockError = new Error('Expected error.');
       const mockCallback = jest.fn();
       const mockFailureCallback = jest.fn();
       const mockSuccessCallback = jest.fn();
-      taskQueue
+      await taskQueue
         .enqueue(() => {
           throw mockError;
         })
         .catch(mockFailureCallback);
-      taskQueue.enqueue(mockCallback).done(mockSuccessCallback);
-      jest.runAllTimers();
+      await taskQueue.enqueue(mockCallback).then(mockSuccessCallback);
       expect(mockFailureCallback).toBeCalledWith(mockError);
       expect(mockCallback).toBeCalled();
       expect(mockSuccessCallback).toBeCalled();
@@ -188,15 +183,15 @@ describe('RelayTaskQueue', () => {
       }).toFailInvariant('RelayTaskQueue: Tasks can only be executed once.');
     });
 
-    it('preserves execution order despite scheduler changes', () => {
+    it('preserves execution order despite scheduler changes', async () => {
       const mockOrdering = [];
       // This task is enqueued with a scheduler that defers the work
       taskQueue.injectScheduler(resolveImmediate);
-      taskQueue.enqueue(() => mockOrdering.push('foo'));
+      const p1 = taskQueue.enqueue(() => mockOrdering.push('foo'));
       // This task is enqueued with no scheduler
       taskQueue.injectScheduler(undefined);
-      taskQueue.enqueue(() => mockOrdering.push('bar'));
-      jest.runAllTimers();
+      const p2 = taskQueue.enqueue(() => mockOrdering.push('bar'));
+      await Promise.all([p1, p2]);
       // Make sure the work units get done in order
       expect(mockOrdering).toEqual(['foo', 'bar']);
     });

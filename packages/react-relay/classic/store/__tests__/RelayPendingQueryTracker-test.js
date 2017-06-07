@@ -14,7 +14,6 @@
 
 require('configureForRelayOSS');
 
-jest.useFakeTimers();
 jest.unmock('RelayPendingQueryTracker').unmock('RelayTaskQueue');
 
 const Relay = require('Relay');
@@ -30,6 +29,8 @@ describe('RelayPendingQueryTracker', () => {
   let addPending;
 
   let fetchRelayQuery;
+
+  let spyOnConsole;
 
   const {getNode} = RelayTestUtils;
 
@@ -52,23 +53,30 @@ describe('RelayPendingQueryTracker', () => {
     };
 
     jasmine.addMatchers(RelayTestUtils.matchers);
+
+    let consoleWarn = console.warn;
+
+    spyOnConsole = () => {
+      const spy = {};
+      console.warn = (...args) => {
+        spy.args = args;
+      };
+      return spy;
+    };
+
     jasmine.addMatchers({
-      toConsoleWarn() {
+      toHaveWarned() {
         return {
-          compare(callback, expected) {
-            const consoleWarn = console.warn;
+          compare(spy, expected) {
             let pass = false;
-            console.warn = (...args) => {
-              if (
-                args.length === expected.length &&
-                args.every((arg, ii) => arg === expected[ii])
-              ) {
-                pass = true;
-              } else {
-                consoleWarn(...args);
-              }
-            };
-            callback();
+            if (
+              spy.args.length === expected.length &&
+              spy.args.every((arg, ii) => arg === expected[ii])
+            ) {
+              pass = true;
+            } else {
+              consoleWarn(...args);
+            }
             console.warn = consoleWarn;
             return {pass};
           },
@@ -77,7 +85,7 @@ describe('RelayPendingQueryTracker', () => {
     });
   });
 
-  it('calls `onSuccess` callback when inner fetch resolves', () => {
+  it('calls `onSuccess` callback when inner fetch resolves', async () => {
     const mockQueryA = getNode(
       Relay.QL`
       query {
@@ -88,16 +96,15 @@ describe('RelayPendingQueryTracker', () => {
 
     const pendingA = addPending({query: mockQueryA});
     const mockSuccessA = jest.fn();
-    pendingA.done(mockSuccessA);
-    jest.runAllTimers();
+    const promise = pendingA.then(mockSuccessA);
 
     fetchRelayQuery.mock.requests[0].resolve({viewer: {}});
-    jest.runAllTimers();
+    await promise;
 
     expect(mockSuccessA).toBeCalled();
   });
 
-  it('calls `writeRelayQueryPayload` when receiving data', () => {
+  it('calls `writeRelayQueryPayload` when receiving data', async () => {
     const mockQueryA = getNode(
       Relay.QL`
       query {
@@ -106,11 +113,10 @@ describe('RelayPendingQueryTracker', () => {
     `,
     );
 
-    addPending({query: mockQueryA});
-    jest.runAllTimers();
+    const promise = addPending({query: mockQueryA});
 
     fetchRelayQuery.mock.requests[0].resolve({viewer: {}});
-    jest.runAllTimers();
+    await promise;
 
     const writeCalls = writeRelayQueryPayload.mock.calls;
     expect(writeCalls.length).toBe(1);
@@ -118,7 +124,7 @@ describe('RelayPendingQueryTracker', () => {
     expect(writeCalls[0][2]).toEqual({viewer: {}});
   });
 
-  it('fails if fetching throws an error', () => {
+  it('fails if fetching throws an error', async () => {
     const mockQuery = getNode(
       Relay.QL`
       query {
@@ -128,18 +134,19 @@ describe('RelayPendingQueryTracker', () => {
     );
     const pendingA = addPending({query: mockQuery});
     const mockFailureA = jest.fn();
-    pendingA.catch(mockFailureA);
+    const promise = pendingA.catch(mockFailureA);
 
     const mockError = new Error('Expected error.');
     fetchRelayQuery.mock.requests[0].reject(mockError);
-    expect(() => {
-      jest.runAllTimers();
-    }).toConsoleWarn([mockError.message]);
+
+    const spy = spyOnConsole();
+    await promise;
+    expect(spy).toHaveWarned([mockError.message]);
 
     expect(mockFailureA).toBeCalledWith(mockError);
   });
 
-  it('fails if `writeRelayQueryPayload` throws', () => {
+  it('fails if `writeRelayQueryPayload` throws', async () => {
     const mockQuery = getNode(
       Relay.QL`
       query {
@@ -149,21 +156,22 @@ describe('RelayPendingQueryTracker', () => {
     );
     const pendingA = addPending({query: mockQuery});
     const mockFailureA = jest.fn();
-    pendingA.catch(mockFailureA);
+    const promise = pendingA.catch(mockFailureA);
 
     const mockError = new Error('Expected error.');
     fetchRelayQuery.mock.requests[0].resolve({viewer: {}});
     writeRelayQueryPayload.mockImplementation(() => {
       throw mockError;
     });
-    expect(() => {
-      jest.runAllTimers();
-    }).toConsoleWarn([mockError.message]);
+
+    const spy = spyOnConsole();
+    await promise;
+    expect(spy).toHaveWarned([mockError.message]);
 
     expect(mockFailureA).toBeCalledWith(mockError);
   });
 
-  it('can resolve preload queries *after* they are added', () => {
+  it('can resolve preload queries *after* they are added', async () => {
     const mockQuery = getNode(
       Relay.QL`
       query {
@@ -172,7 +180,7 @@ describe('RelayPendingQueryTracker', () => {
     `,
     );
 
-    addPending({
+    const promise = addPending({
       query: mockQuery,
       fetchMode: RelayFetchMode.PRELOAD,
     });
@@ -181,7 +189,7 @@ describe('RelayPendingQueryTracker', () => {
       response: {viewer: {}},
     });
 
-    jest.runAllTimers();
+    await promise;
 
     expect(pendingQueryTracker.hasPendingQueries()).toBeFalsy();
     const writeCalls = writeRelayQueryPayload.mock.calls;
@@ -190,7 +198,7 @@ describe('RelayPendingQueryTracker', () => {
     expect(writeCalls[0][2]).toEqual({viewer: {}});
   });
 
-  it('can resolve preload queries *before* they are added', () => {
+  it('can resolve preload queries *before* they are added', async () => {
     const mockQuery = getNode(
       Relay.QL`
       query {
@@ -203,12 +211,10 @@ describe('RelayPendingQueryTracker', () => {
       response: {viewer: {}},
     });
 
-    addPending({
+    await addPending({
       query: mockQuery,
       fetchMode: RelayFetchMode.PRELOAD,
     });
-
-    jest.runAllTimers();
 
     expect(pendingQueryTracker.hasPendingQueries()).toBeFalsy();
     const writeCalls = writeRelayQueryPayload.mock.calls;
@@ -217,7 +223,7 @@ describe('RelayPendingQueryTracker', () => {
     expect(writeCalls[0][2]).toEqual({viewer: {}});
   });
 
-  it('can reject preloaded pending queries by id', () => {
+  it('can reject preloaded pending queries by id', async () => {
     const mockQuery = getNode(
       Relay.QL`
       query {
@@ -231,15 +237,14 @@ describe('RelayPendingQueryTracker', () => {
       fetchMode: RelayFetchMode.PRELOAD,
     });
     const mockCallback = jest.fn();
-    mockPending.catch(mockCallback);
+    const promise = mockPending.catch(mockCallback);
 
     const mockError = new Error('Expected error.');
     pendingQueryTracker.rejectPreloadQuery(mockQuery.getID(), mockError);
-    expect(() => {
-      jest.runAllTimers();
-    }).toConsoleWarn([mockError.message]);
 
-    jest.runAllTimers();
+    const spy = spyOnConsole();
+    await promise;
+    expect(spy).toHaveWarned([mockError.message]);
 
     expect(pendingQueryTracker.hasPendingQueries()).toBeFalsy();
     expect(mockCallback).toBeCalledWith(mockError);
@@ -254,12 +259,11 @@ describe('RelayPendingQueryTracker', () => {
     `,
     );
     addPending({query: mockQueryA});
-    jest.runAllTimers();
 
     expect(pendingQueryTracker.hasPendingQueries()).toBeTruthy();
   });
 
-  it('has no pending queries when queries are all resolved', () => {
+  it('has no pending queries when queries are all resolved', async () => {
     const mockQueryA = getNode(
       Relay.QL`
       query {
@@ -267,11 +271,10 @@ describe('RelayPendingQueryTracker', () => {
       }
     `,
     );
-    addPending({query: mockQueryA});
-    jest.runAllTimers();
+    const promise = addPending({query: mockQueryA});
 
     fetchRelayQuery.mock.requests[0].resolve({viewer: {}});
-    jest.runAllTimers();
+    await promise;
 
     expect(pendingQueryTracker.hasPendingQueries()).toBeFalsy();
   });
@@ -284,8 +287,7 @@ describe('RelayPendingQueryTracker', () => {
       }
     `,
     );
-    addPending({query: mockQueryA});
-    jest.runAllTimers();
+    const promise = addPending({query: mockQueryA});
 
     pendingQueryTracker.resetPending();
 

@@ -299,8 +299,8 @@ export type Observer<T> = {
 };
 
 export type SingleObserver<T> = {
-  onCompleted?: ?(data: T) => void,
-  onError?: ?(error: Error) => void,
+  onCompleted: (data: T) => void,
+  onError: (error: Error) => void,
 };
 
 /**

@@ -36,7 +36,6 @@ export interface ResponseCache {
  * queries.
  */
 export interface Network {
-  fetch: FetchFunction,
   request: RequestResponseFunction,
   requestStream: RequestStreamFunction,
 }
@@ -80,7 +79,7 @@ export type FetchFunction = (
   operation: ConcreteBatch,
   variables: Variables,
   cacheConfig: ?CacheConfig,
-  uploadables?: UploadableMap,
+  uploadables?: ?UploadableMap,
 ) => PromiseOrValue<QueryPayload>;
 
 /**
@@ -115,7 +114,7 @@ export type RequestResponseFunction = (
   operation: ConcreteBatch,
   variables: Variables,
   cacheConfig?: ?CacheConfig,
-  uploadables?: UploadableMap,
+  uploadables?: ?UploadableMap,
   observer: SingleObserver<RelayResponsePayload>,
 ) => Disposable;
 

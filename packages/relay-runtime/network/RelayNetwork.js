@@ -43,7 +43,7 @@ function create(fetch: FetchFunction, subscribe?: SubscribeFunction): Network {
     operation: ConcreteBatch,
     variables: Variables,
     cacheConfig?: ?CacheConfig,
-    uploadables?: UploadableMap,
+    uploadables?: ?UploadableMap,
     observer: SingleObserver<RelayResponsePayload>,
   ): Disposable {
     let isDisposed = false;
@@ -170,6 +170,7 @@ function doFetchWithPolling(
       operation,
       variables,
       {force: true},
+      null,
       {
         onCompleted: payload => {
           onNext && onNext(payload);

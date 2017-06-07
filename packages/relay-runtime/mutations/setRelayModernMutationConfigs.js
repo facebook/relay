@@ -8,6 +8,7 @@
  *
  * @providesModule setRelayModernMutationConfigs
  * @flow
+ * @format
  */
 
 'use strict';
@@ -17,7 +18,10 @@ import warning from 'warning';
 
 import type {SelectorData} from 'RelayCombinedEnvironmentTypes';
 import type {ConcreteBatch} from 'RelayConcreteNode';
-import type {RecordSourceSelectorProxy, SelectorStoreUpdater} from 'RelayStoreTypes';
+import type {
+  RecordSourceSelectorProxy,
+  SelectorStoreUpdater,
+} from 'RelayStoreTypes';
 import type {RelayMutationConfig, Variables} from 'RelayTypes';
 
 export default function setRelayModernMutationConfigs(
@@ -25,24 +29,16 @@ export default function setRelayModernMutationConfigs(
   operation: ConcreteBatch,
   optimisticUpdater?: ?(
     store: RecordSourceSelectorProxy,
-    data: ?SelectorData
+    data: ?SelectorData,
   ) => void,
-  updater?: ?(
-    store: RecordSourceSelectorProxy,
-    data: ?SelectorData
-  ) => void,
+  updater?: ?(store: RecordSourceSelectorProxy, data: ?SelectorData) => void,
 ): Object {
-  const configOptimisticUpdates = optimisticUpdater ?
-    [optimisticUpdater] :
-    [];
+  const configOptimisticUpdates = optimisticUpdater ? [optimisticUpdater] : [];
   const configUpdates = updater ? [updater] : [];
   configs.forEach(config => {
     switch (config.type) {
       case 'RANGE_DELETE':
-        const rangeDeleteResult = rangeDelete(
-          config,
-          operation,
-        );
+        const rangeDeleteResult = rangeDelete(config, operation);
         if (rangeDeleteResult) {
           configOptimisticUpdates.push(rangeDeleteResult);
           configUpdates.push(rangeDeleteResult);
@@ -50,7 +46,10 @@ export default function setRelayModernMutationConfigs(
         break;
     }
   });
-  optimisticUpdater = (store: RecordSourceSelectorProxy, data: ?SelectorData) => {
+  optimisticUpdater = (
+    store: RecordSourceSelectorProxy,
+    data: ?SelectorData,
+  ) => {
     configOptimisticUpdates.forEach(eachOptimisticUpdater => {
       eachOptimisticUpdater(store, data);
     });
@@ -95,14 +94,27 @@ function rangeDelete(
               }
               if (Array.isArray(deletedIDField)) {
                 deletedIDField.forEach(idObject => {
-                  if (idObject && idObject.id && typeof idObject === 'object' && typeof idObject.id === 'string') {
+                  if (
+                    idObject &&
+                    idObject.id &&
+                    typeof idObject === 'object' &&
+                    typeof idObject.id === 'string'
+                  ) {
                     deleteIDs.push(idObject.id);
                   }
                 });
-              } else if (deletedIDField && deletedIDField.id && typeof deletedIDField.id === 'string') {
+              } else if (
+                deletedIDField &&
+                deletedIDField.id &&
+                typeof deletedIDField.id === 'string'
+              ) {
                 deleteIDs.push(deletedIDField.id);
               }
-            } else if (deletedIDField && typeof deletedIDFieldName === 'string' && typeof deletedIDField === 'object') {
+            } else if (
+              deletedIDField &&
+              typeof deletedIDFieldName === 'string' &&
+              typeof deletedIDField === 'object'
+            ) {
               deletedIDField = deletedIDField[deletedIDFieldName];
               if (typeof deletedIDField === 'string') {
                 deleteIDs.push(deletedIDField);
@@ -114,14 +126,20 @@ function rangeDelete(
                 });
               }
             }
-            deleteNode(parentID, connectionKeys, pathToConnection, store, deleteIDs);
+            deleteNode(
+              parentID,
+              connectionKeys,
+              pathToConnection,
+              store,
+              deleteIDs,
+            );
           }
         };
       } else {
         warning(
           false,
           'setRelayModernMutationConfigs: For mutation config RANGE_DELETE ' +
-          'to work you must include a parentID'
+            'to work you must include a parentID',
         );
       }
     }
@@ -142,7 +160,7 @@ function deleteNode(
   warning(
     connectionKeys,
     'setRelayModernMutationConfigs: RANGE_DELETE must provide a ' +
-    'connectionKeys',
+      'connectionKeys',
   );
   const parent = store.get(parentID);
   if (!parent) {
@@ -174,15 +192,15 @@ function deleteNode(
       warning(
         false,
         'setRelayModernMutationConfigs: RANGE_DELETE ' +
-        'pathToConnection is incorrect. Unable to find connection with ' +
-        `parentID: ${parentID} and path: ${pathToConnection.toString()}`,
+          'pathToConnection is incorrect. Unable to find connection with ' +
+          `parentID: ${parentID} and path: ${pathToConnection.toString()}`,
       );
     }
   } else {
     warning(
       false,
       'setRelayModernMutationConfigs: RANGE_DELETE ' +
-      'pathToConnection must include at least parent and connection',
+        'pathToConnection must include at least parent and connection',
     );
   }
 }

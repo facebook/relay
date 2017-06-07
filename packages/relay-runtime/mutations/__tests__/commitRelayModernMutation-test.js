@@ -5,16 +5,22 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
 
 jest.autoMockOff();
 
-const {commitMutation} = require('RelayModern');
-const {createOperationSelector} = require('RelayModernOperationSelector');
+require('configureForRelayOSS');
+
+const commitRelayModernMutation = require('commitRelayModernMutation');
+
 const RelayModernTestUtils = require('RelayModernTestUtils');
-const {createMockEnvironment} = require('RelayMockFBEnvironment');
+
+const {createOperationSelector} = require('RelayModernOperationSelector');
+const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {ROOT_ID} = require('RelayStoreUtils');
 
 describe('Configs: RANGE_DELETE', () => {
@@ -31,7 +37,7 @@ describe('Configs: RANGE_DELETE', () => {
   it('handles configs properly', () => {
     const mutation = generateAndCompile(`
     mutation CommentDeleteMutation(
-      $input: CommentDeleteInput 
+      $input: CommentDeleteInput
     ) {
       commentDelete(input: $input) {
         clientMutationId
@@ -63,15 +69,17 @@ describe('Configs: RANGE_DELETE', () => {
         },
       },
     });
-    const configs = [{
-      type: 'RANGE_DELETE',
-      parentName: 'feedback',
-      parentID: '123',
-      connectionKeys: [{key: 'Feedback_comments'}],
-      deletedIDFieldName: 'deletedCommentId',
-      pathToConnection: ['feedback', 'comments'],
-    }];
-    ({FeedbackCommentQuery} = environment.mock.compile(`
+    const configs = [
+      {
+        type: 'RANGE_DELETE',
+        parentName: 'feedback',
+        parentID: '123',
+        connectionKeys: [{key: 'Feedback_comments'}],
+        deletedIDFieldName: 'deletedCommentId',
+        pathToConnection: ['feedback', 'comments'],
+      },
+    ];
+    ({FeedbackCommentQuery} = generateAndCompile(`
     query FeedbackCommentQuery {
         node(id: "123") {
           ...on Feedback {
@@ -117,14 +125,8 @@ describe('Configs: RANGE_DELETE', () => {
         },
       },
     };
-    const operationSelector = createOperationSelector(
-      FeedbackCommentQuery,
-      {}
-    );
-    environment.commitPayload(
-      operationSelector,
-      payload,
-    );
+    const operationSelector = createOperationSelector(FeedbackCommentQuery, {});
+    environment.commitPayload(operationSelector, payload);
     const optimisticUpdater = jest.fn();
     const updater = jest.fn();
     const snapshot = store.lookup({
@@ -134,22 +136,20 @@ describe('Configs: RANGE_DELETE', () => {
     });
     const callback = jest.fn();
     store.subscribe(snapshot, callback);
-    commitMutation(
-      environment,
-      {
-        configs,
-        mutation,
-        optimisticResponse,
-        optimisticUpdater,
-        updater,
-        variables,
-      }
-    );
+    commitRelayModernMutation(environment, {
+      configs,
+      mutation,
+      optimisticResponse,
+      optimisticUpdater,
+      updater,
+      variables,
+    });
     // Optimistically deletes properly
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
-    const sendMutation = environment.sendMutation.mock.calls[0][0].operation.node;
+    const sendMutation =
+      environment.sendMutation.mock.calls[0][0].operation.node;
     environment.mock.resolve(sendMutation, {
       data: {
         commentDelete: {
@@ -175,7 +175,7 @@ describe('Configs: RANGE_DELETE', () => {
     const updater = jest.fn();
     const mutation = generateAndCompile(`
       mutation UnfriendMutation(
-        $input: UnfriendInput 
+        $input: UnfriendInput
       ) {
         unfriend(input: $input) {
           actor {
@@ -187,14 +187,16 @@ describe('Configs: RANGE_DELETE', () => {
         }
       }
     `).UnfriendMutation;
-    const configs = [{
-      type: 'RANGE_DELETE',
-      parentName: 'actor',
-      parentID: '123',
-      connectionKeys: [{key: 'Friends_friends'}],
-      deletedIDFieldName: ['formerFriend'],
-      pathToConnection: ['actor', 'friends'],
-    }];
+    const configs = [
+      {
+        type: 'RANGE_DELETE',
+        parentName: 'actor',
+        parentID: '123',
+        connectionKeys: [{key: 'Friends_friends'}],
+        deletedIDFieldName: ['formerFriend'],
+        pathToConnection: ['actor', 'friends'],
+      },
+    ];
     const variables = {
       input: {
         clientMutationId: '0',
@@ -204,7 +206,7 @@ describe('Configs: RANGE_DELETE', () => {
     environment = createMockEnvironment();
     store = environment.getStore();
 
-    const {FriendQuery} = environment.mock.compile(`
+    const {FriendQuery} = generateAndCompile(`
     query FriendQuery {
       viewer {
         actor {
@@ -241,14 +243,8 @@ describe('Configs: RANGE_DELETE', () => {
         },
       },
     };
-    const operationSelector = createOperationSelector(
-      FriendQuery,
-      {}
-    );
-    environment.commitPayload(
-      operationSelector,
-      payload,
-    );
+    const operationSelector = createOperationSelector(FriendQuery, {});
+    environment.commitPayload(operationSelector, payload);
     const optimisticResponse = () => ({
       unfriend: {
         clientMutationId: '0',
@@ -268,21 +264,19 @@ describe('Configs: RANGE_DELETE', () => {
     });
     const callback = jest.fn();
     store.subscribe(snapshot, callback);
-    commitMutation(
-      environment,
-      {
-        configs,
-        mutation,
-        optimisticUpdater,
-        optimisticResponse,
-        updater,
-        variables,
-      }
-    );
+    commitRelayModernMutation(environment, {
+      configs,
+      mutation,
+      optimisticUpdater,
+      optimisticResponse,
+      updater,
+      variables,
+    });
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
-    const sendMutation = environment.sendMutation.mock.calls[0][0].operation.node;
+    const sendMutation =
+      environment.sendMutation.mock.calls[0][0].operation.node;
     environment.mock.resolve(sendMutation, {
       data: {
         unfriend: {

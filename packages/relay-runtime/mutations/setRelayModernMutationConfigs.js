@@ -13,8 +13,9 @@
 
 'use strict';
 
-import RelayConnectionHandler from 'RelayConnectionHandler';
-import warning from 'warning';
+const RelayConnectionHandler = require('RelayConnectionHandler');
+
+const warning = require('warning');
 
 import type {SelectorData} from 'RelayCombinedEnvironmentTypes';
 import type {ConcreteBatch} from 'RelayConcreteNode';
@@ -24,7 +25,7 @@ import type {
 } from 'RelayStoreTypes';
 import type {RelayMutationConfig, Variables} from 'RelayTypes';
 
-export default function setRelayModernMutationConfigs(
+function setRelayModernMutationConfigs(
   configs: Array<RelayMutationConfig>,
   operation: ConcreteBatch,
   optimisticUpdater?: ?(
@@ -193,7 +194,9 @@ function deleteNode(
         false,
         'setRelayModernMutationConfigs: RANGE_DELETE ' +
           'pathToConnection is incorrect. Unable to find connection with ' +
-          `parentID: ${parentID} and path: ${pathToConnection.toString()}`,
+          'parentID: %s and path: %s',
+        parentID,
+        pathToConnection.toString(),
       );
     }
   } else {
@@ -204,3 +207,5 @@ function deleteNode(
     );
   }
 }
+
+module.exports = setRelayModernMutationConfigs;

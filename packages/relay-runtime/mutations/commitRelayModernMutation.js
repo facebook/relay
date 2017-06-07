@@ -17,7 +17,7 @@ const invariant = require('invariant');
 const isRelayModernEnvironment = require('isRelayModernEnvironment');
 const warning = require('warning');
 
-import setRelayModernMutationConfigs from 'setRelayModernMutationConfigs';
+const setRelayModernMutationConfigs = require('setRelayModernMutationConfigs');
 
 import type {Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';

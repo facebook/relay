@@ -25,7 +25,6 @@ const RELAY_DIRECTIVES = `
     plural: Boolean,
     variables: [String],
   ) on FRAGMENT_DEFINITION | FRAGMENT_SPREAD | INLINE_FRAGMENT | FIELD
-  directive ${'@'}generated on OPERATION | FRAGMENT_DEFINITION | FRAGMENT_SPREAD | INLINE_FRAGMENT
 `;
 
 function getSchemaIntrospection(schemaPath: string) {

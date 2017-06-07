@@ -32,6 +32,7 @@ import type {
 } from 'RelayConcreteNode';
 import type {DataID} from 'RelayInternalTypes';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
+import type {PayloadData} from 'RelayNetworkTypes';
 import type {
   PayloadError,
   RelayResponsePayload,
@@ -258,6 +259,14 @@ export interface Environment
    * intended for updating fields from client schema extensions.
    */
   commitUpdate(updater: StoreUpdater): void,
+
+  /**
+   * Commit a payload to the environment using the given operation selector.
+   */
+  commitPayload(
+    operationSelector: OperationSelector,
+    payload: PayloadData,
+  ): void,
 
   /**
    * Get the environment's internal Store.

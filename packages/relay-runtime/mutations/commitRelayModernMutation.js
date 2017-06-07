@@ -22,7 +22,7 @@ import setRelayModernMutationConfigs from 'setRelayModernMutationConfigs';
 import type {Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {PayloadError, UploadableMap} from 'RelayNetworkTypes';
-import type {Environment, RecordSourceSelectorProxy} from 'RelayStoreTypes';
+import type {Environment, SelectorStoreUpdater} from 'RelayStoreTypes';
 import type {RelayMutationConfig} from 'RelayTypes';
 import type {Variables} from 'RelayTypes';
 
@@ -33,9 +33,9 @@ export type MutationConfig = {|
   uploadables?: UploadableMap,
   onCompleted?: ?(response: ?Object, errors: ?Array<PayloadError>) => void,
   onError?: ?(error: Error) => void,
-  optimisticUpdater?: ?(store: RecordSourceSelectorProxy) => void,
+  optimisticUpdater?: ?SelectorStoreUpdater,
   optimisticResponse?: ?() => Object,
-  updater?: ?(store: RecordSourceSelectorProxy) => void,
+  updater?: ?SelectorStoreUpdater,
 |};
 
 /**

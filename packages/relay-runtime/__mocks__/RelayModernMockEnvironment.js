@@ -97,6 +97,10 @@ function createMockEnvironment(options: {
     };
   };
 
+  if (!schema) {
+    global.__RELAYOSS__ = true;
+  }
+
   // Helper to compile a query with the given schema (or the test schema by
   // default).
   const compile = text => {

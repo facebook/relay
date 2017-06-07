@@ -13,10 +13,12 @@
 
 'use strict';
 
-class RelayCompilerUserError extends Error {
-  constructor(message: string) {
-    super(message);
-  }
-}
+const createUserError = (format: string, ...args: any): Error => {
+  let index = 0;
+  const formatted = format.replace(/%s/g, match => args[index++]);
+  const err = new Error(formatted);
+  (err: any).isRelayUserError = true;
+  return err;
+};
 
-module.exports = RelayCompilerUserError;
+module.exports = {createUserError};

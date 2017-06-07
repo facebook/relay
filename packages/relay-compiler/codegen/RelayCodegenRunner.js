@@ -14,7 +14,6 @@
 'use strict';
 
 const RelayCodegenWatcher = require('RelayCodegenWatcher');
-const RelayCompilerUserError = require('RelayCompilerUserError');
 
 const invariant = require('invariant');
 
@@ -185,7 +184,7 @@ class RelayCodegenRunner {
     try {
       outputDirectories = await writer.writeAll();
     } catch (e) {
-      if (e instanceof RelayCompilerUserError) {
+      if (e.isRelayUserError) {
         // TODO could use chalk here for red output
         console.log('Error: ' + e.message);
       } else {

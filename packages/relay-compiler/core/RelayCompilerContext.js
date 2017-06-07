@@ -13,10 +13,10 @@
 
 'use strict';
 
-const RelayCompilerUserError = require('RelayCompilerUserError');
-
 const immutable = require('immutable');
 const invariant = require('invariant');
+
+const {createUserError} = require('RelayCompilerUserError');
 
 import type {Fragment, Root} from 'RelayIR';
 import type {GraphQLSchema} from 'graphql';
@@ -108,9 +108,11 @@ class RelayCompilerContext {
     const node = record && record.get('node');
     if (!(node && node.kind === 'Fragment')) {
       const childModule = name.substring(0, name.lastIndexOf('_'));
-      throw new RelayCompilerUserError(
-        `Relay cannot find fragment \`${name}\`.` +
-          ` Please make sure the fragment exists in \`${childModule}\``,
+      throw createUserError(
+        'Relay cannot find fragment `%s`.' +
+          ' Please make sure the fragment exists in `%s`',
+        name,
+        childModule,
       );
     }
     return node;

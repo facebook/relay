@@ -125,3 +125,7 @@ One of the big ideas behind the new API is that execution can be made a lot more
 ## Comparing Relay Classic and Relay Modern
 
 Relay Modern enables a variety of new features. Some are available via the Compat API, while others require upgrading fully to the Modern runtime. See [what's new in Relay Modern](./new-in-relay-modern.html) for more details.
+
+## React Native
+
+Note that on Android, [Relay Modern does not work](https://github.com/facebook/react-native/issues/13958) without a debugger attached (props will never be loaded).  [This polyfill](https://github.com/facebook/relay/issues/1704#issuecomment-297982006) is a workaround until this issue is fixed.

@@ -15,7 +15,7 @@
 
 const RelayCore = require('RelayCore');
 const RelayDefaultHandlerProvider = require('RelayDefaultHandlerProvider');
-const RelayPublishQueue = require('RelayPublishQueue');
+const RelayPublishQueue = require('./RelayPublishQueue');
 
 const invariant = require('invariant');
 const normalizeRelayPayload = require('normalizeRelayPayload');

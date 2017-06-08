@@ -12,6 +12,8 @@
 
 'use strict';
 
+jest.disableAutomock();
+
 const RelayMetaRoute = require('RelayMetaRoute');
 
 describe('RelayMetaRoute', () => {

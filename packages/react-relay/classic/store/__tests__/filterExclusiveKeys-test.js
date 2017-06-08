@@ -12,6 +12,8 @@
 
 'use strict';
 
+jest.disableAutomock();
+
 const filterExclusiveKeys = require('filterExclusiveKeys');
 
 describe('filterExclusiveKeys', () => {

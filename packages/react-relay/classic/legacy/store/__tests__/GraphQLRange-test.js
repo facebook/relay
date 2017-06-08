@@ -12,9 +12,13 @@
 
 'use strict';
 
-const RelayTestUtils = require('RelayTestUtils');
+jest
+  .enableAutomock()
+  .unmock('GraphQLSegment')
+  .unmock('GraphQLRange')
+  .mock('warning');
 
-jest.unmock('GraphQLSegment').unmock('GraphQLRange').mock('warning');
+const RelayTestUtils = require('RelayTestUtils');
 
 const GraphQLRange = require('GraphQLRange');
 const RelayConnectionInterface = require('RelayConnectionInterface');

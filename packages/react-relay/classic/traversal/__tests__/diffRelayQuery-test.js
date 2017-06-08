@@ -12,6 +12,8 @@
 
 'use strict';
 
+jest.enableAutomock();
+
 require('configureForRelayOSS');
 
 const GraphQLRange = require('GraphQLRange');

@@ -12,6 +12,8 @@
 
 'use strict';
 
+jest.disableAutomock();
+
 const React = require('React');
 
 const {getComponentName, getReactComponent} = require('RelayContainerUtils');

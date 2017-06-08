@@ -12,6 +12,8 @@
 
 'use strict';
 
+jest.disableAutomock();
+
 const RelayRecord = require('RelayRecord');
 
 describe('RelayRecord', () => {

@@ -12,6 +12,8 @@
 
 'use strict';
 
+jest.disableAutomock();
+
 require('configureForRelayOSS');
 
 const Relay = require('Relay');

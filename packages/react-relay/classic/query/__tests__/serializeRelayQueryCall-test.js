@@ -12,6 +12,8 @@
 
 'use strict';
 
+jest.disableAutomock();
+
 const serializeRelayQueryCall = require('serializeRelayQueryCall');
 
 describe('serializeRelayQueryCall', () => {

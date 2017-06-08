@@ -12,7 +12,7 @@
 
 'use strict';
 
-jest.unmock('dedent');
+jest.disableAutomock();
 
 const dedent = require('dedent');
 

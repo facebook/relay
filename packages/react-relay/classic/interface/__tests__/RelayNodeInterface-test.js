@@ -12,6 +12,8 @@
 
 'use strict';
 
+jest.disableAutomock();
+
 const Relay = require('Relay');
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayTestUtils = require('RelayTestUtils');

@@ -12,6 +12,8 @@
 
 'use strict';
 
+jest.disableAutomock();
+
 const RelayTestUtils = require('RelayTestUtils');
 
 const validateMutationConfig = require('validateMutationConfig');

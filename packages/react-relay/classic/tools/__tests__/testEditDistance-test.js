@@ -12,6 +12,8 @@
 
 'use strict';
 
+jest.disableAutomock();
+
 const testEditDistance = require('testEditDistance');
 
 describe('testEditDistance()', () => {

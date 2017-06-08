@@ -12,6 +12,8 @@
 
 'use strict';
 
+jest.disableAutomock();
+
 const RelayRecordStatusMap = require('RelayRecordStatusMap');
 
 describe('RelayRecordStatusMap', () => {

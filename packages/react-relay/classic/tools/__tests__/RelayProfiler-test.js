@@ -12,7 +12,7 @@
 
 'use strict';
 
-jest.unmock('RelayProfiler');
+jest.disableAutomock();
 
 const RelayProfiler = require('RelayProfiler');
 

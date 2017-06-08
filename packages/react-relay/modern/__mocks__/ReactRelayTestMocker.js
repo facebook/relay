@@ -14,6 +14,7 @@
 'use strict';
 
 import {Environment} from 'RelayStoreTypes';
+import type {Selector} from 'RelayStoreTypes'; 
 
 import type {PayloadData} from 'RelayNetworkTypes';
 import type {Variables} from 'RelayTypes';

@@ -110,7 +110,7 @@ If the callback returns `undefined`, the previously rendered view (or nothing if
   Container={ProfilePicture}
   queryConfig={profileRoute}
   environment={Relay.Store}
-  render={({done, error, props, retry, stale}) => {
+  render={({props, done, error, retry, stale}) => {
         if (error) {
           return <ErrorComponent />;
         } else if (props) {

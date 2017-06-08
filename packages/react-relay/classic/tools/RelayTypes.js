@@ -152,9 +152,14 @@ export type RelayMutationConfig =
       type: 'RANGE_ADD',
       parentName: string,
       parentID?: string,
-      connectionName: string,
+      connectionInfo?: Array<{
+        key: string,
+        filters?: Variables,
+        rangeBehavior: string,
+      }>,
+      connectionName?: string,
       edgeName: string,
-      rangeBehaviors: RangeBehaviors,
+      rangeBehaviors?: RangeBehaviors,
     }
   | {
       type: 'NODE_DELETE',

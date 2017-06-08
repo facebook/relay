@@ -38,6 +38,13 @@ function setRelayModernMutationConfigs(
   const configUpdates = updater ? [updater] : [];
   configs.forEach(config => {
     switch (config.type) {
+      case 'RANGE_ADD':
+        const rangeAddResult = rangeAdd(config, operation);
+        if (rangeAddResult) {
+          configOptimisticUpdates.push(rangeAddResult);
+          configUpdates.push(rangeAddResult);
+        }
+        break;
       case 'RANGE_DELETE':
         const rangeDeleteResult = rangeDelete(config, operation);
         if (rangeDeleteResult) {
@@ -63,87 +70,148 @@ function setRelayModernMutationConfigs(
   return {optimisticUpdater, updater};
 }
 
+function rangeAdd(
+  config: RelayMutationConfig,
+  operation: ConcreteBatch,
+): ?SelectorStoreUpdater {
+  let updater;
+  if (config.type !== 'RANGE_ADD') {
+    return;
+  }
+  const {parentID, connectionInfo, edgeName} = config;
+  if (!parentID) {
+    warning(
+      false,
+      'setRelayModernMutationConfigs: For mutation config RANGE_ADD ' +
+        'to work you must include a parentID',
+    );
+    return;
+  }
+  const rootField = getRootField(operation);
+  if (connectionInfo && rootField) {
+    updater = (store: RecordSourceSelectorProxy, data: ?SelectorData) => {
+      const parent = store.get(parentID);
+      if (parent) {
+        const payload = store.getRootField(rootField);
+        if (!payload) {
+          return;
+        }
+        const newEdge = payload.getLinkedRecord(edgeName);
+        for (const info of connectionInfo) {
+          if (newEdge) {
+            const connection = RelayConnectionHandler.getConnection(
+              parent,
+              info.key,
+              info.filters,
+            );
+            if (!connection) {
+              return;
+            }
+            switch (info.rangeBehavior) {
+              case 'append':
+                RelayConnectionHandler.insertEdgeAfter(connection, newEdge);
+                break;
+              case 'ignore':
+                // Do nothing
+                break;
+              case 'prepend':
+                RelayConnectionHandler.insertEdgeBefore(connection, newEdge);
+                break;
+              default:
+                warning(
+                  false,
+                  'setRelayModernMutationConfigs: RANGE_ADD range behavior ' +
+                    `'${info.rangeBehavior}' will not work as expected in RelayModern, ` +
+                    "supported range behaviors are 'append', 'prepend', and " +
+                    "'ignore'",
+                );
+                break;
+            }
+          }
+        }
+      }
+    };
+  }
+  return updater;
+}
+
 function rangeDelete(
   config: RelayMutationConfig,
   operation: ConcreteBatch,
 ): ?SelectorStoreUpdater {
   let updater;
-  if (config.type === 'RANGE_DELETE') {
-    const {
-      parentID,
-      connectionKeys,
-      pathToConnection,
-      deletedIDFieldName,
-    } = config;
-    if (
-      operation.fragment &&
-      operation.fragment.selections &&
-      operation.fragment.selections.length > 0 &&
-      operation.fragment.selections[0].kind === 'LinkedField'
-    ) {
-      const rootField = operation.fragment.selections[0].name;
-      if (parentID) {
-        updater = (store: RecordSourceSelectorProxy, data: ?SelectorData) => {
-          if (data) {
-            const deleteIDs = [];
-            let deletedIDField = data[rootField];
-            if (deletedIDField && Array.isArray(deletedIDFieldName)) {
-              for (const eachField of deletedIDFieldName) {
-                if (deletedIDField && typeof deletedIDField === 'object') {
-                  deletedIDField = deletedIDField[eachField];
-                }
-              }
-              if (Array.isArray(deletedIDField)) {
-                deletedIDField.forEach(idObject => {
-                  if (
-                    idObject &&
-                    idObject.id &&
-                    typeof idObject === 'object' &&
-                    typeof idObject.id === 'string'
-                  ) {
-                    deleteIDs.push(idObject.id);
-                  }
-                });
-              } else if (
-                deletedIDField &&
-                deletedIDField.id &&
-                typeof deletedIDField.id === 'string'
-              ) {
-                deleteIDs.push(deletedIDField.id);
-              }
-            } else if (
-              deletedIDField &&
-              typeof deletedIDFieldName === 'string' &&
-              typeof deletedIDField === 'object'
-            ) {
-              deletedIDField = deletedIDField[deletedIDFieldName];
-              if (typeof deletedIDField === 'string') {
-                deleteIDs.push(deletedIDField);
-              } else if (Array.isArray(deletedIDField)) {
-                deletedIDField.forEach(id => {
-                  if (typeof id === 'string') {
-                    deleteIDs.push(id);
-                  }
-                });
-              }
+  if (config.type !== 'RANGE_DELETE') {
+    return;
+  }
+  const {
+    parentID,
+    connectionKeys,
+    pathToConnection,
+    deletedIDFieldName,
+  } = config;
+  if (!parentID) {
+    warning(
+      false,
+      'setRelayModernMutationConfigs: For mutation config RANGE_DELETE ' +
+        'to work you must include a parentID',
+    );
+    return;
+  }
+  const rootField = getRootField(operation);
+  if (rootField) {
+    updater = (store: RecordSourceSelectorProxy, data: ?SelectorData) => {
+      if (data) {
+        const deleteIDs = [];
+        let deletedIDField = data[rootField];
+        if (deletedIDField && Array.isArray(deletedIDFieldName)) {
+          for (const eachField of deletedIDFieldName) {
+            if (deletedIDField && typeof deletedIDField === 'object') {
+              deletedIDField = deletedIDField[eachField];
             }
-            deleteNode(
-              parentID,
-              connectionKeys,
-              pathToConnection,
-              store,
-              deleteIDs,
-            );
           }
-        };
-      } else {
-        warning(
-          false,
-          'setRelayModernMutationConfigs: For mutation config RANGE_DELETE ' +
-            'to work you must include a parentID',
+          if (Array.isArray(deletedIDField)) {
+            deletedIDField.forEach(idObject => {
+              if (
+                idObject &&
+                idObject.id &&
+                typeof idObject === 'object' &&
+                typeof idObject.id === 'string'
+              ) {
+                deleteIDs.push(idObject.id);
+              }
+            });
+          } else if (
+            deletedIDField &&
+            deletedIDField.id &&
+            typeof deletedIDField.id === 'string'
+          ) {
+            deleteIDs.push(deletedIDField.id);
+          }
+        } else if (
+          deletedIDField &&
+          typeof deletedIDFieldName === 'string' &&
+          typeof deletedIDField === 'object'
+        ) {
+          deletedIDField = deletedIDField[deletedIDFieldName];
+          if (typeof deletedIDField === 'string') {
+            deleteIDs.push(deletedIDField);
+          } else if (Array.isArray(deletedIDField)) {
+            deletedIDField.forEach(id => {
+              if (typeof id === 'string') {
+                deleteIDs.push(id);
+              }
+            });
+          }
+        }
+        deleteNode(
+          parentID,
+          connectionKeys,
+          pathToConnection,
+          store,
+          deleteIDs,
         );
       }
-    }
+    };
   }
   return updater;
 }
@@ -206,6 +274,19 @@ function deleteNode(
         'pathToConnection must include at least parent and connection',
     );
   }
+}
+
+function getRootField(operation: ConcreteBatch): ?string {
+  let rootField;
+  if (
+    operation.fragment &&
+    operation.fragment.selections &&
+    operation.fragment.selections.length > 0 &&
+    operation.fragment.selections[0].kind === 'LinkedField'
+  ) {
+    rootField = operation.fragment.selections[0].name;
+  }
+  return rootField;
 }
 
 module.exports = setRelayModernMutationConfigs;

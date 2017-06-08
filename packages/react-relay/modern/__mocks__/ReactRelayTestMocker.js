@@ -13,7 +13,7 @@
 
 'use strict';
 
-import {Environment} from 'RelayStoreTypes';
+import {Environment, type Selector} from 'RelayStoreTypes';
 
 import type {PayloadData} from 'RelayNetworkTypes';
 import type {Variables} from 'RelayTypes';
@@ -61,7 +61,8 @@ class ReactRelayTestMocker {
       getOperation,
     } = environment.unstable_internal;
 
-    const operation = getOperation(query);
+    // getOperation() expects a GraphQLTaggedNode, but tests still use string.
+    const operation = getOperation((query: $FlowFixMe));
     const operationSelector = createOperationSelector(operation, variables);
 
     environment.commitPayload(operationSelector, payload);

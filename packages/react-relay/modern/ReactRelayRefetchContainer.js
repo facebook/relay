@@ -18,6 +18,7 @@ const RelayProfiler = require('RelayProfiler');
 const RelayPropTypes = require('RelayPropTypes');
 
 const areEqual = require('areEqual');
+const forEachObject = require('forEachObject');
 const buildReactRelayContainer = require('buildReactRelayContainer');
 const invariant = require('invariant');
 const isRelayContext = require('isRelayContext');
@@ -175,6 +176,7 @@ function createContainerWithFragments<TBase: ReactClass<*>>(
       return {
         environment: relay.environment,
         refetch: this._refetch,
+        getVariables: this._getFragmentVariables,
       };
     }
 
@@ -188,15 +190,24 @@ function createContainerWithFragments<TBase: ReactClass<*>>(
       this.setState({data: this._resolver.resolve()}, profiler.stop);
     };
 
-    _getFragmentVariables(): Variables {
+    _getFragmentVariables = (): Variables => {
       const {
         getVariablesFromObject,
       } = this.context.relay.environment.unstable_internal;
-      return getVariablesFromObject(
+
+      const fragmentVariables = getVariablesFromObject(
         this.context.relay.variables,
         fragments,
         this.props,
       );
+
+      if (this._localVariables) {
+          forEachObject(fragmentVariables, (_, key) => {
+             // $FlowFixMe
+             fragmentVariables[key] = this._localVariables[key];
+          });
+      }
+      return fragmentVariables;
     }
 
     _refetch = (
@@ -226,7 +237,7 @@ function createContainerWithFragments<TBase: ReactClass<*>>(
         // TODO t15106389: add helper utility for fetching more data
         this._pendingRefetch = null;
         callback && callback();
-        this._resolver.setVariables(fragmentVariables);
+        this._resolver.setVariables(this._getFragmentVariables());
         this.setState({data: this._resolver.resolve()});
       };
       const onError = error => {
@@ -247,6 +258,8 @@ function createContainerWithFragments<TBase: ReactClass<*>>(
       const reference = environment.retain(operation.root);
       this._references.push(reference);
 
+      // Refetch Query is very likely to contain extra variables in addition to fragentVarialbes
+      // those extra variables are mostly for fetching the field that this fragment is defined on
       this._localVariables = fetchVariables;
       if (this._pendingRefetch) {
         this._pendingRefetch.dispose();

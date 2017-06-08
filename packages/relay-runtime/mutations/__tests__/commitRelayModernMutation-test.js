@@ -33,7 +33,7 @@ describe('Configs: RANGE_DELETE', () => {
     store = environment.getStore();
   });
 
-  it('handles configs properly', () => {
+  it('handles configs properly', async () => {
     const mutation = generateAndCompile(`
     mutation CommentDeleteMutation(
       $input: CommentDeleteInput
@@ -149,7 +149,7 @@ describe('Configs: RANGE_DELETE', () => {
     callback.mockClear();
     const sendMutation =
       environment.sendMutation.mock.calls[0][0].operation.node;
-    environment.mock.resolve(sendMutation, {
+    await environment.mock.resolve(sendMutation, {
       data: {
         commentDelete: {
           clientMutationId: '0',
@@ -163,13 +163,12 @@ describe('Configs: RANGE_DELETE', () => {
         },
       },
     });
-    jest.runAllTimers();
     // Does not need to fire again since server data should be the same
     expect(updater).toBeCalled();
     expect(callback.mock.calls.length).toBe(0);
   });
 
-  it('handles config with deletedIDFieldName as path', () => {
+  it('handles config with deletedIDFieldName as path', async () => {
     const optimisticUpdater = jest.fn();
     const updater = jest.fn();
     const mutation = generateAndCompile(`
@@ -276,7 +275,7 @@ describe('Configs: RANGE_DELETE', () => {
     callback.mockClear();
     const sendMutation =
       environment.sendMutation.mock.calls[0][0].operation.node;
-    environment.mock.resolve(sendMutation, {
+    await environment.mock.resolve(sendMutation, {
       data: {
         unfriend: {
           clientMutationId: '0',
@@ -290,7 +289,6 @@ describe('Configs: RANGE_DELETE', () => {
         },
       },
     });
-    jest.runAllTimers();
     expect(updater).toBeCalled();
     expect(callback.mock.calls.length).toBe(0);
   });

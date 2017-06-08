@@ -12,8 +12,6 @@
 
 'use strict';
 
-jest.useFakeTimers();
-
 require('configureForRelayOSS');
 
 const Relay = require('Relay');
@@ -131,7 +129,7 @@ describe('RelayDefaultNetworkLayer', () => {
       );
     });
 
-    it('handles responses', () => {
+    it('handles responses', async () => {
       const response = {
         data: {
           test_call: {
@@ -141,11 +139,11 @@ describe('RelayDefaultNetworkLayer', () => {
       };
 
       expect(fetch.mock.calls.length).toBe(0);
-      networkLayer.sendMutation(request);
+      const promise = networkLayer.sendMutation(request);
       expect(fetch.mock.calls.length).toBeGreaterThan(0);
 
       fetch.mock.deferreds[0].resolve(genResponse(response));
-      jest.runAllTimers();
+      await promise;
 
       expect(rejectCallback.mock.calls.length).toBe(0);
       expect(responseCallback.mock.calls.length).toBe(1);
@@ -154,7 +152,7 @@ describe('RelayDefaultNetworkLayer', () => {
       });
     });
 
-    it('handles errors', () => {
+    it('handles errors', async () => {
       const response = {
         errors: [
           {
@@ -170,11 +168,11 @@ describe('RelayDefaultNetworkLayer', () => {
       };
 
       expect(fetch.mock.calls.length).toBe(0);
-      networkLayer.sendMutation(request);
+      const promise = networkLayer.sendMutation(request);
       expect(fetch.mock.calls.length).toBeGreaterThan(0);
 
       fetch.mock.deferreds[0].resolve(genResponse(response));
-      jest.runAllTimers();
+      await promise;
 
       expect(rejectCallback.mock.calls.length).toBe(1);
       const error = rejectCallback.mock.calls[0][0];
@@ -193,7 +191,7 @@ describe('RelayDefaultNetworkLayer', () => {
       expect(error.status).toEqual('200');
     });
 
-    it('handles errors with column 0', () => {
+    it('handles errors with column 0', async () => {
       const response = {
         errors: [
           {
@@ -208,9 +206,9 @@ describe('RelayDefaultNetworkLayer', () => {
         ],
       };
 
-      networkLayer.sendMutation(request);
+      const promise = networkLayer.sendMutation(request);
       fetch.mock.deferreds[0].resolve(genResponse(response));
-      jest.runAllTimers();
+      await promise;
 
       expect(rejectCallback.mock.calls.length).toBe(1);
       const error = rejectCallback.mock.calls[0][0];
@@ -229,7 +227,7 @@ describe('RelayDefaultNetworkLayer', () => {
       expect(error.status).toEqual('200');
     });
 
-    it('handles custom errors', () => {
+    it('handles custom errors', async () => {
       const response = {
         errors: [
           {
@@ -239,11 +237,11 @@ describe('RelayDefaultNetworkLayer', () => {
       };
 
       expect(fetch.mock.calls.length).toBe(0);
-      networkLayer.sendMutation(request);
+      const promise = networkLayer.sendMutation(request);
       expect(fetch.mock.calls.length).toBeGreaterThan(0);
 
       fetch.mock.deferreds[0].resolve(genResponse(response));
-      jest.runAllTimers();
+      await promise;
 
       expect(rejectCallback.mock.calls.length).toBe(1);
       const error = rejectCallback.mock.calls[0][0];
@@ -260,7 +258,7 @@ describe('RelayDefaultNetworkLayer', () => {
       expect(error.status).toEqual('200');
     });
 
-    it('handles server-side non-2xx errors', () => {
+    it('handles server-side non-2xx errors', async () => {
       const response = {
         errors: [
           {
@@ -270,12 +268,12 @@ describe('RelayDefaultNetworkLayer', () => {
       };
 
       expect(fetch.mock.calls.length).toBe(0);
-      networkLayer.sendMutation(request);
+      const promise = networkLayer.sendMutation(request);
       expect(fetch.mock.calls.length).toBeGreaterThan(0);
       const failureResponse = genFailureResponse(response);
 
       fetch.mock.deferreds[0].resolve(failureResponse);
-      jest.runAllTimers();
+      await promise;
 
       expect(rejectCallback.mock.calls.length).toBe(1);
       const error = rejectCallback.mock.calls[0][0];
@@ -340,13 +338,12 @@ describe('RelayDefaultNetworkLayer', () => {
       expect(retryDelays).toEqual(networkConfig.init.retryDelays);
     });
 
-    it('resolves with fetched response payloads', () => {
+    it('resolves with fetched response payloads', async () => {
       const resolveACallback = jest.fn();
       const resolveBCallback = jest.fn();
-      networkLayer.sendQueries([requestA, requestB]);
+      const promise = networkLayer.sendQueries([requestA, requestB]);
       requestA.done(resolveACallback);
       requestB.done(resolveBCallback);
-      jest.runAllTimers();
 
       const payloadA = {
         data: {'123': {id: '123'}},
@@ -356,7 +353,7 @@ describe('RelayDefaultNetworkLayer', () => {
       };
       fetchWithRetries.mock.deferreds[0].resolve(genResponse(payloadA));
       fetchWithRetries.mock.deferreds[1].resolve(genResponse(payloadB));
-      jest.runAllTimers();
+      await promise;
 
       expect(resolveACallback.mock.calls.length).toBe(1);
       expect(resolveACallback.mock.calls[0][0]).toEqual({
@@ -368,17 +365,16 @@ describe('RelayDefaultNetworkLayer', () => {
       });
     });
 
-    it('rejects invalid JSON response payloads', () => {
+    it('rejects invalid JSON response payloads', async () => {
       const rejectCallback = jest.fn();
-      networkLayer.sendQueries([requestA]);
+      const promise = networkLayer.sendQueries([requestA]);
       requestA.catch(rejectCallback);
-      jest.runAllTimers();
 
       fetchWithRetries.mock.deferreds[0].resolve({
         json: () => Promise.reject(JSON.parse('{ // invalid')),
         status: 200,
       });
-      jest.runAllTimers();
+      await promise;
 
       expect(rejectCallback.mock.calls.length).toBeGreaterThan(0);
 
@@ -387,11 +383,10 @@ describe('RelayDefaultNetworkLayer', () => {
       );
     });
 
-    it('rejects errors in query responses', () => {
+    it('rejects errors in query responses', async () => {
       const rejectCallback = jest.fn();
-      networkLayer.sendQueries([requestA]);
+      const promise = networkLayer.sendQueries([requestA]);
       requestA.catch(rejectCallback);
-      jest.runAllTimers();
 
       const payloadA = {
         data: {},
@@ -408,7 +403,7 @@ describe('RelayDefaultNetworkLayer', () => {
         ],
       };
       fetchWithRetries.mock.deferreds[0].resolve(genResponse(payloadA));
-      jest.runAllTimers();
+      await promise;
 
       expect(rejectCallback.mock.calls.length).toBeGreaterThan(0);
       const error = rejectCallback.mock.calls[0][0];
@@ -426,20 +421,19 @@ describe('RelayDefaultNetworkLayer', () => {
       expect(error.status).toEqual('200');
     });
 
-    it('rejects requests with missing responses', () => {
+    it('rejects requests with missing responses', async () => {
       const rejectACallback = jest.fn();
       const resolveBCallback = jest.fn();
-      networkLayer.sendQueries([requestA, requestB]);
+      const promise = networkLayer.sendQueries([requestA, requestB]);
       requestA.catch(rejectACallback);
       requestB.done(resolveBCallback);
-      jest.runAllTimers();
 
       const payload = {
         data: {'456': {id: '456'}},
       };
       fetchWithRetries.mock.deferreds[0].resolve(genResponse({}));
       fetchWithRetries.mock.deferreds[1].resolve(genResponse(payload));
-      jest.runAllTimers();
+      await promise;
 
       expect(resolveBCallback.mock.calls.length).toBeGreaterThan(0);
       expect(rejectACallback.mock.calls.length).toBeGreaterThan(0);

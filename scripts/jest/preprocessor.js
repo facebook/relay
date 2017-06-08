@@ -22,6 +22,7 @@ const SCHEMA_PATH = path.resolve(__dirname, '../../packages/relay-compiler/testu
 const babelOptions = getBabelOptions({
   env: 'test',
   moduleMap: {
+    'immutable': 'immutable',
     'React': 'react',
     'reactComponentExpect': 'react-dom/lib/reactComponentExpect',
     'ReactDOM': 'react-dom',

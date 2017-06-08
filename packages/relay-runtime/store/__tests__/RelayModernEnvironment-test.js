@@ -476,7 +476,7 @@ describe('RelayModernEnvironment', () => {
       expect(fetch.mock.calls[0][2]).toBe(cacheConfig);
     });
 
-    it('calls onCompleted() when the batch completes', () => {
+    it('calls onCompleted() when the batch completes', async () => {
       environment.sendQuery({
         ...callbacks,
         operation,
@@ -490,27 +490,27 @@ describe('RelayModernEnvironment', () => {
           },
         },
       });
-      jest.runAllTimers();
+      await deferred.getPromise();
       expect(onCompleted.mock.calls.length).toBe(1);
       expect(onNext.mock.calls.length).toBe(1);
       expect(onError).not.toBeCalled();
     });
 
-    it('calls onError() when the batch has an error', () => {
+    it('calls onError() when the batch has an error', async () => {
       environment.sendQuery({
         ...callbacks,
         operation,
       });
       const error = new Error('wtf');
       deferred.reject(error);
-      jest.runAllTimers();
+      await deferred.getPromise().catch(() => {});
 
       expect(onError).toBeCalled();
       expect(onCompleted).not.toBeCalled();
       expect(onNext.mock.calls.length).toBe(0);
     });
 
-    it('calls onNext() and publishes payloads to the store', () => {
+    it('calls onNext() and publishes payloads to the store', async () => {
       const selector = {
         dataID: ROOT_ID,
         node: query.fragment,
@@ -534,7 +534,7 @@ describe('RelayModernEnvironment', () => {
         },
       };
       deferred.resolve(payload);
-      jest.runAllTimers();
+      await deferred.getPromise();
 
       expect(onNext.mock.calls.length).toBe(1);
       expect(onNext).toBeCalledWith({
@@ -564,6 +564,7 @@ describe('RelayModernEnvironment', () => {
     let subject;
     let query;
     let variables;
+    let nextPromise;
 
     beforeEach(() => {
       ({ActorQuery: query} = generateAndCompile(
@@ -598,7 +599,7 @@ describe('RelayModernEnvironment', () => {
               return;
             }
             // Reuse RelayNetwork's helper for response processing
-            RelayNetwork.create(() => ({
+            nextPromise = RelayNetwork.create(() => ({
               kind: 'promise',
               promise: Promise.resolve(data),
             }))
@@ -651,7 +652,7 @@ describe('RelayModernEnvironment', () => {
       expect(fetch.mock.calls[0][2]).toBe(cacheConfig);
     });
 
-    it('calls onNext() when payloads return', () => {
+    it('calls onNext() when payloads return', async () => {
       environment.streamQuery({
         ...callbacks,
         operation,
@@ -665,7 +666,7 @@ describe('RelayModernEnvironment', () => {
           },
         },
       });
-      jest.runAllTimers();
+      await nextPromise;
       expect(onNext.mock.calls.length).toBe(1);
       subject.next({
         data: {
@@ -676,7 +677,7 @@ describe('RelayModernEnvironment', () => {
           },
         },
       });
-      jest.runAllTimers();
+      await nextPromise;
       expect(onNext.mock.calls.length).toBe(2);
       expect(onCompleted).not.toBeCalled();
       expect(onError).not.toBeCalled();
@@ -700,14 +701,13 @@ describe('RelayModernEnvironment', () => {
       });
       const error = new Error('wtf');
       subject.error(error);
-      jest.runAllTimers();
 
       expect(onError).toBeCalled();
       expect(onCompleted).not.toBeCalled();
       expect(onNext.mock.calls.length).toBe(0);
     });
 
-    it('calls onNext() and publishes payloads to the store', () => {
+    it('calls onNext() and publishes payloads to the store', async () => {
       const selector = {
         dataID: ROOT_ID,
         node: query.fragment,
@@ -731,7 +731,7 @@ describe('RelayModernEnvironment', () => {
         },
       };
       subject.next(payload);
-      jest.runAllTimers();
+      await nextPromise;
 
       expect(onNext.mock.calls.length).toBe(1);
       expect(onNext).toBeCalledWith({
@@ -894,7 +894,7 @@ describe('RelayModernEnvironment', () => {
       expect(callback.mock.calls[0][0].data).toEqual(undefined);
     });
 
-    it('reverts the optimistic update and commits the server payload', () => {
+    it('reverts the optimistic update and server commits', async () => {
       const commentID = 'comment';
       const selector = {
         dataID: commentID,
@@ -931,7 +931,7 @@ describe('RelayModernEnvironment', () => {
           },
         },
       });
-      jest.runAllTimers();
+      await deferred.getPromise();
 
       expect(onCompleted).toBeCalled();
       expect(onError).not.toBeCalled();
@@ -944,7 +944,7 @@ describe('RelayModernEnvironment', () => {
       });
     });
 
-    it('commits the server payload and runs the updater', () => {
+    it('commits the server payload and runs the updater', async () => {
       const commentID = 'comment';
       const selector = {
         dataID: commentID,
@@ -979,7 +979,7 @@ describe('RelayModernEnvironment', () => {
           },
         },
       });
-      jest.runAllTimers();
+      await deferred.getPromise();
 
       expect(onCompleted).toBeCalled();
       expect(onError).not.toBeCalled();
@@ -992,7 +992,7 @@ describe('RelayModernEnvironment', () => {
       });
     });
 
-    it('reverts the optimistic update if the fetch is rejected', () => {
+    it('reverts the optimistic update if the fetch is rejected', async () => {
       const commentID = 'comment';
       const selector = {
         dataID: commentID,
@@ -1018,7 +1018,7 @@ describe('RelayModernEnvironment', () => {
 
       callback.mockClear();
       deferred.reject(new Error('wtf'));
-      jest.runAllTimers();
+      await deferred.getPromise().catch(() => {});
 
       expect(onCompleted).not.toBeCalled();
       expect(onError).toBeCalled();
@@ -1069,7 +1069,7 @@ describe('RelayModernEnvironment', () => {
       });
     });
 
-    it('does not commit the server payload if disposed', () => {
+    it('does not commit the server payload if disposed', async () => {
       const commentID = 'comment';
       const selector = {
         dataID: commentID,
@@ -1107,7 +1107,7 @@ describe('RelayModernEnvironment', () => {
           },
         },
       });
-      jest.runAllTimers();
+      await deferred.getPromise();
       expect(onCompleted).not.toBeCalled();
       expect(onError).not.toBeCalled();
       // The optimistic update has already been reverted

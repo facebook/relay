@@ -60,12 +60,12 @@ describe('fetchRelayModernQuery', () => {
     expect(args.cacheConfig).toBe(cacheConfig);
   });
 
-  it('resolves with the query results', () => {
+  it('resolves with the query results', async () => {
     let results;
     fetchRelayModernQuery(environment, query, variables).then(data => {
       results = data;
     });
-    environment.mock.resolve(query, {
+    await environment.mock.resolve(query, {
       data: {
         me: {
           id: '842472',
@@ -73,7 +73,6 @@ describe('fetchRelayModernQuery', () => {
         },
       },
     });
-    jest.runAllTimers();
     expect(results).toEqual({
       me: {
         name: 'Joe',
@@ -81,13 +80,12 @@ describe('fetchRelayModernQuery', () => {
     });
   });
 
-  it('rejects with query errors', () => {
+  it('rejects with query errors', async () => {
     const error = new Error('wtf');
     fetchRelayModernQuery(environment, query, variables).catch(err => {
       expect(err).toBe(error);
     });
 
-    environment.mock.reject(query, error);
-    jest.runAllTimers();
+    await environment.mock.reject(query, error);
   });
 });

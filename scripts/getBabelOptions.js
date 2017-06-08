@@ -19,11 +19,11 @@ module.exports = function(options) {
   }, options);
 
   const fbjsPreset = require('babel-preset-fbjs/configure')({
-    autoImport: true,
+    autoImport: options.autoImport || false,
+    objectAssign: false,
     inlineRequires: true,
     rewriteModules: {
       map: assign({},
-        require('fbjs-scripts/third-party-module-map'),
         require('fbjs/module-map'),
         options.moduleMap
       ),

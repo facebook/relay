@@ -115,6 +115,12 @@ export interface FragmentSpecResolver {
    * `resolve()` to get the updated results.
    */
   setVariables(variables: Variables): void,
+
+  /**
+   * get the variables that currently being used
+   */
+  getVariables(): Variables,
+  
 }
 
 export type CFragmentMap<TFragment> = {[key: string]: TFragment};

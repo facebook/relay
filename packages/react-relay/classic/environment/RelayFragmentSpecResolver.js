@@ -167,6 +167,16 @@ class RelayFragmentSpecResolver implements FragmentSpecResolver {
     this._stale = true;
   }
 
+  getVariables(): Variables {
+    let variables = {};
+    forEachObject(this._resolvers, resolver => {
+      if (resolver) {
+        Object.assign(variables, resolver.getVariables());
+      }
+    });
+    return variables;
+  }
+
   _onChange = (): void => {
     this._stale = true;
     this._callback();
@@ -232,6 +242,10 @@ class SelectorResolver {
       },
     };
     this.setSelector(selector);
+  }
+
+  getVariables(): Variables {
+     return this._selector.variables;
   }
 
   _onChange = (snapshot: Snapshot): void => {
@@ -310,6 +324,13 @@ class SelectorListResolver {
   setVariables(variables: Variables): void {
     this._resolvers.forEach(resolver => resolver.setVariables(variables));
     this._stale = true;
+  }
+
+  getVariables(): Variables {
+    if (this._resolvers.length > 0 ) {
+      return this._resolvers[0].getVariables();
+    }
+    return {};
   }
 
   _onChange = (data: ?Object): void => {

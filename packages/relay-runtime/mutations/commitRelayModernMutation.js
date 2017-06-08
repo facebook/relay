@@ -15,9 +15,8 @@
 
 const invariant = require('invariant');
 const isRelayModernEnvironment = require('isRelayModernEnvironment');
-const warning = require('warning');
-
 const setRelayModernMutationConfigs = require('setRelayModernMutationConfigs');
+const warning = require('warning');
 
 import type {Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
@@ -26,12 +25,12 @@ import type {Environment, SelectorStoreUpdater} from 'RelayStoreTypes';
 import type {RelayMutationConfig} from 'RelayTypes';
 import type {Variables} from 'RelayTypes';
 
-export type MutationConfig = {|
+export type MutationConfig<T> = {|
   configs?: Array<RelayMutationConfig>,
   mutation: GraphQLTaggedNode,
   variables: Variables,
   uploadables?: UploadableMap,
-  onCompleted?: ?(response: ?Object, errors: ?Array<PayloadError>) => void,
+  onCompleted?: ?(response: T, errors: ?Array<PayloadError>) => void,
   onError?: ?(error: Error) => void,
   optimisticUpdater?: ?SelectorStoreUpdater,
   optimisticResponse?: ?() => Object,
@@ -42,9 +41,9 @@ export type MutationConfig = {|
  * Higher-level helper function to execute a mutation against a specific
  * environment.
  */
-function commitRelayModernMutation(
+function commitRelayModernMutation<T>(
   environment: Environment,
-  config: MutationConfig,
+  config: MutationConfig<T>,
 ): Disposable {
   invariant(
     isRelayModernEnvironment(environment),
@@ -89,7 +88,7 @@ function commitRelayModernMutation(
       const {onCompleted} = config;
       if (onCompleted) {
         const snapshot = environment.lookup(operation.fragment);
-        onCompleted(snapshot.data, errors);
+        onCompleted((snapshot.data: $FlowFixMe), errors);
       }
     },
   });

@@ -210,7 +210,7 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
     return snapshot;
   }
 
-  sendMutation({
+  sendMutation<ResponseType>({
     configs,
     onCompleted,
     onError,
@@ -221,7 +221,7 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
     uploadables,
   }: {
     configs: Array<RelayMutationConfig>,
-    onCompleted?: ?(response: {[key: string]: Object}) => void,
+    onCompleted?: ?(response: ResponseType) => void,
     onError?: ?(error: Error) => void,
     operation: ConcreteOperationDefinition,
     optimisticOperation?: ?ConcreteOperationDefinition,
@@ -240,7 +240,7 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
           if (disposed) {
             return;
           }
-          onCompleted && onCompleted(response);
+          onCompleted && onCompleted((response: $FlowFixMe));
         },
         onFailure: transaction => {
           if (disposed) {

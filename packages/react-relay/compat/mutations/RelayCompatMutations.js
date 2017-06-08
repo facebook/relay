@@ -32,9 +32,9 @@ const RelayCompatMutations = {
    * function with more arguments than it expects. This comment suppresses an
    * error that was noticed when we made this change. Delete this comment to
    * see the error. */
-  commitUpdate(
+  commitUpdate<T>(
     environment: CompatEnvironment,
-    config: MutationConfig,
+    config: MutationConfig<T>,
   ): Disposable {
     const relayStaticEnvironment = getRelayModernEnvironment(environment);
     if (relayStaticEnvironment) {
@@ -57,7 +57,7 @@ const RelayCompatMutations = {
   },
 };
 
-function commitRelayClassicMutation(
+function commitRelayClassicMutation<T>(
   environment: ClassicEnvironment,
   {
     configs,
@@ -67,7 +67,7 @@ function commitRelayClassicMutation(
     optimisticResponse,
     variables,
     uploadables,
-  }: MutationConfig,
+  }: MutationConfig<T>,
 ): Disposable {
   const {getOperation} = environment.unstable_internal;
   const operation = getOperation(mutation);

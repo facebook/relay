@@ -1,0 +1,30 @@
+{
+	"framework": {
+		"name": "Relay",
+		"description": "A JavaScript framework for building data-driven React applications",
+		"homepage": "facebook.github.io/relay/",
+		"source_path": [{
+			"name": "Relay + express-graphql Example",
+			"url": "examples/relay-express-graphql"
+		}],
+		"link_groups": [{
+			"heading": "Official Resources",
+			"links": [{
+				"name": "Documentation",
+				"url": "https://facebook.github.io/relay/docs/getting-started.html"
+			}, {
+				"name": "API Reference",
+				"url": "https://facebook.github.io/relay/docs/api-reference-relay.html"
+			}, {
+				"name": "Relay on GitHub",
+				"url": "https://github.com/facebook/relay"
+			}]
+		}, {
+			"heading": "Community",
+			"links": [{
+				"name": "Relay on StackOverflow",
+				"url": "https://stackoverflow.com/questions/tagged/react-relay"
+			}]
+		}]
+	}
+}

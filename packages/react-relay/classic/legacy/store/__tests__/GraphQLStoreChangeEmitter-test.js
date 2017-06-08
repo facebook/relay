@@ -12,7 +12,7 @@
 
 'use strict';
 
-jest.disableAutomock().mock('GraphQLStoreRangeUtils').useFakeTimers();
+jest.disableAutomock().mock('GraphQLStoreRangeUtils').mock('ErrorUtils').useFakeTimers();
 
 const ErrorUtils = require('ErrorUtils');
 const GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');

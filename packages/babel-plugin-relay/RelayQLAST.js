@@ -13,17 +13,16 @@
 
 'use strict';
 
-const GraphQLRelayDirective = require('./GraphQLRelayDirective');
 const RelayTransformError = require('./RelayTransformError');
 
 const find = require('./find');
 const invariant = require('./invariant');
 const util = require('util');
 
+const {GraphQLRelayDirective} = require('./GraphQLRelayDirective');
 const {ID} = require('./RelayQLNodeInterface');
 const {
   GraphQLBoolean,
-  GraphQLDirective,
   GraphQLEnumType,
   GraphQLFloat,
   GraphQLID,
@@ -41,10 +40,6 @@ const {
   TypeMetaFieldDef,
   TypeNameMetaFieldDef,
 } = require('graphql');
-
-const GraphQLRelayDirectiveInstance = new GraphQLDirective(
-  GraphQLRelayDirective,
-);
 
 import type {
   ArgumentNode,
@@ -363,7 +358,7 @@ class RelayQLDirective {
 
     const directiveName = ast.name.value;
     const schemaDirective = directiveName === GraphQLRelayDirective.name
-      ? GraphQLRelayDirectiveInstance
+      ? GraphQLRelayDirective
       : context.schema.getDirective(directiveName);
     if (!schemaDirective) {
       throw new RelayTransformError(

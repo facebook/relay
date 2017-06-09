@@ -77,7 +77,7 @@ async function run(options: {
   }
   // Need to hide the `require` here to prevent webpack from rewriting
   // it and failing.
-  const persistQuery = persistModule && global['require'](persistModule);
+  const persistQuery = persistModule && __non_webpack_require__(persistModule);
   if (options.watch && !hasWatchmanRootFile(srcDir)) {
     throw new Error(
       `

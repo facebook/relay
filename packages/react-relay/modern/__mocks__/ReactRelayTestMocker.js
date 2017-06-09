@@ -24,24 +24,24 @@ type Config = {
   payload: PayloadData,
 };
 
-class ReactRelayTestMocker {
-  /**
-   * the next id to return from `generateId()`
-   */
-  static nextId = 0;
+/**
+ * The next id to return from `generateId()`.
+ */
+let nextId = 0;
 
+const ReactRelayTestMocker = {
   /**
    * Get a unique id number (as a string). Note: will wrap around after 2^32
    * calls, if your test needs that many IDs.
    *
    * @returns a unique id string
    */
-  static generateId(): string {
-    const toRet = ReactRelayTestMocker.nextId.toString();
-    ReactRelayTestMocker.nextId++;
+  generateId(): string {
+    const toRet = nextId.toString();
+    nextId++;
 
     return toRet;
-  }
+  },
 
   /**
    * Write the data specified in config's payload to the environment sepcified
@@ -53,7 +53,7 @@ class ReactRelayTestMocker {
    *
    * @returns a selector that can be used to access the written data
    */
-  static write(config: Config): Selector {
+  write(config: Config): Selector {
     const {environment, query, variables, payload} = config;
     const {
       createOperationSelector,
@@ -66,7 +66,7 @@ class ReactRelayTestMocker {
 
     environment.commitPayload(operationSelector, payload);
     return operationSelector.fragment;
-  }
-}
+  },
+};
 
 module.exports = ReactRelayTestMocker;

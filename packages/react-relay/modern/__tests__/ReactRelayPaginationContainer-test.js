@@ -12,8 +12,6 @@
 
 'use strict';
 
-require('configureForRelayOSS');
-
 jest.autoMockOff();
 
 const React = require('React');
@@ -30,6 +28,7 @@ const {
   HAS_NEXT_PAGE,
   PAGE_INFO,
 } = require('RelayConnectionInterface');
+const {generateAndCompile} = RelayModernTestUtils;
 
 describe('ReactRelayPaginationContainer', () => {
   let TestComponent;
@@ -94,7 +93,7 @@ describe('ReactRelayPaginationContainer', () => {
     environment = createMockEnvironment({
       handlerProvider: () => RelayConnectionHandler,
     });
-    ({UserFragment, UserQuery} = environment.mock.compile(
+    ({UserFragment, UserQuery} = generateAndCompile(
       `
       query UserQuery(
         $after: ID

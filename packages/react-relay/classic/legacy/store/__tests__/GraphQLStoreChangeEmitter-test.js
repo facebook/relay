@@ -12,7 +12,7 @@
 
 'use strict';
 
-jest.disableAutomock().mock('GraphQLStoreRangeUtils').useFakeTimers();
+jest.enableAutomock().unmock('GraphQLStoreChangeEmitter').useFakeTimers();
 
 const ErrorUtils = require('ErrorUtils');
 const GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
@@ -31,7 +31,7 @@ describe('GraphQLStoreChangeEmitter', () => {
 
     rangeData.getCanonicalClientID.mockImplementation(id => id);
 
-    ErrorUtils.applyWithGuard.mockImplementation(callback => {
+    ErrorUtils.applyWithGuard = jest.fn(callback => {
       try {
         callback();
       } catch (guarded) {}

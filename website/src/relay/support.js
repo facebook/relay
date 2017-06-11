@@ -39,7 +39,7 @@ const support = React.createClass({
             <p>Many members of the community use Stack Overflow to ask questions. Read through the <a href="https://stackoverflow.com/questions/tagged/relayjs?sort=active" rel="nofollow">existing questions</a> tagged with <strong>#relayjs</strong> or <a href="https://stackoverflow.com/questions/ask?tags=relayjs" rel="nofollow">ask your own</a>!</p>
 
             <H2>Discord</H2>
-            <p>Many developers and users idle on Discord in <strong><a href="https://discordapp.com/channels/102860784329052160/102861057189490688">#relay on Reactiflux</a></strong>. <a href="http://www.reactiflux.com/">Get your invite here!</a></p>
+            <p>Many developers and users idle on Discord in <strong><a href="https://discord.gg/0ZcbPKXt5bX40xsQ">#relay</a> on <a href="https://www.reactiflux.com/">Reactiflux</a></strong>.</p>
 
             <H2>Twitter</H2>
             <p><a href="https://twitter.com/search?q=%23relayjs"><strong>#relayjs</strong> hash tag on Twitter</a> is used to keep up with the latest Relay news.</p>

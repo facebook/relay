@@ -150,9 +150,11 @@ export type ConnectionData = {
  *     user: graphql`fragment FriendsFragment on User {
  *       friends(after: $afterCursor first: $count) @connection {
  *         edges { ... }
- *         page_info {
- *           end_cursor
- *           has_next_page
+ *         pageInfo {
+ *           startCursor 
+ *           endCursor
+ *           hasNextPage
+ *           hasPreviousPage
  *         }
  *       }
  *     }`,

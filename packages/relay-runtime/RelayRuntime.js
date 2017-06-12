@@ -85,3 +85,12 @@ module.exports = {
   isRelayModernEnvironment: isRelayModernEnvironment,
   requestSubscription: requestRelaySubscription,
 };
+
+if (__DEV__) {
+  const RelayRecordSourceInspector = require('RelayRecordSourceInspector');
+
+  // Debugging-related symbols exposed only in development
+  Object.assign((module.exports: Object), {
+    RecordSourceInspector: RelayRecordSourceInspector,
+  });
+}

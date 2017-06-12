@@ -4,7 +4,7 @@ title: Relay Compiler
 layout: docs
 category: Relay Modern
 permalink: docs/relay-compiler.html
-next: relay-compat
+next: relay-debugging
 ---
 
 Relay Modern uses the Relay Compiler to convert `graphql` literals into generated

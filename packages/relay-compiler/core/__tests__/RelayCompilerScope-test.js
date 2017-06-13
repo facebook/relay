@@ -11,8 +11,6 @@
 
 'use strict';
 
-jest.disableAutomock();
-
 describe('scope', () => {
   let GraphQL;
   let RelayCompilerScope;

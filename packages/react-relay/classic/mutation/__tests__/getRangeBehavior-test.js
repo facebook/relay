@@ -12,8 +12,6 @@
 
 'use strict';
 
-jest.disableAutomock();
-
 const getRangeBehavior = require('getRangeBehavior');
 
 describe('getRangeBehavior()', () => {

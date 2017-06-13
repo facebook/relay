@@ -11,7 +11,7 @@
 
 'use strict';
 
-jest.autoMockOff().mock('generateClientID');
+jest.mock('generateClientID');
 
 const RelayAsyncLoader = require('RelayAsyncLoader');
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');

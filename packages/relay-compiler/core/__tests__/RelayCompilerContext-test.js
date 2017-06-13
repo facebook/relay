@@ -11,8 +11,6 @@
 
 'use strict';
 
-jest.disableAutomock();
-
 describe('RelayCompilerContext', () => {
   let RelayCompilerContext;
   let RelayParser;

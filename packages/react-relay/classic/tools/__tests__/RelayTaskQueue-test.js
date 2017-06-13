@@ -12,7 +12,7 @@
 
 'use strict';
 
-jest.disableAutomock().useFakeTimers();
+jest.useFakeTimers();
 
 const RelayTaskQueue = require('RelayTaskQueue');
 const RelayTestUtils = require('RelayTestUtils');

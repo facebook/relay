@@ -11,8 +11,6 @@
 
 'use strict';
 
-jest.disableAutomock();
-
 describe('RelayViewerHandleTransform', () => {
   let RelayCompilerContext;
   let RelayPrinter;

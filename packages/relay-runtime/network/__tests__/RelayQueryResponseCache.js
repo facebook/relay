@@ -13,8 +13,6 @@
 
 require('configureForRelayOSS');
 
-jest.autoMockOff();
-
 const RelayQueryResponseCache = require('RelayQueryResponseCache');
 
 describe('RelayQueryResponseCache', () => {

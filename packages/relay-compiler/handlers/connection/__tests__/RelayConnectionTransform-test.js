@@ -13,8 +13,6 @@
 
 require('configureForRelayOSS');
 
-jest.disableAutomock();
-
 describe('RelayConnectionTransform', () => {
   let RelayCompilerContext;
   let RelayConnectionTransform;

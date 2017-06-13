@@ -12,8 +12,6 @@
 
 'use strict';
 
-jest.disableAutomock();
-
 const dedent = require('dedent');
 
 describe('dedent()', () => {

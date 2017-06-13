@@ -12,8 +12,6 @@
 
 'use strict';
 
-jest.autoMockOff();
-
 const dedent = require('dedent');
 
 let RelayTestSchema;

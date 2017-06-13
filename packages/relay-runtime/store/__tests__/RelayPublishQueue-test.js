@@ -11,8 +11,6 @@
 
 'use strict';
 
-jest.autoMockOff();
-
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('RelayMarkSweepStore');
 const RelayPublishQueue = require('RelayPublishQueue');

@@ -11,8 +11,6 @@
 
 'use strict';
 
-jest.disableAutomock();
-
 describe('RelaySkipClientFieldTransform', () => {
   let RelayCompilerContext;
   let RelayPrinter;

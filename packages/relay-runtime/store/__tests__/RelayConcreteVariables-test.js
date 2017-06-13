@@ -11,8 +11,6 @@
 
 'use strict';
 
-jest.disableAutomock();
-
 const RelayModernTestUtils = require('RelayModernTestUtils');
 const {
   getFragmentVariables,

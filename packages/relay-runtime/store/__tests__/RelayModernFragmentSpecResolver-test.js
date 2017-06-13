@@ -11,8 +11,6 @@
 
 'use strict';
 
-jest.autoMockOff();
-
 const RelayModernFragmentSpecResolver = require('RelayModernFragmentSpecResolver');
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {createOperationSelector} = require('RelayModernOperationSelector');

@@ -12,8 +12,6 @@
 
 'use strict';
 
-jest.disableAutomock();
-
 const RelayValidator = require('RelayValidator');
 const GraphQL = require('graphql');
 const RelayTestSchema = require('RelayTestSchema');

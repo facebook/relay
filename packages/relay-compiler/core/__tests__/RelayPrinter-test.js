@@ -11,8 +11,6 @@
 
 'use strict';
 
-jest.autoMockOff();
-
 require('configureForRelayOSS');
 
 const RelayCompilerContext = require('RelayCompilerContext');

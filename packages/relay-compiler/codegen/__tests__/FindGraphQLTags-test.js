@@ -11,8 +11,6 @@
 
 'use strict';
 
-jest.autoMockOff();
-
 const FindGraphQLTags = require('FindGraphQLTags');
 
 describe('FindGraphQLTags', () => {

@@ -11,8 +11,6 @@
 
 'use strict';
 
-jest.disableAutomock();
-
 describe('RelayStripUnusedVariablesTransform', () => {
   let RelayCompilerContext;
   let RelayPrinter;

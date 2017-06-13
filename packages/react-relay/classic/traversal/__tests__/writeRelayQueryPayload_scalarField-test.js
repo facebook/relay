@@ -12,7 +12,7 @@
 
 'use strict';
 
-jest.disableAutomock().mock('RelayQueryTracker').mock('RelayClassicRecordState');
+jest.mock('RelayQueryTracker').mock('RelayClassicRecordState');
 
 require('configureForRelayOSS');
 

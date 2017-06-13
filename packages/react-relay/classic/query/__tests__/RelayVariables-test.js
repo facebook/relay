@@ -11,8 +11,6 @@
 
 'use strict';
 
-jest.disableAutomock();
-
 const {getFragmentVariables, getOperationVariables} = require('RelayVariables');
 
 describe('RelayConcreteVariables', () => {

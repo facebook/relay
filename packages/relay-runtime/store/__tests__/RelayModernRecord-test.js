@@ -11,8 +11,6 @@
 
 'use strict';
 
-jest.autoMockOff();
-
 const RelayModernRecord = require('RelayModernRecord');
 const RelayStoreUtils = require('RelayStoreUtils');
 const RelayModernTestUtils = require('RelayModernTestUtils');

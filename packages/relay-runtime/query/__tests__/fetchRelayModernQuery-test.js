@@ -11,8 +11,6 @@
 
 'use strict';
 
-jest.autoMockOff();
-
 const fetchRelayModernQuery = require('fetchRelayModernQuery');
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const RelayModernTestUtils = require('RelayModernTestUtils');

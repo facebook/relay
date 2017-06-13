@@ -11,8 +11,6 @@
 
 'use strict';
 
-jest.disableAutomock();
-
 describe('RelayFilterDirectivesTransform', () => {
   let RelayCompilerContext;
   let RelayFilterDirectivesTransform;

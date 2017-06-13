@@ -12,8 +12,6 @@
 
 'use strict';
 
-jest.disableAutomock();
-
 const rangeOperationToMetadataKey = require('rangeOperationToMetadataKey');
 
 describe('rangeOperationToMetadataKey', () => {

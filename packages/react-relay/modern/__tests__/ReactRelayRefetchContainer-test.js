@@ -12,8 +12,6 @@
 
 'use strict';
 
-jest.autoMockOff();
-
 const React = require('React');
 const ReactRelayRefetchContainer = require('ReactRelayRefetchContainer');
 const ReactRelayPropTypes = require('ReactRelayPropTypes');

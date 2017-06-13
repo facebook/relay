@@ -12,8 +12,6 @@
 
 'use strict';
 
-jest.autoMockOff();
-
 const transformInputObjectToIR = require('transformInputObjectToIR');
 
 let GraphQLInputObjectType;

@@ -11,8 +11,6 @@
 
 'use strict';
 
-jest.disableAutomock();
-
 const RelayCompilerContext = require('RelayCompilerContext');
 const RelaySkipUnreachableNodeTransform = require('RelaySkipUnreachableNodeTransform');
 const RelayParser = require('RelayParser');

@@ -12,8 +12,6 @@
 
 'use strict';
 
-jest.disableAutomock();
-
 const GraphQLRange = require('GraphQLRange');
 const Relay = require('Relay');
 const RelayConnectionInterface = require('RelayConnectionInterface');

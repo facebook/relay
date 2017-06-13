@@ -11,8 +11,6 @@
 
 'use strict';
 
-jest.disableAutomock();
-
 import type {FlattenOptions} from 'RelayFlattenTransform';
 
 describe('RelayFlattenTransform', () => {

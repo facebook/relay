@@ -12,8 +12,6 @@
 
 'use strict';
 
-jest.disableAutomock();
-
 const stableJSONStringify = require('stableJSONStringify');
 
 describe('stableJSONStringify', () => {

@@ -11,8 +11,6 @@
 
 'use strict';
 
-jest.disableAutomock();
-
 const RelayCompilerContext = require('RelayCompilerContext');
 const RelayFlowGenerator = require('RelayFlowGenerator');
 const RelayTestSchema = require('RelayTestSchema');

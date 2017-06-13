@@ -11,7 +11,6 @@
 
 'use strict';
 
-jest.disableAutomock();
 jest.mock('warning');
 
 const RelayTestUtils = require('RelayTestUtils');

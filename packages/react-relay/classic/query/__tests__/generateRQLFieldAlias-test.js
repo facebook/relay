@@ -12,8 +12,6 @@
 
 'use strict';
 
-jest.disableAutomock();
-
 const generateRQLFieldAlias = require('generateRQLFieldAlias');
 
 const ALIAS_HEURISTIC = /^[\w-]+$/;

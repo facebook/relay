@@ -11,8 +11,6 @@
 
 'use strict';
 
-jest.autoMockOff();
-
 const Deferred = require('Deferred');
 const RelayModernEnvironment = require('RelayModernEnvironment');
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');

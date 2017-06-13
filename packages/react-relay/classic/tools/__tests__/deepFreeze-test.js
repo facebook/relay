@@ -11,8 +11,6 @@
 
 'use strict';
 
-jest.autoMockOff();
-
 const deepFreeze = require('deepFreeze');
 
 describe('deepFreeze()', () => {

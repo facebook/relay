@@ -12,8 +12,6 @@
 
 'use strict';
 
-jest.autoMockOff();
-
 const React = require('React');
 const RelayCompatFragmentContainer = require('RelayCompatContainer');
 const RelayModernTestUtils = require('RelayModernTestUtils');

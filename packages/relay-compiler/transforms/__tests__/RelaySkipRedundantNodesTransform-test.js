@@ -11,8 +11,6 @@
 
 'use strict';
 
-jest.disableAutomock();
-
 describe('RelaySkipRedundantNodesTransform', () => {
   let RelayCompilerContext;
   let RelayParser;

@@ -12,8 +12,6 @@
 
 'use strict';
 
-jest.autoMockOff();
-
 const RelayConcreteNode = require('RelayConcreteNode');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 

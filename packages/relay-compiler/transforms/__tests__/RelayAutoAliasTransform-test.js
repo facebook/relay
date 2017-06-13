@@ -11,8 +11,6 @@
 
 'use strict';
 
-jest.disableAutomock();
-
 const RelayAutoAliasTransform = require('RelayAutoAliasTransform');
 const RelayCompilerContext = require('RelayCompilerContext');
 const RelayParser = require('RelayParser');

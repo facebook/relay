@@ -12,8 +12,6 @@
 
 'use strict';
 
-jest.disableAutomock();
-
 require('configureForRelayOSS');
 
 const QueryBuilder = require('QueryBuilder');

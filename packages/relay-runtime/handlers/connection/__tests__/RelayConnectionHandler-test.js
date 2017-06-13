@@ -13,8 +13,6 @@
 
 require('configureForRelayOSS');
 
-jest.autoMockOff();
-
 const RelayConnectionHandler = require('RelayConnectionHandler');
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('RelayMarkSweepStore');

@@ -11,7 +11,7 @@
 
 'use strict';
 
-jest.mock('warning').autoMockOff();
+jest.mock('warning');
 
 const {ROOT_ID} = require('RelayStoreConstants');
 const {

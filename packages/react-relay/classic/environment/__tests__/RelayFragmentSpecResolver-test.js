@@ -11,10 +11,7 @@
 
 'use strict';
 
-jest
-  .dontMock('GraphQLStoreChangeEmitter')
-  .mock('relayUnstableBatchedUpdates')
-  .autoMockOff();
+jest.dontMock('GraphQLStoreChangeEmitter').mock('relayUnstableBatchedUpdates');
 
 const RelayEnvironment = require('RelayEnvironment');
 const RelayFragmentSpecResolver = require('RelayFragmentSpecResolver');

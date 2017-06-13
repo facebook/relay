@@ -12,8 +12,6 @@
 
 'use strict';
 
-jest.disableAutomock();
-
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayTestUtils', () => {

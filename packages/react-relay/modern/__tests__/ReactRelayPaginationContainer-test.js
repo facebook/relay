@@ -12,8 +12,6 @@
 
 'use strict';
 
-jest.autoMockOff();
-
 const React = require('React');
 const ReactRelayPaginationContainer = require('ReactRelayPaginationContainer');
 const ReactRelayPropTypes = require('ReactRelayPropTypes');

@@ -11,8 +11,6 @@
 
 'use strict';
 
-jest.autoMockOff();
-
 const commitRelayModernMutation = require('commitRelayModernMutation');
 
 const {commitMutation} = require('ReactRelayPublic');

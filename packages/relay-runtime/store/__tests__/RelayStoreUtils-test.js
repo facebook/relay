@@ -11,8 +11,6 @@
 
 'use strict';
 
-jest.autoMockOff();
-
 const formatStorageKey = require('formatStorageKey');
 
 const RelayStoreUtils = require('RelayStoreUtils');

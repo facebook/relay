@@ -128,7 +128,9 @@ class RelayFileWriter {
       extendedSchema,
       this._baseDocuments.valueSeq().toArray(),
       this._documents.valueSeq().toArray(),
-      RelayValidator.LOCAL_RULES,
+      // Verify using local and global rules, can run global verifications here
+      // because all files are processed together
+      [...RelayValidator.LOCAL_RULES, ...RelayValidator.GLOBAL_RULES],
     );
 
     const compilerContext = new RelayCompilerContext(extendedSchema);

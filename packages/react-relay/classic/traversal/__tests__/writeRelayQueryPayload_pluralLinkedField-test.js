@@ -12,11 +12,9 @@
 
 'use strict';
 
-jest.enableAutomock();
+jest.mock('generateClientID');
 
 require('configureForRelayOSS');
-
-jest.unmock('GraphQLRange').unmock('GraphQLSegment');
 
 const Relay = require('Relay');
 const RelayTestUtils = require('RelayTestUtils');

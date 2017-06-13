@@ -71,7 +71,7 @@ function getSchema(schemaProvider: GraphQLSchemaProvider): GraphQLSchema {
   }
 
   throw new Error(
-    'Invalid introspection data supplied to `getBabelRelayPlugin()`. The ' +
+    'Invalid introspection data supplied to the Babel Relay plugin. The ' +
       'resulting schema is not an object with a `__schema` property or ' +
       'a schema IDL language.',
   );

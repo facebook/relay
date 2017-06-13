@@ -96,16 +96,6 @@ When compiling code for production deployment, the plugin can be configured to i
     ["relay", {
       "compat": true,
       "schema": "path/schema.graphql",
-
-      // Will throw an error when it validates the queries at build time.
-      "enforceSchema": true,
-
-      // Suppresses all warnings that would be printed.
-      "suppressWarnings": false,
-
-      // If `enforceSchema` is `false` and `debug` is `true`
-      // then validation errors be logged at build time.
-      "debug": false,
     }]
   ]
 }

@@ -58,7 +58,7 @@ function createFragmentConcreteNode(t, path, definition, state) {
       argumentDefinitions,
       variables,
     ),
-    node: createRelayQLTemplate(t, classicAST, state),
+    node: createRelayQLTemplate(t, path, classicAST, state),
   });
 
   return createConcreteNode(t, transformedAST, substitutions, state);
@@ -72,8 +72,8 @@ function createOperationConcreteNode(t, path, definition, state) {
     fragments,
   );
   const nodeAST = classicAST.operation === 'query'
-    ? createFragmentForOperation(t, classicAST, state)
-    : createRelayQLTemplate(t, classicAST, state);
+    ? createFragmentForOperation(t, path, classicAST, state)
+    : createRelayQLTemplate(t, path, classicAST, state);
   const transformedAST = createObject(t, {
     kind: t.stringLiteral('OperationDefinition'),
     argumentDefinitions: createOperationArguments(
@@ -296,7 +296,7 @@ function createRequireCall(t, requiredPath) {
   ]);
 }
 
-function createFragmentForOperation(t, operation, state) {
+function createFragmentForOperation(t, path, operation, state) {
   let type;
   switch (operation.operation) {
     case 'query':
@@ -332,10 +332,10 @@ function createFragmentForOperation(t, operation, state) {
     directives: operation.directives,
     selectionSet: operation.selectionSet,
   };
-  return createRelayQLTemplate(t, fragmentNode, state);
+  return createRelayQLTemplate(t, path, fragmentNode, state);
 }
 
-function createRelayQLTemplate(t, node, state) {
+function createRelayQLTemplate(t, path, node, state) {
   const schema = state.opts && state.opts.schema;
   invariant(
     schema,
@@ -353,6 +353,7 @@ function createRelayQLTemplate(t, node, state) {
 
   return compileRelayQLTag(
     t,
+    path,
     schema,
     quasi,
     documentName,

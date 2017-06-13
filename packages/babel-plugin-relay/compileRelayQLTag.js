@@ -23,6 +23,7 @@ const RELAY_QL_GENERATED = 'RelayQL_GENERATED';
  */
 function compileRelayQLTag(
   t,
+  path,
   schemaProvider,
   quasi,
   documentName,
@@ -39,7 +40,7 @@ function compileRelayQLTag(
       enableValidation: tagName !== RELAY_QL_GENERATED,
     });
   } catch (error) {
-    return createTransformError(t, error, quasi, state);
+    throw path.buildCodeFrameError(createTransformError(error), Error);
   }
 }
 

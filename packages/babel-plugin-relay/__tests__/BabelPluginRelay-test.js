@@ -115,9 +115,7 @@ describe('BabelPluginRelay', () => {
               BabelPluginRelay,
               {
                 schema: OLD_SCHEMA_PATH,
-                debug: true,
                 substituteVariables: true,
-                suppressWarnings: true,
               },
             ],
           ],

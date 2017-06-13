@@ -63,6 +63,7 @@ module.exports = function BabelPluginRelay({types: t}) {
           path.replaceWith(
             compileRelayQLTag(
               t,
+              path,
               schema,
               quasi,
               documentName,

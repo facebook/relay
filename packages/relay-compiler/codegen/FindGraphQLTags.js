@@ -87,7 +87,7 @@ function find(
           );
           const template = getGraphQLText(property.value.quasi);
           if (tagName === 'graphql' || tagName === 'graphql.experimental') {
-            validateTemplate(template, moduleName, keyName);
+            validateTemplate(template, moduleName, keyName, filePath);
           }
           result.push({
             tag: tagName,
@@ -111,7 +111,7 @@ function find(
         );
         const template = getGraphQLText(fragments.quasi);
         if (tagName === 'graphql' || tagName === 'graphql.experimental') {
-          validateTemplate(template, moduleName);
+          validateTemplate(template, moduleName, null, filePath);
         }
         result.push({
           tag: tagName,
@@ -129,7 +129,7 @@ function find(
       if (tagName != null) {
         const template = getGraphQLText(node.quasi);
         if (tagName === 'graphql' || tagName === 'graphql.experimental') {
-          validateTemplate(template, moduleName);
+          validateTemplate(template, moduleName, null, filePath);
         }
         result.push({
           tag: tagName,
@@ -217,8 +217,8 @@ function getSourceTextForLocation(text, loc) {
   return lines.join('\n');
 }
 
-function validateTemplate(template, moduleName, keyName) {
-  const ast = graphql.parse(template);
+function validateTemplate(template, moduleName, keyName, filePath) {
+  const ast = graphql.parse(new graphql.Source(template, filePath));
   ast.definitions.forEach((def: any) => {
     invariant(
       def.name,

@@ -55,7 +55,7 @@ function parseFile(file: string): ?DocumentNode {
           template,
       );
     }
-    const ast = GraphQL.parse(template);
+    const ast = GraphQL.parse(new GraphQL.Source(template, file));
     invariant(
       ast.definitions.length,
       'RelayFileIRParser: Expected GraphQL text to contain at least one ' +

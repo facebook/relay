@@ -57,10 +57,14 @@ function validateOrThrow(
   const validationErrors = validate(schema, document, rules);
   if (validationErrors && validationErrors.length > 0) {
     const formattedErrors = validationErrors.map(formatError);
+    const errorMessages = formattedErrors.map(
+      e => (e.origin ? `${e.origin}: ${e.message}` : e.message),
+    );
+
     const error = new Error(
       util.format(
         'You supplied a GraphQL document with validation errors:\n%s',
-        formattedErrors.map(e => e.message).join('\n'),
+        errorMessages.join('\n'),
       ),
     );
     (error: any).validationErrors = formattedErrors;

@@ -15,7 +15,7 @@ jest.autoMockOff();
 
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('RelayMarkSweepStore');
-const RelayPublishQueue = require('RelayPublishQueue');
+const RelayPublishQueue = require('../RelayPublishQueue');
 const RelayStoreUtils = require('RelayStoreUtils');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 const {createOperationSelector} = require('RelayModernOperationSelector');

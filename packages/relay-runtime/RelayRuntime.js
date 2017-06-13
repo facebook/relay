@@ -20,7 +20,7 @@ const RelayMarkSweepStore = require('RelayMarkSweepStore');
 const RelayModernEnvironment = require('RelayModernEnvironment');
 const RelayModernGraphQLTag = require('RelayModernGraphQLTag');
 const RelayNetwork = require('RelayNetwork');
-const RelayQueryResponseCache = require('RelayQueryResponseCache');
+const RelayQueryResponseCache = require('./network/RelayQueryResponseCache');
 const RelayViewerHandler = require('RelayViewerHandler');
 
 const commitLocalUpdate = require('commitLocalUpdate');

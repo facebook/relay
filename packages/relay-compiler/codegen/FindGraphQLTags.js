@@ -15,6 +15,7 @@
 
 const babylon = require('babylon');
 const crypto = require('crypto');
+const getModuleName = require('getModuleName');
 const graphql = require('graphql');
 const path = require('path');
 const util = require('util');
@@ -48,7 +49,7 @@ function find(
 ): Array<{tag: string, template: string}> {
   const result = [];
   const ast = babylon.parse(text, BABYLON_OPTIONS);
-  const moduleName = extractModuleName(text, filePath);
+  const moduleName = getModuleName(filePath);
 
   const visitors = {
     CallExpression: node => {
@@ -259,32 +260,6 @@ function validateTemplate(template, moduleName, keyName, filePath) {
       }
     }
   });
-}
-
-function extractModuleName(text, filePath) {
-  const rawModuleName =
-    extractProvidesModuleName(text) || extractFileModuleName(filePath);
-  return rawModuleName.replace(/\.react$/, '').replace(/[^a-zA-Z0-9_]/g, '_');
-}
-
-function extractFileModuleName(filePath) {
-  const filename = path.basename(filePath, path.extname(filePath));
-  if (filename !== 'index') {
-    return filename;
-  }
-  return path.basename(path.dirname(filePath));
-}
-
-function extractProvidesModuleName(text) {
-  const propertyRegex = /@(\S+) *(\S*)/g;
-  let captures;
-  while ((captures = propertyRegex.exec(text))) {
-    const prop = captures[1];
-    const value = captures[2];
-    if (prop === 'providesModule') {
-      return value;
-    }
-  }
 }
 
 function invariant(condition, msg, ...args) {

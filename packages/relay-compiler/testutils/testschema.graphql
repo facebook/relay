@@ -632,7 +632,20 @@ type User implements Named, Node, Actor {
   emailAddresses: [String]
   feedback: Feedback
   firstName(if: Boolean, unless: Boolean): String
-  friends(after: ID, before: ID, first: Int, last: ID, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean, traits: [PersonalityTraits]): FriendsConnection
+  friends(
+    after: ID
+    before: ID
+    first: Int
+    last: ID
+    orderby: [String]
+    named: String
+    scale: Float
+    find: String
+    isViewerFriend: Boolean
+    if: Boolean
+    unless: Boolean
+    traits: [PersonalityTraits]
+  ): FriendsConnection
   hometown: Page
   id: ID!
   lastName: String
@@ -643,6 +656,7 @@ type User implements Named, Node, Actor {
   storySearch(query: StorySearchInput): [Story]
   storyCommentSearch(query: StoryCommentSearchInput): [Comment]
   profilePicture(size: [Int], preset: PhotoSize): Image
+  profile_picture(scale: Float): Image
   segments(first: Int): Segments
   screennames: [Screenname]
   subscribeStatus: String
@@ -679,6 +693,14 @@ type Viewer {
   pendingPosts(first: Int): PendingPostsConnection
   primaryEmail: String
   timezoneEstimate: TimezoneInfo
+  marketplace_explore(
+    marketplace_browse_context: MarketplaceBrowseContext,
+    with_price_between: [Float],
+  ): MarketplaceExploreConnection
+}
+
+type MarketplaceExploreConnection {
+  count: Int
 }
 
 type ViewerNotificationsUpdateAllSeenStateResponsePayload {
@@ -688,6 +710,11 @@ type ViewerNotificationsUpdateAllSeenStateResponsePayload {
 enum Environment {
   WEB
   MOBILE
+}
+
+enum MarketplaceBrowseContext {
+  BROWSE_FEED
+  CATEGORY_FEED
 }
 
 enum PhotoSize {

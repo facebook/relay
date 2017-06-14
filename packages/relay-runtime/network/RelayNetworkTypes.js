@@ -19,6 +19,7 @@ import type {
   HandleFieldPayload,
   MutableRecordSource,
   Observer,
+  SingleObserver,
 } from 'RelayStoreTypes';
 import type {Variables} from 'RelayTypes';
 
@@ -35,26 +36,11 @@ export interface ResponseCache {
  * queries.
  */
 export interface Network {
-  fetch: FetchFunction,
   request: RequestResponseFunction,
   requestStream: RequestStreamFunction,
 }
 
 export type PayloadData = {[key: string]: mixed};
-
-export type SyncOrPromise<T> =
-  | {|
-      kind: 'error',
-      error: Error,
-    |}
-  | {|
-      kind: 'data',
-      data: T,
-    |}
-  | {|
-      kind: 'promise',
-      promise: Promise<T>,
-    |};
 
 export type PayloadError = {
   message: string,
@@ -83,6 +69,8 @@ export type RelayResponsePayload = {|
   errors: ?Array<PayloadError>,
 |};
 
+export type PromiseOrValue<T> = Promise<T> | T;
+
 /**
  * A function that executes a GraphQL operation with request/response semantics,
  * with exactly one raw server response returned
@@ -91,8 +79,8 @@ export type FetchFunction = (
   operation: ConcreteBatch,
   variables: Variables,
   cacheConfig: ?CacheConfig,
-  uploadables?: UploadableMap,
-) => SyncOrPromise<QueryPayload>;
+  uploadables?: ?UploadableMap,
+) => PromiseOrValue<QueryPayload>;
 
 /**
  * A function that executes a GraphQL operation with request/subscription
@@ -126,8 +114,9 @@ export type RequestResponseFunction = (
   operation: ConcreteBatch,
   variables: Variables,
   cacheConfig?: ?CacheConfig,
-  uploadables?: UploadableMap,
-) => SyncOrPromise<RelayResponsePayload>;
+  uploadables?: ?UploadableMap,
+  observer: SingleObserver<RelayResponsePayload>,
+) => Disposable;
 
 export type Uploadable = File | Blob;
 // $FlowFixMe this is compatible with classic api see D4658012

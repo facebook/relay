@@ -15,6 +15,7 @@
 
 const RelayError = require('RelayError');
 
+const emptyFunction = require('emptyFunction');
 const invariant = require('invariant');
 const normalizeRelayPayload = require('normalizeRelayPayload');
 
@@ -28,10 +29,9 @@ import type {
   QueryPayload,
   RelayResponsePayload,
   SubscribeFunction,
-  SyncOrPromise,
   UploadableMap,
 } from 'RelayNetworkTypes';
-import type {Observer} from 'RelayStoreTypes';
+import type {Observer, SingleObserver} from 'RelayStoreTypes';
 import type {Variables} from 'RelayTypes';
 
 /**
@@ -43,32 +43,45 @@ function create(fetch: FetchFunction, subscribe?: SubscribeFunction): Network {
     operation: ConcreteBatch,
     variables: Variables,
     cacheConfig?: ?CacheConfig,
-    uploadables?: UploadableMap,
-  ): SyncOrPromise<RelayResponsePayload> {
-    const onSuccess = payload =>
-      normalizePayload(operation, variables, payload);
+    uploadables?: ?UploadableMap,
+    observer: SingleObserver<RelayResponsePayload>,
+  ): Disposable {
+    let isDisposed = false;
+    const onCompleted = payload => {
+      if (isDisposed) {
+        return;
+      }
+      let relayPayload;
+      try {
+        relayPayload = normalizePayload(operation, variables, payload);
+      } catch (err) {
+        observer.onError(err);
+        return;
+      }
+      observer.onCompleted(relayPayload);
+    };
+    const onError = error => {
+      if (isDisposed) {
+        return;
+      }
+      observer.onError(error);
+    };
     const response = fetch(operation, variables, cacheConfig, uploadables);
-    switch (response.kind) {
-      case 'promise':
-        return {
-          kind: 'promise',
-          promise: response.promise.then(onSuccess),
-        };
-      case 'data':
-        return {
-          kind: 'data',
-          data: (response.data && onSuccess(response.data)) || null,
-        };
-      case 'error':
-        return response;
-      default:
-        (response.kind: empty);
-        invariant(
-          false,
-          'RelayNetwork: unsupported response kind `%s`',
-          response.kind,
-        );
+    invariant(
+      typeof response === 'object' && response !== null,
+      'RelayNetwork: Expected fetch function to return an object, got `%s`.',
+      response,
+    );
+    if (typeof response.then === 'function') {
+      response.then(onCompleted).catch(onError);
+    } else {
+      onCompleted((response: any));
     }
+    return {
+      dispose() {
+        isDisposed = true;
+      },
+    };
   }
 
   function requestStream(
@@ -110,50 +123,15 @@ function create(fetch: FetchFunction, subscribe?: SubscribeFunction): Network {
       );
     }
 
-    let isDisposed = false;
-    const onRequestSuccess = payload => {
-      if (isDisposed) {
-        return;
-      }
-      let relayPayload;
-      try {
-        relayPayload = normalizePayload(operation, variables, payload);
-      } catch (err) {
-        onError && onError(err);
-        return;
-      }
-      onNext && onNext(relayPayload);
-      onCompleted && onCompleted();
-    };
-
-    const onRequestError = error => {
-      if (isDisposed) {
-        return;
-      }
-      onError && onError(error);
-    };
-
-    const requestResponse = fetch(operation, variables, cacheConfig);
-    switch (requestResponse.kind) {
-      case 'data':
-        onRequestSuccess(requestResponse.data);
-        break;
-      case 'error':
-        onRequestError(requestResponse.error);
-        break;
-      case 'promise':
-        requestResponse.promise.then(onRequestSuccess, onRequestError);
-        return {
-          dispose() {
-            isDisposed = true;
-          },
-        };
-    }
-    return {
-      dispose() {
-        isDisposed = true;
+    return request(operation, variables, cacheConfig, null, {
+      onCompleted: payload => {
+        onNext && onNext(payload);
+        onCompleted && onCompleted();
       },
-    };
+      onError: error => {
+        onError && onError(error);
+      },
+    });
   }
 
   return {
@@ -175,39 +153,35 @@ function doFetchWithPolling(
     'RelayNetwork: Expected pollInterval to be positive, got `%s`.',
     pollInterval,
   );
-  let isDisposed = false;
+  let requestResponse = null;
   let timeout = null;
   const dispose = () => {
-    if (!isDisposed) {
-      isDisposed = true;
-      timeout && clearTimeout(timeout);
+    if (requestResponse != null) {
+      requestResponse.dispose();
+      requestResponse = null;
+    }
+    if (timeout != null) {
+      clearTimeout(timeout);
+      timeout = null;
     }
   };
   function poll() {
-    const requestResponse = request(operation, variables, {force: true});
-    const onRequestSuccess = payload => {
-      onNext && onNext(payload);
-      timeout = setTimeout(poll, pollInterval);
-    };
-
-    const onRequestError = error => {
-      dispose();
-      onError && onError(error);
-    };
-    switch (requestResponse.kind) {
-      case 'data':
-        onRequestSuccess(requestResponse.data);
-        break;
-      case 'error':
-        onRequestError(requestResponse.error);
-        break;
-      case 'promise':
-        requestResponse.promise
-          .then(payload => {
-            onRequestSuccess(payload);
-          }, onRequestError)
-          .catch(rethrow);
-    }
+    requestResponse = request(
+      operation,
+      variables,
+      {force: true},
+      null,
+      {
+        onCompleted: payload => {
+          onNext && onNext(payload);
+          timeout = setTimeout(poll, pollInterval);
+        },
+        onError: error => {
+          dispose();
+          onError && onError(error);
+        },
+      },
+    );
   }
   poll();
 

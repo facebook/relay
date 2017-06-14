@@ -447,10 +447,7 @@ describe('RelayModernEnvironment', () => {
       onNext = jest.fn();
       callbacks = {onCompleted, onError, onNext};
       deferred = new Deferred();
-      fetch = jest.fn(() => ({
-        kind: 'promise',
-        promise: deferred.getPromise(),
-      }));
+      fetch = jest.fn(() => deferred.getPromise());
       environment = new RelayModernEnvironment({
         network: RelayNetwork.create(fetch),
         store,
@@ -596,15 +593,12 @@ describe('RelayModernEnvironment', () => {
               return;
             }
             // Reuse RelayNetwork's helper for response processing
-            RelayNetwork.create(() => ({
-              kind: 'promise',
-              promise: Promise.resolve(data),
-            }))
-              .request(query, variables, cacheConfig)
-              .promise.then(
-                payload => observer.onNext && observer.onNext(payload),
-              )
-              .catch(error => observer.onError && observer.onError(error));
+            RelayNetwork.create(() =>
+              Promise.resolve(data),
+            ).request(query, variables, cacheConfig, null, {
+              onCompleted: observer.onNext,
+              onError: observer.onError,
+            });
           },
           complete() {
             if (!isDisposed) {
@@ -803,10 +797,7 @@ describe('RelayModernEnvironment', () => {
       operation = createOperationSelector(CreateCommentMutation, variables);
 
       deferred = new Deferred();
-      fetch = jest.fn(() => ({
-        kind: 'promise',
-        promise: deferred.getPromise(),
-      }));
+      fetch = jest.fn(() => deferred.getPromise());
       environment = new RelayModernEnvironment({
         network: RelayNetwork.create(fetch),
         store,

@@ -20,6 +20,7 @@ const RelayMarkSweepStore = require('RelayMarkSweepStore');
 const RelayModernEnvironment = require('RelayModernEnvironment');
 const RelayModernGraphQLTag = require('RelayModernGraphQLTag');
 const RelayNetwork = require('RelayNetwork');
+const RelayNetworkLogger = require('RelayNetworkLogger');
 const RelayQueryResponseCache = require('RelayQueryResponseCache');
 const RelayViewerHandler = require('RelayViewerHandler');
 
@@ -58,6 +59,7 @@ module.exports = {
   // Core API
   Environment: RelayModernEnvironment,
   Network: RelayNetwork,
+  NetworkLogger: RelayNetworkLogger,
   QueryResponseCache: RelayQueryResponseCache,
   RecordSource: RelayInMemoryRecordSource,
   Store: RelayMarkSweepStore,

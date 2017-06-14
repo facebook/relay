@@ -327,7 +327,10 @@ function createEdge(
   // twice. This is acceptable since the `insertEdge*` functions ignore
   // duplicates.
   const edgeID = generateRelayClientID(record.getDataID(), node.getDataID());
-  const edge = store.create(edgeID, edgeType);
+  let edge = store.get(edgeID);
+  if (!edge) {
+    edge = store.create(edgeID, edgeType);
+  }
   edge.setLinkedRecord(node, NODE);
   return edge;
 }

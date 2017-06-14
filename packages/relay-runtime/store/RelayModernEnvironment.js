@@ -17,7 +17,7 @@ const RelayCore = require('RelayCore');
 const RelayDefaultHandlerProvider = require('RelayDefaultHandlerProvider');
 const RelayPublishQueue = require('RelayPublishQueue');
 
-const invariant = require('invariant');
+const isPromise = require('isPromise');
 const normalizeRelayPayload = require('normalizeRelayPayload');
 const warning = require('warning');
 
@@ -150,21 +150,12 @@ class RelayModernEnvironment implements Environment {
       operation.variables,
       cacheConfig,
     );
-    switch (networkRequest.kind) {
-      case 'data':
-        onRequestSuccess(networkRequest.data);
-        break;
-      case 'error':
-        onRequestError(networkRequest.error);
-        break;
-      case 'promise':
-        networkRequest.promise.then(onRequestSuccess).catch(onRequestError);
-        break;
-      default:
-        invariant(
-          false,
-          `RelayModernEnvionment: unsupported network request type "${networkRequest.kind}"`,
-        );
+    if (isPromise(networkRequest)) {
+      networkRequest.then(onRequestSuccess).catch(onRequestError);
+    } else if (networkRequest instanceof Error) {
+      onRequestError(networkRequest);
+    } else {
+      onRequestSuccess(networkRequest);
     }
     return {dispose};
   }
@@ -264,8 +255,8 @@ class RelayModernEnvironment implements Environment {
       uploadables,
     );
 
-    if (networkRequest.promise) {
-      networkRequest.promise.then(onRequestSuccess).catch(onRequestError);
+    if (isPromise(networkRequest)) {
+      networkRequest.then(onRequestSuccess).catch(onRequestError);
     } else {
       warning(
         false,

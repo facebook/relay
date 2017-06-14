@@ -138,10 +138,7 @@ const ReactRelayTestMocker = {
         query,
         variables,
       });
-      return {
-        kind: 'promise',
-        promise,
-      };
+      return promise;
     };
 
     function isLoading(ident: string): boolean {

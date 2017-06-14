@@ -42,20 +42,6 @@ export interface Network {
 
 export type PayloadData = {[key: string]: mixed};
 
-export type SyncOrPromise<T> =
-  | {|
-      kind: 'error',
-      error: Error,
-    |}
-  | {|
-      kind: 'data',
-      data: T,
-    |}
-  | {|
-      kind: 'promise',
-      promise: Promise<T>,
-    |};
-
 export type PayloadError = {
   message: string,
   locations?: Array<{
@@ -83,6 +69,8 @@ export type RelayResponsePayload = {|
   errors: ?Array<PayloadError>,
 |};
 
+export type PromiseOrValue<T> = Promise<T> | T | Error;
+
 /**
  * A function that executes a GraphQL operation with request/response semantics,
  * with exactly one raw server response returned
@@ -92,7 +80,7 @@ export type FetchFunction = (
   variables: Variables,
   cacheConfig: ?CacheConfig,
   uploadables?: UploadableMap,
-) => SyncOrPromise<QueryPayload>;
+) => PromiseOrValue<QueryPayload>;
 
 /**
  * A function that executes a GraphQL operation with request/subscription
@@ -127,7 +115,7 @@ export type RequestResponseFunction = (
   variables: Variables,
   cacheConfig?: ?CacheConfig,
   uploadables?: UploadableMap,
-) => SyncOrPromise<RelayResponsePayload>;
+) => PromiseOrValue<RelayResponsePayload>;
 
 export type Uploadable = File | Blob;
 // $FlowFixMe this is compatible with classic api see D4658012

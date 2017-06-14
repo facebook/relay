@@ -15,6 +15,7 @@
 
 /* eslint-disable no-console-disallow */
 
+const isPromise = require('isPromise');
 const prettyStringify = require('prettyStringify');
 
 import type {CacheConfig, Disposable} from 'RelayCombinedEnvironmentTypes';
@@ -24,7 +25,7 @@ import type {
   SubscribeFunction,
   QueryPayload,
   UploadableMap,
-  SyncOrPromise,
+  PromiseOrValue,
 } from 'RelayNetworkTypes';
 import type {Observer} from 'RelayStoreTypes';
 import type {Variables} from 'RelayTypes';
@@ -46,7 +47,7 @@ const RelayNetworkLogger = {
       variables: Variables,
       cacheConfig: ?CacheConfig,
       uploadables?: UploadableMap,
-    ): SyncOrPromise<QueryPayload> => {
+    ): PromiseOrValue<QueryPayload> => {
       const id = queryID++;
       const name = operation.name;
 
@@ -72,22 +73,19 @@ const RelayNetworkLogger = {
       };
 
       const request = fetch(operation, variables, cacheConfig, uploadables);
-      switch (request.kind) {
-        case 'data':
-          onSettled(null, request.data);
-          break;
-        case 'error':
-          onSettled(request.error, null);
-          break;
-        case 'promise':
-          request.promise.then(
-            response => {
-              onSettled(null, response);
-            },
-            error => {
-              onSettled(error, null);
-            },
-          );
+      if (isPromise(request)) {
+        request.then(
+          response => {
+            onSettled(null, response);
+          },
+          error => {
+            onSettled(error, null);
+          },
+        );
+      } else if (request instanceof Error) {
+        onSettled(request, null);
+      } else {
+        onSettled(null, request);
       }
       return request;
     };

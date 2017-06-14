@@ -62,7 +62,10 @@ function getClassicNode(taggedNode) {
     const fn = taggedNode.classic;
     invariant(
       typeof fn === 'function',
-      'RelayGraphQLTag: Expected a graphql literal (in compat mode), got `%s`.',
+      'RelayGraphQLTag: Expected a graphql literal, got `%s`.\n' +
+        'The "relay" Babel plugin must enable "compat" mode to be used with ' +
+        '"react-relay/compat" or "react-relay/classic".\n' +
+        'See: https://facebook.github.io/relay/docs/babel-plugin-relay.html',
       JSON.stringify(taggedNode),
     );
     concreteNode = fn();

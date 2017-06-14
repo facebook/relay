@@ -23,6 +23,9 @@ const RelayQueryConfig = require('RelayQueryConfig');
 const RelayReadyStateRenderer = require('RelayReadyStateRenderer');
 const StaticContainer = require('StaticContainer.react');
 
+jest.dontMock('pretty-format');
+const prettyFormat = require('pretty-format');
+
 describe('RelayReadyStateRenderer', () => {
   /**
    * Creates an asymmetric matcher that passes for values that are container
@@ -60,12 +63,12 @@ describe('RelayReadyStateRenderer', () => {
       !element.type ||
       !element.type.name
     ) {
-      return jasmine.pp(element);
+      return prettyFormat(element);
     }
     const ppProps = Object.keys(element.props)
       .map(key => {
         const value = element.props[key];
-        const ppValue = jasmine.pp(value);
+        const ppValue = prettyFormat(value);
         return ` ${key}={${ppValue.length > 120 ? '...' : ppValue}}`;
       })
       .join('');
@@ -107,36 +110,31 @@ describe('RelayReadyStateRenderer', () => {
   describe('arguments', () => {
     beforeEach(() => {
       const container = document.createElement('div');
-      jasmine.addMatchers({
-        toRenderWithArgs: () => ({
-          compare(elementOrReadyState, expected) {
-            const render = jest.fn(() => <div />);
-            const element = ReactTestUtils.isElement(elementOrReadyState)
-              ? React.cloneElement(elementOrReadyState, {render})
-              : <RelayReadyStateRenderer
-                  {...defaultProps}
-                  readyState={elementOrReadyState}
-                  render={render}
-                />;
-            ReactDOM.render(element, container);
-            const actual = render.mock.calls[0][0];
-            const pass = jasmine.matchersUtil.equals(
-              actual,
-              jasmine.objectContaining(expected),
-            );
-            return {
-              get message() {
-                const not = pass ? ' not' : '';
-                return (
-                  `Expected ${ppReactElement(elementOrReadyState)}${not} ` +
-                  `to render with arguments ${jasmine.pp(expected)}. ` +
-                  `Instead, it rendered with arguments ${jasmine.pp(actual)}.`
-                );
-              },
-              pass,
-            };
-          },
-        }),
+      expect.extend({
+        toRenderWithArgs(elementOrReadyState, expected) {
+          const render = jest.fn(() => <div />);
+          const element = ReactTestUtils.isElement(elementOrReadyState)
+            ? React.cloneElement(elementOrReadyState, {render})
+            : <RelayReadyStateRenderer
+                {...defaultProps}
+                readyState={elementOrReadyState}
+                render={render}
+              />;
+          ReactDOM.render(element, container);
+          const actual = render.mock.calls[0][0];
+          const pass = this.equals(actual, jasmine.objectContaining(expected));
+          return {
+            get message() {
+              const not = pass ? ' not' : '';
+              return (
+                `Expected ${ppReactElement(elementOrReadyState)}${not} ` +
+                `to render with arguments ${prettyFormat(expected)}. ` +
+                `Instead, it rendered with arguments ${prettyFormat(actual)}.`
+              );
+            },
+            pass,
+          };
+        },
       });
     });
 
@@ -423,40 +421,33 @@ describe('RelayReadyStateRenderer', () => {
         );
       }
 
-      jasmine.addMatchers({
-        toRenderChild: () => ({
-          compare(element, expected) {
-            const pass = jasmine.matchersUtil.equals(
-              render(element).props.children,
-              expected,
-            );
-            return {
-              get message() {
-                const not = pass ? ' not' : '';
-                return (
-                  `Expected ${ppReactElement(element)}${not} ` +
-                  `to render child ${jasmine.pp(expected)}.`
-                );
-              },
-              pass,
-            };
-          },
-        }),
-        toUpdateChild: () => ({
-          compare(element) {
-            const pass = render(element).props.shouldUpdate;
-            return {
-              get message() {
-                const not = pass ? ' not' : '';
-                return (
-                  `Expected ${ppReactElement(element)}${not} ` +
-                  'to update child.'
-                );
-              },
-              pass,
-            };
-          },
-        }),
+      expect.extend({
+        toRenderChild(element, expected) {
+          const pass = this.equals(render(element).props.children, expected);
+          return {
+            get message() {
+              const not = pass ? ' not' : '';
+              return (
+                `Expected ${ppReactElement(element)}${not} ` +
+                `to render child ${prettyFormat(expected)}.`
+              );
+            },
+            pass,
+          };
+        },
+        toUpdateChild(element) {
+          const pass = render(element).props.shouldUpdate;
+          return {
+            get message() {
+              const not = pass ? ' not' : '';
+              return (
+                `Expected ${ppReactElement(element)}${not} ` +
+                'to update child.'
+              );
+            },
+            pass,
+          };
+        },
       });
     });
 

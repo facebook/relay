@@ -150,7 +150,7 @@ export type RelayMutationConfig =
     }
   | {
       type: 'RANGE_ADD',
-      parentName: string,
+      parentName?: string,
       parentID?: string,
       connectionInfo?: Array<{
         key: string,
@@ -170,7 +170,7 @@ export type RelayMutationConfig =
     }
   | {
       type: 'RANGE_DELETE',
-      parentName: string,
+      parentName?: string,
       parentID?: string,
       connectionKeys?: Array<{
         key: string,

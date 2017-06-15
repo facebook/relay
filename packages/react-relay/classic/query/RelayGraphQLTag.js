@@ -14,6 +14,7 @@
 'use strict';
 
 const QueryBuilder = require('QueryBuilder');
+const RelayQL = require('RelayQL');
 
 const invariant = require('invariant');
 
@@ -68,7 +69,7 @@ function getClassicNode(taggedNode) {
         'See: https://facebook.github.io/relay/docs/babel-plugin-relay.html',
       JSON.stringify(taggedNode),
     );
-    concreteNode = fn();
+    concreteNode = fn(RelayQL);
     (taggedNode: any)[CLASSIC_NODE] = concreteNode;
   }
   return concreteNode;

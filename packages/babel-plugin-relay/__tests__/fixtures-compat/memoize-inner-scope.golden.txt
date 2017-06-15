@@ -18,10 +18,8 @@ function SomeTopLevelView() {
       modern: function () {
         return require('./__generated__/ExampleQuery.graphql');
       },
-      classic: function () {
-        const RelayQL_GENERATED = require('react-relay/classic').QL,
-              ProfilePic_user = ProfilePic.getFragment('user');
-
+      classic: function (RelayQL_GENERATED) {
+        const ProfilePic_user = ProfilePic.getFragment('user');
         return {
           kind: 'OperationDefinition',
           argumentDefinitions: [{

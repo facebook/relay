@@ -37,7 +37,6 @@ const babelOptions = getBabelOptions({
     [BabelPluginRelay, {
       compat: true,
       haste: true,
-      relayQLModule: 'RelayQL',
       substituteVariables: true,
       schema: SCHEMA_PATH,
     }],

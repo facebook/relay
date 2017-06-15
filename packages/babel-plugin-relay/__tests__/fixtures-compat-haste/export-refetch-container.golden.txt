@@ -18,9 +18,7 @@ module.exports = createRefetchContainer(RefetchExample, {
     modern: function () {
       return require('RefetchExample_user.graphql');
     },
-    classic: function () {
-      const RelayQL_GENERATED = require('RelayQL_GENERATED');
-
+    classic: function (RelayQL_GENERATED) {
       return {
         kind: 'FragmentDefinition',
         argumentDefinitions: [],
@@ -54,10 +52,8 @@ module.exports = createRefetchContainer(RefetchExample, {
   modern: function () {
     return require('RefetchExampleRefetchQuery.graphql');
   },
-  classic: function () {
-    const RelayQL_GENERATED = require('RelayQL_GENERATED'),
-          RefetchExample_user = (RefetchExample.__container__ || RefetchExample).getFragment('user');
-
+  classic: function (RelayQL_GENERATED) {
+    const RefetchExample_user = (RefetchExample.__container__ || RefetchExample).getFragment('user');
     return {
       kind: 'OperationDefinition',
       argumentDefinitions: [],

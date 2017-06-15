@@ -92,7 +92,6 @@ describe('BabelPluginRelay', () => {
               {
                 compat: true,
                 haste: true,
-                relayQLModule: 'RelayQL_GENERATED',
                 schema: SCHEMA_PATH,
                 substituteVariables: true,
               },

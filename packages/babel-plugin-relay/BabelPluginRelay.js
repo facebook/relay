@@ -68,6 +68,7 @@ module.exports = function BabelPluginRelay({types: t}) {
               documentName,
               propName,
               tagName,
+              true, // enableValidation
               state,
             ),
           );

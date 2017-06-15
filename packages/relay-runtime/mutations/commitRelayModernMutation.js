@@ -33,7 +33,7 @@ export type MutationConfig<T> = {|
   onCompleted?: ?(response: T, errors: ?Array<PayloadError>) => void,
   onError?: ?(error: Error) => void,
   optimisticUpdater?: ?SelectorStoreUpdater,
-  optimisticResponse?: ?() => Object,
+  optimisticResponse?: Object,
   updater?: ?SelectorStoreUpdater,
 |};
 
@@ -52,9 +52,18 @@ function commitRelayModernMutation<T>(
   );
   const {createOperationSelector, getOperation} = environment.unstable_internal;
   const mutation = getOperation(config.mutation);
-  let {optimisticUpdater, updater} = config;
-  const {configs, onError, optimisticResponse, variables, uploadables} = config;
+  let {optimisticResponse, optimisticUpdater, updater} = config;
+  const {configs, onError, variables, uploadables} = config;
   const operation = createOperationSelector(mutation, variables);
+  // TODO: remove this check after we fix flow.
+  if (typeof optimisticResponse === 'function') {
+    optimisticResponse = optimisticResponse();
+    warning(
+      false,
+      'commitRelayModernMutatuion: Expected `optimisticResponse` to be an object, ' +
+        'received a function.',
+    );
+  }
   if (
     optimisticResponse &&
     mutation.query.selections &&
@@ -63,9 +72,9 @@ function commitRelayModernMutation<T>(
   ) {
     const mutationRoot = mutation.query.selections[0].name;
     warning(
-      optimisticResponse()[mutationRoot],
-      'commitRelayModernMutatuion: Expected result from optimisticResponse()' +
-        ' to be wrapped in mutation name `%s`',
+      optimisticResponse[mutationRoot],
+      'commitRelayModernMutatuion: Expected `optimisticResponse` to be wrapped ' +
+        'in mutation name `%s`',
       mutationRoot,
     );
   }

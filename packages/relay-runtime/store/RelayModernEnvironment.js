@@ -202,15 +202,15 @@ class RelayModernEnvironment implements Environment {
     onError?: ?(error: Error) => void,
     operation: OperationSelector,
     optimisticUpdater?: ?SelectorStoreUpdater,
-    optimisticResponse?: ?() => Object,
+    optimisticResponse?: Object,
     updater?: ?SelectorStoreUpdater,
     uploadables?: UploadableMap,
   }): Disposable {
-    let hasOptimisticUpdate = optimisticResponse || optimisticUpdater;
+    let hasOptimisticUpdate = !!optimisticResponse || optimisticUpdater;
     const optimisticUpdate = {
       operation: operation,
       selectorStoreUpdater: optimisticUpdater,
-      response: optimisticResponse ? optimisticResponse() : null,
+      response: optimisticResponse || null,
     };
     if (hasOptimisticUpdate) {
       this._publishQueue.applyUpdate(optimisticUpdate);

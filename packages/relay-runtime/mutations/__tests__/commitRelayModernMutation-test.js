@@ -53,7 +53,7 @@ describe('Configs: RANGE_DELETE', () => {
         commentId: commentID,
       },
     };
-    const optimisticResponse = () => ({
+    const optimisticResponse = {
       commentDelete: {
         clientMutationId: '0',
         deletedCommentId: commentID,
@@ -64,7 +64,7 @@ describe('Configs: RANGE_DELETE', () => {
           },
         },
       },
-    });
+    };
     const configs = [
       {
         type: 'RANGE_DELETE',
@@ -241,7 +241,7 @@ describe('Configs: RANGE_DELETE', () => {
     };
     const operationSelector = createOperationSelector(FriendQuery, {});
     environment.commitPayload(operationSelector, payload);
-    const optimisticResponse = () => ({
+    const optimisticResponse = {
       unfriend: {
         clientMutationId: '0',
         actor: {
@@ -252,7 +252,7 @@ describe('Configs: RANGE_DELETE', () => {
           id: '456',
         },
       },
-    });
+    };
     const snapshot = store.lookup({
       dataID: ROOT_ID,
       node: FriendQuery.fragment,
@@ -315,7 +315,9 @@ describe('Configs: RANGE_ADD', () => {
       },
     },
   };
-  const optimisticResponse = () => ({
+  const nextCursor = 'comment789:cursor';
+  const nextNodeID = 'comment789';
+  const optimisticResponse = {
     commentCreate: {
       feedback: {
         id: feedbackID,
@@ -334,9 +336,7 @@ describe('Configs: RANGE_ADD', () => {
         },
       },
     },
-  });
-  const nextCursor = 'comment789:cursor';
-  const nextNodeID = 'comment789';
+  };
 
   beforeEach(() => {
     jest.resetModules();
@@ -346,7 +346,7 @@ describe('Configs: RANGE_ADD', () => {
 
     mutation = generateAndCompile(`
     mutation CommentCreateMutation(
-      $input: CommentCreateInput 
+      $input: CommentCreateInput
     ) {
       commentCreate(input: $input) {
         feedback {

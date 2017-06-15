@@ -282,7 +282,7 @@ export interface Environment
     onCompleted?: ?(errors: ?Array<PayloadError>) => void,
     onError?: ?(error: Error) => void,
     operation: OperationSelector,
-    optimisticResponse?: ?() => Object,
+    optimisticResponse?: Object,
     optimisticUpdater?: ?SelectorStoreUpdater,
     updater?: ?SelectorStoreUpdater,
     uploadables?: UploadableMap,

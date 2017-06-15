@@ -1034,7 +1034,7 @@ describe('RelayModernEnvironment', () => {
         onCompleted,
         onError,
         operation,
-        optimisticResponse: () => ({
+        optimisticResponse: {
           commentCreate: {
             comment: {
               id: commentID,
@@ -1043,7 +1043,7 @@ describe('RelayModernEnvironment', () => {
               },
             },
           },
-        }),
+        },
       });
 
       expect(onCompleted).not.toBeCalled();

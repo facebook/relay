@@ -151,7 +151,7 @@ export type ConnectionData = {
  *       friends(after: $afterCursor first: $count) @connection {
  *         edges { ... }
  *         pageInfo {
- *           startCursor 
+ *           startCursor
  *           endCursor
  *           hasNextPage
  *           hasPreviousPage
@@ -283,11 +283,11 @@ function findConnectionMetadata(fragments): ReactConnectionMetadata {
   return foundConnectionMetadata || ({}: any);
 }
 
-function createContainerWithFragments<TBase: ReactClass<*>>(
-  Component: TBase,
+function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
+  Component: TClass,
   fragments: FragmentMap,
   connectionConfig: ConnectionConfig,
-): TBase {
+): ReactClass<TConfig & {componentRef?: any}> {
   const ComponentClass = getReactComponent(Component);
   const componentName = getComponentName(Component);
   const containerName = `Relay(${componentName})`;
@@ -669,7 +669,9 @@ function createContainerWithFragments<TBase: ReactClass<*>>(
           <ComponentClass
             {...this.props}
             {...this.state.data}
-            ref={'component'} // eslint-disable-line react/no-string-refs
+            // TODO: Remove the string ref fallback.
+            // eslint-disable-next-line react/no-string-refs
+            ref={this.props.componentRef || 'component'}
             relay={this.state.relayProp}
           />
         );

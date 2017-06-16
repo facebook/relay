@@ -52,7 +52,7 @@ describe('buildRQL', () => {
       },
     });
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   afterEach(() => {

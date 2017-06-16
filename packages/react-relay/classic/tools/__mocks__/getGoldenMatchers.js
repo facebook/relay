@@ -47,7 +47,7 @@ const COLOR = {
  * via the `testFile` parameter):
  *
  *    beforeEach(() => {
- *      jasmine.addMatchers(getGoldenMatchers(__filename));
+ *      expect.extend(getGoldenMatchers(__filename));
  *    });
  *
  * If you don't initialize in this way, either absolute paths, or paths
@@ -99,117 +99,108 @@ function getGoldenMatchers(...args) {
     * will cause the corresponding golden file to be created with a default
     * ".txt" extension.
     */
-    toMatchGolden(util) {
+    toMatchGolden(fixtures, operation) {
       const fs = require('fs');
       const path = require('path');
       const base = testFile ? path.dirname(testFile) : process.cwd();
 
-      return {
-        compare(fixtures, operation) {
-          const absoluteFixtures = path.isAbsolute(fixtures)
-            ? fixtures
-            : path.join(base, fixtures);
-          invariant(
-            fs.statSync(absoluteFixtures).isDirectory(),
-            `toMatchGolden: "${fixtures}" is not a directory`,
+      const absoluteFixtures = path.isAbsolute(fixtures)
+        ? fixtures
+        : path.join(base, fixtures);
+      invariant(
+        fs.statSync(absoluteFixtures).isDirectory(),
+        `toMatchGolden: "${fixtures}" is not a directory`,
+      );
+      const fixtureInfo = fs.readdirSync(absoluteFixtures).map(file => {
+        const {ext, name: nameWithType} = path.parse(file);
+        const {ext: type, name} = path.parse(nameWithType);
+        const fixture = path.join(absoluteFixtures, file);
+        invariant(
+          ext !== '' && (type === '.input' || type === '.golden'),
+          `toMatchGolden: "${file}" must be named ` +
+            '"*.input.$EXTENSION" or "*.golden.$EXTENSION".',
+        );
+        invariant(
+          fs.statSync(fixture).isFile(),
+          `toMatchGolden: "${file}" must be a regular file.`,
+        );
+        return {
+          ext: ext.slice(1),
+          fixture,
+          name,
+          type: type.slice(1),
+        };
+      });
+      const inputFilesSet = new Set();
+      const outputFilesMap = new Map();
+      const [inputFiles, outputFiles] = partitionArray(fixtureInfo, info => {
+        const {name, type} = info;
+        if (type === 'input') {
+          inputFilesSet.add(name);
+          return true;
+        } else {
+          outputFilesMap.set(name, info);
+        }
+      });
+      outputFiles.forEach(({ext, name, type}) => {
+        invariant(
+          inputFilesSet.has(name),
+          `toMatchGolden: golden file "${name}.${type}.${ext}" does ` +
+            'not have a corresponding input file.',
+        );
+      });
+      const failures = [];
+      inputFiles.forEach(({ext, fixture, name, type}) => {
+        const inputFile = `${name}.${type}.${ext}`;
+        const input = fs.readFileSync(fixture).toString();
+        let output;
+
+        try {
+          output = operation(input, inputFile);
+        } catch (e) {
+          throw new Error(
+            'Failure applying function to input from file ' +
+              `"${inputFile}":\n` +
+              `${e.message}\n${e.stack}`,
           );
-          const fixtureInfo = fs.readdirSync(absoluteFixtures).map(file => {
-            const {ext, name: nameWithType} = path.parse(file);
-            const {ext: type, name} = path.parse(nameWithType);
-            const fixture = path.join(absoluteFixtures, file);
-            invariant(
-              ext !== '' && (type === '.input' || type === '.golden'),
-              `toMatchGolden: "${file}" must be named ` +
-                '"*.input.$EXTENSION" or "*.golden.$EXTENSION".',
-            );
-            invariant(
-              fs.statSync(fixture).isFile(),
-              `toMatchGolden: "${file}" must be a regular file.`,
-            );
-            return {
-              ext: ext.slice(1),
-              fixture,
-              name,
-              type: type.slice(1),
-            };
-          });
-          const inputFilesSet = new Set();
-          const outputFilesMap = new Map();
-          const [
-            inputFiles,
-            outputFiles,
-          ] = partitionArray(fixtureInfo, info => {
-            const {name, type} = info;
-            if (type === 'input') {
-              inputFilesSet.add(name);
-              return true;
-            } else {
-              outputFilesMap.set(name, info);
-            }
-          });
-          outputFiles.forEach(({ext, name, type}) => {
-            invariant(
-              inputFilesSet.has(name),
-              `toMatchGolden: golden file "${name}.${type}.${ext}" does ` +
-                'not have a corresponding input file.',
-            );
-          });
-          const failures = [];
-          inputFiles.forEach(({ext, fixture, name, type}) => {
-            const inputFile = `${name}.${type}.${ext}`;
-            const input = fs.readFileSync(fixture).toString();
-            let output;
+        }
 
-            try {
-              output = operation(input, inputFile);
-            } catch (e) {
-              throw new Error(
-                'Failure applying function to input from file ' +
-                  `"${inputFile}":\n` +
-                  `${e.message}\n${e.stack}`,
-              );
-            }
-
-            if (outputFilesMap.has(name)) {
-              const expectedFileInfo = outputFilesMap.get(name);
-              const expectedFile = expectedFileInfo.fixture;
-              const expected = fs.readFileSync(expectedFile).toString();
-              const trimmedOutput = trimWhitespace ? output.trim() : output;
-              const trimmedExpected = trimWhitespace
-                ? expected.trim()
-                : expected;
-              if (trimmedOutput !== trimmedExpected) {
-                if (process.env.GOLDEN_ACCEPT) {
-                  log(COLOR.green(' ACK  ') + ' ' + name);
-                  fs.writeFileSync(expectedFile, normalize(output));
-                } else {
-                  log(COLOR.red(' FAIL ') + ' ' + name);
-                  failures.push({
-                    name,
-                    expectedFile,
-                    expected,
-                    output,
-                  });
-                  printDiff(trimmedExpected, trimmedOutput, expectedFileInfo);
-                }
-              } else {
-                log(COLOR.green('  OK  ') + ' ' + name);
-              }
+        if (outputFilesMap.has(name)) {
+          const expectedFileInfo = outputFilesMap.get(name);
+          const expectedFile = expectedFileInfo.fixture;
+          const expected = fs.readFileSync(expectedFile).toString();
+          const trimmedOutput = trimWhitespace ? output.trim() : output;
+          const trimmedExpected = trimWhitespace ? expected.trim() : expected;
+          if (trimmedOutput !== trimmedExpected) {
+            if (process.env.GOLDEN_ACCEPT) {
+              log(COLOR.green(' ACK  ') + ' ' + name);
+              fs.writeFileSync(expectedFile, normalize(output));
             } else {
-              log(COLOR.yellow(' NEW  ') + ' ' + name);
-              const golden = path.join(absoluteFixtures, `${name}.golden.txt`);
-              fs.writeFileSync(golden, normalize(output));
+              log(COLOR.red(' FAIL ') + ' ' + name);
+              failures.push({
+                name,
+                expectedFile,
+                expected,
+                output,
+              });
+              printDiff(trimmedExpected, trimmedOutput, expectedFileInfo);
             }
-          });
-          return {
-            pass: failures.length === 0,
-            message: 'actual output did not match expected for files: ' +
-              failures.map(failure => failure.name).join(', ') +
-              ' (if these changes are intended, re-run the tests with the ' +
-              'environment variable GOLDEN_ACCEPT=1 to update the ' +
-              'fixtures)',
-          };
-        },
+          } else {
+            log(COLOR.green('  OK  ') + ' ' + name);
+          }
+        } else {
+          log(COLOR.yellow(' NEW  ') + ' ' + name);
+          const golden = path.join(absoluteFixtures, `${name}.golden.txt`);
+          fs.writeFileSync(golden, normalize(output));
+        }
+      });
+      return {
+        pass: failures.length === 0,
+        message: 'actual output did not match expected for files: ' +
+          failures.map(failure => failure.name).join(', ') +
+          ' (if these changes are intended, re-run the tests with the ' +
+          'environment variable GOLDEN_ACCEPT=1 to update the ' +
+          'fixtures)',
       };
     },
   };

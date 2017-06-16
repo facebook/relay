@@ -77,7 +77,7 @@ describe('ReactRelayRefetchContainer', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    jest.addMatchers(RelayModernTestUtils.matchers);
+    expect.extend(RelayModernTestUtils.matchers);
 
     environment = createMockEnvironment();
     ({UserFragment, UserQuery} = environment.mock.compile(

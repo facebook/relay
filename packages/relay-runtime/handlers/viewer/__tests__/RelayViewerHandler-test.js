@@ -37,7 +37,7 @@ describe('RelayViewerHandler', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    jasmine.addMatchers(RelayModernTestUtils.matchers);
+    expect.extend(RelayModernTestUtils.matchers);
 
     baseData = {
       [ROOT_ID]: {

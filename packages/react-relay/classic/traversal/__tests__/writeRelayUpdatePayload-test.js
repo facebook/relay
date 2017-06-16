@@ -36,7 +36,7 @@ describe('writeRelayUpdatePayload()', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('fields changed mutations', () => {

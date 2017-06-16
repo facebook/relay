@@ -63,7 +63,7 @@ describe('RelayContainer', () => {
       );
       store = environment.getStoreData().getCachedStore();
 
-      jasmine.addMatchers(RelayTestUtils.matchers);
+      expect.extend(RelayTestUtils.matchers);
     });
 
     it('returns true for deferred fragments with resolved data', () => {

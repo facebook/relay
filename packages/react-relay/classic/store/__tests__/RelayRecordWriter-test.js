@@ -33,7 +33,7 @@ describe('RelayRecordWriter', () => {
 
     ({HAS_NEXT_PAGE, HAS_PREV_PAGE} = RelayConnectionInterface);
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('getDataID()', () => {

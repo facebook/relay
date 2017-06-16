@@ -34,7 +34,7 @@ describe('diffRelayQuery', () => {
     RelayRecordStore = require('RelayRecordStore');
     RelayRecordWriter = require('RelayRecordWriter');
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('keeps queries if the root dataID is unknown', () => {

@@ -44,7 +44,7 @@ describe('writeRelayQueryPayload()', () => {
       START_CURSOR,
     } = RelayConnectionInterface);
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('creates empty first() connection records', () => {

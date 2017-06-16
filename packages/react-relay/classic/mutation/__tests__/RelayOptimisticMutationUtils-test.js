@@ -33,17 +33,14 @@ describe('RelayOptimisticMutationUtils', () => {
 
     ({HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO} = RelayConnectionInterface);
 
-    jasmine.addMatchers({
-      ...RelayTestUtils.matchers,
-      toEqualFields() {
-        return {
-          compare(actual, expected) {
-            expected = flattenRelayQuery(getVerbatimNode(expected));
-            actual = flattenRelayQuery(expected.clone(actual));
-            // NOTE: Generated fields might get in the way.
-            return matchers.toEqualQueryNode().compare(actual, expected);
-          },
-        };
+    expect.extend({
+      ...matchers,
+
+      toEqualFields(actual, expected) {
+        expected = flattenRelayQuery(getVerbatimNode(expected));
+        actual = flattenRelayQuery(expected.clone(actual));
+        // NOTE: Generated fields might get in the way.
+        return matchers.toEqualQueryNode(actual, expected);
       },
     });
   });

@@ -42,7 +42,7 @@ describe('diffRelayQuery', () => {
       viewer: {'': 'client:1'},
     };
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('returns unfetched connections as-is', () => {

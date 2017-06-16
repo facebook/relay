@@ -93,7 +93,7 @@ describe('GraphQLRange', () => {
 
     ({HAS_NEXT_PAGE, HAS_PREV_PAGE} = RelayConnectionInterface);
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   afterEach(() => {

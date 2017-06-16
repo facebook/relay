@@ -35,7 +35,7 @@ describe('RelayConnectionTransform', () => {
 
     ({transformASTSchema} = require('ASTConvert'));
 
-    jasmine.addMatchers(getGoldenMatchers(__filename));
+    expect.extend(getGoldenMatchers(__filename));
   });
 
   function transformerWithOptions(options) {

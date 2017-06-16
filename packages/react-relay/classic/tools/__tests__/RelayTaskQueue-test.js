@@ -22,7 +22,7 @@ const resolveImmediate = require('resolveImmediate');
 describe('RelayTaskQueue', () => {
   beforeEach(() => {
     jest.resetModules();
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('default scheduler', () => {

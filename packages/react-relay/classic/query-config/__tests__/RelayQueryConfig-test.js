@@ -50,7 +50,7 @@ describe('RelayQueryConfig', () => {
       return MockConfig;
     };
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('can be created using inheritance', () => {

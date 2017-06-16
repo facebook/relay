@@ -37,7 +37,7 @@ describe('RelayQueryPath', () => {
     store = new RelayRecordStore({records});
     writer = new RelayRecordWriter(records);
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('creates root paths', () => {

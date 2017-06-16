@@ -28,7 +28,7 @@ describe('RelayStore', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    jasmine.addMatchers(RelayModernTestUtils.matchers);
+    expect.extend(RelayModernTestUtils.matchers);
   });
 
   describe('retain()', () => {

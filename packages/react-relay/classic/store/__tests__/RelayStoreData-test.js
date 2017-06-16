@@ -38,7 +38,7 @@ describe('RelayStoreData', () => {
 
     RelayQueryTracker = require('RelayQueryTracker');
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('handleQueryPayload()', () => {

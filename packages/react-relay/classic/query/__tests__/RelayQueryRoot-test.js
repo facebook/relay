@@ -30,7 +30,7 @@ describe('RelayQueryRoot', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
 
     me = getNode(
       Relay.QL`

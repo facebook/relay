@@ -28,7 +28,7 @@ const OLD_SCHEMA_PATH = path.resolve(__dirname, './testschema.rfc.graphql');
 
 describe('BabelPluginRelay', () => {
   beforeEach(() => {
-    jasmine.addMatchers(getGoldenMatchers(__filename));
+    expect.extend(getGoldenMatchers(__filename));
   });
 
   it('transforms source for modern core', () => {

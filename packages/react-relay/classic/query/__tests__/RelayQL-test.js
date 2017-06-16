@@ -22,7 +22,7 @@ describe('RelayQL', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('throws if not transformed', () => {

@@ -22,7 +22,7 @@ const {ID_KEY, REF_KEY, REFS_KEY, TYPENAME_KEY} = RelayStoreUtils;
 
 describe('RelayModernRecord', () => {
   beforeEach(() => {
-    jasmine.addMatchers(RelayModernTestUtils.matchers);
+    expect.extend(RelayModernTestUtils.matchers);
   });
 
   describe('clone', () => {

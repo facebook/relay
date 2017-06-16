@@ -42,7 +42,7 @@ describe('RelayRecordSourceMutator', () => {
   let sinkSource;
 
   beforeEach(() => {
-    jasmine.addMatchers(RelayModernTestUtils.matchers);
+    expect.extend(RelayModernTestUtils.matchers);
 
     initialData = {
       4: {

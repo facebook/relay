@@ -130,7 +130,7 @@ describe('restoreRelayCacheData', () => {
   beforeEach(() => {
     jest.resetModules();
     jest.clearAllTimers();
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('restoreQueriesDataFromCache', () => {

@@ -30,7 +30,7 @@ describe('RelayPublishQueue', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    jest.addMatchers(RelayModernTestUtils.matchers);
+    expect.extend(RelayModernTestUtils.matchers);
   });
 
   describe('applyUpdate()/revertUpdate()', () => {

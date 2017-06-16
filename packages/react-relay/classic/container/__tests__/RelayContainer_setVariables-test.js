@@ -92,7 +92,7 @@ describe('RelayContainer.setVariables', function() {
       environment,
     );
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('plural fragments', () => {

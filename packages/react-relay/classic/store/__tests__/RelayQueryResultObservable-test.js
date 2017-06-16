@@ -88,7 +88,7 @@ describe('RelayQueryResultObservable', () => {
     });
 
     changeEmitter = storeData.getChangeEmitter();
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('does not read data before the first subscriber is registered', () => {

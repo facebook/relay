@@ -31,7 +31,7 @@ describe('RelayCompilerContext', () => {
     RelayTestSchema = require('RelayTestSchema');
     RelayModernTestUtils = require('RelayModernTestUtils');
 
-    jasmine.addMatchers(RelayModernTestUtils.matchers);
+    expect.extend(RelayModernTestUtils.matchers);
 
     [queryFoo, fragmentFoo, fragmentBar] = RelayParser.parse(
       RelayTestSchema,

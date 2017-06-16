@@ -25,7 +25,7 @@ describe('flattenRelayQuery', () => {
   const {getNode} = RelayTestUtils;
 
   beforeEach(() => {
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('flattens roots', () => {

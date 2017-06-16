@@ -25,7 +25,7 @@ describe('cloneRelayHandleSourceField()', () => {
   let selections;
 
   beforeEach(() => {
-    jest.addMatchers(matchers);
+    expect.extend(matchers);
     const input = generateWithTransforms(
       `
       fragment A on User {

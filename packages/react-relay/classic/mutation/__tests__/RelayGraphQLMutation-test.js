@@ -63,7 +63,7 @@ describe('RelayGraphQLMutation', () => {
   }
 
   beforeEach(() => {
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
     jest.resetModules();
 
     requests = [];

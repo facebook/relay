@@ -22,7 +22,7 @@ const prettyStringify = require('prettyStringify');
 describe('RelayFlowParser', () => {
   beforeEach(() => {
     jest.resetModules();
-    jasmine.addMatchers(getGoldenMatchers(__filename));
+    expect.extend(getGoldenMatchers(__filename));
   });
 
   it('matches expected output', () => {

@@ -53,7 +53,7 @@ describe('RelayPendingQueryTracker', () => {
         .getResolvedPromise();
     };
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
     jasmine.addMatchers({
       toConsoleWarn() {
         return {

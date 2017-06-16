@@ -37,7 +37,7 @@ describe('RelayRenderer.validation', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
 
     MockComponent = class extends React.Component {
       render() {

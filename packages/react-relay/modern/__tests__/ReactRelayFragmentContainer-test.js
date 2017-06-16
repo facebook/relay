@@ -74,7 +74,7 @@ describe('ReactRelayFragmentContainer', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    jasmine.addMatchers(RelayModernTestUtils.matchers);
+    expect.extend(RelayModernTestUtils.matchers);
 
     environment = createMockEnvironment();
     ({UserFragment, UserQuery} = environment.mock.compile(

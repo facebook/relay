@@ -32,7 +32,7 @@ describe('RelayFlattenTransform', () => {
     RelayTestSchema = require('RelayTestSchema');
     getGoldenMatchers = require('getGoldenMatchers');
 
-    jasmine.addMatchers(getGoldenMatchers(__filename));
+    expect.extend(getGoldenMatchers(__filename));
   });
 
   function printContextTransform(

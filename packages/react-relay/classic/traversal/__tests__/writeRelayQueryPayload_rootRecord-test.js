@@ -39,7 +39,7 @@ describe('writeRelayQueryPayload()', () => {
     RelayRecordStore = require('RelayRecordStore');
     RelayRecordWriter = require('RelayRecordWriter');
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('root record', () => {

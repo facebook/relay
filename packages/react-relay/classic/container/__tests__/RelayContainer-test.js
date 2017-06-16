@@ -77,7 +77,7 @@ describe('RelayContainer', function() {
 
     RelayTestRenderer = RelayTestUtils.createRenderer();
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('fragments', () => {

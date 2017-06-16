@@ -86,7 +86,7 @@ describe('ReactRelayPaginationContainer', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    jest.addMatchers(RelayModernTestUtils.matchers);
+    expect.extend(RelayModernTestUtils.matchers);
 
     environment = createMockEnvironment({
       handlerProvider: () => RelayConnectionHandler,

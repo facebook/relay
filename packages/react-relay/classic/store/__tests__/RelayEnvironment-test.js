@@ -38,7 +38,7 @@ describe('RelayEnvironment', () => {
   }
 
   beforeEach(() => {
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
 
     environment = new RelayEnvironment();
 

@@ -70,7 +70,7 @@ describe('RelayMutationQueue', () => {
     RelayMutation.prototype.getConfigs.mockReturnValue('configs');
     RelayMutation.prototype.getMutation.mockReturnValue(mutationNode);
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('createTransaction()', () => {

@@ -51,7 +51,7 @@ describe('RelayMutationQuery', () => {
 
     tracker = new RelayQueryTracker();
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('fields', () => {

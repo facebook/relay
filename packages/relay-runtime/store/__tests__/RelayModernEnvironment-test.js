@@ -29,7 +29,7 @@ describe('RelayModernEnvironment', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    jasmine.addMatchers(RelayModernTestUtils.matchers);
+    expect.extend(RelayModernTestUtils.matchers);
     source = new RelayInMemoryRecordSource();
     store = new RelayMarkSweepStore(source);
 

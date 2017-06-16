@@ -24,7 +24,7 @@ describe('RelayCore', () => {
     let mockCb;
 
     beforeEach(() => {
-      jasmine.addMatchers(RelayTestUtils.matchers);
+      expect.extend(RelayTestUtils.matchers);
       jest.resetModules();
       mockCb = jest.fn();
     });

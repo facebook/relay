@@ -48,7 +48,7 @@ describe('RelayContainer.hasPartialData', () => {
       return {__dataID__: dataID, id: dataID};
     });
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('returns true for records with partial data bit set', () => {

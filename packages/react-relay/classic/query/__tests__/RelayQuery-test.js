@@ -38,7 +38,7 @@ describe('RelayQuery', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('Root', () => {

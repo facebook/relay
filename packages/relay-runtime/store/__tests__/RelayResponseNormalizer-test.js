@@ -29,7 +29,7 @@ describe('RelayResponseNormalizer', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    jest.addMatchers(matchers);
+    expect.extend(matchers);
   });
 
   it('normalizes queries', () => {

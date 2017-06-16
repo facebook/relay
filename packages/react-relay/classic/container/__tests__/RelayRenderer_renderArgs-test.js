@@ -59,7 +59,7 @@ describe('RelayRenderer.renderArgs', () => {
       />,
       container,
     );
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
     jasmine.addMatchers({
       toRenderWithArgs() {
         return {

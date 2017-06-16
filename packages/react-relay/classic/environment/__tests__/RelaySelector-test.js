@@ -42,7 +42,7 @@ describe('RelaySelector', () => {
   let variables;
 
   beforeEach(() => {
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
 
     environment = new RelayEnvironment();
 

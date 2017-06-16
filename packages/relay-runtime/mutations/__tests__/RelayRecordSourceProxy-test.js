@@ -45,7 +45,7 @@ describe('RelayRecordSourceProxy', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    jasmine.addMatchers(RelayModernTestUtils.matchers);
+    expect.extend(RelayModernTestUtils.matchers);
 
     initialData = {
       4: {

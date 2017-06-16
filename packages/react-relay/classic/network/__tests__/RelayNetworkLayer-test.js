@@ -44,7 +44,7 @@ describe('RelayNetworkLayer', () => {
     networkLayer = new RelayNetworkLayer();
     networkLayer.injectImplementation(injectedNetworkLayer);
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('layer injection', () => {

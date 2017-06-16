@@ -57,7 +57,7 @@ describe('RelayRoute', () => {
       return MockRoute;
     };
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('can be created using inheritance', () => {

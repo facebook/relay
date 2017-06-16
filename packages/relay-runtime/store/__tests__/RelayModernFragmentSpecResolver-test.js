@@ -48,7 +48,7 @@ describe('RelayModernFragmentSpecResolver', () => {
   }
 
   beforeEach(() => {
-    jasmine.addMatchers(RelayModernTestUtils.matchers);
+    expect.extend(RelayModernTestUtils.matchers);
 
     environment = createMockEnvironment();
     ({UserFragment, UserQuery, UsersFragment} = environment.mock.compile(

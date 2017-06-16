@@ -12,6 +12,8 @@
 
 'use strict';
 
+jest.enableAutomock();
+
 require('configureForRelayOSS');
 
 jest.unmock('RelayFragmentPointer');
@@ -27,7 +29,7 @@ describe('RelayFragmentPointer', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
     jasmine.addMatchers({
       toEqualPointer() {
         return {

@@ -12,6 +12,8 @@
 
 'use strict';
 
+jest.enableAutomock();
+
 require('configureForRelayOSS');
 
 jest.useFakeTimers();
@@ -61,7 +63,7 @@ describe('RelayGraphQLMutation', () => {
   }
 
   beforeEach(() => {
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
     jest.resetModules();
 
     requests = [];

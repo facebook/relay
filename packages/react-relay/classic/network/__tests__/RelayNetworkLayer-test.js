@@ -12,6 +12,8 @@
 
 'use strict';
 
+jest.enableAutomock();
+
 require('configureForRelayOSS');
 
 jest.useFakeTimers();
@@ -42,7 +44,7 @@ describe('RelayNetworkLayer', () => {
     networkLayer = new RelayNetworkLayer();
     networkLayer.injectImplementation(injectedNetworkLayer);
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('layer injection', () => {

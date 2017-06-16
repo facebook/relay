@@ -21,7 +21,10 @@ const SCHEMA_PATH = path.resolve(__dirname, '../../packages/relay-compiler/testu
 
 const babelOptions = getBabelOptions({
   env: 'test',
+  // Tests use a Promise polfill so they can use jest.runAllTimers().
+  autoImport: true,
   moduleMap: {
+    'immutable': 'immutable',
     'React': 'react',
     'reactComponentExpect': 'react-dom/lib/reactComponentExpect',
     'ReactDOM': 'react-dom',
@@ -34,7 +37,6 @@ const babelOptions = getBabelOptions({
     [BabelPluginRelay, {
       compat: true,
       haste: true,
-      relayQLModule: 'RelayQL',
       substituteVariables: true,
       schema: SCHEMA_PATH,
     }],

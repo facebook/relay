@@ -12,6 +12,8 @@
 
 'use strict';
 
+jest.enableAutomock();
+
 require('configureForRelayOSS');
 
 jest.useFakeTimers();
@@ -55,7 +57,7 @@ describe('RelayGarbageCollector', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('collect()', () => {

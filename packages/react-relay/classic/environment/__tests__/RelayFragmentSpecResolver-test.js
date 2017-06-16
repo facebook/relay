@@ -7,14 +7,12 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
 
-jest
-  .dontMock('GraphQLStoreChangeEmitter')
-  .mock('relayUnstableBatchedUpdates')
-  .autoMockOff();
+jest.dontMock('GraphQLStoreChangeEmitter').mock('relayUnstableBatchedUpdates');
 
 const RelayEnvironment = require('RelayEnvironment');
 const RelayFragmentSpecResolver = require('RelayFragmentSpecResolver');
@@ -102,7 +100,7 @@ describe('RelayFragmentSpecResolver', () => {
   }
 
   beforeEach(() => {
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
 
     environment = new RelayEnvironment();
     mockInstanceMethod(environment, 'lookup');

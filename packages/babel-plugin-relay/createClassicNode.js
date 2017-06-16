@@ -170,31 +170,17 @@ function createClassicAST(t, definition) {
   };
 }
 
-const RELAYQL_GENERATED = 'RelayQL_GENERATED';
+const RELAY_QL_GENERATED = 'RelayQL_GENERATED';
 
 function createConcreteNode(t, transformedAST, substitutions, state) {
-  // Allow for an optional direct require to RelayQL,
-  // otherwise default to `require('react-relay/classic').QL`.
-  const relayQLModule = state.opts && state.opts.relayQLModule;
-  const relayQLRequire = relayQLModule
-    ? createRequireCall(t, relayQLModule)
-    : t.memberExpression(
-        createRequireCall(t, 'react-relay/classic'),
-        t.identifier('QL'),
-      );
-
+  const body = [t.returnStatement(transformedAST)];
+  if (substitutions.length > 0) {
+    body.unshift(t.variableDeclaration('const', substitutions));
+  }
   return t.functionExpression(
     null,
-    [],
-    t.blockStatement([
-      t.variableDeclaration(
-        'const',
-        [
-          t.variableDeclarator(t.identifier(RELAYQL_GENERATED), relayQLRequire),
-        ].concat(substitutions),
-      ),
-      t.returnStatement(transformedAST),
-    ]),
+    [t.identifier(RELAY_QL_GENERATED)],
+    t.blockStatement(body),
   );
 }
 
@@ -290,12 +276,6 @@ function createObject(t, obj: any) {
   );
 }
 
-function createRequireCall(t, requiredPath) {
-  return t.callExpression(t.identifier('require'), [
-    t.stringLiteral(requiredPath),
-  ]);
-}
-
 function createFragmentForOperation(t, operation, state) {
   let type;
   switch (operation.operation) {
@@ -351,13 +331,18 @@ function createRelayQLTemplate(t, node, state) {
     [],
   );
 
+  // Disable classic validation rules inside of `graphql` tags which are
+  // validated by the RelayCompiler with less strict rules.
+  const enableValidation = false;
+
   return compileRelayQLTag(
     t,
     schema,
     quasi,
     documentName,
     propName,
-    RELAYQL_GENERATED, // tagName
+    RELAY_QL_GENERATED,
+    enableValidation,
     state,
   );
 }

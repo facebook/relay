@@ -12,6 +12,8 @@
 
 'use strict';
 
+jest.enableAutomock();
+
 require('configureForRelayOSS');
 
 const Relay = require('Relay');
@@ -26,7 +28,7 @@ describe('RelayQueryFragment', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
 
     const subfrag = Relay.QL`
       fragment on StreetAddress {

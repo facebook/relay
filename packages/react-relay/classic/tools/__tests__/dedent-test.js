@@ -12,8 +12,6 @@
 
 'use strict';
 
-jest.unmock('dedent');
-
 const dedent = require('dedent');
 
 describe('dedent()', () => {

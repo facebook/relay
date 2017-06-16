@@ -12,15 +12,13 @@
 
 'use strict';
 
-jest.autoMockOff();
-
 const React = require('React');
 const RelayCompatFragmentContainer = require('RelayCompatContainer');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 
 describe('RelayCompatFragmentContainer', () => {
   beforeEach(() => {
-    jasmine.addMatchers(RelayModernTestUtils.matchers);
+    expect.extend(RelayModernTestUtils.matchers);
   });
 
   it('throws for invalid fragments', () => {

@@ -16,6 +16,7 @@
 const RelayError = require('RelayError');
 
 const invariant = require('invariant');
+const isPromise = require('isPromise');
 const normalizeRelayPayload = require('normalizeRelayPayload');
 
 const {ROOT_ID} = require('RelayStoreUtils');
@@ -28,7 +29,7 @@ import type {
   QueryPayload,
   RelayResponsePayload,
   SubscribeFunction,
-  SyncOrPromise,
+  PromiseOrValue,
   UploadableMap,
 } from 'RelayNetworkTypes';
 import type {Observer} from 'RelayStoreTypes';
@@ -44,30 +45,16 @@ function create(fetch: FetchFunction, subscribe?: SubscribeFunction): Network {
     variables: Variables,
     cacheConfig?: ?CacheConfig,
     uploadables?: UploadableMap,
-  ): SyncOrPromise<RelayResponsePayload> {
+  ): PromiseOrValue<RelayResponsePayload> {
     const onSuccess = payload =>
       normalizePayload(operation, variables, payload);
     const response = fetch(operation, variables, cacheConfig, uploadables);
-    switch (response.kind) {
-      case 'promise':
-        return {
-          kind: 'promise',
-          promise: response.promise.then(onSuccess),
-        };
-      case 'data':
-        return {
-          kind: 'data',
-          data: (response.data && onSuccess(response.data)) || null,
-        };
-      case 'error':
-        return response;
-      default:
-        (response.kind: empty);
-        invariant(
-          false,
-          'RelayNetwork: unsupported response kind `%s`',
-          response.kind,
-        );
+    if (isPromise(response)) {
+      return response.then(onSuccess);
+    } else if (response instanceof Error) {
+      return response;
+    } else {
+      return onSuccess(response);
     }
   }
 
@@ -134,20 +121,12 @@ function create(fetch: FetchFunction, subscribe?: SubscribeFunction): Network {
     };
 
     const requestResponse = fetch(operation, variables, cacheConfig);
-    switch (requestResponse.kind) {
-      case 'data':
-        onRequestSuccess(requestResponse.data);
-        break;
-      case 'error':
-        onRequestError(requestResponse.error);
-        break;
-      case 'promise':
-        requestResponse.promise.then(onRequestSuccess, onRequestError);
-        return {
-          dispose() {
-            isDisposed = true;
-          },
-        };
+    if (isPromise(requestResponse)) {
+      requestResponse.then(onRequestSuccess).catch(onRequestError);
+    } else if (requestResponse instanceof Error) {
+      onRequestError(requestResponse);
+    } else {
+      onRequestSuccess(requestResponse);
     }
     return {
       dispose() {
@@ -184,30 +163,25 @@ function doFetchWithPolling(
     }
   };
   function poll() {
-    const requestResponse = request(operation, variables, {force: true});
+    let requestResponse = request(operation, variables, {force: true});
+    if (!isPromise(requestResponse)) {
+      requestResponse = requestResponse instanceof Error
+        ? Promise.reject(requestResponse)
+        : Promise.resolve(requestResponse);
+    }
     const onRequestSuccess = payload => {
       onNext && onNext(payload);
       timeout = setTimeout(poll, pollInterval);
     };
-
     const onRequestError = error => {
       dispose();
       onError && onError(error);
     };
-    switch (requestResponse.kind) {
-      case 'data':
-        onRequestSuccess(requestResponse.data);
-        break;
-      case 'error':
-        onRequestError(requestResponse.error);
-        break;
-      case 'promise':
-        requestResponse.promise
-          .then(payload => {
-            onRequestSuccess(payload);
-          }, onRequestError)
-          .catch(rethrow);
-    }
+    requestResponse
+      .then(payload => {
+        onRequestSuccess(payload);
+      }, onRequestError)
+      .catch(rethrow);
   }
   poll();
 

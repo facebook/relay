@@ -12,6 +12,8 @@
 
 'use strict';
 
+jest.enableAutomock();
+
 require('configureForRelayOSS');
 
 jest.mock('warning');
@@ -99,7 +101,7 @@ describe('RelayMutation', function() {
       initialVariables,
     );
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('throws if used in different Relay environments', () => {

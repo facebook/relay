@@ -12,7 +12,7 @@
 
 'use strict';
 
-jest.mock('warning');
+jest.enableAutomock().mock('warning');
 
 require('configureForRelayOSS');
 

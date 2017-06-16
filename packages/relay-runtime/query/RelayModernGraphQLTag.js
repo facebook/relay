@@ -15,6 +15,8 @@
 
 const invariant = require('invariant');
 
+import typeof RelayQL from 'RelayQL';
+
 import type {
   ConcreteFragmentDefinition,
   ConcreteOperationDefinition,
@@ -26,7 +28,9 @@ export type GraphQLTaggedNode =
   | (() => ConcreteFragment | ConcreteBatch)
   | {
       modern: () => ConcreteFragment | ConcreteBatch,
-      classic: () => ConcreteFragmentDefinition | ConcreteOperationDefinition,
+      classic: RelayQL =>
+        | ConcreteFragmentDefinition
+        | ConcreteOperationDefinition,
     };
 
 /**

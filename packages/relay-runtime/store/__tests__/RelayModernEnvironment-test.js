@@ -7,11 +7,10 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
-
-jest.autoMockOff();
 
 const Deferred = require('Deferred');
 const RelayModernEnvironment = require('RelayModernEnvironment');
@@ -30,7 +29,7 @@ describe('RelayModernEnvironment', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    jasmine.addMatchers(RelayModernTestUtils.matchers);
+    expect.extend(RelayModernTestUtils.matchers);
     source = new RelayInMemoryRecordSource();
     store = new RelayMarkSweepStore(source);
 
@@ -449,10 +448,7 @@ describe('RelayModernEnvironment', () => {
       onNext = jest.fn();
       callbacks = {onCompleted, onError, onNext};
       deferred = new Deferred();
-      fetch = jest.fn(() => ({
-        kind: 'promise',
-        promise: deferred.getPromise(),
-      }));
+      fetch = jest.fn(() => deferred.getPromise());
       environment = new RelayModernEnvironment({
         network: RelayNetwork.create(fetch),
         store,
@@ -598,14 +594,9 @@ describe('RelayModernEnvironment', () => {
               return;
             }
             // Reuse RelayNetwork's helper for response processing
-            RelayNetwork.create(() => ({
-              kind: 'promise',
-              promise: Promise.resolve(data),
-            }))
+            RelayNetwork.create(() => Promise.resolve(data))
               .request(query, variables, cacheConfig)
-              .promise.then(
-                payload => observer.onNext && observer.onNext(payload),
-              )
+              .then(payload => observer.onNext && observer.onNext(payload))
               .catch(error => observer.onError && observer.onError(error));
           },
           complete() {
@@ -805,10 +796,7 @@ describe('RelayModernEnvironment', () => {
       operation = createOperationSelector(CreateCommentMutation, variables);
 
       deferred = new Deferred();
-      fetch = jest.fn(() => ({
-        kind: 'promise',
-        promise: deferred.getPromise(),
-      }));
+      fetch = jest.fn(() => deferred.getPromise());
       environment = new RelayModernEnvironment({
         network: RelayNetwork.create(fetch),
         store,
@@ -1046,7 +1034,7 @@ describe('RelayModernEnvironment', () => {
         onCompleted,
         onError,
         operation,
-        optimisticResponse: () => ({
+        optimisticResponse: {
           commentCreate: {
             comment: {
               id: commentID,
@@ -1055,7 +1043,7 @@ describe('RelayModernEnvironment', () => {
               },
             },
           },
-        }),
+        },
       });
 
       expect(onCompleted).not.toBeCalled();

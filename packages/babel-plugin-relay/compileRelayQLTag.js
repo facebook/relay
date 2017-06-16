@@ -15,8 +15,6 @@
 const createTransformError = require('./createTransformError');
 const getClassicTransformer = require('./getClassicTransformer');
 
-const RELAY_QL_GENERATED = 'RelayQL_GENERATED';
-
 /**
  * Given all the metadata about a found RelayQL tag, compile it and return
  * the resulting Babel AST.
@@ -28,6 +26,7 @@ function compileRelayQLTag(
   documentName,
   propName,
   tagName,
+  enableValidation,
   state,
 ) {
   try {
@@ -36,7 +35,7 @@ function compileRelayQLTag(
       documentName,
       propName,
       tagName,
-      enableValidation: tagName !== RELAY_QL_GENERATED,
+      enableValidation,
     });
   } catch (error) {
     return createTransformError(t, error, quasi, state);

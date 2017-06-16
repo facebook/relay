@@ -13,10 +13,8 @@ const CompatCommentCreateMutation = {
   modern: function () {
     return require('./__generated__/CompatCommentCreateMutation.graphql');
   },
-  classic: function () {
-    const RelayQL_GENERATED = require('react-relay/classic').QL,
-          CompatProfilePic_user = CompatProfilePic.getFragment('user');
-
+  classic: function (RelayQL_GENERATED) {
+    const CompatProfilePic_user = CompatProfilePic.getFragment('user');
     return {
       kind: 'OperationDefinition',
       argumentDefinitions: [{

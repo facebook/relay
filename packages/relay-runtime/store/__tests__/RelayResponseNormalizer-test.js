@@ -7,11 +7,12 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
 
-jest.autoMockOff().mock('generateClientID');
+jest.mock('generateClientID');
 
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayModernRecord = require('RelayModernRecord');
@@ -28,7 +29,7 @@ describe('RelayResponseNormalizer', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    jest.addMatchers(matchers);
+    expect.extend(matchers);
   });
 
   it('normalizes queries', () => {

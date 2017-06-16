@@ -7,11 +7,10 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
-
-jest.disableAutomock();
 
 const {getFragmentVariables, getOperationVariables} = require('RelayVariables');
 

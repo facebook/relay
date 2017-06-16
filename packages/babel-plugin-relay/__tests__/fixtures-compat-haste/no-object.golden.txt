@@ -16,9 +16,7 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, {
     modern: function () {
       return require('CompatProfile_user.graphql');
     },
-    classic: function () {
-      const RelayQL_GENERATED = require('RelayQL_GENERATED');
-
+    classic: function (RelayQL_GENERATED) {
       return {
         kind: 'FragmentDefinition',
         argumentDefinitions: [],

@@ -26,10 +26,8 @@ class CompatProfile extends React.Component {
       modern: function () {
         return require('ActorSubscribe.graphql');
       },
-      classic: function () {
-        const RelayQL_GENERATED = require('RelayQL_GENERATED'),
-              CompatProfile = (CompatProfile.__container__ || CompatProfile).getFragment('data');
-
+      classic: function (RelayQL_GENERATED) {
+        const CompatProfile = (CompatProfile.__container__ || CompatProfile).getFragment('data');
         return {
           kind: 'OperationDefinition',
           argumentDefinitions: [{
@@ -105,10 +103,8 @@ module.exports = createFragmentContainer(CompatProfile, {
     modern: function () {
       return require('CompatProfile.graphql');
     },
-    classic: function () {
-      const RelayQL_GENERATED = require('RelayQL_GENERATED'),
-            CompatProfilePic_user = CompatProfilePic.getFragment('user');
-
+    classic: function (RelayQL_GENERATED) {
+      const CompatProfilePic_user = CompatProfilePic.getFragment('user');
       return {
         kind: 'FragmentDefinition',
         argumentDefinitions: [],

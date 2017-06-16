@@ -19,7 +19,7 @@ describe('RelayTestUtils', () => {
     let comparator;
 
     beforeEach(() => {
-      comparator = RelayTestUtils.matchers.toMatchRecord().compare;
+      comparator = RelayTestUtils.matchers.toMatchRecord;
 
       // Define custom matchers to test our custom matchers...
       jasmine.addMatchers({

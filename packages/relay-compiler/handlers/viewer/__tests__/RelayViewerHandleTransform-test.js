@@ -7,11 +7,10 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
-
-jest.disableAutomock();
 
 describe('RelayViewerHandleTransform', () => {
   let RelayCompilerContext;
@@ -34,7 +33,7 @@ describe('RelayViewerHandleTransform', () => {
     parseGraphQLText = require('parseGraphQLText');
     ({buildASTSchema, parse} = require('graphql'));
 
-    jasmine.addMatchers(getGoldenMatchers(__filename));
+    expect.extend(getGoldenMatchers(__filename));
   });
 
   it('adds a handle to viewer fields', () => {

@@ -7,11 +7,12 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
 
-jest.mock('warning').autoMockOff();
+jest.mock('warning');
 
 const {
   areEqualSelectors,
@@ -34,7 +35,7 @@ describe('RelayModernSelector', () => {
   let variables;
 
   beforeEach(() => {
-    jasmine.addMatchers(RelayModernTestUtils.matchers);
+    expect.extend(RelayModernTestUtils.matchers);
 
     environment = createMockEnvironment();
     ({UserFragment, UserQuery, UsersFragment} = environment.mock.compile(

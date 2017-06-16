@@ -67,6 +67,7 @@ function createContainerWithFragments<TBase: ReactClass<*>>(
     _localVariables: ?Variables;
     _pendingRefetch: ?Disposable;
     _references: Array<Disposable>;
+    _relayContext: RelayContext;
     _resolver: FragmentSpecResolver;
 
     constructor(props, context) {
@@ -83,6 +84,10 @@ function createContainerWithFragments<TBase: ReactClass<*>>(
         props,
         this._handleFragmentDataUpdate,
       );
+      this._relayContext = {
+        environment: this.context.relay.environment,
+        variables: this.context.relay.variables,
+      };
       this.state = {
         data: this._resolver.resolve(),
         relayProp: this._buildRelayProp(relay),
@@ -116,6 +121,10 @@ function createContainerWithFragments<TBase: ReactClass<*>>(
       ) {
         this._release();
         this._localVariables = null;
+        this._relayContext = {
+          environment: relay.environment,
+          variables: relay.variables,
+        };
         this._resolver = createFragmentSpecResolver(
           relay,
           containerName,
@@ -219,6 +228,10 @@ function createContainerWithFragments<TBase: ReactClass<*>>(
         }
         // TODO t15106389: add helper utility for fetching more data
         this._pendingRefetch = null;
+        this._relayContext = {
+          environment: this.context.relay.environment,
+          variables: fragmentVariables,
+        };
         callback && callback();
         this._resolver.setVariables(fragmentVariables);
         this.setState({data: this._resolver.resolve()});
@@ -264,6 +277,10 @@ function createContainerWithFragments<TBase: ReactClass<*>>(
         },
       };
     };
+
+    getChildContext(): Object {
+      return {relay: this._relayContext};
+    }
 
     render() {
       if (ComponentClass) {
@@ -314,12 +331,14 @@ function createContainer<TBase: ReactClass<*>>(
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
   taggedNode: GraphQLTaggedNode,
 ): TBase {
-  return buildReactRelayContainer(
+  const Container = buildReactRelayContainer(
     Component,
     fragmentSpec,
     (ComponentClass, fragments) =>
       createContainerWithFragments(ComponentClass, fragments, taggedNode),
   );
+  Container.childContextTypes = containerContextTypes;
+  return Container;
 }
 
 module.exports = {createContainer, createContainerWithFragments};

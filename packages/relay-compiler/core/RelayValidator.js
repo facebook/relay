@@ -57,10 +57,14 @@ function validateOrThrow(
   const validationErrors = validate(schema, document, rules);
   if (validationErrors && validationErrors.length > 0) {
     const formattedErrors = validationErrors.map(formatError);
+    const errorMessages = validationErrors.map(
+      e => (e.source ? `${e.source.name}: ${e.message}` : e.message),
+    );
+
     const error = new Error(
       util.format(
         'You supplied a GraphQL document with validation errors:\n%s',
-        formattedErrors.map(e => e.message).join('\n'),
+        errorMessages.join('\n'),
       ),
     );
     (error: any).validationErrors = formattedErrors;
@@ -89,12 +93,21 @@ function DisallowIdAsAliasValidationRule(context: ValidationContext) {
 module.exports = {
   GLOBAL_RULES: [
     KnownArgumentNamesRule,
-    KnownFragmentNamesRule,
+    // TODO #19327202 Relay Classic generates some fragments in runtime, so Relay
+    // Modern queries might reference fragments unknown in build time
+    //KnownFragmentNamesRule,
     NoFragmentCyclesRule,
-    NoUndefinedVariablesRule,
-    NoUnusedFragmentsRule,
+    // TODO #19327144 Because of graphql.experimental feature
+    // @argumentDefinitions, this validation incorrectly marks some fragment
+    // variables as undefined.
+    // NoUndefinedVariablesRule,
+    // TODO #19327202 Queries generated dynamically with Relay Classic might use
+    // unused fragments
+    // NoUnusedFragmentsRule,
     NoUnusedVariablesRule,
-    OverlappingFieldsCanBeMergedRule,
+    // TODO #19327202 Relay Classic auto-resolves overlapping fields by
+    // generating aliases
+    //OverlappingFieldsCanBeMergedRule,
     ProvidedNonNullArgumentsRule,
     UniqueArgumentNamesRule,
     UniqueFragmentNamesRule,

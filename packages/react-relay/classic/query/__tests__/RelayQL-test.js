@@ -12,6 +12,8 @@
 
 'use strict';
 
+jest.enableAutomock();
+
 const QueryBuilder = require('QueryBuilder');
 const Relay = require('Relay');
 const RelayTestUtils = require('RelayTestUtils');
@@ -20,7 +22,7 @@ describe('RelayQL', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('throws if not transformed', () => {

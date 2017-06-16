@@ -83,9 +83,9 @@ export interface Environment
    * server. The returned Disposable can be used to bypass the `onCompleted`
    * and `onError` callbacks when the server response is returned.
    */
-  sendMutation(config: {|
+  sendMutation<ResponseType>(config: {|
     configs: Array<RelayMutationConfig>,
-    onCompleted?: ?(response: {[key: string]: Object}) => void,
+    onCompleted?: ?(response: ResponseType) => void,
     onError?: ?(error: Error) => void,
     operation: ConcreteOperationDefinition,
     optimisticOperation?: ?ConcreteOperationDefinition,

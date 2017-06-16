@@ -42,7 +42,7 @@ The `babel-relay-plugin` must run before the `react-native` Babel preset. Thus, 
 ```javascript
 {
   "plugins": [
-    "./plugins/babelRelayPlugin"
+    "relay"
   ],
   "presets": [
     "react-native"
@@ -50,28 +50,7 @@ The `babel-relay-plugin` must run before the `react-native` Babel preset. Thus, 
 }
 ```
 
-The reasoning is that if `babel-relay-plugin` does not run before the `es2015-template-literals` transform, it will not transform the Relay.QL template literals correctly. Also in Babel 6, you can’t control plugin order. So in React Native, where plugins in `.babelrc` are loaded before the projects `.babelrc`, it’s impossible to use the Babel Relay Plugin without overriding the entire transform list.
-
-
-## Advanced Usage
-
-If you're not using the starter kit, you'll have to configure `babel` to use the `babel-relay-plugin`. The steps are as follows:
-
-```javascript
-// `babel-relay-plugin` returns a function for creating plugin instances
-const getBabelRelayPlugin = require('babel-relay-plugin');
-
-// load previously saved schema data (see "Schema JSON" below)
-const schemaData = require('schema.json');
-
-// create a plugin instance
-const plugin = getBabelRelayPlugin(schemaData);
-
-// compile code with babel using the plugin
-return babel.transform(source, {
-  plugins: [plugin],
-});
-```
+The reasoning is that if `babel-plugin-relay` does not run before the `es2015-template-literals` transform, it will not transform the Relay.QL template literals correctly. Also in Babel 6, you can’t control plugin order. So in React Native, where plugins in `.babelrc` are loaded before the projects `.babelrc`, it’s impossible to use the Babel Relay Plugin without overriding the entire transform list.
 
 ## Schema JSON
 
@@ -147,35 +126,5 @@ fetch(SERVER, {
     `${schemaPath}.graphql`,
     printSchema(graphQLSchema)
   );
-});
-```
-
-## Additional Options
-
-By default, `babel-relay-plugin` catches GraphQL validation errors and logs them without exiting. The compiled code will also throw the same errors at runtime, making it obvious that something went wrong whether you're looking at your terminal or browser console.
-
-When compiling code for production deployment, the plugin can be configured to immediately throw upon encountering a validation problem. The plugin can be further customized for different environments with the following options:
-
-```javascript
-babel.transform(source, {
-  plugins: [
-    [getBabelRelayPlugin(schemaData, {
-      // Only if `enforceSchema` is `false` and `debug` is `true`
-      // will validation errors be logged at build time.
-      debug: false,
-      // Suppresses all warnings that would be printed.
-      suppressWarnings: false,
-      // Can add a custom validator.
-      // Supplying one overrides the default one, skipping the default rules.
-      validator: {
-        validate(schema, ast) {
-          // Return an array of `Error` instances.
-          return [];
-        },
-      },
-      // Will throw an error when it validates the queries at build time.
-      enforceSchema: true,
-    })],
-  ],
 });
 ```

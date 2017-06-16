@@ -91,10 +91,7 @@ function createMockEnvironment(options: {
       query,
       variables,
     });
-    return {
-      kind: 'promise',
-      promise,
-    };
+    return promise;
   };
 
   if (!schema) {

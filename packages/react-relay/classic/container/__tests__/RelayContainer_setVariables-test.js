@@ -12,7 +12,7 @@
 
 'use strict';
 
-jest.useFakeTimers();
+jest.enableAutomock().useFakeTimers();
 jest.mock('warning');
 
 require('configureForRelayOSS');
@@ -92,7 +92,7 @@ describe('RelayContainer.setVariables', function() {
       environment,
     );
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('plural fragments', () => {

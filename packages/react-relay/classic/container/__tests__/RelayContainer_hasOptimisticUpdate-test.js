@@ -12,6 +12,8 @@
 
 'use strict';
 
+jest.enableAutomock();
+
 require('configureForRelayOSS');
 
 jest.unmock('RelayContainer');
@@ -45,7 +47,7 @@ describe('RelayContainer.hasOptimisticUpdate', () => {
       return {__dataID__: dataID, id: dataID};
     });
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('throws for invalid records', () => {

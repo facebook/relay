@@ -12,6 +12,8 @@
 
 'use strict';
 
+jest.enableAutomock();
+
 require('configureForRelayOSS');
 
 const QueryBuilder = require('QueryBuilder');
@@ -28,7 +30,7 @@ describe('RelayQueryRoot', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
 
     me = getNode(
       Relay.QL`

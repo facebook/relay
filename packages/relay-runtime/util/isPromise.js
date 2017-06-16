@@ -6,19 +6,17 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule RelayQL_GENERATED
+ * @providesModule isPromise
  * @flow
  * @format
  */
 
 'use strict';
 
-const RelayQL = require('RelayQL');
+declare function isPromise(p: mixed): boolean %checks(p instanceof Promise);
 
-/**
- * @internal
- *
- * This is a tag function solely for use in automated tooling that outputs Relay
- * queries.
- */
-module.exports = RelayQL;
+function isPromise(p) {
+  return !!p && typeof p.then === 'function';
+}
+
+module.exports = isPromise;

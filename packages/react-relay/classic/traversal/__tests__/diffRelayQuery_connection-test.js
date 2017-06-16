@@ -12,6 +12,8 @@
 
 'use strict';
 
+jest.enableAutomock();
+
 require('configureForRelayOSS');
 
 jest.unmock('GraphQLRange').unmock('GraphQLSegment').mock('warning');
@@ -40,7 +42,7 @@ describe('diffRelayQuery', () => {
       viewer: {'': 'client:1'},
     };
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('returns unfetched connections as-is', () => {

@@ -7,13 +7,12 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
 
 require('configureForRelayOSS');
-
-jest.autoMockOff();
 
 const RelayQueryResponseCache = require('RelayQueryResponseCache');
 

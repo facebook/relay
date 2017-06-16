@@ -24,7 +24,7 @@ describe('createRelayQuery', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('creates queries from GraphQL', () => {

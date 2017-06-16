@@ -7,11 +7,10 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
-
-jest.disableAutomock();
 
 describe('RelayFilterDirectivesTransform', () => {
   let RelayCompilerContext;
@@ -34,7 +33,7 @@ describe('RelayFilterDirectivesTransform', () => {
 
     ({transformASTSchema} = require('ASTConvert'));
 
-    jasmine.addMatchers(getGoldenMatchers(__filename));
+    expect.extend(getGoldenMatchers(__filename));
   });
 
   it('filters out directives not defined in the original schema', () => {

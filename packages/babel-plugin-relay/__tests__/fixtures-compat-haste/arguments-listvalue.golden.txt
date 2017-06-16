@@ -16,9 +16,7 @@ module.exports = Relay.createFragmentContainer(CompatProfile, {
     modern: function () {
       return require('CompatProfile_viewer.graphql');
     },
-    classic: function () {
-      const RelayQL_GENERATED = require('RelayQL_GENERATED');
-
+    classic: function (RelayQL_GENERATED) {
       return {
         kind: 'FragmentDefinition',
         argumentDefinitions: [{
@@ -31,7 +29,48 @@ module.exports = Relay.createFragmentContainer(CompatProfile, {
           name: 'priceRange'
         }],
         node: function () {
-          throw new Error('Relay transform error ``You supplied a field named `marketplace_explore` on type `Viewer`, but no such field exists on that type.`` in file `unknown`. Try updating your GraphQL schema if an argument/field/type was recently added.');
+          return {
+            children: [{
+              calls: [{
+                kind: 'Call',
+                metadata: {
+                  type: 'MarketplaceBrowseContext'
+                },
+                name: 'marketplace_browse_context',
+                value: {
+                  kind: 'CallVariable',
+                  callVariableName: 'browserContext'
+                }
+              }, {
+                kind: 'Call',
+                metadata: {
+                  type: '[Float]'
+                },
+                name: 'with_price_between',
+                value: {
+                  kind: 'CallVariable',
+                  callVariableName: 'priceRange'
+                }
+              }],
+              children: [{
+                fieldName: 'count',
+                kind: 'Field',
+                metadata: {},
+                type: 'Int'
+              }],
+              fieldName: 'marketplace_explore',
+              kind: 'Field',
+              metadata: {
+                canHaveSubselections: true
+              },
+              type: 'MarketplaceExploreConnection'
+            }],
+            id: RelayQL_GENERATED.__id(),
+            kind: 'Fragment',
+            metadata: {},
+            name: 'CompatProfile_viewer',
+            type: 'Viewer'
+          };
         }()
       };
     }

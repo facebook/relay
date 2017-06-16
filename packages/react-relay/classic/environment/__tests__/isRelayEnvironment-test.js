@@ -12,8 +12,6 @@
 
 'use strict';
 
-jest.autoMockOff();
-
 const RelayEnvironment = require('RelayEnvironment');
 
 const isRelayEnvironment = require('isRelayEnvironment');

@@ -12,9 +12,9 @@
 
 'use strict';
 
-require('configureForRelayOSS');
+jest.mock('RelayQueryTracker').mock('RelayClassicRecordState');
 
-jest.unmock('GraphQLRange').unmock('GraphQLSegment');
+require('configureForRelayOSS');
 
 const Relay = require('Relay');
 const RelayQueryTracker = require('RelayQueryTracker');
@@ -34,7 +34,7 @@ describe('diffRelayQuery', () => {
     RelayRecordStore = require('RelayRecordStore');
     RelayRecordWriter = require('RelayRecordWriter');
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('keeps queries if the root dataID is unknown', () => {

@@ -12,6 +12,8 @@
 
 'use strict';
 
+jest.enableAutomock();
+
 require('configureForRelayOSS');
 
 jest.unmock('RelayMutationQuery').mock('warning');
@@ -49,7 +51,7 @@ describe('RelayMutationQuery', () => {
 
     tracker = new RelayQueryTracker();
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('fields', () => {

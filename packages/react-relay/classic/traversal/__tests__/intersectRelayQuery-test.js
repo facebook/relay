@@ -12,6 +12,8 @@
 
 'use strict';
 
+jest.enableAutomock();
+
 require('configureForRelayOSS');
 
 const Relay = require('Relay');
@@ -23,7 +25,7 @@ describe('intersectRelayQuery', () => {
   const {getNode} = RelayTestUtils;
 
   beforeEach(() => {
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('fields', () => {

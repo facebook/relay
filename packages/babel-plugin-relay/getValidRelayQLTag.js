@@ -12,8 +12,6 @@
 
 'use strict';
 
-const RELAY_QL_GENERATED = 'RelayQL_GENERATED';
-
 /**
  * Given a TemplateLiteral path, return the metadata about a RelayQL tag
  * if one exists.
@@ -24,11 +22,9 @@ function getValidRelayQLTag(path) {
   const tag = path.get('tag');
   const tagName = tag.matchesPattern('Relay.QL')
     ? 'Relay.QL'
-    : tag.isIdentifier({name: 'RelayQL'})
-        ? 'RelayQL'
-        : tag.isIdentifier({name: RELAY_QL_GENERATED})
-            ? RELAY_QL_GENERATED
-            : null;
+    : tag.matchesPattern('RelayClassic.QL')
+        ? 'RelayClassic.QL'
+        : tag.isIdentifier({name: 'RelayQL'}) ? 'RelayQL' : null;
   if (!tagName) {
     return [];
   }

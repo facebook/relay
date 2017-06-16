@@ -12,7 +12,7 @@
 
 'use strict';
 
-jest.disableAutomock().mock('performanceNow');
+jest.mock('performanceNow');
 
 const Relay = require('Relay');
 const RelayProfiler = require('RelayProfiler');

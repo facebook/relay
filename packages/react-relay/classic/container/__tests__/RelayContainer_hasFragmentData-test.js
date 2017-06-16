@@ -12,7 +12,7 @@
 
 'use strict';
 
-jest.mock('warning');
+jest.enableAutomock().mock('warning');
 
 require('configureForRelayOSS');
 
@@ -63,7 +63,7 @@ describe('RelayContainer', () => {
       );
       store = environment.getStoreData().getCachedStore();
 
-      jasmine.addMatchers(RelayTestUtils.matchers);
+      expect.extend(RelayTestUtils.matchers);
     });
 
     it('returns true for deferred fragments with resolved data', () => {

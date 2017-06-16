@@ -12,6 +12,8 @@
 
 'use strict';
 
+jest.enableAutomock();
+
 require('configureForRelayOSS');
 
 jest.useFakeTimers();
@@ -66,7 +68,7 @@ describe('GraphQLStoreQueryResolver', () => {
     `,
     );
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('should resolve a pointer', () => {

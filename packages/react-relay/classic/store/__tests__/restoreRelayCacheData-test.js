@@ -12,7 +12,7 @@
 
 'use strict';
 
-jest.mock('warning');
+jest.enableAutomock().mock('warning');
 jest.useFakeTimers();
 
 require('configureForRelayOSS');
@@ -130,7 +130,7 @@ describe('restoreRelayCacheData', () => {
   beforeEach(() => {
     jest.resetModules();
     jest.clearAllTimers();
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('restoreQueriesDataFromCache', () => {

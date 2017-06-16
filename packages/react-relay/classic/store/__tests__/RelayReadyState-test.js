@@ -12,7 +12,7 @@
 
 'use strict';
 
-jest.useFakeTimers();
+jest.enableAutomock().useFakeTimers();
 jest.mock('warning');
 
 const RelayReadyState = require('RelayReadyState');
@@ -30,7 +30,7 @@ describe('RelayReadyState', () => {
     onReadyStateChange = jest.fn();
     readyState = new RelayReadyState(onReadyStateChange);
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('adds to event stream', () => {

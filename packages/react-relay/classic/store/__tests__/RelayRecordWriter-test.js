@@ -12,8 +12,6 @@
 
 'use strict';
 
-jest.disableAutomock();
-
 const GraphQLRange = require('GraphQLRange');
 const Relay = require('Relay');
 const RelayConnectionInterface = require('RelayConnectionInterface');
@@ -35,7 +33,7 @@ describe('RelayRecordWriter', () => {
 
     ({HAS_NEXT_PAGE, HAS_PREV_PAGE} = RelayConnectionInterface);
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('getDataID()', () => {

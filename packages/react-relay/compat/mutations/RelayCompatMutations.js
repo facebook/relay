@@ -32,9 +32,9 @@ const RelayCompatMutations = {
    * function with more arguments than it expects. This comment suppresses an
    * error that was noticed when we made this change. Delete this comment to
    * see the error. */
-  commitUpdate(
+  commitUpdate<T>(
     environment: CompatEnvironment,
-    config: MutationConfig,
+    config: MutationConfig<T>,
   ): Disposable {
     const relayStaticEnvironment = getRelayModernEnvironment(environment);
     if (relayStaticEnvironment) {
@@ -57,7 +57,7 @@ const RelayCompatMutations = {
   },
 };
 
-function commitRelayClassicMutation(
+function commitRelayClassicMutation<T>(
   environment: ClassicEnvironment,
   {
     configs,
@@ -67,10 +67,19 @@ function commitRelayClassicMutation(
     optimisticResponse,
     variables,
     uploadables,
-  }: MutationConfig,
+  }: MutationConfig<T>,
 ): Disposable {
   const {getOperation} = environment.unstable_internal;
   const operation = getOperation(mutation);
+  // TODO: remove this check after we fix flow.
+  if (typeof optimisticResponse === 'function') {
+    warning(
+      false,
+      'RelayCompatMutations: Expected `optimisticResponse` to be an object, ' +
+        'received a function.',
+    );
+    optimisticResponse = optimisticResponse();
+  }
   if (
     optimisticResponse &&
     operation.node.kind === 'Mutation' &&
@@ -78,16 +87,15 @@ function commitRelayClassicMutation(
     operation.node.calls.length === 1
   ) {
     const mutationRoot = operation.node.calls[0].name;
-    const optimisticResponseObject = optimisticResponse();
-    if (optimisticResponseObject[mutationRoot]) {
-      optimisticResponse = () => optimisticResponseObject[mutationRoot];
+    if (optimisticResponse[mutationRoot]) {
+      optimisticResponse = optimisticResponse[mutationRoot];
     } else {
       warning(
         false,
-        'RelayCompatMutations: Expected result from `optimisticResponse()`' +
+        'RelayCompatMutations: Expected `optimisticResponse`' +
           'to contain the mutation name `%s` as a property, got `%s`',
         mutationRoot,
-        optimisticResponseObject,
+        optimisticResponse,
       );
     }
   }
@@ -96,7 +104,7 @@ function commitRelayClassicMutation(
     operation,
     onCompleted,
     onError,
-    optimisticResponse: optimisticResponse && optimisticResponse(),
+    optimisticResponse,
     variables,
     uploadables,
   });

@@ -16,6 +16,7 @@
 const RelayRecordProxyReader = require('RelayRecordProxyReader');
 
 const invariant = require('invariant');
+const warning = require('warning');
 
 const {read} = require('RelayReader');
 const {getStorageKey} = require('RelayStoreUtils');
@@ -101,6 +102,13 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
   }
 
   getResponse(): ?Object {
+    warning(
+      false,
+      'RelayRecordSourceSelectorProxy.getResponse: This call is deprecated. ' +
+        'If you need need to access data from a mutation response, you ' +
+        'should use the mutation fragment data passed in as a second ' +
+        'argument to the mutation updater.',
+    );
     const snapshot = read(this, this._readSelector, RelayRecordProxyReader);
     return snapshot.data;
   }

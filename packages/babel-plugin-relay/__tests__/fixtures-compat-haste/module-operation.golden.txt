@@ -13,10 +13,8 @@ const CompatCommentCreateMutation = {
   modern: function () {
     return require('CompatCommentCreateMutation.graphql');
   },
-  classic: function () {
-    const RelayQL_GENERATED = require('RelayQL_GENERATED'),
-          CompatProfilePic_user = CompatProfilePic.getFragment('user');
-
+  classic: function (RelayQL_GENERATED) {
+    const CompatProfilePic_user = CompatProfilePic.getFragment('user');
     return {
       kind: 'OperationDefinition',
       argumentDefinitions: [{

@@ -14,18 +14,8 @@
 
 const fs = require('fs');
 
+const {SCHEMA_EXTENSION} = require('./GraphQLRelayDirective');
 const {parse} = require('graphql');
-
-const RELAY_DIRECTIVES = `
-  directive @include(if: Boolean) on FRAGMENT_DEFINITION | FRAGMENT_SPREAD | INLINE_FRAGMENT | FIELD
-  directive @skip(if: Boolean) on FRAGMENT_DEFINITION | FRAGMENT_SPREAD | INLINE_FRAGMENT | FIELD
-  directive @relay(
-    isConnectionWithoutNodeID: Boolean,
-    pattern: Boolean,
-    plural: Boolean,
-    variables: [String],
-  ) on FRAGMENT_DEFINITION | FRAGMENT_SPREAD | INLINE_FRAGMENT | FIELD
-`;
 
 function getSchemaIntrospection(schemaPath: string) {
   try {
@@ -33,7 +23,7 @@ function getSchemaIntrospection(schemaPath: string) {
     if (source[0] === '{') {
       return JSON.parse(source);
     }
-    return parse(RELAY_DIRECTIVES + '\n' + source);
+    return parse(SCHEMA_EXTENSION + '\n' + source);
   } catch (error) {
     // Log a more helpful warning (by including the schema path).
     console.error(

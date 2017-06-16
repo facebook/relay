@@ -12,7 +12,7 @@
 
 'use strict';
 
-jest.mock('warning');
+jest.enableAutomock().mock('warning');
 
 require('configureForRelayOSS');
 
@@ -38,7 +38,7 @@ describe('RelayQuery', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('Root', () => {

@@ -12,6 +12,8 @@
 
 'use strict';
 
+jest.enableAutomock();
+
 require('configureForRelayOSS');
 
 jest.unmock('RelayContainerComparators').mock('warning');
@@ -75,7 +77,7 @@ describe('RelayContainer', function() {
 
     RelayTestRenderer = RelayTestUtils.createRenderer();
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('fragments', () => {

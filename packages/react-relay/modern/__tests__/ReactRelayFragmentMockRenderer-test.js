@@ -12,7 +12,7 @@
 
 'use strict';
 
-jest.disableAutomock().mock('ReactDOM', () => ({}));
+jest.mock('ReactDOM', () => ({}));
 
 const React = require('React');
 const ReactTestRenderer = require('ReactTestRenderer');

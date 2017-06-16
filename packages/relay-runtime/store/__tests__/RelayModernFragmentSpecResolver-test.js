@@ -7,11 +7,10 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
-
-jest.autoMockOff();
 
 const RelayModernFragmentSpecResolver = require('RelayModernFragmentSpecResolver');
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
@@ -49,7 +48,7 @@ describe('RelayModernFragmentSpecResolver', () => {
   }
 
   beforeEach(() => {
-    jasmine.addMatchers(RelayModernTestUtils.matchers);
+    expect.extend(RelayModernTestUtils.matchers);
 
     environment = createMockEnvironment();
     ({UserFragment, UserQuery, UsersFragment} = environment.mock.compile(

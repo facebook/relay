@@ -7,11 +7,10 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
-
-jest.autoMockOff();
 
 require('configureForRelayOSS');
 
@@ -46,7 +45,7 @@ type VisitNodeWithName =
 
 describe('RelayIRVisitor', () => {
   beforeEach(() => {
-    jasmine.addMatchers(getGoldenMatchers(__filename));
+    expect.extend(getGoldenMatchers(__filename));
   });
 
   it('visits and does nothing with each node', () => {

@@ -12,6 +12,8 @@
 
 'use strict';
 
+jest.enableAutomock();
+
 require('configureForRelayOSS');
 
 jest.mock('warning');
@@ -75,7 +77,7 @@ describe('getRelayQueries', () => {
       return MockRoute;
     };
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('creates a query for a component given a route', () => {

@@ -23,9 +23,21 @@ import type {Fragment} from 'RelayIR';
 
 const RELAY = 'relay';
 const PLURAL = 'plural';
+const SCHEMA_EXTENSION = `directive @relay(
+  # Marks a connection field as containing nodes without 'id' fields.
+  # This is used to silence the warning when diffing connections.
+  isConnectionWithoutNodeID: Boolean,
 
-const SCHEMA_EXTENSION =
-  'directive @relay(pattern: Boolean, plural: Boolean) on FRAGMENT | FIELD';
+  # Marks a fragment as intended for pattern matching (as opposed to fetching).
+  # Used in Classic only.
+  pattern: Boolean,
+
+  # Marks a fragment as being backed by a GraphQLList.
+  plural: Boolean,
+
+  # Selectively pass variables down into a fragment. Only used in Classic.
+  variables: [String!],
+) on FRAGMENT_DEFINITION | FRAGMENT_SPREAD | INLINE_FRAGMENT | FIELD`;
 
 /**
  * A transform that extracts `@relay(plural: Boolean)` directives and converts

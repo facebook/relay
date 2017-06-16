@@ -12,6 +12,8 @@
 
 'use strict';
 
+jest.enableAutomock();
+
 require('configureForRelayOSS');
 
 const GraphQLRange = require('GraphQLRange');
@@ -39,7 +41,7 @@ describe('diffRelayQuery', () => {
       viewer: {'': 'client:1'},
     };
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('returns the same query with an empty store', () => {

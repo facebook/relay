@@ -54,6 +54,19 @@ function buildReactRelayContainer<TBase: ReactClass<*>>(
   function ContainerConstructor(props, context) {
     if (Container == null || context.relay.environment !== environment) {
       environment = context.relay.environment;
+      if (__DEV__) {
+        const {isRelayModernEnvironment} = require('RelayRuntime');
+        if (!isRelayModernEnvironment(environment)) {
+          throw new Error(
+            'RelayModernContainer: Can only use Relay Modern component ' +
+              `${containerName} in a Relay Modern environment!\n` +
+              'When using Relay Modern and Relay Classic in the same ' +
+              'application, ensure components use Relay Compat to work in ' +
+              'both environments.\n' +
+              'See: http://facebook.github.io/relay/docs/relay-compat.html',
+          );
+        }
+      }
       const {getFragment: getFragmentFromTag} = environment.unstable_internal;
       const fragments = mapObject(fragmentSpec, getFragmentFromTag);
       Container = createContainerWithFragments(ComponentClass, fragments);
@@ -62,6 +75,21 @@ function buildReactRelayContainer<TBase: ReactClass<*>>(
   }
   ContainerConstructor.contextTypes = containerContextTypes;
   ContainerConstructor.displayName = containerName;
+
+  if (__DEV__) {
+    // Classic container static methods.
+    ContainerConstructor.getFragment = function getFragmentOnModernContainer() {
+      throw new Error(
+        `RelayModernContainer: ${containerName}.getFragment() was called on ` +
+          'a Relay Modern component by a Relay Classic or Relay Compat ' +
+          'component.\n' +
+          'When using Relay Modern and Relay Classic in the same ' +
+          'application, ensure components use Relay Compat to work in ' +
+          'both environments.\n' +
+          'See: http://facebook.github.io/relay/docs/relay-compat.html',
+      );
+    };
+  }
 
   return (ContainerConstructor: any);
 }

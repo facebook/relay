@@ -12,7 +12,7 @@
 
 'use strict';
 
-jest.mock('warning');
+jest.enableAutomock().mock('warning');
 
 require('configureForRelayOSS');
 
@@ -61,7 +61,7 @@ describe('readRelayQueryData', () => {
       START_CURSOR,
     } = RelayConnectionInterface);
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('returns undefined for data that is not in the store', () => {

@@ -12,10 +12,9 @@
 
 'use strict';
 
-require('configureForRelayOSS');
+jest.mock('generateClientID').mock('warning');
 
-jest.mock('warning');
-jest.unmock('GraphQLRange').unmock('GraphQLSegment');
+require('configureForRelayOSS');
 
 const GraphQLRange = require('GraphQLRange');
 const Relay = require('Relay');
@@ -45,7 +44,7 @@ describe('writeRelayQueryPayload()', () => {
       START_CURSOR,
     } = RelayConnectionInterface);
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('creates empty first() connection records', () => {

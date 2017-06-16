@@ -12,10 +12,7 @@
 
 'use strict';
 
-jest
-  .dontMock('GraphQLStoreChangeEmitter')
-  .mock('relayUnstableBatchedUpdates')
-  .autoMockOff();
+jest.dontMock('GraphQLStoreChangeEmitter').mock('relayUnstableBatchedUpdates');
 
 const Relay = require('Relay');
 const RelayEnvironment = require('RelayEnvironment');
@@ -41,7 +38,7 @@ describe('RelayEnvironment', () => {
   }
 
   beforeEach(() => {
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
 
     environment = new RelayEnvironment();
 

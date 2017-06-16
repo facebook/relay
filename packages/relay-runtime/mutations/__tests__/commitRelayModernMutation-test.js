@@ -7,24 +7,21 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
 
-jest.autoMockOff();
-
 const commitRelayModernMutation = require('commitRelayModernMutation');
-
-const RelayModernTestUtils = require('RelayModernTestUtils');
 
 const {commitMutation} = require('ReactRelayPublic');
 const {createOperationSelector} = require('RelayModernOperationSelector');
+const {generateAndCompile} = require('RelayModernTestUtils');
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {ROOT_ID} = require('RelayStoreUtils');
 
 describe('Configs: RANGE_DELETE', () => {
   let environment, FeedbackCommentQuery, store;
-  const {generateAndCompile} = RelayModernTestUtils;
 
   beforeEach(() => {
     jest.resetModules();
@@ -56,7 +53,7 @@ describe('Configs: RANGE_DELETE', () => {
         commentId: commentID,
       },
     };
-    const optimisticResponse = () => ({
+    const optimisticResponse = {
       commentDelete: {
         clientMutationId: '0',
         deletedCommentId: commentID,
@@ -67,7 +64,7 @@ describe('Configs: RANGE_DELETE', () => {
           },
         },
       },
-    });
+    };
     const configs = [
       {
         type: 'RANGE_DELETE',
@@ -244,7 +241,7 @@ describe('Configs: RANGE_DELETE', () => {
     };
     const operationSelector = createOperationSelector(FriendQuery, {});
     environment.commitPayload(operationSelector, payload);
-    const optimisticResponse = () => ({
+    const optimisticResponse = {
       unfriend: {
         clientMutationId: '0',
         actor: {
@@ -255,7 +252,7 @@ describe('Configs: RANGE_DELETE', () => {
           id: '456',
         },
       },
-    });
+    };
     const snapshot = store.lookup({
       dataID: ROOT_ID,
       node: FriendQuery.fragment,
@@ -291,6 +288,292 @@ describe('Configs: RANGE_DELETE', () => {
       },
     });
     jest.runAllTimers();
+    expect(updater).toBeCalled();
+    expect(callback.mock.calls.length).toBe(0);
+  });
+});
+
+describe('Configs: RANGE_ADD', () => {
+  let callback,
+    CommentQuery,
+    data,
+    environment,
+    mutation,
+    optimisticUpdater,
+    payload,
+    store,
+    updater;
+  const commentID = 'comment123';
+
+  const feedbackID = 'feedback123';
+  const variables = {
+    input: {
+      feedback: feedbackID,
+      message: {
+        text: 'Hello!',
+        ranges: [],
+      },
+    },
+  };
+  const nextCursor = 'comment789:cursor';
+  const nextNodeID = 'comment789';
+  const optimisticResponse = {
+    commentCreate: {
+      feedback: {
+        id: feedbackID,
+        topLevelComments: {
+          count: 2,
+        },
+      },
+      feedbackCommentEdge: {
+        __typename: 'CommentsEdge',
+        cursor: nextCursor,
+        node: {
+          id: nextNodeID,
+          body: {
+            text: variables.input.message.text,
+          },
+        },
+      },
+    },
+  };
+
+  beforeEach(() => {
+    jest.resetModules();
+
+    environment = createMockEnvironment();
+    store = environment.getStore();
+
+    mutation = generateAndCompile(`
+    mutation CommentCreateMutation(
+      $input: CommentCreateInput
+    ) {
+      commentCreate(input: $input) {
+        feedback {
+          id
+          topLevelComments {
+            count
+          }
+        }
+        feedbackCommentEdge {
+          cursor
+          node {
+            id
+            body {
+              text
+            }
+          }
+        }
+      }
+    }`).CommentCreateMutation;
+
+    ({CommentQuery} = generateAndCompile(`
+    query CommentQuery {
+      node(id:"feedback123") {
+        ...on Feedback {
+          topLevelComments(first: 1) @connection(
+            key: Feedback_topLevelComments
+          ) {
+            count
+            edges {
+              node {
+                id
+              }
+            }
+          }
+        }
+      }
+    }`));
+    payload = {
+      node: {
+        id: feedbackID,
+        __typename: 'Feedback',
+        topLevelComments: {
+          count: 1,
+          edges: [
+            {
+              cursor: commentID + ':cursor',
+              node: {
+                id: commentID,
+              },
+            },
+          ],
+        },
+      },
+    };
+    callback = jest.fn();
+    optimisticUpdater = jest.fn();
+    updater = jest.fn();
+    data = {
+      data: {
+        commentCreate: {
+          feedback: {
+            id: feedbackID,
+            topLevelComments: {
+              count: 2,
+            },
+          },
+          feedbackCommentEdge: {
+            __typename: 'CommentsEdge',
+            cursor: nextCursor,
+            node: {
+              id: nextNodeID,
+              body: {
+                text: variables.input.message.text,
+              },
+            },
+          },
+        },
+      },
+    };
+  });
+
+  it('appends edges', () => {
+    const configs = [
+      {
+        type: 'RANGE_ADD',
+        connectionName: 'topLevelComments',
+        connectionInfo: [
+          {
+            key: 'Feedback_topLevelComments',
+            rangeBehavior: 'append',
+          },
+        ],
+        parentID: 'feedback123',
+        edgeName: 'feedbackCommentEdge',
+      },
+    ];
+    const snapshot = store.lookup({
+      dataID: ROOT_ID,
+      node: CommentQuery.fragment,
+      variables: {},
+    });
+    const operationSelector = createOperationSelector(CommentQuery, {});
+    environment.commitPayload(operationSelector, payload);
+    store.subscribe(snapshot, callback);
+    commitMutation(environment, {
+      configs,
+      mutation,
+      optimisticResponse,
+      optimisticUpdater,
+      updater,
+      variables,
+    });
+    // Optimistically appends properly
+    expect(callback.mock.calls.length).toBe(1);
+    expect(optimisticUpdater).toBeCalled();
+    callback.mockClear();
+    const sendMutation =
+      environment.sendMutation.mock.calls[0][0].operation.node;
+    environment.mock.resolve(sendMutation, data);
+    jest.runAllTimers();
+    // Does not need to fire again since server data should be the same
+    expect(updater).toBeCalled();
+    expect(callback.mock.calls.length).toBe(0);
+  });
+
+  it('prepends edges', () => {
+    const configs = [
+      {
+        type: 'RANGE_ADD',
+        connectionName: 'topLevelComments',
+        connectionInfo: [
+          {
+            key: 'Feedback_topLevelComments',
+            rangeBehavior: 'prepend',
+          },
+        ],
+        parentID: 'feedback123',
+        edgeName: 'feedbackCommentEdge',
+      },
+    ];
+    const snapshot = store.lookup({
+      dataID: ROOT_ID,
+      node: CommentQuery.fragment,
+      variables: {},
+    });
+    const operationSelector = createOperationSelector(CommentQuery, {});
+    environment.commitPayload(operationSelector, payload);
+    store.subscribe(snapshot, callback);
+    commitMutation(environment, {
+      configs,
+      mutation,
+      optimisticResponse,
+      optimisticUpdater,
+      updater,
+      variables,
+    });
+    // Optimistically prepends properly
+    expect(callback.mock.calls.length).toBe(1);
+    expect(optimisticUpdater).toBeCalled();
+    callback.mockClear();
+    const sendMutation =
+      environment.sendMutation.mock.calls[0][0].operation.node;
+    environment.mock.resolve(sendMutation, data);
+    jest.runAllTimers();
+    // Does not need to fire again since server data should be the same
+    expect(updater).toBeCalled();
+    expect(callback.mock.calls.length).toBe(0);
+  });
+
+  it('filters connections then applies the rangeBehavior', () => {
+    const configs = [
+      {
+        type: 'RANGE_ADD',
+        connectionName: 'topLevelComments',
+        connectionInfo: [
+          {
+            key: 'Feedback_topLevelComments',
+            filters: {orderBy: 'chronological'},
+            rangeBehavior: 'append',
+          },
+        ],
+        parentID: 'feedback123',
+        edgeName: 'feedbackCommentEdge',
+      },
+    ];
+    ({CommentQuery} = generateAndCompile(`
+    query CommentQuery {
+      node(id:"feedback123") {
+        ...on Feedback {
+          topLevelComments(orderBy: "chronological", first: 1) @connection(
+            key: Feedback_topLevelComments
+          ) {
+            count
+            edges {
+              node {
+                id
+              }
+            }
+          }
+        }
+      }
+    }`));
+    const operationSelector = createOperationSelector(CommentQuery, {});
+    environment.commitPayload(operationSelector, payload);
+    const snapshot = store.lookup({
+      dataID: ROOT_ID,
+      node: CommentQuery.fragment,
+      variables: {},
+    });
+    store.subscribe(snapshot, callback);
+    commitMutation(environment, {
+      configs,
+      mutation,
+      optimisticResponse,
+      optimisticUpdater,
+      updater,
+      variables,
+    });
+    // Optimistically appends orderBy(chronological) properly
+    expect(callback.mock.calls.length).toBe(1);
+    expect(optimisticUpdater).toBeCalled();
+    callback.mockClear();
+    const sendMutation =
+      environment.sendMutation.mock.calls[0][0].operation.node;
+    environment.mock.resolve(sendMutation, data);
+    jest.runAllTimers();
+    // Does not need to fire again since server data should be the same
     expect(updater).toBeCalled();
     expect(callback.mock.calls.length).toBe(0);
   });

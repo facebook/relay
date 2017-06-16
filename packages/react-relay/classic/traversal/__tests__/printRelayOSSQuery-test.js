@@ -29,7 +29,7 @@ describe('printRelayOSSQuery', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('OSS queries', () => {

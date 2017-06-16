@@ -12,7 +12,7 @@
 
 'use strict';
 
-jest.useFakeTimers();
+jest.enableAutomock().useFakeTimers();
 
 require('configureForRelayOSS');
 
@@ -70,7 +70,7 @@ describe('RelayDefaultNetworkLayer', () => {
       ...new RelayDefaultNetworkLayer(networkConfig.uri, networkConfig.init),
     };
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('sendMutation', () => {

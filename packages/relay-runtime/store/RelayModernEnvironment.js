@@ -17,7 +17,7 @@ const RelayCore = require('RelayCore');
 const RelayDefaultHandlerProvider = require('RelayDefaultHandlerProvider');
 const RelayPublishQueue = require('RelayPublishQueue');
 
-const invariant = require('invariant');
+const isPromise = require('isPromise');
 const normalizeRelayPayload = require('normalizeRelayPayload');
 const warning = require('warning');
 
@@ -60,6 +60,7 @@ class RelayModernEnvironment implements Environment {
     this._network = config.network;
     this._publishQueue = new RelayPublishQueue(config.store, handlerProvider);
     this._store = config.store;
+    (this: any).setNet = newNet => (this._network = newNet);
     this.unstable_internal = RelayCore;
   }
 
@@ -149,21 +150,12 @@ class RelayModernEnvironment implements Environment {
       operation.variables,
       cacheConfig,
     );
-    switch (networkRequest.kind) {
-      case 'data':
-        onRequestSuccess(networkRequest.data);
-        break;
-      case 'error':
-        onRequestError(networkRequest.error);
-        break;
-      case 'promise':
-        networkRequest.promise.then(onRequestSuccess).catch(onRequestError);
-        break;
-      default:
-        invariant(
-          false,
-          `RelayModernEnvionment: unsupported network request type "${networkRequest.kind}"`,
-        );
+    if (isPromise(networkRequest)) {
+      networkRequest.then(onRequestSuccess).catch(onRequestError);
+    } else if (networkRequest instanceof Error) {
+      onRequestError(networkRequest);
+    } else {
+      onRequestSuccess(networkRequest);
     }
     return {dispose};
   }
@@ -210,15 +202,15 @@ class RelayModernEnvironment implements Environment {
     onError?: ?(error: Error) => void,
     operation: OperationSelector,
     optimisticUpdater?: ?SelectorStoreUpdater,
-    optimisticResponse?: ?() => Object,
+    optimisticResponse?: Object,
     updater?: ?SelectorStoreUpdater,
     uploadables?: UploadableMap,
   }): Disposable {
-    let hasOptimisticUpdate = optimisticResponse || optimisticUpdater;
+    let hasOptimisticUpdate = !!optimisticResponse || optimisticUpdater;
     const optimisticUpdate = {
       operation: operation,
       selectorStoreUpdater: optimisticUpdater,
-      response: optimisticResponse ? optimisticResponse() : null,
+      response: optimisticResponse || null,
     };
     if (hasOptimisticUpdate) {
       this._publishQueue.applyUpdate(optimisticUpdate);
@@ -263,8 +255,8 @@ class RelayModernEnvironment implements Environment {
       uploadables,
     );
 
-    if (networkRequest.promise) {
-      networkRequest.promise.then(onRequestSuccess).catch(onRequestError);
+    if (isPromise(networkRequest)) {
+      networkRequest.then(onRequestSuccess).catch(onRequestError);
     } else {
       warning(
         false,

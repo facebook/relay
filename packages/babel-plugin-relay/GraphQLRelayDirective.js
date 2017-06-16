@@ -13,36 +13,35 @@
 
 'use strict';
 
-const {
-  DirectiveLocation,
-  GraphQLBoolean,
-  GraphQLList,
-  GraphQLString,
-} = require('graphql');
+const {buildSchema} = require('graphql');
+
+// Copy of RelayRelayDirectiveTransform.SCHEMA_EXTENSION due to the build
+// systems.
+const SCHEMA_EXTENSION = `directive @relay(
+  # Marks a connection field as containing nodes without 'id' fields.
+  # This is used to silence the warning when diffing connections.
+  isConnectionWithoutNodeID: Boolean,
+
+  # Marks a fragment as intended for pattern matching (as opposed to fetching).
+  # Used in Classic only.
+  pattern: Boolean,
+
+  # Marks a fragment as being backed by a GraphQLList.
+  plural: Boolean,
+
+  # Selectively pass variables down into a fragment. Only used in Classic.
+  variables: [String!],
+) on FRAGMENT_DEFINITION | FRAGMENT_SPREAD | INLINE_FRAGMENT | FIELD`;
+
+const GraphQLRelayDirective = buildSchema(
+  SCHEMA_EXTENSION + '\ntype Query { x: String }',
+).getDirective('relay');
+
+if (!GraphQLRelayDirective) {
+  throw new Error('Failed to create GraphQLRelayDirective.');
+}
 
 module.exports = {
-  name: 'relay',
-  description: 'The @relay directive.',
-  args: {
-    isConnectionWithoutNodeID: {
-      description: 'Marks a connection field as containing nodes without `id` fields. ' +
-        'This is used to silence the warning when diffing connections.',
-      type: GraphQLBoolean,
-    },
-    pattern: {
-      description: 'Marks a fragment as intended for pattern matching (as opposed to ' +
-        'fetching).',
-      type: GraphQLBoolean,
-    },
-    plural: {
-      description: 'Marks a fragment as being backed by a GraphQLList',
-      type: GraphQLBoolean,
-    },
-    variables: {
-      description: 'Selectively pass variables down into a fragment.',
-      // $FlowFixMe: GraphQLList seems to have incorrect variance?
-      type: new GraphQLList(GraphQLString),
-    },
-  },
-  locations: [DirectiveLocation.FIELD, DirectiveLocation.FRAGMENT_DEFINITION],
+  SCHEMA_EXTENSION,
+  GraphQLRelayDirective,
 };

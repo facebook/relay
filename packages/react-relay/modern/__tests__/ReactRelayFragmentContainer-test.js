@@ -12,8 +12,6 @@
 
 'use strict';
 
-jest.autoMockOff();
-
 const React = require('React');
 const ReactRelayFragmentContainer = require('ReactRelayFragmentContainer');
 const ReactRelayPropTypes = require('ReactRelayPropTypes');
@@ -76,7 +74,7 @@ describe('ReactRelayFragmentContainer', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    jasmine.addMatchers(RelayModernTestUtils.matchers);
+    expect.extend(RelayModernTestUtils.matchers);
 
     environment = createMockEnvironment();
     ({UserFragment, UserQuery} = environment.mock.compile(

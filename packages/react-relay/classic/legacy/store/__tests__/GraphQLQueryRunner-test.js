@@ -12,6 +12,8 @@
 
 'use strict';
 
+jest.enableAutomock();
+
 require('configureForRelayOSS');
 
 jest.useFakeTimers();
@@ -76,7 +78,7 @@ describe('GraphQLQueryRunner', () => {
       baz: null,
     };
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('immediately succeeds for empty queries', () => {

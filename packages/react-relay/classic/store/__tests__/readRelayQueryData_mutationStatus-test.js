@@ -12,6 +12,8 @@
 
 'use strict';
 
+jest.enableAutomock();
+
 const Relay = require('Relay');
 const RelayMutationTransaction = require('RelayMutationTransaction');
 const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');

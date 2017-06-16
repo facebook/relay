@@ -7,11 +7,10 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
-
-jest.disableAutomock();
 
 describe('RelaySkipClientFieldTransform', () => {
   let RelayCompilerContext;
@@ -31,7 +30,7 @@ describe('RelaySkipClientFieldTransform', () => {
     getGoldenMatchers = require('getGoldenMatchers');
     parseGraphQLText = require('parseGraphQLText');
 
-    jasmine.addMatchers(getGoldenMatchers(__filename));
+    expect.extend(getGoldenMatchers(__filename));
   });
 
   it('skips fields/types not defined in the original schema', () => {

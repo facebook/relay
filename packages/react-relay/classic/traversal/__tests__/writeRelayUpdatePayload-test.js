@@ -12,9 +12,9 @@
 
 'use strict';
 
-require('configureForRelayOSS');
+jest.mock('generateClientID').mock('warning');
 
-jest.unmock('GraphQLRange').unmock('GraphQLSegment').mock('warning');
+require('configureForRelayOSS');
 
 const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
 const Relay = require('Relay');
@@ -36,7 +36,7 @@ describe('writeRelayUpdatePayload()', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('fields changed mutations', () => {

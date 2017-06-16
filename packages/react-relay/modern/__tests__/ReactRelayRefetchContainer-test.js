@@ -12,8 +12,6 @@
 
 'use strict';
 
-jest.autoMockOff();
-
 const React = require('React');
 const ReactRelayRefetchContainer = require('ReactRelayRefetchContainer');
 const ReactRelayPropTypes = require('ReactRelayPropTypes');
@@ -36,6 +34,8 @@ describe('ReactRelayRefetchContainer', () => {
   let getVariables;
   let render;
   let variables;
+  let ContextGetter;
+  let relayContext;
 
   class ContextSetter extends React.Component {
     constructor(props) {
@@ -79,7 +79,7 @@ describe('ReactRelayRefetchContainer', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    jest.addMatchers(RelayModernTestUtils.matchers);
+    expect.extend(RelayModernTestUtils.matchers);
 
     environment = createMockEnvironment();
     ({UserFragment, UserQuery, RefetchQuery} = environment.mock.compile(
@@ -109,10 +109,25 @@ describe('ReactRelayRefetchContainer', () => {
     `,
     ));
 
+    ContextGetter = class extends React.Component {
+      componentDidMount() {
+        relayContext = this.context.relay;
+      }
+      componentDidUpdate() {
+        relayContext = this.context.relay;
+      }
+      render() {
+        return <div />;
+      }
+    };
+    ContextGetter.contextTypes = {
+      relay: ReactRelayPropTypes.Relay,
+    };
+
     render = jest.fn(props => {
       refetch = props.relay.refetch;
       getVariables = props.relay.getVariables;
-      return <div />;
+      return <ContextGetter />;
     });
     variables = {};
     TestComponent = render;
@@ -200,6 +215,16 @@ describe('ReactRelayRefetchContainer', () => {
     });
     // Does not subscribe to updates (id is unknown)
     expect(environment.subscribe.mock.calls.length).toBe(0);
+  });
+
+  it('passes through context', () => {
+    ReactTestRenderer.create(
+      <ContextSetter environment={environment} variables={variables}>
+        <TestContainer user={null} />
+      </ContextSetter>,
+    );
+    expect(relayContext.environment).toBe(environment);
+    expect(relayContext.variables).toBe(variables);
   });
 
   it('resolves & subscribes fragment props', () => {
@@ -637,6 +662,38 @@ describe('ReactRelayRefetchContainer', () => {
       expect(render.mock.calls[1][0].user.name).toBe(undefined);
     });
 
+    it('updates context with the results of new variables', async () => {
+      expect.assertions(6);
+
+      // original context before refetch
+      expect(relayContext.environment).toEqual(environment);
+      expect(relayContext.variables).toBe(variables);
+
+      const refetchVariables = {
+        cond: false,
+        id: '4',
+      };
+      refetch(refetchVariables, null, jest.fn());
+
+      // original context while pending refetch
+      expect(relayContext.environment).toBe(environment);
+      expect(relayContext.variables).toBe(variables);
+
+      await environment.mock.resolve(UserQuery, {
+        data: {
+          node: {
+            id: '4',
+            __typename: 'User',
+            name: 'Zuck',
+          },
+        },
+      });
+
+      // new context after successful refetch
+      expect(relayContext.environment).toBe(environment);
+      expect(relayContext.variables).toEqual(refetchVariables);
+    });
+
     it('does not update variables on failure', async () => {
       expect.assertions(4);
       expect(render.mock.calls.length).toBe(1);
@@ -731,6 +788,33 @@ describe('ReactRelayRefetchContainer', () => {
       instance.getInstance().setProps({user: userPointer});
       expect(references.length).toBe(1);
       expect(references[0].dispose).toBeCalled();
+    });
+
+    it('updates child context if updated with new variables', async () => {
+      expect.assertions(2);
+      const refetchVariables = {
+        cond: false,
+        id: '4',
+      };
+      refetch(refetchVariables, null, jest.fn());
+      await environment.mock.resolve(UserQuery, {
+        data: {
+          node: {
+            id: '4',
+            __typename: 'User',
+            name: 'Zuck',
+          },
+        },
+      });
+
+      const updateVariables = {
+        cond: true,
+        id: '842472',
+      };
+      instance.getInstance().setContext(environment, updateVariables);
+
+      expect(relayContext.environment).toBe(environment);
+      expect(relayContext.variables).toEqual(updateVariables);
     });
   });
 

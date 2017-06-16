@@ -7,11 +7,10 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
-
-jest.disableAutomock();
 
 describe('RelayCompilerContext', () => {
   let RelayCompilerContext;
@@ -32,7 +31,7 @@ describe('RelayCompilerContext', () => {
     RelayTestSchema = require('RelayTestSchema');
     RelayModernTestUtils = require('RelayModernTestUtils');
 
-    jasmine.addMatchers(RelayModernTestUtils.matchers);
+    expect.extend(RelayModernTestUtils.matchers);
 
     [queryFoo, fragmentFoo, fragmentBar] = RelayParser.parse(
       RelayTestSchema,

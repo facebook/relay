@@ -12,8 +12,6 @@
 
 'use strict';
 
-jest.unmock('RelayProfiler');
-
 const RelayProfiler = require('RelayProfiler');
 
 describe('RelayProfiler', function() {

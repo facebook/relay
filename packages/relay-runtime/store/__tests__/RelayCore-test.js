@@ -7,11 +7,11 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
 
-jest.disableAutomock();
 jest.mock('warning');
 
 const RelayTestUtils = require('RelayTestUtils');
@@ -24,7 +24,7 @@ describe('RelayCore', () => {
     let mockCb;
 
     beforeEach(() => {
-      jasmine.addMatchers(RelayTestUtils.matchers);
+      expect.extend(RelayTestUtils.matchers);
       jest.resetModules();
       mockCb = jest.fn();
     });

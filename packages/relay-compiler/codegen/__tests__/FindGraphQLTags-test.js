@@ -7,17 +7,16 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
-
-jest.autoMockOff();
 
 const FindGraphQLTags = require('FindGraphQLTags');
 
 describe('FindGraphQLTags', () => {
   function find(text) {
-    return FindGraphQLTags.find(text, 'FindGraphQLTags');
+    return FindGraphQLTags.find(text, '/path/to/FindGraphQLTags.js');
   }
 
   describe('query parsing', () => {
@@ -29,11 +28,10 @@ describe('FindGraphQLTags', () => {
       expect(
         find(
           `
-        // @providesModule FindGraphQLTags
-        const foo = 1;
-        foo(Relay2QL\`fragment FindGraphQLTags on User { id }\`);
-        Relay2QL\`fragment FindGraphQLTags on User { name }\`;
-      `,
+            const foo = 1;
+            foo(Relay2QL\`fragment FindGraphQLTags on User { id }\`);
+            Relay2QL\`fragment FindGraphQLTags on User { name }\`;
+          `,
         ),
       ).toEqual([
         {
@@ -51,43 +49,42 @@ describe('FindGraphQLTags', () => {
       expect(
         find(
           `
-        // @providesModule FindGraphQLTags
-        const foo = 1;
-        foo(graphql\`fragment FindGraphQLTags on User { id }\`);
-        graphql\`fragment FindGraphQLTags on User { name }\`;
+            const foo = 1;
+            foo(graphql\`fragment FindGraphQLTags on User { id }\`);
+            graphql\`fragment FindGraphQLTags on User { name }\`;
 
-        createFragmentContainer(Component, {
-          foo: graphql\`fragment FindGraphQLTags_foo on Page { id }\`,
-        });
-        createPaginationContainer(
-          Component,
-          {},
-          {
-            query: graphql\`query FindGraphQLTagsPaginationQuery { me { id } }\`,
-          }
-        );
-        createRefetchContainer(
-          Component,
-          {},
-          graphql\`query FindGraphQLTagsRefetchQuery { me { id } }\`
-        );
+            createFragmentContainer(Component, {
+              foo: graphql\`fragment FindGraphQLTags_foo on Page { id }\`,
+            });
+            createPaginationContainer(
+              Component,
+              {},
+              {
+                query: graphql\`query FindGraphQLTagsPaginationQuery { me { id } }\`,
+              }
+            );
+            createRefetchContainer(
+              Component,
+              {},
+              graphql\`query FindGraphQLTagsRefetchQuery { me { id } }\`
+            );
 
-        Relay.createFragmentContainer(Component, {
-          foo: graphql\`fragment FindGraphQLTags_foo on Page { name }\`,
-        });
-        Relay.createPaginationContainer(
-          Component,
-          {},
-          {
-            query: graphql\`query FindGraphQLTagsPaginationQuery { me { name } }\`,
-          }
-        );
-        Relay.createRefetchContainer(
-          Component,
-          {},
-          graphql\`query FindGraphQLTagsRefetchQuery { me { name } }\`
-        );
-      `,
+            Relay.createFragmentContainer(Component, {
+              foo: graphql\`fragment FindGraphQLTags_foo on Page { name }\`,
+            });
+            Relay.createPaginationContainer(
+              Component,
+              {},
+              {
+                query: graphql\`query FindGraphQLTagsPaginationQuery { me { name } }\`,
+              }
+            );
+            Relay.createRefetchContainer(
+              Component,
+              {},
+              graphql\`query FindGraphQLTagsRefetchQuery { me { name } }\`
+            );
+          `,
         ),
       ).toEqual([
         {
@@ -129,43 +126,42 @@ describe('FindGraphQLTags', () => {
       expect(
         find(
           `
-        // @providesModule FindGraphQLTags
-        const foo = 1;
-        foo(graphql.experimental\`fragment FindGraphQLTags on User { id }\`);
-        graphql.experimental\`fragment FindGraphQLTags on User { name }\`;
+            const foo = 1;
+            foo(graphql.experimental\`fragment FindGraphQLTags on User { id }\`);
+            graphql.experimental\`fragment FindGraphQLTags on User { name }\`;
 
-        createFragmentContainer(Component, {
-          foo: graphql.experimental\`fragment FindGraphQLTags_foo on Page { id }\`,
-        });
-        createPaginationContainer(
-          Component,
-          {},
-          {
-            query: graphql.experimental\`query FindGraphQLTagsPaginationQuery { me { id } }\`,
-          }
-        );
-        createRefetchContainer(
-          Component,
-          {},
-          graphql.experimental\`query FindGraphQLTagsRefetchQuery { me { id } }\`
-        );
+            createFragmentContainer(Component, {
+              foo: graphql.experimental\`fragment FindGraphQLTags_foo on Page { id }\`,
+            });
+            createPaginationContainer(
+              Component,
+              {},
+              {
+                query: graphql.experimental\`query FindGraphQLTagsPaginationQuery { me { id } }\`,
+              }
+            );
+            createRefetchContainer(
+              Component,
+              {},
+              graphql.experimental\`query FindGraphQLTagsRefetchQuery { me { id } }\`
+            );
 
-        Relay.createFragmentContainer(Component, {
-          foo: graphql.experimental\`fragment FindGraphQLTags_foo on Page { name }\`,
-        });
-        Relay.createPaginationContainer(
-          Component,
-          {},
-          {
-            query: graphql.experimental\`query FindGraphQLTagsPaginationQuery { me { name } }\`,
-          }
-        );
-        Relay.createRefetchContainer(
-          Component,
-          {},
-          graphql.experimental\`query FindGraphQLTagsRefetchQuery { me { name } }\`
-        );
-      `,
+            Relay.createFragmentContainer(Component, {
+              foo: graphql.experimental\`fragment FindGraphQLTags_foo on Page { name }\`,
+            });
+            Relay.createPaginationContainer(
+              Component,
+              {},
+              {
+                query: graphql.experimental\`query FindGraphQLTagsPaginationQuery { me { name } }\`,
+              }
+            );
+            Relay.createRefetchContainer(
+              Component,
+              {},
+              graphql.experimental\`query FindGraphQLTagsRefetchQuery { me { name } }\`
+            );
+          `,
         ),
       ).toEqual([
         {
@@ -207,10 +203,9 @@ describe('FindGraphQLTags', () => {
       expect(
         find(
           `
-        // @providesModule FindGraphQLTags
-        Relay2QL\`fragment FindGraphQLTags on User { id }\`;
-        Other\`this is not\`;
-      `,
+            Relay2QL\`fragment FindGraphQLTags on User { id }\`;
+            Other\`this is not\`;
+          `,
         ),
       ).toEqual([
         {
@@ -224,17 +219,16 @@ describe('FindGraphQLTags', () => {
       expect(
         find(
           `
-        // @providesModule FindGraphQLTags
-        class RelayContainer extends React.Component {
-          // Relay2QL\`this in a comment\`;
-          _loadMore = (
-            pageSize: number,
-            options?: ?RefetchOptions
-          ): ?Disposable => {
-            Relay2QL\`fragment FindGraphQLTags on User { id }\`;
-          }
-        }
-      `,
+            class RelayContainer extends React.Component {
+              // Relay2QL\`this in a comment\`;
+              _loadMore = (
+                pageSize: number,
+                options?: ?RefetchOptions
+              ): ?Disposable => {
+                Relay2QL\`fragment FindGraphQLTags on User { id }\`;
+              }
+            }
+          `,
         ),
       ).toEqual([
         {
@@ -247,14 +241,7 @@ describe('FindGraphQLTags', () => {
 
   describe('query name validation', () => {
     it('throws for invalid query names', () => {
-      expect(() =>
-        find(
-          `
-        // @providesModule FindGraphQLTags
-        graphql\`query NotModuleName { me { id } }\`;
-      `,
-        ),
-      ).toThrow(
+      expect(() => find('graphql`query NotModuleName { me { id } }`;')).toThrow(
         'FindGraphQLTags: Operation names in graphql tags must be prefixed with ' +
           'the module name and end in "Mutation", "Query", or "Subscription". ' +
           'Got `NotModuleName` in module `FindGraphQLTags`.',
@@ -263,30 +250,11 @@ describe('FindGraphQLTags', () => {
 
     it('parses queries with valid names', () => {
       expect(
-        find(
-          `
-        // @providesModule FindGraphQLTags
-        graphql\`query FindGraphQLTagsQuery { me { id } }\`;
-      `,
-        ),
+        find('graphql`query FindGraphQLTagsQuery { me { id } }`;'),
       ).toEqual([
         {
           tag: 'graphql',
           template: 'query FindGraphQLTagsQuery { me { id } }',
-        },
-      ]);
-
-      expect(
-        find(
-          `
-        // @providesModule Example.react
-        graphql\`query ExampleQuery { me { id } }\`;
-      `,
-        ),
-      ).toEqual([
-        {
-          tag: 'graphql',
-          template: 'query ExampleQuery { me { id } }',
         },
       ]);
     });
@@ -340,12 +308,7 @@ describe('FindGraphQLTags', () => {
 
     it('throws for invalid top-level fragment names', () => {
       expect(() =>
-        find(
-          `
-        // @providesModule FindGraphQLTags
-        graphql\`fragment NotModuleName on User { name }\`;
-      `,
-        ),
+        find('graphql`fragment NotModuleName on User { name }`;'),
       ).toThrow(
         'FindGraphQLTags: Fragment names in graphql tags ' +
           'must be prefixed with the module name. Got ' +
@@ -355,12 +318,7 @@ describe('FindGraphQLTags', () => {
 
     it('parses top-level fragments with valid names', () => {
       expect(
-        find(
-          `
-        // @providesModule FindGraphQLTags
-        graphql\`fragment FindGraphQLTags on User { name }\`;
-      `,
-        ),
+        find('graphql`fragment FindGraphQLTags on User { name }`;'),
       ).toEqual([
         {
           tag: 'graphql',
@@ -373,11 +331,10 @@ describe('FindGraphQLTags', () => {
       expect(() =>
         find(
           `
-        // @providesModule FindGraphQLTags
-        createFragmentContainer(Foo, {
-          foo: graphql\`fragment FindGraphQLTags_notFoo on User { name }\`,
-        });
-      `,
+            createFragmentContainer(Foo, {
+              foo: graphql\`fragment FindGraphQLTags_notFoo on User { name }\`,
+            });
+          `,
         ),
       ).toThrow(
         'FindGraphQLTags: Container fragment names must be ' +
@@ -390,11 +347,10 @@ describe('FindGraphQLTags', () => {
       expect(
         find(
           `
-        // @providesModule FindGraphQLTags
-        createFragmentContainer(Foo, {
-          foo: graphql\`fragment FindGraphQLTags_foo on User { name }\`,
-        });
-      `,
+            createFragmentContainer(Foo, {
+              foo: graphql\`fragment FindGraphQLTags_foo on User { name }\`,
+            });
+          `,
         ),
       ).toEqual([
         {

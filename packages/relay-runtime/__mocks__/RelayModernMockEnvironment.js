@@ -57,10 +57,10 @@ function mockDisposableMethod(object, key) {
  *
  * - `compile(text: string): {[queryName]: Query}`: Create a query.
  * - `isLoading(query, variables): boolean`: Determine whether the given query
- *   are currently being loaded (not yet rejected/resolved).
+ *   is currently being loaded (not yet rejected/resolved).
  * - `reject(query, error: Error): void`: Reject a query that has been fetched
  *   by the environment.
- * - `resolve(query, paylaod: PayloadData): void`: Resolve a query that has been
+ * - `resolve(query, payload: PayloadData): void`: Resolve a query that has been
  *   fetched by the environment.
  * - `storeInspector: RelayRecordSourceInspector`: An instance of a store
  *   inspector that allows introspecting the state of the store at any time.

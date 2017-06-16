@@ -82,15 +82,11 @@ describe('findRelayQueryLeaves', () => {
       ),
     );
 
-    jasmine.addMatchers({
-      toMatchPendingNodeStates() {
+    expect.extend({
+      toMatchPendingNodeStates(actual, pendingNodeStates) {
+        expect(encode(actual)).toEqual(encode(pendingNodeStates));
         return {
-          compare(actual, pendingNodeStates) {
-            expect(encode(actual)).toEqual(encode(pendingNodeStates));
-            return {
-              pass: true,
-            };
-          },
+          pass: true,
         };
       },
     });

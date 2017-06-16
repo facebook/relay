@@ -54,16 +54,12 @@ describe('ReactRelayQueryRenderer', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    jasmine.addMatchers({
-      toBeRendered() {
-        return {
-          compare(readyState) {
-            const calls = render.mock.calls;
-            expect(calls.length).toBe(1);
-            expect(calls[0][0]).toEqual(readyState);
-            return {pass: true};
-          },
-        };
+    expect.extend({
+      toBeRendered(readyState) {
+        const calls = render.mock.calls;
+        expect(calls.length).toBe(1);
+        expect(calls[0][0]).toEqual(readyState);
+        return {pass: true};
       },
     });
 

@@ -30,14 +30,10 @@ describe('RelayFragmentPointer', () => {
     jest.resetModules();
 
     expect.extend(RelayTestUtils.matchers);
-    jasmine.addMatchers({
-      toEqualPointer() {
+    expect.extend({
+      toEqualPointer(actual, expected) {
         return {
-          compare(actual, expected) {
-            return {
-              pass: actual.equals(expected),
-            };
-          },
+          pass: actual.equals(expected),
         };
       },
     });

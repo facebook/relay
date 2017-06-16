@@ -54,27 +54,23 @@ describe('RelayPendingQueryTracker', () => {
     };
 
     expect.extend(RelayTestUtils.matchers);
-    jasmine.addMatchers({
-      toConsoleWarn() {
-        return {
-          compare(callback, expected) {
-            const consoleWarn = console.warn;
-            let pass = false;
-            console.warn = (...args) => {
-              if (
-                args.length === expected.length &&
-                args.every((arg, ii) => arg === expected[ii])
-              ) {
-                pass = true;
-              } else {
-                consoleWarn(...args);
-              }
-            };
-            callback();
-            console.warn = consoleWarn;
-            return {pass};
-          },
+    expect.extend({
+      toConsoleWarn(callback, expected) {
+        const consoleWarn = console.warn;
+        let pass = false;
+        console.warn = (...args) => {
+          if (
+            args.length === expected.length &&
+            args.every((arg, ii) => arg === expected[ii])
+          ) {
+            pass = true;
+          } else {
+            consoleWarn(...args);
+          }
         };
+        callback();
+        console.warn = consoleWarn;
+        return {pass};
       },
     });
   });

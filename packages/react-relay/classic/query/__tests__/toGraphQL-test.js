@@ -73,21 +73,17 @@ describe('toGraphQL', function() {
   beforeEach(function() {
     jest.resetModules();
 
-    jasmine.addMatchers({
-      toConvert() {
+    expect.extend({
+      toConvert(actual, query) {
+        // This filters out extraneous properties from `GraphQL.*` nodes
+        // such as `fields` or `fragments`, and reduces metadata down to
+        // compare only truthy values. Once the printer outputs plain values
+        // the filter step can be removed or simplified (might want to still
+        // filter metadata).
+        const expected = filterGraphQLNode(query);
+        expect(filterGraphQLNode(actual(getNode(query)))).toEqual(expected);
         return {
-          compare(actual, query) {
-            // This filters out extraneous properties from `GraphQL.*` nodes
-            // such as `fields` or `fragments`, and reduces metadata down to
-            // compare only truthy values. Once the printer outputs plain values
-            // the filter step can be removed or simplified (might want to still
-            // filter metadata).
-            const expected = filterGraphQLNode(query);
-            expect(filterGraphQLNode(actual(getNode(query)))).toEqual(expected);
-            return {
-              pass: true,
-            };
-          },
+          pass: true,
         };
       },
     });

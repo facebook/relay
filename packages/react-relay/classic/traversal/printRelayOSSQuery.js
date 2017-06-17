@@ -218,7 +218,7 @@ function printVariableDefinitions({variableMap}: PrinterState): string {
 }
 
 function printNonNullType(type: string): string {
-  if (type[type.length - 1] === '!') {
+  if (type.endsWith('!')) {
     return type;
   }
   return type + '!';

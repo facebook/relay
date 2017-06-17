@@ -26,7 +26,7 @@ function generateRelayClientID(
   if (index != null) {
     key += ':' + index;
   }
-  if (key.indexOf(PREFIX) !== 0) {
+  if (!key.startsWith(PREFIX)) {
     key = PREFIX + key;
   }
   return key;

@@ -38,6 +38,13 @@ function setRelayModernMutationConfigs(
   const configUpdates = updater ? [updater] : [];
   configs.forEach(config => {
     switch (config.type) {
+      case 'NODE_DELETE':
+        const nodeDeleteResult = nodeDelete(config, operation);
+        if (nodeDeleteResult) {
+          configOptimisticUpdates.push(nodeDeleteResult);
+          configUpdates.push(nodeDeleteResult);
+        }
+        break;
       case 'RANGE_ADD':
         const rangeAddResult = rangeAdd(config, operation);
         if (rangeAddResult) {
@@ -68,6 +75,34 @@ function setRelayModernMutationConfigs(
     });
   };
   return {optimisticUpdater, updater};
+}
+
+function nodeDelete(
+  config: RelayMutationConfig,
+  operation: ConcreteBatch,
+): ?SelectorStoreUpdater {
+  let updater;
+  if (config.type !== 'NODE_DELETE') {
+    return;
+  }
+  const {deletedIDFieldName} = config;
+  const rootField = getRootField(operation);
+  if (rootField) {
+    updater = (store: RecordSourceSelectorProxy, data: ?SelectorData) => {
+      const payload = store.getRootField(rootField);
+      if (!payload) {
+        return;
+      }
+      const deleteID = payload.getValue(deletedIDFieldName);
+      const deleteIDs = Array.isArray(deleteID) ? deleteID : [deleteID];
+      deleteIDs.forEach(id => {
+        if (id && typeof id === 'string') {
+          store.delete(id);
+        }
+      });
+    };
+  }
+  return updater;
 }
 
 function rangeAdd(

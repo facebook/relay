@@ -269,4 +269,6 @@ class RecordSummary {
   }
 }
 
+export type RecordSummaryType = RecordSummary;
+
 module.exports = RelayRecordSourceInspector;

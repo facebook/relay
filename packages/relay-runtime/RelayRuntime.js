@@ -93,4 +93,10 @@ if (__DEV__) {
   Object.assign((module.exports: Object), {
     RecordSourceInspector: RelayRecordSourceInspector,
   });
+
+  // Attach the debugger symbol to the global symbol so it can be accessed by
+  // devtools extension.
+  const RelayDebugger = require('RelayDebugger');
+  const g = typeof global !== 'undefined' ? global : window;
+  g.__RELAY_DEBUGGER__ = new RelayDebugger();
 }

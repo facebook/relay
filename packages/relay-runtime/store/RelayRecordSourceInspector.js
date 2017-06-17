@@ -71,7 +71,7 @@ class RelayRecordSourceInspector {
   getNodes(): Array<RecordSummary> {
     const nodes = [];
     this._source.getRecordIDs().forEach(dataID => {
-      if (dataID.startsWith('client:')) {
+      if (dataID.indexOf('client:') === 0) {
         return;
       }
       const record = this._source.get(dataID);

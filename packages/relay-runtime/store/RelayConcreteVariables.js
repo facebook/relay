@@ -82,7 +82,7 @@ function getOperationVariables(
     operationVariables[def.name] = value;
     if (__DEV__) {
       warning(
-        value != null || !def.type.endsWith('!'),
+        value != null || def.type[def.type.length - 1] !== '!',
         'RelayConcreteVariables: Expected a value for non-nullable variable ' +
           '`$%s: %s` on operation `%s`, got `%s`. Make sure you supply a ' +
           'value for all non-nullable arguments.',

@@ -106,7 +106,7 @@ const RelayRecord = {
   * that's understood by the server as well.
   */
   isClientID(dataID: string): boolean {
-    return dataID.startsWith('client:');
+    return dataID.indexOf('client:') === 0;
   },
 
   isMetadataKey(key: string): boolean {

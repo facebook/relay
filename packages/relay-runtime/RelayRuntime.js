@@ -42,10 +42,13 @@ if (__DEV__) {
     typeof Map !== 'function' ||
     typeof Set !== 'function' ||
     typeof Promise !== 'function' ||
-    typeof Object.assign !== 'function'
+    typeof Object.assign !== 'function' ||
+    typeof String.prototype.startsWith !== 'function' ||
+    typeof String.prototype.endsWith !== 'function'
   ) {
     throw new Error(
-      'relay-runtime requires Map, Set, Promise, and Object.assign to exist. ' +
+      'relay-runtime requires Map, Set, Promise, Object.assign, ' +
+        'String.prototype.startsWith/endsWith to exist. ' +
         'Use a polyfill to provide these for older browsers.',
     );
   }

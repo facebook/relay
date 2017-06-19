@@ -23,7 +23,6 @@ import type {
   CUnstableEnvironmentCore,
   Disposable,
   Record,
-  SelectorData,
 } from 'RelayCombinedEnvironmentTypes';
 import type {
   ConcreteBatch,
@@ -209,7 +208,6 @@ export interface RecordSourceSelectorProxy extends IRecordSource<RecordProxy> {
   getRoot(): RecordProxy,
   getRootField(fieldName: string): ?RecordProxy,
   getPluralRootField(fieldName: string): ?Array<?RecordProxy>,
-  getResponse(): ?Object,
 }
 
 export interface IRecordReader<TRecord> {
@@ -369,5 +367,7 @@ export type StoreUpdater = (store: RecordSourceProxy) => void;
  */
 export type SelectorStoreUpdater = (
   store: RecordSourceSelectorProxy,
-  data: ?SelectorData,
+  // Actually RelayCombinedEnvironmentTypes#SelectorData, but mixed is
+  // inconvenient to access deeply in product code.
+  data: $FlowFixMe,
 ) => void;

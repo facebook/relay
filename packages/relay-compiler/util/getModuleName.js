@@ -16,7 +16,11 @@
 const path = require('path');
 
 function getModuleName(filePath: string): string {
-  const filename = path.basename(filePath, path.extname(filePath));
+  let filename = path.basename(filePath, path.extname(filePath));
+  // handle resolution of *.js.flow files
+  if (filename.endsWith('.js')) {
+    filename = path.basename(filename, path.extname(filename));
+  }
   // /path/to/button/index.js -> button
   let moduleName = filename === 'index'
     ? path.basename(path.dirname(filePath))

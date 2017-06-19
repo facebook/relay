@@ -21,6 +21,7 @@ const getClassicTransformer = require('./getClassicTransformer');
  */
 function compileRelayQLTag(
   t,
+  path,
   schemaProvider,
   quasi,
   documentName,
@@ -38,7 +39,7 @@ function compileRelayQLTag(
       enableValidation,
     });
   } catch (error) {
-    return createTransformError(t, error, quasi, state);
+    throw path.buildCodeFrameError(createTransformError(error), Error);
   }
 }
 

@@ -1,4 +1,6 @@
-var Relay = require('react-relay');
-var x = function () {
-  throw new Error('GraphQL validation error ``Unknown type "NotAType". Did you mean "__Type"?`` in file `fragmentOnBadType.input.txt`. Try updating your GraphQL schema if an argument/field/type was recently added.');
-}();
+ERROR:
+
+Error: fragmentOnBadType.input.txt: GraphQL Validation Error: Unknown type "NotAType". Did you mean "__Type"?
+>
+> fragment FragmentOnBadTypeRelayQL on NotAType { id }
+>                                      ^^^

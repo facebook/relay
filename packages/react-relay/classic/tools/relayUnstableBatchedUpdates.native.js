@@ -14,4 +14,7 @@
 
 const ReactNative = require('ReactNative');
 
-module.exports = ReactNative.unstable_batchedUpdates;
+module.exports =
+  ReactNative.unstable_batchedUpdates ||
+  require('ReactNative/Libraries/Renderer/src/renderers/native/ReactNative')
+    .unstable_batchedUpdates;

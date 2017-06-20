@@ -37,6 +37,7 @@ const babelOptions = require('./scripts/getBabelOptions')({
     'React': 'react',
     'ReactDOM': 'react-dom',
     'ReactNative': 'react-native',
+    'ReactNative/Libraries/Renderer/src/renderers/native/ReactNative': 'react-native/Libraries/Renderer/src/renderers/native/ReactNative',
     'RelayRuntime': 'relay-runtime',
     'signedsource': 'signedsource',
     'StaticContainer.react': 'react-static-container',

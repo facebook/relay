@@ -104,11 +104,7 @@ class RelayMarkSweepStore implements Store {
   }
 
   lookup(selector: Selector): Snapshot {
-    const snapshot = RelayReader.read(
-      this._recordSource,
-      selector,
-      RelayModernRecord,
-    );
+    const snapshot = RelayReader.read(this._recordSource, selector);
     if (__DEV__) {
       deepFreeze(snapshot);
     }
@@ -151,11 +147,7 @@ class RelayMarkSweepStore implements Store {
     if (!hasOverlappingIDs(snapshot, this._updatedRecordIDs)) {
       return;
     }
-    const {data, seenRecords} = RelayReader.read(
-      this._recordSource,
-      snapshot,
-      RelayModernRecord,
-    );
+    const {data, seenRecords} = RelayReader.read(this._recordSource, snapshot);
     const nextData = recycleNodesInto(snapshot.data, data);
     const nextSnapshot = {
       ...snapshot,

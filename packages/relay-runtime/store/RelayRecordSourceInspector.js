@@ -209,7 +209,7 @@ class RecordInspector {
    */
   getValue(name: string, args?: ?Variables): mixed {
     const storageKey = args ? formatStorageKey(name, args) : name;
-    return RelayModernRecord.getValueByStorageKey(this._record, storageKey);
+    return RelayModernRecord.getValue(this._record, storageKey);
   }
 
   /**
@@ -219,7 +219,7 @@ class RecordInspector {
    */
   getLinkedRecord(name: string, args?: ?Variables): ?RecordInspector {
     const storageKey = args ? formatStorageKey(name, args) : name;
-    const linkedID = RelayModernRecord.getLinkedRecordIDByStorageKey(
+    const linkedID = RelayModernRecord.getLinkedRecordID(
       this._record,
       storageKey,
     );
@@ -233,7 +233,7 @@ class RecordInspector {
    */
   getLinkedRecords(name: string, args?: ?Variables): ?Array<?RecordInspector> {
     const storageKey = args ? formatStorageKey(name, args) : name;
-    const linkedIDs = RelayModernRecord.getLinkedRecordIDsByStorageKey(
+    const linkedIDs = RelayModernRecord.getLinkedRecordIDs(
       this._record,
       storageKey,
     );

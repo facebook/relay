@@ -263,10 +263,7 @@ class RelayAsyncLoader {
 
   _prepareScalar(field: ConcreteScalarField, record: Record): void {
     const storageKey = getStorageKey(field, this._variables);
-    const fieldValue = RelayModernRecord.getValueByStorageKey(
-      record,
-      storageKey,
-    );
+    const fieldValue = RelayModernRecord.getValue(record, storageKey);
     if (fieldValue === undefined) {
       this._handleMissing();
     }
@@ -274,10 +271,7 @@ class RelayAsyncLoader {
 
   _prepareLink(field: ConcreteLinkedField, record: Record): void {
     const storageKey = getStorageKey(field, this._variables);
-    const linkedID = RelayModernRecord.getLinkedRecordIDByStorageKey(
-      record,
-      storageKey,
-    );
+    const linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
 
     if (linkedID === undefined) {
       this._handleMissing();
@@ -288,10 +282,7 @@ class RelayAsyncLoader {
 
   _preparePluralLink(field: ConcreteLinkedField, record: Record): void {
     const storageKey = getStorageKey(field, this._variables);
-    const linkedIDs = RelayModernRecord.getLinkedRecordIDsByStorageKey(
-      record,
-      storageKey,
-    );
+    const linkedIDs = RelayModernRecord.getLinkedRecordIDs(record, storageKey);
 
     if (linkedIDs === undefined) {
       this._handleMissing();

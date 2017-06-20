@@ -13,12 +13,8 @@
 
 'use strict';
 
-const RelayRecordProxyReader = require('RelayRecordProxyReader');
-
 const invariant = require('invariant');
-const warning = require('warning');
 
-const {read} = require('RelayReader');
 const {getStorageKey} = require('RelayStoreUtils');
 
 import type {ConcreteLinkedField} from 'RelayConcreteNode';
@@ -99,18 +95,6 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
     const field = this._getRootField(this._readSelector, fieldName, true);
     const storageKey = getStorageKey(field, this._readSelector.variables);
     return this.getRoot().getLinkedRecords(storageKey);
-  }
-
-  getResponse(): ?Object {
-    warning(
-      false,
-      'RelayRecordSourceSelectorProxy.getResponse: This call is deprecated. ' +
-        'If you need need to access data from a mutation response, you ' +
-        'should use the mutation fragment data passed in as a second ' +
-        'argument to the mutation updater.',
-    );
-    const snapshot = read(this, this._readSelector, RelayRecordProxyReader);
-    return snapshot.data;
   }
 }
 

@@ -14,6 +14,7 @@
 
 const RelayNetwork = require('RelayNetwork');
 
+const invariant = require('invariant');
 const stableStringify = require('stableStringify');
 
 import {Environment, type Selector} from 'RelayStoreTypes';
@@ -110,8 +111,14 @@ const ReactRelayTestMocker = {
       environment.mock.resolveRawQuery(toResolve, payload);
       return null;
     } else {
+      invariant(
+        payload.hasOwnProperty('data') && !payload.hasOwnProperty('errors'),
+        'Only `data` can be written when a network query has not been made. ' +
+          'You may need to wrap your payload in an object like ' +
+          '`{data: payload}`.',
+      );
       const operationSelector = createOperationSelector(operation, variables);
-      environment.commitPayload(operationSelector, payload);
+      environment.commitPayload(operationSelector, payload.data);
       return operationSelector.fragment;
     }
   },
@@ -130,7 +137,7 @@ const ReactRelayTestMocker = {
         resolve = res;
         reject = rej;
       });
-      const ident = query.name + '_' + stableStringify(variables);
+      const ident = ReactRelayTestMocker.getIdentifier(query, variables);
       pendingFetches.push({
         ident,
         cacheConfig,

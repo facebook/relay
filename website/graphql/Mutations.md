@@ -5,8 +5,8 @@ Relay's support for mutations relies on the GraphQL server exposing
 mutation fields in a standardized way. These mutations accept and emit a
 identifier string, which allows Relay to track mutations and responses.
 
-All mutations include in their input a `clientMutationId` string, which is then
-returned as part of the object returned by the mutation field.
+All mutations may include in their input a `clientMutationId` string, which is
+then returned as part of the object returned by the mutation field.
 
 An example of this is the following query:
 
@@ -51,15 +51,15 @@ This section of the spec describes the formal requirements around mutations.
 
 In particular, all mutations must expose exactly one argument, named `input`.
 This argument's type must be a `NON_NULL` wrapper around an `INPUT_OBJECT`. That
-input object type must contain an argument named `clientMutationId`. That
-argument must be a `String`. That argument may be non-null.
+input object type may contain an argument named `clientMutationId`. If provided,
+that argument must be a `String`. That argument may be non-null.
 
 Clients may use whatever identifier they see fit for their `clientMutationId`s;
 Version 4 UUIDs are a reasonable choice.
 
 # Mutation fields
 
-The return type of any mutation field must be an object. That object must
+The return type of any mutation field must be an object. That object may
 contain a field named `clientMutationId` which is a `String`. If `input`
 `clientMutationId` is non-null, then mutation `clientMutationId` must also be
 non-null. The value of this field must be the value of the `clientMutationId`

@@ -97,6 +97,16 @@ describe('RelayDebugger', () => {
 
       const records5 = envDebugger.getMatchingRecords('scratch_type', 'type');
       expect(records5).toHaveLength(2);
+
+      const records6 = envDebugger.getMatchingRecords('scratch_type', 'idtype');
+      expect(records6).toHaveLength(2);
+    });
+
+    it('gets a single record by id', () => {
+      const record = envDebugger.getRecord('abcde333');
+      expect(record.fieldA).toBe('B');
+      expect(record.fieldB).toBe('B');
+      expect(record[ID_KEY]).toBe('abcde333');
     });
   });
 });

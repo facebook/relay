@@ -15,6 +15,7 @@
 
 const RelayRecordSourceInspector = require('RelayRecordSourceInspector');
 
+import type {DataID} from 'RelayInternalTypes';
 import type {RecordSummaryType} from 'RelayRecordSourceInspector';
 import type {Environment} from 'RelayStoreTypes';
 
@@ -70,10 +71,16 @@ class EnvironmentDebugger {
     );
 
     function isMatching(record: RecordSummaryType): boolean {
-      if (matchType === 'id' || matchType === 'idtype') {
+      if (matchType === 'idtype') {
+        return (
+          record.id.includes(matchStr) ||
+          (!!record.type && record.type.includes(matchStr))
+        );
+      }
+      if (matchType === 'id') {
         return record.id.includes(matchStr);
       }
-      if (matchType === 'type' || matchType === 'idtype') {
+      if (matchType === 'type') {
         return !!record.type && record.type.includes(matchStr);
       }
       if (matchType === 'predicate') {
@@ -88,6 +95,14 @@ class EnvironmentDebugger {
     }
 
     return inspector.getRecords().filter(isMatching);
+  }
+
+  getRecord(id: DataID) {
+    const inspector = RelayRecordSourceInspector.getForEnvironment(
+      this._environment,
+    );
+    const recordInspector = inspector.get(id);
+    return recordInspector && recordInspector.inspect();
   }
 }
 

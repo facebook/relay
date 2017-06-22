@@ -18,11 +18,13 @@ const getModuleName = require('getModuleName');
 
 test('getModuleName', () => {
   expect(getModuleName('/path/Button.js')).toBe('Button');
+  expect(getModuleName('/path/Button.js.flow')).toBe('Button');
   expect(getModuleName('/path/Slider.ios.js')).toBe('Slider');
   expect(getModuleName('/path/Typescript.ts')).toBe('Typescript');
 
   // This could be 'Button' instead
   expect(getModuleName('/path/button/index.js')).toBe('button');
+  expect(getModuleName('/path/button/index.js.flow')).toBe('button');
 
   // Maybe this should be FooBar to make it compatible with compat mode
   expect(getModuleName('/path/foo-bar/index.js')).toBe('foo_bar');

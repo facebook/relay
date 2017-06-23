@@ -15,14 +15,18 @@
 
 const RelayCodegenRunner = require('RelayCodegenRunner');
 const RelayCompiler = require('RelayCompiler');
+const RelayConsoleReporter = require('RelayConsoleReporter');
 const RelayFileIRParser = require('RelayFileIRParser');
 const RelayFileWriter = require('RelayFileWriter');
 const RelayIRTransforms = require('RelayIRTransforms');
+const RelayMultiReporter = require('RelayMultiReporter');
 
 module.exports = {
   Compiler: RelayCompiler,
+  ConsoleReporter: RelayConsoleReporter,
   FileIRParser: RelayFileIRParser,
   FileWriter: RelayFileWriter,
   IRTransforms: RelayIRTransforms,
+  MultiReporter: RelayMultiReporter,
   Runner: RelayCodegenRunner,
 };

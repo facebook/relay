@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule createClassicNode
+ * @flow
  * @format
  */
 
@@ -18,10 +19,19 @@ const compileRelayQLTag = require('./compileRelayQLTag');
 const getFragmentNameParts = require('./getFragmentNameParts');
 const invariant = require('./invariant');
 
+import typeof BabelTypes from 'babel-types';
+import type {BabelState} from './BabelPluginRelay';
+import type {DefinitionNode} from 'graphql';
+
 /**
  * Relay Classic transforms to inline generated content.
  */
-function createClassicNode(t, path, graphqlDefinition, state) {
+function createClassicNode(
+  t: BabelTypes,
+  path: any,
+  graphqlDefinition: DefinitionNode,
+  state: BabelState
+): void {
   if (graphqlDefinition.kind === 'FragmentDefinition') {
     return createFragmentConcreteNode(t, path, graphqlDefinition, state);
   }
@@ -65,6 +75,10 @@ function createFragmentConcreteNode(t, path, definition, state) {
 }
 
 function createOperationConcreteNode(t, path, definition, state) {
+  const definitionName = definition.name;
+  if (!definitionName) {
+    throw new Error('GraphQL operations must contain names');
+  }
   const {classicAST, fragments} = createClassicAST(t, definition);
   const substitutions = createSubstitutionsForFragmentSpreads(
     t,
@@ -80,7 +94,7 @@ function createOperationConcreteNode(t, path, definition, state) {
       t,
       definition.variableDefinitions,
     ),
-    name: t.stringLiteral(definition.name.value),
+    name: t.stringLiteral(definitionName.value),
     operation: t.stringLiteral(classicAST.operation),
     node: nodeAST,
   });
@@ -185,6 +199,9 @@ function createConcreteNode(t, transformedAST, substitutions, state) {
 }
 
 function createOperationArguments(t, variableDefinitions) {
+  if (!variableDefinitions) {
+    return t.arrayExpression([]);
+  }
   return t.arrayExpression(
     variableDefinitions.map(definition => {
       const name = definition.variable.name.value;

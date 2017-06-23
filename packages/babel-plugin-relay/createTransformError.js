@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule createTransformError
+ * @flow
  * @format
  */
 
@@ -20,7 +21,7 @@ const util = require('util');
  * In case of an error during transform, determine if it should be logged
  * to the console and/or printed in the source.
  */
-function createTransformError(error) {
+function createTransformError(error: any): string {
   if (error instanceof RelayTransformError) {
     return `Relay Transform Error: ${error.message}`;
   }

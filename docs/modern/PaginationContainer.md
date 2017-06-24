@@ -42,11 +42,12 @@ loadMore: (
 ) => ?Disposable,
 
 /**
- * Refetch the items in the connection.
+ * Refetch the items in the connection (with potentially new variables).
  */
 refetchConnection:(
   totalCount: number,
   callback: (error: ?Error) => void,
+  refetchVariables: ?Variables,
 ) => ?Disposable,
 ```
 

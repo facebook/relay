@@ -22,13 +22,13 @@ const {buildASTSchema, buildClientSchema} = require('graphql');
 import type {Validator} from './RelayQLTransformer';
 import type {GraphQLSchema} from 'graphql';
 
-type GraphQLSchemaProvider = (() => Object | string) | Object | string;
+export type GraphQLSchemaProvider = (() => Object | string) | Object | string;
 
 type ClassicTransformerOpts = {
-  inputArgumentName?: ?string,
-  snakeCase?: ?boolean,
-  substituteVariables?: ?boolean,
-  validator?: ?Validator<any>,
+  inputArgumentName?: string,
+  snakeCase?: boolean,
+  substituteVariables?: boolean,
+  validator?: Validator<any>,
 };
 
 /**

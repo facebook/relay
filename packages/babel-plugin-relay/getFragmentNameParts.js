@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule getFragmentNameParts
+ * @flow
  * @format
  */
 
@@ -18,7 +19,7 @@ const DEFAULT_PROP_NAME = 'data';
  * Matches a GraphQL fragment name pattern, extracting the data property key
  * from the name.
  */
-function getFragmentNameParts(fragmentName) {
+function getFragmentNameParts(fragmentName: string): [string, string] {
   const match = fragmentName.match(
     /^([a-zA-Z][a-zA-Z0-9]*)(?:_([a-zA-Z][_a-zA-Z0-9]*))?$/,
   );

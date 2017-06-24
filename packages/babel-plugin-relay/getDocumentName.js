@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule getDocumentName
+ * @flow
  * @format
  */
 
@@ -14,10 +15,12 @@
 
 const PROVIDES_MODULE = 'providesModule';
 
+import type {BabelState} from './BabelPluginRelay';
+
 /**
  * Given a path anywhere in a document, produce the name of that document.
  */
-function getDocumentName(path, state) {
+function getDocumentName(path: any, state: BabelState): string {
   let topPath = path;
   while (topPath.parentPath) {
     topPath = topPath.parentPath;
@@ -39,7 +42,7 @@ function getDocumentName(path, state) {
         }
       }
     }
-    const basename = state.file.opts.basename;
+    const basename = state.file && state.file.opts.basename;
     if (basename && !documentName) {
       const captures = basename.match(/^[_A-Za-z][_0-9A-Za-z]*/);
       if (captures) {

@@ -221,7 +221,7 @@ export interface Environment
    * Apply an optimistic update to the environment. The mutation can be reverted
    * by calling `dispose()` on the returned value.
    */
-  applyUpdate(updater: StoreUpdater): Disposable,
+  applyUpdate(optimisticUpdate: OptimisticUpdate): Disposable,
 
   /**
    * Determine if the selector can be resolved with data in the store (i.e. no
@@ -353,3 +353,17 @@ export type SelectorStoreUpdater = (
   // inconvenient to access deeply in product code.
   data: $FlowFixMe,
 ) => void;
+
+/**
+  * A set of configs that can be used to apply an optimistic update into the
+  * store.
+  */
+export type OptimisticUpdate =
+  | {|
+      storeUpdater: StoreUpdater,
+    |}
+  | {|
+      selectorStoreUpdater: ?SelectorStoreUpdater,
+      operation: OperationSelector,
+      response: ?Object,
+    |};

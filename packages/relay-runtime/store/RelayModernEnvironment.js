@@ -33,6 +33,7 @@ import type {
 import type {
   Environment,
   OperationSelector,
+  OptimisticUpdate,
   Selector,
   SelectorStoreUpdater,
   Snapshot,
@@ -73,8 +74,30 @@ class RelayModernEnvironment implements Environment {
     return this._store;
   }
 
-  applyUpdate(updater: StoreUpdater): Disposable {
-    const optimisticUpdate = {storeUpdater: updater};
+  applyUpdate(optimisticUpdate: OptimisticUpdate): Disposable {
+    const dispose = () => {
+      this._publishQueue.revertUpdate(optimisticUpdate);
+      this._publishQueue.run();
+    };
+    this._publishQueue.applyUpdate(optimisticUpdate);
+    this._publishQueue.run();
+    return {dispose};
+  }
+
+  applyMutation({
+    operation,
+    optimisticResponse,
+    optimisticUpdater,
+  }: {
+    operation: OperationSelector,
+    optimisticUpdater?: ?SelectorStoreUpdater,
+    optimisticResponse?: Object,
+  }): Disposable {
+    const optimisticUpdate = {
+      operation: operation,
+      selectorStoreUpdater: optimisticUpdater,
+      response: optimisticResponse || null,
+    };
     const dispose = () => {
       this._publishQueue.revertUpdate(optimisticUpdate);
       this._publishQueue.run();

@@ -23,6 +23,7 @@ const RelayNetwork = require('RelayNetwork');
 const RelayQueryResponseCache = require('RelayQueryResponseCache');
 const RelayViewerHandler = require('RelayViewerHandler');
 
+const applyRelayModernOptimisticMutation = require('applyRelayModernOptimisticMutation');
 const commitLocalUpdate = require('commitLocalUpdate');
 const commitRelayModernMutation = require('commitRelayModernMutation');
 const fetchRelayModernQuery = require('fetchRelayModernQuery');
@@ -79,6 +80,7 @@ module.exports = {
   ViewerHandler: RelayViewerHandler,
 
   // Helpers (can be implemented via the above API)
+  applyOptimisticMutation: applyRelayModernOptimisticMutation,
   commitLocalUpdate: commitLocalUpdate,
   commitMutation: commitRelayModernMutation,
   fetchQuery: fetchRelayModernQuery,

@@ -13,13 +13,14 @@
 'use strict';
 
 const Deferred = require('Deferred');
-const RelayModernEnvironment = require('RelayModernEnvironment');
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('RelayMarkSweepStore');
-const RelayNetwork = require('RelayNetwork');
-const {ROOT_ID} = require('RelayStoreUtils');
+const RelayModernEnvironment = require('RelayModernEnvironment');
 const RelayModernTestUtils = require('RelayModernTestUtils');
+const RelayNetwork = require('RelayNetwork');
+
 const {createOperationSelector} = require('RelayModernOperationSelector');
+const {ROOT_ID} = require('RelayStoreUtils');
 
 describe('RelayModernEnvironment', () => {
   const {generateAndCompile} = RelayModernTestUtils;
@@ -145,9 +146,11 @@ describe('RelayModernEnvironment', () => {
     let environment;
 
     function setName(id, name) {
-      environment.applyUpdate(store => {
-        const user = store.get(id);
-        user.setValue(name, 'name');
+      environment.applyUpdate({
+        storeUpdater: proxyStore => {
+          const user = proxyStore.get(id);
+          user.setValue(name, 'name');
+        },
       });
     }
 
@@ -309,10 +312,12 @@ describe('RelayModernEnvironment', () => {
       const snapshot = environment.lookup(selector);
       environment.subscribe(snapshot, callback);
 
-      environment.applyUpdate(store => {
-        const zuck = store.create('4', 'User');
-        zuck.setValue('4', 'id');
-        zuck.setValue('zuck', 'name');
+      environment.applyUpdate({
+        storeUpdater: proxyStore => {
+          const zuck = proxyStore.create('4', 'User');
+          zuck.setValue('4', 'id');
+          zuck.setValue('zuck', 'name');
+        },
       });
       expect(callback.mock.calls.length).toBe(1);
       expect(callback.mock.calls[0][0].data).toEqual({
@@ -331,9 +336,11 @@ describe('RelayModernEnvironment', () => {
       const snapshot = environment.lookup(selector);
       environment.subscribe(snapshot, callback);
 
-      const {dispose} = environment.applyUpdate(store => {
-        const zuck = store.create('4', 'User');
-        zuck.setValue('zuck', 'name');
+      const {dispose} = environment.applyUpdate({
+        storeUpdater: proxyStore => {
+          const zuck = proxyStore.create('4', 'User');
+          zuck.setValue('zuck', 'name');
+        },
       });
       callback.mockClear();
       dispose();
@@ -388,12 +395,14 @@ describe('RelayModernEnvironment', () => {
       const snapshot = environment.lookup(operationSelector.fragment);
       environment.subscribe(snapshot, callback);
 
-      environment.applyUpdate(store => {
-        const zuck = store.get('4');
-        if (zuck) {
-          const name = zuck.getValue('name');
-          zuck.setValue(name.toUpperCase(), 'name');
-        }
+      environment.applyUpdate({
+        storeUpdater: proxyStore => {
+          const zuck = proxyStore.get('4');
+          if (zuck) {
+            const name = zuck.getValue('name');
+            zuck.setValue(name.toUpperCase(), 'name');
+          }
+        },
       });
 
       environment.commitPayload(operationSelector, {

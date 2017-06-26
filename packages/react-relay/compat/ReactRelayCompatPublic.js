@@ -45,6 +45,7 @@ export type {
  */
 module.exports = {
   QueryRenderer: ReactRelayQueryRenderer,
+  applyOptimisticMutation: RelayCompatMutations.applyUpdate,
   commitMutation: RelayCompatMutations.commitUpdate,
   createFragmentContainer: (RelayCompatContainer.createContainer: $FlowFixMe),
   createPaginationContainer: (RelayCompatPaginationContainer.createContainer: $FlowFixMe),

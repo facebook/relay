@@ -465,6 +465,39 @@ describe('RelayModernFragmentSpecResolver', () => {
       });
     });
 
+    it('resolves fragment data when the item at the end of the array is removed', () => {
+      const resolver = new RelayModernFragmentSpecResolver(
+        context,
+        {user: UsersFragment},
+        {user: [zuck, beast]},
+        jest.fn(),
+      );
+
+      expect(resolver.resolve()).toEqual({
+        user: [
+          {
+            id: '4',
+            name: 'Zuck',
+          },
+          {
+            id: 'beast',
+            name: 'Beast',
+          },
+        ],
+      });
+
+      resolver.setProps({user: [zuck]});
+
+      expect(resolver.resolve()).toEqual({
+        user: [
+          {
+            id: '4',
+            name: 'Zuck',
+          },
+        ],
+      });
+    });
+
     it('disposes subscriptions', () => {
       const callback = jest.fn();
       const resolver = new RelayModernFragmentSpecResolver(

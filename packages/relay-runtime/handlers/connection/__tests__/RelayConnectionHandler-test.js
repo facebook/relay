@@ -88,6 +88,7 @@ describe('RelayConnectionHandler', () => {
           ... on User {
             friends(before: $before, after: $after, first: $count, orderby: $orderby)
             @__clientField(handle: "connection", filters: ["orderby"], key: "ConnectionQuery_friends") {
+              count
               edges {
                 cursor
                 node {
@@ -791,6 +792,9 @@ describe('RelayConnectionHandler', () => {
                 'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:edges:1',
               ],
             },
+            pageInfo: {
+              [REF_KEY]: 'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:pageInfo',
+            },
             __connection_next_edge_index: 2,
           },
           'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:edges:1': {
@@ -864,6 +868,9 @@ describe('RelayConnectionHandler', () => {
                 'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:edges:0',
               ],
             },
+            pageInfo: {
+              [REF_KEY]: 'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:pageInfo',
+            },
             __connection_next_edge_index: 2,
           },
           'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:edges:1': {
@@ -935,6 +942,9 @@ describe('RelayConnectionHandler', () => {
               [REFS_KEY]: [
                 'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:edges:1',
               ],
+            },
+            pageInfo: {
+              [REF_KEY]: 'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:pageInfo',
             },
             __connection_next_edge_index: 2,
           },
@@ -1009,6 +1019,9 @@ describe('RelayConnectionHandler', () => {
                 'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:edges:1',
               ],
             },
+            pageInfo: {
+              [REF_KEY]: 'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:pageInfo',
+            },
             __connection_next_edge_index: 2,
           },
           'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:edges:1': {
@@ -1082,6 +1095,9 @@ describe('RelayConnectionHandler', () => {
                 'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:edges:1',
               ],
             },
+            pageInfo: {
+              [REF_KEY]: 'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:pageInfo',
+            },
             __connection_next_edge_index: 2,
           },
           'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:edges:1': {
@@ -1146,6 +1162,9 @@ describe('RelayConnectionHandler', () => {
               [REFS_KEY]: [
                 'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:edges:0',
               ],
+            },
+            pageInfo: {
+              [REF_KEY]: 'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:pageInfo',
             },
           },
           'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:pageInfo': {
@@ -1219,6 +1238,9 @@ describe('RelayConnectionHandler', () => {
                 // '...edges:0' skipped bc of duplicate node id
                 'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:edges:2',
               ],
+            },
+            pageInfo: {
+              [REF_KEY]: 'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:pageInfo',
             },
             __connection_next_edge_index: 3,
           },
@@ -1306,6 +1328,9 @@ describe('RelayConnectionHandler', () => {
                 'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:edges:2',
               ],
             },
+            pageInfo: {
+              [REF_KEY]: 'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:pageInfo',
+            },
             __connection_next_edge_index: 3,
           },
           'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:edges:1': {
@@ -1384,8 +1409,15 @@ describe('RelayConnectionHandler', () => {
           'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}': {
             [ID_KEY]: 'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}',
             [TYPENAME_KEY]: 'FriendsConnection',
+            edges: {
+              [REFS_KEY]: [
+                'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:edges:0',
+              ],
+            },
+            pageInfo: {
+              [REF_KEY]: 'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:pageInfo',
+            },
             __connection_next_edge_index: 2,
-            // edges unchanged
           },
           'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:edges:1': {
             [ID_KEY]: 'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:edges:1',
@@ -1451,8 +1483,15 @@ describe('RelayConnectionHandler', () => {
           'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}': {
             [ID_KEY]: 'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}',
             [TYPENAME_KEY]: 'FriendsConnection',
+            edges: {
+              [REFS_KEY]: [
+                'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:edges:0',
+              ],
+            },
+            pageInfo: {
+              [REF_KEY]: 'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:pageInfo',
+            },
             __connection_next_edge_index: 2,
-            // edges unchanged
           },
           'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:edges:1': {
             [ID_KEY]: 'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:edges:1',
@@ -1461,6 +1500,83 @@ describe('RelayConnectionHandler', () => {
             node: {[REF_KEY]: '2'},
           },
           // page info unchanged
+        });
+      });
+      it('updates fields on connection', () => {
+        normalize(
+          {
+            node: {
+              id: '4',
+              __typename: 'User',
+              friends: {
+                count: 2,
+                edges: [
+                  {
+                    cursor: 'cursor:2',
+                    node: {
+                      id: '2',
+                    },
+                  },
+                ],
+                [PAGE_INFO]: {
+                  [END_CURSOR]: 'cursor:2',
+                  [HAS_NEXT_PAGE]: false,
+                  [HAS_PREV_PAGE]: false,
+                  [START_CURSOR]: 'cursor:2',
+                },
+              },
+            },
+          },
+          {
+            after: 'cursor:1',
+            before: null,
+            count: 10,
+            orderby: ['first name'],
+            id: '4',
+          },
+        );
+        const args = {after: 'cursor:1', first: 10, orderby: ['first name']};
+        const handleKey =
+          getRelayHandleKey(
+            'connection',
+            'ConnectionQuery_friends',
+            'friends',
+          ) + '{"orderby":["first name"]}';
+        const payload = {
+          args,
+          dataID: '4',
+          fieldKey: formatStorageKey('friends', args),
+          handleKey,
+        };
+        RelayConnectionHandler.update(proxy, payload);
+        expect(sinkData).toEqual({
+          'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}': {
+            [ID_KEY]: 'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}',
+            [TYPENAME_KEY]: 'FriendsConnection',
+            count: 2,
+            edges: {
+              [REFS_KEY]: [
+                'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:edges:0',
+                'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:edges:1',
+              ],
+            },
+            pageInfo: {
+              [REF_KEY]: 'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:pageInfo',
+            },
+            __connection_next_edge_index: 2,
+          },
+          'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:edges:1': {
+            [ID_KEY]: 'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:edges:1',
+            [TYPENAME_KEY]: 'FriendsEdge',
+            cursor: 'cursor:2',
+            node: {[REF_KEY]: '2'},
+          },
+          'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:pageInfo': {
+            [ID_KEY]: 'client:4:__ConnectionQuery_friends_connection{"orderby":["first name"]}:pageInfo',
+            [TYPENAME_KEY]: 'PageInfo',
+            [END_CURSOR]: 'cursor:2',
+            [HAS_NEXT_PAGE]: false,
+          },
         });
       });
     });

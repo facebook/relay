@@ -105,6 +105,7 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
   } else {
     const connection = clientConnection;
     // Subsequent fetches:
+    // - updated fields on the connection
     // - merge prev/next edges, de-duplicating by node id
     // - synthesize page info fields
     let serverEdges = serverConnection.getLinkedRecords(EDGES);
@@ -114,6 +115,16 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
       );
     }
     const prevEdges = connection.getLinkedRecords(EDGES);
+    const prevPageInfo = connection.getLinkedRecord(PAGE_INFO);
+    connection.copyFieldsFrom(serverConnection);
+    // Reset EDGES and PAGE_INFO fields
+    if (prevEdges) {
+      connection.setLinkedRecords(prevEdges, EDGES);
+    }
+    if (prevPageInfo) {
+      connection.setLinkedRecord(prevPageInfo, PAGE_INFO);
+    }
+
     let nextEdges = [];
     const args = payload.args;
     if (prevEdges && serverEdges) {
@@ -164,29 +175,30 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
     } else {
       nextEdges = prevEdges;
     }
-    // Update edges and page info only if edges were updated, the null check is
+    // Update edges only if they were updated, the null check is
     // for Flow (prevEdges could be null).
     if (nextEdges != null && nextEdges !== prevEdges) {
       connection.setLinkedRecords(nextEdges, EDGES);
-      if (clientPageInfo && serverPageInfo) {
-        if (args.before != null || (args.after == null && args.last)) {
-          clientPageInfo.setValue(
-            !!serverPageInfo.getValue(HAS_PREV_PAGE),
-            HAS_PREV_PAGE,
-          );
-          const startCursor = serverPageInfo.getValue(START_CURSOR);
-          if (typeof startCursor === 'string') {
-            clientPageInfo.setValue(startCursor, START_CURSOR);
-          }
-        } else if (args.after != null || (args.before == null && args.first)) {
-          clientPageInfo.setValue(
-            !!serverPageInfo.getValue(HAS_NEXT_PAGE),
-            HAS_NEXT_PAGE,
-          );
-          const endCursor = serverPageInfo.getValue(END_CURSOR);
-          if (typeof endCursor === 'string') {
-            clientPageInfo.setValue(endCursor, END_CURSOR);
-          }
+    }
+    // Page info should be updated even if no new edge were returned.
+    if (clientPageInfo && serverPageInfo) {
+      if (args.before != null || (args.after == null && args.last)) {
+        clientPageInfo.setValue(
+          !!serverPageInfo.getValue(HAS_PREV_PAGE),
+          HAS_PREV_PAGE,
+        );
+        const startCursor = serverPageInfo.getValue(START_CURSOR);
+        if (typeof startCursor === 'string') {
+          clientPageInfo.setValue(startCursor, START_CURSOR);
+        }
+      } else if (args.after != null || (args.before == null && args.first)) {
+        clientPageInfo.setValue(
+          !!serverPageInfo.getValue(HAS_NEXT_PAGE),
+          HAS_NEXT_PAGE,
+        );
+        const endCursor = serverPageInfo.getValue(END_CURSOR);
+        if (typeof endCursor === 'string') {
+          clientPageInfo.setValue(endCursor, END_CURSOR);
         }
       }
     }

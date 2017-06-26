@@ -191,12 +191,11 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
     field.name,
   );
   const postfix = `${field.alias || field.name}`;
-  // TODO: t16785208 Change error message to point to OSS doc once ready.
   invariant(
     key.endsWith('_' + postfix),
     'RelayConnectionTransform: Expected the %s argument to @%s to ' +
       'be of form <SomeName>_%s, but get %s. For detailed explanation, check out the dex page ' +
-      'https://fburl.com/oillie0v',
+      'https://facebook.github.io/relay/docs/pagination-container.html#connection-directive',
     KEY,
     CONNECTION,
     postfix,

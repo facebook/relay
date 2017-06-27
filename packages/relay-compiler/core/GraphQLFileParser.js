@@ -19,11 +19,12 @@ const GraphQL = require('graphql');
 const fs = require('fs');
 const path = require('path');
 
+import type {File} from 'RelayCodegenTypes';
 import type {DocumentNode} from 'graphql';
 
-function parseFile(file: string): ?DocumentNode {
-  const text = fs.readFileSync(file, 'utf8');
-  const moduleName = path.basename(file, '.graphql');
+function parseFile(baseDir: string, file: File): ?DocumentNode {
+  const text = fs.readFileSync(path.join(baseDir, file.relPath), 'utf8');
+  const moduleName = path.basename(file.relPath, '.graphql');
 
   let ast;
   try {

@@ -21,6 +21,7 @@ const {Map: ImmutableMap} = require('immutable');
 
 import type CodegenDirectory from 'CodegenDirectory';
 import type FileParser from 'FileParser';
+import type {File} from 'RelayCodegenTypes';
 import type {FileFilter, WatchmanExpression} from 'RelayCodegenWatcher';
 import type {RelayReporter} from 'RelayReporter';
 import type {DocumentNode, GraphQLSchema} from 'graphql';
@@ -154,7 +155,7 @@ class RelayCodegenRunner {
     this.parseFileChanges(parserName, files);
   }
 
-  parseFileChanges(parserName: string, files: Set<string>): void {
+  parseFileChanges(parserName: string, files: Set<File>): void {
     const tStart = Date.now();
     const parser = this.parsers[parserName];
     // this maybe should be await parser.parseFiles(files);
@@ -287,7 +288,7 @@ class RelayCodegenRunner {
   }
 }
 
-function anyFileFilter(filename: string): boolean {
+function anyFileFilter(file: File): boolean {
   return true;
 }
 

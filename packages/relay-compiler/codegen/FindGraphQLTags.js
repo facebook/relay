@@ -14,11 +14,12 @@
 'use strict';
 
 const babylon = require('babylon');
-const crypto = require('crypto');
 const getModuleName = require('getModuleName');
 const graphql = require('graphql');
 const path = require('path');
 const util = require('util');
+
+import type {File} from 'RelayCodegenTypes';
 
 // Attempt to be as inclusive as possible of source text.
 const BABYLON_OPTIONS = {
@@ -146,17 +147,14 @@ function find(
 const cache = {};
 function memoizedFind(
   text: string,
-  filePath: string,
+  baseDir: string,
+  file: File,
 ): Array<{tag: string, template: string}> {
-  const hash = crypto
-    .createHash('md5')
-    .update(filePath)
-    .update(text)
-    .digest('hex');
-  let result = cache[hash];
+  const absPath = path.join(baseDir, file.relPath);
+  let result = cache[file.hash];
   if (!result) {
-    result = find(text, filePath);
-    cache[hash] = result;
+    result = find(text, absPath);
+    cache[file.hash] = result;
   }
   return result;
 }

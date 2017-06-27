@@ -13,13 +13,12 @@
 
 'use strict';
 
-const path = require('path');
-
 const {Map: ImmutableMap} = require('immutable');
 
+import type {File} from 'RelayCodegenTypes';
 import type {DocumentNode} from 'graphql';
 
-type ParseFn = (file: string) => ?DocumentNode;
+type ParseFn = (baseDir: string, file: File) => ?DocumentNode;
 
 class FileParser {
   _documents: Map<string, DocumentNode> = new Map();
@@ -38,26 +37,25 @@ class FileParser {
   }
 
   // parse should return the set of changes
-  parseFiles(files: Set<string>): ImmutableMap<string, DocumentNode> {
+  parseFiles(files: Set<File>): ImmutableMap<string, DocumentNode> {
     let documents = ImmutableMap();
 
     files.forEach(file => {
       const doc = (() => {
-        const filePath = path.join(this._baseDir, file);
         try {
-          return this._parse(filePath);
+          return this._parse(this._baseDir, file);
         } catch (error) {
-          throw new Error(`Parse error: ${error} in "${filePath}"`);
+          throw new Error(`Parse error: ${error} in "${file.relPath}"`);
         }
       })();
 
       if (!doc) {
-        this._documents.delete(file);
+        this._documents.delete(file.relPath);
         return;
       }
 
-      documents = documents.set(file, doc);
-      this._documents.set(file, doc);
+      documents = documents.set(file.relPath, doc);
+      this._documents.set(file.relPath, doc);
     });
 
     return documents;

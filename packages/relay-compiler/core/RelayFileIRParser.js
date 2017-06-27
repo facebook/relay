@@ -21,12 +21,13 @@ const fs = require('fs');
 const invariant = require('invariant');
 const path = require('path');
 
+import type {File} from 'RelayCodegenTypes';
 import type {FileFilter} from 'RelayCodegenWatcher';
 import type {DocumentNode} from 'graphql';
 
 // Throws an error if parsing the file fails
-function parseFile(file: string): ?DocumentNode {
-  const text = fs.readFileSync(file, 'utf8');
+function parseFile(baseDir: string, file: File): ?DocumentNode {
+  const text = fs.readFileSync(path.join(baseDir, file.relPath), 'utf8');
 
   invariant(
     text.indexOf('graphql') >= 0,
@@ -36,10 +37,14 @@ function parseFile(file: string): ?DocumentNode {
   );
 
   const astDefinitions = [];
-  FindGraphQLTags.memoizedFind(text, file).forEach(({tag, template}) => {
+  FindGraphQLTags.memoizedFind(
+    text,
+    baseDir,
+    file,
+  ).forEach(({tag, template}) => {
     if (!(tag === 'graphql' || tag === 'graphql.experimental')) {
       throw new Error(
-        `Invalid tag ${tag} in ${file}. ` +
+        `Invalid tag ${tag} in ${file.relPath}. ` +
           'Expected graphql`` (common case) or ' +
           'graphql.experimental`` (if using experimental directives).',
       );
@@ -55,7 +60,7 @@ function parseFile(file: string): ?DocumentNode {
           template,
       );
     }
-    const ast = GraphQL.parse(new GraphQL.Source(template, file));
+    const ast = GraphQL.parse(new GraphQL.Source(template, file.relPath));
     invariant(
       ast.definitions.length,
       'RelayFileIRParser: Expected GraphQL text to contain at least one ' +
@@ -80,8 +85,8 @@ function getParser(baseDir: string): FileParser {
 }
 
 function getFileFilter(baseDir: string): FileFilter {
-  return (filename: string) => {
-    const text = fs.readFileSync(path.join(baseDir, filename), 'utf8');
+  return (file: File) => {
+    const text = fs.readFileSync(path.join(baseDir, file.relPath), 'utf8');
     return text.indexOf('graphql') >= 0;
   };
 }

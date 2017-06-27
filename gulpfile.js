@@ -33,6 +33,7 @@ const babelOptions = require('./scripts/getBabelOptions')({
     'graphql': 'graphql',
     'immutable': 'immutable',
     'net': 'net',
+    'os': 'os',
     'path': 'path',
     'process': 'process',
     'prop-types': 'prop-types',

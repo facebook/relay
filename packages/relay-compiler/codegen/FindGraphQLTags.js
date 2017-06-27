@@ -13,6 +13,8 @@
 
 'use strict';
 
+const RelayCompilerCache = require('RelayCompilerCache');
+
 const babylon = require('babylon');
 const getModuleName = require('getModuleName');
 const graphql = require('graphql');
@@ -144,19 +146,17 @@ function find(
   return result;
 }
 
-const cache = {};
+const cache = new RelayCompilerCache('FindGraphQLTags', 'v1');
+
 function memoizedFind(
   text: string,
   baseDir: string,
   file: File,
 ): Array<{tag: string, template: string}> {
-  const absPath = path.join(baseDir, file.relPath);
-  let result = cache[file.hash];
-  if (!result) {
-    result = find(text, absPath);
-    cache[file.hash] = result;
-  }
-  return result;
+  return cache.getOrCompute(file.hash, () => {
+    const absPath = path.join(baseDir, file.relPath);
+    return find(text, absPath);
+  });
 }
 
 const CREATE_CONTAINER_FUNCTIONS = {

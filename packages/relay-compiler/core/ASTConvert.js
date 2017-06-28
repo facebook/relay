@@ -13,7 +13,6 @@
 
 'use strict';
 
-const GraphQL = require('graphql');
 const RelayParser = require('RelayParser');
 const RelayValidator = require('RelayValidator');
 
@@ -21,7 +20,7 @@ const {
   isOperationDefinitionAST,
   isSchemaDefinitionAST,
 } = require('RelaySchemaUtils');
-const {extendSchema, visit} = require('graphql');
+const {extendSchema, parse, visit} = require('graphql');
 
 import type {Fragment, Root} from 'RelayIR';
 import type {
@@ -146,7 +145,7 @@ function transformASTSchema(
   schemaExtensions: Array<string>,
 ): GraphQLSchema {
   return schemaExtensions.length > 0
-    ? GraphQL.extendSchema(schema, GraphQL.parse(schemaExtensions.join('\n')))
+    ? extendSchema(schema, parse(schemaExtensions.join('\n')))
     : schema;
 }
 

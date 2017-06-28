@@ -13,13 +13,14 @@
 
 'use strict';
 
-const GraphQL = require('graphql');
 const RelayIRVisitor = require('RelayIRVisitor');
 const RelaySchemaUtils = require('RelaySchemaUtils');
 
 const formatStorageKey = require('formatStorageKey');
 const invariant = require('invariant');
 const prettyStringify = require('prettyStringify');
+
+const {GraphQLList} = require('graphql');
 
 import type {
   ConcreteArgument,
@@ -29,8 +30,6 @@ import type {
   ConcreteSelection,
 } from 'RelayConcreteNode';
 import type {Fragment, Root} from 'RelayIR';
-
-const {GraphQLList} = GraphQL;
 const {getRawType, isAbstractType, getNullableType} = RelaySchemaUtils;
 
 /* eslint-disable no-redeclare */

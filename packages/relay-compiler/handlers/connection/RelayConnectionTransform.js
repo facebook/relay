@@ -13,7 +13,6 @@
 
 'use strict';
 
-const GraphQL = require('graphql');
 const RelayCompilerContext = require('RelayCompilerContext');
 const RelayIRTransformer = require('RelayIRTransformer');
 const RelayParser = require('RelayParser');
@@ -34,6 +33,15 @@ const {
   START_CURSOR,
   isConnectionCall,
 } = require('RelayConnectionInterface');
+const {
+  assertCompositeType,
+  GraphQLInterfaceType,
+  GraphQLList,
+  GraphQLObjectType,
+  GraphQLScalarType,
+  GraphQLUnionType,
+  parse,
+} = require('graphql');
 
 import type {ConnectionMetadata} from 'RelayConnectionHandler';
 import type {
@@ -44,15 +52,6 @@ import type {
   Root,
 } from 'RelayIR';
 import type {GraphQLType} from 'graphql';
-
-const {
-  assertCompositeType,
-  GraphQLInterfaceType,
-  GraphQLList,
-  GraphQLObjectType,
-  GraphQLScalarType,
-  GraphQLUnionType,
-} = GraphQL;
 
 type Options = {
   // The current path
@@ -252,7 +251,7 @@ function generateConnectionFragment(
   const compositeType = assertCompositeType(
     RelaySchemaUtils.getNullableType((type: $FlowFixMe)),
   );
-  const ast = GraphQL.parse(
+  const ast = parse(
     `
     fragment ConnectionFragment on ${String(compositeType)} {
       ${EDGES} {

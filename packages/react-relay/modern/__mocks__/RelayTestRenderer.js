@@ -88,8 +88,8 @@ class RelayTestRenderer extends React.Component {
   getChildContext() {
     return {
       relay: {
-        environment: this.props.environment ||
-          this.props.children.props.environment,
+        environment:
+          this.props.environment || this.props.children.props.environment,
         variables: this.props.variables || this.props.children.props.variables,
       },
     };

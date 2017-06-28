@@ -224,9 +224,10 @@ const RelayProfiler = {
     const hasCatchAllHandlers = profileHandlersByName['*'].length > 0;
     const hasNamedHandlers = profileHandlersByName.hasOwnProperty(name);
     if (hasNamedHandlers || hasCatchAllHandlers) {
-      const profileHandlers = hasNamedHandlers && hasCatchAllHandlers
-        ? profileHandlersByName[name].concat(profileHandlersByName['*'])
-        : hasNamedHandlers
+      const profileHandlers =
+        hasNamedHandlers && hasCatchAllHandlers
+          ? profileHandlersByName[name].concat(profileHandlersByName['*'])
+          : hasNamedHandlers
             ? profileHandlersByName[name]
             : profileHandlersByName['*'];
       let stopHandlers;

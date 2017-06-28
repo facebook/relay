@@ -86,9 +86,10 @@ function createOperationConcreteNode(t, path, definition, state) {
     path,
     fragments,
   );
-  const nodeAST = classicAST.operation === 'query'
-    ? createFragmentForOperation(t, path, classicAST, state)
-    : createRelayQLTemplate(t, path, classicAST, state);
+  const nodeAST =
+    classicAST.operation === 'query'
+      ? createFragmentForOperation(t, path, classicAST, state)
+      : createRelayQLTemplate(t, path, classicAST, state);
   const transformedAST = createObject(t, {
     kind: t.stringLiteral('OperationDefinition'),
     argumentDefinitions: createOperationArguments(

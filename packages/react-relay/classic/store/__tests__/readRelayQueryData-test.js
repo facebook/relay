@@ -1817,7 +1817,8 @@ describe('readRelayQueryData', () => {
             } else {
               return {
                 pass: false,
-                message: 'Expected record to have partial status, but it does ' +
+                message:
+                  'Expected record to have partial status, but it does ' +
                   'not:\n' +
                   JSON.stringify(record, null, 2),
               };
@@ -1825,7 +1826,8 @@ describe('readRelayQueryData', () => {
           } else {
             return {
               pass: false,
-              message: 'Expected a record to have partial status, but the ' +
+              message:
+                'Expected a record to have partial status, but the ' +
                 'supplied value is not a valid record: ' +
                 record,
             };

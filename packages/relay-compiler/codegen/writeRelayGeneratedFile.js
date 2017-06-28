@@ -45,9 +45,8 @@ async function writeRelayGeneratedFile(
   const moduleName = generatedNode.name + '.graphql';
   const platformName = platform ? moduleName + '.' + platform : moduleName;
   const filename = platformName + '.js';
-  const flowTypeName = generatedNode.kind === 'Batch'
-    ? 'ConcreteBatch'
-    : 'ConcreteFragment';
+  const flowTypeName =
+    generatedNode.kind === 'Batch' ? 'ConcreteBatch' : 'ConcreteFragment';
 
   let text = null;
   let hash = null;

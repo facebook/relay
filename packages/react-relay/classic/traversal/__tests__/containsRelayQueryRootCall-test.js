@@ -32,7 +32,8 @@ describe('containsRelayQueryRootCall', function() {
         const notText = pass ? 'not ' : '';
         return {
           pass,
-          message: 'Expected `' +
+          message:
+            'Expected `' +
             thisQuery +
             '` ' +
             notText +

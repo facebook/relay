@@ -450,9 +450,10 @@ const RelayMutationQuery = {
           children.push(nodeDeletion);
           /* eslint-disable no-console */
           if (__DEV__ && console.groupCollapsed && console.groupEnd) {
-            const configType = config === RelayMutationType.RANGE_DELETE
-              ? 'RANGE_DELETE'
-              : 'NODE_DELETE';
+            const configType =
+              config === RelayMutationType.RANGE_DELETE
+                ? 'RANGE_DELETE'
+                : 'NODE_DELETE';
             console.groupCollapsed(configType);
 
             const RelayMutationDebugPrinter = require('RelayMutationDebugPrinter');
@@ -661,8 +662,8 @@ function sanitizeRangeBehaviors(
       unsortedKeys.length === 1
         ? unsortedKeys[0]
         : unsortedKeys.length === 2
-            ? `${unsortedKeys[0]}\` and \`${unsortedKeys[1]}`
-            : unsortedKeys.slice(0, -1).join('`, `'),
+          ? `${unsortedKeys[0]}\` and \`${unsortedKeys[1]}`
+          : unsortedKeys.slice(0, -1).join('`, `'),
       unsortedKeys.length > 2 ? `, and \`${unsortedKeys.slice(-1)}\`` : '',
     );
   }

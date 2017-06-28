@@ -219,9 +219,10 @@ function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
       const {environment, variables: rootVariables} = assertRelayContext(
         this.context.relay,
       );
-      let fetchVariables = typeof refetchVariables === 'function'
-        ? refetchVariables(this._getFragmentVariables())
-        : refetchVariables;
+      let fetchVariables =
+        typeof refetchVariables === 'function'
+          ? refetchVariables(this._getFragmentVariables())
+          : refetchVariables;
       fetchVariables = {...rootVariables, ...fetchVariables};
       const fragmentVariables = renderVariables
         ? {...rootVariables, ...renderVariables}

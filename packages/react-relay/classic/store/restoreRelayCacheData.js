@@ -171,9 +171,8 @@ class RelayCachedDataRestorator extends RelayCacheProcessor<NodeState> {
       return;
     }
     const storageKey = query.getStorageKey();
-    this._cachedRootCallMap[storageKey] = this._cachedRootCallMap[
-      storageKey
-    ] || {};
+    this._cachedRootCallMap[storageKey] =
+      this._cachedRootCallMap[storageKey] || {};
     this._cachedRootCallMap[storageKey][identifyingArgKey || ''] = dataID;
     nextState.dataID = dataID;
   }
@@ -269,7 +268,8 @@ class RelayCachedDataRestorator extends RelayCacheProcessor<NodeState> {
 }
 
 RelayProfiler.instrumentMethods(RelayCachedDataRestorator.prototype, {
-  handleIdentifiedRootVisited: 'RelayCachedDataRestorator.handleIdentifiedRootVisited',
+  handleIdentifiedRootVisited:
+    'RelayCachedDataRestorator.handleIdentifiedRootVisited',
   handleNodeVisited: 'RelayCachedDataRestorator.handleNodeVisited',
   queueIdentifiedRoot: 'RelayCachedDataRestorator.queueRoot',
   queueNode: 'RelayCachedDataRestorator.queueNode',

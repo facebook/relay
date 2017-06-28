@@ -292,9 +292,11 @@ describe('RelayResponseNormalizer', () => {
     expect(handleFieldPayloads[0]).toEqual({
       args: {first: 1, orderby: ['last name'], isViewerFriend: true},
       dataID: '4',
-      fieldKey: 'friends{"first":1,"isViewerFriend":true,"orderby":["last name"]}',
+      fieldKey:
+        'friends{"first":1,"isViewerFriend":true,"orderby":["last name"]}',
       handle: 'bestFriends',
-      handleKey: '__UserFriends_friends_bestFriends{"isViewerFriend":true,"orderby":["last name"]}',
+      handleKey:
+        '__UserFriends_friends_bestFriends{"isViewerFriend":true,"orderby":["last name"]}',
     });
 
     const payload2 = {
@@ -328,9 +330,11 @@ describe('RelayResponseNormalizer', () => {
     expect(handleFieldPayloads[0]).toEqual({
       args: {first: 1, orderby: ['first name'], isViewerFriend: true},
       dataID: '4',
-      fieldKey: 'friends{"first":1,"isViewerFriend":true,"orderby":["first name"]}',
+      fieldKey:
+        'friends{"first":1,"isViewerFriend":true,"orderby":["first name"]}',
       handle: 'bestFriends',
-      handleKey: '__UserFriends_friends_bestFriends{"isViewerFriend":true,"orderby":["first name"]}',
+      handleKey:
+        '__UserFriends_friends_bestFriends{"isViewerFriend":true,"orderby":["first name"]}',
     });
   });
 

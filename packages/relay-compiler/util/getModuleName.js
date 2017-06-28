@@ -18,9 +18,8 @@ const path = require('path');
 function getModuleName(filePath: string): string {
   const filename = path.basename(filePath, path.extname(filePath));
   // /path/to/button/index.js -> button
-  let moduleName = filename === 'index'
-    ? path.basename(path.dirname(filePath))
-    : filename;
+  let moduleName =
+    filename === 'index' ? path.basename(path.dirname(filePath)) : filename;
 
   // Example.ios -> Example
   // Example.product.android -> Example

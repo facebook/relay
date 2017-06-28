@@ -37,20 +37,17 @@ describe('printRelayOSSQuery', () => {
       const query = getNode(
         getClassicOperation(
           graphql`
-        query printRelayOSSQuery(
-          $taskNumber: Int,
-          $id: ID!,
-        ) {
-          user: node(id: $id) {
-            ... on User {
-              name
+            query printRelayOSSQuery($taskNumber: Int, $id: ID!) {
+              user: node(id: $id) {
+                ... on User {
+                  name
+                }
+              }
+              activeTask: task(number: $taskNumber) {
+                title
+              }
             }
-          }
-          activeTask: task(number: $taskNumber) {
-            title
-          }
-        }
-      `,
+          `,
         ),
         {
           id: '842472',
@@ -87,14 +84,14 @@ describe('printRelayOSSQuery', () => {
       const query = getNode(
         getClassicOperation(
           graphql`
-        query printRelayOSSQuery($cond: Boolean!) {
-          viewer {
-            actor @include(if: $cond) {
-              name
+            query printRelayOSSQuery($cond: Boolean!) {
+              viewer {
+                actor @include(if: $cond) {
+                  name
+                }
+              }
             }
-          }
-        }
-      `,
+          `,
         ),
         {
           cond: false,
@@ -115,21 +112,21 @@ describe('printRelayOSSQuery', () => {
       const query = getNode(
         getClassicOperation(
           graphql`
-        query printRelayOSSQuery($cond: Boolean!, $id: ID!) {
-          node(id: $id) {
-            ... on User {
-              name
+            query printRelayOSSQuery($cond: Boolean!, $id: ID!) {
+              node(id: $id) {
+                ... on User {
+                  name
+                }
+              }
+              # viewer is empty once directives are accounted for,
+              # is skipped in output
+              viewer {
+                actor @include(if: $cond) {
+                  name
+                }
+              }
             }
-          }
-          # viewer is empty once directives are accounted for,
-          # is skipped in output
-          viewer {
-            actor @include(if: $cond) {
-              name
-            }
-          }
-        }
-      `,
+          `,
         ),
         {
           cond: false,

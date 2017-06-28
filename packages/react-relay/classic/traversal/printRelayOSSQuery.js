@@ -165,9 +165,8 @@ function printOperation(
   node: RelayQuery.Operation,
   printerState: PrinterState,
 ): string {
-  const operationKind = node instanceof RelayQuery.Mutation
-    ? 'mutation'
-    : 'subscription';
+  const operationKind =
+    node instanceof RelayQuery.Mutation ? 'mutation' : 'subscription';
   const call = node.getCall();
   const inputString = printArgument(
     node.getCallVariableName(),

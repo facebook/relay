@@ -56,12 +56,12 @@ function getClassicTransformer(
 }
 
 function getSchema(schemaProvider: GraphQLSchemaProvider): GraphQLSchema {
-  const schemaReference = typeof schemaProvider === 'function'
-    ? schemaProvider()
-    : schemaProvider;
-  const introspection = typeof schemaReference === 'string'
-    ? getSchemaIntrospection(schemaReference)
-    : schemaReference;
+  const schemaReference =
+    typeof schemaProvider === 'function' ? schemaProvider() : schemaProvider;
+  const introspection =
+    typeof schemaReference === 'string'
+      ? getSchemaIntrospection(schemaReference)
+      : schemaReference;
   if (introspection.__schema) {
     return buildClientSchema((introspection: any));
   } else if (introspection.data && introspection.data.__schema) {

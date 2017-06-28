@@ -81,7 +81,9 @@ function printSelections(
     printSelection(selection, indent, parentCondition),
   );
   return printed.length
-    ? ` {\n${indent + INDENT}${printed.join('\n' + indent + INDENT)}\n${indent}}`
+    ? ` {\n${indent + INDENT}${printed.join(
+        '\n' + indent + INDENT,
+      )}\n${indent}}`
     : '';
 }
 
@@ -186,12 +188,12 @@ function printHandles(field: Field): string {
   }
   const printed = field.handles.map(handle => {
     // For backward compatibility and also because this module is shared by ComponentScript.
-    const key = handle.key === DEFAULT_HANDLE_KEY
-      ? ''
-      : `, key: "${handle.key}"`;
-    const filters = handle.filters == null
-      ? ''
-      : `, filters: ${JSON.stringify(handle.filters.sort())}`;
+    const key =
+      handle.key === DEFAULT_HANDLE_KEY ? '' : `, key: "${handle.key}"`;
+    const filters =
+      handle.filters == null
+        ? ''
+        : `, filters: ${JSON.stringify(handle.filters.sort())}`;
     return `@__clientField(handle: "${handle.name}"${key}${filters})`;
   });
   return printed.length ? ' ' + printed.join(' ') : '';

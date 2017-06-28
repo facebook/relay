@@ -21,9 +21,10 @@ const {graphql, createFragmentContainer} = require('ReactRelayPublic');
  * type-checked correctly on Relay components.
  */
 
-const FooComponent = ({requiredProp}: {requiredProp: string}) => (
-  <div>{requiredProp}</div>
-);
+const FooComponent = ({requiredProp}: {requiredProp: string}) =>
+  <div>
+    {requiredProp}
+  </div>;
 
 // Note that we must reassign to a new identifier to make sure flow doesn't propogate types without
 // the relay type definition doing the work.
@@ -60,7 +61,9 @@ class BarComponent extends React.Component {
 
     const defLen = this.props.defaultProp.length; // always a valid string, so no error
     return (
-      <div>{reqLen && optionalProp && optionalFoo && missing && defLen}</div>
+      <div>
+        {reqLen && optionalProp && optionalFoo && missing && defLen}
+      </div>
     );
   }
 }

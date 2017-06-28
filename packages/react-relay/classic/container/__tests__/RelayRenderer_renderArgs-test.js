@@ -63,9 +63,10 @@ describe('RelayRenderer.renderArgs', () => {
     expect.extend({
       toRenderWithArgs(actual, expected) {
         // Assume that if `forceFetch` requests exist, they were last.
-        const requests = environment.forceFetch.mock.requests.length > 0
-          ? environment.forceFetch.mock.requests
-          : environment.primeCache.mock.requests;
+        const requests =
+          environment.forceFetch.mock.requests.length > 0
+            ? environment.forceFetch.mock.requests
+            : environment.primeCache.mock.requests;
         actual(requests[requests.length - 1]);
         const renders = render.mock.calls;
         const renderArgs = renders[renders.length - 1][0];

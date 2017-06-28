@@ -481,12 +481,12 @@ function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
         PAGE_INFO,
         pageInfo,
       );
-      const hasMore = direction === FORWARD
-        ? pageInfo[HAS_NEXT_PAGE]
-        : pageInfo[HAS_PREV_PAGE];
-      const cursor = direction === FORWARD
-        ? pageInfo[END_CURSOR]
-        : pageInfo[START_CURSOR];
+      const hasMore =
+        direction === FORWARD
+          ? pageInfo[HAS_NEXT_PAGE]
+          : pageInfo[HAS_PREV_PAGE];
+      const cursor =
+        direction === FORWARD ? pageInfo[END_CURSOR] : pageInfo[START_CURSOR];
       if (typeof hasMore !== 'boolean' || typeof cursor !== 'string') {
         warning(
           false,

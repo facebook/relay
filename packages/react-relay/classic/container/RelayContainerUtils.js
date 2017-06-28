@@ -20,10 +20,12 @@
  * created with React.Component or React.createClass().
  */
 function isReactComponent(component: mixed): boolean {
-  return !!(component &&
+  return !!(
+    component &&
     typeof component.prototype === 'object' &&
     component.prototype &&
-    component.prototype.isReactComponent);
+    component.prototype.isReactComponent
+  );
 }
 
 function getReactComponent(Component: ReactClass<any>): ?ReactClass<any> {

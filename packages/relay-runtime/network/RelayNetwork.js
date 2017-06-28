@@ -165,9 +165,10 @@ function doFetchWithPolling(
   function poll() {
     let requestResponse = request(operation, variables, {force: true});
     if (!isPromise(requestResponse)) {
-      requestResponse = requestResponse instanceof Error
-        ? Promise.reject(requestResponse)
-        : Promise.resolve(requestResponse);
+      requestResponse =
+        requestResponse instanceof Error
+          ? Promise.reject(requestResponse)
+          : Promise.resolve(requestResponse);
     }
     const onRequestSuccess = payload => {
       onNext && onNext(payload);

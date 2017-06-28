@@ -24,8 +24,8 @@ function getValidRelayQLTag(path: any): [any, ?string, ?string] {
   const tagName = tag.matchesPattern('Relay.QL')
     ? 'Relay.QL'
     : tag.matchesPattern('RelayClassic.QL')
-        ? 'RelayClassic.QL'
-        : tag.isIdentifier({name: 'RelayQL'}) ? 'RelayQL' : null;
+      ? 'RelayClassic.QL'
+      : tag.isIdentifier({name: 'RelayQL'}) ? 'RelayQL' : null;
   if (!tagName) {
     return [null, null, null];
   }

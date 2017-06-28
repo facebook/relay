@@ -126,18 +126,20 @@ const RelayCodeGenVisitor = {
     },
 
     LinkedField(node): Array<ConcreteSelection> {
-      const handles = (node.handles &&
-        node.handles.map(handle => {
-          return {
-            kind: 'LinkedHandle',
-            alias: node.alias,
-            args: valuesOrNull(sortByName(node.args)),
-            handle: handle.name,
-            name: node.name,
-            key: handle.key,
-            filters: handle.filters,
-          };
-        })) || [];
+      const handles =
+        (node.handles &&
+          node.handles.map(handle => {
+            return {
+              kind: 'LinkedHandle',
+              alias: node.alias,
+              args: valuesOrNull(sortByName(node.args)),
+              handle: handle.name,
+              name: node.name,
+              key: handle.key,
+              filters: handle.filters,
+            };
+          })) ||
+        [];
       const type = getRawType(node.type);
       return [
         {
@@ -155,18 +157,20 @@ const RelayCodeGenVisitor = {
     },
 
     ScalarField(node): Array<ConcreteSelection> {
-      const handles = (node.handles &&
-        node.handles.map(handle => {
-          return {
-            kind: 'ScalarHandle',
-            alias: node.alias,
-            args: valuesOrNull(sortByName(node.args)),
-            handle: handle.name,
-            name: node.name,
-            key: handle.key,
-            filters: handle.filters,
-          };
-        })) || [];
+      const handles =
+        (node.handles &&
+          node.handles.map(handle => {
+            return {
+              kind: 'ScalarHandle',
+              alias: node.alias,
+              args: valuesOrNull(sortByName(node.args)),
+              handle: handle.name,
+              name: node.name,
+              key: handle.key,
+              filters: handle.filters,
+            };
+          })) ||
+        [];
       return [
         {
           kind: 'ScalarField',

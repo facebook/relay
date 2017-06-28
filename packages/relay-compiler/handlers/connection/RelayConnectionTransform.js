@@ -80,8 +80,9 @@ function transform(
   context: RelayCompilerContext,
   options?: ?{generateRequisiteFields: boolean},
 ): RelayCompilerContext {
-  const generateRequisiteFields = !!(options &&
-    options.generateRequisiteFields);
+  const generateRequisiteFields = !!(
+    options && options.generateRequisiteFields
+  );
   return RelayIRTransformer.transform(
     context,
     {
@@ -165,12 +166,14 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
     countArg = lastArg;
     cursorArg = findArg(transformedField, BEFORE);
   }
-  const countVariable = countArg && countArg.value.kind === 'Variable'
-    ? countArg.value.variableName
-    : null;
-  const cursorVariable = cursorArg && cursorArg.value.kind === 'Variable'
-    ? cursorArg.value.variableName
-    : null;
+  const countVariable =
+    countArg && countArg.value.kind === 'Variable'
+      ? countArg.value.variableName
+      : null;
+  const cursorVariable =
+    cursorArg && cursorArg.value.kind === 'Variable'
+      ? cursorArg.value.variableName
+      : null;
   options.connectionMetadata.push({
     count: countVariable,
     cursor: cursorVariable,
@@ -389,9 +392,11 @@ function validateConnectionType(
   );
   const nodeType = RelaySchemaUtils.getNullableType(node.type);
   if (
-    !(nodeType instanceof GraphQLInterfaceType ||
+    !(
+      nodeType instanceof GraphQLInterfaceType ||
       nodeType instanceof GraphQLUnionType ||
-      nodeType instanceof GraphQLObjectType)
+      nodeType instanceof GraphQLObjectType
+    )
   ) {
     invariant(
       false,
@@ -407,8 +412,9 @@ function validateConnectionType(
   const cursor = edgeType.getFields()[CURSOR];
   if (
     !cursor ||
-    !(RelaySchemaUtils.getNullableType(cursor.type) instanceof
-      GraphQLScalarType)
+    !(
+      RelaySchemaUtils.getNullableType(cursor.type) instanceof GraphQLScalarType
+    )
   ) {
     invariant(
       false,
@@ -451,8 +457,10 @@ function validateConnectionType(
     const pageInfoField = pageInfoType.getFields()[fieldName];
     if (
       !pageInfoField ||
-      !(RelaySchemaUtils.getNullableType(pageInfoField.type) instanceof
-        GraphQLScalarType)
+      !(
+        RelaySchemaUtils.getNullableType(pageInfoField.type) instanceof
+        GraphQLScalarType
+      )
     ) {
       invariant(
         false,

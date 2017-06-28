@@ -28,8 +28,8 @@ function getValidGraphQLTag(path: any): ?DocumentNode {
   const tagName = tag.isIdentifier({name: 'graphql'})
     ? 'graphql'
     : tag.matchesPattern('graphql.experimental')
-        ? 'graphql.experimental'
-        : undefined;
+      ? 'graphql.experimental'
+      : undefined;
 
   if (!tagName) {
     return;

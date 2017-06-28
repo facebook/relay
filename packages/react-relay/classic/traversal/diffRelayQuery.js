@@ -94,9 +94,8 @@ function diffRelayQuery(
   if (rootIdentifyingArg != null) {
     metadata = {
       identifyingArgName: rootIdentifyingArg.name,
-      identifyingArgType: rootIdentifyingArg.type != null
-        ? rootIdentifyingArg.type
-        : ID_TYPE,
+      identifyingArgType:
+        rootIdentifyingArg.type != null ? rootIdentifyingArg.type : ID_TYPE,
       isAbstract: root.isAbstract(),
       isDeferred: false,
       isPlural: false,
@@ -290,9 +289,8 @@ class RelayDiffQueryBuilder {
       if (child instanceof RelayQuery.Field) {
         const diffOutput = this.visitField(child, path, scope);
         const diffChild = diffOutput ? diffOutput.diffNode : null;
-        const trackedChild = diffOutput && this._queryTracker
-          ? diffOutput.trackedNode
-          : null;
+        const trackedChild =
+          diffOutput && this._queryTracker ? diffOutput.trackedNode : null;
 
         // Diff uses child nodes and keeps requisite fields
         if (diffChild) {
@@ -857,7 +855,8 @@ function splitNodeAndEdgesFields(
 
   return {
     edges: hasEdgeChild ? edgeOrFragment.clone(edgeChildren) : null,
-    node: nodeChild &&
+    node:
+      nodeChild &&
       RelayQuery.Fragment.build(
         'diffRelayQuery',
         nodeChild.getType(),

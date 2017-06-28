@@ -26,9 +26,7 @@ import type {ConcreteOperationDefinition} from 'ConcreteQuery';
 import type {Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {CompatEnvironment} from 'RelayCompatTypes';
 import type {Environment as ClassicEnvironment} from 'RelayEnvironmentTypes';
-import type {
-  OptimisticMutationConfig,
-} from 'applyRelayModernOptimisticMutation';
+import type {OptimisticMutationConfig} from 'applyRelayModernOptimisticMutation';
 import type {MutationConfig} from 'commitRelayModernMutation';
 
 const RelayCompatMutations = {

@@ -250,7 +250,8 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
             let error = transaction.getError();
             if (!error) {
               error = new Error(
-                `RelayEnvironment: Unknown error executing mutation ${operation.node.name}`,
+                `RelayEnvironment: Unknown error executing mutation ${operation
+                  .node.name}`,
               );
             }
             onError(error);
@@ -353,9 +354,8 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
         if (isDisposed) {
           return;
         }
-        const forceIndex = cacheConfig && cacheConfig.force
-          ? generateForceIndex()
-          : null;
+        const forceIndex =
+          cacheConfig && cacheConfig.force ? generateForceIndex() : null;
         this._storeData.handleOSSQueryPayload(
           query,
           payload.response,

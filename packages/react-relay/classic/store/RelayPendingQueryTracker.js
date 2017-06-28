@@ -124,9 +124,10 @@ class PendingFetch {
     this._resolvedQuery = false;
     this._storeData = storeData;
 
-    this._fetchQueryPromise = fetchMode === RelayFetchMode.PRELOAD
-      ? this._preloadQueryMap.get(queryID)
-      : storeData.getNetworkLayer().fetchRelayQuery(query);
+    this._fetchQueryPromise =
+      fetchMode === RelayFetchMode.PRELOAD
+        ? this._preloadQueryMap.get(queryID)
+        : storeData.getNetworkLayer().fetchRelayQuery(query);
 
     this._fetchedQuery = false;
     this._error = null;

@@ -52,5 +52,6 @@ module.exports = {
   createRefetchContainer: (RelayCompatRefetchContainer.createContainer: $FlowFixMe),
   fetchQuery: fetchQuery,
   graphql: graphql,
-  injectDefaultVariablesProvider: ReactRelayCompatContainerBuilder.injectDefaultVariablesProvider,
+  injectDefaultVariablesProvider:
+    ReactRelayCompatContainerBuilder.injectDefaultVariablesProvider,
 };

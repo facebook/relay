@@ -314,6 +314,7 @@ function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
     _localVariables: ?Variables;
     _pendingRefetch: ?Disposable;
     _references: Array<Disposable>;
+    _relayContext: RelayContext;
     _resolver: FragmentSpecResolver;
 
     constructor(props, context) {
@@ -330,6 +331,10 @@ function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
         props,
         this._handleFragmentDataUpdate,
       );
+      this._relayContext = {
+        environment: this.context.relay.environment,
+        variables: this.context.relay.variables,
+      };
       this.state = {
         data: this._resolver.resolve(),
         relayProp: this._buildRelayProp(relay),
@@ -363,6 +368,10 @@ function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
       ) {
         this._release();
         this._localVariables = null;
+        this._relayContext = {
+          environment: relay.environment,
+          variables: relay.variables,
+        };
         this._resolver = createFragmentSpecResolver(
           relay,
           containerName,
@@ -511,13 +520,19 @@ function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
     _refetchConnection = (
       totalCount: number,
       callback: ?(error: ?Error) => void,
+      refetchVariables: ?Variables,
     ): ?Disposable => {
       const paginatingVariables = {
         count: totalCount,
         cursor: null,
         totalCount,
       };
-      return this._fetchPage(paginatingVariables, callback, {force: true});
+      return this._fetchPage(
+        paginatingVariables,
+        callback,
+        {force: true},
+        refetchVariables,
+      );
     };
 
     _loadMore = (
@@ -549,6 +564,7 @@ function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
       },
       callback: ?(error: ?Error) => void,
       options: ?RefetchOptions,
+      refetchVariables: ?Variables,
     ): ?Disposable {
       const {environment} = assertRelayContext(this.context.relay);
       const {
@@ -560,12 +576,13 @@ function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
         ...this.props,
         ...this.state.data,
       };
-      const fragmentVariables = getVariablesFromObject(
-        this.context.relay.variables,
+      let fragmentVariables = getVariablesFromObject(
+        this._relayContext.variables,
         fragments,
         this.props,
       );
-      const fetchVariables = connectionConfig.getVariables(
+      fragmentVariables = {...fragmentVariables, ...refetchVariables};
+      let fetchVariables = connectionConfig.getVariables(
         props,
         {
           count: paginatingVariables.count,
@@ -581,6 +598,10 @@ function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
         fetchVariables,
         componentName,
       );
+      fetchVariables = {
+        ...fetchVariables,
+        ...refetchVariables,
+      };
       this._localVariables = fetchVariables;
 
       const cacheConfig = options ? {force: !!options.force} : undefined;
@@ -589,8 +610,35 @@ function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
 
       const onCompleted = () => {
         this._pendingRefetch = null;
+        this._relayContext = {
+          environment: this.context.relay.environment,
+          variables: {
+            ...this.context.relay.variables,
+            ...fragmentVariables,
+          },
+        };
         callback && callback();
-        this._updateSnapshots(paginatingVariables.totalCount);
+        const prevData = this._resolver.resolve();
+        this._resolver.setVariables(
+          getFragmentVariables(
+            fragmentVariables,
+            paginatingVariables.totalCount,
+          ),
+        );
+        const nextData = this._resolver.resolve();
+
+        // Workaround slightly different handling for connection in different
+        // core implementations:
+        // - Classic core requires the count to be explicitly incremented
+        // - Modern core automatically appends new items, updating the count
+        //   isn't required to see new data.
+        //
+        // `setState` is only required if changing the variables would change the
+        // resolved data.
+        // TODO #14894725: remove PaginationContainer equal check
+        if (!areEqual(prevData, nextData)) {
+          this.setState({data: nextData});
+        }
       };
       const onError = error => {
         this._pendingRefetch = null;
@@ -625,34 +673,6 @@ function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
       };
     }
 
-    _updateSnapshots(totalCount: number): void {
-      const {
-        getVariablesFromObject,
-      } = this.context.relay.environment.unstable_internal;
-      const prevVariables = getVariablesFromObject(
-        this.context.relay.variables,
-        fragments,
-        this.props,
-      );
-      const nextVariables = getFragmentVariables(prevVariables, totalCount);
-
-      const prevData = this._resolver.resolve();
-      this._resolver.setVariables(nextVariables);
-      const nextData = this._resolver.resolve();
-      // Workaround slightly different handling for connection in different
-      // core implementations:
-      // - Classic core requires the count to be explicitly incremented
-      // - Modern core automatically appends new items, updating the count
-      //   isn't required to see new data.
-      //
-      // `setState` is only required if changing the variables would change the
-      // resolved data.
-      // TODO #14894725: remove PaginationContainer equal check
-      if (!areEqual(prevData, nextData)) {
-        this.setState({data: nextData});
-      }
-    }
-
     _release() {
       this._resolver.dispose();
       this._references.forEach(disposable => disposable.dispose());
@@ -661,6 +681,10 @@ function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
         this._pendingRefetch.dispose();
         this._pendingRefetch = null;
       }
+    }
+
+    getChildContext(): Object {
+      return {relay: this._relayContext};
     }
 
     render() {
@@ -714,12 +738,14 @@ function createContainer<TBase: ReactClass<*>>(
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
   connectionConfig: ConnectionConfig,
 ): TBase {
-  return buildReactRelayContainer(
+  const Container = buildReactRelayContainer(
     Component,
     fragmentSpec,
     (ComponentClass, fragments) =>
       createContainerWithFragments(ComponentClass, fragments, connectionConfig),
   );
+  Container.childContextTypes = containerContextTypes;
+  return Container;
 }
 
 module.exports = {createContainer, createContainerWithFragments};

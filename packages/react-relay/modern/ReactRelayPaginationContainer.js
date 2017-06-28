@@ -617,7 +617,6 @@ function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
             ...fragmentVariables,
           },
         };
-        callback && callback();
         const prevData = this._resolver.resolve();
         this._resolver.setVariables(
           getFragmentVariables(
@@ -637,7 +636,9 @@ function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
         // resolved data.
         // TODO #14894725: remove PaginationContainer equal check
         if (!areEqual(prevData, nextData)) {
-          this.setState({data: nextData});
+          this.setState({data: nextData}, () => callback && callback());
+        } else {
+          callback && callback();
         }
       };
       const onError = error => {

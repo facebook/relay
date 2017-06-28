@@ -238,9 +238,11 @@ function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
           environment: this.context.relay.environment,
           variables: fragmentVariables,
         };
-        callback && callback();
         this._resolver.setVariables(fragmentVariables);
-        this.setState({data: this._resolver.resolve()});
+        this.setState(
+          {data: this._resolver.resolve()},
+          () => callback && callback(),
+        );
       };
       const onError = error => {
         this._pendingRefetch = null;

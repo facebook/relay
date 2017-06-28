@@ -16,7 +16,13 @@
 const path = require('path');
 
 function getModuleName(filePath: string): string {
-  const filename = path.basename(filePath, path.extname(filePath));
+  // index.js -> index
+  // index.js.flow -> index.js
+  let filename = path.basename(filePath, path.extname(filePath));
+
+  // index.js -> index (when extension has multiple segments)
+  filename = filename.replace(/(?:\.\w+)+/, '');
+
   // /path/to/button/index.js -> button
   let moduleName = filename === 'index'
     ? path.basename(path.dirname(filePath))

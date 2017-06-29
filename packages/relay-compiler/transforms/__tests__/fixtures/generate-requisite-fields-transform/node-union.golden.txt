@@ -1,0 +1,14 @@
+query UnionQuery {
+  maybeNode {
+    __typename
+    ... on NonNode {
+      name
+    }
+    ... on Node {
+      id
+    }
+    ... on FakeNode {
+      id
+    }
+  }
+}

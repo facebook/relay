@@ -23,9 +23,10 @@ The core team will be monitoring for pull requests. When we get one, we'll run s
 1. Fork the repo and create your branch from `master`.
 2. If you've added code that should be tested, add tests.
 3. If you've changed APIs, update the documentation.
-4. Ensure the test suite passes (`npm test`).
-5. Ensure there are no Flow errors (`flow relay/src`).
-6. If you haven't already, complete the CLA.
+4. Ensure the test suite passes (`yarn test` or `npm test`).
+5. Auto-format the code by running `yarn run prettier` or `npm run prettier`.
+6. Ensure there are no Flow errors (`flow`).
+7. If you haven't already, complete the CLA.
 
 ### Contributor License Agreement (CLA)
 
@@ -53,7 +54,7 @@ Facebook has a [bounty program](https://www.facebook.com/whitehat/) for the safe
 
 ## How to Get in Touch
 
-* Discord - [#relay](https://discordapp.com/channels/102860784329052160/102861057189490688) on [Reactiflux](http://www.reactiflux.com/)
+* Discord - [#relay](https://discord.gg/0ZcbPKXt5bX40xsQ) on [Reactiflux](https://www.reactiflux.com/)
 * Stack Overflow - [#relayjs](https://stackoverflow.com/questions/tagged/relayjs)
 
 ## Style Guide

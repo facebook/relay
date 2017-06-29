@@ -1,0 +1,3 @@
+ERROR:
+
+Error: queryWithBadDirectiveArgs.input.txt: Relay Transform Error: You supplied a directive named `if`, but no such directive exists.

@@ -4,7 +4,6 @@ title: Connection
 layout: docs
 category: GraphQL
 permalink: docs/graphql-connections.html
-indent: true
 next: graphql-mutations
 ---
 

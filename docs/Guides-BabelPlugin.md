@@ -2,10 +2,12 @@
 id: guides-babel-plugin
 title: Babel Relay Plugin
 layout: docs
-category: Guides
+category: Relay Classic Guides
 permalink: docs/guides-babel-plugin.html
 next: graphql-relay-specification
 ---
+
+*`babel-relay-plugin` is deprecated. Use [`babel-plugin-relay`](./babel-plugin-relay.html#using-with-relay-classic) with Relay Classic.*
 
 Relay uses a **babel** plugin to convert from `Relay.QL` string templates to
 JavaScript code that describes each query and includes data from the GraphQL
@@ -35,13 +37,12 @@ The easiest way to get started for now is with the [Relay Starter Kit](https://g
 
 ### React Native Configuration
 
-The `babel-relay-plugin` must run before the `react-native` Babel preset. Thus, in `.babelrc`  `"react-native"` must come after `babelRelayPlugin`.
+The `babel-relay-plugin` must run before the `react-native` Babel preset. Thus, in `.babelrc` `"react-native"` must come after `babelRelayPlugin`.
 
 ```javascript
 {
-  "passPerPreset": true,
   "plugins": [
-    "./plugins/babelRelayPlugin"
+    "relay"
   ],
   "presets": [
     "react-native"
@@ -49,28 +50,7 @@ The `babel-relay-plugin` must run before the `react-native` Babel preset. Thus, 
 }
 ```
 
-The reasoning is that if `babel-relay-plugin` does not run before the `es2015-template-literals` transform, it will not transform the Relay.QL template literals correctly. Also in Babel 6, you can’t control plugin order. So in React Native, where plugins in `.babelrc` are loaded before the projects `.babelrc`, it’s impossible to use the Babel Relay Plugin without overriding the entire transform list.
-
-
-## Advanced Usage
-
-If you're not using the starter kit, you'll have to configure `babel` to use the `babel-relay-plugin`. The steps are as follows:
-
-```javascript
-// `babel-relay-plugin` returns a function for creating plugin instances
-const getBabelRelayPlugin = require('babel-relay-plugin');
-
-// load previously saved schema data (see "Schema JSON" below)
-const schemaData = require('schema.json');
-
-// create a plugin instance
-const plugin = getBabelRelayPlugin(schemaData);
-
-// compile code with babel using the plugin
-return babel.transform(source, {
-  plugins: [plugin],
-});
-```
+The reasoning is that if `babel-plugin-relay` does not run before the `es2015-template-literals` transform, it will not transform the Relay.QL template literals correctly. Also in Babel 6, you can’t control plugin order. So in React Native, where plugins in `.babelrc` are loaded before the projects `.babelrc`, it’s impossible to use the Babel Relay Plugin without overriding the entire transform list.
 
 ## Schema JSON
 
@@ -84,7 +64,7 @@ Use `introspectionQuery` to generate a Schema JSON for the Babel Relay Plugin, a
 import fs from 'fs';
 import path from 'path';
 import {graphql}  from 'graphql';
-import {introspectionQuery, printSchema} from 'graphql/utilities';
+import {introspectionQuery, printSchema} from 'graphql';
 
 // Assume your schema is in ../data/schema
 import {schema} from '../data/schema';
@@ -146,35 +126,5 @@ fetch(SERVER, {
     `${schemaPath}.graphql`,
     printSchema(graphQLSchema)
   );
-});
-```
-
-## Additional Options
-
-By default, `babel-relay-plugin` catches GraphQL validation errors and logs them without exiting. The compiled code will also throw the same errors at runtime, making it obvious that something went wrong whether you're looking at your terminal or browser console.
-
-When compiling code for production deployment, the plugin can be configured to immediately throw upon encountering a validation problem. The plugin can be further customized for different environments with the following options:
-
-```javascript
-babel.transform(source, {
-  plugins: [
-    [getBabelRelayPlugin(schemaData, {
-      // Only if `enforceSchema` is `false` and `debug` is `true`
-      // will validation errors be logged at build time.
-      debug: false,
-      // Suppresses all warnings that would be printed.
-      suppressWarnings: false,
-      // Can add a custom validator.
-      // Supplying one overrides the default one, skipping the default rules.
-      validator: {
-        validate(schema, ast) {
-          // Return an array of `Error` instances.
-          return [];
-        },
-      },
-      // Will throw an error when it validates the queries at build time.
-      enforceSchema: true,
-    })],
-  ],
 });
 ```

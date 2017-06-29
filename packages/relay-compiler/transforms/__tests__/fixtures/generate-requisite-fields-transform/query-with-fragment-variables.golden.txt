@@ -1,0 +1,66 @@
+query NodeQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    __typename
+    ... on FeedUnit {
+      actor {
+        __typename
+        ...ActorFragment
+        id
+      }
+    }
+    id
+  }
+}
+
+query ViewerQuery {
+  viewer {
+    actor {
+      __typename
+      ...ActorFragment
+      id
+    }
+  }
+}
+
+fragment ActorFragment on Actor {
+  name
+  ... on User {
+    birthdate {
+      day
+      month
+    }
+  }
+}
+
+query UnaliasedIDQuery {
+  viewer {
+    actor {
+      __typename
+      id
+    }
+  }
+}
+
+query AliasedIDQuery {
+  viewer {
+    actor {
+      __typename
+      _id: id
+      id
+    }
+  }
+}
+
+query ConditionalIDQuery(
+  $cond: Boolean
+) {
+  viewer {
+    actor {
+      __typename
+      id @include(if: $cond)
+      id
+    }
+  }
+}

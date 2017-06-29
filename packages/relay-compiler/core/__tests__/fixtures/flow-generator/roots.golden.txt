@@ -1,0 +1,39 @@
+export type ExampleQueryResponse = {|
+  +me: ?{|
+    +id: string;
+  |};
+|};
+
+export type ExampleFragment = {|
+  +id: string;
+|};
+
+export type TestMutationVariables = {|
+  input: {
+    clientMutationId?: ?string;
+    feedbackId?: ?string;
+  };
+|};
+
+export type TestMutationResponse = {|
+  +commentCreate: ?{|
+    +comment: ?{|
+      +id: string;
+    |};
+  |};
+|};
+
+export type TestSubscriptionVariables = {|
+  input?: ?{
+    clientMutationId?: ?string;
+    feedbackId?: ?string;
+  };
+|};
+
+export type TestSubscriptionResponse = {|
+  +feedbackLikeSubscribe: ?{|
+    +feedback: ?{|
+      +id: string;
+    |};
+  |};
+|};

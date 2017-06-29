@@ -1,0 +1,163 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`printFlowTypes transforms fields 1`] = `
+Object {
+  "alias": null,
+  "args": Array [],
+  "directives": Array [],
+  "handles": null,
+  "kind": "LinkedField",
+  "metadata": null,
+  "name": "InputType",
+  "selections": Array [
+    Object {
+      "alias": null,
+      "args": Array [],
+      "directives": Array [],
+      "handles": null,
+      "kind": "LinkedField",
+      "metadata": null,
+      "name": "id",
+      "selections": Array [
+        Object {
+          "alias": null,
+          "args": Array [],
+          "directives": Array [],
+          "handles": null,
+          "kind": "ScalarField",
+          "metadata": null,
+          "name": "id",
+          "type": "Int",
+        },
+        Object {
+          "alias": null,
+          "args": Array [],
+          "directives": Array [],
+          "handles": null,
+          "kind": "ScalarField",
+          "metadata": null,
+          "name": "name",
+          "type": "String",
+        },
+      ],
+      "type": "SubField",
+    },
+    Object {
+      "alias": null,
+      "args": Array [],
+      "directives": Array [],
+      "handles": null,
+      "kind": "ScalarField",
+      "metadata": null,
+      "name": "body",
+      "type": "String",
+    },
+  ],
+  "type": "Input",
+}
+`;
+
+exports[`printFlowTypes transforms lists 1`] = `
+Object {
+  "alias": null,
+  "args": Array [],
+  "directives": Array [],
+  "handles": null,
+  "kind": "LinkedField",
+  "metadata": null,
+  "name": "InputType",
+  "selections": Array [
+    Object {
+      "alias": null,
+      "args": Array [],
+      "directives": Array [],
+      "handles": null,
+      "kind": "ScalarField",
+      "metadata": null,
+      "name": "id",
+      "type": "Int",
+    },
+    Object {
+      "alias": null,
+      "args": Array [],
+      "directives": Array [],
+      "handles": null,
+      "kind": "ScalarField",
+      "metadata": null,
+      "name": "body",
+      "type": "String",
+    },
+  ],
+  "type": "Input",
+}
+`;
+
+exports[`printFlowTypes transforms non-null 1`] = `
+Object {
+  "alias": null,
+  "args": Array [],
+  "directives": Array [],
+  "handles": null,
+  "kind": "LinkedField",
+  "metadata": null,
+  "name": "InputType",
+  "selections": Array [
+    Object {
+      "alias": null,
+      "args": Array [],
+      "directives": Array [],
+      "handles": null,
+      "kind": "ScalarField",
+      "metadata": null,
+      "name": "id",
+      "type": "Int",
+    },
+    Object {
+      "alias": null,
+      "args": Array [],
+      "directives": Array [],
+      "handles": null,
+      "kind": "ScalarField",
+      "metadata": null,
+      "name": "body",
+      "type": "String",
+    },
+  ],
+  "type": "Input",
+}
+`;
+
+exports[`printFlowTypes transforms scalars 1`] = `
+Object {
+  "alias": null,
+  "args": Array [],
+  "directives": Array [],
+  "handles": null,
+  "kind": "LinkedField",
+  "metadata": null,
+  "name": "InputType",
+  "selections": Array [
+    Object {
+      "alias": null,
+      "args": Array [],
+      "directives": Array [],
+      "handles": null,
+      "kind": "ScalarField",
+      "metadata": null,
+      "name": "id",
+      "type": "Int",
+    },
+    Object {
+      "alias": null,
+      "args": Array [],
+      "directives": Array [],
+      "handles": null,
+      "kind": "ScalarField",
+      "metadata": null,
+      "name": "body",
+      "type": "String",
+    },
+  ],
+  "type": "Input",
+}
+`;

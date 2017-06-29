@@ -1,0 +1,62 @@
+query NodeQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ... on Story {
+      forwardComments: comments(first: 1) @__clientField(handle: "connection", key: "NodeQuery_forwardComments") {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      backwardComments: comments(last: 2) @__clientField(handle: "connection", key: "NodeQuery_backwardComments") {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      mixedDirectionComments: comments(last: $last, first: $first) @__clientField(handle: "connection", key: "NodeQuery_mixedDirectionComments") {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+    }
+  }
+}
+# Metadata:
+{
+  "connection": [
+    {
+      "count": null,
+      "cursor": null,
+      "direction": "forward",
+      "path": [
+        "node",
+        "forwardComments"
+      ]
+    },
+    {
+      "count": null,
+      "cursor": null,
+      "direction": "backward",
+      "path": [
+        "node",
+        "backwardComments"
+      ]
+    },
+    {
+      "count": null,
+      "cursor": null,
+      "direction": null,
+      "path": [
+        "node",
+        "mixedDirectionComments"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+fragment LinkedHandleField on User {
+  friends(first: 10) @__clientField(handle: "clientFriends", filters: ["first"]) @__clientField(handle: "otherFriends") {
+    count
+  }
+}

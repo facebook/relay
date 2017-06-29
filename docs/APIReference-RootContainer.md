@@ -2,7 +2,7 @@
 id: api-reference-relay-root-container
 title: Relay.RootContainer
 layout: docs
-category: API Reference
+category: Relay Classic API
 permalink: docs/api-reference-relay-root-container.html
 next: api-reference-relay-ql
 ---

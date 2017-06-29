@@ -1,0 +1,15 @@
+mutation CommentCreateMutation(
+  $input: CommentCreateInput!
+  $first: Int
+  $orderBy: [String!]
+) {
+  commentCreate(input: $input) {
+    comment {
+      id
+      name
+      friends(first: $first, orderby: $orderBy) {
+        count
+      }
+    }
+  }
+}

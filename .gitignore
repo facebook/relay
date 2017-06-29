@@ -1,5 +1,4 @@
 .nvmrc
-yarn.lock
 node_modules
 npm-debug.log
 /dist/

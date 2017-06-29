@@ -9,29 +9,37 @@
 
 'use strict';
 
-const assign = require('object-assign');
-
 module.exports = function(options) {
-  options = assign({
+  options = Object.assign({
     env: 'production',
     moduleMap: {},
     plugins: [],
   }, options);
+
+  const fbjsPreset = require('babel-preset-fbjs/configure')({
+    autoImport: options.autoImport || false,
+    objectAssign: false,
+    inlineRequires: true,
+    stripDEV: options.env === 'production',
+  });
+
+  // The module rewrite transform needs to be positioned relative to fbjs's
+  // many other transforms.
+  fbjsPreset.presets[0].plugins.push(
+    [require('./rewrite-modules'), {map: Object.assign({},
+      require('fbjs/module-map'),
+      options.moduleMap
+    )}]
+  );
+
+  if (options.postPlugins) {
+    fbjsPreset.presets.push({
+      plugins: options.postPlugins
+    });
+  }
+
   return {
-    plugins: options.plugins,
-    presets: [
-      require('babel-preset-fbjs/configure')({
-        autoImport: true,
-        inlineRequires: true,
-        rewriteModules: {
-          map: assign({},
-            require('fbjs-scripts/third-party-module-map'),
-            require('fbjs/module-map'),
-            options.moduleMap
-          ),
-        },
-        stripDEV: options.env === 'production',
-      }),
-    ],
+    plugins: options.plugins.concat('transform-es2015-spread'),
+    presets: [fbjsPreset],
   };
 };

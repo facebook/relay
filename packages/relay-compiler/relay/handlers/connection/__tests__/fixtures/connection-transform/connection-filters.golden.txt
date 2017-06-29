@@ -1,0 +1,46 @@
+query NodeQuery(
+  $id: ID!
+  $orderBy: String
+) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10, orderby: $orderBy) @__clientField(handle: "connection", key: "NodeQuery_comments", filters: ["first","orderby"]) {
+        edges {
+          node {
+            actor {
+              name
+              friends(first: 10) @__clientField(handle: "connection", key: "NodeQuery_friends") {
+                edges {
+                  node {
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+# Metadata:
+{
+  "connection": [
+    {
+      "count": null,
+      "cursor": null,
+      "direction": "forward",
+      "path": null
+    },
+    {
+      "count": null,
+      "cursor": null,
+      "direction": "forward",
+      "path": [
+        "node",
+        "comments"
+      ]
+    }
+  ]
+}

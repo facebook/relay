@@ -607,7 +607,6 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     // client ids.
     this._writer.putLinkedRecordIDs(recordID, storageKey, nextLinkedIDs);
     nextLinkedIDs.forEach(nextLinkedID => {
-      // $FlowFixMe(>=0.33.0)
       const itemData = nextRecords[nextLinkedID];
       if (itemData) {
         this.traverse(field, {

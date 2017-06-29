@@ -14,7 +14,7 @@
     <h1>Relay Input Object Mutations Specification</h1>
     <section id="intro">
       <p>Relay&rsquo;s support for mutations relies on the GraphQL server exposing mutation fields in a standardized way. These mutations accept and emit a identifier string, which allows Relay to track mutations and responses.</p>
-      <p>All mutations include in their input a <code>clientMutationId</code> string, which is then returned as part of the object returned by the mutation field.</p>
+      <p>All mutations may include in their input a <code>clientMutationId</code> string, which is then returned as part of the object returned by the mutation field.</p>
       <p>An example of this is the following query:</p>
       <pre><code>mutation M {
   updateStatus(input: $input) {
@@ -55,13 +55,13 @@
   </header>
   <section id="sec-Mutation-inputs">
     <h2><span class="spec-secnum" title="link to this section"><a href="#sec-Mutation-inputs">1</a></span>Mutation inputs</h2>
-    <p>In particular, all mutations must expose exactly one argument, named <code>input</code>. This argument&rsquo;s type must be a <code>NON_NULL</code> wrapper around an <code>INPUT_OBJECT</code>. That input object type must contain an argument named
-      <code>clientMutationId</code>. That argument must be a <code>String</code>. That argument may be non&#8208;null.</p>
+    <p>In particular, all mutations must expose exactly one argument, named <code>input</code>. This argument&rsquo;s type must be a <code>NON_NULL</code> wrapper around an <code>INPUT_OBJECT</code>. That input object type may contain an argument named <code>clientMutationId</code>.
+      If provided, that argument must be a <code>String</code>. That argument may be non&#8208;null.</p>
     <p>Clients may use whatever identifier they see fit for their <code>clientMutationId</code>s; Version 4 UUIDs are a reasonable choice.</p>
   </section>
   <section id="sec-Mutation-fields">
     <h2><span class="spec-secnum" title="link to this section"><a href="#sec-Mutation-fields">2</a></span>Mutation fields</h2>
-    <p>The return type of any mutation field must be an object. That object must contain a field named <code>clientMutationId</code> which is a <code>String</code>. If <code>input</code> <code>clientMutationId</code> is non&#8208;null, then mutation <code>clientMutationId</code>      must also be non&#8208;null. The value of this field must be the value of the <code>clientMutationId</code> input argument defined above.</p>
+    <p>The return type of any mutation field must be an object. That object may contain a field named <code>clientMutationId</code> which is a <code>String</code>. If <code>input</code> <code>clientMutationId</code> is non&#8208;null, then mutation <code>clientMutationId</code>      must also be non&#8208;null. The value of this field must be the value of the <code>clientMutationId</code> input argument defined above.</p>
   </section>
   <section id="sec-Introspection">
     <h2><span class="spec-secnum" title="link to this section"><a href="#sec-Introspection">3</a></span>Introspection</h2>

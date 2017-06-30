@@ -108,5 +108,27 @@ describe('RelayDebugger', () => {
       expect(record.fieldB).toBe('B');
       expect(record[ID_KEY]).toBe('abcde333');
     });
+
+    it('can notice when store was written', () => {
+      expect(envDebugger.isDirty()).toBe(false);
+
+      source.set('test-id', {test: 'record'});
+      expect(envDebugger.isDirty()).toBe(true);
+
+      envDebugger.resetDirty();
+      expect(envDebugger.isDirty()).toBe(false);
+
+      source.remove('test-id');
+      expect(envDebugger.isDirty()).toBe(true);
+
+      envDebugger.resetDirty();
+      expect(envDebugger.isDirty()).toBe(false);
+
+      source.set('abcde333', {newRecord: 1});
+      expect(envDebugger.isDirty()).toBe(true);
+
+      envDebugger.resetDirty();
+      expect(envDebugger.isDirty()).toBe(false);
+    });
   });
 });

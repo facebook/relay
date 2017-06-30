@@ -53,9 +53,12 @@ class RelayDebugger {
 
 class EnvironmentDebugger {
   _environment: Environment;
+  _envIsDirty: boolean;
 
   constructor(environment: Environment) {
     this._environment = environment;
+    this._envIsDirty = false;
+    this._monkeyPatchSource();
   }
 
   getEnvironment(): Environment {
@@ -103,6 +106,33 @@ class EnvironmentDebugger {
     );
     const recordInspector = inspector.get(id);
     return recordInspector && recordInspector.inspect();
+  }
+
+  _monkeyPatchSource() {
+    const source = (this._environment.getStore().getSource(): any);
+    const originalSet = source.set;
+    const originalRemove = source.remove;
+
+    source.set = (...args) => {
+      originalSet.apply(source, args);
+      this.triggerDirty();
+    };
+    source.remove = (...args) => {
+      originalRemove.apply(source, args);
+      this.triggerDirty();
+    };
+  }
+
+  triggerDirty() {
+    this._envIsDirty = true;
+  }
+
+  isDirty() {
+    return this._envIsDirty;
+  }
+
+  resetDirty() {
+    this._envIsDirty = false;
   }
 }
 

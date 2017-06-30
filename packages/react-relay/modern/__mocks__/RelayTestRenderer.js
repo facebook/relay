@@ -22,10 +22,10 @@ import type {Environment, Snapshot} from 'RelayStoreTypes';
 import type {Variables} from 'RelayTypes';
 
 type Props = {
-  environment?: Environment,
-  query?: ConcreteBatch,
-  variables?: Variables,
-  children: Array<React.Component>,
+  environment: Environment,
+  query: ConcreteBatch,
+  variables: Variables,
+  children: React.Component,
 };
 
 class RelayTestRenderer extends React.Component {
@@ -44,40 +44,12 @@ class RelayTestRenderer extends React.Component {
 
     let {query, environment, variables} = props;
 
-    if (query == null) {
-      query = this.props.children.props.query;
-    }
-
-    invariant(
-      query,
-      'Query must be supplied to either `RelayTestContainer` or its child',
-    );
-
-    if (environment == null) {
-      environment = this.props.children.props.environment;
-    }
-
-    invariant(
-      environment,
-      'Environment must be supplied to either `RelayTestContainer` or its ' +
-        'child',
-    );
-
-    if (variables == null) {
-      variables = this.props.children.props.variables;
-    }
-
-    invariant(
-      variables,
-      'Variables must be supplied to either `RelayTestContainer` or its ' +
-        'child',
-    );
-
     const {
       createOperationSelector,
       getOperation,
     } = environment.unstable_internal;
-    const operation = getOperation(query);
+
+    const operation = getOperation((query: $FlowFixMe));
     const operationSelector = createOperationSelector(operation, variables);
     const snapshot = environment.lookup(operationSelector.fragment);
 

@@ -61,8 +61,9 @@ class RelayModernEnvironment implements Environment {
     this._network = config.network;
     this._publishQueue = new RelayPublishQueue(config.store, handlerProvider);
     this._store = config.store;
-    (this: any).setNet = newNet => (this._network = newNet);
     this.unstable_internal = RelayCore;
+
+    (this: any).__setNet = newNet => (this._network = newNet);
 
     if (__DEV__) {
       const g = typeof global !== 'undefined' ? global : window;

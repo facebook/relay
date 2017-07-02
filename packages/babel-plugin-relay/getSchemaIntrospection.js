@@ -20,8 +20,8 @@ const {parse} = require('graphql');
 
 function getSchemaIntrospection(schemaPath: string, basePath: ?string) {
   try {
-    let fullSchemaPath = schemaPath;
-    if (!path.isAbsolute(fullSchemaPath) && basePath) {
+    let fullSchemaPath = path.join(process.cwd(), schemaPath);
+    if (!fs.existsSync(fullSchemaPath) && basePath) {
       fullSchemaPath = path.join(basePath, schemaPath);
     }
     const source = fs.readFileSync(fullSchemaPath, 'utf8');

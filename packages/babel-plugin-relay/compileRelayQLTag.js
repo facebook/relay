@@ -37,7 +37,7 @@ function compileRelayQLTag(
   state: BabelState,
 ): Object {
   try {
-    const fileOpts = state.file && state.file.opts;
+    const fileOpts = state.file && state.file.opts || {};
     const transformer = getClassicTransformer(schemaProvider, state.opts || {}, fileOpts);
     return transformer.transform(t, quasi, {
       documentName,

@@ -32,7 +32,7 @@ type ClassicTransformerOpts = {
 };
 
 type BabelFileOpts = {
-  moduleRoot?: string,
+  sourceRoot?: string,
 };
 
 /**
@@ -65,7 +65,7 @@ function getSchema(schemaProvider: GraphQLSchemaProvider, fileOptions: BabelFile
     typeof schemaProvider === 'function' ? schemaProvider() : schemaProvider;
   const introspection =
     typeof schemaReference === 'string'
-      ? getSchemaIntrospection(schemaReference, fileOptions.moduleRoot)
+      ? getSchemaIntrospection(schemaReference, fileOptions.sourceRoot)
       : schemaReference;
   if (introspection.__schema) {
     return buildClientSchema((introspection: any));

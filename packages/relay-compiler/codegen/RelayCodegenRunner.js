@@ -21,6 +21,7 @@ const {Map: ImmutableMap} = require('immutable');
 
 import type CodegenDirectory from 'CodegenDirectory';
 import type FileParser from 'FileParser';
+import type {CompileResult} from 'RelayCodegenTypes';
 import type {File} from 'RelayCodegenTypes';
 import type {FileFilter, WatchmanExpression} from 'RelayCodegenWatcher';
 import type {RelayReporter} from 'RelayReporter';
@@ -100,9 +101,7 @@ class RelayCodegenRunner {
     }
   }
 
-  async compileAll(): Promise<boolean> {
-    let hasChanges = false;
-
+  async compileAll(): Promise<CompileResult> {
     // reset the parsers
     this.parsers = {};
     for (const parserName in this.parserConfigs) {
@@ -110,20 +109,24 @@ class RelayCodegenRunner {
         await this.parseEverything(parserName);
       } catch (e) {
         this._reporter.reportError('RelayCodegenRunner.compileAll', e);
-        // Return true so validation reports a non-clean status
-        return true;
+        return 'ERROR';
       }
     }
 
+    let hasChanges = false;
     for (const writerName in this.writerConfigs) {
-      const writerChanges = await this.write(writerName);
-      hasChanges = writerChanges || hasChanges;
+      const result = await this.write(writerName);
+      if (result === 'ERROR') {
+        return 'ERROR';
+      }
+      if (result === 'HAS_CHANGES') {
+        hasChanges = true;
+      }
     }
-
-    return hasChanges;
+    return hasChanges ? 'HAS_CHANGES' : 'NO_CHANGES';
   }
 
-  async compile(writerName: string): Promise<boolean> {
+  async compile(writerName: string): Promise<CompileResult> {
     const writerConfig = this.writerConfigs[writerName];
 
     const parsers = [writerConfig.parser];
@@ -166,7 +169,7 @@ class RelayCodegenRunner {
 
   // We cannot do incremental writes right now.
   // When we can, this could be writeChanges(writerName, parserName, parsedDefinitions)
-  async write(writerName: string): Promise<boolean> {
+  async write(writerName: string): Promise<CompileResult> {
     try {
       console.log('\nWriting %s', writerName);
       const tStart = Date.now();
@@ -224,11 +227,12 @@ class RelayCodegenRunner {
 
       console.log('Written %s in %s', writerName, toSeconds(tStart, tWritten));
 
-      const hasChanges = created.length + updated.length + deleted.length > 0;
-      return hasChanges;
+      return created.length + updated.length + deleted.length > 0
+        ? 'HAS_CHANGES'
+        : 'NO_CHANGES';
     } catch (e) {
       this._reporter.reportError('RelayCodegenRunner.write', e);
-      return true;
+      return 'ERROR';
     }
   }
 

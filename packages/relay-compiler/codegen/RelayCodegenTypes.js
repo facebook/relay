@@ -13,6 +13,8 @@
 
 'use strict';
 
+export type CompileResult = 'HAS_CHANGES' | 'NO_CHANGES' | 'ERROR';
+
 export type File = {
   relPath: string,
   hash: string,

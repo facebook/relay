@@ -19,7 +19,7 @@ commitMutation(
   config: {
     mutation: GraphQLTaggedNode,
     variables: Variables,
-    onCompleted?: ?(response: ?Object) => void,
+    onCompleted?: ?(response: ?Object, errors: ?[Error]) => void,
     onError?: ?(error: Error) => void,
     optimisticResponse?: ?() => Object,
     optimisticUpdater?: ?(store: RecordSourceSelectorProxy) => void,
@@ -34,7 +34,7 @@ Now let's take a closer look at the `config`:
 
 * `mutation`: the `graphql` tagged mutation query.
 * `variables`: an object that contains the variables needed for the mutation.
-* `onCompleted`: a callback function executed with the 'raw' response from the server after the in-memory Relay store is updated with the `updater`.
+* `onCompleted`: a callback function executed with the 'raw' response and errors from the server after the in-memory Relay store is updated with the `updater`.
 * `onError`: a callback function executed when Relay encounters an error.
 * `optimisticResponse`: a function that provides an object conforming to the mutation's response type definition. If provided, the optimistic response will be normalized to the proxy store before `optimisticUpdater` is executed. We suggest you provide an `optimisticResponse` for two benefits:
  * Like `updater`, there is no need to provide `optimisticUpdater` for simple mutations (field change).
@@ -78,8 +78,8 @@ function markNotificationAsRead(source, storyID) {
     {
       mutation,
       variables,
-      onCompleted: (response) => {
-        console.log('Success!')
+      onCompleted: (response, errors) => {
+        console.log('Response received from server.')
       },
       onError: err => console.error(err),
     },

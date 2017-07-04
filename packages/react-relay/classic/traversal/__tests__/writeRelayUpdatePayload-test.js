@@ -144,9 +144,8 @@ describe('writeRelayUpdatePayload()', () => {
       ];
 
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: input[
-          RelayConnectionInterface.CLIENT_MUTATION_ID
-        ],
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
+          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         feedback: {
           id: 'feedback_id',
           topLevelComments: {},
@@ -197,9 +196,8 @@ describe('writeRelayUpdatePayload()', () => {
         deletedCommentId: commentID,
       };
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: input[
-          RelayConnectionInterface.CLIENT_MUTATION_ID
-        ],
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
+          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         feedback: {
           id: null, // Malformed response.
           topLevelComments: {},
@@ -318,9 +316,8 @@ describe('writeRelayUpdatePayload()', () => {
       ];
 
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: input[
-          RelayConnectionInterface.CLIENT_MUTATION_ID
-        ],
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
+          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         deletedCommentId: commentID,
         feedback: {
           id: 'feedback_id',
@@ -407,9 +404,8 @@ describe('writeRelayUpdatePayload()', () => {
       ];
 
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: input[
-          RelayConnectionInterface.CLIENT_MUTATION_ID
-        ],
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
+          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         deletedCommentId: commentID,
         feedback: {
           id: 'feedback_id',
@@ -529,9 +525,8 @@ describe('writeRelayUpdatePayload()', () => {
       ];
 
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: input[
-          RelayConnectionInterface.CLIENT_MUTATION_ID
-        ],
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
+          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         actor: {
           id: '123',
           __typename: 'User',
@@ -684,9 +679,8 @@ describe('writeRelayUpdatePayload()', () => {
       ];
 
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: input[
-          RelayConnectionInterface.CLIENT_MUTATION_ID
-        ],
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
+          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         deletedCommentId: commentIDs,
         feedback: {
           id: 'feedback_id',
@@ -787,9 +781,8 @@ describe('writeRelayUpdatePayload()', () => {
       ];
 
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: input[
-          RelayConnectionInterface.CLIENT_MUTATION_ID
-        ],
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
+          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         deletedCommentId: commentIDs,
         feedback: {
           id: 'feedback_id',
@@ -967,9 +960,8 @@ describe('writeRelayUpdatePayload()', () => {
       ];
 
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: input[
-          RelayConnectionInterface.CLIENT_MUTATION_ID
-        ],
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
+          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         deletedCommentId: firstCommentID,
         feedback: {
           id: feedbackID,
@@ -1066,9 +1058,8 @@ describe('writeRelayUpdatePayload()', () => {
       ];
 
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: input[
-          RelayConnectionInterface.CLIENT_MUTATION_ID
-        ],
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
+          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         deletedCommentId: firstCommentID,
         feedback: {
           id: feedbackID,
@@ -1200,9 +1191,8 @@ describe('writeRelayUpdatePayload()', () => {
       ];
 
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: input[
-          RelayConnectionInterface.CLIENT_MUTATION_ID
-        ],
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
+          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         deletedRequestIds: [firstRequestID, secondRequestID],
       };
 
@@ -1270,9 +1260,8 @@ describe('writeRelayUpdatePayload()', () => {
       ];
 
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: input[
-          RelayConnectionInterface.CLIENT_MUTATION_ID
-        ],
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
+          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         deletedRequestIds: [firstRequestID, secondRequestID],
       };
 
@@ -1415,9 +1404,8 @@ describe('writeRelayUpdatePayload()', () => {
         },
       ];
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: input[
-          RelayConnectionInterface.CLIENT_MUTATION_ID
-        ],
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
+          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         feedback: {
           id: feedbackID,
           topLevelComments: {
@@ -1503,9 +1491,8 @@ describe('writeRelayUpdatePayload()', () => {
       const nextCursor = 'comment789:cursor';
       const nextNodeID = 'comment789';
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: input[
-          RelayConnectionInterface.CLIENT_MUTATION_ID
-        ],
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
+          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         feedback: {
           id: feedbackID,
           topLevelComments: {
@@ -1599,9 +1586,8 @@ describe('writeRelayUpdatePayload()', () => {
       const nextCursor = 'comment789:cursor';
       const nextNodeID = 'comment789';
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: input[
-          RelayConnectionInterface.CLIENT_MUTATION_ID
-        ],
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
+          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         feedback: {
           id: feedbackID,
           topLevelComments: {
@@ -1700,9 +1686,8 @@ describe('writeRelayUpdatePayload()', () => {
       const bodyID = 'client:2';
       const nextEdgeID = generateClientEdgeID(connectionID, nextNodeID);
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: input[
-          RelayConnectionInterface.CLIENT_MUTATION_ID
-        ],
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
+          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         feedback: {
           id: feedbackID,
           topLevelComments: {
@@ -1834,9 +1819,8 @@ describe('writeRelayUpdatePayload()', () => {
       const bodyID = 'client:2';
       const nextEdgeID = generateClientEdgeID(connectionID, nextNodeID);
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: input[
-          RelayConnectionInterface.CLIENT_MUTATION_ID
-        ],
+        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
+          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
         feedback: {
           id: feedbackID,
           topLevelComments: {

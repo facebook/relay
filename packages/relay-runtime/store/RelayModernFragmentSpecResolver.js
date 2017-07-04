@@ -301,6 +301,9 @@ class SelectorListResolver {
           nextData.push(nextItem);
         }
       }
+      if (!nextData && this._resolvers.length !== prevData.length) {
+        nextData = prevData.slice(0, this._resolvers.length);
+      }
       this._data = nextData || prevData;
       this._stale = false;
     }

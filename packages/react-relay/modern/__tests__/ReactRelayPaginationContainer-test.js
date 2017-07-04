@@ -97,6 +97,7 @@ describe('ReactRelayPaginationContainer', () => {
         $after: ID
         $count: Int!
         $id: ID!
+        $orderby: [String]
       ) {
         node(id: $id) {
           id
@@ -107,7 +108,7 @@ describe('ReactRelayPaginationContainer', () => {
 
       fragment UserFragment on User {
         id
-        friends(after: $after, first: $count) @connection(
+        friends(after: $after, first: $count, orderby: $orderby) @connection(
           key: "UserFragment_friends"
         ) {
           edges {
@@ -134,6 +135,7 @@ describe('ReactRelayPaginationContainer', () => {
       after: null,
       count: 1,
       id: '4',
+      orderby: ['name'],
     };
 
     getConnectionFromProps = jest.fn(props => props.user.friends);
@@ -141,6 +143,7 @@ describe('ReactRelayPaginationContainer', () => {
       after: cursor,
       count,
       id: props.user.id,
+      orderby: ['name'],
     }));
     TestComponent = render;
     TestComponent.displayName = 'TestComponent';
@@ -320,6 +323,7 @@ describe('ReactRelayPaginationContainer', () => {
       variables: {
         after: null,
         count: 1,
+        orderby: ['name'],
       },
     });
   });
@@ -432,6 +436,7 @@ describe('ReactRelayPaginationContainer', () => {
       variables: {
         after: null,
         count: 1,
+        orderby: ['name'],
       },
     });
   });
@@ -496,6 +501,7 @@ describe('ReactRelayPaginationContainer', () => {
       variables: {
         after: null,
         count: 1,
+        orderby: ['name'],
       },
     });
 
@@ -538,6 +544,7 @@ describe('ReactRelayPaginationContainer', () => {
       variables: {
         after: null,
         count: 1,
+        orderby: ['name'],
       },
     });
   });
@@ -945,6 +952,7 @@ describe('ReactRelayPaginationContainer', () => {
         {
           after: null, // fragment variable defaults to null
           count: 1,
+          orderby: ['name'],
         },
       );
     });
@@ -967,6 +975,7 @@ describe('ReactRelayPaginationContainer', () => {
         after: 'cursor:1',
         count: 1,
         id: '4',
+        orderby: ['name'],
       };
       loadMore(1, jest.fn());
       expect(environment.mock.isLoading(UserQuery, variables)).toBe(true);
@@ -977,6 +986,7 @@ describe('ReactRelayPaginationContainer', () => {
         after: null, // resets to `null` to refetch connection
         count: 2, // existing edges + additional edges
         id: '4',
+        orderby: ['name'],
       };
       const fetchOption = {force: true};
       loadMore(1, jest.fn(), fetchOption);
@@ -992,6 +1002,7 @@ describe('ReactRelayPaginationContainer', () => {
         after: 'cursor:1',
         count: 1,
         id: '4',
+        orderby: ['name'],
       };
       loadMore(1, callback);
       await environment.mock.resolve(UserQuery, {
@@ -1189,6 +1200,7 @@ describe('ReactRelayPaginationContainer', () => {
         {
           after: null, // fragment variable defaults to null
           count: 1,
+          orderby: ['name'],
         },
       );
     });
@@ -1210,6 +1222,7 @@ describe('ReactRelayPaginationContainer', () => {
         after: null,
         count: 1,
         id: '4',
+        orderby: ['name'],
       };
       const cacheConfig = {
         force: true,
@@ -1393,6 +1406,70 @@ describe('ReactRelayPaginationContainer', () => {
       instance.getInstance().setProps({user: userPointer});
       expect(references.length).toBe(1);
       expect(references[0].dispose).toBeCalled();
+    });
+
+    it('rerenders with the results of new overridden variables', async () => {
+      expect.assertions(8);
+      expect(render.mock.calls.length).toBe(1);
+      expect(render.mock.calls[0][0].user.friends.edges.length).toBe(1);
+      refetchConnection(1, jest.fn(), {orderby: ['last_name']});
+      expect(render.mock.calls.length).toBe(1);
+      await environment.mock.resolve(UserQuery, {
+        data: {
+          node: {
+            id: '4',
+            __typename: 'User',
+            friends: {
+              edges: [
+                {
+                  cursor: 'cursor:7',
+                  node: {
+                    __typename: 'User',
+                    id: 'node:7',
+                  },
+                },
+              ],
+              pageInfo: {
+                endCursor: 'cursor:7',
+                hasNextPage: true,
+                hasPreviousPage: false,
+                startCursor: 'cursor:7',
+              },
+            },
+          },
+        },
+      });
+      expect(references.length).toBe(1);
+      expect(references[0].dispose).not.toBeCalled();
+      expect(render.mock.calls.length).toBe(2);
+      expect(render.mock.calls[1][0].user.friends.edges.length).toBe(1);
+      expect(render.mock.calls[1][0]).toEqual({
+        user: {
+          id: '4',
+          friends: {
+            edges: [
+              {
+                node: {
+                  id: 'node:7',
+                },
+              },
+            ],
+            pageInfo: {
+              endCursor: 'cursor:7',
+              hasNextPage: true,
+              hasPreviousPage: false,
+              startCursor: 'cursor:7',
+            },
+          },
+        },
+        relay: {
+          environment: jasmine.any(Object),
+          hasMore: jasmine.any(Function),
+          isLoading: jasmine.any(Function),
+          loadMore: jasmine.any(Function),
+          refetchConnection: jasmine.any(Function),
+        },
+      });
     });
   });
 });

@@ -22,13 +22,13 @@ const {buildASTSchema, buildClientSchema} = require('graphql');
 import type {Validator} from './RelayQLTransformer';
 import type {GraphQLSchema} from 'graphql';
 
-type GraphQLSchemaProvider = (() => Object | string) | Object | string;
+export type GraphQLSchemaProvider = (() => Object | string) | Object | string;
 
 type ClassicTransformerOpts = {
-  inputArgumentName?: ?string,
-  snakeCase?: ?boolean,
-  substituteVariables?: ?boolean,
-  validator?: ?Validator<any>,
+  inputArgumentName?: string,
+  snakeCase?: boolean,
+  substituteVariables?: boolean,
+  validator?: Validator<any>,
 };
 
 /**
@@ -56,12 +56,12 @@ function getClassicTransformer(
 }
 
 function getSchema(schemaProvider: GraphQLSchemaProvider): GraphQLSchema {
-  const schemaReference = typeof schemaProvider === 'function'
-    ? schemaProvider()
-    : schemaProvider;
-  const introspection = typeof schemaReference === 'string'
-    ? getSchemaIntrospection(schemaReference)
-    : schemaReference;
+  const schemaReference =
+    typeof schemaProvider === 'function' ? schemaProvider() : schemaProvider;
+  const introspection =
+    typeof schemaReference === 'string'
+      ? getSchemaIntrospection(schemaReference)
+      : schemaReference;
   if (introspection.__schema) {
     return buildClientSchema((introspection: any));
   } else if (introspection.data && introspection.data.__schema) {

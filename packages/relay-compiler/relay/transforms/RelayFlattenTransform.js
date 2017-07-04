@@ -174,9 +174,10 @@ function visitNode(
           kind: 'FlattenState',
           node: selection,
           selections: {},
-          type: selection.kind === 'InlineFragment'
-            ? selection.typeCondition
-            : selection.type,
+          type:
+            selection.kind === 'InlineFragment'
+              ? selection.typeCondition
+              : selection.type,
         };
       }
       visitNode(context, options, selectionState, selection);

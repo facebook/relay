@@ -61,9 +61,10 @@ class RelayQueryRequest extends Deferred<QueryResult, Error> {
   _getPrintedQuery(): PrintedQuery {
     let printedQuery = this._printedQuery;
     if (printedQuery == null) {
-      printedQuery = this._query instanceof RelayQuery.OSSQuery
-        ? printRelayOSSQuery(this._query)
-        : printRelayQuery(this._query);
+      printedQuery =
+        this._query instanceof RelayQuery.OSSQuery
+          ? printRelayOSSQuery(this._query)
+          : printRelayQuery(this._query);
       this._printedQuery = printedQuery;
     }
     return printedQuery;

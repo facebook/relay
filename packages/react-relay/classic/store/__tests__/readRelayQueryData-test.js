@@ -1802,38 +1802,36 @@ describe('readRelayQueryData', () => {
 
   describe('readRelayQueryData-partialStatus', () => {
     beforeEach(() => {
-      jasmine.addMatchers({
-        toHavePartialStatus() {
-          return {
-            compare(record) {
-              const isValidRecord =
-                typeof record === 'object' && record && !Array.isArray(record);
-              if (isValidRecord) {
-                if (
-                  record.hasOwnProperty('__status__') &&
-                  RelayRecordStatusMap.isPartialStatus(record.__status__)
-                ) {
-                  return {
-                    pass: true,
-                  };
-                } else {
-                  return {
-                    pass: false,
-                    message: 'Expected record to have partial status, but it does ' +
-                      'not:\n' +
-                      JSON.stringify(record, null, 2),
-                  };
-                }
-              } else {
-                return {
-                  pass: false,
-                  message: 'Expected a record to have partial status, but the ' +
-                    'supplied value is not a valid record: ' +
-                    record,
-                };
-              }
-            },
-          };
+      expect.extend({
+        toHavePartialStatus(record) {
+          const isValidRecord =
+            typeof record === 'object' && record && !Array.isArray(record);
+          if (isValidRecord) {
+            if (
+              record.hasOwnProperty('__status__') &&
+              RelayRecordStatusMap.isPartialStatus(record.__status__)
+            ) {
+              return {
+                pass: true,
+              };
+            } else {
+              return {
+                pass: false,
+                message:
+                  'Expected record to have partial status, but it does ' +
+                  'not:\n' +
+                  JSON.stringify(record, null, 2),
+              };
+            }
+          } else {
+            return {
+              pass: false,
+              message:
+                'Expected a record to have partial status, but the ' +
+                'supplied value is not a valid record: ' +
+                record,
+            };
+          }
         },
       });
     });

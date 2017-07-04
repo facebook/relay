@@ -13,9 +13,9 @@
 
 'use strict';
 
-const GraphQL = require('graphql');
-
 const invariant = require('invariant');
+
+const {GraphQLNonNull} = require('graphql');
 
 import type {
   Argument,
@@ -23,8 +23,6 @@ import type {
   ArgumentValue,
   LocalArgumentDefinition,
 } from 'RelayIR';
-
-const {GraphQLNonNull} = GraphQL;
 
 /**
  * A scope is a mapping of the values for each argument defined by the nearest

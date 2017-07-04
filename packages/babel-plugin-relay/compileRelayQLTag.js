@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule compileRelayQLTag
+ * @flow
  * @format
  */
 
@@ -15,20 +16,26 @@
 const createTransformError = require('./createTransformError');
 const getClassicTransformer = require('./getClassicTransformer');
 
+import typeof BabelTypes from 'babel-types';
+
+import type {BabelState} from './BabelPluginRelay';
+import type {GraphQLSchemaProvider} from './getClassicTransformer';
+
 /**
  * Given all the metadata about a found RelayQL tag, compile it and return
  * the resulting Babel AST.
  */
 function compileRelayQLTag(
-  t,
-  schemaProvider,
-  quasi,
-  documentName,
-  propName,
-  tagName,
-  enableValidation,
-  state,
-) {
+  t: BabelTypes,
+  path: Object,
+  schemaProvider: GraphQLSchemaProvider,
+  quasi: Object,
+  documentName: string,
+  propName: ?string,
+  tagName: string,
+  enableValidation: boolean,
+  state: BabelState,
+): Object {
   try {
     const transformer = getClassicTransformer(schemaProvider, state.opts || {});
     return transformer.transform(t, quasi, {
@@ -38,7 +45,7 @@ function compileRelayQLTag(
       enableValidation,
     });
   } catch (error) {
-    return createTransformError(t, error, quasi, state);
+    throw path.buildCodeFrameError(createTransformError(error), Error);
   }
 }
 

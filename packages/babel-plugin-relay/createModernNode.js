@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule createModernNode
+ * @flow
  * @format
  */
 
@@ -14,12 +15,24 @@
 
 const GENERATED = './__generated__/';
 
+import typeof BabelTypes from 'babel-types';
+
+import type {OperationDefinitionNode, FragmentDefinitionNode} from 'graphql';
+
 /**
  * Relay Modern creates separate generated files, so Babel transforms graphql
  * definitions to lazy require function calls.
  */
-function createModernNode(t, graphqlDefinition, isHasteMode): any {
-  const requiredFile = graphqlDefinition.name.value + '.graphql';
+function createModernNode(
+  t: BabelTypes,
+  graphqlDefinition: OperationDefinitionNode | FragmentDefinitionNode,
+  isHasteMode: boolean,
+): Object {
+  const definitionName = graphqlDefinition.name;
+  if (!definitionName) {
+    throw new Error('GraphQL operations and fragments must contain names');
+  }
+  const requiredFile = definitionName.value + '.graphql';
   const requiredPath = isHasteMode ? requiredFile : GENERATED + requiredFile;
   return t.functionExpression(
     null,

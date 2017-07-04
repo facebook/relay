@@ -14,7 +14,6 @@
 'use strict';
 
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
-const RelayModernRecord = require('RelayModernRecord');
 const RelayReader = require('RelayReader');
 const RelayRecordSourceMutator = require('RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('RelayRecordSourceProxy');
@@ -30,6 +29,7 @@ import type {
   HandleFieldPayload,
   MutableRecordSource,
   OperationSelector,
+  OptimisticUpdate,
   SelectorStoreUpdater,
   Store,
   StoreUpdater,
@@ -41,16 +41,6 @@ type Payload = {
   source: MutableRecordSource,
   updater: ?SelectorStoreUpdater,
 };
-
-type OptimisticUpdate =
-  | {|
-      storeUpdater: StoreUpdater,
-    |}
-  | {|
-      selectorStoreUpdater: ?SelectorStoreUpdater,
-      operation: OperationSelector,
-      response: ?Object,
-    |};
 
 /**
  * Coordinates the concurrent modification of a `Store` due to optimistic and
@@ -295,8 +285,7 @@ class RelayPublishQueue {
 }
 
 function lookupSelector(source, selector): ?SelectorData {
-  const selectorData = RelayReader.read(source, selector, RelayModernRecord)
-    .data;
+  const selectorData = RelayReader.read(source, selector).data;
   if (__DEV__) {
     const deepFreeze = require('deepFreeze');
     if (selectorData) {

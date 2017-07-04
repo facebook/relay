@@ -62,23 +62,15 @@ describe('RelayRenderer.render', () => {
     queryConfig = RelayQueryConfig.genMockInstance();
     environment = new RelayEnvironment();
 
-    jasmine.addMatchers({
-      toBeUpdated() {
+    expect.extend({
+      toBeUpdated(actual) {
         return {
-          compare(actual) {
-            return {
-              pass: actual.props.shouldUpdate,
-            };
-          },
+          pass: actual.props.shouldUpdate,
         };
       },
-      toBeRenderedChild() {
+      toBeRenderedChild(actual) {
         return {
-          compare(actual) {
-            return {
-              pass: getRenderOutput().props.children === actual,
-            };
-          },
+          pass: getRenderOutput().props.children === actual,
         };
       },
     });

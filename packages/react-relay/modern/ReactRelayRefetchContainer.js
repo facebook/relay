@@ -53,11 +53,11 @@ const containerContextTypes = {
  * props, resolving them with the provided fragments and subscribing for
  * updates.
  */
-function createContainerWithFragments<TBase: ReactClass<*>>(
-  Component: TBase,
+function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
+  Component: TClass,
   fragments: FragmentMap,
   taggedNode: GraphQLTaggedNode,
-): TBase {
+): ReactClass<TConfig & {componentRef?: any}> {
   const ComponentClass = getReactComponent(Component);
   const componentName = getComponentName(Component);
   const containerName = `Relay(${componentName})`;
@@ -213,9 +213,10 @@ function createContainerWithFragments<TBase: ReactClass<*>>(
       const {environment, variables: rootVariables} = assertRelayContext(
         this.context.relay,
       );
-      let fetchVariables = typeof refetchVariables === 'function'
-        ? refetchVariables(this._getFragmentVariables())
-        : refetchVariables;
+      let fetchVariables =
+        typeof refetchVariables === 'function'
+          ? refetchVariables(this._getFragmentVariables())
+          : refetchVariables;
       fetchVariables = {...rootVariables, ...fetchVariables};
       const fragmentVariables = renderVariables
         ? {...rootVariables, ...renderVariables}
@@ -232,9 +233,11 @@ function createContainerWithFragments<TBase: ReactClass<*>>(
           environment: this.context.relay.environment,
           variables: fragmentVariables,
         };
-        callback && callback();
         this._resolver.setVariables(fragmentVariables);
-        this.setState({data: this._resolver.resolve()});
+        this.setState(
+          {data: this._resolver.resolve()},
+          () => callback && callback(),
+        );
       };
       const onError = error => {
         this._pendingRefetch = null;
@@ -288,7 +291,9 @@ function createContainerWithFragments<TBase: ReactClass<*>>(
           <ComponentClass
             {...this.props}
             {...this.state.data}
-            ref={'component'} // eslint-disable-line react/no-string-refs
+            // TODO: Remove the string ref fallback.
+            // eslint-disable-next-line react/no-string-refs
+            ref={this.props.componentRef || 'component'}
             relay={this.state.relayProp}
           />
         );

@@ -88,7 +88,8 @@ const RelayModernTestUtils = {
         const warned = calls.filter(args => !args[0]).length;
         return {
           pass: !(negative ? warned : !warned),
-          message: `Expected ${negative ? 'not ' : ''}to warn but ` +
+          message:
+            `Expected ${negative ? 'not ' : ''}to warn but ` +
             '`warning` received the following calls: ' +
             `${formatActual(calls)}.`,
         };
@@ -113,7 +114,8 @@ const RelayModernTestUtils = {
 
       return {
         pass: !(negative ? call : !call),
-        message: `Expected ${negative ? 'not ' : ''}to warn: ` +
+        message:
+          `Expected ${negative ? 'not ' : ''}to warn: ` +
           `${formatExpected(expected)} but ` +
           '`warning` received the following calls: ' +
           `${formatActual(calls)}.`,

@@ -25,7 +25,8 @@ describe('RelayModernTestUtils', () => {
           if (expected) {
             return {
               pass: false,
-              message: 'Expected matcher to fail with message: ' +
+              message:
+                'Expected matcher to fail with message: ' +
                 JSON.stringify(expected) +
                 ' but it passed.',
             };
@@ -39,7 +40,8 @@ describe('RelayModernTestUtils', () => {
           if (!actual.message.match(expected)) {
             return {
               pass: false,
-              message: 'Expected matcher to fail with message matching: ' +
+              message:
+                'Expected matcher to fail with message matching: ' +
                 expected.toString() +
                 ' but it failed with message: ' +
                 JSON.stringify(actual.message),
@@ -48,7 +50,8 @@ describe('RelayModernTestUtils', () => {
         } else if (expected && actual.message !== expected) {
           return {
             pass: false,
-            message: 'Expected matcher to fail with message: ' +
+            message:
+              'Expected matcher to fail with message: ' +
               JSON.stringify(expected) +
               ' but it failed with message: ' +
               JSON.stringify(actual.message),
@@ -63,7 +66,8 @@ describe('RelayModernTestUtils', () => {
         } else {
           return {
             pass: false,
-            message: 'Expected matcher to pass but it failed with message: ' +
+            message:
+              'Expected matcher to pass but it failed with message: ' +
               JSON.stringify(actual.message),
           };
         }

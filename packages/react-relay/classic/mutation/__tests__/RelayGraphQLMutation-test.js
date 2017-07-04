@@ -244,7 +244,7 @@ describe('RelayGraphQLMutation', () => {
     describe('variable validation', () => {
       it('complains about missing `input` variable', () => {
         const variables = {
-          inptu: /* <- Note the typo. */ {
+          inptu /* <- Note the typo. */: {
             feedbackId: 'aFeedbackId',
           },
           likersCount: '10',

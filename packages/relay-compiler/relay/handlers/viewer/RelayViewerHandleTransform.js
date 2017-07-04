@@ -13,17 +13,15 @@
 
 'use strict';
 
-const GraphQL = require('graphql');
 const RelayCompilerContext = require('RelayCompilerContext');
 const RelayIRTransformer = require('RelayIRTransformer');
 
 const {DEFAULT_HANDLE_KEY} = require('RelayDefaultHandleKey');
 const {getRawType} = require('RelaySchemaUtils');
+const {GraphQLObjectType} = require('graphql');
 
 import type {LinkedField} from 'RelayIR';
 import type {GraphQLSchema} from 'graphql';
-
-const {GraphQLObjectType} = GraphQL;
 
 type State = {};
 

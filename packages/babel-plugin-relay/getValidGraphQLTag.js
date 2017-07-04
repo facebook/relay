@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule getValidGraphQLTag
+ * @flow
  * @format
  */
 
@@ -14,19 +15,21 @@
 
 const GraphQL = require('graphql');
 
+import type {DocumentNode} from 'graphql';
+
 /**
  * Given a babel AST path to a tagged template literal, return an AST if it is
  * a graphql`` or graphql.experimental`` literal being used in a valid way.
  * If it is some other type of template literal then return nothing.
  */
-function getValidGraphQLTag(path) {
+function getValidGraphQLTag(path: any): ?DocumentNode {
   const tag = path.get('tag');
 
   const tagName = tag.isIdentifier({name: 'graphql'})
     ? 'graphql'
     : tag.matchesPattern('graphql.experimental')
-        ? 'graphql.experimental'
-        : undefined;
+      ? 'graphql.experimental'
+      : undefined;
 
   if (!tagName) {
     return;

@@ -13,13 +13,14 @@
 
 'use strict';
 
-const GraphQL = require('graphql');
 const RelayIRVisitor = require('RelayIRVisitor');
 const RelaySchemaUtils = require('RelaySchemaUtils');
 
 const formatStorageKey = require('formatStorageKey');
 const invariant = require('invariant');
 const prettyStringify = require('prettyStringify');
+
+const {GraphQLList} = require('graphql');
 
 import type {
   ConcreteArgument,
@@ -29,8 +30,6 @@ import type {
   ConcreteSelection,
 } from 'RelayConcreteNode';
 import type {Fragment, Root} from 'RelayIR';
-
-const {GraphQLList} = GraphQL;
 const {getRawType, isAbstractType, getNullableType} = RelaySchemaUtils;
 
 /* eslint-disable no-redeclare */
@@ -126,18 +125,20 @@ const RelayCodeGenVisitor = {
     },
 
     LinkedField(node): Array<ConcreteSelection> {
-      const handles = (node.handles &&
-        node.handles.map(handle => {
-          return {
-            kind: 'LinkedHandle',
-            alias: node.alias,
-            args: valuesOrNull(sortByName(node.args)),
-            handle: handle.name,
-            name: node.name,
-            key: handle.key,
-            filters: handle.filters,
-          };
-        })) || [];
+      const handles =
+        (node.handles &&
+          node.handles.map(handle => {
+            return {
+              kind: 'LinkedHandle',
+              alias: node.alias,
+              args: valuesOrNull(sortByName(node.args)),
+              handle: handle.name,
+              name: node.name,
+              key: handle.key,
+              filters: handle.filters,
+            };
+          })) ||
+        [];
       const type = getRawType(node.type);
       return [
         {
@@ -155,18 +156,20 @@ const RelayCodeGenVisitor = {
     },
 
     ScalarField(node): Array<ConcreteSelection> {
-      const handles = (node.handles &&
-        node.handles.map(handle => {
-          return {
-            kind: 'ScalarHandle',
-            alias: node.alias,
-            args: valuesOrNull(sortByName(node.args)),
-            handle: handle.name,
-            name: node.name,
-            key: handle.key,
-            filters: handle.filters,
-          };
-        })) || [];
+      const handles =
+        (node.handles &&
+          node.handles.map(handle => {
+            return {
+              kind: 'ScalarHandle',
+              alias: node.alias,
+              args: valuesOrNull(sortByName(node.args)),
+              handle: handle.name,
+              name: node.name,
+              key: handle.key,
+              filters: handle.filters,
+            };
+          })) ||
+        [];
       return [
         {
           kind: 'ScalarField',

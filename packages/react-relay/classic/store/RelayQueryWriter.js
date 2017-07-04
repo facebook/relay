@@ -352,10 +352,12 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       this._store.getLinkedRecordID(recordID, storageKey) || generateClientID();
 
     const connectionRecordState = this._store.getRecordState(connectionID);
-    const hasEdges = !!(field.getFieldByStorageKey(EDGES) ||
+    const hasEdges = !!(
+      field.getFieldByStorageKey(EDGES) ||
       (connectionData != null &&
         typeof connectionData === 'object' &&
-        (connectionData: $FixMe)[EDGES]));
+        (connectionData: $FixMe)[EDGES])
+    );
     const path = RelayQueryPath.getPath(state.path, field, connectionID);
     // always update the store to ensure the value is present in the appropriate
     // data sink (records/queuedRecords), but only record an update if the value
@@ -605,7 +607,6 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     // client ids.
     this._writer.putLinkedRecordIDs(recordID, storageKey, nextLinkedIDs);
     nextLinkedIDs.forEach(nextLinkedID => {
-      // $FlowFixMe(>=0.33.0)
       const itemData = nextRecords[nextLinkedID];
       if (itemData) {
         this.traverse(field, {

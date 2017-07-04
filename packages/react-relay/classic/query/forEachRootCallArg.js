@@ -45,9 +45,10 @@ function forEachRootCallArg(
     } else {
       fn({
         identifyingArgValue,
-        identifyingArgKey: identifyingArgValue == null
-          ? null
-          : typeof identifyingArgValue === 'string'
+        identifyingArgKey:
+          identifyingArgValue == null
+            ? null
+            : typeof identifyingArgValue === 'string'
               ? identifyingArgValue
               : stableStringify(identifyingArgValue),
       });

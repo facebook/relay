@@ -60,7 +60,7 @@ function commitRelayModernMutation<T>(
     optimisticResponse = optimisticResponse();
     warning(
       false,
-      'commitRelayModernMutatuion: Expected `optimisticResponse` to be an object, ' +
+      'commitRelayModernMutation: Expected `optimisticResponse` to be an object, ' +
         'received a function.',
     );
   }
@@ -73,7 +73,7 @@ function commitRelayModernMutation<T>(
     const mutationRoot = mutation.query.selections[0].name;
     warning(
       optimisticResponse[mutationRoot],
-      'commitRelayModernMutatuion: Expected `optimisticResponse` to be wrapped ' +
+      'commitRelayModernMutation: Expected `optimisticResponse` to be wrapped ' +
         'in mutation name `%s`',
       mutationRoot,
     );

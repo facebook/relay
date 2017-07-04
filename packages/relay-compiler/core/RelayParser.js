@@ -162,7 +162,7 @@ class RelayParser {
           isTypeSubTypeOf(this._schema, this._referencedVariables[name], type),
         'RelayParser: Variable `$%s` was used in locations expecting ' +
           'the conflicting types `%s` and `%s`. Source: %s.',
-        getName(this._definition),
+        name,
         prevType,
         type,
         this._getErrorContext(),

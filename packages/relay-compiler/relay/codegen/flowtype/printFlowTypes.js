@@ -13,25 +13,23 @@
 
 'use strict';
 
-const GraphQL = require('graphql');
-
-const t = require('babel-types');
-
-const {RELAY_CLASSIC_MUTATION} = require('RelayFlowParser');
-
-import type {Fragment, LinkedField, Root, Selection} from 'RelayIR';
-import type {GraphQLType} from 'graphql';
 const generate = require('babel-generator').default;
-const {getRawType} = require('RelaySchemaUtils');
+const t = require('babel-types');
 const transformInputObjectToIR = require('transformInputObjectToIR');
 const traverse = require('babel-traverse').default;
 
+const {RELAY_CLASSIC_MUTATION} = require('RelayFlowParser');
+const {getRawType} = require('RelaySchemaUtils');
 const {
   GraphQLEnumType,
   GraphQLList,
   GraphQLNonNull,
   GraphQLScalarType,
-} = GraphQL;
+} = require('graphql');
+
+import type {Fragment, LinkedField, Root, Selection} from 'RelayIR';
+import type {GraphQLType} from 'graphql';
+
 const FIELD_BLACKLIST = ['clientMutationId', 'client_mutation_id'];
 
 type Annotation = Object;

@@ -45,7 +45,9 @@ class FooComponent extends React.Component {
 
     const defLen = this.props.defaultProp.length; // always a valid string, so no error
     return (
-      <div>{reqLen && optionalProp && optionalFoo && missing && defLen}</div>
+      <div>
+        {reqLen && optionalProp && optionalFoo && missing && defLen}
+      </div>
     );
   }
 }

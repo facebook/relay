@@ -16,7 +16,6 @@
 const areEqual = require('areEqual');
 const deepFreeze = require('deepFreeze');
 const forEachObject = require('forEachObject');
-const formatStorageKey = require('formatStorageKey');
 const invariant = require('invariant');
 
 const {
@@ -29,8 +28,6 @@ const {
 
 import type {Record} from 'RelayCombinedEnvironmentTypes';
 import type {DataID} from 'RelayInternalTypes';
-import type {IRecordReader} from 'RelayStoreTypes';
-import type {Variables} from 'RelayTypes';
 
 /**
  * @public
@@ -141,12 +138,12 @@ function getType(record: Record): string {
  *
  * Get a scalar (non-link) field value.
  */
-function getValueByStorageKey(record: Record, storageKey: string): mixed {
+function getValue(record: Record, storageKey: string): mixed {
   const value = record[storageKey];
   if (value && typeof value === 'object') {
     invariant(
       !value.hasOwnProperty(REF_KEY) && !value.hasOwnProperty(REFS_KEY),
-      'RelayModernRecord.getValueByStorageKey(): Expected a scalar (non-link) value for `%s.%s` ' +
+      'RelayModernRecord.getValue(): Expected a scalar (non-link) value for `%s.%s` ' +
         'but found %s.',
       record[ID_KEY],
       storageKey,
@@ -161,30 +158,17 @@ function getValueByStorageKey(record: Record, storageKey: string): mixed {
 /**
  * @public
  *
- * Get a scalar (non-link) field value via field name and args.
- */
-function getValue(record: Record, name: string, args?: ?Variables): mixed {
-  const storageKey = formatStorageKey(name, args);
-  return getValueByStorageKey(record, storageKey);
-}
-
-/**
- * @public
- *
  * Get the value of a field as a reference to another record. Throws if the
  * field has a different type.
  */
-function getLinkedRecordIDByStorageKey(
-  record: Record,
-  storageKey: string,
-): ?DataID {
+function getLinkedRecordID(record: Record, storageKey: string): ?DataID {
   const link = record[storageKey];
   if (link == null) {
     return link;
   }
   invariant(
     typeof link === 'object' && link && typeof link[REF_KEY] === 'string',
-    'RelayModernRecord.getLinkedRecordIDByStorageKey(): Expected `%s.%s` to be a linked ID, ' +
+    'RelayModernRecord.getLinkedRecordID(): Expected `%s.%s` to be a linked ID, ' +
       'was `%s`.',
     record[ID_KEY],
     storageKey,
@@ -196,25 +180,10 @@ function getLinkedRecordIDByStorageKey(
 /**
  * @public
  *
- * Get the value of a field as a reference to another record via field name and arg.
- * Throws if the field has a different type.
- */
-function getLinkedRecordID(
-  record: Record,
-  name: string,
-  args?: ?Variables,
-): ?DataID {
-  const storageKey = formatStorageKey(name, args);
-  return getLinkedRecordIDByStorageKey(record, storageKey);
-}
-
-/**
- * @public
- *
  * Get the value of a field as a list of references to other records. Throws if
  * the field has a different type.
  */
-function getLinkedRecordIDsByStorageKey(
+function getLinkedRecordIDs(
   record: Record,
   storageKey: string,
 ): ?Array<?DataID> {
@@ -224,7 +193,7 @@ function getLinkedRecordIDsByStorageKey(
   }
   invariant(
     typeof links === 'object' && Array.isArray(links[REFS_KEY]),
-    'RelayModernRecord.getLinkedRecordIDsByStorageKey(): Expected `%s.%s` to contain an array ' +
+    'RelayModernRecord.getLinkedRecordIDs(): Expected `%s.%s` to contain an array ' +
       'of linked IDs, got `%s`.',
     record[ID_KEY],
     storageKey,
@@ -232,21 +201,6 @@ function getLinkedRecordIDsByStorageKey(
   );
   // assume items of the array are ids
   return (links[REFS_KEY]: any);
-}
-
-/**
- * @public
- *
- * Get the value of a field as a list of references to other records via field name and args.
- * Throws if the field has a different type.
- */
-function getLinkedRecordIDs(
-  record: Record,
-  name: string,
-  args?: ?Variables,
-): ?Array<?DataID> {
-  const storageKey = formatStorageKey(name, args);
-  return getLinkedRecordIDsByStorageKey(record, storageKey);
 }
 
 /**
@@ -334,25 +288,16 @@ function setLinkedRecordIDs(
   record[storageKey] = links;
 }
 
-const RelayRecordReader: IRecordReader<Record> = {
-  getType,
-  getDataID,
-  getValue,
-  getLinkedRecordID,
-  getLinkedRecordIDs,
-};
-
 module.exports = {
-  ...RelayRecordReader,
   clone,
   copyFields,
   create,
   freeze,
   getDataID,
-  getLinkedRecordIDByStorageKey,
-  getLinkedRecordIDsByStorageKey,
+  getLinkedRecordID,
+  getLinkedRecordIDs,
   getType,
-  getValueByStorageKey,
+  getValue,
   merge,
   setValue,
   setLinkedRecordID,

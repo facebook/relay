@@ -46,10 +46,10 @@ const containerContextTypes = {
  * props, resolving them with the provided fragments and subscribing for
  * updates.
  */
-function createContainerWithFragments<TBase: ReactClass<*>>(
-  Component: TBase,
+function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
+  Component: TClass,
   fragments: FragmentMap,
-): TBase {
+): ReactClass<TConfig & {componentRef?: any}> {
   const ComponentClass = getReactComponent(Component);
   const componentName = getComponentName(Component);
   const containerName = `Relay(${componentName})`;
@@ -166,7 +166,9 @@ function createContainerWithFragments<TBase: ReactClass<*>>(
           <ComponentClass
             {...this.props}
             {...this.state.data}
-            ref={'component'} // eslint-disable-line react/no-string-refs
+            // TODO: Remove the string ref fallback.
+            // eslint-disable-next-line react/no-string-refs
+            ref={this.props.componentRef || 'component'}
             relay={this.state.relayProp}
           />
         );

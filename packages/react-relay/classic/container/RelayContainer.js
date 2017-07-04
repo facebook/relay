@@ -524,14 +524,15 @@ function createContainerComponent(
       return {
         queryData: this._getQueryData(props),
         rawVariables,
-        relayProp: this.state.relayProp.route === context.route &&
+        relayProp:
+          this.state.relayProp.route === context.route &&
           shallowEqual(this.state.relayProp.variables, nextVariables)
-          ? this.state.relayProp
-          : {
-              ...this.state.relayProp,
-              route: context.route,
-              variables: nextVariables,
-            },
+            ? this.state.relayProp
+            : {
+                ...this.state.relayProp,
+                route: context.route,
+                variables: nextVariables,
+              },
       };
     }
 
@@ -909,7 +910,8 @@ function resetPropOverridesForVariables(
 function initializeProfiler(RelayContainer: RelayContainerClass): void {
   RelayProfiler.instrumentMethods(RelayContainer.prototype, {
     componentWillMount: 'RelayContainer.prototype.componentWillMount',
-    componentWillReceiveProps: 'RelayContainer.prototype.componentWillReceiveProps',
+    componentWillReceiveProps:
+      'RelayContainer.prototype.componentWillReceiveProps',
     shouldComponentUpdate: 'RelayContainer.prototype.shouldComponentUpdate',
   });
 }

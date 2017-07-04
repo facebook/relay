@@ -59,29 +59,21 @@ describe('RelayRenderer.abort', () => {
         request: environment.primeCache.mock.requests[index],
       };
     }
-    jasmine.addMatchers({
-      toAbortOnUpdate() {
+    expect.extend({
+      toAbortOnUpdate(actual) {
+        const {abort, request} = render();
+        actual(request);
+        render();
         return {
-          compare(actual) {
-            const {abort, request} = render();
-            actual(request);
-            render();
-            return {
-              pass: abort.mock.calls.length > 0,
-            };
-          },
+          pass: abort.mock.calls.length > 0,
         };
       },
-      toAbortOnUnmount() {
+      toAbortOnUnmount(actual) {
+        const {abort, request} = render();
+        actual(request);
+        ReactDOM.unmountComponentAtNode(container);
         return {
-          compare(actual) {
-            const {abort, request} = render();
-            actual(request);
-            ReactDOM.unmountComponentAtNode(container);
-            return {
-              pass: abort.mock.calls.length > 0,
-            };
-          },
+          pass: abort.mock.calls.length > 0,
         };
       },
     });

@@ -543,10 +543,11 @@ describe('RelayQuery', () => {
     it('expands fragment spreads with call variables', () => {
       const fragments = {
         foo: graphql.experimental`
-          fragment RelayQuery_foo on User @argumentDefinitions(
-            size: {type: "Int"}
-            cond: {type: "Boolean!", defaultValue: true}
-          ) {
+          fragment RelayQuery_foo on User
+            @argumentDefinitions(
+              size: {type: "Int"}
+              cond: {type: "Boolean!", defaultValue: true}
+            ) {
             id
             profilePicture(size: $size) @include(if: $cond) {
               uri
@@ -597,10 +598,11 @@ describe('RelayQuery', () => {
     it('expands fragment spreads with literal variables', () => {
       const fragments = {
         foo: graphql.experimental`
-          fragment RelayQuery_foo on User @argumentDefinitions(
-            size: {type: "Int"}
-            cond: {type: "Boolean!", defaultValue: true}
-          ) {
+          fragment RelayQuery_foo on User
+            @argumentDefinitions(
+              size: {type: "Int"}
+              cond: {type: "Boolean!", defaultValue: true}
+            ) {
             id
             profilePicture(size: $size) @include(if: $cond) {
               uri

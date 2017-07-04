@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule compileGraphQLTag
+ * @flow
  * @format
  */
 
@@ -17,11 +18,21 @@ const createCompatNode = require('./createCompatNode');
 const createModernNode = require('./createModernNode');
 const getFragmentNameParts = require('./getFragmentNameParts');
 
+import typeof BabelTypes from 'babel-types';
+
+import type {BabelState} from './BabelPluginRelay';
+import type {DocumentNode} from 'graphql';
+
 /**
  * Given a graphql`` tagged template literal, replace it with the appropriate
  * runtime artifact.
  */
-function compileGraphQLTag(t, path, state, ast) {
+function compileGraphQLTag(
+  t: BabelTypes,
+  path: Object,
+  state: BabelState,
+  ast: DocumentNode,
+): void {
   const mainDefinition = ast.definitions[0];
 
   if (mainDefinition.kind === 'FragmentDefinition') {

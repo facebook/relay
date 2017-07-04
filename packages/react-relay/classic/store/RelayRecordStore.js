@@ -91,8 +91,8 @@ class RelayRecordStore {
     nodeConnectionMap?: ?NodeRangeMap,
   ) {
     this._cachedRecords = records.cachedRecords;
-    this._cachedRootCallMap = (rootCallMaps &&
-      rootCallMaps.cachedRootCallMap) || {};
+    this._cachedRootCallMap =
+      (rootCallMaps && rootCallMaps.cachedRootCallMap) || {};
     this._queuedRecords = records.queuedRecords;
     this._nodeConnectionMap = nodeConnectionMap || {};
     this._records = records.records;

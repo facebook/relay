@@ -314,8 +314,7 @@ describe('GraphQLStoreQueryResolver', () => {
 
     beforeEach(() => {
       storeData.initializeGarbageCollector(run => {
-        while (run()) {
-        }
+        while (run()) {}
       });
       const containerFragment = RelayTestUtils.createContainerFragment(
         Relay.QL`

@@ -198,9 +198,8 @@ const RelayQueryPath = {
         );
         prevField = schemaName;
       }
-      const idFieldName = node instanceof RelayQuery.Field
-        ? node.getInferredPrimaryKey()
-        : ID;
+      const idFieldName =
+        node instanceof RelayQuery.Field ? node.getInferredPrimaryKey() : ID;
       if (idFieldName) {
         child = node.clone([
           child,
@@ -219,9 +218,8 @@ const RelayQueryPath = {
         'deprecated components such as RelayContainer are not nested in ' +
         'new APIs such as QueryRenderer or FragmentContainer.',
     );
-    const root = path.type === 'root'
-      ? path.root
-      : createRootQueryFromNodePath(path);
+    const root =
+      path.type === 'root' ? path.root : createRootQueryFromNodePath(path);
     const children = [
       child,
       root.getFieldByStorageKey(ID),
@@ -285,9 +283,10 @@ function getRootFragmentForQuery(
   if (rootType != null) {
     return [RelayQuery.Fragment.build(root.getName(), rootType, nextChildren)];
   } else {
-    const rootState = rootID != null
-      ? store.getRecordState(rootID)
-      : RelayClassicRecordState.UNKNOWN;
+    const rootState =
+      rootID != null
+        ? store.getRecordState(rootID)
+        : RelayClassicRecordState.UNKNOWN;
     warning(
       false,
       'RelayQueryPath: No typename found for %s record `%s`. Generating a ' +

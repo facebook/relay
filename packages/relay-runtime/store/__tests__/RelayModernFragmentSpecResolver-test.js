@@ -29,21 +29,25 @@ describe('RelayModernFragmentSpecResolver', () => {
   let variables;
 
   function setName(id, name) {
-    environment.applyUpdate(store => {
-      const user = store.get(id);
-      user.setValue(name, 'name');
+    environment.applyUpdate({
+      storeUpdater: store => {
+        const user = store.get(id);
+        user.setValue(name, 'name');
+      },
     });
   }
 
   function setPhotoUri(id, size, uri) {
-    environment.applyUpdate(store => {
-      const user = store.get(id);
-      const profilePicture = user.getOrCreateLinkedRecord(
-        'profilePicture',
-        'Image',
-        {size},
-      );
-      profilePicture.setValue(uri, 'uri');
+    environment.applyUpdate({
+      storeUpdater: store => {
+        const user = store.get(id);
+        const profilePicture = user.getOrCreateLinkedRecord(
+          'profilePicture',
+          'Image',
+          {size},
+        );
+        profilePicture.setValue(uri, 'uri');
+      },
     });
   }
 
@@ -460,6 +464,39 @@ describe('RelayModernFragmentSpecResolver', () => {
           {
             id: '4',
             name: 'Mark',
+          },
+        ],
+      });
+    });
+
+    it('resolves fragment data when the item at the end of the array is removed', () => {
+      const resolver = new RelayModernFragmentSpecResolver(
+        context,
+        {user: UsersFragment},
+        {user: [zuck, beast]},
+        jest.fn(),
+      );
+
+      expect(resolver.resolve()).toEqual({
+        user: [
+          {
+            id: '4',
+            name: 'Zuck',
+          },
+          {
+            id: 'beast',
+            name: 'Beast',
+          },
+        ],
+      });
+
+      resolver.setProps({user: [zuck]});
+
+      expect(resolver.resolve()).toEqual({
+        user: [
+          {
+            id: '4',
+            name: 'Zuck',
           },
         ],
       });

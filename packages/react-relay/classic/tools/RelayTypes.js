@@ -163,9 +163,9 @@ export type RelayMutationConfig =
     }
   | {
       type: 'NODE_DELETE',
-      parentName: string,
+      parentName?: string,
       parentID?: string,
-      connectionName: string,
+      connectionName?: string,
       deletedIDFieldName: string,
     }
   | {

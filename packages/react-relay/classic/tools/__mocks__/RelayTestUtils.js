@@ -498,7 +498,8 @@ const RelayTestUtils = {
         const warned = calls.filter(args => !args[0]).length;
         return {
           pass: !(negative ? warned : !warned),
-          message: `Expected ${negative ? 'not ' : ''}to warn but ` +
+          message:
+            `Expected ${negative ? 'not ' : ''}to warn but ` +
             '`warning` received the following calls: ' +
             `${formatActual(calls)}.`,
         };
@@ -523,7 +524,8 @@ const RelayTestUtils = {
 
       return {
         pass: !(negative ? call : !call),
-        message: `Expected ${negative ? 'not ' : ''}to warn: ` +
+        message:
+          `Expected ${negative ? 'not ' : ''}to warn: ` +
           `${formatExpected(expected)} but ` +
           '`warning` received the following calls: ' +
           `${formatActual(calls)}.`,
@@ -673,9 +675,8 @@ const RelayTestUtils = {
     const RelayQueryWriter = require('RelayQueryWriter');
     const writeRelayQueryPayload = require('writeRelayQueryPayload');
 
-    queryTracker = queryTracker === null
-      ? null
-      : queryTracker || new RelayQueryTracker();
+    queryTracker =
+      queryTracker === null ? null : queryTracker || new RelayQueryTracker();
     options = options || {};
     const changeTracker = new RelayChangeTracker();
     const queryWriter = new RelayQueryWriter(
@@ -792,9 +793,8 @@ function prettifyQueryString(queryText, indentSize) {
   while ((match = regexp.exec(queryText))) {
     if (match[0] === '{') {
       indent += '  ';
-      const padding = match.index && queryText[match.index - 1] !== ' '
-        ? ' '
-        : '';
+      const padding =
+        match.index && queryText[match.index - 1] !== ' ' ? ' ' : '';
       output += padding + '{\n' + indent;
     } else if (match[0] === '}') {
       indent = indent.substr(0, indent.length - 2);

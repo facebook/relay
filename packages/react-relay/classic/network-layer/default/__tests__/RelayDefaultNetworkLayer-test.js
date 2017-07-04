@@ -181,7 +181,7 @@ describe('RelayDefaultNetworkLayer', () => {
       expect(error instanceof Error).toBe(true);
       expect(error.message).toEqual(
         [
-          'Server request for mutation \`FeedbackLikeMutation\` failed for the ' +
+          'Server request for mutation `FeedbackLikeMutation` failed for the ' +
             'following reasons:',
           '',
           '1. Something went wrong.',
@@ -217,7 +217,7 @@ describe('RelayDefaultNetworkLayer', () => {
       expect(error instanceof Error).toBe(true);
       expect(error.message).toEqual(
         [
-          'Server request for mutation \`FeedbackLikeMutation\` failed for the ' +
+          'Server request for mutation `FeedbackLikeMutation` failed for the ' +
             'following reasons:',
           '',
           '1. Something went wrong.',
@@ -250,7 +250,7 @@ describe('RelayDefaultNetworkLayer', () => {
       expect(error instanceof Error).toBe(true);
       expect(error.message).toEqual(
         [
-          'Server request for mutation \`FeedbackLikeMutation\` failed for the ' +
+          'Server request for mutation `FeedbackLikeMutation` failed for the ' +
             'following reasons:',
           '',
           '1. Something went wrong.',
@@ -282,7 +282,7 @@ describe('RelayDefaultNetworkLayer', () => {
       expect(error instanceof Error).toBe(true);
       expect(error.message).toEqual(
         [
-          'Server request for mutation \`FeedbackLikeMutation\` failed for the ' +
+          'Server request for mutation `FeedbackLikeMutation` failed for the ' +
             'following reasons:',
           '',
           'Server response had an error status: 500',

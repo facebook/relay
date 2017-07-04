@@ -14,14 +14,18 @@
 
 const watchman = require('fb-watchman');
 
+import type {File} from 'RelayCodegenTypes';
+
 const SUBSCRIPTION_NAME = 'relay-codegen';
 
 export type WatchmanExpression = Array<string | WatchmanExpression>;
-export type FileFilter = (filename: string) => boolean;
+
+export type FileFilter = (file: File) => boolean;
 
 type WatchmanChange = {
   name: string,
   exists: boolean,
+  'content.sha1hex': string,
 };
 type WatchmanChanges = {
   files?: Array<WatchmanChange>,
@@ -31,7 +35,7 @@ async function queryFiles(
   baseDir: string,
   expression: WatchmanExpression,
   filter: FileFilter,
-): Promise<Set<string>> {
+): Promise<Set<File>> {
   const client = new PromiseClient();
   const watchResp = await client.watchProject(baseDir);
   const resp = await client.command(
@@ -93,7 +97,7 @@ async function watchFiles(
   baseDir: string,
   expression: WatchmanExpression,
   filter: FileFilter,
-  callback: (files: Set<string>) => any,
+  callback: (files: Set<File>) => any,
 ): Promise<void> {
   let files = new Set();
   await watch(baseDir, expression, changes => {
@@ -120,7 +124,7 @@ async function watchCompile(
   baseDir: string,
   expression: WatchmanExpression,
   filter: FileFilter,
-  compile: (files: Set<string>) => Promise<any>,
+  compile: (files: Set<File>) => Promise<any>,
 ): Promise<void> {
   let compiling = false;
   let needsCompiling = false;
@@ -142,25 +146,30 @@ async function watchCompile(
 }
 
 function updateFiles(
-  files: Set<string>,
+  files: Set<File>,
   filter: FileFilter,
   fileChanges: Array<WatchmanChange>,
-): Set<string> {
-  const newFiles = new Set(files);
-  fileChanges.forEach(({name, exists}) => {
-    if (exists && filter(name)) {
-      newFiles.add(name);
+): Set<File> {
+  const fileMap = new Map();
+  files.forEach(file => {
+    fileMap.set(file.relPath, file);
+  });
+
+  fileChanges.forEach(({name, exists, 'content.sha1hex': hash}) => {
+    const file = {relPath: name, hash};
+    if (exists && filter(file)) {
+      fileMap.set(name, file);
     } else {
-      newFiles.delete(name);
+      fileMap.delete(name);
     }
   });
-  return newFiles;
+  return new Set(fileMap.values());
 }
 
 function makeQuery(relativePath: string, expression: WatchmanExpression) {
   return {
     expression,
-    fields: ['name', 'exists'],
+    fields: ['name', 'exists', 'content.sha1hex'],
     relative_root: relativePath,
   };
 }

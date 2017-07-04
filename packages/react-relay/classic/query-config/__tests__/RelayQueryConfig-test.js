@@ -25,11 +25,10 @@ describe('RelayQueryConfig', () => {
     jest.resetModules();
 
     makeConfig = function() {
-      class MockConfig
-        extends RelayQueryConfig<{
-          required: string,
-          optional?: string,
-        }> {}
+      class MockConfig extends RelayQueryConfig<{
+        required: string,
+        optional?: string,
+      }> {}
       MockConfig.routeName = 'MockConfig';
       MockConfig.queries = {
         required: Component => Relay.QL`

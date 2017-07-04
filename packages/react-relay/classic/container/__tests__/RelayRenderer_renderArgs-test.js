@@ -60,24 +60,21 @@ describe('RelayRenderer.renderArgs', () => {
       container,
     );
     expect.extend(RelayTestUtils.matchers);
-    jasmine.addMatchers({
-      toRenderWithArgs() {
+    expect.extend({
+      toRenderWithArgs(actual, expected) {
+        // Assume that if `forceFetch` requests exist, they were last.
+        const requests =
+          environment.forceFetch.mock.requests.length > 0
+            ? environment.forceFetch.mock.requests
+            : environment.primeCache.mock.requests;
+        actual(requests[requests.length - 1]);
+        const renders = render.mock.calls;
+        const renderArgs = renders[renders.length - 1][0];
         return {
-          compare(actual, expected) {
-            // Assume that if `forceFetch` requests exist, they were last.
-            const requests = environment.forceFetch.mock.requests.length > 0
-              ? environment.forceFetch.mock.requests
-              : environment.primeCache.mock.requests;
-            actual(requests[requests.length - 1]);
-            const renders = render.mock.calls;
-            const renderArgs = renders[renders.length - 1][0];
-            return {
-              pass: Object.keys(expected).every(argName => {
-                expect(renderArgs[argName]).toEqual(expected[argName]);
-                return true;
-              }),
-            };
-          },
+          pass: Object.keys(expected).every(argName => {
+            expect(renderArgs[argName]).toEqual(expected[argName]);
+            return true;
+          }),
         };
       },
     });

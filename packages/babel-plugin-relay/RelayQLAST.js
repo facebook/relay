@@ -159,8 +159,9 @@ class RelayQLDefinition<T: RelayQLNodeType> extends RelayQLNode<T> {
   }
 }
 
-class RelayQLFragment
-  extends RelayQLDefinition<FragmentDefinitionNode | InlineFragmentNode> {
+class RelayQLFragment extends RelayQLDefinition<
+  FragmentDefinitionNode | InlineFragmentNode,
+> {
   parentType: ?RelayQLType;
 
   constructor(
@@ -358,9 +359,10 @@ class RelayQLDirective {
     this.argTypes = {};
 
     const directiveName = ast.name.value;
-    const schemaDirective = directiveName === GraphQLRelayDirective.name
-      ? GraphQLRelayDirective
-      : context.schema.getDirective(directiveName);
+    const schemaDirective =
+      directiveName === GraphQLRelayDirective.name
+        ? GraphQLRelayDirective
+        : context.schema.getDirective(directiveName);
     if (!schemaDirective) {
       throw new RelayTransformError(
         util.format(
@@ -487,8 +489,10 @@ class RelayQLType {
   }
 
   canHaveSubselections(): boolean {
-    return !(this.schemaUnmodifiedType instanceof GraphQLScalarType ||
-      this.schemaUnmodifiedType instanceof GraphQLEnumType);
+    return !(
+      this.schemaUnmodifiedType instanceof GraphQLScalarType ||
+      this.schemaUnmodifiedType instanceof GraphQLEnumType
+    );
   }
 
   getName({modifiers}: {modifiers: boolean}): string {
@@ -777,11 +781,13 @@ class RelayQLArgumentType {
   isCustomScalar(): boolean {
     return (
       this.isScalar() &&
-      !(this.schemaUnmodifiedArgType === GraphQLBoolean ||
+      !(
+        this.schemaUnmodifiedArgType === GraphQLBoolean ||
         this.schemaUnmodifiedArgType === GraphQLFloat ||
         this.schemaUnmodifiedArgType === GraphQLID ||
         this.schemaUnmodifiedArgType === GraphQLInt ||
-        this.schemaUnmodifiedArgType === GraphQLString)
+        this.schemaUnmodifiedArgType === GraphQLString
+      )
     );
   }
 

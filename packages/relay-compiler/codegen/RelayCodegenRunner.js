@@ -21,7 +21,10 @@ const {Map: ImmutableMap} = require('immutable');
 
 import type CodegenDirectory from 'CodegenDirectory';
 import type FileParser from 'FileParser';
+import type {CompileResult} from 'RelayCodegenTypes';
+import type {File} from 'RelayCodegenTypes';
 import type {FileFilter, WatchmanExpression} from 'RelayCodegenWatcher';
+import type {RelayReporter} from 'RelayReporter';
 import type {DocumentNode, GraphQLSchema} from 'graphql';
 
 /* eslint-disable no-console-disallow */
@@ -68,17 +71,20 @@ class RelayCodegenRunner {
   parsers: Parsers = {};
   // parser => writers that are affected by it
   parserWriters: {[parser: string]: Set<string>};
+  _reporter: RelayReporter;
 
   constructor(options: {
     parserConfigs: ParserConfigs,
     writerConfigs: WriterConfigs,
     onlyValidate: boolean,
+    reporter: RelayReporter,
     skipPersist: boolean,
   }) {
     this.parserConfigs = options.parserConfigs;
     this.writerConfigs = options.writerConfigs;
     this.onlyValidate = options.onlyValidate;
     this.skipPersist = options.skipPersist;
+    this._reporter = options.reporter;
 
     this.parserWriters = {};
     for (const parser in options.parserConfigs) {
@@ -95,24 +101,32 @@ class RelayCodegenRunner {
     }
   }
 
-  async compileAll(): Promise<boolean> {
-    let hasChanges = false;
-
+  async compileAll(): Promise<CompileResult> {
     // reset the parsers
     this.parsers = {};
     for (const parserName in this.parserConfigs) {
-      await this.parseEverything(parserName);
+      try {
+        await this.parseEverything(parserName);
+      } catch (e) {
+        this._reporter.reportError('RelayCodegenRunner.compileAll', e);
+        return 'ERROR';
+      }
     }
 
+    let hasChanges = false;
     for (const writerName in this.writerConfigs) {
-      const writerChanges = await this.write(writerName);
-      hasChanges = writerChanges || hasChanges;
+      const result = await this.write(writerName);
+      if (result === 'ERROR') {
+        return 'ERROR';
+      }
+      if (result === 'HAS_CHANGES') {
+        hasChanges = true;
+      }
     }
-
-    return hasChanges;
+    return hasChanges ? 'HAS_CHANGES' : 'NO_CHANGES';
   }
 
-  async compile(writerName: string): Promise<boolean> {
+  async compile(writerName: string): Promise<CompileResult> {
     const writerConfig = this.writerConfigs[writerName];
 
     const parsers = [writerConfig.parser];
@@ -144,7 +158,7 @@ class RelayCodegenRunner {
     this.parseFileChanges(parserName, files);
   }
 
-  parseFileChanges(parserName: string, files: Set<string>): void {
+  parseFileChanges(parserName: string, files: Set<File>): void {
     const tStart = Date.now();
     const parser = this.parsers[parserName];
     // this maybe should be await parser.parseFiles(files);
@@ -155,77 +169,71 @@ class RelayCodegenRunner {
 
   // We cannot do incremental writes right now.
   // When we can, this could be writeChanges(writerName, parserName, parsedDefinitions)
-  async write(writerName: string): Promise<boolean> {
-    console.log('\nWriting %s', writerName);
-    const tStart = Date.now();
-    const {getWriter, parser, baseParsers} = this.writerConfigs[writerName];
-
-    let baseDocuments = ImmutableMap();
-    if (baseParsers) {
-      baseParsers.forEach(baseParserName => {
-        baseDocuments = baseDocuments.merge(
-          this.parsers[baseParserName].documents(),
-        );
-      });
-    }
-
-    // always create a new writer: we have to write everything anyways
-    const documents = this.parsers[parser].documents();
-    const schema = this.parserConfigs[parser].getSchema();
-    const writer = getWriter(
-      this.onlyValidate,
-      schema,
-      documents,
-      baseDocuments,
-    );
-
-    let outputDirectories = null;
-
+  async write(writerName: string): Promise<CompileResult> {
     try {
-      outputDirectories = await writer.writeAll();
-    } catch (e) {
-      if (e.isRelayUserError) {
-        // TODO could use chalk here for red output
-        console.log('Error: ' + e.message);
-      } else {
-        throw e;
+      console.log('\nWriting %s', writerName);
+      const tStart = Date.now();
+      const {getWriter, parser, baseParsers} = this.writerConfigs[writerName];
+
+      let baseDocuments = ImmutableMap();
+      if (baseParsers) {
+        baseParsers.forEach(baseParserName => {
+          baseDocuments = baseDocuments.merge(
+            this.parsers[baseParserName].documents(),
+          );
+        });
       }
-      return true;
-    }
 
-    const tWritten = Date.now();
-
-    function combineChanges(accessor) {
-      const combined = [];
-      invariant(
-        outputDirectories,
-        'RelayCodegenRunner: Expected outputDirectories to be set',
+      // always create a new writer: we have to write everything anyways
+      const documents = this.parsers[parser].documents();
+      const schema = this.parserConfigs[parser].getSchema();
+      const writer = getWriter(
+        this.onlyValidate,
+        schema,
+        documents,
+        baseDocuments,
       );
-      for (const dir of outputDirectories.values()) {
-        combined.push(...accessor(dir.changes));
+
+      const outputDirectories = await writer.writeAll();
+
+      const tWritten = Date.now();
+
+      function combineChanges(accessor) {
+        const combined = [];
+        invariant(
+          outputDirectories,
+          'RelayCodegenRunner: Expected outputDirectories to be set',
+        );
+        for (const dir of outputDirectories.values()) {
+          combined.push(...accessor(dir.changes));
+        }
+        return combined;
       }
-      return combined;
+      const created = combineChanges(_ => _.created);
+      const updated = combineChanges(_ => _.updated);
+      const deleted = combineChanges(_ => _.deleted);
+      const unchanged = combineChanges(_ => _.unchanged);
+
+      if (this.onlyValidate) {
+        printFiles('Missing', created);
+        printFiles('Out of date', updated);
+        printFiles('Extra', deleted);
+      } else {
+        printFiles('Created', created);
+        printFiles('Updated', updated);
+        printFiles('Deleted', deleted);
+        console.log('Unchanged: %s files', unchanged.length);
+      }
+
+      console.log('Written %s in %s', writerName, toSeconds(tStart, tWritten));
+
+      return created.length + updated.length + deleted.length > 0
+        ? 'HAS_CHANGES'
+        : 'NO_CHANGES';
+    } catch (e) {
+      this._reporter.reportError('RelayCodegenRunner.write', e);
+      return 'ERROR';
     }
-    const created = combineChanges(_ => _.created);
-    const updated = combineChanges(_ => _.updated);
-    const deleted = combineChanges(_ => _.deleted);
-    const unchanged = combineChanges(_ => _.unchanged);
-
-    if (this.onlyValidate) {
-      printFiles('Missing', created);
-      printFiles('Out of date', updated);
-      printFiles('Extra', deleted);
-    } else {
-      printFiles('Created', created);
-      printFiles('Updated', updated);
-      printFiles('Deleted', deleted);
-      console.log('Unchanged: %s files', unchanged.length);
-    }
-
-    console.log('Written %s in %s', writerName, toSeconds(tStart, tWritten));
-
-    const hasChanges = created.length + updated.length + deleted.length > 0;
-    return hasChanges;
   }
 
   async watchAll(): Promise<void> {
@@ -275,7 +283,7 @@ class RelayCodegenRunner {
           }
           await Promise.all(dependentWriters.map(writer => this.write(writer)));
         } catch (error) {
-          console.log('Error: ' + error);
+          this._reporter.reportError('RelayCodegenRunner.watch', error);
         }
         console.log('Watching for changes to %s...', parserName);
       },
@@ -284,7 +292,7 @@ class RelayCodegenRunner {
   }
 }
 
-function anyFileFilter(filename: string): boolean {
+function anyFileFilter(file: File): boolean {
   return true;
 }
 

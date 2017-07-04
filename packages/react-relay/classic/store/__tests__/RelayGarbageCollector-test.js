@@ -33,8 +33,7 @@ describe('RelayGarbageCollector', () => {
 
   function defaultScheduler(run) {
     // collect everything without pausing
-    while (run()) {
-    }
+    while (run()) {}
   }
 
   function createGC(records, scheduler) {

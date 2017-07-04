@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule createClassicNode
+ * @flow
  * @format
  */
 
@@ -18,10 +19,20 @@ const compileRelayQLTag = require('./compileRelayQLTag');
 const getFragmentNameParts = require('./getFragmentNameParts');
 const invariant = require('./invariant');
 
+import typeof BabelTypes from 'babel-types';
+
+import type {BabelState} from './BabelPluginRelay';
+import type {DefinitionNode} from 'graphql';
+
 /**
  * Relay Classic transforms to inline generated content.
  */
-function createClassicNode(t, path, graphqlDefinition, state) {
+function createClassicNode(
+  t: BabelTypes,
+  path: Object,
+  graphqlDefinition: DefinitionNode,
+  state: BabelState,
+): Object {
   if (graphqlDefinition.kind === 'FragmentDefinition') {
     return createFragmentConcreteNode(t, path, graphqlDefinition, state);
   }
@@ -58,29 +69,34 @@ function createFragmentConcreteNode(t, path, definition, state) {
       argumentDefinitions,
       variables,
     ),
-    node: createRelayQLTemplate(t, classicAST, state),
+    node: createRelayQLTemplate(t, path, classicAST, state),
   });
 
   return createConcreteNode(t, transformedAST, substitutions, state);
 }
 
 function createOperationConcreteNode(t, path, definition, state) {
+  const definitionName = definition.name;
+  if (!definitionName) {
+    throw new Error('GraphQL operations must contain names');
+  }
   const {classicAST, fragments} = createClassicAST(t, definition);
   const substitutions = createSubstitutionsForFragmentSpreads(
     t,
     path,
     fragments,
   );
-  const nodeAST = classicAST.operation === 'query'
-    ? createFragmentForOperation(t, classicAST, state)
-    : createRelayQLTemplate(t, classicAST, state);
+  const nodeAST =
+    classicAST.operation === 'query'
+      ? createFragmentForOperation(t, path, classicAST, state)
+      : createRelayQLTemplate(t, path, classicAST, state);
   const transformedAST = createObject(t, {
     kind: t.stringLiteral('OperationDefinition'),
     argumentDefinitions: createOperationArguments(
       t,
       definition.variableDefinitions,
     ),
-    name: t.stringLiteral(definition.name.value),
+    name: t.stringLiteral(definitionName.value),
     operation: t.stringLiteral(classicAST.operation),
     node: nodeAST,
   });
@@ -185,6 +201,9 @@ function createConcreteNode(t, transformedAST, substitutions, state) {
 }
 
 function createOperationArguments(t, variableDefinitions) {
+  if (!variableDefinitions) {
+    return t.arrayExpression([]);
+  }
   return t.arrayExpression(
     variableDefinitions.map(definition => {
       const name = definition.variable.name.value;
@@ -276,7 +295,7 @@ function createObject(t, obj: any) {
   );
 }
 
-function createFragmentForOperation(t, operation, state) {
+function createFragmentForOperation(t, path, operation, state) {
   let type;
   switch (operation.operation) {
     case 'query':
@@ -312,10 +331,10 @@ function createFragmentForOperation(t, operation, state) {
     directives: operation.directives,
     selectionSet: operation.selectionSet,
   };
-  return createRelayQLTemplate(t, fragmentNode, state);
+  return createRelayQLTemplate(t, path, fragmentNode, state);
 }
 
-function createRelayQLTemplate(t, node, state) {
+function createRelayQLTemplate(t, path, node, state) {
   const schema = state.opts && state.opts.schema;
   invariant(
     schema,
@@ -337,6 +356,7 @@ function createRelayQLTemplate(t, node, state) {
 
   return compileRelayQLTag(
     t,
+    path,
     schema,
     quasi,
     documentName,

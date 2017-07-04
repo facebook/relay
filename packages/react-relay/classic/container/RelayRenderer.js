@@ -229,11 +229,11 @@ class RelayRenderer extends React.Component<DefaultProps, Props, State> {
     const querySet = getRelayQueries(Container, queryConfig);
     const request = (this.pendingRequest = forceFetch
       ? onForceFetch
-          ? onForceFetch(querySet, onReadyStateChange)
-          : environment.forceFetch(querySet, onReadyStateChange)
+        ? onForceFetch(querySet, onReadyStateChange)
+        : environment.forceFetch(querySet, onReadyStateChange)
       : onPrimeCache
-          ? onPrimeCache(querySet, onReadyStateChange)
-          : environment.primeCache(querySet, onReadyStateChange));
+        ? onPrimeCache(querySet, onReadyStateChange)
+        : environment.primeCache(querySet, onReadyStateChange));
     this.lastRequest = request;
   }
 

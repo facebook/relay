@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule BabelPluginRelay
+ * @flow
  * @format
  */
 
@@ -18,6 +19,26 @@ const getDocumentName = require('./getDocumentName');
 const getValidGraphQLTag = require('./getValidGraphQLTag');
 const getValidRelayQLTag = require('./getValidRelayQLTag');
 const invariant = require('./invariant');
+
+import typeof BabelTypes from 'babel-types';
+
+import type {Validator} from './RelayQLTransformer';
+
+export type RelayPluginOptions = {
+  schema?: string,
+  compat?: boolean,
+  haste?: boolean,
+  // Classic options
+  inputArgumentName?: string,
+  snakeCase?: boolean,
+  substituteVariables?: boolean,
+  validator?: Validator<any>,
+};
+
+export type BabelState = {
+  file?: any,
+  opts?: RelayPluginOptions,
+};
 
 /**
  * Using babel-plugin-relay with only the modern runtime?
@@ -37,7 +58,15 @@ const invariant = require('./invariant');
  *     }
  *
  */
-module.exports = function BabelPluginRelay({types: t}) {
+module.exports = function BabelPluginRelay(context: {types: BabelTypes}): any {
+  const {types: t} = context;
+  if (!t) {
+    throw new Error(
+      'BabelPluginRelay: Expected plugin context to include "types", but got:' +
+        String(context),
+    );
+  }
+
   return {
     visitor: {
       TaggedTemplateExpression(path, state) {
@@ -50,7 +79,7 @@ module.exports = function BabelPluginRelay({types: t}) {
 
         // Convert Relay.QL`` literals
         const [quasi, tagName, propName] = getValidRelayQLTag(path);
-        if (quasi) {
+        if (quasi && tagName) {
           const schema = state.opts && state.opts.schema;
           invariant(
             schema,
@@ -63,6 +92,7 @@ module.exports = function BabelPluginRelay({types: t}) {
           path.replaceWith(
             compileRelayQLTag(
               t,
+              path,
               schema,
               quasi,
               documentName,

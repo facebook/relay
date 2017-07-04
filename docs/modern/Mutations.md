@@ -24,6 +24,7 @@ commitMutation(
     optimisticResponse?: ?() => Object,
     optimisticUpdater?: ?(store: RecordSourceSelectorProxy) => void,
     updater?: ?(store: RecordSourceSelectorProxy) => void,
+    configs?: Array<RelayMutationConfig>,
   },
 );
 ```
@@ -40,6 +41,7 @@ Now let's take a closer look at the `config`:
  * For more complicated mutations, `optimisticUpdater` and `updater` can be the same function.
 * `optimisticUpdater`: a function that takes in a proxy of the in-memory Relay store. In this function, the client defines 'how to' update the store through the proxy in an imperative way.
 * `updater`: a function that updates the in-memory Relay store based on the **real** server response. When the server response comes back, Relay first reverts any changes introduced by `optimisticUpdater` or `optimisticResponse` and then applies the `updater` to the store.
+* `configs`:  an array containing the different optimisticUpdater/updater configurations.
 
 ## Example
 
@@ -106,6 +108,116 @@ commitMutation(
     variables,
   },
 );
+```
+
+# Configs
+
+We can give Relay instructions in the form of a config array on how to use the response from each mutation to update the client-side store. We do this by configuring the mutation with one or more of the following mutation types:
+
+## NODE_DELETE
+Given a deletedIDFieldName, Relay will remove the node(s) from the connection.
+
+### Arguments
+* `deletedIDFieldName: string`: The field name in the response that contains the DataID of the deleted node
+
+### Example
+```javascript
+const mutation = graphql`
+  mutation DestroyShipMutation($input: DestroyShipData!) {
+    destroyShip(input: $input) {
+      destroyedShipId
+      faction {
+        ships {
+          id
+        }
+      }
+    }
+  }
+`;
+
+const configs = [{
+  type: 'NODE_DELETE',
+  deletedIDFieldName: 'destroyedShipId',
+}];
+```
+
+## RANGE_ADD
+Given a parent, information about the connection, and the name of the newly created edge in the response payload Relay will add the node to the store and attach it to the connection according to the range behavior(s) specified in the connectionInfo.
+
+### Arguments
+* `parentID: string`: The DataID of the parent node that contains the
+connection.
+* `connectionInfo: Array<{key: string, filters?: Variables, rangeBehavior:
+string}>`: An array of objects containing a connection key, an object
+containing optional filters, and a range behavior depending on what behavior we expect (append, prepend, or ignore).
+  * `filters`: An object containing GraphQL calls e.g. `const filters = {'orderby': 'chronological'};`. 
+* `edgeName: string`: The field name in the response that represents the newly created edge
+
+### Example
+```javascript
+const mutation = graphql`
+  mutation AddShipMutation($input: AddShipData!) {
+    addShip(input: $input) {
+      faction {
+        ships {
+          id
+        }
+      }
+      newShipEdge
+    }
+  }
+`;
+
+const configs = [{
+  type: 'RANGE_ADD',
+  parentID: 'shipId',
+  connectionInfo: [{
+    key: AddShip_ships,
+    rangeBehavior: 'append',
+  }],
+  edgeName: 'newShipEdge',
+}];
+```
+
+## RANGE_DELETE
+Given a parent, connectionKeys, one or more DataIDs in the response payload, and
+a path between the parent and the connection, Relay will remove the node(s)
+from the connection but leave the associated record(s) in the store.
+
+### Arguments
+* `parentID: string`: The DataID of the parent node that contains the
+connection.
+* `connectionKeys: Array<{key: string, filters?: Variables}>`: An array of
+objects containing a connection key and optionally filters.
+  * `filters`: An object containing GraphQL calls e.g. `const filters = {'orderby': 'chronological'};`. 
+* `pathToConnection: Array<string>`: An array containing the field names between the parent and the connection, including the parent and the connection.
+* `deletedIDFieldName: string | Array<string>`: The field name in the response that contains the DataID of the removed node, or the path to the node removed from the connection
+
+### Example
+```javascript
+const mutation = graphql`
+  mutation RemoveTagsMutation($input: RemoveTagsData!) {
+    removeTags(input: $input) {
+      todo {
+        tags {
+          id
+        }
+      }
+      removedTagId 
+    }
+  }
+`;
+
+const configs = [{
+  type: 'RANGE_DELETE',
+  parentID: 'todoId',
+  connectionKeys: [{
+    key: RemoveTags_tags,
+    rangeBehavior: 'append',
+  }],
+  pathToConnection: ['todo', 'tags'],
+  deletedIDFieldName: removedTagId
+}];
 ```
 
 For examples of more complex optimistic updates, including adding and removing from a list, see the [Relay Modern Todo example app](https://github.com/relayjs/relay-examples/tree/master/todo-modern).

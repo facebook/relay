@@ -109,25 +109,26 @@ describe('RelayFragmentSpecResolver', () => {
     const fragments = {
       user: getClassicFragment(
         graphql`
-        fragment RelayFragmentSpecResolver_user on User {
-          id
-          name
-          profilePicture(size: $size) @include(if: $fetchSize) {
-            uri
+          fragment RelayFragmentSpecResolver_user on User {
+            id
+            name
+            profilePicture(size: $size) @include(if: $fetchSize) {
+              uri
+            }
           }
-        }
-      `,
+        `,
       ),
       users: getClassicFragment(
         graphql`
-        fragment RelayFragmentSpecResolver_users on User @relay(plural: true) {
-          id
-          name
-          profilePicture(size: $size) @include(if: $fetchSize) {
-            uri
+          fragment RelayFragmentSpecResolver_users on User
+            @relay(plural: true) {
+            id
+            name
+            profilePicture(size: $size) @include(if: $fetchSize) {
+              uri
+            }
           }
-        }
-      `,
+        `,
       ),
     };
     // Fake a container: The `...Container_*` fragment spreads below are
@@ -145,13 +146,17 @@ describe('RelayFragmentSpecResolver', () => {
     };
     UserQuery = getClassicOperation(
       graphql`
-      query RelayFragmentSpecResolverQuery($id: ID!, $size: Int, $fetchSize: Boolean!) {
-        node(id: $id) {
-          ...Container_user
-          ...Container_users
+        query RelayFragmentSpecResolverQuery(
+          $id: ID!
+          $size: Int
+          $fetchSize: Boolean!
+        ) {
+          node(id: $id) {
+            ...Container_user
+            ...Container_users
+          }
         }
-      }
-    `,
+      `,
     );
     UserFragment = fragments.user;
     UsersFragment = fragments.users;

@@ -20,18 +20,16 @@ const {
   getRelayClassicEnvironment,
   getRelayModernEnvironment,
 } = require('RelayCompatEnvironment');
-const {commitMutation} = require('RelayRuntime');
+const {applyOptimisticMutation, commitMutation} = require('RelayRuntime');
 
+import type {ConcreteOperationDefinition} from 'ConcreteQuery';
 import type {Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {CompatEnvironment} from 'RelayCompatTypes';
 import type {Environment as ClassicEnvironment} from 'RelayEnvironmentTypes';
+import type {OptimisticMutationConfig} from 'applyRelayModernOptimisticMutation';
 import type {MutationConfig} from 'commitRelayModernMutation';
 
 const RelayCompatMutations = {
-  /* $FlowFixMe(site=react_native_fb) - Flow now prevents you from calling a
-   * function with more arguments than it expects. This comment suppresses an
-   * error that was noticed when we made this change. Delete this comment to
-   * see the error. */
   commitUpdate<T>(
     environment: CompatEnvironment,
     config: MutationConfig<T>,
@@ -48,6 +46,30 @@ const RelayCompatMutations = {
         environment,
       );
       return commitRelayClassicMutation(
+        // getRelayClassicEnvironment returns a RelayEnvironmentInterface
+        // (classic APIs), but we need the modern APIs on old core here.
+        (relayClassicEnvironment: $FixMe),
+        config,
+      );
+    }
+  },
+
+  applyUpdate(
+    environment: CompatEnvironment,
+    config: OptimisticMutationConfig,
+  ): Disposable {
+    const relayStaticEnvironment = getRelayModernEnvironment(environment);
+    if (relayStaticEnvironment) {
+      return applyOptimisticMutation(relayStaticEnvironment, config);
+    } else {
+      const relayClassicEnvironment = getRelayClassicEnvironment(environment);
+      invariant(
+        relayClassicEnvironment,
+        'RelayCompatMutations: Expected an object that conforms to the ' +
+          '`RelayEnvironmentInterface`, got `%s`.',
+        environment,
+      );
+      return applyRelayClassicMutation(
         // getRelayClassicEnvironment returns a RelayEnvironmentInterface
         // (classic APIs), but we need the modern APIs on old core here.
         (relayClassicEnvironment: $FixMe),
@@ -80,25 +102,13 @@ function commitRelayClassicMutation<T>(
     );
     optimisticResponse = optimisticResponse();
   }
-  if (
-    optimisticResponse &&
-    operation.node.kind === 'Mutation' &&
-    operation.node.calls &&
-    operation.node.calls.length === 1
-  ) {
-    const mutationRoot = operation.node.calls[0].name;
-    if (optimisticResponse[mutationRoot]) {
-      optimisticResponse = optimisticResponse[mutationRoot];
-    } else {
-      warning(
-        false,
-        'RelayCompatMutations: Expected `optimisticResponse`' +
-          'to contain the mutation name `%s` as a property, got `%s`',
-        mutationRoot,
-        optimisticResponse,
-      );
-    }
+  if (optimisticResponse) {
+    optimisticResponse = validateOptimisticResponse(
+      operation,
+      optimisticResponse,
+    );
   }
+
   return environment.sendMutation({
     configs: configs || [],
     operation,
@@ -108,6 +118,55 @@ function commitRelayClassicMutation<T>(
     variables,
     uploadables,
   });
+}
+
+function applyRelayClassicMutation(
+  environment: ClassicEnvironment,
+  {configs, mutation, optimisticResponse, variables}: OptimisticMutationConfig,
+): Disposable {
+  const {getOperation} = environment.unstable_internal;
+  const operation = getOperation(mutation);
+
+  // RelayClassic can't update anything without response.
+  if (!optimisticResponse) {
+    return {dispose: () => {}};
+  }
+
+  optimisticResponse = validateOptimisticResponse(
+    operation,
+    optimisticResponse,
+  );
+  return environment.applyMutation({
+    configs: configs || [],
+    operation,
+    optimisticResponse,
+    variables,
+  });
+}
+
+function validateOptimisticResponse(
+  operation: ConcreteOperationDefinition,
+  optimisticResponse: Object,
+): Object {
+  if (
+    operation.node.kind === 'Mutation' &&
+    operation.node.calls &&
+    operation.node.calls.length === 1
+  ) {
+    const mutationRoot = operation.node.calls[0].name;
+    if (optimisticResponse[mutationRoot]) {
+      return optimisticResponse[mutationRoot];
+    } else {
+      warning(
+        false,
+        'RelayCompatMutations: Expected result from `optimisticResponse`' +
+          'to contain the mutation name `%s` as a property, got `%s`',
+        mutationRoot,
+        optimisticResponse,
+      );
+    }
+  }
+  return optimisticResponse;
 }
 
 module.exports = RelayCompatMutations;

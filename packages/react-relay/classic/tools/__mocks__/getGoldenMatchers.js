@@ -70,9 +70,10 @@ const COLOR = {
  */
 function getGoldenMatchers(...args) {
   const [testFile, options] = args;
-  const trimWhitespace = options && options.hasOwnProperty('trimWhitespace')
-    ? options.trimWhitespace
-    : true;
+  const trimWhitespace =
+    options && options.hasOwnProperty('trimWhitespace')
+      ? options.trimWhitespace
+      : true;
 
   return {
     /**
@@ -196,7 +197,8 @@ function getGoldenMatchers(...args) {
       });
       return {
         pass: failures.length === 0,
-        message: 'actual output did not match expected for files: ' +
+        message:
+          'actual output did not match expected for files: ' +
           failures.map(failure => failure.name).join(', ') +
           ' (if these changes are intended, re-run the tests with the ' +
           'environment variable GOLDEN_ACCEPT=1 to update the ' +

@@ -13,12 +13,15 @@
 
 'use strict';
 
+const RelayCompilerCache = require('RelayCompilerCache');
+
 const babylon = require('babylon');
-const crypto = require('crypto');
 const getModuleName = require('getModuleName');
 const graphql = require('graphql');
 const path = require('path');
 const util = require('util');
+
+import type {File} from 'RelayCodegenTypes';
 
 // Attempt to be as inclusive as possible of source text.
 const BABYLON_OPTIONS = {
@@ -55,13 +58,15 @@ function find(
     CallExpression: node => {
       const callee = node.callee;
       if (
-        !((callee.type === 'Identifier' &&
-          CREATE_CONTAINER_FUNCTIONS[callee.name]) ||
+        !(
+          (callee.type === 'Identifier' &&
+            CREATE_CONTAINER_FUNCTIONS[callee.name]) ||
           (callee.kind === 'MemberExpression' &&
             callee.object.type === 'Identifier' &&
             callee.object.value === 'Relay' &&
             callee.property.type === 'Identifier' &&
-            CREATE_CONTAINER_FUNCTIONS[callee.property.name]))
+            CREATE_CONTAINER_FUNCTIONS[callee.property.name])
+        )
       ) {
         traverse(node, visitors);
         return;
@@ -143,22 +148,17 @@ function find(
   return result;
 }
 
-const cache = {};
+const cache = new RelayCompilerCache('FindGraphQLTags', 'v1');
+
 function memoizedFind(
   text: string,
-  filePath: string,
+  baseDir: string,
+  file: File,
 ): Array<{tag: string, template: string}> {
-  const hash = crypto
-    .createHash('md5')
-    .update(filePath)
-    .update(text)
-    .digest('hex');
-  let result = cache[hash];
-  if (!result) {
-    result = find(text, filePath);
-    cache[hash] = result;
-  }
-  return result;
+  return cache.getOrCompute(file.hash, () => {
+    const absPath = path.join(baseDir, file.relPath);
+    return find(text, absPath);
+  });
 }
 
 const CREATE_CONTAINER_FUNCTIONS = {

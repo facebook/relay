@@ -16,6 +16,7 @@
 require('babel-polyfill');
 
 const RelayCodegenRunner = require('RelayCodegenRunner');
+const RelayConsoleReporter = require('RelayConsoleReporter');
 const RelayFileIRParser = require('RelayFileIRParser');
 const RelayFileWriter = require('RelayFileWriter');
 const RelayIRTransforms = require('RelayIRTransforms');
@@ -60,6 +61,7 @@ async function run(options: {
   schema: string,
   src: string,
   extensions: Array<string>,
+  verbose: boolean,
   watch?: ?boolean,
 }) {
   const schemaPath = path.resolve(process.cwd(), options.schema);
@@ -85,6 +87,8 @@ Ensure that one such file exists in ${srcDir} or its parents.
     );
   }
 
+  const reporter = new RelayConsoleReporter({verbose: options.verbose});
+
   const parserConfigs = {
     default: {
       baseDir: srcDir,
@@ -101,6 +105,7 @@ Ensure that one such file exists in ${srcDir} or its parents.
     },
   };
   const codegenRunner = new RelayCodegenRunner({
+    reporter,
     parserConfigs,
     writerConfigs,
     onlyValidate: false,
@@ -199,6 +204,10 @@ const argv = yargs
       default: ['js'],
       describe: 'File extensions to compile (--extensions js jsx)',
       type: 'string',
+    },
+    verbose: {
+      describe: 'More verbose logging',
+      type: 'boolean',
     },
     watch: {
       describe: 'If specified, watches files and regenerates on changes',

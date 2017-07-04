@@ -13,10 +13,22 @@
 
 'use strict';
 
-const GraphQL = require('graphql');
-
 const invariant = require('invariant');
 const nullthrows = require('nullthrows');
+
+const {
+  assertAbstractType,
+  getNamedType,
+  getNullableType,
+  isType,
+  print,
+  typeFromAST,
+  GraphQLInterfaceType,
+  GraphQLList,
+  GraphQLObjectType,
+  GraphQLSchema,
+  GraphQLUnionType,
+} = require('graphql');
 
 import type {
   ASTNode,
@@ -30,20 +42,6 @@ import type {
   GraphQLType,
   TypeNode,
 } from 'graphql';
-
-const {
-  assertAbstractType,
-  getNamedType,
-  getNullableType,
-  isType,
-  GraphQLInterfaceType,
-  GraphQLList,
-  GraphQLObjectType,
-  GraphQLSchema,
-  GraphQLUnionType,
-  print,
-  typeFromAST,
-} = GraphQL;
 
 const ID = 'id';
 const ID_TYPE = 'ID';

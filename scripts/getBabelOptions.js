@@ -9,10 +9,8 @@
 
 'use strict';
 
-const assign = require('object-assign');
-
 module.exports = function(options) {
-  options = assign({
+  options = Object.assign({
     env: 'production',
     moduleMap: {},
     plugins: [],
@@ -22,14 +20,17 @@ module.exports = function(options) {
     autoImport: options.autoImport || false,
     objectAssign: false,
     inlineRequires: true,
-    rewriteModules: {
-      map: assign({},
-        require('fbjs/module-map'),
-        options.moduleMap
-      ),
-    },
     stripDEV: options.env === 'production',
   });
+
+  // The module rewrite transform needs to be positioned relative to fbjs's
+  // many other transforms.
+  fbjsPreset.presets[0].plugins.push(
+    [require('./rewrite-modules'), {map: Object.assign({},
+      require('fbjs/module-map'),
+      options.moduleMap
+    )}]
+  );
 
   if (options.postPlugins) {
     fbjsPreset.presets.push({

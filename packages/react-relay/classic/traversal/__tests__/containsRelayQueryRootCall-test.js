@@ -23,26 +23,23 @@ describe('containsRelayQueryRootCall', function() {
   const {getNode} = RelayTestUtils;
 
   beforeEach(function() {
-    jasmine.addMatchers({
-      toContainRootCall() {
+    expect.extend({
+      toContainRootCall(thisQuery, thatQuery) {
+        const pass = containsRelayQueryRootCall(
+          getNode(thisQuery),
+          getNode(thatQuery),
+        );
+        const notText = pass ? 'not ' : '';
         return {
-          compare(thisQuery, thatQuery) {
-            const pass = containsRelayQueryRootCall(
-              getNode(thisQuery),
-              getNode(thatQuery),
-            );
-            const notText = pass ? 'not ' : '';
-            return {
-              pass,
-              message: 'Expected `' +
-                thisQuery +
-                '` ' +
-                notText +
-                'to contain root call of `' +
-                thatQuery +
-                '`.',
-            };
-          },
+          pass,
+          message:
+            'Expected `' +
+            thisQuery +
+            '` ' +
+            notText +
+            'to contain root call of `' +
+            thatQuery +
+            '`.',
         };
       },
     });

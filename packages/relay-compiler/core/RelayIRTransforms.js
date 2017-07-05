@@ -55,8 +55,6 @@ const FRAGMENT_TRANSFORMS: Array<IRTransform> = [
 
 // Transforms applied to queries/mutations/subscriptions that are used for
 // fetching data from the server and parsing those responses.
-/* $FlowFixMe(>=0.44.0 site=react_native_fb) Flow error found while deploying
- * v0.44.0. Remove this comment to see the error */
 const QUERY_TRANSFORMS: Array<IRTransform> = [
   (ctx: CompilerContext) =>
     RelayConnectionTransform.transform(ctx, {

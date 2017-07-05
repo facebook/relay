@@ -21,6 +21,8 @@ const RelayFileWriter = require('RelayFileWriter');
 const RelayIRTransforms = require('RelayIRTransforms');
 const RelayMultiReporter = require('RelayMultiReporter');
 
+export type {CompileResult} from 'RelayCodegenTypes';
+
 module.exports = {
   Compiler: RelayCompiler,
   ConsoleReporter: RelayConsoleReporter,

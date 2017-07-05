@@ -12,10 +12,10 @@
 
 'use strict';
 
-describe('RelayStripUnusedVariablesTransform', () => {
+describe('StripUnusedVariablesTransform', () => {
   let RelayCompilerContext;
   let RelayPrinter;
-  let RelayStripUnusedVariablesTransform;
+  let StripUnusedVariablesTransform;
   let RelayTestSchema;
   let getGoldenMatchers;
   let parseGraphQLText;
@@ -25,7 +25,7 @@ describe('RelayStripUnusedVariablesTransform', () => {
 
     RelayCompilerContext = require('RelayCompilerContext');
     RelayPrinter = require('RelayPrinter');
-    RelayStripUnusedVariablesTransform = require('RelayStripUnusedVariablesTransform');
+    StripUnusedVariablesTransform = require('StripUnusedVariablesTransform');
     RelayTestSchema = require('RelayTestSchema');
     getGoldenMatchers = require('getGoldenMatchers');
     parseGraphQLText = require('parseGraphQLText');
@@ -39,7 +39,7 @@ describe('RelayStripUnusedVariablesTransform', () => {
       let context = new RelayCompilerContext(RelayTestSchema).addAll(
         definitions,
       );
-      context = RelayStripUnusedVariablesTransform.transform(context);
+      context = StripUnusedVariablesTransform.transform(context);
       const documents = [];
       context.documents().forEach(doc => {
         documents.push(RelayPrinter.print(doc));

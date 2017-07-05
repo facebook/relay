@@ -12,11 +12,11 @@
 
 'use strict';
 
-describe('RelaySkipRedundantNodesTransform', () => {
+describe('SkipRedundantNodesTransform', () => {
   let RelayCompilerContext;
   let RelayParser;
   let RelayPrinter;
-  let RelaySkipRedundantNodesTransform;
+  let SkipRedundantNodesTransform;
   let RelayTestSchema;
   let getGoldenMatchers;
 
@@ -26,7 +26,7 @@ describe('RelaySkipRedundantNodesTransform', () => {
     RelayCompilerContext = require('RelayCompilerContext');
     RelayParser = require('RelayParser');
     RelayPrinter = require('RelayPrinter');
-    RelaySkipRedundantNodesTransform = require('RelaySkipRedundantNodesTransform');
+    SkipRedundantNodesTransform = require('SkipRedundantNodesTransform');
     RelayTestSchema = require('RelayTestSchema');
     getGoldenMatchers = require('getGoldenMatchers');
 
@@ -40,7 +40,7 @@ describe('RelaySkipRedundantNodesTransform', () => {
         (ctx, node) => ctx.add(node),
         new RelayCompilerContext(RelayTestSchema),
       );
-      const nextContext = RelaySkipRedundantNodesTransform.transform(context);
+      const nextContext = SkipRedundantNodesTransform.transform(context);
       const documents = [];
       nextContext.documents().forEach(doc => {
         documents.push(RelayPrinter.print(doc));

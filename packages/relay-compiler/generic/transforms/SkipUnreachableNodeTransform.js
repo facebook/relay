@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule RelaySkipUnreachableNodeTransform
+ * @providesModule SkipUnreachableNodeTransform
  * @flow
  * @format
  */
@@ -75,7 +75,7 @@ function transformNode<T: Node>(
         const fragment = context.get(selection.name);
         invariant(
           fragment && fragment.kind === 'Fragment',
-          'RelaySkipUnreachableNodeTransform: Found a reference to undefined ' +
+          'SkipUnreachableNodeTransform: Found a reference to undefined ' +
             'fragment `%s`.',
           selection.name,
         );

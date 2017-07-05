@@ -7,7 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @flow
- * @providesModule RelaySkipClientFieldTransform
+ * @providesModule SkipClientFieldTransform
  * @format
  */
 
@@ -163,7 +163,7 @@ function visitField<F: Field>(field: F, state: State): ?F {
     const type = state.schema.getType(rawType.name);
     invariant(
       type,
-      'RelaySkipClientFieldTransform: Expected type `%s` to be defined in ' +
+      'SkipClientFieldTransform: Expected type `%s` to be defined in ' +
         'the original schema.',
       rawType.name,
     );
@@ -189,7 +189,7 @@ function visitFragmentSpread(
   const fragment = context.get(spread.name);
   invariant(
     fragment && fragment.kind === 'Fragment',
-    'RelaySkipClientFieldTransform: Expected a fragment named `%s` to be defined.',
+    'SkipClientFieldTransform: Expected a fragment named `%s` to be defined.',
     spread.name,
   );
   if (state.schema.getType(fragment.type.name)) {

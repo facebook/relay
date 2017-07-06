@@ -67,7 +67,15 @@ class RelayModernEnvironment implements Environment {
 
     if (__DEV__) {
       const g = typeof global !== 'undefined' ? global : window;
-      g.__RELAY_DEBUGGER__ && g.__RELAY_DEBUGGER__.registerEnvironment(this);
+
+      // Attach the debugger symbol to the global symbol so it can be accessed by
+      // devtools extension.
+      if (!g.__RELAY_DEBUGGER__) {
+        const RelayDebugger = require('RelayDebugger');
+        g.__RELAY_DEBUGGER__ = new RelayDebugger();
+      }
+
+      g.__RELAY_DEBUGGER__.registerEnvironment(this);
     }
   }
 

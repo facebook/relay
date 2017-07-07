@@ -13,7 +13,7 @@
 
 'use strict';
 
-const RelayCompilerCache = require('RelayCompilerCache');
+const GraphQLCompilerCache = require('GraphQLCompilerCache');
 
 const babylon = require('babylon');
 const getModuleName = require('getModuleName');
@@ -148,7 +148,7 @@ function find(
   return result;
 }
 
-const cache = new RelayCompilerCache('FindGraphQLTags', 'v1');
+const cache = new GraphQLCompilerCache('FindGraphQLTags', 'v1');
 
 function memoizedFind(
   text: string,

@@ -21,7 +21,7 @@ const graphql = require('graphql');
 const path = require('path');
 const util = require('util');
 
-import type {File} from 'RelayCodegenTypes';
+import type {File} from 'CodegenTypes';
 
 // Attempt to be as inclusive as possible of source text.
 const BABYLON_OPTIONS = {

@@ -21,8 +21,8 @@ const fs = require('fs');
 const invariant = require('invariant');
 const path = require('path');
 
-import type {File} from 'RelayCodegenTypes';
-import type {FileFilter} from 'RelayCodegenWatcher';
+import type {File} from 'CodegenTypes';
+import type {FileFilter} from 'CodegenWatcher';
 import type {DocumentNode} from 'graphql';
 
 // Throws an error if parsing the file fails

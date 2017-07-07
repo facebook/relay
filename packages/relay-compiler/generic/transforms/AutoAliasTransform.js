@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule RelayAutoAliasTransform
+ * @providesModule AutoAliasTransform
  * @flow
  * @format
  */
@@ -68,7 +68,7 @@ function transformSelections(
     } else if (selection.kind === 'FragmentSpread') {
       invariant(
         !selection.args.length,
-        'RelayAutoAliasTransform: Expected arguments to fragment spread ' +
+        'AutoAliasTransform: Expected arguments to fragment spread ' +
           '`%s` to be inlined.',
         selection.name,
       );
@@ -76,7 +76,7 @@ function transformSelections(
     } else {
       invariant(
         false,
-        'RelayAutoAliasTransform: Unexpected node kind `%s`.',
+        'AutoAliasTransform: Unexpected node kind `%s`.',
         selection.kind,
       );
     }

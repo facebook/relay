@@ -13,13 +13,14 @@
 'use strict';
 
 const RelayCompilerContext = require('RelayCompilerContext');
-const RelaySkipUnreachableNodeTransform = require('RelaySkipUnreachableNodeTransform');
 const RelayParser = require('RelayParser');
 const RelayPrinter = require('RelayPrinter');
 const RelayTestSchema = require('RelayTestSchema');
+const SkipUnreachableNodeTransform = require('SkipUnreachableNodeTransform');
+
 const getGoldenMatchers = require('getGoldenMatchers');
 
-describe('RelaySkipUnreachableNodeTransform', () => {
+describe('SkipUnreachableNodeTransform', () => {
   beforeEach(() => {
     expect.extend(getGoldenMatchers(__filename));
   });
@@ -31,7 +32,7 @@ describe('RelaySkipUnreachableNodeTransform', () => {
         (ctx, node) => ctx.add(node),
         new RelayCompilerContext(RelayTestSchema),
       );
-      const nextContext = RelaySkipUnreachableNodeTransform.transform(context);
+      const nextContext = SkipUnreachableNodeTransform.transform(context);
       const documents = [];
       nextContext.documents().forEach(doc => {
         documents.push(RelayPrinter.print(doc));

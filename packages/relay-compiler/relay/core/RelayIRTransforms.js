@@ -20,11 +20,11 @@ const RelayFilterDirectivesTransform = require('RelayFilterDirectivesTransform')
 const RelayFlattenTransform = require('RelayFlattenTransform');
 const RelayGenerateRequisiteFieldsTransform = require('RelayGenerateRequisiteFieldsTransform');
 const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
-const RelaySkipClientFieldTransform = require('RelaySkipClientFieldTransform');
 const RelaySkipHandleFieldTransform = require('RelaySkipHandleFieldTransform');
 const RelaySkipRedundantNodesTransform = require('RelaySkipRedundantNodesTransform');
-const RelaySkipUnreachableNodeTransform = require('RelaySkipUnreachableNodeTransform');
 const RelayViewerHandleTransform = require('RelayViewerHandleTransform');
+const SkipClientFieldTransform = require('SkipClientFieldTransform');
+const SkipUnreachableNodeTransform = require('SkipUnreachableNodeTransform');
 
 import type CompilerContext from 'RelayCompilerContext';
 import type {GraphQLSchema} from 'graphql';
@@ -62,8 +62,8 @@ const QUERY_TRANSFORMS: Array<IRTransform> = [
     }),
   RelayViewerHandleTransform.transform,
   RelayApplyFragmentArgumentTransform.transform,
-  RelaySkipClientFieldTransform.transform,
-  RelaySkipUnreachableNodeTransform.transform,
+  SkipClientFieldTransform.transform,
+  SkipUnreachableNodeTransform.transform,
   RelayRelayDirectiveTransform.transform,
   RelayGenerateRequisiteFieldsTransform.transform,
 ];

@@ -12,10 +12,10 @@
 
 'use strict';
 
-describe('RelaySkipClientFieldTransform', () => {
+describe('SkipClientFieldTransform', () => {
   let RelayCompilerContext;
   let RelayPrinter;
-  let RelaySkipClientFieldTransform;
+  let SkipClientFieldTransform;
   let RelayTestSchema;
   let getGoldenMatchers;
   let parseGraphQLText;
@@ -25,7 +25,7 @@ describe('RelaySkipClientFieldTransform', () => {
 
     RelayCompilerContext = require('RelayCompilerContext');
     RelayPrinter = require('RelayPrinter');
-    RelaySkipClientFieldTransform = require('RelaySkipClientFieldTransform');
+    SkipClientFieldTransform = require('SkipClientFieldTransform');
     RelayTestSchema = require('RelayTestSchema');
     getGoldenMatchers = require('getGoldenMatchers');
     parseGraphQLText = require('parseGraphQLText');
@@ -37,10 +37,7 @@ describe('RelaySkipClientFieldTransform', () => {
     expect('fixtures/skip-client-field-transform').toMatchGolden(text => {
       const {definitions, schema} = parseGraphQLText(RelayTestSchema, text);
       let context = new RelayCompilerContext(schema).addAll(definitions);
-      context = RelaySkipClientFieldTransform.transform(
-        context,
-        RelayTestSchema,
-      );
+      context = SkipClientFieldTransform.transform(context, RelayTestSchema);
       const documents = [];
       context.documents().forEach(doc => {
         documents.push(RelayPrinter.print(doc));

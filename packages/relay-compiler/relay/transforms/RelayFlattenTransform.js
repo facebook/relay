@@ -16,7 +16,7 @@ const RelayCompilerContext = require('RelayCompilerContext');
 const RelaySchemaUtils = require('RelaySchemaUtils');
 
 const areEqual = require('areEqual');
-const getIdentifierForRelaySelection = require('getIdentifierForRelaySelection');
+const getIdentifierForSelection = require('getIdentifierForSelection');
 const invariant = require('invariant');
 const stableJSONStringify = require('stableJSONStringify');
 
@@ -166,7 +166,7 @@ function visitNode(
       visitNode(context, options, state, selection);
       return;
     }
-    const nodeIdentifier = getIdentifierForRelaySelection(selection);
+    const nodeIdentifier = getIdentifierForSelection(selection);
     if (selection.kind === 'Condition' || selection.kind === 'InlineFragment') {
       let selectionState = state.selections[nodeIdentifier];
       if (!selectionState) {

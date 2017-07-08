@@ -16,7 +16,7 @@
 const RelayCompilerContext = require('RelayCompilerContext');
 const IMap = require('immutable').Map;
 
-const getIdentifierForRelaySelection = require('getIdentifierForRelaySelection');
+const getIdentifierForSelection = require('getIdentifierForSelection');
 const invariant = require('invariant');
 
 import type {Node, Selection} from 'RelayIR';
@@ -151,7 +151,7 @@ function transformNode<T: Node>(
 ): ?{selectionMap: SelectionMap, node: T} {
   const selections = [];
   sortSelections(node.selections).forEach(selection => {
-    const identifier = getIdentifierForRelaySelection(selection);
+    const identifier = getIdentifierForSelection(selection);
     switch (selection.kind) {
       case 'ScalarField':
       case 'FragmentSpread': {

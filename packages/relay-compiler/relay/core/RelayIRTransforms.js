@@ -13,18 +13,18 @@
 
 'use strict';
 
+const FilterDirectivesTransform = require('FilterDirectivesTransform');
 const RelayApplyFragmentArgumentTransform = require('RelayApplyFragmentArgumentTransform');
 const RelayConnectionTransform = require('RelayConnectionTransform');
 const RelayFieldHandleTransform = require('RelayFieldHandleTransform');
-const FilterDirectivesTransform = require('FilterDirectivesTransform');
 const RelayFlattenTransform = require('RelayFlattenTransform');
 const RelayGenerateRequisiteFieldsTransform = require('RelayGenerateRequisiteFieldsTransform');
 const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
-const SkipClientFieldTransform = require('SkipClientFieldTransform');
 const RelaySkipHandleFieldTransform = require('RelaySkipHandleFieldTransform');
+const RelayViewerHandleTransform = require('RelayViewerHandleTransform');
+const SkipClientFieldTransform = require('SkipClientFieldTransform');
 const SkipRedundantNodesTransform = require('SkipRedundantNodesTransform');
 const SkipUnreachableNodeTransform = require('SkipUnreachableNodeTransform');
-const RelayViewerHandleTransform = require('RelayViewerHandleTransform');
 
 import type CompilerContext from 'RelayCompilerContext';
 import type {GraphQLSchema} from 'graphql';

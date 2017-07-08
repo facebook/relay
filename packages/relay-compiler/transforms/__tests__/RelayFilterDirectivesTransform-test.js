@@ -47,10 +47,7 @@ describe('FilterDirectivesTransform', () => {
         definitions,
       );
 
-      context = FilterDirectivesTransform.transform(
-        context,
-        RelayTestSchema,
-      );
+      context = FilterDirectivesTransform.transform(context, RelayTestSchema);
       const documents = [];
       context.documents().forEach(doc => {
         documents.push(RelayPrinter.print(doc));

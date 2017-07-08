@@ -37,10 +37,8 @@ describe('SkipClientFieldTransform', () => {
     expect('fixtures/skip-client-field-transform').toMatchGolden(text => {
       const {definitions, schema} = parseGraphQLText(RelayTestSchema, text);
       let context = new RelayCompilerContext(schema).addAll(definitions);
-      context = SkipClientFieldTransform.transform(
-        context,
-        RelayTestSchema,
-      );
+
+      context = SkipClientFieldTransform.transform(context, RelayTestSchema);
       const documents = [];
       context.documents().forEach(doc => {
         documents.push(RelayPrinter.print(doc));

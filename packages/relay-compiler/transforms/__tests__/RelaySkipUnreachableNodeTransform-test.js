@@ -13,10 +13,11 @@
 'use strict';
 
 const RelayCompilerContext = require('RelayCompilerContext');
-const SkipUnreachableNodeTransform = require('SkipUnreachableNodeTransform');
 const RelayParser = require('RelayParser');
 const RelayPrinter = require('RelayPrinter');
 const RelayTestSchema = require('RelayTestSchema');
+const SkipUnreachableNodeTransform = require('SkipUnreachableNodeTransform');
+
 const getGoldenMatchers = require('getGoldenMatchers');
 
 describe('SkipUnreachableNodeTransform', () => {

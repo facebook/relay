@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule RelaySkipRedundantNodesTransform
+ * @providesModule SkipRedundantNodesTransform
  * @flow
  * @format
  */
@@ -189,7 +189,7 @@ function transformNode<T: Node>(
       default:
         invariant(
           false,
-          'RelaySkipRedundantNodesTransform: Unexpected node kind `%s`.',
+          'SkipRedundantNodesTransform: Unexpected node kind `%s`.',
           selection.kind,
         );
     }

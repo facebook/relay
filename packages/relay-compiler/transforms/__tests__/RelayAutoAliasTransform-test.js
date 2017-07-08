@@ -12,14 +12,15 @@
 
 'use strict';
 
-const RelayAutoAliasTransform = require('RelayAutoAliasTransform');
+const AutoAliasTransform = require('AutoAliasTransform');
 const RelayCompilerContext = require('RelayCompilerContext');
 const RelayParser = require('RelayParser');
 const RelayPrinter = require('RelayPrinter');
 const RelayTestSchema = require('RelayTestSchema');
+
 const getGoldenMatchers = require('getGoldenMatchers');
 
-describe('RelayAutoAliasTransform', () => {
+describe('AutoAliasTransform', () => {
   beforeEach(() => {
     expect.extend(getGoldenMatchers(__filename));
   });
@@ -31,7 +32,7 @@ describe('RelayAutoAliasTransform', () => {
         (ctx, node) => ctx.add(node),
         new RelayCompilerContext(RelayTestSchema),
       );
-      const nextContext = RelayAutoAliasTransform.transform(context);
+      const nextContext = AutoAliasTransform.transform(context);
       const documents = [];
       nextContext.documents().forEach(doc => {
         documents.push(RelayPrinter.print(doc));
@@ -52,7 +53,7 @@ describe('RelayAutoAliasTransform', () => {
     `,
     );
     const context = new RelayCompilerContext(RelayTestSchema).add(ast[0]);
-    const nextContext = RelayAutoAliasTransform.transform(context);
+    const nextContext = AutoAliasTransform.transform(context);
     const fragment = nextContext.get('TestFragment');
     const field = fragment.selections[0];
     expect(field.name).toBe('friends');

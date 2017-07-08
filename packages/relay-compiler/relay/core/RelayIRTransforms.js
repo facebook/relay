@@ -13,17 +13,17 @@
 
 'use strict';
 
+const FilterDirectivesTransform = require('FilterDirectivesTransform');
 const RelayApplyFragmentArgumentTransform = require('RelayApplyFragmentArgumentTransform');
 const RelayConnectionTransform = require('RelayConnectionTransform');
 const RelayFieldHandleTransform = require('RelayFieldHandleTransform');
-const RelayFilterDirectivesTransform = require('RelayFilterDirectivesTransform');
 const RelayFlattenTransform = require('RelayFlattenTransform');
 const RelayGenerateRequisiteFieldsTransform = require('RelayGenerateRequisiteFieldsTransform');
 const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
 const RelaySkipHandleFieldTransform = require('RelaySkipHandleFieldTransform');
-const RelaySkipRedundantNodesTransform = require('RelaySkipRedundantNodesTransform');
 const RelayViewerHandleTransform = require('RelayViewerHandleTransform');
 const SkipClientFieldTransform = require('SkipClientFieldTransform');
+const SkipRedundantNodesTransform = require('SkipRedundantNodesTransform');
 const SkipUnreachableNodeTransform = require('SkipUnreachableNodeTransform');
 
 import type CompilerContext from 'RelayCompilerContext';
@@ -50,7 +50,7 @@ const FRAGMENT_TRANSFORMS: Array<IRTransform> = [
     RelayFlattenTransform.transform(ctx, {
       flattenAbstractTypes: true,
     }),
-  RelaySkipRedundantNodesTransform.transform,
+  SkipRedundantNodesTransform.transform,
 ];
 
 // Transforms applied to queries/mutations/subscriptions that are used for
@@ -70,18 +70,18 @@ const QUERY_TRANSFORMS: Array<IRTransform> = [
 
 // Transforms applied to the code used to process a query response.
 const CODEGEN_TRANSFORMS: Array<IRTransform> = [
-  RelayFilterDirectivesTransform.transform,
+  FilterDirectivesTransform.transform,
   (ctx: CompilerContext) =>
     RelayFlattenTransform.transform(ctx, {
       flattenAbstractTypes: true,
       flattenFragmentSpreads: true,
     }),
-  RelaySkipRedundantNodesTransform.transform,
+  SkipRedundantNodesTransform.transform,
 ];
 
 // Transforms applied before printing the query sent to the server.
 const PRINT_TRANSFORMS: Array<IRTransform> = [
-  RelayFilterDirectivesTransform.transform,
+  FilterDirectivesTransform.transform,
   (ctx: CompilerContext) => RelayFlattenTransform.transform(ctx, {}),
   RelaySkipHandleFieldTransform.transform,
 ];

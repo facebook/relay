@@ -12,9 +12,9 @@
 
 'use strict';
 
-describe('RelayFilterDirectivesTransform', () => {
+describe('FilterDirectivesTransform', () => {
   let RelayCompilerContext;
-  let RelayFilterDirectivesTransform;
+  let FilterDirectivesTransform;
   let RelayPrinter;
   let RelayTestSchema;
   let getGoldenMatchers;
@@ -25,7 +25,7 @@ describe('RelayFilterDirectivesTransform', () => {
     jest.resetModules();
 
     RelayCompilerContext = require('RelayCompilerContext');
-    RelayFilterDirectivesTransform = require('RelayFilterDirectivesTransform');
+    FilterDirectivesTransform = require('FilterDirectivesTransform');
     RelayPrinter = require('RelayPrinter');
     RelayTestSchema = require('RelayTestSchema');
     getGoldenMatchers = require('getGoldenMatchers');
@@ -47,10 +47,7 @@ describe('RelayFilterDirectivesTransform', () => {
         definitions,
       );
 
-      context = RelayFilterDirectivesTransform.transform(
-        context,
-        RelayTestSchema,
-      );
+      context = FilterDirectivesTransform.transform(context, RelayTestSchema);
       const documents = [];
       context.documents().forEach(doc => {
         documents.push(RelayPrinter.print(doc));

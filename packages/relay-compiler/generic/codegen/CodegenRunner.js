@@ -6,14 +6,14 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule RelayCodegenRunner
+ * @providesModule CodegenRunner
  * @flow
  * @format
  */
 
 'use strict';
 
-const RelayCodegenWatcher = require('RelayCodegenWatcher');
+const CodegenWatcher = require('CodegenWatcher');
 
 const invariant = require('invariant');
 
@@ -21,10 +21,10 @@ const {Map: ImmutableMap} = require('immutable');
 
 import type CodegenDirectory from 'CodegenDirectory';
 import type FileParser from 'FileParser';
-import type {CompileResult} from 'RelayCodegenTypes';
-import type {File} from 'RelayCodegenTypes';
-import type {FileFilter, WatchmanExpression} from 'RelayCodegenWatcher';
-import type {RelayReporter} from 'RelayReporter';
+import type {CompileResult} from 'CodegenTypes';
+import type {File} from 'CodegenTypes';
+import type {FileFilter, WatchmanExpression} from 'CodegenWatcher';
+import type {Reporter} from 'Reporter';
 import type {DocumentNode, GraphQLSchema} from 'graphql';
 
 /* eslint-disable no-console-disallow */
@@ -63,7 +63,7 @@ type WriterConfigs = {
   [writer: string]: WriterConfig,
 };
 
-class RelayCodegenRunner {
+class CodegenRunner {
   parserConfigs: ParserConfigs;
   writerConfigs: WriterConfigs;
   onlyValidate: boolean;
@@ -71,13 +71,13 @@ class RelayCodegenRunner {
   parsers: Parsers = {};
   // parser => writers that are affected by it
   parserWriters: {[parser: string]: Set<string>};
-  _reporter: RelayReporter;
+  _reporter: Reporter;
 
   constructor(options: {
     parserConfigs: ParserConfigs,
     writerConfigs: WriterConfigs,
     onlyValidate: boolean,
-    reporter: RelayReporter,
+    reporter: Reporter,
     skipPersist: boolean,
   }) {
     this.parserConfigs = options.parserConfigs;
@@ -108,7 +108,7 @@ class RelayCodegenRunner {
       try {
         await this.parseEverything(parserName);
       } catch (e) {
-        this._reporter.reportError('RelayCodegenRunner.compileAll', e);
+        this._reporter.reportError('CodegenRunner.compileAll', e);
         return 'ERROR';
       }
     }
@@ -148,7 +148,7 @@ class RelayCodegenRunner {
     const parserConfig = this.parserConfigs[parserName];
     this.parsers[parserName] = parserConfig.getParser(parserConfig.baseDir);
 
-    const files = await RelayCodegenWatcher.queryFiles(
+    const files = await CodegenWatcher.queryFiles(
       parserConfig.baseDir,
       parserConfig.watchmanExpression,
       parserConfig.getFileFilter
@@ -202,7 +202,7 @@ class RelayCodegenRunner {
         const combined = [];
         invariant(
           outputDirectories,
-          'RelayCodegenRunner: Expected outputDirectories to be set',
+          'CodegenRunner: Expected outputDirectories to be set',
         );
         for (const dir of outputDirectories.values()) {
           combined.push(...accessor(dir.changes));
@@ -231,7 +231,7 @@ class RelayCodegenRunner {
         ? 'HAS_CHANGES'
         : 'NO_CHANGES';
     } catch (e) {
-      this._reporter.reportError('RelayCodegenRunner.write', e);
+      this._reporter.reportError('CodegenRunner.write', e);
       return 'ERROR';
     }
   }
@@ -253,7 +253,7 @@ class RelayCodegenRunner {
     // we should prevent the first watch callback from doing anything.
     let firstChange = true;
 
-    await RelayCodegenWatcher.watchCompile(
+    await CodegenWatcher.watchCompile(
       parserConfig.baseDir,
       parserConfig.watchmanExpression,
       parserConfig.getFileFilter
@@ -283,7 +283,7 @@ class RelayCodegenRunner {
           }
           await Promise.all(dependentWriters.map(writer => this.write(writer)));
         } catch (error) {
-          this._reporter.reportError('RelayCodegenRunner.watch', error);
+          this._reporter.reportError('CodegenRunner.watch', error);
         }
         console.log('Watching for changes to %s...', parserName);
       },
@@ -309,4 +309,4 @@ function printFiles(label, files) {
   }
 }
 
-module.exports = RelayCodegenRunner;
+module.exports = CodegenRunner;

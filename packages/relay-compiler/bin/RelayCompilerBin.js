@@ -15,8 +15,8 @@
 
 require('babel-polyfill');
 
-const RelayCodegenRunner = require('RelayCodegenRunner');
-const RelayConsoleReporter = require('RelayConsoleReporter');
+const CodegenRunner = require('CodegenRunner');
+const ConsoleReporter = require('ConsoleReporter');
 const RelayFileIRParser = require('RelayFileIRParser');
 const RelayFileWriter = require('RelayFileWriter');
 const RelayIRTransforms = require('RelayIRTransforms');
@@ -87,7 +87,7 @@ Ensure that one such file exists in ${srcDir} or its parents.
     );
   }
 
-  const reporter = new RelayConsoleReporter({verbose: options.verbose});
+  const reporter = new ConsoleReporter({verbose: options.verbose});
 
   const parserConfigs = {
     default: {
@@ -104,7 +104,7 @@ Ensure that one such file exists in ${srcDir} or its parents.
       parser: 'default',
     },
   };
-  const codegenRunner = new RelayCodegenRunner({
+  const codegenRunner = new CodegenRunner({
     reporter,
     parserConfigs,
     writerConfigs,

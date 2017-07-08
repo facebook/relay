@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule RelayCompilerCache
+ * @providesModule GraphQLCompilerCache
  * @flow
  * @format
  */
@@ -22,7 +22,7 @@ const path = require('path');
  * A file backed cache. Values are JSON encoded on disk, so only JSON
  * serializable values should be used.
  */
-class RelayCompilerCache<T> {
+class GraphQLCompilerCache<T> {
   _dir: string;
 
   /**
@@ -56,4 +56,4 @@ class RelayCompilerCache<T> {
   }
 }
 
-module.exports = RelayCompilerCache;
+module.exports = GraphQLCompilerCache;

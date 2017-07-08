@@ -13,7 +13,7 @@
 
 'use strict';
 
-const RelayCompilerCache = require('RelayCompilerCache');
+const GraphQLCompilerCache = require('GraphQLCompilerCache');
 
 const babylon = require('babylon');
 const getModuleName = require('getModuleName');
@@ -21,7 +21,7 @@ const graphql = require('graphql');
 const path = require('path');
 const util = require('util');
 
-import type {File} from 'RelayCodegenTypes';
+import type {File} from 'CodegenTypes';
 
 // Attempt to be as inclusive as possible of source text.
 const BABYLON_OPTIONS = {
@@ -148,7 +148,7 @@ function find(
   return result;
 }
 
-const cache = new RelayCompilerCache('FindGraphQLTags', 'v1');
+const cache = new GraphQLCompilerCache('FindGraphQLTags', 'v1');
 
 function memoizedFind(
   text: string,

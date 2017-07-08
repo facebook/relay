@@ -15,20 +15,20 @@
 
 const CodegenRunner = require('CodegenRunner');
 const RelayCompiler = require('RelayCompiler');
-const RelayConsoleReporter = require('RelayConsoleReporter');
+const ConsoleReporter = require('ConsoleReporter');
 const RelayFileIRParser = require('RelayFileIRParser');
 const RelayFileWriter = require('RelayFileWriter');
 const RelayIRTransforms = require('RelayIRTransforms');
-const RelayMultiReporter = require('RelayMultiReporter');
+const MultiReporter = require('MultiReporter');
 
 export type {CompileResult} from 'CodegenTypes';
 
 module.exports = {
   Compiler: RelayCompiler,
-  ConsoleReporter: RelayConsoleReporter,
+  ConsoleReporter: ConsoleReporter,
   FileIRParser: RelayFileIRParser,
   FileWriter: RelayFileWriter,
   IRTransforms: RelayIRTransforms,
-  MultiReporter: RelayMultiReporter,
+  MultiReporter: MultiReporter,
   Runner: CodegenRunner,
 };

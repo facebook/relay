@@ -24,7 +24,7 @@ import type FileParser from 'FileParser';
 import type {CompileResult} from 'CodegenTypes';
 import type {File} from 'CodegenTypes';
 import type {FileFilter, WatchmanExpression} from 'CodegenWatcher';
-import type {RelayReporter} from 'RelayReporter';
+import type {Reporter} from 'Reporter';
 import type {DocumentNode, GraphQLSchema} from 'graphql';
 
 /* eslint-disable no-console-disallow */
@@ -71,13 +71,13 @@ class CodegenRunner {
   parsers: Parsers = {};
   // parser => writers that are affected by it
   parserWriters: {[parser: string]: Set<string>};
-  _reporter: RelayReporter;
+  _reporter: Reporter;
 
   constructor(options: {
     parserConfigs: ParserConfigs,
     writerConfigs: WriterConfigs,
     onlyValidate: boolean,
-    reporter: RelayReporter,
+    reporter: Reporter,
     skipPersist: boolean,
   }) {
     this.parserConfigs = options.parserConfigs;

@@ -18,6 +18,11 @@ const RelayModernEnvironment = require('RelayModernEnvironment');
 const RelayNetwork = require('RelayNetwork');
 const RelayStoreUtils = require('RelayStoreUtils');
 
+const commitRelayModernMutation = require('commitRelayModernMutation');
+
+const {generateAndCompile} = require('RelayModernTestUtils');
+const {buildASTSchema, parse} = require('graphql');
+
 const {ID_KEY, TYPENAME_KEY} = RelayStoreUtils;
 
 describe('RelayDebugger', () => {
@@ -30,17 +35,68 @@ describe('RelayDebugger', () => {
   let envDebugger;
   let envId;
 
+  const schema = buildASTSchema(
+    parse(`
+    schema {
+      query: Query
+      mutation: Mutation
+    }
+    type Query {
+      dummy: scratch_type
+    }
+    type scratch_type {
+      id: ID
+      fieldA: String
+      fieldB: String
+    }
+    input ChangeFieldAInput {
+      id: ID
+    }
+    type ChangeFieldAPayload {
+      record: scratch_type
+    }
+
+    type Mutation {
+      changeFieldA(input: ChangeFieldAInput): ChangeFieldAPayload
+    }
+  `),
+  );
+  const mutation = generateAndCompile(
+    `
+    mutation ChangeFieldAMutation($input: ChangeFieldAInput) {
+      changeFieldA(input: $input) {
+        record {
+          id
+          fieldA
+        }
+      }
+    }
+  `,
+    schema,
+  ).ChangeFieldAMutation;
+
+  const optimisticResponse = {
+    changeFieldA: {
+      record: {
+        id: 'abcde111',
+        fieldA: 'C',
+      },
+    },
+  };
+
   beforeEach(() => {
     data = {
       abcde111: {
         fieldA: 'A',
         fieldB: 'B',
+        id: 'abcde111',
         [ID_KEY]: 'abcde111',
         [TYPENAME_KEY]: 'scratch_type',
       },
       abcde222: {
         fieldA: 'A',
         fieldB: 'A',
+        id: 'abcde222',
         [ID_KEY]: 'abcde222',
         [TYPENAME_KEY]: 'scratch_type',
       },
@@ -59,14 +115,27 @@ describe('RelayDebugger', () => {
     };
     source = new RelayInMemoryRecordSource(data);
     store = new RelayMarkSweepStore(source);
-    network = RelayNetwork.create(() => {});
+    network = RelayNetwork.create(() => {
+      return Promise.resolve().then(() => {
+        return {
+          data: {
+            changeFieldA: {
+              record: {
+                id: 'abcde111',
+                fieldA: 'D',
+              },
+            },
+          },
+        };
+      });
+    });
     environment = new RelayModernEnvironment({
       network,
       store,
     });
-    relayDebugger = new RelayDebugger();
-    envId = relayDebugger.registerEnvironment(environment);
-    envDebugger = relayDebugger.getEnvironmentDebugger(envId);
+    relayDebugger = global.__RELAY_DEBUGGER__;
+    envDebugger = environment.getDebugger();
+    envId = envDebugger.getId();
   });
 
   describe('relay debugger', () => {
@@ -129,6 +198,23 @@ describe('RelayDebugger', () => {
 
       envDebugger.resetDirty();
       expect(envDebugger.isDirty()).toBe(false);
+    });
+  });
+
+  describe('relay debugger mutation events', () => {
+    it('records events', done => {
+      envDebugger.startRecordingMutationEvents();
+      commitRelayModernMutation(environment, {
+        variables: {input: {id: 'abcde111'}},
+        mutation,
+        optimisticResponse,
+        onCompleted() {
+          const events = envDebugger.getRecordedMutationEvents();
+          expect(events).toHaveLength(2);
+          expect(events[0].snapshotBefore).not.toBe(events[0].snapshotAfter);
+          done();
+        },
+      });
     });
   });
 });

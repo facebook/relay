@@ -260,6 +260,15 @@ function findConnectionMetadata(fragments): ReactConnectionMetadata {
     const fragment = fragments[fragmentName];
     const connectionMetadata: ?Array<ConnectionMetadata> = (fragment.metadata &&
       fragment.metadata.connection: any);
+    // HACK: metadata is always set to `undefined` in classic. In modern, even
+    // if empty, it is set to null (never undefined). We use that knowlege to
+    // check if we're dealing with classic or modern
+    if (fragment.metadata !== undefined) {
+      warning(
+        connectionMetadata,
+        'ReactRelayPaginationContainer: A @connection directive must be present.',
+      );
+    }
     if (connectionMetadata) {
       invariant(
         connectionMetadata.length === 1,

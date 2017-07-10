@@ -701,6 +701,67 @@ describe('ReactRelayPaginationContainer', () => {
     expect(environment.subscribe).not.toBeCalled();
   });
 
+  it('warns if missing @connection directive', () => {
+    jest.mock('warning');
+
+    ({UserFragment, UserQuery} = generateAndCompile(
+      `
+      query UserQuery(
+        $after: ID
+        $count: Int!
+        $id: ID!
+        $orderby: [String]
+      ) {
+        node(id: $id) {
+          id
+          ...UserFragment
+        }
+      }
+
+      fragment UserFragment on User {
+        friends(after: $after, first: $count, orderby: $orderby) {
+          edges {
+            node {
+              id
+            }
+          }
+          pageInfo {
+            endCursor
+            hasNextPage
+          }
+        }
+      }
+    `,
+    ));
+
+    TestContainer = ReactRelayPaginationContainer.createContainer(
+      TestComponent,
+      {
+        user: () => UserFragment,
+      },
+      {
+        direction: 'forward',
+        getConnectionFromProps,
+        getFragmentVariables: (vars, totalCount) => ({
+          ...vars,
+          count: totalCount,
+        }),
+        getVariables,
+        query: UserQuery,
+      },
+    );
+
+    expect(() => {
+      ReactTestRenderer.create(
+        <ContextSetter environment={environment} variables={variables}>
+          <TestContainer />
+        </ContextSetter>,
+      );
+    }).toWarn([
+      'ReactRelayPaginationContainer: A @connection directive must be present.',
+    ]);
+  });
+
   describe('hasMore()', () => {
     beforeEach(() => {
       const userPointer = environment.lookup({

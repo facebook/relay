@@ -17,7 +17,7 @@ const RelayRecordSourceInspector = require('RelayRecordSourceInspector');
 
 import type {DataID} from 'RelayInternalTypes';
 import type {RecordSummaryType} from 'RelayRecordSourceInspector';
-import type {Environment} from 'RelayStoreTypes';
+import type {Environment, OperationSelector} from 'RelayStoreTypes';
 
 type MatchType = 'idtype' | 'id' | 'type' | 'predicate';
 
@@ -33,7 +33,7 @@ class RelayDebugger {
 
   registerEnvironment(env: Environment): string {
     const idString = `RelayModernEnvironment${this._idCounter++}`;
-    this._envDebuggers.set(idString, new EnvironmentDebugger(env));
+    this._envDebuggers.set(idString, new EnvironmentDebugger(env, idString));
     return idString;
   }
 
@@ -51,18 +51,36 @@ class RelayDebugger {
   }
 }
 
+type MutationEvent = {
+  snapshotBefore: any,
+  snapshotAfter: any,
+  eventName: string,
+  mutation: OperationSelector,
+};
+
 class EnvironmentDebugger {
   _environment: Environment;
+  _id: string;
   _envIsDirty: boolean;
+  _isRecordingMutationEvents: boolean;
+  _recordedMutationEvents: Array<MutationEvent>;
 
-  constructor(environment: Environment) {
+  constructor(environment: Environment, id: string) {
     this._environment = environment;
+    this._id = id;
     this._envIsDirty = false;
     this._monkeyPatchSource();
+
+    this._recordedMutationEvents = [];
+    this._isRecordingMutationEvents = false;
   }
 
   getEnvironment(): Environment {
     return this._environment;
+  }
+
+  getId(): string {
+    return this._id;
   }
 
   getMatchingRecords(
@@ -134,6 +152,55 @@ class EnvironmentDebugger {
   resetDirty() {
     this._envIsDirty = false;
   }
+
+  startRecordingMutationEvents() {
+    this._isRecordingMutationEvents = true;
+    this._recordedMutationEvents = [];
+  }
+
+  stopRecordingMutationEvents() {
+    this._isRecordingMutationEvents = false;
+  }
+
+  getRecordedMutationEvents(): Array<MutationEvent> {
+    return this._recordedMutationEvents;
+  }
+
+  recordMutationEvent(
+    eventName: string,
+    mutation: OperationSelector,
+    fn: () => void,
+  ) {
+    if (this._isRecordingMutationEvents) {
+      const source = this._environment.getStore().getSource();
+      function getSnapshot() {
+        const snapshot = {};
+        const ids = source.getRecordIDs();
+        ids.forEach(id => {
+          snapshot[id] = source.get(id);
+        });
+        return snapshot;
+      }
+
+      const snapshotBefore = getSnapshot();
+      fn();
+      const snapshotAfter = getSnapshot();
+
+      const event = {
+        eventName,
+        snapshotBefore,
+        snapshotAfter,
+        mutation,
+      };
+
+      this._recordedMutationEvents.push(event);
+    } else {
+      fn();
+    }
+  }
 }
 
-module.exports = RelayDebugger;
+module.exports = {
+  RelayDebugger,
+  EnvironmentDebugger,
+};

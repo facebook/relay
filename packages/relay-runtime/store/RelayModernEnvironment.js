@@ -22,6 +22,7 @@ const normalizeRelayPayload = require('normalizeRelayPayload');
 const warning = require('warning');
 
 import type {CacheConfig, Disposable} from 'RelayCombinedEnvironmentTypes';
+import type {EnvironmentDebugger} from 'RelayDebugger';
 import type {HandlerProvider} from 'RelayDefaultHandlerProvider';
 import type {
   Network,
@@ -52,6 +53,7 @@ class RelayModernEnvironment implements Environment {
   _network: Network;
   _publishQueue: RelayPublishQueue;
   _store: Store;
+  _debugger: ?EnvironmentDebugger;
   unstable_internal: UnstableEnvironmentCore;
 
   constructor(config: EnvironmentConfig) {
@@ -71,16 +73,23 @@ class RelayModernEnvironment implements Environment {
       // Attach the debugger symbol to the global symbol so it can be accessed by
       // devtools extension.
       if (!g.__RELAY_DEBUGGER__) {
-        const RelayDebugger = require('RelayDebugger');
+        const {RelayDebugger} = require('RelayDebugger');
         g.__RELAY_DEBUGGER__ = new RelayDebugger();
       }
 
-      g.__RELAY_DEBUGGER__.registerEnvironment(this);
+      const envId = g.__RELAY_DEBUGGER__.registerEnvironment(this);
+      this._debugger = g.__RELAY_DEBUGGER__.getEnvironmentDebugger(envId);
+    } else {
+      this._debugger = null;
     }
   }
 
   getStore(): Store {
     return this._store;
+  }
+
+  getDebugger(): ?EnvironmentDebugger {
+    return this._debugger;
   }
 
   applyUpdate(optimisticUpdate: OptimisticUpdate): Disposable {
@@ -250,15 +259,19 @@ class RelayModernEnvironment implements Environment {
       response: optimisticResponse || null,
     };
     if (hasOptimisticUpdate) {
-      this._publishQueue.applyUpdate(optimisticUpdate);
-      this._publishQueue.run();
+      this._recordDebuggerEvent('Apply Optimistic Update', operation, () => {
+        this._publishQueue.applyUpdate(optimisticUpdate);
+        this._publishQueue.run();
+      });
     }
     let isDisposed = false;
     const dispose = () => {
       if (hasOptimisticUpdate) {
-        this._publishQueue.revertUpdate(optimisticUpdate);
-        this._publishQueue.run();
-        hasOptimisticUpdate = false;
+        this._recordDebuggerEvent('Revert Optimistic Update', operation, () => {
+          this._publishQueue.revertUpdate(optimisticUpdate);
+          this._publishQueue.run();
+          hasOptimisticUpdate = false;
+        });
       }
       isDisposed = true;
     };
@@ -266,11 +279,19 @@ class RelayModernEnvironment implements Environment {
       if (isDisposed) {
         return;
       }
-      if (hasOptimisticUpdate) {
-        this._publishQueue.revertUpdate(optimisticUpdate);
-      }
-      this._publishQueue.commitPayload(operation, payload, updater);
-      this._publishQueue.run();
+
+      this._recordDebuggerEvent(
+        'Commit Payload (Reverting Optimistic Update)',
+        operation,
+        () => {
+          if (hasOptimisticUpdate) {
+            this._publishQueue.revertUpdate(optimisticUpdate);
+          }
+          this._publishQueue.commitPayload(operation, payload, updater);
+          this._publishQueue.run();
+        },
+      );
+
       onCompleted && onCompleted(payload.errors);
     };
 
@@ -278,10 +299,13 @@ class RelayModernEnvironment implements Environment {
       if (isDisposed) {
         return;
       }
-      if (hasOptimisticUpdate) {
-        this._publishQueue.revertUpdate(optimisticUpdate);
-      }
-      this._publishQueue.run();
+
+      this._recordDebuggerEvent('Request Error', operation, () => {
+        if (hasOptimisticUpdate) {
+          this._publishQueue.revertUpdate(optimisticUpdate);
+        }
+        this._publishQueue.run();
+      });
       onError && onError(error);
     };
 
@@ -330,6 +354,18 @@ class RelayModernEnvironment implements Environment {
         },
       },
     );
+  }
+
+  _recordDebuggerEvent(
+    eventName: string,
+    operation: OperationSelector,
+    fn: () => void,
+  ) {
+    if (this._debugger) {
+      this._debugger.recordMutationEvent(eventName, operation, fn);
+    } else {
+      fn();
+    }
   }
 }
 

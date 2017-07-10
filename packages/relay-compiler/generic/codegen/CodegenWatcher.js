@@ -12,7 +12,7 @@
  */
 'use strict';
 
-const watchman = require('fb-watchman');
+const RelayWatchmanClient = require('RelayWatchmanClient');
 
 import type {File} from 'CodegenTypes';
 
@@ -36,7 +36,7 @@ async function queryFiles(
   expression: WatchmanExpression,
   filter: FileFilter,
 ): Promise<Set<File>> {
-  const client = new PromiseClient();
+  const client = new RelayWatchmanClient();
   const watchResp = await client.watchProject(baseDir);
   const resp = await client.command(
     'query',
@@ -57,7 +57,7 @@ async function watch(
   expression: WatchmanExpression,
   callback: (changes: WatchmanChanges) => any,
 ): Promise<void> {
-  const client = new PromiseClient();
+  const client = new RelayWatchmanClient();
   const watchResp = await client.watchProject(baseDir);
 
   await makeSubscription(
@@ -70,7 +70,7 @@ async function watch(
 }
 
 async function makeSubscription(
-  client: PromiseClient,
+  client: RelayWatchmanClient,
   root: string,
   relativePath: string,
   expression: WatchmanExpression,
@@ -172,50 +172,6 @@ function makeQuery(relativePath: string, expression: WatchmanExpression) {
     fields: ['name', 'exists', 'content.sha1hex'],
     relative_root: relativePath,
   };
-}
-
-class PromiseClient {
-  _client: any;
-
-  constructor() {
-    this._client = new watchman.Client();
-  }
-
-  command(...args: Array<mixed>): Promise<any> {
-    return new Promise((resolve, reject) => {
-      this._client.command(args, (error, response) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(response);
-        }
-      });
-    });
-  }
-
-  async watchProject(
-    baseDir: string,
-  ): Promise<{
-    root: string,
-    relativePath: string,
-  }> {
-    const resp = await this.command('watch-project', baseDir);
-    if ('warning' in resp) {
-      console.error('Warning:', resp.warning);
-    }
-    return {
-      root: resp.watch,
-      relativePath: resp.relative_path,
-    };
-  }
-
-  on(event: string, callback: Function): void {
-    this._client.on(event, callback);
-  }
-
-  end(): void {
-    this._client.end();
-  }
 }
 
 module.exports = {

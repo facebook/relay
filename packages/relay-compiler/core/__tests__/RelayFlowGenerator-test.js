@@ -14,8 +14,8 @@
 
 const RelayCompilerContext = require('RelayCompilerContext');
 const RelayFlowGenerator = require('RelayFlowGenerator');
-const RelayTestSchema = require('RelayTestSchema');
 const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
+const RelayTestSchema = require('RelayTestSchema');
 
 const getGoldenMatchers = require('getGoldenMatchers');
 const parseGraphQLText = require('parseGraphQLText');
@@ -36,7 +36,11 @@ describe('RelayFlowGenerator', () => {
       const context = new RelayCompilerContext(RelayTestSchema).addAll(
         definitions,
       );
-      return context
+      const flowContext = RelayFlowGenerator.flowTransforms.reduce(
+        (ctx, transform) => transform(ctx, schema),
+        context,
+      );
+      return flowContext
         .documents()
         .map(doc => RelayFlowGenerator.generate(doc))
         .join('\n\n');

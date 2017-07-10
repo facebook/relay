@@ -158,8 +158,12 @@ class RelayFileWriter {
       return cachedDir;
     };
 
-    const nodes = compiler.addDefinitions(definitions);
+    compiler.addDefinitions(definitions);
 
+    const transformedFlowContext = RelayFlowGenerator.flowTransforms.reduce(
+      (ctx, transform) => transform(ctx, extendedSchema),
+      compiler.context(),
+    );
     const transformedQueryContext = compiler.transformedQueryContext();
     const compiledDocumentMap = compiler.compile();
 
@@ -168,7 +172,7 @@ class RelayFileWriter {
     let tGenerated;
     try {
       await Promise.all(
-        nodes.map(async node => {
+        transformedFlowContext.documents().map(async node => {
           if (baseDefinitionNames.has(node.name)) {
             // don't add definitions that were part of base context
             return;
@@ -192,6 +196,7 @@ class RelayFileWriter {
             node,
             this._config.inputFieldWhiteListForFlow,
           );
+
           const compiledNode = compiledDocumentMap.get(node.name);
           invariant(
             compiledNode,

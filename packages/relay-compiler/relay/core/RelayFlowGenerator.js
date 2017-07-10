@@ -13,6 +13,7 @@
 
 'use strict';
 
+const RelayFlattenTransform = require('RelayFlattenTransform');
 const RelayIRVisitor = require('RelayIRVisitor');
 
 const babelGenerator = require('babel-generator').default;
@@ -32,7 +33,9 @@ const {
 } = require('graphql');
 const {isAbstractType} = require('RelaySchemaUtils');
 
+import type {IRTransform} from 'RelayIRTransforms';
 import type {Fragment, Root} from 'RelayIR';
+import type CompilerContext from 'RelayCompilerContext';
 
 const printBabel = ast => babelGenerator(ast).code;
 
@@ -437,4 +440,11 @@ function generateInputVariablesType(
   );
 }
 
-module.exports = {generate};
+const FLOW_TRANSFORMS: Array<IRTransform> = [
+  (ctx: CompilerContext) => RelayFlattenTransform.transform(ctx, {}),
+];
+
+module.exports = {
+  generate,
+  flowTransforms: FLOW_TRANSFORMS,
+};

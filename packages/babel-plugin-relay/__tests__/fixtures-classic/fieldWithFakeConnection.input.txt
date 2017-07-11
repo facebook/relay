@@ -1,5 +1,5 @@
-var Relay = require('Relay');
-var foo = Relay.QL`
+var RelayClassic = require('RelayClassic');
+var foo = RelayClassic.QL`
   fragment on User {
     fakeConnection {
       edges {

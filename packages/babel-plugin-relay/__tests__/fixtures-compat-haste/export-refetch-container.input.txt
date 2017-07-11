@@ -5,7 +5,7 @@
  */
 
 const React = require('React');
-const {createRefetchContainer, graphql} = require('Relay');
+const {createRefetchContainer, graphql} = require('RelayClassic');
 
 class RefetchExample extends React.Component {
   render() {

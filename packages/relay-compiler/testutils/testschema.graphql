@@ -69,6 +69,7 @@ type Mutation {
 
 type Subscription {
   feedbackLikeSubscribe(input: FeedbackLikeInput): FeedbackLikeResponsePayload
+  commentCreateSubscribe(input: CommentCreateSubscriptionInput): CommentCreateResponsePayload
 }
 
 input ActorSubscribeInput {
@@ -89,6 +90,12 @@ input ApplicationRequestDeleteAllInput {
 input CommentCreateInput {
   clientMutationId: String
   feedbackId: ID
+}
+
+input CommentCreateSubscriptionInput {
+  clientSubscriptionId: String
+  feedbackId: ID
+  text: String
 }
 
 input CommentDeleteInput {

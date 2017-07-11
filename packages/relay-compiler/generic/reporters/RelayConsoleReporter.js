@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule ConsoleReporter
+ * @providesModule RelayConsoleReporter
  * @flow
  * @format
  */
@@ -16,9 +16,9 @@
 const chalk = require('chalk');
 const process = require('process');
 
-import type {Reporter} from 'Reporter';
+import type {RelayReporter} from 'RelayReporter';
 
-class ConsoleReporter implements Reporter {
+class RelayConsoleReporter implements RelayReporter {
   _verbose: boolean;
 
   constructor(options: {verbose: boolean}) {
@@ -40,4 +40,4 @@ class ConsoleReporter implements Reporter {
   }
 }
 
-module.exports = ConsoleReporter;
+module.exports = RelayConsoleReporter;

@@ -6,14 +6,14 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule CodegenRunner
+ * @providesModule RelayCodegenRunner
  * @flow
  * @format
  */
 
 'use strict';
 
-const CodegenWatcher = require('CodegenWatcher');
+const RelayCodegenWatcher = require('RelayCodegenWatcher');
 
 const invariant = require('invariant');
 
@@ -21,10 +21,10 @@ const {Map: ImmutableMap} = require('immutable');
 
 import type CodegenDirectory from 'CodegenDirectory';
 import type FileParser from 'FileParser';
-import type {CompileResult} from 'CodegenTypes';
-import type {File} from 'CodegenTypes';
-import type {FileFilter, WatchmanExpression} from 'CodegenWatcher';
-import type {Reporter} from 'Reporter';
+import type {CompileResult} from 'RelayCodegenTypes';
+import type {File} from 'RelayCodegenTypes';
+import type {FileFilter, WatchmanExpression} from 'RelayCodegenWatcher';
+import type {RelayReporter} from 'RelayReporter';
 import type {DocumentNode, GraphQLSchema} from 'graphql';
 
 /* eslint-disable no-console-disallow */
@@ -63,7 +63,7 @@ type WriterConfigs = {
   [writer: string]: WriterConfig,
 };
 
-class CodegenRunner {
+class RelayCodegenRunner {
   parserConfigs: ParserConfigs;
   writerConfigs: WriterConfigs;
   onlyValidate: boolean;
@@ -71,13 +71,13 @@ class CodegenRunner {
   parsers: Parsers = {};
   // parser => writers that are affected by it
   parserWriters: {[parser: string]: Set<string>};
-  _reporter: Reporter;
+  _reporter: RelayReporter;
 
   constructor(options: {
     parserConfigs: ParserConfigs,
     writerConfigs: WriterConfigs,
     onlyValidate: boolean,
-    reporter: Reporter,
+    reporter: RelayReporter,
     skipPersist: boolean,
   }) {
     this.parserConfigs = options.parserConfigs;
@@ -108,7 +108,7 @@ class CodegenRunner {
       try {
         await this.parseEverything(parserName);
       } catch (e) {
-        this._reporter.reportError('CodegenRunner.compileAll', e);
+        this._reporter.reportError('RelayCodegenRunner.compileAll', e);
         return 'ERROR';
       }
     }
@@ -148,7 +148,7 @@ class CodegenRunner {
     const parserConfig = this.parserConfigs[parserName];
     this.parsers[parserName] = parserConfig.getParser(parserConfig.baseDir);
 
-    const files = await CodegenWatcher.queryFiles(
+    const files = await RelayCodegenWatcher.queryFiles(
       parserConfig.baseDir,
       parserConfig.watchmanExpression,
       parserConfig.getFileFilter
@@ -202,7 +202,7 @@ class CodegenRunner {
         const combined = [];
         invariant(
           outputDirectories,
-          'CodegenRunner: Expected outputDirectories to be set',
+          'RelayCodegenRunner: Expected outputDirectories to be set',
         );
         for (const dir of outputDirectories.values()) {
           combined.push(...accessor(dir.changes));
@@ -231,7 +231,7 @@ class CodegenRunner {
         ? 'HAS_CHANGES'
         : 'NO_CHANGES';
     } catch (e) {
-      this._reporter.reportError('CodegenRunner.write', e);
+      this._reporter.reportError('RelayCodegenRunner.write', e);
       return 'ERROR';
     }
   }
@@ -253,7 +253,7 @@ class CodegenRunner {
     // we should prevent the first watch callback from doing anything.
     let firstChange = true;
 
-    await CodegenWatcher.watchCompile(
+    await RelayCodegenWatcher.watchCompile(
       parserConfig.baseDir,
       parserConfig.watchmanExpression,
       parserConfig.getFileFilter
@@ -283,7 +283,7 @@ class CodegenRunner {
           }
           await Promise.all(dependentWriters.map(writer => this.write(writer)));
         } catch (error) {
-          this._reporter.reportError('CodegenRunner.watch', error);
+          this._reporter.reportError('RelayCodegenRunner.watch', error);
         }
         console.log('Watching for changes to %s...', parserName);
       },
@@ -309,4 +309,4 @@ function printFiles(label, files) {
   }
 }
 
-module.exports = CodegenRunner;
+module.exports = RelayCodegenRunner;

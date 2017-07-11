@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule CodegenWatcher
+ * @providesModule RelayCodegenWatcher
  * @flow
  * @format
  */
@@ -14,7 +14,7 @@
 
 const RelayWatchmanClient = require('RelayWatchmanClient');
 
-import type {File} from 'CodegenTypes';
+import type {File} from 'RelayCodegenTypes';
 
 const SUBSCRIPTION_NAME = 'relay-codegen';
 

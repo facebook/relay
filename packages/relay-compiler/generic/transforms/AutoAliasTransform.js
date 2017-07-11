@@ -15,7 +15,7 @@
 
 const RelayCompilerContext = require('RelayCompilerContext');
 
-const getIdentifierForArgumentValue = require('getIdentifierForArgumentValue');
+const getIdentifierForRelayArgumentValue = require('getIdentifierForRelayArgumentValue');
 const invariant = require('invariant');
 const murmurHash = require('murmurHash');
 const stableJSONStringify = require('stableJSONStringify');
@@ -89,7 +89,7 @@ function generateAlias(field: LinkedField | ScalarField): ?string {
   }
   const args = [...field.args]
     .sort(sortByName)
-    .map(arg => getIdentifierForArgumentValue(arg.value));
+    .map(arg => getIdentifierForRelayArgumentValue(arg.value));
   const hash = murmurHash(stableJSONStringify(args));
   return (field.alias || field.name) + '_' + hash;
 }

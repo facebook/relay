@@ -17,7 +17,7 @@ const Map = require('Map');
 const RelayCompilerContext = require('RelayCompilerContext');
 const RelayCompilerScope = require('RelayCompilerScope');
 
-const getIdentifierForArgumentValue = require('getIdentifierForArgumentValue');
+const getIdentifierForRelayArgumentValue = require('getIdentifierForRelayArgumentValue');
 const invariant = require('invariant');
 const murmurHash = require('murmurHash');
 
@@ -374,7 +374,7 @@ function hashArguments(args: Array<Argument>, scope: Scope): ?string {
       }
       return {
         name: arg.name,
-        value: getIdentifierForArgumentValue(value),
+        value: getIdentifierForRelayArgumentValue(value),
       };
     }),
   );

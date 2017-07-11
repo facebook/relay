@@ -5,13 +5,13 @@
 
 'use strict';
 
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 
-const { graphql } = Relay;
+const { graphql } = RelayClassic;
 
 const CompatProfile = () => null;
 
-module.exports = Relay.createFragmentContainer(CompatProfile, {
+module.exports = RelayClassic.createFragmentContainer(CompatProfile, {
   viewer: function () {
     return require('CompatProfile_viewer.graphql');
   }

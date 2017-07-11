@@ -94,6 +94,24 @@ function createMockEnvironment(options: {
     return promise;
   };
 
+  let validSubscriptions = [];
+  const subscribe = (query, variables, cacheConfig, observer) => {
+    const currentSubscription = {
+      query,
+      variables,
+      cacheConfig,
+      observer,
+    };
+    validSubscriptions.push(currentSubscription);
+    return {
+      dispose: () => {
+        validSubscriptions = validSubscriptions.filter(
+          subscription => subscription !== currentSubscription,
+        );
+      },
+    };
+  };
+
   if (!schema) {
     global.__RELAYOSS__ = true;
   }
@@ -168,13 +186,38 @@ function createMockEnvironment(options: {
     });
   };
 
+  const resolveSubscriptionPayload = (query, payload) => {
+    invariant(
+      typeof payload === 'object' &&
+        payload !== null &&
+        payload.hasOwnProperty('data'),
+      'MockEnvironment#resolveSubscriptionPayload(): Expected payload to be an object with a `data` key.',
+    );
+    const validSubscription = validSubscriptions.find(
+      subscription => subscription.query === query,
+    );
+    invariant(
+      validSubscription,
+      'MockEnvironment#resolveSubscriptionPayload(): Cannot resolve query `%s`, it has not been ' +
+        'fetched yet.',
+    );
+    validSubscriptions = validSubscriptions.filter(
+      subscription => subscription !== validSubscription,
+    );
+    const {observer} = validSubscription;
+    if (observer) {
+      observer.onNext && observer.onNext(payload);
+    }
+    jest.runOnlyPendingTimers();
+  };
+
   // Initialize a store debugger to help resolve test issues
   const storeInspector = new RelayRecordSourceInspector(source);
 
   // Mock instance
   const environment = new RelayModernEnvironment({
     handlerProvider,
-    network: RelayNetwork.create(fetch),
+    network: RelayNetwork.create(fetch, subscribe),
     store,
   });
   // Mock all the functions with their original behavior
@@ -201,6 +244,7 @@ function createMockEnvironment(options: {
     reject,
     resolve,
     storeInspector,
+    resolveSubscriptionPayload,
   };
 
   environment.mockClear = () => {

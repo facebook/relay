@@ -92,7 +92,7 @@ function getSelector(
     false,
     'RelayModernSelector: Expected object to contain data for fragment `%s`, got ' +
       '`%s`. Make sure that the parent operation/fragment included fragment ' +
-      '`...%s`.',
+      '`...%s` without `@inline` directive.',
     fragment.name,
     JSON.stringify(item),
     fragment.name,
@@ -250,7 +250,7 @@ function getDataID(fragment: ConcreteFragment, item: mixed): ?DataID {
     false,
     'RelayModernSelector: Expected object to contain data for fragment `%s`, got ' +
       '`%s`. Make sure that the parent operation/fragment included fragment ' +
-      '`...%s`.',
+      '`...%s` without `@inline` directive.',
     fragment.name,
     JSON.stringify(item),
     fragment.name,

@@ -13,22 +13,22 @@
 
 'use strict';
 
-const CodegenRunner = require('CodegenRunner');
+const RelayCodegenRunner = require('RelayCodegenRunner');
 const RelayCompiler = require('RelayCompiler');
-const ConsoleReporter = require('ConsoleReporter');
+const RelayConsoleReporter = require('RelayConsoleReporter');
 const RelayFileIRParser = require('RelayFileIRParser');
 const RelayFileWriter = require('RelayFileWriter');
 const RelayIRTransforms = require('RelayIRTransforms');
-const MultiReporter = require('MultiReporter');
+const RelayMultiReporter = require('RelayMultiReporter');
 
-export type {CompileResult} from 'CodegenTypes';
+export type {CompileResult} from 'RelayCodegenTypes';
 
 module.exports = {
   Compiler: RelayCompiler,
-  ConsoleReporter: ConsoleReporter,
+  ConsoleReporter: RelayConsoleReporter,
   FileIRParser: RelayFileIRParser,
   FileWriter: RelayFileWriter,
   IRTransforms: RelayIRTransforms,
-  MultiReporter: MultiReporter,
-  Runner: CodegenRunner,
+  MultiReporter: RelayMultiReporter,
+  Runner: RelayCodegenRunner,
 };

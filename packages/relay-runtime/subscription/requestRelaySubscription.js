@@ -13,13 +13,17 @@
 
 'use strict';
 
+const setRelayModernMutationConfigs = require('setRelayModernMutationConfigs');
+const warning = require('warning');
+
 import type {Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {RelayResponsePayload} from 'RelayNetworkTypes';
 import type {Environment, RecordSourceSelectorProxy} from 'RelayStoreTypes';
-import type {Variables} from 'RelayTypes';
+import type {RelayMutationConfig, Variables} from 'RelayTypes';
 
 export type GraphQLSubscriptionConfig = {|
+  configs?: Array<RelayMutationConfig>,
   subscription: GraphQLTaggedNode,
   variables: Variables,
   onCompleted?: ?() => void,
@@ -34,8 +38,23 @@ function requestRelaySubscription(
 ): Disposable {
   const {createOperationSelector, getOperation} = environment.unstable_internal;
   const subscription = getOperation(config.subscription);
-  const {onCompleted, onError, onNext, updater, variables} = config;
+  const {configs, onCompleted, onError, onNext, variables} = config;
+  let {updater} = config;
   const operation = createOperationSelector(subscription, variables);
+
+  warning(
+    !(updater && configs),
+    'requestRelaySubscription: Expected only one of `updater` and `configs` to be provided',
+  );
+
+  if (configs) {
+    ({updater} = setRelayModernMutationConfigs(
+      configs,
+      subscription,
+      null /* optimisticUpdater */,
+      updater,
+    ));
+  }
   return environment.sendSubscription({
     onCompleted,
     onError,

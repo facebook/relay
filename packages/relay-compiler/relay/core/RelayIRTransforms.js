@@ -38,6 +38,7 @@ export type IRTransform = (
 const schemaExtensions: Array<string> = [
   RelayConnectionTransform.SCHEMA_EXTENSION,
   RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
+  RelayFlattenTransform.SCHEMA_EXTENSION,
 ];
 
 // Transforms applied to fragments used for reading data from a store
@@ -70,20 +71,20 @@ const QUERY_TRANSFORMS: Array<IRTransform> = [
 
 // Transforms applied to the code used to process a query response.
 const CODEGEN_TRANSFORMS: Array<IRTransform> = [
-  FilterDirectivesTransform.transform,
   (ctx: CompilerContext) =>
     RelayFlattenTransform.transform(ctx, {
       flattenAbstractTypes: true,
       flattenFragmentSpreads: true,
     }),
   SkipRedundantNodesTransform.transform,
+  FilterDirectivesTransform.transform,
 ];
 
 // Transforms applied before printing the query sent to the server.
 const PRINT_TRANSFORMS: Array<IRTransform> = [
-  FilterDirectivesTransform.transform,
   (ctx: CompilerContext) => RelayFlattenTransform.transform(ctx, {}),
   RelaySkipHandleFieldTransform.transform,
+  FilterDirectivesTransform.transform,
 ];
 
 module.exports = {

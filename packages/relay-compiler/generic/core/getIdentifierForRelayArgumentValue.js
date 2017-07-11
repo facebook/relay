@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule getIdentifierForArgumentValue
+ * @providesModule getIdentifierForRelayArgumentValue
  * @flow
  * @format
  */
@@ -21,7 +21,7 @@ import type {ArgumentValue} from 'RelayIR';
  * Generates an identifier for an argument value. The identifier is based on the
  * structure/order of items and keys in the value.
  */
-function getIdentifierForArgumentValue(value: ArgumentValue): mixed {
+function getIdentifierForRelayArgumentValue(value: ArgumentValue): mixed {
   switch (value.kind) {
     case 'Variable':
       return {variable: value.variableName};
@@ -29,22 +29,22 @@ function getIdentifierForArgumentValue(value: ArgumentValue): mixed {
       return {value: value.value};
     case 'ListValue':
       return {
-        list: value.items.map(item => getIdentifierForArgumentValue(item)),
+        list: value.items.map(item => getIdentifierForRelayArgumentValue(item)),
       };
     case 'ObjectValue':
       return {
         object: value.fields.map(field => ({
           name: field.name,
-          value: getIdentifierForArgumentValue(field.value),
+          value: getIdentifierForRelayArgumentValue(field.value),
         })),
       };
     default:
       invariant(
         false,
-        'getIdentifierForArgumentValue(): Unsupported AST kind `%s`.',
+        'getIdentifierForRelayArgumentValue(): Unsupported AST kind `%s`.',
         value.kind,
       );
   }
 }
 
-module.exports = getIdentifierForArgumentValue;
+module.exports = getIdentifierForRelayArgumentValue;

@@ -19,7 +19,7 @@ const GraphQL = require('graphql');
 const fs = require('fs');
 const path = require('path');
 
-import type {File} from 'CodegenTypes';
+import type {File} from 'RelayCodegenTypes';
 import type {DocumentNode} from 'graphql';
 
 function parseFile(baseDir: string, file: File): ?DocumentNode {

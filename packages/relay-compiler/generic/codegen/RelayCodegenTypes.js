@@ -6,13 +6,16 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule Reporter
+ * @providesModule RelayCodegenTypes
  * @flow
  * @format
  */
 
 'use strict';
 
-export interface Reporter {
-  reportError(caughtLocation: string, error: Error): void,
-}
+export type CompileResult = 'HAS_CHANGES' | 'NO_CHANGES' | 'ERROR';
+
+export type File = {
+  relPath: string,
+  hash: string,
+};

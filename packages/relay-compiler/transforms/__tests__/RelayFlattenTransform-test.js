@@ -31,7 +31,6 @@ describe('RelayFlattenTransform', () => {
     RelayPrinter = require('RelayPrinter');
     RelayTestSchema = require('RelayTestSchema');
     getGoldenMatchers = require('getGoldenMatchers');
-
     expect.extend(getGoldenMatchers(__filename));
   });
 
@@ -39,8 +38,12 @@ describe('RelayFlattenTransform', () => {
     options: FlattenOptions,
   ): (text: string) => string {
     return text => {
+      const {transformASTSchema} = require('ASTConvert');
+      const extendedSchema = transformASTSchema(RelayTestSchema, [
+        RelayFlattenTransform.SCHEMA_EXTENSION,
+      ]);
       const context = new RelayCompilerContext(RelayTestSchema).addAll(
-        RelayParser.parse(RelayTestSchema, text),
+        RelayParser.parse(extendedSchema, text),
       );
       const nextContext = RelayFlattenTransform.transform(context, options);
       return nextContext

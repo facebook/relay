@@ -1,5 +1,5 @@
-var Relay = require('Relay');
-var fragment = Relay.QL`
+var RelayClassic = require('RelayClassic');
+var fragment = RelayClassic.QL`
   fragment on InvalidType {
     node(id: 123) {
       ... on User {

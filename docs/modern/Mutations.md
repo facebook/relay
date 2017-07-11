@@ -41,7 +41,7 @@ Now let's take a closer look at the `config`:
  * For more complicated mutations, `optimisticUpdater` and `updater` can be the same function.
 * `optimisticUpdater`: a function that takes in a proxy of the in-memory Relay store. In this function, the client defines 'how to' update the store through the proxy in an imperative way.
 * `updater`: a function that updates the in-memory Relay store based on the **real** server response. When the server response comes back, Relay first reverts any changes introduced by `optimisticUpdater` or `optimisticResponse` and then applies the `updater` to the store.
-* `configs`:  an array containing the different optimisticUpdater/updater configurations.
+* `configs`:  an array containing the different optimisticUpdater/updater configurations. It provides a convenient way to specify the `updater` behavior. 
 
 ## Example
 
@@ -150,7 +150,7 @@ connection.
 * `connectionInfo: Array<{key: string, filters?: Variables, rangeBehavior:
 string}>`: An array of objects containing a connection key, an object
 containing optional filters, and a range behavior depending on what behavior we expect (append, prepend, or ignore).
-  * `filters`: An object containing GraphQL calls e.g. `const filters = {'orderby': 'chronological'};`. 
+  * `filters`: An object containing GraphQL calls e.g. `const filters = {'orderby': 'chronological'};`.
 * `edgeName: string`: The field name in the response that represents the newly created edge
 
 ### Example
@@ -189,7 +189,7 @@ from the connection but leave the associated record(s) in the store.
 connection.
 * `connectionKeys: Array<{key: string, filters?: Variables}>`: An array of
 objects containing a connection key and optionally filters.
-  * `filters`: An object containing GraphQL calls e.g. `const filters = {'orderby': 'chronological'};`. 
+  * `filters`: An object containing GraphQL calls e.g. `const filters = {'orderby': 'chronological'};`.
 * `pathToConnection: Array<string>`: An array containing the field names between the parent and the connection, including the parent and the connection.
 * `deletedIDFieldName: string | Array<string>`: The field name in the response that contains the DataID of the removed node, or the path to the node removed from the connection
 
@@ -203,7 +203,7 @@ const mutation = graphql`
           id
         }
       }
-      removedTagId 
+      removedTagId
     }
   }
 `;

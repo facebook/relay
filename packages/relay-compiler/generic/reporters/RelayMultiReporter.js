@@ -6,19 +6,19 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule MultiReporter
+ * @providesModule RelayMultiReporter
  * @flow
  * @format
  */
 
 'use strict';
 
-import type {Reporter} from 'Reporter';
+import type {RelayReporter} from 'RelayReporter';
 
-class MultiReporter implements Reporter {
-  _reporters: Array<Reporter>;
+class RelayMultiReporter implements RelayReporter {
+  _reporters: Array<RelayReporter>;
 
-  constructor(...reporters: Array<Reporter>) {
+  constructor(...reporters: Array<RelayReporter>) {
     this._reporters = reporters;
   }
 
@@ -29,4 +29,4 @@ class MultiReporter implements Reporter {
   }
 }
 
-module.exports = MultiReporter;
+module.exports = RelayMultiReporter;

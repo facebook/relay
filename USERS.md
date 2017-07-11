@@ -26,6 +26,9 @@ Using Relay in your production app? If you'd like to add your team to the list, 
 - [chloe + isabel](https://www.chloeandisabel.com)
 - [Collibra](https://www.collibra.com)
 
+## E
+- [Entria](https://entria.com.br/)
+
 ## F
 
 - [Facebook](https://www.facebook.com/)

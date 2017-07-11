@@ -63,6 +63,10 @@ Using Relay in your production app? If you'd like to add your team to the list, 
 - [Reploy](https://reploy.io)
 - [re:Culture](https://reculture.us)
 
+## S
+
+- [Sainsburys](https://sainsburys.co.uk/)
+
 ## T
 
 - [ThoughtMachine](https://thoughtmachine.net/)

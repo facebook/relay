@@ -122,7 +122,7 @@ describe('RelayModernSelector', () => {
       }).toWarn([
         'RelayModernSelector: Expected object to contain data for fragment ' +
           '`%s`, got `%s`. Make sure that the parent ' +
-          'operation/fragment included fragment `...%s`.',
+          'operation/fragment included fragment `...%s` without `@inline` directive.',
         'UserFragment',
         '{}',
         'UserFragment',
@@ -157,7 +157,7 @@ describe('RelayModernSelector', () => {
       }).toWarn([
         'RelayModernSelector: Expected object to contain data for fragment ' +
           '`%s`, got `%s`. Make sure that the parent ' +
-          'operation/fragment included fragment `...%s`.',
+          'operation/fragment included fragment `...%s` without `@inline` directive.',
         'UserFragment',
         '{}',
         'UserFragment',
@@ -198,7 +198,7 @@ describe('RelayModernSelector', () => {
       }).toWarn([
         'RelayModernSelector: Expected object to contain data for fragment ' +
           '`%s`, got `%s`. Make sure that the parent ' +
-          'operation/fragment included fragment `...%s`.',
+          'operation/fragment included fragment `...%s` without `@inline` directive.',
         'UserFragment',
         '{}',
         'UserFragment',
@@ -294,7 +294,7 @@ describe('RelayModernSelector', () => {
       }).toWarn([
         'RelayModernSelector: Expected object to contain data for fragment ' +
           '`%s`, got `%s`. Make sure that the parent ' +
-          'operation/fragment included fragment `...%s`.',
+          'operation/fragment included fragment `...%s` without `@inline` directive.',
         'UserFragment',
         '{}',
         'UserFragment',
@@ -377,7 +377,7 @@ describe('RelayModernSelector', () => {
       }).toWarn([
         'RelayModernSelector: Expected object to contain data for fragment ' +
           '`%s`, got `%s`. Make sure that the parent ' +
-          'operation/fragment included fragment `...%s`.',
+          'operation/fragment included fragment `...%s` without `@inline` directive.',
         'UserFragment',
         '{}',
         'UserFragment',

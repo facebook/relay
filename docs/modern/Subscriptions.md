@@ -4,7 +4,7 @@ title: Subscriptions
 layout: docs
 category: Relay Modern
 permalink: docs/subscriptions.html
-next: babel-plugin-relay
+next: relay-directives
 ---
 
 Relay exposes the following APIs to create subscriptions.

@@ -40,6 +40,10 @@ type FlattenState = {
   type: Type,
 };
 
+const INLINE = 'inline';
+
+const SCHEMA_EXTENSION = 'directive @inline on FRAGMENT_SPREAD';
+
 /**
  * Transform that flattens inline fragments, fragment spreads, and conditionals.
  *
@@ -129,7 +133,10 @@ function visitNode(
   node: Node,
 ): void {
   node.selections.forEach(selection => {
-    if (selection.kind === 'FragmentSpread' && options.flattenFragmentSpreads) {
+    if (
+      selection.kind === 'FragmentSpread' &&
+      shouldFlattenFragmentSpread(selection, options)
+    ) {
       invariant(
         !selection.args.length,
         'RelayFlattenTransform: Cannot flatten fragment spread `%s` with ' +
@@ -161,7 +168,7 @@ function visitNode(
     }
     if (
       selection.kind === 'InlineFragment' &&
-      shouldFlattenFragment(selection, options, state)
+      shouldFlattenInlineFragment(selection, options, state)
     ) {
       visitNode(context, options, state, selection);
       return;
@@ -244,7 +251,20 @@ function visitNode(
 /**
  * @internal
  */
-function shouldFlattenFragment(
+function shouldFlattenFragmentSpread(
+  fragment: FragmentSpread,
+  options: FlattenOptions,
+): boolean {
+  return (
+    options.flattenFragmentSpreads ||
+    !!fragment.directives.find(({name}) => name === INLINE)
+  );
+}
+
+/**
+ * @internal
+ */
+function shouldFlattenInlineFragment(
   fragment: InlineFragment,
   options: FlattenOptions,
   state: FlattenState,
@@ -337,4 +357,7 @@ function isEquivalentType(typeA: GraphQLType, typeB: GraphQLType): boolean {
   return false;
 }
 
-module.exports = {transform};
+module.exports = {
+  SCHEMA_EXTENSION,
+  transform,
+};

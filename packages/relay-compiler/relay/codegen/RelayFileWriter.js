@@ -33,7 +33,7 @@ import type {CompilerTransforms} from 'RelayCompiler';
 import type {DocumentNode, GraphQLSchema} from 'graphql';
 import type {FormatModule} from 'writeRelayGeneratedFile';
 
-type GenerateExtraFiles = (
+export type GenerateExtraFiles = (
   getOutputDirectory: (path?: string) => CodegenDirectory,
   compilerContext: RelayCompilerContext,
 ) => void;

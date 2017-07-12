@@ -13,13 +13,18 @@
 'use strict';
 
 const fs = require('fs');
+const path = require('path');
 
 const {SCHEMA_EXTENSION} = require('./GraphQLRelayDirective');
 const {parse} = require('graphql');
 
-function getSchemaIntrospection(schemaPath: string) {
+function getSchemaIntrospection(schemaPath: string, basePath: ?string) {
   try {
-    const source = fs.readFileSync(schemaPath, 'utf8');
+    let fullSchemaPath = schemaPath;
+    if (!fs.existsSync(fullSchemaPath) && basePath) {
+      fullSchemaPath = path.join(basePath, schemaPath);
+    }
+    const source = fs.readFileSync(fullSchemaPath, 'utf8');
     if (source[0] === '{') {
       return JSON.parse(source);
     }

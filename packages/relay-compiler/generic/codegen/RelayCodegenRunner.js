@@ -51,6 +51,7 @@ type Parsers = {
 export type WriterConfig = {
   parser: string,
   baseParsers?: Array<string>,
+  isGeneratedFile: (filePath: string) => boolean,
   getWriter: (
     onlyValidate: boolean,
     schema: GraphQLSchema,
@@ -173,7 +174,12 @@ class RelayCodegenRunner {
     try {
       console.log('\nWriting %s', writerName);
       const tStart = Date.now();
-      const {getWriter, parser, baseParsers} = this.writerConfigs[writerName];
+      const {
+        getWriter,
+        parser,
+        baseParsers,
+        isGeneratedFile,
+      } = this.writerConfigs[writerName];
 
       let baseDocuments = ImmutableMap();
       if (baseParsers) {
@@ -213,6 +219,25 @@ class RelayCodegenRunner {
       const updated = combineChanges(_ => _.updated);
       const deleted = combineChanges(_ => _.deleted);
       const unchanged = combineChanges(_ => _.unchanged);
+
+      for (const dir of outputDirectories.values()) {
+        const all = [
+          ...dir.changes.created,
+          ...dir.changes.updated,
+          ...dir.changes.deleted,
+          ...dir.changes.unchanged,
+        ];
+
+        for (const filename of all) {
+          const filePath = dir.getPath(filename);
+          invariant(
+            isGeneratedFile(filePath),
+            'RelayCodegenRunner: %s returned false for isGeneratedFile, ' +
+              'but was in generated directory',
+            filePath,
+          );
+        }
+      }
 
       if (this.onlyValidate) {
         printFiles('Missing', created);

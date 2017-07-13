@@ -118,7 +118,6 @@ Ensure that one such file exists in ${srcDir} or its parents.
     parserConfigs,
     writerConfigs,
     onlyValidate: false,
-    skipPersist: true,
   });
   if (options.watch) {
     await codegenRunner.watchAll();

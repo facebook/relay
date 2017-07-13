@@ -19,19 +19,15 @@ const invariant = require('invariant');
 
 const {Map: ImmutableMap} = require('immutable');
 
-import type CodegenDirectory from 'CodegenDirectory';
 import type FileParser from 'FileParser';
 import type {CompileResult} from 'RelayCodegenTypes';
 import type {File} from 'RelayCodegenTypes';
 import type {FileFilter, WatchmanExpression} from 'RelayCodegenWatcher';
 import type {RelayReporter} from 'RelayReporter';
-import type {DocumentNode, GraphQLSchema} from 'graphql';
+import type {GetWriter} from 'getRelayFileWriter';
+import type {GraphQLSchema} from 'graphql';
 
 /* eslint-disable no-console-disallow */
-
-interface FileWriter {
-  writeAll(): Promise<Map<string, CodegenDirectory>>,
-}
 
 export type ParserConfig = {|
   baseDir: string,
@@ -52,12 +48,7 @@ export type WriterConfig = {
   parser: string,
   baseParsers?: Array<string>,
   isGeneratedFile: (filePath: string) => boolean,
-  getWriter: (
-    onlyValidate: boolean,
-    schema: GraphQLSchema,
-    documents: ImmutableMap<string, DocumentNode>,
-    baseDocuments: ImmutableMap<string, DocumentNode>,
-  ) => FileWriter,
+  getWriter: GetWriter,
 };
 
 type WriterConfigs = {
@@ -68,7 +59,6 @@ class RelayCodegenRunner {
   parserConfigs: ParserConfigs;
   writerConfigs: WriterConfigs;
   onlyValidate: boolean;
-  skipPersist: boolean;
   parsers: Parsers = {};
   // parser => writers that are affected by it
   parserWriters: {[parser: string]: Set<string>};
@@ -79,12 +69,10 @@ class RelayCodegenRunner {
     writerConfigs: WriterConfigs,
     onlyValidate: boolean,
     reporter: RelayReporter,
-    skipPersist: boolean,
   }) {
     this.parserConfigs = options.parserConfigs;
     this.writerConfigs = options.writerConfigs;
     this.onlyValidate = options.onlyValidate;
-    this.skipPersist = options.skipPersist;
     this._reporter = options.reporter;
 
     this.parserWriters = {};

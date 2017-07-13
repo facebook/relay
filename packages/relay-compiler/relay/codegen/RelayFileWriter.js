@@ -29,6 +29,7 @@ const writeRelayGeneratedFile = require('./writeRelayGeneratedFile');
 const {isOperationDefinitionAST} = require('RelaySchemaUtils');
 const {Map: ImmutableMap} = require('immutable');
 
+import type {FileWriterInterface} from 'RelayCodegenTypes';
 import type {CompilerTransforms} from 'RelayCompiler';
 import type {DocumentNode, GraphQLSchema} from 'graphql';
 import type {FormatModule} from 'writeRelayGeneratedFile';
@@ -54,7 +55,7 @@ export type WriterConfig = {
 
 /* eslint-disable no-console-disallow */
 
-class RelayFileWriter {
+class RelayFileWriter implements FileWriterInterface {
   _onlyValidate: boolean;
   _config: WriterConfig;
   _baseSchema: GraphQLSchema;
@@ -208,7 +209,7 @@ class RelayFileWriter {
             compiledNode,
             this._config.formatModule,
             flowTypes,
-            this.skipPersist ? null : this._config.persistQuery,
+            this._config.persistQuery,
             this._config.platform,
             this._config.relayRuntimeModule || 'relay-runtime',
           );

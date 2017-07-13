@@ -58,11 +58,16 @@ async function writeRelayGeneratedFile(
     );
     const oldContent = codegenDir.read(filename);
     // Hash the concrete node including the query text.
-    hash = md5(
-      JSON.stringify(generatedNode) +
-        (persistQuery ? 'persisted' : '') +
-        'cache-breaker-5',
-    );
+    const hasher = crypto.createHash('md5');
+    hasher.update('cache-breaker-1');
+    hasher.update(JSON.stringify(generatedNode));
+    if (flowText) {
+      hasher.update(flowText);
+    }
+    if (persistQuery) {
+      hasher.update('persisted');
+    }
+    hash = hasher.digest('hex');
     if (hash === extractHash(oldContent)) {
       codegenDir.markUnchanged(filename);
       return null;
@@ -104,10 +109,6 @@ function extractHash(text: ?string): ?string {
   }
   const match = text.match(/@relayHash (\w{32})\b/m);
   return match && match[1];
-}
-
-function md5(text: string): string {
-  return crypto.createHash('md5').update(text).digest('hex');
 }
 
 module.exports = writeRelayGeneratedFile;

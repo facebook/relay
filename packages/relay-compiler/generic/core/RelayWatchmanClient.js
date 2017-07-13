@@ -33,6 +33,11 @@ class RelayWatchmanClient {
     });
   }
 
+  async hasCapability(capability: string): Promise<boolean> {
+    const resp = await this.command('list-capabilities');
+    return resp.capabilities.includes(capability);
+  }
+
   async watchProject(
     baseDir: string,
   ): Promise<{

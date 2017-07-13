@@ -14,6 +14,10 @@
 
 const RelayWatchmanClient = require('RelayWatchmanClient');
 
+const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
+
 import type {File} from 'RelayCodegenTypes';
 
 const SUBSCRIPTION_NAME = 'relay-codegen';
@@ -25,7 +29,7 @@ export type FileFilter = (file: File) => boolean;
 type WatchmanChange = {
   name: string,
   exists: boolean,
-  'content.sha1hex': string,
+  'content.sha1hex': ?string,
 };
 type WatchmanChanges = {
   files?: Array<WatchmanChange>,
@@ -37,14 +41,25 @@ async function queryFiles(
   filter: FileFilter,
 ): Promise<Set<File>> {
   const client = new RelayWatchmanClient();
-  const watchResp = await client.watchProject(baseDir);
-  const resp = await client.command(
-    'query',
-    watchResp.root,
-    makeQuery(watchResp.relativePath, expression),
-  );
+  const [watchResp, fields] = await Promise.all([
+    client.watchProject(baseDir),
+    getFields(client),
+  ]);
+  const resp = await client.command('query', watchResp.root, {
+    expression,
+    fields: fields,
+    relative_root: watchResp.relativePath,
+  });
   client.end();
-  return updateFiles(new Set(), filter, resp.files);
+  return updateFiles(new Set(), baseDir, filter, resp.files);
+}
+
+async function getFields(client: RelayWatchmanClient): Promise<Array<string>> {
+  const fields = ['name', 'exists'];
+  if (await client.hasCapability('field-content.sha1hex')) {
+    fields.push('content.sha1hex');
+  }
+  return fields;
 }
 
 /**
@@ -81,12 +96,12 @@ async function makeSubscription(
       callback(resp);
     }
   });
-  await client.command(
-    'subscribe',
-    root,
-    SUBSCRIPTION_NAME,
-    makeQuery(relativePath, expression),
-  );
+  const fields = await getFields(client);
+  await client.command('subscribe', root, SUBSCRIPTION_NAME, {
+    expression,
+    fields: fields,
+    relative_root: relativePath,
+  });
 }
 
 /**
@@ -106,7 +121,7 @@ async function watchFiles(
       // for example during an hg update.
       return;
     }
-    files = updateFiles(files, filter, changes.files);
+    files = updateFiles(files, baseDir, filter, changes.files);
     callback(files);
   });
 }
@@ -147,6 +162,7 @@ async function watchCompile(
 
 function updateFiles(
   files: Set<File>,
+  baseDir: string,
   filter: FileFilter,
   fileChanges: Array<WatchmanChange>,
 ): Set<File> {
@@ -156,7 +172,10 @@ function updateFiles(
   });
 
   fileChanges.forEach(({name, exists, 'content.sha1hex': hash}) => {
-    const file = {relPath: name, hash};
+    const file = {
+      relPath: name,
+      hash: hash || hashFile(path.join(baseDir, name)),
+    };
     if (exists && filter(file)) {
       fileMap.set(name, file);
     } else {
@@ -166,12 +185,9 @@ function updateFiles(
   return new Set(fileMap.values());
 }
 
-function makeQuery(relativePath: string, expression: WatchmanExpression) {
-  return {
-    expression,
-    fields: ['name', 'exists', 'content.sha1hex'],
-    relative_root: relativePath,
-  };
+function hashFile(filename: string): string {
+  const content = fs.readFileSync(filename);
+  return crypto.createHash('sha1').update(content).digest('hex');
 }
 
 module.exports = {

@@ -73,7 +73,7 @@ import type {
 
 const {CLIENT_MUTATION_ID} = RelayConnectionInterface;
 const {ID, ID_TYPE, NODE, NODE_TYPE, TYPENAME} = RelayNodeInterface;
-const {ROOT_ID, ROOT_TYPE} = require('RelayStoreConstants');
+const {ROOT_ID} = require('RelayStoreConstants');
 const {EXISTENT} = RelayClassicRecordState;
 
 const idField = RelayQuery.Field.build({
@@ -350,7 +350,7 @@ class RelayStoreData {
 
       // Ensure the root record exists
       const path = RelayQueryPath.getRootRecordPath();
-      recordWriter.putRecord(ROOT_ID, ROOT_TYPE, path);
+      recordWriter.putRecord(ROOT_ID, query.getType(), path);
       if (this._queuedStore.getRecordState(ROOT_ID) !== EXISTENT) {
         changeTracker.createID(ROOT_ID);
       } else {

@@ -17,6 +17,7 @@ const GraphQL = require('graphql');
 
 const compileRelayQLTag = require('./compileRelayQLTag');
 const getFragmentNameParts = require('./getFragmentNameParts');
+const getClassicTransformer = require('./getClassicTransformer');
 const invariant = require('./invariant');
 
 import typeof BabelTypes from 'babel-types';
@@ -295,17 +296,36 @@ function createObject(t, obj: any) {
   );
 }
 
+function getSchemaOption(state) {
+  const schema = state.opts && state.opts.schema;
+  invariant(
+    schema,
+    'babel-plugin-relay: Missing schema option. ' +
+    'Check your .babelrc file or wherever you configure your Babel ' +
+    'plugins to ensure the "relay" plugin has a "schema" option.\n' +
+    'https://facebook.github.io/relay/docs/babel-plugin-relay.html#additional-options',
+  );
+  return schema;
+}
+
 function createFragmentForOperation(t, path, operation, state) {
   let type;
+  const schema = getSchemaOption(state);
+  const fileOpts = (state.file && state.file.opts) || {};
+  const transformer = getClassicTransformer(
+    schema,
+    state.opts || {},
+    fileOpts
+  );
   switch (operation.operation) {
     case 'query':
-      type = 'Query';
+      type = transformer.schema.getQueryType().name;
       break;
     case 'mutation':
-      type = 'Mutation';
+      type = transformer.schema.getMutationType().name;
       break;
     case 'subscription':
-      type = 'Subscription';
+      type = transformer.schema.getSubscriptionType().name;
       break;
     default:
       throw new Error(
@@ -335,14 +355,7 @@ function createFragmentForOperation(t, path, operation, state) {
 }
 
 function createRelayQLTemplate(t, path, node, state) {
-  const schema = state.opts && state.opts.schema;
-  invariant(
-    schema,
-    'babel-plugin-relay: Missing schema option. ' +
-      'Check your .babelrc file or wherever you configure your Babel ' +
-      'plugins to ensure the "relay" plugin has a "schema" option.\n' +
-      'https://facebook.github.io/relay/docs/babel-plugin-relay.html#additional-options',
-  );
+  const schema = getSchemaOption(state);
   const [documentName, propName] = getFragmentNameParts(node.name.value);
   const text = GraphQL.print(node);
   const quasi = t.templateLiteral(

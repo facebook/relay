@@ -319,13 +319,25 @@ function createFragmentForOperation(t, path, operation, state) {
   );
   switch (operation.operation) {
     case 'query':
-      type = transformer.schema.getQueryType().name;
+      const queryType = transformer.schema.getQueryType();
+      if (!queryType) {
+        throw new Error('Schema does not contain a root query type.');
+      }
+      type = queryType.name;
       break;
     case 'mutation':
-      type = transformer.schema.getMutationType().name;
+      const mutationType = transformer.schema.getMutationType();
+      if (!mutationType) {
+        throw new Error('Schema does not contain a root mutation type.');
+      }
+      type = mutationType.name;
       break;
     case 'subscription':
-      type = transformer.schema.getSubscriptionType().name;
+      const subscriptionType = transformer.schema.getSubscriptionType();
+      if (!subscriptionType) {
+        throw new Error('Schema does not contain a root subscription type.');
+      }
+      type = subscriptionType.name;
       break;
     default:
       throw new Error(

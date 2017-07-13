@@ -43,15 +43,20 @@ const {
 
 import type {GraphQLSchema} from 'graphql';
 
-function buildWatchExpression(options: {extensions: Array<string>}) {
+function buildWatchExpression(options: {
+  extensions: Array<string>,
+  include: Array<string>,
+  exclude: Array<string>,
+}) {
   return [
     'allof',
     ['type', 'f'],
     ['anyof', ...options.extensions.map(ext => ['suffix', ext])],
-    ['not', ['match', '**/node_modules/**', 'wholename']],
-    ['not', ['match', '**/__mocks__/**', 'wholename']],
-    ['not', ['match', '**/__tests__/**', 'wholename']],
-    ['not', ['match', '**/__generated__/**', 'wholename']],
+    [
+      'anyof',
+      ...options.include.map(include => ['match', include, 'wholename']),
+    ],
+    ...options.exclude.map(exclude => ['not', ['match', exclude, 'wholename']]),
   ];
 }
 
@@ -61,6 +66,8 @@ async function run(options: {
   schema: string,
   src: string,
   extensions: Array<string>,
+  include: Array<string>,
+  exclude: Array<string>,
   verbose: boolean,
   watch?: ?boolean,
 }) {
@@ -199,6 +206,23 @@ const argv = yargs
     src: {
       describe: 'Root directory of application code',
       demandOption: true,
+      type: 'string',
+    },
+    include: {
+      array: true,
+      default: ['**'],
+      describe: 'Directories to include under src',
+      type: 'string',
+    },
+    exclude: {
+      array: true,
+      default: [
+        '**/node_modules/**',
+        '**/__mocks__/**',
+        '**/__tests__/**',
+        '**/__generated__/**',
+      ],
+      describe: 'Directories to ignore under src',
       type: 'string',
     },
     extensions: {

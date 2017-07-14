@@ -350,6 +350,9 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
     );
     const request = new RelayQueryRequest(query);
     request.then(
+      /* $FlowFixMe(>=0.50.0 site=www,mobile) This comment suppresses an
+       * error found when Flow v0.50 was deployed. To see the error delete
+       * this comment and run Flow. */
       payload => {
         if (isDisposed) {
           return;
@@ -365,6 +368,9 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
         onNext && onNext(operation.root);
         onCompleted && onCompleted();
       },
+      /* $FlowFixMe(>=0.50.0 site=www,mobile) This comment suppresses an
+       * error found when Flow v0.50 was deployed. To see the error delete
+       * this comment and run Flow. */
       error => {
         if (isDisposed) {
           return;

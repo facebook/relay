@@ -5,19 +5,19 @@
     "start": "node server/server.js"
   },
   "dependencies": {
-    "compression": "1.2.2",
-    "connect": "3.3.3",
-    "errorhandler": "1.3.0",
-    "fs-extra": "0.23.1",
+    "compression": "^1.7.0",
+    "connect": "^3.6.2",
+    "errorhandler": "^1.5.0",
+    "fs-extra": "^4.0.0",
     "glob": "*",
     "mkdirp": "*",
-    "morgan": "1.5.0",
-    "object-assign": "^2.0.0",
-    "optimist": "0.6.0",
-    "react": "~0.12.0",
+    "morgan": "^1.8.2",
+    "object-assign": "^4.1.1",
+    "optimist": "^0.6.1",
+    "react": "^15.6.1",
     "react-page-middleware": "git://github.com/facebook/react-page-middleware.git",
     "request": "*",
-    "serve-static": "1.7.1",
-    "spec-md": "0.3.7"
+    "serve-static": "^1.12.3",
+    "spec-md": "^0.4.8"
   }
 }

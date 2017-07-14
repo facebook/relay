@@ -274,6 +274,24 @@ module.exports = {
       "source": "ConversionScripts.md"
     },
     {
+      "id": "relay-debugging",
+      "title": "Debugging",
+      "layout": "docs",
+      "category": "Relay Modern",
+      "permalink": "docs/relay-debugging.html",
+      "next": "relay-compat",
+      "source": "Debugging.md"
+    },
+    {
+      "id": "relay-directives",
+      "title": "Directives",
+      "layout": "docs",
+      "category": "Relay Modern",
+      "permalink": "docs/relay-directives.html",
+      "next": "babel-plugin-relay",
+      "source": "Directives.md"
+    },
+    {
       "id": "relay-environment",
       "title": "The Relay \"Environment\"",
       "layout": "docs",
@@ -369,7 +387,7 @@ module.exports = {
       "layout": "docs",
       "category": "Relay Modern",
       "permalink": "docs/relay-compiler.html",
-      "next": "relay-compat",
+      "next": "relay-debugging",
       "source": "RelayCompiler.md"
     },
     {
@@ -387,7 +405,7 @@ module.exports = {
       "layout": "docs",
       "category": "Relay Modern",
       "permalink": "docs/subscriptions.html",
-      "next": "babel-plugin-relay",
+      "next": "relay-directives",
       "source": "Subscriptions.md"
     },
     {

@@ -14,8 +14,10 @@
 'use strict';
 
 const RelayCodegenWatcher = require('RelayCodegenWatcher');
+const RelayWatchmanClient = require('RelayWatchmanClient');
 
 const invariant = require('invariant');
+const path = require('path');
 
 const {Map: ImmutableMap} = require('immutable');
 
@@ -126,6 +128,54 @@ class RelayCodegenRunner {
     await Promise.all(parsers.map(parser => this.parseEverything(parser)));
 
     return await this.write(writerName);
+  }
+
+  async getDirtyWriters(filePaths: Array<string>): Promise<Set<string>> {
+    const dirtyWriters = new Set();
+
+    // Check if any files are in the output
+    for (const configName in this.writerConfigs) {
+      const config = this.writerConfigs[configName];
+      for (const filePath of filePaths) {
+        if (config.isGeneratedFile(filePath)) {
+          dirtyWriters.add(configName);
+        }
+      }
+    }
+
+    const client = new RelayWatchmanClient();
+
+    // Check for files in the input
+    await Promise.all(
+      Object.keys(this.parserConfigs).map(async parserConfigName => {
+        const config = this.parserConfigs[parserConfigName];
+        const dirs = await client.watchProject(config.baseDir);
+
+        const relativeFilePaths = filePaths.map(filePath =>
+          path.relative(config.baseDir, filePath),
+        );
+
+        const query = {
+          expression: [
+            'allof',
+            config.watchmanExpression,
+            ['name', relativeFilePaths, 'wholename'],
+          ],
+          fields: ['exists'],
+          relative_root: dirs.relativePath,
+        };
+
+        const result = await client.command('query', dirs.root, query);
+        if (result.files.length > 0) {
+          this.parserWriters[parserConfigName].forEach(writerName =>
+            dirtyWriters.add(writerName),
+          );
+        }
+      }),
+    );
+
+    client.end();
+    return dirtyWriters;
   }
 
   async parseEverything(parserName: string): Promise<void> {

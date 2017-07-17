@@ -256,6 +256,7 @@ type ReactConnectionMetadata = ConnectionMetadata & {
 
 function findConnectionMetadata(fragments): ReactConnectionMetadata {
   let foundConnectionMetadata = null;
+  let isRelayModern = false;
   for (const fragmentName in fragments) {
     const fragment = fragments[fragmentName];
     const connectionMetadata: ?Array<ConnectionMetadata> = (fragment.metadata &&
@@ -264,10 +265,7 @@ function findConnectionMetadata(fragments): ReactConnectionMetadata {
     // if empty, it is set to null (never undefined). We use that knowlege to
     // check if we're dealing with classic or modern
     if (fragment.metadata !== undefined) {
-      warning(
-        connectionMetadata,
-        'ReactRelayPaginationContainer: A @connection directive must be present.',
-      );
+      isRelayModern = true;
     }
     if (connectionMetadata) {
       invariant(
@@ -287,6 +285,12 @@ function findConnectionMetadata(fragments): ReactConnectionMetadata {
         fragmentName,
       };
     }
+  }
+  if (isRelayModern) {
+    warning(
+      foundConnectionMetadata !== null,
+      'ReactRelayPaginationContainer: A @connection directive must be present.',
+    );
   }
   // TODO(t17350438) for modern, this should be an invariant.
   return foundConnectionMetadata || ({}: any);

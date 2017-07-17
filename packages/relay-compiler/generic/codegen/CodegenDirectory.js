@@ -136,7 +136,14 @@ class CodegenDirectory {
     fs.readdirSync(this._dir).forEach(actualFile => {
       if (!this._files.has(actualFile) && !/^\./.test(actualFile)) {
         if (!this.onlyValidate) {
-          fs.unlinkSync(path.join(this._dir, actualFile));
+          try {
+            fs.unlinkSync(path.join(this._dir, actualFile));
+          } catch (e) {
+            throw new Error(
+              'CodegenDirectory: Failed to delete `' + actualFile +
+              '` in `' + this._dir + '`.',
+            );
+          }
         }
         this.changes.deleted.push(actualFile);
       }

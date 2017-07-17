@@ -59,7 +59,7 @@ const RelayModernTestUtils = {
       }
 
       function formatExpected(args) {
-        return formatArray([!!negative].concat(args));
+        return formatArray([false].concat(args));
       }
 
       function formatActual(calls) {
@@ -87,7 +87,7 @@ const RelayModernTestUtils = {
       if (!expected) {
         const warned = calls.filter(args => !args[0]).length;
         return {
-          pass: !(negative ? warned : !warned),
+          pass: !!warned,
           message:
             `Expected ${negative ? 'not ' : ''}to warn but ` +
             '`warning` received the following calls: ' +
@@ -113,7 +113,7 @@ const RelayModernTestUtils = {
       });
 
       return {
-        pass: !(negative ? call : !call),
+        pass: !!call,
         message:
           `Expected ${negative ? 'not ' : ''}to warn: ` +
           `${formatExpected(expected)} but ` +

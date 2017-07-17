@@ -86,7 +86,13 @@ describe('RelayModernTestUtils', () => {
       const matcher = RelayModernTestUtils.matchers.toWarn;
       toWarn = matcher.bind({isNot: false});
       not = {
-        toWarn: matcher.bind({isNot: true}),
+        toWarn: (...args) => {
+          const matcherResp = matcher.apply({isNot: true}, args);
+          return {
+            ...matcherResp,
+            pass: !matcherResp.pass,
+          };
+        },
       };
     });
 

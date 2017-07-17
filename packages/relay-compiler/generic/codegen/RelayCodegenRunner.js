@@ -24,10 +24,10 @@ const {Map: ImmutableMap} = require('immutable');
 import type FileParser from 'FileParser';
 import type {CompileResult} from 'RelayCodegenTypes';
 import type {File} from 'RelayCodegenTypes';
+import type {FileWriterInterface} from 'RelayCodegenTypes';
 import type {FileFilter, WatchmanExpression} from 'RelayCodegenWatcher';
 import type {RelayReporter} from 'RelayReporter';
-import type {GetWriter} from 'getRelayFileWriter';
-import type {GraphQLSchema} from 'graphql';
+import type {DocumentNode, GraphQLSchema} from 'graphql';
 
 /* eslint-disable no-console-disallow */
 
@@ -56,6 +56,13 @@ export type WriterConfig = {
 type WriterConfigs = {
   [writer: string]: WriterConfig,
 };
+
+export type GetWriter = (
+  onlyValidate: boolean,
+  schema: GraphQLSchema,
+  documents: ImmutableMap<string, DocumentNode>,
+  baseDocuments: ImmutableMap<string, DocumentNode>,
+) => FileWriterInterface;
 
 class RelayCodegenRunner {
   parserConfigs: ParserConfigs;

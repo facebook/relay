@@ -44,11 +44,6 @@ const queue = (function() {
   return {push: push};
 })();
 
-exec('npm run build', {
-  cwd: path.resolve(__dirname, '../../website-prototyping-tools'),
-  stdio: 'inherit',
-});
-
 buildGraphQLSpec('build');
 
 glob('src/**/*.*', function(er, files) {

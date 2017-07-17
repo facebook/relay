@@ -23,6 +23,7 @@ const RelayValidator = require('RelayValidator');
 const invariant = require('invariant');
 const path = require('path');
 const printFlowTypes = require('printFlowTypes');
+const warning = require('warning');
 const writeLegacyFlowFile = require('./writeLegacyFlowFile');
 const writeRelayGeneratedFile = require('./writeRelayGeneratedFile');
 
@@ -75,6 +76,8 @@ class RelayFileWriter implements FileWriterInterface {
     this._config = config;
     this._documents = documents;
     this._onlyValidate = onlyValidate;
+
+    validateConfig(this._config);
   }
 
   async writeAll(): Promise<Map<string, CodegenDirectory>> {
@@ -267,6 +270,14 @@ class RelayFileWriter implements FileWriterInterface {
 
 function toSeconds(t0, t1) {
   return ((t1 - t0) / 1000).toFixed(2) + 's';
+}
+
+function validateConfig(config: Object): void {
+  warning(
+    !config.buildCommand,
+    'RelayFileWriter: For RelayFileWriter to work you must replace config.buildCommand ' +
+    'with config.formatModule',
+  );
 }
 
 module.exports = RelayFileWriter;

@@ -75,6 +75,8 @@ class RelayFileWriter implements FileWriterInterface {
     this._config = config;
     this._documents = documents;
     this._onlyValidate = onlyValidate;
+
+    validateConfig(this._config);
   }
 
   async writeAll(): Promise<Map<string, CodegenDirectory>> {
@@ -267,6 +269,15 @@ class RelayFileWriter implements FileWriterInterface {
 
 function toSeconds(t0, t1) {
   return ((t1 - t0) / 1000).toFixed(2) + 's';
+}
+
+function validateConfig(config: Object): void {
+  if (config.buildCommand) {
+    process.stderr.write(
+      'WARNING: RelayFileWriter: For RelayFileWriter to work you must ' +
+        'replace config.buildCommand with config.formatModule.\n',
+    );
+  }
 }
 
 module.exports = RelayFileWriter;

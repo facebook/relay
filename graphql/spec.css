@@ -52,7 +52,7 @@ h6, h7, h8 {
   font-size: 1.1em;
 }
 
-section .spec-secnum {
+section .spec-secid {
   margin-right: 1ex;
   position: absolute;
   right: 100%;
@@ -72,17 +72,17 @@ footer {
 /* Table of contents */
 
 .spec-toc {
-  margin: 1em 0 3em;
+  margin: 1rem 0 3rem;
 }
 
-.spec-toc::before {
+.spec-toc .title {
   content: 'Contents';
   display: block;
   font-weight: bold;
-  margin: 3em 0 1em;
+  margin: 3rem 0 1rem;
 }
 
-.spec-toc .spec-secnum {
+.spec-toc .spec-secid {
   margin-right: 1ex;
 }
 
@@ -96,6 +96,12 @@ footer {
   padding-left: 2ex;
 }
 
+.spec-toc li {
+  position: relative;
+  padding: 5px 0 0 30px;
+  margin: -5px 0 0 -30px;
+}
+
 .spec-toc a {
   color: #333333;
 }
@@ -104,14 +110,118 @@ footer {
   text-decoration: none;
 }
 
-.spec-toc a .spec-secnum {
+.spec-toc a .spec-secid {
   color: #3B5998;
 }
 
-.spec-toc a:hover .spec-secnum {
+.spec-toc a:hover .spec-secid {
   text-decoration: underline;
 }
 
+.spec-toc .toggle {
+  display: none;
+}
+
+.spec-toc .toggle + label {
+  cursor: pointer;
+  left: 10px;
+  opacity: 1;
+  padding: 3px 5px 3px 6px;
+  position: absolute;
+  position: absolute;
+  top: 8px;
+  transform: rotate(0deg);
+  transition: all 0.18s ease-in-out;
+}
+
+.spec-toc .toggle + label:after {
+  border-color: transparent transparent transparent #bbc;
+  border-style: solid;
+  border-width: 6px 0 6px 7px;
+  content: ' ';
+  display: block;
+  height: 0;
+  width: 0;
+}
+
+.spec-toc .toggle:checked + label {
+  transform: rotate(90deg);
+}
+
+.spec-toc li:not(:hover) > .toggle:checked + label {
+  opacity: 0;
+}
+
+.spec-toc .toggle:not(:checked) ~ ol {
+  max-height: 0;
+  overflow: hidden;
+}
+
+
+/* Sidebar */
+
+.spec-sidebar-toggle {
+  display: none;
+}
+
+.spec-sidebar-toggle + label {
+  position: fixed;
+  right: 0;
+  top: 0;
+  padding: 10px 15px;
+  font-size: 30px;
+  color: rgba(0,0,0,0.7);
+  z-index: 2;
+  cursor: pointer;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
+
+.spec-sidebar {
+  display: none;
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 320px;
+  font-size: 80%;
+  overflow-y: scroll;
+  height: 100%;
+  padding: 0 0 5rem 30px;
+  box-sizing: border-box;
+  background: #f0f0f0;
+}
+
+.spec-sidebar-toggle:checked ~ .spec-sidebar {
+  display: block;
+  box-shadow:
+    -1px 0 rgba(0,0,0,0.12),
+    -4px 0 8px -2px rgba(0,0,0,0.05);
+}
+
+.spec-sidebar .viewing > a:after {
+  color: #8b9;
+  content: '\2022';
+  margin-left: 1ex;
+}
+
+@media (min-width: 1240px) {
+  .spec-sidebar-toggle + label {
+    display: none;
+  }
+
+  .spec-sidebar {
+    display: block;
+    box-shadow:
+      inset 1px 0 rgba(0,0,0,0.05),
+      inset 4px 0 8px -2px rgba(0,0,0,0.08) !important;
+  }
+
+  body {
+    padding-right: 300px;
+  }
+}
 
 /* Notes and Todos */
 
@@ -161,7 +271,7 @@ pre code {
 
 pre {
   background: #FAFAFA;
-  display: table;
+  display: inline-block;
   margin: 0 -1em;
   min-width: 40ch;
   padding: 1ex 1em;
@@ -258,12 +368,12 @@ var {
   list-style-type: decimal;
 }
 
-.spec-semantic ol ol, .spec-semantic ol ol ol ol ol
+.spec-semantic ol ol, .spec-semantic ol ol ol ol ol,
 .spec-algo ol ol, .spec-algo ol ol ol ol ol {
   list-style-type: lower-alpha;
 }
 
-.spec-semantic ol ol ol, .spec-semantic ol ol ol ol ol ol
+.spec-semantic ol ol ol, .spec-semantic ol ol ol ol ol ol,
 .spec-algo ol ol ol, .spec-algo ol ol ol ol ol ol {
   list-style-type: lower-roman;
 }
@@ -283,22 +393,38 @@ var {
   content: ':';
   font-style: normal;
   font-weight: bold;
-  margin-left: 1ex;
+  margin: 0 1ex;
 }
 
-.spec-production.oneof > .spec-nt::after {
-  content: ': one of';
+.spec-semantic.d2 > .spec-nt::after,
+.spec-production.d2 > .spec-nt::after {
+  content: '::';
+}
+
+.spec-semantic.d3 > .spec-nt::after,
+.spec-production.d3 > .spec-nt::after {
+  content: ':::';
 }
 
 .spec-rhs {
   margin-left: 2rem;
 }
 
-.spec-production.oneof > table {
+.spec-oneof {
+  display: inline;
+}
+
+.spec-oneof::before {
+  content: 'one of';
+  font-style: normal;
+  font-weight: bold;
+}
+
+.spec-oneof > table {
   margin-left: 2rem;
 }
 
-.spec-production.oneof .spec-rhs {
+.spec-oneof .spec-rhs {
   border: none;
   margin: 0;
   padding: 0 0.5em;

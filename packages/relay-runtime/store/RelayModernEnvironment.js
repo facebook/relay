@@ -252,7 +252,6 @@ class RelayModernEnvironment implements Environment {
     updater?: ?SelectorStoreUpdater,
     uploadables?: UploadableMap,
   }): Disposable {
-    const mutationUid = nextMutationUid();
     let hasOptimisticUpdate = !!optimisticResponse || optimisticUpdater;
     const optimisticUpdate = {
       operation: operation,
@@ -260,28 +259,18 @@ class RelayModernEnvironment implements Environment {
       response: optimisticResponse || null,
     };
     if (hasOptimisticUpdate) {
-      this._recordDebuggerEvent({
-        eventName: 'optimistic_update',
-        mutationUid,
-        operation,
-        fn: () => {
-          this._publishQueue.applyUpdate(optimisticUpdate);
-          this._publishQueue.run();
-        },
+      this._recordDebuggerEvent('Apply Optimistic Update', operation, () => {
+        this._publishQueue.applyUpdate(optimisticUpdate);
+        this._publishQueue.run();
       });
     }
     let isDisposed = false;
     const dispose = () => {
       if (hasOptimisticUpdate) {
-        this._recordDebuggerEvent({
-          eventName: 'optimistic_revert',
-          mutationUid,
-          operation,
-          fn: () => {
-            this._publishQueue.revertUpdate(optimisticUpdate);
-            this._publishQueue.run();
-            hasOptimisticUpdate = false;
-          },
+        this._recordDebuggerEvent('Revert Optimistic Update', operation, () => {
+          this._publishQueue.revertUpdate(optimisticUpdate);
+          this._publishQueue.run();
+          hasOptimisticUpdate = false;
         });
       }
       isDisposed = true;
@@ -291,19 +280,17 @@ class RelayModernEnvironment implements Environment {
         return;
       }
 
-      this._recordDebuggerEvent({
-        eventName: 'request_commit',
-        mutationUid,
+      this._recordDebuggerEvent(
+        'Commit Payload (Reverting Optimistic Update)',
         operation,
-        payload,
-        fn: () => {
+        () => {
           if (hasOptimisticUpdate) {
             this._publishQueue.revertUpdate(optimisticUpdate);
           }
           this._publishQueue.commitPayload(operation, payload, updater);
           this._publishQueue.run();
         },
-      });
+      );
 
       onCompleted && onCompleted(payload.errors);
     };
@@ -313,17 +300,11 @@ class RelayModernEnvironment implements Environment {
         return;
       }
 
-      this._recordDebuggerEvent({
-        eventName: 'request_error',
-        mutationUid,
-        operation,
-        payload: error,
-        fn: () => {
-          if (hasOptimisticUpdate) {
-            this._publishQueue.revertUpdate(optimisticUpdate);
-          }
-          this._publishQueue.run();
-        },
+      this._recordDebuggerEvent('Request Error', operation, () => {
+        if (hasOptimisticUpdate) {
+          this._publishQueue.revertUpdate(optimisticUpdate);
+        }
+        this._publishQueue.run();
       });
       onError && onError(error);
     };
@@ -375,38 +356,17 @@ class RelayModernEnvironment implements Environment {
     );
   }
 
-  _recordDebuggerEvent({
-    eventName,
-    mutationUid,
-    operation,
-    payload,
-    fn,
-  }: {
+  _recordDebuggerEvent(
     eventName: string,
-    mutationUid: string,
     operation: OperationSelector,
-    payload?: any,
     fn: () => void,
-  }) {
+  ) {
     if (this._debugger) {
-      this._debugger.recordMutationEvent({
-        eventName,
-        payload,
-        fn,
-        mutation: operation,
-        seriesId: mutationUid,
-      });
+      this._debugger.recordMutationEvent(eventName, operation, fn);
     } else {
       fn();
     }
   }
-}
-
-let mutationUidCounter = 0;
-/*global btoa */
-const mutationUidPrefix = btoa(Math.random().toString()).substr(0, 7);
-function nextMutationUid() {
-  return mutationUidPrefix + mutationUidCounter++;
 }
 
 // Add a sigil for detection by `isRelayModernEnvironment()` to avoid a

@@ -166,19 +166,11 @@ class EnvironmentDebugger {
     return this._recordedMutationEvents;
   }
 
-  recordMutationEvent({
-    eventName,
-    seriesId,
-    payload,
-    mutation,
-    fn,
-  }: {
+  recordMutationEvent(
     eventName: string,
-    seriesId: string,
-    payload: any,
     mutation: OperationSelector,
     fn: () => void,
-  }) {
+  ) {
     if (this._isRecordingMutationEvents) {
       const source = this._environment.getStore().getSource();
       function getSnapshot() {
@@ -196,8 +188,6 @@ class EnvironmentDebugger {
 
       const event = {
         eventName,
-        seriesId,
-        payload,
         snapshotBefore,
         snapshotAfter,
         mutation,

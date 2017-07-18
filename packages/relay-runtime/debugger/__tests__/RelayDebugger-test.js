@@ -212,7 +212,6 @@ describe('RelayDebugger', () => {
           const events = envDebugger.getRecordedMutationEvents();
           expect(events).toHaveLength(2);
           expect(events[0].snapshotBefore).not.toBe(events[0].snapshotAfter);
-          expect(events[0].seriesId).toBe(events[1].seriesId);
           done();
         },
       });

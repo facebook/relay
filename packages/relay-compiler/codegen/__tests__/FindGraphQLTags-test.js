@@ -239,6 +239,30 @@ describe('FindGraphQLTags', () => {
     });
   });
 
+  describe('query validation', () => {
+    it('prints correct file numbers in errors', () => {
+      expect(() => {
+        find(
+          '' +
+            'const foo = 1;\n' +
+            'foo(graphql`\n' +
+            '  fragment FindGraphQLTags on User {\n' +
+            '    ?\n' +
+            '    id\n' +
+            '  }\n' +
+            '`);\n',
+        );
+      }).toThrow(
+        'Syntax Error /path/to/FindGraphQLTags.js (4:5) ' +
+          'Cannot parse the unexpected character "?".\n\n' +
+          '3:   fragment FindGraphQLTags on User {\n' +
+          '4:     ?\n' +
+          '       ^\n' +
+          '5:     id\n',
+      );
+    });
+  });
+
   describe('query name validation', () => {
     it('throws for invalid query names', () => {
       expect(() => find('graphql`query NotModuleName { me { id } }`;')).toThrow(

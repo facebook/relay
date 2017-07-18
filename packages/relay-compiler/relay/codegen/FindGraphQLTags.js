@@ -93,7 +93,13 @@ function find(
           );
           const template = getGraphQLText(property.value.quasi);
           if (tagName === 'graphql' || tagName === 'graphql.experimental') {
-            validateTemplate(template, moduleName, keyName, filePath);
+            validateTemplate(
+              template,
+              moduleName,
+              keyName,
+              filePath,
+              getSourceLocationOffset(property.value.quasi),
+            );
           }
           result.push({
             tag: tagName,
@@ -117,7 +123,13 @@ function find(
         );
         const template = getGraphQLText(fragments.quasi);
         if (tagName === 'graphql' || tagName === 'graphql.experimental') {
-          validateTemplate(template, moduleName, null, filePath);
+          validateTemplate(
+            template,
+            moduleName,
+            null,
+            filePath,
+            getSourceLocationOffset(fragments.quasi),
+          );
         }
         result.push({
           tag: tagName,
@@ -135,7 +147,13 @@ function find(
       if (tagName != null) {
         const template = getGraphQLText(node.quasi);
         if (tagName === 'graphql' || tagName === 'graphql.experimental') {
-          validateTemplate(template, moduleName, null, filePath);
+          validateTemplate(
+            template,
+            moduleName,
+            null,
+            filePath,
+            getSourceLocationOffset(node.quasi),
+          );
         }
         result.push({
           tag: tagName,
@@ -199,13 +217,25 @@ function getGraphQLTagName(tag) {
   return null;
 }
 
-function getGraphQLText(quasi) {
+function getTemplateNode(quasi) {
   const quasis = quasi.quasis;
   invariant(
     quasis && quasis.length === 1,
     'FindGraphQLTags: Substitutions are not allowed in graphql tags.',
   );
-  return quasis[0].value.raw;
+  return quasis[0];
+}
+
+function getGraphQLText(quasi) {
+  return getTemplateNode(quasi).value.raw;
+}
+
+function getSourceLocationOffset(quasi) {
+  const loc = getTemplateNode(quasi).loc.start;
+  return {
+    line: loc.line,
+    column: loc.column + 1, // babylon is 0-indexed, graphql expects 1-indexed
+  };
 }
 
 function getSourceTextForLocation(text, loc) {
@@ -218,8 +248,8 @@ function getSourceTextForLocation(text, loc) {
   return lines.join('\n');
 }
 
-function validateTemplate(template, moduleName, keyName, filePath) {
-  const ast = graphql.parse(new graphql.Source(template, filePath));
+function validateTemplate(template, moduleName, keyName, filePath, loc) {
+  const ast = graphql.parse(new graphql.Source(template, filePath, loc));
   ast.definitions.forEach((def: any) => {
     invariant(
       def.name,

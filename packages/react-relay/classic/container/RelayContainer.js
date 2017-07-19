@@ -539,10 +539,9 @@ function createContainerComponent(
     _cleanup(): void {
       // A guarded error in mounting might prevent initialization of resolvers.
       if (this._fragmentResolvers) {
-        forEachObject(
-          this._fragmentResolvers,
-          fragmentResolver => fragmentResolver && fragmentResolver.dispose(),
-        );
+        forEachObject(this._fragmentResolvers, fragmentResolver => {
+          fragmentResolver && fragmentResolver.dispose();
+        });
       }
 
       this._fragmentPointers = {};
@@ -751,11 +750,13 @@ function createContainerComponent(
           // Allow mock data to pass through without modification.
           queryData[propName] = propValue;
         } else {
+          invariant(fragmentResolver, 'fragmentResolver should not be null');
           queryData[propName] = fragmentResolver.resolve(
             fragmentPointer.fragment,
             fragmentPointer.dataIDs,
           );
         }
+
         if (
           this.state.queryData.hasOwnProperty(propName) &&
           queryData[propName] !== this.state.queryData[propName]

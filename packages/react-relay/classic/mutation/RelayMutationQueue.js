@@ -312,13 +312,7 @@ class RelayMutationQueue {
     this._storeData.getNetworkLayer().sendMutation(request);
 
     request.done(
-      /* $FlowFixMe(>=0.50.0 site=react_native_fb) This comment suppresses an
-       * error found when Flow v0.50 was deployed. To see the error delete this
-       * comment and run Flow. */
       result => this._handleCommitSuccess(transaction, result.response),
-      /* $FlowFixMe(>=0.50.0 site=react_native_fb) This comment suppresses an
-       * error found when Flow v0.50 was deployed. To see the error delete this
-       * comment and run Flow. */
       error => this._handleCommitFailure(transaction, error),
     );
   }

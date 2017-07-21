@@ -21,6 +21,7 @@ jest.unmock('RelayContainerComparators').mock('warning');
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 const QueryBuilder = require('QueryBuilder');
 const React = require('React');
+const createReactClass = require('create-react-class');
 const ReactTestUtils = require('ReactTestUtils');
 const Relay = require('Relay');
 const RelayEnvironment = require('RelayEnvironment');
@@ -1174,7 +1175,11 @@ describe('RelayContainer', function() {
     const shouldComponentUpdate = jest.fn(() => true);
 
     const MockAlwaysUpdateComponent = Relay.createContainer(
-      React.createClass({render, shouldComponentUpdate}),
+      createReactClass({
+        displayName: 'MockAlwaysUpdateComponent',
+        render,
+        shouldComponentUpdate,
+      }),
       {
         shouldComponentUpdate,
         fragments: {

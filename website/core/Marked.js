@@ -1065,10 +1065,10 @@ marked.inlineLexer = InlineLexer.output;
 
 marked.parse = marked;
 
-const Marked = React.createClass({
-  render: function() {
+class Marked extends React.Component {
+  render() {
     return <div>{marked(this.props.children, this.props)}</div>;
-  },
-});
+  }
+}
 
 module.exports = Marked;

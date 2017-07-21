@@ -33,7 +33,7 @@ const {
 } = require('graphql');
 const {isAbstractType} = require('RelaySchemaUtils');
 
-import type {IRTransform} from 'RelayIRTransforms';
+import type {IRTransform} from 'GraphQLIRTransforms';
 import type {Fragment, Root} from 'RelayIR';
 import type CompilerContext from 'RelayCompilerContext';
 

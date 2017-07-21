@@ -14,6 +14,7 @@
 'use strict';
 
 const FilterDirectivesTransform = require('FilterDirectivesTransform');
+const GraphQLIRTransforms = require('GraphQLIRTransforms');
 const RelayApplyFragmentArgumentTransform = require('RelayApplyFragmentArgumentTransform');
 const RelayConnectionTransform = require('RelayConnectionTransform');
 const RelayFieldHandleTransform = require('RelayFieldHandleTransform');
@@ -22,75 +23,61 @@ const RelayGenerateRequisiteFieldsTransform = require('RelayGenerateRequisiteFie
 const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
 const RelaySkipHandleFieldTransform = require('RelaySkipHandleFieldTransform');
 const RelayViewerHandleTransform = require('RelayViewerHandleTransform');
-const SkipClientFieldTransform = require('SkipClientFieldTransform');
-const SkipRedundantNodesTransform = require('SkipRedundantNodesTransform');
-const SkipUnreachableNodeTransform = require('SkipUnreachableNodeTransform');
 
+import type {IRTransform} from 'GraphQLIRTransforms';
 import type CompilerContext from 'RelayCompilerContext';
-import type {GraphQLSchema} from 'graphql';
 
-export type IRTransform = (
-  context: CompilerContext,
-  schema: GraphQLSchema,
-) => CompilerContext;
+const {
+  codegenTransforms,
+  fragmentTransforms,
+  queryTransforms,
+  schemaExtensions,
+} = GraphQLIRTransforms;
 
 // Transforms applied to the code used to process a query response.
-const schemaExtensions: Array<string> = [
+const relaySchemaExtensions: Array<string> = [
   RelayConnectionTransform.SCHEMA_EXTENSION,
   RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
-  RelayFlattenTransform.SCHEMA_EXTENSION,
+  ...schemaExtensions,
 ];
 
 // Transforms applied to fragments used for reading data from a store
-const FRAGMENT_TRANSFORMS: Array<IRTransform> = [
+const relayFragmentTransforms: Array<IRTransform> = [
   (ctx: CompilerContext) => RelayConnectionTransform.transform(ctx),
   RelayViewerHandleTransform.transform,
   RelayRelayDirectiveTransform.transform,
   RelayFieldHandleTransform.transform,
-  (ctx: CompilerContext) =>
-    RelayFlattenTransform.transform(ctx, {
-      flattenAbstractTypes: true,
-    }),
-  SkipRedundantNodesTransform.transform,
+  ...fragmentTransforms,
 ];
 
 // Transforms applied to queries/mutations/subscriptions that are used for
 // fetching data from the server and parsing those responses.
-const QUERY_TRANSFORMS: Array<IRTransform> = [
+const relayQueryTransforms: Array<IRTransform> = [
   (ctx: CompilerContext) =>
     RelayConnectionTransform.transform(ctx, {
       generateRequisiteFields: true,
     }),
   RelayViewerHandleTransform.transform,
   RelayApplyFragmentArgumentTransform.transform,
-  SkipClientFieldTransform.transform,
-  SkipUnreachableNodeTransform.transform,
+  ...queryTransforms,
   RelayRelayDirectiveTransform.transform,
   RelayGenerateRequisiteFieldsTransform.transform,
 ];
 
 // Transforms applied to the code used to process a query response.
-const CODEGEN_TRANSFORMS: Array<IRTransform> = [
-  (ctx: CompilerContext) =>
-    RelayFlattenTransform.transform(ctx, {
-      flattenAbstractTypes: true,
-      flattenFragmentSpreads: true,
-    }),
-  SkipRedundantNodesTransform.transform,
-  FilterDirectivesTransform.transform,
-];
+const relayCodegenTransforms: Array<IRTransform> = codegenTransforms;
 
 // Transforms applied before printing the query sent to the server.
-const PRINT_TRANSFORMS: Array<IRTransform> = [
+const relayPrintTransforms: Array<IRTransform> = [
   (ctx: CompilerContext) => RelayFlattenTransform.transform(ctx, {}),
   RelaySkipHandleFieldTransform.transform,
   FilterDirectivesTransform.transform,
 ];
 
 module.exports = {
-  codegenTransforms: CODEGEN_TRANSFORMS,
-  fragmentTransforms: FRAGMENT_TRANSFORMS,
-  printTransforms: PRINT_TRANSFORMS,
-  queryTransforms: QUERY_TRANSFORMS,
-  schemaExtensions,
+  codegenTransforms: relayCodegenTransforms,
+  fragmentTransforms: relayFragmentTransforms,
+  printTransforms: relayPrintTransforms,
+  queryTransforms: relayQueryTransforms,
+  schemaExtensions: relaySchemaExtensions,
 };

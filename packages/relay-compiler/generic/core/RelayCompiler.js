@@ -19,9 +19,9 @@ const RelayPrinter = require('RelayPrinter');
 
 const filterContextForNode = require('filterContextForNode');
 
+import type {IRTransform} from 'GraphQLIRTransforms';
 import type {GeneratedNode} from 'RelayConcreteNode';
 import type {Fragment, Root} from 'RelayIR';
-import type {IRTransform} from 'RelayIRTransforms';
 import type {GraphQLSchema} from 'graphql';
 
 export type CompiledDocumentMap = Map<string, GeneratedNode>;

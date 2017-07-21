@@ -34,8 +34,8 @@ function shouldOverwritePreviousWithCanonical(previous, maybeCanonical) {
   return false;
 }
 
-class DocsSidebar extends React.Component {
-  getCategories = () => {
+const DocsSidebar = React.createClass({
+  getCategories: function() {
     // Skip over non-docs and non-en_US entries.
     const metadatas = Array.from(
         Metadata.files.reduce(function(acc, metadata) {
@@ -102,16 +102,16 @@ class DocsSidebar extends React.Component {
     categories.push(currentCategory);
 
     return categories;
-  };
+  },
 
-  getLink = (metadata) => {
+  getLink: function(metadata) {
     if (metadata.permalink.match(/^https?:/)) {
       return metadata.permalink;
     }
     return '/relay/' + metadata.permalink;
-  };
+  },
 
-  render() {
+  render: function() {
     return <div className="nav-docs">
       {this.getCategories().map((category) =>
         <div className="nav-docs-section" key={category.name}>
@@ -132,7 +132,7 @@ class DocsSidebar extends React.Component {
         </div>
       )}
     </div>;
-  }
-}
+  },
+});
 
 module.exports = DocsSidebar;

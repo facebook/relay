@@ -13,8 +13,8 @@ const Footer = require('Footer');
 const React = require('React');
 const Site = require('Site');
 
-class index extends React.Component {
-  render() {
+const index = React.createClass({
+  render: function() {
     return (
       <Site>
         <div className="hero">
@@ -81,7 +81,7 @@ class index extends React.Component {
         <Footer />
       </Site>
     );
-  }
-}
+  },
+});
 
 module.exports = index;

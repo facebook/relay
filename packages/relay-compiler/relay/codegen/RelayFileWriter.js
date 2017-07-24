@@ -26,11 +26,15 @@ const printFlowTypes = require('printFlowTypes');
 const writeLegacyFlowFile = require('./writeLegacyFlowFile');
 const writeRelayGeneratedFile = require('./writeRelayGeneratedFile');
 
+const {generate} = require('RelayCodeGenerator');
 const {isOperationDefinitionAST} = require('RelaySchemaUtils');
 const {Map: ImmutableMap} = require('immutable');
 
+import type {RelayGeneratedNode} from 'RelayCodeGenerator';
 import type {FileWriterInterface} from 'RelayCodegenTypes';
+import type {CompiledNode, CompiledDocumentMap} from 'RelayCompiler';
 import type {CompilerTransforms} from 'RelayCompiler';
+import type {GeneratedNode} from 'RelayConcreteNode';
 import type {DocumentNode, GraphQLSchema} from 'graphql';
 import type {FormatModule} from 'writeRelayGeneratedFile';
 
@@ -141,6 +145,7 @@ class RelayFileWriter implements FileWriterInterface {
       this._baseSchema,
       compilerContext,
       this._config.compilerTransforms,
+      generate,
     );
 
     const getGeneratedDirectory = definitionName => {
@@ -168,7 +173,9 @@ class RelayFileWriter implements FileWriterInterface {
       compiler.context(),
     );
     const transformedQueryContext = compiler.transformedQueryContext();
-    const compiledDocumentMap = compiler.compile();
+    const compiledDocumentMap: CompiledDocumentMap<
+      RelayGeneratedNode,
+    > = compiler.compile();
 
     const tCompiled = Date.now();
 
@@ -208,7 +215,7 @@ class RelayFileWriter implements FileWriterInterface {
           );
           await writeRelayGeneratedFile(
             getGeneratedDirectory(compiledNode.name),
-            compiledNode,
+            getGeneratedNode(compiledNode),
             this._config.formatModule,
             flowTypes,
             this._config.persistQuery,
@@ -265,6 +272,20 @@ class RelayFileWriter implements FileWriterInterface {
     );
     return allOutputDirectories;
   }
+}
+
+function getGeneratedNode(
+  compiledNode: CompiledNode<RelayGeneratedNode>,
+): GeneratedNode {
+  invariant(
+    (typeof compiledNode === 'object' &&
+      compiledNode !== null &&
+      compiledNode.kind === 'Fragment') ||
+      'Batch',
+    'getGeneratedNode: Expected a GeneratedNode, got `%s`.',
+    JSON.stringify(compiledNode),
+  );
+  return (compiledNode: any);
 }
 
 function toSeconds(t0, t1) {

@@ -13,26 +13,43 @@
 
 'use strict';
 
-const RelayCodeGenerator = require('RelayCodeGenerator');
 const RelayCompilerContext = require('RelayCompilerContext');
 const RelayPrinter = require('RelayPrinter');
 
 const filterContextForNode = require('filterContextForNode');
 
 import type {IRTransform} from 'GraphQLIRTransforms';
-import type {GeneratedNode} from 'RelayConcreteNode';
 import type {Fragment, Root} from 'RelayIR';
 import type {GraphQLSchema} from 'graphql';
 
-export type CompiledDocumentMap = Map<string, GeneratedNode>;
+// <CodegenNode> is a generic type here,
+// which represents the node type we get from the CodeGenerator's generation function.
+type CompiledBatch<CodegenNode> = {
+  kind: 'Batch',
+  fragment: CodegenNode,
+  id: ?string,
+  metadata: {[key: string]: mixed},
+  name: string,
+  query: CodegenNode,
+  text: ?string,
+};
+
+export type CompiledNode<CodegenNode> =
+  | CodegenNode
+  | CompiledBatch<CodegenNode>;
+export type CompiledDocumentMap<CodegenNode> = Map<
+  string,
+  CompiledNode<CodegenNode>,
+>;
+
 export type TransformReducer = (
   ctx: RelayCompilerContext,
   transform: (ctx: RelayCompilerContext) => RelayCompilerContext,
 ) => RelayCompilerContext;
 
-export interface Compiler {
+export interface Compiler<CodegenNode> {
   add(text: string): Array<Root | Fragment>,
-  compile(): CompiledDocumentMap,
+  compile(): CompiledDocumentMap<CodegenNode>,
 }
 
 export type CompilerTransforms = {
@@ -47,27 +64,35 @@ export type CompilerTransforms = {
  * with a standardized set of transforms, and generating runtime representations
  * of each definition.
  */
-class RelayCompiler {
+class RelayCompiler<CodegenNode> {
   _context: RelayCompilerContext;
   _schema: GraphQLSchema;
   _transformedQueryContext: ?RelayCompilerContext;
   _transforms: CompilerTransforms;
+  _codeGenerator: (node: Root | Fragment) => CodegenNode;
 
   // The context passed in must already have any Relay-specific schema extensions
   constructor(
     schema: GraphQLSchema,
     context: RelayCompilerContext,
     transforms: CompilerTransforms,
+    codeGenerator: (node: Root | Fragment) => CodegenNode,
   ) {
     this._context = context;
     // some transforms depend on this being the original schema,
     // not the transformed schema/context's schema
     this._schema = schema;
     this._transforms = transforms;
+    this._codeGenerator = codeGenerator;
   }
 
-  clone(): RelayCompiler {
-    return new RelayCompiler(this._schema, this._context, this._transforms);
+  clone(): RelayCompiler<CodegenNode> {
+    return new RelayCompiler(
+      this._schema,
+      this._context,
+      this._transforms,
+      this._codeGenerator,
+    );
   }
 
   context(): RelayCompilerContext {
@@ -92,7 +117,7 @@ class RelayCompiler {
     return this._transformedQueryContext;
   }
 
-  compile(): CompiledDocumentMap {
+  compile(): CompiledDocumentMap<CodegenNode> {
     const transformContext = ((ctx, transform) =>
       transform(ctx, this._schema): any);
     const fragmentContext = this._transforms.fragmentTransforms.reduce(
@@ -109,12 +134,12 @@ class RelayCompiler {
       queryContext,
     );
 
-    const compiledDocuments = new Map();
+    const compiledDocuments: CompiledDocumentMap<CodegenNode> = new Map();
     fragmentContext.documents().forEach(node => {
       if (node.kind !== 'Fragment') {
         return;
       }
-      const generatedFragment = RelayCodeGenerator.generate(node);
+      const generatedFragment = this._codeGenerator(node);
       compiledDocuments.set(node.name, generatedFragment);
     });
     queryContext.documents().forEach(node => {
@@ -135,11 +160,11 @@ class RelayCompiler {
       // for reading out the root data.
       const sourceNode = fragmentContext.getRoot(name);
       const rootFragment = buildFragmentForRoot(sourceNode);
-      const generatedFragment = RelayCodeGenerator.generate(rootFragment);
+      const generatedFragment = this._codeGenerator(rootFragment);
       // The flattened query is used for codegen in order to reduce the number of
       // duplicate fields that must be processed during response normalization.
       const codeGenNode = codeGenContext.getRoot(name);
-      const generatedQuery = RelayCodeGenerator.generate(codeGenNode);
+      const generatedQuery = this._codeGenerator(codeGenNode);
 
       const batchQuery = {
         fragment: generatedFragment,

@@ -29,12 +29,16 @@ import type {
   ConcreteRoot,
   ConcreteSelection,
 } from 'RelayConcreteNode';
+import type {GeneratedNode} from 'RelayConcreteNode';
 import type {Fragment, Root} from 'RelayIR';
 const {getRawType, isAbstractType, getNullableType} = RelaySchemaUtils;
 
 /* eslint-disable no-redeclare */
 declare function generate(node: Root): ConcreteRoot;
 declare function generate(node: Fragment): ConcreteFragment;
+
+export type CompiledDocumentMap = Map<string, GeneratedNode>;
+export type RelayGeneratedNode = ConcreteRoot | ConcreteFragment;
 
 /**
  * @public

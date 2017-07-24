@@ -175,6 +175,7 @@ const RelayModernTestUtils = {
     schema?: ?GraphQLSchema,
   ): {[key: string]: ConcreteBatch | ConcreteFragment} {
     const {transformASTSchema} = require('ASTConvert');
+    const {generate} = require('RelayCodeGenerator');
     const RelayCompiler = require('RelayCompiler');
     const RelayCompilerContext = require('RelayCompilerContext');
     const RelayIRTransforms = require('RelayIRTransforms');
@@ -190,6 +191,7 @@ const RelayModernTestUtils = {
       schema,
       new RelayCompilerContext(relaySchema),
       RelayIRTransforms,
+      generate,
     );
 
     compiler.addDefinitions(parseGraphQLText(relaySchema, text).definitions);

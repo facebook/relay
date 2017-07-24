@@ -30,6 +30,7 @@ export type FormatModule = ({|
   concreteText: string,
   flowText: ?string,
   hash: ?string,
+  devTextGenerator: (objectName: string) => string,
   relayRuntimeModule: string,
 |}) => string;
 
@@ -47,6 +48,7 @@ async function writeRelayGeneratedFile(
   const filename = platformName + '.js';
   const flowTypeName =
     generatedNode.kind === 'Batch' ? 'ConcreteBatch' : 'ConcreteFragment';
+  const devOnlyProperties = {};
 
   let text = null;
   let hash = null;
@@ -82,6 +84,8 @@ async function writeRelayGeneratedFile(
         text: null,
         id: await persistQuery(text),
       };
+
+      devOnlyProperties.text = text;
     }
   }
 
@@ -92,11 +96,35 @@ async function writeRelayGeneratedFile(
     flowText,
     hash: hash ? `@relayHash ${hash}` : null,
     concreteText: prettyStringify(generatedNode),
+    devTextGenerator: makeDevTextGenerator(devOnlyProperties),
     relayRuntimeModule,
   });
 
   codegenDir.writeFile(filename, moduleText);
   return generatedNode;
+}
+
+function makeDevTextGenerator(devOnlyProperties: Object) {
+  return objectName => {
+    const assignments = Object.keys(devOnlyProperties).map(key => {
+      const value = devOnlyProperties[key];
+      const stringifiedValue =
+        value === undefined ? 'undefined' : JSON.stringify(value);
+
+      return `  ${objectName}['${key}'] = ${stringifiedValue};`;
+    });
+
+    if (!assignments.length) {
+      return '';
+    }
+
+    return `
+
+if (__DEV__) {
+${assignments.join('\n')}
+}
+`;
+  };
 }
 
 function extractHash(text: ?string): ?string {

@@ -122,7 +122,7 @@ function create(fetch: FetchFunction, subscribe?: SubscribeFunction): Network {
 
     const requestResponse = fetch(operation, variables, cacheConfig);
     if (isPromise(requestResponse)) {
-      requestResponse.then(onRequestSuccess).catch(onRequestError);
+      requestResponse.then(onRequestSuccess, onRequestError).done();
     } else if (requestResponse instanceof Error) {
       onRequestError(requestResponse);
     } else {

@@ -13,8 +13,8 @@
 
 'use strict';
 
+const GraphQLValidator = require('GraphQLValidator');
 const RelayParser = require('RelayParser');
-const RelayValidator = require('RelayValidator');
 
 const {
   isOperationDefinitionAST,
@@ -124,7 +124,7 @@ function convertASTDefinitions(
     definitions: (operationDefinitions: Array<$FlowFixMe>),
   };
   // Will throw an error if there are validation issues
-  RelayValidator.validate(validationAST, schema, validationRules);
+  GraphQLValidator.validate(validationAST, schema, validationRules);
   return operationDefinitions.map(definition =>
     RelayParser.transform(schema, definition),
   );

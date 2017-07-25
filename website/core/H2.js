@@ -14,10 +14,10 @@
 const Header = require('Header');
 const React = require('React');
 
-const H2 = React.createClass({
-  render: function() {
+class H2 extends React.Component {
+  render() {
     return <Header {...this.props} level={2}>{this.props.children}</Header>;
-  },
-});
+  }
+}
 
 module.exports = H2;

@@ -13,8 +13,8 @@
 
 const React = require('React');
 
-const Footer = React.createClass({
-  render: function() {
+class Footer extends React.Component {
+  render() {
     const metadata = this.props.metadata;
     return (
       <footer>
@@ -24,7 +24,7 @@ const Footer = React.createClass({
         <span>Copyright © {new Date().getFullYear()} Facebook Inc</span>
       </footer>
     );
-  },
-});
+  }
+}
 
 module.exports = Footer;

@@ -53,10 +53,7 @@ type GraphQLSingularType =
   | GraphQLUnionType
   | GraphQLEnumType
   | GraphQLInputObjectType
-  /* $FlowFixMe(>=0.50.0 site=react_native_fb) This comment suppresses an error
-   * found when Flow v0.50 was deployed. To see the error delete this comment
-   * and run Flow. */
-  | GraphQLNullableType<*>;
+  | GraphQLNullableType;
 
 /**
  * Determine if the given type may implement the named type:

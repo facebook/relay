@@ -1518,7 +1518,19 @@ fbjs-scripts@0.7.1:
     semver "^5.1.0"
     through2 "^2.0.0"
 
-fbjs@^0.8.12, fbjs@^0.8.9:
+fbjs@0.8.13:
+  version "0.8.13"
+  resolved "https://registry.yarnpkg.com/fbjs/-/fbjs-0.8.13.tgz#9fb9819077d40d88c989def88ad6f05fb0e91f57"
+  dependencies:
+    core-js "^1.0.0"
+    isomorphic-fetch "^2.1.1"
+    loose-envify "^1.0.0"
+    object-assign "^4.1.0"
+    promise "^7.1.1"
+    setimmediate "^1.0.5"
+    ua-parser-js "^0.7.9"
+
+fbjs@^0.8.9:
   version "0.8.12"
   resolved "https://registry.yarnpkg.com/fbjs/-/fbjs-0.8.12.tgz#10b5d92f76d45575fd63a217d4ea02bea2f8ed04"
   dependencies:

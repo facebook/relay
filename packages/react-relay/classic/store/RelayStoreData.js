@@ -679,6 +679,9 @@ class RelayStoreData {
      * A util function which remove the querypath from the record. Used to stringify the RecordMap.
      */
     const getRecordsWithoutPaths = (recordMap: ?RecordMap) => {
+      if (!recordMap) {
+        return null;
+      }
       return mapObject(recordMap, record => {
         const nextRecord = {...record};
         delete nextRecord[RelayRecord.MetadataKey.PATH];

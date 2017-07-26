@@ -52,7 +52,7 @@ function transformRelayQueryPayload(
   if (clientData == null) {
     return clientData;
   } else {
-    return mapObject(clientData, item => {
+    return mapObject((clientData: any), item => {
       // Handle both FB & OSS formats for root payloads on plural calls: FB
       // returns objects, OSS returns arrays.
       if (Array.isArray(item)) {

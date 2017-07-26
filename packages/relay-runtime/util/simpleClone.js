@@ -24,7 +24,7 @@ function simpleClone<T>(value: T): T {
   if (Array.isArray(value)) {
     return value.map(simpleClone);
   } else if (value && typeof value === 'object') {
-    return mapObject(value, simpleClone);
+    return ((mapObject(value, simpleClone): any): T);
   } else {
     return value;
   }

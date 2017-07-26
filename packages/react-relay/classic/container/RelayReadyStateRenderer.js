@@ -192,7 +192,7 @@ function createContainerPropsFactory(): RelayContainerPropsFactory {
     const containerProps = {
       ...nextProps.queryConfig.params,
       ...mapObject(querySet, query =>
-        createFragmentPointerForRoot(nextProps.environment, query),
+        createFragmentPointerForRoot(nextProps.environment, (query: any)),
       ),
     };
     prevProps = nextProps;

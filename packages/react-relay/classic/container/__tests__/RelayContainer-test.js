@@ -16,7 +16,7 @@ jest.enableAutomock();
 
 require('configureForRelayOSS');
 
-jest.unmock('create-react-class')
+jest.unmock('create-react-class');
 jest.unmock('RelayContainerComparators').mock('warning');
 
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');

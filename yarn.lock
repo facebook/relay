@@ -1531,8 +1531,8 @@ fbjs@0.8.13:
     ua-parser-js "^0.7.9"
 
 fbjs@^0.8.9:
-  version "0.8.12"
-  resolved "https://registry.yarnpkg.com/fbjs/-/fbjs-0.8.12.tgz#10b5d92f76d45575fd63a217d4ea02bea2f8ed04"
+  version "0.8.13"
+  resolved "https://registry.yarnpkg.com/fbjs/-/fbjs-0.8.13.tgz#9fb9819077d40d88c989def88ad6f05fb0e91f57"
   dependencies:
     core-js "^1.0.0"
     isomorphic-fetch "^2.1.1"

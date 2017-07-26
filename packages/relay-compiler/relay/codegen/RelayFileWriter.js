@@ -278,10 +278,9 @@ function getGeneratedNode(
   compiledNode: CompiledNode<RelayGeneratedNode>,
 ): GeneratedNode {
   invariant(
-    (typeof compiledNode === 'object' &&
-      compiledNode !== null &&
-      compiledNode.kind === 'Fragment') ||
-      'Batch',
+    typeof compiledNode === 'object' &&
+    compiledNode !== null &&
+    (compiledNode.kind === 'Fragment' || compiledNode.kind === 'Batch'),
     'getGeneratedNode: Expected a GeneratedNode, got `%s`.',
     JSON.stringify(compiledNode),
   );

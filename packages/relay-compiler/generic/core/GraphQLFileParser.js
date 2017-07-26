@@ -30,9 +30,7 @@ function parseFile(baseDir: string, file: File): ?DocumentNode {
   try {
     ast = GraphQL.parse(new GraphQL.Source(text, moduleName));
   } catch (e) {
-    // Swallow any errors with files that have invalid syntax
-    // TODO: we should not swallow these errors
-    return null;
+    throw new Error('GraphQLFileParser: ' + e);
   }
 
   return ast;

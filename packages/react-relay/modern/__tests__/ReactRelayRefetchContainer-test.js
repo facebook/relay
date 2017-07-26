@@ -13,13 +13,13 @@
 'use strict';
 
 const React = require('React');
-const ReactRelayRefetchContainer = require('ReactRelayRefetchContainer');
 const ReactRelayPropTypes = require('ReactRelayPropTypes');
+const ReactRelayRefetchContainer = require('ReactRelayRefetchContainer');
 const ReactTestRenderer = require('ReactTestRenderer');
-const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const RelayModernTestUtils = require('RelayModernTestUtils');
-const {createOperationSelector} = require('RelayModernOperationSelector');
 
+const {createMockEnvironment} = require('RelayModernMockEnvironment');
+const {createOperationSelector} = require('RelayModernOperationSelector');
 const {ROOT_ID} = require('RelayStoreUtils');
 
 describe('ReactRelayRefetchContainer', () => {
@@ -561,6 +561,7 @@ describe('ReactRelayRefetchContainer', () => {
         node: UserQuery.fragment,
         variables: {id: '4'},
       }).data.node;
+      environment.mock.clearCache();
       instance = ReactTestRenderer.create(
         <ContextSetter environment={environment} variables={variables}>
           <TestContainer user={userPointer} />
@@ -620,6 +621,47 @@ describe('ReactRelayRefetchContainer', () => {
       await environment.mock.reject(UserQuery, error);
       expect(callback.mock.calls.length).toBe(1);
       expect(callback).toBeCalledWith(error);
+    });
+
+    it('calls the callback even if the response is cached', () => {
+      const refetchVariables = {
+        cond: false,
+        id: '4',
+      };
+      const fetchedVariables = {id: '4'};
+      environment.mock.cachePayload(UserQuery, fetchedVariables, {
+        data: {
+          node: {
+            id: '4',
+            __typename: 'User',
+            name: 'Zuck',
+          },
+        },
+      });
+      const callback = jest.fn();
+      refetch(refetchVariables, null, callback);
+      expect(callback).toHaveBeenCalled();
+    });
+
+    it('returns false for isLoading if the response comes from cache', () => {
+      const refetchVariables = {
+        cond: false,
+        id: '4',
+      };
+      const fetchedVariables = {id: '4'};
+      environment.mock.cachePayload(UserQuery, fetchedVariables, {
+        data: {
+          node: {
+            id: '4',
+            __typename: 'User',
+            name: 'Zuck',
+          },
+        },
+      });
+      refetch(refetchVariables, null, jest.fn());
+      expect(environment.mock.isLoading(UserQuery, fetchedVariables)).toBe(
+        false,
+      );
     });
 
     it('renders with the results of the new variables on success', async () => {

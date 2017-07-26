@@ -324,6 +324,7 @@ function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
 
   class Container extends React.Component {
     state: ContainerState;
+    _isARequestInFlight: boolean;
     _localVariables: ?Variables;
     _pendingRefetch: ?Disposable;
     _references: Array<Disposable>;
@@ -334,6 +335,7 @@ function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
       super(props, context);
       const relay = assertRelayContext(context.relay);
       const {createFragmentSpecResolver} = relay.environment.unstable_internal;
+      this._isARequestInFlight = false;
       this._localVariables = null;
       this._pendingRefetch = null;
       this._references = [];
@@ -623,6 +625,7 @@ function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
 
       const onCompleted = () => {
         this._pendingRefetch = null;
+        this._isARequestInFlight = false;
         this._relayContext = {
           environment: this.context.relay.environment,
           variables: {
@@ -656,6 +659,7 @@ function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
       };
       const onError = error => {
         this._pendingRefetch = null;
+        this._isARequestInFlight = false;
         callback && callback(error);
       };
 
@@ -667,13 +671,19 @@ function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
       if (this._pendingRefetch) {
         this._pendingRefetch.dispose();
       }
+
+      this._isARequestInFlight = true;
       const pendingRefetch = environment.streamQuery({
         cacheConfig,
         onCompleted,
         onError,
         operation,
       });
-      this._pendingRefetch = pendingRefetch;
+      if (this._isARequestInFlight) {
+        this._pendingRefetch = pendingRefetch;
+      } else {
+        this._pendingRefetch = null;
+      }
       return {
         dispose: () => {
           // Disposing a loadMore() call should always dispose the fetch itself,
@@ -682,6 +692,7 @@ function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
           pendingRefetch.dispose();
           if (this._pendingRefetch === pendingRefetch) {
             this._pendingRefetch = null;
+            this._isARequestInFlight = false;
           }
         },
       };
@@ -694,6 +705,7 @@ function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
       if (this._pendingRefetch) {
         this._pendingRefetch.dispose();
         this._pendingRefetch = null;
+        this._isARequestInFlight = false;
       }
     }
 

@@ -18,14 +18,15 @@ const ReactRelayPropTypes = require('ReactRelayPropTypes');
 const ReactTestRenderer = require('ReactTestRenderer');
 const RelayConnectionHandler = require('RelayConnectionHandler');
 const RelayModernTestUtils = require('RelayModernTestUtils');
-const {ROOT_ID} = require('RelayStoreUtils');
-const {createMockEnvironment} = require('RelayModernMockEnvironment');
-const {createOperationSelector} = require('RelayModernOperationSelector');
+
 const {
   END_CURSOR,
   HAS_NEXT_PAGE,
   PAGE_INFO,
 } = require('RelayConnectionInterface');
+const {createMockEnvironment} = require('RelayModernMockEnvironment');
+const {createOperationSelector} = require('RelayModernOperationSelector');
+const {ROOT_ID} = require('RelayStoreUtils');
 const {generateAndCompile} = RelayModernTestUtils;
 
 describe('ReactRelayPaginationContainer', () => {
@@ -963,6 +964,7 @@ describe('ReactRelayPaginationContainer', () => {
         node: UserQuery.fragment,
         variables,
       }).data.node;
+      environment.mock.clearCache();
       ReactTestRenderer.create(
         <ContextSetter environment={environment} variables={variables}>
           <TestContainer user={userPointer} />
@@ -1000,6 +1002,45 @@ describe('ReactRelayPaginationContainer', () => {
       });
       expect(isLoading()).toBe(false);
     });
+
+    it('returns false if a cached response exists', () => {
+      environment.mock.cachePayload(
+        UserQuery,
+        {
+          after: 'cursor:1',
+          count: 1,
+          id: '4',
+          orderby: ['name'],
+        },
+        {
+          data: {
+            node: {
+              id: '4',
+              __typename: 'User',
+              friends: {
+                edges: [
+                  {
+                    cursor: 'cursor:2',
+                    node: {
+                      __typename: 'User',
+                      id: 'node:2',
+                    },
+                  },
+                ],
+                pageInfo: {
+                  endCursor: 'cursor:2',
+                  hasNextPage: true,
+                  hasPreviousPage: false,
+                  startCursor: 'cursor:2',
+                },
+              },
+            },
+          },
+        },
+      );
+      loadMore(1, jest.fn());
+      expect(isLoading()).toBe(false);
+    });
   });
 
   describe('loadMore()', () => {
@@ -1019,6 +1060,7 @@ describe('ReactRelayPaginationContainer', () => {
         node: UserQuery.fragment,
         variables,
       }).data.node;
+      environment.mock.clearCache();
       instance = ReactTestRenderer.create(
         <ContextSetter environment={environment} variables={variables}>
           <TestContainer user={userPointer} />
@@ -1156,6 +1198,46 @@ describe('ReactRelayPaginationContainer', () => {
       await environment.mock.reject(UserQuery, error);
       expect(callback.mock.calls.length).toBe(1);
       expect(callback).toBeCalledWith(error);
+    });
+
+    it('calls the callback even if a cached response exists', () => {
+      environment.mock.cachePayload(
+        UserQuery,
+        {
+          after: 'cursor:1',
+          count: 1,
+          id: '4',
+          orderby: ['name'],
+        },
+        {
+          data: {
+            node: {
+              id: '4',
+              __typename: 'User',
+              friends: {
+                edges: [
+                  {
+                    cursor: 'cursor:2',
+                    node: {
+                      __typename: 'User',
+                      id: 'node:2',
+                    },
+                  },
+                ],
+                pageInfo: {
+                  endCursor: 'cursor:2',
+                  hasNextPage: true,
+                  hasPreviousPage: false,
+                  startCursor: 'cursor:2',
+                },
+              },
+            },
+          },
+        },
+      );
+      const callback = jest.fn();
+      loadMore(1, callback);
+      expect(callback).toHaveBeenCalled();
     });
 
     it('renders with the results of the new variables on success', async () => {

@@ -16,11 +16,16 @@ const RelayMarkSweepStore = require('RelayMarkSweepStore');
 const RelayModernEnvironment = require('RelayModernEnvironment');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 const RelayNetwork = require('RelayNetwork');
+const RelayQueryResponseCache = require('RelayQueryResponseCache');
 const RelayRecordSourceInspector = require('RelayRecordSourceInspector');
 const RelayTestSchema = require('RelayTestSchema');
 
 const areEqual = require('areEqual');
+const idx = require('idx');
 const invariant = require('invariant');
+
+const MAX_SIZE = 10;
+const MAX_TTL = 5 * 60 * 1000; // 5 min
 
 function mockInstanceMethod(object, key) {
   object[key] = jest.fn(object[key].bind(object));
@@ -73,10 +78,25 @@ function createMockEnvironment(options: {
   const handlerProvider = options && options.handlerProvider;
   const source = new RelayInMemoryRecordSource();
   const store = new RelayMarkSweepStore(source);
+  const cache = new RelayQueryResponseCache({
+    size: MAX_SIZE,
+    ttl: MAX_TTL,
+  });
 
   // Mock the network layer
   let pendingFetches = [];
   const fetch = (query, variables, cacheConfig) => {
+    const {id, text} = query;
+    const cacheID = id || text;
+
+    let cachedPayload = null;
+    if (!idx(cacheConfig, _ => _.force)) {
+      cachedPayload = cache.get(cacheID, variables);
+    }
+    if (cachedPayload !== null) {
+      return cachedPayload;
+    }
+
     let resolve;
     let reject;
     const promise = new Promise((_resolve, _reject) => {
@@ -92,6 +112,16 @@ function createMockEnvironment(options: {
       variables,
     });
     return promise;
+  };
+
+  const cachePayload = (query, variables, payload) => {
+    const {id, text} = query;
+    const cacheID = id || text;
+    cache.set(cacheID, variables, payload);
+  };
+
+  const clearCache = () => {
+    cache.clear();
   };
 
   let validSubscriptions = [];
@@ -239,6 +269,8 @@ function createMockEnvironment(options: {
   mockDisposableMethod(store, 'subscribe');
 
   environment.mock = {
+    cachePayload,
+    clearCache,
     compile,
     isLoading,
     reject,
@@ -265,6 +297,8 @@ function createMockEnvironment(options: {
     store.resolve.mockClear();
     store.retain.mockClear();
     store.subscribe.mockClear();
+
+    cache.clear();
 
     pendingFetches.length = 0;
   };

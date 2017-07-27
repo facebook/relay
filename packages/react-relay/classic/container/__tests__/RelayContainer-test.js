@@ -16,6 +16,7 @@ jest.enableAutomock();
 
 require('configureForRelayOSS');
 
+jest.unmock('create-react-class');
 jest.unmock('RelayContainerComparators').mock('warning');
 
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
@@ -1173,7 +1174,6 @@ describe('RelayContainer', function() {
     };
     render = jest.genMockFunction().mockImplementation(() => <div />);
     const shouldComponentUpdate = jest.fn(() => true);
-
     const MockAlwaysUpdateComponent = Relay.createContainer(
       createReactClass({
         displayName: 'MockAlwaysUpdateComponent',

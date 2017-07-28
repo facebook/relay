@@ -144,11 +144,13 @@ function selectionsToBabel(selections) {
         ),
       );
     }
-    types.push(
-      exactObjectTypeAnnotation(
-        Array.from(selectionMap.values()).map(sel => makeProp(sel)),
-      ),
+    const selectionMapValues = Array.from(selectionMap.values()).map(
+      sel =>
+        isTypenameSelection(sel) && sel.concreteType
+          ? makeProp({...sel, conditional: false}, sel.concreteType)
+          : makeProp(sel),
     );
+    types.push(exactObjectTypeAnnotation(selectionMapValues));
   }
 
   if (!types.length) {
@@ -222,7 +224,25 @@ const RelayCodeGenVisitor = {
     },
 
     Fragment(node) {
-      const baseType = selectionsToBabel(node.selections);
+      let selections: $FlowFixMe = flattenArray(node.selections);
+      const numConecreteSelections = selections.filter(s => s.concreteType)
+        .length;
+      selections = selections.map(selection => {
+        if (
+          numConecreteSelections <= 1 &&
+          isTypenameSelection(selection) &&
+          !isAbstractType(node.type)
+        ) {
+          return [
+            {
+              ...selection,
+              concreteType: node.type.toString(),
+            },
+          ];
+        }
+        return [selection];
+      });
+      const baseType = selectionsToBabel(selections);
       const type = isPlural(node) ? arrayOfType(baseType) : baseType;
 
       return t.exportNamedDeclaration(

@@ -32,3 +32,20 @@ export type TypenameOutsideWithAbstractType = {|
   |};
   +firstName?: ?string;
 |};
+
+export type TypenameWithoutSpreads = {|
+  +firstName: ?string;
+  +__typename: "User";
+|};
+
+export type TypenameWithoutSpreadsAbstractType = {|
+  +__typename: string;
+  +id: string;
+|};
+
+export type TypenameWithCommonSelections = {|
+  +__typename: string;
+  +name: ?string;
+  +firstName?: ?string;
+  +username?: ?string;
+|};

@@ -14,35 +14,20 @@
 'use strict';
 
 const FileParser = require('FileParser');
-const GraphQL = require('graphql');
 
 const fs = require('fs');
 const path = require('path');
+
+const {parse, Source} = require('graphql');
 
 import type {File} from 'RelayCodegenTypes';
 import type {DocumentNode} from 'graphql';
 
 function parseFile(baseDir: string, file: File): ?DocumentNode {
   const text = fs.readFileSync(path.join(baseDir, file.relPath), 'utf8');
-  const moduleName = path.basename(file.relPath, '.graphql');
-
-  let ast;
-  try {
-    ast = GraphQL.parse(new GraphQL.Source(text, moduleName));
-  } catch (e) {
-    throw new Error('GraphQLFileParser: ' + e);
-  }
-
-  return ast;
+  return parse(new Source(text, file.relPath));
 }
 
-function getParser(baseDir: string): FileParser {
-  return new FileParser({
-    baseDir,
-    parse: parseFile,
-  });
-}
-
-module.exports = {
-  getParser,
+exports.getParser = function getParser(baseDir: string): FileParser {
+  return new FileParser({baseDir, parse: parseFile});
 };

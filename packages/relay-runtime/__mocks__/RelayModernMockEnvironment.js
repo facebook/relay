@@ -21,7 +21,6 @@ const RelayRecordSourceInspector = require('RelayRecordSourceInspector');
 const RelayTestSchema = require('RelayTestSchema');
 
 const areEqual = require('areEqual');
-const idx = require('idx');
 const invariant = require('invariant');
 
 const MAX_SIZE = 10;
@@ -90,7 +89,7 @@ function createMockEnvironment(options: {
     const cacheID = id || text;
 
     let cachedPayload = null;
-    if (!idx(cacheConfig, _ => _.force)) {
+    if (!cacheConfig || !cacheConfig.force) {
       cachedPayload = cache.get(cacheID, variables);
     }
     if (cachedPayload !== null) {

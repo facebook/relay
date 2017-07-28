@@ -19,13 +19,12 @@ const invariant = require('invariant');
 const isRelayModernEnvironment = require('isRelayModernEnvironment');
 const warning = require('warning');
 
-import {Environment, type OperationSelector} from 'RelayStoreTypes';
-
 import type {ConcreteOperationDefinition} from 'ConcreteQuery';
 import type {CacheConfig} from 'RelayCombinedEnvironmentTypes';
 import type {ConcreteBatch} from 'RelayConcreteNode';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {QueryPayload, PayloadError} from 'RelayNetworkTypes';
+import type {Environment, OperationSelector} from 'RelayStoreTypes';
 import type {Variables} from 'RelayTypes';
 
 type DataWriteConfig = {

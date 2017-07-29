@@ -21,7 +21,7 @@ commitMutation(
     variables: Variables,
     onCompleted?: ?(response: ?Object, errors: ?[Error]) => void,
     onError?: ?(error: Error) => void,
-    optimisticResponse?: ?() => Object,
+    optimisticResponse?: Object,
     optimisticUpdater?: ?(store: RecordSourceSelectorProxy) => void,
     updater?: ?(store: RecordSourceSelectorProxy) => void,
     configs?: Array<RelayMutationConfig>,
@@ -36,7 +36,7 @@ Now let's take a closer look at the `config`:
 * `variables`: an object that contains the variables needed for the mutation.
 * `onCompleted`: a callback function executed with the 'raw' response and errors from the server after the in-memory Relay store is updated with the `updater`.
 * `onError`: a callback function executed when Relay encounters an error.
-* `optimisticResponse`: a function that provides an object conforming to the mutation's response type definition. If provided, the optimistic response will be normalized to the proxy store before `optimisticUpdater` is executed. We suggest you provide an `optimisticResponse` for two benefits:
+* `optimisticResponse`: an object conforming to the mutation's response type definition. If provided, the optimistic response will be normalized to the proxy store before `optimisticUpdater` is executed. We suggest you provide an `optimisticResponse` for two benefits:
  * Like `updater`, there is no need to provide `optimisticUpdater` for simple mutations (field change).
  * For more complicated mutations, `optimisticUpdater` and `updater` can be the same function.
 * `optimisticUpdater`: a function that takes in a proxy of the in-memory Relay store. In this function, the client defines 'how to' update the store through the proxy in an imperative way.
@@ -92,13 +92,13 @@ function markNotificationAsRead(source, storyID) {
 To improve perceived responsiveness, you may wish to perform an "optimistic update", in which the client immediately updates to reflect the anticipated new value even before the response from the server has come back. We do this by providing an `optimisticResponse` and adding it to the `config` that we pass into `commitMutation`:
 
 ```javascript
-const optimisticResponse = () => ({
+const optimisticResponse = {
   markReadNotification: {
     notification: {
       seenState: SEEN,
     },
   },
-});
+};
 
 commitMutation(
   environment,

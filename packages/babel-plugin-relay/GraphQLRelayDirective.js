@@ -29,6 +29,9 @@ const SCHEMA_EXTENSION = `directive @relay(
   # Marks a fragment as being backed by a GraphQLList.
   plural: Boolean,
 
+  # Marks a fragment spread which should be unmasked if provided false
+  mask: Boolean = true,
+
   # Selectively pass variables down into a fragment. Only used in Classic.
   variables: [String!],
 ) on FRAGMENT_DEFINITION | FRAGMENT_SPREAD | INLINE_FRAGMENT | FIELD`;

@@ -15,6 +15,7 @@
 
 const FilterDirectivesTransform = require('FilterDirectivesTransform');
 const RelayFlattenTransform = require('RelayFlattenTransform');
+const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
 const SkipClientFieldTransform = require('SkipClientFieldTransform');
 const SkipRedundantNodesTransform = require('SkipRedundantNodesTransform');
 const SkipUnreachableNodeTransform = require('SkipUnreachableNodeTransform');
@@ -29,7 +30,7 @@ export type IRTransform = (
 
 // Transforms applied to the code used to process a query response.
 const schemaExtensions: Array<string> = [
-  RelayFlattenTransform.SCHEMA_EXTENSION,
+  RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
 ];
 
 // Transforms applied to fragments used for reading data from a store

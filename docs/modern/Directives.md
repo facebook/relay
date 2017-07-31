@@ -17,60 +17,40 @@ Supported in both compat and modern mode. When using the pagination container, R
 
 Supported in classic, compat and modern mode. Detailed usage is explained in [`Relay.QL`](./api-reference-relay-ql.html#array-fields).
 
-## `@inline`
+## `@relay(mask: Boolean)`
 
-Supported in modern mode. `@inline` can be added to a fragment spread to hoist recursively the fields from the inlined fragment spread into the current fragment definitions. However keep in mind that it is still considered as an **anti-pattern** to create a util module that exports shared fragments. Abusing this directive could cause over-fetching issues.
+While typically Relay only provides the data for fields explicitly requested by a component's fragment, `@relay(mask: false)` can be added to a fragment spread to not mask that data, recursively including the data from the fields of the referenced fragment.
+
+This may be helpful to reduce redundant fragments when dealing with nested or recursive data within a single Component.
+
+Keep in mind that it is typically considered an **anti-pattern** to create a single fragment shared across many containers. Abusing this directive could result in over-fetching in your application.
+
+In the example below, the `user` prop will include the data for `id` and `name` fields wherever `...Component_internUser` is included, instead of Relay's normal behavior to mask those fields.
 
 ```javascript
-graphql`
-  fragment Component_intern_user on InternUser {
-    id
-    name
-  }
-`
 module.exports = createFragmentContainer(
-  Component,
+  ({ user }) => ...,
   graphql`
     fragment Component_user on User {
-      intern_user {
+      internUser {
         manager {
-          ...Component_intern_user @inline
+          ...Component_internUser @relay(mask: false)
         }
         .... on Employee {
           admins {
-            ...Component_intern_user @inline
+            ...Component_internUser @relay(mask: false)
           }
           reports {
-            ...Component_intern_user @inline
+            ...Component_internUser @relay(mask: false)
           }
         }
       }
+    }
+
+    fragment Component_internUser on InternUser {
+      id
+      name
     }
   `,
 );
-```  
-
-In the above example, `Component_user` will be transformed into the following fragment at compile time
-```javascript
-graphql`
-  fragment Component_user on User {
-    intern_user {
-      manager {
-        id
-        name
-      }
-      .... on Employee {
-        admins {
-          id
-          name
-        }
-        reports {
-          id
-          name
-        }
-      }
-    }
-  }
-
-`
 ```

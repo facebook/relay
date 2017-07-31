@@ -17,6 +17,7 @@ import type {FlattenOptions} from 'RelayFlattenTransform';
 describe('RelayFlattenTransform', () => {
   let RelayCompilerContext;
   let RelayFlattenTransform;
+  let RelayRelayDirectiveTransform;
   let RelayParser;
   let RelayPrinter;
   let RelayTestSchema;
@@ -27,6 +28,7 @@ describe('RelayFlattenTransform', () => {
 
     RelayCompilerContext = require('RelayCompilerContext');
     RelayFlattenTransform = require('RelayFlattenTransform');
+    RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
     RelayParser = require('RelayParser');
     RelayPrinter = require('RelayPrinter');
     RelayTestSchema = require('RelayTestSchema');
@@ -40,7 +42,7 @@ describe('RelayFlattenTransform', () => {
     return text => {
       const {transformASTSchema} = require('ASTConvert');
       const extendedSchema = transformASTSchema(RelayTestSchema, [
-        RelayFlattenTransform.SCHEMA_EXTENSION,
+        RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
       ]);
       const context = new RelayCompilerContext(RelayTestSchema).addAll(
         RelayParser.parse(extendedSchema, text),

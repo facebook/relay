@@ -1,9 +1,9 @@
 fragment UserProfile on User {
   profilePicture(size: $ProfilePicture_SIZE) {
-    ...PhotoFragment @inline
+    ...PhotoFragment @relay(mask: false)
 
     # duplicated field should be merged
-    ...AnotherRecursiveFragment @inline
+    ...AnotherRecursiveFragment @relay(mask: false)
 
     # Compose child fragment
     ...PhotoFragment
@@ -12,7 +12,7 @@ fragment UserProfile on User {
 
 fragment PhotoFragment on Image {
   uri
-  ...RecursiveFragment @inline
+  ...RecursiveFragment @relay(mask: false)
 }
 
 fragment RecursiveFragment on Image {

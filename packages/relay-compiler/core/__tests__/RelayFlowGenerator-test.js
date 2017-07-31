@@ -13,7 +13,6 @@
 'use strict';
 
 const RelayCompilerContext = require('RelayCompilerContext');
-const RelayFlattenTransform = require('RelayFlattenTransform');
 const RelayFlowGenerator = require('RelayFlowGenerator');
 const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
 const RelayTestSchema = require('RelayTestSchema');
@@ -32,7 +31,6 @@ describe('RelayFlowGenerator', () => {
     expect('fixtures/flow-generator').toMatchGolden(text => {
       const schema = transformASTSchema(RelayTestSchema, [
         RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
-        RelayFlattenTransform.SCHEMA_EXTENSION,
       ]);
       const {definitions} = parseGraphQLText(schema, text);
       const context = new RelayCompilerContext(RelayTestSchema).addAll(

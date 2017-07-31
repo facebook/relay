@@ -17,9 +17,11 @@ const RelaySchemaUtils = require('RelaySchemaUtils');
 
 const areEqual = require('areEqual');
 const getIdentifierForRelaySelection = require('getIdentifierForRelaySelection');
+const getRelayLiteralArgumentValues = require('getRelayLiteralArgumentValues');
 const invariant = require('invariant');
 const stableJSONStringify = require('stableJSONStringify');
 
+const {RELAY} = require('RelayRelayDirectiveTransform');
 const {GraphQLNonNull, GraphQLList} = require('graphql');
 
 import type {Field, Handle, Node, Root, ScalarField, Selection} from 'RelayIR';
@@ -39,10 +41,6 @@ type FlattenState = {
   selections: {[key: string]: FlattenState | ScalarField},
   type: Type,
 };
-
-const INLINE = 'inline';
-
-const SCHEMA_EXTENSION = 'directive @inline on FRAGMENT_SPREAD';
 
 /**
  * Transform that flattens inline fragments, fragment spreads, and conditionals.
@@ -255,10 +253,15 @@ function shouldFlattenFragmentSpread(
   fragment: FragmentSpread,
   options: FlattenOptions,
 ): boolean {
-  return (
-    options.flattenFragmentSpreads ||
-    !!fragment.directives.find(({name}) => name === INLINE)
-  );
+  if (options.flattenFragmentSpreads) {
+    return true;
+  }
+  const relayDirective = fragment.directives.find(({name}) => name === RELAY);
+  if (!relayDirective) {
+    return false;
+  }
+  const {mask} = getRelayLiteralArgumentValues(relayDirective.args);
+  return mask === false;
 }
 
 /**
@@ -358,6 +361,5 @@ function isEquivalentType(typeA: GraphQLType, typeB: GraphQLType): boolean {
 }
 
 module.exports = {
-  SCHEMA_EXTENSION,
   transform,
 };

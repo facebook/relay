@@ -30,6 +30,7 @@ const babelOptions = require('./scripts/getBabelOptions')({
     'crypto': 'crypto',
     'fb-watchman': 'fb-watchman',
     'fs': 'fs',
+    'fast-glob': 'fast-glob',
     'graphql': 'graphql',
     'graphql-compiler': 'graphql-compiler',
     'immutable': 'immutable',

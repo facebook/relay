@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule ReactRelayTestMocker
+ * @flow
  * @format
  */
 
@@ -15,6 +16,7 @@
 const RelayNetwork = require('RelayNetwork');
 
 const areEqual = require('areEqual');
+const emptyFunction = require('emptyFunction');
 const invariant = require('invariant');
 const isRelayModernEnvironment = require('isRelayModernEnvironment');
 const warning = require('warning');
@@ -22,31 +24,30 @@ const warning = require('warning');
 import type {ConcreteOperationDefinition} from 'ConcreteQuery';
 import type {CacheConfig} from 'RelayCombinedEnvironmentTypes';
 import type {ConcreteBatch} from 'RelayConcreteNode';
-import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {QueryPayload, PayloadError} from 'RelayNetworkTypes';
 import type {Environment, OperationSelector} from 'RelayStoreTypes';
 import type {Variables} from 'RelayTypes';
 
 type DataWriteConfig = {
-  environment: Environment,
-  query: GraphQLTaggedNode,
+  query: ConcreteBatch,
   variables: Variables,
   payload: QueryPayload,
 };
 
 type NetworkWriteConfig = {
-  environment: Environment,
-  query: GraphQLTaggedNode,
+  query: ConcreteBatch,
   variables?: Variables,
   payload: QueryPayload | (Variables => QueryPayload),
 };
 
+type OperationType = ConcreteBatch | ConcreteOperationDefinition;
+
 type PendingFetch = {
-  query: GraphQLTaggedNode,
+  operation: OperationType,
   variables?: Variables,
-  cacheConfig: CacheConfig,
+  cacheConfig: ?CacheConfig,
   ident: string,
-  deferred: {resolve: () => mixed, reject: () => mixed},
+  deferred: {resolve: Function, reject: Function},
   operationSelector: OperationSelector,
 };
 
@@ -62,11 +63,14 @@ let pendingFetches: Array<PendingFetch> = [];
 
 class ReactRelayTestMocker {
   _environment: Environment;
+  _defaults: {[string]: $PropertyType<NetworkWriteConfig, 'payload'>};
 
-  constructor(env) {
+  constructor(env: Environment) {
+    this._defaults = {};
+
     if (!(env: any).hasMockedNetwork) {
       if (isRelayModernEnvironment(env)) {
-        ReactRelayTestMocker._mockNetworkLayer(env);
+        this._mockNetworkLayer(env);
       } else {
         warning(
           false,
@@ -102,9 +106,7 @@ class ReactRelayTestMocker {
    * @returns a string which can later be used to uniquely identify this query
    * in the list of pending queries
    */
-  static getIdentifier(
-    operation: ConcreteBatch | ConcreteOperationDefinition,
-  ): string {
+  static getIdentifier(operation: OperationType): string {
     const queryName = operation.name;
     return queryName;
   }
@@ -134,24 +136,35 @@ class ReactRelayTestMocker {
    * in refetch containers, for example. It also allows test writers to see how
    * their components behave under error conditions.
    */
-  static _mockNetworkLayer(env: Environment): Environment {
-    const fetch = (query, variables, cacheConfig) => {
-      let resolve, reject;
+  _mockNetworkLayer(env: Environment): Environment {
+    const fetch = (operation, variables, cacheConfig) => {
+      let resolve = emptyFunction;
+      let reject = emptyFunction;
       const promise = new Promise((res, rej) => {
         resolve = res;
         reject = rej;
       });
-      const strippedVars = ReactRelayTestMocker.stripUnused(variables);
-      const ident = ReactRelayTestMocker.getIdentifier(query, strippedVars);
-      const {createOperationSelector, getOperation} = env.unstable_internal;
 
-      const operation = getOperation((query: $FlowFixMe));
+      const strippedVars = ReactRelayTestMocker.stripUnused(variables);
+      const ident = ReactRelayTestMocker.getIdentifier(operation);
+      const {createOperationSelector} = env.unstable_internal;
+
+      // there's a default value for this query, use it
+      if (this._defaults[ident]) {
+        const payload = this._defaults[ident];
+        if (typeof payload === 'function') {
+          return payload(strippedVars);
+        } else {
+          return payload;
+        }
+      }
+
       const operationSelector = createOperationSelector(operation, variables);
       pendingFetches.push({
         ident,
         cacheConfig,
         deferred: {resolve, reject},
-        query,
+        operation,
         variables,
         operationSelector,
       });
@@ -197,6 +210,32 @@ class ReactRelayTestMocker {
     return env;
   }
 
+  _getDefaults() {
+    return this._defaults;
+  }
+
+  /**
+   * set a default payload for a given query
+   */
+  setDefault(toSet: NetworkWriteConfig): void {
+    const {query, payload} = toSet;
+    const operation = query;
+    const ident = ReactRelayTestMocker.getIdentifier(operation);
+
+    this._defaults[ident] = payload;
+  }
+
+  /**
+   * remove a default payload for a given query
+   */
+  unsetDefault(toUnset: NetworkWriteConfig): void {
+    const {query} = toUnset;
+    const operation = query;
+    const ident = ReactRelayTestMocker.getIdentifier(operation);
+
+    delete this._defaults[ident];
+  }
+
   /**
    * Write directly to the Relay store instead of trying to resolve a query that
    * was sent via the network.
@@ -207,19 +246,16 @@ class ReactRelayTestMocker {
    */
   dataWrite(config: DataWriteConfig): void {
     const {query, variables, payload} = config;
-    const {
-      getOperation,
-      createOperationSelector,
-    } = this._environment.unstable_internal;
+    const {createOperationSelector} = this._environment.unstable_internal;
+
+    const operationSelector = createOperationSelector(query, variables);
 
     invariant(
-      payload.hasOwnProperty('data') && !payload.hasOwnProperty('errors'),
+      payload.data != null && payload.errors === undefined,
       'Only `data` can be written when using `writeDirect`. You may need to ' +
         'wrap your payload in an object like `{data: payload}`.',
     );
 
-    const operation = getOperation((query: $FlowFixMe));
-    const operationSelector = createOperationSelector(operation, variables);
     this._environment.commitPayload(operationSelector, payload.data);
   }
 
@@ -236,12 +272,8 @@ class ReactRelayTestMocker {
         'to use `writeDirect` instead?',
     );
     const {query, variables, payload} = config;
-    const {getOperation} = this._environment.unstable_internal;
 
-    // getOperation() expects a GraphQLTaggedNode, but tests still use string.
-    const operation = getOperation((query: $FlowFixMe));
-
-    const ident = ReactRelayTestMocker.getIdentifier(operation);
+    const ident = ReactRelayTestMocker.getIdentifier(query);
 
     let usedVars;
 
@@ -287,7 +319,7 @@ class ReactRelayTestMocker {
     const realPayload =
       typeof payload === 'function' ? payload(toResolve.variables) : payload;
 
-    this._environment.mock.resolveRawQuery(toResolve, realPayload);
+    (this._environment: any).mock.resolveRawQuery(toResolve, realPayload);
   }
 }
 

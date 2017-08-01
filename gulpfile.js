@@ -31,7 +31,6 @@ const babelOptions = require('./scripts/getBabelOptions')({
     'fb-watchman': 'fb-watchman',
     'fs': 'fs',
     'graphql': 'graphql',
-    'graphql-compiler': 'graphql-compiler',
     'immutable': 'immutable',
     'net': 'net',
     'os': 'os',
@@ -210,22 +209,6 @@ const builds = [
     ],
   },
   {
-    package: 'graphql-compiler',
-    exports: {
-      index: 'GraphQLCompilerPublic.js',
-    },
-    bundles: [
-      {
-        entry: 'GraphQLCompilerPublic.js',
-        output: 'graphql-compiler',
-        libraryName: 'GraphQLCompiler',
-        libraryTarget: 'commonjs2',
-        target: 'node',
-        noMinify: true, // Note: uglify can't yet handle modern JS
-      },
-    ],
-  },
-  {
     package: 'relay-runtime',
     exports: {
       index: 'RelayRuntime.js',
@@ -246,26 +229,20 @@ gulp.task('clean', function() {
 });
 
 gulp.task('modules', function() {
-  return es.merge(builds.map(build => {
-    let sources = [
+  return es.merge(builds.map(build =>
+    gulp.src([
       '*' + PACKAGES + '/' + build.package + '/**/*.js',
+      '*' + PACKAGES + '/react-relay/classic/tools/*.js',
+      '*' + PACKAGES + '/react-relay/classic/util/*.js',
+      '*' + PACKAGES + '/react-relay/classic/__forks__/interface/*.js',
+      '*' + PACKAGES + '/react-relay/classic/interface/*.js',
+      '*' + PACKAGES + '/relay-runtime/util/*.js',
       '!' + PACKAGES + '/**/__tests__/**/*.js',
       '!' + PACKAGES + '/**/__mocks__/**/*.js',
-    ];
-    if (build.package !== 'graphql-compiler') {
-      sources.push(
-        '*' + PACKAGES + '/react-relay/classic/tools/*.js',
-        '*' + PACKAGES + '/react-relay/classic/util/*.js',
-        '*' + PACKAGES + '/react-relay/classic/__forks__/interface/*.js',
-        '*' + PACKAGES + '/react-relay/classic/interface/*.js',
-        '*' + PACKAGES + '/relay-runtime/util/*.js'
-      );
-    }
-    return gulp.src(sources)
-      .pipe(babel(babelOptions))
+    ]).pipe(babel(babelOptions))
       .pipe(flatten())
-      .pipe(gulp.dest(path.join(DIST, build.package, 'lib')));
-    }));
+      .pipe(gulp.dest(path.join(DIST, build.package, 'lib')))
+  ));
 });
 
 gulp.task('copy-files', function() {

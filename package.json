@@ -40,6 +40,7 @@
     "eslint-plugin-flowtype": "2.30.4",
     "eslint-plugin-react": "5.2.2",
     "event-stream": "3.3.4",
+    "fast-glob": "^1.0.1",
     "fb-watchman": "2.0.0",
     "fbjs": "0.8.14",
     "fbjs-scripts": "0.7.1",

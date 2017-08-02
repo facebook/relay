@@ -22,6 +22,7 @@ const RelayIRTransforms = require('RelayIRTransforms');
 const RelayMultiReporter = require('RelayMultiReporter');
 
 export type {CompileResult} from 'RelayCodegenTypes';
+export type {ParserConfig, WriterConfig} from 'RelayCodegenRunner';
 
 module.exports = {
   Compiler: RelayCompiler,

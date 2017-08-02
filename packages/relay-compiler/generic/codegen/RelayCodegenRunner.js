@@ -36,7 +36,8 @@ export type ParserConfig = {|
   getFileFilter?: (baseDir: string) => FileFilter,
   getParser: (baseDir: string) => FileParser,
   getSchema: () => GraphQLSchema,
-  watchmanExpression: WatchmanExpression,
+  watchmanExpression?: ?WatchmanExpression,
+  filepaths?: ?Array<string>,
 |};
 
 type ParserConfigs = {
@@ -193,14 +194,34 @@ class RelayCodegenRunner {
 
     const parserConfig = this.parserConfigs[parserName];
     this.parsers[parserName] = parserConfig.getParser(parserConfig.baseDir);
+    const filter = parserConfig.getFileFilter
+      ? parserConfig.getFileFilter(parserConfig.baseDir)
+      : anyFileFilter;
 
-    const files = await RelayCodegenWatcher.queryFiles(
-      parserConfig.baseDir,
-      parserConfig.watchmanExpression,
-      parserConfig.getFileFilter
-        ? parserConfig.getFileFilter(parserConfig.baseDir)
-        : anyFileFilter,
-    );
+    if (parserConfig.filepaths && parserConfig.watchmanExpression) {
+      throw new Error(
+        'Provide either `watchmanExpression` or `filepaths` but not both.',
+      );
+    }
+
+    let files;
+    if (parserConfig.watchmanExpression) {
+      files = await RelayCodegenWatcher.queryFiles(
+        parserConfig.baseDir,
+        parserConfig.watchmanExpression,
+        filter,
+      );
+    } else if (parserConfig.filepaths) {
+      files = await RelayCodegenWatcher.queryFilepaths(
+        parserConfig.baseDir,
+        parserConfig.filepaths,
+        filter,
+      );
+    } else {
+      throw new Error(
+        'Either `watchmanExpression` or `filepaths` is required to query files',
+      );
+    }
     this.parseFileChanges(parserName, files);
   }
 
@@ -317,6 +338,10 @@ class RelayCodegenRunner {
 
   async watch(parserName: string): Promise<void> {
     const parserConfig = this.parserConfigs[parserName];
+
+    if (!parserConfig.watchmanExpression) {
+      throw new Error('`watchmanExpression` is required to watch files');
+    }
 
     // watchCompile starts with a full set of files as the changes
     // But as we need to set everything up due to potential parser dependencies,

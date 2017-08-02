@@ -62,6 +62,22 @@ async function getFields(client: RelayWatchmanClient): Promise<Array<string>> {
   return fields;
 }
 
+// For use when not using Watchman.
+async function queryFilepaths(
+  baseDir: string,
+  filepaths: Array<string>,
+  filter: FileFilter,
+): Promise<Set<File>> {
+  // Construct WatchmanChange objects as an intermediate step before
+  // calling updateFiles to produce file content.
+  const files = filepaths.map(filepath => ({
+    name: filepath,
+    exists: true,
+    'content.sha1hex': null,
+  }));
+  return updateFiles(new Set(), baseDir, filter, files);
+}
+
 /**
  * Provides a simplified API to the watchman API.
  * Given some base directory and a list of subdirectories it calls the callback
@@ -192,6 +208,7 @@ function hashFile(filename: string): string {
 
 module.exports = {
   queryFiles,
+  queryFilepaths,
   watch,
   watchFiles,
   watchCompile,

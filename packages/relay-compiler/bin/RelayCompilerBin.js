@@ -20,6 +20,7 @@ const RelayConsoleReporter = require('RelayConsoleReporter');
 const RelayFileIRParser = require('RelayFileIRParser');
 const RelayFileWriter = require('RelayFileWriter');
 const RelayIRTransforms = require('RelayIRTransforms');
+const RelayWatchmanClient = require('RelayWatchmanClient');
 
 const formatGeneratedModule = require('formatGeneratedModule');
 const fs = require('fs');
@@ -60,6 +61,27 @@ function buildWatchExpression(options: {
   ];
 }
 
+function getFilepathsFromGlob(
+  baseDir,
+  options: {
+    extensions: Array<string>,
+    include: Array<string>,
+    exclude: Array<string>,
+  },
+): Array<string> {
+  const {extensions, include, exclude} = options;
+  const patterns = include.map(inc => `${inc}/*.+(${extensions.join('|')})`);
+
+  // $FlowFixMe
+  const glob = require('fast-glob');
+  return glob.sync(patterns, {
+    cwd: baseDir,
+    bashNative: [],
+    onlyFiles: true,
+    ignore: exclude,
+  });
+}
+
 /* eslint-disable no-console-disallow */
 
 async function run(options: {
@@ -69,6 +91,7 @@ async function run(options: {
   include: Array<string>,
   exclude: Array<string>,
   verbose: boolean,
+  watchman: boolean,
   watch?: ?boolean,
 }) {
   const schemaPath = path.resolve(process.cwd(), options.schema);
@@ -78,6 +101,9 @@ async function run(options: {
   const srcDir = path.resolve(process.cwd(), options.src);
   if (!fs.existsSync(srcDir)) {
     throw new Error(`--source path does not exist: ${srcDir}.`);
+  }
+  if (options.watch && !options.watchman) {
+    throw new Error('Watchman is required to watch for changes.');
   }
   if (options.watch && !hasWatchmanRootFile(srcDir)) {
     throw new Error(
@@ -96,13 +122,17 @@ Ensure that one such file exists in ${srcDir} or its parents.
 
   const reporter = new RelayConsoleReporter({verbose: options.verbose});
 
+  const useWatchman =
+    options.watchman && (await RelayWatchmanClient.isAvailable());
+
   const parserConfigs = {
     default: {
       baseDir: srcDir,
       getFileFilter: RelayFileIRParser.getFileFilter,
       getParser: RelayFileIRParser.getParser,
       getSchema: () => getSchema(schemaPath),
-      watchmanExpression: buildWatchExpression(options),
+      watchmanExpression: useWatchman ? buildWatchExpression(options) : null,
+      filepaths: useWatchman ? null : getFilepathsFromGlob(srcDir, options),
     },
   };
   const writerConfigs = {
@@ -233,6 +263,11 @@ const argv = yargs
     verbose: {
       describe: 'More verbose logging',
       type: 'boolean',
+    },
+    watchman: {
+      describe: 'Use watchman when not in watch mode',
+      type: 'boolean',
+      default: true,
     },
     watch: {
       describe: 'If specified, watches files and regenerates on changes',

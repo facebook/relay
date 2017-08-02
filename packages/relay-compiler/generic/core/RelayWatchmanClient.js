@@ -17,6 +17,15 @@ const watchman = require('fb-watchman');
 class RelayWatchmanClient {
   _client: any;
 
+  static createIfAvailable(): Promise<?RelayWatchmanClient> {
+    return new Promise((resolve) => {
+      const client = new RelayWatchmanClient();
+      client.on('error', () => resolve(null));
+      client.hasCapability('relative_root')
+        .then(hasRelativeRoot => resolve(hasRelativeRoot ? client : null));
+    });
+  }
+
   constructor() {
     this._client = new watchman.Client();
   }

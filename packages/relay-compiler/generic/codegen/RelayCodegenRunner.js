@@ -25,7 +25,7 @@ import type FileParser from 'FileParser';
 import type {CompileResult} from 'RelayCodegenTypes';
 import type {File} from 'RelayCodegenTypes';
 import type {FileWriterInterface} from 'RelayCodegenTypes';
-import type {FileFilter, WatchmanExpression} from 'RelayCodegenWatcher';
+import type {FileFilter, WatchmanExpression, WatchmanChange} from 'RelayCodegenWatcher';
 import type {RelayReporter} from 'RelayReporter';
 import type {DocumentNode, GraphQLSchema} from 'graphql';
 
@@ -36,7 +36,9 @@ export type ParserConfig = {|
   getFileFilter?: (baseDir: string) => FileFilter,
   getParser: (baseDir: string) => FileParser,
   getSchema: () => GraphQLSchema,
-  watchmanExpression: WatchmanExpression,
+  watchmanExpression: ?WatchmanExpression,
+  client: ?RelayWatchmanClient,
+  files: ?Array<WatchmanChange>
 |};
 
 type ParserConfigs = {
@@ -193,14 +195,28 @@ class RelayCodegenRunner {
 
     const parserConfig = this.parserConfigs[parserName];
     this.parsers[parserName] = parserConfig.getParser(parserConfig.baseDir);
-
-    const files = await RelayCodegenWatcher.queryFiles(
-      parserConfig.baseDir,
-      parserConfig.watchmanExpression,
-      parserConfig.getFileFilter
+    const filter = parserConfig.getFileFilter
         ? parserConfig.getFileFilter(parserConfig.baseDir)
-        : anyFileFilter,
-    );
+        : anyFileFilter;
+
+    let files;
+    if (parserConfig.files) {
+      files = RelayCodegenWatcher.updateFiles(
+        new Set(),
+        parserConfig.baseDir,
+        filter,
+        parserConfig.files,
+      );
+    } else if (parserConfig.watchmanExpression) {
+      files = await RelayCodegenWatcher.queryFiles(
+        parserConfig.baseDir,
+        parserConfig.watchmanExpression,
+        filter,
+        parserConfig.client,
+      );
+    } else {
+      throw new Error('Either `watchmanExpression` or `files` is required to query files');
+    }
     this.parseFileChanges(parserName, files);
   }
 
@@ -317,6 +333,10 @@ class RelayCodegenRunner {
 
   async watch(parserName: string): Promise<void> {
     const parserConfig = this.parserConfigs[parserName];
+
+    if (!parserConfig.watchmanExpression) {
+      throw new Error('`watchmanExpression` is required to watch files');
+    }
 
     // watchCompile starts with a full set of files as the changes
     // But as we need to set everything up due to potential parser dependencies,

@@ -26,7 +26,7 @@ export type WatchmanExpression = Array<string | WatchmanExpression>;
 
 export type FileFilter = (file: File) => boolean;
 
-type WatchmanChange = {
+export type WatchmanChange = {
   name: string,
   exists: boolean,
   'content.sha1hex': ?string,
@@ -39,8 +39,11 @@ async function queryFiles(
   baseDir: string,
   expression: WatchmanExpression,
   filter: FileFilter,
+  client: ?RelayWatchmanClient
 ): Promise<Set<File>> {
-  const client = new RelayWatchmanClient();
+  if (!client) {
+    client = new RelayWatchmanClient();
+  }
   const [watchResp, fields] = await Promise.all([
     client.watchProject(baseDir),
     getFields(client),
@@ -71,8 +74,11 @@ async function watch(
   baseDir: string,
   expression: WatchmanExpression,
   callback: (changes: WatchmanChanges) => any,
+  client: ?RelayWatchmanClient,
 ): Promise<void> {
-  const client = new RelayWatchmanClient();
+  if (!client) {
+    client = new RelayWatchmanClient();
+  }
   const watchResp = await client.watchProject(baseDir);
 
   await makeSubscription(
@@ -113,6 +119,7 @@ async function watchFiles(
   expression: WatchmanExpression,
   filter: FileFilter,
   callback: (files: Set<File>) => any,
+  client: ?RelayWatchmanClient,
 ): Promise<void> {
   let files = new Set();
   await watch(baseDir, expression, changes => {
@@ -123,7 +130,7 @@ async function watchFiles(
     }
     files = updateFiles(files, baseDir, filter, changes.files);
     callback(files);
-  });
+  }, client);
 }
 
 /**
@@ -140,6 +147,7 @@ async function watchCompile(
   expression: WatchmanExpression,
   filter: FileFilter,
   compile: (files: Set<File>) => Promise<any>,
+  client: ?RelayWatchmanClient,
 ): Promise<void> {
   let compiling = false;
   let needsCompiling = false;
@@ -157,7 +165,7 @@ async function watchCompile(
       await compile(latestFiles);
     }
     compiling = false;
-  });
+  }, client);
 }
 
 function updateFiles(
@@ -195,4 +203,5 @@ module.exports = {
   watch,
   watchFiles,
   watchCompile,
+  updateFiles,
 };

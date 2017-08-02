@@ -140,8 +140,11 @@ class CodegenDirectory {
             fs.unlinkSync(path.join(this._dir, actualFile));
           } catch (e) {
             throw new Error(
-              'CodegenDirectory: Failed to delete `' + actualFile +
-              '` in `' + this._dir + '`.',
+              'CodegenDirectory: Failed to delete `' +
+                actualFile +
+                '` in `' +
+                this._dir +
+                '`.',
             );
           }
         }

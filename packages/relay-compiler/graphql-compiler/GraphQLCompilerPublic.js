@@ -12,3 +12,24 @@
  */
 
 'use strict';
+
+const CodegenDirectory = require('CodegenDirectory');
+const CodegenRunner = require('RelayCodegenRunner');
+const FileParser = require('FileParser');
+const GraphQLFileParser = require('GraphQLFileParser');
+const GraphQLTextParser = require('GraphQLTextParser');
+const RelayConsoleReporter = require('RelayConsoleReporter');
+const RelayMultiReporter = require('RelayMultiReporter');
+
+export type {File, FileWriterInterface, CompileResult} from 'RelayCodegenTypes';
+export type {FileFilter, WatchmanExpression} from 'RelayCodegenWatcher';
+
+module.exports = {
+  CodegenDirectory: CodegenDirectory,
+  CodegenRunner: CodegenRunner,
+  ConsoleReporter: RelayConsoleReporter,
+  FileParser: FileParser,
+  GraphQLFileParser: GraphQLFileParser,
+  GraphQLTextParser: GraphQLTextParser,
+  MultiReporter: RelayMultiReporter,
+};

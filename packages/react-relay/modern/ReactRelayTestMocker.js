@@ -183,7 +183,6 @@ class ReactRelayTestMocker {
 
       const {deferred} = toResolve;
       deferred.resolve(payload);
-      jest.runOnlyPendingTimers();
     }
 
     function rejectQuery(
@@ -194,7 +193,6 @@ class ReactRelayTestMocker {
 
       const {deferred} = toResolve;
       deferred.reject(payload);
-      jest.runOnlyPendingTimers();
     }
 
     (env: any).mock = {
@@ -261,6 +259,8 @@ class ReactRelayTestMocker {
 
   /**
    * Write the data specified in config's payload to the instance's environment.
+   * NOTE: callers may need to invoke `jest.runOnlyPendingTimers()` after
+   * calling this function.
    *
    * @param config: an object containing the data to write and the query and
    * variables that the payload is simulating a response to

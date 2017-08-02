@@ -105,6 +105,7 @@ class RelayAsyncLoader {
   _source: RecordSource;
   _target: MutableRecordSource;
   _variables: Variables;
+  _recordWasMissing: boolean;
 
   constructor(
     source: RecordSource,
@@ -118,6 +119,7 @@ class RelayAsyncLoader {
     this._source = source;
     this._target = target;
     this._variables = variables;
+    this._recordWasMissing = false;
   }
 
   load(node: ConcreteNode, dataID: DataID): Disposable {
@@ -138,7 +140,8 @@ class RelayAsyncLoader {
   _handleComplete(): void {
     if (!this._done) {
       this._done = true;
-      this._callback({status: 'complete'});
+      const status = this._recordWasMissing ? 'missing' : 'complete';
+      this._callback({status});
     }
   }
 
@@ -153,10 +156,7 @@ class RelayAsyncLoader {
   }
 
   _handleMissing(): void {
-    if (!this._done) {
-      this._done = true;
-      this._callback({status: 'missing'});
-    }
+    this._recordWasMissing = true;
   }
 
   _handleAbort(): void {
@@ -191,6 +191,7 @@ class RelayAsyncLoader {
       }
       if (error) {
         this._handleError(error);
+        return;
       } else if (record === undefined) {
         this._handleMissing();
       } else {
@@ -200,10 +201,10 @@ class RelayAsyncLoader {
           this._target.set(dataID, record);
           this._traverseSelections(node.selections, record);
         }
-        this._loadingCount--;
-        if (this._loadingCount === 0) {
-          this._handleComplete();
-        }
+      }
+      this._loadingCount--;
+      if (this._loadingCount === 0) {
+        this._handleComplete();
       }
     });
   }

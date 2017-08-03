@@ -13,5 +13,8 @@
   "dependencies": {
     "babel-runtime": "^6.23.0",
     "fbjs": "^0.8.1"
+  },
+  "peerDependencies": {
+    "relay-compiler": "1.2.0-rc.1"
   }
 }

@@ -260,9 +260,40 @@ Retrieves record(s) associated with the given record, transversing the source by
 ### setLinkedRecords(records: Array<?RecordProxy>, name: string, args?: ?Variables ): RecordProxy
 Updates the records associated with a mutable record, transversing the source by field name and an object representing pre-defined argument values.
 
-### getOrCreateLinkedRecord(name: string, typeName: string, args?: ?Variables ): RecordProx
+### getOrCreateLinkedRecord(name: string, typeName: string, args?: ?Variables ): RecordProxy
 Finds or creates a single record associated with a mutable record.
 This is a shortcut to `RelayRecordProxy.getLinkedRecord` with `RelayRecordProxy.setLinkedRecord` should the associated record be non-existant.
 
-## TODO
-Add an example of an advanced store updater
+## Advanced Mutation Example
+```javascript
+
+const sharedUpdater = (source, todoItem) => {
+    const sourceRecord = source.getRootField('todoList');
+
+    const todoItems = sourceRecord.getLinkedRecords('todoItems');
+    if (todoItems) {
+      sourceRecord.setLinkedRecords(todoItems.concat(todoItem), 'todoItems');
+    }
+};
+
+const variables = {
+  todoItem: {
+    task: 'Finish this example!',
+    dueDate: null,
+  }
+}
+
+commitMutation(store, {
+  mutation,
+  variables,
+  updater: (store) => {
+    const mutationRoot = store.getRootField('addTodoItem');
+    const todoItem = mutationRoot.getLinkedRecord('todoItem');
+    sharedUpdater(store, todoItem);
+  },
+  optimisticUpdater: (store) => {
+    const todoItem = mutationRoot.getLinkedRecord('todoItem');
+    sharedUpdater(store, variables.todoItem);
+  }
+});
+```

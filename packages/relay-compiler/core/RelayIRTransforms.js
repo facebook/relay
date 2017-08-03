@@ -31,14 +31,12 @@ const {
   codegenTransforms,
   fragmentTransforms,
   queryTransforms,
-  schemaExtensions,
 } = GraphQLIRTransforms;
 
 // Transforms applied to the code used to process a query response.
 const relaySchemaExtensions: Array<string> = [
   RelayConnectionTransform.SCHEMA_EXTENSION,
   RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
-  ...schemaExtensions,
 ];
 
 // Transforms applied to fragments used for reading data from a store

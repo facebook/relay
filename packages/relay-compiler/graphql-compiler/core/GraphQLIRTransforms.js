@@ -15,7 +15,6 @@
 
 const FilterDirectivesTransform = require('FilterDirectivesTransform');
 const RelayFlattenTransform = require('RelayFlattenTransform');
-const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
 const SkipClientFieldTransform = require('SkipClientFieldTransform');
 const SkipRedundantNodesTransform = require('SkipRedundantNodesTransform');
 const SkipUnreachableNodeTransform = require('SkipUnreachableNodeTransform');
@@ -27,11 +26,6 @@ export type IRTransform = (
   context: CompilerContext,
   schema: GraphQLSchema,
 ) => CompilerContext;
-
-// Transforms applied to the code used to process a query response.
-const schemaExtensions: Array<string> = [
-  RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
-];
 
 // Transforms applied to fragments used for reading data from a store
 const FRAGMENT_TRANSFORMS: Array<IRTransform> = [
@@ -64,5 +58,4 @@ module.exports = {
   codegenTransforms: CODEGEN_TRANSFORMS,
   fragmentTransforms: FRAGMENT_TRANSFORMS,
   queryTransforms: QUERY_TRANSFORMS,
-  schemaExtensions,
 };

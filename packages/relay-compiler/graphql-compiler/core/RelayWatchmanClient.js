@@ -20,8 +20,20 @@ class RelayWatchmanClient {
   static isAvailable(): Promise<boolean> {
     return new Promise(resolve => {
       const client = new RelayWatchmanClient();
-      client.on('error', () => resolve(false));
-      client.hasCapability('relative_root').then(resolve, () => resolve(false));
+      client.on('error', () => {
+        resolve(false);
+        client.end();
+      });
+      client.hasCapability('relative_root').then(
+        hasRelativeRoot => {
+          resolve(hasRelativeRoot);
+          client.end();
+        },
+        () => {
+          resolve(false);
+          client.end();
+        },
+      );
     });
   }
 

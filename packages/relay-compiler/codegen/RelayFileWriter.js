@@ -279,8 +279,8 @@ function getGeneratedNode(
 ): GeneratedNode {
   invariant(
     typeof compiledNode === 'object' &&
-    compiledNode !== null &&
-    (compiledNode.kind === 'Fragment' || compiledNode.kind === 'Batch'),
+      compiledNode !== null &&
+      (compiledNode.kind === 'Fragment' || compiledNode.kind === 'Batch'),
     'getGeneratedNode: Expected a GeneratedNode, got `%s`.',
     JSON.stringify(compiledNode),
   );

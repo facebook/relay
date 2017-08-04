@@ -13,14 +13,19 @@
 
 'use strict';
 
-const RelayCompilerContext = require('RelayCompilerContext');
+const RelayCompilerContext = require('../core/RelayCompilerContext');
 
-const getIdentifierForRelayArgumentValue = require('getIdentifierForRelayArgumentValue');
+const getIdentifierForRelayArgumentValue = require('../core/getIdentifierForRelayArgumentValue');
 const invariant = require('invariant');
-const murmurHash = require('murmurHash');
-const stableJSONStringify = require('stableJSONStringify');
+const murmurHash = require('../../util/murmurHash');
+const stableJSONStringify = require('../../../relay-runtime/util/stableJSONStringify');
 
-import type {Argument, LinkedField, ScalarField, Selection} from 'RelayIR';
+import type {
+  Argument,
+  LinkedField,
+  ScalarField,
+  Selection,
+} from '../core/RelayIR';
 
 /**
  * A transform to generate a unique alias for every combination of field name

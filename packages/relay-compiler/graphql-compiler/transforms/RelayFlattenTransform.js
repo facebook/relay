@@ -12,19 +12,26 @@
 
 'use strict';
 
-const RelayCompilerContext = require('RelayCompilerContext');
-const RelaySchemaUtils = require('RelaySchemaUtils');
+const RelayCompilerContext = require('../core/RelayCompilerContext');
+const RelaySchemaUtils = require('../core/RelaySchemaUtils');
 
-const areEqual = require('areEqual');
-const getIdentifierForRelaySelection = require('getIdentifierForRelaySelection');
-const getRelayLiteralArgumentValues = require('getRelayLiteralArgumentValues');
+const areEqual = require('fbjs/lib/areEqual');
+const getIdentifierForRelaySelection = require('../core/getIdentifierForRelaySelection');
+const getRelayLiteralArgumentValues = require('../../core/getRelayLiteralArgumentValues');
 const invariant = require('invariant');
-const stableJSONStringify = require('stableJSONStringify');
+const stableJSONStringify = require('../../../relay-runtime/util/stableJSONStringify');
 
-const {RELAY} = require('RelayRelayDirectiveTransform');
+const {RELAY} = require('../../transforms/RelayRelayDirectiveTransform');
 const {GraphQLNonNull, GraphQLList} = require('graphql');
 
-import type {Field, Handle, Node, Root, ScalarField, Selection} from 'RelayIR';
+import type {
+  Field,
+  Handle,
+  Node,
+  Root,
+  ScalarField,
+  Selection,
+} from '../core/RelayIR';
 import type {GraphQLType as Type} from 'graphql';
 
 const {getRawType, isAbstractType} = RelaySchemaUtils;

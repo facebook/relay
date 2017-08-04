@@ -13,10 +13,10 @@
 
 'use strict';
 
-const RelayCompilerContext = require('RelayCompilerContext');
-const RelayIRTransformer = require('RelayIRTransformer');
+const RelayCompilerContext = require('../core/RelayCompilerContext');
+const RelayIRTransformer = require('../core/RelayIRTransformer');
 
-import type {Directive} from 'RelayIR';
+import type {Directive} from '../core/RelayIR';
 import type {GraphQLSchema} from 'graphql';
 
 type State = GraphQLSchema;

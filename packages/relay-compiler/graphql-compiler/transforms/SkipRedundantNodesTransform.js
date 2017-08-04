@@ -13,13 +13,13 @@
 
 'use strict';
 
-const RelayCompilerContext = require('RelayCompilerContext');
+const RelayCompilerContext = require('../core/RelayCompilerContext');
 const IMap = require('immutable').Map;
 
-const getIdentifierForRelaySelection = require('getIdentifierForRelaySelection');
+const getIdentifierForRelaySelection = require('../core/getIdentifierForRelaySelection');
 const invariant = require('invariant');
 
-import type {Node, Selection} from 'RelayIR';
+import type {Node, Selection} from '../core/RelayIR';
 
 /**
  * A simplified representation of a document: keys in the map are unique

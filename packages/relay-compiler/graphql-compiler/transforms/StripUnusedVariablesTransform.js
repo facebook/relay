@@ -13,12 +13,12 @@
 
 'use strict';
 
-const RelayCompilerContext = require('RelayCompilerContext');
-const RelayIRTransformer = require('RelayIRTransformer');
+const RelayCompilerContext = require('../core/RelayCompilerContext');
+const RelayIRTransformer = require('../core/RelayIRTransformer');
 
-const filterContextForNode = require('filterContextForNode');
+const filterContextForNode = require('../core/filterContextForNode');
 
-import type {Argument, Condition, Root} from 'RelayIR';
+import type {Argument, Condition, Root} from '../core/RelayIR';
 
 type State = {referencedVariables: Set<string>};
 

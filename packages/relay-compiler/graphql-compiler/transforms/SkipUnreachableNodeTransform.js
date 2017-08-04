@@ -13,12 +13,11 @@
 
 'use strict';
 
-const Map = require('Map');
-const RelayCompilerContext = require('RelayCompilerContext');
+const RelayCompilerContext = require('../core/RelayCompilerContext');
 
 const invariant = require('invariant');
 
-import type {Condition, Fragment, Node, Selection} from 'RelayIR';
+import type {Condition, Fragment, Node, Selection} from '../core/RelayIR';
 
 type ConditionResult = 'fail' | 'pass' | 'variable';
 

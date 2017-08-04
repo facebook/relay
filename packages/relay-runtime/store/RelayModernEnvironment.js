@@ -44,6 +44,7 @@ import type {
 } from 'RelayStoreTypes';
 
 export type EnvironmentConfig = {
+  configName?: string,
   handlerProvider?: HandlerProvider,
   network: Network,
   store: Store,
@@ -54,9 +55,11 @@ class RelayModernEnvironment implements Environment {
   _publishQueue: RelayPublishQueue;
   _store: Store;
   _debugger: ?EnvironmentDebugger;
+  configName: ?string;
   unstable_internal: UnstableEnvironmentCore;
 
   constructor(config: EnvironmentConfig) {
+    this.configName = config.configName;
     const handlerProvider = config.handlerProvider
       ? config.handlerProvider
       : RelayDefaultHandlerProvider;

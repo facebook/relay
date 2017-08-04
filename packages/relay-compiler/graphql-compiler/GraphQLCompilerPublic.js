@@ -13,42 +13,49 @@
 
 'use strict';
 
-const ASTConvert = require('ASTConvert');
-const AutoAliasTransform = require('AutoAliasTransform');
-const CodegenDirectory = require('CodegenDirectory');
-const CodegenRunner = require('RelayCodegenRunner');
-const FileParser = require('FileParser');
-const FilterDirectivesTransform = require('FilterDirectivesTransform');
-const GraphQLFileParser = require('GraphQLFileParser');
-const GraphQLIRTransforms = require('GraphQLIRTransforms');
-const GraphQLTextParser = require('GraphQLTextParser');
-const GraphQLValidator = require('GraphQLValidator');
-const RelayCompiler = require('RelayCompiler');
-const RelayCompilerContext = require('RelayCompilerContext');
-const RelayConsoleReporter = require('RelayConsoleReporter');
-const RelayFlattenTransform = require('RelayFlattenTransform');
-const RelayIRTransformer = require('RelayIRTransformer');
-const RelayIRVisitor = require('RelayIRVisitor');
-const RelayMultiReporter = require('RelayMultiReporter');
-const RelayParser = require('RelayParser');
-const RelayPrinter = require('RelayPrinter');
-const SkipClientFieldTransform = require('SkipClientFieldTransform');
-const SkipRedundantNodesTransform = require('SkipRedundantNodesTransform');
-const SkipUnreachableNodeTransform = require('SkipUnreachableNodeTransform');
-const StripUnusedVariablesTransform = require('StripUnusedVariablesTransform');
+const ASTConvert = require('./core/ASTConvert');
+const AutoAliasTransform = require('./transforms/AutoAliasTransform');
+const CodegenDirectory = require('./codegen/CodegenDirectory');
+const CodegenRunner = require('./codegen/RelayCodegenRunner');
+const FileParser = require('./core/FileParser');
+const FilterDirectivesTransform = require('./transforms/FilterDirectivesTransform');
+const GraphQLFileParser = require('./core/GraphQLFileParser');
+const GraphQLIRTransforms = require('./core/GraphQLIRTransforms');
+const GraphQLTextParser = require('./core/GraphQLTextParser');
+const GraphQLValidator = require('./core/GraphQLValidator');
+const RelayCompiler = require('./core/RelayCompiler');
+const RelayCompilerContext = require('./core/RelayCompilerContext');
+const RelayConsoleReporter = require('./reporters/RelayConsoleReporter');
+const RelayFlattenTransform = require('./transforms/RelayFlattenTransform');
+const RelayIRTransformer = require('./core/RelayIRTransformer');
+const RelayIRVisitor = require('./core/RelayIRVisitor');
+const RelayMultiReporter = require('./reporters/RelayMultiReporter');
+const RelayParser = require('./core/RelayParser');
+const RelayPrinter = require('./core/RelayPrinter');
+const SkipClientFieldTransform = require('./transforms/SkipClientFieldTransform');
+const SkipRedundantNodesTransform = require('./transforms/SkipRedundantNodesTransform');
+const SkipUnreachableNodeTransform = require('./transforms/SkipUnreachableNodeTransform');
+const StripUnusedVariablesTransform = require('./transforms/StripUnusedVariablesTransform');
 
-const filterContextForNode = require('filterContextForNode');
-const getIdentifierForRelayArgumentValue = require('getIdentifierForRelayArgumentValue');
+const filterContextForNode = require('./core/filterContextForNode');
+const getIdentifierForRelayArgumentValue = require('./core/getIdentifierForRelayArgumentValue');
 
 export type {
   CompiledNode,
   CompiledDocumentMap,
   CompilerTransforms,
-} from 'RelayCompiler';
-export type {File, FileWriterInterface, CompileResult} from 'RelayCodegenTypes';
-export type {FileFilter, WatchmanExpression} from 'RelayCodegenWatcher';
-export type {IRTransform} from 'GraphQLIRTransforms';
-export type {FlattenOptions} from 'RelayFlattenTransform';
+} from './core/RelayCompiler';
+export type {
+  File,
+  FileWriterInterface,
+  CompileResult,
+} from './codegen/RelayCodegenTypes';
+export type {
+  FileFilter,
+  WatchmanExpression,
+} from './codegen/RelayCodegenWatcher';
+export type {IRTransform} from './core/GraphQLIRTransforms';
+export type {FlattenOptions} from './transforms/RelayFlattenTransform';
 export type {
   Argument,
   ArgumentDefinition,
@@ -74,7 +81,7 @@ export type {
   ScalarField,
   Selection,
   Variable,
-} from 'RelayIR';
+} from './core/RelayIR';
 
 module.exports = {
   ASTConvert: ASTConvert,

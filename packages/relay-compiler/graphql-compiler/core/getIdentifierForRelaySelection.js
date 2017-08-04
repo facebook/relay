@@ -14,7 +14,7 @@
 'use strict';
 
 const invariant = require('invariant');
-const stableJSONStringify = require('../../../relay-runtime/util/stableJSONStringify');
+const stableJSONStringify = require('../util/stableJSONStringifyOSS');
 
 import type {Selection} from './RelayIR';
 

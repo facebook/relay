@@ -17,8 +17,8 @@ const RelayCompilerContext = require('../core/RelayCompilerContext');
 
 const getIdentifierForRelayArgumentValue = require('../core/getIdentifierForRelayArgumentValue');
 const invariant = require('invariant');
-const murmurHash = require('../../util/murmurHash');
-const stableJSONStringify = require('../../../relay-runtime/util/stableJSONStringify');
+const murmurHash = require('../util/murmurHash');
+const stableJSONStringify = require('../util/stableJSONStringifyOSS');
 
 import type {
   Argument,

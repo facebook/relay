@@ -15,8 +15,12 @@
 
 const invariant = require('invariant');
 
-import type {Variables} from '../../react-relay/classic/tools/RelayTypes';
-import type {Argument} from '../graphql-compiler/core/RelayIR';
+import type {Argument} from './RelayIR';
+
+// Copy of Variables type from '../../../react-relay/classic/tools/RelayTypes'
+// Duplicating here rather than importing it since we can't take on a dependency
+// outside of graphql-compiler.
+type Variables = {[name: string]: $FlowFixMe};
 
 function getRelayLiteralArgumentValues(args: Array<Argument>): Variables {
   const values = {};

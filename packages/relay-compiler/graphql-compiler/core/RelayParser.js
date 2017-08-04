@@ -17,9 +17,7 @@ const forEachObject = require('fbjs/lib/forEachObject');
 const invariant = require('invariant');
 const partitionArray = require('fbjs/lib/partitionArray');
 
-const {
-  DEFAULT_HANDLE_KEY,
-} = require('../../../relay-runtime/util/RelayDefaultHandleKey');
+const {DEFAULT_HANDLE_KEY} = require('../util/RelayDefaultHandleKeyOSS');
 const {
   getNullableType,
   getRawType,

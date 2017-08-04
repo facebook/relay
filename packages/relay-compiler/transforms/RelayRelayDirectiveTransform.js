@@ -16,7 +16,7 @@
 const RelayCompilerContext = require('../graphql-compiler/core/RelayCompilerContext');
 const RelayIRTransformer = require('../graphql-compiler/core/RelayIRTransformer');
 
-const getRelayLiteralArgumentValues = require('../core/getRelayLiteralArgumentValues');
+const getRelayLiteralArgumentValues = require('../graphql-compiler/core/getRelayLiteralArgumentValues');
 const invariant = require('invariant');
 
 import type {Fragment} from '../graphql-compiler/core/RelayIR';

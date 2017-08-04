@@ -17,12 +17,13 @@ const RelaySchemaUtils = require('../core/RelaySchemaUtils');
 
 const areEqual = require('fbjs/lib/areEqual');
 const getIdentifierForRelaySelection = require('../core/getIdentifierForRelaySelection');
-const getRelayLiteralArgumentValues = require('../../core/getRelayLiteralArgumentValues');
+const getRelayLiteralArgumentValues = require('../core/getRelayLiteralArgumentValues');
 const invariant = require('invariant');
-const stableJSONStringify = require('../../../relay-runtime/util/stableJSONStringify');
+const stableJSONStringify = require('../util/stableJSONStringifyOSS');
 
-const {RELAY} = require('../../transforms/RelayRelayDirectiveTransform');
 const {GraphQLNonNull, GraphQLList} = require('graphql');
+
+const RELAY = 'relay';
 
 import type {
   Field,

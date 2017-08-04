@@ -13,20 +13,22 @@
 
 'use strict';
 
-const RelayCodegenWatcher = require('RelayCodegenWatcher');
-const RelayWatchmanClient = require('RelayWatchmanClient');
+const RelayCodegenWatcher = require('./RelayCodegenWatcher');
+const RelayWatchmanClient = require('../core/RelayWatchmanClient');
 
 const invariant = require('invariant');
 const path = require('path');
 
 const {Map: ImmutableMap} = require('immutable');
 
-import type FileParser from 'FileParser';
-import type {CompileResult} from 'RelayCodegenTypes';
-import type {File} from 'RelayCodegenTypes';
-import type {FileWriterInterface} from 'RelayCodegenTypes';
-import type {FileFilter, WatchmanExpression} from 'RelayCodegenWatcher';
-import type {RelayReporter} from 'RelayReporter';
+import type FileParser from '../core/FileParser';
+import type {RelayReporter} from '../reporters/RelayReporter';
+import type {
+  CompileResult,
+  File,
+  FileWriterInterface,
+} from './RelayCodegenTypes';
+import type {FileFilter, WatchmanExpression} from './RelayCodegenWatcher';
 import type {DocumentNode, GraphQLSchema} from 'graphql';
 
 /* eslint-disable no-console-disallow */

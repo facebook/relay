@@ -13,7 +13,7 @@
 
 'use strict';
 
-import type CodegenDirectory from 'CodegenDirectory';
+import type CodegenDirectory from './CodegenDirectory';
 
 export type CompileResult = 'HAS_CHANGES' | 'NO_CHANGES' | 'ERROR';
 

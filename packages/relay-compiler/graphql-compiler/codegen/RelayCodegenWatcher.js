@@ -12,13 +12,13 @@
  */
 'use strict';
 
-const RelayWatchmanClient = require('RelayWatchmanClient');
+const RelayWatchmanClient = require('../core/RelayWatchmanClient');
 
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 
-import type {File} from 'RelayCodegenTypes';
+import type {File} from './RelayCodegenTypes';
 
 const SUBSCRIPTION_NAME = 'relay-codegen';
 

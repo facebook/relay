@@ -205,6 +205,8 @@ class ReactRelayQueryRenderer extends React.Component {
         error,
         props: null,
         retry: () => {
+          const readyState = getDefaultState();
+          this.setState({readyState});
           this._fetch(operation, cacheConfig);
         },
       };

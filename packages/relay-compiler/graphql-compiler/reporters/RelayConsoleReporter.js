@@ -16,7 +16,7 @@
 const chalk = require('chalk');
 const process = require('process');
 
-import type {RelayReporter} from 'RelayReporter';
+import type {RelayReporter} from './RelayReporter';
 
 class RelayConsoleReporter implements RelayReporter {
   _verbose: boolean;

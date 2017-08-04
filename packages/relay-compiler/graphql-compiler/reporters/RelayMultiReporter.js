@@ -13,7 +13,7 @@
 
 'use strict';
 
-import type {RelayReporter} from 'RelayReporter';
+import type {RelayReporter} from './RelayReporter';
 
 class RelayMultiReporter implements RelayReporter {
   _reporters: Array<RelayReporter>;

@@ -13,9 +13,9 @@
 
 'use strict';
 
-const forEachObject = require('fbjs/lib/forEachObject');
+const forEachObject = require('forEachObject');
 const invariant = require('invariant');
-const partitionArray = require('fbjs/lib/partitionArray');
+const partitionArray = require('partitionArray');
 
 const {DEFAULT_HANDLE_KEY} = require('../util/RelayDefaultHandleKeyOSS');
 const {

@@ -15,7 +15,7 @@
 const RelayCompilerContext = require('../core/RelayCompilerContext');
 const RelaySchemaUtils = require('../core/RelaySchemaUtils');
 
-const areEqual = require('fbjs/lib/areEqual');
+const areEqual = require('areEqual');
 const getIdentifierForRelaySelection = require('../core/getIdentifierForRelaySelection');
 const getRelayLiteralArgumentValues = require('../core/getRelayLiteralArgumentValues');
 const invariant = require('invariant');

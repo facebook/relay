@@ -14,7 +14,7 @@
 'use strict';
 
 const invariant = require('invariant');
-const nullthrows = require('fbjs/lib/nullthrows');
+const nullthrows = require('nullthrows');
 
 const {
   assertAbstractType,

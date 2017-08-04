@@ -13,7 +13,7 @@
 
 'use strict';
 
-const forEachObject = require('fbjs/lib/forEachObject');
+const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 
 const {DEFAULT_HANDLE_KEY} = require('../util/RelayDefaultHandleKeyOSS');

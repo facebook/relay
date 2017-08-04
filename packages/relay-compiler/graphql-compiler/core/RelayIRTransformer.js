@@ -15,7 +15,7 @@
 
 const invariant = require('invariant');
 
-import type RelayCompilerContext from 'RelayCompilerContext';
+import type RelayCompilerContext from './RelayCompilerContext';
 import type {
   Argument,
   Condition,
@@ -34,7 +34,7 @@ import type {
   RootArgumentDefinition,
   ScalarField,
   Variable,
-} from 'RelayIR';
+} from './RelayIR';
 
 type NodeVisitor<S> = {
   Argument?: NodeVisitorFunction<Argument, S>,

@@ -13,13 +13,13 @@
 
 'use strict';
 
-const FilterDirectivesTransform = require('FilterDirectivesTransform');
-const RelayFlattenTransform = require('RelayFlattenTransform');
-const SkipClientFieldTransform = require('SkipClientFieldTransform');
-const SkipRedundantNodesTransform = require('SkipRedundantNodesTransform');
-const SkipUnreachableNodeTransform = require('SkipUnreachableNodeTransform');
+const FilterDirectivesTransform = require('../transforms/FilterDirectivesTransform');
+const RelayFlattenTransform = require('../transforms/RelayFlattenTransform');
+const SkipClientFieldTransform = require('../transforms/SkipClientFieldTransform');
+const SkipRedundantNodesTransform = require('../transforms/SkipRedundantNodesTransform');
+const SkipUnreachableNodeTransform = require('../transforms/SkipUnreachableNodeTransform');
 
-import type CompilerContext from 'RelayCompilerContext';
+import type CompilerContext from './RelayCompilerContext';
 import type {GraphQLSchema} from 'graphql';
 
 export type IRTransform = (

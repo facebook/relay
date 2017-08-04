@@ -28,7 +28,7 @@ import type {
   RootArgumentDefinition,
   ScalarField,
   Variable,
-} from 'RelayIR';
+} from './RelayIR';
 
 const NodeKeys = {
   Argument: ['value'],

@@ -13,13 +13,13 @@
 
 'use strict';
 
-const RelayCompilerContext = require('RelayCompilerContext');
-const RelayPrinter = require('RelayPrinter');
+const RelayCompilerContext = require('./RelayCompilerContext');
+const RelayPrinter = require('./RelayPrinter');
 
-const filterContextForNode = require('filterContextForNode');
+const filterContextForNode = require('./filterContextForNode');
 
-import type {IRTransform} from 'GraphQLIRTransforms';
-import type {Fragment, Root} from 'RelayIR';
+import type {IRTransform} from './GraphQLIRTransforms';
+import type {Fragment, Root} from './RelayIR';
 import type {GraphQLSchema} from 'graphql';
 
 // <CodegenNode> is a generic type here,

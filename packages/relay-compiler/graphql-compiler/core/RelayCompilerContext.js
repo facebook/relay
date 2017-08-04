@@ -16,9 +16,9 @@
 const immutable = require('immutable');
 const invariant = require('invariant');
 
-const {createUserError} = require('RelayCompilerUserError');
+const {createUserError} = require('./RelayCompilerUserError');
 
-import type {Fragment, Root} from 'RelayIR';
+import type {Fragment, Root} from './RelayIR';
 import type {GraphQLSchema} from 'graphql';
 
 const {

@@ -14,9 +14,9 @@
 'use strict';
 
 const invariant = require('invariant');
-const stableJSONStringify = require('stableJSONStringify');
+const stableJSONStringify = require('../../../relay-runtime/util/stableJSONStringify');
 
-import type {Selection} from 'RelayIR';
+import type {Selection} from './RelayIR';
 
 /**
  * Generates an identifier that is unique to a given selection: the alias for

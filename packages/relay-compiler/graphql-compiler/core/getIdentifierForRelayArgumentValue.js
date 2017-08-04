@@ -15,7 +15,7 @@
 
 const invariant = require('invariant');
 
-import type {ArgumentValue} from 'RelayIR';
+import type {ArgumentValue} from './RelayIR';
 
 /**
  * Generates an identifier for an argument value. The identifier is based on the

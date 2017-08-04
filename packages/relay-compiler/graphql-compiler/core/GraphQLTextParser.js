@@ -13,14 +13,14 @@
 
 'use strict';
 
-const FileParser = require('FileParser');
+const FileParser = require('./FileParser');
 const GraphQL = require('graphql');
 
 const fs = require('fs');
 const invariant = require('invariant');
 const path = require('path');
 
-import type {File} from 'RelayCodegenTypes';
+import type {File} from '../codegen/RelayCodegenTypes';
 import type {DocumentNode} from 'graphql';
 
 // Throws an error if parsing the file fails

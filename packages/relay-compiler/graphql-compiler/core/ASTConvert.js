@@ -13,16 +13,16 @@
 
 'use strict';
 
-const GraphQLValidator = require('GraphQLValidator');
-const RelayParser = require('RelayParser');
+const GraphQLValidator = require('./GraphQLValidator');
+const RelayParser = require('./RelayParser');
 
 const {
   isOperationDefinitionAST,
   isSchemaDefinitionAST,
-} = require('RelaySchemaUtils');
+} = require('./RelaySchemaUtils');
 const {extendSchema, parse, visit} = require('graphql');
 
-import type {Fragment, Root} from 'RelayIR';
+import type {Fragment, Root} from './RelayIR';
 import type {
   DefinitionNode,
   DocumentNode,

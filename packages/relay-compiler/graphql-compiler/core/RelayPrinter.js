@@ -13,10 +13,12 @@
 
 'use strict';
 
-const forEachObject = require('forEachObject');
+const forEachObject = require('fbjs/lib/forEachObject');
 const invariant = require('invariant');
 
-const {DEFAULT_HANDLE_KEY} = require('RelayDefaultHandleKey');
+const {
+  DEFAULT_HANDLE_KEY,
+} = require('../../../relay-runtime/util/RelayDefaultHandleKey');
 const {
   GraphQLEnumType,
   GraphQLInputObjectType,
@@ -35,7 +37,7 @@ import type {
   Node,
   Root,
   Selection,
-} from 'RelayIR';
+} from './RelayIR';
 import type {GraphQLInputType} from 'graphql';
 
 const INDENT = '  ';

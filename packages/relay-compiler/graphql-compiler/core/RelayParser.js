@@ -13,17 +13,19 @@
 
 'use strict';
 
-const forEachObject = require('forEachObject');
+const forEachObject = require('fbjs/lib/forEachObject');
 const invariant = require('invariant');
-const partitionArray = require('partitionArray');
+const partitionArray = require('fbjs/lib/partitionArray');
 
-const {DEFAULT_HANDLE_KEY} = require('RelayDefaultHandleKey');
+const {
+  DEFAULT_HANDLE_KEY,
+} = require('../../../relay-runtime/util/RelayDefaultHandleKey');
 const {
   getNullableType,
   getRawType,
   getTypeFromAST,
   isOperationDefinitionAST,
-} = require('RelaySchemaUtils');
+} = require('./RelaySchemaUtils');
 const {
   assertAbstractType,
   assertCompositeType,
@@ -65,7 +67,7 @@ import type {
   ScalarFieldType,
   Selection,
   Variable,
-} from 'RelayIR';
+} from './RelayIR';
 import type {
   ArgumentNode,
   DirectiveNode,

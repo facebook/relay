@@ -13,11 +13,11 @@
 
 'use strict';
 
-const RelayCompilerContext = require('RelayCompilerContext');
+const RelayCompilerContext = require('./RelayCompilerContext');
 
-const {visit} = require('RelayIRVisitor');
+const {visit} = require('./RelayIRVisitor');
 
-import type {Fragment, FragmentSpread, Root} from 'RelayIR';
+import type {Fragment, FragmentSpread, Root} from './RelayIR';
 
 /**
  * Returns a RelayCompilerContext containing only the documents referenced

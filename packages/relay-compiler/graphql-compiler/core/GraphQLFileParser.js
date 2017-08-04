@@ -13,14 +13,14 @@
 
 'use strict';
 
-const FileParser = require('FileParser');
+const FileParser = require('./FileParser');
 
 const fs = require('fs');
 const path = require('path');
 
 const {parse, Source} = require('graphql');
 
-import type {File} from 'RelayCodegenTypes';
+import type {File} from '../codegen/RelayCodegenTypes';
 import type {DocumentNode} from 'graphql';
 
 function parseFile(baseDir: string, file: File): ?DocumentNode {

@@ -13,13 +13,13 @@
 
 'use strict';
 
-const RelayCompilerContext = require('RelayCompilerContext');
-const RelayIRTransformer = require('RelayIRTransformer');
+const RelayCompilerContext = require('../graphql-compiler/core/RelayCompilerContext');
+const RelayIRTransformer = require('../graphql-compiler/core/RelayIRTransformer');
 
-const getRelayLiteralArgumentValues = require('getRelayLiteralArgumentValues');
+const getRelayLiteralArgumentValues = require('../core/getRelayLiteralArgumentValues');
 const invariant = require('invariant');
 
-import type {Fragment} from 'RelayIR';
+import type {Fragment} from '../graphql-compiler/core/RelayIR';
 
 const RELAY = 'relay';
 const PLURAL = 'plural';

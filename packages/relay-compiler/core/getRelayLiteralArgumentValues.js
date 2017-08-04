@@ -15,8 +15,8 @@
 
 const invariant = require('invariant');
 
-import type {Argument} from 'RelayIR';
-import type {Variables} from 'RelayTypes';
+import type {Variables} from '../../react-relay/classic/tools/RelayTypes';
+import type {Argument} from '../graphql-compiler/core/RelayIR';
 
 function getRelayLiteralArgumentValues(args: Array<Argument>): Variables {
   const values = {};

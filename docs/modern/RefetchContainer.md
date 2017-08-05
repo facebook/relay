@@ -39,58 +39,97 @@ refetch: (
 ## Example
 
 ```javascript
-const {
-  createRefetchContainer,
-  graphql,
-} = require('react-relay');
+import React, { Component } from 'react';
+import PropType from 'prop-types';
+import { createRefetchContainer, graphql } from 'react-relay';
+import Stories from './Stories';
 
-class FeedStories extends React.Component {
+class FeedStories extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      offset: this.props.offset,
+      limit: this.props.limit,
+      total: this.props.viewer.stories.totalCount
+    };
+  }
+
+  _previousPage = () => {
+    if (this.state.offset > 0) {
+      this.setState({ offset: this.state.offset - this.state.limit }, () => {
+        this._loadMore();
+      });
+    }
+  }
+
+  _nextPage = () => {
+    if (this.state.offset < (this.state.total - this.state.limit)) {
+      this.setState({ offset: this.state.offset + this.state.limit }, () => {
+        this._loadMore();
+      })
+    }
+  }
+
+  _loadMore = () => {
+    const refetchVariables = {
+      offset: this.state.offset,
+      limit: this.state.limit 
+    };
+    this.props.relay.refetch(refetchVariables);
+  }
+
   render() {
     return (
       <div>
-        {this.props.feed.stories.edges.map(
-          edge => <Story story={edge.node} key={edge.node.id} />
+        {this.props.viewer.stories.edges.map(edge => 
+          <Stories
+            key={edge.node.__id}
+            data={edge.node} 
+          />
         )}
-        <button
-          onPress={this._loadMore}
-          title="Load More"
-        />
+        <button onClick={() => this._previousPage()}>Previous</button>
+        <button onClick={() => this._nextPage()}>Next</button>
       </div>
     );
   }
-
-  _loadMore() {
-    // Increments the number of stories being rendered by 10.
-    const refetchVariables = fragmentVariables => ({
-      count: fragmentVariables.count + 10,
-    });
-    this.props.relay.refetch(refetchVariables, null);
-  }
 }
 
-module.exports = createRefetchContainer(
+FeedStories.defaultProps = {
+  offset: 0,
+  limit: 10
+};
+
+FeedStories.propTypes = { 
+  offset: PropType.number,
+  limit: PropType.number
+};
+
+export default createRefetchContainer(
   FeedStories,
   {
-    feed: graphql.experimental`
-      fragment FeedStories_feed on Feed 
-      @argumentDefinitions(
-        count: {type: "Int", defaultValue: 10}
+    viewer: graphql.experimental`
+      fragment FeedStories_viewer on Viewer @argumentDefinitions( 
+        offset: { type: "Int", defaultValue: 0 }
+        limit: { type: "Int", defaultValue: 10 }
       ) {
-        stories(first: $count) {
+        stories(
+          offset: $offset
+          limit: $limit
+        ) {
+          totalCount
           edges {
             node {
-              id
-              ...Story_story
+              ...Stories
             }
           }
         }
       }
-    `
+  `,
   },
   graphql.experimental`
-    query FeedStoriesRefetchQuery($count: Int) {
-      feed {
-        ...FeedStories_feed @arguments(count: $count)
+    query FeedStoriesQuery($offset: Int, $limit: Int) {
+      viewer {
+        ...FeedStories_viewer @arguments(offset: $offset, limit: $limit)
       }
     }
   `,

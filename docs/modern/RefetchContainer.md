@@ -119,7 +119,8 @@ export default createRefetchContainer(
           totalCount
           edges {
             node {
-              ...Stories
+              id
+              ...Story_story
             }
           }
         }

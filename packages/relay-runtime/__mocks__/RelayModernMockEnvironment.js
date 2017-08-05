@@ -245,6 +245,7 @@ function createMockEnvironment(options: {
 
   // Mock instance
   const environment = new RelayModernEnvironment({
+    configName: 'RelayModernMockEnvironment',
     handlerProvider,
     network: RelayNetwork.create(fetch, subscribe),
     store,

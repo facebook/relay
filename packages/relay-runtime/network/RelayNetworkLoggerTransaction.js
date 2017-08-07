@@ -40,7 +40,7 @@ type TransactionConfig = {
   operation: ConcreteBatch,
   variables: Variables,
   cacheConfig: ?CacheConfig,
-  uploadables?: UploadableMap,
+  uploadables?: ?UploadableMap,
 };
 
 export type RelayNetworkLog = {

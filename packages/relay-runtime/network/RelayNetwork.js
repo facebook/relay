@@ -13,20 +13,16 @@
 
 'use strict';
 
-const RelayError = require('RelayError');
-
+const doFetchWithPolling = require('doFetchWithPolling');
 const invariant = require('invariant');
 const isPromise = require('isPromise');
-const normalizeRelayPayload = require('normalizeRelayPayload');
-
-const {ROOT_ID} = require('RelayStoreUtils');
+const normalizePayload = require('normalizePayload');
 
 import type {CacheConfig, Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {ConcreteBatch} from 'RelayConcreteNode';
 import type {
   FetchFunction,
   Network,
-  QueryPayload,
   RelayResponsePayload,
   SubscribeFunction,
   PromiseOrValue,
@@ -140,82 +136,6 @@ function create(fetch: FetchFunction, subscribe?: SubscribeFunction): Network {
     request,
     requestStream,
   };
-}
-
-function doFetchWithPolling(
-  request,
-  operation: ConcreteBatch,
-  variables: Variables,
-  {onCompleted, onError, onNext}: Observer<RelayResponsePayload>,
-  pollInterval: number,
-): Disposable {
-  invariant(
-    pollInterval > 0,
-    'RelayNetwork: Expected pollInterval to be positive, got `%s`.',
-    pollInterval,
-  );
-  let isDisposed = false;
-  let timeout = null;
-  const dispose = () => {
-    if (!isDisposed) {
-      isDisposed = true;
-      timeout && clearTimeout(timeout);
-    }
-  };
-  function poll() {
-    let requestResponse = request(operation, variables, {force: true});
-    if (!isPromise(requestResponse)) {
-      requestResponse =
-        requestResponse instanceof Error
-          ? Promise.reject(requestResponse)
-          : Promise.resolve(requestResponse);
-    }
-    const onRequestSuccess = payload => {
-      onNext && onNext(payload);
-      timeout = setTimeout(poll, pollInterval);
-    };
-    const onRequestError = error => {
-      dispose();
-      onError && onError(error);
-    };
-    requestResponse
-      .then(payload => {
-        onRequestSuccess(payload);
-      }, onRequestError)
-      .catch(rethrow);
-  }
-  poll();
-
-  return {dispose};
-}
-
-function normalizePayload(
-  operation: ConcreteBatch,
-  variables: Variables,
-  payload: QueryPayload,
-): RelayResponsePayload {
-  const {data, errors} = payload;
-  if (data != null) {
-    return normalizeRelayPayload(
-      {
-        dataID: ROOT_ID,
-        node: operation.query,
-        variables,
-      },
-      data,
-      errors,
-      {handleStrippedNulls: true},
-    );
-  }
-  const error = RelayError.create(
-    'RelayNetwork',
-    'No data returned for operation `%s`, got error(s):\n%s\n\nSee the error ' +
-      '`source` property for more information.',
-    operation.name,
-    errors ? errors.map(({message}) => message).join('\n') : '(No errors)',
-  );
-  (error: any).source = {errors, operation, variables};
-  throw error;
 }
 
 function rethrow(err) {

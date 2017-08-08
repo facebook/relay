@@ -106,17 +106,16 @@ function createRelayNetworkLogger(
         cacheConfig: ?CacheConfig,
         {onCompleted, onNext, onError}: Observer<QueryPayload>,
       ): Disposable => {
-        const loggerTransaction = new LoggerTransaction({
-          operation,
-          variables,
-          cacheConfig,
-        });
-
         const onResponse = (
           error: ?Error,
           response: ?QueryPayload,
           status: ?string,
         ): void => {
+          const loggerTransaction = new LoggerTransaction({
+            operation,
+            variables,
+            cacheConfig,
+          });
           if (graphiQLPrinter) {
             loggerTransaction.addLog(
               'GraphiQL',

@@ -42,6 +42,7 @@ import type {
   RelayPaginationProp,
 } from 'ReactRelayTypes';
 import type {
+  CacheConfig,
   Disposable,
   FragmentSpecResolver,
 } from 'RelayCombinedEnvironmentTypes';
@@ -619,7 +620,12 @@ function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
       };
       this._localVariables = fetchVariables;
 
-      const cacheConfig = options ? {force: !!options.force} : undefined;
+      const cacheConfig: ?CacheConfig = options
+        ? {force: !!options.force}
+        : undefined;
+      if (cacheConfig && options && options.rerunParamExperimental) {
+        cacheConfig.rerunParamExperimental = options.rerunParamExperimental;
+      }
       const query = getOperation(connectionConfig.query);
       const operation = createOperationSelector(query, fetchVariables);
 

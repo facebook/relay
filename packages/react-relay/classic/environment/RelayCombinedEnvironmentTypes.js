@@ -14,7 +14,7 @@
 'use strict';
 
 import type {DataID} from 'RelayInternalTypes';
-import type {Variables} from 'RelayTypes';
+import type {RerunParam, Variables} from 'RelayTypes';
 
 /**
  * Settings for how a query response may be cached.
@@ -23,10 +23,13 @@ import type {Variables} from 'RelayTypes';
  *   state of any configured response cache.
  * - `poll`: causes a query to live update by polling at the specified interval
      in milliseconds. (This value will be passed to setTimeout.)
+ * - `rerunParamExperimental`: causes the query to be run with the experimental
+ *   batch API on Network interfaces and GraphQL servers that support it.
  */
 export type CacheConfig = {
   force?: ?boolean,
   poll?: ?number,
+  rerunParamExperimental?: ?RerunParam,
 };
 
 /**

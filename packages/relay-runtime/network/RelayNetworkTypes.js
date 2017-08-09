@@ -57,6 +57,7 @@ export type PayloadError = {
 export type QueryPayload = {|
   data?: ?PayloadData,
   errors?: Array<PayloadError>,
+  rerunVariables?: Variables,
 |};
 
 /**

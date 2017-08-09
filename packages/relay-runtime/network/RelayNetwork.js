@@ -124,6 +124,7 @@ function create(fetch: FetchFunction, subscribe?: SubscribeFunction): Network {
     } else {
       onRequestSuccess(requestResponse);
     }
+
     return {
       dispose() {
         isDisposed = true;

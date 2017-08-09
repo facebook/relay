@@ -28,7 +28,7 @@ import type {
   RelayContext,
   Snapshot,
 } from 'RelayStoreTypes';
-import type {Variables} from 'RelayTypes';
+import type {RerunParam, Variables} from 'RelayTypes';
 
 type Props = {
   cacheConfig?: ?CacheConfig,
@@ -36,6 +36,7 @@ type Props = {
   query: ?GraphQLTaggedNode,
   render: (readyState: ReadyState) => ?React.Element<*>,
   variables: Variables,
+  rerunParamExperimental?: RerunParam,
 };
 type ReadyState = {
   error: ?Error,

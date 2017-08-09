@@ -33,8 +33,10 @@ function normalizePayload(
     return normalizeRelayPayload(
       {
         dataID: ROOT_ID,
-        node: payload.operation ? payload.operation.query : operation.query,
-        variables: payload.variables ? payload.variables : variables,
+        node: operation.query,
+        variables: payload.rerunVariables
+          ? {...variables, ...payload.rerunVariables}
+          : variables,
       },
       data,
       errors,

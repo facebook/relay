@@ -17,6 +17,10 @@ require('configureForRelayOSS');
 const RelayObservable = require('RelayObservable');
 
 describe('RelayObservable', () => {
+  beforeEach(() => {
+    jest.resetModules();
+  });
+
   it('Fails if not provided a source', () => {
     expect(() => new RelayObservable()).toThrow('Source must be a Function');
   });
@@ -842,6 +846,158 @@ describe('RelayObservable', () => {
 
       sink.next(3);
       expect(list).toEqual(['next:3', 'next:5', 'next:7']);
+    });
+  });
+
+  describe('from', () => {
+    it('Converts a resolved Promise to an Observable', async () => {
+      const list = [];
+      const value = {key: 'value'};
+
+      const promise = Promise.resolve(value);
+      const obs = RelayObservable.from(promise);
+
+      obs.subscribe({
+        next: val => list.push(val),
+        error: err => {
+          list.push('error');
+          list.push(err);
+        },
+        complete: () => list.push('complete'),
+      });
+
+      // Promise does not resolve callbacks synchronously.
+      expect(list).toEqual([]);
+      await promise;
+      expect(list).toEqual([value, 'complete']);
+    });
+
+    it('Converts a rejected Promise to an Observable', async () => {
+      const list = [];
+      const error = new Error();
+
+      const promise = Promise.reject(error);
+      const obs = RelayObservable.from(promise);
+
+      obs.subscribe({
+        next: val => list.push(val),
+        error: err => {
+          list.push('error');
+          list.push(err);
+        },
+        complete: () => list.push('complete'),
+      });
+
+      // Promise does not resolve callbacks synchronously.
+      expect(list).toEqual([]);
+      await promise.catch(() => {});
+      expect(list).toEqual(['error', error]);
+    });
+
+    it('Error in next handler is unhandled', async () => {
+      const list = [];
+      const error = new Error();
+      const value = {key: 'value'};
+
+      const unhandledErrors = [];
+      RelayObservable.onUnhandledError(err => {
+        unhandledErrors.push(err);
+      });
+
+      const promise = Promise.resolve(value);
+      const obs = RelayObservable.from(promise);
+
+      obs.subscribe({
+        next: val => {
+          list.push(val);
+          throw error;
+        },
+        error: err => {
+          list.push('error');
+          list.push(err);
+        },
+        complete: () => list.push('complete'),
+      });
+
+      // Promise does not resolve callbacks synchronously.
+      expect(list).toEqual([]);
+      await promise;
+      expect(list).toEqual([value, 'complete']);
+
+      expect(unhandledErrors).toEqual([error]);
+    });
+
+    it('Directly returns RelayObservable instance', () => {
+      const obs1 = new RelayObservable(() => {});
+      const obs2 = RelayObservable.from(obs1);
+
+      expect(obs2).toBe(obs1);
+    });
+
+    it('Subscribes to Observable from another library', () => {
+      const list = [];
+
+      const fauxObservable = {
+        subscribe(callbacks) {
+          callbacks.next(1);
+          callbacks.next(2);
+          callbacks.complete();
+          return {
+            unsubscribe() {
+              list.push('unsubscribed');
+            },
+          };
+        },
+      };
+
+      const obs = RelayObservable.from(fauxObservable);
+
+      obs.subscribe({
+        next: val => list.push(val),
+        error: err => {
+          list.push('error');
+          list.push(err);
+        },
+        complete: () => list.push('complete'),
+      });
+
+      expect(list).toEqual([1, 2, 'complete', 'unsubscribed']);
+    });
+
+    it('Converts a plain value to an Observable', () => {
+      const list = [];
+      const value = {key: 'value'};
+
+      const obs = RelayObservable.from(value);
+
+      obs.subscribe({
+        next: val => list.push(val),
+        error: err => {
+          list.push('error');
+          list.push(err);
+        },
+        complete: () => list.push('complete'),
+      });
+
+      expect(list).toEqual([value, 'complete']);
+    });
+
+    it('Converts an Error instance to an Observable', () => {
+      const list = [];
+      const error = new Error();
+
+      const obs = RelayObservable.from(error);
+
+      obs.subscribe({
+        next: val => list.push(val),
+        error: err => {
+          list.push('error');
+          list.push(err);
+        },
+        complete: () => list.push('complete'),
+      });
+
+      expect(list).toEqual(['error', error]);
     });
   });
 });

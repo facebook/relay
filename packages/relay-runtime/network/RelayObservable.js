@@ -13,6 +13,8 @@
 
 'use strict';
 
+const isPromise = require('isPromise');
+
 export type Subscription = {
   unsubscribe: () => void,
 };
@@ -39,6 +41,17 @@ type Source<T> = Source_<T, *>;
 interface Subscribable<T> {
   subscribe(observer: Observer<T>): Subscription,
 }
+
+// Fake declaration teaches Flow how to understand union types.
+declare class ESObservable<T> {
+  subscribe(observer: Observer<T>): Subscription,
+}
+
+export type ObservableOrPromiseOrValue<T> =
+  | ESObservable<T>
+  | Promise<T>
+  | T
+  | Error;
 
 let hostReportError;
 
@@ -83,6 +96,18 @@ class RelayObservable<T> implements Subscribable<T> {
   }
 
   /**
+   * Accepts various kinds of data sources, and always returns a RelayObservable
+   * useful for accepting the result of a user-provided FetchFunction.
+   */
+  static from<V>(obj: ObservableOrPromiseOrValue<V>): RelayObservable<V> {
+    return isObservable(obj)
+      ? fromObservable(obj)
+      : isPromise(obj)
+        ? fromPromise(obj)
+        : obj instanceof Error ? fromError(obj) : fromValue(obj);
+  }
+
+  /**
    * Observable's primary API: returns an unsubscribable Subscription to the
    * source of this Observable.
    */
@@ -117,6 +142,47 @@ class RelayObservable<T> implements Subscribable<T> {
       }),
     );
   }
+}
+
+// Use declarations to teach Flow how to check isObservable.
+declare function isObservable(p: mixed): boolean %checks(p instanceof
+  ESObservable);
+
+function isObservable(obj) {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    typeof obj.subscribe === 'function'
+  );
+}
+
+function fromObservable<T>(obj: Subscribable<T>): RelayObservable<T> {
+  return obj instanceof RelayObservable
+    ? obj
+    : new RelayObservable(sink => obj.subscribe(sink));
+}
+
+function fromPromise<T>(promise: Promise<T>): RelayObservable<T> {
+  return new RelayObservable(sink => {
+    // Since sink methods do not throw, the resulting Promise can be ignored.
+    promise.then(value => {
+      sink.next(value);
+      sink.complete();
+    }, sink.error);
+  });
+}
+
+function fromValue<T>(value: T): RelayObservable<T> {
+  return new RelayObservable(sink => {
+    sink.next(value);
+    sink.complete();
+  });
+}
+
+function fromError(error: Error): RelayObservable<any> {
+  return new RelayObservable(sink => {
+    sink.error(error);
+  });
 }
 
 function handleError(error: Error): void {

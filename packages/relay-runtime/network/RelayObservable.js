@@ -15,6 +15,9 @@
 
 const isPromise = require('isPromise');
 
+import type {Disposable} from 'RelayCombinedEnvironmentTypes';
+import type {Observer as LegacyObserver} from 'RelayStoreTypes';
+
 export type Subscription = {
   unsubscribe: () => void,
 };
@@ -105,6 +108,28 @@ class RelayObservable<T> implements Subscribable<T> {
       : isPromise(obj)
         ? fromPromise(obj)
         : obj instanceof Error ? fromError(obj) : fromValue(obj);
+  }
+
+  /**
+   * Creates a RelayObservable, given a function which expects a legacy
+   * Relay Observer as the last argument and which returns a Disposable.
+   *
+   * To support migration to Observable, the function may ignore the
+   * legacy Relay observer and directly return an Observable instead.
+   */
+  static fromLegacy<V>(
+    callback: (LegacyObserver<V>) => Disposable | ESObservable<V>,
+  ): RelayObservable<V> {
+    return new RelayObservable(sink => {
+      const result = callback({
+        onNext: sink.next,
+        onError: sink.error,
+        onCompleted: sink.complete,
+      });
+      return isObservable(result)
+        ? result.subscribe(sink)
+        : () => result.dispose();
+    });
   }
 
   /**

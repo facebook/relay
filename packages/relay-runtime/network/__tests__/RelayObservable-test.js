@@ -1183,4 +1183,185 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['next:1', 'cleanup']);
     });
   });
+
+  describe('toPromise', () => {
+    it('Converts an Observable into a Promise', async () => {
+      let sink;
+      const list = [];
+
+      const obs = new RelayObservable(_sink => {
+        sink = _sink;
+        return () => list.push('cleanup');
+      });
+
+      const promise = obs.toPromise();
+
+      sink.next(1);
+      sink.complete(1);
+
+      await promise.then(
+        val => list.push('resolve:' + val),
+        err => list.push(err),
+      );
+
+      // Due to Promise resolving at the end of the frame, cleanup occurs first.
+      expect(list).toEqual(['cleanup', 'resolve:1']);
+    });
+
+    it('Rejects Promise if error during source', async () => {
+      const list = [];
+      const error = new Error();
+
+      const obs = new RelayObservable(sink => {
+        throw error;
+      });
+
+      const promise = obs.toPromise();
+
+      await promise.then(
+        val => list.push('resolve:' + val),
+        err => list.push(err),
+      );
+
+      // Due to Promise resolving at the end of the frame, cleanup occurs first.
+      expect(list).toEqual([error]);
+    });
+
+    it('Errors during cleanup are unhandled (sync)', async () => {
+      const list = [];
+      const error = new Error();
+
+      const unhandledErrors = [];
+      RelayObservable.onUnhandledError(err => {
+        unhandledErrors.push(err);
+      });
+
+      const obs = new RelayObservable(sink => {
+        sink.next(1);
+        sink.complete();
+        return () => {
+          throw error;
+        };
+      });
+
+      const promise = obs.toPromise();
+
+      await promise.then(
+        val => list.push('resolve:' + val),
+        err => list.push(err),
+      );
+
+      expect(list).toEqual(['resolve:1']);
+      expect(unhandledErrors).toEqual([error]);
+    });
+
+    it('Errors during cleanup are unhandled (async)', async () => {
+      let sink;
+      const list = [];
+      const error = new Error();
+
+      const unhandledErrors = [];
+      RelayObservable.onUnhandledError(err => {
+        unhandledErrors.push(err);
+      });
+
+      const obs = new RelayObservable(_sink => {
+        sink = _sink;
+        return () => {
+          throw error;
+        };
+      });
+
+      const promise = obs.toPromise();
+
+      sink.next(1);
+      sink.complete();
+
+      await promise.then(
+        val => list.push('resolve:' + val),
+        err => list.push(err),
+      );
+
+      expect(list).toEqual(['resolve:1']);
+      expect(unhandledErrors).toEqual([error]);
+    });
+
+    it('Only resolves the last yielded value', async () => {
+      let sink;
+      const list = [];
+
+      const obs = new RelayObservable(_sink => {
+        sink = _sink;
+        return () => list.push('cleanup');
+      });
+
+      const promise = obs.toPromise();
+
+      sink.next(1);
+      sink.next(2);
+      sink.next(3);
+      sink.complete();
+
+      await promise.then(
+        val => list.push('resolve:' + val),
+        err => list.push(err),
+      );
+
+      expect(list).toEqual(['cleanup', 'resolve:3']);
+    });
+
+    it('Converts an Observable error into a rejected Promise', async () => {
+      let sink;
+      const list = [];
+      const error = new Error();
+
+      const obs = new RelayObservable(_sink => {
+        sink = _sink;
+        return () => list.push('cleanup');
+      });
+
+      const promise = obs.toPromise();
+
+      sink.error(error);
+      await promise.then(
+        val => list.push('resolve:' + val),
+        err => list.push(err),
+      );
+
+      // Due to Promise resolving at the end of the frame, cleanup occurs first.
+      expect(list).toEqual(['cleanup', error]);
+    });
+
+    it('Converts an Observable complete into a resolved Promise', async () => {
+      let sink;
+      const list = [];
+
+      const obs = new RelayObservable(_sink => {
+        sink = _sink;
+        return () => list.push('cleanup');
+      });
+
+      const promise = obs.toPromise();
+
+      sink.complete();
+      await promise.then(
+        val => list.push('resolve:' + val),
+        err => list.push(err),
+      );
+
+      // Due to Promise resolving at the end of the frame, cleanup occurs first.
+      expect(list).toEqual(['cleanup', 'resolve:undefined']);
+    });
+
+    it('Is the dual to from(Promise)', async () => {
+      const value = {};
+      const error = new Error();
+
+      const resolved = RelayObservable.from(Promise.resolve(value)).toPromise();
+      const rejected = RelayObservable.from(Promise.reject(error)).toPromise();
+
+      expect(await resolved).toBe(value);
+      expect(await rejected.catch(e => e)).toBe(error);
+    });
+  });
 });

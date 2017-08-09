@@ -181,6 +181,25 @@ class RelayObservable<T> implements Subscribable<T> {
       }),
     );
   }
+
+  /**
+   * Returns a Promise which resolves when this Observable completes, containing
+   * the last yielded value.
+   */
+  toPromise(): Promise<T> {
+    return new Promise((resolve, reject) => {
+      let value;
+      this.subscribe({
+        next(val) {
+          value = val;
+        },
+        error: reject,
+        complete() {
+          resolve(value);
+        },
+      });
+    });
+  }
 }
 
 // Use declarations to teach Flow how to check isObservable.

@@ -142,7 +142,17 @@ export type ReadyStateEvent = {
   error?: Error,
 };
 // Containers
-export type RelayContainer = ReactClass<any>;
+
+/**
+ * FIXME: RelayContainer used to be typed with ReactClass<any>, but
+ * ReactClass is broken and allows for access to any property. For example
+ * ReactClass<any>.getFragment('foo') is valid even though ReactClass has no
+ * such getFragment() type definition. When ReactClass is fixed this causes a
+ * lot of errors in Relay code since methods like getFragment() are used often
+ * but have no definition in Relay's types. Suppressing for now.
+ */
+export type RelayContainer = $FlowFixMe;
+
 export type RelayMutationConfig =
   | {
       type: 'FIELDS_CHANGE',

@@ -3,7 +3,7 @@
   "version": "0.0.1-alpha6",
   "license": "BSD-3-Clause",
   "description": "A Code-generation toolkit for GraphQL",
-  "main": "index.js",
+  "main": "GraphQLCompilerPublic.js",
   "dependencies": {},
   "devDependencies": {},
   "scripts": {

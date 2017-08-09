@@ -14,7 +14,7 @@
 'use strict';
 
 const invariant = require('invariant');
-const nullthrows = require('nullthrows');
+const nullthrows = require('../util/nullthrowsOSS');
 
 const {
   assertAbstractType,

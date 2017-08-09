@@ -701,4 +701,147 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['start', 'complete', 'cleanup']);
     });
   });
+
+  describe('map', () => {
+    it('Maps values from the original observable', () => {
+      const source = new RelayObservable(sink => {
+        sink.next(1);
+        sink.next(2);
+        sink.next(3);
+        sink.complete();
+      });
+
+      const mapped = source.map(v => v * 2 + 1);
+
+      const list = [];
+      mapped.subscribe({
+        next: val => list.push('next:' + val),
+        error: err => list.push(err),
+        complete: () => list.push('complete'),
+      });
+
+      expect(list).toEqual(['next:3', 'next:5', 'next:7', 'complete']);
+    });
+
+    it('Does not map errors from the original observable', () => {
+      const list = [];
+      const error = new Error();
+
+      const source = new RelayObservable(sink => {
+        sink.next(1);
+        sink.next(2);
+        sink.error(error);
+        sink.next(3);
+      });
+
+      const mapped = source.map(v => v * 2 + 1);
+
+      mapped.subscribe({
+        next: val => list.push('next:' + val),
+        error: err => list.push(err),
+        complete: () => list.push('complete'),
+      });
+
+      expect(list).toEqual(['next:3', 'next:5', error]);
+    });
+
+    it('Calls error handler and cleans up if map function throws', () => {
+      const list = [];
+      const error = new Error();
+
+      const source = new RelayObservable(sink => {
+        sink.next(1);
+        sink.next(2);
+        sink.next(3);
+        return () => list.push('cleanup');
+      });
+
+      const mapped = source.map(v => {
+        if (v === 2) {
+          throw error;
+        }
+        return v * 2 + 1;
+      });
+
+      mapped.subscribe({
+        next: val => list.push('next:' + val),
+        error: err => list.push(err),
+        complete: () => list.push('complete'),
+      });
+
+      expect(list).toEqual(['next:3', error, 'cleanup']);
+    });
+
+    it('Error thrown from mapper and no error handler is unhandled', () => {
+      let sink;
+      const list = [];
+      const error = new Error();
+
+      const unhandledErrors = [];
+      RelayObservable.onUnhandledError(err => {
+        unhandledErrors.push(err);
+      });
+
+      const source = new RelayObservable(_sink => {
+        sink = _sink;
+        return () => list.push('cleanup');
+      });
+
+      const mapped = source.map(v => {
+        if (v === 2) {
+          throw error;
+        }
+        return v * 2 + 1;
+      });
+
+      mapped.subscribe({
+        next: val => list.push('next:' + val),
+      });
+
+      sink.next(1);
+      expect(unhandledErrors).toEqual([]);
+
+      sink.next(2);
+      expect(unhandledErrors).toEqual([error]);
+
+      expect(list).toEqual(['next:3', 'cleanup']);
+    });
+
+    it('Does not call error handler if next handler throws', () => {
+      let sink;
+      const list = [];
+      const error = new Error();
+
+      const unhandledErrors = [];
+      RelayObservable.onUnhandledError(err => {
+        unhandledErrors.push(err);
+      });
+
+      const source = new RelayObservable(_sink => {
+        sink = _sink;
+        return () => list.push('cleanup');
+      });
+
+      const mapped = source.map(v => v * 2 + 1);
+
+      mapped.subscribe({
+        next: val => {
+          list.push('next:' + val);
+          if (val === 5) {
+            throw error;
+          }
+        },
+        error: err => list.push(err),
+      });
+
+      sink.next(1);
+      expect(unhandledErrors).toEqual([]);
+
+      sink.next(2);
+      expect(unhandledErrors).toEqual([error]);
+
+      sink.next(3);
+      expect(list).toEqual(['next:3', 'next:5', 'next:7']);
+    });
+  });
 });

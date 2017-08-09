@@ -97,6 +97,26 @@ class RelayObservable<T> implements Subscribable<T> {
     }
     return subscribe(this._source, observer);
   }
+
+  /**
+   * Returns a new Observerable where each value has been transformed by
+   * the mapping function.
+   */
+  map<U>(fn: T => U): RelayObservable<U> {
+    return new RelayObservable(sink =>
+      this.subscribe({
+        next(value) {
+          try {
+            sink.next(fn(value));
+          } catch (error) {
+            sink.error(error);
+          }
+        },
+        error: sink.error,
+        complete: sink.complete,
+      }),
+    );
+  }
 }
 
 function handleError(error: Error): void {

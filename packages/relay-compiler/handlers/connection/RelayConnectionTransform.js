@@ -59,7 +59,6 @@ type Options = {
   // Metadata recorded for @connection fields
   connectionMetadata: Array<ConnectionMetadata>,
   definitionName: ?string,
-  generateRequisiteFields: boolean,
 };
 
 const CONNECTION = 'connection';
@@ -71,17 +70,10 @@ const CONNECTION = 'connection';
  * - Verifies that the field type is connection-like.
  * - Adds a `handle` property to the field, either the user-provided `handle`
  *   argument or the default value "connection".
- * - When the `generateRequisiteFields` option is set to true, inserts a
- *   sub-fragment on the field to ensure that standard connection fields are
- *   fetched (e.g. cursors, node ids, page info).
+ * - Inserts a sub-fragment on the field to ensure that standard connection
+ *   fields are fetched (e.g. cursors, node ids, page info).
  */
-function transform(
-  context: RelayCompilerContext,
-  options?: ?{generateRequisiteFields: boolean},
-): RelayCompilerContext {
-  const generateRequisiteFields = !!(
-    options && options.generateRequisiteFields
-  );
+function transform(context: RelayCompilerContext): RelayCompilerContext {
   return RelayIRTransformer.transform(
     context,
     {
@@ -93,7 +85,6 @@ function transform(
       path: [],
       connectionMetadata: [],
       definitionName: null,
-      generateRequisiteFields,
     }),
   );
 }
@@ -217,10 +208,11 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
     filters: filters || generateFilters(),
   };
 
-  if (options.generateRequisiteFields) {
+  if (direction !== null) {
     const fragment = generateConnectionFragment(
       this.getContext(),
       transformedField.type,
+      direction,
     );
     transformedField = {
       ...transformedField,
@@ -247,28 +239,38 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
 function generateConnectionFragment(
   context: RelayCompilerContext,
   type: GraphQLType,
+  direction: 'forward' | 'backward',
 ): InlineFragment {
   const compositeType = assertCompositeType(
     RelaySchemaUtils.getNullableType((type: $FlowFixMe)),
   );
-  const ast = parse(
-    `
-    fragment ConnectionFragment on ${String(compositeType)} {
+
+  let pageInfo = PAGE_INFO;
+  if (direction === 'forward') {
+    pageInfo += `{
+      ${END_CURSOR}
+      ${HAS_NEXT_PAGE}
+    }`;
+  } else {
+    pageInfo += `{
+      ${HAS_PREV_PAGE}
+      ${START_CURSOR}
+    }`;
+  }
+
+  const fragmentString = `fragment ConnectionFragment on ${String(
+    compositeType,
+  )} {
       ${EDGES} {
         ${CURSOR}
         ${NODE} {
           __typename # rely on GenerateRequisiteFieldTransform to add "id"
         }
       }
-      ${PAGE_INFO} {
-        ${END_CURSOR}
-        ${HAS_NEXT_PAGE}
-        ${HAS_PREV_PAGE}
-        ${START_CURSOR}
-      }
-    }
-  `,
-  );
+      ${pageInfo}
+    }`;
+
+  const ast = parse(fragmentString);
   const fragmentAST = ast.definitions[0];
   invariant(
     fragmentAST && fragmentAST.kind === 'FragmentDefinition',

@@ -65,18 +65,6 @@ describe('RelayConnectionTransform', () => {
   }
 
   it('transforms @connection fields', () => {
-    expect('fixtures/connection-transform').toMatchGolden(
-      transformerWithOptions(),
-    );
-  });
-
-  it('transforms @connection fields with requisite fields', () => {
-    expect(
-      'fixtures/connection-transform-generate-requisite-fields',
-    ).toMatchGolden(
-      transformerWithOptions({
-        generateRequisiteFields: true,
-      }),
-    );
+    expect('fixtures').toMatchGolden(transformerWithOptions());
   });
 });

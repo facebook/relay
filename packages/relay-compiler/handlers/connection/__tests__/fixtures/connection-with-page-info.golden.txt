@@ -7,6 +7,21 @@ fragment Example on User {
         }
       }
     }
+    pageInfo {
+      endCursor
+    }
+    ... on FriendsConnection {
+      edges {
+        cursor
+        node {
+          __typename
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
   }
 }
 # Metadata:

@@ -10,11 +10,35 @@ query NodeQuery(
             id
           }
         }
+        ... on CommentsConnection {
+          edges {
+            cursor
+            node {
+              __typename
+            }
+          }
+          pageInfo {
+            endCursor
+            hasNextPage
+          }
+        }
       }
       backwardComments: comments(last: 2) @__clientField(handle: "connection", key: "NodeQuery_backwardComments") {
         edges {
           node {
             id
+          }
+        }
+        ... on CommentsConnection {
+          edges {
+            cursor
+            node {
+              __typename
+            }
+          }
+          pageInfo {
+            hasPreviousPage
+            startCursor
           }
         }
       }

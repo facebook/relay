@@ -16,8 +16,32 @@ query NodeQuery(
                     name
                   }
                 }
+                ... on FriendsConnection {
+                  edges {
+                    cursor
+                    node {
+                      __typename
+                    }
+                  }
+                  pageInfo {
+                    endCursor
+                    hasNextPage
+                  }
+                }
               }
             }
+          }
+        }
+        ... on CommentsConnection {
+          edges {
+            cursor
+            node {
+              __typename
+            }
+          }
+          pageInfo {
+            endCursor
+            hasNextPage
           }
         }
       }

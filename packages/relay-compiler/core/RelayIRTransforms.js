@@ -51,10 +51,7 @@ const relayFragmentTransforms: Array<IRTransform> = [
 // Transforms applied to queries/mutations/subscriptions that are used for
 // fetching data from the server and parsing those responses.
 const relayQueryTransforms: Array<IRTransform> = [
-  (ctx: CompilerContext) =>
-    RelayConnectionTransform.transform(ctx, {
-      generateRequisiteFields: true,
-    }),
+  (ctx: CompilerContext) => RelayConnectionTransform.transform(ctx),
   RelayViewerHandleTransform.transform,
   RelayApplyFragmentArgumentTransform.transform,
   ...queryTransforms,

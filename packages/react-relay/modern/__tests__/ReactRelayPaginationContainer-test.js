@@ -117,12 +117,6 @@ describe('ReactRelayPaginationContainer', () => {
               id
             }
           }
-          pageInfo {
-            endCursor
-            hasNextPage
-            hasPreviousPage
-            startCursor
-          }
         }
       }
     `,
@@ -183,8 +177,6 @@ describe('ReactRelayPaginationContainer', () => {
           pageInfo: {
             endCursor: 'cursor:1',
             hasNextPage: true,
-            hasPreviousPage: false,
-            startCursor: 'cursor:1',
           },
         },
       },
@@ -203,8 +195,6 @@ describe('ReactRelayPaginationContainer', () => {
             pageInfo: {
               endCursor: null,
               hasNextPage: false,
-              hasPreviousPage: false,
-              startCursor: null,
             },
           },
         },
@@ -293,7 +283,9 @@ describe('ReactRelayPaginationContainer', () => {
         friends: {
           edges: [
             {
+              cursor: 'cursor:1',
               node: {
+                __typename: 'User',
                 id: 'node:1',
               },
             },
@@ -301,8 +293,6 @@ describe('ReactRelayPaginationContainer', () => {
           pageInfo: {
             endCursor: 'cursor:1',
             hasNextPage: true,
-            hasPreviousPage: false,
-            startCursor: 'cursor:1',
           },
         },
       },
@@ -414,8 +404,6 @@ describe('ReactRelayPaginationContainer', () => {
           pageInfo: {
             endCursor: null,
             hasNextPage: false,
-            hasPreviousPage: false,
-            startCursor: null,
           },
         },
       },
@@ -471,7 +459,9 @@ describe('ReactRelayPaginationContainer', () => {
         friends: {
           edges: [
             {
+              cursor: 'cursor:1',
               node: {
+                __typename: 'User',
                 id: 'node:1',
               },
             },
@@ -479,8 +469,6 @@ describe('ReactRelayPaginationContainer', () => {
           pageInfo: {
             endCursor: 'cursor:1',
             hasNextPage: true,
-            hasPreviousPage: false,
-            startCursor: 'cursor:1',
           },
         },
       },
@@ -514,7 +502,9 @@ describe('ReactRelayPaginationContainer', () => {
         friends: {
           edges: [
             {
+              cursor: 'cursor:1',
               node: {
+                __typename: 'User',
                 id: 'node:1',
               },
             },
@@ -522,8 +512,6 @@ describe('ReactRelayPaginationContainer', () => {
           pageInfo: {
             endCursor: 'cursor:1',
             hasNextPage: true,
-            hasPreviousPage: false,
-            startCursor: 'cursor:1',
           },
         },
       },
@@ -915,8 +903,6 @@ describe('ReactRelayPaginationContainer', () => {
               pageInfo: {
                 endCursor: 'cursor:2',
                 hasNextPage: true, // <-- has more results
-                hasPreviousPage: false,
-                startCursor: 'cursor:2',
               },
             },
           },
@@ -946,8 +932,6 @@ describe('ReactRelayPaginationContainer', () => {
               pageInfo: {
                 endCursor: 'cursor:2',
                 hasNextPage: false, // <-- end of list
-                hasPreviousPage: false,
-                startCursor: 'cursor:2',
               },
             },
           },
@@ -1084,7 +1068,7 @@ describe('ReactRelayPaginationContainer', () => {
       // Simulate empty connection data
       getConnectionFromProps.mockImplementation(() => ({
         edges: [],
-        [PAGE_INFO]: {
+        pageInfo: {
           [END_CURSOR]: null,
           [HAS_NEXT_PAGE]: null,
         },
@@ -1107,7 +1091,9 @@ describe('ReactRelayPaginationContainer', () => {
             friends: {
               edges: [
                 {
+                  cursor: 'cursor:1',
                   node: {
+                    __typename: 'User',
                     id: 'node:1',
                   },
                 },
@@ -1115,8 +1101,6 @@ describe('ReactRelayPaginationContainer', () => {
               pageInfo: {
                 endCursor: 'cursor:1',
                 hasNextPage: true,
-                hasPreviousPage: false,
-                startCursor: 'cursor:1',
               },
             },
           },
@@ -1219,7 +1203,6 @@ describe('ReactRelayPaginationContainer', () => {
                   {
                     cursor: 'cursor:2',
                     node: {
-                      __typename: 'User',
                       id: 'node:2',
                     },
                   },
@@ -1256,7 +1239,6 @@ describe('ReactRelayPaginationContainer', () => {
                 {
                   cursor: 'cursor:2',
                   node: {
-                    __typename: 'User',
                     id: 'node:2',
                   },
                 },
@@ -1264,8 +1246,6 @@ describe('ReactRelayPaginationContainer', () => {
               pageInfo: {
                 endCursor: 'cursor:2',
                 hasNextPage: true,
-                hasPreviousPage: false,
-                startCursor: 'cursor:2',
               },
             },
           },
@@ -1395,7 +1375,9 @@ describe('ReactRelayPaginationContainer', () => {
             friends: {
               edges: [
                 {
+                  cursor: 'cursor:1',
                   node: {
+                    __typename: 'User',
                     id: 'node:1',
                   },
                 },
@@ -1403,8 +1385,6 @@ describe('ReactRelayPaginationContainer', () => {
               pageInfo: {
                 endCursor: 'cursor:1',
                 hasNextPage: true,
-                hasPreviousPage: false,
-                startCursor: 'cursor:1',
               },
             },
           },
@@ -1485,8 +1465,8 @@ describe('ReactRelayPaginationContainer', () => {
       await environment.mock.resolve(UserQuery, {
         data: {
           node: {
-            id: '4',
             __typename: 'User',
+            id: '4',
             friends: {
               edges: [
                 {
@@ -1500,8 +1480,6 @@ describe('ReactRelayPaginationContainer', () => {
               pageInfo: {
                 endCursor: 'cursor:2',
                 hasNextPage: true,
-                hasPreviousPage: false,
-                startCursor: 'cursor:2',
               },
             },
           },
@@ -1515,7 +1493,9 @@ describe('ReactRelayPaginationContainer', () => {
           friends: {
             edges: [
               {
+                cursor: 'cursor:2',
                 node: {
+                  __typename: 'User',
                   id: 'node:2',
                 },
               },
@@ -1523,8 +1503,6 @@ describe('ReactRelayPaginationContainer', () => {
             pageInfo: {
               endCursor: 'cursor:2',
               hasNextPage: true,
-              hasPreviousPage: false,
-              startCursor: 'cursor:1',
             },
           },
         },
@@ -1648,8 +1626,6 @@ describe('ReactRelayPaginationContainer', () => {
               pageInfo: {
                 endCursor: 'cursor:7',
                 hasNextPage: true,
-                hasPreviousPage: false,
-                startCursor: 'cursor:7',
               },
             },
           },
@@ -1665,7 +1641,9 @@ describe('ReactRelayPaginationContainer', () => {
           friends: {
             edges: [
               {
+                cursor: 'cursor:7',
                 node: {
+                  __typename: 'User',
                   id: 'node:7',
                 },
               },
@@ -1673,8 +1651,6 @@ describe('ReactRelayPaginationContainer', () => {
             pageInfo: {
               endCursor: 'cursor:7',
               hasNextPage: true,
-              hasPreviousPage: false,
-              startCursor: 'cursor:7',
             },
           },
         },

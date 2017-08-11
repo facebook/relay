@@ -13,7 +13,7 @@
 'use strict';
 
 const RelayCompilerContext = require('../core/RelayCompilerContext');
-const RelaySchemaUtils = require('../core/RelaySchemaUtils');
+const GraphQLSchemaUtils = require('../core/GraphQLSchemaUtils');
 
 const areEqual = require('../util/areEqualOSS');
 const getIdentifierForRelaySelection = require('../core/getIdentifierForRelaySelection');
@@ -35,7 +35,7 @@ import type {
 } from '../core/RelayIR';
 import type {GraphQLType as Type} from 'graphql';
 
-const {getRawType, isAbstractType} = RelaySchemaUtils;
+const {getRawType, isAbstractType} = GraphQLSchemaUtils;
 
 export type FlattenOptions = {
   flattenAbstractTypes?: boolean,

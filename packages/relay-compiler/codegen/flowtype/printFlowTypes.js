@@ -19,7 +19,7 @@ const transformInputObjectToIR = require('transformInputObjectToIR');
 const traverse = require('babel-traverse').default;
 
 const {RELAY_CLASSIC_MUTATION} = require('RelayFlowParser');
-const {getRawType} = require('RelaySchemaUtils');
+const {getRawType} = require('GraphQLSchemaUtils');
 const {
   GraphQLEnumType,
   GraphQLList,

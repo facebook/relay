@@ -31,7 +31,7 @@ const {
   GraphQLType,
   GraphQLUnionType,
 } = require('graphql');
-const {isAbstractType} = require('RelaySchemaUtils');
+const {isAbstractType} = require('GraphQLSchemaUtils');
 
 import type {IRTransform} from 'GraphQLIRTransforms';
 import type {Fragment, Root} from 'RelayIR';

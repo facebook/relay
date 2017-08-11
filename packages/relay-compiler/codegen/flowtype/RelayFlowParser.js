@@ -17,7 +17,7 @@ const RelayParser = require('RelayParser');
 
 const invariant = require('invariant');
 
-const {isOperationDefinitionAST} = require('RelaySchemaUtils');
+const {isOperationDefinitionAST} = require('GraphQLSchemaUtils');
 const {
   ArgumentsOfCorrectTypeRule,
   DefaultValuesOfCorrectTypeRule,

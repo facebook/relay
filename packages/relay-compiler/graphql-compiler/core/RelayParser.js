@@ -23,7 +23,7 @@ const {
   getRawType,
   getTypeFromAST,
   isOperationDefinitionAST,
-} = require('./RelaySchemaUtils');
+} = require('./GraphQLSchemaUtils');
 const {
   assertAbstractType,
   assertCompositeType,

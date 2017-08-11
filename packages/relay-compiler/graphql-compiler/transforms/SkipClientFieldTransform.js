@@ -22,7 +22,7 @@ const {
   assertTypeWithFields,
   canHaveSelections,
   getRawType,
-} = require('../core/RelaySchemaUtils');
+} = require('../core/GraphQLSchemaUtils');
 const {
   SchemaMetaFieldDef,
   TypeMetaFieldDef,

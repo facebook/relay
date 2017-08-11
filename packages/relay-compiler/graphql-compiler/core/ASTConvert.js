@@ -19,7 +19,7 @@ const RelayParser = require('./RelayParser');
 const {
   isOperationDefinitionAST,
   isSchemaDefinitionAST,
-} = require('./RelaySchemaUtils');
+} = require('./GraphQLSchemaUtils');
 const {extendSchema, parse, visit} = require('graphql');
 
 import type {Fragment, Root} from './RelayIR';

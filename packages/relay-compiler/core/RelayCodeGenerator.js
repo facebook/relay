@@ -14,7 +14,7 @@
 'use strict';
 
 const RelayIRVisitor = require('RelayIRVisitor');
-const RelaySchemaUtils = require('RelaySchemaUtils');
+const GraphQLSchemaUtils = require('GraphQLSchemaUtils');
 
 const formatStorageKey = require('formatStorageKey');
 const invariant = require('invariant');
@@ -31,7 +31,7 @@ import type {
 } from 'RelayConcreteNode';
 import type {GeneratedNode} from 'RelayConcreteNode';
 import type {Fragment, Root} from 'RelayIR';
-const {getRawType, isAbstractType, getNullableType} = RelaySchemaUtils;
+const {getRawType, isAbstractType, getNullableType} = GraphQLSchemaUtils;
 
 /* eslint-disable no-redeclare */
 declare function generate(node: Root): ConcreteRoot;

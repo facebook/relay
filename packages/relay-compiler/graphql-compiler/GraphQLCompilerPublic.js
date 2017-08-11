@@ -32,6 +32,7 @@ const RelayIRVisitor = require('./core/RelayIRVisitor');
 const RelayMultiReporter = require('./reporters/RelayMultiReporter');
 const RelayParser = require('./core/RelayParser');
 const RelayPrinter = require('./core/RelayPrinter');
+const GraphQLSchemaUtils = require('./core/GraphQLSchemaUtils');
 const SkipClientFieldTransform = require('./transforms/SkipClientFieldTransform');
 const SkipRedundantNodesTransform = require('./transforms/SkipRedundantNodesTransform');
 const SkipUnreachableNodeTransform = require('./transforms/SkipUnreachableNodeTransform');
@@ -95,6 +96,7 @@ module.exports = {
   GraphQLFileParser: GraphQLFileParser,
   GraphQLIRTransforms: GraphQLIRTransforms,
   getIdentifierForRelayArgumentValue: getIdentifierForRelayArgumentValue,
+  GraphQLSchemaUtils: GraphQLSchemaUtils,
   GraphQLTextParser: GraphQLTextParser,
   GraphQLValidator: GraphQLValidator,
   IRTransformer: RelayIRTransformer,

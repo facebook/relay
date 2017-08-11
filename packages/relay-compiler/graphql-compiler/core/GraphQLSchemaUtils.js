@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule RelaySchemaUtils
+ * @providesModule GraphQLSchemaUtils
  * @flow
  * @format
  */
@@ -94,7 +94,7 @@ function hasID(schema: GraphQLSchema, type: GraphQLCompositeType): boolean {
   invariant(
     unmodifiedType instanceof GraphQLObjectType ||
       unmodifiedType instanceof GraphQLInterfaceType,
-    'RelaySchemaUtils.hasID(): Expected a concrete type or interface, ' +
+    'GraphQLSchemaUtils.hasID(): Expected a concrete type or interface, ' +
       'got type `%s`.',
     type,
   );
@@ -218,7 +218,7 @@ function assertTypeWithFields(
 ): GraphQLObjectType | GraphQLInterfaceType {
   invariant(
     type instanceof GraphQLObjectType || type instanceof GraphQLInterfaceType,
-    'RelaySchemaUtils: Expected type `%s` to be an object or interface type.',
+    'GraphQLSchemaUtils: Expected type `%s` to be an object or interface type.',
     type,
   );
   return type;
@@ -231,7 +231,7 @@ function assertTypeWithFields(
  */
 function getTypeFromAST(schema: GraphQLSchema, ast: TypeNode): GraphQLType {
   const type = typeFromAST(schema, ast);
-  invariant(isType(type), 'RelaySchemaUtils: Unknown type `%s`.', print(ast));
+  invariant(isType(type), 'GraphQLSchemaUtils: Unknown type `%s`.', print(ast));
   return (type: any);
 }
 

@@ -27,7 +27,7 @@ const writeLegacyFlowFile = require('./writeLegacyFlowFile');
 const writeRelayGeneratedFile = require('./writeRelayGeneratedFile');
 
 const {generate} = require('RelayCodeGenerator');
-const {isOperationDefinitionAST} = require('RelaySchemaUtils');
+const {isOperationDefinitionAST} = require('GraphQLSchemaUtils');
 const {Map: ImmutableMap} = require('immutable');
 
 import type {RelayGeneratedNode} from 'RelayCodeGenerator';

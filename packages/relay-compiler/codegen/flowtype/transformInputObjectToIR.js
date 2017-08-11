@@ -13,7 +13,7 @@
 
 'use strict';
 
-const {getRawType} = require('RelaySchemaUtils');
+const {getRawType} = require('GraphQLSchemaUtils');
 const {
   GraphQLEnumType,
   GraphQLInputObjectType,

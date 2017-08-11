@@ -16,7 +16,7 @@
 const RelayCompilerContext = require('RelayCompilerContext');
 const RelayIRTransformer = require('RelayIRTransformer');
 const RelayParser = require('RelayParser');
-const RelaySchemaUtils = require('RelaySchemaUtils');
+const GraphQLSchemaUtils = require('GraphQLSchemaUtils');
 
 const getRelayLiteralArgumentValues = require('getRelayLiteralArgumentValues');
 const invariant = require('invariant');
@@ -122,7 +122,7 @@ function visitFragmentOrRoot<N: Fragment | Root>(
  */
 function visitLinkedField(field: LinkedField, options: Options): LinkedField {
   const isPlural =
-    RelaySchemaUtils.getNullableType(field.type) instanceof GraphQLList;
+    GraphQLSchemaUtils.getNullableType(field.type) instanceof GraphQLList;
   options.path.push(isPlural ? null : field.alias || field.name);
   let transformedField = this.traverse(field, options);
   const connectionDirective = field.directives.find(
@@ -242,7 +242,7 @@ function generateConnectionFragment(
   direction: 'forward' | 'backward',
 ): InlineFragment {
   const compositeType = assertCompositeType(
-    RelaySchemaUtils.getNullableType((type: $FlowFixMe)),
+    GraphQLSchemaUtils.getNullableType((type: $FlowFixMe)),
   );
 
   let pageInfo = PAGE_INFO;
@@ -347,8 +347,8 @@ function validateConnectionType(
   definitionName: string,
   type: GraphQLType,
 ): void {
-  const typeWithFields = RelaySchemaUtils.assertTypeWithFields(
-    RelaySchemaUtils.getNullableType((type: $FlowFixMe)),
+  const typeWithFields = GraphQLSchemaUtils.assertTypeWithFields(
+    GraphQLSchemaUtils.getNullableType((type: $FlowFixMe)),
   );
   const typeFields = typeWithFields.getFields();
   const edges = typeFields[EDGES];
@@ -362,7 +362,7 @@ function validateConnectionType(
     definitionName,
   );
 
-  const edgesType = RelaySchemaUtils.getNullableType(edges.type);
+  const edgesType = GraphQLSchemaUtils.getNullableType(edges.type);
   invariant(
     edgesType instanceof GraphQLList,
     'RelayConnectionTransform: Expected `%s` field on type `%s` to be a ' +
@@ -371,7 +371,7 @@ function validateConnectionType(
     type,
     definitionName,
   );
-  const edgeType = RelaySchemaUtils.getNullableType(edgesType.ofType);
+  const edgeType = GraphQLSchemaUtils.getNullableType(edgesType.ofType);
   invariant(
     edgeType instanceof GraphQLObjectType,
     'RelayConnectionTransform: Expected %s field on type `%s` to be a list ' +
@@ -391,7 +391,7 @@ function validateConnectionType(
     NODE,
     definitionName,
   );
-  const nodeType = RelaySchemaUtils.getNullableType(node.type);
+  const nodeType = GraphQLSchemaUtils.getNullableType(node.type);
   if (
     !(
       nodeType instanceof GraphQLInterfaceType ||
@@ -414,7 +414,8 @@ function validateConnectionType(
   if (
     !cursor ||
     !(
-      RelaySchemaUtils.getNullableType(cursor.type) instanceof GraphQLScalarType
+      GraphQLSchemaUtils.getNullableType(cursor.type) instanceof
+      GraphQLScalarType
     )
   ) {
     invariant(
@@ -437,7 +438,7 @@ function validateConnectionType(
     PAGE_INFO,
     definitionName,
   );
-  const pageInfoType = RelaySchemaUtils.getNullableType(pageInfo.type);
+  const pageInfoType = GraphQLSchemaUtils.getNullableType(pageInfo.type);
   if (!(pageInfoType instanceof GraphQLObjectType)) {
     invariant(
       false,
@@ -459,7 +460,7 @@ function validateConnectionType(
     if (
       !pageInfoField ||
       !(
-        RelaySchemaUtils.getNullableType(pageInfoField.type) instanceof
+        GraphQLSchemaUtils.getNullableType(pageInfoField.type) instanceof
         GraphQLScalarType
       )
     ) {

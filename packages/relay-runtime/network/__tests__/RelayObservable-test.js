@@ -1409,6 +1409,202 @@ describe('RelayObservable', () => {
     });
   });
 
+  describe('do', () => {
+    it('Performs side effects before subscribers', () => {
+      const list = [];
+
+      const cities = new RelayObservable(sink => {
+        list.push('begin cities');
+        sink.next('Athens');
+        sink.next('Berlin');
+        sink.complete();
+        return () => list.push('cleanup cities');
+      });
+
+      const citiesWithSideEffects = cities.do({
+        start(sub) {
+          list.push('do: started');
+        },
+        next(value) {
+          list.push('do: value');
+          list.push(value);
+        },
+        error(err) {
+          list.push('do: error');
+          list.push(err);
+        },
+        complete() {
+          list.push('do: complete');
+        },
+      });
+
+      citiesWithSideEffects.subscribe({
+        start() {
+          list.push('subscriber: started');
+        },
+        next(value) {
+          list.push('subscriber: value');
+          list.push(value);
+        },
+        error(err) {
+          list.push('subscriber: error');
+          list.push(err);
+        },
+        complete() {
+          list.push('subscriber: complete');
+        },
+      });
+
+      expect(list).toEqual([
+        'subscriber: started',
+        'do: started',
+        'begin cities',
+        'do: value',
+        'Athens',
+        'subscriber: value',
+        'Athens',
+        'do: value',
+        'Berlin',
+        'subscriber: value',
+        'Berlin',
+        'do: complete',
+        'subscriber: complete',
+        'cleanup cities',
+      ]);
+    });
+
+    it('Performs side effects on errors', () => {
+      const list = [];
+      const error = new Error();
+
+      const cities = new RelayObservable(sink => {
+        list.push('begin cities');
+        sink.error(error);
+        return () => list.push('cleanup cities');
+      });
+
+      const citiesWithSideEffects = cities.do({
+        start() {
+          list.push('do: started');
+        },
+        next(value) {
+          list.push('do: value');
+          list.push(value);
+        },
+        error(err) {
+          list.push('do: error');
+          list.push(err);
+        },
+        complete() {
+          list.push('do: complete');
+        },
+      });
+
+      citiesWithSideEffects.subscribe({
+        start() {
+          list.push('subscriber: started');
+        },
+        next(value) {
+          list.push('subscriber: value');
+          list.push(value);
+        },
+        error(err) {
+          list.push('subscriber: error');
+          list.push(err);
+        },
+        complete() {
+          list.push('subscriber: complete');
+        },
+      });
+
+      expect(list).toEqual([
+        'subscriber: started',
+        'do: started',
+        'begin cities',
+        'do: error',
+        error,
+        'subscriber: error',
+        error,
+        'cleanup cities',
+      ]);
+    });
+
+    it('Does not affect subscription with unhandled errors', () => {
+      const list = [];
+      const error = new Error();
+
+      const unhandledErrors = [];
+      RelayObservable.onUnhandledError(err => {
+        unhandledErrors.push(err);
+      });
+
+      const cities = new RelayObservable(sink => {
+        list.push('begin cities');
+        sink.next('Athens');
+        sink.next('Berlin');
+        sink.complete();
+        return () => list.push('cleanup cities');
+      });
+
+      const citiesWithSideEffects = cities.do({
+        start() {
+          list.push('do: started');
+          throw error;
+        },
+        next(value) {
+          list.push('do: value');
+          list.push(value);
+          throw error;
+        },
+        error(err) {
+          list.push('do: error');
+          list.push(err);
+          throw error;
+        },
+        complete() {
+          list.push('do: complete');
+          throw error;
+        },
+      });
+
+      citiesWithSideEffects.subscribe({
+        start() {
+          list.push('subscriber: started');
+        },
+        next(value) {
+          list.push('subscriber: value');
+          list.push(value);
+        },
+        error(err) {
+          list.push('subscriber: error');
+          list.push(err);
+        },
+        complete() {
+          list.push('subscriber: complete');
+        },
+      });
+
+      expect(list).toEqual([
+        'subscriber: started',
+        'do: started',
+        'begin cities',
+        'do: value',
+        'Athens',
+        'subscriber: value',
+        'Athens',
+        'do: value',
+        'Berlin',
+        'subscriber: value',
+        'Berlin',
+        'do: complete',
+        'subscriber: complete',
+        'cleanup cities',
+      ]);
+
+      expect(unhandledErrors).toEqual([error, error, error, error]);
+    });
+  });
+
   describe('toPromise', () => {
     it('Converts an Observable into a Promise', async () => {
       let sink;

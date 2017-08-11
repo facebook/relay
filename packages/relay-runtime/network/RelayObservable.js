@@ -133,6 +133,37 @@ class RelayObservable<T> implements Subscribable<T> {
   }
 
   /**
+   * Returns a new Observable which returns the same values as this one, but
+   * modified so that the provided Observer is called to perform a side-effects
+   * for all events emitted by the source.
+   *
+   * Any errors that are thrown in the side-effect Observer are unhandled, and
+   * do not effect the source Observable or its Observer.
+   *
+   * This is useful for when debugging your Observables or performing other
+   * side-effects such as logging or performance monitoring.
+   */
+  do(observer: Observer<T>): RelayObservable<T> {
+    return new RelayObservable(sink => {
+      const both = action =>
+        function() {
+          try {
+            observer[action] && observer[action].apply(observer, arguments);
+          } catch (error) {
+            handleError(error);
+          }
+          sink[action] && sink[action].apply(sink, arguments);
+        };
+      return this.subscribe({
+        start: both('start'),
+        next: both('next'),
+        error: both('error'),
+        complete: both('complete'),
+      });
+    });
+  }
+
+  /**
    * Returns a new Observable which is identical to this one, unless this
    * Observable completes before yielding any values, in which case the new
    * Observable will yield the values from the alternate Observable.

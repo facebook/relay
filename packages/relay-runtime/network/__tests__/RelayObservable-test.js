@@ -1394,7 +1394,7 @@ describe('RelayObservable', () => {
       expect(unhandledErrors).toEqual([error]);
     });
 
-    it('Only resolves the last yielded value', async () => {
+    it('Resolves the first yielded value', async () => {
       let sink;
       const list = [];
 
@@ -1415,7 +1415,26 @@ describe('RelayObservable', () => {
         err => list.push(err),
       );
 
-      expect(list).toEqual(['cleanup', 'resolve:3']);
+      expect(list).toEqual(['cleanup', 'resolve:1']);
+    });
+
+    it('Cleans up a non-completing Observable', async () => {
+      const list = [];
+
+      const obs = new RelayObservable(sink => {
+        sink.next(1);
+        return () => list.push('cleanup');
+      });
+
+      const promise = obs.toPromise();
+
+      await promise.then(
+        val => list.push('resolve:' + val),
+        err => list.push(err),
+      );
+
+      // Due to Promise resolving at the end of the frame, cleanup occurs first.
+      expect(list).toEqual(['cleanup', 'resolve:1']);
     });
 
     it('Converts an Observable error into a rejected Promise', async () => {

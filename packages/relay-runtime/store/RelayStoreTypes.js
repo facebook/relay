@@ -271,6 +271,19 @@ export interface Environment
     operation: OperationSelector,
     updater?: ?SelectorStoreUpdater,
   |}): Disposable,
+
+  /**
+   * Checks if the records required to fulfill the given `selector` are in
+   * the. Missing fields use the provided `handlers` to attempt to provide
+   * substitutes. After traversal, the changes suggested by the `handlers` are
+   * published back to the store.
+   *
+   * returns `true` if all records exist and all fields are fetched, false otherwise.
+   */
+  checkSelectorAndUpdateStore(
+    selector: Selector,
+    handlers: Array<MissingFieldHandler>,
+  ): boolean,
 }
 
 export type Observer<T> = {

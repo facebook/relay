@@ -14,7 +14,9 @@
 'use strict';
 
 const RelayCore = require('RelayCore');
+const RelayDataLoader = require('RelayDataLoader');
 const RelayDefaultHandlerProvider = require('RelayDefaultHandlerProvider');
+const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayPublishQueue = require('RelayPublishQueue');
 
 const isPromise = require('isPromise');
@@ -33,6 +35,7 @@ import type {
 } from 'RelayNetworkTypes';
 import type {
   Environment,
+  MissingFieldHandler,
   OperationSelector,
   OptimisticUpdate,
   Selector,
@@ -402,6 +405,24 @@ class RelayModernEnvironment implements Environment {
     } else {
       fn();
     }
+  }
+
+  checkSelectorAndUpdateStore(
+    selector: Selector,
+    handlers: Array<MissingFieldHandler>,
+  ): boolean {
+    const target = new RelayInMemoryRecordSource();
+    const result = RelayDataLoader.check(
+      this._store.getSource(),
+      target,
+      selector,
+      handlers,
+    );
+    if (target.size() > 0) {
+      this._publishQueue.commitSource(target);
+      this._publishQueue.run();
+    }
+    return result;
   }
 }
 

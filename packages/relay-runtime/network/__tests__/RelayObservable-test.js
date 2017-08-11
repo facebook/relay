@@ -16,6 +16,8 @@ require('configureForRelayOSS');
 
 const RelayObservable = require('RelayObservable');
 
+jest.useFakeTimers();
+
 describe('RelayObservable', () => {
   beforeEach(() => {
     jest.resetModules();
@@ -1181,6 +1183,112 @@ describe('RelayObservable', () => {
       sink.next(2);
 
       expect(list).toEqual(['next:1', 'cleanup']);
+    });
+  });
+
+  describe('poll', () => {
+    it('Throws error if polling interval is too small', () => {
+      expect(() => new RelayObservable(() => {}).poll(0)).toThrow(
+        'Expected pollInterval to be positive',
+      );
+
+      expect(() => new RelayObservable(() => {}).poll(-1)).toThrow(
+        'Expected pollInterval to be positive',
+      );
+
+      expect(() => new RelayObservable(() => {}).poll('3')).toThrow(
+        'Expected pollInterval to be positive',
+      );
+
+      expect(() => new RelayObservable(() => {}).poll({})).toThrow(
+        'Expected pollInterval to be positive',
+      );
+    });
+
+    it('Repeatedly observes and subscribes', () => {
+      let sink;
+      const list = [];
+      const obs = new RelayObservable(_sink => {
+        list.push('start');
+        sink = _sink;
+        return () => list.push('cleanup');
+      }).poll(1);
+
+      const sub = obs.subscribe({
+        next: val => list.push(val),
+        complete: () => list.push('complete'),
+      });
+
+      sink.next('one');
+      expect(list).toEqual(['start', 'one']);
+
+      sink.complete();
+      expect(list).toEqual(['start', 'one', 'cleanup']);
+
+      const sink1 = sink;
+      jest.runAllTimers(); // advance to next poll
+      expect(sink).not.toBe(sink1);
+      expect(list).toEqual(['start', 'one', 'cleanup', 'start']);
+
+      sink.next('again');
+      expect(list).toEqual(['start', 'one', 'cleanup', 'start', 'again']);
+
+      jest.runAllTimers(); // does nothing since previous was not completed.
+      expect(list).toEqual(['start', 'one', 'cleanup', 'start', 'again']);
+
+      sink.complete();
+      expect(list).toEqual([
+        'start',
+        'one',
+        'cleanup',
+        'start',
+        'again',
+        'cleanup',
+      ]);
+
+      sub.unsubscribe(); // does not call cleanup twice.
+      expect(list).toEqual([
+        'start',
+        'one',
+        'cleanup',
+        'start',
+        'again',
+        'cleanup',
+      ]);
+
+      jest.runAllTimers(); // does nothing since unsubscribed.
+      expect(list).toEqual([
+        'start',
+        'one',
+        'cleanup',
+        'start',
+        'again',
+        'cleanup',
+      ]);
+    });
+
+    it('Cleans up after unsubscribe', () => {
+      let sink;
+      const list = [];
+      const obs = new RelayObservable(_sink => {
+        list.push('start');
+        sink = _sink;
+        return () => list.push('cleanup');
+      }).poll(1);
+
+      const sub = obs.subscribe({
+        next: val => list.push(val),
+        complete: () => list.push('complete'),
+      });
+
+      sink.next('one');
+      expect(list).toEqual(['start', 'one']);
+
+      sub.unsubscribe(); // does not call cleanup twice.
+      expect(list).toEqual(['start', 'one', 'cleanup']);
+
+      jest.runAllTimers(); // does nothing since unsubscribed.
+      expect(list).toEqual(['start', 'one', 'cleanup']);
     });
   });
 

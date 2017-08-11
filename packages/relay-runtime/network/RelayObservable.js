@@ -183,6 +183,42 @@ class RelayObservable<T> implements Subscribable<T> {
   }
 
   /**
+   * Returns a new Observable which first mirrors this Observable, then when it
+   * completes, waits for `pollInterval` milliseconds before re-subscribing to
+   * this Observable again, looping in this manner until unsubscribed.
+   *
+   * The returned Observable never completes.
+   */
+  poll(pollInterval: number): RelayObservable<T> {
+    if (__DEV__) {
+      if (typeof pollInterval !== 'number' || pollInterval <= 0) {
+        throw new Error(
+          'RelayObservable: Expected pollInterval to be positive, got: ' +
+            pollInterval,
+        );
+      }
+    }
+    return new RelayObservable(sink => {
+      let subscription;
+      let timeout;
+      const poll = () => {
+        subscription = this.subscribe({
+          next: sink.next,
+          error: sink.error,
+          complete() {
+            timeout = setTimeout(poll, pollInterval);
+          },
+        });
+      };
+      poll();
+      return () => {
+        clearTimeout(timeout);
+        subscription.unsubscribe();
+      };
+    });
+  }
+
+  /**
    * Returns a Promise which resolves when this Observable completes, containing
    * the last yielded value.
    */

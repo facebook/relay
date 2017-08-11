@@ -255,7 +255,7 @@ class RelayObservable<T> implements Subscribable<T> {
    * Returns a Promise which resolves when this Observable yields a first value
    * or when it completes with no value.
    */
-  toPromise(): Promise<T> {
+  toPromise(): Promise<T | void> {
     return new Promise((resolve, reject) => {
       let subscription;
       this.subscribe({
@@ -267,9 +267,7 @@ class RelayObservable<T> implements Subscribable<T> {
           subscription.unsubscribe();
         },
         error: reject,
-        complete() {
-          resolve();
-        },
+        complete: resolve,
       });
     });
   }

@@ -18,6 +18,7 @@ const RelayObservable = require('RelayObservable');
 const invariant = require('invariant');
 const isPromise = require('isPromise');
 const normalizePayload = require('normalizePayload');
+const nullthrows = require('nullthrows');
 
 import type {CacheConfig, Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {ConcreteBatch} from 'RelayConcreteNode';
@@ -47,7 +48,8 @@ function create(fetch: FetchFunction, subscribe?: SubscribeFunction): Network {
   ): PromiseOrValue<RelayResponsePayload> {
     return observeFetch(fetch, operation, variables, cacheConfig, uploadables)
       .map(payload => normalizePayload(operation, variables, payload))
-      .toPromise();
+      .toPromise()
+      .then(nullthrows);
   }
 
   function requestStream(

@@ -1292,6 +1292,123 @@ describe('RelayObservable', () => {
     });
   });
 
+  describe('ifEmpty', () => {
+    it('Matches the first Observable if values are yielded', () => {
+      const list = [];
+
+      const fruits = new RelayObservable(sink => {
+        list.push('begin fruits');
+        sink.next('Apple');
+        sink.next('Banana');
+        sink.complete();
+        return () => list.push('cleanup fruits');
+      });
+
+      const cities = new RelayObservable(sink => {
+        list.push('begin cities');
+        sink.next('Athens');
+        sink.next('Berlin');
+        sink.complete();
+        return () => list.push('cleanup cities');
+      });
+
+      const fruitsOrCities = fruits.ifEmpty(cities);
+
+      fruitsOrCities.subscribe({
+        next: val => list.push(val),
+        error: err => {
+          list.push('error');
+          list.push(err);
+        },
+        complete: () => list.push('complete'),
+      });
+
+      expect(list).toEqual([
+        'begin fruits',
+        'Apple',
+        'Banana',
+        'complete',
+        'cleanup fruits',
+      ]);
+    });
+
+    it('Matches the second Observable if no values are yielded', () => {
+      const list = [];
+
+      const empty = new RelayObservable(sink => {
+        list.push('begin empty');
+        sink.complete();
+        return () => list.push('cleanup empty');
+      });
+
+      const cities = new RelayObservable(sink => {
+        list.push('begin cities');
+        sink.next('Athens');
+        sink.next('Berlin');
+        sink.complete();
+        return () => list.push('cleanup cities');
+      });
+
+      const emptyOrCities = empty.ifEmpty(cities);
+
+      emptyOrCities.subscribe({
+        next: val => list.push(val),
+        error: err => {
+          list.push('error');
+          list.push(err);
+        },
+        complete: () => list.push('complete'),
+      });
+
+      expect(list).toEqual([
+        'begin empty',
+        'begin cities',
+        'Athens',
+        'Berlin',
+        'complete',
+        'cleanup cities',
+        'cleanup empty',
+      ]);
+    });
+
+    it('Error passes through without starting the second', () => {
+      const list = [];
+      const error = new Error();
+
+      const problem = new RelayObservable(sink => {
+        list.push('begin problem');
+        sink.error(error);
+        return () => list.push('cleanup problem');
+      });
+
+      const cities = new RelayObservable(sink => {
+        list.push('begin cities');
+        sink.next('Athens');
+        sink.next('Berlin');
+        sink.complete();
+        return () => list.push('cleanup cities');
+      });
+
+      const problemOrCities = problem.ifEmpty(cities);
+
+      problemOrCities.subscribe({
+        next: val => list.push(val),
+        error: err => {
+          list.push('error');
+          list.push(err);
+        },
+        complete: () => list.push('complete'),
+      });
+
+      expect(list).toEqual([
+        'begin problem',
+        'error',
+        error,
+        'cleanup problem',
+      ]);
+    });
+  });
+
   describe('toPromise', () => {
     it('Converts an Observable into a Promise', async () => {
       let sink;

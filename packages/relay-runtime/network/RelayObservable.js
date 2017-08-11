@@ -133,6 +133,39 @@ class RelayObservable<T> implements Subscribable<T> {
   }
 
   /**
+   * Returns a new Observable which is identical to this one, unless this
+   * Observable completes before yielding any values, in which case the new
+   * Observable will yield the values from the alternate Observable.
+   *
+   * If this Observable does yield values, the alternate is never subscribed to.
+   *
+   * This is useful for scenarios where values may come from multiple sources
+   * which should be tried in order, i.e. from a cache before a network.
+   */
+  ifEmpty<U>(alternate: RelayObservable<U>): RelayObservable<T | U> {
+    return new RelayObservable(sink => {
+      let hasValue = false;
+      let current = this.subscribe({
+        next(value) {
+          hasValue = true;
+          sink.next(value);
+        },
+        error: sink.error,
+        complete() {
+          if (hasValue) {
+            sink.complete();
+          } else {
+            current = alternate.subscribe(sink);
+          }
+        },
+      });
+      return () => {
+        current.unsubscribe();
+      };
+    });
+  }
+
+  /**
    * Observable's primary API: returns an unsubscribable Subscription to the
    * source of this Observable.
    */

@@ -30,7 +30,7 @@ import type {
 } from 'RelayStoreTypes';
 import type {RerunParam, Variables} from 'RelayTypes';
 
-type Props = {
+export type Props = {
   cacheConfig?: ?CacheConfig,
   environment: Environment | ClassicEnvironment,
   query: ?GraphQLTaggedNode,
@@ -38,7 +38,7 @@ type Props = {
   variables: Variables,
   rerunParamExperimental?: RerunParam,
 };
-type ReadyState = {
+export type ReadyState = {
   error: ?Error,
   props: ?Object,
   retry: ?() => void,

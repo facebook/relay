@@ -267,7 +267,9 @@ class RelayObservable<T> implements Subscribable<T> {
           subscription.unsubscribe();
         },
         error: reject,
-        complete: resolve,
+        complete() {
+          resolve();
+        },
       });
     });
   }

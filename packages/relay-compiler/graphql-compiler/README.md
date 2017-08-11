@@ -8,7 +8,7 @@ The following graph illustrates the high-level architecture of a complete GraphQ
 
 ![CodegenPipeline](https://github.com/Yan-J/relay/raw/master/packages/relay-compiler/graphql-compiler/docs/Architecture.png)
 
-To understand the underlying workflow of the core compilation step, which is what happens in the "GraphQL Compiler" block in the above graph, please refer [HERE](../ARCHITECTURE.md).
+To understand the underlying workflow of the core compilation step, which is what happens in the "GraphQL Compiler" block in the above graph, please refer [HERE](./ARCHITECTURE.md).
 
 You can build your own version of the Compiler by adding your own `FileWriter`, and by swapping or adding a `FileParser` and additional `IRTransforms` (IR, which stands for `Intermediate Representation`, a special-purpose syntax tree format designed for transformability).
 
@@ -21,4 +21,4 @@ Sample [HERE](../core/RelayValidator.js).
 
 * A sample `FileWriter` can be found [HERE](../codegen/RelayFileWriter.js).
 
-To actually run your compiler, you will also need a `bin` script to assemble all the above components. A sample file can be found [HERE](../bin/RelayCompilerBin.js).
+To actually run your compiler, you will also need a script to assemble all the above components. A sample file can be found [HERE](../bin/RelayCompilerBin.js).

@@ -510,6 +510,7 @@ function mergeEdges(
 }
 
 module.exports = {
+  buildConnectionEdge,
   createEdge,
   deleteNode,
   getConnection,

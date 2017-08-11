@@ -131,9 +131,9 @@ function rangeAdd(
         if (!payload) {
           return;
         }
-        const newEdge = payload.getLinkedRecord(edgeName);
+        const serverEdge = payload.getLinkedRecord(edgeName);
         for (const info of connectionInfo) {
-          if (newEdge) {
+          if (serverEdge) {
             const connection = RelayConnectionHandler.getConnection(
               parent,
               info.key,
@@ -142,15 +142,23 @@ function rangeAdd(
             if (!connection) {
               return;
             }
+            const clientEdge = RelayConnectionHandler.buildConnectionEdge(
+              store,
+              connection,
+              serverEdge,
+            );
+            if (!clientEdge) {
+              return;
+            }
             switch (info.rangeBehavior) {
               case 'append':
-                RelayConnectionHandler.insertEdgeAfter(connection, newEdge);
+                RelayConnectionHandler.insertEdgeAfter(connection, clientEdge);
                 break;
               case 'ignore':
                 // Do nothing
                 break;
               case 'prepend':
-                RelayConnectionHandler.insertEdgeBefore(connection, newEdge);
+                RelayConnectionHandler.insertEdgeBefore(connection, clientEdge);
                 break;
               default:
                 warning(

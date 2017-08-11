@@ -180,9 +180,9 @@ function memoizedFind(
 }
 
 const CREATE_CONTAINER_FUNCTIONS = {
-  createFragmentContainer: true,
-  createPaginationContainer: true,
-  createRefetchContainer: true,
+  createFragmentContainer: false,
+  createPaginationContainer: false,
+  createRefetchContainer: false,
 };
 
 const IDENTIFIERS = {

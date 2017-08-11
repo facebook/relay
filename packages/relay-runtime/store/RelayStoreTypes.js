@@ -26,6 +26,8 @@ import type {
 } from 'RelayCombinedEnvironmentTypes';
 import type {
   ConcreteBatch,
+  ConcreteScalarField,
+  ConcreteLinkedField,
   ConcreteFragment,
   ConcreteSelectableNode,
 } from 'RelayConcreteNode';
@@ -118,16 +120,6 @@ export interface Store {
    * occurs when `notify()` is called.
    */
   publish(source: RecordSource): void,
-
-  /**
-   * Attempts to load all the records necessary to fulfill the selector into the
-   * target record source.
-   */
-  resolve(
-    target: MutableRecordSource,
-    selector: Selector,
-    callback: AsyncLoadCallback,
-  ): void,
 
   /**
    * Ensure that all the records necessary to fulfill the given selector are
@@ -367,3 +359,33 @@ export type OptimisticUpdate =
       operation: OperationSelector,
       response: ?Object,
     |};
+
+/**
+ * A set of handlers that can be used to provide substitute data for missing
+ * fields when reading a selector from a source.
+ */
+export type MissingFieldHandler =
+  | {
+      kind: 'scalar',
+      handle: (
+        field: ConcreteScalarField,
+        record: ?Record,
+        args: Variables,
+      ) => mixed,
+    }
+  | {
+      kind: 'linked',
+      handle: (
+        field: ConcreteLinkedField,
+        record: ?Record,
+        args: Variables,
+      ) => ?DataID,
+    }
+  | {
+      kind: 'pluralLinked',
+      handle: (
+        field: ConcreteLinkedField,
+        record: ?Record,
+        args: Variables,
+      ) => ?Array<?DataID>,
+    };

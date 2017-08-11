@@ -675,34 +675,5 @@ describe('RelayStore', () => {
       `,
       ));
     });
-
-    it('resolves data from cache', () => {
-      const selector = {
-        dataID: '4',
-        node: UserFragment,
-        variables: {size: 32},
-      };
-      const callback = jest.fn();
-      const target = new RelayInMemoryRecordSource();
-      store.resolve(target, selector, callback);
-      expect(callback.mock.calls.length).toBe(1);
-      expect(callback).toBeCalledWith({
-        status: 'complete',
-      });
-      const snapshot = store.lookup(selector);
-      expect(snapshot).toEqual({
-        ...selector,
-        data: {
-          name: 'Zuck',
-          profilePicture: {
-            uri: 'https://photo1.jpg',
-          },
-        },
-        seenRecords: {
-          ...data,
-        },
-      });
-      expect(target.toJSON()).toEqual(data);
-    });
   });
 });

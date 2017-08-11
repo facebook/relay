@@ -264,7 +264,6 @@ function createMockEnvironment(options: {
   mockInstanceMethod(store, 'lookup');
   mockInstanceMethod(store, 'notify');
   mockInstanceMethod(store, 'publish');
-  mockInstanceMethod(store, 'resolve');
   mockDisposableMethod(store, 'retain');
   mockDisposableMethod(store, 'subscribe');
 
@@ -294,7 +293,6 @@ function createMockEnvironment(options: {
     store.lookup.mockClear();
     store.notify.mockClear();
     store.publish.mockClear();
-    store.resolve.mockClear();
     store.retain.mockClear();
     store.subscribe.mockClear();
 

@@ -26,8 +26,8 @@ const printFlowTypes = require('printFlowTypes');
 const writeLegacyFlowFile = require('./writeLegacyFlowFile');
 const writeRelayGeneratedFile = require('./writeRelayGeneratedFile');
 
-const {generate} = require('RelayCodeGenerator');
 const {isOperationDefinitionAST} = require('GraphQLSchemaUtils');
+const {generate} = require('RelayCodeGenerator');
 const {Map: ImmutableMap} = require('immutable');
 
 import type {RelayGeneratedNode} from 'RelayCodeGenerator';
@@ -35,6 +35,7 @@ import type {FileWriterInterface} from 'RelayCodegenTypes';
 import type {CompiledNode, CompiledDocumentMap} from 'RelayCompiler';
 import type {CompilerTransforms} from 'RelayCompiler';
 import type {GeneratedNode} from 'RelayConcreteNode';
+import type {ScalarTypeMapping} from 'RelayFlowGenerator';
 import type {DocumentNode, GraphQLSchema} from 'graphql';
 import type {FormatModule} from 'writeRelayGeneratedFile';
 
@@ -47,6 +48,7 @@ export type WriterConfig = {
   baseDir: string,
   formatModule: FormatModule,
   compilerTransforms: CompilerTransforms,
+  customScalars?: ScalarTypeMapping,
   generateExtraFiles?: GenerateExtraFiles,
   outputDir?: string,
   persistQuery?: (text: string) => Promise<string>,
@@ -204,6 +206,7 @@ class RelayFileWriter implements FileWriterInterface {
 
           const flowTypes = RelayFlowGenerator.generate(
             node,
+            this._config.customScalars,
             this._config.inputFieldWhiteListForFlow,
           );
 

@@ -4,7 +4,9 @@
   "license": "BSD-3-Clause",
   "description": "A Code-generation toolkit for GraphQL",
   "main": "GraphQLCompilerPublic.js",
-  "dependencies": {},
+  "dependencies": {
+    "immutable": "^3.8.1"
+  },
   "devDependencies": {},
   "scripts": {
     "test": "true"

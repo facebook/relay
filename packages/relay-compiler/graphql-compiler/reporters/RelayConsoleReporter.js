@@ -14,7 +14,6 @@
 'use strict';
 
 const chalk = require('chalk');
-const process = require('process');
 
 import type {RelayReporter} from './RelayReporter';
 

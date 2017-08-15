@@ -137,34 +137,60 @@ function createClassicAST(t, definition) {
       const fragmentName = node.name.value;
       let fragmentArgumentsAST = null;
       let substitutionName = null;
+      let isMasked = true;
 
       if (directives.length === 0) {
         substitutionName = fragmentName;
       } else {
-        // TODO: add support for @include and other directives.
+        // TODO: maybe add support when unmasked fragment has arguments.
         const directive = directives[0];
-        if (directives.length !== 1 || directive.name.value !== 'arguments') {
-          throw new Error(
-            'BabelPluginRelay: Unsupported directive `' +
-              directive.name.value +
-              '` on fragment spread `...' +
-              fragmentName +
-              '`.',
-          );
+        invariant(
+          directives.length === 1,
+          'BabelPluginRelay: Cannot use both `@arguments` and `@relay(mask: false)` on the ' +
+            'same fragment spread when in compat mode.',
+        );
+        switch (directive.name.value) {
+          case 'arguments':
+            const fragmentArgumentsObject = {};
+            directive.arguments.forEach(argNode => {
+              const arg = convertArgument(t, argNode);
+              fragmentArgumentsObject[arg.name] = arg.ast;
+            });
+            fragmentArgumentsAST = createObject(t, fragmentArgumentsObject);
+            fragmentID++;
+            substitutionName = fragmentName + '_args' + fragmentID;
+            break;
+          case 'relay':
+            const relayArguments = directive.arguments;
+            invariant(
+              relayArguments.length === 1 &&
+                relayArguments[0].name.value === 'mask',
+              'BabelPluginRelay: Expected `@relay` directive to only have `mask` argument in ' +
+                'compat mode, but get %s',
+              relayArguments[0].name.value,
+            );
+            substitutionName = fragmentName;
+            isMasked = relayArguments[0].value.value !== false;
+            break;
+          default:
+            throw new Error(
+              'BabelPluginRelay: Unsupported directive `' +
+                directive.name.value +
+                '` on fragment spread `...' +
+                fragmentName +
+                '`.',
+            );
         }
-        const fragmentArgumentsObject = {};
-        directive.arguments.forEach(argNode => {
-          const arg = convertArgument(t, argNode);
-          fragmentArgumentsObject[arg.name] = arg.ast;
-        });
-        fragmentArgumentsAST = createObject(t, fragmentArgumentsObject);
-        fragmentID++;
-        substitutionName = fragmentName + '_args' + fragmentID;
       }
 
+      invariant(
+        substitutionName,
+        'BabelPluginRelay: Expected `substitutionName` to be non-null',
+      );
       fragments[substitutionName] = {
         name: fragmentName,
         args: fragmentArgumentsAST,
+        isMasked,
       };
       return Object.assign({}, node, {
         name: {kind: 'Name', value: substitutionName},
@@ -392,10 +418,36 @@ function createSubstitutionsForFragmentSpreads(t, path, fragments) {
   return Object.keys(fragments).map(varName => {
     const fragment = fragments[varName];
     const [module, propName] = getFragmentNameParts(fragment.name);
-    return t.variableDeclarator(
-      t.identifier(varName),
-      createGetFragmentCall(t, path, module, propName, fragment.args),
-    );
+    if (!fragment.isMasked) {
+      invariant(
+        path.scope.hasBinding(module),
+        'BabelPluginRelay: Please make sure module %s is imported and not renamed. ' +
+          module,
+      );
+      const fragmentProp = t.memberExpression(
+        t.identifier(module),
+        t.identifier(propName),
+      );
+      return t.variableDeclarator(
+        t.identifier(varName),
+        t.memberExpression(
+          t.callExpression(
+            t.memberExpression(
+              t.identifier(RELAY_QL_GENERATED),
+              t.identifier('__getClassicFragment'),
+            ),
+            [fragmentProp],
+          ),
+          // Hack to extract 'ConcreteFragment' from 'ConcreteFragmentDefinition'
+          t.identifier('node'),
+        ),
+      );
+    } else {
+      return t.variableDeclarator(
+        t.identifier(varName),
+        createGetFragmentCall(t, path, module, propName, fragment.args),
+      );
+    }
   });
 }
 

@@ -20,8 +20,13 @@ const RelayRouteFragment = require('RelayRouteFragment');
 const generateConcreteFragmentID = require('generateConcreteFragmentID');
 const invariant = require('invariant');
 
-import type {ConcreteFragment} from 'ConcreteQuery';
+import type {
+  ConcreteFragment,
+  ConcreteFragmentDefinition,
+  ConcreteOperationDefinition,
+} from 'ConcreteQuery';
 import type {VariableMapping} from 'RelayFragmentReference';
+import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 
 export type RelayConcreteNode = mixed;
 
@@ -57,6 +62,8 @@ function assertValidFragment(substitution: any): void {
       "`${Child.getFragment('name')}`.",
   );
 }
+
+const CLASSIC_NODE = '__classic_node__';
 
 /**
  * Private helper methods used by the transformed code.
@@ -96,6 +103,62 @@ Object.assign(RelayQL, {
     variableMapping: VariableMapping,
   ): RelayFragmentReference {
     return new RelayFragmentReference(() => fragment, null, variableMapping);
+  },
+
+  /**
+   * Memoizes the results of executing the `.classic()` functions on
+   * graphql`...` tagged expressions. Memoization allows the framework to use
+   * object equality checks to compare fragments (useful, for example, when
+   * comparing two `Selector`s to see if they select the same data).
+   */
+  __getClassicNode(taggedNode) {
+    let concreteNode = (taggedNode: any)[CLASSIC_NODE];
+    if (concreteNode == null) {
+      const fn = taggedNode.classic;
+      invariant(
+        typeof fn === 'function',
+        'RelayQL: Expected a graphql literal, got `%s`.\n' +
+          'The "relay" Babel plugin must enable "compat" mode to be used with ' +
+          '"react-relay/compat" or "react-relay/classic".\n' +
+          'See: https://facebook.github.io/relay/docs/babel-plugin-relay.html',
+        JSON.stringify(taggedNode),
+      );
+      concreteNode = fn(this);
+      (taggedNode: any)[CLASSIC_NODE] = concreteNode;
+    }
+    return concreteNode;
+  },
+
+  __getClassicFragment(
+    taggedNode: GraphQLTaggedNode,
+  ): ConcreteFragmentDefinition {
+    const concreteNode = this.__getClassicNode(taggedNode);
+    const fragment = QueryBuilder.getFragmentDefinition(concreteNode);
+    invariant(
+      fragment,
+      'RelayQL: Expected a fragment, got `%s`.\n' +
+        'The "relay" Babel plugin must enable "compat" mode to be used with ' +
+        '"react-relay/compat" or "react-relay/classic".\n' +
+        'See: https://facebook.github.io/relay/docs/babel-plugin-relay.html',
+      concreteNode,
+    );
+    return fragment;
+  },
+
+  __getClassicOperation(
+    taggedNode: GraphQLTaggedNode,
+  ): ConcreteOperationDefinition {
+    const concreteNode = this.__getClassicNode(taggedNode);
+    const operation = QueryBuilder.getOperationDefinition(concreteNode);
+    invariant(
+      operation,
+      'RelayQL: Expected an operation, got `%s`.\n' +
+        'The "relay" Babel plugin must enable "compat" mode to be used with ' +
+        '"react-relay/compat" or "react-relay/classic".\n' +
+        'See: https://facebook.github.io/relay/docs/babel-plugin-relay.html',
+      concreteNode,
+    );
+    return operation;
   },
 });
 

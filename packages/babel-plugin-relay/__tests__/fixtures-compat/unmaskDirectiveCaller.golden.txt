@@ -1,0 +1,81 @@
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule CompatUtil
+ */
+
+'use strict';
+
+const graphql = require('graphql');
+const CompatUtil = require('CompatUtil');
+const CompatPage = require('CompatPage');
+
+module.exports = Relay.createFragmentContainer(CompatProfile, {
+  viewer: {
+    modern: function () {
+      return require('./__generated__/CompatProfile_viewer.graphql');
+    },
+    classic: function (RelayQL_GENERATED) {
+      const CompatUtil_viewer1 = RelayQL_GENERATED.__getClassicFragment(CompatUtil.viewer1).node;
+
+      return {
+        kind: 'FragmentDefinition',
+        argumentDefinitions: [],
+        node: function () {
+          return {
+            children: [].concat.apply([], [{
+              children: [{
+                fieldName: 'count',
+                kind: 'Field',
+                metadata: {},
+                type: 'Int'
+              }],
+              fieldName: 'marketplace_explore',
+              kind: 'Field',
+              metadata: {
+                canHaveSubselections: true
+              },
+              type: 'MarketplaceExploreConnection'
+            }, RelayQL_GENERATED.__frag(CompatUtil_viewer1)]),
+            id: RelayQL_GENERATED.__id(),
+            kind: 'Fragment',
+            metadata: {},
+            name: 'CompatProfile_viewer',
+            type: 'Viewer'
+          };
+        }()
+      };
+    }
+  },
+
+  page: {
+    modern: function () {
+      return require('./__generated__/CompatProfile_page.graphql');
+    },
+    classic: function (RelayQL_GENERATED) {
+      const CompatPage_page = CompatPage.getFragment('page');
+      return {
+        kind: 'FragmentDefinition',
+        argumentDefinitions: [],
+        node: function () {
+          return {
+            children: [].concat.apply([], [{
+              fieldName: 'id',
+              kind: 'Field',
+              metadata: {
+                isGenerated: true,
+                isRequisite: true
+              },
+              type: 'ID'
+            }, RelayQL_GENERATED.__frag(CompatPage_page)]),
+            id: RelayQL_GENERATED.__id(),
+            kind: 'Fragment',
+            metadata: {},
+            name: 'CompatProfile_page',
+            type: 'Page'
+          };
+        }()
+      };
+    }
+  }
+});

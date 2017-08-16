@@ -48,7 +48,7 @@ function createRelayNetworkLogger(
         operation: ConcreteBatch,
         variables: Variables,
         cacheConfig: ?CacheConfig,
-        uploadables?: UploadableMap,
+        uploadables?: ?UploadableMap,
       ): PromiseOrValue<QueryPayload> => {
         const loggerTransaction = new LoggerTransaction({
           operation,

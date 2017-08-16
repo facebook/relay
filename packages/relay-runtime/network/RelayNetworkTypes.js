@@ -15,6 +15,7 @@
 
 import type {CacheConfig, Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {ConcreteBatch} from 'RelayConcreteNode';
+import type RelayObservable from 'RelayObservable';
 import type {
   HandleFieldPayload,
   MutableRecordSource,
@@ -35,6 +36,7 @@ export interface ResponseCache {
  * queries.
  */
 export interface Network {
+  observe: ObserveFunction,
   fetch: FetchFunction,
   request: RequestResponseFunction,
   requestStream: RequestStreamFunction,
@@ -61,6 +63,17 @@ export type QueryPayload = {|
 |};
 
 /**
+ * A function that returns an Observable representing the response of executing
+ * a GraphQL operation.
+ */
+export type ObserveFunction = (
+  operation: ConcreteBatch,
+  variables: Variables,
+  cacheConfig?: ?CacheConfig,
+  uploadables?: ?UploadableMap,
+) => RelayObservable<QueryPayload>;
+
+/**
  * The shape of data that is returned by the Relay network layer for a given
  * query.
  */
@@ -80,7 +93,7 @@ export type FetchFunction = (
   operation: ConcreteBatch,
   variables: Variables,
   cacheConfig: ?CacheConfig,
-  uploadables?: UploadableMap,
+  uploadables?: ?UploadableMap,
 ) => PromiseOrValue<QueryPayload>;
 
 /**
@@ -115,7 +128,7 @@ export type RequestResponseFunction = (
   operation: ConcreteBatch,
   variables: Variables,
   cacheConfig?: ?CacheConfig,
-  uploadables?: UploadableMap,
+  uploadables?: ?UploadableMap,
 ) => PromiseOrValue<RelayResponsePayload>;
 
 export type Uploadable = File | Blob;

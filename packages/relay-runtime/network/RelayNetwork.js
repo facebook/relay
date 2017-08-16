@@ -40,11 +40,27 @@ import type {Variables} from 'RelayTypes';
  * `RelayNetworkTypes` given a single `fetch` function.
  */
 function create(fetch: FetchFunction, subscribe?: SubscribeFunction): Network {
+  function observe(
+    operation: ConcreteBatch,
+    variables: Variables,
+    cacheConfig?: ?CacheConfig,
+    uploadables?: ?UploadableMap,
+  ): RelayObservable<QueryPayload> {
+    return observeStream(
+      fetch,
+      subscribe,
+      operation,
+      variables,
+      cacheConfig,
+      uploadables,
+    );
+  }
+
   function request(
     operation: ConcreteBatch,
     variables: Variables,
     cacheConfig?: ?CacheConfig,
-    uploadables?: UploadableMap,
+    uploadables?: ?UploadableMap,
   ): PromiseOrValue<RelayResponsePayload> {
     return observeFetch(fetch, operation, variables, cacheConfig, uploadables)
       .map(payload => normalizePayload(operation, variables, payload))
@@ -64,6 +80,7 @@ function create(fetch: FetchFunction, subscribe?: SubscribeFunction): Network {
   }
 
   return {
+    observe,
     fetch,
     request,
     requestStream,
@@ -75,7 +92,7 @@ function observeFetch(
   operation: ConcreteBatch,
   variables: Variables,
   cacheConfig?: ?CacheConfig,
-  uploadables?: UploadableMap,
+  uploadables?: ?UploadableMap,
 ): RelayObservable<QueryPayload> {
   const result: ObservableOrPromiseOrValue<QueryPayload> = fetch(
     operation,
@@ -92,6 +109,7 @@ function observeStream(
   operation: ConcreteBatch,
   variables: Variables,
   cacheConfig: ?CacheConfig,
+  uploadables: ?UploadableMap,
 ): RelayObservable<QueryPayload> {
   const subscribe_ = subscribe; // Tell Flow this function arg is const.
   if (operation.query.operation === 'subscription') {
@@ -101,6 +119,8 @@ function observeStream(
         'To use Subscriptions, provide a custom network layer.',
     );
 
+    invariant(!uploadables, 'Cannot provide uploadables while subscribing.');
+
     return RelayObservable.fromLegacy(observer =>
       subscribe_(operation, variables, null, observer),
     );
@@ -108,12 +128,13 @@ function observeStream(
 
   const pollInterval = cacheConfig && cacheConfig.poll;
   if (pollInterval != null) {
+    invariant(!uploadables, 'Cannot provide uploadables while polling.');
     return observeFetch(fetch, operation, variables, {force: true}).poll(
       pollInterval,
     );
   }
 
-  return observeFetch(fetch, operation, variables, cacheConfig);
+  return observeFetch(fetch, operation, variables, cacheConfig, uploadables);
 }
 
 module.exports = {create};

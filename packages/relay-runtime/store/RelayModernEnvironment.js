@@ -108,6 +108,17 @@ class RelayModernEnvironment implements Environment {
     return {dispose};
   }
 
+  revertUpdate(update: OptimisticUpdate): void {
+    this._publishQueue.revertUpdate(update);
+    this._publishQueue.run();
+  }
+
+  replaceUpdate(update: OptimisticUpdate, newUpdate: OptimisticUpdate): void {
+    this._publishQueue.revertUpdate(update);
+    this._publishQueue.applyUpdate(newUpdate);
+    this._publishQueue.run();
+  }
+
   applyMutation({
     operation,
     optimisticResponse,
@@ -117,18 +128,11 @@ class RelayModernEnvironment implements Environment {
     optimisticUpdater?: ?SelectorStoreUpdater,
     optimisticResponse?: Object,
   }): Disposable {
-    const optimisticUpdate = {
-      operation: operation,
+    return this.applyUpdate({
+      operation,
       selectorStoreUpdater: optimisticUpdater,
       response: optimisticResponse || null,
-    };
-    const dispose = () => {
-      this._publishQueue.revertUpdate(optimisticUpdate);
-      this._publishQueue.run();
-    };
-    this._publishQueue.applyUpdate(optimisticUpdate);
-    this._publishQueue.run();
-    return {dispose};
+    });
   }
 
   check(readSelector: Selector): boolean {

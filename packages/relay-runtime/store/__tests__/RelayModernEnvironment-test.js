@@ -347,6 +347,41 @@ describe('RelayModernEnvironment', () => {
       expect(callback.mock.calls.length).toBe(1);
       expect(callback.mock.calls[0][0].data).toEqual(undefined);
     });
+
+    it('can replace one mutation with another', () => {
+      const selector = {
+        dataID: '4',
+        node: UserFragment,
+        variables: {},
+      };
+      const callback = jest.fn();
+      const snapshot = environment.lookup(selector);
+      environment.subscribe(snapshot, callback);
+
+      callback.mockClear();
+      const updater = {
+        storeUpdater: proxyStore => {
+          const zuck = proxyStore.create('4', 'User');
+          zuck.setValue('4', 'id');
+        },
+      };
+      environment.applyUpdate(updater);
+      environment.replaceUpdate(updater, {
+        storeUpdater: proxyStore => {
+          const zuck = proxyStore.create('4', 'User');
+          zuck.setValue('4', 'id');
+          zuck.setValue('zuck', 'name');
+        },
+      });
+      expect(callback.mock.calls.length).toBe(2);
+      expect(callback.mock.calls[0][0].data).toEqual({
+        id: '4',
+      });
+      expect(callback.mock.calls[1][0].data).toEqual({
+        id: '4',
+        name: 'zuck',
+      });
+    });
   });
 
   describe('commitPayload()', () => {

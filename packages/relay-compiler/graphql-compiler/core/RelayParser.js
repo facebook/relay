@@ -793,6 +793,12 @@ class RelayParser {
             items,
           };
         }
+      case 'NullValue':
+        return {
+          kind: 'Literal',
+          metadata: null,
+          value: null,
+        };
       case 'ObjectValue':
         const literalObject = {};
         const fields = [];

@@ -261,6 +261,31 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['complete']);
       expect(unhandledErrors).toEqual([error]);
     });
+
+    it('Error from unsubscribe handler is unhandled', () => {
+      const list = [];
+      const error = new Error();
+
+      const unhandledErrors = [];
+      RelayObservable.onUnhandledError(err => {
+        unhandledErrors.push(err);
+      });
+
+      const sub = new RelayObservable(sink => {}).subscribe({
+        next: val => list.push('next:' + val),
+        error: err => list.push(err),
+        complete: () => list.push('complete'),
+        unsubscribe: () => {
+          list.push('unsubscribe');
+          throw error;
+        },
+      });
+
+      sub.unsubscribe();
+
+      expect(list).toEqual(['unsubscribe']);
+      expect(unhandledErrors).toEqual([error]);
+    });
   });
 
   describe('unsubscribe', () => {
@@ -297,13 +322,14 @@ describe('RelayObservable', () => {
         next: val => list.push('next:' + val),
         error: err => list.push(err),
         complete: () => list.push('complete'),
+        unsubscribe: () => list.push('unsubscribe'),
       });
 
       sink.next(1);
       sub.unsubscribe();
       sink.complete();
 
-      expect(list).toEqual(['next:1']);
+      expect(list).toEqual(['next:1', 'unsubscribe']);
     });
 
     it('Errors after unsubscribe are unhandled', () => {
@@ -334,6 +360,43 @@ describe('RelayObservable', () => {
       expect(unhandledErrors).toEqual([error]);
 
       expect(list).toEqual(['next:1']);
+    });
+
+    it('calls observer with subscription', () => {
+      const list = [];
+      let unsubSub;
+      let unsubThis;
+
+      const obs = new RelayObservable(sink => {
+        list.push('called source');
+        return () => list.push('cleanup');
+      });
+
+      const observer = {
+        start: () => list.push('start'),
+        next: val => list.push('next:' + val),
+        error: err => list.push(err),
+        complete: () => list.push('complete'),
+        unsubscribe(subscription) {
+          list.push('unsubscribe');
+          unsubSub = subscription;
+          // eslint-disable-next-line consistent-this
+          unsubThis = this;
+        },
+      };
+
+      const sub = obs.subscribe(observer);
+      sub.unsubscribe();
+
+      expect(unsubSub).toBe(sub);
+      expect(unsubThis).toBe(observer);
+
+      expect(list).toEqual([
+        'start',
+        'called source',
+        'unsubscribe',
+        'cleanup',
+      ]);
     });
   });
 
@@ -442,12 +505,13 @@ describe('RelayObservable', () => {
         next: val => list.push('next:' + val),
         error: err => list.push(err),
         complete: () => list.push('complete'),
+        unsubscribe: () => list.push('unsubscribe'),
       });
 
       sink.next(1);
       sub.unsubscribe();
 
-      expect(list).toEqual(['next:1', 'cleanup']);
+      expect(list).toEqual(['next:1', 'unsubscribe', 'cleanup']);
     });
 
     it('Does not cleanup twice after double unsubscribe', () => {
@@ -463,13 +527,14 @@ describe('RelayObservable', () => {
         next: val => list.push('next:' + val),
         error: err => list.push(err),
         complete: () => list.push('complete'),
+        unsubscribe: () => list.push('unsubscribe'),
       });
 
       sink.next(1);
       sub.unsubscribe();
       sub.unsubscribe();
 
-      expect(list).toEqual(['next:1', 'cleanup']);
+      expect(list).toEqual(['next:1', 'unsubscribe', 'cleanup']);
     });
 
     it('Calls cleanup after error handler throws', () => {
@@ -492,6 +557,7 @@ describe('RelayObservable', () => {
           throw err;
         },
         complete: () => list.push('complete'),
+        unsubscribe: () => list.push('unsubscribe'),
       });
 
       sink.next(1);
@@ -521,6 +587,7 @@ describe('RelayObservable', () => {
           list.push('complete');
           throw error;
         },
+        unsubscribe: () => list.push('unsubscribe'),
       });
 
       sink.next(1);
@@ -673,9 +740,10 @@ describe('RelayObservable', () => {
         next: val => list.push('next:' + val),
         error: err => list.push(err),
         complete: () => list.push('complete'),
+        unsubscribe: () => list.push('unsubscribe'),
       });
 
-      expect(list).toEqual(['start']);
+      expect(list).toEqual(['start', 'unsubscribe']);
     });
 
     it('Error from start handler is unhandled', () => {
@@ -1525,6 +1593,71 @@ describe('RelayObservable', () => {
         error,
         'subscriber: error',
         error,
+        'cleanup cities',
+      ]);
+    });
+
+    it('Performs side effects on unsubscribe', () => {
+      const list = [];
+
+      const cities = new RelayObservable(sink => {
+        list.push('begin cities');
+        sink.next('Athens');
+        return () => list.push('cleanup cities');
+      });
+
+      const citiesWithSideEffects = cities.do({
+        start() {
+          list.push('do: started');
+        },
+        next(value) {
+          list.push('do: value');
+          list.push(value);
+        },
+        error(err) {
+          list.push('do: error');
+          list.push(err);
+        },
+        complete() {
+          list.push('do: complete');
+        },
+        unsubscribe() {
+          list.push('do: unsubscribe');
+        },
+      });
+
+      const subscription = citiesWithSideEffects.subscribe({
+        start() {
+          list.push('subscriber: started');
+        },
+        next(value) {
+          list.push('subscriber: value');
+          list.push(value);
+        },
+        error(err) {
+          list.push('subscriber: error');
+          list.push(err);
+        },
+        complete() {
+          list.push('subscriber: complete');
+        },
+        unsubscribe() {
+          list.push('subscriber: unsubscribe');
+        },
+      });
+
+      subscription.unsubscribe();
+
+      expect(list).toEqual([
+        'subscriber: started',
+        'do: started',
+        'begin cities',
+        'do: value',
+        'Athens',
+        'subscriber: value',
+        'Athens',
+        'subscriber: unsubscribe',
+        'do: unsubscribe',
         'cleanup cities',
       ]);
     });

@@ -27,6 +27,7 @@ type Observer<T> = {
   next?: ?(T) => mixed,
   error?: ?(Error) => mixed,
   complete?: ?() => mixed,
+  unsubscribe?: ?(Subscription) => mixed,
 };
 
 type Sink<T> = {|
@@ -159,6 +160,7 @@ class RelayObservable<T> implements Subscribable<T> {
         next: both('next'),
         error: both('error'),
         complete: both('complete'),
+        unsubscribe: both('unsubscribe'),
       });
     });
   }
@@ -373,7 +375,15 @@ function subscribe<T>(source: Source<T>, observer: Observer<T>): Subscription {
     unsubscribe() {
       if (!closed) {
         closed = true;
-        doCleanup();
+
+        // Tell Observer that unsubscribe was called.
+        try {
+          observer.unsubscribe && observer.unsubscribe(subscription);
+        } catch (error) {
+          handleError(error);
+        } finally {
+          doCleanup();
+        }
       }
     },
   };

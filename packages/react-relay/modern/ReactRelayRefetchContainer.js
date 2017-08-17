@@ -53,6 +53,9 @@ const containerContextTypes = {
  * props, resolving them with the provided fragments and subscribing for
  * updates.
  */
+/* $FlowFixMe(>=0.53.0 site=react_native_fb) This comment suppresses an error
+ * found when Flow v0.53 was deployed. To see the error delete this comment and
+ * run Flow. */
 function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
   Component: TClass,
   fragments: FragmentMap,
@@ -316,6 +319,9 @@ function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
         );
       } else {
         // Stateless functional, doesn't support `ref`
+        /* $FlowFixMe(>=0.53.0 site=react_native_fb) This comment suppresses an
+         * error found when Flow v0.53 was deployed. To see the error delete
+         * this comment and run Flow. */
         return React.createElement(Component, {
           ...this.props,
           ...this.state.data,

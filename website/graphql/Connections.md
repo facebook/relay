@@ -31,7 +31,7 @@ An example of all four of those is the following query:
 ```
 
 In this case, `friends` is a connection. That query demonstrates the four
-features describe above:
+features described above:
 
  - Slicing is done with the `first` argument to `friends`. This asks for the
 connection to return 10 friends.

@@ -25,10 +25,11 @@ import type {ConcreteBatch} from 'RelayConcreteNode';
 import type {
   FetchFunction,
   Network,
-  RelayResponsePayload,
-  SubscribeFunction,
+  ObserveFunction,
   PromiseOrValue,
   QueryPayload,
+  RelayResponsePayload,
+  SubscribeFunction,
   UploadableMap,
 } from 'RelayNetworkTypes';
 import type {ObservableOrPromiseOrValue} from 'RelayObservable';
@@ -37,23 +38,59 @@ import type {Variables} from 'RelayTypes';
 
 /**
  * Creates an implementation of the `Network` interface defined in
- * `RelayNetworkTypes` given a single `fetch` function.
+ * `RelayNetworkTypes` given `fetch` and `subscribe` functions.
  */
-function create(fetch: FetchFunction, subscribe?: SubscribeFunction): Network {
+function create(
+  fetchFn: FetchFunction,
+  subscribeFn?: SubscribeFunction,
+): Network {
+  // Convert to functions that returns RelayObservable.
+  const observeFetch = convertFetch(fetchFn);
+  const observeSubscribe = convertSubscribe(subscribeFn);
+
   function observe(
     operation: ConcreteBatch,
     variables: Variables,
     cacheConfig?: ?CacheConfig,
     uploadables?: ?UploadableMap,
   ): RelayObservable<QueryPayload> {
-    return observeStream(
-      fetch,
-      subscribe,
-      operation,
-      variables,
-      cacheConfig,
-      uploadables,
-    );
+    if (operation.query.operation === 'subscription') {
+      invariant(
+        observeSubscribe,
+        'RelayNetwork: This network layer does not support Subscriptions. ' +
+          'To use Subscriptions, provide a custom network layer.',
+      );
+
+      invariant(
+        !uploadables,
+        'RelayNetwork: Cannot provide uploadables while subscribing.',
+      );
+      return observeSubscribe(operation, variables, cacheConfig);
+    }
+
+    const pollInterval = cacheConfig && cacheConfig.poll;
+    if (pollInterval != null) {
+      invariant(
+        !uploadables,
+        'RelayNetwork: Cannot provide uploadables while polling.',
+      );
+      return observeFetch(operation, variables, {force: true}).poll(
+        pollInterval,
+      );
+    }
+
+    return observeFetch(operation, variables, cacheConfig, uploadables);
+  }
+
+  function fetch(
+    operation: ConcreteBatch,
+    variables: Variables,
+    cacheConfig?: ?CacheConfig,
+    uploadables?: ?UploadableMap,
+  ): PromiseOrValue<QueryPayload> {
+    return observeFetch(operation, variables, cacheConfig, uploadables)
+      .toPromise()
+      .then(nullthrows);
   }
 
   function request(
@@ -62,7 +99,7 @@ function create(fetch: FetchFunction, subscribe?: SubscribeFunction): Network {
     cacheConfig?: ?CacheConfig,
     uploadables?: ?UploadableMap,
   ): PromiseOrValue<RelayResponsePayload> {
-    return observeFetch(fetch, operation, variables, cacheConfig, uploadables)
+    return observeFetch(operation, variables, cacheConfig, uploadables)
       .map(payload => normalizePayload(operation, variables, payload))
       .toPromise()
       .then(nullthrows);
@@ -74,7 +111,7 @@ function create(fetch: FetchFunction, subscribe?: SubscribeFunction): Network {
     cacheConfig: ?CacheConfig,
     observer: Observer<RelayResponsePayload>,
   ): Disposable {
-    return observeStream(fetch, subscribe, operation, variables, cacheConfig)
+    return observe(operation, variables, cacheConfig)
       .map(payload => normalizePayload(operation, variables, payload))
       .subscribeLegacy(observer);
   }
@@ -87,54 +124,28 @@ function create(fetch: FetchFunction, subscribe?: SubscribeFunction): Network {
   };
 }
 
-function observeFetch(
-  fetch: FetchFunction,
-  operation: ConcreteBatch,
-  variables: Variables,
-  cacheConfig?: ?CacheConfig,
-  uploadables?: ?UploadableMap,
-): RelayObservable<QueryPayload> {
-  const result: ObservableOrPromiseOrValue<QueryPayload> = fetch(
-    operation,
-    variables,
-    cacheConfig,
-    uploadables,
-  );
-  return RelayObservable.from(result);
+function convertFetch(fn: FetchFunction): ObserveFunction {
+  return function fetch(operation, variables, cacheConfig, uploadables) {
+    const result: ObservableOrPromiseOrValue<QueryPayload> = fn(
+      operation,
+      variables,
+      cacheConfig,
+      uploadables,
+    );
+    return RelayObservable.from(result);
+  };
 }
 
-function observeStream(
-  fetch: FetchFunction,
-  subscribe: ?SubscribeFunction,
-  operation: ConcreteBatch,
-  variables: Variables,
-  cacheConfig: ?CacheConfig,
-  uploadables: ?UploadableMap,
-): RelayObservable<QueryPayload> {
-  const subscribe_ = subscribe; // Tell Flow this function arg is const.
-  if (operation.query.operation === 'subscription') {
-    invariant(
-      subscribe_,
-      'The default network layer does not support GraphQL Subscriptions. ' +
-        'To use Subscriptions, provide a custom network layer.',
-    );
-
-    invariant(!uploadables, 'Cannot provide uploadables while subscribing.');
-
+function convertSubscribe(fn: ?SubscribeFunction): ?ObserveFunction {
+  const fn_ = fn; // Tell Flow this function arg is const.
+  if (!fn_) {
+    return;
+  }
+  return function subscribe(operation, variables, cacheConfig) {
     return RelayObservable.fromLegacy(observer =>
-      subscribe_(operation, variables, null, observer),
+      fn_(operation, variables, cacheConfig, observer),
     );
-  }
-
-  const pollInterval = cacheConfig && cacheConfig.poll;
-  if (pollInterval != null) {
-    invariant(!uploadables, 'Cannot provide uploadables while polling.');
-    return observeFetch(fetch, operation, variables, {force: true}).poll(
-      pollInterval,
-    );
-  }
-
-  return observeFetch(fetch, operation, variables, cacheConfig, uploadables);
+  };
 }
 
 module.exports = {create};

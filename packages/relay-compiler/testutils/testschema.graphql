@@ -8,6 +8,7 @@ type Query {
   checkinSearchQuery(query: CheckinSearchInput): CheckinSearchResult
   defaultSettings: Settings,
   route(waypoints: [WayPoint!]!): Route
+  items(filter: ItemFilterInput): ItemFilterResult
   maybeNode: MaybeNode
   neverNode: NeverNode
   me: User
@@ -688,6 +689,14 @@ input StoryCommentSearchInput {
   text: String
   limit: Int
   offset: Int
+}
+
+type ItemFilterResult {
+  date: String
+}
+
+input ItemFilterInput {
+  date: String
 }
 
 type Viewer {

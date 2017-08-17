@@ -257,6 +257,7 @@ function createMockEnvironment(options: {
   mockInstanceMethod(environment, 'lookup');
   mockDisposableMethod(environment, 'retain');
   mockInstanceMethod(environment, 'observe');
+  mockInstanceMethod(environment, 'observeMutation');
   mockDisposableMethod(environment, 'sendMutation');
   mockDisposableMethod(environment, 'sendQuery');
   mockDisposableMethod(environment, 'streamQuery');
@@ -286,6 +287,7 @@ function createMockEnvironment(options: {
     environment.lookup.mockClear();
     environment.retain.mockClear();
     environment.observe.mockClear();
+    environment.observeMutation.mockClear();
     environment.sendMutation.mockClear();
     environment.sendQuery.mockClear();
     environment.streamQuery.mockClear();

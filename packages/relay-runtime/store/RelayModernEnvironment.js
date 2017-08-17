@@ -201,6 +201,107 @@ class RelayModernEnvironment implements Environment {
   }
 
   /**
+   * Returns an Observable of RelayResponsePayload resulting from the provided
+   * Mutation operation, which are normalized and committed to the publish queue
+   * along with an optional optimistic response or updater.
+   *
+   * Note: Observables are lazy, so calling this method will do nothing until
+   * the result is subscribed to:
+   * environment.observeMutation({...}).subscribe({...}).
+   */
+  observeMutation({
+    operation,
+    optimisticResponse,
+    optimisticUpdater,
+    updater,
+    uploadables,
+  }: {
+    operation: OperationSelector,
+    optimisticUpdater?: ?SelectorStoreUpdater,
+    optimisticResponse?: ?Object,
+    updater?: ?SelectorStoreUpdater,
+    uploadables?: ?UploadableMap,
+  }): RelayObservable<RelayResponsePayload> {
+    const {node, variables} = operation;
+    const mutationUid = nextMutationUid();
+
+    let optimisticUpdate;
+    if (optimisticResponse || optimisticUpdater) {
+      optimisticUpdate = {
+        operation: operation,
+        selectorStoreUpdater: optimisticUpdater,
+        response: optimisticResponse || null,
+      };
+    }
+
+    return this._network
+      .observe(node, variables, {force: true}, uploadables)
+      .map(payload => normalizePayload(node, variables, payload))
+      .do({
+        start: () => {
+          if (optimisticUpdate) {
+            this._recordDebuggerEvent({
+              eventName: 'optimistic_update',
+              mutationUid,
+              operation,
+              fn: () => {
+                if (optimisticUpdate) {
+                  this._publishQueue.applyUpdate(optimisticUpdate);
+                }
+                this._publishQueue.run();
+              },
+            });
+          }
+        },
+        next: payload => {
+          this._recordDebuggerEvent({
+            eventName: 'request_commit',
+            mutationUid,
+            operation,
+            payload,
+            fn: () => {
+              if (optimisticUpdate) {
+                this._publishQueue.revertUpdate(optimisticUpdate);
+                optimisticUpdate = undefined;
+              }
+              this._publishQueue.commitPayload(operation, payload, updater);
+              this._publishQueue.run();
+            },
+          });
+        },
+        error: error => {
+          this._recordDebuggerEvent({
+            eventName: 'request_error',
+            mutationUid,
+            operation,
+            payload: error,
+            fn: () => {
+              if (optimisticUpdate) {
+                this._publishQueue.revertUpdate(optimisticUpdate);
+              }
+              this._publishQueue.run();
+            },
+          });
+        },
+        unsubscribe: () => {
+          if (optimisticUpdate) {
+            this._recordDebuggerEvent({
+              eventName: 'optimistic_revert',
+              mutationUid,
+              operation,
+              fn: () => {
+                if (optimisticUpdate) {
+                  this._publishQueue.revertUpdate(optimisticUpdate);
+                }
+                this._publishQueue.run();
+              },
+            });
+          }
+        },
+      });
+  }
+
+  /**
    * @deprecated Use Environment.observe().subscribe()
    */
   sendQuery({
@@ -246,6 +347,9 @@ class RelayModernEnvironment implements Environment {
     });
   }
 
+  /**
+   * @deprecated Use Environment.observeMutation().subscribe()
+   */
   sendMutation({
     onCompleted,
     onError,
@@ -263,98 +367,22 @@ class RelayModernEnvironment implements Environment {
     updater?: ?SelectorStoreUpdater,
     uploadables?: UploadableMap,
   }): Disposable {
-    const mutationUid = nextMutationUid();
-    let hasOptimisticUpdate = !!optimisticResponse || optimisticUpdater;
-    const optimisticUpdate = {
-      operation: operation,
-      selectorStoreUpdater: optimisticUpdater,
-      response: optimisticResponse || null,
-    };
-    if (hasOptimisticUpdate) {
-      this._recordDebuggerEvent({
-        eventName: 'optimistic_update',
-        mutationUid,
-        operation,
-        fn: () => {
-          this._publishQueue.applyUpdate(optimisticUpdate);
-          this._publishQueue.run();
-        },
-      });
-    }
-    let isDisposed = false;
-    const dispose = () => {
-      if (hasOptimisticUpdate) {
-        this._recordDebuggerEvent({
-          eventName: 'optimistic_revert',
-          mutationUid,
-          operation,
-          fn: () => {
-            this._publishQueue.revertUpdate(optimisticUpdate);
-            this._publishQueue.run();
-            hasOptimisticUpdate = false;
-          },
-        });
-      }
-      isDisposed = true;
-    };
-    const onRequestSuccess = payload => {
-      if (isDisposed) {
-        return;
-      }
-
-      this._recordDebuggerEvent({
-        eventName: 'request_commit',
-        mutationUid,
-        operation,
-        payload,
-        fn: () => {
-          if (hasOptimisticUpdate) {
-            this._publishQueue.revertUpdate(optimisticUpdate);
-          }
-          this._publishQueue.commitPayload(operation, payload, updater);
-          this._publishQueue.run();
-        },
-      });
-
-      onCompleted && onCompleted(payload.errors);
-    };
-
-    const onRequestError = error => {
-      if (isDisposed) {
-        return;
-      }
-
-      this._recordDebuggerEvent({
-        eventName: 'request_error',
-        mutationUid,
-        operation,
-        payload: error,
-        fn: () => {
-          if (hasOptimisticUpdate) {
-            this._publishQueue.revertUpdate(optimisticUpdate);
-          }
-          this._publishQueue.run();
-        },
-      });
-      onError && onError(error);
-    };
-
-    const networkRequest = this._network.request(
-      operation.node,
-      operation.variables,
-      {force: true},
+    return this.observeMutation({
+      operation,
+      optimisticResponse,
+      optimisticUpdater,
+      updater,
       uploadables,
-    );
-
-    if (isPromise(networkRequest)) {
-      networkRequest.then(onRequestSuccess).catch(onRequestError);
-    } else {
-      warning(
-        false,
-        'RelayModernEnvironment: mutation request cannot be synchronous.',
-      );
-    }
-    return {dispose};
+    }).subscribeLegacy({
+      // NOTE: sendMutation has a non-standard use of onCompleted() by passing
+      // it a value. When switching to use observeMutation(), the next()
+      // Observer should be used to preserve behavior.
+      onNext: payload => {
+        payload.errors && onCompleted && onCompleted(payload.errors);
+      },
+      onError,
+      onCompleted,
+    });
   }
 
   /**

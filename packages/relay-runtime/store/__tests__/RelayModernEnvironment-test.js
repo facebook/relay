@@ -18,6 +18,7 @@ const RelayMarkSweepStore = require('RelayMarkSweepStore');
 const RelayModernEnvironment = require('RelayModernEnvironment');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 const RelayNetwork = require('RelayNetwork');
+const RelayObservable = require('RelayObservable');
 
 const {createOperationSelector} = require('RelayModernOperationSelector');
 const {ROOT_ID} = require('RelayStoreUtils');
@@ -628,43 +629,14 @@ describe('RelayModernEnvironment', () => {
       onError = jest.fn();
       onNext = jest.fn();
       callbacks = {onCompleted, onError, onNext};
-
-      // eslint-disable-next-line no-shadow
-      fetch = jest.fn((query, variables, cacheConfig, observer) => {
-        let isDisposed = false;
-        subject = {
-          next(data) {
-            if (isDisposed) {
-              return;
-            }
-            // Reuse RelayNetwork's helper for response processing
-            RelayNetwork.create(() => Promise.resolve(data))
-              .request(query, variables, cacheConfig)
-              .then(payload => observer.onNext && observer.onNext(payload))
-              .catch(error => observer.onError && observer.onError(error));
-          },
-          complete() {
-            if (!isDisposed) {
-              observer.onCompleted && onCompleted();
-            }
-          },
-          error(err) {
-            if (!isDisposed) {
-              observer.onError && observer.onError(err);
-            }
-          },
-        };
-        return {
-          dispose() {
-            isDisposed = true;
-          },
-        };
-      });
+      fetch = jest.fn(
+        (_query, _variables, _cacheConfig) =>
+          new RelayObservable(sink => {
+            subject = sink;
+          }),
+      );
       environment = new RelayModernEnvironment({
-        network: {
-          request: () => new Deferred(), // not used in this test
-          requestStream: fetch,
-        },
+        network: RelayNetwork.create(fetch),
         store,
       });
     });

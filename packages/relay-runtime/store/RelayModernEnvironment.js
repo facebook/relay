@@ -20,6 +20,7 @@ const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayPublishQueue = require('RelayPublishQueue');
 
 const isPromise = require('isPromise');
+const normalizePayload = require('normalizePayload');
 const normalizeRelayPayload = require('normalizeRelayPayload');
 const warning = require('warning');
 
@@ -33,6 +34,7 @@ import type {
   RelayResponsePayload,
   UploadableMap,
 } from 'RelayNetworkTypes';
+import type RelayObservable from 'RelayObservable';
 import type {
   Environment,
   MissingFieldHandler,
@@ -169,6 +171,38 @@ class RelayModernEnvironment implements Environment {
     return this._store.retain(selector);
   }
 
+  /**
+   * Returns an Observable of RelayResponsePayload resulting from the provided
+   * Query or Subscription operation, each of which are normalized and committed
+   * to the publish queue.
+   *
+   * Note: Observables are lazy, so calling this method will do nothing until
+   * the result is subscribed to: environment.observe({...}).subscribe({...}).
+   */
+  observe({
+    operation,
+    cacheConfig,
+    updater,
+  }: {
+    operation: OperationSelector,
+    cacheConfig?: ?CacheConfig,
+    updater?: ?SelectorStoreUpdater,
+  }): RelayObservable<RelayResponsePayload> {
+    const {node, variables} = operation;
+    return this._network
+      .observe(node, variables, cacheConfig)
+      .map(payload => normalizePayload(node, variables, payload))
+      .do({
+        next: payload => {
+          this._publishQueue.commitPayload(operation, payload, updater);
+          this._publishQueue.run();
+        },
+      });
+  }
+
+  /**
+   * @deprecated Use Environment.observe().subscribe()
+   */
   sendQuery({
     cacheConfig,
     onCompleted,
@@ -182,40 +216,16 @@ class RelayModernEnvironment implements Environment {
     onNext?: ?(payload: RelayResponsePayload) => void,
     operation: OperationSelector,
   }): Disposable {
-    let isDisposed = false;
-    const dispose = () => {
-      isDisposed = true;
-    };
-    const onRequestSuccess = payload => {
-      if (isDisposed) {
-        return;
-      }
-      this._publishQueue.commitPayload(operation, payload);
-      this._publishQueue.run();
-      onNext && onNext(payload);
-      onCompleted && onCompleted();
-    };
-    const onRequestError = error => {
-      if (isDisposed) {
-        return;
-      }
-      onError && onError(error);
-    };
-    const networkRequest = this._network.request(
-      operation.node,
-      operation.variables,
-      cacheConfig,
-    );
-    if (isPromise(networkRequest)) {
-      networkRequest.then(onRequestSuccess).catch(onRequestError);
-    } else if (networkRequest instanceof Error) {
-      onRequestError(networkRequest);
-    } else {
-      onRequestSuccess(networkRequest);
-    }
-    return {dispose};
+    return this.observe({operation, cacheConfig}).subscribeLegacy({
+      onNext,
+      onError,
+      onCompleted,
+    });
   }
 
+  /**
+   * @deprecated Use Environment.observe().subscribe()
+   */
   streamQuery({
     cacheConfig,
     onCompleted,
@@ -229,20 +239,11 @@ class RelayModernEnvironment implements Environment {
     onNext?: ?(payload: RelayResponsePayload) => void,
     operation: OperationSelector,
   }): Disposable {
-    return this._network.requestStream(
-      operation.node,
-      operation.variables,
-      cacheConfig,
-      {
-        onCompleted,
-        onError,
-        onNext: payload => {
-          this._publishQueue.commitPayload(operation, payload);
-          this._publishQueue.run();
-          onNext && onNext(payload);
-        },
-      },
-    );
+    return this.observe({operation, cacheConfig}).subscribeLegacy({
+      onNext,
+      onError,
+      onCompleted,
+    });
   }
 
   sendMutation({
@@ -356,6 +357,9 @@ class RelayModernEnvironment implements Environment {
     return {dispose};
   }
 
+  /**
+   * @deprecated Use Environment.observe().subscribe()
+   */
   sendSubscription({
     onCompleted,
     onNext,
@@ -369,20 +373,11 @@ class RelayModernEnvironment implements Environment {
     operation: OperationSelector,
     updater?: ?SelectorStoreUpdater,
   }): Disposable {
-    return this._network.requestStream(
-      operation.node,
-      operation.variables,
-      {force: true},
-      {
-        onCompleted,
-        onError,
-        onNext: payload => {
-          this._publishQueue.commitPayload(operation, payload, updater);
-          this._publishQueue.run();
-          onNext && onNext(payload);
-        },
-      },
-    );
+    return this.observe({
+      operation,
+      updater,
+      cacheConfig: {force: true},
+    }).subscribeLegacy({onNext, onError, onCompleted});
   }
 
   _recordDebuggerEvent({

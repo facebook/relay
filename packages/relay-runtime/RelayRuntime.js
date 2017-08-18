@@ -36,8 +36,11 @@ export type {
   ConcreteBatch,
   ConcreteFragment,
 } from 'RelayConcreteNode';
-
-export type {Subscription} from 'RelayObservable';
+export type {
+  ObservableFromValue,
+  Subscribable,
+  Subscription,
+} from 'RelayObservable';
 
 // As early as possible, check for the existence of the JavaScript globals which
 // Relay Runtime relies upon, and produce a clear message if they do not exist.

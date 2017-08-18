@@ -15,7 +15,7 @@
 
 import type {CacheConfig, Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {ConcreteBatch} from 'RelayConcreteNode';
-import type RelayObservable from 'RelayObservable';
+import type RelayObservable, {ObservableFromValue} from 'RelayObservable';
 import type {
   HandleFieldPayload,
   MutableRecordSource,
@@ -37,7 +37,7 @@ export interface ResponseCache {
  */
 export interface Network {
   observe: ObserveFunction,
-  fetch: FetchFunction,
+  fetch: NetworkFetchFunction,
   request: RequestResponseFunction,
   requestStream: RequestStreamFunction,
 }
@@ -86,26 +86,42 @@ export type RelayResponsePayload = {|
 export type PromiseOrValue<T> = Promise<T> | T | Error;
 
 /**
- * A function that executes a GraphQL operation with request/response semantics,
- * with exactly one raw server response returned
+ * A function that executes a GraphQL operation with request/response semantics.
+ *
+ * May return an Observable or Promise of a raw server response.
  */
 export type FetchFunction = (
   operation: ConcreteBatch,
   variables: Variables,
   cacheConfig: ?CacheConfig,
-  uploadables?: ?UploadableMap,
-) => PromiseOrValue<QueryPayload>;
+  uploadables: ?UploadableMap,
+) => ObservableFromValue<QueryPayload>;
 
 /**
- * A function that executes a GraphQL operation with request/subscription
- * semantics, returning one or more raw server responses over time.
+ * A function that executes a GraphQL subscription operation, returning one or
+ * more raw server responses over time.
+ *
+ * May return an Observable, otherwise must call the callbacks found in the
+ * fourth parameter.
  */
 export type SubscribeFunction = (
   operation: ConcreteBatch,
   variables: Variables,
   cacheConfig: ?CacheConfig,
   observer: Observer<QueryPayload>,
-) => Disposable;
+) => RelayObservable<QueryPayload> | Disposable;
+
+/**
+ * A function that executes a GraphQL operation with request/response semantics.
+ *
+ * Returns a Promise of a raw server response.
+ */
+export type NetworkFetchFunction = (
+  operation: ConcreteBatch,
+  variables: Variables,
+  cacheConfig: ?CacheConfig,
+  uploadables?: ?UploadableMap,
+) => PromiseOrValue<QueryPayload>;
 
 /**
  * A function that executes a GraphQL operation with request/subscription

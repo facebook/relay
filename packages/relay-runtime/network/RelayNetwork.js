@@ -34,7 +34,6 @@ import type {
   SubscribeFunction,
   UploadableMap,
 } from 'RelayNetworkTypes';
-import type {ObservableOrPromiseOrValue} from 'RelayObservable';
 import type {Observer} from 'RelayStoreTypes';
 import type {Variables} from 'RelayTypes';
 

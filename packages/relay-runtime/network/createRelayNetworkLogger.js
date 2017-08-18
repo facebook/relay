@@ -53,9 +53,7 @@ function createRelayNetworkLogger(
           LoggerTransaction,
           graphiQLPrinter,
         );
-        return wrapped(operation, variables, cacheConfig, uploadables)
-          .toPromise()
-          .then(nullthrows);
+        return wrapped(operation, variables, cacheConfig, uploadables);
       };
     },
 
@@ -63,15 +61,13 @@ function createRelayNetworkLogger(
       subscribe: SubscribeFunction,
       graphiQLPrinter?: GraphiQLPrinter,
     ): SubscribeFunction {
-      return (operation, variables, cacheConfig, observer) => {
+      return (operation, variables, cacheConfig) => {
         const wrapped = wrapObserve(
           convertSubscribe(subscribe),
           LoggerTransaction,
           graphiQLPrinter,
         );
-        return wrapped(operation, variables, cacheConfig).subscribeLegacy(
-          observer,
-        );
+        return wrapped(operation, variables, cacheConfig);
       };
     },
   };

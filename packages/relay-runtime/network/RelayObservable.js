@@ -42,20 +42,17 @@ type Source_<T, SinkOfT: Sink<T>> = SinkOfT =>
   | (() => mixed);
 type Source<T> = Source_<T, *>;
 
-interface Subscribable<T> {
+export interface Subscribable<T> {
   subscribe(observer: Observer<T>): Subscription,
 }
 
-// Fake declaration teaches Flow how to understand union types.
-declare class ESObservable<T> {
-  subscribe(observer: Observer<T>): Subscription,
-}
-
-export type ObservableOrPromiseOrValue<T> =
-  | ESObservable<T>
+// Note: This should accept Subscribable<T> instead of RelayObservable<T>,
+// however Flow cannot yet distinguish it from T.
+export type ObservableFromValue<T> =
+  | RelayObservable<T>
   | Promise<T>
-  | T
-  | Error;
+  | Error
+  | T;
 
 let hostReportError;
 
@@ -103,7 +100,7 @@ class RelayObservable<T> implements Subscribable<T> {
    * Accepts various kinds of data sources, and always returns a RelayObservable
    * useful for accepting the result of a user-provided FetchFunction.
    */
-  static from<V>(obj: ObservableOrPromiseOrValue<V>): RelayObservable<V> {
+  static from<V>(obj: ObservableFromValue<V>): RelayObservable<V> {
     return isObservable(obj)
       ? fromObservable(obj)
       : isPromise(obj)
@@ -119,7 +116,7 @@ class RelayObservable<T> implements Subscribable<T> {
    * legacy Relay observer and directly return an Observable instead.
    */
   static fromLegacy<V>(
-    callback: (LegacyObserver<V>) => Disposable | ESObservable<V>,
+    callback: (LegacyObserver<V>) => Disposable | RelayObservable<V>,
   ): RelayObservable<V> {
     return new RelayObservable(sink => {
       const result = callback({
@@ -343,7 +340,7 @@ class RelayObservable<T> implements Subscribable<T> {
 
 // Use declarations to teach Flow how to check isObservable.
 declare function isObservable(p: mixed): boolean %checks(p instanceof
-  ESObservable);
+  RelayObservable);
 
 function isObservable(obj) {
   return (

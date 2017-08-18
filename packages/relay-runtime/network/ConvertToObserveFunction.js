@@ -21,20 +21,15 @@ import type {
   QueryPayload,
   SubscribeFunction,
 } from 'RelayNetworkTypes';
-import type {ObservableOrPromiseOrValue} from 'RelayObservable';
 
 /**
  * Converts a FetchFunction into an ObserveFunction for use by RelayNetwork.
  */
 function convertFetch(fn: FetchFunction): ObserveFunction {
   return function fetch(operation, variables, cacheConfig, uploadables) {
-    const result: ObservableOrPromiseOrValue<QueryPayload> = fn(
-      operation,
-      variables,
-      cacheConfig,
-      uploadables,
+    return RelayObservable.from(
+      fn(operation, variables, cacheConfig, uploadables),
     );
-    return RelayObservable.from(result);
   };
 }
 

@@ -134,6 +134,41 @@ class RelayObservable<T> implements Subscribable<T> {
   }
 
   /**
+   * Similar to promise.catch(), observable.catch() handles error events, and
+   * provides an alternative observable to use in it's place.
+   *
+   * If the catch handler throws a new error, it will appear as an error event
+   * on the resulting Observable.
+   */
+  catch<U>(fn: Error => RelayObservable<U>): RelayObservable<T | U> {
+    return new RelayObservable(sink => {
+      let subscription;
+      this.subscribe({
+        start: sub => {
+          subscription = sub;
+        },
+        next: sink.next,
+        complete: sink.complete,
+        error(error) {
+          try {
+            fn(error).subscribe({
+              start: sub => {
+                subscription = sub;
+              },
+              next: sink.next,
+              complete: sink.complete,
+              error: sink.error,
+            });
+          } catch (error2) {
+            sink.error(error2);
+          }
+        },
+      });
+      return () => subscription.unsubscribe();
+    });
+  }
+
+  /**
    * Returns a new Observable which returns the same values as this one, but
    * modified so that the provided Observer is called to perform a side-effects
    * for all events emitted by the source.

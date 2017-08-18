@@ -1937,4 +1937,140 @@ describe('RelayObservable', () => {
       expect(await rejected.catch(e => e)).toBe(error);
     });
   });
+
+  describe('catch', () => {
+    it('Catches sync errors', () => {
+      const list = [];
+
+      const obs1 = new RelayObservable(sink => {
+        throw new Error('sync error');
+      });
+
+      const obs2 = obs1.catch(e => RelayObservable.from('caught: ' + e));
+
+      obs2.subscribe({
+        next: val => list.push('next:' + val),
+        error: err => list.push(err),
+        complete: () => list.push('complete'),
+      });
+
+      expect(list).toEqual(['next:caught: Error: sync error', 'complete']);
+    });
+
+    it('Catches async errors', () => {
+      let sink;
+      const list = [];
+
+      const obs1 = new RelayObservable(_sink => {
+        sink = _sink;
+      });
+
+      const obs2 = obs1.catch(e => RelayObservable.from('caught: ' + e));
+
+      obs2.subscribe({
+        next: val => list.push('next:' + val),
+        error: err => list.push(err),
+        complete: () => list.push('complete'),
+      });
+
+      sink.next(1);
+      sink.error(new Error('async error'));
+
+      expect(list).toEqual([
+        'next:1',
+        'next:caught: Error: async error',
+        'complete',
+      ]);
+    });
+
+    it('Supports re-throwing errors', () => {
+      let sink;
+      const list = [];
+      const error = new Error();
+
+      const obs1 = new RelayObservable(_sink => {
+        sink = _sink;
+      });
+
+      const obs2 = obs1.catch(e => {
+        throw e;
+      });
+
+      obs2.subscribe({
+        next: val => list.push('next:' + val),
+        error: err => list.push(err),
+        complete: () => list.push('complete'),
+      });
+
+      sink.next(1);
+      sink.error(error);
+
+      expect(list).toEqual(['next:1', error]);
+    });
+
+    it('Cleans up original observable', () => {
+      let sink1;
+      const list = [];
+
+      const obs1 = new RelayObservable(sink => {
+        list.push('create first');
+        sink1 = sink;
+        return () => list.push('cleanup first');
+      });
+
+      const obs2 = new RelayObservable(sink => {
+        list.push('create second');
+        return () => list.push('cleanup second');
+      });
+
+      const sub = obs1.catch(() => obs2).subscribe({
+        next: val => list.push('next:' + val),
+        error: err => list.push(err),
+        complete: () => list.push('complete'),
+      });
+
+      sink1.next(1);
+      sub.unsubscribe();
+
+      expect(list).toEqual(['create first', 'next:1', 'cleanup first']);
+    });
+
+    it('Cleans up replaced observable', () => {
+      let sink1;
+      let sink2;
+      const list = [];
+
+      const obs1 = new RelayObservable(sink => {
+        list.push('create first');
+        sink1 = sink;
+        return () => list.push('cleanup first');
+      });
+
+      const obs2 = new RelayObservable(sink => {
+        list.push('create second');
+        sink2 = sink;
+        return () => list.push('cleanup second');
+      });
+
+      const sub = obs1.catch(() => obs2).subscribe({
+        next: val => list.push('next:' + val),
+        error: err => list.push(err),
+        complete: () => list.push('complete'),
+      });
+
+      sink1.next(1);
+      sink1.error(new Error());
+      sink2.next(2);
+      sub.unsubscribe();
+
+      expect(list).toEqual([
+        'create first',
+        'next:1',
+        'create second',
+        'cleanup first',
+        'next:2',
+        'cleanup second',
+      ]);
+    });
+  });
 });

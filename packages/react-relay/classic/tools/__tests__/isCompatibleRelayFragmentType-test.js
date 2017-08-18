@@ -16,7 +16,7 @@ jest.enableAutomock();
 
 require('configureForRelayOSS');
 
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayTestUtils = require('RelayTestUtils');
 
 const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
@@ -27,7 +27,7 @@ describe('isCompatibleRelayFragmentType', () => {
   it('returns false for different concrete types', () => {
     expect(
       isCompatibleRelayFragmentType(
-        getNode(Relay.QL`fragment on User{id}`),
+        getNode(RelayClassic.QL`fragment on User{id}`),
         'Page',
       ),
     ).toBe(false);
@@ -36,7 +36,7 @@ describe('isCompatibleRelayFragmentType', () => {
   it('returns true for equal concrete types', () => {
     expect(
       isCompatibleRelayFragmentType(
-        getNode(Relay.QL`fragment on User{id}`),
+        getNode(RelayClassic.QL`fragment on User{id}`),
         'User',
       ),
     ).toBe(true);
@@ -45,7 +45,7 @@ describe('isCompatibleRelayFragmentType', () => {
   it('returns true for abstract fragments', () => {
     expect(
       isCompatibleRelayFragmentType(
-        getNode(Relay.QL`fragment on Node{id}`),
+        getNode(RelayClassic.QL`fragment on Node{id}`),
         'User',
       ),
     ).toBe(true);
@@ -54,7 +54,7 @@ describe('isCompatibleRelayFragmentType', () => {
   it('returns true for client records', () => {
     expect(
       isCompatibleRelayFragmentType(
-        getNode(Relay.QL`fragment on User{id}`),
+        getNode(RelayClassic.QL`fragment on User{id}`),
         null,
       ),
     ).toBe(true);

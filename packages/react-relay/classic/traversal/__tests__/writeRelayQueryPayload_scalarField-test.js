@@ -16,7 +16,7 @@ jest.mock('RelayQueryTracker').mock('RelayClassicRecordState');
 
 require('configureForRelayOSS');
 
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('writeRelayQueryPayload()', () => {
@@ -40,7 +40,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             name
@@ -75,7 +75,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             name
@@ -111,7 +111,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             name
@@ -147,7 +147,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             name

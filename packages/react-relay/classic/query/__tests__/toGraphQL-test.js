@@ -16,7 +16,7 @@ jest.enableAutomock();
 
 require('configureForRelayOSS');
 
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayTestUtils = require('RelayTestUtils');
 
 const filterObject = require('filterObject');
@@ -91,7 +91,7 @@ describe('toGraphQL', function() {
 
   it('converts query', () => {
     expect(toGraphQL.Query).toConvert(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           actor {
@@ -106,7 +106,7 @@ describe('toGraphQL', function() {
 
   it('converts query with root args', () => {
     expect(toGraphQL.Query).toConvert(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         nodes(ids:["1","2","3"]) {
           id
@@ -119,7 +119,7 @@ describe('toGraphQL', function() {
 
   it('converts fragment', () => {
     expect(toGraphQL.Fragment).toConvert(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on Viewer {
         actor {
           id
@@ -132,7 +132,7 @@ describe('toGraphQL', function() {
 
   it('converts field with calls', () => {
     expect(toGraphQL.Query).toConvert(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           actor {
@@ -147,7 +147,7 @@ describe('toGraphQL', function() {
 
   it('converts connection and generated fields', () => {
     expect(toGraphQL.Query).toConvert(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           actor {
@@ -166,12 +166,12 @@ describe('toGraphQL', function() {
   });
 
   it('preserves batch call information', () => {
-    const fragment = Relay.QL`
+    const fragment = RelayClassic.QL`
       fragment on User {
         name
       }
     `;
-    const query = Relay.QL`
+    const query = RelayClassic.QL`
       query {
         viewer {
           actor {
@@ -192,7 +192,7 @@ describe('toGraphQL', function() {
   it('does not double-encode argument values', () => {
     const value = {query: 'Menlo Park'};
     const relayQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         checkinSearchQuery(query:$q) {
           query

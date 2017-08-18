@@ -15,7 +15,7 @@
 jest.enableAutomock();
 
 const QueryBuilder = require('QueryBuilder');
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayQL', () => {
@@ -26,7 +26,7 @@ describe('RelayQL', () => {
   });
 
   it('throws if not transformed', () => {
-    const badQL = Relay.QL;
+    const badQL = RelayClassic.QL;
     expect(() => {
       // Transform cannot find this call site.
       badQL`
@@ -47,7 +47,7 @@ describe('RelayQL', () => {
 
   it('does not throw if transformed', () => {
     expect(() => {
-      Relay.QL`
+      RelayClassic.QL`
         query {
           viewer {
             actor {
@@ -62,7 +62,7 @@ describe('RelayQL', () => {
   it('permits valid variable substitutions', () => {
     const SIZE = 42;
     expect(() => {
-      Relay.QL`
+      RelayClassic.QL`
         query {
           viewer {
             actor {
@@ -78,7 +78,7 @@ describe('RelayQL', () => {
 
   it('wraps variable substituted values in concrete call values', () => {
     const SIZE = 42;
-    expect(Relay.QL.__var(SIZE)).toEqual({
+    expect(RelayClassic.QL.__var(SIZE)).toEqual({
       kind: 'CallValue',
       callValue: SIZE,
     });
@@ -89,7 +89,7 @@ describe('RelayQL', () => {
       size: QueryBuilder.createCallVariable('size'),
     };
     expect(() => {
-      Relay.QL`
+      RelayClassic.QL`
         query {
           viewer {
             actor {
@@ -112,7 +112,7 @@ describe('RelayQL', () => {
       type: 'Bar',
     });
     expect(() => {
-      Relay.QL`
+      RelayClassic.QL`
         query {
           viewer {
             ${fragment}
@@ -128,7 +128,7 @@ describe('RelayQL', () => {
       type: 'Bar',
     });
     expect(() => {
-      Relay.QL`
+      RelayClassic.QL`
         query {
           viewer {
             ${[fragment]}
@@ -140,7 +140,7 @@ describe('RelayQL', () => {
 
   it('throws for invalid fragment substitutions', () => {
     expect(() => {
-      Relay.QL`
+      RelayClassic.QL`
         query {
           viewer {
             ${'foo'}
@@ -153,7 +153,7 @@ describe('RelayQL', () => {
     );
 
     expect(() => {
-      Relay.QL`
+      RelayClassic.QL`
         query {
           viewer {
             ${['foo']}
@@ -170,7 +170,7 @@ describe('RelayQL', () => {
       type: 'Bar',
     });
     expect(() => {
-      Relay.QL`
+      RelayClassic.QL`
         query {
           viewer {
             ${[[fragment]]}
@@ -184,7 +184,7 @@ describe('RelayQL', () => {
   });
 
   it('generates unique concrete fragment IDs', () => {
-    const getFragment = () => Relay.QL`
+    const getFragment = () => RelayClassic.QL`
       fragment on Node {
         id
       }

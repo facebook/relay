@@ -14,7 +14,7 @@
 
 jest.dontMock('GraphQLStoreChangeEmitter').mock('relayUnstableBatchedUpdates');
 
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayOperationSelector = require('RelayOperationSelector');
 const {ROOT_ID} = require('RelayStoreConstants');
@@ -902,7 +902,7 @@ describe('RelayEnvironment', () => {
       jest.runAllTimers();
 
       const query = createRelayQuery(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id: $id) {
             ${Container.getFragment('user')}

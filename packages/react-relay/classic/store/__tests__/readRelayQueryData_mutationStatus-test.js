@@ -14,7 +14,7 @@
 
 jest.enableAutomock();
 
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayMutationTransaction = require('RelayMutationTransaction');
 const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
 const RelayStoreData = require('RelayStoreData');
@@ -81,7 +81,7 @@ describe('readRelayQueryData (mutationStatus)', () => {
 
     writeQueryPayload({
       query: getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id: "123") {
             ...on Actor {
@@ -107,7 +107,7 @@ describe('readRelayQueryData (mutationStatus)', () => {
     const data = read({
       dataID: '123',
       node: getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Actor {
           firstName
         }
@@ -130,7 +130,7 @@ describe('readRelayQueryData (mutationStatus)', () => {
     const data = read({
       dataID: '123',
       node: getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Actor {
           firstName
         }
@@ -159,7 +159,7 @@ describe('readRelayQueryData (mutationStatus)', () => {
     const dataA = read({
       dataID: '123',
       node: getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Actor {
           firstName
         }
@@ -180,7 +180,7 @@ describe('readRelayQueryData (mutationStatus)', () => {
     const dataB = read({
       dataID: '123',
       node: getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Actor {
           firstName
         }

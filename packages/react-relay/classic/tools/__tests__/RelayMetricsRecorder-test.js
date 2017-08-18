@@ -14,7 +14,7 @@
 
 jest.mock('performanceNow');
 
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayProfiler = require('RelayProfiler');
 const RelayMetricsRecorder = require('RelayMetricsRecorder');
 const RelayTestUtils = require('RelayTestUtils');
@@ -30,7 +30,7 @@ describe('RelayMetricsRecorder', () => {
 
     const {getNode} = RelayTestUtils;
     query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id: "123") {
           ... on User {

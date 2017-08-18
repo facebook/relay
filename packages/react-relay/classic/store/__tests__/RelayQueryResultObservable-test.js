@@ -22,7 +22,7 @@ jest
   .unmock('GraphQLStoreChangeEmitter')
   .unmock('GraphQLStoreQueryResolver');
 
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayQueryResultObservable = require('RelayQueryResultObservable');
 const RelayRecordStore = require('RelayRecordStore');
 const RelayRecordWriter = require('RelayRecordWriter');
@@ -65,7 +65,7 @@ describe('RelayQueryResultObservable', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    query = getNode(Relay.QL`fragment on Node{id,name}`);
+    query = getNode(RelayClassic.QL`fragment on Node{id,name}`);
     const records = {
       '123': {
         __dataID__: '123',

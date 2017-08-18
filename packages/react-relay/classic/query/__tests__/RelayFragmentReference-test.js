@@ -19,7 +19,7 @@ require('configureForRelayOSS');
 jest.mock('warning');
 
 const QueryBuilder = require('QueryBuilder');
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayFragmentReference = require('RelayFragmentReference');
 const RelayMetaRoute = require('RelayMetaRoute');
 const RelayTestUtils = require('RelayTestUtils');
@@ -35,7 +35,7 @@ describe('RelayFragmentReference', () => {
   });
 
   it('creates fragments with default variables', () => {
-    const node = Relay.QL`
+    const node = RelayClassic.QL`
       fragment on User {
         profilePicture(size:$size) {
           uri
@@ -56,7 +56,7 @@ describe('RelayFragmentReference', () => {
   });
 
   it('creates fragments with a variable mapping', () => {
-    const node = Relay.QL`
+    const node = RelayClassic.QL`
       fragment on User {
         profilePicture(size:$size) {
           uri
@@ -89,7 +89,7 @@ describe('RelayFragmentReference', () => {
   });
 
   it('creates deferred fragment references', () => {
-    const node = Relay.QL`fragment on Node{id}`;
+    const node = RelayClassic.QL`fragment on Node{id}`;
     const reference = new RelayFragmentReference(() => node, {});
     reference.defer();
 
@@ -100,7 +100,7 @@ describe('RelayFragmentReference', () => {
   });
 
   it('creates fragments with if/unless conditions', () => {
-    const node = Relay.QL`fragment on Node{id}`;
+    const node = RelayClassic.QL`fragment on Node{id}`;
     const reference = new RelayFragmentReference(() => node, {});
     reference.if(QueryBuilder.createCallVariable('if'));
     reference.unless(QueryBuilder.createCallVariable('unless'));
@@ -119,7 +119,7 @@ describe('RelayFragmentReference', () => {
   });
 
   it('processes variables using the route', () => {
-    const node = Relay.QL`fragment on Node{id}`;
+    const node = RelayClassic.QL`fragment on Node{id}`;
     const prepareVariables = jest.fn();
     const reference = new RelayFragmentReference(
       () => node,
@@ -143,7 +143,7 @@ describe('RelayFragmentReference', () => {
   });
 
   it('warns if a variable is undefined', () => {
-    const node = Relay.QL`fragment on Node{id}`;
+    const node = RelayClassic.QL`fragment on Node{id}`;
     const reference = new RelayFragmentReference(
       () => node,
       {},

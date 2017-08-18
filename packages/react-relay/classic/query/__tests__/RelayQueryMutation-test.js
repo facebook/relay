@@ -14,7 +14,7 @@
 
 require('configureForRelayOSS');
 
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayTestUtils = require('RelayTestUtils');
 
@@ -38,7 +38,7 @@ describe('RelayQueryMutation', () => {
       },
     });
     mutationQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       mutation {
         commentCreate(input:$input) {
           clientMutationId
@@ -92,7 +92,7 @@ describe('RelayQueryMutation', () => {
 
   it('tests for equality', () => {
     const equivalentQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       mutation {
         commentCreate(input:$input) {
           clientMutationId
@@ -106,7 +106,7 @@ describe('RelayQueryMutation', () => {
       {input},
     );
     const differentQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       mutation {
         commentCreate(input:$input) {
           clientMutationId

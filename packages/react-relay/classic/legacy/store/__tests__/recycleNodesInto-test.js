@@ -18,7 +18,7 @@ require('configureForRelayOSS');
 
 jest.unmock('recycleNodesInto');
 
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayTestUtils = require('RelayTestUtils');
 
 const recycleNodesInto = require('recycleNodesInto');
@@ -208,7 +208,7 @@ describe('recycleNodesInto', () => {
     beforeEach(() => {
       const {getNode} = RelayTestUtils;
 
-      const fragment = getNode(Relay.QL`fragment on Node{id}`);
+      const fragment = getNode(RelayClassic.QL`fragment on Node{id}`);
       getPointer = function(dataID) {
         return RelayTestUtils.getPointer(dataID, fragment);
       };

@@ -20,7 +20,7 @@ jest.mock('warning');
 
 const QueryBuilder = require('QueryBuilder');
 const React = require('React');
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayQuery = require('RelayQuery');
 const RelayQueryCaching = require('RelayQueryCaching');
 const RelayTestUtils = require('RelayTestUtils');
@@ -39,12 +39,12 @@ describe('buildRQL', () => {
         return <div />;
       }
     };
-    MockContainer = Relay.createContainer(MockComponent, {
+    MockContainer = RelayClassic.createContainer(MockComponent, {
       initialVariables: {
         size: null,
       },
       fragments: {
-        foo: () => Relay.QL`fragment on User {
+        foo: () => RelayClassic.QL`fragment on User {
           profilePicture(size: $size) {
             uri
           }
@@ -62,7 +62,7 @@ describe('buildRQL', () => {
 
   describe('Fragment()', () => {
     it('returns undefined if the node is not a fragment', () => {
-      const builder = () => Relay.QL`
+      const builder = () => RelayClassic.QL`
         query {
           node(id:"123") {
             id
@@ -74,7 +74,7 @@ describe('buildRQL', () => {
 
     it('throws if fragment substitutions are invalid', () => {
       const invalid = {};
-      const builder = () => Relay.QL`
+      const builder = () => RelayClassic.QL`
         fragment on Node {
           ${invalid}
         }
@@ -86,7 +86,7 @@ describe('buildRQL', () => {
     });
 
     it('creates fragments with variables', () => {
-      const builder = () => Relay.QL`
+      const builder = () => RelayClassic.QL`
         fragment on Node {
           id
           profilePicture(size:$sizeVariable) {
@@ -113,7 +113,7 @@ describe('buildRQL', () => {
     });
 
     it('returns === fragments', () => {
-      const builder = () => Relay.QL`
+      const builder = () => RelayClassic.QL`
         fragment on Node {
           id
           profilePicture(size:$sizeVariable) {
@@ -129,7 +129,7 @@ describe('buildRQL', () => {
 
   describe('Query()', () => {
     it('returns undefined if the node is not a query', () => {
-      const builder = () => Relay.QL`
+      const builder = () => RelayClassic.QL`
         fragment on Node {
           id
         }
@@ -138,7 +138,7 @@ describe('buildRQL', () => {
     });
 
     it('creates queries with components and variables', () => {
-      const builder = Component => Relay.QL`
+      const builder = Component => RelayClassic.QL`
         query {
           node(id:$id) {
             id
@@ -167,7 +167,7 @@ describe('buildRQL', () => {
     });
 
     it('returns === queries for the same component', () => {
-      const builder = Component => Relay.QL`
+      const builder = Component => RelayClassic.QL`
         query {
           node(id:$id) {
             ${Component.getFragment('foo')}
@@ -180,13 +180,13 @@ describe('buildRQL', () => {
     });
 
     it('returns different queries for different components', () => {
-      const MockContainer2 = Relay.createContainer(MockComponent, {
+      const MockContainer2 = RelayClassic.createContainer(MockComponent, {
         fragments: {
-          foo: () => Relay.QL`fragment on Node { name }`,
+          foo: () => RelayClassic.QL`fragment on Node { name }`,
         },
       });
 
-      const builder = Component => Relay.QL`
+      const builder = Component => RelayClassic.QL`
         query {
           node(id:$id) {
             ${Component.getFragment('foo')}
@@ -200,7 +200,7 @@ describe('buildRQL', () => {
 
     it('returns different queries for the same component if cache is disabled', () => {
       RelayQueryCaching.disable();
-      const builder = Component => Relay.QL`
+      const builder = Component => RelayClassic.QL`
         query {
           node(id:$id) {
             ${Component.getFragment('foo')}
@@ -213,7 +213,7 @@ describe('buildRQL', () => {
     });
 
     it('filters the variables passed to components', () => {
-      const builder = (Component, variables) => Relay.QL`
+      const builder = (Component, variables) => RelayClassic.QL`
         query {
           node(id: $id) {
             ${Component.getFragment('foo', variables)}
@@ -233,7 +233,7 @@ describe('buildRQL', () => {
     });
 
     it('implicitly adds component fragments if not provided', () => {
-      const builder = () => Relay.QL`
+      const builder = () => RelayClassic.QL`
         query {
           node(id:$id)
         }
@@ -259,20 +259,20 @@ describe('buildRQL', () => {
     });
 
     it('produces equal results for implicit and explicit definitions', () => {
-      const MockContainer2 = Relay.createContainer(MockComponent, {
+      const MockContainer2 = RelayClassic.createContainer(MockComponent, {
         initialVariables: {
           if: null,
         },
         fragments: {
-          foo: () => Relay.QL`fragment on Node { firstName(if: $if) }`,
+          foo: () => RelayClassic.QL`fragment on Node { firstName(if: $if) }`,
         },
       });
-      const implicitBuilder = () => Relay.QL`
+      const implicitBuilder = () => RelayClassic.QL`
         query {
           viewer
         }
       `;
-      const explicitBuilder = (Component, variables) => Relay.QL`
+      const explicitBuilder = (Component, variables) => RelayClassic.QL`
         query {
           viewer {
             ${Component.getFragment('foo', variables)}
@@ -299,7 +299,7 @@ describe('buildRQL', () => {
     });
 
     it('throws if non-scalar fields are given', () => {
-      const builder = () => Relay.QL`
+      const builder = () => RelayClassic.QL`
         query {
           viewer {
             actor

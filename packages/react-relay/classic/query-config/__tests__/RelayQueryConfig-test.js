@@ -14,7 +14,7 @@
 
 require('configureForRelayOSS');
 
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayTestUtils = require('RelayTestUtils');
 
@@ -31,14 +31,14 @@ describe('RelayQueryConfig', () => {
       }> {}
       MockConfig.routeName = 'MockConfig';
       MockConfig.queries = {
-        required: Component => Relay.QL`
+        required: Component => RelayClassic.QL`
           query {
             node(id:$required) {
               ${Component.getQuery('required')}
             }
           }
         `,
-        optional: Component => Relay.QL`
+        optional: Component => RelayClassic.QL`
           query {
             node(id:$optional) {
               ${Component.getQuery('optional')}

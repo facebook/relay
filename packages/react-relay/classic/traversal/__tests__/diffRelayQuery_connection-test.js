@@ -18,7 +18,7 @@ require('configureForRelayOSS');
 
 jest.unmock('GraphQLRange').unmock('GraphQLSegment').mock('warning');
 
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayQueryTracker = require('RelayQueryTracker');
 const RelayRecordStore = require('RelayRecordStore');
@@ -51,7 +51,7 @@ describe('diffRelayQuery', () => {
     const tracker = new RelayQueryTracker();
 
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           newsFeed(first: 3) {
@@ -92,7 +92,7 @@ describe('diffRelayQuery', () => {
       },
     };
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           newsFeed(first: 3) {
@@ -155,7 +155,7 @@ describe('diffRelayQuery', () => {
       },
     };
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           newsFeed(first: 5) {
@@ -176,7 +176,7 @@ describe('diffRelayQuery', () => {
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toEqualQueryRoot(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         viewer {
           newsFeed(after:"c3",first:$count) {
@@ -204,7 +204,7 @@ describe('diffRelayQuery', () => {
 
     // Provide empty IDs to simulate non-refetchable nodes
     const writeQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           newsFeed(first: 3) {
@@ -257,7 +257,7 @@ describe('diffRelayQuery', () => {
 
     // @relay(isConnectionWithoutNodeID: true) should silence the warning.
     const fetchQueryA = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           newsFeed(first: 3) @relay(isConnectionWithoutNodeID: true) {
@@ -288,7 +288,7 @@ describe('diffRelayQuery', () => {
     // `feedback{id}` is missing but there is no way to refetch it
     // Warn that data cannot be refetched
     const fetchQueryB = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           newsFeed(first: 3) {
@@ -325,7 +325,7 @@ describe('diffRelayQuery', () => {
 
     // Provide empty IDs to simulate non-refetchable nodes
     const writeQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           newsFeed(first: 1) {
@@ -365,7 +365,7 @@ describe('diffRelayQuery', () => {
     // `message{text}` available in the store.
     // Does not warn that data cannot be refetched sine no data is missing.
     const fetchQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           newsFeed(first: 1) {
@@ -402,7 +402,7 @@ describe('diffRelayQuery', () => {
 
     // Provide empty IDs to simulate non-refetchable nodes
     const writeQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           newsFeed(first: 1) {
@@ -467,7 +467,7 @@ describe('diffRelayQuery', () => {
 
     // Missing the `body{text}` on comment.
     const fetchQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           newsFeed(first: 1) {
@@ -495,7 +495,7 @@ describe('diffRelayQuery', () => {
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toEqualQueryRoot(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         node(id:"commentid"){
           __typename
@@ -559,7 +559,7 @@ describe('diffRelayQuery', () => {
       },
     };
     const writeQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           newsFeed(first: 3) {
@@ -579,7 +579,7 @@ describe('diffRelayQuery', () => {
 
     // Split one `node()` query per edge to fetch missing `feedback{id}`
     const fetchQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           newsFeed(first: 3) {
@@ -599,7 +599,7 @@ describe('diffRelayQuery', () => {
     expect(diffQueries.length).toBe(3);
     expect(diffQueries[0]).toEqualQueryRoot(
       getVerbatimNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         node(id:"s1") {
           id
@@ -618,7 +618,7 @@ describe('diffRelayQuery', () => {
     );
     expect(diffQueries[1]).toEqualQueryRoot(
       getVerbatimNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         node(id:"s2") {
           id
@@ -637,7 +637,7 @@ describe('diffRelayQuery', () => {
     );
     expect(diffQueries[2]).toEqualQueryRoot(
       getVerbatimNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         node(id:"s3") {
           id
@@ -702,7 +702,7 @@ describe('diffRelayQuery', () => {
         },
       };
       const writeQuery = getNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         viewer {
           newsFeed(first: 3) {
@@ -723,7 +723,7 @@ describe('diffRelayQuery', () => {
       // node: `feedback{id}` is missing (fetch via node() query)
       // edges: `sortKey` is missing (fetch via .find() query)
       const fetchQuery = getNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         viewer {
           newsFeed(first: 3) {
@@ -746,7 +746,7 @@ describe('diffRelayQuery', () => {
       expect(diffQueries.length).toBe(6);
       expect(diffQueries[0]).toEqualQueryRoot(
         getVerbatimNode(
-          Relay.QL`
+          RelayClassic.QL`
       query {
         node(id:"s1") {
           id
@@ -765,7 +765,7 @@ describe('diffRelayQuery', () => {
       );
       expect(diffQueries[1]).toEqualQueryRoot(
         getVerbatimNode(
-          Relay.QL`
+          RelayClassic.QL`
       query {
         viewer {
           newsFeed(find:"s1") {
@@ -785,7 +785,7 @@ describe('diffRelayQuery', () => {
       );
       expect(diffQueries[2]).toEqualQueryRoot(
         getVerbatimNode(
-          Relay.QL`
+          RelayClassic.QL`
       query {
         node(id:"s2") {
           id
@@ -804,7 +804,7 @@ describe('diffRelayQuery', () => {
       );
       expect(diffQueries[3]).toEqualQueryRoot(
         getVerbatimNode(
-          Relay.QL`
+          RelayClassic.QL`
       query {
         viewer {
           newsFeed(find:"s2") {
@@ -824,7 +824,7 @@ describe('diffRelayQuery', () => {
       );
       expect(diffQueries[4]).toEqualQueryRoot(
         getVerbatimNode(
-          Relay.QL`
+          RelayClassic.QL`
       query {
         node(id:"s3") {
           id
@@ -843,7 +843,7 @@ describe('diffRelayQuery', () => {
       );
       expect(diffQueries[5]).toEqualQueryRoot(
         getVerbatimNode(
-          Relay.QL`
+          RelayClassic.QL`
       query {
         viewer {
           newsFeed(find:"s3") {
@@ -918,7 +918,7 @@ describe('diffRelayQuery', () => {
         },
       };
       const writeQuery = getNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         viewer {
           notificationStories(first: 3) {
@@ -940,7 +940,7 @@ describe('diffRelayQuery', () => {
       // edges: `showBeeper` is missing but cannot be refetched because
       // `notificationStories` does not support `.find()`
       const fetchQuery = getNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         viewer {
           notificationStories(first: 3) {
@@ -961,7 +961,7 @@ describe('diffRelayQuery', () => {
       expect(diffQueries.length).toBe(3);
       expect(diffQueries[0]).toEqualQueryRoot(
         getVerbatimNode(
-          Relay.QL`
+          RelayClassic.QL`
       query {
         node(id:"s1") {
           id
@@ -980,7 +980,7 @@ describe('diffRelayQuery', () => {
       );
       expect(diffQueries[1]).toEqualQueryRoot(
         getVerbatimNode(
-          Relay.QL`
+          RelayClassic.QL`
       query {
         node(id:"s2") {
           id
@@ -999,7 +999,7 @@ describe('diffRelayQuery', () => {
       );
       expect(diffQueries[2]).toEqualQueryRoot(
         getVerbatimNode(
-          Relay.QL`
+          RelayClassic.QL`
       query {
         node(id:"s3") {
           id
@@ -1043,7 +1043,7 @@ describe('diffRelayQuery', () => {
       },
     };
     const writeQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           newsFeed(first: 1) {
@@ -1063,10 +1063,10 @@ describe('diffRelayQuery', () => {
 
     // node: `feedback{id}` is missing (fetch via node() query)
     // edges: `sortKey` is missing (fetch via .find() query)
-    const edgeFragment = Relay.QL`fragment on NewsFeedEdge{sortKey}`;
-    const nodeFragment = Relay.QL`fragment on FeedUnit{feedback{id}}`;
+    const edgeFragment = RelayClassic.QL`fragment on NewsFeedEdge{sortKey}`;
+    const nodeFragment = RelayClassic.QL`fragment on FeedUnit{feedback{id}}`;
     const fetchQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           newsFeed(first: 1) {
@@ -1095,7 +1095,7 @@ describe('diffRelayQuery', () => {
 
     // Create the first query with a selection on a connection.
     const firstQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           newsFeed(first: 3) {
@@ -1127,7 +1127,7 @@ describe('diffRelayQuery', () => {
     // Create a second query that requests a different selection on the null
     // connection.
     const secondQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           newsFeed(first: 3) {

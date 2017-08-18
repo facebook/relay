@@ -19,7 +19,7 @@ require('configureForRelayOSS');
 jest.mock('warning');
 jest.unmock('RelayMutation');
 
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayQuery = require('RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
@@ -50,15 +50,15 @@ describe('RelayMutation', function() {
 
     const initialVariables = {isRelative: false};
     const makeMockMutation = () => {
-      class MockMutationClass extends Relay.Mutation {
+      class MockMutationClass extends RelayClassic.Mutation {
         static initialVariables = initialVariables;
         static fragments = {
-          foo: () => Relay.QL`
+          foo: () => RelayClassic.QL`
             fragment on Comment {
               url(relative: $isRelative)
             }
           `,
-          bar: () => Relay.QL`
+          bar: () => RelayClassic.QL`
             fragment on Node {
               id
             }
@@ -104,7 +104,7 @@ describe('RelayMutation', function() {
     expect.extend(RelayTestUtils.matchers);
   });
 
-  it('throws if used in different Relay environments', () => {
+  it('throws if used in different RelayClassic environments', () => {
     mockMutation.bindEnvironment(environment);
     expect(() => {
       mockMutation.bindEnvironment(new RelayEnvironment());
@@ -114,14 +114,14 @@ describe('RelayMutation', function() {
     );
   });
 
-  it('can be reused in the same Relay environment', () => {
+  it('can be reused in the same RelayClassic environment', () => {
     mockMutation.bindEnvironment(environment);
     expect(() => {
       mockMutation.bindEnvironment(environment);
     }).not.toThrow();
   });
 
-  it('does not resolve props before binding Relay environment', () => {
+  it('does not resolve props before binding RelayClassic environment', () => {
     expect(mockMutation.props).toBeUndefined();
   });
 
@@ -134,7 +134,7 @@ describe('RelayMutation', function() {
     ]);
   });
 
-  it('resolves props after binding Relay environment', () => {
+  it('resolves props after binding RelayClassic environment', () => {
     const resolvedProps = {
       bar: {},
       foo: {},
@@ -150,10 +150,10 @@ describe('RelayMutation', function() {
     expect(mockMutation.props.foo).toBe(resolvedProps.foo);
   });
 
-  it('throws if mutation defines invalid `Relay.QL` fragment', () => {
-    class BadMutation extends Relay.Mutation {}
+  it('throws if mutation defines invalid `RelayClassic.QL` fragment', () => {
+    class BadMutation extends RelayClassic.Mutation {}
     BadMutation.fragments = {
-      foo: () => Relay.QL`query{node(id:"123"){id}}`,
+      foo: () => RelayClassic.QL`query{node(id:"123"){id}}`,
     };
     const badFragmentReference = BadMutation.getFragment('foo');
     expect(() => {
@@ -166,7 +166,7 @@ describe('RelayMutation', function() {
   });
 
   it('validates mutation configs when applied', () => {
-    class MisconfiguredMutation extends Relay.Mutation {
+    class MisconfiguredMutation extends RelayClassic.Mutation {
       getConfigs() {
         return [
           {
@@ -189,7 +189,7 @@ describe('RelayMutation', function() {
   });
 
   it('complains if mutation configs are not provided', () => {
-    class UnconfiguredMutation extends Relay.Mutation {}
+    class UnconfiguredMutation extends RelayClassic.Mutation {}
 
     // Can't validate at construction time because we haven't resolved props
     // yet, and the config may depend on those.

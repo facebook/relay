@@ -13,7 +13,7 @@
 'use strict';
 
 const GraphQLRange = require('GraphQLRange');
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayMockCacheManager = require('RelayMockCacheManager');
 const RelayQueryPath = require('RelayQueryPath');
@@ -21,9 +21,10 @@ const RelayRecordStatusMap = require('RelayRecordStatusMap');
 const RelayRecordStore = require('RelayRecordStore');
 const RelayRecordWriter = require('RelayRecordWriter');
 const RelayTestUtils = require('RelayTestUtils');
-const {APPEND, PREPEND, REMOVE} = require('GraphQLMutatorConstants');
 
 const generateClientID = require('generateClientID');
+
+const {APPEND, PREPEND, REMOVE} = require('GraphQLMutatorConstants');
 
 describe('RelayRecordWriter', () => {
   let HAS_NEXT_PAGE, HAS_PREV_PAGE;
@@ -102,7 +103,9 @@ describe('RelayRecordWriter', () => {
       const {getNode} = RelayTestUtils;
 
       const writer = new RelayRecordWriter({}, {}, false);
-      const path = RelayQueryPath.create(getNode(Relay.QL`query { viewer }`));
+      const path = RelayQueryPath.create(
+        getNode(RelayClassic.QL`query { viewer }`),
+      );
       writer.putRecord('1', 'Type', path);
       expect(writer.getPathToRecord('1')).toBe(undefined);
     });
@@ -111,7 +114,9 @@ describe('RelayRecordWriter', () => {
       const {getNode} = RelayTestUtils;
 
       const writer = new RelayRecordWriter({}, {}, false);
-      const path = RelayQueryPath.create(getNode(Relay.QL`query { viewer }`));
+      const path = RelayQueryPath.create(
+        getNode(RelayClassic.QL`query { viewer }`),
+      );
       const id = generateClientID();
       writer.putRecord(id, 'Type', path);
       expect(writer.getPathToRecord(id)).toBe(path);

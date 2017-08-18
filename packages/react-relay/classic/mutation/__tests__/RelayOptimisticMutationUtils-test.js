@@ -16,7 +16,7 @@ jest.enableAutomock();
 
 require('configureForRelayOSS');
 
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayOptimisticMutationUtils = require('RelayOptimisticMutationUtils');
 const RelayQuery = require('RelayQuery');
@@ -51,7 +51,7 @@ describe('RelayOptimisticMutationUtils', () => {
         id: '123',
       });
       expect(query).toEqualFields(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Actor {
           id
         }
@@ -67,7 +67,7 @@ describe('RelayOptimisticMutationUtils', () => {
           name: 'Alice',
         }),
       ).toEqualFields(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Actor {
           id
           name
@@ -84,7 +84,7 @@ describe('RelayOptimisticMutationUtils', () => {
         },
       });
       expect(fields).toEqualFields(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Actor {
           id
           address {
@@ -121,7 +121,7 @@ describe('RelayOptimisticMutationUtils', () => {
         websites: ['facebook.com', 'google.com'],
       });
       expect(fields).toEqualFields(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Actor {
           id
           websites
@@ -137,7 +137,7 @@ describe('RelayOptimisticMutationUtils', () => {
         screennames: [{service: 'GTALK'}, {service: 'TWITTER'}],
       });
       expect(fields).toEqualFields(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Actor {
           id
           screennames {
@@ -156,7 +156,7 @@ describe('RelayOptimisticMutationUtils', () => {
           websites: [],
         }),
       ).toEqualFields(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Actor {
           id
           websites
@@ -172,7 +172,7 @@ describe('RelayOptimisticMutationUtils', () => {
           websites: [null],
         }),
       ).toEqualFields(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Actor {
           id
           websites
@@ -188,7 +188,7 @@ describe('RelayOptimisticMutationUtils', () => {
           'url(site: "www")': 'https://...',
         }),
       ).toEqualFields(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Actor {
           id
           url(site: "www")
@@ -203,7 +203,7 @@ describe('RelayOptimisticMutationUtils', () => {
           'url(relative: true)': '//...',
         }),
       ).toEqualFields(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Actor {
           url(relative: true)
         }
@@ -219,7 +219,7 @@ describe('RelayOptimisticMutationUtils', () => {
           },
         }),
       ).toEqualFields(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Comment {
           comments(last: 10) {
             count
@@ -265,7 +265,7 @@ describe('RelayOptimisticMutationUtils', () => {
           },
         }),
       ).toEqualFields(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Actor {
           id
           friends(first: 2) {
@@ -295,7 +295,7 @@ describe('RelayOptimisticMutationUtils', () => {
           },
         }),
       ).toEqualFields(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on NodeSavedStateResponsePayload {
           node {
             id
@@ -316,7 +316,7 @@ describe('RelayOptimisticMutationUtils', () => {
           name: 'Alice',
         }),
       ).toEqualFields(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Node {
           id
           name

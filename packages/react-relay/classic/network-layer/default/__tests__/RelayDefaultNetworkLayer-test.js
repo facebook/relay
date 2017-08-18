@@ -16,7 +16,7 @@ jest.enableAutomock().useFakeTimers();
 
 require('configureForRelayOSS');
 
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayDefaultNetworkLayer = require('RelayDefaultNetworkLayer');
 const RelayMetaRoute = require('RelayMetaRoute');
@@ -302,12 +302,12 @@ describe('RelayDefaultNetworkLayer', () => {
     beforeEach(() => {
       const route = RelayMetaRoute.get('$fetchRelayQuery');
       const queryA = RelayQuery.Root.create(
-        Relay.QL`query{node(id:"123"){id}}`,
+        RelayClassic.QL`query{node(id:"123"){id}}`,
         route,
         {},
       );
       const queryB = RelayQuery.Root.create(
-        Relay.QL`query{node(id:"456"){id}}`,
+        RelayClassic.QL`query{node(id:"456"){id}}`,
         route,
         {},
       );

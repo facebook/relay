@@ -17,7 +17,7 @@ jest.enableAutomock();
 const React = require('React');
 const ReactDOM = require('ReactDOM');
 const ReactTestUtils = require('ReactTestUtils');
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayReadyStateRenderer = require('RelayReadyStateRenderer');
@@ -84,14 +84,14 @@ describe('RelayReadyStateRenderer', () => {
     const TestQueryConfig = RelayQueryConfig.genMock({
       routeName: 'TestQueryConfig',
       queries: {
-        node: () => Relay.QL`query { node(id: "123") }`,
+        node: () => RelayClassic.QL`query { node(id: "123") }`,
       },
     });
 
     defaultProps = {
-      Container: Relay.createContainer(() => <div />, {
+      Container: RelayClassic.createContainer(() => <div />, {
         fragments: {
-          node: () => Relay.QL`fragment on Node { id }`,
+          node: () => RelayClassic.QL`fragment on Node { id }`,
         },
       }),
       environment: new RelayEnvironment(),
@@ -232,7 +232,7 @@ describe('RelayReadyStateRenderer', () => {
       const AnotherQueryConfig = RelayQueryConfig.genMock({
         routeName: 'AnotherQueryConfig',
         queries: {
-          node: () => Relay.QL`query { node(id: "456") }`,
+          node: () => RelayClassic.QL`query { node(id: "456") }`,
         },
       });
       expect(
@@ -250,15 +250,15 @@ describe('RelayReadyStateRenderer', () => {
       const AnotherQueryConfig = RelayQueryConfig.genMock({
         routeName: 'AnotherQueryConfig',
         queries: {
-          me: () => Relay.QL`query { me }`,
+          me: () => RelayClassic.QL`query { me }`,
         },
       });
       const anotherQueryConfig = new AnotherQueryConfig();
       const environment = new RelayEnvironment();
       defaultProps = {
-        Container: Relay.createContainer(() => <div />, {
+        Container: RelayClassic.createContainer(() => <div />, {
           fragments: {
-            me: () => Relay.QL`fragment on User { id }`,
+            me: () => RelayClassic.QL`fragment on User { id }`,
           },
         }),
         environment,
@@ -292,15 +292,15 @@ describe('RelayReadyStateRenderer', () => {
       const AnotherQueryConfig = RelayQueryConfig.genMock({
         routeName: 'AnotherQueryConfig',
         queries: {
-          me: () => Relay.QL`query { me }`,
+          me: () => RelayClassic.QL`query { me }`,
         },
       });
       const anotherQueryConfig = new AnotherQueryConfig();
       const environment = new RelayEnvironment();
       defaultProps = {
-        Container: Relay.createContainer(() => <div />, {
+        Container: RelayClassic.createContainer(() => <div />, {
           fragments: {
-            me: () => Relay.QL`fragment on User { id }`,
+            me: () => RelayClassic.QL`fragment on User { id }`,
           },
         }),
         environment,
@@ -345,9 +345,9 @@ describe('RelayReadyStateRenderer', () => {
         },
       });
 
-      const AnotherContainer = Relay.createContainer(() => <div />, {
+      const AnotherContainer = RelayClassic.createContainer(() => <div />, {
         fragments: {
-          node: () => Relay.QL`fragment on Node { id }`,
+          node: () => RelayClassic.QL`fragment on Node { id }`,
         },
       });
       expect(
@@ -371,7 +371,7 @@ describe('RelayReadyStateRenderer', () => {
       const AnotherQueryConfig = RelayQueryConfig.genMock({
         routeName: 'AnotherQueryConfig',
         queries: {
-          node: () => Relay.QL`query { me }`,
+          node: () => RelayClassic.QL`query { me }`,
         },
       });
 
@@ -529,8 +529,8 @@ describe('RelayReadyStateRenderer', () => {
     it('sets environment and query config on the React context', () => {
       class TestComponent extends React.Component {
         static contextTypes = {
-          relay: Relay.PropTypes.Relay,
-          route: Relay.PropTypes.QueryConfig.isRequired,
+          relay: RelayClassic.PropTypes.RelayClassic,
+          route: RelayClassic.PropTypes.QueryConfig.isRequired,
         };
         render() {
           this.props.onRenderContext(this.context);

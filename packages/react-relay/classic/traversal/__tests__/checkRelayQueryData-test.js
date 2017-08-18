@@ -17,7 +17,7 @@ jest.enableAutomock();
 require('configureForRelayOSS');
 
 const GraphQLRange = require('GraphQLRange');
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayTestUtils = require('RelayTestUtils');
 
@@ -48,7 +48,7 @@ describe('checkRelayQueryData', () => {
   it('returns false when node is not in the store', () => {
     const result = hasData(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {id}
         }
@@ -66,7 +66,7 @@ describe('checkRelayQueryData', () => {
 
     const result = hasData(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
        query {
          node(id:"1055790163") {id}
        }
@@ -89,7 +89,7 @@ describe('checkRelayQueryData', () => {
 
     const result = hasData(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {id}
         }
@@ -112,7 +112,7 @@ describe('checkRelayQueryData', () => {
 
     const result = hasData(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           nodes(ids:["1055790163","4"]) {id}
         }
@@ -135,7 +135,7 @@ describe('checkRelayQueryData', () => {
 
     const result = hasData(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           username(name:"yuzhi") {id}
         }
@@ -160,7 +160,7 @@ describe('checkRelayQueryData', () => {
 
     const result = hasData(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -185,7 +185,7 @@ describe('checkRelayQueryData', () => {
 
     const result = hasData(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -216,7 +216,7 @@ describe('checkRelayQueryData', () => {
 
     const result = hasData(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -242,7 +242,7 @@ describe('checkRelayQueryData', () => {
 
     const result = hasData(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -271,7 +271,7 @@ describe('checkRelayQueryData', () => {
 
     const result = hasData(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -302,7 +302,7 @@ describe('checkRelayQueryData', () => {
 
     const result = hasData(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -329,7 +329,7 @@ describe('checkRelayQueryData', () => {
 
     const result = hasData(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -359,7 +359,7 @@ describe('checkRelayQueryData', () => {
 
     const result = hasData(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -395,7 +395,7 @@ describe('checkRelayQueryData', () => {
 
     const result = hasData(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -432,7 +432,7 @@ describe('checkRelayQueryData', () => {
 
     const result = hasData(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -470,7 +470,7 @@ describe('checkRelayQueryData', () => {
 
     const result = hasData(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           viewer {
             configs(named:"some_gk") {
@@ -521,7 +521,7 @@ describe('checkRelayQueryData', () => {
 
     const result = hasData(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -566,7 +566,7 @@ describe('checkRelayQueryData', () => {
 
     const result = hasData(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -592,15 +592,15 @@ describe('checkRelayQueryData', () => {
       },
     };
 
-    const fragment1 = Relay.QL`
+    const fragment1 = RelayClassic.QL`
       fragment on Node {username}
     `;
-    const fragment2 = Relay.QL`
+    const fragment2 = RelayClassic.QL`
       fragment on Node {name}
     `;
     let result = hasData(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {id, ${fragment1}}
         }
@@ -612,7 +612,7 @@ describe('checkRelayQueryData', () => {
     expect(result).toEqual(true);
     result = hasData(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {id, ${fragment2}}
         }
@@ -635,7 +635,7 @@ describe('checkRelayQueryData', () => {
     };
     const result = hasData(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -661,7 +661,7 @@ describe('checkRelayQueryData', () => {
     };
     const result = hasData(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -687,7 +687,7 @@ describe('checkRelayQueryData', () => {
     };
     const result = hasData(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id

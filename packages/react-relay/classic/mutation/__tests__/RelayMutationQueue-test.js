@@ -21,7 +21,7 @@ jest
   .unmock('RelayMutationTransaction')
   .unmock('RelayMutationTransactionStatus');
 
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayMutation = require('RelayMutation');
 const RelayMutationQuery = require('RelayMutationQuery');
@@ -58,8 +58,8 @@ describe('RelayMutationQueue', () => {
     storeData = RelayStore.getStoreData();
     mutationQueue = storeData.getMutationQueue();
     networkLayer = storeData.getNetworkLayer();
-    mutationNode = Relay.QL`mutation{commentCreate(input:$input)}`;
-    fatQuery = Relay.QL`fragment on Comment @relay(pattern: true) {
+    mutationNode = RelayClassic.QL`mutation{commentCreate(input:$input)}`;
+    fatQuery = RelayClassic.QL`fragment on Comment @relay(pattern: true) {
       ... on Comment {
         likers
         doesViewerLike

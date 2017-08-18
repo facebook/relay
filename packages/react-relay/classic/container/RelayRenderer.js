@@ -129,7 +129,7 @@ const INACTIVE_READY_STATE = {
  *   }
  *
  */
-class RelayRenderer extends React.Component<DefaultProps, Props, State> {
+class RelayRenderer extends React.Component<Props, State> {
   static propTypes = {
     Container: RelayPropTypes.Container,
     forceFetch: PropTypes.bool,
@@ -302,7 +302,7 @@ class RelayRenderer extends React.Component<DefaultProps, Props, State> {
     this.mounted = false;
   }
 
-  render(): ?React.Element<*> {
+  render(): React.Node {
     const readyState = this.state.active
       ? this.state.readyState
       : INACTIVE_READY_STATE;

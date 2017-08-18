@@ -28,7 +28,7 @@ function isReactComponent(component: mixed): boolean {
   );
 }
 
-function getReactComponent(Component: ReactClass<any>): ?ReactClass<any> {
+function getReactComponent(Component: React$ComponentType<any>): ?React$ComponentType<any> {
   if (isReactComponent(Component)) {
     return (Component: any);
   } else {
@@ -36,7 +36,7 @@ function getReactComponent(Component: ReactClass<any>): ?ReactClass<any> {
   }
 }
 
-function getComponentName(Component: ReactClass<any>): string {
+function getComponentName(Component: React$ComponentType<any>): string {
   let name;
   const ComponentClass = getReactComponent(Component);
   if (ComponentClass) {
@@ -47,10 +47,14 @@ function getComponentName(Component: ReactClass<any>): string {
   } else {
     name = 'ReactElement';
   }
+  /* $FlowFixMe(>=0.53.0 site=react_native_fb) This comment suppresses an error
+   * when upgrading Flow's support for React. Common errors found when
+   * upgrading Flow's React support are documented at
+   * https://fburl.com/eq7bs81w */
   return name;
 }
 
-function getContainerName(Component: ReactClass<any>): string {
+function getContainerName(Component: React$ComponentType<any>): string {
   return 'Relay(' + getComponentName(Component) + ')';
 }
 

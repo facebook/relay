@@ -34,7 +34,7 @@ export type Props = {
   cacheConfig?: ?CacheConfig,
   environment: Environment | ClassicEnvironment,
   query: ?GraphQLTaggedNode,
-  render: (readyState: ReadyState) => ?React.Element<*>,
+  render: (readyState: ReadyState) => ?React.Element<any>,
   variables: Variables,
   rerunParamExperimental?: RerunParam,
 };
@@ -57,14 +57,11 @@ type State = {
  * - Renders the pending/fail/success states with the provided render function.
  * - Subscribes for updates to the root data and re-renders with any changes.
  */
-class ReactRelayQueryRenderer extends React.Component {
+class ReactRelayQueryRenderer extends React.Component<Props, State> {
   _pendingFetch: ?Disposable;
   _relayContext: RelayContext;
   _rootSubscription: ?Disposable;
   _selectionReference: ?Disposable;
-
-  props: Props;
-  state: State;
 
   constructor(props: Props, context: Object) {
     super(props, context);

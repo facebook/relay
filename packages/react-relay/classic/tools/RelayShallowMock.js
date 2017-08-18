@@ -45,17 +45,21 @@ import type {RelayContainerSpec, RelayLazyContainer} from 'RelayContainer';
 
 const RelayShallowMock = {
   createContainer: (
-    component: ReactClass<any>,
+    component: React.ComponentType<any>,
     spec: RelayContainerSpec,
   ): RelayLazyContainer => {
-    return class extends React.Component {
+    return class extends React.Component<{}> {
       render() {
         return React.createElement(
+          /* $FlowFixMe(>=0.53.0 site=react_native_fb) This comment suppresses
+           * an error when upgrading Flow's support for React. Common errors
+           * found when upgrading Flow's React support are documented at
+           * https://fburl.com/eq7bs81w */
           `Relay(${component.displayName || component.name || 'Unknown'})`,
         );
       }
 
-      static unwrap(): ReactClass<any> {
+      static unwrap(): React.ComponentType<any> {
         return component;
       }
     };

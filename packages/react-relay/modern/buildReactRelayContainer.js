@@ -29,9 +29,9 @@ const containerContextTypes = {
 };
 
 type ContainerCreator = (
-  Component: ReactClass<any>,
+  Component: React$ComponentType<any>,
   fragments: FragmentMap,
-) => ReactClass<any>;
+) => React$ComponentType<any>;
 
 /**
  * Creates a component class whose instances adapt to the
@@ -39,7 +39,7 @@ type ContainerCreator = (
  * necessary static methods (`getFragment()` etc) to be composed within classic
  * `Relay.Containers`.
  */
-function buildReactRelayContainer<TBase: ReactClass<*>>(
+function buildReactRelayContainer<TBase: React$ComponentType<*>>(
   ComponentClass: TBase,
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
   createContainerWithFragments: ContainerCreator,
@@ -71,6 +71,10 @@ function buildReactRelayContainer<TBase: ReactClass<*>>(
       const fragments = mapObject(fragmentSpec, getFragmentFromTag);
       Container = createContainerWithFragments(ComponentClass, fragments);
     }
+    /* $FlowFixMe(>=0.53.0 site=react_native_fb) This comment suppresses an
+     * error when upgrading Flow's support for React. Common errors found when
+     * upgrading Flow's React support are documented at
+     * https://fburl.com/eq7bs81w */
     return new Container(props, context);
   }
   ContainerConstructor.contextTypes = containerContextTypes;

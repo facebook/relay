@@ -28,7 +28,7 @@ QueryConfig.queries = {};
  * should only be used as a wrapper around RelayContainers that have not been
  * converted to one of the compatibility container and are not fetching data.
  */
-class ForceRelayClassicContext extends React.Component {
+class ForceRelayClassicContext extends React.Component<$FlowFixMeProps> {
   static childContextTypes = {
     relay: RelayPropTypes.ClassicRelay,
     route: RelayPropTypes.QueryConfig.isRequired,
@@ -43,7 +43,7 @@ class ForceRelayClassicContext extends React.Component {
       route: new QueryConfig(),
     };
   }
-  render(): ?React.Element<*> {
+  render(): React.Node {
     return this.props.children;
   }
 }

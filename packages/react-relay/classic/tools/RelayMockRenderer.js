@@ -34,7 +34,7 @@ const RelayPropTypes = require('RelayPropTypes');
  * Currently ReactDOM and ReactTestRenderer cannot both be loaded in the same
  * test, and Relay transitively includes ReactDOM under its default settings.
  */
-class RelayMockRenderer extends React.Component {
+class RelayMockRenderer extends React.Component<$FlowFixMeProps> {
   mockContext: any;
 
   static childContextTypes = {

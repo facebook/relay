@@ -297,14 +297,11 @@ function findConnectionMetadata(fragments): ReactConnectionMetadata {
   return foundConnectionMetadata || ({}: any);
 }
 
-/* $FlowFixMe(>=0.53.0 site=react_native_fb) This comment suppresses an error
- * found when Flow v0.53 was deployed. To see the error delete this comment and
- * run Flow. */
-function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
+function createContainerWithFragments<TConfig, TClass: React.ComponentType<TConfig>>(
   Component: TClass,
   fragments: FragmentMap,
   connectionConfig: ConnectionConfig,
-): ReactClass<TConfig & {componentRef?: any}> {
+): React.ComponentType<TConfig & {componentRef?: any}> {
   const ComponentClass = getReactComponent(Component);
   const componentName = getComponentName(Component);
   const containerName = `Relay(${componentName})`;
@@ -326,8 +323,7 @@ function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
     connectionConfig.getFragmentVariables ||
     createGetFragmentVariables(metadata);
 
-  class Container extends React.Component {
-    state: ContainerState;
+  class Container extends React.Component<$FlowFixMeProps, ContainerState> {
     _isARequestInFlight: boolean;
     _localVariables: ?Variables;
     _pendingRefetch: ?Disposable;
@@ -736,9 +732,6 @@ function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
         );
       } else {
         // Stateless functional, doesn't support `ref`
-        /* $FlowFixMe(>=0.53.0 site=react_native_fb) This comment suppresses an
-         * error found when Flow v0.53 was deployed. To see the error delete
-         * this comment and run Flow. */
         return React.createElement(Component, {
           ...this.props,
           ...this.state.data,
@@ -771,7 +764,7 @@ function assertRelayContext(relay: mixed): RelayContext {
  * `fragmentSpec` is memoized once per environment, rather than once per
  * instance of the container constructed/rendered.
  */
-function createContainer<TBase: ReactClass<*>>(
+function createContainer<TBase: React.ComponentType<*>>(
   Component: TBase,
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
   connectionConfig: ConnectionConfig,
@@ -782,6 +775,10 @@ function createContainer<TBase: ReactClass<*>>(
     (ComponentClass, fragments) =>
       createContainerWithFragments(ComponentClass, fragments, connectionConfig),
   );
+  /* $FlowFixMe(>=0.53.0 site=react_native_fb) This comment suppresses an error
+   * when upgrading Flow's support for React. Common errors found when
+   * upgrading Flow's React support are documented at
+   * https://fburl.com/eq7bs81w */
   Container.childContextTypes = containerContextTypes;
   return Container;
 }

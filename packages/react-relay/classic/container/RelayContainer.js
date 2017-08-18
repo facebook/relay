@@ -96,7 +96,7 @@ const containerContextTypes = {
  *
  */
 function createContainerComponent(
-  Component: ReactClass<any>,
+  Component: React.ComponentType<any>,
   spec: RelayContainerSpec,
 ): RelayContainerClass {
   const ComponentClass = getReactComponent(Component);
@@ -108,7 +108,11 @@ function createContainerComponent(
   const prepareVariables = spec.prepareVariables;
   const specShouldComponentUpdate = spec.shouldComponentUpdate;
 
-  class RelayContainer extends React.Component {
+  class RelayContainer extends React.Component<$FlowFixMeProps, {
+    queryData: {[propName: string]: mixed},
+    rawVariables: Variables,
+    relayProp: RelayProp,
+  }> {
     mounted: boolean;
     _didShowFakeDataWarning: boolean;
     _fragmentPointers: {[key: string]: ?FragmentPointer};
@@ -118,11 +122,6 @@ function createContainerComponent(
     pending: ?{
       rawVariables: Variables,
       request: Abortable,
-    };
-    state: {
-      queryData: {[propName: string]: mixed},
-      rawVariables: Variables,
-      relayProp: RelayProp,
     };
 
     constructor(props, context) {
@@ -813,7 +812,7 @@ function createContainerComponent(
       );
     }
 
-    render(): React.Element<*> {
+    render(): React.Node {
       if (ComponentClass) {
         return (
           <ComponentClass
@@ -1022,7 +1021,7 @@ function validateSpec(componentName: string, spec: RelayContainerSpec): void {
   });
 }
 
-function getContainerName(Component: ReactClass<any>): string {
+function getContainerName(Component: React.ComponentType<any>): string {
   return 'Relay(' + getComponentName(Component) + ')';
 }
 
@@ -1031,7 +1030,7 @@ function getContainerName(Component: ReactClass<any>): string {
  * time a container is being constructed by React's rendering engine.
  */
 function create(
-  Component: ReactClass<any>,
+  Component: React.ComponentType<any>,
   spec: RelayContainerSpec,
 ): RelayLazyContainer {
   const componentName = getComponentName(Component);

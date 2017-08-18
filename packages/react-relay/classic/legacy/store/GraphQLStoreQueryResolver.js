@@ -39,8 +39,7 @@ class GraphQLStoreQueryResolver {
   _callback: Function;
   _fragment: RelayQuery.Fragment;
   _resolver: ?(
-    | GraphQLStorePluralQueryResolver
-    | GraphQLStoreSingleQueryResolver);
+    | (GraphQLStorePluralQueryResolver | GraphQLStoreSingleQueryResolver));
   _storeData: RelayStoreData;
 
   constructor(

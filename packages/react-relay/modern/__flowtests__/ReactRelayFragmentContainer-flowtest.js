@@ -37,6 +37,9 @@ const Foo = createFragmentContainer(
   `,
 );
 
+/* $FlowFixMe(>=0.53.0 site=react_native_fb) This comment suppresses an error
+ * when upgrading Flow's support for React. Common errors found when upgrading
+ * Flow's React support are documented at https://fburl.com/eq7bs81w */
 class BarComponent extends React.Component {
   props: {
     optionalProp?: {foo: number},
@@ -126,6 +129,10 @@ module.exports = {
     return <Bar {...props} />;
   },
   checkStaticsAndMethodsProxying() {
+    /* $FlowFixMe(>=0.53.0 site=react_native_fb) This comment suppresses an
+     * error when upgrading Flow's support for React. Common errors found when
+     * upgrading Flow's React support are documented at
+     * https://fburl.com/eq7bs81w */
     class ProxyChecker extends React.PureComponent {
       _barRef: ?Bar;
       getString(): string {

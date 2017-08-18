@@ -20,6 +20,8 @@ const isPromise = require('isPromise');
 const normalizePayload = require('normalizePayload');
 const nullthrows = require('nullthrows');
 
+const {convertFetch, convertSubscribe} = require('ConvertToObserveFunction');
+
 import type {CacheConfig, Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {ConcreteBatch} from 'RelayConcreteNode';
 import type {
@@ -46,7 +48,9 @@ function create(
 ): Network {
   // Convert to functions that returns RelayObservable.
   const observeFetch = convertFetch(fetchFn);
-  const observeSubscribe = convertSubscribe(subscribeFn);
+  const observeSubscribe = subscribeFn
+    ? convertSubscribe(subscribeFn)
+    : undefined;
 
   function observe(
     operation: ConcreteBatch,
@@ -121,30 +125,6 @@ function create(
     fetch,
     request,
     requestStream,
-  };
-}
-
-function convertFetch(fn: FetchFunction): ObserveFunction {
-  return function fetch(operation, variables, cacheConfig, uploadables) {
-    const result: ObservableOrPromiseOrValue<QueryPayload> = fn(
-      operation,
-      variables,
-      cacheConfig,
-      uploadables,
-    );
-    return RelayObservable.from(result);
-  };
-}
-
-function convertSubscribe(fn: ?SubscribeFunction): ?ObserveFunction {
-  const fn_ = fn; // Tell Flow this function arg is const.
-  if (!fn_) {
-    return;
-  }
-  return function subscribe(operation, variables, cacheConfig) {
-    return RelayObservable.fromLegacy(observer =>
-      fn_(operation, variables, cacheConfig, observer),
-    );
   };
 }
 

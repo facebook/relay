@@ -27,6 +27,7 @@
     "fb-watchman": "^2.0.0",
     "fbjs": "^0.8.1",
     "graphql": "^0.10.5",
+    "is-ci": "^1.0.10",
     "immutable": "^3.8.1",
     "relay-runtime": "1.2.0",
     "signedsource": "^1.0.0",

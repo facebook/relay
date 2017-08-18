@@ -26,6 +26,7 @@ const formatGeneratedModule = require('formatGeneratedModule');
 const fs = require('fs');
 const path = require('path');
 const yargs = require('yargs');
+const isCi = require('is-ci');
 
 const {
   buildASTSchema,
@@ -152,7 +153,9 @@ Ensure that one such file exists in ${srcDir} or its parents.
   if (options.watch) {
     await codegenRunner.watchAll();
   } else {
-    console.log('HINT: pass --watch to keep watching for changes.');
+    if (!isCi) {
+      console.log('HINT: pass --watch to keep watching for changes.');
+    }
     await codegenRunner.compileAll();
   }
 }

@@ -190,7 +190,7 @@ class RelayModernEnvironment implements Environment {
   }): RelayObservable<RelayResponsePayload> {
     const {node, variables} = operation;
     return this._network
-      .observe(node, variables, cacheConfig)
+      .observe(node, variables, cacheConfig || {})
       .map(payload => normalizePayload(node, variables, payload))
       .do({
         next: payload => {

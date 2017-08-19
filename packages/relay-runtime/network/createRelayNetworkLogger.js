@@ -21,7 +21,6 @@ const prettyStringify = require('prettyStringify');
 
 const {convertFetch, convertSubscribe} = require('ConvertToObserveFunction');
 
-import type {CacheConfig, Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {ConcreteBatch} from 'RelayConcreteNode';
 import type {IRelayNetworkLoggerTransaction} from 'RelayNetworkLoggerTransaction';
 import type {

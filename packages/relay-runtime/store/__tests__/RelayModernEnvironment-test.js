@@ -505,7 +505,7 @@ describe('RelayModernEnvironment', () => {
       expect(fetch.mock.calls.length).toBe(1);
       expect(fetch.mock.calls[0][0]).toBe(query);
       expect(fetch.mock.calls[0][1]).toEqual({fetchSize: false});
-      expect(fetch.mock.calls[0][2]).toBe(undefined);
+      expect(fetch.mock.calls[0][2]).toEqual({});
     });
 
     it('fetches queries with force:true', () => {
@@ -646,7 +646,7 @@ describe('RelayModernEnvironment', () => {
       expect(fetch.mock.calls.length).toBe(1);
       expect(fetch.mock.calls[0][0]).toBe(query);
       expect(fetch.mock.calls[0][1]).toEqual({fetchSize: false});
-      expect(fetch.mock.calls[0][2]).toBe(undefined);
+      expect(fetch.mock.calls[0][2]).toEqual({});
     });
 
     it('fetches queries with force:true', () => {

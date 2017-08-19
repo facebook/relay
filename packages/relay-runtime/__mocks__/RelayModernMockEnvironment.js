@@ -160,7 +160,7 @@ function createMockEnvironment(options: {
       pending =>
         pending.query === query &&
         areEqual(pending.variables, variables) &&
-        areEqual(pending.cacheConfig, cacheConfig),
+        areEqual(pending.cacheConfig, cacheConfig || {}),
     );
   };
 

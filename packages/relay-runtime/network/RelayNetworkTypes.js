@@ -69,7 +69,7 @@ export type QueryPayload = {|
 export type ObserveFunction = (
   operation: ConcreteBatch,
   variables: Variables,
-  cacheConfig?: ?CacheConfig,
+  cacheConfig: CacheConfig,
   uploadables?: ?UploadableMap,
 ) => RelayObservable<QueryPayload>;
 
@@ -93,7 +93,7 @@ export type PromiseOrValue<T> = Promise<T> | T | Error;
 export type FetchFunction = (
   operation: ConcreteBatch,
   variables: Variables,
-  cacheConfig: ?CacheConfig,
+  cacheConfig: CacheConfig,
   uploadables: ?UploadableMap,
 ) => ObservableFromValue<QueryPayload>;
 
@@ -107,7 +107,7 @@ export type FetchFunction = (
 export type SubscribeFunction = (
   operation: ConcreteBatch,
   variables: Variables,
-  cacheConfig: ?CacheConfig,
+  cacheConfig: CacheConfig,
   observer: Observer<QueryPayload>,
 ) => RelayObservable<QueryPayload> | Disposable;
 
@@ -119,7 +119,7 @@ export type SubscribeFunction = (
 export type NetworkFetchFunction = (
   operation: ConcreteBatch,
   variables: Variables,
-  cacheConfig: ?CacheConfig,
+  cacheConfig: CacheConfig,
   uploadables?: ?UploadableMap,
 ) => PromiseOrValue<QueryPayload>;
 
@@ -132,7 +132,7 @@ export type NetworkFetchFunction = (
 export type RequestStreamFunction = (
   operation: ConcreteBatch,
   variables: Variables,
-  cacheConfig: ?CacheConfig,
+  cacheConfig: CacheConfig,
   observer: Observer<RelayResponsePayload>,
 ) => Disposable;
 
@@ -143,7 +143,7 @@ export type RequestStreamFunction = (
 export type RequestResponseFunction = (
   operation: ConcreteBatch,
   variables: Variables,
-  cacheConfig?: ?CacheConfig,
+  cacheConfig: CacheConfig,
   uploadables?: ?UploadableMap,
 ) => PromiseOrValue<RelayResponsePayload>;
 

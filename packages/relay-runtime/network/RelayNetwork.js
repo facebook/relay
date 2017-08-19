@@ -54,7 +54,7 @@ function create(
   function observe(
     operation: ConcreteBatch,
     variables: Variables,
-    cacheConfig?: ?CacheConfig,
+    cacheConfig: CacheConfig,
     uploadables?: ?UploadableMap,
   ): RelayObservable<QueryPayload> {
     if (operation.query.operation === 'subscription') {
@@ -71,7 +71,7 @@ function create(
       return observeSubscribe(operation, variables, cacheConfig);
     }
 
-    const pollInterval = cacheConfig && cacheConfig.poll;
+    const pollInterval = cacheConfig.poll;
     if (pollInterval != null) {
       invariant(
         !uploadables,
@@ -88,7 +88,7 @@ function create(
   function fetch(
     operation: ConcreteBatch,
     variables: Variables,
-    cacheConfig?: ?CacheConfig,
+    cacheConfig: CacheConfig,
     uploadables?: ?UploadableMap,
   ): PromiseOrValue<QueryPayload> {
     return observeFetch(operation, variables, cacheConfig, uploadables)
@@ -99,7 +99,7 @@ function create(
   function request(
     operation: ConcreteBatch,
     variables: Variables,
-    cacheConfig?: ?CacheConfig,
+    cacheConfig: CacheConfig,
     uploadables?: ?UploadableMap,
   ): PromiseOrValue<RelayResponsePayload> {
     return observeFetch(operation, variables, cacheConfig, uploadables)
@@ -111,7 +111,7 @@ function create(
   function requestStream(
     operation: ConcreteBatch,
     variables: Variables,
-    cacheConfig: ?CacheConfig,
+    cacheConfig: CacheConfig,
     observer: Observer<RelayResponsePayload>,
   ): Disposable {
     return observe(operation, variables, cacheConfig)

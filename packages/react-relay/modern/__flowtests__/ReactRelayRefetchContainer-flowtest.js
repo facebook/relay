@@ -20,7 +20,7 @@ const {graphql, createRefetchContainer} = require('ReactRelayPublic');
  * Verifies that normal prop type checking works correctly on Relay components.
  */
 
-/* $FlowFixMe(>=0.53.0 site=react_native_fb) This comment suppresses an error
+/* $FlowFixMe(>=0.53.0) This comment suppresses an error
  * when upgrading Flow's support for React. Common errors found when upgrading
  * Flow's React support are documented at https://fburl.com/eq7bs81w */
 class FooComponent extends React.Component {
@@ -122,7 +122,7 @@ module.exports = {
     return <Foo {...props} />;
   },
   checkStaticsAndMethodsProxying() {
-    /* $FlowFixMe(>=0.53.0 site=react_native_fb) This comment suppresses an
+    /* $FlowFixMe(>=0.53.0) This comment suppresses an
      * error when upgrading Flow's support for React. Common errors found when
      * upgrading Flow's React support are documented at
      * https://fburl.com/eq7bs81w */

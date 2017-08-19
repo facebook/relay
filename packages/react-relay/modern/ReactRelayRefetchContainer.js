@@ -53,7 +53,10 @@ const containerContextTypes = {
  * props, resolving them with the provided fragments and subscribing for
  * updates.
  */
-function createContainerWithFragments<TConfig, TClass: React.ComponentType<TConfig>>(
+function createContainerWithFragments<
+  TConfig,
+  TClass: React.ComponentType<TConfig>,
+>(
   Component: TClass,
   fragments: FragmentMap,
   taggedNode: GraphQLTaggedNode,
@@ -358,7 +361,7 @@ function createContainer<TBase: React.ComponentType<*>>(
     (ComponentClass, fragments) =>
       createContainerWithFragments(ComponentClass, fragments, taggedNode),
   );
-  /* $FlowFixMe(>=0.53.0 site=react_native_fb) This comment suppresses an error
+  /* $FlowFixMe(>=0.53.0) This comment suppresses an error
    * when upgrading Flow's support for React. Common errors found when
    * upgrading Flow's React support are documented at
    * https://fburl.com/eq7bs81w */

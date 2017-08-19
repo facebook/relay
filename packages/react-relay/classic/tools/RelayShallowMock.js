@@ -51,7 +51,7 @@ const RelayShallowMock = {
     return class extends React.Component<{}> {
       render() {
         return React.createElement(
-          /* $FlowFixMe(>=0.53.0 site=react_native_fb) This comment suppresses
+          /* $FlowFixMe(>=0.53.0) This comment suppresses
            * an error when upgrading Flow's support for React. Common errors
            * found when upgrading Flow's React support are documented at
            * https://fburl.com/eq7bs81w */

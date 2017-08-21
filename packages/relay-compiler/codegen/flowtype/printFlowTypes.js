@@ -53,12 +53,14 @@ function printFlowTypes(node: Root | Fragment): ?string {
         }
         return normalize(transform(inputIR))
           .concat(response)
-          .map(n => generate(n).code)
+          .map(n => generate(n, {flowCommaSeparator: true}).code)
           .join('\n\n');
       }
     }
   } else if (node.kind === 'Fragment') {
-    return normalize(transform(node)).map(n => generate(n).code).join('\n\n');
+    return normalize(transform(node))
+      .map(n => generate(n, {flowCommaSeparator: true}).code)
+      .join('\n\n');
   }
 }
 

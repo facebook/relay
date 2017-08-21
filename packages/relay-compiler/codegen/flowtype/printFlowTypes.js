@@ -34,6 +34,10 @@ const FIELD_BLACKLIST = ['clientMutationId', 'client_mutation_id'];
 
 type Annotation = Object;
 
+function getGeneratedCode(node: Fragment | LinkedField): Array<string> {
+  return normalize(transform(node)).map(ast => generate(ast).code);
+}
+
 /**
  * Prints a given Root or Fragment into a Flow type declaration.
  */
@@ -43,22 +47,20 @@ function printFlowTypes(node: Root | Fragment): ?string {
     if (node.operation === 'mutation') {
       const selection = node.selections[0];
       if (selection.kind === 'LinkedField') {
-        const argument = selection.args[0];
-        const inputIR = transformInputObjectToIR(argument);
+        const nodes = selection.args.map(transformInputObjectToIR);
 
-        let response = [];
         if (node.name !== RELAY_CLASSIC_MUTATION) {
-          selection.name = `${node.name}Response`;
-          response = normalize(transform(selection));
+          selection.name = node.name + 'Response';
+          nodes.push(selection);
         }
-        return normalize(transform(inputIR))
-          .concat(response)
-          .map(n => generate(n).code)
-          .join('\n\n');
+
+        return nodes.reduce((generateCodes, node) =>
+          generateCodes.concat(getGeneratedCode(node))
+        , []).join('\n\n');
       }
     }
   } else if (node.kind === 'Fragment') {
-    return normalize(transform(node)).map(n => generate(n).code).join('\n\n');
+    return getGeneratedCode(node).join('\n\n');
   }
 }
 

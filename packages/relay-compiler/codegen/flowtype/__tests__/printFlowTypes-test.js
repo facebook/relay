@@ -323,7 +323,22 @@ describe('printFlowTypes', () => {
     });
   });
 
-  it('prints mutation arguments', () => {
+  it('prints nothing if mutation has no arguments', () => {
+    const IR = parse(
+      `
+      mutation {
+        mutateNoArguments
+      }
+      `,
+      RelayTestSchema,
+    );
+
+    const expected = '';
+
+    expect(printFlowTypes(IR[0]).trim()).toBe(dedent(expected));
+  });
+
+  it('prints mutation single argument', () => {
     const IR = parse(
       `
       mutation {
@@ -336,6 +351,34 @@ describe('printFlowTypes', () => {
     const expected = `
       export type UnfriendInput = {
         friendId?: ?string;
+      };
+    `;
+
+    expect(printFlowTypes(IR[0]).trim()).toBe(dedent(expected));
+  });
+
+  it('prints mutation arguments', () => {
+    const IR = parse(
+      `
+      mutation {
+        mutateManyArguments(
+          input1: {k11: "some string", k21: 0}
+          input2: {k21: true, k22: "other string"}
+        )
+      }
+      `,
+      RelayTestSchema,
+    );
+
+    const expected = `
+      export type MutationInput1 = {
+        k11?: ?string;
+        k21?: ?number;
+      };
+
+      export type MutationInput2 = {
+        k21?: ?boolean;
+        k22?: ?string;
       };
     `;
 

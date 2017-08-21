@@ -13,8 +13,8 @@
 
 'use strict';
 
-const RelayCompilerContext = require('RelayCompilerContext');
 const GraphQLSchemaUtils = require('GraphQLSchemaUtils');
+const RelayCompilerContext = require('RelayCompilerContext');
 
 const {
   assertAbstractType,

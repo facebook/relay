@@ -17,6 +17,7 @@ const RelayGenerateRequisiteFieldsTransform = require('RelayGenerateRequisiteFie
 const RelayParser = require('RelayParser');
 const RelayPrinter = require('RelayPrinter');
 const RelayTestSchema = require('RelayTestSchema');
+
 const getGoldenMatchers = require('getGoldenMatchers');
 
 describe('RelayGenerateRequisiteFieldsTransform', () => {

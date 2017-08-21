@@ -15,9 +15,10 @@
 const RelayCodeGenerator = require('RelayCodeGenerator');
 const RelayCompilerContext = require('RelayCompilerContext');
 const RelayTestSchema = require('RelayTestSchema');
-const prettyStringify = require('prettyStringify');
+
 const getGoldenMatchers = require('getGoldenMatchers');
 const parseGraphQLText = require('parseGraphQLText');
+const prettyStringify = require('prettyStringify');
 
 describe('RelayCodeGenerator', () => {
   beforeEach(() => {

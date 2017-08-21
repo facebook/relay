@@ -16,8 +16,8 @@
 const RelayCompilerContext = require('RelayCompilerContext');
 const RelayIRTransformer = require('RelayIRTransformer');
 
-const {DEFAULT_HANDLE_KEY} = require('RelayDefaultHandleKey');
 const {getRawType} = require('GraphQLSchemaUtils');
+const {DEFAULT_HANDLE_KEY} = require('RelayDefaultHandleKey');
 const {GraphQLObjectType} = require('graphql');
 
 import type {LinkedField} from 'RelayIR';

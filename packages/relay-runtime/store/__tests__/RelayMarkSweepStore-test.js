@@ -15,8 +15,8 @@
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('RelayMarkSweepStore');
 const RelayModernRecord = require('RelayModernRecord');
-const RelayStoreUtils = require('RelayStoreUtils');
 const RelayModernTestUtils = require('RelayModernTestUtils');
+const RelayStoreUtils = require('RelayStoreUtils');
 
 const forEachObject = require('forEachObject');
 const simpleClone = require('simpleClone');

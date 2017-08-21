@@ -14,10 +14,10 @@
 
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayModernRecord = require('RelayModernRecord');
+const RelayModernTestUtils = require('RelayModernTestUtils');
 const RelayRecordSourceMutator = require('RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('RelayRecordSourceProxy');
 const RelayStoreUtils = require('RelayStoreUtils');
-const RelayModernTestUtils = require('RelayModernTestUtils');
 const RelayViewerHandler = require('RelayViewerHandler');
 
 const generateRelayClientID = require('generateRelayClientID');

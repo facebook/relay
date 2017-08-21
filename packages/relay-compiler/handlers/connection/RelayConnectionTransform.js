@@ -13,10 +13,10 @@
 
 'use strict';
 
+const GraphQLSchemaUtils = require('GraphQLSchemaUtils');
 const RelayCompilerContext = require('RelayCompilerContext');
 const RelayIRTransformer = require('RelayIRTransformer');
 const RelayParser = require('RelayParser');
-const GraphQLSchemaUtils = require('GraphQLSchemaUtils');
 
 const getRelayLiteralArgumentValues = require('getRelayLiteralArgumentValues');
 const invariant = require('invariant');

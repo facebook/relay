@@ -12,8 +12,8 @@
 
 'use strict';
 
-const RelayCompilerContext = require('../core/RelayCompilerContext');
 const GraphQLSchemaUtils = require('../core/GraphQLSchemaUtils');
+const RelayCompilerContext = require('../core/RelayCompilerContext');
 
 const areEqual = require('../util/areEqualOSS');
 const getIdentifierForRelaySelection = require('../core/getIdentifierForRelaySelection');

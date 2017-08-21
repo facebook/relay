@@ -13,14 +13,15 @@
 'use strict';
 
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
+const RelayModernTestUtils = require('RelayModernTestUtils');
+const RelayRecordProxy = require('RelayRecordProxy');
 const RelayRecordSourceMutator = require('RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('RelayRecordSourceProxy');
-const RelayRecordProxy = require('RelayRecordProxy');
 const RelayStoreUtils = require('RelayStoreUtils');
-const RelayModernTestUtils = require('RelayModernTestUtils');
-const {createOperationSelector} = require('RelayModernOperationSelector');
 
 const simpleClone = require('simpleClone');
+
+const {createOperationSelector} = require('RelayModernOperationSelector');
 
 const {
   ID_KEY,

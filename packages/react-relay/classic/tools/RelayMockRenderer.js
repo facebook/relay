@@ -13,8 +13,8 @@
 
 'use strict';
 
-const React = require('React');
 const PropTypes = require('prop-types');
+const React = require('React');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayPropTypes = require('RelayPropTypes');
 

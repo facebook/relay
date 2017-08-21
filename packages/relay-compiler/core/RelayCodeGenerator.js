@@ -13,8 +13,8 @@
 
 'use strict';
 
-const RelayIRVisitor = require('RelayIRVisitor');
 const GraphQLSchemaUtils = require('GraphQLSchemaUtils');
+const RelayIRVisitor = require('RelayIRVisitor');
 
 const formatStorageKey = require('formatStorageKey');
 const invariant = require('invariant');

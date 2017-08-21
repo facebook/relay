@@ -13,9 +13,10 @@
 'use strict';
 
 const RelayCompilerContext = require('RelayCompilerContext');
-const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
 const RelayParser = require('RelayParser');
+const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
 const RelayTestSchema = require('RelayTestSchema');
+
 const getGoldenMatchers = require('getGoldenMatchers');
 const prettyStringify = require('prettyStringify');
 

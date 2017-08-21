@@ -15,14 +15,15 @@
 const React = require('React');
 const ReactRelayPropTypes = require('ReactRelayPropTypes');
 const ReactRelayQueryRenderer = require('ReactRelayQueryRenderer');
+const ReactTestRenderer = require('ReactTestRenderer');
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('RelayMarkSweepStore');
 const RelayModernEnvironment = require('RelayModernEnvironment');
 const RelayNetwork = require('RelayNetwork');
-const ReactTestRenderer = require('ReactTestRenderer');
-const {createMockEnvironment} = require('RelayModernMockEnvironment');
 
 const simpleClone = require('simpleClone');
+
+const {createMockEnvironment} = require('RelayModernMockEnvironment');
 
 describe('ReactRelayQueryRenderer', () => {
   let TestQuery;

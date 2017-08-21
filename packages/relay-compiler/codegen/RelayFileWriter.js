@@ -231,14 +231,13 @@ class RelayFileWriter implements FileWriterInterface {
 
       if (this._config.generateExtraFiles) {
         const configDirectory = this._config.outputDir;
-        invariant(
-          configDirectory,
-          'RelayFileWriter: cannot generate extra files without specifying ' +
-            ' an outputDir in the config.',
-        );
-
         this._config.generateExtraFiles(dir => {
           const outputDirectory = dir || configDirectory;
+          invariant(
+            outputDirectory,
+            'RelayFileWriter: cannot generate extra files without specifying ' +
+              'an outputDir in the config or passing it in.',
+          );
           let outputDir = allOutputDirectories.get(outputDirectory);
           if (!outputDir) {
             outputDir = addCodegenDir(outputDirectory);

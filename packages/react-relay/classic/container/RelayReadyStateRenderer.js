@@ -68,9 +68,12 @@ export type RelayRetryCallback = () => void;
  * If `readyState` is not supplied, the previously rendered `readyState` will
  * continue to be rendered (or null if there is no previous `readyState`).
  */
-class RelayReadyStateRenderer extends React.Component<Props, {
-  getContainerProps: RelayContainerPropsFactory,
-}> {
+class RelayReadyStateRenderer extends React.Component<
+  Props,
+  {
+    getContainerProps: RelayContainerPropsFactory,
+  },
+> {
   static childContextTypes = {
     relay: RelayPropTypes.ClassicRelay,
     route: RelayPropTypes.QueryConfig.isRequired,

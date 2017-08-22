@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule H2
+ * @format
  */
 
 'use strict';
@@ -16,7 +17,11 @@ const React = require('React');
 
 class H2 extends React.Component {
   render() {
-    return <Header {...this.props} level={2}>{this.props.children}</Header>;
+    return (
+      <Header {...this.props} level={2}>
+        {this.props.children}
+      </Header>
+    );
   }
 }
 

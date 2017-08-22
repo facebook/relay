@@ -5,6 +5,8 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
@@ -17,29 +19,35 @@ const createCacheKeyFunction = require('fbjs-scripts/jest/createCacheKeyFunction
 const getBabelOptions = require('../getBabelOptions');
 const path = require('path');
 
-const SCHEMA_PATH = path.resolve(__dirname, '../../packages/relay-compiler/testutils/testschema.graphql');
+const SCHEMA_PATH = path.resolve(
+  __dirname,
+  '../../packages/relay-compiler/testutils/testschema.graphql',
+);
 
 const babelOptions = getBabelOptions({
   env: 'test',
   // Tests use a Promise polfill so they can use jest.runAllTimers().
   autoImport: true,
   moduleMap: {
-    'immutable': 'immutable',
-    'React': 'react',
-    'reactComponentExpect': 'react-dom/lib/reactComponentExpect',
-    'ReactDOM': 'react-dom',
-    'ReactDOMServer': 'react-dom/server',
-    'ReactTestRenderer': 'react-test-renderer',
-    'ReactTestUtils': 'react-dom/test-utils',
+    immutable: 'immutable',
+    React: 'react',
+    reactComponentExpect: 'react-dom/lib/reactComponentExpect',
+    ReactDOM: 'react-dom',
+    ReactDOMServer: 'react-dom/server',
+    ReactTestRenderer: 'react-test-renderer',
+    ReactTestUtils: 'react-dom/test-utils',
     'StaticContainer.react': 'react-static-container',
   },
   plugins: [
-    [BabelPluginRelay, {
-      compat: true,
-      haste: true,
-      substituteVariables: true,
-      schema: SCHEMA_PATH,
-    }],
+    [
+      BabelPluginRelay,
+      {
+        compat: true,
+        haste: true,
+        substituteVariables: true,
+        schema: SCHEMA_PATH,
+      },
+    ],
     require('babel-plugin-transform-async-to-generator'),
   ],
 });
@@ -56,7 +64,10 @@ module.exports = {
   getCacheKey: createCacheKeyFunction([
     __filename,
     SCHEMA_PATH,
-    path.join(path.dirname(require.resolve('babel-preset-fbjs')), 'package.json'),
+    path.join(
+      path.dirname(require.resolve('babel-preset-fbjs')),
+      'package.json',
+    ),
     path.join(__dirname, '..', 'getBabelOptions.js'),
   ]),
 };

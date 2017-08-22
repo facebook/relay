@@ -46,7 +46,10 @@ const containerContextTypes = {
  * props, resolving them with the provided fragments and subscribing for
  * updates.
  */
-function createContainerWithFragments<TConfig, TClass: React.ComponentType<TConfig>>(
+function createContainerWithFragments<
+  TConfig,
+  TClass: React.ComponentType<TConfig>,
+>(
   Component: TClass,
   fragments: FragmentMap,
 ): React.ComponentType<TConfig & {componentRef?: any}> {

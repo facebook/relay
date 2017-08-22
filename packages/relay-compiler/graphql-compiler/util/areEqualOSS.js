@@ -8,8 +8,9 @@
  *
  * @providesModule areEqualOSS
  * @flow
+ * @format
  */
- 'use strict';
+'use strict';
 
 const aStackPool = [];
 const bStackPool = [];
@@ -59,10 +60,12 @@ function eq(a: any, b: any, aStack: Array<any>, bStack: Array<any>): boolean {
     case '[object Boolean]':
       return +a === +b;
     case '[object RegExp]':
-      return a.source === b.source &&
+      return (
+        a.source === b.source &&
         a.global === b.global &&
         a.multiline === b.multiline &&
-        a.ignoreCase === b.ignoreCase;
+        a.ignoreCase === b.ignoreCase
+      );
   }
   // Assume equality for cyclic structures.
   let length = aStack.length;

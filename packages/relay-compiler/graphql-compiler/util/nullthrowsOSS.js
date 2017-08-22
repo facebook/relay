@@ -8,8 +8,9 @@
  *
  * @providesModule nullthrowsOSS
  * @flow
+ * @format
  */
- 'use strict';
+'use strict';
 
 var nullthrows = function<T>(x: ?T): T {
   if (x != null) {

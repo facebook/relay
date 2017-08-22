@@ -19,7 +19,10 @@ import type {RelayContainer} from 'RelayTypes';
  * This feature is deprecated and unavailable in open source.
  */
 const RelayContainerProxy = {
-  proxyMethods(Container: RelayContainer, Component: React$ComponentType<any>): void {},
+  proxyMethods(
+    Container: RelayContainer,
+    Component: React$ComponentType<any>,
+  ): void {},
   injectProxyMethods(
     proxyMethods: (
       Container: RelayContainer,

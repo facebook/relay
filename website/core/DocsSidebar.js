@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule DocsSidebar
+ * @format
  */
 
 'use strict';
@@ -38,7 +39,8 @@ class DocsSidebar extends React.Component {
   getCategories = () => {
     // Skip over non-docs and non-en_US entries.
     const metadatas = Array.from(
-        Metadata.files.reduce(function(acc, metadata) {
+      Metadata.files
+        .reduce(function(acc, metadata) {
           if (metadata.layout === 'docs') {
             const previous = acc.get(metadata.id);
             if (
@@ -50,8 +52,8 @@ class DocsSidebar extends React.Component {
             }
           }
           return acc;
-        }, new Map()
-      ).values()
+        }, new Map())
+        .values(),
     );
 
     // Build a hashmap of article_id -> metadata
@@ -67,7 +69,11 @@ class DocsSidebar extends React.Component {
       var metadata = metadatas[i];
       if (metadata.next) {
         if (!articles[metadata.next]) {
-          throw '`next: ' + metadata.next + '` in ' + metadata.id + ' doesn\'t exist';
+          throw '`next: ' +
+            metadata.next +
+            '` in ' +
+            metadata.id +
+            " doesn't exist";
         }
         previous[articles[metadata.next].id] = metadata.id;
       }
@@ -104,7 +110,7 @@ class DocsSidebar extends React.Component {
     return categories;
   };
 
-  getLink = (metadata) => {
+  getLink = metadata => {
     if (metadata.permalink.match(/^https?:/)) {
       return metadata.permalink;
     }
@@ -112,26 +118,32 @@ class DocsSidebar extends React.Component {
   };
 
   render() {
-    return <div className="nav-docs">
-      {this.getCategories().map((category) =>
-        <div className="nav-docs-section" key={category.name}>
-          <h3>{category.name}</h3>
-          <ul>
-            {category.links.map((metadata) =>
-              <li key={metadata.id}>
-                <a
-                  target={metadata.permalink.match(/^https?:/) && '_blank'}
-                  style={{marginLeft: metadata.indent ? 20 : 0}}
-                  className={metadata.id === this.props.metadata.id ? 'active' : ''}
-                  href={this.getLink(metadata)}>
-                  {metadata.title}
-                </a>
-              </li>
-            )}
-          </ul>
-        </div>
-      )}
-    </div>;
+    return (
+      <div className="nav-docs">
+        {this.getCategories().map(category =>
+          <div className="nav-docs-section" key={category.name}>
+            <h3>
+              {category.name}
+            </h3>
+            <ul>
+              {category.links.map(metadata =>
+                <li key={metadata.id}>
+                  <a
+                    target={metadata.permalink.match(/^https?:/) && '_blank'}
+                    style={{marginLeft: metadata.indent ? 20 : 0}}
+                    className={
+                      metadata.id === this.props.metadata.id ? 'active' : ''
+                    }
+                    href={this.getLink(metadata)}>
+                    {metadata.title}
+                  </a>
+                </li>,
+              )}
+            </ul>
+          </div>,
+        )}
+      </div>
+    );
   }
 }
 

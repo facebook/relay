@@ -63,7 +63,11 @@ export type Call = {
   value: CallValue,
 };
 export type CallValue = ?(
-  | (boolean | number | string | {[key: string]: CallValue} | Array<CallValue>));
+  | boolean
+  | number
+  | string
+  | {[key: string]: CallValue}
+  | Array<CallValue>);
 export type ClientMutationID = string;
 export type ConnectionArgumentsMap =
   | AfterConnectionArgumentMap

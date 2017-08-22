@@ -257,11 +257,9 @@ class RelayFileWriter implements FileWriterInterface {
         details = JSON.parse(error.message);
       } catch (_) {}
       if (details && details.name === 'GraphQL2Exception' && details.message) {
-        console.log('ERROR writing modules:\n' + details.message);
-      } else {
-        console.log('Error writing modules:\n' + error.toString());
+        throw new Error('GraphQL error writing modules:\n' + details.message);
       }
-      return allOutputDirectories;
+      throw new Error('Error writing modules:\n' + error.toString());
     }
 
     const tExtra = Date.now();

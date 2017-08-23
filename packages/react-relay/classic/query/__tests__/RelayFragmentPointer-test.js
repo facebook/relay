@@ -12,8 +12,6 @@
 
 'use strict';
 
-jest.enableAutomock();
-
 require('configureForRelayOSS');
 
 jest.unmock('RelayFragmentPointer');

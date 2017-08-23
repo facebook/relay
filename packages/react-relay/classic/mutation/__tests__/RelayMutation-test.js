@@ -12,12 +12,9 @@
 
 'use strict';
 
-jest.enableAutomock();
-
 require('configureForRelayOSS');
 
 jest.mock('warning');
-jest.unmock('RelayMutation');
 
 const RelayClassic = require('RelayClassic');
 const RelayEnvironment = require('RelayEnvironment');

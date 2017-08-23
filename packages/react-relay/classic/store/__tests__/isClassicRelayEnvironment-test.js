@@ -12,8 +12,6 @@
 
 'use strict';
 
-jest.enableAutomock();
-
 require('configureForRelayOSS');
 
 const RelayEnvironment = require('RelayEnvironment');

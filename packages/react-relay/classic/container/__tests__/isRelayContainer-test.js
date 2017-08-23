@@ -12,8 +12,6 @@
 
 'use strict';
 
-jest.enableAutomock();
-
 const React = require('React');
 const RelayClassic = require('RelayClassic');
 

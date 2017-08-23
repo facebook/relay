@@ -12,8 +12,6 @@
 
 'use strict';
 
-jest.enableAutomock();
-
 const QueryBuilder = require('QueryBuilder');
 const RelayClassic = require('RelayClassic');
 const RelayTestUtils = require('RelayTestUtils');

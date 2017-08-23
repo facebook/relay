@@ -7,7 +7,6 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule DocsSidebar
- * @format
  */
 
 'use strict';
@@ -53,7 +52,7 @@ class DocsSidebar extends React.Component {
           }
           return acc;
         }, new Map())
-        .values(),
+        .values()
     );
 
     // Build a hashmap of article_id -> metadata
@@ -99,7 +98,7 @@ class DocsSidebar extends React.Component {
         currentCategory && categories.push(currentCategory);
         currentCategory = {
           name: metadata.category,
-          links: [],
+          links: []
         };
       }
       currentCategory.links.push(metadata);
@@ -137,10 +136,10 @@ class DocsSidebar extends React.Component {
                     href={this.getLink(metadata)}>
                     {metadata.title}
                   </a>
-                </li>,
+                </li>
               )}
             </ul>
-          </div>,
+          </div>
         )}
       </div>
     );

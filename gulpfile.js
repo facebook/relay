@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @format
  */
 
 'use strict';
@@ -54,16 +53,16 @@ const babelOptions = require('./scripts/getBabelOptions')({
     signedsource: 'signedsource',
     'StaticContainer.react': 'react-static-container',
     util: 'util',
-    yargs: 'yargs',
+    yargs: 'yargs'
   },
   plugins: [
     'transform-flow-strip-types',
-    ['transform-runtime', {polyfill: false}],
+    ['transform-runtime', {polyfill: false}]
   ],
   postPlugins: [
     'transform-async-to-generator',
-    'transform-es2015-modules-commonjs',
-  ],
+    'transform-es2015-modules-commonjs'
+  ]
 });
 const del = require('del');
 const derequire = require('gulp-derequire');
@@ -94,7 +93,7 @@ const PRODUCTION_HEADER =
     ' * LICENSE file in the root directory of this source tree. An additional grant',
     ' * of patent rights can be found in the PATENTS file in the same directory.',
     ' *',
-    ' */',
+    ' */'
   ].join('\n') + '\n';
 
 const buildDist = function(filename, opts, isProduction) {
@@ -107,22 +106,22 @@ const buildDist = function(filename, opts, isProduction) {
       net: 'empty',
       path: 'empty',
       child_process: 'empty',
-      util: 'empty',
+      util: 'empty'
     },
     output: {
       filename: filename,
       libraryTarget: opts.libraryTarget,
-      library: opts.libraryName,
+      library: opts.libraryName
     },
     plugins: [
       new webpackStream.webpack.DefinePlugin({
         'process.env.NODE_ENV': JSON.stringify(
-          isProduction ? 'production' : 'development',
-        ),
+          isProduction ? 'production' : 'development'
+        )
       }),
       new webpackStream.webpack.optimize.OccurenceOrderPlugin(),
-      new webpackStream.webpack.optimize.DedupePlugin(),
-    ],
+      new webpackStream.webpack.optimize.DedupePlugin()
+    ]
   };
   if (isProduction && !opts.noMinify) {
     webpackOpts.plugins.push(
@@ -130,9 +129,9 @@ const buildDist = function(filename, opts, isProduction) {
         compress: {
           hoist_vars: true,
           screw_ie8: true,
-          warnings: false,
-        },
-      }),
+          warnings: false
+        }
+      })
     );
   }
   return webpackStream(webpackOpts, null, function(err, stats) {
@@ -153,7 +152,7 @@ const builds = [
   {
     package: 'babel-plugin-relay',
     exports: {
-      index: 'BabelPluginRelay.js',
+      index: 'BabelPluginRelay.js'
     },
     bundles: [
       {
@@ -161,42 +160,42 @@ const builds = [
         output: 'babel-plugin-relay',
         libraryName: 'BabelPluginRelay',
         libraryTarget: 'commonjs2',
-        target: 'node',
-      },
-    ],
+        target: 'node'
+      }
+    ]
   },
   {
     package: 'react-relay',
     exports: {
       classic: 'ReactRelayClassicExports.js',
       compat: 'ReactRelayCompatPublic.js',
-      index: 'ReactRelayPublic.js',
+      index: 'ReactRelayPublic.js'
     },
     bundles: [
       {
         entry: 'ReactRelayClassicExports.js',
         output: 'react-relay-classic',
         libraryName: 'ReactRelayClassic',
-        libraryTarget: 'umd',
+        libraryTarget: 'umd'
       },
       {
         entry: 'ReactRelayCompatPublic.js',
         output: 'react-relay-compat',
         libraryName: 'ReactRelayCompat',
-        libraryTarget: 'umd',
+        libraryTarget: 'umd'
       },
       {
         entry: 'ReactRelayPublic.js',
         output: 'react-relay',
         libraryName: 'ReactRelay',
-        libraryTarget: 'umd',
-      },
-    ],
+        libraryTarget: 'umd'
+      }
+    ]
   },
   {
     package: 'relay-compiler',
     exports: {
-      index: 'RelayCompilerPublic.js',
+      index: 'RelayCompilerPublic.js'
     },
     bundles: [
       {
@@ -205,32 +204,32 @@ const builds = [
         libraryName: 'RelayCompiler',
         libraryTarget: 'commonjs2',
         target: 'node',
-        noMinify: true, // Note: uglify can't yet handle modern JS
-      },
+        noMinify: true // Note: uglify can't yet handle modern JS
+      }
     ],
     bins: [
       {
         entry: 'RelayCompilerBin.js',
         output: 'relay-compiler',
         libraryTarget: 'commonjs2',
-        target: 'node',
-      },
-    ],
+        target: 'node'
+      }
+    ]
   },
   {
     package: 'relay-runtime',
     exports: {
-      index: 'RelayRuntime.js',
+      index: 'RelayRuntime.js'
     },
     bundles: [
       {
         entry: 'RelayRuntime.js',
         output: 'relay-runtime',
         libraryName: 'RelayRuntime',
-        libraryTarget: 'umd',
-      },
-    ],
-  },
+        libraryTarget: 'umd'
+      }
+    ]
+  }
 ];
 
 gulp.task('clean', function() {
@@ -249,12 +248,12 @@ gulp.task('modules', function() {
           '*' + PACKAGES + '/react-relay/classic/interface/*.js',
           '*' + PACKAGES + '/relay-runtime/util/*.js',
           '!' + PACKAGES + '/**/__tests__/**/*.js',
-          '!' + PACKAGES + '/**/__mocks__/**/*.js',
+          '!' + PACKAGES + '/**/__mocks__/**/*.js'
         ])
         .pipe(babel(babelOptions))
         .pipe(flatten())
-        .pipe(gulp.dest(path.join(DIST, build.package, 'lib'))),
-    ),
+        .pipe(gulp.dest(path.join(DIST, build.package, 'lib')))
+    )
   );
 });
 
@@ -266,11 +265,11 @@ gulp.task('copy-files', function() {
           'LICENSE',
           'PATENTS',
           '*' + PACKAGES + '/' + build.package + '/*',
-          '!' + PACKAGES + '/' + build.package + '/**/*.js',
+          '!' + PACKAGES + '/' + build.package + '/**/*.js'
         ])
         .pipe(flatten())
-        .pipe(gulp.dest(path.join(DIST, build.package))),
-    ),
+        .pipe(gulp.dest(path.join(DIST, build.package)))
+    )
   );
 });
 
@@ -280,9 +279,9 @@ gulp.task('exports', ['copy-files', 'modules'], function() {
       fs.writeFileSync(
         path.join(DIST, build.package, exportName + '.js'),
         PRODUCTION_HEADER +
-          `\nmodule.exports = require('./lib/${build.exports[exportName]}');`,
-      ),
-    ),
+          `\nmodule.exports = require('./lib/${build.exports[exportName]}');`
+      )
+    )
   );
 });
 
@@ -297,10 +296,10 @@ gulp.task('bins', ['modules'], function() {
             .pipe(buildDist(bin.output, bin, /* isProduction */ false))
             .pipe(header(SCRIPT_HASHBANG + PRODUCTION_HEADER))
             .pipe(chmod(0o755))
-            .pipe(gulp.dest(path.join(DIST, build.package, 'bin'))),
-        ),
-      ),
-    ),
+            .pipe(gulp.dest(path.join(DIST, build.package, 'bin')))
+        )
+      )
+    )
   );
 });
 
@@ -315,15 +314,15 @@ gulp.task('bundles', ['modules'], function() {
               buildDist(
                 bundle.output + '.js',
                 bundle,
-                /* isProduction */ false,
-              ),
+                /* isProduction */ false
+              )
             )
             .pipe(derequire())
             .pipe(header(DEVELOPMENT_HEADER))
-            .pipe(gulp.dest(path.join(DIST, build.package))),
-        ),
-      ),
-    ),
+            .pipe(gulp.dest(path.join(DIST, build.package)))
+        )
+      )
+    )
   );
 });
 
@@ -338,14 +337,14 @@ gulp.task('bundles:min', ['modules'], function() {
               buildDist(
                 bundle.output + '.min.js',
                 bundle,
-                /* isProduction */ true,
-              ),
+                /* isProduction */ true
+              )
             )
             .pipe(header(PRODUCTION_HEADER))
-            .pipe(gulp.dest(path.join(DIST, build.package))),
-        ),
-      ),
-    ),
+            .pipe(gulp.dest(path.join(DIST, build.package)))
+        )
+      )
+    )
   );
 });
 

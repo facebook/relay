@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @format
  */
 
 'use strict';
@@ -21,7 +20,7 @@ const path = require('path');
 
 const SCHEMA_PATH = path.resolve(
   __dirname,
-  '../../packages/relay-compiler/testutils/testschema.graphql',
+  '../../packages/relay-compiler/testutils/testschema.graphql'
 );
 
 const babelOptions = getBabelOptions({
@@ -36,7 +35,7 @@ const babelOptions = getBabelOptions({
     ReactDOMServer: 'react-dom/server',
     ReactTestRenderer: 'react-test-renderer',
     ReactTestUtils: 'react-dom/test-utils',
-    'StaticContainer.react': 'react-static-container',
+    'StaticContainer.react': 'react-static-container'
   },
   plugins: [
     [
@@ -45,18 +44,18 @@ const babelOptions = getBabelOptions({
         compat: true,
         haste: true,
         substituteVariables: true,
-        schema: SCHEMA_PATH,
-      },
+        schema: SCHEMA_PATH
+      }
     ],
-    require('babel-plugin-transform-async-to-generator'),
-  ],
+    require('babel-plugin-transform-async-to-generator')
+  ]
 });
 
 module.exports = {
   process: function(src, filename) {
     const options = assign({}, babelOptions, {
       filename: filename,
-      retainLines: true,
+      retainLines: true
     });
     return babel.transform(src, options).code;
   },
@@ -66,8 +65,8 @@ module.exports = {
     SCHEMA_PATH,
     path.join(
       path.dirname(require.resolve('babel-preset-fbjs')),
-      'package.json',
+      'package.json'
     ),
-    path.join(__dirname, '..', 'getBabelOptions.js'),
-  ]),
+    path.join(__dirname, '..', 'getBabelOptions.js')
+  ])
 };

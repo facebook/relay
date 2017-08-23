@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @format
  */
 
 'use strict';
@@ -63,7 +62,7 @@ glob('src/**/*.*', function(er, files) {
             mkdirp.sync(targetFile.replace(new RegExp('/[^/]*$'), ''));
             fs.writeFileSync(targetFile, body);
             cb();
-          },
+          }
         );
       });
     } else {

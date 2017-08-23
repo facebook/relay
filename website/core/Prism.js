@@ -7,7 +7,6 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule Prism
- * @format
  */
 
 'use strict';
@@ -33,7 +32,7 @@ const Prism = {
         return new Token(
           tokens.type,
           _.util.encode(tokens.content),
-          tokens.alias,
+          tokens.alias
         );
       } else if (_.util.type(tokens) === 'Array') {
         return tokens.map(_.util.encode);
@@ -159,7 +158,7 @@ const Prism = {
 
   highlightAll: function(async, callback) {
     const elements = document.querySelectorAll(
-      'code[class*="language-"], [class*="language-"] code, code[class*="lang-"], [class*="lang-"] code',
+      'code[class*="language-"], [class*="language-"] code, code[class*="lang-"], [class*="lang-"] code'
     );
 
     for (let i = 0, element; (element = elements[i++]); ) {
@@ -237,7 +236,7 @@ const Prism = {
         JSON.stringify({
           language: env.language,
           code: env.code,
-        }),
+        })
       );
     } else {
       env.highlightedCode = _.highlight(env.code, env.grammar, env.language);
@@ -328,7 +327,7 @@ const Prism = {
             const wrapped = new Token(
               token,
               inside ? _.tokenize(match, inside) : match,
-              alias,
+              alis
             );
 
             args.push(wrapped);
@@ -554,7 +553,7 @@ Prism.languages.insertBefore(
       alias: 'language-javascript',
     },
   },
-  Prism.languages.jsx.tag,
+  Prism.languages.jsx.g
 );
 
 class PrismComponent extends React.Component {

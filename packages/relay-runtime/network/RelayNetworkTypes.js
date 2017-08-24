@@ -35,12 +35,9 @@ export interface ResponseCache {
  * An interface for fetching the data for one or more (possibly interdependent)
  * queries.
  */
-export interface Network {
+export type Network = {|
   observe: ObserveFunction,
-  fetch: NetworkFetchFunction,
-  request: RequestResponseFunction,
-  requestStream: RequestStreamFunction,
-}
+|};
 
 export type PayloadData = {[key: string]: mixed};
 
@@ -83,8 +80,6 @@ export type RelayResponsePayload = {|
   errors: ?Array<PayloadError>,
 |};
 
-export type PromiseOrValue<T> = Promise<T> | T | Error;
-
 /**
  * A function that executes a GraphQL operation with request/response semantics.
  *
@@ -110,42 +105,6 @@ export type SubscribeFunction = (
   cacheConfig: CacheConfig,
   observer: Observer<QueryPayload>,
 ) => RelayObservable<QueryPayload> | Disposable;
-
-/**
- * A function that executes a GraphQL operation with request/response semantics.
- *
- * Returns a Promise of a raw server response.
- */
-export type NetworkFetchFunction = (
-  operation: ConcreteBatch,
-  variables: Variables,
-  cacheConfig: CacheConfig,
-  uploadables?: ?UploadableMap,
-) => PromiseOrValue<QueryPayload>;
-
-/**
- * A function that executes a GraphQL operation with request/subscription
- * semantics, returning one or more responses over time that include the
- * initial result and optional updates e.g. as the results of the operation
- * change.
- */
-export type RequestStreamFunction = (
-  operation: ConcreteBatch,
-  variables: Variables,
-  cacheConfig: CacheConfig,
-  observer: Observer<RelayResponsePayload>,
-) => Disposable;
-
-/**
- * A function that executes a GraphQL operation with request/response semantics,
- * with exactly one response returned.
- */
-export type RequestResponseFunction = (
-  operation: ConcreteBatch,
-  variables: Variables,
-  cacheConfig: CacheConfig,
-  uploadables?: ?UploadableMap,
-) => PromiseOrValue<RelayResponsePayload>;
 
 export type Uploadable = File | Blob;
 // $FlowFixMe this is compatible with classic api see D4658012

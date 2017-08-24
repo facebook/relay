@@ -25,6 +25,7 @@ class RelayConsoleReporter implements RelayReporter {
   }
 
   reportError(caughtLocation: string, error: Error): void {
+    process.exitCode = 1;
     process.stdout.write(chalk.red('ERROR:' + '\n' + error.message + '\n'));
     if (this._verbose) {
       const frames = error.stack.match(/^ {4}at .*$/gm);

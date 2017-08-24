@@ -21,6 +21,8 @@ const RelayFileWriter = require('RelayFileWriter');
 const RelayIRTransforms = require('RelayIRTransforms');
 const RelayMultiReporter = require('RelayMultiReporter');
 
+const formatGeneratedModule = require('formatGeneratedModule');
+
 export type {CompileResult} from 'RelayCodegenTypes';
 export type {ParserConfig, WriterConfig} from 'RelayCodegenRunner';
 
@@ -32,4 +34,5 @@ module.exports = {
   IRTransforms: RelayIRTransforms,
   MultiReporter: RelayMultiReporter,
   Runner: RelayCodegenRunner,
+  formatGeneratedModule,
 };

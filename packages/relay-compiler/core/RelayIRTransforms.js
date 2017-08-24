@@ -28,6 +28,8 @@ import type {IRTransform} from 'GraphQLIRTransforms';
 import type CompilerContext from 'GraphQLCompilerContext';
 
 const {
+  schemaExtensions,
+  documentTransforms,
   codegenTransforms,
   fragmentTransforms,
   queryTransforms,
@@ -35,6 +37,7 @@ const {
 
 // Transforms applied to the code used to process a query response.
 const relaySchemaExtensions: Array<string> = [
+  ...schemaExtensions,
   RelayConnectionTransform.SCHEMA_EXTENSION,
   RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
 ];
@@ -53,8 +56,8 @@ const relayFragmentTransforms: Array<IRTransform> = [
 const relayQueryTransforms: Array<IRTransform> = [
   (ctx: CompilerContext) => RelayConnectionTransform.transform(ctx),
   RelayViewerHandleTransform.transform,
-  RelayApplyFragmentArgumentTransform.transform,
   ...queryTransforms,
+  RelayApplyFragmentArgumentTransform.transform,
   RelayRelayDirectiveTransform.transform,
   RelayGenerateRequisiteFieldsTransform.transform,
 ];
@@ -70,6 +73,7 @@ const relayPrintTransforms: Array<IRTransform> = [
 ];
 
 module.exports = {
+  documentTransforms,
   codegenTransforms: relayCodegenTransforms,
   fragmentTransforms: relayFragmentTransforms,
   printTransforms: relayPrintTransforms,

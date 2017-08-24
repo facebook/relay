@@ -34,6 +34,7 @@ import type {RelayGeneratedNode} from 'RelayCodeGenerator';
 import type {FileWriterInterface} from 'RelayCodegenTypes';
 import type {CompiledNode, CompiledDocumentMap} from 'RelayCompiler';
 import type {CompilerTransforms} from 'RelayCompiler';
+import type {DocumentTransform} from 'GraphQLIRTransforms';
 import type {GeneratedNode} from 'RelayConcreteNode';
 import type {ScalarTypeMapping} from 'RelayFlowGenerator';
 import type {DocumentNode, GraphQLSchema} from 'graphql';
@@ -48,6 +49,7 @@ export type GenerateExtraFiles = (
 export type WriterConfig = {
   baseDir: string,
   formatModule: FormatModule,
+  documentTransforms?: Array<DocumentTransform>,
   compilerTransforms: CompilerTransforms,
   customScalars?: ScalarTypeMapping,
   generateExtraFiles?: GenerateExtraFiles,
@@ -60,6 +62,22 @@ export type WriterConfig = {
   inputFieldWhiteListForFlow?: Array<string>,
 };
 
+function transformDocuments(
+  documents: ImmutableMap<string, DocumentNode>,
+  config: WriterConfig,
+): ImmutableMap<string, DocumentNode> {
+  let docMap = ImmutableMap();
+  if (documents) {
+    documents.forEach((doc, relPath) => {
+      const filePath = path.resolve(config.baseDir, relPath);
+      const newDoc = (config.documentTransforms || [])
+        .reduce((doc, transform) => transform(doc, filePath), doc);
+      docMap = docMap.set(relPath, newDoc);
+    });
+  }
+  return docMap;
+}
+
 /* eslint-disable no-console-disallow */
 
 class RelayFileWriter implements FileWriterInterface {
@@ -69,18 +87,20 @@ class RelayFileWriter implements FileWriterInterface {
   _baseDocuments: ImmutableMap<string, DocumentNode>;
   _documents: ImmutableMap<string, DocumentNode>;
 
-  constructor(options: {
-    config: WriterConfig,
-    onlyValidate: boolean,
-    baseDocuments: ImmutableMap<string, DocumentNode>,
-    documents: ImmutableMap<string, DocumentNode>,
-    schema: GraphQLSchema,
-  }) {
+  constructor(
+    options: {
+      config: WriterConfig,
+      onlyValidate: boolean,
+      baseDocuments: ImmutableMap<string, DocumentNode>,
+      documents: ImmutableMap<string, DocumentNode>,
+      schema: GraphQLSchema,
+    },
+  ) {
     const {config, onlyValidate, baseDocuments, documents, schema} = options;
-    this._baseDocuments = baseDocuments || ImmutableMap();
+    this._baseDocuments = transformDocuments(baseDocuments, config);
     this._baseSchema = schema;
     this._config = config;
-    this._documents = documents;
+    this._documents = transformDocuments(documents, config);
     this._onlyValidate = onlyValidate;
 
     validateConfig(this._config);

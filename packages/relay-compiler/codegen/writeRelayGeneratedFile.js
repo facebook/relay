@@ -43,11 +43,17 @@ async function writeRelayGeneratedFile(
   platform: ?string,
   relayRuntimeModule: string,
 ): Promise<?GeneratedNode> {
-  const moduleName = generatedNode.name + '.graphql';
+  const nodeName =
+    (generatedNode &&
+      generatedNode.metadata &&
+      generatedNode.metadata.originalName) ||
+    generatedNode.name;
+  const moduleName = nodeName + '.graphql';
   const platformName = platform ? moduleName + '.' + platform : moduleName;
   const filename = platformName + '.js';
-  const flowTypeName =
-    generatedNode.kind === 'Batch' ? 'ConcreteBatch' : 'ConcreteFragment';
+  const flowTypeName = generatedNode.kind === 'Batch'
+    ? 'ConcreteBatch'
+    : 'ConcreteFragment';
   const devOnlyProperties = {};
 
   let text = null;

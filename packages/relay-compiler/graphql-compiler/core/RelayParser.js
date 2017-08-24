@@ -224,7 +224,7 @@ class RelayParser {
     return {
       kind: 'Fragment',
       directives,
-      metadata: null,
+      metadata: fragment.metadata || null,
       name: getName(fragment),
       selections,
       type,
@@ -344,7 +344,7 @@ class RelayParser {
     return {
       kind: 'Root',
       operation,
-      metadata: null,
+      metadata: definition.metadata || null,
       name,
       argumentDefinitions,
       directives,
@@ -481,7 +481,9 @@ class RelayParser {
     return {
       kind: 'FragmentSpread',
       args: args || [],
-      metadata: null,
+      metadata: {
+        filePath: this._definition.metadata.filePath
+      },
       name: fragmentName,
       directives,
     };

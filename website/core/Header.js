@@ -15,7 +15,7 @@
 const React = require('React');
 
 class Header extends React.Component {
-  slug = string => {
+  slug(string) {
     //  var accents = "àáäâèéëêìíïîòóöôùúüûñç";
     const accents =
       '\u00e0\u00e1\u00e4\u00e2\u00e8' +

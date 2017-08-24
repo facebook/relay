@@ -35,9 +35,6 @@ import type {
   RelayContainer,
 } from 'RelayTypes';
 
-type DefaultProps = {
-  shouldFetch?: ?boolean,
-};
 type Props = {
   Container: RelayContainer,
   shouldFetch?: ?boolean,

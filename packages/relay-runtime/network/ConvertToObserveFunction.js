@@ -18,7 +18,6 @@ const RelayObservable = require('RelayObservable');
 import type {
   FetchFunction,
   ObserveFunction,
-  QueryPayload,
   SubscribeFunction,
 } from 'RelayNetworkTypes';
 

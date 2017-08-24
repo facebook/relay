@@ -17,10 +17,8 @@ jest.unmock('RelayEnvironment');
 
 require('configureForRelayOSS');
 
-const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 const RelayClassic = require('RelayClassic');
 const RelayEnvironment = require('RelayEnvironment');
-const RelayQueryResultObservable = require('RelayQueryResultObservable');
 const RelayMutation = require('RelayMutation');
 const RelayMutationTransaction = require('RelayMutationTransaction');
 const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');

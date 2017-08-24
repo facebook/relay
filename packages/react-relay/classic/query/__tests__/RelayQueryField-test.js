@@ -15,7 +15,7 @@
 require('configureForRelayOSS');
 
 const RelayClassic = require('RelayClassic');
-const RelayConnectionInterface = require('RelayConnectionInterface');
+const {ConnectionInterface} = require('RelayRuntime');
 const RelayQuery = require('RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 const RelayVariable = require('RelayVariable');
@@ -100,7 +100,7 @@ describe('RelayQueryField', () => {
       .getChildren()[0]
       .getChildren()[1];
     expect(pageInfoField.getSchemaName()).toBe(
-      RelayConnectionInterface.PAGE_INFO,
+      ConnectionInterface.get().PAGE_INFO,
     );
     // feed.edges.cursor
     cursorField = getNode(friendsScalarFieldRQL)

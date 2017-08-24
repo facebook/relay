@@ -18,10 +18,11 @@ require('configureForRelayOSS');
 
 const GraphQLRange = require('GraphQLRange');
 const RelayClassic = require('RelayClassic');
-const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayTestUtils = require('RelayTestUtils');
 
 const checkRelayQueryData = require('checkRelayQueryData');
+
+const {ConnectionInterface} = require('RelayRuntime');
 
 describe('checkRelayQueryData', () => {
   let RelayRecordStore;
@@ -42,7 +43,7 @@ describe('checkRelayQueryData', () => {
 
     RelayRecordStore = require('RelayRecordStore');
 
-    ({HAS_NEXT_PAGE, HAS_PREV_PAGE} = RelayConnectionInterface);
+    ({HAS_NEXT_PAGE, HAS_PREV_PAGE} = ConnectionInterface.get());
   });
 
   it('returns false when node is not in the store', () => {

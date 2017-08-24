@@ -15,8 +15,10 @@
 require('configureForRelayOSS');
 
 const RelayClassic = require('RelayClassic');
-const RelayConnectionInterface = require('RelayConnectionInterface');
+const {ConnectionInterface} = require('RelayRuntime');
 const RelayTestUtils = require('RelayTestUtils');
+
+const {CLIENT_MUTATION_ID} = ConnectionInterface.get();
 
 describe('RelayQueryMutation', () => {
   const {getNode} = RelayTestUtils;
@@ -30,7 +32,7 @@ describe('RelayQueryMutation', () => {
     expect.extend(RelayTestUtils.matchers);
 
     input = JSON.stringify({
-      [RelayConnectionInterface.CLIENT_MUTATION_ID]: 'mutation:id',
+      [CLIENT_MUTATION_ID]: 'mutation:id',
       actor: 'actor:id',
       feedback_id: 'feedback:id',
       message: {
@@ -64,9 +66,7 @@ describe('RelayQueryMutation', () => {
     });
     const children = mutationQuery.getChildren();
     expect(children.length).toBe(2);
-    expect(children[0].getSchemaName()).toBe(
-      RelayConnectionInterface.CLIENT_MUTATION_ID,
-    );
+    expect(children[0].getSchemaName()).toBe(CLIENT_MUTATION_ID);
     expect(children[1].getSchemaName()).toBe('feedbackCommentEdge');
     const edgeChildren = children[1].getChildren();
     expect(edgeChildren.length).toBe(3);
@@ -82,9 +82,7 @@ describe('RelayQueryMutation', () => {
     clone = mutationQuery.clone(mutationQuery.getChildren().slice(0, 1));
     expect(clone).not.toBe(mutationQuery);
     expect(clone.getChildren().length).toBe(1);
-    expect(clone.getChildren()[0].getSchemaName()).toBe(
-      RelayConnectionInterface.CLIENT_MUTATION_ID,
-    );
+    expect(clone.getChildren()[0].getSchemaName()).toBe(CLIENT_MUTATION_ID);
 
     clone = mutationQuery.clone([null]);
     expect(clone).toBe(null);

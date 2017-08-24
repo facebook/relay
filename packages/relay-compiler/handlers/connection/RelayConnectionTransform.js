@@ -22,17 +22,7 @@ const getRelayLiteralArgumentValues = require('getRelayLiteralArgumentValues');
 const invariant = require('invariant');
 
 const {AFTER, BEFORE, FIRST, KEY, LAST} = require('RelayConnectionConstants');
-const {
-  CURSOR,
-  EDGES,
-  END_CURSOR,
-  HAS_NEXT_PAGE,
-  HAS_PREV_PAGE,
-  NODE,
-  PAGE_INFO,
-  START_CURSOR,
-  isConnectionCall,
-} = require('RelayConnectionInterface');
+const {ConnectionInterface} = require('RelayRuntime');
 const {
   assertCompositeType,
   GraphQLInterfaceType,
@@ -197,7 +187,13 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
 
   const generateFilters = () => {
     const filteredVariableArgs = field.args
-      .filter(arg => !isConnectionCall({name: arg.name, value: null}))
+      .filter(
+        arg =>
+          !ConnectionInterface.isConnectionCall({
+            name: arg.name,
+            value: null,
+          }),
+      )
       .map(arg => arg.name);
     return filteredVariableArgs.length === 0 ? null : filteredVariableArgs;
   };
@@ -241,6 +237,17 @@ function generateConnectionFragment(
   type: GraphQLType,
   direction: 'forward' | 'backward',
 ): InlineFragment {
+  const {
+    CURSOR,
+    EDGES,
+    END_CURSOR,
+    HAS_NEXT_PAGE,
+    HAS_PREV_PAGE,
+    NODE,
+    PAGE_INFO,
+    START_CURSOR,
+  } = ConnectionInterface.get();
+
   const compositeType = assertCompositeType(
     GraphQLSchemaUtils.getNullableType((type: $FlowFixMe)),
   );
@@ -311,6 +318,8 @@ function validateConnectionSelection(
   definitionName: string,
   field: LinkedField,
 ): void {
+  const {EDGES} = ConnectionInterface.get();
+
   invariant(
     findArg(field, FIRST) || findArg(field, LAST),
     'RelayConnectionTransform: Expected field `%s: %s` to have a %s or %s ' +
@@ -347,6 +356,17 @@ function validateConnectionType(
   definitionName: string,
   type: GraphQLType,
 ): void {
+  const {
+    CURSOR,
+    EDGES,
+    END_CURSOR,
+    HAS_NEXT_PAGE,
+    HAS_PREV_PAGE,
+    NODE,
+    PAGE_INFO,
+    START_CURSOR,
+  } = ConnectionInterface.get();
+
   const typeWithFields = GraphQLSchemaUtils.assertTypeWithFields(
     GraphQLSchemaUtils.getNullableType((type: $FlowFixMe)),
   );

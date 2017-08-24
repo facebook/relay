@@ -23,7 +23,6 @@ jest
 
 const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
 const RelayClassic = require('RelayClassic');
-const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayGraphQLMutation = require('RelayGraphQLMutation');
 const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
@@ -31,8 +30,10 @@ const RelayTestUtils = require('RelayTestUtils');
 const generateRQLFieldAlias = require('generateRQLFieldAlias');
 const readRelayQueryData = require('readRelayQueryData');
 
+const {ConnectionInterface} = require('RelayRuntime');
+
 const {COMMITTING, COMMIT_QUEUED, UNCOMMITTED} = RelayMutationTransactionStatus;
-const {HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO} = RelayConnectionInterface;
+const {HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO} = ConnectionInterface.get();
 
 const {getNode} = RelayTestUtils;
 

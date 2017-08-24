@@ -244,8 +244,6 @@ gulp.task('modules', function() {
           '*' + PACKAGES + '/' + build.package + '/**/*.js',
           '*' + PACKAGES + '/react-relay/classic/tools/*.js',
           '*' + PACKAGES + '/react-relay/classic/util/*.js',
-          '*' + PACKAGES + '/react-relay/classic/__forks__/interface/*.js',
-          '*' + PACKAGES + '/react-relay/classic/interface/*.js',
           '*' + PACKAGES + '/relay-runtime/util/*.js',
           // Allow Relay Classic to access RelayObservable without depending
           // directly on Relay Runtime.

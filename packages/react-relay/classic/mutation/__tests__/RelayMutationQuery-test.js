@@ -20,7 +20,6 @@ jest.unmock('RelayMutationQuery').mock('warning');
 
 const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
 const RelayClassic = require('RelayClassic');
-const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayMutationQuery = require('RelayMutationQuery');
 const RelayMutationType = require('RelayMutationType');
 const RelayOptimisticMutationUtils = require('RelayOptimisticMutationUtils');
@@ -31,6 +30,8 @@ const filterRelayQuery = require('filterRelayQuery');
 const fromGraphQL = require('fromGraphQL');
 const intersectRelayQuery = require('intersectRelayQuery');
 
+const {ConnectionInterface} = require('RelayRuntime');
+
 describe('RelayMutationQuery', () => {
   const {filterGeneratedFields, getNode} = RelayTestUtils;
 
@@ -38,7 +39,7 @@ describe('RelayMutationQuery', () => {
     return fromGraphQL.Fragment(fragment).getChildren();
   }
   function getNodeWithoutSource(...args) {
-    const filterCallback = RelayConnectionInterface.EDGES_HAVE_SOURCE_FIELD
+    const filterCallback = ConnectionInterface.get().EDGES_HAVE_SOURCE_FIELD
       ? () => true
       : node => !node.getSchemaName || node.getSchemaName() !== 'source';
     return filterRelayQuery(RelayTestUtils.getNode(...args), filterCallback);
@@ -1027,7 +1028,7 @@ describe('RelayMutationQuery', () => {
 
       const query = RelayMutationQuery.buildQueryForOptimisticUpdate({
         response: {
-          [RelayConnectionInterface.CLIENT_MUTATION_ID]: '1',
+          [ConnectionInterface.get().CLIENT_MUTATION_ID]: '1',
           feedback: {
             doesViewerLike: true,
             id: '1',

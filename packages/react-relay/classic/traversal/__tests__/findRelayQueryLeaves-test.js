@@ -18,7 +18,6 @@ require('configureForRelayOSS');
 
 const GraphQLRange = require('GraphQLRange');
 const RelayClassic = require('RelayClassic');
-const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayQuery = require('RelayQuery');
 const RelayQueryPath = require('RelayQueryPath');
 const RelayRecordStore = require('RelayRecordStore');
@@ -26,6 +25,8 @@ const RelayTestUtils = require('RelayTestUtils');
 
 const findRelayQueryLeaves = require('findRelayQueryLeaves');
 const mapObject = require('mapObject');
+
+const {ConnectionInterface} = require('RelayRuntime');
 
 describe('findRelayQueryLeaves', () => {
   const {getNode} = RelayTestUtils;
@@ -68,7 +69,7 @@ describe('findRelayQueryLeaves', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    ({HAS_NEXT_PAGE, HAS_PREV_PAGE} = RelayConnectionInterface);
+    ({HAS_NEXT_PAGE, HAS_PREV_PAGE} = ConnectionInterface.get());
 
     dummyPath = RelayQueryPath.create(
       getNode(

@@ -22,7 +22,6 @@ jest
   .unmock('RelayMutationTransactionStatus');
 
 const RelayClassic = require('RelayClassic');
-const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayMutation = require('RelayMutation');
 const RelayMutationQuery = require('RelayMutationQuery');
 const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
@@ -33,6 +32,8 @@ const RelayTestUtils = require('RelayTestUtils');
 const flattenRelayQuery = require('flattenRelayQuery');
 const fromGraphQL = require('fromGraphQL');
 
+const {ConnectionInterface} = require('RelayRuntime');
+
 const {
   COLLISION_COMMIT_FAILED,
   COMMIT_FAILED,
@@ -42,6 +43,7 @@ const {
   ROLLED_BACK,
   UNCOMMITTED,
 } = RelayMutationTransactionStatus;
+let CLIENT_MUTATION_ID;
 
 describe('RelayMutationQueue', () => {
   let fatQuery;
@@ -69,6 +71,8 @@ describe('RelayMutationQueue', () => {
     mockMutation.getFatQuery.mockReturnValue(fatQuery);
     RelayMutation.prototype.getConfigs.mockReturnValue('configs');
     RelayMutation.prototype.getMutation.mockReturnValue(mutationNode);
+
+    ({CLIENT_MUTATION_ID} = ConnectionInterface.get());
 
     expect.extend(RelayTestUtils.matchers);
   });
@@ -112,7 +116,7 @@ describe('RelayMutationQueue', () => {
       expect(buildQueryCalls[0][0].configs).toBe('optimisticConfigs');
       expect(buildQueryCalls[0][0].input).toEqual({
         ...input,
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+        [CLIENT_MUTATION_ID]: '0',
       });
       expect(buildQueryCalls[0][0].mutation).toBe(mutationNode);
       expect(buildQueryCalls[0][0].mutationName).toBe('RelayMutation');
@@ -126,7 +130,7 @@ describe('RelayMutationQueue', () => {
       expect(storeData.handleUpdatePayload.mock.calls).toEqual([
         [
           'optimisticQuery',
-          {[RelayConnectionInterface.CLIENT_MUTATION_ID]: '0'},
+          {[CLIENT_MUTATION_ID]: '0'},
           {configs: 'optimisticConfigs', isOptimisticUpdate: true},
         ],
       ]);
@@ -145,7 +149,7 @@ describe('RelayMutationQueue', () => {
       expect(buildQueryCalls.length).toBe(1);
       expect(buildQueryCalls[0][0].mutation).toBe(mutationNode);
       expect(buildQueryCalls[0][0].response).toEqual({
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+        [CLIENT_MUTATION_ID]: '0',
       });
       expect(buildQueryCalls[0][0].fatQuery).toEqualQueryNode(
         flattenRelayQuery(fromGraphQL.Fragment(fatQuery), {
@@ -156,7 +160,7 @@ describe('RelayMutationQueue', () => {
       expect(storeData.handleUpdatePayload.mock.calls).toEqual([
         [
           'optimisticQuery',
-          {[RelayConnectionInterface.CLIENT_MUTATION_ID]: '0'},
+          {[CLIENT_MUTATION_ID]: '0'},
           {configs: 'configs', isOptimisticUpdate: true},
         ],
       ]);

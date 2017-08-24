@@ -19,13 +19,9 @@ const ReactTestRenderer = require('ReactTestRenderer');
 const RelayConnectionHandler = require('RelayConnectionHandler');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 
-const {
-  END_CURSOR,
-  HAS_NEXT_PAGE,
-  PAGE_INFO,
-} = require('RelayConnectionInterface');
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {createOperationSelector} = require('RelayModernOperationSelector');
+const {ConnectionInterface} = require('RelayRuntime');
 const {ROOT_ID} = require('RelayStoreUtils');
 const {generateAndCompile} = RelayModernTestUtils;
 
@@ -1065,10 +1061,11 @@ describe('ReactRelayPaginationContainer', () => {
     });
 
     it('returns null if page info fields are null', () => {
+      const {PAGE_INFO, END_CURSOR, HAS_NEXT_PAGE} = ConnectionInterface.get();
       // Simulate empty connection data
       getConnectionFromProps.mockImplementation(() => ({
         edges: [],
-        pageInfo: {
+        [PAGE_INFO]: {
           [END_CURSOR]: null,
           [HAS_NEXT_PAGE]: null,
         },

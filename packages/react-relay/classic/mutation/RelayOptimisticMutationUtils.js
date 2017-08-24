@@ -13,7 +13,6 @@
 
 'use strict';
 
-const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayQuery = require('RelayQuery');
 const RelayRecord = require('RelayRecord');
@@ -22,11 +21,12 @@ const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const warning = require('warning');
 
+const {ConnectionInterface} = require('RelayRuntime');
+
 const ARGUMENTS = /^(\w+)(?:\((.+?)\))?$/;
 const ARGUMENT_NAME = /(\w+)(?=\s*:)/;
 const DEPRECATED_CALLS = /^\w+(?:\.\w+\(.*?\))+$/;
 const DEPRECATED_CALL = /^(\w+)\((.*?)\)$/;
-const {NODE, EDGES} = RelayConnectionInterface;
 const {ANY_TYPE, ID} = RelayNodeInterface;
 
 const idField = RelayQuery.Field.build({
@@ -79,6 +79,8 @@ const RelayOptimisticMutationUtils = {
 };
 
 function inferField(value: mixed, key: string): RelayQuery.Field {
+  const {NODE, EDGES} = ConnectionInterface.get();
+
   const metadata = {
     canHaveSubselections: true,
     isPlural: false,

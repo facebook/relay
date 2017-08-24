@@ -19,13 +19,14 @@ require('configureForRelayOSS');
 jest.unmock('GraphQLRange').unmock('GraphQLSegment').mock('warning');
 
 const RelayClassic = require('RelayClassic');
-const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayQueryTracker = require('RelayQueryTracker');
 const RelayRecordStore = require('RelayRecordStore');
 const RelayRecordWriter = require('RelayRecordWriter');
 const RelayTestUtils = require('RelayTestUtils');
 
 const diffRelayQuery = require('diffRelayQuery');
+
+const {ConnectionInterface} = require('RelayRuntime');
 
 describe('diffRelayQuery', () => {
   const {getNode, getVerbatimNode, writePayload} = RelayTestUtils;
@@ -36,7 +37,7 @@ describe('diffRelayQuery', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    ({HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO} = RelayConnectionInterface);
+    ({HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO} = ConnectionInterface.get());
 
     rootCallMap = {
       viewer: {'': 'client:1'},

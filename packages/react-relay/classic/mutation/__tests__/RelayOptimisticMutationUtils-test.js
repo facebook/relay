@@ -15,7 +15,7 @@
 require('configureForRelayOSS');
 
 const RelayClassic = require('RelayClassic');
-const RelayConnectionInterface = require('RelayConnectionInterface');
+const {ConnectionInterface} = require('RelayRuntime');
 const RelayOptimisticMutationUtils = require('RelayOptimisticMutationUtils');
 const RelayQuery = require('RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
@@ -29,7 +29,7 @@ describe('RelayOptimisticMutationUtils', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    ({HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO} = RelayConnectionInterface);
+    ({HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO} = ConnectionInterface.get());
 
     expect.extend({
       ...matchers,

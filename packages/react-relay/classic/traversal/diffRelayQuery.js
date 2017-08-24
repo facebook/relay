@@ -13,7 +13,6 @@
 
 'use strict';
 
-const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
@@ -25,13 +24,14 @@ const invariant = require('invariant');
 const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
 const warning = require('warning');
 
+const {ConnectionInterface} = require('RelayRuntime');
+
 import type {QueryPath} from 'RelayQueryPath';
 import type RelayQueryTracker from 'RelayQueryTracker';
 import type RelayRecordStore from 'RelayRecordStore';
 import type {RangeInfo} from 'RelayRecordStore';
 
 const {ID, ID_TYPE, NODE_TYPE, TYPENAME} = RelayNodeInterface;
-const {EDGES, NODE, PAGE_INFO} = RelayConnectionInterface;
 const idField = RelayQuery.Field.build({
   fieldName: ID,
   metadata: {
@@ -222,6 +222,7 @@ class RelayDiffQueryBuilder {
   ): ?DiffOutput {
     // special case when inside a connection traversal
     if (connectionField && rangeInfo) {
+      const {EDGES, PAGE_INFO} = ConnectionInterface.get();
       if (edgeID) {
         // When traversing a specific connection edge only look at `edges`
         if (node.getSchemaName() === EDGES) {
@@ -440,6 +441,8 @@ class RelayDiffQueryBuilder {
     path: QueryPath,
     dataID: DataID,
   ): ?DiffOutput {
+    const {NODE} = ConnectionInterface.get();
+
     const linkedIDs = this._store.getLinkedRecordIDs(
       dataID,
       field.getStorageKey(),
@@ -650,6 +653,8 @@ class RelayDiffQueryBuilder {
     edgeID: DataID,
     rangeInfo: RangeInfo,
   ): ?DiffOutput {
+    const {NODE} = ConnectionInterface.get();
+
     let hasSplitQueries = false;
     const diffOutput = this.traverse(
       edgeField,
@@ -811,6 +816,8 @@ function splitNodeAndEdgesFields(
   edges: ?RelayQuery.Node,
   node: ?RelayQuery.Node,
 } {
+  const {NODE} = ConnectionInterface.get();
+
   const children = edgeOrFragment.getChildren();
   const edgeChildren = [];
   let nodeChild = null;
@@ -875,6 +882,8 @@ function buildRoot(
   type: string,
   isAbstract: boolean,
 ): RelayQuery.Root {
+  const {NODE} = ConnectionInterface.get();
+
   const children = [idField, typeField];
   const fields = [];
   nodes.forEach(node => {

@@ -18,10 +18,11 @@ require('configureForRelayOSS');
 
 const GraphQLRange = require('GraphQLRange');
 const RelayClassic = require('RelayClassic');
-const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayMetaRoute = require('RelayMetaRoute');
 const RelayQuery = require('RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
+
+const {ConnectionInterface} = require('RelayRuntime');
 
 describe('writeRelayQueryPayload()', () => {
   let RelayRecordStore;
@@ -42,7 +43,7 @@ describe('writeRelayQueryPayload()', () => {
       HAS_PREV_PAGE,
       PAGE_INFO,
       START_CURSOR,
-    } = RelayConnectionInterface);
+    } = ConnectionInterface.get());
 
     expect.extend(RelayTestUtils.matchers);
   });

@@ -18,11 +18,13 @@ require('configureForRelayOSS');
 
 jest.unmock('GraphQLRange').unmock('GraphQLSegment');
 
-const RelayConnectionInterface = require('RelayConnectionInterface');
+const {ConnectionInterface} = require('RelayRuntime');
 const RelayQueryPath = require('RelayQueryPath');
 const RelayStoreData = require('RelayStoreData');
 const RelayGarbageCollector = require('RelayGarbageCollector');
 const RelayTestUtils = require('RelayTestUtils');
+
+const {CLIENT_MUTATION_ID} = ConnectionInterface.get();
 
 describe('RelayStoreData', () => {
   let RelayClassic;
@@ -288,7 +290,7 @@ describe('RelayStoreData', () => {
       `,
       );
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: 'abc',
+        [CLIENT_MUTATION_ID]: 'abc',
         feedback: {
           id: '123',
           doesViewerLike: false,
@@ -338,7 +340,7 @@ describe('RelayStoreData', () => {
       `,
       );
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: 'abc',
+        [CLIENT_MUTATION_ID]: 'abc',
         feedback: {
           id: '123',
           doesViewerLike: false,
@@ -427,7 +429,7 @@ describe('RelayStoreData', () => {
         `,
         );
         const payload = {
-          [RelayConnectionInterface.CLIENT_MUTATION_ID]: 'abc',
+          [CLIENT_MUTATION_ID]: 'abc',
           feedback: {
             id: '123',
             doesViewerLike: false,

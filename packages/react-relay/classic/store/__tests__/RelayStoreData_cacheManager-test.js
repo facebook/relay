@@ -20,7 +20,7 @@ jest.unmock('GraphQLRange').unmock('GraphQLSegment');
 
 const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
 const RelayClassic = require('RelayClassic');
-const RelayConnectionInterface = require('RelayConnectionInterface');
+const {ConnectionInterface} = require('RelayRuntime');
 const RelayMockCacheManager = require('RelayMockCacheManager');
 const RelayMutationType = require('RelayMutationType');
 const RelayStoreData = require('RelayStoreData');
@@ -53,7 +53,7 @@ describe('RelayStoreData', function() {
       HAS_NEXT_PAGE,
       HAS_PREV_PAGE,
       PAGE_INFO,
-    } = RelayConnectionInterface);
+    } = ConnectionInterface.get());
 
     cacheManager = RelayMockCacheManager.genCacheManager();
     storeData = new RelayStoreData();

@@ -14,6 +14,7 @@
 'use strict';
 
 const RelayConnectionHandler = require('RelayConnectionHandler');
+const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayCore = require('RelayCore');
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('RelayMarkSweepStore');
@@ -93,6 +94,9 @@ module.exports = {
   fetchQuery: fetchRelayModernQuery,
   isRelayModernEnvironment: isRelayModernEnvironment,
   requestSubscription: requestRelaySubscription,
+
+  // Configuration interface for legacy or special uses
+  ConnectionInterface: RelayConnectionInterface,
 };
 
 if (__DEV__) {

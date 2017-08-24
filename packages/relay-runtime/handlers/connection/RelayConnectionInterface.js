@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule RelayOSSConnectionInterface
+ * @providesModule RelayConnectionInterface
  * @flow
  * @format
  */
@@ -14,7 +14,12 @@
 'use strict';
 
 import type {Call} from 'RelayInternalTypes';
+import type {Record} from 'RelayRecord';
 
+export type EdgeRecord = Record & {
+  cursor: mixed,
+  node: Record,
+};
 export type PageInfo = {
   endCursor: ?string,
   hasNextPage: boolean,
@@ -22,7 +27,6 @@ export type PageInfo = {
   startCursor: ?string,
 };
 
-const CLIENT_MUTATION_ID = 'clientMutationId';
 const CONNECTION_CALLS = {
   after: true,
   before: true,
@@ -31,42 +35,43 @@ const CONNECTION_CALLS = {
   last: true,
   surrounds: true,
 };
-const CURSOR = 'cursor';
-const EDGES = 'edges';
-const END_CURSOR = 'endCursor';
-const HAS_NEXT_PAGE = 'hasNextPage';
-const HAS_PREV_PAGE = 'hasPreviousPage';
-const NODE = 'node';
-const PAGE_INFO = 'pageInfo';
-const PAGE_INFO_TYPE = 'PageInfo';
+
 const REQUIRED_RANGE_CALLS = {
   find: true,
   first: true,
   last: true,
 };
-const START_CURSOR = 'startCursor';
+
+let config = {
+  CLIENT_MUTATION_ID: 'clientMutationId',
+  CURSOR: 'cursor',
+  /**
+   * Whether `edges` fields are expected to have `source` fields.
+   */
+  EDGES_HAVE_SOURCE_FIELD: false,
+  EDGES: 'edges',
+  END_CURSOR: 'endCursor',
+  HAS_NEXT_PAGE: 'hasNextPage',
+  HAS_PREV_PAGE: 'hasPreviousPage',
+  NODE: 'node',
+  PAGE_INFO_TYPE: 'PageInfo',
+  PAGE_INFO: 'pageInfo',
+  START_CURSOR: 'startCursor',
+};
 
 /**
  * @internal
  *
  * Defines logic relevant to the informal "Connection" GraphQL interface.
  */
-const RelayOSSConnectionInterface = {
-  CLIENT_MUTATION_ID,
-  CURSOR,
-  EDGES,
-  END_CURSOR,
-  HAS_NEXT_PAGE,
-  HAS_PREV_PAGE,
-  NODE,
-  PAGE_INFO,
-  PAGE_INFO_TYPE,
-  START_CURSOR,
+const RelayConnectionInterface = {
+  inject(newConfig: typeof config) {
+    config = newConfig;
+  },
 
-  /**
-   * Whether `edges` fields are expected to have `source` fields.
-   */
-  EDGES_HAVE_SOURCE_FIELD: false,
+  get(): typeof config {
+    return config;
+  },
 
   /**
    * Checks whether a call exists strictly to encode which parts of a connection
@@ -90,12 +95,12 @@ const RelayOSSConnectionInterface = {
    */
   getDefaultPageInfo(): PageInfo {
     return {
-      [END_CURSOR]: undefined,
-      [HAS_NEXT_PAGE]: false,
-      [HAS_PREV_PAGE]: false,
-      [START_CURSOR]: undefined,
+      [config.END_CURSOR]: undefined,
+      [config.HAS_NEXT_PAGE]: false,
+      [config.HAS_PREV_PAGE]: false,
+      [config.START_CURSOR]: undefined,
     };
   },
 };
 
-module.exports = RelayOSSConnectionInterface;
+module.exports = RelayConnectionInterface;

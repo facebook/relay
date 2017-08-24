@@ -26,15 +26,8 @@ const nullthrows = require('nullthrows');
 const warning = require('warning');
 
 const {profileContainer} = require('ReactRelayContainerProfiler');
-const {
-  EDGES,
-  PAGE_INFO,
-  HAS_NEXT_PAGE,
-  HAS_PREV_PAGE,
-  END_CURSOR,
-  START_CURSOR,
-} = require('RelayConnectionInterface');
 const {getComponentName, getReactComponent} = require('RelayContainerUtils');
+const {ConnectionInterface} = require('RelayRuntime');
 
 import type {
   GeneratedNodeMap,
@@ -469,6 +462,15 @@ function createContainerWithFragments<
       if (connectionData == null) {
         return null;
       }
+      const {
+        EDGES,
+        PAGE_INFO,
+        HAS_NEXT_PAGE,
+        HAS_PREV_PAGE,
+        END_CURSOR,
+        START_CURSOR,
+      } = ConnectionInterface.get();
+
       invariant(
         typeof connectionData === 'object',
         'ReactRelayPaginationContainer: Expected `getConnectionFromProps()` in `%s`' +

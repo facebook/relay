@@ -14,7 +14,7 @@
 
 const GraphQLRange = require('GraphQLRange');
 const RelayClassic = require('RelayClassic');
-const RelayConnectionInterface = require('RelayConnectionInterface');
+const {ConnectionInterface} = require('RelayRuntime');
 const RelayMockCacheManager = require('RelayMockCacheManager');
 const RelayQueryPath = require('RelayQueryPath');
 const RelayRecordStatusMap = require('RelayRecordStatusMap');
@@ -32,7 +32,7 @@ describe('RelayRecordWriter', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    ({HAS_NEXT_PAGE, HAS_PREV_PAGE} = RelayConnectionInterface);
+    ({HAS_NEXT_PAGE, HAS_PREV_PAGE} = ConnectionInterface.get());
 
     expect.extend(RelayTestUtils.matchers);
   });

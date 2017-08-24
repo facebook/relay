@@ -19,12 +19,13 @@ require('configureForRelayOSS');
 jest.unmock('GraphQLRange').unmock('GraphQLSegment');
 
 const RelayClassic = require('RelayClassic');
-const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayFragmentReference = require('RelayFragmentReference');
 const RelayQueryTracker = require('RelayQueryTracker');
 const RelayTestUtils = require('RelayTestUtils');
 
 const diffRelayQuery = require('diffRelayQuery');
+
+const {ConnectionInterface} = require('RelayRuntime');
 
 describe('diffRelayQuery - fragments', () => {
   let RelayRecordStore;
@@ -42,7 +43,7 @@ describe('diffRelayQuery - fragments', () => {
 
     RelayRecordStore = require('RelayRecordStore');
     RelayRecordWriter = require('RelayRecordWriter');
-    ({HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO} = RelayConnectionInterface);
+    ({HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO} = ConnectionInterface.get());
 
     expect.extend(RelayTestUtils.matchers);
   });

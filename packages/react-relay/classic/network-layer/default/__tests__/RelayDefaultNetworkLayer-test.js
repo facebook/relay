@@ -17,7 +17,7 @@ jest.enableAutomock().useFakeTimers();
 require('configureForRelayOSS');
 
 const RelayClassic = require('RelayClassic');
-const RelayConnectionInterface = require('RelayConnectionInterface');
+const {ConnectionInterface} = require('RelayRuntime');
 const RelayDefaultNetworkLayer = require('RelayDefaultNetworkLayer');
 const RelayMetaRoute = require('RelayMetaRoute');
 const RelayMutationRequest = require('RelayMutationRequest');
@@ -85,7 +85,7 @@ describe('RelayDefaultNetworkLayer', () => {
 
       variables = {
         input: {
-          [RelayConnectionInterface.CLIENT_MUTATION_ID]: 'client:a',
+          [ConnectionInterface.get().CLIENT_MUTATION_ID]: 'client:a',
           actor_id: 4,
         },
       };

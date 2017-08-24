@@ -63,7 +63,7 @@
     "react-dom": "^15.5.4",
     "react-static-container": "1.0.1",
     "react-test-renderer": "^15.5.4",
-    "relay-debugger-react-native-runtime": "^0.0.9",
+    "relay-debugger-react-native-runtime": "^0.0.10",
     "run-sequence": "1.2.2",
     "signedsource": "1.0.0",
     "webpack": "1.13.1",

@@ -28,7 +28,6 @@ const {UNPUBLISH_RECORD_SENTINEL} = require('RelayStoreUtils');
 
 import type {Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {
-  AsyncLoadCallback,
   MutableRecordSource,
   RecordSource,
   Selector,

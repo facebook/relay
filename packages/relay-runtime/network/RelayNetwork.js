@@ -16,7 +16,6 @@
 const RelayObservable = require('RelayObservable');
 
 const invariant = require('invariant');
-const isPromise = require('isPromise');
 const normalizePayload = require('normalizePayload');
 const nullthrows = require('nullthrows');
 
@@ -27,7 +26,6 @@ import type {ConcreteBatch} from 'RelayConcreteNode';
 import type {
   FetchFunction,
   Network,
-  ObserveFunction,
   PromiseOrValue,
   QueryPayload,
   RelayResponsePayload,

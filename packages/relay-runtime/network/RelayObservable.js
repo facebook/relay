@@ -342,6 +342,7 @@ class RelayObservable<T> implements Subscribable<T> {
 declare function isObservable(p: mixed): boolean %checks(p instanceof
   RelayObservable);
 
+// eslint-disable-next-line no-redeclare
 function isObservable(obj) {
   return (
     typeof obj === 'object' &&

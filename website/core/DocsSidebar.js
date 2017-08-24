@@ -35,7 +35,7 @@ function shouldOverwritePreviousWithCanonical(previous, maybeCanonical) {
 }
 
 class DocsSidebar extends React.Component {
-  getCategories = () => {
+  getCategories() {
     // Skip over non-docs and non-en_US entries.
     const metadatas = Array.from(
       Metadata.files
@@ -109,7 +109,7 @@ class DocsSidebar extends React.Component {
     return categories;
   };
 
-  getLink = metadata => {
+  getLink(metadata) {
     if (metadata.permalink.match(/^https?:/)) {
       return metadata.permalink;
     }

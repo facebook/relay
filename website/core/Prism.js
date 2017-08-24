@@ -327,7 +327,7 @@ const Prism = {
             const wrapped = new Token(
               token,
               inside ? _.tokenize(match, inside) : match,
-              alis
+              alias
             );
 
             args.push(wrapped);
@@ -557,12 +557,6 @@ Prism.languages.insertBefore(
 );
 
 class PrismComponent extends React.Component {
-  static _ = _;
-
-  static defaultProps = {
-    language: 'javascript',
-  };
-
   render() {
     const lines = [];
     if (this.props.line) {
@@ -596,5 +590,10 @@ class PrismComponent extends React.Component {
     );
   }
 }
+
+PrismComponent.defaultProps = {
+  language: 'javascript',
+};
+
 
 module.exports = PrismComponent;

@@ -9,10 +9,4 @@ rules:
   # Prettier and ESLint may disagree on the following rules
   indent: 0
   array-bracket-spacing: 0
-  comma-dangle:
-    - error
-    - arrays: ignore
-      objects: ignore
-      imports: ignore
-      exports: ignore
-      functions: never
+  comma-dangle: 0

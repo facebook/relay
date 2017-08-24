@@ -19,10 +19,8 @@ const RelayDefaultHandlerProvider = require('RelayDefaultHandlerProvider');
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayPublishQueue = require('RelayPublishQueue');
 
-const isPromise = require('isPromise');
 const normalizePayload = require('normalizePayload');
 const normalizeRelayPayload = require('normalizeRelayPayload');
-const warning = require('warning');
 
 import type {CacheConfig, Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {EnvironmentDebugger} from 'RelayDebugger';

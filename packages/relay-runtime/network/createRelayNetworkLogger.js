@@ -15,8 +15,6 @@
 
 /* eslint-disable no-console-disallow */
 
-const isPromise = require('isPromise');
-const nullthrows = require('nullthrows');
 const prettyStringify = require('prettyStringify');
 
 const {convertFetch, convertSubscribe} = require('ConvertToObserveFunction');
@@ -26,11 +24,8 @@ import type {IRelayNetworkLoggerTransaction} from 'RelayNetworkLoggerTransaction
 import type {
   FetchFunction,
   ObserveFunction,
-  QueryPayload,
   SubscribeFunction,
-  UploadableMap,
 } from 'RelayNetworkTypes';
-import type {Observer} from 'RelayStoreTypes';
 import type {Variables} from 'RelayTypes';
 
 export type GraphiQLPrinter = (

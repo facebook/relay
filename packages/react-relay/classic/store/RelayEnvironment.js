@@ -20,7 +20,6 @@ const RelayMetaRoute = require('RelayMetaRoute');
 const RelayQuery = require('RelayQuery');
 const RelayQueryPath = require('RelayQueryPath');
 const RelayQueryRequest = require('RelayQueryRequest');
-const RelayQueryResultObservable = require('RelayQueryResultObservable');
 const RelayStoreData = require('RelayStoreData');
 const RelayVariables = require('RelayVariables');
 
@@ -31,6 +30,8 @@ const readRelayQueryData = require('readRelayQueryData');
 const recycleNodesInto = require('recycleNodesInto');
 const relayUnstableBatchedUpdates = require('relayUnstableBatchedUpdates');
 const warning = require('warning');
+
+const {Observable} = require('RelayRuntime');
 
 import type {ConcreteOperationDefinition} from 'ConcreteQuery';
 import type {CacheConfig, Disposable} from 'RelayCombinedEnvironmentTypes';
@@ -47,13 +48,13 @@ import type RelayMutationTransaction from 'RelayMutationTransaction';
 import type {MutationCallback, QueryCallback} from 'RelayNetworkLayer';
 import type {UploadableMap} from 'RelayNetworkTypes';
 import type RelayQueryTracker from 'RelayQueryTracker';
+import type {SelectorStoreUpdater} from 'RelayStoreTypes';
 import type {TaskScheduler} from 'RelayTaskQueue';
 import type {
   Abortable,
   CacheManager,
   ChangeSubscription,
   NetworkLayer,
-  Observable,
   RelayMutationConfig,
   RelayMutationTransactionCommitCallbacks,
   ReadyStateChangeCallback,
@@ -388,6 +389,20 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
     return this.sendQuery(config);
   }
 
+  observe({
+    operation,
+    cacheConfig,
+    updater,
+  }: {
+    operation: OperationSelector,
+    cacheConfig?: ?CacheConfig,
+    updater?: ?SelectorStoreUpdater,
+  }): Observable<Selector> {
+    return Observable.fromLegacy(observer =>
+      this.streamQuery({operation, cacheConfig, ...observer}),
+    );
+  }
+
   applyUpdate: (
     mutation: RelayMutation<any>,
     callbacks?: RelayMutationTransactionCommitCallbacks,
@@ -517,17 +532,6 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
       results.push(data);
     });
     return results;
-  }
-
-  /**
-   * Reads and subscribes to query data anchored at the supplied data ID. The
-   * returned observable emits updates as the data changes over time.
-   */
-  observe(
-    fragment: RelayQuery.Fragment,
-    dataID: DataID,
-  ): Observable<?StoreReaderData> {
-    return new RelayQueryResultObservable(this._storeData, fragment, dataID);
   }
 
   /**

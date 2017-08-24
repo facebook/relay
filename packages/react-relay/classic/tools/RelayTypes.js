@@ -106,10 +106,6 @@ export type ComponentReadyState = {
 export type ComponentReadyStateChangeCallback = (
   readyState: ComponentReadyState,
 ) => void;
-export type MultiObservable<T> = {
-  subscribe(callbacks: SubscriptionCallbacks<Array<T>>): Subscription,
-  setDataIDs(dataIDs: Array<DataID>): void,
-};
 export type MutationResult = {
   response: QueryPayload,
 };
@@ -118,10 +114,6 @@ export type NetworkLayer = {
   sendMutation(request: RelayMutationRequest): ?Promise<any>,
   sendQueries(requests: Array<RelayQueryRequest>): ?Promise<any>,
   supports(...options: Array<string>): boolean,
-};
-// Observable
-export type Observable<T> = {
-  subscribe(callbacks: SubscriptionCallbacks<T>): Subscription,
 };
 export type QueryResult = {
   error?: ?Error,
@@ -256,9 +248,6 @@ export type StoreReaderData = Object;
 export type StoreReaderOptions = {
   traverseFragmentReferences?: boolean,
   traverseGeneratedFields?: boolean,
-};
-export type Subscription = {
-  dispose(): void,
 };
 export type SubscriptionCallbacks<T> = {
   onNext(value: T): void,

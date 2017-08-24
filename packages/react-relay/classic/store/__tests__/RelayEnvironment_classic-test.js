@@ -151,37 +151,6 @@ describe('RelayEnvironment', () => {
     });
   });
 
-  describe('observe', () => {
-    it('instantiates RelayQueryResultObservable', () => {
-      const fragment = getNode(
-        RelayClassic.QL`
-        fragment on Node {
-          id
-        }
-      `,
-      );
-      GraphQLStoreQueryResolver.mockDefaultResolveImplementation(
-        (pointerFragment, dataID) => {
-          expect(pointerFragment).toBe(fragment);
-          expect(dataID).toBe('123');
-          return {
-            __dataID__: '123',
-            id: '123',
-          };
-        },
-      );
-
-      const observer = environment.observe(fragment, '123');
-      const onNext = jest.fn();
-      expect(observer instanceof RelayQueryResultObservable).toBe(true);
-      observer.subscribe({onNext});
-      expect(onNext).toBeCalledWith({
-        __dataID__: '123',
-        id: '123',
-      });
-    });
-  });
-
   describe('update functions', () => {
     let createTransactionMock;
     let mockCallbacks;

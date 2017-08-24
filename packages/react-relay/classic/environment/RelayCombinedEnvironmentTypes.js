@@ -14,6 +14,8 @@
 'use strict';
 
 import type {DataID} from 'RelayInternalTypes';
+import type RelayObservable from 'RelayObservable';
+import type {SelectorStoreUpdater} from 'RelayStoreTypes';
 import type {RerunParam, Variables} from 'RelayTypes';
 
 /**
@@ -194,12 +196,7 @@ export interface CEnvironment<
   |}): Disposable,
 
   /**
-   * Send a query to the server with request/subscription semantics: one or more
-   * responses may be returned (via `onNext`) over time followed by either
-   * the request completing (`onCompleted`) or an error (`onError`).
-   *
-   * Networks/servers that support subscriptions may choose to hold the
-   * subscription open indefinitely such that `onCompleted` is not called.
+   * @deprecated Use Environment.observe().subscribe()
    */
   streamQuery(config: {|
     cacheConfig?: ?CacheConfig,
@@ -208,6 +205,23 @@ export interface CEnvironment<
     onNext?: ?(payload: TPayload) => void,
     operation: COperationSelector<TNode, TOperation>,
   |}): Disposable,
+
+  /**
+   * Send a query to the server with Observer semantics: one or more
+   * responses may be returned (via `next`) over time followed by either
+   * the request completing (`completed`) or an error (`error`).
+   *
+   * Networks/servers that support subscriptions may choose to hold the
+   * subscription open indefinitely such that `complete` is not called.
+   *
+   * Note: Observables are lazy, so calling this method will do nothing until
+   * the result is subscribed to: environment.observe({...}).subscribe({...}).
+   */
+  observe(config: {|
+    operation: COperationSelector<TNode, TOperation>,
+    cacheConfig?: ?CacheConfig,
+    updater?: ?SelectorStoreUpdater,
+  |}): RelayObservable<TPayload>,
 
   unstable_internal: CUnstableEnvironmentCore<
     TEnvironment,

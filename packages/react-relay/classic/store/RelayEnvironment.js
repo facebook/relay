@@ -17,7 +17,6 @@ const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 const RelayClassicCore = require('RelayClassicCore');
 const RelayGraphQLMutation = require('RelayGraphQLMutation');
 const RelayMetaRoute = require('RelayMetaRoute');
-const RelayObservable = require('RelayObservable');
 const RelayQuery = require('RelayQuery');
 const RelayQueryPath = require('RelayQueryPath');
 const RelayQueryRequest = require('RelayQueryRequest');
@@ -31,6 +30,8 @@ const readRelayQueryData = require('readRelayQueryData');
 const recycleNodesInto = require('recycleNodesInto');
 const relayUnstableBatchedUpdates = require('relayUnstableBatchedUpdates');
 const warning = require('warning');
+
+const {Observable} = require('RelayRuntime');
 
 import type {ConcreteOperationDefinition} from 'ConcreteQuery';
 import type {CacheConfig, Disposable} from 'RelayCombinedEnvironmentTypes';
@@ -396,8 +397,8 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
     operation: OperationSelector,
     cacheConfig?: ?CacheConfig,
     updater?: ?SelectorStoreUpdater,
-  }): RelayObservable<Selector> {
-    return RelayObservable.fromLegacy(observer =>
+  }): Observable<Selector> {
+    return Observable.fromLegacy(observer =>
       this.streamQuery({operation, cacheConfig, ...observer}),
     );
   }

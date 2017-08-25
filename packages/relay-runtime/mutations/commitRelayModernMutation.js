@@ -86,21 +86,30 @@ function commitRelayModernMutation<T>(
       updater,
     ));
   }
-  return environment.sendMutation({
-    onError,
-    operation,
-    uploadables,
-    updater,
-    optimisticUpdater,
-    optimisticResponse,
-    onCompleted(errors: ?Array<PayloadError>) {
-      const {onCompleted} = config;
-      if (onCompleted) {
-        const snapshot = environment.lookup(operation.fragment);
-        onCompleted((snapshot.data: $FlowFixMe), errors);
-      }
-    },
-  });
+  let errors;
+  return environment
+    .observeMutation({
+      operation,
+      optimisticResponse,
+      optimisticUpdater,
+      updater,
+      uploadables,
+    })
+    .subscribeLegacy({
+      onNext: payload => {
+        errors = payload.errors;
+      },
+      onError,
+      onCompleted: () => {
+        // NOTE: MutationConfig has a non-standard use of onCompleted() by passing
+        // it a value and errors.
+        const {onCompleted} = config;
+        if (onCompleted) {
+          const snapshot = environment.lookup(operation.fragment);
+          onCompleted((snapshot.data: $FlowFixMe), errors);
+        }
+      },
+    });
 }
 
 module.exports = commitRelayModernMutation;

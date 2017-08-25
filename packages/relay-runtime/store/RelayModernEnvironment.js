@@ -220,13 +220,13 @@ class RelayModernEnvironment implements Environment {
     optimisticUpdater,
     updater,
     uploadables,
-  }: {
+  }: {|
     operation: OperationSelector,
     optimisticUpdater?: ?SelectorStoreUpdater,
     optimisticResponse?: ?Object,
     updater?: ?SelectorStoreUpdater,
     uploadables?: ?UploadableMap,
-  }): RelayObservable<RelayResponsePayload> {
+  |}): RelayObservable<RelayResponsePayload> {
     const {node, variables} = operation;
     const mutationUid = nextMutationUid();
 

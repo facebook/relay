@@ -39,6 +39,7 @@ import type {
   RelayResponsePayload,
   UploadableMap,
 } from 'RelayNetworkTypes';
+import type RelayObservable from 'RelayObservable';
 import type {RecordState} from 'RelayRecordState';
 import type {Variables} from 'RelayTypes';
 
@@ -246,9 +247,24 @@ export interface Environment
   getStore(): Store,
 
   /**
-   * Send a mutation to the server. If provided, the optimistic updater is
-   * executed immediately and reverted atomically when the server payload is
-   * committed.
+   * Returns an Observable of RelayResponsePayload resulting from the provided
+   * Mutation operation, which are normalized and committed to the publish queue
+   * along with an optional optimistic response or updater.
+   *
+   * Note: Observables are lazy, so calling this method will do nothing until
+   * the result is subscribed to:
+   * environment.observeMutation({...}).subscribe({...}).
+   */
+  observeMutation({|
+    operation: OperationSelector,
+    optimisticUpdater?: ?SelectorStoreUpdater,
+    optimisticResponse?: ?Object,
+    updater?: ?SelectorStoreUpdater,
+    uploadables?: ?UploadableMap,
+  |}): RelayObservable<RelayResponsePayload>,
+
+  /**
+   * @deprecated Use Environment.observeMutation().subscribe()
    */
   sendMutation(config: {|
     onCompleted?: ?(errors: ?Array<PayloadError>) => void,

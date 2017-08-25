@@ -318,6 +318,42 @@ describe('RelayRecordSourceProxy', () => {
     });
   });
 
+  describe('setValue()', () => {
+    it('sets a scalar value', () => {
+      const user = store.create('c1', 'User');
+
+      user.setValue('Jan', 'firstName');
+      expect(user.getValue('firstName')).toBe('Jan');
+
+      user.setValue(null, 'firstName');
+      expect(user.getValue('firstName')).toBe(null);
+    });
+
+    it('sets an array of scalars', () => {
+      const user = store.create('c1', 'User');
+
+      user.setValue(['a@example.com', 'b@example.com'], 'emailAddresses');
+      expect(user.getValue('emailAddresses')).toEqual([
+        'a@example.com',
+        'b@example.com',
+      ]);
+
+      user.setValue(['c@example.com'], 'emailAddresses');
+      expect(user.getValue('emailAddresses')).toEqual(['c@example.com']);
+    });
+
+    it('throws if a complex object is written', () => {
+      const user = store.create('c1', 'User');
+
+      expect(() => {
+        user.setValue({day: 1, month: 1, year: 1970}, 'birthdate');
+      }).toFailInvariant(
+        'RelayRecordProxy#setValue(): Expected a scalar or array of scalars, ' +
+          'got `{"day":1,"month":1,"year":1970}`.',
+      );
+    });
+  });
+
   describe('getOrCreateLinkedRecord', () => {
     it('retrieves a record if it already exists', () => {
       const zuck = store.get('4');

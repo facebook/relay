@@ -93,6 +93,7 @@ async function run(options: {
   verbose: boolean,
   watchman: boolean,
   watch?: ?boolean,
+  validate: boolean,
 }) {
   const schemaPath = path.resolve(process.cwd(), options.schema);
   if (!fs.existsSync(schemaPath)) {
@@ -147,13 +148,20 @@ Ensure that one such file exists in ${srcDir} or its parents.
     reporter,
     parserConfigs,
     writerConfigs,
-    onlyValidate: false,
+    onlyValidate: options.validate,
   });
-  if (options.watch) {
-    await codegenRunner.watchAll();
-  } else {
+  if (!options.watch) {
     console.log('HINT: pass --watch to keep watching for changes.');
-    await codegenRunner.compileAll();
+  }
+  const result = options.watch
+    ? await codegenRunner.watchAll()
+    : await codegenRunner.compileAll();
+
+  if (result === 'ERROR') {
+    process.exit(100);
+  }
+  if (options.validate && result !== 'NO_CHANGES') {
+    process.exit(101);
   }
 }
 
@@ -272,6 +280,13 @@ const argv = yargs
     watch: {
       describe: 'If specified, watches files and regenerates on changes',
       type: 'boolean',
+    },
+    validate: {
+      describe:
+        'Looks for pending changes and exits with non-zero code instead of ' +
+        'writing to disk',
+      type: 'boolean',
+      default: false,
     },
   })
   .help().argv;

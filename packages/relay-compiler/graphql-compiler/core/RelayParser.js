@@ -17,7 +17,7 @@ const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const partitionArray = require('partitionArray');
 
-const {DEFAULT_HANDLE_KEY} = require('../util/RelayDefaultHandleKeyOSS');
+const {DEFAULT_HANDLE_KEY} = require('../util/DefaultHandleKey');
 const {
   getNullableType,
   getRawType,

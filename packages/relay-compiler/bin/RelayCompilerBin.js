@@ -93,6 +93,7 @@ async function run(options: {
   verbose: boolean,
   watchman: boolean,
   watch?: ?boolean,
+  validate: boolean,
 }) {
   const schemaPath = path.resolve(process.cwd(), options.schema);
   if (!fs.existsSync(schemaPath)) {
@@ -147,13 +148,13 @@ Ensure that one such file exists in ${srcDir} or its parents.
     reporter,
     parserConfigs,
     writerConfigs,
-    onlyValidate: false,
+    onlyValidate: options.validate,
   });
   if (options.watch) {
-    await codegenRunner.watchAll();
+    return await codegenRunner.watchAll();
   } else {
     console.log('HINT: pass --watch to keep watching for changes.');
-    await codegenRunner.compileAll();
+    return await codegenRunner.compileAll();
   }
 }
 
@@ -273,11 +274,24 @@ const argv = yargs
       describe: 'If specified, watches files and regenerates on changes',
       type: 'boolean',
     },
+    validate: {
+      describe: 'Looks for pending changes and exits with 1 instead of writing to disk',
+      type: 'boolean',
+      default: false,
+    },
   })
   .help().argv;
 
 // Run script with args
-run(argv).catch(error => {
-  console.error(String(error.stack || error));
-  process.exit(1);
-});
+run(argv)
+  .then(result => {
+    // If we are running in validation mode, exit with 1 if there are
+    // pending relay artifact changes.
+    if (argv.validate && result !== 'NO_CHANGES') {
+      process.exit(1);
+    }
+  })
+  .catch(error => {
+    console.error(String(error.stack || error));
+    process.exit(1);
+  });

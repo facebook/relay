@@ -42,6 +42,7 @@ import type {FormatModule} from 'writeRelayGeneratedFile';
 export type GenerateExtraFiles = (
   getOutputDirectory: (path?: string) => CodegenDirectory,
   compilerContext: RelayCompilerContext,
+  getGeneratedDirectory: (definitionName: string) => CodegenDirectory,
 ) => void;
 
 export type WriterConfig = {
@@ -231,19 +232,23 @@ class RelayFileWriter implements FileWriterInterface {
 
       if (this._config.generateExtraFiles) {
         const configDirectory = this._config.outputDir;
-        this._config.generateExtraFiles(dir => {
-          const outputDirectory = dir || configDirectory;
-          invariant(
-            outputDirectory,
-            'RelayFileWriter: cannot generate extra files without specifying ' +
-              'an outputDir in the config or passing it in.',
-          );
-          let outputDir = allOutputDirectories.get(outputDirectory);
-          if (!outputDir) {
-            outputDir = addCodegenDir(outputDirectory);
-          }
-          return outputDir;
-        }, transformedQueryContext);
+        this._config.generateExtraFiles(
+          dir => {
+            const outputDirectory = dir || configDirectory;
+            invariant(
+              outputDirectory,
+              'RelayFileWriter: cannot generate extra files without specifying ' +
+                'an outputDir in the config or passing it in.',
+            );
+            let outputDir = allOutputDirectories.get(outputDirectory);
+            if (!outputDir) {
+              outputDir = addCodegenDir(outputDirectory);
+            }
+            return outputDir;
+          },
+          transformedQueryContext,
+          getGeneratedDirectory,
+        );
       }
 
       // clean output directories

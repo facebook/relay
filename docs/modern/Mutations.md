@@ -41,7 +41,7 @@ Now let's take a closer look at the `config`:
  * For more complicated mutations, `optimisticUpdater` and `updater` can be the same function.
 * `optimisticUpdater`: a function that takes in a proxy of the in-memory Relay store. In this function, the client defines 'how to' update the store through the proxy in an imperative way.
 * `updater`: a function that updates the in-memory Relay store based on the **real** server response. When the server response comes back, Relay first reverts any changes introduced by `optimisticUpdater` or `optimisticResponse` and then applies the `updater` to the store.
-* `configs`:  an array containing the different optimisticUpdater/updater configurations. It provides a convenient way to specify the `updater` behavior. 
+* `configs`:  an array containing the different optimisticUpdater/updater configurations. It provides a convenient way to specify the `updater` behavior.
 
 ## Example
 
@@ -172,7 +172,7 @@ const configs = [{
   type: 'RANGE_ADD',
   parentID: 'shipId',
   connectionInfo: [{
-    key: AddShip_ships,
+    key: 'AddShip_ships',
     rangeBehavior: 'append',
   }],
   edgeName: 'newShipEdge',

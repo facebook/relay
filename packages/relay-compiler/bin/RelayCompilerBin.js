@@ -150,7 +150,7 @@ Ensure that one such file exists in ${srcDir} or its parents.
     writerConfigs,
     onlyValidate: options.validate,
   });
-  if (!options.watch) {
+  if (!options.validate && !options.watch && options.watchman) {
     console.log('HINT: pass --watch to keep watching for changes.');
   }
   const result = options.watch

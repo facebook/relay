@@ -265,19 +265,70 @@ class RelayObservable<T> implements Subscribable<T> {
    * the mapping function.
    */
   map<U>(fn: T => U): RelayObservable<U> {
-    return new RelayObservable(sink =>
-      this.subscribe({
-        next(value) {
+    return this.concatMap(value => fromValue(fn(value)));
+  }
+
+  /**
+   * Returns a new Observable where each value is replaced with a new Observable
+   * by the mapping function, the results of which returned as a single
+   * concattenated Observable.
+   */
+  concatMap<U>(fn: T => ObservableFromValue<U>): RelayObservable<U> {
+    return new RelayObservable(sink => {
+      let hasCompleted = false;
+      let outer;
+      let inner;
+      const buffer = [];
+
+      function next(value) {
+        if (inner) {
+          buffer.push(value);
+        } else {
           try {
-            sink.next(fn(value));
+            RelayObservable.from(fn(value)).subscribe({
+              start: sub => {
+                inner = sub;
+              },
+              next: sink.next,
+              error: sink.error,
+              complete() {
+                inner = undefined;
+                if (buffer.length !== 0) {
+                  next(buffer.shift());
+                } else if (hasCompleted) {
+                  sink.complete();
+                }
+              },
+            });
           } catch (error) {
             sink.error(error);
           }
+        }
+      }
+
+      this.subscribe({
+        start: sub => {
+          outer = sub;
         },
+        next,
         error: sink.error,
-        complete: sink.complete,
-      }),
-    );
+        complete() {
+          hasCompleted = true;
+          if (!inner) {
+            sink.complete();
+          }
+        },
+      });
+
+      return () => {
+        if (inner) {
+          inner.unsubscribe();
+          inner = undefined;
+        }
+        outer.unsubscribe();
+        buffer.length = 0;
+      };
+    });
   }
 
   /**

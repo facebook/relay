@@ -15,7 +15,7 @@
 
 const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
 
-const getIdentifierForRelayArgumentValue = require('../core/getIdentifierForRelayArgumentValue');
+const getIdentifierForArgumentValue = require('../core/getIdentifierForArgumentValue');
 const invariant = require('invariant');
 const murmurHash = require('../util/murmurHash');
 const stableJSONStringify = require('../util/stableJSONStringifyOSS');
@@ -94,7 +94,7 @@ function generateAlias(field: LinkedField | ScalarField): ?string {
   }
   const args = [...field.args]
     .sort(sortByName)
-    .map(arg => getIdentifierForRelayArgumentValue(arg.value));
+    .map(arg => getIdentifierForArgumentValue(arg.value));
   const hash = murmurHash(stableJSONStringify(args));
   return (field.alias || field.name) + '_' + hash;
 }

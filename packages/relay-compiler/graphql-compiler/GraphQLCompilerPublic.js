@@ -39,7 +39,7 @@ const SkipUnreachableNodeTransform = require('./transforms/SkipUnreachableNodeTr
 const StripUnusedVariablesTransform = require('./transforms/StripUnusedVariablesTransform');
 
 const filterContextForNode = require('./core/filterContextForNode');
-const getIdentifierForRelayArgumentValue = require('./core/getIdentifierForRelayArgumentValue');
+const getIdentifierForArgumentValue = require('./core/getIdentifierForArgumentValue');
 
 export type {
   CompiledNode,
@@ -95,7 +95,7 @@ module.exports = {
   filterContextForNode: filterContextForNode,
   GraphQLFileParser: GraphQLFileParser,
   GraphQLIRTransforms: GraphQLIRTransforms,
-  getIdentifierForRelayArgumentValue: getIdentifierForRelayArgumentValue,
+  getIdentifierForArgumentValue: getIdentifierForArgumentValue,
   GraphQLSchemaUtils: GraphQLSchemaUtils,
   GraphQLTextParser: GraphQLTextParser,
   GraphQLValidator: GraphQLValidator,

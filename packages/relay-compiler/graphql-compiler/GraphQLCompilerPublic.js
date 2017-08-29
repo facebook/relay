@@ -29,7 +29,7 @@ const GraphQLCompilerContext = require('./core/GraphQLCompilerContext');
 const RelayConsoleReporter = require('./reporters/RelayConsoleReporter');
 const RelayFlattenTransform = require('./transforms/RelayFlattenTransform');
 const RelayIRTransformer = require('./core/RelayIRTransformer');
-const RelayIRVisitor = require('./core/RelayIRVisitor');
+const GraphQLIRVisitor = require('./core/GraphQLIRVisitor');
 const RelayMultiReporter = require('./reporters/RelayMultiReporter');
 const RelayParser = require('./core/RelayParser');
 const RelayPrinter = require('./core/RelayPrinter');
@@ -100,7 +100,7 @@ module.exports = {
   GraphQLTextParser: GraphQLTextParser,
   GraphQLValidator: GraphQLValidator,
   IRTransformer: RelayIRTransformer,
-  IRVisitor: RelayIRVisitor,
+  IRVisitor: GraphQLIRVisitor,
   MultiReporter: RelayMultiReporter,
   RelayParser: RelayParser,
   Printer: RelayPrinter,

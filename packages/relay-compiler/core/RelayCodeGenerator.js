@@ -14,7 +14,7 @@
 'use strict';
 
 const GraphQLSchemaUtils = require('GraphQLSchemaUtils');
-const RelayIRVisitor = require('RelayIRVisitor');
+const GraphQLIRVisitor = require('GraphQLIRVisitor');
 
 const formatStorageKey = require('formatStorageKey');
 const invariant = require('invariant');
@@ -53,7 +53,7 @@ function generate(node: Root | Fragment): ConcreteRoot | ConcreteFragment {
     node.kind,
     getErrorMessage(node),
   );
-  return RelayIRVisitor.visit(node, RelayCodeGenVisitor);
+  return GraphQLIRVisitor.visit(node, RelayCodeGenVisitor);
 }
 /* eslint-enable no-redeclare */
 

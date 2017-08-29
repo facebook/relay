@@ -32,7 +32,7 @@ const RelayParser = require('RelayParser');
 const RelayPrinter = require('RelayPrinter');
 const RelayTestSchema = require('RelayTestSchema');
 const getGoldenMatchers = require('getGoldenMatchers');
-const {visit} = require('RelayIRVisitor');
+const {visit} = require('GraphQLIRVisitor');
 
 type VisitNodeWithName =
   | Root
@@ -43,7 +43,7 @@ type VisitNodeWithName =
   | Directive
   | ArgumentDefinition;
 
-describe('RelayIRVisitor', () => {
+describe('GraphQLIRVisitor', () => {
   beforeEach(() => {
     expect.extend(getGoldenMatchers(__filename));
   });

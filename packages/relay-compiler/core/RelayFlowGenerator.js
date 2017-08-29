@@ -14,7 +14,7 @@
 'use strict';
 
 const RelayFlattenTransform = require('RelayFlattenTransform');
-const RelayIRVisitor = require('RelayIRVisitor');
+const GraphQLIRVisitor = require('GraphQLIRVisitor');
 
 const babelGenerator = require('babel-generator').default;
 const t = require('babel-types');
@@ -58,7 +58,7 @@ function generate(
     );
     output.push(printBabel(inputAST));
   }
-  const responseAST = RelayIRVisitor.visit(
+  const responseAST = GraphQLIRVisitor.visit(
     node,
     createVisitor(defaultedCustomScalars),
   );

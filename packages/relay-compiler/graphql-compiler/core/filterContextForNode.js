@@ -15,7 +15,7 @@
 
 const GraphQLCompilerContext = require('./GraphQLCompilerContext');
 
-const {visit} = require('./RelayIRVisitor');
+const {visit} = require('./GraphQLIRVisitor');
 
 import type {Fragment, FragmentSpread, Root} from './RelayIR';
 

@@ -424,10 +424,15 @@ function createSubstitutionsForFragmentSpreads(t, path, fragments) {
         'BabelPluginRelay: Please make sure module %s is imported and not renamed. ' +
           module,
       );
-      const fragmentProp = t.memberExpression(
-        t.identifier(module),
-        t.identifier(propName),
+      const fragmentProp = t.logicalExpression(
+        '||',
+        t.memberExpression(
+          t.memberExpression(t.identifier(module), t.identifier(propName)),
+          t.identifier(propName),
+        ),
+        t.memberExpression(t.identifier(module), t.identifier(propName)),
       );
+
       return t.variableDeclarator(
         t.identifier(varName),
         t.memberExpression(

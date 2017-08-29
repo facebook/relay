@@ -35,7 +35,7 @@ refetchConnection<span class="token punctuation">:</span><span class="token punc
   totalCount<span class="token punctuation">:</span> number<span class="token punctuation">,</span>
   callback<span class="token punctuation">:</span> <span class="token punctuation">(</span>error<span class="token punctuation">:</span> <span class="token operator">?</span>Error<span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token keyword">void</span><span class="token punctuation">,</span>
   refetchVariables<span class="token punctuation">:</span> <span class="token operator">?</span>Variables<span class="token punctuation">,</span>
-<span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token operator">?</span>Disposable<span class="token punctuation">,</span></pre><h2><a class="anchor" name="connection-directive"></a><code>@connection</code> directive <a class="hash-link" href="#connection-directive">#</a></h2><p>The pagination container expects the connection field to be annotated with a <code>@connection(key: ...)</code> directive, where the <code>key</code> is expected to be a unique identifier under the parent field type <code>User</code>. A good practice could be <code>&lt;ComponentName&gt;_&lt;fieldName | fieldAlias&gt;</code>. By default, Relay generates storage key based on the user-supplied <code>key</code> and all non-filter variables of the field. Relay also provides an advanced feature <code>@connection(key: &#x27;FriendsList_friends&#x27;, filters:[&#x27;orderBy&#x27;, ...])</code> that allows you to explicitly specify which variables should be used to generate the storage key. Particularly, if you write <code>@connection(key: ..., filters:[])</code>, Relay will ignore all the variables.</p><p>In addition to the fields you plan to query, you&#x27;ll also need to fetch <code>pageInfo</code> since it&#x27;s needed to handle pagination. The <code>pageInfo</code> request has to belong in the same fragment with the <code>@connection</code> directive, and can&#x27;t live inside a child fragment. If you intend to paginate forward, you only need <code>endCursor</code> and <code>hasNextPage</code>. If you intend to paginate backward, you only need <code>startCursor</code> and <code>hasPreviousPage</code>.</p><pre class="prism language-javascript">
+<span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token operator">?</span>Disposable<span class="token punctuation">,</span></pre><h2><a class="anchor" name="connection-directive"></a><code>@connection</code> directive <a class="hash-link" href="#connection-directive">#</a></h2><p>The pagination container expects the connection field to be annotated with a <code>@connection(key: ...)</code> directive, where the <code>key</code> is expected to be a unique identifier under the parent field type <code>User</code>. A good practice could be <code>&lt;ComponentName&gt;_&lt;fieldName | fieldAlias&gt;</code>. By default, Relay generates storage key based on the user-supplied <code>key</code> and all non-filter variables of the field. Relay also provides an advanced feature <code>@connection(key: &#x27;FriendsList_friends&#x27;, filters:[&#x27;orderBy&#x27;, ...])</code> that allows you to explicitly specify which variables should be used to generate the storage key. Particularly, if you write <code>@connection(key: ..., filters:[])</code>, Relay will ignore all the variables.</p><pre class="prism language-javascript">
 graphql`
   fragment Feed_user on User <span class="token punctuation">{</span>
     <span class="token function">feed</span><span class="token punctuation">(</span>first<span class="token punctuation">:</span> $count<span class="token punctuation">,</span> after<span class="token punctuation">:</span> $cursor<span class="token punctuation">)</span> @<span class="token function">connection</span><span class="token punctuation">(</span>key<span class="token punctuation">:</span> <span class="token string">&quot;Feed_feed&quot;</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
@@ -44,11 +44,6 @@ graphql`
           id<span class="token punctuation">,</span>
           <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>Story_story
         <span class="token punctuation">}</span>
-      <span class="token punctuation">}</span>
-      pageInfo <span class="token punctuation">{</span>
-        endCursor
-        hasNextPage
-      <span class="token punctuation">}</span>
     <span class="token punctuation">}</span>
   <span class="token punctuation">}</span>
 `<span class="token punctuation">,</span></pre><h2><a class="anchor" name="example"></a>Example <a class="hash-link" href="#example">#</a></h2><pre class="prism language-javascript">
@@ -61,7 +56,7 @@ graphql`
   <span class="token function">render</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span class="token keyword">return</span> <span class="token punctuation">(</span>
       <span class="token operator">&lt;</span>div<span class="token operator">&gt;</span>
-        <span class="token punctuation">{</span><span class="token keyword">this</span><span class="token punctuation">.</span>props<span class="token punctuation">.</span>viewer<span class="token punctuation">.</span>feed<span class="token punctuation">.</span>edges<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span>
+        <span class="token punctuation">{</span><span class="token keyword">this</span><span class="token punctuation">.</span>props<span class="token punctuation">.</span>user<span class="token punctuation">.</span>feed<span class="token punctuation">.</span>edges<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span>
           edge <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token operator">&lt;</span>Story story<span class="token operator">=</span><span class="token punctuation">{</span>edge<span class="token punctuation">.</span>node<span class="token punctuation">}</span> key<span class="token operator">=</span><span class="token punctuation">{</span>edge<span class="token punctuation">.</span>node<span class="token punctuation">.</span>id<span class="token punctuation">}</span> <span class="token operator">/</span><span class="token operator">&gt;</span>
         <span class="token punctuation">)</span><span class="token punctuation">}</span>
         <span class="token operator">&lt;</span>button
@@ -101,10 +96,6 @@ module<span class="token punctuation">.</span>exports <span class="token operato
               id
               <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>Story_story
             <span class="token punctuation">}</span>
-          <span class="token punctuation">}</span>
-          pageInfo <span class="token punctuation">{</span>
-            endCursor
-            hasNextPage
           <span class="token punctuation">}</span>
         <span class="token punctuation">}</span>
       <span class="token punctuation">}</span>

@@ -766,6 +766,10 @@ figure {
   margin-bottom: 0;
 }
 
+.inner-content img {
+    max-width: 100%;
+}
+
 .nosidebar .inner-content {
   float: none;
   margin: 0 auto;

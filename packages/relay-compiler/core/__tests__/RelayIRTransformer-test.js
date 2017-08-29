@@ -12,7 +12,7 @@
 
 'use strict';
 
-const RelayCompilerContext = require('RelayCompilerContext');
+const GraphQLCompilerContext = require('GraphQLCompilerContext');
 const RelayIRTransformer = require('RelayIRTransformer');
 const RelayTestSchema = require('RelayTestSchema');
 
@@ -67,7 +67,7 @@ describe('RelayIRTransformer', () => {
       }
     `,
     );
-    const context = new RelayCompilerContext(RelayTestSchema).addAll(
+    const context = new GraphQLCompilerContext(RelayTestSchema).addAll(
       definitions,
     );
 

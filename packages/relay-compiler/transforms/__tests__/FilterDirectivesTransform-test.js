@@ -13,7 +13,7 @@
 'use strict';
 
 describe('FilterDirectivesTransform', () => {
-  let RelayCompilerContext;
+  let GraphQLCompilerContext;
   let FilterDirectivesTransform;
   let RelayPrinter;
   let RelayTestSchema;
@@ -24,7 +24,7 @@ describe('FilterDirectivesTransform', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    RelayCompilerContext = require('RelayCompilerContext');
+    GraphQLCompilerContext = require('GraphQLCompilerContext');
     FilterDirectivesTransform = require('FilterDirectivesTransform');
     RelayPrinter = require('RelayPrinter');
     RelayTestSchema = require('RelayTestSchema');
@@ -43,7 +43,7 @@ describe('FilterDirectivesTransform', () => {
         'directive @exampleFilteredDirective on FIELD',
       ]);
       const {definitions} = parseGraphQLText(extendedSchema, text);
-      let context = new RelayCompilerContext(extendedSchema).addAll(
+      let context = new GraphQLCompilerContext(extendedSchema).addAll(
         definitions,
       );
 

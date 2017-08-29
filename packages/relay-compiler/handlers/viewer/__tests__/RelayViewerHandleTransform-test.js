@@ -13,7 +13,7 @@
 'use strict';
 
 describe('RelayViewerHandleTransform', () => {
-  let RelayCompilerContext;
+  let GraphQLCompilerContext;
   let RelayPrinter;
   let RelayViewerHandleTransform;
   let RelayTestSchema;
@@ -25,7 +25,7 @@ describe('RelayViewerHandleTransform', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    RelayCompilerContext = require('RelayCompilerContext');
+    GraphQLCompilerContext = require('GraphQLCompilerContext');
     RelayPrinter = require('RelayPrinter');
     RelayViewerHandleTransform = require('RelayViewerHandleTransform');
     RelayTestSchema = require('RelayTestSchema');
@@ -39,7 +39,7 @@ describe('RelayViewerHandleTransform', () => {
   it('adds a handle to viewer fields', () => {
     expect('fixtures/viewer-handle-transform').toMatchGolden(text => {
       const {definitions} = parseGraphQLText(RelayTestSchema, text);
-      let context = new RelayCompilerContext(RelayTestSchema).addAll(
+      let context = new GraphQLCompilerContext(RelayTestSchema).addAll(
         definitions,
       );
       context = RelayViewerHandleTransform.transform(context, RelayTestSchema);
@@ -66,7 +66,7 @@ describe('RelayViewerHandleTransform', () => {
       }
     `;
     const {definitions} = parseGraphQLText(schema, text);
-    let context = new RelayCompilerContext(schema).addAll(definitions);
+    let context = new GraphQLCompilerContext(schema).addAll(definitions);
     context = RelayViewerHandleTransform.transform(context, schema);
     const TestQuery = context.getRoot('TestQuery');
     const viewer = TestQuery.selections[0];
@@ -95,7 +95,7 @@ describe('RelayViewerHandleTransform', () => {
       }
     `;
     const {definitions} = parseGraphQLText(schema, text);
-    let context = new RelayCompilerContext(schema).addAll(definitions);
+    let context = new GraphQLCompilerContext(schema).addAll(definitions);
     context = RelayViewerHandleTransform.transform(context, schema);
     const TestQuery = context.getRoot('TestQuery');
     const viewer = TestQuery.selections[0];

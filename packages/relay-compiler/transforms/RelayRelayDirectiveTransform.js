@@ -13,7 +13,7 @@
 
 'use strict';
 
-const RelayCompilerContext = require('../graphql-compiler/core/RelayCompilerContext');
+const GraphQLCompilerContext = require('../graphql-compiler/core/GraphQLCompilerContext');
 const RelayIRTransformer = require('../graphql-compiler/core/RelayIRTransformer');
 
 const getRelayLiteralArgumentValues = require('../graphql-compiler/core/getRelayLiteralArgumentValues');
@@ -46,7 +46,7 @@ const SCHEMA_EXTENSION = `directive @relay(
  * A transform that extracts `@relay(plural: Boolean)` directives and converts
  * them to metadata that can be accessed at runtime.
  */
-function transform(context: RelayCompilerContext): RelayCompilerContext {
+function transform(context: GraphQLCompilerContext): GraphQLCompilerContext {
   return RelayIRTransformer.transform(
     context,
     {

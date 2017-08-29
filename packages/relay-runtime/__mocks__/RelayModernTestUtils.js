@@ -144,17 +144,17 @@ const RelayModernTestUtils = {
   generateWithTransforms(
     text: string,
     transforms?: ?Array<{
-      transform: (context: RelayCompilerContext) => RelayCompilerContext,
+      transform: (context: GraphQLCompilerContext) => GraphQLCompilerContext,
     }>,
   ): {[key: string]: ConcreteRoot | ConcreteFragment} {
     const RelayCodeGenerator = require('RelayCodeGenerator');
     // eslint-disable-next-line no-shadow
-    const RelayCompilerContext = require('RelayCompilerContext');
+    const GraphQLCompilerContext = require('GraphQLCompilerContext');
     const RelayParser = require('RelayParser');
     const RelayTestSchema = require('RelayTestSchema');
 
     const ast = RelayParser.parse(RelayTestSchema, text);
-    let context = new RelayCompilerContext(RelayTestSchema);
+    let context = new GraphQLCompilerContext(RelayTestSchema);
     context = ast.reduce((ctx, node) => ctx.add(node), context);
     context = (transforms || [])
       .reduce((ctx, {transform}) => transform(ctx), context);
@@ -177,7 +177,7 @@ const RelayModernTestUtils = {
     const {transformASTSchema} = require('ASTConvert');
     const {generate} = require('RelayCodeGenerator');
     const RelayCompiler = require('RelayCompiler');
-    const RelayCompilerContext = require('RelayCompilerContext');
+    const GraphQLCompilerContext = require('GraphQLCompilerContext');
     const RelayIRTransforms = require('RelayIRTransforms');
     const RelayTestSchema = require('RelayTestSchema');
     const parseGraphQLText = require('parseGraphQLText');
@@ -189,7 +189,7 @@ const RelayModernTestUtils = {
     );
     const compiler = new RelayCompiler(
       schema,
-      new RelayCompilerContext(relaySchema),
+      new GraphQLCompilerContext(relaySchema),
       RelayIRTransforms,
       generate,
     );

@@ -15,7 +15,7 @@
 require('configureForRelayOSS');
 
 describe('RelayConnectionTransform', () => {
-  let RelayCompilerContext;
+  let GraphQLCompilerContext;
   let RelayConnectionTransform;
   let RelayPrinter;
   let RelayTestSchema;
@@ -26,7 +26,7 @@ describe('RelayConnectionTransform', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    RelayCompilerContext = require('RelayCompilerContext');
+    GraphQLCompilerContext = require('GraphQLCompilerContext');
     RelayConnectionTransform = require('RelayConnectionTransform');
     RelayPrinter = require('RelayPrinter');
     RelayTestSchema = require('RelayTestSchema');
@@ -47,7 +47,7 @@ describe('RelayConnectionTransform', () => {
           RelayConnectionTransform.SCHEMA_EXTENSION,
         ]);
         const {definitions} = parseGraphQLText(schema, text);
-        let context = new RelayCompilerContext(schema).addAll(definitions);
+        let context = new GraphQLCompilerContext(schema).addAll(definitions);
         context = RelayConnectionTransform.transform(context, options);
         return context
           .documents()

@@ -13,7 +13,7 @@
 'use strict';
 
 const GraphQLSchemaUtils = require('../core/GraphQLSchemaUtils');
-const RelayCompilerContext = require('../core/RelayCompilerContext');
+const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
 
 const areEqual = require('../util/areEqualOSS');
 const getIdentifierForRelaySelection = require('../core/getIdentifierForRelaySelection');
@@ -68,9 +68,9 @@ type FlattenState = {
  * inlined according to the rules above.
  */
 function transform(
-  context: RelayCompilerContext,
+  context: GraphQLCompilerContext,
   options?: FlattenOptions,
-): RelayCompilerContext {
+): GraphQLCompilerContext {
   const flattenOptions = {
     flattenAbstractTypes: !!(options && options.flattenAbstractTypes),
     flattenFragmentSpreads: !!(options && options.flattenFragmentSpreads),
@@ -96,7 +96,7 @@ function transform(
       node.name,
     );
     return ctx.add(flattenedNode);
-  }, new RelayCompilerContext(context.schema));
+  }, new GraphQLCompilerContext(context.schema));
 }
 
 function buildNode(state: FlattenState): Root | Selection {
@@ -133,7 +133,7 @@ function buildNode(state: FlattenState): Root | Selection {
  * @internal
  */
 function visitNode(
-  context: RelayCompilerContext,
+  context: GraphQLCompilerContext,
   options: FlattenOptions,
   state: FlattenState,
   node: Node,

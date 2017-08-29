@@ -19,7 +19,7 @@ const SkipClientFieldTransform = require('../transforms/SkipClientFieldTransform
 const SkipRedundantNodesTransform = require('../transforms/SkipRedundantNodesTransform');
 const SkipUnreachableNodeTransform = require('../transforms/SkipUnreachableNodeTransform');
 
-import type CompilerContext from './RelayCompilerContext';
+import type CompilerContext from './GraphQLCompilerContext';
 import type {GraphQLSchema} from 'graphql';
 
 export type IRTransform = (

@@ -13,7 +13,7 @@
 
 'use strict';
 
-const RelayCompilerContext = require('RelayCompilerContext');
+const GraphQLCompilerContext = require('GraphQLCompilerContext');
 const RelayIRTransformer = require('RelayIRTransformer');
 
 const getRelayHandleKey = require('getRelayHandleKey');
@@ -25,9 +25,9 @@ import type {GraphQLSchema} from 'graphql';
 type State = true;
 
 function transform(
-  context: RelayCompilerContext,
+  context: GraphQLCompilerContext,
   schema: GraphQLSchema,
-): RelayCompilerContext {
+): GraphQLCompilerContext {
   return RelayIRTransformer.transform(
     context,
     {

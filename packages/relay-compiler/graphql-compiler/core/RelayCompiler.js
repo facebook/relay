@@ -13,7 +13,7 @@
 
 'use strict';
 
-const RelayCompilerContext = require('./RelayCompilerContext');
+const GraphQLCompilerContext = require('./GraphQLCompilerContext');
 const RelayPrinter = require('./RelayPrinter');
 
 const filterContextForNode = require('./filterContextForNode');
@@ -43,9 +43,9 @@ export type CompiledDocumentMap<CodegenNode> = Map<
 >;
 
 export type TransformReducer = (
-  ctx: RelayCompilerContext,
-  transform: (ctx: RelayCompilerContext) => RelayCompilerContext,
-) => RelayCompilerContext;
+  ctx: GraphQLCompilerContext,
+  transform: (ctx: GraphQLCompilerContext) => GraphQLCompilerContext,
+) => GraphQLCompilerContext;
 
 export interface Compiler<CodegenNode> {
   add(text: string): Array<Root | Fragment>,
@@ -65,16 +65,16 @@ export type CompilerTransforms = {
  * of each definition.
  */
 class RelayCompiler<CodegenNode> {
-  _context: RelayCompilerContext;
+  _context: GraphQLCompilerContext;
   _schema: GraphQLSchema;
-  _transformedQueryContext: ?RelayCompilerContext;
+  _transformedQueryContext: ?GraphQLCompilerContext;
   _transforms: CompilerTransforms;
   _codeGenerator: (node: Root | Fragment) => CodegenNode;
 
   // The context passed in must already have any Relay-specific schema extensions
   constructor(
     schema: GraphQLSchema,
-    context: RelayCompilerContext,
+    context: GraphQLCompilerContext,
     transforms: CompilerTransforms,
     codeGenerator: (node: Root | Fragment) => CodegenNode,
   ) {
@@ -95,7 +95,7 @@ class RelayCompiler<CodegenNode> {
     );
   }
 
-  context(): RelayCompilerContext {
+  context(): GraphQLCompilerContext {
     return this._context;
   }
 
@@ -106,7 +106,7 @@ class RelayCompiler<CodegenNode> {
 
   // Can only be called once per compiler. Once run, will use cached context
   // To re-run, clone the compiler.
-  transformedQueryContext(): RelayCompilerContext {
+  transformedQueryContext(): GraphQLCompilerContext {
     if (this._transformedQueryContext) {
       return this._transformedQueryContext;
     }

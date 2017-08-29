@@ -12,7 +12,7 @@
 
 'use strict';
 
-const RelayCompilerContext = require('RelayCompilerContext');
+const GraphQLCompilerContext = require('GraphQLCompilerContext');
 const RelayGenerateRequisiteFieldsTransform = require('RelayGenerateRequisiteFieldsTransform');
 const RelayParser = require('RelayParser');
 const RelayPrinter = require('RelayPrinter');
@@ -32,7 +32,7 @@ describe('RelayGenerateRequisiteFieldsTransform', () => {
       const ast = RelayParser.parse(RelayTestSchema, text);
       const context = ast.reduce(
         (ctx, node) => ctx.add(node),
-        new RelayCompilerContext(RelayTestSchema),
+        new GraphQLCompilerContext(RelayTestSchema),
       );
       const nextContext = RelayGenerateRequisiteFieldsTransform.transform(
         context,

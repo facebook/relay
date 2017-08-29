@@ -14,7 +14,7 @@
 
 require('configureForRelayOSS');
 
-const RelayCompilerContext = require('RelayCompilerContext');
+const GraphQLCompilerContext = require('GraphQLCompilerContext');
 const RelayParser = require('RelayParser');
 const RelayPrinter = require('RelayPrinter');
 const RelayTestSchema = require('RelayTestSchema');
@@ -30,7 +30,7 @@ describe('RelayPrinter', () => {
       const ast = RelayParser.parse(RelayTestSchema, text);
       const context = ast.reduce(
         (ctx, node) => ctx.add(node),
-        new RelayCompilerContext(RelayTestSchema),
+        new GraphQLCompilerContext(RelayTestSchema),
       );
       const documents = [];
       context.documents().forEach(doc => {

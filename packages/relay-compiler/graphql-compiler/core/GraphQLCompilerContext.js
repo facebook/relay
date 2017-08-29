@@ -7,7 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @flow
- * @providesModule RelayCompilerContext
+ * @providesModule GraphQLCompilerContext
  * @format
  */
 
@@ -37,7 +37,7 @@ const Document = Record({
  * An immutable representation of a corpus of documents being compiled together.
  * For each document, the context stores the IR and any validation errors.
  */
-class RelayCompilerContext {
+class GraphQLCompilerContext {
   _documents: ImmutableOrderedMap<string, Document>;
   schema: GraphQLSchema;
 
@@ -53,16 +53,16 @@ class RelayCompilerContext {
     return this._documents.valueSeq().map(doc => doc.get('node')).toJS();
   }
 
-  updateSchema(schema: GraphQLSchema): RelayCompilerContext {
-    const context = new RelayCompilerContext(schema);
+  updateSchema(schema: GraphQLSchema): GraphQLCompilerContext {
+    const context = new GraphQLCompilerContext(schema);
     context._documents = this._documents;
     return context;
   }
 
-  add(node: Fragment | Root): RelayCompilerContext {
+  add(node: Fragment | Root): GraphQLCompilerContext {
     invariant(
       !this._documents.has(node.name),
-      'RelayCompilerContext: Duplicate document named `%s`. GraphQL ' +
+      'GraphQLCompilerContext: Duplicate document named `%s`. GraphQL ' +
         'fragments and roots must have unique names.',
       node.name,
     );
@@ -77,15 +77,15 @@ class RelayCompilerContext {
     );
   }
 
-  addAll(nodes: Array<Fragment | Root>): RelayCompilerContext {
+  addAll(nodes: Array<Fragment | Root>): GraphQLCompilerContext {
     return nodes.reduce(
-      (ctx: RelayCompilerContext, definition: Fragment | Root) =>
+      (ctx: GraphQLCompilerContext, definition: Fragment | Root) =>
         ctx.add(definition),
       this,
     );
   }
 
-  addError(name: string, error: Error): RelayCompilerContext {
+  addError(name: string, error: Error): GraphQLCompilerContext {
     const record = this._get(name);
     let errors = record.get('errors');
     if (errors) {
@@ -123,7 +123,7 @@ class RelayCompilerContext {
     const node = record && record.get('node');
     invariant(
       node && node.kind === 'Root',
-      'RelayCompilerContext: Expected `%s` to be a root, got `%s`.',
+      'GraphQLCompilerContext: Expected `%s` to be a root, got `%s`.',
       name,
       node && node.kind,
     );
@@ -134,23 +134,23 @@ class RelayCompilerContext {
     return this._get(name).get('errors');
   }
 
-  remove(name: string): RelayCompilerContext {
+  remove(name: string): GraphQLCompilerContext {
     return this._update(this._documents.delete(name));
   }
 
   _get(name: string): Document {
     const record = this._documents.get(name);
-    invariant(record, 'RelayCompilerContext: Unknown document `%s`.', name);
+    invariant(record, 'GraphQLCompilerContext: Unknown document `%s`.', name);
     return record;
   }
 
   _update(
     documents: ImmutableOrderedMap<string, Document>,
-  ): RelayCompilerContext {
-    const context = new RelayCompilerContext(this.schema);
+  ): GraphQLCompilerContext {
+    const context = new GraphQLCompilerContext(this.schema);
     context._documents = documents;
     return context;
   }
 }
 
-module.exports = RelayCompilerContext;
+module.exports = GraphQLCompilerContext;

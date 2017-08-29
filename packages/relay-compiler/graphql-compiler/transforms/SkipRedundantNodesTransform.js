@@ -13,7 +13,7 @@
 
 'use strict';
 
-const RelayCompilerContext = require('../core/RelayCompilerContext');
+const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
 const IMap = require('immutable').Map;
 
 const getIdentifierForRelaySelection = require('../core/getIdentifierForRelaySelection');
@@ -120,8 +120,8 @@ type SelectionMap = IMap<string, ?SelectionMap>;
  *
  * 1 can be skipped because it is already fetched at the outer level.
  */
-function transform(context: RelayCompilerContext): RelayCompilerContext {
-  return context.documents().reduce((ctx: RelayCompilerContext, node) => {
+function transform(context: GraphQLCompilerContext): GraphQLCompilerContext {
+  return context.documents().reduce((ctx: GraphQLCompilerContext, node) => {
     const selectionMap = new IMap();
     const transformed = transformNode(node, selectionMap);
     if (transformed) {
@@ -129,7 +129,7 @@ function transform(context: RelayCompilerContext): RelayCompilerContext {
     } else {
       return ctx;
     }
-  }, new RelayCompilerContext(context.schema));
+  }, new GraphQLCompilerContext(context.schema));
 }
 
 /**

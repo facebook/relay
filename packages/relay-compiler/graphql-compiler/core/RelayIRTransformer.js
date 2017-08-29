@@ -15,7 +15,7 @@
 
 const invariant = require('invariant');
 
-import type RelayCompilerContext from './RelayCompilerContext';
+import type GraphQLCompilerContext from './GraphQLCompilerContext';
 import type {
   Argument,
   Condition,
@@ -102,10 +102,10 @@ type NodeVisitorFunction<N: IR, S> = (node: N, state: S) => ?N;
  * ```
  */
 function transform<S>(
-  context: RelayCompilerContext,
+  context: GraphQLCompilerContext,
   visitor: NodeVisitor<S>,
   stateInitializer: (node: Fragment | Root) => ?S,
-): RelayCompilerContext {
+): GraphQLCompilerContext {
   const transformer = new Transformer(context, visitor);
   let nextContext = context;
   context.documents().forEach(prevNode => {
@@ -128,11 +128,11 @@ function transform<S>(
  * @internal
  */
 class Transformer<S> {
-  _context: RelayCompilerContext;
+  _context: GraphQLCompilerContext;
   _states: Array<S>;
   _visitor: NodeVisitor<S>;
 
-  constructor(context: RelayCompilerContext, visitor: NodeVisitor<S>) {
+  constructor(context: GraphQLCompilerContext, visitor: NodeVisitor<S>) {
     this._context = context;
     this._states = [];
     this._visitor = visitor;
@@ -144,7 +144,7 @@ class Transformer<S> {
    * Returns the original compiler context that is being transformed. This can
    * be used to look up fragments by name, for example.
    */
-  getContext(): RelayCompilerContext {
+  getContext(): GraphQLCompilerContext {
     return this._context;
   }
 

@@ -13,7 +13,7 @@
 
 'use strict';
 
-const RelayCompilerContext = require('../core/RelayCompilerContext');
+const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
 const RelayIRTransformer = require('../core/RelayIRTransformer');
 
 const invariant = require('invariant');
@@ -95,9 +95,9 @@ type State = {
  * base schema.
  */
 function transform(
-  context: RelayCompilerContext,
+  context: GraphQLCompilerContext,
   schema: GraphQLSchema,
-): RelayCompilerContext {
+): GraphQLCompilerContext {
   return RelayIRTransformer.transform(
     context,
     {

@@ -14,7 +14,7 @@
 'use strict';
 
 const GraphQLSchemaUtils = require('GraphQLSchemaUtils');
-const RelayCompilerContext = require('RelayCompilerContext');
+const GraphQLCompilerContext = require('GraphQLCompilerContext');
 
 const {
   assertAbstractType,
@@ -46,15 +46,15 @@ const STRING_TYPE = 'String';
  * - Adds `__typename` on any `LinkedField` of a union/interface type where
  *   there is no unaliased `__typename` selection.
  */
-function transform(context: RelayCompilerContext): RelayCompilerContext {
+function transform(context: GraphQLCompilerContext): GraphQLCompilerContext {
   const documents = context.documents();
-  return documents.reduce((ctx: RelayCompilerContext, node) => {
+  return documents.reduce((ctx: GraphQLCompilerContext, node) => {
     const transformedNode = transformNode(context, node);
     return ctx.add(transformedNode);
-  }, new RelayCompilerContext(context.schema));
+  }, new GraphQLCompilerContext(context.schema));
 }
 
-function transformNode<T: Node>(context: RelayCompilerContext, node: T): T {
+function transformNode<T: Node>(context: GraphQLCompilerContext, node: T): T {
   const selections = node.selections.map(selection => {
     if (selection.kind === 'LinkedField') {
       return transformField(context, selection);
@@ -74,7 +74,7 @@ function transformNode<T: Node>(context: RelayCompilerContext, node: T): T {
 }
 
 function transformField(
-  context: RelayCompilerContext,
+  context: GraphQLCompilerContext,
   field: LinkedField,
 ): LinkedField {
   const transformedNode = transformNode(context, field);
@@ -117,7 +117,7 @@ function transformField(
  *   implement `Node`
  */
 function generateIDSelections(
-  context: RelayCompilerContext,
+  context: GraphQLCompilerContext,
   field: LinkedField,
   type: GraphQLType,
 ): ?Array<Selection> {

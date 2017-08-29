@@ -25,7 +25,7 @@ const GraphQLSchemaUtils = require('./core/GraphQLSchemaUtils');
 const GraphQLTextParser = require('./core/GraphQLTextParser');
 const GraphQLValidator = require('./core/GraphQLValidator');
 const RelayCompiler = require('./core/RelayCompiler');
-const RelayCompilerContext = require('./core/RelayCompilerContext');
+const GraphQLCompilerContext = require('./core/GraphQLCompilerContext');
 const RelayConsoleReporter = require('./reporters/RelayConsoleReporter');
 const RelayFlattenTransform = require('./transforms/RelayFlattenTransform');
 const RelayIRTransformer = require('./core/RelayIRTransformer');
@@ -89,7 +89,7 @@ module.exports = {
   CodegenDirectory: CodegenDirectory,
   CodegenRunner: CodegenRunner,
   Compiler: RelayCompiler,
-  CompilerContext: RelayCompilerContext,
+  CompilerContext: GraphQLCompilerContext,
   ConsoleReporter: RelayConsoleReporter,
   FileParser: FileParser,
   filterContextForNode: filterContextForNode,

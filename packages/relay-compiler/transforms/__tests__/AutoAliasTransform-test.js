@@ -13,7 +13,7 @@
 'use strict';
 
 const AutoAliasTransform = require('AutoAliasTransform');
-const RelayCompilerContext = require('RelayCompilerContext');
+const GraphQLCompilerContext = require('GraphQLCompilerContext');
 const RelayParser = require('RelayParser');
 const RelayPrinter = require('RelayPrinter');
 const RelayTestSchema = require('RelayTestSchema');
@@ -30,7 +30,7 @@ describe('AutoAliasTransform', () => {
       const ast = RelayParser.parse(RelayTestSchema, text);
       const context = ast.reduce(
         (ctx, node) => ctx.add(node),
-        new RelayCompilerContext(RelayTestSchema),
+        new GraphQLCompilerContext(RelayTestSchema),
       );
       const nextContext = AutoAliasTransform.transform(context);
       const documents = [];
@@ -52,7 +52,7 @@ describe('AutoAliasTransform', () => {
       }
     `,
     );
-    const context = new RelayCompilerContext(RelayTestSchema).add(ast[0]);
+    const context = new GraphQLCompilerContext(RelayTestSchema).add(ast[0]);
     const nextContext = AutoAliasTransform.transform(context);
     const fragment = nextContext.get('TestFragment');
     const field = fragment.selections[0];

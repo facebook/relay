@@ -15,7 +15,7 @@
 import type {FlattenOptions} from 'RelayFlattenTransform';
 
 describe('RelayFlattenTransform', () => {
-  let RelayCompilerContext;
+  let GraphQLCompilerContext;
   let RelayFlattenTransform;
   let RelayRelayDirectiveTransform;
   let RelayParser;
@@ -26,7 +26,7 @@ describe('RelayFlattenTransform', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    RelayCompilerContext = require('RelayCompilerContext');
+    GraphQLCompilerContext = require('GraphQLCompilerContext');
     RelayFlattenTransform = require('RelayFlattenTransform');
     RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
     RelayParser = require('RelayParser');
@@ -44,7 +44,7 @@ describe('RelayFlattenTransform', () => {
       const extendedSchema = transformASTSchema(RelayTestSchema, [
         RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
       ]);
-      const context = new RelayCompilerContext(RelayTestSchema).addAll(
+      const context = new GraphQLCompilerContext(RelayTestSchema).addAll(
         RelayParser.parse(extendedSchema, text),
       );
       const nextContext = RelayFlattenTransform.transform(context, options);

@@ -13,7 +13,7 @@
 'use strict';
 
 describe('RelaySkipHandleFieldTransform', () => {
-  let RelayCompilerContext;
+  let GraphQLCompilerContext;
   let RelayPrinter;
   let RelaySkipHandleFieldTransform;
   let RelayTestSchema;
@@ -23,7 +23,7 @@ describe('RelaySkipHandleFieldTransform', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    RelayCompilerContext = require('RelayCompilerContext');
+    GraphQLCompilerContext = require('GraphQLCompilerContext');
     RelayPrinter = require('RelayPrinter');
     RelaySkipHandleFieldTransform = require('RelaySkipHandleFieldTransform');
     RelayTestSchema = require('RelayTestSchema');
@@ -36,7 +36,7 @@ describe('RelaySkipHandleFieldTransform', () => {
   it('removes field handles', () => {
     expect('fixtures/skip-handle-field-transform').toMatchGolden(text => {
       const {definitions} = parseGraphQLText(RelayTestSchema, text);
-      let context = new RelayCompilerContext(RelayTestSchema).addAll(
+      let context = new GraphQLCompilerContext(RelayTestSchema).addAll(
         definitions,
       );
       context = RelaySkipHandleFieldTransform.transform(

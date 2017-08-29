@@ -13,7 +13,7 @@
 
 'use strict';
 
-const RelayCompilerContext = require('../core/RelayCompilerContext');
+const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
 
 const getIdentifierForRelayArgumentValue = require('../core/getIdentifierForRelayArgumentValue');
 const invariant = require('invariant');
@@ -32,7 +32,7 @@ import type {
  * and static calls. This transform requires that fragment spreads with
  * arguments have been inlined.
  */
-function transform(context: RelayCompilerContext): RelayCompilerContext {
+function transform(context: GraphQLCompilerContext): GraphQLCompilerContext {
   const documents = context.documents();
   return (documents: $FlowIssue).reduce((ctx, node) => {
     const selections = transformSelections(node.selections);
@@ -40,7 +40,7 @@ function transform(context: RelayCompilerContext): RelayCompilerContext {
       ...node,
       selections,
     });
-  }, new RelayCompilerContext(context.schema));
+  }, new GraphQLCompilerContext(context.schema));
 }
 
 function transformSelections(

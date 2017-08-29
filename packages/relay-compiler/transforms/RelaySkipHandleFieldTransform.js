@@ -13,7 +13,7 @@
 
 'use strict';
 
-const RelayCompilerContext = require('RelayCompilerContext');
+const GraphQLCompilerContext = require('GraphQLCompilerContext');
 const RelayIRTransformer = require('RelayIRTransformer');
 
 import type {LinkedField, ScalarField} from 'RelayIR';
@@ -26,9 +26,9 @@ type State = true;
  * printing queries to send to a GraphQL server.
  */
 function transform(
-  context: RelayCompilerContext,
+  context: GraphQLCompilerContext,
   schema: GraphQLSchema,
-): RelayCompilerContext {
+): GraphQLCompilerContext {
   return RelayIRTransformer.transform(
     context,
     {

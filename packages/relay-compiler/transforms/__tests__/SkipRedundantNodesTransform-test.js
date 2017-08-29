@@ -13,7 +13,7 @@
 'use strict';
 
 describe('SkipRedundantNodesTransform', () => {
-  let RelayCompilerContext;
+  let GraphQLCompilerContext;
   let RelayParser;
   let RelayPrinter;
   let SkipRedundantNodesTransform;
@@ -23,7 +23,7 @@ describe('SkipRedundantNodesTransform', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    RelayCompilerContext = require('RelayCompilerContext');
+    GraphQLCompilerContext = require('GraphQLCompilerContext');
     RelayParser = require('RelayParser');
     RelayPrinter = require('RelayPrinter');
     SkipRedundantNodesTransform = require('SkipRedundantNodesTransform');
@@ -38,7 +38,7 @@ describe('SkipRedundantNodesTransform', () => {
       const ast = RelayParser.parse(RelayTestSchema, text);
       const context = ast.reduce(
         (ctx, node) => ctx.add(node),
-        new RelayCompilerContext(RelayTestSchema),
+        new GraphQLCompilerContext(RelayTestSchema),
       );
       const nextContext = SkipRedundantNodesTransform.transform(context);
       const documents = [];

@@ -12,7 +12,7 @@
 
 'use strict';
 
-const RelayCompilerContext = require('RelayCompilerContext');
+const GraphQLCompilerContext = require('GraphQLCompilerContext');
 const RelayFieldHandleTransform = require('RelayFieldHandleTransform');
 const RelayPrinter = require('RelayPrinter');
 const RelayTestSchema = require('RelayTestSchema');
@@ -28,7 +28,7 @@ describe('RelayFieldHandleTransform', () => {
   it('matches expected output', () => {
     expect('fixtures/field-handle-transform').toMatchGolden(text => {
       const {definitions} = parseGraphQLText(RelayTestSchema, text);
-      const context = new RelayCompilerContext(RelayTestSchema).addAll(
+      const context = new GraphQLCompilerContext(RelayTestSchema).addAll(
         definitions,
       );
       const nextContext = RelayFieldHandleTransform.transform(context);

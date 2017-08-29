@@ -16,7 +16,7 @@
 const ASTConvert = require('ASTConvert');
 const CodegenDirectory = require('CodegenDirectory');
 const RelayCompiler = require('RelayCompiler');
-const RelayCompilerContext = require('RelayCompilerContext');
+const GraphQLCompilerContext = require('GraphQLCompilerContext');
 const RelayFlowGenerator = require('RelayFlowGenerator');
 const RelayValidator = require('RelayValidator');
 
@@ -41,7 +41,7 @@ import type {FormatModule} from 'writeRelayGeneratedFile';
 
 export type GenerateExtraFiles = (
   getOutputDirectory: (path?: string) => CodegenDirectory,
-  compilerContext: RelayCompilerContext,
+  compilerContext: GraphQLCompilerContext,
   getGeneratedDirectory: (definitionName: string) => CodegenDirectory,
 ) => void;
 
@@ -143,7 +143,7 @@ class RelayFileWriter implements FileWriterInterface {
       [...RelayValidator.LOCAL_RULES, ...RelayValidator.GLOBAL_RULES],
     );
 
-    const compilerContext = new RelayCompilerContext(extendedSchema);
+    const compilerContext = new GraphQLCompilerContext(extendedSchema);
     const compiler = new RelayCompiler(
       this._baseSchema,
       compilerContext,

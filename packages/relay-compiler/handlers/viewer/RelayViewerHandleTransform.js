@@ -13,7 +13,7 @@
 
 'use strict';
 
-const RelayCompilerContext = require('RelayCompilerContext');
+const GraphQLCompilerContext = require('GraphQLCompilerContext');
 const RelayIRTransformer = require('RelayIRTransformer');
 
 const {getRawType} = require('GraphQLSchemaUtils');
@@ -33,9 +33,9 @@ const VIEWER_TYPE = 'Viewer';
  * A transform that adds a "viewer" handle to all fields whose type is `Viewer`.
  */
 function transform(
-  context: RelayCompilerContext,
+  context: GraphQLCompilerContext,
   schema: GraphQLSchema,
-): RelayCompilerContext {
+): GraphQLCompilerContext {
   const viewerType = schema.getType(VIEWER_TYPE);
   if (
     viewerType == null ||

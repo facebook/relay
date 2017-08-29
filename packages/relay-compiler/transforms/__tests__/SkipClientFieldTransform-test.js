@@ -13,7 +13,7 @@
 'use strict';
 
 describe('SkipClientFieldTransform', () => {
-  let RelayCompilerContext;
+  let GraphQLCompilerContext;
   let RelayPrinter;
   let SkipClientFieldTransform;
   let RelayTestSchema;
@@ -23,7 +23,7 @@ describe('SkipClientFieldTransform', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    RelayCompilerContext = require('RelayCompilerContext');
+    GraphQLCompilerContext = require('GraphQLCompilerContext');
     RelayPrinter = require('RelayPrinter');
     SkipClientFieldTransform = require('SkipClientFieldTransform');
     RelayTestSchema = require('RelayTestSchema');
@@ -36,7 +36,7 @@ describe('SkipClientFieldTransform', () => {
   it('skips fields/types not defined in the original schema', () => {
     expect('fixtures/skip-client-field-transform').toMatchGolden(text => {
       const {definitions, schema} = parseGraphQLText(RelayTestSchema, text);
-      let context = new RelayCompilerContext(schema).addAll(definitions);
+      let context = new GraphQLCompilerContext(schema).addAll(definitions);
       context = SkipClientFieldTransform.transform(context, RelayTestSchema);
       const documents = [];
       context.documents().forEach(doc => {

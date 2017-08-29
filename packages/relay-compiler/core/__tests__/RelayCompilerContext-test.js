@@ -12,8 +12,8 @@
 
 'use strict';
 
-describe('RelayCompilerContext', () => {
-  let RelayCompilerContext;
+describe('GraphQLCompilerContext', () => {
+  let GraphQLCompilerContext;
   let RelayParser;
   let RelayTestSchema;
   let RelayModernTestUtils;
@@ -25,7 +25,7 @@ describe('RelayCompilerContext', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    RelayCompilerContext = require('RelayCompilerContext');
+    GraphQLCompilerContext = require('GraphQLCompilerContext');
     RelayParser = require('RelayParser');
     parseGraphQLText = require('parseGraphQLText');
     RelayTestSchema = require('RelayTestSchema');
@@ -47,7 +47,7 @@ describe('RelayCompilerContext', () => {
     it('adds multiple roots', () => {
       const context = [queryFoo, fragmentBar].reduce(
         (ctx, node) => ctx.add(node),
-        new RelayCompilerContext(RelayTestSchema),
+        new GraphQLCompilerContext(RelayTestSchema),
       );
 
       expect(context.getRoot('Foo')).toBe(queryFoo);
@@ -58,17 +58,17 @@ describe('RelayCompilerContext', () => {
       expect(() => {
         [queryFoo, fragmentFoo].reduce(
           (ctx, node) => ctx.add(node),
-          new RelayCompilerContext(RelayTestSchema),
+          new GraphQLCompilerContext(RelayTestSchema),
         );
       }).toFailInvariant(
-        'RelayCompilerContext: Duplicate document named `Foo`. GraphQL ' +
+        'GraphQLCompilerContext: Duplicate document named `Foo`. GraphQL ' +
           'fragments and roots must have unique names.',
       );
     });
   });
   describe('updateSchema()', () => {
     it('returns new context for schema extending query', () => {
-      const prevContext = new RelayCompilerContext(RelayTestSchema);
+      const prevContext = new GraphQLCompilerContext(RelayTestSchema);
       const {definitions, schema} = parseGraphQLText(
         RelayTestSchema,
         `

@@ -14,7 +14,7 @@
 
 require('configureForRelayOSS');
 
-const RelayCompilerContext = require('RelayCompilerContext');
+const GraphQLCompilerContext = require('GraphQLCompilerContext');
 const RelayPrinter = require('RelayPrinter');
 const RelayTestSchema = require('RelayTestSchema');
 const filterContextForNode = require('filterContextForNode');
@@ -31,7 +31,7 @@ describe('filterContextForNode', () => {
   it('matches expected output', () => {
     expect('fixtures/filter-context').toMatchGolden(text => {
       const {definitions} = parseGraphQLText(RelayTestSchema, text);
-      const context = new RelayCompilerContext(RelayTestSchema).addAll(
+      const context = new GraphQLCompilerContext(RelayTestSchema).addAll(
         definitions,
       );
       const printerContext = filterContextForNode(

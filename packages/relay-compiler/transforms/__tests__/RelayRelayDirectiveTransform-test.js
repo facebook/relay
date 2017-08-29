@@ -12,7 +12,7 @@
 
 'use strict';
 
-const RelayCompilerContext = require('RelayCompilerContext');
+const GraphQLCompilerContext = require('GraphQLCompilerContext');
 const RelayParser = require('RelayParser');
 const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
 const RelayTestSchema = require('RelayTestSchema');
@@ -35,7 +35,7 @@ describe('RelayRelayDirectiveTransform', () => {
       const ast = RelayParser.parse(schema, text);
       const context = ast.reduce(
         (ctx, node) => ctx.add(node),
-        new RelayCompilerContext(schema),
+        new GraphQLCompilerContext(schema),
       );
       const nextContext = RelayRelayDirectiveTransform.transform(context);
       const documents = [];

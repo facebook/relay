@@ -14,7 +14,7 @@
 'use strict';
 
 const GraphQLSchemaUtils = require('GraphQLSchemaUtils');
-const RelayCompilerContext = require('RelayCompilerContext');
+const GraphQLCompilerContext = require('GraphQLCompilerContext');
 const RelayIRTransformer = require('RelayIRTransformer');
 const RelayParser = require('RelayParser');
 
@@ -63,7 +63,7 @@ const CONNECTION = 'connection';
  * - Inserts a sub-fragment on the field to ensure that standard connection
  *   fields are fetched (e.g. cursors, node ids, page info).
  */
-function transform(context: RelayCompilerContext): RelayCompilerContext {
+function transform(context: GraphQLCompilerContext): GraphQLCompilerContext {
   return RelayIRTransformer.transform(
     context,
     {
@@ -233,7 +233,7 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
  * fields in order to merge different pagination results together at runtime.
  */
 function generateConnectionFragment(
-  context: RelayCompilerContext,
+  context: GraphQLCompilerContext,
   type: GraphQLType,
   direction: 'forward' | 'backward',
 ): InlineFragment {

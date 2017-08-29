@@ -25,7 +25,7 @@ const RelaySkipHandleFieldTransform = require('RelaySkipHandleFieldTransform');
 const RelayViewerHandleTransform = require('RelayViewerHandleTransform');
 
 import type {IRTransform} from 'GraphQLIRTransforms';
-import type CompilerContext from 'RelayCompilerContext';
+import type CompilerContext from 'GraphQLCompilerContext';
 
 const {
   codegenTransforms,

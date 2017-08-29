@@ -16,7 +16,7 @@ const GraphQLSchemaUtils = require('../core/GraphQLSchemaUtils');
 const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
 
 const areEqual = require('../util/areEqualOSS');
-const getIdentifierForRelaySelection = require('../core/getIdentifierForRelaySelection');
+const getIdentifierForSelection = require('../core/getIdentifierForSelection');
 const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
 const invariant = require('invariant');
 const stableJSONStringify = require('../util/stableJSONStringifyOSS');
@@ -179,7 +179,7 @@ function visitNode(
       visitNode(context, options, state, selection);
       return;
     }
-    const nodeIdentifier = getIdentifierForRelaySelection(selection);
+    const nodeIdentifier = getIdentifierForSelection(selection);
     if (selection.kind === 'Condition' || selection.kind === 'InlineFragment') {
       let selectionState = state.selections[nodeIdentifier];
       if (!selectionState) {

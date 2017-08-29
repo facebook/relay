@@ -7,7 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @flow
- * @providesModule getIdentifierForRelaySelection
+ * @providesModule getIdentifierForSelection
  * @format
  */
 
@@ -23,7 +23,7 @@ import type {Selection} from './RelayIR';
  * fields, the type for inline fragments, and a summary of the condition
  * variable and passing value for conditions.
  */
-function getIdentifierForRelaySelection(node: Selection): string {
+function getIdentifierForSelection(node: Selection): string {
   let obj;
   switch (node.kind) {
     case 'LinkedField':
@@ -60,4 +60,4 @@ function getIdentifierForRelaySelection(node: Selection): string {
   return stableJSONStringify(obj);
 }
 
-module.exports = getIdentifierForRelaySelection;
+module.exports = getIdentifierForSelection;

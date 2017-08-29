@@ -16,7 +16,7 @@
 const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
 const IMap = require('immutable').Map;
 
-const getIdentifierForRelaySelection = require('../core/getIdentifierForRelaySelection');
+const getIdentifierForSelection = require('../core/getIdentifierForSelection');
 const invariant = require('invariant');
 
 import type {Node, Selection} from '../core/RelayIR';
@@ -151,7 +151,7 @@ function transformNode<T: Node>(
 ): ?{selectionMap: SelectionMap, node: T} {
   const selections = [];
   sortSelections(node.selections).forEach(selection => {
-    const identifier = getIdentifierForRelaySelection(selection);
+    const identifier = getIdentifierForSelection(selection);
     switch (selection.kind) {
       case 'ScalarField':
       case 'FragmentSpread': {

@@ -27,7 +27,7 @@ const warning = require('warning');
 
 const {profileContainer} = require('ReactRelayContainerProfiler');
 const {getComponentName, getReactComponent} = require('RelayContainerUtils');
-const {ConnectionInterface} = require('RelayRuntime');
+const {ConnectionInterface, Observable} = require('RelayRuntime');
 
 import type {
   GeneratedNodeMap,
@@ -42,6 +42,8 @@ import type {
 import type {ConnectionMetadata} from 'RelayConnectionHandler';
 import type {PageInfo} from 'RelayConnectionInterface';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
+import type {RelayResponsePayload} from 'RelayNetworkTypes';
+import type {Observer, Subscription} from 'RelayObservable';
 import type {FragmentMap, RelayContext} from 'RelayStoreTypes';
 import type {Variables} from 'RelayTypes';
 
@@ -322,7 +324,7 @@ function createContainerWithFragments<
   class Container extends React.Component<$FlowFixMeProps, ContainerState> {
     _isARequestInFlight: boolean;
     _localVariables: ?Variables;
-    _pendingRefetch: ?Disposable;
+    _refetchSubscription: ?Subscription;
     _references: Array<Disposable>;
     _relayContext: RelayContext;
     _resolver: FragmentSpecResolver;
@@ -333,7 +335,7 @@ function createContainerWithFragments<
       const {createFragmentSpecResolver} = relay.environment.unstable_internal;
       this._isARequestInFlight = false;
       this._localVariables = null;
-      this._pendingRefetch = null;
+      this._refetchSubscription = null;
       this._references = [];
       this._resolver = createFragmentSpecResolver(
         relay,
@@ -534,7 +536,7 @@ function createContainerWithFragments<
     };
 
     _isLoading = (): boolean => {
-      return !!this._pendingRefetch;
+      return !!this._refetchSubscription;
     };
 
     _refetchConnection = (
@@ -542,6 +544,22 @@ function createContainerWithFragments<
       callback: ?(error: ?Error) => void,
       refetchVariables: ?Variables,
     ): ?Disposable => {
+      const observer = this._refetchConnectionSubscription(
+        totalCount,
+        {error: callback, complete: callback},
+        refetchVariables,
+      );
+      if (!observer) {
+        return null;
+      }
+      return {dispose: observer.unsubscribe};
+    };
+
+    _refetchConnectionSubscription(
+      totalCount: number,
+      observer: ?Observer<RelayResponsePayload>,
+      refetchVariables: ?Variables,
+    ): ?Subscription {
       const paginatingVariables = {
         count: totalCount,
         cursor: null,
@@ -549,32 +567,50 @@ function createContainerWithFragments<
       };
       return this._fetchPage(
         paginatingVariables,
-        callback,
+        observer,
         {force: true},
         refetchVariables,
       );
-    };
+    }
 
     _loadMore = (
       pageSize: number,
       callback: ?(error: ?Error) => void,
       options: ?RefetchOptions,
     ): ?Disposable => {
+      const observer = this._loadMoreObserver(
+        pageSize,
+        {error: callback, complete: callback},
+        options,
+      );
+      if (!observer) {
+        return null;
+      }
+      return {
+        dispose: observer.unsubscribe,
+      };
+    };
+
+    _loadMoreObserver(
+      pageSize: number,
+      observer: ?Observer<RelayResponsePayload>,
+      options: ?RefetchOptions,
+    ): ?Subscription {
       const connectionData = this._getConnectionData();
       if (!connectionData) {
         return null;
       }
       const totalCount = connectionData.edgeCount + pageSize;
       if (options && options.force) {
-        return this._refetchConnection(totalCount, callback);
+        return this._refetchConnectionSubscription(totalCount, observer);
       }
       const paginatingVariables = {
         count: pageSize,
         cursor: connectionData.cursor,
         totalCount,
       };
-      return this._fetchPage(paginatingVariables, callback, options);
-    };
+      return this._fetchPage(paginatingVariables, observer, options);
+    }
 
     _fetchPage(
       paginatingVariables: {
@@ -582,10 +618,10 @@ function createContainerWithFragments<
         cursor: ?string,
         totalCount: number,
       },
-      callback: ?(error: ?Error) => void,
+      observer: ?Observer<RelayResponsePayload>,
       options: ?RefetchOptions,
       refetchVariables: ?Variables,
-    ): ?Disposable {
+    ): ?Subscription {
       const {environment} = assertRelayContext(this.context.relay);
       const {
         createOperationSelector,
@@ -633,9 +669,25 @@ function createContainerWithFragments<
       const query = getOperation(connectionConfig.query);
       const operation = createOperationSelector(query, fetchVariables);
 
-      const onCompleted = () => {
-        this._pendingRefetch = null;
-        this._isARequestInFlight = false;
+      let refetchSubscription = null;
+
+      const clearRequestInProgressState = () => {
+        if (this._refetchSubscription === refetchSubscription) {
+          this._refetchSubscription = null;
+          this._isARequestInFlight = false;
+        }
+      };
+
+      // Immediately retain the results of the query to prevent cached
+      // data from being evicted
+      const reference = environment.retain(operation.root);
+      this._references.push(reference);
+
+      if (this._refetchSubscription) {
+        this._refetchSubscription.unsubscribe();
+      }
+
+      const onNext = (payload, complete) => {
         this._relayContext = {
           environment: this.context.relay.environment,
           variables: {
@@ -662,59 +714,48 @@ function createContainerWithFragments<
         // resolved data.
         // TODO #14894725: remove PaginationContainer equal check
         if (!areEqual(prevData, nextData)) {
-          this.setState({data: nextData}, () => callback && callback());
+          this.setState({data: nextData}, complete);
         } else {
-          callback && callback();
+          complete();
         }
       };
-      const onError = error => {
-        this._pendingRefetch = null;
-        this._isARequestInFlight = false;
-        callback && callback(error);
-      };
-
-      // Immediately retain the results of the query to prevent cached
-      // data from being evicted
-      const reference = environment.retain(operation.root);
-      this._references.push(reference);
-
-      if (this._pendingRefetch) {
-        this._pendingRefetch.dispose();
-      }
 
       this._isARequestInFlight = true;
-      const pendingRefetch = environment.streamQuery({
-        cacheConfig,
-        onCompleted,
-        onError,
-        operation,
-      });
-      if (this._isARequestInFlight) {
-        this._pendingRefetch = pendingRefetch;
-      } else {
-        this._pendingRefetch = null;
-      }
-      return {
-        dispose: () => {
-          // Disposing a loadMore() call should always dispose the fetch itself,
-          // but should not clear this._pendingFetch unless the loadMore() being
-          // cancelled is the most recent call.
-          pendingRefetch.dispose();
-          if (this._pendingRefetch === pendingRefetch) {
-            this._pendingRefetch = null;
-            this._isARequestInFlight = false;
-          }
-        },
-      };
+      refetchSubscription = environment
+        .observe({
+          operation,
+          cacheConfig,
+        })
+        .concatMap(
+          payload =>
+            new Observable(sink => {
+              onNext(payload, () => {
+                sink.next(payload);
+                sink.complete();
+              });
+            }),
+        )
+        .do({
+          error: clearRequestInProgressState,
+          complete: clearRequestInProgressState,
+          unsubscribe: clearRequestInProgressState,
+        })
+        .subscribe(observer || {});
+
+      this._refetchSubscription = this._isARequestInFlight
+        ? refetchSubscription
+        : null;
+
+      return refetchSubscription;
     }
 
     _release() {
       this._resolver.dispose();
       this._references.forEach(disposable => disposable.dispose());
       this._references.length = 0;
-      if (this._pendingRefetch) {
-        this._pendingRefetch.dispose();
-        this._pendingRefetch = null;
+      if (this._refetchSubscription) {
+        this._refetchSubscription.unsubscribe();
+        this._refetchSubscription = null;
         this._isARequestInFlight = false;
       }
     }

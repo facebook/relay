@@ -45,6 +45,24 @@ function mockDisposableMethod(object, key) {
   };
 }
 
+function mockObservableMethod(object, key) {
+  const fn = object[key].bind(object);
+  object[key] = jest.fn((...args) => {
+    const subscribable = fn(...args);
+    object[key].mock.unsubscribed = false;
+    return subscribable.do({
+      unsubscribe: () => {
+        object[key].mock.unsubscribed = true;
+      },
+    });
+  });
+  const mockClear = object[key].mockClear.bind(object[key]);
+  object[key].mockClear = () => {
+    mockClear();
+    object[key].mock.unsubscribed = null;
+  };
+}
+
 /**
  * Creates an instance of the `Environment` interface defined in
  * RelayStoreTypes with a mocked network layer.
@@ -256,8 +274,8 @@ function createMockEnvironment(options: {
   mockInstanceMethod(environment, 'getStore');
   mockInstanceMethod(environment, 'lookup');
   mockDisposableMethod(environment, 'retain');
-  mockInstanceMethod(environment, 'observe');
-  mockInstanceMethod(environment, 'observeMutation');
+  mockObservableMethod(environment, 'observe');
+  mockObservableMethod(environment, 'observeMutation');
   mockDisposableMethod(environment, 'sendMutation');
   mockDisposableMethod(environment, 'sendQuery');
   mockDisposableMethod(environment, 'streamQuery');

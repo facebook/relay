@@ -22,7 +22,7 @@ export type Subscription = {
   unsubscribe: () => void,
 };
 
-type Observer<T> = {
+export type Observer<T> = {
   start?: ?(Subscription) => mixed,
   next?: ?(T) => mixed,
   error?: ?(Error) => mixed,
@@ -165,7 +165,7 @@ class RelayObservable<T> implements Subscribable<T> {
    * for all events emitted by the source.
    *
    * Any errors that are thrown in the side-effect Observer are unhandled, and
-   * do not effect the source Observable or its Observer.
+   * do not affect the source Observable or its Observer.
    *
    * This is useful for when debugging your Observables or performing other
    * side-effects such as logging or performance monitoring.

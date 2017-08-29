@@ -691,32 +691,32 @@ describe('ReactRelayPaginationContainer', () => {
 
     ({UserFragment, UserQuery} = generateAndCompile(
       `
-      query UserQuery(
-        $after: ID
-        $count: Int!
-        $id: ID!
-        $orderby: [String]
-      ) {
-        node(id: $id) {
-          id
-          ...UserFragment
+        query UserQuery(
+          $after: ID
+          $count: Int!
+          $id: ID!
+          $orderby: [String]
+        ) {
+          node(id: $id) {
+            id
+            ...UserFragment
+          }
         }
-      }
 
-      fragment UserFragment on User {
-        friends(after: $after, first: $count, orderby: $orderby) {
-          edges {
-            node {
-              id
+        fragment UserFragment on User {
+          friends(after: $after, first: $count, orderby: $orderby) {
+            edges {
+              node {
+                id
+              }
+            }
+            pageInfo {
+              endCursor
+              hasNextPage
             }
           }
-          pageInfo {
-            endCursor
-            hasNextPage
-          }
         }
-      }
-    `,
+      `,
     ));
 
     TestContainer = ReactRelayPaginationContainer.createContainer(
@@ -752,43 +752,43 @@ describe('ReactRelayPaginationContainer', () => {
     let ViewerFragment;
     ({UserFragment, UserQuery, ViewerFragment} = generateAndCompile(
       `
-      query UserQuery(
-        $after: ID
-        $count: Int!
-        $id: ID!
-        $orderby: [String]
-      ) {
-        viewer {
-          ...ViewerFragment
-        }
-        node(id: $id) {
-          id
-          ...UserFragment
-        }
-      }
-
-      fragment ViewerFragment on Viewer {
-        actor{
-          id
-        }
-      }
-
-      fragment UserFragment on User {
-        friends(after: $after, first: $count, orderby: $orderby) @connection(
-          key: "UserFragment_friends"
+        query UserQuery(
+          $after: ID
+          $count: Int!
+          $id: ID!
+          $orderby: [String]
         ) {
-          edges {
-            node {
-              id
+          viewer {
+            ...ViewerFragment
+          }
+          node(id: $id) {
+            id
+            ...UserFragment
+          }
+        }
+
+        fragment ViewerFragment on Viewer {
+          actor{
+            id
+          }
+        }
+
+        fragment UserFragment on User {
+          friends(after: $after, first: $count, orderby: $orderby) @connection(
+            key: "UserFragment_friends"
+          ) {
+            edges {
+              node {
+                id
+              }
+            }
+            pageInfo {
+              endCursor
+              hasNextPage
             }
           }
-          pageInfo {
-            endCursor
-            hasNextPage
-          }
         }
-      }
-    `,
+      `,
     ));
 
     TestContainer = ReactRelayPaginationContainer.createContainer(
@@ -1121,10 +1121,9 @@ describe('ReactRelayPaginationContainer', () => {
         id: '4',
       };
       const {dispose} = loadMore(1, jest.fn());
-      const sendQueryDispose = environment.streamQuery.mock.dispose;
-      expect(sendQueryDispose).not.toBeCalled();
+      expect(environment.observe.mock.unsubscribed).toBe(false);
       dispose();
-      expect(sendQueryDispose).toBeCalled();
+      expect(environment.observe.mock.unsubscribed).toBe(true);
     });
 
     it('fetches the new variables', () => {
@@ -1262,19 +1261,17 @@ describe('ReactRelayPaginationContainer', () => {
 
     it('continues the fetch if new props refer to the same records', () => {
       loadMore(1, jest.fn());
-      const dispose = environment.streamQuery.mock.dispose;
       const userPointer = environment.lookup({
         dataID: ROOT_ID,
         node: UserQuery.fragment,
         variables, // same user
       }).data.node;
       instance.getInstance().setProps({user: userPointer});
-      expect(dispose).not.toBeCalled();
+      expect(environment.observe.mock.unsubscribed).toBe(false);
     });
 
     it('cancels the fetch if new props refer to different records', () => {
       loadMore(1, jest.fn());
-      const dispose = environment.streamQuery.mock.dispose;
       const userPointer = environment.lookup({
         dataID: ROOT_ID,
         node: UserQuery.fragment,
@@ -1285,7 +1282,7 @@ describe('ReactRelayPaginationContainer', () => {
         },
       }).data.node;
       instance.getInstance().setProps({user: userPointer});
-      expect(dispose).toBeCalled();
+      expect(environment.observe.mock.unsubscribed).toBe(true);
     });
 
     it('holds pagination results if new props refer to the same records', async () => {
@@ -1404,10 +1401,9 @@ describe('ReactRelayPaginationContainer', () => {
         id: '4',
       };
       const {dispose} = refetchConnection(1, jest.fn());
-      const sendQueryDispose = environment.streamQuery.mock.dispose;
-      expect(sendQueryDispose).not.toBeCalled();
+      expect(environment.observe.mock.unsubscribed).toBe(false);
       dispose();
-      expect(sendQueryDispose).toBeCalled();
+      expect(environment.observe.mock.unsubscribed).toBe(true);
     });
 
     it('fetches the new variables', () => {
@@ -1523,19 +1519,17 @@ describe('ReactRelayPaginationContainer', () => {
 
     it('continues the fetch if new props refer to the same records', () => {
       refetchConnection(1, jest.fn());
-      const dispose = environment.streamQuery.mock.dispose;
       const userPointer = environment.lookup({
         dataID: ROOT_ID,
         node: UserQuery.fragment,
         variables, // same user
       }).data.node;
       instance.getInstance().setProps({user: userPointer});
-      expect(dispose).not.toBeCalled();
+      expect(environment.observe.mock.unsubscribed).toBe(false);
     });
 
     it('cancels the fetch if new props refer to different records', () => {
       refetchConnection(1, jest.fn());
-      const dispose = environment.streamQuery.mock.dispose;
       const userPointer = environment.lookup({
         dataID: ROOT_ID,
         node: UserQuery.fragment,
@@ -1546,7 +1540,7 @@ describe('ReactRelayPaginationContainer', () => {
         },
       }).data.node;
       instance.getInstance().setProps({user: userPointer});
-      expect(dispose).toBeCalled();
+      expect(environment.observe.mock.unsubscribed).toBe(true);
     });
 
     it('holds pagination results if new props refer to the same records', async () => {

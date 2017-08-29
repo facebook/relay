@@ -50,14 +50,9 @@ describe('fetchRelayModernQuery', () => {
   it('fetches the query', () => {
     cacheConfig = {force: true};
     fetchRelayModernQuery(environment, query, variables, cacheConfig);
-    expect(environment.sendQuery.mock.calls.length).toBe(1);
-    const args = environment.sendQuery.mock.calls[0][0];
-    expect(args).toEqual({
-      cacheConfig,
-      onCompleted: jasmine.any(Function),
-      onError: jasmine.any(Function),
-      operation,
-    });
+    expect(environment.observe.mock.calls.length).toBe(1);
+    const args = environment.observe.mock.calls[0][0];
+    expect(args).toEqual({operation, cacheConfig});
     expect(args.cacheConfig).toBe(cacheConfig);
   });
 

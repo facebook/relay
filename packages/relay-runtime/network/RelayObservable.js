@@ -192,6 +192,23 @@ class RelayObservable<T> implements Subscribable<T> {
   }
 
   /**
+   * Returns a new Observable which returns the same values as this one, but
+   * modified so that the finally callback is performed after completion,
+   * whether normal or due to error or unsubscription.
+   *
+   * This is useful for cleanup such as resource finalization.
+   */
+  finally(fn: () => mixed): RelayObservable<T> {
+    return new RelayObservable(sink => {
+      const subscription = this.subscribe(sink);
+      return () => {
+        subscription.unsubscribe();
+        fn();
+      };
+    });
+  }
+
+  /**
    * Returns a new Observable which is identical to this one, unless this
    * Observable completes before yielding any values, in which case the new
    * Observable will yield the values from the alternate Observable.

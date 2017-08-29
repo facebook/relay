@@ -2429,4 +2429,63 @@ describe('RelayObservable', () => {
       ]);
     });
   });
+
+  describe('finally', () => {
+    it('should call finally after complete and cleanup', () => {
+      const list = [];
+
+      const obs = new RelayObservable(sink => {
+        sink.next(1);
+        sink.complete();
+        return () => list.push('cleanup');
+      });
+
+      obs.finally(() => list.push('finally')).subscribe({
+        next: val => list.push('next:' + val),
+        error: () => list.push('error'),
+        complete: () => list.push('complete'),
+        unsubscribe: () => list.push('unsubscribe'),
+      });
+
+      expect(list).toEqual(['next:1', 'complete', 'cleanup', 'finally']);
+    });
+
+    it('should call finally after error', () => {
+      const list = [];
+
+      const obs = new RelayObservable(sink => {
+        sink.error(new Error());
+        return () => list.push('cleanup');
+      });
+
+      obs.finally(() => list.push('finally')).subscribe({
+        next: val => list.push('next:' + val),
+        error: () => list.push('error'),
+        complete: () => list.push('complete'),
+        unsubscribe: () => list.push('unsubscribe'),
+      });
+
+      expect(list).toEqual(['error', 'cleanup', 'finally']);
+    });
+
+    it('should call finally after unsubscribe', () => {
+      const list = [];
+
+      const obs = new RelayObservable(sink => {
+        sink.next(1);
+        return () => list.push('cleanup');
+      });
+
+      const sub = obs.finally(() => list.push('finally')).subscribe({
+        next: val => list.push('next:' + val),
+        error: () => list.push('error'),
+        complete: () => list.push('complete'),
+        unsubscribe: () => list.push('unsubscribe'),
+      });
+
+      sub.unsubscribe();
+
+      expect(list).toEqual(['next:1', 'unsubscribe', 'cleanup', 'finally']);
+    });
+  });
 });

@@ -1405,14 +1405,17 @@ describe('RelayObservable', () => {
       expect(list).toEqual([value, 'complete']);
     });
 
-    it('Converts an Error instance to an Observable', () => {
+    it('Does not convert an Error to a rejected Observable', () => {
       const list = [];
       const error = new Error();
 
       const obs = RelayObservable.from(error);
 
       obs.subscribe({
-        next: val => list.push(val),
+        next: val => {
+          list.push('next');
+          list.push(val);
+        },
         error: err => {
           list.push('error');
           list.push(err);
@@ -1420,7 +1423,7 @@ describe('RelayObservable', () => {
         complete: () => list.push('complete'),
       });
 
-      expect(list).toEqual(['error', error]);
+      expect(list).toEqual(['next', error, 'complete']);
     });
   });
 

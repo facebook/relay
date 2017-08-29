@@ -26,9 +26,14 @@ import type {
  */
 function convertFetch(fn: FetchFunction): ObserveFunction {
   return function fetch(operation, variables, cacheConfig, uploadables) {
-    return RelayObservable.from(
-      fn(operation, variables, cacheConfig, uploadables),
-    );
+    const result = fn(operation, variables, cacheConfig, uploadables);
+    // Note: We allow FetchFunction to directly return Error to indicate
+    // a failure to fetch. To avoid handling this special case throughout the
+    // Relay codebase, it is explicitly handled here.
+    if (result instanceof Error) {
+      return new RelayObservable(sink => sink.error(result));
+    }
+    return RelayObservable.from(result);
   };
 }
 

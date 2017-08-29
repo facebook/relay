@@ -48,11 +48,7 @@ export interface Subscribable<T> {
 
 // Note: This should accept Subscribable<T> instead of RelayObservable<T>,
 // however Flow cannot yet distinguish it from T.
-export type ObservableFromValue<T> =
-  | RelayObservable<T>
-  | Promise<T>
-  | Error
-  | T;
+export type ObservableFromValue<T> = RelayObservable<T> | Promise<T> | T;
 
 let hostReportError;
 
@@ -103,9 +99,7 @@ class RelayObservable<T> implements Subscribable<T> {
   static from<V>(obj: ObservableFromValue<V>): RelayObservable<V> {
     return isObservable(obj)
       ? fromObservable(obj)
-      : isPromise(obj)
-        ? fromPromise(obj)
-        : obj instanceof Error ? fromError(obj) : fromValue(obj);
+      : isPromise(obj) ? fromPromise(obj) : fromValue(obj);
   }
 
   /**
@@ -393,6 +387,7 @@ class RelayObservable<T> implements Subscribable<T> {
 declare function isObservable(p: mixed): boolean %checks(p instanceof
   RelayObservable);
 
+// prettier-ignore
 // eslint-disable-next-line no-redeclare
 function isObservable(obj) {
   return (
@@ -422,12 +417,6 @@ function fromValue<T>(value: T): RelayObservable<T> {
   return new RelayObservable(sink => {
     sink.next(value);
     sink.complete();
-  });
-}
-
-function fromError(error: Error): RelayObservable<any> {
-  return new RelayObservable(sink => {
-    sink.error(error);
   });
 }
 

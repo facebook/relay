@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule RelayWatchmanClient
+ * @providesModule GraphQLWatchmanClient
  * @flow
  * @format
  */
@@ -14,12 +14,12 @@
 
 const watchman = require('fb-watchman');
 
-class RelayWatchmanClient {
+class GraphQLWatchmanClient {
   _client: any;
 
   static isAvailable(): Promise<boolean> {
     return new Promise(resolve => {
-      const client = new RelayWatchmanClient();
+      const client = new GraphQLWatchmanClient();
       client.on('error', () => {
         resolve(false);
         client.end();
@@ -83,4 +83,4 @@ class RelayWatchmanClient {
   }
 }
 
-module.exports = RelayWatchmanClient;
+module.exports = GraphQLWatchmanClient;

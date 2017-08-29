@@ -14,7 +14,7 @@
 'use strict';
 
 const RelayCodegenWatcher = require('./RelayCodegenWatcher');
-const RelayWatchmanClient = require('../core/RelayWatchmanClient');
+const GraphQLWatchmanClient = require('../core/GraphQLWatchmanClient');
 
 const invariant = require('invariant');
 const path = require('path');
@@ -153,7 +153,7 @@ class RelayCodegenRunner {
       }
     }
 
-    const client = new RelayWatchmanClient();
+    const client = new GraphQLWatchmanClient();
 
     // Check for files in the input
     await Promise.all(

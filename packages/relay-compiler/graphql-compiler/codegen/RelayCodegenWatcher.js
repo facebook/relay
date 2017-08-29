@@ -12,7 +12,7 @@
  */
 'use strict';
 
-const RelayWatchmanClient = require('../core/RelayWatchmanClient');
+const GraphQLWatchmanClient = require('../core/GraphQLWatchmanClient');
 
 const crypto = require('crypto');
 const fs = require('fs');
@@ -40,7 +40,7 @@ async function queryFiles(
   expression: WatchmanExpression,
   filter: FileFilter,
 ): Promise<Set<File>> {
-  const client = new RelayWatchmanClient();
+  const client = new GraphQLWatchmanClient();
   const [watchResp, fields] = await Promise.all([
     client.watchProject(baseDir),
     getFields(client),
@@ -54,7 +54,7 @@ async function queryFiles(
   return updateFiles(new Set(), baseDir, filter, resp.files);
 }
 
-async function getFields(client: RelayWatchmanClient): Promise<Array<string>> {
+async function getFields(client: GraphQLWatchmanClient): Promise<Array<string>> {
   const fields = ['name', 'exists'];
   if (await client.hasCapability('field-content.sha1hex')) {
     fields.push('content.sha1hex');
@@ -88,7 +88,7 @@ async function watch(
   expression: WatchmanExpression,
   callback: (changes: WatchmanChanges) => any,
 ): Promise<void> {
-  const client = new RelayWatchmanClient();
+  const client = new GraphQLWatchmanClient();
   const watchResp = await client.watchProject(baseDir);
 
   await makeSubscription(
@@ -101,7 +101,7 @@ async function watch(
 }
 
 async function makeSubscription(
-  client: RelayWatchmanClient,
+  client: GraphQLWatchmanClient,
   root: string,
   relativePath: string,
   expression: WatchmanExpression,

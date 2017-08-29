@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule getRelayLiteralArgumentValues
+ * @providesModule getLiteralArgumentValues
  * @flow
  * @format
  */
@@ -22,16 +22,16 @@ import type {Argument} from './RelayIR';
 // outside of graphql-compiler.
 type Variables = {[name: string]: $FlowFixMe};
 
-function getRelayLiteralArgumentValues(args: Array<Argument>): Variables {
+function getLiteralArgumentValues(args: Array<Argument>): Variables {
   const values = {};
   args.forEach(arg => {
     invariant(
       arg.value.kind === 'Literal',
-      'getRelayLiteralArgumentValues(): Expected all args to be literals.',
+      'getLiteralArgumentValues(): Expected all args to be literals.',
     );
     values[arg.name] = arg.value.value;
   });
   return values;
 }
 
-module.exports = getRelayLiteralArgumentValues;
+module.exports = getLiteralArgumentValues;

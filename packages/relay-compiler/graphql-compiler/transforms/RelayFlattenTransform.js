@@ -17,7 +17,7 @@ const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
 
 const areEqual = require('../util/areEqualOSS');
 const getIdentifierForRelaySelection = require('../core/getIdentifierForRelaySelection');
-const getRelayLiteralArgumentValues = require('../core/getRelayLiteralArgumentValues');
+const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
 const invariant = require('invariant');
 const stableJSONStringify = require('../util/stableJSONStringifyOSS');
 
@@ -268,7 +268,7 @@ function shouldFlattenFragmentSpread(
   if (!relayDirective) {
     return false;
   }
-  const {mask} = getRelayLiteralArgumentValues(relayDirective.args);
+  const {mask} = getLiteralArgumentValues(relayDirective.args);
   return mask === false;
 }
 

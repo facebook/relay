@@ -16,7 +16,7 @@
 const GraphQLCompilerContext = require('../graphql-compiler/core/GraphQLCompilerContext');
 const GraphQLIRTransformer = require('../graphql-compiler/core/GraphQLIRTransformer');
 
-const getRelayLiteralArgumentValues = require('../graphql-compiler/core/getRelayLiteralArgumentValues');
+const getLiteralArgumentValues = require('../graphql-compiler/core/getLiteralArgumentValues');
 const invariant = require('invariant');
 
 import type {Fragment} from '../graphql-compiler/core/RelayIR';
@@ -61,7 +61,7 @@ function visitFragment(fragment: Fragment): Fragment {
   if (!relayDirective) {
     return fragment;
   }
-  const {plural} = getRelayLiteralArgumentValues(relayDirective.args);
+  const {plural} = getLiteralArgumentValues(relayDirective.args);
   invariant(
     plural === undefined || typeof plural === 'boolean',
     'RelayRelayDirectiveTransform: Expected the %s argument to @%s to be ' +

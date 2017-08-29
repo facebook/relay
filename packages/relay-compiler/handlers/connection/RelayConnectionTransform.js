@@ -18,7 +18,7 @@ const GraphQLCompilerContext = require('GraphQLCompilerContext');
 const GraphQLIRTransformer = require('GraphQLIRTransformer');
 const RelayParser = require('RelayParser');
 
-const getRelayLiteralArgumentValues = require('getRelayLiteralArgumentValues');
+const getLiteralArgumentValues = require('getLiteralArgumentValues');
 const invariant = require('invariant');
 
 const {AFTER, BEFORE, FIRST, KEY, LAST} = require('RelayConnectionConstants');
@@ -162,7 +162,7 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
   });
   options.path.pop();
 
-  const {key, filters} = getRelayLiteralArgumentValues(
+  const {key, filters} = getLiteralArgumentValues(
     connectionDirective.args,
   );
   invariant(

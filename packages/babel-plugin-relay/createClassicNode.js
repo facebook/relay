@@ -172,6 +172,9 @@ function createClassicAST(t, definition) {
             substitutionName = fragmentName;
             isMasked = relayArguments[0].value.value !== false;
             break;
+          case 'import':
+            substitutionName = fragmentName;
+            break;
           default:
             throw new Error(
               'BabelPluginRelay: Unsupported directive `' +

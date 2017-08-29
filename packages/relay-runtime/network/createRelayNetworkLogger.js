@@ -73,12 +73,7 @@ function wrapObserve(
   graphiQLPrinter: ?GraphiQLPrinter,
 ): ObserveFunction {
   return (operation, variables, cacheConfig, uploadables) => {
-    const transaction = new LoggerTransaction({
-      operation,
-      variables,
-      cacheConfig,
-      uploadables,
-    });
+    let transaction;
 
     function addLogs(error, response, status) {
       if (graphiQLPrinter) {
@@ -113,6 +108,12 @@ function wrapObserve(
 
     return observable.do({
       start: () => {
+        transaction = new LoggerTransaction({
+          operation,
+          variables,
+          cacheConfig,
+          uploadables,
+        });
         console.time && console.time(transaction.getIdentifier());
         if (isSubscription) {
           flushLogs(null, null, 'subscription is sent.');

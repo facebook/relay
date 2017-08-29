@@ -14,7 +14,7 @@
 'use strict';
 
 const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
-const RelayIRTransformer = require('../core/RelayIRTransformer');
+const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 
 const invariant = require('invariant');
 
@@ -98,7 +98,7 @@ function transform(
   context: GraphQLCompilerContext,
   schema: GraphQLSchema,
 ): GraphQLCompilerContext {
-  return RelayIRTransformer.transform(
+  return GraphQLIRTransformer.transform(
     context,
     {
       FragmentSpread: visitFragmentSpread,

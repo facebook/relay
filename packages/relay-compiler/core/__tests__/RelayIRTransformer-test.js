@@ -13,12 +13,12 @@
 'use strict';
 
 const GraphQLCompilerContext = require('GraphQLCompilerContext');
-const RelayIRTransformer = require('RelayIRTransformer');
+const GraphQLIRTransformer = require('GraphQLIRTransformer');
 const RelayTestSchema = require('RelayTestSchema');
 
 const parseGraphQLText = require('parseGraphQLText');
 
-describe('RelayIRTransformer', () => {
+describe('GraphQLIRTransformer', () => {
   it('visits all node types', () => {
     const {definitions} = parseGraphQLText(
       RelayTestSchema,
@@ -105,7 +105,7 @@ describe('RelayIRTransformer', () => {
     astKinds.forEach(kind => {
       visitors[kind] = createRecorder(kind);
     });
-    RelayIRTransformer.transform(context, visitors, node => {
+    GraphQLIRTransformer.transform(context, visitors, node => {
       sequence.push(`init state: ${node.kind} ${node.name}`);
       return {};
     });

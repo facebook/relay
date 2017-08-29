@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`RelayIRTransformer visits all node types 1`] = `
+exports[`GraphQLIRTransformer visits all node types 1`] = `
 Array [
   "init state: Root TestQuery",
   "Root",

@@ -14,7 +14,7 @@
 'use strict';
 
 const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
-const RelayIRTransformer = require('../core/RelayIRTransformer');
+const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 
 const filterContextForNode = require('../core/filterContextForNode');
 
@@ -36,7 +36,7 @@ function transformRoot(context: GraphQLCompilerContext, root: Root): Root {
   const state = {
     referencedVariables: new Set(),
   };
-  const newContext = RelayIRTransformer.transform(
+  const newContext = GraphQLIRTransformer.transform(
     filterContextForNode(root, context),
     {
       Argument: visitArgument,

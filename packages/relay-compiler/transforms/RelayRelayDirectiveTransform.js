@@ -14,7 +14,7 @@
 'use strict';
 
 const GraphQLCompilerContext = require('../graphql-compiler/core/GraphQLCompilerContext');
-const RelayIRTransformer = require('../graphql-compiler/core/RelayIRTransformer');
+const GraphQLIRTransformer = require('../graphql-compiler/core/GraphQLIRTransformer');
 
 const getRelayLiteralArgumentValues = require('../graphql-compiler/core/getRelayLiteralArgumentValues');
 const invariant = require('invariant');
@@ -47,7 +47,7 @@ const SCHEMA_EXTENSION = `directive @relay(
  * them to metadata that can be accessed at runtime.
  */
 function transform(context: GraphQLCompilerContext): GraphQLCompilerContext {
-  return RelayIRTransformer.transform(
+  return GraphQLIRTransformer.transform(
     context,
     {
       Fragment: visitFragment,

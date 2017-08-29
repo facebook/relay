@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule RelayIRTransformer
+ * @providesModule GraphQLIRTransformer
  * @flow
  * @format
  */
@@ -256,7 +256,7 @@ class Transformer<S> {
       default:
         invariant(
           false,
-          'RelayIRTransformer: Unknown kind `%s`.',
+          'GraphQLIRTransformer: Unknown kind `%s`.',
           prevNode.kind,
         );
     }
@@ -277,7 +277,7 @@ class Transformer<S> {
         }
         invariant(
           Array.isArray(prevItems),
-          'RelayIRTransformer: Expected data for `%s` to be an array, got `%s`.',
+          'GraphQLIRTransformer: Expected data for `%s` to be an array, got `%s`.',
           key,
           prevItems,
         );
@@ -319,7 +319,7 @@ class Transformer<S> {
   _getState(): S {
     invariant(
       this._states.length,
-      'RelayIRTransformer: Expected a current state to be set but found none. ' +
+      'GraphQLIRTransformer: Expected a current state to be set but found none. ' +
         'This is usually the result of mismatched number of pushState()/popState() ' +
         'calls.',
     );

@@ -14,7 +14,7 @@
 'use strict';
 
 const GraphQLCompilerContext = require('GraphQLCompilerContext');
-const RelayIRTransformer = require('RelayIRTransformer');
+const GraphQLIRTransformer = require('GraphQLIRTransformer');
 
 const getRelayHandleKey = require('getRelayHandleKey');
 const invariant = require('invariant');
@@ -28,7 +28,7 @@ function transform(
   context: GraphQLCompilerContext,
   schema: GraphQLSchema,
 ): GraphQLCompilerContext {
-  return RelayIRTransformer.transform(
+  return GraphQLIRTransformer.transform(
     context,
     {
       LinkedField: visitField,

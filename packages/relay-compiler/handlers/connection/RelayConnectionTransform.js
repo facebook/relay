@@ -15,7 +15,7 @@
 
 const GraphQLSchemaUtils = require('GraphQLSchemaUtils');
 const GraphQLCompilerContext = require('GraphQLCompilerContext');
-const RelayIRTransformer = require('RelayIRTransformer');
+const GraphQLIRTransformer = require('GraphQLIRTransformer');
 const RelayParser = require('RelayParser');
 
 const getRelayLiteralArgumentValues = require('getRelayLiteralArgumentValues');
@@ -64,7 +64,7 @@ const CONNECTION = 'connection';
  *   fields are fetched (e.g. cursors, node ids, page info).
  */
 function transform(context: GraphQLCompilerContext): GraphQLCompilerContext {
-  return RelayIRTransformer.transform(
+  return GraphQLIRTransformer.transform(
     context,
     {
       Fragment: visitFragmentOrRoot,

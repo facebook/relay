@@ -118,6 +118,10 @@ function isAbstractType(type: GraphQLType): boolean {
   );
 }
 
+function isUnionType(type: GraphQLType): boolean %checks {
+  return type instanceof GraphQLUnionType;
+}
+
 /**
  * Get the unmodified type, with list/null wrappers removed.
  */
@@ -274,6 +278,7 @@ module.exports = {
   hasID,
   implementsInterface,
   isAbstractType,
+  isUnionType,
   isOperationDefinitionAST,
   isSchemaDefinitionAST,
   mayImplement,

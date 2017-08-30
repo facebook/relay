@@ -34,11 +34,7 @@ import type {
 import type {DataID} from 'RelayInternalTypes';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {PayloadData} from 'RelayNetworkTypes';
-import type {
-  PayloadError,
-  RelayResponsePayload,
-  UploadableMap,
-} from 'RelayNetworkTypes';
+import type {PayloadError, UploadableMap} from 'RelayNetworkTypes';
 import type RelayObservable from 'RelayObservable';
 import type {RecordState} from 'RelayRecordState';
 import type {Variables} from 'RelayTypes';
@@ -302,12 +298,6 @@ export interface Environment
   ): boolean,
 }
 
-export type Observer<T> = {
-  onCompleted?: ?() => void,
-  onError?: ?(error: Error) => void,
-  onNext?: ?(data: T) => void,
-};
-
 /**
  * The results of reading data for a fragment. This is similar to a `Selector`,
  * but references the (fragment) node by name rather than by value.
@@ -418,3 +408,12 @@ export type MissingFieldHandler =
         args: Variables,
       ) => ?Array<?DataID>,
     };
+
+/**
+ * The shape of data that is returned by normalizePayload for a given query.
+ */
+export type RelayResponsePayload = {|
+  fieldPayloads?: ?Array<HandleFieldPayload>,
+  source: MutableRecordSource,
+  errors: ?Array<PayloadError>,
+|};

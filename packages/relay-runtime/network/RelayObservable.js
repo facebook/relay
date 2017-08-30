@@ -16,7 +16,7 @@
 const isPromise = require('isPromise');
 
 import type {Disposable} from 'RelayCombinedEnvironmentTypes';
-import type {Observer as LegacyObserver} from 'RelayStoreTypes';
+import type {LegacyObserver} from 'RelayNetworkTypes';
 
 export type Subscription = {
   unsubscribe: () => void,

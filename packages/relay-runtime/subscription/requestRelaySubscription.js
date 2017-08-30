@@ -18,7 +18,6 @@ const warning = require('warning');
 
 import type {Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
-import type {RelayResponsePayload} from 'RelayNetworkTypes';
 import type {Environment, RecordSourceSelectorProxy} from 'RelayStoreTypes';
 import type {RelayMutationConfig, Variables} from 'RelayTypes';
 

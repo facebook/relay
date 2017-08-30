@@ -24,7 +24,6 @@ const normalizeRelayPayload = require('normalizeRelayPayload');
 
 import type {SelectorData} from 'RelayCombinedEnvironmentTypes';
 import type {HandlerProvider} from 'RelayDefaultHandlerProvider';
-import type {RelayResponsePayload} from 'RelayNetworkTypes';
 import type {
   HandleFieldPayload,
   MutableRecordSource,
@@ -34,6 +33,7 @@ import type {
   Store,
   StoreUpdater,
   RecordSource,
+  RelayResponsePayload,
 } from 'RelayStoreTypes';
 
 type Payload = {

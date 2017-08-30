@@ -42,9 +42,12 @@ import type {
 import type {ConnectionMetadata} from 'RelayConnectionHandler';
 import type {PageInfo} from 'RelayConnectionInterface';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
-import type {RelayResponsePayload} from 'RelayNetworkTypes';
 import type {Observer, Subscription} from 'RelayObservable';
-import type {FragmentMap, RelayContext} from 'RelayStoreTypes';
+import type {
+  FragmentMap,
+  RelayContext,
+  RelayResponsePayload,
+} from 'RelayStoreTypes';
 import type {Variables} from 'RelayTypes';
 
 type ContainerState = {

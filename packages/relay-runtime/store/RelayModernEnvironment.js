@@ -29,7 +29,6 @@ import type {
   Network,
   PayloadData,
   PayloadError,
-  RelayResponsePayload,
   UploadableMap,
 } from 'RelayNetworkTypes';
 import type RelayObservable from 'RelayObservable';
@@ -43,6 +42,7 @@ import type {
   Snapshot,
   Store,
   StoreUpdater,
+  RelayResponsePayload,
   UnstableEnvironmentCore,
 } from 'RelayStoreTypes';
 

@@ -28,7 +28,6 @@ import type {
   SubscribeFunction,
   UploadableMap,
 } from 'RelayNetworkTypes';
-import type {Observer} from 'RelayStoreTypes';
 import type {Variables} from 'RelayTypes';
 
 /**

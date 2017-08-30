@@ -20,7 +20,8 @@ const normalizeRelayPayload = require('normalizeRelayPayload');
 const {ROOT_ID} = require('RelayStoreUtils');
 
 import type {ConcreteBatch} from 'RelayConcreteNode';
-import type {QueryPayload, RelayResponsePayload} from 'RelayNetworkTypes';
+import type {QueryPayload} from 'RelayNetworkTypes';
+import type {RelayResponsePayload} from 'RelayStoreTypes';
 import type {Variables} from 'RelayTypes';
 
 function normalizePayload(

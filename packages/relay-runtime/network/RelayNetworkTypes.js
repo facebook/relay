@@ -16,20 +16,7 @@
 import type {CacheConfig, Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {ConcreteBatch} from 'RelayConcreteNode';
 import type RelayObservable, {ObservableFromValue} from 'RelayObservable';
-import type {
-  HandleFieldPayload,
-  MutableRecordSource,
-  Observer,
-} from 'RelayStoreTypes';
 import type {Variables} from 'RelayTypes';
-
-/**
- * A cache for saving respones to queries (by id) and variables.
- */
-export interface ResponseCache {
-  get(id: string, variables: Variables): ?QueryPayload,
-  set(id: string, variables: Variables, payload: QueryPayload): void,
-}
 
 /**
  * An interface for fetching the data for one or more (possibly interdependent)
@@ -71,16 +58,6 @@ export type ObserveFunction = (
 ) => RelayObservable<QueryPayload>;
 
 /**
- * The shape of data that is returned by the Relay network layer for a given
- * query.
- */
-export type RelayResponsePayload = {|
-  fieldPayloads?: ?Array<HandleFieldPayload>,
-  source: MutableRecordSource,
-  errors: ?Array<PayloadError>,
-|};
-
-/**
  * A function that executes a GraphQL operation with request/response semantics.
  *
  * May return an Observable or Promise of a raw server response.
@@ -103,9 +80,16 @@ export type SubscribeFunction = (
   operation: ConcreteBatch,
   variables: Variables,
   cacheConfig: CacheConfig,
-  observer: Observer<QueryPayload>,
+  observer: LegacyObserver<QueryPayload>,
 ) => RelayObservable<QueryPayload> | Disposable;
 
 export type Uploadable = File | Blob;
 // $FlowFixMe this is compatible with classic api see D4658012
 export type UploadableMap = {[key: string]: Uploadable};
+
+// Supports legacy SubscribeFunction definitions. Do not use in new code.
+export type LegacyObserver<T> = {
+  onCompleted?: ?() => void,
+  onError?: ?(error: Error) => void,
+  onNext?: ?(data: T) => void,
+};

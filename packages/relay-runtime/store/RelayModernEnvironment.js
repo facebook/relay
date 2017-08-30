@@ -85,9 +85,13 @@ class RelayModernEnvironment implements Environment {
 
       // Setup the runtime part for Native
       if (typeof g.registerDevtoolsPlugin === 'function') {
-        g.registerDevtoolsPlugin(
-          require('relay-debugger-react-native-runtime'),
-        );
+        try {
+          g.registerDevtoolsPlugin(
+            require('relay-debugger-react-native-runtime'),
+          );
+        } catch (error) {
+          // No debugger for you.
+        }
       }
 
       const envId = g.__RELAY_DEBUGGER__.registerEnvironment(this);

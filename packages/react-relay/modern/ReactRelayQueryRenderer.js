@@ -195,51 +195,6 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
     let snapshot: ?Snapshot; // results of the root fragment
     let isOnNextCalled = false;
     let isFunctionReturned = false;
-    const onCompleted = () => {
-      this._pendingFetch = null;
-    };
-    const onError = error => {
-      readyState = {
-        error,
-        props: null,
-        retry: () => {
-          this._fetch(operation, cacheConfig);
-        },
-      };
-      if (this._selectionReference) {
-        this._selectionReference.dispose();
-      }
-      this._pendingFetch = null;
-      this._selectionReference = nextReference;
-      this.setState({readyState});
-    };
-    const onNext = () => {
-      // `onNext` can be called multiple times by network layers that support
-      // data subscriptions. Wait until the first payload to render `props` and
-      // subscribe for data updates.
-      if (snapshot) {
-        return;
-      }
-      snapshot = environment.lookup(operation.fragment);
-      readyState = {
-        error: null,
-        props: snapshot.data,
-        retry: () => {
-          this._fetch(operation, cacheConfig);
-        },
-      };
-
-      if (this._selectionReference) {
-        this._selectionReference.dispose();
-      }
-      this._rootSubscription = environment.subscribe(snapshot, this._onChange);
-      this._selectionReference = nextReference;
-      // This line should be called only once.
-      isOnNextCalled = true;
-      if (isFunctionReturned) {
-        this.setState({readyState});
-      }
-    };
 
     if (this._pendingFetch) {
       this._pendingFetch.dispose();
@@ -247,16 +202,65 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
     if (this._rootSubscription) {
       this._rootSubscription.dispose();
     }
-    const request = environment.streamQuery({
-      cacheConfig,
-      onCompleted,
-      onError,
-      onNext,
-      operation,
-    });
+
+    const request = environment
+      .observe({
+        operation,
+        cacheConfig,
+      })
+      .finally(() => {
+        this._pendingFetch = null;
+      })
+      .subscribe({
+        next: () => {
+          // `next` can be called multiple times by network layers that support
+          // data subscriptions. Wait until the first payload to render `props`
+          // and subscribe for data updates.
+          if (snapshot) {
+            return;
+          }
+          snapshot = environment.lookup(operation.fragment);
+          readyState = {
+            error: null,
+            props: snapshot.data,
+            retry: () => {
+              this._fetch(operation, cacheConfig);
+            },
+          };
+
+          if (this._selectionReference) {
+            this._selectionReference.dispose();
+          }
+          this._rootSubscription = environment.subscribe(
+            snapshot,
+            this._onChange,
+          );
+          this._selectionReference = nextReference;
+          // This line should be called only once.
+          isOnNextCalled = true;
+          if (isFunctionReturned) {
+            this.setState({readyState});
+          }
+        },
+        error: error => {
+          readyState = {
+            error,
+            props: null,
+            retry: () => {
+              this._fetch(operation, cacheConfig);
+            },
+          };
+          if (this._selectionReference) {
+            this._selectionReference.dispose();
+          }
+          this._selectionReference = nextReference;
+          this.setState({readyState});
+        },
+      });
+
     this._pendingFetch = {
       dispose() {
-        request.dispose();
+        request.unsubscribe();
         nextReference.dispose();
       },
     };

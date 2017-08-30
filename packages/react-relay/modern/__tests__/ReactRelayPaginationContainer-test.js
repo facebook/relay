@@ -1121,9 +1121,10 @@ describe('ReactRelayPaginationContainer', () => {
         id: '4',
       };
       const {dispose} = loadMore(1, jest.fn());
-      expect(environment.observe.mock.unsubscribed).toBe(false);
+      const subscription = environment.observe.mock.subscriptions[0];
+      expect(subscription.closed).toBe(false);
       dispose();
-      expect(environment.observe.mock.unsubscribed).toBe(true);
+      expect(subscription.closed).toBe(true);
     });
 
     it('fetches the new variables', () => {
@@ -1261,17 +1262,19 @@ describe('ReactRelayPaginationContainer', () => {
 
     it('continues the fetch if new props refer to the same records', () => {
       loadMore(1, jest.fn());
+      const subscription = environment.observe.mock.subscriptions[0];
       const userPointer = environment.lookup({
         dataID: ROOT_ID,
         node: UserQuery.fragment,
         variables, // same user
       }).data.node;
       instance.getInstance().setProps({user: userPointer});
-      expect(environment.observe.mock.unsubscribed).toBe(false);
+      expect(subscription.closed).toBe(false);
     });
 
     it('cancels the fetch if new props refer to different records', () => {
       loadMore(1, jest.fn());
+      const subscription = environment.observe.mock.subscriptions[0];
       const userPointer = environment.lookup({
         dataID: ROOT_ID,
         node: UserQuery.fragment,
@@ -1282,7 +1285,7 @@ describe('ReactRelayPaginationContainer', () => {
         },
       }).data.node;
       instance.getInstance().setProps({user: userPointer});
-      expect(environment.observe.mock.unsubscribed).toBe(true);
+      expect(subscription.closed).toBe(true);
     });
 
     it('holds pagination results if new props refer to the same records', async () => {
@@ -1401,9 +1404,10 @@ describe('ReactRelayPaginationContainer', () => {
         id: '4',
       };
       const {dispose} = refetchConnection(1, jest.fn());
-      expect(environment.observe.mock.unsubscribed).toBe(false);
+      const subscription = environment.observe.mock.subscriptions[0];
+      expect(subscription.closed).toBe(false);
       dispose();
-      expect(environment.observe.mock.unsubscribed).toBe(true);
+      expect(subscription.closed).toBe(true);
     });
 
     it('fetches the new variables', () => {
@@ -1519,17 +1523,19 @@ describe('ReactRelayPaginationContainer', () => {
 
     it('continues the fetch if new props refer to the same records', () => {
       refetchConnection(1, jest.fn());
+      const subscription = environment.observe.mock.subscriptions[0];
       const userPointer = environment.lookup({
         dataID: ROOT_ID,
         node: UserQuery.fragment,
         variables, // same user
       }).data.node;
       instance.getInstance().setProps({user: userPointer});
-      expect(environment.observe.mock.unsubscribed).toBe(false);
+      expect(subscription.closed).toBe(false);
     });
 
     it('cancels the fetch if new props refer to different records', () => {
       refetchConnection(1, jest.fn());
+      const subscription = environment.observe.mock.subscriptions[0];
       const userPointer = environment.lookup({
         dataID: ROOT_ID,
         node: UserQuery.fragment,
@@ -1540,7 +1546,7 @@ describe('ReactRelayPaginationContainer', () => {
         },
       }).data.node;
       instance.getInstance().setProps({user: userPointer});
-      expect(environment.observe.mock.unsubscribed).toBe(true);
+      expect(subscription.closed).toBe(true);
     });
 
     it('holds pagination results if new props refer to the same records', async () => {

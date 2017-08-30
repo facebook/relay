@@ -47,19 +47,22 @@ function mockDisposableMethod(object, key) {
 
 function mockObservableMethod(object, key) {
   const fn = object[key].bind(object);
-  object[key] = jest.fn((...args) => {
-    const subscribable = fn(...args);
-    object[key].mock.unsubscribed = false;
-    return subscribable.do({
-      unsubscribe: () => {
-        object[key].mock.unsubscribed = true;
+  object[key] = jest.fn((...args) =>
+    fn(...args).do({
+      start: subscription => {
+        subscription.closed = false;
+        object[key].mock.subscriptions.push(subscription);
       },
-    });
-  });
+      unsubscribe: subscription => {
+        subscription.closed = true;
+      },
+    }),
+  );
+  object[key].mock.subscriptions = [];
   const mockClear = object[key].mockClear.bind(object[key]);
   object[key].mockClear = () => {
     mockClear();
-    object[key].mock.unsubscribed = null;
+    object[key].mock.subscriptions = [];
   };
 }
 

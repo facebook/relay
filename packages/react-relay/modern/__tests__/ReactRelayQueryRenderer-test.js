@@ -401,7 +401,7 @@ describe('ReactRelayQueryRenderer', () => {
         render,
         variables,
       });
-      expect(environment.streamQuery).not.toBeCalled();
+      expect(environment.observe).not.toBeCalled();
       expect(render).not.toBeCalled();
     });
 
@@ -428,7 +428,7 @@ describe('ReactRelayQueryRenderer', () => {
         render,
         variables,
       });
-      expect(environment.streamQuery).not.toBeCalled();
+      expect(environment.observe).not.toBeCalled();
       expect(render).not.toBeCalled();
     });
 
@@ -446,7 +446,7 @@ describe('ReactRelayQueryRenderer', () => {
         variables,
       });
       expect(readyState).toBeRendered();
-      expect(environment.streamQuery).not.toBeCalled();
+      expect(environment.observe).not.toBeCalled();
     });
 
     it('refetches if the `environment` prop changes', async () => {
@@ -764,11 +764,10 @@ describe('ReactRelayQueryRenderer', () => {
     });
 
     it('cancels the pending fetch', () => {
-      const disposeFetch = environment.streamQuery.mock.dispose;
-      expect(disposeFetch).not.toBeCalled();
-      environment.mockClear();
+      const subscription = environment.observe.mock.subscriptions[0];
+      expect(subscription.closed).toBe(false);
       instance.getInstance().setProps(nextProps);
-      expect(disposeFetch).toBeCalled();
+      expect(subscription.closed).toBe(true);
     });
 
     it('releases the pending selection', () => {
@@ -797,8 +796,8 @@ describe('ReactRelayQueryRenderer', () => {
     });
 
     it('renders if the `query` prop changes to null', () => {
-      const disposeFetch = environment.streamQuery.mock.dispose;
-      expect(disposeFetch).not.toBeCalled();
+      const subscription = environment.observe.mock.subscriptions[0];
+      expect(subscription.closed).toBe(false);
       const disposeHold = environment.retain.mock.dispose;
       expect(disposeHold).not.toBeCalled();
 
@@ -814,7 +813,7 @@ describe('ReactRelayQueryRenderer', () => {
         variables,
       });
 
-      expect(disposeFetch).toBeCalled();
+      expect(subscription.closed).toBe(true);
       expect(disposeHold).toBeCalled();
       expect({
         error: null,
@@ -866,10 +865,9 @@ describe('ReactRelayQueryRenderer', () => {
     });
 
     it('does not dispose the previous fetch', () => {
-      const disposeFetch = environment.streamQuery.mock.dispose;
-      environment.mockClear();
+      const subscription = environment.observe.mock.subscriptions[0];
       instance.getInstance().setProps(nextProps);
-      expect(disposeFetch).not.toBeCalled();
+      expect(subscription.closed).toBe(false);
     });
 
     it('fetches the new query', () => {
@@ -968,13 +966,6 @@ describe('ReactRelayQueryRenderer', () => {
         render,
         variables,
       };
-    });
-
-    it('does not dispose the previous fetch', () => {
-      const disposeFetch = environment.streamQuery.mock.dispose;
-      environment.mockClear();
-      instance.getInstance().setProps(nextProps);
-      expect(disposeFetch).not.toBeCalled();
     });
 
     it('disposes the root fragment subscription', () => {
@@ -1083,12 +1074,12 @@ describe('ReactRelayQueryRenderer', () => {
           variables={variables}
         />,
       );
-      const dispose = environment.streamQuery.mock.dispose;
-      expect(dispose).not.toBeCalled();
+      const subscription = environment.observe.mock.subscriptions[0];
+      expect(subscription.closed).toBe(false);
       // TODO: Tell React to unmount instead of manually calling the lifecycle
       // hook.
       instance.getInstance().componentWillUnmount();
-      expect(dispose).toBeCalled();
+      expect(subscription.closed).toBe(true);
     });
   });
 });

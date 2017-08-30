@@ -674,13 +674,6 @@ function createContainerWithFragments<
 
       let refetchSubscription = null;
 
-      const clearRequestInProgressState = () => {
-        if (this._refetchSubscription === refetchSubscription) {
-          this._refetchSubscription = null;
-          this._isARequestInFlight = false;
-        }
-      };
-
       // Immediately retain the results of the query to prevent cached
       // data from being evicted
       const reference = environment.retain(operation.root);
@@ -738,10 +731,11 @@ function createContainerWithFragments<
               });
             }),
         )
-        .do({
-          error: clearRequestInProgressState,
-          complete: clearRequestInProgressState,
-          unsubscribe: clearRequestInProgressState,
+        .finally(() => {
+          if (this._refetchSubscription === refetchSubscription) {
+            this._refetchSubscription = null;
+            this._isARequestInFlight = false;
+          }
         })
         .subscribe(observer || {});
 

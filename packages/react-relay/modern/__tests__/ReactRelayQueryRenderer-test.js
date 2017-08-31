@@ -401,7 +401,7 @@ describe('ReactRelayQueryRenderer', () => {
         render,
         variables,
       });
-      expect(environment.observe).not.toBeCalled();
+      expect(environment.execute).not.toBeCalled();
       expect(render).not.toBeCalled();
     });
 
@@ -428,7 +428,7 @@ describe('ReactRelayQueryRenderer', () => {
         render,
         variables,
       });
-      expect(environment.observe).not.toBeCalled();
+      expect(environment.execute).not.toBeCalled();
       expect(render).not.toBeCalled();
     });
 
@@ -446,7 +446,7 @@ describe('ReactRelayQueryRenderer', () => {
         variables,
       });
       expect(readyState).toBeRendered();
-      expect(environment.observe).not.toBeCalled();
+      expect(environment.execute).not.toBeCalled();
     });
 
     it('refetches if the `environment` prop changes', async () => {
@@ -764,7 +764,7 @@ describe('ReactRelayQueryRenderer', () => {
     });
 
     it('cancels the pending fetch', () => {
-      const subscription = environment.observe.mock.subscriptions[0];
+      const subscription = environment.execute.mock.subscriptions[0];
       expect(subscription.closed).toBe(false);
       instance.getInstance().setProps(nextProps);
       expect(subscription.closed).toBe(true);
@@ -796,7 +796,7 @@ describe('ReactRelayQueryRenderer', () => {
     });
 
     it('renders if the `query` prop changes to null', () => {
-      const subscription = environment.observe.mock.subscriptions[0];
+      const subscription = environment.execute.mock.subscriptions[0];
       expect(subscription.closed).toBe(false);
       const disposeHold = environment.retain.mock.dispose;
       expect(disposeHold).not.toBeCalled();
@@ -865,7 +865,7 @@ describe('ReactRelayQueryRenderer', () => {
     });
 
     it('does not dispose the previous fetch', () => {
-      const subscription = environment.observe.mock.subscriptions[0];
+      const subscription = environment.execute.mock.subscriptions[0];
       instance.getInstance().setProps(nextProps);
       expect(subscription.closed).toBe(false);
     });
@@ -1074,7 +1074,7 @@ describe('ReactRelayQueryRenderer', () => {
           variables={variables}
         />,
       );
-      const subscription = environment.observe.mock.subscriptions[0];
+      const subscription = environment.execute.mock.subscriptions[0];
       expect(subscription.closed).toBe(false);
       // TODO: Tell React to unmount instead of manually calling the lifecycle
       // hook.

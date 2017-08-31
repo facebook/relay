@@ -23,7 +23,7 @@ import type {Variables} from 'RelayTypes';
  * queries.
  */
 export type Network = {|
-  observe: ObserveFunction,
+  execute: ExecuteFunction,
 |};
 
 export type PayloadData = {[key: string]: mixed};
@@ -50,7 +50,7 @@ export type QueryPayload = {|
  * A function that returns an Observable representing the response of executing
  * a GraphQL operation.
  */
-export type ObserveFunction = (
+export type ExecuteFunction = (
   operation: ConcreteBatch,
   variables: Variables,
   cacheConfig: CacheConfig,

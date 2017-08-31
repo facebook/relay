@@ -243,15 +243,16 @@ export interface Environment
   getStore(): Store,
 
   /**
-   * Returns an Observable of RelayResponsePayload resulting from the provided
-   * Mutation operation, which are normalized and committed to the publish queue
-   * along with an optional optimistic response or updater.
+   * Returns an Observable of RelayResponsePayload resulting from executing the
+   * provided Mutation operation, the result of which is then normalized and
+   * committed to the publish queue along with an optional optimistic response
+   * or updater.
    *
    * Note: Observables are lazy, so calling this method will do nothing until
    * the result is subscribed to:
-   * environment.observeMutation({...}).subscribe({...}).
+   * environment.executeMutation({...}).subscribe({...}).
    */
-  observeMutation({|
+  executeMutation({|
     operation: OperationSelector,
     optimisticUpdater?: ?SelectorStoreUpdater,
     optimisticResponse?: ?Object,
@@ -260,7 +261,7 @@ export interface Environment
   |}): RelayObservable<RelayResponsePayload>,
 
   /**
-   * @deprecated Use Environment.observeMutation().subscribe()
+   * @deprecated Use Environment.executeMutation().subscribe()
    */
   sendMutation(config: {|
     onCompleted?: ?(errors: ?Array<PayloadError>) => void,

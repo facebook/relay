@@ -204,10 +204,7 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
     }
 
     const request = environment
-      .observe({
-        operation,
-        cacheConfig,
-      })
+      .execute({operation, cacheConfig})
       .finally(() => {
         this._pendingFetch = null;
       })

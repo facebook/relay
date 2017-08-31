@@ -88,7 +88,7 @@ function commitRelayModernMutation<T>(
   }
   let errors;
   return environment
-    .observeMutation({
+    .executeMutation({
       operation,
       optimisticResponse,
       optimisticUpdater,

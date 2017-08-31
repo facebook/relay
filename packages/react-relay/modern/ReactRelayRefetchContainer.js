@@ -249,10 +249,7 @@ function createContainerWithFragments<
       // synchronous completation may call callbacks .subscribe() returns.
       let refetchSubscription;
       environment
-        .observe({
-          operation,
-          cacheConfig,
-        })
+        .execute({operation, cacheConfig})
         .finally(() => {
           // Finalizing a refetch should only clear this._refetchSubscription
           // if the finizing subscription is the most recent call.

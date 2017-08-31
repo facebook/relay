@@ -128,9 +128,8 @@ describe('Configs: NODE_DELETE', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
-    const observeMutation =
-      environment.observeMutation.mock.calls[0][0].operation.node;
-    environment.mock.resolve(observeMutation, {
+    const node = environment.executeMutation.mock.calls[0][0].operation.node;
+    environment.mock.resolve(node, {
       data: {
         commentDelete: {
           deletedCommentId: firstCommentID,
@@ -273,9 +272,8 @@ describe('Configs: RANGE_DELETE', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
-    const observeMutation =
-      environment.observeMutation.mock.calls[0][0].operation.node;
-    environment.mock.resolve(observeMutation, {
+    const node = environment.executeMutation.mock.calls[0][0].operation.node;
+    environment.mock.resolve(node, {
       data: {
         commentDelete: {
           clientMutationId: '0',
@@ -400,9 +398,8 @@ describe('Configs: RANGE_DELETE', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
-    const observeMutation =
-      environment.observeMutation.mock.calls[0][0].operation.node;
-    environment.mock.resolve(observeMutation, {
+    const node = environment.executeMutation.mock.calls[0][0].operation.node;
+    environment.mock.resolve(node, {
       data: {
         unfriend: {
           clientMutationId: '0',
@@ -572,9 +569,8 @@ describe('Configs: RANGE_ADD', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
-    const observeMutation =
-      environment.observeMutation.mock.calls[0][0].operation.node;
-    environment.mock.resolve(observeMutation, data);
+    const node = environment.executeMutation.mock.calls[0][0].operation.node;
+    environment.mock.resolve(node, data);
     jest.runAllTimers();
     // Does not need to fire again since server data should be the same
     expect(updater).toBeCalled();
@@ -640,9 +636,8 @@ describe('Configs: RANGE_ADD', () => {
         },
       },
     };
-    const mutationQuery =
-      environment.observeMutation.mock.calls[0][0].operation.node;
-    environment.mock.resolve(mutationQuery, serverResponse);
+    const node = environment.executeMutation.mock.calls[0][0].operation.node;
+    environment.mock.resolve(node, serverResponse);
     jest.runAllTimers();
 
     let snapshot = store.lookup({
@@ -703,7 +698,7 @@ describe('Configs: RANGE_ADD', () => {
       mutation,
       variables,
     });
-    environment.mock.resolve(mutationQuery, serverResponse);
+    environment.mock.resolve(node, serverResponse);
     jest.runAllTimers();
 
     snapshot = store.lookup({
@@ -784,9 +779,8 @@ describe('Configs: RANGE_ADD', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
-    const observeMutation =
-      environment.observeMutation.mock.calls[0][0].operation.node;
-    environment.mock.resolve(observeMutation, data);
+    const node = environment.executeMutation.mock.calls[0][0].operation.node;
+    environment.mock.resolve(node, data);
     jest.runAllTimers();
     // Does not need to fire again since server data should be the same
     expect(updater).toBeCalled();
@@ -846,9 +840,8 @@ describe('Configs: RANGE_ADD', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
-    const observeMutation =
-      environment.observeMutation.mock.calls[0][0].operation.node;
-    environment.mock.resolve(observeMutation, data);
+    const node = environment.executeMutation.mock.calls[0][0].operation.node;
+    environment.mock.resolve(node, data);
     jest.runAllTimers();
     // Does not need to fire again since server data should be the same
     expect(updater).toBeCalled();

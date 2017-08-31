@@ -181,14 +181,14 @@ class RelayModernEnvironment implements Environment {
   }
 
   /**
-   * Returns an Observable of RelayResponsePayload resulting from the provided
-   * Query or Subscription operation, each of which are normalized and committed
-   * to the publish queue.
+   * Returns an Observable of RelayResponsePayload resulting from executing the
+   * provided Query or Subscription operation, each result of which is then
+   * normalized and committed to the publish queue.
    *
    * Note: Observables are lazy, so calling this method will do nothing until
-   * the result is subscribed to: environment.observe({...}).subscribe({...}).
+   * the result is subscribed to: environment.execute({...}).subscribe({...}).
    */
-  observe({
+  execute({
     operation,
     cacheConfig,
     updater,
@@ -199,7 +199,7 @@ class RelayModernEnvironment implements Environment {
   }): RelayObservable<RelayResponsePayload> {
     const {node, variables} = operation;
     return this._network
-      .observe(node, variables, cacheConfig || {})
+      .execute(node, variables, cacheConfig || {})
       .map(payload => normalizePayload(node, variables, payload))
       .do({
         next: payload => {
@@ -210,15 +210,16 @@ class RelayModernEnvironment implements Environment {
   }
 
   /**
-   * Returns an Observable of RelayResponsePayload resulting from the provided
-   * Mutation operation, which are normalized and committed to the publish queue
-   * along with an optional optimistic response or updater.
+   * Returns an Observable of RelayResponsePayload resulting from executing the
+   * provided Mutation operation, the result of which is then normalized and
+   * committed to the publish queue along with an optional optimistic response
+   * or updater.
    *
    * Note: Observables are lazy, so calling this method will do nothing until
    * the result is subscribed to:
-   * environment.observeMutation({...}).subscribe({...}).
+   * environment.executeMutation({...}).subscribe({...}).
    */
-  observeMutation({
+  executeMutation({
     operation,
     optimisticResponse,
     optimisticUpdater,
@@ -244,7 +245,7 @@ class RelayModernEnvironment implements Environment {
     }
 
     return this._network
-      .observe(node, variables, {force: true}, uploadables)
+      .execute(node, variables, {force: true}, uploadables)
       .map(payload => normalizePayload(node, variables, payload))
       .do({
         start: () => {
@@ -311,7 +312,7 @@ class RelayModernEnvironment implements Environment {
   }
 
   /**
-   * @deprecated Use Environment.observe().subscribe()
+   * @deprecated Use Environment.execute().subscribe()
    */
   sendQuery({
     cacheConfig,
@@ -326,7 +327,7 @@ class RelayModernEnvironment implements Environment {
     onNext?: ?(payload: RelayResponsePayload) => void,
     operation: OperationSelector,
   }): Disposable {
-    return this.observe({operation, cacheConfig}).subscribeLegacy({
+    return this.execute({operation, cacheConfig}).subscribeLegacy({
       onNext,
       onError,
       onCompleted,
@@ -334,7 +335,7 @@ class RelayModernEnvironment implements Environment {
   }
 
   /**
-   * @deprecated Use Environment.observe().subscribe()
+   * @deprecated Use Environment.execute().subscribe()
    */
   streamQuery({
     cacheConfig,
@@ -349,7 +350,7 @@ class RelayModernEnvironment implements Environment {
     onNext?: ?(payload: RelayResponsePayload) => void,
     operation: OperationSelector,
   }): Disposable {
-    return this.observe({operation, cacheConfig}).subscribeLegacy({
+    return this.execute({operation, cacheConfig}).subscribeLegacy({
       onNext,
       onError,
       onCompleted,
@@ -357,7 +358,7 @@ class RelayModernEnvironment implements Environment {
   }
 
   /**
-   * @deprecated Use Environment.observeMutation().subscribe()
+   * @deprecated Use Environment.executeMutation().subscribe()
    */
   sendMutation({
     onCompleted,
@@ -376,7 +377,7 @@ class RelayModernEnvironment implements Environment {
     updater?: ?SelectorStoreUpdater,
     uploadables?: UploadableMap,
   }): Disposable {
-    return this.observeMutation({
+    return this.executeMutation({
       operation,
       optimisticResponse,
       optimisticUpdater,
@@ -384,7 +385,7 @@ class RelayModernEnvironment implements Environment {
       uploadables,
     }).subscribeLegacy({
       // NOTE: sendMutation has a non-standard use of onCompleted() by passing
-      // it a value. When switching to use observeMutation(), the next()
+      // it a value. When switching to use executeMutation(), the next()
       // Observer should be used to preserve behavior.
       onNext: payload => {
         payload.errors && onCompleted && onCompleted(payload.errors);
@@ -395,7 +396,7 @@ class RelayModernEnvironment implements Environment {
   }
 
   /**
-   * @deprecated Use Environment.observe().subscribe()
+   * @deprecated Use Environment.execute().subscribe()
    */
   sendSubscription({
     onCompleted,
@@ -410,7 +411,7 @@ class RelayModernEnvironment implements Environment {
     operation: OperationSelector,
     updater?: ?SelectorStoreUpdater,
   }): Disposable {
-    return this.observe({
+    return this.execute({
       operation,
       updater,
       cacheConfig: {force: true},

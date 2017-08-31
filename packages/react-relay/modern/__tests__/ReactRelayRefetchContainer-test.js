@@ -739,7 +739,7 @@ describe('ReactRelayRefetchContainer', () => {
         id: '4',
       };
       refetch(variables, null, jest.fn());
-      const subscription = environment.observe.mock.subscriptions[0];
+      const subscription = environment.execute.mock.subscriptions[0];
       const userPointer = environment.lookup({
         dataID: ROOT_ID,
         node: UserQuery.fragment,
@@ -755,7 +755,7 @@ describe('ReactRelayRefetchContainer', () => {
         id: '4',
       };
       refetch(variables, null, jest.fn());
-      const subscription = environment.observe.mock.subscriptions[0];
+      const subscription = environment.execute.mock.subscriptions[0];
       const userPointer = environment.lookup({
         dataID: ROOT_ID,
         node: UserQuery.fragment,
@@ -848,14 +848,14 @@ describe('ReactRelayRefetchContainer', () => {
         id: '4',
       };
       refetch(refetchVariables, null, jest.fn());
-      const subscription1 = environment.observe.mock.subscriptions[0];
+      const subscription1 = environment.execute.mock.subscriptions[0];
 
       const refetchVariables2 = {
         cond: false,
         id: '11',
       };
       refetch(refetchVariables2, null, jest.fn());
-      const subscription2 = environment.observe.mock.subscriptions[1];
+      const subscription2 = environment.execute.mock.subscriptions[1];
 
       expect(subscription1.closed).toBe(true);
       expect(subscription2.closed).toBe(false);
@@ -867,7 +867,7 @@ describe('ReactRelayRefetchContainer', () => {
         id: '4',
       };
       const disposable1 = refetch(refetchVariables, null, jest.fn());
-      const subscription1 = environment.observe.mock.subscriptions[0];
+      const subscription1 = environment.execute.mock.subscriptions[0];
       expect(subscription1.closed).toBe(false);
 
       const refetchVariables2 = {
@@ -875,7 +875,7 @@ describe('ReactRelayRefetchContainer', () => {
         id: '11',
       };
       const disposable2 = refetch(refetchVariables2, null, jest.fn());
-      const subscription2 = environment.observe.mock.subscriptions[1];
+      const subscription2 = environment.execute.mock.subscriptions[1];
       expect(subscription1.closed).toBe(true);
       expect(subscription2.closed).toBe(false);
 

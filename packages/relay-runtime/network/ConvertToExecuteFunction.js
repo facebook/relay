@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule ConvertToObserveFunction
+ * @providesModule ConvertToExecuteFunction
  * @flow
  * @format
  */
@@ -16,15 +16,15 @@
 const RelayObservable = require('RelayObservable');
 
 import type {
+  ExecuteFunction,
   FetchFunction,
-  ObserveFunction,
   SubscribeFunction,
 } from 'RelayNetworkTypes';
 
 /**
- * Converts a FetchFunction into an ObserveFunction for use by RelayNetwork.
+ * Converts a FetchFunction into an ExecuteFunction for use by RelayNetwork.
  */
-function convertFetch(fn: FetchFunction): ObserveFunction {
+function convertFetch(fn: FetchFunction): ExecuteFunction {
   return function fetch(operation, variables, cacheConfig, uploadables) {
     const result = fn(operation, variables, cacheConfig, uploadables);
     // Note: We allow FetchFunction to directly return Error to indicate
@@ -38,9 +38,9 @@ function convertFetch(fn: FetchFunction): ObserveFunction {
 }
 
 /**
- * Converts a SubscribeFunction into an ObserveFunction for use by RelayNetwork.
+ * Converts a SubscribeFunction into an ExecuteFunction for use by RelayNetwork.
  */
-function convertSubscribe(fn: SubscribeFunction): ObserveFunction {
+function convertSubscribe(fn: SubscribeFunction): ExecuteFunction {
   return function subscribe(operation, variables, cacheConfig) {
     return RelayObservable.fromLegacy(observer =>
       fn(operation, variables, cacheConfig, observer),

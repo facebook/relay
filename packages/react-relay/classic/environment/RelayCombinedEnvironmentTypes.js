@@ -196,7 +196,7 @@ export interface CEnvironment<
   |}): Disposable,
 
   /**
-   * @deprecated Use Environment.observe().subscribe()
+   * @deprecated Use Environment.execute().subscribe()
    */
   streamQuery(config: {|
     cacheConfig?: ?CacheConfig,
@@ -215,9 +215,9 @@ export interface CEnvironment<
    * subscription open indefinitely such that `complete` is not called.
    *
    * Note: Observables are lazy, so calling this method will do nothing until
-   * the result is subscribed to: environment.observe({...}).subscribe({...}).
+   * the result is subscribed to: environment.execute({...}).subscribe({...}).
    */
-  observe(config: {|
+  execute(config: {|
     operation: COperationSelector<TNode, TOperation>,
     cacheConfig?: ?CacheConfig,
     updater?: ?SelectorStoreUpdater,

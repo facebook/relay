@@ -17,7 +17,7 @@ const RelayObservable = require('RelayObservable');
 
 const invariant = require('invariant');
 
-const {convertFetch, convertSubscribe} = require('ConvertToObserveFunction');
+const {convertFetch, convertSubscribe} = require('ConvertToExecuteFunction');
 
 import type {CacheConfig} from 'RelayCombinedEnvironmentTypes';
 import type {ConcreteBatch} from 'RelayConcreteNode';
@@ -44,7 +44,7 @@ function create(
     ? convertSubscribe(subscribeFn)
     : undefined;
 
-  function observe(
+  function execute(
     operation: ConcreteBatch,
     variables: Variables,
     cacheConfig: CacheConfig,
@@ -78,7 +78,7 @@ function create(
     return observeFetch(operation, variables, cacheConfig, uploadables);
   }
 
-  return {observe};
+  return {execute};
 }
 
 module.exports = {create};

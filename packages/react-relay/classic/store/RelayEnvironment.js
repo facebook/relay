@@ -389,7 +389,7 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
     return this.sendQuery(config);
   }
 
-  observe({
+  execute({
     operation,
     cacheConfig,
     updater,

@@ -48,10 +48,7 @@ function fetchRelayModernQuery(
   const operation = createOperationSelector(query, variables);
 
   return environment
-    .observe({
-      operation,
-      cacheConfig,
-    })
+    .execute({operation, cacheConfig})
     .map(() => environment.lookup(operation.fragment).data)
     .toPromise();
 }

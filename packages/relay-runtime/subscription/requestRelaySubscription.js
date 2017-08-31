@@ -55,7 +55,7 @@ function requestRelaySubscription(
     : config;
 
   return environment
-    .observe({
+    .execute({
       operation,
       updater,
       cacheConfig: {force: true},

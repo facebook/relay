@@ -17,13 +17,13 @@
 
 const prettyStringify = require('prettyStringify');
 
-const {convertFetch, convertSubscribe} = require('ConvertToObserveFunction');
+const {convertFetch, convertSubscribe} = require('ConvertToExecuteFunction');
 
 import type {ConcreteBatch} from 'RelayConcreteNode';
 import type {IRelayNetworkLoggerTransaction} from 'RelayNetworkLoggerTransaction';
 import type {
+  ExecuteFunction,
   FetchFunction,
-  ObserveFunction,
   SubscribeFunction,
 } from 'RelayNetworkTypes';
 import type {Variables} from 'RelayTypes';
@@ -42,7 +42,7 @@ function createRelayNetworkLogger(
       graphiQLPrinter?: GraphiQLPrinter,
     ): FetchFunction {
       return (operation, variables, cacheConfig, uploadables) => {
-        const wrapped = wrapObserve(
+        const wrapped = wrapExecute(
           convertFetch(fetch),
           LoggerTransaction,
           graphiQLPrinter,
@@ -56,7 +56,7 @@ function createRelayNetworkLogger(
       graphiQLPrinter?: GraphiQLPrinter,
     ): SubscribeFunction {
       return (operation, variables, cacheConfig) => {
-        const wrapped = wrapObserve(
+        const wrapped = wrapExecute(
           convertSubscribe(subscribe),
           LoggerTransaction,
           graphiQLPrinter,
@@ -67,11 +67,11 @@ function createRelayNetworkLogger(
   };
 }
 
-function wrapObserve(
-  observe: ObserveFunction,
+function wrapExecute(
+  execute: ExecuteFunction,
   LoggerTransaction: Class<IRelayNetworkLoggerTransaction>,
   graphiQLPrinter: ?GraphiQLPrinter,
-): ObserveFunction {
+): ExecuteFunction {
   return (operation, variables, cacheConfig, uploadables) => {
     let transaction;
 
@@ -102,7 +102,7 @@ function wrapObserve(
       transaction.commitLogs(error, response, status);
     }
 
-    const observable = observe(operation, variables, cacheConfig, uploadables);
+    const observable = execute(operation, variables, cacheConfig, uploadables);
 
     const isSubscription = operation.query.operation === 'subscription';
 
@@ -139,7 +139,7 @@ function wrapObserve(
           null,
           isSubscription
             ? 'subscription is unsubscribed.'
-            : 'observe is unsubscribed.',
+            : 'execution is unsubscribed.',
         ),
     });
   };

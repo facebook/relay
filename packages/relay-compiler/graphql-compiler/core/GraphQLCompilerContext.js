@@ -109,8 +109,8 @@ class GraphQLCompilerContext {
     if (!(node && node.kind === 'Fragment')) {
       const childModule = name.substring(0, name.lastIndexOf('_'));
       throw createUserError(
-        'Relay cannot find fragment `%s`.' +
-          ' Please make sure the fragment exists in `%s`',
+        'GraphQLCompilerContext: Cannot find fragment `%s`.' +
+          ' Please make sure the fragment exists in `%s`.',
         name,
         childModule,
       );

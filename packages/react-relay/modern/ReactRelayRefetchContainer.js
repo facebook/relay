@@ -37,6 +37,7 @@ import type {
   FragmentSpecResolver,
 } from 'RelayCombinedEnvironmentTypes';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
+import type {Subscription} from 'RelayObservable';
 import type {FragmentMap, RelayContext} from 'RelayStoreTypes';
 import type {Variables} from 'RelayTypes';
 
@@ -66,9 +67,8 @@ function createContainerWithFragments<
   const containerName = `Relay(${componentName})`;
 
   class Container extends React.Component<$FlowFixMeProps, ContainerState> {
-    _isARequestInFlight: boolean;
     _localVariables: ?Variables;
-    _pendingRefetch: ?Disposable;
+    _refetchSubscription: ?Subscription;
     _references: Array<Disposable>;
     _relayContext: RelayContext;
     _resolver: FragmentSpecResolver;
@@ -77,9 +77,8 @@ function createContainerWithFragments<
       super(props, context);
       const relay = assertRelayContext(context.relay);
       const {createFragmentSpecResolver} = relay.environment.unstable_internal;
-      this._isARequestInFlight = false;
       this._localVariables = null;
-      this._pendingRefetch = null;
+      this._refetchSubscription = null;
       this._references = [];
       this._resolver = createFragmentSpecResolver(
         relay,
@@ -178,11 +177,7 @@ function createContainerWithFragments<
       this._resolver.dispose();
       this._references.forEach(disposable => disposable.dispose());
       this._references.length = 0;
-      if (this._pendingRefetch) {
-        this._pendingRefetch.dispose();
-        this._pendingRefetch = null;
-        this._isARequestInFlight = false;
-      }
+      this._refetchSubscription && this._refetchSubscription.unsubscribe();
     }
 
     _buildRelayProp(relay: RelayContext): RelayRefetchProp {
@@ -232,31 +227,6 @@ function createContainerWithFragments<
       const fragmentVariables = renderVariables
         ? {...rootVariables, ...renderVariables}
         : fetchVariables;
-
-      const onNext = response => {
-        if (!this._isARequestInFlight) {
-          // only call callback once per refetch
-          return;
-        }
-        // TODO t15106389: add helper utility for fetching more data
-        this._pendingRefetch = null;
-        this._isARequestInFlight = false;
-        this._relayContext = {
-          environment: this.context.relay.environment,
-          variables: fragmentVariables,
-        };
-        this._resolver.setVariables(fragmentVariables);
-        this.setState(
-          {data: this._resolver.resolve()},
-          () => callback && callback(),
-        );
-      };
-      const onError = error => {
-        this._pendingRefetch = null;
-        this._isARequestInFlight = false;
-        callback && callback(error);
-      };
-
       const cacheConfig = options ? {force: !!options.force} : undefined;
       const {
         createOperationSelector,
@@ -271,31 +241,52 @@ function createContainerWithFragments<
       this._references.push(reference);
 
       this._localVariables = fetchVariables;
-      if (this._pendingRefetch) {
-        this._pendingRefetch.dispose();
-      }
-      this._isARequestInFlight = true;
-      const pendingRefetch = environment.streamQuery({
-        cacheConfig,
-        onError,
-        onNext,
-        operation,
-      });
-      if (this._isARequestInFlight) {
-        this._pendingRefetch = pendingRefetch;
-      } else {
-        this._pendingRefetch = null;
-      }
-      return {
-        dispose: () => {
-          // Disposing a refetch() call should always dispose the fetch itself,
-          // but should not clear this._pendingFetch unless the refetch() being
-          // cancelled is the most recent call.
-          pendingRefetch.dispose();
-          if (this._pendingRefetch === pendingRefetch) {
-            this._pendingRefetch = null;
-            this._isARequestInFlight = false;
+
+      // Cancel any previously running refetch.
+      this._refetchSubscription && this._refetchSubscription.unsubscribe();
+
+      // Declare refetchSubscription before assigning it in .start(), since
+      // synchronous completation may call callbacks .subscribe() returns.
+      let refetchSubscription;
+      environment
+        .observe({
+          operation,
+          cacheConfig,
+        })
+        .finally(() => {
+          // Finalizing a refetch should only clear this._refetchSubscription
+          // if the finizing subscription is the most recent call.
+          if (this._refetchSubscription === refetchSubscription) {
+            this._refetchSubscription = null;
           }
+        })
+        .subscribe({
+          start: subscription => {
+            this._refetchSubscription = refetchSubscription = subscription;
+          },
+          next: response => {
+            // TODO t15106389: add helper utility for fetching more data
+            // only call callback once per refetch
+            refetchSubscription.unsubscribe();
+
+            this._relayContext = {
+              environment: this.context.relay.environment,
+              variables: fragmentVariables,
+            };
+            this._resolver.setVariables(fragmentVariables);
+            this.setState(
+              {data: this._resolver.resolve()},
+              () => callback && callback(),
+            );
+          },
+          error: error => {
+            callback && callback(error);
+          },
+        });
+
+      return {
+        dispose() {
+          refetchSubscription && refetchSubscription.unsubscribe();
         },
       };
     };

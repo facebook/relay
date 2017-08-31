@@ -739,14 +739,14 @@ describe('ReactRelayRefetchContainer', () => {
         id: '4',
       };
       refetch(variables, null, jest.fn());
-      const dispose = environment.streamQuery.mock.dispose;
+      const subscription = environment.observe.mock.subscriptions[0];
       const userPointer = environment.lookup({
         dataID: ROOT_ID,
         node: UserQuery.fragment,
         variables: {id: '4'}, // same user
       }).data.node;
       instance.getInstance().setProps({user: userPointer});
-      expect(dispose).not.toBeCalled();
+      expect(subscription.closed).toBe(false);
     });
 
     it('cancels the fetch if new props refer to different records', () => {
@@ -755,14 +755,14 @@ describe('ReactRelayRefetchContainer', () => {
         id: '4',
       };
       refetch(variables, null, jest.fn());
-      const dispose = environment.streamQuery.mock.dispose;
+      const subscription = environment.observe.mock.subscriptions[0];
       const userPointer = environment.lookup({
         dataID: ROOT_ID,
         node: UserQuery.fragment,
         variables: {id: '842472'}, // different user
       }).data.node;
       instance.getInstance().setProps({user: userPointer});
-      expect(dispose).toBeCalled();
+      expect(subscription.closed).toBe(true);
     });
 
     it('holds refetch results if new props refer to the same records', async () => {
@@ -840,6 +840,52 @@ describe('ReactRelayRefetchContainer', () => {
 
       expect(relayContext.environment).toBe(environment);
       expect(relayContext.variables).toEqual(updateVariables);
+    });
+
+    it('cancels previous request when a new refetch occurs first', async () => {
+      const refetchVariables = {
+        cond: false,
+        id: '4',
+      };
+      refetch(refetchVariables, null, jest.fn());
+      const subscription1 = environment.observe.mock.subscriptions[0];
+
+      const refetchVariables2 = {
+        cond: false,
+        id: '11',
+      };
+      refetch(refetchVariables2, null, jest.fn());
+      const subscription2 = environment.observe.mock.subscriptions[1];
+
+      expect(subscription1.closed).toBe(true);
+      expect(subscription2.closed).toBe(false);
+    });
+
+    it('does not cancel current request if previous request is disposed', async () => {
+      const refetchVariables = {
+        cond: false,
+        id: '4',
+      };
+      const disposable1 = refetch(refetchVariables, null, jest.fn());
+      const subscription1 = environment.observe.mock.subscriptions[0];
+      expect(subscription1.closed).toBe(false);
+
+      const refetchVariables2 = {
+        cond: false,
+        id: '11',
+      };
+      const disposable2 = refetch(refetchVariables2, null, jest.fn());
+      const subscription2 = environment.observe.mock.subscriptions[1];
+      expect(subscription1.closed).toBe(true);
+      expect(subscription2.closed).toBe(false);
+
+      disposable1.dispose();
+      expect(subscription1.closed).toBe(true);
+      expect(subscription2.closed).toBe(false);
+
+      disposable2.dispose();
+      expect(subscription1.closed).toBe(true);
+      expect(subscription2.closed).toBe(true);
     });
   });
 });

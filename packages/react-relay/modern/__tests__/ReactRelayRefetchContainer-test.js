@@ -589,7 +589,7 @@ describe('ReactRelayRefetchContainer', () => {
       });
     });
 
-    it('calls the callback when the fetch succeeds', async () => {
+    it('calls the callback when the fetch succeeds', () => {
       expect.assertions(2);
       const callback = jest.fn();
       variables = {
@@ -597,7 +597,7 @@ describe('ReactRelayRefetchContainer', () => {
         id: '4',
       };
       refetch(variables, null, callback);
-      await environment.mock.resolve(UserQuery, {
+      environment.mock.resolve(UserQuery, {
         data: {
           node: {
             id: '4',
@@ -609,7 +609,7 @@ describe('ReactRelayRefetchContainer', () => {
       expect(callback.mock.calls[0].length).toBe(0);
     });
 
-    it('calls the callback when the fetch fails', async () => {
+    it('calls the callback when the fetch fails', () => {
       expect.assertions(2);
       const callback = jest.fn();
       variables = {
@@ -618,7 +618,7 @@ describe('ReactRelayRefetchContainer', () => {
       };
       refetch(variables, null, callback);
       const error = new Error('oops');
-      await environment.mock.reject(UserQuery, error);
+      environment.mock.reject(UserQuery, error);
       expect(callback.mock.calls.length).toBe(1);
       expect(callback).toBeCalledWith(error);
     });
@@ -664,7 +664,7 @@ describe('ReactRelayRefetchContainer', () => {
       );
     });
 
-    it('renders with the results of the new variables on success', async () => {
+    it('renders with the results of the new variables on success', () => {
       expect.assertions(5);
       expect(render.mock.calls.length).toBe(1);
       expect(render.mock.calls[0][0].user.name).toBe('Zuck');
@@ -674,7 +674,7 @@ describe('ReactRelayRefetchContainer', () => {
       };
       refetch(variables, null, jest.fn());
       expect(render.mock.calls.length).toBe(1);
-      await environment.mock.resolve(UserQuery, {
+      environment.mock.resolve(UserQuery, {
         data: {
           node: {
             id: '4',
@@ -687,7 +687,7 @@ describe('ReactRelayRefetchContainer', () => {
       expect(render.mock.calls[1][0].user.name).toBe(undefined);
     });
 
-    it('updates context with the results of new variables', async () => {
+    it('updates context with the results of new variables', () => {
       expect.assertions(6);
 
       // original context before refetch
@@ -704,7 +704,7 @@ describe('ReactRelayRefetchContainer', () => {
       expect(relayContext.environment).toBe(environment);
       expect(relayContext.variables).toBe(variables);
 
-      await environment.mock.resolve(UserQuery, {
+      environment.mock.resolve(UserQuery, {
         data: {
           node: {
             id: '4',
@@ -719,7 +719,7 @@ describe('ReactRelayRefetchContainer', () => {
       expect(relayContext.variables).toEqual(refetchVariables);
     });
 
-    it('does not update variables on failure', async () => {
+    it('does not update variables on failure', () => {
       expect.assertions(4);
       expect(render.mock.calls.length).toBe(1);
       expect(render.mock.calls[0][0].user.name).toBe('Zuck');
@@ -729,7 +729,7 @@ describe('ReactRelayRefetchContainer', () => {
       };
       refetch(variables, null, jest.fn());
       expect(render.mock.calls.length).toBe(1);
-      await environment.mock.reject(UserQuery, new Error('oops'));
+      environment.mock.reject(UserQuery, new Error('oops'));
       expect(render.mock.calls.length).toBe(1);
     });
 
@@ -765,14 +765,14 @@ describe('ReactRelayRefetchContainer', () => {
       expect(subscription.closed).toBe(true);
     });
 
-    it('holds refetch results if new props refer to the same records', async () => {
+    it('holds refetch results if new props refer to the same records', () => {
       expect.assertions(2);
       variables = {
         cond: false,
         id: '4',
       };
       refetch(variables, null, jest.fn());
-      await environment.mock.resolve(UserQuery, {
+      environment.mock.resolve(UserQuery, {
         data: {
           node: {
             id: '4',
@@ -790,14 +790,14 @@ describe('ReactRelayRefetchContainer', () => {
       expect(references[0].dispose).not.toBeCalled();
     });
 
-    it('releases refetch results if new props refer to different records', async () => {
+    it('releases refetch results if new props refer to different records', () => {
       expect.assertions(2);
       variables = {
         cond: false,
         id: '4',
       };
       refetch(variables, null, jest.fn());
-      await environment.mock.resolve(UserQuery, {
+      environment.mock.resolve(UserQuery, {
         data: {
           node: {
             id: '4',
@@ -815,14 +815,14 @@ describe('ReactRelayRefetchContainer', () => {
       expect(references[0].dispose).toBeCalled();
     });
 
-    it('updates child context if updated with new variables', async () => {
+    it('updates child context if updated with new variables', () => {
       expect.assertions(2);
       const refetchVariables = {
         cond: false,
         id: '4',
       };
       refetch(refetchVariables, null, jest.fn());
-      await environment.mock.resolve(UserQuery, {
+      environment.mock.resolve(UserQuery, {
         data: {
           node: {
             id: '4',
@@ -842,7 +842,7 @@ describe('ReactRelayRefetchContainer', () => {
       expect(relayContext.variables).toEqual(updateVariables);
     });
 
-    it('cancels previous request when a new refetch occurs first', async () => {
+    it('cancels previous request when a new refetch occurs first', () => {
       const refetchVariables = {
         cond: false,
         id: '4',
@@ -861,7 +861,7 @@ describe('ReactRelayRefetchContainer', () => {
       expect(subscription2.closed).toBe(false);
     });
 
-    it('does not cancel current request if previous request is disposed', async () => {
+    it('does not cancel current request if previous request is disposed', () => {
       const refetchVariables = {
         cond: false,
         id: '4',

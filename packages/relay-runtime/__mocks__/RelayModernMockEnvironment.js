@@ -16,6 +16,7 @@ const RelayMarkSweepStore = require('RelayMarkSweepStore');
 const RelayModernEnvironment = require('RelayModernEnvironment');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 const RelayNetwork = require('RelayNetwork');
+const RelayObservable = require('RelayObservable');
 const RelayQueryResponseCache = require('RelayQueryResponseCache');
 const RelayRecordSourceInspector = require('RelayRecordSourceInspector');
 const RelayTestSchema = require('RelayTestSchema');
@@ -100,9 +101,9 @@ function createMockEnvironment(options: {
   });
 
   // Mock the network layer
-  let pendingFetches = [];
-  const fetch = (query, variables, cacheConfig) => {
-    const {id, text} = query;
+  let pendingRequests = [];
+  const execute = (operation, variables, cacheConfig) => {
+    const {id, text} = operation;
     const cacheID = id || text;
 
     let cachedPayload = null;
@@ -110,52 +111,52 @@ function createMockEnvironment(options: {
       cachedPayload = cache.get(cacheID, variables);
     }
     if (cachedPayload !== null) {
-      return cachedPayload;
+      return RelayObservable.from(cachedPayload);
     }
 
-    let resolve;
-    let reject;
-    const promise = new Promise((_resolve, _reject) => {
-      resolve = _resolve;
-      reject = _reject;
+    const request = {operation, variables, cacheConfig};
+    pendingRequests = pendingRequests.concat([request]);
+
+    return new RelayObservable(sink => {
+      request.sink = sink;
+      return () => {
+        pendingRequests = pendingRequests.filter(
+          pending => pending !== request,
+        );
+      };
     });
-    pendingFetches.push({
-      cacheConfig,
-      promise,
-      resolve,
-      reject,
-      query,
-      variables,
-    });
-    return promise;
   };
 
-  const cachePayload = (query, variables, payload) => {
-    const {id, text} = query;
+  function getRequest(operation) {
+    const request = pendingRequests.find(
+      pending => pending.operation === operation,
+    );
+    invariant(
+      request && request.sink,
+      'MockEnvironment: Cannot respond to `%s`, it has not been requested yet.',
+      operation.name,
+    );
+    return request;
+  }
+
+  function ensureValidPayload(payload) {
+    invariant(
+      typeof payload === 'object' &&
+        payload !== null &&
+        payload.hasOwnProperty('data'),
+      'MockEnvironment(): Expected payload to be an object with a `data` key.',
+    );
+    return payload;
+  }
+
+  const cachePayload = (operation, variables, payload) => {
+    const {id, text} = operation;
     const cacheID = id || text;
     cache.set(cacheID, variables, payload);
   };
 
   const clearCache = () => {
     cache.clear();
-  };
-
-  let validSubscriptions = [];
-  const subscribe = (query, variables, cacheConfig, observer) => {
-    const currentSubscription = {
-      query,
-      variables,
-      cacheConfig,
-      observer,
-    };
-    validSubscriptions.push(currentSubscription);
-    return {
-      dispose: () => {
-        validSubscriptions = validSubscriptions.filter(
-          subscription => subscription !== currentSubscription,
-        );
-      },
-    };
   };
 
   if (!schema) {
@@ -172,89 +173,35 @@ function createMockEnvironment(options: {
   };
 
   // Helper to determine if a given query/variables pair is pending
-  const isLoading = (query, variables, cacheConfig) => {
-    return pendingFetches.some(
+  const isLoading = (operation, variables, cacheConfig) => {
+    return pendingRequests.some(
       pending =>
-        pending.query === query &&
+        pending.operation === operation &&
         areEqual(pending.variables, variables) &&
         areEqual(pending.cacheConfig, cacheConfig || {}),
     );
   };
 
-  // Helpers to reject or resolve the payload for an individual query
-  const reject = (query, error) => {
-    const pendingFetch = pendingFetches.find(
-      pending => pending.query === query,
-    );
-    invariant(
-      pendingFetch,
-      'MockEnvironment#reject(): Cannot reject query `%s`, it has not been fetched yet.',
-      query.name,
-    );
+  // Helpers to reject or resolve the payload for an individual operation.
+  const reject = (operation, error) => {
     if (typeof error === 'string') {
       error = new Error(error);
     }
-    pendingFetches = pendingFetches.filter(pending => pending !== pendingFetch);
-    pendingFetch.reject(error);
-    jest.runOnlyPendingTimers();
-    return new Promise(resolve => {
-      pendingFetch.promise.catch(() => {
-        // setImmediate so all handlers for pendingFetch are called before
-        // tests are run
-        setImmediate(resolve);
-      });
-    });
-  };
-  const resolve = (query, payload) => {
-    invariant(
-      typeof payload === 'object' &&
-        payload !== null &&
-        payload.hasOwnProperty('data'),
-      'MockEnvironment#resolve(): Expected payload to be an object with a `data` key.',
-    );
-    const pendingFetch = pendingFetches.find(
-      pending => pending.query === query,
-    );
-    invariant(
-      pendingFetch,
-      'MockEnvironment#resolve(): Cannot resolve query `%s`, it has not been fetched yet.',
-      query.name,
-    );
-    pendingFetches = pendingFetches.filter(pending => pending !== pendingFetch);
-    pendingFetch.resolve(payload);
-    jest.runOnlyPendingTimers();
-    return new Promise(_resolve => {
-      pendingFetch.promise.then(() => {
-        // setImmediate so all handlers for pendingFetch are called before
-        // tests are run
-        setImmediate(_resolve);
-      });
-    });
+    getRequest(operation).sink.error(error);
   };
 
-  const resolveSubscriptionPayload = (query, payload) => {
-    invariant(
-      typeof payload === 'object' &&
-        payload !== null &&
-        payload.hasOwnProperty('data'),
-      'MockEnvironment#resolveSubscriptionPayload(): Expected payload to be an object with a `data` key.',
-    );
-    const validSubscription = validSubscriptions.find(
-      subscription => subscription.query === query,
-    );
-    invariant(
-      validSubscription,
-      'MockEnvironment#resolveSubscriptionPayload(): Cannot resolve query `%s`, it has not been ' +
-        'fetched yet.',
-    );
-    validSubscriptions = validSubscriptions.filter(
-      subscription => subscription !== validSubscription,
-    );
-    const {observer} = validSubscription;
-    if (observer) {
-      observer.onNext && observer.onNext(payload);
-    }
-    jest.runOnlyPendingTimers();
+  const nextValue = (operation, payload) => {
+    getRequest(operation).sink.next(ensureValidPayload(payload));
+  };
+
+  const complete = operation => {
+    getRequest(operation).sink.complete();
+  };
+
+  const resolve = (operation, payload) => {
+    const request = getRequest(operation);
+    request.sink.next(ensureValidPayload(payload));
+    request.sink.complete();
   };
 
   // Initialize a store debugger to help resolve test issues
@@ -264,7 +211,7 @@ function createMockEnvironment(options: {
   const environment = new RelayModernEnvironment({
     configName: 'RelayModernMockEnvironment',
     handlerProvider,
-    network: RelayNetwork.create(fetch, subscribe),
+    network: RelayNetwork.create(execute, execute),
     store,
   });
   // Mock all the functions with their original behavior
@@ -291,8 +238,9 @@ function createMockEnvironment(options: {
     isLoading,
     reject,
     resolve,
+    nextValue,
+    complete,
     storeInspector,
-    resolveSubscriptionPayload,
   };
 
   environment.mockClear = () => {
@@ -314,7 +262,7 @@ function createMockEnvironment(options: {
 
     cache.clear();
 
-    pendingFetches.length = 0;
+    pendingRequests = [];
   };
 
   return environment;

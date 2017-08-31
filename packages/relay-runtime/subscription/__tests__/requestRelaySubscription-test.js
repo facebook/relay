@@ -137,10 +137,7 @@ describe('requestRelaySubscription-test', () => {
         },
       },
     };
-    environment.mock.resolveSubscriptionPayload(
-      CommentCreateSubscription,
-      subscriptionPayload,
-    );
+    environment.mock.nextValue(CommentCreateSubscription, subscriptionPayload);
     const snapshot = store.lookup({
       dataID: ROOT_ID,
       node: FeedbackCommentQuery.fragment,

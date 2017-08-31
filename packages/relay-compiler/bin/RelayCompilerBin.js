@@ -35,6 +35,7 @@ const {
 } = require('graphql');
 
 const {
+  documentTransforms,
   codegenTransforms,
   fragmentTransforms,
   printTransforms,
@@ -169,6 +170,7 @@ function getRelayFileWriter(baseDir: string) {
   return (onlyValidate, schema, documents, baseDocuments) =>
     new RelayFileWriter({
       config: {
+        documentTransforms,
         formatModule: formatGeneratedModule,
         compilerTransforms: {
           codegenTransforms,

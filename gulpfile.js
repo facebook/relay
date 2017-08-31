@@ -50,6 +50,8 @@ const babelOptions = require('./scripts/getBabelOptions')({
     RelayRuntime: 'relay-runtime',
     'relay-debugger-react-native-runtime':
       'relay-debugger-react-native-runtime',
+    'resolve': 'resolve',
+    'short-hash': 'short-hash',
     signedsource: 'signedsource',
     'StaticContainer.react': 'react-static-container',
     util: 'util',

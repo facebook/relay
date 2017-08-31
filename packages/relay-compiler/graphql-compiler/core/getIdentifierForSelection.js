@@ -53,7 +53,7 @@ function getIdentifierForSelection(node: Selection): string {
     default:
       invariant(
         false,
-        'RelayFlattenTransform: Unexpected kind `%s`.',
+        'getIdentifierForSelection: Unexpected kind `%s`.',
         node.kind,
       );
   }

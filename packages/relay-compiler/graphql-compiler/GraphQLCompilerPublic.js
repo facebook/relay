@@ -50,7 +50,7 @@ export type {
   File,
   FileWriterInterface,
   CompileResult,
-} from './codegen/RelayCodegenTypes';
+} from './codegen/CodegenTypes';
 export type {
   FileFilter,
   WatchmanExpression,

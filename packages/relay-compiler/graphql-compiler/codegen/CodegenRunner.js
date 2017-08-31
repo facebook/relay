@@ -27,7 +27,7 @@ import type {
   CompileResult,
   File,
   FileWriterInterface,
-} from './RelayCodegenTypes';
+} from './CodegenTypes';
 import type {FileFilter, WatchmanExpression} from './RelayCodegenWatcher';
 import type {DocumentNode, GraphQLSchema} from 'graphql';
 

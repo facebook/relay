@@ -15,7 +15,7 @@
 
 const {Map: ImmutableMap} = require('immutable');
 
-import type {File} from '../codegen/RelayCodegenTypes';
+import type {File} from '../codegen/CodegenTypes';
 import type {DocumentNode} from 'graphql';
 
 type ParseFn = (baseDir: string, file: File) => ?DocumentNode;

@@ -18,7 +18,7 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 
-import type {File} from './RelayCodegenTypes';
+import type {File} from './CodegenTypes';
 
 const SUBSCRIPTION_NAME = 'relay-codegen';
 

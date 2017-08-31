@@ -23,7 +23,7 @@ const RelayIRTransforms = require('RelayIRTransforms');
 
 const formatGeneratedModule = require('formatGeneratedModule');
 
-export type {CompileResult} from 'RelayCodegenTypes';
+export type {CompileResult} from 'CodegenTypes';
 export type {ParserConfig, WriterConfig} from 'CodegenRunner';
 
 module.exports = {

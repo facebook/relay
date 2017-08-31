@@ -36,7 +36,7 @@ import type {
   CompilerTransforms,
 } from 'GraphQLCompiler';
 import type {RelayGeneratedNode} from 'RelayCodeGenerator';
-import type {FileWriterInterface} from 'RelayCodegenTypes';
+import type {FileWriterInterface} from 'CodegenTypes';
 import type {GeneratedNode} from 'RelayConcreteNode';
 import type {ScalarTypeMapping} from 'RelayFlowGenerator';
 import type {DocumentNode, GraphQLSchema} from 'graphql';

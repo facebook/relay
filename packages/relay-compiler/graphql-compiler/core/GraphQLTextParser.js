@@ -20,7 +20,7 @@ const fs = require('fs');
 const invariant = require('invariant');
 const path = require('path');
 
-import type {File} from '../codegen/RelayCodegenTypes';
+import type {File} from '../codegen/CodegenTypes';
 import type {DocumentNode} from 'graphql';
 
 // Throws an error if parsing the file fails

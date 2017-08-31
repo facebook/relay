@@ -21,7 +21,7 @@ const fs = require('fs');
 const invariant = require('invariant');
 const path = require('path');
 
-import type {File} from 'RelayCodegenTypes';
+import type {File} from 'CodegenTypes';
 import type {FileFilter} from 'RelayCodegenWatcher';
 import type {DocumentNode} from 'graphql';
 

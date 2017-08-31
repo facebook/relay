@@ -864,12 +864,6 @@ describe('ReactRelayQueryRenderer', () => {
       };
     });
 
-    it('does not dispose the previous fetch', () => {
-      const subscription = environment.execute.mock.subscriptions[0];
-      instance.getInstance().setProps(nextProps);
-      expect(subscription.closed).toBe(false);
-    });
-
     it('fetches the new query', () => {
       environment.mockClear();
       instance.getInstance().setProps(nextProps);

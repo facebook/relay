@@ -50,11 +50,7 @@ function mockObservableMethod(object, key) {
   object[key] = jest.fn((...args) =>
     fn(...args).do({
       start: subscription => {
-        subscription.closed = false;
         object[key].mock.subscriptions.push(subscription);
-      },
-      unsubscribe: subscription => {
-        subscription.closed = true;
       },
     }),
   );

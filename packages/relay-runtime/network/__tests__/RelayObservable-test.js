@@ -776,6 +776,161 @@ describe('RelayObservable', () => {
     });
   });
 
+  describe('sink.closed', () => {
+    it('initializes to false', () => {
+      let sink;
+
+      const obs = new RelayObservable(_sink => {
+        sink = _sink;
+      });
+
+      obs.subscribe({});
+      expect(sink.closed).toBe(false);
+    });
+
+    it('is true after complete', () => {
+      let sink;
+
+      const obs = new RelayObservable(_sink => {
+        sink = _sink;
+      });
+
+      obs.subscribe({});
+
+      expect(sink.closed).toBe(false);
+      sink.complete();
+      expect(sink.closed).toBe(true);
+    });
+
+    it('is true after error', () => {
+      let sink;
+
+      const obs = new RelayObservable(_sink => {
+        sink = _sink;
+      });
+
+      obs.subscribe({error: () => {}});
+
+      expect(sink.closed).toBe(false);
+      sink.error(new Error());
+      expect(sink.closed).toBe(true);
+    });
+
+    it('is true after unsubscribe', () => {
+      let sink;
+
+      const obs = new RelayObservable(_sink => {
+        sink = _sink;
+      });
+
+      const sub = obs.subscribe({});
+
+      expect(sink.closed).toBe(false);
+      sub.unsubscribe();
+      expect(sink.closed).toBe(true);
+    });
+
+    it('is true within cleanup', () => {
+      let wasClosed;
+
+      const obs = new RelayObservable(sink => {
+        return () => {
+          wasClosed = sink.closed;
+        };
+      });
+
+      obs.subscribe({}).unsubscribe();
+
+      expect(wasClosed).toBe(true);
+    });
+
+    it('cannot be set directly', () => {
+      let sink;
+
+      const obs = new RelayObservable(_sink => {
+        sink = _sink;
+      });
+
+      obs.subscribe({});
+
+      expect(() => {
+        sink.closed = true;
+      }).toThrow(TypeError);
+    });
+  });
+
+  describe('subscription.closed', () => {
+    it('initializes to false', () => {
+      const obs = new RelayObservable(() => {});
+
+      const sub = obs.subscribe({
+        start: subscription => {
+          expect(subscription.closed).toBe(false);
+        },
+      });
+
+      expect(sub.closed).toBe(false);
+    });
+
+    it('is true after complete', () => {
+      let sink;
+
+      const obs = new RelayObservable(_sink => {
+        sink = _sink;
+      });
+
+      const sub = obs.subscribe({
+        complete: () => {
+          expect(sub.closed).toBe(true);
+        },
+      });
+
+      expect(sub.closed).toBe(false);
+      sink.complete();
+      expect(sub.closed).toBe(true);
+    });
+
+    it('is true after error', () => {
+      let sink;
+
+      const obs = new RelayObservable(_sink => {
+        sink = _sink;
+      });
+
+      const sub = obs.subscribe({
+        error: () => {
+          expect(sub.closed).toBe(true);
+        },
+      });
+
+      expect(sub.closed).toBe(false);
+      sink.error(new Error());
+      expect(sub.closed).toBe(true);
+    });
+
+    it('is true after unsubscribe', () => {
+      const obs = new RelayObservable(() => {});
+
+      const sub = obs.subscribe({
+        unsubscribe: subscription => {
+          expect(subscription.closed).toBe(true);
+        },
+      });
+
+      expect(sub.closed).toBe(false);
+      sub.unsubscribe();
+      expect(sub.closed).toBe(true);
+    });
+
+    it('cannot be set directly', () => {
+      const obs = new RelayObservable(() => {});
+      const sub = obs.subscribe({});
+      expect(() => {
+        sub.closed = true;
+      }).toThrow(TypeError);
+    });
+  });
+
   describe('map', () => {
     it('Maps values from the original observable', () => {
       const source = new RelayObservable(sink => {

@@ -20,6 +20,7 @@ import type {LegacyObserver} from 'RelayNetworkTypes';
 
 export type Subscription = {
   unsubscribe: () => void,
+  +closed: boolean,
 };
 
 export type Observer<T> = {
@@ -34,6 +35,7 @@ type Sink<T> = {|
   +next: T => void,
   +error: Error => void,
   +complete: () => void,
+  +closed: boolean,
 |};
 
 type Source_<T, SinkOfT: Sink<T>> = SinkOfT =>
@@ -476,6 +478,9 @@ function subscribe<T>(source: Source<T>, observer: Observer<T>): Subscription {
         }
       }
     },
+    get closed() {
+      return closed;
+    },
   };
 
   // Tell Observer that observation is about to begin.
@@ -528,6 +533,9 @@ function subscribe<T>(source: Source<T>, observer: Observer<T>): Subscription {
           doCleanup();
         }
       }
+    },
+    get closed() {
+      return closed;
     },
   };
 

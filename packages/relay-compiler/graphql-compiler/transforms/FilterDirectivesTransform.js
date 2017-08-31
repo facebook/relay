@@ -16,7 +16,7 @@
 const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
 const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 
-import type {Directive} from '../core/RelayIR';
+import type {Directive} from '../core/GraphQLIR';
 import type {GraphQLSchema} from 'graphql';
 
 type State = GraphQLSchema;

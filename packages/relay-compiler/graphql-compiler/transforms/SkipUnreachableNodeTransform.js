@@ -17,7 +17,7 @@ const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
 
 const invariant = require('invariant');
 
-import type {Condition, Fragment, Node, Selection} from '../core/RelayIR';
+import type {Condition, Fragment, Node, Selection} from '../core/GraphQLIR';
 
 type ConditionResult = 'fail' | 'pass' | 'variable';
 

@@ -34,7 +34,7 @@ import type {
   RootArgumentDefinition,
   ScalarField,
   Variable,
-} from './RelayIR';
+} from './GraphQLIR';
 
 type NodeVisitor<S> = {
   Argument?: NodeVisitorFunction<Argument, S>,

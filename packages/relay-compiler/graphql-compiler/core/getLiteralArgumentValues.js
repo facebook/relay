@@ -15,7 +15,7 @@
 
 const invariant = require('invariant');
 
-import type {Argument} from './RelayIR';
+import type {Argument} from './GraphQLIR';
 
 // Copy of Variables type from '../../../react-relay/classic/tools/RelayTypes'
 // Duplicating here rather than importing it since we can't take on a dependency

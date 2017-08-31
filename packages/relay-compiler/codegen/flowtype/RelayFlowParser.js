@@ -34,7 +34,7 @@ const {
   VariablesInAllowedPositionRule,
 } = require('graphql');
 
-import type {Fragment, Root} from 'RelayIR';
+import type {Fragment, Root} from 'GraphQLIR';
 import type {DocumentNode, GraphQLSchema} from 'graphql';
 
 type GraphQLLocation = {

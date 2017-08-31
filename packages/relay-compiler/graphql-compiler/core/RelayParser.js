@@ -65,7 +65,7 @@ import type {
   ScalarFieldType,
   Selection,
   Variable,
-} from './RelayIR';
+} from './GraphQLIR';
 import type {
   ArgumentNode,
   DirectiveNode,

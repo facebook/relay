@@ -32,7 +32,7 @@ import type {
   FragmentSpread,
   Node,
   Selection,
-} from 'RelayIR';
+} from 'GraphQLIR';
 
 const {getFragmentScope, getRootScope} = RelayCompilerScope;
 

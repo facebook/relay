@@ -22,7 +22,7 @@ const {
   assertLeafType,
 } = require('graphql');
 
-import type {InlineFragment, LinkedField, Node, Selection} from 'RelayIR';
+import type {InlineFragment, LinkedField, Node, Selection} from 'GraphQLIR';
 import type {GraphQLCompositeType, GraphQLLeafType, GraphQLType} from 'graphql';
 const {
   canHaveSelections,

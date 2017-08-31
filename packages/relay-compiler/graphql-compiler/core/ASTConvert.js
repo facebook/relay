@@ -22,7 +22,7 @@ const {
 } = require('./GraphQLSchemaUtils');
 const {extendSchema, parse, visit} = require('graphql');
 
-import type {Fragment, Root} from './RelayIR';
+import type {Fragment, Root} from './GraphQLIR';
 import type {
   DefinitionNode,
   DocumentNode,

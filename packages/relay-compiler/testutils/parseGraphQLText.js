@@ -16,7 +16,7 @@
 const {convertASTDocuments} = require('ASTConvert');
 const {extendSchema, parse} = require('graphql');
 
-import type {Fragment, Root} from 'RelayIR';
+import type {Fragment, Root} from 'GraphQLIR';
 import type {GraphQLSchema} from 'graphql';
 
 function parseGraphQLText(

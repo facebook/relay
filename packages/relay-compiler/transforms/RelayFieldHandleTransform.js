@@ -19,7 +19,7 @@ const GraphQLIRTransformer = require('GraphQLIRTransformer');
 const getRelayHandleKey = require('getRelayHandleKey');
 const invariant = require('invariant');
 
-import type {Field} from 'RelayIR';
+import type {Field} from 'GraphQLIR';
 import type {GraphQLSchema} from 'graphql';
 
 type State = true;

@@ -27,7 +27,7 @@ const {
   GraphQLScalarType,
 } = require('graphql');
 
-import type {Fragment, LinkedField, Root, Selection} from 'RelayIR';
+import type {Fragment, LinkedField, Root, Selection} from 'GraphQLIR';
 import type {GraphQLType} from 'graphql';
 
 const FIELD_BLACKLIST = ['clientMutationId', 'client_mutation_id'];

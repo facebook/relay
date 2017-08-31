@@ -82,7 +82,7 @@ export type {
   ScalarField,
   Selection,
   Variable,
-} from './core/RelayIR';
+} from './core/GraphQLIR';
 
 module.exports = {
   ASTConvert: ASTConvert,

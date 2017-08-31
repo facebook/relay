@@ -21,10 +21,10 @@ const {
   GraphQLScalarType,
 } = require('graphql');
 
-import type {LinkedField, ScalarField} from 'RelayIR';
+import type {LinkedField, ScalarField} from 'GraphQLIR';
 
 /**
- * Transforms a GraphQLInputObjectType to a RelayIR LinkedField.
+ * Transforms a GraphQLInputObjectType to a GraphQLIR LinkedField.
  */
 function transformInputObjectToIR(node: {
   // $FlowFixMe
@@ -55,7 +55,7 @@ function transformInputObjectToIR(node: {
 
 /**
  * Transforms a field (GraphQLInputObjectType or GraphQLScalarType) to a
- * RelayIR ScalarField or LinkedField.
+ * GraphQLIR ScalarField or LinkedField.
  */
 function transformFieldToIR(node: {
   kind: string,
@@ -75,7 +75,7 @@ function transformFieldToIR(node: {
 }
 
 /**
- * Transforms a GraphQLScalarType to a RelayIR ScalarField
+ * Transforms a GraphQLScalarType to a GraphQLIR ScalarField
  */
 function transformScalarToIR(
   name: string,

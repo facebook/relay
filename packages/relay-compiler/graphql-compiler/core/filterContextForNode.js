@@ -17,7 +17,7 @@ const GraphQLCompilerContext = require('./GraphQLCompilerContext');
 
 const {visit} = require('./GraphQLIRVisitor');
 
-import type {Fragment, FragmentSpread, Root} from './RelayIR';
+import type {Fragment, FragmentSpread, Root} from './GraphQLIR';
 
 /**
  * Returns a GraphQLCompilerContext containing only the documents referenced

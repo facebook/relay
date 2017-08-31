@@ -18,7 +18,7 @@ const invariant = require('invariant');
 
 const {createUserError} = require('./GraphQLCompilerUserError');
 
-import type {Fragment, Root} from './RelayIR';
+import type {Fragment, Root} from './GraphQLIR';
 import type {GraphQLSchema} from 'graphql';
 
 const {

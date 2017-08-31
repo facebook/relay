@@ -16,7 +16,7 @@
 const GraphQLCompilerContext = require('GraphQLCompilerContext');
 const GraphQLIRTransformer = require('GraphQLIRTransformer');
 
-import type {LinkedField, ScalarField} from 'RelayIR';
+import type {LinkedField, ScalarField} from 'GraphQLIR';
 import type {GraphQLSchema} from 'graphql';
 
 type State = true;

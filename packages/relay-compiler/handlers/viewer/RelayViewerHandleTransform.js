@@ -20,7 +20,7 @@ const {getRawType} = require('GraphQLSchemaUtils');
 const {DEFAULT_HANDLE_KEY} = require('RelayDefaultHandleKey');
 const {GraphQLObjectType} = require('graphql');
 
-import type {LinkedField} from 'RelayIR';
+import type {LinkedField} from 'GraphQLIR';
 import type {GraphQLSchema} from 'graphql';
 
 type State = {};

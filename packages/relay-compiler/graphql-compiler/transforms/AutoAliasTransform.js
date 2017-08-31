@@ -25,7 +25,7 @@ import type {
   LinkedField,
   ScalarField,
   Selection,
-} from '../core/RelayIR';
+} from '../core/GraphQLIR';
 
 /**
  * A transform to generate a unique alias for every combination of field name

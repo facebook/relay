@@ -30,7 +30,7 @@ import type {
   ConcreteSelection,
 } from 'RelayConcreteNode';
 import type {GeneratedNode} from 'RelayConcreteNode';
-import type {Fragment, Root} from 'RelayIR';
+import type {Fragment, Root} from 'GraphQLIR';
 const {getRawType, isAbstractType, getNullableType} = GraphQLSchemaUtils;
 
 /* eslint-disable no-redeclare */
@@ -43,7 +43,7 @@ export type RelayGeneratedNode = ConcreteRoot | ConcreteFragment;
 /**
  * @public
  *
- * Converts a Relay IR node into a plain JS object representation that can be
+ * Converts a GraphQLIR node into a plain JS object representation that can be
  * used at runtime.
  */
 function generate(node: Root | Fragment): ConcreteRoot | ConcreteFragment {

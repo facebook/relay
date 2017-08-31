@@ -32,7 +32,7 @@ import type {
   Root,
   ScalarField,
   Selection,
-} from '../core/RelayIR';
+} from '../core/GraphQLIR';
 import type {GraphQLType as Type} from 'graphql';
 
 const {getRawType, isAbstractType} = GraphQLSchemaUtils;

@@ -35,7 +35,7 @@ import type {
   FragmentSpread,
   InlineFragment,
   Root,
-} from '../core/RelayIR';
+} from '../core/GraphQLIR';
 import type {GraphQLSchema, GraphQLType} from 'graphql';
 
 type State = {

@@ -19,7 +19,7 @@ const IMap = require('immutable').Map;
 const getIdentifierForSelection = require('../core/getIdentifierForSelection');
 const invariant = require('invariant');
 
-import type {Node, Selection} from '../core/RelayIR';
+import type {Node, Selection} from '../core/GraphQLIR';
 
 /**
  * A simplified representation of a document: keys in the map are unique

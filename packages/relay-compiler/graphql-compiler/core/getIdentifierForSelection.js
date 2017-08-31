@@ -16,7 +16,7 @@
 const invariant = require('invariant');
 const stableJSONStringify = require('../util/stableJSONStringifyOSS');
 
-import type {Selection} from './RelayIR';
+import type {Selection} from './GraphQLIR';
 
 /**
  * Generates an identifier that is unique to a given selection: the alias for

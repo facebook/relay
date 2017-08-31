@@ -18,7 +18,7 @@ const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 
 const filterContextForNode = require('../core/filterContextForNode');
 
-import type {Argument, Condition, Root} from '../core/RelayIR';
+import type {Argument, Condition, Root} from '../core/GraphQLIR';
 
 type State = {referencedVariables: Set<string>};
 

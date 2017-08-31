@@ -40,7 +40,7 @@ import type {
   InlineFragment,
   LinkedField,
   Root,
-} from 'RelayIR';
+} from 'GraphQLIR';
 import type {GraphQLType} from 'graphql';
 
 type Options = {

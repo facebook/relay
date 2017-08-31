@@ -26,7 +26,7 @@ import type {
   Literal,
   Root,
   Variable,
-} from 'RelayIR';
+} from 'GraphQLIR';
 
 const RelayParser = require('RelayParser');
 const RelayPrinter = require('RelayPrinter');

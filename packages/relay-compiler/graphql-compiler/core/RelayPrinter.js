@@ -35,13 +35,13 @@ import type {
   Node,
   Root,
   Selection,
-} from './RelayIR';
+} from './GraphQLIR';
 import type {GraphQLInputType} from 'graphql';
 
 const INDENT = '  ';
 
 /**
- * Converts a Relay IR node into a GraphQL string. Custom Relay
+ * Converts a GraphQLIR node into a GraphQL string. Custom Relay
  * extensions (directives) are not supported; to print fragments with
  * variables or fragment spreads with arguments, transform the node
  * prior to printing.

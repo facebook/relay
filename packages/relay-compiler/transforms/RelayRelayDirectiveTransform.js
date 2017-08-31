@@ -19,7 +19,7 @@ const GraphQLIRTransformer = require('../graphql-compiler/core/GraphQLIRTransfor
 const getLiteralArgumentValues = require('../graphql-compiler/core/getLiteralArgumentValues');
 const invariant = require('invariant');
 
-import type {Fragment} from '../graphql-compiler/core/RelayIR';
+import type {Fragment} from '../graphql-compiler/core/GraphQLIR';
 
 const RELAY = 'relay';
 const PLURAL = 'plural';

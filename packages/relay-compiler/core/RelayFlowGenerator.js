@@ -34,7 +34,7 @@ const {
 const {isAbstractType} = require('GraphQLSchemaUtils');
 
 import type {IRTransform} from 'GraphQLIRTransforms';
-import type {Fragment, Root} from 'RelayIR';
+import type {Fragment, Root} from 'GraphQLIR';
 import type CompilerContext from 'GraphQLCompilerContext';
 
 export type ScalarTypeMapping = {

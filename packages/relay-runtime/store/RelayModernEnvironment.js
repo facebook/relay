@@ -404,7 +404,7 @@ class RelayModernEnvironment implements Environment {
       // it a value. When switching to use executeMutation(), the next()
       // Observer should be used to preserve behavior.
       onNext: payload => {
-        payload.errors && onCompleted && onCompleted(payload.errors);
+        onCompleted && onCompleted(payload.errors);
       },
       onError,
       onCompleted,

@@ -40,9 +40,8 @@ describe('isRelayModernEnvironment()', () => {
       getStore: jest.fn(),
       lookup: jest.fn(),
       retain: jest.fn(),
-      sendMutation: jest.fn(),
-      sendQuery: jest.fn(),
-      subscribe: jest.fn(),
+      execute: jest.fn(),
+      executeMutation: jest.fn(),
     };
     expect(isRelayModernEnvironment(environment)).toBe(false);
   });
@@ -52,8 +51,6 @@ describe('isRelayModernEnvironment()', () => {
       applyUpdate: null,
       commitPayload: null,
       getStore: null,
-      sendMutation: null,
-      sendQuery: null,
     };
     expect(isRelayModernEnvironment(fakeEnvironment)).toBe(false);
   });

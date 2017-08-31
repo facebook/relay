@@ -261,31 +261,6 @@ export interface Environment
   |}): RelayObservable<RelayResponsePayload>,
 
   /**
-   * @deprecated Use Environment.executeMutation().subscribe()
-   */
-  sendMutation(config: {|
-    onCompleted?: ?(errors: ?Array<PayloadError>) => void,
-    onError?: ?(error: Error) => void,
-    operation: OperationSelector,
-    optimisticResponse?: Object,
-    optimisticUpdater?: ?SelectorStoreUpdater,
-    updater?: ?SelectorStoreUpdater,
-    uploadables?: UploadableMap,
-  |}): Disposable,
-
-  /**
-   * Send a (GraphQL) subscription to the server. Whenever there is a push from
-   * the server, commit the update to the environment.
-   */
-  sendSubscription(config: {|
-    onCompleted?: ?(errors: ?Array<PayloadError>) => void,
-    onNext?: ?(payload: RelayResponsePayload) => void,
-    onError?: ?(error: Error) => void,
-    operation: OperationSelector,
-    updater?: ?SelectorStoreUpdater,
-  |}): Disposable,
-
-  /**
    * Checks if the records required to fulfill the given `selector` are in
    * the. Missing fields use the provided `handlers` to attempt to provide
    * substitutes. After traversal, the changes suggested by the `handlers` are

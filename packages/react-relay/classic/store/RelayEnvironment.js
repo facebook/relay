@@ -386,6 +386,11 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
     onNext?: ?(selector: Selector) => void,
     operation: OperationSelector,
   }): Disposable {
+    warning(
+      false,
+      'environment.streamQuery() is deprecated. Update to the latest ' +
+        'version of react-relay, and use environment.execute().',
+    );
     return this.sendQuery(config);
   }
 
@@ -399,7 +404,7 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
     updater?: ?SelectorStoreUpdater,
   }): Observable<Selector> {
     return Observable.fromLegacy(observer =>
-      this.streamQuery({operation, cacheConfig, ...observer}),
+      this.sendQuery({operation, cacheConfig, ...observer}),
     );
   }
 

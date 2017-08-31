@@ -29,7 +29,7 @@ describe('isRelayEnvironment()', () => {
       retain: jest.fn(),
       sendMutation: jest.fn(),
       sendQuery: jest.fn(),
-      streamQuery: jest.fn(),
+      execute: jest.fn(),
       subscribe: jest.fn(),
     };
     expect(isRelayEnvironment(environment)).toBe(true);
@@ -39,7 +39,7 @@ describe('isRelayEnvironment()', () => {
     const fakeEnvironment = {
       lookup: null,
       sendQuery: null,
-      streamQuery: null,
+      execute: null,
       subscribe: null,
     };
     expect(isRelayEnvironment(fakeEnvironment)).toBe(false);

@@ -272,13 +272,11 @@ function createMockEnvironment(options: {
   mockInstanceMethod(environment, 'commitPayload');
   mockInstanceMethod(environment, 'getStore');
   mockInstanceMethod(environment, 'lookup');
+  mockDisposableMethod(environment, 'subscribe');
   mockDisposableMethod(environment, 'retain');
   mockObservableMethod(environment, 'execute');
   mockObservableMethod(environment, 'executeMutation');
-  mockDisposableMethod(environment, 'sendMutation');
-  mockDisposableMethod(environment, 'sendQuery');
-  mockDisposableMethod(environment, 'streamQuery');
-  mockDisposableMethod(environment, 'subscribe');
+
   mockInstanceMethod(store, 'getSource');
   mockInstanceMethod(store, 'lookup');
   mockInstanceMethod(store, 'notify');
@@ -302,13 +300,10 @@ function createMockEnvironment(options: {
     environment.commitPayload.mockClear();
     environment.getStore.mockClear();
     environment.lookup.mockClear();
+    environment.subscribe.mockClear();
     environment.retain.mockClear();
     environment.execute.mockClear();
     environment.executeMutation.mockClear();
-    environment.sendMutation.mockClear();
-    environment.sendQuery.mockClear();
-    environment.streamQuery.mockClear();
-    environment.subscribe.mockClear();
 
     store.getSource.mockClear();
     store.lookup.mockClear();

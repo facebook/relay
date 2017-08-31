@@ -21,6 +21,7 @@ const RelayPublishQueue = require('RelayPublishQueue');
 
 const normalizePayload = require('normalizePayload');
 const normalizeRelayPayload = require('normalizeRelayPayload');
+const warning = require('warning');
 
 import type {CacheConfig, Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {EnvironmentDebugger} from 'RelayDebugger';
@@ -327,6 +328,11 @@ class RelayModernEnvironment implements Environment {
     onNext?: ?(payload: RelayResponsePayload) => void,
     operation: OperationSelector,
   }): Disposable {
+    warning(
+      false,
+      'environment.sendQuery() is deprecated. Update to the latest ' +
+        'version of react-relay, and use environment.execute().',
+    );
     return this.execute({operation, cacheConfig}).subscribeLegacy({
       onNext,
       onError,
@@ -350,6 +356,11 @@ class RelayModernEnvironment implements Environment {
     onNext?: ?(payload: RelayResponsePayload) => void,
     operation: OperationSelector,
   }): Disposable {
+    warning(
+      false,
+      'environment.streamQuery() is deprecated. Update to the latest ' +
+        'version of react-relay, and use environment.execute().',
+    );
     return this.execute({operation, cacheConfig}).subscribeLegacy({
       onNext,
       onError,
@@ -377,6 +388,11 @@ class RelayModernEnvironment implements Environment {
     updater?: ?SelectorStoreUpdater,
     uploadables?: UploadableMap,
   }): Disposable {
+    warning(
+      false,
+      'environment.sendMutation() is deprecated. Update to the latest ' +
+        'version of react-relay, and use environment.executeMutation().',
+    );
     return this.executeMutation({
       operation,
       optimisticResponse,
@@ -411,6 +427,11 @@ class RelayModernEnvironment implements Environment {
     operation: OperationSelector,
     updater?: ?SelectorStoreUpdater,
   }): Disposable {
+    warning(
+      false,
+      'environment.sendSubscription() is deprecated. Update to the latest ' +
+        'version of react-relay, and use environment.execute().',
+    );
     return this.execute({
       operation,
       updater,

@@ -13,8 +13,8 @@
 
 'use strict';
 
+const CodegenWatcher = require('./CodegenWatcher');
 const GraphQLWatchmanClient = require('../core/GraphQLWatchmanClient');
-const RelayCodegenWatcher = require('./RelayCodegenWatcher');
 
 const invariant = require('invariant');
 const path = require('path');
@@ -28,7 +28,7 @@ import type {
   File,
   FileWriterInterface,
 } from './CodegenTypes';
-import type {FileFilter, WatchmanExpression} from './RelayCodegenWatcher';
+import type {FileFilter, WatchmanExpression} from './CodegenWatcher';
 import type {DocumentNode, GraphQLSchema} from 'graphql';
 
 /* eslint-disable no-console-disallow */
@@ -208,13 +208,13 @@ class CodegenRunner {
 
     let files;
     if (parserConfig.watchmanExpression) {
-      files = await RelayCodegenWatcher.queryFiles(
+      files = await CodegenWatcher.queryFiles(
         parserConfig.baseDir,
         parserConfig.watchmanExpression,
         filter,
       );
     } else if (parserConfig.filepaths) {
-      files = await RelayCodegenWatcher.queryFilepaths(
+      files = await CodegenWatcher.queryFilepaths(
         parserConfig.baseDir,
         parserConfig.filepaths,
         filter,
@@ -350,7 +350,7 @@ class CodegenRunner {
     // we should prevent the first watch callback from doing anything.
     let firstChange = true;
 
-    await RelayCodegenWatcher.watchCompile(
+    await CodegenWatcher.watchCompile(
       parserConfig.baseDir,
       parserConfig.watchmanExpression,
       parserConfig.getFileFilter

@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule RelayCodegenWatcher
+ * @providesModule CodegenWatcher
  * @flow
  * @format
  */
@@ -20,7 +20,7 @@ const path = require('path');
 
 import type {File} from './CodegenTypes';
 
-const SUBSCRIPTION_NAME = 'relay-codegen';
+const SUBSCRIPTION_NAME = 'graphql-codegen';
 
 export type WatchmanExpression = Array<string | WatchmanExpression>;
 

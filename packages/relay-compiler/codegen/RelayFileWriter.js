@@ -30,13 +30,13 @@ const {isOperationDefinitionAST} = require('GraphQLSchemaUtils');
 const {generate} = require('RelayCodeGenerator');
 const {Map: ImmutableMap} = require('immutable');
 
+import type {FileWriterInterface} from 'CodegenTypes';
 import type {
   CompiledNode,
   CompiledDocumentMap,
   CompilerTransforms,
 } from 'GraphQLCompiler';
 import type {RelayGeneratedNode} from 'RelayCodeGenerator';
-import type {FileWriterInterface} from 'CodegenTypes';
 import type {GeneratedNode} from 'RelayConcreteNode';
 import type {ScalarTypeMapping} from 'RelayFlowGenerator';
 import type {DocumentNode, GraphQLSchema} from 'graphql';

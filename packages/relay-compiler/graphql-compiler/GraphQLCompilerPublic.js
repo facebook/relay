@@ -51,10 +51,7 @@ export type {
   FileWriterInterface,
   CompileResult,
 } from './codegen/CodegenTypes';
-export type {
-  FileFilter,
-  WatchmanExpression,
-} from './codegen/RelayCodegenWatcher';
+export type {FileFilter, WatchmanExpression} from './codegen/CodegenWatcher';
 export type {IRTransform} from './core/GraphQLIRTransforms';
 export type {FlattenOptions} from './transforms/RelayFlattenTransform';
 export type {

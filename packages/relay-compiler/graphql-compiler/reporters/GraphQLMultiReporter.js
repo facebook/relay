@@ -6,19 +6,19 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule RelayMultiReporter
+ * @providesModule GraphQLMultiReporter
  * @flow
  * @format
  */
 
 'use strict';
 
-import type {RelayReporter} from './RelayReporter';
+import type {GraphQLReporter} from './GraphQLReporter';
 
-class RelayMultiReporter implements RelayReporter {
-  _reporters: Array<RelayReporter>;
+class GraphQLMultiReporter implements GraphQLReporter {
+  _reporters: Array<GraphQLReporter>;
 
-  constructor(...reporters: Array<RelayReporter>) {
+  constructor(...reporters: Array<GraphQLReporter>) {
     this._reporters = reporters;
   }
 
@@ -29,4 +29,4 @@ class RelayMultiReporter implements RelayReporter {
   }
 }
 
-module.exports = RelayMultiReporter;
+module.exports = GraphQLMultiReporter;

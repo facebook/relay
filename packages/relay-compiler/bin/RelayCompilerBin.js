@@ -16,7 +16,7 @@
 require('babel-polyfill');
 
 const RelayCodegenRunner = require('RelayCodegenRunner');
-const RelayConsoleReporter = require('RelayConsoleReporter');
+const GraphQLConsoleReporter = require('GraphQLConsoleReporter');
 const RelayFileIRParser = require('RelayFileIRParser');
 const RelayFileWriter = require('RelayFileWriter');
 const RelayIRTransforms = require('RelayIRTransforms');
@@ -121,7 +121,7 @@ Ensure that one such file exists in ${srcDir} or its parents.
     );
   }
 
-  const reporter = new RelayConsoleReporter({verbose: options.verbose});
+  const reporter = new GraphQLConsoleReporter({verbose: options.verbose});
 
   const useWatchman =
     options.watchman && (await GraphQLWatchmanClient.isAvailable());

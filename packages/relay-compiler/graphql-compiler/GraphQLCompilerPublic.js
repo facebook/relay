@@ -21,17 +21,17 @@ const FileParser = require('./core/FileParser');
 const FilterDirectivesTransform = require('./transforms/FilterDirectivesTransform');
 const GraphQLCompiler = require('./core/GraphQLCompiler');
 const GraphQLCompilerContext = require('./core/GraphQLCompilerContext');
+const GraphQLConsoleReporter = require('./reporters/GraphQLConsoleReporter');
 const GraphQLFileParser = require('./core/GraphQLFileParser');
 const GraphQLIRPrinter = require('./core/GraphQLIRPrinter');
 const GraphQLIRTransformer = require('./core/GraphQLIRTransformer');
 const GraphQLIRTransforms = require('./core/GraphQLIRTransforms');
 const GraphQLIRVisitor = require('./core/GraphQLIRVisitor');
+const GraphQLMultiReporter = require('./reporters/GraphQLMultiReporter');
 const GraphQLSchemaUtils = require('./core/GraphQLSchemaUtils');
 const GraphQLTextParser = require('./core/GraphQLTextParser');
 const GraphQLValidator = require('./core/GraphQLValidator');
-const RelayConsoleReporter = require('./reporters/RelayConsoleReporter');
 const RelayFlattenTransform = require('./transforms/RelayFlattenTransform');
-const RelayMultiReporter = require('./reporters/RelayMultiReporter');
 const RelayParser = require('./core/RelayParser');
 const SkipClientFieldTransform = require('./transforms/SkipClientFieldTransform');
 const SkipRedundantNodesTransform = require('./transforms/SkipRedundantNodesTransform');
@@ -90,7 +90,7 @@ module.exports = {
   CodegenRunner: CodegenRunner,
   Compiler: GraphQLCompiler,
   CompilerContext: GraphQLCompilerContext,
-  ConsoleReporter: RelayConsoleReporter,
+  ConsoleReporter: GraphQLConsoleReporter,
   FileParser: FileParser,
   filterContextForNode: filterContextForNode,
   GraphQLFileParser: GraphQLFileParser,
@@ -101,7 +101,7 @@ module.exports = {
   GraphQLValidator: GraphQLValidator,
   IRTransformer: GraphQLIRTransformer,
   IRVisitor: GraphQLIRVisitor,
-  MultiReporter: RelayMultiReporter,
+  MultiReporter: GraphQLMultiReporter,
   RelayParser: RelayParser,
   Printer: GraphQLIRPrinter,
 

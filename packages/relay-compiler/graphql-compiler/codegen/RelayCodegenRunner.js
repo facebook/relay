@@ -13,8 +13,8 @@
 
 'use strict';
 
-const RelayCodegenWatcher = require('./RelayCodegenWatcher');
 const GraphQLWatchmanClient = require('../core/GraphQLWatchmanClient');
+const RelayCodegenWatcher = require('./RelayCodegenWatcher');
 
 const invariant = require('invariant');
 const path = require('path');
@@ -22,7 +22,7 @@ const path = require('path');
 const {Map: ImmutableMap} = require('immutable');
 
 import type FileParser from '../core/FileParser';
-import type {RelayReporter} from '../reporters/RelayReporter';
+import type {GraphQLReporter} from '../reporters/GraphQLReporter';
 import type {
   CompileResult,
   File,
@@ -74,13 +74,13 @@ class RelayCodegenRunner {
   parsers: Parsers = {};
   // parser => writers that are affected by it
   parserWriters: {[parser: string]: Set<string>};
-  _reporter: RelayReporter;
+  _reporter: GraphQLReporter;
 
   constructor(options: {
     parserConfigs: ParserConfigs,
     writerConfigs: WriterConfigs,
     onlyValidate: boolean,
-    reporter: RelayReporter,
+    reporter: GraphQLReporter,
   }) {
     this.parserConfigs = options.parserConfigs;
     this.writerConfigs = options.writerConfigs;

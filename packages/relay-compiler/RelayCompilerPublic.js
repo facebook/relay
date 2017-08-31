@@ -13,13 +13,13 @@
 
 'use strict';
 
+const GraphQLConsoleReporter = require('GraphQLConsoleReporter');
+const GraphQLMultiReporter = require('GraphQLMultiReporter');
 const RelayCodegenRunner = require('RelayCodegenRunner');
 const RelayCompiler = require('RelayCompiler');
-const RelayConsoleReporter = require('RelayConsoleReporter');
 const RelayFileIRParser = require('RelayFileIRParser');
 const RelayFileWriter = require('RelayFileWriter');
 const RelayIRTransforms = require('RelayIRTransforms');
-const RelayMultiReporter = require('RelayMultiReporter');
 
 const formatGeneratedModule = require('formatGeneratedModule');
 
@@ -28,11 +28,11 @@ export type {ParserConfig, WriterConfig} from 'RelayCodegenRunner';
 
 module.exports = {
   Compiler: RelayCompiler,
-  ConsoleReporter: RelayConsoleReporter,
+  ConsoleReporter: GraphQLConsoleReporter,
   FileIRParser: RelayFileIRParser,
   FileWriter: RelayFileWriter,
   IRTransforms: RelayIRTransforms,
-  MultiReporter: RelayMultiReporter,
+  MultiReporter: GraphQLMultiReporter,
   Runner: RelayCodegenRunner,
   formatGeneratedModule,
 };

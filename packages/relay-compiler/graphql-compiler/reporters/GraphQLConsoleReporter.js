@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule RelayConsoleReporter
+ * @providesModule GraphQLConsoleReporter
  * @flow
  * @format
  */
@@ -15,9 +15,9 @@
 
 const chalk = require('chalk');
 
-import type {RelayReporter} from './RelayReporter';
+import type {GraphQLReporter} from './GraphQLReporter';
 
-class RelayConsoleReporter implements RelayReporter {
+class GraphQLConsoleReporter implements GraphQLReporter {
   _verbose: boolean;
 
   constructor(options: {verbose: boolean}) {
@@ -39,4 +39,4 @@ class RelayConsoleReporter implements RelayReporter {
   }
 }
 
-module.exports = RelayConsoleReporter;
+module.exports = GraphQLConsoleReporter;

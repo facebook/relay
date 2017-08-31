@@ -13,9 +13,9 @@
 'use strict';
 
 const GraphQLCompilerContext = require('GraphQLCompilerContext');
+const GraphQLIRPrinter = require('GraphQLIRPrinter');
 const RelayGenerateRequisiteFieldsTransform = require('RelayGenerateRequisiteFieldsTransform');
 const RelayParser = require('RelayParser');
-const RelayPrinter = require('RelayPrinter');
 const RelayTestSchema = require('RelayTestSchema');
 
 const getGoldenMatchers = require('getGoldenMatchers');
@@ -39,7 +39,7 @@ describe('RelayGenerateRequisiteFieldsTransform', () => {
       );
       const documents = [];
       nextContext.documents().map(doc => {
-        documents.push(RelayPrinter.print(doc));
+        documents.push(GraphQLIRPrinter.print(doc));
       });
       return documents.join('\n');
     });

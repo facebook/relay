@@ -12,10 +12,10 @@
 
 'use strict';
 
-const RelayApplyFragmentArgumentTransform = require('RelayApplyFragmentArgumentTransform');
 const GraphQLCompilerContext = require('GraphQLCompilerContext');
+const GraphQLIRPrinter = require('GraphQLIRPrinter');
+const RelayApplyFragmentArgumentTransform = require('RelayApplyFragmentArgumentTransform');
 const RelayParser = require('RelayParser');
-const RelayPrinter = require('RelayPrinter');
 const RelayTestSchema = require('RelayTestSchema');
 
 const getGoldenMatchers = require('getGoldenMatchers');
@@ -37,7 +37,7 @@ describe('RelayApplyFragmentArgumentTransform', () => {
       );
       const documents = [];
       nextContext.documents().forEach(doc => {
-        documents.push(RelayPrinter.print(doc));
+        documents.push(GraphQLIRPrinter.print(doc));
       });
       return documents.join('\n');
     });

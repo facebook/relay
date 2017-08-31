@@ -15,7 +15,7 @@
 describe('FilterDirectivesTransform', () => {
   let GraphQLCompilerContext;
   let FilterDirectivesTransform;
-  let RelayPrinter;
+  let GraphQLIRPrinter;
   let RelayTestSchema;
   let getGoldenMatchers;
   let parseGraphQLText;
@@ -26,7 +26,7 @@ describe('FilterDirectivesTransform', () => {
 
     GraphQLCompilerContext = require('GraphQLCompilerContext');
     FilterDirectivesTransform = require('FilterDirectivesTransform');
-    RelayPrinter = require('RelayPrinter');
+    GraphQLIRPrinter = require('GraphQLIRPrinter');
     RelayTestSchema = require('RelayTestSchema');
     getGoldenMatchers = require('getGoldenMatchers');
     parseGraphQLText = require('parseGraphQLText');
@@ -50,7 +50,7 @@ describe('FilterDirectivesTransform', () => {
       context = FilterDirectivesTransform.transform(context, RelayTestSchema);
       const documents = [];
       context.documents().forEach(doc => {
-        documents.push(RelayPrinter.print(doc));
+        documents.push(GraphQLIRPrinter.print(doc));
       });
       return documents.join('\n');
     });

@@ -14,7 +14,7 @@
 
 describe('StripUnusedVariablesTransform', () => {
   let GraphQLCompilerContext;
-  let RelayPrinter;
+  let GraphQLIRPrinter;
   let StripUnusedVariablesTransform;
   let RelayTestSchema;
   let getGoldenMatchers;
@@ -24,7 +24,7 @@ describe('StripUnusedVariablesTransform', () => {
     jest.resetModules();
 
     GraphQLCompilerContext = require('GraphQLCompilerContext');
-    RelayPrinter = require('RelayPrinter');
+    GraphQLIRPrinter = require('GraphQLIRPrinter');
     StripUnusedVariablesTransform = require('StripUnusedVariablesTransform');
     RelayTestSchema = require('RelayTestSchema');
     getGoldenMatchers = require('getGoldenMatchers');
@@ -42,7 +42,7 @@ describe('StripUnusedVariablesTransform', () => {
       context = StripUnusedVariablesTransform.transform(context);
       const documents = [];
       context.documents().forEach(doc => {
-        documents.push(RelayPrinter.print(doc));
+        documents.push(GraphQLIRPrinter.print(doc));
       });
       return documents.join('\n');
     });

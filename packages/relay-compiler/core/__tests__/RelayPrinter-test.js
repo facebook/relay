@@ -16,11 +16,11 @@ require('configureForRelayOSS');
 
 const GraphQLCompilerContext = require('GraphQLCompilerContext');
 const RelayParser = require('RelayParser');
-const RelayPrinter = require('RelayPrinter');
+const GraphQLIRPrinter = require('GraphQLIRPrinter');
 const RelayTestSchema = require('RelayTestSchema');
 const getGoldenMatchers = require('getGoldenMatchers');
 
-describe('RelayPrinter', () => {
+describe('GraphQLIRPrinter', () => {
   beforeEach(() => {
     expect.extend(getGoldenMatchers(__filename));
   });
@@ -34,7 +34,7 @@ describe('RelayPrinter', () => {
       );
       const documents = [];
       context.documents().forEach(doc => {
-        documents.push(RelayPrinter.print(doc));
+        documents.push(GraphQLIRPrinter.print(doc));
       });
       return documents.join('\n');
     });

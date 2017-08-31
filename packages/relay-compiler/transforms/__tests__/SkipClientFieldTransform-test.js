@@ -14,7 +14,7 @@
 
 describe('SkipClientFieldTransform', () => {
   let GraphQLCompilerContext;
-  let RelayPrinter;
+  let GraphQLIRPrinter;
   let SkipClientFieldTransform;
   let RelayTestSchema;
   let getGoldenMatchers;
@@ -24,7 +24,7 @@ describe('SkipClientFieldTransform', () => {
     jest.resetModules();
 
     GraphQLCompilerContext = require('GraphQLCompilerContext');
-    RelayPrinter = require('RelayPrinter');
+    GraphQLIRPrinter = require('GraphQLIRPrinter');
     SkipClientFieldTransform = require('SkipClientFieldTransform');
     RelayTestSchema = require('RelayTestSchema');
     getGoldenMatchers = require('getGoldenMatchers');
@@ -40,7 +40,7 @@ describe('SkipClientFieldTransform', () => {
       context = SkipClientFieldTransform.transform(context, RelayTestSchema);
       const documents = [];
       context.documents().forEach(doc => {
-        documents.push(RelayPrinter.print(doc));
+        documents.push(GraphQLIRPrinter.print(doc));
       });
       return documents.join('\n');
     });

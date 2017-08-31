@@ -14,12 +14,12 @@
 'use strict';
 
 const GraphQLCompilerContext = require('./GraphQLCompilerContext');
-const RelayPrinter = require('./RelayPrinter');
+const GraphQLIRPrinter = require('./GraphQLIRPrinter');
 
 const filterContextForNode = require('./filterContextForNode');
 
-import type {IRTransform} from './GraphQLIRTransforms';
 import type {Fragment, Root} from './GraphQLIR';
+import type {IRTransform} from './GraphQLIRTransforms';
 import type {GraphQLSchema} from 'graphql';
 
 // <CodegenNode> is a generic type here,
@@ -154,7 +154,7 @@ class RelayCompiler<CodegenNode> {
         printContext,
       )
         .documents()
-        .map(RelayPrinter.print)
+        .map(GraphQLIRPrinter.print)
         .join('\n');
       // The original query (with fragment spreads) is converted to a fragment
       // for reading out the root data.

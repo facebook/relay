@@ -13,9 +13,9 @@
 
 'use strict';
 
-const GraphQLSchemaUtils = require('GraphQLSchemaUtils');
 const GraphQLCompilerContext = require('GraphQLCompilerContext');
 const GraphQLIRTransformer = require('GraphQLIRTransformer');
+const GraphQLSchemaUtils = require('GraphQLSchemaUtils');
 const RelayParser = require('RelayParser');
 
 const getLiteralArgumentValues = require('getLiteralArgumentValues');
@@ -33,7 +33,6 @@ const {
   parse,
 } = require('graphql');
 
-import type {ConnectionMetadata} from 'RelayConnectionHandler';
 import type {
   Argument,
   Fragment,
@@ -41,6 +40,7 @@ import type {
   LinkedField,
   Root,
 } from 'GraphQLIR';
+import type {ConnectionMetadata} from 'RelayConnectionHandler';
 import type {GraphQLType} from 'graphql';
 
 type Options = {
@@ -162,9 +162,7 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
   });
   options.path.pop();
 
-  const {key, filters} = getLiteralArgumentValues(
-    connectionDirective.args,
-  );
+  const {key, filters} = getLiteralArgumentValues(connectionDirective.args);
   invariant(
     typeof key === 'string',
     'RelayConnectionTransform: Expected the %s argument to @%s to ' +

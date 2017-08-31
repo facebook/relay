@@ -15,7 +15,7 @@
 require('configureForRelayOSS');
 
 const GraphQLCompilerContext = require('GraphQLCompilerContext');
-const RelayPrinter = require('RelayPrinter');
+const GraphQLIRPrinter = require('GraphQLIRPrinter');
 const RelayTestSchema = require('RelayTestSchema');
 const filterContextForNode = require('filterContextForNode');
 const getGoldenMatchers = require('getGoldenMatchers');
@@ -38,7 +38,7 @@ describe('filterContextForNode', () => {
         context.get(MAIN_QUERY_NAME),
         context,
       );
-      return printerContext.documents().map(RelayPrinter.print).join('\n');
+      return printerContext.documents().map(GraphQLIRPrinter.print).join('\n');
     });
   });
 });

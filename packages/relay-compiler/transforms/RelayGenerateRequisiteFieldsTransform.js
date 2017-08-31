@@ -13,8 +13,8 @@
 
 'use strict';
 
-const GraphQLSchemaUtils = require('GraphQLSchemaUtils');
 const GraphQLCompilerContext = require('GraphQLCompilerContext');
+const GraphQLSchemaUtils = require('GraphQLSchemaUtils');
 
 const {
   assertAbstractType,

@@ -13,8 +13,8 @@
 
 'use strict';
 
-const GraphQLSchemaUtils = require('GraphQLSchemaUtils');
 const GraphQLIRVisitor = require('GraphQLIRVisitor');
+const GraphQLSchemaUtils = require('GraphQLSchemaUtils');
 
 const formatStorageKey = require('formatStorageKey');
 const invariant = require('invariant');
@@ -22,6 +22,7 @@ const prettyStringify = require('prettyStringify');
 
 const {GraphQLList} = require('graphql');
 
+import type {Fragment, Root} from 'GraphQLIR';
 import type {
   ConcreteArgument,
   ConcreteArgumentDefinition,
@@ -30,7 +31,6 @@ import type {
   ConcreteSelection,
 } from 'RelayConcreteNode';
 import type {GeneratedNode} from 'RelayConcreteNode';
-import type {Fragment, Root} from 'GraphQLIR';
 const {getRawType, isAbstractType, getNullableType} = GraphQLSchemaUtils;
 
 /* eslint-disable no-redeclare */

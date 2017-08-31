@@ -19,7 +19,7 @@ describe('RelayFlattenTransform', () => {
   let RelayFlattenTransform;
   let RelayRelayDirectiveTransform;
   let RelayParser;
-  let RelayPrinter;
+  let GraphQLIRPrinter;
   let RelayTestSchema;
   let getGoldenMatchers;
 
@@ -30,7 +30,7 @@ describe('RelayFlattenTransform', () => {
     RelayFlattenTransform = require('RelayFlattenTransform');
     RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
     RelayParser = require('RelayParser');
-    RelayPrinter = require('RelayPrinter');
+    GraphQLIRPrinter = require('GraphQLIRPrinter');
     RelayTestSchema = require('RelayTestSchema');
     getGoldenMatchers = require('getGoldenMatchers');
     expect.extend(getGoldenMatchers(__filename));
@@ -50,7 +50,7 @@ describe('RelayFlattenTransform', () => {
       const nextContext = RelayFlattenTransform.transform(context, options);
       return nextContext
         .documents()
-        .map(doc => RelayPrinter.print(doc))
+        .map(doc => GraphQLIRPrinter.print(doc))
         .join('\n');
     };
   }

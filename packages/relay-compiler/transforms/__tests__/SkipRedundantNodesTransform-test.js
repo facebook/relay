@@ -15,7 +15,7 @@
 describe('SkipRedundantNodesTransform', () => {
   let GraphQLCompilerContext;
   let RelayParser;
-  let RelayPrinter;
+  let GraphQLIRPrinter;
   let SkipRedundantNodesTransform;
   let RelayTestSchema;
   let getGoldenMatchers;
@@ -25,7 +25,7 @@ describe('SkipRedundantNodesTransform', () => {
 
     GraphQLCompilerContext = require('GraphQLCompilerContext');
     RelayParser = require('RelayParser');
-    RelayPrinter = require('RelayPrinter');
+    GraphQLIRPrinter = require('GraphQLIRPrinter');
     SkipRedundantNodesTransform = require('SkipRedundantNodesTransform');
     RelayTestSchema = require('RelayTestSchema');
     getGoldenMatchers = require('getGoldenMatchers');
@@ -43,7 +43,7 @@ describe('SkipRedundantNodesTransform', () => {
       const nextContext = SkipRedundantNodesTransform.transform(context);
       const documents = [];
       nextContext.documents().forEach(doc => {
-        documents.push(RelayPrinter.print(doc));
+        documents.push(GraphQLIRPrinter.print(doc));
       });
       return documents.join('\n');
     });

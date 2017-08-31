@@ -29,7 +29,7 @@ import type {
 } from 'GraphQLIR';
 
 const RelayParser = require('RelayParser');
-const RelayPrinter = require('RelayPrinter');
+const GraphQLIRPrinter = require('GraphQLIRPrinter');
 const RelayTestSchema = require('RelayTestSchema');
 const getGoldenMatchers = require('getGoldenMatchers');
 const {visit} = require('GraphQLIRVisitor');
@@ -52,7 +52,7 @@ describe('GraphQLIRVisitor', () => {
     expect('fixtures/visitor/no-op-visit').toMatchGolden(text => {
       const ast = RelayParser.parse(RelayTestSchema, text);
       const sameAst = ast.map(fragment => visit(fragment, {}));
-      return sameAst.map(doc => RelayPrinter.print(doc)).join('\n');
+      return sameAst.map(doc => GraphQLIRPrinter.print(doc)).join('\n');
     });
   });
   it('visits and mutates each type of node', () => {
@@ -114,7 +114,7 @@ describe('GraphQLIRVisitor', () => {
         }),
       );
 
-      return mutatedAst.map(doc => RelayPrinter.print(doc)).join('\n');
+      return mutatedAst.map(doc => GraphQLIRPrinter.print(doc)).join('\n');
     });
   });
 });

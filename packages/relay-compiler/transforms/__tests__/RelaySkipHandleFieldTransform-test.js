@@ -14,7 +14,7 @@
 
 describe('RelaySkipHandleFieldTransform', () => {
   let GraphQLCompilerContext;
-  let RelayPrinter;
+  let GraphQLIRPrinter;
   let RelaySkipHandleFieldTransform;
   let RelayTestSchema;
   let getGoldenMatchers;
@@ -24,7 +24,7 @@ describe('RelaySkipHandleFieldTransform', () => {
     jest.resetModules();
 
     GraphQLCompilerContext = require('GraphQLCompilerContext');
-    RelayPrinter = require('RelayPrinter');
+    GraphQLIRPrinter = require('GraphQLIRPrinter');
     RelaySkipHandleFieldTransform = require('RelaySkipHandleFieldTransform');
     RelayTestSchema = require('RelayTestSchema');
     getGoldenMatchers = require('getGoldenMatchers');
@@ -45,7 +45,7 @@ describe('RelaySkipHandleFieldTransform', () => {
       );
       const documents = [];
       context.documents().forEach(doc => {
-        documents.push(RelayPrinter.print(doc));
+        documents.push(GraphQLIRPrinter.print(doc));
       });
       return documents.join('\n');
     });

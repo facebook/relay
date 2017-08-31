@@ -7,7 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @flow
- * @providesModule RelayPrinter
+ * @providesModule GraphQLIRPrinter
  * @format
  */
 
@@ -64,7 +64,7 @@ function print(node: Root | Fragment): string {
       '\n'
     );
   } else {
-    invariant(false, 'RelayPrinter: Unsupported IR node `%s`.', node.kind);
+    invariant(false, 'GraphQLIRPrinter: Unsupported IR node `%s`.', node.kind);
   }
 }
 
@@ -128,7 +128,7 @@ function printSelection(
     // For Flow
     invariant(
       value != null,
-      'RelayPrinter: Expected a variable for condition, got a literal `null`.',
+      'GraphQLIRPrinter: Expected a variable for condition, got a literal `null`.',
     );
     let condStr = selection.passingValue ? ' @include' : ' @skip';
     condStr += '(if: ' + value + ')';
@@ -141,7 +141,7 @@ function printSelection(
   } else {
     invariant(
       false,
-      'RelayPrinter: Unknown selection kind `%s`.',
+      'GraphQLIRPrinter: Unknown selection kind `%s`.',
       selection.kind,
     );
   }
@@ -231,7 +231,7 @@ function printValue(value: ArgumentValue, type: ?GraphQLInputType): ?string {
   } else if (value.kind === 'ObjectValue') {
     invariant(
       type instanceof GraphQLInputObjectType,
-      'RelayPrinter: Need an InputObject type to print objects.',
+      'GraphQLIRPrinter: Need an InputObject type to print objects.',
     );
 
     const typeFields = type.getFields();
@@ -246,7 +246,7 @@ function printValue(value: ArgumentValue, type: ?GraphQLInputType): ?string {
   } else if (value.kind === 'ListValue') {
     invariant(
       type instanceof GraphQLList,
-      'RelayPrinter: Need a type in order to print arrays.',
+      'GraphQLIRPrinter: Need a type in order to print arrays.',
     );
     const innerType = type.ofType;
     return `[${value.items.map(i => printValue(i, innerType)).join(', ')}]`;
@@ -264,7 +264,7 @@ function printLiteral(value: mixed, type: ?GraphQLInputType): string {
   if (type instanceof GraphQLEnumType) {
     invariant(
       typeof value === 'string',
-      'RelayPrinter: Expected value of type %s to be a string, got `%s`.',
+      'GraphQLIRPrinter: Expected value of type %s to be a string, got `%s`.',
       type.name,
       value,
     );
@@ -273,7 +273,7 @@ function printLiteral(value: mixed, type: ?GraphQLInputType): string {
   if (Array.isArray(value)) {
     invariant(
       type instanceof GraphQLList,
-      'RelayPrinter: Need a type in order to print arrays.',
+      'GraphQLIRPrinter: Need a type in order to print arrays.',
     );
     const itemType = type.ofType;
     return (
@@ -283,7 +283,7 @@ function printLiteral(value: mixed, type: ?GraphQLInputType): string {
     const fields = [];
     invariant(
       type instanceof GraphQLInputObjectType,
-      'RelayPrinter: Need an InputObject type to print objects.',
+      'GraphQLIRPrinter: Need an InputObject type to print objects.',
     );
     const typeFields = type.getFields();
     forEachObject(value, (val, key) => {

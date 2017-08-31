@@ -13,15 +13,14 @@
 
 'use strict';
 
-const Map = require('Map');
 const GraphQLCompilerContext = require('GraphQLCompilerContext');
+const Map = require('Map');
 const RelayCompilerScope = require('RelayCompilerScope');
 
 const getIdentifierForArgumentValue = require('getIdentifierForArgumentValue');
 const invariant = require('invariant');
 const murmurHash = require('murmurHash');
 
-import type {Scope} from 'RelayCompilerScope';
 import type {
   Argument,
   ArgumentValue,
@@ -33,6 +32,7 @@ import type {
   Node,
   Selection,
 } from 'GraphQLIR';
+import type {Scope} from 'RelayCompilerScope';
 
 const {getFragmentScope, getRootScope} = RelayCompilerScope;
 

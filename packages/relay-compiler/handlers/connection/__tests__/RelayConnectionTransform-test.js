@@ -17,7 +17,7 @@ require('configureForRelayOSS');
 describe('RelayConnectionTransform', () => {
   let GraphQLCompilerContext;
   let RelayConnectionTransform;
-  let RelayPrinter;
+  let GraphQLIRPrinter;
   let RelayTestSchema;
   let getGoldenMatchers;
   let parseGraphQLText;
@@ -28,7 +28,7 @@ describe('RelayConnectionTransform', () => {
 
     GraphQLCompilerContext = require('GraphQLCompilerContext');
     RelayConnectionTransform = require('RelayConnectionTransform');
-    RelayPrinter = require('RelayPrinter');
+    GraphQLIRPrinter = require('GraphQLIRPrinter');
     RelayTestSchema = require('RelayTestSchema');
     getGoldenMatchers = require('getGoldenMatchers');
     parseGraphQLText = require('parseGraphQLText');
@@ -53,7 +53,7 @@ describe('RelayConnectionTransform', () => {
           .documents()
           .map(
             doc =>
-              RelayPrinter.print(doc) +
+              GraphQLIRPrinter.print(doc) +
               '# Metadata:\n' +
               prettyStringify(doc.metadata),
           )

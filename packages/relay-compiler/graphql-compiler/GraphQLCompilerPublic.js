@@ -19,6 +19,7 @@ const CodegenDirectory = require('./codegen/CodegenDirectory');
 const CodegenRunner = require('./codegen/RelayCodegenRunner');
 const FileParser = require('./core/FileParser');
 const FilterDirectivesTransform = require('./transforms/FilterDirectivesTransform');
+const GraphQLCompiler = require('./core/GraphQLCompiler');
 const GraphQLCompilerContext = require('./core/GraphQLCompilerContext');
 const GraphQLFileParser = require('./core/GraphQLFileParser');
 const GraphQLIRPrinter = require('./core/GraphQLIRPrinter');
@@ -28,7 +29,6 @@ const GraphQLIRVisitor = require('./core/GraphQLIRVisitor');
 const GraphQLSchemaUtils = require('./core/GraphQLSchemaUtils');
 const GraphQLTextParser = require('./core/GraphQLTextParser');
 const GraphQLValidator = require('./core/GraphQLValidator');
-const RelayCompiler = require('./core/RelayCompiler');
 const RelayConsoleReporter = require('./reporters/RelayConsoleReporter');
 const RelayFlattenTransform = require('./transforms/RelayFlattenTransform');
 const RelayMultiReporter = require('./reporters/RelayMultiReporter');
@@ -45,7 +45,7 @@ export type {
   CompiledNode,
   CompiledDocumentMap,
   CompilerTransforms,
-} from './core/RelayCompiler';
+} from './core/GraphQLCompiler';
 export type {
   File,
   FileWriterInterface,
@@ -88,7 +88,7 @@ module.exports = {
   ASTConvert: ASTConvert,
   CodegenDirectory: CodegenDirectory,
   CodegenRunner: CodegenRunner,
-  Compiler: RelayCompiler,
+  Compiler: GraphQLCompiler,
   CompilerContext: GraphQLCompilerContext,
   ConsoleReporter: RelayConsoleReporter,
   FileParser: FileParser,

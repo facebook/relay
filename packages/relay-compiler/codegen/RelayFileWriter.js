@@ -15,8 +15,8 @@
 
 const ASTConvert = require('ASTConvert');
 const CodegenDirectory = require('CodegenDirectory');
-const RelayCompiler = require('RelayCompiler');
 const GraphQLCompilerContext = require('GraphQLCompilerContext');
+const RelayCompiler = require('RelayCompiler');
 const RelayFlowGenerator = require('RelayFlowGenerator');
 const RelayValidator = require('RelayValidator');
 
@@ -30,10 +30,13 @@ const {isOperationDefinitionAST} = require('GraphQLSchemaUtils');
 const {generate} = require('RelayCodeGenerator');
 const {Map: ImmutableMap} = require('immutable');
 
+import type {
+  CompiledNode,
+  CompiledDocumentMap,
+  CompilerTransforms,
+} from 'GraphQLCompiler';
 import type {RelayGeneratedNode} from 'RelayCodeGenerator';
 import type {FileWriterInterface} from 'RelayCodegenTypes';
-import type {CompiledNode, CompiledDocumentMap} from 'RelayCompiler';
-import type {CompilerTransforms} from 'RelayCompiler';
 import type {GeneratedNode} from 'RelayConcreteNode';
 import type {ScalarTypeMapping} from 'RelayFlowGenerator';
 import type {DocumentNode, GraphQLSchema} from 'graphql';

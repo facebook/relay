@@ -7,7 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @flow
- * @providesModule RelayCompiler
+ * @providesModule GraphQLCompiler
  * @format
  */
 
@@ -64,7 +64,7 @@ export type CompilerTransforms = {
  * with a standardized set of transforms, and generating runtime representations
  * of each definition.
  */
-class RelayCompiler<CodegenNode> {
+class GraphQLCompiler<CodegenNode> {
   _context: GraphQLCompilerContext;
   _schema: GraphQLSchema;
   _transformedQueryContext: ?GraphQLCompilerContext;
@@ -86,8 +86,8 @@ class RelayCompiler<CodegenNode> {
     this._codeGenerator = codeGenerator;
   }
 
-  clone(): RelayCompiler<CodegenNode> {
-    return new RelayCompiler(
+  clone(): GraphQLCompiler<CodegenNode> {
+    return new GraphQLCompiler(
       this._schema,
       this._context,
       this._transforms,
@@ -196,4 +196,4 @@ function buildFragmentForRoot(root: Root): Fragment {
   };
 }
 
-module.exports = RelayCompiler;
+module.exports = GraphQLCompiler;

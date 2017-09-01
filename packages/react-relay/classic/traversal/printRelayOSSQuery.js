@@ -223,18 +223,27 @@ function printNonNullType(type: string): string {
   return type + '!';
 }
 
+const isConditionDirective = directive =>
+  directive.name === 'include' || directive.name === 'skip';
+
+const isNonConditionDirective = directive => !isConditionDirective(directive);
+
 function printFragment(
   node: RelayQuery.Fragment,
   printerState: PrinterState,
 ): string {
-  const directives = printDirectives(node);
+  const conditionDirectives = printDirectives(node, isConditionDirective);
+  const otherDirectives = printDirectives(node, isConditionDirective);
+  const children = nullthrows(printChildren(node, printerState, ''));
   return (
     'fragment ' +
     node.getDebugName() +
     ' on ' +
     node.getType() +
-    directives +
-    nullthrows(printChildren(node, printerState, ''))
+    otherDirectives +
+    (conditionDirectives
+      ? '{ ...' + conditionDirectives + children + '}'
+      : children)
   );
 }
 
@@ -303,8 +312,20 @@ function printChildren(
           const fragmentChildren = nullthrows(
             printChildren(child, printerState, ''),
           );
+          const conditionDirectives = printDirectives(
+            child,
+            isConditionDirective,
+          );
+          const otherDirectives = printDirectives(
+            child,
+            isNonConditionDirective,
+          );
           const fragmentText =
-            child.getType() + printDirectives(child) + fragmentChildren;
+            child.getType() +
+            otherDirectives +
+            (conditionDirectives
+              ? '{ ...' + conditionDirectives + fragmentChildren + '}'
+              : fragmentChildren);
           if (fragmentNameByText.hasOwnProperty(fragmentText)) {
             fragmentName = fragmentNameByText[fragmentText];
           } else {
@@ -345,12 +366,15 @@ function printChildren(
   );
 }
 
-function printDirectives(node) {
+function printDirectives(node, filter) {
   let directiveStrings;
   node.getDirectives().forEach(directive => {
+    if (filter && !filter(directive)) {
+      return;
+    }
     let dirString = '@' + directive.name;
     if (directive.args.length) {
-      dirString += '(' + directive.args.map(printDirective).join(',') + ')';
+      dirString += '(' + directive.args.map(printDirectiveArg).join(',') + ')';
     }
     directiveStrings = directiveStrings || [];
     directiveStrings.push(dirString);
@@ -361,7 +385,7 @@ function printDirectives(node) {
   return ' ' + directiveStrings.join(' ');
 }
 
-function printDirective({name, value}) {
+function printDirectiveArg({name, value}) {
   invariant(
     typeof value === 'boolean' ||
       typeof value === 'number' ||

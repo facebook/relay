@@ -712,6 +712,59 @@ describe('printRelayOSSQuery', () => {
       expect(variables).toEqual({});
     });
 
+    it('prints inline fragments without types', () => {
+      const fragment = getNode(
+        RelayClassic.QL`
+        fragment on User {
+          ... {
+            name
+          }
+        }
+      `,
+        {foo: true},
+      );
+      const {text, variables} = printRelayOSSQuery(fragment);
+      expect(text).toEqualPrintedQuery(
+        `
+          fragment PrintRelayOSSQueryRelayQL on User {
+            id,
+            ...F0
+          }
+          fragment F0 on User{
+            name,
+            id
+          }
+        `,
+      );
+    });
+
+    it('prints inline fragments with conditional', () => {
+      const fragment = getNode(
+        RelayClassic.QL`
+          fragment on User {
+            ... @include(if: $cond){
+              name
+            }
+          }
+        `,
+        {cond: true},
+      );
+      const {text, variables} = printRelayOSSQuery(fragment);
+      expect(text).toEqualPrintedQuery(`
+        fragment PrintRelayOSSQueryRelayQL on User {
+          id,
+          ...F0
+        }
+        fragment F0 on User {
+          ... @include(if:true) {
+            name,
+            id
+          }
+        }
+      `);
+      expect(variables).toEqual({});
+    });
+
     it('prints fragments with incrementing names', () => {
       const fragmentA = RelayClassic.QL`fragment on User { firstName }`;
       const fragmentB = RelayClassic.QL`fragment on User { lastName }`;
@@ -1279,8 +1332,10 @@ describe('printRelayOSSQuery', () => {
           ...F0
         }
       }
-      fragment F0 on User @include(if: true) {
-        id
+      fragment F0 on User {
+        ... @include(if: true) {
+          id
+        }
       }
     `,
     );

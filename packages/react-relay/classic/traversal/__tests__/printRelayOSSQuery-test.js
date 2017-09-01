@@ -37,7 +37,7 @@ describe('printRelayOSSQuery', () => {
       const query = getNode(
         getClassicOperation(
           graphql`
-            query printRelayOSSQuery($taskNumber: Int, $id: ID!) {
+            query printRelayOSSQueryTest($taskNumber: Int, $id: ID!) {
               user: node(id: $id) {
                 ... on User {
                   name
@@ -59,7 +59,7 @@ describe('printRelayOSSQuery', () => {
       const taskAlias = generateRQLFieldAlias('task.activeTask.number(2)');
       expect(text).toEqualPrintedQuery(
         `
-        query PrintRelayOSSQuery($number_0: Int!) {
+        query PrintRelayOSSQueryTest($number_0: Int!) {
           ${nodeAlias}: node(id: "842472") {
             id,
             __typename,
@@ -84,7 +84,7 @@ describe('printRelayOSSQuery', () => {
       const query = getNode(
         getClassicOperation(
           graphql`
-            query printRelayOSSQuery($cond: Boolean!) {
+            query printRelayOSSQueryTest($cond: Boolean!) {
               viewer {
                 actor @include(if: $cond) {
                   name
@@ -100,7 +100,7 @@ describe('printRelayOSSQuery', () => {
       const {text, variables} = printRelayOSSQuery(query);
       expect(text).toEqualPrintedQuery(
         `
-        query PrintRelayOSSQuery {
+        query PrintRelayOSSQueryTest {
           __typename
         }
       `,
@@ -112,7 +112,7 @@ describe('printRelayOSSQuery', () => {
       const query = getNode(
         getClassicOperation(
           graphql`
-            query printRelayOSSQuery($cond: Boolean!, $id: ID!) {
+            query printRelayOSSQueryTest($cond: Boolean!, $id: ID!) {
               node(id: $id) {
                 ... on User {
                   name
@@ -137,7 +137,7 @@ describe('printRelayOSSQuery', () => {
       const {text, variables} = printRelayOSSQuery(query);
       expect(text).toEqualPrintedQuery(
         `
-        query PrintRelayOSSQuery {
+        query PrintRelayOSSQueryTest {
           ${nodeAlias}: node(id: "842472") {
             id,
             __typename,
@@ -736,6 +736,7 @@ describe('printRelayOSSQuery', () => {
           }
         `,
       );
+      expect(variables).toEqual({});
     });
 
     it('prints inline fragments with conditional', () => {
@@ -1323,21 +1324,19 @@ describe('printRelayOSSQuery', () => {
       params,
     );
     const {text, variables} = printRelayOSSQuery(query);
-    expect(text).toEqualPrintedQuery(
-      `
-      query PrintRelayOSSQuery($id_0: ID!) {
-        node(id: $id_0) @skip(if: true) {
-          id,
-          __typename,
-          ...F0
-        }
-      }
-      fragment F0 on User {
-        ... @include(if: true) {
-          id
-        }
-      }
-    `,
+    expect(text).toBe(
+      `query PrintRelayOSSQuery($id_0:ID!) {
+  node(id:$id_0) @skip(if:true) {
+    id,
+    __typename,
+    ...F0
+  }
+}
+fragment F0 on User {
+  ... @include(if:true) {
+    id
+  }
+}`,
     );
     expect(variables).toEqual({
       id_0: 123,

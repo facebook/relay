@@ -232,18 +232,12 @@ function printFragment(
   node: RelayQuery.Fragment,
   printerState: PrinterState,
 ): string {
-  const conditionDirectives = printDirectives(node, isConditionDirective);
-  const otherDirectives = printDirectives(node, isConditionDirective);
-  const children = nullthrows(printChildren(node, printerState, ''));
   return (
     'fragment ' +
     node.getDebugName() +
     ' on ' +
     node.getType() +
-    otherDirectives +
-    (conditionDirectives
-      ? '{ ...' + conditionDirectives + children + '}'
-      : children)
+    printDirectivesAndChildren(node, printerState)
   );
 }
 
@@ -309,23 +303,8 @@ function printChildren(
           fragmentName = fragmentNameByHash[fragmentHash];
         } else {
           // Avoid reprinting a fragment that is identical to another fragment.
-          const fragmentChildren = nullthrows(
-            printChildren(child, printerState, ''),
-          );
-          const conditionDirectives = printDirectives(
-            child,
-            isConditionDirective,
-          );
-          const otherDirectives = printDirectives(
-            child,
-            isNonConditionDirective,
-          );
           const fragmentText =
-            child.getType() +
-            otherDirectives +
-            (conditionDirectives
-              ? '{ ...' + conditionDirectives + fragmentChildren + '}'
-              : fragmentChildren);
+            child.getType() + printDirectivesAndChildren(child, printerState);
           if (fragmentNameByText.hasOwnProperty(fragmentText)) {
             fragmentName = fragmentNameByText[fragmentText];
           } else {
@@ -396,6 +375,25 @@ function printDirectiveArg({name, value}) {
     value,
   );
   return name + ':' + JSON.stringify(value);
+}
+
+function printDirectivesAndChildren(node, printerState: PrinterState): string {
+  const conditionDirectives = printDirectives(node, isConditionDirective);
+  const otherDirectives = printDirectives(node, isNonConditionDirective);
+
+  return (
+    otherDirectives +
+    (conditionDirectives
+      ? ' {' +
+        newLine +
+        oneIndent +
+        '...' +
+        conditionDirectives +
+        nullthrows(printChildren(node, printerState, oneIndent)) +
+        newLine +
+        '}'
+      : nullthrows(printChildren(node, printerState, '')))
+  );
 }
 
 function printArgument(

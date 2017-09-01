@@ -13,6 +13,8 @@
 
 const Map = require('Map');
 
+const diff = require('jest-diff');
+
 /**
  * Utility methods (eg. for unmocking Relay internals) and custom Jasmine
  * matchers.
@@ -411,19 +413,35 @@ const RelayTestUtils = {
       return require('matchRecord')(...args);
     },
 
-    toEqualPrintedQuery(actual, expected) {
-      const minifiedActual = RelayTestUtils.minifyQueryText(actual);
+    toEqualPrintedQuery(received, expected) {
+      const minifiedReceived = RelayTestUtils.minifyQueryText(received);
       const minifiedExpected = RelayTestUtils.minifyQueryText(expected);
 
-      if (minifiedActual !== minifiedExpected) {
-        return {
-          pass: false,
-          message: [minifiedActual, 'to equal', minifiedExpected].join('\n'),
-        };
-      }
-      return {
-        pass: true,
-      };
+      const pass = minifiedReceived === minifiedExpected;
+      const message = pass
+        ? () =>
+            this.utils.matcherHint('.not.toEqualPrintedQuery') +
+            '\n\n' +
+            `Expected query to not be:\n` +
+            `  ${this.utils.printExpected(minifiedExpected)}\n` +
+            `Received:\n` +
+            `  ${this.utils.printReceived(minifiedReceived)}`
+        : () => {
+            const diffString = diff(minifiedExpected, minifiedReceived, {
+              expand: this.expand,
+            });
+            return (
+              this.utils.matcherHint('.toEqualPrintedQuery') +
+              '\n\n' +
+              `Expected query to be:\n` +
+              `  ${this.utils.printExpected(minifiedExpected)}\n` +
+              `Received:\n` +
+              `  ${this.utils.printReceived(minifiedReceived)}` +
+              (diffString ? `\n\nDifference:\n\n${diffString}` : '')
+            );
+          };
+
+      return {actual: minifiedReceived, message, pass};
     },
 
     /**

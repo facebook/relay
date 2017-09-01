@@ -447,6 +447,13 @@ function subscribe<T>(source: Source<T>, observer: Observer<T>): Subscription {
   let closed = false;
   let cleanup;
 
+  // Ideally we would simply describe a `get closed()` method on the Sink and
+  // Subscription objects below, however not all flow environments we expect
+  // Relay to be used within will support property getters, and many minifier
+  // tools still do not support ES5 syntax. Instead, we can use defineProperty.
+  const withClosed: <O>(obj: O) => O & {+closed: boolean} = obj =>
+    Object.defineProperty((obj: any), 'closed', ({get: () => closed}: any));
+
   function doCleanup() {
     if (cleanup) {
       if (cleanup.unsubscribe) {
@@ -463,7 +470,7 @@ function subscribe<T>(source: Source<T>, observer: Observer<T>): Subscription {
   }
 
   // Create a Subscription.
-  const subscription: Subscription = {
+  const subscription: Subscription = withClosed({
     unsubscribe() {
       if (!closed) {
         closed = true;
@@ -478,10 +485,7 @@ function subscribe<T>(source: Source<T>, observer: Observer<T>): Subscription {
         }
       }
     },
-    get closed() {
-      return closed;
-    },
-  };
+  });
 
   // Tell Observer that observation is about to begin.
   try {
@@ -496,7 +500,7 @@ function subscribe<T>(source: Source<T>, observer: Observer<T>): Subscription {
   }
 
   // Create a Sink respecting subscription state and cleanup.
-  const sink: Sink<T> = {
+  const sink: Sink<T> = withClosed({
     next(value) {
       if (!closed && observer.next) {
         try {
@@ -534,10 +538,7 @@ function subscribe<T>(source: Source<T>, observer: Observer<T>): Subscription {
         }
       }
     },
-    get closed() {
-      return closed;
-    },
-  };
+  });
 
   // If anything goes wrong during observing the source, handle the error.
   try {

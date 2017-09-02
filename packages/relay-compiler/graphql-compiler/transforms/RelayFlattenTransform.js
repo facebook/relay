@@ -12,8 +12,8 @@
 
 'use strict';
 
-const GraphQLSchemaUtils = require('../core/GraphQLSchemaUtils');
 const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
+const GraphQLSchemaUtils = require('../core/GraphQLSchemaUtils');
 
 const areEqual = require('../util/areEqualOSS');
 const getIdentifierForSelection = require('../core/getIdentifierForSelection');
@@ -21,6 +21,8 @@ const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
 const invariant = require('invariant');
 const stableJSONStringify = require('../util/stableJSONStringifyOSS');
 
+const {createUserError} = require('GraphQLCompilerUserError');
+const {printField} = require('GraphQLIRPrinter');
 const {GraphQLNonNull, GraphQLList} = require('graphql');
 
 const RELAY = 'relay';
@@ -207,15 +209,7 @@ function visitNode(
         };
       } else {
         const prevSelection = selectionState.node;
-        // Validate unique args for a given alias
-        invariant(
-          areEqualFields(selection, prevSelection),
-          'RelayFlattenTransform: Expected all fields with the alias `%s` ' +
-            'to have the same name/arguments. Got `%s` and `%s`.',
-          nodeIdentifier,
-          showField(selection),
-          showField(prevSelection),
-        );
+        assertUniqueArgsForAlias(selection, prevSelection);
         // merge fields
         const handles = dedupe(prevSelection.handles, selection.handles);
         selectionState.node = {
@@ -227,14 +221,7 @@ function visitNode(
     } else if (selection.kind === 'ScalarField') {
       const prevSelection = state.selections[nodeIdentifier];
       if (prevSelection) {
-        invariant(
-          areEqualFields(selection, prevSelection),
-          'RelayFlattenTransform: Expected all fields with the alias `%s` ' +
-            'to have the same name/arguments. Got `%s` and `%s`.',
-          nodeIdentifier,
-          showField(selection),
-          showField(prevSelection),
-        );
+        assertUniqueArgsForAlias(selection, prevSelection);
         if (selection.handles || prevSelection.handles) {
           const handles = dedupe(selection.handles, prevSelection.handles);
           selection = {
@@ -252,6 +239,21 @@ function visitNode(
       );
     }
   });
+}
+
+/**
+ * @internal
+ */
+function assertUniqueArgsForAlias(field: Field, otherField: Field): void {
+  if (!areEqualFields(field, otherField)) {
+    throw createUserError(
+      'Expected all fields on the same parent with the name or alias `%s` ' +
+        'to have the same name and arguments. Got `%s` and `%s`.',
+      field.alias || field.name,
+      printField(field),
+      printField(otherField),
+    );
+  }
 }
 
 /**
@@ -292,14 +294,6 @@ function shouldFlattenInlineFragment(
     (options.flattenAbstractTypes &&
       isAbstractType(getRawType(fragment.typeCondition)))
   );
-}
-
-/**
- * @internal
- */
-function showField(field: Field) {
-  const alias = field.alias ? field.alias + ' ' : '';
-  return `${alias}${field.name}(${JSON.stringify(field.args)})`;
 }
 
 /**

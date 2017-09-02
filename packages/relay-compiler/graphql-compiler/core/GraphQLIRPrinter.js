@@ -87,39 +87,38 @@ function printSelections(
     : '';
 }
 
+/**
+ * Prints a field without subselections.
+ */
+function printField(field: Field, parentCondition: string = ''): string {
+  return (
+    (field.alias != null ? field.alias + ': ' + field.name : field.name) +
+    printArguments(field.args) +
+    parentCondition +
+    printDirectives(field.directives) +
+    printHandles(field)
+  );
+}
+
 function printSelection(
   selection: Selection,
   indent: string,
   parentCondition?: string,
 ): string {
   parentCondition = parentCondition || '';
-  let str = '';
+  let str;
   if (selection.kind === 'LinkedField') {
-    if (selection.alias != null) {
-      str += selection.alias + ': ';
-    }
-    str += selection.name;
-    str += printArguments(selection.args);
-    str += parentCondition;
-    str += printDirectives(selection.directives);
-    str += printHandles(selection);
+    str = printField(selection, parentCondition);
     str += printSelections(selection, indent + INDENT);
   } else if (selection.kind === 'ScalarField') {
-    if (selection.alias != null) {
-      str += selection.alias + ': ';
-    }
-    str += selection.name;
-    str += printArguments(selection.args);
-    str += parentCondition;
-    str += printDirectives(selection.directives);
-    str += printHandles(selection);
+    str = printField(selection, parentCondition);
   } else if (selection.kind === 'InlineFragment') {
-    str += '... on ' + selection.typeCondition.toString();
+    str = '... on ' + selection.typeCondition.toString();
     str += parentCondition;
     str += printDirectives(selection.directives);
     str += printSelections(selection, indent + INDENT);
   } else if (selection.kind === 'FragmentSpread') {
-    str += '...' + selection.name;
+    str = '...' + selection.name;
     str += parentCondition;
     str += printFragmentArguments(selection.args);
     str += printDirectives(selection.directives);
@@ -137,7 +136,7 @@ function printSelection(
     const subSelections = selection.selections.map(sel =>
       printSelection(sel, indent, condStr),
     );
-    str += subSelections.join('\n' + INDENT);
+    str = subSelections.join('\n' + INDENT);
   } else {
     invariant(
       false,
@@ -295,4 +294,4 @@ function printLiteral(value: mixed, type: ?GraphQLInputType): string {
   }
 }
 
-module.exports = {print};
+module.exports = {print, printField};

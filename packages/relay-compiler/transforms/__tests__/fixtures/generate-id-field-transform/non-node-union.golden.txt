@@ -1,6 +1,5 @@
 query UnionQuery {
   neverNode {
-    __typename
     ... on NonNode {
       name
     }

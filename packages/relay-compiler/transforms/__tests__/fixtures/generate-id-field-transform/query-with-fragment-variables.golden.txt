@@ -2,10 +2,8 @@ query NodeQuery(
   $id: ID!
 ) {
   node(id: $id) {
-    __typename
     ... on FeedUnit {
       actor {
-        __typename
         ...ActorFragment
         id
       }
@@ -17,7 +15,6 @@ query NodeQuery(
 query ViewerQuery {
   viewer {
     actor {
-      __typename
       ...ActorFragment
       id
     }
@@ -37,7 +34,6 @@ fragment ActorFragment on Actor {
 query UnaliasedIDQuery {
   viewer {
     actor {
-      __typename
       id
     }
   }
@@ -46,7 +42,6 @@ query UnaliasedIDQuery {
 query AliasedIDQuery {
   viewer {
     actor {
-      __typename
       _id: id
       id
     }
@@ -58,7 +53,6 @@ query ConditionalIDQuery(
 ) {
   viewer {
     actor {
-      __typename
       id @include(if: $cond)
       id
     }

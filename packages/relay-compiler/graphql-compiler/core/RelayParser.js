@@ -104,38 +104,38 @@ const INCLUDE = 'include';
 const SKIP = 'skip';
 const IF = 'if';
 
-function parseRelay(
-  schema: GraphQLSchema,
-  text: string,
-  filename?: string,
-): Array<Root | Fragment> {
-  const ast = parse(new Source(text, filename));
-  const nodes = [];
-  schema = extendSchema(schema, ast);
-  ast.definitions.forEach(definition => {
-    if (isOperationDefinitionAST(definition)) {
-      nodes.push(transform(schema, definition));
-    }
-  });
-  return nodes;
-}
-
-/**
- * Transforms a raw GraphQL AST into a simpler representation with type
- * information.
- */
-function transform(
-  schema: GraphQLSchema,
-  definition: OperationDefinitionNode | FragmentDefinitionNode,
-): Root | Fragment {
-  const parser = new RelayParser(schema, definition);
-  return parser.transform();
-}
-
 class RelayParser {
   _definition: OperationDefinitionNode | FragmentDefinitionNode;
   _referencedVariables: {[name: string]: ?GraphQLInputType};
   _schema: GraphQLSchema;
+
+  static parse(
+    schema: GraphQLSchema,
+    text: string,
+    filename?: string,
+  ): Array<Root | Fragment> {
+    const ast = parse(new Source(text, filename));
+    const nodes = [];
+    schema = extendSchema(schema, ast);
+    ast.definitions.forEach(definition => {
+      if (isOperationDefinitionAST(definition)) {
+        nodes.push(RelayParser.transform(schema, definition));
+      }
+    });
+    return nodes;
+  }
+
+  /**
+  * Transforms a raw GraphQL AST into a simpler representation with type
+  * information.
+  */
+  static transform(
+    schema: GraphQLSchema,
+    definition: OperationDefinitionNode | FragmentDefinitionNode,
+  ): Root | Fragment {
+    const parser = new RelayParser(schema, definition);
+    return parser.transform();
+  }
 
   constructor(
     schema: GraphQLSchema,
@@ -992,7 +992,4 @@ function getClassicFieldDefinition(
   }
 }
 
-module.exports = {
-  parse: parseRelay,
-  transform,
-};
+module.exports = RelayParser;

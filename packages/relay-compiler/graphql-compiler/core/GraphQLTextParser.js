@@ -7,14 +7,14 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule GraphQLTextParser
- * TODO: enable flow
+ * @flow
  * @format
  */
 
 'use strict';
 
 const FileParser = require('./FileParser');
-const GraphQL = require('graphql');
+const {Source, parse} = require('graphql');
 
 const fs = require('fs');
 const invariant = require('invariant');
@@ -35,7 +35,7 @@ function parseFile(
   let graphqlText;
   const astDefinitions = [];
   while ((graphqlText = regex.exec(text)) !== null) {
-    const ast = GraphQL.parse(new GraphQL.Source(graphqlText[1], file.relPath));
+    const ast = parse(new Source(graphqlText[1], file.relPath));
     invariant(
       ast.definitions.length,
       'GraphQLTextParser: Expected GraphQL text to contain at least one ' +
@@ -50,10 +50,12 @@ function parseFile(
   };
 }
 
-function getParser(baseDir: string): FileParser {
+function getParser(baseDir: string, openTag: string, closeTag: string): FileParser {
   return new FileParser({
     baseDir,
-    parse: parseFile,
+    parse: (baseDir: string, file: File) => (
+      parseFile(baseDir, file, openTag, closeTag)
+    ),
   });
 }
 

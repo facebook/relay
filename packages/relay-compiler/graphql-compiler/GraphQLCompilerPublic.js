@@ -30,7 +30,6 @@ const GraphQLIRVisitor = require('./core/GraphQLIRVisitor');
 const GraphQLMultiReporter = require('./reporters/GraphQLMultiReporter');
 const GraphQLParser = require('./core/GraphQLParser');
 const GraphQLSchemaUtils = require('./core/GraphQLSchemaUtils');
-const GraphQLTextParser = require('./core/GraphQLTextParser');
 const GraphQLValidator = require('./core/GraphQLValidator');
 const RelayFlattenTransform = require('./transforms/RelayFlattenTransform');
 const SkipClientFieldTransform = require('./transforms/SkipClientFieldTransform');
@@ -97,7 +96,6 @@ module.exports = {
   Parser: GraphQLParser,
   Printer: GraphQLIRPrinter,
   SchemaUtiles: GraphQLSchemaUtils,
-  TextParser: GraphQLTextParser,
   Validator: GraphQLValidator,
   filterContextForNode,
   getIdentifierForArgumentValue,

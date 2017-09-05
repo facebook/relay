@@ -42,6 +42,12 @@ export type ScalarTypeMapping = {
 };
 
 const printBabel = ast => babelGenerator(ast).code;
+const {getInputObjectSCCs} = require('getSCCsFromFlowContextDocument');
+
+function whiteListRecursiveTypes(node: Root) {
+  const sccs = getInputObjectSCCs(node);
+  return Array.prototype.concat.apply([], sccs);
+}
 
 function generate(
   node: Root | Fragment,
@@ -51,10 +57,13 @@ function generate(
   const defaultedCustomScalars = customScalars || {};
   const output = [];
   if (node.kind === 'Root' && node.operation !== 'query') {
+    const whiteList = inputFieldWhiteList
+      ? [...inputFieldWhiteList, ...whiteListRecursiveTypes(node)]
+      : whiteListRecursiveTypes(node);
     const inputAST = generateInputVariablesType(
       node,
       defaultedCustomScalars,
-      inputFieldWhiteList,
+      whiteList,
     );
     output.push(printBabel(inputAST));
   }

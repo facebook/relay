@@ -28,11 +28,11 @@ const GraphQLIRTransformer = require('./core/GraphQLIRTransformer');
 const GraphQLIRTransforms = require('./core/GraphQLIRTransforms');
 const GraphQLIRVisitor = require('./core/GraphQLIRVisitor');
 const GraphQLMultiReporter = require('./reporters/GraphQLMultiReporter');
+const GraphQLParser = require('./core/GraphQLParser');
 const GraphQLSchemaUtils = require('./core/GraphQLSchemaUtils');
 const GraphQLTextParser = require('./core/GraphQLTextParser');
 const GraphQLValidator = require('./core/GraphQLValidator');
 const RelayFlattenTransform = require('./transforms/RelayFlattenTransform');
-const RelayParser = require('./core/RelayParser');
 const SkipClientFieldTransform = require('./transforms/SkipClientFieldTransform');
 const SkipRedundantNodesTransform = require('./transforms/SkipRedundantNodesTransform');
 const SkipUnreachableNodeTransform = require('./transforms/SkipUnreachableNodeTransform');
@@ -42,18 +42,16 @@ const filterContextForNode = require('./core/filterContextForNode');
 const getIdentifierForArgumentValue = require('./core/getIdentifierForArgumentValue');
 
 export type {
-  CompiledNode,
-  CompiledDocumentMap,
-  CompilerTransforms,
-} from './core/GraphQLCompiler';
-export type {
   File,
   FileWriterInterface,
   CompileResult,
 } from './codegen/CodegenTypes';
 export type {FileFilter, WatchmanExpression} from './codegen/CodegenWatcher';
-export type {IRTransform} from './core/GraphQLIRTransforms';
-export type {FlattenOptions} from './transforms/RelayFlattenTransform';
+export type {
+  CompiledNode,
+  CompiledDocumentMap,
+  CompilerTransforms,
+} from './core/GraphQLCompiler';
 export type {
   Argument,
   ArgumentDefinition,
@@ -80,6 +78,8 @@ export type {
   Selection,
   Variable,
 } from './core/GraphQLIR';
+export type {IRTransform} from './core/GraphQLIRTransforms';
+export type {FlattenOptions} from './transforms/RelayFlattenTransform';
 
 module.exports = {
   ASTConvert: ASTConvert,
@@ -99,7 +99,7 @@ module.exports = {
   IRTransformer: GraphQLIRTransformer,
   IRVisitor: GraphQLIRVisitor,
   MultiReporter: GraphQLMultiReporter,
-  RelayParser: RelayParser,
+  GraphQLParser,
   Printer: GraphQLIRPrinter,
 
   AutoAliasTransform: AutoAliasTransform,

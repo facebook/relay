@@ -14,7 +14,6 @@
 'use strict';
 
 const GraphQLValidator = require('./GraphQLValidator');
-const RelayParser = require('./RelayParser');
 
 const {
   isOperationDefinitionAST,
@@ -33,11 +32,16 @@ import type {
 } from 'graphql';
 
 type ASTDefinitionNode = FragmentDefinitionNode | OperationDefinitionNode;
+type TransformFn = (
+  schema: GraphQLSchema,
+  definition: ASTDefinitionNode,
+) => Root | Fragment;
 
 function convertASTDocuments(
   schema: GraphQLSchema,
   documents: Array<DocumentNode>,
   validationRules: Array<Function>,
+  transform: TransformFn,
 ): Array<Fragment | Root> {
   const definitions = definitionsFromDocuments(documents);
 
@@ -50,7 +54,7 @@ function convertASTDocuments(
     });
   });
 
-  return convertASTDefinitions(schema, definitions, validationRules);
+  return convertASTDefinitions(schema, definitions, validationRules, transform);
 }
 
 function convertASTDocumentsWithBase(
@@ -58,6 +62,7 @@ function convertASTDocumentsWithBase(
   baseDocuments: Array<DocumentNode>,
   documents: Array<DocumentNode>,
   validationRules: Array<Function>,
+  transform: TransformFn,
 ): Array<Fragment | Root> {
   const baseDefinitions = definitionsFromDocuments(baseDocuments);
   const definitions = definitionsFromDocuments(documents);
@@ -102,13 +107,19 @@ function convertASTDocumentsWithBase(
   requiredDefinitions.forEach(definition =>
     definitionsToConvert.push(definition),
   );
-  return convertASTDefinitions(schema, definitionsToConvert, validationRules);
+  return convertASTDefinitions(
+    schema,
+    definitionsToConvert,
+    validationRules,
+    transform,
+  );
 }
 
 function convertASTDefinitions(
   schema: GraphQLSchema,
   definitions: Array<DefinitionNode>,
   validationRules: Array<Function>,
+  transform: TransformFn,
 ): Array<Fragment | Root> {
   const operationDefinitions: Array<ASTDefinitionNode> = [];
   definitions.forEach(definition => {
@@ -125,9 +136,7 @@ function convertASTDefinitions(
   };
   // Will throw an error if there are validation issues
   GraphQLValidator.validate(validationAST, schema, validationRules);
-  return operationDefinitions.map(definition =>
-    RelayParser.transform(schema, definition),
-  );
+  return operationDefinitions.map(definition => transform(schema, definition));
 }
 
 function definitionsFromDocuments(

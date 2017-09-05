@@ -146,6 +146,47 @@ class RelayParser {
     this._schema = schema;
   }
 
+  /**
+  * Find the definition of a field of the specified type.
+  */
+  getFieldDefinition(
+    parentType: GraphQLOutputType,
+    fieldName: string,
+    fieldAST: FieldNode,
+  ): ?GraphQLField<*, *> {
+    const type = getRawType(parentType);
+    const isQueryType = type === this._schema.getQueryType();
+    const hasTypeName =
+      type instanceof GraphQLObjectType ||
+      type instanceof GraphQLInterfaceType ||
+      type instanceof GraphQLUnionType;
+
+    let schemaFieldDef;
+    if (isQueryType && fieldName === SchemaMetaFieldDef.name) {
+      schemaFieldDef = SchemaMetaFieldDef;
+    } else if (isQueryType && fieldName === TypeMetaFieldDef.name) {
+      schemaFieldDef = TypeMetaFieldDef;
+    } else if (hasTypeName && fieldName === TypeNameMetaFieldDef.name) {
+      schemaFieldDef = TypeNameMetaFieldDef;
+    } else if (
+      type instanceof GraphQLInterfaceType ||
+      type instanceof GraphQLObjectType
+    ) {
+      schemaFieldDef = type.getFields()[fieldName];
+    }
+
+    if (!schemaFieldDef) {
+      schemaFieldDef = getClassicFieldDefinition(
+        this._schema,
+        type,
+        fieldName,
+        fieldAST,
+      );
+    }
+
+    return schemaFieldDef || null;
+  }
+
   _getErrorContext(): string {
     let message = `document \`${getName(this._definition)}\``;
     if (this._definition.loc && this._definition.loc.source) {
@@ -489,7 +530,7 @@ class RelayParser {
 
   _transformField(field: FieldNode, parentType: GraphQLOutputType): Field {
     const name = getName(field);
-    const fieldDef = getFieldDefinition(this._schema, parentType, name, field);
+    const fieldDef = this.getFieldDefinition(parentType, name, field);
     invariant(
       fieldDef,
       'RelayParser: Unknown field `%s` on type `%s`. Source: %s.',
@@ -909,48 +950,6 @@ function getName(ast): string {
     ast,
   );
   return name;
-}
-
-/**
- * Find the definition of a field of the specified type.
- */
-function getFieldDefinition(
-  schema: GraphQLSchema,
-  parentType: GraphQLOutputType,
-  fieldName: string,
-  fieldAST: FieldNode,
-): ?GraphQLField<any, any> {
-  const type = getRawType(parentType);
-  const isQueryType = type === schema.getQueryType();
-  const hasTypeName =
-    type instanceof GraphQLObjectType ||
-    type instanceof GraphQLInterfaceType ||
-    type instanceof GraphQLUnionType;
-
-  let schemaFieldDef;
-  if (isQueryType && fieldName === SchemaMetaFieldDef.name) {
-    schemaFieldDef = SchemaMetaFieldDef;
-  } else if (isQueryType && fieldName === TypeMetaFieldDef.name) {
-    schemaFieldDef = TypeMetaFieldDef;
-  } else if (hasTypeName && fieldName === TypeNameMetaFieldDef.name) {
-    schemaFieldDef = TypeNameMetaFieldDef;
-  } else if (
-    type instanceof GraphQLInterfaceType ||
-    type instanceof GraphQLObjectType
-  ) {
-    schemaFieldDef = type.getFields()[fieldName];
-  }
-
-  if (!schemaFieldDef) {
-    schemaFieldDef = getClassicFieldDefinition(
-      schema,
-      type,
-      fieldName,
-      fieldAST,
-    );
-  }
-
-  return schemaFieldDef || null;
 }
 
 function getClassicFieldDefinition(

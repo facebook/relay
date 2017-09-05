@@ -42,14 +42,14 @@ const filterContextForNode = require('./core/filterContextForNode');
 const getIdentifierForArgumentValue = require('./core/getIdentifierForArgumentValue');
 
 export type {
+  CompileResult,
   File,
   FileWriterInterface,
-  CompileResult,
 } from './codegen/CodegenTypes';
 export type {FileFilter, WatchmanExpression} from './codegen/CodegenWatcher';
 export type {
-  CompiledNode,
   CompiledDocumentMap,
+  CompiledNode,
   CompilerTransforms,
 } from './core/GraphQLCompiler';
 export type {
@@ -61,10 +61,9 @@ export type {
   Field,
   Fragment,
   FragmentSpread,
-  IR,
-  RootArgumentDefinition,
-  InlineFragment,
   Handle,
+  IR,
+  InlineFragment,
   LinkedField,
   ListValue,
   Literal,
@@ -73,8 +72,9 @@ export type {
   ObjectFieldValue,
   ObjectValue,
   Root,
-  ScalarFieldType,
+  RootArgumentDefinition,
   ScalarField,
+  ScalarFieldType,
   Selection,
   Variable,
 } from './core/GraphQLIR';
@@ -89,18 +89,18 @@ module.exports = {
   CompilerContext: GraphQLCompilerContext,
   ConsoleReporter: GraphQLConsoleReporter,
   FileParser,
-  filterContextForNode,
   GraphQLFileParser,
-  GraphQLIRTransforms,
-  getIdentifierForArgumentValue,
-  GraphQLSchemaUtils,
-  GraphQLTextParser,
-  GraphQLValidator,
   IRTransformer: GraphQLIRTransformer,
+  IRTransforms: GraphQLIRTransforms,
   IRVisitor: GraphQLIRVisitor,
   MultiReporter: GraphQLMultiReporter,
-  GraphQLParser,
+  Parser: GraphQLParser,
   Printer: GraphQLIRPrinter,
+  SchemaUtiles: GraphQLSchemaUtils,
+  TextParser: GraphQLTextParser,
+  Validator: GraphQLValidator,
+  filterContextForNode,
+  getIdentifierForArgumentValue,
 
   AutoAliasTransform,
   FilterDirectivesTransform,

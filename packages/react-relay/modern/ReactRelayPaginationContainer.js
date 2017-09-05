@@ -719,7 +719,7 @@ function createContainerWithFragments<
       this._isARequestInFlight = true;
       refetchSubscription = environment
         .execute({operation, cacheConfig})
-        .concatMap(
+        .mergeMap(
           payload =>
             new Observable(sink => {
               onNext(payload, () => {

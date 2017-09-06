@@ -41,7 +41,7 @@ function baseInputObjects(type: GraphQLInputType) {
   return Object.keys(fields)
     .map(k => fields[k])
     .filter(
-      field => baseInputType(field.type) instanceof GraphQLInputObjectType,
+      field => getRawType(field.type) instanceof GraphQLInputObjectType,
     );
 }
 

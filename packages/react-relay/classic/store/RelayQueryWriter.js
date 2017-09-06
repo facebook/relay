@@ -612,6 +612,9 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     // client ids.
     this._writer.putLinkedRecordIDs(recordID, storageKey, nextLinkedIDs);
     nextLinkedIDs.forEach(nextLinkedID => {
+      /* $FlowFixMe(>=0.54.0 site=react_native_fb,oss) This comment suppresses an
+       * error found when Flow v0.54 was deployed. To see the error delete this
+       * comment and run Flow. */
       const itemData = nextRecords[nextLinkedID];
       if (itemData) {
         this.traverse(field, {

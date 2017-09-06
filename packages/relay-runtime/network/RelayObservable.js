@@ -485,6 +485,9 @@ function subscribe<T>(source: Source<T>, observer: Observer<T>): Subscription {
   }
 
   // Create a Sink respecting subscription state and cleanup.
+  /* $FlowFixMe(>=0.54.0 site=react_native_fb,oss) This comment suppresses an error
+   * found when Flow v0.54 was deployed. To see the error delete this comment
+   * and run Flow. */
   const sink: Sink<T> = withClosed({
     next(value) {
       if (!closed && observer.next) {

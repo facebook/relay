@@ -283,7 +283,7 @@ class Transformer<S> {
         );
         const nextItems = this._map(prevItems);
         if (nextNode || nextItems !== prevItems) {
-          /* $FlowFixMe(>=0.54.0 site=react_native_fb) This comment suppresses
+          /* $FlowFixMe(>=0.54.0) This comment suppresses
            * an error found when Flow v0.54 was deployed. To see the error
            * delete this comment and run Flow. */
           nextNode = nextNode || {...prevNode};

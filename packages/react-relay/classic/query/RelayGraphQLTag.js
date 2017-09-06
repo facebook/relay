@@ -51,14 +51,14 @@ graphql.experimental = function(): GraphQLTaggedNode {
 function getClassicFragment(
   taggedNode: GraphQLTaggedNode,
 ): ConcreteFragmentDefinition {
-  // $FlowFixMe
+  // $FlowFixMe Property not found in `RelayQL`
   return RelayQL.__getClassicFragment(taggedNode);
 }
 
 function getClassicOperation(
   taggedNode: GraphQLTaggedNode,
 ): ConcreteOperationDefinition {
-  // $FlowFixMe
+  // $FlowFixMe Property not found in `RelayQL`
   return RelayQL.__getClassicOperation(taggedNode);
 }
 

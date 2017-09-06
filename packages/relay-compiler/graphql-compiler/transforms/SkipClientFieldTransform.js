@@ -159,7 +159,7 @@ function visitField<F: Field>(field: F, state: State): ?F {
     field.name === TypeNameMetaFieldDef.name ||
     field.directives.some(({name}) => name === 'fixme_fat_interface')
   ) {
-    /* $FlowFixMe(>=0.54.0 site=react_native_fb) This comment suppresses an
+    /* $FlowFixMe(>=0.54.0) This comment suppresses an
      * error found when Flow v0.54 was deployed. To see the error delete this
      * comment and run Flow. */
     const rawType = getRawType(field.type);

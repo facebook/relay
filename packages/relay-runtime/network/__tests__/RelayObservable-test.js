@@ -1307,7 +1307,6 @@ describe('RelayObservable', () => {
 
     it('Unsubscribes from mapped Observable', () => {
       let outerSink;
-      let innerSink;
       const list = [];
 
       const source = new RelayObservable(sink => {

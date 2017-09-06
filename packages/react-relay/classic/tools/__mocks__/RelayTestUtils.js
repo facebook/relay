@@ -422,9 +422,9 @@ const RelayTestUtils = {
         ? () =>
             this.utils.matcherHint('.not.toEqualPrintedQuery') +
             '\n\n' +
-            `Expected query to not be:\n` +
+            'Expected query to not be:\n' +
             `  ${this.utils.printExpected(minifiedExpected)}\n` +
-            `Received:\n` +
+            'Received:\n' +
             `  ${this.utils.printReceived(minifiedReceived)}`
         : () => {
             const diffString = diff(minifiedExpected, minifiedReceived, {
@@ -433,9 +433,9 @@ const RelayTestUtils = {
             return (
               this.utils.matcherHint('.toEqualPrintedQuery') +
               '\n\n' +
-              `Expected query to be:\n` +
+              'Expected query to be:\n' +
               `  ${this.utils.printExpected(minifiedExpected)}\n` +
-              `Received:\n` +
+              'Received:\n' +
               `  ${this.utils.printReceived(minifiedReceived)}` +
               (diffString ? `\n\nDifference:\n\n${diffString}` : '')
             );

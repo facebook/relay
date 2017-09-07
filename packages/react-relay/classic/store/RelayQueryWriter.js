@@ -14,7 +14,6 @@
 'use strict';
 
 const RelayClassicRecordState = require('RelayClassicRecordState');
-const {ConnectionInterface} = require('RelayRuntime');
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayQuery = require('RelayQuery');
 const RelayQueryPath = require('RelayQueryPath');
@@ -26,6 +25,8 @@ const generateClientID = require('generateClientID');
 const invariant = require('invariant');
 const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
 const warning = require('warning');
+
+const {ConnectionInterface} = require('RelayRuntime');
 
 import type RelayChangeTracker from 'RelayChangeTracker';
 import type {DataID} from 'RelayInternalTypes';

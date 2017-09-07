@@ -112,9 +112,6 @@ function visitFragmentOrRoot<N: Fragment | Root>(
  */
 function visitLinkedField(field: LinkedField, options: Options): LinkedField {
   const isPlural =
-    /* $FlowFixMe(>=0.54.0) This comment suppresses an
-     * error found when Flow v0.54 was deployed. To see the error delete this
-     * comment and run Flow. */
     GraphQLSchemaUtils.getNullableType(field.type) instanceof GraphQLList;
   options.path.push(isPlural ? null : field.alias || field.name);
   let transformedField = this.traverse(field, options);

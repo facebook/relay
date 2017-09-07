@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule RelayFileIRParser
+ * @providesModule RelayJSModuleParser
  * @flow
  * @format
  */
@@ -31,7 +31,7 @@ function parseFile(baseDir: string, file: File): ?DocumentNode {
 
   invariant(
     text.indexOf('graphql') >= 0,
-    'RelayFileIRParser: Files should be filtered before passed to the ' +
+    'RelayJSModuleParser: Files should be filtered before passed to the ' +
       'parser, got unfiltered file `%s`.',
     file,
   );
@@ -63,7 +63,7 @@ function parseFile(baseDir: string, file: File): ?DocumentNode {
     const ast = GraphQL.parse(new GraphQL.Source(template, file.relPath));
     invariant(
       ast.definitions.length,
-      'RelayFileIRParser: Expected GraphQL text to contain at least one ' +
+      'RelayJSModuleParser: Expected GraphQL text to contain at least one ' +
         'definition (fragment, mutation, query, subscription), got `%s`.',
       template,
     );

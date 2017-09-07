@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule FileParser
+ * @providesModule ASTCache
  * @flow
  * @format
  */
@@ -20,7 +20,7 @@ import type {DocumentNode} from 'graphql';
 
 type ParseFn = (baseDir: string, file: File) => ?DocumentNode;
 
-class FileParser {
+class ASTCache {
   _documents: Map<string, DocumentNode> = new Map();
 
   _baseDir: string;
@@ -62,4 +62,4 @@ class FileParser {
   }
 }
 
-module.exports = FileParser;
+module.exports = ASTCache;

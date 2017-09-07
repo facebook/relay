@@ -13,12 +13,12 @@
 
 'use strict';
 
+const ASTCache = require('./core/ASTCache');
 const ASTConvert = require('./core/ASTConvert');
 const AutoAliasTransform = require('./transforms/AutoAliasTransform');
 const CodegenDirectory = require('./codegen/CodegenDirectory');
 const CodegenRunner = require('./codegen/CodegenRunner');
 const DotGraphQLParser = require('./core/DotGraphQLParser');
-const FileParser = require('./core/FileParser');
 const FilterDirectivesTransform = require('./transforms/FilterDirectivesTransform');
 const GraphQLCompiler = require('./core/GraphQLCompiler');
 const GraphQLCompilerContext = require('./core/GraphQLCompilerContext');
@@ -88,7 +88,7 @@ module.exports = {
   CompilerContext: GraphQLCompilerContext,
   ConsoleReporter: GraphQLConsoleReporter,
   DotGraphQLParser,
-  FileParser,
+  ASTCache,
   IRTransformer: GraphQLIRTransformer,
   IRTransforms: GraphQLIRTransforms,
   IRVisitor: GraphQLIRVisitor,

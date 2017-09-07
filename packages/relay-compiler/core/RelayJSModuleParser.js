@@ -13,7 +13,7 @@
 
 'use strict';
 
-const FileParser = require('FileParser');
+const ASTCache = require('ASTCache');
 const FindGraphQLTags = require('FindGraphQLTags');
 const GraphQL = require('graphql');
 
@@ -77,8 +77,8 @@ function parseFile(baseDir: string, file: File): ?DocumentNode {
   };
 }
 
-function getParser(baseDir: string): FileParser {
-  return new FileParser({
+function getParser(baseDir: string): ASTCache {
+  return new ASTCache({
     baseDir,
     parse: parseFile,
   });

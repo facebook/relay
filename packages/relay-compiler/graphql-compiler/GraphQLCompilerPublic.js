@@ -17,12 +17,12 @@ const ASTConvert = require('./core/ASTConvert');
 const AutoAliasTransform = require('./transforms/AutoAliasTransform');
 const CodegenDirectory = require('./codegen/CodegenDirectory');
 const CodegenRunner = require('./codegen/CodegenRunner');
+const DotGraphQLParser = require('./core/DotGraphQLParser');
 const FileParser = require('./core/FileParser');
 const FilterDirectivesTransform = require('./transforms/FilterDirectivesTransform');
 const GraphQLCompiler = require('./core/GraphQLCompiler');
 const GraphQLCompilerContext = require('./core/GraphQLCompilerContext');
 const GraphQLConsoleReporter = require('./reporters/GraphQLConsoleReporter');
-const GraphQLFileParser = require('./core/GraphQLFileParser');
 const GraphQLIRPrinter = require('./core/GraphQLIRPrinter');
 const GraphQLIRTransformer = require('./core/GraphQLIRTransformer');
 const GraphQLIRTransforms = require('./core/GraphQLIRTransforms');
@@ -87,8 +87,8 @@ module.exports = {
   Compiler: GraphQLCompiler,
   CompilerContext: GraphQLCompilerContext,
   ConsoleReporter: GraphQLConsoleReporter,
+  DotGraphQLParser,
   FileParser,
-  GraphQLFileParser,
   IRTransformer: GraphQLIRTransformer,
   IRTransforms: GraphQLIRTransforms,
   IRVisitor: GraphQLIRVisitor,

@@ -14,11 +14,11 @@
 'use strict';
 
 const FilterDirectivesTransform = require('FilterDirectivesTransform');
+const FlattenTransform = require('FlattenTransform');
 const GraphQLIRTransforms = require('GraphQLIRTransforms');
 const RelayApplyFragmentArgumentTransform = require('RelayApplyFragmentArgumentTransform');
 const RelayConnectionTransform = require('RelayConnectionTransform');
 const RelayFieldHandleTransform = require('RelayFieldHandleTransform');
-const RelayFlattenTransform = require('RelayFlattenTransform');
 const RelayGenerateIDFieldTransform = require('RelayGenerateIDFieldTransform');
 const RelayGenerateTypeNameTransform = require('RelayGenerateTypeNameTransform');
 const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
@@ -60,7 +60,7 @@ const relayQueryTransforms: Array<IRTransform> = [
 // Transforms applied to the code used to process a query response.
 const relayCodegenTransforms: Array<IRTransform> = [
   (ctx: CompilerContext) =>
-    RelayFlattenTransform.transform(ctx, {
+    FlattenTransform.transform(ctx, {
       flattenAbstractTypes: true,
       flattenFragmentSpreads: true,
     }),
@@ -72,7 +72,7 @@ const relayCodegenTransforms: Array<IRTransform> = [
 
 // Transforms applied before printing the query sent to the server.
 const relayPrintTransforms: Array<IRTransform> = [
-  (ctx: CompilerContext) => RelayFlattenTransform.transform(ctx, {}),
+  (ctx: CompilerContext) => FlattenTransform.transform(ctx, {}),
   RelayGenerateTypeNameTransform.transform,
   RelaySkipHandleFieldTransform.transform,
   FilterDirectivesTransform.transform,

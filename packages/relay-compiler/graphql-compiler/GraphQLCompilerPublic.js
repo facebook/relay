@@ -20,6 +20,7 @@ const CodegenDirectory = require('./codegen/CodegenDirectory');
 const CodegenRunner = require('./codegen/CodegenRunner');
 const DotGraphQLParser = require('./core/DotGraphQLParser');
 const FilterDirectivesTransform = require('./transforms/FilterDirectivesTransform');
+const FlattenTransform = require('./transforms/FlattenTransform');
 const GraphQLCompiler = require('./core/GraphQLCompiler');
 const GraphQLCompilerContext = require('./core/GraphQLCompilerContext');
 const GraphQLConsoleReporter = require('./reporters/GraphQLConsoleReporter');
@@ -31,7 +32,6 @@ const GraphQLMultiReporter = require('./reporters/GraphQLMultiReporter');
 const GraphQLParser = require('./core/GraphQLParser');
 const GraphQLSchemaUtils = require('./core/GraphQLSchemaUtils');
 const GraphQLValidator = require('./core/GraphQLValidator');
-const RelayFlattenTransform = require('./transforms/RelayFlattenTransform');
 const SkipClientFieldTransform = require('./transforms/SkipClientFieldTransform');
 const SkipRedundantNodesTransform = require('./transforms/SkipRedundantNodesTransform');
 const SkipUnreachableNodeTransform = require('./transforms/SkipUnreachableNodeTransform');
@@ -78,7 +78,7 @@ export type {
   Variable,
 } from './core/GraphQLIR';
 export type {IRTransform} from './core/GraphQLIRTransforms';
-export type {FlattenOptions} from './transforms/RelayFlattenTransform';
+export type {FlattenOptions} from './transforms/FlattenTransform';
 
 module.exports = {
   ASTConvert,
@@ -102,7 +102,7 @@ module.exports = {
 
   AutoAliasTransform,
   FilterDirectivesTransform,
-  FlattenTransform: RelayFlattenTransform,
+  FlattenTransform,
   SkipClientFieldTransform,
   SkipRedundantNodesTransform,
   SkipUnreachableNodeTransform,

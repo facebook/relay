@@ -12,8 +12,8 @@
 
 'use strict';
 
+const FlattenTransform = require('FlattenTransform');
 const GraphQLCompilerContext = require('GraphQLCompilerContext');
-const RelayFlattenTransform = require('RelayFlattenTransform');
 const RelayGenerateTypeNameTransform = require('RelayGenerateTypeNameTransform');
 const RelayParser = require('RelayParser');
 const RelayTestSchema = require('RelayTestSchema');
@@ -37,7 +37,7 @@ describe('RelayGenerateTypeNameTransform', () => {
       const transformContext = ((ctx, transform) => transform(ctx): any);
       const codegenContext = [
         (ctx: CompilerContext) =>
-          RelayFlattenTransform.transform(ctx, {
+          FlattenTransform.transform(ctx, {
             flattenAbstractTypes: true,
             flattenFragmentSpreads: true,
           }),

@@ -13,7 +13,7 @@
 
 'use strict';
 
-const RelayFlattenTransform = require('RelayFlattenTransform');
+const FlattenTransform = require('FlattenTransform');
 const GraphQLIRVisitor = require('GraphQLIRVisitor');
 
 const babelGenerator = require('babel-generator').default;
@@ -508,7 +508,7 @@ function generateInputVariablesType(
 }
 
 const FLOW_TRANSFORMS: Array<IRTransform> = [
-  (ctx: CompilerContext) => RelayFlattenTransform.transform(ctx, {}),
+  (ctx: CompilerContext) => FlattenTransform.transform(ctx, {}),
 ];
 
 module.exports = {

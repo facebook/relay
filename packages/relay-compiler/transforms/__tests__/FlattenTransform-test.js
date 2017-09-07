@@ -12,11 +12,11 @@
 
 'use strict';
 
-import type {FlattenOptions} from 'RelayFlattenTransform';
+import type {FlattenOptions} from 'FlattenTransform';
 
-describe('RelayFlattenTransform', () => {
+describe('FlattenTransform', () => {
   let GraphQLCompilerContext;
-  let RelayFlattenTransform;
+  let FlattenTransform;
   let RelayRelayDirectiveTransform;
   let RelayParser;
   let GraphQLIRPrinter;
@@ -27,7 +27,7 @@ describe('RelayFlattenTransform', () => {
     jest.resetModules();
 
     GraphQLCompilerContext = require('GraphQLCompilerContext');
-    RelayFlattenTransform = require('RelayFlattenTransform');
+    FlattenTransform = require('FlattenTransform');
     RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
     RelayParser = require('RelayParser');
     GraphQLIRPrinter = require('GraphQLIRPrinter');
@@ -47,7 +47,7 @@ describe('RelayFlattenTransform', () => {
       const context = new GraphQLCompilerContext(RelayTestSchema).addAll(
         RelayParser.parse(extendedSchema, text),
       );
-      const nextContext = RelayFlattenTransform.transform(context, options);
+      const nextContext = FlattenTransform.transform(context, options);
       return nextContext
         .documents()
         .map(doc => GraphQLIRPrinter.print(doc))

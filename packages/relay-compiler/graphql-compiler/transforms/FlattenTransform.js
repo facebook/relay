@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule RelayFlattenTransform
+ * @providesModule FlattenTransform
  * @format
  */
 
@@ -93,7 +93,7 @@ function transform(
     const flattenedNode = buildNode(state);
     invariant(
       flattenedNode.kind === 'Root' || flattenedNode.kind === 'Fragment',
-      'RelayFlattenTransform: Expected Root `%s` to flatten back to a Root ' +
+      'FlattenTransform: Expected Root `%s` to flatten back to a Root ' +
         ' or Fragment.',
       node.name,
     );
@@ -115,7 +115,7 @@ function buildNode(state: FlattenState): Root | Selection {
         const node = buildNode(selectionState);
         invariant(
           node.kind !== 'Root' && node.kind !== 'Fragment',
-          'RelayFlattenTransform: got a `%s`, expected a selection.',
+          'FlattenTransform: got a `%s`, expected a selection.',
           node.kind,
         );
         return node;
@@ -123,7 +123,7 @@ function buildNode(state: FlattenState): Root | Selection {
         // $FlowIssue: this is provably unreachable
         invariant(
           false,
-          'RelayFlattenTransform: Unexpected kind `%s`.',
+          'FlattenTransform: Unexpected kind `%s`.',
           selectionState.kind,
         );
       }
@@ -147,14 +147,14 @@ function visitNode(
     ) {
       invariant(
         !selection.args.length,
-        'RelayFlattenTransform: Cannot flatten fragment spread `%s` with ' +
+        'FlattenTransform: Cannot flatten fragment spread `%s` with ' +
           'arguments. Use the `ApplyFragmentArgumentTransform` before flattening',
         selection.name,
       );
       const fragment = context.get(selection.name);
       invariant(
         fragment && fragment.kind === 'Fragment',
-        'RelayFlattenTransform: Unknown fragment `%s`.',
+        'FlattenTransform: Unknown fragment `%s`.',
         selection.name,
       );
       // Replace the spread with an inline fragment containing the fragment's
@@ -232,11 +232,7 @@ function visitNode(
       }
       state.selections[nodeIdentifier] = selection;
     } else {
-      invariant(
-        false,
-        'RelayFlattenTransform: Unknown kind `%s`.',
-        selection.kind,
-      );
+      invariant(false, 'FlattenTransform: Unknown kind `%s`.', selection.kind);
     }
   });
 }

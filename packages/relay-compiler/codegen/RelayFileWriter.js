@@ -160,6 +160,21 @@ class RelayFileWriter implements FileWriterInterface {
       });
     }
 
+    if (duplicateDefinitions.size) {
+      const msg = [];
+      duplicateDefinitions.forEach(definitionName => {
+        const filePaths = findFilePathsForDefinitionName(
+          this._documents,
+          definitionName,
+        );
+        msg.push([
+          `Multiple definitions found for ${definitionName}`,
+          ...filePaths.map(filePath => `  ${filePath}`),
+        ].join('\n'));
+      });
+      throw new Error(msg.join('\n'));
+    }
+
     const definitions = ASTConvert.convertASTDocumentsWithBase(
       extendedSchema,
       this._baseDocuments.valueSeq().toArray(),
@@ -292,20 +307,6 @@ class RelayFileWriter implements FileWriterInterface {
         throw new Error('GraphQL error writing modules:\n' + details.message);
       }
       throw new Error('Error writing modules:\n' + error.toString());
-    }
-
-    if (duplicateDefinitions.size) {
-      duplicateDefinitions.forEach(definitionName => {
-        const filePaths = findFilePathsForDefinitionName(
-          this._documents,
-          definitionName,
-        );
-        const msg = [
-          `Warning: Multiple definitions found for ${definitionName}`,
-          ...filePaths.map(filePath => `  ${filePath}`),
-        ].join('\n');
-        console.error(msg);
-      });
     }
 
     const tExtra = Date.now();

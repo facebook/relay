@@ -404,21 +404,9 @@ class IntroduceShipMutation extends Relay.Mutation {
 
 ### `RANGE_DELETE`
 
-Given a parent, a connection, one or more DataIDs in the response payload, and a path between the parent and the connection, Relay will remove the node(s) from the connection but leave the associated record(s) in the store.
+Given a connection, one or more DataIDs in the response payload, and a path between the parent and the connection, Relay will remove the node(s) from the connection but leave the associated record(s) in the store.
 
 #### Arguments
-
-- `parentName: string`
-
-  The field name in the response that represents the parent of the connection
-
-- `parentID?: string`
-
-  The DataID of the parent node that contains the connection. Omit if the parent node does not have an ID.
-
-- `connectionName: string`
-
-  The field name in the response that represents the connection
 
 - `deletedIDFieldName: string | Array<string>`
 
@@ -451,9 +439,6 @@ class RemoveTagMutation extends Relay.Mutation {
   getConfigs() {
     return [{
       type: 'RANGE_DELETE',
-      parentName: 'todo',
-      parentID: this.props.todo.id,
-      connectionName: 'tags',
       deletedIDFieldName: 'removedTagIDs',
       pathToConnection: ['todo', 'tags'],
     }];

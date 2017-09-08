@@ -51,7 +51,7 @@ Classic: `this.props.relay.forceFetch()`
 
 Modern: `this.props.relay.refetchConnection(...)` in a Pagination Container
 
-or: `this.props.relay.refetch({}, callback, {force: true})` in a Refetch Container
+or: `this.props.relay.refetch({}, {}, callback, {force: true})` in a Refetch Container
 
 ### To commit a mutation
 

@@ -716,6 +716,13 @@ function createContainerWithFragments<
         }
       };
 
+      const cleanup = () => {
+        if (this._refetchSubscription === refetchSubscription) {
+          this._refetchSubscription = null;
+          this._isARequestInFlight = false;
+        }
+      };
+
       this._isARequestInFlight = true;
       refetchSubscription = environment
         .execute({operation, cacheConfig})
@@ -728,11 +735,11 @@ function createContainerWithFragments<
               });
             }),
         )
-        .finally(() => {
-          if (this._refetchSubscription === refetchSubscription) {
-            this._refetchSubscription = null;
-            this._isARequestInFlight = false;
-          }
+        // use do instead of finally so that observer's `complete` fires after cleanup
+        .do({
+          error: cleanup,
+          complete: cleanup,
+          unsubscribe: cleanup,
         })
         .subscribe(observer || {});
 

@@ -30,6 +30,7 @@ const {getComponentName, getReactComponent} = require('RelayContainerUtils');
 const {ConnectionInterface, Observable} = require('RelayRuntime');
 
 import type {
+  ObserverOrCallback,
   GeneratedNodeMap,
   RefetchOptions,
   RelayPaginationProp,
@@ -295,6 +296,12 @@ function findConnectionMetadata(fragments): ReactConnectionMetadata {
   return foundConnectionMetadata || ({}: any);
 }
 
+function toObserver(observerOrCallback: ?ObserverOrCallback): Observer<void> {
+  return typeof observerOrCallback === 'function'
+    ? {error: observerOrCallback, complete: observerOrCallback}
+    : observerOrCallback || {};
+}
+
 function createContainerWithFragments<
   TConfig,
   TClass: React.ComponentType<TConfig>,
@@ -544,76 +551,48 @@ function createContainerWithFragments<
 
     _refetchConnection = (
       totalCount: number,
-      callback: ?(error: ?Error) => void,
+      observerOrCallback: ?ObserverOrCallback,
       refetchVariables: ?Variables,
     ): ?Disposable => {
-      const observer = this._refetchConnectionSubscription(
-        totalCount,
-        {error: callback, complete: callback},
-        refetchVariables,
-      );
-      if (!observer) {
-        return null;
-      }
-      return {dispose: observer.unsubscribe};
-    };
-
-    _refetchConnectionSubscription(
-      totalCount: number,
-      observer: ?Observer<RelayResponsePayload>,
-      refetchVariables: ?Variables,
-    ): ?Subscription {
       const paginatingVariables = {
         count: totalCount,
         cursor: null,
         totalCount,
       };
-      return this._fetchPage(
+      const fetch = this._fetchPage(
         paginatingVariables,
-        observer,
+        toObserver(observerOrCallback),
         {force: true},
         refetchVariables,
       );
-    }
+      return fetch ? {dispose: fetch.unsubscribe} : null;
+    };
 
     _loadMore = (
       pageSize: number,
-      callback: ?(error: ?Error) => void,
+      observerOrCallback: ?ObserverOrCallback,
       options: ?RefetchOptions,
     ): ?Disposable => {
-      const observer = this._loadMoreObserver(
-        pageSize,
-        {error: callback, complete: callback},
-        options,
-      );
-      if (!observer) {
-        return null;
-      }
-      return {
-        dispose: observer.unsubscribe,
-      };
-    };
-
-    _loadMoreObserver(
-      pageSize: number,
-      observer: ?Observer<RelayResponsePayload>,
-      options: ?RefetchOptions,
-    ): ?Subscription {
       const connectionData = this._getConnectionData();
       if (!connectionData) {
         return null;
       }
       const totalCount = connectionData.edgeCount + pageSize;
       if (options && options.force) {
-        return this._refetchConnectionSubscription(totalCount, observer);
+        return this._refetchConnection(totalCount, observerOrCallback);
       }
       const paginatingVariables = {
         count: pageSize,
         cursor: connectionData.cursor,
         totalCount,
       };
-      return this._fetchPage(paginatingVariables, observer, options);
-    }
+      const fetch = this._fetchPage(
+        paginatingVariables,
+        toObserver(observerOrCallback),
+        options,
+      );
+      return fetch ? {dispose: fetch.unsubscribe} : null;
+    };
 
     _fetchPage(
       paginatingVariables: {
@@ -621,7 +600,7 @@ function createContainerWithFragments<
         cursor: ?string,
         totalCount: number,
       },
-      observer: ?Observer<RelayResponsePayload>,
+      observer: Observer<void>,
       options: ?RefetchOptions,
       refetchVariables: ?Variables,
     ): ?Subscription {
@@ -730,7 +709,7 @@ function createContainerWithFragments<
           payload =>
             new Observable(sink => {
               onNext(payload, () => {
-                sink.next(payload);
+                sink.next(); // pass void to public observer's `next`
                 sink.complete();
               });
             }),

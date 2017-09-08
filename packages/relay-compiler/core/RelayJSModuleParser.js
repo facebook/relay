@@ -44,20 +44,7 @@ function parseFile(baseDir: string, file: File): ?DocumentNode {
   ).forEach(({tag, template}) => {
     if (!(tag === 'graphql' || tag === 'graphql.experimental')) {
       throw new Error(
-        `Invalid tag ${tag} in ${file.relPath}. ` +
-          'Expected graphql`` (common case) or ' +
-          'graphql.experimental`` (if using experimental directives).',
-      );
-    }
-    if (
-      tag !== 'graphql.experimental' &&
-      /@argument(Definition)?s\b/.test(template)
-    ) {
-      throw new Error(
-        'Unexpected use of fragment variables: @arguments and ' +
-          '@argumentDefinitions are only supported in ' +
-          'graphql.experimental literals. Source: ' +
-          template,
+        `Invalid tag ${tag} in ${file.relPath}. Expected graphql\`\`.`,
       );
     }
     const ast = GraphQL.parse(new GraphQL.Source(template, file.relPath));

@@ -65,7 +65,7 @@ const mutation = graphql`
   }
 `;
 
-function markNotificationAsRead(source, storyID) {
+function markNotificationAsRead(environment, source, storyID) {
   const variables = {
     input: {
       source,

@@ -21,8 +21,8 @@ const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
 const invariant = require('invariant');
 const stableJSONStringify = require('../util/stableJSONStringifyOSS');
 
-const {createUserError} = require('GraphQLCompilerUserError');
-const {printField} = require('GraphQLIRPrinter');
+const {createUserError} = require('../core/GraphQLCompilerUserError');
+const {printField} = require('../core/GraphQLIRPrinter');
 const {GraphQLNonNull, GraphQLList} = require('graphql');
 
 const RELAY = 'relay';

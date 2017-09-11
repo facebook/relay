@@ -102,6 +102,7 @@ class RelayNetworkLayer {
   }
 
   sendQueries(queryRequests: Array<RelayQueryRequest>): void {
+    profileQueue(queryRequests);
     const implementation = this._getImplementation();
     this._subscribers.forEach(({queryCallback}) => {
       if (queryCallback) {
@@ -145,7 +146,6 @@ class RelayNetworkLayer {
       this._queue = currentQueue;
       resolveImmediate(() => {
         this._queue = null;
-        profileQueue(currentQueue);
         this.sendQueries(currentQueue);
       });
     }
@@ -162,7 +162,10 @@ function profileQueue(currentQueue: Array<RelayQueryRequest>): void {
   // TODO #8783781: remove aggregate `fetchRelayQuery` profiler
   let firstResultProfiler = RelayProfiler.profile('fetchRelayQuery');
   currentQueue.forEach(query => {
-    const profiler = RelayProfiler.profile('fetchRelayQuery.query');
+    const profiler = RelayProfiler.profile(
+      'fetchRelayQuery.query',
+      query.getQuery().getName(),
+    );
     const onSettle = () => {
       profiler.stop();
       if (firstResultProfiler) {

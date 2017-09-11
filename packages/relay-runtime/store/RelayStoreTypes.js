@@ -26,16 +26,16 @@ import type {
 } from 'RelayCombinedEnvironmentTypes';
 import type {
   ConcreteBatch,
+  ConcreteScalarField,
+  ConcreteLinkedField,
   ConcreteFragment,
   ConcreteSelectableNode,
 } from 'RelayConcreteNode';
 import type {DataID} from 'RelayInternalTypes';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
-import type {
-  PayloadError,
-  RelayResponsePayload,
-  UploadableMap,
-} from 'RelayNetworkTypes';
+import type {PayloadData} from 'RelayNetworkTypes';
+import type {PayloadError, UploadableMap} from 'RelayNetworkTypes';
+import type RelayObservable from 'RelayObservable';
 import type {RecordState} from 'RelayRecordState';
 import type {Variables} from 'RelayTypes';
 
@@ -50,9 +50,7 @@ export type FragmentMap = CFragmentMap<TFragment>;
 export type OperationSelector = COperationSelector<TNode, TOperation>;
 export type RelayContext = CRelayContext<TEnvironment>;
 export type Selector = CSelector<TNode>;
-export type TSnapshot<TRecord> = CSnapshot<TNode, TRecord>;
-export type Snapshot = TSnapshot<Record>;
-export type ProxySnapshot = TSnapshot<RecordProxy>;
+export type Snapshot = CSnapshot<TNode>;
 export type UnstableEnvironmentCore = CUnstableEnvironmentCore<
   TEnvironment,
   TFragment,
@@ -61,14 +59,10 @@ export type UnstableEnvironmentCore = CUnstableEnvironmentCore<
   TOperation,
 >;
 
-export interface IRecordSource<TRecord> {
-  get(dataID: DataID): ?TRecord,
-}
-
 /**
  * A read-only interface for accessing cached graph data.
  */
-export interface RecordSource extends IRecordSource<Record> {
+export interface RecordSource {
   get(dataID: DataID): ?Record,
   getRecordIDs(): Array<DataID>,
   getStatus(dataID: DataID): RecordState,
@@ -125,16 +119,6 @@ export interface Store {
   publish(source: RecordSource): void,
 
   /**
-   * Attempts to load all the records necessary to fulfill the selector into the
-   * target record source.
-   */
-  resolve(
-    target: MutableRecordSource,
-    selector: Selector,
-    callback: AsyncLoadCallback,
-  ): void,
-
-  /**
    * Ensure that all the records necessary to fulfill the given selector are
    * retained in-memory. The records will not be eligible for garbage collection
    * until the returned reference is disposed.
@@ -189,7 +173,7 @@ export interface RecordProxy {
  * allowing different implementations that may e.g. create a changeset of
  * the modifications.
  */
-export interface RecordSourceProxy extends IRecordSource<RecordProxy> {
+export interface RecordSourceProxy {
   create(dataID: DataID, typeName: string): RecordProxy,
   delete(dataID: DataID): void,
   get(dataID: DataID): ?RecordProxy,
@@ -200,26 +184,13 @@ export interface RecordSourceProxy extends IRecordSource<RecordProxy> {
  * Extends the RecordSourceProxy interface with methods for accessing the root
  * fields of a Selector.
  */
-export interface RecordSourceSelectorProxy extends IRecordSource<RecordProxy> {
+export interface RecordSourceSelectorProxy {
   create(dataID: DataID, typeName: string): RecordProxy,
   delete(dataID: DataID): void,
   get(dataID: DataID): ?RecordProxy,
   getRoot(): RecordProxy,
   getRootField(fieldName: string): ?RecordProxy,
   getPluralRootField(fieldName: string): ?Array<?RecordProxy>,
-  getResponse(): ?Object,
-}
-
-export interface IRecordReader<TRecord> {
-  getDataID(record: TRecord): DataID,
-  getType(record: TRecord): string,
-  getValue(record: TRecord, name: string, args?: ?Variables): mixed,
-  getLinkedRecordID(record: TRecord, name: string, args?: ?Variables): ?DataID,
-  getLinkedRecordIDs(
-    record: TRecord,
-    name: string,
-    args?: ?Variables,
-  ): ?Array<?DataID>,
 }
 
 /**
@@ -239,7 +210,7 @@ export interface Environment
    * Apply an optimistic update to the environment. The mutation can be reverted
    * by calling `dispose()` on the returned value.
    */
-  applyUpdate(updater: StoreUpdater): Disposable,
+  applyUpdate(optimisticUpdate: OptimisticUpdate): Disposable,
 
   /**
    * Determine if the selector can be resolved with data in the store (i.e. no
@@ -259,43 +230,49 @@ export interface Environment
   commitUpdate(updater: StoreUpdater): void,
 
   /**
+   * Commit a payload to the environment using the given operation selector.
+   */
+  commitPayload(
+    operationSelector: OperationSelector,
+    payload: PayloadData,
+  ): void,
+
+  /**
    * Get the environment's internal Store.
    */
   getStore(): Store,
 
   /**
-   * Send a mutation to the server. If provided, the optimistic updater is
-   * executed immediately and reverted atomically when the server payload is
-   * committed.
+   * Returns an Observable of RelayResponsePayload resulting from executing the
+   * provided Mutation operation, the result of which is then normalized and
+   * committed to the publish queue along with an optional optimistic response
+   * or updater.
+   *
+   * Note: Observables are lazy, so calling this method will do nothing until
+   * the result is subscribed to:
+   * environment.executeMutation({...}).subscribe({...}).
    */
-  sendMutation(config: {|
-    onCompleted?: ?(errors: ?Array<PayloadError>) => void,
-    onError?: ?(error: Error) => void,
+  executeMutation({|
     operation: OperationSelector,
-    optimisticResponse?: ?() => Object,
     optimisticUpdater?: ?SelectorStoreUpdater,
+    optimisticResponse?: ?Object,
     updater?: ?SelectorStoreUpdater,
-    uploadables?: UploadableMap,
-  |}): Disposable,
+    uploadables?: ?UploadableMap,
+  |}): RelayObservable<RelayResponsePayload>,
 
   /**
-   * Send a (GraphQL) subscription to the server. Whenever there is a push from
-   * the server, commit the update to the environment.
+   * Checks if the records required to fulfill the given `selector` are in
+   * the. Missing fields use the provided `handlers` to attempt to provide
+   * substitutes. After traversal, the changes suggested by the `handlers` are
+   * published back to the store.
+   *
+   * returns `true` if all records exist and all fields are fetched, false otherwise.
    */
-  sendSubscription(config: {|
-    onCompleted?: ?(errors: ?Array<PayloadError>) => void,
-    onNext?: ?(payload: RelayResponsePayload) => void,
-    onError?: ?(error: Error) => void,
-    operation: OperationSelector,
-    updater?: ?SelectorStoreUpdater,
-  |}): Disposable,
+  checkSelectorAndUpdateStore(
+    selector: Selector,
+    handlers: Array<MissingFieldHandler>,
+  ): boolean,
 }
-
-export type Observer<T> = {
-  onCompleted?: ?() => void,
-  onError?: ?(error: Error) => void,
-  onNext?: ?(data: T) => void,
-};
 
 /**
  * The results of reading data for a fragment. This is similar to a `Selector`,
@@ -354,6 +331,65 @@ export type StoreUpdater = (store: RecordSourceProxy) => void;
 
 /**
  * Similar to StoreUpdater, but accepts a proxy tied to a specific selector in
- * order to easily access the root fields of a query/mutation.
+ * order to easily access the root fields of a query/mutation as well as a
+ * second argument of the response object of the mutation.
  */
-export type SelectorStoreUpdater = (store: RecordSourceSelectorProxy) => void;
+export type SelectorStoreUpdater = (
+  store: RecordSourceSelectorProxy,
+  // Actually RelayCombinedEnvironmentTypes#SelectorData, but mixed is
+  // inconvenient to access deeply in product code.
+  data: $FlowFixMe,
+) => void;
+
+/**
+  * A set of configs that can be used to apply an optimistic update into the
+  * store.
+  */
+export type OptimisticUpdate =
+  | {|
+      storeUpdater: StoreUpdater,
+    |}
+  | {|
+      selectorStoreUpdater: ?SelectorStoreUpdater,
+      operation: OperationSelector,
+      response: ?Object,
+    |};
+
+/**
+ * A set of handlers that can be used to provide substitute data for missing
+ * fields when reading a selector from a source.
+ */
+export type MissingFieldHandler =
+  | {
+      kind: 'scalar',
+      handle: (
+        field: ConcreteScalarField,
+        record: ?Record,
+        args: Variables,
+      ) => mixed,
+    }
+  | {
+      kind: 'linked',
+      handle: (
+        field: ConcreteLinkedField,
+        record: ?Record,
+        args: Variables,
+      ) => ?DataID,
+    }
+  | {
+      kind: 'pluralLinked',
+      handle: (
+        field: ConcreteLinkedField,
+        record: ?Record,
+        args: Variables,
+      ) => ?Array<?DataID>,
+    };
+
+/**
+ * The shape of data that is returned by normalizePayload for a given query.
+ */
+export type RelayResponsePayload = {|
+  fieldPayloads?: ?Array<HandleFieldPayload>,
+  source: MutableRecordSource,
+  errors: ?Array<PayloadError>,
+|};

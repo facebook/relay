@@ -12,11 +12,11 @@
 
 'use strict';
 
+jest.mock('RelayQueryTracker').mock('RelayClassicRecordState');
+
 require('configureForRelayOSS');
 
-jest.unmock('GraphQLRange').unmock('GraphQLSegment');
-
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('writeRelayQueryPayload()', () => {
@@ -31,7 +31,7 @@ describe('writeRelayQueryPayload()', () => {
     RelayRecordStore = require('RelayRecordStore');
     RelayRecordWriter = require('RelayRecordWriter');
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('scalar fields', () => {
@@ -40,7 +40,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             name
@@ -75,7 +75,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             name
@@ -111,7 +111,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             name
@@ -147,7 +147,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             name

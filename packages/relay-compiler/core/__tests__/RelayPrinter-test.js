@@ -7,23 +7,22 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
 
-jest.autoMockOff();
-
 require('configureForRelayOSS');
 
-const RelayCompilerContext = require('RelayCompilerContext');
+const GraphQLCompilerContext = require('GraphQLCompilerContext');
 const RelayParser = require('RelayParser');
-const RelayPrinter = require('RelayPrinter');
+const GraphQLIRPrinter = require('GraphQLIRPrinter');
 const RelayTestSchema = require('RelayTestSchema');
 const getGoldenMatchers = require('getGoldenMatchers');
 
-describe('RelayPrinter', () => {
+describe('GraphQLIRPrinter', () => {
   beforeEach(() => {
-    jasmine.addMatchers(getGoldenMatchers(__filename));
+    expect.extend(getGoldenMatchers(__filename));
   });
 
   it('matches expected output', () => {
@@ -31,11 +30,11 @@ describe('RelayPrinter', () => {
       const ast = RelayParser.parse(RelayTestSchema, text);
       const context = ast.reduce(
         (ctx, node) => ctx.add(node),
-        new RelayCompilerContext(RelayTestSchema),
+        new GraphQLCompilerContext(RelayTestSchema),
       );
       const documents = [];
       context.documents().forEach(doc => {
-        documents.push(RelayPrinter.print(doc));
+        documents.push(GraphQLIRPrinter.print(doc));
       });
       return documents.join('\n');
     });

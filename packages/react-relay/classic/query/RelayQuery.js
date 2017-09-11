@@ -16,7 +16,7 @@
 /* eslint-disable consistent-this */
 
 const QueryBuilder = require('QueryBuilder');
-const RelayConnectionInterface = require('RelayConnectionInterface');
+const {ConnectionInterface} = require('RelayRuntime');
 const RelayFragmentReference = require('RelayFragmentReference');
 const RelayMetaRoute = require('RelayMetaRoute');
 const RelayProfiler = require('RelayProfiler');
@@ -1030,8 +1030,10 @@ class RelayQueryFragment extends RelayQueryNode {
 
   isPlural(): boolean {
     const metadata = (this.__concreteNode__: ConcreteFragment).metadata;
-    return !!// FB Printer
-    (metadata.isPlural || metadata.plural); // OSS Printer from `@relay`
+    return Boolean(
+      /* FB Printer */ metadata.isPlural ||
+        /* OSS Printer from `@relay` */ metadata.plural,
+    );
   }
 
   isTrackingEnabled(): boolean {
@@ -1441,7 +1443,7 @@ class RelayQueryField extends RelayQueryNode {
       !(arg.name === IF && String(arg.value) === TRUE) &&
       !(arg.name === UNLESS && String(arg.value) === FALSE) &&
       // Connection arguments can be stripped out.
-      !(this.isConnection() && RelayConnectionInterface.isConnectionCall(arg))
+      !(this.isConnection() && ConnectionInterface.isConnectionCall(arg))
     );
   }
 }

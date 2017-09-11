@@ -20,13 +20,17 @@
  * created with React.Component or React.createClass().
  */
 function isReactComponent(component: mixed): boolean {
-  return !!(component &&
+  return !!(
+    component &&
     typeof component.prototype === 'object' &&
     component.prototype &&
-    component.prototype.isReactComponent);
+    component.prototype.isReactComponent
+  );
 }
 
-function getReactComponent(Component: ReactClass<any>): ?ReactClass<any> {
+function getReactComponent(
+  Component: React$ComponentType<any>,
+): ?React$ComponentType<any> {
   if (isReactComponent(Component)) {
     return (Component: any);
   } else {
@@ -34,7 +38,7 @@ function getReactComponent(Component: ReactClass<any>): ?ReactClass<any> {
   }
 }
 
-function getComponentName(Component: ReactClass<any>): string {
+function getComponentName(Component: React$ComponentType<any>): string {
   let name;
   const ComponentClass = getReactComponent(Component);
   if (ComponentClass) {
@@ -45,10 +49,10 @@ function getComponentName(Component: ReactClass<any>): string {
   } else {
     name = 'ReactElement';
   }
-  return name;
+  return String(name);
 }
 
-function getContainerName(Component: ReactClass<any>): string {
+function getContainerName(Component: React$ComponentType<any>): string {
   return 'Relay(' + getComponentName(Component) + ')';
 }
 

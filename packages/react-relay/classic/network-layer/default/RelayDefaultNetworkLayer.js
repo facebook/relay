@@ -184,18 +184,18 @@ function formatRequestErrors(
       //custom errors thrown in graphql-server may not have locations
       const locationMessage = locations
         ? '\n' +
-            locations
-              .map(({column, line}) => {
-                const queryLine = queryLines[line - 1];
-                const offset = Math.min(column - 1, CONTEXT_BEFORE);
-                return [
-                  queryLine.substr(column - 1 - offset, CONTEXT_LENGTH),
-                  ' '.repeat(Math.max(0, offset)) + '^^^',
-                ]
-                  .map(messageLine => indent + messageLine)
-                  .join('\n');
-              })
-              .join('\n')
+          locations
+            .map(({column, line}) => {
+              const queryLine = queryLines[line - 1];
+              const offset = Math.min(column - 1, CONTEXT_BEFORE);
+              return [
+                queryLine.substr(column - 1 - offset, CONTEXT_LENGTH),
+                ' '.repeat(Math.max(0, offset)) + '^^^',
+              ]
+                .map(messageLine => indent + messageLine)
+                .join('\n');
+            })
+            .join('\n')
         : '';
 
       return prefix + message + locationMessage;
@@ -208,12 +208,12 @@ function createRequestError(
   responseStatus: string,
   payload: any,
 ): Error {
-  const requestType = request instanceof RelayMutationRequest
-    ? 'mutation'
-    : 'query';
-  const errorReason = typeof payload === 'object'
-    ? formatRequestErrors(request, payload.errors)
-    : `Server response had an error status: ${responseStatus}`;
+  const requestType =
+    request instanceof RelayMutationRequest ? 'mutation' : 'query';
+  const errorReason =
+    typeof payload === 'object'
+      ? formatRequestErrors(request, payload.errors)
+      : `Server response had an error status: ${responseStatus}`;
   const error = new Error(
     `Server request for ${requestType} \`${request.getDebugName()}\` ` +
       `failed for the following reasons:\n\n${errorReason}`,

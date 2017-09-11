@@ -52,6 +52,7 @@ export type FragmentReference<T> = _FragmentReferenceClass<
  * unchanged. This is primarily useful for Higher Order Components whose input
  * will be a FragmentReference<> when used.
  */
-declare function _MaskFragments<U>(u: Fragment<U>): FragmentReference<U>;
-declare function _MaskFragments<U>(u: U): U;
+declare var _MaskFragments: <U>(
+  u: Fragment<U>,
+) => FragmentReference<U> | (<U>(u: U) => U);
 export type ObjectWithMaskedFragments<T> = $ObjMapi<T, _MaskFragments<T>>;

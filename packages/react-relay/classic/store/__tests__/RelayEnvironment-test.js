@@ -12,12 +12,9 @@
 
 'use strict';
 
-jest
-  .dontMock('GraphQLStoreChangeEmitter')
-  .mock('relayUnstableBatchedUpdates')
-  .autoMockOff();
+jest.dontMock('GraphQLStoreChangeEmitter').mock('relayUnstableBatchedUpdates');
 
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayOperationSelector = require('RelayOperationSelector');
 const {ROOT_ID} = require('RelayStoreConstants');
@@ -26,6 +23,7 @@ const createRelayQuery = require('createRelayQuery');
 const generateRQLFieldAlias = require('generateRQLFieldAlias');
 const mapObject = require('mapObject');
 const {graphql, getClassicOperation} = require('RelayGraphQLTag');
+const {createOperationSelector} = require('RelayOperationSelector');
 
 describe('RelayEnvironment', () => {
   let UserQuery;
@@ -40,32 +38,28 @@ describe('RelayEnvironment', () => {
   }
 
   beforeEach(() => {
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
 
     environment = new RelayEnvironment();
 
     UserQuery = getClassicOperation(
       graphql`
-      query RelayEnvironmentUserQuery($id: ID!, $size: Int) {
-        user: node(id: $id) {
-          id
-          name
-          profilePicture(size: $size) {
-            uri
+        query RelayEnvironmentTestUserQuery($id: ID!, $size: Int) {
+          user: node(id: $id) {
+            id
+            name
+            profilePicture(size: $size) {
+              uri
+            }
           }
         }
-      }
-    `,
+      `,
     );
 
     nodeAlias = generateRQLFieldAlias('node.user.id(4)');
     photoAlias = generateRQLFieldAlias('profilePicture.size(1)');
     environment.commitPayload(
-      {
-        dataID: ROOT_ID,
-        node: UserQuery.node,
-        variables: {id: '4', size: 1},
-      },
+      createOperationSelector(UserQuery, {id: '4', size: 1}),
       {
         [nodeAlias]: {
           id: '4',
@@ -86,24 +80,20 @@ describe('RelayEnvironment', () => {
     beforeEach(() => {
       FeedbackQuery = getClassicOperation(
         graphql`
-        query RelayEnvironmentFeedbackQuery($id: ID!) {
-          feedback: node(id: $id) {
-            id
-            ... on Feedback {
-              doesViewerLike
+          query RelayEnvironmentFeedbackQuery($id: ID!) {
+            feedback: node(id: $id) {
+              id
+              ... on Feedback {
+                doesViewerLike
+              }
             }
           }
-        }
-      `,
+        `,
       );
 
       nodeAlias = generateRQLFieldAlias('node.feedback.id(123)');
       environment.commitPayload(
-        {
-          dataID: ROOT_ID,
-          node: FeedbackQuery.node,
-          variables: {id: '123'},
-        },
+        createOperationSelector(FeedbackQuery, {id: '123'}),
         {
           [nodeAlias]: {
             id: '123',
@@ -115,16 +105,16 @@ describe('RelayEnvironment', () => {
 
       FeedbackMutation = getClassicOperation(
         graphql`
-        mutation RelayEnvironmentFeedbackMutation($input: FeedbackLikeData!) {
-          feedbackLike {
-            clientMutationId
-            feedback {
-              id
-              doesViewerLike
+          mutation RelayEnvironmentFeedbackMutation($input: FeedbackLikeData!) {
+            feedbackLike {
+              clientMutationId
+              feedback {
+                id
+                doesViewerLike
+              }
             }
           }
-        }
-      `,
+        `,
       );
       jest.runAllTimers();
     });
@@ -216,24 +206,20 @@ describe('RelayEnvironment', () => {
 
       FeedbackQuery = getClassicOperation(
         graphql`
-        query RelayEnvironmentFeedbackQuery($id: ID!) {
-          feedback: node(id: $id) {
-            id
-            ... on Feedback {
-              doesViewerLike
+          query RelayEnvironmentFeedbackQuery($id: ID!) {
+            feedback: node(id: $id) {
+              id
+              ... on Feedback {
+                doesViewerLike
+              }
             }
           }
-        }
-      `,
+        `,
       );
 
       nodeAlias = generateRQLFieldAlias('node.feedback.id(123)');
       environment.commitPayload(
-        {
-          dataID: ROOT_ID,
-          node: FeedbackQuery.node,
-          variables: {id: '123'},
-        },
+        createOperationSelector(FeedbackQuery, {id: '123'}),
         {
           [nodeAlias]: {
             id: '123',
@@ -245,16 +231,16 @@ describe('RelayEnvironment', () => {
 
       FeedbackMutation = getClassicOperation(
         graphql`
-        mutation RelayEnvironmentFeedbackMutation($input: FeedbackLikeData!) {
-          feedbackLike {
-            clientMutationId
-            feedback {
-              id
-              doesViewerLike
+          mutation RelayEnvironmentFeedbackMutation($input: FeedbackLikeData!) {
+            feedbackLike {
+              clientMutationId
+              feedback {
+                id
+                doesViewerLike
+              }
             }
           }
-        }
-      `,
+        `,
       );
       jest.runAllTimers();
 
@@ -405,139 +391,138 @@ describe('RelayEnvironment', () => {
   });
 
   // In the classic core these functions intentionally have the same behavior
-  ['sendQuery', 'streamQuery'].forEach(functionName => {
-    describe(functionName + '()', () => {
-      let callbacks;
-      let deferred;
-      let sendQueries;
-      let onCompleted;
-      let onError;
-      let onNext;
-      let operation;
+  describe('sendQuery()', () => {
+    let callbacks;
+    let deferred;
+    let sendQueries;
+    let onCompleted;
+    let onError;
+    let onNext;
+    let operation;
 
-      beforeEach(() => {
-        onCompleted = jest.fn();
-        onError = jest.fn();
-        onNext = jest.fn();
-        callbacks = {onCompleted, onError, onNext};
+    beforeEach(() => {
+      onCompleted = jest.fn();
+      onError = jest.fn();
+      onNext = jest.fn();
+      callbacks = {onCompleted, onError, onNext};
 
-        sendQueries = jest.fn(queries => {
-          expect(queries.length).toBe(1);
-          deferred = queries[0];
-        });
-        environment.injectNetworkLayer({
-          sendMutation: jest.fn(),
-          sendQueries,
-          supports: jest.fn(() => false),
-        });
-        operation = RelayOperationSelector.createOperationSelector(UserQuery, {
-          id: '4',
-          size: 1,
-        });
+      sendQueries = jest.fn(queries => {
+        expect(queries.length).toBe(1);
+        deferred = queries[0];
       });
-
-      it('fetches queries', () => {
-        environment[functionName]({operation});
-        expect(sendQueries.mock.calls.length).toBe(1);
-        const request = sendQueries.mock.calls[0][0][0];
-        expect(request.getQuery().getConcreteQueryNode()).toBe(UserQuery.node);
-        expect(request.getQuery().getVariables()).toEqual({
-          id: '4',
-          size: 1,
-        });
+      environment.injectNetworkLayer({
+        sendMutation: jest.fn(),
+        sendQueries,
+        supports: jest.fn(() => false),
       });
-
-      it('calls onCompleted() when the batch completes', () => {
-        environment[functionName]({
-          ...callbacks,
-          operation,
-        });
-        deferred.resolve({
-          response: {
-            [nodeAlias]: {
-              id: '4',
-              __typename: 'User',
-              name: 'Zuck',
-              [photoAlias]: {
-                uri: 'https://4.jpg',
-              },
-            },
-          },
-        });
-        jest.runAllTimers();
-        expect(onCompleted.mock.calls.length).toBe(1);
-        expect(onNext.mock.calls.length).toBe(1);
-        expect(onError).not.toBeCalled();
+      operation = RelayOperationSelector.createOperationSelector(UserQuery, {
+        id: '4',
+        size: 1,
       });
+    });
 
-      it('calls onError() when the batch has an error', () => {
-        environment[functionName]({
-          ...callbacks,
-          operation,
-        });
-        const error = new Error('wtf');
-        deferred.reject(error);
-        jest.runAllTimers();
-
-        expect(onError).toBeCalled();
-        expect(onCompleted).not.toBeCalled();
-        expect(onNext.mock.calls.length).toBe(0);
+    it('fetches queries', () => {
+      environment.sendQuery({operation});
+      expect(sendQueries.mock.calls.length).toBe(1);
+      const request = sendQueries.mock.calls[0][0][0];
+      expect(request.getQuery().getConcreteQueryNode()).toBe(UserQuery.node);
+      expect(request.getQuery().getVariables()).toEqual({
+        id: '4',
+        size: 1,
       });
+    });
 
-      it('calls onNext() and publishes payloads to the store', () => {
-        const selector = {
-          dataID: ROOT_ID,
-          node: UserQuery.node,
-          variables: {id: '4', size: 1},
-        };
-        const snapshot = environment.lookup(selector);
-        const callback = jest.fn();
-        environment.subscribe(snapshot, callback);
-
-        environment[functionName]({
-          ...callbacks,
-          operation,
-        });
-        const response = {
+    it('calls onCompleted() when the batch completes', () => {
+      environment.sendQuery({
+        ...callbacks,
+        operation,
+      });
+      deferred.resolve({
+        response: {
           [nodeAlias]: {
             id: '4',
             __typename: 'User',
-            name: 'Mark', // Zuck -> Mark
+            name: 'Zuck',
             [photoAlias]: {
               uri: 'https://4.jpg',
             },
           },
-        };
-        deferred.resolve({response});
-        jest.runAllTimers();
-
-        expect(onNext.mock.calls.length).toBe(1);
-        expect(onNext).toBeCalledWith({
-          dataID: ROOT_ID,
-          node: UserQuery.node,
-          variables: {id: '4', size: 1},
-        });
-        expect(onCompleted).toBeCalled();
-        expect(onError).not.toBeCalled();
-        expect(callback.mock.calls.length).toBe(1);
-        expect(callback.mock.calls[0][0].data).toEqual({
-          __dataID__: jasmine.any(String),
-          user: {
-            __dataID__: '4',
-            id: '4',
-            name: 'Mark', // Reflects changed value
-            profilePicture: {
-              __dataID__: jasmine.any(String),
-              uri: 'https://4.jpg',
-            },
-          },
-        });
+        },
       });
+      jest.runAllTimers();
+      expect(onCompleted.mock.calls.length).toBe(1);
+      expect(onNext.mock.calls.length).toBe(1);
+      expect(onError).not.toBeCalled();
+    });
 
-      it('supports multiple root fields', () => {
-        UserQuery = getClassicOperation(
-          graphql`
-          query RelayEnvironmentUserQuery {
+    it('calls onError() when the batch has an error', () => {
+      environment.sendQuery({
+        ...callbacks,
+        operation,
+      });
+      const error = new Error('wtf');
+      deferred.reject(error);
+      jest.runAllTimers();
+
+      expect(onError).toBeCalled();
+      expect(onCompleted).not.toBeCalled();
+      expect(onNext.mock.calls.length).toBe(0);
+    });
+
+    it('calls onNext() and publishes payloads to the store', () => {
+      const selector = {
+        dataID: ROOT_ID,
+        node: UserQuery.node,
+        variables: {id: '4', size: 1},
+      };
+      const snapshot = environment.lookup(selector);
+      const callback = jest.fn();
+      environment.subscribe(snapshot, callback);
+
+      environment.sendQuery({
+        ...callbacks,
+        operation,
+      });
+      const response = {
+        [nodeAlias]: {
+          id: '4',
+          __typename: 'User',
+          name: 'Mark', // Zuck -> Mark
+          [photoAlias]: {
+            uri: 'https://4.jpg',
+          },
+        },
+      };
+      deferred.resolve({response});
+      jest.runAllTimers();
+
+      expect(onNext.mock.calls.length).toBe(1);
+      expect(onNext).toBeCalledWith({
+        dataID: ROOT_ID,
+        node: UserQuery.node,
+        variables: {id: '4', size: 1},
+      });
+      expect(onCompleted).toBeCalled();
+      expect(onError).not.toBeCalled();
+      expect(callback.mock.calls.length).toBe(1);
+      expect(callback.mock.calls[0][0].data).toEqual({
+        __dataID__: jasmine.any(String),
+        user: {
+          __dataID__: '4',
+          id: '4',
+          name: 'Mark', // Reflects changed value
+          profilePicture: {
+            __dataID__: jasmine.any(String),
+            uri: 'https://4.jpg',
+          },
+        },
+      });
+    });
+
+    it('supports multiple root fields', () => {
+      UserQuery = getClassicOperation(
+        graphql`
+          query RelayEnvironmentTestUserQuery {
             viewer {
               actor {
                 id
@@ -548,72 +533,69 @@ describe('RelayEnvironment', () => {
             }
           }
         `,
-        );
-        operation = RelayOperationSelector.createOperationSelector(
-          UserQuery,
-          {},
-        );
-        const selector = {
-          dataID: ROOT_ID,
-          node: UserQuery.node,
-          variables: {},
-        };
-        const snapshot = environment.lookup(selector);
-        const callback = jest.fn();
-        environment.subscribe(snapshot, callback);
+      );
+      operation = RelayOperationSelector.createOperationSelector(UserQuery, {});
+      const selector = {
+        dataID: ROOT_ID,
+        node: UserQuery.node,
+        variables: {},
+      };
+      const snapshot = environment.lookup(selector);
+      const callback = jest.fn();
+      environment.subscribe(snapshot, callback);
 
-        environment[functionName]({
-          ...callbacks,
-          operation,
-        });
-        const response = {
-          viewer: {
-            actor: {
-              id: '4',
-              __typename: 'User',
-            },
-          },
-          [nodeAlias]: {
-            id: '4',
-            name: 'Mark', // Zuck -> Mark
-          },
-        };
-        deferred.resolve({response});
-        jest.runAllTimers();
-
-        expect(onNext.mock.calls.length).toBe(1);
-        expect(onNext).toBeCalledWith({
-          dataID: ROOT_ID,
-          node: UserQuery.node,
-          variables: {},
-        });
-        expect(onCompleted).toBeCalled();
-        expect(onError).not.toBeCalled();
-        expect(callback.mock.calls.length).toBe(1);
-
-        const recordStore = environment.getStoreData().getRecordStore();
-        const viewerID = recordStore.getDataID('viewer');
-        expect(recordStore.getPathToRecord(viewerID).type).toBe('root');
-        expect(callback.mock.calls[0][0].data).toEqual({
-          __dataID__: jasmine.any(String),
-          viewer: {
-            __dataID__: viewerID,
-            actor: {
-              __dataID__: '4',
-              id: '4',
-            },
-          },
-          user: {
-            __dataID__: '4',
-            name: 'Mark', // Reflects changed value
-          },
-        });
+      environment.sendQuery({
+        ...callbacks,
+        operation,
       });
+      const response = {
+        viewer: {
+          actor: {
+            id: '4',
+            __typename: 'User',
+          },
+        },
+        [nodeAlias]: {
+          id: '4',
+          name: 'Mark', // Zuck -> Mark
+        },
+      };
+      deferred.resolve({response});
+      jest.runAllTimers();
 
-      it('ignores empty fields', () => {
-        UserQuery = getClassicOperation(
-          graphql`
-          query RelayEnvironmentUserQuery {
+      expect(onNext.mock.calls.length).toBe(1);
+      expect(onNext).toBeCalledWith({
+        dataID: ROOT_ID,
+        node: UserQuery.node,
+        variables: {},
+      });
+      expect(onCompleted).toBeCalled();
+      expect(onError).not.toBeCalled();
+      expect(callback.mock.calls.length).toBe(1);
+
+      const recordStore = environment.getStoreData().getRecordStore();
+      const viewerID = recordStore.getDataID('viewer');
+      expect(recordStore.getPathToRecord(viewerID).type).toBe('root');
+      expect(callback.mock.calls[0][0].data).toEqual({
+        __dataID__: jasmine.any(String),
+        viewer: {
+          __dataID__: viewerID,
+          actor: {
+            __dataID__: '4',
+            id: '4',
+          },
+        },
+        user: {
+          __dataID__: '4',
+          name: 'Mark', // Reflects changed value
+        },
+      });
+    });
+
+    it('ignores empty fields', () => {
+      UserQuery = getClassicOperation(
+        graphql`
+          query RelayEnvironmentTestUserQuery {
             viewer {
               actor @include(if: false) {
                 id
@@ -621,51 +603,48 @@ describe('RelayEnvironment', () => {
             }
           }
         `,
-        );
-        operation = RelayOperationSelector.createOperationSelector(
-          UserQuery,
-          {},
-        );
-        const selector = {
-          dataID: ROOT_ID,
-          node: UserQuery.node,
-          variables: {},
-        };
-        const snapshot = environment.lookup(selector);
-        const callback = jest.fn();
-        environment.subscribe(snapshot, callback);
+      );
+      operation = RelayOperationSelector.createOperationSelector(UserQuery, {});
+      const selector = {
+        dataID: ROOT_ID,
+        node: UserQuery.node,
+        variables: {},
+      };
+      const snapshot = environment.lookup(selector);
+      const callback = jest.fn();
+      environment.subscribe(snapshot, callback);
 
-        environment[functionName]({
-          ...callbacks,
-          operation,
-        });
-        // The printed query (and therefore the server response) won't have a
-        // `viewer` field.
-        const response = {
-          __typename: 'Query',
-        };
-        deferred.resolve({response});
-        jest.runAllTimers();
-
-        expect(onNext.mock.calls.length).toBe(1);
-        expect(onNext).toBeCalledWith({
-          dataID: ROOT_ID,
-          node: UserQuery.node,
-          variables: {},
-        });
-        expect(onCompleted).toBeCalled();
-        expect(onError).not.toBeCalled();
-        expect(callback.mock.calls.length).toBe(0);
-
-        const recordStore = environment.getStoreData().getRecordStore();
-        const viewerID = recordStore.getDataID('viewer');
-        expect(viewerID).toBe(undefined);
+      environment.sendQuery({
+        ...callbacks,
+        operation,
       });
+      // The printed query (and therefore the server response) won't have a
+      // `viewer` field.
+      const response = {
+        __typename: 'Query',
+      };
+      deferred.resolve({response});
+      jest.runAllTimers();
 
-      it('writes id-less root fields (e.g. viewer)', () => {
-        UserQuery = getClassicOperation(
-          graphql`
-          query RelayEnvironmentUserQuery {
+      expect(onNext.mock.calls.length).toBe(1);
+      expect(onNext).toBeCalledWith({
+        dataID: ROOT_ID,
+        node: UserQuery.node,
+        variables: {},
+      });
+      expect(onCompleted).toBeCalled();
+      expect(onError).not.toBeCalled();
+      expect(callback.mock.calls.length).toBe(0);
+
+      const recordStore = environment.getStoreData().getRecordStore();
+      const viewerID = recordStore.getDataID('viewer');
+      expect(viewerID).toBe(undefined);
+    });
+
+    it('writes id-less root fields (e.g. viewer)', () => {
+      UserQuery = getClassicOperation(
+        graphql`
+          query RelayEnvironmentTestUserQuery {
             viewer {
               actor {
                 id
@@ -674,67 +653,64 @@ describe('RelayEnvironment', () => {
             }
           }
         `,
-        );
-        operation = RelayOperationSelector.createOperationSelector(
-          UserQuery,
-          {},
-        );
-        const selector = {
-          dataID: ROOT_ID,
-          node: UserQuery.node,
-          variables: {},
-        };
-        const snapshot = environment.lookup(selector);
-        const callback = jest.fn();
-        environment.subscribe(snapshot, callback);
+      );
+      operation = RelayOperationSelector.createOperationSelector(UserQuery, {});
+      const selector = {
+        dataID: ROOT_ID,
+        node: UserQuery.node,
+        variables: {},
+      };
+      const snapshot = environment.lookup(selector);
+      const callback = jest.fn();
+      environment.subscribe(snapshot, callback);
 
-        environment[functionName]({
-          ...callbacks,
-          operation,
-        });
-        const response = {
-          viewer: {
-            actor: {
-              id: '4',
-              __typename: 'User',
-              name: 'Mark', // Zuck -> Mark
-            },
-          },
-        };
-        deferred.resolve({response});
-        jest.runAllTimers();
-
-        expect(onNext.mock.calls.length).toBe(1);
-        expect(onNext).toBeCalledWith({
-          dataID: ROOT_ID,
-          node: UserQuery.node,
-          variables: {},
-        });
-        expect(onCompleted).toBeCalled();
-        expect(onError).not.toBeCalled();
-        expect(callback.mock.calls.length).toBe(1);
-
-        const recordStore = environment.getStoreData().getRecordStore();
-        const viewerID = recordStore.getDataID('viewer');
-        expect(recordStore.getPathToRecord(viewerID).type).toBe('root');
-        expect(callback.mock.calls[0][0].data).toEqual({
-          __dataID__: jasmine.any(String),
-          viewer: {
-            __dataID__: viewerID,
-            actor: {
-              __dataID__: '4',
-              id: '4',
-              name: 'Mark', // Reflects changed value
-            },
-          },
-        });
+      environment.sendQuery({
+        ...callbacks,
+        operation,
       });
+      const response = {
+        viewer: {
+          actor: {
+            id: '4',
+            __typename: 'User',
+            name: 'Mark', // Zuck -> Mark
+          },
+        },
+      };
+      deferred.resolve({response});
+      jest.runAllTimers();
 
-      it('force-fetches data', () => {
-        // Populate initial data for the query
-        const FriendsQuery = getClassicOperation(
-          graphql`
-          query RelayEnvironmentFriendsQuery($id: ID!) {
+      expect(onNext.mock.calls.length).toBe(1);
+      expect(onNext).toBeCalledWith({
+        dataID: ROOT_ID,
+        node: UserQuery.node,
+        variables: {},
+      });
+      expect(onCompleted).toBeCalled();
+      expect(onError).not.toBeCalled();
+      expect(callback.mock.calls.length).toBe(1);
+
+      const recordStore = environment.getStoreData().getRecordStore();
+      const viewerID = recordStore.getDataID('viewer');
+      expect(recordStore.getPathToRecord(viewerID).type).toBe('root');
+      expect(callback.mock.calls[0][0].data).toEqual({
+        __dataID__: jasmine.any(String),
+        viewer: {
+          __dataID__: viewerID,
+          actor: {
+            __dataID__: '4',
+            id: '4',
+            name: 'Mark', // Reflects changed value
+          },
+        },
+      });
+    });
+
+    it('force-fetches data', () => {
+      // Populate initial data for the query
+      const FriendsQuery = getClassicOperation(
+        graphql`
+          query RelayEnvironmentTestFriendsQuery($id: ID!) {
             user: node(id: $id) {
               id
               friends(first: 1) {
@@ -747,99 +723,97 @@ describe('RelayEnvironment', () => {
             }
           }
         `,
-        );
+      );
 
-        nodeAlias = generateRQLFieldAlias('node.user.id(4)');
-        const friendsAlias = generateRQLFieldAlias('friends.first(1)');
-        operation = RelayOperationSelector.createOperationSelector(
-          FriendsQuery,
-          {id: '4'},
-        );
-        environment.commitPayload(operation.root, {
-          [nodeAlias]: {
-            id: '4',
-            __typename: 'User',
-            [friendsAlias]: {
-              edges: [
-                {
-                  cursor: 'cursor:beast',
-                  node: {
-                    id: 'beast',
-                  },
+      nodeAlias = generateRQLFieldAlias('node.user.id(4)');
+      const friendsAlias = generateRQLFieldAlias('friends.first(1)');
+      operation = RelayOperationSelector.createOperationSelector(FriendsQuery, {
+        id: '4',
+      });
+      environment.commitPayload(operation, {
+        [nodeAlias]: {
+          id: '4',
+          __typename: 'User',
+          [friendsAlias]: {
+            edges: [
+              {
+                cursor: 'cursor:beast',
+                node: {
+                  id: 'beast',
                 },
-              ],
-              pageInfo: {
-                hasPreviousPage: false,
-                hasNextPage: true,
-                startCursor: 'cursor:beast',
-                endCursor: 'cursor:beast',
               },
+            ],
+            pageInfo: {
+              hasPreviousPage: false,
+              hasNextPage: true,
+              startCursor: 'cursor:beast',
+              endCursor: 'cursor:beast',
             },
           },
-        });
-        jest.runAllTimers();
-        const snapshot = environment.lookup(operation.fragment);
-        const callback = jest.fn();
-        environment.subscribe(snapshot, callback);
+        },
+      });
+      jest.runAllTimers();
+      const snapshot = environment.lookup(operation.fragment);
+      const callback = jest.fn();
+      environment.subscribe(snapshot, callback);
 
-        // Force-fetch, connection edges should be replaced
-        environment[functionName]({
-          ...callbacks,
-          cacheConfig: {force: true},
-          operation,
-        });
-        const response = {
-          [nodeAlias]: {
-            id: '4',
-            __typename: 'User',
-            [friendsAlias]: {
-              edges: [
-                {
-                  cursor: 'cursor:foo',
-                  node: {
-                    id: 'foo', // different node: beast -> foo
-                  },
+      // Force-fetch, connection edges should be replaced
+      environment.sendQuery({
+        ...callbacks,
+        cacheConfig: {force: true},
+        operation,
+      });
+      const response = {
+        [nodeAlias]: {
+          id: '4',
+          __typename: 'User',
+          [friendsAlias]: {
+            edges: [
+              {
+                cursor: 'cursor:foo',
+                node: {
+                  id: 'foo', // different node: beast -> foo
                 },
-              ],
-              pageInfo: {
-                hasPreviousPage: false,
-                hasNextPage: true,
-                startCursor: 'cursor:foo',
-                endCursor: 'cursor:foo',
               },
+            ],
+            pageInfo: {
+              hasPreviousPage: false,
+              hasNextPage: true,
+              startCursor: 'cursor:foo',
+              endCursor: 'cursor:foo',
             },
           },
-        };
-        deferred.resolve({response});
-        jest.runAllTimers();
+        },
+      };
+      deferred.resolve({response});
+      jest.runAllTimers();
 
-        expect(onNext.mock.calls.length).toBe(1);
-        expect(onNext).toBeCalledWith(operation.root);
-        expect(onCompleted).toBeCalled();
-        expect(onError).not.toBeCalled();
-        expect(callback.mock.calls.length).toBe(1);
+      expect(onNext.mock.calls.length).toBe(1);
+      expect(onNext).toBeCalledWith(operation.root);
+      expect(onCompleted).toBeCalled();
+      expect(onError).not.toBeCalled();
+      expect(callback.mock.calls.length).toBe(1);
 
-        // New payload causes selector results to change, has the updated edges
-        expect(callback.mock.calls[0][0].data).toEqual({
-          __dataID__: jasmine.any(String),
-          user: {
-            __dataID__: '4',
-            id: '4',
-            friends: {
-              __dataID__: jasmine.any(String),
-              edges: [
-                {
-                  __dataID__: jasmine.any(String),
-                  node: {
-                    // beast -> foo
-                    __dataID__: 'foo',
-                    id: 'foo',
-                  },
+      // New payload causes selector results to change, has the updated edges
+      expect(callback.mock.calls[0][0].data).toEqual({
+        __dataID__: jasmine.any(String),
+        user: {
+          __dataID__: '4',
+          id: '4',
+          friends: {
+            __dataID__: jasmine.any(String),
+            edges: [
+              {
+                __dataID__: jasmine.any(String),
+                node: {
+                  // beast -> foo
+                  __dataID__: 'foo',
+                  id: 'foo',
                 },
-              ],
-            },
+              },
+            ],
           },
-        });
+        },
       });
     });
   });
@@ -876,12 +850,12 @@ describe('RelayEnvironment', () => {
       };
       Query = environment.unstable_internal.getOperation(
         graphql`
-        query RelayEnvironmentUserQuery($id: ID!, $size: Int) {
-          user: node(id: $id) {
-            ...Container_user
+          query RelayEnvironmentTestUserQuery($id: ID!, $size: Int) {
+            user: node(id: $id) {
+              ...Container_user
+            }
           }
-        }
-      `,
+        `,
       );
 
       sendQueries = jest.fn(queries => {
@@ -916,7 +890,7 @@ describe('RelayEnvironment', () => {
       jest.runAllTimers();
 
       const query = createRelayQuery(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id: $id) {
             ${Container.getFragment('user')}
@@ -934,6 +908,7 @@ describe('RelayEnvironment', () => {
       };
       const resolver = environment.unstable_internal.createFragmentSpecResolver(
         context,
+        'TestContainerName',
         mapObject(fragments, environment.unstable_internal.getFragment),
         {user},
         jest.fn(),
@@ -974,6 +949,7 @@ describe('RelayEnvironment', () => {
       };
       const resolver = environment.unstable_internal.createFragmentSpecResolver(
         context,
+        'TestContainerName',
         mapObject(fragments, environment.unstable_internal.getFragment),
         {user},
         jest.fn(),

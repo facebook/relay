@@ -14,7 +14,7 @@
 
 require('configureForRelayOSS');
 
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayQuery = require('RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
@@ -29,7 +29,7 @@ describe('filterRelayQuery()', () => {
     jest.resetModules();
 
     query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           newsFeed(first: 10) {
@@ -46,7 +46,7 @@ describe('filterRelayQuery()', () => {
     `,
     );
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('returns the original query if nothing is filtered out', () => {
@@ -59,12 +59,13 @@ describe('filterRelayQuery()', () => {
 
   it('filters specific nodes', () => {
     const filter = function(node) {
-      return !(node instanceof RelayQuery.Field &&
-        node.getSchemaName() === 'text');
+      return !(
+        node instanceof RelayQuery.Field && node.getSchemaName() === 'text'
+      );
     };
     expect(filterRelayQuery(query, filter)).toEqualQueryRoot(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         viewer {
           newsFeed(first: 10) {

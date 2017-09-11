@@ -21,9 +21,10 @@ const {graphql, createFragmentContainer} = require('ReactRelayPublic');
  * type-checked correctly on Relay components.
  */
 
-const FooComponent = ({requiredProp}: {requiredProp: string}) => (
-  <div>{requiredProp}</div>
-);
+const FooComponent = ({requiredProp}: {requiredProp: string}) =>
+  <div>
+    {requiredProp}
+  </div>;
 
 // Note that we must reassign to a new identifier to make sure flow doesn't propogate types without
 // the relay type definition doing the work.
@@ -36,6 +37,9 @@ const Foo = createFragmentContainer(
   `,
 );
 
+/* $FlowFixMe(>=0.53.0) This comment suppresses an error
+ * when upgrading Flow's support for React. Common errors found when upgrading
+ * Flow's React support are documented at https://fburl.com/eq7bs81w */
 class BarComponent extends React.Component {
   props: {
     optionalProp?: {foo: number},
@@ -60,7 +64,9 @@ class BarComponent extends React.Component {
 
     const defLen = this.props.defaultProp.length; // always a valid string, so no error
     return (
-      <div>{reqLen && optionalProp && optionalFoo && missing && defLen}</div>
+      <div>
+        {reqLen && optionalProp && optionalFoo && missing && defLen}
+      </div>
     );
   }
 }
@@ -123,6 +129,10 @@ module.exports = {
     return <Bar {...props} />;
   },
   checkStaticsAndMethodsProxying() {
+    /* $FlowFixMe(>=0.53.0) This comment suppresses an
+     * error when upgrading Flow's support for React. Common errors found when
+     * upgrading Flow's React support are documented at
+     * https://fburl.com/eq7bs81w */
     class ProxyChecker extends React.PureComponent {
       _barRef: ?Bar;
       getString(): string {

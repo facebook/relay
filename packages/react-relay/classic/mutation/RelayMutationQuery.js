@@ -13,7 +13,6 @@
 
 'use strict';
 
-const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayMetaRoute = require('RelayMetaRoute');
 const RelayMutationType = require('RelayMutationType');
 const RelayNodeInterface = require('RelayNodeInterface');
@@ -30,6 +29,7 @@ const nullthrows = require('nullthrows');
 const warning = require('warning');
 
 const {REFETCH} = require('GraphQLMutatorConstants');
+const {ConnectionInterface} = require('RelayRuntime');
 
 import type {ConcreteMutation} from 'ConcreteQuery';
 import type {DataID, RangeBehaviors} from 'RelayInternalTypes';
@@ -68,7 +68,6 @@ type OptimisticUpdateQueryBuilderConfig = BasicOptimisticMutationFragmentBuilder
   response: Object,
 };
 
-const {CLIENT_MUTATION_ID} = RelayConnectionInterface;
 const {ANY_TYPE, ID, TYPENAME} = RelayNodeInterface;
 
 /**
@@ -369,6 +368,7 @@ const RelayMutationQuery = {
     mutation: ConcreteMutation,
     tracker: RelayQueryTracker,
   }): RelayQuery.Mutation {
+    const {CLIENT_MUTATION_ID} = ConnectionInterface.get();
     let children: Array<?RelayQuery.Node> = [
       RelayQuery.Field.build({
         fieldName: CLIENT_MUTATION_ID,
@@ -450,9 +450,10 @@ const RelayMutationQuery = {
           children.push(nodeDeletion);
           /* eslint-disable no-console */
           if (__DEV__ && console.groupCollapsed && console.groupEnd) {
-            const configType = config === RelayMutationType.RANGE_DELETE
-              ? 'RANGE_DELETE'
-              : 'NODE_DELETE';
+            const configType =
+              config === RelayMutationType.RANGE_DELETE
+                ? 'RANGE_DELETE'
+                : 'NODE_DELETE';
             console.groupCollapsed(configType);
 
             const RelayMutationDebugPrinter = require('RelayMutationDebugPrinter');
@@ -586,7 +587,7 @@ function buildEdgeField(
     }),
   ];
   if (
-    RelayConnectionInterface.EDGES_HAVE_SOURCE_FIELD &&
+    ConnectionInterface.get().EDGES_HAVE_SOURCE_FIELD &&
     !RelayRecord.isClientID(parentID)
   ) {
     fields.push(
@@ -661,8 +662,8 @@ function sanitizeRangeBehaviors(
       unsortedKeys.length === 1
         ? unsortedKeys[0]
         : unsortedKeys.length === 2
-            ? `${unsortedKeys[0]}\` and \`${unsortedKeys[1]}`
-            : unsortedKeys.slice(0, -1).join('`, `'),
+          ? `${unsortedKeys[0]}\` and \`${unsortedKeys[1]}`
+          : unsortedKeys.slice(0, -1).join('`, `'),
       unsortedKeys.length > 2 ? `, and \`${unsortedKeys.slice(-1)}\`` : '',
     );
   }

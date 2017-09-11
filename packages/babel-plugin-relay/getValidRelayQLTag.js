@@ -7,27 +7,27 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule getValidRelayQLTag
+ * @flow
+ * @format
  */
 
 'use strict';
-
-const RELAY_QL_GENERATED = 'RelayQL_GENERATED';
 
 /**
  * Given a TemplateLiteral path, return the metadata about a RelayQL tag
  * if one exists.
  */
-function getValidRelayQLTag(path) {
+function getValidRelayQLTag(path: any): [any, ?string, ?string] {
   const {node} = path;
 
   const tag = path.get('tag');
-  const tagName =
-    tag.matchesPattern('Relay.QL') ? 'Relay.QL' :
-    tag.isIdentifier({name: 'RelayQL'}) ? 'RelayQL' :
-    tag.isIdentifier({name: RELAY_QL_GENERATED}) ? RELAY_QL_GENERATED :
-    null;
+  const tagName = tag.matchesPattern('Relay.QL')
+    ? 'Relay.QL'
+    : tag.matchesPattern('RelayClassic.QL')
+      ? 'RelayClassic.QL'
+      : tag.isIdentifier({name: 'RelayQL'}) ? 'RelayQL' : null;
   if (!tagName) {
-    return [];
+    return [null, null, null];
   }
 
   let p = path;

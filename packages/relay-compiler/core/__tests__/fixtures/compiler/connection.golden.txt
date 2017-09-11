@@ -107,8 +107,47 @@
                                             "args": null,
                                             "name": "name",
                                             "storageKey": null
+                                          },
+                                          {
+                                            "kind": "ScalarField",
+                                            "alias": null,
+                                            "args": null,
+                                            "name": "__typename",
+                                            "storageKey": null
                                           }
                                         ],
+                                        "storageKey": null
+                                      },
+                                      {
+                                        "kind": "ScalarField",
+                                        "alias": null,
+                                        "args": null,
+                                        "name": "cursor",
+                                        "storageKey": null
+                                      }
+                                    ],
+                                    "storageKey": null
+                                  },
+                                  {
+                                    "kind": "LinkedField",
+                                    "alias": null,
+                                    "args": null,
+                                    "concreteType": "PageInfo",
+                                    "name": "pageInfo",
+                                    "plural": false,
+                                    "selections": [
+                                      {
+                                        "kind": "ScalarField",
+                                        "alias": null,
+                                        "args": null,
+                                        "name": "endCursor",
+                                        "storageKey": null
+                                      },
+                                      {
+                                        "kind": "ScalarField",
+                                        "alias": null,
+                                        "args": null,
+                                        "name": "hasNextPage",
                                         "storageKey": null
                                       }
                                     ],
@@ -119,8 +158,47 @@
                               }
                             ],
                             "storageKey": null
+                          },
+                          {
+                            "kind": "ScalarField",
+                            "alias": null,
+                            "args": null,
+                            "name": "__typename",
+                            "storageKey": null
                           }
                         ],
+                        "storageKey": null
+                      },
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "args": null,
+                        "name": "cursor",
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  },
+                  {
+                    "kind": "LinkedField",
+                    "alias": null,
+                    "args": null,
+                    "concreteType": "PageInfo",
+                    "name": "pageInfo",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "args": null,
+                        "name": "endCursor",
+                        "storageKey": null
+                      },
+                      {
+                        "kind": "ScalarField",
+                        "alias": null,
+                        "args": null,
+                        "name": "hasNextPage",
                         "storageKey": null
                       }
                     ],
@@ -237,6 +315,13 @@
                         "plural": false,
                         "selections": [
                           {
+                            "kind": "ScalarField",
+                            "alias": null,
+                            "args": null,
+                            "name": "__typename",
+                            "storageKey": null
+                          },
+                          {
                             "kind": "LinkedField",
                             "alias": null,
                             "args": null,
@@ -293,6 +378,13 @@
                                             "kind": "ScalarField",
                                             "alias": null,
                                             "args": null,
+                                            "name": "__typename",
+                                            "storageKey": null
+                                          },
+                                          {
+                                            "kind": "ScalarField",
+                                            "alias": null,
+                                            "args": null,
                                             "name": "name",
                                             "storageKey": null
                                           },
@@ -301,13 +393,6 @@
                                             "alias": null,
                                             "args": null,
                                             "name": "id",
-                                            "storageKey": null
-                                          },
-                                          {
-                                            "kind": "ScalarField",
-                                            "alias": null,
-                                            "args": null,
-                                            "name": "__typename",
                                             "storageKey": null
                                           }
                                         ],
@@ -343,20 +428,6 @@
                                         "alias": null,
                                         "args": null,
                                         "name": "hasNextPage",
-                                        "storageKey": null
-                                      },
-                                      {
-                                        "kind": "ScalarField",
-                                        "alias": null,
-                                        "args": null,
-                                        "name": "hasPreviousPage",
-                                        "storageKey": null
-                                      },
-                                      {
-                                        "kind": "ScalarField",
-                                        "alias": null,
-                                        "args": null,
-                                        "name": "startCursor",
                                         "storageKey": null
                                       }
                                     ],
@@ -397,13 +468,6 @@
                             "args": null,
                             "name": "id",
                             "storageKey": null
-                          },
-                          {
-                            "kind": "ScalarField",
-                            "alias": null,
-                            "args": null,
-                            "name": "__typename",
-                            "storageKey": null
                           }
                         ],
                         "storageKey": null
@@ -438,20 +502,6 @@
                         "alias": null,
                         "args": null,
                         "name": "hasNextPage",
-                        "storageKey": null
-                      },
-                      {
-                        "kind": "ScalarField",
-                        "alias": null,
-                        "args": null,
-                        "name": "hasPreviousPage",
-                        "storageKey": null
-                      },
-                      {
-                        "kind": "ScalarField",
-                        "alias": null,
-                        "args": null,
-                        "name": "startCursor",
                         "storageKey": null
                       }
                     ],
@@ -497,37 +547,33 @@ query NodeQuery(
       comments(first: 10) {
         edges {
           node {
+            __typename
             actor {
               __typename
               name
               friends(first: 10) {
                 edges {
                   node {
+                    __typename
                     name
                     id
-                    __typename
                   }
                   cursor
                 }
                 pageInfo {
                   endCursor
                   hasNextPage
-                  hasPreviousPage
-                  startCursor
                 }
               }
               id
             }
             id
-            __typename
           }
           cursor
         }
         pageInfo {
           endCursor
           hasNextPage
-          hasPreviousPage
-          startCursor
         }
       }
     }

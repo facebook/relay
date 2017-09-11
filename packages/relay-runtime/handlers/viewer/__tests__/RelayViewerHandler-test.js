@@ -7,18 +7,17 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
 
-jest.autoMockOff();
-
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayModernRecord = require('RelayModernRecord');
+const RelayModernTestUtils = require('RelayModernTestUtils');
 const RelayRecordSourceMutator = require('RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('RelayRecordSourceProxy');
 const RelayStoreUtils = require('RelayStoreUtils');
-const RelayModernTestUtils = require('RelayModernTestUtils');
 const RelayViewerHandler = require('RelayViewerHandler');
 
 const generateRelayClientID = require('generateRelayClientID');
@@ -38,7 +37,7 @@ describe('RelayViewerHandler', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    jasmine.addMatchers(RelayModernTestUtils.matchers);
+    expect.extend(RelayModernTestUtils.matchers);
 
     baseData = {
       [ROOT_ID]: {

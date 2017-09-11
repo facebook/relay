@@ -20,6 +20,9 @@ const {graphql, createRefetchContainer} = require('ReactRelayPublic');
  * Verifies that normal prop type checking works correctly on Relay components.
  */
 
+/* $FlowFixMe(>=0.53.0) This comment suppresses an error
+ * when upgrading Flow's support for React. Common errors found when upgrading
+ * Flow's React support are documented at https://fburl.com/eq7bs81w */
 class FooComponent extends React.Component {
   props: {
     optionalProp?: {foo: number},
@@ -44,7 +47,9 @@ class FooComponent extends React.Component {
 
     const defLen = this.props.defaultProp.length; // always a valid string, so no error
     return (
-      <div>{reqLen && optionalProp && optionalFoo && missing && defLen}</div>
+      <div>
+        {reqLen && optionalProp && optionalFoo && missing && defLen}
+      </div>
     );
   }
 }
@@ -117,6 +122,10 @@ module.exports = {
     return <Foo {...props} />;
   },
   checkStaticsAndMethodsProxying() {
+    /* $FlowFixMe(>=0.53.0) This comment suppresses an
+     * error when upgrading Flow's support for React. Common errors found when
+     * upgrading Flow's React support are documented at
+     * https://fburl.com/eq7bs81w */
     class ProxyChecker extends React.PureComponent {
       _fooRef: ?Foo;
       getString(): string {

@@ -12,13 +12,15 @@
 
 'use strict';
 
+jest.enableAutomock();
+
 require('configureForRelayOSS');
 
 jest.unmock('RelayContainer');
 
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 const React = require('React');
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayRecordStatusMap = require('RelayRecordStatusMap');
 const RelayTestUtils = require('RelayTestUtils');
@@ -36,8 +38,8 @@ describe('RelayContainer.hasPartialData', () => {
         return <div />;
       }
     }
-    MockContainer = Relay.createContainer(MockComponent, {
-      fragments: {foo: () => Relay.QL`fragment on Node{id}`},
+    MockContainer = RelayClassic.createContainer(MockComponent, {
+      fragments: {foo: () => RelayClassic.QL`fragment on Node{id}`},
     });
     environment = new RelayEnvironment();
     RelayTestRenderer = RelayTestUtils.createRenderer();
@@ -46,7 +48,7 @@ describe('RelayContainer.hasPartialData', () => {
       return {__dataID__: dataID, id: dataID};
     });
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('returns true for records with partial data bit set', () => {

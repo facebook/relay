@@ -79,23 +79,25 @@ class RelayRoute<Tv: Object> extends RelayQueryConfig<Tv> {
       /* $FlowFixMe(>=0.17.0) - params is ?Tv but prepareParams expects Tv */
       params = prepareParams(params);
     }
-    forEachObject(paramDefinitions, (paramDefinition, paramName) => {
-      if (params) {
-        if (params.hasOwnProperty(paramName)) {
-          return;
-        } else {
-          // Backfill param so that a call variable is created for it.
-          params[paramName] = undefined;
+    if (paramDefinitions) {
+      forEachObject(paramDefinitions, (paramDefinition, paramName) => {
+        if (params) {
+          if (params.hasOwnProperty(paramName)) {
+            return;
+          } else {
+            // Backfill param so that a call variable is created for it.
+            params[paramName] = undefined;
+          }
         }
-      }
-      invariant(
-        !paramDefinition.required,
-        'RelayRoute: Missing required parameter `%s` in `%s`. Check the ' +
-          'supplied params or URI.',
-        paramName,
-        routeName,
-      );
-    });
+        invariant(
+          !paramDefinition.required,
+          'RelayRoute: Missing required parameter `%s` in `%s`. Check the ' +
+            'supplied params or URI.',
+          paramName,
+          routeName,
+        );
+      });
+    }
     return params;
   }
 

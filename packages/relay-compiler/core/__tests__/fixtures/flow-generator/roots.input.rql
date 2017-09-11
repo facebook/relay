@@ -8,7 +8,7 @@ fragment ExampleFragment on User {
   id
 }
 
-mutation TestMutation($input: CommentCreateInput) {
+mutation TestMutation($input: CommentCreateInput!) {
   commentCreate(input: $input) {
     comment {
       id

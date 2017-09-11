@@ -7,14 +7,12 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
 
-jest
-  .dontMock('GraphQLStoreChangeEmitter')
-  .mock('relayUnstableBatchedUpdates')
-  .autoMockOff();
+jest.dontMock('GraphQLStoreChangeEmitter').mock('relayUnstableBatchedUpdates');
 
 const RelayEnvironment = require('RelayEnvironment');
 const RelayFragmentSpecResolver = require('RelayFragmentSpecResolver');
@@ -26,6 +24,7 @@ const {
   getClassicFragment,
   getClassicOperation,
 } = require('RelayGraphQLTag');
+const {createOperationSelector} = require('RelayOperationSelector');
 
 describe('RelayFragmentSpecResolver', () => {
   let UserFragment;
@@ -59,15 +58,11 @@ describe('RelayFragmentSpecResolver', () => {
   function setName(id, name) {
     const nodeAlias = generateRQLFieldAlias(`node.id(${id})`);
     environment.commitPayload(
-      {
-        dataID: ROOT_ID,
-        node: UserQuery.node,
-        variables: {
-          fetchSize: false,
-          id,
-          size: null,
-        },
-      },
+      createOperationSelector(UserQuery, {
+        fetchSize: false,
+        id,
+        size: null,
+      }),
       {
         [nodeAlias]: {
           id,
@@ -85,15 +80,11 @@ describe('RelayFragmentSpecResolver', () => {
     // If name is not specified it will be nulled out
     const name = environment.getStoreData().getNodeData()[id].name;
     environment.commitPayload(
-      {
-        dataID: ROOT_ID,
-        node: UserQuery.node,
-        variables: {
-          fetchSize: true,
-          id,
-          size,
-        },
-      },
+      createOperationSelector(UserQuery, {
+        fetchSize: true,
+        id,
+        size,
+      }),
       {
         [nodeAlias]: {
           id,
@@ -109,7 +100,7 @@ describe('RelayFragmentSpecResolver', () => {
   }
 
   beforeEach(() => {
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
 
     environment = new RelayEnvironment();
     mockInstanceMethod(environment, 'lookup');
@@ -118,25 +109,26 @@ describe('RelayFragmentSpecResolver', () => {
     const fragments = {
       user: getClassicFragment(
         graphql`
-        fragment RelayFragmentSpecResolver_user on User {
-          id
-          name
-          profilePicture(size: $size) @include(if: $fetchSize) {
-            uri
+          fragment RelayFragmentSpecResolver_user on User {
+            id
+            name
+            profilePicture(size: $size) @include(if: $fetchSize) {
+              uri
+            }
           }
-        }
-      `,
+        `,
       ),
       users: getClassicFragment(
         graphql`
-        fragment RelayFragmentSpecResolver_users on User @relay(plural: true) {
-          id
-          name
-          profilePicture(size: $size) @include(if: $fetchSize) {
-            uri
+          fragment RelayFragmentSpecResolver_users on User
+            @relay(plural: true) {
+            id
+            name
+            profilePicture(size: $size) @include(if: $fetchSize) {
+              uri
+            }
           }
-        }
-      `,
+        `,
       ),
     };
     // Fake a container: The `...Container_*` fragment spreads below are
@@ -154,24 +146,28 @@ describe('RelayFragmentSpecResolver', () => {
     };
     UserQuery = getClassicOperation(
       graphql`
-      query RelayFragmentSpecResolverQuery($id: ID!, $size: Int, $fetchSize: Boolean!) {
-        node(id: $id) {
-          ...Container_user
-          ...Container_users
+        query RelayFragmentSpecResolverQuery(
+          $id: ID!
+          $size: Int
+          $fetchSize: Boolean!
+        ) {
+          node(id: $id) {
+            ...Container_user
+            ...Container_users
+          }
         }
-      }
-    `,
+      `,
     );
     UserFragment = fragments.user;
     UsersFragment = fragments.users;
 
     let nodeAlias = generateRQLFieldAlias('node.id(4)');
     environment.commitPayload(
-      {
-        dataID: ROOT_ID,
-        node: UserQuery.node,
-        variables: {fetchSize: false, id: '4', size: null},
-      },
+      createOperationSelector(UserQuery, {
+        fetchSize: false,
+        id: '4',
+        size: null,
+      }),
       {
         [nodeAlias]: {
           id: '4',
@@ -182,11 +178,11 @@ describe('RelayFragmentSpecResolver', () => {
     );
     nodeAlias = generateRQLFieldAlias('node.id(beast)');
     environment.commitPayload(
-      {
-        dataID: ROOT_ID,
-        node: UserQuery.node,
-        variables: {fetchSize: false, id: 'beast', size: null},
-      },
+      createOperationSelector(UserQuery, {
+        fetchSize: false,
+        id: 'beast',
+        size: null,
+      }),
       {
         [nodeAlias]: {
           id: 'beast',

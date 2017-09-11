@@ -1,0 +1,23 @@
+fragment UserProfile on User {
+  profilePicture(size: $ProfilePicture_SIZE) {
+    uri
+    width
+    height
+    ...PhotoFragment
+  }
+}
+
+fragment PhotoFragment on Image {
+  uri
+  width
+}
+
+fragment RecursiveFragment on Image {
+  uri
+  width
+}
+
+fragment AnotherRecursiveFragment on Image {
+  uri
+  height
+}

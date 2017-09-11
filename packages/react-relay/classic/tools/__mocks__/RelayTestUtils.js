@@ -13,6 +13,11 @@
 
 const Map = require('Map');
 
+const diff = require('jest-diff');
+
+jest.dontMock('react-test-renderer');
+const ReactTestRenderer = require('react-test-renderer');
+
 /**
  * Utility methods (eg. for unmocking Relay internals) and custom Jasmine
  * matchers.
@@ -59,7 +64,7 @@ const RelayTestUtils = {
       }
     }
 
-    container = container || document.createElement('div');
+    container = container || ReactTestRenderer.create();
 
     let prevEnvironment;
     let relay;
@@ -84,7 +89,8 @@ const RelayTestUtils = {
         function ref(component) {
           result = component;
         }
-        ReactDOM.render(
+
+        const node = (
           <ContextSetter
             context={{relay, route}}
             render={() => {
@@ -111,10 +117,22 @@ const RelayTestUtils = {
               }
               return React.cloneElement(element, {...pointers, ref});
             }}
-          />,
-          container,
+          />
         );
+
+        if ('innerHTML' in container) {
+          ReactDOM.render(node, container);
+        } else {
+          container.update(node);
+        }
         return result;
+      },
+      unmount() {
+        if ('innerHTML' in container) {
+          ReactDOM.unmountComponentAtNode(container);
+        } else {
+          container.unmount();
+        }
       },
     };
   },
@@ -290,17 +308,13 @@ const RelayTestUtils = {
     /**
      * Checks if a RelayQuery.Root is `===` to another.
      */
-    toBeQueryRoot() {
-      return {
-        compare(actual, expected) {
-          const RelayQuery = require('RelayQuery');
-          const queryType = checkQueryType(actual, expected, RelayQuery.Root);
-          if (!queryType.pass) {
-            return queryType;
-          }
-          return checkQueryEquality(actual, expected, true);
-        },
-      };
+    toBeQueryRoot(actual, expected) {
+      const RelayQuery = require('RelayQuery');
+      const queryType = checkQueryType(actual, expected, RelayQuery.Root);
+      if (!queryType.pass) {
+        return queryType;
+      }
+      return checkQueryEquality(actual, expected, true);
     },
 
     /**
@@ -325,90 +339,82 @@ const RelayTestUtils = {
      *   expect(["format"]).toBeWarnedNTimes(3);
      *
      */
-    toBeWarnedNTimes() {
+    toBeWarnedNTimes(actual, expectedCount) {
+      const warning = require('warning');
+      if (!warning.mock) {
+        throw new Error(
+          'expect(...).toBeWarnedNTimes(): Requires ' +
+            "`jest.mock('warning');`.",
+        );
+      }
+      const expectedArgs = actual;
+      if (!Array.isArray(expectedArgs)) {
+        throw new Error(
+          'expect(...).toBeWarnedNTimes(): Requires an array of ' +
+            'warning args.',
+        );
+      }
+      const [format, ...values] = expectedArgs;
+      if (!format) {
+        throw new Error(
+          'expect(...).toBeWarnedNTimes(): Requires a format string.',
+        );
+      }
+
+      const callsWithExpectedFormatButArgs = [];
+      const callsWithExpectedArgs = warning.mock.calls.filter(args => {
+        if (args[0] || args[1] !== format) {
+          return false;
+        }
+        if (values.some((value, ii) => value !== args[ii + 2])) {
+          callsWithExpectedFormatButArgs.push(args.slice(1));
+          return false;
+        }
+        return true;
+      });
+
+      let message =
+        'Expected to warn ' +
+        expectedCount +
+        ' time' +
+        (expectedCount === 1 ? '' : 's') +
+        ' with arguments: ' +
+        JSON.stringify(expectedArgs) +
+        '.';
+      const unexpectedCount = callsWithExpectedFormatButArgs.length;
+      if (unexpectedCount) {
+        message +=
+          ' Instead, called ' +
+          unexpectedCount +
+          ' time' +
+          (unexpectedCount === 1 ? '' : 's') +
+          ' with arguments: ' +
+          JSON.stringify(callsWithExpectedFormatButArgs) +
+          '.';
+      }
+
       return {
-        compare(actual, expectedCount) {
-          const warning = require('warning');
-          if (!warning.mock) {
-            throw new Error(
-              'expect(...).toBeWarnedNTimes(): Requires ' +
-                "`jest.mock('warning');`.",
-            );
-          }
-          const expectedArgs = actual;
-          if (!Array.isArray(expectedArgs)) {
-            throw new Error(
-              'expect(...).toBeWarnedNTimes(): Requires an array of ' +
-                'warning args.',
-            );
-          }
-          const [format, ...values] = expectedArgs;
-          if (!format) {
-            throw new Error(
-              'expect(...).toBeWarnedNTimes(): Requires a format string.',
-            );
-          }
-
-          const callsWithExpectedFormatButArgs = [];
-          const callsWithExpectedArgs = warning.mock.calls.filter(args => {
-            if (args[0] || args[1] !== format) {
-              return false;
-            }
-            if (values.some((value, ii) => value !== args[ii + 2])) {
-              callsWithExpectedFormatButArgs.push(args.slice(1));
-              return false;
-            }
-            return true;
-          });
-
-          let message =
-            'Expected to warn ' +
-            expectedCount +
-            ' time' +
-            (expectedCount === 1 ? '' : 's') +
-            ' with arguments: ' +
-            JSON.stringify(expectedArgs) +
-            '.';
-          const unexpectedCount = callsWithExpectedFormatButArgs.length;
-          if (unexpectedCount) {
-            message +=
-              ' Instead, called ' +
-              unexpectedCount +
-              ' time' +
-              (unexpectedCount === 1 ? '' : 's') +
-              ' with arguments: ' +
-              JSON.stringify(callsWithExpectedFormatButArgs) +
-              '.';
-          }
-
-          return {
-            pass: callsWithExpectedArgs.length === expectedCount,
-            message,
-          };
-        },
+        pass: callsWithExpectedArgs.length === expectedCount,
+        message,
       };
     },
 
     /**
      * Checks if a query node contains a node that `equals()` another.
      */
-    toContainQueryNode() {
+    toContainQueryNode(actual, expected) {
+      if (!RelayTestUtils.containsNode(actual, expected)) {
+        return {
+          pass: false,
+          message: printQueryComparison(
+            actual,
+            expected,
+            'to contain query node',
+          ),
+        };
+      }
       return {
-        compare(actual, expected) {
-          if (!RelayTestUtils.containsNode(actual, expected)) {
-            return {
-              pass: false,
-              message: printQueryComparison(
-                actual,
-                expected,
-                'to contain query node',
-              ),
-            };
-          }
-          return {
-            pass: true,
-          };
-        },
+        pass: true,
       };
     },
 
@@ -419,155 +425,144 @@ const RelayTestUtils = {
      * Handles basic objects, arrays and primitive types, but doesn't support
      * "exotic" types like Date etc.
      */
-    toMatchRecord() {
-      return {compare: require('matchRecord')};
+    toMatchRecord(...args) {
+      return require('matchRecord')(...args);
     },
 
-    toEqualPrintedQuery() {
-      return {
-        compare(actual, expected) {
-          const minifiedActual = RelayTestUtils.minifyQueryText(actual);
-          const minifiedExpected = RelayTestUtils.minifyQueryText(expected);
+    toEqualPrintedQuery(received, expected) {
+      const minifiedReceived = RelayTestUtils.minifyQueryText(received);
+      const minifiedExpected = RelayTestUtils.minifyQueryText(expected);
 
-          if (minifiedActual !== minifiedExpected) {
-            return {
-              pass: false,
-              message: [minifiedActual, 'to equal', minifiedExpected].join(
-                '\n',
-              ),
-            };
-          }
-          return {
-            pass: true,
+      const pass = minifiedReceived === minifiedExpected;
+      const message = pass
+        ? () =>
+            this.utils.matcherHint('.not.toEqualPrintedQuery') +
+            '\n\n' +
+            'Expected query to not be:\n' +
+            `  ${this.utils.printExpected(minifiedExpected)}\n` +
+            'Received:\n' +
+            `  ${this.utils.printReceived(minifiedReceived)}`
+        : () => {
+            const diffString = diff(minifiedExpected, minifiedReceived, {
+              expand: this.expand,
+            });
+            return (
+              this.utils.matcherHint('.toEqualPrintedQuery') +
+              '\n\n' +
+              'Expected query to be:\n' +
+              `  ${this.utils.printExpected(minifiedExpected)}\n` +
+              'Received:\n' +
+              `  ${this.utils.printReceived(minifiedReceived)}` +
+              (diffString ? `\n\nDifference:\n\n${diffString}` : '')
+            );
           };
-        },
-      };
+
+      return {actual: minifiedReceived, message, pass};
     },
 
     /**
      * Checks if a RelayQuery.Node is `equals()` to another.
      */
-    toEqualQueryNode() {
-      return {
-        compare(actual, expected) {
-          const RelayQuery = require('RelayQuery');
-          const queryType = checkQueryType(actual, expected, RelayQuery.Node);
-          if (!queryType.pass) {
-            return queryType;
-          }
-          return checkQueryEquality(actual, expected, false);
-        },
-      };
+    toEqualQueryNode(actual, expected) {
+      const RelayQuery = require('RelayQuery');
+      const queryType = checkQueryType(actual, expected, RelayQuery.Node);
+      if (!queryType.pass) {
+        return queryType;
+      }
+      return checkQueryEquality(actual, expected, false);
     },
 
     /**
      * Checks if a RelayQuery.Root is `equals()` to another.
      */
-    toEqualQueryRoot() {
+    toEqualQueryRoot(actual, expected) {
+      const RelayQuery = require('RelayQuery');
+      const queryType = checkQueryType(actual, expected, RelayQuery.Root);
+      if (!queryType.pass) {
+        return queryType;
+      }
+      return checkQueryEquality(actual, expected, false);
+    },
+
+    toFailInvariant(actual, expected) {
+      expect(actual).toThrowError(expected);
       return {
-        compare(actual, expected) {
-          const RelayQuery = require('RelayQuery');
-          const queryType = checkQueryType(actual, expected, RelayQuery.Root);
-          if (!queryType.pass) {
-            return queryType;
-          }
-          return checkQueryEquality(actual, expected, false);
-        },
+        pass: true,
       };
     },
 
-    toFailInvariant() {
-      return {
-        compare(actual, expected) {
-          expect(actual).toThrowError(expected);
-          return {
-            pass: true,
-          };
-        },
-      };
-    },
+    toWarn(actual, expected) {
+      const negative = this.isNot;
 
-    toWarn() {
-      function compare(negative) {
-        function formatItem(item) {
-          return item instanceof RegExp
-            ? item.toString()
-            : JSON.stringify(item);
+      function formatItem(item) {
+        return item instanceof RegExp ? item.toString() : JSON.stringify(item);
+      }
+
+      function formatArray(array) {
+        return '[' + array.map(formatItem).join(', ') + ']';
+      }
+
+      function formatExpected(args) {
+        return formatArray([!!negative].concat(args));
+      }
+
+      function formatActual(calls) {
+        if (calls.length) {
+          return calls
+            .map(args => {
+              return formatArray([!!args[0]].concat(args.slice(1)));
+            })
+            .join(', ');
+        } else {
+          return '[]';
         }
+      }
 
-        function formatArray(array) {
-          return '[' + array.map(formatItem).join(', ') + ']';
-        }
+      const warning = require('warning');
+      if (!warning.mock) {
+        throw new Error("toWarn(): Requires `jest.mock('warning')`.");
+      }
 
-        function formatExpected(args) {
-          return formatArray([!!negative].concat(args));
-        }
+      const callsCount = warning.mock.calls.length;
+      actual();
+      const calls = warning.mock.calls.slice(callsCount);
 
-        function formatActual(calls) {
-          if (calls.length) {
-            return calls
-              .map(args => {
-                return formatArray([!!args[0]].concat(args.slice(1)));
-              })
-              .join(', ');
-          } else {
-            return '[]';
-          }
-        }
-
-        return function(actual, expected) {
-          const warning = require('warning');
-          if (!warning.mock) {
-            throw new Error("toWarn(): Requires `jest.mock('warning')`.");
-          }
-
-          const callsCount = warning.mock.calls.length;
-          actual();
-          const calls = warning.mock.calls.slice(callsCount);
-
-          // Simple case: no explicit expectation.
-          if (!expected) {
-            const warned = calls.filter(args => !args[0]).length;
-            return {
-              pass: !(negative ? warned : !warned),
-              message: `Expected ${negative ? 'not ' : ''}to warn but ` +
-                '`warning` received the following calls: ' +
-                `${formatActual(calls)}.`,
-            };
-          }
-
-          // Custom case: explicit expectation.
-          if (!Array.isArray(expected)) {
-            expected = [expected];
-          }
-          const call = calls.find(args => {
-            return (
-              args.length === expected.length + 1 &&
-              args.every((arg, index) => {
-                if (!index) {
-                  return !arg;
-                }
-                const other = expected[index - 1];
-                return other instanceof RegExp
-                  ? other.test(arg)
-                  : arg === other;
-              })
-            );
-          });
-
-          return {
-            pass: !(negative ? call : !call),
-            message: `Expected ${negative ? 'not ' : ''}to warn: ` +
-              `${formatExpected(expected)} but ` +
-              '`warning` received the following calls: ' +
-              `${formatActual(calls)}.`,
-          };
+      // Simple case: no explicit expectation.
+      if (!expected) {
+        const warned = calls.filter(args => !args[0]).length;
+        return {
+          pass: !(negative ? warned : !warned),
+          message:
+            `Expected ${negative ? 'not ' : ''}to warn but ` +
+            '`warning` received the following calls: ' +
+            `${formatActual(calls)}.`,
         };
       }
 
+      // Custom case: explicit expectation.
+      if (!Array.isArray(expected)) {
+        expected = [expected];
+      }
+      const call = calls.find(args => {
+        return (
+          args.length === expected.length + 1 &&
+          args.every((arg, index) => {
+            if (!index) {
+              return !arg;
+            }
+            const other = expected[index - 1];
+            return other instanceof RegExp ? other.test(arg) : arg === other;
+          })
+        );
+      });
+
       return {
-        compare: compare(),
-        negativeCompare: compare(true),
+        pass: !(negative ? call : !call),
+        message:
+          `Expected ${negative ? 'not ' : ''}to warn: ` +
+          `${formatExpected(expected)} but ` +
+          '`warning` received the following calls: ' +
+          `${formatActual(calls)}.`,
       };
     },
 
@@ -575,75 +570,67 @@ const RelayTestUtils = {
      * Compares a query path with another path. Succeeds when the paths are of
      * the same length have equivalent (shallow-equal) roots and fields.
      */
-    toMatchPath() {
-      return {
-        compare(actual, expected) {
-          const QueryBuilder = require('QueryBuilder');
-          const RelayMetaRoute = require('RelayMetaRoute');
-          const RelayNodeInterface = require('RelayNodeInterface');
-          const RelayQuery = require('RelayQuery');
-          const RelayQueryPath = require('RelayQueryPath');
+    toMatchPath(actual, expected) {
+      const QueryBuilder = require('QueryBuilder');
+      const RelayMetaRoute = require('RelayMetaRoute');
+      const RelayNodeInterface = require('RelayNodeInterface');
+      const RelayQuery = require('RelayQuery');
+      const RelayQueryPath = require('RelayQueryPath');
 
-          const invariant = require('invariant');
-          const printRelayQuery = require('printRelayQuery');
+      const invariant = require('invariant');
+      const printRelayQuery = require('printRelayQuery');
 
-          const fragment = RelayQuery.Fragment.create(
-            QueryBuilder.createFragment({
-              children: [
-                QueryBuilder.createField({
-                  fieldName: '__test__',
-                }),
-              ],
-              name: 'Test',
-              type: 'Node',
+      const fragment = RelayQuery.Fragment.create(
+        QueryBuilder.createFragment({
+          children: [
+            QueryBuilder.createField({
+              fieldName: '__test__',
             }),
-            RelayMetaRoute.get('$RelayTestUtils'),
-            {},
+          ],
+          name: 'Test',
+          type: 'Node',
+        }),
+        RelayMetaRoute.get('$RelayTestUtils'),
+        {},
+      );
+      const mockStore = {
+        getDataID(fieldName: string, identifyingArgValue: string): string {
+          invariant(
+            fieldName === RelayNodeInterface.NODE,
+            'RelayTestUtils: Cannot `getDataID` for non-node root call ' +
+              '`%s` with identifying argument `%s`.',
+            fieldName,
+            identifyingArgValue,
           );
-          const mockStore = {
-            getDataID(fieldName: string, identifyingArgValue: string): string {
-              invariant(
-                fieldName === RelayNodeInterface.NODE,
-                'RelayTestUtils: Cannot `getDataID` for non-node root call ' +
-                  '`%s` with identifying argument `%s`.',
-                fieldName,
-                identifyingArgValue,
-              );
-              return identifyingArgValue;
-            },
-            getType() {
-              return RelayNodeInterface.ANY_TYPE;
-            },
-          };
-
-          const actualQuery = RelayQueryPath.getQuery(
-            mockStore,
-            actual,
-            fragment,
-          );
-          const expectedQuery = RelayQueryPath.getQuery(
-            mockStore,
-            expected,
-            fragment,
-          );
-
-          if (!actualQuery.equals(expectedQuery)) {
-            return {
-              pass: false,
-              message: [
-                'Expected:',
-                '  ' + printRelayQuery(actualQuery).text,
-                '\ntoMatchPath:',
-                '  ' + printRelayQuery(expectedQuery).text,
-              ]
-                .filter(token => token)
-                .join('\n'),
-            };
-          }
-          return {
-            pass: true,
-          };
+          return identifyingArgValue;
         },
+        getType() {
+          return RelayNodeInterface.ANY_TYPE;
+        },
+      };
+
+      const actualQuery = RelayQueryPath.getQuery(mockStore, actual, fragment);
+      const expectedQuery = RelayQueryPath.getQuery(
+        mockStore,
+        expected,
+        fragment,
+      );
+
+      if (!actualQuery.equals(expectedQuery)) {
+        return {
+          pass: false,
+          message: [
+            'Expected:',
+            '  ' + printRelayQuery(actualQuery).text,
+            '\ntoMatchPath:',
+            '  ' + printRelayQuery(expectedQuery).text,
+          ]
+            .filter(token => token)
+            .join('\n'),
+        };
+      }
+      return {
+        pass: true,
       };
     },
   },
@@ -722,9 +709,8 @@ const RelayTestUtils = {
     const RelayQueryWriter = require('RelayQueryWriter');
     const writeRelayQueryPayload = require('writeRelayQueryPayload');
 
-    queryTracker = queryTracker === null
-      ? null
-      : queryTracker || new RelayQueryTracker();
+    queryTracker =
+      queryTracker === null ? null : queryTracker || new RelayQueryTracker();
     options = options || {};
     const changeTracker = new RelayChangeTracker();
     const queryWriter = new RelayQueryWriter(
@@ -841,9 +827,8 @@ function prettifyQueryString(queryText, indentSize) {
   while ((match = regexp.exec(queryText))) {
     if (match[0] === '{') {
       indent += '  ';
-      const padding = match.index && queryText[match.index - 1] !== ' '
-        ? ' '
-        : '';
+      const padding =
+        match.index && queryText[match.index - 1] !== ' ' ? ' ' : '';
       output += padding + '{\n' + indent;
     } else if (match[0] === '}') {
       indent = indent.substr(0, indent.length - 2);

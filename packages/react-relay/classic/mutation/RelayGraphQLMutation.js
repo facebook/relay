@@ -20,7 +20,7 @@ const RelayQuery = require('RelayQuery');
 
 const invariant = require('invariant');
 
-const {CLIENT_MUTATION_ID} = require('RelayConnectionInterface');
+const {ConnectionInterface} = require('RelayRuntime');
 
 import type {RelayEnvironmentInterface} from 'RelayEnvironment';
 import type {ClientMutationID} from 'RelayInternalTypes';
@@ -329,7 +329,7 @@ class PendingGraphQLTransaction {
   getOptimisticResponse(): ?Object {
     return {
       ...this._optimisticResponse,
-      [CLIENT_MUTATION_ID]: this.id,
+      [ConnectionInterface.get().CLIENT_MUTATION_ID]: this.id,
     };
   }
 
@@ -382,7 +382,7 @@ class PendingGraphQLTransaction {
       ...this._variables,
       input: {
         ...(input: $FlowFixMe),
-        [CLIENT_MUTATION_ID]: this.id,
+        [ConnectionInterface.get().CLIENT_MUTATION_ID]: this.id,
       },
     };
   }

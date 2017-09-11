@@ -7,17 +7,17 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
 
-jest.autoMockOff();
-
 require('configureForRelayOSS');
 
 const {transformASTSchema} = require('ASTConvert');
+const {generate} = require('RelayCodeGenerator');
 const RelayCompiler = require('RelayCompiler');
-const RelayCompilerContext = require('RelayCompilerContext');
+const GraphQLCompilerContext = require('GraphQLCompilerContext');
 const RelayIRTransforms = require('RelayIRTransforms');
 const RelayTestSchema = require('RelayTestSchema');
 
@@ -27,19 +27,20 @@ const prettyStringify = require('prettyStringify');
 
 describe('RelayCompiler', () => {
   beforeEach(() => {
-    jasmine.addMatchers(getGoldenMatchers(__filename));
+    expect.extend(getGoldenMatchers(__filename));
   });
 
   it('matches expected output', () => {
     expect('fixtures/compiler').toMatchGolden(text => {
       const relaySchema = transformASTSchema(
         RelayTestSchema,
-        RelayIRTransforms.schemaTransforms,
+        RelayIRTransforms.schemaExtensions,
       );
       const compiler = new RelayCompiler(
         RelayTestSchema,
-        new RelayCompilerContext(relaySchema),
+        new GraphQLCompilerContext(relaySchema),
         RelayIRTransforms,
+        generate,
       );
       compiler.addDefinitions(parseGraphQLText(relaySchema, text).definitions);
       return Array.from(compiler.compile().values())

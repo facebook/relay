@@ -13,17 +13,19 @@
 
 'use strict';
 
-const RelayCompilerContext = require('RelayCompilerContext');
-const RelayIRTransformer = require('RelayIRTransformer');
+const GraphQLCompilerContext = require('GraphQLCompilerContext');
+const GraphQLIRTransformer = require('GraphQLIRTransformer');
 
+const {getRawType} = require('GraphQLSchemaUtils');
 const {DEFAULT_HANDLE_KEY} = require('RelayDefaultHandleKey');
-const {getRawType} = require('RelaySchemaUtils');
+const {GraphQLObjectType} = require('graphql');
 
-import type {LinkedField} from 'RelayIR';
+import type {LinkedField} from 'GraphQLIR';
 import type {GraphQLSchema} from 'graphql';
 
 type State = {};
 
+const ID = 'id';
 const VIEWER_HANDLE = 'viewer';
 const VIEWER_TYPE = 'Viewer';
 
@@ -31,14 +33,18 @@ const VIEWER_TYPE = 'Viewer';
  * A transform that adds a "viewer" handle to all fields whose type is `Viewer`.
  */
 function transform(
-  context: RelayCompilerContext,
+  context: GraphQLCompilerContext,
   schema: GraphQLSchema,
-): RelayCompilerContext {
+): GraphQLCompilerContext {
   const viewerType = schema.getType(VIEWER_TYPE);
-  if (viewerType == null) {
+  if (
+    viewerType == null ||
+    !(viewerType instanceof GraphQLObjectType) ||
+    viewerType.getFields()[ID] != null
+  ) {
     return context;
   }
-  return RelayIRTransformer.transform(
+  return GraphQLIRTransformer.transform(
     context,
     {
       LinkedField: visitLinkedField,

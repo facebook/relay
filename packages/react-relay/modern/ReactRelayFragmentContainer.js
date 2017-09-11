@@ -17,6 +17,7 @@ const React = require('React');
 const RelayProfiler = require('RelayProfiler');
 const RelayPropTypes = require('RelayPropTypes');
 
+const areEqual = require('areEqual');
 const buildReactRelayContainer = require('buildReactRelayContainer');
 const invariant = require('invariant');
 const isRelayContext = require('isRelayContext');
@@ -45,16 +46,18 @@ const containerContextTypes = {
  * props, resolving them with the provided fragments and subscribing for
  * updates.
  */
-function createContainerWithFragments<TBase: ReactClass<*>>(
-  Component: TBase,
+function createContainerWithFragments<
+  TConfig,
+  TClass: React.ComponentType<TConfig>,
+>(
+  Component: TClass,
   fragments: FragmentMap,
-): TBase {
+): React.ComponentType<TConfig & {componentRef?: any}> {
   const ComponentClass = getReactComponent(Component);
   const componentName = getComponentName(Component);
   const containerName = `Relay(${componentName})`;
 
-  class Container extends React.Component {
-    state: ContainerState;
+  class Container extends React.Component<$FlowFixMeProps, ContainerState> {
     _resolver: FragmentSpecResolver;
 
     constructor(props, context) {
@@ -63,6 +66,7 @@ function createContainerWithFragments<TBase: ReactClass<*>>(
       const {createFragmentSpecResolver} = relay.environment.unstable_internal;
       this._resolver = createFragmentSpecResolver(
         relay,
+        containerName,
         fragments,
         props,
         this._handleFragmentDataUpdate,
@@ -83,13 +87,26 @@ function createContainerWithFragments<TBase: ReactClass<*>>(
     componentWillReceiveProps(nextProps, nextContext) {
       const context = nullthrows(nextContext);
       const relay = assertRelayContext(context.relay);
-      if (relay !== this.context.relay) {
-        const {
-          createFragmentSpecResolver,
-        } = relay.environment.unstable_internal;
+      const {
+        createFragmentSpecResolver,
+        getDataIDsFromObject,
+      } = relay.environment.unstable_internal;
+      const prevIDs = getDataIDsFromObject(fragments, this.props);
+      const nextIDs = getDataIDsFromObject(fragments, nextProps);
+      // If the environment has changed or props point to new records then
+      // previously fetched data and any pending fetches no longer apply:
+      // - Existing references are on the old environment.
+      // - Existing references are based on old variables.
+      // - Pending fetches are for the previous records.
+      if (
+        this.context.relay.environment !== relay.environment ||
+        this.context.relay.variables !== relay.variables ||
+        !areEqual(prevIDs, nextIDs)
+      ) {
         this._resolver.dispose();
         this._resolver = createFragmentSpecResolver(
           relay,
+          containerName,
           fragments,
           nextProps,
           this._handleFragmentDataUpdate,
@@ -151,7 +168,9 @@ function createContainerWithFragments<TBase: ReactClass<*>>(
           <ComponentClass
             {...this.props}
             {...this.state.data}
-            ref={'component'} // eslint-disable-line react/no-string-refs
+            // TODO: Remove the string ref fallback.
+            // eslint-disable-next-line react/no-string-refs
+            ref={this.props.componentRef || 'component'}
             relay={this.state.relayProp}
           />
         );
@@ -189,7 +208,7 @@ function assertRelayContext(relay: mixed): RelayContext {
  * `fragmentSpec` is memoized once per environment, rather than once per
  * instance of the container constructed/rendered.
  */
-function createContainer<TBase: ReactClass<*>>(
+function createContainer<TBase: React.ComponentType<*>>(
   Component: TBase,
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
 ): TBase {

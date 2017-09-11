@@ -86,9 +86,10 @@ class RelayReadyState {
     this._readyState = {
       ...this._readyState,
       ...nextReadyState,
-      events: newEvents && newEvents.length
-        ? [...this._readyState.events, ...newEvents]
-        : this._readyState.events,
+      events:
+        newEvents && newEvents.length
+          ? [...this._readyState.events, ...newEvents]
+          : this._readyState.events,
     };
     if (this._scheduled) {
       return;

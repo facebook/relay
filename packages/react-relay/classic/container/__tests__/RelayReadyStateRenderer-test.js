@@ -12,14 +12,21 @@
 
 'use strict';
 
+jest.enableAutomock();
+
 const React = require('React');
-const ReactDOM = require('ReactDOM');
 const ReactTestUtils = require('ReactTestUtils');
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayReadyStateRenderer = require('RelayReadyStateRenderer');
 const StaticContainer = require('StaticContainer.react');
+
+jest.dontMock('pretty-format');
+const prettyFormat = require('pretty-format');
+
+jest.dontMock('react-test-renderer');
+const ReactTestRenderer = require('react-test-renderer');
 
 describe('RelayReadyStateRenderer', () => {
   /**
@@ -58,12 +65,12 @@ describe('RelayReadyStateRenderer', () => {
       !element.type ||
       !element.type.name
     ) {
-      return jasmine.pp(element);
+      return prettyFormat(element);
     }
     const ppProps = Object.keys(element.props)
       .map(key => {
         const value = element.props[key];
-        const ppValue = jasmine.pp(value);
+        const ppValue = prettyFormat(value);
         return ` ${key}={${ppValue.length > 120 ? '...' : ppValue}}`;
       })
       .join('');
@@ -79,14 +86,14 @@ describe('RelayReadyStateRenderer', () => {
     const TestQueryConfig = RelayQueryConfig.genMock({
       routeName: 'TestQueryConfig',
       queries: {
-        node: () => Relay.QL`query { node(id: "123") }`,
+        node: () => RelayClassic.QL`query { node(id: "123") }`,
       },
     });
 
     defaultProps = {
-      Container: Relay.createContainer(() => <div />, {
+      Container: RelayClassic.createContainer(() => <div />, {
         fragments: {
-          node: () => Relay.QL`fragment on Node { id }`,
+          node: () => RelayClassic.QL`fragment on Node { id }`,
         },
       }),
       environment: new RelayEnvironment(),
@@ -104,37 +111,31 @@ describe('RelayReadyStateRenderer', () => {
 
   describe('arguments', () => {
     beforeEach(() => {
-      const container = document.createElement('div');
-      jasmine.addMatchers({
-        toRenderWithArgs: () => ({
-          compare(elementOrReadyState, expected) {
-            const render = jest.fn(() => <div />);
-            const element = ReactTestUtils.isElement(elementOrReadyState)
-              ? React.cloneElement(elementOrReadyState, {render})
-              : <RelayReadyStateRenderer
-                  {...defaultProps}
-                  readyState={elementOrReadyState}
-                  render={render}
-                />;
-            ReactDOM.render(element, container);
-            const actual = render.mock.calls[0][0];
-            const pass = jasmine.matchersUtil.equals(
-              actual,
-              jasmine.objectContaining(expected),
-            );
-            return {
-              get message() {
-                const not = pass ? ' not' : '';
-                return (
-                  `Expected ${ppReactElement(elementOrReadyState)}${not} ` +
-                  `to render with arguments ${jasmine.pp(expected)}. ` +
-                  `Instead, it rendered with arguments ${jasmine.pp(actual)}.`
-                );
-              },
-              pass,
-            };
-          },
-        }),
+      expect.extend({
+        toRenderWithArgs(elementOrReadyState, expected) {
+          const render = jest.fn(() => <div />);
+          const element = ReactTestUtils.isElement(elementOrReadyState)
+            ? React.cloneElement(elementOrReadyState, {render})
+            : <RelayReadyStateRenderer
+                {...defaultProps}
+                readyState={elementOrReadyState}
+                render={render}
+              />;
+          ReactTestRenderer.create(element);
+          const actual = render.mock.calls[0][0];
+          const pass = this.equals(actual, jasmine.objectContaining(expected));
+          return {
+            get message() {
+              const not = pass ? ' not' : '';
+              return (
+                `Expected ${ppReactElement(elementOrReadyState)}${not} ` +
+                `to render with arguments ${prettyFormat(expected)}. ` +
+                `Instead, it rendered with arguments ${prettyFormat(actual)}.`
+              );
+            },
+            pass,
+          };
+        },
       });
     });
 
@@ -232,7 +233,7 @@ describe('RelayReadyStateRenderer', () => {
       const AnotherQueryConfig = RelayQueryConfig.genMock({
         routeName: 'AnotherQueryConfig',
         queries: {
-          node: () => Relay.QL`query { node(id: "456") }`,
+          node: () => RelayClassic.QL`query { node(id: "456") }`,
         },
       });
       expect(
@@ -250,15 +251,15 @@ describe('RelayReadyStateRenderer', () => {
       const AnotherQueryConfig = RelayQueryConfig.genMock({
         routeName: 'AnotherQueryConfig',
         queries: {
-          me: () => Relay.QL`query { me }`,
+          me: () => RelayClassic.QL`query { me }`,
         },
       });
       const anotherQueryConfig = new AnotherQueryConfig();
       const environment = new RelayEnvironment();
       defaultProps = {
-        Container: Relay.createContainer(() => <div />, {
+        Container: RelayClassic.createContainer(() => <div />, {
           fragments: {
-            me: () => Relay.QL`fragment on User { id }`,
+            me: () => RelayClassic.QL`fragment on User { id }`,
           },
         }),
         environment,
@@ -292,15 +293,15 @@ describe('RelayReadyStateRenderer', () => {
       const AnotherQueryConfig = RelayQueryConfig.genMock({
         routeName: 'AnotherQueryConfig',
         queries: {
-          me: () => Relay.QL`query { me }`,
+          me: () => RelayClassic.QL`query { me }`,
         },
       });
       const anotherQueryConfig = new AnotherQueryConfig();
       const environment = new RelayEnvironment();
       defaultProps = {
-        Container: Relay.createContainer(() => <div />, {
+        Container: RelayClassic.createContainer(() => <div />, {
           fragments: {
-            me: () => Relay.QL`fragment on User { id }`,
+            me: () => RelayClassic.QL`fragment on User { id }`,
           },
         }),
         environment,
@@ -345,9 +346,9 @@ describe('RelayReadyStateRenderer', () => {
         },
       });
 
-      const AnotherContainer = Relay.createContainer(() => <div />, {
+      const AnotherContainer = RelayClassic.createContainer(() => <div />, {
         fragments: {
-          node: () => Relay.QL`fragment on Node { id }`,
+          node: () => RelayClassic.QL`fragment on Node { id }`,
         },
       });
       expect(
@@ -371,7 +372,7 @@ describe('RelayReadyStateRenderer', () => {
       const AnotherQueryConfig = RelayQueryConfig.genMock({
         routeName: 'AnotherQueryConfig',
         queries: {
-          node: () => Relay.QL`query { me }`,
+          node: () => RelayClassic.QL`query { me }`,
         },
       });
 
@@ -413,48 +414,40 @@ describe('RelayReadyStateRenderer', () => {
 
   describe('children', () => {
     beforeEach(() => {
-      const container = document.createElement('div');
       function render(element) {
         return ReactTestUtils.findRenderedComponentWithType(
-          ReactDOM.render(element, container),
+          ReactTestRenderer.create(element).getInstance(),
           StaticContainer,
         );
       }
 
-      jasmine.addMatchers({
-        toRenderChild: () => ({
-          compare(element, expected) {
-            const pass = jasmine.matchersUtil.equals(
-              render(element).props.children,
-              expected,
-            );
-            return {
-              get message() {
-                const not = pass ? ' not' : '';
-                return (
-                  `Expected ${ppReactElement(element)}${not} ` +
-                  `to render child ${jasmine.pp(expected)}.`
-                );
-              },
-              pass,
-            };
-          },
-        }),
-        toUpdateChild: () => ({
-          compare(element) {
-            const pass = render(element).props.shouldUpdate;
-            return {
-              get message() {
-                const not = pass ? ' not' : '';
-                return (
-                  `Expected ${ppReactElement(element)}${not} ` +
-                  'to update child.'
-                );
-              },
-              pass,
-            };
-          },
-        }),
+      expect.extend({
+        toRenderChild(element, expected) {
+          const pass = this.equals(render(element).props.children, expected);
+          return {
+            get message() {
+              const not = pass ? ' not' : '';
+              return (
+                `Expected ${ppReactElement(element)}${not} ` +
+                `to render child ${prettyFormat(expected)}.`
+              );
+            },
+            pass,
+          };
+        },
+        toUpdateChild(element) {
+          const pass = render(element).props.shouldUpdate;
+          return {
+            get message() {
+              const not = pass ? ' not' : '';
+              return (
+                `Expected ${ppReactElement(element)}${not} ` +
+                'to update child.'
+              );
+            },
+            pass,
+          };
+        },
       });
     });
 
@@ -536,8 +529,8 @@ describe('RelayReadyStateRenderer', () => {
     it('sets environment and query config on the React context', () => {
       class TestComponent extends React.Component {
         static contextTypes = {
-          relay: Relay.PropTypes.Relay,
-          route: Relay.PropTypes.QueryConfig.isRequired,
+          relay: RelayClassic.PropTypes.RelayClassic,
+          route: RelayClassic.PropTypes.QueryConfig.isRequired,
         };
         render() {
           this.props.onRenderContext(this.context);
@@ -546,14 +539,12 @@ describe('RelayReadyStateRenderer', () => {
       }
 
       const onRenderContext = jest.fn();
-      const container = document.createElement('div');
-      ReactDOM.render(
+      ReactTestRenderer.create(
         <RelayReadyStateRenderer
           {...defaultProps}
           readyState={defaultReadyState}
           render={() => <TestComponent onRenderContext={onRenderContext} />}
         />,
-        container,
       );
       expect(onRenderContext).toBeCalledWith({
         relay: {

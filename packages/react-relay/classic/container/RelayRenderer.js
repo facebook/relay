@@ -35,9 +35,6 @@ import type {
   RelayContainer,
 } from 'RelayTypes';
 
-type DefaultProps = {
-  shouldFetch?: ?boolean,
-};
 type Props = {
   Container: RelayContainer,
   shouldFetch?: ?boolean,
@@ -129,7 +126,7 @@ const INACTIVE_READY_STATE = {
  *   }
  *
  */
-class RelayRenderer extends React.Component<DefaultProps, Props, State> {
+class RelayRenderer extends React.Component<Props, State> {
   static propTypes = {
     Container: RelayPropTypes.Container,
     forceFetch: PropTypes.bool,
@@ -229,11 +226,11 @@ class RelayRenderer extends React.Component<DefaultProps, Props, State> {
     const querySet = getRelayQueries(Container, queryConfig);
     const request = (this.pendingRequest = forceFetch
       ? onForceFetch
-          ? onForceFetch(querySet, onReadyStateChange)
-          : environment.forceFetch(querySet, onReadyStateChange)
+        ? onForceFetch(querySet, onReadyStateChange)
+        : environment.forceFetch(querySet, onReadyStateChange)
       : onPrimeCache
-          ? onPrimeCache(querySet, onReadyStateChange)
-          : environment.primeCache(querySet, onReadyStateChange));
+        ? onPrimeCache(querySet, onReadyStateChange)
+        : environment.primeCache(querySet, onReadyStateChange));
     this.lastRequest = request;
   }
 
@@ -302,7 +299,7 @@ class RelayRenderer extends React.Component<DefaultProps, Props, State> {
     this.mounted = false;
   }
 
-  render(): ?React.Element<*> {
+  render(): React.Node {
     const readyState = this.state.active
       ? this.state.readyState
       : INACTIVE_READY_STATE;

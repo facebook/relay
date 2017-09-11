@@ -8,6 +8,7 @@
  *
  * @providesModule getClassicTransformer
  * @flow
+ * @format
  */
 
 'use strict';
@@ -21,13 +22,17 @@ const {buildASTSchema, buildClientSchema} = require('graphql');
 import type {Validator} from './RelayQLTransformer';
 import type {GraphQLSchema} from 'graphql';
 
-type GraphQLSchemaProvider = (() => Object | string) | Object | string;
+export type GraphQLSchemaProvider = (() => Object | string) | Object | string;
 
 type ClassicTransformerOpts = {
-  inputArgumentName?: ?string,
-  snakeCase?: ?boolean,
-  substituteVariables?: ?boolean,
-  validator?: ?Validator<any>,
+  inputArgumentName?: string,
+  snakeCase?: boolean,
+  substituteVariables?: boolean,
+  validator?: Validator<any>,
+};
+
+type BabelFileOpts = {
+  sourceRoot?: string,
 };
 
 /**
@@ -38,11 +43,12 @@ type ClassicTransformerOpts = {
 const classicTransformerCache = new Map();
 function getClassicTransformer(
   schemaProvider: GraphQLSchemaProvider,
-  options: ClassicTransformerOpts
+  options: ClassicTransformerOpts,
+  fileOptions: BabelFileOpts,
 ): RelayQLTransformer {
   let classicTransformer = classicTransformerCache.get(schemaProvider);
   if (!classicTransformer) {
-    const schema = getSchema(schemaProvider);
+    const schema = getSchema(schemaProvider, fileOptions);
     classicTransformer = new RelayQLTransformer(schema, {
       inputArgumentName: options.inputArgumentName,
       snakeCase: Boolean(options.snakeCase),
@@ -54,13 +60,16 @@ function getClassicTransformer(
   return classicTransformer;
 }
 
-function getSchema(schemaProvider: GraphQLSchemaProvider): GraphQLSchema {
-  const schemaReference = typeof schemaProvider === 'function' ?
-    schemaProvider() :
-    schemaProvider;
-  const introspection = typeof schemaReference === 'string' ?
-    getSchemaIntrospection(schemaReference) :
-    schemaReference;
+function getSchema(
+  schemaProvider: GraphQLSchemaProvider,
+  fileOptions: BabelFileOpts,
+): GraphQLSchema {
+  const schemaReference =
+    typeof schemaProvider === 'function' ? schemaProvider() : schemaProvider;
+  const introspection =
+    typeof schemaReference === 'string'
+      ? getSchemaIntrospection(schemaReference, fileOptions.sourceRoot)
+      : schemaReference;
   if (introspection.__schema) {
     return buildClientSchema((introspection: any));
   } else if (introspection.data && introspection.data.__schema) {
@@ -70,9 +79,9 @@ function getSchema(schemaProvider: GraphQLSchemaProvider): GraphQLSchema {
   }
 
   throw new Error(
-    'Invalid introspection data supplied to `getBabelRelayPlugin()`. The ' +
-    'resulting schema is not an object with a `__schema` property or ' +
-    'a schema IDL language.'
+    'Invalid introspection data supplied to the Babel Relay plugin. The ' +
+      'resulting schema is not an object with a `__schema` property or ' +
+      'a schema IDL language.',
   );
 }
 

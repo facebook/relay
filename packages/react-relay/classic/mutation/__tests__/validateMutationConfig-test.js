@@ -20,7 +20,7 @@ describe('validateMutationConfig()', () => {
   let config;
 
   beforeEach(() => {
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('validating a `FIELDS_CHANGE` config', () => {

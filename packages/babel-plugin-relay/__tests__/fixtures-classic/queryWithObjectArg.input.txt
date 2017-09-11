@@ -1,5 +1,5 @@
-var Relay = require('Relay');
-var q = Relay.QL`
+var RelayClassic = require('RelayClassic');
+var q = RelayClassic.QL`
   query {
     search(query: $query) {
       title

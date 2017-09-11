@@ -14,14 +14,18 @@
 'use strict';
 
 const RelayConnectionHandler = require('RelayConnectionHandler');
+const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayCore = require('RelayCore');
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('RelayMarkSweepStore');
 const RelayModernEnvironment = require('RelayModernEnvironment');
 const RelayModernGraphQLTag = require('RelayModernGraphQLTag');
 const RelayNetwork = require('RelayNetwork');
+const RelayObservable = require('RelayObservable');
+const RelayQueryResponseCache = require('RelayQueryResponseCache');
 const RelayViewerHandler = require('RelayViewerHandler');
 
+const applyRelayModernOptimisticMutation = require('applyRelayModernOptimisticMutation');
 const commitLocalUpdate = require('commitLocalUpdate');
 const commitRelayModernMutation = require('commitRelayModernMutation');
 const fetchRelayModernQuery = require('fetchRelayModernQuery');
@@ -33,6 +37,27 @@ export type {
   ConcreteBatch,
   ConcreteFragment,
 } from 'RelayConcreteNode';
+export type {
+  ObservableFromValue,
+  Subscribable,
+  Subscription,
+} from 'RelayObservable';
+
+// As early as possible, check for the existence of the JavaScript globals which
+// Relay Runtime relies upon, and produce a clear message if they do not exist.
+if (__DEV__) {
+  if (
+    typeof Map !== 'function' ||
+    typeof Set !== 'function' ||
+    typeof Promise !== 'function' ||
+    typeof Object.assign !== 'function'
+  ) {
+    throw new Error(
+      'relay-runtime requires Map, Set, Promise, and Object.assign to exist. ' +
+        'Use a polyfill to provide these for older browsers.',
+    );
+  }
+}
 
 /**
  * The public interface to Relay Runtime.
@@ -41,6 +66,8 @@ module.exports = {
   // Core API
   Environment: RelayModernEnvironment,
   Network: RelayNetwork,
+  Observable: RelayObservable,
+  QueryResponseCache: RelayQueryResponseCache,
   RecordSource: RelayInMemoryRecordSource,
   Store: RelayMarkSweepStore,
 
@@ -61,9 +88,22 @@ module.exports = {
   ViewerHandler: RelayViewerHandler,
 
   // Helpers (can be implemented via the above API)
+  applyOptimisticMutation: applyRelayModernOptimisticMutation,
   commitLocalUpdate: commitLocalUpdate,
   commitMutation: commitRelayModernMutation,
   fetchQuery: fetchRelayModernQuery,
   isRelayModernEnvironment: isRelayModernEnvironment,
   requestSubscription: requestRelaySubscription,
+
+  // Configuration interface for legacy or special uses
+  ConnectionInterface: RelayConnectionInterface,
 };
+
+if (__DEV__) {
+  const RelayRecordSourceInspector = require('RelayRecordSourceInspector');
+
+  // Debugging-related symbols exposed only in development
+  Object.assign((module.exports: Object), {
+    RecordSourceInspector: RelayRecordSourceInspector,
+  });
+}

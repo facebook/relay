@@ -8,6 +8,7 @@
  *
  * @flow
  * @fullSyntaxTransform
+ * @format
  */
 
 'use strict';
@@ -45,16 +46,20 @@ type PrinterOptions = {
 };
 
 module.exports = function(t: any, options: PrinterOptions): Function {
-  const formatFields = options.snakeCase ?
-    function<T: Object>(fields: T): {[keys: $Keys<T>]: string} {
-      const formatted = {};
-      Object.keys(fields).forEach(name => {
-        formatted[name] =
-          name.replace(/[A-Z]/g, letter => '_' + letter.toLowerCase());
-      });
-      return formatted;
-    } :
-    function<T>(fields: T): T { return fields; };
+  const formatFields = options.snakeCase
+    ? function<T: Object>(fields: T): {[keys: $Keys<T>]: string} {
+        const formatted = {};
+        Object.keys(fields).forEach(name => {
+          formatted[name] = name.replace(
+            /[A-Z]/g,
+            letter => '_' + letter.toLowerCase(),
+          );
+        });
+        return formatted;
+      }
+    : function<T>(fields: T): T {
+        return fields;
+      };
 
   const EMPTY_ARRAY = t.arrayExpression([]);
   const FIELDS = formatFields({
@@ -86,7 +91,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
     print(
       definition: RelayQLDefinition<any>,
       substitutions: Array<Substitution>,
-      enableValidation: boolean = true
+      enableValidation: boolean = true,
     ): Printable {
       let printedDocument;
       if (definition instanceof RelayQLQuery) {
@@ -107,11 +112,9 @@ module.exports = function(t: any, options: PrinterOptions): Function {
         t.functionExpression(
           null,
           substitutions.map(substitution => t.identifier(substitution.name)),
-          t.blockStatement([
-            t.returnStatement(printedDocument),
-          ])
+          t.blockStatement([t.returnStatement(printedDocument)]),
         ),
-        substitutions.map(substitution => substitution.value)
+        substitutions.map(substitution => substitution.value),
       );
     }
 
@@ -121,7 +124,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
         throw new RelayTransformError(
           util.format(
             'There are %d fields supplied to the query named `%s`, but queries ' +
-            'must have exactly one field.',
+              'must have exactly one field.',
             rootFields.length,
             query.getName(),
           ),
@@ -152,7 +155,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
         throw new RelayTransformError(
           util.format(
             'Invalid root field `%s`; Relay only supports root fields with zero ' +
-            'or one argument.',
+              'or one argument.',
             rootField.getName(),
           ),
           query.getLocation(),
@@ -166,18 +169,21 @@ module.exports = function(t: any, options: PrinterOptions): Function {
         // assume that the lone arg in a root field's call is the identifying one.
         const identifyingArg = rootFieldArgs[0];
         const identifyingArgName = identifyingArg.getName();
-        const identifyingArgType =
-          identifyingArg.getType().getName({modifiers: true});
+        const identifyingArgType = identifyingArg
+          .getType()
+          .getName({modifiers: true});
         metadata.identifyingArgName = identifyingArgName;
         metadata.identifyingArgType = identifyingArgType;
-        calls = t.arrayExpression([codify({
-          kind: t.valueToNode('Call'),
-          metadata: objectify({
-            type: identifyingArgType,
+        calls = t.arrayExpression([
+          codify({
+            kind: t.valueToNode('Call'),
+            metadata: objectify({
+              type: identifyingArgType,
+            }),
+            name: t.valueToNode(identifyingArgName),
+            value: this.printArgumentValue(identifyingArg),
           }),
-          name: t.valueToNode(identifyingArgName),
-          value: this.printArgumentValue(identifyingArg),
-        })]);
+        ]);
       }
 
       return codify({
@@ -199,7 +205,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       let idFragment;
       if (fragmentType.hasField(ID)) {
         requisiteFields[ID] = true;
-      } else if (shouldGenerateIdFragment(fragment, fragmentType)) {
+      } else if (shouldGenerateIdFragment(fragment)) {
         idFragment = fragmentType.generateIdFragment();
       }
       if (fragmentType.isAbstract()) {
@@ -209,14 +215,16 @@ module.exports = function(t: any, options: PrinterOptions): Function {
         fragment,
         requisiteFields,
         idFragment ? [idFragment] : null,
-        fragment.hasDirective('generated')
+        fragment.hasDirective('generated'),
       );
 
       const relayDirective = findRelayDirective(fragment);
-      const selectVariables = relayDirective && find(
-        relayDirective.getArguments(),
-        (arg) => arg.getName() === 'variables'
-      );
+      const selectVariables =
+        relayDirective &&
+        find(
+          relayDirective.getArguments(),
+          arg => arg.getName() === 'variables',
+        );
 
       const metadata = this.printRelayDirectiveMetadata(fragment, {
         isAbstract: fragmentType.isAbstract(),
@@ -233,31 +241,30 @@ module.exports = function(t: any, options: PrinterOptions): Function {
         type: t.valueToNode(fragmentType.getName({modifiers: false})),
       });
 
-
       if (selectVariables) {
         const selectVariablesValue = selectVariables.getValue();
         if (!Array.isArray(selectVariablesValue)) {
           throw new RelayTransformError(
             'The variables argument to the @relay directive should be an array ' +
-            'of strings.',
+              'of strings.',
             fragment.getLocation(),
           );
         }
         return t.callExpression(
           t.memberExpression(
             identify(this.tagName),
-            t.identifier('__createFragment')
+            t.identifier('__createFragment'),
           ),
           [
             fragmentCode,
             t.objectExpression(
-              selectVariablesValue.map((item) => {
+              selectVariablesValue.map(item => {
                 // $FlowFixMe
                 const value = item.getValue();
                 return property(value, this.printVariable(value));
-              })
+              }),
             ),
-          ]
+          ],
         );
       }
 
@@ -266,21 +273,21 @@ module.exports = function(t: any, options: PrinterOptions): Function {
 
     printFragmentID(fragment: RelayQLFragment): Printable {
       return t.callExpression(
-        t.memberExpression(
-          identify(this.tagName),
-          t.identifier('__id')
-        ),
-        []
+        t.memberExpression(identify(this.tagName), t.identifier('__id')),
+        [],
       );
     }
 
-    printMutation(mutation: RelayQLMutation, enableValidation: boolean): Printable {
+    printMutation(
+      mutation: RelayQLMutation,
+      enableValidation: boolean,
+    ): Printable {
       const rootFields = mutation.getFields();
       if (rootFields.length !== 1 && enableValidation) {
         throw new RelayTransformError(
           util.format(
             'There are %d fields supplied to the mutation named `%s`, but ' +
-            'mutations must have exactly one field.',
+              'mutations must have exactly one field.',
             rootFields.length,
             mutation.getName(),
           ),
@@ -297,7 +304,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       const selections = this.printSelections(rootField, requisiteFields);
       const metadata = {
         inputType: this.printArgumentTypeForMetadata(
-          rootField.getDeclaredArgument(INPUT_ARGUMENT_NAME)
+          rootField.getDeclaredArgument(INPUT_ARGUMENT_NAME),
         ),
       };
 
@@ -319,15 +326,18 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       });
     }
 
-    printSubscription(subscription: RelayQLSubscription, enableValidation: boolean): Printable {
+    printSubscription(
+      subscription: RelayQLSubscription,
+      enableValidation: boolean,
+    ): Printable {
       const rootFields = subscription.getFields();
       if (rootFields.length !== 1 && enableValidation) {
         throw new RelayTransformError(
           util.format(
             'There are %d fields supplied to the subscription named `%s`, but ' +
-            'subscriptions must have exactly one field.',
+              'subscriptions must have exactly one field.',
             rootFields.length,
-            subscription.getName()
+            subscription.getName(),
           ),
           subscription.getLocation(),
         );
@@ -345,7 +355,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       const selections = this.printSelections(rootField, requisiteFields);
       const metadata = {
         inputType: this.printArgumentTypeForMetadata(
-          rootField.getDeclaredArgument(INPUT_ARGUMENT_NAME)
+          rootField.getDeclaredArgument(INPUT_ARGUMENT_NAME),
         ),
       };
 
@@ -371,7 +381,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       parent: RelayQLField | RelayQLFragment,
       requisiteFields: {[fieldName: string]: boolean},
       extraFragments?: ?Array<RelayQLFragment>,
-      isGeneratedQuery = false
+      isGeneratedQuery = false,
     ): Printable {
       const fields = [];
       const printedFragments = [];
@@ -382,7 +392,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
           if (selection.getDirectives().length !== 0) {
             throw new RelayTransformError(
               'Directives are not yet supported for `${fragment}`-style fragment ' +
-              'references.',
+                'references.',
               selection.getLocation(),
             );
           }
@@ -408,15 +418,15 @@ module.exports = function(t: any, options: PrinterOptions): Function {
         fields,
         parent,
         requisiteFields,
-        isGeneratedQuery
+        isGeneratedQuery,
       );
       const selections = [...printedFields, ...printedFragments];
 
       if (selections.length) {
         const arrayExpressionOfSelections = t.arrayExpression(selections);
-        return didPrintFragmentReference ?
-          shallowFlatten(arrayExpressionOfSelections) :
-          arrayExpressionOfSelections;
+        return didPrintFragmentReference
+          ? shallowFlatten(arrayExpressionOfSelections)
+          : arrayExpressionOfSelections;
       }
       return NULL;
     }
@@ -425,12 +435,14 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       fields: Array<RelayQLField>,
       parent: RelayQLField | RelayQLFragment,
       requisiteFields: {[fieldName: string]: boolean},
-      isGeneratedQuery = false
+      isGeneratedQuery = false,
     ): Array<Printable> {
       const parentType = parent.getType();
-      if (parentType.isConnection() &&
-          parentType.hasField(FIELDS.pageInfo) &&
-          fields.some(field => field.getName() === FIELDS.edges)) {
+      if (
+        parentType.isConnection() &&
+        parentType.hasField(FIELDS.pageInfo) &&
+        fields.some(field => field.getName() === FIELDS.edges)
+      ) {
         requisiteFields[FIELDS.pageInfo] = true;
       }
 
@@ -445,8 +457,8 @@ module.exports = function(t: any, options: PrinterOptions): Function {
             parent,
             requisiteFields,
             generatedFields,
-            isGeneratedQuery
-          )
+            isGeneratedQuery,
+          ),
         );
       });
 
@@ -458,8 +470,8 @@ module.exports = function(t: any, options: PrinterOptions): Function {
             parent,
             requisiteFields,
             generatedFields,
-            isGeneratedQuery
-          )
+            isGeneratedQuery,
+          ),
         );
       });
       return printedFields;
@@ -470,7 +482,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       parent: RelayQLField | RelayQLFragment,
       requisiteSiblings: {[fieldName: string]: boolean},
       generatedSiblings: {[fieldName: string]: boolean},
-      isGeneratedQuery = false
+      isGeneratedQuery = false,
     ): Printable {
       const fieldType = field.getType();
 
@@ -489,7 +501,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       let idFragment;
       if (fieldType.hasField(ID)) {
         requisiteFields[ID] = true;
-      } else if (shouldGenerateIdFragment(field, fieldType)) {
+      } else if (shouldGenerateIdFragment(field)) {
         idFragment = fieldType.generateIdFragment();
       }
 
@@ -506,8 +518,10 @@ module.exports = function(t: any, options: PrinterOptions): Function {
         metadata.inferredPrimaryKey = ID;
       }
       if (fieldType.isConnection()) {
-        if (field.hasDeclaredArgument('first') ||
-            field.hasDeclaredArgument('last')) {
+        if (
+          field.hasDeclaredArgument('first') ||
+          field.hasDeclaredArgument('last')
+        ) {
           if (!isGeneratedQuery) {
             validateConnectionField(field);
           }
@@ -541,13 +555,13 @@ module.exports = function(t: any, options: PrinterOptions): Function {
         field,
         requisiteFields,
         idFragment ? [idFragment] : null,
-        isGeneratedQuery
+        isGeneratedQuery,
       );
       const fieldAlias = field.getAlias();
       const args = field.getArguments();
-      const calls = args.length ?
-        t.arrayExpression(args.map(arg => this.printArgument(arg))) :
-        NULL;
+      const calls = args.length
+        ? t.arrayExpression(args.map(arg => this.printArgument(arg)))
+        : NULL;
 
       return codify({
         alias: fieldAlias ? t.valueToNode(fieldAlias) : NULL,
@@ -561,13 +575,12 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       });
     }
 
-    printFragmentReference(fragmentReference: RelayQLFragmentSpread): Printable {
+    printFragmentReference(
+      fragmentReference: RelayQLFragmentSpread,
+    ): Printable {
       return t.callExpression(
-        t.memberExpression(
-          identify(this.tagName),
-          t.identifier('__frag')
-        ),
-        [t.identifier(fragmentReference.getName())]
+        t.memberExpression(identify(this.tagName), t.identifier('__frag')),
+        [t.identifier(fragmentReference.getName())],
       );
     }
 
@@ -597,11 +610,8 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       // Assume that variables named like substitutions are substitutions.
       if (this.variableNames.hasOwnProperty(name)) {
         return t.callExpression(
-          t.memberExpression(
-            identify(this.tagName),
-            t.identifier('__var')
-          ),
-          [t.identifier(name)]
+          t.memberExpression(identify(this.tagName), t.identifier('__var')),
+          [t.identifier(name)],
         );
       }
       return codify({
@@ -614,7 +624,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       if (Array.isArray(value)) {
         return t.arrayExpression(
           // $FlowFixMe
-          value.map(element => this.printArgumentValue(element))
+          value.map(element => this.printArgumentValue(element)),
         );
       }
       return codify({
@@ -622,9 +632,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
         // codify() skips properties where value === NULL, but `callValue` is a
         // required property. Create fresh null literals to force the property
         // to be printed.
-        callValue: value == null ?
-          t.nullLiteral() :
-          printLiteralValue(value),
+        callValue: value == null ? t.nullLiteral() : printLiteralValue(value),
       });
     }
 
@@ -638,15 +646,20 @@ module.exports = function(t: any, options: PrinterOptions): Function {
           t.objectExpression([
             property('kind', t.valueToNode('Directive')),
             property('name', t.valueToNode(directive.getName())),
-            property('args', t.arrayExpression(
-              directive.getArguments().map(
-                arg => t.objectExpression([
-                  property('name', t.valueToNode(arg.getName())),
-                  property('value', this.printArgumentValue(arg)),
-                ])
-              )
-            )),
-          ])
+            property(
+              'args',
+              t.arrayExpression(
+                directive
+                  .getArguments()
+                  .map(arg =>
+                    t.objectExpression([
+                      property('name', t.valueToNode(arg.getName())),
+                      property('value', this.printArgumentValue(arg)),
+                    ]),
+                  ),
+              ),
+            ),
+          ]),
         );
       });
       if (printedDirectives.length) {
@@ -660,7 +673,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       /* $FlowFixMe(>=0.38.0 site=react_native_fb,oss) - Flow error detected during
        * the deployment of v0.38.0. To see the error, remove this comment and
        * run flow */
-      maybeMetadata?: {[key: string]: mixed}
+      maybeMetadata?: {[key: string]: mixed},
     ): Printable {
       const properties = [];
       const relayDirective = findRelayDirective(node);
@@ -670,7 +683,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
             throw new RelayTransformError(
               util.format(
                 'You supplied `$%s` as the `%s` argument to the `@relay` ' +
-                'directive, but `@relay` require scalar argument values.',
+                  'directive, but `@relay` require scalar argument values.',
                 arg.getVariableName(),
                 arg.getName(),
               ),
@@ -678,7 +691,9 @@ module.exports = function(t: any, options: PrinterOptions): Function {
             );
           }
           if (arg.getName() !== 'variables') {
-            properties.push(property(arg.getName(), t.valueToNode(arg.getValue())));
+            properties.push(
+              property(arg.getName(), t.valueToNode(arg.getValue())),
+            );
           }
         });
       }
@@ -706,11 +721,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       // - input objects have unquoted keys, unlike JSON.
       // - custom scalars could be objects, in which case input object rules
       //   apply.
-      if (
-        argType.isBoolean() ||
-        argType.isID() ||
-        argType.isString()
-      ) {
+      if (argType.isBoolean() || argType.isID() || argType.isString()) {
         return null;
       }
       return argType.getName({modifiers: true});
@@ -725,14 +736,18 @@ module.exports = function(t: any, options: PrinterOptions): Function {
    * is present then `id` would be added as a requisite field.
    */
   function shouldGenerateIdFragment(
-    node: RelayQLField | RelayQLFragment
+    node: RelayQLField | RelayQLFragment,
   ): boolean {
     return (
       node.getType().mayImplement('Node') &&
-      !node.getSelections().some(selection => (
-        selection instanceof RelayQLInlineFragment &&
-        selection.getFragment().getType().getName({modifiers: false}) === 'Node'
-      ))
+      !node
+        .getSelections()
+        .some(
+          selection =>
+            selection instanceof RelayQLInlineFragment &&
+            selection.getFragment().getType().getName({modifiers: false}) ===
+              'Node',
+        )
     );
   }
 
@@ -748,9 +763,9 @@ module.exports = function(t: any, options: PrinterOptions): Function {
         throw new RelayTransformError(
           util.format(
             'You defined a `node(%s: %s)` field on type `%s`, but Relay requires ' +
-            'the `node` field to be defined on the root type. See the Object ' +
-            'Identification Guide: \n' +
-            'http://facebook.github.io/relay/docs/graphql-object-identification.html',
+              'the `node` field to be defined on the root type. See the Object ' +
+              'Identification Guide: \n' +
+              'http://facebook.github.io/relay/docs/graphql-object-identification.html',
             ID,
             argNames[0] && argTypes[argNames[0]].getName({modifiers: true}),
             parentType.getName({modifiers: false}),
@@ -768,39 +783,41 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       field.findArgument('before'),
       field.findArgument('after'),
     ];
-    let condition = (!first || !last) || (first.isVariable() && last.isVariable());
+    let condition =
+      !first || !last || (first.isVariable() && last.isVariable());
     if (!condition) {
       throw new RelayTransformError(
         util.format(
           'Connection arguments `%s(first: <count>, last: <count>)` are ' +
-          'not supported unless both are variables. Use `(first: <count>)`, ' +
-          '`(last: <count>)`, or `(first: $<var>, last: $<var>)`.',
+            'not supported unless both are variables. Use `(first: <count>)`, ' +
+            '`(last: <count>)`, or `(first: $<var>, last: $<var>)`.',
           field.getName(),
         ),
         field.getLocation(),
       );
     }
-    condition = (!first || !before) || (first.isVariable() && before.isVariable());
+    condition =
+      !first || !before || (first.isVariable() && before.isVariable());
     if (!condition) {
       throw new RelayTransformError(
         util.format(
           'Connection arguments `%s(before: <cursor>, first: <count>)` are ' +
-          'not supported unless both are variables. Use `(first: <count>)`, ' +
-          '`(after: <cursor>, first: <count>)`, `(before: <cursor>, last: <count>)`, ' +
-          'or `(before: $<var>, first: $<var>)`.',
+            'not supported unless both are variables. Use `(first: <count>)`, ' +
+            '`(after: <cursor>, first: <count>)`, `(before: <cursor>, last: <count>)`, ' +
+            'or `(before: $<var>, first: $<var>)`.',
           field.getName(),
         ),
         field.getLocation(),
       );
     }
-    condition = (!last || !after) || (last.isVariable() && after.isVariable());
+    condition = !last || !after || (last.isVariable() && after.isVariable());
     if (!condition) {
       throw new RelayTransformError(
         util.format(
           'Connection arguments `%s(after: <cursor>, last: <count>)` are ' +
-          'not supported unless both are variables. Use `(last: <count>)`, ' +
-          '`(before: <cursor>, last: <count>)`, `(after: <cursor>, first: <count>)`, ' +
-          'or `(after: $<var>, last: $<var>)`.',
+            'not supported unless both are variables. Use `(last: <count>)`, ' +
+            '`(before: <cursor>, last: <count>)`, `(after: <cursor>, first: <count>)`, ' +
+            'or `(after: $<var>, last: $<var>)`.',
           field.getName(),
         ),
         field.getLocation(),
@@ -808,15 +825,21 @@ module.exports = function(t: any, options: PrinterOptions): Function {
     }
 
     // Use `any` because we already check `isConnection` before validating.
-    const connectionNodeType = (field: any).getType()
-      .getFieldDefinition(FIELDS.edges).getType()
-      .getFieldDefinition(FIELDS.node).getType();
+    const connectionNodeType = (field: any)
+      .getType()
+      .getFieldDefinition(FIELDS.edges)
+      .getType()
+      .getFieldDefinition(FIELDS.node)
+      .getType();
 
     // NOTE: These checks are imperfect because we cannot trace fragment spreads.
     forEachRecursiveField(field, subfield => {
-      if (subfield.getName() === FIELDS.edges ||
-          subfield.getName() === FIELDS.pageInfo) {
-        const hasCondition = field.isPattern() ||
+      if (
+        subfield.getName() === FIELDS.edges ||
+        subfield.getName() === FIELDS.pageInfo
+      ) {
+        const hasCondition =
+          field.isPattern() ||
           field.hasArgument('find') ||
           field.hasArgument('first') ||
           field.hasArgument('last');
@@ -825,8 +848,9 @@ module.exports = function(t: any, options: PrinterOptions): Function {
           throw new RelayTransformError(
             util.format(
               'You supplied the `%s` field on a connection named `%s`, but you did ' +
-              'not supply an argument necessary to do so. Use either the `find`, ' +
-              '`first`, or `last` argument.',
+                'not supply an argument necessary for Relay to handle the connection. ' +
+                'Please specify a limit argument like `first`, or `last` or ' +
+                'fetch a specific item with a `find` argument.',
               subfield.getName(),
               field.getName(),
             ),
@@ -845,8 +869,8 @@ module.exports = function(t: any, options: PrinterOptions): Function {
           throw new RelayTransformError(
             util.format(
               'You supplied a field named `%s` on a connection named `%s`, but ' +
-              'pagination is not supported on connections without using `%s`. ' +
-              'Use `%s{%s{%s{...}}}` instead.',
+                'pagination is not supported on connections without using `%s`. ' +
+                'Use `%s{%s{%s{...}}}` instead.',
               subfield.getName(),
               field.getName(),
               FIELDS.edges,
@@ -868,10 +892,10 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       throw new RelayTransformError(
         util.format(
           'Your schema defines a mutation field `%s` that takes %d arguments, ' +
-          'but mutation fields must have exactly one argument named `%s`.',
+            'but mutation fields must have exactly one argument named `%s`.',
           rootField.getName(),
           declaredArgNames.length,
-          INPUT_ARGUMENT_NAME
+          INPUT_ARGUMENT_NAME,
         ),
         rootField.getLocation(),
       );
@@ -881,8 +905,8 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       throw new RelayTransformError(
         util.format(
           'Your schema defines a mutation field `%s` that takes an argument ' +
-          'named `%s`, but mutation fields must have exactly one argument ' +
-          'named `%s`.',
+            'named `%s`, but mutation fields must have exactly one argument ' +
+            'named `%s`.',
           rootField.getName(),
           declaredArgNames[0],
           INPUT_ARGUMENT_NAME,
@@ -896,7 +920,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       throw new RelayTransformError(
         util.format(
           'There are %d arguments supplied to the mutation field named `%s`, ' +
-          'but mutation fields must have exactly one `%s` argument.',
+            'but mutation fields must have exactly one `%s` argument.',
           rootFieldArgs.length,
           rootField.getName(),
           INPUT_ARGUMENT_NAME,
@@ -908,7 +932,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
 
   const forEachRecursiveField = function(
     parentSelection: RelayQLField | RelayQLFragment,
-    callback: (field: RelayQLField) => void
+    callback: (field: RelayQLField) => void,
   ): void {
     parentSelection.getSelections().forEach(selection => {
       if (selection instanceof RelayQLField) {
@@ -963,9 +987,11 @@ module.exports = function(t: any, options: PrinterOptions): Function {
       return t.arrayExpression(value.map(printLiteralValue));
     } else if (typeof value === 'object' && value != null) {
       const objectValue = value;
-      return t.objectExpression(Object.keys(objectValue).map(key =>
-        property(key, printLiteralValue(objectValue[key]))
-      ));
+      return t.objectExpression(
+        Object.keys(objectValue).map(key =>
+          property(key, printLiteralValue(objectValue[key])),
+        ),
+      );
     } else {
       return t.valueToNode(value);
     }
@@ -975,9 +1001,9 @@ module.exports = function(t: any, options: PrinterOptions): Function {
     return t.callExpression(
       t.memberExpression(
         t.memberExpression(EMPTY_ARRAY, t.identifier('concat')),
-        t.identifier('apply')
+        t.identifier('apply'),
       ),
-      [EMPTY_ARRAY, arr]
+      [EMPTY_ARRAY, arr],
     );
   }
 
@@ -986,7 +1012,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
   ): ?RelayQLDirective {
     return find(
       node.getDirectives(),
-      (directive) => directive.getName() === 'relay'
+      directive => directive.getName() === 'relay',
     );
   }
 

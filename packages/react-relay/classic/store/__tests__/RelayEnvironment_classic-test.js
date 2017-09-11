@@ -12,15 +12,13 @@
 
 'use strict';
 
-jest.useFakeTimers();
+jest.enableAutomock().useFakeTimers();
 jest.unmock('RelayEnvironment');
 
 require('configureForRelayOSS');
 
-const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayEnvironment = require('RelayEnvironment');
-const RelayQueryResultObservable = require('RelayQueryResultObservable');
 const RelayMutation = require('RelayMutation');
 const RelayMutationTransaction = require('RelayMutationTransaction');
 const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
@@ -112,7 +110,7 @@ describe('RelayEnvironment', () => {
   describe('readQuery', () => {
     it('accepts a query with no arguments', () => {
       recordWriter.putDataID('viewer', null, 'client:1');
-      environment.readQuery(getNode(Relay.QL`query{viewer{actor{id}}}`));
+      environment.readQuery(getNode(RelayClassic.QL`query{viewer{actor{id}}}`));
       expect(readRelayQueryData.mock.calls.length).toBe(1);
       expect(readRelayQueryData.mock.calls[0][2]).toBe('client:1');
     });
@@ -120,7 +118,7 @@ describe('RelayEnvironment', () => {
     it('accepts a query with arguments', () => {
       environment.readQuery(
         getNode(
-          Relay.QL`
+          RelayClassic.QL`
         query {
           nodes(ids:["123","456"]) {
             id
@@ -137,7 +135,7 @@ describe('RelayEnvironment', () => {
     it('accepts a query with unrecognized arguments', () => {
       const result = environment.readQuery(
         getNode(
-          Relay.QL`
+          RelayClassic.QL`
         query {
           username(name:"foo") {
             id
@@ -148,37 +146,6 @@ describe('RelayEnvironment', () => {
       );
       expect(readRelayQueryData.mock.calls.length).toBe(0);
       expect(result).toEqual([undefined]);
-    });
-  });
-
-  describe('observe', () => {
-    it('instantiates RelayQueryResultObservable', () => {
-      const fragment = getNode(
-        Relay.QL`
-        fragment on Node {
-          id
-        }
-      `,
-      );
-      GraphQLStoreQueryResolver.mockDefaultResolveImplementation(
-        (pointerFragment, dataID) => {
-          expect(pointerFragment).toBe(fragment);
-          expect(dataID).toBe('123');
-          return {
-            __dataID__: '123',
-            id: '123',
-          };
-        },
-      );
-
-      const observer = environment.observe(fragment, '123');
-      const onNext = jest.fn();
-      expect(observer instanceof RelayQueryResultObservable).toBe(true);
-      observer.subscribe({onNext});
-      expect(onNext).toBeCalledWith({
-        __dataID__: '123',
-        id: '123',
-      });
     });
   });
 

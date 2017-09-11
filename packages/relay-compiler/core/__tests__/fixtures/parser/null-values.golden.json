@@ -1,0 +1,47 @@
+[
+  {
+    "kind": "Root",
+    "operation": "query",
+    "metadata": null,
+    "name": "NullValuesQuery",
+    "argumentDefinitions": [],
+    "directives": [],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "filter",
+            "value": {
+              "kind": "Literal",
+              "metadata": null,
+              "value": {
+                "date": null
+              }
+            },
+            "type": "ItemFilterInput"
+          }
+        ],
+        "directives": [],
+        "metadata": null,
+        "name": "items",
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "args": [],
+            "directives": [],
+            "metadata": null,
+            "name": "date",
+            "type": "String"
+          }
+        ],
+        "type": "ItemFilterResult"
+      }
+    ],
+    "type": "Query"
+  }
+]

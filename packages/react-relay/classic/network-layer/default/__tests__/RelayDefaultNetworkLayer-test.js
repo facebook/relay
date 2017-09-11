@@ -12,12 +12,12 @@
 
 'use strict';
 
-jest.useFakeTimers();
+jest.enableAutomock().useFakeTimers();
 
 require('configureForRelayOSS');
 
-const Relay = require('Relay');
-const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayClassic = require('RelayClassic');
+const {ConnectionInterface} = require('RelayRuntime');
 const RelayDefaultNetworkLayer = require('RelayDefaultNetworkLayer');
 const RelayMetaRoute = require('RelayMetaRoute');
 const RelayMutationRequest = require('RelayMutationRequest');
@@ -70,7 +70,7 @@ describe('RelayDefaultNetworkLayer', () => {
       ...new RelayDefaultNetworkLayer(networkConfig.uri, networkConfig.init),
     };
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('sendMutation', () => {
@@ -85,7 +85,7 @@ describe('RelayDefaultNetworkLayer', () => {
 
       variables = {
         input: {
-          [RelayConnectionInterface.CLIENT_MUTATION_ID]: 'client:a',
+          [ConnectionInterface.get().CLIENT_MUTATION_ID]: 'client:a',
           actor_id: 4,
         },
       };
@@ -181,7 +181,7 @@ describe('RelayDefaultNetworkLayer', () => {
       expect(error instanceof Error).toBe(true);
       expect(error.message).toEqual(
         [
-          'Server request for mutation \`FeedbackLikeMutation\` failed for the ' +
+          'Server request for mutation `FeedbackLikeMutation` failed for the ' +
             'following reasons:',
           '',
           '1. Something went wrong.',
@@ -217,7 +217,7 @@ describe('RelayDefaultNetworkLayer', () => {
       expect(error instanceof Error).toBe(true);
       expect(error.message).toEqual(
         [
-          'Server request for mutation \`FeedbackLikeMutation\` failed for the ' +
+          'Server request for mutation `FeedbackLikeMutation` failed for the ' +
             'following reasons:',
           '',
           '1. Something went wrong.',
@@ -250,7 +250,7 @@ describe('RelayDefaultNetworkLayer', () => {
       expect(error instanceof Error).toBe(true);
       expect(error.message).toEqual(
         [
-          'Server request for mutation \`FeedbackLikeMutation\` failed for the ' +
+          'Server request for mutation `FeedbackLikeMutation` failed for the ' +
             'following reasons:',
           '',
           '1. Something went wrong.',
@@ -282,7 +282,7 @@ describe('RelayDefaultNetworkLayer', () => {
       expect(error instanceof Error).toBe(true);
       expect(error.message).toEqual(
         [
-          'Server request for mutation \`FeedbackLikeMutation\` failed for the ' +
+          'Server request for mutation `FeedbackLikeMutation` failed for the ' +
             'following reasons:',
           '',
           'Server response had an error status: 500',
@@ -290,7 +290,7 @@ describe('RelayDefaultNetworkLayer', () => {
       );
       expect(error.status).toEqual(failureResponse.status);
       expect(error.source).toBe(
-        '{"errors":[{"message":"Something went ' + 'completely wrong."}]}',
+        '{"errors":[{"message":"Something went completely wrong."}]}',
       );
     });
   });
@@ -302,12 +302,12 @@ describe('RelayDefaultNetworkLayer', () => {
     beforeEach(() => {
       const route = RelayMetaRoute.get('$fetchRelayQuery');
       const queryA = RelayQuery.Root.create(
-        Relay.QL`query{node(id:"123"){id}}`,
+        RelayClassic.QL`query{node(id:"123"){id}}`,
         route,
         {},
       );
       const queryB = RelayQuery.Root.create(
-        Relay.QL`query{node(id:"456"){id}}`,
+        RelayClassic.QL`query{node(id:"456"){id}}`,
         route,
         {},
       );

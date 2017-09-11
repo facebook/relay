@@ -69,7 +69,7 @@ export type CacheManager = {
 };
 export type CacheProcessorCallbacks = {
   +onSuccess?: () => void,
-  +onFailure?: () => void,
+  +onFailure?: (error: mixed) => void,
 };
 export type CacheWriter = {
   writeField(
@@ -106,10 +106,6 @@ export type ComponentReadyState = {
 export type ComponentReadyStateChangeCallback = (
   readyState: ComponentReadyState,
 ) => void;
-export type MultiObservable<T> = {
-  subscribe(callbacks: SubscriptionCallbacks<Array<T>>): Subscription,
-  setDataIDs(dataIDs: Array<DataID>): void,
-};
 export type MutationResult = {
   response: QueryPayload,
 };
@@ -118,10 +114,6 @@ export type NetworkLayer = {
   sendMutation(request: RelayMutationRequest): ?Promise<any>,
   sendQueries(requests: Array<RelayQueryRequest>): ?Promise<any>,
   supports(...options: Array<string>): boolean,
-};
-// Observable
-export type Observable<T> = {
-  subscribe(callbacks: SubscriptionCallbacks<T>): Subscription,
 };
 export type QueryResult = {
   error?: ?Error,
@@ -142,7 +134,17 @@ export type ReadyStateEvent = {
   error?: Error,
 };
 // Containers
-export type RelayContainer = ReactClass<any>;
+
+/**
+ * FIXME: RelayContainer used to be typed with ReactClass<any>, but
+ * ReactClass is broken and allows for access to any property. For example
+ * ReactClass<any>.getFragment('foo') is valid even though ReactClass has no
+ * such getFragment() type definition. When ReactClass is fixed this causes a
+ * lot of errors in Relay code since methods like getFragment() are used often
+ * but have no definition in Relay's types. Suppressing for now.
+ */
+export type RelayContainer = $FlowFixMe;
+
 export type RelayMutationConfig =
   | {
       type: 'FIELDS_CHANGE',
@@ -150,24 +152,33 @@ export type RelayMutationConfig =
     }
   | {
       type: 'RANGE_ADD',
-      parentName: string,
+      parentName?: string,
       parentID?: string,
-      connectionName: string,
+      connectionInfo?: Array<{
+        key: string,
+        filters?: Variables,
+        rangeBehavior: string,
+      }>,
+      connectionName?: string,
       edgeName: string,
-      rangeBehaviors: RangeBehaviors,
+      rangeBehaviors?: RangeBehaviors,
     }
   | {
       type: 'NODE_DELETE',
-      parentName: string,
+      parentName?: string,
       parentID?: string,
-      connectionName: string,
+      connectionName?: string,
       deletedIDFieldName: string,
     }
   | {
       type: 'RANGE_DELETE',
-      parentName: string,
+      parentName?: string,
       parentID?: string,
-      connectionName: string,
+      connectionKeys?: Array<{
+        key: string,
+        filters?: Variables,
+      }>,
+      connectionName?: string,
       deletedIDFieldName: string | Array<string>,
       pathToConnection: Array<string>,
     }
@@ -238,9 +249,6 @@ export type StoreReaderOptions = {
   traverseFragmentReferences?: boolean,
   traverseGeneratedFields?: boolean,
 };
-export type Subscription = {
-  dispose(): void,
-};
 export type SubscriptionCallbacks<T> = {
   onNext(value: T): void,
   onError(error: Error): void,
@@ -248,3 +256,8 @@ export type SubscriptionCallbacks<T> = {
 };
 // Variables
 export type Variables = {[name: string]: $FlowFixMe};
+export type RerunParam = {
+  param: string,
+  import: string,
+  max_runs: number,
+};

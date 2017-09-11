@@ -8,6 +8,7 @@ type Query {
   checkinSearchQuery(query: CheckinSearchInput): CheckinSearchResult
   defaultSettings: Settings,
   route(waypoints: [WayPoint!]!): Route
+  items(filter: ItemFilterInput): ItemFilterResult
   maybeNode: MaybeNode
   neverNode: NeverNode
   me: User
@@ -69,6 +70,7 @@ type Mutation {
 
 type Subscription {
   feedbackLikeSubscribe(input: FeedbackLikeInput): FeedbackLikeResponsePayload
+  commentCreateSubscribe(input: CommentCreateSubscriptionInput): CommentCreateResponsePayload
 }
 
 input ActorSubscribeInput {
@@ -89,6 +91,12 @@ input ApplicationRequestDeleteAllInput {
 input CommentCreateInput {
   clientMutationId: String
   feedbackId: ID
+}
+
+input CommentCreateSubscriptionInput {
+  clientSubscriptionId: String
+  feedbackId: ID
+  text: String
 }
 
 input CommentDeleteInput {
@@ -132,6 +140,7 @@ type CheckinSearchResult {
 
 input CheckinSearchInput {
   query: String
+  inputs: [CheckinSearchInput]
 }
 
 type Comment implements Node {
@@ -248,7 +257,7 @@ type Feedback implements Node {
   screennames: [Screenname]
   subscribeStatus: String
   subscribers(first: Int): SubscribersConnection
-  topLevelComments(first: Int): TopLevelCommentsConnection
+  topLevelComments(orderBy: [TopLevelCommentsOrdering], first: Int): TopLevelCommentsConnection
   tracking: String
   url(relative: Boolean, site: String): String
   websites: [String]
@@ -562,6 +571,7 @@ type Story implements FeedUnit Node {
 }
 
 type StoryAttachment {
+  cache_id: ID!
   target: Story
   styleList: [String]
 }
@@ -631,7 +641,20 @@ type User implements Named, Node, Actor {
   emailAddresses: [String]
   feedback: Feedback
   firstName(if: Boolean, unless: Boolean): String
-  friends(after: ID, before: ID, first: Int, last: ID, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean, traits: [PersonalityTraits]): FriendsConnection
+  friends(
+    after: ID
+    before: ID
+    first: Int
+    last: ID
+    orderby: [String]
+    named: String
+    scale: Float
+    find: String
+    isViewerFriend: Boolean
+    if: Boolean
+    unless: Boolean
+    traits: [PersonalityTraits]
+  ): FriendsConnection
   hometown: Page
   id: ID!
   lastName: String
@@ -642,6 +665,7 @@ type User implements Named, Node, Actor {
   storySearch(query: StorySearchInput): [Story]
   storyCommentSearch(query: StoryCommentSearchInput): [Comment]
   profilePicture(size: [Int], preset: PhotoSize): Image
+  profile_picture(scale: Float): Image
   segments(first: Int): Segments
   screennames: [Screenname]
   subscribeStatus: String
@@ -668,6 +692,14 @@ input StoryCommentSearchInput {
   offset: Int
 }
 
+type ItemFilterResult {
+  date: String
+}
+
+input ItemFilterInput {
+  date: String
+}
+
 type Viewer {
   configs(named: [String]): ConfigsConnection
   actor: Actor
@@ -678,6 +710,14 @@ type Viewer {
   pendingPosts(first: Int): PendingPostsConnection
   primaryEmail: String
   timezoneEstimate: TimezoneInfo
+  marketplace_explore(
+    marketplace_browse_context: MarketplaceBrowseContext,
+    with_price_between: [Float],
+  ): MarketplaceExploreConnection
+}
+
+type MarketplaceExploreConnection {
+  count: Int
 }
 
 type ViewerNotificationsUpdateAllSeenStateResponsePayload {
@@ -687,6 +727,11 @@ type ViewerNotificationsUpdateAllSeenStateResponsePayload {
 enum Environment {
   WEB
   MOBILE
+}
+
+enum MarketplaceBrowseContext {
+  BROWSE_FEED
+  CATEGORY_FEED
 }
 
 enum PhotoSize {
@@ -706,7 +751,15 @@ enum StoryType {
   UNDIRECTED
 }
 
+enum TopLevelCommentsOrdering {
+  chronological
+  ranked_threaded
+  recent_activity
+  toplevel
+}
+
 type Settings {
+  cache_id: ID
   notificationSounds: Boolean
   notifications(environment: Environment): Boolean
 }

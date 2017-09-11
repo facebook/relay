@@ -12,13 +12,15 @@
 
 'use strict';
 
+jest.enableAutomock();
+
 require('configureForRelayOSS');
 
 jest.unmock('GraphQLRange').unmock('GraphQLSegment');
 
 const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
-const Relay = require('Relay');
-const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayClassic = require('RelayClassic');
+const {ConnectionInterface} = require('RelayRuntime');
 const RelayMockCacheManager = require('RelayMockCacheManager');
 const RelayMutationType = require('RelayMutationType');
 const RelayStoreData = require('RelayStoreData');
@@ -51,72 +53,67 @@ describe('RelayStoreData', function() {
       HAS_NEXT_PAGE,
       HAS_PREV_PAGE,
       PAGE_INFO,
-    } = RelayConnectionInterface);
+    } = ConnectionInterface.get());
 
     cacheManager = RelayMockCacheManager.genCacheManager();
     storeData = new RelayStoreData();
     storeData.injectCacheManager(cacheManager);
 
-    jasmine.addMatchers({
-      toContainCalledMethods: () => ({
-        compare: (actual, calls) => {
-          let message;
-          const pass = Object.keys(calls).every(methodName => {
-            const expected = calls[methodName];
-            const value = actual[methodName].mock.calls.length;
-            const eachPass = expected === value;
+    expect.extend({
+      toContainCalledMethods(actual, calls) {
+        let message;
+        const pass = Object.keys(calls).every(methodName => {
+          const expected = calls[methodName];
+          const value = actual[methodName].mock.calls.length;
+          const eachPass = expected === value;
 
-            const expTimes = expected + ' time' + (expected === 1 ? '' : 's');
-            const actTimes = value + ' time' + (value === 1 ? '' : 's');
-            const not = eachPass ? 'not ' : '';
+          const expTimes = expected + ' time' + (expected === 1 ? '' : 's');
+          const actTimes = value + ' time' + (value === 1 ? '' : 's');
+          const not = eachPass ? 'not ' : '';
+          message =
+            'Expected `' +
+            methodName +
+            '` ' +
+            not +
+            'to be called ' +
+            expTimes +
+            ', was called ' +
+            actTimes +
+            '.';
+          return eachPass;
+        });
+        return {pass, message};
+      },
+      toBeCalledWithNodeFields(actual, nodeFields) {
+        let message;
+        const pass = Object.keys(nodeFields).every(expectedID =>
+          Object.keys(nodeFields[expectedID]).every(expectedFieldName => {
             message =
-              'Expected `' +
-              methodName +
-              '` ' +
-              not +
-              'to be called ' +
-              expTimes +
-              ', was called ' +
-              actTimes +
-              '.';
-            return eachPass;
-          });
-          return {pass, message};
-        },
-      }),
-      toBeCalledWithNodeFields: (util, customEqualityTesters) => ({
-        compare: (actual, nodeFields) => {
-          let message;
-          const pass = Object.keys(nodeFields).every(expectedID =>
-            Object.keys(nodeFields[expectedID]).every(expectedFieldName => {
-              message =
-                'Expected function to be called with (' +
-                expectedID +
-                ', ' +
-                expectedFieldName +
-                ', ' +
-                nodeFields[expectedID][expectedFieldName] +
-                ').';
-              return actual.mock.calls.some(
-                ([actualID, actualFieldName, actualFieldValue]) =>
-                  actualID === expectedID &&
-                  actualFieldName === expectedFieldName &&
-                  util.equals(
-                    actualFieldValue,
-                    nodeFields[expectedID][actualFieldName],
-                    customEqualityTesters,
-                  ),
-              );
-            }),
-          );
-          return {pass, message};
-        },
-      }),
+              'Expected function to be called with (' +
+              expectedID +
+              ', ' +
+              expectedFieldName +
+              ', ' +
+              nodeFields[expectedID][expectedFieldName] +
+              ').';
+            return actual.mock.calls.some(
+              ([actualID, actualFieldName, actualFieldValue]) =>
+                actualID === expectedID &&
+                actualFieldName === expectedFieldName &&
+                this.equals(
+                  actualFieldValue,
+                  nodeFields[expectedID][actualFieldName],
+                ),
+            );
+          }),
+        );
+        return {pass, message};
+      },
     });
   });
 
   it('caches node metadata', () => {
-    const query = getNode(Relay.QL`query{node(id:"123"){id}}`);
+    const query = getNode(RelayClassic.QL`query{node(id:"123"){id}}`);
     const response = {
       node: {
         __typename: 'User',
@@ -141,7 +138,7 @@ describe('RelayStoreData', function() {
   });
 
   it('caches custom root calls', () => {
-    const query = getNode(Relay.QL`query{username(name:"yuzhi"){id}}`);
+    const query = getNode(RelayClassic.QL`query{username(name:"yuzhi"){id}}`);
     const response = {
       username: {
         __typename: 'User',
@@ -171,7 +168,7 @@ describe('RelayStoreData', function() {
   });
 
   it('caches nodes with client IDs', () => {
-    const query = getNode(Relay.QL`query{viewer{isFbEmployee}}`);
+    const query = getNode(RelayClassic.QL`query{viewer{isFbEmployee}}`);
     const response = {
       viewer: {
         __typename: 'User',
@@ -197,7 +194,7 @@ describe('RelayStoreData', function() {
 
   it('caches linked records', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"123") {
           id
@@ -246,7 +243,7 @@ describe('RelayStoreData', function() {
 
   it('caches plural fields', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"123") {
           id
@@ -295,7 +292,7 @@ describe('RelayStoreData', function() {
 
   it('caches connection fields', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"123") {
           id
@@ -392,7 +389,7 @@ describe('RelayStoreData', function() {
 
   it('caches connection fields with no edges', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"123") {
           id
@@ -450,7 +447,9 @@ describe('RelayStoreData', function() {
   });
 
   it('caches simple mutations', () => {
-    const query = getNode(Relay.QL`query{node(id:"123"){id,doesViewerLike}}`);
+    const query = getNode(
+      RelayClassic.QL`query{node(id:"123"){id,doesViewerLike}}`,
+    );
     const response = {
       node: {
         __typename: 'User',
@@ -462,7 +461,7 @@ describe('RelayStoreData', function() {
     const {mutationWriter} = cacheManager.mocks;
 
     const mutationQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       mutation {
         feedbackLike(input:$input) {
           clientMutationId
@@ -500,7 +499,7 @@ describe('RelayStoreData', function() {
 
   it('caches mutation that inserts an edge', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"123") {
           id
@@ -555,7 +554,7 @@ describe('RelayStoreData', function() {
     ];
 
     const mutationQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       mutation {
         commentCreate(input:$input) {
           clientMutationId
@@ -627,7 +626,7 @@ describe('RelayStoreData', function() {
 
   it('caches mutation that deletes an edge', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"123") {
           id
@@ -681,7 +680,7 @@ describe('RelayStoreData', function() {
     ];
 
     const mutationQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       mutation {
         commentDelete(input:$input) {
           clientMutationId

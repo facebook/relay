@@ -7,17 +7,16 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
 
-jest.autoMockOff();
-
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
-const RelayRecordSourceMutator = require('RelayRecordSourceMutator');
-const RelayStoreUtils = require('RelayStoreUtils');
-const RelayRecordState = require('RelayRecordState');
 const RelayModernTestUtils = require('RelayModernTestUtils');
+const RelayRecordSourceMutator = require('RelayRecordSourceMutator');
+const RelayRecordState = require('RelayRecordState');
+const RelayStoreUtils = require('RelayStoreUtils');
 
 const simpleClone = require('simpleClone');
 
@@ -43,7 +42,7 @@ describe('RelayRecordSourceMutator', () => {
   let sinkSource;
 
   beforeEach(() => {
-    jasmine.addMatchers(RelayModernTestUtils.matchers);
+    expect.extend(RelayModernTestUtils.matchers);
 
     initialData = {
       4: {

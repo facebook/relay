@@ -7,15 +7,14 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
 
-jest.disableAutomock();
-
 describe('RelaySkipHandleFieldTransform', () => {
-  let RelayCompilerContext;
-  let RelayPrinter;
+  let GraphQLCompilerContext;
+  let GraphQLIRPrinter;
   let RelaySkipHandleFieldTransform;
   let RelayTestSchema;
   let getGoldenMatchers;
@@ -24,20 +23,20 @@ describe('RelaySkipHandleFieldTransform', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    RelayCompilerContext = require('RelayCompilerContext');
-    RelayPrinter = require('RelayPrinter');
+    GraphQLCompilerContext = require('GraphQLCompilerContext');
+    GraphQLIRPrinter = require('GraphQLIRPrinter');
     RelaySkipHandleFieldTransform = require('RelaySkipHandleFieldTransform');
     RelayTestSchema = require('RelayTestSchema');
     getGoldenMatchers = require('getGoldenMatchers');
     parseGraphQLText = require('parseGraphQLText');
 
-    jasmine.addMatchers(getGoldenMatchers(__filename));
+    expect.extend(getGoldenMatchers(__filename));
   });
 
   it('removes field handles', () => {
     expect('fixtures/skip-handle-field-transform').toMatchGolden(text => {
       const {definitions} = parseGraphQLText(RelayTestSchema, text);
-      let context = new RelayCompilerContext(RelayTestSchema).addAll(
+      let context = new GraphQLCompilerContext(RelayTestSchema).addAll(
         definitions,
       );
       context = RelaySkipHandleFieldTransform.transform(
@@ -46,7 +45,7 @@ describe('RelaySkipHandleFieldTransform', () => {
       );
       const documents = [];
       context.documents().forEach(doc => {
-        documents.push(RelayPrinter.print(doc));
+        documents.push(GraphQLIRPrinter.print(doc));
       });
       return documents.join('\n');
     });

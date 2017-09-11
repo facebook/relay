@@ -30,7 +30,7 @@ import type {
   RecordProxy,
   RecordSourceProxy,
   RecordSourceSelectorProxy,
-  Selector,
+  OperationSelector,
 } from 'RelayStoreTypes';
 
 /**
@@ -53,13 +53,16 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
   }
 
   commitPayload(
-    selector: Selector,
+    operation: OperationSelector,
     response: ?Object,
   ): RecordSourceSelectorProxy {
     if (!response) {
-      return new RelayRecordSourceSelectorProxy(this, selector);
+      return new RelayRecordSourceSelectorProxy(this, operation.fragment);
     }
-    const {source, fieldPayloads} = normalizeRelayPayload(selector, response);
+    const {source, fieldPayloads} = normalizeRelayPayload(
+      operation.root,
+      response,
+    );
     const dataIDs = source.getRecordIDs();
     dataIDs.forEach(dataID => {
       const status = source.getStatus(dataID);
@@ -89,7 +92,7 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
         handler.update(this, fieldPayload);
       });
     }
-    return new RelayRecordSourceSelectorProxy(this, selector);
+    return new RelayRecordSourceSelectorProxy(this, operation.fragment);
   }
 
   create(dataID: DataID, typeName: string): RecordProxy {

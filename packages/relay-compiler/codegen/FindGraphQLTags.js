@@ -13,10 +13,15 @@
 
 'use strict';
 
+const RelayCompilerCache = require('RelayCompilerCache');
+
 const babylon = require('babylon');
-const crypto = require('crypto');
+const getModuleName = require('getModuleName');
 const graphql = require('graphql');
+const path = require('path');
 const util = require('util');
+
+import type {File} from 'CodegenTypes';
 
 // Attempt to be as inclusive as possible of source text.
 const BABYLON_OPTIONS = {
@@ -43,31 +48,25 @@ const BABYLON_OPTIONS = {
 
 function find(
   text: string,
-  fileName: string,
+  filePath: string,
 ): Array<{tag: string, template: string}> {
   const result = [];
   const ast = babylon.parse(text, BABYLON_OPTIONS);
-  const rawModuleName = extractModuleName(text) || fileName;
-  invariant(
-    rawModuleName,
-    'FindGraphQLTags: Expected a module name to be defined with ' +
-      '`@providesModule <name>`.',
-  );
-  const moduleName = rawModuleName
-    .replace(/\.react$/, '')
-    .replace(/[-.:]/g, '_');
+  const moduleName = getModuleName(filePath);
 
   const visitors = {
     CallExpression: node => {
       const callee = node.callee;
       if (
-        !((callee.type === 'Identifier' &&
-          CREATE_CONTAINER_FUNCTIONS[callee.name]) ||
+        !(
+          (callee.type === 'Identifier' &&
+            CREATE_CONTAINER_FUNCTIONS[callee.name]) ||
           (callee.kind === 'MemberExpression' &&
             callee.object.type === 'Identifier' &&
             callee.object.value === 'Relay' &&
             callee.property.type === 'Identifier' &&
-            CREATE_CONTAINER_FUNCTIONS[callee.property.name]))
+            CREATE_CONTAINER_FUNCTIONS[callee.property.name])
+        )
       ) {
         traverse(node, visitors);
         return;
@@ -94,7 +93,13 @@ function find(
           );
           const template = getGraphQLText(property.value.quasi);
           if (tagName === 'graphql' || tagName === 'graphql.experimental') {
-            validateTemplate(template, moduleName, keyName);
+            validateTemplate(
+              template,
+              moduleName,
+              keyName,
+              filePath,
+              getSourceLocationOffset(property.value.quasi),
+            );
           }
           result.push({
             tag: tagName,
@@ -118,7 +123,13 @@ function find(
         );
         const template = getGraphQLText(fragments.quasi);
         if (tagName === 'graphql' || tagName === 'graphql.experimental') {
-          validateTemplate(template, moduleName);
+          validateTemplate(
+            template,
+            moduleName,
+            null,
+            filePath,
+            getSourceLocationOffset(fragments.quasi),
+          );
         }
         result.push({
           tag: tagName,
@@ -136,7 +147,13 @@ function find(
       if (tagName != null) {
         const template = getGraphQLText(node.quasi);
         if (tagName === 'graphql' || tagName === 'graphql.experimental') {
-          validateTemplate(template, moduleName);
+          validateTemplate(
+            template,
+            moduleName,
+            null,
+            filePath,
+            getSourceLocationOffset(node.quasi),
+          );
         }
         result.push({
           tag: tagName,
@@ -149,22 +166,17 @@ function find(
   return result;
 }
 
-const cache = {};
+const cache = new RelayCompilerCache('FindGraphQLTags', 'v1');
+
 function memoizedFind(
   text: string,
-  fileName: string,
+  baseDir: string,
+  file: File,
 ): Array<{tag: string, template: string}> {
-  const hash = crypto
-    .createHash('md5')
-    .update(fileName)
-    .update(text)
-    .digest('hex');
-  let result = cache[hash];
-  if (!result) {
-    result = find(text, fileName);
-    cache[hash] = result;
-  }
-  return result;
+  return cache.getOrCompute(file.hash, () => {
+    const absPath = path.join(baseDir, file.relPath);
+    return find(text, absPath);
+  });
 }
 
 const CREATE_CONTAINER_FUNCTIONS = {
@@ -205,13 +217,25 @@ function getGraphQLTagName(tag) {
   return null;
 }
 
-function getGraphQLText(quasi) {
+function getTemplateNode(quasi) {
   const quasis = quasi.quasis;
   invariant(
     quasis && quasis.length === 1,
     'FindGraphQLTags: Substitutions are not allowed in graphql tags.',
   );
-  return quasis[0].value.raw;
+  return quasis[0];
+}
+
+function getGraphQLText(quasi) {
+  return getTemplateNode(quasi).value.raw;
+}
+
+function getSourceLocationOffset(quasi) {
+  const loc = getTemplateNode(quasi).loc.start;
+  return {
+    line: loc.line,
+    column: loc.column + 1, // babylon is 0-indexed, graphql expects 1-indexed
+  };
 }
 
 function getSourceTextForLocation(text, loc) {
@@ -224,8 +248,8 @@ function getSourceTextForLocation(text, loc) {
   return lines.join('\n');
 }
 
-function validateTemplate(template, moduleName, keyName) {
-  const ast = graphql.parse(template);
+function validateTemplate(template, moduleName, keyName, filePath, loc) {
+  const ast = graphql.parse(new graphql.Source(template, filePath, loc));
   ast.definitions.forEach((def: any) => {
     invariant(
       def.name,
@@ -266,19 +290,6 @@ function validateTemplate(template, moduleName, keyName) {
       }
     }
   });
-}
-
-function extractModuleName(text) {
-  const propertyRegex = /@(\S+) *(\S*)/g;
-  let captures;
-  while ((captures = propertyRegex.exec(text))) {
-    const prop = captures[1];
-    const value = captures[2];
-    if (prop === 'providesModule') {
-      return value;
-    }
-  }
-  return null;
 }
 
 function invariant(condition, msg, ...args) {

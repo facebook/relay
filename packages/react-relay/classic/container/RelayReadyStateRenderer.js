@@ -54,7 +54,7 @@ type RelayRenderArgs = {
 export type RelayRenderCallback =
   /* $FlowFixMe(>=0.38.0 site=www) - Flow error detected during the deployment
    * of v0.38.0. To see the error, remove this comment and run flow */
-  (renderArgs: RelayRenderArgs) => ?React.Element<*>;
+  (renderArgs: RelayRenderArgs) => ?React.Element<any>;
 export type RelayRetryCallback = () => void;
 
 /**
@@ -68,17 +68,18 @@ export type RelayRetryCallback = () => void;
  * If `readyState` is not supplied, the previously rendered `readyState` will
  * continue to be rendered (or null if there is no previous `readyState`).
  */
-class RelayReadyStateRenderer extends React.Component {
+class RelayReadyStateRenderer extends React.Component<
+  Props,
+  {
+    getContainerProps: RelayContainerPropsFactory,
+  },
+> {
   static childContextTypes = {
     relay: RelayPropTypes.ClassicRelay,
     route: RelayPropTypes.QueryConfig.isRequired,
   };
 
   _relay: ClassicRelayContext;
-  props: Props;
-  state: {
-    getContainerProps: RelayContainerPropsFactory,
-  };
 
   constructor(props: Props, context: any) {
     super(props, context);
@@ -141,7 +142,7 @@ class RelayReadyStateRenderer extends React.Component {
     return nextReadyState.ready;
   }
 
-  render(): ?React.Element<*> {
+  render(): React.Node {
     let children;
     let shouldUpdate = false;
 
@@ -192,7 +193,7 @@ function createContainerPropsFactory(): RelayContainerPropsFactory {
     const containerProps = {
       ...nextProps.queryConfig.params,
       ...mapObject(querySet, query =>
-        createFragmentPointerForRoot(nextProps.environment, query),
+        createFragmentPointerForRoot(nextProps.environment, (query: any)),
       ),
     };
     prevProps = nextProps;

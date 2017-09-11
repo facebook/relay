@@ -15,7 +15,6 @@
 
 const ErrorUtils = require('ErrorUtils');
 const QueryBuilder = require('QueryBuilder');
-const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayMutationQuery = require('RelayMutationQuery');
 const RelayMutationRequest = require('RelayMutationRequest');
 const RelayMutationTransaction = require('RelayMutationTransaction');
@@ -29,6 +28,8 @@ const fromGraphQL = require('fromGraphQL');
 const invariant = require('invariant');
 const nullthrows = require('nullthrows');
 const resolveImmediate = require('resolveImmediate');
+
+const {ConnectionInterface} = require('RelayRuntime');
 
 import type {ConcreteMutation} from 'ConcreteQuery';
 import type {ClientMutationID} from 'RelayInternalTypes';
@@ -76,8 +77,6 @@ type TransactionData = {
   onSuccess: ?RelayMutationTransactionCommitSuccessCallback,
 };
 type TransactionQueue = Array<PendingTransaction>;
-
-const {CLIENT_MUTATION_ID} = RelayConnectionInterface;
 
 let transactionIDCounter = 0;
 
@@ -481,7 +480,7 @@ class RelayPendingTransaction {
     if (!this._inputVariable) {
       const inputVariable = {
         ...this.mutation.getVariables(),
-        [CLIENT_MUTATION_ID]: this.id,
+        [ConnectionInterface.get().CLIENT_MUTATION_ID]: this.id,
       };
       this._inputVariable = inputVariable;
     }
@@ -562,7 +561,9 @@ class RelayPendingTransaction {
     if (this._rawOptimisticResponse === undefined) {
       const optimisticResponse = this.mutation.getOptimisticResponse() || null;
       if (optimisticResponse) {
-        optimisticResponse[CLIENT_MUTATION_ID] = this.id;
+        optimisticResponse[
+          ConnectionInterface.get().CLIENT_MUTATION_ID
+        ] = this.id;
       }
       this._rawOptimisticResponse = optimisticResponse;
     }

@@ -15,13 +15,14 @@
 
 const GraphQLRange = require('GraphQLRange');
 const RelayClassicRecordState = require('RelayClassicRecordState');
-const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayRecord = require('RelayRecord');
 
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const warning = require('warning');
+
+const {ConnectionInterface} = require('RelayRuntime');
 
 import type {RecordState} from 'RelayClassicRecordState';
 import type {PageInfo} from 'RelayConnectionInterface';
@@ -59,7 +60,6 @@ export type RangeInfo = {
 };
 
 const EMPTY = '';
-const {NODE} = RelayConnectionInterface;
 const {
   FILTER_CALLS,
   FORCE_INDEX,
@@ -91,8 +91,8 @@ class RelayRecordStore {
     nodeConnectionMap?: ?NodeRangeMap,
   ) {
     this._cachedRecords = records.cachedRecords;
-    this._cachedRootCallMap = (rootCallMaps &&
-      rootCallMaps.cachedRootCallMap) || {};
+    this._cachedRootCallMap =
+      (rootCallMaps && rootCallMaps.cachedRootCallMap) || {};
     this._queuedRecords = records.queuedRecords;
     this._nodeConnectionMap = nodeConnectionMap || {};
     this._records = records.records;
@@ -285,6 +285,7 @@ class RelayRecordStore {
     let connectionIDs;
     forEachObject(record, (datum, key) => {
       if (datum && getFieldNameFromKey(key) === schemaName) {
+        // $FlowFixMe: datum isn't guaranteed to be an object.
         const connectionID = RelayRecord.getDataIDForObject(datum);
         if (connectionID) {
           connectionIDs = connectionIDs || [];
@@ -367,6 +368,7 @@ class RelayRecordStore {
     }
     let filteredEdges;
     if (requestedEdgeIDs) {
+      const {NODE} = ConnectionInterface.get();
       filteredEdges = requestedEdgeIDs
         .map(edgeID => ({
           edgeID,
@@ -444,7 +446,7 @@ class RelayRecordStore {
  * (ex: `orderby(TOP_STORIES)`), removing generic calls (ex: `first`, `find`).
  */
 function getFilterCalls(calls: Array<Call>): Array<Call> {
-  return calls.filter(call => !RelayConnectionInterface.isConnectionCall(call));
+  return calls.filter(call => !ConnectionInterface.isConnectionCall(call));
 }
 
 /**

@@ -14,6 +14,7 @@
 'use strict';
 
 const ReactRelayPaginationContainer = require('ReactRelayPaginationContainer');
+const RelayPropTypes = require('RelayPropTypes');
 
 const {buildCompatContainer} = require('ReactRelayCompatContainerBuilder');
 
@@ -28,12 +29,12 @@ import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
  * `fragmentSpec` is memoized once per environment, rather than once per
  * instance of the container constructed/rendered.
  */
-function createContainer<TBase: ReactClass<*>>(
+function createContainer<TBase: React$ComponentType<*>>(
   Component: TBase,
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
   connectionConfig: ConnectionConfig,
 ): TBase {
-  return buildCompatContainer(
+  const Container = buildCompatContainer(
     Component,
     (fragmentSpec: any),
     (ComponentClass, fragments) => {
@@ -44,6 +45,14 @@ function createContainer<TBase: ReactClass<*>>(
       );
     },
   );
+  /* $FlowFixMe(>=0.53.0) This comment suppresses an error
+   * when upgrading Flow's support for React. Common errors found when
+   * upgrading Flow's React support are documented at
+   * https://fburl.com/eq7bs81w */
+  Container.childContextTypes = {
+    relay: RelayPropTypes.Relay,
+  };
+  return Container;
 }
 
 module.exports = {createContainer};

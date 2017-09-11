@@ -12,12 +12,11 @@
 
 'use strict';
 
+jest.mock('generateClientID').mock('warning').mock('RelayQueryTracker');
+
 require('configureForRelayOSS');
 
-jest.mock('warning');
-jest.unmock('GraphQLRange').unmock('GraphQLSegment');
-
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayQueryPath = require('RelayQueryPath');
 const RelayQueryTracker = require('RelayQueryTracker');
 const RelayTestUtils = require('RelayTestUtils');
@@ -53,7 +52,7 @@ describe('writePayload()', () => {
     RelayRecordStore = require('RelayRecordStore');
     RelayRecordWriter = require('RelayRecordWriter');
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('paths', () => {
@@ -62,7 +61,7 @@ describe('writePayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           viewer {
             actor {
@@ -103,7 +102,7 @@ describe('writePayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             id
@@ -134,7 +133,7 @@ describe('writePayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           viewer {
             actor {
@@ -162,7 +161,7 @@ describe('writePayload()', () => {
       // linked nodes use a minimal path from the nearest refetchable node
       const addressID = store.getLinkedRecordID('123', 'address');
       const pathQuery = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             address {
@@ -192,7 +191,7 @@ describe('writePayload()', () => {
         },
       };
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             allPhones {
@@ -246,7 +245,7 @@ describe('writePayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             friends(first: 1) {
@@ -307,7 +306,7 @@ describe('writePayload()', () => {
 
       // linked nodes use a minimal path from the nearest refetchable node
       const pathQuery = getNode(
-        Relay.QL`query{node(id:"node1"){address{city}}}`,
+        RelayClassic.QL`query{node(id:"node1"){address{city}}}`,
       );
       path = RelayQueryPath.getPath(
         RelayQueryPath.create(pathQuery),
@@ -323,7 +322,7 @@ describe('writePayload()', () => {
       const rootCallMap = {};
       const store = new RelayRecordStore({records}, {rootCallMap});
       const writer = new RelayRecordWriter(records, rootCallMap, false);
-      const fragment = Relay.QL`fragment on Viewer {
+      const fragment = RelayClassic.QL`fragment on Viewer {
         actor {
           id
           __typename
@@ -331,7 +330,7 @@ describe('writePayload()', () => {
         }
       }`;
       const query = getVerbatimNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           viewer {
             ${fragment}
@@ -372,7 +371,7 @@ describe('writePayload()', () => {
       const writer = new RelayRecordWriter(records, {}, false);
       const tracker = new RelayQueryTracker();
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             id
@@ -402,9 +401,9 @@ describe('writePayload()', () => {
       const tracker = new RelayQueryTracker();
 
       // `address` will be encountered twice, both occurrences must be tracked
-      const fragment = Relay.QL`fragment on Node{address{city}}`;
+      const fragment = RelayClassic.QL`fragment on Node{address{city}}`;
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             ${fragment}
@@ -438,7 +437,7 @@ describe('writePayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           viewer {
             actor {
@@ -475,7 +474,7 @@ describe('writePayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             actors {
@@ -521,7 +520,7 @@ describe('writePayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             friends(first: 1) {
@@ -574,7 +573,7 @@ describe('writePayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       let query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             friends(first: 1) {
@@ -612,7 +611,7 @@ describe('writePayload()', () => {
       // write an additional node and verify only the new edge and node are
       // tracked
       query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             friends(after:"c1",first: 1) {
@@ -659,7 +658,7 @@ describe('writePayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             name
@@ -739,7 +738,7 @@ describe('writePayload()', () => {
     const store = new RelayRecordStore({records});
     const writer = new RelayRecordWriter(records, {}, false);
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id: "123") {
           ...on User {

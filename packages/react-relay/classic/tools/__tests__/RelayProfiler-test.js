@@ -12,8 +12,6 @@
 
 'use strict';
 
-jest.unmock('RelayProfiler');
-
 const RelayProfiler = require('RelayProfiler');
 
 describe('RelayProfiler', function() {
@@ -22,7 +20,7 @@ describe('RelayProfiler', function() {
   let mockMethod;
   let mockObject;
   const mockDisableDEV = () => {
-    window.__DEV__ = 0;
+    global.__DEV__ = 0;
   };
 
   beforeEach(() => {
@@ -37,7 +35,7 @@ describe('RelayProfiler', function() {
   });
 
   afterEach(() => {
-    window.__DEV__ = DEV;
+    global.__DEV__ = DEV;
   });
 
   describe('instance', () => {

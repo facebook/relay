@@ -13,25 +13,23 @@
 
 'use strict';
 
-const GraphQL = require('graphql');
-
-const t = require('babel-types');
-
-const {RELAY_CLASSIC_MUTATION} = require('RelayFlowParser');
-
-import type {Fragment, LinkedField, Root, Selection} from 'RelayIR';
-import type {GraphQLType} from 'graphql';
 const generate = require('babel-generator').default;
-const {getRawType} = require('RelaySchemaUtils');
+const t = require('babel-types');
 const transformInputObjectToIR = require('transformInputObjectToIR');
 const traverse = require('babel-traverse').default;
 
+const {RELAY_CLASSIC_MUTATION} = require('RelayFlowParser');
+const {getRawType} = require('GraphQLSchemaUtils');
 const {
   GraphQLEnumType,
   GraphQLList,
   GraphQLNonNull,
   GraphQLScalarType,
-} = GraphQL;
+} = require('graphql');
+
+import type {Fragment, LinkedField, Root, Selection} from 'GraphQLIR';
+import type {GraphQLType} from 'graphql';
+
 const FIELD_BLACKLIST = ['clientMutationId', 'client_mutation_id'];
 
 type Annotation = Object;
@@ -55,12 +53,14 @@ function printFlowTypes(node: Root | Fragment): ?string {
         }
         return normalize(transform(inputIR))
           .concat(response)
-          .map(n => generate(n).code)
+          .map(n => generate(n, {flowCommaSeparator: true}).code)
           .join('\n\n');
       }
     }
   } else if (node.kind === 'Fragment') {
-    return normalize(transform(node)).map(n => generate(n).code).join('\n\n');
+    return normalize(transform(node))
+      .map(n => generate(n, {flowCommaSeparator: true}).code)
+      .join('\n\n');
   }
 }
 
@@ -202,7 +202,7 @@ function transformSelection(
           return s;
         });
     default:
-      throw `Unknown Selection type: ${node.kind}`;
+      throw new Error(`Unknown Selection type: ${node.kind}`);
   }
 
   if (Array.isArray(annotation)) {
@@ -299,9 +299,7 @@ function transformScalarField(type: GraphQLType): Annotation {
       case 'Boolean':
         return t.booleanTypeAnnotation();
       default:
-        console.warn(
-          `Could not convert GraphQLScalarType(${type.name}), using 'any'`,
-        );
+        // Fallback to `any` for custom scalar types.
         return t.anyTypeAnnotation();
     }
   } else if (type instanceof GraphQLEnumType) {

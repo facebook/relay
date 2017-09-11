@@ -13,11 +13,16 @@
 
 'use strict';
 
-const RelayCodegenRunner = require('RelayCodegenRunner');
-const RelayFileIRParser = require('RelayFileIRParser');
+require('babel-polyfill');
+
+const CodegenRunner = require('CodegenRunner');
+const GraphQLConsoleReporter = require('GraphQLConsoleReporter');
+const RelayJSModuleParser = require('RelayJSModuleParser');
 const RelayFileWriter = require('RelayFileWriter');
 const RelayIRTransforms = require('RelayIRTransforms');
+const GraphQLWatchmanClient = require('GraphQLWatchmanClient');
 
+const formatGeneratedModule = require('formatGeneratedModule');
 const fs = require('fs');
 const path = require('path');
 const yargs = require('yargs');
@@ -34,23 +39,47 @@ const {
   fragmentTransforms,
   printTransforms,
   queryTransforms,
-  schemaTransforms,
+  schemaExtensions,
 } = RelayIRTransforms;
 
 import type {GraphQLSchema} from 'graphql';
 
-const SCRIPT_NAME = 'relay-compiler';
-
-function buildWatchExpression(options: {extensions: Array<string>}) {
+function buildWatchExpression(options: {
+  extensions: Array<string>,
+  include: Array<string>,
+  exclude: Array<string>,
+}) {
   return [
     'allof',
     ['type', 'f'],
     ['anyof', ...options.extensions.map(ext => ['suffix', ext])],
-    ['not', ['match', '**/node_modules/**', 'wholename']],
-    ['not', ['match', '**/__mocks__/**', 'wholename']],
-    ['not', ['match', '**/__tests__/**', 'wholename']],
-    ['not', ['match', '**/__generated__/**', 'wholename']],
+    [
+      'anyof',
+      ...options.include.map(include => ['match', include, 'wholename']),
+    ],
+    ...options.exclude.map(exclude => ['not', ['match', exclude, 'wholename']]),
   ];
+}
+
+function getFilepathsFromGlob(
+  baseDir,
+  options: {
+    extensions: Array<string>,
+    include: Array<string>,
+    exclude: Array<string>,
+  },
+): Array<string> {
+  const {extensions, include, exclude} = options;
+  const patterns = include.map(inc => `${inc}/*.+(${extensions.join('|')})`);
+
+  // $FlowFixMe(site=react_native_fb,www)
+  const glob = require('fast-glob');
+  return glob.sync(patterns, {
+    cwd: baseDir,
+    bashNative: [],
+    onlyFiles: true,
+    ignore: exclude,
+  });
 }
 
 /* eslint-disable no-console-disallow */
@@ -59,7 +88,12 @@ async function run(options: {
   schema: string,
   src: string,
   extensions: Array<string>,
+  include: Array<string>,
+  exclude: Array<string>,
+  verbose: boolean,
+  watchman: boolean,
   watch?: ?boolean,
+  validate: boolean,
 }) {
   const schemaPath = path.resolve(process.cwd(), options.schema);
   if (!fs.existsSync(schemaPath)) {
@@ -68,6 +102,9 @@ async function run(options: {
   const srcDir = path.resolve(process.cwd(), options.src);
   if (!fs.existsSync(srcDir)) {
     throw new Error(`--source path does not exist: ${srcDir}.`);
+  }
+  if (options.watch && !options.watchman) {
+    throw new Error('Watchman is required to watch for changes.');
   }
   if (options.watch && !hasWatchmanRootFile(srcDir)) {
     throw new Error(
@@ -84,32 +121,47 @@ Ensure that one such file exists in ${srcDir} or its parents.
     );
   }
 
+  const reporter = new GraphQLConsoleReporter({verbose: options.verbose});
+
+  const useWatchman =
+    options.watchman && (await GraphQLWatchmanClient.isAvailable());
+
   const parserConfigs = {
     default: {
       baseDir: srcDir,
-      getFileFilter: RelayFileIRParser.getFileFilter,
-      getParser: RelayFileIRParser.getParser,
+      getFileFilter: RelayJSModuleParser.getFileFilter,
+      getParser: RelayJSModuleParser.getParser,
       getSchema: () => getSchema(schemaPath),
-      watchmanExpression: buildWatchExpression(options),
+      watchmanExpression: useWatchman ? buildWatchExpression(options) : null,
+      filepaths: useWatchman ? null : getFilepathsFromGlob(srcDir, options),
     },
   };
   const writerConfigs = {
     default: {
       getWriter: getRelayFileWriter(srcDir),
+      isGeneratedFile: (filePath: string) =>
+        filePath.endsWith('.js') && filePath.includes('__generated__'),
       parser: 'default',
     },
   };
-  const codegenRunner = new RelayCodegenRunner({
+  const codegenRunner = new CodegenRunner({
+    reporter,
     parserConfigs,
     writerConfigs,
-    onlyValidate: false,
-    skipPersist: true,
+    onlyValidate: options.validate,
   });
-  if (options.watch) {
-    await codegenRunner.watchAll();
-  } else {
+  if (!options.validate && !options.watch && options.watchman) {
     console.log('HINT: pass --watch to keep watching for changes.');
-    await codegenRunner.compileAll();
+  }
+  const result = options.watch
+    ? await codegenRunner.watchAll()
+    : await codegenRunner.compileAll();
+
+  if (result === 'ERROR') {
+    process.exit(100);
+  }
+  if (options.validate && result !== 'NO_CHANGES') {
+    process.exit(101);
   }
 }
 
@@ -117,7 +169,7 @@ function getRelayFileWriter(baseDir: string) {
   return (onlyValidate, schema, documents, baseDocuments) =>
     new RelayFileWriter({
       config: {
-        buildCommand: SCRIPT_NAME,
+        formatModule: formatGeneratedModule,
         compilerTransforms: {
           codegenTransforms,
           fragmentTransforms,
@@ -125,7 +177,7 @@ function getRelayFileWriter(baseDir: string) {
           queryTransforms,
         },
         baseDir,
-        schemaTransforms,
+        schemaExtensions,
       },
       onlyValidate,
       schema,
@@ -143,7 +195,6 @@ function getSchema(schemaPath: string): GraphQLSchema {
     source = `
   directive @include(if: Boolean) on FRAGMENT | FIELD
   directive @skip(if: Boolean) on FRAGMENT | FIELD
-  directive @relay(pattern: Boolean, plural: Boolean) on FRAGMENT | FIELD
 
   ${source}
   `;
@@ -194,15 +245,48 @@ const argv = yargs
       demandOption: true,
       type: 'string',
     },
+    include: {
+      array: true,
+      default: ['**'],
+      describe: 'Directories to include under src',
+      type: 'string',
+    },
+    exclude: {
+      array: true,
+      default: [
+        '**/node_modules/**',
+        '**/__mocks__/**',
+        '**/__tests__/**',
+        '**/__generated__/**',
+      ],
+      describe: 'Directories to ignore under src',
+      type: 'string',
+    },
     extensions: {
       array: true,
       default: ['js'],
       describe: 'File extensions to compile (--extensions js jsx)',
       type: 'string',
     },
+    verbose: {
+      describe: 'More verbose logging',
+      type: 'boolean',
+    },
+    watchman: {
+      describe: 'Use watchman when not in watch mode',
+      type: 'boolean',
+      default: true,
+    },
     watch: {
       describe: 'If specified, watches files and regenerates on changes',
       type: 'boolean',
+    },
+    validate: {
+      describe:
+        'Looks for pending changes and exits with non-zero code instead of ' +
+        'writing to disk',
+      type: 'boolean',
+      default: false,
     },
   })
   .help().argv;

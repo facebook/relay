@@ -12,13 +12,15 @@
 
 'use strict';
 
+jest.enableAutomock();
+
 require('configureForRelayOSS');
 
 jest.unmock('RelayContainer');
 
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 const React = require('React');
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayTestUtils = require('RelayTestUtils');
 
@@ -35,8 +37,8 @@ describe('RelayContainer.hasOptimisticUpdate', () => {
         return <div />;
       }
     }
-    MockContainer = Relay.createContainer(MockComponent, {
-      fragments: {foo: () => Relay.QL`fragment on Node{id}`},
+    MockContainer = RelayClassic.createContainer(MockComponent, {
+      fragments: {foo: () => RelayClassic.QL`fragment on Node{id}`},
     });
     environment = new RelayEnvironment();
     RelayTestRenderer = RelayTestUtils.createRenderer();
@@ -45,7 +47,7 @@ describe('RelayContainer.hasOptimisticUpdate', () => {
       return {__dataID__: dataID, id: dataID};
     });
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('throws for invalid records', () => {

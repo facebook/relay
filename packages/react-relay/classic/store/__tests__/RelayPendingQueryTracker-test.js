@@ -12,12 +12,14 @@
 
 'use strict';
 
+jest.enableAutomock();
+
 require('configureForRelayOSS');
 
 jest.useFakeTimers();
 jest.unmock('RelayPendingQueryTracker').unmock('RelayTaskQueue');
 
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayFetchMode = require('RelayFetchMode');
 const RelayStoreData = require('RelayStoreData');
 const RelayTestUtils = require('RelayTestUtils');
@@ -51,35 +53,31 @@ describe('RelayPendingQueryTracker', () => {
         .getResolvedPromise();
     };
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
-    jasmine.addMatchers({
-      toConsoleWarn() {
-        return {
-          compare(callback, expected) {
-            const consoleWarn = console.warn;
-            let pass = false;
-            console.warn = (...args) => {
-              if (
-                args.length === expected.length &&
-                args.every((arg, ii) => arg === expected[ii])
-              ) {
-                pass = true;
-              } else {
-                consoleWarn(...args);
-              }
-            };
-            callback();
-            console.warn = consoleWarn;
-            return {pass};
-          },
+    expect.extend(RelayTestUtils.matchers);
+    expect.extend({
+      toConsoleWarn(callback, expected) {
+        const consoleWarn = console.warn;
+        let pass = false;
+        console.warn = (...args) => {
+          if (
+            args.length === expected.length &&
+            args.every((arg, ii) => arg === expected[ii])
+          ) {
+            pass = true;
+          } else {
+            consoleWarn(...args);
+          }
         };
+        callback();
+        console.warn = consoleWarn;
+        return {pass};
       },
     });
   });
 
   it('calls `onSuccess` callback when inner fetch resolves', () => {
     const mockQueryA = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer{actor{id,name}}
       }
@@ -99,7 +97,7 @@ describe('RelayPendingQueryTracker', () => {
 
   it('calls `writeRelayQueryPayload` when receiving data', () => {
     const mockQueryA = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer{actor{id,name}}
       }
@@ -120,7 +118,7 @@ describe('RelayPendingQueryTracker', () => {
 
   it('fails if fetching throws an error', () => {
     const mockQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer{actor{id,name}}
       }
@@ -141,7 +139,7 @@ describe('RelayPendingQueryTracker', () => {
 
   it('fails if `writeRelayQueryPayload` throws', () => {
     const mockQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer{actor{id,name}}
       }
@@ -165,7 +163,7 @@ describe('RelayPendingQueryTracker', () => {
 
   it('can resolve preload queries *after* they are added', () => {
     const mockQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer{actor{id,name}}
       }
@@ -192,7 +190,7 @@ describe('RelayPendingQueryTracker', () => {
 
   it('can resolve preload queries *before* they are added', () => {
     const mockQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer{actor{id,name}}
       }
@@ -219,7 +217,7 @@ describe('RelayPendingQueryTracker', () => {
 
   it('can reject preloaded pending queries by id', () => {
     const mockQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer{actor{id,name}}
       }
@@ -247,7 +245,7 @@ describe('RelayPendingQueryTracker', () => {
 
   it('has pending queries when not queries are all resolved', () => {
     const mockQueryA = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer{actor{id,name}}
       }
@@ -261,7 +259,7 @@ describe('RelayPendingQueryTracker', () => {
 
   it('has no pending queries when queries are all resolved', () => {
     const mockQueryA = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer{actor{id,name}}
       }
@@ -278,7 +276,7 @@ describe('RelayPendingQueryTracker', () => {
 
   it('has no pending queries after being reset', () => {
     const mockQueryA = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer{actor{id,name}}
       }

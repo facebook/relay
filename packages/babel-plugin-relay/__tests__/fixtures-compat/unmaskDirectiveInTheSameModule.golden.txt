@@ -1,0 +1,90 @@
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule CompatUtil
+ */
+
+'use strict';
+
+const graphql = require('graphql');
+
+/*
+ * When unmasking fragment in the same module, you need to bind it to a 
+ * local variable with the conventional naming.
+ */
+const actor = {
+  actor: {
+    modern: function () {
+      return require('./__generated__/CompatUtil_actor.graphql');
+    },
+    classic: function (RelayQL_GENERATED) {
+      return {
+        kind: 'FragmentDefinition',
+        argumentDefinitions: [],
+        node: function () {
+          return {
+            children: [{
+              fieldName: 'id',
+              kind: 'Field',
+              metadata: {
+                isRequisite: true
+              },
+              type: 'ID'
+            }, {
+              fieldName: 'name',
+              kind: 'Field',
+              metadata: {},
+              type: 'String'
+            }, {
+              fieldName: '__typename',
+              kind: 'Field',
+              metadata: {
+                isGenerated: true,
+                isRequisite: true
+              },
+              type: 'String'
+            }],
+            id: RelayQL_GENERATED.__id(),
+            kind: 'Fragment',
+            metadata: {
+              isAbstract: true
+            },
+            name: 'CompatUtil_actor',
+            type: 'Actor'
+          };
+        }()
+      };
+    }
+  }
+};
+
+module.exports = {
+  /*
+   * you could also export `CompatUtil_actor` for compat mode by commenting
+   * out the next line
+   */
+  // actor,
+  viewer: {
+    modern: function () {
+      return require('./__generated__/CompatUtil_viewer.graphql');
+    },
+    classic: function (RelayQL_GENERATED) {
+      const CompatUtil_actor = RelayQL_GENERATED.__getClassicFragment(actor.actor).node;
+
+      return {
+        kind: 'FragmentDefinition',
+        argumentDefinitions: [],
+        node: function () {
+          return {
+            children: [].concat.apply([], [RelayQL_GENERATED.__frag(CompatUtil_actor)]),
+            id: RelayQL_GENERATED.__id(),
+            kind: 'Fragment',
+            metadata: {},
+            name: 'CompatUtil_viewer',
+            type: 'Viewer'
+          };
+        }()
+      };
+    }
+  }
+};

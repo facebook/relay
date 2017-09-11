@@ -12,11 +12,11 @@
 
 'use strict';
 
+jest.mock('RelayQueryTracker').mock('RelayClassicRecordState');
+
 require('configureForRelayOSS');
 
-jest.unmock('GraphQLRange').unmock('GraphQLSegment');
-
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayQueryTracker = require('RelayQueryTracker');
 const RelayTestUtils = require('RelayTestUtils');
 
@@ -34,7 +34,7 @@ describe('diffRelayQuery', () => {
     RelayRecordStore = require('RelayRecordStore');
     RelayRecordWriter = require('RelayRecordWriter');
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('keeps queries if the root dataID is unknown', () => {
@@ -43,7 +43,7 @@ describe('diffRelayQuery', () => {
     const tracker = new RelayQueryTracker();
 
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         username(name:"joe") {
           id
@@ -64,7 +64,7 @@ describe('diffRelayQuery', () => {
     const tracker = new RelayQueryTracker();
 
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"123") {
           id
@@ -86,7 +86,7 @@ describe('diffRelayQuery', () => {
     const tracker = new RelayQueryTracker();
 
     const writeQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"123") {
           firstName
@@ -104,7 +104,7 @@ describe('diffRelayQuery', () => {
     writePayload(store, writer, writeQuery, payload, tracker);
 
     const fetchQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"123") {
           id
@@ -118,7 +118,7 @@ describe('diffRelayQuery', () => {
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toEqualQueryRoot(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         node(id:"123") {
           lastName

@@ -12,13 +12,16 @@
 
 'use strict';
 
+jest.enableAutomock();
+
 require('configureForRelayOSS');
 
 jest.unmock('RelayRenderer');
+jest.unmock('react-test-renderer');
 
 const React = require('React');
-const ReactDOM = require('ReactDOM');
-const Relay = require('Relay');
+const ReactTestRenderer = require('react-test-renderer');
+const RelayClassic = require('RelayClassic');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayRenderer = require('RelayRenderer');
@@ -29,23 +32,26 @@ describe('RelayRenderer.abort', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    const MockComponent = React.createClass({render: () => <div />});
-    MockContainer = Relay.createContainer(MockComponent, {
+    class MockComponent extends React.Component {
+      render() {
+        return <div />;
+      }
+    }
+    MockContainer = RelayClassic.createContainer(MockComponent, {
       fragments: {},
     });
 
-    const container = document.createElement('div');
+    const container = ReactTestRenderer.create();
     const environment = new RelayEnvironment();
 
     function render() {
       const queryConfig = RelayQueryConfig.genMockInstance();
-      ReactDOM.render(
+      container.update(
         <RelayRenderer
           Container={MockContainer}
           queryConfig={queryConfig}
           environment={environment}
         />,
-        container,
       );
       const index = environment.primeCache.mock.calls.length - 1;
       return {
@@ -53,29 +59,21 @@ describe('RelayRenderer.abort', () => {
         request: environment.primeCache.mock.requests[index],
       };
     }
-    jasmine.addMatchers({
-      toAbortOnUpdate() {
+    expect.extend({
+      toAbortOnUpdate(actual) {
+        const {abort, request} = render();
+        actual(request);
+        render();
         return {
-          compare(actual) {
-            const {abort, request} = render();
-            actual(request);
-            render();
-            return {
-              pass: abort.mock.calls.length > 0,
-            };
-          },
+          pass: abort.mock.calls.length > 0,
         };
       },
-      toAbortOnUnmount() {
+      toAbortOnUnmount(actual) {
+        const {abort, request} = render();
+        actual(request);
+        container.unmount();
         return {
-          compare(actual) {
-            const {abort, request} = render();
-            actual(request);
-            ReactDOM.unmountComponentAtNode(container);
-            return {
-              pass: abort.mock.calls.length > 0,
-            };
-          },
+          pass: abort.mock.calls.length > 0,
         };
       },
     });

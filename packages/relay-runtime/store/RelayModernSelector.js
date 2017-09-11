@@ -92,7 +92,7 @@ function getSelector(
     false,
     'RelayModernSelector: Expected object to contain data for fragment `%s`, got ' +
       '`%s`. Make sure that the parent operation/fragment included fragment ' +
-      '`...%s`.',
+      '`...%s` without `@relay(mask: false)`.',
     fragment.name,
     JSON.stringify(item),
     fragment.name,
@@ -115,9 +115,8 @@ function getSelectorList(
 ): ?Array<Selector> {
   let selectors = null;
   items.forEach(item => {
-    const selector = item != null
-      ? getSelector(operationVariables, fragment, item)
-      : null;
+    const selector =
+      item != null ? getSelector(operationVariables, fragment, item) : null;
     if (selector != null) {
       selectors = selectors || [];
       selectors.push(selector);
@@ -251,7 +250,7 @@ function getDataID(fragment: ConcreteFragment, item: mixed): ?DataID {
     false,
     'RelayModernSelector: Expected object to contain data for fragment `%s`, got ' +
       '`%s`. Make sure that the parent operation/fragment included fragment ' +
-      '`...%s`.',
+      '`...%s` without `@relay(mask: false)`.',
     fragment.name,
     JSON.stringify(item),
     fragment.name,

@@ -16,9 +16,7 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
     modern: function () {
       return require('CompatProfile_user.graphql');
     },
-    classic: function () {
-      const RelayQL_GENERATED = require('RelayQL_GENERATED');
-
+    classic: function (RelayQL_GENERATED) {
       return {
         kind: 'FragmentDefinition',
         argumentDefinitions: [{
@@ -27,7 +25,46 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
           name: 'scale'
         }],
         node: function () {
-          throw new Error('Relay transform error ``You supplied a field named `profile_picture` on type `User`, but no such field exists on that type.`` in file `unknown`. Try updating your GraphQL schema if an argument/field/type was recently added.');
+          return {
+            children: [{
+              calls: [{
+                kind: 'Call',
+                metadata: {
+                  type: 'Float'
+                },
+                name: 'scale',
+                value: {
+                  kind: 'CallVariable',
+                  callVariableName: 'scale'
+                }
+              }],
+              children: [{
+                fieldName: 'uri',
+                kind: 'Field',
+                metadata: {},
+                type: 'String'
+              }],
+              fieldName: 'profile_picture',
+              kind: 'Field',
+              metadata: {
+                canHaveSubselections: true
+              },
+              type: 'Image'
+            }, {
+              fieldName: 'id',
+              kind: 'Field',
+              metadata: {
+                isGenerated: true,
+                isRequisite: true
+              },
+              type: 'ID'
+            }],
+            id: RelayQL_GENERATED.__id(),
+            kind: 'Fragment',
+            metadata: {},
+            name: 'CompatProfile_user',
+            type: 'User'
+          };
         }()
       };
     }
@@ -36,9 +73,7 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
     modern: function () {
       return require('CompatProfile_user2.graphql');
     },
-    classic: function () {
-      const RelayQL_GENERATED = require('RelayQL_GENERATED');
-
+    classic: function (RelayQL_GENERATED) {
       return {
         kind: 'FragmentDefinition',
         argumentDefinitions: [{
@@ -47,7 +82,46 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
           name: 'scale'
         }],
         node: function () {
-          throw new Error('Relay transform error ``You supplied a field named `profile_picture` on type `User`, but no such field exists on that type.`` in file `unknown`. Try updating your GraphQL schema if an argument/field/type was recently added.');
+          return {
+            children: [{
+              calls: [{
+                kind: 'Call',
+                metadata: {
+                  type: 'Float'
+                },
+                name: 'scale',
+                value: {
+                  kind: 'CallVariable',
+                  callVariableName: 'scale'
+                }
+              }],
+              children: [{
+                fieldName: 'uri',
+                kind: 'Field',
+                metadata: {},
+                type: 'String'
+              }],
+              fieldName: 'profile_picture',
+              kind: 'Field',
+              metadata: {
+                canHaveSubselections: true
+              },
+              type: 'Image'
+            }, {
+              fieldName: 'id',
+              kind: 'Field',
+              metadata: {
+                isGenerated: true,
+                isRequisite: true
+              },
+              type: 'ID'
+            }],
+            id: RelayQL_GENERATED.__id(),
+            kind: 'Fragment',
+            metadata: {},
+            name: 'CompatProfile_user2',
+            type: 'User'
+          };
         }()
       };
     }

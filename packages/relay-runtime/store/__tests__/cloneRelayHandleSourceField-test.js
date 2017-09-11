@@ -12,8 +12,6 @@
 
 'use strict';
 
-jest.autoMockOff();
-
 const RelayConcreteNode = require('RelayConcreteNode');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 
@@ -27,7 +25,7 @@ describe('cloneRelayHandleSourceField()', () => {
   let selections;
 
   beforeEach(() => {
-    jest.addMatchers(matchers);
+    expect.extend(matchers);
     const input = generateWithTransforms(
       `
       fragment A on User {

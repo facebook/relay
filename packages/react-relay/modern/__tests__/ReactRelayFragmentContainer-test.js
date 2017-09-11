@@ -12,15 +12,15 @@
 
 'use strict';
 
-jest.autoMockOff();
-
 const React = require('React');
 const ReactRelayFragmentContainer = require('ReactRelayFragmentContainer');
 const ReactRelayPropTypes = require('ReactRelayPropTypes');
 const ReactTestRenderer = require('ReactTestRenderer');
 const RelayModernTestUtils = require('RelayModernTestUtils');
-const {ROOT_ID} = require('RelayStoreUtils');
+
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
+const {createOperationSelector} = require('RelayModernOperationSelector');
+const {ROOT_ID} = require('RelayStoreUtils');
 
 describe('ReactRelayFragmentContainer', () => {
   let TestComponent;
@@ -57,6 +57,10 @@ describe('ReactRelayFragmentContainer', () => {
     setProps(props) {
       this.setState({props});
     }
+    setContext(env, vars) {
+      this.relay = {environment: env, variables: vars};
+      this.setState({context: {environment: env, variables: vars}});
+    }
     render() {
       const child = React.Children.only(this.props.children);
       if (this.state.props) {
@@ -71,7 +75,7 @@ describe('ReactRelayFragmentContainer', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    jasmine.addMatchers(RelayModernTestUtils.matchers);
+    expect.extend(RelayModernTestUtils.matchers);
 
     environment = createMockEnvironment();
     ({UserFragment, UserQuery} = environment.mock.compile(
@@ -104,26 +108,15 @@ describe('ReactRelayFragmentContainer', () => {
     );
 
     // Pre-populate the store with data
+    environment.commitPayload(createOperationSelector(UserQuery, {id: '4'}), {
+      node: {
+        id: '4',
+        __typename: 'User',
+        name: 'Zuck',
+      },
+    });
     environment.commitPayload(
-      {
-        dataID: ROOT_ID,
-        node: UserQuery.query,
-        variables: {id: '4'},
-      },
-      {
-        node: {
-          id: '4',
-          __typename: 'User',
-          name: 'Zuck',
-        },
-      },
-    );
-    environment.commitPayload(
-      {
-        dataID: ROOT_ID,
-        node: UserQuery.query,
-        variables: {id: '842472'},
-      },
+      createOperationSelector(UserQuery, {id: '842472'}),
       {
         node: {
           id: '842472',
@@ -334,6 +327,50 @@ describe('ReactRelayFragmentContainer', () => {
     });
   });
 
+  it('resolves for new variables in context', () => {
+    const userPointer = environment.lookup({
+      dataID: ROOT_ID,
+      node: UserQuery.fragment,
+      variables: {id: '4'},
+    }).data.node;
+    const instance = ReactTestRenderer.create(
+      <ContextSetter environment={environment} variables={variables}>
+        <TestContainer user={userPointer} />
+      </ContextSetter>,
+    );
+    render.mockClear();
+    environment.lookup.mockClear();
+    environment.subscribe.mockClear();
+
+    // Update the variables in context
+    const newVariables = {id: '6'};
+    instance.getInstance().setContext(environment, newVariables);
+
+    // New data & variables are passed to component
+    expect(render.mock.calls.length).toBe(1);
+    expect(render.mock.calls[0][0]).toEqual({
+      relay: {
+        environment: jasmine.any(Object),
+      },
+      user: {
+        id: '4',
+        name: 'Zuck',
+      },
+    });
+    // Container subscribes for updates on new props
+    expect(environment.subscribe.mock.calls.length).toBe(1);
+    expect(environment.subscribe.mock.calls[0][0]).toEqual({
+      dataID: '4',
+      data: {
+        id: '4',
+        name: 'Zuck',
+      },
+      node: UserFragment,
+      seenRecords: jasmine.any(Object),
+      variables: {cond: true},
+    });
+  });
+
   it('does not update for same props/data', () => {
     const userPointer = environment.lookup({
       dataID: ROOT_ID,
@@ -484,5 +521,45 @@ describe('ReactRelayFragmentContainer', () => {
     expect(render.mock.calls[0][0].obj).toBe(nextObj);
     expect(environment.lookup).not.toBeCalled();
     expect(environment.subscribe).not.toBeCalled();
+  });
+
+  it('does not proxy instance methods', () => {
+    class TestNoProxy extends React.Component {
+      render() {
+        return <div />;
+      }
+
+      instanceMethod(arg) {
+        return arg + arg;
+      }
+    }
+
+    const TestNoProxyContainer = ReactRelayFragmentContainer.createContainer(
+      TestNoProxy,
+      {
+        user: () => UserFragment,
+      },
+    );
+
+    let containerRef;
+    let componentRef;
+
+    ReactTestRenderer.create(
+      <ContextSetter environment={environment} variables={{}}>
+        <TestNoProxyContainer
+          user={null}
+          ref={ref => {
+            containerRef = ref;
+          }}
+          componentRef={ref => {
+            componentRef = ref;
+          }}
+        />
+      </ContextSetter>,
+    );
+
+    expect(componentRef.instanceMethod('foo')).toEqual('foofoo');
+
+    expect(() => containerRef.instanceMethod('foo')).toThrow();
   });
 });

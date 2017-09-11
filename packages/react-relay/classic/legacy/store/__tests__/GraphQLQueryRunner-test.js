@@ -12,12 +12,14 @@
 
 'use strict';
 
+jest.enableAutomock();
+
 require('configureForRelayOSS');
 
 jest.useFakeTimers();
 jest.mock('warning').unmock('GraphQLQueryRunner').unmock('RelayTaskQueue');
 
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayFetchMode = require('RelayFetchMode');
 const RelayStoreData = require('RelayStoreData');
 const RelayTestUtils = require('RelayTestUtils');
@@ -71,12 +73,12 @@ describe('GraphQLQueryRunner', () => {
 
     mockCallback = jest.fn();
     mockQuerySet = {
-      foo: getNode(Relay.QL`query{viewer{actor{id,name}}}`),
-      bar: getNode(Relay.QL`query{node(id:"4"){id,name}}`),
+      foo: getNode(RelayClassic.QL`query{viewer{actor{id,name}}}`),
+      bar: getNode(RelayClassic.QL`query{node(id:"4"){id,name}}`),
       baz: null,
     };
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('immediately succeeds for empty queries', () => {
@@ -131,9 +133,9 @@ describe('GraphQLQueryRunner', () => {
       supports: () => false,
     });
 
-    const fragment = Relay.QL`fragment on Node{id}`;
+    const fragment = RelayClassic.QL`fragment on Node{id}`;
     const querySet = {
-      foo: getNode(Relay.QL`query{node(id:"123"){${defer(fragment)}}}`),
+      foo: getNode(RelayClassic.QL`query{node(id:"123"){${defer(fragment)}}}`),
     };
 
     warning.mockClear();
@@ -867,7 +869,7 @@ describe('GraphQLQueryRunner', () => {
       diffRelayQuery.mockImplementation(query => [query]);
 
       const mockQuery = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           viewer{actor{id,firstName,lastName,name,address{city},hometown{id}}}
         }
@@ -876,29 +878,29 @@ describe('GraphQLQueryRunner', () => {
 
       const mockSplitQueries = {
         required: getNode(
-          Relay.QL`
+          RelayClassic.QL`
           query {
             viewer{actor{id,name}}
           }
         `,
         ),
         deferred: [
-          Relay.QL`
+          RelayClassic.QL`
             query {
               viewer{actor{id,address{city}}}
             }
           `,
-          Relay.QL`
+          RelayClassic.QL`
             query {
               viewer{actor{id,hometown{id}}}
             }
           `,
-          Relay.QL`
+          RelayClassic.QL`
             query {
               viewer{actor{id,firstName}}
             }
           `,
-          Relay.QL`
+          RelayClassic.QL`
             query {
               viewer{actor{id,lastName}}
             }

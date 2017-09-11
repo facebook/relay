@@ -8,6 +8,7 @@
  *
  * @flow
  * @fullSyntaxTransform
+ * @format
  */
 
 'use strict';
@@ -22,7 +23,7 @@ class RelayTransformError {
   constructor(message: string, loc: ?Location) {
     this.message = message;
     this.loc = loc;
-    this.stack = (new Error()).stack;
+    this.stack = new Error().stack;
   }
 }
 

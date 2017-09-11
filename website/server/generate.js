@@ -5,6 +5,7 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
  */
 
 'use strict';
@@ -44,11 +45,6 @@ const queue = (function() {
   return {push: push};
 })();
 
-exec('npm run build', {
-  cwd: path.resolve(__dirname, '../../website-prototyping-tools'),
-  stdio: 'inherit',
-});
-
 buildGraphQLSpec('build');
 
 glob('src/**/*.*', function(er, files) {
@@ -60,11 +56,14 @@ glob('src/**/*.*', function(er, files) {
     if (file.match(/\.js$/)) {
       targetFile = targetFile.replace(/\.js$/, '.html');
       queue.push(function(cb) {
-        request('http://localhost:8079/' + targetFile.replace(/^build\//, ''), function(error, response, body) {
-          mkdirp.sync(targetFile.replace(new RegExp('/[^/]*$'), ''));
-          fs.writeFileSync(targetFile, body);
-          cb();
-        });
+        request(
+          'http://localhost:8079/' + targetFile.replace(/^build\//, ''),
+          function(error, response, body) {
+            mkdirp.sync(targetFile.replace(new RegExp('/[^/]*$'), ''));
+            fs.writeFileSync(targetFile, body);
+            cb();
+          }
+        );
       });
     } else {
       queue.push(function(cb) {

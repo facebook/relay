@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
@@ -16,62 +17,58 @@ const RelayModernTestUtils = require('RelayModernTestUtils');
 describe('RelayModernTestUtils', () => {
   beforeEach(() => {
     // Define custom matchers to test our custom matchers...
-    jasmine.addMatchers({
-      toFail() {
-        return {
-          compare(actual, expected) {
-            if (actual.pass) {
-              if (expected) {
-                return {
-                  pass: false,
-                  message: 'Expected matcher to fail with message: ' +
-                    JSON.stringify(expected) +
-                    ' but it passed.',
-                };
-              } else {
-                return {
-                  pass: false,
-                  message: 'Expected matcher to fail but it passed.',
-                };
-              }
-            } else if (expected instanceof RegExp) {
-              if (!actual.message.match(expected)) {
-                return {
-                  pass: false,
-                  message: 'Expected matcher to fail with message matching: ' +
-                    expected.toString() +
-                    ' but it failed with message: ' +
-                    JSON.stringify(actual.message),
-                };
-              }
-            } else if (expected && actual.message !== expected) {
-              return {
-                pass: false,
-                message: 'Expected matcher to fail with message: ' +
-                  JSON.stringify(expected) +
-                  ' but it failed with message: ' +
-                  JSON.stringify(actual.message),
-              };
-            }
-            return {pass: true};
-          },
-        };
+    expect.extend({
+      toFail(actual, expected) {
+        if (actual.pass) {
+          if (expected) {
+            return {
+              pass: false,
+              message:
+                'Expected matcher to fail with message: ' +
+                JSON.stringify(expected) +
+                ' but it passed.',
+            };
+          } else {
+            return {
+              pass: false,
+              message: 'Expected matcher to fail but it passed.',
+            };
+          }
+        } else if (expected instanceof RegExp) {
+          if (!actual.message.match(expected)) {
+            return {
+              pass: false,
+              message:
+                'Expected matcher to fail with message matching: ' +
+                expected.toString() +
+                ' but it failed with message: ' +
+                JSON.stringify(actual.message),
+            };
+          }
+        } else if (expected && actual.message !== expected) {
+          return {
+            pass: false,
+            message:
+              'Expected matcher to fail with message: ' +
+              JSON.stringify(expected) +
+              ' but it failed with message: ' +
+              JSON.stringify(actual.message),
+          };
+        }
+        return {pass: true};
       },
 
-      toPass() {
-        return {
-          compare(actual, _) {
-            if (actual.pass) {
-              return {pass: true};
-            } else {
-              return {
-                pass: false,
-                message: 'Expected matcher to pass but it failed with message: ' +
-                  JSON.stringify(actual.message),
-              };
-            }
-          },
-        };
+      toPass(actual) {
+        if (actual.pass) {
+          return {pass: true};
+        } else {
+          return {
+            pass: false,
+            message:
+              'Expected matcher to pass but it failed with message: ' +
+              JSON.stringify(actual.message),
+          };
+        }
       },
     });
   });
@@ -84,10 +81,16 @@ describe('RelayModernTestUtils', () => {
     beforeEach(() => {
       jest.mock('warning');
       warning = require('warning');
-      const matcher = RelayModernTestUtils.matchers.toWarn();
-      toWarn = matcher.compare;
+      const matcher = RelayModernTestUtils.matchers.toWarn;
+      toWarn = matcher.bind({isNot: false});
       not = {
-        toWarn: matcher.negativeCompare,
+        toWarn: (...args) => {
+          const matcherResp = matcher.apply({isNot: true}, args);
+          return {
+            ...matcherResp,
+            pass: !matcherResp.pass,
+          };
+        },
       };
     });
 

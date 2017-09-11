@@ -12,13 +12,15 @@
 
 'use strict';
 
+jest.enableAutomock();
+
 require('configureForRelayOSS');
 
 jest.unmock('RelayRenderer');
 
 const React = require('React');
 const ReactTestUtils = require('ReactTestUtils');
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayRenderer = require('RelayRenderer');
@@ -35,10 +37,14 @@ describe('RelayRenderer.validation', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
 
-    MockComponent = React.createClass({render: () => <div />});
-    MockContainer = Relay.createContainer(MockComponent, {
+    MockComponent = class extends React.Component {
+      render() {
+        return <div />;
+      }
+    };
+    MockContainer = RelayClassic.createContainer(MockComponent, {
       fragments: {},
     });
     ShallowRenderer = ReactTestUtils.createRenderer();

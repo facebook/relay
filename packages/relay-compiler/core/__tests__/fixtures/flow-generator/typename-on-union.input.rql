@@ -36,3 +36,25 @@ fragment TypenameOutsideWithAbstractType on Node {
     }
   }
 }
+
+fragment TypenameWithoutSpreads on User {
+  __typename
+  firstName
+}
+
+fragment TypenameWithoutSpreadsAbstractType on Node {
+  __typename
+  id
+}
+
+
+fragment TypenameWithCommonSelections on Actor {
+  __typename
+  name
+  ... on User {
+    firstName
+  }
+  ... on Page {
+    username
+  }
+}

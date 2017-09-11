@@ -8,14 +8,13 @@
  *
  * @fullSyntaxTransform
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
 
-jest.autoMockOff();
-
-const RelayTestSchema = require('RelayTestSchema');
 const RelayFlowParser = require('RelayFlowParser');
+const RelayTestSchema = require('RelayTestSchema');
 
 const getGoldenMatchers = require('getGoldenMatchers');
 const prettyStringify = require('prettyStringify');
@@ -23,7 +22,7 @@ const prettyStringify = require('prettyStringify');
 describe('RelayFlowParser', () => {
   beforeEach(() => {
     jest.resetModules();
-    jasmine.addMatchers(getGoldenMatchers(__filename));
+    expect.extend(getGoldenMatchers(__filename));
   });
 
   it('matches expected output', () => {

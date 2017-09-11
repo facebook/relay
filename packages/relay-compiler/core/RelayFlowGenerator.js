@@ -13,13 +13,16 @@
 
 'use strict';
 
-const RelayIRVisitor = require('RelayIRVisitor');
+const FlattenTransform = require('FlattenTransform');
+const GraphQLIRVisitor = require('GraphQLIRVisitor');
 
 const babelGenerator = require('babel-generator').default;
 const t = require('babel-types');
 
 const {
   GraphQLEnumType,
+  GraphQLInputType,
+  GraphQLInputObjectType,
   GraphQLInterfaceType,
   GraphQLList,
   GraphQLNonNull,
@@ -28,25 +31,51 @@ const {
   GraphQLType,
   GraphQLUnionType,
 } = require('graphql');
-const {isAbstractType} = require('RelaySchemaUtils');
+const {isAbstractType} = require('GraphQLSchemaUtils');
 
-import type {Fragment, Root} from 'RelayIR';
+import type {IRTransform} from 'GraphQLIRTransforms';
+import type {Fragment, Root} from 'GraphQLIR';
+import type CompilerContext from 'GraphQLCompilerContext';
+
+export type ScalarTypeMapping = {
+  [type: string]: string,
+};
 
 const printBabel = ast => babelGenerator(ast).code;
 
-function generate(node: Root | Fragment): string {
-  const babelAST = RelayIRVisitor.visit(node, RelayCodeGenVisitor);
-  return printBabel(babelAST);
+function generate(
+  node: Root | Fragment,
+  customScalars?: ?ScalarTypeMapping,
+  inputFieldWhiteList?: ?Array<string>,
+): string {
+  const defaultedCustomScalars = customScalars || {};
+  const output = [];
+  if (node.kind === 'Root' && node.operation !== 'query') {
+    const inputAST = generateInputVariablesType(
+      node,
+      defaultedCustomScalars,
+      inputFieldWhiteList,
+    );
+    output.push(printBabel(inputAST));
+  }
+  const responseAST = GraphQLIRVisitor.visit(
+    node,
+    createVisitor(defaultedCustomScalars),
+  );
+  output.push(printBabel(responseAST));
+  return output.join('\n\n');
 }
 
 function makeProp(
   {key, schemaName, value, conditional, nodeType, nodeSelections},
+  customScalars: ScalarTypeMapping,
   concreteType,
 ) {
   if (nodeType) {
     value = transformScalarField(
       nodeType,
-      selectionsToBabel([Array.from(nodeSelections.values())]),
+      customScalars,
+      selectionsToBabel([Array.from(nodeSelections.values())], customScalars),
     );
   }
   if (schemaName === '__typename' && concreteType) {
@@ -64,7 +93,7 @@ const hasTypenameSelection = (selections: $FlowIssue) =>
   selections.some(isTypenameSelection);
 const onlySelectsTypename = selections => selections.every(isTypenameSelection);
 
-function selectionsToBabel(selections) {
+function selectionsToBabel(selections, customScalars: ScalarTypeMapping) {
   const baseFields = new Map();
   const byConcreteType = {};
 
@@ -97,10 +126,10 @@ function selectionsToBabel(selections) {
       types.push(
         exactObjectTypeAnnotation([
           ...Array.from(baseFields.values()).map(selection =>
-            makeProp(selection, concreteType),
+            makeProp(selection, customScalars, concreteType),
           ),
           ...byConcreteType[concreteType].map(selection =>
-            makeProp(selection, concreteType),
+            makeProp(selection, customScalars, concreteType),
           ),
         ]),
       );
@@ -130,11 +159,17 @@ function selectionsToBabel(selections) {
         ),
       );
     }
-    types.push(
-      exactObjectTypeAnnotation(
-        Array.from(selectionMap.values()).map(sel => makeProp(sel)),
-      ),
+    const selectionMapValues = Array.from(selectionMap.values()).map(
+      sel =>
+        isTypenameSelection(sel) && sel.concreteType
+          ? makeProp(
+              {...sel, conditional: false},
+              customScalars,
+              sel.concreteType,
+            )
+          : makeProp(sel, customScalars),
     );
+    types.push(exactObjectTypeAnnotation(selectionMapValues));
   }
 
   if (!types.length) {
@@ -181,78 +216,109 @@ function mergeSelections(a, b) {
   return merged;
 }
 
-const RelayCodeGenVisitor = {
-  leave: {
-    Root(node) {
-      return t.exportNamedDeclaration(
-        t.typeAlias(
-          t.identifier(node.name),
-          null,
-          selectionsToBabel(node.selections),
-        ),
-        [],
-        null,
-      );
-    },
+function isPlural({directives}): boolean {
+  const relayDirective = directives.find(({name}) => name === 'relay');
 
-    Fragment(node) {
-      return t.exportNamedDeclaration(
-        t.typeAlias(
-          t.identifier(node.name),
-          null,
-          selectionsToBabel(node.selections),
-        ),
-        [],
-        null,
-      );
-    },
+  if (relayDirective) {
+    return !!relayDirective.args.find(
+      ({name, value}) => name === 'plural' && value.value,
+    );
+  } else {
+    return false;
+  }
+}
 
-    InlineFragment(node) {
-      const typeCondition = node.typeCondition;
-      return flattenArray(node.selections).map(typeSelection => {
-        return isAbstractType(typeCondition)
-          ? {
-              ...typeSelection,
-              conditional: true,
-            }
-          : {
-              ...typeSelection,
-              concreteType: typeCondition.toString(),
-            };
-      });
+function createVisitor(customScalars: ScalarTypeMapping) {
+  return {
+    leave: {
+      Root(node) {
+        return t.exportNamedDeclaration(
+          t.typeAlias(
+            t.identifier(`${node.name}Response`),
+            null,
+            selectionsToBabel(node.selections, customScalars),
+          ),
+          [],
+          null,
+        );
+      },
+
+      Fragment(node) {
+        let selections: $FlowFixMe = flattenArray(node.selections);
+        const numConecreteSelections = selections.filter(s => s.concreteType)
+          .length;
+        selections = selections.map(selection => {
+          if (
+            numConecreteSelections <= 1 &&
+            isTypenameSelection(selection) &&
+            !isAbstractType(node.type)
+          ) {
+            return [
+              {
+                ...selection,
+                concreteType: node.type.toString(),
+              },
+            ];
+          }
+          return [selection];
+        });
+        const baseType = selectionsToBabel(selections, customScalars);
+        const type = isPlural(node) ? arrayOfType(baseType) : baseType;
+
+        return t.exportNamedDeclaration(
+          t.typeAlias(t.identifier(node.name), null, type),
+          [],
+          null,
+        );
+      },
+
+      InlineFragment(node) {
+        const typeCondition = node.typeCondition;
+        return flattenArray(node.selections).map(typeSelection => {
+          return isAbstractType(typeCondition)
+            ? {
+                ...typeSelection,
+                conditional: true,
+              }
+            : {
+                ...typeSelection,
+                concreteType: typeCondition.toString(),
+              };
+        });
+      },
+      Condition(node) {
+        return flattenArray(node.selections).map(selection => {
+          return {
+            ...selection,
+            conditional: true,
+          };
+        });
+      },
+      ScalarField(node) {
+        return [
+          {
+            key: node.alias || node.name,
+            schemaName: node.name,
+            value: transformScalarField(node.type, customScalars),
+          },
+        ];
+      },
+      LinkedField(node) {
+        return [
+          {
+            key: node.alias || node.name,
+            schemaName: node.name,
+            nodeType: node.type,
+            nodeSelections: selectionsToMap(flattenArray(node.selections)),
+          },
+        ];
+      },
+      FragmentSpread(node) {
+        return [];
+      },
     },
-    Condition(node) {
-      return flattenArray(node.selections).map(selection => {
-        return {
-          ...selection,
-          conditional: true,
-        };
-      });
-    },
-    ScalarField(node) {
-      return [
-        {
-          key: node.alias || node.name,
-          schemaName: node.name,
-          value: transformScalarField(node.type),
-        },
-      ];
-    },
-    LinkedField(node) {
-      return [
-        {
-          key: node.alias || node.name,
-          schemaName: node.name,
-          nodeType: node.type,
-          nodeSelections: selectionsToMap(flattenArray(node.selections)),
-        },
-      ];
-    },
-    FragmentSpread(node) {
-      return [];
-    },
-  },
-};
+  };
+}
 
 function selectionsToMap(selections) {
   const map = new Map();
@@ -272,12 +338,20 @@ function flattenArray<T>(arrayOfArrays: Array<Array<T>>): Array<T> {
   return result;
 }
 
-function transformScalarField(type, objectProps) {
+function transformScalarField(
+  type,
+  customScalars: ScalarTypeMapping,
+  objectProps,
+) {
   if (type instanceof GraphQLNonNull) {
-    return transformNonNullableScalarField(type.ofType, objectProps);
+    return transformNonNullableScalarField(
+      type.ofType,
+      objectProps,
+      customScalars,
+    );
   } else {
     return t.nullableTypeAnnotation(
-      transformNonNullableScalarField(type, objectProps),
+      transformNonNullableScalarField(type, objectProps, customScalars),
     );
   }
 }
@@ -301,9 +375,41 @@ function readOnlyObjectTypeProperty(key, value) {
   return prop;
 }
 
-function transformNonNullableScalarField(type: GraphQLType, objectProps) {
+function transformGraphQLScalarType(
+  type: GraphQLScalarType,
+  customScalars: ScalarTypeMapping,
+) {
+  switch (customScalars[type.name] || type.name) {
+    case 'ID':
+    case 'String':
+    case 'Url':
+      return t.stringTypeAnnotation();
+    case 'Float':
+    case 'Int':
+      return t.numberTypeAnnotation();
+    case 'Boolean':
+      return t.booleanTypeAnnotation();
+    default:
+      return t.anyTypeAnnotation();
+  }
+}
+
+function transformGraphQLEnumType(type: GraphQLEnumType) {
+  // TODO create a flow type for enums
+  return t.unionTypeAnnotation(
+    type.getValues().map(({value}) => stringLiteralTypeAnnotation(value)),
+  );
+}
+
+function transformNonNullableScalarField(
+  type: GraphQLType,
+  objectProps,
+  customScalars: ScalarTypeMapping,
+) {
   if (type instanceof GraphQLList) {
-    return arrayOfType(transformScalarField(type.ofType, objectProps));
+    return arrayOfType(
+      transformScalarField(type.ofType, customScalars, objectProps),
+    );
   } else if (
     type instanceof GraphQLObjectType ||
     type instanceof GraphQLUnionType ||
@@ -311,27 +417,101 @@ function transformNonNullableScalarField(type: GraphQLType, objectProps) {
   ) {
     return objectProps;
   } else if (type instanceof GraphQLScalarType) {
-    switch (type.name) {
-      case 'ID':
-      case 'String':
-      case 'Url':
-        return t.stringTypeAnnotation();
-      case 'Float':
-      case 'Int':
-        return t.numberTypeAnnotation();
-      case 'Boolean':
-        return t.booleanTypeAnnotation();
-      default:
-        return t.anyTypeAnnotation();
-    }
+    return transformGraphQLScalarType(type, customScalars);
   } else if (type instanceof GraphQLEnumType) {
-    // TODO create a flow type for enums
-    return t.unionTypeAnnotation(
-      type.getValues().map(({value}) => stringLiteralTypeAnnotation(value)),
-    );
+    return transformGraphQLEnumType(type);
   } else {
     throw new Error(`Could not convert from GraphQL type ${type.toString()}`);
   }
 }
 
-module.exports = {generate};
+function transformNonNullableInputType(
+  type: GraphQLInputType,
+  customScalars: ScalarTypeMapping,
+  inputFieldWhiteList?: ?Array<string>,
+) {
+  if (type instanceof GraphQLList) {
+    return arrayOfType(
+      transformInputType(type.ofType, customScalars, inputFieldWhiteList),
+    );
+  } else if (type instanceof GraphQLScalarType) {
+    return transformGraphQLScalarType(type, customScalars);
+  } else if (type instanceof GraphQLEnumType) {
+    return transformGraphQLEnumType(type);
+  } else if (type instanceof GraphQLInputObjectType) {
+    const fields = type.getFields();
+    const props = Object.keys(fields)
+      .map(key => fields[key])
+      .filter(
+        field =>
+          !inputFieldWhiteList || inputFieldWhiteList.indexOf(field.name) < 0,
+      )
+      .map(field => {
+        const property = t.objectTypeProperty(
+          t.identifier(field.name),
+          transformInputType(field.type, customScalars, inputFieldWhiteList),
+        );
+        if (!(field.type instanceof GraphQLNonNull)) {
+          property.optional = true;
+        }
+        return property;
+      });
+    return t.objectTypeAnnotation(props);
+  } else {
+    throw new Error(`Could not convert from GraphQL type ${type.toString()}`);
+  }
+}
+
+function transformInputType(
+  type: GraphQLInputType,
+  customScalars: ScalarTypeMapping,
+  inputFieldWhiteList?: ?Array<string>,
+) {
+  if (type instanceof GraphQLNonNull) {
+    return transformNonNullableInputType(
+      type.ofType,
+      customScalars,
+      inputFieldWhiteList,
+    );
+  } else {
+    return t.nullableTypeAnnotation(
+      transformNonNullableInputType(type, customScalars, inputFieldWhiteList),
+    );
+  }
+}
+
+function generateInputVariablesType(
+  node: Root,
+  customScalars: ScalarTypeMapping,
+  inputFieldWhiteList?: ?Array<string>,
+) {
+  return t.exportNamedDeclaration(
+    t.typeAlias(
+      t.identifier(`${node.name}Variables`),
+      null,
+      exactObjectTypeAnnotation(
+        node.argumentDefinitions.map(arg => {
+          const property = t.objectTypeProperty(
+            t.identifier(arg.name),
+            transformInputType(arg.type, customScalars, inputFieldWhiteList),
+          );
+          if (!(arg.type instanceof GraphQLNonNull)) {
+            property.optional = true;
+          }
+          return property;
+        }),
+      ),
+    ),
+    [],
+    null,
+  );
+}
+
+const FLOW_TRANSFORMS: Array<IRTransform> = [
+  (ctx: CompilerContext) => FlattenTransform.transform(ctx, {}),
+];
+
+module.exports = {
+  generate,
+  flowTransforms: FLOW_TRANSFORMS,
+};

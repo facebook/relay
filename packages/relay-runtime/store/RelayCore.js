@@ -15,6 +15,8 @@
 
 const RelayModernFragmentSpecResolver = require('RelayModernFragmentSpecResolver');
 
+const warning = require('warning');
+
 const {getFragment, getOperation} = require('RelayModernGraphQLTag');
 const {createOperationSelector} = require('RelayModernOperationSelector');
 const {
@@ -31,10 +33,25 @@ import type {FragmentMap, RelayContext} from 'RelayStoreTypes';
 
 function createFragmentSpecResolver(
   context: RelayContext,
+  containerName: string,
   fragments: FragmentMap,
   props: Props,
   callback: () => void,
 ): FragmentSpecResolver {
+  if (__DEV__) {
+    const fragmentNames = Object.keys(fragments);
+    fragmentNames.forEach(fragmentName => {
+      const propValue = props[fragmentName];
+      warning(
+        propValue !== undefined,
+        'createFragmentSpecResolver: Expected prop `%s` to be supplied to `%s`, but ' +
+          'got `undefined`. Pass an explicit `null` if this is intentional.',
+        fragmentName,
+        containerName,
+      );
+    });
+  }
+
   return new RelayModernFragmentSpecResolver(
     context,
     fragments,

@@ -7,16 +7,15 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
 
-jest.autoMockOff();
-
 require('configureForRelayOSS');
 
-const RelayCompilerContext = require('RelayCompilerContext');
-const RelayPrinter = require('RelayPrinter');
+const GraphQLCompilerContext = require('GraphQLCompilerContext');
+const GraphQLIRPrinter = require('GraphQLIRPrinter');
 const RelayTestSchema = require('RelayTestSchema');
 const filterContextForNode = require('filterContextForNode');
 const getGoldenMatchers = require('getGoldenMatchers');
@@ -26,20 +25,20 @@ const MAIN_QUERY_NAME = 'MainQuery';
 
 describe('filterContextForNode', () => {
   beforeEach(() => {
-    jasmine.addMatchers(getGoldenMatchers(__filename));
+    expect.extend(getGoldenMatchers(__filename));
   });
 
   it('matches expected output', () => {
     expect('fixtures/filter-context').toMatchGolden(text => {
       const {definitions} = parseGraphQLText(RelayTestSchema, text);
-      const context = new RelayCompilerContext(RelayTestSchema).addAll(
+      const context = new GraphQLCompilerContext(RelayTestSchema).addAll(
         definitions,
       );
       const printerContext = filterContextForNode(
         context.get(MAIN_QUERY_NAME),
         context,
       );
-      return printerContext.documents().map(RelayPrinter.print).join('\n');
+      return printerContext.documents().map(GraphQLIRPrinter.print).join('\n');
     });
   });
 });

@@ -12,11 +12,11 @@
 
 'use strict';
 
+jest.mock('RelayQueryTracker').mock('RelayClassicRecordState');
+
 require('configureForRelayOSS');
 
-jest.unmock('GraphQLRange').unmock('GraphQLSegment');
-
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('writeRelayQueryPayload()', () => {
@@ -47,7 +47,7 @@ describe('writeRelayQueryPayload()', () => {
       const writer = new RelayRecordWriter(records, {}, false);
       const newEmail = 'user2@example.com';
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             emailAddresses
@@ -86,7 +86,7 @@ describe('writeRelayQueryPayload()', () => {
       const writer = new RelayRecordWriter(records, {}, false);
       const newEmail = 'user2@example.com';
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             emailAddresses
@@ -128,7 +128,7 @@ describe('writeRelayQueryPayload()', () => {
       const writer = new RelayRecordWriter(records, {}, false);
       const newEmail = 'user2@example.com';
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             emailAddresses
@@ -170,7 +170,7 @@ describe('writeRelayQueryPayload()', () => {
       const writer = new RelayRecordWriter(records, {}, false);
 
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             emailAddresses

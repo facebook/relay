@@ -20,17 +20,19 @@ const {
   getRelayClassicEnvironment,
   getRelayModernEnvironment,
 } = require('RelayCompatEnvironment');
-const {commitMutation} = require('RelayRuntime');
+const {applyOptimisticMutation, commitMutation} = require('RelayRuntime');
 
+import type {ConcreteOperationDefinition} from 'ConcreteQuery';
 import type {Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {CompatEnvironment} from 'RelayCompatTypes';
 import type {Environment as ClassicEnvironment} from 'RelayEnvironmentTypes';
+import type {OptimisticMutationConfig} from 'applyRelayModernOptimisticMutation';
 import type {MutationConfig} from 'commitRelayModernMutation';
 
 const RelayCompatMutations = {
-  commitUpdate(
+  commitUpdate<T>(
     environment: CompatEnvironment,
-    config: MutationConfig,
+    config: MutationConfig<T>,
   ): Disposable {
     const relayStaticEnvironment = getRelayModernEnvironment(environment);
     if (relayStaticEnvironment) {
@@ -43,7 +45,31 @@ const RelayCompatMutations = {
           '`RelayEnvironmentInterface`, got `%s`.',
         environment,
       );
-      return commitRelay1Mutation(
+      return commitRelayClassicMutation(
+        // getRelayClassicEnvironment returns a RelayEnvironmentInterface
+        // (classic APIs), but we need the modern APIs on old core here.
+        (relayClassicEnvironment: $FixMe),
+        config,
+      );
+    }
+  },
+
+  applyUpdate(
+    environment: CompatEnvironment,
+    config: OptimisticMutationConfig,
+  ): Disposable {
+    const relayStaticEnvironment = getRelayModernEnvironment(environment);
+    if (relayStaticEnvironment) {
+      return applyOptimisticMutation(relayStaticEnvironment, config);
+    } else {
+      const relayClassicEnvironment = getRelayClassicEnvironment(environment);
+      invariant(
+        relayClassicEnvironment,
+        'RelayCompatMutations: Expected an object that conforms to the ' +
+          '`RelayEnvironmentInterface`, got `%s`.',
+        environment,
+      );
+      return applyRelayClassicMutation(
         // getRelayClassicEnvironment returns a RelayEnvironmentInterface
         // (classic APIs), but we need the modern APIs on old core here.
         (relayClassicEnvironment: $FixMe),
@@ -53,7 +79,7 @@ const RelayCompatMutations = {
   },
 };
 
-function commitRelay1Mutation(
+function commitRelayClassicMutation<T>(
   environment: ClassicEnvironment,
   {
     configs,
@@ -63,39 +89,84 @@ function commitRelay1Mutation(
     optimisticResponse,
     variables,
     uploadables,
-  }: MutationConfig,
+  }: MutationConfig<T>,
 ): Disposable {
   const {getOperation} = environment.unstable_internal;
   const operation = getOperation(mutation);
-  if (
-    optimisticResponse &&
-    operation.node.kind === 'Mutation' &&
-    operation.node.calls &&
-    operation.node.calls.length === 1
-  ) {
-    const mutationRoot = operation.node.calls[0].name;
-    const optimisticResponseObject = optimisticResponse();
-    if (optimisticResponseObject[mutationRoot]) {
-      optimisticResponse = () => optimisticResponseObject[mutationRoot];
-    } else {
-      warning(
-        false,
-        'RelayCompatMutations: Expected result from `optimisticResponse()`' +
-          'to contain the mutation name `%s` as a property, got `%s`',
-        mutationRoot,
-        optimisticResponseObject,
-      );
-    }
+  // TODO: remove this check after we fix flow.
+  if (typeof optimisticResponse === 'function') {
+    warning(
+      false,
+      'RelayCompatMutations: Expected `optimisticResponse` to be an object, ' +
+        'received a function.',
+    );
+    optimisticResponse = optimisticResponse();
   }
+  if (optimisticResponse) {
+    optimisticResponse = validateOptimisticResponse(
+      operation,
+      optimisticResponse,
+    );
+  }
+
   return environment.sendMutation({
     configs: configs || [],
     operation,
     onCompleted,
     onError,
-    optimisticResponse: optimisticResponse && optimisticResponse(),
+    optimisticResponse,
     variables,
     uploadables,
   });
+}
+
+function applyRelayClassicMutation(
+  environment: ClassicEnvironment,
+  {configs, mutation, optimisticResponse, variables}: OptimisticMutationConfig,
+): Disposable {
+  const {getOperation} = environment.unstable_internal;
+  const operation = getOperation(mutation);
+
+  // RelayClassic can't update anything without response.
+  if (!optimisticResponse) {
+    return {dispose: () => {}};
+  }
+
+  optimisticResponse = validateOptimisticResponse(
+    operation,
+    optimisticResponse,
+  );
+  return environment.applyMutation({
+    configs: configs || [],
+    operation,
+    optimisticResponse,
+    variables,
+  });
+}
+
+function validateOptimisticResponse(
+  operation: ConcreteOperationDefinition,
+  optimisticResponse: Object,
+): Object {
+  if (
+    operation.node.kind === 'Mutation' &&
+    operation.node.calls &&
+    operation.node.calls.length === 1
+  ) {
+    const mutationRoot = operation.node.calls[0].name;
+    if (optimisticResponse[mutationRoot]) {
+      return optimisticResponse[mutationRoot];
+    } else {
+      warning(
+        false,
+        'RelayCompatMutations: Expected result from `optimisticResponse`' +
+          'to contain the mutation name `%s` as a property, got `%s`',
+        mutationRoot,
+        optimisticResponse,
+      );
+    }
+  }
+  return optimisticResponse;
 }
 
 module.exports = RelayCompatMutations;

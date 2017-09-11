@@ -19,6 +19,8 @@ jest.unmock('RelayNetworkLayer');
 
 const Deferred = require('Deferred');
 const RelayNetworkLayer = require('RelayNetworkLayer');
+const RelayQuery = require('RelayQuery');
+const RelayQueryRequest = require('RelayQueryRequest');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayNetworkLayer', () => {
@@ -40,7 +42,7 @@ describe('RelayNetworkLayer', () => {
     networkLayer = new RelayNetworkLayer();
     networkLayer.injectImplementation(injectedNetworkLayer);
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('layer injection', () => {
@@ -224,10 +226,10 @@ describe('RelayNetworkLayer', () => {
     it('calls subscriber with query', () => {
       expect(queryCallback).not.toBeCalled();
 
-      const deferred1 = new Deferred();
-      const deferred2 = new Deferred();
-      deferred2.done(jest.fn(), jest.fn());
-      networkLayer.sendQueries([deferred1, deferred2]);
+      const request1 = new RelayQueryRequest(new RelayQuery.Root());
+      const request2 = new RelayQueryRequest(new RelayQuery.Root());
+      request2.done(jest.fn(), jest.fn());
+      networkLayer.sendQueries([request1, request2]);
       const pendingQueries = injectedNetworkLayer.sendQueries.mock.calls[0][0];
       const response = 'response';
       pendingQueries[0].resolve(response);
@@ -255,10 +257,10 @@ describe('RelayNetworkLayer', () => {
     it('does not call subscriber once it is removed', () => {
       changeSubscriber.remove();
 
-      const deferred1 = new Deferred();
-      const deferred2 = new Deferred();
-      networkLayer.sendQueries([deferred1]);
-      networkLayer.sendMutation(deferred2);
+      const request1 = new RelayQueryRequest(new RelayQuery.Root());
+      const request2 = new RelayQueryRequest(new RelayQuery.Root());
+      networkLayer.sendQueries([request1]);
+      networkLayer.sendMutation(request2);
       const pendingQuery = injectedNetworkLayer.sendQueries.mock.calls[0][0][0];
       pendingQuery.resolve('response');
       const pendingMutation =

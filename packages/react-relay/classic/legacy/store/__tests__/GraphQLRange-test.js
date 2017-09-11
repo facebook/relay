@@ -12,12 +12,16 @@
 
 'use strict';
 
+jest
+  .enableAutomock()
+  .unmock('GraphQLSegment')
+  .unmock('GraphQLRange')
+  .mock('warning');
+
 const RelayTestUtils = require('RelayTestUtils');
 
-jest.unmock('GraphQLSegment').unmock('GraphQLRange').mock('warning');
-
 const GraphQLRange = require('GraphQLRange');
-const RelayConnectionInterface = require('RelayConnectionInterface');
+const {ConnectionInterface} = require('RelayRuntime');
 const RelayRecord = require('RelayRecord');
 
 function getFirstSegment(range) {
@@ -87,9 +91,9 @@ describe('GraphQLRange', () => {
     });
     range = new GraphQLRange();
 
-    ({HAS_NEXT_PAGE, HAS_PREV_PAGE} = RelayConnectionInterface);
+    ({HAS_NEXT_PAGE, HAS_PREV_PAGE} = ConnectionInterface.get());
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   afterEach(() => {

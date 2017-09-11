@@ -12,20 +12,19 @@
 
 'use strict';
 
-jest.disableAutomock();
-
 const GraphQLRange = require('GraphQLRange');
-const Relay = require('Relay');
-const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayClassic = require('RelayClassic');
+const {ConnectionInterface} = require('RelayRuntime');
 const RelayMockCacheManager = require('RelayMockCacheManager');
 const RelayQueryPath = require('RelayQueryPath');
 const RelayRecordStatusMap = require('RelayRecordStatusMap');
 const RelayRecordStore = require('RelayRecordStore');
 const RelayRecordWriter = require('RelayRecordWriter');
 const RelayTestUtils = require('RelayTestUtils');
-const {APPEND, PREPEND, REMOVE} = require('GraphQLMutatorConstants');
 
 const generateClientID = require('generateClientID');
+
+const {APPEND, PREPEND, REMOVE} = require('GraphQLMutatorConstants');
 
 describe('RelayRecordWriter', () => {
   let HAS_NEXT_PAGE, HAS_PREV_PAGE;
@@ -33,9 +32,9 @@ describe('RelayRecordWriter', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    ({HAS_NEXT_PAGE, HAS_PREV_PAGE} = RelayConnectionInterface);
+    ({HAS_NEXT_PAGE, HAS_PREV_PAGE} = ConnectionInterface.get());
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('getDataID()', () => {
@@ -104,7 +103,9 @@ describe('RelayRecordWriter', () => {
       const {getNode} = RelayTestUtils;
 
       const writer = new RelayRecordWriter({}, {}, false);
-      const path = RelayQueryPath.create(getNode(Relay.QL`query { viewer }`));
+      const path = RelayQueryPath.create(
+        getNode(RelayClassic.QL`query { viewer }`),
+      );
       writer.putRecord('1', 'Type', path);
       expect(writer.getPathToRecord('1')).toBe(undefined);
     });
@@ -113,7 +114,9 @@ describe('RelayRecordWriter', () => {
       const {getNode} = RelayTestUtils;
 
       const writer = new RelayRecordWriter({}, {}, false);
-      const path = RelayQueryPath.create(getNode(Relay.QL`query { viewer }`));
+      const path = RelayQueryPath.create(
+        getNode(RelayClassic.QL`query { viewer }`),
+      );
       const id = generateClientID();
       writer.putRecord(id, 'Type', path);
       expect(writer.getPathToRecord(id)).toBe(path);
@@ -828,25 +831,22 @@ describe('RelayRecordWriter', () => {
       expect(resolvedFragmentMap.hasOwnProperty('otherFragID')).toBe(true);
     });
 
-    it(
-      "increments the generation when a fragment's resolvedness " + 'changes',
-      () => {
-        const records = {
-          // No resolved fragment map at all
-          a: {},
-          // Map does not contain a key corresponding to our fragment
-          b: {
-            __resolvedFragmentMap__: {otherFragID: true},
-            __resolvedFragmentMapGeneration__: 0,
-          },
-        };
-        const store = new RelayRecordWriter(records, {}, false);
-        store.setHasDeferredFragmentData('a', 'fragID');
-        expect(records.a.__resolvedFragmentMapGeneration__).toBe(0);
-        store.setHasDeferredFragmentData('b', 'fragID');
-        expect(records.b.__resolvedFragmentMapGeneration__).toBe(1);
-      },
-    );
+    it("increments generation when a fragment's resolvedness changes", () => {
+      const records = {
+        // No resolved fragment map at all
+        a: {},
+        // Map does not contain a key corresponding to our fragment
+        b: {
+          __resolvedFragmentMap__: {otherFragID: true},
+          __resolvedFragmentMapGeneration__: 0,
+        },
+      };
+      const store = new RelayRecordWriter(records, {}, false);
+      store.setHasDeferredFragmentData('a', 'fragID');
+      expect(records.a.__resolvedFragmentMapGeneration__).toBe(0);
+      store.setHasDeferredFragmentData('b', 'fragID');
+      expect(records.b.__resolvedFragmentMapGeneration__).toBe(1);
+    });
 
     it(
       "increments the generation even when a fragment's resolvedness " +

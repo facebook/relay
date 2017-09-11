@@ -1,4 +1,4 @@
-var Relay = require('Relay');
+var RelayClassic = require('RelayClassic');
 var foo = function () {
   return {
     children: [{
@@ -53,7 +53,7 @@ var foo = function () {
       },
       type: 'String'
     }],
-    id: Relay.QL.__id(),
+    id: RelayClassic.QL.__id(),
     kind: 'Fragment',
     metadata: {},
     name: 'FieldWithFakeConnectionRelayQL',

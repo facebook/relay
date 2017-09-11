@@ -45,11 +45,13 @@ export type {
  */
 module.exports = {
   QueryRenderer: ReactRelayQueryRenderer,
+  applyOptimisticMutation: RelayCompatMutations.applyUpdate,
   commitMutation: RelayCompatMutations.commitUpdate,
   createFragmentContainer: (RelayCompatContainer.createContainer: $FlowFixMe),
   createPaginationContainer: (RelayCompatPaginationContainer.createContainer: $FlowFixMe),
   createRefetchContainer: (RelayCompatRefetchContainer.createContainer: $FlowFixMe),
   fetchQuery: fetchQuery,
   graphql: graphql,
-  injectDefaultVariablesProvider: ReactRelayCompatContainerBuilder.injectDefaultVariablesProvider,
+  injectDefaultVariablesProvider:
+    ReactRelayCompatContainerBuilder.injectDefaultVariablesProvider,
 };

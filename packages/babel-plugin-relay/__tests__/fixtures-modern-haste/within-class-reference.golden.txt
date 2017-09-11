@@ -8,7 +8,7 @@
 
 var _graphql;
 
-const { createFragmentContainer, graphql } = require('Relay');
+const { createFragmentContainer, graphql } = require('RelayClassic');
 const React = require('React');
 const CompatProfilePic = require('CompatProfilePic');
 

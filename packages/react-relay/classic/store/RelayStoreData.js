@@ -20,7 +20,7 @@ const GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 const QueryBuilder = require('QueryBuilder');
 const RelayChangeTracker = require('RelayChangeTracker');
 const RelayClassicRecordState = require('RelayClassicRecordState');
-const RelayConnectionInterface = require('RelayConnectionInterface');
+const {ConnectionInterface} = require('RelayRuntime');
 const RelayGarbageCollector = require('RelayGarbageCollector');
 const RelayMetaRoute = require('RelayMetaRoute');
 const RelayMutationQueue = require('RelayMutationQueue');
@@ -71,9 +71,8 @@ import type {
   CacheProcessorCallbacks,
 } from 'RelayTypes';
 
-const {CLIENT_MUTATION_ID} = RelayConnectionInterface;
 const {ID, ID_TYPE, NODE, NODE_TYPE, TYPENAME} = RelayNodeInterface;
-const {ROOT_ID, ROOT_TYPE} = require('RelayStoreConstants');
+const {ROOT_ID} = require('RelayStoreConstants');
 const {EXISTENT} = RelayClassicRecordState;
 
 const idField = RelayQuery.Field.build({
@@ -350,7 +349,7 @@ class RelayStoreData {
 
       // Ensure the root record exists
       const path = RelayQueryPath.getRootRecordPath();
-      recordWriter.putRecord(ROOT_ID, ROOT_TYPE, path);
+      recordWriter.putRecord(ROOT_ID, query.getType(), path);
       if (this._queuedStore.getRecordState(ROOT_ID) !== EXISTENT) {
         changeTracker.createID(ROOT_ID);
       } else {
@@ -456,6 +455,8 @@ class RelayStoreData {
     const changeTracker = new RelayChangeTracker();
     let recordWriter;
     if (isOptimisticUpdate) {
+      const {CLIENT_MUTATION_ID} = ConnectionInterface.get();
+
       const clientMutationID = payload[CLIENT_MUTATION_ID];
       invariant(
         typeof clientMutationID === 'string',
@@ -679,6 +680,9 @@ class RelayStoreData {
      * A util function which remove the querypath from the record. Used to stringify the RecordMap.
      */
     const getRecordsWithoutPaths = (recordMap: ?RecordMap) => {
+      if (!recordMap) {
+        return null;
+      }
       return mapObject(recordMap, record => {
         const nextRecord = {...record};
         delete nextRecord[RelayRecord.MetadataKey.PATH];

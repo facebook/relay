@@ -16,9 +16,8 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
     modern: function () {
       return require('CompatProfile_passing.graphql');
     },
-    classic: function () {
-      const RelayQL_GENERATED = require('RelayQL_GENERATED'),
-            ProfilePic_user_args1 = ProfilePic.getFragment('user', {
+    classic: function (RelayQL_GENERATED) {
+      const ProfilePic_user_args1 = ProfilePic.getFragment('user', {
         size: 40,
         scale: 1.5,
         title: 'Photo'
@@ -29,7 +28,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
           callVariableName: 'pictureSize'
         }
       });
-
       return {
         kind: 'FragmentDefinition',
         argumentDefinitions: [],
@@ -58,9 +56,7 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
     modern: function () {
       return require('CompatProfile_receiving.graphql');
     },
-    classic: function () {
-      const RelayQL_GENERATED = require('RelayQL_GENERATED');
-
+    classic: function (RelayQL_GENERATED) {
       return {
         kind: 'FragmentDefinition',
         argumentDefinitions: [{
@@ -77,7 +73,66 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
           name: 'scale'
         }],
         node: function () {
-          throw new Error('Relay transform error ``You supplied an argument named `named` on field `friends`, but no such argument exists on that field.`` in file `unknown`. Try updating your GraphQL schema if an argument/field/type was recently added.');
+          return {
+            children: [{
+              calls: [{
+                kind: 'Call',
+                metadata: {
+                  type: 'Int'
+                },
+                name: 'first',
+                value: {
+                  kind: 'CallVariable',
+                  callVariableName: 'first'
+                }
+              }, {
+                kind: 'Call',
+                metadata: {},
+                name: 'named',
+                value: {
+                  kind: 'CallVariable',
+                  callVariableName: 'named'
+                }
+              }, {
+                kind: 'Call',
+                metadata: {
+                  type: 'Float'
+                },
+                name: 'scale',
+                value: {
+                  kind: 'CallVariable',
+                  callVariableName: 'scale'
+                }
+              }],
+              children: [{
+                fieldName: 'count',
+                kind: 'Field',
+                metadata: {},
+                type: 'Int'
+              }],
+              fieldName: 'friends',
+              kind: 'Field',
+              metadata: {
+                canHaveSubselections: true,
+                isConnection: true,
+                isFindable: true
+              },
+              type: 'FriendsConnection'
+            }, {
+              fieldName: 'id',
+              kind: 'Field',
+              metadata: {
+                isGenerated: true,
+                isRequisite: true
+              },
+              type: 'ID'
+            }],
+            id: RelayQL_GENERATED.__id(),
+            kind: 'Fragment',
+            metadata: {},
+            name: 'CompatProfile_receiving',
+            type: 'User'
+          };
         }()
       };
     }
@@ -86,9 +141,7 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
     modern: function () {
       return require('CompatProfile_receivingGlobals.graphql');
     },
-    classic: function () {
-      const RelayQL_GENERATED = require('RelayQL_GENERATED');
-
+    classic: function (RelayQL_GENERATED) {
       return {
         kind: 'FragmentDefinition',
         argumentDefinitions: [{

@@ -590,15 +590,13 @@ class GraphQLSegment {
         } else {
           // We want to keep track of past edges as well. Write these indices
           // to the end of the array.
-          this._idToIndicesMap[newEdge.edgeID] = this._idToIndicesMap[
-            newEdge.edgeID
-          ] || [];
+          this._idToIndicesMap[newEdge.edgeID] =
+            this._idToIndicesMap[newEdge.edgeID] || [];
           this._idToIndicesMap[newEdge.edgeID].push(index);
         }
       } else {
-        this._idToIndicesMap[newEdge.edgeID] = this._idToIndicesMap[
-          newEdge.edgeID
-        ] || [];
+        this._idToIndicesMap[newEdge.edgeID] =
+          this._idToIndicesMap[newEdge.edgeID] || [];
         this._idToIndicesMap[newEdge.edgeID].unshift(index);
       }
       const cursorIndex = this._getIndexForCursor(newEdge.cursor);

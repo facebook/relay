@@ -12,12 +12,12 @@
 
 'use strict';
 
-jest.mock('warning');
+jest.enableAutomock().mock('warning');
 
 require('configureForRelayOSS');
 
 const React = require('React');
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayRecord = require('RelayRecord');
@@ -47,9 +47,9 @@ describe('RelayContainer', () => {
           return <div />;
         }
       }
-      MockContainer = Relay.createContainer(MockComponent, {
+      MockContainer = RelayClassic.createContainer(MockComponent, {
         fragments: {
-          foo: () => Relay.QL`fragment on Node{id}`,
+          foo: () => RelayClassic.QL`fragment on Node{id}`,
         },
       });
       const RelayTestRenderer = RelayTestUtils.createRenderer();
@@ -63,7 +63,7 @@ describe('RelayContainer', () => {
       );
       store = environment.getStoreData().getCachedStore();
 
-      jasmine.addMatchers(RelayTestUtils.matchers);
+      expect.extend(RelayTestUtils.matchers);
     });
 
     it('returns true for deferred fragments with resolved data', () => {

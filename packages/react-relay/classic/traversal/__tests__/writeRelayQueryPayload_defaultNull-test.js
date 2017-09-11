@@ -12,11 +12,11 @@
 
 'use strict';
 
+jest.mock('generateClientID').mock('warning');
+
 require('configureForRelayOSS');
 
-jest.unmock('GraphQLRange').unmock('GraphQLSegment').mock('warning');
-
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayRecordStore = require('RelayRecordStore');
 const RelayRecordWriter = require('RelayRecordWriter');
 const RelayTestUtils = require('RelayTestUtils');
@@ -26,7 +26,7 @@ describe('writeRelayQueryPayload()', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('default null', () => {
@@ -36,7 +36,7 @@ describe('writeRelayQueryPayload()', () => {
       const writer = new RelayRecordWriter(records, {}, false);
 
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             id
@@ -67,7 +67,7 @@ describe('writeRelayQueryPayload()', () => {
       const writer = new RelayRecordWriter(records, {}, false);
 
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             id
@@ -104,7 +104,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           viewer {
             actor {
@@ -139,7 +139,7 @@ describe('writeRelayQueryPayload()', () => {
       const writer = new RelayRecordWriter(records, {}, false);
 
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             allPhones {
@@ -173,7 +173,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             friends(first: 3) {

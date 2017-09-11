@@ -13,7 +13,7 @@
 
 'use strict';
 
-const {getRawType} = require('RelaySchemaUtils');
+const {getRawType} = require('GraphQLSchemaUtils');
 const {
   GraphQLEnumType,
   GraphQLInputObjectType,
@@ -21,10 +21,10 @@ const {
   GraphQLScalarType,
 } = require('graphql');
 
-import type {LinkedField, ScalarField} from 'RelayIR';
+import type {LinkedField, ScalarField} from 'GraphQLIR';
 
 /**
- * Transforms a GraphQLInputObjectType to a RelayIR LinkedField.
+ * Transforms a GraphQLInputObjectType to a GraphQLIR LinkedField.
  */
 function transformInputObjectToIR(node: {
   // $FlowFixMe
@@ -55,7 +55,7 @@ function transformInputObjectToIR(node: {
 
 /**
  * Transforms a field (GraphQLInputObjectType or GraphQLScalarType) to a
- * RelayIR ScalarField or LinkedField.
+ * GraphQLIR ScalarField or LinkedField.
  */
 function transformFieldToIR(node: {
   kind: string,
@@ -65,18 +65,17 @@ function transformFieldToIR(node: {
   const type = getRawType(node.type);
   if (type instanceof GraphQLInputObjectType) {
     return transformInputObjectToIR(node);
-  } else if (
-    type instanceof GraphQLEnumType ||
-    type instanceof GraphQLScalarType
-  ) {
-    return transformScalarToIR(node.name, type);
-  } else {
-    throw 'Unhandled node type';
   }
+
+  if (type instanceof GraphQLEnumType || type instanceof GraphQLScalarType) {
+    return transformScalarToIR(node.name, type);
+  }
+
+  throw new Error('Unhandled node type');
 }
 
 /**
- * Transforms a GraphQLScalarType to a RelayIR ScalarField
+ * Transforms a GraphQLScalarType to a GraphQLIR ScalarField
  */
 function transformScalarToIR(
   name: string,

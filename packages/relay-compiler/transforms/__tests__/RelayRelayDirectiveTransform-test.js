@@ -7,33 +7,35 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
 
-jest.disableAutomock();
-
-const RelayCompilerContext = require('RelayCompilerContext');
-const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
+const GraphQLCompilerContext = require('GraphQLCompilerContext');
 const RelayParser = require('RelayParser');
+const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
 const RelayTestSchema = require('RelayTestSchema');
+
 const getGoldenMatchers = require('getGoldenMatchers');
 const prettyStringify = require('prettyStringify');
 
+const {transformASTSchema} = require('ASTConvert');
+
 describe('RelayRelayDirectiveTransform', () => {
   beforeEach(() => {
-    jasmine.addMatchers(getGoldenMatchers(__filename));
+    expect.extend(getGoldenMatchers(__filename));
   });
 
   it('matches expected output', () => {
     expect('fixtures/relay-directive-transform').toMatchGolden(text => {
-      const schema = RelayRelayDirectiveTransform.transformSchema(
-        RelayTestSchema,
-      );
+      const schema = transformASTSchema(RelayTestSchema, [
+        RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
+      ]);
       const ast = RelayParser.parse(schema, text);
       const context = ast.reduce(
         (ctx, node) => ctx.add(node),
-        new RelayCompilerContext(schema),
+        new GraphQLCompilerContext(schema),
       );
       const nextContext = RelayRelayDirectiveTransform.transform(context);
       const documents = [];

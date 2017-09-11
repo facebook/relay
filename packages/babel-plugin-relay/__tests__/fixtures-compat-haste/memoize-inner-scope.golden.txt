@@ -18,10 +18,8 @@ function SomeTopLevelView() {
       modern: function () {
         return require('ExampleQuery.graphql');
       },
-      classic: function () {
-        const RelayQL_GENERATED = require('RelayQL_GENERATED'),
-              ProfilePic_user = ProfilePic.getFragment('user');
-
+      classic: function (RelayQL_GENERATED) {
+        const ProfilePic_user = ProfilePic.getFragment('user');
         return {
           kind: 'OperationDefinition',
           argumentDefinitions: [{

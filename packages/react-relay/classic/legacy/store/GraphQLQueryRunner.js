@@ -121,9 +121,10 @@ function runQueries(
   callback: ReadyStateChangeCallback,
   fetchMode: FetchMode,
 ): Abortable {
-  const profiler = fetchMode === RelayFetchMode.REFETCH
-    ? RelayProfiler.profile('GraphQLQueryRunner.forceFetch')
-    : RelayProfiler.profile('GraphQLQueryRunner.primeCache');
+  const profiler =
+    fetchMode === RelayFetchMode.REFETCH
+      ? RelayProfiler.profile('GraphQLQueryRunner.forceFetch')
+      : RelayProfiler.profile('GraphQLQueryRunner.primeCache');
 
   const readyState = new RelayReadyState(callback);
 
@@ -179,9 +180,8 @@ function runQueries(
 
   throwFailedPromise(
     storeData.getTaskQueue().enqueue(() => {
-      const forceIndex = fetchMode === RelayFetchMode.REFETCH
-        ? generateForceIndex()
-        : null;
+      const forceIndex =
+        fetchMode === RelayFetchMode.REFETCH ? generateForceIndex() : null;
 
       const queries = [];
       if (fetchMode === RelayFetchMode.CLIENT) {

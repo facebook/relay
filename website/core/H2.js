@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule H2
+ * @format
  */
 
 'use strict';
@@ -14,10 +15,14 @@
 const Header = require('Header');
 const React = require('React');
 
-const H2 = React.createClass({
-  render: function() {
-    return <Header {...this.props} level={2}>{this.props.children}</Header>;
-  },
-});
+class H2 extends React.Component {
+  render() {
+    return (
+      <Header {...this.props} level={2}>
+        {this.props.children}
+      </Header>
+    );
+  }
+}
 
 module.exports = H2;

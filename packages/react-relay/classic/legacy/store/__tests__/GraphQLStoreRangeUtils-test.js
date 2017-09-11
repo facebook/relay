@@ -14,8 +14,6 @@
 
 require('configureForRelayOSS');
 
-jest.unmock('GraphQLStoreRangeUtils');
-
 const QueryBuilder = require('QueryBuilder');
 const GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 

@@ -14,6 +14,7 @@
 'use strict';
 
 const RelayClassicRecordState = require('RelayClassicRecordState');
+const {ConnectionInterface} = require('RelayRuntime');
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayQuery = require('RelayQuery');
 const RelayRecord = require('RelayRecord');
@@ -21,8 +22,6 @@ const RelayRecord = require('RelayRecord');
 const forEachRootCallArg = require('forEachRootCallArg');
 const invariant = require('invariant');
 const warning = require('warning');
-
-const {EDGES} = require('RelayConnectionInterface');
 
 import type {DataID} from 'RelayInternalTypes';
 import type RelayRecordStore from 'RelayRecordStore';
@@ -185,6 +184,8 @@ const RelayQueryPath = {
   ): RelayQuery.Root {
     let child = appendNode;
     let prevField;
+    const {EDGES} = ConnectionInterface.get();
+
     while (path.type === 'client') {
       const node = path.node;
       if (node instanceof RelayQuery.Field) {
@@ -198,9 +199,8 @@ const RelayQueryPath = {
         );
         prevField = schemaName;
       }
-      const idFieldName = node instanceof RelayQuery.Field
-        ? node.getInferredPrimaryKey()
-        : ID;
+      const idFieldName =
+        node instanceof RelayQuery.Field ? node.getInferredPrimaryKey() : ID;
       if (idFieldName) {
         child = node.clone([
           child,
@@ -219,9 +219,8 @@ const RelayQueryPath = {
         'deprecated components such as RelayContainer are not nested in ' +
         'new APIs such as QueryRenderer or FragmentContainer.',
     );
-    const root = path.type === 'root'
-      ? path.root
-      : createRootQueryFromNodePath(path);
+    const root =
+      path.type === 'root' ? path.root : createRootQueryFromNodePath(path);
     const children = [
       child,
       root.getFieldByStorageKey(ID),
@@ -285,9 +284,10 @@ function getRootFragmentForQuery(
   if (rootType != null) {
     return [RelayQuery.Fragment.build(root.getName(), rootType, nextChildren)];
   } else {
-    const rootState = rootID != null
-      ? store.getRecordState(rootID)
-      : RelayClassicRecordState.UNKNOWN;
+    const rootState =
+      rootID != null
+        ? store.getRecordState(rootID)
+        : RelayClassicRecordState.UNKNOWN;
     warning(
       false,
       'RelayQueryPath: No typename found for %s record `%s`. Generating a ' +

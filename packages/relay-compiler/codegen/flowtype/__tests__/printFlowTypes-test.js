@@ -8,11 +8,10 @@
  *
  * @fullSyntaxTransform
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
-
-jest.autoMockOff();
 
 const dedent = require('dedent');
 
@@ -59,8 +58,8 @@ describe('printFlowTypes', () => {
 
       const expected = `
         export type myFragment = {
-          id: string;
-          name?: ?string;
+          id: string,
+          name?: ?string,
         };
       `;
 
@@ -79,7 +78,7 @@ describe('printFlowTypes', () => {
 
       const expected = `
         export type myFragment = {
-          websites?: ?Array<?string>;
+          websites?: ?Array<?string>,
         };
       `;
 
@@ -114,13 +113,13 @@ describe('printFlowTypes', () => {
       */
       const expected = `
         export type myFragment = {
-          profilePicture?: ?myFragment_profilePicture;
+          profilePicture?: ?myFragment_profilePicture,
         };
 
         export type myFragment_profilePicture = {
-          uri?: ?string;
-          width?: ?number;
-          height?: ?number;
+          uri?: ?string,
+          width?: ?number,
+          height?: ?number,
         };
       `;
 
@@ -153,13 +152,13 @@ describe('printFlowTypes', () => {
       */
       const expected = `
         export type myFragment = {
-          profilePicture?: ?myFragment_profilePicture;
+          profilePicture?: ?myFragment_profilePicture,
         };
 
         export type myFragment_profilePicture = {
-          uri?: ?string;
-          width?: ?number;
-          height?: ?number;
+          uri?: ?string,
+          width?: ?number,
+          height?: ?number,
         };
       `;
 
@@ -178,7 +177,7 @@ describe('printFlowTypes', () => {
 
       const expected = `
         export type myFragment = {
-          traits?: ?Array<?"CHEERFUL" | "DERISIVE" | "HELPFUL" | "SNARKY">;
+          traits?: ?Array<?"CHEERFUL" | "DERISIVE" | "HELPFUL" | "SNARKY">,
         };
       `;
 
@@ -217,20 +216,20 @@ describe('printFlowTypes', () => {
       */
       const expected = `
         export type myFragment = {
-          likers?: ?myFragment_likers;
+          likers?: ?myFragment_likers,
         };
 
         export type myFragment_likers_edges_node = {
-          id: string;
+          id: string,
         };
 
         export type myFragment_likers_edges = {
-          node?: ?myFragment_likers_edges_node;
+          node?: ?myFragment_likers_edges_node,
         };
 
         export type myFragment_likers = {
-          count?: ?number;
-          edges?: ?Array<?myFragment_likers_edges>;
+          count?: ?number,
+          edges?: ?Array<?myFragment_likers_edges>,
         };
       `;
 
@@ -252,8 +251,8 @@ describe('printFlowTypes', () => {
 
       const expected = `
         export type myFragment = {
-          id: string;
-          likers?: ?any;
+          id: string,
+          likers?: ?any,
         };
       `;
 
@@ -278,9 +277,9 @@ describe('printFlowTypes', () => {
 
       const expected = `
         export type myFragment = {
-          id: string;
-          firstName?: ?string;
-          websites?: ?Array<?string>;
+          id: string,
+          firstName?: ?string,
+          websites?: ?Array<?string>,
         };
       `;
 
@@ -311,12 +310,12 @@ describe('printFlowTypes', () => {
       */
       const expected = `
         export type myFragment = {
-          id: string;
-          lovers?: ?myFragment_lovers;
+          id: string,
+          lovers?: ?myFragment_lovers,
         };
 
         export type myFragment_lovers = {
-          count?: ?number;
+          count?: ?number,
         };
       `;
 
@@ -336,7 +335,7 @@ describe('printFlowTypes', () => {
 
     const expected = `
       export type UnfriendInput = {
-        friendId?: ?string;
+        friendId?: ?string,
       };
     `;
 
@@ -361,16 +360,16 @@ describe('printFlowTypes', () => {
     );
     const expected = `
       export type CommentCreateInput = {
-        feedbackId?: ?string;
+        feedbackId?: ?string,
       };
 
       export type CommentCreateMutationResponse = {
-        comment?: ?CommentCreateMutationResponse_comment;
+        comment?: ?CommentCreateMutationResponse_comment,
       };
 
       export type CommentCreateMutationResponse_comment = {
-        id: string;
-        name?: ?string;
+        id: string,
+        name?: ?string,
       };
     `;
 
@@ -390,7 +389,7 @@ describe('printFlowTypes', () => {
 
       const expected = `
         export type myFragment = {
-          id: string;
+          id: string,
         };
       `;
 
@@ -410,8 +409,8 @@ describe('printFlowTypes', () => {
 
       const expected = `
         export type myFragment = {
-          id: string;
-          firstName?: ?string;
+          id: string,
+          firstName?: ?string,
         };
       `;
 
@@ -431,7 +430,7 @@ describe('printFlowTypes', () => {
       // Note that `id` is usually NonNullable!
       const expected = `
         export type myFragment = {
-          id?: ?string;
+          id?: ?string,
         };
       `;
 

@@ -12,13 +12,16 @@
 
 'use strict';
 
+jest.enableAutomock();
+
 require('configureForRelayOSS');
 
 jest.unmock('RelayRenderer');
+jest.unmock('react-test-renderer');
 
 const React = require('React');
-const ReactDOM = require('ReactDOM');
-const Relay = require('Relay');
+const ReactTestRenderer = require('react-test-renderer');
+const RelayClassic = require('RelayClassic');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayRenderer = require('RelayRenderer');
@@ -34,44 +37,44 @@ describe('RelayRenderer.renderArgs', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    const MockComponent = React.createClass({render: () => <div />});
-    MockContainer = Relay.createContainer(MockComponent, {
+    class MockComponent extends React.Component {
+      render() {
+        return <div />;
+      }
+    }
+    MockContainer = RelayClassic.createContainer(MockComponent, {
       fragments: {},
     });
 
-    const container = document.createElement('div');
+    const container = ReactTestRenderer.create();
     queryConfig = RelayQueryConfig.genMockInstance();
     environment = new RelayEnvironment();
 
     render = jest.fn();
-    ReactDOM.render(
+    container.update(
       <RelayRenderer
         Container={MockContainer}
         queryConfig={queryConfig}
         environment={environment}
         render={render}
       />,
-      container,
     );
-    jasmine.addMatchers(RelayTestUtils.matchers);
-    jasmine.addMatchers({
-      toRenderWithArgs() {
+    expect.extend(RelayTestUtils.matchers);
+    expect.extend({
+      toRenderWithArgs(actual, expected) {
+        // Assume that if `forceFetch` requests exist, they were last.
+        const requests =
+          environment.forceFetch.mock.requests.length > 0
+            ? environment.forceFetch.mock.requests
+            : environment.primeCache.mock.requests;
+        actual(requests[requests.length - 1]);
+        const renders = render.mock.calls;
+        const renderArgs = renders[renders.length - 1][0];
         return {
-          compare(actual, expected) {
-            // Assume that if `forceFetch` requests exist, they were last.
-            const requests = environment.forceFetch.mock.requests.length > 0
-              ? environment.forceFetch.mock.requests
-              : environment.primeCache.mock.requests;
-            actual(requests[requests.length - 1]);
-            const renders = render.mock.calls;
-            const renderArgs = renders[renders.length - 1][0];
-            return {
-              pass: Object.keys(expected).every(argName => {
-                expect(renderArgs[argName]).toEqual(expected[argName]);
-                return true;
-              }),
-            };
-          },
+          pass: Object.keys(expected).every(argName => {
+            expect(renderArgs[argName]).toEqual(expected[argName]);
+            return true;
+          }),
         };
       },
     });

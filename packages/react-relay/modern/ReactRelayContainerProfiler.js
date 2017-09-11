@@ -16,9 +16,13 @@
 const RelayProfiler = require('RelayProfiler');
 
 function profileContainer(
-  Container: ReactClass<any>,
+  Container: React$ComponentType<any>,
   containerName: string,
 ): void {
+  /* $FlowFixMe(>=0.53.0) This comment suppresses an error
+   * when upgrading Flow's support for React. Common errors found when
+   * upgrading Flow's React support are documented at
+   * https://fburl.com/eq7bs81w */
   RelayProfiler.instrumentMethods(Container.prototype, {
     constructor: `${containerName}.prototype.constructor`,
     componentWillReceiveProps: `${containerName}.prototype.componentWillReceiveProps`,

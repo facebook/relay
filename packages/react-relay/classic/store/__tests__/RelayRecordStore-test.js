@@ -12,12 +12,14 @@
 
 'use strict';
 
+jest.enableAutomock();
+
 require('configureForRelayOSS');
 
 jest.mock('warning');
 
 const GraphQLRange = require('GraphQLRange');
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayQueryPath = require('RelayQueryPath');
 const RelayRecordStore = require('RelayRecordStore');
 const RelayRecordWriter = require('RelayRecordWriter');
@@ -29,7 +31,7 @@ describe('RelayRecordStore', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('getRecordState()', () => {
@@ -161,7 +163,7 @@ describe('RelayRecordStore', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           viewer {
             actor {
@@ -186,7 +188,7 @@ describe('RelayRecordStore', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           viewer {
             actor {

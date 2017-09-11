@@ -13,7 +13,7 @@
 'use strict';
 
 const React = require('React');
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 
 describe('isRelayContainer', function() {
   let MockComponent;
@@ -22,18 +22,20 @@ describe('isRelayContainer', function() {
   beforeEach(function() {
     jest.resetModules();
 
-    MockComponent = React.createClass({
-      render: () => <div />,
-    });
+    MockComponent = class extends React.Component {
+      render() {
+        return <div />;
+      }
+    };
 
-    MockContainer = Relay.createContainer(MockComponent, {
+    MockContainer = RelayClassic.createContainer(MockComponent, {
       fragments: {},
     });
   });
 
-  it('identifies Relay containers correctly', () => {
-    expect(Relay.isContainer(MockContainer)).toBe(true);
+  it('identifies RelayClassic containers correctly', () => {
+    expect(RelayClassic.isContainer(MockContainer)).toBe(true);
 
-    expect(Relay.isContainer(MockComponent)).toBe(false);
+    expect(RelayClassic.isContainer(MockComponent)).toBe(false);
   });
 });

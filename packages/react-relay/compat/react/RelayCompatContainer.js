@@ -27,9 +27,12 @@ import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
  * `fragmentSpec` is memoized once per environment, rather than once per
  * instance of the container constructed/rendered.
  */
-function createContainer<TBase: ReactClass<*>>(
+function createContainer<TBase: React$ComponentType<*>>(
   Component: TBase,
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
+  /* $FlowFixMe(>=0.53.0) This comment suppresses an error
+ * when upgrading Flow's support for React. Common errors found when upgrading
+ * Flow's React support are documented at https://fburl.com/eq7bs81w */
 ): TBase & {getFragment: Function} {
   return buildCompatContainer(
     Component,

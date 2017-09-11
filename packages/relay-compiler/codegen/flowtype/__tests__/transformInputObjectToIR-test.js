@@ -8,11 +8,10 @@
  *
  * @fullSyntaxTransform
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
-
-jest.autoMockOff();
 
 const transformInputObjectToIR = require('transformInputObjectToIR');
 

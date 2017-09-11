@@ -7,20 +7,21 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
 
-jest.autoMockOff();
-
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
+const RelayModernTestUtils = require('RelayModernTestUtils');
+const RelayRecordProxy = require('RelayRecordProxy');
 const RelayRecordSourceMutator = require('RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('RelayRecordSourceProxy');
-const RelayRecordProxy = require('RelayRecordProxy');
 const RelayStoreUtils = require('RelayStoreUtils');
-const RelayModernTestUtils = require('RelayModernTestUtils');
 
 const simpleClone = require('simpleClone');
+
+const {createOperationSelector} = require('RelayModernOperationSelector');
 
 const {
   ID_KEY,
@@ -45,7 +46,7 @@ describe('RelayRecordSourceProxy', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    jasmine.addMatchers(RelayModernTestUtils.matchers);
+    expect.extend(RelayModernTestUtils.matchers);
 
     initialData = {
       4: {
@@ -186,9 +187,9 @@ describe('RelayRecordSourceProxy', () => {
   });
 
   describe('commitPayload()', () => {
-    const {generateWithTransforms} = RelayModernTestUtils;
+    const {generateAndCompile} = RelayModernTestUtils;
     it('override current fields ', () => {
-      const {Query} = generateWithTransforms(
+      const {Query} = generateAndCompile(
         `
         query Query {
           node(id: "sf") {
@@ -199,6 +200,7 @@ describe('RelayRecordSourceProxy', () => {
         }
       `,
       );
+      const operationSelector = createOperationSelector(Query, {});
       const rawPayload = {
         node: {
           id: 'sf',
@@ -206,14 +208,7 @@ describe('RelayRecordSourceProxy', () => {
           name: 'SF',
         },
       };
-      store.commitPayload(
-        {
-          dataID: ROOT_ID,
-          node: Query,
-          variables: {},
-        },
-        rawPayload,
-      );
+      store.commitPayload(operationSelector, rawPayload);
       expect(sinkData.sf).toEqual({
         [ID_KEY]: 'sf',
         [TYPENAME_KEY]: 'Page',
@@ -223,7 +218,7 @@ describe('RelayRecordSourceProxy', () => {
     });
 
     it('applies new records ', () => {
-      const {Query} = generateWithTransforms(
+      const {Query} = generateAndCompile(
         `
         query Query {
           node(id: "seattle") {
@@ -234,6 +229,7 @@ describe('RelayRecordSourceProxy', () => {
         }
       `,
       );
+      const operationSelector = createOperationSelector(Query, {});
       const rawPayload = {
         node: {
           id: 'seattle',
@@ -241,14 +237,7 @@ describe('RelayRecordSourceProxy', () => {
           name: 'Seattle',
         },
       };
-      store.commitPayload(
-        {
-          dataID: ROOT_ID,
-          node: Query,
-          variables: {},
-        },
-        rawPayload,
-      );
+      store.commitPayload(operationSelector, rawPayload);
       expect(sinkData.seattle).toEqual({
         [ID_KEY]: 'seattle',
         [TYPENAME_KEY]: 'Page',
@@ -265,7 +254,7 @@ describe('RelayRecordSourceProxy', () => {
       const handlerProvider = name => handlers[name];
       store = new RelayRecordSourceProxy(mutator, handlerProvider);
 
-      const {Query} = generateWithTransforms(
+      const {Query} = generateAndCompile(
         `
         query Query {
           node(id: "sf") {
@@ -276,6 +265,7 @@ describe('RelayRecordSourceProxy', () => {
         }
       `,
       );
+      const operationSelector = createOperationSelector(Query, {});
       const rawPayload = {
         node: {
           id: 'sf',
@@ -283,14 +273,7 @@ describe('RelayRecordSourceProxy', () => {
           name: 'SF',
         },
       };
-      store.commitPayload(
-        {
-          dataID: ROOT_ID,
-          node: Query,
-          variables: {},
-        },
-        rawPayload,
-      );
+      store.commitPayload(operationSelector, rawPayload);
 
       const fieldPayload = {
         args: {},
@@ -335,6 +318,42 @@ describe('RelayRecordSourceProxy', () => {
     });
   });
 
+  describe('setValue()', () => {
+    it('sets a scalar value', () => {
+      const user = store.create('c1', 'User');
+
+      user.setValue('Jan', 'firstName');
+      expect(user.getValue('firstName')).toBe('Jan');
+
+      user.setValue(null, 'firstName');
+      expect(user.getValue('firstName')).toBe(null);
+    });
+
+    it('sets an array of scalars', () => {
+      const user = store.create('c1', 'User');
+
+      user.setValue(['a@example.com', 'b@example.com'], 'emailAddresses');
+      expect(user.getValue('emailAddresses')).toEqual([
+        'a@example.com',
+        'b@example.com',
+      ]);
+
+      user.setValue(['c@example.com'], 'emailAddresses');
+      expect(user.getValue('emailAddresses')).toEqual(['c@example.com']);
+    });
+
+    it('throws if a complex object is written', () => {
+      const user = store.create('c1', 'User');
+
+      expect(() => {
+        user.setValue({day: 1, month: 1, year: 1970}, 'birthdate');
+      }).toFailInvariant(
+        'RelayRecordProxy#setValue(): Expected a scalar or array of scalars, ' +
+          'got `{"day":1,"month":1,"year":1970}`.',
+      );
+    });
+  });
+
   describe('getOrCreateLinkedRecord', () => {
     it('retrieves a record if it already exists', () => {
       const zuck = store.get('4');
@@ -359,7 +378,6 @@ describe('RelayRecordSourceProxy', () => {
 
   it('combines operations', () => {
     const markBackup = baseSource.get('4');
-    const gregBackup = baseSource.get('660361306');
     const mark = store.get('4');
     mark.setValue('Marcus', 'name');
     mark.setValue('Marcus Jr.', 'name');

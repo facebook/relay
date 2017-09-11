@@ -7,26 +7,21 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
-
-jest.autoMockOff();
 
 const deepFreeze = require('deepFreeze');
 
 describe('deepFreeze()', () => {
   beforeEach(() => {
-    jest.addMatchers({
-      toBeFrozen() {
+    expect.extend({
+      toBeFrozen(object) {
+        const pass = Object.isFrozen(object);
         return {
-          compare(object) {
-            const pass = Object.isFrozen(object);
-            return {
-              pass,
-              message: `Expected object ${pass ? 'not ' : ''}to be frozen`,
-            };
-          },
+          pass,
+          message: `Expected object ${pass ? 'not ' : ''}to be frozen`,
         };
       },
     });

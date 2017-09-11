@@ -12,9 +12,9 @@
 
 'use strict';
 
-jest.disableAutomock().mock('performanceNow');
+jest.mock('performanceNow');
 
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayProfiler = require('RelayProfiler');
 const RelayMetricsRecorder = require('RelayMetricsRecorder');
 const RelayTestUtils = require('RelayTestUtils');
@@ -25,12 +25,12 @@ describe('RelayMetricsRecorder', () => {
   let query;
 
   beforeEach(() => {
-    window.__DEV__ = true;
+    global.__DEV__ = true;
     jest.resetModules();
 
     const {getNode} = RelayTestUtils;
     query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id: "123") {
           ... on User {
@@ -115,7 +115,7 @@ describe('RelayMetricsRecorder', () => {
 
   describe('__DEV__ false', () => {
     beforeEach(() => {
-      window.__DEV__ = false;
+      global.__DEV__ = false;
       jest.resetModules();
     });
 

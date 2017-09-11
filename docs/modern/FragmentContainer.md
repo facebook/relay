@@ -154,7 +154,7 @@ module.exports = createFragmentContainer(
   graphql`
     fragment TodoList_list on TodoList {
       # Specify any fields required by '<TodoList>' itself.
-      title,
+      title
       # Include a reference to the fragment from the child component.
       todoItems {
         ...TodoItem_item
@@ -165,6 +165,58 @@ module.exports = createFragmentContainer(
 ```
 
 Note that when composing fragments, the type of the composed fragment must match the field on the parent in which it is embedded. For example, it wouldn't make sense to embed a fragment of type `Story` into a parent's field of type `User`. Relay and GraphQL will provide helpful error messages if you get this wrong (and if they aren't helpful, let us know!).
+
+### Calling Component Instance Methods
+
+React component classes may have methods, often accessed via [refs](https://facebook.github.io/react/docs/refs-and-the-dom.html).
+Since Relay composes these component instances in a container, you need to use the `componentRef` prop to access them:
+
+Consider an input with a server-defined placeholder text and an imperative method to focus the input node:
+
+```javascript
+module.exports = createFragmentContainer(
+  class TodoInput extends React.Component {
+    focus() {
+      this.input.focus();
+    }
+
+    render() {
+      return <input
+        ref={node => { this.input = node; }}
+        placeholder={this.props.data.suggestedNextTitle}
+      />;
+    }
+  },
+  graphql`
+    fragment TodoInput on TodoList {
+      suggestedNextTitle
+    }
+  `,
+);
+```
+
+To call this method on the underlying component, first provide a `componentRef` function to the Relay container. This differs from providing a [`ref`](https://facebook.github.io/react/docs/refs-and-the-dom.html) function which would provide a reference to the Relay container itself, not the underlying React Component.
+
+```javascript
+module.exports = createFragmentContainer(
+  class TodoListView extends React.Component {
+    render() {
+      return <div onClick={() => this.input.focus()}>
+        <TodoInput
+          data={this.props.data}
+          componentRef={ref => { this.input = ref; }}
+        />
+      </div>;
+    }
+  },
+  graphql`
+    fragment TodoListView on TodoList {
+      ...TodoInput
+    }
+  `,
+);
+```
+
 
 ## Rendering Containers
 

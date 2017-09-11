@@ -1,4 +1,3 @@
-var Relay = require('react-relay');
-var x = function () {
-  throw new Error('Relay transform error ``You supplied a directive named `bad`, but no such directive exists.`` in file `queryWithBadDirective.input.txt`. Try updating your GraphQL schema if an argument/field/type was recently added.');
-}();
+ERROR:
+
+Error: queryWithBadDirective.input.txt: Relay Transform Error: You supplied a directive named `bad`, but no such directive exists.

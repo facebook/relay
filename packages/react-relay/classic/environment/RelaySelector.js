@@ -79,9 +79,8 @@ function getSelectorList(
 ): ?Array<Selector> {
   let selectors = null;
   items.forEach(item => {
-    const selector = item != null
-      ? getSelector(operationVariables, fragment, item)
-      : null;
+    const selector =
+      item != null ? getSelector(operationVariables, fragment, item) : null;
     if (selector != null) {
       selectors = selectors || [];
       selectors.push(selector);

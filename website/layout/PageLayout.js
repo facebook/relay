@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule PageLayout
+ * @format
  */
 
 'use strict';
@@ -16,21 +17,23 @@ const Marked = require('Marked');
 const React = require('React');
 const Site = require('Site');
 
-const support = React.createClass({
-  render: function() {
+class support extends React.Component {
+  render() {
     const metadata = this.props.metadata;
     const content = this.props.children;
     return (
       <Site section={metadata.section}>
         <section className="content wrap documentationContent nosidebar">
           <div className="inner-content">
-            <Marked>{content}</Marked>
+            <Marked>
+              {content}
+            </Marked>
           </div>
         </section>
         <Footer metadata={metadata} />
       </Site>
     );
-  },
-});
+  }
+}
 
 module.exports = support;

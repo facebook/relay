@@ -13,7 +13,7 @@
 
 'use strict';
 
-const QueryBuilder = require('QueryBuilder');
+const RelayQL = require('RelayQL');
 
 const invariant = require('invariant');
 
@@ -48,59 +48,16 @@ graphql.experimental = function(): GraphQLTaggedNode {
   );
 };
 
-const CLASSIC_NODE = '__classic_node__';
-
-/**
- * Memoizes the results of executing the `.classic()` functions on
- * graphql`...` tagged expressions. Memoization allows the framework to use
- * object equality checks to compare fragments (useful, for example, when
- * comparing two `Selector`s to see if they select the same data).
- */
-function getClassicNode(taggedNode) {
-  let concreteNode = (taggedNode: any)[CLASSIC_NODE];
-  if (concreteNode == null) {
-    const fn = taggedNode.classic;
-    invariant(
-      typeof fn === 'function',
-      'RelayGraphQLTag: Expected a graphql literal (in compat mode), got `%s`.',
-      JSON.stringify(taggedNode),
-    );
-    concreteNode = fn();
-    (taggedNode: any)[CLASSIC_NODE] = concreteNode;
-  }
-  return concreteNode;
-}
-
 function getClassicFragment(
   taggedNode: GraphQLTaggedNode,
 ): ConcreteFragmentDefinition {
-  const concreteNode = getClassicNode(taggedNode);
-  const fragment = QueryBuilder.getFragmentDefinition(concreteNode);
-  invariant(
-    fragment,
-    'RelayGraphQLTag: Expected a fragment, got `%s`.\n' +
-      'The "relay" Babel plugin must enable "compat" mode to be used with ' +
-      '"react-relay/compat" or "react-relay/classic".\n' +
-      'See: https://facebook.github.io/relay/docs/babel-plugin-relay.html',
-    concreteNode,
-  );
-  return fragment;
+  return RelayQL.__getClassicFragment(taggedNode);
 }
 
 function getClassicOperation(
   taggedNode: GraphQLTaggedNode,
 ): ConcreteOperationDefinition {
-  const concreteNode = getClassicNode(taggedNode);
-  const operation = QueryBuilder.getOperationDefinition(concreteNode);
-  invariant(
-    operation,
-    'RelayGraphQLTag: Expected an operation, got `%s`.\n' +
-      'The "relay" Babel plugin must enable "compat" mode to be used with ' +
-      '"react-relay/compat" or "react-relay/classic".\n' +
-      'See: https://facebook.github.io/relay/docs/babel-plugin-relay.html',
-    concreteNode,
-  );
-  return operation;
+  return RelayQL.__getClassicOperation(taggedNode);
 }
 
 module.exports = {

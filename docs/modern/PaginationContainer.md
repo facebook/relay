@@ -37,22 +37,23 @@ isLoading: () => boolean,
  */
 loadMore: (
   pageSize: number,
-  callback: (error: ?Error) => void,
-  options?: RefetchOptions
+  callback: ?(error: ?Error) => void,
+  options: ?RefetchOptions
 ) => ?Disposable,
 
 /**
- * Refetch the items in the connection.
+ * Refetch the items in the connection (with potentially new variables).
  */
 refetchConnection:(
   totalCount: number,
   callback: (error: ?Error) => void,
+  refetchVariables: ?Variables,
 ) => ?Disposable,
 ```
 
 ## `@connection` directive
 
-The pagination container expects the connection field to be annotated with a `@connection(key: ...)` directive, where the `key` is expected to be a unique identifier under the parent field type `User`. A good practice could be `<ComponentName>_<fieldName | fieldAlias>`.
+The pagination container expects the connection field to be annotated with a `@connection(key: ...)` directive, where the `key` is expected to be a unique identifier under the parent field type `User`. A good practice could be `<ComponentName>_<fieldName | fieldAlias>`. By default, Relay generates storage key based on the user-supplied `key` and all non-filter variables of the field. Relay also provides an advanced feature `@connection(key: 'FriendsList_friends', filters:['orderBy', ...])` that allows you to explicitly specify which variables should be used to generate the storage key. Particularly, if you write `@connection(key: ..., filters:[])`, Relay will ignore all the variables.
 
 ```javascript
 graphql`
@@ -63,7 +64,6 @@ graphql`
           id,
           ...Story_story
         }
-      }
     }
   }
 `,
@@ -81,7 +81,7 @@ class Feed extends React.Component {
   render() {
     return (
       <div>
-        {this.props.viewer.feed.edges.map(
+        {this.props.user.feed.edges.map(
           edge => <Story story={edge.node} key={edge.node.id} />
         )}
         <button

@@ -14,7 +14,7 @@
 
 require('configureForRelayOSS');
 
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayQuery = require('RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
@@ -24,12 +24,12 @@ describe('createRelayQuery', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('creates queries from GraphQL', () => {
     const root = createRelayQuery(
-      Relay.QL`
+      RelayClassic.QL`
         query {
           viewer {
             newsFeed(first: $count) {

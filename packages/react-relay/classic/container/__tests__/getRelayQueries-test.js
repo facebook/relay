@@ -17,7 +17,7 @@ require('configureForRelayOSS');
 jest.mock('warning');
 
 const React = require('React');
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayTestUtils = require('RelayTestUtils');
 
 const getRelayQueries = require('getRelayQueries');
@@ -39,15 +39,15 @@ describe('getRelayQueries', () => {
       }
     };
 
-    MockPageContainer = Relay.createContainer(MockPageComponent, {
+    MockPageContainer = RelayClassic.createContainer(MockPageComponent, {
       fragments: {
-        first: () => Relay.QL`fragment on Node{id,firstName}`,
-        last: () => Relay.QL`fragment on Node{id,lastName}`,
+        first: () => RelayClassic.QL`fragment on Node{id,firstName}`,
+        last: () => RelayClassic.QL`fragment on Node{id,lastName}`,
       },
     });
 
     makeRoute = function() {
-      class MockRoute extends Relay.Route {}
+      class MockRoute extends RelayClassic.Route {}
       MockRoute.routeName = 'MockRoute';
       MockRoute.path = '/{id}';
       MockRoute.paramDefinitions = {
@@ -57,14 +57,14 @@ describe('getRelayQueries', () => {
         },
       };
       MockRoute.queries = {
-        first: Component => Relay.QL`
+        first: Component => RelayClassic.QL`
           query {
             node(id:$id) {
               ${Component.getFragment('first')}
             }
           }
         `,
-        last: Component => Relay.QL`
+        last: Component => RelayClassic.QL`
           query {
             node(id:$id) {
               ${Component.getFragment('last')}
@@ -75,7 +75,7 @@ describe('getRelayQueries', () => {
       return MockRoute;
     };
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('creates a query for a component given a route', () => {
@@ -85,19 +85,19 @@ describe('getRelayQueries', () => {
 
     const expected = {
       first: getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id: "123") {
-            ${Relay.QL`fragment on Node{id,firstName}`}
+            ${RelayClassic.QL`fragment on Node{id,firstName}`}
           }
         }
       `,
       ),
       last: getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id: "123") {
-            ${Relay.QL`fragment on Node{id,lastName}`}
+            ${RelayClassic.QL`fragment on Node{id,lastName}`}
           }
         }
       `,
@@ -123,10 +123,10 @@ describe('getRelayQueries', () => {
   });
 
   it('returns null for fragments without a matching route query', () => {
-    class FirstRoute extends Relay.Route {}
+    class FirstRoute extends RelayClassic.Route {}
     FirstRoute.routeName = 'BadRoute';
     FirstRoute.queries = {
-      first: () => Relay.QL`query { node(id:"123") }`,
+      first: () => RelayClassic.QL`query { node(id:"123") }`,
     };
     const route = new FirstRoute({});
     var queries = getRelayQueries(MockPageContainer, route);
@@ -135,10 +135,10 @@ describe('getRelayQueries', () => {
   });
 
   it('throws for invalid `Relay.QL` queries', () => {
-    class BadRoute extends Relay.Route {}
+    class BadRoute extends RelayClassic.Route {}
     BadRoute.routeName = 'BadRoute';
     BadRoute.queries = {
-      first: () => Relay.QL`fragment on Node{id}`,
+      first: () => RelayClassic.QL`fragment on Node{id}`,
     };
     const badRoute = new BadRoute({});
 
@@ -154,11 +154,14 @@ describe('getRelayQueries', () => {
     const MockRoute = makeRoute();
     const route = new MockRoute({id: '123'});
 
-    const AnotherMockContainer = Relay.createContainer(MockPageComponent, {
-      fragments: {
-        first: () => Relay.QL`fragment on Node{id}`,
+    const AnotherMockContainer = RelayClassic.createContainer(
+      MockPageComponent,
+      {
+        fragments: {
+          first: () => RelayClassic.QL`fragment on Node{id}`,
+        },
       },
-    });
+    );
 
     const queries = getRelayQueries(AnotherMockContainer, route);
     expect(queries.last).toBe(undefined);
@@ -174,12 +177,12 @@ describe('getRelayQueries', () => {
   });
 
   it('sets root fragment variables to route params', () => {
-    class MockRoute extends Relay.Route {}
+    class MockRoute extends RelayClassic.Route {}
     MockRoute.routeName = 'MockRoute';
     MockRoute.path = '/';
     MockRoute.paramDefinitions = {};
     MockRoute.queries = {
-      first: () => Relay.QL`
+      first: () => RelayClassic.QL`
         query {
           viewer
         }
@@ -191,14 +194,17 @@ describe('getRelayQueries', () => {
       otherParam: 'bar',
     });
 
-    const AnotherMockContainer = Relay.createContainer(MockPageComponent, {
-      initialVariables: {
-        fragmentParam: null,
+    const AnotherMockContainer = RelayClassic.createContainer(
+      MockPageComponent,
+      {
+        initialVariables: {
+          fragmentParam: null,
+        },
+        fragments: {
+          first: () => RelayClassic.QL`fragment on Node{id}`,
+        },
       },
-      fragments: {
-        first: () => Relay.QL`fragment on Node{id}`,
-      },
-    });
+    );
 
     var queries = getRelayQueries(AnotherMockContainer, route);
 

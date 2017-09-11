@@ -1,3 +1,27 @@
-var foo = function () {
-  throw new Error("GraphQL validation error ``Argument \"first\" has invalid value \"10\".\nExpected type \"Int\", found \"10\". Argument \"orderby\" has invalid value Name.\nExpected type \"String\", found Name. Argument \"find\" has invalid value cursor1.\nExpected type \"String\", found cursor1. Argument \"isViewerFriend\" has invalid value \"true\".\nExpected type \"Boolean\", found \"true\". Argument \"gender\" has invalid value \"MALE\".\nExpected type \"Gender\", found \"MALE\".`` in file `argsInvalidValues.input.txt`. Try updating your GraphQL schema if an argument/field/type was recently added.");
-}();
+ERROR:
+
+Error: argsInvalidValues.input.txt: GraphQL Validation Error: Argument "first" has invalid value "10".
+Expected type "Int", found "10".
+>
+>           first: "10"
+>                  ^^^
+GraphQL Validation Error: Argument "orderby" has invalid value Name.
+Expected type "String", found Name.
+>
+>           orderby: Name
+>                    ^^^
+GraphQL Validation Error: Argument "find" has invalid value cursor1.
+Expected type "String", found cursor1.
+>
+>           find: cursor1
+>                 ^^^
+GraphQL Validation Error: Argument "isViewerFriend" has invalid value "true".
+Expected type "Boolean", found "true".
+>
+>           isViewerFriend: "true"
+>                           ^^^
+GraphQL Validation Error: Argument "gender" has invalid value "MALE".
+Expected type "Gender", found "MALE".
+>
+>           gender: "MALE"
+>                   ^^^

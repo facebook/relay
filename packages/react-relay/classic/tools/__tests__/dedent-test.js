@@ -12,8 +12,6 @@
 
 'use strict';
 
-jest.unmock('dedent');
-
 const dedent = require('dedent');
 
 describe('dedent()', () => {
@@ -66,7 +64,7 @@ describe('dedent()', () => {
         }
       `;
       expect(dedent(string)).toBe(
-        'query MyQuery {\n' + '  example {\n' + '    text\n' + '  }\n' + '}',
+        'query MyQuery {\n  example {\n    text\n  }\n}',
       );
     });
 

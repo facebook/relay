@@ -12,13 +12,13 @@
 
 'use strict';
 
-jest.mock('warning');
+jest.enableAutomock().mock('warning');
 
 require('configureForRelayOSS');
 
 const GraphQLRange = require('GraphQLRange');
-const Relay = require('Relay');
-const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayClassic = require('RelayClassic');
+const {ConnectionInterface} = require('RelayRuntime');
 const RelayFragmentReference = require('RelayFragmentReference');
 const RelayStoreData = require('RelayStoreData');
 const RelayRecordStatusMap = require('RelayRecordStatusMap');
@@ -59,21 +59,21 @@ describe('readRelayQueryData', () => {
       HAS_PREV_PAGE,
       PAGE_INFO,
       START_CURSOR,
-    } = RelayConnectionInterface);
+    } = ConnectionInterface.get());
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('returns undefined for data that is not in the store', () => {
     const records = {};
-    const query = getNode(Relay.QL`fragment on Actor{id}`);
+    const query = getNode(RelayClassic.QL`fragment on Actor{id}`);
     const data = readData(getStoreData({records}), query, '1055790163');
     expect(data).toBe(undefined);
   });
 
   it('returns null for data that is null in the store', () => {
     const records = {1055790163: null};
-    const query = getNode(Relay.QL`fragment on Actor{id}`);
+    const query = getNode(RelayClassic.QL`fragment on Actor{id}`);
     const data = readData(getStoreData({records}), query, '1055790163');
     expect(data).toBe(null);
   });
@@ -91,7 +91,7 @@ describe('readRelayQueryData', () => {
         firstName: 'Greg',
       },
     };
-    const query = getNode(Relay.QL`query{viewer{actor{firstName}}}`);
+    const query = getNode(RelayClassic.QL`query{viewer{actor{firstName}}}`);
     const data = readData(getStoreData({records}), query, 'client:1');
     expect(data).toEqual({
       __dataID__: 'client:1',
@@ -112,7 +112,7 @@ describe('readRelayQueryData', () => {
         },
       };
       const fragment = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on User {
           name
           address {
@@ -141,7 +141,7 @@ describe('readRelayQueryData', () => {
         },
       };
       const fragment = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Story {
           id
           actors {
@@ -170,7 +170,7 @@ describe('readRelayQueryData', () => {
         },
       };
       const fragment = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on User {
           id
           friends(first: 2) {
@@ -217,7 +217,7 @@ describe('readRelayQueryData', () => {
         },
       };
       const fragment = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on User {
           id
           friends(first: 2) {
@@ -264,11 +264,11 @@ describe('readRelayQueryData', () => {
       },
     };
     const hometownFragmentReference = RelayFragmentReference.createForContainer(
-      () => Relay.QL`fragment on Page {name}`,
+      () => RelayClassic.QL`fragment on Page {name}`,
       {},
     );
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on User {
         address {city}
         birthdate {day}
@@ -298,7 +298,7 @@ describe('readRelayQueryData', () => {
       'client:1': null,
     };
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on Actor {
         address {
           city
@@ -324,7 +324,7 @@ describe('readRelayQueryData', () => {
       },
     };
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on Feedback {
         id
         doesViewerLike
@@ -354,7 +354,7 @@ describe('readRelayQueryData', () => {
         websites: [],
       },
     };
-    const query = getNode(Relay.QL`fragment on User{id,websites}`);
+    const query = getNode(RelayClassic.QL`fragment on User{id,websites}`);
     const data = readData(getStoreData({records}), query, 'user_id');
     expect(data.websites).toEqual([]);
   });
@@ -368,7 +368,7 @@ describe('readRelayQueryData', () => {
         websites,
       },
     };
-    const query = getNode(Relay.QL`fragment on User{id,websites}`);
+    const query = getNode(RelayClassic.QL`fragment on User{id,websites}`);
     const data = readData(getStoreData({records}), query, 'user_id');
     expect(data.websites).toEqual(['website1', 'website2']);
   });
@@ -388,7 +388,7 @@ describe('readRelayQueryData', () => {
         firstName: 'Snoop Lion',
       },
     };
-    const query = getNode(Relay.QL`fragment on User{firstName}`);
+    const query = getNode(RelayClassic.QL`fragment on User{firstName}`);
     const storeData = getStoreData({records, queuedRecords});
     const data = readData(storeData, query, '660361306');
     expect(data).toEqual({
@@ -406,7 +406,7 @@ describe('readRelayQueryData', () => {
         firstName: 'Steve',
       },
     };
-    const query = getNode(Relay.QL`fragment on User{firstName}`);
+    const query = getNode(RelayClassic.QL`fragment on User{firstName}`);
     const data = readData(getStoreData({records}), query, 'a');
     expect(data).toEqual({
       __dataID__: 'a',
@@ -429,13 +429,13 @@ describe('readRelayQueryData', () => {
         city: 'Menlo Park',
       },
     };
-    const fragment = Relay.QL`fragment on StreetAddress { city }`;
+    const fragment = RelayClassic.QL`fragment on StreetAddress { city }`;
     const fragmentReference = RelayFragmentReference.createForContainer(
       () => fragment,
       {},
     );
     const query = getVerbatimNode(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on User {
         address {
           ${fragmentReference}
@@ -469,14 +469,14 @@ describe('readRelayQueryData', () => {
         firstName: 'Greg',
       },
     };
-    const fragment = Relay.QL`fragment on Viewer{actor{firstName}}`;
+    const fragment = RelayClassic.QL`fragment on Viewer{actor{firstName}}`;
     const fragmentReference = RelayFragmentReference.createForContainer(
       () => fragment,
       {
         foo: 'bar',
       },
     );
-    const query = getNode(Relay.QL`query{viewer{${fragmentReference}}}`);
+    const query = getNode(RelayClassic.QL`query{viewer{${fragmentReference}}}`);
     const data = readData(getStoreData({records}), query, 'client:1');
     expect(data.__dataID__).toBe('client:1');
     expect(data.__fragments__).toEqual({
@@ -498,10 +498,10 @@ describe('readRelayQueryData', () => {
       },
     };
     const fragmentReference = new RelayFragmentReference(
-      () => Relay.QL`fragment on Viewer{actor{firstName}}`,
+      () => RelayClassic.QL`fragment on Viewer{actor{firstName}}`,
       {},
     );
-    const query = getNode(Relay.QL`query{viewer{${fragmentReference}}}`);
+    const query = getNode(RelayClassic.QL`query{viewer{${fragmentReference}}}`);
     const data = readData(getStoreData({records}), query, 'client:1');
     expect(data).toEqual({
       __dataID__: 'client:1',
@@ -526,10 +526,10 @@ describe('readRelayQueryData', () => {
       },
     };
 
-    const fragment1 = Relay.QL`fragment on Actor{address{city}}`;
-    const fragment2 = Relay.QL`fragment on Actor{address{country}}`;
+    const fragment1 = RelayClassic.QL`fragment on Actor{address{city}}`;
+    const fragment2 = RelayClassic.QL`fragment on Actor{address{country}}`;
     const query = getNode(
-      Relay.QL`  fragment on Actor {
+      RelayClassic.QL`  fragment on Actor {
             ${fragment1}
             ${fragment2}
           }`,
@@ -555,7 +555,7 @@ describe('readRelayQueryData', () => {
       },
     };
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on FriendsConnection {
         count
       }
@@ -604,7 +604,7 @@ describe('readRelayQueryData', () => {
         count: 31337,
       },
     };
-    const query = getNode(Relay.QL`fragment on Feedback{likers{count}}`);
+    const query = getNode(RelayClassic.QL`fragment on Feedback{likers{count}}`);
     const data = readData(getStoreData({records}), query, 'feedback_id');
     expect(data).toEqual({
       __dataID__: 'feedback_id',
@@ -619,7 +619,7 @@ describe('readRelayQueryData', () => {
     // This is a silly query (we don't need the `first(1)` call here) but was
     // seen in the wild and should be handled gracefully.
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on Feedback {
         topLevelComments(first: 1) {
           count
@@ -665,7 +665,7 @@ describe('readRelayQueryData', () => {
 
   it('retrieves PAGE_INFO with alias', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on Feedback {
         topLevelComments(first: 1) {
           count
@@ -716,7 +716,7 @@ describe('readRelayQueryData', () => {
 
   it('retrieves a mixture of "range" and non-"range" connection fields', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on Feedback {
         topLevelComments(first: 1) {
           count
@@ -791,7 +791,7 @@ describe('readRelayQueryData', () => {
       '`first`, `last` or `find` argument.';
 
     // Use fragment because all inline violations are caugh at transform time.
-    const edgesFragment = Relay.QL`
+    const edgesFragment = RelayClassic.QL`
       fragment on LikersOfContentConnection {
         edges {
           node {
@@ -801,7 +801,7 @@ describe('readRelayQueryData', () => {
       }
     `;
     let query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on Story {
         feedback {
           likers {
@@ -816,7 +816,7 @@ describe('readRelayQueryData', () => {
     ).toFailInvariant(error);
 
     // Note that `pageInfo` also triggers the error...
-    const pageInfoFragment = Relay.QL`
+    const pageInfoFragment = RelayClassic.QL`
       fragment on LikersOfContentConnection {
         pageInfo {
           hasNextPage
@@ -824,7 +824,7 @@ describe('readRelayQueryData', () => {
       }
     `;
     query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on Story {
         feedback {
           likers {
@@ -839,7 +839,9 @@ describe('readRelayQueryData', () => {
     ).toFailInvariant(error);
 
     // ...but not `count`:
-    query = getNode(Relay.QL`fragment on Story{feedback{likers{count}}}`);
+    query = getNode(
+      RelayClassic.QL`fragment on Story{feedback{likers{count}}}`,
+    );
     expect(() =>
       readData(getStoreData({records}), query, 'story_id'),
     ).not.toThrowError();
@@ -871,11 +873,12 @@ describe('readRelayQueryData', () => {
       '`first`, `last` or `find` argument.';
 
     const fragmentReference = RelayFragmentReference.createForContainer(
-      () => Relay.QL`fragment on LikersOfContentConnection{edges{node{name}}}`,
+      () =>
+        RelayClassic.QL`fragment on LikersOfContentConnection{edges{node{name}}}`,
       {},
     );
     let query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on Story{feedback{likers{${fragmentReference}}}}
     `,
     );
@@ -883,14 +886,18 @@ describe('readRelayQueryData', () => {
       readData(getStoreData({records}), query, 'story_id'),
     ).toFailInvariant(error);
 
-    let fragment = Relay.QL`fragment on LikersOfContentConnection{pageInfo}`;
-    query = getNode(Relay.QL`fragment on Story{feedback{likers{${fragment}}}}`);
+    let fragment = RelayClassic.QL`fragment on LikersOfContentConnection{pageInfo}`;
+    query = getNode(
+      RelayClassic.QL`fragment on Story{feedback{likers{${fragment}}}}`,
+    );
     expect(() =>
       readData(getStoreData({records}), query, 'story_id'),
     ).toFailInvariant(error);
 
-    fragment = Relay.QL`fragment on LikersOfContentConnection{count}`;
-    query = getNode(Relay.QL`fragment on Story{feedback{likers{${fragment}}}}`);
+    fragment = RelayClassic.QL`fragment on LikersOfContentConnection{count}`;
+    query = getNode(
+      RelayClassic.QL`fragment on Story{feedback{likers{${fragment}}}}`,
+    );
     expect(() =>
       readData(getStoreData({records}), query, 'story_id'),
     ).not.toThrowError();
@@ -932,7 +939,7 @@ describe('readRelayQueryData', () => {
     };
 
     let query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on Feedback{likers(first: 1){edges{node{name}}}}
     `,
     );
@@ -954,7 +961,7 @@ describe('readRelayQueryData', () => {
     });
 
     query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on Feedback{likers(first: 1){pageInfo{hasNextPage}}}
     `,
     );
@@ -985,11 +992,11 @@ describe('readRelayQueryData', () => {
       },
     };
     const fragmentReference = RelayFragmentReference.createForContainer(
-      () => Relay.QL`fragment on PageInfo{hasNextPage}`,
+      () => RelayClassic.QL`fragment on PageInfo{hasNextPage}`,
       {},
     );
     const query = getNode(
-      Relay.QL`  fragment on Feedback{
+      RelayClassic.QL`  fragment on Feedback{
             comments(first: 1) {
               pageInfo {
                 startCursor
@@ -1055,11 +1062,11 @@ describe('readRelayQueryData', () => {
       },
     };
     const fragmentReference = RelayFragmentReference.createForContainer(
-      () => Relay.QL`fragment on CommentsConnection{edges{node{id}}}`,
+      () => RelayClassic.QL`fragment on CommentsConnection{edges{node{id}}}`,
       {},
     );
     const query = getNode(
-      Relay.QL`  fragment on Feedback{
+      RelayClassic.QL`  fragment on Feedback{
             comments(first: 1) {
               edges {
                 node {
@@ -1140,11 +1147,11 @@ describe('readRelayQueryData', () => {
       },
     };
     const fragmentReference = RelayFragmentReference.createForContainer(
-      () => Relay.QL`fragment on Screenname {service, name}`,
+      () => RelayClassic.QL`fragment on Screenname {service, name}`,
       {},
     );
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on User {
         id
         hometown {
@@ -1180,7 +1187,7 @@ describe('readRelayQueryData', () => {
 
   it('reads dataID if a linked dataID is `null` or `undefined`', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           actor {
@@ -1210,7 +1217,7 @@ describe('readRelayQueryData', () => {
 
   it('does not clobber previously-read sibling fields when a linked dataID is `null` or `undefined`', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on User {
         id
         address {
@@ -1243,7 +1250,7 @@ describe('readRelayQueryData', () => {
 
   it('does not set undefined value if linked dataID missing', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           actor {
@@ -1270,7 +1277,7 @@ describe('readRelayQueryData', () => {
 
   it('allocates fragments even if all child fields are null', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on Feedback {
         id
       }
@@ -1295,7 +1302,7 @@ describe('readRelayQueryData', () => {
 
   it('allocates connection fields even if all child fields are null', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on Feedback {
         comments {
           count
@@ -1332,7 +1339,7 @@ describe('readRelayQueryData', () => {
 
   it('allocates plural fields even if all child fields are null', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on User {
         allPhones {
           isVerified
@@ -1378,7 +1385,7 @@ describe('readRelayQueryData', () => {
 
   it('allocates linked fields even if all child fields are null', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on User {
         birthdate {
           year
@@ -1415,7 +1422,7 @@ describe('readRelayQueryData', () => {
 
   it('reads fields for connections without calls', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on User {
         friends {
           count
@@ -1473,7 +1480,7 @@ describe('readRelayQueryData', () => {
     //
     // The `feedback` field here only has a generated `id`, so is "empty".
     let query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on Story {
         id
         feedback
@@ -1525,7 +1532,7 @@ describe('readRelayQueryData', () => {
 
   it('parses range client IDs', () => {
     const fragmentReference = RelayFragmentReference.createForContainer(
-      () => Relay.QL`
+      () => RelayClassic.QL`
         fragment on FriendsConnection {
           edges {
             node {
@@ -1540,7 +1547,7 @@ describe('readRelayQueryData', () => {
       {},
     );
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on User {
         friends(first: 25) {
           ${fragmentReference}
@@ -1648,7 +1655,7 @@ describe('readRelayQueryData', () => {
         id: '660361306',
       },
     };
-    const query = getNode(Relay.QL`query{viewer{actor{firstName}}}`);
+    const query = getNode(RelayClassic.QL`query{viewer{actor{firstName}}}`);
     const data = readData(getStoreData({records}), query, 'client:1', {
       traverseGeneratedFields: true,
     });
@@ -1665,7 +1672,7 @@ describe('readRelayQueryData', () => {
 
   it('can be configured to read generated fields (page info case)', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on Feedback {
         topLevelComments(first: 1) {
           pageInfo {
@@ -1723,10 +1730,12 @@ describe('readRelayQueryData', () => {
     // If we did traverse, this fragment reference would lead us to create an
     // object with a __dataID__ instead of the desired `undefined`.
     const fragmentReference = RelayFragmentReference.createForContainer(
-      () => Relay.QL`fragment on User{name}`,
+      () => RelayClassic.QL`fragment on User{name}`,
       {},
     );
-    const query = getNode(Relay.QL`query{node(id:"4"){${fragmentReference}}}`);
+    const query = getNode(
+      RelayClassic.QL`query{node(id:"4"){${fragmentReference}}}`,
+    );
     const data = readData(getStoreData({records}), query, '4');
     expect(data).toBe(undefined);
   });
@@ -1737,10 +1746,12 @@ describe('readRelayQueryData', () => {
     // If we did traverse, this fragment reference would lead us to create an
     // object with a __dataID__ instead of the desired `null`.
     const fragmentReference = RelayFragmentReference.createForContainer(
-      () => Relay.QL`fragment on User{name}`,
+      () => RelayClassic.QL`fragment on User{name}`,
       {},
     );
-    const query = getNode(Relay.QL`query{node(id:"4"){${fragmentReference}}}`);
+    const query = getNode(
+      RelayClassic.QL`query{node(id:"4"){${fragmentReference}}}`,
+    );
     const data = readData(getStoreData({records}), query, '4');
     expect(data).toBe(null);
   });
@@ -1753,7 +1764,7 @@ describe('readRelayQueryData', () => {
         __typename: 'User',
       },
     };
-    const query = getNode(Relay.QL`fragment on User { id }`);
+    const query = getNode(RelayClassic.QL`fragment on User { id }`);
     const data = readData(getStoreData({records}), query, '123');
     expect(data).toEqual({
       __dataID__: '123',
@@ -1769,7 +1780,7 @@ describe('readRelayQueryData', () => {
         __typename: 'User',
       },
     };
-    const query = getNode(Relay.QL`fragment on Page { id }`);
+    const query = getNode(RelayClassic.QL`fragment on Page { id }`);
     const data = readData(getStoreData({records}), query, '123');
     expect(data).toEqual({__dataID__: '123'});
   });
@@ -1784,7 +1795,7 @@ describe('readRelayQueryData', () => {
       },
     };
     const query = getNode(
-      Relay.QL`fragment on Actor {
+      RelayClassic.QL`fragment on Actor {
       ... on User {
         name
       }
@@ -1802,38 +1813,36 @@ describe('readRelayQueryData', () => {
 
   describe('readRelayQueryData-partialStatus', () => {
     beforeEach(() => {
-      jasmine.addMatchers({
-        toHavePartialStatus() {
-          return {
-            compare(record) {
-              const isValidRecord =
-                typeof record === 'object' && record && !Array.isArray(record);
-              if (isValidRecord) {
-                if (
-                  record.hasOwnProperty('__status__') &&
-                  RelayRecordStatusMap.isPartialStatus(record.__status__)
-                ) {
-                  return {
-                    pass: true,
-                  };
-                } else {
-                  return {
-                    pass: false,
-                    message: 'Expected record to have partial status, but it does ' +
-                      'not:\n' +
-                      JSON.stringify(record, null, 2),
-                  };
-                }
-              } else {
-                return {
-                  pass: false,
-                  message: 'Expected a record to have partial status, but the ' +
-                    'supplied value is not a valid record: ' +
-                    record,
-                };
-              }
-            },
-          };
+      expect.extend({
+        toHavePartialStatus(record) {
+          const isValidRecord =
+            typeof record === 'object' && record && !Array.isArray(record);
+          if (isValidRecord) {
+            if (
+              record.hasOwnProperty('__status__') &&
+              RelayRecordStatusMap.isPartialStatus(record.__status__)
+            ) {
+              return {
+                pass: true,
+              };
+            } else {
+              return {
+                pass: false,
+                message:
+                  'Expected record to have partial status, but it does ' +
+                  'not:\n' +
+                  JSON.stringify(record, null, 2),
+              };
+            }
+          } else {
+            return {
+              pass: false,
+              message:
+                'Expected a record to have partial status, but the ' +
+                'supplied value is not a valid record: ' +
+                record,
+            };
+          }
         },
       });
     });
@@ -1847,7 +1856,7 @@ describe('readRelayQueryData', () => {
       };
       // Missing `doesViewerLike` in store
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Feedback {
           id
           doesViewerLike
@@ -1872,7 +1881,7 @@ describe('readRelayQueryData', () => {
       };
       // Missing `comments.count` in store
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Feedback {
           id
           comments {
@@ -1898,7 +1907,7 @@ describe('readRelayQueryData', () => {
       };
       // Missing the actor node.
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           viewer {
             actor {
@@ -1929,7 +1938,7 @@ describe('readRelayQueryData', () => {
       };
       // Missing `isVerified` in the first element.
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on User {
           allPhones {
             isVerified
@@ -1966,7 +1975,7 @@ describe('readRelayQueryData', () => {
         },
       };
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Feedback {
           comments(first: 5) {
             edges {
@@ -2024,7 +2033,7 @@ describe('readRelayQueryData', () => {
       };
       // Missing `body.text` on the comment.
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Feedback {
           comments(first: 1) {
             edges {

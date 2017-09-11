@@ -72,7 +72,10 @@ module.exports = createRefetchContainer(
   FeedStories,
   {
     feed: graphql`
-      fragment FeedStories_feed on Feed {
+      fragment FeedStories_feed on Feed
+      @argumentDefinitions(
+        count: {type: "Int", defaultValue: 10}
+      ) {
         stories(first: $count) {
           edges {
             node {
@@ -87,7 +90,7 @@ module.exports = createRefetchContainer(
   graphql`
     query FeedStoriesRefetchQuery($count: Int) {
       feed {
-        ...FeedStories_feed
+        ...FeedStories_feed @arguments(count: $count)
       }
     }
   `,

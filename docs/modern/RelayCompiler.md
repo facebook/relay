@@ -4,7 +4,7 @@ title: Relay Compiler
 layout: docs
 category: Relay Modern
 permalink: docs/relay-compiler.html
-next: relay-compat
+next: relay-debugging
 ---
 
 Relay Modern uses the Relay Compiler to convert `graphql` literals into generated
@@ -29,7 +29,7 @@ The Relay Compiler is responsible for generating code as part of a build step wh
 
 ## Setting up Relay Compiler
 
-First, you need [watchman][https://facebook.github.io/watchman] installed:
+First, you need [watchman](https://facebook.github.io/watchman) installed:
 
 ```sh
 brew install watchman
@@ -38,7 +38,7 @@ brew install watchman
 Next, install the compiler (typically as a `devDependency`):
 
 ```sh
-yarn add --dev relay-compiler@dev
+yarn add --dev relay-compiler
 ```
 
 This installs the bin script `relay-compiler` in your node_modules folder. It's
@@ -61,7 +61,7 @@ Then after making edits to your application files, just run `yarn run relay` to 
 Alternatively, you can install `relay-compiler` globally so you can access it directly:
 
 ```sh
-yarn global add relay-compiler@dev
+yarn global add relay-compiler
 ```
 
 Then after making edits to your application files, run `relay-compiler --src ./src --schema path/schema.graphql` to generate new files, or `relay-compiler --src ./src --schema path/schema.graphql --watch` to run the compiler as a long-lived process which automatically generates new files whenever you save.
@@ -156,4 +156,4 @@ import type {DictionaryComponent_word} from './__generated__/DictionaryComponent
 In addition to the bin script, the `relay-compiler` package also [exports library
 code](https://github.com/facebook/relay/blob/master/packages/relay-compiler/RelayCompilerPublic.js) which you may use to create more complex configurations for the compiler, or to extend the compiler with your own custom output.
 
-If you find you need to do something unique (like generate types that conform to an older version of flow, or to parse non-javascript source files), you can build your own version of the Compiler by swapping in your own `FileWriter` and `FileParser`, or by adding on an additional `IRTransform`. Note, the internal APIs of the `RelayCompiler` are under constant iteration, so rolling your own version may lead to incompatibilities with future releases.
+If you find you need to do something unique (like generate types that conform to an older version of flow, or to parse non-javascript source files), you can build your own version of the Compiler by swapping in your own `FileWriter` and `ASTCache`, or by adding on an additional `IRTransform`. Note, the internal APIs of the `RelayCompiler` are under constant iteration, so rolling your own version may lead to incompatibilities with future releases.

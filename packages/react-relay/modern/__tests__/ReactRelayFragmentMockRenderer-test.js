@@ -12,7 +12,7 @@
 
 'use strict';
 
-jest.disableAutomock().mock('ReactDOM', () => ({}));
+jest.mock('ReactDOM', () => ({}));
 
 const React = require('React');
 const ReactTestRenderer = require('ReactTestRenderer');
@@ -25,7 +25,11 @@ describe('ReactRelayFragmentMockRenderer', () => {
   it('renders fragment containers with mock data as supplied as props', () => {
     class ChildComponent extends React.Component {
       render() {
-        return <h2>{this.props.viewer.actor.id}</h2>;
+        return (
+          <h2>
+            {this.props.viewer.actor.id}
+          </h2>
+        );
       }
     }
 
@@ -38,7 +42,9 @@ describe('ReactRelayFragmentMockRenderer', () => {
       render() {
         return (
           <div>
-            <h1>{this.props.viewer.actor.name}</h1>
+            <h1>
+              {this.props.viewer.actor.name}
+            </h1>
             <ChildContainer viewer={this.props.viewer} />
           </div>
         );

@@ -7,15 +7,14 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
 
-jest.autoMockOff();
-
 const RelayModernRecord = require('RelayModernRecord');
-const RelayStoreUtils = require('RelayStoreUtils');
 const RelayModernTestUtils = require('RelayModernTestUtils');
+const RelayStoreUtils = require('RelayStoreUtils');
 
 const deepFreeze = require('deepFreeze');
 
@@ -23,7 +22,7 @@ const {ID_KEY, REF_KEY, REFS_KEY, TYPENAME_KEY} = RelayStoreUtils;
 
 describe('RelayModernRecord', () => {
   beforeEach(() => {
-    jasmine.addMatchers(RelayModernTestUtils.matchers);
+    expect.extend(RelayModernTestUtils.matchers);
   });
 
   describe('clone', () => {
@@ -68,7 +67,7 @@ describe('RelayModernRecord', () => {
     });
   });
 
-  describe('getLinkedRecordIDsByStorageKey()', () => {
+  describe('getLinkedRecordIDs()', () => {
     let record;
 
     beforeEach(() => {
@@ -86,40 +85,37 @@ describe('RelayModernRecord', () => {
     });
 
     it('returns undefined when the link is unknown', () => {
-      expect(
-        RelayModernRecord.getLinkedRecordIDsByStorageKey(record, 'colors'),
-      ).toBe(undefined);
+      expect(RelayModernRecord.getLinkedRecordIDs(record, 'colors')).toBe(
+        undefined,
+      );
     });
 
     it('returns null when the link is non-existent', () => {
-      expect(
-        RelayModernRecord.getLinkedRecordIDsByStorageKey(record, 'enemies'),
-      ).toBe(null);
+      expect(RelayModernRecord.getLinkedRecordIDs(record, 'enemies')).toBe(
+        null,
+      );
     });
 
     it('returns the linked record IDs when they exist', () => {
       expect(
-        RelayModernRecord.getLinkedRecordIDsByStorageKey(
-          record,
-          'friends{"first":10}',
-        ),
+        RelayModernRecord.getLinkedRecordIDs(record, 'friends{"first":10}'),
       ).toEqual(['beast', 'greg', null]);
     });
 
     it('throws if the field is actually a scalar', () => {
       expect(() =>
-        RelayModernRecord.getLinkedRecordIDsByStorageKey(record, 'name'),
+        RelayModernRecord.getLinkedRecordIDs(record, 'name'),
       ).toFailInvariant(
-        'RelayModernRecord.getLinkedRecordIDsByStorageKey(): Expected `4.name` to contain ' +
+        'RelayModernRecord.getLinkedRecordIDs(): Expected `4.name` to contain ' +
           'an array of linked IDs, got `"Mark"`.',
       );
     });
 
     it('throws if the field is a singular link', () => {
       expect(() =>
-        RelayModernRecord.getLinkedRecordIDsByStorageKey(record, 'hometown'),
+        RelayModernRecord.getLinkedRecordIDs(record, 'hometown'),
       ).toFailInvariant(
-        'RelayModernRecord.getLinkedRecordIDsByStorageKey(): Expected `4.hometown` to contain ' +
+        'RelayModernRecord.getLinkedRecordIDs(): Expected `4.hometown` to contain ' +
           'an array of linked IDs, got `{"__ref":"mpk"}`.',
       );
     });
@@ -146,9 +142,11 @@ describe('RelayModernRecord', () => {
         'greg',
         null,
       ]);
-      expect(
-        RelayModernRecord.getLinkedRecordIDsByStorageKey(record, storageKey),
-      ).toEqual(['beast', 'greg', null]);
+      expect(RelayModernRecord.getLinkedRecordIDs(record, storageKey)).toEqual([
+        'beast',
+        'greg',
+        null,
+      ]);
     });
   });
 
@@ -174,55 +172,53 @@ describe('RelayModernRecord', () => {
     });
 
     it('returns a scalar value', () => {
-      expect(RelayModernRecord.getValueByStorageKey(record, 'name')).toBe(
-        'Mark',
-      );
+      expect(RelayModernRecord.getValue(record, 'name')).toBe('Mark');
     });
 
     it('returns a (list) scalar value', () => {
       // Note that lists can be scalars too. The definition of scalar value is
       // "not a singular or plural link", and means that no query can traverse
       // into it.
-      expect(
-        RelayModernRecord.getValueByStorageKey(record, 'favoriteColors'),
-      ).toEqual(['red', 'green', 'blue']);
+      expect(RelayModernRecord.getValue(record, 'favoriteColors')).toEqual([
+        'red',
+        'green',
+        'blue',
+      ]);
     });
 
     it('returns a (custom object) scalar value', () => {
       // Objects can be scalars too. The definition of scalar value is
       // "not a singular or plural link", and means that no query can traverse
       // into it.
-      expect(RelayModernRecord.getValueByStorageKey(record, 'other')).toEqual({
+      expect(RelayModernRecord.getValue(record, 'other')).toEqual({
         customScalar: true,
       });
     });
 
     it('returns null when the field is non-existent', () => {
-      expect(
-        RelayModernRecord.getValueByStorageKey(record, 'blockbusterMembership'),
-      ).toBe(null);
+      expect(RelayModernRecord.getValue(record, 'blockbusterMembership')).toBe(
+        null,
+      );
     });
 
     it('returns undefined when the field is unknown', () => {
-      expect(RelayModernRecord.getValueByStorageKey(record, 'horoscope')).toBe(
-        undefined,
-      );
+      expect(RelayModernRecord.getValue(record, 'horoscope')).toBe(undefined);
     });
 
     it('throws on encountering a linked record', () => {
       expect(() =>
-        RelayModernRecord.getValueByStorageKey(record, 'hometown'),
+        RelayModernRecord.getValue(record, 'hometown'),
       ).toFailInvariant(
-        'RelayModernRecord.getValueByStorageKey(): Expected a scalar (non-link) value for ' +
+        'RelayModernRecord.getValue(): Expected a scalar (non-link) value for ' +
           '`4.hometown` but found a linked record.',
       );
     });
 
     it('throws on encountering a plural linked record', () => {
       expect(() =>
-        RelayModernRecord.getValueByStorageKey(record, 'friends{"first":10}'),
+        RelayModernRecord.getValue(record, 'friends{"first":10}'),
       ).toFailInvariant(
-        'RelayModernRecord.getValueByStorageKey(): Expected a scalar (non-link) value for ' +
+        'RelayModernRecord.getValue(): Expected a scalar (non-link) value for ' +
           '`4.friends{"first":10}` but found plural linked records.',
       );
     });

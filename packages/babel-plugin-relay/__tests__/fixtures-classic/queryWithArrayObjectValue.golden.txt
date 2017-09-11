@@ -1,4 +1,4 @@
-var Relay = require('Relay');
+var RelayClassic = require('RelayClassic');
 var q = function () {
   return {
     calls: [{
@@ -10,7 +10,7 @@ var q = function () {
       value: [{
         kind: 'CallValue',
         callValue: {
-          queryText: 'Relay'
+          queryText: 'RelayClassic'
         }
       }]
     }],

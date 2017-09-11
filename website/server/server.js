@@ -5,6 +5,8 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @format
  */
 
 'use strict';
@@ -31,12 +33,6 @@ if (argv.$0.indexOf('./server/generate.js') !== -1) {
   // Using a different port so that you can publish the website
   // and keeping the server up at the same time.
   port = 8079;
-} else {
-  // Build (and watch) the prototyping tools
-  spawn('npm', ['start'], {
-    cwd: path.resolve(__dirname, '../../website-prototyping-tools'),
-    stdio: 'inherit',
-  });
 }
 
 const buildOptions = {

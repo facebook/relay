@@ -20,12 +20,6 @@
  */
 const ROOT_ID = 'client:root';
 
-/**
- * The type of the root record.
- */
-const ROOT_TYPE = 'Query';
-
 module.exports = {
   ROOT_ID,
-  ROOT_TYPE,
 };

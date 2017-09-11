@@ -7,17 +7,16 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
 
-jest.autoMockOff();
-
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('RelayMarkSweepStore');
 const RelayModernRecord = require('RelayModernRecord');
-const RelayStoreUtils = require('RelayStoreUtils');
 const RelayModernTestUtils = require('RelayModernTestUtils');
+const RelayStoreUtils = require('RelayStoreUtils');
 
 const forEachObject = require('forEachObject');
 const simpleClone = require('simpleClone');
@@ -29,7 +28,7 @@ describe('RelayStore', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    jasmine.addMatchers(RelayModernTestUtils.matchers);
+    expect.extend(RelayModernTestUtils.matchers);
   });
 
   describe('retain()', () => {
@@ -640,70 +639,6 @@ describe('RelayStore', () => {
         variables: {size: 32},
       };
       expect(store.check(selector)).toBe(false);
-    });
-  });
-
-  describe('resolve()', () => {
-    let UserFragment;
-    let data;
-    let source;
-    let store;
-
-    beforeEach(() => {
-      data = {
-        '4': {
-          __id: '4',
-          id: '4',
-          __typename: 'User',
-          name: 'Zuck',
-          'profilePicture{"size":32}': {[REF_KEY]: 'client:1'},
-        },
-        'client:1': {
-          __id: 'client:1',
-          uri: 'https://photo1.jpg',
-        },
-      };
-      source = new RelayInMemoryRecordSource(data);
-      store = new RelayMarkSweepStore(source);
-      ({UserFragment} = generateWithTransforms(
-        `
-        fragment UserFragment on User {
-          name
-          profilePicture(size: $size) {
-            uri
-          }
-        }
-      `,
-      ));
-    });
-
-    it('resolves data from cache', () => {
-      const selector = {
-        dataID: '4',
-        node: UserFragment,
-        variables: {size: 32},
-      };
-      const callback = jest.fn();
-      const target = new RelayInMemoryRecordSource();
-      store.resolve(target, selector, callback);
-      expect(callback.mock.calls.length).toBe(1);
-      expect(callback).toBeCalledWith({
-        status: 'complete',
-      });
-      const snapshot = store.lookup(selector);
-      expect(snapshot).toEqual({
-        ...selector,
-        data: {
-          name: 'Zuck',
-          profilePicture: {
-            uri: 'https://photo1.jpg',
-          },
-        },
-        seenRecords: {
-          ...data,
-        },
-      });
-      expect(target.toJSON()).toEqual(data);
     });
   });
 });

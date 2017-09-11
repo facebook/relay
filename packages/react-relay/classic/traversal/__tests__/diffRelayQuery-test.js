@@ -12,10 +12,12 @@
 
 'use strict';
 
+jest.enableAutomock();
+
 require('configureForRelayOSS');
 
 const GraphQLRange = require('GraphQLRange');
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayQuery = require('RelayQuery');
 const RelayQueryTracker = require('RelayQueryTracker');
 const RelayRecordWriter = require('RelayRecordWriter');
@@ -39,12 +41,12 @@ describe('diffRelayQuery', () => {
       viewer: {'': 'client:1'},
     };
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('returns the same query with an empty store', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           id
@@ -63,7 +65,7 @@ describe('diffRelayQuery', () => {
 
   it('removes requisite fields if fetched', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           id
@@ -85,7 +87,7 @@ describe('diffRelayQuery', () => {
 
   it('removes fetched scalar fields', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           id
@@ -109,7 +111,7 @@ describe('diffRelayQuery', () => {
 
   it('removes fetched fields with the same calls', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           id
@@ -137,7 +139,7 @@ describe('diffRelayQuery', () => {
 
   it('keeps fetched fields with different calls', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           id
@@ -165,14 +167,14 @@ describe('diffRelayQuery', () => {
   });
 
   it('removes fetched fragments', () => {
-    const fragment = Relay.QL`
+    const fragment = RelayClassic.QL`
       fragment on Actor {
         id
         name
       }
     `;
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           actor {
@@ -203,7 +205,7 @@ describe('diffRelayQuery', () => {
     // `topLevelComments.count` is already fetched and should be diffed out,
     // `edges` is not fetched and should be retained
     let query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"story") {
           feedback {
@@ -251,7 +253,7 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         node(id:"story") {
           feedback {
@@ -272,14 +274,14 @@ describe('diffRelayQuery', () => {
       ),
     );
 
-    const body = Relay.QL`
+    const body = RelayClassic.QL`
       fragment on Comment {
         body {
           text
         }
       }
     `;
-    const fragment = Relay.QL`
+    const fragment = RelayClassic.QL`
       fragment on TopLevelCommentsConnection {
         count
         edges {
@@ -291,7 +293,7 @@ describe('diffRelayQuery', () => {
       }
     `;
     query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"story") {
           feedback {
@@ -309,7 +311,7 @@ describe('diffRelayQuery', () => {
     // does not refetch `feedback.topLevelComments.count` but keeps other
     // range fields
     expect(diffQueries.length).toBe(1);
-    const edgesFragment = Relay.QL`
+    const edgesFragment = RelayClassic.QL`
       fragment on TopLevelCommentsConnection {
         edges {
           node {
@@ -319,7 +321,7 @@ describe('diffRelayQuery', () => {
       }
     `;
     const expectedQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"story") {
           feedback {
@@ -358,7 +360,7 @@ describe('diffRelayQuery', () => {
     const store = new RelayRecordStore({records});
 
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"story") {
           feedback {
@@ -379,7 +381,7 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         node(id:"story") {
           feedback {
@@ -418,7 +420,7 @@ describe('diffRelayQuery', () => {
 
     // `edges` have not been fetched, should be kept
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"story") {
           feedback {
@@ -468,7 +470,7 @@ describe('diffRelayQuery', () => {
     };
     const store = new RelayRecordStore({records});
     let query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"story") {
           feedback {
@@ -495,7 +497,7 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         node(id:"story") {
           feedback {
@@ -509,7 +511,7 @@ describe('diffRelayQuery', () => {
       ),
     );
 
-    const fragment = Relay.QL`
+    const fragment = RelayClassic.QL`
       fragment on TopLevelCommentsConnection {
         count
         edges {
@@ -520,7 +522,7 @@ describe('diffRelayQuery', () => {
       }
     `;
     query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"story") {
           feedback {
@@ -536,7 +538,7 @@ describe('diffRelayQuery', () => {
     diffQueries = diffRelayQuery(query, store, tracker);
     // does not refetch `feedback.topLevelComments.count` but keeps other
     // range fields
-    const edgesFragment = Relay.QL`
+    const edgesFragment = RelayClassic.QL`
       fragment on TopLevelCommentsConnection {
         count
       }
@@ -545,7 +547,7 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         node(id:"story") {
           feedback {
@@ -562,7 +564,7 @@ describe('diffRelayQuery', () => {
 
   it('returns an id-only query if the id is unfetched', () => {
     let query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           id
@@ -577,7 +579,7 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[0]).toBeQueryRoot(query);
 
     query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           actor {
@@ -608,7 +610,7 @@ describe('diffRelayQuery', () => {
 
   it('fetches a known id if a sibling field is missing', () => {
     let query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           id
@@ -630,7 +632,7 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[0]).toBeQueryRoot(query);
 
     query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           actor {
@@ -662,7 +664,7 @@ describe('diffRelayQuery', () => {
 
   it('returns nothing for an empty query', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           ${null}
@@ -691,7 +693,7 @@ describe('diffRelayQuery', () => {
     // `friends` is null, should not refetch it. This broke when refactoring
     // `diffConnectionEdge` to work around flow; adding it as a regression test.
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           friends {
@@ -717,7 +719,7 @@ describe('diffRelayQuery', () => {
     const records = {};
     const store = new RelayRecordStore({records});
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         nodes(ids:["4","4808495"]) {
           id
@@ -732,7 +734,7 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         nodes(ids:["4"]) {
           id
@@ -751,7 +753,7 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[1].getName()).toBe(query.getName());
     expect(diffQueries[1]).toEqualQueryRoot(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         nodes(ids:["4808495"]) {
           id
@@ -782,7 +784,7 @@ describe('diffRelayQuery', () => {
     };
     const store = new RelayRecordStore({records}, {rootCallMap});
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           actor {
@@ -799,7 +801,7 @@ describe('diffRelayQuery', () => {
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(
-      getNode(Relay.QL`query{viewer{primaryEmail}}`),
+      getNode(RelayClassic.QL`query{viewer{primaryEmail}}`),
     );
   });
 
@@ -819,7 +821,7 @@ describe('diffRelayQuery', () => {
     };
     const store = new RelayRecordStore({records}, {rootCallMap});
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           actor {
@@ -843,7 +845,7 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         viewer {
           actor{
@@ -861,9 +863,9 @@ describe('diffRelayQuery', () => {
   it('reuses fields and fragments if both unchanged', () => {
     const records = {};
     const store = new RelayRecordStore({records});
-    const frag = Relay.QL`fragment on Node {name}`;
+    const frag = RelayClassic.QL`fragment on Node {name}`;
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           firstName
@@ -888,9 +890,9 @@ describe('diffRelayQuery', () => {
       },
     };
     const store = new RelayRecordStore({records});
-    const frag = Relay.QL`fragment on Node {name}`;
+    const frag = RelayClassic.QL`fragment on Node {name}`;
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           firstName
@@ -906,7 +908,7 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         node(id:"4") {
           firstName
@@ -918,9 +920,9 @@ describe('diffRelayQuery', () => {
   });
 
   it('reuses fragments if unchanged', () => {
-    const fragment = Relay.QL`fragment on Node {name}`;
+    const fragment = RelayClassic.QL`fragment on Node {name}`;
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           firstName
@@ -944,7 +946,7 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         node(id:"4") {
           ${fragment}
@@ -965,7 +967,7 @@ describe('diffRelayQuery', () => {
     };
     const store = new RelayRecordStore({records});
     let query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           id
@@ -980,7 +982,7 @@ describe('diffRelayQuery', () => {
     expect(diffQueries.length).toBe(0);
 
     query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           id
@@ -1004,7 +1006,7 @@ describe('diffRelayQuery', () => {
     const store = new RelayRecordStore({records});
 
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           id
@@ -1021,7 +1023,7 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         node(id:"4") {
           id
@@ -1050,7 +1052,7 @@ describe('diffRelayQuery', () => {
     };
     const store = new RelayRecordStore({records});
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           id
@@ -1070,7 +1072,7 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         node(id:"4") {
           id
@@ -1117,7 +1119,7 @@ describe('diffRelayQuery', () => {
     const store = new RelayRecordStore({records});
 
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"12345") {
           id
@@ -1138,7 +1140,7 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(
       getVerbatimNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         node(id:"4808495") {
           __typename
@@ -1157,7 +1159,7 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[1].getName()).toBe(query.getName());
     expect(diffQueries[1]).toEqualQueryRoot(
       getVerbatimNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         node(id:"1023896548") {
           __typename
@@ -1175,7 +1177,7 @@ describe('diffRelayQuery', () => {
     );
 
     const trackedQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"12345") {
           id
@@ -1215,7 +1217,7 @@ describe('diffRelayQuery', () => {
 
     // Assume node(12345) is a Story
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"12345") {
           id
@@ -1254,7 +1256,7 @@ describe('diffRelayQuery', () => {
 
     // Assume node(12345) is a Story
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"12345") {
           id
@@ -1283,24 +1285,24 @@ describe('diffRelayQuery', () => {
       },
     };
     const store = new RelayRecordStore({records});
-    const firstNameFrag = Relay.QL`
+    const firstNameFrag = RelayClassic.QL`
       fragment on Node {
         firstName
       }
     `;
-    const lastNameFrag = Relay.QL`
+    const lastNameFrag = RelayClassic.QL`
       fragment on Node {
         lastName
       }
     `;
-    const nestingFrag = Relay.QL`
+    const nestingFrag = RelayClassic.QL`
       fragment on Node {
         ${firstNameFrag}
         ${lastNameFrag}
       }
     `;
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         nodes(ids:["4","4808495"]) {
           id
@@ -1312,13 +1314,13 @@ describe('diffRelayQuery', () => {
       }
     `,
     );
-    const expectedFragment = Relay.QL`
+    const expectedFragment = RelayClassic.QL`
       fragment on Node {
         ${firstNameFrag}
       }
     `;
     const expected0 = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         nodes(ids:["4"]) {
           id
@@ -1329,7 +1331,7 @@ describe('diffRelayQuery', () => {
     `,
     );
     const expected1 = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         nodes(ids:["4808495"]) {
           id
@@ -1380,7 +1382,7 @@ describe('diffRelayQuery', () => {
     const store = new RelayRecordStore({records});
 
     const expected = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           id
@@ -1402,7 +1404,7 @@ describe('diffRelayQuery', () => {
     );
 
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           id
@@ -1455,7 +1457,7 @@ describe('diffRelayQuery', () => {
     });
 
     const expected = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           id
@@ -1477,7 +1479,7 @@ describe('diffRelayQuery', () => {
     );
 
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           id
@@ -1530,7 +1532,7 @@ describe('diffRelayQuery', () => {
     });
 
     const expected1 = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           id
@@ -1553,7 +1555,7 @@ describe('diffRelayQuery', () => {
     );
 
     const expected2 = getVerbatimNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"4808495") {
           id
@@ -1568,7 +1570,7 @@ describe('diffRelayQuery', () => {
     );
 
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           id
@@ -1598,7 +1600,7 @@ describe('diffRelayQuery', () => {
     expect(trackedQueries[1][1]).toBe('4');
     expect(trackedQueries[1][0]).toEqualQueryNode(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         node(id:"4") {
           id
@@ -1643,7 +1645,7 @@ describe('diffRelayQuery', () => {
 
     // Assume node(12345) is an Actor
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"12345") {
           id
@@ -1707,7 +1709,7 @@ describe('diffRelayQuery', () => {
     });
 
     const expected1 = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           id
@@ -1729,7 +1731,7 @@ describe('diffRelayQuery', () => {
     `,
     );
     const expected2 = getVerbatimNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"660361306") {
           id
@@ -1744,7 +1746,7 @@ describe('diffRelayQuery', () => {
     );
 
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           id
@@ -1775,7 +1777,7 @@ describe('diffRelayQuery', () => {
     expect(trackedQueries[1][1]).toBe('4');
     expect(trackedQueries[1][0]).toEqualQueryNode(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         node(id:"4") {
           id
@@ -1833,7 +1835,7 @@ describe('diffRelayQuery', () => {
     const store = new RelayRecordStore({records}, {rootCallMap});
 
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           actor {
@@ -1855,7 +1857,7 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(
       getVerbatimNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         node(id:"4808495"){
           id
@@ -1871,7 +1873,7 @@ describe('diffRelayQuery', () => {
     );
 
     const trackedQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           actor {
@@ -1928,7 +1930,7 @@ describe('diffRelayQuery', () => {
     });
 
     const expected = getVerbatimNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"4808495") {
           id
@@ -1942,7 +1944,7 @@ describe('diffRelayQuery', () => {
     `,
     );
 
-    const fragment = Relay.QL`
+    const fragment = RelayClassic.QL`
       fragment on User {
         friends(first: 1) {
           edges {
@@ -1955,7 +1957,7 @@ describe('diffRelayQuery', () => {
       }
     `;
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           ${fragment}
@@ -1971,7 +1973,7 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[0]).toEqualQueryRoot(expected);
 
     const trackedQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           id
@@ -2019,7 +2021,7 @@ describe('diffRelayQuery', () => {
     });
 
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         nodes(ids:"4") {
           id
@@ -2046,7 +2048,7 @@ describe('diffRelayQuery', () => {
     expect(diffQueries[0].getName()).toBe(query.getName());
     expect(diffQueries[0]).toEqualQueryRoot(
       getVerbatimNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         nodes(ids:"4") {
           ... on User {
@@ -2105,7 +2107,7 @@ describe('diffRelayQuery', () => {
     });
 
     const expected = getVerbatimNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"4808495") {
           id
@@ -2120,7 +2122,7 @@ describe('diffRelayQuery', () => {
     );
 
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         nodes(ids:"4") {
           id
@@ -2158,7 +2160,7 @@ describe('diffRelayQuery', () => {
     expect(trackedQueries[1][1]).toBe('4');
     expect(trackedQueries[1][0]).toEqualQueryNode(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
       fragment on FriendsEdge {
         source {
           id
@@ -2180,7 +2182,7 @@ describe('diffRelayQuery', () => {
     expect(trackedQueries[4][1]).toBe('4');
     expect(trackedQueries[4][0]).toEqualQueryNode(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         nodes(ids:"4") {
           id
@@ -2215,7 +2217,7 @@ describe('diffRelayQuery', () => {
 
     // Create the first query with a selection on a plural field.
     const firstQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id: "123") {
           id
@@ -2244,7 +2246,7 @@ describe('diffRelayQuery', () => {
     // Create a second query that requests a different selection on the null
     // plural field.
     const secondQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id: "123") {
           actors {
@@ -2274,7 +2276,7 @@ describe('diffRelayQuery', () => {
 
     // Create the first query with a selection on a plural field
     const firstQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id: "123") {
           id
@@ -2303,7 +2305,7 @@ describe('diffRelayQuery', () => {
     // Create a second query that requests a different selection on the empty
     // plural field.
     const secondQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id: "123") {
           actors {
@@ -2329,7 +2331,7 @@ describe('diffRelayQuery', () => {
     const records = {};
     const store = new RelayRecordStore({records});
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         route(waypoints:[
           {lat: "49.246292", lon: "-123.116226"}
@@ -2349,7 +2351,7 @@ describe('diffRelayQuery', () => {
 
   it('uses the supplied query tracker', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id: "4") {
           friends {
@@ -2375,7 +2377,7 @@ describe('diffRelayQuery', () => {
 
   it('degrades gracefully in the absence of a query tracker', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id: "4") {
           friends {

@@ -51,7 +51,6 @@ const babelOptions = require('./scripts/getBabelOptions')({
     'relay-debugger-react-native-runtime':
       'relay-debugger-react-native-runtime',
     signedsource: 'signedsource',
-    'StaticContainer.react': 'react-static-container',
     util: 'util',
     yargs: 'yargs'
   },

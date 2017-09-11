@@ -26,7 +26,7 @@ const RelayClassic = require('RelayClassic');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayRenderer = require('RelayRenderer');
-const StaticContainer = require('StaticContainer.react');
+const RelayStaticContainer = require('RelayStaticContainer');
 
 describe('RelayRenderer.render', () => {
   let MockContainer;
@@ -42,7 +42,7 @@ describe('RelayRenderer.render', () => {
   function getRenderOutput() {
     return ReactTestUtils.findRenderedComponentWithType(
       container.getInstance(),
-      StaticContainer,
+      RelayStaticContainer,
     );
   }
 

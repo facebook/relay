@@ -70,7 +70,7 @@ describe('RelayRoute', () => {
 
   it('has an immutable spec in __DEV__', () => {
     const dev = __DEV__;
-    window.__DEV__ = true;
+    global.__DEV__ = true;
 
     const MockRoute = makeRoute();
     const route = new MockRoute({required: 'foo'});
@@ -90,7 +90,7 @@ describe('RelayRoute', () => {
       route.queries.myCustomQuery = () => {};
     }).toThrow();
 
-    window.__DEV__ = dev;
+    global.__DEV__ = dev;
   });
 
   it('allows params to be processed if `prepareParams` is defined', () => {

@@ -15,6 +15,9 @@ const Map = require('Map');
 
 const diff = require('jest-diff');
 
+jest.dontMock('react-test-renderer');
+const ReactTestRenderer = require('react-test-renderer');
+
 /**
  * Utility methods (eg. for unmocking Relay internals) and custom Jasmine
  * matchers.
@@ -61,7 +64,7 @@ const RelayTestUtils = {
       }
     }
 
-    container = container || document.createElement('div');
+    container = container || ReactTestRenderer.create();
 
     let prevEnvironment;
     let relay;
@@ -86,7 +89,8 @@ const RelayTestUtils = {
         function ref(component) {
           result = component;
         }
-        ReactDOM.render(
+
+        const node = (
           <ContextSetter
             context={{relay, route}}
             render={() => {
@@ -113,10 +117,22 @@ const RelayTestUtils = {
               }
               return React.cloneElement(element, {...pointers, ref});
             }}
-          />,
-          container,
+          />
         );
+
+        if ('innerHTML' in container) {
+          ReactDOM.render(node, container);
+        } else {
+          container.update(node);
+        }
         return result;
+      },
+      unmount() {
+        if ('innerHTML' in container) {
+          ReactDOM.unmountComponentAtNode(container);
+        } else {
+          container.unmount();
+        }
       },
     };
   },

@@ -16,7 +16,7 @@
 const React = require('React');
 const RelayFragmentPointer = require('RelayFragmentPointer');
 const RelayPropTypes = require('RelayPropTypes');
-const StaticContainer = require('StaticContainer.react');
+const RelayStaticContainer = require('RelayStaticContainer');
 
 const getRelayQueries = require('getRelayQueries');
 const mapObject = require('mapObject');
@@ -170,9 +170,9 @@ class RelayReadyStateRenderer extends React.Component<
       shouldUpdate = false;
     }
     return (
-      <StaticContainer shouldUpdate={shouldUpdate}>
+      <RelayStaticContainer shouldUpdate={shouldUpdate}>
         {children}
-      </StaticContainer>
+      </RelayStaticContainer>
     );
   }
 }

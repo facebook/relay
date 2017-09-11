@@ -20,7 +20,9 @@ const RelayClassic = require('RelayClassic');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayReadyStateRenderer = require('RelayReadyStateRenderer');
-const StaticContainer = require('StaticContainer.react');
+
+jest.dontMock('RelayStaticContainer');
+const RelayStaticContainer = require('RelayStaticContainer');
 
 jest.dontMock('pretty-format');
 const prettyFormat = require('pretty-format');
@@ -417,7 +419,7 @@ describe('RelayReadyStateRenderer', () => {
       function render(element) {
         return ReactTestUtils.findRenderedComponentWithType(
           ReactTestRenderer.create(element).getInstance(),
-          StaticContainer,
+          RelayStaticContainer,
         );
       }
 

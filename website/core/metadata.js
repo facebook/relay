@@ -235,7 +235,7 @@ module.exports = {
       "category": "Relay Compat",
       "permalink": "docs/api-cheatsheet.html",
       "next": "guides-containers",
-      "source": "APICheatsheet.md"
+      "source": "modern/APICheatsheet.md"
     },
     {
       "id": "babel-plugin-relay",
@@ -244,7 +244,7 @@ module.exports = {
       "category": "Relay Modern",
       "permalink": "docs/babel-plugin-relay.html",
       "next": "relay-compiler",
-      "source": "BabelPluginRelay.md"
+      "source": "modern/BabelPluginRelay.md"
     },
     {
       "id": "compatibility-cheatsheet",
@@ -253,7 +253,7 @@ module.exports = {
       "category": "Relay Compat",
       "permalink": "docs/compatibility-cheatsheet.html",
       "next": "api-cheatsheet",
-      "source": "CompatibilityCheatsheet.md"
+      "source": "modern/CompatibilityCheatsheet.md"
     },
     {
       "id": "conversion-playbook",
@@ -262,7 +262,7 @@ module.exports = {
       "category": "Relay Compat",
       "permalink": "docs/conversion-playbook.html",
       "next": "conversion-scripts",
-      "source": "ConversionPlaybook.md"
+      "source": "modern/ConversionPlaybook.md"
     },
     {
       "id": "conversion-scripts",
@@ -271,7 +271,7 @@ module.exports = {
       "category": "Relay Compat",
       "permalink": "docs/conversion-scripts.html",
       "next": "upgrading-setvariables",
-      "source": "ConversionScripts.md"
+      "source": "modern/ConversionScripts.md"
     },
     {
       "id": "relay-debugging",
@@ -280,7 +280,7 @@ module.exports = {
       "category": "Relay Modern",
       "permalink": "docs/relay-debugging.html",
       "next": "relay-compat",
-      "source": "Debugging.md"
+      "source": "modern/Debugging.md"
     },
     {
       "id": "relay-directives",
@@ -289,7 +289,7 @@ module.exports = {
       "category": "Relay Modern",
       "permalink": "docs/relay-directives.html",
       "next": "babel-plugin-relay",
-      "source": "Directives.md"
+      "source": "modern/Directives.md"
     },
     {
       "id": "relay-environment",
@@ -298,7 +298,7 @@ module.exports = {
       "category": "Relay Modern",
       "permalink": "docs/relay-environment.html",
       "next": "network-layer",
-      "source": "Environment.md"
+      "source": "modern/Environment.md"
     },
     {
       "id": "fragment-container",
@@ -307,7 +307,7 @@ module.exports = {
       "category": "Relay Modern",
       "permalink": "docs/fragment-container.html",
       "next": "refetch-container",
-      "source": "FragmentContainer.md"
+      "source": "modern/FragmentContainer.md"
     },
     {
       "id": "relay-modern",
@@ -316,7 +316,7 @@ module.exports = {
       "category": "Relay Modern",
       "permalink": "docs/relay-modern.html",
       "next": "new-in-relay-modern",
-      "source": "Introduction.md"
+      "source": "modern/Introduction.md"
     },
     {
       "id": "mutations",
@@ -325,7 +325,7 @@ module.exports = {
       "category": "Relay Modern",
       "permalink": "docs/mutations.html",
       "next": "subscriptions",
-      "source": "Mutations.md"
+      "source": "modern/Mutations.md"
     },
     {
       "id": "network-layer",
@@ -334,7 +334,7 @@ module.exports = {
       "category": "Relay Modern",
       "permalink": "docs/network-layer.html",
       "next": "query-renderer",
-      "source": "NetworkLayer.md"
+      "source": "modern/NetworkLayer.md"
     },
     {
       "id": "new-in-relay-modern",
@@ -343,7 +343,7 @@ module.exports = {
       "category": "Relay Modern",
       "permalink": "docs/new-in-relay-modern.html",
       "next": "relay-environment",
-      "source": "NewInRelayModern.md"
+      "source": "modern/NewInRelayModern.md"
     },
     {
       "id": "pagination-container",
@@ -352,7 +352,7 @@ module.exports = {
       "category": "Relay Modern",
       "permalink": "docs/pagination-container.html",
       "next": "routing",
-      "source": "PaginationContainer.md"
+      "source": "modern/PaginationContainer.md"
     },
     {
       "id": "query-renderer",
@@ -361,7 +361,7 @@ module.exports = {
       "category": "Relay Modern",
       "permalink": "docs/query-renderer.html",
       "next": "fragment-container",
-      "source": "QueryRenderer.md"
+      "source": "modern/QueryRenderer.md"
     },
     {
       "id": "refetch-container",
@@ -370,7 +370,7 @@ module.exports = {
       "category": "Relay Modern",
       "permalink": "docs/refetch-container.html",
       "next": "pagination-container",
-      "source": "RefetchContainer.md"
+      "source": "modern/RefetchContainer.md"
     },
     {
       "id": "relay-compat",
@@ -379,7 +379,7 @@ module.exports = {
       "category": "Relay Compat",
       "permalink": "docs/relay-compat.html",
       "next": "conversion-playbook",
-      "source": "RelayCompat.md"
+      "source": "modern/RelayCompat.md"
     },
     {
       "id": "relay-compiler",
@@ -388,7 +388,7 @@ module.exports = {
       "category": "Relay Modern",
       "permalink": "docs/relay-compiler.html",
       "next": "relay-debugging",
-      "source": "RelayCompiler.md"
+      "source": "modern/RelayCompiler.md"
     },
     {
       "id": "routing",
@@ -397,7 +397,7 @@ module.exports = {
       "category": "Relay Modern",
       "permalink": "docs/routing.html",
       "next": "mutations",
-      "source": "Routing.md"
+      "source": "modern/Routing.md"
     },
     {
       "id": "subscriptions",
@@ -406,7 +406,7 @@ module.exports = {
       "category": "Relay Modern",
       "permalink": "docs/subscriptions.html",
       "next": "relay-directives",
-      "source": "Subscriptions.md"
+      "source": "modern/Subscriptions.md"
     },
     {
       "id": "upgrading-setvariables",
@@ -415,7 +415,7 @@ module.exports = {
       "category": "Relay Compat",
       "permalink": "docs/upgrading-setvariables.html",
       "next": "compatibility-cheatsheet",
-      "source": "UpgradingSetVariables.md"
+      "source": "modern/UpgradingSetVariables.md"
     },
     {
       "id": "getting-started",

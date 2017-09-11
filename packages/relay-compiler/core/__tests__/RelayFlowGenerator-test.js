@@ -12,7 +12,7 @@
 
 'use strict';
 
-const RelayCompilerContext = require('RelayCompilerContext');
+const GraphQLCompilerContext = require('GraphQLCompilerContext');
 const RelayFlowGenerator = require('RelayFlowGenerator');
 const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
 const RelayTestSchema = require('RelayTestSchema');
@@ -33,7 +33,7 @@ describe('RelayFlowGenerator', () => {
         RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
       ]);
       const {definitions} = parseGraphQLText(schema, text);
-      const context = new RelayCompilerContext(RelayTestSchema).addAll(
+      const context = new GraphQLCompilerContext(RelayTestSchema).addAll(
         definitions,
       );
       const flowContext = RelayFlowGenerator.flowTransforms.reduce(

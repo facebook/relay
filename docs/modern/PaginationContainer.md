@@ -55,8 +55,6 @@ refetchConnection:(
 
 The pagination container expects the connection field to be annotated with a `@connection(key: ...)` directive, where the `key` is expected to be a unique identifier under the parent field type `User`. A good practice could be `<ComponentName>_<fieldName | fieldAlias>`. By default, Relay generates storage key based on the user-supplied `key` and all non-filter variables of the field. Relay also provides an advanced feature `@connection(key: 'FriendsList_friends', filters:['orderBy', ...])` that allows you to explicitly specify which variables should be used to generate the storage key. Particularly, if you write `@connection(key: ..., filters:[])`, Relay will ignore all the variables.
 
-In addition to the fields you plan to query, you'll also need to fetch `pageInfo` since it's needed to handle pagination. The `pageInfo` request has to belong in the same fragment with the `@connection` directive, and can't live inside a child fragment. If you intend to paginate forward, you only need `endCursor` and `hasNextPage`. If you intend to paginate backward, you only need `startCursor` and `hasPreviousPage`.
-
 ```javascript
 graphql`
   fragment Feed_user on User {
@@ -66,11 +64,6 @@ graphql`
           id,
           ...Story_story
         }
-      }
-      pageInfo {
-        endCursor
-        hasNextPage
-      }
     }
   }
 `,
@@ -88,7 +81,7 @@ class Feed extends React.Component {
   render() {
     return (
       <div>
-        {this.props.viewer.feed.edges.map(
+        {this.props.user.feed.edges.map(
           edge => <Story story={edge.node} key={edge.node.id} />
         )}
         <button
@@ -128,10 +121,6 @@ module.exports = createPaginationContainer(
               id
               ...Story_story
             }
-          }
-          pageInfo {
-            endCursor
-            hasNextPage
           }
         }
       }

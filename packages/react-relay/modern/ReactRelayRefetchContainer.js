@@ -26,6 +26,7 @@ const nullthrows = require('nullthrows');
 
 const {profileContainer} = require('ReactRelayContainerProfiler');
 const {getComponentName, getReactComponent} = require('RelayContainerUtils');
+const {Observable} = require('RelayRuntime');
 
 import type {
   GeneratedNodeMap,
@@ -37,6 +38,7 @@ import type {
   FragmentSpecResolver,
 } from 'RelayCombinedEnvironmentTypes';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
+import type {Subscription} from 'RelayRuntime';
 import type {FragmentMap, RelayContext} from 'RelayStoreTypes';
 import type {Variables} from 'RelayTypes';
 
@@ -53,20 +55,21 @@ const containerContextTypes = {
  * props, resolving them with the provided fragments and subscribing for
  * updates.
  */
-function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
+function createContainerWithFragments<
+  TConfig,
+  TClass: React.ComponentType<TConfig>,
+>(
   Component: TClass,
   fragments: FragmentMap,
   taggedNode: GraphQLTaggedNode,
-): ReactClass<TConfig & {componentRef?: any}> {
+): React.ComponentType<TConfig & {componentRef?: any}> {
   const ComponentClass = getReactComponent(Component);
   const componentName = getComponentName(Component);
   const containerName = `Relay(${componentName})`;
 
-  class Container extends React.Component {
-    state: ContainerState;
-    _isARequestInFlight: boolean;
+  class Container extends React.Component<$FlowFixMeProps, ContainerState> {
     _localVariables: ?Variables;
-    _pendingRefetch: ?Disposable;
+    _refetchSubscription: ?Subscription;
     _references: Array<Disposable>;
     _relayContext: RelayContext;
     _resolver: FragmentSpecResolver;
@@ -75,9 +78,8 @@ function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
       super(props, context);
       const relay = assertRelayContext(context.relay);
       const {createFragmentSpecResolver} = relay.environment.unstable_internal;
-      this._isARequestInFlight = false;
       this._localVariables = null;
-      this._pendingRefetch = null;
+      this._refetchSubscription = null;
       this._references = [];
       this._resolver = createFragmentSpecResolver(
         relay,
@@ -176,11 +178,7 @@ function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
       this._resolver.dispose();
       this._references.forEach(disposable => disposable.dispose());
       this._references.length = 0;
-      if (this._pendingRefetch) {
-        this._pendingRefetch.dispose();
-        this._pendingRefetch = null;
-        this._isARequestInFlight = false;
-      }
+      this._refetchSubscription && this._refetchSubscription.unsubscribe();
     }
 
     _buildRelayProp(relay: RelayContext): RelayRefetchProp {
@@ -230,31 +228,6 @@ function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
       const fragmentVariables = renderVariables
         ? {...rootVariables, ...renderVariables}
         : fetchVariables;
-
-      const onNext = response => {
-        if (!this._isARequestInFlight) {
-          // only call callback once per refetch
-          return;
-        }
-        // TODO t15106389: add helper utility for fetching more data
-        this._pendingRefetch = null;
-        this._isARequestInFlight = false;
-        this._relayContext = {
-          environment: this.context.relay.environment,
-          variables: fragmentVariables,
-        };
-        this._resolver.setVariables(fragmentVariables);
-        this.setState(
-          {data: this._resolver.resolve()},
-          () => callback && callback(),
-        );
-      };
-      const onError = error => {
-        this._pendingRefetch = null;
-        this._isARequestInFlight = false;
-        callback && callback(error);
-      };
-
       const cacheConfig = options ? {force: !!options.force} : undefined;
       const {
         createOperationSelector,
@@ -269,31 +242,46 @@ function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
       this._references.push(reference);
 
       this._localVariables = fetchVariables;
-      if (this._pendingRefetch) {
-        this._pendingRefetch.dispose();
-      }
-      this._isARequestInFlight = true;
-      const pendingRefetch = environment.streamQuery({
-        cacheConfig,
-        onError,
-        onNext,
-        operation,
-      });
-      if (this._isARequestInFlight) {
-        this._pendingRefetch = pendingRefetch;
-      } else {
-        this._pendingRefetch = null;
-      }
-      return {
-        dispose: () => {
-          // Disposing a refetch() call should always dispose the fetch itself,
-          // but should not clear this._pendingFetch unless the refetch() being
-          // cancelled is the most recent call.
-          pendingRefetch.dispose();
-          if (this._pendingRefetch === pendingRefetch) {
-            this._pendingRefetch = null;
-            this._isARequestInFlight = false;
+
+      // Cancel any previously running refetch.
+      this._refetchSubscription && this._refetchSubscription.unsubscribe();
+
+      // Declare refetchSubscription before assigning it in .start(), since
+      // synchronous completion may call callbacks .subscribe() returns.
+      let refetchSubscription;
+      environment
+        .execute({operation, cacheConfig})
+        .mergeMap(response => {
+          this._relayContext = {
+            environment: this.context.relay.environment,
+            variables: fragmentVariables,
+          };
+          this._resolver.setVariables(fragmentVariables);
+          return new Observable(sink =>
+            this.setState({data: this._resolver.resolve()}, () => {
+              sink.next();
+              sink.complete();
+            }),
+          );
+        })
+        .finally(() => {
+          // Finalizing a refetch should only clear this._refetchSubscription
+          // if the finizing subscription is the most recent call.
+          if (this._refetchSubscription === refetchSubscription) {
+            this._refetchSubscription = null;
           }
+        })
+        .subscribe({
+          start: subscription => {
+            this._refetchSubscription = refetchSubscription = subscription;
+          },
+          next: callback,
+          error: callback,
+        });
+
+      return {
+        dispose() {
+          refetchSubscription && refetchSubscription.unsubscribe();
         },
       };
     };
@@ -348,7 +336,7 @@ function assertRelayContext(relay: mixed): RelayContext {
  * `fragmentSpec` is memoized once per environment, rather than once per
  * instance of the container constructed/rendered.
  */
-function createContainer<TBase: ReactClass<*>>(
+function createContainer<TBase: React.ComponentType<*>>(
   Component: TBase,
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
   taggedNode: GraphQLTaggedNode,
@@ -359,6 +347,10 @@ function createContainer<TBase: ReactClass<*>>(
     (ComponentClass, fragments) =>
       createContainerWithFragments(ComponentClass, fragments, taggedNode),
   );
+  /* $FlowFixMe(>=0.53.0) This comment suppresses an error
+   * when upgrading Flow's support for React. Common errors found when
+   * upgrading Flow's React support are documented at
+   * https://fburl.com/eq7bs81w */
   Container.childContextTypes = containerContextTypes;
   return Container;
 }

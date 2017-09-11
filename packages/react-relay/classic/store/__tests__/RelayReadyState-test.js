@@ -12,7 +12,7 @@
 
 'use strict';
 
-jest.enableAutomock().useFakeTimers();
+jest.useFakeTimers();
 jest.mock('warning');
 
 const RelayReadyState = require('RelayReadyState');

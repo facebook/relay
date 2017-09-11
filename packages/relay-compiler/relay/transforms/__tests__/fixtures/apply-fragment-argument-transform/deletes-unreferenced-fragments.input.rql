@@ -1,9 +1,0 @@
-query TestQuery($id: ID!) {
-  node(id: $id) {
-    id
-  }
-}
-
-fragment UnreferencedFragment on User {
-  id
-}

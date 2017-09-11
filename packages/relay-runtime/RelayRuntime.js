@@ -14,12 +14,14 @@
 'use strict';
 
 const RelayConnectionHandler = require('RelayConnectionHandler');
+const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayCore = require('RelayCore');
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('RelayMarkSweepStore');
 const RelayModernEnvironment = require('RelayModernEnvironment');
 const RelayModernGraphQLTag = require('RelayModernGraphQLTag');
 const RelayNetwork = require('RelayNetwork');
+const RelayObservable = require('RelayObservable');
 const RelayQueryResponseCache = require('RelayQueryResponseCache');
 const RelayViewerHandler = require('RelayViewerHandler');
 
@@ -35,6 +37,11 @@ export type {
   ConcreteBatch,
   ConcreteFragment,
 } from 'RelayConcreteNode';
+export type {
+  ObservableFromValue,
+  Subscribable,
+  Subscription,
+} from 'RelayObservable';
 
 // As early as possible, check for the existence of the JavaScript globals which
 // Relay Runtime relies upon, and produce a clear message if they do not exist.
@@ -59,6 +66,7 @@ module.exports = {
   // Core API
   Environment: RelayModernEnvironment,
   Network: RelayNetwork,
+  Observable: RelayObservable,
   QueryResponseCache: RelayQueryResponseCache,
   RecordSource: RelayInMemoryRecordSource,
   Store: RelayMarkSweepStore,
@@ -86,6 +94,9 @@ module.exports = {
   fetchQuery: fetchRelayModernQuery,
   isRelayModernEnvironment: isRelayModernEnvironment,
   requestSubscription: requestRelaySubscription,
+
+  // Configuration interface for legacy or special uses
+  ConnectionInterface: RelayConnectionInterface,
 };
 
 if (__DEV__) {

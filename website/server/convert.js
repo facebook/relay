@@ -5,6 +5,7 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
+ *
  */
 
 'use strict';
@@ -68,7 +69,9 @@ function execute() {
         const key = keyvalue[0].trim();
         let value = keyvalue.slice(1).join(':').trim();
         // Handle the case where you have "Community #10"
-        try { value = JSON.parse(value); } catch (e) { }
+        try {
+          value = JSON.parse(value);
+        } catch (e) {}
         metadata[key] = value;
       }
       metadata['source'] = path.basename(file);
@@ -79,29 +82,37 @@ function execute() {
       }
 
       // Create a dummy .js version that just calls the associated layout
-      const layout = metadata.layout[0].toUpperCase() + metadata.layout.substr(1) + 'Layout';
+      const layout =
+        metadata.layout[0].toUpperCase() + metadata.layout.substr(1) + 'Layout';
 
-      var content = (
+      var content =
         '/**\n' +
-        ' * @' + 'generated\n' +
+        ' * @' +
+        'generated\n' +
         ' */\n' +
         'var React = require("React");\n' +
-        'var Layout = require("' + layout + '");\n' +
-        'var content = ' + backtickify(both.content) + '\n' +
+        'var Layout = require("' +
+        layout +
+        '");\n' +
+        'var content = ' +
+        backtickify(both.content) +
+        '\n' +
         'var Post = React.createClass({\n' +
         '  statics: {\n' +
         '    content: content\n' +
         '  },\n' +
         '  render: function() {\n' +
-        '    return <Layout metadata={' + JSON.stringify(metadata) + '}>{content}</Layout>;\n' +
+        '    return <Layout metadata={' +
+        JSON.stringify(metadata) +
+        '}>{content}</Layout>;\n' +
         '  }\n' +
         '});\n' +
         // TODO: Use React statics after upgrading React
         // 'Post.content = content;\n' +
-        'module.exports = Post;\n'
-      );
+        'module.exports = Post;\n';
 
-      const targetFile = 'src/relay/' + metadata.permalink.replace(/\.html$/, '.js');
+      const targetFile =
+        'src/relay/' + metadata.permalink.replace(/\.html$/, '.js');
       mkdirp.sync(targetFile.replace(new RegExp('/[^/]*$'), ''));
       fs.writeFileSync(targetFile, content);
     }
@@ -115,10 +126,13 @@ function execute() {
   fs.writeFileSync(
     'core/metadata.js',
     '/**\n' +
-    ' * @' + 'generated\n' +
-    ' * @providesModule Metadata\n' +
-    ' */\n' +
-    'module.exports = ' + JSON.stringify(metadatas, null, 2) + ';'
+      ' * @' +
+      'generated\n' +
+      ' * @providesModule Metadata\n' +
+      ' */\n' +
+      'module.exports = ' +
+      JSON.stringify(metadatas, null, 2) +
+      ';'
   );
 
   buildGraphQLSpec('src');

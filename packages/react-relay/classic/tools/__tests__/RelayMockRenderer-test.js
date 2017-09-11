@@ -15,7 +15,7 @@
 jest.mock('ReactDOM', () => ({}));
 
 const React = require('React');
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const ReactTestRenderer = require('ReactTestRenderer');
 const RelayMockRenderer = require('RelayMockRenderer');
 
@@ -30,9 +30,9 @@ describe('RelayMockRenderer', () => {
         );
       }
     }
-    const Container = Relay.createContainer(Component, {
+    const Container = RelayClassic.createContainer(Component, {
       fragments: {
-        viewer: () => Relay.QL`
+        viewer: () => RelayClassic.QL`
           fragment on Viewer {
             actor {
               name

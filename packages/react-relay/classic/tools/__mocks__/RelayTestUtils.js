@@ -13,6 +13,11 @@
 
 const Map = require('Map');
 
+const diff = require('jest-diff');
+
+jest.dontMock('react-test-renderer');
+const ReactTestRenderer = require('react-test-renderer');
+
 /**
  * Utility methods (eg. for unmocking Relay internals) and custom Jasmine
  * matchers.
@@ -59,7 +64,7 @@ const RelayTestUtils = {
       }
     }
 
-    container = container || document.createElement('div');
+    container = container || ReactTestRenderer.create();
 
     let prevEnvironment;
     let relay;
@@ -84,7 +89,8 @@ const RelayTestUtils = {
         function ref(component) {
           result = component;
         }
-        ReactDOM.render(
+
+        const node = (
           <ContextSetter
             context={{relay, route}}
             render={() => {
@@ -111,10 +117,22 @@ const RelayTestUtils = {
               }
               return React.cloneElement(element, {...pointers, ref});
             }}
-          />,
-          container,
+          />
         );
+
+        if ('innerHTML' in container) {
+          ReactDOM.render(node, container);
+        } else {
+          container.update(node);
+        }
         return result;
+      },
+      unmount() {
+        if ('innerHTML' in container) {
+          ReactDOM.unmountComponentAtNode(container);
+        } else {
+          container.unmount();
+        }
       },
     };
   },
@@ -411,19 +429,35 @@ const RelayTestUtils = {
       return require('matchRecord')(...args);
     },
 
-    toEqualPrintedQuery(actual, expected) {
-      const minifiedActual = RelayTestUtils.minifyQueryText(actual);
+    toEqualPrintedQuery(received, expected) {
+      const minifiedReceived = RelayTestUtils.minifyQueryText(received);
       const minifiedExpected = RelayTestUtils.minifyQueryText(expected);
 
-      if (minifiedActual !== minifiedExpected) {
-        return {
-          pass: false,
-          message: [minifiedActual, 'to equal', minifiedExpected].join('\n'),
-        };
-      }
-      return {
-        pass: true,
-      };
+      const pass = minifiedReceived === minifiedExpected;
+      const message = pass
+        ? () =>
+            this.utils.matcherHint('.not.toEqualPrintedQuery') +
+            '\n\n' +
+            'Expected query to not be:\n' +
+            `  ${this.utils.printExpected(minifiedExpected)}\n` +
+            'Received:\n' +
+            `  ${this.utils.printReceived(minifiedReceived)}`
+        : () => {
+            const diffString = diff(minifiedExpected, minifiedReceived, {
+              expand: this.expand,
+            });
+            return (
+              this.utils.matcherHint('.toEqualPrintedQuery') +
+              '\n\n' +
+              'Expected query to be:\n' +
+              `  ${this.utils.printExpected(minifiedExpected)}\n` +
+              'Received:\n' +
+              `  ${this.utils.printReceived(minifiedReceived)}` +
+              (diffString ? `\n\nDifference:\n\n${diffString}` : '')
+            );
+          };
+
+      return {actual: minifiedReceived, message, pass};
     },
 
     /**

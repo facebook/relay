@@ -13,8 +13,8 @@
 'use strict';
 
 const RelayModernRecord = require('RelayModernRecord');
-const RelayStoreUtils = require('RelayStoreUtils');
 const RelayModernTestUtils = require('RelayModernTestUtils');
+const RelayStoreUtils = require('RelayStoreUtils');
 
 const deepFreeze = require('deepFreeze');
 

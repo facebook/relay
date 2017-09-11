@@ -33,9 +33,9 @@ const containerContextTypes = {
 };
 
 type ContainerCreator = (
-  Component: ReactClass<any>,
+  Component: React$ComponentType<any>,
   fragments: Object,
-) => ReactClass<any>;
+) => React$ComponentType<any>;
 
 type VariablesProvider = () => Variables;
 
@@ -68,7 +68,7 @@ function injectDefaultVariablesProvider(variablesProvider: VariablesProvider) {
  * container definitions or unwrapping the environment-specific fragment
  * defintions unnecessarily.
  */
-function buildCompatContainer<TBase: ReactClass<*>>(
+function buildCompatContainer<TBase: React$ComponentType<*>>(
   ComponentClass: TBase,
   fragmentSpec: GeneratedNodeMap,
   createContainerWithFragments: ContainerCreator,
@@ -137,6 +137,10 @@ function buildCompatContainer<TBase: ReactClass<*>>(
       Container = createContainerWithFragments(ComponentClass, fragments);
       RelayContainerProxy.proxyMethods(Container, ComponentClass);
     }
+    /* $FlowFixMe(>=0.53.0) This comment suppresses an
+     * error when upgrading Flow's support for React. Common errors found when
+     * upgrading Flow's React support are documented at
+     * https://fburl.com/eq7bs81w */
     return new Container(props, context);
   }
   ContainerConstructor.contextTypes = containerContextTypes;
@@ -150,6 +154,10 @@ function buildCompatContainer<TBase: ReactClass<*>>(
 
   // Create a back-reference from the Component to the Container for cases
   // where a Classic Component might refer to itself, expecting a Container.
+  /* $FlowFixMe(>=0.53.0) This comment suppresses an error
+   * when upgrading Flow's support for React. Common errors found when
+   * upgrading Flow's React support are documented at
+   * https://fburl.com/eq7bs81w */
   ComponentClass.__container__ = ContainerConstructor;
 
   return (ContainerConstructor: any);

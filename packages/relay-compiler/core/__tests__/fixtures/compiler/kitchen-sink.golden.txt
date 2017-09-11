@@ -357,6 +357,13 @@
                     "kind": "ScalarField",
                     "alias": null,
                     "args": null,
+                    "name": "__typename",
+                    "storageKey": null
+                  },
+                  {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "args": null,
                     "name": "name",
                     "storageKey": null
                   },
@@ -517,8 +524,8 @@ query NodeQuery(
 }
 
 fragment UserFragment_3M2EvT on User {
-  id
   __typename
+  id
   friends(first: 5) {
     count
   }

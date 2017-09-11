@@ -12,12 +12,10 @@
 
 'use strict';
 
-jest.enableAutomock();
-
 require('configureForRelayOSS');
 
-const Relay = require('Relay');
-const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayClassic = require('RelayClassic');
+const {ConnectionInterface} = require('RelayRuntime');
 const RelayQuery = require('RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 const RelayVariable = require('RelayVariable');
@@ -45,7 +43,7 @@ describe('RelayQueryField', () => {
 
     expect.extend(RelayTestUtils.matchers);
 
-    const scalarRQL = Relay.QL`
+    const scalarRQL = RelayClassic.QL`
       fragment on Node {
         id
       }
@@ -54,7 +52,7 @@ describe('RelayQueryField', () => {
     expect(nodeIdField.getSchemaName()).toBe('id');
 
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           friends(first: 1) {
@@ -74,7 +72,7 @@ describe('RelayQueryField', () => {
     aliasedIdField = nodeField.getChildren()[0];
     expect(aliasedIdField.getSchemaName()).toBe('id');
 
-    const groupRQL = Relay.QL`
+    const groupRQL = RelayClassic.QL`
       fragment on User {
         address {
           city
@@ -84,7 +82,7 @@ describe('RelayQueryField', () => {
     userAddressField = getNode(groupRQL).getChildren()[0];
     expect(userAddressField.getSchemaName()).toBe('address');
 
-    const friendsScalarFieldRQL = Relay.QL`
+    const friendsScalarFieldRQL = RelayClassic.QL`
       fragment on User {
         friends_scalar: friends
           (first: 10, after:"offset",orderby:"name") {
@@ -102,7 +100,7 @@ describe('RelayQueryField', () => {
       .getChildren()[0]
       .getChildren()[1];
     expect(pageInfoField.getSchemaName()).toBe(
-      RelayConnectionInterface.PAGE_INFO,
+      ConnectionInterface.get().PAGE_INFO,
     );
     // feed.edges.cursor
     cursorField = getNode(friendsScalarFieldRQL)
@@ -111,7 +109,7 @@ describe('RelayQueryField', () => {
       .getChildren()[1];
     expect(cursorField.getSchemaName()).toBe('cursor');
 
-    const friendsVariableFieldRQL = Relay.QL`
+    const friendsVariableFieldRQL = RelayClassic.QL`
       fragment on User {
         friends_variable: friends(first:$first,after:$after) {
           edges {
@@ -132,7 +130,7 @@ describe('RelayQueryField', () => {
     ).getChildren()[0];
     expect(friendsVariableField.getSchemaName()).toBe('friends');
 
-    generatedIdFieldRQL = Relay.QL`
+    generatedIdFieldRQL = RelayClassic.QL`
       fragment on User {
         name
       }
@@ -143,7 +141,7 @@ describe('RelayQueryField', () => {
 
   it('returns the type', () => {
     const actor = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on Viewer {
         actor {
           name
@@ -177,13 +175,13 @@ describe('RelayQueryField', () => {
   });
 
   it('equals equivalent fields', () => {
-    const pictureScalarRQL = Relay.QL`
+    const pictureScalarRQL = RelayClassic.QL`
       fragment on User {
         profilePicture(size: 32)
       }
     `;
     const pictureScalar = getNode(pictureScalarRQL).getChildren()[0];
-    const pictureVariableRQL = Relay.QL`
+    const pictureVariableRQL = RelayClassic.QL`
       fragment on User {
         profilePicture(size:$size)
       }
@@ -208,13 +206,13 @@ describe('RelayQueryField', () => {
   });
 
   it('does not equal fields with different values', () => {
-    const pictureScalarRQL = Relay.QL`
+    const pictureScalarRQL = RelayClassic.QL`
       fragment on User {
         profilePicture(size: 32)
       }
     `;
     const pictureScalar = getNode(pictureScalarRQL).getChildren()[0];
-    const pictureVariableRQL = Relay.QL`
+    const pictureVariableRQL = RelayClassic.QL`
       fragment on User {
         profilePicture(size:$size)
       }
@@ -244,7 +242,7 @@ describe('RelayQueryField', () => {
 
   it('clones with updated children', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on Story {
         feedback {
           id
@@ -307,7 +305,7 @@ describe('RelayQueryField', () => {
 
   it('returns call types', () => {
     const field = getNode(
-      Relay.QL`fragment on User{profilePicture(size: 32)}`,
+      RelayClassic.QL`fragment on User{profilePicture(size: 32)}`,
     ).getChildren()[0];
     field.getConcreteQueryNode().calls[0].metadata = {type: 'scalar'};
 
@@ -316,7 +314,7 @@ describe('RelayQueryField', () => {
   });
 
   it('throws if a variable is missing', () => {
-    const pictureFragment = Relay.QL`
+    const pictureFragment = RelayClassic.QL`
       fragment on User {
         profilePicture(size:[$width,$height])
       }
@@ -329,7 +327,7 @@ describe('RelayQueryField', () => {
   });
 
   it('permits null or undefined variable values', () => {
-    const pictureFragment = Relay.QL`
+    const pictureFragment = RelayClassic.QL`
       fragment on User {
         profilePicture(size:[$width,$height])
       }
@@ -370,7 +368,7 @@ describe('RelayQueryField', () => {
   describe('getRangeBehaviorCalls()', () => {
     it('strips range calls on connections', () => {
       const connectionField = getNode(
-        Relay.QL`fragment on User { friends(first: 10, isViewerFriend:true) }`,
+        RelayClassic.QL`fragment on User { friends(first: 10, isViewerFriend:true) }`,
       ).getChildren()[0];
       expect(connectionField.getRangeBehaviorCalls()).toEqual([
         {name: 'isViewerFriend', value: true},
@@ -379,19 +377,19 @@ describe('RelayQueryField', () => {
 
     it('throws for non-connection fields', () => {
       const nonConnectionField = getNode(
-        Relay.QL`query { node(id:"4") }`,
+        RelayClassic.QL`query { node(id:"4") }`,
       ).getChildren()[0];
       expect(nonConnectionField.getRangeBehaviorCalls).toThrow();
     });
 
     it('strips passing `if` calls', () => {
       const ifTrue = getNode(
-        Relay.QL`fragment on User { friends(if:true) }`,
+        RelayClassic.QL`fragment on User { friends(if:true) }`,
       ).getChildren()[0];
       expect(ifTrue.getRangeBehaviorCalls()).toEqual([]);
 
       const ifFalse = getNode(
-        Relay.QL`fragment on User { friends(if:false) }`,
+        RelayClassic.QL`fragment on User { friends(if:false) }`,
       ).getChildren()[0];
       expect(ifFalse.getRangeBehaviorCalls()).toEqual([
         {
@@ -403,7 +401,7 @@ describe('RelayQueryField', () => {
 
     it('strips failing `unless` calls', () => {
       const unlessTrue = getNode(
-        Relay.QL`fragment on User { friends(unless:true) }`,
+        RelayClassic.QL`fragment on User { friends(unless:true) }`,
       ).getChildren()[0];
       expect(unlessTrue.getRangeBehaviorCalls()).toEqual([
         {
@@ -413,7 +411,7 @@ describe('RelayQueryField', () => {
       ]);
 
       const unlessFalse = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on User {
           friends(unless:false)
         }
@@ -423,7 +421,7 @@ describe('RelayQueryField', () => {
     });
 
     it('substitutes variable values', () => {
-      const friendsScalarRQL = Relay.QL`
+      const friendsScalarRQL = RelayClassic.QL`
         fragment on User { friends(isViewerFriend:false) }
       `;
       const friendsScalar = getNode(friendsScalarRQL).getChildren()[0];
@@ -434,7 +432,7 @@ describe('RelayQueryField', () => {
         },
       ]);
 
-      const friendsVariableRQL = Relay.QL`
+      const friendsVariableRQL = RelayClassic.QL`
         fragment on User { friends(isViewerFriend:$isViewerFriend) }
       `;
       const variables = {isViewerFriend: false};
@@ -462,7 +460,7 @@ describe('RelayQueryField', () => {
 
     it('substitutes variable values', () => {
       const key = generateRQLFieldAlias('profilePicture.size(32,64)');
-      const pictureScalarRQL = Relay.QL`
+      const pictureScalarRQL = RelayClassic.QL`
         fragment on User {
           profilePicture(size:[32,64])
         }
@@ -470,7 +468,7 @@ describe('RelayQueryField', () => {
       const pictureScalar = getNode(pictureScalarRQL).getChildren()[0];
       expect(pictureScalar.getSerializationKey()).toBe(key);
 
-      const pictureVariableRQL = Relay.QL`
+      const pictureVariableRQL = RelayClassic.QL`
         fragment on User {
           profilePicture(size:[$width,$height])
         }
@@ -488,7 +486,7 @@ describe('RelayQueryField', () => {
 
     it('includes the alias on fields with calls', () => {
       const fragment = getVerbatimNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on User {
           const: profilePicture(size: 100) { uri }
           var: profilePicture(size: $size) { uri }
@@ -509,7 +507,7 @@ describe('RelayQueryField', () => {
 
     it('excludes the alias on fields without calls', () => {
       const fragment = getVerbatimNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on User {
           alias: username
         }
@@ -529,7 +527,7 @@ describe('RelayQueryField', () => {
 
     it('serializes argument literal values', () => {
       const node = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on User {
           profilePicture(size: [32, 64])
         }
@@ -542,7 +540,7 @@ describe('RelayQueryField', () => {
 
     it('serializes argument variable values', () => {
       const node = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on User {
           profilePicture(size: [$width, $height])
         }
@@ -561,7 +559,7 @@ describe('RelayQueryField', () => {
   describe('getStorageKey()', () => {
     it('strips range calls on connections', () => {
       const connectionField = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on User {
           friends(first: 10, isViewerFriend:true) {
             edges { node { id } }
@@ -577,7 +575,7 @@ describe('RelayQueryField', () => {
     it('preserves range-like calls on non-connections', () => {
       // NOTE: `segments.edges.node` is scalar.
       const nonConnectionField = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Node {
           segments(first: 3) {
             edges { node }
@@ -590,7 +588,7 @@ describe('RelayQueryField', () => {
 
     it('strips passing `if` calls', () => {
       const ifTrue = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Node {
           firstName(if:true)
         }
@@ -599,7 +597,7 @@ describe('RelayQueryField', () => {
       expect(ifTrue.getStorageKey()).toBe('firstName');
 
       const ifFalse = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Node {
           firstName(if:false)
         }
@@ -610,7 +608,7 @@ describe('RelayQueryField', () => {
 
     it('strips failing `unless` calls', () => {
       const unlessTrue = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Node{
           firstName(unless:true)
         }
@@ -619,7 +617,7 @@ describe('RelayQueryField', () => {
       expect(unlessTrue.getStorageKey()).toBe('firstName{unless:true}');
 
       const unlessFalse = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Node{
           firstName(unless:false)
         }
@@ -630,7 +628,7 @@ describe('RelayQueryField', () => {
 
     it('substitutes variable values', () => {
       const key = 'profilePicture{size:[0:32,1:64]}';
-      const pictureScalarRQL = Relay.QL`
+      const pictureScalarRQL = RelayClassic.QL`
         fragment on User {
           profilePicture(size:[32, 64])
         }
@@ -638,7 +636,7 @@ describe('RelayQueryField', () => {
       const pictureScalar = getNode(pictureScalarRQL).getChildren()[0];
       expect(pictureScalar.getStorageKey()).toBe(key);
 
-      const pictureVariableRQL = Relay.QL`
+      const pictureVariableRQL = RelayClassic.QL`
         fragment on User {
           profilePicture(size:[$width,$height])
         }
@@ -656,12 +654,12 @@ describe('RelayQueryField', () => {
 
     it('produces stable keys regardless of argument order', () => {
       const pictureFieldA = getNode(
-        Relay.QL`fragment on User {
+        RelayClassic.QL`fragment on User {
         profilePicture(size: 32, preset: SMALL)
       }`,
       ).getChildren()[0];
       const pictureFieldB = getNode(
-        Relay.QL`fragment on User {
+        RelayClassic.QL`fragment on User {
         profilePicture(preset: SMALL, size: 32)
       }`,
       ).getChildren()[0];
@@ -684,7 +682,7 @@ describe('RelayQueryField', () => {
       {name: 'after', value: 'offset'},
     ]);
 
-    const pictureScalarRQL = Relay.QL`
+    const pictureScalarRQL = RelayClassic.QL`
       fragment on User {
         profilePicture(size:[32, 64])
       }
@@ -694,7 +692,7 @@ describe('RelayQueryField', () => {
       {name: 'size', type: '[Int]', value: [32, 64]},
     ]);
 
-    const pictureVariableRQL = Relay.QL`
+    const pictureVariableRQL = RelayClassic.QL`
       fragment on User {
         profilePicture(size:[$width,$height])
       }
@@ -715,7 +713,7 @@ describe('RelayQueryField', () => {
   it('returns arguments with array values', () => {
     const variables = {size: [32, 64]};
     const profilePicture = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on User {
         profilePicture(size: $size)
       }
@@ -754,7 +752,7 @@ describe('RelayQueryField', () => {
   it('returns isAbstract', () => {
     expect(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
       fragment on Viewer {
         actor {
           name
@@ -767,7 +765,7 @@ describe('RelayQueryField', () => {
     ).toBe(true);
     expect(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
       fragment on User {
         address {
           city
@@ -833,7 +831,7 @@ describe('RelayQueryField', () => {
 
   it('returns the inferred primary key', () => {
     const field = getNode(
-      Relay.QL`fragment on Story{feedback}`,
+      RelayClassic.QL`fragment on Story{feedback}`,
     ).getChildren()[0];
     expect(field.getInferredPrimaryKey()).toBe('id');
 
@@ -842,7 +840,7 @@ describe('RelayQueryField', () => {
 
   it('returns the inferred root call name', () => {
     const field = getNode(
-      Relay.QL`fragment on Story{feedback}`,
+      RelayClassic.QL`fragment on Story{feedback}`,
     ).getChildren()[0];
     expect(field.getInferredRootCallName()).toBe('node');
 
@@ -850,7 +848,7 @@ describe('RelayQueryField', () => {
   });
 
   it('creates nodes', () => {
-    const fragmentRQL = Relay.QL`
+    const fragmentRQL = RelayClassic.QL`
       fragment on FeedUnit {
         actorCount
       }
@@ -865,7 +863,7 @@ describe('RelayQueryField', () => {
 
   it('returns directives', () => {
     const field = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on Story {
         feedback @include(if: $cond)
       }

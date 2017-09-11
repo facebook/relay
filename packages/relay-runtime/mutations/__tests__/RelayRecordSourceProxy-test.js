@@ -13,14 +13,15 @@
 'use strict';
 
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
+const RelayModernTestUtils = require('RelayModernTestUtils');
+const RelayRecordProxy = require('RelayRecordProxy');
 const RelayRecordSourceMutator = require('RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('RelayRecordSourceProxy');
-const RelayRecordProxy = require('RelayRecordProxy');
 const RelayStoreUtils = require('RelayStoreUtils');
-const RelayModernTestUtils = require('RelayModernTestUtils');
-const {createOperationSelector} = require('RelayModernOperationSelector');
 
 const simpleClone = require('simpleClone');
+
+const {createOperationSelector} = require('RelayModernOperationSelector');
 
 const {
   ID_KEY,
@@ -313,6 +314,42 @@ describe('RelayRecordSourceProxy', () => {
       }).toFailInvariant(
         'RelayRecordSourceMutator#create(): Cannot create a record with id ' +
           '`4`, this record already exists.',
+      );
+    });
+  });
+
+  describe('setValue()', () => {
+    it('sets a scalar value', () => {
+      const user = store.create('c1', 'User');
+
+      user.setValue('Jan', 'firstName');
+      expect(user.getValue('firstName')).toBe('Jan');
+
+      user.setValue(null, 'firstName');
+      expect(user.getValue('firstName')).toBe(null);
+    });
+
+    it('sets an array of scalars', () => {
+      const user = store.create('c1', 'User');
+
+      user.setValue(['a@example.com', 'b@example.com'], 'emailAddresses');
+      expect(user.getValue('emailAddresses')).toEqual([
+        'a@example.com',
+        'b@example.com',
+      ]);
+
+      user.setValue(['c@example.com'], 'emailAddresses');
+      expect(user.getValue('emailAddresses')).toEqual(['c@example.com']);
+    });
+
+    it('throws if a complex object is written', () => {
+      const user = store.create('c1', 'User');
+
+      expect(() => {
+        user.setValue({day: 1, month: 1, year: 1970}, 'birthdate');
+      }).toFailInvariant(
+        'RelayRecordProxy#setValue(): Expected a scalar or array of scalars, ' +
+          'got `{"day":1,"month":1,"year":1970}`.',
       );
     });
   });

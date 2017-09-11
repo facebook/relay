@@ -21,7 +21,7 @@ jest
 const RelayTestUtils = require('RelayTestUtils');
 
 const GraphQLRange = require('GraphQLRange');
-const RelayConnectionInterface = require('RelayConnectionInterface');
+const {ConnectionInterface} = require('RelayRuntime');
 const RelayRecord = require('RelayRecord');
 
 function getFirstSegment(range) {
@@ -91,7 +91,7 @@ describe('GraphQLRange', () => {
     });
     range = new GraphQLRange();
 
-    ({HAS_NEXT_PAGE, HAS_PREV_PAGE} = RelayConnectionInterface);
+    ({HAS_NEXT_PAGE, HAS_PREV_PAGE} = ConnectionInterface.get());
 
     expect.extend(RelayTestUtils.matchers);
   });

@@ -19,13 +19,9 @@ const RelayResponseNormalizer = require('RelayResponseNormalizer');
 
 const {ROOT_ID, ROOT_TYPE} = require('RelayStoreUtils');
 
-import type {
-  PayloadData,
-  PayloadError,
-  RelayResponsePayload,
-} from 'RelayNetworkTypes';
+import type {PayloadData, PayloadError} from 'RelayNetworkTypes';
 import type {NormalizationOptions} from 'RelayResponseNormalizer';
-import type {Selector} from 'RelayStoreTypes';
+import type {RelayResponsePayload, Selector} from 'RelayStoreTypes';
 
 function normalizeRelayPayload(
   selector: Selector,

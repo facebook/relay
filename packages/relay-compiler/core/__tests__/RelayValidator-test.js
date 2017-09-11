@@ -13,9 +13,9 @@
 
 'use strict';
 
-const RelayValidator = require('RelayValidator');
 const GraphQL = require('graphql');
 const RelayTestSchema = require('RelayTestSchema');
+const RelayValidator = require('RelayValidator');
 
 function validateString(input) {
   const ast = GraphQL.parse(new GraphQL.Source(input, 'test.graphql'));

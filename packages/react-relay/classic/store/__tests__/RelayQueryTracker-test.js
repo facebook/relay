@@ -12,13 +12,11 @@
 
 'use strict';
 
-jest.enableAutomock();
-
 require('configureForRelayOSS');
 
 jest.unmock('RelayQueryTracker');
 
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayQuery = require('RelayQuery');
 const RelayQueryTracker = require('RelayQueryTracker');
 const RelayTestUtils = require('RelayTestUtils');
@@ -42,7 +40,7 @@ describe('RelayQueryTracker', () => {
 
   it('tracks queries for ID-less root records', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           actor {
@@ -64,7 +62,7 @@ describe('RelayQueryTracker', () => {
 
   it('tracks queries for refetchable root records', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"123") {
           address {
@@ -90,7 +88,7 @@ describe('RelayQueryTracker', () => {
 
   it('tracks queries for refetchable records (with IDs)', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           actor {
@@ -118,7 +116,7 @@ describe('RelayQueryTracker', () => {
 
   it('untracks all nodes for the given dataID', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           actor {
@@ -142,7 +140,7 @@ describe('RelayQueryTracker', () => {
 
   it('flattens tracked fields when there exist multiple nodes', () => {
     const firstQuery = getVerbatimNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           actor {
@@ -160,7 +158,7 @@ describe('RelayQueryTracker', () => {
     `,
     );
     const secondQuery = getVerbatimNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           actor {

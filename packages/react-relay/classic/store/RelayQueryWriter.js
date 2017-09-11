@@ -14,7 +14,6 @@
 'use strict';
 
 const RelayClassicRecordState = require('RelayClassicRecordState');
-const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayQuery = require('RelayQuery');
 const RelayQueryPath = require('RelayQueryPath');
@@ -26,6 +25,8 @@ const generateClientID = require('generateClientID');
 const invariant = require('invariant');
 const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
 const warning = require('warning');
+
+const {ConnectionInterface} = require('RelayRuntime');
 
 import type RelayChangeTracker from 'RelayChangeTracker';
 import type {DataID} from 'RelayInternalTypes';
@@ -47,7 +48,6 @@ type WriterState = {
 };
 
 const {ANY_TYPE, ID, TYPENAME} = RelayNodeInterface;
-const {EDGES, NODE, PAGE_INFO} = RelayConnectionInterface;
 const {EXISTENT} = RelayClassicRecordState;
 
 /**
@@ -344,6 +344,8 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     recordID: DataID,
     connectionData: mixed,
   ): void {
+    const {EDGES} = ConnectionInterface.get();
+
     // Each unique combination of filter calls is stored in its own
     // generated record (ex: `field.orderby(x)` results are separate from
     // `field.orderby(y)` results).
@@ -408,6 +410,8 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     node: RelayQuery.Node, // the parent connection or an intermediary fragment
     state: WriterState,
   ): void {
+    const {EDGES, PAGE_INFO} = ConnectionInterface.get();
+
     node.getChildren().forEach(child => {
       if (child instanceof RelayQuery.Field) {
         if (child.getSchemaName() === EDGES) {
@@ -432,6 +436,8 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     edges: RelayQuery.Field,
     state: WriterState,
   ): void {
+    const {EDGES, NODE, PAGE_INFO} = ConnectionInterface.get();
+
     const {recordID: connectionID, responseData: connectionData} = state;
     invariant(
       typeof connectionData === 'object' && connectionData !== null,
@@ -463,7 +469,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
 
     const rangeCalls = connection.getCallsWithValues();
     invariant(
-      RelayConnectionInterface.hasRangeCalls(rangeCalls),
+      ConnectionInterface.hasRangeCalls(rangeCalls),
       'RelayQueryWriter: Cannot write edges for connection on record ' +
         '`%s` without `first`, `last`, or `find` argument.',
       connectionID,
@@ -536,8 +542,8 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     });
 
     const pageInfo =
-      connectionData[PAGE_INFO] ||
-      RelayConnectionInterface.getDefaultPageInfo();
+      (connectionData[PAGE_INFO]: $FlowFixMe) ||
+      ConnectionInterface.getDefaultPageInfo();
     this._writer.putRangeEdges(
       connectionID,
       rangeCalls,
@@ -607,6 +613,9 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     // client ids.
     this._writer.putLinkedRecordIDs(recordID, storageKey, nextLinkedIDs);
     nextLinkedIDs.forEach(nextLinkedID => {
+      /* $FlowFixMe(>=0.54.0) This comment suppresses an
+       * error found when Flow v0.54 was deployed. To see the error delete this
+       * comment and run Flow. */
       const itemData = nextRecords[nextLinkedID];
       if (itemData) {
         this.traverse(field, {
@@ -638,6 +647,8 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     recordID: DataID,
     fieldData: mixed,
   ): void {
+    const {NODE} = ConnectionInterface.get();
+
     const {nodeID} = state;
     const storageKey = field.getStorageKey();
     invariant(

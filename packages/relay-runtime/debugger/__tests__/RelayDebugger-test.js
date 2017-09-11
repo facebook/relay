@@ -11,7 +11,6 @@
 
 'use strict';
 
-const RelayDebugger = require('RelayDebugger');
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('RelayMarkSweepStore');
 const RelayModernEnvironment = require('RelayModernEnvironment');

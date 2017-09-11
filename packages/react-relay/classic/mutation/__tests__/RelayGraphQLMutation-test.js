@@ -12,8 +12,6 @@
 
 'use strict';
 
-jest.enableAutomock();
-
 require('configureForRelayOSS');
 
 jest.useFakeTimers();
@@ -24,8 +22,7 @@ jest
   .unmock('RelayNetworkLayer');
 
 const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
-const Relay = require('Relay');
-const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayClassic = require('RelayClassic');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayGraphQLMutation = require('RelayGraphQLMutation');
 const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
@@ -33,8 +30,10 @@ const RelayTestUtils = require('RelayTestUtils');
 const generateRQLFieldAlias = require('generateRQLFieldAlias');
 const readRelayQueryData = require('readRelayQueryData');
 
+const {ConnectionInterface} = require('RelayRuntime');
+
 const {COMMITTING, COMMIT_QUEUED, UNCOMMITTED} = RelayMutationTransactionStatus;
-const {HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO} = RelayConnectionInterface;
+const {HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO} = ConnectionInterface.get();
 
 const {getNode} = RelayTestUtils;
 
@@ -77,7 +76,7 @@ describe('RelayGraphQLMutation', () => {
     });
     storeData.getNetworkLayer().injectImplementation({sendMutation});
 
-    feedbackLikeQuery = Relay.QL`mutation FeedbackLikeMutation {
+    feedbackLikeQuery = RelayClassic.QL`mutation FeedbackLikeMutation {
         feedbackLike(input: $input) {
           clientMutationId
           feedback {
@@ -101,7 +100,7 @@ describe('RelayGraphQLMutation', () => {
       likersCount: 10,
     };
 
-    optimisticQuery = Relay.QL`mutation FeedbackLikeOptimisticUpdate {
+    optimisticQuery = RelayClassic.QL`mutation FeedbackLikeOptimisticUpdate {
         feedbackLike(input: $input) {
           clientMutationId
           feedback {
@@ -145,7 +144,7 @@ describe('RelayGraphQLMutation', () => {
     it('optimistically updates the store', () => {
       writePayload(
         getNode(
-          Relay.QL`
+          RelayClassic.QL`
           query {
             node(id: "aFeedbackId") {
               ... on Feedback {
@@ -212,7 +211,7 @@ describe('RelayGraphQLMutation', () => {
 
       const data = readData(
         getNode(
-          Relay.QL`
+          RelayClassic.QL`
           fragment on Feedback {
             doesViewerLike
             id
@@ -286,7 +285,7 @@ describe('RelayGraphQLMutation', () => {
       it('can toggle a boolean', () => {
         writePayload(
           getNode(
-            Relay.QL`
+            RelayClassic.QL`
             query {
               node(id: "aFeedbackId") {
                 ... on Feedback {
@@ -409,7 +408,7 @@ describe('RelayGraphQLMutation', () => {
         //  Store is updated
         const data = readData(
           getNode(
-            Relay.QL`
+            RelayClassic.QL`
             fragment on Feedback {
               doesViewerLike
               id
@@ -464,7 +463,7 @@ describe('RelayGraphQLMutation', () => {
       it('can prepend to a range', () => {
         writePayload(
           getNode(
-            Relay.QL`
+            RelayClassic.QL`
             query {
               node(id: "aFeedbackId") {
                 ... on Feedback {
@@ -522,7 +521,7 @@ describe('RelayGraphQLMutation', () => {
           onFailure: jest.fn(),
           onSuccess: jest.fn(),
         };
-        const query = Relay.QL`mutation CommentAddMutation {
+        const query = RelayClassic.QL`mutation CommentAddMutation {
           commentCreate(input: $input) {
             clientMutationId
             feedbackCommentEdge {
@@ -617,7 +616,7 @@ describe('RelayGraphQLMutation', () => {
         //  Store is updated
         const data = readData(
           getNode(
-            Relay.QL`
+            RelayClassic.QL`
             fragment on Feedback {
               id
               topLevelComments(first: 10) {

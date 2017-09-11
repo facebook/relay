@@ -127,6 +127,7 @@ describe('requestRelaySubscription-test', () => {
         commentCreateSubscribe: {
           feedbackCommentEdge: {
             node: {
+              __typename: 'Comment',
               id: secondCommentId,
               body: {
                 text: secondCommentBody,
@@ -136,10 +137,7 @@ describe('requestRelaySubscription-test', () => {
         },
       },
     };
-    environment.mock.resolveSubscriptionPayload(
-      CommentCreateSubscription,
-      subscriptionPayload,
-    );
+    environment.mock.nextValue(CommentCreateSubscription, subscriptionPayload);
     const snapshot = store.lookup({
       dataID: ROOT_ID,
       node: FeedbackCommentQuery.fragment,
@@ -150,7 +148,9 @@ describe('requestRelaySubscription-test', () => {
         comments: {
           edges: [
             {
+              cursor: '<cursor>',
               node: {
+                __typename: 'Comment',
                 body: {
                   text: firstCommentBody,
                 },
@@ -158,7 +158,9 @@ describe('requestRelaySubscription-test', () => {
               },
             },
             {
+              cursor: undefined,
               node: {
+                __typename: 'Comment',
                 body: {
                   text: secondCommentBody,
                 },
@@ -166,6 +168,10 @@ describe('requestRelaySubscription-test', () => {
               },
             },
           ],
+          pageInfo: {
+            endCursor: null,
+            hasNextPage: false,
+          },
         },
       },
     });

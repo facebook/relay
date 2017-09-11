@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule center
+ * @format
  */
 
 'use strict';
@@ -21,7 +22,9 @@ class center extends React.Component {
     style = assign({}, style, {textAlign: 'center'});
 
     return (
-      <div {...props} style={style}>{this.props.children}</div>
+      <div {...props} style={style}>
+        {this.props.children}
+      </div>
     );
   }
 }

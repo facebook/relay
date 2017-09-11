@@ -16,7 +16,7 @@
 /* eslint-disable consistent-this */
 
 const QueryBuilder = require('QueryBuilder');
-const RelayConnectionInterface = require('RelayConnectionInterface');
+const {ConnectionInterface} = require('RelayRuntime');
 const RelayFragmentReference = require('RelayFragmentReference');
 const RelayMetaRoute = require('RelayMetaRoute');
 const RelayProfiler = require('RelayProfiler');
@@ -1443,7 +1443,7 @@ class RelayQueryField extends RelayQueryNode {
       !(arg.name === IF && String(arg.value) === TRUE) &&
       !(arg.name === UNLESS && String(arg.value) === FALSE) &&
       // Connection arguments can be stripped out.
-      !(this.isConnection() && RelayConnectionInterface.isConnectionCall(arg))
+      !(this.isConnection() && ConnectionInterface.isConnectionCall(arg))
     );
   }
 }

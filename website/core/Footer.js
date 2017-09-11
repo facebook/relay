@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule Footer
+ * @format
  */
 
 'use strict';
@@ -18,10 +19,21 @@ class Footer extends React.Component {
     const metadata = this.props.metadata;
     return (
       <footer>
-        {metadata && <span>
-          <a className="edit-page-link" href={'https://github.com/facebook/relay/blob/master/docs/' + metadata.source} target="_blank">Edit This Page</a>
-        </span>}
-        <span>Copyright © {new Date().getFullYear()} Facebook Inc</span>
+        {metadata &&
+          <span>
+            <a
+              className="edit-page-link"
+              href={
+                'https://github.com/facebook/relay/blob/master/docs/' +
+                metadata.source
+              }
+              target="_blank">
+              Edit This Page
+            </a>
+          </span>}
+        <span>
+          Copyright © {new Date().getFullYear()} Facebook Inc
+        </span>
       </footer>
     );
   }

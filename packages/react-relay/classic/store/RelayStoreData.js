@@ -20,7 +20,7 @@ const GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 const QueryBuilder = require('QueryBuilder');
 const RelayChangeTracker = require('RelayChangeTracker');
 const RelayClassicRecordState = require('RelayClassicRecordState');
-const RelayConnectionInterface = require('RelayConnectionInterface');
+const {ConnectionInterface} = require('RelayRuntime');
 const RelayGarbageCollector = require('RelayGarbageCollector');
 const RelayMetaRoute = require('RelayMetaRoute');
 const RelayMutationQueue = require('RelayMutationQueue');
@@ -71,7 +71,6 @@ import type {
   CacheProcessorCallbacks,
 } from 'RelayTypes';
 
-const {CLIENT_MUTATION_ID} = RelayConnectionInterface;
 const {ID, ID_TYPE, NODE, NODE_TYPE, TYPENAME} = RelayNodeInterface;
 const {ROOT_ID} = require('RelayStoreConstants');
 const {EXISTENT} = RelayClassicRecordState;
@@ -456,6 +455,8 @@ class RelayStoreData {
     const changeTracker = new RelayChangeTracker();
     let recordWriter;
     if (isOptimisticUpdate) {
+      const {CLIENT_MUTATION_ID} = ConnectionInterface.get();
+
       const clientMutationID = payload[CLIENT_MUTATION_ID];
       invariant(
         typeof clientMutationID === 'string',

@@ -76,7 +76,7 @@ requestSubscription(
     subscription,
     variables,
     // optional but recommended:
-    onComplete: () => {/* server closed the subscription */},
+    onCompleted: () => {/* server closed the subscription */},
     onError: error => console.error(error),
   }
 );

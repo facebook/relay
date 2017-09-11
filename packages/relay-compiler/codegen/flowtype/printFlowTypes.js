@@ -19,7 +19,7 @@ const transformInputObjectToIR = require('transformInputObjectToIR');
 const traverse = require('babel-traverse').default;
 
 const {RELAY_CLASSIC_MUTATION} = require('RelayFlowParser');
-const {getRawType} = require('RelaySchemaUtils');
+const {getRawType} = require('GraphQLSchemaUtils');
 const {
   GraphQLEnumType,
   GraphQLList,
@@ -27,7 +27,7 @@ const {
   GraphQLScalarType,
 } = require('graphql');
 
-import type {Fragment, LinkedField, Root, Selection} from 'RelayIR';
+import type {Fragment, LinkedField, Root, Selection} from 'GraphQLIR';
 import type {GraphQLType} from 'graphql';
 
 const FIELD_BLACKLIST = ['clientMutationId', 'client_mutation_id'];
@@ -53,12 +53,14 @@ function printFlowTypes(node: Root | Fragment): ?string {
         }
         return normalize(transform(inputIR))
           .concat(response)
-          .map(n => generate(n).code)
+          .map(n => generate(n, {flowCommaSeparator: true}).code)
           .join('\n\n');
       }
     }
   } else if (node.kind === 'Fragment') {
-    return normalize(transform(node)).map(n => generate(n).code).join('\n\n');
+    return normalize(transform(node))
+      .map(n => generate(n, {flowCommaSeparator: true}).code)
+      .join('\n\n');
   }
 }
 

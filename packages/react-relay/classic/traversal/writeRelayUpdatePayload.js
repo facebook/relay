@@ -15,7 +15,6 @@
 
 const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
 const RelayClassicRecordState = require('RelayClassicRecordState');
-const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayMutationTracker = require('RelayMutationTracker');
 const RelayMutationType = require('RelayMutationType');
 const RelayNodeInterface = require('RelayNodeInterface');
@@ -28,6 +27,8 @@ const generateClientID = require('generateClientID');
 const getRangeBehavior = require('getRangeBehavior');
 const invariant = require('invariant');
 const warning = require('warning');
+
+const {ConnectionInterface} = require('RelayRuntime');
 
 import type {DataID, UpdateOptions} from 'RelayInternalTypes';
 import type RelayQueryWriter from 'RelayQueryWriter';
@@ -43,22 +44,24 @@ type Payload = mixed | PayloadObject | PayloadArray;
 type PayloadArray = Array<Payload>;
 type PayloadObject = {[key: string]: Payload};
 
-const {CLIENT_MUTATION_ID, EDGES} = RelayConnectionInterface;
 const {ANY_TYPE, ID, NODE} = RelayNodeInterface;
 const {APPEND, IGNORE, PREPEND, REFETCH, REMOVE} = GraphQLMutatorConstants;
 
-const EDGES_FIELD = RelayQuery.Field.build({
-  fieldName: EDGES,
-  type: ANY_TYPE,
-  metadata: {
-    canHaveSubselections: true,
-    isPlural: true,
-  },
-});
-const IGNORED_KEYS = {
-  error: true,
-  [CLIENT_MUTATION_ID]: true,
-};
+let _edgesField;
+function getEdgesField() {
+  if (!_edgesField) {
+    _edgesField = RelayQuery.Field.build({
+      fieldName: ConnectionInterface.get().EDGES,
+      type: ANY_TYPE,
+      metadata: {
+        canHaveSubselections: true,
+        isPlural: true,
+      },
+    });
+  }
+  return _edgesField;
+}
+
 const STUB_CURSOR_ID = 'client:cursor';
 
 /**
@@ -208,7 +211,8 @@ function mergeField(
   operation: RelayQuery.Operation,
 ): void {
   // don't write mutation/subscription metadata fields
-  if (fieldName in IGNORED_KEYS) {
+  const {CLIENT_MUTATION_ID} = ConnectionInterface.get();
+  if (fieldName === 'error' || fieldName === CLIENT_MUTATION_ID) {
     return;
   }
   if (Array.isArray(payload)) {
@@ -297,6 +301,8 @@ function handleRangeAdd(
   config: OperationConfig,
   isOptimisticUpdate: boolean,
 ): void {
+  const {CLIENT_MUTATION_ID} = ConnectionInterface.get();
+
   const clientMutationID = getString(payload, CLIENT_MUTATION_ID);
   invariant(
     clientMutationID,
@@ -408,10 +414,11 @@ function addRangeNode(
     'writeRelayUpdatePayload(): Expected a path for connection record, `%s`.',
     connectionID,
   );
-  path = RelayQueryPath.getPath(path, EDGES_FIELD, edgeID);
+  const edgesField = getEdgesField();
+  path = RelayQueryPath.getPath(path, edgesField, edgeID);
 
   // create the edge record
-  writer.createRecordIfMissing(EDGES_FIELD, edgeID, path, edgeData);
+  writer.createRecordIfMissing(edgesField, edgeID, path, edgeData);
 
   // write data for all `edges` fields
   // TODO #7167718: more efficient mutation/subscription writes

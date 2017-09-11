@@ -13,8 +13,8 @@
 
 'use strict';
 
-const RelayCompilerContext = require('RelayCompilerContext');
-const RelayIRTransformer = require('RelayIRTransformer');
+const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
+const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 
 const invariant = require('invariant');
 
@@ -22,7 +22,7 @@ const {
   assertTypeWithFields,
   canHaveSelections,
   getRawType,
-} = require('RelaySchemaUtils');
+} = require('../core/GraphQLSchemaUtils');
 const {
   SchemaMetaFieldDef,
   TypeMetaFieldDef,
@@ -35,7 +35,7 @@ import type {
   FragmentSpread,
   InlineFragment,
   Root,
-} from 'RelayIR';
+} from '../core/GraphQLIR';
 import type {GraphQLSchema, GraphQLType} from 'graphql';
 
 type State = {
@@ -95,10 +95,10 @@ type State = {
  * base schema.
  */
 function transform(
-  context: RelayCompilerContext,
+  context: GraphQLCompilerContext,
   schema: GraphQLSchema,
-): RelayCompilerContext {
-  return RelayIRTransformer.transform(
+): GraphQLCompilerContext {
+  return GraphQLIRTransformer.transform(
     context,
     {
       FragmentSpread: visitFragmentSpread,

@@ -13,11 +13,12 @@
 
 'use strict';
 
-const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayQuery = require('RelayQuery');
 const RelayQueryTransform = require('RelayQueryTransform');
 
 const invariant = require('invariant');
+
+const {ConnectionInterface} = require('RelayRuntime');
 
 type UnterminatedRangeFilter = (node: RelayQuery.Field) => boolean;
 
@@ -108,11 +109,10 @@ class RelayQueryIntersector extends RelayQueryTransform<RelayQuery.Node> {
  */
 class RelayQueryRangeFilter extends RelayQueryTransform<void> {
   visitField(node: RelayQuery.Field): ?RelayQuery.Node {
+    const {EDGES, PAGE_INFO} = ConnectionInterface.get();
+
     const schemaName = node.getSchemaName();
-    if (
-      schemaName === RelayConnectionInterface.EDGES ||
-      schemaName === RelayConnectionInterface.PAGE_INFO
-    ) {
+    if (schemaName === EDGES || schemaName === PAGE_INFO) {
       return null;
     } else {
       return node;

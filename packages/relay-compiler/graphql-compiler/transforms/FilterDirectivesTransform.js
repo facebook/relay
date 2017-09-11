@@ -13,10 +13,10 @@
 
 'use strict';
 
-const RelayCompilerContext = require('RelayCompilerContext');
-const RelayIRTransformer = require('RelayIRTransformer');
+const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
+const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 
-import type {Directive} from 'RelayIR';
+import type {Directive} from '../core/GraphQLIR';
 import type {GraphQLSchema} from 'graphql';
 
 type State = GraphQLSchema;
@@ -26,10 +26,10 @@ type State = GraphQLSchema;
  * original schema.
  */
 function transform(
-  context: RelayCompilerContext,
+  context: GraphQLCompilerContext,
   schema: GraphQLSchema,
-): RelayCompilerContext {
-  return RelayIRTransformer.transform(
+): GraphQLCompilerContext {
+  return GraphQLIRTransformer.transform(
     context,
     {Directive: visitDirective},
     () => schema,

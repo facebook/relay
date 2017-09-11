@@ -13,9 +13,9 @@
 'use strict';
 
 const AutoAliasTransform = require('AutoAliasTransform');
-const RelayCompilerContext = require('RelayCompilerContext');
+const GraphQLCompilerContext = require('GraphQLCompilerContext');
+const GraphQLIRPrinter = require('GraphQLIRPrinter');
 const RelayParser = require('RelayParser');
-const RelayPrinter = require('RelayPrinter');
 const RelayTestSchema = require('RelayTestSchema');
 
 const getGoldenMatchers = require('getGoldenMatchers');
@@ -30,12 +30,12 @@ describe('AutoAliasTransform', () => {
       const ast = RelayParser.parse(RelayTestSchema, text);
       const context = ast.reduce(
         (ctx, node) => ctx.add(node),
-        new RelayCompilerContext(RelayTestSchema),
+        new GraphQLCompilerContext(RelayTestSchema),
       );
       const nextContext = AutoAliasTransform.transform(context);
       const documents = [];
       nextContext.documents().forEach(doc => {
-        documents.push(RelayPrinter.print(doc));
+        documents.push(GraphQLIRPrinter.print(doc));
       });
       return documents.join('\n');
     });
@@ -52,7 +52,7 @@ describe('AutoAliasTransform', () => {
       }
     `,
     );
-    const context = new RelayCompilerContext(RelayTestSchema).add(ast[0]);
+    const context = new GraphQLCompilerContext(RelayTestSchema).add(ast[0]);
     const nextContext = AutoAliasTransform.transform(context);
     const fragment = nextContext.get('TestFragment');
     const field = fragment.selections[0];

@@ -3,8 +3,14 @@
   "version": "0.0.1-alpha6",
   "license": "BSD-3-Clause",
   "description": "A Code-generation toolkit for GraphQL",
-  "main": "index.js",
-  "dependencies": {},
+  "main": "GraphQLCompilerPublic.js",
+  "dependencies": {
+    "chalk": "^1.1.1",
+    "fb-watchman": "2.0.0",
+    "fbjs": "0.8.14",
+    "graphql": "^0.11.3",
+    "immutable": "~3.7.6"
+  },
   "devDependencies": {},
   "scripts": {
     "test": "true"

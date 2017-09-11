@@ -12,10 +12,11 @@
 
 'use strict';
 
-const RelayCompilerContext = require('RelayCompilerContext');
+const GraphQLCompilerContext = require('GraphQLCompilerContext');
+const GraphQLIRPrinter = require('GraphQLIRPrinter');
 const RelayFieldHandleTransform = require('RelayFieldHandleTransform');
-const RelayPrinter = require('RelayPrinter');
 const RelayTestSchema = require('RelayTestSchema');
+
 const getGoldenMatchers = require('getGoldenMatchers');
 const parseGraphQLText = require('parseGraphQLText');
 
@@ -27,13 +28,13 @@ describe('RelayFieldHandleTransform', () => {
   it('matches expected output', () => {
     expect('fixtures/field-handle-transform').toMatchGolden(text => {
       const {definitions} = parseGraphQLText(RelayTestSchema, text);
-      const context = new RelayCompilerContext(RelayTestSchema).addAll(
+      const context = new GraphQLCompilerContext(RelayTestSchema).addAll(
         definitions,
       );
       const nextContext = RelayFieldHandleTransform.transform(context);
       const documents = [];
       nextContext.documents().forEach(doc => {
-        documents.push(RelayPrinter.print(doc));
+        documents.push(GraphQLIRPrinter.print(doc));
       });
       return documents.join('\n');
     });

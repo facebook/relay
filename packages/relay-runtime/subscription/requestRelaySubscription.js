@@ -18,7 +18,6 @@ const warning = require('warning');
 
 import type {Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
-import type {RelayResponsePayload} from 'RelayNetworkTypes';
 import type {Environment, RecordSourceSelectorProxy} from 'RelayStoreTypes';
 import type {RelayMutationConfig, Variables} from 'RelayTypes';
 
@@ -39,34 +38,34 @@ function requestRelaySubscription(
   const {createOperationSelector, getOperation} = environment.unstable_internal;
   const subscription = getOperation(config.subscription);
   const {configs, onCompleted, onError, onNext, variables} = config;
-  let {updater} = config;
   const operation = createOperationSelector(subscription, variables);
 
   warning(
-    !(updater && configs),
+    !(config.updater && configs),
     'requestRelaySubscription: Expected only one of `updater` and `configs` to be provided',
   );
 
-  if (configs) {
-    ({updater} = setRelayModernMutationConfigs(
-      configs,
-      subscription,
-      null /* optimisticUpdater */,
+  const {updater} = configs
+    ? setRelayModernMutationConfigs(
+        configs,
+        subscription,
+        null /* optimisticUpdater */,
+        config.updater,
+      )
+    : config;
+
+  return environment
+    .execute({
+      operation,
       updater,
-    ));
-  }
-  return environment.sendSubscription({
-    onCompleted,
-    onError,
-    onNext(payload: ?RelayResponsePayload) {
-      if (onNext) {
-        const snapshot = environment.lookup(operation.fragment);
-        onNext(snapshot.data);
-      }
-    },
-    updater,
-    operation,
-  });
+      cacheConfig: {force: true},
+    })
+    .map(() => environment.lookup(operation.fragment).data)
+    .subscribeLegacy({
+      onNext,
+      onError,
+      onCompleted,
+    });
 }
 
 module.exports = requestRelaySubscription;

@@ -15,12 +15,12 @@
 
 require('babel-polyfill');
 
-const RelayCodegenRunner = require('RelayCodegenRunner');
-const RelayConsoleReporter = require('RelayConsoleReporter');
-const RelayFileIRParser = require('RelayFileIRParser');
+const CodegenRunner = require('CodegenRunner');
+const GraphQLConsoleReporter = require('GraphQLConsoleReporter');
+const RelayJSModuleParser = require('RelayJSModuleParser');
 const RelayFileWriter = require('RelayFileWriter');
 const RelayIRTransforms = require('RelayIRTransforms');
-const RelayWatchmanClient = require('RelayWatchmanClient');
+const GraphQLWatchmanClient = require('GraphQLWatchmanClient');
 
 const formatGeneratedModule = require('formatGeneratedModule');
 const fs = require('fs');
@@ -72,7 +72,7 @@ function getFilepathsFromGlob(
   const {extensions, include, exclude} = options;
   const patterns = include.map(inc => `${inc}/*.+(${extensions.join('|')})`);
 
-  // $FlowFixMe
+  // $FlowFixMe(site=react_native_fb,www)
   const glob = require('fast-glob');
   return glob.sync(patterns, {
     cwd: baseDir,
@@ -93,6 +93,7 @@ async function run(options: {
   verbose: boolean,
   watchman: boolean,
   watch?: ?boolean,
+  validate: boolean,
 }) {
   const schemaPath = path.resolve(process.cwd(), options.schema);
   if (!fs.existsSync(schemaPath)) {
@@ -120,16 +121,16 @@ Ensure that one such file exists in ${srcDir} or its parents.
     );
   }
 
-  const reporter = new RelayConsoleReporter({verbose: options.verbose});
+  const reporter = new GraphQLConsoleReporter({verbose: options.verbose});
 
   const useWatchman =
-    options.watchman && (await RelayWatchmanClient.isAvailable());
+    options.watchman && (await GraphQLWatchmanClient.isAvailable());
 
   const parserConfigs = {
     default: {
       baseDir: srcDir,
-      getFileFilter: RelayFileIRParser.getFileFilter,
-      getParser: RelayFileIRParser.getParser,
+      getFileFilter: RelayJSModuleParser.getFileFilter,
+      getParser: RelayJSModuleParser.getParser,
       getSchema: () => getSchema(schemaPath),
       watchmanExpression: useWatchman ? buildWatchExpression(options) : null,
       filepaths: useWatchman ? null : getFilepathsFromGlob(srcDir, options),
@@ -143,17 +144,24 @@ Ensure that one such file exists in ${srcDir} or its parents.
       parser: 'default',
     },
   };
-  const codegenRunner = new RelayCodegenRunner({
+  const codegenRunner = new CodegenRunner({
     reporter,
     parserConfigs,
     writerConfigs,
-    onlyValidate: false,
+    onlyValidate: options.validate,
   });
-  if (options.watch) {
-    await codegenRunner.watchAll();
-  } else {
+  if (!options.validate && !options.watch && options.watchman) {
     console.log('HINT: pass --watch to keep watching for changes.');
-    await codegenRunner.compileAll();
+  }
+  const result = options.watch
+    ? await codegenRunner.watchAll()
+    : await codegenRunner.compileAll();
+
+  if (result === 'ERROR') {
+    process.exit(100);
+  }
+  if (options.validate && result !== 'NO_CHANGES') {
+    process.exit(101);
   }
 }
 
@@ -272,6 +280,13 @@ const argv = yargs
     watch: {
       describe: 'If specified, watches files and regenerates on changes',
       type: 'boolean',
+    },
+    validate: {
+      describe:
+        'Looks for pending changes and exits with non-zero code instead of ' +
+        'writing to disk',
+      type: 'boolean',
+      default: false,
     },
   })
   .help().argv;

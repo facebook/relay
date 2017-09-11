@@ -29,3 +29,6 @@ script:
     if [ $LINT ]; then
       yarn install --ignore-scripts && yarn run lint
     fi
+
+notifications:
+  webhooks: https://code.facebook.com/travis/webhook/

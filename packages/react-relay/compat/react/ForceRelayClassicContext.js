@@ -19,6 +19,9 @@ const RelayRoute = require('RelayRoute');
 const RelayStore = require('RelayStore');
 
 // Dummy Route
+/* $FlowFixMe(>=0.54.0) This comment suppresses an error
+ * found when Flow v0.54 was deployed. To see the error delete this comment and
+ * run Flow. */
 class QueryConfig extends RelayRoute {}
 QueryConfig.routeName = 'ForceRelayClassicContextRoute';
 QueryConfig.queries = {};
@@ -28,7 +31,7 @@ QueryConfig.queries = {};
  * should only be used as a wrapper around RelayContainers that have not been
  * converted to one of the compatibility container and are not fetching data.
  */
-class ForceRelayClassicContext extends React.Component {
+class ForceRelayClassicContext extends React.Component<$FlowFixMeProps> {
   static childContextTypes = {
     relay: RelayPropTypes.ClassicRelay,
     route: RelayPropTypes.QueryConfig.isRequired,
@@ -43,7 +46,7 @@ class ForceRelayClassicContext extends React.Component {
       route: new QueryConfig(),
     };
   }
-  render(): ?React.Element<*> {
+  render(): React.Node {
     return this.props.children;
   }
 }

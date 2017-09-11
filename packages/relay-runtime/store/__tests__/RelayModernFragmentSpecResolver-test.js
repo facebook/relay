@@ -13,10 +13,11 @@
 'use strict';
 
 const RelayModernFragmentSpecResolver = require('RelayModernFragmentSpecResolver');
+const RelayModernTestUtils = require('RelayModernTestUtils');
+
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {createOperationSelector} = require('RelayModernOperationSelector');
 const {ROOT_ID} = require('RelayStoreUtils');
-const RelayModernTestUtils = require('RelayModernTestUtils');
 
 describe('RelayModernFragmentSpecResolver', () => {
   let UserFragment;

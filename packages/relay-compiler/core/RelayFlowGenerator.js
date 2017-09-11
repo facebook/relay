@@ -13,8 +13,8 @@
 
 'use strict';
 
-const RelayFlattenTransform = require('RelayFlattenTransform');
-const RelayIRVisitor = require('RelayIRVisitor');
+const FlattenTransform = require('FlattenTransform');
+const GraphQLIRVisitor = require('GraphQLIRVisitor');
 
 const babelGenerator = require('babel-generator').default;
 const t = require('babel-types');
@@ -31,36 +31,51 @@ const {
   GraphQLType,
   GraphQLUnionType,
 } = require('graphql');
-const {isAbstractType} = require('RelaySchemaUtils');
+const {isAbstractType} = require('GraphQLSchemaUtils');
 
 import type {IRTransform} from 'GraphQLIRTransforms';
-import type {Fragment, Root} from 'RelayIR';
-import type CompilerContext from 'RelayCompilerContext';
+import type {Fragment, Root} from 'GraphQLIR';
+import type CompilerContext from 'GraphQLCompilerContext';
+
+export type ScalarTypeMapping = {
+  [type: string]: string,
+};
 
 const printBabel = ast => babelGenerator(ast).code;
 
 function generate(
   node: Root | Fragment,
-  inputFieldWhiteList?: Array<string>,
+  customScalars?: ?ScalarTypeMapping,
+  inputFieldWhiteList?: ?Array<string>,
 ): string {
+  const defaultedCustomScalars = customScalars || {};
   const output = [];
   if (node.kind === 'Root' && node.operation !== 'query') {
-    const inputAST = generateInputVariablesType(node, inputFieldWhiteList);
+    const inputAST = generateInputVariablesType(
+      node,
+      defaultedCustomScalars,
+      inputFieldWhiteList,
+    );
     output.push(printBabel(inputAST));
   }
-  const responseAST = RelayIRVisitor.visit(node, RelayCodeGenVisitor);
+  const responseAST = GraphQLIRVisitor.visit(
+    node,
+    createVisitor(defaultedCustomScalars),
+  );
   output.push(printBabel(responseAST));
   return output.join('\n\n');
 }
 
 function makeProp(
   {key, schemaName, value, conditional, nodeType, nodeSelections},
+  customScalars: ScalarTypeMapping,
   concreteType,
 ) {
   if (nodeType) {
     value = transformScalarField(
       nodeType,
-      selectionsToBabel([Array.from(nodeSelections.values())]),
+      customScalars,
+      selectionsToBabel([Array.from(nodeSelections.values())], customScalars),
     );
   }
   if (schemaName === '__typename' && concreteType) {
@@ -78,7 +93,7 @@ const hasTypenameSelection = (selections: $FlowIssue) =>
   selections.some(isTypenameSelection);
 const onlySelectsTypename = selections => selections.every(isTypenameSelection);
 
-function selectionsToBabel(selections) {
+function selectionsToBabel(selections, customScalars: ScalarTypeMapping) {
   const baseFields = new Map();
   const byConcreteType = {};
 
@@ -111,10 +126,10 @@ function selectionsToBabel(selections) {
       types.push(
         exactObjectTypeAnnotation([
           ...Array.from(baseFields.values()).map(selection =>
-            makeProp(selection, concreteType),
+            makeProp(selection, customScalars, concreteType),
           ),
           ...byConcreteType[concreteType].map(selection =>
-            makeProp(selection, concreteType),
+            makeProp(selection, customScalars, concreteType),
           ),
         ]),
       );
@@ -147,8 +162,12 @@ function selectionsToBabel(selections) {
     const selectionMapValues = Array.from(selectionMap.values()).map(
       sel =>
         isTypenameSelection(sel) && sel.concreteType
-          ? makeProp({...sel, conditional: false}, sel.concreteType)
-          : makeProp(sel),
+          ? makeProp(
+              {...sel, conditional: false},
+              customScalars,
+              sel.concreteType,
+            )
+          : makeProp(sel, customScalars),
     );
     types.push(exactObjectTypeAnnotation(selectionMapValues));
   }
@@ -209,95 +228,97 @@ function isPlural({directives}): boolean {
   }
 }
 
-const RelayCodeGenVisitor = {
-  leave: {
-    Root(node) {
-      return t.exportNamedDeclaration(
-        t.typeAlias(
-          t.identifier(`${node.name}Response`),
+function createVisitor(customScalars: ScalarTypeMapping) {
+  return {
+    leave: {
+      Root(node) {
+        return t.exportNamedDeclaration(
+          t.typeAlias(
+            t.identifier(`${node.name}Response`),
+            null,
+            selectionsToBabel(node.selections, customScalars),
+          ),
+          [],
           null,
-          selectionsToBabel(node.selections),
-        ),
-        [],
-        null,
-      );
-    },
+        );
+      },
 
-    Fragment(node) {
-      let selections: $FlowFixMe = flattenArray(node.selections);
-      const numConecreteSelections = selections.filter(s => s.concreteType)
-        .length;
-      selections = selections.map(selection => {
-        if (
-          numConecreteSelections <= 1 &&
-          isTypenameSelection(selection) &&
-          !isAbstractType(node.type)
-        ) {
-          return [
-            {
-              ...selection,
-              concreteType: node.type.toString(),
-            },
-          ];
-        }
-        return [selection];
-      });
-      const baseType = selectionsToBabel(selections);
-      const type = isPlural(node) ? arrayOfType(baseType) : baseType;
+      Fragment(node) {
+        let selections: $FlowFixMe = flattenArray(node.selections);
+        const numConecreteSelections = selections.filter(s => s.concreteType)
+          .length;
+        selections = selections.map(selection => {
+          if (
+            numConecreteSelections <= 1 &&
+            isTypenameSelection(selection) &&
+            !isAbstractType(node.type)
+          ) {
+            return [
+              {
+                ...selection,
+                concreteType: node.type.toString(),
+              },
+            ];
+          }
+          return [selection];
+        });
+        const baseType = selectionsToBabel(selections, customScalars);
+        const type = isPlural(node) ? arrayOfType(baseType) : baseType;
 
-      return t.exportNamedDeclaration(
-        t.typeAlias(t.identifier(node.name), null, type),
-        [],
-        null,
-      );
-    },
+        return t.exportNamedDeclaration(
+          t.typeAlias(t.identifier(node.name), null, type),
+          [],
+          null,
+        );
+      },
 
-    InlineFragment(node) {
-      const typeCondition = node.typeCondition;
-      return flattenArray(node.selections).map(typeSelection => {
-        return isAbstractType(typeCondition)
-          ? {
-              ...typeSelection,
-              conditional: true,
-            }
-          : {
-              ...typeSelection,
-              concreteType: typeCondition.toString(),
-            };
-      });
+      InlineFragment(node) {
+        const typeCondition = node.typeCondition;
+        return flattenArray(node.selections).map(typeSelection => {
+          return isAbstractType(typeCondition)
+            ? {
+                ...typeSelection,
+                conditional: true,
+              }
+            : {
+                ...typeSelection,
+                concreteType: typeCondition.toString(),
+              };
+        });
+      },
+      Condition(node) {
+        return flattenArray(node.selections).map(selection => {
+          return {
+            ...selection,
+            conditional: true,
+          };
+        });
+      },
+      ScalarField(node) {
+        return [
+          {
+            key: node.alias || node.name,
+            schemaName: node.name,
+            value: transformScalarField(node.type, customScalars),
+          },
+        ];
+      },
+      LinkedField(node) {
+        return [
+          {
+            key: node.alias || node.name,
+            schemaName: node.name,
+            nodeType: node.type,
+            nodeSelections: selectionsToMap(flattenArray(node.selections)),
+          },
+        ];
+      },
+      FragmentSpread(node) {
+        return [];
+      },
     },
-    Condition(node) {
-      return flattenArray(node.selections).map(selection => {
-        return {
-          ...selection,
-          conditional: true,
-        };
-      });
-    },
-    ScalarField(node) {
-      return [
-        {
-          key: node.alias || node.name,
-          schemaName: node.name,
-          value: transformScalarField(node.type),
-        },
-      ];
-    },
-    LinkedField(node) {
-      return [
-        {
-          key: node.alias || node.name,
-          schemaName: node.name,
-          nodeType: node.type,
-          nodeSelections: selectionsToMap(flattenArray(node.selections)),
-        },
-      ];
-    },
-    FragmentSpread(node) {
-      return [];
-    },
-  },
-};
+  };
+}
 
 function selectionsToMap(selections) {
   const map = new Map();
@@ -317,12 +338,20 @@ function flattenArray<T>(arrayOfArrays: Array<Array<T>>): Array<T> {
   return result;
 }
 
-function transformScalarField(type, objectProps) {
+function transformScalarField(
+  type,
+  customScalars: ScalarTypeMapping,
+  objectProps,
+) {
   if (type instanceof GraphQLNonNull) {
-    return transformNonNullableScalarField(type.ofType, objectProps);
+    return transformNonNullableScalarField(
+      type.ofType,
+      objectProps,
+      customScalars,
+    );
   } else {
     return t.nullableTypeAnnotation(
-      transformNonNullableScalarField(type, objectProps),
+      transformNonNullableScalarField(type, objectProps, customScalars),
     );
   }
 }
@@ -346,8 +375,11 @@ function readOnlyObjectTypeProperty(key, value) {
   return prop;
 }
 
-function transformGraphQLScalarType(type: GraphQLScalarType) {
-  switch (type.name) {
+function transformGraphQLScalarType(
+  type: GraphQLScalarType,
+  customScalars: ScalarTypeMapping,
+) {
+  switch (customScalars[type.name] || type.name) {
     case 'ID':
     case 'String':
     case 'Url':
@@ -369,9 +401,15 @@ function transformGraphQLEnumType(type: GraphQLEnumType) {
   );
 }
 
-function transformNonNullableScalarField(type: GraphQLType, objectProps) {
+function transformNonNullableScalarField(
+  type: GraphQLType,
+  objectProps,
+  customScalars: ScalarTypeMapping,
+) {
   if (type instanceof GraphQLList) {
-    return arrayOfType(transformScalarField(type.ofType, objectProps));
+    return arrayOfType(
+      transformScalarField(type.ofType, customScalars, objectProps),
+    );
   } else if (
     type instanceof GraphQLObjectType ||
     type instanceof GraphQLUnionType ||
@@ -379,7 +417,7 @@ function transformNonNullableScalarField(type: GraphQLType, objectProps) {
   ) {
     return objectProps;
   } else if (type instanceof GraphQLScalarType) {
-    return transformGraphQLScalarType(type);
+    return transformGraphQLScalarType(type, customScalars);
   } else if (type instanceof GraphQLEnumType) {
     return transformGraphQLEnumType(type);
   } else {
@@ -389,12 +427,15 @@ function transformNonNullableScalarField(type: GraphQLType, objectProps) {
 
 function transformNonNullableInputType(
   type: GraphQLInputType,
-  inputFieldWhiteList?: Array<string>,
+  customScalars: ScalarTypeMapping,
+  inputFieldWhiteList?: ?Array<string>,
 ) {
   if (type instanceof GraphQLList) {
-    return arrayOfType(transformInputType(type.ofType, inputFieldWhiteList));
+    return arrayOfType(
+      transformInputType(type.ofType, customScalars, inputFieldWhiteList),
+    );
   } else if (type instanceof GraphQLScalarType) {
-    return transformGraphQLScalarType(type);
+    return transformGraphQLScalarType(type, customScalars);
   } else if (type instanceof GraphQLEnumType) {
     return transformGraphQLEnumType(type);
   } else if (type instanceof GraphQLInputObjectType) {
@@ -408,7 +449,7 @@ function transformNonNullableInputType(
       .map(field => {
         const property = t.objectTypeProperty(
           t.identifier(field.name),
-          transformInputType(field.type, inputFieldWhiteList),
+          transformInputType(field.type, customScalars, inputFieldWhiteList),
         );
         if (!(field.type instanceof GraphQLNonNull)) {
           property.optional = true;
@@ -423,20 +464,26 @@ function transformNonNullableInputType(
 
 function transformInputType(
   type: GraphQLInputType,
-  inputFieldWhiteList?: Array<string>,
+  customScalars: ScalarTypeMapping,
+  inputFieldWhiteList?: ?Array<string>,
 ) {
   if (type instanceof GraphQLNonNull) {
-    return transformNonNullableInputType(type.ofType, inputFieldWhiteList);
+    return transformNonNullableInputType(
+      type.ofType,
+      customScalars,
+      inputFieldWhiteList,
+    );
   } else {
     return t.nullableTypeAnnotation(
-      transformNonNullableInputType(type, inputFieldWhiteList),
+      transformNonNullableInputType(type, customScalars, inputFieldWhiteList),
     );
   }
 }
 
 function generateInputVariablesType(
   node: Root,
-  inputFieldWhiteList?: Array<string>,
+  customScalars: ScalarTypeMapping,
+  inputFieldWhiteList?: ?Array<string>,
 ) {
   return t.exportNamedDeclaration(
     t.typeAlias(
@@ -446,7 +493,7 @@ function generateInputVariablesType(
         node.argumentDefinitions.map(arg => {
           const property = t.objectTypeProperty(
             t.identifier(arg.name),
-            transformInputType(arg.type, inputFieldWhiteList),
+            transformInputType(arg.type, customScalars, inputFieldWhiteList),
           );
           if (!(arg.type instanceof GraphQLNonNull)) {
             property.optional = true;
@@ -461,7 +508,7 @@ function generateInputVariablesType(
 }
 
 const FLOW_TRANSFORMS: Array<IRTransform> = [
-  (ctx: CompilerContext) => RelayFlattenTransform.transform(ctx, {}),
+  (ctx: CompilerContext) => FlattenTransform.transform(ctx, {}),
 ];
 
 module.exports = {

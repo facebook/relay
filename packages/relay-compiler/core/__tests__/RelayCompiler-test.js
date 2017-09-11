@@ -17,7 +17,7 @@ require('configureForRelayOSS');
 const {transformASTSchema} = require('ASTConvert');
 const {generate} = require('RelayCodeGenerator');
 const RelayCompiler = require('RelayCompiler');
-const RelayCompilerContext = require('RelayCompilerContext');
+const GraphQLCompilerContext = require('GraphQLCompilerContext');
 const RelayIRTransforms = require('RelayIRTransforms');
 const RelayTestSchema = require('RelayTestSchema');
 
@@ -38,7 +38,7 @@ describe('RelayCompiler', () => {
       );
       const compiler = new RelayCompiler(
         RelayTestSchema,
-        new RelayCompilerContext(relaySchema),
+        new GraphQLCompilerContext(relaySchema),
         RelayIRTransforms,
         generate,
       );

@@ -46,21 +46,11 @@ function fetchRelayModernQuery(
   const {createOperationSelector, getOperation} = environment.unstable_internal;
   const query = getOperation(taggedNode);
   const operation = createOperationSelector(query, variables);
-  return new Promise((resolve, reject) => {
-    environment.sendQuery({
-      cacheConfig,
-      onError: reject,
-      onCompleted() {
-        try {
-          const snapshot = environment.lookup(operation.fragment);
-          resolve(snapshot.data);
-        } catch (e) {
-          reject(e);
-        }
-      },
-      operation,
-    });
-  });
+
+  return environment
+    .execute({operation, cacheConfig})
+    .map(() => environment.lookup(operation.fragment).data)
+    .toPromise();
 }
 
 module.exports = fetchRelayModernQuery;

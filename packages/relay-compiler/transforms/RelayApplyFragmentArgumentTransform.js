@@ -13,15 +13,14 @@
 
 'use strict';
 
+const GraphQLCompilerContext = require('GraphQLCompilerContext');
 const Map = require('Map');
-const RelayCompilerContext = require('RelayCompilerContext');
 const RelayCompilerScope = require('RelayCompilerScope');
 
-const getIdentifierForRelayArgumentValue = require('getIdentifierForRelayArgumentValue');
+const getIdentifierForArgumentValue = require('getIdentifierForArgumentValue');
 const invariant = require('invariant');
 const murmurHash = require('murmurHash');
 
-import type {Scope} from 'RelayCompilerScope';
 import type {
   Argument,
   ArgumentValue,
@@ -32,7 +31,8 @@ import type {
   FragmentSpread,
   Node,
   Selection,
-} from 'RelayIR';
+} from 'GraphQLIR';
+import type {Scope} from 'RelayCompilerScope';
 
 const {getFragmentScope, getRootScope} = RelayCompilerScope;
 
@@ -58,11 +58,11 @@ const {getFragmentScope, getRootScope} = RelayCompilerScope;
  *
  * Note that unreferenced fragments are not added to the output.
  */
-function transform(context: RelayCompilerContext): RelayCompilerContext {
+function transform(context: GraphQLCompilerContext): GraphQLCompilerContext {
   const documents = context.documents();
   const fragments: Map<string, ?Fragment> = new Map();
-  let nextContext = new RelayCompilerContext(context.schema);
-  nextContext = documents.reduce((ctx: RelayCompilerContext, node) => {
+  let nextContext = new GraphQLCompilerContext(context.schema);
+  nextContext = documents.reduce((ctx: GraphQLCompilerContext, node) => {
     if (node.kind === 'Root') {
       const scope = getRootScope(node.argumentDefinitions);
       const transformedNode = transformNode(context, fragments, scope, node);
@@ -74,14 +74,14 @@ function transform(context: RelayCompilerContext): RelayCompilerContext {
     }
   }, nextContext);
   return (Array.from(fragments.values()): Array<?Fragment>).reduce(
-    (ctx: RelayCompilerContext, fragment) =>
+    (ctx: GraphQLCompilerContext, fragment) =>
       fragment ? ctx.add(fragment) : ctx,
     nextContext,
   );
 }
 
 function transformNode<T: Node>(
-  context: RelayCompilerContext,
+  context: GraphQLCompilerContext,
   fragments: Map<string, ?Fragment>,
   scope: Scope,
   node: T,
@@ -114,7 +114,7 @@ function transformNode<T: Node>(
 }
 
 function transformFragmentSpread(
-  context: RelayCompilerContext,
+  context: GraphQLCompilerContext,
   fragments: Map<string, ?Fragment>,
   scope: Scope,
   spread: FragmentSpread,
@@ -140,7 +140,7 @@ function transformFragmentSpread(
 }
 
 function transformField<T: Field>(
-  context: RelayCompilerContext,
+  context: GraphQLCompilerContext,
   fragments: Map<string, ?Fragment>,
   scope: Scope,
   field: T,
@@ -174,7 +174,7 @@ function transformField<T: Field>(
 }
 
 function transformCondition(
-  context: RelayCompilerContext,
+  context: GraphQLCompilerContext,
   fragments: Map<string, ?Fragment>,
   scope: Scope,
   node: Condition,
@@ -214,7 +214,7 @@ function transformCondition(
 }
 
 function transformSelections(
-  context: RelayCompilerContext,
+  context: GraphQLCompilerContext,
   fragments: Map<string, ?Fragment>,
   scope: Scope,
   selections: Array<Selection>,
@@ -307,7 +307,7 @@ function transformValue(scope: Scope, value: ArgumentValue): ArgumentValue {
  * with all values recursively applied.
  */
 function transformFragment(
-  context: RelayCompilerContext,
+  context: GraphQLCompilerContext,
   fragments: Map<string, ?Fragment>,
   parentScope: Scope,
   fragment: Fragment,
@@ -374,7 +374,7 @@ function hashArguments(args: Array<Argument>, scope: Scope): ?string {
       }
       return {
         name: arg.name,
-        value: getIdentifierForRelayArgumentValue(value),
+        value: getIdentifierForArgumentValue(value),
       };
     }),
   );

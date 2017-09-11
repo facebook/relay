@@ -13,13 +13,13 @@
 
 'use strict';
 
-const RelayCompilerContext = require('RelayCompilerContext');
+const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
 const IMap = require('immutable').Map;
 
-const getIdentifierForRelaySelection = require('getIdentifierForRelaySelection');
+const getIdentifierForSelection = require('../core/getIdentifierForSelection');
 const invariant = require('invariant');
 
-import type {Node, Selection} from 'RelayIR';
+import type {Node, Selection} from '../core/GraphQLIR';
 
 /**
  * A simplified representation of a document: keys in the map are unique
@@ -120,8 +120,8 @@ type SelectionMap = IMap<string, ?SelectionMap>;
  *
  * 1 can be skipped because it is already fetched at the outer level.
  */
-function transform(context: RelayCompilerContext): RelayCompilerContext {
-  return context.documents().reduce((ctx: RelayCompilerContext, node) => {
+function transform(context: GraphQLCompilerContext): GraphQLCompilerContext {
+  return context.documents().reduce((ctx: GraphQLCompilerContext, node) => {
     const selectionMap = new IMap();
     const transformed = transformNode(node, selectionMap);
     if (transformed) {
@@ -129,7 +129,7 @@ function transform(context: RelayCompilerContext): RelayCompilerContext {
     } else {
       return ctx;
     }
-  }, new RelayCompilerContext(context.schema));
+  }, new GraphQLCompilerContext(context.schema));
 }
 
 /**
@@ -151,7 +151,7 @@ function transformNode<T: Node>(
 ): ?{selectionMap: SelectionMap, node: T} {
   const selections = [];
   sortSelections(node.selections).forEach(selection => {
-    const identifier = getIdentifierForRelaySelection(selection);
+    const identifier = getIdentifierForSelection(selection);
     switch (selection.kind) {
       case 'ScalarField':
       case 'FragmentSpread': {

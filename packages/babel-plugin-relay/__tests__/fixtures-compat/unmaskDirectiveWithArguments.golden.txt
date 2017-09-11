@@ -1,0 +1,3 @@
+ERROR:
+
+Error: unknown: BabelPluginRelay: Cannot use both `@arguments` and `@relay(mask: false)` on the same fragment spread when in compat mode.

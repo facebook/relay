@@ -13,42 +13,44 @@
 
 'use strict';
 
-const ASTConvert = require('ASTConvert');
-const AutoAliasTransform = require('AutoAliasTransform');
-const CodegenDirectory = require('CodegenDirectory');
-const CodegenRunner = require('RelayCodegenRunner');
-const FileParser = require('FileParser');
-const FilterDirectivesTransform = require('FilterDirectivesTransform');
-const GraphQLFileParser = require('GraphQLFileParser');
-const GraphQLIRTransforms = require('GraphQLIRTransforms');
-const GraphQLTextParser = require('GraphQLTextParser');
-const GraphQLValidator = require('GraphQLValidator');
-const RelayCompiler = require('RelayCompiler');
-const RelayCompilerContext = require('RelayCompilerContext');
-const RelayConsoleReporter = require('RelayConsoleReporter');
-const RelayFlattenTransform = require('RelayFlattenTransform');
-const RelayIRTransformer = require('RelayIRTransformer');
-const RelayIRVisitor = require('RelayIRVisitor');
-const RelayMultiReporter = require('RelayMultiReporter');
-const RelayParser = require('RelayParser');
-const RelayPrinter = require('RelayPrinter');
-const SkipClientFieldTransform = require('SkipClientFieldTransform');
-const SkipRedundantNodesTransform = require('SkipRedundantNodesTransform');
-const SkipUnreachableNodeTransform = require('SkipUnreachableNodeTransform');
-const StripUnusedVariablesTransform = require('StripUnusedVariablesTransform');
+const ASTCache = require('./core/ASTCache');
+const ASTConvert = require('./core/ASTConvert');
+const AutoAliasTransform = require('./transforms/AutoAliasTransform');
+const CodegenDirectory = require('./codegen/CodegenDirectory');
+const CodegenRunner = require('./codegen/CodegenRunner');
+const DotGraphQLParser = require('./core/DotGraphQLParser');
+const FilterDirectivesTransform = require('./transforms/FilterDirectivesTransform');
+const FlattenTransform = require('./transforms/FlattenTransform');
+const GraphQLCompiler = require('./core/GraphQLCompiler');
+const GraphQLCompilerContext = require('./core/GraphQLCompilerContext');
+const GraphQLConsoleReporter = require('./reporters/GraphQLConsoleReporter');
+const GraphQLIRPrinter = require('./core/GraphQLIRPrinter');
+const GraphQLIRTransformer = require('./core/GraphQLIRTransformer');
+const GraphQLIRTransforms = require('./core/GraphQLIRTransforms');
+const GraphQLIRVisitor = require('./core/GraphQLIRVisitor');
+const GraphQLMultiReporter = require('./reporters/GraphQLMultiReporter');
+const GraphQLParser = require('./core/GraphQLParser');
+const GraphQLSchemaUtils = require('./core/GraphQLSchemaUtils');
+const GraphQLValidator = require('./core/GraphQLValidator');
+const SkipClientFieldTransform = require('./transforms/SkipClientFieldTransform');
+const SkipRedundantNodesTransform = require('./transforms/SkipRedundantNodesTransform');
+const SkipUnreachableNodeTransform = require('./transforms/SkipUnreachableNodeTransform');
+const StripUnusedVariablesTransform = require('./transforms/StripUnusedVariablesTransform');
 
-const filterContextForNode = require('filterContextForNode');
-const getIdentifierForRelayArgumentValue = require('getIdentifierForRelayArgumentValue');
+const filterContextForNode = require('./core/filterContextForNode');
+const getIdentifierForArgumentValue = require('./core/getIdentifierForArgumentValue');
 
 export type {
-  CompiledNode,
+  CompileResult,
+  File,
+  FileWriterInterface,
+} from './codegen/CodegenTypes';
+export type {FileFilter, WatchmanExpression} from './codegen/CodegenWatcher';
+export type {
   CompiledDocumentMap,
+  CompiledNode,
   CompilerTransforms,
-} from 'RelayCompiler';
-export type {File, FileWriterInterface, CompileResult} from 'RelayCodegenTypes';
-export type {FileFilter, WatchmanExpression} from 'RelayCodegenWatcher';
-export type {IRTransform} from 'GraphQLIRTransforms';
-export type {FlattenOptions} from 'RelayFlattenTransform';
+} from './core/GraphQLCompiler';
 export type {
   Argument,
   ArgumentDefinition,
@@ -58,10 +60,9 @@ export type {
   Field,
   Fragment,
   FragmentSpread,
-  IR,
-  RootArgumentDefinition,
-  InlineFragment,
   Handle,
+  IR,
+  InlineFragment,
   LinkedField,
   ListValue,
   Literal,
@@ -70,37 +71,40 @@ export type {
   ObjectFieldValue,
   ObjectValue,
   Root,
-  ScalarFieldType,
+  RootArgumentDefinition,
   ScalarField,
+  ScalarFieldType,
   Selection,
   Variable,
-} from 'RelayIR';
+} from './core/GraphQLIR';
+export type {IRTransform} from './core/GraphQLIRTransforms';
+export type {FlattenOptions} from './transforms/FlattenTransform';
 
 module.exports = {
-  ASTConvert: ASTConvert,
-  CodegenDirectory: CodegenDirectory,
-  CodegenRunner: CodegenRunner,
-  Compiler: RelayCompiler,
-  CompilerContext: RelayCompilerContext,
-  ConsoleReporter: RelayConsoleReporter,
-  FileParser: FileParser,
-  filterContextForNode: filterContextForNode,
-  GraphQLFileParser: GraphQLFileParser,
-  GraphQLIRTransforms: GraphQLIRTransforms,
-  getIdentifierForRelayArgumentValue: getIdentifierForRelayArgumentValue,
-  GraphQLTextParser: GraphQLTextParser,
-  GraphQLValidator: GraphQLValidator,
-  IRTransformer: RelayIRTransformer,
-  IRVisitor: RelayIRVisitor,
-  MultiReporter: RelayMultiReporter,
-  RelayParser: RelayParser,
-  Printer: RelayPrinter,
+  ASTConvert,
+  CodegenDirectory,
+  CodegenRunner,
+  Compiler: GraphQLCompiler,
+  CompilerContext: GraphQLCompilerContext,
+  ConsoleReporter: GraphQLConsoleReporter,
+  DotGraphQLParser,
+  ASTCache,
+  IRTransformer: GraphQLIRTransformer,
+  IRTransforms: GraphQLIRTransforms,
+  IRVisitor: GraphQLIRVisitor,
+  MultiReporter: GraphQLMultiReporter,
+  Parser: GraphQLParser,
+  Printer: GraphQLIRPrinter,
+  SchemaUtiles: GraphQLSchemaUtils,
+  Validator: GraphQLValidator,
+  filterContextForNode,
+  getIdentifierForArgumentValue,
 
-  AutoAliasTransform: AutoAliasTransform,
-  FilterDirectivesTransform: FilterDirectivesTransform,
-  FlattenTransform: RelayFlattenTransform,
-  SkipClientFieldTransform: SkipClientFieldTransform,
-  SkipRedundantNodesTransform: SkipRedundantNodesTransform,
-  SkipUnreachableNodeTransform: SkipUnreachableNodeTransform,
-  StripUnusedVariablesTransform: StripUnusedVariablesTransform,
+  AutoAliasTransform,
+  FilterDirectivesTransform,
+  FlattenTransform,
+  SkipClientFieldTransform,
+  SkipRedundantNodesTransform,
+  SkipUnreachableNodeTransform,
+  StripUnusedVariablesTransform,
 };

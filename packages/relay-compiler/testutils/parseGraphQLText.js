@@ -13,10 +13,12 @@
 
 'use strict';
 
+const RelayParser = require('RelayParser');
+
 const {convertASTDocuments} = require('ASTConvert');
 const {extendSchema, parse} = require('graphql');
 
-import type {Fragment, Root} from 'RelayIR';
+import type {Fragment, Root} from 'GraphQLIR';
 import type {GraphQLSchema} from 'graphql';
 
 function parseGraphQLText(
@@ -28,7 +30,12 @@ function parseGraphQLText(
 } {
   const ast = parse(text);
   const extendedSchema = extendSchema(schema, ast);
-  const definitions = convertASTDocuments(extendedSchema, [ast], []);
+  const definitions = convertASTDocuments(
+    extendedSchema,
+    [ast],
+    [],
+    RelayParser.transform.bind(RelayParser),
+  );
   return {
     definitions,
     schema: extendedSchema !== schema ? extendedSchema : null,

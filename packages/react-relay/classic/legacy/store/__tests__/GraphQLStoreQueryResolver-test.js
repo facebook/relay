@@ -23,7 +23,7 @@ jest
   .unmock('GraphQLStoreQueryResolver');
 
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayStoreData = require('RelayStoreData');
 const RelayTestUtils = require('RelayTestUtils');
 
@@ -58,9 +58,9 @@ describe('GraphQLStoreQueryResolver', () => {
 
     dataID = '1038750002';
     mockCallback = jest.fn();
-    mockQueryFragment = getNode(Relay.QL`fragment on Node{id,name}`);
+    mockQueryFragment = getNode(RelayClassic.QL`fragment on Node{id,name}`);
     mockPluralQueryFragment = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on Node @relay(plural:true) {
         id
         name
@@ -317,7 +317,7 @@ describe('GraphQLStoreQueryResolver', () => {
         while (run()) {}
       });
       const containerFragment = RelayTestUtils.createContainerFragment(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on NewsFeedConnection {
           edges {
             node {
@@ -327,7 +327,7 @@ describe('GraphQLStoreQueryResolver', () => {
         }
       `,
       );
-      const concreteFragment = Relay.QL`
+      const concreteFragment = RelayClassic.QL`
         fragment on Viewer {
           actor {
             id
@@ -338,7 +338,7 @@ describe('GraphQLStoreQueryResolver', () => {
         }
       `;
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           viewer {
             ${concreteFragment}

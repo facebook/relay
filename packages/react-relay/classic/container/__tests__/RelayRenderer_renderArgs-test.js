@@ -17,10 +17,11 @@ jest.enableAutomock();
 require('configureForRelayOSS');
 
 jest.unmock('RelayRenderer');
+jest.unmock('react-test-renderer');
 
 const React = require('React');
-const ReactDOM = require('ReactDOM');
-const Relay = require('Relay');
+const ReactTestRenderer = require('react-test-renderer');
+const RelayClassic = require('RelayClassic');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayRenderer = require('RelayRenderer');
@@ -41,23 +42,22 @@ describe('RelayRenderer.renderArgs', () => {
         return <div />;
       }
     }
-    MockContainer = Relay.createContainer(MockComponent, {
+    MockContainer = RelayClassic.createContainer(MockComponent, {
       fragments: {},
     });
 
-    const container = document.createElement('div');
+    const container = ReactTestRenderer.create();
     queryConfig = RelayQueryConfig.genMockInstance();
     environment = new RelayEnvironment();
 
     render = jest.fn();
-    ReactDOM.render(
+    container.update(
       <RelayRenderer
         Container={MockContainer}
         queryConfig={queryConfig}
         environment={environment}
         render={render}
       />,
-      container,
     );
     expect.extend(RelayTestUtils.matchers);
     expect.extend({

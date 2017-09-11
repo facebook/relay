@@ -13,13 +13,13 @@
 
 'use strict';
 
-const RelayCompilerContext = require('RelayCompilerContext');
-const RelayIRTransformer = require('RelayIRTransformer');
+const GraphQLCompilerContext = require('../graphql-compiler/core/GraphQLCompilerContext');
+const GraphQLIRTransformer = require('../graphql-compiler/core/GraphQLIRTransformer');
 
-const getRelayLiteralArgumentValues = require('getRelayLiteralArgumentValues');
+const getLiteralArgumentValues = require('../graphql-compiler/core/getLiteralArgumentValues');
 const invariant = require('invariant');
 
-import type {Fragment} from 'RelayIR';
+import type {Fragment} from '../graphql-compiler/core/GraphQLIR';
 
 const RELAY = 'relay';
 const PLURAL = 'plural';
@@ -46,8 +46,8 @@ const SCHEMA_EXTENSION = `directive @relay(
  * A transform that extracts `@relay(plural: Boolean)` directives and converts
  * them to metadata that can be accessed at runtime.
  */
-function transform(context: RelayCompilerContext): RelayCompilerContext {
-  return RelayIRTransformer.transform(
+function transform(context: GraphQLCompilerContext): GraphQLCompilerContext {
+  return GraphQLIRTransformer.transform(
     context,
     {
       Fragment: visitFragment,
@@ -61,7 +61,7 @@ function visitFragment(fragment: Fragment): Fragment {
   if (!relayDirective) {
     return fragment;
   }
-  const {plural} = getRelayLiteralArgumentValues(relayDirective.args);
+  const {plural} = getLiteralArgumentValues(relayDirective.args);
   invariant(
     plural === undefined || typeof plural === 'boolean',
     'RelayRelayDirectiveTransform: Expected the %s argument to @%s to be ' +

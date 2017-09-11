@@ -13,22 +13,22 @@
 
 'use strict';
 
-const RelayCompilerContext = require('RelayCompilerContext');
+const GraphQLCompilerContext = require('./GraphQLCompilerContext');
 
-const {visit} = require('RelayIRVisitor');
+const {visit} = require('./GraphQLIRVisitor');
 
-import type {Fragment, FragmentSpread, Root} from 'RelayIR';
+import type {Fragment, FragmentSpread, Root} from './GraphQLIR';
 
 /**
- * Returns a RelayCompilerContext containing only the documents referenced
+ * Returns a GraphQLCompilerContext containing only the documents referenced
  * by and including the provided node.
  */
 function filterContextForNode(
   node: Fragment | Root,
-  context: RelayCompilerContext,
-): RelayCompilerContext {
+  context: GraphQLCompilerContext,
+): GraphQLCompilerContext {
   const queue = [node];
-  let filteredContext = new RelayCompilerContext(context.schema).add(node);
+  let filteredContext = new GraphQLCompilerContext(context.schema).add(node);
   const visitorConfig = {
     FragmentSpread: (fragmentSpread: FragmentSpread) => {
       const {name} = fragmentSpread;

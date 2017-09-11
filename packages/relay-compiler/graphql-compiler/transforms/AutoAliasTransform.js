@@ -13,21 +13,26 @@
 
 'use strict';
 
-const RelayCompilerContext = require('RelayCompilerContext');
+const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
 
-const getIdentifierForRelayArgumentValue = require('getIdentifierForRelayArgumentValue');
+const getIdentifierForArgumentValue = require('../core/getIdentifierForArgumentValue');
 const invariant = require('invariant');
-const murmurHash = require('murmurHash');
-const stableJSONStringify = require('stableJSONStringify');
+const murmurHash = require('../util/murmurHash');
+const stableJSONStringify = require('../util/stableJSONStringifyOSS');
 
-import type {Argument, LinkedField, ScalarField, Selection} from 'RelayIR';
+import type {
+  Argument,
+  LinkedField,
+  ScalarField,
+  Selection,
+} from '../core/GraphQLIR';
 
 /**
  * A transform to generate a unique alias for every combination of field name
  * and static calls. This transform requires that fragment spreads with
  * arguments have been inlined.
  */
-function transform(context: RelayCompilerContext): RelayCompilerContext {
+function transform(context: GraphQLCompilerContext): GraphQLCompilerContext {
   const documents = context.documents();
   return (documents: $FlowIssue).reduce((ctx, node) => {
     const selections = transformSelections(node.selections);
@@ -35,7 +40,7 @@ function transform(context: RelayCompilerContext): RelayCompilerContext {
       ...node,
       selections,
     });
-  }, new RelayCompilerContext(context.schema));
+  }, new GraphQLCompilerContext(context.schema));
 }
 
 function transformSelections(
@@ -89,7 +94,7 @@ function generateAlias(field: LinkedField | ScalarField): ?string {
   }
   const args = [...field.args]
     .sort(sortByName)
-    .map(arg => getIdentifierForRelayArgumentValue(arg.value));
+    .map(arg => getIdentifierForArgumentValue(arg.value));
   const hash = murmurHash(stableJSONStringify(args));
   return (field.alias || field.name) + '_' + hash;
 }

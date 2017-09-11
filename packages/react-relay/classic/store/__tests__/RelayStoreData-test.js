@@ -18,14 +18,16 @@ require('configureForRelayOSS');
 
 jest.unmock('GraphQLRange').unmock('GraphQLSegment');
 
-const RelayConnectionInterface = require('RelayConnectionInterface');
+const {ConnectionInterface} = require('RelayRuntime');
 const RelayQueryPath = require('RelayQueryPath');
 const RelayStoreData = require('RelayStoreData');
 const RelayGarbageCollector = require('RelayGarbageCollector');
 const RelayTestUtils = require('RelayTestUtils');
 
+const {CLIENT_MUTATION_ID} = ConnectionInterface.get();
+
 describe('RelayStoreData', () => {
-  let Relay;
+  let RelayClassic;
   let RelayQueryTracker;
 
   const {getNode, getVerbatimNode} = RelayTestUtils;
@@ -34,7 +36,7 @@ describe('RelayStoreData', () => {
     jest.resetModules();
 
     // @side-effect related to garbage collection
-    Relay = require('Relay');
+    RelayClassic = require('RelayClassic');
 
     RelayQueryTracker = require('RelayQueryTracker');
 
@@ -46,7 +48,7 @@ describe('RelayStoreData', () => {
       const storeData = new RelayStoreData();
 
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             id
@@ -88,7 +90,7 @@ describe('RelayStoreData', () => {
       const storeData = new RelayStoreData();
 
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             id
@@ -142,7 +144,7 @@ describe('RelayStoreData', () => {
       const storeData = new RelayStoreData();
 
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             id
@@ -187,7 +189,7 @@ describe('RelayStoreData', () => {
       storeData = new RelayStoreData();
 
       fragment = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Node {
           id
           doesViewerLike
@@ -198,7 +200,7 @@ describe('RelayStoreData', () => {
       `,
       );
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             id
@@ -272,7 +274,7 @@ describe('RelayStoreData', () => {
       storeData.getRecordWriter().putRecord('123');
 
       const mutationQuery = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         mutation {
           feedbackLike(input:$input) {
             clientMutationId
@@ -288,7 +290,7 @@ describe('RelayStoreData', () => {
       `,
       );
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: 'abc',
+        [CLIENT_MUTATION_ID]: 'abc',
         feedback: {
           id: '123',
           doesViewerLike: false,
@@ -322,7 +324,7 @@ describe('RelayStoreData', () => {
       storeData.getRecordWriter().putRecord('123');
 
       const mutationQuery = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         mutation {
           feedbackLike(input:$input) {
             clientMutationId
@@ -338,7 +340,7 @@ describe('RelayStoreData', () => {
       `,
       );
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: 'abc',
+        [CLIENT_MUTATION_ID]: 'abc',
         feedback: {
           id: '123',
           doesViewerLike: false,
@@ -385,7 +387,7 @@ describe('RelayStoreData', () => {
 
         // write starting values for a query
         const query = getNode(
-          Relay.QL`
+          RelayClassic.QL`
           query {
             node(id:"123") {
               id
@@ -411,7 +413,7 @@ describe('RelayStoreData', () => {
 
         // write an optimistic update with the same values as the store
         const mutationQuery = getNode(
-          Relay.QL`
+          RelayClassic.QL`
           mutation {
             feedbackLike(input:$input) {
               clientMutationId
@@ -427,7 +429,7 @@ describe('RelayStoreData', () => {
         `,
         );
         const payload = {
-          [RelayConnectionInterface.CLIENT_MUTATION_ID]: 'abc',
+          [CLIENT_MUTATION_ID]: 'abc',
           feedback: {
             id: '123',
             doesViewerLike: false,
@@ -471,7 +473,7 @@ describe('RelayStoreData', () => {
     it('builds root queries for refetchable IDs', () => {
       const data = new RelayStoreData();
       const fragment = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on User {
           id
           name
@@ -481,7 +483,7 @@ describe('RelayStoreData', () => {
       const query = data.buildFragmentQueryForDataID(fragment, '123');
       expect(query).toEqualQueryRoot(
         getNode(
-          Relay.QL`
+          RelayClassic.QL`
         query {
           node(id:"123") {
             id
@@ -501,9 +503,9 @@ describe('RelayStoreData', () => {
 
     it('builds root queries using the path for non-refetchable IDs', () => {
       const storeData = new RelayStoreData();
-      const addressFragment = Relay.QL`fragment on User{id,address{city}}`;
+      const addressFragment = RelayClassic.QL`fragment on User{id,address{city}}`;
       const node = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id: "123") {
             id
@@ -524,7 +526,7 @@ describe('RelayStoreData', () => {
       storeData.handleQueryPayload(node, payload);
 
       const fragment = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on StreetAddress {
           city
         }
@@ -533,7 +535,7 @@ describe('RelayStoreData', () => {
       const query = storeData.buildFragmentQueryForDataID(fragment, 'client:1');
       expect(query).toEqualQueryRoot(
         getVerbatimNode(
-          Relay.QL`
+          RelayClassic.QL`
         query RelayStoreData($id_0: ID!) {
           node(id: $id_0) {
             ... on User {
@@ -571,7 +573,7 @@ describe('RelayStoreData', () => {
 
       const response = {node: {id: '123', __typename: 'User'}};
       const data = new RelayStoreData();
-      const query = getNode(Relay.QL`query{node(id:"123") {id}}`);
+      const query = getNode(RelayClassic.QL`query{node(id:"123") {id}}`);
       data.handleQueryPayload(query, response);
 
       const warningMsg =
@@ -590,7 +592,7 @@ describe('RelayStoreData', () => {
         const response = {node: {id: '123'}};
         const data = new RelayStoreData();
         data.initializeGarbageCollector();
-        const query = getNode(Relay.QL`query{node(id:"123") {id}}`);
+        const query = getNode(RelayClassic.QL`query{node(id:"123") {id}}`);
         const garbageCollector = data.getGarbageCollector();
 
         expect(garbageCollector.register).not.toBeCalled();
@@ -628,7 +630,7 @@ describe('RelayStoreData', () => {
   it('should toJSON', () => {
     const storeData = new RelayStoreData();
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"123") {
           id

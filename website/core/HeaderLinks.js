@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule HeaderLinks
+ * @format
  */
 
 'use strict';
@@ -15,7 +16,11 @@ const HeaderLinks = React.createClass({
   links: [
     {section: 'docs', href: '/relay/docs/getting-started.html', text: 'Docs'},
     {section: 'support', href: '/relay/support.html', text: 'Support'},
-    {section: 'github', href: 'https://github.com/facebook/relay', text: 'GitHub'},
+    {
+      section: 'github',
+      href: 'https://github.com/facebook/relay',
+      text: 'GitHub',
+    },
   ],
 
   render: function() {

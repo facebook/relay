@@ -22,13 +22,7 @@ const RelayRecordSourceProxy = require('RelayRecordSourceProxy');
 const RelayResponseNormalizer = require('RelayResponseNormalizer');
 const RelayStoreUtils = require('RelayStoreUtils');
 const RelayModernTestUtils = require('RelayModernTestUtils');
-const {
-  END_CURSOR,
-  HAS_NEXT_PAGE,
-  HAS_PREV_PAGE,
-  PAGE_INFO,
-  START_CURSOR,
-} = require('RelayConnectionInterface');
+const RelayConnectionInterface = require('RelayConnectionInterface');
 
 const formatStorageKey = require('formatStorageKey');
 const getRelayHandleKey = require('getRelayHandleKey');
@@ -42,6 +36,13 @@ const {
   ROOT_TYPE,
   TYPENAME_KEY,
 } = RelayStoreUtils;
+const {
+  END_CURSOR,
+  HAS_NEXT_PAGE,
+  HAS_PREV_PAGE,
+  PAGE_INFO,
+  START_CURSOR,
+} = RelayConnectionInterface.get();
 
 describe('RelayConnectionHandler', () => {
   const {generateWithTransforms} = RelayModernTestUtils;

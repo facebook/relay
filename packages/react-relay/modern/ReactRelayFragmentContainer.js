@@ -46,16 +46,18 @@ const containerContextTypes = {
  * props, resolving them with the provided fragments and subscribing for
  * updates.
  */
-function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
+function createContainerWithFragments<
+  TConfig,
+  TClass: React.ComponentType<TConfig>,
+>(
   Component: TClass,
   fragments: FragmentMap,
-): ReactClass<TConfig & {componentRef?: any}> {
+): React.ComponentType<TConfig & {componentRef?: any}> {
   const ComponentClass = getReactComponent(Component);
   const componentName = getComponentName(Component);
   const containerName = `Relay(${componentName})`;
 
-  class Container extends React.Component {
-    state: ContainerState;
+  class Container extends React.Component<$FlowFixMeProps, ContainerState> {
     _resolver: FragmentSpecResolver;
 
     constructor(props, context) {
@@ -206,7 +208,7 @@ function assertRelayContext(relay: mixed): RelayContext {
  * `fragmentSpec` is memoized once per environment, rather than once per
  * instance of the container constructed/rendered.
  */
-function createContainer<TBase: ReactClass<*>>(
+function createContainer<TBase: React.ComponentType<*>>(
   Component: TBase,
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
 ): TBase {

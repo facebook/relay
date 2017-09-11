@@ -8,6 +8,7 @@ type Query {
   checkinSearchQuery(query: CheckinSearchInput): CheckinSearchResult
   defaultSettings: Settings,
   route(waypoints: [WayPoint!]!): Route
+  items(filter: ItemFilterInput): ItemFilterResult
   maybeNode: MaybeNode
   neverNode: NeverNode
   me: User
@@ -570,6 +571,7 @@ type Story implements FeedUnit Node {
 }
 
 type StoryAttachment {
+  cache_id: ID!
   target: Story
   styleList: [String]
 }
@@ -690,6 +692,14 @@ input StoryCommentSearchInput {
   offset: Int
 }
 
+type ItemFilterResult {
+  date: String
+}
+
+input ItemFilterInput {
+  date: String
+}
+
 type Viewer {
   configs(named: [String]): ConfigsConnection
   actor: Actor
@@ -749,6 +759,7 @@ enum TopLevelCommentsOrdering {
 }
 
 type Settings {
+  cache_id: ID
   notificationSounds: Boolean
   notifications(environment: Environment): Boolean
 }

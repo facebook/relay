@@ -13,14 +13,13 @@
 
 'use strict';
 
-const FilterDirectivesTransform = require('FilterDirectivesTransform');
-const RelayFlattenTransform = require('RelayFlattenTransform');
-const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
-const SkipClientFieldTransform = require('SkipClientFieldTransform');
-const SkipRedundantNodesTransform = require('SkipRedundantNodesTransform');
-const SkipUnreachableNodeTransform = require('SkipUnreachableNodeTransform');
+const FilterDirectivesTransform = require('../transforms/FilterDirectivesTransform');
+const FlattenTransform = require('../transforms/FlattenTransform');
+const SkipClientFieldTransform = require('../transforms/SkipClientFieldTransform');
+const SkipRedundantNodesTransform = require('../transforms/SkipRedundantNodesTransform');
+const SkipUnreachableNodeTransform = require('../transforms/SkipUnreachableNodeTransform');
 
-import type CompilerContext from 'RelayCompilerContext';
+import type CompilerContext from './GraphQLCompilerContext';
 import type {GraphQLSchema} from 'graphql';
 
 export type IRTransform = (
@@ -28,15 +27,10 @@ export type IRTransform = (
   schema: GraphQLSchema,
 ) => CompilerContext;
 
-// Transforms applied to the code used to process a query response.
-const schemaExtensions: Array<string> = [
-  RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
-];
-
 // Transforms applied to fragments used for reading data from a store
 const FRAGMENT_TRANSFORMS: Array<IRTransform> = [
   (ctx: CompilerContext) =>
-    RelayFlattenTransform.transform(ctx, {
+    FlattenTransform.transform(ctx, {
       flattenAbstractTypes: true,
     }),
   SkipRedundantNodesTransform.transform,
@@ -52,7 +46,7 @@ const QUERY_TRANSFORMS: Array<IRTransform> = [
 // Transforms applied to the code used to process a query response.
 const CODEGEN_TRANSFORMS: Array<IRTransform> = [
   (ctx: CompilerContext) =>
-    RelayFlattenTransform.transform(ctx, {
+    FlattenTransform.transform(ctx, {
       flattenAbstractTypes: true,
       flattenFragmentSpreads: true,
     }),
@@ -64,5 +58,4 @@ module.exports = {
   codegenTransforms: CODEGEN_TRANSFORMS,
   fragmentTransforms: FRAGMENT_TRANSFORMS,
   queryTransforms: QUERY_TRANSFORMS,
-  schemaExtensions,
 };

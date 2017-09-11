@@ -13,8 +13,8 @@
 
 'use strict';
 
-const RelayTestSchema = require('RelayTestSchema');
 const RelayFlowParser = require('RelayFlowParser');
+const RelayTestSchema = require('RelayTestSchema');
 
 const getGoldenMatchers = require('getGoldenMatchers');
 const prettyStringify = require('prettyStringify');

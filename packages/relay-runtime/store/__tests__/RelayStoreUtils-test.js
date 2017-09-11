@@ -12,10 +12,10 @@
 
 'use strict';
 
-const formatStorageKey = require('formatStorageKey');
-
-const RelayStoreUtils = require('RelayStoreUtils');
 const RelayModernTestUtils = require('RelayModernTestUtils');
+const RelayStoreUtils = require('RelayStoreUtils');
+
+const formatStorageKey = require('formatStorageKey');
 
 const {generateAndCompile} = RelayModernTestUtils;
 

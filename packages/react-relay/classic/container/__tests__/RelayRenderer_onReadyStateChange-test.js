@@ -18,10 +18,11 @@ require('configureForRelayOSS');
 
 jest.useFakeTimers();
 jest.unmock('RelayRenderer');
+jest.unmock('react-test-renderer');
 
 const React = require('React');
-const ReactDOM = require('ReactDOM');
-const Relay = require('Relay');
+const ReactTestRenderer = require('react-test-renderer');
+const RelayClassic = require('RelayClassic');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayRenderer = require('RelayRenderer');
@@ -41,11 +42,11 @@ describe('RelayRenderer.onReadyStateChange', () => {
         return <div />;
       }
     }
-    MockContainer = Relay.createContainer(MockComponent, {
+    MockContainer = RelayClassic.createContainer(MockComponent, {
       fragments: {},
     });
 
-    container = document.createElement('div');
+    container = ReactTestRenderer.create();
     queryConfig = RelayQueryConfig.genMockInstance();
     environment = new RelayEnvironment();
   });
@@ -54,14 +55,13 @@ describe('RelayRenderer.onReadyStateChange', () => {
 
   beforeEach(() => {
     onReadyStateChange = jest.fn();
-    ReactDOM.render(
+    container.update(
       <RelayRenderer
         Container={MockContainer}
         queryConfig={queryConfig}
         environment={environment}
         onReadyStateChange={onReadyStateChange}
       />,
-      container,
     );
     const defaultState = {
       aborted: false,
@@ -168,14 +168,13 @@ describe('RelayRenderer.onReadyStateChange', () => {
 
   it('does nothing when aborted from query configuration change', () => {
     expect(request => {
-      ReactDOM.render(
+      container.update(
         <RelayRenderer
           Container={MockContainer}
           queryConfig={RelayQueryConfig.genMockInstance()}
           environment={environment}
           onReadyStateChange={onReadyStateChange}
         />,
-        container,
       );
     }).toTriggerReadyStateChanges(
       [
@@ -186,7 +185,7 @@ describe('RelayRenderer.onReadyStateChange', () => {
 
   it('is aborted and not mounted when aborted from unmounting', () => {
     expect(request => {
-      ReactDOM.unmountComponentAtNode(container);
+      container.unmount();
     }).toTriggerReadyStateChanges([{aborted: true, mounted: false}]);
   });
 });

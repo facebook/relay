@@ -69,8 +69,9 @@ class RelayRecordProxy implements RecordProxy {
 
   setValue(value: mixed, name: string, args?: ?Variables): RecordProxy {
     invariant(
-      value == null || typeof value !== 'object',
-      'RelayRecordProxy#setValue(): Expected a scalar value, got `%s`.',
+      isValidLeafValue(value),
+      'RelayRecordProxy#setValue(): Expected a scalar or array of scalars, ' +
+        'got `%s`.',
       JSON.stringify(value),
     );
     const storageKey = args ? formatStorageKey(name, args) : name;
@@ -144,6 +145,14 @@ class RelayRecordProxy implements RecordProxy {
     this._mutator.setLinkedRecordIDs(this._dataID, storageKey, linkedIDs);
     return this;
   }
+}
+
+function isValidLeafValue(value: mixed): boolean {
+  return (
+    value == null ||
+    typeof value !== 'object' ||
+    (Array.isArray(value) && value.every(isValidLeafValue))
+  );
 }
 
 module.exports = RelayRecordProxy;

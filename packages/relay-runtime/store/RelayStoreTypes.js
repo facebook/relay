@@ -26,17 +26,16 @@ import type {
 } from 'RelayCombinedEnvironmentTypes';
 import type {
   ConcreteBatch,
+  ConcreteScalarField,
+  ConcreteLinkedField,
   ConcreteFragment,
   ConcreteSelectableNode,
 } from 'RelayConcreteNode';
 import type {DataID} from 'RelayInternalTypes';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {PayloadData} from 'RelayNetworkTypes';
-import type {
-  PayloadError,
-  RelayResponsePayload,
-  UploadableMap,
-} from 'RelayNetworkTypes';
+import type {PayloadError, UploadableMap} from 'RelayNetworkTypes';
+import type RelayObservable from 'RelayObservable';
 import type {RecordState} from 'RelayRecordState';
 import type {Variables} from 'RelayTypes';
 
@@ -118,16 +117,6 @@ export interface Store {
    * occurs when `notify()` is called.
    */
   publish(source: RecordSource): void,
-
-  /**
-   * Attempts to load all the records necessary to fulfill the selector into the
-   * target record source.
-   */
-  resolve(
-    target: MutableRecordSource,
-    selector: Selector,
-    callback: AsyncLoadCallback,
-  ): void,
 
   /**
    * Ensure that all the records necessary to fulfill the given selector are
@@ -254,38 +243,36 @@ export interface Environment
   getStore(): Store,
 
   /**
-   * Send a mutation to the server. If provided, the optimistic updater is
-   * executed immediately and reverted atomically when the server payload is
-   * committed.
+   * Returns an Observable of RelayResponsePayload resulting from executing the
+   * provided Mutation operation, the result of which is then normalized and
+   * committed to the publish queue along with an optional optimistic response
+   * or updater.
+   *
+   * Note: Observables are lazy, so calling this method will do nothing until
+   * the result is subscribed to:
+   * environment.executeMutation({...}).subscribe({...}).
    */
-  sendMutation(config: {|
-    onCompleted?: ?(errors: ?Array<PayloadError>) => void,
-    onError?: ?(error: Error) => void,
+  executeMutation({|
     operation: OperationSelector,
-    optimisticResponse?: Object,
     optimisticUpdater?: ?SelectorStoreUpdater,
+    optimisticResponse?: ?Object,
     updater?: ?SelectorStoreUpdater,
-    uploadables?: UploadableMap,
-  |}): Disposable,
+    uploadables?: ?UploadableMap,
+  |}): RelayObservable<RelayResponsePayload>,
 
   /**
-   * Send a (GraphQL) subscription to the server. Whenever there is a push from
-   * the server, commit the update to the environment.
+   * Checks if the records required to fulfill the given `selector` are in
+   * the. Missing fields use the provided `handlers` to attempt to provide
+   * substitutes. After traversal, the changes suggested by the `handlers` are
+   * published back to the store.
+   *
+   * returns `true` if all records exist and all fields are fetched, false otherwise.
    */
-  sendSubscription(config: {|
-    onCompleted?: ?(errors: ?Array<PayloadError>) => void,
-    onNext?: ?(payload: RelayResponsePayload) => void,
-    onError?: ?(error: Error) => void,
-    operation: OperationSelector,
-    updater?: ?SelectorStoreUpdater,
-  |}): Disposable,
+  checkSelectorAndUpdateStore(
+    selector: Selector,
+    handlers: Array<MissingFieldHandler>,
+  ): boolean,
 }
-
-export type Observer<T> = {
-  onCompleted?: ?() => void,
-  onError?: ?(error: Error) => void,
-  onNext?: ?(data: T) => void,
-};
 
 /**
  * The results of reading data for a fragment. This is similar to a `Selector`,
@@ -367,3 +354,42 @@ export type OptimisticUpdate =
       operation: OperationSelector,
       response: ?Object,
     |};
+
+/**
+ * A set of handlers that can be used to provide substitute data for missing
+ * fields when reading a selector from a source.
+ */
+export type MissingFieldHandler =
+  | {
+      kind: 'scalar',
+      handle: (
+        field: ConcreteScalarField,
+        record: ?Record,
+        args: Variables,
+      ) => mixed,
+    }
+  | {
+      kind: 'linked',
+      handle: (
+        field: ConcreteLinkedField,
+        record: ?Record,
+        args: Variables,
+      ) => ?DataID,
+    }
+  | {
+      kind: 'pluralLinked',
+      handle: (
+        field: ConcreteLinkedField,
+        record: ?Record,
+        args: Variables,
+      ) => ?Array<?DataID>,
+    };
+
+/**
+ * The shape of data that is returned by normalizePayload for a given query.
+ */
+export type RelayResponsePayload = {|
+  fieldPayloads?: ?Array<HandleFieldPayload>,
+  source: MutableRecordSource,
+  errors: ?Array<PayloadError>,
+|};

@@ -15,13 +15,14 @@
 
 const GraphQLRange = require('GraphQLRange');
 const RelayClassicRecordState = require('RelayClassicRecordState');
-const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayRecord = require('RelayRecord');
 
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const warning = require('warning');
+
+const {ConnectionInterface} = require('RelayRuntime');
 
 import type {RecordState} from 'RelayClassicRecordState';
 import type {PageInfo} from 'RelayConnectionInterface';
@@ -59,7 +60,6 @@ export type RangeInfo = {
 };
 
 const EMPTY = '';
-const {NODE} = RelayConnectionInterface;
 const {
   FILTER_CALLS,
   FORCE_INDEX,
@@ -368,6 +368,7 @@ class RelayRecordStore {
     }
     let filteredEdges;
     if (requestedEdgeIDs) {
+      const {NODE} = ConnectionInterface.get();
       filteredEdges = requestedEdgeIDs
         .map(edgeID => ({
           edgeID,
@@ -445,7 +446,7 @@ class RelayRecordStore {
  * (ex: `orderby(TOP_STORIES)`), removing generic calls (ex: `first`, `find`).
  */
 function getFilterCalls(calls: Array<Call>): Array<Call> {
-  return calls.filter(call => !RelayConnectionInterface.isConnectionCall(call));
+  return calls.filter(call => !ConnectionInterface.isConnectionCall(call));
 }
 
 /**

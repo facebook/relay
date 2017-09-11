@@ -68,17 +68,15 @@ class ReactRelayTestMocker {
   constructor(env: Environment) {
     this._defaults = {};
 
-    if (!(env: any).hasMockedNetwork) {
-      if (isRelayModernEnvironment(env)) {
-        this._mockNetworkLayer(env);
-      } else {
-        warning(
-          false,
-          'Netork mocking is currently only supported in Relay Modern. ' +
-            'You will not be able to resolve requests made with Relay ' +
-            'Classic environments.',
-        );
-      }
+    if (isRelayModernEnvironment(env)) {
+      this._mockNetworkLayer(env);
+    } else {
+      warning(
+        false,
+        'Netork mocking is currently only supported in Relay Modern. ' +
+          'You will not be able to resolve requests made with Relay ' +
+          'Classic environments.',
+      );
     }
 
     this._environment = env;
@@ -192,7 +190,7 @@ class ReactRelayTestMocker {
       pendingFetches = pendingFetches.filter(pending => pending !== toResolve);
 
       const {deferred} = toResolve;
-      deferred.reject(payload);
+      deferred.reject(payload.error);
     }
 
     (env: any).mock = {
@@ -319,7 +317,14 @@ class ReactRelayTestMocker {
     const realPayload =
       typeof payload === 'function' ? payload(toResolve.variables) : payload;
 
-    (this._environment: any).mock.resolveRawQuery(toResolve, realPayload);
+    // if there are errors, reject the query
+    if (realPayload.errors != null && realPayload.errors.length > 0) {
+      (this._environment: any).mock.rejectQuery(toResolve, {
+        error: realPayload.errors[0],
+      });
+    } else {
+      (this._environment: any).mock.resolveRawQuery(toResolve, realPayload);
+    }
   }
 }
 

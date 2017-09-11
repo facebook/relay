@@ -17,7 +17,7 @@ const RelayParser = require('RelayParser');
 
 const invariant = require('invariant');
 
-const {isOperationDefinitionAST} = require('RelaySchemaUtils');
+const {isOperationDefinitionAST} = require('GraphQLSchemaUtils');
 const {
   ArgumentsOfCorrectTypeRule,
   DefaultValuesOfCorrectTypeRule,
@@ -34,7 +34,7 @@ const {
   VariablesInAllowedPositionRule,
 } = require('graphql');
 
-import type {Fragment, Root} from 'RelayIR';
+import type {Fragment, Root} from 'GraphQLIR';
 import type {DocumentNode, GraphQLSchema} from 'graphql';
 
 type GraphQLLocation = {

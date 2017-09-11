@@ -14,12 +14,13 @@
 'use strict';
 
 const RelayClassicRecordState = require('RelayClassicRecordState');
-const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayProfiler = require('RelayProfiler');
 const RelayQueryPath = require('RelayQueryPath');
 const RelayQueryVisitor = require('RelayQueryVisitor');
 
 const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
+
+const {ConnectionInterface} = require('RelayRuntime');
 
 import type {Call, DataID} from 'RelayInternalTypes';
 import type RelayQuery from 'RelayQuery';
@@ -46,8 +47,6 @@ export type NodeState = {
   path: QueryPath,
   rangeCalls: ?Array<Call>,
 };
-
-const {EDGES, PAGE_INFO} = RelayConnectionInterface;
 
 /**
  * @internal
@@ -129,6 +128,8 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
   }
 
   visitField(field: RelayQuery.Field, state: FinderState): void {
+    const {EDGES, PAGE_INFO} = ConnectionInterface.get();
+
     const dataID = state.dataID;
     const recordState = this._store.getRecordState(dataID);
     if (recordState === RelayClassicRecordState.UNKNOWN) {

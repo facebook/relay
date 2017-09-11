@@ -15,9 +15,9 @@
 require('configureForRelayOSS');
 
 describe('RelayConnectionTransform', () => {
-  let RelayCompilerContext;
+  let GraphQLCompilerContext;
   let RelayConnectionTransform;
-  let RelayPrinter;
+  let GraphQLIRPrinter;
   let RelayTestSchema;
   let getGoldenMatchers;
   let parseGraphQLText;
@@ -26,9 +26,9 @@ describe('RelayConnectionTransform', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    RelayCompilerContext = require('RelayCompilerContext');
+    GraphQLCompilerContext = require('GraphQLCompilerContext');
     RelayConnectionTransform = require('RelayConnectionTransform');
-    RelayPrinter = require('RelayPrinter');
+    GraphQLIRPrinter = require('GraphQLIRPrinter');
     RelayTestSchema = require('RelayTestSchema');
     getGoldenMatchers = require('getGoldenMatchers');
     parseGraphQLText = require('parseGraphQLText');
@@ -47,13 +47,13 @@ describe('RelayConnectionTransform', () => {
           RelayConnectionTransform.SCHEMA_EXTENSION,
         ]);
         const {definitions} = parseGraphQLText(schema, text);
-        let context = new RelayCompilerContext(schema).addAll(definitions);
+        let context = new GraphQLCompilerContext(schema).addAll(definitions);
         context = RelayConnectionTransform.transform(context, options);
         return context
           .documents()
           .map(
             doc =>
-              RelayPrinter.print(doc) +
+              GraphQLIRPrinter.print(doc) +
               '# Metadata:\n' +
               prettyStringify(doc.metadata),
           )
@@ -65,18 +65,6 @@ describe('RelayConnectionTransform', () => {
   }
 
   it('transforms @connection fields', () => {
-    expect('fixtures/connection-transform').toMatchGolden(
-      transformerWithOptions(),
-    );
-  });
-
-  it('transforms @connection fields with requisite fields', () => {
-    expect(
-      'fixtures/connection-transform-generate-requisite-fields',
-    ).toMatchGolden(
-      transformerWithOptions({
-        generateRequisiteFields: true,
-      }),
-    );
+    expect('fixtures').toMatchGolden(transformerWithOptions());
   });
 });

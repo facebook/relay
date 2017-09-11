@@ -14,12 +14,13 @@
 'use strict';
 
 const RelayClassicRecordState = require('RelayClassicRecordState');
-const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayProfiler = require('RelayProfiler');
 const RelayQueryVisitor = require('RelayQueryVisitor');
 
 const forEachRootCallArg = require('forEachRootCallArg');
 const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
+
+const {ConnectionInterface} = require('RelayRuntime');
 
 import type {DataID} from 'RelayInternalTypes';
 import type RelayQuery from 'RelayQuery';
@@ -31,8 +32,6 @@ type CheckerState = {
   rangeInfo: ?RangeInfo,
   result: boolean,
 };
-
-const {EDGES, PAGE_INFO} = RelayConnectionInterface;
 
 /**
  * @internal
@@ -115,6 +114,7 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
     } else if (recordState === RelayClassicRecordState.NONEXISTENT) {
       return;
     }
+    const {EDGES, PAGE_INFO} = ConnectionInterface.get();
     const rangeInfo = state.rangeInfo;
     if (rangeInfo && field.getSchemaName() === EDGES) {
       this._checkEdges(field, state);

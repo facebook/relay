@@ -13,7 +13,7 @@
 
 'use strict';
 
-const RelayAsyncLoader = require('RelayAsyncLoader');
+const RelayDataLoader = require('RelayDataLoader');
 const RelayModernRecord = require('RelayModernRecord');
 const RelayProfiler = require('RelayProfiler');
 const RelayReader = require('RelayReader');
@@ -28,7 +28,6 @@ const {UNPUBLISH_RECORD_SENTINEL} = require('RelayStoreUtils');
 
 import type {Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {
-  AsyncLoadCallback,
   MutableRecordSource,
   RecordSource,
   Selector,
@@ -86,10 +85,11 @@ class RelayMarkSweepStore implements Store {
   }
 
   check(selector: Selector): boolean {
-    return RelayAsyncLoader.check(
+    return RelayDataLoader.check(
       this._recordSource,
       this._recordSource,
       selector,
+      [],
     );
   }
 
@@ -120,14 +120,6 @@ class RelayMarkSweepStore implements Store {
 
   publish(source: RecordSource): void {
     updateTargetFromSource(this._recordSource, source, this._updatedRecordIDs);
-  }
-
-  resolve(
-    target: MutableRecordSource,
-    selector: Selector,
-    callback: AsyncLoadCallback,
-  ): void {
-    RelayAsyncLoader.load(this._recordSource, target, selector, callback);
   }
 
   subscribe(

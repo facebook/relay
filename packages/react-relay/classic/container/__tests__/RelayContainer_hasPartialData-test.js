@@ -20,7 +20,7 @@ jest.unmock('RelayContainer');
 
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 const React = require('React');
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayRecordStatusMap = require('RelayRecordStatusMap');
 const RelayTestUtils = require('RelayTestUtils');
@@ -38,8 +38,8 @@ describe('RelayContainer.hasPartialData', () => {
         return <div />;
       }
     }
-    MockContainer = Relay.createContainer(MockComponent, {
-      fragments: {foo: () => Relay.QL`fragment on Node{id}`},
+    MockContainer = RelayClassic.createContainer(MockComponent, {
+      fragments: {foo: () => RelayClassic.QL`fragment on Node{id}`},
     });
     environment = new RelayEnvironment();
     RelayTestRenderer = RelayTestUtils.createRenderer();

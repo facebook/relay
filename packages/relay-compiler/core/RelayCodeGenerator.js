@@ -13,8 +13,8 @@
 
 'use strict';
 
-const RelayIRVisitor = require('RelayIRVisitor');
-const RelaySchemaUtils = require('RelaySchemaUtils');
+const GraphQLIRVisitor = require('GraphQLIRVisitor');
+const GraphQLSchemaUtils = require('GraphQLSchemaUtils');
 
 const formatStorageKey = require('formatStorageKey');
 const invariant = require('invariant');
@@ -22,6 +22,7 @@ const prettyStringify = require('prettyStringify');
 
 const {GraphQLList} = require('graphql');
 
+import type {Fragment, Root} from 'GraphQLIR';
 import type {
   ConcreteArgument,
   ConcreteArgumentDefinition,
@@ -30,8 +31,7 @@ import type {
   ConcreteSelection,
 } from 'RelayConcreteNode';
 import type {GeneratedNode} from 'RelayConcreteNode';
-import type {Fragment, Root} from 'RelayIR';
-const {getRawType, isAbstractType, getNullableType} = RelaySchemaUtils;
+const {getRawType, isAbstractType, getNullableType} = GraphQLSchemaUtils;
 
 /* eslint-disable no-redeclare */
 declare function generate(node: Root): ConcreteRoot;
@@ -43,7 +43,7 @@ export type RelayGeneratedNode = ConcreteRoot | ConcreteFragment;
 /**
  * @public
  *
- * Converts a Relay IR node into a plain JS object representation that can be
+ * Converts a GraphQLIR node into a plain JS object representation that can be
  * used at runtime.
  */
 function generate(node: Root | Fragment): ConcreteRoot | ConcreteFragment {
@@ -53,7 +53,7 @@ function generate(node: Root | Fragment): ConcreteRoot | ConcreteFragment {
     node.kind,
     getErrorMessage(node),
   );
-  return RelayIRVisitor.visit(node, RelayCodeGenVisitor);
+  return GraphQLIRVisitor.visit(node, RelayCodeGenVisitor);
 }
 /* eslint-enable no-redeclare */
 

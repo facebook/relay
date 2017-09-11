@@ -12,12 +12,12 @@
 
 'use strict';
 
-const Deferred = require('Deferred');
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('RelayMarkSweepStore');
 const RelayModernEnvironment = require('RelayModernEnvironment');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 const RelayNetwork = require('RelayNetwork');
+const RelayObservable = require('RelayObservable');
 
 const {createOperationSelector} = require('RelayModernOperationSelector');
 const {ROOT_ID} = require('RelayStoreUtils');
@@ -347,6 +347,41 @@ describe('RelayModernEnvironment', () => {
       expect(callback.mock.calls.length).toBe(1);
       expect(callback.mock.calls[0][0].data).toEqual(undefined);
     });
+
+    it('can replace one mutation with another', () => {
+      const selector = {
+        dataID: '4',
+        node: UserFragment,
+        variables: {},
+      };
+      const callback = jest.fn();
+      const snapshot = environment.lookup(selector);
+      environment.subscribe(snapshot, callback);
+
+      callback.mockClear();
+      const updater = {
+        storeUpdater: proxyStore => {
+          const zuck = proxyStore.create('4', 'User');
+          zuck.setValue('4', 'id');
+        },
+      };
+      environment.applyUpdate(updater);
+      environment.replaceUpdate(updater, {
+        storeUpdater: proxyStore => {
+          const zuck = proxyStore.create('4', 'User');
+          zuck.setValue('4', 'id');
+          zuck.setValue('zuck', 'name');
+        },
+      });
+      expect(callback.mock.calls.length).toBe(2);
+      expect(callback.mock.calls[0][0].data).toEqual({
+        id: '4',
+      });
+      expect(callback.mock.calls[1][0].data).toEqual({
+        id: '4',
+        name: 'zuck',
+      });
+    });
   });
 
   describe('commitPayload()', () => {
@@ -421,14 +456,14 @@ describe('RelayModernEnvironment', () => {
     });
   });
 
-  describe('sendQuery()', () => {
+  describe('execute() with Promise network', () => {
     let callbacks;
     let deferred;
     let environment;
     let fetch;
-    let onCompleted;
-    let onError;
-    let onNext;
+    let complete;
+    let error;
+    let next;
     let operation;
     let query;
     let variables;
@@ -452,12 +487,16 @@ describe('RelayModernEnvironment', () => {
         foo: 'bar', // should be filtered from network fetch
       });
 
-      onCompleted = jest.fn();
-      onError = jest.fn();
-      onNext = jest.fn();
-      callbacks = {onCompleted, onError, onNext};
-      deferred = new Deferred();
-      fetch = jest.fn(() => deferred.getPromise());
+      complete = jest.fn();
+      error = jest.fn();
+      next = jest.fn();
+      callbacks = {complete, error, next};
+      fetch = jest.fn(
+        () =>
+          new Promise((resolve, reject) => {
+            deferred = {resolve, reject};
+          }),
+      );
       environment = new RelayModernEnvironment({
         network: RelayNetwork.create(fetch),
         store,
@@ -465,27 +504,24 @@ describe('RelayModernEnvironment', () => {
     });
 
     it('fetches queries', () => {
-      environment.sendQuery({operation});
+      environment.execute({operation});
       expect(fetch.mock.calls.length).toBe(1);
       expect(fetch.mock.calls[0][0]).toBe(query);
       expect(fetch.mock.calls[0][1]).toEqual({fetchSize: false});
-      expect(fetch.mock.calls[0][2]).toBe(undefined);
+      expect(fetch.mock.calls[0][2]).toEqual({});
     });
 
     it('fetches queries with force:true', () => {
       const cacheConfig = {force: true};
-      environment.sendQuery({cacheConfig, operation});
+      environment.execute({cacheConfig, operation});
       expect(fetch.mock.calls.length).toBe(1);
       expect(fetch.mock.calls[0][0]).toBe(query);
       expect(fetch.mock.calls[0][1]).toEqual({fetchSize: false});
       expect(fetch.mock.calls[0][2]).toBe(cacheConfig);
     });
 
-    it('calls onCompleted() when the batch completes', () => {
-      environment.sendQuery({
-        ...callbacks,
-        operation,
-      });
+    it('calls complete() when the batch completes', () => {
+      environment.execute({operation}).subscribe(callbacks);
       deferred.resolve({
         data: {
           me: {
@@ -496,26 +532,23 @@ describe('RelayModernEnvironment', () => {
         },
       });
       jest.runAllTimers();
-      expect(onCompleted.mock.calls.length).toBe(1);
-      expect(onNext.mock.calls.length).toBe(1);
-      expect(onError).not.toBeCalled();
+      expect(complete.mock.calls.length).toBe(1);
+      expect(next.mock.calls.length).toBe(1);
+      expect(error).not.toBeCalled();
     });
 
-    it('calls onError() when the batch has an error', () => {
-      environment.sendQuery({
-        ...callbacks,
-        operation,
-      });
-      const error = new Error('wtf');
-      deferred.reject(error);
+    it('calls error() when the batch has an error', () => {
+      environment.execute({operation}).subscribe(callbacks);
+      const e = new Error('wtf');
+      deferred.reject(e);
       jest.runAllTimers();
 
-      expect(onError).toBeCalled();
-      expect(onCompleted).not.toBeCalled();
-      expect(onNext.mock.calls.length).toBe(0);
+      expect(error).toBeCalledWith(e);
+      expect(complete).not.toBeCalled();
+      expect(next.mock.calls.length).toBe(0);
     });
 
-    it('calls onNext() and publishes payloads to the store', () => {
+    it('calls next() and publishes payloads to the store', () => {
       const selector = {
         dataID: ROOT_ID,
         node: query.fragment,
@@ -525,10 +558,7 @@ describe('RelayModernEnvironment', () => {
       const callback = jest.fn();
       environment.subscribe(snapshot, callback);
 
-      environment.sendQuery({
-        ...callbacks,
-        operation,
-      });
+      environment.execute({operation}).subscribe(callbacks);
       const payload = {
         data: {
           me: {
@@ -541,14 +571,14 @@ describe('RelayModernEnvironment', () => {
       deferred.resolve(payload);
       jest.runAllTimers();
 
-      expect(onNext.mock.calls.length).toBe(1);
-      expect(onNext).toBeCalledWith({
+      expect(next.mock.calls.length).toBe(1);
+      expect(next).toBeCalledWith({
         errors: undefined,
         fieldPayloads: [],
         source: jasmine.any(Object),
       });
-      expect(onCompleted).toBeCalled();
-      expect(onError).not.toBeCalled();
+      expect(complete).toBeCalled();
+      expect(error).not.toBeCalled();
       expect(callback.mock.calls.length).toBe(1);
       expect(callback.mock.calls[0][0].data).toEqual({
         me: {
@@ -558,13 +588,13 @@ describe('RelayModernEnvironment', () => {
     });
   });
 
-  describe('streamQuery()', () => {
+  describe('execute() with Observable network', () => {
     let callbacks;
     let environment;
     let fetch;
-    let onCompleted;
-    let onError;
-    let onNext;
+    let complete;
+    let error;
+    let next;
     let operation;
     let subject;
     let query;
@@ -589,73 +619,41 @@ describe('RelayModernEnvironment', () => {
         foo: 'bar', // should be filtered from network fetch
       });
 
-      onCompleted = jest.fn();
-      onError = jest.fn();
-      onNext = jest.fn();
-      callbacks = {onCompleted, onError, onNext};
-
-      // eslint-disable-next-line no-shadow
-      fetch = jest.fn((query, variables, cacheConfig, observer) => {
-        let isDisposed = false;
-        subject = {
-          next(data) {
-            if (isDisposed) {
-              return;
-            }
-            // Reuse RelayNetwork's helper for response processing
-            RelayNetwork.create(() => Promise.resolve(data))
-              .request(query, variables, cacheConfig)
-              .then(payload => observer.onNext && observer.onNext(payload))
-              .catch(error => observer.onError && observer.onError(error));
-          },
-          complete() {
-            if (!isDisposed) {
-              observer.onCompleted && onCompleted();
-            }
-          },
-          error(err) {
-            if (!isDisposed) {
-              observer.onError && observer.onError(err);
-            }
-          },
-        };
-        return {
-          dispose() {
-            isDisposed = true;
-          },
-        };
-      });
+      complete = jest.fn();
+      error = jest.fn();
+      next = jest.fn();
+      callbacks = {complete, error, next};
+      fetch = jest.fn(
+        (_query, _variables, _cacheConfig) =>
+          new RelayObservable(sink => {
+            subject = sink;
+          }),
+      );
       environment = new RelayModernEnvironment({
-        network: {
-          request: () => new Deferred(), // not used in this test
-          requestStream: fetch,
-        },
+        network: RelayNetwork.create(fetch),
         store,
       });
     });
 
     it('fetches queries', () => {
-      environment.streamQuery({operation});
+      environment.execute({operation});
       expect(fetch.mock.calls.length).toBe(1);
       expect(fetch.mock.calls[0][0]).toBe(query);
       expect(fetch.mock.calls[0][1]).toEqual({fetchSize: false});
-      expect(fetch.mock.calls[0][2]).toBe(undefined);
+      expect(fetch.mock.calls[0][2]).toEqual({});
     });
 
     it('fetches queries with force:true', () => {
       const cacheConfig = {force: true};
-      environment.streamQuery({cacheConfig, operation});
+      environment.execute({cacheConfig, operation});
       expect(fetch.mock.calls.length).toBe(1);
       expect(fetch.mock.calls[0][0]).toBe(query);
       expect(fetch.mock.calls[0][1]).toEqual({fetchSize: false});
       expect(fetch.mock.calls[0][2]).toBe(cacheConfig);
     });
 
-    it('calls onNext() when payloads return', () => {
-      environment.streamQuery({
-        ...callbacks,
-        operation,
-      });
+    it('calls next() when payloads return', () => {
+      environment.execute({operation}).subscribe(callbacks);
       subject.next({
         data: {
           me: {
@@ -666,7 +664,7 @@ describe('RelayModernEnvironment', () => {
         },
       });
       jest.runAllTimers();
-      expect(onNext.mock.calls.length).toBe(1);
+      expect(next.mock.calls.length).toBe(1);
       subject.next({
         data: {
           me: {
@@ -677,37 +675,31 @@ describe('RelayModernEnvironment', () => {
         },
       });
       jest.runAllTimers();
-      expect(onNext.mock.calls.length).toBe(2);
-      expect(onCompleted).not.toBeCalled();
-      expect(onError).not.toBeCalled();
+      expect(next.mock.calls.length).toBe(2);
+      expect(complete).not.toBeCalled();
+      expect(error).not.toBeCalled();
     });
 
-    it('calls onCompleted() when the network request completes', () => {
-      environment.streamQuery({
-        ...callbacks,
-        operation,
-      });
+    it('calls complete() when the network request completes', () => {
+      environment.execute({operation}).subscribe(callbacks);
       subject.complete();
-      expect(onCompleted.mock.calls.length).toBe(1);
-      expect(onError).not.toBeCalled();
-      expect(onNext).not.toBeCalled();
+      expect(complete.mock.calls.length).toBe(1);
+      expect(error).not.toBeCalled();
+      expect(next).not.toBeCalled();
     });
 
-    it('calls onError() when the batch has an error', () => {
-      environment.streamQuery({
-        ...callbacks,
-        operation,
-      });
-      const error = new Error('wtf');
-      subject.error(error);
+    it('calls error() when the batch has an error', () => {
+      environment.execute({operation}).subscribe(callbacks);
+      const e = new Error('wtf');
+      subject.error(e);
       jest.runAllTimers();
 
-      expect(onError).toBeCalled();
-      expect(onCompleted).not.toBeCalled();
-      expect(onNext.mock.calls.length).toBe(0);
+      expect(error).toBeCalledWith(e);
+      expect(complete).not.toBeCalled();
+      expect(next.mock.calls.length).toBe(0);
     });
 
-    it('calls onNext() and publishes payloads to the store', () => {
+    it('calls next() and publishes payloads to the store', () => {
       const selector = {
         dataID: ROOT_ID,
         node: query.fragment,
@@ -717,10 +709,7 @@ describe('RelayModernEnvironment', () => {
       const callback = jest.fn();
       environment.subscribe(snapshot, callback);
 
-      environment.streamQuery({
-        ...callbacks,
-        operation,
-      });
+      environment.execute({operation}).subscribe(callbacks);
       const payload = {
         data: {
           me: {
@@ -733,14 +722,14 @@ describe('RelayModernEnvironment', () => {
       subject.next(payload);
       jest.runAllTimers();
 
-      expect(onNext.mock.calls.length).toBe(1);
-      expect(onNext).toBeCalledWith({
+      expect(next.mock.calls.length).toBe(1);
+      expect(next).toBeCalledWith({
         errors: undefined,
         fieldPayloads: [],
         source: jasmine.any(Object),
       });
-      expect(onCompleted).not.toBeCalled();
-      expect(onError).not.toBeCalled();
+      expect(complete).not.toBeCalled();
+      expect(error).not.toBeCalled();
       expect(callback.mock.calls.length).toBe(1);
       expect(callback.mock.calls[0][0].data).toEqual({
         me: {
@@ -750,15 +739,16 @@ describe('RelayModernEnvironment', () => {
     });
   });
 
-  describe('sendMutation()', () => {
+  describe('executeMutation()', () => {
     let CreateCommentMutation;
     let CreateCommentWithSpreadMutation;
     let CommentFragment;
-    let deferred;
+    let subject;
     let fetch;
     let environment;
-    let onCompleted;
-    let onError;
+    let complete;
+    let error;
+    let callbacks;
     let operation;
     let variables;
 
@@ -804,22 +794,23 @@ describe('RelayModernEnvironment', () => {
       };
       operation = createOperationSelector(CreateCommentMutation, variables);
 
-      deferred = new Deferred();
-      fetch = jest.fn(() => deferred.getPromise());
+      fetch = jest.fn(
+        (_query, _variables, _cacheConfig) =>
+          new RelayObservable(sink => {
+            subject = sink;
+          }),
+      );
       environment = new RelayModernEnvironment({
         network: RelayNetwork.create(fetch),
         store,
       });
-      onCompleted = jest.fn();
-      onError = jest.fn();
+      complete = jest.fn();
+      error = jest.fn();
+      callbacks = {complete, error};
     });
 
     it('fetches the mutation with the provided fetch function', () => {
-      environment.sendMutation({
-        onCompleted,
-        onError,
-        operation,
-      });
+      environment.executeMutation({operation});
       expect(fetch.mock.calls.length).toBe(1);
       expect(fetch.mock.calls[0][0]).toBe(CreateCommentMutation);
       expect(fetch.mock.calls[0][1]).toEqual(variables);
@@ -837,20 +828,20 @@ describe('RelayModernEnvironment', () => {
       const callback = jest.fn();
       environment.subscribe(snapshot, callback);
 
-      environment.sendMutation({
-        onCompleted,
-        onError,
-        operation,
-        optimisticUpdater: store => {
-          const comment = store.create(commentID, 'Comment');
-          comment.setValue(commentID, 'id');
-          const body = store.create(commentID + '.text', 'Text');
-          comment.setLinkedRecord(body, 'body');
-          body.setValue('Give Relay', 'text');
-        },
-      });
-      expect(onCompleted).not.toBeCalled();
-      expect(onError).not.toBeCalled();
+      environment
+        .executeMutation({
+          operation,
+          optimisticUpdater: _store => {
+            const comment = _store.create(commentID, 'Comment');
+            comment.setValue(commentID, 'id');
+            const body = _store.create(commentID + '.text', 'Text');
+            comment.setLinkedRecord(body, 'body');
+            body.setValue('Give Relay', 'text');
+          },
+        })
+        .subscribe(callbacks);
+      expect(complete).not.toBeCalled();
+      expect(error).not.toBeCalled();
       expect(callback.mock.calls.length).toBe(1);
       expect(callback.mock.calls[0][0].data).toEqual({
         id: commentID,
@@ -871,22 +862,22 @@ describe('RelayModernEnvironment', () => {
       const callback = jest.fn();
       environment.subscribe(snapshot, callback);
 
-      const {dispose} = environment.sendMutation({
-        onCompleted,
-        onError,
-        operation,
-        optimisticUpdater: store => {
-          const comment = store.create(commentID, 'Comment');
-          comment.setValue(commentID, 'id');
-          const body = store.create(commentID + '.text', 'Text');
-          comment.setLinkedRecord(body, 'body');
-          body.setValue('Give Relay', 'text');
-        },
-      });
+      const subscription = environment
+        .executeMutation({
+          operation,
+          optimisticUpdater: _store => {
+            const comment = _store.create(commentID, 'Comment');
+            comment.setValue(commentID, 'id');
+            const body = _store.create(commentID + '.text', 'Text');
+            comment.setLinkedRecord(body, 'body');
+            body.setValue('Give Relay', 'text');
+          },
+        })
+        .subscribe(callbacks);
       callback.mockClear();
-      dispose();
-      expect(onCompleted).not.toBeCalled();
-      expect(onError).not.toBeCalled();
+      subscription.unsubscribe();
+      expect(complete).not.toBeCalled();
+      expect(error).not.toBeCalled();
       expect(callback.mock.calls.length).toBe(1);
       expect(callback.mock.calls[0][0].data).toEqual(undefined);
     });
@@ -902,21 +893,21 @@ describe('RelayModernEnvironment', () => {
       const callback = jest.fn();
       environment.subscribe(snapshot, callback);
 
-      environment.sendMutation({
-        onCompleted,
-        onError,
-        operation,
-        optimisticUpdater: store => {
-          const comment = store.create(commentID, 'Comment');
-          comment.setValue(commentID, 'id');
-          const body = store.create(commentID + '.text', 'Text');
-          comment.setLinkedRecord(body, 'body');
-          body.setValue('Give Relay', 'text');
-        },
-      });
+      environment
+        .executeMutation({
+          operation,
+          optimisticUpdater: _store => {
+            const comment = _store.create(commentID, 'Comment');
+            comment.setValue(commentID, 'id');
+            const body = _store.create(commentID + '.text', 'Text');
+            comment.setLinkedRecord(body, 'body');
+            body.setValue('Give Relay', 'text');
+          },
+        })
+        .subscribe(callbacks);
 
       callback.mockClear();
-      deferred.resolve({
+      subject.next({
         data: {
           commentCreate: {
             comment: {
@@ -928,10 +919,10 @@ describe('RelayModernEnvironment', () => {
           },
         },
       });
-      jest.runAllTimers();
+      subject.complete();
 
-      expect(onCompleted).toBeCalled();
-      expect(onError).not.toBeCalled();
+      expect(complete).toBeCalled();
+      expect(error).not.toBeCalled();
       expect(callback.mock.calls.length).toBe(1);
       expect(callback.mock.calls[0][0].data).toEqual({
         id: commentID,
@@ -952,19 +943,19 @@ describe('RelayModernEnvironment', () => {
       const callback = jest.fn();
       environment.subscribe(snapshot, callback);
 
-      environment.sendMutation({
-        onCompleted,
-        onError,
-        operation,
-        updater: store => {
-          const comment = store.get(commentID);
-          const body = comment.getLinkedRecord('body');
-          body.setValue(body.getValue('text').toUpperCase(), 'text');
-        },
-      });
+      environment
+        .executeMutation({
+          operation,
+          updater: _store => {
+            const comment = _store.get(commentID);
+            const body = comment.getLinkedRecord('body');
+            body.setValue(body.getValue('text').toUpperCase(), 'text');
+          },
+        })
+        .subscribe(callbacks);
 
       callback.mockClear();
-      deferred.resolve({
+      subject.next({
         data: {
           commentCreate: {
             comment: {
@@ -976,10 +967,10 @@ describe('RelayModernEnvironment', () => {
           },
         },
       });
-      jest.runAllTimers();
+      subject.complete();
 
-      expect(onCompleted).toBeCalled();
-      expect(onError).not.toBeCalled();
+      expect(complete).toBeCalled();
+      expect(error).not.toBeCalled();
       expect(callback.mock.calls.length).toBe(1);
       expect(callback.mock.calls[0][0].data).toEqual({
         id: commentID,
@@ -1000,25 +991,24 @@ describe('RelayModernEnvironment', () => {
       const callback = jest.fn();
       environment.subscribe(snapshot, callback);
 
-      environment.sendMutation({
-        onCompleted,
-        onError,
-        operation,
-        optimisticUpdater: store => {
-          const comment = store.create(commentID, 'Comment');
-          comment.setValue(commentID, 'id');
-          const body = store.create(commentID + '.text', 'Text');
-          comment.setLinkedRecord(body, 'body');
-          body.setValue('Give Relay', 'text');
-        },
-      });
+      environment
+        .executeMutation({
+          operation,
+          optimisticUpdater: _store => {
+            const comment = _store.create(commentID, 'Comment');
+            comment.setValue(commentID, 'id');
+            const body = _store.create(commentID + '.text', 'Text');
+            comment.setLinkedRecord(body, 'body');
+            body.setValue('Give Relay', 'text');
+          },
+        })
+        .subscribe(callbacks);
 
       callback.mockClear();
-      deferred.reject(new Error('wtf'));
-      jest.runAllTimers();
+      subject.error(new Error('wtf'));
 
-      expect(onCompleted).not.toBeCalled();
-      expect(onError).toBeCalled();
+      expect(complete).not.toBeCalled();
+      expect(error).toBeCalled();
       expect(callback.mock.calls.length).toBe(1);
       expect(callback.mock.calls[0][0].data).toEqual(undefined);
     });
@@ -1039,24 +1029,24 @@ describe('RelayModernEnvironment', () => {
       const callback = jest.fn();
       environment.subscribe(snapshot, callback);
 
-      environment.sendMutation({
-        onCompleted,
-        onError,
-        operation,
-        optimisticResponse: {
-          commentCreate: {
-            comment: {
-              id: commentID,
-              body: {
-                text: 'Give Relay',
+      environment
+        .executeMutation({
+          operation,
+          optimisticResponse: {
+            commentCreate: {
+              comment: {
+                id: commentID,
+                body: {
+                  text: 'Give Relay',
+                },
               },
             },
           },
-        },
-      });
+        })
+        .subscribe(callbacks);
 
-      expect(onCompleted).not.toBeCalled();
-      expect(onError).not.toBeCalled();
+      expect(complete).not.toBeCalled();
+      expect(error).not.toBeCalled();
       expect(callback.mock.calls.length).toBe(1);
       expect(callback.mock.calls[0][0].data).toEqual({
         id: commentID,
@@ -1077,22 +1067,22 @@ describe('RelayModernEnvironment', () => {
       const callback = jest.fn();
       environment.subscribe(snapshot, callback);
 
-      const {dispose} = environment.sendMutation({
-        onCompleted,
-        onError,
-        operation,
-        optimisticUpdater: store => {
-          const comment = store.create(commentID, 'Comment');
-          comment.setValue(commentID, 'id');
-          const body = store.create(commentID + '.text', 'Text');
-          comment.setLinkedRecord(body, 'body');
-          body.setValue('Give Relay', 'text');
-        },
-      });
+      const subscription = environment
+        .executeMutation({
+          operation,
+          optimisticUpdater: _store => {
+            const comment = _store.create(commentID, 'Comment');
+            comment.setValue(commentID, 'id');
+            const body = _store.create(commentID + '.text', 'Text');
+            comment.setLinkedRecord(body, 'body');
+            body.setValue('Give Relay', 'text');
+          },
+        })
+        .subscribe(callbacks);
 
-      dispose();
+      subscription.unsubscribe();
       callback.mockClear();
-      deferred.resolve({
+      subject.next({
         data: {
           commentCreate: {
             comment: {
@@ -1104,9 +1094,9 @@ describe('RelayModernEnvironment', () => {
           },
         },
       });
-      jest.runAllTimers();
-      expect(onCompleted).not.toBeCalled();
-      expect(onError).not.toBeCalled();
+      subject.complete();
+      expect(complete).not.toBeCalled();
+      expect(error).not.toBeCalled();
       // The optimistic update has already been reverted
       expect(callback.mock.calls.length).toBe(0);
     });

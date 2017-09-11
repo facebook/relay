@@ -15,20 +15,17 @@
 
 /* eslint-disable no-console-disallow */
 
-const isPromise = require('isPromise');
 const prettyStringify = require('prettyStringify');
 
-import type {CacheConfig, Disposable} from 'RelayCombinedEnvironmentTypes';
+const {convertFetch, convertSubscribe} = require('ConvertToExecuteFunction');
+
 import type {ConcreteBatch} from 'RelayConcreteNode';
 import type {IRelayNetworkLoggerTransaction} from 'RelayNetworkLoggerTransaction';
 import type {
+  ExecuteFunction,
   FetchFunction,
   SubscribeFunction,
-  QueryPayload,
-  UploadableMap,
-  PromiseOrValue,
 } from 'RelayNetworkTypes';
-import type {Observer} from 'RelayStoreTypes';
 import type {Variables} from 'RelayTypes';
 
 export type GraphiQLPrinter = (
@@ -44,55 +41,13 @@ function createRelayNetworkLogger(
       fetch: FetchFunction,
       graphiQLPrinter?: GraphiQLPrinter,
     ): FetchFunction {
-      return (
-        operation: ConcreteBatch,
-        variables: Variables,
-        cacheConfig: ?CacheConfig,
-        uploadables?: UploadableMap,
-      ): PromiseOrValue<QueryPayload> => {
-        const loggerTransaction = new LoggerTransaction({
-          operation,
-          variables,
-          cacheConfig,
-          uploadables,
-        });
-
-        console.time && console.time(loggerTransaction.getIdentifier());
-
-        const onSettled = (error: ?Error, response: ?QueryPayload): void => {
-          if (graphiQLPrinter) {
-            loggerTransaction.addLog(
-              'GraphiQL',
-              graphiQLPrinter(operation, variables),
-            );
-          }
-          loggerTransaction.addLog('Cache Config', cacheConfig);
-          loggerTransaction.addLog('Variables', prettyStringify(variables));
-          if (error) {
-            loggerTransaction.addLog('Error', error);
-          }
-          if (response) {
-            loggerTransaction.addLog('Response', response);
-          }
-          loggerTransaction.commitLogs(error, response);
-        };
-
-        const request = fetch(operation, variables, cacheConfig, uploadables);
-        if (isPromise(request)) {
-          request.then(
-            response => {
-              onSettled(null, response);
-            },
-            error => {
-              onSettled(error, null);
-            },
-          );
-        } else if (request instanceof Error) {
-          onSettled(request, null);
-        } else {
-          onSettled(null, request);
-        }
-        return request;
+      return (operation, variables, cacheConfig, uploadables) => {
+        const wrapped = wrapExecute(
+          convertFetch(fetch),
+          LoggerTransaction,
+          graphiQLPrinter,
+        );
+        return wrapped(operation, variables, cacheConfig, uploadables);
       };
     },
 
@@ -100,61 +55,93 @@ function createRelayNetworkLogger(
       subscribe: SubscribeFunction,
       graphiQLPrinter?: GraphiQLPrinter,
     ): SubscribeFunction {
-      return (
-        operation: ConcreteBatch,
-        variables: Variables,
-        cacheConfig: ?CacheConfig,
-        {onCompleted, onNext, onError}: Observer<QueryPayload>,
-      ): Disposable => {
-        const loggerTransaction = new LoggerTransaction({
+      return (operation, variables, cacheConfig) => {
+        const wrapped = wrapExecute(
+          convertSubscribe(subscribe),
+          LoggerTransaction,
+          graphiQLPrinter,
+        );
+        return wrapped(operation, variables, cacheConfig);
+      };
+    },
+  };
+}
+
+function wrapExecute(
+  execute: ExecuteFunction,
+  LoggerTransaction: Class<IRelayNetworkLoggerTransaction>,
+  graphiQLPrinter: ?GraphiQLPrinter,
+): ExecuteFunction {
+  return (operation, variables, cacheConfig, uploadables) => {
+    let transaction;
+
+    function addLogs(error, response, status) {
+      if (graphiQLPrinter) {
+        transaction.addLog('GraphiQL', graphiQLPrinter(operation, variables));
+      }
+      transaction.addLog('Cache Config', cacheConfig);
+      transaction.addLog('Variables', prettyStringify(variables));
+      if (status) {
+        transaction.addLog('Status', status);
+      }
+      if (error) {
+        transaction.addLog('Error', error);
+      }
+      if (response) {
+        transaction.addLog('Response', response);
+      }
+    }
+
+    function flushLogs(error, response, status) {
+      addLogs(error, response, status);
+      transaction.flushLogs(error, response, status);
+    }
+
+    function commitLogs(error, response, status) {
+      addLogs(error, response, status);
+      transaction.commitLogs(error, response, status);
+    }
+
+    const observable = execute(operation, variables, cacheConfig, uploadables);
+
+    const isSubscription = operation.query.operation === 'subscription';
+
+    return observable.do({
+      start: () => {
+        transaction = new LoggerTransaction({
           operation,
           variables,
           cacheConfig,
+          uploadables,
         });
-
-        const onResponse = (
-          error: ?Error,
-          response: ?QueryPayload,
-          status: ?string,
-        ): void => {
-          if (graphiQLPrinter) {
-            loggerTransaction.addLog(
-              'GraphiQL',
-              graphiQLPrinter(operation, variables),
-            );
-          }
-          loggerTransaction.addLog('Cache Config', cacheConfig);
-          loggerTransaction.addLog('Variables', prettyStringify(variables));
-          if (status) {
-            loggerTransaction.addLog('Status', status);
-          }
-          if (error) {
-            loggerTransaction.addLog('Error', error);
-          }
-          if (response) {
-            loggerTransaction.addLog('Response', response);
-          }
-          loggerTransaction.commitLogs(error, response, status);
-        };
-
-        const subscription = subscribe(operation, variables, cacheConfig, {
-          onCompleted: () => {
-            onCompleted && onCompleted();
-            onResponse(null, null, 'subscription is unsubscribed.');
-          },
-          onNext: (payload: QueryPayload) => {
-            onNext && onNext(payload);
-            onResponse(null, payload, 'subscription receives update');
-          },
-          onError: (error: Error) => {
-            onError && onError(error);
-            onResponse(error, null);
-          },
-        });
-        onResponse(null, null, 'subscription is sent');
-        return subscription;
-      };
-    },
+        console.time && console.time(transaction.getIdentifier());
+        if (isSubscription) {
+          flushLogs(null, null, 'subscription is sent.');
+        }
+      },
+      next: payload => {
+        flushLogs(null, payload);
+        console.time && console.time(transaction.getIdentifier());
+      },
+      error: error => commitLogs(error, null, null),
+      complete: () => {
+        if (isSubscription) {
+          commitLogs(null, null, 'subscription was closed.');
+        } else {
+          // the last `next` already flushed the logs, just mark as committed
+          // without spamming the logs
+          transaction.markCommitted();
+        }
+      },
+      unsubscribe: () =>
+        commitLogs(
+          null,
+          null,
+          isSubscription
+            ? 'subscription is unsubscribed.'
+            : 'execution is unsubscribed.',
+        ),
+    });
   };
 }
 

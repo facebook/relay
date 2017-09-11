@@ -28,16 +28,17 @@ import type {
   RelayContext,
   Snapshot,
 } from 'RelayStoreTypes';
-import type {Variables} from 'RelayTypes';
+import type {RerunParam, Variables} from 'RelayTypes';
 
-type Props = {
+export type Props = {
   cacheConfig?: ?CacheConfig,
   environment: Environment | ClassicEnvironment,
   query: ?GraphQLTaggedNode,
-  render: (readyState: ReadyState) => ?React.Element<*>,
+  render: (readyState: ReadyState) => ?React.Element<any>,
   variables: Variables,
+  rerunParamExperimental?: RerunParam,
 };
-type ReadyState = {
+export type ReadyState = {
   error: ?Error,
   props: ?Object,
   retry: ?() => void,
@@ -56,14 +57,11 @@ type State = {
  * - Renders the pending/fail/success states with the provided render function.
  * - Subscribes for updates to the root data and re-renders with any changes.
  */
-class ReactRelayQueryRenderer extends React.Component {
+class ReactRelayQueryRenderer extends React.Component<Props, State> {
   _pendingFetch: ?Disposable;
   _relayContext: RelayContext;
   _rootSubscription: ?Disposable;
   _selectionReference: ?Disposable;
-
-  props: Props;
-  state: State;
 
   constructor(props: Props, context: Object) {
     super(props, context);
@@ -197,51 +195,6 @@ class ReactRelayQueryRenderer extends React.Component {
     let snapshot: ?Snapshot; // results of the root fragment
     let isOnNextCalled = false;
     let isFunctionReturned = false;
-    const onCompleted = () => {
-      this._pendingFetch = null;
-    };
-    const onError = error => {
-      readyState = {
-        error,
-        props: null,
-        retry: () => {
-          this._fetch(operation, cacheConfig);
-        },
-      };
-      if (this._selectionReference) {
-        this._selectionReference.dispose();
-      }
-      this._pendingFetch = null;
-      this._selectionReference = nextReference;
-      this.setState({readyState});
-    };
-    const onNext = () => {
-      // `onNext` can be called multiple times by network layers that support
-      // data subscriptions. Wait until the first payload to render `props` and
-      // subscribe for data updates.
-      if (snapshot) {
-        return;
-      }
-      snapshot = environment.lookup(operation.fragment);
-      readyState = {
-        error: null,
-        props: snapshot.data,
-        retry: () => {
-          this._fetch(operation, cacheConfig);
-        },
-      };
-
-      if (this._selectionReference) {
-        this._selectionReference.dispose();
-      }
-      this._rootSubscription = environment.subscribe(snapshot, this._onChange);
-      this._selectionReference = nextReference;
-      // This line should be called only once.
-      isOnNextCalled = true;
-      if (isFunctionReturned) {
-        this.setState({readyState});
-      }
-    };
 
     if (this._pendingFetch) {
       this._pendingFetch.dispose();
@@ -249,16 +202,62 @@ class ReactRelayQueryRenderer extends React.Component {
     if (this._rootSubscription) {
       this._rootSubscription.dispose();
     }
-    const request = environment.streamQuery({
-      cacheConfig,
-      onCompleted,
-      onError,
-      onNext,
-      operation,
-    });
+
+    const request = environment
+      .execute({operation, cacheConfig})
+      .finally(() => {
+        this._pendingFetch = null;
+      })
+      .subscribe({
+        next: () => {
+          // `next` can be called multiple times by network layers that support
+          // data subscriptions. Wait until the first payload to render `props`
+          // and subscribe for data updates.
+          if (snapshot) {
+            return;
+          }
+          snapshot = environment.lookup(operation.fragment);
+          readyState = {
+            error: null,
+            props: snapshot.data,
+            retry: () => {
+              this._fetch(operation, cacheConfig);
+            },
+          };
+
+          if (this._selectionReference) {
+            this._selectionReference.dispose();
+          }
+          this._rootSubscription = environment.subscribe(
+            snapshot,
+            this._onChange,
+          );
+          this._selectionReference = nextReference;
+          // This line should be called only once.
+          isOnNextCalled = true;
+          if (isFunctionReturned) {
+            this.setState({readyState});
+          }
+        },
+        error: error => {
+          readyState = {
+            error,
+            props: null,
+            retry: () => {
+              this._fetch(operation, cacheConfig);
+            },
+          };
+          if (this._selectionReference) {
+            this._selectionReference.dispose();
+          }
+          this._selectionReference = nextReference;
+          this.setState({readyState});
+        },
+      });
+
     this._pendingFetch = {
       dispose() {
-        request.dispose();
+        request.unsubscribe();
         nextReference.dispose();
       },
     };

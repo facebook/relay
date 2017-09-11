@@ -16,7 +16,7 @@
 const React = require('React');
 const RelayPropTypes = require('RelayPropTypes');
 
-class ReactRelayFragmentMockRenderer extends React.Component {
+class ReactRelayFragmentMockRenderer extends React.Component<Object> {
   mockContext: any;
 
   static childContextTypes = {

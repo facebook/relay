@@ -74,7 +74,7 @@ function execute() {
         } catch (e) {}
         metadata[key] = value;
       }
-      metadata['source'] = path.basename(file);
+      metadata['source'] = file.replace(/^\.\.\/docs\//, '');
       metadatas.files.push(metadata);
 
       if (metadata.permalink.match(/^https?:/)) {

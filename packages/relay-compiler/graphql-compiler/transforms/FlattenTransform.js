@@ -29,13 +29,16 @@ const RELAY = 'relay';
 
 import type {
   Field,
+  Fragment,
+  FragmentSpread,
   Handle,
+  InlineFragment,
   Node,
   Root,
   ScalarField,
   Selection,
 } from '../core/GraphQLIR';
-import type {GraphQLType as Type} from 'graphql';
+import type {GraphQLType} from 'graphql';
 
 const {getRawType, isAbstractType} = GraphQLSchemaUtils;
 
@@ -79,26 +82,34 @@ function transform(
     flattenInlineFragments: !!(options && options.flattenInlineFragments),
     flattenConditions: !!(options && options.flattenConditions),
   };
-  return context.documents().reduce((ctx, node) => {
-    if (flattenOptions.flattenFragmentSpreads && node.kind === 'Fragment') {
-      return ctx;
-    }
-    const state = {
-      kind: 'FlattenState',
-      node,
-      selections: {},
-      type: node.type,
-    };
-    visitNode(context, flattenOptions, state, node);
-    const flattenedNode = buildNode(state);
-    invariant(
-      flattenedNode.kind === 'Root' || flattenedNode.kind === 'Fragment',
-      'FlattenTransform: Expected Root `%s` to flatten back to a Root ' +
-        ' or Fragment.',
-      node.name,
+  return context
+    .documents()
+    .reduce(
+      (
+        ctx: GraphQLCompilerContext,
+        node: Root | Fragment,
+      ): GraphQLCompilerContext => {
+        if (flattenOptions.flattenFragmentSpreads && node.kind === 'Fragment') {
+          return ctx;
+        }
+        const state = {
+          kind: 'FlattenState',
+          node,
+          selections: {},
+          type: node.type,
+        };
+        visitNode(context, flattenOptions, state, node);
+        const flattenedNode = buildNode(state);
+        invariant(
+          flattenedNode.kind === 'Root' || flattenedNode.kind === 'Fragment',
+          'FlattenTransform: Expected Root `%s` to flatten back to a Root ' +
+            ' or Fragment.',
+          node.name,
+        );
+        return ctx.add(flattenedNode);
+      },
+      new GraphQLCompilerContext(context.schema),
     );
-    return ctx.add(flattenedNode);
-  }, new GraphQLCompilerContext(context.schema));
 }
 
 function buildNode(state: FlattenState): Root | Selection {
@@ -120,7 +131,6 @@ function buildNode(state: FlattenState): Root | Selection {
         );
         return node;
       } else {
-        // $FlowIssue: this is provably unreachable
         invariant(
           false,
           'FlattenTransform: Unexpected kind `%s`.',
@@ -162,6 +172,7 @@ function visitNode(
       selection = {
         directives: selection.directives,
         kind: 'InlineFragment',
+        metadata: {},
         selections: fragment.selections,
         typeCondition: fragment.type,
       };
@@ -170,6 +181,7 @@ function visitNode(
       selection = {
         directives: [],
         kind: 'InlineFragment',
+        metadata: {},
         selections: selection.selections,
         typeCondition: state.type,
       };
@@ -208,10 +220,16 @@ function visitNode(
           type: selection.type,
         };
       } else {
-        const prevSelection = selectionState.node;
-        assertUniqueArgsForAlias(selection, prevSelection);
+        invariant(
+          selectionState.node.kind === 'LinkedField' ||
+            selectionState.node.kind === 'ScalarField',
+          'FlattenTransform: Expected a Field, got %s.',
+          selectionState.node.kind,
+        );
+        const prevField: Field = selectionState.node;
+        assertUniqueArgsForAlias(selection, prevField);
         // merge fields
-        const handles = dedupe(prevSelection.handles, selection.handles);
+        const handles = dedupe(prevField.handles, selection.handles);
         selectionState.node = {
           ...selection,
           handles,
@@ -219,18 +237,24 @@ function visitNode(
       }
       visitNode(context, options, selectionState, selection);
     } else if (selection.kind === 'ScalarField') {
+      let field: ScalarField = selection;
       const prevSelection = state.selections[nodeIdentifier];
-      if (prevSelection) {
-        assertUniqueArgsForAlias(selection, prevSelection);
-        if (selection.handles || prevSelection.handles) {
-          const handles = dedupe(selection.handles, prevSelection.handles);
-          selection = {
+      if (
+        prevSelection &&
+        (prevSelection.kind === 'ScalarField' ||
+          prevSelection.kind === 'LinkedField')
+      ) {
+        const prevField: Field = prevSelection;
+        assertUniqueArgsForAlias(field, prevField);
+        if (field.handles || prevField.handles) {
+          const handles = dedupe(field.handles, prevField.handles);
+          field = {
             ...selection,
             handles,
           };
         }
       }
-      state.selections[nodeIdentifier] = selection;
+      state.selections[nodeIdentifier] = field;
     } else {
       invariant(false, 'FlattenTransform: Unknown kind `%s`.', selection.kind);
     }
@@ -284,7 +308,7 @@ function shouldFlattenInlineFragment(
   } else if (!state.type) {
     return false;
   }
-  return (
+  return !!(
     isEquivalentType(fragment.typeCondition, state.type) ||
     options.flattenInlineFragments ||
     (options.flattenAbstractTypes &&

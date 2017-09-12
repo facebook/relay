@@ -12,7 +12,7 @@ const graphql = require('graphql');
 const CompatProfilePic = () => null;
 
 module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
-  user: graphql.experimental`
+  user: graphql`
     fragment CompatProfile_user on User @argumentDefinitions(
      scale: {type: "Float"}
     ) {
@@ -21,7 +21,7 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
       }
     }
   `,
-  user2: graphql.experimental`
+  user2: graphql`
     fragment CompatProfile_user2 on User @argumentDefinitions(
      scale: {type: "Float"}
     ) {

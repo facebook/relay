@@ -546,7 +546,7 @@ describe('RelayQuery', () => {
 
     it('expands fragment spreads with call variables', () => {
       const fragments = {
-        foo: graphql.experimental`
+        foo: graphql`
           fragment RelayQuery_foo on User
             @argumentDefinitions(
               size: {type: "Int"}

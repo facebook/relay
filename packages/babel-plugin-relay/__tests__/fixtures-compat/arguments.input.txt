@@ -12,13 +12,13 @@ const graphql = require('graphql');
 const CompatProfilePic = () => null;
 
 module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
-  passing: graphql.experimental`
+  passing: graphql`
     fragment CompatProfile_passing on User {
       ...ProfilePic_user @arguments(size: 40, scale: 1.5, title: "Photo")
       ...ProfilePic_user @arguments(size: $pictureSize)
     }
   `,
-  receiving: graphql.experimental`
+  receiving: graphql`
     fragment CompatProfile_receiving on User @argumentDefinitions(
       first: {type: "Int", defaultValue: 5}
       named: {type: "String", defaultValue: "john"}

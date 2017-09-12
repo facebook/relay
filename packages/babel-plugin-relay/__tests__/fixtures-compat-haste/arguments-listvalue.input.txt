@@ -12,7 +12,7 @@ const {graphql} = RelayClassic;
 const CompatProfile = () => null;
 
 module.exports = RelayClassic.createFragmentContainer(CompatProfile, {
-  viewer: graphql.experimental`
+  viewer: graphql`
     fragment CompatProfile_viewer on Viewer @argumentDefinitions(
       browserContext: {type: "MarketplaceBrowseContext", defaultValue: BROWSE_FEED}
       priceRange: {type: "[Float]", defaultValue: [0, 50]}

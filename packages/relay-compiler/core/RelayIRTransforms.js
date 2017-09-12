@@ -14,24 +14,22 @@
 'use strict';
 
 const FilterDirectivesTransform = require('FilterDirectivesTransform');
+const FlattenTransform = require('FlattenTransform');
 const GraphQLIRTransforms = require('GraphQLIRTransforms');
 const RelayApplyFragmentArgumentTransform = require('RelayApplyFragmentArgumentTransform');
 const RelayConnectionTransform = require('RelayConnectionTransform');
 const RelayFieldHandleTransform = require('RelayFieldHandleTransform');
-const RelayFlattenTransform = require('RelayFlattenTransform');
-const RelayGenerateRequisiteFieldsTransform = require('RelayGenerateRequisiteFieldsTransform');
+const RelayGenerateIDFieldTransform = require('RelayGenerateIDFieldTransform');
+const RelayGenerateTypeNameTransform = require('RelayGenerateTypeNameTransform');
 const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
 const RelaySkipHandleFieldTransform = require('RelaySkipHandleFieldTransform');
 const RelayViewerHandleTransform = require('RelayViewerHandleTransform');
+const SkipRedundantNodesTransform = require('SkipRedundantNodesTransform');
 
-import type {IRTransform} from 'GraphQLIRTransforms';
 import type CompilerContext from 'GraphQLCompilerContext';
+import type {IRTransform} from 'GraphQLIRTransforms';
 
-const {
-  codegenTransforms,
-  fragmentTransforms,
-  queryTransforms,
-} = GraphQLIRTransforms;
+const {fragmentTransforms, queryTransforms} = GraphQLIRTransforms;
 
 // Transforms applied to the code used to process a query response.
 const relaySchemaExtensions: Array<string> = [
@@ -56,15 +54,26 @@ const relayQueryTransforms: Array<IRTransform> = [
   RelayApplyFragmentArgumentTransform.transform,
   ...queryTransforms,
   RelayRelayDirectiveTransform.transform,
-  RelayGenerateRequisiteFieldsTransform.transform,
+  RelayGenerateIDFieldTransform.transform,
 ];
 
 // Transforms applied to the code used to process a query response.
-const relayCodegenTransforms: Array<IRTransform> = codegenTransforms;
+const relayCodegenTransforms: Array<IRTransform> = [
+  (ctx: CompilerContext) =>
+    FlattenTransform.transform(ctx, {
+      flattenAbstractTypes: true,
+      flattenFragmentSpreads: true,
+    }),
+  SkipRedundantNodesTransform.transform,
+  // Must be put after `SkipRedundantNodesTransform` which could shuffle the order.
+  RelayGenerateTypeNameTransform.transform,
+  FilterDirectivesTransform.transform,
+];
 
 // Transforms applied before printing the query sent to the server.
 const relayPrintTransforms: Array<IRTransform> = [
-  (ctx: CompilerContext) => RelayFlattenTransform.transform(ctx, {}),
+  (ctx: CompilerContext) => FlattenTransform.transform(ctx, {}),
+  RelayGenerateTypeNameTransform.transform,
   RelaySkipHandleFieldTransform.transform,
   FilterDirectivesTransform.transform,
 ];

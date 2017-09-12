@@ -420,18 +420,20 @@ function createSubstitutionsForFragmentSpreads(t, path, fragments) {
     const [module, propName] = getFragmentNameParts(fragment.name);
     if (!fragment.isMasked) {
       invariant(
-        path.scope.hasBinding(module),
-        'BabelPluginRelay: Please make sure module %s is imported and not renamed. ' +
-          module,
+        path.scope.hasBinding(module) || path.scope.hasBinding(propName),
+        `BabelPluginRelay: Please make sure module '${module}' is imported and not renamed or the
+        fragment '${fragment.name}' is defined and bound to local variable '${propName}'. `,
       );
-      const fragmentProp = t.logicalExpression(
-        '||',
-        t.memberExpression(
-          t.memberExpression(t.identifier(module), t.identifier(propName)),
-          t.identifier(propName),
-        ),
-        t.memberExpression(t.identifier(module), t.identifier(propName)),
-      );
+      const fragmentProp = path.scope.hasBinding(propName)
+        ? t.memberExpression(t.identifier(propName), t.identifier(propName))
+        : t.logicalExpression(
+            '||',
+            t.memberExpression(
+              t.memberExpression(t.identifier(module), t.identifier(propName)),
+              t.identifier(propName),
+            ),
+            t.memberExpression(t.identifier(module), t.identifier(propName)),
+          );
 
       return t.variableDeclarator(
         t.identifier(varName),

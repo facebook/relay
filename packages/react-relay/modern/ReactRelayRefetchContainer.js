@@ -26,6 +26,7 @@ const nullthrows = require('nullthrows');
 
 const {profileContainer} = require('ReactRelayContainerProfiler');
 const {getComponentName, getReactComponent} = require('RelayContainerUtils');
+const {Observable} = require('RelayRuntime');
 
 import type {
   GeneratedNodeMap,
@@ -37,7 +38,7 @@ import type {
   FragmentSpecResolver,
 } from 'RelayCombinedEnvironmentTypes';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
-import type {Subscription} from 'RelayObservable';
+import type {Subscription} from 'RelayRuntime';
 import type {FragmentMap, RelayContext} from 'RelayStoreTypes';
 import type {Variables} from 'RelayTypes';
 
@@ -246,10 +247,23 @@ function createContainerWithFragments<
       this._refetchSubscription && this._refetchSubscription.unsubscribe();
 
       // Declare refetchSubscription before assigning it in .start(), since
-      // synchronous completation may call callbacks .subscribe() returns.
+      // synchronous completion may call callbacks .subscribe() returns.
       let refetchSubscription;
       environment
         .execute({operation, cacheConfig})
+        .mergeMap(response => {
+          this._relayContext = {
+            environment: this.context.relay.environment,
+            variables: fragmentVariables,
+          };
+          this._resolver.setVariables(fragmentVariables);
+          return new Observable(sink =>
+            this.setState({data: this._resolver.resolve()}, () => {
+              sink.next();
+              sink.complete();
+            }),
+          );
+        })
         .finally(() => {
           // Finalizing a refetch should only clear this._refetchSubscription
           // if the finizing subscription is the most recent call.
@@ -261,24 +275,8 @@ function createContainerWithFragments<
           start: subscription => {
             this._refetchSubscription = refetchSubscription = subscription;
           },
-          next: response => {
-            // TODO t15106389: add helper utility for fetching more data
-            // only call callback once per refetch
-            refetchSubscription.unsubscribe();
-
-            this._relayContext = {
-              environment: this.context.relay.environment,
-              variables: fragmentVariables,
-            };
-            this._resolver.setVariables(fragmentVariables);
-            this.setState(
-              {data: this._resolver.resolve()},
-              () => callback && callback(),
-            );
-          },
-          error: error => {
-            callback && callback(error);
-          },
+          next: callback,
+          error: callback,
         });
 
       return {

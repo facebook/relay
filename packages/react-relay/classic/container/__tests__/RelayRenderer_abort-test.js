@@ -17,9 +17,10 @@ jest.enableAutomock();
 require('configureForRelayOSS');
 
 jest.unmock('RelayRenderer');
+jest.unmock('react-test-renderer');
 
 const React = require('React');
-const ReactDOM = require('ReactDOM');
+const ReactTestRenderer = require('react-test-renderer');
 const RelayClassic = require('RelayClassic');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayQueryConfig = require('RelayQueryConfig');
@@ -40,18 +41,17 @@ describe('RelayRenderer.abort', () => {
       fragments: {},
     });
 
-    const container = document.createElement('div');
+    const container = ReactTestRenderer.create();
     const environment = new RelayEnvironment();
 
     function render() {
       const queryConfig = RelayQueryConfig.genMockInstance();
-      ReactDOM.render(
+      container.update(
         <RelayRenderer
           Container={MockContainer}
           queryConfig={queryConfig}
           environment={environment}
         />,
-        container,
       );
       const index = environment.primeCache.mock.calls.length - 1;
       return {
@@ -71,7 +71,7 @@ describe('RelayRenderer.abort', () => {
       toAbortOnUnmount(actual) {
         const {abort, request} = render();
         actual(request);
-        ReactDOM.unmountComponentAtNode(container);
+        container.unmount();
         return {
           pass: abort.mock.calls.length > 0,
         };

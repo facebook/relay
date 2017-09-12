@@ -7,7 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @flow
- * @providesModule RelayGenerateRequisiteFieldsTransform
+ * @providesModule RelayGenerateIDFieldTransform
  * @format
  */
 
@@ -16,6 +16,7 @@
 const GraphQLCompilerContext = require('GraphQLCompilerContext');
 const GraphQLSchemaUtils = require('GraphQLSchemaUtils');
 
+const {hasUnaliasedSelection} = require('RelayTransformUtils');
 const {
   assertAbstractType,
   assertCompositeType,
@@ -33,18 +34,14 @@ const {
   mayImplement,
 } = GraphQLSchemaUtils;
 
-const TYPENAME_KEY = '__typename';
 const ID = 'id';
 const ID_TYPE = 'ID';
 const NODE_TYPE = 'Node';
-const STRING_TYPE = 'String';
 
 /**
  * A transform that adds "requisite" fields to all nodes:
  * - Adds an `id` selection on any `LinkedField` of type that implements `Node`
  *   or has an id field but where there is no unaliased `id` selection.
- * - Adds `__typename` on any `LinkedField` of a union/interface type where
- *   there is no unaliased `__typename` selection.
  */
 function transform(context: GraphQLCompilerContext): GraphQLCompilerContext {
   const documents = context.documents();
@@ -78,26 +75,12 @@ function transformField(
   field: LinkedField,
 ): LinkedField {
   const transformedNode = transformNode(context, field);
-  const {type} = field;
-  const generatedSelections = [...transformedNode.selections];
+  const selections = [...transformedNode.selections];
   const idSelections = generateIDSelections(context, field, field.type);
   if (idSelections) {
-    generatedSelections.push(...idSelections);
+    selections.push(...idSelections);
   }
-  if (isAbstractType(type) && !hasUnaliasedSelection(field, TYPENAME_KEY)) {
-    const stringType = assertLeafType(context.schema.getType(STRING_TYPE));
-    generatedSelections.push({
-      kind: 'ScalarField',
-      alias: (null: ?string),
-      args: [],
-      directives: [],
-      handles: null,
-      metadata: null,
-      name: TYPENAME_KEY,
-      type: stringType,
-    });
-  }
-  const selections = sortSelections(generatedSelections);
+
   return {
     ...transformedNode,
     selections,
@@ -188,31 +171,6 @@ function buildIdFragment(
       },
     ],
   };
-}
-
-/**
- * @internal
- */
-function hasUnaliasedSelection(field: LinkedField, fieldName: string): boolean {
-  return field.selections.some(
-    selection =>
-      selection.kind === 'ScalarField' &&
-      selection.alias == null &&
-      selection.name === fieldName,
-  );
-}
-
-/**
- * @internal
- *
- * For interoperability with classic systems, sort `__typename` first.
- */
-function sortSelections(selections: Array<$FlowIssue>): Array<$FlowIssue> {
-  return [...selections].sort((a, b) => {
-    return a.kind === 'ScalarField' && a.name === TYPENAME_KEY
-      ? -1
-      : b.kind === 'ScalarField' && b.name === TYPENAME_KEY ? 1 : 0;
-  });
 }
 
 module.exports = {transform};

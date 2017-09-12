@@ -6,14 +6,14 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule GraphQLFileParser
+ * @providesModule DotGraphQLParser
  * @flow
  * @format
  */
 
 'use strict';
 
-const FileParser = require('./FileParser');
+const ASTCache = require('./ASTCache');
 
 const fs = require('fs');
 const path = require('path');
@@ -28,6 +28,6 @@ function parseFile(baseDir: string, file: File): ?DocumentNode {
   return parse(new Source(text, file.relPath));
 }
 
-exports.getParser = function getParser(baseDir: string): FileParser {
-  return new FileParser({baseDir, parse: parseFile});
+exports.getParser = function getParser(baseDir: string): ASTCache {
+  return new ASTCache({baseDir, parse: parseFile});
 };

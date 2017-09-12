@@ -21,13 +21,9 @@ const path = require('path');
 
 const {Map: ImmutableMap} = require('immutable');
 
-import type FileParser from '../core/FileParser';
+import type ASTCache from '../core/ASTCache';
 import type {GraphQLReporter} from '../reporters/GraphQLReporter';
-import type {
-  CompileResult,
-  File,
-  FileWriterInterface,
-} from './CodegenTypes';
+import type {CompileResult, File, FileWriterInterface} from './CodegenTypes';
 import type {FileFilter, WatchmanExpression} from './CodegenWatcher';
 import type {DocumentNode, GraphQLSchema} from 'graphql';
 
@@ -36,7 +32,7 @@ import type {DocumentNode, GraphQLSchema} from 'graphql';
 export type ParserConfig = {|
   baseDir: string,
   getFileFilter?: (baseDir: string) => FileFilter,
-  getParser: (baseDir: string) => FileParser,
+  getParser: (baseDir: string) => ASTCache,
   getSchema: () => GraphQLSchema,
   watchmanExpression?: ?WatchmanExpression,
   filepaths?: ?Array<string>,
@@ -46,7 +42,7 @@ type ParserConfigs = {
   [parser: string]: ParserConfig,
 };
 type Parsers = {
-  [parser: string]: FileParser,
+  [parser: string]: ASTCache,
 };
 
 export type WriterConfig = {

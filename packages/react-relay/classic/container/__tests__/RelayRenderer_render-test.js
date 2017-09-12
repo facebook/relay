@@ -17,15 +17,16 @@ jest.enableAutomock();
 require('configureForRelayOSS');
 
 jest.unmock('RelayRenderer');
+jest.unmock('react-test-renderer');
 
 const React = require('React');
-const ReactDOM = require('ReactDOM');
+const ReactTestRenderer = require('react-test-renderer');
 const ReactTestUtils = require('ReactTestUtils');
 const RelayClassic = require('RelayClassic');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayRenderer = require('RelayRenderer');
-const StaticContainer = require('StaticContainer.react');
+const RelayStaticContainer = require('RelayStaticContainer');
 
 describe('RelayRenderer.render', () => {
   let MockContainer;
@@ -33,16 +34,15 @@ describe('RelayRenderer.render', () => {
   let container;
   let queryConfig;
   let environment;
-  let renderedComponent;
 
   function renderElement(element) {
-    renderedComponent = ReactDOM.render(element, container);
+    container.update(element);
   }
 
   function getRenderOutput() {
     return ReactTestUtils.findRenderedComponentWithType(
-      renderedComponent,
-      StaticContainer,
+      container.getInstance(),
+      RelayStaticContainer,
     );
   }
 
@@ -58,7 +58,7 @@ describe('RelayRenderer.render', () => {
       fragments: {},
     });
 
-    container = document.createElement('div');
+    container = ReactTestRenderer.create();
     queryConfig = RelayQueryConfig.genMockInstance();
     environment = new RelayEnvironment();
 
@@ -230,7 +230,7 @@ describe('RelayRenderer.render', () => {
         />,
       );
       expect(release).not.toBeCalled();
-      ReactDOM.unmountComponentAtNode(container);
+      container.unmount();
       expect(release).toBeCalled();
     });
   });

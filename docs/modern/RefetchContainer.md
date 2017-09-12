@@ -71,8 +71,8 @@ class FeedStories extends React.Component {
 module.exports = createRefetchContainer(
   FeedStories,
   {
-    feed: graphql.experimental`
-      fragment FeedStories_feed on Feed 
+    feed: graphql`
+      fragment FeedStories_feed on Feed
       @argumentDefinitions(
         count: {type: "Int", defaultValue: 10}
       ) {
@@ -87,7 +87,7 @@ module.exports = createRefetchContainer(
       }
     `
   },
-  graphql.experimental`
+  graphql`
     query FeedStoriesRefetchQuery($count: Int) {
       feed {
         ...FeedStories_feed @arguments(count: $count)

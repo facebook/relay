@@ -983,6 +983,24 @@ describe('ReactRelayPaginationContainer', () => {
       expect(isLoading()).toBe(false);
     });
 
+    it('returns false in the loadMore callback', () => {
+      expect.assertions(2);
+      loadMore(1, () => {
+        expect(isLoading()).toBe(false);
+      });
+      environment.mock.resolve(UserQuery, {
+        data: {
+          node: {
+            id: '4',
+            __typename: 'User',
+            // The resuls don't matter, only that the fetch resolved
+            friends: null,
+          },
+        },
+      });
+      expect(isLoading()).toBe(false);
+    });
+
     it('returns false if a cached response exists', () => {
       environment.mock.cachePayload(
         UserQuery,

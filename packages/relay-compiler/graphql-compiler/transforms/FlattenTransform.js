@@ -6,14 +6,14 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule RelayFlattenTransform
+ * @providesModule FlattenTransform
  * @format
  */
 
 'use strict';
 
-const GraphQLSchemaUtils = require('../core/GraphQLSchemaUtils');
 const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
+const GraphQLSchemaUtils = require('../core/GraphQLSchemaUtils');
 
 const areEqual = require('../util/areEqualOSS');
 const getIdentifierForSelection = require('../core/getIdentifierForSelection');
@@ -21,6 +21,8 @@ const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
 const invariant = require('invariant');
 const stableJSONStringify = require('../util/stableJSONStringifyOSS');
 
+const {createUserError} = require('../core/GraphQLCompilerUserError');
+const {printField} = require('../core/GraphQLIRPrinter');
 const {GraphQLNonNull, GraphQLList} = require('graphql');
 
 const RELAY = 'relay';
@@ -91,7 +93,7 @@ function transform(
     const flattenedNode = buildNode(state);
     invariant(
       flattenedNode.kind === 'Root' || flattenedNode.kind === 'Fragment',
-      'RelayFlattenTransform: Expected Root `%s` to flatten back to a Root ' +
+      'FlattenTransform: Expected Root `%s` to flatten back to a Root ' +
         ' or Fragment.',
       node.name,
     );
@@ -113,7 +115,7 @@ function buildNode(state: FlattenState): Root | Selection {
         const node = buildNode(selectionState);
         invariant(
           node.kind !== 'Root' && node.kind !== 'Fragment',
-          'RelayFlattenTransform: got a `%s`, expected a selection.',
+          'FlattenTransform: got a `%s`, expected a selection.',
           node.kind,
         );
         return node;
@@ -121,7 +123,7 @@ function buildNode(state: FlattenState): Root | Selection {
         // $FlowIssue: this is provably unreachable
         invariant(
           false,
-          'RelayFlattenTransform: Unexpected kind `%s`.',
+          'FlattenTransform: Unexpected kind `%s`.',
           selectionState.kind,
         );
       }
@@ -145,14 +147,14 @@ function visitNode(
     ) {
       invariant(
         !selection.args.length,
-        'RelayFlattenTransform: Cannot flatten fragment spread `%s` with ' +
+        'FlattenTransform: Cannot flatten fragment spread `%s` with ' +
           'arguments. Use the `ApplyFragmentArgumentTransform` before flattening',
         selection.name,
       );
       const fragment = context.get(selection.name);
       invariant(
         fragment && fragment.kind === 'Fragment',
-        'RelayFlattenTransform: Unknown fragment `%s`.',
+        'FlattenTransform: Unknown fragment `%s`.',
         selection.name,
       );
       // Replace the spread with an inline fragment containing the fragment's
@@ -207,15 +209,7 @@ function visitNode(
         };
       } else {
         const prevSelection = selectionState.node;
-        // Validate unique args for a given alias
-        invariant(
-          areEqualFields(selection, prevSelection),
-          'RelayFlattenTransform: Expected all fields with the alias `%s` ' +
-            'to have the same name/arguments. Got `%s` and `%s`.',
-          nodeIdentifier,
-          showField(selection),
-          showField(prevSelection),
-        );
+        assertUniqueArgsForAlias(selection, prevSelection);
         // merge fields
         const handles = dedupe(prevSelection.handles, selection.handles);
         selectionState.node = {
@@ -227,14 +221,7 @@ function visitNode(
     } else if (selection.kind === 'ScalarField') {
       const prevSelection = state.selections[nodeIdentifier];
       if (prevSelection) {
-        invariant(
-          areEqualFields(selection, prevSelection),
-          'RelayFlattenTransform: Expected all fields with the alias `%s` ' +
-            'to have the same name/arguments. Got `%s` and `%s`.',
-          nodeIdentifier,
-          showField(selection),
-          showField(prevSelection),
-        );
+        assertUniqueArgsForAlias(selection, prevSelection);
         if (selection.handles || prevSelection.handles) {
           const handles = dedupe(selection.handles, prevSelection.handles);
           selection = {
@@ -245,13 +232,24 @@ function visitNode(
       }
       state.selections[nodeIdentifier] = selection;
     } else {
-      invariant(
-        false,
-        'RelayFlattenTransform: Unknown kind `%s`.',
-        selection.kind,
-      );
+      invariant(false, 'FlattenTransform: Unknown kind `%s`.', selection.kind);
     }
   });
+}
+
+/**
+ * @internal
+ */
+function assertUniqueArgsForAlias(field: Field, otherField: Field): void {
+  if (!areEqualFields(field, otherField)) {
+    throw createUserError(
+      'Expected all fields on the same parent with the name or alias `%s` ' +
+        'to have the same name and arguments. Got `%s` and `%s`.',
+      field.alias || field.name,
+      printField(field),
+      printField(otherField),
+    );
+  }
 }
 
 /**
@@ -292,14 +290,6 @@ function shouldFlattenInlineFragment(
     (options.flattenAbstractTypes &&
       isAbstractType(getRawType(fragment.typeCondition)))
   );
-}
-
-/**
- * @internal
- */
-function showField(field: Field) {
-  const alias = field.alias ? field.alias + ' ' : '';
-  return `${alias}${field.name}(${JSON.stringify(field.args)})`;
 }
 
 /**

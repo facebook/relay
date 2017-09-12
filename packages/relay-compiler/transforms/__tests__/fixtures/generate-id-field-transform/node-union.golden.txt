@@ -1,6 +1,5 @@
 query UnionQuery {
   maybeNode {
-    __typename
     ... on NonNode {
       name
     }

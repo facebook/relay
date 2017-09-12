@@ -14,7 +14,7 @@
 'use strict';
 
 const FilterDirectivesTransform = require('../transforms/FilterDirectivesTransform');
-const RelayFlattenTransform = require('../transforms/RelayFlattenTransform');
+const FlattenTransform = require('../transforms/FlattenTransform');
 const SkipClientFieldTransform = require('../transforms/SkipClientFieldTransform');
 const SkipRedundantNodesTransform = require('../transforms/SkipRedundantNodesTransform');
 const SkipUnreachableNodeTransform = require('../transforms/SkipUnreachableNodeTransform');
@@ -30,7 +30,7 @@ export type IRTransform = (
 // Transforms applied to fragments used for reading data from a store
 const FRAGMENT_TRANSFORMS: Array<IRTransform> = [
   (ctx: CompilerContext) =>
-    RelayFlattenTransform.transform(ctx, {
+    FlattenTransform.transform(ctx, {
       flattenAbstractTypes: true,
     }),
   SkipRedundantNodesTransform.transform,
@@ -46,7 +46,7 @@ const QUERY_TRANSFORMS: Array<IRTransform> = [
 // Transforms applied to the code used to process a query response.
 const CODEGEN_TRANSFORMS: Array<IRTransform> = [
   (ctx: CompilerContext) =>
-    RelayFlattenTransform.transform(ctx, {
+    FlattenTransform.transform(ctx, {
       flattenAbstractTypes: true,
       flattenFragmentSpreads: true,
     }),

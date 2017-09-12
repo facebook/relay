@@ -17,21 +17,25 @@ const CodegenRunner = require('CodegenRunner');
 const GraphQLConsoleReporter = require('GraphQLConsoleReporter');
 const GraphQLMultiReporter = require('GraphQLMultiReporter');
 const RelayCompiler = require('RelayCompiler');
-const RelayFileIRParser = require('RelayFileIRParser');
 const RelayFileWriter = require('RelayFileWriter');
 const RelayIRTransforms = require('RelayIRTransforms');
+const RelayJSModuleParser = require('RelayJSModuleParser');
 
 const formatGeneratedModule = require('formatGeneratedModule');
 
-export type {CompileResult} from 'CodegenTypes';
 export type {ParserConfig, WriterConfig} from 'CodegenRunner';
+export type {CompileResult} from 'CodegenTypes';
 
 module.exports = {
   Compiler: RelayCompiler,
   ConsoleReporter: GraphQLConsoleReporter,
-  FileIRParser: RelayFileIRParser,
+
+  /** @deprecated Use JSModuleParser. */
+  FileIRParser: RelayJSModuleParser,
+
   FileWriter: RelayFileWriter,
   IRTransforms: RelayIRTransforms,
+  JSModuleParser: RelayJSModuleParser,
   MultiReporter: GraphQLMultiReporter,
   Runner: CodegenRunner,
   formatGeneratedModule,

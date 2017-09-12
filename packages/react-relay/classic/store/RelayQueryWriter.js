@@ -14,7 +14,6 @@
 'use strict';
 
 const RelayClassicRecordState = require('RelayClassicRecordState');
-const {ConnectionInterface} = require('RelayRuntime');
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayQuery = require('RelayQuery');
 const RelayQueryPath = require('RelayQueryPath');
@@ -26,6 +25,8 @@ const generateClientID = require('generateClientID');
 const invariant = require('invariant');
 const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
 const warning = require('warning');
+
+const {ConnectionInterface} = require('RelayRuntime');
 
 import type RelayChangeTracker from 'RelayChangeTracker';
 import type {DataID} from 'RelayInternalTypes';
@@ -612,6 +613,9 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     // client ids.
     this._writer.putLinkedRecordIDs(recordID, storageKey, nextLinkedIDs);
     nextLinkedIDs.forEach(nextLinkedID => {
+      /* $FlowFixMe(>=0.54.0) This comment suppresses an
+       * error found when Flow v0.54 was deployed. To see the error delete this
+       * comment and run Flow. */
       const itemData = nextRecords[nextLinkedID];
       if (itemData) {
         this.traverse(field, {

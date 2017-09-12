@@ -44,8 +44,8 @@
     "fb-watchman": "2.0.0",
     "fbjs": "0.8.14",
     "fbjs-scripts": "0.7.1",
-    "flow-bin": "0.53.0",
-    "graphql": "^0.10.5",
+    "flow-bin": "^0.54.0",
+    "graphql": "^0.11.3",
     "gulp": "3.9.1",
     "gulp-babel": "6.1.2",
     "gulp-chmod": "2.0.0",
@@ -55,14 +55,13 @@
     "gulp-util": "3.0.8",
     "immutable": "3.7.6",
     "iterall": "1.0.3",
-    "jest": "^21.0.0-beta.1",
+    "jest": "^21.0.1",
     "object-assign": "4.1.1",
     "prettier": "1.5.2",
     "prop-types": "^15.5.10",
-    "react": "^15.5.4",
-    "react-dom": "^15.5.4",
-    "react-static-container": "1.0.1",
-    "react-test-renderer": "^15.5.4",
+    "react": "16.0.0-beta.5",
+    "react-dom": "16.0.0-beta.5",
+    "react-test-renderer": "16.0.0-beta.5",
     "relay-debugger-react-native-runtime": "^0.0.10",
     "run-sequence": "1.2.2",
     "signedsource": "1.0.0",
@@ -86,7 +85,6 @@
       "<rootDir>/node_modules/fbjs/lib/",
       "<rootDir>/node_modules/fbjs-scripts/jest",
       "<rootDir>/node_modules/react/lib/",
-      "<rootDir>/node_modules/react-static-container/lib/",
       "<rootDir>/packages/"
     ],
     "setupFiles": [
@@ -108,8 +106,8 @@
       "<rootDir>/node_modules/object-assign/",
       "<rootDir>/node_modules/prop-types/",
       "<rootDir>/node_modules/react-dom/",
-      "<rootDir>/node_modules/react-static-container/",
       "<rootDir>/node_modules/react/"
-    ]
+    ],
+    "testEnvironment": "node"
   }
 }

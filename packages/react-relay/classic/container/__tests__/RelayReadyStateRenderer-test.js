@@ -15,16 +15,20 @@
 jest.enableAutomock();
 
 const React = require('React');
-const ReactDOM = require('ReactDOM');
 const ReactTestUtils = require('ReactTestUtils');
 const RelayClassic = require('RelayClassic');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayReadyStateRenderer = require('RelayReadyStateRenderer');
-const StaticContainer = require('StaticContainer.react');
+
+jest.dontMock('RelayStaticContainer');
+const RelayStaticContainer = require('RelayStaticContainer');
 
 jest.dontMock('pretty-format');
 const prettyFormat = require('pretty-format');
+
+jest.dontMock('react-test-renderer');
+const ReactTestRenderer = require('react-test-renderer');
 
 describe('RelayReadyStateRenderer', () => {
   /**
@@ -109,7 +113,6 @@ describe('RelayReadyStateRenderer', () => {
 
   describe('arguments', () => {
     beforeEach(() => {
-      const container = document.createElement('div');
       expect.extend({
         toRenderWithArgs(elementOrReadyState, expected) {
           const render = jest.fn(() => <div />);
@@ -120,7 +123,7 @@ describe('RelayReadyStateRenderer', () => {
                 readyState={elementOrReadyState}
                 render={render}
               />;
-          ReactDOM.render(element, container);
+          ReactTestRenderer.create(element);
           const actual = render.mock.calls[0][0];
           const pass = this.equals(actual, jasmine.objectContaining(expected));
           return {
@@ -413,11 +416,10 @@ describe('RelayReadyStateRenderer', () => {
 
   describe('children', () => {
     beforeEach(() => {
-      const container = document.createElement('div');
       function render(element) {
         return ReactTestUtils.findRenderedComponentWithType(
-          ReactDOM.render(element, container),
-          StaticContainer,
+          ReactTestRenderer.create(element).getInstance(),
+          RelayStaticContainer,
         );
       }
 
@@ -539,14 +541,12 @@ describe('RelayReadyStateRenderer', () => {
       }
 
       const onRenderContext = jest.fn();
-      const container = document.createElement('div');
-      ReactDOM.render(
+      ReactTestRenderer.create(
         <RelayReadyStateRenderer
           {...defaultProps}
           readyState={defaultReadyState}
           render={() => <TestComponent onRenderContext={onRenderContext} />}
         />,
-        container,
       );
       expect(onRenderContext).toBeCalledWith({
         relay: {

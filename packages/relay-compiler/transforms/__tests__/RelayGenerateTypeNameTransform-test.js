@@ -12,36 +12,41 @@
 
 'use strict';
 
+const FlattenTransform = require('FlattenTransform');
 const GraphQLCompilerContext = require('GraphQLCompilerContext');
-const GraphQLIRPrinter = require('GraphQLIRPrinter');
-const RelayGenerateRequisiteFieldsTransform = require('RelayGenerateRequisiteFieldsTransform');
+const RelayGenerateTypeNameTransform = require('RelayGenerateTypeNameTransform');
 const RelayParser = require('RelayParser');
 const RelayTestSchema = require('RelayTestSchema');
 
 const getGoldenMatchers = require('getGoldenMatchers');
 
-describe('RelayGenerateRequisiteFieldsTransform', () => {
+import type CompilerContext from 'GraphQLCompilerContext';
+
+describe('RelayGenerateTypeNameTransform', () => {
   beforeEach(() => {
     expect.extend(getGoldenMatchers(__filename));
   });
 
-  it('matches expected output', () => {
-    expect(
-      'fixtures/generate-requisite-fields-transform',
-    ).toMatchGolden(text => {
+  it('matches expected output for codegen', () => {
+    expect('fixtures/generate-typename-transform').toMatchGolden(text => {
       const ast = RelayParser.parse(RelayTestSchema, text);
       const context = ast.reduce(
         (ctx, node) => ctx.add(node),
         new GraphQLCompilerContext(RelayTestSchema),
       );
-      const nextContext = RelayGenerateRequisiteFieldsTransform.transform(
-        context,
-      );
-      const documents = [];
-      nextContext.documents().map(doc => {
-        documents.push(GraphQLIRPrinter.print(doc));
-      });
-      return documents.join('\n');
+      const transformContext = ((ctx, transform) => transform(ctx): any);
+      const codegenContext = [
+        (ctx: CompilerContext) =>
+          FlattenTransform.transform(ctx, {
+            flattenAbstractTypes: true,
+            flattenFragmentSpreads: true,
+          }),
+        RelayGenerateTypeNameTransform.transform,
+      ].reduce(transformContext, context);
+      return codegenContext
+        .documents()
+        .map(doc => JSON.stringify(doc, null, '  '))
+        .join('\n');
     });
   });
 });

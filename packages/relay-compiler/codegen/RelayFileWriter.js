@@ -18,6 +18,7 @@ const CodegenDirectory = require('CodegenDirectory');
 const GraphQLCompilerContext = require('GraphQLCompilerContext');
 const RelayCompiler = require('RelayCompiler');
 const RelayFlowGenerator = require('RelayFlowGenerator');
+const RelayParser = require('RelayParser');
 const RelayValidator = require('RelayValidator');
 
 const invariant = require('invariant');
@@ -144,6 +145,7 @@ class RelayFileWriter implements FileWriterInterface {
       // Verify using local and global rules, can run global verifications here
       // because all files are processed together
       [...RelayValidator.LOCAL_RULES, ...RelayValidator.GLOBAL_RULES],
+      RelayParser.transform.bind(RelayParser),
     );
 
     const compilerContext = new GraphQLCompilerContext(extendedSchema);

@@ -19,6 +19,9 @@ const RelayRoute = require('RelayRoute');
 const RelayStore = require('RelayStore');
 
 // Dummy Route
+/* $FlowFixMe(>=0.54.0) This comment suppresses an error
+ * found when Flow v0.54 was deployed. To see the error delete this comment and
+ * run Flow. */
 class QueryConfig extends RelayRoute {}
 QueryConfig.routeName = 'ForceRelayClassicContextRoute';
 QueryConfig.queries = {};

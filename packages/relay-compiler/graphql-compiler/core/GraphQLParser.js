@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule RelayParser
+ * @providesModule GraphQLParser
  * @flow
  * @format
  */
@@ -25,7 +25,6 @@ const {
   isOperationDefinitionAST,
 } = require('./GraphQLSchemaUtils');
 const {
-  assertAbstractType,
   assertCompositeType,
   assertInputType,
   assertOutputType,
@@ -38,7 +37,6 @@ const {
   GraphQLObjectType,
   GraphQLScalarType,
   GraphQLUnionType,
-  isAbstractType,
   isLeafType,
   isTypeSubTypeOf,
   parse,
@@ -81,7 +79,6 @@ import type {
   GraphQLInputType,
   GraphQLOutputType,
   GraphQLSchema,
-  GraphQLType,
   GraphQLArgument,
   GraphQLField,
 } from 'graphql';
@@ -104,38 +101,38 @@ const INCLUDE = 'include';
 const SKIP = 'skip';
 const IF = 'if';
 
-function parseRelay(
-  schema: GraphQLSchema,
-  text: string,
-  filename?: string,
-): Array<Root | Fragment> {
-  const ast = parse(new Source(text, filename));
-  const nodes = [];
-  schema = extendSchema(schema, ast);
-  ast.definitions.forEach(definition => {
-    if (isOperationDefinitionAST(definition)) {
-      nodes.push(transform(schema, definition));
-    }
-  });
-  return nodes;
-}
-
-/**
- * Transforms a raw GraphQL AST into a simpler representation with type
- * information.
- */
-function transform(
-  schema: GraphQLSchema,
-  definition: OperationDefinitionNode | FragmentDefinitionNode,
-): Root | Fragment {
-  const parser = new RelayParser(schema, definition);
-  return parser.transform();
-}
-
-class RelayParser {
+class GraphQLParser {
   _definition: OperationDefinitionNode | FragmentDefinitionNode;
   _referencedVariables: {[name: string]: ?GraphQLInputType};
   _schema: GraphQLSchema;
+
+  static parse(
+    schema: GraphQLSchema,
+    text: string,
+    filename?: string,
+  ): Array<Root | Fragment> {
+    const ast = parse(new Source(text, filename));
+    const nodes = [];
+    schema = extendSchema(schema, ast);
+    ast.definitions.forEach(definition => {
+      if (isOperationDefinitionAST(definition)) {
+        nodes.push(this.transform(schema, definition));
+      }
+    }, this);
+    return nodes;
+  }
+
+  /**
+   * Transforms a raw GraphQL AST into a simpler representation with type
+   * information.
+   */
+  static transform(
+    schema: GraphQLSchema,
+    definition: OperationDefinitionNode | FragmentDefinitionNode,
+  ): Root | Fragment {
+    const parser = new this(schema, definition);
+    return parser.transform();
+  }
 
   constructor(
     schema: GraphQLSchema,
@@ -144,6 +141,37 @@ class RelayParser {
     this._definition = definition;
     this._referencedVariables = {};
     this._schema = schema;
+  }
+
+  /**
+   * Find the definition of a field of the specified type.
+   */
+  getFieldDefinition(
+    parentType: GraphQLOutputType,
+    fieldName: string,
+    fieldAST: FieldNode,
+  ): ?GraphQLField<*, *> {
+    const type = getRawType(parentType);
+    const isQueryType = type === this._schema.getQueryType();
+    const hasTypeName =
+      type instanceof GraphQLObjectType ||
+      type instanceof GraphQLInterfaceType ||
+      type instanceof GraphQLUnionType;
+
+    let schemaFieldDef;
+    if (isQueryType && fieldName === SchemaMetaFieldDef.name) {
+      schemaFieldDef = SchemaMetaFieldDef;
+    } else if (isQueryType && fieldName === TypeMetaFieldDef.name) {
+      schemaFieldDef = TypeMetaFieldDef;
+    } else if (hasTypeName && fieldName === TypeNameMetaFieldDef.name) {
+      schemaFieldDef = TypeNameMetaFieldDef;
+    } else if (
+      type instanceof GraphQLInterfaceType ||
+      type instanceof GraphQLObjectType
+    ) {
+      schemaFieldDef = type.getFields()[fieldName];
+    }
+    return schemaFieldDef;
   }
 
   _getErrorContext(): string {
@@ -160,7 +188,7 @@ class RelayParser {
       invariant(
         this._referencedVariables[name] == null ||
           isTypeSubTypeOf(this._schema, this._referencedVariables[name], type),
-        'RelayParser: Variable `$%s` was used in locations expecting ' +
+        'GraphQLParser: Variable `$%s` was used in locations expecting ' +
           'the conflicting types `%s` and `%s`. Source: %s.',
         name,
         prevType,
@@ -180,7 +208,7 @@ class RelayParser {
       default:
         invariant(
           false,
-          'RelayParser: Unknown AST kind `%s`. Source: %s.',
+          'GraphQLParser: Unknown AST kind `%s`. Source: %s.',
           this._definition.kind,
           this._getErrorContext(),
         );
@@ -205,7 +233,7 @@ class RelayParser {
         invariant(
           variableType == null ||
             isTypeSubTypeOf(this._schema, localArgument.type, variableType),
-          'RelayParser: Variable `$%s` was defined as type `%s`, but used in a ' +
+          'GraphQLParser: Variable `$%s` was defined as type `%s`, but used in a ' +
             'location that expects type `%s`. Source: %s.',
           name,
           localArgument.type,
@@ -247,7 +275,7 @@ class RelayParser {
     }
     invariant(
       variableDirectives.length === 1,
-      'RelayParser: Directive %s may be defined at most once on fragment ' +
+      'GraphQLParser: Directive %s may be defined at most once on fragment ' +
         '`%s`. Source: %s.',
       ARGUMENT_DEFINITIONS,
       getName(fragment),
@@ -262,7 +290,7 @@ class RelayParser {
     }
     invariant(
       args.length,
-      'RelayParser: Directive %s requires arguments: remove the directive to ' +
+      'GraphQLParser: Directive %s requires arguments: remove the directive to ' +
         'skip defining local variables for this fragment `%s`. Source: %s.',
       ARGUMENT_DEFINITIONS,
       getName(fragment),
@@ -273,7 +301,7 @@ class RelayParser {
       const argValue = this._transformValue(arg.value);
       invariant(
         argValue.kind === 'Literal',
-        'RelayParser: Expected definition for variable `%s` to be an object ' +
+        'GraphQLParser: Expected definition for variable `%s` to be an object ' +
           'with the following shape: `{type: string, defaultValue?: mixed}`, got ' +
           '`%s`. Source: %s.',
         argValue,
@@ -285,7 +313,7 @@ class RelayParser {
           typeof value === 'object' &&
           value !== null &&
           typeof value.type === 'string',
-        'RelayParser: Expected definition for variable `%s` to be an object ' +
+        'GraphQLParser: Expected definition for variable `%s` to be an object ' +
           'with the following shape: `{type: string, defaultValue?: mixed}`, got ' +
           '`%s`. Source: %s.',
         argName,
@@ -328,14 +356,14 @@ class RelayParser {
       default:
         invariant(
           false,
-          'RelayParser: Unknown AST kind `%s`. Source: %s.',
+          'GraphQLParser: Unknown AST kind `%s`. Source: %s.',
           definition.operation,
           this._getErrorContext(),
         );
     }
     invariant(
       definition.selectionSet,
-      'RelayParser: Expected %s `%s` to have selections. Source: %s.',
+      'GraphQLParser: Expected %s `%s` to have selections. Source: %s.',
       operation,
       name,
       this._getErrorContext(),
@@ -364,7 +392,7 @@ class RelayParser {
         : null;
       invariant(
         defaultLiteral === null || defaultLiteral.kind === 'Literal',
-        'RelayParser: Expected null or Literal default value, got: `%s`. ' +
+        'GraphQLParser: Expected null or Literal default value, got: `%s`. ' +
           'Source: %s.',
         defaultLiteral && defaultLiteral.kind,
         this._getErrorContext(),
@@ -394,7 +422,7 @@ class RelayParser {
       } else {
         invariant(
           false,
-          'RelayParser: Unexpected AST kind `%s`. Source: %s.',
+          'GraphQLParser: Unexpected AST kind `%s`. Source: %s.',
           selection.kind,
           this._getErrorContext(),
         );
@@ -407,7 +435,7 @@ class RelayParser {
       );
       invariant(
         conditionalNodes.length === 1,
-        'RelayParser: Expected exactly one conditional node, got `%s`. ' +
+        'GraphQLParser: Expected exactly one conditional node, got `%s`. ' +
           'Source: %s.',
         conditionalNodes.length,
         this._getErrorContext(),
@@ -450,7 +478,7 @@ class RelayParser {
     );
     invariant(
       argumentDirectives.length <= 1,
-      'RelayParser: Directive %s may be used at most once in fragment ' +
+      'GraphQLParser: Directive %s may be used at most once in fragment ' +
         'spread `...%s`. Source: %s.',
       ARGUMENTS,
       fragmentName,
@@ -462,7 +490,7 @@ class RelayParser {
         const argValue = arg.value;
         invariant(
           argValue.kind === 'Variable',
-          'RelayParser: All @arguments() args must be variables, got %s. ' +
+          'GraphQLParser: All @arguments() args must be variables, got %s. ' +
             'Source: %s.',
           argValue.kind,
           this._getErrorContext(),
@@ -489,10 +517,10 @@ class RelayParser {
 
   _transformField(field: FieldNode, parentType: GraphQLOutputType): Field {
     const name = getName(field);
-    const fieldDef = getFieldDefinition(this._schema, parentType, name, field);
+    const fieldDef = this.getFieldDefinition(parentType, name, field);
     invariant(
       fieldDef,
-      'RelayParser: Unknown field `%s` on type `%s`. Source: %s.',
+      'GraphQLParser: Unknown field `%s` on type `%s`. Source: %s.',
       name,
       parentType,
       this._getErrorContext(),
@@ -511,7 +539,7 @@ class RelayParser {
         !field.selectionSet ||
           !field.selectionSet.selections ||
           !field.selectionSet.selections.length,
-        'RelayParser: Expected no selections for scalar field `%s` on type ' +
+        'GraphQLParser: Expected no selections for scalar field `%s` on type ' +
           '`%s`. Source: %s.',
         name,
         this._getErrorContext(),
@@ -532,7 +560,7 @@ class RelayParser {
         : null;
       invariant(
         selections && selections.length,
-        'RelayParser: Expected at least one selection for non-scalar field ' +
+        'GraphQLParser: Expected at least one selection for non-scalar field ' +
           '`%s` on type `%s`. Source: %s.',
         name,
         type,
@@ -569,7 +597,7 @@ class RelayParser {
         invariant(
           maybeHandle.kind === 'Literal' &&
             typeof maybeHandle.value === 'string',
-          'RelayParser: Expected the %s argument to @%s to be a literal ' +
+          'GraphQLParser: Expected the %s argument to @%s to be a literal ' +
             'string, got `%s` on field `%s`. Source: %s.',
           CLIENT_FIELD_HANDLE,
           CLIENT_FIELD,
@@ -585,7 +613,7 @@ class RelayParser {
           const maybeKey = this._transformValue(keyArgument.value);
           invariant(
             maybeKey.kind === 'Literal' && typeof maybeKey.value === 'string',
-            'RelayParser: Expected %s argument to @%s to be a literal ' +
+            'GraphQLParser: Expected %s argument to @%s to be a literal ' +
               'string, got `%s` on field `%s`. Source: %s.',
             CLIENT_FIELD_KEY,
             CLIENT_FIELD,
@@ -605,7 +633,7 @@ class RelayParser {
               maybeFilters.value.every(filter =>
                 fieldArgs.some(fieldArg => fieldArg.name === filter),
               ),
-            'RelayParser: Expected %s argument to @%s to be an array of ' +
+            'GraphQLParser: Expected %s argument to @%s to be an array of ' +
               'argument names on field `%s`, but get %s. Source: %s.',
             CLIENT_FIELD_FILTERS,
             CLIENT_FIELD,
@@ -629,7 +657,7 @@ class RelayParser {
       const directiveDef = this._schema.getDirective(name);
       invariant(
         directiveDef,
-        'RelayParser: Unknown directive `@%s`. Source: %s.',
+        'GraphQLParser: Unknown directive `@%s`. Source: %s.',
         name,
         this._getErrorContext(),
       );
@@ -655,7 +683,7 @@ class RelayParser {
       const argDef = argumentDefinitions.find(def => def.name === argName);
       invariant(
         argDef,
-        'RelayParser: Unknown argument `%s`. Source: %s.',
+        'GraphQLParser: Unknown argument `%s`. Source: %s.',
         argName,
         this._getErrorContext(),
       );
@@ -681,13 +709,13 @@ class RelayParser {
         const arg = directive.args[0];
         invariant(
           arg && arg.name === IF,
-          'RelayParser: Expected an `if` argument to @%s. Source: %s.',
+          'GraphQLParser: Expected an `if` argument to @%s. Source: %s.',
           directive.name,
           this._getErrorContext(),
         );
         invariant(
           arg.value.kind === 'Variable' || arg.value.kind === 'Literal',
-          'RelayParser: Expected the `if` argument to @%s to be a variable. ' +
+          'GraphQLParser: Expected the `if` argument to @%s to be a variable. ' +
             'Source: %s.',
           directive.name,
           this._getErrorContext(),
@@ -762,7 +790,7 @@ class RelayParser {
           // if `type` is a List.
           invariant(
             listType instanceof GraphQLList,
-            'RelayParser: Expected a value matching type `%s`, but ' +
+            'GraphQLParser: Expected a value matching type `%s`, but ' +
               'got a list value. Source: %s.',
             type,
             this._getErrorContext(),
@@ -812,7 +840,7 @@ class RelayParser {
             // valid if `type` is an Object.
             invariant(
               objectType instanceof GraphQLInputObjectType,
-              'RelayParser: Expected a value matching type `%s`, but ' +
+              'GraphQLParser: Expected a value matching type `%s`, but ' +
                 'got an object value. Source: %s.',
               type,
               this._getErrorContext(),
@@ -820,7 +848,7 @@ class RelayParser {
             const fieldConfig = objectType.getFields()[fieldName];
             invariant(
               fieldConfig,
-              'RelayParser: Unknown field `%s` on type `%s`. Source: %s.',
+              'GraphQLParser: Unknown field `%s` on type `%s`. Source: %s.',
               fieldName,
               type,
               this._getErrorContext(),
@@ -859,7 +887,7 @@ class RelayParser {
       default:
         invariant(
           false,
-          'RelayParser: Unknown ast kind: %s. Source: %s.',
+          'GraphQLParser: Unknown ast kind: %s. Source: %s.',
           ast.kind,
           this._getErrorContext(),
         );
@@ -905,94 +933,10 @@ function getName(ast): string {
   const name = ast.name ? ast.name.value : null;
   invariant(
     typeof name === 'string',
-    'RelayParser: Expected ast node `%s` to have a name.',
+    'GraphQLParser: Expected ast node `%s` to have a name.',
     ast,
   );
   return name;
 }
 
-/**
- * Find the definition of a field of the specified type.
- */
-function getFieldDefinition(
-  schema: GraphQLSchema,
-  parentType: GraphQLOutputType,
-  fieldName: string,
-  fieldAST: FieldNode,
-): ?GraphQLField<any, any> {
-  const type = getRawType(parentType);
-  const isQueryType = type === schema.getQueryType();
-  const hasTypeName =
-    type instanceof GraphQLObjectType ||
-    type instanceof GraphQLInterfaceType ||
-    type instanceof GraphQLUnionType;
-
-  let schemaFieldDef;
-  if (isQueryType && fieldName === SchemaMetaFieldDef.name) {
-    schemaFieldDef = SchemaMetaFieldDef;
-  } else if (isQueryType && fieldName === TypeMetaFieldDef.name) {
-    schemaFieldDef = TypeMetaFieldDef;
-  } else if (hasTypeName && fieldName === TypeNameMetaFieldDef.name) {
-    schemaFieldDef = TypeNameMetaFieldDef;
-  } else if (
-    type instanceof GraphQLInterfaceType ||
-    type instanceof GraphQLObjectType
-  ) {
-    schemaFieldDef = type.getFields()[fieldName];
-  }
-
-  if (!schemaFieldDef) {
-    schemaFieldDef = getClassicFieldDefinition(
-      schema,
-      type,
-      fieldName,
-      fieldAST,
-    );
-  }
-
-  return schemaFieldDef || null;
-}
-
-function getClassicFieldDefinition(
-  schema: GraphQLSchema,
-  type: GraphQLType,
-  fieldName: string,
-  fieldAST: FieldNode,
-): ?GraphQLField<any, any> {
-  if (
-    isAbstractType(type) &&
-    fieldAST &&
-    fieldAST.directives &&
-    fieldAST.directives.some(
-      directive => getName(directive) === 'fixme_fat_interface',
-    )
-  ) {
-    const possibleTypes = schema.getPossibleTypes(assertAbstractType(type));
-    let schemaFieldDef;
-    for (let ii = 0; ii < possibleTypes.length; ii++) {
-      const possibleField = possibleTypes[ii].getFields()[fieldName];
-      if (possibleField) {
-        // Fat interface fields can have differing arguments. Try to return
-        // a field with matching arguments, but still return a field if the
-        // arguments do not match.
-        schemaFieldDef = possibleField;
-        if (fieldAST && fieldAST.arguments) {
-          const argumentsAllExist = fieldAST.arguments.every(argument =>
-            possibleField.args.find(
-              argDef => argDef.name === getName(argument),
-            ),
-          );
-          if (argumentsAllExist) {
-            break;
-          }
-        }
-      }
-    }
-    return schemaFieldDef;
-  }
-}
-
-module.exports = {
-  parse: parseRelay,
-  transform,
-};
+module.exports = GraphQLParser;

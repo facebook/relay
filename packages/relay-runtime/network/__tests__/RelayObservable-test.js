@@ -1096,7 +1096,7 @@ describe('RelayObservable', () => {
     });
   });
 
-  describe('concatMap', () => {
+  describe('mergeMap', () => {
     it('Maps values from the original observable', () => {
       const source = new RelayObservable(sink => {
         sink.next(1);
@@ -1105,7 +1105,7 @@ describe('RelayObservable', () => {
         sink.complete();
       });
 
-      const mapped = source.concatMap(
+      const mapped = source.mergeMap(
         v =>
           new RelayObservable(sink => {
             sink.next(v * 2 + 1);
@@ -1142,7 +1142,7 @@ describe('RelayObservable', () => {
 
       const promises = [];
 
-      const mapped = source.concatMap(v => {
+      const mapped = source.mergeMap(v => {
         const promise = Promise.resolve(v * 2 + 1);
         promises.push(promise);
         return promise;
@@ -1162,9 +1162,9 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['next:3', 'next:5', 'next:7', 'complete']);
     });
 
-    it('Buffers values with one mapped Observable at a time', () => {
+    it('Merges values from all mapped Observables at once', () => {
       let outerSink;
-      let innerSink;
+      const innerSinks = [];
       const list = [];
 
       const source = new RelayObservable(sink => {
@@ -1172,10 +1172,10 @@ describe('RelayObservable', () => {
         return () => list.push('cleanup outer');
       });
 
-      const mapped = source.concatMap(v => {
-        list.push('concatMap:' + v);
+      const mapped = source.mergeMap(v => {
+        list.push('mergeMap:' + v);
         return new RelayObservable(sink => {
-          innerSink = sink;
+          innerSinks.push(sink);
           return () => list.push('cleanup inner:' + v);
         });
       });
@@ -1186,35 +1186,34 @@ describe('RelayObservable', () => {
         complete: () => list.push('complete'),
       });
 
-      // Many buffered publishes
+      // Many created publishes
       outerSink.next(1);
       outerSink.next(2);
+      innerSinks[0].next(10);
       outerSink.next(3);
+      innerSinks[2].next(30);
       outerSink.complete();
-
-      innerSink.next(10);
-      innerSink.next(11);
-      innerSink.complete();
-      innerSink.next(20);
-      innerSink.next(21);
-      innerSink.complete();
-      innerSink.next(30);
-      innerSink.complete();
+      innerSinks[1].next(20);
+      innerSinks[2].complete();
+      innerSinks[0].next(11);
+      innerSinks[0].complete();
+      innerSinks[1].next(21);
+      innerSinks[1].complete();
 
       expect(list).toEqual([
-        'concatMap:1',
-        'cleanup outer',
+        'mergeMap:1',
+        'mergeMap:2',
         'next:10',
-        'next:11',
-        'concatMap:2',
-        'cleanup inner:1',
-        'next:20',
-        'next:21',
-        'concatMap:3',
-        'cleanup inner:2',
+        'mergeMap:3',
         'next:30',
-        'complete',
+        'cleanup outer',
+        'next:20',
         'cleanup inner:3',
+        'next:11',
+        'cleanup inner:1',
+        'next:21',
+        'complete',
+        'cleanup inner:2',
       ]);
     });
 
@@ -1229,7 +1228,7 @@ describe('RelayObservable', () => {
         sink.next(3);
       });
 
-      const mapped = source.concatMap(
+      const mapped = source.mergeMap(
         v =>
           new RelayObservable(sink => {
             sink.next(v * 2 + 1);
@@ -1258,7 +1257,7 @@ describe('RelayObservable', () => {
         return () => list.push('cleanup');
       });
 
-      const mapped = source.concatMap(v => {
+      const mapped = source.mergeMap(v => {
         if (v === 2) {
           throw error;
         }
@@ -1289,7 +1288,7 @@ describe('RelayObservable', () => {
         return () => list.push('cleanup');
       });
 
-      const mapped = source.concatMap(
+      const mapped = source.mergeMap(
         v =>
           new RelayObservable(sink => {
             sink.next(v * 2 + 1);
@@ -1308,7 +1307,6 @@ describe('RelayObservable', () => {
 
     it('Unsubscribes from mapped Observable', () => {
       let outerSink;
-      let innerSink;
       const list = [];
 
       const source = new RelayObservable(sink => {
@@ -1316,12 +1314,12 @@ describe('RelayObservable', () => {
         return () => list.push('cleanup outer');
       });
 
-      const inner = new RelayObservable(sink => {
-        innerSink = sink;
-        return () => list.push('cleanup inner');
-      });
-
-      const mapped = source.concatMap(v => inner);
+      const mapped = source.mergeMap(
+        v =>
+          new RelayObservable(sink => {
+            return () => list.push('cleanup inner:' + v);
+          }),
+      );
 
       const subscription = mapped.subscribe({
         next: val => list.push('next:' + val),
@@ -1330,10 +1328,16 @@ describe('RelayObservable', () => {
       });
 
       outerSink.next(1);
-      innerSink.next(10);
+      outerSink.next(2);
+      outerSink.next(3);
       subscription.unsubscribe();
 
-      expect(list).toEqual(['next:10', 'cleanup inner', 'cleanup outer']);
+      expect(list).toEqual([
+        'cleanup outer',
+        'cleanup inner:1',
+        'cleanup inner:2',
+        'cleanup inner:3',
+      ]);
     });
 
     it('Error thrown from mapper and no error handler is unhandled', () => {
@@ -1351,7 +1355,7 @@ describe('RelayObservable', () => {
         return () => list.push('cleanup');
       });
 
-      const mapped = source.concatMap(v => {
+      const mapped = source.mergeMap(v => {
         if (v === 2) {
           throw error;
         }
@@ -1390,7 +1394,7 @@ describe('RelayObservable', () => {
         return () => list.push('cleanup');
       });
 
-      const mapped = source.concatMap(
+      const mapped = source.mergeMap(
         v =>
           new RelayObservable(_sink => {
             _sink.next(v * 2 + 1);

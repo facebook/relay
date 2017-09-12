@@ -606,7 +606,40 @@ describe('ReactRelayRefetchContainer', () => {
         },
       });
       expect(callback.mock.calls.length).toBe(1);
-      expect(callback.mock.calls[0].length).toBe(0);
+      expect(callback).toBeCalledWith(undefined);
+    });
+
+    it('calls the callback when the fetch succeeds after every update', () => {
+      const callback = jest.fn();
+      variables = {
+        cond: false,
+        id: '4',
+      };
+      refetch(variables, null, callback);
+      environment.mock.nextValue(UserQuery, {
+        data: {
+          node: {
+            id: '4',
+            __typename: 'User',
+          },
+        },
+      });
+      expect(callback.mock.calls.length).toBe(1);
+      expect(callback).toBeCalledWith(undefined);
+
+      environment.mock.nextValue(UserQuery, {
+        data: {
+          node: {
+            id: '4',
+            __typename: 'User',
+          },
+        },
+      });
+      expect(callback.mock.calls.length).toBe(2);
+      expect(callback).toBeCalledWith(undefined);
+
+      environment.mock.complete(UserQuery);
+      expect(callback.mock.calls.length).toBe(2);
     });
 
     it('calls the callback when the fetch fails', () => {

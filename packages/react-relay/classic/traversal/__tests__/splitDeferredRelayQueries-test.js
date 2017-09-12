@@ -124,6 +124,32 @@ describe('splitDeferredRelayQueries()', () => {
     expect(deferred[0].deferred).toEqual([]);
   });
 
+  it('splits a deferred fragment on a query without an ID argument', () => {
+    const fragment = RelayClassic.QL`
+      fragment on Actor {
+        name
+      }
+    `;
+    const node = RelayClassic.QL`
+      query {
+        username(name:"yuzhi") {
+          id
+          ${defer(fragment)}
+        }
+      }
+    `;
+    const queryNode = getNode(node);
+    const {deferred} = splitDeferredRelayQueries(queryNode);
+
+    expect(deferred.length).toBe(1);
+    expect(deferred[0].required.getConcreteQueryNode().metadata).toEqual({
+      identifyingArgName: 'name',
+      identifyingArgType: 'String!',
+      isAbstract: true,
+      isPlural: false,
+    });
+  });
+
   it('splits a nested feed on the viewer root', () => {
     const nestedFragment = RelayClassic.QL`
       fragment on Viewer {

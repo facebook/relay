@@ -278,68 +278,53 @@ class RelayObservable<T> implements Subscribable<T> {
    * the mapping function.
    */
   map<U>(fn: T => U): RelayObservable<U> {
-    return this.concatMap(value => fromValue(fn(value)));
+    return this.mergeMap(value => fromValue(fn(value)));
   }
 
   /**
    * Returns a new Observable where each value is replaced with a new Observable
    * by the mapping function, the results of which returned as a single
-   * concattenated Observable.
+   * merged Observable.
    */
-  concatMap<U>(fn: T => ObservableFromValue<U>): RelayObservable<U> {
+  mergeMap<U>(fn: T => ObservableFromValue<U>): RelayObservable<U> {
     return new RelayObservable(sink => {
-      let hasCompleted = false;
-      let outer;
-      let inner;
-      const buffer = [];
+      const subscriptions = [];
 
-      function next(value) {
-        if (inner) {
-          buffer.push(value);
-        } else {
-          try {
-            RelayObservable.from(fn(value)).subscribe({
-              start: sub => {
-                inner = sub;
-              },
-              next: sink.next,
-              error: sink.error,
-              complete() {
-                inner = undefined;
-                if (buffer.length !== 0) {
-                  next(buffer.shift());
-                } else if (hasCompleted) {
-                  sink.complete();
-                }
-              },
-            });
-          } catch (error) {
-            sink.error(error);
-          }
+      function start(subscription) {
+        this._sub = subscription;
+        subscriptions.push(subscription);
+      }
+
+      function complete() {
+        subscriptions.splice(subscriptions.indexOf(this._sub), 1);
+        if (subscriptions.length === 0) {
+          sink.complete();
         }
       }
 
       this.subscribe({
-        start: sub => {
-          outer = sub;
-        },
-        next,
-        error: sink.error,
-        complete() {
-          hasCompleted = true;
-          if (!inner) {
-            sink.complete();
+        start,
+        next(value) {
+          try {
+            if (!sink.closed) {
+              RelayObservable.from(fn(value)).subscribe({
+                start,
+                next: sink.next,
+                error: sink.error,
+                complete,
+              });
+            }
+          } catch (error) {
+            sink.error(error);
           }
         },
+        error: sink.error,
+        complete,
       });
 
       return () => {
-        if (inner) {
-          inner.unsubscribe();
-          inner = undefined;
-        }
-        outer.unsubscribe();
-        buffer.length = 0;
+        subscriptions.forEach(sub => sub.unsubscribe());
+        subscriptions.length = 0;
       };
     });
   }
@@ -451,8 +436,8 @@ function subscribe<T>(source: Source<T>, observer: Observer<T>): Subscription {
   // Subscription objects below, however not all flow environments we expect
   // Relay to be used within will support property getters, and many minifier
   // tools still do not support ES5 syntax. Instead, we can use defineProperty.
-  const withClosed: <O>(obj: O) => O & {+closed: boolean} = obj =>
-    Object.defineProperty((obj: any), 'closed', ({get: () => closed}: any));
+  const withClosed: <O>(obj: O) => {|...O, +closed: boolean|} = (obj =>
+    Object.defineProperty(obj, 'closed', ({get: () => closed}: any)): any);
 
   function doCleanup() {
     if (cleanup) {

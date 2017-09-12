@@ -6,14 +6,14 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule RelayFileIRParser
+ * @providesModule RelayJSModuleParser
  * @flow
  * @format
  */
 
 'use strict';
 
-const FileParser = require('FileParser');
+const ASTCache = require('ASTCache');
 const FindGraphQLTags = require('FindGraphQLTags');
 const GraphQL = require('graphql');
 
@@ -31,7 +31,7 @@ function parseFile(baseDir: string, file: File): ?DocumentNode {
 
   invariant(
     text.indexOf('graphql') >= 0,
-    'RelayFileIRParser: Files should be filtered before passed to the ' +
+    'RelayJSModuleParser: Files should be filtered before passed to the ' +
       'parser, got unfiltered file `%s`.',
     file,
   );
@@ -44,26 +44,13 @@ function parseFile(baseDir: string, file: File): ?DocumentNode {
   ).forEach(({tag, template}) => {
     if (!(tag === 'graphql' || tag === 'graphql.experimental')) {
       throw new Error(
-        `Invalid tag ${tag} in ${file.relPath}. ` +
-          'Expected graphql`` (common case) or ' +
-          'graphql.experimental`` (if using experimental directives).',
-      );
-    }
-    if (
-      tag !== 'graphql.experimental' &&
-      /@argument(Definition)?s\b/.test(template)
-    ) {
-      throw new Error(
-        'Unexpected use of fragment variables: @arguments and ' +
-          '@argumentDefinitions are only supported in ' +
-          'graphql.experimental literals. Source: ' +
-          template,
+        `Invalid tag ${tag} in ${file.relPath}. Expected graphql\`\`.`,
       );
     }
     const ast = GraphQL.parse(new GraphQL.Source(template, file.relPath));
     invariant(
       ast.definitions.length,
-      'RelayFileIRParser: Expected GraphQL text to contain at least one ' +
+      'RelayJSModuleParser: Expected GraphQL text to contain at least one ' +
         'definition (fragment, mutation, query, subscription), got `%s`.',
       template,
     );
@@ -77,8 +64,8 @@ function parseFile(baseDir: string, file: File): ?DocumentNode {
   };
 }
 
-function getParser(baseDir: string): FileParser {
-  return new FileParser({
+function getParser(baseDir: string): ASTCache {
+  return new ASTCache({
     baseDir,
     parse: parseFile,
   });

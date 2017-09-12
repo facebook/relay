@@ -17,7 +17,7 @@ require('babel-polyfill');
 
 const CodegenRunner = require('CodegenRunner');
 const GraphQLConsoleReporter = require('GraphQLConsoleReporter');
-const RelayFileIRParser = require('RelayFileIRParser');
+const RelayJSModuleParser = require('RelayJSModuleParser');
 const RelayFileWriter = require('RelayFileWriter');
 const RelayIRTransforms = require('RelayIRTransforms');
 const GraphQLWatchmanClient = require('GraphQLWatchmanClient');
@@ -129,8 +129,8 @@ Ensure that one such file exists in ${srcDir} or its parents.
   const parserConfigs = {
     default: {
       baseDir: srcDir,
-      getFileFilter: RelayFileIRParser.getFileFilter,
-      getParser: RelayFileIRParser.getParser,
+      getFileFilter: RelayJSModuleParser.getFileFilter,
+      getParser: RelayJSModuleParser.getParser,
       getSchema: () => getSchema(schemaPath),
       watchmanExpression: useWatchman ? buildWatchExpression(options) : null,
       filepaths: useWatchman ? null : getFilepathsFromGlob(srcDir, options),

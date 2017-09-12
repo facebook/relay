@@ -173,24 +173,7 @@ class RelayObservable<T> implements Subscribable<T> {
    * side-effects such as logging or performance monitoring.
    */
   do(observer: Observer<T>): RelayObservable<T> {
-    return new RelayObservable(sink => {
-      const both = action =>
-        function() {
-          try {
-            observer[action] && observer[action].apply(observer, arguments);
-          } catch (error) {
-            handleError(error);
-          }
-          sink[action] && sink[action].apply(sink, arguments);
-        };
-      return this.subscribe({
-        start: both('start'),
-        next: both('next'),
-        error: both('error'),
-        complete: both('complete'),
-        unsubscribe: both('unsubscribe'),
-      });
-    });
+    return new RelayDoObservable(this, observer);
   }
 
   /**
@@ -383,6 +366,41 @@ class RelayObservable<T> implements Subscribable<T> {
         error: reject,
         complete: resolve,
       });
+    });
+  }
+}
+
+// The result of calling observable.do()
+class RelayDoObservable<T> extends RelayObservable<T> {
+  _observable: RelayObservable<T>;
+  _doObserver: Observer<T>;
+
+  constructor(observable: RelayObservable<T>, doObserver: Observer<T>): void {
+    super(() => {});
+    this._observable = observable;
+    this._doObserver = doObserver;
+  }
+
+  subscribe(observer: Observer<T>): Subscription {
+    const doObserver = this._doObserver;
+    // eslint-disable-next-line no-unclear-flowtypes
+    const both: any = action =>
+      doObserver[action]
+        ? function() {
+            try {
+              doObserver[action].apply(doObserver, arguments);
+            } catch (error) {
+              handleError(error);
+            }
+            observer[action] && observer[action].apply(observer, arguments);
+          }
+        : observer[action];
+    return this._observable.subscribe({
+      start: both('start'),
+      next: both('next'),
+      error: both('error'),
+      complete: both('complete'),
+      unsubscribe: both('unsubscribe'),
     });
   }
 }

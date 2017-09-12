@@ -686,9 +686,7 @@ describe('ReactRelayPaginationContainer', () => {
     expect(environment.subscribe).not.toBeCalled();
   });
 
-  it('warns if missing @connection directive', () => {
-    jest.mock('warning');
-
+  it('fails if missing @connection directive', () => {
     ({UserFragment, UserQuery} = generateAndCompile(
       `
         query UserQuery(
@@ -742,13 +740,12 @@ describe('ReactRelayPaginationContainer', () => {
           <TestContainer />
         </ContextSetter>,
       );
-    }).toWarn([
+    }).toFailInvariant(
       'ReactRelayPaginationContainer: A @connection directive must be present.',
-    ]);
+    );
   });
 
-  it('does not warn if one fragemnt has a @connection directive', () => {
-    jest.mock('warning');
+  it('does not fail invariant if one fragment has a @connection directive', () => {
     let ViewerFragment;
     ({UserFragment, UserQuery, ViewerFragment} = generateAndCompile(
       `
@@ -815,9 +812,7 @@ describe('ReactRelayPaginationContainer', () => {
           <TestContainer />
         </ContextSetter>,
       );
-    }).not.toWarn([
-      'ReactRelayPaginationContainer: A @connection directive must be present.',
-    ]);
+    }).not.toThrow();
   });
 
   describe('hasMore()', () => {

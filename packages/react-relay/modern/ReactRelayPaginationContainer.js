@@ -44,11 +44,7 @@ import type {ConnectionMetadata} from 'RelayConnectionHandler';
 import type {PageInfo} from 'RelayConnectionInterface';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {Observer, Subscription} from 'RelayObservable';
-import type {
-  FragmentMap,
-  RelayContext,
-  RelayResponsePayload,
-} from 'RelayStoreTypes';
+import type {FragmentMap, RelayContext} from 'RelayStoreTypes';
 import type {Variables} from 'RelayTypes';
 
 type ContainerState = {
@@ -286,13 +282,10 @@ function findConnectionMetadata(fragments): ReactConnectionMetadata {
       };
     }
   }
-  if (isRelayModern) {
-    warning(
-      foundConnectionMetadata !== null,
-      'ReactRelayPaginationContainer: A @connection directive must be present.',
-    );
-  }
-  // TODO(t17350438) for modern, this should be an invariant.
+  invariant(
+    !isRelayModern || foundConnectionMetadata !== null,
+    'ReactRelayPaginationContainer: A @connection directive must be present.',
+  );
   return foundConnectionMetadata || ({}: any);
 }
 

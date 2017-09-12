@@ -310,29 +310,31 @@ The server must provide a type called `PageInfo`.
 of which return non-null booleans.
 
 `hasPreviousPage` is used to indicate whether more edges exist prior to the set
-defined by the clients arguments. If the client is paginating with `after`, then
-the client may determine if prior edges exist, if it can do so efficiently. If
-the client is paginating with `last`, then the server must determine if prior
-edges exist. Otherwise, the server must return `false`. More formally:
+defined by the clients arguments. If the client is paginating with 
+`last`/`before`, then the server must return {true} if prior edges exist, 
+otherwise {false}. If the client is paginating with `first`/`after`, then the 
+client may return {true} if edges prior to `after` exist, if it can do so 
+efficiently, otherwise may return {false}. More formally:
 
 HasPreviousPage(allEdges, before, after, first, last):
   * If {last} is set:
     * Let {edges} be the result of calling {ApplyCursorsToEdges(allEdges, before, after)}.
-    * If {edges} contains more than {last} elements, return {true}.
+    * If {edges} contains more than {last} elements return {true}, otherwise {false}.
   * If {after} is set:
     * If the server can efficiently determine that elements exist prior to {after}, return {true}.
   * Return {false}.
 
 `hasNextPage` is used to indicate whether more edges exist following the set
-defined by the clients arguments. If the client is paginating with `before`, then
-the client may determine if further edges exist, if it can do so efficiently. If
-the client is paginating with `first`, then the server must determine if further
-edges exist. Otherwise, the server must return `false`. More formally:
+defined by the clients arguments. If the client is paginating with
+`first`/`after`, then the server must return {true} if further edges exist,
+otherwise {false}. If the client is paginating with `last`/`before`, then the
+client may return {true} if edges further from `before` exist, if it can do
+so efficiently, otherwise may return {false}. More formally:
 
 HasNextPage(allEdges, before, after, first, last):
   * If {first} is set:
     * Let {edges} be the result of calling {ApplyCursorsToEdges(allEdges, before, after)}.
-    * If {edges} contains more than {first} elements, return {true}.
+    * If {edges} contains more than {first} elements return {true}, otherwise {false}.
   * If {before} is set:
     * If the server can efficiently determine that elements exist following {before}, return {true}.
   * Return {false}.

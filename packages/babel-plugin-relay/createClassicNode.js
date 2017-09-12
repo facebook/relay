@@ -153,6 +153,10 @@ function createClassicAST(t, definition) {
           case 'arguments':
             const fragmentArgumentsObject = {};
             directive.arguments.forEach(argNode => {
+              const argValue = argNode.value;
+              if (argValue.kind === 'Variable') {
+                variables[argValue.name.value] = null;
+              }
               const arg = convertArgument(t, argNode);
               fragmentArgumentsObject[arg.name] = arg.ast;
             });

@@ -20,9 +20,8 @@ const getValidGraphQLTag = require('./getValidGraphQLTag');
 const getValidRelayQLTag = require('./getValidRelayQLTag');
 const invariant = require('./invariant');
 
-import typeof BabelTypes from 'babel-types';
-
 import type {Validator} from './RelayQLTransformer';
+import typeof BabelTypes from 'babel-types';
 
 export type RelayPluginOptions = {
   schema?: string,

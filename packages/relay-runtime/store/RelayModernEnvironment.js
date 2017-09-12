@@ -74,6 +74,11 @@ class RelayModernEnvironment implements Environment {
 
     (this: any).__setNet = newNet => (this._network = newNet);
 
+    // TODO(#21781004): This adds support for the older Relay Debugger, which
+    // has been replaced with the Relay DevTools global hook below. This logic
+    // should stick around for a release or two to not break support for the
+    // existing debugger. After allowing time to migrate to latest versions,
+    // this code can be removed.
     if (__DEV__) {
       const g = typeof global !== 'undefined' ? global : window;
 
@@ -99,6 +104,17 @@ class RelayModernEnvironment implements Environment {
       this._debugger = g.__RELAY_DEBUGGER__.getEnvironmentDebugger(envId);
     } else {
       this._debugger = null;
+    }
+
+    // Register this Relay Environment with Relay DevTools if it exists.
+    // Note: this must always be the last step in the constructor.
+    const _global =
+      typeof global !== 'undefined'
+        ? global
+        : typeof window !== 'undefined' ? window : undefined;
+    const devToolsHook = _global && _global.__RELAY_DEVTOOLS_HOOK__;
+    if (devToolsHook) {
+      devToolsHook.registerEnvironment(this);
     }
   }
 

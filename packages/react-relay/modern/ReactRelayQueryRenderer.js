@@ -65,34 +65,34 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
 
   constructor(props: Props, context: Object) {
     super(props, context);
+    this._pendingFetch = null;
+    this._rootSubscription = null;
+    this._selectionReference = null;
+
     let {query, variables} = props;
     // TODO (#16225453) QueryRenderer works with old and new environment, but
     // the flow typing doesn't quite work abstracted.
     // $FlowFixMe
     const environment: Environment = props.environment;
-    let operation = null;
     if (query) {
       const {
         createOperationSelector,
         getOperation,
       } = environment.unstable_internal;
-      query = getOperation(query);
-      operation = createOperationSelector(query, variables);
-      variables = operation.variables;
-    }
-
-    this._pendingFetch = null;
-    this._relayContext = {
-      environment,
-      variables,
-    };
-    this._rootSubscription = null;
-    this._selectionReference = null;
-    if (query) {
+      const operation = createOperationSelector(getOperation(query), variables);
+      this._relayContext = {
+        environment,
+        variables: operation.variables,
+      };
+      const readyState = this._fetch(operation, props.cacheConfig);
       this.state = {
-        readyState: getDefaultState(),
+        readyState: readyState || getDefaultState(),
       };
     } else {
+      this._relayContext = {
+        environment,
+        variables,
+      };
       this.state = {
         readyState: {
           error: null,
@@ -100,13 +100,6 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
           retry: null,
         },
       };
-    }
-
-    if (operation) {
-      const readyState = this._fetch(operation, props.cacheConfig);
-      if (readyState) {
-        this.state = {readyState};
-      }
     }
   }
 

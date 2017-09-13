@@ -2039,8 +2039,8 @@ describe('RelayObservable', () => {
       });
 
       expect(list).toEqual([
-        'do: started',
         'subscriber: started',
+        'do: started',
         'begin cities',
         'do: value',
         'Athens',
@@ -2101,8 +2101,8 @@ describe('RelayObservable', () => {
       });
 
       expect(list).toEqual([
-        'do: started',
         'subscriber: started',
+        'do: started',
         'begin cities',
         'do: error',
         error,
@@ -2164,15 +2164,15 @@ describe('RelayObservable', () => {
       subscription.unsubscribe();
 
       expect(list).toEqual([
-        'do: started',
         'subscriber: started',
+        'do: started',
         'begin cities',
         'do: value',
         'Athens',
         'subscriber: value',
         'Athens',
-        'do: unsubscribe',
         'subscriber: unsubscribe',
+        'do: unsubscribe',
         'cleanup cities',
       ]);
     });
@@ -2233,8 +2233,8 @@ describe('RelayObservable', () => {
       });
 
       expect(list).toEqual([
-        'do: started',
         'subscriber: started',
+        'do: started',
         'begin cities',
         'do: value',
         'Athens',

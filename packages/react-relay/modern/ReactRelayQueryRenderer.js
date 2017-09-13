@@ -193,8 +193,8 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
 
     let readyState = getDefaultState();
     let snapshot: ?Snapshot; // results of the root fragment
-    let isOnNextCalled = false;
-    let isFunctionReturned = false;
+    let hasSyncResult = false;
+    let hasFunctionReturned = false;
 
     if (this._pendingFetch) {
       this._pendingFetch.dispose();
@@ -234,8 +234,8 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
           );
           this._selectionReference = nextReference;
           // This line should be called only once.
-          isOnNextCalled = true;
-          if (isFunctionReturned) {
+          hasSyncResult = true;
+          if (hasFunctionReturned) {
             this.setState({readyState});
           }
         },
@@ -251,7 +251,10 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
             this._selectionReference.dispose();
           }
           this._selectionReference = nextReference;
-          this.setState({readyState});
+          hasSyncResult = true;
+          if (hasFunctionReturned) {
+            this.setState({readyState});
+          }
         },
       });
 
@@ -261,8 +264,8 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
         nextReference.dispose();
       },
     };
-    isFunctionReturned = true;
-    return isOnNextCalled ? readyState : null;
+    hasFunctionReturned = true;
+    return hasSyncResult ? readyState : null;
   }
 
   _onChange = (snapshot: Snapshot): void => {

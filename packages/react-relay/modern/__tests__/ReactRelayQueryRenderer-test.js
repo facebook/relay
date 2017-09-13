@@ -191,6 +191,30 @@ describe('ReactRelayQueryRenderer', () => {
         retry: jasmine.any(Function),
       }).toBeRendered();
     });
+
+    it('skip loading state when request failed synchronously', () => {
+      const error = new Error('Mock Network Error');
+      const fetch = () => error;
+      store = new RelayMarkSweepStore(new RelayInMemoryRecordSource());
+      environment = new RelayModernEnvironment({
+        network: RelayNetwork.create(fetch),
+        store,
+      });
+      ReactTestRenderer.create(
+        <ReactRelayQueryRenderer
+          query={TestQuery}
+          cacheConfig={cacheConfig}
+          environment={environment}
+          render={render}
+          variables={variables}
+        />,
+      );
+      expect({
+        error: error,
+        props: null,
+        retry: jasmine.any(Function),
+      }).toBeRendered();
+    });
   });
 
   describe('context', () => {

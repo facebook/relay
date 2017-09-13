@@ -64,22 +64,6 @@ export type WriterConfig = {
   inputFieldWhiteListForFlow?: Array<string>,
 };
 
-function findFilePathsForDefinitionName(documents, definitionName) {
-  const filePaths = [];
-  documents.forEach((doc, filePath) => {
-    doc.definitions.forEach(def => {
-      if (
-        isOperationDefinitionAST(def) &&
-        def.name &&
-        def.name.value === definitionName
-      ) {
-        filePaths.push(filePath);
-      }
-    });
-  });
-  return filePaths;
-}
-
 /* eslint-disable no-console-disallow */
 
 class RelayFileWriter implements FileWriterInterface {
@@ -139,40 +123,19 @@ class RelayFileWriter implements FileWriterInterface {
     };
 
     let configOutputDirectory;
-    const duplicateDefinitions = new Set();
     if (this._config.outputDir) {
       configOutputDirectory = addCodegenDir(this._config.outputDir);
     } else {
       this._documents.forEach((doc, filePath) => {
         doc.definitions.forEach(def => {
-          if (isOperationDefinitionAST(def)) {
-            if (def.name && definitionDirectories.has(def.name.value)) {
-              duplicateDefinitions.add(def.name.value);
-            }
-            if (def.name) {
-              definitionDirectories.set(
-                def.name.value,
-                path.join(this._config.baseDir, path.dirname(filePath)),
-              );
-            }
+          if (isOperationDefinitionAST(def) && def.name) {
+            definitionDirectories.set(
+              def.name.value,
+              path.join(this._config.baseDir, path.dirname(filePath)),
+            );
           }
         });
       });
-    }
-
-    if (duplicateDefinitions.size) {
-      const msg = [];
-      duplicateDefinitions.forEach(definitionName => {
-        const filePaths = findFilePathsForDefinitionName(
-          this._documents,
-          definitionName,
-        );
-        msg.push([
-          `Multiple definitions found for ${definitionName}`,
-          ...filePaths.map(filePath => `  ${filePath}`),
-        ].join('\n'));
-      });
-      throw new Error(msg.join('\n'));
     }
 
     const definitions = ASTConvert.convertASTDocumentsWithBase(

@@ -37,6 +37,18 @@ type TransformFn = (
   definition: ASTDefinitionNode,
 ) => Root | Fragment;
 
+function throwMultipleDefinitionError(...definitions: Array<ASTDefinitionNode>) {
+  const msg = [
+    `Multiple definitions found`,
+  ];
+  definitions.forEach(definition => {
+    if (definition.name && definition.loc) {
+      msg.push(`  ${definition.name.value}: ${definition.loc.source.name}`);
+    }
+  });
+  throw new Error(msg.join('\n'));
+}
+
 function convertASTDocuments(
   schema: GraphQLSchema,
   documents: Array<DocumentNode>,
@@ -71,9 +83,17 @@ function convertASTDocumentsWithBase(
   const baseMap: Map<string, ASTDefinitionNode> = new Map();
   baseDefinitions.forEach(definition => {
     if (isOperationDefinitionAST(definition)) {
-      if (definition.name) {
-        // If there's no name, no reason to put in the map
-        baseMap.set(definition.name.value, definition);
+      const name = definition.name;
+      // If there's no name, no reason to put in the map
+      if (name) {
+        const existingDefinition = baseMap.get(name.value);
+        if (existingDefinition) {
+          throwMultipleDefinitionError(
+            definition,
+            existingDefinition,
+          );
+        }
+        baseMap.set(name.value, definition);
       }
     }
   });
@@ -87,9 +107,18 @@ function convertASTDocumentsWithBase(
   while (definitionsToVisit.length > 0) {
     const definition = definitionsToVisit.pop();
     const name = definition.name;
-    if (!name || requiredDefinitions.has(name.value)) {
+    if (!name) {
       continue;
     }
+
+    const existingDefinition = requiredDefinitions.get(name.value);
+    if (existingDefinition) {
+      throwMultipleDefinitionError(
+        definition,
+        existingDefinition,
+      );
+    }
+
     requiredDefinitions.set(name.value, definition);
     visit(definition, {
       FragmentSpread(spread: FragmentSpreadNode) {

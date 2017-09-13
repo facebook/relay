@@ -26,9 +26,7 @@ const RelayPropTypes = require('RelayPropTypes');
  * Note: For unit tests, you may need to mock `ReactDOM` as follows:
  *
  * ```
- * jest
- *   .disableAutomock()
- *   .mock('ReactDOM', () => ({}));
+ * jest.mock('ReactDOM', () => ({}));
  * ```
  *
  * Currently ReactDOM and ReactTestRenderer cannot both be loaded in the same

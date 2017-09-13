@@ -12,8 +12,6 @@
 
 'use strict';
 
-jest.disableAutomock();
-
 const getModuleName = require('getModuleName');
 
 test('getModuleName', () => {

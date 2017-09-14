@@ -292,6 +292,7 @@ const argv = yargs
   .help().argv;
 
 // Run script with args
+// $FlowFixMe: Invalid types for yargs. Please fix this when touching this code.
 run(argv).catch(error => {
   console.error(String(error.stack || error));
   process.exit(1);

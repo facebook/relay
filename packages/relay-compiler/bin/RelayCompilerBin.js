@@ -15,14 +15,17 @@
 
 require('babel-polyfill');
 
-const CodegenRunner = require('CodegenRunner');
-const GraphQLConsoleReporter = require('GraphQLConsoleReporter');
-const RelayJSModuleParser = require('RelayJSModuleParser');
-const RelayFileWriter = require('RelayFileWriter');
-const RelayIRTransforms = require('RelayIRTransforms');
-const GraphQLWatchmanClient = require('GraphQLWatchmanClient');
+const {
+  CodegenRunner,
+  ConsoleReporter,
+  WatchmanClient,
+} = require('../graphql-compiler/GraphQLCompilerPublic');
 
-const formatGeneratedModule = require('formatGeneratedModule');
+const RelayJSModuleParser = require('../core/RelayJSModuleParser');
+const RelayFileWriter = require('../codegen/RelayFileWriter');
+const RelayIRTransforms = require('../core/RelayIRTransforms');
+
+const formatGeneratedModule = require('../codegen/formatGeneratedModule');
 const fs = require('fs');
 const path = require('path');
 const yargs = require('yargs');
@@ -121,10 +124,9 @@ Ensure that one such file exists in ${srcDir} or its parents.
     );
   }
 
-  const reporter = new GraphQLConsoleReporter({verbose: options.verbose});
+  const reporter = new ConsoleReporter({verbose: options.verbose});
 
-  const useWatchman =
-    options.watchman && (await GraphQLWatchmanClient.isAvailable());
+  const useWatchman = options.watchman && (await WatchmanClient.isAvailable());
 
   const parserConfigs = {
     default: {

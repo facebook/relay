@@ -40,6 +40,7 @@ const StripUnusedVariablesTransform = require('./transforms/StripUnusedVariables
 const filterContextForNode = require('./core/filterContextForNode');
 const getIdentifierForArgumentValue = require('./core/getIdentifierForArgumentValue');
 
+export type {ParserConfig, WriterConfig} from './codegen/CodegenRunner';
 export type {
   CompileResult,
   File,
@@ -95,7 +96,7 @@ module.exports = {
   MultiReporter: GraphQLMultiReporter,
   Parser: GraphQLParser,
   Printer: GraphQLIRPrinter,
-  SchemaUtiles: GraphQLSchemaUtils,
+  SchemaUtils: GraphQLSchemaUtils,
   Validator: GraphQLValidator,
   filterContextForNode,
   getIdentifierForArgumentValue,

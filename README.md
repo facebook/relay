@@ -22,7 +22,7 @@ Then, just point your browser at `http://localhost:3000`.
 
 ## Contribute
 
-We actively welcome pull requests, learn how to [contribute](./CONTRIBUTING.md).
+We actively welcome pull requests, learn how to [contribute](./.github/CONTRIBUTING.md).
 
 ## Users
 

@@ -12,6 +12,7 @@
  */
 'use strict';
 
+// TODO T21875029 ../../relay-runtime/util/RelayConcreteNode
 import type {ConcreteFragment} from 'RelayConcreteNode';
 
 /* eslint-disable no-unused-vars */

@@ -13,8 +13,7 @@
 
 'use strict';
 
-const ASTCache = require('ASTCache');
-const FindGraphQLTags = require('FindGraphQLTags');
+const FindGraphQLTags = require('../codegen/FindGraphQLTags');
 const GraphQL = require('graphql');
 
 const chalk = require('chalk');
@@ -22,8 +21,9 @@ const fs = require('fs');
 const invariant = require('invariant');
 const path = require('path');
 
-import type {File} from 'CodegenTypes';
-import type {FileFilter} from 'CodegenWatcher';
+const {ASTCache} = require('../graphql-compiler/GraphQLCompilerPublic');
+
+import type {File, FileFilter} from '../graphql-compiler/GraphQLCompilerPublic';
 import type {DocumentNode} from 'graphql';
 
 // Throws an error if parsing the file fails

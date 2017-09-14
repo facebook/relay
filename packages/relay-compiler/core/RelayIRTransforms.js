@@ -13,23 +13,28 @@
 
 'use strict';
 
-const FilterDirectivesTransform = require('FilterDirectivesTransform');
-const FlattenTransform = require('FlattenTransform');
-const GraphQLIRTransforms = require('GraphQLIRTransforms');
-const RelayApplyFragmentArgumentTransform = require('RelayApplyFragmentArgumentTransform');
-const RelayConnectionTransform = require('RelayConnectionTransform');
-const RelayFieldHandleTransform = require('RelayFieldHandleTransform');
-const RelayGenerateIDFieldTransform = require('RelayGenerateIDFieldTransform');
-const RelayGenerateTypeNameTransform = require('RelayGenerateTypeNameTransform');
-const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
-const RelaySkipHandleFieldTransform = require('RelaySkipHandleFieldTransform');
-const RelayViewerHandleTransform = require('RelayViewerHandleTransform');
-const SkipRedundantNodesTransform = require('SkipRedundantNodesTransform');
+const RelayApplyFragmentArgumentTransform = require('../transforms/RelayApplyFragmentArgumentTransform');
+const RelayConnectionTransform = require('../handlers/connection//RelayConnectionTransform');
+const RelayFieldHandleTransform = require('../transforms/RelayFieldHandleTransform');
+const RelayGenerateIDFieldTransform = require('../transforms/RelayGenerateIDFieldTransform');
+const RelayGenerateTypeNameTransform = require('../transforms/RelayGenerateTypeNameTransform');
+const RelayRelayDirectiveTransform = require('../transforms/RelayRelayDirectiveTransform');
+const RelaySkipHandleFieldTransform = require('../transforms/RelaySkipHandleFieldTransform');
+const RelayViewerHandleTransform = require('../handlers/viewer/RelayViewerHandleTransform');
 
-import type CompilerContext from 'GraphQLCompilerContext';
-import type {IRTransform} from 'GraphQLIRTransforms';
+const {
+  FilterDirectivesTransform,
+  FlattenTransform,
+  IRTransforms,
+  SkipRedundantNodesTransform,
+} = require('../graphql-compiler/GraphQLCompilerPublic');
 
-const {fragmentTransforms, queryTransforms} = GraphQLIRTransforms;
+import type {
+  CompilerContext,
+  IRTransform,
+} from '../graphql-compiler/GraphQLCompilerPublic';
+
+const {fragmentTransforms, queryTransforms} = IRTransforms;
 
 // Transforms applied to the code used to process a query response.
 const relaySchemaExtensions: Array<string> = [

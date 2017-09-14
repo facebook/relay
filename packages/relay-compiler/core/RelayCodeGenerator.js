@@ -13,25 +13,29 @@
 
 'use strict';
 
-const GraphQLIRVisitor = require('GraphQLIRVisitor');
-const GraphQLSchemaUtils = require('GraphQLSchemaUtils');
-
+// TODO T21875029 ../../relay-runtime/util/formatStorageKey
 const formatStorageKey = require('formatStorageKey');
 const invariant = require('invariant');
+// TODO T21875029 ../../relay-runtime/util/prettyStringify
 const prettyStringify = require('prettyStringify');
 
+const {
+  IRVisitor,
+  SchemaUtils,
+} = require('../graphql-compiler/GraphQLCompilerPublic');
 const {GraphQLList} = require('graphql');
 
-import type {Fragment, Root} from 'GraphQLIR';
+import type {Fragment, Root} from '../graphql-compiler/GraphQLCompilerPublic';
+// TODO T21875029 ../../relay-runtime/util/RelayConcreteNode
 import type {
   ConcreteArgument,
   ConcreteArgumentDefinition,
   ConcreteFragment,
   ConcreteRoot,
   ConcreteSelection,
+  GeneratedNode,
 } from 'RelayConcreteNode';
-import type {GeneratedNode} from 'RelayConcreteNode';
-const {getRawType, isAbstractType, getNullableType} = GraphQLSchemaUtils;
+const {getRawType, isAbstractType, getNullableType} = SchemaUtils;
 
 /* eslint-disable no-redeclare */
 declare function generate(node: Root): ConcreteRoot;
@@ -53,7 +57,7 @@ function generate(node: Root | Fragment): ConcreteRoot | ConcreteFragment {
     node.kind,
     getErrorMessage(node),
   );
-  return GraphQLIRVisitor.visit(node, RelayCodeGenVisitor);
+  return IRVisitor.visit(node, RelayCodeGenVisitor);
 }
 /* eslint-enable no-redeclare */
 

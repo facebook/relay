@@ -13,11 +13,12 @@
 
 'use strict';
 
-const GraphQLParser = require('GraphQLParser');
-
 const invariant = require('invariant');
 
-const {getRawType} = require('GraphQLSchemaUtils');
+const {
+  Parser,
+  SchemaUtils,
+} = require('../graphql-compiler/GraphQLCompilerPublic');
 const {assertAbstractType, isAbstractType} = require('graphql');
 
 import type {
@@ -30,7 +31,9 @@ import type {
   GraphQLField,
 } from 'graphql';
 
-class RelayParser extends GraphQLParser {
+const {getRawType} = SchemaUtils;
+
+class RelayParser extends Parser {
   _definition: OperationDefinitionNode | FragmentDefinitionNode;
   _schema: GraphQLSchema;
 

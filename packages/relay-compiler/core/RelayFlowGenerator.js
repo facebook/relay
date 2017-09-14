@@ -13,8 +13,11 @@
 
 'use strict';
 
-const FlattenTransform = require('FlattenTransform');
-const GraphQLIRVisitor = require('GraphQLIRVisitor');
+const {
+  FlattenTransform,
+  IRVisitor,
+  SchemaUtils,
+} = require('../graphql-compiler/GraphQLCompilerPublic');
 
 const babelGenerator = require('babel-generator').default;
 const t = require('babel-types');
@@ -31,11 +34,15 @@ const {
   GraphQLType,
   GraphQLUnionType,
 } = require('graphql');
-const {isAbstractType} = require('GraphQLSchemaUtils');
 
-import type {IRTransform} from 'GraphQLIRTransforms';
-import type {Fragment, Root} from 'GraphQLIR';
-import type CompilerContext from 'GraphQLCompilerContext';
+import type {
+  IRTransform,
+  Fragment,
+  Root,
+  CompilerContext,
+} from '../graphql-compiler/GraphQLCompilerPublic';
+
+const {isAbstractType} = SchemaUtils;
 
 export type ScalarTypeMapping = {
   [type: string]: string,
@@ -58,7 +65,7 @@ function generate(
     );
     output.push(printBabel(inputAST));
   }
-  const responseAST = GraphQLIRVisitor.visit(
+  const responseAST = IRVisitor.visit(
     node,
     createVisitor(defaultedCustomScalars),
   );

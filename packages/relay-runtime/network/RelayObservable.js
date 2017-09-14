@@ -33,7 +33,7 @@ export type Observer<T> = {
 
 type Sink<T> = {|
   +next: T => void,
-  +error: Error => void,
+  +error: (Error, isUncaughtThrownError?: boolean) => void,
   +complete: () => void,
   +closed: boolean,
 |};
@@ -52,7 +52,7 @@ export interface Subscribable<T> {
 // however Flow cannot yet distinguish it from T.
 export type ObservableFromValue<T> = RelayObservable<T> | Promise<T> | T;
 
-let hostReportError;
+let hostReportError = swallowError;
 
 /**
  * Limited implementation of ESObservable, providing the limited set of behavior
@@ -79,18 +79,33 @@ class RelayObservable<T> implements Subscribable<T> {
   }
 
   /**
-   * When an unhandled error is detected, it is reported to the host environment
-   * (the ESObservable spec refers to this method as "HostReportErrors()").
+   * When an emitted error event is not handled by an Observer, it is reported
+   * to the host environment (what the ESObservable spec refers to as
+   * "HostReportErrors()").
    *
-   * The default implementation in development builds re-throws errors in a
-   * separate frame, and from production builds does nothing (swallowing
-   * uncaught errors).
+   * The default implementation in development rethrows thrown errors, and
+   * logs emitted error events to the console, while in production does nothing
+   * (swallowing unhandled errors).
    *
    * Called during application initialization, this method allows
-   * application-specific handling of uncaught errors. Allowing, for example,
+   * application-specific handling of unhandled errors. Allowing, for example,
    * integration with error logging or developer tools.
+   *
+   * A second parameter `isUncaughtThrownError` is true when the unhandled error
+   * was thrown within an Observer handler, and false when the unhandled error
+   * was an unhandled emitted event.
+   *
+   *  - Uncaught thrown errors typically represent avoidable errors thrown from
+   *    application code, which should be handled with a try/catch block, and
+   *    usually have useful stack traces.
+   *
+   *  - Unhandled emitted event errors typically represent unavoidable events in
+   *    application flow such as network failure, and may not have useful
+   *    stack traces.
    */
-  static onUnhandledError(callback: Error => mixed): void {
+  static onUnhandledError(
+    callback: (Error, isUncaughtThrownError: boolean) => mixed,
+  ): void {
     hostReportError = callback;
   }
 
@@ -153,7 +168,7 @@ class RelayObservable<T> implements Subscribable<T> {
               error: sink.error,
             });
           } catch (error2) {
-            sink.error(error2);
+            sink.error(error2, true /* isUncaughtThrownError */);
           }
         },
       });
@@ -179,7 +194,7 @@ class RelayObservable<T> implements Subscribable<T> {
           try {
             observer[action] && observer[action].apply(observer, arguments);
           } catch (error) {
-            handleError(error);
+            hostReportError(error, true /* isUncaughtThrownError */);
           }
           sink[action] && sink[action].apply(sink, arguments);
         };
@@ -315,7 +330,7 @@ class RelayObservable<T> implements Subscribable<T> {
               });
             }
           } catch (error) {
-            sink.error(error);
+            sink.error(error, true /* isUncaughtThrownError */);
           }
         },
         error: sink.error,
@@ -424,10 +439,6 @@ function fromValue<T>(value: T): RelayObservable<T> {
   });
 }
 
-function handleError(error: Error): void {
-  hostReportError && hostReportError(error);
-}
-
 function subscribe<T>(source: Source<T>, observer: Observer<T>): Subscription {
   let closed = false;
   let cleanup;
@@ -447,7 +458,7 @@ function subscribe<T>(source: Source<T>, observer: Observer<T>): Subscription {
         try {
           cleanup();
         } catch (error) {
-          handleError(error);
+          hostReportError(error, true /* isUncaughtThrownError */);
         }
       }
       cleanup = undefined;
@@ -464,7 +475,7 @@ function subscribe<T>(source: Source<T>, observer: Observer<T>): Subscription {
         try {
           observer.unsubscribe && observer.unsubscribe(subscription);
         } catch (error) {
-          handleError(error);
+          hostReportError(error, true /* isUncaughtThrownError */);
         } finally {
           doCleanup();
         }
@@ -476,7 +487,7 @@ function subscribe<T>(source: Source<T>, observer: Observer<T>): Subscription {
   try {
     observer.start && observer.start(subscription);
   } catch (error) {
-    handleError(error);
+    hostReportError(error, true /* isUncaughtThrownError */);
   }
 
   // If closed already, don't bother creating a Sink.
@@ -491,24 +502,24 @@ function subscribe<T>(source: Source<T>, observer: Observer<T>): Subscription {
         try {
           observer.next(value);
         } catch (error) {
-          handleError(error);
+          hostReportError(error, true /* isUncaughtThrownError */);
         }
       }
     },
-    error(error) {
-      try {
-        if (closed) {
-          throw error;
-        }
+    error(error, isUncaughtThrownError) {
+      if (closed || !observer.error) {
         closed = true;
-        if (!observer.error) {
-          throw error;
-        }
-        observer.error(error);
-      } catch (error2) {
-        handleError(error2);
-      } finally {
+        hostReportError(error, isUncaughtThrownError || false);
         doCleanup();
+      } else {
+        closed = true;
+        try {
+          observer.error(error);
+        } catch (error2) {
+          hostReportError(error2, true /* isUncaughtThrownError */);
+        } finally {
+          doCleanup();
+        }
       }
     },
     complete() {
@@ -517,7 +528,7 @@ function subscribe<T>(source: Source<T>, observer: Observer<T>): Subscription {
         try {
           observer.complete && observer.complete();
         } catch (error) {
-          handleError(error);
+          hostReportError(error, true /* isUncaughtThrownError */);
         } finally {
           doCleanup();
         }
@@ -529,7 +540,7 @@ function subscribe<T>(source: Source<T>, observer: Observer<T>): Subscription {
   try {
     cleanup = source(sink);
   } catch (error) {
-    sink.error(error);
+    sink.error(error, true /* isUncaughtThrownError */);
   }
 
   if (__DEV__) {
@@ -553,19 +564,28 @@ function subscribe<T>(source: Source<T>, observer: Observer<T>): Subscription {
   return subscription;
 }
 
+function swallowError(_error: Error, _isUncaughtThrownError: boolean): void {
+  // do nothing.
+}
+
 if (__DEV__) {
   // Default implementation of HostReportErrors() in development builds.
   // Can be replaced by the host application environment.
-  RelayObservable.onUnhandledError(error => {
+  RelayObservable.onUnhandledError((error, isUncaughtThrownError) => {
     declare function fail(string): void;
     if (typeof fail === 'function') {
       // In test environments (Jest), fail() immediately fails the current test.
       fail(String(error));
-    } else {
-      // Otherwise, rethrow on the next frame to avoid breaking current logic.
+    } else if (isUncaughtThrownError) {
+      // Rethrow uncaught thrown errors on the next frame to avoid breaking
+      // current logic.
       setTimeout(() => {
         throw error;
       });
+    } else if (typeof console !== 'undefined') {
+      // Otherwise, log the unhandled error for visibility.
+      // eslint-ignore-next-line no-console
+      console.error('RelayObservable: Unhandled Error', error);
     }
   });
 }

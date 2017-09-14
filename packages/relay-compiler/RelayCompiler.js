@@ -13,7 +13,7 @@
 
 'use strict';
 
-const GraphQLCompiler = require('GraphQLCompiler');
+const {Compiler} = require('./graphql-compiler/GraphQLCompilerPublic');
 
 /**
  * For now, the `RelayCompiler` *is* the `GraphQLCompiler`, but we're creating
@@ -21,6 +21,6 @@ const GraphQLCompiler = require('GraphQLCompiler');
  * `RelayCompiler` becomes more specific, and the `GraphQLCompiler` becomes more
  * general).
  */
-const RelayCompiler = GraphQLCompiler;
+const RelayCompiler = Compiler;
 
 module.exports = RelayCompiler;

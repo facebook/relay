@@ -204,7 +204,7 @@ function visitNode(
           type:
             selection.kind === 'InlineFragment'
               ? selection.typeCondition
-              : selection.type,
+              : state.type,
         };
       }
       visitNode(context, options, selectionState, selection);
@@ -302,12 +302,6 @@ function shouldFlattenInlineFragment(
   options: FlattenOptions,
   state: FlattenState,
 ): boolean {
-  // Right now, both the fragment's and state's types could be undefined.
-  if (!fragment.typeCondition) {
-    return !state.type;
-  } else if (!state.type) {
-    return false;
-  }
   return !!(
     isEquivalentType(fragment.typeCondition, state.type) ||
     options.flattenInlineFragments ||

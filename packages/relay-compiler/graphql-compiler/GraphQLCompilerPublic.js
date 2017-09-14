@@ -39,6 +39,7 @@ const StripUnusedVariablesTransform = require('./transforms/StripUnusedVariables
 
 const filterContextForNode = require('./core/filterContextForNode');
 const getIdentifierForArgumentValue = require('./core/getIdentifierForArgumentValue');
+const getLiteralArgumentValues = require('./core/getLiteralArgumentValues');
 
 export type {ParserConfig, WriterConfig} from './codegen/CodegenRunner';
 export type {
@@ -100,6 +101,7 @@ module.exports = {
   Validator: GraphQLValidator,
   filterContextForNode,
   getIdentifierForArgumentValue,
+  getLiteralArgumentValues,
 
   AutoAliasTransform,
   FilterDirectivesTransform,

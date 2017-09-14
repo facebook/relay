@@ -13,7 +13,7 @@
 
 'use strict';
 
-import type {LinkedField} from 'GraphQLIR';
+import type {LinkedField} from '../graphql-compiler/GraphQLCompilerPublic';
 
 function hasUnaliasedSelection(field: LinkedField, fieldName: string): boolean {
   return field.selections.some(

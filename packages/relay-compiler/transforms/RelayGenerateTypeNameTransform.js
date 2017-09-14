@@ -12,13 +12,16 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('GraphQLCompilerContext');
-
-const {isAbstractType} = require('GraphQLSchemaUtils');
-const {hasUnaliasedSelection} = require('RelayTransformUtils');
+const {
+  CompilerContext,
+  SchemaUtils,
+} = require('../graphql-compiler/GraphQLCompilerPublic');
+const {hasUnaliasedSelection} = require('./RelayTransformUtils');
 const {assertLeafType} = require('graphql');
 
-import type {LinkedField, Node} from 'GraphQLIR';
+import type {LinkedField, Node} from '../graphql-compiler/GraphQLCompilerPublic';
+
+const {isAbstractType} = SchemaUtils;
 
 const TYPENAME_KEY = '__typename';
 const STRING_TYPE = 'String';
@@ -29,15 +32,15 @@ const STRING_TYPE = 'String';
  * the first place of the selections.
  */
 
-function transform(context: GraphQLCompilerContext): GraphQLCompilerContext {
+function transform(context: CompilerContext): CompilerContext {
   const documents = context.documents();
-  return documents.reduce((ctx: GraphQLCompilerContext, node) => {
+  return documents.reduce((ctx: CompilerContext, node) => {
     const transformedNode = transformNode(context, node);
     return ctx.add(transformedNode);
-  }, new GraphQLCompilerContext(context.schema));
+  }, new CompilerContext(context.schema));
 }
 
-function transformNode<T: Node>(context: GraphQLCompilerContext, node: T): T {
+function transformNode<T: Node>(context: CompilerContext, node: T): T {
   const selections = node.selections.map(selection => {
     if (selection.kind === 'LinkedField') {
       return transformField(context, selection);
@@ -57,7 +60,7 @@ function transformNode<T: Node>(context: GraphQLCompilerContext, node: T): T {
 }
 
 function transformField(
-  context: GraphQLCompilerContext,
+  context: CompilerContext,
   field: LinkedField,
 ): LinkedField {
   const transformedNode = transformNode(context, field);

@@ -13,17 +13,23 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('GraphQLCompilerContext');
-const GraphQLSchemaUtils = require('GraphQLSchemaUtils');
-
-const {hasUnaliasedSelection} = require('RelayTransformUtils');
+const {
+  CompilerContext,
+  SchemaUtils,
+} = require('../graphql-compiler/GraphQLCompilerPublic');
+const {hasUnaliasedSelection} = require('./RelayTransformUtils');
 const {
   assertAbstractType,
   assertCompositeType,
   assertLeafType,
 } = require('graphql');
 
-import type {InlineFragment, LinkedField, Node, Selection} from 'GraphQLIR';
+import type {
+  InlineFragment,
+  LinkedField,
+  Node,
+  Selection,
+} from '../graphql-compiler/GraphQLCompilerPublic';
 import type {GraphQLCompositeType, GraphQLLeafType, GraphQLType} from 'graphql';
 const {
   canHaveSelections,
@@ -32,7 +38,7 @@ const {
   implementsInterface,
   isAbstractType,
   mayImplement,
-} = GraphQLSchemaUtils;
+} = SchemaUtils;
 
 const ID = 'id';
 const ID_TYPE = 'ID';
@@ -43,15 +49,15 @@ const NODE_TYPE = 'Node';
  * - Adds an `id` selection on any `LinkedField` of type that implements `Node`
  *   or has an id field but where there is no unaliased `id` selection.
  */
-function transform(context: GraphQLCompilerContext): GraphQLCompilerContext {
+function transform(context: CompilerContext): CompilerContext {
   const documents = context.documents();
-  return documents.reduce((ctx: GraphQLCompilerContext, node) => {
+  return documents.reduce((ctx: CompilerContext, node) => {
     const transformedNode = transformNode(context, node);
     return ctx.add(transformedNode);
-  }, new GraphQLCompilerContext(context.schema));
+  }, new CompilerContext(context.schema));
 }
 
-function transformNode<T: Node>(context: GraphQLCompilerContext, node: T): T {
+function transformNode<T: Node>(context: CompilerContext, node: T): T {
   const selections = node.selections.map(selection => {
     if (selection.kind === 'LinkedField') {
       return transformField(context, selection);
@@ -71,7 +77,7 @@ function transformNode<T: Node>(context: GraphQLCompilerContext, node: T): T {
 }
 
 function transformField(
-  context: GraphQLCompilerContext,
+  context: CompilerContext,
   field: LinkedField,
 ): LinkedField {
   const transformedNode = transformNode(context, field);
@@ -100,7 +106,7 @@ function transformField(
  *   implement `Node`
  */
 function generateIDSelections(
-  context: GraphQLCompilerContext,
+  context: CompilerContext,
   field: LinkedField,
   type: GraphQLType,
 ): ?Array<Selection> {

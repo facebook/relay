@@ -13,22 +13,25 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('GraphQLCompilerContext');
-const GraphQLIRTransformer = require('GraphQLIRTransformer');
-
+// TODO T21875029 ../../relay-runtime/util/getRelayHandleKey
 const getRelayHandleKey = require('getRelayHandleKey');
 const invariant = require('invariant');
 
-import type {Field} from 'GraphQLIR';
+const {
+  CompilerContext,
+  IRTransformer,
+} = require('../graphql-compiler/GraphQLCompilerPublic');
+
+import type {Field} from '../graphql-compiler/GraphQLCompilerPublic';
 import type {GraphQLSchema} from 'graphql';
 
 type State = true;
 
 function transform(
-  context: GraphQLCompilerContext,
+  context: CompilerContext,
   schema: GraphQLSchema,
-): GraphQLCompilerContext {
-  return GraphQLIRTransformer.transform(
+): CompilerContext {
+  return IRTransformer.transform(
     context,
     {
       LinkedField: visitField,

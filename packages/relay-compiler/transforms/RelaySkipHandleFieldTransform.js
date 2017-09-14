@@ -13,10 +13,15 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('GraphQLCompilerContext');
-const GraphQLIRTransformer = require('GraphQLIRTransformer');
+const {
+  CompilerContext,
+  IRTransformer,
+} = require('../graphql-compiler/GraphQLCompilerPublic');
 
-import type {LinkedField, ScalarField} from 'GraphQLIR';
+import type {
+  LinkedField,
+  ScalarField,
+} from '../graphql-compiler/GraphQLCompilerPublic';
 import type {GraphQLSchema} from 'graphql';
 
 type State = true;
@@ -26,10 +31,10 @@ type State = true;
  * printing queries to send to a GraphQL server.
  */
 function transform(
-  context: GraphQLCompilerContext,
+  context: CompilerContext,
   schema: GraphQLSchema,
-): GraphQLCompilerContext {
-  return GraphQLIRTransformer.transform(
+): CompilerContext {
+  return IRTransformer.transform(
     context,
     {
       LinkedField: visitField,

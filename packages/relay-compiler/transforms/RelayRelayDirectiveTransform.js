@@ -13,13 +13,15 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('../graphql-compiler/core/GraphQLCompilerContext');
-const GraphQLIRTransformer = require('../graphql-compiler/core/GraphQLIRTransformer');
-
-const getLiteralArgumentValues = require('../graphql-compiler/core/getLiteralArgumentValues');
 const invariant = require('invariant');
 
-import type {Fragment} from '../graphql-compiler/core/GraphQLIR';
+const {
+  CompilerContext,
+  IRTransformer,
+  getLiteralArgumentValues,
+} = require('../graphql-compiler/GraphQLCompilerPublic');
+
+import type {Fragment} from '../graphql-compiler/GraphQLCompilerPublic';
 
 const RELAY = 'relay';
 const PLURAL = 'plural';
@@ -46,8 +48,8 @@ const SCHEMA_EXTENSION = `directive @relay(
  * A transform that extracts `@relay(plural: Boolean)` directives and converts
  * them to metadata that can be accessed at runtime.
  */
-function transform(context: GraphQLCompilerContext): GraphQLCompilerContext {
-  return GraphQLIRTransformer.transform(
+function transform(context: CompilerContext): CompilerContext {
+  return IRTransformer.transform(
     context,
     {
       Fragment: visitFragment,

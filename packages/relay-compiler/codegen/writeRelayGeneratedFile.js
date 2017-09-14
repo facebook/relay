@@ -15,9 +15,11 @@
 
 const crypto = require('crypto');
 const invariant = require('invariant');
+// TODO T21875029 ../../relay-runtime/util/prettyStringify
 const prettyStringify = require('prettyStringify');
 
-import type CodegenDirectory from 'CodegenDirectory';
+import type {CodegenDirectory} from '../graphql-compiler/GraphQLCompilerPublic';
+// TODO T21875029 ../../relay-runtime/util/RelayConcreteNode
 import type {GeneratedNode} from 'RelayConcreteNode';
 
 /**

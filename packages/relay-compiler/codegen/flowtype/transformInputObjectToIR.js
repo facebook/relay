@@ -13,7 +13,7 @@
 
 'use strict';
 
-const {getRawType} = require('GraphQLSchemaUtils');
+const {SchemaUtils} = require('../../graphql-compiler/GraphQLCompilerPublic');
 const {
   GraphQLEnumType,
   GraphQLInputObjectType,
@@ -21,7 +21,12 @@ const {
   GraphQLScalarType,
 } = require('graphql');
 
-import type {LinkedField, ScalarField} from 'GraphQLIR';
+import type {
+  LinkedField,
+  ScalarField,
+} from '../../graphql-compiler/GraphQLCompilerPublic';
+
+const {getRawType} = SchemaUtils;
 
 /**
  * Transforms a GraphQLInputObjectType to a GraphQLIR LinkedField.

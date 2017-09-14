@@ -13,7 +13,7 @@
 
 'use strict';
 
-import type {FormatModule} from 'writeRelayGeneratedFile';
+import type {FormatModule} from './writeRelayGeneratedFile';
 
 const formatGeneratedModule: FormatModule = ({
   moduleName,

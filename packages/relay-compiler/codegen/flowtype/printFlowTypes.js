@@ -15,11 +15,11 @@
 
 const generate = require('babel-generator').default;
 const t = require('babel-types');
-const transformInputObjectToIR = require('transformInputObjectToIR');
+const transformInputObjectToIR = require('./transformInputObjectToIR');
 const traverse = require('babel-traverse').default;
 
-const {RELAY_CLASSIC_MUTATION} = require('RelayFlowParser');
-const {getRawType} = require('GraphQLSchemaUtils');
+const {RELAY_CLASSIC_MUTATION} = require('./RelayFlowParser');
+const {SchemaUtils} = require('../../graphql-compiler/GraphQLCompilerPublic');
 const {
   GraphQLEnumType,
   GraphQLList,
@@ -27,11 +27,19 @@ const {
   GraphQLScalarType,
 } = require('graphql');
 
-import type {Fragment, LinkedField, Root, Selection} from 'GraphQLIR';
+import type {
+  Fragment,
+  LinkedField,
+  Root,
+  Selection,
+} from '../../graphql-compiler/GraphQLCompilerPublic';
 import type {GraphQLType} from 'graphql';
+
+const {getRawType} = SchemaUtils;
 
 const FIELD_BLACKLIST = ['clientMutationId', 'client_mutation_id'];
 
+// eslint-disable-next-line no-unclear-flowtypes
 type Annotation = Object;
 
 /**

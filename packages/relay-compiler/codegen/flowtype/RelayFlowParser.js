@@ -13,11 +13,11 @@
 
 'use strict';
 
-const RelayParser = require('RelayParser');
+const RelayParser = require('../../core/RelayParser');
 
 const invariant = require('invariant');
 
-const {isOperationDefinitionAST} = require('GraphQLSchemaUtils');
+const {SchemaUtils} = require('../../graphql-compiler/GraphQLCompilerPublic');
 const {
   ArgumentsOfCorrectTypeRule,
   DefaultValuesOfCorrectTypeRule,
@@ -34,8 +34,13 @@ const {
   VariablesInAllowedPositionRule,
 } = require('graphql');
 
-import type {Fragment, Root} from 'GraphQLIR';
+import type {
+  Fragment,
+  Root,
+} from '../../graphql-compiler/GraphQLCompilerPublic';
 import type {DocumentNode, GraphQLSchema} from 'graphql';
+
+const {isOperationDefinitionAST} = SchemaUtils;
 
 type GraphQLLocation = {
   column: number,

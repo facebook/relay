@@ -13,15 +13,15 @@
 
 'use strict';
 
-const RelayCompilerCache = require('RelayCompilerCache');
+const RelayCompilerCache = require('../util/RelayCompilerCache');
 
 const babylon = require('babylon');
-const getModuleName = require('getModuleName');
+const getModuleName = require('../util/getModuleName');
 const graphql = require('graphql');
 const path = require('path');
 const util = require('util');
 
-import type {File} from 'CodegenTypes';
+import type {File} from '../graphql-compiler/GraphQLCompilerPublic';
 
 // Attempt to be as inclusive as possible of source text.
 const BABYLON_OPTIONS = {

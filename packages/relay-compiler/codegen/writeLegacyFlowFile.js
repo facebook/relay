@@ -15,7 +15,7 @@
 
 const SignedSource = require('signedsource');
 
-import type CodegenDirectory from 'CodegenDirectory';
+import type {CodegenDirectory} from '../graphql-compiler/GraphQLCompilerPublic';
 
 function writeLegacyFlowFile(
   outputDirectory: CodegenDirectory,

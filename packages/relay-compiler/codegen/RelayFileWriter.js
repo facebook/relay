@@ -13,39 +13,44 @@
 
 'use strict';
 
-const ASTConvert = require('ASTConvert');
-const CodegenDirectory = require('CodegenDirectory');
-const GraphQLCompilerContext = require('GraphQLCompilerContext');
-const RelayCompiler = require('RelayCompiler');
-const RelayFlowGenerator = require('RelayFlowGenerator');
-const RelayParser = require('RelayParser');
-const RelayValidator = require('RelayValidator');
+const RelayCompiler = require('../RelayCompiler');
+const RelayFlowGenerator = require('../core/RelayFlowGenerator');
+const RelayParser = require('../core/RelayParser');
+const RelayValidator = require('../core/RelayValidator');
 
 const invariant = require('invariant');
 const path = require('path');
-const printFlowTypes = require('printFlowTypes');
+const printFlowTypes = require('./flowtype/printFlowTypes');
 const writeLegacyFlowFile = require('./writeLegacyFlowFile');
 const writeRelayGeneratedFile = require('./writeRelayGeneratedFile');
 
-const {isOperationDefinitionAST} = require('GraphQLSchemaUtils');
-const {generate} = require('RelayCodeGenerator');
+const {generate} = require('../core/RelayCodeGenerator');
+const {
+  ASTConvert,
+  CodegenDirectory,
+  CompilerContext,
+  SchemaUtils,
+} = require('../graphql-compiler/GraphQLCompilerPublic');
 const {Map: ImmutableMap} = require('immutable');
 
-import type {FileWriterInterface} from 'CodegenTypes';
+import type {RelayGeneratedNode} from '../core/RelayCodeGenerator';
+import type {ScalarTypeMapping} from '../core/RelayFlowGenerator';
 import type {
   CompiledNode,
   CompiledDocumentMap,
   CompilerTransforms,
-} from 'GraphQLCompiler';
-import type {RelayGeneratedNode} from 'RelayCodeGenerator';
+  FileWriterInterface,
+} from '../graphql-compiler/GraphQLCompilerPublic';
+import type {FormatModule} from './writeRelayGeneratedFile';
+// TODO T21875029 ../../relay-runtime/util/RelayConcreteNode
 import type {GeneratedNode} from 'RelayConcreteNode';
-import type {ScalarTypeMapping} from 'RelayFlowGenerator';
 import type {DocumentNode, GraphQLSchema} from 'graphql';
-import type {FormatModule} from 'writeRelayGeneratedFile';
+
+const {isOperationDefinitionAST} = SchemaUtils;
 
 export type GenerateExtraFiles = (
   getOutputDirectory: (path?: string) => CodegenDirectory,
-  compilerContext: GraphQLCompilerContext,
+  compilerContext: CompilerContext,
   getGeneratedDirectory: (definitionName: string) => CodegenDirectory,
 ) => void;
 
@@ -148,7 +153,7 @@ class RelayFileWriter implements FileWriterInterface {
       RelayParser.transform.bind(RelayParser),
     );
 
-    const compilerContext = new GraphQLCompilerContext(extendedSchema);
+    const compilerContext = new CompilerContext(extendedSchema);
     const compiler = new RelayCompiler(
       this._baseSchema,
       compilerContext,

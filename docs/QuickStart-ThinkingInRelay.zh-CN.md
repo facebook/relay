@@ -1,11 +1,11 @@
---- ---
-id：thinking-in-relay
-标题：Relay编程思想
-layout：docs
-类别：快速入门
-permalink：docs / thinking-in-relay.html
-下一个：视频
---- ---
+---
+id: thinking-in-relay
+title: Relay编程思想
+layout: docs
+category: Quick Start
+permalink: docs/thinking-in-relay.zh-CN.html
+next: videos
+---
 
 Relay的数据获取方法大大受到我们React的经验的启发。特别是，React将复杂的接口拆分为可重用的**组件**，允许开发人员孤立地推断应用程序的离散单元，并减少应用程序的不同部分之间的耦合。更重要的是，这些组件是**声明性的**：它们允许开发人员指定*什么* UI应该是给定的状态，而不必担心*如何显示该UI*。与以前使用命令来操作本地视图（例如DOM）的方法不同，React使用UI描述来自动确定必要的命令。
 

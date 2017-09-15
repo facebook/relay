@@ -23,7 +23,7 @@ commitMutation(
     onError?: ?(error: Error) => void,
     optimisticResponse?: Object,
     optimisticUpdater?: ?(store: RecordSourceSelectorProxy) => void,
-    updater?: ?(store: RecordSourceSelectorProxy) => void,
+    updater?: ?(store: RecordSourceSelectorProxy, data: SelectorData) => void,
     configs?: Array<RelayMutationConfig>,
   },
 );

@@ -18,7 +18,7 @@ const warning = require('warning');
 
 import type {Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
-import type {Environment, RecordSourceSelectorProxy} from 'RelayStoreTypes';
+import type {Environment, SelectorStoreUpdater} from 'RelayStoreTypes';
 import type {RelayMutationConfig, Variables} from 'RelayTypes';
 
 export type GraphQLSubscriptionConfig = {|
@@ -28,7 +28,7 @@ export type GraphQLSubscriptionConfig = {|
   onCompleted?: ?() => void,
   onError?: ?(error: Error) => void,
   onNext?: ?(response: ?Object) => void,
-  updater?: ?(store: RecordSourceSelectorProxy) => void,
+  updater?: ?SelectorStoreUpdater,
 |};
 
 function requestRelaySubscription(

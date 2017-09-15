@@ -22,7 +22,7 @@ requestSubscription(
     onCompleted?: ?() => void,
     onError?: ?(error: Error) => void,
     onNext?: ?(response: ?Object) => void,
-    updater?: ?(store: RecordSourceSelectorProxy) => void,
+    updater?: ?(store: RecordSourceSelectorProxy, data: SelectorData) => void,
     configs?: Array<RelayMutationConfig>,
   },
 );

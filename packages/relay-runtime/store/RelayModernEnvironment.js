@@ -122,6 +122,10 @@ class RelayModernEnvironment implements Environment {
     return this._store;
   }
 
+  getNetwork(): Network {
+    return this._network;
+  }
+
   getDebugger(): ?EnvironmentDebugger {
     return this._debugger;
   }

@@ -134,6 +134,11 @@ class RelayMarkSweepStore implements Store {
     return {dispose};
   }
 
+  // Internal API
+  __getUpdatedRecordIDs(): UpdatedRecords {
+    return this._updatedRecordIDs;
+  }
+
   _updateSubscription(subscription: Subscription): void {
     const {callback, snapshot} = subscription;
     if (!hasOverlappingIDs(snapshot, this._updatedRecordIDs)) {

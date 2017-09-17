@@ -25,8 +25,12 @@ describe('RelayParser', () => {
   });
 
   it('matches expected output', () => {
-    expect('fixtures/parser').toMatchGolden(text =>
-      prettyStringify(RelayParser.parse(RelayTestSchema, text)),
-    );
+    expect('fixtures/parser').toMatchGolden(text => {
+      try {
+        return prettyStringify(RelayParser.parse(RelayTestSchema, text));
+      } catch (e) {
+        return 'ERROR:\n' + e;
+      }
+    });
   });
 });

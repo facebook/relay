@@ -233,8 +233,8 @@ class GraphQLParser {
         invariant(
           variableType == null ||
             isTypeSubTypeOf(this._schema, localArgument.type, variableType),
-          'GraphQLParser: Variable `$%s` was defined as type `%s`, but used in a ' +
-            'location that expects type `%s`. Source: %s.',
+          'GraphQLParser: Variable `$%s` was defined as type `%s`, but used ' +
+            'in a location that expects type `%s`. Source: %s.',
           name,
           localArgument.type,
           variableType,
@@ -290,8 +290,8 @@ class GraphQLParser {
     }
     invariant(
       args.length,
-      'GraphQLParser: Directive %s requires arguments: remove the directive to ' +
-        'skip defining local variables for this fragment `%s`. Source: %s.',
+      'GraphQLParser: Directive %s requires arguments: remove the directive ' +
+        'to skip defining local variables for this fragment `%s`. Source: %s.',
       ARGUMENT_DEFINITIONS,
       getName(fragment),
       this._getErrorContext(),
@@ -301,9 +301,9 @@ class GraphQLParser {
       const argValue = this._transformValue(arg.value);
       invariant(
         argValue.kind === 'Literal',
-        'GraphQLParser: Expected definition for variable `%s` to be an object ' +
-          'with the following shape: `{type: string, defaultValue?: mixed}`, got ' +
-          '`%s`. Source: %s.',
+        'GraphQLParser: Expected definition for variable `%s` to be an ' +
+          'object with the following shape: `{type: string, defaultValue?: ' +
+          'mixed}`, got `%s`. Source: %s.',
         argValue,
         this._getErrorContext(),
       );
@@ -313,14 +313,35 @@ class GraphQLParser {
           typeof value === 'object' &&
           value !== null &&
           typeof value.type === 'string',
-        'GraphQLParser: Expected definition for variable `%s` to be an object ' +
-          'with the following shape: `{type: string, defaultValue?: mixed}`, got ' +
-          '`%s`. Source: %s.',
+        'GraphQLParser: Expected definition for variable `%s` to be an ' +
+          'object with the following shape: `{type: string, defaultValue?: ' +
+          'mixed, nonNull?: boolean, list?: boolean}`, got `%s`. Source: %s.',
         argName,
         argValue,
         this._getErrorContext(),
       );
-      const typeAST = parseType(value.type);
+
+      const valueType = value.type;
+
+      const unknownKeys = Object.keys(value).filter(
+        key =>
+          key !== 'type' &&
+          key !== 'defaultValue' &&
+          key !== 'nonNull' &&
+          key !== 'list',
+      );
+      invariant(
+        unknownKeys.length === 0,
+        'GraphQLParser: Expected definition for variable `%s` to be an ' +
+          'object with the following shape: `{type: string, defaultValue?: ' +
+          'mixed, nonNull?: boolean, list?: boolean}`, got unknown key(s) ' +
+          '`%s`. Source: %s.',
+        argName,
+        unknownKeys.join('`, `'),
+        this._getErrorContext(),
+      );
+
+      const typeAST = parseType(valueType);
       const type = assertInputType(getTypeFromAST(this._schema, typeAST));
       return {
         kind: 'LocalArgumentDefinition',

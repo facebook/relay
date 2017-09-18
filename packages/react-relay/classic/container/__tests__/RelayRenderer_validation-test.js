@@ -17,6 +17,7 @@ jest.enableAutomock();
 require('configureForRelayOSS');
 
 jest.unmock('RelayRenderer');
+jest.unmock('react-test-renderer/shallow');
 
 const React = require('React');
 const ReactTestUtils = require('ReactTestUtils');
@@ -25,14 +26,16 @@ const RelayEnvironment = require('RelayEnvironment');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayRenderer = require('RelayRenderer');
 const RelayTestUtils = require('RelayTestUtils');
+const ShallowRenderer = require('react-test-renderer/shallow');
 
 describe('RelayRenderer.validation', () => {
   let MockComponent;
   let MockContainer;
-  let ShallowRenderer;
 
   let queryConfig;
   let environment;
+  let shallowRenderer;
+
   const {error} = console;
 
   beforeEach(() => {
@@ -47,7 +50,8 @@ describe('RelayRenderer.validation', () => {
     MockContainer = RelayClassic.createContainer(MockComponent, {
       fragments: {},
     });
-    ShallowRenderer = ReactTestUtils.createRenderer();
+
+    shallowRenderer = new ShallowRenderer();
 
     queryConfig = RelayQueryConfig.genMockInstance();
     environment = new RelayEnvironment();
@@ -69,7 +73,7 @@ describe('RelayRenderer.validation', () => {
 
   it('requires a valid `Container` prop', () => {
     expect(() =>
-      ShallowRenderer.render(
+      shallowRenderer.render(
         <RelayRenderer queryConfig={queryConfig} environment={environment} />,
       ),
     ).toThrowError(
@@ -78,7 +82,7 @@ describe('RelayRenderer.validation', () => {
     );
 
     expect(() =>
-      ShallowRenderer.render(
+      shallowRenderer.render(
         <RelayRenderer
           Container={MockComponent}
           queryConfig={queryConfig}
@@ -93,7 +97,7 @@ describe('RelayRenderer.validation', () => {
 
   it('requires a valid `queryConfig` prop', () => {
     expect(() =>
-      ShallowRenderer.render(
+      shallowRenderer.render(
         <RelayRenderer Container={MockContainer} environment={environment} />,
       ),
     ).toThrowError(
@@ -102,7 +106,7 @@ describe('RelayRenderer.validation', () => {
     );
 
     expect(() =>
-      ShallowRenderer.render(
+      shallowRenderer.render(
         <RelayRenderer
           Container={MockContainer}
           queryConfig={{}}
@@ -117,7 +121,7 @@ describe('RelayRenderer.validation', () => {
 
   it('requires a valid `environment` prop', () => {
     expect(() =>
-      ShallowRenderer.render(
+      shallowRenderer.render(
         <RelayRenderer Container={MockContainer} queryConfig={queryConfig} />,
       ),
     ).toThrowError(
@@ -127,7 +131,7 @@ describe('RelayRenderer.validation', () => {
     );
 
     expect(() =>
-      ShallowRenderer.render(
+      shallowRenderer.render(
         <RelayRenderer
           Container={MockContainer}
           queryConfig={queryConfig}

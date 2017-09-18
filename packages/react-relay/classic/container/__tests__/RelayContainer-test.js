@@ -17,6 +17,7 @@ jest.enableAutomock();
 require('configureForRelayOSS');
 
 jest.unmock('create-react-class');
+jest.unmock('react-test-renderer/shallow');
 jest.unmock('RelayContainerComparators').mock('warning');
 
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
@@ -30,6 +31,7 @@ const RelayMutation = require('RelayMutation');
 const RelayQuery = require('RelayQuery');
 const RelayRoute = require('RelayRoute');
 const RelayTestUtils = require('RelayTestUtils');
+const ShallowRenderer = require('react-test-renderer/shallow');
 
 const warning = require('warning');
 
@@ -44,11 +46,14 @@ describe('RelayContainer', function() {
   let mockFooPointer;
   let mockRoute;
   let render;
+  let shallowRenderer;
 
   const {getNode, getPointer} = RelayTestUtils;
 
   beforeEach(function() {
     jest.resetModules();
+
+    shallowRenderer = new ShallowRenderer();
 
     render = jest.fn(function() {
       // Make it easier to expect prop values.
@@ -327,9 +332,8 @@ describe('RelayContainer', function() {
   });
 
   it('throws if rendered without a relay context', () => {
-    const ShallowRenderer = ReactTestUtils.createRenderer();
     expect(() =>
-      ShallowRenderer.render(<MockContainer foo={mockFooPointer} />),
+      shallowRenderer.render(<MockContainer foo={mockFooPointer} />),
     ).toFailInvariant(
       'RelayContainer: `Relay(MockComponent)` was rendered with invalid ' +
         'Relay context `undefined`. Make sure the `relay` property on the ' +
@@ -339,9 +343,8 @@ describe('RelayContainer', function() {
 
   it('throws if rendered with an invalid relay context', () => {
     const fakeContext = {};
-    const ShallowRenderer = ReactTestUtils.createRenderer();
     expect(() =>
-      ShallowRenderer.render(<MockContainer foo={mockFooPointer} />, {
+      shallowRenderer.render(<MockContainer foo={mockFooPointer} />, {
         relay: fakeContext,
       }),
     ).toFailInvariant(
@@ -352,13 +355,12 @@ describe('RelayContainer', function() {
   });
 
   it('throws if rendered without a route', () => {
-    const ShallowRenderer = ReactTestUtils.createRenderer();
     const relay = {
       environment,
       variables: {},
     };
     expect(() =>
-      ShallowRenderer.render(<MockContainer foo={mockFooPointer} />, {relay}),
+      shallowRenderer.render(<MockContainer foo={mockFooPointer} />, {relay}),
     ).toFailInvariant(
       'RelayContainer: `Relay(MockComponent)` was rendered without a valid ' +
         'route. Make sure the route is valid, and make sure that it is ' +

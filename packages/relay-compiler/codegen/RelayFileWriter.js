@@ -20,8 +20,6 @@ const RelayValidator = require('../core/RelayValidator');
 
 const invariant = require('invariant');
 const path = require('path');
-const printFlowTypes = require('./flowtype/printFlowTypes');
-const writeLegacyFlowFile = require('./writeLegacyFlowFile');
 const writeRelayGeneratedFile = require('./writeRelayGeneratedFile');
 
 const {generate} = require('../core/RelayCodeGenerator');
@@ -199,20 +197,6 @@ class RelayFileWriter implements FileWriterInterface {
           if (baseDefinitionNames.has(node.name)) {
             // don't add definitions that were part of base context
             return;
-          }
-          if (
-            this._config.fragmentsWithLegacyFlowTypes &&
-            this._config.fragmentsWithLegacyFlowTypes.has(node.name)
-          ) {
-            const legacyFlowTypes = printFlowTypes(node);
-            if (legacyFlowTypes) {
-              writeLegacyFlowFile(
-                getGeneratedDirectory(node.name),
-                node.name,
-                legacyFlowTypes,
-                this._config.platform,
-              );
-            }
           }
 
           const flowTypes = RelayFlowGenerator.generate(

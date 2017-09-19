@@ -1,4 +1,0 @@
-fragment myFragment on User {
-  id
-  likers @fixme_fat_interface
-}

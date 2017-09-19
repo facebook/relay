@@ -1,3 +1,0 @@
-fragment myFragment on User {
-  name
-}

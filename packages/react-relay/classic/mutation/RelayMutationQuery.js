@@ -110,7 +110,7 @@ const RelayMutationQuery = {
           mutatedFields.push(mutationField);
         }
       }
-      /* eslint-disable no-console-disallow */
+      /* eslint-disable no-console */
       if (__DEV__ && console.groupCollapsed && console.groupEnd) {
         console.groupCollapsed('Building fragment for `' + fieldName + '`');
         console.log(RelayNodeInterface.ID + ': ', dataIDOrIDs);
@@ -130,7 +130,7 @@ const RelayMutationQuery = {
         );
         console.groupEnd();
       }
-      /* eslint-enable no-console-disallow */
+      /* eslint-enable no-console */
     });
     return buildMutationFragment(fatQuery, mutatedFields);
   },
@@ -238,7 +238,7 @@ const RelayMutationQuery = {
 
         const callsWithValues = trackedConnection.getRangeBehaviorCalls();
         const rangeBehavior = getRangeBehavior(rangeBehaviors, callsWithValues);
-        /* eslint-disable no-console-disallow */
+        /* eslint-disable no-console */
         if (__DEV__ && console.groupCollapsed && console.groupEnd) {
           const serializeRelayQueryCall = require('serializeRelayQueryCall');
           const serializedCalls = callsWithValues
@@ -247,7 +247,7 @@ const RelayMutationQuery = {
             .join('');
           console.log(serializedCalls + ': ' + (rangeBehavior || ''));
         }
-        /* eslint-enable no-console-disallow */
+        /* eslint-enable no-console */
         if (rangeBehavior && rangeBehavior !== REFETCH) {
           // Include edges from all connections that exist in `rangeBehaviors`.
           // This may add duplicates, but they will eventually be flattened.
@@ -376,9 +376,11 @@ const RelayMutationQuery = {
         metadata: {isRequisite: true},
       }),
     ];
+    /* eslint-disable no-console */
     if (__DEV__ && console.groupCollapsed && console.groupEnd) {
       console.groupCollapsed('Mutation Configs');
     }
+    /* eslint-enable no-console */
     configs.forEach(config => {
       switch (config.type) {
         case RelayMutationType.REQUIRED_CHILDREN:
@@ -390,6 +392,7 @@ const RelayMutationQuery = {
             ),
           );
           children = children.concat(newChildren);
+          /* eslint-disable no-console */
           if (__DEV__ && console.groupCollapsed && console.groupEnd) {
             const RelayMutationDebugPrinter = require('RelayMutationDebugPrinter');
             console.groupCollapsed('REQUIRED_CHILDREN');
@@ -400,12 +403,15 @@ const RelayMutationQuery = {
             });
             console.groupEnd();
           }
+          /* eslint-enable no-console */
           break;
 
         case RelayMutationType.RANGE_ADD:
+          /* eslint-disable no-console */
           if (__DEV__ && console.groupCollapsed && console.groupEnd) {
             console.groupCollapsed('RANGE_ADD');
           }
+          /* eslint-enable no-console */
           children.push(
             RelayMutationQuery.buildFragmentForEdgeInsertion({
               connectionName: config.connectionName,
@@ -417,9 +423,11 @@ const RelayMutationQuery = {
               tracker,
             }),
           );
+          /* eslint-disable no-console */
           if (__DEV__ && console.groupCollapsed && console.groupEnd) {
             console.groupEnd();
           }
+          /* eslint-enable no-console */
           break;
 
         case RelayMutationType.RANGE_DELETE:
@@ -440,6 +448,7 @@ const RelayMutationQuery = {
             fatQuery,
           );
           children.push(nodeDeletion);
+          /* eslint-disable no-console */
           if (__DEV__ && console.groupCollapsed && console.groupEnd) {
             const configType =
               config === RelayMutationType.RANGE_DELETE
@@ -459,12 +468,15 @@ const RelayMutationQuery = {
 
             console.groupEnd();
           }
+          /* eslint-enable no-console */
           break;
 
         case RelayMutationType.FIELDS_CHANGE:
+          /* eslint-disable no-console */
           if (__DEV__ && console.groupCollapsed && console.groupEnd) {
             console.groupCollapsed('FIELDS_CHANGE');
           }
+          /* eslint-enable no-console */
           children.push(
             RelayMutationQuery.buildFragmentForFields({
               fatQuery,
@@ -472,9 +484,11 @@ const RelayMutationQuery = {
               tracker,
             }),
           );
+          /* eslint-disable no-console */
           if (__DEV__ && console.groupCollapsed && console.groupEnd) {
             console.groupEnd();
           }
+          /* eslint-enable no-console */
           break;
 
         default:
@@ -486,9 +500,11 @@ const RelayMutationQuery = {
           );
       }
     });
+    /* eslint-disable no-console */
     if (__DEV__ && console.groupCollapsed && console.groupEnd) {
       console.groupEnd();
     }
+    /* eslint-enable no-console */
     return RelayQuery.Mutation.build(
       mutationName,
       fatQuery.getType(),

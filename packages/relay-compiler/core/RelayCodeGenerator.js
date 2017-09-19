@@ -37,6 +37,7 @@ import type {
 } from 'RelayConcreteNode';
 const {getRawType, isAbstractType, getNullableType} = SchemaUtils;
 
+/* eslint-disable no-redeclare */
 declare function generate(node: Root): ConcreteRoot;
 declare function generate(node: Fragment): ConcreteFragment;
 
@@ -58,6 +59,7 @@ function generate(node: Root | Fragment): ConcreteRoot | ConcreteFragment {
   );
   return IRVisitor.visit(node, RelayCodeGenVisitor);
 }
+/* eslint-enable no-redeclare */
 
 const RelayCodeGenVisitor = {
   leave: {

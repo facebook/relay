@@ -13,6 +13,8 @@
 
 'use strict';
 
+/* eslint-disable consistent-this */
+
 const QueryBuilder = require('QueryBuilder');
 const {ConnectionInterface} = require('RelayRuntime');
 const RelayFragmentReference = require('RelayFragmentReference');

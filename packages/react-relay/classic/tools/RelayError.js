@@ -38,7 +38,9 @@ function createError(
   format: string,
   args: Array<mixed>,
 ): Error {
+  /*eslint-disable fb-www/sprintf-like-args */
   const error = new Error(sprintf(format, ...args));
+  /*eslint-enable fb-www/sprintf-like-args */
   error.name = name;
   (error: any).type = type;
   (error: any).framesToPop = 2;

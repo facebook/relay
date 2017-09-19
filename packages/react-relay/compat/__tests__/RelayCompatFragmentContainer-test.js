@@ -43,11 +43,13 @@ describe('RelayCompatFragmentContainer', () => {
     class ContextSetter extends React.Component {
       constructor(props) {
         super();
+        // eslint-disable-next-line no-shadow
         const {environment, variables} = props;
         this.relay = {environment, variables};
         this.state = {props: null};
       }
       componentWillReceiveProps(nextProps) {
+        // eslint-disable-next-line no-shadow
         const {environment, variables} = nextProps;
         if (
           environment !== this.relay.environment ||

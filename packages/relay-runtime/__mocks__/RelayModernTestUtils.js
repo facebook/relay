@@ -148,6 +148,7 @@ const RelayModernTestUtils = {
     }>,
   ): {[key: string]: ConcreteRoot | ConcreteFragment} {
     const RelayCodeGenerator = require('RelayCodeGenerator');
+    // eslint-disable-next-line no-shadow
     const GraphQLCompilerContext = require('GraphQLCompilerContext');
     const RelayParser = require('RelayParser');
     const RelayTestSchema = require('RelayTestSchema');

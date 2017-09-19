@@ -86,6 +86,7 @@ describe('RelayMutation', function() {
       bar: mockBarPointer,
       foo: mockFooPointer,
     });
+    /* eslint-enable no-new */
     mockFooFragment = RelayQuery.Fragment.create(
       buildRQL.Fragment(MockMutation.fragments.foo, initialVariables),
       mockRoute,

@@ -407,6 +407,7 @@ declare function isObservable(p: mixed): boolean %checks(p instanceof
   RelayObservable);
 
 // prettier-ignore
+// eslint-disable-next-line no-redeclare
 function isObservable(obj) {
   return (
     typeof obj === 'object' &&

@@ -61,7 +61,6 @@ export type WriterConfig = {
   outputDir?: string,
   persistQuery?: (text: string) => Promise<string>,
   platform?: string,
-  fragmentsWithLegacyFlowTypes?: Set<string>,
   schemaExtensions: Array<string>,
   relayRuntimeModule?: string,
   inputFieldWhiteListForFlow?: Array<string>,

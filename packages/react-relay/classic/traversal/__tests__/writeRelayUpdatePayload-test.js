@@ -844,7 +844,7 @@ describe('writeRelayUpdatePayload()', () => {
       firstCommentID,
       secondCommentID,
       firstEdgeID,
-      secondEdgeID; // eslint-disable-line max-len
+      secondEdgeID;
 
     beforeEach(() => {
       const records = {};

@@ -128,7 +128,6 @@ describe('dedent()', () => {
     });
 
     it('suppresses blank lines in the output', () => {
-      /* eslint-disable no-trailing-spaces */
       const string = `
         query MyQuery {
           example {
@@ -138,7 +137,6 @@ describe('dedent()', () => {
           more
         }
       `;
-      /* eslint-enable no-trailing-spaces */
       expect(dedent(string, '  ')).toBe(
         '  query MyQuery {\n' +
           '    example {\n' +

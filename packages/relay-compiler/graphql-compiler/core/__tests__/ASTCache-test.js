@@ -15,8 +15,8 @@
 const ASTCache = require('ASTCache');
 const ImmutableMap = require('immutable').Map;
 
-const existingFragments = ImmutableMap({ ExistingFragmentName: 'some/path' });
-const existingOperations = ImmutableMap({ ExistingQueryName: 'some/path' });
+const existingFragments = ImmutableMap({ExistingFragmentName: 'some/path'});
+const existingOperations = ImmutableMap({ExistingQueryName: 'some/path'});
 
 describe('ASTCache', () => {
   describe('document validation', () => {
@@ -27,12 +27,19 @@ describe('ASTCache', () => {
             kind: 'FragmentDefinition',
             name: {
               value: 'SomeFragmentName',
-            }
-          }
-        ]
+            },
+          },
+        ],
       };
-      const result = ASTCache.validateDocument(document, 'path/to/document', existingFragments, existingOperations);
-      expect(result.fragments).toEqual(existingFragments.set('SomeFragmentName', 'path/to/document'));
+      const result = ASTCache.validateDocument(
+        document,
+        'path/to/document',
+        existingFragments,
+        existingOperations,
+      );
+      expect(result.fragments).toEqual(
+        existingFragments.set('SomeFragmentName', 'path/to/document'),
+      );
       expect(result.operations).toBe(ImmutableMap(existingOperations));
     });
 
@@ -43,12 +50,19 @@ describe('ASTCache', () => {
             kind: 'OperationDefinition',
             name: {
               value: 'SomeQueryName',
-            }
-          }
-        ]
+            },
+          },
+        ],
       };
-      const result = ASTCache.validateDocument(document, 'path/to/document', existingFragments, existingOperations);
-      expect(result.operations).toEqual(existingOperations.set('SomeQueryName', 'path/to/document'));
+      const result = ASTCache.validateDocument(
+        document,
+        'path/to/document',
+        existingFragments,
+        existingOperations,
+      );
+      expect(result.operations).toEqual(
+        existingOperations.set('SomeQueryName', 'path/to/document'),
+      );
       expect(result.fragments).toBe(ImmutableMap(existingFragments));
     });
 
@@ -59,17 +73,19 @@ describe('ASTCache', () => {
             kind: 'FragmentDefinition',
             name: {
               value: 'ExistingFragmentName',
-            }
-          }
-        ]
+            },
+          },
+        ],
       };
 
-      expect(() => ASTCache.validateDocument(
-        document,
-        'path/to/document',
-        existingFragments,
-        existingOperations
-      )).toThrow();
+      expect(() =>
+        ASTCache.validateDocument(
+          document,
+          'path/to/document',
+          existingFragments,
+          existingOperations,
+        ),
+      ).toThrow();
     });
 
     it('throws for duplicate fragment names in document', () => {
@@ -79,23 +95,25 @@ describe('ASTCache', () => {
             kind: 'FragmentDefinition',
             name: {
               value: 'NewFragmentName',
-            }
+            },
           },
           {
             kind: 'FragmentDefinition',
             name: {
               value: 'NewFragmentName',
-            }
-          }
-        ]
+            },
+          },
+        ],
       };
 
-      expect(() => ASTCache.validateDocument(
-        document,
-        'path/to/document',
-        existingFragments,
-        existingOperations
-      )).toThrow();
+      expect(() =>
+        ASTCache.validateDocument(
+          document,
+          'path/to/document',
+          existingFragments,
+          existingOperations,
+        ),
+      ).toThrow();
     });
 
     it('throws for already existing operation names', () => {
@@ -105,17 +123,19 @@ describe('ASTCache', () => {
             kind: 'OperationDefinition',
             name: {
               value: 'ExistingQueryName',
-            }
-          }
-        ]
+            },
+          },
+        ],
       };
 
-      expect(() => ASTCache.validateDocument(
-        document,
-        'path/to/document',
-        existingFragments,
-        existingOperations
-      )).toThrow();
+      expect(() =>
+        ASTCache.validateDocument(
+          document,
+          'path/to/document',
+          existingFragments,
+          existingOperations,
+        ),
+      ).toThrow();
     });
 
     it('throws for duplicate operation names in document', () => {
@@ -125,23 +145,25 @@ describe('ASTCache', () => {
             kind: 'OperationDefinition',
             name: {
               value: 'NewQueryName',
-            }
+            },
           },
           {
             kind: 'OperationDefinition',
             name: {
               value: 'NewQueryName',
-            }
-          }
-        ]
+            },
+          },
+        ],
       };
 
-      expect(() => ASTCache.validateDocument(
-        document,
-        'path/to/document',
-        existingFragments,
-        existingOperations
-      )).toThrow();
+      expect(() =>
+        ASTCache.validateDocument(
+          document,
+          'path/to/document',
+          existingFragments,
+          existingOperations,
+        ),
+      ).toThrow();
     });
   });
 });

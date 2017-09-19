@@ -27,11 +27,20 @@ class ASTCache {
   _baseDir: string;
   _parse: ParseFn;
 
-  static validateDocument(doc: DocumentNode, relPath: string, fragments: ImmutableMap<string, string>, operations: ImmutableMap<string, string>) {
+  static validateDocument(
+    doc: DocumentNode,
+    relPath: string,
+    fragments: ImmutableMap<string, string>,
+    operations: ImmutableMap<string, string>,
+  ) {
     let existingFragments = fragments;
     let existingOperations = operations;
-    const fragmentsInFile = doc.definitions.filter(def => def.kind === 'FragmentDefinition')
-    const operationsInFile = doc.definitions.filter(def => def.kind === 'OperationDefinition')
+    const fragmentsInFile = doc.definitions.filter(
+      def => def.kind === 'FragmentDefinition',
+    );
+    const operationsInFile = doc.definitions.filter(
+      def => def.kind === 'OperationDefinition',
+    );
     fragmentsInFile.forEach(fragmentInFile => {
       const fragmentName = fragmentInFile.name.value;
       const existingFragmentPath = existingFragments.get(fragmentName);
@@ -40,7 +49,7 @@ class ASTCache {
         'duplicate fragment %s for Containers at paths: %s, %s',
         fragmentName,
         relPath,
-        existingFragmentPath
+        existingFragmentPath,
       );
       existingFragments = existingFragments.set(fragmentName, relPath);
     });
@@ -52,12 +61,12 @@ class ASTCache {
         'duplicate operation %s for Containers at paths: %s, %s',
         operationName,
         relPath,
-        existingOperationPath
+        existingOperationPath,
       );
       existingOperations = existingOperations.set(operationName, relPath);
     });
 
-    return { fragments: existingFragments, operations: existingOperations };
+    return {fragments: existingFragments, operations: existingOperations};
   }
 
   constructor(config: {baseDir: string, parse: ParseFn}) {
@@ -90,7 +99,12 @@ class ASTCache {
         return;
       }
 
-      const result = ASTCache.validateDocument(doc, file.relPath, fragments, operations);
+      const result = ASTCache.validateDocument(
+        doc,
+        file.relPath,
+        fragments,
+        operations,
+      );
       fragments = result.fragments;
       operations = result.operations;
 

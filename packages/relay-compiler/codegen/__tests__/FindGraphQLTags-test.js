@@ -273,9 +273,7 @@ describe('FindGraphQLTags', () => {
     // });
 
     it('parses queries when query name is different from module name', () => {
-      expect(
-        find('graphql`query NotModuleName { me { id } }`;')
-      ).toEqual([
+      expect(find('graphql`query NotModuleName { me { id } }`;')).toEqual([
         {
           tag: 'graphql',
           template: 'query NotModuleName { me { id } }',
@@ -353,7 +351,7 @@ describe('FindGraphQLTags', () => {
 
     it('parses top-level fragments with valid names', () => {
       expect(
-        find('graphql`fragment NotModuleName on User { name }`;')
+        find('graphql`fragment NotModuleName on User { name }`;'),
       ).toEqual([
         {
           tag: 'graphql',

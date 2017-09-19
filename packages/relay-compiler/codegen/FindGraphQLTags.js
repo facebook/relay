@@ -259,17 +259,17 @@ function validateTemplate(template, moduleName, keyName, filePath, loc) {
     );
     const definitionName = def.name.value;
     if (def.kind === 'OperationDefinition') {
-      const operationNameParts = definitionName.match(
-        /^(.*)(Mutation|Query|Subscription)$/,
-      );
-      invariant(
-        operationNameParts && definitionName.startsWith(moduleName),
-        'FindGraphQLTags: Operation names in graphql tags must be prefixed ' +
-          'with the module name and end in "Mutation", "Query", or ' +
-          '"Subscription". Got `%s` in module `%s`.',
-        definitionName,
-        moduleName,
-      );
+      // const operationNameParts = definitionName.match(
+      //   /^(.*)(Mutation|Query|Subscription)$/,
+      // );
+      // invariant(
+      //   operationNameParts && definitionName.startsWith(moduleName),
+      //   'FindGraphQLTags: Operation names in graphql tags must be prefixed ' +
+      //     'with the module name and end in "Mutation", "Query", or ' +
+      //     '"Subscription". Got `%s` in module `%s`.',
+      //   definitionName,
+      //   moduleName,
+      // );
     } else if (def.kind === 'FragmentDefinition') {
       if (keyName) {
         invariant(
@@ -278,14 +278,6 @@ function validateTemplate(template, moduleName, keyName, filePath, loc) {
             '`<ModuleName>_<propName>`. Got `%s`, expected `%s`.',
           definitionName,
           moduleName + '_' + keyName,
-        );
-      } else {
-        invariant(
-          definitionName.startsWith(moduleName),
-          'FindGraphQLTags: Fragment names in graphql tags must be prefixed ' +
-            'with the module name. Got `%s` in module `%s`.',
-          definitionName,
-          moduleName,
         );
       }
     }

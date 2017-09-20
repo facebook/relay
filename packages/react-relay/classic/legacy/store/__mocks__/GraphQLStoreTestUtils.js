@@ -36,6 +36,7 @@ const GraphQLStoreTestUtils = {
    */
   genMockConsoleFunction: function(type) {
     /* globals expect: false */
+    // eslint-disable-next-line no-console
     const consoleFunction = console[type];
     const whitelistedStrings = [];
     const mockFunction = jest.fn(function(...args) {

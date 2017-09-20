@@ -66,8 +66,6 @@ export type WriterConfig = {
   inputFieldWhiteListForFlow?: Array<string>,
 };
 
-/* eslint-disable no-console-disallow */
-
 class RelayFileWriter implements FileWriterInterface {
   _onlyValidate: boolean;
   _config: WriterConfig;
@@ -261,6 +259,7 @@ class RelayFileWriter implements FileWriterInterface {
     }
 
     const tExtra = Date.now();
+    // eslint-disable-next-line no-console
     console.log(
       'Writer time: %s [%s compiling, %s generating, %s extra]',
       toSeconds(tStart, tExtra),

@@ -27,7 +27,7 @@ import type {CompileResult, File, FileWriterInterface} from './CodegenTypes';
 import type {FileFilter, WatchmanExpression} from './CodegenWatcher';
 import type {DocumentNode, GraphQLSchema} from 'graphql';
 
-/* eslint-disable no-console-disallow */
+/* eslint-disable no-console */
 
 export type ParserConfig = {|
   baseDir: string,

@@ -13,8 +13,6 @@
 
 'use strict';
 
-/* eslint-disable no-console-disallow */
-
 const RelayRecordSourceProxy = require('RelayRecordSourceProxy');
 const RelayRecordSourceSelectorProxy = require('RelayRecordSourceSelectorProxy');
 
@@ -50,6 +48,7 @@ function dumpRelayRecordSourceProxy(proxy: RelayRecordSourceProxy) {
     );
     return;
   }
+  /* eslint-disable no-console */
   console.groupCollapsed('RelayStoreProxyDebugger', '');
   // Create a 'deep copy' of the records through an extra json encode/decode step.
   console.log(
@@ -61,6 +60,7 @@ function dumpRelayRecordSourceProxy(proxy: RelayRecordSourceProxy) {
     JSON.parse(JSON.stringify(mutatorSources[1])),
   );
   console.groupEnd();
+  /* eslint-enable no-console */
 }
 
 module.exports = {dump};

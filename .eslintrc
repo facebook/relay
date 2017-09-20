@@ -5,8 +5,26 @@ extends:
 
 rules:
   # this is very noisy, so disable
-  consistent-return: 0
+  consistent-return: off
+
   # Prettier and ESLint may disagree on the following rules
-  indent: 0
-  array-bracket-spacing: 0
-  comma-dangle: 0
+  indent: off
+  array-bracket-spacing: off
+  comma-dangle: off
+  max-len: off
+
+  # Tests do not need to follow relay naming rules
+  relay/graphql-naming: off
+
+  # Relay uses console statements for debugging and compile feedback
+  no-console:
+    - warn
+    - allow:
+      - warn
+      - error
+      - debug
+      - time
+      - timeEnd
+      - timeStamp
+      - groupCollapsed
+      - groupEnd

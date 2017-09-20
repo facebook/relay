@@ -31,8 +31,10 @@ const FooComponent = ({requiredProp}: {requiredProp: string}) =>
 const Foo = createFragmentContainer(
   FooComponent,
   graphql`
-    fragment ReactRelayFragmentContainer-flowtest_Foo_viewer on Viewer {
-      actor { id }
+    fragment ReactRelayFragmentContainerFlowtest_Foo_viewer on Viewer {
+      actor {
+        id
+      }
     }
   `,
 );
@@ -73,8 +75,10 @@ class BarComponent extends React.Component {
 const Bar = createFragmentContainer(
   BarComponent,
   graphql`
-    fragment ReactRelayFragmentContainer-flowtest_Bar_viewer on Viewer {
-      actor { id }
+    fragment ReactRelayFragmentContainerFlowtest_Bar_viewer on Viewer {
+      actor {
+        id
+      }
     }
   `,
 );

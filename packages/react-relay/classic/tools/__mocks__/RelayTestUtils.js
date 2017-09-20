@@ -668,7 +668,7 @@ const RelayTestUtils = {
     const indentSize = 2;
     const indent = indentBy.bind(null, indentSize);
     const printedQuery = printRelayQuery(flattenRelayQuery(node));
-    /* eslint-disable no-console-disallow */
+    // eslint-disable-next-line no-console
     console.log(
       'Node:\n' +
         indent(prettifyQueryString(printedQuery.text, indentSize)) +
@@ -677,7 +677,6 @@ const RelayTestUtils = {
         indent(prettyStringify(printedQuery.variables, indentSize)) +
         '\n',
     );
-    /* eslint-enable no-console-disallow */
   },
 
   /**

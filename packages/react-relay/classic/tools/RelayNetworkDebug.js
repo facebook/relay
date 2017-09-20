@@ -101,7 +101,6 @@ function createDebuggableFromRequest(
     type,
     promise: request.getPromise(),
     logResult(error, response) {
-      /* eslint-disable no-console-disallow */
       const requestSize = formatSize(
         xhrSimpleDataSerializer({
           q: request.getQueryString(),
@@ -130,12 +129,13 @@ function createDebuggableFromRequest(
       console.groupEnd();
 
       if (Object.keys(requestVariables).length > 0) {
+        // eslint-disable-next-line no-console
         console.log('Request Variables\n', request.getVariables());
       }
 
       error && console.error(error);
+      // eslint-disable-next-line no-console
       response && console.log(response);
-      /* eslint-enable no-console-disallow */
     },
   };
 }

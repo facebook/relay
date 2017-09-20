@@ -58,7 +58,7 @@ class FooComponent extends React.Component {
 const Foo = createRefetchContainer(
   FooComponent,
   graphql`
-    fragment ReactRelayRefetchContainer-flowtest_Foo_viewer on Viewer {
+    fragment ReactRelayRefetchContainerFlowtest_Foo_viewer on Viewer {
       all_friends(after: $cursor, first: $count) @connection {
         edges {
           node {
@@ -69,7 +69,7 @@ const Foo = createRefetchContainer(
     }
   `,
   graphql`
-    query ReactRelayRefetchContainer-flowtest_Foo_ViewerQuery(
+    query ReactRelayRefetchContainerFlowtest_Foo_ViewerQuery(
       $count: Int!
       $cursor: ID
     ) {

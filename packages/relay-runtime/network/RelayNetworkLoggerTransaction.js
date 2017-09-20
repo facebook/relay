@@ -13,8 +13,6 @@
 
 'use strict';
 
-/* eslint-disable no-console-disallow */
-
 const invariant = require('invariant');
 
 import type {CacheConfig} from 'RelayCombinedEnvironmentTypes';
@@ -88,6 +86,7 @@ class RelayNetworkLoggerTransaction implements IRelayNetworkLoggerTransaction {
   }
 
   printLogs(error: ?Error, response: ?QueryPayload, status?: ?string): void {
+    /* eslint-disable no-console */
     const transactionId = this.getIdentifier();
     console.groupCollapsed(`%c${transactionId}`, error ? 'color:red' : '');
     console.timeEnd && console.timeEnd(transactionId);
@@ -95,6 +94,7 @@ class RelayNetworkLoggerTransaction implements IRelayNetworkLoggerTransaction {
       console.log(`${label}:`, ...values);
     });
     console.groupEnd();
+    /* eslint-enable no-console */
   }
 
   commitLogs(error: ?Error, response: ?QueryPayload, status?: ?string): void {

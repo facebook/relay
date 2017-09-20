@@ -12,8 +12,8 @@
 
 'use strict';
 
-const RelayCodeGenerator = require('RelayCodeGenerator');
 const GraphQLCompilerContext = require('GraphQLCompilerContext');
+const RelayCodeGenerator = require('RelayCodeGenerator');
 const RelayTestSchema = require('RelayTestSchema');
 
 const getGoldenMatchers = require('getGoldenMatchers');

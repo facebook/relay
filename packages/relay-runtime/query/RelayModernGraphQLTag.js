@@ -15,13 +15,12 @@
 
 const invariant = require('invariant');
 
-import typeof RelayQL from 'RelayQL';
-
 import type {
   ConcreteFragmentDefinition,
   ConcreteOperationDefinition,
 } from 'ConcreteQuery';
 import type {ConcreteBatch, ConcreteFragment} from 'RelayConcreteNode';
+import typeof RelayQL from 'RelayQL';
 
 // The type of a graphql`...` tagged template expression.
 export type GraphQLTaggedNode =

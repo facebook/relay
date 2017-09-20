@@ -21,7 +21,6 @@ const optimist = require('optimist');
 const path = require('path');
 const reactMiddleware = require('react-page-middleware');
 const serveStatic = require('serve-static');
-const spawn = require('child_process').spawn;
 
 const argv = optimist.argv;
 

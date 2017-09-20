@@ -16,7 +16,6 @@ const glob = require('glob');
 const mkdirp = require('mkdirp');
 const request = require('request');
 const server = require('./server.js');
-const exec = require('child_process').execSync;
 
 // Sadly, our setup fatals when doing multiple concurrent requests
 // I don't have the time to dig into why, it's easier to just serialize
@@ -48,8 +47,6 @@ const queue = (function() {
 buildGraphQLSpec('build');
 
 glob('src/**/*.*', function(er, files) {
-  const count = files.length;
-
   files.forEach(function(file) {
     let targetFile = file.replace(/^src/, 'build');
 

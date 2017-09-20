@@ -24,14 +24,15 @@ const RelayModernTestUtils = {
   matchers: {
     toBeDeeplyFrozen(actual) {
       const {isCollection, forEach} = require('iterall');
-      const forEachObject = require('forEachObject');
 
       function check(value) {
         expect(Object.isFrozen(value)).toBe(true);
         if (isCollection(value)) {
           forEach(value, check);
         } else if (typeof value === 'object' && value !== null) {
-          forEachObject(value, check);
+          for (const key in value) {
+            check(value[key]);
+          }
         }
       }
       check(actual);

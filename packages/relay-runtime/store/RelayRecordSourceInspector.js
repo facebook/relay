@@ -15,7 +15,6 @@
 
 const RelayModernRecord = require('RelayModernRecord');
 
-const forEachObject = require('forEachObject');
 const formatStorageKey = require('formatStorageKey');
 const getRelayHandleKey = require('getRelayHandleKey');
 const invariant = require('invariant');
@@ -140,36 +139,39 @@ class RecordInspector {
 
     // Make it easier to inspect the record in a debugger console:
     // defined properties appear in autocomplete when typing "obj."
-    forEachObject(record, (value, key) => {
-      const identifier = key.replace(/[^_a-zA-Z0-9]/g, '_');
-      if (typeof value === 'object' && value !== null) {
-        if (value.hasOwnProperty(REF_KEY)) {
+    for (const key in record) {
+      if (record.hasOwnProperty(key)) {
+        const value = record[key];
+        const identifier = key.replace(/[^_a-zA-Z0-9]/g, '_');
+        if (typeof value === 'object' && value !== null) {
+          if (value.hasOwnProperty(REF_KEY)) {
+            Object.defineProperty(this, identifier, {
+              configurable: true,
+              enumerable: true,
+              get() {
+                return this.getLinkedRecord(key);
+              },
+            });
+          } else if (value.hasOwnProperty(REFS_KEY)) {
+            Object.defineProperty(this, identifier, {
+              configurable: true,
+              enumerable: true,
+              get() {
+                return this.getLinkedRecords(key);
+              },
+            });
+          }
+        } else {
           Object.defineProperty(this, identifier, {
             configurable: true,
             enumerable: true,
             get() {
-              return this.getLinkedRecord(key);
-            },
-          });
-        } else if (value.hasOwnProperty(REFS_KEY)) {
-          Object.defineProperty(this, identifier, {
-            configurable: true,
-            enumerable: true,
-            get() {
-              return this.getLinkedRecords(key);
+              return this.getValue(key);
             },
           });
         }
-      } else {
-        Object.defineProperty(this, identifier, {
-          configurable: true,
-          enumerable: true,
-          get() {
-            return this.getValue(key);
-          },
-        });
       }
-    });
+    }
   }
 
   /**

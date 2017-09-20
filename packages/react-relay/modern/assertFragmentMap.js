@@ -13,7 +13,6 @@
 
 'use strict';
 
-const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 
 import type {GeneratedNodeMap} from 'ReactRelayTypes';
@@ -34,17 +33,20 @@ function assertFragmentMap(
     fragments,
   );
 
-  forEachObject(fragments, (fragment, key) => {
-    invariant(
-      fragment &&
-        (typeof fragment === 'object' || typeof fragment === 'function'),
-      'Could not create Relay Container for `%s`. ' +
-        'The value of fragment `%s` was expected to be a fragment, got `%s` instead.',
-      componentName,
-      key,
-      fragment,
-    );
-  });
+  for (const key in fragments) {
+    if (fragments.hasOwnProperty(key)) {
+      const fragment = fragments[key];
+      invariant(
+        fragment &&
+          (typeof fragment === 'object' || typeof fragment === 'function'),
+        'Could not create Relay Container for `%s`. ' +
+          'The value of fragment `%s` was expected to be a fragment, got `%s` instead.',
+        componentName,
+        key,
+        fragment,
+      );
+    }
+  }
 }
 
 module.exports = assertFragmentMap;

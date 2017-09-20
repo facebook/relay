@@ -15,7 +15,6 @@
 
 const RelayModernRecord = require('RelayModernRecord');
 
-const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 
 const {EXISTENT} = require('RelayRecordState');
@@ -84,12 +83,14 @@ class RelayRecordSourceMutator {
       const backupRecord = backup.get(dataID);
       if (backupRecord && backupRecord !== UNPUBLISH_RECORD_SENTINEL) {
         let copy = null;
-        forEachObject(record, (value, key) => {
-          if (!(key in backupRecord)) {
-            copy = copy || {...backupRecord};
-            copy[key] = UNPUBLISH_FIELD_SENTINEL;
+        for (const key in record) {
+          if (record.hasOwnProperty(key)) {
+            if (!(key in backupRecord)) {
+              copy = copy || {...backupRecord};
+              copy[key] = UNPUBLISH_FIELD_SENTINEL;
+            }
           }
-        });
+        }
         backup.set(dataID, copy || backupRecord);
       }
     }

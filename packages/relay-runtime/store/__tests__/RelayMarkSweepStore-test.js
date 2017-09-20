@@ -18,7 +18,6 @@ const RelayModernRecord = require('RelayModernRecord');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 const RelayStoreUtils = require('RelayStoreUtils');
 
-const forEachObject = require('forEachObject');
 const simpleClone = require('simpleClone');
 
 const {REF_KEY, ROOT_ID, ROOT_TYPE} = RelayStoreUtils;
@@ -186,9 +185,12 @@ describe('RelayStore', () => {
           ...data,
         },
       });
-      forEachObject(snapshot.seenRecords, (record, id) => {
-        expect(record).toBe(data[id]);
-      });
+      for (const id in snapshot.seenRecords) {
+        if (snapshot.seenRecords.hasOwnProperty(id)) {
+          const record = snapshot.seenRecords[id];
+          expect(record).toBe(data[id]);
+        }
+      }
     });
 
     it('returns deeply-frozen objects', () => {

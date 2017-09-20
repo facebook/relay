@@ -13,7 +13,6 @@
 
 'use strict';
 
-const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const partitionArray = require('partitionArray');
 
@@ -225,30 +224,34 @@ class GraphQLParser {
       getTypeFromAST(this._schema, fragment.typeCondition),
     );
     const selections = this._transformSelections(fragment.selectionSet, type);
-    forEachObject(this._referencedVariables, (variableType, name) => {
-      const localArgument = argumentDefinitions.find(
-        argDef => argDef.name === name,
-      );
-      if (localArgument) {
-        invariant(
-          variableType == null ||
-            isTypeSubTypeOf(this._schema, localArgument.type, variableType),
-          'GraphQLParser: Variable `$%s` was defined as type `%s`, but used ' +
-            'in a location that expects type `%s`. Source: %s.',
-          name,
-          localArgument.type,
-          variableType,
-          this._getErrorContext(),
+    for (const name in this._referencedVariables) {
+      if (this._referencedVariables.hasOwnProperty(name)) {
+        const variableType = this._referencedVariables[name];
+        const localArgument = argumentDefinitions.find(
+          argDef => argDef.name === name,
         );
-      } else {
-        argumentDefinitions.push({
-          kind: 'RootArgumentDefinition',
-          metadata: null,
-          name,
-          type: variableType,
-        });
+        if (localArgument) {
+          invariant(
+            variableType == null ||
+              isTypeSubTypeOf(this._schema, localArgument.type, variableType),
+            'GraphQLParser: Variable `$%s` was defined as type `%s`, but used ' +
+              'in a location that expects type `%s`. Source: %s.',
+            name,
+            localArgument.type,
+            variableType,
+            this._getErrorContext(),
+          );
+        } else {
+          argumentDefinitions.push({
+            kind: 'RootArgumentDefinition',
+            metadata: null,
+            name,
+            // $FlowFixMe - could be null
+            type: variableType,
+          });
+        }
       }
-    });
+    }
     return {
       kind: 'Fragment',
       directives,

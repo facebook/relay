@@ -13,7 +13,6 @@
 
 'use strict';
 
-const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 
 const {DEFAULT_HANDLE_KEY} = require('../util/DefaultHandleKey');
@@ -285,9 +284,13 @@ function printLiteral(value: mixed, type: ?GraphQLInputType): string {
       'GraphQLIRPrinter: Need an InputObject type to print objects.',
     );
     const typeFields = type.getFields();
-    forEachObject(value, (val, key) => {
-      fields.push(key + ': ' + printLiteral(val, typeFields[key].type));
-    });
+    for (const key in value) {
+      if (value.hasOwnProperty(key)) {
+        fields.push(
+          key + ': ' + printLiteral(value[key], typeFields[key].type),
+        );
+      }
+    }
     return '{' + fields.join(', ') + '}';
   } else {
     return JSON.stringify(value);

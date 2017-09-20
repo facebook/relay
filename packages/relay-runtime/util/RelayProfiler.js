@@ -14,7 +14,6 @@
 'use strict';
 
 const emptyFunction = require('emptyFunction');
-const forEachObject = require('forEachObject');
 const removeFromArray = require('removeFromArray');
 
 type Handler = (name: string, callback: () => void) => void;
@@ -88,9 +87,11 @@ const RelayProfiler = {
     object: Function | Object,
     names: {[key: string]: string},
   ): void {
-    forEachObject(names, (name, key) => {
-      object[key] = RelayProfiler.instrument(name, object[key]);
-    });
+    for (const key in names) {
+      if (names.hasOwnProperty(key)) {
+        object[key] = RelayProfiler.instrument(names[key], object[key]);
+      }
+    }
   },
 
   /**

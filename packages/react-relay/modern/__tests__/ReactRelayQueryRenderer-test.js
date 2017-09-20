@@ -652,7 +652,7 @@ describe('ReactRelayQueryRenderer', () => {
     });
 
     it('refetch the query if `retry`', () => {
-      expect.assertions(4);
+      expect.assertions(7);
       render.mockClear();
       const error = new Error('network fails');
       environment.mock.reject(TestQuery, error);
@@ -661,6 +661,13 @@ describe('ReactRelayQueryRenderer', () => {
 
       render.mockClear();
       readyState.retry();
+      expect({
+        error: null,
+        props: null,
+        retry: null,
+      }).toBeRendered();
+
+      render.mockClear();
       const response = {
         data: {
           node: {

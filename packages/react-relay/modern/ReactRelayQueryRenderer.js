@@ -184,7 +184,13 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
             error: null,
             props: snapshot.data,
             retry: () => {
-              this._fetch(operation, cacheConfig);
+              // Do not reset the default state if refetching after success,
+              // handling the case where _fetch may return syncronously instead
+              // of calling setState.
+              const syncReadyState = this._fetch(operation, cacheConfig);
+              if (syncReadyState) {
+                this.setState({readyState: syncReadyState});
+              }
             },
           };
 
@@ -207,7 +213,11 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
             error,
             props: null,
             retry: () => {
-              this._fetch(operation, cacheConfig);
+              // Return to the default state when retrying after an error,
+              // handling the case where _fetch may return syncronously instead
+              // of calling setState.
+              const syncReadyState = this._fetch(operation, cacheConfig);
+              this.setState({readyState: syncReadyState || getDefaultState()});
             },
           };
           if (this._selectionReference) {

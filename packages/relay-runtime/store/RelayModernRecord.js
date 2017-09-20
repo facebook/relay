@@ -15,7 +15,6 @@
 
 const areEqual = require('areEqual');
 const deepFreeze = require('deepFreeze');
-const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 
 const {
@@ -95,11 +94,13 @@ function clone(record: Record): Record {
  * copied on write.
  */
 function copyFields(source: Record, sink: Record): void {
-  forEachObject(source, (value, key) => {
-    if (key !== ID_KEY && key !== TYPENAME_KEY) {
-      sink[key] = value;
+  for (const key in source) {
+    if (source.hasOwnProperty(key)) {
+      if (key !== ID_KEY && key !== TYPENAME_KEY) {
+        sink[key] = source[key];
+      }
     }
-  });
+  }
 }
 
 /**

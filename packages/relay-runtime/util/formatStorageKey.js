@@ -13,7 +13,6 @@
 
 'use strict';
 
-const forEachObject = require('forEachObject');
 const stableJSONStringify = require('stableJSONStringify');
 
 /**
@@ -29,15 +28,18 @@ function formatStorageKey(
     return fieldName;
   }
   let filtered = null;
-  forEachObject(argsWithValues, (value, argName) => {
-    if (value != null) {
-      if (!filtered) {
-        filtered = {};
+  for (const argName in argsWithValues) {
+    if (argsWithValues.hasOwnProperty(argName)) {
+      const value = argsWithValues[argName];
+      if (value != null) {
+        if (!filtered) {
+          filtered = {};
+        }
+        filtered[argName] = value;
       }
-      filtered[argName] = value;
     }
-  });
-  return fieldName + (filtered ? stableJSONStringify(filtered) : '');
+  }
+  return filtered ? fieldName + stableJSONStringify(filtered) : fieldName;
 }
 
 module.exports = formatStorageKey;

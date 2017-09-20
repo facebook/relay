@@ -72,6 +72,7 @@ Using Relay in your production app? If you'd like to add your team to the list, 
 ## S
 
 - [Sainsburys](https://sainsburys.co.uk/)
+- [Sigma](https://sig.ma)
 
 ## T
 

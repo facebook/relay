@@ -13,10 +13,7 @@
 
 'use strict';
 
-/* eslint-disable consistent-this */
-
 const QueryBuilder = require('QueryBuilder');
-const {ConnectionInterface} = require('RelayRuntime');
 const RelayFragmentReference = require('RelayFragmentReference');
 const RelayMetaRoute = require('RelayMetaRoute');
 const RelayProfiler = require('RelayProfiler');
@@ -36,6 +33,7 @@ const serializeRelayQueryCall = require('serializeRelayQueryCall');
 const shallowEqual = require('shallowEqual');
 const stableStringify = require('stableStringify');
 
+const {ConnectionInterface} = require('RelayRuntime');
 const {getFragmentSpreadArguments} = require('RelayVariables');
 
 import type {

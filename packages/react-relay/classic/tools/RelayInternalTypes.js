@@ -20,7 +20,6 @@
  */
 
 import typeof GraphQLMutatorConstants from 'GraphQLMutatorConstants';
-
 import type RelayQuery from 'RelayQuery';
 
 type AfterConnectionArgumentMap = {

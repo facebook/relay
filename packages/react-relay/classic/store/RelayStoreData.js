@@ -20,7 +20,6 @@ const GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
 const QueryBuilder = require('QueryBuilder');
 const RelayChangeTracker = require('RelayChangeTracker');
 const RelayClassicRecordState = require('RelayClassicRecordState');
-const {ConnectionInterface} = require('RelayRuntime');
 const RelayGarbageCollector = require('RelayGarbageCollector');
 const RelayMetaRoute = require('RelayMetaRoute');
 const RelayMutationQueue = require('RelayMutationQueue');
@@ -46,6 +45,7 @@ const warning = require('warning');
 const writeRelayQueryPayload = require('writeRelayQueryPayload');
 const writeRelayUpdatePayload = require('writeRelayUpdatePayload');
 
+const {ConnectionInterface} = require('RelayRuntime');
 const {
   restoreFragmentDataFromCache,
   restoreQueriesDataFromCache,

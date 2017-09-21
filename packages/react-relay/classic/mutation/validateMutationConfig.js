@@ -78,9 +78,7 @@ function validateMutationConfig(
         if (suggestion) {
           invariant(false, '%s; did you mean `%s`?', message, suggestion);
         } else {
-          /* eslint-disable fb-www/sprintf-like-args-uniqueness */
           invariant(false, '%s.', message);
-          /* eslint-enable fb-www/sprintf-like-args-uniqueness */
         }
       }
     });

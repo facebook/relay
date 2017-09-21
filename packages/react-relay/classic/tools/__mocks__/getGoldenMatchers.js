@@ -220,7 +220,7 @@ function normalize(string) {
  * Log some output.
  */
 function log(...args) {
-  // eslint-disable-next-line no-console-disallow
+  // eslint-disable-next-line no-console
   console.log(...args);
 }
 

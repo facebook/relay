@@ -26,6 +26,13 @@ const {
   requestSubscription,
 } = require('RelayRuntime');
 
+export type {
+  RelayPaginationProp,
+  RelayProp,
+  RelayRefetchProp,
+} from 'ReactRelayTypes';
+export type {Disposable} from 'RelayCombinedEnvironmentTypes';
+export type {DataID} from 'RelayInternalTypes';
 export type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 export type {
   Environment,
@@ -34,14 +41,7 @@ export type {
   Selector,
   Snapshot,
 } from 'RelayStoreTypes';
-export type {DataID} from 'RelayInternalTypes';
-export type {Disposable} from 'RelayCombinedEnvironmentTypes';
 export type {Variables} from 'RelayTypes';
-export type {
-  RelayPaginationProp,
-  RelayProp,
-  RelayRefetchProp,
-} from 'ReactRelayTypes';
 
 /**
  * The public interface to React Relay.

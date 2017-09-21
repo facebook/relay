@@ -24,7 +24,6 @@ const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 const QueryBuilder = require('QueryBuilder');
 const React = require('React');
 const createReactClass = require('create-react-class');
-const ReactTestUtils = require('ReactTestUtils');
 const RelayClassic = require('RelayClassic');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayMutation = require('RelayMutation');

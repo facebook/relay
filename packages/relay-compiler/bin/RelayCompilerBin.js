@@ -85,8 +85,6 @@ function getFilepathsFromGlob(
   });
 }
 
-/* eslint-disable no-console-disallow */
-
 async function run(options: {
   schema: string,
   src: string,
@@ -153,6 +151,7 @@ Ensure that one such file exists in ${srcDir} or its parents.
     onlyValidate: options.validate,
   });
   if (!options.validate && !options.watch && options.watchman) {
+    // eslint-disable-next-line no-console
     console.log('HINT: pass --watch to keep watching for changes.');
   }
   const result = options.watch

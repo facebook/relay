@@ -19,10 +19,6 @@ const find = require('./find');
 const util = require('util');
 
 const {
-  RelayQLArgument,
-  RelayQLArgumentType,
-  RelayQLDefinition,
-  RelayQLDirective,
   RelayQLField,
   RelayQLFragment,
   RelayQLFragmentSpread,
@@ -30,9 +26,16 @@ const {
   RelayQLMutation,
   RelayQLQuery,
   RelayQLSubscription,
-  RelayQLType,
 } = require('./RelayQLAST');
 const {ID} = require('./RelayQLNodeInterface');
+
+import type {
+  RelayQLArgument,
+  RelayQLArgumentType,
+  RelayQLDefinition,
+  RelayQLDirective,
+  RelayQLType,
+} from './RelayQLAST';
 
 export type Printable = Object;
 export type Substitution = {

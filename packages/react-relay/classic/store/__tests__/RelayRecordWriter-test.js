@@ -14,7 +14,6 @@
 
 const GraphQLRange = require('GraphQLRange');
 const RelayClassic = require('RelayClassic');
-const {ConnectionInterface} = require('RelayRuntime');
 const RelayMockCacheManager = require('RelayMockCacheManager');
 const RelayQueryPath = require('RelayQueryPath');
 const RelayRecordStatusMap = require('RelayRecordStatusMap');
@@ -25,6 +24,7 @@ const RelayTestUtils = require('RelayTestUtils');
 const generateClientID = require('generateClientID');
 
 const {APPEND, PREPEND, REMOVE} = require('GraphQLMutatorConstants');
+const {ConnectionInterface} = require('RelayRuntime');
 
 describe('RelayRecordWriter', () => {
   let HAS_NEXT_PAGE, HAS_PREV_PAGE;

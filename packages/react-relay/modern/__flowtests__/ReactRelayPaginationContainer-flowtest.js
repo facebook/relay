@@ -59,7 +59,7 @@ class FooComponent extends React.Component {
 const Foo = createPaginationContainer(
   FooComponent,
   graphql`
-    fragment ReactRelayPaginationContainer-flowtest_Foo_viewer on Viewer {
+    fragment ReactRelayPaginationContainerFlowtest_Foo_viewer on Viewer {
       all_friends(after: $cursor, first: $count) @connection {
         edges {
           node {
@@ -81,7 +81,7 @@ const Foo = createPaginationContainer(
       count,
     }),
     query: graphql`
-      query ReactRelayPaginationContainer-flowtest_Foo_ViewerQuery(
+      query ReactRelayPaginationContainerFlowtest_Foo_ViewerQuery(
         $count: Int!
         $cursor: ID
       ) {

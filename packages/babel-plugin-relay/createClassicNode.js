@@ -20,9 +20,8 @@ const getClassicTransformer = require('./getClassicTransformer');
 const getFragmentNameParts = require('./getFragmentNameParts');
 const invariant = require('./invariant');
 
-import typeof BabelTypes from 'babel-types';
-
 import type {BabelState} from './BabelPluginRelay';
+import typeof BabelTypes from 'babel-types';
 import type {DefinitionNode} from 'graphql';
 
 /**

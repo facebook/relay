@@ -169,7 +169,6 @@ function createContainerWithFragments<
             {...this.props}
             {...this.state.data}
             // TODO: Remove the string ref fallback.
-            // eslint-disable-next-line react/no-string-refs
             ref={this.props.componentRef || 'component'}
             relay={this.state.relayProp}
           />

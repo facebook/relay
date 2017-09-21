@@ -14,7 +14,6 @@
 'use strict';
 
 const RelayClassicRecordState = require('RelayClassicRecordState');
-const {ConnectionInterface} = require('RelayRuntime');
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayQuery = require('RelayQuery');
 const RelayRecord = require('RelayRecord');
@@ -22,6 +21,8 @@ const RelayRecord = require('RelayRecord');
 const forEachRootCallArg = require('forEachRootCallArg');
 const invariant = require('invariant');
 const warning = require('warning');
+
+const {ConnectionInterface} = require('RelayRuntime');
 
 import type {DataID} from 'RelayInternalTypes';
 import type RelayRecordStore from 'RelayRecordStore';

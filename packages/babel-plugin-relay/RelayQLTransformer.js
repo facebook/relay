@@ -19,7 +19,6 @@ const invariant = require('./invariant');
 const util = require('util');
 
 const {
-  RelayQLDefinition,
   RelayQLFragment,
   RelayQLMutation,
   RelayQLQuery,
@@ -41,6 +40,7 @@ const {
   ProvidedNonNullArgumentsRule,
 } = require('graphql');
 
+import type {RelayQLDefinition} from './RelayQLAST';
 import type {Printable, Substitution} from './RelayQLPrinter';
 import type {
   DocumentNode,

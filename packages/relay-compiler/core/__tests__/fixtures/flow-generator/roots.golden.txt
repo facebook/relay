@@ -14,7 +14,6 @@ export type TestMutationVariables = {|
     feedbackId?: ?string;
   };
 |};
-
 export type TestMutationResponse = {|
   +commentCreate: ?{|
     +comment: ?{|
@@ -29,7 +28,6 @@ export type TestSubscriptionVariables = {|
     feedbackId?: ?string;
   };
 |};
-
 export type TestSubscriptionResponse = {|
   +feedbackLikeSubscribe: ?{|
     +feedback: ?{|

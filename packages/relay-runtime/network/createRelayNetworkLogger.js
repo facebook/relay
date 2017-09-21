@@ -13,8 +13,6 @@
 
 'use strict';
 
-/* eslint-disable no-console-disallow */
-
 const prettyStringify = require('prettyStringify');
 
 const {convertFetch, convertSubscribe} = require('ConvertToExecuteFunction');

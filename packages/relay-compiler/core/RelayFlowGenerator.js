@@ -22,6 +22,7 @@ const {
 } = require('../graphql-compiler/GraphQLCompilerPublic');
 const {
   exactObjectTypeAnnotation,
+  exportType,
   lineComments,
   readOnlyArrayOfType,
   readOnlyObjectTypeProperty,
@@ -199,7 +200,7 @@ function mergeSelections(a, b) {
 function isPlural({directives}): boolean {
   const relayDirective = directives.find(({name}) => name === 'relay');
   return (
-    Boolean(relayDirective) &&
+    relayDirective != null &&
     relayDirective.args.some(
       ({name, value}) => name === 'plural' && value.value,
     )
@@ -224,14 +225,9 @@ function createVisitor(
           );
         }
         statements.push(
-          t.exportNamedDeclaration(
-            t.typeAlias(
-              t.identifier(`${node.name}Response`),
-              null,
-              selectionsToBabel(node.selections, customScalars),
-            ),
-            [],
-            null,
+          exportType(
+            `${node.name}Response`,
+            selectionsToBabel(node.selections, customScalars),
           ),
         );
         return t.program(statements);
@@ -259,13 +255,7 @@ function createVisitor(
         const baseType = selectionsToBabel(selections, customScalars);
         const type = isPlural(node) ? readOnlyArrayOfType(baseType) : baseType;
 
-        return t.program([
-          t.exportNamedDeclaration(
-            t.typeAlias(t.identifier(node.name), null, type),
-            [],
-            null,
-          ),
-        ]);
+        return t.program([exportType(node.name, type)]);
       },
 
       InlineFragment(node) {
@@ -339,25 +329,20 @@ function generateInputVariablesType(
   customScalars: ScalarTypeMapping,
   inputFieldWhiteList?: ?Array<string>,
 ) {
-  return t.exportNamedDeclaration(
-    t.typeAlias(
-      t.identifier(`${node.name}Variables`),
-      null,
-      exactObjectTypeAnnotation(
-        node.argumentDefinitions.map(arg => {
-          const property = t.objectTypeProperty(
-            t.identifier(arg.name),
-            transformInputType(arg.type, customScalars, inputFieldWhiteList),
-          );
-          if (!(arg.type instanceof GraphQLNonNull)) {
-            property.optional = true;
-          }
-          return property;
-        }),
-      ),
+  return exportType(
+    `${node.name}Variables`,
+    exactObjectTypeAnnotation(
+      node.argumentDefinitions.map(arg => {
+        const property = t.objectTypeProperty(
+          t.identifier(arg.name),
+          transformInputType(arg.type, customScalars, inputFieldWhiteList),
+        );
+        if (!(arg.type instanceof GraphQLNonNull)) {
+          property.optional = true;
+        }
+        return property;
+      }),
     ),
-    [],
-    null,
   );
 }
 

@@ -17,16 +17,35 @@ const t = require('babel-types');
 
 type BabelAST = mixed;
 
+/**
+ * {|
+ *   PROPS
+ * |}
+ */
 function exactObjectTypeAnnotation(props: Array<BabelAST>) {
   const typeAnnotation = t.objectTypeAnnotation(props);
   typeAnnotation.exact = true;
   return typeAnnotation;
 }
 
+/**
+ * export type NAME = TYPE
+ */
+function exportType(name: string, type: BabelAST) {
+  return t.exportNamedDeclaration(
+    t.typeAlias(t.identifier(name), null, type),
+    [],
+    null,
+  );
+}
+
 function lineComments(...lines: Array<string>) {
   return lines.map(line => ({type: 'CommentLine', value: ' ' + line}));
 }
 
+/**
+ * $ReadOnlyArray<TYPE>
+ */
 function readOnlyArrayOfType(thing: BabelAST) {
   return t.genericTypeAnnotation(
     t.identifier('$ReadOnlyArray'),
@@ -34,6 +53,9 @@ function readOnlyArrayOfType(thing: BabelAST) {
   );
 }
 
+/**
+ * +KEY: VALUE
+ */
 function readOnlyObjectTypeProperty(key: string, value: BabelAST) {
   const prop = t.objectTypeProperty(t.identifier(key), value);
   prop.variance = 'plus';
@@ -48,6 +70,7 @@ function stringLiteralTypeAnnotation(value: string) {
 
 module.exports = {
   exactObjectTypeAnnotation,
+  exportType,
   lineComments,
   readOnlyArrayOfType,
   readOnlyObjectTypeProperty,

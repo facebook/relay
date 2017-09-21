@@ -88,12 +88,12 @@ class RelayNetworkLoggerTransaction implements IRelayNetworkLoggerTransaction {
   printLogs(error: ?Error, response: ?QueryPayload, status?: ?string): void {
     /* eslint-disable no-console */
     const transactionId = this.getIdentifier();
-    console.groupCollapsed(`%c${transactionId}`, error ? 'color:red' : '');
+    console.groupCollapsed && console.groupCollapsed(`%c${transactionId}`, error ? 'color:red' : '');
     console.timeEnd && console.timeEnd(transactionId);
     this.getLogsToPrint(error, response, status).forEach(({label, values}) => {
       console.log(`${label}:`, ...values);
     });
-    console.groupEnd();
+    console.groupEnd && console.groupEnd();
     /* eslint-enable no-console */
   }
 

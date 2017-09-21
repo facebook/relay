@@ -28,17 +28,10 @@ const {
   stringLiteralTypeAnnotation,
 } = require('./RelayFlowBabelFactories');
 const {
-  GraphQLEnumType,
-  GraphQLInputType,
-  GraphQLInputObjectType,
-  GraphQLInterfaceType,
-  GraphQLList,
-  GraphQLNonNull,
-  GraphQLObjectType,
-  GraphQLScalarType,
-  GraphQLType,
-  GraphQLUnionType,
-} = require('graphql');
+  transformScalarType,
+  transformInputType,
+} = require('./RelayFlowTypeTransformers');
+const {GraphQLNonNull} = require('graphql');
 
 import type {
   IRTransform,
@@ -46,14 +39,11 @@ import type {
   Root,
   CompilerContext,
 } from '../graphql-compiler/GraphQLCompilerPublic';
+import type {ScalarTypeMapping} from './RelayFlowTypeTransformers';
 
 const babelGenerator = require('babel-generator').default;
 
 const {isAbstractType} = SchemaUtils;
-
-export type ScalarTypeMapping = {
-  [type: string]: string,
-};
 
 function generate(
   node: Root | Fragment,
@@ -73,7 +63,7 @@ function makeProp(
   concreteType,
 ) {
   if (nodeType) {
-    value = transformScalarField(
+    value = transformScalarType(
       nodeType,
       customScalars,
       selectionsToBabel([Array.from(nodeSelections.values())], customScalars),
@@ -307,7 +297,7 @@ function createVisitor(
           {
             key: node.alias || node.name,
             schemaName: node.name,
-            value: transformScalarField(node.type, customScalars),
+            value: transformScalarType(node.type, customScalars),
           },
         ];
       },
@@ -344,129 +334,6 @@ function flattenArray<T>(arrayOfArrays: Array<Array<T>>): Array<T> {
   const result = [];
   arrayOfArrays.forEach(array => result.push(...array));
   return result;
-}
-
-function transformScalarField(
-  type,
-  customScalars: ScalarTypeMapping,
-  objectProps,
-) {
-  if (type instanceof GraphQLNonNull) {
-    return transformNonNullableScalarField(
-      type.ofType,
-      objectProps,
-      customScalars,
-    );
-  } else {
-    return t.nullableTypeAnnotation(
-      transformNonNullableScalarField(type, objectProps, customScalars),
-    );
-  }
-}
-
-function transformGraphQLScalarType(
-  type: GraphQLScalarType,
-  customScalars: ScalarTypeMapping,
-) {
-  switch (customScalars[type.name] || type.name) {
-    case 'ID':
-    case 'String':
-    case 'Url':
-      return t.stringTypeAnnotation();
-    case 'Float':
-    case 'Int':
-      return t.numberTypeAnnotation();
-    case 'Boolean':
-      return t.booleanTypeAnnotation();
-    default:
-      return t.anyTypeAnnotation();
-  }
-}
-
-function transformGraphQLEnumType(type: GraphQLEnumType) {
-  // TODO create a flow type for enums
-  return t.unionTypeAnnotation(
-    type.getValues().map(({value}) => stringLiteralTypeAnnotation(value)),
-  );
-}
-
-function transformNonNullableScalarField(
-  type: GraphQLType,
-  objectProps,
-  customScalars: ScalarTypeMapping,
-) {
-  if (type instanceof GraphQLList) {
-    return readOnlyArrayOfType(
-      transformScalarField(type.ofType, customScalars, objectProps),
-    );
-  } else if (
-    type instanceof GraphQLObjectType ||
-    type instanceof GraphQLUnionType ||
-    type instanceof GraphQLInterfaceType
-  ) {
-    return objectProps;
-  } else if (type instanceof GraphQLScalarType) {
-    return transformGraphQLScalarType(type, customScalars);
-  } else if (type instanceof GraphQLEnumType) {
-    return transformGraphQLEnumType(type);
-  } else {
-    throw new Error(`Could not convert from GraphQL type ${type.toString()}`);
-  }
-}
-
-function transformNonNullableInputType(
-  type: GraphQLInputType,
-  customScalars: ScalarTypeMapping,
-  inputFieldWhiteList?: ?Array<string>,
-) {
-  if (type instanceof GraphQLList) {
-    return readOnlyArrayOfType(
-      transformInputType(type.ofType, customScalars, inputFieldWhiteList),
-    );
-  } else if (type instanceof GraphQLScalarType) {
-    return transformGraphQLScalarType(type, customScalars);
-  } else if (type instanceof GraphQLEnumType) {
-    return transformGraphQLEnumType(type);
-  } else if (type instanceof GraphQLInputObjectType) {
-    const fields = type.getFields();
-    const props = Object.keys(fields)
-      .map(key => fields[key])
-      .filter(
-        field =>
-          !inputFieldWhiteList || inputFieldWhiteList.indexOf(field.name) < 0,
-      )
-      .map(field => {
-        const property = t.objectTypeProperty(
-          t.identifier(field.name),
-          transformInputType(field.type, customScalars, inputFieldWhiteList),
-        );
-        if (!(field.type instanceof GraphQLNonNull)) {
-          property.optional = true;
-        }
-        return property;
-      });
-    return t.objectTypeAnnotation(props);
-  } else {
-    throw new Error(`Could not convert from GraphQL type ${type.toString()}`);
-  }
-}
-
-function transformInputType(
-  type: GraphQLInputType,
-  customScalars: ScalarTypeMapping,
-  inputFieldWhiteList?: ?Array<string>,
-) {
-  if (type instanceof GraphQLNonNull) {
-    return transformNonNullableInputType(
-      type.ofType,
-      customScalars,
-      inputFieldWhiteList,
-    );
-  } else {
-    return t.nullableTypeAnnotation(
-      transformNonNullableInputType(type, customScalars, inputFieldWhiteList),
-    );
-  }
 }
 
 function generateInputVariablesType(

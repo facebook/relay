@@ -32,7 +32,7 @@ const {
 const {Map: ImmutableMap} = require('immutable');
 
 import type {RelayGeneratedNode} from '../core/RelayCodeGenerator';
-import type {ScalarTypeMapping} from '../core/RelayFlowGenerator';
+import type {ScalarTypeMapping} from '../core/RelayFlowTypeTransformers';
 import type {
   CompiledNode,
   CompiledDocumentMap,

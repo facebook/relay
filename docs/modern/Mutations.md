@@ -213,7 +213,6 @@ const configs = [{
   parentID: 'todoId',
   connectionKeys: [{
     key: RemoveTags_tags,
-    rangeBehavior: 'append',
   }],
   pathToConnection: ['todo', 'tags'],
   deletedIDFieldName: removedTagId
@@ -251,7 +250,7 @@ Updates the value of a mutable record's attribute given by the field name and an
 ### getLinkedRecords(name: string, args?: ?Variables): ?Array<?RecordProxy>
 Retrieves record(s) associated with the given record, transversing the source by field name and an object representing pre-defined argument values.
 
-### setLinkedRecord(record: RecordProxy, name: string, args?: ?Variables): RecordProxy 
+### setLinkedRecord(record: RecordProxy, name: string, args?: ?Variables): RecordProxy
 ### setLinkedRecords(records: Array<?RecordProxy>, name: string, args?: ?Variables ): RecordProxy
 Updates the records associated with a mutable record, transversing the source by field name and an object representing pre-defined argument values.
 

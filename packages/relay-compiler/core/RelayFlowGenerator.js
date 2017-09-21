@@ -198,14 +198,12 @@ function mergeSelections(a, b) {
 
 function isPlural({directives}): boolean {
   const relayDirective = directives.find(({name}) => name === 'relay');
-
-  if (relayDirective) {
-    return !!relayDirective.args.find(
+  return (
+    Boolean(relayDirective) &&
+    relayDirective.args.some(
       ({name, value}) => name === 'plural' && value.value,
-    );
-  } else {
-    return false;
-  }
+    )
+  );
 }
 
 function createVisitor(

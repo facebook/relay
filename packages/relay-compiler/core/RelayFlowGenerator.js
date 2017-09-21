@@ -13,14 +13,20 @@
 
 'use strict';
 
+const t = require('babel-types');
+
 const {
   FlattenTransform,
   IRVisitor,
   SchemaUtils,
 } = require('../graphql-compiler/GraphQLCompilerPublic');
-const babelGenerator = require('babel-generator').default;
-const t = require('babel-types');
-
+const {
+  exactObjectTypeAnnotation,
+  lineComments,
+  readOnlyArrayOfType,
+  readOnlyObjectTypeProperty,
+  stringLiteralTypeAnnotation,
+} = require('./RelayFlowBabelFactories');
 const {
   GraphQLEnumType,
   GraphQLInputType,
@@ -40,6 +46,8 @@ import type {
   Root,
   CompilerContext,
 } from '../graphql-compiler/GraphQLCompilerPublic';
+
+const babelGenerator = require('babel-generator').default;
 
 const {isAbstractType} = SchemaUtils;
 
@@ -171,16 +179,6 @@ function selectionsToBabel(selections, customScalars: ScalarTypeMapping) {
   return types.length > 1 ? t.unionTypeAnnotation(types) : types[0];
 }
 
-function lineComments(...lines: Array<string>) {
-  return lines.map(line => ({type: 'CommentLine', value: ' ' + line}));
-}
-
-function stringLiteralTypeAnnotation(value) {
-  const annotation = t.stringLiteralTypeAnnotation();
-  annotation.value = value;
-  return annotation;
-}
-
 function mergeSelection(a, b) {
   if (!a) {
     return {
@@ -271,7 +269,7 @@ function createVisitor(
           return [selection];
         });
         const baseType = selectionsToBabel(selections, customScalars);
-        const type = isPlural(node) ? arrayOfType(baseType) : baseType;
+        const type = isPlural(node) ? readOnlyArrayOfType(baseType) : baseType;
 
         return t.program([
           t.exportNamedDeclaration(
@@ -366,25 +364,6 @@ function transformScalarField(
   }
 }
 
-function arrayOfType(thing) {
-  return t.genericTypeAnnotation(
-    t.identifier('$ReadOnlyArray'),
-    t.typeParameterInstantiation([thing]),
-  );
-}
-
-function exactObjectTypeAnnotation(props) {
-  const typeAnnotation = t.objectTypeAnnotation(props);
-  typeAnnotation.exact = true;
-  return typeAnnotation;
-}
-
-function readOnlyObjectTypeProperty(key, value) {
-  const prop = t.objectTypeProperty(t.identifier(key), value);
-  prop.variance = 'plus';
-  return prop;
-}
-
 function transformGraphQLScalarType(
   type: GraphQLScalarType,
   customScalars: ScalarTypeMapping,
@@ -417,7 +396,7 @@ function transformNonNullableScalarField(
   customScalars: ScalarTypeMapping,
 ) {
   if (type instanceof GraphQLList) {
-    return arrayOfType(
+    return readOnlyArrayOfType(
       transformScalarField(type.ofType, customScalars, objectProps),
     );
   } else if (
@@ -441,7 +420,7 @@ function transformNonNullableInputType(
   inputFieldWhiteList?: ?Array<string>,
 ) {
   if (type instanceof GraphQLList) {
-    return arrayOfType(
+    return readOnlyArrayOfType(
       transformInputType(type.ofType, customScalars, inputFieldWhiteList),
     );
   } else if (type instanceof GraphQLScalarType) {

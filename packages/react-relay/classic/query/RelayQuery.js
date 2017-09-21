@@ -13,8 +13,6 @@
 
 'use strict';
 
-/* eslint-disable consistent-this */
-
 const QueryBuilder = require('QueryBuilder');
 const RelayFragmentReference = require('RelayFragmentReference');
 const RelayMetaRoute = require('RelayMetaRoute');

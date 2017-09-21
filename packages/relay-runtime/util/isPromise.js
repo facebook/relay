@@ -15,7 +15,6 @@
 
 declare function isPromise(p: mixed): boolean %checks(p instanceof Promise);
 
-// eslint-disable-next-line no-redeclare
 function isPromise(p) {
   return !!p && typeof p.then === 'function';
 }

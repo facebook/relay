@@ -4,7 +4,6 @@ export type InputHasArrayVariables = {|
     storyIds?: ?$ReadOnlyArray<?string>;
   };
 |};
-
 export type InputHasArrayResponse = {|
   +viewerNotificationsUpdateAllSeenState: ?{|
     +stories: ?$ReadOnlyArray<?{|

@@ -18,7 +18,6 @@ const {
   IRVisitor,
   SchemaUtils,
 } = require('../graphql-compiler/GraphQLCompilerPublic');
-
 const babelGenerator = require('babel-generator').default;
 const t = require('babel-types');
 
@@ -48,29 +47,16 @@ export type ScalarTypeMapping = {
   [type: string]: string,
 };
 
-const printBabel = ast => babelGenerator(ast).code;
-
 function generate(
   node: Root | Fragment,
   customScalars?: ?ScalarTypeMapping,
   inputFieldWhiteList?: ?Array<string>,
 ): string {
-  const defaultedCustomScalars = customScalars || {};
-  const output = [];
-  if (node.kind === 'Root' && node.operation !== 'query') {
-    const inputAST = generateInputVariablesType(
-      node,
-      defaultedCustomScalars,
-      inputFieldWhiteList,
-    );
-    output.push(printBabel(inputAST));
-  }
-  const responseAST = IRVisitor.visit(
+  const ast = IRVisitor.visit(
     node,
-    createVisitor(defaultedCustomScalars),
+    createVisitor(customScalars || {}, inputFieldWhiteList),
   );
-  output.push(printBabel(responseAST));
-  return output.join('\n\n');
+  return babelGenerator(ast).code;
 }
 
 function makeProp(
@@ -96,8 +82,7 @@ function makeProp(
 }
 
 const isTypenameSelection = selection => selection.schemaName === '__typename';
-const hasTypenameSelection = (selections: $FlowIssue) =>
-  selections.some(isTypenameSelection);
+const hasTypenameSelection = selections => selections.some(isTypenameSelection);
 const onlySelectsTypename = selections => selections.every(isTypenameSelection);
 
 function selectionsToBabel(selections, customScalars: ScalarTypeMapping) {
@@ -179,7 +164,7 @@ function selectionsToBabel(selections, customScalars: ScalarTypeMapping) {
     types.push(exactObjectTypeAnnotation(selectionMapValues));
   }
 
-  if (!types.length) {
+  if (types.length === 0) {
     return exactObjectTypeAnnotation([]);
   }
 
@@ -235,23 +220,39 @@ function isPlural({directives}): boolean {
   }
 }
 
-function createVisitor(customScalars: ScalarTypeMapping) {
+function createVisitor(
+  customScalars: ScalarTypeMapping,
+  inputFieldWhiteList: ?Array<string>,
+) {
   return {
     leave: {
       Root(node) {
-        return t.exportNamedDeclaration(
-          t.typeAlias(
-            t.identifier(`${node.name}Response`),
+        const statements = [];
+        if (node.operation !== 'query') {
+          statements.push(
+            generateInputVariablesType(
+              node,
+              customScalars,
+              inputFieldWhiteList,
+            ),
+          );
+        }
+        statements.push(
+          t.exportNamedDeclaration(
+            t.typeAlias(
+              t.identifier(`${node.name}Response`),
+              null,
+              selectionsToBabel(node.selections, customScalars),
+            ),
+            [],
             null,
-            selectionsToBabel(node.selections, customScalars),
           ),
-          [],
-          null,
         );
+        return t.program(statements);
       },
 
       Fragment(node) {
-        let selections: $FlowFixMe = flattenArray(node.selections);
+        let selections = flattenArray(node.selections);
         const numConecreteSelections = selections.filter(s => s.concreteType)
           .length;
         selections = selections.map(selection => {
@@ -272,11 +273,13 @@ function createVisitor(customScalars: ScalarTypeMapping) {
         const baseType = selectionsToBabel(selections, customScalars);
         const type = isPlural(node) ? arrayOfType(baseType) : baseType;
 
-        return t.exportNamedDeclaration(
-          t.typeAlias(t.identifier(node.name), null, type),
-          [],
-          null,
-        );
+        return t.program([
+          t.exportNamedDeclaration(
+            t.typeAlias(t.identifier(node.name), null, type),
+            [],
+            null,
+          ),
+        ]);
       },
 
       InlineFragment(node) {

@@ -6,7 +6,6 @@ export type CommentCreateMutationVariables = {|
   first?: ?number;
   orderBy?: ?$ReadOnlyArray<string>;
 |};
-
 export type CommentCreateMutationResponse = {|
   +commentCreate: ?{|
     +comment: ?{|

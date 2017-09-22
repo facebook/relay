@@ -1,10 +1,6 @@
 ---
 id: api-reference-relay-graphql-mutation
 title: Relay.GraphQLMutation
-layout: docs
-category: Relay Classic API
-permalink: docs/api-reference-relay-graphql-mutation.html
-next: api-reference-relay-proptypes
 ---
 
 `Relay.GraphQLMutation` is a low-level API for modeling a GraphQL mutation.

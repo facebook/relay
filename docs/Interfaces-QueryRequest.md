@@ -1,9 +1,6 @@
 ---
 id: interfaces-relay-query-request
 title: RelayQueryRequest
-layout: docs
-category: Relay Classic Interfaces
-permalink: docs/interfaces-relay-query-request.html
 ---
 
 `RelayQueryRequest` encapsulates a query that Relay needs to send to the server. They are made available to network layers via the `sendQueries` method.

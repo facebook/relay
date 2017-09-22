@@ -1,0 +1,69 @@
+{
+  "docs": {
+    "Quick Start": [
+      "getting-started",
+      "tutorial",
+      "thinking-in-graphql",
+      "thinking-in-relay",
+      "videos"
+    ],
+    "Relay Modern": [
+      "relay-modern",
+      "new-in-relay-modern",
+      "relay-environment",
+      "network-layer",
+      "query-renderer",
+      "fragment-container",
+      "refetch-container",
+      "pagination-container",
+      "routing",
+      "mutations",
+      "subscriptions",
+      "relay-directives",
+      "babel-plugin-relay",
+      "relay-compiler",
+      "relay-debugging"
+    ],
+    "Relay Compat": [
+      "relay-compat",
+      "conversion-playbook",
+      "conversion-scripts",
+      "upgrading-setvariables",
+      "compatibility-cheatsheet",
+      "api-cheatsheet"
+    ],
+    "Relay Classic Guides": [
+      "guides-containers",
+      "guides-routes",
+      "guides-root-container",
+      "guides-ready-state",
+      "guides-mutations",
+      "guides-network-layer",
+      "guides-babel-plugin"
+    ],
+    "GraphQL": [
+      "graphql-relay-specification",
+      "graphql-object-identification",
+      "graphql-connections",
+      "graphql-mutations",
+      "graphql-further-reading"
+    ],
+    "Relay Classic API": [
+      "api-reference-relay",
+      "api-reference-relay-container",
+      "api-reference-relay-route",
+      "api-reference-relay-renderer",
+      "api-reference-relay-root-container",
+      "api-reference-relay-ql",
+      "api-reference-relay-mutation",
+      "api-reference-relay-graphql-mutation",
+      "api-reference-relay-proptypes",
+      "api-reference-relay-store"
+    ],
+    "Relay Classic Interfaces": [
+      "interfaces-relay-mutation-request",
+      "interfaces-relay-network-layer",
+      "interfaces-relay-query-request"
+    ]
+  }
+}

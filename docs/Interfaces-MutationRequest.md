@@ -1,10 +1,6 @@
 ---
 id: interfaces-relay-mutation-request
 title: RelayMutationRequest
-layout: docs
-category: Relay Classic Interfaces
-permalink: docs/interfaces-relay-mutation-request.html
-next: interfaces-relay-query-request
 ---
 
 `RelayMutationRequest` encapsulates a mutation that Relay needs to send to the server. They are made available to network layers via the `sendMutation` method.

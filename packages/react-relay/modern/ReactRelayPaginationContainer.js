@@ -512,6 +512,9 @@ function createContainerWithFragments<
           : pageInfo[HAS_PREV_PAGE];
       const cursor =
         direction === FORWARD ? pageInfo[END_CURSOR] : pageInfo[START_CURSOR];
+      if (edges.length === 0 && cursor == null) {
+        return null;
+      }
       if (typeof hasMore !== 'boolean' || typeof cursor !== 'string') {
         warning(
           false,

@@ -50,6 +50,10 @@ const siteConfig = {
     primaryColor: "#f26b00",
     secondaryColor: "#f26b00",
     prismColor: "rgba(242, 107, 0, 0.03)"
+  },
+  algolia: {
+    apiKey: "3d7d5825d50ea36bca0e6ad06c926f06",
+    indexName: "relay"
   }
 };
 

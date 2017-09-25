@@ -1,10 +1,6 @@
 ---
 id: graphql-connections
 title: Connection
-layout: docs
-category: GraphQL
-permalink: docs/graphql-connections.html
-next: graphql-mutations
 ---
 
 A faction has many ships in the Star Wars universe. Relay contains functionality to make manipulating one-to-many relationships easy, using a standardized way of expressing these one-to-many relationships. This standard connection model offers ways of slicing and paginating through the connection.

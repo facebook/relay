@@ -1,10 +1,6 @@
 ---
 id: guides-containers
 title: Containers
-layout: docs
-category: Relay Classic Guides
-permalink: docs/guides-containers.html
-next: guides-routes
 ---
 
 The primary way to declare data requirements is via `Relay.Container` — a higher-order React component that lets React components encode their data requirements.

@@ -1,10 +1,6 @@
 ---
 id: guides-root-container
 title: Root Container
-layout: docs
-category: Relay Classic Guides
-permalink: docs/guides-root-container.html
-next: guides-ready-state
 ---
 
 So far, we've covered two pieces that each contribute to declaring data:

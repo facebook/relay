@@ -1,10 +1,6 @@
 ---
 id: api-reference-relay-route
 title: Relay.Route
-layout: docs
-category: Relay Classic API
-permalink: docs/api-reference-relay-route.html
-next: api-reference-relay-renderer
 ---
 
 Relay uses routes to define entry points into a Relay application.

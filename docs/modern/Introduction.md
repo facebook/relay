@@ -45,7 +45,7 @@ Run the Relay Compiler after making changes to any GraphQL in your Relay applica
 "relay": "relay-compiler --src ./src --schema path/schema.graphql"
 ```
 
-Then after making edits to your application files, just run `yarn run relay` to generate new files, or `yarn run relay -- --watch` to run the compiler as a long-lived process which automatically generates new files whenever you save.
+Then after making edits to your application files, just run `yarn run relay` to generate new files, or `yarn run relay --watch` to run the compiler as a long-lived process which automatically generates new files whenever you save.
 
 
 ## JavaScript environment requirements

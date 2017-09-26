@@ -24,7 +24,6 @@ const normalizeRelayPayload = require('normalizeRelayPayload');
 const warning = require('warning');
 
 import type {CacheConfig, Disposable} from 'RelayCombinedEnvironmentTypes';
-import type {EnvironmentDebugger} from 'RelayDebugger';
 import type {HandlerProvider} from 'RelayDefaultHandlerProvider';
 import type {
   Network,
@@ -58,7 +57,6 @@ class RelayModernEnvironment implements Environment {
   _network: Network;
   _publishQueue: RelayPublishQueue;
   _store: Store;
-  _debugger: ?EnvironmentDebugger;
   configName: ?string;
   unstable_internal: UnstableEnvironmentCore;
 
@@ -73,38 +71,6 @@ class RelayModernEnvironment implements Environment {
     this.unstable_internal = RelayCore;
 
     (this: any).__setNet = newNet => (this._network = newNet);
-
-    // TODO(#21781004): This adds support for the older Relay Debugger, which
-    // has been replaced with the Relay DevTools global hook below. This logic
-    // should stick around for a release or two to not break support for the
-    // existing debugger. After allowing time to migrate to latest versions,
-    // this code can be removed.
-    if (__DEV__) {
-      const g = typeof global !== 'undefined' ? global : window;
-
-      // Attach the debugger symbol to the global symbol so it can be accessed by
-      // devtools extension.
-      if (!g.__RELAY_DEBUGGER__) {
-        const {RelayDebugger} = require('RelayDebugger');
-        g.__RELAY_DEBUGGER__ = new RelayDebugger();
-      }
-
-      // Setup the runtime part for Native
-      if (typeof g.registerDevtoolsPlugin === 'function') {
-        try {
-          g.registerDevtoolsPlugin(
-            require('relay-debugger-react-native-runtime'),
-          );
-        } catch (error) {
-          // No debugger for you.
-        }
-      }
-
-      const envId = g.__RELAY_DEBUGGER__.registerEnvironment(this);
-      this._debugger = g.__RELAY_DEBUGGER__.getEnvironmentDebugger(envId);
-    } else {
-      this._debugger = null;
-    }
 
     // Register this Relay Environment with Relay DevTools if it exists.
     // Note: this must always be the last step in the constructor.
@@ -124,10 +90,6 @@ class RelayModernEnvironment implements Environment {
 
   getNetwork(): Network {
     return this._network;
-  }
-
-  getDebugger(): ?EnvironmentDebugger {
-    return this._debugger;
   }
 
   applyUpdate(optimisticUpdate: OptimisticUpdate): Disposable {
@@ -271,62 +233,30 @@ class RelayModernEnvironment implements Environment {
       .do({
         start: () => {
           if (optimisticUpdate) {
-            this._recordDebuggerEvent({
-              eventName: 'optimistic_update',
-              mutationUid,
-              operation,
-              fn: () => {
-                if (optimisticUpdate) {
-                  this._publishQueue.applyUpdate(optimisticUpdate);
-                }
-                this._publishQueue.run();
-              },
-            });
+            this._publishQueue.applyUpdate(optimisticUpdate);
+            this._publishQueue.run();
           }
         },
         next: payload => {
-          this._recordDebuggerEvent({
-            eventName: 'request_commit',
-            mutationUid,
-            operation,
-            payload,
-            fn: () => {
-              if (optimisticUpdate) {
-                this._publishQueue.revertUpdate(optimisticUpdate);
-                optimisticUpdate = undefined;
-              }
-              this._publishQueue.commitPayload(operation, payload, updater);
-              this._publishQueue.run();
-            },
-          });
+          if (optimisticUpdate) {
+            this._publishQueue.revertUpdate(optimisticUpdate);
+            optimisticUpdate = undefined;
+          }
+          this._publishQueue.commitPayload(operation, payload, updater);
+          this._publishQueue.run();
         },
         error: error => {
-          this._recordDebuggerEvent({
-            eventName: 'request_error',
-            mutationUid,
-            operation,
-            payload: error,
-            fn: () => {
-              if (optimisticUpdate) {
-                this._publishQueue.revertUpdate(optimisticUpdate);
-              }
-              this._publishQueue.run();
-            },
-          });
+          if (optimisticUpdate) {
+            this._publishQueue.revertUpdate(optimisticUpdate);
+            optimisticUpdate = undefined;
+            this._publishQueue.run();
+          }
         },
         unsubscribe: () => {
           if (optimisticUpdate) {
-            this._recordDebuggerEvent({
-              eventName: 'optimistic_revert',
-              mutationUid,
-              operation,
-              fn: () => {
-                if (optimisticUpdate) {
-                  this._publishQueue.revertUpdate(optimisticUpdate);
-                }
-                this._publishQueue.run();
-              },
-            });
+            this._publishQueue.revertUpdate(optimisticUpdate);
+            optimisticUpdate = undefined;
+            this._publishQueue.run();
           }
         },
       });
@@ -457,32 +387,6 @@ class RelayModernEnvironment implements Environment {
       updater,
       cacheConfig: {force: true},
     }).subscribeLegacy({onNext, onError, onCompleted});
-  }
-
-  _recordDebuggerEvent({
-    eventName,
-    mutationUid,
-    operation,
-    payload,
-    fn,
-  }: {
-    eventName: string,
-    mutationUid: string,
-    operation: OperationSelector,
-    payload?: any,
-    fn: () => void,
-  }) {
-    if (this._debugger) {
-      this._debugger.recordMutationEvent({
-        eventName,
-        payload,
-        fn,
-        mutation: operation,
-        seriesId: mutationUid,
-      });
-    } else {
-      fn();
-    }
   }
 
   checkSelectorAndUpdateStore(

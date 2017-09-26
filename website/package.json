@@ -1,6 +1,6 @@
 {
   "repository": "facebook/relay",
-  "license": "BSD-3-Clause",
+  "license": "MIT",
   "scripts": {
     "start": "node server/server.js"
   },

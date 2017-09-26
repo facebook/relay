@@ -2,7 +2,7 @@
   "name": "relay",
   "description": "A framework for building data-driven React applications.",
   "version": "1.4.0",
-  "license": "BSD-3-Clause",
+  "license": "MIT",
   "homepage": "https://facebook.github.io/relay/",
   "bugs": "https://github.com/facebook/relay/issues",
   "repository": "facebook/relay",

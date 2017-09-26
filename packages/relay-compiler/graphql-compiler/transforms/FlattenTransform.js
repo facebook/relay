@@ -46,7 +46,6 @@ export type FlattenOptions = {
   flattenAbstractTypes?: boolean,
   flattenFragmentSpreads?: boolean,
   flattenInlineFragments?: boolean,
-  flattenConditions?: boolean,
 };
 type FlattenState = {
   kind: 'FlattenState',
@@ -67,10 +66,6 @@ type FlattenState = {
  * Fragment spreads are inlined when the `flattenFragmentSpreads` option is set.
  * In this case the fragment is converted to an inline fragment, which is
  * then inlined according to the rules above.
- *
- * Conditions are inlined when the `flattenConditions` option is set.
- * In this case the condition is converted to an inline fragment, which is then
- * inlined according to the rules above.
  */
 function transform(
   context: GraphQLCompilerContext,
@@ -80,7 +75,6 @@ function transform(
     flattenAbstractTypes: !!(options && options.flattenAbstractTypes),
     flattenFragmentSpreads: !!(options && options.flattenFragmentSpreads),
     flattenInlineFragments: !!(options && options.flattenInlineFragments),
-    flattenConditions: !!(options && options.flattenConditions),
   };
   return context
     .documents()
@@ -175,15 +169,6 @@ function visitNode(
         metadata: {},
         selections: fragment.selections,
         typeCondition: fragment.type,
-      };
-    }
-    if (selection.kind === 'Condition' && options.flattenConditions) {
-      selection = {
-        directives: [],
-        kind: 'InlineFragment',
-        metadata: {},
-        selections: selection.selections,
-        typeCondition: state.type,
       };
     }
     if (

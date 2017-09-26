@@ -73,12 +73,6 @@ describe('FlattenTransform', () => {
     );
   });
 
-  it('flattens conditions', () => {
-    expect(
-      'fixtures/flatten-transform-option-flatten-conditions',
-    ).toMatchGolden(printContextTransform({flattenConditions: true}));
-  });
-
   it('flattens inline fragments', () => {
     expect('fixtures/flatten-transform-option-flatten-inline').toMatchGolden(
       printContextTransform({flattenInlineFragments: true}),

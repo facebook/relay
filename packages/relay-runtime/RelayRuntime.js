@@ -98,12 +98,3 @@ module.exports = {
   // Configuration interface for legacy or special uses
   ConnectionInterface: RelayConnectionInterface,
 };
-
-if (__DEV__) {
-  const RelayRecordSourceInspector = require('RelayRecordSourceInspector');
-
-  // Debugging-related symbols exposed only in development
-  Object.assign((module.exports: Object), {
-    RecordSourceInspector: RelayRecordSourceInspector,
-  });
-}

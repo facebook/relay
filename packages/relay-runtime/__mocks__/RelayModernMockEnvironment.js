@@ -18,7 +18,6 @@ const RelayModernTestUtils = require('RelayModernTestUtils');
 const RelayNetwork = require('RelayNetwork');
 const RelayObservable = require('RelayObservable');
 const RelayQueryResponseCache = require('RelayQueryResponseCache');
-const RelayRecordSourceInspector = require('RelayRecordSourceInspector');
 const RelayTestSchema = require('RelayTestSchema');
 
 const areEqual = require('areEqual');
@@ -84,8 +83,6 @@ function mockObservableMethod(object, key) {
  *   by the environment.
  * - `resolve(query, payload: PayloadData): void`: Resolve a query that has been
  *   fetched by the environment.
- * - `storeInspector: RelayRecordSourceInspector`: An instance of a store
- *   inspector that allows introspecting the state of the store at any time.
  */
 function createMockEnvironment(options: {
   schema?: ?GraphQLSchema,
@@ -204,9 +201,6 @@ function createMockEnvironment(options: {
     request.sink.complete();
   };
 
-  // Initialize a store debugger to help resolve test issues
-  const storeInspector = new RelayRecordSourceInspector(source);
-
   // Mock instance
   const environment = new RelayModernEnvironment({
     configName: 'RelayModernMockEnvironment',
@@ -240,7 +234,6 @@ function createMockEnvironment(options: {
     resolve,
     nextValue,
     complete,
-    storeInspector,
   };
 
   environment.mockClear = () => {

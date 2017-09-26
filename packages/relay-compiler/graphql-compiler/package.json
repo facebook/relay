@@ -1,7 +1,7 @@
 {
   "name": "graphql-compiler",
   "version": "0.0.1-alpha6",
-  "license": "BSD-3-Clause",
+  "license": "MIT",
   "description": "A Code-generation toolkit for GraphQL",
   "main": "GraphQLCompilerPublic.js",
   "dependencies": {

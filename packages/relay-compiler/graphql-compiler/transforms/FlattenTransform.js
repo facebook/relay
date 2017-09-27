@@ -15,7 +15,6 @@ const GraphQLSchemaUtils = require('../core/GraphQLSchemaUtils');
 
 const areEqual = require('../util/areEqualOSS');
 const getIdentifierForSelection = require('../core/getIdentifierForSelection');
-const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
 const invariant = require('invariant');
 const stableJSONStringify = require('../util/stableJSONStringifyOSS');
 
@@ -23,12 +22,9 @@ const {createUserError} = require('../core/GraphQLCompilerUserError');
 const {printField} = require('../core/GraphQLIRPrinter');
 const {GraphQLNonNull, GraphQLList} = require('graphql');
 
-const RELAY = 'relay';
-
 import type {
   Field,
   Fragment,
-  FragmentSpread,
   Handle,
   InlineFragment,
   Node,
@@ -42,7 +38,6 @@ const {getRawType, isAbstractType} = GraphQLSchemaUtils;
 
 export type FlattenOptions = {
   flattenAbstractTypes?: boolean,
-  flattenFragmentSpreads?: boolean,
   flattenInlineFragments?: boolean,
 };
 type FlattenState = {
@@ -60,10 +55,6 @@ type FlattenState = {
  * - The fragment has an abstract type and the `flattenAbstractTypes` option has
  *   been set.
  * - The 'flattenInlineFragments' option has been set.
- *
- * Fragment spreads are inlined when the `flattenFragmentSpreads` option is set.
- * In this case the fragment is converted to an inline fragment, which is
- * then inlined according to the rules above.
  */
 function transform(
   context: GraphQLCompilerContext,
@@ -71,7 +62,6 @@ function transform(
 ): GraphQLCompilerContext {
   const flattenOptions = {
     flattenAbstractTypes: !!(options && options.flattenAbstractTypes),
-    flattenFragmentSpreads: !!(options && options.flattenFragmentSpreads),
     flattenInlineFragments: !!(options && options.flattenInlineFragments),
   };
   return context
@@ -81,9 +71,6 @@ function transform(
         ctx: GraphQLCompilerContext,
         node: Root | Fragment,
       ): GraphQLCompilerContext => {
-        if (flattenOptions.flattenFragmentSpreads && node.kind === 'Fragment') {
-          return ctx;
-        }
         const state = {
           kind: 'FlattenState',
           node,
@@ -143,32 +130,6 @@ function visitNode(
   node: Node,
 ): void {
   node.selections.forEach(selection => {
-    if (
-      selection.kind === 'FragmentSpread' &&
-      shouldFlattenFragmentSpread(selection, options)
-    ) {
-      invariant(
-        !selection.args.length,
-        'FlattenTransform: Cannot flatten fragment spread `%s` with ' +
-          'arguments. Use the `ApplyFragmentArgumentTransform` before flattening',
-        selection.name,
-      );
-      const fragment = context.get(selection.name);
-      invariant(
-        fragment && fragment.kind === 'Fragment',
-        'FlattenTransform: Unknown fragment `%s`.',
-        selection.name,
-      );
-      // Replace the spread with an inline fragment containing the fragment's
-      // contents
-      selection = {
-        directives: selection.directives,
-        kind: 'InlineFragment',
-        metadata: {},
-        selections: fragment.selections,
-        typeCondition: fragment.type,
-      };
-    }
     if (
       selection.kind === 'InlineFragment' &&
       shouldFlattenInlineFragment(selection, options, state)
@@ -257,24 +218,6 @@ function assertUniqueArgsForAlias(field: Field, otherField: Field): void {
       printField(otherField),
     );
   }
-}
-
-/**
- * @internal
- */
-function shouldFlattenFragmentSpread(
-  fragment: FragmentSpread,
-  options: FlattenOptions,
-): boolean {
-  if (options.flattenFragmentSpreads) {
-    return true;
-  }
-  const relayDirective = fragment.directives.find(({name}) => name === RELAY);
-  if (!relayDirective) {
-    return false;
-  }
-  const {mask} = getLiteralArgumentValues(relayDirective.args);
-  return mask === false;
 }
 
 /**

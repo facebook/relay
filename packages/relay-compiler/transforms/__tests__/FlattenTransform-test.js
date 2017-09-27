@@ -10,30 +10,20 @@
 
 'use strict';
 
+const FlattenTransform = require('FlattenTransform');
+const GraphQLCompilerContext = require('GraphQLCompilerContext');
+const GraphQLIRPrinter = require('GraphQLIRPrinter');
+const RelayParser = require('RelayParser');
+const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
+const RelayTestSchema = require('RelayTestSchema');
+
+const getGoldenMatchers = require('getGoldenMatchers');
+
 import type {FlattenOptions} from 'FlattenTransform';
 
+expect.extend(getGoldenMatchers(__filename));
+
 describe('FlattenTransform', () => {
-  let GraphQLCompilerContext;
-  let FlattenTransform;
-  let RelayRelayDirectiveTransform;
-  let RelayParser;
-  let GraphQLIRPrinter;
-  let RelayTestSchema;
-  let getGoldenMatchers;
-
-  beforeEach(() => {
-    jest.resetModules();
-
-    GraphQLCompilerContext = require('GraphQLCompilerContext');
-    FlattenTransform = require('FlattenTransform');
-    RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
-    RelayParser = require('RelayParser');
-    GraphQLIRPrinter = require('GraphQLIRPrinter');
-    RelayTestSchema = require('RelayTestSchema');
-    getGoldenMatchers = require('getGoldenMatchers');
-    expect.extend(getGoldenMatchers(__filename));
-  });
-
   function printContextTransform(
     options: FlattenOptions,
   ): (text: string) => string {
@@ -42,11 +32,13 @@ describe('FlattenTransform', () => {
       const extendedSchema = transformASTSchema(RelayTestSchema, [
         RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
       ]);
-      const context = new GraphQLCompilerContext(RelayTestSchema).addAll(
+      let context = new GraphQLCompilerContext(RelayTestSchema).addAll(
         RelayParser.parse(extendedSchema, text),
       );
-      const nextContext = FlattenTransform.transform(context, options);
-      return nextContext
+
+      context = FlattenTransform.transform(context, options);
+
+      return context
         .documents()
         .map(doc => GraphQLIRPrinter.print(doc))
         .join('\n');
@@ -56,12 +48,6 @@ describe('FlattenTransform', () => {
   it('flattens inline fragments with compatible types', () => {
     expect('fixtures/flatten-transform').toMatchGolden(
       printContextTransform({}),
-    );
-  });
-
-  it('optionally flattens fragment spreads', () => {
-    expect('fixtures/flatten-transform-option-flatten-spreads').toMatchGolden(
-      printContextTransform({flattenFragmentSpreads: true}),
     );
   });
 

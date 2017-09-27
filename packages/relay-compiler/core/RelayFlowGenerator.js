@@ -11,6 +11,8 @@
 
 'use strict';
 
+const RelayMaskTransform = require('RelayMaskTransform');
+
 const t = require('babel-types');
 
 const {
@@ -345,6 +347,7 @@ function generateInputVariablesType(
 }
 
 const FLOW_TRANSFORMS: Array<IRTransform> = [
+  RelayMaskTransform.transform,
   (ctx: CompilerContext) => FlattenTransform.transform(ctx, {}),
 ];
 

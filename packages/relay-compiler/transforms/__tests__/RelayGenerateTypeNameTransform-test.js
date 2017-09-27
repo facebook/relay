@@ -12,6 +12,7 @@
 
 const FlattenTransform = require('FlattenTransform');
 const GraphQLCompilerContext = require('GraphQLCompilerContext');
+const InlineFragmentsTransform = require('InlineFragmentsTransform');
 const RelayGenerateTypeNameTransform = require('RelayGenerateTypeNameTransform');
 const RelayParser = require('RelayParser');
 const RelayTestSchema = require('RelayTestSchema');
@@ -34,10 +35,10 @@ describe('RelayGenerateTypeNameTransform', () => {
       );
       const transformContext = ((ctx, transform) => transform(ctx): any);
       const codegenContext = [
+        InlineFragmentsTransform.transform,
         (ctx: CompilerContext) =>
           FlattenTransform.transform(ctx, {
             flattenAbstractTypes: true,
-            flattenFragmentSpreads: true,
           }),
         RelayGenerateTypeNameTransform.transform,
       ].reduce(transformContext, context);

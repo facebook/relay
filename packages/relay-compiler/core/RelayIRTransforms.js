@@ -11,11 +11,13 @@
 
 'use strict';
 
+const InlineFragmentsTransform = require('../graphql-compiler/transforms/InlineFragmentsTransform');
 const RelayApplyFragmentArgumentTransform = require('../transforms/RelayApplyFragmentArgumentTransform');
 const RelayConnectionTransform = require('../handlers/connection//RelayConnectionTransform');
 const RelayFieldHandleTransform = require('../transforms/RelayFieldHandleTransform');
 const RelayGenerateIDFieldTransform = require('../transforms/RelayGenerateIDFieldTransform');
 const RelayGenerateTypeNameTransform = require('../transforms/RelayGenerateTypeNameTransform');
+const RelayMaskTransform = require('../graphql-compiler/transforms/RelayMaskTransform');
 const RelayRelayDirectiveTransform = require('../transforms/RelayRelayDirectiveTransform');
 const RelaySkipHandleFieldTransform = require('../transforms/RelaySkipHandleFieldTransform');
 const RelayViewerHandleTransform = require('../handlers/viewer/RelayViewerHandleTransform');
@@ -62,10 +64,10 @@ const relayQueryTransforms: Array<IRTransform> = [
 
 // Transforms applied to the code used to process a query response.
 const relayCodegenTransforms: Array<IRTransform> = [
+  InlineFragmentsTransform.transform,
   (ctx: CompilerContext) =>
     FlattenTransform.transform(ctx, {
       flattenAbstractTypes: true,
-      flattenFragmentSpreads: true,
     }),
   SkipRedundantNodesTransform.transform,
   // Must be put after `SkipRedundantNodesTransform` which could shuffle the order.
@@ -75,6 +77,7 @@ const relayCodegenTransforms: Array<IRTransform> = [
 
 // Transforms applied before printing the query sent to the server.
 const relayPrintTransforms: Array<IRTransform> = [
+  RelayMaskTransform.transform,
   (ctx: CompilerContext) => FlattenTransform.transform(ctx, {}),
   RelayGenerateTypeNameTransform.transform,
   RelaySkipHandleFieldTransform.transform,

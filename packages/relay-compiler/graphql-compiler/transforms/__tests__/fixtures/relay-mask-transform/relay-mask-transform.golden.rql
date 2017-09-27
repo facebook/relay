@@ -1,0 +1,35 @@
+fragment RecursiveFragment on Image {
+  uri
+  width
+}
+
+fragment AnotherRecursiveFragment on Image {
+  uri
+}
+
+fragment UserProfile on User {
+  profilePicture(size: $ProfilePicture_SIZE) {
+    ... on Image @relay(mask: false) {
+      uri
+      ... on Image @relay(mask: false) {
+        uri
+        width
+      }
+    }
+    ... on Image @include(if: $cond) @relay(mask: false) {
+      uri
+    }
+    ...PhotoFragment
+  }
+  smallPic: profilePicture(size: 20) {
+    ...PhotoFragment @relay(mask: true)
+  }
+}
+
+fragment PhotoFragment on Image {
+  uri
+  ... on Image @relay(mask: false) {
+    uri
+    width
+  }
+}

@@ -26,21 +26,19 @@ class DocsLayout extends React.Component {
         <section className="content wrap documentationContent">
           <div className="inner-content">
             <a id="content" />
-            <h1>
-              {metadata.title}
-            </h1>
-            <Marked>
-              {content}
-            </Marked>
+            <h1>{metadata.title}</h1>
+            <Marked>{content}</Marked>
             <div className="docs-prevnext">
-              {metadata.previous &&
+              {metadata.previous && (
                 <a className="docs-prev" href={metadata.previous + '.html'}>
                   &larr; Prev
-                </a>}
-              {metadata.next &&
+                </a>
+              )}
+              {metadata.next && (
                 <a className="docs-next" href={metadata.next + '.html'}>
                   Next &rarr;
-                </a>}
+                </a>
+              )}
             </div>
           </div>
           <DocsSidebar metadata={metadata} />

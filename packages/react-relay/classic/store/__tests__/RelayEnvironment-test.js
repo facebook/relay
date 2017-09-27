@@ -31,7 +31,10 @@ describe('RelayEnvironment', () => {
 
   function setName(id, name) {
     environment.getStoreData().getNodeData()[id].name = name;
-    environment.getStoreData().getChangeEmitter().broadcastChangeForID(id);
+    environment
+      .getStoreData()
+      .getChangeEmitter()
+      .broadcastChangeForID(id);
     jest.runAllTimers();
   }
 

@@ -88,11 +88,9 @@ describe('RelayRenderer.onReadyStateChange', () => {
   it('does nothing before `prime` starts', () => {
     expect(() => {
       // Nothing.
-    }).toTriggerReadyStateChanges(
-      [
-        // Nothing.
-      ],
-    );
+    }).toTriggerReadyStateChanges([
+      // Nothing.
+    ]);
   });
 
   it('is not ready or done after a request', () => {
@@ -174,11 +172,9 @@ describe('RelayRenderer.onReadyStateChange', () => {
           onReadyStateChange={onReadyStateChange}
         />,
       );
-    }).toTriggerReadyStateChanges(
-      [
-        // Nothing.
-      ],
-    );
+    }).toTriggerReadyStateChanges([
+      // Nothing.
+    ]);
   });
 
   it('is aborted and not mounted when aborted from unmounting', () => {

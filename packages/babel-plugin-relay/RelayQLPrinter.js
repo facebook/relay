@@ -741,14 +741,14 @@ module.exports = function(t: any, options: PrinterOptions): Function {
   ): boolean {
     return (
       node.getType().mayImplement('Node') &&
-      !node
-        .getSelections()
-        .some(
-          selection =>
-            selection instanceof RelayQLInlineFragment &&
-            selection.getFragment().getType().getName({modifiers: false}) ===
-              'Node',
-        )
+      !node.getSelections().some(
+        selection =>
+          selection instanceof RelayQLInlineFragment &&
+          selection
+            .getFragment()
+            .getType()
+            .getName({modifiers: false}) === 'Node',
+      )
     );
   }
 

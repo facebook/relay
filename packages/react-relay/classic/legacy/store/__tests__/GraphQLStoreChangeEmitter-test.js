@@ -10,7 +10,10 @@
 
 'use strict';
 
-jest.enableAutomock().unmock('GraphQLStoreChangeEmitter').useFakeTimers();
+jest
+  .enableAutomock()
+  .unmock('GraphQLStoreChangeEmitter')
+  .useFakeTimers();
 
 const ErrorUtils = require('ErrorUtils');
 const GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');

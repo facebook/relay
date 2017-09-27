@@ -114,13 +114,15 @@ describe('RelayReadyStateRenderer', () => {
       expect.extend({
         toRenderWithArgs(elementOrReadyState, expected) {
           const render = jest.fn(() => <div />);
-          const element = ReactTestUtils.isElement(elementOrReadyState)
-            ? React.cloneElement(elementOrReadyState, {render})
-            : <RelayReadyStateRenderer
-                {...defaultProps}
-                readyState={elementOrReadyState}
-                render={render}
-              />;
+          const element = ReactTestUtils.isElement(elementOrReadyState) ? (
+            React.cloneElement(elementOrReadyState, {render})
+          ) : (
+            <RelayReadyStateRenderer
+              {...defaultProps}
+              readyState={elementOrReadyState}
+              render={render}
+            />
+          );
           ReactTestRenderer.create(element);
           const actual = render.mock.calls[0][0];
           const pass = this.equals(actual, jasmine.objectContaining(expected));
@@ -266,7 +268,10 @@ describe('RelayReadyStateRenderer', () => {
         queryConfig: anotherQueryConfig,
         retry: jest.fn(),
       };
-      environment.getStoreData().getRecordWriter().putDataID('me', null, '123');
+      environment
+        .getStoreData()
+        .getRecordWriter()
+        .putDataID('me', null, '123');
       expect(
         <RelayReadyStateRenderer
           {...defaultProps}
@@ -277,7 +282,10 @@ describe('RelayReadyStateRenderer', () => {
         props: {me: anyRecord({dataID: '123'})},
       });
 
-      environment.getStoreData().getRecordWriter().putDataID('me', null, '456');
+      environment
+        .getStoreData()
+        .getRecordWriter()
+        .putDataID('me', null, '456');
       expect(
         <RelayReadyStateRenderer
           {...defaultProps}
@@ -308,7 +316,10 @@ describe('RelayReadyStateRenderer', () => {
         queryConfig: anotherQueryConfig,
         retry: jest.fn(),
       };
-      environment.getStoreData().getRecordWriter().putDataID('me', null, null);
+      environment
+        .getStoreData()
+        .getRecordWriter()
+        .putDataID('me', null, null);
       expect(
         <RelayReadyStateRenderer
           {...defaultProps}
@@ -319,7 +330,10 @@ describe('RelayReadyStateRenderer', () => {
         props: {me: null},
       });
 
-      environment.getStoreData().getRecordWriter().putDataID('me', null, '123');
+      environment
+        .getStoreData()
+        .getRecordWriter()
+        .putDataID('me', null, '123');
       expect(
         <RelayReadyStateRenderer
           {...defaultProps}

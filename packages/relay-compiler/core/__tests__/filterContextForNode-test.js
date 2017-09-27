@@ -36,7 +36,10 @@ describe('filterContextForNode', () => {
         context.get(MAIN_QUERY_NAME),
         context,
       );
-      return printerContext.documents().map(GraphQLIRPrinter.print).join('\n');
+      return printerContext
+        .documents()
+        .map(GraphQLIRPrinter.print)
+        .join('\n');
     });
   });
 });

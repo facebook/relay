@@ -21,11 +21,7 @@ describe('RelayMockRenderer', () => {
   it('renders a container with mock data', () => {
     class Component extends React.Component {
       render() {
-        return (
-          <h1>
-            {this.props.viewer.actor.name}
-          </h1>
-        );
+        return <h1>{this.props.viewer.actor.name}</h1>;
       }
     }
     const Container = RelayClassic.createContainer(Component, {

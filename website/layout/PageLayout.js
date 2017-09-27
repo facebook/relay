@@ -23,9 +23,7 @@ class support extends React.Component {
       <Site section={metadata.section}>
         <section className="content wrap documentationContent nosidebar">
           <div className="inner-content">
-            <Marked>
-              {content}
-            </Marked>
+            <Marked>{content}</Marked>
           </div>
         </section>
         <Footer metadata={metadata} />

@@ -48,7 +48,10 @@ class GraphQLCompilerContext {
    * Returns the documents for the context in the order they were added.
    */
   documents(): Array<Fragment | Root> {
-    return this._documents.valueSeq().map(doc => doc.get('node')).toJS();
+    return this._documents
+      .valueSeq()
+      .map(doc => doc.get('node'))
+      .toJS();
   }
 
   updateSchema(schema: GraphQLSchema): GraphQLCompilerContext {

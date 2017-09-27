@@ -1281,7 +1281,10 @@ class RelayQueryField extends RelayQueryNode {
         if (alias != null) {
           key += '.' + alias;
         }
-        key += calls.map(serializeRelayQueryCall).sort().join('');
+        key += calls
+          .map(serializeRelayQueryCall)
+          .sort()
+          .join('');
       }
       serializationKey = generateRQLFieldAlias(key);
       this.__serializationKey__ = serializationKey;

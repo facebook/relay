@@ -404,7 +404,9 @@ class RelayMutation<Tp: Object> {
           'fragments names: %s',
         this.name,
         fragmentName,
-        Object.keys(fragments).map(name => '`' + name + '`').join(', '),
+        Object.keys(fragments)
+          .map(name => '`' + name + '`')
+          .join(', '),
       );
     }
 

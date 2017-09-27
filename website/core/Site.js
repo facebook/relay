@@ -23,9 +23,7 @@ class Site extends React.Component {
         <head>
           <meta charSet="utf-8" />
           <meta httpEquiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-          <title>
-            {title}
-          </title>
+          <title>{title}</title>
           <meta name="viewport" content="width=device-width" />
           <meta property="og:title" content={title} />
           <meta property="og:type" content="website" />

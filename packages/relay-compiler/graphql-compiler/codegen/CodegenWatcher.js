@@ -52,7 +52,9 @@ async function queryFiles(
   return updateFiles(new Set(), baseDir, filter, resp.files);
 }
 
-async function getFields(client: GraphQLWatchmanClient): Promise<Array<string>> {
+async function getFields(
+  client: GraphQLWatchmanClient,
+): Promise<Array<string>> {
   const fields = ['name', 'exists'];
   if (await client.hasCapability('field-content.sha1hex')) {
     fields.push('content.sha1hex');
@@ -201,7 +203,10 @@ function updateFiles(
 
 function hashFile(filename: string): string {
   const content = fs.readFileSync(filename);
-  return crypto.createHash('sha1').update(content).digest('hex');
+  return crypto
+    .createHash('sha1')
+    .update(content)
+    .digest('hex');
 }
 
 module.exports = {

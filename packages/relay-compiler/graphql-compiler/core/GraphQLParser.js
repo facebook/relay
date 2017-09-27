@@ -215,8 +215,9 @@ class GraphQLParser {
   _transformFragment(fragment: FragmentDefinitionNode): Fragment {
     const argumentDefinitions = this._buildArgumentDefinitions(fragment);
     const directives = this._transformDirectives(
-      (fragment.directives || [])
-        .filter(directive => getName(directive) !== ARGUMENT_DEFINITIONS),
+      (fragment.directives || []).filter(
+        directive => getName(directive) !== ARGUMENT_DEFINITIONS,
+      ),
     );
     const type = assertCompositeType(
       getTypeFromAST(this._schema, fragment.typeCondition),
@@ -269,8 +270,9 @@ class GraphQLParser {
   _buildArgumentDefinitions(
     fragment: FragmentDefinitionNode,
   ): Array<ArgumentDefinition> {
-    const variableDirectives = (fragment.directives || [])
-      .filter(directive => getName(directive) === ARGUMENT_DEFINITIONS);
+    const variableDirectives = (fragment.directives || []).filter(
+      directive => getName(directive) === ARGUMENT_DEFINITIONS,
+    );
     if (!variableDirectives.length) {
       return [];
     }
@@ -609,8 +611,9 @@ class GraphQLParser {
   ): ?Array<Handle> {
     let handles: ?Array<Handle>;
     clientFieldDirectives.forEach(clientFieldDirective => {
-      const handleArgument = (clientFieldDirective.arguments || [])
-        .find(arg => getName(arg) === CLIENT_FIELD_HANDLE);
+      const handleArgument = (clientFieldDirective.arguments || []).find(
+        arg => getName(arg) === CLIENT_FIELD_HANDLE,
+      );
       if (handleArgument) {
         let name = null;
         let key = DEFAULT_HANDLE_KEY;
@@ -629,8 +632,9 @@ class GraphQLParser {
         );
         name = maybeHandle.value;
 
-        const keyArgument = (clientFieldDirective.arguments || [])
-          .find(arg => getName(arg) === CLIENT_FIELD_KEY);
+        const keyArgument = (clientFieldDirective.arguments || []).find(
+          arg => getName(arg) === CLIENT_FIELD_KEY,
+        );
         if (keyArgument) {
           const maybeKey = this._transformValue(keyArgument.value);
           invariant(
@@ -645,8 +649,9 @@ class GraphQLParser {
           );
           key = maybeKey.value;
         }
-        const filtersArgument = (clientFieldDirective.arguments || [])
-          .find(arg => getName(arg) === CLIENT_FIELD_FILTERS);
+        const filtersArgument = (clientFieldDirective.arguments || []).find(
+          arg => getName(arg) === CLIENT_FIELD_FILTERS,
+        );
         if (filtersArgument) {
           const maybeFilters = this._transformValue(filtersArgument.value);
           invariant(

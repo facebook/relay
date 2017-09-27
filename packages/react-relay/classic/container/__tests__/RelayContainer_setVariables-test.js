@@ -248,8 +248,9 @@ describe('RelayContainer.setVariables', function() {
 
     it('lets props override default variables', () => {
       const anotherInstance = RelayTestUtils.createRenderer().render(
-        genMockPointer =>
-          <MockContainer entity={genMockPointer('42')} site="www" />,
+        genMockPointer => (
+          <MockContainer entity={genMockPointer('42')} site="www" />
+        ),
         environment,
       );
       expect(anotherInstance.state.relayProp.variables.site).toBe('www');
@@ -525,8 +526,9 @@ describe('RelayContainer.setVariables', function() {
         resolvedVariables = resolved.getVariables();
       });
       mockInstance = renderer.render(
-        genMockPointer =>
-          <MockContainer entity={genMockPointer('42')} size="medium" />,
+        genMockPointer => (
+          <MockContainer entity={genMockPointer('42')} size="medium" />
+        ),
         environment,
       );
       // prepareVariables output used as props.relay.variables
@@ -551,8 +553,9 @@ describe('RelayContainer.setVariables', function() {
         };
       });
       mockInstance = renderer.render(
-        genMockPointer =>
-          <MockContainer entity={genMockPointer('42')} size="medium" />,
+        genMockPointer => (
+          <MockContainer entity={genMockPointer('42')} size="medium" />
+        ),
         environment,
       );
       // update with new size
@@ -561,8 +564,9 @@ describe('RelayContainer.setVariables', function() {
         resolvedVariables = resolved.getVariables();
       });
       mockInstance = renderer.render(
-        genMockPointer =>
-          <MockContainer entity={genMockPointer('42')} size="thumbnail" />,
+        genMockPointer => (
+          <MockContainer entity={genMockPointer('42')} size="thumbnail" />
+        ),
         environment,
       );
       // prepareVariables output used as props.relay.variables
@@ -869,8 +873,9 @@ describe('RelayContainer.setVariables', function() {
       const mockWrapperInstance = RelayTestUtils.createRenderer(
         domContainer,
       ).render(
-        genMockPointer =>
-          <MockWrapperContainer entity={genMockPointer('42')} />,
+        genMockPointer => (
+          <MockWrapperContainer entity={genMockPointer('42')} />
+        ),
         environment,
       );
       const innerComponent = mockWrapperInstance.refs.component.refs.inner;

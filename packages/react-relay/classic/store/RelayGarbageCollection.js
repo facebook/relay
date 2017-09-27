@@ -95,7 +95,9 @@ function scheduler(run: () => boolean): void {
 }
 
 function enqueue(fn: () => void): void {
-  RelayStore.getStoreData().getTaskQueue().enqueue(fn);
+  RelayStore.getStoreData()
+    .getTaskQueue()
+    .enqueue(fn);
 }
 
 module.exports = RelayGarbageCollection;

@@ -10,7 +10,10 @@
 
 'use strict';
 
-jest.mock('generateClientID').mock('warning').mock('RelayQueryTracker');
+jest
+  .mock('generateClientID')
+  .mock('warning')
+  .mock('RelayQueryTracker');
 
 require('configureForRelayOSS');
 

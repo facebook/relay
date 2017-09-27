@@ -246,8 +246,9 @@ function createOperationArguments(t, variableDefinitions) {
 function createFragmentArguments(t, argumentDefinitions, variables) {
   const concreteDefinitions = [];
   Object.keys(variables).forEach(name => {
-    const definition = (argumentDefinitions || [])
-      .find(arg => arg.name.value === name);
+    const definition = (argumentDefinitions || []).find(
+      arg => arg.name.value === name,
+    );
     if (definition) {
       const defaultValueField = definition.value.fields.find(
         field => field.name.value === 'defaultValue',

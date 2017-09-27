@@ -227,7 +227,9 @@ describe('transformClientPayload()', () => {
   it('uses the query interface to construct keys', () => {
     const queryInterface = {
       getKeyForClientData: jest.fn(field =>
-        Array.from(field.getApplicationName()).reverse().join(''),
+        Array.from(field.getApplicationName())
+          .reverse()
+          .join(''),
       ),
       traverseChildren: jest.fn((node, callback, context) =>
         node

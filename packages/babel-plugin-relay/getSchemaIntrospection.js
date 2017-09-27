@@ -33,7 +33,10 @@ function getSchemaIntrospection(schemaPath: string, basePath: ?string) {
       'Encountered the following error while loading the GraphQL schema: ' +
         schemaPath +
         '\n\n' +
-        error.stack.split('\n').map(line => '> ' + line).join('\n'),
+        error.stack
+          .split('\n')
+          .map(line => '> ' + line)
+          .join('\n'),
     );
     throw error;
   }

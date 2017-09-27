@@ -77,7 +77,10 @@ describe('RelayContainer.hasOptimisticUpdate', () => {
   });
 
   it('is false for non-queued records', () => {
-    environment.getStoreData().getRecordWriter().putRecord('123', 'Type');
+    environment
+      .getStoreData()
+      .getRecordWriter()
+      .putRecord('123', 'Type');
 
     const instance = RelayTestRenderer.render(
       genMockPointer => <MockContainer foo={genMockPointer('123')} />,

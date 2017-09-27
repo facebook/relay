@@ -98,7 +98,10 @@ class RelayFileWriter implements FileWriterInterface {
     );
     const extendedSchema = ASTConvert.extendASTSchema(
       transformedSchema,
-      this._baseDocuments.merge(this._documents).valueSeq().toArray(),
+      this._baseDocuments
+        .merge(this._documents)
+        .valueSeq()
+        .toArray(),
     );
 
     // Build a context from all the documents

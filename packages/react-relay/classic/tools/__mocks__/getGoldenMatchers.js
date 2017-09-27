@@ -262,7 +262,10 @@ function getTemporaryDirectory() {
   // Very recent versions of Node have an fs.mkdtempSync call, but for now, just
   // shell out.
   const child_process = require('child_process');
-  return child_process.execFileSync('mktemp', ['-d']).toString().trim();
+  return child_process
+    .execFileSync('mktemp', ['-d'])
+    .toString()
+    .trim();
 }
 
 module.exports = getGoldenMatchers;

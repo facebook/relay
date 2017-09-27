@@ -15,7 +15,10 @@ jest.enableAutomock();
 require('configureForRelayOSS');
 
 jest.useFakeTimers();
-jest.mock('warning').unmock('GraphQLQueryRunner').unmock('RelayTaskQueue');
+jest
+  .mock('warning')
+  .unmock('GraphQLQueryRunner')
+  .unmock('RelayTaskQueue');
 
 const RelayClassic = require('RelayClassic');
 const RelayFetchMode = require('RelayFetchMode');

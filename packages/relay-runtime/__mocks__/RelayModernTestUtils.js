@@ -154,8 +154,10 @@ const RelayModernTestUtils = {
     const ast = RelayParser.parse(RelayTestSchema, text);
     let context = new GraphQLCompilerContext(RelayTestSchema);
     context = ast.reduce((ctx, node) => ctx.add(node), context);
-    context = (transforms || [])
-      .reduce((ctx, {transform}) => transform(ctx), context);
+    context = (transforms || []).reduce(
+      (ctx, {transform}) => transform(ctx),
+      context,
+    );
     const documentMap = {};
     context.documents().forEach(node => {
       documentMap[node.name] = RelayCodeGenerator.generate(node);

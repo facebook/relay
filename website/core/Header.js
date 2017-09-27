@@ -39,7 +39,7 @@ class Header extends React.Component {
         // Trim dashes
         .replace(/^-|-$/g, '')
     );
-  };
+  }
 
   render() {
     const slug = this.slug(this.props.toSlug || this.props.children);

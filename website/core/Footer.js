@@ -17,7 +17,7 @@ class Footer extends React.Component {
     const metadata = this.props.metadata;
     return (
       <footer>
-        {metadata &&
+        {metadata && (
           <span>
             <a
               className="edit-page-link"
@@ -28,10 +28,9 @@ class Footer extends React.Component {
               target="_blank">
               Edit This Page
             </a>
-          </span>}
-        <span>
-          Copyright © {new Date().getFullYear()} Facebook Inc
-        </span>
+          </span>
+        )}
+        <span>Copyright © {new Date().getFullYear()} Facebook Inc</span>
       </footer>
     );
   }

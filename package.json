@@ -76,6 +76,14 @@
     "node": ">=4.x",
     "npm": ">=2.x"
   },
+  "prettier": {
+    "requirePragma": true,
+    "singleQuote": true,
+    "trailingComma": "all",
+    "bracketSpacing": false,
+    "jsxBracketSameLine": true,
+    "parser": "flow"
+  },
   "jest": {
     "modulePathIgnorePatterns": [
       "<rootDir>/lib/",

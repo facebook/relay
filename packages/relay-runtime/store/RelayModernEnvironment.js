@@ -214,7 +214,6 @@ class RelayModernEnvironment implements Environment {
     uploadables?: ?UploadableMap,
   |}): RelayObservable<RelayResponsePayload> {
     const {node, variables} = operation;
-    const mutationUid = nextMutationUid();
 
     let optimisticUpdate;
     if (optimisticResponse || optimisticUpdater) {
@@ -404,12 +403,6 @@ class RelayModernEnvironment implements Environment {
     }
     return result;
   }
-}
-
-let mutationUidCounter = 0;
-const mutationUidPrefix = Math.random().toString();
-function nextMutationUid() {
-  return mutationUidPrefix + mutationUidCounter++;
 }
 
 // Add a sigil for detection by `isRelayModernEnvironment()` to avoid a

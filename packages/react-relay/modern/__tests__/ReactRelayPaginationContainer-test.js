@@ -1071,6 +1071,20 @@ describe('ReactRelayPaginationContainer', () => {
       expect(environment.mock.isLoading(UserQuery, variables)).toBe(false);
     });
 
+    it('still calls callback if even if there are no more items to fetch', () => {
+      // Simulate empty connection data
+      getConnectionFromProps.mockImplementation(() => null);
+      variables = {
+        after: 'cursor:1',
+        count: 1,
+        id: '4',
+      };
+      let callbackCalled = false;
+      expect(loadMore(1, () => (callbackCalled = true))).toBe(null);
+      expect(environment.mock.isLoading(UserQuery, variables)).toBe(false);
+      expect(callbackCalled).toBe(true);
+    });
+
     it('returns null if page info fields are null', () => {
       const {PAGE_INFO, END_CURSOR, HAS_NEXT_PAGE} = ConnectionInterface.get();
       // Simulate empty connection data

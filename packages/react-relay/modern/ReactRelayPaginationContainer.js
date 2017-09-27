@@ -289,7 +289,13 @@ function findConnectionMetadata(fragments): ReactConnectionMetadata {
 
 function toObserver(observerOrCallback: ?ObserverOrCallback): Observer<void> {
   return typeof observerOrCallback === 'function'
-    ? {error: observerOrCallback, complete: observerOrCallback}
+    ? {
+        error: observerOrCallback,
+        complete: observerOrCallback,
+        unsubscribe: subscription => {
+          typeof observerOrCallback === 'function' && observerOrCallback();
+        },
+      }
     : observerOrCallback || {};
 }
 
@@ -544,7 +550,7 @@ function createContainerWithFragments<
       totalCount: number,
       observerOrCallback: ?ObserverOrCallback,
       refetchVariables: ?Variables,
-    ): ?Disposable => {
+    ): Disposable => {
       const paginatingVariables = {
         count: totalCount,
         cursor: null,
@@ -556,7 +562,8 @@ function createContainerWithFragments<
         {force: true},
         refetchVariables,
       );
-      return fetch ? {dispose: fetch.unsubscribe} : null;
+
+      return {dispose: fetch.unsubscribe};
     };
 
     _loadMore = (
@@ -564,8 +571,10 @@ function createContainerWithFragments<
       observerOrCallback: ?ObserverOrCallback,
       options: ?RefetchOptions,
     ): ?Disposable => {
+      const observer = toObserver(observerOrCallback);
       const connectionData = this._getConnectionData();
       if (!connectionData) {
+        new Observable(sink => sink.complete()).subscribe(observer);
         return null;
       }
       const totalCount = connectionData.edgeCount + pageSize;
@@ -577,12 +586,8 @@ function createContainerWithFragments<
         cursor: connectionData.cursor,
         totalCount,
       };
-      const fetch = this._fetchPage(
-        paginatingVariables,
-        toObserver(observerOrCallback),
-        options,
-      );
-      return fetch ? {dispose: fetch.unsubscribe} : null;
+      const fetch = this._fetchPage(paginatingVariables, observer, options);
+      return {dispose: fetch.unsubscribe};
     };
 
     _fetchPage(
@@ -594,7 +599,7 @@ function createContainerWithFragments<
       observer: Observer<void>,
       options: ?RefetchOptions,
       refetchVariables: ?Variables,
-    ): ?Subscription {
+    ): Subscription {
       const {environment} = assertRelayContext(this.context.relay);
       const {
         createOperationSelector,

@@ -62,10 +62,11 @@ export type VisitNode =
 export type VisitFn<T: VisitNode> = (
   node: T, // node we're visiting
   key?: any, // index/key to node from parent array/object
-  parent?: ?VisitNode, // Object immediately above node
+  parent?: ?(VisitNode | Array<VisitNode>), // Object immediately above node
   path?: Array<any>, // keys to get from root: [keyForChild, ..., keyForParent]
-  ancestors?: Array<VisitNode>, // [root, child1, ..., grandparent]
-  // Note: ancestors.length may not == path.length: path includes array indices
+  ancestors?: Array<VisitNode | Array<VisitNode>>, // [root, child1, ..., grandparent]
+  // Note: ancestors includes arrays which contain the visited node
+  // These correspond to array indices in `path`.
 ) => any;
 
 export type NodeVisitorObject<T: VisitNode> =

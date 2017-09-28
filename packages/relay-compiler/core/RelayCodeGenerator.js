@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayCodeGenerator
  * @flow
@@ -13,27 +11,30 @@
 
 'use strict';
 
-const RelayIRVisitor = require('RelayIRVisitor');
-const GraphQLSchemaUtils = require('GraphQLSchemaUtils');
-
+// TODO T21875029 ../../relay-runtime/util/formatStorageKey
 const formatStorageKey = require('formatStorageKey');
 const invariant = require('invariant');
+// TODO T21875029 ../../relay-runtime/util/prettyStringify
 const prettyStringify = require('prettyStringify');
 
+const {
+  IRVisitor,
+  SchemaUtils,
+} = require('../graphql-compiler/GraphQLCompilerPublic');
 const {GraphQLList} = require('graphql');
 
+import type {Fragment, Root} from '../graphql-compiler/GraphQLCompilerPublic';
+// TODO T21875029 ../../relay-runtime/util/RelayConcreteNode
 import type {
   ConcreteArgument,
   ConcreteArgumentDefinition,
   ConcreteFragment,
   ConcreteRoot,
   ConcreteSelection,
+  GeneratedNode,
 } from 'RelayConcreteNode';
-import type {GeneratedNode} from 'RelayConcreteNode';
-import type {Fragment, Root} from 'RelayIR';
-const {getRawType, isAbstractType, getNullableType} = GraphQLSchemaUtils;
+const {getRawType, isAbstractType, getNullableType} = SchemaUtils;
 
-/* eslint-disable no-redeclare */
 declare function generate(node: Root): ConcreteRoot;
 declare function generate(node: Fragment): ConcreteFragment;
 
@@ -43,7 +44,7 @@ export type RelayGeneratedNode = ConcreteRoot | ConcreteFragment;
 /**
  * @public
  *
- * Converts a Relay IR node into a plain JS object representation that can be
+ * Converts a GraphQLIR node into a plain JS object representation that can be
  * used at runtime.
  */
 function generate(node: Root | Fragment): ConcreteRoot | ConcreteFragment {
@@ -53,9 +54,8 @@ function generate(node: Root | Fragment): ConcreteRoot | ConcreteFragment {
     node.kind,
     getErrorMessage(node),
   );
-  return RelayIRVisitor.visit(node, RelayCodeGenVisitor);
+  return IRVisitor.visit(node, RelayCodeGenVisitor);
 }
-/* eslint-enable no-redeclare */
 
 const RelayCodeGenVisitor = {
   leave: {

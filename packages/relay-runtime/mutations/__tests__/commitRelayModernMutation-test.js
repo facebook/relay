@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @format
  * @emails oncall+relay
@@ -128,9 +126,8 @@ describe('Configs: NODE_DELETE', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
-    const sendMutation =
-      environment.sendMutation.mock.calls[0][0].operation.node;
-    environment.mock.resolve(sendMutation, {
+    const node = environment.executeMutation.mock.calls[0][0].operation.node;
+    environment.mock.resolve(node, {
       data: {
         commentDelete: {
           deletedCommentId: firstCommentID,
@@ -273,9 +270,8 @@ describe('Configs: RANGE_DELETE', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
-    const sendMutation =
-      environment.sendMutation.mock.calls[0][0].operation.node;
-    environment.mock.resolve(sendMutation, {
+    const node = environment.executeMutation.mock.calls[0][0].operation.node;
+    environment.mock.resolve(node, {
       data: {
         commentDelete: {
           clientMutationId: '0',
@@ -400,9 +396,8 @@ describe('Configs: RANGE_DELETE', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
-    const sendMutation =
-      environment.sendMutation.mock.calls[0][0].operation.node;
-    environment.mock.resolve(sendMutation, {
+    const node = environment.executeMutation.mock.calls[0][0].operation.node;
+    environment.mock.resolve(node, {
       data: {
         unfriend: {
           clientMutationId: '0',
@@ -572,9 +567,8 @@ describe('Configs: RANGE_ADD', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
-    const sendMutation =
-      environment.sendMutation.mock.calls[0][0].operation.node;
-    environment.mock.resolve(sendMutation, data);
+    const node = environment.executeMutation.mock.calls[0][0].operation.node;
+    environment.mock.resolve(node, data);
     jest.runAllTimers();
     // Does not need to fire again since server data should be the same
     expect(updater).toBeCalled();
@@ -640,9 +634,8 @@ describe('Configs: RANGE_ADD', () => {
         },
       },
     };
-    const mutationQuery =
-      environment.sendMutation.mock.calls[0][0].operation.node;
-    environment.mock.resolve(mutationQuery, serverResponse);
+    const node = environment.executeMutation.mock.calls[0][0].operation.node;
+    environment.mock.resolve(node, serverResponse);
     jest.runAllTimers();
 
     let snapshot = store.lookup({
@@ -703,7 +696,7 @@ describe('Configs: RANGE_ADD', () => {
       mutation,
       variables,
     });
-    environment.mock.resolve(mutationQuery, serverResponse);
+    environment.mock.resolve(node, serverResponse);
     jest.runAllTimers();
 
     snapshot = store.lookup({
@@ -784,9 +777,8 @@ describe('Configs: RANGE_ADD', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
-    const sendMutation =
-      environment.sendMutation.mock.calls[0][0].operation.node;
-    environment.mock.resolve(sendMutation, data);
+    const node = environment.executeMutation.mock.calls[0][0].operation.node;
+    environment.mock.resolve(node, data);
     jest.runAllTimers();
     // Does not need to fire again since server data should be the same
     expect(updater).toBeCalled();
@@ -846,9 +838,8 @@ describe('Configs: RANGE_ADD', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
-    const sendMutation =
-      environment.sendMutation.mock.calls[0][0].operation.node;
-    environment.mock.resolve(sendMutation, data);
+    const node = environment.executeMutation.mock.calls[0][0].operation.node;
+    environment.mock.resolve(node, data);
     jest.runAllTimers();
     // Does not need to fire again since server data should be the same
     expect(updater).toBeCalled();

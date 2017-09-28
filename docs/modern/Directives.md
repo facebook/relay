@@ -7,7 +7,9 @@ permalink: docs/relay-directives.html
 next: babel-plugin-relay
 ---
 
-Relay Modern supports the following directives
+Relay Modern uses directives to add additional information to queries, later used by the relay-compiler to generate appropriate runtime artifacts. These directives only appear in your application code and are removed from requests sent to your GraphQL server. 
+
+Note: The relay-compiler will maintain any directives supported by your server (such as `@include` or `@skip`) so they remain part of the request to the GraphQL server and won't alter generated runtime artifacts.
 
 ## `@connection(key: String!, filters: [String])`
 

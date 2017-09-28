@@ -22,7 +22,7 @@ requestSubscription(
     onCompleted?: ?() => void,
     onError?: ?(error: Error) => void,
     onNext?: ?(response: ?Object) => void,
-    updater?: ?(store: RecordSourceSelectorProxy) => void,
+    updater?: ?(store: RecordSourceSelectorProxy, data: SelectorData) => void,
     configs?: Array<RelayMutationConfig>,
   },
 );
@@ -76,7 +76,7 @@ requestSubscription(
     subscription,
     variables,
     // optional but recommended:
-    onComplete: () => {/* server closed the subscription */},
+    onCompleted: () => {/* server closed the subscription */},
     onError: error => console.error(error),
   }
 );

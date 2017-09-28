@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayNetworkDebug
  * @flow
@@ -101,7 +99,6 @@ function createDebuggableFromRequest(
     type,
     promise: request.getPromise(),
     logResult(error, response) {
-      /* eslint-disable no-console-disallow */
       const requestSize = formatSize(
         xhrSimpleDataSerializer({
           q: request.getQueryString(),
@@ -130,12 +127,13 @@ function createDebuggableFromRequest(
       console.groupEnd();
 
       if (Object.keys(requestVariables).length > 0) {
+        // eslint-disable-next-line no-console
         console.log('Request Variables\n', request.getVariables());
       }
 
       error && console.error(error);
+      // eslint-disable-next-line no-console
       response && console.log(response);
-      /* eslint-enable no-console-disallow */
     },
   };
 }

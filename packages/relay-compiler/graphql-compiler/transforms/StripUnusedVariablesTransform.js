@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule StripUnusedVariablesTransform
  * @flow
@@ -13,12 +11,12 @@
 
 'use strict';
 
-const RelayCompilerContext = require('../core/RelayCompilerContext');
-const RelayIRTransformer = require('../core/RelayIRTransformer');
+const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
+const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 
 const filterContextForNode = require('../core/filterContextForNode');
 
-import type {Argument, Condition, Root} from '../core/RelayIR';
+import type {Argument, Condition, Root} from '../core/GraphQLIR';
 
 type State = {referencedVariables: Set<string>};
 
@@ -26,17 +24,17 @@ type State = {referencedVariables: Set<string>};
  * A transform that removes variables from root queries that aren't referenced
  * by the query itself.
  */
-function transform(context: RelayCompilerContext): RelayCompilerContext {
-  return context.documents().reduce((ctx: RelayCompilerContext, node) => {
+function transform(context: GraphQLCompilerContext): GraphQLCompilerContext {
+  return context.documents().reduce((ctx: GraphQLCompilerContext, node) => {
     return ctx.add(node.kind === 'Root' ? transformRoot(context, node) : node);
-  }, new RelayCompilerContext(context.schema));
+  }, new GraphQLCompilerContext(context.schema));
 }
 
-function transformRoot(context: RelayCompilerContext, root: Root): Root {
+function transformRoot(context: GraphQLCompilerContext, root: Root): Root {
   const state = {
     referencedVariables: new Set(),
   };
-  const newContext = RelayIRTransformer.transform(
+  const newContext = GraphQLIRTransformer.transform(
     filterContextForNode(root, context),
     {
       Argument: visitArgument,

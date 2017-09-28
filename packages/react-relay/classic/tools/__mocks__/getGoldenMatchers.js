@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @format
  */
@@ -197,7 +195,7 @@ function getGoldenMatchers(...args) {
       });
       return {
         pass: failures.length === 0,
-        message:
+        message: () =>
           'actual output did not match expected for files: ' +
           failures.map(failure => failure.name).join(', ') +
           ' (if these changes are intended, re-run the tests with the ' +
@@ -220,7 +218,7 @@ function normalize(string) {
  * Log some output.
  */
 function log(...args) {
-  // eslint-disable-next-line no-console-disallow
+  // eslint-disable-next-line no-console
   console.log(...args);
 }
 
@@ -264,7 +262,10 @@ function getTemporaryDirectory() {
   // Very recent versions of Node have an fs.mkdtempSync call, but for now, just
   // shell out.
   const child_process = require('child_process');
-  return child_process.execFileSync('mktemp', ['-d']).toString().trim();
+  return child_process
+    .execFileSync('mktemp', ['-d'])
+    .toString()
+    .trim();
 }
 
 module.exports = getGoldenMatchers;

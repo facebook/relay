@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayOptimisticMutationUtils
  * @flow
@@ -13,7 +11,6 @@
 
 'use strict';
 
-const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayNodeInterface = require('RelayNodeInterface');
 const RelayQuery = require('RelayQuery');
 const RelayRecord = require('RelayRecord');
@@ -22,11 +19,12 @@ const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const warning = require('warning');
 
+const {ConnectionInterface} = require('RelayRuntime');
+
 const ARGUMENTS = /^(\w+)(?:\((.+?)\))?$/;
 const ARGUMENT_NAME = /(\w+)(?=\s*:)/;
 const DEPRECATED_CALLS = /^\w+(?:\.\w+\(.*?\))+$/;
 const DEPRECATED_CALL = /^(\w+)\((.*?)\)$/;
-const {NODE, EDGES} = RelayConnectionInterface;
 const {ANY_TYPE, ID} = RelayNodeInterface;
 
 const idField = RelayQuery.Field.build({
@@ -79,6 +77,8 @@ const RelayOptimisticMutationUtils = {
 };
 
 function inferField(value: mixed, key: string): RelayQuery.Field {
+  const {NODE, EDGES} = ConnectionInterface.get();
+
   const metadata = {
     canHaveSubselections: true,
     isPlural: false,

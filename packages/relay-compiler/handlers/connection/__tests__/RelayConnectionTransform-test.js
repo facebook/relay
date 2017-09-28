@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @format
  * @emails oncall+relay
@@ -15,9 +13,9 @@
 require('configureForRelayOSS');
 
 describe('RelayConnectionTransform', () => {
-  let RelayCompilerContext;
+  let GraphQLCompilerContext;
   let RelayConnectionTransform;
-  let RelayPrinter;
+  let GraphQLIRPrinter;
   let RelayTestSchema;
   let getGoldenMatchers;
   let parseGraphQLText;
@@ -26,9 +24,9 @@ describe('RelayConnectionTransform', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    RelayCompilerContext = require('RelayCompilerContext');
+    GraphQLCompilerContext = require('GraphQLCompilerContext');
     RelayConnectionTransform = require('RelayConnectionTransform');
-    RelayPrinter = require('RelayPrinter');
+    GraphQLIRPrinter = require('GraphQLIRPrinter');
     RelayTestSchema = require('RelayTestSchema');
     getGoldenMatchers = require('getGoldenMatchers');
     parseGraphQLText = require('parseGraphQLText');
@@ -47,13 +45,13 @@ describe('RelayConnectionTransform', () => {
           RelayConnectionTransform.SCHEMA_EXTENSION,
         ]);
         const {definitions} = parseGraphQLText(schema, text);
-        let context = new RelayCompilerContext(schema).addAll(definitions);
+        let context = new GraphQLCompilerContext(schema).addAll(definitions);
         context = RelayConnectionTransform.transform(context, options);
         return context
           .documents()
           .map(
             doc =>
-              RelayPrinter.print(doc) +
+              GraphQLIRPrinter.print(doc) +
               '# Metadata:\n' +
               prettyStringify(doc.metadata),
           )

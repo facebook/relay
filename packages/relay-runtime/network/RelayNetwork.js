@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayNetwork
  * @flow
@@ -16,25 +14,18 @@
 const RelayObservable = require('RelayObservable');
 
 const invariant = require('invariant');
-const isPromise = require('isPromise');
-const normalizePayload = require('normalizePayload');
-const nullthrows = require('nullthrows');
 
-const {convertFetch, convertSubscribe} = require('ConvertToObserveFunction');
+const {convertFetch, convertSubscribe} = require('ConvertToExecuteFunction');
 
-import type {CacheConfig, Disposable} from 'RelayCombinedEnvironmentTypes';
+import type {CacheConfig} from 'RelayCombinedEnvironmentTypes';
 import type {ConcreteBatch} from 'RelayConcreteNode';
 import type {
   FetchFunction,
   Network,
-  ObserveFunction,
-  PromiseOrValue,
   QueryPayload,
-  RelayResponsePayload,
   SubscribeFunction,
   UploadableMap,
 } from 'RelayNetworkTypes';
-import type {Observer} from 'RelayStoreTypes';
 import type {Variables} from 'RelayTypes';
 
 /**
@@ -51,7 +42,7 @@ function create(
     ? convertSubscribe(subscribeFn)
     : undefined;
 
-  function observe(
+  function execute(
     operation: ConcreteBatch,
     variables: Variables,
     cacheConfig: CacheConfig,
@@ -85,46 +76,7 @@ function create(
     return observeFetch(operation, variables, cacheConfig, uploadables);
   }
 
-  function fetch(
-    operation: ConcreteBatch,
-    variables: Variables,
-    cacheConfig: CacheConfig,
-    uploadables?: ?UploadableMap,
-  ): PromiseOrValue<QueryPayload> {
-    return observeFetch(operation, variables, cacheConfig, uploadables)
-      .toPromise()
-      .then(nullthrows);
-  }
-
-  function request(
-    operation: ConcreteBatch,
-    variables: Variables,
-    cacheConfig: CacheConfig,
-    uploadables?: ?UploadableMap,
-  ): PromiseOrValue<RelayResponsePayload> {
-    return observeFetch(operation, variables, cacheConfig, uploadables)
-      .map(payload => normalizePayload(operation, variables, payload))
-      .toPromise()
-      .then(nullthrows);
-  }
-
-  function requestStream(
-    operation: ConcreteBatch,
-    variables: Variables,
-    cacheConfig: CacheConfig,
-    observer: Observer<RelayResponsePayload>,
-  ): Disposable {
-    return observe(operation, variables, cacheConfig)
-      .map(payload => normalizePayload(operation, variables, payload))
-      .subscribeLegacy(observer);
-  }
-
-  return {
-    observe,
-    fetch,
-    request,
-    requestStream,
-  };
+  return {execute};
 }
 
 module.exports = {create};

@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayCombinedEnvironmentTypes
  * @flow
@@ -14,6 +12,8 @@
 'use strict';
 
 import type {DataID} from 'RelayInternalTypes';
+import type RelayObservable from 'RelayObservable';
+import type {SelectorStoreUpdater} from 'RelayStoreTypes';
 import type {RerunParam, Variables} from 'RelayTypes';
 
 /**
@@ -175,39 +175,21 @@ export interface CEnvironment<
   retain(selector: CSelector<TNode>): Disposable,
 
   /**
-   * Send a query to the server with request/response semantics: the query will
-   * either complete successfully (calling `onNext` and `onCompleted`) or fail
-   * (calling `onError`).
-   *
-   * Note: Most applications should use `streamQuery` in order to
-   * optionally receive updated information over time, should that feature be
-   * supported by the network/server. A good rule of thumb is to use this method
-   * if you would otherwise immediately dispose the `streamQuery()`
-   * after receving the first `onNext` result.
-   */
-  sendQuery(config: {|
-    cacheConfig?: ?CacheConfig,
-    onCompleted?: ?() => void,
-    onError?: ?(error: Error) => void,
-    onNext?: ?(payload: TPayload) => void,
-    operation: COperationSelector<TNode, TOperation>,
-  |}): Disposable,
-
-  /**
-   * Send a query to the server with request/subscription semantics: one or more
-   * responses may be returned (via `onNext`) over time followed by either
-   * the request completing (`onCompleted`) or an error (`onError`).
+   * Send a query to the server with Observer semantics: one or more
+   * responses may be returned (via `next`) over time followed by either
+   * the request completing (`completed`) or an error (`error`).
    *
    * Networks/servers that support subscriptions may choose to hold the
-   * subscription open indefinitely such that `onCompleted` is not called.
+   * subscription open indefinitely such that `complete` is not called.
+   *
+   * Note: Observables are lazy, so calling this method will do nothing until
+   * the result is subscribed to: environment.execute({...}).subscribe({...}).
    */
-  streamQuery(config: {|
-    cacheConfig?: ?CacheConfig,
-    onCompleted?: ?() => void,
-    onError?: ?(error: Error) => void,
-    onNext?: ?(payload: TPayload) => void,
+  execute(config: {|
     operation: COperationSelector<TNode, TOperation>,
-  |}): Disposable,
+    cacheConfig?: ?CacheConfig,
+    updater?: ?SelectorStoreUpdater,
+  |}): RelayObservable<TPayload>,
 
   unstable_internal: CUnstableEnvironmentCore<
     TEnvironment,

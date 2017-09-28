@@ -1,10 +1,9 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
  */
 
 'use strict';
@@ -15,46 +14,50 @@ const babelOptions = require('./scripts/getBabelOptions')({
     'babel-core': 'babel-core',
     'babel-generator': 'babel-generator',
     'babel-polyfill': 'babel-polyfill',
-    'babel-runtime/helpers/asyncToGenerator': 'babel-runtime/helpers/asyncToGenerator',
-    'babel-runtime/helpers/classCallCheck': 'babel-runtime/helpers/classCallCheck',
-    'babel-runtime/helpers/defineProperty': 'babel-runtime/helpers/defineProperty',
+    'babel-runtime/helpers/asyncToGenerator':
+      'babel-runtime/helpers/asyncToGenerator',
+    'babel-runtime/helpers/classCallCheck':
+      'babel-runtime/helpers/classCallCheck',
+    'babel-runtime/helpers/defineProperty':
+      'babel-runtime/helpers/defineProperty',
     'babel-runtime/helpers/extends': 'babel-runtime/helpers/extends',
     'babel-runtime/helpers/inherits': 'babel-runtime/helpers/inherits',
-    'babel-runtime/helpers/possibleConstructorReturn': 'babel-runtime/helpers/possibleConstructorReturn',
-    'babel-runtime/helpers/toConsumableArray': 'babel-runtime/helpers/toConsumableArray',
+    'babel-runtime/helpers/possibleConstructorReturn':
+      'babel-runtime/helpers/possibleConstructorReturn',
+    'babel-runtime/helpers/toConsumableArray':
+      'babel-runtime/helpers/toConsumableArray',
     'babel-traverse': 'babel-traverse',
     'babel-types': 'babel-types',
-    'babylon': 'babylon',
-    'chalk': 'chalk',
-    'child_process': 'child_process',
-    'crypto': 'crypto',
+    babylon: 'babylon',
+    chalk: 'chalk',
+    child_process: 'child_process',
+    crypto: 'crypto',
     'fast-glob': 'fast-glob',
     'fb-watchman': 'fb-watchman',
-    'fs': 'fs',
-    'graphql': 'graphql',
-    'immutable': 'immutable',
-    'net': 'net',
-    'os': 'os',
-    'path': 'path',
-    'process': 'process',
+    fs: 'fs',
+    graphql: 'graphql',
+    immutable: 'immutable',
+    net: 'net',
+    os: 'os',
+    path: 'path',
+    process: 'process',
     'prop-types': 'prop-types',
-    'React': 'react',
-    'ReactDOM': 'react-dom',
-    'ReactNative': 'react-native',
-    'RelayRuntime': 'relay-runtime',
-    'signedsource': 'signedsource',
-    'StaticContainer.react': 'react-static-container',
-    'util': 'util',
-    'yargs': 'yargs',
+    React: 'react',
+    ReactDOM: 'react-dom',
+    ReactNative: 'react-native',
+    RelayRuntime: 'relay-runtime',
+    signedsource: 'signedsource',
+    util: 'util',
+    yargs: 'yargs'
   },
   plugins: [
     'transform-flow-strip-types',
-    ['transform-runtime', {'polyfill': false}],
+    ['transform-runtime', {polyfill: false}]
   ],
   postPlugins: [
     'transform-async-to-generator',
-    'transform-es2015-modules-commonjs',
-  ],
+    'transform-es2015-modules-commonjs'
+  ]
 });
 const del = require('del');
 const derequire = require('gulp-derequire');
@@ -70,24 +73,20 @@ const runSequence = require('run-sequence');
 const webpackStream = require('webpack-stream');
 
 const SCRIPT_HASHBANG = '#!/usr/bin/env node\n';
-const DEVELOPMENT_HEADER = [
-  '/**',
-  ' * Relay v' + process.env.npm_package_version,
-  ' */',
-].join('\n') + '\n';
-const PRODUCTION_HEADER = [
-  '/**',
-  ' * Relay v' + process.env.npm_package_version,
-  ' *',
-  ' * Copyright (c) 2013-present, Facebook, Inc.',
-  ' * All rights reserved.',
-  ' *',
-  ' * This source code is licensed under the BSD-style license found in the',
-  ' * LICENSE file in the root directory of this source tree. An additional grant',
-  ' * of patent rights can be found in the PATENTS file in the same directory.',
-  ' *',
-  ' */',
-].join('\n') + '\n';
+const DEVELOPMENT_HEADER =
+  ['/**', ' * Relay v' + process.env.npm_package_version, ' */'].join('\n') +
+  '\n';
+const PRODUCTION_HEADER =
+  [
+    '/**',
+    ' * Relay v' + process.env.npm_package_version,
+    ' *',
+    ' * Copyright (c) 2013-present, Facebook, Inc.',
+    ' *',
+    ' * This source code is licensed under the MIT license found in the',
+    ' * LICENSE file in the root directory of this source tree.',
+    ' */'
+  ].join('\n') + '\n';
 
 const buildDist = function(filename, opts, isProduction) {
   const webpackOpts = {
@@ -99,22 +98,22 @@ const buildDist = function(filename, opts, isProduction) {
       net: 'empty',
       path: 'empty',
       child_process: 'empty',
-      util: 'empty',
+      util: 'empty'
     },
     output: {
       filename: filename,
       libraryTarget: opts.libraryTarget,
-      library: opts.libraryName,
+      library: opts.libraryName
     },
     plugins: [
       new webpackStream.webpack.DefinePlugin({
         'process.env.NODE_ENV': JSON.stringify(
           isProduction ? 'production' : 'development'
-        ),
+        )
       }),
       new webpackStream.webpack.optimize.OccurenceOrderPlugin(),
-      new webpackStream.webpack.optimize.DedupePlugin(),
-    ],
+      new webpackStream.webpack.optimize.DedupePlugin()
+    ]
   };
   if (isProduction && !opts.noMinify) {
     webpackOpts.plugins.push(
@@ -122,8 +121,8 @@ const buildDist = function(filename, opts, isProduction) {
         compress: {
           hoist_vars: true,
           screw_ie8: true,
-          warnings: false,
-        },
+          warnings: false
+        }
       })
     );
   }
@@ -145,7 +144,7 @@ const builds = [
   {
     package: 'babel-plugin-relay',
     exports: {
-      index: 'BabelPluginRelay.js',
+      index: 'BabelPluginRelay.js'
     },
     bundles: [
       {
@@ -153,42 +152,42 @@ const builds = [
         output: 'babel-plugin-relay',
         libraryName: 'BabelPluginRelay',
         libraryTarget: 'commonjs2',
-        target: 'node',
-      },
-    ],
+        target: 'node'
+      }
+    ]
   },
   {
     package: 'react-relay',
     exports: {
       classic: 'ReactRelayClassicExports.js',
       compat: 'ReactRelayCompatPublic.js',
-      index: 'ReactRelayPublic.js',
+      index: 'ReactRelayPublic.js'
     },
     bundles: [
       {
         entry: 'ReactRelayClassicExports.js',
         output: 'react-relay-classic',
         libraryName: 'ReactRelayClassic',
-        libraryTarget: 'umd',
+        libraryTarget: 'umd'
       },
       {
         entry: 'ReactRelayCompatPublic.js',
         output: 'react-relay-compat',
         libraryName: 'ReactRelayCompat',
-        libraryTarget: 'umd',
+        libraryTarget: 'umd'
       },
       {
         entry: 'ReactRelayPublic.js',
         output: 'react-relay',
         libraryName: 'ReactRelay',
-        libraryTarget: 'umd',
-      },
-    ],
+        libraryTarget: 'umd'
+      }
+    ]
   },
   {
     package: 'relay-compiler',
     exports: {
-      index: 'RelayCompilerPublic.js',
+      index: 'RelayCompilerPublic.js'
     },
     bundles: [
       {
@@ -197,32 +196,32 @@ const builds = [
         libraryName: 'RelayCompiler',
         libraryTarget: 'commonjs2',
         target: 'node',
-        noMinify: true, // Note: uglify can't yet handle modern JS
-      },
+        noMinify: true // Note: uglify can't yet handle modern JS
+      }
     ],
     bins: [
       {
         entry: 'RelayCompilerBin.js',
         output: 'relay-compiler',
         libraryTarget: 'commonjs2',
-        target: 'node',
-      },
-    ],
+        target: 'node'
+      }
+    ]
   },
   {
     package: 'relay-runtime',
     exports: {
-      index: 'RelayRuntime.js',
+      index: 'RelayRuntime.js'
     },
     bundles: [
       {
         entry: 'RelayRuntime.js',
         output: 'relay-runtime',
         libraryName: 'RelayRuntime',
-        libraryTarget: 'umd',
-      },
-    ],
-  },
+        libraryTarget: 'umd'
+      }
+    ]
+  }
 ];
 
 gulp.task('clean', function() {
@@ -230,32 +229,37 @@ gulp.task('clean', function() {
 });
 
 gulp.task('modules', function() {
-  return es.merge(builds.map(build =>
-    gulp.src([
-      '*' + PACKAGES + '/' + build.package + '/**/*.js',
-      '*' + PACKAGES + '/react-relay/classic/tools/*.js',
-      '*' + PACKAGES + '/react-relay/classic/util/*.js',
-      '*' + PACKAGES + '/react-relay/classic/__forks__/interface/*.js',
-      '*' + PACKAGES + '/react-relay/classic/interface/*.js',
-      '*' + PACKAGES + '/relay-runtime/util/*.js',
-      '!' + PACKAGES + '/**/__tests__/**/*.js',
-      '!' + PACKAGES + '/**/__mocks__/**/*.js',
-    ]).pipe(babel(babelOptions))
-      .pipe(flatten())
-      .pipe(gulp.dest(path.join(DIST, build.package, 'lib')))
-  ));
+  return es.merge(
+    builds.map(build =>
+      gulp
+        .src([
+          '*' + PACKAGES + '/' + build.package + '/**/*.js',
+          '*' + PACKAGES + '/react-relay/classic/tools/*.js',
+          '*' + PACKAGES + '/react-relay/classic/util/*.js',
+          '*' + PACKAGES + '/relay-runtime/util/*.js',
+          '!' + PACKAGES + '/**/__tests__/**/*.js',
+          '!' + PACKAGES + '/**/__mocks__/**/*.js'
+        ])
+        .pipe(babel(babelOptions))
+        .pipe(flatten())
+        .pipe(gulp.dest(path.join(DIST, build.package, 'lib')))
+    )
+  );
 });
 
 gulp.task('copy-files', function() {
-  return es.merge(builds.map(build =>
-    gulp.src([
-      'LICENSE',
-      'PATENTS',
-      '*' + PACKAGES + '/' + build.package + '/*',
-      '!' + PACKAGES + '/' + build.package + '/**/*.js',
-    ]).pipe(flatten())
-      .pipe(gulp.dest(path.join(DIST, build.package)))
-  ));
+  return es.merge(
+    builds.map(build =>
+      gulp
+        .src([
+          'LICENSE',
+          '*' + PACKAGES + '/' + build.package + '/*',
+          '!' + PACKAGES + '/' + build.package + '/**/*.js'
+        ])
+        .pipe(flatten())
+        .pipe(gulp.dest(path.join(DIST, build.package)))
+    )
+  );
 });
 
 gulp.task('exports', ['copy-files', 'modules'], function() {
@@ -264,7 +268,7 @@ gulp.task('exports', ['copy-files', 'modules'], function() {
       fs.writeFileSync(
         path.join(DIST, build.package, exportName + '.js'),
         PRODUCTION_HEADER +
-        `\nmodule.exports = require('./lib/${build.exports[exportName]}');`
+          `\nmodule.exports = require('./lib/${build.exports[exportName]}');`
       )
     )
   );
@@ -272,38 +276,65 @@ gulp.task('exports', ['copy-files', 'modules'], function() {
 
 gulp.task('bins', ['modules'], function() {
   const buildsWithBins = builds.filter(build => build.bins);
-  return es.merge(buildsWithBins.map(build =>
-    es.merge(build.bins.map(bin =>
-      gulp.src(path.join(DIST, build.package, 'lib', bin.entry))
-        .pipe(buildDist(bin.output, bin, /* isProduction */ false))
-        .pipe(header(SCRIPT_HASHBANG + PRODUCTION_HEADER))
-        .pipe(chmod(0o755))
-        .pipe(gulp.dest(path.join(DIST, build.package, 'bin')))
-    ))
-  ));
+  return es.merge(
+    buildsWithBins.map(build =>
+      es.merge(
+        build.bins.map(bin =>
+          gulp
+            .src(path.join(DIST, build.package, 'lib', bin.entry))
+            .pipe(buildDist(bin.output, bin, /* isProduction */ false))
+            .pipe(header(SCRIPT_HASHBANG + PRODUCTION_HEADER))
+            .pipe(chmod(0o755))
+            .pipe(gulp.dest(path.join(DIST, build.package, 'bin')))
+        )
+      )
+    )
+  );
 });
 
 gulp.task('bundles', ['modules'], function() {
-  return es.merge(builds.map(build =>
-    es.merge(build.bundles.map(bundle =>
-      gulp.src(path.join(DIST, build.package, 'lib', bundle.entry))
-        .pipe(buildDist(bundle.output + '.js', bundle, /* isProduction */ false))
-        .pipe(derequire())
-        .pipe(header(DEVELOPMENT_HEADER))
-        .pipe(gulp.dest(path.join(DIST, build.package)))
-    ))
-  ));
+  return es.merge(
+    builds.map(build =>
+      es.merge(
+        build.bundles.map(bundle =>
+          gulp
+            .src(path.join(DIST, build.package, 'lib', bundle.entry))
+            .pipe(
+              buildDist(
+                bundle.output + '.js',
+                bundle,
+                /* isProduction */ false
+              )
+            )
+            .pipe(derequire())
+            .pipe(header(DEVELOPMENT_HEADER))
+            .pipe(gulp.dest(path.join(DIST, build.package)))
+        )
+      )
+    )
+  );
 });
 
 gulp.task('bundles:min', ['modules'], function() {
-  return es.merge(builds.map(build =>
-    es.merge(build.bundles.map(bundle =>
-      gulp.src(path.join(DIST, build.package, 'lib', bundle.entry))
-        .pipe(buildDist(bundle.output + '.min.js', bundle, /* isProduction */ true))
-        .pipe(header(PRODUCTION_HEADER))
-        .pipe(gulp.dest(path.join(DIST, build.package)))
-    ))
-  ));
+  return es.merge(
+    builds.map(build =>
+      es.merge(
+        build.bundles.map(bundle =>
+          gulp
+            .src(path.join(DIST, build.package, 'lib', bundle.entry))
+            .pipe(
+              buildDist(
+                bundle.output + '.min.js',
+                bundle,
+                /* isProduction */ true
+              )
+            )
+            .pipe(header(PRODUCTION_HEADER))
+            .pipe(gulp.dest(path.join(DIST, build.package)))
+        )
+      )
+    )
+  );
 });
 
 gulp.task('watch', function() {

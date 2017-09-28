@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayGraphQLMutation
  * @flow
@@ -20,7 +18,7 @@ const RelayQuery = require('RelayQuery');
 
 const invariant = require('invariant');
 
-const {CLIENT_MUTATION_ID} = require('RelayConnectionInterface');
+const {ConnectionInterface} = require('RelayRuntime');
 
 import type {RelayEnvironmentInterface} from 'RelayEnvironment';
 import type {ClientMutationID} from 'RelayInternalTypes';
@@ -329,7 +327,7 @@ class PendingGraphQLTransaction {
   getOptimisticResponse(): ?Object {
     return {
       ...this._optimisticResponse,
-      [CLIENT_MUTATION_ID]: this.id,
+      [ConnectionInterface.get().CLIENT_MUTATION_ID]: this.id,
     };
   }
 
@@ -382,7 +380,7 @@ class PendingGraphQLTransaction {
       ...this._variables,
       input: {
         ...(input: $FlowFixMe),
-        [CLIENT_MUTATION_ID]: this.id,
+        [ConnectionInterface.get().CLIENT_MUTATION_ID]: this.id,
       },
     };
   }

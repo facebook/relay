@@ -1,15 +1,14 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule areEqualOSS
  * @flow
+ * @format
  */
- 'use strict';
+'use strict';
 
 const aStackPool = [];
 const bStackPool = [];
@@ -59,10 +58,12 @@ function eq(a: any, b: any, aStack: Array<any>, bStack: Array<any>): boolean {
     case '[object Boolean]':
       return +a === +b;
     case '[object RegExp]':
-      return a.source === b.source &&
+      return (
+        a.source === b.source &&
         a.global === b.global &&
         a.multiline === b.multiline &&
-        a.ignoreCase === b.ignoreCase;
+        a.ignoreCase === b.ignoreCase
+      );
   }
   // Assume equality for cyclic structures.
   let length = aStack.length;

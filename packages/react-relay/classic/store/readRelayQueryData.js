@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule readRelayQueryData
  * @flow
@@ -14,7 +12,6 @@
 'use strict';
 
 const RelayClassicRecordState = require('RelayClassicRecordState');
-const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayFragmentPointer = require('RelayFragmentPointer');
 const RelayProfiler = require('RelayProfiler');
 const RelayQuery = require('RelayQuery');
@@ -27,6 +24,8 @@ const callsToGraphQL = require('callsToGraphQL');
 const invariant = require('invariant');
 const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
 const validateRelayReadQuery = require('validateRelayReadQuery');
+
+const {ConnectionInterface} = require('RelayRuntime');
 
 import type GraphQLStoreRangeUtils from 'GraphQLStoreRangeUtils';
 import type {DataID} from 'RelayInternalTypes';
@@ -53,7 +52,6 @@ type State = {
   storeDataID: DataID,
 };
 
-const {EDGES, PAGE_INFO} = RelayConnectionInterface;
 const METADATA_KEYS = ['__status__', '__resolvedFragmentMapGeneration__'];
 
 /**
@@ -132,6 +130,8 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
   }
 
   visitField(node: RelayQuery.Field, state: State): void {
+    const {EDGES, PAGE_INFO} = ConnectionInterface.get();
+
     // Check for range client IDs (eg. `someID_first(25)`) and unpack if
     // present, overriding `state`.
     this._handleRangeInfo(node, state);
@@ -264,6 +264,8 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
   }
 
   _readEdges(node: RelayQuery.Field, rangeInfo: RangeInfo, state: State): void {
+    const {EDGES} = ConnectionInterface.get();
+
     if (rangeInfo.diffCalls.length) {
       state.isPartial = true;
     }
@@ -300,6 +302,8 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
     rangeInfo: RangeInfo,
     state: State,
   ): void {
+    const {PAGE_INFO} = ConnectionInterface.get();
+
     const {pageInfo} = rangeInfo;
     invariant(
       pageInfo,
@@ -423,7 +427,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
    */
   _getConnectionClientID(node: RelayQuery.Field, connectionID: DataID): DataID {
     const calls = node.getCallsWithValues();
-    if (!RelayConnectionInterface.hasRangeCalls(calls)) {
+    if (!ConnectionInterface.hasRangeCalls(calls)) {
       return connectionID;
     }
     return this._rangeData.getClientIDForRangeWithID(
@@ -458,7 +462,7 @@ class RelayStoreReader extends RelayQueryVisitor<State> {
 function enforceRangeCalls(parent: RelayQuery.Field): void {
   if (!parent.__hasValidatedConnectionCalls__) {
     const calls = parent.getCallsWithValues();
-    if (!RelayConnectionInterface.hasRangeCalls(calls)) {
+    if (!ConnectionInterface.hasRangeCalls(calls)) {
       rangeCallEnforcer.traverse(parent, parent);
     }
     parent.__hasValidatedConnectionCalls__ = true;
@@ -466,6 +470,8 @@ function enforceRangeCalls(parent: RelayQuery.Field): void {
 }
 class RelayRangeCallEnforcer extends RelayQueryVisitor<RelayQuery.Field> {
   visitField(node: RelayQuery.Field, parent: RelayQuery.Field): void {
+    const {EDGES, PAGE_INFO} = ConnectionInterface.get();
+
     const schemaName = node.getSchemaName();
     invariant(
       schemaName !== EDGES && schemaName !== PAGE_INFO,

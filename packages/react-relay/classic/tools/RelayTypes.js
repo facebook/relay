@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayTypes
  * @flow
@@ -106,10 +104,6 @@ export type ComponentReadyState = {
 export type ComponentReadyStateChangeCallback = (
   readyState: ComponentReadyState,
 ) => void;
-export type MultiObservable<T> = {
-  subscribe(callbacks: SubscriptionCallbacks<Array<T>>): Subscription,
-  setDataIDs(dataIDs: Array<DataID>): void,
-};
 export type MutationResult = {
   response: QueryPayload,
 };
@@ -118,10 +112,6 @@ export type NetworkLayer = {
   sendMutation(request: RelayMutationRequest): ?Promise<any>,
   sendQueries(requests: Array<RelayQueryRequest>): ?Promise<any>,
   supports(...options: Array<string>): boolean,
-};
-// Observable
-export type Observable<T> = {
-  subscribe(callbacks: SubscriptionCallbacks<T>): Subscription,
 };
 export type QueryResult = {
   error?: ?Error,
@@ -256,9 +246,6 @@ export type StoreReaderData = Object;
 export type StoreReaderOptions = {
   traverseFragmentReferences?: boolean,
   traverseGeneratedFields?: boolean,
-};
-export type Subscription = {
-  dispose(): void,
 };
 export type SubscriptionCallbacks<T> = {
   onNext(value: T): void,

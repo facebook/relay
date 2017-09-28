@@ -1,12 +1,11 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule Site
+ * @format
  */
 
 'use strict';
@@ -16,8 +15,9 @@ const React = require('React');
 
 class Site extends React.Component {
   render() {
-    const metadata = this.props.metadata;
-    const title = this.props.title ? this.props.title : 'Relay - A JavaScript framework for building data-driven React applications';
+    const title = this.props.title
+      ? this.props.title
+      : 'Relay - A JavaScript framework for building data-driven React applications';
     return (
       <html>
         <head>
@@ -28,21 +28,30 @@ class Site extends React.Component {
           <meta property="og:title" content={title} />
           <meta property="og:type" content="website" />
           <meta property="og:url" content="http://facebook.github.io/relay/" />
-          <meta property="og:description" content="A JavaScript framework for building data-driven React applications" />
+          <meta
+            property="og:description"
+            content="A JavaScript framework for building data-driven React applications"
+          />
 
           <link rel="shortcut icon" href="/relay/img/favicon.png" />
           <link rel="stylesheet" href="/relay/css/relay.css" />
 
-          <script type="text/javascript" src="//use.typekit.net/vqa1hcx.js"></script>
-          <script type="text/javascript">{'try{Typekit.load();}catch(e){}'}</script>
+          <script type="text/javascript" src="//use.typekit.net/vqa1hcx.js" />
+          <script type="text/javascript">
+            {'try{Typekit.load();}catch(e){}'}
+          </script>
         </head>
         <body>
-
           <div className="container">
             <div className="nav-main">
               <div className="wrap">
                 <a className="nav-home" href="/relay/">
-                  <img className="nav-logo" src="/relay/img/logo.svg" width="50" height="50" />
+                  <img
+                    className="nav-logo"
+                    src="/relay/img/logo.svg"
+                    width="50"
+                    height="50"
+                  />
                   Relay
                 </a>
                 <HeaderLinks section={this.props.section} />
@@ -54,12 +63,16 @@ class Site extends React.Component {
 
           <div id="fb-root" />
 
-          <script dangerouslySetInnerHTML={{__html: `
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
             !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");
             (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
               ga('create', 'UA-71174216-1', 'auto');
               ga('send', 'pageview');
-          `}} />
+          `,
+            }}
+          />
         </body>
       </html>
     );

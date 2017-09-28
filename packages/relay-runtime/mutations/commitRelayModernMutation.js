@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule commitRelayModernMutation
  * @flow
@@ -42,6 +40,9 @@ export type MutationConfig<T> = {|
  * environment.
  */
 function commitRelayModernMutation<T>(
+  /* $FlowFixMe(>=0.55.0 site=www) This comment suppresses an error found when
+   * Flow v0.55 was deployed. To see the error delete this comment and run
+   * Flow. */
   environment: Environment,
   config: MutationConfig<T>,
 ): Disposable {
@@ -86,21 +87,27 @@ function commitRelayModernMutation<T>(
       updater,
     ));
   }
-  return environment.sendMutation({
-    onError,
-    operation,
-    uploadables,
-    updater,
-    optimisticUpdater,
-    optimisticResponse,
-    onCompleted(errors: ?Array<PayloadError>) {
-      const {onCompleted} = config;
-      if (onCompleted) {
-        const snapshot = environment.lookup(operation.fragment);
-        onCompleted((snapshot.data: $FlowFixMe), errors);
-      }
-    },
-  });
+  return environment
+    .executeMutation({
+      operation,
+      optimisticResponse,
+      optimisticUpdater,
+      updater,
+      uploadables,
+    })
+    .subscribeLegacy({
+      onNext: payload => {
+        // NOTE: commitRelayModernMutation has a non-standard use of
+        // onCompleted() by calling it on every next value. It may be called
+        // multiple times if a network request produces multiple responses.
+        const {onCompleted} = config;
+        if (onCompleted) {
+          const snapshot = environment.lookup(operation.fragment);
+          onCompleted((snapshot.data: $FlowFixMe), payload.errors);
+        }
+      },
+      onError,
+    });
 }
 
 module.exports = commitRelayModernMutation;

@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayStoreTypes
  * @flow
@@ -14,6 +12,9 @@
 'use strict';
 
 import type {
+  /* $FlowFixMe(>=0.55.0 site=www) This comment suppresses an error found when
+   * Flow v0.55 was deployed. To see the error delete this comment and run
+   * Flow. */
   CEnvironment,
   CFragmentMap,
   COperationSelector,
@@ -34,11 +35,8 @@ import type {
 import type {DataID} from 'RelayInternalTypes';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {PayloadData} from 'RelayNetworkTypes';
-import type {
-  PayloadError,
-  RelayResponsePayload,
-  UploadableMap,
-} from 'RelayNetworkTypes';
+import type {PayloadError, UploadableMap} from 'RelayNetworkTypes';
+import type RelayObservable from 'RelayObservable';
 import type {RecordState} from 'RelayRecordState';
 import type {Variables} from 'RelayTypes';
 
@@ -246,31 +244,22 @@ export interface Environment
   getStore(): Store,
 
   /**
-   * Send a mutation to the server. If provided, the optimistic updater is
-   * executed immediately and reverted atomically when the server payload is
-   * committed.
+   * Returns an Observable of RelayResponsePayload resulting from executing the
+   * provided Mutation operation, the result of which is then normalized and
+   * committed to the publish queue along with an optional optimistic response
+   * or updater.
+   *
+   * Note: Observables are lazy, so calling this method will do nothing until
+   * the result is subscribed to:
+   * environment.executeMutation({...}).subscribe({...}).
    */
-  sendMutation(config: {|
-    onCompleted?: ?(errors: ?Array<PayloadError>) => void,
-    onError?: ?(error: Error) => void,
+  executeMutation({|
     operation: OperationSelector,
-    optimisticResponse?: Object,
     optimisticUpdater?: ?SelectorStoreUpdater,
+    optimisticResponse?: ?Object,
     updater?: ?SelectorStoreUpdater,
-    uploadables?: UploadableMap,
-  |}): Disposable,
-
-  /**
-   * Send a (GraphQL) subscription to the server. Whenever there is a push from
-   * the server, commit the update to the environment.
-   */
-  sendSubscription(config: {|
-    onCompleted?: ?(errors: ?Array<PayloadError>) => void,
-    onNext?: ?(payload: RelayResponsePayload) => void,
-    onError?: ?(error: Error) => void,
-    operation: OperationSelector,
-    updater?: ?SelectorStoreUpdater,
-  |}): Disposable,
+    uploadables?: ?UploadableMap,
+  |}): RelayObservable<RelayResponsePayload>,
 
   /**
    * Checks if the records required to fulfill the given `selector` are in
@@ -285,12 +274,6 @@ export interface Environment
     handlers: Array<MissingFieldHandler>,
   ): boolean,
 }
-
-export type Observer<T> = {
-  onCompleted?: ?() => void,
-  onError?: ?(error: Error) => void,
-  onNext?: ?(data: T) => void,
-};
 
 /**
  * The results of reading data for a fragment. This is similar to a `Selector`,
@@ -402,3 +385,12 @@ export type MissingFieldHandler =
         args: Variables,
       ) => ?Array<?DataID>,
     };
+
+/**
+ * The shape of data that is returned by normalizePayload for a given query.
+ */
+export type RelayResponsePayload = {|
+  fieldPayloads?: ?Array<HandleFieldPayload>,
+  source: MutableRecordSource,
+  errors: ?Array<PayloadError>,
+|};

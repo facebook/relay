@@ -27,7 +27,7 @@ script:
     fi
 - |
     if [ $LINT ]; then
-      yarn install --ignore-scripts && yarn run lint
+      yarn install --ignore-scripts && yarn run test-dependencies && yarn run lint
     fi
 
 notifications:

@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @flow
  * @providesModule RelayViewerHandleTransform
@@ -13,15 +11,21 @@
 
 'use strict';
 
-const RelayCompilerContext = require('RelayCompilerContext');
-const RelayIRTransformer = require('RelayIRTransformer');
-
+const {
+  IRTransformer,
+  SchemaUtils,
+} = require('../../graphql-compiler/GraphQLCompilerPublic');
+// TODO T21875029 ../../../relay-runtime/util/RelayDefaultHandleKey
 const {DEFAULT_HANDLE_KEY} = require('RelayDefaultHandleKey');
-const {getRawType} = require('GraphQLSchemaUtils');
 const {GraphQLObjectType} = require('graphql');
 
-import type {LinkedField} from 'RelayIR';
+import type {
+  CompilerContext,
+  LinkedField,
+} from '../../graphql-compiler/GraphQLCompilerPublic';
 import type {GraphQLSchema} from 'graphql';
+
+const {getRawType} = SchemaUtils;
 
 type State = {};
 
@@ -33,9 +37,9 @@ const VIEWER_TYPE = 'Viewer';
  * A transform that adds a "viewer" handle to all fields whose type is `Viewer`.
  */
 function transform(
-  context: RelayCompilerContext,
+  context: CompilerContext,
   schema: GraphQLSchema,
-): RelayCompilerContext {
+): CompilerContext {
   const viewerType = schema.getType(VIEWER_TYPE);
   if (
     viewerType == null ||
@@ -44,7 +48,7 @@ function transform(
   ) {
     return context;
   }
-  return RelayIRTransformer.transform(
+  return IRTransformer.transform(
     context,
     {
       LinkedField: visitLinkedField,

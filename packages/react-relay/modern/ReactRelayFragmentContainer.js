@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule ReactRelayFragmentContainer
  * @flow
@@ -46,7 +44,10 @@ const containerContextTypes = {
  * props, resolving them with the provided fragments and subscribing for
  * updates.
  */
-function createContainerWithFragments<TConfig, TClass: React.ComponentType<TConfig>>(
+function createContainerWithFragments<
+  TConfig,
+  TClass: React.ComponentType<TConfig>,
+>(
   Component: TClass,
   fragments: FragmentMap,
 ): React.ComponentType<TConfig & {componentRef?: any}> {
@@ -166,7 +167,6 @@ function createContainerWithFragments<TConfig, TClass: React.ComponentType<TConf
             {...this.props}
             {...this.state.data}
             // TODO: Remove the string ref fallback.
-            // eslint-disable-next-line react/no-string-refs
             ref={this.props.componentRef || 'component'}
             relay={this.state.relayProp}
           />

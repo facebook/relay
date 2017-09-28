@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
  * @format
@@ -18,11 +16,13 @@ require('configureForRelayOSS');
 
 jest.unmock('GraphQLRange').unmock('GraphQLSegment');
 
-const RelayConnectionInterface = require('RelayConnectionInterface');
+const {ConnectionInterface} = require('RelayRuntime');
 const RelayQueryPath = require('RelayQueryPath');
 const RelayStoreData = require('RelayStoreData');
 const RelayGarbageCollector = require('RelayGarbageCollector');
 const RelayTestUtils = require('RelayTestUtils');
+
+const {CLIENT_MUTATION_ID} = ConnectionInterface.get();
 
 describe('RelayStoreData', () => {
   let RelayClassic;
@@ -288,7 +288,7 @@ describe('RelayStoreData', () => {
       `,
       );
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: 'abc',
+        [CLIENT_MUTATION_ID]: 'abc',
         feedback: {
           id: '123',
           doesViewerLike: false,
@@ -338,7 +338,7 @@ describe('RelayStoreData', () => {
       `,
       );
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: 'abc',
+        [CLIENT_MUTATION_ID]: 'abc',
         feedback: {
           id: '123',
           doesViewerLike: false,
@@ -427,7 +427,7 @@ describe('RelayStoreData', () => {
         `,
         );
         const payload = {
-          [RelayConnectionInterface.CLIENT_MUTATION_ID]: 'abc',
+          [CLIENT_MUTATION_ID]: 'abc',
           feedback: {
             id: '123',
             doesViewerLike: false,

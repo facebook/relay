@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @format
  */
@@ -24,14 +22,15 @@ const RelayModernTestUtils = {
   matchers: {
     toBeDeeplyFrozen(actual) {
       const {isCollection, forEach} = require('iterall');
-      const forEachObject = require('forEachObject');
 
       function check(value) {
         expect(Object.isFrozen(value)).toBe(true);
         if (isCollection(value)) {
           forEach(value, check);
         } else if (typeof value === 'object' && value !== null) {
-          forEachObject(value, check);
+          for (const key in value) {
+            check(value[key]);
+          }
         }
       }
       check(actual);
@@ -144,20 +143,21 @@ const RelayModernTestUtils = {
   generateWithTransforms(
     text: string,
     transforms?: ?Array<{
-      transform: (context: RelayCompilerContext) => RelayCompilerContext,
+      transform: (context: GraphQLCompilerContext) => GraphQLCompilerContext,
     }>,
   ): {[key: string]: ConcreteRoot | ConcreteFragment} {
     const RelayCodeGenerator = require('RelayCodeGenerator');
-    // eslint-disable-next-line no-shadow
-    const RelayCompilerContext = require('RelayCompilerContext');
+    const GraphQLCompilerContext = require('GraphQLCompilerContext');
     const RelayParser = require('RelayParser');
     const RelayTestSchema = require('RelayTestSchema');
 
     const ast = RelayParser.parse(RelayTestSchema, text);
-    let context = new RelayCompilerContext(RelayTestSchema);
+    let context = new GraphQLCompilerContext(RelayTestSchema);
     context = ast.reduce((ctx, node) => ctx.add(node), context);
-    context = (transforms || [])
-      .reduce((ctx, {transform}) => transform(ctx), context);
+    context = (transforms || []).reduce(
+      (ctx, {transform}) => transform(ctx),
+      context,
+    );
     const documentMap = {};
     context.documents().forEach(node => {
       documentMap[node.name] = RelayCodeGenerator.generate(node);
@@ -177,7 +177,7 @@ const RelayModernTestUtils = {
     const {transformASTSchema} = require('ASTConvert');
     const {generate} = require('RelayCodeGenerator');
     const RelayCompiler = require('RelayCompiler');
-    const RelayCompilerContext = require('RelayCompilerContext');
+    const GraphQLCompilerContext = require('GraphQLCompilerContext');
     const RelayIRTransforms = require('RelayIRTransforms');
     const RelayTestSchema = require('RelayTestSchema');
     const parseGraphQLText = require('parseGraphQLText');
@@ -189,7 +189,7 @@ const RelayModernTestUtils = {
     );
     const compiler = new RelayCompiler(
       schema,
-      new RelayCompilerContext(relaySchema),
+      new GraphQLCompilerContext(relaySchema),
       RelayIRTransforms,
       generate,
     );

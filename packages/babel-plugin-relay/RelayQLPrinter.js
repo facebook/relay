@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @flow
  * @fullSyntaxTransform
@@ -19,10 +17,6 @@ const find = require('./find');
 const util = require('util');
 
 const {
-  RelayQLArgument,
-  RelayQLArgumentType,
-  RelayQLDefinition,
-  RelayQLDirective,
   RelayQLField,
   RelayQLFragment,
   RelayQLFragmentSpread,
@@ -30,9 +24,16 @@ const {
   RelayQLMutation,
   RelayQLQuery,
   RelayQLSubscription,
-  RelayQLType,
 } = require('./RelayQLAST');
 const {ID} = require('./RelayQLNodeInterface');
+
+import type {
+  RelayQLArgument,
+  RelayQLArgumentType,
+  RelayQLDefinition,
+  RelayQLDirective,
+  RelayQLType,
+} from './RelayQLAST';
 
 export type Printable = Object;
 export type Substitution = {
@@ -740,14 +741,14 @@ module.exports = function(t: any, options: PrinterOptions): Function {
   ): boolean {
     return (
       node.getType().mayImplement('Node') &&
-      !node
-        .getSelections()
-        .some(
-          selection =>
-            selection instanceof RelayQLInlineFragment &&
-            selection.getFragment().getType().getName({modifiers: false}) ===
-              'Node',
-        )
+      !node.getSelections().some(
+        selection =>
+          selection instanceof RelayQLInlineFragment &&
+          selection
+            .getFragment()
+            .getType()
+            .getName({modifiers: false}) === 'Node',
+      )
     );
   }
 

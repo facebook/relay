@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule createRelayNetworkLogger
  * @flow
@@ -13,24 +11,17 @@
 
 'use strict';
 
-/* eslint-disable no-console-disallow */
-
-const isPromise = require('isPromise');
-const nullthrows = require('nullthrows');
 const prettyStringify = require('prettyStringify');
 
-const {convertFetch, convertSubscribe} = require('ConvertToObserveFunction');
+const {convertFetch, convertSubscribe} = require('ConvertToExecuteFunction');
 
 import type {ConcreteBatch} from 'RelayConcreteNode';
 import type {IRelayNetworkLoggerTransaction} from 'RelayNetworkLoggerTransaction';
 import type {
+  ExecuteFunction,
   FetchFunction,
-  ObserveFunction,
-  QueryPayload,
   SubscribeFunction,
-  UploadableMap,
 } from 'RelayNetworkTypes';
-import type {Observer} from 'RelayStoreTypes';
 import type {Variables} from 'RelayTypes';
 
 export type GraphiQLPrinter = (
@@ -47,7 +38,7 @@ function createRelayNetworkLogger(
       graphiQLPrinter?: GraphiQLPrinter,
     ): FetchFunction {
       return (operation, variables, cacheConfig, uploadables) => {
-        const wrapped = wrapObserve(
+        const wrapped = wrapExecute(
           convertFetch(fetch),
           LoggerTransaction,
           graphiQLPrinter,
@@ -61,7 +52,7 @@ function createRelayNetworkLogger(
       graphiQLPrinter?: GraphiQLPrinter,
     ): SubscribeFunction {
       return (operation, variables, cacheConfig) => {
-        const wrapped = wrapObserve(
+        const wrapped = wrapExecute(
           convertSubscribe(subscribe),
           LoggerTransaction,
           graphiQLPrinter,
@@ -72,72 +63,81 @@ function createRelayNetworkLogger(
   };
 }
 
-function wrapObserve(
-  observe: ObserveFunction,
+function wrapExecute(
+  execute: ExecuteFunction,
   LoggerTransaction: Class<IRelayNetworkLoggerTransaction>,
   graphiQLPrinter: ?GraphiQLPrinter,
-): ObserveFunction {
+): ExecuteFunction {
   return (operation, variables, cacheConfig, uploadables) => {
-    function createTransaction() {
-      return new LoggerTransaction({
-        operation,
-        variables,
-        cacheConfig,
-        uploadables,
-      });
-    }
+    let transaction;
 
-    function log(loggerTransaction, error, response, status) {
+    function addLogs(error, response, status) {
       if (graphiQLPrinter) {
-        loggerTransaction.addLog(
-          'GraphiQL',
-          graphiQLPrinter(operation, variables),
-        );
+        transaction.addLog('GraphiQL', graphiQLPrinter(operation, variables));
       }
-      loggerTransaction.addLog('Cache Config', cacheConfig);
-      loggerTransaction.addLog('Variables', prettyStringify(variables));
+      transaction.addLog('Cache Config', cacheConfig);
+      transaction.addLog('Variables', prettyStringify(variables));
       if (status) {
-        loggerTransaction.addLog('Status', status);
+        transaction.addLog('Status', status);
       }
       if (error) {
-        loggerTransaction.addLog('Error', error);
+        transaction.addLog('Error', error);
       }
       if (response) {
-        loggerTransaction.addLog('Response', response);
+        transaction.addLog('Response', response);
       }
-      loggerTransaction.commitLogs(error, response, status);
     }
 
-    const observable = observe(operation, variables, cacheConfig, uploadables);
-
-    // Create a new transaction for every event for subscriptions.
-    if (operation.query.operation === 'subscription') {
-      return observable.do({
-        start: () =>
-          log(createTransaction(), null, null, 'subscription is sent'),
-        next: payload =>
-          log(
-            createTransaction(),
-            null,
-            payload,
-            'subscription receives update',
-          ),
-        error: error => log(createTransaction(), error, null),
-        complete: () =>
-          log(createTransaction(), null, null, 'subscription was closed.'),
-        unsubscribe: () =>
-          log(createTransaction(), null, null, 'subscription is unsubscribed.'),
-      });
-    } else {
-      const transaction = createTransaction();
-      return observable.do({
-        start: () => {
-          console.time && console.time(transaction.getIdentifier());
-        },
-        next: payload => log(transaction, null, payload),
-        error: error => log(transaction, error, null),
-      });
+    function flushLogs(error, response, status) {
+      addLogs(error, response, status);
+      transaction.flushLogs(error, response, status);
     }
+
+    function commitLogs(error, response, status) {
+      addLogs(error, response, status);
+      transaction.commitLogs(error, response, status);
+    }
+
+    const observable = execute(operation, variables, cacheConfig, uploadables);
+
+    const isSubscription = operation.query.operation === 'subscription';
+
+    return observable.do({
+      start: () => {
+        transaction = new LoggerTransaction({
+          operation,
+          variables,
+          cacheConfig,
+          uploadables,
+        });
+        console.time && console.time(transaction.getIdentifier());
+        if (isSubscription) {
+          flushLogs(null, null, 'subscription is sent.');
+        }
+      },
+      next: payload => {
+        flushLogs(null, payload);
+        console.time && console.time(transaction.getIdentifier());
+      },
+      error: error => commitLogs(error, null, null),
+      complete: () => {
+        if (isSubscription) {
+          commitLogs(null, null, 'subscription was closed.');
+        } else {
+          // the last `next` already flushed the logs, just mark as committed
+          // without spamming the logs
+          transaction.markCommitted();
+        }
+      },
+      unsubscribe: () =>
+        commitLogs(
+          null,
+          null,
+          isSubscription
+            ? 'subscription is unsubscribed.'
+            : 'execution is unsubscribed.',
+        ),
+    });
   };
 }
 

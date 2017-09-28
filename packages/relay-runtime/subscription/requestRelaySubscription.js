@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule requestRelaySubscription
  * @flow
@@ -18,8 +16,7 @@ const warning = require('warning');
 
 import type {Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
-import type {RelayResponsePayload} from 'RelayNetworkTypes';
-import type {Environment, RecordSourceSelectorProxy} from 'RelayStoreTypes';
+import type {Environment, SelectorStoreUpdater} from 'RelayStoreTypes';
 import type {RelayMutationConfig, Variables} from 'RelayTypes';
 
 export type GraphQLSubscriptionConfig = {|
@@ -29,7 +26,7 @@ export type GraphQLSubscriptionConfig = {|
   onCompleted?: ?() => void,
   onError?: ?(error: Error) => void,
   onNext?: ?(response: ?Object) => void,
-  updater?: ?(store: RecordSourceSelectorProxy) => void,
+  updater?: ?SelectorStoreUpdater,
 |};
 
 function requestRelaySubscription(
@@ -39,34 +36,34 @@ function requestRelaySubscription(
   const {createOperationSelector, getOperation} = environment.unstable_internal;
   const subscription = getOperation(config.subscription);
   const {configs, onCompleted, onError, onNext, variables} = config;
-  let {updater} = config;
   const operation = createOperationSelector(subscription, variables);
 
   warning(
-    !(updater && configs),
+    !(config.updater && configs),
     'requestRelaySubscription: Expected only one of `updater` and `configs` to be provided',
   );
 
-  if (configs) {
-    ({updater} = setRelayModernMutationConfigs(
-      configs,
-      subscription,
-      null /* optimisticUpdater */,
+  const {updater} = configs
+    ? setRelayModernMutationConfigs(
+        configs,
+        subscription,
+        null /* optimisticUpdater */,
+        config.updater,
+      )
+    : config;
+
+  return environment
+    .execute({
+      operation,
       updater,
-    ));
-  }
-  return environment.sendSubscription({
-    onCompleted,
-    onError,
-    onNext(payload: ?RelayResponsePayload) {
-      if (onNext) {
-        const snapshot = environment.lookup(operation.fragment);
-        onNext(snapshot.data);
-      }
-    },
-    updater,
-    operation,
-  });
+      cacheConfig: {force: true},
+    })
+    .map(() => environment.lookup(operation.fragment).data)
+    .subscribeLegacy({
+      onNext,
+      onError,
+      onCompleted,
+    });
 }
 
 module.exports = requestRelaySubscription;

@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayIRTransforms
  * @flow
@@ -13,25 +11,30 @@
 
 'use strict';
 
-const FilterDirectivesTransform = require('FilterDirectivesTransform');
-const GraphQLIRTransforms = require('GraphQLIRTransforms');
-const RelayApplyFragmentArgumentTransform = require('RelayApplyFragmentArgumentTransform');
-const RelayConnectionTransform = require('RelayConnectionTransform');
-const RelayFieldHandleTransform = require('RelayFieldHandleTransform');
-const RelayFlattenTransform = require('RelayFlattenTransform');
-const RelayGenerateRequisiteFieldsTransform = require('RelayGenerateRequisiteFieldsTransform');
-const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
-const RelaySkipHandleFieldTransform = require('RelaySkipHandleFieldTransform');
-const RelayViewerHandleTransform = require('RelayViewerHandleTransform');
-
-import type {IRTransform} from 'GraphQLIRTransforms';
-import type CompilerContext from 'RelayCompilerContext';
+const InlineFragmentsTransform = require('../graphql-compiler/transforms/InlineFragmentsTransform');
+const RelayApplyFragmentArgumentTransform = require('../transforms/RelayApplyFragmentArgumentTransform');
+const RelayConnectionTransform = require('../handlers/connection//RelayConnectionTransform');
+const RelayFieldHandleTransform = require('../transforms/RelayFieldHandleTransform');
+const RelayGenerateIDFieldTransform = require('../transforms/RelayGenerateIDFieldTransform');
+const RelayGenerateTypeNameTransform = require('../transforms/RelayGenerateTypeNameTransform');
+const RelayMaskTransform = require('../graphql-compiler/transforms/RelayMaskTransform');
+const RelayRelayDirectiveTransform = require('../transforms/RelayRelayDirectiveTransform');
+const RelaySkipHandleFieldTransform = require('../transforms/RelaySkipHandleFieldTransform');
+const RelayViewerHandleTransform = require('../handlers/viewer/RelayViewerHandleTransform');
 
 const {
-  codegenTransforms,
-  fragmentTransforms,
-  queryTransforms,
-} = GraphQLIRTransforms;
+  FilterDirectivesTransform,
+  FlattenTransform,
+  IRTransforms,
+  SkipRedundantNodesTransform,
+} = require('../graphql-compiler/GraphQLCompilerPublic');
+
+import type {
+  CompilerContext,
+  IRTransform,
+} from '../graphql-compiler/GraphQLCompilerPublic';
+
+const {fragmentTransforms, queryTransforms} = IRTransforms;
 
 // Transforms applied to the code used to process a query response.
 const relaySchemaExtensions: Array<string> = [
@@ -56,15 +59,27 @@ const relayQueryTransforms: Array<IRTransform> = [
   RelayApplyFragmentArgumentTransform.transform,
   ...queryTransforms,
   RelayRelayDirectiveTransform.transform,
-  RelayGenerateRequisiteFieldsTransform.transform,
+  RelayGenerateIDFieldTransform.transform,
 ];
 
 // Transforms applied to the code used to process a query response.
-const relayCodegenTransforms: Array<IRTransform> = codegenTransforms;
+const relayCodegenTransforms: Array<IRTransform> = [
+  InlineFragmentsTransform.transform,
+  (ctx: CompilerContext) =>
+    FlattenTransform.transform(ctx, {
+      flattenAbstractTypes: true,
+    }),
+  SkipRedundantNodesTransform.transform,
+  // Must be put after `SkipRedundantNodesTransform` which could shuffle the order.
+  RelayGenerateTypeNameTransform.transform,
+  FilterDirectivesTransform.transform,
+];
 
 // Transforms applied before printing the query sent to the server.
 const relayPrintTransforms: Array<IRTransform> = [
-  (ctx: CompilerContext) => RelayFlattenTransform.transform(ctx, {}),
+  RelayMaskTransform.transform,
+  (ctx: CompilerContext) => FlattenTransform.transform(ctx, {}),
+  RelayGenerateTypeNameTransform.transform,
   RelaySkipHandleFieldTransform.transform,
   FilterDirectivesTransform.transform,
 ];

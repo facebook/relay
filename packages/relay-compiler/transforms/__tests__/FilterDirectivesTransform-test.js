@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @format
  * @emails oncall+relay
@@ -13,9 +11,9 @@
 'use strict';
 
 describe('FilterDirectivesTransform', () => {
-  let RelayCompilerContext;
+  let GraphQLCompilerContext;
   let FilterDirectivesTransform;
-  let RelayPrinter;
+  let GraphQLIRPrinter;
   let RelayTestSchema;
   let getGoldenMatchers;
   let parseGraphQLText;
@@ -24,9 +22,9 @@ describe('FilterDirectivesTransform', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    RelayCompilerContext = require('RelayCompilerContext');
+    GraphQLCompilerContext = require('GraphQLCompilerContext');
     FilterDirectivesTransform = require('FilterDirectivesTransform');
-    RelayPrinter = require('RelayPrinter');
+    GraphQLIRPrinter = require('GraphQLIRPrinter');
     RelayTestSchema = require('RelayTestSchema');
     getGoldenMatchers = require('getGoldenMatchers');
     parseGraphQLText = require('parseGraphQLText');
@@ -43,14 +41,14 @@ describe('FilterDirectivesTransform', () => {
         'directive @exampleFilteredDirective on FIELD',
       ]);
       const {definitions} = parseGraphQLText(extendedSchema, text);
-      let context = new RelayCompilerContext(extendedSchema).addAll(
+      let context = new GraphQLCompilerContext(extendedSchema).addAll(
         definitions,
       );
 
       context = FilterDirectivesTransform.transform(context, RelayTestSchema);
       const documents = [];
       context.documents().forEach(doc => {
-        documents.push(RelayPrinter.print(doc));
+        documents.push(GraphQLIRPrinter.print(doc));
       });
       return documents.join('\n');
     });

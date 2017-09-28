@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @format
  * @emails oncall+relay
@@ -13,8 +11,8 @@
 'use strict';
 
 describe('RelayViewerHandleTransform', () => {
-  let RelayCompilerContext;
-  let RelayPrinter;
+  let GraphQLCompilerContext;
+  let GraphQLIRPrinter;
   let RelayViewerHandleTransform;
   let RelayTestSchema;
   let getGoldenMatchers;
@@ -25,8 +23,8 @@ describe('RelayViewerHandleTransform', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    RelayCompilerContext = require('RelayCompilerContext');
-    RelayPrinter = require('RelayPrinter');
+    GraphQLCompilerContext = require('GraphQLCompilerContext');
+    GraphQLIRPrinter = require('GraphQLIRPrinter');
     RelayViewerHandleTransform = require('RelayViewerHandleTransform');
     RelayTestSchema = require('RelayTestSchema');
     getGoldenMatchers = require('getGoldenMatchers');
@@ -39,13 +37,13 @@ describe('RelayViewerHandleTransform', () => {
   it('adds a handle to viewer fields', () => {
     expect('fixtures/viewer-handle-transform').toMatchGolden(text => {
       const {definitions} = parseGraphQLText(RelayTestSchema, text);
-      let context = new RelayCompilerContext(RelayTestSchema).addAll(
+      let context = new GraphQLCompilerContext(RelayTestSchema).addAll(
         definitions,
       );
       context = RelayViewerHandleTransform.transform(context, RelayTestSchema);
       const documents = [];
       context.documents().forEach(doc => {
-        documents.push(RelayPrinter.print(doc));
+        documents.push(GraphQLIRPrinter.print(doc));
       });
       return documents.join('\n');
     });
@@ -66,7 +64,7 @@ describe('RelayViewerHandleTransform', () => {
       }
     `;
     const {definitions} = parseGraphQLText(schema, text);
-    let context = new RelayCompilerContext(schema).addAll(definitions);
+    let context = new GraphQLCompilerContext(schema).addAll(definitions);
     context = RelayViewerHandleTransform.transform(context, schema);
     const TestQuery = context.getRoot('TestQuery');
     const viewer = TestQuery.selections[0];
@@ -95,7 +93,7 @@ describe('RelayViewerHandleTransform', () => {
       }
     `;
     const {definitions} = parseGraphQLText(schema, text);
-    let context = new RelayCompilerContext(schema).addAll(definitions);
+    let context = new GraphQLCompilerContext(schema).addAll(definitions);
     context = RelayViewerHandleTransform.transform(context, schema);
     const TestQuery = context.getRoot('TestQuery');
     const viewer = TestQuery.selections[0];

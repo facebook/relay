@@ -1,12 +1,11 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule DocsLayout
+ * @format
  */
 
 'use strict';
@@ -30,8 +29,16 @@ class DocsLayout extends React.Component {
             <h1>{metadata.title}</h1>
             <Marked>{content}</Marked>
             <div className="docs-prevnext">
-              {metadata.previous && <a className="docs-prev" href={metadata.previous + '.html'}>&larr; Prev</a>}
-              {metadata.next && <a className="docs-next" href={metadata.next + '.html'}>Next &rarr;</a>}
+              {metadata.previous && (
+                <a className="docs-prev" href={metadata.previous + '.html'}>
+                  &larr; Prev
+                </a>
+              )}
+              {metadata.next && (
+                <a className="docs-next" href={metadata.next + '.html'}>
+                  Next &rarr;
+                </a>
+              )}
             </div>
           </div>
           <DocsSidebar metadata={metadata} />

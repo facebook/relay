@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @format
  * @emails oncall+relay
@@ -15,10 +13,9 @@
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('RelayMarkSweepStore');
 const RelayModernRecord = require('RelayModernRecord');
-const RelayStoreUtils = require('RelayStoreUtils');
 const RelayModernTestUtils = require('RelayModernTestUtils');
+const RelayStoreUtils = require('RelayStoreUtils');
 
-const forEachObject = require('forEachObject');
 const simpleClone = require('simpleClone');
 
 const {REF_KEY, ROOT_ID, ROOT_TYPE} = RelayStoreUtils;
@@ -186,9 +183,12 @@ describe('RelayStore', () => {
           ...data,
         },
       });
-      forEachObject(snapshot.seenRecords, (record, id) => {
-        expect(record).toBe(data[id]);
-      });
+      for (const id in snapshot.seenRecords) {
+        if (snapshot.seenRecords.hasOwnProperty(id)) {
+          const record = snapshot.seenRecords[id];
+          expect(record).toBe(data[id]);
+        }
+      }
     });
 
     it('returns deeply-frozen objects', () => {
@@ -639,41 +639,6 @@ describe('RelayStore', () => {
         variables: {size: 32},
       };
       expect(store.check(selector)).toBe(false);
-    });
-  });
-
-  describe('resolve()', () => {
-    let UserFragment;
-    let data;
-    let source;
-    let store;
-
-    beforeEach(() => {
-      data = {
-        '4': {
-          __id: '4',
-          id: '4',
-          __typename: 'User',
-          name: 'Zuck',
-          'profilePicture{"size":32}': {[REF_KEY]: 'client:1'},
-        },
-        'client:1': {
-          __id: 'client:1',
-          uri: 'https://photo1.jpg',
-        },
-      };
-      source = new RelayInMemoryRecordSource(data);
-      store = new RelayMarkSweepStore(source);
-      ({UserFragment} = generateWithTransforms(
-        `
-        fragment UserFragment on User {
-          name
-          profilePicture(size: $size) {
-            uri
-          }
-        }
-      `,
-      ));
     });
   });
 });

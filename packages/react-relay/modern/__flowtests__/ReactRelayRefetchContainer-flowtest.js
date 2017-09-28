@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @flow
  * @format
@@ -47,9 +45,7 @@ class FooComponent extends React.Component {
 
     const defLen = this.props.defaultProp.length; // always a valid string, so no error
     return (
-      <div>
-        {reqLen && optionalProp && optionalFoo && missing && defLen}
-      </div>
+      <div>{reqLen && optionalProp && optionalFoo && missing && defLen}</div>
     );
   }
 }
@@ -58,7 +54,7 @@ class FooComponent extends React.Component {
 const Foo = createRefetchContainer(
   FooComponent,
   graphql`
-    fragment ReactRelayRefetchContainer-flowtest_Foo_viewer on Viewer {
+    fragment ReactRelayRefetchContainerFlowtest_Foo_viewer on Viewer {
       all_friends(after: $cursor, first: $count) @connection {
         edges {
           node {
@@ -69,7 +65,7 @@ const Foo = createRefetchContainer(
     }
   `,
   graphql`
-    query ReactRelayRefetchContainer-flowtest_Foo_ViewerQuery(
+    query ReactRelayRefetchContainerFlowtest_Foo_ViewerQuery(
       $count: Int!
       $cursor: ID
     ) {

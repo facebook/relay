@@ -38,6 +38,38 @@
         "type": "Image"
       },
       {
+        "kind": "LinkedField",
+        "alias": "withDefaultArg",
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "size",
+            "value": {
+              "kind": "Variable",
+              "metadata": null,
+              "variableName": "size"
+            },
+            "type": "[Int]"
+          }
+        ],
+        "directives": [],
+        "metadata": null,
+        "name": "profilePicture",
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "args": [],
+            "directives": [],
+            "metadata": null,
+            "name": "uri",
+            "type": "String"
+          }
+        ],
+        "type": "Image"
+      },
+      {
         "kind": "FragmentSpread",
         "args": [
           {
@@ -65,6 +97,15 @@
         "metadata": null,
         "name": "id",
         "type": "ID"
+      },
+      {
+        "kind": "LocalArgumentDefinition",
+        "defaultValue": [
+          100
+        ],
+        "metadata": null,
+        "name": "size",
+        "type": "[Int]"
       },
       {
         "kind": "RootArgumentDefinition",

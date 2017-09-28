@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule FilterDirectivesTransform
  * @flow
@@ -13,10 +11,10 @@
 
 'use strict';
 
-const RelayCompilerContext = require('../core/RelayCompilerContext');
-const RelayIRTransformer = require('../core/RelayIRTransformer');
+const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
+const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 
-import type {Directive} from '../core/RelayIR';
+import type {Directive} from '../core/GraphQLIR';
 import type {GraphQLSchema} from 'graphql';
 
 type State = GraphQLSchema;
@@ -26,10 +24,10 @@ type State = GraphQLSchema;
  * original schema.
  */
 function transform(
-  context: RelayCompilerContext,
+  context: GraphQLCompilerContext,
   schema: GraphQLSchema,
-): RelayCompilerContext {
-  return RelayIRTransformer.transform(
+): GraphQLCompilerContext {
+  return GraphQLIRTransformer.transform(
     context,
     {Directive: visitDirective},
     () => schema,

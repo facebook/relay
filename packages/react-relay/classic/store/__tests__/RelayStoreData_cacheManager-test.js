@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
  * @format
@@ -20,7 +18,7 @@ jest.unmock('GraphQLRange').unmock('GraphQLSegment');
 
 const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
 const RelayClassic = require('RelayClassic');
-const RelayConnectionInterface = require('RelayConnectionInterface');
+const {ConnectionInterface} = require('RelayRuntime');
 const RelayMockCacheManager = require('RelayMockCacheManager');
 const RelayMutationType = require('RelayMutationType');
 const RelayStoreData = require('RelayStoreData');
@@ -53,7 +51,7 @@ describe('RelayStoreData', function() {
       HAS_NEXT_PAGE,
       HAS_PREV_PAGE,
       PAGE_INFO,
-    } = RelayConnectionInterface);
+    } = ConnectionInterface.get());
 
     cacheManager = RelayMockCacheManager.genCacheManager();
     storeData = new RelayStoreData();

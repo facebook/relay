@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayRuntime
  * @flow
@@ -14,6 +12,7 @@
 'use strict';
 
 const RelayConnectionHandler = require('RelayConnectionHandler');
+const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayCore = require('RelayCore');
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('RelayMarkSweepStore');
@@ -93,13 +92,7 @@ module.exports = {
   fetchQuery: fetchRelayModernQuery,
   isRelayModernEnvironment: isRelayModernEnvironment,
   requestSubscription: requestRelaySubscription,
+
+  // Configuration interface for legacy or special uses
+  ConnectionInterface: RelayConnectionInterface,
 };
-
-if (__DEV__) {
-  const RelayRecordSourceInspector = require('RelayRecordSourceInspector');
-
-  // Debugging-related symbols exposed only in development
-  Object.assign((module.exports: Object), {
-    RecordSourceInspector: RelayRecordSourceInspector,
-  });
-}

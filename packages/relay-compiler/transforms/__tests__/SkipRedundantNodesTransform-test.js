@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @format
  * @emails oncall+relay
@@ -13,9 +11,9 @@
 'use strict';
 
 describe('SkipRedundantNodesTransform', () => {
-  let RelayCompilerContext;
+  let GraphQLCompilerContext;
   let RelayParser;
-  let RelayPrinter;
+  let GraphQLIRPrinter;
   let SkipRedundantNodesTransform;
   let RelayTestSchema;
   let getGoldenMatchers;
@@ -23,9 +21,9 @@ describe('SkipRedundantNodesTransform', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    RelayCompilerContext = require('RelayCompilerContext');
+    GraphQLCompilerContext = require('GraphQLCompilerContext');
     RelayParser = require('RelayParser');
-    RelayPrinter = require('RelayPrinter');
+    GraphQLIRPrinter = require('GraphQLIRPrinter');
     SkipRedundantNodesTransform = require('SkipRedundantNodesTransform');
     RelayTestSchema = require('RelayTestSchema');
     getGoldenMatchers = require('getGoldenMatchers');
@@ -38,12 +36,12 @@ describe('SkipRedundantNodesTransform', () => {
       const ast = RelayParser.parse(RelayTestSchema, text);
       const context = ast.reduce(
         (ctx, node) => ctx.add(node),
-        new RelayCompilerContext(RelayTestSchema),
+        new GraphQLCompilerContext(RelayTestSchema),
       );
       const nextContext = SkipRedundantNodesTransform.transform(context);
       const documents = [];
       nextContext.documents().forEach(doc => {
-        documents.push(RelayPrinter.print(doc));
+        documents.push(GraphQLIRPrinter.print(doc));
       });
       return documents.join('\n');
     });

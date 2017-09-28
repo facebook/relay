@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @format
  * @emails oncall+relay
@@ -99,10 +97,8 @@ describe('RelayObservable', () => {
       const list = [];
       const error = new Error();
 
-      const unhandledErrors = [];
-      RelayObservable.onUnhandledError(err => {
-        unhandledErrors.push(err);
-      });
+      const unhandled = jest.fn();
+      RelayObservable.onUnhandledError(unhandled);
 
       new RelayObservable(_sink => {
         sink = _sink;
@@ -116,9 +112,9 @@ describe('RelayObservable', () => {
       sink.next(2);
       sink.complete();
 
-      expect(unhandledErrors).toEqual([]);
+      expect(unhandled.mock.calls).toEqual([]);
       sink.error(error);
-      expect(unhandledErrors).toEqual([error]);
+      expect(unhandled.mock.calls).toEqual([[error, false]]);
 
       expect(list).toEqual(['next:1', 'next:2', 'complete']);
     });
@@ -126,17 +122,15 @@ describe('RelayObservable', () => {
     it('Error is unhandled if error callback is missing', () => {
       const error = new Error('Test error');
 
-      const unhandledErrors = [];
-      RelayObservable.onUnhandledError(err => {
-        unhandledErrors.push(err);
-      });
+      const unhandled = jest.fn();
+      RelayObservable.onUnhandledError(unhandled);
 
       const obs = new RelayObservable(sink => {
         sink.error(error);
       });
 
       obs.subscribe({});
-      expect(unhandledErrors).toEqual([error]);
+      expect(unhandled.mock.calls).toEqual([[error, false]]);
     });
 
     it('Calls error handle if source throws', () => {
@@ -159,10 +153,8 @@ describe('RelayObservable', () => {
       const list = [];
       const error = new Error();
 
-      const unhandledErrors = [];
-      RelayObservable.onUnhandledError(err => {
-        unhandledErrors.push(err);
-      });
+      const unhandled = jest.fn();
+      RelayObservable.onUnhandledError(unhandled);
 
       new RelayObservable(sink => {
         sink.next(1);
@@ -178,7 +170,7 @@ describe('RelayObservable', () => {
       });
 
       expect(list).toEqual(['next:1', 'next:2', 'complete']);
-      expect(unhandledErrors).toEqual([error, error]);
+      expect(unhandled.mock.calls).toEqual([[error, true], [error, true]]);
     });
 
     it('Error from next handler is unhandled (async)', () => {
@@ -186,10 +178,8 @@ describe('RelayObservable', () => {
       const list = [];
       const error = new Error();
 
-      const unhandledErrors = [];
-      RelayObservable.onUnhandledError(err => {
-        unhandledErrors.push(err);
-      });
+      const unhandled = jest.fn();
+      RelayObservable.onUnhandledError(unhandled);
 
       new RelayObservable(_sink => {
         sink = _sink;
@@ -205,23 +195,21 @@ describe('RelayObservable', () => {
       sink.next(1);
 
       expect(list).toEqual(['next:1']);
-      expect(unhandledErrors).toEqual([error]);
+      expect(unhandled.mock.calls).toEqual([[error, true]]);
 
       sink.next(2);
       sink.complete();
 
       expect(list).toEqual(['next:1', 'next:2', 'complete']);
-      expect(unhandledErrors).toEqual([error, error]);
+      expect(unhandled.mock.calls).toEqual([[error, true], [error, true]]);
     });
 
     it('Error from error handler is unhandled', () => {
       const list = [];
       const error = new Error();
 
-      const unhandledErrors = [];
-      RelayObservable.onUnhandledError(err => {
-        unhandledErrors.push(err);
-      });
+      const unhandled = jest.fn();
+      RelayObservable.onUnhandledError(unhandled);
 
       new RelayObservable(sink => {
         sink.error(error);
@@ -235,17 +223,15 @@ describe('RelayObservable', () => {
       });
 
       expect(list).toEqual([error]);
-      expect(unhandledErrors).toEqual([error]);
+      expect(unhandled.mock.calls).toEqual([[error, true]]);
     });
 
     it('Error from complete handler is unhandled', () => {
       const list = [];
       const error = new Error();
 
-      const unhandledErrors = [];
-      RelayObservable.onUnhandledError(err => {
-        unhandledErrors.push(err);
-      });
+      const unhandled = jest.fn();
+      RelayObservable.onUnhandledError(unhandled);
 
       new RelayObservable(sink => {
         sink.complete();
@@ -259,17 +245,15 @@ describe('RelayObservable', () => {
       });
 
       expect(list).toEqual(['complete']);
-      expect(unhandledErrors).toEqual([error]);
+      expect(unhandled.mock.calls).toEqual([[error, true]]);
     });
 
     it('Error from unsubscribe handler is unhandled', () => {
       const list = [];
       const error = new Error();
 
-      const unhandledErrors = [];
-      RelayObservable.onUnhandledError(err => {
-        unhandledErrors.push(err);
-      });
+      const unhandled = jest.fn();
+      RelayObservable.onUnhandledError(unhandled);
 
       const sub = new RelayObservable(sink => {}).subscribe({
         next: val => list.push('next:' + val),
@@ -284,7 +268,7 @@ describe('RelayObservable', () => {
       sub.unsubscribe();
 
       expect(list).toEqual(['unsubscribe']);
-      expect(unhandledErrors).toEqual([error]);
+      expect(unhandled.mock.calls).toEqual([[error, true]]);
     });
   });
 
@@ -337,10 +321,8 @@ describe('RelayObservable', () => {
       const list = [];
       const error = new Error();
 
-      const unhandledErrors = [];
-      RelayObservable.onUnhandledError(err => {
-        unhandledErrors.push(err);
-      });
+      const unhandled = jest.fn();
+      RelayObservable.onUnhandledError(unhandled);
 
       const obs = new RelayObservable(_sink => {
         sink = _sink;
@@ -355,9 +337,9 @@ describe('RelayObservable', () => {
       sink.next(1);
       sub.unsubscribe();
 
-      expect(unhandledErrors).toEqual([]);
+      expect(unhandled.mock.calls).toEqual([]);
       sink.error(error);
-      expect(unhandledErrors).toEqual([error]);
+      expect(unhandled.mock.calls).toEqual([[error, false]]);
 
       expect(list).toEqual(['next:1']);
     });
@@ -542,10 +524,8 @@ describe('RelayObservable', () => {
       const list = [];
       const error = new Error();
 
-      const unhandledErrors = [];
-      RelayObservable.onUnhandledError(err => {
-        unhandledErrors.push(err);
-      });
+      const unhandled = jest.fn();
+      RelayObservable.onUnhandledError(unhandled);
 
       new RelayObservable(_sink => {
         sink = _sink;
@@ -564,7 +544,7 @@ describe('RelayObservable', () => {
       sink.error(error);
 
       expect(list).toEqual(['next:1', error, 'cleanup']);
-      expect(unhandledErrors).toEqual([error]);
+      expect(unhandled.mock.calls).toEqual([[error, true]]);
     });
 
     it('Calls cleanup after complete handler throws', () => {
@@ -572,10 +552,8 @@ describe('RelayObservable', () => {
       const list = [];
       const error = new Error();
 
-      const unhandledErrors = [];
-      RelayObservable.onUnhandledError(err => {
-        unhandledErrors.push(err);
-      });
+      const unhandled = jest.fn();
+      RelayObservable.onUnhandledError(unhandled);
 
       new RelayObservable(_sink => {
         sink = _sink;
@@ -594,7 +572,7 @@ describe('RelayObservable', () => {
       sink.complete();
 
       expect(list).toEqual(['next:1', 'complete', 'cleanup']);
-      expect(unhandledErrors).toEqual([error]);
+      expect(unhandled.mock.calls).toEqual([[error, true]]);
     });
 
     it('Does not cleanup after next handler throws', () => {
@@ -602,10 +580,8 @@ describe('RelayObservable', () => {
       const list = [];
       const error = new Error();
 
-      const unhandledErrors = [];
-      RelayObservable.onUnhandledError(err => {
-        unhandledErrors.push(err);
-      });
+      const unhandled = jest.fn();
+      RelayObservable.onUnhandledError(unhandled);
 
       new RelayObservable(_sink => {
         sink = _sink;
@@ -622,12 +598,12 @@ describe('RelayObservable', () => {
       sink.next(1);
 
       expect(list).toEqual(['next:1']);
-      expect(unhandledErrors).toEqual([error]);
+      expect(unhandled.mock.calls).toEqual([[error, true]]);
 
       sink.next(2);
 
       expect(list).toEqual(['next:1', 'next:2']);
-      expect(unhandledErrors).toEqual([error, error]);
+      expect(unhandled.mock.calls).toEqual([[error, true], [error, true]]);
     });
 
     it('Allows returning a Subscription as cleanup', () => {
@@ -660,10 +636,8 @@ describe('RelayObservable', () => {
       const list = [];
       const error = new Error();
 
-      const unhandledErrors = [];
-      RelayObservable.onUnhandledError(err => {
-        unhandledErrors.push(err);
-      });
+      const unhandled = jest.fn();
+      RelayObservable.onUnhandledError(unhandled);
 
       new RelayObservable(_sink => {
         sink = _sink;
@@ -681,7 +655,7 @@ describe('RelayObservable', () => {
       sink.complete();
 
       expect(list).toEqual(['next:1', 'complete', 'cleanup']);
-      expect(unhandledErrors).toEqual([error]);
+      expect(unhandled.mock.calls).toEqual([[error, true]]);
     });
   });
 
@@ -751,10 +725,8 @@ describe('RelayObservable', () => {
       const list = [];
       const error = new Error();
 
-      const unhandledErrors = [];
-      RelayObservable.onUnhandledError(err => {
-        unhandledErrors.push(err);
-      });
+      const unhandled = jest.fn();
+      RelayObservable.onUnhandledError(unhandled);
 
       new RelayObservable(_sink => {
         sink = _sink;
@@ -769,10 +741,165 @@ describe('RelayObservable', () => {
         complete: () => list.push('complete'),
       });
 
-      expect(unhandledErrors).toEqual([error]);
+      expect(unhandled.mock.calls).toEqual([[error, true]]);
 
       sink.complete();
       expect(list).toEqual(['start', 'complete', 'cleanup']);
+    });
+  });
+
+  describe('sink.closed', () => {
+    it('initializes to false', () => {
+      let sink;
+
+      const obs = new RelayObservable(_sink => {
+        sink = _sink;
+      });
+
+      obs.subscribe({});
+      expect(sink.closed).toBe(false);
+    });
+
+    it('is true after complete', () => {
+      let sink;
+
+      const obs = new RelayObservable(_sink => {
+        sink = _sink;
+      });
+
+      obs.subscribe({});
+
+      expect(sink.closed).toBe(false);
+      sink.complete();
+      expect(sink.closed).toBe(true);
+    });
+
+    it('is true after error', () => {
+      let sink;
+
+      const obs = new RelayObservable(_sink => {
+        sink = _sink;
+      });
+
+      obs.subscribe({error: () => {}});
+
+      expect(sink.closed).toBe(false);
+      sink.error(new Error());
+      expect(sink.closed).toBe(true);
+    });
+
+    it('is true after unsubscribe', () => {
+      let sink;
+
+      const obs = new RelayObservable(_sink => {
+        sink = _sink;
+      });
+
+      const sub = obs.subscribe({});
+
+      expect(sink.closed).toBe(false);
+      sub.unsubscribe();
+      expect(sink.closed).toBe(true);
+    });
+
+    it('is true within cleanup', () => {
+      let wasClosed;
+
+      const obs = new RelayObservable(sink => {
+        return () => {
+          wasClosed = sink.closed;
+        };
+      });
+
+      obs.subscribe({}).unsubscribe();
+
+      expect(wasClosed).toBe(true);
+    });
+
+    it('cannot be set directly', () => {
+      let sink;
+
+      const obs = new RelayObservable(_sink => {
+        sink = _sink;
+      });
+
+      obs.subscribe({});
+
+      expect(() => {
+        sink.closed = true;
+      }).toThrow(TypeError);
+    });
+  });
+
+  describe('subscription.closed', () => {
+    it('initializes to false', () => {
+      const obs = new RelayObservable(() => {});
+
+      const sub = obs.subscribe({
+        start: subscription => {
+          expect(subscription.closed).toBe(false);
+        },
+      });
+
+      expect(sub.closed).toBe(false);
+    });
+
+    it('is true after complete', () => {
+      let sink;
+
+      const obs = new RelayObservable(_sink => {
+        sink = _sink;
+      });
+
+      const sub = obs.subscribe({
+        complete: () => {
+          expect(sub.closed).toBe(true);
+        },
+      });
+
+      expect(sub.closed).toBe(false);
+      sink.complete();
+      expect(sub.closed).toBe(true);
+    });
+
+    it('is true after error', () => {
+      let sink;
+
+      const obs = new RelayObservable(_sink => {
+        sink = _sink;
+      });
+
+      const sub = obs.subscribe({
+        error: () => {
+          expect(sub.closed).toBe(true);
+        },
+      });
+
+      expect(sub.closed).toBe(false);
+      sink.error(new Error());
+      expect(sub.closed).toBe(true);
+    });
+
+    it('is true after unsubscribe', () => {
+      const obs = new RelayObservable(() => {});
+
+      const sub = obs.subscribe({
+        unsubscribe: subscription => {
+          expect(subscription.closed).toBe(true);
+        },
+      });
+
+      expect(sub.closed).toBe(false);
+      sub.unsubscribe();
+      expect(sub.closed).toBe(true);
+    });
+
+    it('cannot be set directly', () => {
+      const obs = new RelayObservable(() => {});
+      const sub = obs.subscribe({});
+      expect(() => {
+        sub.closed = true;
+      }).toThrow(TypeError);
     });
   });
 
@@ -795,6 +922,28 @@ describe('RelayObservable', () => {
       });
 
       expect(list).toEqual(['next:3', 'next:5', 'next:7', 'complete']);
+    });
+
+    it('Does not coerce mapped value', () => {
+      const source = new RelayObservable(sink => {
+        sink.next(1);
+        sink.next(2);
+        sink.next(3);
+        sink.complete();
+      });
+
+      const other = RelayObservable.from(10);
+
+      const mapped = source.map(v => other);
+
+      const list = [];
+      mapped.subscribe({
+        next: val => list.push(val),
+        error: err => list.push(err),
+        complete: () => list.push('complete'),
+      });
+
+      expect(list).toEqual([other, other, other, 'complete']);
     });
 
     it('Does not map errors from the original observable', () => {
@@ -851,10 +1000,8 @@ describe('RelayObservable', () => {
       const list = [];
       const error = new Error();
 
-      const unhandledErrors = [];
-      RelayObservable.onUnhandledError(err => {
-        unhandledErrors.push(err);
-      });
+      const unhandled = jest.fn();
+      RelayObservable.onUnhandledError(unhandled);
 
       const source = new RelayObservable(_sink => {
         sink = _sink;
@@ -873,10 +1020,10 @@ describe('RelayObservable', () => {
       });
 
       sink.next(1);
-      expect(unhandledErrors).toEqual([]);
+      expect(unhandled.mock.calls).toEqual([]);
 
       sink.next(2);
-      expect(unhandledErrors).toEqual([error]);
+      expect(unhandled.mock.calls).toEqual([[error, true]]);
 
       expect(list).toEqual(['next:3', 'cleanup']);
     });
@@ -886,10 +1033,8 @@ describe('RelayObservable', () => {
       const list = [];
       const error = new Error();
 
-      const unhandledErrors = [];
-      RelayObservable.onUnhandledError(err => {
-        unhandledErrors.push(err);
-      });
+      const unhandled = jest.fn();
+      RelayObservable.onUnhandledError(unhandled);
 
       const source = new RelayObservable(_sink => {
         sink = _sink;
@@ -909,13 +1054,344 @@ describe('RelayObservable', () => {
       });
 
       sink.next(1);
-      expect(unhandledErrors).toEqual([]);
+      expect(unhandled.mock.calls).toEqual([]);
 
       sink.next(2);
-      expect(unhandledErrors).toEqual([error]);
+      expect(unhandled.mock.calls).toEqual([[error, true]]);
 
       sink.next(3);
       expect(list).toEqual(['next:3', 'next:5', 'next:7']);
+    });
+  });
+
+  describe('mergeMap', () => {
+    it('Maps values from the original observable', () => {
+      const source = new RelayObservable(sink => {
+        sink.next(1);
+        sink.next(2);
+        sink.next(3);
+        sink.complete();
+      });
+
+      const mapped = source.mergeMap(
+        v =>
+          new RelayObservable(sink => {
+            sink.next(v * 2 + 1);
+            sink.next(v * 10 + 1);
+            sink.complete();
+          }),
+      );
+
+      const list = [];
+      mapped.subscribe({
+        next: val => list.push('next:' + val),
+        error: err => list.push(err),
+        complete: () => list.push('complete'),
+      });
+
+      expect(list).toEqual([
+        'next:3',
+        'next:11',
+        'next:5',
+        'next:21',
+        'next:7',
+        'next:31',
+        'complete',
+      ]);
+    });
+
+    it('Maps to Promises which are converted to Observable', async () => {
+      const source = new RelayObservable(sink => {
+        sink.next(1);
+        sink.next(2);
+        sink.next(3);
+        sink.complete();
+      });
+
+      const promises = [];
+
+      const mapped = source.mergeMap(v => {
+        const promise = Promise.resolve(v * 2 + 1);
+        promises.push(promise);
+        return promise;
+      });
+
+      const list = [];
+      mapped.subscribe({
+        next: val => list.push('next:' + val),
+        error: err => list.push(err),
+        complete: () => list.push('complete'),
+      });
+
+      while (promises.length) {
+        await promises.shift();
+      }
+
+      expect(list).toEqual(['next:3', 'next:5', 'next:7', 'complete']);
+    });
+
+    it('Merges values from all mapped Observables at once', () => {
+      let outerSink;
+      const innerSinks = [];
+      const list = [];
+
+      const source = new RelayObservable(sink => {
+        outerSink = sink;
+        return () => list.push('cleanup outer');
+      });
+
+      const mapped = source.mergeMap(v => {
+        list.push('mergeMap:' + v);
+        return new RelayObservable(sink => {
+          innerSinks.push(sink);
+          return () => list.push('cleanup inner:' + v);
+        });
+      });
+
+      mapped.subscribe({
+        next: val => list.push('next:' + val),
+        error: err => list.push(err),
+        complete: () => list.push('complete'),
+      });
+
+      // Many created publishes
+      outerSink.next(1);
+      outerSink.next(2);
+      innerSinks[0].next(10);
+      outerSink.next(3);
+      innerSinks[2].next(30);
+      outerSink.complete();
+      innerSinks[1].next(20);
+      innerSinks[2].complete();
+      innerSinks[0].next(11);
+      innerSinks[0].complete();
+      innerSinks[1].next(21);
+      innerSinks[1].complete();
+
+      expect(list).toEqual([
+        'mergeMap:1',
+        'mergeMap:2',
+        'next:10',
+        'mergeMap:3',
+        'next:30',
+        'cleanup outer',
+        'next:20',
+        'cleanup inner:3',
+        'next:11',
+        'cleanup inner:1',
+        'next:21',
+        'complete',
+        'cleanup inner:2',
+      ]);
+    });
+
+    it('Does not map errors from the original observable', () => {
+      const list = [];
+      const error = new Error();
+
+      const source = new RelayObservable(sink => {
+        sink.next(1);
+        sink.next(2);
+        sink.error(error);
+        sink.next(3);
+      });
+
+      const mapped = source.mergeMap(
+        v =>
+          new RelayObservable(sink => {
+            sink.next(v * 2 + 1);
+            sink.next(v * 10 + 1);
+            sink.complete();
+          }),
+      );
+
+      mapped.subscribe({
+        next: val => list.push('next:' + val),
+        error: err => list.push(err),
+        complete: () => list.push('complete'),
+      });
+
+      expect(list).toEqual(['next:3', 'next:11', 'next:5', 'next:21', error]);
+    });
+
+    it('Calls error handler and cleans up if map function throws', () => {
+      const list = [];
+      const error = new Error();
+
+      const source = new RelayObservable(sink => {
+        sink.next(1);
+        sink.next(2);
+        sink.next(3);
+        return () => list.push('cleanup');
+      });
+
+      const mapped = source.mergeMap(v => {
+        if (v === 2) {
+          throw error;
+        }
+        return new RelayObservable(sink => {
+          sink.next(v * 2 + 1);
+          sink.next(v * 10 + 1);
+          sink.complete();
+        });
+      });
+
+      mapped.subscribe({
+        next: val => list.push('next:' + val),
+        error: err => list.push(err),
+        complete: () => list.push('complete'),
+      });
+
+      expect(list).toEqual(['next:3', 'next:11', error, 'cleanup']);
+    });
+
+    it('Calls error handler and cleans up if mapped Observable errors', () => {
+      const list = [];
+      const error = new Error();
+
+      const source = new RelayObservable(sink => {
+        sink.next(1);
+        sink.next(2);
+        sink.next(3);
+        return () => list.push('cleanup');
+      });
+
+      const mapped = source.mergeMap(
+        v =>
+          new RelayObservable(sink => {
+            sink.next(v * 2 + 1);
+            sink.error(error);
+          }),
+      );
+
+      mapped.subscribe({
+        next: val => list.push('next:' + val),
+        error: err => list.push(err),
+        complete: () => list.push('complete'),
+      });
+
+      expect(list).toEqual(['next:3', error, 'cleanup']);
+    });
+
+    it('Unsubscribes from mapped Observable', () => {
+      let outerSink;
+      const list = [];
+
+      const source = new RelayObservable(sink => {
+        outerSink = sink;
+        return () => list.push('cleanup outer');
+      });
+
+      const mapped = source.mergeMap(
+        v =>
+          new RelayObservable(sink => {
+            return () => list.push('cleanup inner:' + v);
+          }),
+      );
+
+      const subscription = mapped.subscribe({
+        next: val => list.push('next:' + val),
+        error: err => list.push(err),
+        complete: () => list.push('complete'),
+      });
+
+      outerSink.next(1);
+      outerSink.next(2);
+      outerSink.next(3);
+      subscription.unsubscribe();
+
+      expect(list).toEqual([
+        'cleanup outer',
+        'cleanup inner:1',
+        'cleanup inner:2',
+        'cleanup inner:3',
+      ]);
+    });
+
+    it('Error thrown from mapper and no error handler is unhandled', () => {
+      let sink;
+      const list = [];
+      const error = new Error();
+
+      const unhandled = jest.fn();
+      RelayObservable.onUnhandledError(unhandled);
+
+      const source = new RelayObservable(_sink => {
+        sink = _sink;
+        return () => list.push('cleanup');
+      });
+
+      const mapped = source.mergeMap(v => {
+        if (v === 2) {
+          throw error;
+        }
+        return new RelayObservable(_sink => {
+          _sink.next(v * 2 + 1);
+          _sink.next(v * 10 + 1);
+          _sink.complete();
+        });
+      });
+
+      mapped.subscribe({
+        next: val => list.push('next:' + val),
+      });
+
+      sink.next(1);
+      expect(unhandled.mock.calls).toEqual([]);
+
+      sink.next(2);
+      expect(unhandled.mock.calls).toEqual([[error, true]]);
+
+      expect(list).toEqual(['next:3', 'next:11', 'cleanup']);
+    });
+
+    it('Does not call error handler if next handler throws', () => {
+      let sink;
+      const list = [];
+      const error = new Error();
+
+      const unhandled = jest.fn();
+      RelayObservable.onUnhandledError(unhandled);
+
+      const source = new RelayObservable(_sink => {
+        sink = _sink;
+        return () => list.push('cleanup');
+      });
+
+      const mapped = source.mergeMap(
+        v =>
+          new RelayObservable(_sink => {
+            _sink.next(v * 2 + 1);
+            _sink.next(v * 10 + 1);
+            _sink.complete();
+          }),
+      );
+
+      mapped.subscribe({
+        next: val => {
+          list.push('next:' + val);
+          if (val === 5) {
+            throw error;
+          }
+        },
+        error: err => list.push(err),
+      });
+
+      sink.next(1);
+      expect(unhandled.mock.calls).toEqual([]);
+
+      sink.next(2);
+      expect(unhandled.mock.calls).toEqual([[error, true]]);
+
+      sink.next(3);
+      expect(list).toEqual([
+        'next:3',
+        'next:11',
+        'next:5',
+        'next:21',
+        'next:7',
+        'next:31',
+      ]);
     });
   });
 
@@ -969,10 +1445,8 @@ describe('RelayObservable', () => {
       const error = new Error();
       const value = {key: 'value'};
 
-      const unhandledErrors = [];
-      RelayObservable.onUnhandledError(err => {
-        unhandledErrors.push(err);
-      });
+      const unhandled = jest.fn();
+      RelayObservable.onUnhandledError(unhandled);
 
       const promise = Promise.resolve(value);
       const obs = RelayObservable.from(promise);
@@ -994,7 +1468,7 @@ describe('RelayObservable', () => {
       await promise;
       expect(list).toEqual([value, 'complete']);
 
-      expect(unhandledErrors).toEqual([error]);
+      expect(unhandled.mock.calls).toEqual([[error, true]]);
     });
 
     it('Directly returns RelayObservable instance', () => {
@@ -1052,14 +1526,17 @@ describe('RelayObservable', () => {
       expect(list).toEqual([value, 'complete']);
     });
 
-    it('Converts an Error instance to an Observable', () => {
+    it('Does not convert an Error to a rejected Observable', () => {
       const list = [];
       const error = new Error();
 
       const obs = RelayObservable.from(error);
 
       obs.subscribe({
-        next: val => list.push(val),
+        next: val => {
+          list.push('next');
+          list.push(val);
+        },
         error: err => {
           list.push('error');
           list.push(err);
@@ -1067,7 +1544,7 @@ describe('RelayObservable', () => {
         complete: () => list.push('complete'),
       });
 
-      expect(list).toEqual(['error', error]);
+      expect(list).toEqual(['next', error, 'complete']);
     });
   });
 
@@ -1666,10 +2143,8 @@ describe('RelayObservable', () => {
       const list = [];
       const error = new Error();
 
-      const unhandledErrors = [];
-      RelayObservable.onUnhandledError(err => {
-        unhandledErrors.push(err);
-      });
+      const unhandled = jest.fn();
+      RelayObservable.onUnhandledError(unhandled);
 
       const cities = new RelayObservable(sink => {
         list.push('begin cities');
@@ -1734,7 +2209,12 @@ describe('RelayObservable', () => {
         'cleanup cities',
       ]);
 
-      expect(unhandledErrors).toEqual([error, error, error, error]);
+      expect(unhandled.mock.calls).toEqual([
+        [error, true],
+        [error, true],
+        [error, true],
+        [error, true],
+      ]);
     });
   });
 
@@ -1785,10 +2265,8 @@ describe('RelayObservable', () => {
       const list = [];
       const error = new Error();
 
-      const unhandledErrors = [];
-      RelayObservable.onUnhandledError(err => {
-        unhandledErrors.push(err);
-      });
+      const unhandled = jest.fn();
+      RelayObservable.onUnhandledError(unhandled);
 
       const obs = new RelayObservable(sink => {
         sink.next(1);
@@ -1806,7 +2284,7 @@ describe('RelayObservable', () => {
       );
 
       expect(list).toEqual(['resolve:1']);
-      expect(unhandledErrors).toEqual([error]);
+      expect(unhandled.mock.calls).toEqual([[error, true]]);
     });
 
     it('Errors during cleanup are unhandled (async)', async () => {
@@ -1814,10 +2292,8 @@ describe('RelayObservable', () => {
       const list = [];
       const error = new Error();
 
-      const unhandledErrors = [];
-      RelayObservable.onUnhandledError(err => {
-        unhandledErrors.push(err);
-      });
+      const unhandled = jest.fn();
+      RelayObservable.onUnhandledError(unhandled);
 
       const obs = new RelayObservable(_sink => {
         sink = _sink;
@@ -1837,7 +2313,7 @@ describe('RelayObservable', () => {
       );
 
       expect(list).toEqual(['resolve:1']);
-      expect(unhandledErrors).toEqual([error]);
+      expect(unhandled.mock.calls).toEqual([[error, true]]);
     });
 
     it('Resolves the first yielded value', async () => {
@@ -2071,6 +2547,65 @@ describe('RelayObservable', () => {
         'next:2',
         'cleanup second',
       ]);
+    });
+  });
+
+  describe('finally', () => {
+    it('should call finally after complete and cleanup', () => {
+      const list = [];
+
+      const obs = new RelayObservable(sink => {
+        sink.next(1);
+        sink.complete();
+        return () => list.push('cleanup');
+      });
+
+      obs.finally(() => list.push('finally')).subscribe({
+        next: val => list.push('next:' + val),
+        error: () => list.push('error'),
+        complete: () => list.push('complete'),
+        unsubscribe: () => list.push('unsubscribe'),
+      });
+
+      expect(list).toEqual(['next:1', 'complete', 'cleanup', 'finally']);
+    });
+
+    it('should call finally after error', () => {
+      const list = [];
+
+      const obs = new RelayObservable(sink => {
+        sink.error(new Error());
+        return () => list.push('cleanup');
+      });
+
+      obs.finally(() => list.push('finally')).subscribe({
+        next: val => list.push('next:' + val),
+        error: () => list.push('error'),
+        complete: () => list.push('complete'),
+        unsubscribe: () => list.push('unsubscribe'),
+      });
+
+      expect(list).toEqual(['error', 'cleanup', 'finally']);
+    });
+
+    it('should call finally after unsubscribe', () => {
+      const list = [];
+
+      const obs = new RelayObservable(sink => {
+        sink.next(1);
+        return () => list.push('cleanup');
+      });
+
+      const sub = obs.finally(() => list.push('finally')).subscribe({
+        next: val => list.push('next:' + val),
+        error: () => list.push('error'),
+        complete: () => list.push('complete'),
+        unsubscribe: () => list.push('unsubscribe'),
+      });
+
+      sub.unsubscribe();
+
+      expect(list).toEqual(['next:1', 'unsubscribe', 'cleanup', 'finally']);
     });
   });
 });

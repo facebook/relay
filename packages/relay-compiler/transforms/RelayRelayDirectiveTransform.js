@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayRelayDirectiveTransform
  * @flow
@@ -13,13 +11,15 @@
 
 'use strict';
 
-const RelayCompilerContext = require('../graphql-compiler/core/RelayCompilerContext');
-const RelayIRTransformer = require('../graphql-compiler/core/RelayIRTransformer');
-
-const getRelayLiteralArgumentValues = require('../graphql-compiler/core/getRelayLiteralArgumentValues');
 const invariant = require('invariant');
 
-import type {Fragment} from '../graphql-compiler/core/RelayIR';
+const {
+  CompilerContext,
+  IRTransformer,
+  getLiteralArgumentValues,
+} = require('../graphql-compiler/GraphQLCompilerPublic');
+
+import type {Fragment} from '../graphql-compiler/GraphQLCompilerPublic';
 
 const RELAY = 'relay';
 const PLURAL = 'plural';
@@ -46,8 +46,8 @@ const SCHEMA_EXTENSION = `directive @relay(
  * A transform that extracts `@relay(plural: Boolean)` directives and converts
  * them to metadata that can be accessed at runtime.
  */
-function transform(context: RelayCompilerContext): RelayCompilerContext {
-  return RelayIRTransformer.transform(
+function transform(context: CompilerContext): CompilerContext {
+  return IRTransformer.transform(
     context,
     {
       Fragment: visitFragment,
@@ -61,7 +61,7 @@ function visitFragment(fragment: Fragment): Fragment {
   if (!relayDirective) {
     return fragment;
   }
-  const {plural} = getRelayLiteralArgumentValues(relayDirective.args);
+  const {plural} = getLiteralArgumentValues(relayDirective.args);
   invariant(
     plural === undefined || typeof plural === 'boolean',
     'RelayRelayDirectiveTransform: Expected the %s argument to @%s to be ' +

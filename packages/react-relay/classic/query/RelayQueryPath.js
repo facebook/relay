@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayQueryPath
  * @flow
@@ -22,7 +20,7 @@ const forEachRootCallArg = require('forEachRootCallArg');
 const invariant = require('invariant');
 const warning = require('warning');
 
-const {EDGES} = require('RelayConnectionInterface');
+const {ConnectionInterface} = require('RelayRuntime');
 
 import type {DataID} from 'RelayInternalTypes';
 import type RelayRecordStore from 'RelayRecordStore';
@@ -185,6 +183,8 @@ const RelayQueryPath = {
   ): RelayQuery.Root {
     let child = appendNode;
     let prevField;
+    const {EDGES} = ConnectionInterface.get();
+
     while (path.type === 'client') {
       const node = path.node;
       if (node instanceof RelayQuery.Field) {

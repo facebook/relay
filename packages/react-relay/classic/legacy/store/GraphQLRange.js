@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule GraphQLRange
  * @format
@@ -14,7 +12,6 @@
 
 const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
 const GraphQLSegment = require('GraphQLSegment');
-const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayRecord = require('RelayRecord');
 
 const forEachObject = require('forEachObject');
@@ -23,12 +20,7 @@ const rangeOperationToMetadataKey = require('rangeOperationToMetadataKey');
 const serializeRelayQueryCall = require('serializeRelayQueryCall');
 const warning = require('warning');
 
-const {
-  END_CURSOR,
-  HAS_NEXT_PAGE,
-  HAS_PREV_PAGE,
-  START_CURSOR,
-} = RelayConnectionInterface;
+const {ConnectionInterface} = require('RelayRuntime');
 
 /**
  * @param {array<object>} queryCalls
@@ -37,7 +29,7 @@ const {
 function callsArrayToObject(queryCalls) {
   const calls = {};
   for (let ii = 0; ii < queryCalls.length; ii++) {
-    if (RelayConnectionInterface.isConnectionCall(queryCalls[ii])) {
+    if (ConnectionInterface.isConnectionCall(queryCalls[ii])) {
       const queryCall = queryCalls[ii];
       let {value} = queryCall;
       // assuming that range calls will only have a single argument
@@ -288,6 +280,8 @@ class GraphQLRange {
       console.error('GraphQLRange received null as a cursor.');
       return;
     }
+
+    const {HAS_NEXT_PAGE, HAS_PREV_PAGE} = ConnectionInterface.get();
 
     if (calls.first) {
       // before().first() calls can produce gaps
@@ -755,7 +749,7 @@ class GraphQLRange {
       return {
         requestedEdgeIDs: [],
         diffCalls: [],
-        pageInfo: RelayConnectionInterface.getDefaultPageInfo(),
+        pageInfo: ConnectionInterface.getDefaultPageInfo(),
       };
     }
     if ((calls.first && calls.before) || (calls.last && calls.after)) {
@@ -763,7 +757,7 @@ class GraphQLRange {
       return {
         requestedEdgeIDs: [],
         diffCalls: [],
-        pageInfo: RelayConnectionInterface.getDefaultPageInfo(),
+        pageInfo: ConnectionInterface.getDefaultPageInfo(),
       };
     }
     if (!isValidRangeCallValues(calls)) {
@@ -774,7 +768,7 @@ class GraphQLRange {
       return {
         requestedEdgeIDs: [],
         diffCalls: [],
-        pageInfo: RelayConnectionInterface.getDefaultPageInfo(),
+        pageInfo: ConnectionInterface.getDefaultPageInfo(),
       };
     }
     if (calls.first) {
@@ -793,6 +787,13 @@ class GraphQLRange {
     const storedInfo = this._staticQueriesMap[calls];
 
     if (storedInfo) {
+      const {
+        END_CURSOR,
+        HAS_NEXT_PAGE,
+        HAS_PREV_PAGE,
+        START_CURSOR,
+      } = ConnectionInterface.get();
+
       return {
         requestedEdgeIDs: storedInfo.edgeIDs,
         diffCalls: [],
@@ -810,7 +811,7 @@ class GraphQLRange {
     return {
       requestedEdgeIDs: [],
       diffCalls: queryCalls,
-      pageInfo: RelayConnectionInterface.getDefaultPageInfo(),
+      pageInfo: ConnectionInterface.getDefaultPageInfo(),
     };
   }
 
@@ -850,6 +851,8 @@ class GraphQLRange {
    * @return {object} includes fields: requestedEdgeIDs, diffCalls
    */
   _retrieveRangeInfoForFirstQuery(queryCalls, queuedRecord) {
+    const {END_CURSOR, HAS_NEXT_PAGE, START_CURSOR} = ConnectionInterface.get();
+
     let appendEdgeIDs;
     let prependEdgeIDs;
     let removeIDs;
@@ -863,7 +866,7 @@ class GraphQLRange {
     let segment;
     let segmentIndex;
     const pageInfo = {
-      ...RelayConnectionInterface.getDefaultPageInfo(),
+      ...ConnectionInterface.getDefaultPageInfo(),
     };
 
     const afterCursor = calls.after;
@@ -963,6 +966,8 @@ class GraphQLRange {
    * @return {object} includes fields: requestedEdgeIDs, diffCalls
    */
   _retrieveRangeInfoForLastQuery(queryCalls, queuedRecord) {
+    const {END_CURSOR, HAS_PREV_PAGE, START_CURSOR} = ConnectionInterface.get();
+
     let appendEdgeIDs;
     let prependEdgeIDs;
     let removeIDs;
@@ -976,7 +981,7 @@ class GraphQLRange {
     let segment;
     let segmentIndex;
     const pageInfo = {
-      ...RelayConnectionInterface.getDefaultPageInfo(),
+      ...ConnectionInterface.getDefaultPageInfo(),
     };
 
     const beforeCursor = calls.before;

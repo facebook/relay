@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayModernRecord
  * @flow
@@ -15,7 +13,6 @@
 
 const areEqual = require('areEqual');
 const deepFreeze = require('deepFreeze');
-const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 
 const {
@@ -95,11 +92,13 @@ function clone(record: Record): Record {
  * copied on write.
  */
 function copyFields(source: Record, sink: Record): void {
-  forEachObject(source, (value, key) => {
-    if (key !== ID_KEY && key !== TYPENAME_KEY) {
-      sink[key] = value;
+  for (const key in source) {
+    if (source.hasOwnProperty(key)) {
+      if (key !== ID_KEY && key !== TYPENAME_KEY) {
+        sink[key] = source[key];
+      }
     }
-  });
+  }
 }
 
 /**

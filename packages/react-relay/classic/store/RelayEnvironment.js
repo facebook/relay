@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayEnvironment
  * @flow
@@ -20,7 +18,6 @@ const RelayMetaRoute = require('RelayMetaRoute');
 const RelayQuery = require('RelayQuery');
 const RelayQueryPath = require('RelayQueryPath');
 const RelayQueryRequest = require('RelayQueryRequest');
-const RelayQueryResultObservable = require('RelayQueryResultObservable');
 const RelayStoreData = require('RelayStoreData');
 const RelayVariables = require('RelayVariables');
 
@@ -31,6 +28,8 @@ const readRelayQueryData = require('readRelayQueryData');
 const recycleNodesInto = require('recycleNodesInto');
 const relayUnstableBatchedUpdates = require('relayUnstableBatchedUpdates');
 const warning = require('warning');
+
+const {Observable} = require('RelayRuntime');
 
 import type {ConcreteOperationDefinition} from 'ConcreteQuery';
 import type {CacheConfig, Disposable} from 'RelayCombinedEnvironmentTypes';
@@ -47,13 +46,13 @@ import type RelayMutationTransaction from 'RelayMutationTransaction';
 import type {MutationCallback, QueryCallback} from 'RelayNetworkLayer';
 import type {UploadableMap} from 'RelayNetworkTypes';
 import type RelayQueryTracker from 'RelayQueryTracker';
+import type {SelectorStoreUpdater} from 'RelayStoreTypes';
 import type {TaskScheduler} from 'RelayTaskQueue';
 import type {
   Abortable,
   CacheManager,
   ChangeSubscription,
   NetworkLayer,
-  Observable,
   RelayMutationConfig,
   RelayMutationTransactionCommitCallbacks,
   ReadyStateChangeCallback,
@@ -385,7 +384,26 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
     onNext?: ?(selector: Selector) => void,
     operation: OperationSelector,
   }): Disposable {
+    warning(
+      false,
+      'environment.streamQuery() is deprecated. Update to the latest ' +
+        'version of react-relay, and use environment.execute().',
+    );
     return this.sendQuery(config);
+  }
+
+  execute({
+    operation,
+    cacheConfig,
+    updater,
+  }: {
+    operation: OperationSelector,
+    cacheConfig?: ?CacheConfig,
+    updater?: ?SelectorStoreUpdater,
+  }): Observable<Selector> {
+    return Observable.fromLegacy(observer =>
+      this.sendQuery({operation, cacheConfig, ...observer}),
+    );
   }
 
   applyUpdate: (
@@ -517,17 +535,6 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
       results.push(data);
     });
     return results;
-  }
-
-  /**
-   * Reads and subscribes to query data anchored at the supplied data ID. The
-   * returned observable emits updates as the data changes over time.
-   */
-  observe(
-    fragment: RelayQuery.Fragment,
-    dataID: DataID,
-  ): Observable<?StoreReaderData> {
-    return new RelayQueryResultObservable(this._storeData, fragment, dataID);
   }
 
   /**

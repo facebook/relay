@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule BabelPluginRelay
  * @flow
@@ -20,9 +18,8 @@ const getValidGraphQLTag = require('./getValidGraphQLTag');
 const getValidRelayQLTag = require('./getValidRelayQLTag');
 const invariant = require('./invariant');
 
-import typeof BabelTypes from 'babel-types';
-
 import type {Validator} from './RelayQLTransformer';
+import typeof BabelTypes from 'babel-types';
 
 export type RelayPluginOptions = {
   schema?: string,
@@ -67,42 +64,48 @@ module.exports = function BabelPluginRelay(context: {types: BabelTypes}): any {
     );
   }
 
+  const visitor = {
+    TaggedTemplateExpression(path, state) {
+      // Convert graphql`` literals
+      const ast = getValidGraphQLTag(path);
+      if (ast) {
+        compileGraphQLTag(t, path, state, ast);
+        return;
+      }
+
+      // Convert Relay.QL`` literals
+      const [quasi, tagName, propName] = getValidRelayQLTag(path);
+      if (quasi && tagName) {
+        const schema = state.opts && state.opts.schema;
+        invariant(
+          schema,
+          'babel-plugin-relay: Missing schema option. ' +
+            'Check your .babelrc file or wherever you configure your Babel ' +
+            'plugins to ensure the "relay" plugin has a "schema" option.\n' +
+            'https://facebook.github.io/relay/docs/babel-plugin-relay.html#additional-options',
+        );
+        const documentName = getDocumentName(path, state);
+        path.replaceWith(
+          compileRelayQLTag(
+            t,
+            path,
+            schema,
+            quasi,
+            documentName,
+            propName,
+            tagName,
+            true, // enableValidation
+            state,
+          ),
+        );
+      }
+    },
+  };
+
   return {
     visitor: {
-      TaggedTemplateExpression(path, state) {
-        // Convert graphql`` literals
-        const ast = getValidGraphQLTag(path);
-        if (ast) {
-          compileGraphQLTag(t, path, state, ast);
-          return;
-        }
-
-        // Convert Relay.QL`` literals
-        const [quasi, tagName, propName] = getValidRelayQLTag(path);
-        if (quasi && tagName) {
-          const schema = state.opts && state.opts.schema;
-          invariant(
-            schema,
-            'babel-plugin-relay: Missing schema option. ' +
-              'Check your .babelrc file or wherever you configure your Babel ' +
-              'plugins to ensure the "relay" plugin has a "schema" option.\n' +
-              'https://facebook.github.io/relay/docs/babel-plugin-relay.html#additional-options',
-          );
-          const documentName = getDocumentName(path, state);
-          path.replaceWith(
-            compileRelayQLTag(
-              t,
-              path,
-              schema,
-              quasi,
-              documentName,
-              propName,
-              tagName,
-              true, // enableValidation
-              state,
-            ),
-          );
-        }
+      Program(path, state) {
+        path.traverse(visitor, state);
       },
     },
   };

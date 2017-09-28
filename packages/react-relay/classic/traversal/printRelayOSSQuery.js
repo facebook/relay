@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule printRelayOSSQuery
  * @flow
@@ -223,18 +221,21 @@ function printNonNullType(type: string): string {
   return type + '!';
 }
 
+const isConditionDirective = directive =>
+  directive.name === 'include' || directive.name === 'skip';
+
+const isNonConditionDirective = directive => !isConditionDirective(directive);
+
 function printFragment(
   node: RelayQuery.Fragment,
   printerState: PrinterState,
 ): string {
-  const directives = printDirectives(node);
   return (
     'fragment ' +
     node.getDebugName() +
     ' on ' +
     node.getType() +
-    directives +
-    nullthrows(printChildren(node, printerState, ''))
+    printDirectivesAndChildren(node, printerState)
   );
 }
 
@@ -300,11 +301,8 @@ function printChildren(
           fragmentName = fragmentNameByHash[fragmentHash];
         } else {
           // Avoid reprinting a fragment that is identical to another fragment.
-          const fragmentChildren = nullthrows(
-            printChildren(child, printerState, ''),
-          );
           const fragmentText =
-            child.getType() + printDirectives(child) + fragmentChildren;
+            child.getType() + printDirectivesAndChildren(child, printerState);
           if (fragmentNameByText.hasOwnProperty(fragmentText)) {
             fragmentName = fragmentNameByText[fragmentText];
           } else {
@@ -345,12 +343,15 @@ function printChildren(
   );
 }
 
-function printDirectives(node) {
+function printDirectives(node, filter) {
   let directiveStrings;
   node.getDirectives().forEach(directive => {
+    if (filter && !filter(directive)) {
+      return;
+    }
     let dirString = '@' + directive.name;
     if (directive.args.length) {
-      dirString += '(' + directive.args.map(printDirective).join(',') + ')';
+      dirString += '(' + directive.args.map(printDirectiveArg).join(',') + ')';
     }
     directiveStrings = directiveStrings || [];
     directiveStrings.push(dirString);
@@ -361,7 +362,7 @@ function printDirectives(node) {
   return ' ' + directiveStrings.join(' ');
 }
 
-function printDirective({name, value}) {
+function printDirectiveArg({name, value}) {
   invariant(
     typeof value === 'boolean' ||
       typeof value === 'number' ||
@@ -372,6 +373,25 @@ function printDirective({name, value}) {
     value,
   );
   return name + ':' + JSON.stringify(value);
+}
+
+function printDirectivesAndChildren(node, printerState: PrinterState): string {
+  const conditionDirectives = printDirectives(node, isConditionDirective);
+  const otherDirectives = printDirectives(node, isNonConditionDirective);
+
+  return (
+    otherDirectives +
+    (conditionDirectives
+      ? ' {' +
+        newLine +
+        oneIndent +
+        '...' +
+        conditionDirectives +
+        nullthrows(printChildren(node, printerState, oneIndent)) +
+        newLine +
+        '}'
+      : nullthrows(printChildren(node, printerState, '')))
+  );
 }
 
 function printArgument(

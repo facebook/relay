@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayMutationQueue
  * @flow
@@ -15,7 +13,6 @@
 
 const ErrorUtils = require('ErrorUtils');
 const QueryBuilder = require('QueryBuilder');
-const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayMutationQuery = require('RelayMutationQuery');
 const RelayMutationRequest = require('RelayMutationRequest');
 const RelayMutationTransaction = require('RelayMutationTransaction');
@@ -29,6 +26,8 @@ const fromGraphQL = require('fromGraphQL');
 const invariant = require('invariant');
 const nullthrows = require('nullthrows');
 const resolveImmediate = require('resolveImmediate');
+
+const {ConnectionInterface} = require('RelayRuntime');
 
 import type {ConcreteMutation} from 'ConcreteQuery';
 import type {ClientMutationID} from 'RelayInternalTypes';
@@ -76,8 +75,6 @@ type TransactionData = {
   onSuccess: ?RelayMutationTransactionCommitSuccessCallback,
 };
 type TransactionQueue = Array<PendingTransaction>;
-
-const {CLIENT_MUTATION_ID} = RelayConnectionInterface;
 
 let transactionIDCounter = 0;
 
@@ -481,7 +478,7 @@ class RelayPendingTransaction {
     if (!this._inputVariable) {
       const inputVariable = {
         ...this.mutation.getVariables(),
-        [CLIENT_MUTATION_ID]: this.id,
+        [ConnectionInterface.get().CLIENT_MUTATION_ID]: this.id,
       };
       this._inputVariable = inputVariable;
     }
@@ -512,13 +509,11 @@ class RelayPendingTransaction {
 
   getOptimisticQuery(storeData: RelayStoreData): ?RelayQuery.Mutation {
     if (this._optimisticQuery === undefined) {
-      /* eslint-disable no-console */
       if (__DEV__ && console.groupCollapsed && console.groupEnd) {
         console.groupCollapsed(
           'Optimistic query for `' + this.getCallName() + '`',
         );
       }
-      /* eslint-enable no-console */
       const optimisticResponse = this._getRawOptimisticResponse();
       if (optimisticResponse) {
         const optimisticConfigs = this.getOptimisticConfigs();
@@ -544,7 +539,6 @@ class RelayPendingTransaction {
       } else {
         this._optimisticQuery = null;
       }
-      /* eslint-disable no-console */
       if (__DEV__ && console.groupCollapsed && console.groupEnd) {
         require('RelayMutationDebugPrinter').printOptimisticMutation(
           this._optimisticQuery,
@@ -553,7 +547,6 @@ class RelayPendingTransaction {
 
         console.groupEnd();
       }
-      /* eslint-enable no-console */
     }
     return this._optimisticQuery;
   }
@@ -562,7 +555,9 @@ class RelayPendingTransaction {
     if (this._rawOptimisticResponse === undefined) {
       const optimisticResponse = this.mutation.getOptimisticResponse() || null;
       if (optimisticResponse) {
-        optimisticResponse[CLIENT_MUTATION_ID] = this.id;
+        optimisticResponse[
+          ConnectionInterface.get().CLIENT_MUTATION_ID
+        ] = this.id;
       }
       this._rawOptimisticResponse = optimisticResponse;
     }
@@ -585,13 +580,11 @@ class RelayPendingTransaction {
 
   getQuery(storeData: RelayStoreData): RelayQuery.Mutation {
     if (!this._query) {
-      /* eslint-disable no-console */
       if (__DEV__ && console.groupCollapsed && console.groupEnd) {
         console.groupCollapsed(
           'Mutation query for `' + this.getCallName() + '`',
         );
       }
-      /* eslint-enable no-console */
       const tracker = getTracker(storeData);
       this._query = RelayMutationQuery.buildQuery({
         configs: this.getConfigs(),
@@ -601,12 +594,10 @@ class RelayPendingTransaction {
         mutation: this.getMutationNode(),
         tracker,
       });
-      /* eslint-disable no-console */
       if (__DEV__ && console.groupCollapsed && console.groupEnd) {
         require('RelayMutationDebugPrinter').printMutation(this._query);
         console.groupEnd();
       }
-      /* eslint-enable no-console */
     }
     return this._query;
   }

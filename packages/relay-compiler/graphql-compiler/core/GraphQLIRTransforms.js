@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule GraphQLIRTransforms
  * @flow
@@ -14,12 +12,14 @@
 'use strict';
 
 const FilterDirectivesTransform = require('../transforms/FilterDirectivesTransform');
-const RelayFlattenTransform = require('../transforms/RelayFlattenTransform');
+const FlattenTransform = require('../transforms/FlattenTransform');
+const InlineFragmentsTransform = require('InlineFragmentsTransform');
+const RelayMaskTransform = require('RelayMaskTransform');
 const SkipClientFieldTransform = require('../transforms/SkipClientFieldTransform');
 const SkipRedundantNodesTransform = require('../transforms/SkipRedundantNodesTransform');
 const SkipUnreachableNodeTransform = require('../transforms/SkipUnreachableNodeTransform');
 
-import type CompilerContext from './RelayCompilerContext';
+import type CompilerContext from './GraphQLCompilerContext';
 import type {GraphQLSchema} from 'graphql';
 
 export type IRTransform = (
@@ -29,8 +29,9 @@ export type IRTransform = (
 
 // Transforms applied to fragments used for reading data from a store
 const FRAGMENT_TRANSFORMS: Array<IRTransform> = [
+  RelayMaskTransform.transform,
   (ctx: CompilerContext) =>
-    RelayFlattenTransform.transform(ctx, {
+    FlattenTransform.transform(ctx, {
       flattenAbstractTypes: true,
     }),
   SkipRedundantNodesTransform.transform,
@@ -45,10 +46,10 @@ const QUERY_TRANSFORMS: Array<IRTransform> = [
 
 // Transforms applied to the code used to process a query response.
 const CODEGEN_TRANSFORMS: Array<IRTransform> = [
+  InlineFragmentsTransform.transform,
   (ctx: CompilerContext) =>
-    RelayFlattenTransform.transform(ctx, {
+    FlattenTransform.transform(ctx, {
       flattenAbstractTypes: true,
-      flattenFragmentSpreads: true,
     }),
   SkipRedundantNodesTransform.transform,
   FilterDirectivesTransform.transform,

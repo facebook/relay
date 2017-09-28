@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule FindGraphQLTags
  * @flow
@@ -13,15 +11,15 @@
 
 'use strict';
 
-const RelayCompilerCache = require('RelayCompilerCache');
+const RelayCompilerCache = require('../util/RelayCompilerCache');
 
 const babylon = require('babylon');
-const getModuleName = require('getModuleName');
+const getModuleName = require('../util/getModuleName');
 const graphql = require('graphql');
 const path = require('path');
 const util = require('util');
 
-import type {File} from 'RelayCodegenTypes';
+import type {File} from '../graphql-compiler/GraphQLCompilerPublic';
 
 // Attempt to be as inclusive as possible of source text.
 const BABYLON_OPTIONS = {

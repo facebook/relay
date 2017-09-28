@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule ReactRelayQueryRenderer
  * @flow
@@ -65,49 +63,13 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
 
   constructor(props: Props, context: Object) {
     super(props, context);
-    let {query, variables} = props;
-    // TODO (#16225453) QueryRenderer works with old and new environment, but
-    // the flow typing doesn't quite work abstracted.
-    // $FlowFixMe
-    const environment: Environment = props.environment;
-    let operation = null;
-    if (query) {
-      const {
-        createOperationSelector,
-        getOperation,
-      } = environment.unstable_internal;
-      query = getOperation(query);
-      operation = createOperationSelector(query, variables);
-      variables = operation.variables;
-    }
-
     this._pendingFetch = null;
-    this._relayContext = {
-      environment,
-      variables,
-    };
     this._rootSubscription = null;
     this._selectionReference = null;
-    if (query) {
-      this.state = {
-        readyState: getDefaultState(),
-      };
-    } else {
-      this.state = {
-        readyState: {
-          error: null,
-          props: {},
-          retry: null,
-        },
-      };
-    }
 
-    if (operation) {
-      const readyState = this._fetch(operation, props.cacheConfig);
-      if (readyState) {
-        this.state = {readyState};
-      }
-    }
+    this.state = {
+      readyState: this._fetchForProps(props),
+    };
   }
 
   componentWillReceiveProps(nextProps: Props): void {
@@ -116,42 +78,9 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
       nextProps.environment !== this.props.environment ||
       !areEqual(nextProps.variables, this.props.variables)
     ) {
-      const {query, variables} = nextProps;
-      // TODO (#16225453) QueryRenderer works with old and new environment, but
-      // the flow typing doesn't quite work abstracted.
-      // $FlowFixMe
-      const environment: Environment = nextProps.environment;
-      if (query) {
-        const {
-          createOperationSelector,
-          getOperation,
-        } = environment.unstable_internal;
-        const operation = createOperationSelector(
-          getOperation(query),
-          variables,
-        );
-        this._relayContext = {
-          environment,
-          variables: operation.variables,
-        };
-        const readyState = this._fetch(operation, nextProps.cacheConfig);
-        this.setState({
-          readyState: readyState || getDefaultState(),
-        });
-      } else {
-        this._relayContext = {
-          environment,
-          variables,
-        };
-        this._release();
-        this.setState({
-          readyState: {
-            error: null,
-            props: {},
-            retry: null,
-          },
-        });
-      }
+      this.setState({
+        readyState: this._fetchForProps(nextProps),
+      });
     }
   }
 
@@ -181,6 +110,38 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
     }
   }
 
+  _fetchForProps(props: Props): ReadyState {
+    // TODO (#16225453) QueryRenderer works with old and new environment, but
+    // the flow typing doesn't quite work abstracted.
+    // $FlowFixMe
+    const environment: Environment = props.environment;
+
+    const {query, variables} = props;
+    if (query) {
+      const {
+        createOperationSelector,
+        getOperation,
+      } = environment.unstable_internal;
+      const operation = createOperationSelector(getOperation(query), variables);
+      this._relayContext = {
+        environment,
+        variables: operation.variables,
+      };
+      return this._fetch(operation, props.cacheConfig) || getDefaultState();
+    } else {
+      this._relayContext = {
+        environment,
+        variables,
+      };
+      this._release();
+      return {
+        error: null,
+        props: {},
+        retry: null,
+      };
+    }
+  }
+
   _fetch(operation: OperationSelector, cacheConfig: ?CacheConfig): ?ReadyState {
     const {environment} = this._relayContext;
 
@@ -193,53 +154,8 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
 
     let readyState = getDefaultState();
     let snapshot: ?Snapshot; // results of the root fragment
-    let isOnNextCalled = false;
-    let isFunctionReturned = false;
-    const onCompleted = () => {
-      this._pendingFetch = null;
-    };
-    const onError = error => {
-      readyState = {
-        error,
-        props: null,
-        retry: () => {
-          this._fetch(operation, cacheConfig);
-        },
-      };
-      if (this._selectionReference) {
-        this._selectionReference.dispose();
-      }
-      this._pendingFetch = null;
-      this._selectionReference = nextReference;
-      this.setState({readyState});
-    };
-    const onNext = () => {
-      // `onNext` can be called multiple times by network layers that support
-      // data subscriptions. Wait until the first payload to render `props` and
-      // subscribe for data updates.
-      if (snapshot) {
-        return;
-      }
-      snapshot = environment.lookup(operation.fragment);
-      readyState = {
-        error: null,
-        props: snapshot.data,
-        retry: () => {
-          this._fetch(operation, cacheConfig);
-        },
-      };
-
-      if (this._selectionReference) {
-        this._selectionReference.dispose();
-      }
-      this._rootSubscription = environment.subscribe(snapshot, this._onChange);
-      this._selectionReference = nextReference;
-      // This line should be called only once.
-      isOnNextCalled = true;
-      if (isFunctionReturned) {
-        this.setState({readyState});
-      }
-    };
+    let hasSyncResult = false;
+    let hasFunctionReturned = false;
 
     if (this._pendingFetch) {
       this._pendingFetch.dispose();
@@ -247,21 +163,80 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
     if (this._rootSubscription) {
       this._rootSubscription.dispose();
     }
-    const request = environment.streamQuery({
-      cacheConfig,
-      onCompleted,
-      onError,
-      onNext,
-      operation,
-    });
+
+    const request = environment
+      .execute({operation, cacheConfig})
+      .finally(() => {
+        this._pendingFetch = null;
+      })
+      .subscribe({
+        next: () => {
+          // `next` can be called multiple times by network layers that support
+          // data subscriptions. Wait until the first payload to render `props`
+          // and subscribe for data updates.
+          if (snapshot) {
+            return;
+          }
+          snapshot = environment.lookup(operation.fragment);
+          readyState = {
+            error: null,
+            props: snapshot.data,
+            retry: () => {
+              // Do not reset the default state if refetching after success,
+              // handling the case where _fetch may return syncronously instead
+              // of calling setState.
+              const syncReadyState = this._fetch(operation, cacheConfig);
+              if (syncReadyState) {
+                this.setState({readyState: syncReadyState});
+              }
+            },
+          };
+
+          if (this._selectionReference) {
+            this._selectionReference.dispose();
+          }
+          this._rootSubscription = environment.subscribe(
+            snapshot,
+            this._onChange,
+          );
+          this._selectionReference = nextReference;
+          // This line should be called only once.
+          hasSyncResult = true;
+          if (hasFunctionReturned) {
+            this.setState({readyState});
+          }
+        },
+        error: error => {
+          readyState = {
+            error,
+            props: null,
+            retry: () => {
+              // Return to the default state when retrying after an error,
+              // handling the case where _fetch may return syncronously instead
+              // of calling setState.
+              const syncReadyState = this._fetch(operation, cacheConfig);
+              this.setState({readyState: syncReadyState || getDefaultState()});
+            },
+          };
+          if (this._selectionReference) {
+            this._selectionReference.dispose();
+          }
+          this._selectionReference = nextReference;
+          hasSyncResult = true;
+          if (hasFunctionReturned) {
+            this.setState({readyState});
+          }
+        },
+      });
+
     this._pendingFetch = {
       dispose() {
-        request.dispose();
+        request.unsubscribe();
         nextReference.dispose();
       },
     };
-    isFunctionReturned = true;
-    return isOnNextCalled ? readyState : null;
+    hasFunctionReturned = true;
+    return hasSyncResult ? readyState : null;
   }
 
   _onChange = (snapshot: Snapshot): void => {
@@ -272,6 +247,7 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
       },
     });
   };
+
   getChildContext(): Object {
     return {
       relay: this._relayContext,

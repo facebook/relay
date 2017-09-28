@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
  * @format
@@ -18,9 +16,10 @@ require('configureForRelayOSS');
 
 jest.useFakeTimers();
 jest.unmock('RelayRenderer');
+jest.unmock('react-test-renderer');
 
 const React = require('React');
-const ReactDOM = require('ReactDOM');
+const ReactTestRenderer = require('react-test-renderer');
 const RelayClassic = require('RelayClassic');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayQueryConfig = require('RelayQueryConfig');
@@ -45,7 +44,7 @@ describe('RelayRenderer.onReadyStateChange', () => {
       fragments: {},
     });
 
-    container = document.createElement('div');
+    container = ReactTestRenderer.create();
     queryConfig = RelayQueryConfig.genMockInstance();
     environment = new RelayEnvironment();
   });
@@ -54,14 +53,13 @@ describe('RelayRenderer.onReadyStateChange', () => {
 
   beforeEach(() => {
     onReadyStateChange = jest.fn();
-    ReactDOM.render(
+    container.update(
       <RelayRenderer
         Container={MockContainer}
         queryConfig={queryConfig}
         environment={environment}
         onReadyStateChange={onReadyStateChange}
       />,
-      container,
     );
     const defaultState = {
       aborted: false,
@@ -90,11 +88,9 @@ describe('RelayRenderer.onReadyStateChange', () => {
   it('does nothing before `prime` starts', () => {
     expect(() => {
       // Nothing.
-    }).toTriggerReadyStateChanges(
-      [
-        // Nothing.
-      ],
-    );
+    }).toTriggerReadyStateChanges([
+      // Nothing.
+    ]);
   });
 
   it('is not ready or done after a request', () => {
@@ -168,25 +164,22 @@ describe('RelayRenderer.onReadyStateChange', () => {
 
   it('does nothing when aborted from query configuration change', () => {
     expect(request => {
-      ReactDOM.render(
+      container.update(
         <RelayRenderer
           Container={MockContainer}
           queryConfig={RelayQueryConfig.genMockInstance()}
           environment={environment}
           onReadyStateChange={onReadyStateChange}
         />,
-        container,
       );
-    }).toTriggerReadyStateChanges(
-      [
-        // Nothing.
-      ],
-    );
+    }).toTriggerReadyStateChanges([
+      // Nothing.
+    ]);
   });
 
   it('is aborted and not mounted when aborted from unmounting', () => {
     expect(request => {
-      ReactDOM.unmountComponentAtNode(container);
+      container.unmount();
     }).toTriggerReadyStateChanges([{aborted: true, mounted: false}]);
   });
 });

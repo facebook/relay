@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
  * @format
@@ -16,16 +14,20 @@ jest.enableAutomock();
 
 require('configureForRelayOSS');
 
-jest.unmock('GraphQLRange').unmock('GraphQLSegment').mock('warning');
+jest
+  .unmock('GraphQLRange')
+  .unmock('GraphQLSegment')
+  .mock('warning');
 
 const RelayClassic = require('RelayClassic');
-const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayQueryTracker = require('RelayQueryTracker');
 const RelayRecordStore = require('RelayRecordStore');
 const RelayRecordWriter = require('RelayRecordWriter');
 const RelayTestUtils = require('RelayTestUtils');
 
 const diffRelayQuery = require('diffRelayQuery');
+
+const {ConnectionInterface} = require('RelayRuntime');
 
 describe('diffRelayQuery', () => {
   const {getNode, getVerbatimNode, writePayload} = RelayTestUtils;
@@ -36,7 +38,7 @@ describe('diffRelayQuery', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    ({HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO} = RelayConnectionInterface);
+    ({HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO} = ConnectionInterface.get());
 
     rootCallMap = {
       viewer: {'': 'client:1'},

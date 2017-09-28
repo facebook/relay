@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayReadyStateRenderer
  * @flow
@@ -16,7 +14,7 @@
 const React = require('React');
 const RelayFragmentPointer = require('RelayFragmentPointer');
 const RelayPropTypes = require('RelayPropTypes');
-const StaticContainer = require('StaticContainer.react');
+const RelayStaticContainer = require('RelayStaticContainer');
 
 const getRelayQueries = require('getRelayQueries');
 const mapObject = require('mapObject');
@@ -68,9 +66,12 @@ export type RelayRetryCallback = () => void;
  * If `readyState` is not supplied, the previously rendered `readyState` will
  * continue to be rendered (or null if there is no previous `readyState`).
  */
-class RelayReadyStateRenderer extends React.Component<Props, {
-  getContainerProps: RelayContainerPropsFactory,
-}> {
+class RelayReadyStateRenderer extends React.Component<
+  Props,
+  {
+    getContainerProps: RelayContainerPropsFactory,
+  },
+> {
   static childContextTypes = {
     relay: RelayPropTypes.ClassicRelay,
     route: RelayPropTypes.QueryConfig.isRequired,
@@ -167,9 +168,9 @@ class RelayReadyStateRenderer extends React.Component<Props, {
       shouldUpdate = false;
     }
     return (
-      <StaticContainer shouldUpdate={shouldUpdate}>
+      <RelayStaticContainer shouldUpdate={shouldUpdate}>
         {children}
-      </StaticContainer>
+      </RelayStaticContainer>
     );
   }
 }

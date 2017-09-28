@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
  * @format
@@ -17,10 +15,8 @@ jest.unmock('RelayEnvironment');
 
 require('configureForRelayOSS');
 
-const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 const RelayClassic = require('RelayClassic');
 const RelayEnvironment = require('RelayEnvironment');
-const RelayQueryResultObservable = require('RelayQueryResultObservable');
 const RelayMutation = require('RelayMutation');
 const RelayMutationTransaction = require('RelayMutationTransaction');
 const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
@@ -148,37 +144,6 @@ describe('RelayEnvironment', () => {
       );
       expect(readRelayQueryData.mock.calls.length).toBe(0);
       expect(result).toEqual([undefined]);
-    });
-  });
-
-  describe('observe', () => {
-    it('instantiates RelayQueryResultObservable', () => {
-      const fragment = getNode(
-        RelayClassic.QL`
-        fragment on Node {
-          id
-        }
-      `,
-      );
-      GraphQLStoreQueryResolver.mockDefaultResolveImplementation(
-        (pointerFragment, dataID) => {
-          expect(pointerFragment).toBe(fragment);
-          expect(dataID).toBe('123');
-          return {
-            __dataID__: '123',
-            id: '123',
-          };
-        },
-      );
-
-      const observer = environment.observe(fragment, '123');
-      const onNext = jest.fn();
-      expect(observer instanceof RelayQueryResultObservable).toBe(true);
-      observer.subscribe({onNext});
-      expect(onNext).toBeCalledWith({
-        __dataID__: '123',
-        id: '123',
-      });
     });
   });
 

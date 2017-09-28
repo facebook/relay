@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
  * @format
@@ -15,16 +13,20 @@
 jest.enableAutomock();
 
 const React = require('React');
-const ReactDOM = require('ReactDOM');
 const ReactTestUtils = require('ReactTestUtils');
 const RelayClassic = require('RelayClassic');
 const RelayEnvironment = require('RelayEnvironment');
 const RelayQueryConfig = require('RelayQueryConfig');
 const RelayReadyStateRenderer = require('RelayReadyStateRenderer');
-const StaticContainer = require('StaticContainer.react');
+
+jest.dontMock('RelayStaticContainer');
+const RelayStaticContainer = require('RelayStaticContainer');
 
 jest.dontMock('pretty-format');
 const prettyFormat = require('pretty-format');
+
+jest.dontMock('react-test-renderer');
+const ReactTestRenderer = require('react-test-renderer');
 
 describe('RelayReadyStateRenderer', () => {
   /**
@@ -109,18 +111,19 @@ describe('RelayReadyStateRenderer', () => {
 
   describe('arguments', () => {
     beforeEach(() => {
-      const container = document.createElement('div');
       expect.extend({
         toRenderWithArgs(elementOrReadyState, expected) {
           const render = jest.fn(() => <div />);
-          const element = ReactTestUtils.isElement(elementOrReadyState)
-            ? React.cloneElement(elementOrReadyState, {render})
-            : <RelayReadyStateRenderer
-                {...defaultProps}
-                readyState={elementOrReadyState}
-                render={render}
-              />;
-          ReactDOM.render(element, container);
+          const element = ReactTestUtils.isElement(elementOrReadyState) ? (
+            React.cloneElement(elementOrReadyState, {render})
+          ) : (
+            <RelayReadyStateRenderer
+              {...defaultProps}
+              readyState={elementOrReadyState}
+              render={render}
+            />
+          );
+          ReactTestRenderer.create(element);
           const actual = render.mock.calls[0][0];
           const pass = this.equals(actual, jasmine.objectContaining(expected));
           return {
@@ -265,7 +268,10 @@ describe('RelayReadyStateRenderer', () => {
         queryConfig: anotherQueryConfig,
         retry: jest.fn(),
       };
-      environment.getStoreData().getRecordWriter().putDataID('me', null, '123');
+      environment
+        .getStoreData()
+        .getRecordWriter()
+        .putDataID('me', null, '123');
       expect(
         <RelayReadyStateRenderer
           {...defaultProps}
@@ -276,7 +282,10 @@ describe('RelayReadyStateRenderer', () => {
         props: {me: anyRecord({dataID: '123'})},
       });
 
-      environment.getStoreData().getRecordWriter().putDataID('me', null, '456');
+      environment
+        .getStoreData()
+        .getRecordWriter()
+        .putDataID('me', null, '456');
       expect(
         <RelayReadyStateRenderer
           {...defaultProps}
@@ -307,7 +316,10 @@ describe('RelayReadyStateRenderer', () => {
         queryConfig: anotherQueryConfig,
         retry: jest.fn(),
       };
-      environment.getStoreData().getRecordWriter().putDataID('me', null, null);
+      environment
+        .getStoreData()
+        .getRecordWriter()
+        .putDataID('me', null, null);
       expect(
         <RelayReadyStateRenderer
           {...defaultProps}
@@ -318,7 +330,10 @@ describe('RelayReadyStateRenderer', () => {
         props: {me: null},
       });
 
-      environment.getStoreData().getRecordWriter().putDataID('me', null, '123');
+      environment
+        .getStoreData()
+        .getRecordWriter()
+        .putDataID('me', null, '123');
       expect(
         <RelayReadyStateRenderer
           {...defaultProps}
@@ -413,11 +428,10 @@ describe('RelayReadyStateRenderer', () => {
 
   describe('children', () => {
     beforeEach(() => {
-      const container = document.createElement('div');
       function render(element) {
         return ReactTestUtils.findRenderedComponentWithType(
-          ReactDOM.render(element, container),
-          StaticContainer,
+          ReactTestRenderer.create(element).getInstance(),
+          RelayStaticContainer,
         );
       }
 
@@ -539,14 +553,12 @@ describe('RelayReadyStateRenderer', () => {
       }
 
       const onRenderContext = jest.fn();
-      const container = document.createElement('div');
-      ReactDOM.render(
+      ReactTestRenderer.create(
         <RelayReadyStateRenderer
           {...defaultProps}
           readyState={defaultReadyState}
           render={() => <TestComponent onRenderContext={onRenderContext} />}
         />,
-        container,
       );
       expect(onRenderContext).toBeCalledWith({
         relay: {

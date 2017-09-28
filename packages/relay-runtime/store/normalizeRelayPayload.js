@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule normalizeRelayPayload
  * @flow
@@ -19,13 +17,9 @@ const RelayResponseNormalizer = require('RelayResponseNormalizer');
 
 const {ROOT_ID, ROOT_TYPE} = require('RelayStoreUtils');
 
-import type {
-  PayloadData,
-  PayloadError,
-  RelayResponsePayload,
-} from 'RelayNetworkTypes';
+import type {PayloadData, PayloadError} from 'RelayNetworkTypes';
 import type {NormalizationOptions} from 'RelayResponseNormalizer';
-import type {Selector} from 'RelayStoreTypes';
+import type {RelayResponsePayload, Selector} from 'RelayStoreTypes';
 
 function normalizeRelayPayload(
   selector: Selector,

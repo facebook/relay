@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule writeRelayGeneratedFile
  * @flow
@@ -15,9 +13,11 @@
 
 const crypto = require('crypto');
 const invariant = require('invariant');
+// TODO T21875029 ../../relay-runtime/util/prettyStringify
 const prettyStringify = require('prettyStringify');
 
-import type CodegenDirectory from 'CodegenDirectory';
+import type {CodegenDirectory} from '../graphql-compiler/GraphQLCompilerPublic';
+// TODO T21875029 ../../relay-runtime/util/RelayConcreteNode
 import type {GeneratedNode} from 'RelayConcreteNode';
 
 /**
@@ -61,7 +61,7 @@ async function writeRelayGeneratedFile(
     const oldContent = codegenDir.read(filename);
     // Hash the concrete node including the query text.
     const hasher = crypto.createHash('md5');
-    hasher.update('cache-breaker-1');
+    hasher.update('cache-breaker-2');
     hasher.update(JSON.stringify(generatedNode));
     if (flowText) {
       hasher.update(flowText);

@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule SkipUnreachableNodeTransform
  * @flow
@@ -13,11 +11,11 @@
 
 'use strict';
 
-const RelayCompilerContext = require('../core/RelayCompilerContext');
+const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
 
 const invariant = require('invariant');
 
-import type {Condition, Fragment, Node, Selection} from '../core/RelayIR';
+import type {Condition, Fragment, Node, Selection} from '../core/GraphQLIR';
 
 type ConditionResult = 'fail' | 'pass' | 'variable';
 
@@ -32,10 +30,10 @@ const VARIABLE = 'variable';
  * - Any node with `@skip(if: true)`
  * - Any node with empty `selections`
  */
-function transform(context: RelayCompilerContext): RelayCompilerContext {
+function transform(context: GraphQLCompilerContext): GraphQLCompilerContext {
   const documents = context.documents();
   const fragments: Map<string, ?Fragment> = new Map();
-  const nextContext = documents.reduce((ctx: RelayCompilerContext, node) => {
+  const nextContext = documents.reduce((ctx: GraphQLCompilerContext, node) => {
     if (node.kind === 'Root') {
       const transformedNode = transformNode(context, fragments, node);
       if (transformedNode) {
@@ -43,16 +41,16 @@ function transform(context: RelayCompilerContext): RelayCompilerContext {
       }
     }
     return ctx;
-  }, new RelayCompilerContext(context.schema));
+  }, new GraphQLCompilerContext(context.schema));
   return (Array.from(fragments.values()): Array<?Fragment>).reduce(
-    (ctx: RelayCompilerContext, fragment) =>
+    (ctx: GraphQLCompilerContext, fragment) =>
       fragment ? ctx.add(fragment) : ctx,
     nextContext,
   );
 }
 
 function transformNode<T: Node>(
-  context: RelayCompilerContext,
+  context: GraphQLCompilerContext,
   fragments: Map<string, ?Fragment>,
   node: T,
 ): ?T {

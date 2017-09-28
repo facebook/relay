@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule getValidGraphQLTag
  * @flow
@@ -25,13 +23,11 @@ import type {DocumentNode} from 'graphql';
 function getValidGraphQLTag(path: any): ?DocumentNode {
   const tag = path.get('tag');
 
-  const tagName = tag.isIdentifier({name: 'graphql'})
-    ? 'graphql'
-    : tag.matchesPattern('graphql.experimental')
-      ? 'graphql.experimental'
-      : undefined;
+  const isGraphQLTag =
+    tag.isIdentifier({name: 'graphql'}) ||
+    tag.matchesPattern('graphql.experimental');
 
-  if (!tagName) {
+  if (!isGraphQLTag) {
     return;
   }
 
@@ -39,24 +35,12 @@ function getValidGraphQLTag(path: any): ?DocumentNode {
 
   if (quasis.length !== 1) {
     throw new Error(
-      'BabelPluginRelay: Substitutions are not allowed in ' +
-        'graphql fragments. Included fragments should be referenced ' +
-        'as `...MyModule_propName`.',
+      'BabelPluginRelay: Substitutions are not allowed in graphql fragments. ' +
+        'Included fragments should be referenced as `...MyModule_propName`.',
     );
   }
 
   const text = quasis[0].value.raw;
-
-  // `graphql` only supports spec-compliant GraphQL: experimental extensions
-  // such as fragment arguments are disabled
-  if (tagName === 'graphql' && /@argument(Definition)?s\b/.test(text)) {
-    throw new Error(
-      'BabelPluginRelay: Unexpected use of fragment variables: ' +
-        '@arguments and @argumentDefinitions are only supported in ' +
-        'experimental mode. Source: ' +
-        text,
-    );
-  }
 
   const ast = GraphQL.parse(text);
 

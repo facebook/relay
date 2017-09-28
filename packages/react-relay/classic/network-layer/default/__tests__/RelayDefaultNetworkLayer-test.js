@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
  * @format
@@ -17,7 +15,7 @@ jest.enableAutomock().useFakeTimers();
 require('configureForRelayOSS');
 
 const RelayClassic = require('RelayClassic');
-const RelayConnectionInterface = require('RelayConnectionInterface');
+const {ConnectionInterface} = require('RelayRuntime');
 const RelayDefaultNetworkLayer = require('RelayDefaultNetworkLayer');
 const RelayMetaRoute = require('RelayMetaRoute');
 const RelayMutationRequest = require('RelayMutationRequest');
@@ -85,7 +83,7 @@ describe('RelayDefaultNetworkLayer', () => {
 
       variables = {
         input: {
-          [RelayConnectionInterface.CLIENT_MUTATION_ID]: 'client:a',
+          [ConnectionInterface.get().CLIENT_MUTATION_ID]: 'client:a',
           actor_id: 4,
         },
       };

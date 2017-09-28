@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @format
  * @emails oncall+relay
@@ -22,13 +20,7 @@ const RelayRecordSourceProxy = require('RelayRecordSourceProxy');
 const RelayResponseNormalizer = require('RelayResponseNormalizer');
 const RelayStoreUtils = require('RelayStoreUtils');
 const RelayModernTestUtils = require('RelayModernTestUtils');
-const {
-  END_CURSOR,
-  HAS_NEXT_PAGE,
-  HAS_PREV_PAGE,
-  PAGE_INFO,
-  START_CURSOR,
-} = require('RelayConnectionInterface');
+const RelayConnectionInterface = require('RelayConnectionInterface');
 
 const formatStorageKey = require('formatStorageKey');
 const getRelayHandleKey = require('getRelayHandleKey');
@@ -42,6 +34,13 @@ const {
   ROOT_TYPE,
   TYPENAME_KEY,
 } = RelayStoreUtils;
+const {
+  END_CURSOR,
+  HAS_NEXT_PAGE,
+  HAS_PREV_PAGE,
+  PAGE_INFO,
+  START_CURSOR,
+} = RelayConnectionInterface.get();
 
 describe('RelayConnectionHandler', () => {
   const {generateWithTransforms} = RelayModernTestUtils;

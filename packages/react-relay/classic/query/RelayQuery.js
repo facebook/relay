@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayQuery
  * @flow
@@ -13,10 +11,7 @@
 
 'use strict';
 
-/* eslint-disable consistent-this */
-
 const QueryBuilder = require('QueryBuilder');
-const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayFragmentReference = require('RelayFragmentReference');
 const RelayMetaRoute = require('RelayMetaRoute');
 const RelayProfiler = require('RelayProfiler');
@@ -36,6 +31,7 @@ const serializeRelayQueryCall = require('serializeRelayQueryCall');
 const shallowEqual = require('shallowEqual');
 const stableStringify = require('stableStringify');
 
+const {ConnectionInterface} = require('RelayRuntime');
 const {getFragmentSpreadArguments} = require('RelayVariables');
 
 import type {
@@ -1285,7 +1281,10 @@ class RelayQueryField extends RelayQueryNode {
         if (alias != null) {
           key += '.' + alias;
         }
-        key += calls.map(serializeRelayQueryCall).sort().join('');
+        key += calls
+          .map(serializeRelayQueryCall)
+          .sort()
+          .join('');
       }
       serializationKey = generateRQLFieldAlias(key);
       this.__serializationKey__ = serializationKey;
@@ -1443,7 +1442,7 @@ class RelayQueryField extends RelayQueryNode {
       !(arg.name === IF && String(arg.value) === TRUE) &&
       !(arg.name === UNLESS && String(arg.value) === FALSE) &&
       // Connection arguments can be stripped out.
-      !(this.isConnection() && RelayConnectionInterface.isConnectionCall(arg))
+      !(this.isConnection() && ConnectionInterface.isConnectionCall(arg))
     );
   }
 }

@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayConnectionHandler
  * @flow
@@ -13,22 +11,12 @@
 
 'use strict';
 
+const RelayConnectionInterface = require('RelayConnectionInterface');
+
 const generateRelayClientID = require('generateRelayClientID');
 const getRelayHandleKey = require('getRelayHandleKey');
 const invariant = require('invariant');
 const warning = require('warning');
-
-const {
-  CURSOR,
-  EDGES,
-  NODE,
-  END_CURSOR,
-  HAS_NEXT_PAGE,
-  HAS_PREV_PAGE,
-  PAGE_INFO,
-  PAGE_INFO_TYPE,
-  START_CURSOR,
-} = require('RelayConnectionInterface');
 
 import type {DataID} from 'RelayInternalTypes';
 import type {
@@ -62,6 +50,16 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
   if (!record) {
     return;
   }
+
+  const {
+    EDGES,
+    END_CURSOR,
+    HAS_NEXT_PAGE,
+    HAS_PREV_PAGE,
+    PAGE_INFO,
+    PAGE_INFO_TYPE,
+    START_CURSOR,
+  } = RelayConnectionInterface.get();
 
   const serverConnection = record.getLinkedRecord(payload.fieldKey);
   const serverPageInfo =
@@ -291,6 +289,8 @@ function insertEdgeAfter(
   newEdge: RecordProxy,
   cursor?: ?string,
 ): void {
+  const {CURSOR, EDGES} = RelayConnectionInterface.get();
+
   const edges = record.getLinkedRecords(EDGES);
   if (!edges) {
     record.setLinkedRecords([newEdge], EDGES);
@@ -332,6 +332,8 @@ function createEdge(
   node: RecordProxy,
   edgeType: string,
 ): RecordProxy {
+  const {NODE} = RelayConnectionInterface.get();
+
   // An index-based client ID could easily conflict (unless it was
   // auto-incrementing, but there is nowhere to the store the id)
   // Instead, construct a client ID based on the connection ID and node ID,
@@ -386,6 +388,8 @@ function insertEdgeBefore(
   newEdge: RecordProxy,
   cursor?: ?string,
 ): void {
+  const {CURSOR, EDGES} = RelayConnectionInterface.get();
+
   const edges = record.getLinkedRecords(EDGES);
   if (!edges) {
     record.setLinkedRecords([newEdge], EDGES);
@@ -421,6 +425,8 @@ function insertEdgeBefore(
  * Remove any edges whose `node.id` matches the given id.
  */
 function deleteNode(record: RecordProxy, nodeID: DataID): void {
+  const {EDGES, NODE} = RelayConnectionInterface.get();
+
   const edges = record.getLinkedRecords(EDGES);
   if (!edges) {
     return;
@@ -463,6 +469,8 @@ function buildConnectionEdge(
   if (edge == null) {
     return edge;
   }
+  const {EDGES} = RelayConnectionInterface.get();
+
   const edgeIndex = connection.getValue(NEXT_EDGE_INDEX);
   invariant(
     typeof edgeIndex === 'number',
@@ -492,6 +500,8 @@ function mergeEdges(
   targetEdges: Array<?RecordProxy>,
   nodeIDs: Set<mixed>,
 ): void {
+  const {NODE} = RelayConnectionInterface.get();
+
   for (let ii = 0; ii < sourceEdges.length; ii++) {
     const edge = sourceEdges[ii];
     if (!edge) {

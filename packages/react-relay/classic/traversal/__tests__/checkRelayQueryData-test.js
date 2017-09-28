@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
  * @format
@@ -18,10 +16,11 @@ require('configureForRelayOSS');
 
 const GraphQLRange = require('GraphQLRange');
 const RelayClassic = require('RelayClassic');
-const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayTestUtils = require('RelayTestUtils');
 
 const checkRelayQueryData = require('checkRelayQueryData');
+
+const {ConnectionInterface} = require('RelayRuntime');
 
 describe('checkRelayQueryData', () => {
   let RelayRecordStore;
@@ -42,7 +41,7 @@ describe('checkRelayQueryData', () => {
 
     RelayRecordStore = require('RelayRecordStore');
 
-    ({HAS_NEXT_PAGE, HAS_PREV_PAGE} = RelayConnectionInterface);
+    ({HAS_NEXT_PAGE, HAS_PREV_PAGE} = ConnectionInterface.get());
   });
 
   it('returns false when node is not in the store', () => {

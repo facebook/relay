@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @flow
  * @providesModule RelayCompilerBin
@@ -15,14 +13,17 @@
 
 require('babel-polyfill');
 
-const RelayCodegenRunner = require('RelayCodegenRunner');
-const RelayConsoleReporter = require('RelayConsoleReporter');
-const RelayFileIRParser = require('RelayFileIRParser');
-const RelayFileWriter = require('RelayFileWriter');
-const RelayIRTransforms = require('RelayIRTransforms');
-const RelayWatchmanClient = require('RelayWatchmanClient');
+const {
+  CodegenRunner,
+  ConsoleReporter,
+  WatchmanClient,
+} = require('../graphql-compiler/GraphQLCompilerPublic');
 
-const formatGeneratedModule = require('formatGeneratedModule');
+const RelayJSModuleParser = require('../core/RelayJSModuleParser');
+const RelayFileWriter = require('../codegen/RelayFileWriter');
+const RelayIRTransforms = require('../core/RelayIRTransforms');
+
+const formatGeneratedModule = require('../codegen/formatGeneratedModule');
 const fs = require('fs');
 const path = require('path');
 const yargs = require('yargs');
@@ -82,8 +83,6 @@ function getFilepathsFromGlob(
   });
 }
 
-/* eslint-disable no-console-disallow */
-
 async function run(options: {
   schema: string,
   src: string,
@@ -93,6 +92,7 @@ async function run(options: {
   verbose: boolean,
   watchman: boolean,
   watch?: ?boolean,
+  validate: boolean,
 }) {
   const schemaPath = path.resolve(process.cwd(), options.schema);
   if (!fs.existsSync(schemaPath)) {
@@ -120,16 +120,15 @@ Ensure that one such file exists in ${srcDir} or its parents.
     );
   }
 
-  const reporter = new RelayConsoleReporter({verbose: options.verbose});
+  const reporter = new ConsoleReporter({verbose: options.verbose});
 
-  const useWatchman =
-    options.watchman && (await RelayWatchmanClient.isAvailable());
+  const useWatchman = options.watchman && (await WatchmanClient.isAvailable());
 
   const parserConfigs = {
     default: {
       baseDir: srcDir,
-      getFileFilter: RelayFileIRParser.getFileFilter,
-      getParser: RelayFileIRParser.getParser,
+      getFileFilter: RelayJSModuleParser.getFileFilter,
+      getParser: RelayJSModuleParser.getParser,
       getSchema: () => getSchema(schemaPath),
       watchmanExpression: useWatchman ? buildWatchExpression(options) : null,
       filepaths: useWatchman ? null : getFilepathsFromGlob(srcDir, options),
@@ -143,17 +142,25 @@ Ensure that one such file exists in ${srcDir} or its parents.
       parser: 'default',
     },
   };
-  const codegenRunner = new RelayCodegenRunner({
+  const codegenRunner = new CodegenRunner({
     reporter,
     parserConfigs,
     writerConfigs,
-    onlyValidate: false,
+    onlyValidate: options.validate,
   });
-  if (options.watch) {
-    await codegenRunner.watchAll();
-  } else {
+  if (!options.validate && !options.watch && options.watchman) {
+    // eslint-disable-next-line no-console
     console.log('HINT: pass --watch to keep watching for changes.');
-    await codegenRunner.compileAll();
+  }
+  const result = options.watch
+    ? await codegenRunner.watchAll()
+    : await codegenRunner.compileAll();
+
+  if (result === 'ERROR') {
+    process.exit(100);
+  }
+  if (options.validate && result !== 'NO_CHANGES') {
+    process.exit(101);
   }
 }
 
@@ -273,10 +280,18 @@ const argv = yargs
       describe: 'If specified, watches files and regenerates on changes',
       type: 'boolean',
     },
+    validate: {
+      describe:
+        'Looks for pending changes and exits with non-zero code instead of ' +
+        'writing to disk',
+      type: 'boolean',
+      default: false,
+    },
   })
   .help().argv;
 
 // Run script with args
+// $FlowFixMe: Invalid types for yargs. Please fix this when touching this code.
 run(argv).catch(error => {
   console.error(String(error.stack || error));
   process.exit(1);

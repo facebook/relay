@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @flow
  * @format
@@ -21,18 +19,19 @@ const {graphql, createFragmentContainer} = require('ReactRelayPublic');
  * type-checked correctly on Relay components.
  */
 
-const FooComponent = ({requiredProp}: {requiredProp: string}) =>
-  <div>
-    {requiredProp}
-  </div>;
+const FooComponent = ({requiredProp}: {requiredProp: string}) => (
+  <div>{requiredProp}</div>
+);
 
 // Note that we must reassign to a new identifier to make sure flow doesn't propogate types without
 // the relay type definition doing the work.
 const Foo = createFragmentContainer(
   FooComponent,
   graphql`
-    fragment ReactRelayFragmentContainer-flowtest_Foo_viewer on Viewer {
-      actor { id }
+    fragment ReactRelayFragmentContainerFlowtest_Foo_viewer on Viewer {
+      actor {
+        id
+      }
     }
   `,
 );
@@ -64,17 +63,17 @@ class BarComponent extends React.Component {
 
     const defLen = this.props.defaultProp.length; // always a valid string, so no error
     return (
-      <div>
-        {reqLen && optionalProp && optionalFoo && missing && defLen}
-      </div>
+      <div>{reqLen && optionalProp && optionalFoo && missing && defLen}</div>
     );
   }
 }
 const Bar = createFragmentContainer(
   BarComponent,
   graphql`
-    fragment ReactRelayFragmentContainer-flowtest_Bar_viewer on Viewer {
-      actor { id }
+    fragment ReactRelayFragmentContainerFlowtest_Bar_viewer on Viewer {
+      actor {
+        id
+      }
     }
   `,
 );

@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule intersectRelayQuery
  * @flow
@@ -13,11 +11,12 @@
 
 'use strict';
 
-const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayQuery = require('RelayQuery');
 const RelayQueryTransform = require('RelayQueryTransform');
 
 const invariant = require('invariant');
+
+const {ConnectionInterface} = require('RelayRuntime');
 
 type UnterminatedRangeFilter = (node: RelayQuery.Field) => boolean;
 
@@ -108,11 +107,10 @@ class RelayQueryIntersector extends RelayQueryTransform<RelayQuery.Node> {
  */
 class RelayQueryRangeFilter extends RelayQueryTransform<void> {
   visitField(node: RelayQuery.Field): ?RelayQuery.Node {
+    const {EDGES, PAGE_INFO} = ConnectionInterface.get();
+
     const schemaName = node.getSchemaName();
-    if (
-      schemaName === RelayConnectionInterface.EDGES ||
-      schemaName === RelayConnectionInterface.PAGE_INFO
-    ) {
+    if (schemaName === EDGES || schemaName === PAGE_INFO) {
       return null;
     } else {
       return node;

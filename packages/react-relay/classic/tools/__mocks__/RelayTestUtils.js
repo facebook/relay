@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @format
  */
@@ -12,6 +10,11 @@
 'use strict';
 
 const Map = require('Map');
+
+const diff = require('jest-diff');
+
+jest.dontMock('react-test-renderer');
+const ReactTestRenderer = require('react-test-renderer');
 
 /**
  * Utility methods (eg. for unmocking Relay internals) and custom Jasmine
@@ -59,7 +62,7 @@ const RelayTestUtils = {
       }
     }
 
-    container = container || document.createElement('div');
+    container = container || ReactTestRenderer.create();
 
     let prevEnvironment;
     let relay;
@@ -84,7 +87,8 @@ const RelayTestUtils = {
         function ref(component) {
           result = component;
         }
-        ReactDOM.render(
+
+        const node = (
           <ContextSetter
             context={{relay, route}}
             render={() => {
@@ -111,10 +115,22 @@ const RelayTestUtils = {
               }
               return React.cloneElement(element, {...pointers, ref});
             }}
-          />,
-          container,
+          />
         );
+
+        if ('innerHTML' in container) {
+          ReactDOM.render(node, container);
+        } else {
+          container.update(node);
+        }
         return result;
+      },
+      unmount() {
+        if ('innerHTML' in container) {
+          ReactDOM.unmountComponentAtNode(container);
+        } else {
+          container.unmount();
+        }
       },
     };
   },
@@ -411,19 +427,35 @@ const RelayTestUtils = {
       return require('matchRecord')(...args);
     },
 
-    toEqualPrintedQuery(actual, expected) {
-      const minifiedActual = RelayTestUtils.minifyQueryText(actual);
+    toEqualPrintedQuery(received, expected) {
+      const minifiedReceived = RelayTestUtils.minifyQueryText(received);
       const minifiedExpected = RelayTestUtils.minifyQueryText(expected);
 
-      if (minifiedActual !== minifiedExpected) {
-        return {
-          pass: false,
-          message: [minifiedActual, 'to equal', minifiedExpected].join('\n'),
-        };
-      }
-      return {
-        pass: true,
-      };
+      const pass = minifiedReceived === minifiedExpected;
+      const message = pass
+        ? () =>
+            this.utils.matcherHint('.not.toEqualPrintedQuery') +
+            '\n\n' +
+            'Expected query to not be:\n' +
+            `  ${this.utils.printExpected(minifiedExpected)}\n` +
+            'Received:\n' +
+            `  ${this.utils.printReceived(minifiedReceived)}`
+        : () => {
+            const diffString = diff(minifiedExpected, minifiedReceived, {
+              expand: this.expand,
+            });
+            return (
+              this.utils.matcherHint('.toEqualPrintedQuery') +
+              '\n\n' +
+              'Expected query to be:\n' +
+              `  ${this.utils.printExpected(minifiedExpected)}\n` +
+              'Received:\n' +
+              `  ${this.utils.printReceived(minifiedReceived)}` +
+              (diffString ? `\n\nDifference:\n\n${diffString}` : '')
+            );
+          };
+
+      return {actual: minifiedReceived, message, pass};
     },
 
     /**
@@ -634,7 +666,7 @@ const RelayTestUtils = {
     const indentSize = 2;
     const indent = indentBy.bind(null, indentSize);
     const printedQuery = printRelayQuery(flattenRelayQuery(node));
-    /* eslint-disable no-console-disallow */
+    // eslint-disable-next-line no-console
     console.log(
       'Node:\n' +
         indent(prettifyQueryString(printedQuery.text, indentSize)) +
@@ -643,7 +675,6 @@ const RelayTestUtils = {
         indent(prettyStringify(printedQuery.variables, indentSize)) +
         '\n',
     );
-    /* eslint-enable no-console-disallow */
   },
 
   /**

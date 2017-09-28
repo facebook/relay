@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @flow
  * @providesModule RelayValidator
@@ -13,9 +11,11 @@
 
 'use strict';
 
-const {GLOBAL_RULES, LOCAL_RULES, validate} = require('GraphQLValidator');
+const {Validator} = require('../graphql-compiler/GraphQLCompilerPublic');
 
 import type {GraphQLField, ValidationContext} from 'graphql';
+
+const {GLOBAL_RULES, LOCAL_RULES, validate} = Validator;
 
 function DisallowIdAsAliasValidationRule(context: ValidationContext) {
   return {

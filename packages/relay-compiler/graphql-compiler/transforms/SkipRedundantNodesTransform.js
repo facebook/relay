@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule SkipRedundantNodesTransform
  * @flow
@@ -13,13 +11,13 @@
 
 'use strict';
 
-const RelayCompilerContext = require('../core/RelayCompilerContext');
+const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
 const IMap = require('immutable').Map;
 
-const getIdentifierForRelaySelection = require('../core/getIdentifierForRelaySelection');
+const getIdentifierForSelection = require('../core/getIdentifierForSelection');
 const invariant = require('invariant');
 
-import type {Node, Selection} from '../core/RelayIR';
+import type {Node, Selection} from '../core/GraphQLIR';
 
 /**
  * A simplified representation of a document: keys in the map are unique
@@ -120,8 +118,8 @@ type SelectionMap = IMap<string, ?SelectionMap>;
  *
  * 1 can be skipped because it is already fetched at the outer level.
  */
-function transform(context: RelayCompilerContext): RelayCompilerContext {
-  return context.documents().reduce((ctx: RelayCompilerContext, node) => {
+function transform(context: GraphQLCompilerContext): GraphQLCompilerContext {
+  return context.documents().reduce((ctx: GraphQLCompilerContext, node) => {
     const selectionMap = new IMap();
     const transformed = transformNode(node, selectionMap);
     if (transformed) {
@@ -129,7 +127,7 @@ function transform(context: RelayCompilerContext): RelayCompilerContext {
     } else {
       return ctx;
     }
-  }, new RelayCompilerContext(context.schema));
+  }, new GraphQLCompilerContext(context.schema));
 }
 
 /**
@@ -151,7 +149,7 @@ function transformNode<T: Node>(
 ): ?{selectionMap: SelectionMap, node: T} {
   const selections = [];
   sortSelections(node.selections).forEach(selection => {
-    const identifier = getIdentifierForRelaySelection(selection);
+    const identifier = getIdentifierForSelection(selection);
     switch (selection.kind) {
       case 'ScalarField':
       case 'FragmentSpread': {

@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
  * @format
@@ -18,7 +16,6 @@ require('configureForRelayOSS');
 
 const GraphQLRange = require('GraphQLRange');
 const RelayClassic = require('RelayClassic');
-const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayQuery = require('RelayQuery');
 const RelayQueryPath = require('RelayQueryPath');
 const RelayRecordStore = require('RelayRecordStore');
@@ -26,6 +23,8 @@ const RelayTestUtils = require('RelayTestUtils');
 
 const findRelayQueryLeaves = require('findRelayQueryLeaves');
 const mapObject = require('mapObject');
+
+const {ConnectionInterface} = require('RelayRuntime');
 
 describe('findRelayQueryLeaves', () => {
   const {getNode} = RelayTestUtils;
@@ -68,7 +67,7 @@ describe('findRelayQueryLeaves', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    ({HAS_NEXT_PAGE, HAS_PREV_PAGE} = RelayConnectionInterface);
+    ({HAS_NEXT_PAGE, HAS_PREV_PAGE} = ConnectionInterface.get());
 
     dummyPath = RelayQueryPath.create(
       getNode(

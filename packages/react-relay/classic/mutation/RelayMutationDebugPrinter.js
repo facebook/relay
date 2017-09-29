@@ -21,7 +21,7 @@ import type RelayQuery from 'RelayQuery';
  */
 const RelayMutationDebugPrinter = {
   printOptimisticMutation(query: ?RelayQuery.Node, response: ?Object): void {
-    /* eslint-disable no-console-disallow */
+    /* eslint-disable no-console */
     if (!console.groupCollapsed || !console.groupEnd) {
       return;
     }
@@ -30,11 +30,11 @@ const RelayMutationDebugPrinter = {
     console.groupCollapsed('Optimistic Response');
     console.log(response);
     console.groupEnd();
-    /* eslint-enable no-console-disallow */
+    /* eslint-enable no-console */
   },
 
   printMutation(query: ?RelayQuery.Node, name?: string): void {
-    /* eslint-disable no-console-disallow */
+    /* eslint-disable no-console */
     if (!console.groupCollapsed || !console.groupEnd) {
       return;
     }
@@ -48,7 +48,7 @@ const RelayMutationDebugPrinter = {
     console.groupCollapsed(name + ' Query');
     console.log(printedQuery ? printedQuery.text : '');
     console.groupEnd();
-    /* eslint-enable no-console-disallow */
+    /* eslint-enable no-console */
   },
 };
 

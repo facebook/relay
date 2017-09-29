@@ -108,7 +108,7 @@ const RelayMutationQuery = {
           mutatedFields.push(mutationField);
         }
       }
-      /* eslint-disable no-console-disallow */
+      /* eslint-disable no-console */
       if (__DEV__ && console.groupCollapsed && console.groupEnd) {
         console.groupCollapsed('Building fragment for `' + fieldName + '`');
         console.log(RelayNodeInterface.ID + ': ', dataIDOrIDs);
@@ -128,7 +128,7 @@ const RelayMutationQuery = {
         );
         console.groupEnd();
       }
-      /* eslint-enable no-console-disallow */
+      /* eslint-enable no-console */
     });
     return buildMutationFragment(fatQuery, mutatedFields);
   },
@@ -236,7 +236,7 @@ const RelayMutationQuery = {
 
         const callsWithValues = trackedConnection.getRangeBehaviorCalls();
         const rangeBehavior = getRangeBehavior(rangeBehaviors, callsWithValues);
-        /* eslint-disable no-console-disallow */
+        /* eslint-disable no-console */
         if (__DEV__ && console.groupCollapsed && console.groupEnd) {
           const serializeRelayQueryCall = require('serializeRelayQueryCall');
           const serializedCalls = callsWithValues
@@ -245,7 +245,7 @@ const RelayMutationQuery = {
             .join('');
           console.log(serializedCalls + ': ' + (rangeBehavior || ''));
         }
-        /* eslint-enable no-console-disallow */
+        /* eslint-enable no-console */
         if (rangeBehavior && rangeBehavior !== REFETCH) {
           // Include edges from all connections that exist in `rangeBehaviors`.
           // This may add duplicates, but they will eventually be flattened.

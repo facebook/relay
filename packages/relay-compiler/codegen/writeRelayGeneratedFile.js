@@ -12,9 +12,8 @@
 'use strict';
 
 const crypto = require('crypto');
+const dedupeJSONStringify = require('dedupeJSONStringify');
 const invariant = require('invariant');
-// TODO T21875029 ../../relay-runtime/util/prettyStringify
-const prettyStringify = require('prettyStringify');
 
 import type {CodegenDirectory} from '../graphql-compiler/GraphQLCompilerPublic';
 // TODO T21875029 ../../relay-runtime/util/RelayConcreteNode
@@ -61,7 +60,7 @@ async function writeRelayGeneratedFile(
     const oldContent = codegenDir.read(filename);
     // Hash the concrete node including the query text.
     const hasher = crypto.createHash('md5');
-    hasher.update('cache-breaker-2');
+    hasher.update('cache-breaker-3');
     hasher.update(JSON.stringify(generatedNode));
     if (flowText) {
       hasher.update(flowText);
@@ -95,7 +94,7 @@ async function writeRelayGeneratedFile(
     docText: text,
     flowText,
     hash: hash ? `@relayHash ${hash}` : null,
-    concreteText: prettyStringify(generatedNode),
+    concreteText: dedupeJSONStringify(generatedNode),
     devTextGenerator: makeDevTextGenerator(devOnlyProperties),
     relayRuntimeModule,
   });

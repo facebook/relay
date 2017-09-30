@@ -1,22 +1,22 @@
 export type RecursiveFragment = {|
-  +uri: ?string;
-  +width: ?number;
+  +uri: ?string,
+  +width: ?number,
 |};
 
 export type AnotherRecursiveFragment = {|
-  +uri: ?string;
-  +height: ?number;
+  +uri: ?string,
+  +height: ?number,
 |};
 
 export type UserProfile = {|
   +profilePicture: ?{|
-    +uri: ?string;
-    +width: ?number;
-    +height: ?number;
-  |};
+    +uri: ?string,
+    +width: ?number,
+    +height: ?number,
+  |},
 |};
 
 export type PhotoFragment = {|
-  +uri: ?string;
-  +width: ?number;
+  +uri: ?string,
+  +width: ?number,
 |};

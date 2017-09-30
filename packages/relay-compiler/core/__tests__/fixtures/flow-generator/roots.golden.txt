@@ -1,37 +1,37 @@
 export type ExampleQueryResponse = {|
   +me: ?{|
-    +id: string;
-  |};
+    +id: string,
+  |},
 |};
 
 export type ExampleFragment = {|
-  +id: string;
+  +id: string,
 |};
 
 export type TestMutationVariables = {|
   input: {
-    clientMutationId?: ?string;
-    feedbackId?: ?string;
-  };
+    clientMutationId?: ?string,
+    feedbackId?: ?string,
+  },
 |};
 export type TestMutationResponse = {|
   +commentCreate: ?{|
     +comment: ?{|
-      +id: string;
-    |};
-  |};
+      +id: string,
+    |},
+  |},
 |};
 
 export type TestSubscriptionVariables = {|
   input?: ?{
-    clientMutationId?: ?string;
-    feedbackId?: ?string;
-  };
+    clientMutationId?: ?string,
+    feedbackId?: ?string,
+  },
 |};
 export type TestSubscriptionResponse = {|
   +feedbackLikeSubscribe: ?{|
     +feedback: ?{|
-      +id: string;
-    |};
-  |};
+      +id: string,
+    |},
+  |},
 |};

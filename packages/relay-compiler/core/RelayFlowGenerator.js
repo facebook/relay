@@ -55,7 +55,10 @@ function generate(
     node,
     createVisitor(customScalars || {}, inputFieldWhiteList),
   );
-  return babelGenerator(ast).code;
+  return babelGenerator(ast, {
+    flowCommaSeparator: true,
+    quotes: 'single',
+  }).code;
 }
 
 function makeProp(

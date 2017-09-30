@@ -1,4 +1,4 @@
-export type TypenameInside = {|
+export type TypenameInside = ({|
   +__typename: 'User',
   +firstName: ?string,
 |} | {|
@@ -8,9 +8,9 @@ export type TypenameInside = {|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
   +__typename: '%other',
-|};
+|});
 
-export type TypenameOutside = {|
+export type TypenameOutside = ({|
   +__typename: 'User',
   +firstName: ?string,
 |} | {|
@@ -20,7 +20,7 @@ export type TypenameOutside = {|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
   +__typename: '%other',
-|};
+|});
 
 export type TypenameOutsideWithAbstractType = {|
   +__typename: string,

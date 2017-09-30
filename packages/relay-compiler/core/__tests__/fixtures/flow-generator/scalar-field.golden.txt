@@ -2,7 +2,7 @@ export type ScalarField = {|
   +id: string,
   +name: ?string,
   +websites: ?$ReadOnlyArray<?string>,
-  +traits: ?$ReadOnlyArray<?'CHEERFUL' | 'DERISIVE' | 'HELPFUL' | 'SNARKY'>,
+  +traits: ?$ReadOnlyArray<?('CHEERFUL' | 'DERISIVE' | 'HELPFUL' | 'SNARKY')>,
   +aliasedLinkedField: ?{|
     +aliasedField: ?number,
   |},

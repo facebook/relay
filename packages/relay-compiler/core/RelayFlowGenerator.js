@@ -11,6 +11,7 @@
 
 'use strict';
 
+const PatchedBabelGenerator = require('./PatchedBabelGenerator');
 const RelayMaskTransform = require('RelayMaskTransform');
 
 const t = require('babel-types');
@@ -42,8 +43,6 @@ import type {
 } from '../graphql-compiler/GraphQLCompilerPublic';
 import type {ScalarTypeMapping} from './RelayFlowTypeTransformers';
 
-const babelGenerator = require('babel-generator').default;
-
 const {isAbstractType} = SchemaUtils;
 
 function generate(
@@ -55,10 +54,7 @@ function generate(
     node,
     createVisitor(customScalars || {}, inputFieldWhiteList),
   );
-  return babelGenerator(ast, {
-    flowCommaSeparator: true,
-    quotes: 'single',
-  }).code;
+  return PatchedBabelGenerator.generate(ast);
 }
 
 function makeProp(

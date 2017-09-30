@@ -13,6 +13,7 @@ const babelOptions = require('./scripts/getBabelOptions')({
   moduleMap: {
     'babel-core': 'babel-core',
     'babel-generator': 'babel-generator',
+    'babel-generator/lib/printer': 'babel-generator/lib/printer',
     'babel-polyfill': 'babel-polyfill',
     'babel-runtime/helpers/asyncToGenerator':
       'babel-runtime/helpers/asyncToGenerator',

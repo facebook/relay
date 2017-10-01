@@ -28,6 +28,7 @@ const {
   readOnlyArrayOfType,
   readOnlyObjectTypeProperty,
   stringLiteralTypeAnnotation,
+  unionTypeAnnotation,
 } = require('./RelayFlowBabelFactories');
 const {
   transformScalarType,
@@ -166,7 +167,7 @@ function selectionsToBabel(selections, customScalars: ScalarTypeMapping) {
     return exactObjectTypeAnnotation([]);
   }
 
-  return types.length > 1 ? t.unionTypeAnnotation(types) : types[0];
+  return unionTypeAnnotation(types);
 }
 
 function mergeSelection(a, b) {

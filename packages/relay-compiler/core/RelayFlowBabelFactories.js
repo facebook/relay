@@ -11,6 +11,7 @@
 
 'use strict';
 
+const invariant = require('invariant');
 const t = require('babel-types');
 
 type BabelAST = mixed;
@@ -35,6 +36,19 @@ function exportType(name: string, type: BabelAST) {
     [],
     null,
   );
+}
+
+/**
+ * Create an intersection type if needed.
+ *
+ * TYPES[0] & TYPES[1] & ...
+ */
+function intersectionTypeAnnotation(types: Array<BabelAST>): BabelAST {
+  invariant(
+    types.length > 0,
+    'RelayFlowBabelFactories: cannot create an intersection of 0 types',
+  );
+  return types.length === 1 ? types[0] : t.intersectionTypeAnnotation(types);
 }
 
 function lineComments(...lines: Array<string>) {
@@ -66,11 +80,26 @@ function stringLiteralTypeAnnotation(value: string) {
   return annotation;
 }
 
+/**
+ * Create a union type if needed.
+ *
+ * TYPES[0] | TYPES[1] | ...
+ */
+function unionTypeAnnotation(types: Array<BabelAST>): BabelAST {
+  invariant(
+    types.length > 0,
+    'RelayFlowBabelFactories: cannot create a union of 0 types',
+  );
+  return types.length === 1 ? types[0] : t.unionTypeAnnotation(types);
+}
+
 module.exports = {
   exactObjectTypeAnnotation,
   exportType,
+  intersectionTypeAnnotation,
   lineComments,
   readOnlyArrayOfType,
   readOnlyObjectTypeProperty,
   stringLiteralTypeAnnotation,
+  unionTypeAnnotation,
 };

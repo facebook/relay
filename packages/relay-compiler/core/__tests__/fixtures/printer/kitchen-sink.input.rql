@@ -26,6 +26,9 @@ fragment UserFragment on User @argumentDefinitions(
   checkins(environments: [WEB]) {
     __typename
   }
+  nakedEnum: checkins(environments: WEB) {
+    __typename
+  }
   friends(after: $after, first: $first, traits: [HELPFUL]) {
     count
   }

@@ -97,7 +97,9 @@ describe('GraphQLIRVisitor', () => {
             leave(node: Literal) {
               return {
                 ...node,
-                value: String(node.value) + '_mutated',
+                value: Array.isArray(node.value) ?
+                  node.value.map(item => String(node.value) + '_mutated') :
+                  String(node.value) + '_mutated',
               };
             },
           },

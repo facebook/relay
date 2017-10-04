@@ -25,18 +25,30 @@ const {
   Record,
 } = immutable;
 
-const Document = Record({
+type Document_ = {
+  errors: ?ImmutableList<Error>,
+  name: ?string,            // In practice, documents always have a name
+  node: ?(Fragment | Root), // In practice, documents always have a node
+};
+
+const Document = Record(({
   errors: null,
   name: null,
   node: null,
-});
+}: Document_));
+
+// Currently no easy way to get the actual flow type of a generated record :(
+// It's theoretically RecordInstance<T> & T, but flow seems to disagree, and
+// that's really an implementation detail anyway.
+const exemplar = Document({});
+type DocumentT = typeof exemplar;
 
 /**
  * An immutable representation of a corpus of documents being compiled together.
  * For each document, the context stores the IR and any validation errors.
  */
 class GraphQLCompilerContext {
-  _documents: ImmutableOrderedMap<string, Document>;
+  _documents: ImmutableOrderedMap<string, DocumentT>;
   schema: GraphQLSchema;
 
   constructor(schema: GraphQLSchema) {
@@ -50,8 +62,12 @@ class GraphQLCompilerContext {
   documents(): Array<Fragment | Root> {
     return this._documents
       .valueSeq()
-      .map(doc => doc.get('node'))
-      .toJS();
+      .map(doc => {
+        const node = doc.get('node');
+        invariant(node, 'GraphQLCompilerContext: Documents secretly always have nodes');
+        return node;
+      })
+      .toArray();
   }
 
   updateSchema(schema: GraphQLSchema): GraphQLCompilerContext {
@@ -139,14 +155,14 @@ class GraphQLCompilerContext {
     return this._update(this._documents.delete(name));
   }
 
-  _get(name: string): Document {
+  _get(name: string): DocumentT {
     const record = this._documents.get(name);
     invariant(record, 'GraphQLCompilerContext: Unknown document `%s`.', name);
     return record;
   }
 
   _update(
-    documents: ImmutableOrderedMap<string, Document>,
+    documents: ImmutableOrderedMap<string, DocumentT>,
   ): GraphQLCompilerContext {
     const context = new GraphQLCompilerContext(this.schema);
     context._documents = documents;

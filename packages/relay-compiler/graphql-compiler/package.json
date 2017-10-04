@@ -8,7 +8,7 @@
     "chalk": "^1.1.1",
     "fb-watchman": "^2.0.0",
     "fbjs": "^0.8.14",
-    "graphql": "^0.11.3",
+    "graphql": "^0.11.7",
     "immutable": "~3.7.6"
   },
   "maintainers": [

@@ -13,8 +13,8 @@
 
 const FilterDirectivesTransform = require('../transforms/FilterDirectivesTransform');
 const FlattenTransform = require('../transforms/FlattenTransform');
-const InlineFragmentsTransform = require('InlineFragmentsTransform');
-const RelayMaskTransform = require('RelayMaskTransform');
+const InlineFragmentsTransform = require('../transforms/InlineFragmentsTransform');
+const RelayMaskTransform = require('../transforms/RelayMaskTransform');
 const SkipClientFieldTransform = require('../transforms/SkipClientFieldTransform');
 const SkipRedundantNodesTransform = require('../transforms/SkipRedundantNodesTransform');
 const SkipUnreachableNodeTransform = require('../transforms/SkipUnreachableNodeTransform');

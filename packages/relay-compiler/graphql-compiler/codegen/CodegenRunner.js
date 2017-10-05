@@ -11,6 +11,7 @@
 
 'use strict';
 
+const CodegenDirectory = require('CodegenDirectory');
 const CodegenWatcher = require('./CodegenWatcher');
 const GraphQLWatchmanClient = require('../core/GraphQLWatchmanClient');
 
@@ -24,8 +25,6 @@ import type {GraphQLReporter} from '../reporters/GraphQLReporter';
 import type {CompileResult, File, FileWriterInterface} from './CodegenTypes';
 import type {FileFilter, WatchmanExpression} from './CodegenWatcher';
 import type {DocumentNode, GraphQLSchema} from 'graphql';
-
-/* eslint-disable no-console */
 
 export type ParserConfig = {|
   baseDir: string,
@@ -227,6 +226,7 @@ class CodegenRunner {
     // this maybe should be await parser.parseFiles(files);
     parser.parseFiles(files);
     const tEnd = Date.now();
+    // eslint-disable-next-line no-console
     console.log('Parsed %s in %s', parserName, toSeconds(tStart, tEnd));
   }
 
@@ -234,6 +234,7 @@ class CodegenRunner {
   // When we can, this could be writeChanges(writerName, parserName, parsedDefinitions)
   async write(writerName: string): Promise<CompileResult> {
     try {
+      // eslint-disable-next-line no-console
       console.log('\nWriting %s', writerName);
       const tStart = Date.now();
       const {
@@ -266,22 +267,6 @@ class CodegenRunner {
 
       const tWritten = Date.now();
 
-      function combineChanges(accessor) {
-        const combined = [];
-        invariant(
-          outputDirectories,
-          'CodegenRunner: Expected outputDirectories to be set',
-        );
-        for (const dir of outputDirectories.values()) {
-          combined.push(...accessor(dir.changes));
-        }
-        return combined;
-      }
-      const created = combineChanges(_ => _.created);
-      const updated = combineChanges(_ => _.updated);
-      const deleted = combineChanges(_ => _.deleted);
-      const unchanged = combineChanges(_ => _.unchanged);
-
       for (const dir of outputDirectories.values()) {
         const all = [
           ...dir.changes.created,
@@ -289,7 +274,6 @@ class CodegenRunner {
           ...dir.changes.deleted,
           ...dir.changes.unchanged,
         ];
-
         for (const filename of all) {
           const filePath = dir.getPath(filename);
           invariant(
@@ -301,20 +285,15 @@ class CodegenRunner {
         }
       }
 
-      if (this.onlyValidate) {
-        printFiles('Missing', created);
-        printFiles('Out of date', updated);
-        printFiles('Extra', deleted);
-      } else {
-        printFiles('Created', created);
-        printFiles('Updated', updated);
-        printFiles('Deleted', deleted);
-        console.log('Unchanged: %s files', unchanged.length);
-      }
-
+      const combinedChanges = CodegenDirectory.combineChanges(
+        Array.from(outputDirectories.values()),
+      );
+      CodegenDirectory.printChanges(combinedChanges, {
+        onlyValidate: this.onlyValidate,
+      });
+      // eslint-disable-next-line no-console
       console.log('Written %s in %s', writerName, toSeconds(tStart, tWritten));
-
-      return created.length + updated.length + deleted.length > 0
+      return CodegenDirectory.hasChanges(combinedChanges)
         ? 'HAS_CHANGES'
         : 'NO_CHANGES';
     } catch (e) {
@@ -376,9 +355,11 @@ class CodegenRunner {
         } catch (error) {
           this._reporter.reportError('CodegenRunner.watch', error);
         }
+        // eslint-disable-next-line no-console
         console.log('Watching for changes to %s...', parserName);
       },
     );
+    // eslint-disable-next-line no-console
     console.log('Watching for changes to %s...', parserName);
   }
 }
@@ -389,15 +370,6 @@ function anyFileFilter(file: File): boolean {
 
 function toSeconds(t0, t1) {
   return ((t1 - t0) / 1000).toFixed(2) + 's';
-}
-
-function printFiles(label, files) {
-  if (files.length > 0) {
-    console.log(label + ':');
-    files.forEach(file => {
-      console.log(' - ' + file);
-    });
-  }
 }
 
 module.exports = CodegenRunner;

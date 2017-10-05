@@ -15,7 +15,7 @@ const fs = require('fs');
 const invariant = require('invariant');
 const path = require('path');
 
-type Stats = {
+type Changes = {
   deleted: Array<string>,
   updated: Array<string>,
   created: Array<string>,
@@ -49,7 +49,7 @@ type Stats = {
  *   dir.changes.unchanged
  */
 class CodegenDirectory {
-  changes: Stats;
+  changes: Changes;
   _files: Set<string>;
   _dir: string;
   onlyValidate: boolean;
@@ -78,6 +78,60 @@ class CodegenDirectory {
       unchanged: [],
     };
     this._dir = dir;
+  }
+
+  static combineChanges(dirs: Array<CodegenDirectory>): Changes {
+    const changes = {
+      deleted: [],
+      updated: [],
+      created: [],
+      unchanged: [],
+    };
+    dirs.forEach(dir => {
+      changes.deleted.push(...dir.changes.deleted);
+      changes.updated.push(...dir.changes.updated);
+      changes.created.push(...dir.changes.created);
+      changes.unchanged.push(...dir.changes.unchanged);
+    });
+    return changes;
+  }
+
+  static hasChanges(changes: Changes): boolean {
+    return (
+      changes.created.length > 0 ||
+      changes.updated.length > 0 ||
+      changes.deleted.length > 0
+    );
+  }
+
+  static printChanges(changes: Changes, options: {onlyValidate: boolean}) {
+    const output = [];
+    function printFiles(label, files) {
+      if (files.length > 0) {
+        output.push(label + ':');
+        files.forEach(file => {
+          output.push(' - ' + file);
+        });
+      }
+    }
+    if (options.onlyValidate) {
+      printFiles('Missing', changes.created);
+      printFiles('Out of date', changes.updated);
+      printFiles('Extra', changes.deleted);
+    } else {
+      printFiles('Created', changes.created);
+      printFiles('Updated', changes.updated);
+      printFiles('Deleted', changes.deleted);
+      output.push(`Unchanged: ${changes.unchanged.length} files`);
+    }
+    // eslint-disable-next-line no-console
+    console.log(output.join('\n'));
+  }
+
+  printChanges(): void {
+    CodegenDirectory.printChanges(this.changes, {
+      onlyValidate: this.onlyValidate,
+    });
   }
 
   read(filename: string): ?string {

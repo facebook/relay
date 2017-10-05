@@ -45,9 +45,12 @@ function writeForSchema(
     ` * @providesModule ${moduleName}\n` +
     ` * ${SignedSource.getSigningToken()}\n` +
     ' * @flow\n' +
-    ' */\n\n' +
+    ' */\n' +
+    '\n' +
+    // use Flow comment to avoid long Babel compile times
+    '/*::\n' +
     types.join('\n\n') +
-    '\n';
+    '\n*/\n';
 
   codegenDir.writeFile(moduleName + '.js', SignedSource.signFile(content));
 }

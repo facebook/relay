@@ -22,20 +22,20 @@ const warning = require('warning');
 import type {ConcreteOperationDefinition} from 'ConcreteQuery';
 import type {CacheConfig} from 'RelayCombinedEnvironmentTypes';
 import type {ConcreteBatch} from 'RelayConcreteNode';
-import type {QueryPayload, PayloadError} from 'RelayNetworkTypes';
+import type {GraphQLResponse, PayloadError} from 'RelayNetworkTypes';
 import type {Environment, OperationSelector} from 'RelayStoreTypes';
 import type {Variables} from 'RelayTypes';
 
 type DataWriteConfig = {
   query: ConcreteBatch,
   variables: Variables,
-  payload: QueryPayload,
+  payload: GraphQLResponse,
 };
 
 type NetworkWriteConfig = {
   query: ConcreteBatch,
   variables?: Variables,
-  payload: QueryPayload | (Variables => QueryPayload),
+  payload: GraphQLResponse | (Variables => GraphQLResponse),
 };
 
 type OperationType = ConcreteBatch | ConcreteOperationDefinition;
@@ -149,9 +149,9 @@ class ReactRelayTestMocker {
       if (this._defaults[ident]) {
         const payload = this._defaults[ident];
         if (typeof payload === 'function') {
-          return payload(strippedVars);
+          return {response: payload(strippedVars)};
         } else {
-          return payload;
+          return {response: payload};
         }
       }
 
@@ -173,7 +173,7 @@ class ReactRelayTestMocker {
 
     function resolveRawQuery(
       toResolve: PendingFetch,
-      payload: QueryPayload,
+      payload: GraphQLResponse,
     ): void {
       pendingFetches = pendingFetches.filter(pending => pending !== toResolve);
 

@@ -15,7 +15,9 @@ const RelayObservable = require('RelayObservable');
 
 import type {
   ExecuteFunction,
+  ExecutePayload,
   FetchFunction,
+  GraphQLResponse,
   SubscribeFunction,
 } from 'RelayNetworkTypes';
 
@@ -31,7 +33,8 @@ function convertFetch(fn: FetchFunction): ExecuteFunction {
     if (result instanceof Error) {
       return new RelayObservable(sink => sink.error(result));
     }
-    return RelayObservable.from(result);
+    // $FlowFixMe: Flow issues with covariant Observable types.
+    return RelayObservable.from(result).map(convertToExecutePayload);
   };
 }
 
@@ -41,9 +44,29 @@ function convertFetch(fn: FetchFunction): ExecuteFunction {
 function convertSubscribe(fn: SubscribeFunction): ExecuteFunction {
   return function subscribe(operation, variables, cacheConfig) {
     return RelayObservable.fromLegacy(observer =>
+      // $FlowFixMe: Flow issues with covariant Observable types.
       fn(operation, variables, cacheConfig, observer),
-    );
+    ).map(convertToExecutePayload);
   };
+}
+
+/**
+ * Given a value which might be a plain GraphQLResponse, coerce to always return
+ * an ExecutePayload. A GraphQLResponse may be returned directly from older or
+ * simpler Relay Network implementations.
+ */
+function convertToExecutePayload(
+  value: GraphQLResponse | ExecutePayload,
+): ExecutePayload {
+  // Note, this double layer of statements satisfies Flow's exact type union
+  // type refinement.
+  if (value.data || value.errors) {
+    return {response: value};
+  }
+  if (value.response) {
+    return value;
+  }
+  return {response: value};
 }
 
 module.exports = {

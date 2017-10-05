@@ -38,10 +38,19 @@ export type PayloadError = {
  * The shape of a GraphQL response as dictated by the
  * [spec](http://facebook.github.io/graphql/#sec-Response)
  */
-export type QueryPayload = {|
+export type GraphQLResponse = {|
   data?: ?PayloadData,
   errors?: Array<PayloadError>,
-  rerunVariables?: Variables,
+|};
+
+/**
+ * The data returned from Relay's execute function, which includes both the
+ * raw GraphQL network response as well as any related client metadata.
+ */
+export type ExecutePayload = {|
+  response: GraphQLResponse,
+  // The variables which were used during this execution.
+  variables?: ?Variables,
 |};
 
 /**
@@ -53,19 +62,20 @@ export type ExecuteFunction = (
   variables: Variables,
   cacheConfig: CacheConfig,
   uploadables?: ?UploadableMap,
-) => RelayObservable<QueryPayload>;
+) => RelayObservable<ExecutePayload>;
 
 /**
  * A function that executes a GraphQL operation with request/response semantics.
  *
- * May return an Observable or Promise of a raw server response.
+ * May return an Observable or Promise of a plain GraphQL server response, or
+ * a composed ExecutePayload object supporting additional metadata.
  */
 export type FetchFunction = (
   operation: ConcreteBatch,
   variables: Variables,
   cacheConfig: CacheConfig,
   uploadables: ?UploadableMap,
-) => ObservableFromValue<QueryPayload>;
+) => ObservableFromValue<ExecutePayload> | ObservableFromValue<GraphQLResponse>;
 
 /**
  * A function that executes a GraphQL subscription operation, returning one or
@@ -78,8 +88,11 @@ export type SubscribeFunction = (
   operation: ConcreteBatch,
   variables: Variables,
   cacheConfig: CacheConfig,
-  observer: LegacyObserver<QueryPayload>,
-) => RelayObservable<QueryPayload> | Disposable;
+  observer?: LegacyObserver<GraphQLResponse>,
+) =>
+  | RelayObservable<ExecutePayload>
+  | RelayObservable<GraphQLResponse>
+  | Disposable;
 
 export type Uploadable = File | Blob;
 // $FlowFixMe this is compatible with classic api see D4658012

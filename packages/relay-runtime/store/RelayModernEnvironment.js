@@ -181,7 +181,13 @@ class RelayModernEnvironment implements Environment {
     const {node, variables} = operation;
     return this._network
       .execute(node, variables, cacheConfig || {})
-      .map(payload => normalizePayload(node, variables, payload))
+      .map(payload =>
+        normalizePayload(
+          node,
+          payload.variables || variables,
+          payload.response,
+        ),
+      )
       .do({
         next: payload => {
           this._publishQueue.commitPayload(operation, payload, updater);
@@ -226,7 +232,13 @@ class RelayModernEnvironment implements Environment {
 
     return this._network
       .execute(node, variables, {force: true}, uploadables)
-      .map(payload => normalizePayload(node, variables, payload))
+      .map(payload =>
+        normalizePayload(
+          node,
+          payload.variables || variables,
+          payload.response,
+        ),
+      )
       .do({
         start: () => {
           if (optimisticUpdate) {

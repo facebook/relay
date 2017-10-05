@@ -14,12 +14,12 @@
 const invariant = require('invariant');
 const stableJSONStringify = require('stableJSONStringify');
 
-import type {QueryPayload} from 'RelayNetworkTypes';
+import type {GraphQLResponse} from 'RelayNetworkTypes';
 import type {Variables} from 'RelayTypes';
 
 type Response = {
   fetchTime: number,
-  payload: QueryPayload,
+  payload: GraphQLResponse,
 };
 
 /**
@@ -53,7 +53,7 @@ class RelayQueryResponseCache {
     this._responses.clear();
   }
 
-  get(queryID: string, variables: Variables): ?QueryPayload {
+  get(queryID: string, variables: Variables): ?GraphQLResponse {
     const cacheKey = getCacheKey(queryID, variables);
     this._responses.forEach((response, key) => {
       if (!isCurrent(response.fetchTime, this._ttl)) {
@@ -64,7 +64,7 @@ class RelayQueryResponseCache {
     return response != null ? response.payload : null;
   }
 
-  set(queryID: string, variables: Variables, payload: QueryPayload): void {
+  set(queryID: string, variables: Variables, payload: GraphQLResponse): void {
     const fetchTime = Date.now();
     const cacheKey = getCacheKey(queryID, variables);
     this._responses.delete(cacheKey); // deletion resets key ordering

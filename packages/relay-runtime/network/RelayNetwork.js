@@ -22,7 +22,7 @@ import type {ConcreteBatch} from 'RelayConcreteNode';
 import type {
   FetchFunction,
   Network,
-  QueryPayload,
+  ExecutePayload,
   SubscribeFunction,
   UploadableMap,
 } from 'RelayNetworkTypes';
@@ -47,7 +47,7 @@ function create(
     variables: Variables,
     cacheConfig: CacheConfig,
     uploadables?: ?UploadableMap,
-  ): RelayObservable<QueryPayload> {
+  ): RelayObservable<ExecutePayload> {
     if (operation.query.operation === 'subscription') {
       invariant(
         observeSubscribe,

@@ -97,9 +97,11 @@ function transformGraphQLScalarType(
 
 function transformGraphQLEnumType(type: GraphQLEnumType) {
   // TODO create a flow type for enums
-  return t.unionTypeAnnotation(
-    type.getValues().map(({value}) => stringLiteralTypeAnnotation(value)),
-  );
+  const values = type
+    .getValues()
+    .map(({value}) => stringLiteralTypeAnnotation(value));
+  values.push(stringLiteralTypeAnnotation('%future added value'));
+  return t.unionTypeAnnotation(values);
 }
 
 function transformInputType(

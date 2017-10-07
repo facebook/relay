@@ -107,8 +107,8 @@ function transformInputType(
   customScalars: ScalarTypeMapping,
   inputFieldWhiteList?: ?Array<string>,
   recursiveFields: Array<string>,
-  recursionLimit: Number,
-  recursionLevel: Number,
+  recursionLimit: number,
+  recursionLevel: number,
 ) {
   if (type instanceof GraphQLNonNull) {
     return transformNonNullableInputType(
@@ -131,8 +131,8 @@ function transformNonNullableInputType(
   customScalars: ScalarTypeMapping,
   inputFieldWhiteList?: ?Array<string>,
   recursiveFields: Array<string>,
-  recursionLimit: Number,
-  recursionLevel: Number,
+  recursionLimit: number,
+  recursionLevel: number,
 ) {
   if (type instanceof GraphQLList) {
     return readOnlyArrayOfType(

@@ -62,7 +62,7 @@ export type WriterConfig = {
   schemaExtensions: Array<string>,
   relayRuntimeModule?: string,
   inputFieldWhiteListForFlow?: Array<string>,
-  recursionLimitForFlow?: Number,
+  recursionLimitForFlow?: number,
 };
 
 class RelayFileWriter implements FileWriterInterface {

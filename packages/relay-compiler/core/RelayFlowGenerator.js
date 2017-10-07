@@ -50,7 +50,7 @@ function generate(
   node: Root | Fragment,
   customScalars?: ?ScalarTypeMapping,
   inputFieldWhiteList?: ?Array<string>,
-  recursionLimit: Number,
+  recursionLimit: number,
 ): string {
   const recursiveFields = flattenArray(
     flattenArray(
@@ -219,7 +219,7 @@ function createVisitor(
   customScalars: ScalarTypeMapping,
   inputFieldWhiteList: ?Array<string>,
   recursiveFields: Array<string>,
-  recursionLimit: Number,
+  recursionLimit: number,
 ) {
   return {
     leave: {
@@ -341,7 +341,7 @@ function generateInputVariablesType(
   customScalars: ScalarTypeMapping,
   inputFieldWhiteList?: ?Array<string>,
   recursiveFields: Array<string>,
-  recursionLimit: Number,
+  recursionLimit: number,
 ) {
   const recursionLevel = 0;
   return exportType(

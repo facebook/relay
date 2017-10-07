@@ -55,13 +55,18 @@ function generate(
   const recursiveFields = flattenArray(
     flattenArray(
       (node.argumentDefinitions || []).map(arg =>
-        getFieldNameSCCS(arg.type).filter(component => component.length > 1)
-      )
-    )
+        getFieldNameSCCS(arg.type).filter(component => component.length > 1),
+      ),
+    ),
   );
   const ast = IRVisitor.visit(
     node,
-    createVisitor(customScalars || {}, inputFieldWhiteList, recursiveFields, recursionLimit),
+    createVisitor(
+      customScalars || {},
+      inputFieldWhiteList,
+      recursiveFields,
+      recursionLimit,
+    ),
   );
   return PatchedBabelGenerator.generate(ast);
 }
@@ -350,7 +355,14 @@ function generateInputVariablesType(
       node.argumentDefinitions.map(arg => {
         const property = t.objectTypeProperty(
           t.identifier(arg.name),
-          transformInputType(arg.type, customScalars, inputFieldWhiteList, recursiveFields, recursionLimit, recursionLevel),
+          transformInputType(
+            arg.type,
+            customScalars,
+            inputFieldWhiteList,
+            recursiveFields,
+            recursionLimit,
+            recursionLevel,
+          ),
         );
         if (!(arg.type instanceof GraphQLNonNull)) {
           property.optional = true;

@@ -299,8 +299,7 @@ function initVisited(graph) {
 function graphDFS(graph, key, visited, cb) {
   visited[key] = true;
   graph[key].forEach(node => {
-    if (!visited[node])
-      graphDFS(graph, node, visited, cb);
+    if (!visited[node]) graphDFS(graph, node, visited, cb);
     cb(node);
   });
 }
@@ -349,9 +348,10 @@ function objectFields(type: GraphQLObjectType): Array<GraphQLObjectType> {
   const fields = raw.getFields();
   return Object.keys(fields)
     .map(k => fields[k])
-    .filter(field =>
-      getRawType(field.type) instanceof GraphQLObjectType
-      || getRawType(field.type) instanceof InputObjectType
+    .filter(
+      field =>
+        getRawType(field.type) instanceof GraphQLObjectType ||
+        getRawType(field.type) instanceof InputObjectType,
     );
 }
 
@@ -360,12 +360,11 @@ function objectFields(type: GraphQLObjectType): Array<GraphQLObjectType> {
  * fieldName->[fieldNames]
  */
 function buildFieldGraph(graph, field) {
-  if (!field || graph.hasOwnProperty(field.name))
-    return graph;
+  if (!field || graph.hasOwnProperty(field.name)) return graph;
   const fields = objectFields(field.type);
   return fields.reduce(buildFieldGraph, {
     ...graph,
-    [field.name]: fields.map(f => f.name)
+    [field.name]: fields.map(f => f.name),
   });
 }
 

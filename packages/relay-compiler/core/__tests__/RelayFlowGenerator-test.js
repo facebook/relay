@@ -41,7 +41,14 @@ describe('RelayFlowGenerator', () => {
       const recursionLimit = 3;
       return flowContext
         .documents()
-        .map(doc => RelayFlowGenerator.generate(doc, undefined, undefined, recursionLimit))
+        .map(doc =>
+          RelayFlowGenerator.generate(
+            doc,
+            undefined,
+            undefined,
+            recursionLimit,
+          ),
+        )
         .join('\n\n');
     });
   });

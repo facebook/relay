@@ -27,15 +27,17 @@ const {
 
 type Document_ = {
   errors: ?ImmutableList<Error>,
-  name: ?string,            // In practice, documents always have a name
+  name: ?string, // In practice, documents always have a name
   node: ?(Fragment | Root), // In practice, documents always have a node
 };
 
-const Document = Record(({
-  errors: null,
-  name: null,
-  node: null,
-}: Document_));
+const Document = Record(
+  ({
+    errors: null,
+    name: null,
+    node: null,
+  }: Document_),
+);
 
 // Currently no easy way to get the actual flow type of a generated record :(
 // It's theoretically RecordInstance<T> & T, but flow seems to disagree, and
@@ -64,7 +66,10 @@ class GraphQLCompilerContext {
       .valueSeq()
       .map(doc => {
         const node = doc.get('node');
-        invariant(node, 'GraphQLCompilerContext: Documents secretly always have nodes');
+        invariant(
+          node,
+          'GraphQLCompilerContext: Documents secretly always have nodes',
+        );
         return node;
       })
       .toArray();

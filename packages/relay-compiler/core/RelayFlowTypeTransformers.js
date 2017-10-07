@@ -106,6 +106,7 @@ function transformInputType(
   type: GraphQLInputType,
   customScalars: ScalarTypeMapping,
   inputFieldWhiteList?: ?Array<string>,
+  recursiveFields: Array<string>,
   recursionLimit: Number,
   recursionLevel: Number,
 ) {
@@ -114,12 +115,13 @@ function transformInputType(
       type.ofType,
       customScalars,
       inputFieldWhiteList,
+      recursiveFields,
       recursionLimit,
       recursionLevel,
     );
   } else {
     return t.nullableTypeAnnotation(
-      transformNonNullableInputType(type, customScalars, inputFieldWhiteList, recursionLimit, recursionLevel),
+      transformNonNullableInputType(type, customScalars, inputFieldWhiteList, recursiveFields, recursionLimit, recursionLevel),
     );
   }
 }
@@ -128,12 +130,13 @@ function transformNonNullableInputType(
   type: GraphQLInputType,
   customScalars: ScalarTypeMapping,
   inputFieldWhiteList?: ?Array<string>,
+  recursiveFields: Array<string>,
   recursionLimit: Number,
   recursionLevel: Number,
 ) {
   if (type instanceof GraphQLList) {
     return readOnlyArrayOfType(
-      transformInputType(type.ofType, customScalars, inputFieldWhiteList, recursionLimit, recursionLevel),
+      transformInputType(type.ofType, customScalars, inputFieldWhiteList, recursiveFields, recursionLimit, recursionLevel),
     );
   } else if (type instanceof GraphQLScalarType) {
     return transformGraphQLScalarType(type, customScalars);
@@ -141,8 +144,6 @@ function transformNonNullableInputType(
     return transformGraphQLEnumType(type);
   } else if (type instanceof GraphQLInputObjectType) {
     recursionLevel++;
-    if (recursionLevel > recursionLimit)
-      return t.anyTypeAnnotation();
     const fields = type.getFields();
     const props = Object.keys(fields)
       .map(key => fields[key])
@@ -151,10 +152,23 @@ function transformNonNullableInputType(
           !inputFieldWhiteList || inputFieldWhiteList.indexOf(field.name) < 0,
       )
       .map(field => {
-        const property = t.objectTypeProperty(
-          t.identifier(field.name),
-          transformInputType(field.type, customScalars, inputFieldWhiteList, recursionLimit, recursionLevel),
-        );
+        const property = (
+          recursiveFields.indexOf(field.name) > -1
+          && recursionLevel > recursionLimit
+        )
+          ? field.type instanceof GraphQLList
+            ? t.objectTypeProperty(
+              t.identifier(field.name),
+              readOnlyArrayOfType(t.anyTypeAnnotation())
+            )
+            : t.objectTypeProperty(
+              t.identifier(field.name),
+              t.anyTypeAnnotation()
+            )
+          : t.objectTypeProperty(
+            t.identifier(field.name),
+            transformInputType(field.type, customScalars, inputFieldWhiteList, recursiveFields, recursionLimit, recursionLevel),
+          );
         if (!(field.type instanceof GraphQLNonNull)) {
           property.optional = true;
         }

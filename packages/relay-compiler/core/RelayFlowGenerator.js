@@ -44,7 +44,7 @@ import type {
 } from '../graphql-compiler/GraphQLCompilerPublic';
 import type {ScalarTypeMapping} from './RelayFlowTypeTransformers';
 
-const {isAbstractType} = SchemaUtils;
+const {isAbstractType, getFieldNameSCCS} = SchemaUtils;
 
 function generate(
   node: Root | Fragment,
@@ -52,9 +52,16 @@ function generate(
   inputFieldWhiteList?: ?Array<string>,
   recursionLimit: Number,
 ): string {
+  const recursiveFields = flattenArray(
+    flattenArray(
+      (node.argumentDefinitions || []).map(arg =>
+        getFieldNameSCCS(arg.type).filter(component => component.length > 1)
+      )
+    )
+  );
   const ast = IRVisitor.visit(
     node,
-    createVisitor(customScalars || {}, inputFieldWhiteList, recursionLimit),
+    createVisitor(customScalars || {}, inputFieldWhiteList, recursiveFields, recursionLimit),
   );
   return PatchedBabelGenerator.generate(ast);
 }
@@ -211,6 +218,7 @@ function isPlural({directives}): boolean {
 function createVisitor(
   customScalars: ScalarTypeMapping,
   inputFieldWhiteList: ?Array<string>,
+  recursiveFields: Array<string>,
   recursionLimit: Number,
 ) {
   return {
@@ -223,6 +231,7 @@ function createVisitor(
               node,
               customScalars,
               inputFieldWhiteList,
+              recursiveFields,
               recursionLimit,
             ),
           );
@@ -331,6 +340,7 @@ function generateInputVariablesType(
   node: Root,
   customScalars: ScalarTypeMapping,
   inputFieldWhiteList?: ?Array<string>,
+  recursiveFields: Array<string>,
   recursionLimit: Number,
 ) {
   const recursionLevel = 0;
@@ -340,7 +350,7 @@ function generateInputVariablesType(
       node.argumentDefinitions.map(arg => {
         const property = t.objectTypeProperty(
           t.identifier(arg.name),
-          transformInputType(arg.type, customScalars, inputFieldWhiteList, recursionLimit, recursionLevel),
+          transformInputType(arg.type, customScalars, inputFieldWhiteList, recursiveFields, recursionLimit, recursionLevel),
         );
         if (!(arg.type instanceof GraphQLNonNull)) {
           property.optional = true;

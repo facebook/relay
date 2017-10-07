@@ -42,12 +42,7 @@ describe('RelayFlowGenerator', () => {
       return flowContext
         .documents()
         .map(doc =>
-          RelayFlowGenerator.generate(
-            doc,
-            undefined,
-            undefined,
-            recursionLimit,
-          ),
+          RelayFlowGenerator.generate(doc, recursionLimit),
         )
         .join('\n\n');
     });

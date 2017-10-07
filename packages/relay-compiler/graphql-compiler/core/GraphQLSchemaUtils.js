@@ -342,15 +342,14 @@ function flatten(arr, el): Array<*> {
   return arr.concat(Array.isArray(el) ? el.reduce(flatten, []) : el);
 }
 
-function objectFields(type: GraphQLObjectType): Array<GraphQLObjectType> {
+function objectFields(type: GraphQLType) {
   const raw = getRawType(type);
-  if (raw.getFields === undefined) return [];
+  if (!(raw instanceof InputObjectType)) return [];
   const fields = raw.getFields();
   return Object.keys(fields)
     .map(k => fields[k])
     .filter(
       field =>
-        getRawType(field.type) instanceof GraphQLObjectType ||
         getRawType(field.type) instanceof InputObjectType,
     );
 }
@@ -373,7 +372,7 @@ function buildFieldGraph(graph, field) {
  * visible by the given type. Each component is represented by an array of strings
  * which is the field name in the schema.
  */
-function getFieldNameSCCS(type: GraphQLInputType): string[][] {
+function getFieldNameSCCS(type: GraphQLType): string[][] {
   const fields = objectFields(type);
   const graph = fields.reduce(buildFieldGraph, {});
   const orderedNodes = graphOrderNodes(graph);

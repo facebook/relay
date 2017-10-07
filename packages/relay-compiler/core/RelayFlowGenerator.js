@@ -34,7 +34,10 @@ const {
   transformScalarType,
   transformInputType,
 } = require('./RelayFlowTypeTransformers');
-const {GraphQLNonNull} = require('graphql');
+const {
+  GraphQLNonNull,
+  GraphQLInputObjectType,
+} = require('graphql');
 
 import type {
   IRTransform,
@@ -48,15 +51,17 @@ const {isAbstractType, getFieldNameSCCS} = SchemaUtils;
 
 function generate(
   node: Root | Fragment,
+  recursionLimit: number,
   customScalars?: ?ScalarTypeMapping,
   inputFieldWhiteList?: ?Array<string>,
-  recursionLimit: number,
 ): string {
   const recursiveFields = flattenArray(
     flattenArray(
-      (node.argumentDefinitions || []).map(arg =>
-        getFieldNameSCCS(arg.type).filter(component => component.length > 1),
-      ),
+      (node.argumentDefinitions || [])
+        .map(arg =>
+          getFieldNameSCCS(arg.type)
+          .filter(component => component.length > 1),
+        ),
     ),
   );
   const ast = IRVisitor.visit(

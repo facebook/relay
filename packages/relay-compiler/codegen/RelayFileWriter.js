@@ -62,7 +62,7 @@ export type WriterConfig = {
   schemaExtensions: Array<string>,
   relayRuntimeModule?: string,
   inputFieldWhiteListForFlow?: Array<string>,
-  recursionLimitForFlow?: number,
+  recursionLimitForFlow: number,
 };
 
 class RelayFileWriter implements FileWriterInterface {
@@ -200,9 +200,9 @@ class RelayFileWriter implements FileWriterInterface {
 
           const flowTypes = RelayFlowGenerator.generate(
             node,
+            this._config.recursionLimitForFlow,
             this._config.customScalars,
             this._config.inputFieldWhiteListForFlow,
-            this._config.recursionLimitForFlow,
           );
 
           const compiledNode = compiledDocumentMap.get(node.name);

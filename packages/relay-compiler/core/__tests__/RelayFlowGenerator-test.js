@@ -38,9 +38,10 @@ describe('RelayFlowGenerator', () => {
         (ctx, transform) => transform(ctx, schema),
         context,
       );
+      const recursionLimit = 3;
       return flowContext
         .documents()
-        .map(doc => RelayFlowGenerator.generate(doc))
+        .map(doc => RelayFlowGenerator.generate(doc, undefined, undefined, recursionLimit))
         .join('\n\n');
     });
   });

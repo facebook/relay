@@ -91,6 +91,15 @@ input ApplicationRequestDeleteAllInput {
 input CommentCreateInput {
   clientMutationId: String
   feedbackId: ID
+  feedback: CommentfeedbackFeedback
+}
+
+input CommentfeedbackFeedback {
+  comment: FeedbackcommentComment
+}
+
+input FeedbackcommentComment {
+  feedback: CommentfeedbackFeedback
 }
 
 input CommentCreateSubscriptionInput {

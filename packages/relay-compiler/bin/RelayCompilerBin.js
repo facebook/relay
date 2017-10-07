@@ -176,6 +176,7 @@ function getRelayFileWriter(baseDir: string) {
         },
         baseDir,
         schemaExtensions,
+        recursionLimitForFlow: 3, //TODO: Expose this option
       },
       onlyValidate,
       schema,

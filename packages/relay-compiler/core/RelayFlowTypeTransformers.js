@@ -106,16 +106,20 @@ function transformInputType(
   type: GraphQLInputType,
   customScalars: ScalarTypeMapping,
   inputFieldWhiteList?: ?Array<string>,
+  recursionLimit: Number,
+  recursionLevel: Number,
 ) {
   if (type instanceof GraphQLNonNull) {
     return transformNonNullableInputType(
       type.ofType,
       customScalars,
       inputFieldWhiteList,
+      recursionLimit,
+      recursionLevel,
     );
   } else {
     return t.nullableTypeAnnotation(
-      transformNonNullableInputType(type, customScalars, inputFieldWhiteList),
+      transformNonNullableInputType(type, customScalars, inputFieldWhiteList, recursionLimit, recursionLevel),
     );
   }
 }
@@ -124,16 +128,21 @@ function transformNonNullableInputType(
   type: GraphQLInputType,
   customScalars: ScalarTypeMapping,
   inputFieldWhiteList?: ?Array<string>,
+  recursionLimit: Number,
+  recursionLevel: Number,
 ) {
   if (type instanceof GraphQLList) {
     return readOnlyArrayOfType(
-      transformInputType(type.ofType, customScalars, inputFieldWhiteList),
+      transformInputType(type.ofType, customScalars, inputFieldWhiteList, recursionLimit, recursionLevel),
     );
   } else if (type instanceof GraphQLScalarType) {
     return transformGraphQLScalarType(type, customScalars);
   } else if (type instanceof GraphQLEnumType) {
     return transformGraphQLEnumType(type);
   } else if (type instanceof GraphQLInputObjectType) {
+    recursionLevel++;
+    if (recursionLevel > recursionLimit)
+      return t.anyTypeAnnotation();
     const fields = type.getFields();
     const props = Object.keys(fields)
       .map(key => fields[key])
@@ -144,7 +153,7 @@ function transformNonNullableInputType(
       .map(field => {
         const property = t.objectTypeProperty(
           t.identifier(field.name),
-          transformInputType(field.type, customScalars, inputFieldWhiteList),
+          transformInputType(field.type, customScalars, inputFieldWhiteList, recursionLimit, recursionLevel),
         );
         if (!(field.type instanceof GraphQLNonNull)) {
           property.optional = true;

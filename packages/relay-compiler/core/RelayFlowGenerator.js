@@ -50,10 +50,11 @@ function generate(
   node: Root | Fragment,
   customScalars?: ?ScalarTypeMapping,
   inputFieldWhiteList?: ?Array<string>,
+  recursionLimit: Number,
 ): string {
   const ast = IRVisitor.visit(
     node,
-    createVisitor(customScalars || {}, inputFieldWhiteList),
+    createVisitor(customScalars || {}, inputFieldWhiteList, recursionLimit),
   );
   return PatchedBabelGenerator.generate(ast);
 }
@@ -210,6 +211,7 @@ function isPlural({directives}): boolean {
 function createVisitor(
   customScalars: ScalarTypeMapping,
   inputFieldWhiteList: ?Array<string>,
+  recursionLimit: Number,
 ) {
   return {
     leave: {
@@ -221,6 +223,7 @@ function createVisitor(
               node,
               customScalars,
               inputFieldWhiteList,
+              recursionLimit,
             ),
           );
         }
@@ -328,14 +331,16 @@ function generateInputVariablesType(
   node: Root,
   customScalars: ScalarTypeMapping,
   inputFieldWhiteList?: ?Array<string>,
+  recursionLimit: Number,
 ) {
+  const recursionLevel = 0;
   return exportType(
     `${node.name}Variables`,
     exactObjectTypeAnnotation(
       node.argumentDefinitions.map(arg => {
         const property = t.objectTypeProperty(
           t.identifier(arg.name),
-          transformInputType(arg.type, customScalars, inputFieldWhiteList),
+          transformInputType(arg.type, customScalars, inputFieldWhiteList, recursionLimit, recursionLevel),
         );
         if (!(arg.type instanceof GraphQLNonNull)) {
           property.optional = true;

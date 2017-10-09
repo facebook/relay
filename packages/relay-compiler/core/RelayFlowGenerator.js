@@ -27,7 +27,7 @@ const {
   exactObjectTypeAnnotation,
   exportType,
   fragmentReference,
-  importType,
+  importTypes,
   intersectionTypeAnnotation,
   lineComments,
   readOnlyArrayOfType,
@@ -48,6 +48,7 @@ import type {
   CompilerContext,
 } from '../graphql-compiler/GraphQLCompilerPublic';
 import type {ScalarTypeMapping} from './RelayFlowTypeTransformers';
+import type {GraphQLEnumType} from 'graphql';
 
 const {isAbstractType} = SchemaUtils;
 
@@ -55,11 +56,13 @@ type Options = {|
   +customScalars: ScalarTypeMapping,
   +inputFieldWhiteList: $ReadOnlyArray<string>,
   +relayRuntimeModule: string,
+  +enumsHasteModule: ?string,
 |};
 
 export type State = {|
   ...Options,
   +usedFragments: Set<string>,
+  +usedEnums: {[name: string]: GraphQLEnumType},
 |};
 
 function generate(node: Root | Fragment, options: Options): string {
@@ -224,8 +227,10 @@ function isPlural({directives}): boolean {
 function createVisitor(options: Options) {
   const state = {
     customScalars: options.customScalars,
+    enumsHasteModule: options.enumsHasteModule,
     inputFieldWhiteList: options.inputFieldWhiteList,
     relayRuntimeModule: options.relayRuntimeModule,
+    usedEnums: {},
     usedFragments: new Set(),
   };
 
@@ -242,6 +247,7 @@ function createVisitor(options: Options) {
         );
         return t.program([
           ...getFragmentImports(state),
+          ...getEnumDefinitions(state),
           ...(inputVariablesType ? [inputVariablesType] : []),
           responseType,
         ]);
@@ -271,6 +277,7 @@ function createVisitor(options: Options) {
 
         return t.program([
           ...getFragmentImports(state),
+          ...getEnumDefinitions(state),
           exportType(node.name, type),
         ]);
       },
@@ -389,16 +396,37 @@ function groupRefs(props): Array<Selection> {
 function getFragmentImports(state: State) {
   const imports = [];
   if (state.usedFragments.size > 0) {
-    imports.push(importType('FragmentReference', state.relayRuntimeModule));
+    imports.push(importTypes(['FragmentReference'], state.relayRuntimeModule));
     // TODO: test for existance of the referenced fragment and generate
     // import type if the fragment exist (it might not exist in compat mode).
     const usedFragments = Array.from(state.usedFragments).sort();
     for (const usedFragment of usedFragments) {
       imports.push(anyTypeAlias(usedFragment));
-      // importType(includedSpreadType, includedSpreadType + '.graphql')
+      // importTypes([includedSpreadType], includedSpreadType + '.graphql')
     }
   }
   return imports;
+}
+
+function getEnumDefinitions({enumsHasteModule, usedEnums}: State) {
+  const enumNames = Object.keys(usedEnums).sort();
+  if (enumNames.length === 0) {
+    return [];
+  }
+  if (enumsHasteModule) {
+    return [importTypes(enumNames, enumsHasteModule)];
+  }
+  return enumNames.map(name => {
+    const values = usedEnums[name].getValues().map(({value}) => value);
+    values.sort();
+    values.push('%future added value');
+    return exportType(
+      name,
+      t.unionTypeAnnotation(
+        values.map(value => stringLiteralTypeAnnotation(value)),
+      ),
+    );
+  });
 }
 
 const FLOW_TRANSFORMS: Array<IRTransform> = [

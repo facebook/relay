@@ -1,8 +1,9 @@
+export type PersonalityTraits = ('CHEERFUL' | 'DERISIVE' | 'HELPFUL' | 'SNARKY' | '%future added value');
 export type ScalarField = {|
   +id: string,
   +name: ?string,
   +websites: ?$ReadOnlyArray<?string>,
-  +traits: ?$ReadOnlyArray<?('CHEERFUL' | 'DERISIVE' | 'HELPFUL' | 'SNARKY' | '%future added value')>,
+  +traits: ?$ReadOnlyArray<?PersonalityTraits>,
   +aliasedLinkedField: ?{|
     +aliasedField: ?number,
   |},

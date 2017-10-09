@@ -56,11 +56,13 @@ function fragmentReference(name: string): BabelAST {
 }
 
 /**
- * import type {NAME} from 'MODULE';
+ * import type {NAMES[0], NAMES[1], ...} from 'MODULE';
  */
-function importType(name: string, module: string) {
+function importTypes(names: Array<string>, module: string) {
   const importDeclaration = t.importDeclaration(
-    [t.importSpecifier(t.identifier(name), t.identifier(name))],
+    names.map(name =>
+      t.importSpecifier(t.identifier(name), t.identifier(name)),
+    ),
     t.stringLiteral(module),
   );
   importDeclaration.importKind = 'type';
@@ -127,7 +129,7 @@ module.exports = {
   exactObjectTypeAnnotation,
   exportType,
   fragmentReference,
-  importType,
+  importTypes,
   intersectionTypeAnnotation,
   lineComments,
   readOnlyArrayOfType,

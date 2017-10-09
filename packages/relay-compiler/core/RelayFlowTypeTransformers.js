@@ -13,10 +13,7 @@
 
 const t = require('babel-types');
 
-const {
-  readOnlyArrayOfType,
-  stringLiteralTypeAnnotation,
-} = require('RelayFlowBabelFactories');
+const {readOnlyArrayOfType} = require('RelayFlowBabelFactories');
 const {
   GraphQLEnumType,
   GraphQLInputType,
@@ -91,12 +88,8 @@ function transformGraphQLScalarType(type: GraphQLScalarType, state: State) {
 }
 
 function transformGraphQLEnumType(type: GraphQLEnumType, state: State) {
-  // TODO create a flow type for enums
-  const values = type
-    .getValues()
-    .map(({value}) => stringLiteralTypeAnnotation(value));
-  values.push(stringLiteralTypeAnnotation('%future added value'));
-  return t.unionTypeAnnotation(values);
+  state.usedEnums[type.name] = type;
+  return t.genericTypeAnnotation(t.identifier(type.name));
 }
 
 function transformInputType(type: GraphQLInputType, state: State) {

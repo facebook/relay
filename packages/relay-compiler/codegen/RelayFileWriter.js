@@ -62,6 +62,10 @@ export type WriterConfig = {
   schemaExtensions: Array<string>,
   relayRuntimeModule?: string,
   inputFieldWhiteListForFlow: Array<string>,
+
+  // Haste style module that exports flow types for GraphQL enums.
+  // TODO(T22422153) support non-haste environments
+  enumsHasteModule?: string,
 };
 
 class RelayFileWriter implements FileWriterInterface {
@@ -204,6 +208,7 @@ class RelayFileWriter implements FileWriterInterface {
             customScalars: this._config.customScalars,
             inputFieldWhiteList: this._config.inputFieldWhiteListForFlow,
             relayRuntimeModule,
+            enumsHasteModule: this._config.enumsHasteModule,
           });
 
           const compiledNode = compiledDocumentMap.get(node.name);

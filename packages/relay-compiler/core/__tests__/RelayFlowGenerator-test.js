@@ -40,7 +40,13 @@ describe('RelayFlowGenerator', () => {
       );
       return flowContext
         .documents()
-        .map(doc => RelayFlowGenerator.generate(doc))
+        .map(doc =>
+          RelayFlowGenerator.generate(doc, {
+            customScalars: {},
+            inputFieldWhiteList: [],
+            relayRuntimeModule: 'relay-runtime',
+          }),
+        )
         .join('\n\n');
     });
   });

@@ -36,7 +36,7 @@ const formatGeneratedModule: FormatModule = ({
 'use strict';
 
 /*::
-import type {${documentType}} from '${relayRuntimeModule}';
+import type { ${documentType} } from '${relayRuntimeModule}';
 ${flowText || ''}
 */
 

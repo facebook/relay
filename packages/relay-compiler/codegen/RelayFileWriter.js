@@ -54,14 +54,14 @@ export type WriterConfig = {
   baseDir: string,
   formatModule: FormatModule,
   compilerTransforms: CompilerTransforms,
-  customScalars?: ScalarTypeMapping,
+  customScalars: ScalarTypeMapping,
   generateExtraFiles?: GenerateExtraFiles,
   outputDir?: string,
   persistQuery?: (text: string) => Promise<string>,
   platform?: string,
   schemaExtensions: Array<string>,
   relayRuntimeModule?: string,
-  inputFieldWhiteListForFlow?: Array<string>,
+  inputFieldWhiteListForFlow: Array<string>,
 };
 
 class RelayFileWriter implements FileWriterInterface {
@@ -197,11 +197,14 @@ class RelayFileWriter implements FileWriterInterface {
             return;
           }
 
-          const flowTypes = RelayFlowGenerator.generate(
-            node,
-            this._config.customScalars,
-            this._config.inputFieldWhiteListForFlow,
-          );
+          const relayRuntimeModule =
+            this._config.relayRuntimeModule || 'relay-runtime';
+
+          const flowTypes = RelayFlowGenerator.generate(node, {
+            customScalars: this._config.customScalars,
+            inputFieldWhiteList: this._config.inputFieldWhiteListForFlow,
+            relayRuntimeModule,
+          });
 
           const compiledNode = compiledDocumentMap.get(node.name);
           invariant(
@@ -216,7 +219,7 @@ class RelayFileWriter implements FileWriterInterface {
             flowTypes,
             this._config.persistQuery,
             this._config.platform,
-            this._config.relayRuntimeModule || 'relay-runtime',
+            relayRuntimeModule,
           );
         }),
       );

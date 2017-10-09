@@ -14,6 +14,7 @@
 const PatchedBabelGenerator = require('./PatchedBabelGenerator');
 const RelayMaskTransform = require('RelayMaskTransform');
 
+const nullthrows = require('nullthrows');
 const t = require('babel-types');
 
 const {
@@ -22,8 +23,12 @@ const {
   SchemaUtils,
 } = require('../graphql-compiler/GraphQLCompilerPublic');
 const {
+  anyTypeAlias,
   exactObjectTypeAnnotation,
   exportType,
+  fragmentReference,
+  importType,
+  intersectionTypeAnnotation,
   lineComments,
   readOnlyArrayOfType,
   readOnlyObjectTypeProperty,
@@ -46,28 +51,42 @@ import type {ScalarTypeMapping} from './RelayFlowTypeTransformers';
 
 const {isAbstractType} = SchemaUtils;
 
-function generate(
-  node: Root | Fragment,
-  customScalars?: ?ScalarTypeMapping,
-  inputFieldWhiteList?: ?Array<string>,
-): string {
-  const ast = IRVisitor.visit(
-    node,
-    createVisitor(customScalars || {}, inputFieldWhiteList),
-  );
+type Options = {|
+  customScalars: ScalarTypeMapping,
+  inputFieldWhiteList: Array<string>,
+  relayRuntimeModule: string,
+|};
+
+function generate(node: Root | Fragment, options: Options): string {
+  const ast = IRVisitor.visit(node, createVisitor(options));
   return PatchedBabelGenerator.generate(ast);
 }
 
+type Selection = {
+  key: string,
+  schemaName?: string,
+  value?: any,
+  nodeType?: any,
+  conditional?: boolean,
+  concreteType?: string,
+  ref?: string,
+  nodeSelections?: ?SelectionMap,
+};
+type SelectionMap = Map<string, Selection>;
+
 function makeProp(
-  {key, schemaName, value, conditional, nodeType, nodeSelections},
+  {key, schemaName, value, conditional, nodeType, nodeSelections}: Selection,
   customScalars: ScalarTypeMapping,
-  concreteType,
+  concreteType?: string,
 ) {
   if (nodeType) {
     value = transformScalarType(
       nodeType,
       customScalars,
-      selectionsToBabel([Array.from(nodeSelections.values())], customScalars),
+      selectionsToBabel(
+        [Array.from(nullthrows(nodeSelections).values())],
+        customScalars,
+      ),
     );
   }
   if (schemaName === '__typename' && concreteType) {
@@ -115,14 +134,12 @@ function selectionsToBabel(selections, customScalars: ScalarTypeMapping) {
   ) {
     for (const concreteType in byConcreteType) {
       types.push(
-        exactObjectTypeAnnotation([
-          ...Array.from(baseFields.values()).map(selection =>
-            makeProp(selection, customScalars, concreteType),
-          ),
-          ...byConcreteType[concreteType].map(selection =>
-            makeProp(selection, customScalars, concreteType),
-          ),
-        ]),
+        exactObjectTypeAnnotation(
+          groupRefs([
+            ...Array.from(baseFields.values()),
+            ...byConcreteType[concreteType],
+          ]).map(selection => makeProp(selection, customScalars, concreteType)),
+        ),
       );
     }
     // It might be some other type then the listed concrete types. Ideally, we
@@ -150,7 +167,7 @@ function selectionsToBabel(selections, customScalars: ScalarTypeMapping) {
         ),
       );
     }
-    const selectionMapValues = Array.from(selectionMap.values()).map(
+    const selectionMapValues = groupRefs(Array.from(selectionMap.values())).map(
       sel =>
         isTypenameSelection(sel) && sel.concreteType
           ? makeProp(
@@ -163,14 +180,10 @@ function selectionsToBabel(selections, customScalars: ScalarTypeMapping) {
     types.push(exactObjectTypeAnnotation(selectionMapValues));
   }
 
-  if (types.length === 0) {
-    return exactObjectTypeAnnotation([]);
-  }
-
   return unionTypeAnnotation(types);
 }
 
-function mergeSelection(a, b) {
+function mergeSelection(a: ?Selection, b: Selection): Selection {
   if (!a) {
     return {
       ...b,
@@ -180,13 +193,13 @@ function mergeSelection(a, b) {
   return {
     ...a,
     nodeSelections: a.nodeSelections
-      ? mergeSelections(a.nodeSelections, b.nodeSelections)
+      ? mergeSelections(a.nodeSelections, nullthrows(b.nodeSelections))
       : null,
     conditional: a.conditional && b.conditional,
   };
 }
 
-function mergeSelections(a, b) {
+function mergeSelections(a: SelectionMap, b: SelectionMap): SelectionMap {
   const merged = new Map();
   for (const [key, value] of a.entries()) {
     merged.set(key, value);
@@ -207,30 +220,44 @@ function isPlural({directives}): boolean {
   );
 }
 
-function createVisitor(
-  customScalars: ScalarTypeMapping,
-  inputFieldWhiteList: ?Array<string>,
-) {
+function createVisitor(options: Options) {
+  const includedSpreadTypes = new Set();
+
+  function getTypeImports() {
+    const spreadTypes = Array.from(includedSpreadTypes).sort();
+    if (spreadTypes.length === 0) {
+      return [];
+    } else {
+      // TODO: test for existance of the referenced fragment and generate
+      // import type if the fragment exist (it might not exist in compat mode).
+      const spreadTypeImports = spreadTypes.map(
+        includedSpreadType => anyTypeAlias(includedSpreadType),
+        // includedSpreadType =>
+        //   importType(includedSpreadType, includedSpreadType + '.graphql'),
+      );
+      return [
+        importType('FragmentReference', options.relayRuntimeModule),
+        ...spreadTypeImports,
+      ];
+    }
+  }
+
   return {
     leave: {
       Root(node) {
-        const statements = [];
-        if (node.operation !== 'query') {
-          statements.push(
-            generateInputVariablesType(
-              node,
-              customScalars,
-              inputFieldWhiteList,
-            ),
-          );
-        }
-        statements.push(
-          exportType(
-            `${node.name}Response`,
-            selectionsToBabel(node.selections, customScalars),
-          ),
+        const inputVariablesType =
+          node.operation !== 'query'
+            ? generateInputVariablesType(node, options)
+            : null;
+        const responseType = exportType(
+          `${node.name}Response`,
+          selectionsToBabel(node.selections, options.customScalars),
         );
-        return t.program(statements);
+        return t.program([
+          ...getTypeImports(),
+          ...(inputVariablesType ? [inputVariablesType] : []),
+          responseType,
+        ]);
       },
 
       Fragment(node) {
@@ -252,10 +279,10 @@ function createVisitor(
           }
           return [selection];
         });
-        const baseType = selectionsToBabel(selections, customScalars);
+        const baseType = selectionsToBabel(selections, options.customScalars);
         const type = isPlural(node) ? readOnlyArrayOfType(baseType) : baseType;
 
-        return t.program([exportType(node.name, type)]);
+        return t.program([...getTypeImports(), exportType(node.name, type)]);
       },
 
       InlineFragment(node) {
@@ -285,7 +312,7 @@ function createVisitor(
           {
             key: node.alias || node.name,
             schemaName: node.name,
-            value: transformScalarType(node.type, customScalars),
+            value: transformScalarType(node.type, options.customScalars),
           },
         ];
       },
@@ -300,13 +327,19 @@ function createVisitor(
         ];
       },
       FragmentSpread(node) {
-        return [];
+        includedSpreadTypes.add(node.name);
+        return [
+          {
+            key: '__fragments_' + node.name,
+            ref: node.name,
+          },
+        ];
       },
     },
   };
 }
 
-function selectionsToMap(selections) {
+function selectionsToMap(selections: Array<Selection>): SelectionMap {
   const map = new Map();
   selections.forEach(selection => {
     const previousSel = map.get(selection.key);
@@ -324,18 +357,18 @@ function flattenArray<T>(arrayOfArrays: Array<Array<T>>): Array<T> {
   return result;
 }
 
-function generateInputVariablesType(
-  node: Root,
-  customScalars: ScalarTypeMapping,
-  inputFieldWhiteList?: ?Array<string>,
-) {
+function generateInputVariablesType(node: Root, options: Options) {
   return exportType(
     `${node.name}Variables`,
     exactObjectTypeAnnotation(
       node.argumentDefinitions.map(arg => {
         const property = t.objectTypeProperty(
           t.identifier(arg.name),
-          transformInputType(arg.type, customScalars, inputFieldWhiteList),
+          transformInputType(
+            arg.type,
+            options.customScalars,
+            options.inputFieldWhiteList,
+          ),
         );
         if (!(arg.type instanceof GraphQLNonNull)) {
           property.optional = true;
@@ -344,6 +377,27 @@ function generateInputVariablesType(
       }),
     ),
   );
+}
+
+function groupRefs(props): Array<Selection> {
+  const result = [];
+  const refs = [];
+  props.forEach(prop => {
+    if (prop.ref) {
+      refs.push(prop.ref);
+    } else {
+      result.push(prop);
+    }
+  });
+  if (refs.length > 0) {
+    const value = intersectionTypeAnnotation(refs.map(fragmentReference));
+    result.push({
+      key: '__fragments',
+      conditional: false,
+      value,
+    });
+  }
+  return result;
 }
 
 const FLOW_TRANSFORMS: Array<IRTransform> = [

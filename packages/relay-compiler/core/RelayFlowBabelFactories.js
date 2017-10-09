@@ -17,6 +17,13 @@ const t = require('babel-types');
 type BabelAST = mixed;
 
 /**
+ * type NAME = any;
+ */
+function anyTypeAlias(name: string): BabelAST {
+  return t.typeAlias(t.identifier(name), null, t.anyTypeAnnotation());
+}
+
+/**
  * {|
  *   PROPS
  * |}
@@ -36,6 +43,28 @@ function exportType(name: string, type: BabelAST) {
     [],
     null,
   );
+}
+
+/**
+ * FragmentReference<NAME>
+ */
+function fragmentReference(name: string): BabelAST {
+  return t.genericTypeAnnotation(
+    t.identifier('FragmentReference'),
+    t.typeParameterInstantiation([t.genericTypeAnnotation(t.identifier(name))]),
+  );
+}
+
+/**
+ * import type {NAME} from 'MODULE';
+ */
+function importType(name: string, module: string) {
+  const importDeclaration = t.importDeclaration(
+    [t.importSpecifier(t.identifier(name), t.identifier(name))],
+    t.stringLiteral(module),
+  );
+  importDeclaration.importKind = 'type';
+  return importDeclaration;
 }
 
 /**
@@ -94,8 +123,11 @@ function unionTypeAnnotation(types: Array<BabelAST>): BabelAST {
 }
 
 module.exports = {
+  anyTypeAlias,
   exactObjectTypeAnnotation,
   exportType,
+  fragmentReference,
+  importType,
   intersectionTypeAnnotation,
   lineComments,
   readOnlyArrayOfType,

@@ -30,6 +30,10 @@ const fetchRelayModernQuery = require('fetchRelayModernQuery');
 const isRelayModernEnvironment = require('isRelayModernEnvironment');
 const requestRelaySubscription = require('requestRelaySubscription');
 
+// There's a lint false positive for opaque types
+// eslint-disable-next-line no-undef
+export opaque type FragmentReference<T> = mixed;
+
 export type {
   GeneratedNode,
   ConcreteBatch,

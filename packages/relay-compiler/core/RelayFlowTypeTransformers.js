@@ -34,32 +34,30 @@ export type ScalarTypeMapping = {
   [type: string]: string,
 };
 
+import type {State} from './RelayFlowGenerator';
+
 function transformScalarType(
   type: GraphQLType,
-  customScalars: ScalarTypeMapping,
+  state: State,
   objectProps?: mixed,
 ) {
   if (type instanceof GraphQLNonNull) {
-    return transformNonNullableScalarType(
-      type.ofType,
-      objectProps,
-      customScalars,
-    );
+    return transformNonNullableScalarType(type.ofType, state, objectProps);
   } else {
     return t.nullableTypeAnnotation(
-      transformNonNullableScalarType(type, objectProps, customScalars),
+      transformNonNullableScalarType(type, state, objectProps),
     );
   }
 }
 
 function transformNonNullableScalarType(
   type: GraphQLType,
+  state: State,
   objectProps,
-  customScalars: ScalarTypeMapping,
 ) {
   if (type instanceof GraphQLList) {
     return readOnlyArrayOfType(
-      transformScalarType(type.ofType, customScalars, objectProps),
+      transformScalarType(type.ofType, state, objectProps),
     );
   } else if (
     type instanceof GraphQLObjectType ||
@@ -68,19 +66,16 @@ function transformNonNullableScalarType(
   ) {
     return objectProps;
   } else if (type instanceof GraphQLScalarType) {
-    return transformGraphQLScalarType(type, customScalars);
+    return transformGraphQLScalarType(type, state);
   } else if (type instanceof GraphQLEnumType) {
-    return transformGraphQLEnumType(type);
+    return transformGraphQLEnumType(type, state);
   } else {
     throw new Error(`Could not convert from GraphQL type ${type.toString()}`);
   }
 }
 
-function transformGraphQLScalarType(
-  type: GraphQLScalarType,
-  customScalars: ScalarTypeMapping,
-) {
-  switch (customScalars[type.name] || type.name) {
+function transformGraphQLScalarType(type: GraphQLScalarType, state: State) {
+  switch (state.customScalars[type.name] || type.name) {
     case 'ID':
     case 'String':
     case 'Url':
@@ -95,7 +90,7 @@ function transformGraphQLScalarType(
   }
 }
 
-function transformGraphQLEnumType(type: GraphQLEnumType) {
+function transformGraphQLEnumType(type: GraphQLEnumType, state: State) {
   // TODO create a flow type for enums
   const values = type
     .getValues()
@@ -104,49 +99,30 @@ function transformGraphQLEnumType(type: GraphQLEnumType) {
   return t.unionTypeAnnotation(values);
 }
 
-function transformInputType(
-  type: GraphQLInputType,
-  customScalars: ScalarTypeMapping,
-  inputFieldWhiteList?: ?Array<string>,
-) {
+function transformInputType(type: GraphQLInputType, state: State) {
   if (type instanceof GraphQLNonNull) {
-    return transformNonNullableInputType(
-      type.ofType,
-      customScalars,
-      inputFieldWhiteList,
-    );
+    return transformNonNullableInputType(type.ofType, state);
   } else {
-    return t.nullableTypeAnnotation(
-      transformNonNullableInputType(type, customScalars, inputFieldWhiteList),
-    );
+    return t.nullableTypeAnnotation(transformNonNullableInputType(type, state));
   }
 }
 
-function transformNonNullableInputType(
-  type: GraphQLInputType,
-  customScalars: ScalarTypeMapping,
-  inputFieldWhiteList?: ?Array<string>,
-) {
+function transformNonNullableInputType(type: GraphQLInputType, state: State) {
   if (type instanceof GraphQLList) {
-    return readOnlyArrayOfType(
-      transformInputType(type.ofType, customScalars, inputFieldWhiteList),
-    );
+    return readOnlyArrayOfType(transformInputType(type.ofType, state));
   } else if (type instanceof GraphQLScalarType) {
-    return transformGraphQLScalarType(type, customScalars);
+    return transformGraphQLScalarType(type, state);
   } else if (type instanceof GraphQLEnumType) {
-    return transformGraphQLEnumType(type);
+    return transformGraphQLEnumType(type, state);
   } else if (type instanceof GraphQLInputObjectType) {
     const fields = type.getFields();
     const props = Object.keys(fields)
       .map(key => fields[key])
-      .filter(
-        field =>
-          !inputFieldWhiteList || inputFieldWhiteList.indexOf(field.name) < 0,
-      )
+      .filter(field => state.inputFieldWhiteList.indexOf(field.name) < 0)
       .map(field => {
         const property = t.objectTypeProperty(
           t.identifier(field.name),
-          transformInputType(field.type, customScalars, inputFieldWhiteList),
+          transformInputType(field.type, state),
         );
         if (!(field.type instanceof GraphQLNonNull)) {
           property.optional = true;

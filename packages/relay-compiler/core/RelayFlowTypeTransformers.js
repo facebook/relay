@@ -100,7 +100,7 @@ function transformInputType(type: GraphQLInputType, state: State) {
   }
 }
 
-function transformInputObjectField(name: string, type: GraphQLType, state: State) {
+function transformInputObjectField(name: string, type: GraphQLInputType, state: State) {
   const { recursiveFields, recursionLimit, recursionLevel } = state;
   const id = t.identifier(name);
   if (recursiveFields.indexOf(name) > -1 && recursionLevel > recursionLimit) {
@@ -124,7 +124,7 @@ function transformNonNullableInputType(type: GraphQLInputType, state: State) {
   } else if (type instanceof GraphQLEnumType) {
     return transformGraphQLEnumType(type, state);
   } else if (type instanceof GraphQLInputObjectType) {
-    recursionLevel++;
+    state.recursionLevel++;
     const fields = type.getFields();
     const props = Object.keys(fields)
       .map(key => fields[key])

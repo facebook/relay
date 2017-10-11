@@ -372,7 +372,7 @@ function buildFieldGraph(graph, field) {
  * visible by the given type. Each component is represented by an array of strings
  * which is the field name in the schema.
  */
-function getFieldNameSCCS(type: GraphQLType): string[][] {
+function getFieldNameSCCS(type: GraphQLType) {
   const fields = objectFields(type);
   const graph = fields.reduce(buildFieldGraph, {});
   const orderedNodes = graphOrderNodes(graph);

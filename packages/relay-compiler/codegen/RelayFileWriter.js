@@ -42,7 +42,10 @@ import type {FormatModule} from './writeRelayGeneratedFile';
 import type {GeneratedNode} from 'RelayConcreteNode';
 import type {DocumentNode, GraphQLSchema} from 'graphql';
 
-const {isOperationDefinitionAST} = SchemaUtils;
+const {
+  isOperationDefinitionAST,
+  getFieldNameSCCS,
+} = SchemaUtils;
 
 export type GenerateExtraFiles = (
   getOutputDirectory: (path?: string) => CodegenDirectory,
@@ -54,15 +57,19 @@ export type WriterConfig = {
   baseDir: string,
   formatModule: FormatModule,
   compilerTransforms: CompilerTransforms,
-  customScalars?: ScalarTypeMapping,
+  customScalars: ScalarTypeMapping,
   generateExtraFiles?: GenerateExtraFiles,
   outputDir?: string,
   persistQuery?: (text: string) => Promise<string>,
   platform?: string,
   schemaExtensions: Array<string>,
   relayRuntimeModule?: string,
-  inputFieldWhiteListForFlow?: Array<string>,
+  inputFieldWhiteListForFlow: Array<string>,
   recursionLimitForFlow: number,
+
+  // Haste style module that exports flow types for GraphQL enums.
+  // TODO(T22422153) support non-haste environments
+  enumsHasteModule?: string,
 };
 
 class RelayFileWriter implements FileWriterInterface {
@@ -198,12 +205,24 @@ class RelayFileWriter implements FileWriterInterface {
             return;
           }
 
-          const flowTypes = RelayFlowGenerator.generate(
-            node,
-            this._config.recursionLimitForFlow,
-            this._config.customScalars,
-            this._config.inputFieldWhiteListForFlow,
-          );
+          const relayRuntimeModule =
+            this._config.relayRuntimeModule || 'relay-runtime';
+
+          const recursiveFields = (node.argumentDefinitions || [])
+            .map(arg =>
+              getFieldNameSCCS(arg.type)
+              .filter(component => component.length > 1),
+            )
+            .reduce(flatten, []);
+
+          const flowTypes = RelayFlowGenerator.generate(node, {
+            customScalars: this._config.customScalars,
+            inputFieldWhiteList: this._config.inputFieldWhiteListForFlow,
+            recursionLimit: this._config.recursionLimitForFlow,
+            recursiveFields,
+            relayRuntimeModule,
+            enumsHasteModule: this._config.enumsHasteModule,
+          });
 
           const compiledNode = compiledDocumentMap.get(node.name);
           invariant(
@@ -218,7 +237,7 @@ class RelayFileWriter implements FileWriterInterface {
             flowTypes,
             this._config.persistQuery,
             this._config.platform,
-            this._config.relayRuntimeModule || 'relay-runtime',
+            relayRuntimeModule,
           );
         }),
       );
@@ -298,6 +317,10 @@ function validateConfig(config: Object): void {
         'replace config.buildCommand with config.formatModule.\n',
     );
   }
+}
+
+function flatten(arr, el) {
+  return arr.concat(Array.isArray(el) ? el.reduce(flatten, []) : el);
 }
 
 module.exports = RelayFileWriter;

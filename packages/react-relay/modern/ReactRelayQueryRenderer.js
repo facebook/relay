@@ -32,7 +32,7 @@ export type Props = {
   cacheConfig?: ?CacheConfig,
   environment: Environment | ClassicEnvironment,
   query: ?GraphQLTaggedNode,
-  render: (readyState: ReadyState) => ?React.Element<any>,
+  render: (readyState: ReadyState) => React.Node,
   variables: Variables,
   rerunParamExperimental?: RerunParam,
 };

@@ -38,11 +38,16 @@ describe('RelayFlowGenerator', () => {
         (ctx, transform) => transform(ctx, schema),
         context,
       );
-      const recursionLimit = 3;
       return flowContext
         .documents()
         .map(doc =>
-          RelayFlowGenerator.generate(doc, recursionLimit),
+          RelayFlowGenerator.generate(doc, {
+            customScalars: {},
+            inputFieldWhiteList: [],
+            recursionLimit: 3,
+            recursiveFields: ['feedback', 'comment'],
+            relayRuntimeModule: 'relay-runtime',
+          }),
         )
         .join('\n\n');
     });

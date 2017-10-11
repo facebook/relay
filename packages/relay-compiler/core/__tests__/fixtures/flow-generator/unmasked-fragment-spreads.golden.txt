@@ -8,11 +8,14 @@ export type AnotherRecursiveFragment = {|
   +height: ?number,
 |};
 
+import type { FragmentReference } from 'relay-runtime';
+type PhotoFragment = any;
 export type UserProfile = {|
   +profilePicture: ?{|
     +uri: ?string,
     +width: ?number,
     +height: ?number,
+    +__fragments: FragmentReference<PhotoFragment>,
   |},
 |};
 

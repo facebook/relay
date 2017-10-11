@@ -22,6 +22,8 @@ export type InlineFragmentConditionalID = {|
   +name?: ?string,
 |};
 
+import type { FragmentReference } from 'relay-runtime';
+type SomeFragment = any;
 export type InlineFragmentKitchenSink = {|
   +actor: ?{|
     +id: string,
@@ -31,5 +33,6 @@ export type InlineFragmentKitchenSink = {|
       +height?: ?number,
     |},
     +name?: ?string,
+    +__fragments: FragmentReference<SomeFragment>,
   |},
 |};

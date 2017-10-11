@@ -33,7 +33,6 @@ function convertFetch(fn: FetchFunction): ExecuteFunction {
     if (result instanceof Error) {
       return new RelayObservable(sink => sink.error(result));
     }
-    // $FlowFixMe: Flow issues with covariant Observable types.
     return RelayObservable.from(result).map(convertToExecutePayload);
   };
 }

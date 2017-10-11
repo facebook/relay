@@ -38,7 +38,8 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
   }
   const serverViewer = record.getLinkedRecord(payload.fieldKey);
   if (!serverViewer) {
-    record.setValue(null, payload.handleKey);
+    // If `serverViewer` is null, `viewer` key for `client:root` should already
+    // be null, so no need to `setValue` again.
     return;
   }
   // Server data already has viewer data at `client:root:viewer`, so link the

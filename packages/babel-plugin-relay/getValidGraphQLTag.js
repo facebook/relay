@@ -17,18 +17,14 @@ import type {DocumentNode} from 'graphql';
 
 /**
  * Given a babel AST path to a tagged template literal, return an AST if it is
- * a graphql`` or graphql.experimental`` literal being used in a valid way.
+ * a graphql literal being used in a valid way.
  * If it is some other type of template literal then return nothing.
  */
 function getValidGraphQLTag(path: any): ?DocumentNode {
   const tag = path.get('tag');
 
-  const isGraphQLTag =
-    tag.isIdentifier({name: 'graphql'}) ||
-    tag.matchesPattern('graphql.experimental');
-
-  if (!isGraphQLTag) {
-    return;
+  if (!tag.isIdentifier({name: 'graphql'})) {
+    return null;
   }
 
   const quasis = path.node.quasi.quasis;

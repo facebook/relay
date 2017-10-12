@@ -41,19 +41,9 @@ function parseFile(baseDir: string, file: File): ?DocumentNode {
     baseDir,
     file,
   ).forEach(({tag, template}) => {
-    if (!(tag === 'graphql' || tag === 'graphql.experimental')) {
+    if (tag !== 'graphql') {
       throw new Error(
         `Invalid tag ${tag} in ${file.relPath}. Expected graphql\`\`.`,
-      );
-    }
-
-    if (tag === 'graphql.experimental') {
-      console.warn(
-        chalk.yellow(
-          'DEPRECATED: graphql.experimental`...` usage should be replaced ' +
-            `with graphql\`...\` in "${file.relPath}". No other changes are ` +
-            'needed. graphql.experimental will be removed in a future version.',
-        ),
       );
     }
 

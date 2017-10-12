@@ -43,18 +43,6 @@ function graphql(strings: Array<string>): GraphQLTaggedNode {
   );
 }
 
-/**
- * Variant of the `graphql` tag that enables experimental features.
- */
-graphql.experimental = function(strings: Array<string>): GraphQLTaggedNode {
-  invariant(
-    false,
-    'graphql.experimental: Unexpected invocation at runtime. Either the ' +
-      'Babel transform was not set up, or it failed to identify this call ' +
-      'site. Make sure it is being used verbatim as `graphql`.',
-  );
-};
-
 function getNode(taggedNode) {
   const fn = typeof taggedNode === 'function' ? taggedNode : taggedNode.modern;
   // Support for classic raw nodes (used in test mock)

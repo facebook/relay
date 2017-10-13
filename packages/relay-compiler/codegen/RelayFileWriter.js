@@ -52,17 +52,17 @@ export type GenerateExtraFiles = (
 
 export type WriterConfig = {
   baseDir: string,
-  formatModule: FormatModule,
   compilerTransforms: CompilerTransforms,
   customScalars: ScalarTypeMapping,
+  formatModule: FormatModule,
   generateExtraFiles?: GenerateExtraFiles,
+  inputFieldWhiteListForFlow: Array<string>,
   outputDir?: string,
   persistQuery?: (text: string) => Promise<string>,
   platform?: string,
-  schemaExtensions: Array<string>,
   relayRuntimeModule?: string,
-  inputFieldWhiteListForFlow: Array<string>,
-
+  schemaExtensions: Array<string>,
+  useHaste: boolean,
   // Haste style module that exports flow types for GraphQL enums.
   // TODO(T22422153) support non-haste environments
   enumsHasteModule?: string,
@@ -192,6 +192,16 @@ class RelayFileWriter implements FileWriterInterface {
 
     const tCompiled = Date.now();
 
+    const existingFragmentNames = new Set(
+      definitions.map(definition => definition.name),
+    );
+
+    // TODO(T22651734): improve this to correctly account for fragments that
+    // have generated flow types.
+    baseDefinitionNames.forEach(baseDefinitionName => {
+      existingFragmentNames.delete(baseDefinitionName);
+    });
+
     let tGenerated;
     try {
       await Promise.all(
@@ -206,9 +216,11 @@ class RelayFileWriter implements FileWriterInterface {
 
           const flowTypes = RelayFlowGenerator.generate(node, {
             customScalars: this._config.customScalars,
+            enumsHasteModule: this._config.enumsHasteModule,
+            existingFragmentNames,
             inputFieldWhiteList: this._config.inputFieldWhiteListForFlow,
             relayRuntimeModule,
-            enumsHasteModule: this._config.enumsHasteModule,
+            useHaste: this._config.useHaste,
           });
 
           const compiledNode = compiledDocumentMap.get(node.name);

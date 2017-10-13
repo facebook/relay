@@ -43,8 +43,11 @@ describe('RelayFlowGenerator', () => {
         .map(doc =>
           RelayFlowGenerator.generate(doc, {
             customScalars: {},
+            enumsHasteModule: null,
+            existingFragmentNames: new Set(),
             inputFieldWhiteList: [],
             relayRuntimeModule: 'relay-runtime',
+            useHaste: false,
           }),
         )
         .join('\n\n');

@@ -12,7 +12,6 @@
 'use strict';
 
 const invariant = require('invariant');
-const partitionArray = require('partitionArray');
 
 const {DEFAULT_HANDLE_KEY} = require('../util/DefaultHandleKey');
 const {
@@ -964,6 +963,28 @@ function getName(ast): string {
     ast,
   );
   return name;
+}
+
+/**
+ * Partitions an array given a predicate. All elements satisfying the predicate
+ * are part of the first returned array, and all elements that don't are in the
+ * second.
+ */
+function partitionArray<Tv>(
+  array: Array<Tv>,
+  predicate: (value: Tv, index: number, array: Array<Tv>) => boolean,
+  context?: any,
+): [Array<Tv>, Array<Tv>] {
+  var first = [];
+  var second = [];
+  array.forEach((element, index) => {
+    if (predicate.call(context, element, index, array)) {
+      first.push(element);
+    } else {
+      second.push(element);
+    }
+  });
+  return [first, second];
 }
 
 module.exports = GraphQLParser;

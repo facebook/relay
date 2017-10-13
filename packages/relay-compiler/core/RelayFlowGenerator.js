@@ -57,18 +57,20 @@ const {isAbstractType} = SchemaUtils;
 
 type Options = {|
   +customScalars: ScalarTypeMapping,
+  +useHaste: boolean,
+  +enumsHasteModule: ?string,
+  +existingFragmentNames: Set<string>,
   +inputFieldWhiteList: $ReadOnlyArray<string>,
   +recursiveFields: $ReadOnlyArray<string>,
   +recursionLimit: number,
   +relayRuntimeModule: string,
-  +enumsHasteModule: ?string,
 |};
 
 export type State = {|
   ...Options,
   +recursionLevel: number,
-  +usedFragments: Set<string>,
   +usedEnums: {[name: string]: GraphQLEnumType},
+  +usedFragments: Set<string>,
 |};
 
 function generate(node: Root | Fragment, options: Options): string {
@@ -234,6 +236,7 @@ function createVisitor(options: Options) {
   const state = {
     customScalars: options.customScalars,
     enumsHasteModule: options.enumsHasteModule,
+    existingFragmentNames: options.existingFragmentNames,
     inputFieldWhiteList: options.inputFieldWhiteList,
     relayRuntimeModule: options.relayRuntimeModule,
     recursiveFields: options.recursiveFields,
@@ -241,6 +244,7 @@ function createVisitor(options: Options) {
     recursionLevel: 0,
     usedEnums: {},
     usedFragments: new Set(),
+    useHaste: options.useHaste,
   };
 
   return {
@@ -406,12 +410,15 @@ function getFragmentImports(state: State) {
   const imports = [];
   if (state.usedFragments.size > 0) {
     imports.push(importTypes(['FragmentReference'], state.relayRuntimeModule));
-    // TODO: test for existance of the referenced fragment and generate
-    // import type if the fragment exist (it might not exist in compat mode).
     const usedFragments = Array.from(state.usedFragments).sort();
     for (const usedFragment of usedFragments) {
-      imports.push(anyTypeAlias(usedFragment));
-      // importTypes([includedSpreadType], includedSpreadType + '.graphql')
+      if (state.useHaste && state.existingFragmentNames.has(usedFragment)) {
+        // TODO(T22653277) support non-haste environments when importing
+        // fragments
+        imports.push(importTypes([usedFragment], usedFragment + '.graphql'));
+      } else {
+        imports.push(anyTypeAlias(usedFragment));
+      }
     }
   }
   return imports;

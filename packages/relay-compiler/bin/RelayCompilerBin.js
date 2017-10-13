@@ -167,18 +167,19 @@ function getRelayFileWriter(baseDir: string) {
   return (onlyValidate, schema, documents, baseDocuments) =>
     new RelayFileWriter({
       config: {
-        formatModule: formatGeneratedModule,
+        baseDir,
         compilerTransforms: {
           codegenTransforms,
           fragmentTransforms,
           printTransforms,
           queryTransforms,
         },
-        baseDir,
         customScalars: {},
+        formatModule: formatGeneratedModule,
         inputFieldWhiteListForFlow: [],
         schemaExtensions,
         recursionLimitForFlow: 3, //TODO: Expose this option
+        useHaste: false,
       },
       onlyValidate,
       schema,

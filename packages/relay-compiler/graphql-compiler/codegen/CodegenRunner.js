@@ -11,7 +11,7 @@
 
 'use strict';
 
-const CodegenDirectory = require('CodegenDirectory');
+const CodegenDirectory = require('./CodegenDirectory');
 const CodegenWatcher = require('./CodegenWatcher');
 const GraphQLWatchmanClient = require('../core/GraphQLWatchmanClient');
 

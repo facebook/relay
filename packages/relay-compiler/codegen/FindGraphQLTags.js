@@ -90,7 +90,7 @@ function find(
             getSourceTextForLocation(text, property.value.tag.loc),
           );
           const template = getGraphQLText(property.value.quasi);
-          if (tagName === 'graphql' || tagName === 'graphql.experimental') {
+          if (tagName === 'graphql') {
             validateTemplate(
               template,
               moduleName,
@@ -120,7 +120,7 @@ function find(
           getSourceTextForLocation(text, fragments.tag.loc),
         );
         const template = getGraphQLText(fragments.quasi);
-        if (tagName === 'graphql' || tagName === 'graphql.experimental') {
+        if (tagName === 'graphql') {
           validateTemplate(
             template,
             moduleName,
@@ -144,7 +144,7 @@ function find(
       const tagName = getGraphQLTagName(node.tag);
       if (tagName != null) {
         const template = getGraphQLText(node.quasi);
-        if (tagName === 'graphql' || tagName === 'graphql.experimental') {
+        if (tagName === 'graphql') {
           validateTemplate(
             template,
             moduleName,
@@ -203,14 +203,6 @@ const IGNORED_KEYS = {
 function getGraphQLTagName(tag) {
   if (tag.type === 'Identifier' && IDENTIFIERS.hasOwnProperty(tag.name)) {
     return tag.name;
-  } else if (
-    tag.type === 'MemberExpression' &&
-    tag.object.type === 'Identifier' &&
-    tag.object.name === 'graphql' &&
-    tag.property.type === 'Identifier' &&
-    tag.property.name === 'experimental'
-  ) {
-    return 'graphql.experimental';
   }
   return null;
 }

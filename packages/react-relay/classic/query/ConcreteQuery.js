@@ -90,6 +90,7 @@ export type ConcreteFragment = {
     isTrackingEnabled?: boolean,
     pattern?: boolean, // from @relay directive
     plural?: boolean, // OSS Printer from `@relay`
+    hoistedRootArgs?: Array<string>, // for unmasked fragment
   },
   name: string,
   type: string,

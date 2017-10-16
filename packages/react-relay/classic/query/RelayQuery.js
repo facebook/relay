@@ -1463,6 +1463,28 @@ function createNode(
   if (kind === 'Field') {
     type = RelayQueryField;
   } else if (kind === 'Fragment') {
+    const fragment = nullthrows(QueryBuilder.getFragment(concreteNode));
+    const {hoistedRootArgs} = fragment.metadata;
+    if (hoistedRootArgs) {
+      const rootVariables = rootContext.variables;
+      const combinedVariables = {...variables};
+      hoistedRootArgs.forEach(argName => {
+        const rootValue = rootVariables[argName];
+        invariant(
+          rootValue !== undefined || variables.hasOwnProperty(argName),
+          'RelayQueryNode: Expected root argument `%s` on unmasked fragment `%s` to be provided ' +
+            'in the query variables. If the route is still using ` RelayClassic.QL`, please make ' +
+            'sure that the argument is defined in the injected Relay constants module or add the ' +
+            'argument in the `prepareParams` for that route.',
+          argName,
+          fragment.name,
+        );
+        if (rootValue !== undefined) {
+          combinedVariables[argName] = rootValue;
+        }
+      });
+      variables = combinedVariables;
+    }
     type = RelayQueryFragment;
   } else if (kind === 'FragmentSpread') {
     const spread = nullthrows(QueryBuilder.getFragmentSpread(concreteNode));

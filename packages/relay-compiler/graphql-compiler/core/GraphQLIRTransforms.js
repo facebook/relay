@@ -14,7 +14,6 @@
 const FilterDirectivesTransform = require('../transforms/FilterDirectivesTransform');
 const FlattenTransform = require('../transforms/FlattenTransform');
 const InlineFragmentsTransform = require('../transforms/InlineFragmentsTransform');
-const RelayMaskTransform = require('../transforms/RelayMaskTransform');
 const SkipClientFieldTransform = require('../transforms/SkipClientFieldTransform');
 const SkipRedundantNodesTransform = require('../transforms/SkipRedundantNodesTransform');
 const SkipUnreachableNodeTransform = require('../transforms/SkipUnreachableNodeTransform');
@@ -29,7 +28,6 @@ export type IRTransform = (
 
 // Transforms applied to fragments used for reading data from a store
 const FRAGMENT_TRANSFORMS: Array<IRTransform> = [
-  RelayMaskTransform.transform,
   (ctx: CompilerContext) =>
     FlattenTransform.transform(ctx, {
       flattenAbstractTypes: true,

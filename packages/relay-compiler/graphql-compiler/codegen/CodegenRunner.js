@@ -221,13 +221,9 @@ class CodegenRunner {
   }
 
   parseFileChanges(parserName: string, files: Set<File>): void {
-    const tStart = Date.now();
     const parser = this.parsers[parserName];
     // this maybe should be await parser.parseFiles(files);
     parser.parseFiles(files);
-    const tEnd = Date.now();
-    // eslint-disable-next-line no-console
-    console.log('Parsed %s in %s', parserName, toSeconds(tStart, tEnd));
   }
 
   // We cannot do incremental writes right now.
@@ -236,7 +232,6 @@ class CodegenRunner {
     try {
       // eslint-disable-next-line no-console
       console.log('\nWriting %s', writerName);
-      const tStart = Date.now();
       const {
         getWriter,
         parser,
@@ -265,8 +260,6 @@ class CodegenRunner {
 
       const outputDirectories = await writer.writeAll();
 
-      const tWritten = Date.now();
-
       for (const dir of outputDirectories.values()) {
         const all = [
           ...dir.changes.created,
@@ -291,8 +284,6 @@ class CodegenRunner {
       CodegenDirectory.printChanges(combinedChanges, {
         onlyValidate: this.onlyValidate,
       });
-      // eslint-disable-next-line no-console
-      console.log('Written %s in %s', writerName, toSeconds(tStart, tWritten));
       return CodegenDirectory.hasChanges(combinedChanges)
         ? 'HAS_CHANGES'
         : 'NO_CHANGES';
@@ -366,10 +357,6 @@ class CodegenRunner {
 
 function anyFileFilter(file: File): boolean {
   return true;
-}
-
-function toSeconds(t0, t1) {
-  return ((t1 - t0) / 1000).toFixed(2) + 's';
 }
 
 module.exports = CodegenRunner;

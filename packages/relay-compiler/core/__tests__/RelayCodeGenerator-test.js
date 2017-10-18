@@ -25,14 +25,18 @@ describe('RelayCodeGenerator', () => {
 
   it('matches expected output', () => {
     expect('fixtures/code-generator').toMatchGolden(text => {
-      const {definitions} = parseGraphQLText(RelayTestSchema, text);
-      const context = new GraphQLCompilerContext(RelayTestSchema).addAll(
-        definitions,
-      );
-      return context
-        .documents()
-        .map(doc => prettyStringify(RelayCodeGenerator.generate(doc)))
-        .join('\n\n');
+      try {
+        const {definitions} = parseGraphQLText(RelayTestSchema, text);
+        const context = new GraphQLCompilerContext(RelayTestSchema).addAll(
+          definitions,
+        );
+        return context
+          .documents()
+          .map(doc => prettyStringify(RelayCodeGenerator.generate(doc)))
+          .join('\n\n');
+      } catch (e) {
+        return 'ERROR:\n' + e;
+      }
     });
   });
 });

@@ -9,8 +9,8 @@
 
 'use strict';
 
-const RelayEnvironment = require.requireActual('RelayEnvironment');
-const RelayRecordStore = require('RelayRecordStore');
+const RelayEnvironment = require.requireActual('../RelayEnvironment');
+const RelayRecordStore = require('../RelayRecordStore');
 
 const resolveImmediate = require('resolveImmediate');
 

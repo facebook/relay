@@ -17,8 +17,8 @@
  * These are types shared across multiple files within Relay internals.
  */
 
-import typeof GraphQLMutatorConstants from 'GraphQLMutatorConstants';
-import type RelayQuery from 'RelayQuery';
+import typeof GraphQLMutatorConstants from '../legacy/mutation/GraphQLMutatorConstants';
+import type RelayQuery from '../query/RelayQuery';
 
 type AfterConnectionArgumentMap = {
   after: string,

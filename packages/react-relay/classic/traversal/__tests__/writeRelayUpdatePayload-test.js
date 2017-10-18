@@ -10,24 +10,24 @@
 
 'use strict';
 
-jest.mock('generateClientID').mock('warning');
+jest.mock('../../legacy/store/generateClientID').mock('warning');
 
 require('configureForRelayOSS');
 
-const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
+const GraphQLMutatorConstants = require('../../legacy/mutation/GraphQLMutatorConstants');
 const RelayClassic = require('RelayClassic');
-const RelayChangeTracker = require('RelayChangeTracker');
-const RelayMutationType = require('RelayMutationType');
-const RelayQueryTracker = require('RelayQueryTracker');
-const RelayQueryWriter = require('RelayQueryWriter');
-const RelayRecordStore = require('RelayRecordStore');
-const RelayRecordWriter = require('RelayRecordWriter');
+const RelayChangeTracker = require('../../store/RelayChangeTracker');
+const RelayMutationType = require('../../mutation/RelayMutationType');
+const RelayQueryTracker = require('../../store/RelayQueryTracker');
+const RelayQueryWriter = require('../../store/RelayQueryWriter');
+const RelayRecordStore = require('../../store/RelayRecordStore');
+const RelayRecordWriter = require('../../store/RelayRecordWriter');
 const RelayTestUtils = require('RelayTestUtils');
 
-const generateClientEdgeID = require('generateClientEdgeID');
-const writeRelayUpdatePayload = require('writeRelayUpdatePayload');
+const generateClientEdgeID = require('../../legacy/store/generateClientEdgeID');
+const writeRelayUpdatePayload = require('../writeRelayUpdatePayload');
 
-const {ConnectionInterface} = require('RelayRuntime');
+const {ConnectionInterface} = require('../../../../relay-runtime/RelayRuntime');
 
 const {CLIENT_MUTATION_ID} = ConnectionInterface.get();
 

@@ -11,15 +11,15 @@
 
 'use strict';
 
-const QueryBuilder = require('QueryBuilder');
+const QueryBuilder = require('./QueryBuilder');
 
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const warning = require('warning');
 
-import type {ConcreteFragment} from 'ConcreteQuery';
-import type RelayMetaRoute from 'RelayMetaRoute';
-import type {Variables} from 'RelayTypes';
+import type RelayMetaRoute from '../route/RelayMetaRoute';
+import type {Variables} from '../tools/RelayTypes';
+import type {ConcreteFragment} from './ConcreteQuery';
 
 type Condition = {
   passingValue: boolean,

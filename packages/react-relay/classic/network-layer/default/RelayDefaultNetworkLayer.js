@@ -11,12 +11,12 @@
 
 'use strict';
 
-const RelayMutationRequest = require('RelayMutationRequest');
+const RelayMutationRequest = require('../../network/RelayMutationRequest');
 
 const fetch = require('fetch');
 const fetchWithRetries = require('fetchWithRetries');
 
-import type RelayQueryRequest from 'RelayQueryRequest';
+import type RelayQueryRequest from '../../network/RelayQueryRequest';
 import type {InitWithRetries} from 'fetchWithRetries';
 
 type GraphQLError = {

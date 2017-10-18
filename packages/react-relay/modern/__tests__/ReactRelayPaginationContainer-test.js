@@ -11,16 +11,18 @@
 'use strict';
 
 const React = require('React');
-const ReactRelayPaginationContainer = require('ReactRelayPaginationContainer');
-const ReactRelayPropTypes = require('ReactRelayPropTypes');
+const ReactRelayPaginationContainer = require('../ReactRelayPaginationContainer');
+const ReactRelayPropTypes = require('../ReactRelayPropTypes');
 const ReactTestRenderer = require('ReactTestRenderer');
-const RelayConnectionHandler = require('RelayConnectionHandler');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
-const {createOperationSelector} = require('RelayModernOperationSelector');
-const {ConnectionInterface} = require('RelayRuntime');
-const {ROOT_ID} = require('RelayStoreUtils');
+const {
+  createOperationSelector,
+  ConnectionHandler,
+  ConnectionInterface,
+  ROOT_ID,
+} = require('RelayRuntime');
 const {generateAndCompile} = RelayModernTestUtils;
 
 describe('ReactRelayPaginationContainer', () => {
@@ -84,7 +86,7 @@ describe('ReactRelayPaginationContainer', () => {
     expect.extend(RelayModernTestUtils.matchers);
 
     environment = createMockEnvironment({
-      handlerProvider: () => RelayConnectionHandler,
+      handlerProvider: () => ConnectionHandler,
     });
     ({UserFragment, UserQuery} = generateAndCompile(
       `

@@ -11,17 +11,18 @@
 'use strict';
 
 const React = require('React');
-const ReactRelayPropTypes = require('ReactRelayPropTypes');
-const ReactRelayQueryRenderer = require('ReactRelayQueryRenderer');
+const ReactRelayPropTypes = require('../ReactRelayPropTypes');
+const ReactRelayQueryRenderer = require('../ReactRelayQueryRenderer');
 const ReactTestRenderer = require('ReactTestRenderer');
-const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
-const RelayMarkSweepStore = require('RelayMarkSweepStore');
-const RelayModernEnvironment = require('RelayModernEnvironment');
-const RelayNetwork = require('RelayNetwork');
-
-const simpleClone = require('simpleClone');
 
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
+const {
+  Environment,
+  Network,
+  RecordSource,
+  Store,
+  simpleClone,
+} = require('RelayRuntime');
 
 describe('ReactRelayQueryRenderer', () => {
   let TestQuery;
@@ -161,9 +162,9 @@ describe('ReactRelayQueryRenderer', () => {
         },
       };
       const fetch = () => response;
-      store = new RelayMarkSweepStore(new RelayInMemoryRecordSource());
-      environment = new RelayModernEnvironment({
-        network: RelayNetwork.create(fetch),
+      store = new Store(new RecordSource());
+      environment = new Environment({
+        network: Network.create(fetch),
         store,
       });
       ReactTestRenderer.create(
@@ -193,9 +194,9 @@ describe('ReactRelayQueryRenderer', () => {
     it('skip loading state when request failed synchronously', () => {
       const error = new Error('Mock Network Error');
       const fetch = () => error;
-      store = new RelayMarkSweepStore(new RelayInMemoryRecordSource());
-      environment = new RelayModernEnvironment({
-        network: RelayNetwork.create(fetch),
+      store = new Store(new RecordSource());
+      environment = new Environment({
+        network: Network.create(fetch),
         store,
       });
       ReactTestRenderer.create(

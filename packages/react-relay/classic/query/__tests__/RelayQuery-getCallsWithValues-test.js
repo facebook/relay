@@ -12,7 +12,7 @@
 
 require('configureForRelayOSS');
 
-const QueryBuilder = require('QueryBuilder');
+const QueryBuilder = require('../QueryBuilder');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayQueryNode.prototype.getCallsWithValues()', function() {

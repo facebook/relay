@@ -11,29 +11,30 @@
 
 'use strict';
 
-const QueryBuilder = require('QueryBuilder');
-const RelayFragmentReference = require('RelayFragmentReference');
-const RelayMetaRoute = require('RelayMetaRoute');
-const RelayProfiler = require('RelayProfiler');
-const RelayRouteFragment = require('RelayRouteFragment');
-const RelayVariable = require('RelayVariable');
-const RelayVariables = require('RelayVariables');
+const QueryBuilder = require('./QueryBuilder');
+const RelayFragmentReference = require('./RelayFragmentReference');
+const RelayMetaRoute = require('../route/RelayMetaRoute');
+const RelayRouteFragment = require('./RelayRouteFragment');
+const RelayVariable = require('./RelayVariable');
+const RelayVariables = require('./RelayVariables');
 
 const areEqual = require('areEqual');
-const callsFromGraphQL = require('callsFromGraphQL');
-const callsToGraphQL = require('callsToGraphQL');
-const directivesToGraphQL = require('directivesToGraphQL');
-const generateConcreteFragmentID = require('generateConcreteFragmentID');
-const generateRQLFieldAlias = require('generateRQLFieldAlias');
+const callsFromGraphQL = require('./callsFromGraphQL');
+const callsToGraphQL = require('./callsToGraphQL');
+const directivesToGraphQL = require('./directivesToGraphQL');
+const generateConcreteFragmentID = require('./generateConcreteFragmentID');
+const generateRQLFieldAlias = require('./generateRQLFieldAlias');
 const invariant = require('invariant');
 const nullthrows = require('nullthrows');
-const serializeRelayQueryCall = require('serializeRelayQueryCall');
+const serializeRelayQueryCall = require('./serializeRelayQueryCall');
 const shallowEqual = require('shallowEqual');
-const stableStringify = require('stableStringify');
+const stableStringify = require('./stableStringify');
 
-const {ConnectionInterface} = require('RelayRuntime');
-const {getFragmentSpreadArguments} = require('RelayVariables');
+const {getFragmentSpreadArguments} = require('./RelayVariables');
+const {ConnectionInterface, RelayProfiler} = require('RelayRuntime');
 
+import type {Call, Directive} from '../tools/RelayInternalTypes';
+import type {Variables} from '../tools/RelayTypes';
 import type {
   ConcreteField,
   ConcreteFieldMetadata,
@@ -44,9 +45,7 @@ import type {
   ConcreteOperationMetadata,
   ConcreteQuery,
   ConcreteQueryMetadata,
-} from 'ConcreteQuery';
-import type {Call, Directive} from 'RelayInternalTypes';
-import type {Variables} from 'RelayTypes';
+} from './ConcreteQuery';
 
 type BatchCall = {
   refParamName: string,

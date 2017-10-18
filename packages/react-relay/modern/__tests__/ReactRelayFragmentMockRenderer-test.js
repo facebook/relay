@@ -14,9 +14,9 @@ jest.mock('ReactDOM', () => ({}));
 
 const React = require('React');
 const ReactTestRenderer = require('ReactTestRenderer');
-const ReactRelayRefetchContainer = require('ReactRelayRefetchContainer');
-const ReactRelayFragmentMockRenderer = require('ReactRelayFragmentMockRenderer');
-const ReactRelayFragmentContainer = require('ReactRelayFragmentContainer');
+const ReactRelayRefetchContainer = require('../ReactRelayRefetchContainer');
+const ReactRelayFragmentMockRenderer = require('../ReactRelayFragmentMockRenderer');
+const ReactRelayFragmentContainer = require('../ReactRelayFragmentContainer');
 const RelayModernMockEnvironment = require('RelayModernMockEnvironment');
 
 describe('ReactRelayFragmentMockRenderer', () => {

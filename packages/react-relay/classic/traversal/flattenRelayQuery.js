@@ -12,9 +12,10 @@
 'use strict';
 
 const Map = require('Map');
-const RelayProfiler = require('RelayProfiler');
-const RelayQuery = require('RelayQuery');
-const RelayQueryVisitor = require('RelayQueryVisitor');
+const RelayQuery = require('../query/RelayQuery');
+const RelayQueryVisitor = require('../query/RelayQueryVisitor');
+
+const {RelayProfiler} = require('RelayRuntime');
 
 type FlattenedQuery = {
   node: RelayQuery.Node,

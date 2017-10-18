@@ -11,19 +11,18 @@
 
 'use strict';
 
-const RelayClassicRecordState = require('RelayClassicRecordState');
-const RelayProfiler = require('RelayProfiler');
-const RelayQueryVisitor = require('RelayQueryVisitor');
+const RelayClassicRecordState = require('../store/RelayClassicRecordState');
+const RelayQueryVisitor = require('../query/RelayQueryVisitor');
 
-const forEachRootCallArg = require('forEachRootCallArg');
-const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
+const forEachRootCallArg = require('../query/forEachRootCallArg');
+const isCompatibleRelayFragmentType = require('../tools/isCompatibleRelayFragmentType');
 
-const {ConnectionInterface} = require('RelayRuntime');
+const {ConnectionInterface, RelayProfiler} = require('RelayRuntime');
 
-import type {DataID} from 'RelayInternalTypes';
-import type RelayQuery from 'RelayQuery';
-import type RelayRecordStore from 'RelayRecordStore';
-import type {RangeInfo} from 'RelayRecordStore';
+import type RelayQuery from '../query/RelayQuery';
+import type RelayRecordStore from '../store/RelayRecordStore';
+import type {RangeInfo} from '../store/RelayRecordStore';
+import type {DataID} from '../tools/RelayInternalTypes';
 
 type CheckerState = {
   dataID: ?DataID,

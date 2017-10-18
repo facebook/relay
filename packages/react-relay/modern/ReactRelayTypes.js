@@ -11,16 +11,14 @@
 
 'use strict';
 
-import type {Disposable} from 'RelayCombinedEnvironmentTypes';
-import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
-import type {Observer} from 'RelayObservable';
-import type {Environment} from 'RelayStoreTypes';
-import type {RerunParam, Variables} from 'RelayTypes';
+import type {Disposable} from '../classic/environment/RelayCombinedEnvironmentTypes';
+import type {RerunParam, Variables} from '../classic/tools/RelayTypes';
+import type {GraphQLTaggedNode, Observer, IEnvironment} from 'RelayRuntime';
 
 export type GeneratedNodeMap = {[key: string]: GraphQLTaggedNode};
 
 export type RelayProp = {
-  environment: Environment,
+  environment: IEnvironment,
 };
 
 export type ObserverOrCallback = Observer<void> | ((error: ?Error) => void);

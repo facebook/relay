@@ -12,36 +12,36 @@
 'use strict';
 
 const ErrorUtils = require('ErrorUtils');
-const QueryBuilder = require('QueryBuilder');
-const RelayMutationQuery = require('RelayMutationQuery');
-const RelayMutationRequest = require('RelayMutationRequest');
-const RelayMutationTransaction = require('RelayMutationTransaction');
-const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
-const RelayOptimisticMutationUtils = require('RelayOptimisticMutationUtils');
-const RelayQuery = require('RelayQuery');
+const QueryBuilder = require('../query/QueryBuilder');
+const RelayMutationQuery = require('./RelayMutationQuery');
+const RelayMutationRequest = require('../network/RelayMutationRequest');
+const RelayMutationTransaction = require('./RelayMutationTransaction');
+const RelayMutationTransactionStatus = require('./RelayMutationTransactionStatus');
+const RelayOptimisticMutationUtils = require('./RelayOptimisticMutationUtils');
+const RelayQuery = require('../query/RelayQuery');
 
 const base62 = require('base62');
-const flattenRelayQuery = require('flattenRelayQuery');
-const fromGraphQL = require('fromGraphQL');
+const flattenRelayQuery = require('../traversal/flattenRelayQuery');
+const fromGraphQL = require('../query/fromGraphQL');
 const invariant = require('invariant');
 const nullthrows = require('nullthrows');
 const resolveImmediate = require('resolveImmediate');
 
 const {ConnectionInterface} = require('RelayRuntime');
 
-import type {ConcreteMutation} from 'ConcreteQuery';
-import type {ClientMutationID} from 'RelayInternalTypes';
-import type RelayMutation from 'RelayMutation';
-import type {FileMap} from 'RelayMutation';
-import type RelayQueryTracker from 'RelayQueryTracker';
-import type RelayStoreData from 'RelayStoreData';
+import type {ConcreteMutation} from '../query/ConcreteQuery';
+import type RelayQueryTracker from '../store/RelayQueryTracker';
+import type RelayStoreData from '../store/RelayStoreData';
+import type {ClientMutationID} from '../tools/RelayInternalTypes';
 import type {
   RelayMutationConfig,
   RelayMutationTransactionCommitCallbacks,
   RelayMutationTransactionCommitFailureCallback,
   RelayMutationTransactionCommitSuccessCallback,
   Variables,
-} from 'RelayTypes';
+} from '../tools/RelayTypes';
+import type RelayMutation from './RelayMutation';
+import type {FileMap} from './RelayMutation';
 
 type CollisionQueueMap = {[key: string]: Array<PendingTransaction>};
 interface PendingTransaction {
@@ -540,7 +540,7 @@ class RelayPendingTransaction {
         this._optimisticQuery = null;
       }
       if (__DEV__ && console.groupCollapsed && console.groupEnd) {
-        require('RelayMutationDebugPrinter').printOptimisticMutation(
+        require('./RelayMutationDebugPrinter').printOptimisticMutation(
           this._optimisticQuery,
           optimisticResponse,
         );
@@ -595,7 +595,7 @@ class RelayPendingTransaction {
         tracker,
       });
       if (__DEV__ && console.groupCollapsed && console.groupEnd) {
-        require('RelayMutationDebugPrinter').printMutation(this._query);
+        require('./RelayMutationDebugPrinter').printMutation(this._query);
         console.groupEnd();
       }
     }

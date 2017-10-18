@@ -11,12 +11,12 @@
 
 'use strict';
 
-const RelayNodeInterface = require('RelayNodeInterface');
-const RelayQuery = require('RelayQuery');
+const RelayNodeInterface = require('../interface/RelayNodeInterface');
+const RelayQuery = require('../query/RelayQuery');
 
-const flattenRelayQuery = require('flattenRelayQuery');
+const flattenRelayQuery = require('../traversal/flattenRelayQuery');
 
-import type {DataID} from 'RelayInternalTypes';
+import type {DataID} from '../tools/RelayInternalTypes';
 
 const TYPE = '__type__';
 

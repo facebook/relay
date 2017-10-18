@@ -18,9 +18,9 @@ jest
 
 const RelayTestUtils = require('RelayTestUtils');
 
-const GraphQLRange = require('GraphQLRange');
+const GraphQLRange = require('../GraphQLRange');
 const {ConnectionInterface} = require('RelayRuntime');
-const RelayRecord = require('RelayRecord');
+const RelayRecord = require('../../../store/RelayRecord');
 
 function getFirstSegment(range) {
   return range.__debug().orderedSegments[0];

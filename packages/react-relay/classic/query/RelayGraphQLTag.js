@@ -11,15 +11,15 @@
 
 'use strict';
 
-const RelayQL = require('RelayQL');
+const RelayQL = require('./RelayQL');
 
 const invariant = require('invariant');
 
 import type {
   ConcreteFragmentDefinition,
   ConcreteOperationDefinition,
-} from 'ConcreteQuery';
-import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
+} from './ConcreteQuery';
+import type {GraphQLTaggedNode} from 'RelayRuntime';
 
 /**
  * Runtime function to correspond to the `graphql` tagged template function.

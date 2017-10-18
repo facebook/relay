@@ -13,12 +13,12 @@
 require('configureForRelayOSS');
 
 const RelayClassic = require('RelayClassic');
-const RelayChangeTracker = require('RelayChangeTracker');
-const RelayQueryPath = require('RelayQueryPath');
-const RelayQueryTracker = require('RelayQueryTracker');
-const RelayQueryWriter = require('RelayQueryWriter');
-const RelayRecordStore = require('RelayRecordStore');
-const RelayRecordWriter = require('RelayRecordWriter');
+const RelayChangeTracker = require('../RelayChangeTracker');
+const RelayQueryPath = require('../../query/RelayQueryPath');
+const RelayQueryTracker = require('../RelayQueryTracker');
+const RelayQueryWriter = require('../RelayQueryWriter');
+const RelayRecordStore = require('../RelayRecordStore');
+const RelayRecordWriter = require('../RelayRecordWriter');
 const RelayTestUtils = require('RelayTestUtils');
 
 const {getNode} = RelayTestUtils;

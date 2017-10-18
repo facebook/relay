@@ -15,7 +15,7 @@ require('configureForRelayOSS');
 const RelayClassic = require('RelayClassic');
 const RelayTestUtils = require('RelayTestUtils');
 
-const intersectRelayQuery = require('intersectRelayQuery');
+const intersectRelayQuery = require('../intersectRelayQuery');
 
 describe('intersectRelayQuery', () => {
   const {getNode} = RelayTestUtils;

@@ -12,9 +12,9 @@
 'use strict';
 
 const React = require('React');
-const RelayPropTypes = require('RelayPropTypes');
-const RelayRoute = require('RelayRoute');
-const RelayStore = require('RelayStore');
+const RelayPropTypes = require('../../classic/container/RelayPropTypes');
+const RelayRoute = require('../../classic/route/RelayRoute');
+const RelayStore = require('../../classic/store/RelayStore');
 
 // Dummy Route
 /* $FlowFixMe(>=0.54.0) This comment suppresses an error

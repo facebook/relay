@@ -11,28 +11,33 @@
 
 'use strict';
 
-const RelayCacheProcessor = require('RelayCacheProcessor');
-const RelayChangeTracker = require('RelayChangeTracker');
-const RelayProfiler = require('RelayProfiler');
-const RelayQuery = require('RelayQuery');
-const RelayQueryPath = require('RelayQueryPath');
-const RelayRecord = require('RelayRecord');
+const RelayCacheProcessor = require('./RelayCacheProcessor');
+const RelayChangeTracker = require('./RelayChangeTracker');
+const RelayQuery = require('../query/RelayQuery');
+const RelayQueryPath = require('../query/RelayQueryPath');
+const RelayRecord = require('./RelayRecord');
 
-const findRelayQueryLeaves = require('findRelayQueryLeaves');
+const findRelayQueryLeaves = require('../traversal/findRelayQueryLeaves');
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 
-import type RelayGarbageCollector from 'RelayGarbageCollector';
-import type {DataID, RelayQuerySet, RootCallMap} from 'RelayInternalTypes';
-import type {QueryPath} from 'RelayQueryPath';
-import type {Record, RecordMap} from 'RelayRecord';
-import type RelayRecordStore from 'RelayRecordStore';
+const {RelayProfiler} = require('RelayRuntime');
+
+import type {QueryPath} from '../query/RelayQueryPath';
+import type {
+  DataID,
+  RelayQuerySet,
+  RootCallMap,
+} from '../tools/RelayInternalTypes';
 import type {
   Abortable,
   CacheManager,
   CacheProcessorCallbacks,
-} from 'RelayTypes';
-import type {NodeState} from 'findRelayQueryLeaves';
+} from '../tools/RelayTypes';
+import type {NodeState} from '../traversal/findRelayQueryLeaves';
+import type RelayGarbageCollector from './RelayGarbageCollector';
+import type {Record, RecordMap} from './RelayRecord';
+import type RelayRecordStore from './RelayRecordStore';
 
 /**
  * @internal

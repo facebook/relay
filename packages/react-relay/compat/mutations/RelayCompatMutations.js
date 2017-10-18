@@ -17,15 +17,14 @@ const warning = require('warning');
 const {
   getRelayClassicEnvironment,
   getRelayModernEnvironment,
-} = require('RelayCompatEnvironment');
+} = require('../RelayCompatEnvironment');
 const {applyOptimisticMutation, commitMutation} = require('RelayRuntime');
 
-import type {ConcreteOperationDefinition} from 'ConcreteQuery';
-import type {Disposable} from 'RelayCombinedEnvironmentTypes';
-import type {CompatEnvironment} from 'RelayCompatTypes';
-import type {Environment as ClassicEnvironment} from 'RelayEnvironmentTypes';
-import type {OptimisticMutationConfig} from 'applyRelayModernOptimisticMutation';
-import type {MutationConfig} from 'commitRelayModernMutation';
+import type {Disposable} from '../../classic/environment/RelayCombinedEnvironmentTypes';
+import type {Environment as ClassicEnvironment} from '../../classic/environment/RelayEnvironmentTypes';
+import type {ConcreteOperationDefinition} from '../../classic/query/ConcreteQuery';
+import type {CompatEnvironment} from '../react/RelayCompatTypes';
+import type {MutationConfig, OptimisticMutationConfig} from 'RelayRuntime';
 
 const RelayCompatMutations = {
   commitUpdate<T>(

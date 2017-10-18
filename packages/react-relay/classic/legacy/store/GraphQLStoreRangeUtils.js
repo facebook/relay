@@ -10,8 +10,8 @@
 
 'use strict';
 
-const callsFromGraphQL = require('callsFromGraphQL');
-const serializeRelayQueryCall = require('serializeRelayQueryCall');
+const callsFromGraphQL = require('../../query/callsFromGraphQL');
+const serializeRelayQueryCall = require('../../query/serializeRelayQueryCall');
 
 /**
  * Utilities used by GraphQLStore for storing ranges

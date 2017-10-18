@@ -11,7 +11,7 @@
 
 'use strict';
 
-import type {DataID} from 'RelayInternalTypes';
+import type {DataID} from '../tools/RelayInternalTypes';
 
 type ChangeMap = {[key: string]: boolean};
 

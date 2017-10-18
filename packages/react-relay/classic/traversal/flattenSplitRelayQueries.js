@@ -11,8 +11,8 @@
 
 'use strict';
 
-import type RelayQuery from 'RelayQuery';
-import type {SplitQueries} from 'splitDeferredRelayQueries';
+import type RelayQuery from '../query/RelayQuery';
+import type {SplitQueries} from './splitDeferredRelayQueries';
 
 /**
  * Flattens the nested structure returned by `splitDeferredRelayQueries`.

@@ -11,7 +11,7 @@
 
 'use strict';
 
-import type {RelayContainer} from 'RelayTypes';
+import type {RelayContainer} from '../tools/RelayTypes';
 
 /**
  * This feature is deprecated and unavailable in open source.

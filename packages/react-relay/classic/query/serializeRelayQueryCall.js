@@ -13,7 +13,7 @@
 
 const flattenArray = require('flattenArray');
 
-import type {Call, CallValue} from 'RelayInternalTypes';
+import type {Call, CallValue} from '../tools/RelayInternalTypes';
 
 /**
  * @internal

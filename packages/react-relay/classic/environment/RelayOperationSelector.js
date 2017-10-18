@@ -11,16 +11,16 @@
 
 'use strict';
 
-const QueryBuilder = require('QueryBuilder');
+const QueryBuilder = require('../query/QueryBuilder');
 
 const invariant = require('invariant');
 
-const {ROOT_ID} = require('RelayStoreConstants');
-const {getOperationVariables} = require('RelayVariables');
+const {getOperationVariables} = require('../query/RelayVariables');
+const {ROOT_ID} = require('../store/RelayStoreConstants');
 
-import type {ConcreteOperationDefinition} from 'ConcreteQuery';
-import type {OperationSelector} from 'RelayEnvironmentTypes';
-import type {Variables} from 'RelayTypes';
+import type {ConcreteOperationDefinition} from '../query/ConcreteQuery';
+import type {Variables} from '../tools/RelayTypes';
+import type {OperationSelector} from './RelayEnvironmentTypes';
 
 /**
  * @public

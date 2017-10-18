@@ -16,7 +16,7 @@
  * Adds `unwrap` to the container that returns the component to test.
  *
  * @example
- * jest.mock('Relay', () => require('RelayShallowMock'));
+ * jest.mock('Relay', () => require('./RelayShallowMock'));
  * const renderer = require('ReactTestRenderer');
  * const MyContainer = require('MyContainer');
  *
@@ -39,7 +39,10 @@
 const React = require('React');
 const Relay = (require: any).requireActual('RelayClassic');
 
-import type {RelayContainerSpec, RelayLazyContainer} from 'RelayContainer';
+import type {
+  RelayContainerSpec,
+  RelayLazyContainer,
+} from '../container/RelayContainer';
 
 const RelayShallowMock = {
   createContainer: (

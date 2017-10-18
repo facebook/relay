@@ -16,15 +16,15 @@ require('configureForRelayOSS');
 
 jest.unmock('GraphQLRange').unmock('GraphQLSegment');
 
-const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
+const GraphQLMutatorConstants = require('../../legacy/mutation/GraphQLMutatorConstants');
 const RelayClassic = require('RelayClassic');
 const {ConnectionInterface} = require('RelayRuntime');
 const RelayMockCacheManager = require('RelayMockCacheManager');
-const RelayMutationType = require('RelayMutationType');
-const RelayStoreData = require('RelayStoreData');
+const RelayMutationType = require('../../mutation/RelayMutationType');
+const RelayStoreData = require('../RelayStoreData');
 const RelayTestUtils = require('RelayTestUtils');
 
-const transformRelayQueryPayload = require('transformRelayQueryPayload');
+const transformRelayQueryPayload = require('../../traversal/transformRelayQueryPayload');
 
 describe('RelayStoreData', function() {
   let cacheManager;

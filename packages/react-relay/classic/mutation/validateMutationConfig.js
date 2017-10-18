@@ -13,10 +13,10 @@
 
 const invariant = require('invariant');
 const sprintf = require('sprintf');
-const testEditDistance = require('testEditDistance');
+const testEditDistance = require('../tools/testEditDistance');
 const warning = require('warning');
 
-import type {RelayMutationConfig} from 'RelayTypes';
+import type {RelayMutationConfig} from '../tools/RelayTypes';
 
 type PropertyDescription = {
   [name: string]: Validator,

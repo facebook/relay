@@ -15,10 +15,10 @@ jest.mock('RelayQueryTracker').mock('RelayClassicRecordState');
 require('configureForRelayOSS');
 
 const RelayClassic = require('RelayClassic');
-const RelayQueryTracker = require('RelayQueryTracker');
+const RelayQueryTracker = require('../../store/RelayQueryTracker');
 const RelayTestUtils = require('RelayTestUtils');
 
-const diffRelayQuery = require('diffRelayQuery');
+const diffRelayQuery = require('../diffRelayQuery');
 
 describe('diffRelayQuery', () => {
   let RelayRecordStore;
@@ -29,8 +29,8 @@ describe('diffRelayQuery', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    RelayRecordStore = require('RelayRecordStore');
-    RelayRecordWriter = require('RelayRecordWriter');
+    RelayRecordStore = require('../../store/RelayRecordStore');
+    RelayRecordWriter = require('../../store/RelayRecordWriter');
 
     expect.extend(RelayTestUtils.matchers);
   });

@@ -11,20 +11,23 @@
 
 'use strict';
 
-const RelayContainerProxy = require('RelayContainerProxy');
-const RelayGraphQLTag = require('RelayGraphQLTag');
-const RelayPropTypes = require('RelayPropTypes');
+const RelayContainerProxy = require('../classic/container/RelayContainerProxy');
+const RelayGraphQLTag = require('../classic/query/RelayGraphQLTag');
+const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
-const assertFragmentMap = require('assertFragmentMap');
+const assertFragmentMap = require('../modern/assertFragmentMap');
 const invariant = require('invariant');
 const mapObject = require('mapObject');
 
-const {getComponentName, getContainerName} = require('RelayContainerUtils');
+const {
+  getComponentName,
+  getContainerName,
+} = require('../classic/container/RelayContainerUtils');
 
-import type {ConcreteFragmentSpread} from 'ConcreteQuery';
-import type {GeneratedNodeMap} from 'ReactRelayTypes';
-import type {VariableMapping} from 'RelayFragmentReference';
-import type {Variables} from 'RelayTypes';
+import type {ConcreteFragmentSpread} from '../classic/query/ConcreteQuery';
+import type {VariableMapping} from '../classic/query/RelayFragmentReference';
+import type {Variables} from '../classic/tools/RelayTypes';
+import type {GeneratedNodeMap} from '../modern/ReactRelayTypes';
 
 const containerContextTypes = {
   relay: RelayPropTypes.Relay,

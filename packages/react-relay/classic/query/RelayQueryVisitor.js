@@ -11,7 +11,7 @@
 
 'use strict';
 
-const RelayQuery = require('RelayQuery');
+const RelayQuery = require('./RelayQuery');
 
 /**
  * @internal

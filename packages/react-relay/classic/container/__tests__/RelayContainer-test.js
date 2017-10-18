@@ -18,15 +18,15 @@ jest.unmock('create-react-class');
 jest.unmock('react-test-renderer/shallow');
 jest.unmock('RelayContainerComparators').mock('warning');
 
-const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-const QueryBuilder = require('QueryBuilder');
+const GraphQLStoreQueryResolver = require('../../legacy/store/GraphQLStoreQueryResolver');
+const QueryBuilder = require('../../query/QueryBuilder');
 const React = require('React');
 const createReactClass = require('create-react-class');
 const RelayClassic = require('RelayClassic');
-const RelayEnvironment = require('RelayEnvironment');
-const RelayMutation = require('RelayMutation');
-const RelayQuery = require('RelayQuery');
-const RelayRoute = require('RelayRoute');
+const RelayEnvironment = require('../../store/RelayEnvironment');
+const RelayMutation = require('../../mutation/RelayMutation');
+const RelayQuery = require('../../query/RelayQuery');
+const RelayRoute = require('../../route/RelayRoute');
 const RelayTestUtils = require('RelayTestUtils');
 const ShallowRenderer = require('react-test-renderer/shallow');
 

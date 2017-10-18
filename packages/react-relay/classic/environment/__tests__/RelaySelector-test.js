@@ -12,14 +12,14 @@
 
 jest.mock('warning');
 
-const {ROOT_ID} = require('RelayStoreConstants');
+const {ROOT_ID} = require('../../store/RelayStoreConstants');
 const {
   graphql,
   getClassicFragment,
   getClassicOperation,
-} = require('RelayGraphQLTag');
-const generateRQLFieldAlias = require('generateRQLFieldAlias');
-const RelayEnvironment = require('RelayEnvironment');
+} = require('../../query/RelayGraphQLTag');
+const generateRQLFieldAlias = require('../../query/generateRQLFieldAlias');
+const RelayEnvironment = require('../../store/RelayEnvironment');
 const RelayTestUtils = require('RelayTestUtils');
 const {
   areEqualSelectors,
@@ -28,8 +28,8 @@ const {
   getSelectorList,
   getSelectorsFromObject,
   getVariablesFromObject,
-} = require('RelaySelector');
-const {createOperationSelector} = require('RelayOperationSelector');
+} = require('../RelaySelector');
+const {createOperationSelector} = require('../RelayOperationSelector');
 
 describe('RelaySelector', () => {
   let UserFragment;

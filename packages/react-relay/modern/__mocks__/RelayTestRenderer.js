@@ -11,16 +11,15 @@
 'use strict';
 
 const React = require('React');
-const RelayPropTypes = require('RelayPropTypes');
+const RelayPropTypes = require('../../classic/container/RelayPropTypes');
 
 const invariant = require('invariant');
 
-import type {ConcreteBatch} from 'RelayConcreteNode';
-import type {Environment, Snapshot} from 'RelayStoreTypes';
-import type {Variables} from 'RelayTypes';
+import type {Variables} from '../../classic/tools/RelayTypes';
+import type {ConcreteBatch, StoreEnvironment, Snapshot} from 'RelayRuntime';
 
 type Props = {
-  environment: Environment,
+  environment: StoreEnvironment,
   query: ConcreteBatch,
   variables: Variables,
   children: React.Component,
@@ -40,7 +39,7 @@ class RelayTestRenderer extends React.Component {
       'Expected child of `RelayTestContainer` to be a React element',
     );
 
-    let {query, environment, variables} = props;
+    const {query, environment, variables} = props;
 
     const {
       createOperationSelector,

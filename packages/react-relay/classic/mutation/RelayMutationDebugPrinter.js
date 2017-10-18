@@ -10,9 +10,9 @@
  */
 
 'use strict';
-const printRelayQuery = require('printRelayQuery');
+const printRelayQuery = require('../traversal/printRelayQuery');
 
-import type RelayQuery from 'RelayQuery';
+import type RelayQuery from '../query/RelayQuery';
 
 /**
  * @internal

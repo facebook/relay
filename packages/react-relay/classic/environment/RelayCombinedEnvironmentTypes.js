@@ -11,10 +11,9 @@
 
 'use strict';
 
-import type {DataID} from 'RelayInternalTypes';
-import type RelayObservable from 'RelayObservable';
-import type {SelectorStoreUpdater} from 'RelayStoreTypes';
-import type {RerunParam, Variables} from 'RelayTypes';
+import type {DataID} from '../tools/RelayInternalTypes';
+import type {RerunParam, Variables} from '../tools/RelayTypes';
+import type {Observable, SelectorStoreUpdater} from 'RelayRuntime';
 
 /**
  * Settings for how a query response may be cached.
@@ -189,7 +188,7 @@ export interface CEnvironment<
     operation: COperationSelector<TNode, TOperation>,
     cacheConfig?: ?CacheConfig,
     updater?: ?SelectorStoreUpdater,
-  |}): RelayObservable<TPayload>,
+  |}): Observable<TPayload>,
 
   unstable_internal: CUnstableEnvironmentCore<
     TEnvironment,

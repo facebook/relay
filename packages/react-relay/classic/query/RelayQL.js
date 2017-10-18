@@ -11,20 +11,20 @@
 
 'use strict';
 
-const QueryBuilder = require('QueryBuilder');
-const RelayFragmentReference = require('RelayFragmentReference');
-const RelayRouteFragment = require('RelayRouteFragment');
+const QueryBuilder = require('./QueryBuilder');
+const RelayFragmentReference = require('./RelayFragmentReference');
+const RelayRouteFragment = require('./RelayRouteFragment');
 
-const generateConcreteFragmentID = require('generateConcreteFragmentID');
+const generateConcreteFragmentID = require('./generateConcreteFragmentID');
 const invariant = require('invariant');
 
 import type {
   ConcreteFragment,
   ConcreteFragmentDefinition,
   ConcreteOperationDefinition,
-} from 'ConcreteQuery';
-import type {VariableMapping} from 'RelayFragmentReference';
-import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
+} from './ConcreteQuery';
+import type {VariableMapping} from './RelayFragmentReference';
+import type {GraphQLTaggedNode} from 'RelayRuntime';
 
 export type RelayConcreteNode = mixed;
 

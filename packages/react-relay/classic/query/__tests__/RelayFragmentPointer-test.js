@@ -15,8 +15,8 @@ require('configureForRelayOSS');
 jest.unmock('RelayFragmentPointer');
 
 const RelayClassic = require('RelayClassic');
-const RelayFragmentPointer = require('RelayFragmentPointer');
-const RelayRecordStore = require('RelayRecordStore');
+const RelayFragmentPointer = require('../RelayFragmentPointer');
+const RelayRecordStore = require('../../store/RelayRecordStore');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayFragmentPointer', () => {

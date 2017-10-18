@@ -11,7 +11,7 @@
 
 'use strict';
 
-import type {ReadyStateEvent} from 'RelayTypes';
+import type {ReadyStateEvent} from '../tools/RelayTypes';
 
 /**
  * Parses Relay ready state events so users of RelayRenderer can have more fine grain control in the

@@ -12,15 +12,15 @@
 
 require('configureForRelayOSS');
 
-const QueryBuilder = require('QueryBuilder');
+const QueryBuilder = require('../../query/QueryBuilder');
 const RelayClassic = require('RelayClassic');
-const RelayNodeInterface = require('RelayNodeInterface');
-const RelayQuery = require('RelayQuery');
+const RelayNodeInterface = require('../../interface/RelayNodeInterface');
+const RelayQuery = require('../../query/RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
-const {graphql, getClassicOperation} = require('RelayGraphQLTag');
-const generateRQLFieldAlias = require('generateRQLFieldAlias');
-const printRelayOSSQuery = require('printRelayOSSQuery');
+const {graphql, getClassicOperation} = require('../../query/RelayGraphQLTag');
+const generateRQLFieldAlias = require('../../query/generateRQLFieldAlias');
+const printRelayOSSQuery = require('../printRelayOSSQuery');
 
 describe('printRelayOSSQuery', () => {
   const {getNode} = RelayTestUtils;

@@ -20,11 +20,11 @@ jest.unmock('react-test-renderer');
 const React = require('React');
 const ReactTestRenderer = require('react-test-renderer');
 const RelayClassic = require('RelayClassic');
-const RelayEnvironment = require('RelayEnvironment');
-const RelayQueryConfig = require('RelayQueryConfig');
-const RelayRenderer = require('RelayRenderer');
+const RelayEnvironment = require('../../store/RelayEnvironment');
+const RelayQueryConfig = require('../../query-config/RelayQueryConfig');
+const RelayRenderer = require('../RelayRenderer');
 
-const getRelayQueries = require('getRelayQueries');
+const getRelayQueries = require('../getRelayQueries');
 
 describe('RelayRenderer', function() {
   let MockContainer;

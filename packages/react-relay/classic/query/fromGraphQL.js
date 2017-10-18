@@ -11,8 +11,8 @@
 
 'use strict';
 
-const RelayMetaRoute = require('RelayMetaRoute');
-const RelayQuery = require('RelayQuery');
+const RelayMetaRoute = require('../route/RelayMetaRoute');
+const RelayQuery = require('./RelayQuery');
 
 const invariant = require('invariant');
 

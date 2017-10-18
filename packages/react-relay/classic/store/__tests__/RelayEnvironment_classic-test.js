@@ -11,19 +11,19 @@
 'use strict';
 
 jest.enableAutomock().useFakeTimers();
-jest.unmock('RelayEnvironment');
+jest.unmock('../RelayEnvironment');
 
 require('configureForRelayOSS');
 
 const RelayClassic = require('RelayClassic');
-const RelayEnvironment = require('RelayEnvironment');
-const RelayMutation = require('RelayMutation');
-const RelayMutationTransaction = require('RelayMutationTransaction');
-const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
-const RelayMutationQueue = require('RelayMutationQueue');
+const RelayEnvironment = require('../RelayEnvironment');
+const RelayMutation = require('../../mutation/RelayMutation');
+const RelayMutationTransaction = require('../../mutation/RelayMutationTransaction');
+const RelayMutationTransactionStatus = require('../../mutation/RelayMutationTransactionStatus');
+const RelayMutationQueue = require('../../mutation/RelayMutationQueue');
 const RelayTestUtils = require('RelayTestUtils');
 
-const readRelayQueryData = require('readRelayQueryData');
+const readRelayQueryData = require('../readRelayQueryData');
 
 const {CREATED, ROLLED_BACK, UNCOMMITTED} = RelayMutationTransactionStatus;
 

@@ -15,19 +15,19 @@ jest.useFakeTimers();
 
 require('configureForRelayOSS');
 
-const GraphQLRange = require('GraphQLRange');
+const GraphQLRange = require('../../legacy/store/GraphQLRange');
 const RelayClassic = require('RelayClassic');
-const RelayChangeTracker = require('RelayChangeTracker');
-const RelayGarbageCollector = require('RelayGarbageCollector');
-const RelayQueryPath = require('RelayQueryPath');
-const RelayRecordStore = require('RelayRecordStore');
+const RelayChangeTracker = require('../RelayChangeTracker');
+const RelayGarbageCollector = require('../RelayGarbageCollector');
+const RelayQueryPath = require('../../query/RelayQueryPath');
+const RelayRecordStore = require('../RelayRecordStore');
 const RelayTestUtils = require('RelayTestUtils');
 
 const invariant = require('invariant');
 const {
   restoreFragmentDataFromCache,
   restoreQueriesDataFromCache,
-} = require('restoreRelayCacheData');
+} = require('../restoreRelayCacheData');
 
 describe('restoreRelayCacheData', () => {
   const {getNode} = RelayTestUtils;

@@ -38,9 +38,9 @@ const RelayTestUtils = {
   createRenderer(container) {
     const React = require('React');
     const ReactDOM = require('ReactDOM');
-    const RelayEnvironment = require('RelayEnvironment');
-    const RelayPropTypes = require('RelayPropTypes');
-    const RelayRoute = require('RelayRoute');
+    const RelayEnvironment = require('../../store/RelayEnvironment');
+    const RelayPropTypes = require('../../container/RelayPropTypes');
+    const RelayRoute = require('../../route/RelayRoute');
     const invariant = require('invariant');
 
     class ContextSetter extends React.Component {
@@ -136,8 +136,8 @@ const RelayTestUtils = {
   },
 
   conditionOnType(fragment) {
-    const QueryBuilder = require('QueryBuilder');
-    const RelayFragmentReference = require('RelayFragmentReference');
+    const QueryBuilder = require('../../query/QueryBuilder');
+    const RelayFragmentReference = require('../../query/RelayFragmentReference');
     const invariant = require('invariant');
 
     invariant(
@@ -150,7 +150,7 @@ const RelayTestUtils = {
   },
 
   createCall(name, value, type) {
-    const QueryBuilder = require('QueryBuilder');
+    const QueryBuilder = require('../../query/QueryBuilder');
 
     if (Array.isArray(value)) {
       value = value.map(QueryBuilder.createCallValue);
@@ -161,13 +161,13 @@ const RelayTestUtils = {
   },
 
   createContainerFragment(fragment) {
-    const RelayFragmentReference = require('RelayFragmentReference');
+    const RelayFragmentReference = require('../../query/RelayFragmentReference');
     return RelayFragmentReference.createForContainer(() => fragment, {});
   },
 
   defer(fragment) {
-    const QueryBuilder = require('QueryBuilder');
-    const RelayFragmentReference = require('RelayFragmentReference');
+    const QueryBuilder = require('../../query/QueryBuilder');
+    const RelayFragmentReference = require('../../query/RelayFragmentReference');
     const invariant = require('invariant');
 
     invariant(
@@ -192,8 +192,8 @@ const RelayTestUtils = {
   },
 
   getNode(node, variables, queryConfig) {
-    const RelayMetaRoute = require('RelayMetaRoute');
-    const RelayQuery = require('RelayQuery');
+    const RelayMetaRoute = require('../../route/RelayMetaRoute');
+    const RelayQuery = require('../../query/RelayQuery');
 
     return RelayQuery.Node.create(
       node,
@@ -222,8 +222,8 @@ const RelayTestUtils = {
   },
 
   getPointer(dataID, fragment) {
-    const RelayFragmentPointer = require('RelayFragmentPointer');
-    const RelayQuery = require('RelayQuery');
+    const RelayFragmentPointer = require('../../query/RelayFragmentPointer');
+    const RelayQuery = require('../../query/RelayQuery');
     const invariant = require('invariant');
 
     invariant(
@@ -241,9 +241,9 @@ const RelayTestUtils = {
    * `Relay.QL` as a basis and attach the appropriate args and ref params.
    */
   getRefNode(node, refParam) {
-    const QueryBuilder = require('QueryBuilder');
-    const RelayQuery = require('RelayQuery');
-    const RelayMetaRoute = require('RelayMetaRoute');
+    const QueryBuilder = require('../../query/QueryBuilder');
+    const RelayQuery = require('../../query/RelayQuery');
+    const RelayMetaRoute = require('../../route/RelayMetaRoute');
 
     const invariant = require('invariant');
 
@@ -293,8 +293,8 @@ const RelayTestUtils = {
   },
 
   filterGeneratedFields(query) {
-    const RelayQuery = require('RelayQuery');
-    const filterRelayQuery = require('filterRelayQuery');
+    const RelayQuery = require('../../query/RelayQuery');
+    const filterRelayQuery = require('../../traversal/filterRelayQuery');
 
     return filterRelayQuery(
       query,
@@ -307,7 +307,7 @@ const RelayTestUtils = {
      * Checks if a RelayQuery.Root is `===` to another.
      */
     toBeQueryRoot(actual, expected) {
-      const RelayQuery = require('RelayQuery');
+      const RelayQuery = require('../../query/RelayQuery');
       const queryType = checkQueryType(actual, expected, RelayQuery.Root);
       if (!queryType.pass) {
         return queryType;
@@ -462,7 +462,7 @@ const RelayTestUtils = {
      * Checks if a RelayQuery.Node is `equals()` to another.
      */
     toEqualQueryNode(actual, expected) {
-      const RelayQuery = require('RelayQuery');
+      const RelayQuery = require('../../query/RelayQuery');
       const queryType = checkQueryType(actual, expected, RelayQuery.Node);
       if (!queryType.pass) {
         return queryType;
@@ -474,7 +474,7 @@ const RelayTestUtils = {
      * Checks if a RelayQuery.Root is `equals()` to another.
      */
     toEqualQueryRoot(actual, expected) {
-      const RelayQuery = require('RelayQuery');
+      const RelayQuery = require('../../query/RelayQuery');
       const queryType = checkQueryType(actual, expected, RelayQuery.Root);
       if (!queryType.pass) {
         return queryType;
@@ -569,14 +569,14 @@ const RelayTestUtils = {
      * the same length have equivalent (shallow-equal) roots and fields.
      */
     toMatchPath(actual, expected) {
-      const QueryBuilder = require('QueryBuilder');
-      const RelayMetaRoute = require('RelayMetaRoute');
-      const RelayNodeInterface = require('RelayNodeInterface');
-      const RelayQuery = require('RelayQuery');
-      const RelayQueryPath = require('RelayQueryPath');
+      const QueryBuilder = require('../../query/QueryBuilder');
+      const RelayMetaRoute = require('../../route/RelayMetaRoute');
+      const RelayNodeInterface = require('../../interface/RelayNodeInterface');
+      const RelayQuery = require('../../query/RelayQuery');
+      const RelayQueryPath = require('../../query/RelayQueryPath');
 
       const invariant = require('invariant');
-      const printRelayQuery = require('printRelayQuery');
+      const printRelayQuery = require('../../traversal/printRelayQuery');
 
       const fragment = RelayQuery.Fragment.create(
         QueryBuilder.createFragment({
@@ -652,9 +652,9 @@ const RelayTestUtils = {
    * useful when developing tests.
    */
   logNode(node) {
-    const RelayQuery = require('RelayQuery');
-    const flattenRelayQuery = require('flattenRelayQuery');
-    const printRelayQuery = require('printRelayQuery');
+    const RelayQuery = require('../../query/RelayQuery');
+    const flattenRelayQuery = require('../../traversal/flattenRelayQuery');
+    const printRelayQuery = require('../../traversal/printRelayQuery');
 
     if (node instanceof RelayQuery.Field) {
       // Normally can't print fields directly, so wrap it in a fake fragment.
@@ -684,7 +684,7 @@ const RelayTestUtils = {
    * serialization keys matching the fields in the query.
    */
   writePayload(store, writer, query, payload, queryTracker, options) {
-    const transformRelayQueryPayload = require('transformRelayQueryPayload');
+    const transformRelayQueryPayload = require('../../traversal/transformRelayQueryPayload');
 
     return RelayTestUtils.writeVerbatimPayload(
       store,
@@ -701,10 +701,10 @@ const RelayTestUtils = {
    * the payload is not transformed first.
    */
   writeVerbatimPayload(store, writer, query, payload, queryTracker, options) {
-    const RelayChangeTracker = require('RelayChangeTracker');
-    const RelayQueryTracker = require('RelayQueryTracker');
-    const RelayQueryWriter = require('RelayQueryWriter');
-    const writeRelayQueryPayload = require('writeRelayQueryPayload');
+    const RelayChangeTracker = require('../../store/RelayChangeTracker');
+    const RelayQueryTracker = require('../../store/RelayQueryTracker');
+    const RelayQueryWriter = require('../../store/RelayQueryWriter');
+    const writeRelayQueryPayload = require('../../traversal/writeRelayQueryPayload');
 
     queryTracker =
       queryTracker === null ? null : queryTracker || new RelayQueryTracker();
@@ -772,7 +772,7 @@ function checkQueryEquality(actual, expected, toBe) {
  * @private
  */
 function printQueryComparison(actual, expected, message) {
-  const printRelayQuery = require('printRelayQuery');
+  const printRelayQuery = require('../../traversal/printRelayQuery');
 
   const formatRefParam = node =>
     node.hasRefParam && node.hasRefParam()
@@ -798,7 +798,7 @@ function printQueryComparison(actual, expected, message) {
  */
 const concreteFragmentSortKeys = new Map();
 function createFragmentSortKey(node) {
-  const stableStringify = require('stableStringify');
+  const stableStringify = require('../../query/stableStringify');
   const concreteNode = node.__concreteNode__;
   if (!concreteFragmentSortKeys.has(concreteNode)) {
     concreteFragmentSortKeys.set(concreteNode, concreteFragmentSortKeys.size);
@@ -862,7 +862,7 @@ function indentBy(indentSize, string) {
  * @private
  */
 function sortRelayQuery(node) {
-  const RelayQuery = require('RelayQuery');
+  const RelayQuery = require('../../query/RelayQuery');
 
   function getSortableKey(maybeFragment) {
     return maybeFragment instanceof RelayQuery.Fragment

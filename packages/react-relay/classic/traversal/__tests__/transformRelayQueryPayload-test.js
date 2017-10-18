@@ -13,11 +13,11 @@
 require('configureForRelayOSS');
 
 const RelayClassic = require('RelayClassic');
-const RelayQuery = require('RelayQuery');
+const RelayQuery = require('../../query/RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
-const generateRQLFieldAlias = require('generateRQLFieldAlias');
-const transformRelayQueryPayload = require('transformRelayQueryPayload');
+const generateRQLFieldAlias = require('../../query/generateRQLFieldAlias');
+const transformRelayQueryPayload = require('../transformRelayQueryPayload');
 
 describe('transformClientPayload()', () => {
   const {getNode} = RelayTestUtils;

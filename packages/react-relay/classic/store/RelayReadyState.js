@@ -18,7 +18,7 @@ import type {
   ReadyState,
   ReadyStateChangeCallback,
   ReadyStateEvent,
-} from 'RelayTypes';
+} from '../tools/RelayTypes';
 
 type PartialReadyState = {
   aborted?: boolean,

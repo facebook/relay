@@ -11,10 +11,10 @@
 
 'use strict';
 
-const forEachRootCallArg = require('forEachRootCallArg');
+const forEachRootCallArg = require('../query/forEachRootCallArg');
 const invariant = require('invariant');
 
-import type RelayQuery from 'RelayQuery';
+import type RelayQuery from '../query/RelayQuery';
 
 export type PayloadResult = {
   result: mixed,

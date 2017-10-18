@@ -11,16 +11,18 @@
 
 'use strict';
 
-const RelayPropTypes = require('RelayPropTypes');
+const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
-const assertFragmentMap = require('assertFragmentMap');
+const assertFragmentMap = require('./assertFragmentMap');
 const mapObject = require('mapObject');
 
-const {getComponentName, getContainerName} = require('RelayContainerUtils');
+const {
+  getComponentName,
+  getContainerName,
+} = require('../classic/container/RelayContainerUtils');
 
-import type {GeneratedNodeMap} from 'ReactRelayTypes';
-import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
-import type {FragmentMap} from 'RelayStoreTypes';
+import type {GeneratedNodeMap} from './ReactRelayTypes';
+import type {GraphQLTaggedNode, FragmentMap} from 'RelayRuntime';
 
 const containerContextTypes = {
   relay: RelayPropTypes.Relay,

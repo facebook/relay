@@ -11,7 +11,7 @@
 
 'use strict';
 
-const isRelayModernContext = require('isRelayModernContext');
+const isRelayModernContext = require('./isRelayModernContext');
 const sprintf = require('sprintf');
 
 const ReactRelayPropTypes = {

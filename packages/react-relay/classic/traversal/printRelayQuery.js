@@ -11,11 +11,11 @@
 
 'use strict';
 
-const RelayQuery = require('RelayQuery');
+const RelayQuery = require('../query/RelayQuery');
 
-const printRelayOSSQuery = require('printRelayOSSQuery');
+const printRelayOSSQuery = require('./printRelayOSSQuery');
 
-import type {PrintedQuery} from 'RelayInternalTypes';
+import type {PrintedQuery} from '../tools/RelayInternalTypes';
 
 /**
  * To support legacy behavior, allow the classic relay printer to be injectable.

@@ -11,10 +11,10 @@
 
 'use strict';
 
-const GraphQLRange = require('GraphQLRange');
-const RelayClassicRecordState = require('RelayClassicRecordState');
-const RelayNodeInterface = require('RelayNodeInterface');
-const RelayRecord = require('RelayRecord');
+const GraphQLRange = require('../legacy/store/GraphQLRange');
+const RelayClassicRecordState = require('./RelayClassicRecordState');
+const RelayNodeInterface = require('../interface/RelayNodeInterface');
+const RelayRecord = require('./RelayRecord');
 
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
@@ -22,8 +22,7 @@ const warning = require('warning');
 
 const {ConnectionInterface} = require('RelayRuntime');
 
-import type {RecordState} from 'RelayClassicRecordState';
-import type {PageInfo} from 'RelayConnectionInterface';
+import type {QueryPath} from '../query/RelayQueryPath';
 import type {
   Call,
   ClientMutationID,
@@ -31,9 +30,10 @@ import type {
   FieldValue,
   NodeRangeMap,
   RootCallMap,
-} from 'RelayInternalTypes';
-import type {QueryPath} from 'RelayQueryPath';
-import type {Record, RecordMap} from 'RelayRecord';
+} from '../tools/RelayInternalTypes';
+import type {RecordState} from './RelayClassicRecordState';
+import type {Record, RecordMap} from './RelayRecord';
+import type {PageInfo} from 'RelayRuntime';
 
 type RangeEdge = {
   edgeID: string,

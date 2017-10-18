@@ -11,17 +11,17 @@
 
 'use strict';
 
-const RelayQuery = require('RelayQuery');
-const RelayQueryVisitor = require('RelayQueryVisitor');
+const RelayQuery = require('../query/RelayQuery');
+const RelayQueryVisitor = require('../query/RelayQueryVisitor');
 
-const forEachRootCallArg = require('forEachRootCallArg');
+const forEachRootCallArg = require('../query/forEachRootCallArg');
 const invariant = require('invariant');
 const isEmpty = require('isEmpty');
 const warning = require('warning');
 
-import type {DataID} from 'RelayInternalTypes';
-import type {Record} from 'RelayRecord';
-import type {CacheManager, CacheProcessorCallbacks} from 'RelayTypes';
+import type {DataID} from '../tools/RelayInternalTypes';
+import type {CacheManager, CacheProcessorCallbacks} from '../tools/RelayTypes';
+import type {Record} from './RelayRecord';
 
 type ProcessorState = 'PENDING' | 'LOADING' | 'COMPLETED';
 

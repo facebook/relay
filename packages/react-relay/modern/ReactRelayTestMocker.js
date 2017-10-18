@@ -11,20 +11,23 @@
 
 'use strict';
 
-const RelayNetwork = require('RelayNetwork');
-
 const areEqual = require('areEqual');
 const emptyFunction = require('emptyFunction');
 const invariant = require('invariant');
-const isRelayModernEnvironment = require('isRelayModernEnvironment');
 const warning = require('warning');
 
-import type {ConcreteOperationDefinition} from 'ConcreteQuery';
-import type {CacheConfig} from 'RelayCombinedEnvironmentTypes';
-import type {ConcreteBatch} from 'RelayConcreteNode';
-import type {GraphQLResponse, PayloadError} from 'RelayNetworkTypes';
-import type {Environment, OperationSelector} from 'RelayStoreTypes';
-import type {Variables} from 'RelayTypes';
+const {Network, isRelayModernEnvironment} = require('RelayRuntime');
+
+import type {CacheConfig} from '../classic/environment/RelayCombinedEnvironmentTypes';
+import type {ConcreteOperationDefinition} from '../classic/query/ConcreteQuery';
+import type {Variables} from '../classic/tools/RelayTypes';
+import type {
+  ConcreteBatch,
+  GraphQLResponse,
+  OperationSelector,
+  PayloadError,
+  IEnvironment,
+} from 'RelayRuntime';
 
 type DataWriteConfig = {
   query: ConcreteBatch,
@@ -60,10 +63,10 @@ let nextId = 0;
 let pendingFetches: Array<PendingFetch> = [];
 
 class ReactRelayTestMocker {
-  _environment: Environment;
+  _environment: IEnvironment;
   _defaults: {[string]: $PropertyType<NetworkWriteConfig, 'payload'>};
 
-  constructor(env: Environment) {
+  constructor(env: IEnvironment) {
     this._defaults = {};
 
     if (isRelayModernEnvironment(env)) {
@@ -132,7 +135,7 @@ class ReactRelayTestMocker {
    * in refetch containers, for example. It also allows test writers to see how
    * their components behave under error conditions.
    */
-  _mockNetworkLayer(env: Environment): Environment {
+  _mockNetworkLayer(env: IEnvironment): IEnvironment {
     const fetch = (operation, variables, cacheConfig) => {
       let resolve = emptyFunction;
       let reject = emptyFunction;
@@ -200,7 +203,7 @@ class ReactRelayTestMocker {
 
     (env: any).hasMockedNetwork = true;
 
-    (env: any).__setNet(RelayNetwork.create(fetch));
+    (env: any).__setNet(Network.create(fetch));
     return env;
   }
 

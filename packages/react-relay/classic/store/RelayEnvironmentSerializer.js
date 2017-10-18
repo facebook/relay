@@ -11,8 +11,8 @@
 
 'use strict';
 
-const RelayEnvironment = require('RelayEnvironment');
-const RelayStoreData = require('RelayStoreData');
+const RelayEnvironment = require('./RelayEnvironment');
+const RelayStoreData = require('./RelayStoreData');
 
 const RelayEnvironmentSerializer = {
   serialize(relayEnvironment: RelayEnvironment): string {

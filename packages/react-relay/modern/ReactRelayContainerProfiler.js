@@ -11,7 +11,7 @@
 
 'use strict';
 
-const RelayProfiler = require('RelayProfiler');
+const {RelayProfiler} = require('RelayRuntime');
 
 function profileContainer(
   Container: React$ComponentType<any>,

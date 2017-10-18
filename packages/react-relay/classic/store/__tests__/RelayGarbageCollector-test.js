@@ -16,12 +16,12 @@ jest.useFakeTimers();
 jest.unmock('GraphQLRange').unmock('GraphQLSegment');
 
 const RelayClassic = require('RelayClassic');
-const RelayNodeInterface = require('RelayNodeInterface');
-const RelayStoreData = require('RelayStoreData');
+const RelayNodeInterface = require('../../interface/RelayNodeInterface');
+const RelayStoreData = require('../RelayStoreData');
 const RelayTestUtils = require('RelayTestUtils');
 
 const forEachObject = require('forEachObject');
-const transformRelayQueryPayload = require('transformRelayQueryPayload');
+const transformRelayQueryPayload = require('../../traversal/transformRelayQueryPayload');
 
 describe('RelayGarbageCollector', () => {
   const {getNode} = RelayTestUtils;

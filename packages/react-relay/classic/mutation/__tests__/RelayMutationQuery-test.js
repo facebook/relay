@@ -16,17 +16,17 @@ require('configureForRelayOSS');
 
 jest.unmock('RelayMutationQuery').mock('warning');
 
-const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
+const GraphQLMutatorConstants = require('../../legacy/mutation/GraphQLMutatorConstants');
 const RelayClassic = require('RelayClassic');
-const RelayMutationQuery = require('RelayMutationQuery');
-const RelayMutationType = require('RelayMutationType');
-const RelayOptimisticMutationUtils = require('RelayOptimisticMutationUtils');
-const RelayQueryTracker = require('RelayQueryTracker');
+const RelayMutationQuery = require('../RelayMutationQuery');
+const RelayMutationType = require('../RelayMutationType');
+const RelayOptimisticMutationUtils = require('../RelayOptimisticMutationUtils');
+const RelayQueryTracker = require('../../store/RelayQueryTracker');
 const RelayTestUtils = require('RelayTestUtils');
 
-const filterRelayQuery = require('filterRelayQuery');
-const fromGraphQL = require('fromGraphQL');
-const intersectRelayQuery = require('intersectRelayQuery');
+const filterRelayQuery = require('../../traversal/filterRelayQuery');
+const fromGraphQL = require('../../query/fromGraphQL');
+const intersectRelayQuery = require('../../traversal/intersectRelayQuery');
 
 const {ConnectionInterface} = require('RelayRuntime');
 

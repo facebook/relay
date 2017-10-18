@@ -15,12 +15,12 @@ jest.enableAutomock();
 const React = require('React');
 const ReactTestUtils = require('ReactTestUtils');
 const RelayClassic = require('RelayClassic');
-const RelayEnvironment = require('RelayEnvironment');
-const RelayQueryConfig = require('RelayQueryConfig');
-const RelayReadyStateRenderer = require('RelayReadyStateRenderer');
+const RelayEnvironment = require('../../store/RelayEnvironment');
+const RelayQueryConfig = require('../../query-config/RelayQueryConfig');
+const RelayReadyStateRenderer = require('../RelayReadyStateRenderer');
 
 jest.dontMock('RelayStaticContainer');
-const RelayStaticContainer = require('RelayStaticContainer');
+const RelayStaticContainer = require('../RelayStaticContainer');
 
 jest.dontMock('pretty-format');
 const prettyFormat = require('pretty-format');

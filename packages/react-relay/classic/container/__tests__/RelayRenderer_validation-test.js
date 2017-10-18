@@ -19,9 +19,9 @@ jest.unmock('react-test-renderer/shallow');
 
 const React = require('React');
 const RelayClassic = require('RelayClassic');
-const RelayEnvironment = require('RelayEnvironment');
-const RelayQueryConfig = require('RelayQueryConfig');
-const RelayRenderer = require('RelayRenderer');
+const RelayEnvironment = require('../../store/RelayEnvironment');
+const RelayQueryConfig = require('../../query-config/RelayQueryConfig');
+const RelayRenderer = require('../RelayRenderer');
 const RelayTestUtils = require('RelayTestUtils');
 const ShallowRenderer = require('react-test-renderer/shallow');
 

@@ -12,9 +12,9 @@
 
 require('configureForRelayOSS');
 
-const RelayEnvironment = require('RelayEnvironment');
+const RelayEnvironment = require('../RelayEnvironment');
 
-const isClassicRelayEnvironment = require('isClassicRelayEnvironment');
+const isClassicRelayEnvironment = require('../isClassicRelayEnvironment');
 
 describe('isClassicRelayEnvironment()', () => {
   it('returns true for `RelayEnvironment` instances', () => {

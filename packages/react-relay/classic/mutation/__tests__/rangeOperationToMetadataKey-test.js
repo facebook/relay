@@ -10,7 +10,7 @@
 
 'use strict';
 
-const rangeOperationToMetadataKey = require('rangeOperationToMetadataKey');
+const rangeOperationToMetadataKey = require('../rangeOperationToMetadataKey');
 
 describe('rangeOperationToMetadataKey', () => {
   it('maps from developer-friendly name to internal metadata key name', () => {

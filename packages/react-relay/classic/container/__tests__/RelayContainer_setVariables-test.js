@@ -16,14 +16,14 @@ jest.mock('warning');
 
 require('configureForRelayOSS');
 
-const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-const QueryBuilder = require('QueryBuilder');
+const GraphQLStoreQueryResolver = require('../../legacy/store/GraphQLStoreQueryResolver');
+const QueryBuilder = require('../../query/QueryBuilder');
 const React = require('React');
 const ReactDOM = require('ReactDOM');
 const RelayClassic = require('RelayClassic');
-const RelayEnvironment = require('RelayEnvironment');
-const RelayMetaRoute = require('RelayMetaRoute');
-const RelayQuery = require('RelayQuery');
+const RelayEnvironment = require('../../store/RelayEnvironment');
+const RelayMetaRoute = require('../../route/RelayMetaRoute');
+const RelayQuery = require('../../query/RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayContainer.setVariables', function() {

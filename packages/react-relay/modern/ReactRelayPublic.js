@@ -11,10 +11,10 @@
 
 'use strict';
 
-const ReactRelayFragmentContainer = require('ReactRelayFragmentContainer');
-const ReactRelayPaginationContainer = require('ReactRelayPaginationContainer');
-const ReactRelayQueryRenderer = require('ReactRelayQueryRenderer');
-const ReactRelayRefetchContainer = require('ReactRelayRefetchContainer');
+const ReactRelayFragmentContainer = require('./ReactRelayFragmentContainer');
+const ReactRelayPaginationContainer = require('./ReactRelayPaginationContainer');
+const ReactRelayQueryRenderer = require('./ReactRelayQueryRenderer');
+const ReactRelayRefetchContainer = require('./ReactRelayRefetchContainer');
 
 const {
   commitLocalUpdate,
@@ -25,21 +25,24 @@ const {
 } = require('RelayRuntime');
 
 export type {
+  Disposable,
+} from '../classic/environment/RelayCombinedEnvironmentTypes';
+export type {DataID} from '../classic/tools/RelayInternalTypes';
+export type {Variables} from '../classic/tools/RelayTypes';
+export type {
   RelayPaginationProp,
   RelayProp,
   RelayRefetchProp,
-} from 'ReactRelayTypes';
-export type {Disposable} from 'RelayCombinedEnvironmentTypes';
-export type {DataID} from 'RelayInternalTypes';
-export type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
+} from './ReactRelayTypes';
 export type {
-  Environment,
+  // RelayRuntime has two environment exports: one interface, one concrete.
+  IEnvironment as Environment,
+  GraphQLTaggedNode,
   OperationSelector,
   RelayContext,
   Selector,
   Snapshot,
-} from 'RelayStoreTypes';
-export type {Variables} from 'RelayTypes';
+} from 'RelayRuntime';
 
 /**
  * The public interface to React Relay.

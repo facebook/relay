@@ -11,12 +11,12 @@
 'use strict';
 
 const RelayClassic = require('RelayClassic');
-const RelayMutationTransaction = require('RelayMutationTransaction');
-const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
-const RelayStoreData = require('RelayStoreData');
+const RelayMutationTransaction = require('../../mutation/RelayMutationTransaction');
+const RelayMutationTransactionStatus = require('../../mutation/RelayMutationTransactionStatus');
+const RelayStoreData = require('../RelayStoreData');
 const RelayTestUtils = require('RelayTestUtils');
 
-const readRelayQueryData = require('readRelayQueryData');
+const readRelayQueryData = require('../readRelayQueryData');
 
 describe('readRelayQueryData (mutationStatus)', () => {
   const {getNode, writePayload} = RelayTestUtils;

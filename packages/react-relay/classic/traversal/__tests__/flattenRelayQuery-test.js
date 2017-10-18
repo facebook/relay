@@ -15,7 +15,7 @@ require('configureForRelayOSS');
 const RelayClassic = require('RelayClassic');
 const RelayTestUtils = require('RelayTestUtils');
 
-const flattenRelayQuery = require('flattenRelayQuery');
+const flattenRelayQuery = require('../flattenRelayQuery');
 
 describe('flattenRelayQuery', () => {
   const {getNode} = RelayTestUtils;

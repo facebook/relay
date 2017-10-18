@@ -13,8 +13,8 @@
 
 const PropTypes = require('prop-types');
 const React = require('React');
-const RelayEnvironment = require('RelayEnvironment');
-const RelayPropTypes = require('RelayPropTypes');
+const RelayEnvironment = require('../store/RelayEnvironment');
+const RelayPropTypes = require('../container/RelayPropTypes');
 
 /**
  * A helper for rendering RelayContainers with mock data, outside of a

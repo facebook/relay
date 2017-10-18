@@ -11,12 +11,12 @@
 
 'use strict';
 
-const RelayQueryConfig = require('RelayQueryConfig');
+const RelayQueryConfig = require('../query-config/RelayQueryConfig');
 
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 
-import type {ConfigQueries} from 'RelayQueryConfig';
+import type {ConfigQueries} from '../query-config/RelayQueryConfig';
 import type URI from 'URI';
 
 type ParamDefinition = {

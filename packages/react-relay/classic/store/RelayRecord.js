@@ -11,10 +11,10 @@
 
 'use strict';
 
-import type GraphQLRange from 'GraphQLRange';
-import type {Call, ClientMutationID, DataID} from 'RelayInternalTypes';
-import type {QueryPath} from 'RelayQueryPath';
-import type {Variables} from 'RelayTypes';
+import type GraphQLRange from '../legacy/store/GraphQLRange';
+import type {QueryPath} from '../query/RelayQueryPath';
+import type {Call, ClientMutationID, DataID} from '../tools/RelayInternalTypes';
+import type {Variables} from '../tools/RelayTypes';
 
 export type Record = {
   // Records may contain many other fields as [fieldName: string]: mixed

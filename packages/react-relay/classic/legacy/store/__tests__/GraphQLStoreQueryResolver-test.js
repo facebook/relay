@@ -16,17 +16,17 @@ require('configureForRelayOSS');
 
 jest.useFakeTimers();
 jest
-  .unmock('GraphQLRange')
-  .unmock('GraphQLSegment')
-  .unmock('GraphQLStoreQueryResolver');
+  .unmock('../GraphQLRange')
+  .unmock('../GraphQLSegment')
+  .unmock('../GraphQLStoreQueryResolver');
 
-const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+const GraphQLStoreQueryResolver = require('../GraphQLStoreQueryResolver');
 const RelayClassic = require('RelayClassic');
-const RelayStoreData = require('RelayStoreData');
+const RelayStoreData = require('../../../store/RelayStoreData');
 const RelayTestUtils = require('RelayTestUtils');
 
-const readRelayQueryData = require('readRelayQueryData');
-const transformRelayQueryPayload = require('transformRelayQueryPayload');
+const readRelayQueryData = require('../../../store/readRelayQueryData');
+const transformRelayQueryPayload = require('../../../traversal/transformRelayQueryPayload');
 
 describe('GraphQLStoreQueryResolver', () => {
   let changeEmitter;
@@ -183,7 +183,7 @@ describe('GraphQLStoreQueryResolver', () => {
       mockCallback,
     );
 
-    require('GraphQLStoreRangeUtils').getCanonicalClientID =
+    require('../GraphQLStoreRangeUtils').getCanonicalClientID =
       // The canonical ID of a range customarily excludes the calls
       jest.fn(() => 'client:123');
 

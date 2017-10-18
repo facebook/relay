@@ -11,7 +11,7 @@
 
 'use strict';
 
-import type {VariableMapping} from 'RelayFragmentReference';
+import type {VariableMapping} from './RelayFragmentReference';
 
 /**
  * @internal

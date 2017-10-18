@@ -10,7 +10,7 @@
 
 'use strict';
 
-const testEditDistance = require('testEditDistance');
+const testEditDistance = require('../testEditDistance');
 
 describe('testEditDistance()', () => {
   it('considers empty strings to be identical', () => {

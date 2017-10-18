@@ -19,14 +19,14 @@ jest
   .unmock('RelayMutation')
   .unmock('RelayNetworkLayer');
 
-const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
+const GraphQLMutatorConstants = require('../../legacy/mutation/GraphQLMutatorConstants');
 const RelayClassic = require('RelayClassic');
-const RelayEnvironment = require('RelayEnvironment');
-const RelayGraphQLMutation = require('RelayGraphQLMutation');
-const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
+const RelayEnvironment = require('../../store/RelayEnvironment');
+const RelayGraphQLMutation = require('../RelayGraphQLMutation');
+const RelayMutationTransactionStatus = require('../RelayMutationTransactionStatus');
 const RelayTestUtils = require('RelayTestUtils');
-const generateRQLFieldAlias = require('generateRQLFieldAlias');
-const readRelayQueryData = require('readRelayQueryData');
+const generateRQLFieldAlias = require('../../query/generateRQLFieldAlias');
+const readRelayQueryData = require('../../store/readRelayQueryData');
 
 const {ConnectionInterface} = require('RelayRuntime');
 

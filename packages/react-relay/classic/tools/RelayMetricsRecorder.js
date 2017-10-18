@@ -11,9 +11,9 @@
 
 'use strict';
 
-const RelayProfiler = require('RelayProfiler');
-
 const performanceNow = require('performanceNow');
+
+const {RelayProfiler} = require('RelayRuntime');
 
 const measurementDefaults = {
   aggregateTime: 0,

@@ -11,9 +11,9 @@
 'use strict';
 
 const React = require('React');
-const ReactRelayPropTypes = require('ReactRelayPropTypes');
+const ReactRelayPropTypes = require('../../modern/ReactRelayPropTypes');
 const ReactTestRenderer = require('ReactTestRenderer');
-const RelayCompatFragmentContainer = require('RelayCompatContainer');
+const RelayCompatFragmentContainer = require('../react/RelayCompatContainer');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 
 const {createMockEnvironment} = require('RelayModernMockEnvironment');

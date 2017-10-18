@@ -12,12 +12,12 @@
 
 jest
   .enableAutomock()
-  .unmock('GraphQLStoreChangeEmitter')
+  .unmock('../GraphQLStoreChangeEmitter')
   .useFakeTimers();
 
 const ErrorUtils = require('ErrorUtils');
-const GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
-const GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
+const GraphQLStoreChangeEmitter = require('../GraphQLStoreChangeEmitter');
+const GraphQLStoreRangeUtils = require('../GraphQLStoreRangeUtils');
 
 describe('GraphQLStoreChangeEmitter', () => {
   let changeEmitter;

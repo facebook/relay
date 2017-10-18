@@ -11,14 +11,14 @@
 
 'use strict';
 
-const ReactRelayPaginationContainer = require('ReactRelayPaginationContainer');
-const RelayPropTypes = require('RelayPropTypes');
+const ReactRelayPaginationContainer = require('../../modern/ReactRelayPaginationContainer');
+const RelayPropTypes = require('../../classic/container/RelayPropTypes');
 
-const {buildCompatContainer} = require('ReactRelayCompatContainerBuilder');
+const {buildCompatContainer} = require('../ReactRelayCompatContainerBuilder');
 
-import type {ConnectionConfig} from 'ReactRelayPaginationContainer';
-import type {GeneratedNodeMap} from 'ReactRelayTypes';
-import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
+import type {ConnectionConfig} from '../../modern/ReactRelayPaginationContainer';
+import type {GeneratedNodeMap} from '../../modern/ReactRelayTypes';
+import type {GraphQLTaggedNode} from 'RelayRuntime';
 
 /**
  * Wrap the basic `createContainer()` function with logic to adapt to the

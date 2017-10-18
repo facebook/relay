@@ -13,25 +13,25 @@
 
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
-const isScalarAndEqual = require('isScalarAndEqual');
+const isScalarAndEqual = require('../util/isScalarAndEqual');
 
-const {areEqualSelectors, getSelectorsFromObject} = require('RelaySelector');
+const {areEqualSelectors, getSelectorsFromObject} = require('./RelaySelector');
 
+import type {Variables} from '../tools/RelayTypes';
 import type {
   Disposable,
   FragmentSpecResolver,
   FragmentSpecResults,
   Props,
   SelectorData,
-} from 'RelayCombinedEnvironmentTypes';
+} from './RelayCombinedEnvironmentTypes';
 import type {
   Environment,
   FragmentMap,
   RelayContext,
   Selector,
   Snapshot,
-} from 'RelayEnvironmentTypes';
-import type {Variables} from 'RelayTypes';
+} from './RelayEnvironmentTypes';
 
 type Resolvers = {[key: string]: ?(SelectorListResolver | SelectorResolver)};
 

@@ -10,18 +10,22 @@
 
 'use strict';
 
-const GraphQLRange = require('GraphQLRange');
+const GraphQLRange = require('../../legacy/store/GraphQLRange');
 const RelayClassic = require('RelayClassic');
 const RelayMockCacheManager = require('RelayMockCacheManager');
-const RelayQueryPath = require('RelayQueryPath');
-const RelayRecordStatusMap = require('RelayRecordStatusMap');
-const RelayRecordStore = require('RelayRecordStore');
-const RelayRecordWriter = require('RelayRecordWriter');
+const RelayQueryPath = require('../../query/RelayQueryPath');
+const RelayRecordStatusMap = require('../RelayRecordStatusMap');
+const RelayRecordStore = require('../RelayRecordStore');
+const RelayRecordWriter = require('../RelayRecordWriter');
 const RelayTestUtils = require('RelayTestUtils');
 
-const generateClientID = require('generateClientID');
+const generateClientID = require('../../legacy/store/generateClientID');
 
-const {APPEND, PREPEND, REMOVE} = require('GraphQLMutatorConstants');
+const {
+  APPEND,
+  PREPEND,
+  REMOVE,
+} = require('../../legacy/mutation/GraphQLMutatorConstants');
 const {ConnectionInterface} = require('RelayRuntime');
 
 describe('RelayRecordWriter', () => {

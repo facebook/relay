@@ -13,12 +13,12 @@
 
 const Deferred = require('Deferred');
 
-const printRelayQuery = require('printRelayQuery');
+const printRelayQuery = require('../traversal/printRelayQuery');
 
-import type {PrintedQuery} from 'RelayInternalTypes';
-import type {FileMap} from 'RelayMutation';
-import type RelayQuery from 'RelayQuery';
-import type {MutationResult, Variables} from 'RelayTypes';
+import type {FileMap} from '../mutation/RelayMutation';
+import type RelayQuery from '../query/RelayQuery';
+import type {PrintedQuery} from '../tools/RelayInternalTypes';
+import type {MutationResult, Variables} from '../tools/RelayTypes';
 
 /**
  * @internal

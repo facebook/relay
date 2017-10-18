@@ -14,21 +14,21 @@
 /**
  * Types that Relay framework users may find useful.
  */
-import type {RelayEnvironmentInterface} from 'RelayEnvironment';
-import type RelayFragmentReference from 'RelayFragmentReference';
+import type RelayMutation from '../mutation/RelayMutation';
+import type RelayMutationTransaction from '../mutation/RelayMutationTransaction';
+import type RelayMutationRequest from '../network/RelayMutationRequest';
+import type RelayQueryRequest from '../network/RelayQueryRequest';
+import type {RelayQueryConfigInterface} from '../query-config/RelayQueryConfig';
+import type RelayFragmentReference from '../query/RelayFragmentReference';
+import type {RelayConcreteNode} from '../query/RelayQL';
+import type {RelayEnvironmentInterface} from '../store/RelayEnvironment';
+import type {Record} from '../store/RelayRecord';
 import type {
   DataID,
   FieldValue,
   RangeBehaviors,
   QueryPayload,
-} from 'RelayInternalTypes';
-import type RelayMutation from 'RelayMutation';
-import type RelayMutationRequest from 'RelayMutationRequest';
-import type RelayMutationTransaction from 'RelayMutationTransaction';
-import type {RelayConcreteNode} from 'RelayQL';
-import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
-import type RelayQueryRequest from 'RelayQueryRequest';
-import type {Record} from 'RelayRecord';
+} from './RelayInternalTypes';
 import type URI from 'URI';
 
 type RelayContainerErrorEventType =

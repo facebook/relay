@@ -13,25 +13,25 @@
 
 const PropTypes = require('prop-types');
 const React = require('React');
-const RelayPropTypes = require('RelayPropTypes');
-const RelayReadyStateRenderer = require('RelayReadyStateRenderer');
+const RelayPropTypes = require('./RelayPropTypes');
+const RelayReadyStateRenderer = require('./RelayReadyStateRenderer');
 
-const getRelayQueries = require('getRelayQueries');
+const getRelayQueries = require('./getRelayQueries');
 
-import type {RelayEnvironmentInterface} from 'RelayEnvironment';
-import type {GarbageCollectionHold} from 'RelayGarbageCollector';
-import type {RelayQuerySet} from 'RelayInternalTypes';
-import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
-import type {
-  RelayRenderCallback,
-  RelayRetryCallback,
-} from 'RelayReadyStateRenderer';
+import type {RelayQueryConfigInterface} from '../query-config/RelayQueryConfig';
+import type {RelayEnvironmentInterface} from '../store/RelayEnvironment';
+import type {GarbageCollectionHold} from '../store/RelayGarbageCollector';
+import type {RelayQuerySet} from '../tools/RelayInternalTypes';
 import type {
   Abortable,
   ComponentReadyState,
   ReadyState,
   RelayContainer,
-} from 'RelayTypes';
+} from '../tools/RelayTypes';
+import type {
+  RelayRenderCallback,
+  RelayRetryCallback,
+} from './RelayReadyStateRenderer';
 
 type Props = {
   Container: RelayContainer,

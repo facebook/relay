@@ -10,9 +10,9 @@
 
 'use strict';
 
-const RelayEnvironment = require('RelayEnvironment');
+const RelayEnvironment = require('../../store/RelayEnvironment');
 
-const isRelayEnvironment = require('isRelayEnvironment');
+const isRelayEnvironment = require('../isRelayEnvironment');
 
 describe('isRelayEnvironment()', () => {
   it('returns true for `RelayEnvironment` instances', () => {

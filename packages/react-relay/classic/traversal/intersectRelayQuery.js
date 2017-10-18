@@ -11,8 +11,8 @@
 
 'use strict';
 
-const RelayQuery = require('RelayQuery');
-const RelayQueryTransform = require('RelayQueryTransform');
+const RelayQuery = require('../query/RelayQuery');
+const RelayQueryTransform = require('../query/RelayQueryTransform');
 
 const invariant = require('invariant');
 

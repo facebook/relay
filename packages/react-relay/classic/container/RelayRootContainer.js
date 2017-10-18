@@ -13,13 +13,17 @@
 
 const PropTypes = require('prop-types');
 const React = require('React');
-const RelayPropTypes = require('RelayPropTypes');
-const RelayRenderer = require('RelayRenderer');
-const RelayStore = require('RelayStore');
+const RelayPropTypes = require('./RelayPropTypes');
+const RelayRenderer = require('./RelayRenderer');
+const RelayStore = require('../store/RelayStore');
 
-import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
-import type {RelayRetryCallback} from 'RelayReadyStateRenderer';
-import type {ComponentFetchState, ReadyState, RelayContainer} from 'RelayTypes';
+import type {RelayQueryConfigInterface} from '../query-config/RelayQueryConfig';
+import type {
+  ComponentFetchState,
+  ReadyState,
+  RelayContainer,
+} from '../tools/RelayTypes';
+import type {RelayRetryCallback} from './RelayReadyStateRenderer';
 
 type RootContainerProps = {
   Component: RelayContainer,

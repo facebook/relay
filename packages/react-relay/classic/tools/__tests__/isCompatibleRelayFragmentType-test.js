@@ -15,7 +15,7 @@ require('configureForRelayOSS');
 const RelayClassic = require('RelayClassic');
 const RelayTestUtils = require('RelayTestUtils');
 
-const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
+const isCompatibleRelayFragmentType = require('../isCompatibleRelayFragmentType');
 
 describe('isCompatibleRelayFragmentType', () => {
   const {getNode} = RelayTestUtils;

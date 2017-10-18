@@ -20,12 +20,12 @@ jest
   .mock('warning');
 
 const RelayClassic = require('RelayClassic');
-const RelayQueryTracker = require('RelayQueryTracker');
-const RelayRecordStore = require('RelayRecordStore');
-const RelayRecordWriter = require('RelayRecordWriter');
+const RelayQueryTracker = require('../../store/RelayQueryTracker');
+const RelayRecordStore = require('../../store/RelayRecordStore');
+const RelayRecordWriter = require('../../store/RelayRecordWriter');
 const RelayTestUtils = require('RelayTestUtils');
 
-const diffRelayQuery = require('diffRelayQuery');
+const diffRelayQuery = require('../diffRelayQuery');
 
 const {ConnectionInterface} = require('RelayRuntime');
 

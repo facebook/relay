@@ -16,11 +16,11 @@ require('configureForRelayOSS');
 
 jest.unmock('RelayContainer');
 
-const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+const GraphQLStoreQueryResolver = require('../../legacy/store/GraphQLStoreQueryResolver');
 const React = require('React');
 const RelayClassic = require('RelayClassic');
-const RelayEnvironment = require('RelayEnvironment');
-const RelayRecordStatusMap = require('RelayRecordStatusMap');
+const RelayEnvironment = require('../../store/RelayEnvironment');
+const RelayRecordStatusMap = require('../../store/RelayRecordStatusMap');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayContainer.hasPartialData', () => {

@@ -12,33 +12,38 @@
 'use strict';
 
 const React = require('React');
-const RelayProfiler = require('RelayProfiler');
-const RelayPropTypes = require('RelayPropTypes');
+const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
 const areEqual = require('areEqual');
-const buildReactRelayContainer = require('buildReactRelayContainer');
+const buildReactRelayContainer = require('./buildReactRelayContainer');
 const invariant = require('invariant');
-const isRelayContext = require('isRelayContext');
-const isScalarAndEqual = require('isScalarAndEqual');
+const isRelayContext = require('../classic/environment/isRelayContext');
+const isScalarAndEqual = require('../classic/util/isScalarAndEqual');
 const nullthrows = require('nullthrows');
 
-const {profileContainer} = require('ReactRelayContainerProfiler');
-const {getComponentName, getReactComponent} = require('RelayContainerUtils');
-const {Observable} = require('RelayRuntime');
+const {
+  getComponentName,
+  getReactComponent,
+} = require('../classic/container/RelayContainerUtils');
+const {profileContainer} = require('./ReactRelayContainerProfiler');
+const {Observable, RelayProfiler} = require('RelayRuntime');
 
+import type {
+  Disposable,
+  FragmentSpecResolver,
+} from '../classic/environment/RelayCombinedEnvironmentTypes';
+import type {Variables} from '../classic/tools/RelayTypes';
 import type {
   GeneratedNodeMap,
   RefetchOptions,
   RelayRefetchProp,
-} from 'ReactRelayTypes';
+} from './ReactRelayTypes';
 import type {
-  Disposable,
-  FragmentSpecResolver,
-} from 'RelayCombinedEnvironmentTypes';
-import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
-import type {Subscription} from 'RelayRuntime';
-import type {FragmentMap, RelayContext} from 'RelayStoreTypes';
-import type {Variables} from 'RelayTypes';
+  FragmentMap,
+  GraphQLTaggedNode,
+  RelayContext,
+  Subscription,
+} from 'RelayRuntime';
 
 type ContainerState = {
   data: {[key: string]: mixed},

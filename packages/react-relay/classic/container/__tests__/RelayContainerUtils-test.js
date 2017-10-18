@@ -14,7 +14,7 @@ const React = require('React');
 
 const createReactClass = require('create-react-class');
 
-const {getComponentName, getReactComponent} = require('RelayContainerUtils');
+const {getComponentName, getReactComponent} = require('../RelayContainerUtils');
 
 const CreateClassComponent = createReactClass({
   displayName: 'CreateClassComponent',

@@ -21,10 +21,10 @@ const React = require('React');
 const ReactTestRenderer = require('react-test-renderer');
 const ReactTestUtils = require('ReactTestUtils');
 const RelayClassic = require('RelayClassic');
-const RelayEnvironment = require('RelayEnvironment');
-const RelayQueryConfig = require('RelayQueryConfig');
-const RelayRenderer = require('RelayRenderer');
-const RelayStaticContainer = require('RelayStaticContainer');
+const RelayEnvironment = require('../../store/RelayEnvironment');
+const RelayQueryConfig = require('../../query-config/RelayQueryConfig');
+const RelayRenderer = require('../RelayRenderer');
+const RelayStaticContainer = require('../RelayStaticContainer');
 
 describe('RelayRenderer.render', () => {
   let MockContainer;

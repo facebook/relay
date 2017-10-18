@@ -11,9 +11,9 @@
 
 'use strict';
 
-const RelayNodeInterface = require('RelayNodeInterface');
+const RelayNodeInterface = require('../interface/RelayNodeInterface');
 
-const generateConcreteFragmentID = require('generateConcreteFragmentID');
+const generateConcreteFragmentID = require('./generateConcreteFragmentID');
 const warning = require('warning');
 
 import type {
@@ -38,7 +38,7 @@ import type {
   ConcreteSelection,
   ConcreteSubscription,
   ConcreteValue,
-} from 'ConcreteQuery';
+} from './ConcreteQuery';
 
 const EMPTY_CALLS: Array<ConcreteCall> = [];
 const EMPTY_CHILDREN: Array<?ConcreteSelection> = [];

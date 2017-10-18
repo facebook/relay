@@ -10,7 +10,7 @@
 
 'use strict';
 
-const generateRQLFieldAlias = require('generateRQLFieldAlias');
+const generateRQLFieldAlias = require('../generateRQLFieldAlias');
 
 const ALIAS_HEURISTIC = /^[\w-]+$/;
 

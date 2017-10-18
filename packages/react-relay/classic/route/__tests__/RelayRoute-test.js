@@ -13,7 +13,7 @@
 require('configureForRelayOSS');
 
 const RelayClassic = require('RelayClassic');
-const RelayRoute = require('RelayRoute');
+const RelayRoute = require('../RelayRoute');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayRoute', () => {

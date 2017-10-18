@@ -12,16 +12,16 @@
 'use strict';
 
 const Map = require('Map');
-const RelayProfiler = require('RelayProfiler');
-const RelayQuery = require('RelayQuery');
+const RelayQuery = require('../query/RelayQuery');
 
 const base62 = require('base62');
 const invariant = require('invariant');
 const nullthrows = require('nullthrows');
 
-const {TYPENAME} = require('RelayNodeInterface');
+const {TYPENAME} = require('../interface/RelayNodeInterface');
+const {RelayProfiler} = require('RelayRuntime');
 
-import type {PrintedQuery} from 'RelayInternalTypes';
+import type {PrintedQuery} from '../tools/RelayInternalTypes';
 
 type PrinterState = {
   fragmentCount: number,

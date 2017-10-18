@@ -13,15 +13,17 @@
 jest.dontMock('GraphQLStoreChangeEmitter').mock('relayUnstableBatchedUpdates');
 
 const RelayClassic = require('RelayClassic');
-const RelayEnvironment = require('RelayEnvironment');
-const RelayOperationSelector = require('RelayOperationSelector');
-const {ROOT_ID} = require('RelayStoreConstants');
+const RelayEnvironment = require('../RelayEnvironment');
+const RelayOperationSelector = require('../../environment/RelayOperationSelector');
+const {ROOT_ID} = require('../RelayStoreConstants');
 const RelayTestUtils = require('RelayTestUtils');
-const createRelayQuery = require('createRelayQuery');
-const generateRQLFieldAlias = require('generateRQLFieldAlias');
+const createRelayQuery = require('../../query/createRelayQuery');
+const generateRQLFieldAlias = require('../../query/generateRQLFieldAlias');
 const mapObject = require('mapObject');
-const {graphql, getClassicOperation} = require('RelayGraphQLTag');
-const {createOperationSelector} = require('RelayOperationSelector');
+const {graphql, getClassicOperation} = require('../../query/RelayGraphQLTag');
+const {
+  createOperationSelector,
+} = require('../../environment/RelayOperationSelector');
 
 describe('RelayEnvironment', () => {
   let UserQuery;

@@ -11,18 +11,18 @@
 
 'use strict';
 
-const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
-const GraphQLRange = require('GraphQLRange');
-const RelayNodeInterface = require('RelayNodeInterface');
-const RelayRecord = require('RelayRecord');
-const RelayRecordStatusMap = require('RelayRecordStatusMap');
+const GraphQLMutatorConstants = require('../legacy/mutation/GraphQLMutatorConstants');
+const GraphQLRange = require('../legacy/store/GraphQLRange');
+const RelayNodeInterface = require('../interface/RelayNodeInterface');
+const RelayRecord = require('./RelayRecord');
+const RelayRecordStatusMap = require('./RelayRecordStatusMap');
 
 const invariant = require('invariant');
-const rangeOperationToMetadataKey = require('rangeOperationToMetadataKey');
+const rangeOperationToMetadataKey = require('../mutation/rangeOperationToMetadataKey');
 
 const {ConnectionInterface} = require('RelayRuntime');
 
-import type {EdgeRecord, PageInfo} from 'RelayConnectionInterface';
+import type {QueryPath} from '../query/RelayQueryPath';
 import type {
   Call,
   ClientMutationID,
@@ -30,11 +30,10 @@ import type {
   FieldValue,
   NodeRangeMap,
   RootCallMap,
-} from 'RelayInternalTypes';
-import type {QueryPath} from 'RelayQueryPath';
-import type {Record, RecordMap} from 'RelayRecord';
-import type {RecordState} from 'RelayRecordState';
-import type {CacheWriter} from 'RelayTypes';
+} from '../tools/RelayInternalTypes';
+import type {CacheWriter} from '../tools/RelayTypes';
+import type {Record, RecordMap} from './RelayRecord';
+import type {EdgeRecord, PageInfo, RecordState} from 'RelayRuntime';
 
 const EMPTY = '';
 const {APPEND, PREPEND, REMOVE} = GraphQLMutatorConstants;

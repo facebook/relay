@@ -10,7 +10,7 @@
 
 'use strict';
 
-const serializeRelayQueryCall = require('serializeRelayQueryCall');
+const serializeRelayQueryCall = require('../serializeRelayQueryCall');
 
 describe('serializeRelayQueryCall', () => {
   it('serializes a call with a null argument', () => {

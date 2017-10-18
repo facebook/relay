@@ -11,18 +11,18 @@
 
 'use strict';
 
-const QueryBuilder = require('QueryBuilder');
+const QueryBuilder = require('./QueryBuilder');
 
 const invariant = require('invariant');
 const mapObject = require('mapObject');
 const warning = require('warning');
 
+import type {Variables} from '../tools/RelayTypes';
 import type {
   ConcreteFragmentDefinition,
   ConcreteOperationDefinition,
-} from 'ConcreteQuery';
-import type {VariableMapping} from 'RelayFragmentReference';
-import type {Variables} from 'RelayTypes';
+} from './ConcreteQuery';
+import type {VariableMapping} from './RelayFragmentReference';
 
 /**
  * Determines the variables that are in scope for a fragment given the variables

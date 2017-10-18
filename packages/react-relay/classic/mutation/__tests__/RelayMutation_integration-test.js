@@ -15,8 +15,8 @@ require('configureForRelayOSS');
 jest.useFakeTimers().mock('relayUnstableBatchedUpdates');
 
 const RelayClassic = require('RelayClassic');
-const RelayEnvironment = require('RelayEnvironment');
-const RelayMutation = require('RelayMutation');
+const RelayEnvironment = require('../../store/RelayEnvironment');
+const RelayMutation = require('../RelayMutation');
 
 describe('RelayMutation', () => {
   let bodyID;

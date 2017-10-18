@@ -11,15 +11,15 @@
 'use strict';
 
 jest
-  .mock('generateClientID')
+  .mock('../../legacy/store/generateClientID')
   .mock('warning')
-  .mock('RelayQueryTracker');
+  .mock('../../store/RelayQueryTracker');
 
 require('configureForRelayOSS');
 
 const RelayClassic = require('RelayClassic');
-const RelayQueryPath = require('RelayQueryPath');
-const RelayQueryTracker = require('RelayQueryTracker');
+const RelayQueryPath = require('../../query/RelayQueryPath');
+const RelayQueryTracker = require('../../store/RelayQueryTracker');
 const RelayTestUtils = require('RelayTestUtils');
 
 const invariant = require('invariant');
@@ -50,8 +50,8 @@ describe('writePayload()', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    RelayRecordStore = require('RelayRecordStore');
-    RelayRecordWriter = require('RelayRecordWriter');
+    RelayRecordStore = require('../../store/RelayRecordStore');
+    RelayRecordWriter = require('../../store/RelayRecordWriter');
 
     expect.extend(RelayTestUtils.matchers);
   });

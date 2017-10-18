@@ -11,11 +11,11 @@
 
 'use strict';
 
-const QueryBuilder = require('QueryBuilder');
-const RelayQuery = require('RelayQuery');
+const QueryBuilder = require('./QueryBuilder');
+const RelayQuery = require('./RelayQuery');
 
-const callsToGraphQL = require('callsToGraphQL');
-const generateConcreteFragmentID = require('generateConcreteFragmentID');
+const callsToGraphQL = require('./callsToGraphQL');
+const generateConcreteFragmentID = require('./generateConcreteFragmentID');
 const invariant = require('invariant');
 
 import type {
@@ -23,7 +23,7 @@ import type {
   ConcreteFragment,
   ConcreteQuery,
   ConcreteSelection,
-} from 'ConcreteQuery';
+} from './ConcreteQuery';
 
 /**
  * @internal

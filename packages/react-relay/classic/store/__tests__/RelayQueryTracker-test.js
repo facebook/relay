@@ -15,8 +15,8 @@ require('configureForRelayOSS');
 jest.unmock('RelayQueryTracker');
 
 const RelayClassic = require('RelayClassic');
-const RelayQuery = require('RelayQuery');
-const RelayQueryTracker = require('RelayQueryTracker');
+const RelayQuery = require('../../query/RelayQuery');
+const RelayQueryTracker = require('../RelayQueryTracker');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayQueryTracker', () => {

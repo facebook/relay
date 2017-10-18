@@ -12,7 +12,7 @@
 'use strict';
 
 const React = require('React');
-const RelayPropTypes = require('RelayPropTypes');
+const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
 class ReactRelayFragmentMockRenderer extends React.Component<Object> {
   mockContext: any;

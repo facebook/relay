@@ -14,10 +14,10 @@ require('configureForRelayOSS');
 
 jest.mock('warning');
 
-const QueryBuilder = require('QueryBuilder');
+const QueryBuilder = require('../QueryBuilder');
 const RelayClassic = require('RelayClassic');
-const RelayFragmentReference = require('RelayFragmentReference');
-const RelayMetaRoute = require('RelayMetaRoute');
+const RelayFragmentReference = require('../RelayFragmentReference');
+const RelayMetaRoute = require('../../route/RelayMetaRoute');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayFragmentReference', () => {

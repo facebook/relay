@@ -11,13 +11,13 @@
 
 'use strict';
 
-const RelayMetaRoute = require('RelayMetaRoute');
-const RelayQuery = require('RelayQuery');
+const RelayMetaRoute = require('../route/RelayMetaRoute');
+const RelayQuery = require('./RelayQuery');
 
 const invariant = require('invariant');
 
-import type {RelayConcreteNode} from 'RelayQL';
-import type {Variables} from 'RelayTypes';
+import type {Variables} from '../tools/RelayTypes';
+import type {RelayConcreteNode} from './RelayQL';
 
 function createRelayQuery(
   node: RelayConcreteNode,

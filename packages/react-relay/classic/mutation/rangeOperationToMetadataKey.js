@@ -11,7 +11,7 @@
 
 'use strict';
 
-const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
+const GraphQLMutatorConstants = require('../legacy/mutation/GraphQLMutatorConstants');
 
 const mapObject = require('mapObject');
 

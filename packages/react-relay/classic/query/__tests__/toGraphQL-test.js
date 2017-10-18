@@ -16,8 +16,8 @@ const RelayClassic = require('RelayClassic');
 const RelayTestUtils = require('RelayTestUtils');
 
 const filterObject = require('filterObject');
-const splitDeferredRelayQueries = require('splitDeferredRelayQueries');
-const toGraphQL = require('toGraphQL');
+const splitDeferredRelayQueries = require('../../traversal/splitDeferredRelayQueries');
+const toGraphQL = require('../toGraphQL');
 
 describe('toGraphQL', function() {
   const {defer, getNode} = RelayTestUtils;

@@ -11,7 +11,7 @@
 
 'use strict';
 
-import type RelayQuery from 'RelayQuery';
+import type RelayQuery from '../query/RelayQuery';
 
 type Filter = (node: RelayQuery.Node) => boolean;
 

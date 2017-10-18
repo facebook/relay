@@ -15,8 +15,8 @@ const ErrorUtils = require('ErrorUtils');
 
 const resolveImmediate = require('resolveImmediate');
 
-import type GraphQLStoreRangeUtils from 'GraphQLStoreRangeUtils';
-import type {ChangeSubscription} from 'RelayTypes';
+import type {ChangeSubscription} from '../../tools/RelayTypes';
+import type GraphQLStoreRangeUtils from './GraphQLStoreRangeUtils';
 
 type BatchStrategy = (callback: Function) => void;
 type Subscriber = {

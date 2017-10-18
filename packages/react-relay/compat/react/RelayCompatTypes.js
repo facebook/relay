@@ -11,7 +11,7 @@
 
 'use strict';
 
-import type {RelayEnvironmentInterface as RelayClassicEnvironment} from 'RelayEnvironment';
-import type {Environment} from 'RelayStoreTypes';
+import type {RelayEnvironmentInterface as RelayClassicEnvironment} from '../../classic/store/RelayEnvironment';
+import type {IEnvironment} from 'RelayRuntime';
 
-export type CompatEnvironment = Environment | RelayClassicEnvironment;
+export type CompatEnvironment = IEnvironment | RelayClassicEnvironment;

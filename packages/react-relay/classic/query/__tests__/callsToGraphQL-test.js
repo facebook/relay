@@ -14,8 +14,8 @@ require('configureForRelayOSS');
 
 const RelayTestUtils = require('RelayTestUtils');
 
-const callsFromGraphQL = require('callsFromGraphQL');
-const callsToGraphQL = require('callsToGraphQL');
+const callsFromGraphQL = require('../callsFromGraphQL');
+const callsToGraphQL = require('../callsToGraphQL');
 
 describe('callsToGraphQL', function() {
   it('converts array calls with null values', () => {

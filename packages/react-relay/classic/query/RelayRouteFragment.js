@@ -11,8 +11,8 @@
 
 'use strict';
 
-import type RelayMetaRoute from 'RelayMetaRoute';
-import type {RelayConcreteNode} from 'RelayQL';
+import type RelayMetaRoute from '../route/RelayMetaRoute';
+import type {RelayConcreteNode} from './RelayQL';
 
 type FragmentBuilder = (route: RelayMetaRoute) => ?RelayConcreteNode;
 

@@ -12,13 +12,13 @@
 'use strict';
 
 const Deferred = require('Deferred');
-const RelayQuery = require('RelayQuery');
+const RelayQuery = require('../query/RelayQuery');
 
-const printRelayOSSQuery = require('printRelayOSSQuery');
-const printRelayQuery = require('printRelayQuery');
+const printRelayOSSQuery = require('../traversal/printRelayOSSQuery');
+const printRelayQuery = require('../traversal/printRelayQuery');
 
-import type {PrintedQuery} from 'RelayInternalTypes';
-import type {QueryResult, Variables} from 'RelayTypes';
+import type {PrintedQuery} from '../tools/RelayInternalTypes';
+import type {QueryResult, Variables} from '../tools/RelayTypes';
 
 /**
  * @internal

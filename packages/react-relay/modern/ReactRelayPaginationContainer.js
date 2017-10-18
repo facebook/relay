@@ -12,38 +12,48 @@
 'use strict';
 
 const React = require('React');
-const RelayProfiler = require('RelayProfiler');
-const RelayPropTypes = require('RelayPropTypes');
+const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
 const areEqual = require('areEqual');
-const buildReactRelayContainer = require('buildReactRelayContainer');
+const buildReactRelayContainer = require('./buildReactRelayContainer');
 const invariant = require('invariant');
-const isRelayContext = require('isRelayContext');
-const isScalarAndEqual = require('isScalarAndEqual');
+const isRelayContext = require('../classic/environment/isRelayContext');
+const isScalarAndEqual = require('../classic/util/isScalarAndEqual');
 const nullthrows = require('nullthrows');
 const warning = require('warning');
 
-const {profileContainer} = require('ReactRelayContainerProfiler');
-const {getComponentName, getReactComponent} = require('RelayContainerUtils');
-const {ConnectionInterface, Observable} = require('RelayRuntime');
+const {
+  getComponentName,
+  getReactComponent,
+} = require('../classic/container/RelayContainerUtils');
+const {profileContainer} = require('./ReactRelayContainerProfiler');
+const {
+  ConnectionInterface,
+  RelayProfiler,
+  Observable,
+} = require('RelayRuntime');
 
+import type {
+  CacheConfig,
+  Disposable,
+  FragmentSpecResolver,
+} from '../classic/environment/RelayCombinedEnvironmentTypes';
+import type {Variables} from '../classic/tools/RelayTypes';
 import type {
   ObserverOrCallback,
   GeneratedNodeMap,
   RefetchOptions,
   RelayPaginationProp,
-} from 'ReactRelayTypes';
+} from './ReactRelayTypes';
 import type {
-  CacheConfig,
-  Disposable,
-  FragmentSpecResolver,
-} from 'RelayCombinedEnvironmentTypes';
-import type {ConnectionMetadata} from 'RelayConnectionHandler';
-import type {PageInfo} from 'RelayConnectionInterface';
-import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
-import type {Observer, Subscription} from 'RelayObservable';
-import type {FragmentMap, RelayContext} from 'RelayStoreTypes';
-import type {Variables} from 'RelayTypes';
+  ConnectionMetadata,
+  FragmentMap,
+  GraphQLTaggedNode,
+  Observer,
+  PageInfo,
+  RelayContext,
+  Subscription,
+} from 'RelayRuntime';
 
 type ContainerState = {
   data: {[key: string]: mixed},

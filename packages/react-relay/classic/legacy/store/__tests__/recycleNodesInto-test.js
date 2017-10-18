@@ -17,7 +17,7 @@ jest.unmock('recycleNodesInto');
 const RelayClassic = require('RelayClassic');
 const RelayTestUtils = require('RelayTestUtils');
 
-const recycleNodesInto = require('recycleNodesInto');
+const {recycleNodesInto} = require('RelayRuntime');
 
 describe('recycleNodesInto', () => {
   beforeEach(() => {

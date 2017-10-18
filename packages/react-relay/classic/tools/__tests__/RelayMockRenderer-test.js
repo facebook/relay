@@ -15,7 +15,7 @@ jest.mock('ReactDOM', () => ({}));
 const React = require('React');
 const RelayClassic = require('RelayClassic');
 const ReactTestRenderer = require('ReactTestRenderer');
-const RelayMockRenderer = require('RelayMockRenderer');
+const RelayMockRenderer = require('../RelayMockRenderer');
 
 describe('RelayMockRenderer', () => {
   it('renders a container with mock data', () => {

@@ -27,15 +27,17 @@ const {
 
 type Document_ = {
   errors: ?ImmutableList<Error>,
-  name: ?string,            // In practice, documents always have a name
+  name: ?string, // In practice, documents always have a name
   node: ?(Fragment | Root), // In practice, documents always have a node
 };
 
-const Document = Record(({
-  errors: null,
-  name: null,
-  node: null,
-}: Document_));
+const Document = Record(
+  ({
+    errors: null,
+    name: null,
+    node: null,
+  }: Document_),
+);
 
 // Currently no easy way to get the actual flow type of a generated record :(
 // It's theoretically RecordInstance<T> & T, but flow seems to disagree, and
@@ -64,7 +66,10 @@ class GraphQLCompilerContext {
       .valueSeq()
       .map(doc => {
         const node = doc.get('node');
-        invariant(node, 'GraphQLCompilerContext: Documents secretly always have nodes');
+        invariant(
+          node,
+          'GraphQLCompilerContext: Documents secretly always have nodes',
+        );
         return node;
       })
       .toArray();
@@ -117,12 +122,12 @@ class GraphQLCompilerContext {
 
   get(name: string): ?(Fragment | Root) {
     const record = this._documents.get(name);
-    return record && record.get('node');
+    return record ? record.get('node') : null;
   }
 
   getFragment(name: string): Fragment {
     const record = this._documents.get(name);
-    const node = record && record.get('node');
+    const node = record ? record.get('node') : null;
     if (!(node && node.kind === 'Fragment')) {
       const childModule = name.substring(0, name.lastIndexOf('_'));
       throw createUserError(
@@ -137,7 +142,7 @@ class GraphQLCompilerContext {
 
   getRoot(name: string): Root {
     const record = this._documents.get(name);
-    const node = record && record.get('node');
+    const node = record ? record.get('node') : null;
     invariant(
       node && node.kind === 'Root',
       'GraphQLCompilerContext: Expected `%s` to be a root, got `%s`.',

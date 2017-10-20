@@ -13,7 +13,6 @@
 
 const RelayObservable = require('RelayObservable');
 
-import type {ConcreteBatch} from 'RelayConcreteNode';
 import type {
   ExecuteFunction,
   ExecutePayload,
@@ -21,7 +20,6 @@ import type {
   GraphQLResponse,
   SubscribeFunction,
 } from 'RelayNetworkTypes';
-import type {Variables} from 'RelayTypes';
 
 /**
  * Converts a FetchFunction into an ExecuteFunction for use by RelayNetwork.
@@ -35,9 +33,7 @@ function convertFetch(fn: FetchFunction): ExecuteFunction {
     if (result instanceof Error) {
       return new RelayObservable(sink => sink.error(result));
     }
-    return RelayObservable.from(result).map(value =>
-      convertToExecutePayload(operation, variables, value),
-    );
+    return RelayObservable.from(result).map(convertToExecutePayload);
   };
 }
 
@@ -49,7 +45,7 @@ function convertSubscribe(fn: SubscribeFunction): ExecuteFunction {
     return RelayObservable.fromLegacy(observer =>
       // $FlowFixMe: Flow issues with covariant Observable types.
       fn(operation, variables, cacheConfig, observer),
-    ).map(value => convertToExecutePayload(operation, variables, value));
+    ).map(convertToExecutePayload);
   };
 }
 
@@ -59,19 +55,17 @@ function convertSubscribe(fn: SubscribeFunction): ExecuteFunction {
  * simpler Relay Network implementations.
  */
 function convertToExecutePayload(
-  operation: ConcreteBatch,
-  variables: Variables,
   value: GraphQLResponse | ExecutePayload,
 ): ExecutePayload {
   // Note, this double layer of statements satisfies Flow's exact type union
   // type refinement.
   if (value.data || value.errors) {
-    return {operation, variables, response: value};
+    return {response: value};
   }
   if (value.response) {
     return value;
   }
-  return {operation, variables, response: value};
+  return {response: value};
 }
 
 module.exports = {

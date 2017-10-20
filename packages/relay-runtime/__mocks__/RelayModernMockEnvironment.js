@@ -186,12 +186,7 @@ function createMockEnvironment(options: {
   };
 
   const nextValue = (operation, payload) => {
-    const request = getRequest(operation);
-    request.sink.next({
-      operation: request.operation,
-      variables: request.variables,
-      response: ensureValidPayload(payload),
-    });
+    getRequest(operation).sink.next({response: ensureValidPayload(payload)});
   };
 
   const complete = operation => {
@@ -200,11 +195,7 @@ function createMockEnvironment(options: {
 
   const resolve = (operation, payload) => {
     const request = getRequest(operation);
-    request.sink.next({
-      operation: request.operation,
-      variables: request.variables,
-      response: ensureValidPayload(payload),
-    });
+    request.sink.next(ensureValidPayload(payload));
     request.sink.complete();
   };
 

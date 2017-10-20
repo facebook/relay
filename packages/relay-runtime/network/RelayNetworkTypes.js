@@ -48,9 +48,12 @@ export type GraphQLResponse = {|
  * raw GraphQL network response as well as any related client metadata.
  */
 export type ExecutePayload = {|
-  response: GraphQLResponse,
+  // The operation executed
+  operation: ConcreteBatch,
   // The variables which were used during this execution.
-  variables?: ?Variables,
+  variables: Variables,
+  // The response from GraphQL execution
+  response: GraphQLResponse,
 |};
 
 /**

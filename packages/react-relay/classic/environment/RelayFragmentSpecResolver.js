@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayFragmentSpecResolver
  * @flow
@@ -15,25 +13,25 @@
 
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
-const isScalarAndEqual = require('isScalarAndEqual');
+const isScalarAndEqual = require('../util/isScalarAndEqual');
 
-const {areEqualSelectors, getSelectorsFromObject} = require('RelaySelector');
+const {areEqualSelectors, getSelectorsFromObject} = require('./RelaySelector');
 
+import type {Variables} from '../tools/RelayTypes';
 import type {
   Disposable,
   FragmentSpecResolver,
   FragmentSpecResults,
   Props,
   SelectorData,
-} from 'RelayCombinedEnvironmentTypes';
+} from './RelayCombinedEnvironmentTypes';
 import type {
   Environment,
   FragmentMap,
   RelayContext,
   Selector,
   Snapshot,
-} from 'RelayEnvironmentTypes';
-import type {Variables} from 'RelayTypes';
+} from './RelayEnvironmentTypes';
 
 type Resolvers = {[key: string]: ?(SelectorListResolver | SelectorResolver)};
 

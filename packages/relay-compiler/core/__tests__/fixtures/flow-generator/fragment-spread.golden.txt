@@ -1,4 +1,33 @@
-export type InlineFragment = {|
-  +id: string;
-  +profilePicture: ?{| |};
+import type { FragmentReference } from 'relay-runtime';
+type OtherFragment = any;
+type PictureFragment = any;
+type UserFrag1 = any;
+type UserFrag2 = any;
+export type FragmentSpread = {|
+  +id: string,
+  +justFrag: ?{|
+    +__fragments: FragmentReference<PictureFragment>,
+  |},
+  +fragAndField: ?{|
+    +uri: ?string,
+    +__fragments: FragmentReference<PictureFragment>,
+  |},
+  +__fragments: (FragmentReference<OtherFragment> & FragmentReference<UserFrag1> & FragmentReference<UserFrag2>),
+|};
+
+import type { FragmentReference } from 'relay-runtime';
+type PageFragment = any;
+export type ConcreateTypes = {|
+  +actor: ?({|
+    +__typename: 'Page',
+    +id: string,
+    +__fragments: FragmentReference<PageFragment>,
+  |} | {|
+    +__typename: 'User',
+    +name: ?string,
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: '%other',
+  |}),
 |};

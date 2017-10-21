@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayEnvironment
  * @flow
@@ -13,54 +11,65 @@
 
 'use strict';
 
-const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-const RelayClassicCore = require('RelayClassicCore');
-const RelayGraphQLMutation = require('RelayGraphQLMutation');
-const RelayMetaRoute = require('RelayMetaRoute');
-const RelayQuery = require('RelayQuery');
-const RelayQueryPath = require('RelayQueryPath');
-const RelayQueryRequest = require('RelayQueryRequest');
-const RelayQueryResultObservable = require('RelayQueryResultObservable');
-const RelayStoreData = require('RelayStoreData');
-const RelayVariables = require('RelayVariables');
+const GraphQLStoreQueryResolver = require('../legacy/store/GraphQLStoreQueryResolver');
+const RelayClassicCore = require('../environment/RelayClassicCore');
+const RelayGraphQLMutation = require('../mutation/RelayGraphQLMutation');
+const RelayMetaRoute = require('../route/RelayMetaRoute');
+const RelayQuery = require('../query/RelayQuery');
+const RelayQueryPath = require('../query/RelayQueryPath');
+const RelayQueryRequest = require('../network/RelayQueryRequest');
+const RelayStoreData = require('./RelayStoreData');
+const RelayVariables = require('../query/RelayVariables');
 
-const deepFreeze = require('deepFreeze');
-const forEachRootCallArg = require('forEachRootCallArg');
-const generateForceIndex = require('generateForceIndex');
-const readRelayQueryData = require('readRelayQueryData');
-const recycleNodesInto = require('recycleNodesInto');
+const deepFreeze = require('../tools/deepFreeze');
+const forEachRootCallArg = require('../query/forEachRootCallArg');
+const generateForceIndex = require('../legacy/store/generateForceIndex');
+const readRelayQueryData = require('./readRelayQueryData');
+// TODO T22703775: .native can't be imported without haste
+// SHOULD be: require('../tools/relayUnstableBatchedUpdates')
 const relayUnstableBatchedUpdates = require('relayUnstableBatchedUpdates');
 const warning = require('warning');
 
-import type {ConcreteOperationDefinition} from 'ConcreteQuery';
-import type {CacheConfig, Disposable} from 'RelayCombinedEnvironmentTypes';
+const {Observable, recycleNodesInto} = require('RelayRuntime');
+
+import type {
+  CacheConfig,
+  Disposable,
+} from '../environment/RelayCombinedEnvironmentTypes';
 import type {
   Environment,
   OperationSelector,
   UnstableEnvironmentCore,
   Selector,
   Snapshot,
-} from 'RelayEnvironmentTypes';
-import type {DataID, QueryPayload, RelayQuerySet} from 'RelayInternalTypes';
-import type RelayMutation from 'RelayMutation';
-import type RelayMutationTransaction from 'RelayMutationTransaction';
-import type {MutationCallback, QueryCallback} from 'RelayNetworkLayer';
-import type {UploadableMap} from 'RelayNetworkTypes';
-import type RelayQueryTracker from 'RelayQueryTracker';
-import type {TaskScheduler} from 'RelayTaskQueue';
+} from '../environment/RelayEnvironmentTypes';
+import type RelayMutation from '../mutation/RelayMutation';
+import type RelayMutationTransaction from '../mutation/RelayMutationTransaction';
+import type {
+  MutationCallback,
+  QueryCallback,
+} from '../network/RelayNetworkLayer';
+import type {ConcreteOperationDefinition} from '../query/ConcreteQuery';
+import type {
+  DataID,
+  QueryPayload,
+  RelayQuerySet,
+} from '../tools/RelayInternalTypes';
+import type {TaskScheduler} from '../tools/RelayTaskQueue';
 import type {
   Abortable,
   CacheManager,
   ChangeSubscription,
   NetworkLayer,
-  Observable,
   RelayMutationConfig,
   RelayMutationTransactionCommitCallbacks,
   ReadyStateChangeCallback,
   StoreReaderData,
   StoreReaderOptions,
   Variables,
-} from 'RelayTypes';
+} from '../tools/RelayTypes';
+import type RelayQueryTracker from './RelayQueryTracker';
+import type {SelectorStoreUpdater, UploadableMap} from 'RelayRuntime';
 
 export type FragmentResolver = {
   dispose(): void,
@@ -385,7 +394,26 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
     onNext?: ?(selector: Selector) => void,
     operation: OperationSelector,
   }): Disposable {
+    warning(
+      false,
+      'environment.streamQuery() is deprecated. Update to the latest ' +
+        'version of react-relay, and use environment.execute().',
+    );
     return this.sendQuery(config);
+  }
+
+  execute({
+    operation,
+    cacheConfig,
+    updater,
+  }: {
+    operation: OperationSelector,
+    cacheConfig?: ?CacheConfig,
+    updater?: ?SelectorStoreUpdater,
+  }): Observable<Selector> {
+    return Observable.fromLegacy(observer =>
+      this.sendQuery({operation, cacheConfig, ...observer}),
+    );
   }
 
   applyUpdate: (
@@ -517,17 +545,6 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
       results.push(data);
     });
     return results;
-  }
-
-  /**
-   * Reads and subscribes to query data anchored at the supplied data ID. The
-   * returned observable emits updates as the data changes over time.
-   */
-  observe(
-    fragment: RelayQuery.Fragment,
-    dataID: DataID,
-  ): Observable<?StoreReaderData> {
-    return new RelayQueryResultObservable(this._storeData, fragment, dataID);
   }
 
   /**

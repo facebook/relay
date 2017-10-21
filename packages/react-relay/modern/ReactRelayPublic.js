@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule ReactRelayPublic
  * @flow
@@ -13,10 +11,10 @@
 
 'use strict';
 
-const ReactRelayFragmentContainer = require('ReactRelayFragmentContainer');
-const ReactRelayPaginationContainer = require('ReactRelayPaginationContainer');
-const ReactRelayQueryRenderer = require('ReactRelayQueryRenderer');
-const ReactRelayRefetchContainer = require('ReactRelayRefetchContainer');
+const ReactRelayFragmentContainer = require('./ReactRelayFragmentContainer');
+const ReactRelayPaginationContainer = require('./ReactRelayPaginationContainer');
+const ReactRelayQueryRenderer = require('./ReactRelayQueryRenderer');
+const ReactRelayRefetchContainer = require('./ReactRelayRefetchContainer');
 
 const {
   commitLocalUpdate,
@@ -26,22 +24,25 @@ const {
   requestSubscription,
 } = require('RelayRuntime');
 
-export type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 export type {
-  Environment,
-  OperationSelector,
-  RelayContext,
-  Selector,
-  Snapshot,
-} from 'RelayStoreTypes';
-export type {DataID} from 'RelayInternalTypes';
-export type {Disposable} from 'RelayCombinedEnvironmentTypes';
-export type {Variables} from 'RelayTypes';
+  Disposable,
+} from '../classic/environment/RelayCombinedEnvironmentTypes';
+export type {DataID} from '../classic/tools/RelayInternalTypes';
+export type {Variables} from '../classic/tools/RelayTypes';
 export type {
   RelayPaginationProp,
   RelayProp,
   RelayRefetchProp,
-} from 'ReactRelayTypes';
+} from './ReactRelayTypes';
+export type {
+  // RelayRuntime has two environment exports: one interface, one concrete.
+  IEnvironment as Environment,
+  GraphQLTaggedNode,
+  OperationSelector,
+  RelayContext,
+  Selector,
+  Snapshot,
+} from 'RelayRuntime';
 
 /**
  * The public interface to React Relay.

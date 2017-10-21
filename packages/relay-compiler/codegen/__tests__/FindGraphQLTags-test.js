@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @format
  * @emails oncall+relay
@@ -122,83 +120,6 @@ describe('FindGraphQLTags', () => {
       ]);
     });
 
-    it('parses graphql.experimental templates', () => {
-      expect(
-        find(
-          `
-            const foo = 1;
-            foo(graphql.experimental\`fragment FindGraphQLTags on User { id }\`);
-            graphql.experimental\`fragment FindGraphQLTags on User { name }\`;
-
-            createFragmentContainer(Component, {
-              foo: graphql.experimental\`fragment FindGraphQLTags_foo on Page { id }\`,
-            });
-            createPaginationContainer(
-              Component,
-              {},
-              {
-                query: graphql.experimental\`query FindGraphQLTagsPaginationQuery { me { id } }\`,
-              }
-            );
-            createRefetchContainer(
-              Component,
-              {},
-              graphql.experimental\`query FindGraphQLTagsRefetchQuery { me { id } }\`
-            );
-
-            Relay.createFragmentContainer(Component, {
-              foo: graphql.experimental\`fragment FindGraphQLTags_foo on Page { name }\`,
-            });
-            Relay.createPaginationContainer(
-              Component,
-              {},
-              {
-                query: graphql.experimental\`query FindGraphQLTagsPaginationQuery { me { name } }\`,
-              }
-            );
-            Relay.createRefetchContainer(
-              Component,
-              {},
-              graphql.experimental\`query FindGraphQLTagsRefetchQuery { me { name } }\`
-            );
-          `,
-        ),
-      ).toEqual([
-        {
-          tag: 'graphql.experimental',
-          template: 'fragment FindGraphQLTags on User { id }',
-        },
-        {
-          tag: 'graphql.experimental',
-          template: 'fragment FindGraphQLTags on User { name }',
-        },
-        {
-          tag: 'graphql.experimental',
-          template: 'fragment FindGraphQLTags_foo on Page { id }',
-        },
-        {
-          tag: 'graphql.experimental',
-          template: 'query FindGraphQLTagsPaginationQuery { me { id } }',
-        },
-        {
-          tag: 'graphql.experimental',
-          template: 'query FindGraphQLTagsRefetchQuery { me { id } }',
-        },
-        {
-          tag: 'graphql.experimental',
-          template: 'fragment FindGraphQLTags_foo on Page { name }',
-        },
-        {
-          tag: 'graphql.experimental',
-          template: 'query FindGraphQLTagsPaginationQuery { me { name } }',
-        },
-        {
-          tag: 'graphql.experimental',
-          template: 'query FindGraphQLTagsRefetchQuery { me { name } }',
-        },
-      ]);
-    });
-
     it('parses Relay2QL templates', () => {
       expect(
         find(
@@ -236,6 +157,30 @@ describe('FindGraphQLTags', () => {
           template: 'fragment FindGraphQLTags on User { id }',
         },
       ]);
+    });
+  });
+
+  describe('query validation', () => {
+    it('prints correct file numbers in errors', () => {
+      expect(() => {
+        find(
+          '' +
+            'const foo = 1;\n' +
+            'foo(graphql`\n' +
+            '  fragment FindGraphQLTags on User {\n' +
+            '    ?\n' +
+            '    id\n' +
+            '  }\n' +
+            '`);\n',
+        );
+      }).toThrow(
+        'Syntax Error /path/to/FindGraphQLTags.js (4:5) ' +
+          'Cannot parse the unexpected character "?".\n\n' +
+          '3:   fragment FindGraphQLTags on User {\n' +
+          '4:     ?\n' +
+          '       ^\n' +
+          '5:     id\n',
+      );
     });
   });
 

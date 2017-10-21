@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayGarbageCollection
  * @flow
@@ -13,12 +11,12 @@
 
 'use strict';
 
-const RelayStore = require('RelayStore');
+const RelayStore = require('./RelayStore');
 
 const invariant = require('invariant');
 const warning = require('warning');
 
-import type {DataID} from 'RelayInternalTypes';
+import type {DataID} from '../tools/RelayInternalTypes';
 
 let _stepLength = -1; // collect in a single pass by default
 
@@ -97,7 +95,9 @@ function scheduler(run: () => boolean): void {
 }
 
 function enqueue(fn: () => void): void {
-  RelayStore.getStoreData().getTaskQueue().enqueue(fn);
+  RelayStore.getStoreData()
+    .getTaskQueue()
+    .enqueue(fn);
 }
 
 module.exports = RelayGarbageCollection;

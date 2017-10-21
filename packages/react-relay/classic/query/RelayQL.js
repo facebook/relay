@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayQL
  * @flow
@@ -13,15 +11,20 @@
 
 'use strict';
 
-const QueryBuilder = require('QueryBuilder');
-const RelayFragmentReference = require('RelayFragmentReference');
-const RelayRouteFragment = require('RelayRouteFragment');
+const QueryBuilder = require('./QueryBuilder');
+const RelayFragmentReference = require('./RelayFragmentReference');
+const RelayRouteFragment = require('./RelayRouteFragment');
 
-const generateConcreteFragmentID = require('generateConcreteFragmentID');
+const generateConcreteFragmentID = require('./generateConcreteFragmentID');
 const invariant = require('invariant');
 
-import type {ConcreteFragment} from 'ConcreteQuery';
-import type {VariableMapping} from 'RelayFragmentReference';
+import type {
+  ConcreteFragment,
+  ConcreteFragmentDefinition,
+  ConcreteOperationDefinition,
+} from './ConcreteQuery';
+import type {VariableMapping} from './RelayFragmentReference';
+import type {GraphQLTaggedNode} from 'RelayRuntime';
 
 export type RelayConcreteNode = mixed;
 
@@ -57,6 +60,8 @@ function assertValidFragment(substitution: any): void {
       "`${Child.getFragment('name')}`.",
   );
 }
+
+const CLASSIC_NODE = '__classic_node__';
 
 /**
  * Private helper methods used by the transformed code.
@@ -96,6 +101,89 @@ Object.assign(RelayQL, {
     variableMapping: VariableMapping,
   ): RelayFragmentReference {
     return new RelayFragmentReference(() => fragment, null, variableMapping);
+  },
+
+  /**
+   * Memoizes the results of executing the `.classic()` functions on
+   * graphql`...` tagged expressions. Memoization allows the framework to use
+   * object equality checks to compare fragments (useful, for example, when
+   * comparing two `Selector`s to see if they select the same data).
+   */
+  __getClassicNode(taggedNode) {
+    let concreteNode = (taggedNode: any)[CLASSIC_NODE];
+    if (concreteNode == null) {
+      const fn = taggedNode.classic;
+      invariant(
+        typeof fn === 'function',
+        'RelayQL: Expected a graphql literal, got `%s`.\n' +
+          'The "relay" Babel plugin must enable "compat" mode to be used with ' +
+          '"react-relay/compat" or "react-relay/classic".\n' +
+          'See: https://facebook.github.io/relay/docs/babel-plugin-relay.html',
+        JSON.stringify(taggedNode),
+      );
+      concreteNode = fn(this);
+      (taggedNode: any)[CLASSIC_NODE] = concreteNode;
+    }
+    return concreteNode;
+  },
+
+  __getClassicFragment(
+    taggedNode: GraphQLTaggedNode,
+    isUnMasked: ?boolean,
+  ): ConcreteFragmentDefinition {
+    const concreteNode = this.__getClassicNode(taggedNode);
+    const fragment = QueryBuilder.getFragmentDefinition(concreteNode);
+    invariant(
+      fragment,
+      'RelayQL: Expected a fragment, got `%s`.\n' +
+        'The "relay" Babel plugin must enable "compat" mode to be used with ' +
+        '"react-relay/compat" or "react-relay/classic".\n' +
+        'See: https://facebook.github.io/relay/docs/babel-plugin-relay.html',
+      concreteNode,
+    );
+    if (isUnMasked) {
+      /*
+       * For a regular `Fragment` or `Field` node, its variables have been declared
+       * in the parent. However, since unmasked fragment is actually parsed as `FragmentSpread`,
+       * we need to manually hoist its arguments to the parent.
+       * In reality, we do not actually hoist the arguments because Babel transform is per file.
+       * Instead, we could put the `argumentDefinitions` in the `metadata` and resolve the variables
+       * when building the concrete fragment node.
+       */
+      const hoistedRootArgs: Array<string> = [];
+      fragment.argumentDefinitions.forEach(argDef => {
+        invariant(
+          argDef.kind === 'RootArgument',
+          'RelayQL: Cannot unmask fragment `%s`. Expected all the arguments are root argument' +
+            ' but get `%s`',
+          concreteNode.node.name,
+          argDef.name,
+        );
+        hoistedRootArgs.push(argDef.name);
+      });
+
+      fragment.node.metadata = {
+        ...concreteNode.node.metadata,
+        hoistedRootArgs,
+      };
+    }
+    return fragment;
+  },
+
+  __getClassicOperation(
+    taggedNode: GraphQLTaggedNode,
+  ): ConcreteOperationDefinition {
+    const concreteNode = this.__getClassicNode(taggedNode);
+    const operation = QueryBuilder.getOperationDefinition(concreteNode);
+    invariant(
+      operation,
+      'RelayQL: Expected an operation, got `%s`.\n' +
+        'The "relay" Babel plugin must enable "compat" mode to be used with ' +
+        '"react-relay/compat" or "react-relay/classic".\n' +
+        'See: https://facebook.github.io/relay/docs/babel-plugin-relay.html',
+      concreteNode,
+    );
+    return operation;
   },
 });
 

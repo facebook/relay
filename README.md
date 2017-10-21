@@ -22,7 +22,7 @@ Then, just point your browser at `http://localhost:3000`.
 
 ## Contribute
 
-We actively welcome pull requests, learn how to [contribute](./CONTRIBUTING.md).
+We actively welcome pull requests, learn how to [contribute](./.github/CONTRIBUTING.md).
 
 ## Users
 
@@ -30,4 +30,4 @@ We have a [community-maintained list](./USERS.md) of people and projects using R
 
 ## License
 
-Relay is [BSD licensed](./LICENSE). We also provide an additional [patent grant](./PATENTS).
+Relay is [MIT licensed](./LICENSE).

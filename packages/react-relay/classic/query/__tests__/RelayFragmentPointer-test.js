@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
  * @format
@@ -12,15 +10,13 @@
 
 'use strict';
 
-jest.enableAutomock();
-
 require('configureForRelayOSS');
 
 jest.unmock('RelayFragmentPointer');
 
-const RelayFragmentPointer = require('RelayFragmentPointer');
-const Relay = require('Relay');
-const RelayRecordStore = require('RelayRecordStore');
+const RelayClassic = require('RelayClassic');
+const RelayFragmentPointer = require('../RelayFragmentPointer');
+const RelayRecordStore = require('../../store/RelayRecordStore');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayFragmentPointer', () => {
@@ -43,7 +39,7 @@ describe('RelayFragmentPointer', () => {
     const dataID = '123';
 
     it('creates a fragment prop for a singular fragment', () => {
-      const fragment = getNode(Relay.QL`fragment on Node { id }`);
+      const fragment = getNode(RelayClassic.QL`fragment on Node { id }`);
       const fragmentProp = RelayFragmentPointer.create(dataID, fragment);
       expect(fragmentProp).toEqual({
         __dataID__: dataID,
@@ -55,7 +51,7 @@ describe('RelayFragmentPointer', () => {
 
     it('adds plural fragments to objects', () => {
       const pluralFragment = getNode(
-        Relay.QL`fragment on Node @relay(plural:true) { id }`,
+        RelayClassic.QL`fragment on Node @relay(plural:true) { id }`,
       );
       const fragmentProp = RelayFragmentPointer.create(dataID, pluralFragment);
       expect(fragmentProp).toEqual({
@@ -67,7 +63,7 @@ describe('RelayFragmentPointer', () => {
     });
 
     it('distinguishes fragments with different variables', () => {
-      const fragment = Relay.QL`fragment on Node { id }`;
+      const fragment = RelayClassic.QL`fragment on Node { id }`;
       const fragment1 = getNode(fragment, {foo: 'bar'});
       const fragment2 = getNode(fragment, {sizes: [42]});
       const fragmentProp = RelayFragmentPointer.create(dataID, fragment1);
@@ -90,8 +86,10 @@ describe('RelayFragmentPointer', () => {
     });
 
     it('creates a wrapped fragment pointer', () => {
-      const rootFragment = Relay.QL`fragment on Node{id}`;
-      const root = getNode(Relay.QL`query{node(id:"123"){${rootFragment}}}`);
+      const rootFragment = RelayClassic.QL`fragment on Node{id}`;
+      const root = getNode(
+        RelayClassic.QL`query{node(id:"123"){${rootFragment}}}`,
+      );
 
       const result = RelayFragmentPointer.createForRoot(recordStore, root);
       expect(result).toEqual({
@@ -103,10 +101,10 @@ describe('RelayFragmentPointer', () => {
     });
 
     it('throws if multiple root fragments are present', () => {
-      const rootFragmentA = Relay.QL`fragment on Node{id}`;
-      const rootFragmentB = Relay.QL`fragment on Node{id}`;
+      const rootFragmentA = RelayClassic.QL`fragment on Node{id}`;
+      const rootFragmentB = RelayClassic.QL`fragment on Node{id}`;
       const root = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           username(name:"foo"){${rootFragmentA},${rootFragmentB}}
         }
@@ -123,7 +121,7 @@ describe('RelayFragmentPointer', () => {
     });
 
     it('throws if non-fragments are present', () => {
-      const root = getNode(Relay.QL`query{username(name:"foo"){name}}`);
+      const root = getNode(RelayClassic.QL`query{username(name:"foo"){name}}`);
 
       expect(() => {
         RelayFragmentPointer.createForRoot(recordStore, root);
@@ -136,9 +134,9 @@ describe('RelayFragmentPointer', () => {
     });
 
     it('throws for unknown ref queries', () => {
-      const rootFragment = Relay.QL`fragment on Node{id}`;
+      const rootFragment = RelayClassic.QL`fragment on Node{id}`;
       const root = getRefNode(
-        Relay.QL`query{nodes(ids:$ref_q0){${rootFragment}}}`,
+        RelayClassic.QL`query{nodes(ids:$ref_q0){${rootFragment}}}`,
         {path: '$.*.id'},
       );
 
@@ -153,8 +151,8 @@ describe('RelayFragmentPointer', () => {
     it('returns null when the root call was not fetched', () => {
       // When a root call is not fetched since it only contained empty
       // fragments, we shouldn't throw.
-      const ref = Relay.QL`fragment on Viewer { actor { id } }`;
-      const root = getNode(Relay.QL`query{viewer{${ref}}}`);
+      const ref = RelayClassic.QL`fragment on Viewer { actor { id } }`;
+      const root = getNode(RelayClassic.QL`query{viewer{${ref}}}`);
 
       expect(RelayFragmentPointer.createForRoot(recordStore, root)).toBeNull();
     });
@@ -169,7 +167,7 @@ describe('RelayFragmentPointer', () => {
     });
 
     it('adds singular fragments to objects', () => {
-      const fragment = getNode(Relay.QL`fragment on Node { id }`);
+      const fragment = getNode(RelayClassic.QL`fragment on Node { id }`);
       RelayFragmentPointer.addFragment(obj, fragment, dataID);
 
       expect(obj).toEqual({
@@ -182,7 +180,7 @@ describe('RelayFragmentPointer', () => {
 
     it('adds plural fragments to objects', () => {
       const pluralFragment = getNode(
-        Relay.QL`fragment on Node @relay(plural:true) { id }`,
+        RelayClassic.QL`fragment on Node @relay(plural:true) { id }`,
       );
       RelayFragmentPointer.addFragment(obj, pluralFragment, dataID);
 

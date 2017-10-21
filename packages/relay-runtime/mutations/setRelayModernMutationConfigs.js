@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule setRelayModernMutationConfigs
  * @flow
@@ -131,9 +129,9 @@ function rangeAdd(
         if (!payload) {
           return;
         }
-        const newEdge = payload.getLinkedRecord(edgeName);
+        const serverEdge = payload.getLinkedRecord(edgeName);
         for (const info of connectionInfo) {
-          if (newEdge) {
+          if (serverEdge) {
             const connection = RelayConnectionHandler.getConnection(
               parent,
               info.key,
@@ -142,15 +140,23 @@ function rangeAdd(
             if (!connection) {
               return;
             }
+            const clientEdge = RelayConnectionHandler.buildConnectionEdge(
+              store,
+              connection,
+              serverEdge,
+            );
+            if (!clientEdge) {
+              return;
+            }
             switch (info.rangeBehavior) {
               case 'append':
-                RelayConnectionHandler.insertEdgeAfter(connection, newEdge);
+                RelayConnectionHandler.insertEdgeAfter(connection, clientEdge);
                 break;
               case 'ignore':
                 // Do nothing
                 break;
               case 'prepend':
-                RelayConnectionHandler.insertEdgeBefore(connection, newEdge);
+                RelayConnectionHandler.insertEdgeBefore(connection, clientEdge);
                 break;
               default:
                 warning(

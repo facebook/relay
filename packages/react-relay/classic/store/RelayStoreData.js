@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayStoreData
  * @flow
@@ -13,46 +11,44 @@
 
 'use strict';
 
-const GraphQLQueryRunner = require('GraphQLQueryRunner');
-const GraphQLRange = require('GraphQLRange');
-const GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
-const GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
-const QueryBuilder = require('QueryBuilder');
-const RelayChangeTracker = require('RelayChangeTracker');
-const RelayClassicRecordState = require('RelayClassicRecordState');
-const RelayConnectionInterface = require('RelayConnectionInterface');
-const RelayGarbageCollector = require('RelayGarbageCollector');
-const RelayMetaRoute = require('RelayMetaRoute');
-const RelayMutationQueue = require('RelayMutationQueue');
-const RelayNetworkLayer = require('RelayNetworkLayer');
-const RelayNodeInterface = require('RelayNodeInterface');
-const RelayPendingQueryTracker = require('RelayPendingQueryTracker');
-const RelayProfiler = require('RelayProfiler');
-const RelayQuery = require('RelayQuery');
-const RelayQueryPath = require('RelayQueryPath');
-const RelayQueryTracker = require('RelayQueryTracker');
-const RelayQueryWriter = require('RelayQueryWriter');
-const RelayRecord = require('RelayRecord');
-const RelayRecordStore = require('RelayRecordStore');
-const RelayRecordWriter = require('RelayRecordWriter');
-const RelayTaskQueue = require('RelayTaskQueue');
+const GraphQLQueryRunner = require('../legacy/store/GraphQLQueryRunner');
+const GraphQLRange = require('../legacy/store/GraphQLRange');
+const GraphQLStoreChangeEmitter = require('../legacy/store/GraphQLStoreChangeEmitter');
+const GraphQLStoreRangeUtils = require('../legacy/store/GraphQLStoreRangeUtils');
+const QueryBuilder = require('../query/QueryBuilder');
+const RelayChangeTracker = require('./RelayChangeTracker');
+const RelayClassicRecordState = require('./RelayClassicRecordState');
+const RelayGarbageCollector = require('./RelayGarbageCollector');
+const RelayMetaRoute = require('../route/RelayMetaRoute');
+const RelayMutationQueue = require('../mutation/RelayMutationQueue');
+const RelayNetworkLayer = require('../network/RelayNetworkLayer');
+const RelayNodeInterface = require('../interface/RelayNodeInterface');
+const RelayPendingQueryTracker = require('./RelayPendingQueryTracker');
+const RelayQuery = require('../query/RelayQuery');
+const RelayQueryPath = require('../query/RelayQueryPath');
+const RelayQueryTracker = require('./RelayQueryTracker');
+const RelayQueryWriter = require('./RelayQueryWriter');
+const RelayRecord = require('./RelayRecord');
+const RelayRecordStore = require('./RelayRecordStore');
+const RelayRecordWriter = require('./RelayRecordWriter');
+const RelayTaskQueue = require('../tools/RelayTaskQueue');
 
 const forEachObject = require('forEachObject');
-const generateForceIndex = require('generateForceIndex');
+const generateForceIndex = require('../legacy/store/generateForceIndex');
 const invariant = require('invariant');
 const mapObject = require('mapObject');
 const nullthrows = require('nullthrows');
 const warning = require('warning');
-const writeRelayQueryPayload = require('writeRelayQueryPayload');
-const writeRelayUpdatePayload = require('writeRelayUpdatePayload');
+const writeRelayQueryPayload = require('../traversal/writeRelayQueryPayload');
+const writeRelayUpdatePayload = require('../traversal/writeRelayUpdatePayload');
 
 const {
   restoreFragmentDataFromCache,
   restoreQueriesDataFromCache,
-} = require('restoreRelayCacheData');
+} = require('./restoreRelayCacheData');
+const {ConnectionInterface, RelayProfiler} = require('RelayRuntime');
 
-import type {ChangeSet} from 'RelayChangeTracker';
-import type {GarbageCollectionScheduler} from 'RelayGarbageCollector';
+import type {QueryPath} from '../query/RelayQueryPath';
 import type {
   ClientMutationID,
   DataID,
@@ -61,19 +57,19 @@ import type {
   RelayQuerySet,
   RootCallMap,
   UpdateOptions,
-} from 'RelayInternalTypes';
-import type {QueryPath} from 'RelayQueryPath';
-import type {RecordMap} from 'RelayRecord';
-import type {TaskScheduler} from 'RelayTaskQueue';
+} from '../tools/RelayInternalTypes';
+import type {TaskScheduler} from '../tools/RelayTaskQueue';
 import type {
   Abortable,
   CacheManager,
   CacheProcessorCallbacks,
-} from 'RelayTypes';
+} from '../tools/RelayTypes';
+import type {ChangeSet} from './RelayChangeTracker';
+import type {GarbageCollectionScheduler} from './RelayGarbageCollector';
+import type {RecordMap} from './RelayRecord';
 
-const {CLIENT_MUTATION_ID} = RelayConnectionInterface;
 const {ID, ID_TYPE, NODE, NODE_TYPE, TYPENAME} = RelayNodeInterface;
-const {ROOT_ID, ROOT_TYPE} = require('RelayStoreConstants');
+const {ROOT_ID} = require('./RelayStoreConstants');
 const {EXISTENT} = RelayClassicRecordState;
 
 const idField = RelayQuery.Field.build({
@@ -350,7 +346,7 @@ class RelayStoreData {
 
       // Ensure the root record exists
       const path = RelayQueryPath.getRootRecordPath();
-      recordWriter.putRecord(ROOT_ID, ROOT_TYPE, path);
+      recordWriter.putRecord(ROOT_ID, query.getType(), path);
       if (this._queuedStore.getRecordState(ROOT_ID) !== EXISTENT) {
         changeTracker.createID(ROOT_ID);
       } else {
@@ -456,6 +452,8 @@ class RelayStoreData {
     const changeTracker = new RelayChangeTracker();
     let recordWriter;
     if (isOptimisticUpdate) {
+      const {CLIENT_MUTATION_ID} = ConnectionInterface.get();
+
       const clientMutationID = payload[CLIENT_MUTATION_ID];
       invariant(
         typeof clientMutationID === 'string',
@@ -679,6 +677,9 @@ class RelayStoreData {
      * A util function which remove the querypath from the record. Used to stringify the RecordMap.
      */
     const getRecordsWithoutPaths = (recordMap: ?RecordMap) => {
+      if (!recordMap) {
+        return null;
+      }
       return mapObject(recordMap, record => {
         const nextRecord = {...record};
         delete nextRecord[RelayRecord.MetadataKey.PATH];

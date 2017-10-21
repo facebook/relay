@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayRenderer
  * @flow
@@ -15,29 +13,26 @@
 
 const PropTypes = require('prop-types');
 const React = require('React');
-const RelayPropTypes = require('RelayPropTypes');
-const RelayReadyStateRenderer = require('RelayReadyStateRenderer');
+const RelayPropTypes = require('./RelayPropTypes');
+const RelayReadyStateRenderer = require('./RelayReadyStateRenderer');
 
-const getRelayQueries = require('getRelayQueries');
+const getRelayQueries = require('./getRelayQueries');
 
-import type {RelayEnvironmentInterface} from 'RelayEnvironment';
-import type {GarbageCollectionHold} from 'RelayGarbageCollector';
-import type {RelayQuerySet} from 'RelayInternalTypes';
-import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
-import type {
-  RelayRenderCallback,
-  RelayRetryCallback,
-} from 'RelayReadyStateRenderer';
+import type {RelayQueryConfigInterface} from '../query-config/RelayQueryConfig';
+import type {RelayEnvironmentInterface} from '../store/RelayEnvironment';
+import type {GarbageCollectionHold} from '../store/RelayGarbageCollector';
+import type {RelayQuerySet} from '../tools/RelayInternalTypes';
 import type {
   Abortable,
   ComponentReadyState,
   ReadyState,
   RelayContainer,
-} from 'RelayTypes';
+} from '../tools/RelayTypes';
+import type {
+  RelayRenderCallback,
+  RelayRetryCallback,
+} from './RelayReadyStateRenderer';
 
-type DefaultProps = {
-  shouldFetch?: ?boolean,
-};
 type Props = {
   Container: RelayContainer,
   shouldFetch?: ?boolean,
@@ -129,7 +124,7 @@ const INACTIVE_READY_STATE = {
  *   }
  *
  */
-class RelayRenderer extends React.Component<DefaultProps, Props, State> {
+class RelayRenderer extends React.Component<Props, State> {
   static propTypes = {
     Container: RelayPropTypes.Container,
     forceFetch: PropTypes.bool,
@@ -302,7 +297,7 @@ class RelayRenderer extends React.Component<DefaultProps, Props, State> {
     this.mounted = false;
   }
 
-  render(): ?React.Element<*> {
+  render(): React.Node {
     const readyState = this.state.active
       ? this.state.readyState
       : INACTIVE_READY_STATE;

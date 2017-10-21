@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayModernFragmentSpecResolver
  * @flow
@@ -13,7 +11,6 @@
 
 'use strict';
 
-const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const isScalarAndEqual = require('isScalarAndEqual');
 
@@ -86,7 +83,11 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
   }
 
   dispose(): void {
-    forEachObject(this._resolvers, disposeCallback);
+    for (const key in this._resolvers) {
+      if (this._resolvers.hasOwnProperty(key)) {
+        disposeCallback(this._resolvers[key]);
+      }
+    }
   }
 
   resolve(): FragmentSpecResults {
@@ -95,23 +96,26 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
       // multiple keys changes in the same event loop.
       const prevData = this._data;
       let nextData;
-      forEachObject(this._resolvers, (resolver, key) => {
-        const prevItem = prevData[key];
-        if (resolver) {
-          const nextItem = resolver.resolve();
-          if (nextData || nextItem !== prevItem) {
-            nextData = nextData || {...prevData};
-            nextData[key] = nextItem;
-          }
-        } else {
-          const prop = this._props[key];
-          const nextItem = prop !== undefined ? prop : null;
-          if (nextData || !isScalarAndEqual(nextItem, prevItem)) {
-            nextData = nextData || {...prevData};
-            nextData[key] = nextItem;
+      for (const key in this._resolvers) {
+        if (this._resolvers.hasOwnProperty(key)) {
+          const resolver = this._resolvers[key];
+          const prevItem = prevData[key];
+          if (resolver) {
+            const nextItem = resolver.resolve();
+            if (nextData || nextItem !== prevItem) {
+              nextData = nextData || {...prevData};
+              nextData[key] = nextItem;
+            }
+          } else {
+            const prop = this._props[key];
+            const nextItem = prop !== undefined ? prop : null;
+            if (nextData || !isScalarAndEqual(nextItem, prevItem)) {
+              nextData = nextData || {...prevData};
+              nextData[key] = nextItem;
+            }
           }
         }
-      });
+      }
       this._data = nextData || prevData;
       this._stale = false;
     }
@@ -124,56 +128,62 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
       this._fragments,
       props,
     );
-    forEachObject(selectors, (selector, key) => {
-      let resolver = this._resolvers[key];
-      if (selector == null) {
-        if (resolver != null) {
-          resolver.dispose();
-        }
-        resolver = null;
-      } else if (Array.isArray(selector)) {
-        if (resolver == null) {
-          resolver = new SelectorListResolver(
-            this._context.environment,
-            selector,
-            this._onChange,
-          );
+    for (const key in selectors) {
+      if (selectors.hasOwnProperty(key)) {
+        const selector = selectors[key];
+        let resolver = this._resolvers[key];
+        if (selector == null) {
+          if (resolver != null) {
+            resolver.dispose();
+          }
+          resolver = null;
+        } else if (Array.isArray(selector)) {
+          if (resolver == null) {
+            resolver = new SelectorListResolver(
+              this._context.environment,
+              selector,
+              this._onChange,
+            );
+          } else {
+            invariant(
+              resolver instanceof SelectorListResolver,
+              'RelayModernFragmentSpecResolver: Expected prop `%s` to always be an array.',
+              key,
+            );
+            resolver.setSelectors(selector);
+          }
         } else {
-          invariant(
-            resolver instanceof SelectorListResolver,
-            'RelayModernFragmentSpecResolver: Expected prop `%s` to always be an array.',
-            key,
-          );
-          resolver.setSelectors(selector);
+          if (resolver == null) {
+            resolver = new SelectorResolver(
+              this._context.environment,
+              selector,
+              this._onChange,
+            );
+          } else {
+            invariant(
+              resolver instanceof SelectorResolver,
+              'RelayModernFragmentSpecResolver: Expected prop `%s` to always be an object.',
+              key,
+            );
+            resolver.setSelector(selector);
+          }
         }
-      } else {
-        if (resolver == null) {
-          resolver = new SelectorResolver(
-            this._context.environment,
-            selector,
-            this._onChange,
-          );
-        } else {
-          invariant(
-            resolver instanceof SelectorResolver,
-            'RelayModernFragmentSpecResolver: Expected prop `%s` to always be an object.',
-            key,
-          );
-          resolver.setSelector(selector);
-        }
+        this._resolvers[key] = resolver;
       }
-      this._resolvers[key] = resolver;
-    });
+    }
     this._props = props;
     this._stale = true;
   }
 
   setVariables(variables: Variables): void {
-    forEachObject(this._resolvers, resolver => {
-      if (resolver) {
-        resolver.setVariables(variables);
+    for (const key in this._resolvers) {
+      if (this._resolvers.hasOwnProperty(key)) {
+        const resolver = this._resolvers[key];
+        if (resolver) {
+          resolver.setVariables(variables);
+        }
       }
-    });
+    }
     this._stale = true;
   }
 

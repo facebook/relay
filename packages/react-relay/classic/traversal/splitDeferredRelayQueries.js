@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule splitDeferredRelayQueries
  * @flow
@@ -13,16 +11,17 @@
 
 'use strict';
 
-const QueryBuilder = require('QueryBuilder');
-const RelayNodeInterface = require('RelayNodeInterface');
-const RelayProfiler = require('RelayProfiler');
-const RelayQuery = require('RelayQuery');
-const RelayQueryTransform = require('RelayQueryTransform');
-const RelayRefQueryDescriptor = require('RelayRefQueryDescriptor');
+const QueryBuilder = require('../query/QueryBuilder');
+const RelayNodeInterface = require('../interface/RelayNodeInterface');
+const RelayQuery = require('../query/RelayQuery');
+const RelayQueryTransform = require('../query/RelayQueryTransform');
+const RelayRefQueryDescriptor = require('../query/RelayRefQueryDescriptor');
 
 const invariant = require('invariant');
 
-import type {NodePath} from 'RelayRefQueryDescriptor';
+const {RelayProfiler} = require('RelayRuntime');
+
+import type {NodePath} from '../query/RelayRefQueryDescriptor';
 
 export type SplitQueries = {
   __nodePath__: NodePath,
@@ -124,9 +123,11 @@ function wrapNode(
   const identifyingArg = node.getIdentifyingArg();
   const identifyingArgName = (identifyingArg && identifyingArg.name) || null;
   const identifyingArgValue = (identifyingArg && identifyingArg.value) || null;
+  const identifyingArgType =
+    (identifyingArg && identifyingArg.type) || RelayNodeInterface.ID_TYPE;
   const metadata = {
     identifyingArgName,
-    identifyingArgType: RelayNodeInterface.ID_TYPE,
+    identifyingArgType,
     isAbstract: true,
     isDeferred: true,
     isPlural: false,

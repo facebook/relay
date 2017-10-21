@@ -64,7 +64,6 @@ graphql`
           id,
           ...Story_story
         }
-      }
     }
   }
 `,
@@ -82,7 +81,7 @@ class Feed extends React.Component {
   render() {
     return (
       <div>
-        {this.props.viewer.feed.edges.map(
+        {this.props.user.feed.edges.map(
           edge => <Story story={edge.node} key={edge.node.id} />
         )}
         <button

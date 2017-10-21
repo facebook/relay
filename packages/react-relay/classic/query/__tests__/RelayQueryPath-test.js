@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
  * @format
@@ -12,17 +10,15 @@
 
 'use strict';
 
-jest.enableAutomock();
-
 require('configureForRelayOSS');
 
 jest.mock('warning');
 
-const Relay = require('Relay');
-const RelayMetaRoute = require('RelayMetaRoute');
-const RelayQueryPath = require('RelayQueryPath');
-const RelayRecordStore = require('RelayRecordStore');
-const RelayRecordWriter = require('RelayRecordWriter');
+const RelayClassic = require('RelayClassic');
+const RelayMetaRoute = require('../../route/RelayMetaRoute');
+const RelayQueryPath = require('../RelayQueryPath');
+const RelayRecordStore = require('../../store/RelayRecordStore');
+const RelayRecordWriter = require('../../store/RelayRecordWriter');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayQueryPath', () => {
@@ -42,7 +38,7 @@ describe('RelayQueryPath', () => {
 
   it('creates root paths', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"123") {
           id
@@ -50,7 +46,7 @@ describe('RelayQueryPath', () => {
       }
     `,
     );
-    const fragment = Relay.QL`
+    const fragment = RelayClassic.QL`
       fragment on Node {
         id
         __typename
@@ -66,7 +62,7 @@ describe('RelayQueryPath', () => {
     const pathQuery = RelayQueryPath.getQuery(store, path, getNode(fragment));
     expect(pathQuery).toEqualQueryRoot(
       getVerbatimNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         node(id:"123") {
           ... on User {
@@ -83,7 +79,7 @@ describe('RelayQueryPath', () => {
 
   it('creates root paths for argument-less root calls with IDs', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         me {
           id
@@ -91,7 +87,7 @@ describe('RelayQueryPath', () => {
       }
     `,
     );
-    const fragment = Relay.QL`
+    const fragment = RelayClassic.QL`
       fragment on Actor {
         name
       }
@@ -100,7 +96,7 @@ describe('RelayQueryPath', () => {
     const pathQuery = RelayQueryPath.getQuery(store, path, getNode(fragment));
     expect(pathQuery).toEqualQueryRoot(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         me {
           id
@@ -116,7 +112,7 @@ describe('RelayQueryPath', () => {
 
   it('creates root paths for argument-less root calls without IDs', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           actor {
@@ -126,7 +122,7 @@ describe('RelayQueryPath', () => {
       }
     `,
     );
-    const fragment = Relay.QL`
+    const fragment = RelayClassic.QL`
       fragment on Viewer {
         actor {
           name
@@ -137,7 +133,7 @@ describe('RelayQueryPath', () => {
     const pathQuery = RelayQueryPath.getQuery(store, path, getNode(fragment));
     expect(pathQuery).toEqualQueryRoot(
       getNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         viewer {
           ${fragment}
@@ -152,7 +148,7 @@ describe('RelayQueryPath', () => {
 
   it('creates paths to non-refetchable fields', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"123") {
           id
@@ -161,7 +157,7 @@ describe('RelayQueryPath', () => {
     `,
     );
     const address = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on Actor {
         address {
           city
@@ -170,7 +166,7 @@ describe('RelayQueryPath', () => {
     `,
     ).getFieldByStorageKey('address');
     const city = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on StreetAddress {
         city
       }
@@ -184,7 +180,7 @@ describe('RelayQueryPath', () => {
     const pathQuery = RelayQueryPath.getQuery(store, path, city);
     expect(pathQuery).toEqualQueryRoot(
       getVerbatimNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         node(id:"123") {
           ... on User {
@@ -207,7 +203,7 @@ describe('RelayQueryPath', () => {
 
   it('creates roots with route from child', () => {
     let query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"123") {
           id
@@ -221,7 +217,7 @@ describe('RelayQueryPath', () => {
       RelayMetaRoute.get('FooRoute'),
     );
 
-    const fragment = Relay.QL`
+    const fragment = RelayClassic.QL`
       fragment on Node {
         id
         __typename
@@ -236,7 +232,7 @@ describe('RelayQueryPath', () => {
     expect(pathQuery.getRoute()).toBe(getNode(fragment).getRoute());
     expect(pathQuery).toEqualQueryRoot(
       getVerbatimNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         node(id:"123") {
           ... on User {
@@ -253,7 +249,7 @@ describe('RelayQueryPath', () => {
 
   it('creates roots for refetchable fields', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           actor {
@@ -264,7 +260,7 @@ describe('RelayQueryPath', () => {
     `,
     );
     const actor = query.getFieldByStorageKey('actor');
-    const fragment = Relay.QL`
+    const fragment = RelayClassic.QL`
       fragment on Node {
         name
       }
@@ -277,7 +273,7 @@ describe('RelayQueryPath', () => {
     const pathQuery = RelayQueryPath.getQuery(store, path, getNode(fragment));
     expect(pathQuery).toEqualQueryRoot(
       getVerbatimNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         node(id:"123") {
           ... on User {
@@ -300,7 +296,7 @@ describe('RelayQueryPath', () => {
 
   it('creates paths to non-refetchable connection fields', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"123") {
           id
@@ -309,7 +305,7 @@ describe('RelayQueryPath', () => {
     `,
     );
     const friends = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on User {
         friends(first: 1) {
           edges {
@@ -320,7 +316,7 @@ describe('RelayQueryPath', () => {
     `,
     ).getFieldByStorageKey('friends');
     const edges = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on FriendsConnection {
         edges {
           cursor
@@ -329,7 +325,7 @@ describe('RelayQueryPath', () => {
     `,
     ).getFieldByStorageKey('edges');
     const cursor = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on FriendsEdge {
         cursor
       }
@@ -345,7 +341,7 @@ describe('RelayQueryPath', () => {
     const pathQuery = RelayQueryPath.getQuery(store, path, cursor);
     expect(pathQuery).toEqualQueryRoot(
       getVerbatimNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         node(id:"123") {
           ... on User {
@@ -376,7 +372,7 @@ describe('RelayQueryPath', () => {
 
   it("warns if the root record's type is unknown", () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           actor {
@@ -387,7 +383,7 @@ describe('RelayQueryPath', () => {
     `,
     );
     const actor = query.getFieldByStorageKey('actor');
-    const fragment = Relay.QL`
+    const fragment = RelayClassic.QL`
       fragment on Node {
         name
       }
@@ -399,7 +395,7 @@ describe('RelayQueryPath', () => {
     const pathQuery = RelayQueryPath.getQuery(store, path, getNode(fragment));
     expect(pathQuery).toEqualQueryRoot(
       getVerbatimNode(
-        Relay.QL`
+        RelayClassic.QL`
       query {
         node(id:"123") {
           # not wrapped in a concrete fragment because the type is unknown.
@@ -428,7 +424,7 @@ describe('RelayQueryPath', () => {
   describe('getPath()', () => {
     it('returns a client path given no `dataID`', () => {
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           viewer {
             actor {

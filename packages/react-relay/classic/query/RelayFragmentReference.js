@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayFragmentReference
  * @flow
@@ -13,15 +11,15 @@
 
 'use strict';
 
-const QueryBuilder = require('QueryBuilder');
+const QueryBuilder = require('./QueryBuilder');
 
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const warning = require('warning');
 
-import type {ConcreteFragment} from 'ConcreteQuery';
-import type RelayMetaRoute from 'RelayMetaRoute';
-import type {Variables} from 'RelayTypes';
+import type RelayMetaRoute from '../route/RelayMetaRoute';
+import type {Variables} from '../tools/RelayTypes';
+import type {ConcreteFragment} from './ConcreteQuery';
 
 type Condition = {
   passingValue: boolean,

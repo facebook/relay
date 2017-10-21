@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule ReactRelayClassicExports
  * @flow
@@ -13,9 +11,9 @@
 
 'use strict';
 
-const RelayDefaultNetworkLayer = require('RelayDefaultNetworkLayer');
-const RelayPublic = require('RelayPublic');
-const RelayStore = require('RelayStore');
+const RelayDefaultNetworkLayer = require('./network-layer/default/RelayDefaultNetworkLayer');
+const RelayPublic = require('./RelayPublic');
+const RelayStore = require('./store/RelayStore');
 
 // As early as possible, check for the existence of the JavaScript globals which
 // React Relay relies upon, and produce a clear message if they do not exist.

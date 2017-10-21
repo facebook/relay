@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayContainer
  * @flow
@@ -16,42 +14,47 @@
 const ErrorUtils = require('ErrorUtils');
 const PropTypes = require('prop-types');
 const React = require('React');
-const RelayContainerComparators = require('RelayContainerComparators');
-const RelayContainerProxy = require('RelayContainerProxy');
-const RelayFragmentPointer = require('RelayFragmentPointer');
-const RelayFragmentReference = require('RelayFragmentReference');
-const RelayMetaRoute = require('RelayMetaRoute');
-const RelayMutationTransaction = require('RelayMutationTransaction');
-const RelayProfiler = require('RelayProfiler');
-const RelayPropTypes = require('RelayPropTypes');
-const RelayQuery = require('RelayQuery');
-const RelayRecord = require('RelayRecord');
-const RelayRecordStatusMap = require('RelayRecordStatusMap');
+const RelayContainerComparators = require('./RelayContainerComparators');
+const RelayContainerProxy = require('./RelayContainerProxy');
+const RelayFragmentPointer = require('../query/RelayFragmentPointer');
+const RelayFragmentReference = require('../query/RelayFragmentReference');
+const RelayMetaRoute = require('../route/RelayMetaRoute');
+const RelayMutationTransaction = require('../mutation/RelayMutationTransaction');
+const RelayPropTypes = require('./RelayPropTypes');
+const RelayQuery = require('../query/RelayQuery');
+const RelayRecord = require('../store/RelayRecord');
+const RelayRecordStatusMap = require('../store/RelayRecordStatusMap');
 
 const areEqual = require('areEqual');
-const buildRQL = require('buildRQL');
+const buildRQL = require('../query/buildRQL');
 const filterObject = require('filterObject');
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
-const isClassicRelayContext = require('isClassicRelayContext');
+const isClassicRelayContext = require('../store/isClassicRelayContext');
+// TODO T22703775: .native can't be imported without haste
+// SHOULD be: require('../tools/relayUnstableBatchedUpdates')
 const relayUnstableBatchedUpdates = require('relayUnstableBatchedUpdates');
 const shallowEqual = require('shallowEqual');
 const warning = require('warning');
 
-const {getComponentName, getReactComponent} = require('RelayContainerUtils');
+const {getComponentName, getReactComponent} = require('./RelayContainerUtils');
+const {RelayProfiler} = require('RelayRuntime');
 
-import type {ConcreteFragment} from 'ConcreteQuery';
-import type {FragmentResolver, ClassicRelayContext} from 'RelayEnvironment';
-import type {DataID, RelayQuerySet} from 'RelayInternalTypes';
-import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
+import type {RelayQueryConfigInterface} from '../query-config/RelayQueryConfig';
+import type {ConcreteFragment} from '../query/ConcreteQuery';
+import type {RelayQLFragmentBuilder} from '../query/buildRQL';
+import type {
+  FragmentResolver,
+  ClassicRelayContext,
+} from '../store/RelayEnvironment';
+import type {DataID, RelayQuerySet} from '../tools/RelayInternalTypes';
 import type {
   Abortable,
   ComponentReadyStateChangeCallback,
   RelayContainer as RelayContainerClass,
   RelayProp,
   Variables,
-} from 'RelayTypes';
-import type {RelayQLFragmentBuilder} from 'buildRQL';
+} from '../tools/RelayTypes';
 
 type FragmentPointer = {
   fragment: RelayQuery.Fragment,
@@ -96,7 +99,7 @@ const containerContextTypes = {
  *
  */
 function createContainerComponent(
-  Component: ReactClass<any>,
+  Component: React.ComponentType<any>,
   spec: RelayContainerSpec,
 ): RelayContainerClass {
   const ComponentClass = getReactComponent(Component);
@@ -108,7 +111,14 @@ function createContainerComponent(
   const prepareVariables = spec.prepareVariables;
   const specShouldComponentUpdate = spec.shouldComponentUpdate;
 
-  class RelayContainer extends React.Component {
+  class RelayContainer extends React.Component<
+    $FlowFixMeProps,
+    {
+      queryData: {[propName: string]: mixed},
+      rawVariables: Variables,
+      relayProp: RelayProp,
+    },
+  > {
     mounted: boolean;
     _didShowFakeDataWarning: boolean;
     _fragmentPointers: {[key: string]: ?FragmentPointer};
@@ -118,11 +128,6 @@ function createContainerComponent(
     pending: ?{
       rawVariables: Variables,
       request: Abortable,
-    };
-    state: {
-      queryData: {[propName: string]: mixed},
-      rawVariables: Variables,
-      relayProp: RelayProp,
     };
 
     constructor(props, context) {
@@ -539,10 +544,9 @@ function createContainerComponent(
     _cleanup(): void {
       // A guarded error in mounting might prevent initialization of resolvers.
       if (this._fragmentResolvers) {
-        forEachObject(
-          this._fragmentResolvers,
-          fragmentResolver => fragmentResolver && fragmentResolver.dispose(),
-        );
+        forEachObject(this._fragmentResolvers, fragmentResolver => {
+          fragmentResolver && fragmentResolver.dispose();
+        });
       }
 
       this._fragmentPointers = {};
@@ -751,11 +755,13 @@ function createContainerComponent(
           // Allow mock data to pass through without modification.
           queryData[propName] = propValue;
         } else {
+          invariant(fragmentResolver, 'fragmentResolver should not be null');
           queryData[propName] = fragmentResolver.resolve(
             fragmentPointer.fragment,
             fragmentPointer.dataIDs,
           );
         }
+
         if (
           this.state.queryData.hasOwnProperty(propName) &&
           queryData[propName] !== this.state.queryData[propName]
@@ -812,7 +818,7 @@ function createContainerComponent(
       );
     }
 
-    render(): React.Element<*> {
+    render(): React.Node {
       if (ComponentClass) {
         return (
           <ComponentClass
@@ -1013,15 +1019,15 @@ function validateSpec(componentName: string, spec: RelayContainerSpec): void {
   forEachObject(fragments, (_, name) => {
     warning(
       !initialVariables.hasOwnProperty(name),
-      'Relay.createContainer(%s, ...): `%s` is used both as a fragment name ' +
-        'and variable name. Please give them unique names.',
+      'Relay.createContainer(%s, ...): `%s` is used both as a ' +
+        'fragment name and variable name. Please give them unique names.',
       componentName,
       name,
     );
   });
 }
 
-function getContainerName(Component: ReactClass<any>): string {
+function getContainerName(Component: React.ComponentType<any>): string {
   return 'Relay(' + getComponentName(Component) + ')';
 }
 
@@ -1030,7 +1036,7 @@ function getContainerName(Component: ReactClass<any>): string {
  * time a container is being constructed by React's rendering engine.
  */
 function create(
-  Component: ReactClass<any>,
+  Component: React.ComponentType<any>,
   spec: RelayContainerSpec,
 ): RelayLazyContainer {
   const componentName = getComponentName(Component);

@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
  * @format
@@ -16,13 +14,13 @@ jest.enableAutomock().useFakeTimers();
 
 require('configureForRelayOSS');
 
-const Relay = require('Relay');
-const RelayConnectionInterface = require('RelayConnectionInterface');
-const RelayDefaultNetworkLayer = require('RelayDefaultNetworkLayer');
-const RelayMetaRoute = require('RelayMetaRoute');
-const RelayMutationRequest = require('RelayMutationRequest');
-const RelayQuery = require('RelayQuery');
-const RelayQueryRequest = require('RelayQueryRequest');
+const RelayClassic = require('RelayClassic');
+const {ConnectionInterface} = require('RelayRuntime');
+const RelayDefaultNetworkLayer = require('../RelayDefaultNetworkLayer');
+const RelayMetaRoute = require('../../../route/RelayMetaRoute');
+const RelayMutationRequest = require('../../../network/RelayMutationRequest');
+const RelayQuery = require('../../../query/RelayQuery');
+const RelayQueryRequest = require('../../../network/RelayQueryRequest');
 const RelayTestUtils = require('RelayTestUtils');
 
 const fetch = require('fetch');
@@ -85,7 +83,7 @@ describe('RelayDefaultNetworkLayer', () => {
 
       variables = {
         input: {
-          [RelayConnectionInterface.CLIENT_MUTATION_ID]: 'client:a',
+          [ConnectionInterface.get().CLIENT_MUTATION_ID]: 'client:a',
           actor_id: 4,
         },
       };
@@ -302,12 +300,12 @@ describe('RelayDefaultNetworkLayer', () => {
     beforeEach(() => {
       const route = RelayMetaRoute.get('$fetchRelayQuery');
       const queryA = RelayQuery.Root.create(
-        Relay.QL`query{node(id:"123"){id}}`,
+        RelayClassic.QL`query{node(id:"123"){id}}`,
         route,
         {},
       );
       const queryB = RelayQuery.Root.create(
-        Relay.QL`query{node(id:"456"){id}}`,
+        RelayClassic.QL`query{node(id:"456"){id}}`,
         route,
         {},
       );

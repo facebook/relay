@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule getClassicTransformer
  * @flow
@@ -31,6 +29,10 @@ type ClassicTransformerOpts = {
   validator?: Validator<any>,
 };
 
+type BabelFileOpts = {
+  sourceRoot?: string,
+};
+
 /**
  * Caches based on the provided schema. Typically this means only one instance
  * of the RelayQLTransformer will be created, however in some circumstances
@@ -40,10 +42,11 @@ const classicTransformerCache = new Map();
 function getClassicTransformer(
   schemaProvider: GraphQLSchemaProvider,
   options: ClassicTransformerOpts,
+  fileOptions: BabelFileOpts,
 ): RelayQLTransformer {
   let classicTransformer = classicTransformerCache.get(schemaProvider);
   if (!classicTransformer) {
-    const schema = getSchema(schemaProvider);
+    const schema = getSchema(schemaProvider, fileOptions);
     classicTransformer = new RelayQLTransformer(schema, {
       inputArgumentName: options.inputArgumentName,
       snakeCase: Boolean(options.snakeCase),
@@ -55,12 +58,15 @@ function getClassicTransformer(
   return classicTransformer;
 }
 
-function getSchema(schemaProvider: GraphQLSchemaProvider): GraphQLSchema {
+function getSchema(
+  schemaProvider: GraphQLSchemaProvider,
+  fileOptions: BabelFileOpts,
+): GraphQLSchema {
   const schemaReference =
     typeof schemaProvider === 'function' ? schemaProvider() : schemaProvider;
   const introspection =
     typeof schemaReference === 'string'
-      ? getSchemaIntrospection(schemaReference)
+      ? getSchemaIntrospection(schemaReference, fileOptions.sourceRoot)
       : schemaReference;
   if (introspection.__schema) {
     return buildClientSchema((introspection: any));

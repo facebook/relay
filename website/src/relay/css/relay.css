@@ -766,6 +766,10 @@ figure {
   margin-bottom: 0;
 }
 
+.inner-content img {
+    max-width: 100%;
+}
+
 .nosidebar .inner-content {
   float: none;
   margin: 0 auto;
@@ -783,59 +787,6 @@ p code {
   font-family: 'source-code-pro', Menlo, 'Courier New', Consolas, monospace;
   font-size: 14px;
   padding: 1px 3px;
-}
-
-.playground {
-  *zoom: 1;
-}
-
-.playground:before, .playground:after {
-  content: " ";
-  display: table;
-}
-
-.playground:after {
-  clear: both;
-}
-
-.playground-tab {
-  border-bottom: none !important;
-  border-radius: 3px 3px 0 0;
-  padding: 6px 8px;
-  font-size: 12px;
-  font-weight: bold;
-  color: #c2c0bc;
-  background-color: #f1ede4;
-  display: inline-block;
-  cursor: pointer;
-}
-
-.playgroundCode, .playground-tab, .playgroundPreview {
-  border: 1px solid rgba(16, 16, 16, 0.1);
-}
-
-.playground-tab-active {
-  color: #222;
-}
-
-.playgroundCode {
-  border-radius: 0 3px 3px 3px;
-  float: left;
-  overflow: hidden;
-  width: 600px;
-}
-
-.playgroundPreview {
-  background-color: white;
-  border-radius: 3px;
-  float: right;
-  padding: 15px 20px;
-  width: 280px;
-}
-
-.playgroundError {
-  color: #c5695c;
-  font-size: 15px;
 }
 
 .MarkdownEditor textarea {

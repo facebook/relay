@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @format
  * @emails oncall+relay
@@ -12,9 +10,11 @@
 
 'use strict';
 
-const fetchRelayModernQuery = require('fetchRelayModernQuery');
-const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const RelayModernTestUtils = require('RelayModernTestUtils');
+
+const fetchRelayModernQuery = require('fetchRelayModernQuery');
+
+const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {createOperationSelector} = require('RelayModernOperationSelector');
 
 describe('fetchRelayModernQuery', () => {
@@ -48,23 +48,15 @@ describe('fetchRelayModernQuery', () => {
   it('fetches the query', () => {
     cacheConfig = {force: true};
     fetchRelayModernQuery(environment, query, variables, cacheConfig);
-    expect(environment.sendQuery.mock.calls.length).toBe(1);
-    const args = environment.sendQuery.mock.calls[0][0];
-    expect(args).toEqual({
-      cacheConfig,
-      onCompleted: jasmine.any(Function),
-      onError: jasmine.any(Function),
-      operation,
-    });
+    expect(environment.execute.mock.calls.length).toBe(1);
+    const args = environment.execute.mock.calls[0][0];
+    expect(args).toEqual({operation, cacheConfig});
     expect(args.cacheConfig).toBe(cacheConfig);
   });
 
-  it('resolves with the query results', () => {
-    let results;
-    fetchRelayModernQuery(environment, query, variables).then(data => {
-      results = data;
-    });
-    environment.mock.resolve(query, {
+  it('resolves with the query results after first value', async () => {
+    const promise = fetchRelayModernQuery(environment, query, variables);
+    environment.mock.nextValue(query, {
       data: {
         me: {
           id: '842472',
@@ -72,21 +64,17 @@ describe('fetchRelayModernQuery', () => {
         },
       },
     });
-    jest.runAllTimers();
-    expect(results).toEqual({
+    expect(await promise).toEqual({
       me: {
         name: 'Joe',
       },
     });
   });
 
-  it('rejects with query errors', () => {
+  it('rejects with query errors', async () => {
+    const promise = fetchRelayModernQuery(environment, query, variables);
     const error = new Error('wtf');
-    fetchRelayModernQuery(environment, query, variables).catch(err => {
-      expect(err).toBe(error);
-    });
-
     environment.mock.reject(query, error);
-    jest.runAllTimers();
+    expect(await promise.catch(err => err)).toBe(error);
   });
 });

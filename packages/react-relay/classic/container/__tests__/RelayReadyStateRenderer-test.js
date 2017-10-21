@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
  * @format
@@ -15,16 +13,20 @@
 jest.enableAutomock();
 
 const React = require('React');
-const ReactDOM = require('ReactDOM');
 const ReactTestUtils = require('ReactTestUtils');
-const Relay = require('Relay');
-const RelayEnvironment = require('RelayEnvironment');
-const RelayQueryConfig = require('RelayQueryConfig');
-const RelayReadyStateRenderer = require('RelayReadyStateRenderer');
-const StaticContainer = require('StaticContainer.react');
+const RelayClassic = require('RelayClassic');
+const RelayEnvironment = require('../../store/RelayEnvironment');
+const RelayQueryConfig = require('../../query-config/RelayQueryConfig');
+const RelayReadyStateRenderer = require('../RelayReadyStateRenderer');
+
+jest.dontMock('RelayStaticContainer');
+const RelayStaticContainer = require('../RelayStaticContainer');
 
 jest.dontMock('pretty-format');
 const prettyFormat = require('pretty-format');
+
+jest.dontMock('react-test-renderer');
+const ReactTestRenderer = require('react-test-renderer');
 
 describe('RelayReadyStateRenderer', () => {
   /**
@@ -84,14 +86,14 @@ describe('RelayReadyStateRenderer', () => {
     const TestQueryConfig = RelayQueryConfig.genMock({
       routeName: 'TestQueryConfig',
       queries: {
-        node: () => Relay.QL`query { node(id: "123") }`,
+        node: () => RelayClassic.QL`query { node(id: "123") }`,
       },
     });
 
     defaultProps = {
-      Container: Relay.createContainer(() => <div />, {
+      Container: RelayClassic.createContainer(() => <div />, {
         fragments: {
-          node: () => Relay.QL`fragment on Node { id }`,
+          node: () => RelayClassic.QL`fragment on Node { id }`,
         },
       }),
       environment: new RelayEnvironment(),
@@ -109,18 +111,19 @@ describe('RelayReadyStateRenderer', () => {
 
   describe('arguments', () => {
     beforeEach(() => {
-      const container = document.createElement('div');
       expect.extend({
         toRenderWithArgs(elementOrReadyState, expected) {
           const render = jest.fn(() => <div />);
-          const element = ReactTestUtils.isElement(elementOrReadyState)
-            ? React.cloneElement(elementOrReadyState, {render})
-            : <RelayReadyStateRenderer
-                {...defaultProps}
-                readyState={elementOrReadyState}
-                render={render}
-              />;
-          ReactDOM.render(element, container);
+          const element = ReactTestUtils.isElement(elementOrReadyState) ? (
+            React.cloneElement(elementOrReadyState, {render})
+          ) : (
+            <RelayReadyStateRenderer
+              {...defaultProps}
+              readyState={elementOrReadyState}
+              render={render}
+            />
+          );
+          ReactTestRenderer.create(element);
           const actual = render.mock.calls[0][0];
           const pass = this.equals(actual, jasmine.objectContaining(expected));
           return {
@@ -232,7 +235,7 @@ describe('RelayReadyStateRenderer', () => {
       const AnotherQueryConfig = RelayQueryConfig.genMock({
         routeName: 'AnotherQueryConfig',
         queries: {
-          node: () => Relay.QL`query { node(id: "456") }`,
+          node: () => RelayClassic.QL`query { node(id: "456") }`,
         },
       });
       expect(
@@ -250,22 +253,25 @@ describe('RelayReadyStateRenderer', () => {
       const AnotherQueryConfig = RelayQueryConfig.genMock({
         routeName: 'AnotherQueryConfig',
         queries: {
-          me: () => Relay.QL`query { me }`,
+          me: () => RelayClassic.QL`query { me }`,
         },
       });
       const anotherQueryConfig = new AnotherQueryConfig();
       const environment = new RelayEnvironment();
       defaultProps = {
-        Container: Relay.createContainer(() => <div />, {
+        Container: RelayClassic.createContainer(() => <div />, {
           fragments: {
-            me: () => Relay.QL`fragment on User { id }`,
+            me: () => RelayClassic.QL`fragment on User { id }`,
           },
         }),
         environment,
         queryConfig: anotherQueryConfig,
         retry: jest.fn(),
       };
-      environment.getStoreData().getRecordWriter().putDataID('me', null, '123');
+      environment
+        .getStoreData()
+        .getRecordWriter()
+        .putDataID('me', null, '123');
       expect(
         <RelayReadyStateRenderer
           {...defaultProps}
@@ -276,7 +282,10 @@ describe('RelayReadyStateRenderer', () => {
         props: {me: anyRecord({dataID: '123'})},
       });
 
-      environment.getStoreData().getRecordWriter().putDataID('me', null, '456');
+      environment
+        .getStoreData()
+        .getRecordWriter()
+        .putDataID('me', null, '456');
       expect(
         <RelayReadyStateRenderer
           {...defaultProps}
@@ -292,22 +301,25 @@ describe('RelayReadyStateRenderer', () => {
       const AnotherQueryConfig = RelayQueryConfig.genMock({
         routeName: 'AnotherQueryConfig',
         queries: {
-          me: () => Relay.QL`query { me }`,
+          me: () => RelayClassic.QL`query { me }`,
         },
       });
       const anotherQueryConfig = new AnotherQueryConfig();
       const environment = new RelayEnvironment();
       defaultProps = {
-        Container: Relay.createContainer(() => <div />, {
+        Container: RelayClassic.createContainer(() => <div />, {
           fragments: {
-            me: () => Relay.QL`fragment on User { id }`,
+            me: () => RelayClassic.QL`fragment on User { id }`,
           },
         }),
         environment,
         queryConfig: anotherQueryConfig,
         retry: jest.fn(),
       };
-      environment.getStoreData().getRecordWriter().putDataID('me', null, null);
+      environment
+        .getStoreData()
+        .getRecordWriter()
+        .putDataID('me', null, null);
       expect(
         <RelayReadyStateRenderer
           {...defaultProps}
@@ -318,7 +330,10 @@ describe('RelayReadyStateRenderer', () => {
         props: {me: null},
       });
 
-      environment.getStoreData().getRecordWriter().putDataID('me', null, '123');
+      environment
+        .getStoreData()
+        .getRecordWriter()
+        .putDataID('me', null, '123');
       expect(
         <RelayReadyStateRenderer
           {...defaultProps}
@@ -345,9 +360,9 @@ describe('RelayReadyStateRenderer', () => {
         },
       });
 
-      const AnotherContainer = Relay.createContainer(() => <div />, {
+      const AnotherContainer = RelayClassic.createContainer(() => <div />, {
         fragments: {
-          node: () => Relay.QL`fragment on Node { id }`,
+          node: () => RelayClassic.QL`fragment on Node { id }`,
         },
       });
       expect(
@@ -371,7 +386,7 @@ describe('RelayReadyStateRenderer', () => {
       const AnotherQueryConfig = RelayQueryConfig.genMock({
         routeName: 'AnotherQueryConfig',
         queries: {
-          node: () => Relay.QL`query { me }`,
+          node: () => RelayClassic.QL`query { me }`,
         },
       });
 
@@ -413,11 +428,10 @@ describe('RelayReadyStateRenderer', () => {
 
   describe('children', () => {
     beforeEach(() => {
-      const container = document.createElement('div');
       function render(element) {
         return ReactTestUtils.findRenderedComponentWithType(
-          ReactDOM.render(element, container),
-          StaticContainer,
+          ReactTestRenderer.create(element).getInstance(),
+          RelayStaticContainer,
         );
       }
 
@@ -529,8 +543,8 @@ describe('RelayReadyStateRenderer', () => {
     it('sets environment and query config on the React context', () => {
       class TestComponent extends React.Component {
         static contextTypes = {
-          relay: Relay.PropTypes.Relay,
-          route: Relay.PropTypes.QueryConfig.isRequired,
+          relay: RelayClassic.PropTypes.RelayClassic,
+          route: RelayClassic.PropTypes.QueryConfig.isRequired,
         };
         render() {
           this.props.onRenderContext(this.context);
@@ -539,14 +553,12 @@ describe('RelayReadyStateRenderer', () => {
       }
 
       const onRenderContext = jest.fn();
-      const container = document.createElement('div');
-      ReactDOM.render(
+      ReactTestRenderer.create(
         <RelayReadyStateRenderer
           {...defaultProps}
           readyState={defaultReadyState}
           render={() => <TestComponent onRenderContext={onRenderContext} />}
         />,
-        container,
       );
       expect(onRenderContext).toBeCalledWith({
         relay: {

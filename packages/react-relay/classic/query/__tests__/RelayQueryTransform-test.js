@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
  * @format
@@ -12,13 +10,11 @@
 
 'use strict';
 
-jest.enableAutomock();
-
 require('configureForRelayOSS');
 
-const Relay = require('Relay');
-const RelayQuery = require('RelayQuery');
-const RelayQueryTransform = require('RelayQueryTransform');
+const RelayClassic = require('RelayClassic');
+const RelayQuery = require('../RelayQuery');
+const RelayQueryTransform = require('../RelayQueryTransform');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayQueryTransform', () => {
@@ -31,7 +27,7 @@ describe('RelayQueryTransform', () => {
       after: 'offset',
     };
 
-    const fragment = Relay.QL`
+    const fragment = RelayClassic.QL`
       fragment on User {
         friends(first:$first,after:$after) {
           edges {
@@ -47,7 +43,7 @@ describe('RelayQueryTransform', () => {
       }
     `;
     query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           id

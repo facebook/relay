@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayMutationQuery
  * @flow
@@ -13,28 +11,28 @@
 
 'use strict';
 
-const RelayConnectionInterface = require('RelayConnectionInterface');
-const RelayMetaRoute = require('RelayMetaRoute');
-const RelayMutationType = require('RelayMutationType');
-const RelayNodeInterface = require('RelayNodeInterface');
-const RelayOptimisticMutationUtils = require('RelayOptimisticMutationUtils');
-const RelayQuery = require('RelayQuery');
-const RelayRecord = require('RelayRecord');
+const RelayMetaRoute = require('../route/RelayMetaRoute');
+const RelayMutationType = require('./RelayMutationType');
+const RelayNodeInterface = require('../interface/RelayNodeInterface');
+const RelayOptimisticMutationUtils = require('./RelayOptimisticMutationUtils');
+const RelayQuery = require('../query/RelayQuery');
+const RelayRecord = require('../store/RelayRecord');
 
-const flattenRelayQuery = require('flattenRelayQuery');
+const flattenRelayQuery = require('../traversal/flattenRelayQuery');
 const forEachObject = require('forEachObject');
-const getRangeBehavior = require('getRangeBehavior');
-const intersectRelayQuery = require('intersectRelayQuery');
+const getRangeBehavior = require('./getRangeBehavior');
+const intersectRelayQuery = require('../traversal/intersectRelayQuery');
 const invariant = require('invariant');
 const nullthrows = require('nullthrows');
 const warning = require('warning');
 
-const {REFETCH} = require('GraphQLMutatorConstants');
+const {REFETCH} = require('../legacy/mutation/GraphQLMutatorConstants');
+const {ConnectionInterface} = require('RelayRuntime');
 
-import type {ConcreteMutation} from 'ConcreteQuery';
-import type {DataID, RangeBehaviors} from 'RelayInternalTypes';
-import type RelayQueryTracker from 'RelayQueryTracker';
-import type {Variables} from 'RelayTypes';
+import type {ConcreteMutation} from '../query/ConcreteQuery';
+import type RelayQueryTracker from '../store/RelayQueryTracker';
+import type {DataID, RangeBehaviors} from '../tools/RelayInternalTypes';
+import type {Variables} from '../tools/RelayTypes';
 
 type BasicMutationFragmentBuilderConfig = {
   fatQuery: RelayQuery.Fragment,
@@ -68,7 +66,6 @@ type OptimisticUpdateQueryBuilderConfig = BasicOptimisticMutationFragmentBuilder
   response: Object,
 };
 
-const {CLIENT_MUTATION_ID} = RelayConnectionInterface;
 const {ANY_TYPE, ID, TYPENAME} = RelayNodeInterface;
 
 /**
@@ -116,7 +113,7 @@ const RelayMutationQuery = {
         console.groupCollapsed('Building fragment for `' + fieldName + '`');
         console.log(RelayNodeInterface.ID + ': ', dataIDOrIDs);
 
-        const RelayMutationDebugPrinter = require('RelayMutationDebugPrinter');
+        const RelayMutationDebugPrinter = require('./RelayMutationDebugPrinter');
         RelayMutationDebugPrinter.printMutation(
           trackedField && buildMutationFragment(fatQuery, [trackedField]),
           'Tracked Fragment',
@@ -241,7 +238,7 @@ const RelayMutationQuery = {
         const rangeBehavior = getRangeBehavior(rangeBehaviors, callsWithValues);
         /* eslint-disable no-console */
         if (__DEV__ && console.groupCollapsed && console.groupEnd) {
-          const serializeRelayQueryCall = require('serializeRelayQueryCall');
+          const serializeRelayQueryCall = require('../query/serializeRelayQueryCall');
           const serializedCalls = callsWithValues
             .map(serializeRelayQueryCall)
             .sort()
@@ -369,6 +366,7 @@ const RelayMutationQuery = {
     mutation: ConcreteMutation,
     tracker: RelayQueryTracker,
   }): RelayQuery.Mutation {
+    const {CLIENT_MUTATION_ID} = ConnectionInterface.get();
     let children: Array<?RelayQuery.Node> = [
       RelayQuery.Field.build({
         fieldName: CLIENT_MUTATION_ID,
@@ -376,11 +374,9 @@ const RelayMutationQuery = {
         metadata: {isRequisite: true},
       }),
     ];
-    /* eslint-disable no-console */
     if (__DEV__ && console.groupCollapsed && console.groupEnd) {
       console.groupCollapsed('Mutation Configs');
     }
-    /* eslint-enable no-console */
     configs.forEach(config => {
       switch (config.type) {
         case RelayMutationType.REQUIRED_CHILDREN:
@@ -392,9 +388,8 @@ const RelayMutationQuery = {
             ),
           );
           children = children.concat(newChildren);
-          /* eslint-disable no-console */
           if (__DEV__ && console.groupCollapsed && console.groupEnd) {
-            const RelayMutationDebugPrinter = require('RelayMutationDebugPrinter');
+            const RelayMutationDebugPrinter = require('./RelayMutationDebugPrinter');
             console.groupCollapsed('REQUIRED_CHILDREN');
             newChildren.forEach((child, index) => {
               console.groupCollapsed(index);
@@ -403,15 +398,12 @@ const RelayMutationQuery = {
             });
             console.groupEnd();
           }
-          /* eslint-enable no-console */
           break;
 
         case RelayMutationType.RANGE_ADD:
-          /* eslint-disable no-console */
           if (__DEV__ && console.groupCollapsed && console.groupEnd) {
             console.groupCollapsed('RANGE_ADD');
           }
-          /* eslint-enable no-console */
           children.push(
             RelayMutationQuery.buildFragmentForEdgeInsertion({
               connectionName: config.connectionName,
@@ -423,11 +415,9 @@ const RelayMutationQuery = {
               tracker,
             }),
           );
-          /* eslint-disable no-console */
           if (__DEV__ && console.groupCollapsed && console.groupEnd) {
             console.groupEnd();
           }
-          /* eslint-enable no-console */
           break;
 
         case RelayMutationType.RANGE_DELETE:
@@ -448,7 +438,6 @@ const RelayMutationQuery = {
             fatQuery,
           );
           children.push(nodeDeletion);
-          /* eslint-disable no-console */
           if (__DEV__ && console.groupCollapsed && console.groupEnd) {
             const configType =
               config === RelayMutationType.RANGE_DELETE
@@ -456,7 +445,7 @@ const RelayMutationQuery = {
                 : 'NODE_DELETE';
             console.groupCollapsed(configType);
 
-            const RelayMutationDebugPrinter = require('RelayMutationDebugPrinter');
+            const RelayMutationDebugPrinter = require('./RelayMutationDebugPrinter');
             RelayMutationDebugPrinter.printMutation(
               edgeDeletion,
               'Edge Fragment',
@@ -468,15 +457,12 @@ const RelayMutationQuery = {
 
             console.groupEnd();
           }
-          /* eslint-enable no-console */
           break;
 
         case RelayMutationType.FIELDS_CHANGE:
-          /* eslint-disable no-console */
           if (__DEV__ && console.groupCollapsed && console.groupEnd) {
             console.groupCollapsed('FIELDS_CHANGE');
           }
-          /* eslint-enable no-console */
           children.push(
             RelayMutationQuery.buildFragmentForFields({
               fatQuery,
@@ -484,11 +470,9 @@ const RelayMutationQuery = {
               tracker,
             }),
           );
-          /* eslint-disable no-console */
           if (__DEV__ && console.groupCollapsed && console.groupEnd) {
             console.groupEnd();
           }
-          /* eslint-enable no-console */
           break;
 
         default:
@@ -500,11 +484,9 @@ const RelayMutationQuery = {
           );
       }
     });
-    /* eslint-disable no-console */
     if (__DEV__ && console.groupCollapsed && console.groupEnd) {
       console.groupEnd();
     }
-    /* eslint-enable no-console */
     return RelayQuery.Mutation.build(
       mutationName,
       fatQuery.getType(),
@@ -587,7 +569,7 @@ function buildEdgeField(
     }),
   ];
   if (
-    RelayConnectionInterface.EDGES_HAVE_SOURCE_FIELD &&
+    ConnectionInterface.get().EDGES_HAVE_SOURCE_FIELD &&
     !RelayRecord.isClientID(parentID)
   ) {
     fields.push(

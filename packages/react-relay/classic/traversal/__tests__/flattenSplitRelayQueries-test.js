@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
  * @format
@@ -14,14 +12,14 @@
 
 require('configureForRelayOSS');
 
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayTestUtils = require('RelayTestUtils');
 
-const flattenSplitRelayQueries = require('flattenSplitRelayQueries');
+const flattenSplitRelayQueries = require('../flattenSplitRelayQueries');
 
 describe('flattenSplitRelayQueries', () => {
   function getQuery() {
-    return RelayTestUtils.getNode(Relay.QL`query{node(id:"4"){id}}`);
+    return RelayTestUtils.getNode(RelayClassic.QL`query{node(id:"4"){id}}`);
   }
 
   it('returns an empty array when there are no queries', () => {

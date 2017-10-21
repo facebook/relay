@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule DocsSidebar
  */
@@ -34,11 +32,12 @@ function shouldOverwritePreviousWithCanonical(previous, maybeCanonical) {
   return false;
 }
 
-const DocsSidebar = React.createClass({
-  getCategories: function() {
+class DocsSidebar extends React.Component {
+  getCategories() {
     // Skip over non-docs and non-en_US entries.
     const metadatas = Array.from(
-        Metadata.files.reduce(function(acc, metadata) {
+      Metadata.files
+        .reduce(function(acc, metadata) {
           if (metadata.layout === 'docs') {
             const previous = acc.get(metadata.id);
             if (
@@ -50,8 +49,8 @@ const DocsSidebar = React.createClass({
             }
           }
           return acc;
-        }, new Map()
-      ).values()
+        }, new Map())
+        .values()
     );
 
     // Build a hashmap of article_id -> metadata
@@ -67,7 +66,11 @@ const DocsSidebar = React.createClass({
       var metadata = metadatas[i];
       if (metadata.next) {
         if (!articles[metadata.next]) {
-          throw '`next: ' + metadata.next + '` in ' + metadata.id + ' doesn\'t exist';
+          throw '`next: ' +
+            metadata.next +
+            '` in ' +
+            metadata.id +
+            " doesn't exist";
         }
         previous[articles[metadata.next].id] = metadata.id;
       }
@@ -93,7 +96,7 @@ const DocsSidebar = React.createClass({
         currentCategory && categories.push(currentCategory);
         currentCategory = {
           name: metadata.category,
-          links: [],
+          links: []
         };
       }
       currentCategory.links.push(metadata);
@@ -102,37 +105,43 @@ const DocsSidebar = React.createClass({
     categories.push(currentCategory);
 
     return categories;
-  },
+  };
 
-  getLink: function(metadata) {
+  getLink(metadata) {
     if (metadata.permalink.match(/^https?:/)) {
       return metadata.permalink;
     }
     return '/relay/' + metadata.permalink;
-  },
+  };
 
-  render: function() {
-    return <div className="nav-docs">
-      {this.getCategories().map((category) =>
-        <div className="nav-docs-section" key={category.name}>
-          <h3>{category.name}</h3>
-          <ul>
-            {category.links.map((metadata) =>
-              <li key={metadata.id}>
-                <a
-                  target={metadata.permalink.match(/^https?:/) && '_blank'}
-                  style={{marginLeft: metadata.indent ? 20 : 0}}
-                  className={metadata.id === this.props.metadata.id ? 'active' : ''}
-                  href={this.getLink(metadata)}>
-                  {metadata.title}
-                </a>
-              </li>
-            )}
-          </ul>
-        </div>
-      )}
-    </div>;
-  },
-});
+  render() {
+    return (
+      <div className="nav-docs">
+        {this.getCategories().map(category =>
+          <div className="nav-docs-section" key={category.name}>
+            <h3>
+              {category.name}
+            </h3>
+            <ul>
+              {category.links.map(metadata =>
+                <li key={metadata.id}>
+                  <a
+                    target={metadata.permalink.match(/^https?:/) && '_blank'}
+                    style={{marginLeft: metadata.indent ? 20 : 0}}
+                    className={
+                      metadata.id === this.props.metadata.id ? 'active' : ''
+                    }
+                    href={this.getLink(metadata)}>
+                    {metadata.title}
+                  </a>
+                </li>
+              )}
+            </ul>
+          </div>
+        )}
+      </div>
+    );
+  }
+}
 
 module.exports = DocsSidebar;

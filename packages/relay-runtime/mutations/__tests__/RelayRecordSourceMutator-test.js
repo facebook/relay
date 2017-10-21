@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @format
  * @emails oncall+relay
@@ -13,10 +11,10 @@
 'use strict';
 
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
-const RelayRecordSourceMutator = require('RelayRecordSourceMutator');
-const RelayStoreUtils = require('RelayStoreUtils');
-const RelayRecordState = require('RelayRecordState');
 const RelayModernTestUtils = require('RelayModernTestUtils');
+const RelayRecordSourceMutator = require('RelayRecordSourceMutator');
+const RelayRecordState = require('RelayRecordState');
+const RelayStoreUtils = require('RelayStoreUtils');
 
 const simpleClone = require('simpleClone');
 

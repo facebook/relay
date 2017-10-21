@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
  * @format
@@ -12,16 +10,17 @@
 
 'use strict';
 
-jest.mock('generateClientID').mock('warning');
+jest.mock('../../legacy/store/generateClientID').mock('warning');
 
 require('configureForRelayOSS');
 
-const GraphQLRange = require('GraphQLRange');
-const Relay = require('Relay');
-const RelayConnectionInterface = require('RelayConnectionInterface');
-const RelayMetaRoute = require('RelayMetaRoute');
-const RelayQuery = require('RelayQuery');
+const GraphQLRange = require('../../legacy/store/GraphQLRange');
+const RelayClassic = require('RelayClassic');
+const RelayMetaRoute = require('../../route/RelayMetaRoute');
+const RelayQuery = require('../../query/RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
+
+const {ConnectionInterface} = require('RelayRuntime');
 
 describe('writeRelayQueryPayload()', () => {
   let RelayRecordStore;
@@ -33,8 +32,8 @@ describe('writeRelayQueryPayload()', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    RelayRecordStore = require('RelayRecordStore');
-    RelayRecordWriter = require('RelayRecordWriter');
+    RelayRecordStore = require('../../store/RelayRecordStore');
+    RelayRecordWriter = require('../../store/RelayRecordWriter');
 
     ({
       END_CURSOR,
@@ -42,7 +41,7 @@ describe('writeRelayQueryPayload()', () => {
       HAS_PREV_PAGE,
       PAGE_INFO,
       START_CURSOR,
-    } = RelayConnectionInterface);
+    } = ConnectionInterface.get());
 
     expect.extend(RelayTestUtils.matchers);
   });
@@ -52,7 +51,7 @@ describe('writeRelayQueryPayload()', () => {
     const store = new RelayRecordStore({records});
     const writer = new RelayRecordWriter(records, {}, false);
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"123") {
           friends(first: 3) {
@@ -118,7 +117,7 @@ describe('writeRelayQueryPayload()', () => {
     const store = new RelayRecordStore({records});
     const writer = new RelayRecordWriter(records, {}, false);
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"123") {
           friends(first: 3) {
@@ -236,7 +235,7 @@ describe('writeRelayQueryPayload()', () => {
     const store = new RelayRecordStore({records, cachedRecords});
     const writer = new RelayRecordWriter(records, {}, false);
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"123") {
           friends(first: 3) {
@@ -346,7 +345,7 @@ describe('writeRelayQueryPayload()', () => {
     const store = new RelayRecordStore({records});
     const writer = new RelayRecordWriter(records, {}, false);
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"123") {
           friends(first: 3) {
@@ -424,7 +423,7 @@ describe('writeRelayQueryPayload()', () => {
     const store = new RelayRecordStore({records});
     const writer = new RelayRecordWriter(records, {}, false);
     let query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"123") {
           friends {count}
@@ -442,7 +441,7 @@ describe('writeRelayQueryPayload()', () => {
     writePayload(store, writer, query, payload);
 
     query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"123") {
           friends(first: 1) {
@@ -520,7 +519,7 @@ describe('writeRelayQueryPayload()', () => {
     const records = {};
     const store = new RelayRecordStore({records});
     const writer = new RelayRecordWriter(records, {}, false);
-    const edgesFragment = Relay.QL`
+    const edgesFragment = RelayClassic.QL`
       fragment on FriendsConnection {
         edges {
           cursor
@@ -538,7 +537,7 @@ describe('writeRelayQueryPayload()', () => {
       }
     `;
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"123") {
           friends(isViewerFriend:true) {
@@ -582,7 +581,7 @@ describe('writeRelayQueryPayload()', () => {
 
     beforeEach(() => {
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             friends(first: 1) {
@@ -624,7 +623,7 @@ describe('writeRelayQueryPayload()', () => {
 
     it('appends new edges', () => {
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             friends(first: 1,after:"cursor1") {
@@ -689,7 +688,7 @@ describe('writeRelayQueryPayload()', () => {
 
     it('updates existing edges when ids match', () => {
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             friends(first: 1) {
@@ -754,7 +753,7 @@ describe('writeRelayQueryPayload()', () => {
     it('updates the range when edge data changes', () => {
       // NOTE: Hack to preserve `source{id}` in all environments for now.
       const query = RelayQuery.Root.create(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             friends(find:"node1") {
@@ -831,7 +830,7 @@ describe('writeRelayQueryPayload()', () => {
 
     it('does not overwrite edges when ids conflict', () => {
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             friends(first: 1) {
@@ -897,7 +896,7 @@ describe('writeRelayQueryPayload()', () => {
 
     it('overwrites ranges when force index is set', () => {
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             friends(first: 1) {
@@ -962,7 +961,7 @@ describe('writeRelayQueryPayload()', () => {
 
     it('updates page info for empty edges', () => {
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             friends(after:"cursor1", first: 1) {

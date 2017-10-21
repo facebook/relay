@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
  * @format
@@ -17,17 +15,20 @@ jest.enableAutomock();
 require('configureForRelayOSS');
 
 jest.useFakeTimers();
-jest.mock('warning').unmock('GraphQLQueryRunner').unmock('RelayTaskQueue');
+jest
+  .mock('warning')
+  .unmock('../GraphQLQueryRunner')
+  .unmock('../../../tools/RelayTaskQueue');
 
-const Relay = require('Relay');
-const RelayFetchMode = require('RelayFetchMode');
-const RelayStoreData = require('RelayStoreData');
+const RelayClassic = require('RelayClassic');
+const RelayFetchMode = require('../../../store/RelayFetchMode');
+const RelayStoreData = require('../../../store/RelayStoreData');
 const RelayTestUtils = require('RelayTestUtils');
 
-const checkRelayQueryData = require('checkRelayQueryData');
-const diffRelayQuery = require('diffRelayQuery');
+const checkRelayQueryData = require('../../../traversal/checkRelayQueryData');
+const diffRelayQuery = require('../../../traversal/diffRelayQuery');
 const resolveImmediate = require('resolveImmediate');
-const splitDeferredRelayQueries = require('splitDeferredRelayQueries');
+const splitDeferredRelayQueries = require('../../../traversal/splitDeferredRelayQueries');
 const warning = require('warning');
 
 describe('GraphQLQueryRunner', () => {
@@ -73,8 +74,8 @@ describe('GraphQLQueryRunner', () => {
 
     mockCallback = jest.fn();
     mockQuerySet = {
-      foo: getNode(Relay.QL`query{viewer{actor{id,name}}}`),
-      bar: getNode(Relay.QL`query{node(id:"4"){id,name}}`),
+      foo: getNode(RelayClassic.QL`query{viewer{actor{id,name}}}`),
+      bar: getNode(RelayClassic.QL`query{node(id:"4"){id,name}}`),
       baz: null,
     };
 
@@ -133,9 +134,9 @@ describe('GraphQLQueryRunner', () => {
       supports: () => false,
     });
 
-    const fragment = Relay.QL`fragment on Node{id}`;
+    const fragment = RelayClassic.QL`fragment on Node{id}`;
     const querySet = {
-      foo: getNode(Relay.QL`query{node(id:"123"){${defer(fragment)}}}`),
+      foo: getNode(RelayClassic.QL`query{node(id:"123"){${defer(fragment)}}}`),
     };
 
     warning.mockClear();
@@ -869,7 +870,7 @@ describe('GraphQLQueryRunner', () => {
       diffRelayQuery.mockImplementation(query => [query]);
 
       const mockQuery = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           viewer{actor{id,firstName,lastName,name,address{city},hometown{id}}}
         }
@@ -878,29 +879,29 @@ describe('GraphQLQueryRunner', () => {
 
       const mockSplitQueries = {
         required: getNode(
-          Relay.QL`
+          RelayClassic.QL`
           query {
             viewer{actor{id,name}}
           }
         `,
         ),
         deferred: [
-          Relay.QL`
+          RelayClassic.QL`
             query {
               viewer{actor{id,address{city}}}
             }
           `,
-          Relay.QL`
+          RelayClassic.QL`
             query {
               viewer{actor{id,hometown{id}}}
             }
           `,
-          Relay.QL`
+          RelayClassic.QL`
             query {
               viewer{actor{id,firstName}}
             }
           `,
-          Relay.QL`
+          RelayClassic.QL`
             query {
               viewer{actor{id,lastName}}
             }

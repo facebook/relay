@@ -1,0 +1,17 @@
+ERROR:
+Invariant Violation: RelayCodeGenerator: Complex argument values (Lists or InputObjects with nested variables) are not supported, argument `filter` had value `{
+  "kind": "ObjectValue",
+  "metadata": null,
+  "fields": [
+    {
+      "kind": "ObjectFieldValue",
+      "metadata": null,
+      "name": "date",
+      "value": {
+        "kind": "Variable",
+        "metadata": null,
+        "variableName": "date"
+      }
+    }
+  ]
+}`. Source: document undefined.

@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule writeRelayGeneratedFile
  * @flow
@@ -14,10 +12,11 @@
 'use strict';
 
 const crypto = require('crypto');
+const dedupeJSONStringify = require('dedupeJSONStringify');
 const invariant = require('invariant');
-const prettyStringify = require('prettyStringify');
 
-import type CodegenDirectory from 'CodegenDirectory';
+import type {CodegenDirectory} from '../graphql-compiler/GraphQLCompilerPublic';
+// TODO T21875029 ../../relay-runtime/util/RelayConcreteNode
 import type {GeneratedNode} from 'RelayConcreteNode';
 
 /**
@@ -30,6 +29,7 @@ export type FormatModule = ({|
   concreteText: string,
   flowText: ?string,
   hash: ?string,
+  devTextGenerator: (objectName: string) => string,
   relayRuntimeModule: string,
 |}) => string;
 
@@ -47,6 +47,7 @@ async function writeRelayGeneratedFile(
   const filename = platformName + '.js';
   const flowTypeName =
     generatedNode.kind === 'Batch' ? 'ConcreteBatch' : 'ConcreteFragment';
+  const devOnlyProperties = {};
 
   let text = null;
   let hash = null;
@@ -58,11 +59,16 @@ async function writeRelayGeneratedFile(
     );
     const oldContent = codegenDir.read(filename);
     // Hash the concrete node including the query text.
-    hash = md5(
-      JSON.stringify(generatedNode) +
-        (persistQuery ? 'persisted' : '') +
-        'cache-breaker-5',
-    );
+    const hasher = crypto.createHash('md5');
+    hasher.update('cache-breaker-4');
+    hasher.update(JSON.stringify(generatedNode));
+    if (flowText) {
+      hasher.update(flowText);
+    }
+    if (persistQuery) {
+      hasher.update('persisted');
+    }
+    hash = hasher.digest('hex');
     if (hash === extractHash(oldContent)) {
       codegenDir.markUnchanged(filename);
       return null;
@@ -77,6 +83,8 @@ async function writeRelayGeneratedFile(
         text: null,
         id: await persistQuery(text),
       };
+
+      devOnlyProperties.text = text;
     }
   }
 
@@ -86,12 +94,36 @@ async function writeRelayGeneratedFile(
     docText: text,
     flowText,
     hash: hash ? `@relayHash ${hash}` : null,
-    concreteText: prettyStringify(generatedNode),
+    concreteText: dedupeJSONStringify(generatedNode),
+    devTextGenerator: makeDevTextGenerator(devOnlyProperties),
     relayRuntimeModule,
   });
 
   codegenDir.writeFile(filename, moduleText);
   return generatedNode;
+}
+
+function makeDevTextGenerator(devOnlyProperties: Object) {
+  return objectName => {
+    const assignments = Object.keys(devOnlyProperties).map(key => {
+      const value = devOnlyProperties[key];
+      const stringifiedValue =
+        value === undefined ? 'undefined' : JSON.stringify(value);
+
+      return `  ${objectName}['${key}'] = ${stringifiedValue};`;
+    });
+
+    if (!assignments.length) {
+      return '';
+    }
+
+    return `
+
+if (__DEV__) {
+${assignments.join('\n')}
+}
+`;
+  };
 }
 
 function extractHash(text: ?string): ?string {
@@ -104,10 +136,6 @@ function extractHash(text: ?string): ?string {
   }
   const match = text.match(/@relayHash (\w{32})\b/m);
   return match && match[1];
-}
-
-function md5(text: string): string {
-  return crypto.createHash('md5').update(text).digest('hex');
 }
 
 module.exports = writeRelayGeneratedFile;

@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
  * @format
@@ -12,20 +10,18 @@
 
 'use strict';
 
-jest.enableAutomock();
-
 require('configureForRelayOSS');
 
 jest.useFakeTimers();
 jest.unmock('GraphQLRange').unmock('GraphQLSegment');
 
-const Relay = require('Relay');
-const RelayNodeInterface = require('RelayNodeInterface');
-const RelayStoreData = require('RelayStoreData');
+const RelayClassic = require('RelayClassic');
+const RelayNodeInterface = require('../../interface/RelayNodeInterface');
+const RelayStoreData = require('../RelayStoreData');
 const RelayTestUtils = require('RelayTestUtils');
 
 const forEachObject = require('forEachObject');
-const transformRelayQueryPayload = require('transformRelayQueryPayload');
+const transformRelayQueryPayload = require('../../traversal/transformRelayQueryPayload');
 
 describe('RelayGarbageCollector', () => {
   const {getNode} = RelayTestUtils;
@@ -190,7 +186,7 @@ describe('RelayGarbageCollector', () => {
         },
       };
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           viewer {
             newsFeed(first: 1) {

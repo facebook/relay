@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
  * @format
@@ -14,8 +12,8 @@
 
 require('configureForRelayOSS');
 
-const Relay = require('Relay');
-const RelayQueryConfig = require('RelayQueryConfig');
+const RelayClassic = require('RelayClassic');
+const RelayQueryConfig = require('../RelayQueryConfig');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayQueryConfig', () => {
@@ -31,14 +29,14 @@ describe('RelayQueryConfig', () => {
       }> {}
       MockConfig.routeName = 'MockConfig';
       MockConfig.queries = {
-        required: Component => Relay.QL`
+        required: Component => RelayClassic.QL`
           query {
             node(id:$required) {
               ${Component.getQuery('required')}
             }
           }
         `,
-        optional: Component => Relay.QL`
+        optional: Component => RelayClassic.QL`
           query {
             node(id:$optional) {
               ${Component.getQuery('optional')}
@@ -62,7 +60,7 @@ describe('RelayQueryConfig', () => {
 
   it('has an immutable spec in __DEV__', () => {
     const dev = __DEV__;
-    window.__DEV__ = true;
+    global.__DEV__ = true;
 
     const MockConfig = makeConfig();
     const config = new MockConfig({required: 'foo'});
@@ -82,7 +80,7 @@ describe('RelayQueryConfig', () => {
       config.queries.myCustomQuery = () => {};
     }).toThrow();
 
-    window.__DEV__ = dev;
+    global.__DEV__ = dev;
   });
 
   it('allows params to be processed if `prepareParams` is defined', () => {

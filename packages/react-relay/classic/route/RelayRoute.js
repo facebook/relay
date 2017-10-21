@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayRoute
  * @flow
@@ -13,12 +11,12 @@
 
 'use strict';
 
-const RelayQueryConfig = require('RelayQueryConfig');
+const RelayQueryConfig = require('../query-config/RelayQueryConfig');
 
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 
-import type {ConfigQueries} from 'RelayQueryConfig';
+import type {ConfigQueries} from '../query-config/RelayQueryConfig';
 import type URI from 'URI';
 
 type ParamDefinition = {
@@ -79,23 +77,25 @@ class RelayRoute<Tv: Object> extends RelayQueryConfig<Tv> {
       /* $FlowFixMe(>=0.17.0) - params is ?Tv but prepareParams expects Tv */
       params = prepareParams(params);
     }
-    forEachObject(paramDefinitions, (paramDefinition, paramName) => {
-      if (params) {
-        if (params.hasOwnProperty(paramName)) {
-          return;
-        } else {
-          // Backfill param so that a call variable is created for it.
-          params[paramName] = undefined;
+    if (paramDefinitions) {
+      forEachObject(paramDefinitions, (paramDefinition, paramName) => {
+        if (params) {
+          if (params.hasOwnProperty(paramName)) {
+            return;
+          } else {
+            // Backfill param so that a call variable is created for it.
+            params[paramName] = undefined;
+          }
         }
-      }
-      invariant(
-        !paramDefinition.required,
-        'RelayRoute: Missing required parameter `%s` in `%s`. Check the ' +
-          'supplied params or URI.',
-        paramName,
-        routeName,
-      );
-    });
+        invariant(
+          !paramDefinition.required,
+          'RelayRoute: Missing required parameter `%s` in `%s`. Check the ' +
+            'supplied params or URI.',
+          paramName,
+          routeName,
+        );
+      });
+    }
     return params;
   }
 

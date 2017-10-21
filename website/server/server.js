@@ -1,10 +1,10 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @format
  */
 
 'use strict';
@@ -19,7 +19,6 @@ const optimist = require('optimist');
 const path = require('path');
 const reactMiddleware = require('react-page-middleware');
 const serveStatic = require('serve-static');
-const spawn = require('child_process').spawn;
 
 const argv = optimist.argv;
 
@@ -31,12 +30,6 @@ if (argv.$0.indexOf('./server/generate.js') !== -1) {
   // Using a different port so that you can publish the website
   // and keeping the server up at the same time.
   port = 8079;
-} else {
-  // Build (and watch) the prototyping tools
-  spawn('npm', ['start'], {
-    cwd: path.resolve(__dirname, '../../website-prototyping-tools'),
-    stdio: 'inherit',
-  });
 }
 
 const buildOptions = {

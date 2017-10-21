@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @flow
  * @providesModule RelayPublishQueue
@@ -24,7 +22,6 @@ const normalizeRelayPayload = require('normalizeRelayPayload');
 
 import type {SelectorData} from 'RelayCombinedEnvironmentTypes';
 import type {HandlerProvider} from 'RelayDefaultHandlerProvider';
-import type {RelayResponsePayload} from 'RelayNetworkTypes';
 import type {
   HandleFieldPayload,
   MutableRecordSource,
@@ -33,6 +30,8 @@ import type {
   SelectorStoreUpdater,
   Store,
   StoreUpdater,
+  RecordSource,
+  RelayResponsePayload,
 } from 'RelayStoreTypes';
 
 type Payload = {
@@ -41,6 +40,16 @@ type Payload = {
   source: MutableRecordSource,
   updater: ?SelectorStoreUpdater,
 };
+
+type DataToCommit =
+  | {
+      kind: 'payload',
+      payload: Payload,
+    }
+  | {
+      kind: 'source',
+      source: RecordSource,
+    };
 
 /**
  * Coordinates the concurrent modification of a `Store` due to optimistic and
@@ -63,8 +72,8 @@ class RelayPublishQueue {
   // True if the next `run()` should apply the backup and rerun all optimistic
   // updates performing a rebase.
   _pendingBackupRebase: boolean;
-  // Payloads to apply with the next `run()`.
-  _pendingPayloads: Set<Payload>;
+  // Payloads to apply or Sources to publish to the store with the next `run()`.
+  _pendingData: Set<DataToCommit>;
   // Updaters to apply with the next `run()`. These mutate the store and should
   // typically only mutate client schema extensions.
   _pendingUpdaters: Set<StoreUpdater>;
@@ -78,8 +87,8 @@ class RelayPublishQueue {
     this._backup = new RelayInMemoryRecordSource();
     this._handlerProvider = handlerProvider || null;
     this._pendingBackupRebase = false;
-    this._pendingPayloads = new Set();
     this._pendingUpdaters = new Set();
+    this._pendingData = new Set();
     this._pendingOptimisticUpdates = new Set();
     this._store = store;
     this._appliedOptimisticUpdates = new Set();
@@ -129,7 +138,10 @@ class RelayPublishQueue {
     updater?: ?SelectorStoreUpdater,
   ): void {
     this._pendingBackupRebase = true;
-    this._pendingPayloads.add({fieldPayloads, operation, source, updater});
+    this._pendingData.add({
+      kind: 'payload',
+      payload: {fieldPayloads, operation, source, updater},
+    });
   }
 
   /**
@@ -142,6 +154,16 @@ class RelayPublishQueue {
   }
 
   /**
+   * Schedule a publish to the store from the provided source on the next
+   * `run()`. As an example, to update the store with substituted fields that
+   * are missing in the store.
+   */
+  commitSource(source: RecordSource): void {
+    this._pendingBackupRebase = true;
+    this._pendingData.add({kind: 'source', source});
+  }
+
+  /**
    * Execute all queued up operations from the other public methods.
    */
   run(): void {
@@ -149,52 +171,58 @@ class RelayPublishQueue {
       this._store.publish(this._backup);
       this._backup = new RelayInMemoryRecordSource();
     }
-    this._commitPayloads();
+    this._commitData();
     this._commitUpdaters();
     this._applyUpdates();
     this._pendingBackupRebase = false;
     this._store.notify();
   }
 
-  _commitPayloads(): void {
-    if (!this._pendingPayloads.size) {
+  _getSourceFromPayload(payload: Payload): RecordSource {
+    const {fieldPayloads, operation, source, updater} = payload;
+    const mutator = new RelayRecordSourceMutator(
+      this._store.getSource(),
+      source,
+    );
+    const store = new RelayRecordSourceProxy(mutator);
+    const selectorStore = new RelayRecordSourceSelectorProxy(
+      store,
+      operation.fragment,
+    );
+    if (fieldPayloads && fieldPayloads.length) {
+      fieldPayloads.forEach(fieldPayload => {
+        const handler =
+          this._handlerProvider && this._handlerProvider(fieldPayload.handle);
+        invariant(
+          handler,
+          'RelayModernEnvironment: Expected a handler to be provided for ' +
+            'handle `%s`.',
+          fieldPayload.handle,
+        );
+        handler.update(store, fieldPayload);
+      });
+    }
+    if (updater) {
+      const selectorData = lookupSelector(source, operation.fragment);
+      updater(selectorStore, selectorData);
+    }
+    return source;
+  }
+
+  _commitData(): void {
+    if (!this._pendingData.size) {
       return;
     }
-    this._pendingPayloads.forEach(
-      ({fieldPayloads, operation, source, updater}) => {
-        const mutator = new RelayRecordSourceMutator(
-          this._store.getSource(),
-          source,
-        );
-        const store = new RelayRecordSourceProxy(mutator);
-        const selectorStore = new RelayRecordSourceSelectorProxy(
-          store,
-          operation.fragment,
-        );
-        if (fieldPayloads && fieldPayloads.length) {
-          fieldPayloads.forEach(fieldPayload => {
-            const handler =
-              this._handlerProvider &&
-              this._handlerProvider(fieldPayload.handle);
-            invariant(
-              handler,
-              'RelayModernEnvironment: Expected a handler to be provided for ' +
-                'handle `%s`.',
-              fieldPayload.handle,
-            );
-            handler.update(store, fieldPayload);
-          });
-        }
-        if (updater) {
-          const selectorData = lookupSelector(source, operation.fragment);
-          updater(selectorStore, selectorData);
-        }
-        // Publish the server data first so that it is reflected in the mutation
-        // backup created during the rebase
-        this._store.publish(source);
-      },
-    );
-    this._pendingPayloads.clear();
+    this._pendingData.forEach(data => {
+      let source;
+      if (data.kind === 'payload') {
+        source = this._getSourceFromPayload(data.payload);
+      } else {
+        source = data.source;
+      }
+      this._store.publish(source);
+    });
+    this._pendingData.clear();
   }
 
   _commitUpdaters(): void {

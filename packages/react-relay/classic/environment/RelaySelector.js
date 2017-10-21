@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelaySelector
  * @flow
@@ -13,19 +11,19 @@
 
 'use strict';
 
-const RelayFragmentPointer = require('RelayFragmentPointer');
-const RelayRecord = require('RelayRecord');
+const RelayFragmentPointer = require('../query/RelayFragmentPointer');
+const RelayRecord = require('../store/RelayRecord');
 
 const areEqual = require('areEqual');
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const warning = require('warning');
 
-import type {ConcreteFragmentDefinition} from 'ConcreteQuery';
-import type {Props} from 'RelayCombinedEnvironmentTypes';
-import type {FragmentMap, Selector} from 'RelayEnvironmentTypes';
-import type {DataID} from 'RelayInternalTypes';
-import type {Variables} from 'RelayTypes';
+import type {ConcreteFragmentDefinition} from '../query/ConcreteQuery';
+import type {DataID} from '../tools/RelayInternalTypes';
+import type {Variables} from '../tools/RelayTypes';
+import type {Props} from './RelayCombinedEnvironmentTypes';
+import type {FragmentMap, Selector} from './RelayEnvironmentTypes';
 
 /**
  * @public

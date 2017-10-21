@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayMutation
  * @flow
@@ -13,23 +11,23 @@
 
 'use strict';
 
-const RelayFragmentPointer = require('RelayFragmentPointer');
-const RelayFragmentReference = require('RelayFragmentReference');
-const RelayMetaRoute = require('RelayMetaRoute');
-const RelayQuery = require('RelayQuery');
-const RelayRecord = require('RelayRecord');
+const RelayFragmentPointer = require('../query/RelayFragmentPointer');
+const RelayFragmentReference = require('../query/RelayFragmentReference');
+const RelayMetaRoute = require('../route/RelayMetaRoute');
+const RelayQuery = require('../query/RelayQuery');
+const RelayRecord = require('../store/RelayRecord');
 
-const buildRQL = require('buildRQL');
+const buildRQL = require('../query/buildRQL');
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
-const validateMutationConfig = require('validateMutationConfig');
+const validateMutationConfig = require('./validateMutationConfig');
 const warning = require('warning');
 
-import type {ConcreteFragment} from 'ConcreteQuery';
-import type {RelayEnvironmentInterface} from 'RelayEnvironment';
-import type {RelayConcreteNode} from 'RelayQL';
-import type {RelayMutationConfig, Variables} from 'RelayTypes';
-import type {RelayQLFragmentBuilder} from 'buildRQL';
+import type {ConcreteFragment} from '../query/ConcreteQuery';
+import type {RelayConcreteNode} from '../query/RelayQL';
+import type {RelayQLFragmentBuilder} from '../query/buildRQL';
+import type {RelayEnvironmentInterface} from '../store/RelayEnvironment';
+import type {RelayMutationConfig, Variables} from '../tools/RelayTypes';
 
 export type FileMap = {[key: string]: File};
 export type RelayMutationFragments<Tk> = {
@@ -406,7 +404,9 @@ class RelayMutation<Tp: Object> {
           'fragments names: %s',
         this.name,
         fragmentName,
-        Object.keys(fragments).map(name => '`' + name + '`').join(', '),
+        Object.keys(fragments)
+          .map(name => '`' + name + '`')
+          .join(', '),
       );
     }
 

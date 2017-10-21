@@ -1,34 +1,51 @@
-export type TypenameInside = {|
-  +__typename: "User";
-  +firstName: ?string;
+export type TypenameInside = ({|
+  +__typename: 'User',
+  +firstName: ?string,
 |} | {|
-  +__typename: "Page";
-  +username: ?string;
+  +__typename: 'Page',
+  +username: ?string,
 |} | {|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  +__typename: "%other";
-|};
+  +__typename: '%other',
+|});
 
-export type TypenameOutside = {|
-  +__typename: "User";
-  +firstName: ?string;
+export type TypenameOutside = ({|
+  +__typename: 'User',
+  +firstName: ?string,
 |} | {|
-  +__typename: "Page";
-  +username: ?string;
+  +__typename: 'Page',
+  +username: ?string,
 |} | {|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  +__typename: "%other";
-|};
+  +__typename: '%other',
+|});
 
 export type TypenameOutsideWithAbstractType = {|
-  +__typename: string;
-  +username?: ?string;
+  +__typename: string,
+  +username?: ?string,
   +address?: ?{|
-    +city: ?string;
-    +country: ?string;
-    +street?: ?string;
-  |};
-  +firstName?: ?string;
+    +city: ?string,
+    +country: ?string,
+    +street?: ?string,
+  |},
+  +firstName?: ?string,
+|};
+
+export type TypenameWithoutSpreads = {|
+  +firstName: ?string,
+  +__typename: 'User',
+|};
+
+export type TypenameWithoutSpreadsAbstractType = {|
+  +__typename: string,
+  +id: string,
+|};
+
+export type TypenameWithCommonSelections = {|
+  +__typename: string,
+  +name: ?string,
+  +firstName?: ?string,
+  +username?: ?string,
 |};

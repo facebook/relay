@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule ReactRelayFragmentContainer
  * @flow
@@ -14,23 +12,25 @@
 'use strict';
 
 const React = require('React');
-const RelayProfiler = require('RelayProfiler');
-const RelayPropTypes = require('RelayPropTypes');
+const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
 const areEqual = require('areEqual');
-const buildReactRelayContainer = require('buildReactRelayContainer');
+const buildReactRelayContainer = require('./buildReactRelayContainer');
 const invariant = require('invariant');
-const isRelayContext = require('isRelayContext');
-const isScalarAndEqual = require('isScalarAndEqual');
+const isRelayContext = require('../classic/environment/isRelayContext');
+const isScalarAndEqual = require('../classic/util/isScalarAndEqual');
 const nullthrows = require('nullthrows');
 
-const {profileContainer} = require('ReactRelayContainerProfiler');
-const {getComponentName, getReactComponent} = require('RelayContainerUtils');
+const {
+  getComponentName,
+  getReactComponent,
+} = require('../classic/container/RelayContainerUtils');
+const {profileContainer} = require('./ReactRelayContainerProfiler');
+const {RelayProfiler} = require('RelayRuntime');
 
-import type {GeneratedNodeMap, RelayProp} from 'ReactRelayTypes';
-import type {FragmentSpecResolver} from 'RelayCombinedEnvironmentTypes';
-import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
-import type {FragmentMap, RelayContext} from 'RelayStoreTypes';
+import type {FragmentSpecResolver} from '../classic/environment/RelayCombinedEnvironmentTypes';
+import type {GeneratedNodeMap, RelayProp} from './ReactRelayTypes';
+import type {FragmentMap, GraphQLTaggedNode, RelayContext} from 'RelayRuntime';
 
 type ContainerState = {
   data: {[key: string]: mixed},
@@ -46,16 +46,18 @@ const containerContextTypes = {
  * props, resolving them with the provided fragments and subscribing for
  * updates.
  */
-function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
+function createContainerWithFragments<
+  TConfig,
+  TClass: React.ComponentType<TConfig>,
+>(
   Component: TClass,
   fragments: FragmentMap,
-): ReactClass<TConfig & {componentRef?: any}> {
+): React.ComponentType<TConfig & {componentRef?: any}> {
   const ComponentClass = getReactComponent(Component);
   const componentName = getComponentName(Component);
   const containerName = `Relay(${componentName})`;
 
-  class Container extends React.Component {
-    state: ContainerState;
+  class Container extends React.Component<$FlowFixMeProps, ContainerState> {
     _resolver: FragmentSpecResolver;
 
     constructor(props, context) {
@@ -167,7 +169,6 @@ function createContainerWithFragments<TConfig, TClass: ReactClass<TConfig>>(
             {...this.props}
             {...this.state.data}
             // TODO: Remove the string ref fallback.
-            // eslint-disable-next-line react/no-string-refs
             ref={this.props.componentRef || 'component'}
             relay={this.state.relayProp}
           />
@@ -206,7 +207,7 @@ function assertRelayContext(relay: mixed): RelayContext {
  * `fragmentSpec` is memoized once per environment, rather than once per
  * instance of the container constructed/rendered.
  */
-function createContainer<TBase: ReactClass<*>>(
+function createContainer<TBase: React.ComponentType<*>>(
   Component: TBase,
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
 ): TBase {

@@ -4,7 +4,7 @@ title: Subscriptions
 layout: docs
 category: Relay Modern
 permalink: docs/subscriptions.html
-next: babel-plugin-relay
+next: relay-directives
 ---
 
 Relay exposes the following APIs to create subscriptions.
@@ -22,7 +22,8 @@ requestSubscription(
     onCompleted?: ?() => void,
     onError?: ?(error: Error) => void,
     onNext?: ?(response: ?Object) => void,
-    updater?: ?(store: RecordSourceSelectorProxy) => void,
+    updater?: ?(store: RecordSourceSelectorProxy, data: SelectorData) => void,
+    configs?: Array<RelayMutationConfig>,
   },
 );
 ```
@@ -39,6 +40,7 @@ Now let's take a closer look at the `config`:
   the server, with the raw GraphQL response payload.
 * `updater`: an optional function that can supply custom logic for updating the
   in-memory Relay store based on the server response.
+* `configs`: an array containing the updater configurations. It is the same as [`configs`](https://facebook.github.io/relay/docs/mutations.html#configs) in `commitMutation`.
 
 ## Example
 
@@ -74,7 +76,7 @@ requestSubscription(
     subscription,
     variables,
     // optional but recommended:
-    onComplete: () => {/* server closed the subscription */},
+    onCompleted: () => {/* server closed the subscription */},
     onError: error => console.error(error),
   }
 );

@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule formatStorageKey
  * @flow
@@ -13,7 +11,6 @@
 
 'use strict';
 
-const forEachObject = require('forEachObject');
 const stableJSONStringify = require('stableJSONStringify');
 
 /**
@@ -29,15 +26,18 @@ function formatStorageKey(
     return fieldName;
   }
   let filtered = null;
-  forEachObject(argsWithValues, (value, argName) => {
-    if (value != null) {
-      if (!filtered) {
-        filtered = {};
+  for (const argName in argsWithValues) {
+    if (argsWithValues.hasOwnProperty(argName)) {
+      const value = argsWithValues[argName];
+      if (value != null) {
+        if (!filtered) {
+          filtered = {};
+        }
+        filtered[argName] = value;
       }
-      filtered[argName] = value;
     }
-  });
-  return fieldName + (filtered ? stableJSONStringify(filtered) : '');
+  }
+  return filtered ? fieldName + stableJSONStringify(filtered) : fieldName;
 }
 
 module.exports = formatStorageKey;

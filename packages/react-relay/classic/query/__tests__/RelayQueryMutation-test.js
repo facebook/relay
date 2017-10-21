@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
  * @format
@@ -14,9 +12,11 @@
 
 require('configureForRelayOSS');
 
-const Relay = require('Relay');
-const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayClassic = require('RelayClassic');
+const {ConnectionInterface} = require('RelayRuntime');
 const RelayTestUtils = require('RelayTestUtils');
+
+const {CLIENT_MUTATION_ID} = ConnectionInterface.get();
 
 describe('RelayQueryMutation', () => {
   const {getNode} = RelayTestUtils;
@@ -30,7 +30,7 @@ describe('RelayQueryMutation', () => {
     expect.extend(RelayTestUtils.matchers);
 
     input = JSON.stringify({
-      [RelayConnectionInterface.CLIENT_MUTATION_ID]: 'mutation:id',
+      [CLIENT_MUTATION_ID]: 'mutation:id',
       actor: 'actor:id',
       feedback_id: 'feedback:id',
       message: {
@@ -38,7 +38,7 @@ describe('RelayQueryMutation', () => {
       },
     });
     mutationQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       mutation {
         commentCreate(input:$input) {
           clientMutationId
@@ -64,9 +64,7 @@ describe('RelayQueryMutation', () => {
     });
     const children = mutationQuery.getChildren();
     expect(children.length).toBe(2);
-    expect(children[0].getSchemaName()).toBe(
-      RelayConnectionInterface.CLIENT_MUTATION_ID,
-    );
+    expect(children[0].getSchemaName()).toBe(CLIENT_MUTATION_ID);
     expect(children[1].getSchemaName()).toBe('feedbackCommentEdge');
     const edgeChildren = children[1].getChildren();
     expect(edgeChildren.length).toBe(3);
@@ -82,9 +80,7 @@ describe('RelayQueryMutation', () => {
     clone = mutationQuery.clone(mutationQuery.getChildren().slice(0, 1));
     expect(clone).not.toBe(mutationQuery);
     expect(clone.getChildren().length).toBe(1);
-    expect(clone.getChildren()[0].getSchemaName()).toBe(
-      RelayConnectionInterface.CLIENT_MUTATION_ID,
-    );
+    expect(clone.getChildren()[0].getSchemaName()).toBe(CLIENT_MUTATION_ID);
 
     clone = mutationQuery.clone([null]);
     expect(clone).toBe(null);
@@ -92,7 +88,7 @@ describe('RelayQueryMutation', () => {
 
   it('tests for equality', () => {
     const equivalentQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       mutation {
         commentCreate(input:$input) {
           clientMutationId
@@ -106,7 +102,7 @@ describe('RelayQueryMutation', () => {
       {input},
     );
     const differentQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       mutation {
         commentCreate(input:$input) {
           clientMutationId

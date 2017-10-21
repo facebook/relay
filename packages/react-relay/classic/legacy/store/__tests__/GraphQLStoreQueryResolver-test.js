@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
  * @format
@@ -18,17 +16,17 @@ require('configureForRelayOSS');
 
 jest.useFakeTimers();
 jest
-  .unmock('GraphQLRange')
-  .unmock('GraphQLSegment')
-  .unmock('GraphQLStoreQueryResolver');
+  .unmock('../GraphQLRange')
+  .unmock('../GraphQLSegment')
+  .unmock('../GraphQLStoreQueryResolver');
 
-const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-const Relay = require('Relay');
-const RelayStoreData = require('RelayStoreData');
+const GraphQLStoreQueryResolver = require('../GraphQLStoreQueryResolver');
+const RelayClassic = require('RelayClassic');
+const RelayStoreData = require('../../../store/RelayStoreData');
 const RelayTestUtils = require('RelayTestUtils');
 
-const readRelayQueryData = require('readRelayQueryData');
-const transformRelayQueryPayload = require('transformRelayQueryPayload');
+const readRelayQueryData = require('../../../store/readRelayQueryData');
+const transformRelayQueryPayload = require('../../../traversal/transformRelayQueryPayload');
 
 describe('GraphQLStoreQueryResolver', () => {
   let changeEmitter;
@@ -58,9 +56,9 @@ describe('GraphQLStoreQueryResolver', () => {
 
     dataID = '1038750002';
     mockCallback = jest.fn();
-    mockQueryFragment = getNode(Relay.QL`fragment on Node{id,name}`);
+    mockQueryFragment = getNode(RelayClassic.QL`fragment on Node{id,name}`);
     mockPluralQueryFragment = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on Node @relay(plural:true) {
         id
         name
@@ -185,7 +183,7 @@ describe('GraphQLStoreQueryResolver', () => {
       mockCallback,
     );
 
-    require('GraphQLStoreRangeUtils').getCanonicalClientID =
+    require('../GraphQLStoreRangeUtils').getCanonicalClientID =
       // The canonical ID of a range customarily excludes the calls
       jest.fn(() => 'client:123');
 
@@ -317,7 +315,7 @@ describe('GraphQLStoreQueryResolver', () => {
         while (run()) {}
       });
       const containerFragment = RelayTestUtils.createContainerFragment(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on NewsFeedConnection {
           edges {
             node {
@@ -327,7 +325,7 @@ describe('GraphQLStoreQueryResolver', () => {
         }
       `,
       );
-      const concreteFragment = Relay.QL`
+      const concreteFragment = RelayClassic.QL`
         fragment on Viewer {
           actor {
             id
@@ -338,7 +336,7 @@ describe('GraphQLStoreQueryResolver', () => {
         }
       `;
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           viewer {
             ${concreteFragment}

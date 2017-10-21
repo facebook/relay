@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule findRelayQueryLeaves
  * @flow
@@ -13,20 +11,20 @@
 
 'use strict';
 
-const RelayClassicRecordState = require('RelayClassicRecordState');
-const RelayConnectionInterface = require('RelayConnectionInterface');
-const RelayProfiler = require('RelayProfiler');
-const RelayQueryPath = require('RelayQueryPath');
-const RelayQueryVisitor = require('RelayQueryVisitor');
+const RelayClassicRecordState = require('../store/RelayClassicRecordState');
+const RelayQueryPath = require('../query/RelayQueryPath');
+const RelayQueryVisitor = require('../query/RelayQueryVisitor');
 
-const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
+const isCompatibleRelayFragmentType = require('../tools/isCompatibleRelayFragmentType');
 
-import type {Call, DataID} from 'RelayInternalTypes';
-import type RelayQuery from 'RelayQuery';
-import type {QueryPath} from 'RelayQueryPath';
-import type {RecordMap} from 'RelayRecord';
-import type RelayRecordStore from 'RelayRecordStore';
-import type {RangeInfo} from 'RelayRecordStore';
+const {ConnectionInterface, RelayProfiler} = require('RelayRuntime');
+
+import type RelayQuery from '../query/RelayQuery';
+import type {QueryPath} from '../query/RelayQueryPath';
+import type {RecordMap} from '../store/RelayRecord';
+import type RelayRecordStore from '../store/RelayRecordStore';
+import type {RangeInfo} from '../store/RelayRecordStore';
+import type {Call, DataID} from '../tools/RelayInternalTypes';
 
 type FinderState = {
   dataID: DataID,
@@ -46,8 +44,6 @@ export type NodeState = {
   path: QueryPath,
   rangeCalls: ?Array<Call>,
 };
-
-const {EDGES, PAGE_INFO} = RelayConnectionInterface;
 
 /**
  * @internal
@@ -129,6 +125,8 @@ class RelayQueryLeavesFinder extends RelayQueryVisitor<FinderState> {
   }
 
   visitField(field: RelayQuery.Field, state: FinderState): void {
+    const {EDGES, PAGE_INFO} = ConnectionInterface.get();
+
     const dataID = state.dataID;
     const recordState = this._store.getRecordState(dataID);
     if (recordState === RelayClassicRecordState.UNKNOWN) {

@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayRecord
  * @flow
@@ -13,10 +11,10 @@
 
 'use strict';
 
-import type GraphQLRange from 'GraphQLRange';
-import type {Call, ClientMutationID, DataID} from 'RelayInternalTypes';
-import type {QueryPath} from 'RelayQueryPath';
-import type {Variables} from 'RelayTypes';
+import type GraphQLRange from '../legacy/store/GraphQLRange';
+import type {QueryPath} from '../query/RelayQueryPath';
+import type {Call, ClientMutationID, DataID} from '../tools/RelayInternalTypes';
+import type {Variables} from '../tools/RelayTypes';
 
 export type Record = {
   // Records may contain many other fields as [fieldName: string]: mixed

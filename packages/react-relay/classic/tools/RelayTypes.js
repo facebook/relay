@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayTypes
  * @flow
@@ -16,21 +14,21 @@
 /**
  * Types that Relay framework users may find useful.
  */
-import type {RelayEnvironmentInterface} from 'RelayEnvironment';
-import type RelayFragmentReference from 'RelayFragmentReference';
+import type RelayMutation from '../mutation/RelayMutation';
+import type RelayMutationTransaction from '../mutation/RelayMutationTransaction';
+import type RelayMutationRequest from '../network/RelayMutationRequest';
+import type RelayQueryRequest from '../network/RelayQueryRequest';
+import type {RelayQueryConfigInterface} from '../query-config/RelayQueryConfig';
+import type RelayFragmentReference from '../query/RelayFragmentReference';
+import type {RelayConcreteNode} from '../query/RelayQL';
+import type {RelayEnvironmentInterface} from '../store/RelayEnvironment';
+import type {Record} from '../store/RelayRecord';
 import type {
   DataID,
   FieldValue,
   RangeBehaviors,
   QueryPayload,
-} from 'RelayInternalTypes';
-import type RelayMutation from 'RelayMutation';
-import type RelayMutationRequest from 'RelayMutationRequest';
-import type RelayMutationTransaction from 'RelayMutationTransaction';
-import type {RelayConcreteNode} from 'RelayQL';
-import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
-import type RelayQueryRequest from 'RelayQueryRequest';
-import type {Record} from 'RelayRecord';
+} from './RelayInternalTypes';
 import type URI from 'URI';
 
 type RelayContainerErrorEventType =
@@ -106,10 +104,6 @@ export type ComponentReadyState = {
 export type ComponentReadyStateChangeCallback = (
   readyState: ComponentReadyState,
 ) => void;
-export type MultiObservable<T> = {
-  subscribe(callbacks: SubscriptionCallbacks<Array<T>>): Subscription,
-  setDataIDs(dataIDs: Array<DataID>): void,
-};
 export type MutationResult = {
   response: QueryPayload,
 };
@@ -118,10 +112,6 @@ export type NetworkLayer = {
   sendMutation(request: RelayMutationRequest): ?Promise<any>,
   sendQueries(requests: Array<RelayQueryRequest>): ?Promise<any>,
   supports(...options: Array<string>): boolean,
-};
-// Observable
-export type Observable<T> = {
-  subscribe(callbacks: SubscriptionCallbacks<T>): Subscription,
 };
 export type QueryResult = {
   error?: ?Error,
@@ -142,7 +132,17 @@ export type ReadyStateEvent = {
   error?: Error,
 };
 // Containers
-export type RelayContainer = ReactClass<any>;
+
+/**
+ * FIXME: RelayContainer used to be typed with ReactClass<any>, but
+ * ReactClass is broken and allows for access to any property. For example
+ * ReactClass<any>.getFragment('foo') is valid even though ReactClass has no
+ * such getFragment() type definition. When ReactClass is fixed this causes a
+ * lot of errors in Relay code since methods like getFragment() are used often
+ * but have no definition in Relay's types. Suppressing for now.
+ */
+export type RelayContainer = $FlowFixMe;
+
 export type RelayMutationConfig =
   | {
       type: 'FIELDS_CHANGE',
@@ -247,9 +247,6 @@ export type StoreReaderOptions = {
   traverseFragmentReferences?: boolean,
   traverseGeneratedFields?: boolean,
 };
-export type Subscription = {
-  dispose(): void,
-};
 export type SubscriptionCallbacks<T> = {
   onNext(value: T): void,
   onError(error: Error): void,
@@ -257,3 +254,8 @@ export type SubscriptionCallbacks<T> = {
 };
 // Variables
 export type Variables = {[name: string]: $FlowFixMe};
+export type RerunParam = {
+  param: string,
+  import: string,
+  max_runs: number,
+};

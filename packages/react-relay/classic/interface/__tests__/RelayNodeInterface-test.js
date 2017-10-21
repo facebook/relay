@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
  * @format
@@ -12,8 +10,8 @@
 
 'use strict';
 
-const Relay = require('Relay');
-const RelayNodeInterface = require('RelayNodeInterface');
+const RelayClassic = require('RelayClassic');
+const RelayNodeInterface = require('../RelayNodeInterface');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayNodeInterface', () => {
@@ -25,7 +23,7 @@ describe('RelayNodeInterface', () => {
 
   it('creates results for argument-less custom root calls with an id', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         me {
           id
@@ -53,7 +51,7 @@ describe('RelayNodeInterface', () => {
 
   it('creates results for argument-less custom root calls without an id', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           actor {
@@ -86,7 +84,7 @@ describe('RelayNodeInterface', () => {
 
   it('creates results for custom root calls with an id', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         username(name:"yuzhi") {
           id
@@ -116,7 +114,7 @@ describe('RelayNodeInterface', () => {
 
   it('creates results for custom root calls without an id', () => {
     const query = getVerbatimNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         username(name:"yuzhi") {
           name
@@ -146,7 +144,7 @@ describe('RelayNodeInterface', () => {
 
   it('creates results for single identifying argument', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id:"123") {
           id
@@ -175,7 +173,7 @@ describe('RelayNodeInterface', () => {
 
   it('creates results for plural identifying arguments', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         nodes(ids: ["123","456"]) {
           id
@@ -217,7 +215,7 @@ describe('RelayNodeInterface', () => {
 
   it('creates results for id-less identifying arguments', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         task(number: 123) {
           title
@@ -227,7 +225,7 @@ describe('RelayNodeInterface', () => {
     );
     const payload = {
       task: {
-        title: 'Give Relay',
+        title: 'Give RelayClassic',
       },
     };
     const result = RelayNodeInterface.getResultsFromPayload(query, payload);
@@ -246,7 +244,7 @@ describe('RelayNodeInterface', () => {
 
   it('creates results for null response', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         me {
           id
@@ -272,7 +270,7 @@ describe('RelayNodeInterface', () => {
 
   it('creates results for undefined response', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         me {
           id

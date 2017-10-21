@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayGarbageCollector
  * @flow
@@ -13,16 +11,16 @@
 
 'use strict';
 
-const GraphQLRange = require('GraphQLRange');
-const RelayRecord = require('RelayRecord');
+const GraphQLRange = require('../legacy/store/GraphQLRange');
+const RelayRecord = require('./RelayRecord');
 
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const resolveImmediate = require('resolveImmediate');
 const warning = require('warning');
 
-import type {DataID} from 'RelayInternalTypes';
-import type RelayStoreData from 'RelayStoreData';
+import type {DataID} from '../tools/RelayInternalTypes';
+import type RelayStoreData from './RelayStoreData';
 
 export type GarbageCollectionHold = {release: () => void};
 export type GarbageCollectionScheduler = (collect: () => boolean) => void;

@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule writeRelayUpdatePayload
  * @flow
@@ -13,25 +11,25 @@
 
 'use strict';
 
-const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
-const RelayClassicRecordState = require('RelayClassicRecordState');
-const RelayConnectionInterface = require('RelayConnectionInterface');
-const RelayMutationTracker = require('RelayMutationTracker');
-const RelayMutationType = require('RelayMutationType');
-const RelayNodeInterface = require('RelayNodeInterface');
-const RelayProfiler = require('RelayProfiler');
-const RelayQuery = require('RelayQuery');
-const RelayQueryPath = require('RelayQueryPath');
+const GraphQLMutatorConstants = require('../legacy/mutation/GraphQLMutatorConstants');
+const RelayClassicRecordState = require('../store/RelayClassicRecordState');
+const RelayMutationTracker = require('../store/RelayMutationTracker');
+const RelayMutationType = require('../mutation/RelayMutationType');
+const RelayNodeInterface = require('../interface/RelayNodeInterface');
+const RelayQuery = require('../query/RelayQuery');
+const RelayQueryPath = require('../query/RelayQueryPath');
 
-const generateClientEdgeID = require('generateClientEdgeID');
-const generateClientID = require('generateClientID');
-const getRangeBehavior = require('getRangeBehavior');
+const generateClientEdgeID = require('../legacy/store/generateClientEdgeID');
+const generateClientID = require('../legacy/store/generateClientID');
+const getRangeBehavior = require('../mutation/getRangeBehavior');
 const invariant = require('invariant');
 const warning = require('warning');
 
-import type {DataID, UpdateOptions} from 'RelayInternalTypes';
-import type RelayQueryWriter from 'RelayQueryWriter';
-import type RelayRecordStore from 'RelayRecordStore';
+const {ConnectionInterface, RelayProfiler} = require('RelayRuntime');
+
+import type RelayQueryWriter from '../store/RelayQueryWriter';
+import type RelayRecordStore from '../store/RelayRecordStore';
+import type {DataID, UpdateOptions} from '../tools/RelayInternalTypes';
 
 // TODO: Replace with enumeration for possible config types.
 /* OperationConfig was originally typed such that each property had the type
@@ -43,22 +41,24 @@ type Payload = mixed | PayloadObject | PayloadArray;
 type PayloadArray = Array<Payload>;
 type PayloadObject = {[key: string]: Payload};
 
-const {CLIENT_MUTATION_ID, EDGES} = RelayConnectionInterface;
 const {ANY_TYPE, ID, NODE} = RelayNodeInterface;
 const {APPEND, IGNORE, PREPEND, REFETCH, REMOVE} = GraphQLMutatorConstants;
 
-const EDGES_FIELD = RelayQuery.Field.build({
-  fieldName: EDGES,
-  type: ANY_TYPE,
-  metadata: {
-    canHaveSubselections: true,
-    isPlural: true,
-  },
-});
-const IGNORED_KEYS = {
-  error: true,
-  [CLIENT_MUTATION_ID]: true,
-};
+let _edgesField;
+function getEdgesField() {
+  if (!_edgesField) {
+    _edgesField = RelayQuery.Field.build({
+      fieldName: ConnectionInterface.get().EDGES,
+      type: ANY_TYPE,
+      metadata: {
+        canHaveSubselections: true,
+        isPlural: true,
+      },
+    });
+  }
+  return _edgesField;
+}
+
 const STUB_CURSOR_ID = 'client:cursor';
 
 /**
@@ -208,7 +208,8 @@ function mergeField(
   operation: RelayQuery.Operation,
 ): void {
   // don't write mutation/subscription metadata fields
-  if (fieldName in IGNORED_KEYS) {
+  const {CLIENT_MUTATION_ID} = ConnectionInterface.get();
+  if (fieldName === 'error' || fieldName === CLIENT_MUTATION_ID) {
     return;
   }
   if (Array.isArray(payload)) {
@@ -297,6 +298,8 @@ function handleRangeAdd(
   config: OperationConfig,
   isOptimisticUpdate: boolean,
 ): void {
+  const {CLIENT_MUTATION_ID} = ConnectionInterface.get();
+
   const clientMutationID = getString(payload, CLIENT_MUTATION_ID);
   invariant(
     clientMutationID,
@@ -408,10 +411,11 @@ function addRangeNode(
     'writeRelayUpdatePayload(): Expected a path for connection record, `%s`.',
     connectionID,
   );
-  path = RelayQueryPath.getPath(path, EDGES_FIELD, edgeID);
+  const edgesField = getEdgesField();
+  path = RelayQueryPath.getPath(path, edgesField, edgeID);
 
   // create the edge record
-  writer.createRecordIfMissing(EDGES_FIELD, edgeID, path, edgeData);
+  writer.createRecordIfMissing(edgesField, edgeID, path, edgeData);
 
   // write data for all `edges` fields
   // TODO #7167718: more efficient mutation/subscription writes

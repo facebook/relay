@@ -30,7 +30,10 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
       });
       return {
         kind: 'FragmentDefinition',
-        argumentDefinitions: [],
+        argumentDefinitions: [{
+          kind: 'RootArgument',
+          name: 'pictureSize'
+        }],
         node: function () {
           return {
             children: [].concat.apply([], [{
@@ -131,6 +134,53 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
             kind: 'Fragment',
             metadata: {},
             name: 'CompatProfile_receiving',
+            type: 'User'
+          };
+        }()
+      };
+    }
+  },
+  passingWithDefault: {
+    modern: function () {
+      return require('./__generated__/CompatProfile_passingWithDefault.graphql');
+    },
+    classic: function (RelayQL_GENERATED) {
+      const ProfilePic_user_args1 = ProfilePic.getFragment('user', {
+        size: {
+          kind: 'CallVariable',
+          callVariableName: 'withDefault'
+        },
+        scale: {
+          kind: 'CallVariable',
+          callVariableName: 'noDefault'
+        }
+      });
+      return {
+        kind: 'FragmentDefinition',
+        argumentDefinitions: [{
+          defaultValue: 100,
+          kind: 'LocalArgument',
+          name: 'withDefault'
+        }, {
+          defaultValue: null,
+          kind: 'LocalArgument',
+          name: 'noDefault'
+        }],
+        node: function () {
+          return {
+            children: [].concat.apply([], [{
+              fieldName: 'id',
+              kind: 'Field',
+              metadata: {
+                isGenerated: true,
+                isRequisite: true
+              },
+              type: 'ID'
+            }, RelayQL_GENERATED.__frag(ProfilePic_user_args1)]),
+            id: RelayQL_GENERATED.__id(),
+            kind: 'Fragment',
+            metadata: {},
+            name: 'CompatProfile_passingWithDefault',
             type: 'User'
           };
         }()

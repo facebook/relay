@@ -1,27 +1,27 @@
-export type LinkedField = {|
-  +profilePicture: ?{|
-    +uri: ?string;
-    +width: ?number;
-    +height: ?number;
-  |};
-  +hometown: ?{|
-    +id: string;
-    +profilePicture: ?{|
-      +uri: ?string;
-    |};
-  |};
-  +actor: ?{|
-    +id: string;
-  |};
-|};
-
 export type UnionTypeTestResponse = {|
-  +neverNode: ?{|
-    +__typename: "FakeNode";
-    +id: string;
+  +neverNode: ?({|
+    +__typename: 'FakeNode',
+    +id: string,
   |} | {|
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
-    +__typename: "%other";
-  |};
+    +__typename: '%other',
+  |}),
+|};
+
+export type LinkedField = {|
+  +profilePicture: ?{|
+    +uri: ?string,
+    +width: ?number,
+    +height: ?number,
+  |},
+  +hometown: ?{|
+    +id: string,
+    +profilePicture: ?{|
+      +uri: ?string,
+    |},
+  |},
+  +actor: ?{|
+    +id: string,
+  |},
 |};

@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayRecordSourceMutator
  * @flow
@@ -15,7 +13,6 @@
 
 const RelayModernRecord = require('RelayModernRecord');
 
-const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 
 const {EXISTENT} = require('RelayRecordState');
@@ -84,12 +81,14 @@ class RelayRecordSourceMutator {
       const backupRecord = backup.get(dataID);
       if (backupRecord && backupRecord !== UNPUBLISH_RECORD_SENTINEL) {
         let copy = null;
-        forEachObject(record, (value, key) => {
-          if (!(key in backupRecord)) {
-            copy = copy || {...backupRecord};
-            copy[key] = UNPUBLISH_FIELD_SENTINEL;
+        for (const key in record) {
+          if (record.hasOwnProperty(key)) {
+            if (!(key in backupRecord)) {
+              copy = copy || {...backupRecord};
+              copy[key] = UNPUBLISH_FIELD_SENTINEL;
+            }
           }
-        });
+        }
         backup.set(dataID, copy || backupRecord);
       }
     }

@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
  * @format
@@ -12,16 +10,14 @@
 
 'use strict';
 
-jest.enableAutomock();
-
 require('configureForRelayOSS');
 
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 const RelayTestUtils = require('RelayTestUtils');
 
 const filterObject = require('filterObject');
-const splitDeferredRelayQueries = require('splitDeferredRelayQueries');
-const toGraphQL = require('toGraphQL');
+const splitDeferredRelayQueries = require('../../traversal/splitDeferredRelayQueries');
+const toGraphQL = require('../toGraphQL');
 
 describe('toGraphQL', function() {
   const {defer, getNode} = RelayTestUtils;
@@ -91,7 +87,7 @@ describe('toGraphQL', function() {
 
   it('converts query', () => {
     expect(toGraphQL.Query).toConvert(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           actor {
@@ -106,7 +102,7 @@ describe('toGraphQL', function() {
 
   it('converts query with root args', () => {
     expect(toGraphQL.Query).toConvert(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         nodes(ids:["1","2","3"]) {
           id
@@ -119,7 +115,7 @@ describe('toGraphQL', function() {
 
   it('converts fragment', () => {
     expect(toGraphQL.Fragment).toConvert(
-      Relay.QL`
+      RelayClassic.QL`
       fragment on Viewer {
         actor {
           id
@@ -132,7 +128,7 @@ describe('toGraphQL', function() {
 
   it('converts field with calls', () => {
     expect(toGraphQL.Query).toConvert(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           actor {
@@ -147,7 +143,7 @@ describe('toGraphQL', function() {
 
   it('converts connection and generated fields', () => {
     expect(toGraphQL.Query).toConvert(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         viewer {
           actor {
@@ -166,12 +162,12 @@ describe('toGraphQL', function() {
   });
 
   it('preserves batch call information', () => {
-    const fragment = Relay.QL`
+    const fragment = RelayClassic.QL`
       fragment on User {
         name
       }
     `;
-    const query = Relay.QL`
+    const query = RelayClassic.QL`
       query {
         viewer {
           actor {
@@ -192,7 +188,7 @@ describe('toGraphQL', function() {
   it('does not double-encode argument values', () => {
     const value = {query: 'Menlo Park'};
     const relayQuery = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         checkinSearchQuery(query:$q) {
           query

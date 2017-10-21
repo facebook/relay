@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
  * @format
@@ -12,17 +10,15 @@
 
 'use strict';
 
-jest.enableAutomock();
-
 require('configureForRelayOSS');
 
-const Relay = require('Relay');
-const RelayChangeTracker = require('RelayChangeTracker');
-const RelayQueryPath = require('RelayQueryPath');
-const RelayQueryTracker = require('RelayQueryTracker');
-const RelayQueryWriter = require('RelayQueryWriter');
-const RelayRecordStore = require('RelayRecordStore');
-const RelayRecordWriter = require('RelayRecordWriter');
+const RelayClassic = require('RelayClassic');
+const RelayChangeTracker = require('../RelayChangeTracker');
+const RelayQueryPath = require('../../query/RelayQueryPath');
+const RelayQueryTracker = require('../RelayQueryTracker');
+const RelayQueryWriter = require('../RelayQueryWriter');
+const RelayRecordStore = require('../RelayRecordStore');
+const RelayRecordWriter = require('../RelayRecordWriter');
 const RelayTestUtils = require('RelayTestUtils');
 
 const {getNode} = RelayTestUtils;
@@ -42,7 +38,7 @@ describe('RelayQueryWriter', () => {
     store = new RelayRecordStore({records});
     recordWriter = new RelayRecordWriter(records, {}, false);
     changeTracker = new RelayChangeTracker();
-    node = getNode(Relay.QL`query { me }`);
+    node = getNode(RelayClassic.QL`query { me }`);
     path = RelayQueryPath.create(node);
     payload = {
       __typename: 'User',

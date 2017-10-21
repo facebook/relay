@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayMutationTracker
  * @flow
@@ -13,9 +11,9 @@
 
 'use strict';
 
-const RelayRecord = require('RelayRecord');
+const RelayRecord = require('./RelayRecord');
 
-import type {DataID, ClientMutationID} from 'RelayInternalTypes';
+import type {DataID, ClientMutationID} from '../tools/RelayInternalTypes';
 
 // Maintains a map from the client id to the server id of
 // optimistically added nodes

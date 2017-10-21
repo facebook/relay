@@ -5,14 +5,14 @@
 
 'use strict';
 
-const Relay = require('Relay');
+const RelayClassic = require('RelayClassic');
 
-const {graphql} = Relay;
+const {graphql} = RelayClassic;
 
 const CompatProfile = () => null;
 
-module.exports = Relay.createFragmentContainer(CompatProfile, {
-  viewer: graphql.experimental`
+module.exports = RelayClassic.createFragmentContainer(CompatProfile, {
+  viewer: graphql`
     fragment CompatProfile_viewer on Viewer @argumentDefinitions(
       browserContext: {type: "MarketplaceBrowseContext", defaultValue: BROWSE_FEED}
       priceRange: {type: "[Float]", defaultValue: [0, 50]}

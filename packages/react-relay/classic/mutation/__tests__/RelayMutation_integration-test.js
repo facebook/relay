@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
  * @format
@@ -16,9 +14,9 @@ require('configureForRelayOSS');
 
 jest.useFakeTimers().mock('relayUnstableBatchedUpdates');
 
-const Relay = require('Relay');
-const RelayEnvironment = require('RelayEnvironment');
-const RelayMutation = require('RelayMutation');
+const RelayClassic = require('RelayClassic');
+const RelayEnvironment = require('../../store/RelayEnvironment');
+const RelayMutation = require('../RelayMutation');
 
 describe('RelayMutation', () => {
   let bodyID;
@@ -34,8 +32,8 @@ describe('RelayMutation', () => {
     storeData = environment.getStoreData();
     feedbackID = '123';
 
-    query = Relay.createQuery(
-      Relay.QL`
+    query = RelayClassic.createQuery(
+      RelayClassic.QL`
         query CreateFeedbackQuery($id: ID!) {
           node(id: $id) {
             ... on Feedback {
@@ -59,7 +57,7 @@ describe('RelayMutation', () => {
         __typename: 'Feedback',
         doesViewerLike: false,
         body: {
-          text: 'Give Relay',
+          text: 'Give RelayClassic',
         },
       },
     });
@@ -68,7 +66,7 @@ describe('RelayMutation', () => {
 
   class FeedbackLikeMutation extends RelayMutation {
     getMutation() {
-      return Relay.QL`mutation { feedbackLike }`;
+      return RelayClassic.QL`mutation { feedbackLike }`;
     }
     getVariables() {
       return {
@@ -76,7 +74,7 @@ describe('RelayMutation', () => {
       };
     }
     getFatQuery() {
-      return Relay.QL`
+      return RelayClassic.QL`
         fragment on FeedbackLikeResponsePayload @relay(pattern: true) {
           clientMutationId
           feedback {
@@ -119,7 +117,7 @@ describe('RelayMutation', () => {
       doesViewerLike: false,
       body: {
         __dataID__: bodyID,
-        text: 'Give Relay',
+        text: 'Give RelayClassic',
       },
     });
   });
@@ -141,7 +139,7 @@ describe('RelayMutation', () => {
       doesViewerLike: true,
       body: {
         __dataID__: bodyID,
-        text: 'Give Relay',
+        text: 'Give RelayClassic',
       },
     });
   });
@@ -166,7 +164,7 @@ describe('RelayMutation', () => {
       doesViewerLike: true,
       body: {
         __dataID__: bodyID,
-        text: 'Give Relay',
+        text: 'Give RelayClassic',
       },
     });
 
@@ -179,7 +177,7 @@ describe('RelayMutation', () => {
       doesViewerLike: false,
       body: {
         __dataID__: bodyID,
-        text: 'Give Relay',
+        text: 'Give RelayClassic',
       },
     });
   });
@@ -194,7 +192,7 @@ describe('RelayMutation', () => {
 
     const mutation2 = new FeedbackLikeMutation({
       feedbackID,
-      text: 'Gave Relay!',
+      text: 'Gave RelayClassic!',
     });
     environment.applyUpdate(mutation2);
 
@@ -213,7 +211,7 @@ describe('RelayMutation', () => {
         __dataID__: bodyID,
         __mutationStatus__: '1:UNCOMMITTED',
         __status__: 1,
-        text: 'Gave Relay!',
+        text: 'Gave RelayClassic!',
       },
     });
 
@@ -231,7 +229,7 @@ describe('RelayMutation', () => {
         __dataID__: bodyID,
         __mutationStatus__: '1:UNCOMMITTED',
         __status__: 1,
-        text: 'Gave Relay!',
+        text: 'Gave RelayClassic!',
       },
     });
   });

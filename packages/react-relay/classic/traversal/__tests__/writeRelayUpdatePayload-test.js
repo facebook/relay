@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
  * @format
@@ -12,23 +10,26 @@
 
 'use strict';
 
-jest.mock('generateClientID').mock('warning');
+jest.mock('../../legacy/store/generateClientID').mock('warning');
 
 require('configureForRelayOSS');
 
-const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
-const Relay = require('Relay');
-const RelayChangeTracker = require('RelayChangeTracker');
-const RelayConnectionInterface = require('RelayConnectionInterface');
-const RelayMutationType = require('RelayMutationType');
-const RelayQueryTracker = require('RelayQueryTracker');
-const RelayQueryWriter = require('RelayQueryWriter');
-const RelayRecordStore = require('RelayRecordStore');
-const RelayRecordWriter = require('RelayRecordWriter');
+const GraphQLMutatorConstants = require('../../legacy/mutation/GraphQLMutatorConstants');
+const RelayClassic = require('RelayClassic');
+const RelayChangeTracker = require('../../store/RelayChangeTracker');
+const RelayMutationType = require('../../mutation/RelayMutationType');
+const RelayQueryTracker = require('../../store/RelayQueryTracker');
+const RelayQueryWriter = require('../../store/RelayQueryWriter');
+const RelayRecordStore = require('../../store/RelayRecordStore');
+const RelayRecordWriter = require('../../store/RelayRecordWriter');
 const RelayTestUtils = require('RelayTestUtils');
 
-const generateClientEdgeID = require('generateClientEdgeID');
-const writeRelayUpdatePayload = require('writeRelayUpdatePayload');
+const generateClientEdgeID = require('../../legacy/store/generateClientEdgeID');
+const writeRelayUpdatePayload = require('../writeRelayUpdatePayload');
+
+const {ConnectionInterface} = require('../../../../relay-runtime/RelayRuntime');
+
+const {CLIENT_MUTATION_ID} = ConnectionInterface.get();
 
 describe('writeRelayUpdatePayload()', () => {
   const {getNode, writePayload} = RelayTestUtils;
@@ -78,7 +79,7 @@ describe('writeRelayUpdatePayload()', () => {
         'mutationID',
       );
       query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query TestQuery {
           node(id:"feedback_id") {
             topLevelComments(first: 1) {
@@ -117,11 +118,11 @@ describe('writeRelayUpdatePayload()', () => {
     it('unspecified optimistic fields does not overwrite existing store data', () => {
       // create the mutation and payload
       const input = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+        [CLIENT_MUTATION_ID]: '0',
         deletedCommentId: commentID,
       };
       const mutation = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         mutation {
           commentDelete(input:$input) {
             feedback {
@@ -144,8 +145,7 @@ describe('writeRelayUpdatePayload()', () => {
       ];
 
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
-          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
+        [CLIENT_MUTATION_ID]: input[CLIENT_MUTATION_ID],
         feedback: {
           id: 'feedback_id',
           topLevelComments: {},
@@ -192,12 +192,11 @@ describe('writeRelayUpdatePayload()', () => {
         },
       ];
       const input = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+        [CLIENT_MUTATION_ID]: '0',
         deletedCommentId: commentID,
       };
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
-          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
+        [CLIENT_MUTATION_ID]: input[CLIENT_MUTATION_ID],
         feedback: {
           id: null, // Malformed response.
           topLevelComments: {},
@@ -247,7 +246,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
 
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"feedback_id") {
             topLevelComments(first: 1) {
@@ -287,11 +286,11 @@ describe('writeRelayUpdatePayload()', () => {
     it('optimistically removes range edges', () => {
       // create the mutation and payload
       const input = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+        [CLIENT_MUTATION_ID]: '0',
         deletedCommentId: commentID,
       };
       const mutation = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         mutation {
           commentDelete(input:$input) {
             deletedCommentId
@@ -316,8 +315,7 @@ describe('writeRelayUpdatePayload()', () => {
       ];
 
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
-          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
+        [CLIENT_MUTATION_ID]: input[CLIENT_MUTATION_ID],
         deletedCommentId: commentID,
         feedback: {
           id: 'feedback_id',
@@ -375,11 +373,11 @@ describe('writeRelayUpdatePayload()', () => {
     it('non-optimistically removes range edges', () => {
       // create the mutation and payload
       const input = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+        [CLIENT_MUTATION_ID]: '0',
         deletedCommentId: commentID,
       };
       const mutation = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         mutation {
           commentDelete(input:$input) {
             deletedCommentId
@@ -404,8 +402,7 @@ describe('writeRelayUpdatePayload()', () => {
       ];
 
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
-          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
+        [CLIENT_MUTATION_ID]: input[CLIENT_MUTATION_ID],
         deletedCommentId: commentID,
         feedback: {
           id: 'feedback_id',
@@ -455,7 +452,7 @@ describe('writeRelayUpdatePayload()', () => {
         store,
         writer,
         getNode(
-          Relay.QL`
+          RelayClassic.QL`
           query {
             viewer {
               actor {
@@ -493,11 +490,11 @@ describe('writeRelayUpdatePayload()', () => {
       const friendEdgeID = generateClientEdgeID(friendConnectionID, '456');
 
       const input = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+        [CLIENT_MUTATION_ID]: '0',
         friendId: '456',
       };
       const mutation = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         mutation {
           unfriend(input: $input) {
             actor {
@@ -525,8 +522,7 @@ describe('writeRelayUpdatePayload()', () => {
       ];
 
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
-          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
+        [CLIENT_MUTATION_ID]: input[CLIENT_MUTATION_ID],
         actor: {
           id: '123',
           __typename: 'User',
@@ -608,7 +604,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
 
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"feedback_id") {
             topLevelComments(first: 3) {
@@ -650,11 +646,11 @@ describe('writeRelayUpdatePayload()', () => {
     it('optimistically deletes requests', () => {
       // create the mutation and payload
       const input = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+        [CLIENT_MUTATION_ID]: '0',
         deletedCommentId: commentIDs,
       };
       const mutation = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         mutation {
           commentDelete(input:$input) {
             deletedCommentId
@@ -679,8 +675,7 @@ describe('writeRelayUpdatePayload()', () => {
       ];
 
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
-          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
+        [CLIENT_MUTATION_ID]: input[CLIENT_MUTATION_ID],
         deletedCommentId: commentIDs,
         feedback: {
           id: 'feedback_id',
@@ -752,11 +747,11 @@ describe('writeRelayUpdatePayload()', () => {
     it('non-optimistically deletes requests', () => {
       // create the mutation and payload
       const input = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+        [CLIENT_MUTATION_ID]: '0',
         deletedCommentId: commentIDs,
       };
       const mutation = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         mutation {
           commentDelete(input:$input) {
             deletedCommentId
@@ -781,8 +776,7 @@ describe('writeRelayUpdatePayload()', () => {
       ];
 
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
-          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
+        [CLIENT_MUTATION_ID]: input[CLIENT_MUTATION_ID],
         deletedCommentId: commentIDs,
         feedback: {
           id: 'feedback_id',
@@ -848,7 +842,7 @@ describe('writeRelayUpdatePayload()', () => {
       firstCommentID,
       secondCommentID,
       firstEdgeID,
-      secondEdgeID; // eslint-disable-line max-len
+      secondEdgeID;
 
     beforeEach(() => {
       const records = {};
@@ -882,7 +876,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
 
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"feedback123") {
             topLevelComments(first: 2) {
@@ -931,11 +925,11 @@ describe('writeRelayUpdatePayload()', () => {
       // create the mutation and payload
       const input = {
         actor_id: 'actor:123',
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+        [CLIENT_MUTATION_ID]: '0',
         deletedCommentId: firstCommentID,
       };
       const mutation = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         mutation {
           commentDelete(input:$input) {
             deletedCommentId
@@ -960,8 +954,7 @@ describe('writeRelayUpdatePayload()', () => {
       ];
 
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
-          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
+        [CLIENT_MUTATION_ID]: input[CLIENT_MUTATION_ID],
         deletedCommentId: firstCommentID,
         feedback: {
           id: feedbackID,
@@ -1029,11 +1022,11 @@ describe('writeRelayUpdatePayload()', () => {
       // create the mutation and payload
       const input = {
         actor_id: 'actor:123',
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+        [CLIENT_MUTATION_ID]: '0',
         deletedCommentId: firstCommentID,
       };
       const mutation = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         mutation {
           commentDelete(input:$input) {
             deletedCommentId
@@ -1058,8 +1051,7 @@ describe('writeRelayUpdatePayload()', () => {
       ];
 
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
-          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
+        [CLIENT_MUTATION_ID]: input[CLIENT_MUTATION_ID],
         deletedCommentId: firstCommentID,
         feedback: {
           id: feedbackID,
@@ -1146,7 +1138,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
 
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           nodes(ids:["request1","request2","request3"]) {
             id
@@ -1168,11 +1160,11 @@ describe('writeRelayUpdatePayload()', () => {
       // create the mutation and payload
       const input = {
         actor_id: 'actor:123',
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+        [CLIENT_MUTATION_ID]: '0',
         deletedRequestIds: [firstRequestID, secondRequestID],
       };
       const mutation = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         mutation {
           applicationRequestDeleteAll(input:$input) {
             deletedRequestIds
@@ -1191,8 +1183,7 @@ describe('writeRelayUpdatePayload()', () => {
       ];
 
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
-          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
+        [CLIENT_MUTATION_ID]: input[CLIENT_MUTATION_ID],
         deletedRequestIds: [firstRequestID, secondRequestID],
       };
 
@@ -1237,11 +1228,11 @@ describe('writeRelayUpdatePayload()', () => {
       // create the mutation and payload
       const input = {
         actor_id: 'actor:123',
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+        [CLIENT_MUTATION_ID]: '0',
         deletedRequestIds: [firstRequestID, secondRequestID],
       };
       const mutation = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         mutation {
           applicationRequestDeleteAll(input:$input) {
             deletedRequestIds
@@ -1260,8 +1251,7 @@ describe('writeRelayUpdatePayload()', () => {
       ];
 
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
-          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
+        [CLIENT_MUTATION_ID]: input[CLIENT_MUTATION_ID],
         deletedRequestIds: [firstRequestID, secondRequestID],
       };
 
@@ -1336,7 +1326,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
 
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"feedback123") {
             topLevelComments(first: 1) {
@@ -1377,11 +1367,11 @@ describe('writeRelayUpdatePayload()', () => {
     it('handles case when created `edge` field is missing in payload', () => {
       const input = {
         actor_id: 'actor:123',
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+        [CLIENT_MUTATION_ID]: '0',
         feedback_id: feedbackID,
       };
       const mutation = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         mutation {
           commentCreate(input:$input) {
             feedback {
@@ -1404,8 +1394,7 @@ describe('writeRelayUpdatePayload()', () => {
         },
       ];
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
-          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
+        [CLIENT_MUTATION_ID]: input[CLIENT_MUTATION_ID],
         feedback: {
           id: feedbackID,
           topLevelComments: {
@@ -1442,7 +1431,7 @@ describe('writeRelayUpdatePayload()', () => {
     it('warns when using null as a rangeBehavior value instead of IGNORE', () => {
       const input = {
         actor_id: 'actor:123',
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+        [CLIENT_MUTATION_ID]: '0',
         feedback_id: feedbackID,
         message: {
           text: 'Hello!',
@@ -1451,7 +1440,7 @@ describe('writeRelayUpdatePayload()', () => {
       };
 
       const mutation = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         mutation {
           commentCreate(input:$input) {
             feedback {
@@ -1491,8 +1480,7 @@ describe('writeRelayUpdatePayload()', () => {
       const nextCursor = 'comment789:cursor';
       const nextNodeID = 'comment789';
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
-          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
+        [CLIENT_MUTATION_ID]: input[CLIENT_MUTATION_ID],
         feedback: {
           id: feedbackID,
           topLevelComments: {
@@ -1537,7 +1525,7 @@ describe('writeRelayUpdatePayload()', () => {
     it('ignores node when rangeBehavior value is IGNORE', () => {
       const input = {
         actor_id: 'actor:123',
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+        [CLIENT_MUTATION_ID]: '0',
         feedback_id: feedbackID,
         message: {
           text: 'Hello!',
@@ -1546,7 +1534,7 @@ describe('writeRelayUpdatePayload()', () => {
       };
 
       const mutation = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         mutation {
           commentCreate(input:$input) {
             feedback {
@@ -1586,8 +1574,7 @@ describe('writeRelayUpdatePayload()', () => {
       const nextCursor = 'comment789:cursor';
       const nextNodeID = 'comment789';
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
-          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
+        [CLIENT_MUTATION_ID]: input[CLIENT_MUTATION_ID],
         feedback: {
           id: feedbackID,
           topLevelComments: {
@@ -1635,7 +1622,7 @@ describe('writeRelayUpdatePayload()', () => {
       // create the mutation and payload
       const input = {
         actor_id: 'actor:123',
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+        [CLIENT_MUTATION_ID]: '0',
         feedback_id: feedbackID,
         message: {
           text: 'Hello!',
@@ -1644,7 +1631,7 @@ describe('writeRelayUpdatePayload()', () => {
       };
 
       const mutation = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         mutation {
           commentCreate(input:$input) {
             feedback {
@@ -1686,8 +1673,7 @@ describe('writeRelayUpdatePayload()', () => {
       const bodyID = 'client:2';
       const nextEdgeID = generateClientEdgeID(connectionID, nextNodeID);
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
-          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
+        [CLIENT_MUTATION_ID]: input[CLIENT_MUTATION_ID],
         feedback: {
           id: feedbackID,
           topLevelComments: {
@@ -1768,7 +1754,7 @@ describe('writeRelayUpdatePayload()', () => {
       // create the mutation and payload
       const input = {
         actor_id: 'actor:123',
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+        [CLIENT_MUTATION_ID]: '0',
         feedback_id: feedbackID,
         message: {
           text: 'Hello!',
@@ -1777,7 +1763,7 @@ describe('writeRelayUpdatePayload()', () => {
       };
 
       const mutation = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         mutation {
           commentCreate(input:$input) {
             feedback {
@@ -1819,8 +1805,7 @@ describe('writeRelayUpdatePayload()', () => {
       const bodyID = 'client:2';
       const nextEdgeID = generateClientEdgeID(connectionID, nextNodeID);
       const payload = {
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]:
-          input[RelayConnectionInterface.CLIENT_MUTATION_ID],
+        [CLIENT_MUTATION_ID]: input[CLIENT_MUTATION_ID],
         feedback: {
           id: feedbackID,
           topLevelComments: {

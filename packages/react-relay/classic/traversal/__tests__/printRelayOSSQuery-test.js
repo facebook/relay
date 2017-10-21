@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
  * @format
@@ -14,15 +12,15 @@
 
 require('configureForRelayOSS');
 
-const QueryBuilder = require('QueryBuilder');
-const Relay = require('Relay');
-const RelayNodeInterface = require('RelayNodeInterface');
-const RelayQuery = require('RelayQuery');
+const QueryBuilder = require('../../query/QueryBuilder');
+const RelayClassic = require('RelayClassic');
+const RelayNodeInterface = require('../../interface/RelayNodeInterface');
+const RelayQuery = require('../../query/RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
-const {graphql, getClassicOperation} = require('RelayGraphQLTag');
-const generateRQLFieldAlias = require('generateRQLFieldAlias');
-const printRelayOSSQuery = require('printRelayOSSQuery');
+const {graphql, getClassicOperation} = require('../../query/RelayGraphQLTag');
+const generateRQLFieldAlias = require('../../query/generateRQLFieldAlias');
+const printRelayOSSQuery = require('../printRelayOSSQuery');
 
 describe('printRelayOSSQuery', () => {
   const {getNode} = RelayTestUtils;
@@ -37,7 +35,7 @@ describe('printRelayOSSQuery', () => {
       const query = getNode(
         getClassicOperation(
           graphql`
-            query printRelayOSSQuery($taskNumber: Int, $id: ID!) {
+            query printRelayOSSQueryTest($taskNumber: Int, $id: ID!) {
               user: node(id: $id) {
                 ... on User {
                   name
@@ -59,7 +57,7 @@ describe('printRelayOSSQuery', () => {
       const taskAlias = generateRQLFieldAlias('task.activeTask.number(2)');
       expect(text).toEqualPrintedQuery(
         `
-        query PrintRelayOSSQuery($number_0: Int!) {
+        query PrintRelayOSSQueryTest($number_0: Int!) {
           ${nodeAlias}: node(id: "842472") {
             id,
             __typename,
@@ -84,7 +82,7 @@ describe('printRelayOSSQuery', () => {
       const query = getNode(
         getClassicOperation(
           graphql`
-            query printRelayOSSQuery($cond: Boolean!) {
+            query printRelayOSSQueryTest($cond: Boolean!) {
               viewer {
                 actor @include(if: $cond) {
                   name
@@ -100,7 +98,7 @@ describe('printRelayOSSQuery', () => {
       const {text, variables} = printRelayOSSQuery(query);
       expect(text).toEqualPrintedQuery(
         `
-        query PrintRelayOSSQuery {
+        query PrintRelayOSSQueryTest {
           __typename
         }
       `,
@@ -112,7 +110,7 @@ describe('printRelayOSSQuery', () => {
       const query = getNode(
         getClassicOperation(
           graphql`
-            query printRelayOSSQuery($cond: Boolean!, $id: ID!) {
+            query printRelayOSSQueryTest($cond: Boolean!, $id: ID!) {
               node(id: $id) {
                 ... on User {
                   name
@@ -137,7 +135,7 @@ describe('printRelayOSSQuery', () => {
       const {text, variables} = printRelayOSSQuery(query);
       expect(text).toEqualPrintedQuery(
         `
-        query PrintRelayOSSQuery {
+        query PrintRelayOSSQueryTest {
           ${nodeAlias}: node(id: "842472") {
             id,
             __typename,
@@ -157,7 +155,7 @@ describe('printRelayOSSQuery', () => {
   describe('roots', () => {
     it('prints a query with no root arguments', () => {
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           me {
             firstName
@@ -218,7 +216,7 @@ describe('printRelayOSSQuery', () => {
 
     it('prints a query with one root argument', () => {
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             name
@@ -245,7 +243,7 @@ describe('printRelayOSSQuery', () => {
 
     it('prints a query with one root numeric argument', () => {
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query FooQuery {
           node(id: 123) {
             name
@@ -273,7 +271,7 @@ describe('printRelayOSSQuery', () => {
 
     it('prints a query with multiple root arguments', () => {
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           usernames(names:["a","b","c"]) {
             firstName
@@ -302,7 +300,7 @@ describe('printRelayOSSQuery', () => {
 
     it('prints a query with multiple numeric arguments', () => {
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query FooQuery {
           nodes(ids: [123, 456]) {
             name
@@ -331,7 +329,7 @@ describe('printRelayOSSQuery', () => {
     it('prints enum call values', () => {
       const enumValue = 'WEB';
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query FooQuery {
           settings(environment: $env) {
             notificationSounds
@@ -360,7 +358,7 @@ describe('printRelayOSSQuery', () => {
     it('prints object call values', () => {
       const objectValue = {query: 'Menlo Park'};
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           checkinSearchQuery(query: $q) {
             query
@@ -389,7 +387,7 @@ describe('printRelayOSSQuery', () => {
 
     it('prints literal object call values', () => {
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           checkinSearchQuery(query: {query: "Menlo Park"}) {
             query
@@ -418,7 +416,7 @@ describe('printRelayOSSQuery', () => {
     it('dedupes enum variables', () => {
       const enumValue = 'WEB';
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query FooQuery {
           defaultSettings {
             env: notifications(environment: $env)
@@ -456,7 +454,7 @@ describe('printRelayOSSQuery', () => {
       const query1 = {query: 'foo'};
       const query2 = {query: 'foo'};
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query FooQuery {
           node(id: "123") {
             ... on User {
@@ -509,9 +507,10 @@ describe('printRelayOSSQuery', () => {
     });
 
     it('creates distinct variables for values of different types', () => {
-      // Relay allows the same variable at both locations, regardless of type:
+      // RelayClassic allows the same variable at both locations, regardless of
+      // type:
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
           query DistinctVars {
             node(id: "123") {
               ... on User {
@@ -587,7 +586,7 @@ describe('printRelayOSSQuery', () => {
 
     it('prints "empty" queries', () => {
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query($cond: Boolean!) {
           viewer {
             actor @include(if: $cond) {
@@ -612,7 +611,7 @@ describe('printRelayOSSQuery', () => {
     });
 
     it('prints queries with "empty" fragment references', () => {
-      const fragment = Relay.QL`
+      const fragment = RelayClassic.QL`
         fragment on Viewer {
           ... on Viewer @include(if: false) {
             actor {
@@ -622,7 +621,7 @@ describe('printRelayOSSQuery', () => {
         }
       `;
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           viewer {
             ${RelayTestUtils.createContainerFragment(fragment)}
@@ -645,7 +644,7 @@ describe('printRelayOSSQuery', () => {
   describe('fragments', () => {
     it('prints fragments', () => {
       const fragment = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Viewer {
           actor {
             id
@@ -669,7 +668,7 @@ describe('printRelayOSSQuery', () => {
 
     it('prints inline fragments', () => {
       const fragment = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Viewer {
           actor {
             id
@@ -711,11 +710,65 @@ describe('printRelayOSSQuery', () => {
       expect(variables).toEqual({});
     });
 
-    it('prints fragments with incrementing names', () => {
-      const fragmentA = Relay.QL`fragment on User { firstName }`;
-      const fragmentB = Relay.QL`fragment on User { lastName }`;
+    it('prints inline fragments without types', () => {
       const fragment = getNode(
-        Relay.QL`
+        RelayClassic.QL`
+        fragment on User {
+          ... {
+            name
+          }
+        }
+      `,
+        {foo: true},
+      );
+      const {text, variables} = printRelayOSSQuery(fragment);
+      expect(text).toEqualPrintedQuery(
+        `
+          fragment PrintRelayOSSQueryRelayQL on User {
+            id,
+            ...F0
+          }
+          fragment F0 on User{
+            name,
+            id
+          }
+        `,
+      );
+      expect(variables).toEqual({});
+    });
+
+    it('prints inline fragments with conditional', () => {
+      const fragment = getNode(
+        RelayClassic.QL`
+          fragment on User {
+            ... @include(if: $cond){
+              name
+            }
+          }
+        `,
+        {cond: true},
+      );
+      const {text, variables} = printRelayOSSQuery(fragment);
+      expect(text).toEqualPrintedQuery(`
+        fragment PrintRelayOSSQueryRelayQL on User {
+          id,
+          ...F0
+        }
+        fragment F0 on User {
+          ... @include(if:true) {
+            name,
+            id
+          }
+        }
+      `);
+      expect(variables).toEqual({});
+    });
+
+    it('prints fragments with incrementing names', () => {
+      const fragmentA = RelayClassic.QL`fragment on User { firstName }`;
+      const fragmentB = RelayClassic.QL`fragment on User { lastName }`;
+      const fragment = getNode(
+        RelayClassic.QL`
         fragment on Node {
           ${fragmentA}
           ${fragmentB}
@@ -745,10 +798,10 @@ describe('printRelayOSSQuery', () => {
     });
 
     it('prints fragments with identical children only once', () => {
-      const fragmentA = Relay.QL`fragment on User { name }`;
-      const fragmentB = Relay.QL`fragment on User { name }`;
+      const fragmentA = RelayClassic.QL`fragment on User { name }`;
+      const fragmentB = RelayClassic.QL`fragment on User { name }`;
       const fragment = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Node {
           ${fragmentA}
           ${fragmentB}
@@ -773,14 +826,14 @@ describe('printRelayOSSQuery', () => {
     });
 
     it('prints fragments with different variables separately', () => {
-      const concreteFragment = Relay.QL`
+      const concreteFragment = RelayClassic.QL`
         fragment on User {
           profilePicture(size: [$width, $height]) {
             uri
           }
         }
       `;
-      const fragment = getNode(Relay.QL`fragment on User { id }`).clone([
+      const fragment = getNode(RelayClassic.QL`fragment on User { id }`).clone([
         getNode(concreteFragment, {width: 32, height: 32}),
         getNode(concreteFragment, {width: 64, height: 64}),
       ]);
@@ -815,13 +868,13 @@ describe('printRelayOSSQuery', () => {
 
     it('prints fragments with different runtime children separately', () => {
       let child;
-      child = Relay.QL`fragment on User { name }`;
-      const fragmentA = Relay.QL`fragment on User { ${child} }`;
-      child = Relay.QL`fragment on User { profilePicture { uri } }`;
-      const fragmentB = Relay.QL`fragment on User { ${child} }`;
+      child = RelayClassic.QL`fragment on User { name }`;
+      const fragmentA = RelayClassic.QL`fragment on User { ${child} }`;
+      child = RelayClassic.QL`fragment on User { profilePicture { uri } }`;
+      const fragmentB = RelayClassic.QL`fragment on User { ${child} }`;
 
       const fragment = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Node {
           ${fragmentA}
           ${fragmentB}
@@ -861,8 +914,8 @@ describe('printRelayOSSQuery', () => {
     });
 
     it('prints fragments with different IDs but identical output once', () => {
-      const concreteFragment = Relay.QL`fragment on User { name }`;
-      const fragment = getNode(Relay.QL`fragment on User { id }`).clone([
+      const concreteFragment = RelayClassic.QL`fragment on User { name }`;
+      const fragment = getNode(RelayClassic.QL`fragment on User { id }`).clone([
         getNode(concreteFragment, {value: 123}),
         getNode(concreteFragment, {value: 456}),
       ]);
@@ -883,7 +936,7 @@ describe('printRelayOSSQuery', () => {
 
     it('omits empty fragments', () => {
       const fragment = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Viewer {
           actor {
             id
@@ -915,7 +968,7 @@ describe('printRelayOSSQuery', () => {
     it('prints a field with one argument', () => {
       const alias = generateRQLFieldAlias('newsFeed.first(10)');
       const fragment = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Viewer {
           newsFeed(first:$first) {
             edges {
@@ -954,7 +1007,7 @@ describe('printRelayOSSQuery', () => {
     it('prints a field with multiple arguments', () => {
       const alias = generateRQLFieldAlias('profilePicture.size(32,64)');
       const fragment = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Actor {
           profilePicture(size:[32, 64]) {
             uri
@@ -980,7 +1033,7 @@ describe('printRelayOSSQuery', () => {
     it('prints a field with multiple variable arguments', () => {
       const alias = generateRQLFieldAlias('profilePicture.size(32,64)');
       const fragment = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Actor {
           profilePicture(size:[$width,$height]) {
             uri
@@ -1009,7 +1062,7 @@ describe('printRelayOSSQuery', () => {
 
     it('prints scalar arguments', () => {
       const fragment = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Actor {
           friends(
             first: $first
@@ -1057,13 +1110,13 @@ describe('printRelayOSSQuery', () => {
 
     it('prints object call values', () => {
       const enumValue = 'WEB';
-      const fragment = Relay.QL`
+      const fragment = RelayClassic.QL`
         fragment on Settings {
           notifications(environment: $env)
         }
       `;
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         query {
           defaultSettings {
             ${fragment}
@@ -1095,9 +1148,9 @@ describe('printRelayOSSQuery', () => {
 
     it('prints inline fragments as references', () => {
       // these fragments have different types and cannot be flattened
-      const nestedFragment = Relay.QL`fragment on User { name }`;
+      const nestedFragment = RelayClassic.QL`fragment on User { name }`;
       const fragment = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Viewer {
           actor {
             id
@@ -1133,7 +1186,7 @@ describe('printRelayOSSQuery', () => {
       foo: 'bar',
     };
     const mutation = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       mutation {
         feedbackLike(input: $input) {
           clientMutationId
@@ -1194,7 +1247,7 @@ describe('printRelayOSSQuery', () => {
       foo: 'bar',
     };
     const subscription = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       subscription {
         feedbackLikeSubscribe(input: $input) {
           clientSubscriptionId
@@ -1253,13 +1306,13 @@ describe('printRelayOSSQuery', () => {
 
   it('prints directives', () => {
     const params = {cond: true};
-    const nestedFragment = Relay.QL`
+    const nestedFragment = RelayClassic.QL`
       fragment on User @include(if: $cond) {
         name @skip(if: $cond)
       }
     `;
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id: 123) @skip(if: true) {
           ${nestedFragment}
@@ -1269,19 +1322,19 @@ describe('printRelayOSSQuery', () => {
       params,
     );
     const {text, variables} = printRelayOSSQuery(query);
-    expect(text).toEqualPrintedQuery(
-      `
-      query PrintRelayOSSQuery($id_0: ID!) {
-        node(id: $id_0) @skip(if: true) {
-          id,
-          __typename,
-          ...F0
-        }
-      }
-      fragment F0 on User @include(if: true) {
-        id
-      }
-    `,
+    expect(text).toBe(
+      `query PrintRelayOSSQuery($id_0:ID!) {
+  node(id:$id_0) @skip(if:true) {
+    id,
+    __typename,
+    ...F0
+  }
+}
+fragment F0 on User {
+  ... @include(if:true) {
+    id
+  }
+}`,
     );
     expect(variables).toEqual({
       id_0: 123,
@@ -1291,7 +1344,7 @@ describe('printRelayOSSQuery', () => {
   it('throws for directives with complex values', () => {
     const params = {data: {foo: 'bar'}};
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id: 123) @include(if: $data) {
           id

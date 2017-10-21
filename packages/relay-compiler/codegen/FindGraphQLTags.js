@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule FindGraphQLTags
  * @flow
@@ -13,15 +11,15 @@
 
 'use strict';
 
-const RelayCompilerCache = require('RelayCompilerCache');
+const RelayCompilerCache = require('../util/RelayCompilerCache');
 
 const babylon = require('babylon');
-const getModuleName = require('getModuleName');
+const getModuleName = require('../util/getModuleName');
 const graphql = require('graphql');
 const path = require('path');
 const util = require('util');
 
-import type {File} from 'RelayCodegenTypes';
+import type {File} from '../graphql-compiler/GraphQLCompilerPublic';
 
 // Attempt to be as inclusive as possible of source text.
 const BABYLON_OPTIONS = {
@@ -92,8 +90,14 @@ function find(
             getSourceTextForLocation(text, property.value.tag.loc),
           );
           const template = getGraphQLText(property.value.quasi);
-          if (tagName === 'graphql' || tagName === 'graphql.experimental') {
-            validateTemplate(template, moduleName, keyName, filePath);
+          if (tagName === 'graphql') {
+            validateTemplate(
+              template,
+              moduleName,
+              keyName,
+              filePath,
+              getSourceLocationOffset(property.value.quasi),
+            );
           }
           result.push({
             tag: tagName,
@@ -116,8 +120,14 @@ function find(
           getSourceTextForLocation(text, fragments.tag.loc),
         );
         const template = getGraphQLText(fragments.quasi);
-        if (tagName === 'graphql' || tagName === 'graphql.experimental') {
-          validateTemplate(template, moduleName, null, filePath);
+        if (tagName === 'graphql') {
+          validateTemplate(
+            template,
+            moduleName,
+            null,
+            filePath,
+            getSourceLocationOffset(fragments.quasi),
+          );
         }
         result.push({
           tag: tagName,
@@ -134,8 +144,14 @@ function find(
       const tagName = getGraphQLTagName(node.tag);
       if (tagName != null) {
         const template = getGraphQLText(node.quasi);
-        if (tagName === 'graphql' || tagName === 'graphql.experimental') {
-          validateTemplate(template, moduleName, null, filePath);
+        if (tagName === 'graphql') {
+          validateTemplate(
+            template,
+            moduleName,
+            null,
+            filePath,
+            getSourceLocationOffset(node.quasi),
+          );
         }
         result.push({
           tag: tagName,
@@ -187,25 +203,29 @@ const IGNORED_KEYS = {
 function getGraphQLTagName(tag) {
   if (tag.type === 'Identifier' && IDENTIFIERS.hasOwnProperty(tag.name)) {
     return tag.name;
-  } else if (
-    tag.type === 'MemberExpression' &&
-    tag.object.type === 'Identifier' &&
-    tag.object.name === 'graphql' &&
-    tag.property.type === 'Identifier' &&
-    tag.property.name === 'experimental'
-  ) {
-    return 'graphql.experimental';
   }
   return null;
 }
 
-function getGraphQLText(quasi) {
+function getTemplateNode(quasi) {
   const quasis = quasi.quasis;
   invariant(
     quasis && quasis.length === 1,
     'FindGraphQLTags: Substitutions are not allowed in graphql tags.',
   );
-  return quasis[0].value.raw;
+  return quasis[0];
+}
+
+function getGraphQLText(quasi) {
+  return getTemplateNode(quasi).value.raw;
+}
+
+function getSourceLocationOffset(quasi) {
+  const loc = getTemplateNode(quasi).loc.start;
+  return {
+    line: loc.line,
+    column: loc.column + 1, // babylon is 0-indexed, graphql expects 1-indexed
+  };
 }
 
 function getSourceTextForLocation(text, loc) {
@@ -218,8 +238,8 @@ function getSourceTextForLocation(text, loc) {
   return lines.join('\n');
 }
 
-function validateTemplate(template, moduleName, keyName, filePath) {
-  const ast = graphql.parse(new graphql.Source(template, filePath));
+function validateTemplate(template, moduleName, keyName, filePath, loc) {
+  const ast = graphql.parse(new graphql.Source(template, filePath, loc));
   ast.definitions.forEach((def: any) => {
     invariant(
       def.name,

@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayContainerUtils
  * @flow
@@ -28,7 +26,9 @@ function isReactComponent(component: mixed): boolean {
   );
 }
 
-function getReactComponent(Component: ReactClass<any>): ?ReactClass<any> {
+function getReactComponent(
+  Component: React$ComponentType<any>,
+): ?React$ComponentType<any> {
   if (isReactComponent(Component)) {
     return (Component: any);
   } else {
@@ -36,7 +36,7 @@ function getReactComponent(Component: ReactClass<any>): ?ReactClass<any> {
   }
 }
 
-function getComponentName(Component: ReactClass<any>): string {
+function getComponentName(Component: React$ComponentType<any>): string {
   let name;
   const ComponentClass = getReactComponent(Component);
   if (ComponentClass) {
@@ -47,10 +47,10 @@ function getComponentName(Component: ReactClass<any>): string {
   } else {
     name = 'ReactElement';
   }
-  return name;
+  return String(name);
 }
 
-function getContainerName(Component: ReactClass<any>): string {
+function getContainerName(Component: React$ComponentType<any>): string {
   return 'Relay(' + getComponentName(Component) + ')';
 }
 

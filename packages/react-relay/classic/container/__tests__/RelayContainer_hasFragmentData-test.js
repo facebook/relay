@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
  * @format
@@ -17,10 +15,10 @@ jest.enableAutomock().mock('warning');
 require('configureForRelayOSS');
 
 const React = require('React');
-const Relay = require('Relay');
-const RelayEnvironment = require('RelayEnvironment');
-const RelayQueryConfig = require('RelayQueryConfig');
-const RelayRecord = require('RelayRecord');
+const RelayClassic = require('RelayClassic');
+const RelayEnvironment = require('../../store/RelayEnvironment');
+const RelayQueryConfig = require('../../query-config/RelayQueryConfig');
+const RelayRecord = require('../../store/RelayRecord');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayContainer', () => {
@@ -47,9 +45,9 @@ describe('RelayContainer', () => {
           return <div />;
         }
       }
-      MockContainer = Relay.createContainer(MockComponent, {
+      MockContainer = RelayClassic.createContainer(MockComponent, {
         fragments: {
-          foo: () => Relay.QL`fragment on Node{id}`,
+          foo: () => RelayClassic.QL`fragment on Node{id}`,
         },
       });
       const RelayTestRenderer = RelayTestUtils.createRenderer();

@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayViewerHandler
  * @flow
@@ -40,7 +38,8 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
   }
   const serverViewer = record.getLinkedRecord(payload.fieldKey);
   if (!serverViewer) {
-    record.setValue(null, payload.handleKey);
+    // If `serverViewer` is null, `viewer` key for `client:root` should already
+    // be null, so no need to `setValue` again.
     return;
   }
   // Server data already has viewer data at `client:root:viewer`, so link the

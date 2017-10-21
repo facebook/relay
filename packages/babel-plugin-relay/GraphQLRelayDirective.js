@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @flow
  * @fullSyntaxTransform
@@ -28,6 +26,9 @@ const SCHEMA_EXTENSION = `directive @relay(
 
   # Marks a fragment as being backed by a GraphQLList.
   plural: Boolean,
+
+  # Marks a fragment spread which should be unmasked if provided false
+  mask: Boolean = true,
 
   # Selectively pass variables down into a fragment. Only used in Classic.
   variables: [String!],

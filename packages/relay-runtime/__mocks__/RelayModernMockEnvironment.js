@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @format
  */
@@ -16,11 +14,15 @@ const RelayMarkSweepStore = require('RelayMarkSweepStore');
 const RelayModernEnvironment = require('RelayModernEnvironment');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 const RelayNetwork = require('RelayNetwork');
-const RelayRecordSourceInspector = require('RelayRecordSourceInspector');
+const RelayObservable = require('RelayObservable');
+const RelayQueryResponseCache = require('RelayQueryResponseCache');
 const RelayTestSchema = require('RelayTestSchema');
 
 const areEqual = require('areEqual');
 const invariant = require('invariant');
+
+const MAX_SIZE = 10;
+const MAX_TTL = 5 * 60 * 1000; // 5 min
 
 function mockInstanceMethod(object, key) {
   object[key] = jest.fn(object[key].bind(object));
@@ -38,6 +40,23 @@ function mockDisposableMethod(object, key) {
   object[key].mockClear = () => {
     mockClear();
     object[key].mock.dispose = null;
+  };
+}
+
+function mockObservableMethod(object, key) {
+  const fn = object[key].bind(object);
+  object[key] = jest.fn((...args) =>
+    fn(...args).do({
+      start: subscription => {
+        object[key].mock.subscriptions.push(subscription);
+      },
+    }),
+  );
+  object[key].mock.subscriptions = [];
+  const mockClear = object[key].mockClear.bind(object[key]);
+  object[key].mockClear = () => {
+    mockClear();
+    object[key].mock.subscriptions = [];
   };
 }
 
@@ -62,8 +81,6 @@ function mockDisposableMethod(object, key) {
  *   by the environment.
  * - `resolve(query, payload: PayloadData): void`: Resolve a query that has been
  *   fetched by the environment.
- * - `storeInspector: RelayRecordSourceInspector`: An instance of a store
- *   inspector that allows introspecting the state of the store at any time.
  */
 function createMockEnvironment(options: {
   schema?: ?GraphQLSchema,
@@ -73,25 +90,68 @@ function createMockEnvironment(options: {
   const handlerProvider = options && options.handlerProvider;
   const source = new RelayInMemoryRecordSource();
   const store = new RelayMarkSweepStore(source);
+  const cache = new RelayQueryResponseCache({
+    size: MAX_SIZE,
+    ttl: MAX_TTL,
+  });
 
   // Mock the network layer
-  let pendingFetches = [];
-  const fetch = (query, variables, cacheConfig) => {
-    let resolve;
-    let reject;
-    const promise = new Promise((_resolve, _reject) => {
-      resolve = _resolve;
-      reject = _reject;
+  let pendingRequests = [];
+  const execute = (operation, variables, cacheConfig) => {
+    const {id, text} = operation;
+    const cacheID = id || text;
+
+    let cachedPayload = null;
+    if (!cacheConfig || !cacheConfig.force) {
+      cachedPayload = cache.get(cacheID, variables);
+    }
+    if (cachedPayload !== null) {
+      return RelayObservable.from(cachedPayload);
+    }
+
+    const request = {operation, variables, cacheConfig};
+    pendingRequests = pendingRequests.concat([request]);
+
+    return new RelayObservable(sink => {
+      request.sink = sink;
+      return () => {
+        pendingRequests = pendingRequests.filter(
+          pending => pending !== request,
+        );
+      };
     });
-    pendingFetches.push({
-      cacheConfig,
-      promise,
-      resolve,
-      reject,
-      query,
-      variables,
-    });
-    return promise;
+  };
+
+  function getRequest(operation) {
+    const request = pendingRequests.find(
+      pending => pending.operation === operation,
+    );
+    invariant(
+      request && request.sink,
+      'MockEnvironment: Cannot respond to `%s`, it has not been requested yet.',
+      operation.name,
+    );
+    return request;
+  }
+
+  function ensureValidPayload(payload) {
+    invariant(
+      typeof payload === 'object' &&
+        payload !== null &&
+        payload.hasOwnProperty('data'),
+      'MockEnvironment(): Expected payload to be an object with a `data` key.',
+    );
+    return payload;
+  }
+
+  const cachePayload = (operation, variables, payload) => {
+    const {id, text} = operation;
+    const cacheID = id || text;
+    cache.set(cacheID, variables, payload);
+  };
+
+  const clearCache = () => {
+    cache.clear();
   };
 
   if (!schema) {
@@ -108,73 +168,42 @@ function createMockEnvironment(options: {
   };
 
   // Helper to determine if a given query/variables pair is pending
-  const isLoading = (query, variables, cacheConfig) => {
-    return pendingFetches.some(
+  const isLoading = (operation, variables, cacheConfig) => {
+    return pendingRequests.some(
       pending =>
-        pending.query === query &&
+        pending.operation === operation &&
         areEqual(pending.variables, variables) &&
-        areEqual(pending.cacheConfig, cacheConfig),
+        areEqual(pending.cacheConfig, cacheConfig || {}),
     );
   };
 
-  // Helpers to reject or resolve the payload for an individual query
-  const reject = (query, error) => {
-    const pendingFetch = pendingFetches.find(
-      pending => pending.query === query,
-    );
-    invariant(
-      pendingFetch,
-      'MockEnvironment#reject(): Cannot reject query `%s`, it has not been fetched yet.',
-      query.name,
-    );
+  // Helpers to reject or resolve the payload for an individual operation.
+  const reject = (operation, error) => {
     if (typeof error === 'string') {
       error = new Error(error);
     }
-    pendingFetches = pendingFetches.filter(pending => pending !== pendingFetch);
-    pendingFetch.reject(error);
-    jest.runOnlyPendingTimers();
-    return new Promise(resolve => {
-      pendingFetch.promise.catch(() => {
-        // setImmediate so all handlers for pendingFetch are called before
-        // tests are run
-        setImmediate(resolve);
-      });
-    });
-  };
-  const resolve = (query, payload) => {
-    invariant(
-      typeof payload === 'object' &&
-        payload !== null &&
-        payload.hasOwnProperty('data'),
-      'MockEnvironment#resolve(): Expected payload to be an object with a `data` key.',
-    );
-    const pendingFetch = pendingFetches.find(
-      pending => pending.query === query,
-    );
-    invariant(
-      pendingFetch,
-      'MockEnvironment#resolve(): Cannot resolve query `%s`, it has not been fetched yet.',
-      query.name,
-    );
-    pendingFetches = pendingFetches.filter(pending => pending !== pendingFetch);
-    pendingFetch.resolve(payload);
-    jest.runOnlyPendingTimers();
-    return new Promise(_resolve => {
-      pendingFetch.promise.then(() => {
-        // setImmediate so all handlers for pendingFetch are called before
-        // tests are run
-        setImmediate(_resolve);
-      });
-    });
+    getRequest(operation).sink.error(error);
   };
 
-  // Initialize a store debugger to help resolve test issues
-  const storeInspector = new RelayRecordSourceInspector(source);
+  const nextValue = (operation, payload) => {
+    getRequest(operation).sink.next({response: ensureValidPayload(payload)});
+  };
+
+  const complete = operation => {
+    getRequest(operation).sink.complete();
+  };
+
+  const resolve = (operation, payload) => {
+    const request = getRequest(operation);
+    request.sink.next(ensureValidPayload(payload));
+    request.sink.complete();
+  };
 
   // Mock instance
   const environment = new RelayModernEnvironment({
+    configName: 'RelayModernMockEnvironment',
     handlerProvider,
-    network: RelayNetwork.create(fetch),
+    network: RelayNetwork.create(execute, execute),
     store,
   });
   // Mock all the functions with their original behavior
@@ -182,25 +211,27 @@ function createMockEnvironment(options: {
   mockInstanceMethod(environment, 'commitPayload');
   mockInstanceMethod(environment, 'getStore');
   mockInstanceMethod(environment, 'lookup');
-  mockDisposableMethod(environment, 'retain');
-  mockDisposableMethod(environment, 'sendMutation');
-  mockDisposableMethod(environment, 'sendQuery');
-  mockDisposableMethod(environment, 'streamQuery');
   mockDisposableMethod(environment, 'subscribe');
+  mockDisposableMethod(environment, 'retain');
+  mockObservableMethod(environment, 'execute');
+  mockObservableMethod(environment, 'executeMutation');
+
   mockInstanceMethod(store, 'getSource');
   mockInstanceMethod(store, 'lookup');
   mockInstanceMethod(store, 'notify');
   mockInstanceMethod(store, 'publish');
-  mockInstanceMethod(store, 'resolve');
   mockDisposableMethod(store, 'retain');
   mockDisposableMethod(store, 'subscribe');
 
   environment.mock = {
+    cachePayload,
+    clearCache,
     compile,
     isLoading,
     reject,
     resolve,
-    storeInspector,
+    nextValue,
+    complete,
   };
 
   environment.mockClear = () => {
@@ -208,21 +239,21 @@ function createMockEnvironment(options: {
     environment.commitPayload.mockClear();
     environment.getStore.mockClear();
     environment.lookup.mockClear();
-    environment.retain.mockClear();
-    environment.sendMutation.mockClear();
-    environment.sendQuery.mockClear();
-    environment.streamQuery.mockClear();
     environment.subscribe.mockClear();
+    environment.retain.mockClear();
+    environment.execute.mockClear();
+    environment.executeMutation.mockClear();
 
     store.getSource.mockClear();
     store.lookup.mockClear();
     store.notify.mockClear();
     store.publish.mockClear();
-    store.resolve.mockClear();
     store.retain.mockClear();
     store.subscribe.mockClear();
 
-    pendingFetches.length = 0;
+    cache.clear();
+
+    pendingRequests = [];
   };
 
   return environment;

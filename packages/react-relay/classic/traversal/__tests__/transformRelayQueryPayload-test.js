@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
  * @format
@@ -12,23 +10,21 @@
 
 'use strict';
 
-jest.enableAutomock();
-
 require('configureForRelayOSS');
 
-const Relay = require('Relay');
-const RelayQuery = require('RelayQuery');
+const RelayClassic = require('RelayClassic');
+const RelayQuery = require('../../query/RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
-const generateRQLFieldAlias = require('generateRQLFieldAlias');
-const transformRelayQueryPayload = require('transformRelayQueryPayload');
+const generateRQLFieldAlias = require('../../query/generateRQLFieldAlias');
+const transformRelayQueryPayload = require('../transformRelayQueryPayload');
 
 describe('transformClientPayload()', () => {
   const {getNode} = RelayTestUtils;
 
   it('transforms singular root payloads', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         node(id: "123") {
           friends(first: 1) {
@@ -90,7 +86,7 @@ describe('transformClientPayload()', () => {
 
   it('transforms plural root payloads of arrays', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         nodes(ids: ["123", "456"]) {
           ... on User {
@@ -134,7 +130,7 @@ describe('transformClientPayload()', () => {
 
   it('transforms plural root payloads of objects (OSS)', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         nodes(ids: ["123", "456"]) {
           ... on User {
@@ -182,7 +178,7 @@ describe('transformClientPayload()', () => {
 
   it('transforms plural root payloads of objects (FB)', () => {
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         nodes(ids: ["123", "456"]) {
           ... on User {
@@ -231,7 +227,9 @@ describe('transformClientPayload()', () => {
   it('uses the query interface to construct keys', () => {
     const queryInterface = {
       getKeyForClientData: jest.fn(field =>
-        Array.from(field.getApplicationName()).reverse().join(''),
+        Array.from(field.getApplicationName())
+          .reverse()
+          .join(''),
       ),
       traverseChildren: jest.fn((node, callback, context) =>
         node
@@ -241,7 +239,7 @@ describe('transformClientPayload()', () => {
       ),
     };
     const query = getNode(
-      Relay.QL`
+      RelayClassic.QL`
       query {
         me {
           id

@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayOperationSelector
  * @flow
@@ -13,16 +11,16 @@
 
 'use strict';
 
-const QueryBuilder = require('QueryBuilder');
+const QueryBuilder = require('../query/QueryBuilder');
 
 const invariant = require('invariant');
 
-const {ROOT_ID} = require('RelayStoreConstants');
-const {getOperationVariables} = require('RelayVariables');
+const {getOperationVariables} = require('../query/RelayVariables');
+const {ROOT_ID} = require('../store/RelayStoreConstants');
 
-import type {ConcreteOperationDefinition} from 'ConcreteQuery';
-import type {OperationSelector} from 'RelayEnvironmentTypes';
-import type {Variables} from 'RelayTypes';
+import type {ConcreteOperationDefinition} from '../query/ConcreteQuery';
+import type {Variables} from '../tools/RelayTypes';
+import type {OperationSelector} from './RelayEnvironmentTypes';
 
 /**
  * @public

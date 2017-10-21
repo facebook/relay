@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
  * @format
@@ -17,19 +15,19 @@ jest.useFakeTimers();
 
 require('configureForRelayOSS');
 
-const GraphQLRange = require('GraphQLRange');
-const Relay = require('Relay');
-const RelayChangeTracker = require('RelayChangeTracker');
-const RelayGarbageCollector = require('RelayGarbageCollector');
-const RelayQueryPath = require('RelayQueryPath');
-const RelayRecordStore = require('RelayRecordStore');
+const GraphQLRange = require('../../legacy/store/GraphQLRange');
+const RelayClassic = require('RelayClassic');
+const RelayChangeTracker = require('../RelayChangeTracker');
+const RelayGarbageCollector = require('../RelayGarbageCollector');
+const RelayQueryPath = require('../../query/RelayQueryPath');
+const RelayRecordStore = require('../RelayRecordStore');
 const RelayTestUtils = require('RelayTestUtils');
 
 const invariant = require('invariant');
 const {
   restoreFragmentDataFromCache,
   restoreQueriesDataFromCache,
-} = require('restoreRelayCacheData');
+} = require('../restoreRelayCacheData');
 
 describe('restoreRelayCacheData', () => {
   const {getNode} = RelayTestUtils;
@@ -137,7 +135,7 @@ describe('restoreRelayCacheData', () => {
     it('reads disk for custom root call', () => {
       const queries = {
         q0: getNode(
-          Relay.QL`
+          RelayClassic.QL`
           query {username(name:"yuzhi") {id}}
         `,
         ),
@@ -152,7 +150,7 @@ describe('restoreRelayCacheData', () => {
     it('does not read disk for node root call', () => {
       const queries = {
         q0: getNode(
-          Relay.QL`
+          RelayClassic.QL`
           query {node(id:"1055790163") {id}}
         `,
         ),
@@ -165,7 +163,7 @@ describe('restoreRelayCacheData', () => {
     it('calls `onFailure` when custom root call is not on disk', () => {
       const queries = {
         q0: getNode(
-          Relay.QL`
+          RelayClassic.QL`
           query {username(name:"yuzhi") {id}}
         `,
         ),
@@ -186,7 +184,7 @@ describe('restoreRelayCacheData', () => {
     it('calls `onSuccess` when custom root call is on disk ', () => {
       const queries = {
         q0: getNode(
-          Relay.QL`
+          RelayClassic.QL`
           query {username(name:"yuzhi") {id}}
         `,
         ),
@@ -234,7 +232,7 @@ describe('restoreRelayCacheData', () => {
     it('calls `onSuccess` when custom root call is in store ', () => {
       const queries = {
         q0: getNode(
-          Relay.QL`
+          RelayClassic.QL`
           query {username(name:"yuzhi") {id}}
         `,
         ),
@@ -272,7 +270,7 @@ describe('restoreRelayCacheData', () => {
     it('calls `onSuccess` when custom root call is in cached store ', () => {
       const queries = {
         q0: getNode(
-          Relay.QL`
+          RelayClassic.QL`
           query {username(name:"yuzhi") {id}}
         `,
         ),
@@ -310,7 +308,7 @@ describe('restoreRelayCacheData', () => {
     it('calls `onFailure` when node is not on disk', () => {
       const queries = {
         q0: getNode(
-          Relay.QL`
+          RelayClassic.QL`
           query {node(id:"1055790163") {id}}
         `,
         ),
@@ -329,7 +327,7 @@ describe('restoreRelayCacheData', () => {
     it('calls `onFailure` when a field is not on disk', () => {
       const queries = {
         q0: getNode(
-          Relay.QL`
+          RelayClassic.QL`
           query {node(id:"1055790163") {id, name}}
         `,
         ),
@@ -376,7 +374,7 @@ describe('restoreRelayCacheData', () => {
     it('calls `onFailure` when a nested node is not on disk', () => {
       const queries = {
         q0: getNode(
-          Relay.QL`
+          RelayClassic.QL`
           query {node(id:"1055790163") {id, hometown {name}}}
         `,
         ),
@@ -431,7 +429,7 @@ describe('restoreRelayCacheData', () => {
     it('calls `onFailure` when one of the plural nodes is not on disk', () => {
       const queries = {
         q0: getNode(
-          Relay.QL`
+          RelayClassic.QL`
           query {node(id:"1055790163") {id, screennames {service}}}
         `,
         ),
@@ -497,7 +495,7 @@ describe('restoreRelayCacheData', () => {
     it('calls `onFailure` when range field is not on disk', () => {
       const queries = {
         q0: getNode(
-          Relay.QL`
+          RelayClassic.QL`
           query {
             node(id:"1055790163") {
               friends(first: 5) {
@@ -571,7 +569,7 @@ describe('restoreRelayCacheData', () => {
     it('calls `onFailure` when range on disk has diff calls', () => {
       const queries = {
         q0: getNode(
-          Relay.QL`
+          RelayClassic.QL`
           query {
             node(id:"1055790163") {
               friends(first: 5) {
@@ -651,7 +649,7 @@ describe('restoreRelayCacheData', () => {
     it('calls `onFailure` when edge node is not on disk', () => {
       const queries = {
         q0: getNode(
-          Relay.QL`
+          RelayClassic.QL`
           query {
             node(id:"1055790163") {
               friends(first: 5) {
@@ -738,7 +736,7 @@ describe('restoreRelayCacheData', () => {
     it('calls `onSuccess` when connection is on disk', () => {
       const queries = {
         q0: getNode(
-          Relay.QL`
+          RelayClassic.QL`
           query {
             node(id:"1055790163") {
               friends(first: 5) {
@@ -876,7 +874,7 @@ describe('restoreRelayCacheData', () => {
     it('marks records as updated when more fields are read from cache', () => {
       const queries = {
         q0: getNode(
-          Relay.QL`
+          RelayClassic.QL`
           query {
             node(id:"1055790163") {
               id
@@ -940,7 +938,7 @@ describe('restoreRelayCacheData', () => {
     it('marks records as created if they are null in the cache', () => {
       const queries = {
         q0: getNode(
-          Relay.QL`
+          RelayClassic.QL`
           query {
             node(id:"1055790163") {
               id
@@ -997,7 +995,7 @@ describe('restoreRelayCacheData', () => {
     it('does not mark deleted records as updated', () => {
       const queries = {
         q0: getNode(
-          Relay.QL`
+          RelayClassic.QL`
           query {
             node(id:"1055790163") {
               id
@@ -1056,7 +1054,7 @@ describe('restoreRelayCacheData', () => {
       RelayGarbageCollector.prototype.register = jest.fn();
       const queries = {
         q0: getNode(
-          Relay.QL`
+          RelayClassic.QL`
           query {
             node(id: "123") {
               id
@@ -1093,7 +1091,7 @@ describe('restoreRelayCacheData', () => {
   describe('restoreFragmentDataFromCache', () => {
     it('calls `onFailure` when node is not in disk', () => {
       const fragment = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Node {
           id
           name
@@ -1102,7 +1100,7 @@ describe('restoreRelayCacheData', () => {
       );
       const path = RelayQueryPath.create(
         getNode(
-          Relay.QL`
+          RelayClassic.QL`
         query {
           node(id: "1055790163") {id}
         }
@@ -1135,7 +1133,7 @@ describe('restoreRelayCacheData', () => {
 
     it('calls `onFailure` when a field is not on disk', () => {
       const fragment = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Node {
           id
           name
@@ -1144,7 +1142,7 @@ describe('restoreRelayCacheData', () => {
       );
       const path = RelayQueryPath.create(
         getNode(
-          Relay.QL`
+          RelayClassic.QL`
         query {
           node(id: "1055790163") {id}
         }
@@ -1188,7 +1186,7 @@ describe('restoreRelayCacheData', () => {
 
     it('calls `onSuccess` when node is in disk', () => {
       const fragment = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Node {
           id
           name
@@ -1197,7 +1195,7 @@ describe('restoreRelayCacheData', () => {
       );
       const path = RelayQueryPath.create(
         getNode(
-          Relay.QL`
+          RelayClassic.QL`
         query {
           node(id: "1055790163") {id}
         }
@@ -1242,7 +1240,7 @@ describe('restoreRelayCacheData', () => {
 
     it('calls `onSuccess` when node is in cached store', () => {
       const fragment = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Node {
           id
           name
@@ -1251,7 +1249,7 @@ describe('restoreRelayCacheData', () => {
       );
       const path = RelayQueryPath.create(
         getNode(
-          Relay.QL`
+          RelayClassic.QL`
         query {
           node(id: "1055790163") {id}
         }
@@ -1293,7 +1291,7 @@ describe('restoreRelayCacheData', () => {
 
     it('calls `onSuccess` when node is in store', () => {
       const fragment = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Node {
           id
           name
@@ -1302,7 +1300,7 @@ describe('restoreRelayCacheData', () => {
       );
       const path = RelayQueryPath.create(
         getNode(
-          Relay.QL`
+          RelayClassic.QL`
         query {
           node(id: "1055790163") {id}
         }
@@ -1346,7 +1344,7 @@ describe('restoreRelayCacheData', () => {
   describe('abort', () => {
     it('does not call `onSuccess` if aborted', () => {
       const fragment = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Node {
           id
           name
@@ -1355,7 +1353,7 @@ describe('restoreRelayCacheData', () => {
       );
       const path = RelayQueryPath.create(
         getNode(
-          Relay.QL`
+          RelayClassic.QL`
         query {
           node(id: "1055790163") {id}
         }
@@ -1389,7 +1387,7 @@ describe('restoreRelayCacheData', () => {
 
     it('does not `onFailure` if aborted', () => {
       const fragment = getNode(
-        Relay.QL`
+        RelayClassic.QL`
         fragment on Node {
           id
           name
@@ -1398,7 +1396,7 @@ describe('restoreRelayCacheData', () => {
       );
       const path = RelayQueryPath.create(
         getNode(
-          Relay.QL`
+          RelayClassic.QL`
         query {
           node(id: "1055790163") {id}
         }

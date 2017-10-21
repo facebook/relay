@@ -1,12 +1,11 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
+ * @jest-environment jsdom
  * @format
  */
 
@@ -17,14 +16,14 @@ jest.mock('warning');
 
 require('configureForRelayOSS');
 
-const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-const QueryBuilder = require('QueryBuilder');
+const GraphQLStoreQueryResolver = require('../../legacy/store/GraphQLStoreQueryResolver');
+const QueryBuilder = require('../../query/QueryBuilder');
 const React = require('React');
 const ReactDOM = require('ReactDOM');
-const Relay = require('Relay');
-const RelayEnvironment = require('RelayEnvironment');
-const RelayMetaRoute = require('RelayMetaRoute');
-const RelayQuery = require('RelayQuery');
+const RelayClassic = require('RelayClassic');
+const RelayEnvironment = require('../../store/RelayEnvironment');
+const RelayMetaRoute = require('../../route/RelayMetaRoute');
+const RelayQuery = require('../../query/RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayContainer.setVariables', function() {
@@ -44,7 +43,7 @@ describe('RelayContainer.setVariables', function() {
   beforeEach(function() {
     jest.resetModules();
 
-    const fragment = Relay.QL`fragment on Node{url(site:$site)}`;
+    const fragment = RelayClassic.QL`fragment on Node{url(site:$site)}`;
     entityQuery = jest.fn(() => fragment);
     render = jest.fn(() => <div />);
     prepareVariables = jest.fn((variables, route) => variables);
@@ -53,7 +52,7 @@ describe('RelayContainer.setVariables', function() {
     MockComponent = class extends React.Component {
       render = render;
     };
-    const createContainer = Relay.createContainer;
+    const createContainer = RelayClassic.createContainer;
     MockContainer = createContainer(MockComponent, {
       fragments: {
         entity: entityQuery,
@@ -110,13 +109,13 @@ describe('RelayContainer.setVariables', function() {
         ];
       });
       const pluralEntityQuery = jest.fn(
-        () => Relay.QL`
+        () => RelayClassic.QL`
           fragment on Node @relay(plural:true) {
             url(site: $site)
           }
         `,
       );
-      MockContainer = Relay.createContainer(MockComponent, {
+      MockContainer = RelayClassic.createContainer(MockComponent, {
         fragments: {
           entity: pluralEntityQuery,
         },
@@ -249,8 +248,9 @@ describe('RelayContainer.setVariables', function() {
 
     it('lets props override default variables', () => {
       const anotherInstance = RelayTestUtils.createRenderer().render(
-        genMockPointer =>
-          <MockContainer entity={genMockPointer('42')} site="www" />,
+        genMockPointer => (
+          <MockContainer entity={genMockPointer('42')} site="www" />
+        ),
         environment,
       );
       expect(anotherInstance.state.relayProp.variables.site).toBe('www');
@@ -491,14 +491,14 @@ describe('RelayContainer.setVariables', function() {
 
     beforeEach(() => {
       entityQuery = jest.fn(
-        () => Relay.QL`fragment on Node{profilePicture(size:$size)}`,
+        () => RelayClassic.QL`fragment on Node{profilePicture(size:$size)}`,
       );
 
       // Make RQLTransform ignore this call.
       MockComponent = class extends React.Component {
         render = render;
       };
-      const createContainer = Relay.createContainer;
+      const createContainer = RelayClassic.createContainer;
       MockContainer = createContainer(MockComponent, {
         fragments: {
           entity: entityQuery,
@@ -526,8 +526,9 @@ describe('RelayContainer.setVariables', function() {
         resolvedVariables = resolved.getVariables();
       });
       mockInstance = renderer.render(
-        genMockPointer =>
-          <MockContainer entity={genMockPointer('42')} size="medium" />,
+        genMockPointer => (
+          <MockContainer entity={genMockPointer('42')} size="medium" />
+        ),
         environment,
       );
       // prepareVariables output used as props.relay.variables
@@ -552,8 +553,9 @@ describe('RelayContainer.setVariables', function() {
         };
       });
       mockInstance = renderer.render(
-        genMockPointer =>
-          <MockContainer entity={genMockPointer('42')} size="medium" />,
+        genMockPointer => (
+          <MockContainer entity={genMockPointer('42')} size="medium" />
+        ),
         environment,
       );
       // update with new size
@@ -562,8 +564,9 @@ describe('RelayContainer.setVariables', function() {
         resolvedVariables = resolved.getVariables();
       });
       mockInstance = renderer.render(
-        genMockPointer =>
-          <MockContainer entity={genMockPointer('42')} size="thumbnail" />,
+        genMockPointer => (
+          <MockContainer entity={genMockPointer('42')} size="thumbnail" />
+        ),
         environment,
       );
       // prepareVariables output used as props.relay.variables
@@ -686,12 +689,15 @@ describe('RelayContainer.setVariables', function() {
         }
       }
 
-      const MockInnerContainer = Relay.createContainer(MockInnerComponent, {
-        fragments: {
-          entity: () => Relay.QL`fragment on Node{url(site:$site)}`,
+      const MockInnerContainer = RelayClassic.createContainer(
+        MockInnerComponent,
+        {
+          fragments: {
+            entity: () => RelayClassic.QL`fragment on Node{url(site:$site)}`,
+          },
+          initialVariables: {site: undefined},
         },
-        initialVariables: {site: undefined},
-      });
+      );
 
       class MockWrapperComponent extends React.Component {
         render() {
@@ -705,9 +711,9 @@ describe('RelayContainer.setVariables', function() {
         }
       }
 
-      MockContainer = Relay.createContainer(MockWrapperComponent, {
+      MockContainer = RelayClassic.createContainer(MockWrapperComponent, {
         fragments: {
-          entity: variables => Relay.QL`  fragment on Node{
+          entity: variables => RelayClassic.QL`  fragment on Node{
             ${MockInnerContainer.getFragment('entity', {site: variables.site})}
           }`,
         },
@@ -736,20 +742,23 @@ describe('RelayContainer.setVariables', function() {
         }
       }
 
-      const MockInnerContainer = Relay.createContainer(MockInnerComponent, {
-        fragments: {
-          entity: () => Relay.QL`  fragment on Actor {
+      const MockInnerContainer = RelayClassic.createContainer(
+        MockInnerComponent,
+        {
+          fragments: {
+            entity: () => RelayClassic.QL`  fragment on Actor {
                         url(site:$site)
                         profilePicture(size:$size) {
                           uri
                         }
                       }`,
+          },
+          initialVariables: {
+            site: undefined,
+            size: 48,
+          },
         },
-        initialVariables: {
-          site: undefined,
-          size: 48,
-        },
-      });
+      );
 
       class MockWrapperComponent extends React.Component {
         render() {
@@ -763,9 +772,9 @@ describe('RelayContainer.setVariables', function() {
         }
       }
 
-      MockContainer = Relay.createContainer(MockWrapperComponent, {
+      MockContainer = RelayClassic.createContainer(MockWrapperComponent, {
         fragments: {
-          entity: variables => Relay.QL`  fragment on Actor {
+          entity: variables => RelayClassic.QL`  fragment on Actor {
             ${MockInnerContainer.getFragment('entity', {site: variables.site})}
           }`,
         },
@@ -808,9 +817,11 @@ describe('RelayContainer.setVariables', function() {
         }
       }
 
-      const MockInnerContainer = Relay.createContainer(MockInnerComponent, {
-        fragments: {
-          entity: () => Relay.QL`fragment on User {
+      const MockInnerContainer = RelayClassic.createContainer(
+        MockInnerComponent,
+        {
+          fragments: {
+            entity: () => RelayClassic.QL`fragment on User {
             url(site: $site)
             storySearch(query: $query) {
               id
@@ -819,13 +830,14 @@ describe('RelayContainer.setVariables', function() {
               uri
             }
           }`,
+          },
+          initialVariables: {
+            site: 'mobile',
+            query: undefined, // <-- Object type
+            size: undefined, // <-- Array type
+          },
         },
-        initialVariables: {
-          site: 'mobile',
-          query: undefined, // <-- Object type
-          size: undefined, // <-- Array type
-        },
-      });
+      );
 
       class MockWrapperComponent extends React.Component {
         render() {
@@ -840,26 +852,30 @@ describe('RelayContainer.setVariables', function() {
         }
       }
 
-      const MockWrapperContainer = Relay.createContainer(MockWrapperComponent, {
-        fragments: {
-          entity: variables => Relay.QL`fragment on User {
+      const MockWrapperContainer = RelayClassic.createContainer(
+        MockWrapperComponent,
+        {
+          fragments: {
+            entity: variables => RelayClassic.QL`fragment on User {
             ${MockInnerContainer.getFragment('entity', {
               query: variables.query,
               size: variables.size,
             })}
           }`,
+          },
+          initialVariables: {
+            query: {text: 'recent'},
+            size: [32, 64],
+          },
         },
-        initialVariables: {
-          query: {text: 'recent'},
-          size: [32, 64],
-        },
-      });
+      );
 
       const mockWrapperInstance = RelayTestUtils.createRenderer(
         domContainer,
       ).render(
-        genMockPointer =>
-          <MockWrapperContainer entity={genMockPointer('42')} />,
+        genMockPointer => (
+          <MockWrapperContainer entity={genMockPointer('42')} />
+        ),
         environment,
       );
       const innerComponent = mockWrapperInstance.refs.component.refs.inner;

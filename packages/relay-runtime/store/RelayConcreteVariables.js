@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @flow
  * @providesModule RelayConcreteVariables
@@ -42,13 +40,14 @@ function getFragmentVariables(
         variables[definition.name] = definition.defaultValue;
         break;
       case 'RootArgument':
-        invariant(
-          rootVariables.hasOwnProperty(definition.name),
-          'RelayConcreteVariables: Expected a defined query variable for `$%s` ' +
-            'in fragment `%s`.',
-          definition.name,
-          fragment.name,
-        );
+        if (!rootVariables.hasOwnProperty(definition.name)) {
+          /*
+           * A temporary fix to mute false alarm in cases where the root argument is stripped
+           * off by the compiler due to a conditional directive, we do not need this argument
+           * when tryiny to read the data from the store.
+           */
+          break;
+        }
         variables[definition.name] = rootVariables[definition.name];
         break;
       default:

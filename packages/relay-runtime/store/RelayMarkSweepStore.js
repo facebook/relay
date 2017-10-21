@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayMarkSweepStore
  * @flow
@@ -13,7 +11,7 @@
 
 'use strict';
 
-const RelayAsyncLoader = require('RelayAsyncLoader');
+const RelayDataLoader = require('RelayDataLoader');
 const RelayModernRecord = require('RelayModernRecord');
 const RelayProfiler = require('RelayProfiler');
 const RelayReader = require('RelayReader');
@@ -28,7 +26,6 @@ const {UNPUBLISH_RECORD_SENTINEL} = require('RelayStoreUtils');
 
 import type {Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {
-  AsyncLoadCallback,
   MutableRecordSource,
   RecordSource,
   Selector,
@@ -86,10 +83,11 @@ class RelayMarkSweepStore implements Store {
   }
 
   check(selector: Selector): boolean {
-    return RelayAsyncLoader.check(
+    return RelayDataLoader.check(
       this._recordSource,
       this._recordSource,
       selector,
+      [],
     );
   }
 
@@ -122,14 +120,6 @@ class RelayMarkSweepStore implements Store {
     updateTargetFromSource(this._recordSource, source, this._updatedRecordIDs);
   }
 
-  resolve(
-    target: MutableRecordSource,
-    selector: Selector,
-    callback: AsyncLoadCallback,
-  ): void {
-    RelayAsyncLoader.load(this._recordSource, target, selector, callback);
-  }
-
   subscribe(
     snapshot: Snapshot,
     callback: (snapshot: Snapshot) => void,
@@ -140,6 +130,11 @@ class RelayMarkSweepStore implements Store {
     };
     this._subscriptions.add(subscription);
     return {dispose};
+  }
+
+  // Internal API
+  __getUpdatedRecordIDs(): UpdatedRecords {
+    return this._updatedRecordIDs;
   }
 
   _updateSubscription(subscription: Subscription): void {

@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayQueryPath
  * @flow
@@ -13,19 +11,19 @@
 
 'use strict';
 
-const RelayClassicRecordState = require('RelayClassicRecordState');
-const RelayNodeInterface = require('RelayNodeInterface');
-const RelayQuery = require('RelayQuery');
-const RelayRecord = require('RelayRecord');
+const RelayClassicRecordState = require('../store/RelayClassicRecordState');
+const RelayNodeInterface = require('../interface/RelayNodeInterface');
+const RelayQuery = require('./RelayQuery');
+const RelayRecord = require('../store/RelayRecord');
 
-const forEachRootCallArg = require('forEachRootCallArg');
+const forEachRootCallArg = require('./forEachRootCallArg');
 const invariant = require('invariant');
 const warning = require('warning');
 
-const {EDGES} = require('RelayConnectionInterface');
+const {ConnectionInterface} = require('RelayRuntime');
 
-import type {DataID} from 'RelayInternalTypes';
-import type RelayRecordStore from 'RelayRecordStore';
+import type RelayRecordStore from '../store/RelayRecordStore';
+import type {DataID} from '../tools/RelayInternalTypes';
 
 const {ID, ID_TYPE, NODE, NODE_TYPE, TYPENAME} = RelayNodeInterface;
 
@@ -185,6 +183,8 @@ const RelayQueryPath = {
   ): RelayQuery.Root {
     let child = appendNode;
     let prevField;
+    const {EDGES} = ConnectionInterface.get();
+
     while (path.type === 'client') {
       const node = path.node;
       if (node instanceof RelayQuery.Field) {

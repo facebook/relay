@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule QueryBuilder
  * @flow
@@ -13,9 +11,9 @@
 
 'use strict';
 
-const RelayNodeInterface = require('RelayNodeInterface');
+const RelayNodeInterface = require('../interface/RelayNodeInterface');
 
-const generateConcreteFragmentID = require('generateConcreteFragmentID');
+const generateConcreteFragmentID = require('./generateConcreteFragmentID');
 const warning = require('warning');
 
 import type {
@@ -40,7 +38,7 @@ import type {
   ConcreteSelection,
   ConcreteSubscription,
   ConcreteValue,
-} from 'ConcreteQuery';
+} from './ConcreteQuery';
 
 const EMPTY_CALLS: Array<ConcreteCall> = [];
 const EMPTY_CHILDREN: Array<?ConcreteSelection> = [];

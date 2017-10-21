@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayGraphQLMutation
  * @flow
@@ -13,28 +11,28 @@
 
 'use strict';
 
-const QueryBuilder = require('QueryBuilder');
-const RelayMetaRoute = require('RelayMetaRoute');
-const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
-const RelayQuery = require('RelayQuery');
+const QueryBuilder = require('../query/QueryBuilder');
+const RelayMetaRoute = require('../route/RelayMetaRoute');
+const RelayMutationTransactionStatus = require('./RelayMutationTransactionStatus');
+const RelayQuery = require('../query/RelayQuery');
 
 const invariant = require('invariant');
 
-const {CLIENT_MUTATION_ID} = require('RelayConnectionInterface');
+const {ConnectionInterface} = require('RelayRuntime');
 
-import type {RelayEnvironmentInterface} from 'RelayEnvironment';
-import type {ClientMutationID} from 'RelayInternalTypes';
-import type {FileMap} from 'RelayMutation';
-import type RelayMutationTransaction from 'RelayMutationTransaction';
-import type {RelayConcreteNode} from 'RelayQL';
-import type RelayStoreData from 'RelayStoreData';
+import type {RelayConcreteNode} from '../query/RelayQL';
+import type {RelayEnvironmentInterface} from '../store/RelayEnvironment';
+import type RelayStoreData from '../store/RelayStoreData';
+import type {ClientMutationID} from '../tools/RelayInternalTypes';
 import type {
   RelayMutationConfig,
   RelayMutationTransactionCommitFailureCallback,
   RelayMutationTransactionCommitSuccessCallback,
   Variables,
-} from 'RelayTypes';
-import type {RelayMutationTransactionCommitCallbacks} from 'RelayTypes';
+} from '../tools/RelayTypes';
+import type {RelayMutationTransactionCommitCallbacks} from '../tools/RelayTypes';
+import type {FileMap} from './RelayMutation';
+import type RelayMutationTransaction from './RelayMutationTransaction';
 
 const COUNTER_PREFIX = 'RelayGraphQLMutation';
 let collisionIDCounter = 0;
@@ -329,7 +327,7 @@ class PendingGraphQLTransaction {
   getOptimisticResponse(): ?Object {
     return {
       ...this._optimisticResponse,
-      [CLIENT_MUTATION_ID]: this.id,
+      [ConnectionInterface.get().CLIENT_MUTATION_ID]: this.id,
     };
   }
 
@@ -382,7 +380,7 @@ class PendingGraphQLTransaction {
       ...this._variables,
       input: {
         ...(input: $FlowFixMe),
-        [CLIENT_MUTATION_ID]: this.id,
+        [ConnectionInterface.get().CLIENT_MUTATION_ID]: this.id,
       },
     };
   }

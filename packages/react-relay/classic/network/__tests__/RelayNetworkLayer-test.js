@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
  * @format
@@ -12,17 +10,15 @@
 
 'use strict';
 
-jest.enableAutomock();
-
 require('configureForRelayOSS');
 
 jest.useFakeTimers();
-jest.unmock('RelayNetworkLayer');
+jest.unmock('../RelayNetworkLayer');
 
 const Deferred = require('Deferred');
-const RelayNetworkLayer = require('RelayNetworkLayer');
-const RelayQuery = require('RelayQuery');
-const RelayQueryRequest = require('RelayQueryRequest');
+const RelayNetworkLayer = require('../RelayNetworkLayer');
+const RelayQuery = require('../../query/RelayQuery');
+const RelayQueryRequest = require('../RelayQueryRequest');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayNetworkLayer', () => {
@@ -32,8 +28,8 @@ describe('RelayNetworkLayer', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    const RelayQuery = jest.genMockFromModule('RelayQuery');
-    jest.setMock('RelayQuery', RelayQuery);
+    const RelayQuery = jest.genMockFromModule('../../query/RelayQuery');
+    jest.setMock('../../query/RelayQuery', RelayQuery);
     jest.mock('warning');
 
     injectedNetworkLayer = {

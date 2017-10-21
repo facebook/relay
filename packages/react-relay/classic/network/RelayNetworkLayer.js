@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayNetworkLayer
  * @flow
@@ -13,17 +11,18 @@
 
 'use strict';
 
-const RelayProfiler = require('RelayProfiler');
-const RelayQueryRequest = require('RelayQueryRequest');
+const RelayQueryRequest = require('./RelayQueryRequest');
 
 const invariant = require('invariant');
 const resolveImmediate = require('resolveImmediate');
-const throwFailedPromise = require('throwFailedPromise');
+const throwFailedPromise = require('../util/throwFailedPromise');
 const warning = require('warning');
 
-import type RelayMutationRequest from 'RelayMutationRequest';
-import type RelayQuery from 'RelayQuery';
-import type {ChangeSubscription, NetworkLayer} from 'RelayTypes';
+const {RelayProfiler} = require('RelayRuntime');
+
+import type RelayQuery from '../query/RelayQuery';
+import type {ChangeSubscription, NetworkLayer} from '../tools/RelayTypes';
+import type RelayMutationRequest from './RelayMutationRequest';
 
 type Subscriber = {
   queryCallback: ?QueryCallback,
@@ -173,10 +172,6 @@ function profileQueue(currentQueue: Array<RelayQueryRequest>): void {
         firstResultProfiler = null;
       }
     };
-    /* $FlowFixMe(site=react_native_fb,oss) - Flow now prevents you from calling a
-     * function with more arguments than it expects. This comment suppresses an
-     * error that was noticed when we made this change. Delete this comment to
-     * see the error. */
     query.done(onSettle, onSettle);
   });
 }

@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayCacheProcessor
  * @flow
@@ -13,17 +11,17 @@
 
 'use strict';
 
-const RelayQuery = require('RelayQuery');
-const RelayQueryVisitor = require('RelayQueryVisitor');
+const RelayQuery = require('../query/RelayQuery');
+const RelayQueryVisitor = require('../query/RelayQueryVisitor');
 
-const forEachRootCallArg = require('forEachRootCallArg');
+const forEachRootCallArg = require('../query/forEachRootCallArg');
 const invariant = require('invariant');
 const isEmpty = require('isEmpty');
 const warning = require('warning');
 
-import type {DataID} from 'RelayInternalTypes';
-import type {Record} from 'RelayRecord';
-import type {CacheManager, CacheProcessorCallbacks} from 'RelayTypes';
+import type {DataID} from '../tools/RelayInternalTypes';
+import type {CacheManager, CacheProcessorCallbacks} from '../tools/RelayTypes';
+import type {Record} from './RelayRecord';
 
 type ProcessorState = 'PENDING' | 'LOADING' | 'COMPLETED';
 

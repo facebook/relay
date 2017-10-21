@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule ForceRelayClassicContext
  * @flow
@@ -14,11 +12,14 @@
 'use strict';
 
 const React = require('React');
-const RelayPropTypes = require('RelayPropTypes');
-const RelayRoute = require('RelayRoute');
-const RelayStore = require('RelayStore');
+const RelayPropTypes = require('../../classic/container/RelayPropTypes');
+const RelayRoute = require('../../classic/route/RelayRoute');
+const RelayStore = require('../../classic/store/RelayStore');
 
 // Dummy Route
+/* $FlowFixMe(>=0.54.0) This comment suppresses an error
+ * found when Flow v0.54 was deployed. To see the error delete this comment and
+ * run Flow. */
 class QueryConfig extends RelayRoute {}
 QueryConfig.routeName = 'ForceRelayClassicContextRoute';
 QueryConfig.queries = {};
@@ -28,7 +29,7 @@ QueryConfig.queries = {};
  * should only be used as a wrapper around RelayContainers that have not been
  * converted to one of the compatibility container and are not fetching data.
  */
-class ForceRelayClassicContext extends React.Component {
+class ForceRelayClassicContext extends React.Component<$FlowFixMeProps> {
   static childContextTypes = {
     relay: RelayPropTypes.ClassicRelay,
     route: RelayPropTypes.QueryConfig.isRequired,
@@ -43,7 +44,7 @@ class ForceRelayClassicContext extends React.Component {
       route: new QueryConfig(),
     };
   }
-  render(): ?React.Element<*> {
+  render(): React.Node {
     return this.props.children;
   }
 }

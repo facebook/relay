@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule RelayTestRenderer
  * @format
@@ -13,16 +11,15 @@
 'use strict';
 
 const React = require('React');
-const RelayPropTypes = require('RelayPropTypes');
+const RelayPropTypes = require('../../classic/container/RelayPropTypes');
 
 const invariant = require('invariant');
 
-import type {ConcreteBatch} from 'RelayConcreteNode';
-import type {Environment, Snapshot} from 'RelayStoreTypes';
-import type {Variables} from 'RelayTypes';
+import type {Variables} from '../../classic/tools/RelayTypes';
+import type {ConcreteBatch, StoreEnvironment, Snapshot} from 'RelayRuntime';
 
 type Props = {
-  environment: Environment,
+  environment: StoreEnvironment,
   query: ConcreteBatch,
   variables: Variables,
   children: React.Component,
@@ -42,7 +39,7 @@ class RelayTestRenderer extends React.Component {
       'Expected child of `RelayTestContainer` to be a React element',
     );
 
-    let {query, environment, variables} = props;
+    const {query, environment, variables} = props;
 
     const {
       createOperationSelector,

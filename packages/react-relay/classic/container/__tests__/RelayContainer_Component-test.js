@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
  * @format
@@ -16,10 +14,10 @@ jest.enableAutomock().mock('warning');
 
 require('configureForRelayOSS');
 
-const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+const GraphQLStoreQueryResolver = require('../../legacy/store/GraphQLStoreQueryResolver');
 const React = require('React');
-const Relay = require('Relay');
-const RelayEnvironment = require('RelayEnvironment');
+const RelayClassic = require('RelayClassic');
+const RelayEnvironment = require('../../store/RelayEnvironment');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayContainer', function() {
@@ -38,10 +36,12 @@ describe('RelayContainer', function() {
     };
 
     mockCreateContainer = component => {
-      MockContainer = Relay.createContainer(component, {
+      MockContainer = RelayClassic.createContainer(component, {
         initialVariables: {site: 'mobile'},
         fragments: {
-          foo: jest.fn(() => Relay.QL`fragment on Node{id,url(site:$site)}`),
+          foo: jest.fn(
+            () => RelayClassic.QL`fragment on Node{id,url(site:$site)}`,
+          ),
         },
       });
     };
@@ -73,7 +73,7 @@ describe('RelayContainer', function() {
     expect(instance.refs.component instanceof MockComponent).toBe(true);
   });
 
-  it('provides Relay statics', () => {
+  it('provides RelayClassic statics', () => {
     // The correct implementation of these is asserted in other tests. This
     // test merely checks if the public API exists.
     expect(typeof MockContainer.getFragmentNames).toEqual('function');

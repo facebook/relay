@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule createClassicNode
  * @flow
@@ -16,12 +14,12 @@
 const GraphQL = require('graphql');
 
 const compileRelayQLTag = require('./compileRelayQLTag');
+const getClassicTransformer = require('./getClassicTransformer');
 const getFragmentNameParts = require('./getFragmentNameParts');
 const invariant = require('./invariant');
 
-import typeof BabelTypes from 'babel-types';
-
 import type {BabelState} from './BabelPluginRelay';
+import typeof BabelTypes from 'babel-types';
 import type {DefinitionNode} from 'graphql';
 
 /**
@@ -136,34 +134,64 @@ function createClassicAST(t, definition) {
       const fragmentName = node.name.value;
       let fragmentArgumentsAST = null;
       let substitutionName = null;
+      let isMasked = true;
 
       if (directives.length === 0) {
         substitutionName = fragmentName;
       } else {
-        // TODO: add support for @include and other directives.
+        // TODO: maybe add support when unmasked fragment has arguments.
         const directive = directives[0];
-        if (directives.length !== 1 || directive.name.value !== 'arguments') {
-          throw new Error(
-            'BabelPluginRelay: Unsupported directive `' +
-              directive.name.value +
-              '` on fragment spread `...' +
-              fragmentName +
-              '`.',
-          );
+        invariant(
+          directives.length === 1,
+          'BabelPluginRelay: Cannot use both `@arguments` and `@relay(mask: false)` on the ' +
+            'same fragment spread when in compat mode.',
+        );
+        switch (directive.name.value) {
+          case 'arguments':
+            const fragmentArgumentsObject = {};
+            directive.arguments.forEach(argNode => {
+              const argValue = argNode.value;
+              if (argValue.kind === 'Variable') {
+                variables[argValue.name.value] = null;
+              }
+              const arg = convertArgument(t, argNode);
+              fragmentArgumentsObject[arg.name] = arg.ast;
+            });
+            fragmentArgumentsAST = createObject(t, fragmentArgumentsObject);
+            fragmentID++;
+            substitutionName = fragmentName + '_args' + fragmentID;
+            break;
+          case 'relay':
+            const relayArguments = directive.arguments;
+            invariant(
+              relayArguments.length === 1 &&
+                relayArguments[0].name.value === 'mask',
+              'BabelPluginRelay: Expected `@relay` directive to only have `mask` argument in ' +
+                'compat mode, but get %s',
+              relayArguments[0].name.value,
+            );
+            substitutionName = fragmentName;
+            isMasked = relayArguments[0].value.value !== false;
+            break;
+          default:
+            throw new Error(
+              'BabelPluginRelay: Unsupported directive `' +
+                directive.name.value +
+                '` on fragment spread `...' +
+                fragmentName +
+                '`.',
+            );
         }
-        const fragmentArgumentsObject = {};
-        directive.arguments.forEach(argNode => {
-          const arg = convertArgument(t, argNode);
-          fragmentArgumentsObject[arg.name] = arg.ast;
-        });
-        fragmentArgumentsAST = createObject(t, fragmentArgumentsObject);
-        fragmentID++;
-        substitutionName = fragmentName + '_args' + fragmentID;
       }
 
+      invariant(
+        substitutionName,
+        'BabelPluginRelay: Expected `substitutionName` to be non-null',
+      );
       fragments[substitutionName] = {
         name: fragmentName,
         args: fragmentArgumentsAST,
+        isMasked,
       };
       return Object.assign({}, node, {
         name: {kind: 'Name', value: substitutionName},
@@ -218,8 +246,9 @@ function createOperationArguments(t, variableDefinitions) {
 function createFragmentArguments(t, argumentDefinitions, variables) {
   const concreteDefinitions = [];
   Object.keys(variables).forEach(name => {
-    const definition = (argumentDefinitions || [])
-      .find(arg => arg.name.value === name);
+    const definition = (argumentDefinitions || []).find(
+      arg => arg.name.value === name,
+    );
     if (definition) {
       const defaultValueField = definition.value.fields.find(
         field => field.name.value === 'defaultValue',
@@ -295,17 +324,44 @@ function createObject(t, obj: any) {
   );
 }
 
+function getSchemaOption(state) {
+  const schema = state.opts && state.opts.schema;
+  invariant(
+    schema,
+    'babel-plugin-relay: Missing schema option. ' +
+      'Check your .babelrc file or wherever you configure your Babel ' +
+      'plugins to ensure the "relay" plugin has a "schema" option.\n' +
+      'https://facebook.github.io/relay/docs/babel-plugin-relay.html#additional-options',
+  );
+  return schema;
+}
+
 function createFragmentForOperation(t, path, operation, state) {
   let type;
+  const schema = getSchemaOption(state);
+  const fileOpts = (state.file && state.file.opts) || {};
+  const transformer = getClassicTransformer(schema, state.opts || {}, fileOpts);
   switch (operation.operation) {
     case 'query':
-      type = 'Query';
+      const queryType = transformer.schema.getQueryType();
+      if (!queryType) {
+        throw new Error('Schema does not contain a root query type.');
+      }
+      type = queryType.name;
       break;
     case 'mutation':
-      type = 'Mutation';
+      const mutationType = transformer.schema.getMutationType();
+      if (!mutationType) {
+        throw new Error('Schema does not contain a root mutation type.');
+      }
+      type = mutationType.name;
       break;
     case 'subscription':
-      type = 'Subscription';
+      const subscriptionType = transformer.schema.getSubscriptionType();
+      if (!subscriptionType) {
+        throw new Error('Schema does not contain a root subscription type.');
+      }
+      type = subscriptionType.name;
       break;
     default:
       throw new Error(
@@ -335,14 +391,7 @@ function createFragmentForOperation(t, path, operation, state) {
 }
 
 function createRelayQLTemplate(t, path, node, state) {
-  const schema = state.opts && state.opts.schema;
-  invariant(
-    schema,
-    'babel-plugin-relay: Missing schema option. ' +
-      'Check your .babelrc file or wherever you configure your Babel ' +
-      'plugins to ensure the "relay" plugin has a "schema" option.\n' +
-      'https://facebook.github.io/relay/docs/babel-plugin-relay.html#additional-options',
-  );
+  const schema = getSchemaOption(state);
   const [documentName, propName] = getFragmentNameParts(node.name.value);
   const text = GraphQL.print(node);
   const quasi = t.templateLiteral(
@@ -371,10 +420,43 @@ function createSubstitutionsForFragmentSpreads(t, path, fragments) {
   return Object.keys(fragments).map(varName => {
     const fragment = fragments[varName];
     const [module, propName] = getFragmentNameParts(fragment.name);
-    return t.variableDeclarator(
-      t.identifier(varName),
-      createGetFragmentCall(t, path, module, propName, fragment.args),
-    );
+    if (!fragment.isMasked) {
+      invariant(
+        path.scope.hasBinding(module) || path.scope.hasBinding(propName),
+        `BabelPluginRelay: Please make sure module '${module}' is imported and not renamed or the
+        fragment '${fragment.name}' is defined and bound to local variable '${propName}'. `,
+      );
+      const fragmentProp = path.scope.hasBinding(propName)
+        ? t.memberExpression(t.identifier(propName), t.identifier(propName))
+        : t.logicalExpression(
+            '||',
+            t.memberExpression(
+              t.memberExpression(t.identifier(module), t.identifier(propName)),
+              t.identifier(propName),
+            ),
+            t.memberExpression(t.identifier(module), t.identifier(propName)),
+          );
+
+      return t.variableDeclarator(
+        t.identifier(varName),
+        t.memberExpression(
+          t.callExpression(
+            t.memberExpression(
+              t.identifier(RELAY_QL_GENERATED),
+              t.identifier('__getClassicFragment'),
+            ),
+            [fragmentProp, t.booleanLiteral(true)],
+          ),
+          // Hack to extract 'ConcreteFragment' from 'ConcreteFragmentDefinition'
+          t.identifier('node'),
+        ),
+      );
+    } else {
+      return t.variableDeclarator(
+        t.identifier(varName),
+        createGetFragmentCall(t, path, module, propName, fragment.args),
+      );
+    }
   });
 }
 

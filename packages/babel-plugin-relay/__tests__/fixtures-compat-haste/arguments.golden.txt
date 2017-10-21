@@ -30,7 +30,10 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
       });
       return {
         kind: 'FragmentDefinition',
-        argumentDefinitions: [],
+        argumentDefinitions: [{
+          kind: 'RootArgument',
+          name: 'pictureSize'
+        }],
         node: function () {
           return {
             children: [].concat.apply([], [{

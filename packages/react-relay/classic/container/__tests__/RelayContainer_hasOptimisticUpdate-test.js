@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
  * @format
@@ -18,10 +16,10 @@ require('configureForRelayOSS');
 
 jest.unmock('RelayContainer');
 
-const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+const GraphQLStoreQueryResolver = require('../../legacy/store/GraphQLStoreQueryResolver');
 const React = require('React');
-const Relay = require('Relay');
-const RelayEnvironment = require('RelayEnvironment');
+const RelayClassic = require('RelayClassic');
+const RelayEnvironment = require('../../store/RelayEnvironment');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayContainer.hasOptimisticUpdate', () => {
@@ -37,8 +35,8 @@ describe('RelayContainer.hasOptimisticUpdate', () => {
         return <div />;
       }
     }
-    MockContainer = Relay.createContainer(MockComponent, {
-      fragments: {foo: () => Relay.QL`fragment on Node{id}`},
+    MockContainer = RelayClassic.createContainer(MockComponent, {
+      fragments: {foo: () => RelayClassic.QL`fragment on Node{id}`},
     });
     environment = new RelayEnvironment();
     RelayTestRenderer = RelayTestUtils.createRenderer();
@@ -79,7 +77,10 @@ describe('RelayContainer.hasOptimisticUpdate', () => {
   });
 
   it('is false for non-queued records', () => {
-    environment.getStoreData().getRecordWriter().putRecord('123', 'Type');
+    environment
+      .getStoreData()
+      .getRecordWriter()
+      .putRecord('123', 'Type');
 
     const instance = RelayTestRenderer.render(
       genMockPointer => <MockContainer foo={genMockPointer('123')} />,

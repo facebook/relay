@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @format
  * @emails oncall+relay
@@ -15,9 +13,9 @@
 const commitRelayModernMutation = require('commitRelayModernMutation');
 
 const {commitMutation} = require('ReactRelayPublic');
+const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {createOperationSelector} = require('RelayModernOperationSelector');
 const {generateAndCompile} = require('RelayModernTestUtils');
-const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {ROOT_ID} = require('RelayStoreUtils');
 
 describe('Configs: NODE_DELETE', () => {
@@ -27,20 +25,20 @@ describe('Configs: NODE_DELETE', () => {
     const environment = createMockEnvironment();
     const store = environment.getStore();
     const mutation = generateAndCompile(`
-			mutation CommentDeleteMutation(
-				$input: CommentDeleteInput
-			) {
-				commentDelete(input: $input) {
-					deletedCommentId
-					feedback {
-						id
-						topLevelComments {
-							count
-						}
-					}
-				}
-			}
-		`).CommentDeleteMutation;
+      mutation CommentDeleteMutation(
+        $input: CommentDeleteInput
+      ) {
+        commentDelete(input: $input) {
+          deletedCommentId
+          feedback {
+            id
+            topLevelComments {
+              count
+            }
+          }
+        }
+      }
+    `).CommentDeleteMutation;
     const feedbackID = 'feedback123';
     const firstCommentID = 'comment456';
     const secondCommentID = 'comment789';
@@ -51,21 +49,21 @@ describe('Configs: NODE_DELETE', () => {
       },
     };
     const {FeedbackCommentQuery} = generateAndCompile(`
-			query FeedbackCommentQuery {
-					node(id: "feedback123") {
-						...on Feedback {
-							topLevelComments(first: 2) {
-								count
-								edges {
-									node {
-										id
-									}
-								}
-							}
-						}
-					}
-				}
-			`);
+      query FeedbackCommentQuery {
+        node(id: "feedback123") {
+          ...on Feedback {
+            topLevelComments(first: 2) {
+              count
+              edges {
+                node {
+                  id
+                }
+              }
+            }
+          }
+        }
+      }
+    `);
     const payload = {
       node: {
         __typename: 'Feedback',
@@ -128,9 +126,8 @@ describe('Configs: NODE_DELETE', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
-    const sendMutation =
-      environment.sendMutation.mock.calls[0][0].operation.node;
-    environment.mock.resolve(sendMutation, {
+    const node = environment.executeMutation.mock.calls[0][0].operation.node;
+    environment.mock.resolve(node, {
       data: {
         commentDelete: {
           deletedCommentId: firstCommentID,
@@ -161,20 +158,20 @@ describe('Configs: RANGE_DELETE', () => {
 
   it('handles configs properly', () => {
     const mutation = generateAndCompile(`
-		mutation CommentDeleteMutation(
-			$input: CommentDeleteInput
-		) {
-			commentDelete(input: $input) {
-				clientMutationId
-				deletedCommentId
-				feedback {
-					comments {
-						count
-					}
-				}
-			}
-		}
-	`).CommentDeleteMutation;
+      mutation CommentDeleteMutation(
+        $input: CommentDeleteInput
+      ) {
+        commentDelete(input: $input) {
+          clientMutationId
+          deletedCommentId
+          feedback {
+            comments {
+              count
+            }
+          }
+        }
+      }
+    `).CommentDeleteMutation;
     const commentID = 'comment123';
     const variables = {
       input: {
@@ -205,24 +202,24 @@ describe('Configs: RANGE_DELETE', () => {
       },
     ];
     ({FeedbackCommentQuery} = generateAndCompile(`
-		query FeedbackCommentQuery {
-				node(id: "123") {
-					...on Feedback {
-						comments(first: 10) @connection(
-							key: "Feedback_comments"
-						) {
-							edges {
-								node {
-									body {
-										text
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		`));
+      query FeedbackCommentQuery {
+        node(id: "123") {
+          ...on Feedback {
+            comments(first: 10) @connection(
+              key: "Feedback_comments"
+            ) {
+              edges {
+                node {
+                  body {
+                    text
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    `));
     const payload = {
       node: {
         __typename: 'Feedback',
@@ -273,9 +270,8 @@ describe('Configs: RANGE_DELETE', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
-    const sendMutation =
-      environment.sendMutation.mock.calls[0][0].operation.node;
-    environment.mock.resolve(sendMutation, {
+    const node = environment.executeMutation.mock.calls[0][0].operation.node;
+    environment.mock.resolve(node, {
       data: {
         commentDelete: {
           clientMutationId: '0',
@@ -299,19 +295,19 @@ describe('Configs: RANGE_DELETE', () => {
     const optimisticUpdater = jest.fn();
     const updater = jest.fn();
     const mutation = generateAndCompile(`
-			mutation UnfriendMutation(
-				$input: UnfriendInput
-			) {
-				unfriend(input: $input) {
-					actor {
-						id
-					}
-					formerFriend {
-						id
-					}
-				}
-			}
-		`).UnfriendMutation;
+      mutation UnfriendMutation(
+        $input: UnfriendInput
+      ) {
+        unfriend(input: $input) {
+          actor {
+            id
+          }
+          formerFriend {
+            id
+          }
+        }
+      }
+    `).UnfriendMutation;
     const configs = [
       {
         type: 'RANGE_DELETE',
@@ -332,23 +328,23 @@ describe('Configs: RANGE_DELETE', () => {
     store = environment.getStore();
 
     const {FriendQuery} = generateAndCompile(`
-		query FriendQuery {
-			viewer {
-				actor {
-					...on User {
-						friends(first: 1) @connection(
-							key: "Friends_friends") {
-							edges {
-								node {
-									id
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		`);
+      query FriendQuery {
+        viewer {
+          actor {
+            ...on User {
+              friends(first: 1) @connection(
+                key: "Friends_friends") {
+                  edges {
+                    node {
+                      id
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      `);
     const payload = {
       viewer: {
         actor: {
@@ -400,9 +396,8 @@ describe('Configs: RANGE_DELETE', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
-    const sendMutation =
-      environment.sendMutation.mock.calls[0][0].operation.node;
-    environment.mock.resolve(sendMutation, {
+    const node = environment.executeMutation.mock.calls[0][0].operation.node;
+    environment.mock.resolve(node, {
       data: {
         unfriend: {
           clientMutationId: '0',
@@ -448,12 +443,6 @@ describe('Configs: RANGE_ADD', () => {
   const nextNodeID = 'comment789';
   const optimisticResponse = {
     commentCreate: {
-      feedback: {
-        id: feedbackID,
-        topLevelComments: {
-          count: 2,
-        },
-      },
       feedbackCommentEdge: {
         __typename: 'CommentsEdge',
         cursor: nextCursor,
@@ -474,51 +463,43 @@ describe('Configs: RANGE_ADD', () => {
     store = environment.getStore();
 
     mutation = generateAndCompile(`
-		mutation CommentCreateMutation(
-			$input: CommentCreateInput 
-		) {
-			commentCreate(input: $input) {
-				feedback {
-					id
-					topLevelComments {
-						count
-					}
-				}
-				feedbackCommentEdge {
-					cursor
-					node {
-						id
-						body {
-							text
-						}
-					}
-				}
-			}
-		}`).CommentCreateMutation;
+      mutation CommentCreateMutation(
+        $input: CommentCreateInput
+      ) {
+        commentCreate(input: $input) {
+          feedbackCommentEdge {
+            cursor
+            node {
+              id
+              body {
+                text
+              }
+            }
+          }
+        }
+    }`).CommentCreateMutation;
 
     ({CommentQuery} = generateAndCompile(`
-		query CommentQuery {
-			node(id:"feedback123") {
-				...on Feedback {
-					topLevelComments(first: 1) @connection(
-						key: Feedback_topLevelComments
-					) {
-						count
-						edges {
-							node {
-								id
-							}
-						}
-					}
-				}
-			}
-		}`));
+      query CommentQuery {
+        node(id:"feedback123") {
+          ...on Feedback {
+            topLevelComments(first: 1) @connection(
+              key: Feedback_topLevelComments
+            ) {
+              edges {
+                node {
+                  id
+                }
+              }
+            }
+          }
+        }
+      }`));
     payload = {
       node: {
         id: feedbackID,
         __typename: 'Feedback',
         topLevelComments: {
-          count: 1,
           edges: [
             {
               cursor: commentID + ':cursor',
@@ -536,12 +517,6 @@ describe('Configs: RANGE_ADD', () => {
     data = {
       data: {
         commentCreate: {
-          feedback: {
-            id: feedbackID,
-            topLevelComments: {
-              count: 2,
-            },
-          },
           feedbackCommentEdge: {
             __typename: 'CommentsEdge',
             cursor: nextCursor,
@@ -557,7 +532,7 @@ describe('Configs: RANGE_ADD', () => {
     };
   });
 
-  it('appends edges', () => {
+  it('appends new edge', () => {
     const configs = [
       {
         type: 'RANGE_ADD',
@@ -592,16 +567,182 @@ describe('Configs: RANGE_ADD', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
-    const sendMutation =
-      environment.sendMutation.mock.calls[0][0].operation.node;
-    environment.mock.resolve(sendMutation, data);
+    const node = environment.executeMutation.mock.calls[0][0].operation.node;
+    environment.mock.resolve(node, data);
     jest.runAllTimers();
     // Does not need to fire again since server data should be the same
     expect(updater).toBeCalled();
     expect(callback.mock.calls.length).toBe(0);
   });
 
-  it('prepends edges', () => {
+  it('does not overwrite previous edge when appended multiple times', () => {
+    const configs = [
+      {
+        type: 'RANGE_ADD',
+        connectionName: 'topLevelComments',
+        connectionInfo: [
+          {
+            key: 'Feedback_topLevelComments',
+            rangeBehavior: 'append',
+          },
+        ],
+        parentID: 'feedback123',
+        edgeName: 'feedbackCommentEdge',
+      },
+    ];
+    // prepare existing data
+    const operationSelector = createOperationSelector(CommentQuery, {});
+    environment.commitPayload(operationSelector, {
+      node: {
+        id: feedbackID,
+        __typename: 'Feedback',
+        topLevelComments: {
+          count: 1,
+          edges: [
+            {
+              cursor: 'comment1:cursor',
+              node: {
+                id: 'comment1',
+              },
+            },
+          ],
+        },
+      },
+    });
+    // send mutation
+    commitMutation(environment, {
+      configs,
+      mutation,
+      variables,
+    });
+
+    let serverResponse = {
+      data: {
+        commentCreate: {
+          feedbackCommentEdge: {
+            __typename: 'CommentsEdge',
+            cursor: 'comment2:cursor',
+            node: {
+              id: 'comment2',
+              // these are extra fields which should be stripped off before appending
+              // to the connection.
+              body: {
+                text: variables.input.message.text,
+              },
+            },
+          },
+        },
+      },
+    };
+    const node = environment.executeMutation.mock.calls[0][0].operation.node;
+    environment.mock.resolve(node, serverResponse);
+    jest.runAllTimers();
+
+    let snapshot = store.lookup({
+      dataID: ROOT_ID,
+      node: CommentQuery.fragment,
+      variables: {},
+    });
+    expect(snapshot.data).toEqual({
+      node: {
+        topLevelComments: {
+          edges: [
+            {
+              cursor: 'comment1:cursor',
+              node: {
+                __typename: 'Comment',
+                id: 'comment1',
+              },
+            },
+            {
+              cursor: 'comment2:cursor',
+              node: {
+                __typename: 'Comment',
+                id: 'comment2',
+              },
+            },
+          ],
+          // The following fields are not quite related. Though not explicted requested in the query,
+          // Relay now automatically adds the page info.
+          pageInfo: {
+            endCursor: null,
+            hasNextPage: false,
+          },
+        },
+      },
+    });
+
+    serverResponse = {
+      data: {
+        commentCreate: {
+          feedbackCommentEdge: {
+            __typename: 'CommentsEdge',
+            cursor: 'comment3:cursor',
+            node: {
+              id: 'comment3',
+              // these are extra fields which should be stripped off before appending
+              // to the connection.
+              body: {
+                text: variables.input.message.text,
+              },
+            },
+          },
+        },
+      },
+    };
+    // send the same mutation again
+    commitMutation(environment, {
+      configs,
+      mutation,
+      variables,
+    });
+    environment.mock.resolve(node, serverResponse);
+    jest.runAllTimers();
+
+    snapshot = store.lookup({
+      dataID: ROOT_ID,
+      node: CommentQuery.fragment,
+      variables: {},
+    });
+
+    expect(snapshot.data).toEqual({
+      node: {
+        topLevelComments: {
+          edges: [
+            {
+              cursor: 'comment1:cursor',
+              node: {
+                __typename: 'Comment',
+                id: 'comment1',
+              },
+            },
+            {
+              cursor: 'comment2:cursor',
+              node: {
+                __typename: 'Comment',
+                id: 'comment2',
+              },
+            },
+            {
+              cursor: 'comment3:cursor',
+              node: {
+                __typename: 'Comment',
+                id: 'comment3',
+              },
+            },
+          ],
+          // The following fields are not quite related. Though not explicted requested in the query,
+          // Relay now automatically adds the page info.
+          pageInfo: {
+            endCursor: null,
+            hasNextPage: false,
+          },
+        },
+      },
+    });
+  });
+
+  it('prepends new edge', () => {
     const configs = [
       {
         type: 'RANGE_ADD',
@@ -636,9 +777,8 @@ describe('Configs: RANGE_ADD', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
-    const sendMutation =
-      environment.sendMutation.mock.calls[0][0].operation.node;
-    environment.mock.resolve(sendMutation, data);
+    const node = environment.executeMutation.mock.calls[0][0].operation.node;
+    environment.mock.resolve(node, data);
     jest.runAllTimers();
     // Does not need to fire again since server data should be the same
     expect(updater).toBeCalled();
@@ -662,22 +802,22 @@ describe('Configs: RANGE_ADD', () => {
       },
     ];
     ({CommentQuery} = generateAndCompile(`
-		query CommentQuery {
-			node(id:"feedback123") {
-				...on Feedback {
-					topLevelComments(orderBy: "chronological", first: 1) @connection(
-						key: Feedback_topLevelComments
-					) {
-						count
-						edges {
-							node {
-								id
-							}
-						}
-					}
-				}
-			}
-		}`));
+      query CommentQuery {
+        node(id:"feedback123") {
+          ...on Feedback {
+            topLevelComments(orderBy: "chronological", first: 1) @connection(
+              key: Feedback_topLevelComments
+            ) {
+              count
+              edges {
+                node {
+                  id
+                }
+              }
+            }
+          }
+        }
+      }`));
     const operationSelector = createOperationSelector(CommentQuery, {});
     environment.commitPayload(operationSelector, payload);
     const snapshot = store.lookup({
@@ -698,9 +838,8 @@ describe('Configs: RANGE_ADD', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
-    const sendMutation =
-      environment.sendMutation.mock.calls[0][0].operation.node;
-    environment.mock.resolve(sendMutation, data);
+    const node = environment.executeMutation.mock.calls[0][0].operation.node;
+    environment.mock.resolve(node, data);
     jest.runAllTimers();
     // Does not need to fire again since server data should be the same
     expect(updater).toBeCalled();

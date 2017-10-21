@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule GraphQLStoreChangeEmitter
  * @flow
@@ -17,8 +15,8 @@ const ErrorUtils = require('ErrorUtils');
 
 const resolveImmediate = require('resolveImmediate');
 
-import type GraphQLStoreRangeUtils from 'GraphQLStoreRangeUtils';
-import type {ChangeSubscription} from 'RelayTypes';
+import type {ChangeSubscription} from '../../tools/RelayTypes';
+import type GraphQLStoreRangeUtils from './GraphQLStoreRangeUtils';
 
 type BatchStrategy = (callback: Function) => void;
 type Subscriber = {

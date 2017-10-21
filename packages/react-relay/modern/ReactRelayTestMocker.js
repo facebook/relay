@@ -151,11 +151,7 @@ class ReactRelayTestMocker {
       // there's a default value for this query, use it
       if (this._defaults[ident]) {
         const payload = this._defaults[ident];
-        if (typeof payload === 'function') {
-          return {response: payload(strippedVars)};
-        } else {
-          return {response: payload};
-        }
+        return typeof payload === 'function' ? payload(strippedVars) : payload;
       }
 
       const operationSelector = createOperationSelector(operation, variables);

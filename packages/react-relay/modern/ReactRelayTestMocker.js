@@ -22,7 +22,7 @@ import type {CacheConfig} from '../classic/environment/RelayCombinedEnvironmentT
 import type {ConcreteOperationDefinition} from '../classic/query/ConcreteQuery';
 import type {Variables} from '../classic/tools/RelayTypes';
 import type {
-  ConcreteBatch,
+  ConcreteOperation,
   GraphQLResponse,
   OperationSelector,
   PayloadError,
@@ -30,18 +30,18 @@ import type {
 } from 'RelayRuntime';
 
 type DataWriteConfig = {
-  query: ConcreteBatch,
+  query: ConcreteOperation,
   variables: Variables,
   payload: GraphQLResponse,
 };
 
 type NetworkWriteConfig = {
-  query: ConcreteBatch,
+  query: ConcreteOperation,
   variables?: Variables,
   payload: GraphQLResponse | (Variables => GraphQLResponse),
 };
 
-type OperationType = ConcreteBatch | ConcreteOperationDefinition;
+type OperationType = ConcreteOperation | ConcreteOperationDefinition;
 
 type PendingFetch = {
   operation: OperationType,

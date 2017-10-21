@@ -24,7 +24,7 @@ import type {GeneratedNode} from 'RelayConcreteNode';
  */
 export type FormatModule = ({|
   moduleName: string,
-  documentType: 'ConcreteBatch' | 'ConcreteFragment',
+  documentType: 'ConcreteOperation' | 'ConcreteFragment',
   docText: ?string,
   concreteText: string,
   flowText: ?string,
@@ -46,12 +46,14 @@ async function writeRelayGeneratedFile(
   const platformName = platform ? moduleName + '.' + platform : moduleName;
   const filename = platformName + '.js';
   const flowTypeName =
-    generatedNode.kind === 'Batch' ? 'ConcreteBatch' : 'ConcreteFragment';
+    generatedNode.kind === 'Operation'
+      ? 'ConcreteOperation'
+      : 'ConcreteFragment';
   const devOnlyProperties = {};
 
   let text = null;
   let hash = null;
-  if (generatedNode.kind === 'Batch') {
+  if (generatedNode.kind === 'Operation') {
     text = generatedNode.text;
     invariant(
       text,

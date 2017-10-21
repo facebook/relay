@@ -14,7 +14,7 @@
 const invariant = require('invariant');
 const warning = require('warning');
 
-import type {ConcreteBatch, ConcreteFragment} from 'RelayConcreteNode';
+import type {ConcreteOperation, ConcreteFragment} from 'RelayConcreteNode';
 import type {Variables} from 'RelayTypes';
 
 /**
@@ -69,11 +69,11 @@ function getFragmentVariables(
  * operation's definition).
  */
 function getOperationVariables(
-  operation: ConcreteBatch,
+  operation: ConcreteOperation,
   variables: Variables,
 ): Variables {
   const operationVariables = {};
-  operation.query.argumentDefinitions.forEach(def => {
+  operation.argumentDefinitions.forEach(def => {
     let value = def.defaultValue;
     if (variables[def.name] != null) {
       value = variables[def.name];

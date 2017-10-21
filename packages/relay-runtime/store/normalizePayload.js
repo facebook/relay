@@ -27,7 +27,7 @@ function normalizePayload(payload: ExecutePayload): RelayResponsePayload {
     return normalizeRelayPayload(
       {
         dataID: ROOT_ID,
-        node: operation.query,
+        node: operation,
         variables,
       },
       data,

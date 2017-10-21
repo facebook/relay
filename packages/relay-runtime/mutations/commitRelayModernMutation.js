@@ -67,11 +67,11 @@ function commitRelayModernMutation<T>(
   }
   if (
     optimisticResponse &&
-    mutation.query.selections &&
-    mutation.query.selections.length === 1 &&
-    mutation.query.selections[0].kind === 'LinkedField'
+    mutation.selections &&
+    mutation.selections.length === 1 &&
+    mutation.selections[0].kind === 'LinkedField'
   ) {
-    const mutationRoot = mutation.query.selections[0].name;
+    const mutationRoot = mutation.selections[0].name;
     warning(
       optimisticResponse[mutationRoot],
       'commitRelayModernMutation: Expected `optimisticResponse` to be wrapped ' +

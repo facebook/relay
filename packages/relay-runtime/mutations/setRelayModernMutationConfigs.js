@@ -16,7 +16,7 @@ const RelayConnectionHandler = require('RelayConnectionHandler');
 const warning = require('warning');
 
 import type {SelectorData} from 'RelayCombinedEnvironmentTypes';
-import type {ConcreteBatch} from 'RelayConcreteNode';
+import type {ConcreteOperation} from 'RelayConcreteNode';
 import type {
   RecordSourceSelectorProxy,
   SelectorStoreUpdater,
@@ -25,7 +25,7 @@ import type {RelayMutationConfig, Variables} from 'RelayTypes';
 
 function setRelayModernMutationConfigs(
   configs: Array<RelayMutationConfig>,
-  operation: ConcreteBatch,
+  operation: ConcreteOperation,
   optimisticUpdater?: ?(
     store: RecordSourceSelectorProxy,
     data: ?SelectorData,
@@ -77,7 +77,7 @@ function setRelayModernMutationConfigs(
 
 function nodeDelete(
   config: RelayMutationConfig,
-  operation: ConcreteBatch,
+  operation: ConcreteOperation,
 ): ?SelectorStoreUpdater {
   let updater;
   if (config.type !== 'NODE_DELETE') {
@@ -105,7 +105,7 @@ function nodeDelete(
 
 function rangeAdd(
   config: RelayMutationConfig,
-  operation: ConcreteBatch,
+  operation: ConcreteOperation,
 ): ?SelectorStoreUpdater {
   let updater;
   if (config.type !== 'RANGE_ADD') {
@@ -178,7 +178,7 @@ function rangeAdd(
 
 function rangeDelete(
   config: RelayMutationConfig,
-  operation: ConcreteBatch,
+  operation: ConcreteOperation,
 ): ?SelectorStoreUpdater {
   let updater;
   if (config.type !== 'RANGE_DELETE') {
@@ -317,7 +317,7 @@ function deleteNode(
   }
 }
 
-function getRootField(operation: ConcreteBatch): ?string {
+function getRootField(operation: ConcreteOperation): ?string {
   let rootField;
   if (
     operation.fragment &&

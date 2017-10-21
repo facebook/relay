@@ -199,7 +199,7 @@ describe('RelayResponseNormalizer', () => {
       recordSource,
       {
         dataID: ROOT_ID,
-        node: UserFriends.query,
+        node: UserFriends,
         variables: {id: '1'},
       },
       payload,
@@ -280,7 +280,7 @@ describe('RelayResponseNormalizer', () => {
       recordSource,
       {
         dataID: ROOT_ID,
-        node: UserFriends.query,
+        node: UserFriends,
         variables: {id: '1', orderBy: ['last name'], isViewerFriend: true},
       },
       payload1,
@@ -318,7 +318,7 @@ describe('RelayResponseNormalizer', () => {
       recordSource,
       {
         dataID: ROOT_ID,
-        node: UserFriends.query,
+        node: UserFriends,
         variables: {id: '1', orderBy: ['first name'], isViewerFriend: true},
       },
       payload2,

@@ -15,7 +15,7 @@ const RelayObservable = require('RelayObservable');
 
 const warning = require('warning');
 
-import type {ConcreteBatch} from 'RelayConcreteNode';
+import type {RequestNode} from 'RelayConcreteNode';
 import type {
   ExecuteFunction,
   ExecutePayload,
@@ -29,8 +29,8 @@ import type {Variables} from 'RelayTypes';
  * Converts a FetchFunction into an ExecuteFunction for use by RelayNetwork.
  */
 function convertFetch(fn: FetchFunction): ExecuteFunction {
-  return function fetch(operation, variables, cacheConfig, uploadables) {
-    const result = fn(operation, variables, cacheConfig, uploadables);
+  return function fetch(request, variables, cacheConfig, uploadables) {
+    const result = fn(request, variables, cacheConfig, uploadables);
     // Note: We allow FetchFunction to directly return Error to indicate
     // a failure to fetch. To avoid handling this special case throughout the
     // Relay codebase, it is explicitly handled here.
@@ -38,7 +38,7 @@ function convertFetch(fn: FetchFunction): ExecuteFunction {
       return new RelayObservable(sink => sink.error(result));
     }
     return RelayObservable.from(result).map(value =>
-      convertToExecutePayload(operation, variables, value),
+      convertToExecutePayload(request, variables, value),
     );
   };
 }
@@ -61,7 +61,7 @@ function convertSubscribe(fn: SubscribeFunction): ExecuteFunction {
  * simpler Relay Network implementations.
  */
 function convertToExecutePayload(
-  operation: ConcreteBatch,
+  request: RequestNode,
   variables: Variables,
   value: GraphQLResponse | ExecutePayload,
 ): ExecutePayload {
@@ -72,11 +72,11 @@ function convertToExecutePayload(
         'ConvertToExecuteFunction: execute payload contains response but ' +
           'is missing operation.',
       );
-      return {operation, variables, response: value.response};
+      return {operation: request, variables, response: value.response};
     }
     return value;
   }
-  return {operation, variables, response: value};
+  return {operation: request, variables, response: value};
 }
 
 module.exports = {

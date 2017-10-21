@@ -26,7 +26,7 @@ import type {
   Record,
 } from 'RelayCombinedEnvironmentTypes';
 import type {
-  ConcreteBatch,
+  ConcreteOperation,
   ConcreteScalarField,
   ConcreteLinkedField,
   ConcreteFragment,
@@ -44,7 +44,7 @@ type TEnvironment = Environment;
 type TFragment = ConcreteFragment;
 type TGraphQLTaggedNode = GraphQLTaggedNode;
 type TNode = ConcreteSelectableNode;
-type TOperation = ConcreteBatch;
+type TOperation = ConcreteOperation;
 type TPayload = RelayResponsePayload;
 
 export type FragmentMap = CFragmentMap<TFragment>;

@@ -16,11 +16,11 @@ const RelayPropTypes = require('../../classic/container/RelayPropTypes');
 const invariant = require('invariant');
 
 import type {Variables} from '../../classic/tools/RelayTypes';
-import type {ConcreteBatch, StoreEnvironment, Snapshot} from 'RelayRuntime';
+import type {ConcreteOperation, StoreEnvironment, Snapshot} from 'RelayRuntime';
 
 type Props = {
   environment: StoreEnvironment,
-  query: ConcreteBatch,
+  query: ConcreteOperation,
   variables: Variables,
   children: React.Component,
 };

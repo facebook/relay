@@ -13,6 +13,7 @@
 
 const invariant = require('invariant');
 const isScalarAndEqual = require('isScalarAndEqual');
+const forEachObject = require('forEachObject');
 
 const {
   areEqualSelectors,

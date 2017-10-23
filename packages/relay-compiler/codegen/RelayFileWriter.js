@@ -177,10 +177,9 @@ class RelayFileWriter implements FileWriterInterface {
 
     compiler.addDefinitions(definitions);
 
-    const transformedFlowContext = RelayFlowGenerator.flowTransforms.reduce(
-      (ctx, transform) => transform(ctx, extendedSchema),
-      compiler.context(),
-    );
+    const transformedFlowContext = compiler
+      .context()
+      .applyTransforms(RelayFlowGenerator.flowTransforms, extendedSchema);
     const transformedQueryContext = compiler.transformedQueryContext();
     const compiledDocumentMap: CompiledDocumentMap<
       GeneratedNode,

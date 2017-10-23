@@ -11,21 +11,16 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('./GraphQLCompilerContext');
 const GraphQLIRPrinter = require('./GraphQLIRPrinter');
 
 const filterContextForNode = require('./filterContextForNode');
 
+import type GraphQLCompilerContext from './GraphQLCompilerContext';
 import type {Batch, Fragment, Root} from './GraphQLIR';
 import type {IRTransform} from './GraphQLIRTransforms';
 import type {GraphQLSchema} from 'graphql';
 
 export type CompiledDocumentMap<CodegenNode> = Map<string, CodegenNode>;
-
-export type TransformReducer = (
-  ctx: GraphQLCompilerContext,
-  transform: (ctx: GraphQLCompilerContext) => GraphQLCompilerContext,
-) => GraphQLCompilerContext;
 
 export interface Compiler<CodegenNode> {
   add(text: string): Array<Root | Fragment>,
@@ -90,28 +85,26 @@ class GraphQLCompiler<CodegenNode> {
     if (this._transformedQueryContext) {
       return this._transformedQueryContext;
     }
-    this._transformedQueryContext = this._transforms.queryTransforms.reduce(
-      (ctx, transform) => transform(ctx, this._schema),
-      this._context,
+    this._transformedQueryContext = this._context.applyTransforms(
+      this._transforms.queryTransforms,
+      this._schema,
     );
     return this._transformedQueryContext;
   }
 
   compile(): CompiledDocumentMap<CodegenNode> {
-    const transformContext = ((ctx, transform) =>
-      transform(ctx, this._schema): any);
-    const fragmentContext = this._transforms.fragmentTransforms.reduce(
-      transformContext,
-      this._context,
+    const fragmentContext = this._context.applyTransforms(
+      this._transforms.fragmentTransforms,
+      this._schema,
     );
     const queryContext = this.transformedQueryContext();
-    const printContext = this._transforms.printTransforms.reduce(
-      transformContext,
-      queryContext,
+    const printContext = queryContext.applyTransforms(
+      this._transforms.printTransforms,
+      this._schema,
     );
-    const codeGenContext = this._transforms.codegenTransforms.reduce(
-      transformContext,
-      queryContext,
+    const codeGenContext = queryContext.applyTransforms(
+      this._transforms.codegenTransforms,
+      this._schema,
     );
 
     const compiledDocuments: CompiledDocumentMap<CodegenNode> = new Map();

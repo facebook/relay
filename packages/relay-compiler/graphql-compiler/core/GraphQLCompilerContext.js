@@ -120,6 +120,29 @@ class GraphQLCompilerContext {
     );
   }
 
+  /**
+   * Apply a list of compiler transforms and return a new compiler context.
+   *
+   * @param transforms List of transforms
+   * @param baseSchema The base schema to pass to each transform. This is not
+   *                   the schema from the compiler context which might be
+   *                   extended by previous transforms.
+   */
+  applyTransforms(
+    transforms: Array<
+      (
+        context: GraphQLCompilerContext,
+        baseSchema: GraphQLSchema,
+      ) => GraphQLCompilerContext,
+    >,
+    baseSchema: GraphQLSchema,
+  ) {
+    return transforms.reduce(
+      (ctx, transform) => transform(ctx, baseSchema),
+      this,
+    );
+  }
+
   get(name: string): ?(Fragment | Root) {
     const record = this._documents.get(name);
     return record ? record.get('node') : null;

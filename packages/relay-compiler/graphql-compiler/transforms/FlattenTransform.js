@@ -56,7 +56,7 @@ type FlattenState = {
  *   been set.
  * - The 'flattenInlineFragments' option has been set.
  */
-function transform(
+function flattenTransformImpl(
   context: GraphQLCompilerContext,
   options?: FlattenOptions,
 ): GraphQLCompilerContext {
@@ -302,6 +302,14 @@ function isEquivalentType(typeA: GraphQLType, typeB: GraphQLType): boolean {
   return false;
 }
 
+function transformWithOptions(options: FlattenOptions) {
+  return function flattenTransform(
+    context: GraphQLCompilerContext,
+  ): GraphQLCompilerContext {
+    return flattenTransformImpl(context, options);
+  };
+}
+
 module.exports = {
-  transform,
+  transformWithOptions,
 };

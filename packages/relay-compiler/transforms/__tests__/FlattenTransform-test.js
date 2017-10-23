@@ -36,7 +36,7 @@ describe('FlattenTransform', () => {
         RelayParser.parse(extendedSchema, text),
       );
 
-      context = FlattenTransform.transform(context, options);
+      context = FlattenTransform.transformWithOptions(options)(context);
 
       return context
         .documents()

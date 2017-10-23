@@ -36,7 +36,7 @@ const VIEWER_TYPE = 'Viewer';
 /**
  * A transform that adds a "viewer" handle to all fields whose type is `Viewer`.
  */
-function transform(
+function relayViewerHandleTransform(
   context: CompilerContext,
   schema: GraphQLSchema,
 ): CompilerContext {
@@ -79,4 +79,6 @@ function visitLinkedField(field: LinkedField, state: State): ?LinkedField {
     : transformedNode;
 }
 
-module.exports = {transform};
+module.exports = {
+  transform: relayViewerHandleTransform,
+};

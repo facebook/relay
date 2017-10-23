@@ -24,7 +24,9 @@ type State = {referencedVariables: Set<string>};
  * A transform that removes variables from root queries that aren't referenced
  * by the query itself.
  */
-function transform(context: GraphQLCompilerContext): GraphQLCompilerContext {
+function stripUnusedVariablesTransform(
+  context: GraphQLCompilerContext,
+): GraphQLCompilerContext {
   return context.documents().reduce((ctx: GraphQLCompilerContext, node) => {
     return ctx.add(node.kind === 'Root' ? transformRoot(context, node) : node);
   }, new GraphQLCompilerContext(context.schema));
@@ -71,4 +73,6 @@ function visitCondition(condition: Condition, state: State): Condition {
   return condition;
 }
 
-module.exports = {transform};
+module.exports = {
+  transform: stripUnusedVariablesTransform,
+};

@@ -28,7 +28,7 @@ type State = true;
  * A transform that removes field `handles`. Intended for use when e.g.
  * printing queries to send to a GraphQL server.
  */
-function transform(
+function relaySkipHandleFieldTransform(
   context: CompilerContext,
   schema: GraphQLSchema,
 ): CompilerContext {
@@ -53,4 +53,6 @@ function visitField<F: LinkedField | ScalarField>(field: F, state: State): ?F {
   return transformedNode;
 }
 
-module.exports = {transform};
+module.exports = {
+  transform: relaySkipHandleFieldTransform,
+};

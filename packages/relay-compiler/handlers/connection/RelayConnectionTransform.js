@@ -65,7 +65,7 @@ const CONNECTION = 'connection';
  * - Inserts a sub-fragment on the field to ensure that standard connection
  *   fields are fetched (e.g. cursors, node ids, page info).
  */
-function transform(context: CompilerContext): CompilerContext {
+function relayConnectionTransform(context: CompilerContext): CompilerContext {
   return IRTransformer.transform(
     context,
     {
@@ -496,5 +496,5 @@ function validateConnectionType(
 module.exports = {
   CONNECTION,
   SCHEMA_EXTENSION,
-  transform,
+  transform: relayConnectionTransform,
 };

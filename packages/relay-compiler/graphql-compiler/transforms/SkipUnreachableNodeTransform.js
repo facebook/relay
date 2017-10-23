@@ -30,7 +30,9 @@ const VARIABLE = 'variable';
  * - Any node with `@skip(if: true)`
  * - Any node with empty `selections`
  */
-function transform(context: GraphQLCompilerContext): GraphQLCompilerContext {
+function skipUnreachableNodeTransform(
+  context: GraphQLCompilerContext,
+): GraphQLCompilerContext {
   const documents = context.documents();
   const fragments: Map<string, ?Fragment> = new Map();
   const nextContext = documents.reduce((ctx: GraphQLCompilerContext, node) => {
@@ -116,4 +118,6 @@ function testCondition(condition: Condition): ConditionResult {
   return condition.condition.value === condition.passingValue ? PASS : FAIL;
 }
 
-module.exports = {transform};
+module.exports = {
+  transform: skipUnreachableNodeTransform,
+};

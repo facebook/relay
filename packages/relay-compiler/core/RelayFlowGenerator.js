@@ -45,7 +45,6 @@ import type {
   IRTransform,
   Fragment,
   Root,
-  CompilerContext,
 } from '../graphql-compiler/GraphQLCompilerPublic';
 import type {ScalarTypeMapping} from './RelayFlowTypeTransformers';
 import type {GraphQLEnumType} from 'graphql';
@@ -438,7 +437,7 @@ function getEnumDefinitions({enumsHasteModule, usedEnums}: State) {
 
 const FLOW_TRANSFORMS: Array<IRTransform> = [
   RelayMaskTransform.transform,
-  (ctx: CompilerContext) => FlattenTransform.transform(ctx, {}),
+  FlattenTransform.transformWithOptions({}),
 ];
 
 module.exports = {

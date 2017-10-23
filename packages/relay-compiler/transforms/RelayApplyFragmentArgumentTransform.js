@@ -59,7 +59,9 @@ const {getFragmentScope, getRootScope} = RelayCompilerScope;
  *
  * Note that unreferenced fragments are not added to the output.
  */
-function transform(context: CompilerContext): CompilerContext {
+function relayApplyFragmentArgumentTransform(
+  context: CompilerContext,
+): CompilerContext {
   const documents = context.documents();
   const fragments: Map<string, ?Fragment> = new Map();
   let nextContext = new CompilerContext(context.schema);
@@ -381,4 +383,6 @@ function hashArguments(args: Array<Argument>, scope: Scope): ?string {
   return murmurHash(printedArgs);
 }
 
-module.exports = {transform};
+module.exports = {
+  transform: relayApplyFragmentArgumentTransform,
+};

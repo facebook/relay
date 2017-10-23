@@ -23,7 +23,7 @@ type State = GraphQLSchema;
  * A transform that removes any directives that were not present in the
  * original schema.
  */
-function transform(
+function filterDirectivesTransform(
   context: GraphQLCompilerContext,
   schema: GraphQLSchema,
 ): GraphQLCompilerContext {
@@ -50,4 +50,6 @@ function visitDirective(directive: Directive, state: State): ?Directive {
   return null;
 }
 
-module.exports = {transform};
+module.exports = {
+  transform: filterDirectivesTransform,
+};

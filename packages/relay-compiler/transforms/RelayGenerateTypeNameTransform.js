@@ -6,6 +6,7 @@
  *
  * @flow
  * @providesModule RelayGenerateTypeNameTransform
+ * @format
  */
 
 'use strict';
@@ -17,7 +18,10 @@ const {
 const {hasUnaliasedSelection} = require('./RelayTransformUtils');
 const {assertLeafType} = require('graphql');
 
-import type {LinkedField, Node} from '../graphql-compiler/GraphQLCompilerPublic';
+import type {
+  LinkedField,
+  Node,
+} from '../graphql-compiler/GraphQLCompilerPublic';
 
 const {isAbstractType} = SchemaUtils;
 
@@ -30,7 +34,9 @@ const STRING_TYPE = 'String';
  * the first place of the selections.
  */
 
-function transform(context: CompilerContext): CompilerContext {
+function relayGenerateTypeNameTransform(
+  context: CompilerContext,
+): CompilerContext {
   const documents = context.documents();
   return documents.reduce((ctx: CompilerContext, node) => {
     const transformedNode = transformNode(context, node);
@@ -91,10 +97,12 @@ function transformField(
  */
 function sortSelections(selections: Array<$FlowIssue>): Array<$FlowIssue> {
   return [...selections].sort((a, b) => {
-    return (a.kind === 'ScalarField') && (a.name === TYPENAME_KEY)
+    return a.kind === 'ScalarField' && a.name === TYPENAME_KEY
       ? -1
-      : (b.kind === 'ScalarField') && (b.name === TYPENAME_KEY) ? 1 : 0;
+      : b.kind === 'ScalarField' && b.name === TYPENAME_KEY ? 1 : 0;
   });
 }
 
-module.exports = {transform};
+module.exports = {
+  transform: relayGenerateTypeNameTransform,
+};

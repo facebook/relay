@@ -17,14 +17,14 @@ import type {
   ConcreteFragmentDefinition,
   ConcreteOperationDefinition,
 } from 'ConcreteQuery';
-import type {ConcreteBatch, ConcreteFragment} from 'RelayConcreteNode';
+import type {ConcreteOperation, ConcreteFragment} from 'RelayConcreteNode';
 import typeof RelayQL from 'RelayQL';
 
 // The type of a graphql`...` tagged template expression.
 export type GraphQLTaggedNode =
-  | (() => ConcreteFragment | ConcreteBatch)
+  | (() => ConcreteFragment | ConcreteOperation)
   | {
-      modern: () => ConcreteFragment | ConcreteBatch,
+      modern: () => ConcreteFragment | ConcreteOperation,
       classic: RelayQL =>
         | ConcreteFragmentDefinition
         | ConcreteOperationDefinition,
@@ -64,12 +64,12 @@ function getFragment(taggedNode: GraphQLTaggedNode): ConcreteFragment {
   return (fragment: any);
 }
 
-function getOperation(taggedNode: GraphQLTaggedNode): ConcreteBatch {
+function getOperation(taggedNode: GraphQLTaggedNode): ConcreteOperation {
   const operation = getNode(taggedNode);
   invariant(
     typeof operation === 'object' &&
       operation !== null &&
-      operation.kind === 'Batch',
+      operation.kind === 'Operation',
     'RelayModernGraphQLTag: Expected an operation, got `%s`.',
     JSON.stringify(operation),
   );

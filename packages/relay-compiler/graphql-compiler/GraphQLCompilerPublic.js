@@ -49,13 +49,13 @@ export type {
 export type {FileFilter, WatchmanExpression} from './codegen/CodegenWatcher';
 export type {
   CompiledDocumentMap,
-  CompiledNode,
   CompilerTransforms,
 } from './core/GraphQLCompiler';
 export type {
   Argument,
   ArgumentDefinition,
   ArgumentValue,
+  Batch,
   Condition,
   Directive,
   Field,

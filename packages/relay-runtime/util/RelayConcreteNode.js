@@ -16,24 +16,21 @@ export type ConcreteArgumentDefinition =
   | ConcreteLocalArgument
   | ConcreteRootArgument;
 /**
- * Represents a single ConcreteRoot along with metadata for processing it at
- * runtime. The persisted `id` (or `text`) can be used to fetch the query,
- * the `fragment` can be used to read the root data (masking data from child
- * fragments), and the `query` can be used to normalize server responses.
- *
- * NOTE: The use of "batch" in the name is intentional, as this wrapper around
- * the ConcreteRoot will provide a place to store multiple concrete nodes that
- * are part of the same batch, e.g. in the case of deferred nodes or
- * for streaming connections that are represented as distinct concrete roots but
- * are still conceptually tied to one source query.
+ * Represents a single ConcreteOperation along containing metadata for
+ * processing it at runtime. The `text` (or persisted `id`) can be used to
+ * execute the operation, the `fragment` is derived from this operation to
+ * read the response data (masking data from child fragments), while
+ * the `selections` can be used to normalize server responses.
  */
-export type ConcreteBatch = {
-  kind: 'Batch',
-  fragment: ConcreteFragment,
+export type ConcreteOperation = {
+  kind: 'Operation',
+  operation: 'mutation' | 'query' | 'subscription',
+  name: string,
   id: ?string,
   metadata: {[key: string]: mixed},
-  name: string,
-  query: ConcreteRoot,
+  argumentDefinitions: Array<ConcreteLocalArgument>,
+  selections: Array<ConcreteSelection>,
+  fragment: ConcreteFragment,
   text: ?string,
 };
 export type ConcreteCondition = {
@@ -44,17 +41,17 @@ export type ConcreteCondition = {
 };
 export type ConcreteField = ConcreteScalarField | ConcreteLinkedField;
 export type ConcreteFragment = {
-  argumentDefinitions: Array<ConcreteArgumentDefinition>,
   kind: 'Fragment',
-  metadata: ?{[key: string]: mixed},
   name: string,
-  selections: Array<ConcreteSelection>,
   type: string,
+  metadata: ?{[key: string]: mixed},
+  argumentDefinitions: Array<ConcreteArgumentDefinition>,
+  selections: Array<ConcreteSelection>,
 };
 export type ConcreteFragmentSpread = {
-  args: ?Array<ConcreteArgument>,
   kind: 'FragmentSpread',
   name: string,
+  args: ?Array<ConcreteArgument>,
 };
 export type ConcreteHandle = ConcreteScalarHandle | ConcreteLinkedHandle;
 export type ConcreteRootArgument = {
@@ -68,20 +65,20 @@ export type ConcreteInlineFragment = {
   type: string,
 };
 export type ConcreteLinkedField = {
+  kind: 'LinkedField',
   alias: ?string,
+  name: string,
+  storageKey: ?string,
   args: ?Array<ConcreteArgument>,
   concreteType: ?string,
-  kind: 'LinkedField',
-  name: string,
   plural: boolean,
   selections: Array<ConcreteSelection>,
-  storageKey: ?string,
 };
 export type ConcreteLinkedHandle = {
-  alias: ?string,
-  args: ?Array<ConcreteArgument>,
   kind: 'LinkedHandle',
+  alias: ?string,
   name: string,
+  args: ?Array<ConcreteArgument>,
   handle: string,
   key: string,
   filters: ?Array<string>,
@@ -93,36 +90,29 @@ export type ConcreteLiteral = {
   value: mixed,
 };
 export type ConcreteLocalArgument = {
-  defaultValue: mixed,
   kind: 'LocalArgument',
   name: string,
   type: string,
+  defaultValue: mixed,
 };
 export type ConcreteNode =
   | ConcreteCondition
   | ConcreteLinkedField
   | ConcreteFragment
   | ConcreteInlineFragment
-  | ConcreteRoot;
-export type ConcreteRoot = {
-  argumentDefinitions: Array<ConcreteLocalArgument>,
-  kind: 'Root',
-  name: string,
-  operation: 'mutation' | 'query' | 'subscription',
-  selections: Array<ConcreteSelection>,
-};
+  | ConcreteOperation;
 export type ConcreteScalarField = {
-  alias: ?string,
-  args: ?Array<ConcreteArgument>,
   kind: 'ScalarField',
+  alias: ?string,
   name: string,
+  args: ?Array<ConcreteArgument>,
   storageKey: ?string,
 };
 export type ConcreteScalarHandle = {
-  alias: ?string,
-  args: ?Array<ConcreteArgument>,
   kind: 'ScalarHandle',
+  alias: ?string,
   name: string,
+  args: ?Array<ConcreteArgument>,
   handle: string,
   key: string,
   filters: ?Array<string>,
@@ -139,8 +129,10 @@ export type ConcreteVariable = {
   type: ?string,
   variableName: string,
 };
-export type ConcreteSelectableNode = ConcreteFragment | ConcreteRoot;
-export type GeneratedNode = ConcreteBatch | ConcreteFragment;
+export type ConcreteSelectableNode = ConcreteFragment | ConcreteOperation;
+// TODO: Add BatchRequest to RequestNode
+export type RequestNode = ConcreteOperation;
+export type GeneratedNode = RequestNode | ConcreteFragment;
 
 const RelayConcreteNode = {
   CONDITION: 'Condition',
@@ -151,7 +143,7 @@ const RelayConcreteNode = {
   LINKED_HANDLE: 'LinkedHandle',
   LITERAL: 'Literal',
   LOCAL_ARGUMENT: 'LocalArgument',
-  ROOT: 'Root',
+  OPERATION: 'Operation',
   ROOT_ARGUMENT: 'RootArgument',
   SCALAR_FIELD: 'ScalarField',
   SCALAR_HANDLE: 'ScalarHandle',

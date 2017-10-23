@@ -1,5 +1,78 @@
 {
+  "kind": "Operation",
+  "operation": "query",
+  "name": "ScalarHandleField",
+  "id": null,
+  "metadata": {},
+  "argumentDefinitions": [
+    {
+      "kind": "LocalArgument",
+      "name": "id",
+      "type": "ID!",
+      "defaultValue": null
+    }
+  ],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "node",
+      "storageKey": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "id",
+          "variableName": "id",
+          "type": "ID"
+        }
+      ],
+      "concreteType": null,
+      "plural": false,
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "__typename",
+          "args": null,
+          "storageKey": null
+        },
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "id",
+          "args": null,
+          "storageKey": null
+        },
+        {
+          "kind": "InlineFragment",
+          "type": "User",
+          "selections": [
+            {
+              "kind": "ScalarField",
+              "alias": null,
+              "name": "name",
+              "args": null,
+              "storageKey": null
+            },
+            {
+              "kind": "ScalarHandle",
+              "alias": null,
+              "name": "name",
+              "args": null,
+              "handle": "clientName",
+              "key": "",
+              "filters": null
+            }
+          ]
+        }
+      ]
+    }
+  ],
   "fragment": {
+    "kind": "Fragment",
+    "name": "ScalarHandleField",
+    "type": "Query",
+    "metadata": null,
     "argumentDefinitions": [
       {
         "kind": "LocalArgument",
@@ -8,13 +81,12 @@
         "defaultValue": null
       }
     ],
-    "kind": "Fragment",
-    "metadata": null,
-    "name": "ScalarHandleField",
     "selections": [
       {
         "kind": "LinkedField",
         "alias": null,
+        "name": "node",
+        "storageKey": null,
         "args": [
           {
             "kind": "Variable",
@@ -24,7 +96,6 @@
           }
         ],
         "concreteType": null,
-        "name": "node",
         "plural": false,
         "selections": [
           {
@@ -34,88 +105,13 @@
               {
                 "kind": "ScalarField",
                 "alias": "name",
-                "args": null,
                 "name": "__name_clientName",
+                "args": null,
                 "storageKey": null
               }
             ]
           }
-        ],
-        "storageKey": null
-      }
-    ],
-    "type": "Query"
-  },
-  "id": null,
-  "kind": "Batch",
-  "metadata": {},
-  "name": "ScalarHandleField",
-  "query": {
-    "argumentDefinitions": [
-      {
-        "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!",
-        "defaultValue": null
-      }
-    ],
-    "kind": "Root",
-    "name": "ScalarHandleField",
-    "operation": "query",
-    "selections": [
-      {
-        "kind": "LinkedField",
-        "alias": null,
-        "args": [
-          {
-            "kind": "Variable",
-            "name": "id",
-            "variableName": "id",
-            "type": "ID"
-          }
-        ],
-        "concreteType": null,
-        "name": "node",
-        "plural": false,
-        "selections": [
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "args": null,
-            "name": "__typename",
-            "storageKey": null
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "args": null,
-            "name": "id",
-            "storageKey": null
-          },
-          {
-            "kind": "InlineFragment",
-            "type": "User",
-            "selections": [
-              {
-                "kind": "ScalarField",
-                "alias": null,
-                "args": null,
-                "name": "name",
-                "storageKey": null
-              },
-              {
-                "kind": "ScalarHandle",
-                "alias": null,
-                "args": null,
-                "handle": "clientName",
-                "name": "name",
-                "key": "",
-                "filters": null
-              }
-            ]
-          }
-        ],
-        "storageKey": null
+        ]
       }
     ]
   }

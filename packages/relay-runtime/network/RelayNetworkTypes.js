@@ -12,7 +12,7 @@
 'use strict';
 
 import type {CacheConfig, Disposable} from 'RelayCombinedEnvironmentTypes';
-import type {ConcreteBatch} from 'RelayConcreteNode';
+import type {RequestNode, ConcreteOperation} from 'RelayConcreteNode';
 import type RelayObservable, {ObservableFromValue} from 'RelayObservable';
 import type {Variables} from 'RelayTypes';
 
@@ -48,9 +48,12 @@ export type GraphQLResponse = {|
  * raw GraphQL network response as well as any related client metadata.
  */
 export type ExecutePayload = {|
-  response: GraphQLResponse,
+  // The operation executed
+  operation: ConcreteOperation,
   // The variables which were used during this execution.
-  variables?: ?Variables,
+  variables: Variables,
+  // The response from GraphQL execution
+  response: GraphQLResponse,
 |};
 
 /**
@@ -58,7 +61,7 @@ export type ExecutePayload = {|
  * a GraphQL operation.
  */
 export type ExecuteFunction = (
-  operation: ConcreteBatch,
+  request: RequestNode,
   variables: Variables,
   cacheConfig: CacheConfig,
   uploadables?: ?UploadableMap,
@@ -71,7 +74,7 @@ export type ExecuteFunction = (
  * a composed ExecutePayload object supporting additional metadata.
  */
 export type FetchFunction = (
-  operation: ConcreteBatch,
+  request: RequestNode,
   variables: Variables,
   cacheConfig: CacheConfig,
   uploadables: ?UploadableMap,
@@ -83,9 +86,11 @@ export type FetchFunction = (
  *
  * May return an Observable, otherwise must call the callbacks found in the
  * fourth parameter.
+ *
+ * Note: SubscribeFunction explicitly only supports ConcreteOperation.
  */
 export type SubscribeFunction = (
-  operation: ConcreteBatch,
+  operation: ConcreteOperation,
   variables: Variables,
   cacheConfig: CacheConfig,
   observer?: LegacyObserver<GraphQLResponse>,

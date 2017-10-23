@@ -31,6 +31,15 @@ export type ArgumentDefinition =
   | LocalArgumentDefinition
   | RootArgumentDefinition;
 export type ArgumentValue = ListValue | Literal | ObjectValue | Variable;
+export type Batch = {
+  kind: 'Batch',
+  fragment: Fragment,
+  id: ?string,
+  metadata: {[key: string]: mixed},
+  name: string,
+  operation: Root,
+  text: ?string,
+};
 export type Condition = {
   kind: 'Condition',
   condition: Literal | Variable,
@@ -63,6 +72,7 @@ export type FragmentSpread = {
 };
 export type IR =
   | Argument
+  | Batch
   | Condition
   | Directive
   | Fragment

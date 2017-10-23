@@ -17,22 +17,17 @@ const normalizeRelayPayload = require('normalizeRelayPayload');
 
 const {ROOT_ID} = require('RelayStoreUtils');
 
-import type {ConcreteBatch} from 'RelayConcreteNode';
-import type {GraphQLResponse} from 'RelayNetworkTypes';
+import type {ExecutePayload} from 'RelayNetworkTypes';
 import type {RelayResponsePayload} from 'RelayStoreTypes';
-import type {Variables} from 'RelayTypes';
 
-function normalizePayload(
-  operation: ConcreteBatch,
-  variables: Variables,
-  response: GraphQLResponse,
-): RelayResponsePayload {
+function normalizePayload(payload: ExecutePayload): RelayResponsePayload {
+  const {operation, variables, response} = payload;
   const {data, errors} = response;
   if (data != null) {
     return normalizeRelayPayload(
       {
         dataID: ROOT_ID,
-        node: operation.query,
+        node: operation,
         variables,
       },
       data,

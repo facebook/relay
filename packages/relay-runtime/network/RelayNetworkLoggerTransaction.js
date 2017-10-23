@@ -14,7 +14,7 @@
 const invariant = require('invariant');
 
 import type {CacheConfig} from 'RelayCombinedEnvironmentTypes';
-import type {ConcreteBatch} from 'RelayConcreteNode';
+import type {ConcreteOperation} from 'RelayConcreteNode';
 import type {ExecutePayload, UploadableMap} from 'RelayNetworkTypes';
 import type {Variables} from 'RelayTypes';
 
@@ -29,13 +29,13 @@ export interface IRelayNetworkLoggerTransaction {
   getCacheConfig(): ?CacheConfig,
   getIdentifier(): string,
   getLogsToPrint(): Array<RelayNetworkLog>,
-  getOperation(): ConcreteBatch,
+  getOperation(): ConcreteOperation,
   getUploadables(): ?UploadableMap,
   getVariables(): Variables,
 }
 
 type TransactionConfig = {
-  operation: ConcreteBatch,
+  operation: ConcreteOperation,
   variables: Variables,
   cacheConfig: ?CacheConfig,
   uploadables?: ?UploadableMap,
@@ -58,7 +58,7 @@ class RelayNetworkLoggerTransaction implements IRelayNetworkLoggerTransaction {
   _hasCommittedLogs = false;
   _id: number;
   _logs: Array<RelayNetworkLog> = [];
-  _operation: ConcreteBatch;
+  _operation: ConcreteOperation;
   _uploadables: ?UploadableMap;
   _variables: Variables;
 
@@ -134,7 +134,7 @@ class RelayNetworkLoggerTransaction implements IRelayNetworkLoggerTransaction {
     return this._logs;
   }
 
-  getOperation(): ConcreteBatch {
+  getOperation(): ConcreteOperation {
     return this._operation;
   }
 

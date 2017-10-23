@@ -29,10 +29,8 @@ const {
 } = require('../graphql-compiler/GraphQLCompilerPublic');
 const {Map: ImmutableMap} = require('immutable');
 
-import type {RelayGeneratedNode} from '../core/RelayCodeGenerator';
 import type {ScalarTypeMapping} from '../core/RelayFlowTypeTransformers';
 import type {
-  CompiledNode,
   CompiledDocumentMap,
   CompilerTransforms,
   FileWriterInterface,
@@ -185,7 +183,7 @@ class RelayFileWriter implements FileWriterInterface {
     );
     const transformedQueryContext = compiler.transformedQueryContext();
     const compiledDocumentMap: CompiledDocumentMap<
-      RelayGeneratedNode,
+      GeneratedNode,
     > = compiler.compile();
 
     const existingFragmentNames = new Set(
@@ -226,7 +224,7 @@ class RelayFileWriter implements FileWriterInterface {
           );
           await writeRelayGeneratedFile(
             getGeneratedDirectory(compiledNode.name),
-            getGeneratedNode(compiledNode),
+            compiledNode,
             this._config.formatModule,
             flowTypes,
             this._config.persistQuery,
@@ -274,19 +272,6 @@ class RelayFileWriter implements FileWriterInterface {
 
     return allOutputDirectories;
   }
-}
-
-function getGeneratedNode(
-  compiledNode: CompiledNode<RelayGeneratedNode>,
-): GeneratedNode {
-  invariant(
-    typeof compiledNode === 'object' &&
-      compiledNode !== null &&
-      (compiledNode.kind === 'Fragment' || compiledNode.kind === 'Batch'),
-    'getGeneratedNode: Expected a GeneratedNode, got `%s`.',
-    JSON.stringify(compiledNode),
-  );
-  return (compiledNode: any);
 }
 
 function validateConfig(config: Object): void {

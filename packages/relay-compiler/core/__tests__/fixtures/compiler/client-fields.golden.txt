@@ -1,8 +1,9 @@
 {
-  "argumentDefinitions": [],
   "kind": "Fragment",
-  "metadata": null,
   "name": "BestFriends",
+  "type": "User",
+  "metadata": null,
+  "argumentDefinitions": [],
   "selections": [
     {
       "kind": "FragmentSpread",
@@ -12,67 +13,67 @@
     {
       "kind": "LinkedField",
       "alias": null,
+      "name": "best_friends",
+      "storageKey": null,
       "args": null,
       "concreteType": "FriendsConnection",
-      "name": "best_friends",
       "plural": false,
       "selections": [
         {
           "kind": "LinkedField",
           "alias": null,
+          "name": "edges",
+          "storageKey": null,
           "args": null,
           "concreteType": "FriendsEdge",
-          "name": "edges",
           "plural": true,
           "selections": [
             {
               "kind": "ScalarField",
               "alias": null,
-              "args": null,
               "name": "cursor",
+              "args": null,
               "storageKey": null
             },
             {
               "kind": "LinkedField",
               "alias": null,
+              "name": "node",
+              "storageKey": null,
               "args": null,
               "concreteType": "User",
-              "name": "node",
               "plural": false,
               "selections": [
                 {
                   "kind": "ScalarField",
                   "alias": null,
-                  "args": null,
                   "name": "id",
+                  "args": null,
                   "storageKey": null
                 }
-              ],
-              "storageKey": null
+              ]
             }
-          ],
-          "storageKey": null
+          ]
         },
         {
           "kind": "LinkedField",
           "alias": null,
+          "name": "pageInfo",
+          "storageKey": null,
           "args": null,
           "concreteType": "PageInfo",
-          "name": "pageInfo",
           "plural": false,
           "selections": [
             {
               "kind": "ScalarField",
               "alias": null,
-              "args": null,
               "name": "hasNextPage",
+              "args": null,
               "storageKey": null
             }
-          ],
-          "storageKey": null
+          ]
         }
-      ],
-      "storageKey": null
+      ]
     },
     {
       "kind": "FragmentSpread",
@@ -86,52 +87,102 @@
         {
           "kind": "ScalarField",
           "alias": null,
-          "args": null,
           "name": "name",
+          "args": null,
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "NodeFragment",
+  "type": "Node",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "FooFragment",
+  "type": "Foo",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "name",
+      "args": null,
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "kind": "Operation",
+  "operation": "query",
+  "name": "BestFriendsQuery",
+  "id": null,
+  "metadata": {},
+  "argumentDefinitions": [
+    {
+      "kind": "LocalArgument",
+      "name": "id",
+      "type": "ID!",
+      "defaultValue": null
+    }
+  ],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "node",
+      "storageKey": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "id",
+          "variableName": "id",
+          "type": "ID"
+        }
+      ],
+      "concreteType": null,
+      "plural": false,
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "__typename",
+          "args": null,
+          "storageKey": null
+        },
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "id",
+          "args": null,
           "storageKey": null
         }
       ]
     }
   ],
-  "type": "User"
-}
-
-{
-  "argumentDefinitions": [],
-  "kind": "Fragment",
-  "metadata": null,
-  "name": "NodeFragment",
-  "selections": [
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "args": null,
-      "name": "id",
-      "storageKey": null
-    }
-  ],
-  "type": "Node"
-}
-
-{
-  "argumentDefinitions": [],
-  "kind": "Fragment",
-  "metadata": null,
-  "name": "FooFragment",
-  "selections": [
-    {
-      "kind": "ScalarField",
-      "alias": null,
-      "args": null,
-      "name": "name",
-      "storageKey": null
-    }
-  ],
-  "type": "Foo"
-}
-
-{
   "fragment": {
+    "kind": "Fragment",
+    "name": "BestFriendsQuery",
+    "type": "Query",
+    "metadata": null,
     "argumentDefinitions": [
       {
         "kind": "LocalArgument",
@@ -140,13 +191,12 @@
         "defaultValue": null
       }
     ],
-    "kind": "Fragment",
-    "metadata": null,
-    "name": "BestFriendsQuery",
     "selections": [
       {
         "kind": "LinkedField",
         "alias": null,
+        "name": "node",
+        "storageKey": null,
         "args": [
           {
             "kind": "Variable",
@@ -156,7 +206,6 @@
           }
         ],
         "concreteType": null,
-        "name": "node",
         "plural": false,
         "selections": [
           {
@@ -164,60 +213,7 @@
             "name": "BestFriends",
             "args": null
           }
-        ],
-        "storageKey": null
-      }
-    ],
-    "type": "Query"
-  },
-  "id": null,
-  "kind": "Batch",
-  "metadata": {},
-  "name": "BestFriendsQuery",
-  "query": {
-    "argumentDefinitions": [
-      {
-        "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!",
-        "defaultValue": null
-      }
-    ],
-    "kind": "Root",
-    "name": "BestFriendsQuery",
-    "operation": "query",
-    "selections": [
-      {
-        "kind": "LinkedField",
-        "alias": null,
-        "args": [
-          {
-            "kind": "Variable",
-            "name": "id",
-            "variableName": "id",
-            "type": "ID"
-          }
-        ],
-        "concreteType": null,
-        "name": "node",
-        "plural": false,
-        "selections": [
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "args": null,
-            "name": "__typename",
-            "storageKey": null
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "args": null,
-            "name": "id",
-            "storageKey": null
-          }
-        ],
-        "storageKey": null
+        ]
       }
     ]
   }

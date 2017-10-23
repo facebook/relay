@@ -1,12 +1,15 @@
 {
-  "argumentDefinitions": [],
   "kind": "Fragment",
-  "metadata": null,
   "name": "LinkedHandleField",
+  "type": "User",
+  "metadata": null,
+  "argumentDefinitions": [],
   "selections": [
     {
       "kind": "LinkedField",
       "alias": null,
+      "name": "friends",
+      "storageKey": "friends{\"first\":10}",
       "args": [
         {
           "kind": "Literal",
@@ -16,22 +19,21 @@
         }
       ],
       "concreteType": "FriendsConnection",
-      "name": "friends",
       "plural": false,
       "selections": [
         {
           "kind": "ScalarField",
           "alias": null,
-          "args": null,
           "name": "count",
+          "args": null,
           "storageKey": null
         }
-      ],
-      "storageKey": "friends{\"first\":10}"
+      ]
     },
     {
       "kind": "LinkedHandle",
       "alias": null,
+      "name": "friends",
       "args": [
         {
           "kind": "Literal",
@@ -41,10 +43,8 @@
         }
       ],
       "handle": "clientFriends",
-      "name": "friends",
       "key": "",
       "filters": null
     }
-  ],
-  "type": "User"
+  ]
 }

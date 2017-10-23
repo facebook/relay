@@ -15,7 +15,7 @@ const prettyStringify = require('prettyStringify');
 
 const {convertFetch, convertSubscribe} = require('ConvertToExecuteFunction');
 
-import type {ConcreteBatch} from 'RelayConcreteNode';
+import type {ConcreteOperation} from 'RelayConcreteNode';
 import type {IRelayNetworkLoggerTransaction} from 'RelayNetworkLoggerTransaction';
 import type {
   ExecuteFunction,
@@ -25,7 +25,7 @@ import type {
 import type {Variables} from 'RelayTypes';
 
 export type GraphiQLPrinter = (
-  batch: ConcreteBatch,
+  batch: ConcreteOperation,
   variables: Variables,
 ) => string;
 
@@ -100,7 +100,8 @@ function wrapExecute(
 
     const observable = execute(operation, variables, cacheConfig, uploadables);
 
-    const isSubscription = operation.query.operation === 'subscription';
+    const isSubscription =
+      operation.kind === 'Operation' && operation.operation === 'subscription';
 
     return observable.do({
       start: () => {

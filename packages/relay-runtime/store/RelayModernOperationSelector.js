@@ -14,7 +14,7 @@
 const {getOperationVariables} = require('RelayConcreteVariables');
 const {ROOT_ID} = require('RelayStoreUtils');
 
-import type {ConcreteBatch} from 'RelayConcreteNode';
+import type {ConcreteOperation} from 'RelayConcreteNode';
 import type {OperationSelector} from 'RelayStoreTypes';
 import type {Variables} from 'RelayTypes';
 
@@ -25,7 +25,7 @@ import type {Variables} from 'RelayTypes';
  * operation, and default values are populated for null values.
  */
 function createOperationSelector(
-  operation: ConcreteBatch,
+  operation: ConcreteOperation,
   variables: Variables,
 ): OperationSelector {
   const operationVariables = getOperationVariables(operation, variables);
@@ -39,7 +39,7 @@ function createOperationSelector(
     node: operation,
     root: {
       dataID,
-      node: operation.query,
+      node: operation,
       variables: operationVariables,
     },
     variables: operationVariables,

@@ -16,6 +16,7 @@ const invariant = require('invariant');
 import type GraphQLCompilerContext from './GraphQLCompilerContext';
 import type {
   Argument,
+  Batch,
   Condition,
   Directive,
   Fragment,
@@ -36,6 +37,7 @@ import type {
 
 type NodeVisitor<S> = {
   Argument?: NodeVisitorFunction<Argument, S>,
+  Batch?: NodeVisitorFunction<Batch, S>,
   Condition?: NodeVisitorFunction<Condition, S>,
   Directive?: NodeVisitorFunction<Directive, S>,
   Fragment?: NodeVisitorFunction<Fragment, S>,
@@ -197,6 +199,12 @@ class Transformer<S> {
     switch (prevNode.kind) {
       case 'Argument':
         nextNode = this._traverseChildren(prevNode, null, ['value']);
+        break;
+      case 'Batch':
+        nextNode = this._traverseChildren(prevNode, null, [
+          'operation',
+          'fragment',
+        ]);
         break;
       case 'Literal':
       case 'LocalArgumentDefinition':

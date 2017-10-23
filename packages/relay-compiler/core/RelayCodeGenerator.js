@@ -23,23 +23,20 @@ const {
 } = require('../graphql-compiler/GraphQLCompilerPublic');
 const {GraphQLList} = require('graphql');
 
-import type {Fragment, Root} from '../graphql-compiler/GraphQLCompilerPublic';
+import type {Batch, Fragment} from '../graphql-compiler/GraphQLCompilerPublic';
 // TODO T21875029 ../../relay-runtime/util/RelayConcreteNode
 import type {
   ConcreteArgument,
   ConcreteArgumentDefinition,
   ConcreteFragment,
-  ConcreteRoot,
+  ConcreteOperation,
   ConcreteSelection,
-  GeneratedNode,
+  RequestNode,
 } from 'RelayConcreteNode';
 const {getRawType, isAbstractType, getNullableType} = SchemaUtils;
 
-declare function generate(node: Root): ConcreteRoot;
+declare function generate(node: Batch): RequestNode;
 declare function generate(node: Fragment): ConcreteFragment;
-
-export type CompiledDocumentMap = Map<string, GeneratedNode>;
-export type RelayGeneratedNode = ConcreteRoot | ConcreteFragment;
 
 /**
  * @public
@@ -47,9 +44,9 @@ export type RelayGeneratedNode = ConcreteRoot | ConcreteFragment;
  * Converts a GraphQLIR node into a plain JS object representation that can be
  * used at runtime.
  */
-function generate(node: Root | Fragment): ConcreteRoot | ConcreteFragment {
+function generate(node: Batch | Fragment): RequestNode | ConcreteFragment {
   invariant(
-    ['Root', 'Fragment'].indexOf(node.kind) >= 0,
+    ['Batch', 'Fragment'].indexOf(node.kind) >= 0,
     'RelayCodeGenerator: Unknown AST kind `%s`. Source: %s.',
     node.kind,
     getErrorMessage(node),
@@ -59,24 +56,38 @@ function generate(node: Root | Fragment): ConcreteRoot | ConcreteFragment {
 
 const RelayCodeGenVisitor = {
   leave: {
-    Root(node): ConcreteRoot {
+    Batch(node): RequestNode {
       return {
-        argumentDefinitions: node.argumentDefinitions,
-        kind: 'Root',
-        name: node.name,
+        kind: 'Operation',
+        operation: node.operation.operation,
+        name: node.operation.name,
+        id: node.id,
+        metadata: node.metadata,
+        argumentDefinitions: node.operation.argumentDefinitions,
+        selections: node.operation.selections,
+        fragment: node.fragment,
+        text: node.text,
+      };
+    },
+
+    Root(node): $Shape<ConcreteOperation> {
+      return {
+        kind: 'Operation',
         operation: node.operation,
+        name: node.name,
+        argumentDefinitions: node.argumentDefinitions,
         selections: flattenArray(node.selections),
       };
     },
 
     Fragment(node): ConcreteFragment {
       return {
-        argumentDefinitions: node.argumentDefinitions,
         kind: 'Fragment',
-        metadata: node.metadata || null,
         name: node.name,
-        selections: flattenArray(node.selections),
         type: node.type.toString(),
+        metadata: node.metadata || null,
+        argumentDefinitions: node.argumentDefinitions,
+        selections: flattenArray(node.selections),
       };
     },
 
@@ -135,9 +146,9 @@ const RelayCodeGenVisitor = {
             return {
               kind: 'LinkedHandle',
               alias: node.alias,
+              name: node.name,
               args: valuesOrNull(sortByName(node.args)),
               handle: handle.name,
-              name: node.name,
               key: handle.key,
               filters: handle.filters,
             };
@@ -148,12 +159,12 @@ const RelayCodeGenVisitor = {
         {
           kind: 'LinkedField',
           alias: node.alias,
+          name: node.name,
+          storageKey: getStorageKey(node.name, node.args),
           args: valuesOrNull(sortByName(node.args)),
           concreteType: !isAbstractType(type) ? type.toString() : null,
-          name: node.name,
           plural: isPlural(node.type),
           selections: flattenArray(node.selections),
-          storageKey: getStorageKey(node.name, node.args),
         },
         ...handles,
       ];
@@ -166,9 +177,9 @@ const RelayCodeGenVisitor = {
             return {
               kind: 'ScalarHandle',
               alias: node.alias,
+              name: node.name,
               args: valuesOrNull(sortByName(node.args)),
               handle: handle.name,
-              name: node.name,
               key: handle.key,
               filters: handle.filters,
             };
@@ -178,8 +189,8 @@ const RelayCodeGenVisitor = {
         {
           kind: 'ScalarField',
           alias: node.alias,
-          args: valuesOrNull(sortByName(node.args)),
           name: node.name,
+          args: valuesOrNull(sortByName(node.args)),
           selections: valuesOrUndefined(flattenArray(node.selections)),
           storageKey: getStorageKey(node.name, node.args),
         },

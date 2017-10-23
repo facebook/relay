@@ -18,7 +18,7 @@ const invariant = require('invariant');
 const {convertFetch, convertSubscribe} = require('ConvertToExecuteFunction');
 
 import type {CacheConfig} from 'RelayCombinedEnvironmentTypes';
-import type {ConcreteBatch} from 'RelayConcreteNode';
+import type {RequestNode} from 'RelayConcreteNode';
 import type {
   FetchFunction,
   Network,
@@ -43,12 +43,14 @@ function create(
     : undefined;
 
   function execute(
-    operation: ConcreteBatch,
+    _request: RequestNode,
     variables: Variables,
     cacheConfig: CacheConfig,
     uploadables?: ?UploadableMap,
   ): RelayObservable<ExecutePayload> {
-    if (operation.query.operation === 'subscription') {
+    // Const so Flow can refine.
+    const request = _request;
+    if (request.kind === 'Operation' && request.operation === 'subscription') {
       invariant(
         observeSubscribe,
         'RelayNetwork: This network layer does not support Subscriptions. ' +
@@ -59,7 +61,7 @@ function create(
         !uploadables,
         'RelayNetwork: Cannot provide uploadables while subscribing.',
       );
-      return observeSubscribe(operation, variables, cacheConfig);
+      return observeSubscribe(request, variables, cacheConfig);
     }
 
     const pollInterval = cacheConfig.poll;
@@ -68,12 +70,10 @@ function create(
         !uploadables,
         'RelayNetwork: Cannot provide uploadables while polling.',
       );
-      return observeFetch(operation, variables, {force: true}).poll(
-        pollInterval,
-      );
+      return observeFetch(request, variables, {force: true}).poll(pollInterval);
     }
 
-    return observeFetch(operation, variables, cacheConfig, uploadables);
+    return observeFetch(request, variables, cacheConfig, uploadables);
   }
 
   return {execute};

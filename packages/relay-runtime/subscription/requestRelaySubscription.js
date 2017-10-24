@@ -11,6 +11,8 @@
 
 'use strict';
 
+const RelayConcreteNode = require('RelayConcreteNode');
+
 const setRelayModernMutationConfigs = require('setRelayModernMutationConfigs');
 const warning = require('warning');
 
@@ -33,8 +35,16 @@ function requestRelaySubscription(
   environment: Environment,
   config: GraphQLSubscriptionConfig,
 ): Disposable {
-  const {createOperationSelector, getOperation} = environment.unstable_internal;
-  const subscription = getOperation(config.subscription);
+  const {createOperationSelector, getRequest} = environment.unstable_internal;
+  const subscription = getRequest(config.subscription);
+  if (
+    subscription.kind !== RelayConcreteNode.OPERATION ||
+    subscription.operation !== 'subscription'
+  ) {
+    throw new Error(
+      'requestRelaySubscription: Must use Subscription operation',
+    );
+  }
   const {configs, onCompleted, onError, onNext, variables} = config;
   const operation = createOperationSelector(subscription, variables);
 

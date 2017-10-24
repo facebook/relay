@@ -11,6 +11,8 @@
 
 'use strict';
 
+const RelayConcreteNode = require('RelayConcreteNode');
+
 const invariant = require('invariant');
 const isRelayModernEnvironment = require('isRelayModernEnvironment');
 const setRelayModernMutationConfigs = require('setRelayModernMutationConfigs');
@@ -51,8 +53,14 @@ function commitRelayModernMutation<T>(
     'commitRelayModernMutation: expect `environment` to be an instance of ' +
       '`RelayModernEnvironment`.',
   );
-  const {createOperationSelector, getOperation} = environment.unstable_internal;
-  const mutation = getOperation(config.mutation);
+  const {createOperationSelector, getRequest} = environment.unstable_internal;
+  const mutation = getRequest(config.mutation);
+  if (
+    mutation.kind !== RelayConcreteNode.OPERATION ||
+    mutation.operation !== 'mutation'
+  ) {
+    throw new Error('commitRelayModernMutation: Expected mutation operation');
+  }
   let {optimisticResponse, optimisticUpdater, updater} = config;
   const {configs, onError, variables, uploadables} = config;
   const operation = createOperationSelector(mutation, variables);

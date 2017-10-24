@@ -154,6 +154,7 @@ export interface CEnvironment<
   TNode,
   TOperation,
   TPayload,
+  TRequest,
 > {
   /**
    * Read the results of a selector from in-memory records in the store.
@@ -202,6 +203,7 @@ export interface CEnvironment<
     TGraphQLTaggedNode,
     TNode,
     TOperation,
+    TRequest,
   >,
 }
 
@@ -211,6 +213,7 @@ export interface CUnstableEnvironmentCore<
   TGraphQLTaggedNode,
   TNode,
   TOperation,
+  TRequest,
 > {
   /**
    * Create an instance of a FragmentSpecResolver.
@@ -247,9 +250,9 @@ export interface CUnstableEnvironmentCore<
   /**
    * Given a graphql`...` tagged template, extract an operation definition
    * usable by this version of Relay core. Throws if the value is not an
-   * operation.
+   * operation (or batch request).
    */
-  getOperation: (node: TGraphQLTaggedNode) => TOperation,
+  getRequest: (node: TGraphQLTaggedNode) => TRequest,
 
   /**
    * Determine if two selectors are equal (represent the same selection). Note

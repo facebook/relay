@@ -11,6 +11,8 @@
 
 'use strict';
 
+const RelayConcreteNode = require('RelayConcreteNode');
+
 const invariant = require('invariant');
 
 import type {CacheConfig} from 'RelayCombinedEnvironmentTypes';
@@ -41,8 +43,14 @@ function fetchRelayModernQuery(
     'fetchRelayModernQuery: Expected a valid Relay environment, got `%s`.',
     environment,
   );
-  const {createOperationSelector, getOperation} = environment.unstable_internal;
-  const query = getOperation(taggedNode);
+  const {createOperationSelector, getRequest} = environment.unstable_internal;
+  const query = getRequest(taggedNode);
+  if (
+    query.kind !== RelayConcreteNode.OPERATION ||
+    query.operation !== 'query'
+  ) {
+    throw new Error('fetchRelayModernQuery: Expected query operation');
+  }
   const operation = createOperationSelector(query, variables);
 
   return environment

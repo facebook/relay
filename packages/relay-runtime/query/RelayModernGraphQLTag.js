@@ -11,20 +11,22 @@
 
 'use strict';
 
+const RelayConcreteNode = require('RelayConcreteNode');
+
 const invariant = require('invariant');
 
 import type {
   ConcreteFragmentDefinition,
   ConcreteOperationDefinition,
 } from 'ConcreteQuery';
-import type {ConcreteOperation, ConcreteFragment} from 'RelayConcreteNode';
+import type {ConcreteFragment, RequestNode} from 'RelayConcreteNode';
 import typeof RelayQL from 'RelayQL';
 
 // The type of a graphql`...` tagged template expression.
 export type GraphQLTaggedNode =
-  | (() => ConcreteFragment | ConcreteOperation)
+  | (() => ConcreteFragment | RequestNode)
   | {
-      modern: () => ConcreteFragment | ConcreteOperation,
+      modern: () => ConcreteFragment | RequestNode,
       classic: RelayQL =>
         | ConcreteFragmentDefinition
         | ConcreteOperationDefinition,
@@ -57,27 +59,28 @@ function getFragment(taggedNode: GraphQLTaggedNode): ConcreteFragment {
   invariant(
     typeof fragment === 'object' &&
       fragment !== null &&
-      fragment.kind === 'Fragment',
+      fragment.kind === RelayConcreteNode.FRAGMENT,
     'RelayModernGraphQLTag: Expected a fragment, got `%s`.',
     JSON.stringify(fragment),
   );
   return (fragment: any);
 }
 
-function getOperation(taggedNode: GraphQLTaggedNode): ConcreteOperation {
-  const operation = getNode(taggedNode);
+function getRequest(taggedNode: GraphQLTaggedNode): RequestNode {
+  const request = getNode(taggedNode);
   invariant(
-    typeof operation === 'object' &&
-      operation !== null &&
-      operation.kind === 'Operation',
-    'RelayModernGraphQLTag: Expected an operation, got `%s`.',
-    JSON.stringify(operation),
+    typeof request === 'object' &&
+      request !== null &&
+      (request.kind === RelayConcreteNode.OPERATION ||
+        request.kind === RelayConcreteNode.BATCH_REQUEST),
+    'RelayModernGraphQLTag: Expected an request, got `%s`.',
+    JSON.stringify(request),
   );
-  return (operation: any);
+  return (request: any);
 }
 
 module.exports = {
   getFragment,
-  getOperation,
+  getRequest,
   graphql,
 };

@@ -25,7 +25,7 @@ import type {GraphQLSchema} from 'graphql';
 
 type State = true;
 
-function transform(
+function relayFieldHandleTransform(
   context: CompilerContext,
   schema: GraphQLSchema,
 ): CompilerContext {
@@ -74,4 +74,6 @@ function visitField<F: Field>(field: F, state: State): F {
   }: $FlowIssue);
 }
 
-module.exports = {transform};
+module.exports = {
+  transform: relayFieldHandleTransform,
+};

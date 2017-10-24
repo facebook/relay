@@ -92,7 +92,7 @@ type State = {
  * type, and (2) is removed because the `ClientType` type does not exist in the
  * base schema.
  */
-function transform(
+function skipClientFieldTransform(
   context: GraphQLCompilerContext,
   schema: GraphQLSchema,
 ): GraphQLCompilerContext {
@@ -215,4 +215,6 @@ function visitInlineFragment(
   return null;
 }
 
-module.exports = {transform};
+module.exports = {
+  transform: skipClientFieldTransform,
+};

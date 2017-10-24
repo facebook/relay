@@ -16,6 +16,22 @@ export type ConcreteArgumentDefinition =
   | ConcreteLocalArgument
   | ConcreteRootArgument;
 /**
+ * A wrapper around many operations to request in a batched network request.
+ * This provides a place to store multiple concrete operations which should be
+ * executed as part of a single request, e.g. in the case of deferred nodes or
+ * for streaming connections that are represented as distinct compiled concrete
+ * operations but are still conceptually tied to one source operation.
+ *
+ * Operations may contain data describing their dependencies on other operations
+ * or any other implementation-specific API configuration in each operation's
+ * metadata dictionary.
+ */
+export type ConcreteBatchRequest = {
+  kind: 'BatchRequest',
+  name: string,
+  operations: Array<ConcreteOperation>,
+};
+/**
  * Represents a single ConcreteOperation along containing metadata for
  * processing it at runtime. The `text` (or persisted `id`) can be used to
  * execute the operation, the `fragment` is derived from this operation to
@@ -130,11 +146,11 @@ export type ConcreteVariable = {
   variableName: string,
 };
 export type ConcreteSelectableNode = ConcreteFragment | ConcreteOperation;
-// TODO: Add BatchRequest to RequestNode
-export type RequestNode = ConcreteOperation;
+export type RequestNode = ConcreteOperation | ConcreteBatchRequest;
 export type GeneratedNode = RequestNode | ConcreteFragment;
 
 const RelayConcreteNode = {
+  BATCH_REQUEST: 'BatchRequest',
   CONDITION: 'Condition',
   FRAGMENT: 'Fragment',
   FRAGMENT_SPREAD: 'FragmentSpread',

@@ -118,7 +118,9 @@ type SelectionMap = IMap<string, ?SelectionMap>;
  *
  * 1 can be skipped because it is already fetched at the outer level.
  */
-function transform(context: GraphQLCompilerContext): GraphQLCompilerContext {
+function skipRedundantNodesTransform(
+  context: GraphQLCompilerContext,
+): GraphQLCompilerContext {
   return context.documents().reduce((ctx: GraphQLCompilerContext, node) => {
     const selectionMap = new IMap();
     const transformed = transformNode(node, selectionMap);
@@ -215,4 +217,6 @@ function sortSelections(selections: Array<Selection>): Array<Selection> {
   });
 }
 
-module.exports = {transform};
+module.exports = {
+  transform: skipRedundantNodesTransform,
+};

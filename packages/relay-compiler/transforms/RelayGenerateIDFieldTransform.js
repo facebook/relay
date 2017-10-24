@@ -47,7 +47,9 @@ const NODE_TYPE = 'Node';
  * - Adds an `id` selection on any `LinkedField` of type that implements `Node`
  *   or has an id field but where there is no unaliased `id` selection.
  */
-function transform(context: CompilerContext): CompilerContext {
+function relayGenerateIDFieldTransform(
+  context: CompilerContext,
+): CompilerContext {
   const documents = context.documents();
   return documents.reduce((ctx: CompilerContext, node) => {
     const transformedNode = transformNode(context, node);
@@ -177,4 +179,6 @@ function buildIdFragment(
   };
 }
 
-module.exports = {transform};
+module.exports = {
+  transform: relayGenerateIDFieldTransform,
+};

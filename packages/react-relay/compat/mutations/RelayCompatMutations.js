@@ -18,7 +18,11 @@ const {
   getRelayClassicEnvironment,
   getRelayModernEnvironment,
 } = require('../RelayCompatEnvironment');
-const {applyOptimisticMutation, commitMutation} = require('RelayRuntime');
+const {
+  applyOptimisticMutation,
+  commitMutation,
+  RelayConcreteNode,
+} = require('RelayRuntime');
 
 import type {Disposable} from '../../classic/environment/RelayCombinedEnvironmentTypes';
 import type {Environment as ClassicEnvironment} from '../../classic/environment/RelayEnvironmentTypes';
@@ -88,8 +92,8 @@ function commitRelayClassicMutation<T>(
     uploadables,
   }: MutationConfig<T>,
 ): Disposable {
-  const {getOperation} = environment.unstable_internal;
-  const operation = getOperation(mutation);
+  const {getRequest} = environment.unstable_internal;
+  const operation = getRequest(mutation);
   // TODO: remove this check after we fix flow.
   if (typeof optimisticResponse === 'function') {
     warning(
@@ -121,8 +125,14 @@ function applyRelayClassicMutation(
   environment: ClassicEnvironment,
   {configs, mutation, optimisticResponse, variables}: OptimisticMutationConfig,
 ): Disposable {
-  const {getOperation} = environment.unstable_internal;
-  const operation = getOperation(mutation);
+  const {getRequest} = environment.unstable_internal;
+  const operation = getRequest(mutation);
+  if (
+    operation.kind !== RelayConcreteNode.OPERATION ||
+    operation.operation !== 'mutation'
+  ) {
+    throw new Error('RelayCompatMutations: Expected mutation operation');
+  }
 
   // RelayClassic can't update anything without response.
   if (!optimisticResponse) {

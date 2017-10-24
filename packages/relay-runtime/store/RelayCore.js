@@ -15,7 +15,7 @@ const RelayModernFragmentSpecResolver = require('RelayModernFragmentSpecResolver
 
 const warning = require('warning');
 
-const {getFragment, getOperation} = require('RelayModernGraphQLTag');
+const {getFragment, getRequest} = require('RelayModernGraphQLTag');
 const {createOperationSelector} = require('RelayModernOperationSelector');
 const {
   areEqualSelectors,
@@ -64,7 +64,7 @@ module.exports = {
   createOperationSelector,
   getDataIDsFromObject,
   getFragment,
-  getOperation,
+  getRequest,
   getSelector,
   getSelectorList,
   getSelectorsFromObject,

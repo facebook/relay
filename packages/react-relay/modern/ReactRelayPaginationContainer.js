@@ -29,6 +29,7 @@ const {
 const {profileContainer} = require('./ReactRelayContainerProfiler');
 const {
   ConnectionInterface,
+  RelayConcreteNode,
   RelayProfiler,
   Observable,
 } = require('RelayRuntime');
@@ -613,7 +614,7 @@ function createContainerWithFragments<
       const {environment} = assertRelayContext(this.context.relay);
       const {
         createOperationSelector,
-        getOperation,
+        getRequest,
         getVariablesFromObject,
       } = environment.unstable_internal;
       const props = {
@@ -654,7 +655,13 @@ function createContainerWithFragments<
       if (cacheConfig && options && options.rerunParamExperimental) {
         cacheConfig.rerunParamExperimental = options.rerunParamExperimental;
       }
-      const query = getOperation(connectionConfig.query);
+      const query = getRequest(connectionConfig.query);
+      if (query.kind === RelayConcreteNode.BATCH_REQUEST) {
+        throw new Error(
+          'ReactRelayPaginationContainer: Batch request not yet ' +
+            'implemented (T22954884)',
+        );
+      }
       const operation = createOperationSelector(query, fetchVariables);
 
       let refetchSubscription = null;

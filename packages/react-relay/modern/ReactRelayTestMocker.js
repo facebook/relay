@@ -16,7 +16,11 @@ const emptyFunction = require('emptyFunction');
 const invariant = require('invariant');
 const warning = require('warning');
 
-const {Network, isRelayModernEnvironment} = require('RelayRuntime');
+const {
+  Network,
+  isRelayModernEnvironment,
+  RelayConcreteNode,
+} = require('RelayRuntime');
 
 import type {CacheConfig} from '../classic/environment/RelayCombinedEnvironmentTypes';
 import type {ConcreteOperationDefinition} from '../classic/query/ConcreteQuery';
@@ -136,7 +140,14 @@ class ReactRelayTestMocker {
    * their components behave under error conditions.
    */
   _mockNetworkLayer(env: IEnvironment): IEnvironment {
-    const fetch = (operation, variables, cacheConfig) => {
+    const fetch = (request, variables, cacheConfig) => {
+      const operation = request;
+      if (operation.kind === RelayConcreteNode.BATCH_REQUEST) {
+        throw new Error(
+          'ReactRelayTestMocker: Batch request not yet implemented (T22955064)',
+        );
+      }
+
       let resolve = emptyFunction;
       let reject = emptyFunction;
       const promise = new Promise((res, rej) => {

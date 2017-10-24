@@ -31,6 +31,7 @@ import type {
   ConcreteLinkedField,
   ConcreteFragment,
   ConcreteSelectableNode,
+  RequestNode,
 } from 'RelayConcreteNode';
 import type {DataID} from 'RelayInternalTypes';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
@@ -46,6 +47,7 @@ type TGraphQLTaggedNode = GraphQLTaggedNode;
 type TNode = ConcreteSelectableNode;
 type TOperation = ConcreteOperation;
 type TPayload = RelayResponsePayload;
+type TRequest = RequestNode;
 
 export type FragmentMap = CFragmentMap<TFragment>;
 export type OperationSelector = COperationSelector<TNode, TOperation>;
@@ -58,6 +60,7 @@ export type UnstableEnvironmentCore = CUnstableEnvironmentCore<
   TGraphQLTaggedNode,
   TNode,
   TOperation,
+  TRequest,
 >;
 
 /**
@@ -206,6 +209,7 @@ export interface Environment
     TNode,
     TOperation,
     TPayload,
+    TRequest,
   > {
   /**
    * Apply an optimistic update to the environment. The mutation can be reverted

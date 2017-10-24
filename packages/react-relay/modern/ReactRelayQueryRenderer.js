@@ -17,6 +17,8 @@ const RelayPropTypes = require('../classic/container/RelayPropTypes');
 const areEqual = require('areEqual');
 const deepFreeze = require('../classic/tools/deepFreeze');
 
+const {RelayConcreteNode} = require('RelayRuntime');
+
 import type {
   CacheConfig,
   Disposable,
@@ -123,9 +125,16 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
     if (query) {
       const {
         createOperationSelector,
-        getOperation,
+        getRequest,
       } = environment.unstable_internal;
-      const operation = createOperationSelector(getOperation(query), variables);
+      const request = getRequest(query);
+      if (request.kind === RelayConcreteNode.BATCH_REQUEST) {
+        throw new Error(
+          'ReactRelayQueryRenderer: Batch Request not yet ' +
+            'implemented (T22954932)',
+        );
+      }
+      const operation = createOperationSelector(request, variables);
       this._relayContext = {
         environment,
         variables: operation.variables,

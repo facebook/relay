@@ -11,6 +11,7 @@
 
 'use strict';
 
+const RelayConcreteNode = require('RelayConcreteNode');
 const RelayObservable = require('RelayObservable');
 
 const warning = require('warning');
@@ -72,11 +73,21 @@ function convertToExecutePayload(
         'ConvertToExecuteFunction: execute payload contains response but ' +
           'is missing operation.',
       );
-      return {operation: request, variables, response: value.response};
+      return createExecutePayload(request, variables, value.response);
     }
     return value;
   }
-  return {operation: request, variables, response: value};
+  return createExecutePayload(request, variables, value);
+}
+
+function createExecutePayload(request, variables, response) {
+  const operation = request;
+  if (operation.kind === RelayConcreteNode.BATCH_REQUEST) {
+    throw new Error(
+      'ConvertToExecuteFunction: Batch request must return ExecutePayload.',
+    );
+  }
+  return {operation, variables, response};
 }
 
 module.exports = {

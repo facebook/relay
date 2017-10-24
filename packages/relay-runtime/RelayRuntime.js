@@ -11,6 +11,7 @@
 
 'use strict';
 
+const RelayConcreteNode = require('RelayConcreteNode');
 const RelayConnectionHandler = require('RelayConnectionHandler');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayCore = require('RelayCore');
@@ -41,8 +42,10 @@ export opaque type FragmentReference<T> = mixed;
 export type {RecordState} from 'RelayRecordState';
 export type {
   GeneratedNode,
+  ConcreteBatchRequest,
   ConcreteOperation,
   ConcreteFragment,
+  RequestNode,
 } from 'RelayConcreteNode';
 export type {ConnectionMetadata} from 'RelayConnectionHandler';
 export type {EdgeRecord, PageInfo} from 'RelayConnectionInterface';
@@ -105,7 +108,14 @@ module.exports = {
   createOperationSelector: RelayCore.createOperationSelector,
   getDataIDsFromObject: RelayCore.getDataIDsFromObject,
   getFragment: RelayModernGraphQLTag.getFragment,
-  getOperation: RelayModernGraphQLTag.getOperation,
+  getRequest: RelayModernGraphQLTag.getRequest,
+  // TODO: enable after getting Flow to pass
+  // getOperation: tag => {
+  //   if (__DEV__) {
+  //     warning(false, 'getOperation() deprecated. Use getRequest().');
+  //   }
+  //   return RelayModernGraphQLTag.getRequest(tag);
+  // },
   getSelector: RelayCore.getSelector,
   getSelectorList: RelayCore.getSelectorList,
   getSelectorsFromObject: RelayCore.getSelectorsFromObject,
@@ -135,4 +145,5 @@ module.exports = {
   recycleNodesInto: recycleNodesInto,
   simpleClone: simpleClone,
   ROOT_ID: RelayStoreUtils.ROOT_ID,
+  RelayConcreteNode: RelayConcreteNode,
 };

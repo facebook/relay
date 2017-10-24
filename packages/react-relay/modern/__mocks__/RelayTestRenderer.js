@@ -6,6 +6,7 @@
  *
  * @providesModule RelayTestRenderer
  * @format
+ * @flow
  */
 
 'use strict';
@@ -15,17 +16,19 @@ const RelayPropTypes = require('../../classic/container/RelayPropTypes');
 
 const invariant = require('invariant');
 
+const {RelayConcreteNode} = require('RelayRuntime');
+
 import type {Variables} from '../../classic/tools/RelayTypes';
-import type {ConcreteOperation, StoreEnvironment, Snapshot} from 'RelayRuntime';
+import type {Snapshot} from 'RelayRuntime';
 
 type Props = {
-  environment: StoreEnvironment,
-  query: ConcreteOperation,
+  environment: $FlowFixMe,
+  query: $FlowFixMe,
   variables: Variables,
-  children: React.Component,
+  children: React.Element<$FlowFixMe>,
 };
 
-class RelayTestRenderer extends React.Component {
+class RelayTestRenderer extends React.Component<Props, $FlowFixMe> {
   constructor(props: Props) {
     super(props);
 
@@ -41,12 +44,14 @@ class RelayTestRenderer extends React.Component {
 
     const {query, environment, variables} = props;
 
-    const {
-      createOperationSelector,
-      getOperation,
-    } = environment.unstable_internal;
+    const {createOperationSelector, getRequest} = environment.unstable_internal;
 
-    const operation = getOperation((query: $FlowFixMe));
+    const operation = getRequest((query: $FlowFixMe));
+    if (operation.kind === RelayConcreteNode.BATCH_REQUEST) {
+      throw new Error(
+        'RelayTestRender: Batch request not yet implemented (T22955102)',
+      );
+    }
     const operationSelector = createOperationSelector(operation, variables);
     const snapshot = environment.lookup(operationSelector.fragment);
 
@@ -74,6 +79,7 @@ class RelayTestRenderer extends React.Component {
     return React.cloneElement(
       this.props.children,
       newProps,
+      // $FlowFixMe: error found when enabling flow for this file.
       this.props.children.children,
     );
   }

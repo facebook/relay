@@ -851,7 +851,7 @@ describe('RelayEnvironment', () => {
           };
         },
       };
-      Query = environment.unstable_internal.getOperation(
+      Query = environment.unstable_internal.getRequest(
         graphql`
           query RelayEnvironmentTestUserQuery($id: ID!, $size: Int) {
             user: node(id: $id) {

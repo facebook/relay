@@ -53,7 +53,7 @@ module.exports = {
   createOperationSelector,
   getDataIDsFromObject,
   getFragment: getClassicFragment,
-  getOperation: getClassicOperation,
+  getRequest: getClassicOperation,
   getSelector,
   getSelectorList,
   getSelectorsFromObject,

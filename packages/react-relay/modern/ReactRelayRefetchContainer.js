@@ -26,7 +26,7 @@ const {
   getReactComponent,
 } = require('../classic/container/RelayContainerUtils');
 const {profileContainer} = require('./ReactRelayContainerProfiler');
-const {Observable, RelayProfiler} = require('RelayRuntime');
+const {Observable, RelayProfiler, RelayConcreteNode} = require('RelayRuntime');
 
 import type {
   Disposable,
@@ -234,9 +234,15 @@ function createContainerWithFragments<
       const cacheConfig = options ? {force: !!options.force} : undefined;
       const {
         createOperationSelector,
-        getOperation,
+        getRequest,
       } = this.context.relay.environment.unstable_internal;
-      const query = getOperation(taggedNode);
+      const query = getRequest(taggedNode);
+      if (query.kind === RelayConcreteNode.BATCH_REQUEST) {
+        throw new Error(
+          'ReactRelayRefetchContainer: Batch request not yet ' +
+            'implemented (T22955000)',
+        );
+      }
       const operation = createOperationSelector(query, fetchVariables);
 
       // Immediately retain the results of the query to prevent cached

@@ -11,6 +11,8 @@
 
 'use strict';
 
+const RelayConcreteNode = require('RelayConcreteNode');
+
 const prettyStringify = require('prettyStringify');
 
 const {convertFetch, convertSubscribe} = require('ConvertToExecuteFunction');
@@ -68,7 +70,14 @@ function wrapExecute(
   LoggerTransaction: Class<IRelayNetworkLoggerTransaction>,
   graphiQLPrinter: ?GraphiQLPrinter,
 ): ExecuteFunction {
-  return (operation, variables, cacheConfig, uploadables) => {
+  return (request, variables, cacheConfig, uploadables) => {
+    const operation = request;
+    if (operation.kind === RelayConcreteNode.BATCH_REQUEST) {
+      throw new Error(
+        'createRelayNetworkLogger: Batch request not yet ' +
+          'implemented (T22955154)',
+      );
+    }
     let transaction;
 
     function addLogs(error, response, status) {
@@ -101,7 +110,8 @@ function wrapExecute(
     const observable = execute(operation, variables, cacheConfig, uploadables);
 
     const isSubscription =
-      operation.kind === 'Operation' && operation.operation === 'subscription';
+      operation.kind === RelayConcreteNode.OPERATION &&
+      operation.operation === 'subscription';
 
     return observable.do({
       start: () => {

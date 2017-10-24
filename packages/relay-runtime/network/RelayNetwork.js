@@ -11,6 +11,7 @@
 
 'use strict';
 
+const RelayConcreteNode = require('RelayConcreteNode');
 const RelayObservable = require('RelayObservable');
 
 const invariant = require('invariant');
@@ -50,7 +51,10 @@ function create(
   ): RelayObservable<ExecutePayload> {
     // Const so Flow can refine.
     const request = _request;
-    if (request.kind === 'Operation' && request.operation === 'subscription') {
+    if (
+      request.kind === RelayConcreteNode.OPERATION &&
+      request.operation === 'subscription'
+    ) {
       invariant(
         observeSubscribe,
         'RelayNetwork: This network layer does not support Subscriptions. ' +

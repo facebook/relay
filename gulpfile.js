@@ -162,7 +162,8 @@ const builds = [
     exports: {
       classic: 'ReactRelayClassicExports.js',
       compat: 'ReactRelayCompatPublic.js',
-      index: 'ReactRelayPublic.js'
+      index: 'ReactRelayPublic.js',
+      macro: 'ReactRelayGraphQL.macro.js'
     },
     bundles: [
       {

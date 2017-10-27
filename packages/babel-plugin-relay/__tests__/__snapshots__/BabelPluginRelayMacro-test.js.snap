@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BabelPluginRelayMacro works 1`] = `
+"
+'use strict';
+
+const CompatProfilePic = require('CompatProfilePic');
+
+const CompatViewerQuery = function () {
+  return require('./__generated__/CompatViewerQuery.graphql');
+};"
+`;

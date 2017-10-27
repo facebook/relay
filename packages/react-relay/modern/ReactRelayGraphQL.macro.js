@@ -1,0 +1,1 @@
+module.exports = require('../../babel-plugin-relay/BabelPluginRelayMacro');

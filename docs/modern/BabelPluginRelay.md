@@ -100,3 +100,11 @@ When compiling code for production deployment, the plugin can be configured to i
   ]
 }
 ```
+
+### Alternatives
+
+Instead of using `babel-plugin-relay`, you can use Relay with [babel-macros](https://github.com/kentcdodds/babel-macros). After installing `babel-macros` and adding it to your Babel config:
+
+```javascript
+const {graphql} = require('react-relay/macro');
+```

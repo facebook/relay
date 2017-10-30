@@ -15,6 +15,13 @@ node_modules/fbjs/flow/lib
 [options]
 module.system=haste
 module.name_mapper='^ReactDOM$' -> 'react-dom'
+module.system.haste.paths.blacklist=<PROJECT_ROOT>/packages/react-relay/.*
+
+; Only needed for react-relay/classic/tools/relayUnstableBatchedUpdates
+module.file_ext=.web.js
+module.file_ext=.js
+module.file_ext=.jsx
+module.file_ext=.json
 
 esproposal.class_static_fields=enable
 esproposal.class_instance_fields=enable

@@ -22,7 +22,7 @@ const {EXISTENT, NONEXISTENT} = require('RelayRecordState');
 const {ROOT_ID, ROOT_TYPE} = require('RelayStoreUtils');
 
 import type {HandlerProvider} from 'RelayDefaultHandlerProvider';
-import type {DataID} from 'RelayInternalTypes';
+import type {DataID} from 'react-relay/classic/tools/RelayInternalTypes';
 import type RelayRecordSourceMutator from 'RelayRecordSourceMutator';
 import type {
   RecordProxy,

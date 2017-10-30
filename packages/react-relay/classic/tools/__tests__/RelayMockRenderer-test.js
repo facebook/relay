@@ -13,7 +13,7 @@
 jest.mock('ReactDOM', () => ({}));
 
 const React = require('React');
-const Relay = require('RelayPublic');
+const Relay = require('react-relay/classic/RelayPublic');
 const ReactTestRenderer = require('ReactTestRenderer');
 const RelayMockRenderer = require('../RelayMockRenderer');
 

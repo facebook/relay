@@ -13,10 +13,10 @@
 
 const invariant = require('invariant');
 
-import type {CacheConfig} from 'RelayCombinedEnvironmentTypes';
+import type {CacheConfig} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 import type {RequestNode} from 'RelayConcreteNode';
 import type {ExecutePayload, UploadableMap} from 'RelayNetworkTypes';
-import type {Variables} from 'RelayTypes';
+import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 let queryID = 1;
 

@@ -18,7 +18,7 @@ const invariant = require('invariant');
 import type {
   ConcreteFragmentDefinition,
   ConcreteOperationDefinition,
-} from 'ConcreteQuery';
+} from 'react-relay/classic/query/ConcreteQuery';
 import type {ConcreteFragment, RequestNode} from 'RelayConcreteNode';
 import typeof RelayQL from 'RelayQL';
 

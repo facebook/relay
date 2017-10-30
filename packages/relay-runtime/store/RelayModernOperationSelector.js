@@ -18,7 +18,7 @@ const {ROOT_ID} = require('RelayStoreUtils');
 
 import type {RequestNode} from 'RelayConcreteNode';
 import type {OperationSelector} from 'RelayStoreTypes';
-import type {Variables} from 'RelayTypes';
+import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 /**
  * Creates an instance of the `OperationSelector` type defined in

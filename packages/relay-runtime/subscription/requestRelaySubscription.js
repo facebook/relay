@@ -16,10 +16,13 @@ const RelayConcreteNode = require('RelayConcreteNode');
 const setRelayModernMutationConfigs = require('setRelayModernMutationConfigs');
 const warning = require('warning');
 
-import type {Disposable} from 'RelayCombinedEnvironmentTypes';
+import type {Disposable} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {Environment, SelectorStoreUpdater} from 'RelayStoreTypes';
-import type {RelayMutationConfig, Variables} from 'RelayTypes';
+import type {
+  RelayMutationConfig,
+  Variables,
+} from 'react-relay/classic/tools/RelayTypes';
 
 export type GraphQLSubscriptionConfig = {|
   configs?: Array<RelayMutationConfig>,

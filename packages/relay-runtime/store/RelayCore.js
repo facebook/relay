@@ -26,7 +26,7 @@ const {
   getVariablesFromObject,
 } = require('RelayModernSelector');
 
-import type {FragmentSpecResolver, Props} from 'RelayCombinedEnvironmentTypes';
+import type {FragmentSpecResolver, Props} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 import type {FragmentMap, RelayContext} from 'RelayStoreTypes';
 
 function createFragmentSpecResolver(

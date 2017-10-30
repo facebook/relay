@@ -11,8 +11,8 @@
 
 'use strict';
 
-import type {Call} from 'RelayInternalTypes';
-import type {Record} from 'RelayRecord';
+import type {Call} from 'react-relay/classic/tools/RelayInternalTypes';
+import type {Record} from 'react-relay/classic/store/RelayRecord';
 
 export type EdgeRecord = Record & {
   cursor: mixed,

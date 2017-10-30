@@ -24,7 +24,7 @@ import type {
   CUnstableEnvironmentCore,
   Disposable,
   Record,
-} from 'RelayCombinedEnvironmentTypes';
+} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 import type {
   ConcreteScalarField,
   ConcreteLinkedField,
@@ -32,13 +32,13 @@ import type {
   ConcreteSelectableNode,
   RequestNode,
 } from 'RelayConcreteNode';
-import type {DataID} from 'RelayInternalTypes';
+import type {DataID} from 'react-relay/classic/tools/RelayInternalTypes';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {PayloadData} from 'RelayNetworkTypes';
 import type {PayloadError, UploadableMap} from 'RelayNetworkTypes';
 import type RelayObservable from 'RelayObservable';
 import type {RecordState} from 'RelayRecordState';
-import type {Variables} from 'RelayTypes';
+import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 type TEnvironment = Environment;
 type TFragment = ConcreteFragment;

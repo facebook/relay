@@ -17,14 +17,14 @@ const {
   areEqualSelectors,
   getSelectorsFromObject,
 } = require('RelayModernSelector');
-const {isScalarAndEqual} = require('RelayPublic');
+const {isScalarAndEqual} = require('react-relay/classic/RelayPublic');
 
 import type {
   Disposable,
   FragmentSpecResolver,
   FragmentSpecResults,
   SelectorData,
-} from 'RelayCombinedEnvironmentTypes';
+} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 import type {
   Environment,
   FragmentMap,
@@ -32,7 +32,7 @@ import type {
   Selector,
   Snapshot,
 } from 'RelayStoreTypes';
-import type {Variables} from 'RelayTypes';
+import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 type Props = {[key: string]: mixed};
 type Resolvers = {[key: string]: ?(SelectorListResolver | SelectorResolver)};

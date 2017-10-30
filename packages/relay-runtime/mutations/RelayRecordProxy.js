@@ -15,11 +15,11 @@ const formatStorageKey = require('formatStorageKey');
 const generateRelayClientID = require('generateRelayClientID');
 const invariant = require('invariant');
 
-import type {DataID} from 'RelayInternalTypes';
+import type {DataID} from 'react-relay/classic/tools/RelayInternalTypes';
 import type RelayRecordSourceMutator from 'RelayRecordSourceMutator';
 import type RelayRecordSourceProxy from 'RelayRecordSourceProxy';
 import type {RecordProxy} from 'RelayStoreTypes';
-import type {Variables} from 'RelayTypes';
+import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 /**
  * @internal

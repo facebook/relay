@@ -11,7 +11,7 @@
 'use strict';
 
 const React = require('React');
-const RelayClassic = require('RelayClassic');
+const RelayPublic = require('../../RelayPublic');
 
 describe('isRelayContainer', function() {
   let MockComponent;
@@ -26,14 +26,14 @@ describe('isRelayContainer', function() {
       }
     };
 
-    MockContainer = RelayClassic.createContainer(MockComponent, {
+    MockContainer = RelayPublic.createContainer(MockComponent, {
       fragments: {},
     });
   });
 
   it('identifies RelayClassic containers correctly', () => {
-    expect(RelayClassic.isContainer(MockContainer)).toBe(true);
+    expect(RelayPublic.isContainer(MockContainer)).toBe(true);
 
-    expect(RelayClassic.isContainer(MockComponent)).toBe(false);
+    expect(RelayPublic.isContainer(MockComponent)).toBe(false);
   });
 });

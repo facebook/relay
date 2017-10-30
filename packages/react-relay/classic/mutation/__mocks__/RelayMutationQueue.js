@@ -9,4 +9,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('RelayMutationQueue');
+module.exports = require.requireActual('../RelayMutationQueue');

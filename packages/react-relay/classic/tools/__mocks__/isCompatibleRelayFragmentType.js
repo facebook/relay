@@ -9,4 +9,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('isCompatibleRelayFragmentType');
+module.exports = require.requireActual('../isCompatibleRelayFragmentType');

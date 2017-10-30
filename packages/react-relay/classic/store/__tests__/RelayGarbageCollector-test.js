@@ -13,9 +13,11 @@
 require('configureForRelayOSS');
 
 jest.useFakeTimers();
-jest.unmock('GraphQLRange').unmock('GraphQLSegment');
+jest
+  .unmock('../../legacy/store/GraphQLRange')
+  .unmock('../../legacy/store/GraphQLSegment');
 
-const RelayClassic = require('RelayClassic');
+const Relay = require('../../RelayPublic');
 const RelayNodeInterface = require('../../interface/RelayNodeInterface');
 const RelayStoreData = require('../RelayStoreData');
 const RelayTestUtils = require('RelayTestUtils');
@@ -186,7 +188,7 @@ describe('RelayGarbageCollector', () => {
         },
       };
       const query = getNode(
-        RelayClassic.QL`
+        Relay.QL`
         query {
           viewer {
             newsFeed(first: 1) {

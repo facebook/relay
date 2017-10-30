@@ -9,4 +9,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('QueryBuilder');
+module.exports = require.requireActual('../QueryBuilder');

@@ -10,7 +10,9 @@
 
 'use strict';
 
+const GraphQLStoreQueryResolver = require('./legacy/store/GraphQLStoreQueryResolver');
 const RelayContainer = require('./container/RelayContainer');
+const RelayContainerProxy = require('./container/RelayContainerProxy');
 const RelayEnvironment = require('./store/RelayEnvironment');
 const RelayGraphQLMutation = require('./mutation/RelayGraphQLMutation');
 const RelayInternals = require('./tools/RelayInternals');
@@ -26,8 +28,10 @@ const RelayRoute = require('./route/RelayRoute');
 const RelayStore = require('./store/RelayStore');
 
 const createRelayQuery = require('./query/createRelayQuery');
+const deepFreeze = require('./tools/deepFreeze');
 const getRelayQueries = require('./container/getRelayQueries');
 const isRelayContainer = require('./container/isRelayContainer');
+const isScalarAndEqual = require('./util/isScalarAndEqual');
 
 if (typeof global.__REACT_DEVTOOLS_GLOBAL_HOOK__ !== 'undefined') {
   global.__REACT_DEVTOOLS_GLOBAL_HOOK__._relayInternals = RelayInternals;
@@ -40,11 +44,13 @@ if (typeof global.__REACT_DEVTOOLS_GLOBAL_HOOK__ !== 'undefined') {
 const RelayPublic = {
   Environment: RelayEnvironment,
   GraphQLMutation: RelayGraphQLMutation,
+  GraphQLStoreQueryResolver: GraphQLStoreQueryResolver,
   Mutation: RelayMutation,
   PropTypes: RelayPropTypes,
   QL: RelayQL,
   QueryConfig: RelayQueryConfig,
   ReadyStateRenderer: RelayReadyStateRenderer,
+  RelayContainerProxy: RelayContainerProxy,
   Renderer: RelayRenderer,
   RootContainer: RelayRootContainer,
   Route: RelayRoute,
@@ -53,10 +59,12 @@ const RelayPublic = {
   createContainer: RelayContainer.create,
   createQuery: createRelayQuery,
   getQueries: getRelayQueries,
+  deepFreeze: deepFreeze,
   disableQueryCaching: RelayQueryCaching.disable,
   injectNetworkLayer: RelayStore.injectNetworkLayer.bind(RelayStore),
   injectTaskScheduler: RelayStore.injectTaskScheduler.bind(RelayStore),
   isContainer: isRelayContainer,
+  isScalarAndEqual: isScalarAndEqual,
 };
 
 module.exports = RelayPublic;

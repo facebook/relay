@@ -10,7 +10,7 @@
 
 'use strict';
 
-jest.enableAutomock().unmock('GraphQLSegment');
+jest.enableAutomock().unmock('../GraphQLSegment');
 
 const GraphQLSegment = require('../GraphQLSegment');
 const RelayRecord = require('../../../store/RelayRecord');

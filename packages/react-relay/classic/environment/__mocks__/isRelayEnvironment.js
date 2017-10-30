@@ -9,4 +9,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('isRelayEnvironment');
+module.exports = require.requireActual('../isRelayEnvironment');

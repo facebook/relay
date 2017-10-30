@@ -9,4 +9,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('RelayCacheProcessor');
+module.exports = require.requireActual('../RelayCacheProcessor');

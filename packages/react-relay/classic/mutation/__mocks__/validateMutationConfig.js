@@ -10,4 +10,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('validateMutationConfig');
+module.exports = require.requireActual('../validateMutationConfig');

@@ -17,7 +17,7 @@ const RelayProfiler = require('RelayProfiler');
 const RelayReader = require('RelayReader');
 const RelayReferenceMarker = require('RelayReferenceMarker');
 
-const deepFreeze = require('deepFreeze');
+const deepFreeze = require('react-relay/classic/tools/deepFreeze');
 const hasOverlappingIDs = require('hasOverlappingIDs');
 const recycleNodesInto = require('recycleNodesInto');
 const resolveImmediate = require('resolveImmediate');

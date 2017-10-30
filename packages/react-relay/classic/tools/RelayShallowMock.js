@@ -36,7 +36,7 @@
 'use strict';
 
 const React = require('React');
-const Relay = (require: any).requireActual('RelayClassic');
+const Relay = (require: any).requireActual('../RelayPublic');
 
 import type {
   RelayContainerSpec,

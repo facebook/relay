@@ -9,4 +9,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('RelayPropTypes');
+module.exports = require.requireActual('../RelayPropTypes');

@@ -9,4 +9,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('RelayGraphQLTag');
+module.exports = require.requireActual('../RelayGraphQLTag');

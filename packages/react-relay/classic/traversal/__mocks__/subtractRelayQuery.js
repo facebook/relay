@@ -9,4 +9,4 @@
 
 'use strict';
 
-module.exports = jest.fn(require.requireActual('subtractRelayQuery'));
+module.exports = jest.fn(require.requireActual('../subtractRelayQuery'));

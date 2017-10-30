@@ -16,8 +16,8 @@ require('configureForRelayOSS');
 
 jest.useFakeTimers();
 jest
-  .unmock('RelayMutationTransaction')
-  .unmock('RelayMutationTransactionStatus');
+  .unmock('../RelayMutationTransaction')
+  .unmock('../RelayMutationTransactionStatus');
 
 const RelayClassic = require('RelayClassic');
 const RelayMutation = require('../RelayMutation');

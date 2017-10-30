@@ -9,4 +9,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('printRelayQuery');
+module.exports = require.requireActual('../printRelayQuery');

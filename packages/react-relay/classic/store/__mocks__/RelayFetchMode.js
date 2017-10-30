@@ -9,4 +9,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('RelayFetchMode');
+module.exports = require.requireActual('../RelayFetchMode');

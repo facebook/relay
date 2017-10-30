@@ -9,5 +9,5 @@
 
 'use strict';
 
-const readRelayQueryData = require.requireActual('readRelayQueryData');
+const readRelayQueryData = require.requireActual('../readRelayQueryData');
 module.exports = jest.fn(readRelayQueryData);

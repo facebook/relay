@@ -12,8 +12,8 @@
 
 jest
   .enableAutomock()
-  .unmock('GraphQLSegment')
-  .unmock('GraphQLRange')
+  .unmock('../GraphQLSegment')
+  .unmock('../GraphQLRange')
   .mock('warning');
 
 const RelayTestUtils = require('RelayTestUtils');

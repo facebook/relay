@@ -10,4 +10,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('RelayVariable');
+module.exports = require.requireActual('../RelayVariable');

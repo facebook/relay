@@ -9,4 +9,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('RelayDeprecated');
+module.exports = require.requireActual('../RelayDeprecated');

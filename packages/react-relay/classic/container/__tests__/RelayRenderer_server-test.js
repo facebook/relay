@@ -14,11 +14,11 @@ jest.enableAutomock();
 
 require('configureForRelayOSS');
 
-jest.unmock('RelayRenderer');
+jest.unmock('../RelayRenderer');
 
 const React = require('React');
 const ReactDOMServer = require('ReactDOMServer');
-const RelayClassic = require('RelayClassic');
+const Relay = require('../../RelayPublic');
 const RelayEnvironment = require('../../store/RelayEnvironment');
 const RelayQueryConfig = require('../../query-config/RelayQueryConfig');
 const RelayRenderer = require('../RelayRenderer');
@@ -37,7 +37,7 @@ describe('RelayRenderer', function() {
         return <div />;
       }
     }
-    MockContainer = RelayClassic.createContainer(MockComponent, {
+    MockContainer = Relay.createContainer(MockComponent, {
       fragments: {},
     });
 

@@ -14,7 +14,9 @@ jest.enableAutomock();
 
 require('configureForRelayOSS');
 
-jest.unmock('GraphQLRange').unmock('GraphQLSegment');
+jest
+  .unmock('../../legacy/store/GraphQLRange')
+  .unmock('../../legacy/store/GraphQLSegment');
 
 const {ConnectionInterface} = require('RelayRuntime');
 const RelayQueryPath = require('../../query/RelayQueryPath');

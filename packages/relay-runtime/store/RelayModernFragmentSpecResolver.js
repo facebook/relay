@@ -12,12 +12,12 @@
 'use strict';
 
 const invariant = require('invariant');
-const isScalarAndEqual = require('isScalarAndEqual');
 
 const {
   areEqualSelectors,
   getSelectorsFromObject,
 } = require('RelayModernSelector');
+const {isScalarAndEqual} = require('RelayPublic');
 
 import type {
   Disposable,

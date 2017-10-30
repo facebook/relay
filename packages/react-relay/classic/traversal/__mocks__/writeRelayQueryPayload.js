@@ -9,4 +9,4 @@
 
 'use strict';
 
-module.exports = jest.fn(require.requireActual('writeRelayQueryPayload'));
+module.exports = jest.fn(require.requireActual('../writeRelayQueryPayload'));

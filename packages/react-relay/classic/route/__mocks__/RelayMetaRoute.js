@@ -9,4 +9,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('RelayMetaRoute');
+module.exports = require.requireActual('../RelayMetaRoute');

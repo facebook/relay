@@ -9,5 +9,7 @@
 
 'use strict';
 
-const validateRelayReadQuery = require.requireActual('validateRelayReadQuery');
+const validateRelayReadQuery = require.requireActual(
+  '../validateRelayReadQuery',
+);
 module.exports = validateRelayReadQuery;

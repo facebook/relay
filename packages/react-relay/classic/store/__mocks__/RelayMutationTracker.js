@@ -9,4 +9,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('RelayMutationTracker');
+module.exports = require.requireActual('../RelayMutationTracker');

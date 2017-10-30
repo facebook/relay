@@ -9,4 +9,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('RelayOptimisticMutationUtils');
+module.exports = require.requireActual('../RelayOptimisticMutationUtils');

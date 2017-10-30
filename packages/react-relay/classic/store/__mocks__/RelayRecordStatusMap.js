@@ -9,4 +9,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('RelayRecordStatusMap');
+module.exports = require.requireActual('../RelayRecordStatusMap');

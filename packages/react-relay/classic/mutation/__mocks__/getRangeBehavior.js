@@ -10,4 +10,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('getRangeBehavior');
+module.exports = require.requireActual('../getRangeBehavior');

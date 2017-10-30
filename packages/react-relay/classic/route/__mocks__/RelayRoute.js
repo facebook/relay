@@ -10,7 +10,7 @@
 
 'use strict';
 
-const RelayRoute = require.requireActual('RelayRoute');
+const RelayRoute = require.requireActual('../RelayRoute');
 
 RelayRoute.genMock = jest.fn(() => {
   class MockRoute extends RelayRoute {}

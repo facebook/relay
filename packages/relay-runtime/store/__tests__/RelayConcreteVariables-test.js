@@ -99,7 +99,7 @@ describe('RelayConcreteVariables', () => {
         }
       `,
       );
-      const variables = getOperationVariables(Query, {
+      const variables = getOperationVariables(Query.operation, {
         id: '4',
         count: 10, // not defined on Query
       });
@@ -127,7 +127,7 @@ describe('RelayConcreteVariables', () => {
         }
       `,
       );
-      const variables = getOperationVariables(Query, {
+      const variables = getOperationVariables(Query.operation, {
         id: '4',
         // no count
         order: null,

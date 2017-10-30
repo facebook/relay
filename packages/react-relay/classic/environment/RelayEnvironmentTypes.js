@@ -33,12 +33,11 @@ type TEnvironment = Environment;
 type TFragment = ConcreteFragmentDefinition;
 type TGraphQLTaggedNode = GraphQLTaggedNode;
 type TNode = ConcreteFragment;
-type TOperation = ConcreteOperationDefinition;
-type TPayload = Selector;
 type TRequest = ConcreteOperationDefinition;
+type TPayload = Selector;
 
 export type FragmentMap = CFragmentMap<TFragment>;
-export type OperationSelector = COperationSelector<TNode, TOperation>;
+export type OperationSelector = COperationSelector<TNode, TRequest>;
 export type RelayContext = CRelayContext<TEnvironment>;
 export type Selector = CSelector<TNode>;
 export type Snapshot = CSnapshot<TNode>;
@@ -47,7 +46,6 @@ export type UnstableEnvironmentCore = CUnstableEnvironmentCore<
   TFragment,
   TGraphQLTaggedNode,
   TNode,
-  TOperation,
   TRequest,
 >;
 
@@ -61,9 +59,8 @@ export interface Environment
     TFragment,
     TGraphQLTaggedNode,
     TNode,
-    TOperation,
-    TPayload,
     TRequest,
+    TPayload,
   > {
   /**
    * Applies an optimistic mutation to the store without committing it to the

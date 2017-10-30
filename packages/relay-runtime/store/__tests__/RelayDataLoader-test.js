@@ -126,7 +126,7 @@ describe('RelayDataLoader', () => {
         target,
         {
           dataID: ROOT_ID,
-          node: Query,
+          node: Query.fragment,
           variables: {id: '1', size: 32},
         },
         [],
@@ -263,7 +263,7 @@ describe('RelayDataLoader', () => {
           target,
           {
             dataID: ROOT_ID,
-            node: Query,
+            node: Query.fragment,
             variables: {id: '1', size: 32},
           },
           [],

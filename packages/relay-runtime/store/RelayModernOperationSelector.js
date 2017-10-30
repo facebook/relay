@@ -11,10 +11,12 @@
 
 'use strict';
 
+const RelayConcreteNode = require('RelayConcreteNode');
+
 const {getOperationVariables} = require('RelayConcreteVariables');
 const {ROOT_ID} = require('RelayStoreUtils');
 
-import type {ConcreteOperation} from 'RelayConcreteNode';
+import type {RequestNode} from 'RelayConcreteNode';
 import type {OperationSelector} from 'RelayStoreTypes';
 import type {Variables} from 'RelayTypes';
 
@@ -25,21 +27,29 @@ import type {Variables} from 'RelayTypes';
  * operation, and default values are populated for null values.
  */
 function createOperationSelector(
-  operation: ConcreteOperation,
+  request: RequestNode,
   variables: Variables,
 ): OperationSelector {
-  const operationVariables = getOperationVariables(operation, variables);
+  if (request.kind === RelayConcreteNode.BATCH_REQUEST) {
+    throw new Error(
+      'createOperationSelect: Batch request not yet supported (T22979467)',
+    );
+  }
+  const operationVariables = getOperationVariables(
+    request.operation,
+    variables,
+  );
   const dataID = ROOT_ID;
   return {
     fragment: {
       dataID,
-      node: operation.fragment,
+      node: request.fragment,
       variables: operationVariables,
     },
-    node: operation,
+    node: request,
     root: {
       dataID,
-      node: operation,
+      node: request.operation,
       variables: operationVariables,
     },
     variables: operationVariables,

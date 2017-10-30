@@ -655,14 +655,14 @@ function createContainerWithFragments<
       if (cacheConfig && options && options.rerunParamExperimental) {
         cacheConfig.rerunParamExperimental = options.rerunParamExperimental;
       }
-      const query = getRequest(connectionConfig.query);
-      if (query.kind === RelayConcreteNode.BATCH_REQUEST) {
+      const request = getRequest(connectionConfig.query);
+      if (request.kind === RelayConcreteNode.BATCH_REQUEST) {
         throw new Error(
           'ReactRelayPaginationContainer: Batch request not yet ' +
             'implemented (T22954884)',
         );
       }
-      const operation = createOperationSelector(query, fetchVariables);
+      const operation = createOperationSelector(request, fetchVariables);
 
       let refetchSubscription = null;
 

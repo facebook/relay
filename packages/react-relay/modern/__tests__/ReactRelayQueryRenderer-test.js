@@ -97,7 +97,9 @@ describe('ReactRelayQueryRenderer', () => {
       );
       expect(environment.retain).toBeCalled();
       expect(environment.retain.mock.calls[0][0].dataID).toBe('client:root');
-      expect(environment.retain.mock.calls[0][0].node).toBe(TestQuery);
+      expect(environment.retain.mock.calls[0][0].node).toBe(
+        TestQuery.operation,
+      );
       expect(environment.retain.mock.calls[0][0].variables).toEqual(variables);
       const dispose = environment.retain.mock.dispose;
       expect(dispose).not.toBeCalled();
@@ -811,7 +813,9 @@ describe('ReactRelayQueryRenderer', () => {
       environment.mockClear();
       instance.getInstance().setProps(nextProps);
       expect(environment.retain.mock.calls[0][0].dataID).toBe('client:root');
-      expect(environment.retain.mock.calls[0][0].node).toBe(NextQuery);
+      expect(environment.retain.mock.calls[0][0].node).toBe(
+        NextQuery.operation,
+      );
       expect(environment.retain.mock.calls[0][0].variables).toEqual(variables);
     });
 
@@ -908,7 +912,9 @@ describe('ReactRelayQueryRenderer', () => {
       instance.getInstance().setProps(nextProps);
       expect(environment.retain.mock.calls.length).toBe(1);
       expect(environment.retain.mock.calls[0][0].dataID).toBe('client:root');
-      expect(environment.retain.mock.calls[0][0].node).toBe(NextQuery);
+      expect(environment.retain.mock.calls[0][0].node).toBe(
+        NextQuery.operation,
+      );
       expect(environment.retain.mock.calls[0][0].variables).toEqual(variables);
       environment.mock.resolve(NextQuery, {
         data: {
@@ -1014,7 +1020,9 @@ describe('ReactRelayQueryRenderer', () => {
       instance.getInstance().setProps(nextProps);
       expect(environment.retain).toBeCalled();
       expect(environment.retain.mock.calls[0][0].dataID).toBe('client:root');
-      expect(environment.retain.mock.calls[0][0].node).toBe(NextQuery);
+      expect(environment.retain.mock.calls[0][0].node).toBe(
+        NextQuery.operation,
+      );
       expect(environment.retain.mock.calls[0][0].variables).toEqual(variables);
       environment.mock.resolve(NextQuery, {
         data: {

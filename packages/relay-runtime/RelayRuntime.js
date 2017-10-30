@@ -42,6 +42,7 @@ export opaque type FragmentReference<T> = mixed;
 export type {RecordState} from 'RelayRecordState';
 export type {
   GeneratedNode,
+  ConcreteRequest,
   ConcreteBatchRequest,
   ConcreteOperation,
   ConcreteFragment,

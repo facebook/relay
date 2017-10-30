@@ -69,7 +69,7 @@ describe('RelayModernSelector', () => {
     };
     const root = {
       dataID,
-      node: UserQuery,
+      node: UserQuery.operation,
       variables,
     };
     const operationSelector = {

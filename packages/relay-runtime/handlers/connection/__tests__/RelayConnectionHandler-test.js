@@ -57,7 +57,7 @@ describe('RelayConnectionHandler', () => {
       baseSource,
       {
         dataID: ROOT_ID,
-        node: ConnectionQuery,
+        node: ConnectionQuery.operation,
         variables,
       },
       payload,

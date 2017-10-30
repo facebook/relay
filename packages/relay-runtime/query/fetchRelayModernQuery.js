@@ -45,12 +45,12 @@ function fetchRelayModernQuery(
   );
   const {createOperationSelector, getRequest} = environment.unstable_internal;
   const query = getRequest(taggedNode);
-  // Allow `OperationDefinition` since this function is used by Classic core in Compat mode.
-  if (
-    (query.kind !== RelayConcreteNode.OPERATION &&
-      query.kind !== 'OperationDefinition') ||
-    query.operation !== 'query'
-  ) {
+  if (query.kind === RelayConcreteNode.BATCH_REQUEST) {
+    throw new Error(
+      'fetchRelayModernQuery: Batch request not supported in this API.',
+    );
+  }
+  if (query.operationKind !== 'query') {
     throw new Error('fetchRelayModernQuery: Expected query operation');
   }
   const operation = createOperationSelector(query, variables);

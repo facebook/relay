@@ -113,7 +113,7 @@ describe('RelayReader', () => {
     `);
     const {data, seenRecords} = read(source, {
       dataID: ROOT_ID,
-      node: FooQuery,
+      node: FooQuery.fragment,
       variables: {id: '1', size: 32},
     });
     expect(data).toEqual({

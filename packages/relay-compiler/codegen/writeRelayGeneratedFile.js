@@ -11,6 +11,9 @@
 
 'use strict';
 
+// TODO T21875029 ../../relay-runtime/util/RelayConcreteNode
+const RelayConcreteNode = require('RelayConcreteNode');
+
 const crypto = require('crypto');
 const dedupeJSONStringify = require('dedupeJSONStringify');
 const invariant = require('invariant');
@@ -24,7 +27,10 @@ import type {GeneratedNode} from 'RelayConcreteNode';
  */
 export type FormatModule = ({|
   moduleName: string,
-  documentType: 'ConcreteOperation' | 'ConcreteFragment',
+  documentType:
+    | typeof RelayConcreteNode.FRAGMENT
+    | typeof RelayConcreteNode.REQUEST
+    | typeof RelayConcreteNode.BATCH_REQUEST,
   docText: ?string,
   concreteText: string,
   flowText: ?string,
@@ -46,14 +52,23 @@ async function writeRelayGeneratedFile(
   const platformName = platform ? moduleName + '.' + platform : moduleName;
   const filename = platformName + '.js';
   const flowTypeName =
-    generatedNode.kind === 'Operation'
-      ? 'ConcreteOperation'
-      : 'ConcreteFragment';
+    generatedNode.kind === RelayConcreteNode.FRAGMENT
+      ? 'ConcreteFragment'
+      : generatedNode.kind === RelayConcreteNode.REQUEST
+        ? 'ConcreteRequest'
+        : generatedNode.kind === RelayConcreteNode.BATCH_REQUEST
+          ? 'ConcreteBatchRequest'
+          : 'empty';
   const devOnlyProperties = {};
 
   let text = null;
   let hash = null;
-  if (generatedNode.kind === 'Operation') {
+  if (generatedNode.kind === RelayConcreteNode.BATCH_REQUEST) {
+    throw new Error(
+      'writeRelayGeneratedFile: Batch request not yet implemented (T22987143)',
+    );
+  }
+  if (generatedNode.kind === RelayConcreteNode.REQUEST) {
     text = generatedNode.text;
     invariant(
       text,

@@ -26,7 +26,6 @@ import type {
   Record,
 } from 'RelayCombinedEnvironmentTypes';
 import type {
-  ConcreteOperation,
   ConcreteScalarField,
   ConcreteLinkedField,
   ConcreteFragment,
@@ -45,12 +44,11 @@ type TEnvironment = Environment;
 type TFragment = ConcreteFragment;
 type TGraphQLTaggedNode = GraphQLTaggedNode;
 type TNode = ConcreteSelectableNode;
-type TOperation = ConcreteOperation;
 type TPayload = RelayResponsePayload;
 type TRequest = RequestNode;
 
 export type FragmentMap = CFragmentMap<TFragment>;
-export type OperationSelector = COperationSelector<TNode, TOperation>;
+export type OperationSelector = COperationSelector<TNode, TRequest>;
 export type RelayContext = CRelayContext<TEnvironment>;
 export type Selector = CSelector<TNode>;
 export type Snapshot = CSnapshot<TNode>;
@@ -59,7 +57,6 @@ export type UnstableEnvironmentCore = CUnstableEnvironmentCore<
   TFragment,
   TGraphQLTaggedNode,
   TNode,
-  TOperation,
   TRequest,
 >;
 
@@ -207,9 +204,8 @@ export interface Environment
     TFragment,
     TGraphQLTaggedNode,
     TNode,
-    TOperation,
-    TPayload,
     TRequest,
+    TPayload,
   > {
   /**
    * Apply an optimistic update to the environment. The mutation can be reverted

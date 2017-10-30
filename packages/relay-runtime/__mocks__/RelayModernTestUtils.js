@@ -162,6 +162,7 @@ const RelayModernTestUtils = {
           metadata: node.metadata || {},
           name: node.name,
           operation: node,
+          fragment: buildFragmentForRoot(node),
           text,
         });
       } else {
@@ -208,5 +209,20 @@ const RelayModernTestUtils = {
     return documentMap;
   },
 };
+
+/**
+ * Construct the fragment equivalent of a root node.
+ */
+function buildFragmentForRoot(root) {
+  return {
+    argumentDefinitions: (root.argumentDefinitions: $FlowIssue),
+    directives: root.directives,
+    kind: 'Fragment',
+    metadata: null,
+    name: root.name,
+    selections: root.selections,
+    type: root.type,
+  };
+}
 
 module.exports = RelayModernTestUtils;

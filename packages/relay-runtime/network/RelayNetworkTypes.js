@@ -12,7 +12,7 @@
 'use strict';
 
 import type {CacheConfig, Disposable} from 'RelayCombinedEnvironmentTypes';
-import type {RequestNode, ConcreteOperation} from 'RelayConcreteNode';
+import type {ConcreteOperation, RequestNode} from 'RelayConcreteNode';
 import type RelayObservable, {ObservableFromValue} from 'RelayObservable';
 import type {Variables} from 'RelayTypes';
 
@@ -86,11 +86,9 @@ export type FetchFunction = (
  *
  * May return an Observable, otherwise must call the callbacks found in the
  * fourth parameter.
- *
- * Note: SubscribeFunction explicitly only supports ConcreteOperation.
  */
 export type SubscribeFunction = (
-  operation: ConcreteOperation,
+  request: RequestNode,
   variables: Variables,
   cacheConfig: CacheConfig,
   observer?: LegacyObserver<GraphQLResponse>,

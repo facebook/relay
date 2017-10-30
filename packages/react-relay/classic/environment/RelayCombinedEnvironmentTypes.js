@@ -130,9 +130,9 @@ export type CFragmentMap<TFragment> = {[key: string]: TFragment};
  * - `fragment`: a selector intended for use in reading or subscribing to
  *   the results of the the operation.
  */
-export type COperationSelector<TNode, TOperation> = {
+export type COperationSelector<TNode, TRequest> = {
   fragment: CSelector<TNode>,
-  node: TOperation,
+  node: TRequest,
   root: CSelector<TNode>,
   variables: Variables,
 };
@@ -146,9 +146,8 @@ export interface CEnvironment<
   TFragment,
   TGraphQLTaggedNode,
   TNode,
-  TOperation,
-  TPayload,
   TRequest,
+  TPayload,
 > {
   /**
    * Read the results of a selector from in-memory records in the store.
@@ -186,7 +185,7 @@ export interface CEnvironment<
    * the result is subscribed to: environment.execute({...}).subscribe({...}).
    */
   execute(config: {|
-    operation: COperationSelector<TNode, TOperation>,
+    operation: COperationSelector<TNode, TRequest>,
     cacheConfig?: ?CacheConfig,
     updater?: ?SelectorStoreUpdater,
   |}): Observable<TPayload>,
@@ -196,7 +195,6 @@ export interface CEnvironment<
     TFragment,
     TGraphQLTaggedNode,
     TNode,
-    TOperation,
     TRequest,
   >,
 }
@@ -206,7 +204,6 @@ export interface CUnstableEnvironmentCore<
   TFragment,
   TGraphQLTaggedNode,
   TNode,
-  TOperation,
   TRequest,
 > {
   /**
@@ -231,9 +228,9 @@ export interface CUnstableEnvironmentCore<
    * operation, and default values are populated for null values.
    */
   createOperationSelector: (
-    operation: TOperation,
+    request: TRequest,
     variables: Variables,
-  ) => COperationSelector<TNode, TOperation>,
+  ) => COperationSelector<TNode, TRequest>,
 
   /**
    * Given a graphql`...` tagged template, extract a fragment definition usable

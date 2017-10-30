@@ -37,10 +37,7 @@ function requestRelaySubscription(
 ): Disposable {
   const {createOperationSelector, getRequest} = environment.unstable_internal;
   const subscription = getRequest(config.subscription);
-  if (
-    subscription.kind !== RelayConcreteNode.OPERATION ||
-    subscription.operation !== 'subscription'
-  ) {
+  if (subscription.operationKind !== 'subscription') {
     throw new Error(
       'requestRelaySubscription: Must use Subscription operation',
     );

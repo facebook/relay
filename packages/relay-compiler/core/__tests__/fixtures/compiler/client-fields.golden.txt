@@ -131,53 +131,11 @@
 }
 
 {
-  "kind": "Operation",
-  "operation": "query",
+  "kind": "Request",
+  "operationKind": "query",
   "name": "BestFriendsQuery",
   "id": null,
   "metadata": {},
-  "argumentDefinitions": [
-    {
-      "kind": "LocalArgument",
-      "name": "id",
-      "type": "ID!",
-      "defaultValue": null
-    }
-  ],
-  "selections": [
-    {
-      "kind": "LinkedField",
-      "alias": null,
-      "name": "node",
-      "storageKey": null,
-      "args": [
-        {
-          "kind": "Variable",
-          "name": "id",
-          "variableName": "id",
-          "type": "ID"
-        }
-      ],
-      "concreteType": null,
-      "plural": false,
-      "selections": [
-        {
-          "kind": "ScalarField",
-          "alias": null,
-          "name": "__typename",
-          "args": null,
-          "storageKey": null
-        },
-        {
-          "kind": "ScalarField",
-          "alias": null,
-          "name": "id",
-          "args": null,
-          "storageKey": null
-        }
-      ]
-    }
-  ],
   "fragment": {
     "kind": "Fragment",
     "name": "BestFriendsQuery",
@@ -212,6 +170,52 @@
             "kind": "FragmentSpread",
             "name": "BestFriends",
             "args": null
+          }
+        ]
+      }
+    ]
+  },
+  "operation": {
+    "kind": "Operation",
+    "name": "BestFriendsQuery",
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID!",
+        "defaultValue": null
+      }
+    ],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "node",
+        "storageKey": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id",
+            "type": "ID"
+          }
+        ],
+        "concreteType": null,
+        "plural": false,
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
           }
         ]
       }

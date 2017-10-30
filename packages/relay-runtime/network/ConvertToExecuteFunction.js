@@ -81,13 +81,12 @@ function convertToExecutePayload(
 }
 
 function createExecutePayload(request, variables, response) {
-  const operation = request;
-  if (operation.kind === RelayConcreteNode.BATCH_REQUEST) {
+  if (request.kind === RelayConcreteNode.BATCH_REQUEST) {
     throw new Error(
       'ConvertToExecuteFunction: Batch request must return ExecutePayload.',
     );
   }
-  return {operation, variables, response};
+  return {operation: request.operation, variables, response};
 }
 
 module.exports = {

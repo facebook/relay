@@ -16,38 +16,53 @@ export type ConcreteArgumentDefinition =
   | ConcreteLocalArgument
   | ConcreteRootArgument;
 /**
- * A wrapper around many operations to request in a batched network request.
- * This provides a place to store multiple concrete operations which should be
- * executed as part of a single request, e.g. in the case of deferred nodes or
+ * An experimental wrapper around many operations to request in a batched
+ * network request. The composed indivual GraphQL requests should be submitted
+ * as a single networked request, e.g. in the case of deferred nodes or
  * for streaming connections that are represented as distinct compiled concrete
  * operations but are still conceptually tied to one source operation.
  *
- * Operations may contain data describing their dependencies on other operations
- * or any other implementation-specific API configuration in each operation's
- * metadata dictionary.
+ * Individual requests within the batch may contain data describing their
+ * dependencies on other requests or themselves.
  */
 export type ConcreteBatchRequest = {
   kind: 'BatchRequest',
+  operationKind: 'mutation' | 'query' | 'subscription',
   name: string,
-  operations: Array<ConcreteOperation>,
+  metadata: {[key: string]: mixed},
+  fragment: ConcreteFragment,
+  requests: Array<{
+    name: string,
+    id: ?string,
+    text: ?string,
+    operation: ConcreteOperation,
+  }>,
 };
 /**
- * Represents a single ConcreteOperation along containing metadata for
- * processing it at runtime. The `text` (or persisted `id`) can be used to
- * execute the operation, the `fragment` is derived from this operation to
- * read the response data (masking data from child fragments), while
- * the `selections` can be used to normalize server responses.
+ * Represents a common GraphQL request with `text` (or persisted `id`) can be
+ * used to execute it, an `operation` containing information to normalize the
+ * results, and a `fragment` derived from that operation to read the response
+ * data (masking data from child fragments).
+ */
+export type ConcreteRequest = {
+  kind: 'Request',
+  operationKind: 'mutation' | 'query' | 'subscription',
+  name: string,
+  id: ?string,
+  text: ?string,
+  metadata: {[key: string]: mixed},
+  fragment: ConcreteFragment,
+  operation: ConcreteOperation,
+};
+/**
+ * Represents a single operation used to processing and normalize runtime
+ * request results.
  */
 export type ConcreteOperation = {
   kind: 'Operation',
-  operation: 'mutation' | 'query' | 'subscription',
   name: string,
-  id: ?string,
-  metadata: {[key: string]: mixed},
   argumentDefinitions: Array<ConcreteLocalArgument>,
   selections: Array<ConcreteSelection>,
-  fragment: ConcreteFragment,
-  text: ?string,
 };
 export type ConcreteCondition = {
   kind: 'Condition',
@@ -146,7 +161,7 @@ export type ConcreteVariable = {
   variableName: string,
 };
 export type ConcreteSelectableNode = ConcreteFragment | ConcreteOperation;
-export type RequestNode = ConcreteOperation | ConcreteBatchRequest;
+export type RequestNode = ConcreteRequest | ConcreteBatchRequest;
 export type GeneratedNode = RequestNode | ConcreteFragment;
 
 const RelayConcreteNode = {
@@ -161,6 +176,7 @@ const RelayConcreteNode = {
   LOCAL_ARGUMENT: 'LocalArgument',
   OPERATION: 'Operation',
   ROOT_ARGUMENT: 'RootArgument',
+  REQUEST: 'Request',
   SCALAR_FIELD: 'ScalarField',
   SCALAR_HANDLE: 'ScalarHandle',
   VARIABLE: 'Variable',

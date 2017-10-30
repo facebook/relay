@@ -58,19 +58,23 @@ const RelayCodeGenVisitor = {
   leave: {
     Batch(node): RequestNode {
       return {
-        kind: 'Operation',
-        operation: node.operation.operation,
+        kind: 'Request',
+        operationKind: node.operation.operation,
         name: node.operation.name,
         id: node.id,
-        metadata: node.metadata,
-        argumentDefinitions: node.operation.argumentDefinitions,
-        selections: node.operation.selections,
-        fragment: node.fragment,
         text: node.text,
+        metadata: node.metadata,
+        fragment: node.fragment,
+        operation: {
+          kind: 'Operation',
+          name: node.operation.name,
+          argumentDefinitions: node.operation.argumentDefinitions,
+          selections: node.operation.selections,
+        },
       };
     },
 
-    Root(node): $Shape<ConcreteOperation> {
+    Root(node): ConcreteOperation & {operation: string} {
       return {
         kind: 'Operation',
         operation: node.operation,

@@ -11,8 +11,6 @@
 
 'use strict';
 
-const RelayConcreteNode = require('RelayConcreteNode');
-
 const invariant = require('invariant');
 const isRelayModernEnvironment = require('isRelayModernEnvironment');
 const setRelayModernMutationConfigs = require('setRelayModernMutationConfigs');
@@ -55,10 +53,7 @@ function commitRelayModernMutation<T>(
   );
   const {createOperationSelector, getRequest} = environment.unstable_internal;
   const mutation = getRequest(config.mutation);
-  if (
-    mutation.kind !== RelayConcreteNode.OPERATION ||
-    mutation.operation !== 'mutation'
-  ) {
+  if (mutation.operationKind !== 'mutation') {
     throw new Error('commitRelayModernMutation: Expected mutation operation');
   }
   let {optimisticResponse, optimisticUpdater, updater} = config;
@@ -75,11 +70,11 @@ function commitRelayModernMutation<T>(
   }
   if (
     optimisticResponse &&
-    mutation.selections &&
-    mutation.selections.length === 1 &&
-    mutation.selections[0].kind === 'LinkedField'
+    mutation.fragment.selections &&
+    mutation.fragment.selections.length === 1 &&
+    mutation.fragment.selections[0].kind === 'LinkedField'
   ) {
-    const mutationRoot = mutation.selections[0].name;
+    const mutationRoot = mutation.fragment.selections[0].name;
     warning(
       optimisticResponse[mutationRoot],
       'commitRelayModernMutation: Expected `optimisticResponse` to be wrapped ' +

@@ -266,7 +266,9 @@ class RelayFileWriter implements FileWriterInterface {
       if (details && details.name === 'GraphQL2Exception' && details.message) {
         throw new Error('GraphQL error writing modules:\n' + details.message);
       }
-      throw new Error('Error writing modules:\n' + error.toString());
+      throw new Error(
+        'Error writing modules:\n' + String(error.stack || error),
+      );
     }
 
     return allOutputDirectories;

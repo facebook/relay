@@ -1,74 +1,9 @@
 {
-  "kind": "Operation",
-  "operation": "query",
+  "kind": "Request",
+  "operationKind": "query",
   "name": "UnionQuery",
   "id": null,
   "metadata": {},
-  "argumentDefinitions": [],
-  "selections": [
-    {
-      "kind": "LinkedField",
-      "alias": null,
-      "name": "maybeNode",
-      "storageKey": null,
-      "args": null,
-      "concreteType": null,
-      "plural": false,
-      "selections": [
-        {
-          "kind": "ScalarField",
-          "alias": null,
-          "name": "__typename",
-          "args": null,
-          "storageKey": null
-        },
-        {
-          "kind": "ScalarField",
-          "alias": null,
-          "name": "id",
-          "args": null,
-          "storageKey": null
-        },
-        {
-          "kind": "InlineFragment",
-          "type": "Story",
-          "selections": [
-            {
-              "kind": "LinkedField",
-              "alias": null,
-              "name": "body",
-              "storageKey": null,
-              "args": null,
-              "concreteType": "Text",
-              "plural": false,
-              "selections": [
-                {
-                  "kind": "ScalarField",
-                  "alias": null,
-                  "name": "text",
-                  "args": null,
-                  "storageKey": null
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "kind": "InlineFragment",
-          "type": "NonNode",
-          "selections": [
-            {
-              "kind": "ScalarField",
-              "alias": null,
-              "name": "name",
-              "args": null,
-              "storageKey": null
-            }
-          ]
-        }
-      ]
-    }
-  ],
   "fragment": {
     "kind": "Fragment",
     "name": "UnionQuery",
@@ -96,6 +31,75 @@
                 "args": null,
                 "storageKey": null
               },
+              {
+                "kind": "LinkedField",
+                "alias": null,
+                "name": "body",
+                "storageKey": null,
+                "args": null,
+                "concreteType": "Text",
+                "plural": false,
+                "selections": [
+                  {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "name": "text",
+                    "args": null,
+                    "storageKey": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "InlineFragment",
+            "type": "NonNode",
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "name",
+                "args": null,
+                "storageKey": null
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "operation": {
+    "kind": "Operation",
+    "name": "UnionQuery",
+    "argumentDefinitions": [],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "maybeNode",
+        "storageKey": null,
+        "args": null,
+        "concreteType": null,
+        "plural": false,
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "type": "Story",
+            "selections": [
               {
                 "kind": "LinkedField",
                 "alias": null,

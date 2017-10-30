@@ -182,111 +182,11 @@
 }
 
 {
-  "kind": "Operation",
-  "operation": "query",
+  "kind": "Request",
+  "operationKind": "query",
   "name": "TestQuery",
   "id": null,
   "metadata": {},
-  "argumentDefinitions": [
-    {
-      "kind": "LocalArgument",
-      "name": "ProfilePicture_SIZE",
-      "type": "[Int]",
-      "defaultValue": null
-    },
-    {
-      "kind": "LocalArgument",
-      "name": "isRelative",
-      "type": "Boolean",
-      "defaultValue": null
-    },
-    {
-      "kind": "LocalArgument",
-      "name": "showFirstName",
-      "type": "Boolean",
-      "defaultValue": null
-    }
-  ],
-  "selections": [
-    {
-      "kind": "LinkedField",
-      "alias": null,
-      "name": "me",
-      "storageKey": null,
-      "args": null,
-      "concreteType": "User",
-      "plural": false,
-      "selections": [
-        {
-          "kind": "ScalarField",
-          "alias": null,
-          "name": "firstName",
-          "args": [
-            {
-              "kind": "Variable",
-              "name": "if",
-              "variableName": "showFirstName",
-              "type": "Boolean"
-            }
-          ],
-          "storageKey": null
-        },
-        {
-          "kind": "LinkedField",
-          "alias": null,
-          "name": "profilePicture",
-          "storageKey": null,
-          "args": [
-            {
-              "kind": "Variable",
-              "name": "size",
-              "variableName": "ProfilePicture_SIZE",
-              "type": "[Int]"
-            }
-          ],
-          "concreteType": "Image",
-          "plural": false,
-          "selections": [
-            {
-              "kind": "ScalarField",
-              "alias": null,
-              "name": "width",
-              "args": null,
-              "storageKey": null
-            },
-            {
-              "kind": "ScalarField",
-              "alias": null,
-              "name": "height",
-              "args": null,
-              "storageKey": null
-            }
-          ]
-        },
-        {
-          "kind": "ScalarField",
-          "alias": null,
-          "name": "url",
-          "args": [
-            {
-              "kind": "Variable",
-              "name": "relative",
-              "variableName": "isRelative",
-              "type": "Boolean"
-            }
-          ],
-          "storageKey": null
-        },
-        {
-          "kind": "ScalarField",
-          "alias": null,
-          "name": "id",
-          "args": null,
-          "storageKey": null
-        }
-      ]
-    }
-  ],
   "fragment": {
     "kind": "Fragment",
     "name": "TestQuery",
@@ -326,6 +226,110 @@
             "kind": "FragmentSpread",
             "name": "UserProfile_user",
             "args": null
+          }
+        ]
+      }
+    ]
+  },
+  "operation": {
+    "kind": "Operation",
+    "name": "TestQuery",
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgument",
+        "name": "ProfilePicture_SIZE",
+        "type": "[Int]",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "isRelative",
+        "type": "Boolean",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "showFirstName",
+        "type": "Boolean",
+        "defaultValue": null
+      }
+    ],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "me",
+        "storageKey": null,
+        "args": null,
+        "concreteType": "User",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "firstName",
+            "args": [
+              {
+                "kind": "Variable",
+                "name": "if",
+                "variableName": "showFirstName",
+                "type": "Boolean"
+              }
+            ],
+            "storageKey": null
+          },
+          {
+            "kind": "LinkedField",
+            "alias": null,
+            "name": "profilePicture",
+            "storageKey": null,
+            "args": [
+              {
+                "kind": "Variable",
+                "name": "size",
+                "variableName": "ProfilePicture_SIZE",
+                "type": "[Int]"
+              }
+            ],
+            "concreteType": "Image",
+            "plural": false,
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "width",
+                "args": null,
+                "storageKey": null
+              },
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "height",
+                "args": null,
+                "storageKey": null
+              }
+            ]
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "url",
+            "args": [
+              {
+                "kind": "Variable",
+                "name": "relative",
+                "variableName": "isRelative",
+                "type": "Boolean"
+              }
+            ],
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
           }
         ]
       }

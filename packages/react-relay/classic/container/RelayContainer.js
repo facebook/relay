@@ -31,9 +31,7 @@ const filterObject = require('filterObject');
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const isClassicRelayContext = require('../store/isClassicRelayContext');
-// TODO T22703775: .native can't be imported without haste
-// SHOULD be: require('../tools/relayUnstableBatchedUpdates')
-const relayUnstableBatchedUpdates = require('relayUnstableBatchedUpdates');
+const relayUnstableBatchedUpdates = require('../tools/relayUnstableBatchedUpdates');
 const shallowEqual = require('shallowEqual');
 const warning = require('warning');
 

@@ -25,9 +25,7 @@ const deepFreeze = require('../tools/deepFreeze');
 const forEachRootCallArg = require('../query/forEachRootCallArg');
 const generateForceIndex = require('../legacy/store/generateForceIndex');
 const readRelayQueryData = require('./readRelayQueryData');
-// TODO T22703775: .native can't be imported without haste
-// SHOULD be: require('../tools/relayUnstableBatchedUpdates')
-const relayUnstableBatchedUpdates = require('relayUnstableBatchedUpdates');
+const relayUnstableBatchedUpdates = require('../tools/relayUnstableBatchedUpdates');
 const warning = require('warning');
 
 const {Observable, recycleNodesInto} = require('RelayRuntime');

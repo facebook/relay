@@ -21,7 +21,6 @@ const normalizePayload = require('normalizePayload');
 const normalizeRelayPayload = require('normalizeRelayPayload');
 const warning = require('warning');
 
-import type {CacheConfig, Disposable} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 import type {HandlerProvider} from 'RelayDefaultHandlerProvider';
 import type {
   Network,
@@ -43,6 +42,10 @@ import type {
   RelayResponsePayload,
   UnstableEnvironmentCore,
 } from 'RelayStoreTypes';
+import type {
+  CacheConfig,
+  Disposable,
+} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 export type EnvironmentConfig = {
   configName?: string,

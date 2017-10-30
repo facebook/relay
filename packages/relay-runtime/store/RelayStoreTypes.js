@@ -12,6 +12,18 @@
 'use strict';
 
 import type {
+  ConcreteScalarField,
+  ConcreteLinkedField,
+  ConcreteFragment,
+  ConcreteSelectableNode,
+  RequestNode,
+} from 'RelayConcreteNode';
+import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
+import type {PayloadData} from 'RelayNetworkTypes';
+import type {PayloadError, UploadableMap} from 'RelayNetworkTypes';
+import type RelayObservable from 'RelayObservable';
+import type {RecordState} from 'RelayRecordState';
+import type {
   /* $FlowFixMe(>=0.55.0 site=www) This comment suppresses an error found when
    * Flow v0.55 was deployed. To see the error delete this comment and run
    * Flow. */
@@ -25,19 +37,7 @@ import type {
   Disposable,
   Record,
 } from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
-import type {
-  ConcreteScalarField,
-  ConcreteLinkedField,
-  ConcreteFragment,
-  ConcreteSelectableNode,
-  RequestNode,
-} from 'RelayConcreteNode';
 import type {DataID} from 'react-relay/classic/tools/RelayInternalTypes';
-import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
-import type {PayloadData} from 'RelayNetworkTypes';
-import type {PayloadError, UploadableMap} from 'RelayNetworkTypes';
-import type RelayObservable from 'RelayObservable';
-import type {RecordState} from 'RelayRecordState';
 import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 type TEnvironment = Environment;

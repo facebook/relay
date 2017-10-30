@@ -28,20 +28,20 @@ const {
   TYPENAME_KEY,
 } = require('RelayStoreUtils');
 
-import type {Record} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 import type {
   ConcreteField,
   ConcreteLinkedField,
   ConcreteNode,
   ConcreteSelection,
 } from 'RelayConcreteNode';
-import type {DataID} from 'react-relay/classic/tools/RelayInternalTypes';
 import type {PayloadData} from 'RelayNetworkTypes';
 import type {
   HandleFieldPayload,
   MutableRecordSource,
   Selector,
 } from 'RelayStoreTypes';
+import type {Record} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
+import type {DataID} from 'react-relay/classic/tools/RelayInternalTypes';
 import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 const {

@@ -15,8 +15,8 @@ const RelayConcreteNode = require('RelayConcreteNode');
 
 const invariant = require('invariant');
 
-import type {CacheConfig} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
+import type {CacheConfig} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 /**

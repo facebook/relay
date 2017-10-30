@@ -15,13 +15,16 @@ const RelayConnectionHandler = require('RelayConnectionHandler');
 
 const warning = require('warning');
 
-import type {SelectorData} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 import type {RequestNode} from 'RelayConcreteNode';
 import type {
   RecordSourceSelectorProxy,
   SelectorStoreUpdater,
 } from 'RelayStoreTypes';
-import type {RelayMutationConfig, Variables} from 'react-relay/classic/tools/RelayTypes';
+import type {SelectorData} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
+import type {
+  RelayMutationConfig,
+  Variables,
+} from 'react-relay/classic/tools/RelayTypes';
 
 function setRelayModernMutationConfigs(
   configs: Array<RelayMutationConfig>,

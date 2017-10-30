@@ -24,7 +24,6 @@ const resolveImmediate = require('resolveImmediate');
 
 const {UNPUBLISH_RECORD_SENTINEL} = require('RelayStoreUtils');
 
-import type {Disposable} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 import type {
   MutableRecordSource,
   RecordSource,
@@ -33,6 +32,7 @@ import type {
   Store,
   UpdatedRecords,
 } from 'RelayStoreTypes';
+import type {Disposable} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 type Subscription = {
   callback: (snapshot: Snapshot) => void,

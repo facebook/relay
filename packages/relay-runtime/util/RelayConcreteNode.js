@@ -35,6 +35,29 @@ export type ConcreteBatchRequest = {
     name: string,
     id: ?string,
     text: ?string,
+    // Arguments in the provided operation to be derived via the results of
+    // other requests in this batch.
+    argumentDependencies: ?Array<{
+      // The name of the argument to provide.
+      name: string,
+      // The name of the request in this batch to wait for a result from.
+      // This may be the same request for recursive requests (in which case
+      // the initial value will be null).
+      fromRequestName: string,
+      // The JSONPath into the dependent request at which the value for this
+      // argument is found.
+      fromRequestPath: string,
+      // If the result is a list of values, should it use the first value, last
+      // value, all values in the list, or trigger a new instance of this
+      // request for each item in the list.
+      ifList?: 'first' | 'last' | 'all' | 'each',
+      // If the result is null, should it result in an error, allow the null
+      // value to be provided, or skip execution of this request.
+      ifNull?: 'error' | 'allow' | 'skip',
+      // If this argument is dependent on itself, how many times may this
+      // request execute before completing.
+      maxRecurse?: number,
+    }>,
     operation: ConcreteOperation,
   }>,
 };

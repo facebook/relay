@@ -56,8 +56,8 @@
                       "args": [],
                       "directives": [],
                       "metadata": null,
-                      "name": "__typename",
-                      "type": "String!"
+                      "name": "id",
+                      "type": "ID!"
                     },
                     {
                       "kind": "ScalarField",
@@ -65,8 +65,8 @@
                       "args": [],
                       "directives": [],
                       "metadata": null,
-                      "name": "id",
-                      "type": "ID!"
+                      "name": "__typename",
+                      "type": "String!"
                     },
                     {
                       "kind": "LinkedField",
@@ -102,8 +102,8 @@
                           "args": [],
                           "directives": [],
                           "metadata": null,
-                          "name": "__typename",
-                          "type": "String!"
+                          "name": "name",
+                          "type": "String"
                         },
                         {
                           "kind": "ScalarField",
@@ -111,8 +111,8 @@
                           "args": [],
                           "directives": [],
                           "metadata": null,
-                          "name": "name",
-                          "type": "String"
+                          "name": "__typename",
+                          "type": "String!"
                         }
                       ],
                       "type": "Actor"
@@ -160,16 +160,6 @@
       "metadata": null,
       "name": "node",
       "selections": [
-        {
-          "kind": "ScalarField",
-          "alias": null,
-          "args": [],
-          "directives": [],
-          "handles": null,
-          "metadata": null,
-          "name": "__typename",
-          "type": "String"
-        },
         {
           "kind": "LinkedField",
           "alias": null,
@@ -243,6 +233,16 @@
             }
           ],
           "type": "CommentsConnection"
+        },
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "args": [],
+          "directives": [],
+          "handles": null,
+          "metadata": null,
+          "name": "__typename",
+          "type": "String"
         }
       ],
       "type": "Node"

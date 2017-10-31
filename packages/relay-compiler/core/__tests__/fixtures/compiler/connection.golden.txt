@@ -269,13 +269,6 @@
           {
             "kind": "ScalarField",
             "alias": null,
-            "name": "__typename",
-            "args": null,
-            "storageKey": null
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
             "name": "id",
             "args": null,
             "storageKey": null
@@ -319,13 +312,6 @@
                         "plural": false,
                         "selections": [
                           {
-                            "kind": "ScalarField",
-                            "alias": null,
-                            "name": "__typename",
-                            "args": null,
-                            "storageKey": null
-                          },
-                          {
                             "kind": "LinkedField",
                             "alias": null,
                             "name": "actor",
@@ -334,13 +320,6 @@
                             "concreteType": null,
                             "plural": false,
                             "selections": [
-                              {
-                                "kind": "ScalarField",
-                                "alias": null,
-                                "name": "__typename",
-                                "args": null,
-                                "storageKey": null
-                              },
                               {
                                 "kind": "ScalarField",
                                 "alias": null,
@@ -385,13 +364,6 @@
                                           {
                                             "kind": "ScalarField",
                                             "alias": null,
-                                            "name": "__typename",
-                                            "args": null,
-                                            "storageKey": null
-                                          },
-                                          {
-                                            "kind": "ScalarField",
-                                            "alias": null,
                                             "name": "name",
                                             "args": null,
                                             "storageKey": null
@@ -400,6 +372,13 @@
                                             "kind": "ScalarField",
                                             "alias": null,
                                             "name": "id",
+                                            "args": null,
+                                            "storageKey": null
+                                          },
+                                          {
+                                            "kind": "ScalarField",
+                                            "alias": null,
+                                            "name": "__typename",
                                             "args": null,
                                             "storageKey": null
                                           }
@@ -463,6 +442,13 @@
                                 "name": "id",
                                 "args": null,
                                 "storageKey": null
+                              },
+                              {
+                                "kind": "ScalarField",
+                                "alias": null,
+                                "name": "__typename",
+                                "args": null,
+                                "storageKey": null
                               }
                             ]
                           },
@@ -470,6 +456,13 @@
                             "kind": "ScalarField",
                             "alias": null,
                             "name": "id",
+                            "args": null,
+                            "storageKey": null
+                          },
+                          {
+                            "kind": "ScalarField",
+                            "alias": null,
+                            "name": "__typename",
                             "args": null,
                             "storageKey": null
                           }
@@ -528,6 +521,13 @@
                 "filters": null
               }
             ]
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
           }
         ]
       }
@@ -541,22 +541,19 @@ query NodeQuery(
   $id: ID!
 ) {
   node(id: $id) {
-    __typename
     id
     ... on Story {
       comments(first: 10) {
         edges {
           node {
-            __typename
             actor {
-              __typename
               name
               friends(first: 10) {
                 edges {
                   node {
-                    __typename
                     name
                     id
+                    __typename
                   }
                   cursor
                 }
@@ -566,8 +563,10 @@ query NodeQuery(
                 }
               }
               id
+              __typename
             }
             id
+            __typename
           }
           cursor
         }
@@ -577,5 +576,6 @@ query NodeQuery(
         }
       }
     }
+    __typename
   }
 }

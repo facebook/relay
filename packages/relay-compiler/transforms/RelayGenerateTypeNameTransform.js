@@ -29,11 +29,9 @@ const TYPENAME_KEY = '__typename';
 const STRING_TYPE = 'String';
 
 /**
- * A transform that adds `__typename` field on any `LinkedField` of a union/interface type where
- * there is no unaliased `__typename` selection. The `__typename` field is guaranteed to be put in
- * the first place of the selections.
+ * A transform that adds `__typename` field on any `LinkedField` of a union or
+ * interface type where there is no unaliased `__typename` selection.
  */
-
 function relayGenerateTypeNameTransform(
   context: CompilerContext,
 ): CompilerContext {
@@ -59,7 +57,7 @@ function transformNode<T: Node>(context: CompilerContext, node: T): T {
   });
   return ({
     ...node,
-    selections: sortSelections(selections),
+    selections,
   }: $FlowIssue);
 }
 
@@ -83,24 +81,10 @@ function transformField(
       type: stringType,
     });
   }
-  const selections = sortSelections(generatedSelections);
   return {
     ...transformedNode,
-    selections,
+    selections: generatedSelections,
   };
-}
-
-/**
- * @internal
- *
- * For interoperability with classic systems, sort `__typename` first.
- */
-function sortSelections(selections: Array<$FlowIssue>): Array<$FlowIssue> {
-  return [...selections].sort((a, b) => {
-    return a.kind === 'ScalarField' && a.name === TYPENAME_KEY
-      ? -1
-      : b.kind === 'ScalarField' && b.name === TYPENAME_KEY ? 1 : 0;
-  });
 }
 
 module.exports = {

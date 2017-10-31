@@ -11,8 +11,6 @@
 
 'use strict';
 
-const RelayConcreteNode = require('RelayConcreteNode');
-
 const invariant = require('invariant');
 const isRelayModernEnvironment = require('isRelayModernEnvironment');
 const setRelayModernMutationConfigs = require('setRelayModernMutationConfigs');
@@ -46,10 +44,7 @@ function applyRelayModernOptimisticMutation(
   );
   const {createOperationSelector, getRequest} = environment.unstable_internal;
   const mutation = getRequest(config.mutation);
-  if (
-    mutation.kind !== RelayConcreteNode.OPERATION ||
-    mutation.operation !== 'mutation'
-  ) {
+  if (mutation.operationKind !== 'mutation') {
     throw new Error('commitRelayModernMutation: Expected mutation operation');
   }
   let {optimisticUpdater} = config;

@@ -17,11 +17,7 @@ const {
   getRelayClassicEnvironment,
   getRelayModernEnvironment,
 } = require('../RelayCompatEnvironment');
-const {
-  applyOptimisticMutation,
-  commitMutation,
-  RelayConcreteNode,
-} = require('RelayRuntime');
+const {applyOptimisticMutation, commitMutation} = require('RelayRuntime');
 
 import type {Disposable} from '../../classic/environment/RelayCombinedEnvironmentTypes';
 import type {Environment as ClassicEnvironment} from '../../classic/environment/RelayEnvironmentTypes';
@@ -126,10 +122,7 @@ function applyRelayClassicMutation(
 ): Disposable {
   const {getRequest} = environment.unstable_internal;
   const operation = getRequest(mutation);
-  if (
-    operation.kind !== RelayConcreteNode.OPERATION ||
-    operation.operation !== 'mutation'
-  ) {
+  if (operation.operation !== 'mutation') {
     throw new Error('RelayCompatMutations: Expected mutation operation');
   }
 

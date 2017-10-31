@@ -70,19 +70,12 @@ function wrapExecute(
   LoggerTransaction: Class<IRelayNetworkLoggerTransaction>,
   graphiQLPrinter: ?GraphiQLPrinter,
 ): ExecuteFunction {
-  return (_request, variables, cacheConfig, uploadables) => {
-    // Const for flow refinement.
-    const request = _request;
-    if (request.kind === RelayConcreteNode.BATCH_REQUEST) {
-      throw new Error(
-        'createRelayNetworkLogger: Batch request not yet ' +
-          'implemented (T22955154)',
-      );
-    }
+  return (request, variables, cacheConfig, uploadables) => {
     let transaction;
 
     function addLogs(error, response, status) {
-      if (graphiQLPrinter) {
+      // Only print GraphiQL links for non-batch requests.
+      if (graphiQLPrinter && request.kind === RelayConcreteNode.REQUEST) {
         transaction.addLog('GraphiQL', graphiQLPrinter(request, variables));
       }
       transaction.addLog('Cache Config', cacheConfig);

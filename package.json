@@ -85,7 +85,6 @@
     "parser": "flow"
   },
   "jest": {
-    "moduleFileExtensions": ["web.js", "js", "json", "jsx", "node"],
     "modulePathIgnorePatterns": [
       "<rootDir>/lib/",
       "<rootDir>/node_modules/(?!(fbjs/lib/|react/lib/|fbjs-scripts/jest))"

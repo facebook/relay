@@ -265,7 +265,7 @@ function createContainerWithFragments<
             variables: fragmentVariables,
           };
           this._resolver.setVariables(fragmentVariables);
-          return new Observable(sink =>
+          return Observable.create(sink =>
             this.setState({data: this._resolver.resolve()}, () => {
               sink.next();
               sink.complete();

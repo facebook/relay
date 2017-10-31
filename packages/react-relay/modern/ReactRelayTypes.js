@@ -20,7 +20,7 @@ export type RelayProp = {
   environment: IEnvironment,
 };
 
-export type ObserverOrCallback = Observer<void> | ((error: ?Error) => void);
+export type ObserverOrCallback = Observer<void> | ((error: ?Error) => mixed);
 
 export type RelayPaginationProp = RelayProp & {
   hasMore: () => boolean,

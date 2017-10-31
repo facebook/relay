@@ -112,7 +112,7 @@ function createMockEnvironment(options: {
     const nextRequest = {request, variables, cacheConfig};
     pendingRequests = pendingRequests.concat([nextRequest]);
 
-    return new RelayObservable(sink => {
+    return RelayObservable.create(sink => {
       nextRequest.sink = sink;
       return () => {
         pendingRequests = pendingRequests.filter(

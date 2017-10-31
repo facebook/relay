@@ -105,8 +105,8 @@ export type Uploadable = File | Blob;
 export type UploadableMap = {[key: string]: Uploadable};
 
 // Supports legacy SubscribeFunction definitions. Do not use in new code.
-export type LegacyObserver<T> = {
-  onCompleted?: ?() => void,
-  onError?: ?(error: Error) => void,
-  onNext?: ?(data: T) => void,
-};
+export type LegacyObserver<-T> = {|
+  +onCompleted?: ?() => void,
+  +onError?: ?(error: Error) => void,
+  +onNext?: ?(data: T) => void,
+|};

@@ -306,7 +306,7 @@ function toObserver(observerOrCallback: ?ObserverOrCallback): Observer<void> {
           typeof observerOrCallback === 'function' && observerOrCallback();
         },
       }
-    : observerOrCallback || {};
+    : observerOrCallback || ({}: any);
 }
 
 function createContainerWithFragments<
@@ -584,7 +584,7 @@ function createContainerWithFragments<
       const observer = toObserver(observerOrCallback);
       const connectionData = this._getConnectionData();
       if (!connectionData) {
-        new Observable(sink => sink.complete()).subscribe(observer);
+        Observable.create(sink => sink.complete()).subscribe(observer);
         return null;
       }
       const totalCount = connectionData.edgeCount + pageSize;
@@ -717,14 +717,13 @@ function createContainerWithFragments<
       this._isARequestInFlight = true;
       refetchSubscription = environment
         .execute({operation, cacheConfig})
-        .mergeMap(
-          payload =>
-            new Observable(sink => {
-              onNext(payload, () => {
-                sink.next(); // pass void to public observer's `next`
-                sink.complete();
-              });
-            }),
+        .mergeMap(payload =>
+          Observable.create(sink => {
+            onNext(payload, () => {
+              sink.next(); // pass void to public observer's `next`
+              sink.complete();
+            });
+          }),
         )
         // use do instead of finally so that observer's `complete` fires after cleanup
         .do({

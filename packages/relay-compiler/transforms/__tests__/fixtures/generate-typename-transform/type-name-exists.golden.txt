@@ -161,6 +161,16 @@
       "name": "node",
       "selections": [
         {
+          "kind": "ScalarField",
+          "alias": null,
+          "args": [],
+          "directives": [],
+          "handles": null,
+          "metadata": null,
+          "name": "__typename",
+          "type": "String"
+        },
+        {
           "kind": "LinkedField",
           "alias": null,
           "args": [
@@ -233,16 +243,6 @@
             }
           ],
           "type": "CommentsConnection"
-        },
-        {
-          "kind": "ScalarField",
-          "alias": null,
-          "args": [],
-          "directives": [],
-          "handles": null,
-          "metadata": null,
-          "name": "__typename",
-          "type": "String"
         }
       ],
       "type": "Node"

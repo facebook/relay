@@ -55,6 +55,16 @@
                       "alias": null,
                       "args": [],
                       "directives": [],
+                      "handles": null,
+                      "metadata": null,
+                      "name": "__typename",
+                      "type": "String"
+                    },
+                    {
+                      "kind": "ScalarField",
+                      "alias": null,
+                      "args": [],
+                      "directives": [],
                       "metadata": null,
                       "name": "id",
                       "type": "ID!"
@@ -92,8 +102,9 @@
                           "alias": null,
                           "args": [],
                           "directives": [],
+                          "handles": null,
                           "metadata": null,
-                          "name": "name",
+                          "name": "__typename",
                           "type": "String"
                         },
                         {
@@ -101,23 +112,12 @@
                           "alias": null,
                           "args": [],
                           "directives": [],
-                          "handles": null,
                           "metadata": null,
-                          "name": "__typename",
+                          "name": "name",
                           "type": "String"
                         }
                       ],
                       "type": "Actor"
-                    },
-                    {
-                      "kind": "ScalarField",
-                      "alias": null,
-                      "args": [],
-                      "directives": [],
-                      "handles": null,
-                      "metadata": null,
-                      "name": "__typename",
-                      "type": "String"
                     }
                   ],
                   "type": "FeedUnit"
@@ -162,6 +162,16 @@
       "metadata": null,
       "name": "node",
       "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "args": [],
+          "directives": [],
+          "handles": null,
+          "metadata": null,
+          "name": "__typename",
+          "type": "String"
+        },
         {
           "kind": "LinkedField",
           "alias": null,
@@ -235,16 +245,6 @@
             }
           ],
           "type": "CommentsConnection"
-        },
-        {
-          "kind": "ScalarField",
-          "alias": null,
-          "args": [],
-          "directives": [],
-          "handles": null,
-          "metadata": null,
-          "name": "__typename",
-          "type": "String"
         }
       ],
       "type": "Node"

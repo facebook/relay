@@ -85,6 +85,13 @@
           {
             "kind": "ScalarField",
             "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
             "name": "id",
             "args": null,
             "storageKey": null
@@ -125,13 +132,6 @@
                 "storageKey": null
               }
             ]
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "__typename",
-            "args": null,
-            "storageKey": null
           }
         ]
       }
@@ -143,6 +143,7 @@ QUERY:
 
 query UnionQuery {
   maybeNode {
+    __typename
     ... on NonNode {
       name
     }
@@ -158,6 +159,5 @@ query UnionQuery {
     ... on FakeNode {
       id
     }
-    __typename
   }
 }

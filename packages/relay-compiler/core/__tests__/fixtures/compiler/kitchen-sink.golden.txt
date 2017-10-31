@@ -334,6 +334,13 @@
           {
             "kind": "ScalarField",
             "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
             "name": "id",
             "args": null,
             "storageKey": null
@@ -492,13 +499,6 @@
                 ]
               }
             ]
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "__typename",
-            "args": null,
-            "storageKey": null
           }
         ]
       }
@@ -514,12 +514,12 @@ query NodeQuery(
   $PictureSize: [Int]!
 ) {
   node(id: $id) {
+    __typename
     id
     ... on User @include(if: $cond) {
       name
     }
   ...UserFragment_3M2EvT @include(if: $cond)
-    __typename
   }
 }
 

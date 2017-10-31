@@ -269,6 +269,13 @@
           {
             "kind": "ScalarField",
             "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
             "name": "id",
             "args": null,
             "storageKey": null
@@ -320,6 +327,13 @@
                             "concreteType": null,
                             "plural": false,
                             "selections": [
+                              {
+                                "kind": "ScalarField",
+                                "alias": null,
+                                "name": "__typename",
+                                "args": null,
+                                "storageKey": null
+                              },
                               {
                                 "kind": "ScalarField",
                                 "alias": null,
@@ -442,13 +456,6 @@
                                 "name": "id",
                                 "args": null,
                                 "storageKey": null
-                              },
-                              {
-                                "kind": "ScalarField",
-                                "alias": null,
-                                "name": "__typename",
-                                "args": null,
-                                "storageKey": null
                               }
                             ]
                           },
@@ -521,13 +528,6 @@
                 "filters": null
               }
             ]
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "__typename",
-            "args": null,
-            "storageKey": null
           }
         ]
       }
@@ -541,12 +541,14 @@ query NodeQuery(
   $id: ID!
 ) {
   node(id: $id) {
+    __typename
     id
     ... on Story {
       comments(first: 10) {
         edges {
           node {
             actor {
+              __typename
               name
               friends(first: 10) {
                 edges {
@@ -563,7 +565,6 @@ query NodeQuery(
                 }
               }
               id
-              __typename
             }
             id
             __typename
@@ -576,6 +577,5 @@ query NodeQuery(
         }
       }
     }
-    __typename
   }
 }

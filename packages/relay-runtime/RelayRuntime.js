@@ -110,13 +110,13 @@ module.exports = {
   getDataIDsFromObject: RelayCore.getDataIDsFromObject,
   getFragment: RelayModernGraphQLTag.getFragment,
   getRequest: RelayModernGraphQLTag.getRequest,
-  // TODO: enable after getting Flow to pass
-  // getOperation: tag => {
-  //   if (__DEV__) {
-  //     warning(false, 'getOperation() deprecated. Use getRequest().');
-  //   }
-  //   return RelayModernGraphQLTag.getRequest(tag);
-  // },
+  // TODO (T23201154) remove in a future Relay release.
+  getOperation: function() {
+    if (__DEV__) {
+      require('warning')(false, 'getOperation() deprecated. Use getRequest().');
+    }
+    return RelayModernGraphQLTag.getRequest.apply(null, arguments);
+  },
   getSelector: RelayCore.getSelector,
   getSelectorList: RelayCore.getSelectorList,
   getSelectorsFromObject: RelayCore.getSelectorsFromObject,

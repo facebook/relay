@@ -12,6 +12,7 @@
 'use strict';
 
 const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
+const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 
 import type {Condition, Fragment, Node, Selection} from '../core/GraphQLIR';
 
@@ -31,17 +32,13 @@ const VARIABLE = 'variable';
 function skipUnreachableNodeTransform(
   context: GraphQLCompilerContext,
 ): GraphQLCompilerContext {
-  const documents = context.documents();
   const fragments: Map<string, ?Fragment> = new Map();
-  const nextContext = documents.reduce((ctx: GraphQLCompilerContext, node) => {
-    if (node.kind === 'Root') {
-      const transformedNode = transformNode(context, fragments, node);
-      if (transformedNode) {
-        return ctx.add(transformedNode);
-      }
-    }
-    return ctx;
-  }, new GraphQLCompilerContext(context.schema));
+  const nextContext = GraphQLIRTransformer.transform(context, {
+    Root: node => transformNode(context, fragments, node),
+    // Fragments are included below where referenced.
+    // Unreferenced fragments are not included.
+    Fragment: id => null,
+  });
   return (Array.from(fragments.values()): Array<?Fragment>).reduce(
     (ctx: GraphQLCompilerContext, fragment) =>
       fragment ? ctx.add(fragment) : ctx,

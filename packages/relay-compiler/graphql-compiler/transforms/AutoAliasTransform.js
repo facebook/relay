@@ -12,6 +12,7 @@
 'use strict';
 
 const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
+const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 
 const getIdentifierForArgumentValue = require('../core/getIdentifierForArgumentValue');
 const invariant = require('invariant');
@@ -31,14 +32,10 @@ import type {
  * arguments have been inlined.
  */
 function transform(context: GraphQLCompilerContext): GraphQLCompilerContext {
-  const documents = context.documents();
-  return (documents: $FlowIssue).reduce((ctx, node) => {
-    const selections = transformSelections(node.selections);
-    return ctx.add({
-      ...node,
-      selections,
-    });
-  }, new GraphQLCompilerContext(context.schema));
+  return GraphQLIRTransformer.transform(context, {
+    Root: n => ({...n, selections: transformSelections(n.selections)}),
+    Fragment: n => ({...n, selections: transformSelections(n.selections)}),
+  });
 }
 
 function transformSelections(

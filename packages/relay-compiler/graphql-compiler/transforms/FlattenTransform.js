@@ -11,6 +11,7 @@
 'use strict';
 
 const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
+const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 const GraphQLSchemaUtils = require('../core/GraphQLSchemaUtils');
 
 const areEqual = require('../util/areEqualOSS');
@@ -64,31 +65,33 @@ function flattenTransformImpl(
     flattenAbstractTypes: !!(options && options.flattenAbstractTypes),
     flattenInlineFragments: !!(options && options.flattenInlineFragments),
   };
-  return context
-    .documents()
-    .reduce(
-      (
-        ctx: GraphQLCompilerContext,
-        node: Root | Fragment,
-      ): GraphQLCompilerContext => {
-        const state = {
-          kind: 'FlattenState',
-          node,
-          selections: {},
-          type: node.type,
-        };
-        visitNode(context, flattenOptions, state, node);
-        const flattenedNode = buildNode(state);
-        invariant(
-          flattenedNode.kind === 'Root' || flattenedNode.kind === 'Fragment',
-          'FlattenTransform: Expected Root `%s` to flatten back to a Root ' +
-            ' or Fragment.',
-          node.name,
-        );
-        return ctx.add(flattenedNode);
-      },
-      new GraphQLCompilerContext(context.schema),
-    );
+
+  return GraphQLIRTransformer.transform(context, {
+    Root: root => flattenNode(root, context, flattenOptions),
+    Fragment: fragment => flattenNode(fragment, context, flattenOptions),
+  });
+}
+
+function flattenNode(
+  node: Root | Fragment,
+  context: GraphQLCompilerContext,
+  options: FlattenOptions,
+): Root | Fragment {
+  const state = {
+    kind: 'FlattenState',
+    node,
+    selections: {},
+    type: node.type,
+  };
+  visitNode(context, options, state, node);
+  const flattenedNode = buildNode(state);
+  invariant(
+    flattenedNode.kind === 'Root' || flattenedNode.kind === 'Fragment',
+    'FlattenTransform: Expected Root `%s` to flatten back to a Root ' +
+      ' or Fragment.',
+    node.name,
+  );
+  return flattenedNode;
 }
 
 function buildNode(state: FlattenState): Root | Selection {

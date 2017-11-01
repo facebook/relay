@@ -18,8 +18,8 @@ const invariant = require('invariant');
 const murmurHash = require('murmurHash');
 
 const {
-  CompilerContext,
   getIdentifierForArgumentValue,
+  IRTransformer,
 } = require('../graphql-compiler/GraphQLCompilerPublic');
 
 import type {Scope} from '../core/RelayCompilerScope';
@@ -27,6 +27,7 @@ import type {
   Argument,
   ArgumentValue,
   Condition,
+  CompilerContext,
   Directive,
   Field,
   Fragment,
@@ -62,20 +63,17 @@ const {getFragmentScope, getRootScope} = RelayCompilerScope;
 function relayApplyFragmentArgumentTransform(
   context: CompilerContext,
 ): CompilerContext {
-  const documents = context.documents();
   const fragments: Map<string, ?Fragment> = new Map();
-  let nextContext = new CompilerContext(context.schema);
-  nextContext = documents.reduce((ctx: CompilerContext, node) => {
-    if (node.kind === 'Root') {
+  const nextContext = IRTransformer.transform(context, {
+    Root: node => {
       const scope = getRootScope(node.argumentDefinitions);
-      const transformedNode = transformNode(context, fragments, scope, node);
-      return transformedNode ? ctx.add(transformedNode) : ctx;
-    } else {
-      // fragments are transformed when referenced; unreferenced fragments are
-      // not added to the output.
-      return ctx;
-    }
-  }, nextContext);
+      return transformNode(context, fragments, scope, node);
+    },
+    // Fragments are included below where referenced.
+    // Unreferenced fragments are not included.
+    Fragment: () => null,
+  });
+
   return (Array.from(fragments.values()): Array<?Fragment>).reduce(
     (ctx: CompilerContext, fragment) => (fragment ? ctx.add(fragment) : ctx),
     nextContext,

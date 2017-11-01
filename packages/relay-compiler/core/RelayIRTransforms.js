@@ -68,7 +68,6 @@ const relayCodegenTransforms: Array<IRTransform> = [
     flattenAbstractTypes: true,
   }),
   SkipRedundantNodesTransform.transform,
-  // Must be put after `SkipRedundantNodesTransform` which could shuffle the order.
   RelayGenerateTypeNameTransform.transform,
   FilterDirectivesTransform.transform,
 ];

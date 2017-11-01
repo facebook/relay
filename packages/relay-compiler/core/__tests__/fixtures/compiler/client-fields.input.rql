@@ -1,6 +1,14 @@
 query BestFriendsQuery($id: ID!) {
   node(id: $id) {
     ...BestFriends
+    ...OnlyClientFields
+  }
+}
+
+# This fragment disappears because all selections are removed
+fragment OnlyClientFields on User {
+  best_friends {
+    __typename
   }
 }
 
@@ -20,7 +28,7 @@ fragment BestFriends on User {
     }
   }
   ... on Named {
-   # fragments on extension types are skipped
+    # fragments on extension types are skipped
     ...FooFragment
     ... on Foo {
       name

@@ -255,9 +255,6 @@ class Transformer<S> {
           'directives',
           'selections',
         ]);
-        if (!nextNode.selections.length) {
-          nextNode = null;
-        }
         break;
       default:
         invariant(

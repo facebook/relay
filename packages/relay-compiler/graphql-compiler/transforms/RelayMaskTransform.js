@@ -24,7 +24,6 @@ import type {
   Fragment,
   FragmentSpread,
   InlineFragment,
-  Node,
   ArgumentDefinition,
 } from '../core/GraphQLIR';
 
@@ -97,12 +96,7 @@ function visitFragmentSpread(
       'arguments. Use the `ApplyFragmentArgumentTransform` before flattening',
     fragmentSpread.name,
   );
-  const fragment: ?Node = this.getContext().get(fragmentSpread.name);
-  invariant(
-    fragment && fragment.kind === 'Fragment',
-    'RelayMaskTransform: Unknown fragment `%s`.',
-    fragmentSpread.name,
-  );
+  const fragment = this.getContext().getFragment(fragmentSpread.name);
   const result: InlineFragment = {
     kind: 'InlineFragment',
     directives: fragmentSpread.directives,

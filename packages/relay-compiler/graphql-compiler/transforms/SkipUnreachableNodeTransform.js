@@ -13,8 +13,6 @@
 
 const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
 
-const invariant = require('invariant');
-
 import type {Condition, Fragment, Node, Selection} from '../core/GraphQLIR';
 
 type ConditionResult = 'fail' | 'pass' | 'variable';
@@ -71,13 +69,7 @@ function transformNode<T: Node>(
     } else if (selection.kind === 'FragmentSpread') {
       // Skip fragment spreads if the referenced fragment is empty
       if (!fragments.has(selection.name)) {
-        const fragment = context.get(selection.name);
-        invariant(
-          fragment && fragment.kind === 'Fragment',
-          'SkipUnreachableNodeTransform: Found a reference to undefined ' +
-            'fragment `%s`.',
-          selection.name,
-        );
+        const fragment = context.getFragment(selection.name);
         const nextFragment = transformNode(context, fragments, fragment);
         fragments.set(selection.name, nextFragment);
       }

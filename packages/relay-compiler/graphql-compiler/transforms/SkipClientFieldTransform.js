@@ -184,12 +184,7 @@ function visitFragmentSpread(
   state: State,
 ): ?FragmentSpread {
   const context = this.getContext();
-  const fragment = context.get(spread.name);
-  invariant(
-    fragment && fragment.kind === 'Fragment',
-    'SkipClientFieldTransform: Expected a fragment named `%s` to be defined.',
-    spread.name,
-  );
+  const fragment = context.getFragment(spread.name);
   if (state.schema.getType(fragment.type.name)) {
     return this.traverse(spread, state);
   }

@@ -51,12 +51,7 @@ function visitFragmentSpread(
       'arguments. Use the `ApplyFragmentArgumentTransform` before flattening',
     fragmentSpread.name,
   );
-  const fragment = this.getContext().get(fragmentSpread.name);
-  invariant(
-    fragment && fragment.kind === 'Fragment',
-    'InlineFragmentsTransform: Unknown fragment `%s`.',
-    fragmentSpread.name,
-  );
+  const fragment = this.getContext().getFragment(fragmentSpread.name);
   const result: InlineFragment = {
     kind: 'InlineFragment',
     directives: fragmentSpread.directives,

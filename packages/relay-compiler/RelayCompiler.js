@@ -11,7 +11,7 @@
 
 'use strict';
 
-const {Compiler} = require('./graphql-compiler/GraphQLCompilerPublic');
+const {Compiler} = require('graphql-compiler');
 
 /**
  * For now, the `RelayCompiler` *is* the `GraphQLCompiler`, but we're creating

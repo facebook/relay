@@ -11,18 +11,12 @@
 
 'use strict';
 
-const {
-  IRTransformer,
-  SchemaUtils,
-} = require('../../graphql-compiler/GraphQLCompilerPublic');
 // TODO T21875029 ../../../relay-runtime/util/RelayDefaultHandleKey
 const {DEFAULT_HANDLE_KEY} = require('RelayDefaultHandleKey');
 const {GraphQLObjectType} = require('graphql');
+const {IRTransformer, SchemaUtils} = require('graphql-compiler');
 
-import type {
-  CompilerContext,
-  LinkedField,
-} from '../../graphql-compiler/GraphQLCompilerPublic';
+import type {CompilerContext, LinkedField} from 'graphql-compiler';
 import type {GraphQLSchema} from 'graphql';
 
 const {getRawType} = SchemaUtils;

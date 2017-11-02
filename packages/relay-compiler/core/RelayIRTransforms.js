@@ -27,9 +27,9 @@ const {
   FlattenTransform,
   IRTransforms,
   SkipRedundantNodesTransform,
-} = require('../graphql-compiler/GraphQLCompilerPublic');
+} = require('graphql-compiler');
 
-import type {IRTransform} from '../graphql-compiler/GraphQLCompilerPublic';
+import type {IRTransform} from 'graphql-compiler';
 
 const {fragmentTransforms, queryTransforms} = IRTransforms;
 

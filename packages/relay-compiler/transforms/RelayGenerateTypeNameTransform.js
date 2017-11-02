@@ -11,18 +11,15 @@
 
 'use strict';
 
+const {hasUnaliasedSelection} = require('./RelayTransformUtils');
+const {assertLeafType} = require('graphql');
 const {
   CompilerContext,
   IRTransformer,
   SchemaUtils,
-} = require('../graphql-compiler/GraphQLCompilerPublic');
-const {hasUnaliasedSelection} = require('./RelayTransformUtils');
-const {assertLeafType} = require('graphql');
+} = require('graphql-compiler');
 
-import type {
-  LinkedField,
-  ScalarField,
-} from '../graphql-compiler/GraphQLCompilerPublic';
+import type {LinkedField, ScalarField} from 'graphql-compiler';
 
 const {isAbstractType} = SchemaUtils;
 

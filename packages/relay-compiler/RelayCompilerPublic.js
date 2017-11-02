@@ -22,13 +22,9 @@ const {
   CodegenRunner,
   ConsoleReporter,
   MultiReporter,
-} = require('./graphql-compiler/GraphQLCompilerPublic');
+} = require('graphql-compiler');
 
-export type {
-  CompileResult,
-  ParserConfig,
-  WriterConfig,
-} from './graphql-compiler/GraphQLCompilerPublic';
+export type {CompileResult, ParserConfig, WriterConfig} from 'graphql-compiler';
 
 module.exports = {
   Compiler: RelayCompiler,

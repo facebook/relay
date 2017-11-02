@@ -11,15 +11,9 @@
 
 'use strict';
 
-const {
-  CompilerContext,
-  IRTransformer,
-} = require('../graphql-compiler/GraphQLCompilerPublic');
+const {CompilerContext, IRTransformer} = require('graphql-compiler');
 
-import type {
-  LinkedField,
-  ScalarField,
-} from '../graphql-compiler/GraphQLCompilerPublic';
+import type {LinkedField, ScalarField} from 'graphql-compiler';
 import type {GraphQLSchema} from 'graphql';
 
 type State = true;

@@ -26,7 +26,7 @@ const {
   CodegenDirectory,
   CompilerContext,
   SchemaUtils,
-} = require('../graphql-compiler/GraphQLCompilerPublic');
+} = require('graphql-compiler');
 const {Map: ImmutableMap} = require('immutable');
 
 import type {ScalarTypeMapping} from '../core/RelayFlowTypeTransformers';
@@ -34,7 +34,7 @@ import type {
   CompiledDocumentMap,
   CompilerTransforms,
   FileWriterInterface,
-} from '../graphql-compiler/GraphQLCompilerPublic';
+} from 'graphql-compiler';
 import type {FormatModule} from './writeRelayGeneratedFile';
 // TODO T21875029 ../../relay-runtime/util/RelayConcreteNode
 import type {GeneratedNode} from 'RelayConcreteNode';

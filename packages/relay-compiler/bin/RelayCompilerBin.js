@@ -17,7 +17,7 @@ const {
   CodegenRunner,
   ConsoleReporter,
   WatchmanClient,
-} = require('../graphql-compiler/GraphQLCompilerPublic');
+} = require('graphql-compiler');
 
 const RelayJSModuleParser = require('../core/RelayJSModuleParser');
 const RelayFileWriter = require('../codegen/RelayFileWriter');

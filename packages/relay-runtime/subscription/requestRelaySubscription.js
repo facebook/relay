@@ -11,8 +11,6 @@
 
 'use strict';
 
-const RelayConcreteNode = require('RelayConcreteNode');
-
 const setRelayModernMutationConfigs = require('setRelayModernMutationConfigs');
 const warning = require('warning');
 

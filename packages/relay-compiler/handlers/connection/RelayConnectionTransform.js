@@ -15,11 +15,6 @@ const RelayParser = require('../../core/RelayParser');
 
 const invariant = require('invariant');
 
-const {
-  getLiteralArgumentValues,
-  IRTransformer,
-  SchemaUtils,
-} = require('../../graphql-compiler/GraphQLCompilerPublic');
 const {AFTER, BEFORE, FIRST, KEY, LAST} = require('./RelayConnectionConstants');
 // TODO T21875029 ../../../relay-runtime/RelayRuntime
 const {ConnectionInterface} = require('RelayRuntime');
@@ -32,7 +27,14 @@ const {
   GraphQLUnionType,
   parse,
 } = require('graphql');
+const {
+  getLiteralArgumentValues,
+  IRTransformer,
+  SchemaUtils,
+} = require('graphql-compiler');
 
+// TODO T21875029 ../../../relay-runtime/handlers/connection/RelayConnectionHandler
+import type {ConnectionMetadata} from 'RelayConnectionHandler';
 import type {
   Argument,
   Fragment,
@@ -40,9 +42,7 @@ import type {
   LinkedField,
   Root,
   CompilerContext,
-} from '../../graphql-compiler/GraphQLCompilerPublic';
-// TODO T21875029 ../../../relay-runtime/handlers/connection/RelayConnectionHandler
-import type {ConnectionMetadata} from 'RelayConnectionHandler';
+} from 'graphql-compiler';
 import type {GraphQLType} from 'graphql';
 
 type Options = {

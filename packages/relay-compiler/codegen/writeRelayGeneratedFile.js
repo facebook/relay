@@ -18,9 +18,9 @@ const crypto = require('crypto');
 const dedupeJSONStringify = require('dedupeJSONStringify');
 const invariant = require('invariant');
 
-import type {CodegenDirectory} from '../graphql-compiler/GraphQLCompilerPublic';
 // TODO T21875029 ../../relay-runtime/util/RelayConcreteNode
 import type {GeneratedNode} from 'RelayConcreteNode';
+import type {CodegenDirectory} from 'graphql-compiler';
 
 /**
  * Generate a module for the given document name/text.

@@ -17,13 +17,10 @@ const invariant = require('invariant');
 // TODO T21875029 ../../relay-runtime/util/prettyStringify
 const prettyStringify = require('prettyStringify');
 
-const {
-  IRVisitor,
-  SchemaUtils,
-} = require('../graphql-compiler/GraphQLCompilerPublic');
+const {IRVisitor, SchemaUtils} = require('graphql-compiler');
 const {GraphQLList} = require('graphql');
 
-import type {Batch, Fragment} from '../graphql-compiler/GraphQLCompilerPublic';
+import type {Batch, Fragment} from 'graphql-compiler';
 // TODO T21875029 ../../relay-runtime/util/RelayConcreteNode
 import type {
   ConcreteArgument,

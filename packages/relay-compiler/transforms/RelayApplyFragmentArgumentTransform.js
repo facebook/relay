@@ -20,7 +20,7 @@ const murmurHash = require('murmurHash');
 const {
   getIdentifierForArgumentValue,
   IRTransformer,
-} = require('../graphql-compiler/GraphQLCompilerPublic');
+} = require('graphql-compiler');
 
 import type {Scope} from '../core/RelayCompilerScope';
 import type {
@@ -34,7 +34,7 @@ import type {
   FragmentSpread,
   Node,
   Selection,
-} from '../graphql-compiler/GraphQLCompilerPublic';
+} from 'graphql-compiler';
 
 const {getFragmentScope, getRootScope} = RelayCompilerScope;
 

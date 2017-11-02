@@ -17,9 +17,9 @@ const {
   CompilerContext,
   IRTransformer,
   getLiteralArgumentValues,
-} = require('../graphql-compiler/GraphQLCompilerPublic');
+} = require('graphql-compiler');
 
-import type {Fragment} from '../graphql-compiler/GraphQLCompilerPublic';
+import type {Fragment} from 'graphql-compiler';
 
 const RELAY = 'relay';
 const PLURAL = 'plural';

@@ -9,4 +9,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('isRelayContext');
+module.exports = require.requireActual('../isRelayContext');

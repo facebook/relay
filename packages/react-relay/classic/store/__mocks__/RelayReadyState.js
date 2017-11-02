@@ -10,4 +10,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('RelayReadyState');
+module.exports = require.requireActual('../RelayReadyState');

@@ -120,14 +120,37 @@ class GraphQLCompilerContext {
     );
   }
 
+  /**
+   * Apply a list of compiler transforms and return a new compiler context.
+   *
+   * @param transforms List of transforms
+   * @param baseSchema The base schema to pass to each transform. This is not
+   *                   the schema from the compiler context which might be
+   *                   extended by previous transforms.
+   */
+  applyTransforms(
+    transforms: Array<
+      (
+        context: GraphQLCompilerContext,
+        baseSchema: GraphQLSchema,
+      ) => GraphQLCompilerContext,
+    >,
+    baseSchema: GraphQLSchema,
+  ) {
+    return transforms.reduce(
+      (ctx, transform) => transform(ctx, baseSchema),
+      this,
+    );
+  }
+
   get(name: string): ?(Fragment | Root) {
     const record = this._documents.get(name);
-    return record && record.get('node');
+    return record ? record.get('node') : null;
   }
 
   getFragment(name: string): Fragment {
     const record = this._documents.get(name);
-    const node = record && record.get('node');
+    const node = record ? record.get('node') : null;
     if (!(node && node.kind === 'Fragment')) {
       const childModule = name.substring(0, name.lastIndexOf('_'));
       throw createUserError(
@@ -142,7 +165,7 @@ class GraphQLCompilerContext {
 
   getRoot(name: string): Root {
     const record = this._documents.get(name);
-    const node = record && record.get('node');
+    const node = record ? record.get('node') : null;
     invariant(
       node && node.kind === 'Root',
       'GraphQLCompilerContext: Expected `%s` to be a root, got `%s`.',

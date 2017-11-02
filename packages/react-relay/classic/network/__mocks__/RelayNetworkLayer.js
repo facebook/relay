@@ -9,7 +9,7 @@
 
 'use strict';
 
-const RelayNetworkLayer = require.requireActual('RelayNetworkLayer');
+const RelayNetworkLayer = require.requireActual('../RelayNetworkLayer');
 
 function RelayNetworkLayerMock() {
   const networkLayer = new RelayNetworkLayer();

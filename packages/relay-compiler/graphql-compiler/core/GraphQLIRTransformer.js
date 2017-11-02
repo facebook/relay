@@ -16,6 +16,7 @@ const invariant = require('invariant');
 import type GraphQLCompilerContext from './GraphQLCompilerContext';
 import type {
   Argument,
+  Batch,
   Condition,
   Directive,
   Fragment,
@@ -36,6 +37,7 @@ import type {
 
 type NodeVisitor<S> = {
   Argument?: NodeVisitorFunction<Argument, S>,
+  Batch?: NodeVisitorFunction<Batch, S>,
   Condition?: NodeVisitorFunction<Condition, S>,
   Directive?: NodeVisitorFunction<Directive, S>,
   Fragment?: NodeVisitorFunction<Fragment, S>,
@@ -71,21 +73,17 @@ type NodeVisitorFunction<N: IR, S> = (node: N, state: S) => ?N;
  * If a visitor function is *not* defined for a kind, a default traversal is
  * used to evaluate its children.
  *
- * The `stateInitializer` argument accepts a function to construct the state for
- * each document (fragment or root) in the context. Any documents for which the
- * initializer returns null/undefined is deleted from the context without being
- * traversed.
+ * The `stateInitializer` argument accepts an optional function to construct the
+ * state for each document (fragment or root) in the context. Any documents for
+ * which the initializer returns null/undefined is deleted from the context
+ * without being traversed.
  *
  * Example: Alias all scalar fields with the reverse of their name:
  *
  * ```
- * transform(
- *   context,
- *   {
- *     ScalarField: visitScalarField,
- *   },
- *   () => ({}) // dummy non-null state
- * );
+ * transform(context, {
+ *   ScalarField: visitScalarField,
+ * });
  *
  * function visitScalarField(field: ScalarField, state: State): ?ScalarField {
  *   // Traverse child nodes - for a scalar field these are the arguments &
@@ -102,15 +100,19 @@ type NodeVisitorFunction<N: IR, S> = (node: N, state: S) => ?N;
 function transform<S>(
   context: GraphQLCompilerContext,
   visitor: NodeVisitor<S>,
-  stateInitializer: (node: Fragment | Root) => ?S,
+  stateInitializer: void | ((Fragment | Root) => ?S),
 ): GraphQLCompilerContext {
   const transformer = new Transformer(context, visitor);
   let nextContext = context;
   context.documents().forEach(prevNode => {
-    const state = stateInitializer(prevNode);
     let nextNode;
-    if (state != null) {
-      nextNode = transformer.visit(prevNode, state);
+    if (stateInitializer === undefined) {
+      nextNode = transformer.visit(prevNode, (undefined: $FlowFixMe));
+    } else {
+      const state = stateInitializer(prevNode);
+      if (state != null) {
+        nextNode = transformer.visit(prevNode, state);
+      }
     }
     if (!nextNode) {
       nextContext = nextContext.remove(prevNode.name);
@@ -198,6 +200,12 @@ class Transformer<S> {
       case 'Argument':
         nextNode = this._traverseChildren(prevNode, null, ['value']);
         break;
+      case 'Batch':
+        nextNode = this._traverseChildren(prevNode, null, [
+          'operation',
+          'fragment',
+        ]);
+        break;
       case 'Literal':
       case 'LocalArgumentDefinition':
       case 'RootArgumentDefinition':
@@ -247,9 +255,6 @@ class Transformer<S> {
           'directives',
           'selections',
         ]);
-        if (!nextNode.selections.length) {
-          nextNode = null;
-        }
         break;
       default:
         invariant(

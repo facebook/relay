@@ -14,11 +14,11 @@ require('configureForRelayOSS');
 
 const RelayClassic = require('RelayClassic');
 const {ConnectionInterface} = require('RelayRuntime');
-const RelayOptimisticMutationUtils = require('RelayOptimisticMutationUtils');
-const RelayQuery = require('RelayQuery');
+const RelayOptimisticMutationUtils = require('../RelayOptimisticMutationUtils');
+const RelayQuery = require('../../query/RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
-const flattenRelayQuery = require('flattenRelayQuery');
+const flattenRelayQuery = require('../../traversal/flattenRelayQuery');
 
 describe('RelayOptimisticMutationUtils', () => {
   const {getVerbatimNode, matchers} = RelayTestUtils;

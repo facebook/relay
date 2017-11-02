@@ -4,30 +4,28 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule diffRelayQuery
  * @flow
  * @format
  */
 
 'use strict';
 
-const RelayNodeInterface = require('RelayNodeInterface');
-const RelayProfiler = require('RelayProfiler');
-const RelayQuery = require('RelayQuery');
-const RelayQueryPath = require('RelayQueryPath');
-const RelayRecord = require('RelayRecord');
+const RelayNodeInterface = require('../interface/RelayNodeInterface');
+const RelayQuery = require('../query/RelayQuery');
+const RelayQueryPath = require('../query/RelayQueryPath');
+const RelayRecord = require('../store/RelayRecord');
 
-const forEachRootCallArg = require('forEachRootCallArg');
+const forEachRootCallArg = require('../query/forEachRootCallArg');
 const invariant = require('invariant');
-const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
+const isCompatibleRelayFragmentType = require('../tools/isCompatibleRelayFragmentType');
 const warning = require('warning');
 
-const {ConnectionInterface} = require('RelayRuntime');
+const {ConnectionInterface, RelayProfiler} = require('RelayRuntime');
 
-import type {QueryPath} from 'RelayQueryPath';
-import type RelayQueryTracker from 'RelayQueryTracker';
-import type RelayRecordStore from 'RelayRecordStore';
-import type {RangeInfo} from 'RelayRecordStore';
+import type {QueryPath} from '../query/RelayQueryPath';
+import type RelayQueryTracker from '../store/RelayQueryTracker';
+import type RelayRecordStore from '../store/RelayRecordStore';
+import type {RangeInfo} from '../store/RelayRecordStore';
 
 const {ID, ID_TYPE, NODE_TYPE, TYPENAME} = RelayNodeInterface;
 const idField = RelayQuery.Field.build({
@@ -53,7 +51,7 @@ const nodeWithID = RelayQuery.Field.build({
   type: NODE_TYPE,
 });
 
-import type {DataID} from 'RelayInternalTypes';
+import type {DataID} from '../tools/RelayInternalTypes';
 
 type DiffScope = {
   connectionField: ?RelayQuery.Field,

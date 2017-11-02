@@ -12,12 +12,13 @@
 'use strict';
 
 const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
+const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 const IMap = require('immutable').Map;
 
 const getIdentifierForSelection = require('../core/getIdentifierForSelection');
 const invariant = require('invariant');
 
-import type {Node, Selection} from '../core/GraphQLIR';
+import type {Fragment, Node, Root, Selection} from '../core/GraphQLIR';
 
 /**
  * A simplified representation of a document: keys in the map are unique
@@ -118,16 +119,17 @@ type SelectionMap = IMap<string, ?SelectionMap>;
  *
  * 1 can be skipped because it is already fetched at the outer level.
  */
-function transform(context: GraphQLCompilerContext): GraphQLCompilerContext {
-  return context.documents().reduce((ctx: GraphQLCompilerContext, node) => {
-    const selectionMap = new IMap();
-    const transformed = transformNode(node, selectionMap);
-    if (transformed) {
-      return ctx.add(transformed.node);
-    } else {
-      return ctx;
-    }
-  }, new GraphQLCompilerContext(context.schema));
+function skipRedundantNodesTransform(
+  context: GraphQLCompilerContext,
+): GraphQLCompilerContext {
+  return GraphQLIRTransformer.transform(context, {
+    Root: visitNode,
+    Fragment: visitNode,
+  });
+}
+
+function visitNode<T: Fragment | Root>(node: T): ?T {
+  return transformNode(node, new IMap()).node;
 }
 
 /**
@@ -146,7 +148,7 @@ function transform(context: GraphQLCompilerContext): GraphQLCompilerContext {
 function transformNode<T: Node>(
   node: T,
   selectionMap: SelectionMap,
-): ?{selectionMap: SelectionMap, node: T} {
+): {selectionMap: SelectionMap, node: ?T} {
   const selections = [];
   sortSelections(node.selections).forEach(selection => {
     const identifier = getIdentifierForSelection(selection);
@@ -164,7 +166,7 @@ function transformNode<T: Node>(
           selection,
           selectionMap.get(identifier) || new IMap(),
         );
-        if (transformed) {
+        if (transformed.node) {
           selections.push(transformed.node);
           selectionMap = selectionMap.set(identifier, transformed.selectionMap);
         }
@@ -178,7 +180,7 @@ function transformNode<T: Node>(
           selection,
           selectionMap.get(identifier) || selectionMap,
         );
-        if (transformed) {
+        if (transformed.node) {
           selections.push(transformed.node);
           selectionMap = selectionMap.set(identifier, transformed.selectionMap);
         }
@@ -192,16 +194,8 @@ function transformNode<T: Node>(
         );
     }
   });
-  if (!selections.length) {
-    return null;
-  }
-  return {
-    selectionMap,
-    node: ({
-      ...node,
-      selections,
-    }: any),
-  };
+  const nextNode: any = selections.length ? {...node, selections} : null;
+  return {selectionMap, node: nextNode};
 }
 
 /**
@@ -215,4 +209,6 @@ function sortSelections(selections: Array<Selection>): Array<Selection> {
   });
 }
 
-module.exports = {transform};
+module.exports = {
+  transform: skipRedundantNodesTransform,
+};

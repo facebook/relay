@@ -9,4 +9,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('filterExclusiveKeys');
+module.exports = require.requireActual('../filterExclusiveKeys');

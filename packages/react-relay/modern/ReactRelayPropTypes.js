@@ -4,14 +4,13 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule ReactRelayPropTypes
  * @flow
  * @format
  */
 
 'use strict';
 
-const isRelayModernContext = require('isRelayModernContext');
+const isRelayModernContext = require('./isRelayModernContext');
 const sprintf = require('sprintf');
 
 const ReactRelayPropTypes = {

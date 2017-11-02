@@ -25,7 +25,7 @@ import type {
   ConcreteLinkedHandle,
   ConcreteSelection,
 } from 'RelayConcreteNode';
-import type {Variables} from 'RelayTypes';
+import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 const {LINKED_FIELD} = RelayConcreteNode;
 

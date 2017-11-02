@@ -4,19 +4,18 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayRoute
  * @flow
  * @format
  */
 
 'use strict';
 
-const RelayQueryConfig = require('RelayQueryConfig');
+const RelayQueryConfig = require('../query-config/RelayQueryConfig');
 
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 
-import type {ConfigQueries} from 'RelayQueryConfig';
+import type {ConfigQueries} from '../query-config/RelayQueryConfig';
 import type URI from 'URI';
 
 type ParamDefinition = {

@@ -14,8 +14,8 @@
 const invariant = require('invariant');
 const warning = require('warning');
 
-import type {ConcreteBatch, ConcreteFragment} from 'RelayConcreteNode';
-import type {Variables} from 'RelayTypes';
+import type {ConcreteOperation, ConcreteFragment} from 'RelayConcreteNode';
+import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 /**
  * Determines the variables that are in scope for a fragment given the variables
@@ -40,13 +40,14 @@ function getFragmentVariables(
         variables[definition.name] = definition.defaultValue;
         break;
       case 'RootArgument':
-        invariant(
-          rootVariables.hasOwnProperty(definition.name),
-          'RelayConcreteVariables: Expected a defined query variable for `$%s` ' +
-            'in fragment `%s`.',
-          definition.name,
-          fragment.name,
-        );
+        if (!rootVariables.hasOwnProperty(definition.name)) {
+          /*
+           * A temporary fix to mute false alarm in cases where the root argument is stripped
+           * off by the compiler due to a conditional directive, we do not need this argument
+           * when tryiny to read the data from the store.
+           */
+          break;
+        }
         variables[definition.name] = rootVariables[definition.name];
         break;
       default:
@@ -68,11 +69,11 @@ function getFragmentVariables(
  * operation's definition).
  */
 function getOperationVariables(
-  operation: ConcreteBatch,
+  operation: ConcreteOperation,
   variables: Variables,
 ): Variables {
   const operationVariables = {};
-  operation.query.argumentDefinitions.forEach(def => {
+  operation.argumentDefinitions.forEach(def => {
     let value = def.defaultValue;
     if (variables[def.name] != null) {
       value = variables[def.name];

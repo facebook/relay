@@ -13,11 +13,8 @@
 
 const invariant = require('invariant');
 
-const {
-  Parser,
-  SchemaUtils,
-} = require('../graphql-compiler/GraphQLCompilerPublic');
 const {assertAbstractType, isAbstractType} = require('graphql');
+const {Parser, SchemaUtils} = require('graphql-compiler');
 
 import type {
   FieldNode,

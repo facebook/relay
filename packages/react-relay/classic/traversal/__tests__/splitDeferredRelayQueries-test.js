@@ -13,12 +13,12 @@
 require('configureForRelayOSS');
 
 const RelayClassic = require('RelayClassic');
-const RelayQuery = require('RelayQuery');
+const RelayQuery = require('../../query/RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
-const flattenRelayQuery = require('flattenRelayQuery');
-const generateRQLFieldAlias = require('generateRQLFieldAlias');
-const splitDeferredRelayQueries = require('splitDeferredRelayQueries');
+const flattenRelayQuery = require('../flattenRelayQuery');
+const generateRQLFieldAlias = require('../../query/generateRQLFieldAlias');
+const splitDeferredRelayQueries = require('../splitDeferredRelayQueries');
 
 describe('splitDeferredRelayQueries()', () => {
   // helper functions

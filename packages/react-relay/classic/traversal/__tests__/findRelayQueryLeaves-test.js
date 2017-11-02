@@ -14,14 +14,14 @@ jest.enableAutomock();
 
 require('configureForRelayOSS');
 
-const GraphQLRange = require('GraphQLRange');
+const GraphQLRange = require('../../legacy/store/GraphQLRange');
 const RelayClassic = require('RelayClassic');
-const RelayQuery = require('RelayQuery');
-const RelayQueryPath = require('RelayQueryPath');
-const RelayRecordStore = require('RelayRecordStore');
+const RelayQuery = require('../../query/RelayQuery');
+const RelayQueryPath = require('../../query/RelayQueryPath');
+const RelayRecordStore = require('../../store/RelayRecordStore');
 const RelayTestUtils = require('RelayTestUtils');
 
-const findRelayQueryLeaves = require('findRelayQueryLeaves');
+const findRelayQueryLeaves = require('../findRelayQueryLeaves');
 const mapObject = require('mapObject');
 
 const {ConnectionInterface} = require('RelayRuntime');

@@ -10,7 +10,7 @@
 
 'use strict';
 
-const dedent = require('dedent');
+const dedent = require('../dedent');
 
 describe('dedent()', () => {
   describe('with an empty string', () => {

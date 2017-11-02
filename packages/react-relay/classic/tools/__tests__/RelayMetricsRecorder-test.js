@@ -13,8 +13,9 @@
 jest.mock('performanceNow');
 
 const RelayClassic = require('RelayClassic');
+// jest doesn't like when this is a relative path
 const RelayProfiler = require('RelayProfiler');
-const RelayMetricsRecorder = require('RelayMetricsRecorder');
+const RelayMetricsRecorder = require('../RelayMetricsRecorder');
 const RelayTestUtils = require('RelayTestUtils');
 
 const performanceNow = require('performanceNow');

@@ -9,11 +9,7 @@
 
 'use strict';
 
-import type {
-  ConcreteFragment,
-  ConcreteBatch,
-  ConcreteRoot,
-} from 'RelayConcreteNode';
+import type {GeneratedNode} from 'RelayConcreteNode';
 
 /**
  * Utilities (custom matchers etc) for Relay "static" tests.
@@ -145,7 +141,7 @@ const RelayModernTestUtils = {
     transforms?: ?Array<{
       transform: (context: GraphQLCompilerContext) => GraphQLCompilerContext,
     }>,
-  ): {[key: string]: ConcreteRoot | ConcreteFragment} {
+  ): {[key: string]: GeneratedNode} {
     const RelayCodeGenerator = require('RelayCodeGenerator');
     const GraphQLCompilerContext = require('GraphQLCompilerContext');
     const RelayParser = require('RelayParser');
@@ -160,7 +156,18 @@ const RelayModernTestUtils = {
     );
     const documentMap = {};
     context.documents().forEach(node => {
-      documentMap[node.name] = RelayCodeGenerator.generate(node);
+      if (node.kind === 'Root') {
+        documentMap[node.name] = RelayCodeGenerator.generate({
+          kind: 'Batch',
+          metadata: node.metadata || {},
+          name: node.name,
+          operation: node,
+          fragment: buildFragmentForRoot(node),
+          text,
+        });
+      } else {
+        documentMap[node.name] = RelayCodeGenerator.generate(node);
+      }
     });
     return documentMap;
   },
@@ -168,12 +175,12 @@ const RelayModernTestUtils = {
   /**
    * Compiles the given GraphQL text using the standard set of transforms (as
    * defined in RelayCompiler) and returns a mapping of definition name to
-   * its full runtime representation (roots are wrapped in a ConcreteBatch).
+   * its full runtime representation.
    */
   generateAndCompile(
     text: string,
     schema?: ?GraphQLSchema,
-  ): {[key: string]: ConcreteBatch | ConcreteFragment} {
+  ): {[key: string]: GeneratedNode} {
     const {transformASTSchema} = require('ASTConvert');
     const {generate} = require('RelayCodeGenerator');
     const RelayCompiler = require('RelayCompiler');
@@ -202,5 +209,20 @@ const RelayModernTestUtils = {
     return documentMap;
   },
 };
+
+/**
+ * Construct the fragment equivalent of a root node.
+ */
+function buildFragmentForRoot(root) {
+  return {
+    argumentDefinitions: (root.argumentDefinitions: $FlowIssue),
+    directives: root.directives,
+    kind: 'Fragment',
+    metadata: null,
+    name: root.name,
+    selections: root.selections,
+    type: root.type,
+  };
+}
 
 module.exports = RelayModernTestUtils;

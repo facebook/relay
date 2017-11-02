@@ -12,7 +12,7 @@
 
 const React = require('React');
 
-const {graphql, createPaginationContainer} = require('ReactRelayPublic');
+const {graphql, createPaginationContainer} = require('../ReactRelayPublic');
 
 /**
  * Verifies that normal prop type checking, as well as the methods proxying Relay does, is

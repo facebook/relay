@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule getRangeBehavior
  * @flow
  * @format
  */
@@ -12,9 +11,13 @@
 'use strict';
 
 const invariant = require('invariant');
-const serializeRelayQueryCall = require('serializeRelayQueryCall');
+const serializeRelayQueryCall = require('../query/serializeRelayQueryCall');
 
-import type {Call, CallValue, RangeBehaviors} from 'RelayInternalTypes';
+import type {
+  Call,
+  CallValue,
+  RangeBehaviors,
+} from '../tools/RelayInternalTypes';
 
 /**
  * Return the action (prepend/append) to use when adding an item to

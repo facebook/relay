@@ -4,14 +4,13 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayCompatTypes
  * @flow
  * @format
  */
 
 'use strict';
 
-import type {RelayEnvironmentInterface as RelayClassicEnvironment} from 'RelayEnvironment';
-import type {Environment} from 'RelayStoreTypes';
+import type {RelayEnvironmentInterface as RelayClassicEnvironment} from '../../classic/store/RelayEnvironment';
+import type {IEnvironment} from 'RelayRuntime';
 
-export type CompatEnvironment = Environment | RelayClassicEnvironment;
+export type CompatEnvironment = IEnvironment | RelayClassicEnvironment;

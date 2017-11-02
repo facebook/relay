@@ -4,19 +4,18 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayMutationTransaction
  * @flow
  * @format
  */
 
 'use strict';
 
-const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
+const RelayMutationTransactionStatus = require('./RelayMutationTransactionStatus');
 
 const invariant = require('invariant');
 
-import type {ClientMutationID} from 'RelayInternalTypes';
-import type RelayMutationQueue from 'RelayMutationQueue';
+import type {ClientMutationID} from '../tools/RelayInternalTypes';
+import type RelayMutationQueue from './RelayMutationQueue';
 
 const {
   COLLISION_COMMIT_FAILED,

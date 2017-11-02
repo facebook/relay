@@ -13,10 +13,10 @@
 require('configureForRelayOSS');
 
 const RelayClassic = require('RelayClassic');
-const RelayFragmentReference = require('RelayFragmentReference');
+const RelayFragmentReference = require('../../query/RelayFragmentReference');
 const RelayTestUtils = require('RelayTestUtils');
 
-const validateRelayReadQuery = require('validateRelayReadQuery');
+const validateRelayReadQuery = require('../validateRelayReadQuery');
 
 describe('validateRelayReadQuery', () => {
   // Helper functions.

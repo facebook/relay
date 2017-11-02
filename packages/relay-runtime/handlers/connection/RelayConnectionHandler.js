@@ -18,13 +18,13 @@ const getRelayHandleKey = require('getRelayHandleKey');
 const invariant = require('invariant');
 const warning = require('warning');
 
-import type {DataID} from 'RelayInternalTypes';
 import type {
   HandleFieldPayload,
   RecordProxy,
   RecordSourceProxy,
 } from 'RelayStoreTypes';
-import type {Variables} from 'RelayTypes';
+import type {DataID} from 'react-relay/classic/tools/RelayInternalTypes';
+import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 export type ConnectionMetadata = {
   path: ?Array<string>,

@@ -4,20 +4,19 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule createRelayQuery
  * @flow
  * @format
  */
 
 'use strict';
 
-const RelayMetaRoute = require('RelayMetaRoute');
-const RelayQuery = require('RelayQuery');
+const RelayMetaRoute = require('../route/RelayMetaRoute');
+const RelayQuery = require('./RelayQuery');
 
 const invariant = require('invariant');
 
-import type {RelayConcreteNode} from 'RelayQL';
-import type {Variables} from 'RelayTypes';
+import type {Variables} from '../tools/RelayTypes';
+import type {RelayConcreteNode} from './RelayQL';
 
 function createRelayQuery(
   node: RelayConcreteNode,

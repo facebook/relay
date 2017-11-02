@@ -9,4 +9,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('directivesToGraphQL');
+module.exports = require.requireActual('../directivesToGraphQL');

@@ -16,11 +16,11 @@ require('configureForRelayOSS');
 
 const RelayClassic = require('RelayClassic');
 const {ConnectionInterface} = require('RelayRuntime');
-const RelayDefaultNetworkLayer = require('RelayDefaultNetworkLayer');
-const RelayMetaRoute = require('RelayMetaRoute');
-const RelayMutationRequest = require('RelayMutationRequest');
-const RelayQuery = require('RelayQuery');
-const RelayQueryRequest = require('RelayQueryRequest');
+const RelayDefaultNetworkLayer = require('../RelayDefaultNetworkLayer');
+const RelayMetaRoute = require('../../../route/RelayMetaRoute');
+const RelayMutationRequest = require('../../../network/RelayMutationRequest');
+const RelayQuery = require('../../../query/RelayQuery');
+const RelayQueryRequest = require('../../../network/RelayQueryRequest');
 const RelayTestUtils = require('RelayTestUtils');
 
 const fetch = require('fetch');

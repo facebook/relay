@@ -13,42 +13,63 @@
 
 const isPromise = require('isPromise');
 
-import type {Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {LegacyObserver} from 'RelayNetworkTypes';
+import type {Disposable} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
-export type Subscription = {
-  unsubscribe: () => void,
+/**
+ * A Subscription object is returned from .subscribe(), which can be
+ * unsubscribed or checked to see if the resulting subscription has closed.
+ */
+export type Subscription = {|
+  +unsubscribe: () => void,
   +closed: boolean,
-};
+|};
 
-export type Observer<T> = {
-  start?: ?(Subscription) => mixed,
-  next?: ?(T) => mixed,
-  error?: ?(Error) => mixed,
-  complete?: ?() => mixed,
-  unsubscribe?: ?(Subscription) => mixed,
-};
+/**
+ * An Observer is an object of optional callback functions provided to
+ * .subscribe(). Each callback function is invoked when that event occurs.
+ */
+export type Observer<-T> = {|
+  +start?: ?(Subscription) => mixed,
+  +next?: ?(T) => mixed,
+  +error?: ?(Error) => mixed,
+  +complete?: ?() => mixed,
+  +unsubscribe?: ?(Subscription) => mixed,
+|};
 
-type Sink<T> = {|
+/**
+ * A Sink is an object of methods provided by Observable during construction.
+ * The methods are to be called to trigger each event. It also contains a closed
+ * field to see if the resulting subscription has closed.
+ */
+type Sink<-T> = {|
   +next: T => void,
   +error: (Error, isUncaughtThrownError?: boolean) => void,
   +complete: () => void,
   +closed: boolean,
 |};
 
-type Source_<T, SinkOfT: Sink<T>> = SinkOfT =>
-  | void
-  | Subscription
-  | (() => mixed);
-type Source<T> = Source_<T, *>;
+/**
+ * A Source is the required argument when constructing a new Observable. Similar
+ * to a Promise constructor, this is a function which is invoked with a Sink,
+ * and may return either a cleanup function or a Subscription instance (for use
+ * when composing Observables).
+ */
+type Source<+T> = (Sink<T>) => void | Subscription | (() => mixed);
 
-export interface Subscribable<T> {
-  subscribe(observer: Observer<T>): Subscription,
+/**
+ * A Subscribable is an interface describing any object which can be subscribed.
+ *
+ * Note: A sink may be passed directly to .subscribe() as its observer,
+ * allowing for easily composing Subscribables.
+ */
+export interface Subscribable<+T> {
+  subscribe(observer: Observer<T> | Sink<T>): Subscription,
 }
 
 // Note: This should accept Subscribable<T> instead of RelayObservable<T>,
 // however Flow cannot yet distinguish it from T.
-export type ObservableFromValue<T> = RelayObservable<T> | Promise<T> | T;
+export type ObservableFromValue<+T> = RelayObservable<T> | Promise<T> | T;
 
 let hostReportError = swallowError;
 
@@ -63,17 +84,22 @@ let hostReportError = swallowError;
  *
  * ESObservable: https://github.com/tc39/proposal-observable
  */
-class RelayObservable<T> implements Subscribable<T> {
-  _source: Source<T>;
+class RelayObservable<+T> implements Subscribable<T> {
+  +_source: Source<T>;
 
-  constructor(source: Source<T>): void {
+  static create<+V>(source: Source<V>): RelayObservable<V> {
+    return new RelayObservable((source: any));
+  }
+
+  // Use RelayObservable.create()
+  constructor(source: empty): void {
     if (__DEV__) {
       // Early runtime errors for ill-formed sources.
       if (!source || typeof source !== 'function') {
         throw new Error('Source must be a Function: ' + String(source));
       }
     }
-    this._source = source;
+    (this: any)._source = source;
   }
 
   /**
@@ -111,7 +137,7 @@ class RelayObservable<T> implements Subscribable<T> {
    * Accepts various kinds of data sources, and always returns a RelayObservable
    * useful for accepting the result of a user-provided FetchFunction.
    */
-  static from<V>(obj: ObservableFromValue<V>): RelayObservable<V> {
+  static from<+V>(obj: ObservableFromValue<V>): RelayObservable<V> {
     return isObservable(obj)
       ? fromObservable(obj)
       : isPromise(obj) ? fromPromise(obj) : fromValue(obj);
@@ -124,10 +150,10 @@ class RelayObservable<T> implements Subscribable<T> {
    * To support migration to Observable, the function may ignore the
    * legacy Relay observer and directly return an Observable instead.
    */
-  static fromLegacy<V>(
+  static fromLegacy<+V>(
     callback: (LegacyObserver<V>) => Disposable | RelayObservable<V>,
   ): RelayObservable<V> {
-    return new RelayObservable(sink => {
+    return RelayObservable.create(sink => {
       const result = callback({
         onNext: sink.next,
         onError: sink.error,
@@ -147,7 +173,7 @@ class RelayObservable<T> implements Subscribable<T> {
    * on the resulting Observable.
    */
   catch<U>(fn: Error => RelayObservable<U>): RelayObservable<T | U> {
-    return new RelayObservable(sink => {
+    return RelayObservable.create(sink => {
       let subscription;
       this.subscribe({
         start: sub => {
@@ -186,8 +212,8 @@ class RelayObservable<T> implements Subscribable<T> {
    * side-effects such as logging or performance monitoring.
    */
   do(observer: Observer<T>): RelayObservable<T> {
-    return new RelayObservable(sink => {
-      const both = action =>
+    return RelayObservable.create(sink => {
+      const both = (action: any) =>
         function() {
           try {
             observer[action] && observer[action].apply(observer, arguments);
@@ -214,7 +240,7 @@ class RelayObservable<T> implements Subscribable<T> {
    * This is useful for cleanup such as resource finalization.
    */
   finally(fn: () => mixed): RelayObservable<T> {
-    return new RelayObservable(sink => {
+    return RelayObservable.create(sink => {
       const subscription = this.subscribe(sink);
       return () => {
         subscription.unsubscribe();
@@ -234,7 +260,7 @@ class RelayObservable<T> implements Subscribable<T> {
    * which should be tried in order, i.e. from a cache before a network.
    */
   ifEmpty<U>(alternate: RelayObservable<U>): RelayObservable<T | U> {
-    return new RelayObservable(sink => {
+    return RelayObservable.create(sink => {
       let hasValue = false;
       let current = this.subscribe({
         next(value) {
@@ -259,8 +285,11 @@ class RelayObservable<T> implements Subscribable<T> {
   /**
    * Observable's primary API: returns an unsubscribable Subscription to the
    * source of this Observable.
+   *
+   * Note: A sink may be passed directly to .subscribe() as its observer,
+   * allowing for easily composing Observables.
    */
-  subscribe(observer: Observer<T>): Subscription {
+  subscribe(observer: Observer<T> | Sink<T>): Subscription {
     if (__DEV__) {
       // Early runtime errors for ill-formed observers.
       if (!observer || typeof observer !== 'object') {
@@ -300,7 +329,7 @@ class RelayObservable<T> implements Subscribable<T> {
    * merged Observable.
    */
   mergeMap<U>(fn: T => ObservableFromValue<U>): RelayObservable<U> {
-    return new RelayObservable(sink => {
+    return RelayObservable.create(sink => {
       const subscriptions = [];
 
       function start(subscription) {
@@ -358,7 +387,7 @@ class RelayObservable<T> implements Subscribable<T> {
         );
       }
     }
-    return new RelayObservable(sink => {
+    return RelayObservable.create(sink => {
       let subscription;
       let timeout;
       const poll = () => {
@@ -416,11 +445,11 @@ function isObservable(obj) {
 function fromObservable<T>(obj: Subscribable<T>): RelayObservable<T> {
   return obj instanceof RelayObservable
     ? obj
-    : new RelayObservable(sink => obj.subscribe(sink));
+    : RelayObservable.create(sink => obj.subscribe(sink));
 }
 
 function fromPromise<T>(promise: Promise<T>): RelayObservable<T> {
-  return new RelayObservable(sink => {
+  return RelayObservable.create(sink => {
     // Since sink methods do not throw, the resulting Promise can be ignored.
     promise.then(value => {
       sink.next(value);
@@ -430,13 +459,16 @@ function fromPromise<T>(promise: Promise<T>): RelayObservable<T> {
 }
 
 function fromValue<T>(value: T): RelayObservable<T> {
-  return new RelayObservable(sink => {
+  return RelayObservable.create(sink => {
     sink.next(value);
     sink.complete();
   });
 }
 
-function subscribe<T>(source: Source<T>, observer: Observer<T>): Subscription {
+function subscribe<T>(
+  source: Source<T>,
+  observer: Observer<T> | Sink<T>,
+): Subscription {
   let closed = false;
   let cleanup;
 

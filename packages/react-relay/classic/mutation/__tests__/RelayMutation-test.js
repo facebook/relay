@@ -14,12 +14,12 @@ require('configureForRelayOSS');
 
 jest.mock('warning');
 
-const RelayClassic = require('RelayClassic');
-const RelayEnvironment = require('RelayEnvironment');
-const RelayQuery = require('RelayQuery');
-const RelayTestUtils = require('RelayTestUtils');
+const RelayClassic = require('../../RelayPublic');
+const RelayEnvironment = require('../../store/RelayEnvironment');
+const RelayQuery = require('../../query/RelayQuery');
+const RelayTestUtils = require('../../tools/__mocks__/RelayTestUtils');
 
-const buildRQL = require('buildRQL');
+const buildRQL = require('../../query/buildRQL');
 
 describe('RelayMutation', function() {
   let mockBarFragment;
@@ -31,7 +31,9 @@ describe('RelayMutation', function() {
 
   function applyUpdate(mutation) {
     /* eslint-disable no-shadow */
-    const RelayEnvironment = require.requireActual('RelayEnvironment');
+    const RelayEnvironment = require.requireActual(
+      '../../store/RelayEnvironment',
+    );
     const environment = new RelayEnvironment();
     environment.applyUpdate(mutation);
     /* eslint-enable no-shadow */

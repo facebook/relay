@@ -11,24 +11,20 @@
 
 'use strict';
 
-const {
-  CompilerContext,
-  SchemaUtils,
-} = require('../graphql-compiler/GraphQLCompilerPublic');
 const {hasUnaliasedSelection} = require('./RelayTransformUtils');
 const {
   assertAbstractType,
   assertCompositeType,
   assertLeafType,
 } = require('graphql');
+const {
+  CompilerContext,
+  SchemaUtils,
+  IRTransformer,
+} = require('graphql-compiler');
 
-import type {
-  InlineFragment,
-  LinkedField,
-  Node,
-  Selection,
-} from '../graphql-compiler/GraphQLCompilerPublic';
-import type {GraphQLCompositeType, GraphQLLeafType, GraphQLType} from 'graphql';
+import type {InlineFragment, LinkedField, ScalarField} from 'graphql-compiler';
+import type {GraphQLCompositeType} from 'graphql';
 const {
   canHaveSelections,
   getRawType,
@@ -42,100 +38,71 @@ const ID = 'id';
 const ID_TYPE = 'ID';
 const NODE_TYPE = 'Node';
 
+type State = {
+  idField: ScalarField,
+};
+
 /**
- * A transform that adds "requisite" fields to all nodes:
- * - Adds an `id` selection on any `LinkedField` of type that implements `Node`
- *   or has an id field but where there is no unaliased `id` selection.
+ * A transform that adds an `id` field on any type that has an id field but
+ * where there is no unaliased `id` selection.
  */
-function transform(context: CompilerContext): CompilerContext {
-  const documents = context.documents();
-  return documents.reduce((ctx: CompilerContext, node) => {
-    const transformedNode = transformNode(context, node);
-    return ctx.add(transformedNode);
-  }, new CompilerContext(context.schema));
-}
-
-function transformNode<T: Node>(context: CompilerContext, node: T): T {
-  const selections = node.selections.map(selection => {
-    if (selection.kind === 'LinkedField') {
-      return transformField(context, selection);
-    } else if (
-      selection.kind === 'InlineFragment' ||
-      selection.kind === 'Condition'
-    ) {
-      return transformNode(context, selection);
-    } else {
-      return selection;
-    }
-  });
-  return ({
-    ...node,
-    selections,
-  }: $FlowIssue);
-}
-
-function transformField(
+function relayGenerateIDFieldTransform(
   context: CompilerContext,
-  field: LinkedField,
-): LinkedField {
-  const transformedNode = transformNode(context, field);
-  const selections = [...transformedNode.selections];
-  const idSelections = generateIDSelections(context, field, field.type);
-  if (idSelections) {
-    selections.push(...idSelections);
-  }
-
-  return {
-    ...transformedNode,
-    selections,
+): CompilerContext {
+  const idType = assertLeafType(context.schema.getType(ID_TYPE));
+  const idField: ScalarField = {
+    kind: 'ScalarField',
+    alias: (null: ?string),
+    args: [],
+    directives: [],
+    handles: null,
+    metadata: null,
+    name: ID,
+    type: idType,
   };
+  const state = {
+    idField,
+  };
+  return IRTransformer.transform(
+    context,
+    {
+      LinkedField: visitLinkedField,
+    },
+    () => state,
+  );
 }
 
-/**
- * @internal
- *
- * Returns an array of zero or more selections to fetch `id` depending on the
- * type of the given field:
- * - If the field already has an unaliased `id` field, do nothing
- * - If the field type has an `id` subfield, return an `id` selection
- * - If the field type is abstract, then generate a `... on Node { id }`
- *   fragment if *any* concrete type implements Node. Then generate a
- *   `... on PossibleType { id }` for every concrete type that does *not*
- *   implement `Node`
- */
-function generateIDSelections(
-  context: CompilerContext,
-  field: LinkedField,
-  type: GraphQLType,
-): ?Array<Selection> {
+function visitLinkedField(field: LinkedField, state: State): LinkedField {
+  const transformedNode = this.traverse(field, state);
+
+  // If the field already has an unaliased `id` field, do nothing
   if (hasUnaliasedSelection(field, ID)) {
-    return null;
+    return transformedNode;
   }
-  const unmodifiedType = assertCompositeType(getRawType(type));
-  const generatedSelections = [];
-  // Object or  Interface type that has `id` field
+
+  const context = this.getContext();
+  const unmodifiedType = assertCompositeType(getRawType(field.type));
+
+  // If the field type has an `id` subfield add an `id` selection
   if (
     canHaveSelections(unmodifiedType) &&
     hasID(context.schema, unmodifiedType)
   ) {
-    const idType = assertLeafType(context.schema.getType(ID_TYPE));
-    generatedSelections.push({
-      kind: 'ScalarField',
-      alias: (null: ?string),
-      args: [],
-      directives: [],
-      handles: null,
-      metadata: null,
-      name: ID,
-      type: idType,
-    });
-  } else if (isAbstractType(unmodifiedType)) {
-    // Union or interface: concrete types may implement `Node` or have an `id`
-    // field
-    const idType = assertLeafType(context.schema.getType(ID_TYPE));
+    return {
+      ...transformedNode,
+      selections: [...transformedNode.selections, state.idField],
+    };
+  }
+
+  // If the field type is abstract, then generate a `... on Node { id }`
+  // fragment if *any* concrete type implements Node. Then generate a
+  // `... on PossibleType { id }` for every concrete type that does *not*
+  // implement `Node`
+  if (isAbstractType(unmodifiedType)) {
+    const selections = [...transformedNode.selections];
     if (mayImplement(context.schema, unmodifiedType, NODE_TYPE)) {
       const nodeType = assertCompositeType(context.schema.getType(NODE_TYPE));
-      generatedSelections.push(buildIdFragment(nodeType, idType));
+      selections.push(buildIDFragment(nodeType, state.idField));
     }
     const abstractType = assertAbstractType(unmodifiedType);
     context.schema.getPossibleTypes(abstractType).forEach(possibleType => {
@@ -143,38 +110,36 @@ function generateIDSelections(
         !implementsInterface(possibleType, NODE_TYPE) &&
         hasID(context.schema, possibleType)
       ) {
-        generatedSelections.push(buildIdFragment(possibleType, idType));
+        selections.push(buildIDFragment(possibleType, state.idField));
       }
     });
+    return {
+      ...transformedNode,
+      selections,
+    };
   }
-  return generatedSelections;
+
+  return transformedNode;
 }
 
 /**
  * @internal
+ *
+ * Returns IR for `... on FRAGMENT_TYPE { id }`
  */
-function buildIdFragment(
+function buildIDFragment(
   fragmentType: GraphQLCompositeType,
-  idType: GraphQLLeafType,
+  idField: ScalarField,
 ): InlineFragment {
   return {
     kind: 'InlineFragment',
     directives: [],
     metadata: null,
     typeCondition: fragmentType,
-    selections: [
-      {
-        kind: 'ScalarField',
-        alias: (null: ?string),
-        args: [],
-        directives: [],
-        handles: null,
-        metadata: null,
-        name: ID,
-        type: idType,
-      },
-    ],
+    selections: [idField],
   };
 }
 
-module.exports = {transform};
+module.exports = {
+  transform: relayGenerateIDFieldTransform,
+};

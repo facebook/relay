@@ -10,11 +10,13 @@
 
 'use strict';
 
-jest.mock('RelayQueryTracker').mock('RelayClassicRecordState');
+jest
+  .mock('../../store/RelayQueryTracker')
+  .mock('../../store/RelayClassicRecordState');
 
 require('configureForRelayOSS');
 
-const RelayClassic = require('RelayClassic');
+const Relay = require('../RelayPublic');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('writeRelayQueryPayload()', () => {
@@ -26,8 +28,8 @@ describe('writeRelayQueryPayload()', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    RelayRecordStore = require('RelayRecordStore');
-    RelayRecordWriter = require('RelayRecordWriter');
+    RelayRecordStore = require('../../store/RelayRecordStore');
+    RelayRecordWriter = require('../../store/RelayRecordWriter');
 
     expect.extend(RelayTestUtils.matchers);
   });
@@ -38,7 +40,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        RelayClassic.QL`
+        Relay.QL`
         query {
           node(id:"123") {
             name
@@ -73,7 +75,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        RelayClassic.QL`
+        Relay.QL`
         query {
           node(id:"123") {
             name
@@ -109,7 +111,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        RelayClassic.QL`
+        Relay.QL`
         query {
           node(id:"123") {
             name
@@ -145,7 +147,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        RelayClassic.QL`
+        Relay.QL`
         query {
           node(id:"123") {
             name

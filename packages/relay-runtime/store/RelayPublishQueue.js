@@ -20,7 +20,6 @@ const RelayRecordSourceSelectorProxy = require('RelayRecordSourceSelectorProxy')
 const invariant = require('invariant');
 const normalizeRelayPayload = require('normalizeRelayPayload');
 
-import type {SelectorData} from 'RelayCombinedEnvironmentTypes';
 import type {HandlerProvider} from 'RelayDefaultHandlerProvider';
 import type {
   HandleFieldPayload,
@@ -33,6 +32,7 @@ import type {
   RecordSource,
   RelayResponsePayload,
 } from 'RelayStoreTypes';
+import type {SelectorData} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 type Payload = {
   fieldPayloads: ?Array<HandleFieldPayload>,
@@ -315,7 +315,7 @@ class RelayPublishQueue {
 function lookupSelector(source, selector): ?SelectorData {
   const selectorData = RelayReader.read(source, selector).data;
   if (__DEV__) {
-    const deepFreeze = require('deepFreeze');
+    const deepFreeze = require('react-relay/classic/tools/deepFreeze');
     if (selectorData) {
       deepFreeze(selectorData);
     }

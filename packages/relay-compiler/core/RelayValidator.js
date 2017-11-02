@@ -11,7 +11,7 @@
 
 'use strict';
 
-const {Validator} = require('../graphql-compiler/GraphQLCompilerPublic');
+const {Validator} = require('graphql-compiler');
 
 import type {GraphQLField, ValidationContext} from 'graphql';
 

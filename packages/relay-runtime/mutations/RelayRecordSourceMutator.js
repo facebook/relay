@@ -21,10 +21,10 @@ const {
   UNPUBLISH_RECORD_SENTINEL,
 } = require('RelayStoreUtils');
 
-import type {Record} from 'RelayCombinedEnvironmentTypes';
-import type {DataID} from 'RelayInternalTypes';
 import type {RecordState} from 'RelayRecordState';
 import type {MutableRecordSource, RecordSource} from 'RelayStoreTypes';
+import type {Record} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
+import type {DataID} from 'react-relay/classic/tools/RelayInternalTypes';
 
 /**
  * @internal

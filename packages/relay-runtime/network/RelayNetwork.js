@@ -17,8 +17,7 @@ const invariant = require('invariant');
 
 const {convertFetch, convertSubscribe} = require('ConvertToExecuteFunction');
 
-import type {CacheConfig} from 'RelayCombinedEnvironmentTypes';
-import type {ConcreteBatch} from 'RelayConcreteNode';
+import type {RequestNode} from 'RelayConcreteNode';
 import type {
   FetchFunction,
   Network,
@@ -26,7 +25,8 @@ import type {
   SubscribeFunction,
   UploadableMap,
 } from 'RelayNetworkTypes';
-import type {Variables} from 'RelayTypes';
+import type {CacheConfig} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
+import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 /**
  * Creates an implementation of the `Network` interface defined in
@@ -43,12 +43,12 @@ function create(
     : undefined;
 
   function execute(
-    operation: ConcreteBatch,
+    request: RequestNode,
     variables: Variables,
     cacheConfig: CacheConfig,
     uploadables?: ?UploadableMap,
   ): RelayObservable<ExecutePayload> {
-    if (operation.query.operation === 'subscription') {
+    if (request.operationKind === 'subscription') {
       invariant(
         observeSubscribe,
         'RelayNetwork: This network layer does not support Subscriptions. ' +
@@ -59,7 +59,7 @@ function create(
         !uploadables,
         'RelayNetwork: Cannot provide uploadables while subscribing.',
       );
-      return observeSubscribe(operation, variables, cacheConfig);
+      return observeSubscribe(request, variables, cacheConfig);
     }
 
     const pollInterval = cacheConfig.poll;
@@ -68,12 +68,10 @@ function create(
         !uploadables,
         'RelayNetwork: Cannot provide uploadables while polling.',
       );
-      return observeFetch(operation, variables, {force: true}).poll(
-        pollInterval,
-      );
+      return observeFetch(request, variables, {force: true}).poll(pollInterval);
     }
 
-    return observeFetch(operation, variables, cacheConfig, uploadables);
+    return observeFetch(request, variables, cacheConfig, uploadables);
   }
 
   return {execute};

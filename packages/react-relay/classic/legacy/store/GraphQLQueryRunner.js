@@ -4,36 +4,36 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule GraphQLQueryRunner
  * @flow
  * @format
  */
 
 'use strict';
 
-const RelayFetchMode = require('RelayFetchMode');
-const RelayProfiler = require('RelayProfiler');
-const RelayReadyState = require('RelayReadyState');
+const RelayFetchMode = require('../../store/RelayFetchMode');
+const RelayReadyState = require('../../store/RelayReadyState');
 
-const checkRelayQueryData = require('checkRelayQueryData');
-const diffRelayQuery = require('diffRelayQuery');
+const checkRelayQueryData = require('../../traversal/checkRelayQueryData');
+const diffRelayQuery = require('../../traversal/diffRelayQuery');
 const everyObject = require('everyObject');
-const flattenSplitRelayQueries = require('flattenSplitRelayQueries');
+const flattenSplitRelayQueries = require('../../traversal/flattenSplitRelayQueries');
 const forEachObject = require('forEachObject');
-const generateForceIndex = require('generateForceIndex');
+const generateForceIndex = require('./generateForceIndex');
 const mapObject = require('mapObject');
 const resolveImmediate = require('resolveImmediate');
 const someObject = require('someObject');
-const splitDeferredRelayQueries = require('splitDeferredRelayQueries');
-const throwFailedPromise = require('throwFailedPromise');
+const splitDeferredRelayQueries = require('../../traversal/splitDeferredRelayQueries');
+const throwFailedPromise = require('../../util/throwFailedPromise');
 const warning = require('warning');
 
-import type {FetchMode} from 'RelayFetchMode';
-import type {RelayQuerySet} from 'RelayInternalTypes';
-import type {PendingFetch} from 'RelayPendingQueryTracker';
-import type RelayQuery from 'RelayQuery';
-import type RelayStoreData from 'RelayStoreData';
-import type {Abortable, ReadyStateChangeCallback} from 'RelayTypes';
+const {RelayProfiler} = require('RelayRuntime');
+
+import type RelayQuery from '../../query/RelayQuery';
+import type {FetchMode} from '../../store/RelayFetchMode';
+import type {PendingFetch} from '../../store/RelayPendingQueryTracker';
+import type RelayStoreData from '../../store/RelayStoreData';
+import type {RelayQuerySet} from '../../tools/RelayInternalTypes';
+import type {Abortable, ReadyStateChangeCallback} from '../../tools/RelayTypes';
 
 /**
  * This is the high-level entry point for sending queries to the GraphQL

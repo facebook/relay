@@ -9,4 +9,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('RelayContainerProxy');
+module.exports = require.requireActual('../RelayContainerProxy');

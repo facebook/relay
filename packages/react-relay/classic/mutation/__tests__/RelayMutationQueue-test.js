@@ -16,19 +16,19 @@ require('configureForRelayOSS');
 
 jest.useFakeTimers();
 jest
-  .unmock('RelayMutationTransaction')
-  .unmock('RelayMutationTransactionStatus');
+  .unmock('../RelayMutationTransaction')
+  .unmock('../RelayMutationTransactionStatus');
 
 const RelayClassic = require('RelayClassic');
-const RelayMutation = require('RelayMutation');
-const RelayMutationQuery = require('RelayMutationQuery');
-const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
-const RelayStore = require('RelayStore');
-const RelayStoreData = require('RelayStoreData');
+const RelayMutation = require('../RelayMutation');
+const RelayMutationQuery = require('../RelayMutationQuery');
+const RelayMutationTransactionStatus = require('../RelayMutationTransactionStatus');
+const RelayStore = require('../../store/RelayStore');
+const RelayStoreData = require('../../store/RelayStoreData');
 const RelayTestUtils = require('RelayTestUtils');
 
-const flattenRelayQuery = require('flattenRelayQuery');
-const fromGraphQL = require('fromGraphQL');
+const flattenRelayQuery = require('../../traversal/flattenRelayQuery');
+const fromGraphQL = require('../../query/fromGraphQL');
 
 const {ConnectionInterface} = require('RelayRuntime');
 

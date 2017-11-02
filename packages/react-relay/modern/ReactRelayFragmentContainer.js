@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule ReactRelayFragmentContainer
  * @flow
  * @format
  */
@@ -12,23 +11,25 @@
 'use strict';
 
 const React = require('React');
-const RelayProfiler = require('RelayProfiler');
-const RelayPropTypes = require('RelayPropTypes');
+const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
 const areEqual = require('areEqual');
-const buildReactRelayContainer = require('buildReactRelayContainer');
+const buildReactRelayContainer = require('./buildReactRelayContainer');
 const invariant = require('invariant');
-const isRelayContext = require('isRelayContext');
-const isScalarAndEqual = require('isScalarAndEqual');
+const isRelayContext = require('../classic/environment/isRelayContext');
+const isScalarAndEqual = require('../classic/util/isScalarAndEqual');
 const nullthrows = require('nullthrows');
 
-const {profileContainer} = require('ReactRelayContainerProfiler');
-const {getComponentName, getReactComponent} = require('RelayContainerUtils');
+const {
+  getComponentName,
+  getReactComponent,
+} = require('../classic/container/RelayContainerUtils');
+const {profileContainer} = require('./ReactRelayContainerProfiler');
+const {RelayProfiler} = require('RelayRuntime');
 
-import type {GeneratedNodeMap, RelayProp} from 'ReactRelayTypes';
-import type {FragmentSpecResolver} from 'RelayCombinedEnvironmentTypes';
-import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
-import type {FragmentMap, RelayContext} from 'RelayStoreTypes';
+import type {FragmentSpecResolver} from '../classic/environment/RelayCombinedEnvironmentTypes';
+import type {GeneratedNodeMap, RelayProp} from './ReactRelayTypes';
+import type {FragmentMap, GraphQLTaggedNode, RelayContext} from 'RelayRuntime';
 
 type ContainerState = {
   data: {[key: string]: mixed},

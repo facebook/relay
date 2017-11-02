@@ -4,19 +4,18 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule validateRelayReadQuery
  * @flow
  * @format
  */
 
 'use strict';
 
-const RelayQueryVisitor = require('RelayQueryVisitor');
+const RelayQueryVisitor = require('../query/RelayQueryVisitor');
 
 const emptyFunction = require('emptyFunction');
 
-import type RelayQuery from 'RelayQuery';
-import type {StoreReaderOptions} from 'RelayTypes';
+import type RelayQuery from '../query/RelayQuery';
+import type {StoreReaderOptions} from '../tools/RelayTypes';
 
 type AliasMap = {
   children: {[applicationName: string]: AliasMap},

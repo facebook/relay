@@ -14,14 +14,14 @@ jest.enableAutomock();
 
 require('configureForRelayOSS');
 
-const GraphQLRange = require('GraphQLRange');
+const GraphQLRange = require('../../legacy/store/GraphQLRange');
 const RelayClassic = require('RelayClassic');
-const RelayQuery = require('RelayQuery');
-const RelayQueryTracker = require('RelayQueryTracker');
-const RelayRecordWriter = require('RelayRecordWriter');
+const RelayQuery = require('../../query/RelayQuery');
+const RelayQueryTracker = require('../../store/RelayQueryTracker');
+const RelayRecordWriter = require('../../store/RelayRecordWriter');
 const RelayTestUtils = require('RelayTestUtils');
 
-const diffRelayQuery = require('diffRelayQuery');
+const diffRelayQuery = require('../diffRelayQuery');
 
 describe('diffRelayQuery', () => {
   let RelayRecordStore;
@@ -33,7 +33,7 @@ describe('diffRelayQuery', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    RelayRecordStore = require('RelayRecordStore');
+    RelayRecordStore = require('../../store/RelayRecordStore');
 
     rootCallMap = {
       viewer: {'': 'client:1'},

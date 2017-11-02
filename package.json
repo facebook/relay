@@ -47,7 +47,7 @@
     "fb-watchman": "^2.0.0",
     "fbjs": "^0.8.14",
     "fbjs-scripts": "0.7.1",
-    "flow-bin": "^0.56.0",
+    "flow-bin": "^0.57.0",
     "graphql": "^0.11.7",
     "gulp": "3.9.1",
     "gulp-babel": "6.1.2",
@@ -87,7 +87,6 @@
   "jest": {
     "modulePathIgnorePatterns": [
       "<rootDir>/lib/",
-      "<rootDir>/packages/(.*).native.js",
       "<rootDir>/node_modules/(?!(fbjs/lib/|react/lib/|fbjs-scripts/jest))"
     ],
     "rootDir": "",

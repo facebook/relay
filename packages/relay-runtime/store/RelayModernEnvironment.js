@@ -21,7 +21,6 @@ const normalizePayload = require('normalizePayload');
 const normalizeRelayPayload = require('normalizeRelayPayload');
 const warning = require('warning');
 
-import type {CacheConfig, Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {HandlerProvider} from 'RelayDefaultHandlerProvider';
 import type {
   Network,
@@ -43,6 +42,10 @@ import type {
   RelayResponsePayload,
   UnstableEnvironmentCore,
 } from 'RelayStoreTypes';
+import type {
+  CacheConfig,
+  Disposable,
+} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 export type EnvironmentConfig = {
   configName?: string,
@@ -178,16 +181,9 @@ class RelayModernEnvironment implements Environment {
     cacheConfig?: ?CacheConfig,
     updater?: ?SelectorStoreUpdater,
   }): RelayObservable<RelayResponsePayload> {
-    const {node, variables} = operation;
     return this._network
-      .execute(node, variables, cacheConfig || {})
-      .map(payload =>
-        normalizePayload(
-          node,
-          payload.variables || variables,
-          payload.response,
-        ),
-      )
+      .execute(operation.node, operation.variables, cacheConfig || {})
+      .map(normalizePayload)
       .do({
         next: payload => {
           this._publishQueue.commitPayload(operation, payload, updater);
@@ -219,8 +215,6 @@ class RelayModernEnvironment implements Environment {
     updater?: ?SelectorStoreUpdater,
     uploadables?: ?UploadableMap,
   |}): RelayObservable<RelayResponsePayload> {
-    const {node, variables} = operation;
-
     let optimisticUpdate;
     if (optimisticResponse || optimisticUpdater) {
       optimisticUpdate = {
@@ -231,14 +225,8 @@ class RelayModernEnvironment implements Environment {
     }
 
     return this._network
-      .execute(node, variables, {force: true}, uploadables)
-      .map(payload =>
-        normalizePayload(
-          node,
-          payload.variables || variables,
-          payload.response,
-        ),
-      )
+      .execute(operation.node, operation.variables, {force: true}, uploadables)
+      .map(normalizePayload)
       .do({
         start: () => {
           if (optimisticUpdate) {

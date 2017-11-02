@@ -17,18 +17,18 @@ require('configureForRelayOSS');
 jest.useFakeTimers();
 jest
   .mock('warning')
-  .unmock('GraphQLQueryRunner')
-  .unmock('RelayTaskQueue');
+  .unmock('../GraphQLQueryRunner')
+  .unmock('../../../tools/RelayTaskQueue');
 
 const RelayClassic = require('RelayClassic');
-const RelayFetchMode = require('RelayFetchMode');
-const RelayStoreData = require('RelayStoreData');
+const RelayFetchMode = require('../../../store/RelayFetchMode');
+const RelayStoreData = require('../../../store/RelayStoreData');
 const RelayTestUtils = require('RelayTestUtils');
 
-const checkRelayQueryData = require('checkRelayQueryData');
-const diffRelayQuery = require('diffRelayQuery');
+const checkRelayQueryData = require('../../../traversal/checkRelayQueryData');
+const diffRelayQuery = require('../../../traversal/diffRelayQuery');
 const resolveImmediate = require('resolveImmediate');
-const splitDeferredRelayQueries = require('splitDeferredRelayQueries');
+const splitDeferredRelayQueries = require('../../../traversal/splitDeferredRelayQueries');
 const warning = require('warning');
 
 describe('GraphQLQueryRunner', () => {

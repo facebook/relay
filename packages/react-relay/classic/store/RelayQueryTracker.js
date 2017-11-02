@@ -4,19 +4,18 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayQueryTracker
  * @flow
  * @format
  */
 
 'use strict';
 
-const RelayNodeInterface = require('RelayNodeInterface');
-const RelayQuery = require('RelayQuery');
+const RelayNodeInterface = require('../interface/RelayNodeInterface');
+const RelayQuery = require('../query/RelayQuery');
 
-const flattenRelayQuery = require('flattenRelayQuery');
+const flattenRelayQuery = require('../traversal/flattenRelayQuery');
 
-import type {DataID} from 'RelayInternalTypes';
+import type {DataID} from '../tools/RelayInternalTypes';
 
 const TYPE = '__type__';
 

@@ -15,7 +15,7 @@ require('configureForRelayOSS');
 const RelayClassic = require('RelayClassic');
 const RelayTestUtils = require('RelayTestUtils');
 
-const containsRelayQueryRootCall = require('containsRelayQueryRootCall');
+const containsRelayQueryRootCall = require('../containsRelayQueryRootCall');
 
 describe('containsRelayQueryRootCall', function() {
   const {getNode} = RelayTestUtils;

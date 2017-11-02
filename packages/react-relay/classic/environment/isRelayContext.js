@@ -4,15 +4,14 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule isRelayContext
  * @flow
  * @format
  */
 
 'use strict';
 
-const isRelayEnvironment = require('isRelayEnvironment');
-const isRelayVariables = require('isRelayVariables');
+const isRelayEnvironment = require('./isRelayEnvironment');
+const isRelayVariables = require('./isRelayVariables');
 
 /**
  * Determine if the input is a plain object that matches the `RelayContext`

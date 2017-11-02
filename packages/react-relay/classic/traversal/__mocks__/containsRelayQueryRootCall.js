@@ -9,4 +9,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('containsRelayQueryRootCall');
+module.exports = require.requireActual('../containsRelayQueryRootCall');

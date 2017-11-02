@@ -18,11 +18,6 @@ const nullthrows = require('nullthrows');
 const t = require('babel-types');
 
 const {
-  FlattenTransform,
-  IRVisitor,
-  SchemaUtils,
-} = require('../graphql-compiler/GraphQLCompilerPublic');
-const {
   anyTypeAlias,
   exactObjectTypeAnnotation,
   exportType,
@@ -43,14 +38,10 @@ const {
   GraphQLNonNull,
   GraphQLInputObjectType,
 } = require('graphql');
+const {FlattenTransform, IRVisitor, SchemaUtils} = require('graphql-compiler');
 
-import type {
-  IRTransform,
-  Fragment,
-  Root,
-  CompilerContext,
-} from '../graphql-compiler/GraphQLCompilerPublic';
 import type {ScalarTypeMapping} from './RelayFlowTypeTransformers';
+import type {IRTransform, Fragment, Root} from 'graphql-compiler';
 import type {GraphQLEnumType} from 'graphql';
 
 const {isAbstractType} = SchemaUtils;
@@ -447,7 +438,7 @@ function getEnumDefinitions({enumsHasteModule, usedEnums}: State) {
 
 const FLOW_TRANSFORMS: Array<IRTransform> = [
   RelayMaskTransform.transform,
-  (ctx: CompilerContext) => FlattenTransform.transform(ctx, {}),
+  FlattenTransform.transformWithOptions({}),
 ];
 
 module.exports = {

@@ -10,7 +10,7 @@
 
 'use strict';
 
-const RelayMetaRoute = require('RelayMetaRoute');
+const RelayMetaRoute = require('../RelayMetaRoute');
 
 describe('RelayMetaRoute', () => {
   beforeEach(() => {

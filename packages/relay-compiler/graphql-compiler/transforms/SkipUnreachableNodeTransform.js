@@ -12,6 +12,7 @@
 'use strict';
 
 const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
+const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 
 const invariant = require('invariant');
 
@@ -30,18 +31,16 @@ const VARIABLE = 'variable';
  * - Any node with `@skip(if: true)`
  * - Any node with empty `selections`
  */
-function transform(context: GraphQLCompilerContext): GraphQLCompilerContext {
-  const documents = context.documents();
+function skipUnreachableNodeTransform(
+  context: GraphQLCompilerContext,
+): GraphQLCompilerContext {
   const fragments: Map<string, ?Fragment> = new Map();
-  const nextContext = documents.reduce((ctx: GraphQLCompilerContext, node) => {
-    if (node.kind === 'Root') {
-      const transformedNode = transformNode(context, fragments, node);
-      if (transformedNode) {
-        return ctx.add(transformedNode);
-      }
-    }
-    return ctx;
-  }, new GraphQLCompilerContext(context.schema));
+  const nextContext = GraphQLIRTransformer.transform(context, {
+    Root: node => transformNode(context, fragments, node),
+    // Fragments are included below where referenced.
+    // Unreferenced fragments are not included.
+    Fragment: id => null,
+  });
   return (Array.from(fragments.values()): Array<?Fragment>).reduce(
     (ctx: GraphQLCompilerContext, fragment) =>
       fragment ? ctx.add(fragment) : ctx,
@@ -59,37 +58,43 @@ function transformNode<T: Node>(
   while (queue.length) {
     const selection: Selection = queue.shift();
     let nextSelection;
-    if (selection.kind === 'Condition') {
-      const match = testCondition(selection);
-      if (match === PASS) {
-        queue.unshift(...selection.selections);
-      } else if (match === VARIABLE) {
+    switch (selection.kind) {
+      case 'Condition':
+        const match = testCondition(selection);
+        if (match === PASS) {
+          queue.unshift(...selection.selections);
+        } else if (match === VARIABLE) {
+          nextSelection = transformNode(context, fragments, selection);
+        }
+        break;
+      case 'FragmentSpread':
+        // Skip fragment spreads if the referenced fragment is empty
+        if (!fragments.has(selection.name)) {
+          const fragment = context.getFragment(selection.name);
+          const nextFragment = transformNode(context, fragments, fragment);
+          fragments.set(selection.name, nextFragment);
+        }
+        if (fragments.get(selection.name)) {
+          nextSelection = selection;
+        }
+        break;
+      case 'LinkedField':
         nextSelection = transformNode(context, fragments, selection);
-      }
-    } else if (selection.kind === 'FragmentSpread') {
-      // Skip fragment spreads if the referenced fragment is empty
-      if (!fragments.has(selection.name)) {
-        const fragment = context.get(selection.name);
-        invariant(
-          fragment && fragment.kind === 'Fragment',
-          'SkipUnreachableNodeTransform: Found a reference to undefined ' +
-            'fragment `%s`.',
-          selection.name,
-        );
-        const nextFragment = transformNode(context, fragments, fragment);
-        fragments.set(selection.name, nextFragment);
-      }
-      if (fragments.get(selection.name)) {
+        break;
+      case 'InlineFragment':
+        // TODO combine with the LinkedField case when flow supports this
+        nextSelection = transformNode(context, fragments, selection);
+        break;
+      case 'ScalarField':
         nextSelection = selection;
-      }
-    } else if (
-      selection.kind === 'LinkedField' ||
-      selection.kind === 'InlineFragment'
-    ) {
-      nextSelection = transformNode(context, fragments, selection);
-    } else {
-      // scalar field
-      nextSelection = selection;
+        break;
+      default:
+        (selection.kind: empty);
+        invariant(
+          false,
+          'SkipUnreachableNodeTransform: Unexpected selection kind `%s`.',
+          selection.kind,
+        );
     }
     if (nextSelection) {
       selections = selections || [];
@@ -116,4 +121,6 @@ function testCondition(condition: Condition): ConditionResult {
   return condition.condition.value === condition.passingValue ? PASS : FAIL;
 }
 
-module.exports = {transform};
+module.exports = {
+  transform: skipUnreachableNodeTransform,
+};

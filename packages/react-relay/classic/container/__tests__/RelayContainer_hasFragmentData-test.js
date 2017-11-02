@@ -16,9 +16,9 @@ require('configureForRelayOSS');
 
 const React = require('React');
 const RelayClassic = require('RelayClassic');
-const RelayEnvironment = require('RelayEnvironment');
-const RelayQueryConfig = require('RelayQueryConfig');
-const RelayRecord = require('RelayRecord');
+const RelayEnvironment = require('../../store/RelayEnvironment');
+const RelayQueryConfig = require('../../query-config/RelayQueryConfig');
+const RelayRecord = require('../../store/RelayRecord');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayContainer', () => {

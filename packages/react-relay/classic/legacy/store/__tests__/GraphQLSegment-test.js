@@ -10,10 +10,10 @@
 
 'use strict';
 
-jest.enableAutomock().unmock('GraphQLSegment');
+jest.enableAutomock().unmock('../GraphQLSegment');
 
-const GraphQLSegment = require('GraphQLSegment');
-const RelayRecord = require('RelayRecord');
+const GraphQLSegment = require('../GraphQLSegment');
+const RelayRecord = require('../../../store/RelayRecord');
 
 RelayRecord.getDataIDForObject.mockImplementation(function(data) {
   return data.__dataID__;

@@ -4,18 +4,17 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule toGraphQL
  * @flow
  * @format
  */
 
 'use strict';
 
-const QueryBuilder = require('QueryBuilder');
-const RelayQuery = require('RelayQuery');
+const QueryBuilder = require('./QueryBuilder');
+const RelayQuery = require('./RelayQuery');
 
-const callsToGraphQL = require('callsToGraphQL');
-const generateConcreteFragmentID = require('generateConcreteFragmentID');
+const callsToGraphQL = require('./callsToGraphQL');
+const generateConcreteFragmentID = require('./generateConcreteFragmentID');
 const invariant = require('invariant');
 
 import type {
@@ -23,7 +22,7 @@ import type {
   ConcreteFragment,
   ConcreteQuery,
   ConcreteSelection,
-} from 'ConcreteQuery';
+} from './ConcreteQuery';
 
 /**
  * @internal

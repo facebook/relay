@@ -10,15 +10,17 @@
 
 'use strict';
 
-jest.mock('RelayQueryTracker').mock('RelayClassicRecordState');
+jest
+  .mock('../../store/RelayQueryTracker')
+  .mock('../../store/RelayClassicRecordState');
 
 require('configureForRelayOSS');
 
-const RelayClassic = require('RelayClassic');
-const RelayQueryTracker = require('RelayQueryTracker');
+const Relay = require('../../public/RelayPublic');
+const RelayQueryTracker = require('../../store/RelayQueryTracker');
 const RelayTestUtils = require('RelayTestUtils');
 
-const diffRelayQuery = require('diffRelayQuery');
+const diffRelayQuery = require('../diffRelayQuery');
 
 describe('diffRelayQuery', () => {
   let RelayRecordStore;
@@ -29,8 +31,8 @@ describe('diffRelayQuery', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    RelayRecordStore = require('RelayRecordStore');
-    RelayRecordWriter = require('RelayRecordWriter');
+    RelayRecordStore = require('../../store/RelayRecordStore');
+    RelayRecordWriter = require('../../store/RelayRecordWriter');
 
     expect.extend(RelayTestUtils.matchers);
   });
@@ -41,7 +43,7 @@ describe('diffRelayQuery', () => {
     const tracker = new RelayQueryTracker();
 
     const query = getNode(
-      RelayClassic.QL`
+      Relay.QL`
       query {
         username(name:"joe") {
           id
@@ -62,7 +64,7 @@ describe('diffRelayQuery', () => {
     const tracker = new RelayQueryTracker();
 
     const query = getNode(
-      RelayClassic.QL`
+      Relay.QL`
       query {
         node(id:"123") {
           id
@@ -84,7 +86,7 @@ describe('diffRelayQuery', () => {
     const tracker = new RelayQueryTracker();
 
     const writeQuery = getNode(
-      RelayClassic.QL`
+      Relay.QL`
       query {
         node(id:"123") {
           firstName
@@ -102,7 +104,7 @@ describe('diffRelayQuery', () => {
     writePayload(store, writer, writeQuery, payload, tracker);
 
     const fetchQuery = getNode(
-      RelayClassic.QL`
+      Relay.QL`
       query {
         node(id:"123") {
           id
@@ -116,7 +118,7 @@ describe('diffRelayQuery', () => {
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toEqualQueryRoot(
       getNode(
-        RelayClassic.QL`
+        Relay.QL`
       query {
         node(id:"123") {
           lastName

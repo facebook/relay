@@ -125,7 +125,7 @@ describe('RelayReferenceMarker', () => {
       source,
       {
         dataID: ROOT_ID,
-        node: FooQuery.query,
+        node: FooQuery.operation,
         variables: {id: '1', size: 32},
       },
       references,
@@ -217,7 +217,7 @@ describe('RelayReferenceMarker', () => {
       source,
       {
         dataID: ROOT_ID,
-        node: UserProfile.query,
+        node: UserProfile.operation,
         variables: {id: '1'},
       },
       references,
@@ -325,7 +325,7 @@ describe('RelayReferenceMarker', () => {
       source,
       {
         dataID: ROOT_ID,
-        node: UserProfile.query,
+        node: UserProfile.operation,
         variables: {id: '1', orderby: ['first name']},
       },
       references,
@@ -346,7 +346,7 @@ describe('RelayReferenceMarker', () => {
       source,
       {
         dataID: ROOT_ID,
-        node: UserProfile.query,
+        node: UserProfile.operation,
         variables: {id: '1', orderby: ['last name']},
       },
       references,

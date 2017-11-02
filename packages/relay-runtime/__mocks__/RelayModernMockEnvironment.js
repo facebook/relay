@@ -97,8 +97,8 @@ function createMockEnvironment(options: {
 
   // Mock the network layer
   let pendingRequests = [];
-  const execute = (operation, variables, cacheConfig) => {
-    const {id, text} = operation;
+  const execute = (request, variables, cacheConfig) => {
+    const {id, text} = request;
     const cacheID = id || text;
 
     let cachedPayload = null;
@@ -109,29 +109,29 @@ function createMockEnvironment(options: {
       return RelayObservable.from(cachedPayload);
     }
 
-    const request = {operation, variables, cacheConfig};
-    pendingRequests = pendingRequests.concat([request]);
+    const nextRequest = {request, variables, cacheConfig};
+    pendingRequests = pendingRequests.concat([nextRequest]);
 
-    return new RelayObservable(sink => {
-      request.sink = sink;
+    return RelayObservable.create(sink => {
+      nextRequest.sink = sink;
       return () => {
         pendingRequests = pendingRequests.filter(
-          pending => pending !== request,
+          pending => pending !== nextRequest,
         );
       };
     });
   };
 
-  function getRequest(operation) {
-    const request = pendingRequests.find(
-      pending => pending.operation === operation,
+  function getRequest(request) {
+    const foundRequest = pendingRequests.find(
+      pending => pending.request === request,
     );
     invariant(
-      request && request.sink,
+      foundRequest && foundRequest.sink,
       'MockEnvironment: Cannot respond to `%s`, it has not been requested yet.',
-      operation.name,
+      request.name,
     );
-    return request;
+    return foundRequest;
   }
 
   function ensureValidPayload(payload) {
@@ -144,8 +144,8 @@ function createMockEnvironment(options: {
     return payload;
   }
 
-  const cachePayload = (operation, variables, payload) => {
-    const {id, text} = operation;
+  const cachePayload = (request, variables, payload) => {
+    const {id, text} = request;
     const cacheID = id || text;
     cache.set(cacheID, variables, payload);
   };
@@ -168,35 +168,44 @@ function createMockEnvironment(options: {
   };
 
   // Helper to determine if a given query/variables pair is pending
-  const isLoading = (operation, variables, cacheConfig) => {
+  const isLoading = (request, variables, cacheConfig) => {
     return pendingRequests.some(
       pending =>
-        pending.operation === operation &&
+        pending.request === request &&
         areEqual(pending.variables, variables) &&
         areEqual(pending.cacheConfig, cacheConfig || {}),
     );
   };
 
-  // Helpers to reject or resolve the payload for an individual operation.
-  const reject = (operation, error) => {
+  // Helpers to reject or resolve the payload for an individual request.
+  const reject = (request, error) => {
     if (typeof error === 'string') {
       error = new Error(error);
     }
-    getRequest(operation).sink.error(error);
+    getRequest(request).sink.error(error);
   };
 
-  const nextValue = (operation, payload) => {
-    getRequest(operation).sink.next({response: ensureValidPayload(payload)});
+  const nextValue = (request, payload) => {
+    const {sink, variables} = getRequest(request);
+    sink.next({
+      operation: request.operation,
+      variables: variables,
+      response: ensureValidPayload(payload),
+    });
   };
 
-  const complete = operation => {
-    getRequest(operation).sink.complete();
+  const complete = request => {
+    getRequest(request).sink.complete();
   };
 
-  const resolve = (operation, payload) => {
-    const request = getRequest(operation);
-    request.sink.next(ensureValidPayload(payload));
-    request.sink.complete();
+  const resolve = (request, payload) => {
+    const {sink, variables} = getRequest(request);
+    sink.next({
+      operation: request.operation,
+      variables: variables,
+      response: ensureValidPayload(payload),
+    });
+    sink.complete();
   };
 
   // Mock instance

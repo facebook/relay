@@ -4,24 +4,24 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayNetworkLayer
  * @flow
  * @format
  */
 
 'use strict';
 
-const RelayProfiler = require('RelayProfiler');
-const RelayQueryRequest = require('RelayQueryRequest');
+const RelayQueryRequest = require('./RelayQueryRequest');
 
 const invariant = require('invariant');
 const resolveImmediate = require('resolveImmediate');
-const throwFailedPromise = require('throwFailedPromise');
+const throwFailedPromise = require('../util/throwFailedPromise');
 const warning = require('warning');
 
-import type RelayMutationRequest from 'RelayMutationRequest';
-import type RelayQuery from 'RelayQuery';
-import type {ChangeSubscription, NetworkLayer} from 'RelayTypes';
+const {RelayProfiler} = require('RelayRuntime');
+
+import type RelayQuery from '../query/RelayQuery';
+import type {ChangeSubscription, NetworkLayer} from '../tools/RelayTypes';
+import type RelayMutationRequest from './RelayMutationRequest';
 
 type Subscriber = {
   queryCallback: ?QueryCallback,

@@ -10,7 +10,10 @@
 
 'use strict';
 
-const {getFragmentVariables, getOperationVariables} = require('RelayVariables');
+const {
+  getFragmentVariables,
+  getOperationVariables,
+} = require('../RelayVariables');
 
 describe('RelayConcreteVariables', () => {
   beforeEach(() => {

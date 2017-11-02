@@ -4,44 +4,50 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule ReactRelayTestMocker
  * @flow
  * @format
  */
 
 'use strict';
 
-const RelayNetwork = require('RelayNetwork');
-
 const areEqual = require('areEqual');
 const emptyFunction = require('emptyFunction');
 const invariant = require('invariant');
-const isRelayModernEnvironment = require('isRelayModernEnvironment');
 const warning = require('warning');
 
-import type {ConcreteOperationDefinition} from 'ConcreteQuery';
-import type {CacheConfig} from 'RelayCombinedEnvironmentTypes';
-import type {ConcreteBatch} from 'RelayConcreteNode';
-import type {GraphQLResponse, PayloadError} from 'RelayNetworkTypes';
-import type {Environment, OperationSelector} from 'RelayStoreTypes';
-import type {Variables} from 'RelayTypes';
+const {
+  Network,
+  isRelayModernEnvironment,
+  RelayConcreteNode,
+} = require('RelayRuntime');
+
+import type {CacheConfig} from '../classic/environment/RelayCombinedEnvironmentTypes';
+import type {ConcreteOperationDefinition} from '../classic/query/ConcreteQuery';
+import type {Variables} from '../classic/tools/RelayTypes';
+import type {
+  GraphQLResponse,
+  OperationSelector,
+  PayloadError,
+  RequestNode,
+  IEnvironment,
+} from 'RelayRuntime';
 
 type DataWriteConfig = {
-  query: ConcreteBatch,
+  query: RequestNode,
   variables: Variables,
   payload: GraphQLResponse,
 };
 
 type NetworkWriteConfig = {
-  query: ConcreteBatch,
+  query: RequestNode,
   variables?: Variables,
   payload: GraphQLResponse | (Variables => GraphQLResponse),
 };
 
-type OperationType = ConcreteBatch | ConcreteOperationDefinition;
+type RequestType = RequestNode | ConcreteOperationDefinition;
 
 type PendingFetch = {
-  operation: OperationType,
+  request: RequestType,
   variables?: Variables,
   cacheConfig: ?CacheConfig,
   ident: string,
@@ -60,10 +66,10 @@ let nextId = 0;
 let pendingFetches: Array<PendingFetch> = [];
 
 class ReactRelayTestMocker {
-  _environment: Environment;
+  _environment: IEnvironment;
   _defaults: {[string]: $PropertyType<NetworkWriteConfig, 'payload'>};
 
-  constructor(env: Environment) {
+  constructor(env: IEnvironment) {
     this._defaults = {};
 
     if (isRelayModernEnvironment(env)) {
@@ -95,16 +101,15 @@ class ReactRelayTestMocker {
 
   /**
    * Create a unique identifier for a (query, variables) pair.
-   * @param operation: the operation associated with the query
+   * @param request: the request associated with the query
    * @param variables: the variables associated with this invocation of the
    * query
    *
    * @returns a string which can later be used to uniquely identify this query
    * in the list of pending queries
    */
-  static getIdentifier(operation: OperationType): string {
-    const queryName = operation.name;
-    return queryName;
+  static getIdentifier(request: RequestType): string {
+    return request.name;
   }
 
   /**
@@ -132,8 +137,14 @@ class ReactRelayTestMocker {
    * in refetch containers, for example. It also allows test writers to see how
    * their components behave under error conditions.
    */
-  _mockNetworkLayer(env: Environment): Environment {
-    const fetch = (operation, variables, cacheConfig) => {
+  _mockNetworkLayer(env: IEnvironment): IEnvironment {
+    const fetch = (request, variables, cacheConfig) => {
+      if (request.kind === RelayConcreteNode.BATCH_REQUEST) {
+        throw new Error(
+          'ReactRelayTestMocker: Batch request not yet implemented (T22955064)',
+        );
+      }
+
       let resolve = emptyFunction;
       let reject = emptyFunction;
       const promise = new Promise((res, rej) => {
@@ -142,25 +153,21 @@ class ReactRelayTestMocker {
       });
 
       const strippedVars = ReactRelayTestMocker.stripUnused(variables);
-      const ident = ReactRelayTestMocker.getIdentifier(operation);
+      const ident = ReactRelayTestMocker.getIdentifier(request);
       const {createOperationSelector} = env.unstable_internal;
 
       // there's a default value for this query, use it
       if (this._defaults[ident]) {
         const payload = this._defaults[ident];
-        if (typeof payload === 'function') {
-          return {response: payload(strippedVars)};
-        } else {
-          return {response: payload};
-        }
+        return typeof payload === 'function' ? payload(strippedVars) : payload;
       }
 
-      const operationSelector = createOperationSelector(operation, variables);
+      const operationSelector = createOperationSelector(request, variables);
       pendingFetches.push({
         ident,
         cacheConfig,
         deferred: {resolve, reject},
-        operation,
+        request,
         variables,
         operationSelector,
       });
@@ -200,7 +207,7 @@ class ReactRelayTestMocker {
 
     (env: any).hasMockedNetwork = true;
 
-    (env: any).__setNet(RelayNetwork.create(fetch));
+    (env: any).__setNet(Network.create(fetch));
     return env;
   }
 
@@ -213,8 +220,8 @@ class ReactRelayTestMocker {
    */
   setDefault(toSet: NetworkWriteConfig): void {
     const {query, payload} = toSet;
-    const operation = query;
-    const ident = ReactRelayTestMocker.getIdentifier(operation);
+    const request = query;
+    const ident = ReactRelayTestMocker.getIdentifier(request);
 
     this._defaults[ident] = payload;
   }
@@ -224,8 +231,8 @@ class ReactRelayTestMocker {
    */
   unsetDefault(toUnset: NetworkWriteConfig): void {
     const {query} = toUnset;
-    const operation = query;
-    const ident = ReactRelayTestMocker.getIdentifier(operation);
+    const request = query;
+    const ident = ReactRelayTestMocker.getIdentifier(request);
 
     delete this._defaults[ident];
   }

@@ -11,14 +11,13 @@
 'use strict';
 
 const React = require('React');
-const ReactRelayFragmentContainer = require('ReactRelayFragmentContainer');
-const ReactRelayPropTypes = require('ReactRelayPropTypes');
+const ReactRelayFragmentContainer = require('../ReactRelayFragmentContainer');
+const ReactRelayPropTypes = require('../ReactRelayPropTypes');
 const ReactTestRenderer = require('ReactTestRenderer');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
-const {createOperationSelector} = require('RelayModernOperationSelector');
-const {ROOT_ID} = require('RelayStoreUtils');
+const {createOperationSelector, ROOT_ID} = require('RelayRuntime');
 
 describe('ReactRelayFragmentContainer', () => {
   let TestComponent;

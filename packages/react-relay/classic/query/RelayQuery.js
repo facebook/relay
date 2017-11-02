@@ -4,36 +4,36 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayQuery
  * @flow
  * @format
  */
 
 'use strict';
 
-const QueryBuilder = require('QueryBuilder');
-const RelayFragmentReference = require('RelayFragmentReference');
-const RelayMetaRoute = require('RelayMetaRoute');
-const RelayProfiler = require('RelayProfiler');
-const RelayRouteFragment = require('RelayRouteFragment');
-const RelayVariable = require('RelayVariable');
-const RelayVariables = require('RelayVariables');
+const QueryBuilder = require('./QueryBuilder');
+const RelayFragmentReference = require('./RelayFragmentReference');
+const RelayMetaRoute = require('../route/RelayMetaRoute');
+const RelayRouteFragment = require('./RelayRouteFragment');
+const RelayVariable = require('./RelayVariable');
+const RelayVariables = require('./RelayVariables');
 
 const areEqual = require('areEqual');
-const callsFromGraphQL = require('callsFromGraphQL');
-const callsToGraphQL = require('callsToGraphQL');
-const directivesToGraphQL = require('directivesToGraphQL');
-const generateConcreteFragmentID = require('generateConcreteFragmentID');
-const generateRQLFieldAlias = require('generateRQLFieldAlias');
+const callsFromGraphQL = require('./callsFromGraphQL');
+const callsToGraphQL = require('./callsToGraphQL');
+const directivesToGraphQL = require('./directivesToGraphQL');
+const generateConcreteFragmentID = require('./generateConcreteFragmentID');
+const generateRQLFieldAlias = require('./generateRQLFieldAlias');
 const invariant = require('invariant');
 const nullthrows = require('nullthrows');
-const serializeRelayQueryCall = require('serializeRelayQueryCall');
+const serializeRelayQueryCall = require('./serializeRelayQueryCall');
 const shallowEqual = require('shallowEqual');
-const stableStringify = require('stableStringify');
+const stableStringify = require('./stableStringify');
 
-const {ConnectionInterface} = require('RelayRuntime');
-const {getFragmentSpreadArguments} = require('RelayVariables');
+const {getFragmentSpreadArguments} = require('./RelayVariables');
+const {ConnectionInterface, RelayProfiler} = require('RelayRuntime');
 
+import type {Call, Directive} from '../tools/RelayInternalTypes';
+import type {Variables} from '../tools/RelayTypes';
 import type {
   ConcreteField,
   ConcreteFieldMetadata,
@@ -44,9 +44,7 @@ import type {
   ConcreteOperationMetadata,
   ConcreteQuery,
   ConcreteQueryMetadata,
-} from 'ConcreteQuery';
-import type {Call, Directive} from 'RelayInternalTypes';
-import type {Variables} from 'RelayTypes';
+} from './ConcreteQuery';
 
 type BatchCall = {
   refParamName: string,
@@ -1463,6 +1461,28 @@ function createNode(
   if (kind === 'Field') {
     type = RelayQueryField;
   } else if (kind === 'Fragment') {
+    const fragment = nullthrows(QueryBuilder.getFragment(concreteNode));
+    const {hoistedRootArgs} = fragment.metadata;
+    if (hoistedRootArgs) {
+      const rootVariables = rootContext.variables;
+      const combinedVariables = {...variables};
+      hoistedRootArgs.forEach(argName => {
+        const rootValue = rootVariables[argName];
+        invariant(
+          rootValue !== undefined || variables.hasOwnProperty(argName),
+          'RelayQueryNode: Expected root argument `%s` on unmasked fragment `%s` to be provided ' +
+            'in the query variables. If the route is still using ` RelayClassic.QL`, please make ' +
+            'sure that the argument is defined in the injected Relay constants module or add the ' +
+            'argument in the `prepareParams` for that route.',
+          argName,
+          fragment.name,
+        );
+        if (rootValue !== undefined) {
+          combinedVariables[argName] = rootValue;
+        }
+      });
+      variables = combinedVariables;
+    }
     type = RelayQueryFragment;
   } else if (kind === 'FragmentSpread') {
     const spread = nullthrows(QueryBuilder.getFragmentSpread(concreteNode));

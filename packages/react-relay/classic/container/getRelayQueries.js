@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule getRelayQueries
  * @flow
  * @format
  */
@@ -12,19 +11,20 @@
 'use strict';
 
 const Map = require('Map');
-const RelayMetaRoute = require('RelayMetaRoute');
-const RelayProfiler = require('RelayProfiler');
-const RelayQuery = require('RelayQuery');
-const RelayQueryCaching = require('RelayQueryCaching');
+const RelayMetaRoute = require('../route/RelayMetaRoute');
+const RelayQuery = require('../query/RelayQuery');
+const RelayQueryCaching = require('../tools/RelayQueryCaching');
 
-const buildRQL = require('buildRQL');
+const buildRQL = require('../query/buildRQL');
 const invariant = require('invariant');
-const stableStringify = require('stableStringify');
+const stableStringify = require('../query/stableStringify');
 const warning = require('warning');
 
-import type {RelayLazyContainer} from 'RelayContainer';
-import type {RelayQuerySet} from 'RelayInternalTypes';
-import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
+const {RelayProfiler} = require('RelayRuntime');
+
+import type {RelayQueryConfigInterface} from '../query-config/RelayQueryConfig';
+import type {RelayQuerySet} from '../tools/RelayInternalTypes';
+import type {RelayLazyContainer} from './RelayContainer';
 
 const queryCache = new Map();
 

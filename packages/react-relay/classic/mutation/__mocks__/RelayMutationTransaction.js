@@ -10,4 +10,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('RelayMutationTransaction');
+module.exports = require.requireActual('../RelayMutationTransaction');

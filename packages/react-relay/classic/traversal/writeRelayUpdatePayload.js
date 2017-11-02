@@ -4,33 +4,31 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule writeRelayUpdatePayload
  * @flow
  * @format
  */
 
 'use strict';
 
-const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
-const RelayClassicRecordState = require('RelayClassicRecordState');
-const RelayMutationTracker = require('RelayMutationTracker');
-const RelayMutationType = require('RelayMutationType');
-const RelayNodeInterface = require('RelayNodeInterface');
-const RelayProfiler = require('RelayProfiler');
-const RelayQuery = require('RelayQuery');
-const RelayQueryPath = require('RelayQueryPath');
+const GraphQLMutatorConstants = require('../legacy/mutation/GraphQLMutatorConstants');
+const RelayClassicRecordState = require('../store/RelayClassicRecordState');
+const RelayMutationTracker = require('../store/RelayMutationTracker');
+const RelayMutationType = require('../mutation/RelayMutationType');
+const RelayNodeInterface = require('../interface/RelayNodeInterface');
+const RelayQuery = require('../query/RelayQuery');
+const RelayQueryPath = require('../query/RelayQueryPath');
 
-const generateClientEdgeID = require('generateClientEdgeID');
-const generateClientID = require('generateClientID');
-const getRangeBehavior = require('getRangeBehavior');
+const generateClientEdgeID = require('../legacy/store/generateClientEdgeID');
+const generateClientID = require('../legacy/store/generateClientID');
+const getRangeBehavior = require('../mutation/getRangeBehavior');
 const invariant = require('invariant');
 const warning = require('warning');
 
-const {ConnectionInterface} = require('RelayRuntime');
+const {ConnectionInterface, RelayProfiler} = require('RelayRuntime');
 
-import type {DataID, UpdateOptions} from 'RelayInternalTypes';
-import type RelayQueryWriter from 'RelayQueryWriter';
-import type RelayRecordStore from 'RelayRecordStore';
+import type RelayQueryWriter from '../store/RelayQueryWriter';
+import type RelayRecordStore from '../store/RelayRecordStore';
+import type {DataID, UpdateOptions} from '../tools/RelayInternalTypes';
 
 // TODO: Replace with enumeration for possible config types.
 /* OperationConfig was originally typed such that each property had the type

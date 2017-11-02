@@ -11,7 +11,7 @@
 'use strict';
 
 const RelayClassic = require('RelayClassic');
-const RelayNodeInterface = require('RelayNodeInterface');
+const RelayNodeInterface = require('../RelayNodeInterface');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayNodeInterface', () => {

@@ -69,7 +69,7 @@ module.exports = {
       return require('./__generated__/CompatUtil_viewer.graphql');
     },
     classic: function (RelayQL_GENERATED) {
-      const CompatUtil_actor = RelayQL_GENERATED.__getClassicFragment(actor.actor).node;
+      const CompatUtil_actor = RelayQL_GENERATED.__getClassicFragment(actor.actor, true).node;
 
       return {
         kind: 'FragmentDefinition',

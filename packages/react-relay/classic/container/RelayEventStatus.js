@@ -4,14 +4,13 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayEventStatus
  * @flow
  * @format
  */
 
 'use strict';
 
-import type {ReadyStateEvent} from 'RelayTypes';
+import type {ReadyStateEvent} from '../tools/RelayTypes';
 
 /**
  * Parses Relay ready state events so users of RelayRenderer can have more fine grain control in the

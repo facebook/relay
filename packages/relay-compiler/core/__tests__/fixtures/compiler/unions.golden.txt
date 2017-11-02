@@ -1,16 +1,23 @@
 {
+  "kind": "Request",
+  "operationKind": "query",
+  "name": "UnionQuery",
+  "id": null,
+  "metadata": {},
   "fragment": {
-    "argumentDefinitions": [],
     "kind": "Fragment",
-    "metadata": null,
     "name": "UnionQuery",
+    "type": "Query",
+    "metadata": null,
+    "argumentDefinitions": [],
     "selections": [
       {
         "kind": "LinkedField",
         "alias": null,
+        "name": "maybeNode",
+        "storageKey": null,
         "args": null,
         "concreteType": null,
-        "name": "maybeNode",
         "plural": false,
         "selections": [
           {
@@ -20,27 +27,27 @@
               {
                 "kind": "ScalarField",
                 "alias": null,
-                "args": null,
                 "name": "id",
+                "args": null,
                 "storageKey": null
               },
               {
                 "kind": "LinkedField",
                 "alias": null,
+                "name": "body",
+                "storageKey": null,
                 "args": null,
                 "concreteType": "Text",
-                "name": "body",
                 "plural": false,
                 "selections": [
                   {
                     "kind": "ScalarField",
                     "alias": null,
-                    "args": null,
                     "name": "text",
+                    "args": null,
                     "storageKey": null
                   }
-                ],
-                "storageKey": null
+                ]
               }
             ]
           },
@@ -51,48 +58,42 @@
               {
                 "kind": "ScalarField",
                 "alias": null,
-                "args": null,
                 "name": "name",
+                "args": null,
                 "storageKey": null
               }
             ]
           }
-        ],
-        "storageKey": null
+        ]
       }
-    ],
-    "type": "Query"
+    ]
   },
-  "id": null,
-  "kind": "Batch",
-  "metadata": {},
-  "name": "UnionQuery",
-  "query": {
-    "argumentDefinitions": [],
-    "kind": "Root",
+  "operation": {
+    "kind": "Operation",
     "name": "UnionQuery",
-    "operation": "query",
+    "argumentDefinitions": [],
     "selections": [
       {
         "kind": "LinkedField",
         "alias": null,
+        "name": "maybeNode",
+        "storageKey": null,
         "args": null,
         "concreteType": null,
-        "name": "maybeNode",
         "plural": false,
         "selections": [
           {
             "kind": "ScalarField",
             "alias": null,
-            "args": null,
             "name": "__typename",
+            "args": null,
             "storageKey": null
           },
           {
             "kind": "ScalarField",
             "alias": null,
-            "args": null,
             "name": "id",
+            "args": null,
             "storageKey": null
           },
           {
@@ -102,20 +103,20 @@
               {
                 "kind": "LinkedField",
                 "alias": null,
+                "name": "body",
+                "storageKey": null,
                 "args": null,
                 "concreteType": "Text",
-                "name": "body",
                 "plural": false,
                 "selections": [
                   {
                     "kind": "ScalarField",
                     "alias": null,
-                    "args": null,
                     "name": "text",
+                    "args": null,
                     "storageKey": null
                   }
-                ],
-                "storageKey": null
+                ]
               }
             ]
           },
@@ -126,14 +127,13 @@
               {
                 "kind": "ScalarField",
                 "alias": null,
-                "args": null,
                 "name": "name",
+                "args": null,
                 "storageKey": null
               }
             ]
           }
-        ],
-        "storageKey": null
+        ]
       }
     ]
   }

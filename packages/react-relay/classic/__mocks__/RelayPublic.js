@@ -9,4 +9,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('RelayPublic');
+module.exports = require.requireActual('../RelayPublic');

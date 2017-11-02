@@ -10,7 +10,9 @@
 
 'use strict';
 
-const GraphQLStoreRangeUtils = require.requireActual('GraphQLStoreRangeUtils');
+const GraphQLStoreRangeUtils = require.requireActual(
+  '../GraphQLStoreRangeUtils',
+);
 
 Object.getOwnPropertyNames(GraphQLStoreRangeUtils.prototype).forEach(name => {
   const property = GraphQLStoreRangeUtils.prototype[name];
@@ -19,4 +21,4 @@ Object.getOwnPropertyNames(GraphQLStoreRangeUtils.prototype).forEach(name => {
   }
 });
 
-module.exports = require.requireActual('GraphQLStoreRangeUtils');
+module.exports = require.requireActual('../GraphQLStoreRangeUtils');

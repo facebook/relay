@@ -17,9 +17,9 @@ const {
   CompilerContext,
   IRTransformer,
   getLiteralArgumentValues,
-} = require('../graphql-compiler/GraphQLCompilerPublic');
+} = require('graphql-compiler');
 
-import type {Fragment} from '../graphql-compiler/GraphQLCompilerPublic';
+import type {Fragment} from 'graphql-compiler';
 
 const RELAY = 'relay';
 const PLURAL = 'plural';
@@ -46,7 +46,9 @@ const SCHEMA_EXTENSION = `directive @relay(
  * A transform that extracts `@relay(plural: Boolean)` directives and converts
  * them to metadata that can be accessed at runtime.
  */
-function transform(context: CompilerContext): CompilerContext {
+function relayRelayDirectiveTransform(
+  context: CompilerContext,
+): CompilerContext {
   return IRTransformer.transform(
     context,
     {
@@ -84,5 +86,5 @@ function visitFragment(fragment: Fragment): Fragment {
 module.exports = {
   RELAY,
   SCHEMA_EXTENSION,
-  transform,
+  transform: relayRelayDirectiveTransform,
 };

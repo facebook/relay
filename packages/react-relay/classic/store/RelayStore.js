@@ -4,13 +4,12 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayStore
  * @flow
  * @format
  */
 
 'use strict';
 
-const RelayEnvironment = require('RelayEnvironment');
+const RelayEnvironment = require('./RelayEnvironment');
 
 module.exports = new RelayEnvironment();

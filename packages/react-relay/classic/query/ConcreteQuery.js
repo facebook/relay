@@ -4,14 +4,13 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule ConcreteQuery
  * @flow
  * @format
  */
 
 'use strict';
 
-import type {VariableMapping} from 'RelayFragmentReference';
+import type {VariableMapping} from './RelayFragmentReference';
 
 /**
  * @internal
@@ -90,6 +89,7 @@ export type ConcreteFragment = {
     isTrackingEnabled?: boolean,
     pattern?: boolean, // from @relay directive
     plural?: boolean, // OSS Printer from `@relay`
+    hoistedRootArgs?: Array<string>, // for unmasked fragment
   },
   name: string,
   type: string,

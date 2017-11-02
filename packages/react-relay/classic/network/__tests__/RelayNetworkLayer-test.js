@@ -13,12 +13,12 @@
 require('configureForRelayOSS');
 
 jest.useFakeTimers();
-jest.unmock('RelayNetworkLayer');
+jest.unmock('../RelayNetworkLayer');
 
 const Deferred = require('Deferred');
-const RelayNetworkLayer = require('RelayNetworkLayer');
-const RelayQuery = require('RelayQuery');
-const RelayQueryRequest = require('RelayQueryRequest');
+const RelayNetworkLayer = require('../RelayNetworkLayer');
+const RelayQuery = require('../../query/RelayQuery');
+const RelayQueryRequest = require('../RelayQueryRequest');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayNetworkLayer', () => {
@@ -28,8 +28,8 @@ describe('RelayNetworkLayer', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    const RelayQuery = jest.genMockFromModule('RelayQuery');
-    jest.setMock('RelayQuery', RelayQuery);
+    const RelayQuery = jest.genMockFromModule('../../query/RelayQuery');
+    jest.setMock('../../query/RelayQuery', RelayQuery);
     jest.mock('warning');
 
     injectedNetworkLayer = {

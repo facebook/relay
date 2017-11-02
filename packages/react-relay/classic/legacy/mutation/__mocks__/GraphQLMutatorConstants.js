@@ -9,4 +9,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('GraphQLMutatorConstants');
+module.exports = require.requireActual('../GraphQLMutatorConstants');

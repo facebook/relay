@@ -14,14 +14,13 @@
 const FindGraphQLTags = require('../codegen/FindGraphQLTags');
 const GraphQL = require('graphql');
 
-const chalk = require('chalk');
 const fs = require('fs');
 const invariant = require('invariant');
 const path = require('path');
 
-const {ASTCache} = require('../graphql-compiler/GraphQLCompilerPublic');
+const {ASTCache} = require('graphql-compiler');
 
-import type {File, FileFilter} from '../graphql-compiler/GraphQLCompilerPublic';
+import type {File, FileFilter} from 'graphql-compiler';
 import type {DocumentNode} from 'graphql';
 
 // Throws an error if parsing the file fails

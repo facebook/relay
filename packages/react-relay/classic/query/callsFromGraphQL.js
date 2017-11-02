@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule callsFromGraphQL
  * @flow
  * @format
  */
@@ -13,14 +12,14 @@
 
 const invariant = require('invariant');
 
+import type {Call, CallValue} from '../tools/RelayInternalTypes';
+import type {Variables} from '../tools/RelayTypes';
 import type {
   ConcreteCall,
   ConcreteValue,
   ConcreteCallValue,
   ConcreteCallVariable,
-} from 'ConcreteQuery';
-import type {Call, CallValue} from 'RelayInternalTypes';
-import type {Variables} from 'RelayTypes';
+} from './ConcreteQuery';
 
 type CallOrDirective = {
   name: string,

@@ -10,7 +10,7 @@
 
 'use strict';
 
-const getRangeBehavior = require('getRangeBehavior');
+const getRangeBehavior = require('../getRangeBehavior');
 
 describe('getRangeBehavior()', () => {
   describe('when rangeBehaviors are defined as a function', () => {

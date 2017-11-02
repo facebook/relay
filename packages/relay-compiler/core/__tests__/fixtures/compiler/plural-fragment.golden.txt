@@ -1,18 +1,18 @@
 {
-  "argumentDefinitions": [],
   "kind": "Fragment",
+  "name": "PluralFragment",
+  "type": "User",
   "metadata": {
     "plural": true
   },
-  "name": "PluralFragment",
+  "argumentDefinitions": [],
   "selections": [
     {
       "kind": "ScalarField",
       "alias": null,
-      "args": null,
       "name": "name",
+      "args": null,
       "storageKey": null
     }
-  ],
-  "type": "User"
+  ]
 }

@@ -4,19 +4,18 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayCompatContainer
  * @flow
  * @format
  */
 
 'use strict';
 
-const ReactRelayFragmentContainer = require('ReactRelayFragmentContainer');
+const ReactRelayFragmentContainer = require('../../modern/ReactRelayFragmentContainer');
 
-const {buildCompatContainer} = require('ReactRelayCompatContainerBuilder');
+const {buildCompatContainer} = require('../ReactRelayCompatContainerBuilder');
 
-import type {GeneratedNodeMap} from 'ReactRelayTypes';
-import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
+import type {GeneratedNodeMap} from '../../modern/ReactRelayTypes';
+import type {GraphQLTaggedNode} from 'RelayRuntime';
 
 /**
  * Wrap the basic `createContainer()` function with logic to adapt to the

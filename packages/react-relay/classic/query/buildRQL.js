@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule buildRQL
  * @flow
  * @format
  */
@@ -12,17 +11,18 @@
 'use strict';
 
 const Map = require('Map');
-const QueryBuilder = require('QueryBuilder');
-const RelayProfiler = require('RelayProfiler');
-const RelayQueryCaching = require('RelayQueryCaching');
+const QueryBuilder = require('./QueryBuilder');
+const RelayQueryCaching = require('../tools/RelayQueryCaching');
 
 const filterObject = require('filterObject');
 const invariant = require('invariant');
 const mapObject = require('mapObject');
 
-import type {ConcreteFragment, ConcreteQuery} from 'ConcreteQuery';
-import type {RelayConcreteNode} from 'RelayQL';
-import type {RelayContainer, Variables} from 'RelayTypes';
+const {RelayProfiler} = require('RelayRuntime');
+
+import type {RelayContainer, Variables} from '../tools/RelayTypes';
+import type {ConcreteFragment, ConcreteQuery} from './ConcreteQuery';
+import type {RelayConcreteNode} from './RelayQL';
 
 export type RelayQLFragmentBuilder = (
   variables: Variables,

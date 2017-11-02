@@ -14,11 +14,11 @@ require('configureForRelayOSS');
 
 const RelayClassic = require('RelayClassic');
 const {ConnectionInterface} = require('RelayRuntime');
-const RelayQuery = require('RelayQuery');
+const RelayQuery = require('../RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
-const RelayVariable = require('RelayVariable');
+const RelayVariable = require('../RelayVariable');
 
-const generateRQLFieldAlias = require('generateRQLFieldAlias');
+const generateRQLFieldAlias = require('../generateRQLFieldAlias');
 
 describe('RelayQueryField', () => {
   const {getNode, getVerbatimNode} = RelayTestUtils;

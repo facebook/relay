@@ -1,5 +1,14 @@
 {
+  "kind": "Request",
+  "operationKind": "query",
+  "name": "LinkedHandleField",
+  "id": null,
+  "metadata": {},
   "fragment": {
+    "kind": "Fragment",
+    "name": "LinkedHandleField",
+    "type": "Query",
+    "metadata": null,
     "argumentDefinitions": [
       {
         "kind": "LocalArgument",
@@ -8,13 +17,12 @@
         "defaultValue": null
       }
     ],
-    "kind": "Fragment",
-    "metadata": null,
-    "name": "LinkedHandleField",
     "selections": [
       {
         "kind": "LinkedField",
         "alias": null,
+        "name": "node",
+        "storageKey": null,
         "args": [
           {
             "kind": "Variable",
@@ -24,7 +32,6 @@
           }
         ],
         "concreteType": null,
-        "name": "node",
         "plural": false,
         "selections": [
           {
@@ -34,34 +41,30 @@
               {
                 "kind": "LinkedField",
                 "alias": "friends",
+                "name": "__friends_clientFriends",
+                "storageKey": null,
                 "args": null,
                 "concreteType": "FriendsConnection",
-                "name": "__friends_clientFriends",
                 "plural": false,
                 "selections": [
                   {
                     "kind": "ScalarField",
                     "alias": null,
-                    "args": null,
                     "name": "count",
+                    "args": null,
                     "storageKey": null
                   }
-                ],
-                "storageKey": null
+                ]
               }
             ]
           }
-        ],
-        "storageKey": null
+        ]
       }
-    ],
-    "type": "Query"
+    ]
   },
-  "id": null,
-  "kind": "Batch",
-  "metadata": {},
-  "name": "LinkedHandleField",
-  "query": {
+  "operation": {
+    "kind": "Operation",
+    "name": "LinkedHandleField",
     "argumentDefinitions": [
       {
         "kind": "LocalArgument",
@@ -70,13 +73,12 @@
         "defaultValue": null
       }
     ],
-    "kind": "Root",
-    "name": "LinkedHandleField",
-    "operation": "query",
     "selections": [
       {
         "kind": "LinkedField",
         "alias": null,
+        "name": "node",
+        "storageKey": null,
         "args": [
           {
             "kind": "Variable",
@@ -86,21 +88,20 @@
           }
         ],
         "concreteType": null,
-        "name": "node",
         "plural": false,
         "selections": [
           {
             "kind": "ScalarField",
             "alias": null,
-            "args": null,
             "name": "__typename",
+            "args": null,
             "storageKey": null
           },
           {
             "kind": "ScalarField",
             "alias": null,
-            "args": null,
             "name": "id",
+            "args": null,
             "storageKey": null
           },
           {
@@ -110,6 +111,8 @@
               {
                 "kind": "LinkedField",
                 "alias": null,
+                "name": "friends",
+                "storageKey": "friends{\"first\":10}",
                 "args": [
                   {
                     "kind": "Literal",
@@ -119,22 +122,21 @@
                   }
                 ],
                 "concreteType": "FriendsConnection",
-                "name": "friends",
                 "plural": false,
                 "selections": [
                   {
                     "kind": "ScalarField",
                     "alias": null,
-                    "args": null,
                     "name": "count",
+                    "args": null,
                     "storageKey": null
                   }
-                ],
-                "storageKey": "friends{\"first\":10}"
+                ]
               },
               {
                 "kind": "LinkedHandle",
                 "alias": null,
+                "name": "friends",
                 "args": [
                   {
                     "kind": "Literal",
@@ -144,14 +146,12 @@
                   }
                 ],
                 "handle": "clientFriends",
-                "name": "friends",
                 "key": "",
                 "filters": null
               }
             ]
           }
-        ],
-        "storageKey": null
+        ]
       }
     ]
   }

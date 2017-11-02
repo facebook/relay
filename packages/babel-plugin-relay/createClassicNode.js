@@ -445,7 +445,7 @@ function createSubstitutionsForFragmentSpreads(t, path, fragments) {
               t.identifier(RELAY_QL_GENERATED),
               t.identifier('__getClassicFragment'),
             ),
-            [fragmentProp],
+            [fragmentProp, t.booleanLiteral(true)],
           ),
           // Hack to extract 'ConcreteFragment' from 'ConcreteFragmentDefinition'
           t.identifier('node'),

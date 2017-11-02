@@ -14,19 +14,19 @@ jest.enableAutomock();
 
 require('configureForRelayOSS');
 
-jest.unmock('RelayMutationQuery').mock('warning');
+jest.unmock('../RelayMutationQuery').mock('warning');
 
-const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
-const RelayClassic = require('RelayClassic');
-const RelayMutationQuery = require('RelayMutationQuery');
-const RelayMutationType = require('RelayMutationType');
-const RelayOptimisticMutationUtils = require('RelayOptimisticMutationUtils');
-const RelayQueryTracker = require('RelayQueryTracker');
+const GraphQLMutatorConstants = require('../../legacy/mutation/GraphQLMutatorConstants');
+const Relay = require('../../RelayPublic');
+const RelayMutationQuery = require('../RelayMutationQuery');
+const RelayMutationType = require('../RelayMutationType');
+const RelayOptimisticMutationUtils = require('../RelayOptimisticMutationUtils');
+const RelayQueryTracker = require('../../store/RelayQueryTracker');
 const RelayTestUtils = require('RelayTestUtils');
 
-const filterRelayQuery = require('filterRelayQuery');
-const fromGraphQL = require('fromGraphQL');
-const intersectRelayQuery = require('intersectRelayQuery');
+const filterRelayQuery = require('../../traversal/filterRelayQuery');
+const fromGraphQL = require('../../query/fromGraphQL');
+const intersectRelayQuery = require('../../traversal/intersectRelayQuery');
 
 const {ConnectionInterface} = require('RelayRuntime');
 
@@ -56,7 +56,7 @@ describe('RelayMutationQuery', () => {
   describe('fields', () => {
     it('throws for invalid field names', () => {
       const fatQuery = fromGraphQL.Fragment(
-        RelayClassic.QL`
+        Relay.QL`
         fragment on ActorSubscribeResponsePayload {
           subscribee {
             subscribers
@@ -80,7 +80,7 @@ describe('RelayMutationQuery', () => {
 
     it('maps a field to a single ID', () => {
       const fatQuery = fromGraphQL.Fragment(
-        RelayClassic.QL`
+        Relay.QL`
         fragment on FeedbackLikeResponsePayload {
           feedback {
             doesViewerLike
@@ -91,7 +91,7 @@ describe('RelayMutationQuery', () => {
       );
       tracker.getTrackedChildrenForID.mockReturnValue(
         getNodeChildren(
-          RelayClassic.QL`
+          Relay.QL`
         fragment on Feedback {
           likers
           url
@@ -107,7 +107,7 @@ describe('RelayMutationQuery', () => {
         },
       });
       const expected = getNodeWithoutSource(
-        RelayClassic.QL`
+        Relay.QL`
         fragment on FeedbackLikeResponsePayload {
           feedback {
             likers
@@ -121,7 +121,7 @@ describe('RelayMutationQuery', () => {
 
     it('maps a plural field to an array of IDs', () => {
       const fatQuery = fromGraphQL.Fragment(
-        RelayClassic.QL`
+        Relay.QL`
         fragment on ViewerNotificationsUpdateAllSeenStateResponsePayload {
           stories {
             seenState
@@ -131,7 +131,7 @@ describe('RelayMutationQuery', () => {
       );
       tracker.getTrackedChildrenForID.mockReturnValue(
         getNodeChildren(
-          RelayClassic.QL`
+          Relay.QL`
         fragment on Story {
           message {
             text
@@ -149,7 +149,7 @@ describe('RelayMutationQuery', () => {
         },
       });
       const expected = getNodeWithoutSource(
-        RelayClassic.QL`
+        Relay.QL`
         fragment on ViewerNotificationsUpdateAllSeenStateResponsePayload {
           stories {
             seenState
@@ -163,7 +163,7 @@ describe('RelayMutationQuery', () => {
 
     it('merges tracked nodes for IDs of plural fields', () => {
       const fatQuery = fromGraphQL.Fragment(
-        RelayClassic.QL`
+        Relay.QL`
         fragment on ViewerNotificationsUpdateAllSeenStateResponsePayload {
           stories {
             seenState
@@ -173,7 +173,7 @@ describe('RelayMutationQuery', () => {
       );
       const trackedNodes = {
         '123': fromGraphQL.Fragment(
-          RelayClassic.QL`
+          Relay.QL`
           fragment on Story {
             message {
               text
@@ -182,7 +182,7 @@ describe('RelayMutationQuery', () => {
         `,
         ),
         '456': fromGraphQL.Fragment(
-          RelayClassic.QL`
+          Relay.QL`
           fragment on Story {
             actors {
               name
@@ -204,7 +204,7 @@ describe('RelayMutationQuery', () => {
       });
       const node = intersectRelayQuery.mock.calls[0][0];
       const expected = RelayTestUtils.getVerbatimNode(
-        RelayClassic.QL`
+        Relay.QL`
         fragment on Story {
           ... on Story {
             id
@@ -237,7 +237,7 @@ describe('RelayMutationQuery', () => {
     let fatQuery;
     beforeEach(() => {
       fatQuery = fromGraphQL.Fragment(
-        RelayClassic.QL`
+        Relay.QL`
         fragment on CommentDeleteResponsePayload {
           feedback {
             comments
@@ -265,7 +265,7 @@ describe('RelayMutationQuery', () => {
     it('creates a fragment for connection metadata', () => {
       tracker.getTrackedChildrenForID.mockReturnValue(
         getNodeChildren(
-          RelayClassic.QL`
+          Relay.QL`
         fragment on Feedback {
           doesViewerLike
           comments(first: 10) {
@@ -290,7 +290,7 @@ describe('RelayMutationQuery', () => {
         parentName: 'feedback',
       });
       const expected = getNodeWithoutSource(
-        RelayClassic.QL`
+        Relay.QL`
         fragment on CommentDeleteResponsePayload {
           feedback {
             comments(first: 10) {
@@ -307,7 +307,7 @@ describe('RelayMutationQuery', () => {
     describe('handling invalid connection names', () => {
       it('throws when explicit in the fat query', () => {
         fatQuery = fromGraphQL.Fragment(
-          RelayClassic.QL`
+          Relay.QL`
           fragment on CommentDeleteResponsePayload {
             feedback {
               doesViewerLike
@@ -335,7 +335,7 @@ describe('RelayMutationQuery', () => {
 
       it('throws when not explicit in the fat query', () => {
         fatQuery = fromGraphQL.Fragment(
-          RelayClassic.QL`
+          Relay.QL`
           fragment on CommentDeleteResponsePayload {
             feedback
           }
@@ -345,7 +345,7 @@ describe('RelayMutationQuery', () => {
         // As long as we have it in a tracked query.
         tracker.getTrackedChildrenForID.mockReturnValue(
           getNodeChildren(
-            RelayClassic.QL`
+            Relay.QL`
           fragment on Feedback {
             doesViewerLike
           }
@@ -369,7 +369,7 @@ describe('RelayMutationQuery', () => {
         // validate.
         tracker.getTrackedChildrenForID.mockReturnValue(
           getNodeChildren(
-            RelayClassic.QL`
+            Relay.QL`
             fragment on Feedback {
               comments { count }
             }
@@ -394,7 +394,7 @@ describe('RelayMutationQuery', () => {
 
     beforeEach(() => {
       fatQuery = fromGraphQL.Fragment(
-        RelayClassic.QL`
+        Relay.QL`
         fragment on CommentCreateResponsePayload {
           feedback {
             comments
@@ -418,7 +418,7 @@ describe('RelayMutationQuery', () => {
     it('refetches the whole range when the rangeBehavior is REFETCH', () => {
       tracker.getTrackedChildrenForID.mockReturnValue(
         getNodeChildren(
-          RelayClassic.QL`
+          Relay.QL`
         fragment on Feedback {
           comments(orderby: "ranked_threaded", first: 10) {
             edges {
@@ -445,7 +445,7 @@ describe('RelayMutationQuery', () => {
         },
       });
       const expected = getNodeWithoutSource(
-        RelayClassic.QL`
+        Relay.QL`
         fragment on CommentCreateResponsePayload {
           feedback {
             comments(orderby: "ranked_threaded", first: 10) {
@@ -467,7 +467,7 @@ describe('RelayMutationQuery', () => {
     it('range is not refetched at all when rangeBehavior is IGNORE', () => {
       tracker.getTrackedChildrenForID.mockReturnValue(
         getNodeChildren(
-          RelayClassic.QL`
+          Relay.QL`
         fragment on Feedback {
           comments(orderby: "ranked_threaded", first: 10) {
             edges {
@@ -494,7 +494,7 @@ describe('RelayMutationQuery', () => {
         },
       });
       const expected = getNodeWithoutSource(
-        RelayClassic.QL`
+        Relay.QL`
         fragment MutationQuery on CommentCreateResponsePayload {
           feedback {
             id
@@ -518,7 +518,7 @@ describe('RelayMutationQuery', () => {
     it('includes edge fields for connections with range config', () => {
       tracker.getTrackedChildrenForID.mockReturnValue(
         getNodeChildren(
-          RelayClassic.QL`
+          Relay.QL`
         fragment on Feedback {
           comments(orderby:"toplevel",first: 10) {
             edges {
@@ -542,7 +542,7 @@ describe('RelayMutationQuery', () => {
         rangeBehaviors,
       });
       const expected = getNodeWithoutSource(
-        RelayClassic.QL`
+        Relay.QL`
         fragment on CommentCreateResponsePayload {
           feedbackCommentEdge {
             __typename
@@ -567,7 +567,7 @@ describe('RelayMutationQuery', () => {
     it('includes edge fields for connections with rangeBehaviors function', () => {
       tracker.getTrackedChildrenForID.mockReturnValue(
         getNodeChildren(
-          RelayClassic.QL`
+          Relay.QL`
         fragment on Feedback {
           comments(orderby:"toplevel",first: 10) {
             edges {
@@ -597,7 +597,7 @@ describe('RelayMutationQuery', () => {
         },
       });
       const expected = getNodeWithoutSource(
-        RelayClassic.QL`
+        Relay.QL`
         fragment on CommentCreateResponsePayload {
           feedbackCommentEdge {
             __typename
@@ -622,7 +622,7 @@ describe('RelayMutationQuery', () => {
     it('includes fields from multiple tracked edges', () => {
       tracker.getTrackedChildrenForID.mockReturnValue(
         getNodeChildren(
-          RelayClassic.QL`
+          Relay.QL`
         fragment on Feedback {
           comments(first: 10) {
             count
@@ -656,7 +656,7 @@ describe('RelayMutationQuery', () => {
         rangeBehaviors,
       });
       const expected = getNodeWithoutSource(
-        RelayClassic.QL`
+        Relay.QL`
         fragment on CommentCreateResponsePayload {
           feedbackCommentEdge {
             __typename
@@ -683,7 +683,7 @@ describe('RelayMutationQuery', () => {
     it('excludes fields from tracked edges with different filters', () => {
       tracker.getTrackedChildrenForID.mockReturnValue(
         getNodeChildren(
-          RelayClassic.QL`
+          Relay.QL`
         fragment on Feedback {
           comments(first: 10) {
             count
@@ -717,7 +717,7 @@ describe('RelayMutationQuery', () => {
         rangeBehaviors,
       });
       const expected = getNodeWithoutSource(
-        RelayClassic.QL`
+        Relay.QL`
         fragment on CommentCreateResponsePayload {
           feedbackCommentEdge {
             __typename
@@ -741,7 +741,7 @@ describe('RelayMutationQuery', () => {
     it("warns when rangeBehaviors don't match tracked connections", () => {
       tracker.getTrackedChildrenForID.mockReturnValue(
         getNodeChildren(
-          RelayClassic.QL`
+          Relay.QL`
         fragment on Feedback {
           comments(orderby:"ranked_threaded",first: 10) {
             edges {
@@ -786,7 +786,7 @@ describe('RelayMutationQuery', () => {
     it('refetches connections in the absence of a range config', () => {
       tracker.getTrackedChildrenForID.mockReturnValue(
         getNodeChildren(
-          RelayClassic.QL`
+          Relay.QL`
         fragment on Feedback {
           comments(orderby:"ranked_threaded",first: 10) {
             edges {
@@ -811,7 +811,7 @@ describe('RelayMutationQuery', () => {
         rangeBehaviors,
       });
       const expected = getNodeWithoutSource(
-        RelayClassic.QL`
+        Relay.QL`
         fragment on CommentCreateResponsePayload {
           feedback {
             comments(orderby:"ranked_threaded",first: 10) {
@@ -833,7 +833,7 @@ describe('RelayMutationQuery', () => {
     it('includes non-edge fields for connections', () => {
       tracker.getTrackedChildrenForID.mockReturnValue(
         getNodeChildren(
-          RelayClassic.QL`
+          Relay.QL`
         fragment on Feedback {
           comments {
             count
@@ -852,7 +852,7 @@ describe('RelayMutationQuery', () => {
         rangeBehaviors,
       });
       const expected = getNodeWithoutSource(
-        RelayClassic.QL`
+        Relay.QL`
         fragment on CommentCreateResponsePayload {
           feedback {
             comments {
@@ -868,7 +868,7 @@ describe('RelayMutationQuery', () => {
     it('throws for invalid parent name', () => {
       tracker.getTrackedChildrenForID.mockReturnValue(
         getNodeChildren(
-          RelayClassic.QL`
+          Relay.QL`
         fragment on Feedback {
           comments {
             count
@@ -895,7 +895,7 @@ describe('RelayMutationQuery', () => {
     describe('handling invalid connection names', () => {
       it('throws when explicit in the fat query', () => {
         fatQuery = fromGraphQL.Fragment(
-          RelayClassic.QL`
+          Relay.QL`
           fragment on CommentCreateResponsePayload {
             feedback {
               doesViewerLike
@@ -925,7 +925,7 @@ describe('RelayMutationQuery', () => {
 
       it('throws when not explicit in fat query', () => {
         fatQuery = fromGraphQL.Fragment(
-          RelayClassic.QL`
+          Relay.QL`
           fragment on CommentCreateResponsePayload {
             feedback
           }
@@ -935,7 +935,7 @@ describe('RelayMutationQuery', () => {
         // As long as we have it in a tracked query.
         tracker.getTrackedChildrenForID.mockReturnValue(
           getNodeChildren(
-            RelayClassic.QL`
+            Relay.QL`
           fragment on Feedback {
             doesViewerLike
           }
@@ -961,7 +961,7 @@ describe('RelayMutationQuery', () => {
         // validate.
         tracker.getTrackedChildrenForID.mockReturnValue(
           getNodeChildren(
-            RelayClassic.QL`
+            Relay.QL`
             fragment on Feedback {
               comments { count }
             }
@@ -987,7 +987,7 @@ describe('RelayMutationQuery', () => {
     it('infers fields', () => {
       RelayOptimisticMutationUtils.inferRelayFieldsFromData = jest.fn();
       const fatQuery = fromGraphQL.Fragment(
-        RelayClassic.QL`
+        Relay.QL`
         fragment on FeedbackLikeResponsePayload {
           feedback {
             doesViewerLike
@@ -1013,7 +1013,7 @@ describe('RelayMutationQuery', () => {
 
     it('builds query', () => {
       const fatQuery = fromGraphQL.Fragment(
-        RelayClassic.QL`
+        Relay.QL`
         fragment on FeedbackLikeResponsePayload {
           feedback {
             doesViewerLike
@@ -1022,7 +1022,7 @@ describe('RelayMutationQuery', () => {
         }
       `,
       );
-      const mutation = RelayClassic.QL`mutation{feedbackLike(input:$input)}`;
+      const mutation = Relay.QL`mutation{feedbackLike(input:$input)}`;
 
       const query = RelayMutationQuery.buildQueryForOptimisticUpdate({
         response: {
@@ -1042,10 +1042,10 @@ describe('RelayMutationQuery', () => {
       const variables = {input: ''};
       const expectedMutationQuery = filterGeneratedFields(
         getNodeWithoutSource(
-          RelayClassic.QL`
+          Relay.QL`
           mutation {
             feedbackLike(input:$input) {
-              ${RelayClassic.QL`
+              ${Relay.QL`
                 fragment on FeedbackLikeResponsePayload {
                   clientMutationId,
                   feedback {
@@ -1072,7 +1072,7 @@ describe('RelayMutationQuery', () => {
     it('creates a query for RANGE_ADD', () => {
       tracker.getTrackedChildrenForID.mockReturnValue([
         getNode(
-          RelayClassic.QL`
+          Relay.QL`
         fragment on Feedback {
           comments(first: 10) {
             edges {
@@ -1088,7 +1088,7 @@ describe('RelayMutationQuery', () => {
         ),
       ]);
       const fatQuery = fromGraphQL.Fragment(
-        RelayClassic.QL`
+        Relay.QL`
         fragment on CommentCreateResponsePayload {
           feedback {
             comments
@@ -1120,7 +1120,7 @@ describe('RelayMutationQuery', () => {
         },
       ];
 
-      const mutation = RelayClassic.QL`mutation{commentCreate(input:$input)}`;
+      const mutation = Relay.QL`mutation{commentCreate(input:$input)}`;
       const mutationName = 'CommentAddMutation';
       const variables = {input: ''};
       const query = RelayMutationQuery.buildQuery({
@@ -1133,7 +1133,7 @@ describe('RelayMutationQuery', () => {
 
       const expectedMutationQuery = filterGeneratedFields(
         getNodeWithoutSource(
-          RelayClassic.QL`
+          Relay.QL`
           mutation {
             commentCreate(input:$input) {
               clientMutationId
@@ -1170,7 +1170,7 @@ describe('RelayMutationQuery', () => {
     it('creates a query for NODE_DELETE', () => {
       tracker.getTrackedChildrenForID.mockReturnValue(
         getNodeChildren(
-          RelayClassic.QL`
+          Relay.QL`
         fragment on Feedback {
           comments(first: 10) {
             edges {
@@ -1186,7 +1186,7 @@ describe('RelayMutationQuery', () => {
         ),
       );
       const fatQuery = fromGraphQL.Fragment(
-        RelayClassic.QL`
+        Relay.QL`
         fragment on CommentDeleteResponsePayload {
           feedback {
             comments
@@ -1209,7 +1209,7 @@ describe('RelayMutationQuery', () => {
         },
       ];
 
-      const mutation = RelayClassic.QL`mutation{commentDelete(input:$input)}`;
+      const mutation = Relay.QL`mutation{commentDelete(input:$input)}`;
       const mutationName = 'CommentDeleteMutation';
       const variables = {input: ''};
       const query = RelayMutationQuery.buildQuery({
@@ -1221,18 +1221,18 @@ describe('RelayMutationQuery', () => {
       });
 
       const expectedMutationQuery = getNodeWithoutSource(
-        RelayClassic.QL`
+        Relay.QL`
         mutation {
           commentDelete(input:$input) {
             clientMutationId
-            ${RelayClassic.QL`
+            ${Relay.QL`
               fragment on CommentDeleteResponsePayload {
                 feedback {
                   id
                 }
               }
             `},
-            ${RelayClassic.QL`
+            ${Relay.QL`
               fragment on CommentDeleteResponsePayload {
                 deletedCommentId
               }
@@ -1249,7 +1249,7 @@ describe('RelayMutationQuery', () => {
     it('creates a query for RANGE_DELETE with a shallow deleted field', () => {
       tracker.getTrackedChildrenForID.mockReturnValue(
         getNodeChildren(
-          RelayClassic.QL`
+          Relay.QL`
         fragment on Feedback {
           comments(first: 10) {
             edges {
@@ -1265,7 +1265,7 @@ describe('RelayMutationQuery', () => {
         ),
       );
       const fatQuery = fromGraphQL.Fragment(
-        RelayClassic.QL`
+        Relay.QL`
         fragment on CommentDeleteResponsePayload {
           feedback {
             comments
@@ -1288,7 +1288,7 @@ describe('RelayMutationQuery', () => {
         },
       ];
 
-      const mutation = RelayClassic.QL`mutation{commentDelete(input:$input)}`;
+      const mutation = Relay.QL`mutation{commentDelete(input:$input)}`;
       const mutationName = 'CommentDeleteMutation';
       const variables = {input: ''};
       const query = RelayMutationQuery.buildQuery({
@@ -1300,18 +1300,18 @@ describe('RelayMutationQuery', () => {
       });
 
       const expectedMutationQuery = getNodeWithoutSource(
-        RelayClassic.QL`
+        Relay.QL`
         mutation {
           commentDelete(input:$input) {
             clientMutationId
-            ${RelayClassic.QL`
+            ${Relay.QL`
               fragment on CommentDeleteResponsePayload {
                 feedback {
                   id
                 }
               }
             `},
-            ${RelayClassic.QL`
+            ${Relay.QL`
               fragment on CommentDeleteResponsePayload {
                 deletedCommentId
               }
@@ -1328,7 +1328,7 @@ describe('RelayMutationQuery', () => {
     it('creates a query for RANGE_DELETE with a deep deleted field', () => {
       tracker.getTrackedChildrenForID.mockReturnValue(
         getNodeChildren(
-          RelayClassic.QL`
+          Relay.QL`
         fragment on Actor {
           friends(first: 10) {
             edges {
@@ -1342,7 +1342,7 @@ describe('RelayMutationQuery', () => {
         ),
       );
       const fatQuery = fromGraphQL.Fragment(
-        RelayClassic.QL`
+        Relay.QL`
         fragment on UnfriendResponsePayload {
           actor {
             friends
@@ -1362,7 +1362,7 @@ describe('RelayMutationQuery', () => {
         },
       ];
 
-      const mutation = RelayClassic.QL`mutation{ unfriend(input: $input) }`;
+      const mutation = Relay.QL`mutation{ unfriend(input: $input) }`;
       const mutationName = 'UnfriendMutation';
       const variables = {input: ''};
       const query = RelayMutationQuery.buildQuery({
@@ -1373,18 +1373,18 @@ describe('RelayMutationQuery', () => {
         mutation,
       });
 
-      const expectedConcreteNode = RelayClassic.QL`
+      const expectedConcreteNode = Relay.QL`
         mutation {
           unfriend(input: $input) {
             clientMutationId
-            ${RelayClassic.QL`
+            ${Relay.QL`
               fragment on UnfriendResponsePayload {
                 actor {
                   id
                 }
               }
             `},
-            ${RelayClassic.QL`
+            ${Relay.QL`
               fragment on UnfriendResponsePayload {
                 formerFriend {
                   id
@@ -1402,7 +1402,7 @@ describe('RelayMutationQuery', () => {
     it('creates a query for FIELDS_CHANGE', () => {
       tracker.getTrackedChildrenForID.mockReturnValue(
         getNodeChildren(
-          RelayClassic.QL`
+          Relay.QL`
         fragment on Feedback {
           likers
           url
@@ -1411,7 +1411,7 @@ describe('RelayMutationQuery', () => {
         ),
       );
       const fatQuery = fromGraphQL.Fragment(
-        RelayClassic.QL`
+        Relay.QL`
         fragment on FeedbackLikeResponsePayload {
           feedback {
             doesViewerLike
@@ -1430,7 +1430,7 @@ describe('RelayMutationQuery', () => {
         },
       ];
 
-      const mutation = RelayClassic.QL`mutation{feedbackLike(input:$input)}`;
+      const mutation = Relay.QL`mutation{feedbackLike(input:$input)}`;
       const mutationName = 'FeedbackLikeMutation';
       const variables = {input: ''};
       const query = RelayMutationQuery.buildQuery({
@@ -1442,11 +1442,11 @@ describe('RelayMutationQuery', () => {
       });
 
       const expectedMutationQuery = getNodeWithoutSource(
-        RelayClassic.QL`
+        Relay.QL`
         mutation {
           feedbackLike(input:$input) {
             clientMutationId
-            ${RelayClassic.QL`
+            ${Relay.QL`
               fragment on FeedbackLikeResponsePayload {
                 feedback {
                   id,
@@ -1466,7 +1466,7 @@ describe('RelayMutationQuery', () => {
     it('creates a query with additional required fragments', () => {
       tracker.getTrackedChildrenForID.mockReturnValue([
         getNode(
-          RelayClassic.QL`
+          Relay.QL`
         fragment on Feedback {
           comments(first: 10) {
             edges {
@@ -1482,7 +1482,7 @@ describe('RelayMutationQuery', () => {
         ),
       ]);
       const fatQuery = fromGraphQL.Fragment(
-        RelayClassic.QL`
+        Relay.QL`
         fragment on CommentCreateResponsePayload {
           feedback {
             comments
@@ -1515,7 +1515,7 @@ describe('RelayMutationQuery', () => {
         {
           type: RelayMutationType.REQUIRED_CHILDREN,
           children: [
-            RelayClassic.QL`
+            Relay.QL`
             fragment on CommentCreateResponsePayload {
               feedback {
                 doesViewerLike
@@ -1526,7 +1526,7 @@ describe('RelayMutationQuery', () => {
         },
       ];
 
-      const mutation = RelayClassic.QL`mutation{commentCreate(input:$input)}`;
+      const mutation = Relay.QL`mutation{commentCreate(input:$input)}`;
       const mutationName = 'CommentAddMutation';
       const variables = {input: ''};
       const query = RelayMutationQuery.buildQuery({
@@ -1539,7 +1539,7 @@ describe('RelayMutationQuery', () => {
 
       const expectedMutationQuery = filterGeneratedFields(
         getNodeWithoutSource(
-          RelayClassic.QL`
+          Relay.QL`
           mutation {
             commentCreate(input:$input) {
               clientMutationId
@@ -1583,7 +1583,7 @@ describe('RelayMutationQuery', () => {
       // Fictitious mutation that does multiple things
       tracker.getTrackedChildrenForID.mockReturnValue(
         getNodeChildren(
-          RelayClassic.QL`
+          Relay.QL`
         fragment on Feedback {
           comments(first: 10) {
             edges {
@@ -1601,7 +1601,7 @@ describe('RelayMutationQuery', () => {
         ),
       );
       const fatQuery = fromGraphQL.Fragment(
-        RelayClassic.QL`
+        Relay.QL`
         fragment on CommentCreateResponsePayload {
           feedback {
             comments
@@ -1642,7 +1642,7 @@ describe('RelayMutationQuery', () => {
         },
       ];
 
-      const mutation = RelayClassic.QL`mutation{commentCreate(input:$input)}`;
+      const mutation = Relay.QL`mutation{commentCreate(input:$input)}`;
       const mutationName = 'CommentAddAndLikeMutation';
       const variables = {input: ''};
       const query = RelayMutationQuery.buildQuery({
@@ -1654,11 +1654,11 @@ describe('RelayMutationQuery', () => {
       });
 
       const expectedMutationQuery = getNodeWithoutSource(
-        RelayClassic.QL`
+        Relay.QL`
         mutation {
           commentCreate(input:$input) {
             clientMutationId
-            ${RelayClassic.QL`
+            ${Relay.QL`
               fragment on CommentCreateResponsePayload {
                 feedback {
                   id,
@@ -1679,7 +1679,7 @@ describe('RelayMutationQuery', () => {
                 }
               }
             `},
-            ${RelayClassic.QL`
+            ${Relay.QL`
               fragment on CommentCreateResponsePayload {
                 feedback {
                   comments(first: 10) {
@@ -1713,7 +1713,7 @@ describe('RelayMutationQuery', () => {
 
     it('complains about unknown config types', () => {
       const fatQuery = fromGraphQL.Fragment(
-        RelayClassic.QL`
+        Relay.QL`
         fragment on UnfriendResponsePayload {
           clientMutationId
         }
@@ -1725,7 +1725,7 @@ describe('RelayMutationQuery', () => {
         },
       ];
 
-      const mutation = RelayClassic.QL`mutation{ unfriend(input: $input) }`;
+      const mutation = Relay.QL`mutation{ unfriend(input: $input) }`;
       const mutationName = 'UnfriendMutation';
       expect(() =>
         RelayMutationQuery.buildQuery({

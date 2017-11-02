@@ -15,14 +15,14 @@ jest.enableAutomock();
 require('configureForRelayOSS');
 
 jest.useFakeTimers();
-jest.unmock('RelayPendingQueryTracker').unmock('RelayTaskQueue');
+jest.unmock('../RelayPendingQueryTracker').unmock('../../tools/RelayTaskQueue');
 
 const RelayClassic = require('RelayClassic');
-const RelayFetchMode = require('RelayFetchMode');
-const RelayStoreData = require('RelayStoreData');
+const RelayFetchMode = require('../RelayFetchMode');
+const RelayStoreData = require('../RelayStoreData');
 const RelayTestUtils = require('RelayTestUtils');
 
-const writeRelayQueryPayload = require('writeRelayQueryPayload');
+const writeRelayQueryPayload = require('../../traversal/writeRelayQueryPayload');
 
 describe('RelayPendingQueryTracker', () => {
   let pendingQueryTracker;

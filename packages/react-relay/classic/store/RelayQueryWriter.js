@@ -4,34 +4,33 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayQueryWriter
  * @flow
  * @format
  */
 
 'use strict';
 
-const RelayClassicRecordState = require('RelayClassicRecordState');
-const RelayNodeInterface = require('RelayNodeInterface');
-const RelayQuery = require('RelayQuery');
-const RelayQueryPath = require('RelayQueryPath');
-const RelayQueryVisitor = require('RelayQueryVisitor');
-const RelayRecord = require('RelayRecord');
+const RelayClassicRecordState = require('./RelayClassicRecordState');
+const RelayNodeInterface = require('../interface/RelayNodeInterface');
+const RelayQuery = require('../query/RelayQuery');
+const RelayQueryPath = require('../query/RelayQueryPath');
+const RelayQueryVisitor = require('../query/RelayQueryVisitor');
+const RelayRecord = require('./RelayRecord');
 
-const generateClientEdgeID = require('generateClientEdgeID');
-const generateClientID = require('generateClientID');
+const generateClientEdgeID = require('../legacy/store/generateClientEdgeID');
+const generateClientID = require('../legacy/store/generateClientID');
 const invariant = require('invariant');
-const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
+const isCompatibleRelayFragmentType = require('../tools/isCompatibleRelayFragmentType');
 const warning = require('warning');
 
 const {ConnectionInterface} = require('RelayRuntime');
 
-import type RelayChangeTracker from 'RelayChangeTracker';
-import type {DataID} from 'RelayInternalTypes';
-import type {QueryPath} from 'RelayQueryPath';
-import type RelayQueryTracker from 'RelayQueryTracker';
-import type RelayRecordStore from 'RelayRecordStore';
-import type RelayRecordWriter from 'RelayRecordWriter';
+import type {QueryPath} from '../query/RelayQueryPath';
+import type {DataID} from '../tools/RelayInternalTypes';
+import type RelayChangeTracker from './RelayChangeTracker';
+import type RelayQueryTracker from './RelayQueryTracker';
+import type RelayRecordStore from './RelayRecordStore';
+import type RelayRecordWriter from './RelayRecordWriter';
 
 type WriterOptions = {
   forceIndex?: ?number,

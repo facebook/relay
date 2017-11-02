@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule ReactRelayQueryRenderer
  * @flow
  * @format
  */
@@ -12,25 +11,30 @@
 'use strict';
 
 const React = require('React');
-const RelayPropTypes = require('RelayPropTypes');
+const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
 const areEqual = require('areEqual');
-const deepFreeze = require('deepFreeze');
+const deepFreeze = require('../classic/tools/deepFreeze');
 
-import type {CacheConfig, Disposable} from 'RelayCombinedEnvironmentTypes';
-import type {RelayEnvironmentInterface as ClassicEnvironment} from 'RelayEnvironment';
-import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
+const {RelayConcreteNode} = require('RelayRuntime');
+
 import type {
-  Environment,
+  CacheConfig,
+  Disposable,
+} from '../classic/environment/RelayCombinedEnvironmentTypes';
+import type {RelayEnvironmentInterface as ClassicEnvironment} from '../classic/store/RelayEnvironment';
+import type {RerunParam, Variables} from '../classic/tools/RelayTypes';
+import type {
+  IEnvironment,
+  GraphQLTaggedNode,
   OperationSelector,
   RelayContext,
   Snapshot,
-} from 'RelayStoreTypes';
-import type {RerunParam, Variables} from 'RelayTypes';
+} from 'RelayRuntime';
 
 export type Props = {
   cacheConfig?: ?CacheConfig,
-  environment: Environment | ClassicEnvironment,
+  environment: IEnvironment | ClassicEnvironment,
   query: ?GraphQLTaggedNode,
   render: (readyState: ReadyState) => React.Node,
   variables: Variables,
@@ -114,15 +118,22 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
     // TODO (#16225453) QueryRenderer works with old and new environment, but
     // the flow typing doesn't quite work abstracted.
     // $FlowFixMe
-    const environment: Environment = props.environment;
+    const environment: IEnvironment = props.environment;
 
     const {query, variables} = props;
     if (query) {
       const {
         createOperationSelector,
-        getOperation,
+        getRequest,
       } = environment.unstable_internal;
-      const operation = createOperationSelector(getOperation(query), variables);
+      const request = getRequest(query);
+      if (request.kind === RelayConcreteNode.BATCH_REQUEST) {
+        throw new Error(
+          'ReactRelayQueryRenderer: Batch Request not yet ' +
+            'implemented (T22954932)',
+        );
+      }
+      const operation = createOperationSelector(request, variables);
       this._relayContext = {
         environment,
         variables: operation.variables,

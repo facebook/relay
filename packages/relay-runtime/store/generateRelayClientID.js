@@ -11,7 +11,7 @@
 
 'use strict';
 
-import type {DataID} from 'RelayInternalTypes';
+import type {DataID} from 'react-relay/classic/tools/RelayInternalTypes';
 
 const PREFIX = 'client:';
 

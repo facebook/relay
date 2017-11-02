@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayShallowMock
  * @flow
  * @format
  */
@@ -16,7 +15,7 @@
  * Adds `unwrap` to the container that returns the component to test.
  *
  * @example
- * jest.mock('Relay', () => require('RelayShallowMock'));
+ * jest.mock('Relay', () => require('./RelayShallowMock'));
  * const renderer = require('ReactTestRenderer');
  * const MyContainer = require('MyContainer');
  *
@@ -37,9 +36,12 @@
 'use strict';
 
 const React = require('React');
-const Relay = (require: any).requireActual('RelayClassic');
+const Relay = (require: any).requireActual('../RelayPublic');
 
-import type {RelayContainerSpec, RelayLazyContainer} from 'RelayContainer';
+import type {
+  RelayContainerSpec,
+  RelayLazyContainer,
+} from '../container/RelayContainer';
 
 const RelayShallowMock = {
   createContainer: (

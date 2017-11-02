@@ -4,15 +4,14 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule flattenSplitRelayQueries
  * @flow
  * @format
  */
 
 'use strict';
 
-import type RelayQuery from 'RelayQuery';
-import type {SplitQueries} from 'splitDeferredRelayQueries';
+import type RelayQuery from '../query/RelayQuery';
+import type {SplitQueries} from './splitDeferredRelayQueries';
 
 /**
  * Flattens the nested structure returned by `splitDeferredRelayQueries`.

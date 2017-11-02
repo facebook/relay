@@ -14,17 +14,17 @@ jest.enableAutomock();
 
 require('configureForRelayOSS');
 
-jest.unmock('RelayRenderer');
+jest.unmock('../RelayRenderer');
 jest.unmock('react-test-renderer');
 
 const React = require('React');
 const ReactTestRenderer = require('react-test-renderer');
-const RelayClassic = require('RelayClassic');
-const RelayEnvironment = require('RelayEnvironment');
-const RelayQueryConfig = require('RelayQueryConfig');
-const RelayRenderer = require('RelayRenderer');
+const Relay = require('../../RelayPublic');
+const RelayEnvironment = require('../../store/RelayEnvironment');
+const RelayQueryConfig = require('../../query-config/RelayQueryConfig');
+const RelayRenderer = require('../RelayRenderer');
 
-const getRelayQueries = require('getRelayQueries');
+const getRelayQueries = require('../getRelayQueries');
 
 describe('RelayRenderer', function() {
   let MockContainer;
@@ -41,7 +41,7 @@ describe('RelayRenderer', function() {
         return <div />;
       }
     }
-    MockContainer = RelayClassic.createContainer(MockComponent, {
+    MockContainer = Relay.createContainer(MockComponent, {
       fragments: {},
     });
 
@@ -94,7 +94,7 @@ describe('RelayRenderer', function() {
         return <div />;
       }
     }
-    const AnotherContainer = RelayClassic.createContainer(AnotherComponent, {
+    const AnotherContainer = Relay.createContainer(AnotherComponent, {
       fragments: {},
     });
     container.update(

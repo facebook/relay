@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule ReactRelayFragmentMockRenderer
  * @flow
  * @format
  */
@@ -12,7 +11,7 @@
 'use strict';
 
 const React = require('React');
-const RelayPropTypes = require('RelayPropTypes');
+const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
 class ReactRelayFragmentMockRenderer extends React.Component<Object> {
   mockContext: any;

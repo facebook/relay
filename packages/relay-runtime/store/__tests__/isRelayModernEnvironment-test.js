@@ -10,7 +10,7 @@
 
 'use strict';
 
-const RelayEnvironment = require('RelayEnvironment');
+const RelayEnvironment = require('react-relay/classic/store/RelayEnvironment');
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('RelayMarkSweepStore');
 const RelayModernEnvironment = require('RelayModernEnvironment');

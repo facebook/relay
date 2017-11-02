@@ -4,22 +4,21 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayGraphQLTag
  * @flow
  * @format
  */
 
 'use strict';
 
-const RelayQL = require('RelayQL');
+const RelayQL = require('./RelayQL');
 
 const invariant = require('invariant');
 
 import type {
   ConcreteFragmentDefinition,
   ConcreteOperationDefinition,
-} from 'ConcreteQuery';
-import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
+} from './ConcreteQuery';
+import type {GraphQLTaggedNode} from 'RelayRuntime';
 
 /**
  * Runtime function to correspond to the `graphql` tagged template function.

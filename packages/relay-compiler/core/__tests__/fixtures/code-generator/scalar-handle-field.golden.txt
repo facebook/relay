@@ -1,25 +1,25 @@
 {
-  "argumentDefinitions": [],
   "kind": "Fragment",
-  "metadata": null,
   "name": "ScalarHandleField",
+  "type": "User",
+  "metadata": null,
+  "argumentDefinitions": [],
   "selections": [
     {
       "kind": "ScalarField",
       "alias": null,
-      "args": null,
       "name": "name",
+      "args": null,
       "storageKey": null
     },
     {
       "kind": "ScalarHandle",
       "alias": null,
+      "name": "name",
       "args": null,
       "handle": "clientName",
-      "name": "name",
       "key": "",
       "filters": null
     }
-  ],
-  "type": "User"
+  ]
 }

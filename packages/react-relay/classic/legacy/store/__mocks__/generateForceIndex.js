@@ -10,4 +10,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('generateForceIndex');
+module.exports = require.requireActual('../generateForceIndex');

@@ -4,50 +4,55 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayEnvironment
  * @flow
  * @format
  */
 
 'use strict';
 
-const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-const RelayClassicCore = require('RelayClassicCore');
-const RelayGraphQLMutation = require('RelayGraphQLMutation');
-const RelayMetaRoute = require('RelayMetaRoute');
-const RelayQuery = require('RelayQuery');
-const RelayQueryPath = require('RelayQueryPath');
-const RelayQueryRequest = require('RelayQueryRequest');
-const RelayStoreData = require('RelayStoreData');
-const RelayVariables = require('RelayVariables');
+const GraphQLStoreQueryResolver = require('../legacy/store/GraphQLStoreQueryResolver');
+const RelayClassicCore = require('../environment/RelayClassicCore');
+const RelayGraphQLMutation = require('../mutation/RelayGraphQLMutation');
+const RelayMetaRoute = require('../route/RelayMetaRoute');
+const RelayQuery = require('../query/RelayQuery');
+const RelayQueryPath = require('../query/RelayQueryPath');
+const RelayQueryRequest = require('../network/RelayQueryRequest');
+const RelayStoreData = require('./RelayStoreData');
+const RelayVariables = require('../query/RelayVariables');
 
-const deepFreeze = require('deepFreeze');
-const forEachRootCallArg = require('forEachRootCallArg');
-const generateForceIndex = require('generateForceIndex');
-const readRelayQueryData = require('readRelayQueryData');
-const recycleNodesInto = require('recycleNodesInto');
-const relayUnstableBatchedUpdates = require('relayUnstableBatchedUpdates');
+const deepFreeze = require('../tools/deepFreeze');
+const forEachRootCallArg = require('../query/forEachRootCallArg');
+const generateForceIndex = require('../legacy/store/generateForceIndex');
+const readRelayQueryData = require('./readRelayQueryData');
+const relayUnstableBatchedUpdates = require('../tools/relayUnstableBatchedUpdates');
 const warning = require('warning');
 
-const {Observable} = require('RelayRuntime');
+const {Observable, recycleNodesInto} = require('RelayRuntime');
 
-import type {ConcreteOperationDefinition} from 'ConcreteQuery';
-import type {CacheConfig, Disposable} from 'RelayCombinedEnvironmentTypes';
+import type {
+  CacheConfig,
+  Disposable,
+} from '../environment/RelayCombinedEnvironmentTypes';
 import type {
   Environment,
   OperationSelector,
   UnstableEnvironmentCore,
   Selector,
   Snapshot,
-} from 'RelayEnvironmentTypes';
-import type {DataID, QueryPayload, RelayQuerySet} from 'RelayInternalTypes';
-import type RelayMutation from 'RelayMutation';
-import type RelayMutationTransaction from 'RelayMutationTransaction';
-import type {MutationCallback, QueryCallback} from 'RelayNetworkLayer';
-import type {UploadableMap} from 'RelayNetworkTypes';
-import type RelayQueryTracker from 'RelayQueryTracker';
-import type {SelectorStoreUpdater} from 'RelayStoreTypes';
-import type {TaskScheduler} from 'RelayTaskQueue';
+} from '../environment/RelayEnvironmentTypes';
+import type RelayMutation from '../mutation/RelayMutation';
+import type RelayMutationTransaction from '../mutation/RelayMutationTransaction';
+import type {
+  MutationCallback,
+  QueryCallback,
+} from '../network/RelayNetworkLayer';
+import type {ConcreteOperationDefinition} from '../query/ConcreteQuery';
+import type {
+  DataID,
+  QueryPayload,
+  RelayQuerySet,
+} from '../tools/RelayInternalTypes';
+import type {TaskScheduler} from '../tools/RelayTaskQueue';
 import type {
   Abortable,
   CacheManager,
@@ -59,7 +64,9 @@ import type {
   StoreReaderData,
   StoreReaderOptions,
   Variables,
-} from 'RelayTypes';
+} from '../tools/RelayTypes';
+import type RelayQueryTracker from './RelayQueryTracker';
+import type {SelectorStoreUpdater, UploadableMap} from 'RelayRuntime';
 
 export type FragmentResolver = {
   dispose(): void,

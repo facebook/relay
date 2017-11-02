@@ -13,10 +13,10 @@
 require('configureForRelayOSS');
 
 const RelayClassic = require('RelayClassic');
-const RelayQuery = require('RelayQuery');
+const RelayQuery = require('../../query/RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
-const filterRelayQuery = require('filterRelayQuery');
+const filterRelayQuery = require('../filterRelayQuery');
 
 describe('filterRelayQuery()', () => {
   let query;

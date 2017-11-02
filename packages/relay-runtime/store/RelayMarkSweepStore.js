@@ -17,14 +17,13 @@ const RelayProfiler = require('RelayProfiler');
 const RelayReader = require('RelayReader');
 const RelayReferenceMarker = require('RelayReferenceMarker');
 
-const deepFreeze = require('deepFreeze');
+const deepFreeze = require('react-relay/classic/tools/deepFreeze');
 const hasOverlappingIDs = require('hasOverlappingIDs');
 const recycleNodesInto = require('recycleNodesInto');
 const resolveImmediate = require('resolveImmediate');
 
 const {UNPUBLISH_RECORD_SENTINEL} = require('RelayStoreUtils');
 
-import type {Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {
   MutableRecordSource,
   RecordSource,
@@ -33,6 +32,7 @@ import type {
   Store,
   UpdatedRecords,
 } from 'RelayStoreTypes';
+import type {Disposable} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 type Subscription = {
   callback: (snapshot: Snapshot) => void,

@@ -4,35 +4,34 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayMutationQuery
  * @flow
  * @format
  */
 
 'use strict';
 
-const RelayMetaRoute = require('RelayMetaRoute');
-const RelayMutationType = require('RelayMutationType');
-const RelayNodeInterface = require('RelayNodeInterface');
-const RelayOptimisticMutationUtils = require('RelayOptimisticMutationUtils');
-const RelayQuery = require('RelayQuery');
-const RelayRecord = require('RelayRecord');
+const RelayMetaRoute = require('../route/RelayMetaRoute');
+const RelayMutationType = require('./RelayMutationType');
+const RelayNodeInterface = require('../interface/RelayNodeInterface');
+const RelayOptimisticMutationUtils = require('./RelayOptimisticMutationUtils');
+const RelayQuery = require('../query/RelayQuery');
+const RelayRecord = require('../store/RelayRecord');
 
-const flattenRelayQuery = require('flattenRelayQuery');
+const flattenRelayQuery = require('../traversal/flattenRelayQuery');
 const forEachObject = require('forEachObject');
-const getRangeBehavior = require('getRangeBehavior');
-const intersectRelayQuery = require('intersectRelayQuery');
+const getRangeBehavior = require('./getRangeBehavior');
+const intersectRelayQuery = require('../traversal/intersectRelayQuery');
 const invariant = require('invariant');
 const nullthrows = require('nullthrows');
 const warning = require('warning');
 
-const {REFETCH} = require('GraphQLMutatorConstants');
+const {REFETCH} = require('../legacy/mutation/GraphQLMutatorConstants');
 const {ConnectionInterface} = require('RelayRuntime');
 
-import type {ConcreteMutation} from 'ConcreteQuery';
-import type {DataID, RangeBehaviors} from 'RelayInternalTypes';
-import type RelayQueryTracker from 'RelayQueryTracker';
-import type {Variables} from 'RelayTypes';
+import type {ConcreteMutation} from '../query/ConcreteQuery';
+import type RelayQueryTracker from '../store/RelayQueryTracker';
+import type {DataID, RangeBehaviors} from '../tools/RelayInternalTypes';
+import type {Variables} from '../tools/RelayTypes';
 
 type BasicMutationFragmentBuilderConfig = {
   fatQuery: RelayQuery.Fragment,
@@ -113,7 +112,7 @@ const RelayMutationQuery = {
         console.groupCollapsed('Building fragment for `' + fieldName + '`');
         console.log(RelayNodeInterface.ID + ': ', dataIDOrIDs);
 
-        const RelayMutationDebugPrinter = require('RelayMutationDebugPrinter');
+        const RelayMutationDebugPrinter = require('./RelayMutationDebugPrinter');
         RelayMutationDebugPrinter.printMutation(
           trackedField && buildMutationFragment(fatQuery, [trackedField]),
           'Tracked Fragment',
@@ -238,7 +237,7 @@ const RelayMutationQuery = {
         const rangeBehavior = getRangeBehavior(rangeBehaviors, callsWithValues);
         /* eslint-disable no-console */
         if (__DEV__ && console.groupCollapsed && console.groupEnd) {
-          const serializeRelayQueryCall = require('serializeRelayQueryCall');
+          const serializeRelayQueryCall = require('../query/serializeRelayQueryCall');
           const serializedCalls = callsWithValues
             .map(serializeRelayQueryCall)
             .sort()
@@ -389,7 +388,7 @@ const RelayMutationQuery = {
           );
           children = children.concat(newChildren);
           if (__DEV__ && console.groupCollapsed && console.groupEnd) {
-            const RelayMutationDebugPrinter = require('RelayMutationDebugPrinter');
+            const RelayMutationDebugPrinter = require('./RelayMutationDebugPrinter');
             console.groupCollapsed('REQUIRED_CHILDREN');
             newChildren.forEach((child, index) => {
               console.groupCollapsed(index);
@@ -445,7 +444,7 @@ const RelayMutationQuery = {
                 : 'NODE_DELETE';
             console.groupCollapsed(configType);
 
-            const RelayMutationDebugPrinter = require('RelayMutationDebugPrinter');
+            const RelayMutationDebugPrinter = require('./RelayMutationDebugPrinter');
             RelayMutationDebugPrinter.printMutation(
               edgeDeletion,
               'Edge Fragment',

@@ -11,11 +11,13 @@
 
 'use strict';
 
+const RelayConcreteNode = require('RelayConcreteNode');
+
 const invariant = require('invariant');
 
-import type {CacheConfig} from 'RelayCombinedEnvironmentTypes';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
-import type {Variables} from 'RelayTypes';
+import type {CacheConfig} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
+import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 /**
  * A helper function to fetch the results of a query. Note that results for
@@ -41,8 +43,16 @@ function fetchRelayModernQuery(
     'fetchRelayModernQuery: Expected a valid Relay environment, got `%s`.',
     environment,
   );
-  const {createOperationSelector, getOperation} = environment.unstable_internal;
-  const query = getOperation(taggedNode);
+  const {createOperationSelector, getRequest} = environment.unstable_internal;
+  const query = getRequest(taggedNode);
+  if (query.kind === RelayConcreteNode.BATCH_REQUEST) {
+    throw new Error(
+      'fetchRelayModernQuery: Batch request not supported in this API.',
+    );
+  }
+  if (query.operationKind !== 'query') {
+    throw new Error('fetchRelayModernQuery: Expected query operation');
+  }
   const operation = createOperationSelector(query, variables);
 
   return environment

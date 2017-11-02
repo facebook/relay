@@ -1,4 +1,8 @@
 {
+  "kind": "Fragment",
+  "name": "UserFragment",
+  "type": "User",
+  "metadata": null,
   "argumentDefinitions": [
     {
       "kind": "LocalArgument",
@@ -30,27 +34,26 @@
       "type": "[Int]"
     }
   ],
-  "kind": "Fragment",
-  "metadata": null,
-  "name": "UserFragment",
   "selections": [
     {
       "kind": "ScalarField",
       "alias": null,
-      "args": null,
       "name": "id",
+      "args": null,
       "storageKey": null
     },
     {
       "kind": "ScalarField",
       "alias": null,
-      "args": null,
       "name": "__typename",
+      "args": null,
       "storageKey": null
     },
     {
       "kind": "LinkedField",
       "alias": null,
+      "name": "friends",
+      "storageKey": null,
       "args": [
         {
           "kind": "Variable",
@@ -66,22 +69,22 @@
         }
       ],
       "concreteType": "FriendsConnection",
-      "name": "friends",
       "plural": false,
       "selections": [
         {
           "kind": "ScalarField",
           "alias": null,
-          "args": null,
           "name": "count",
+          "args": null,
           "storageKey": null
         }
-      ],
-      "storageKey": null
+      ]
     },
     {
       "kind": "LinkedField",
       "alias": "thumbnail",
+      "name": "profilePicture",
+      "storageKey": "profilePicture{\"size\":32}",
       "args": [
         {
           "kind": "Literal",
@@ -91,36 +94,36 @@
         }
       ],
       "concreteType": "Image",
-      "name": "profilePicture",
       "plural": false,
       "selections": [
         {
           "kind": "ScalarField",
           "alias": null,
-          "args": null,
           "name": "height",
+          "args": null,
           "storageKey": null
         },
         {
           "kind": "ScalarField",
           "alias": null,
-          "args": null,
           "name": "width",
+          "args": null,
           "storageKey": null
         },
         {
           "kind": "ScalarField",
           "alias": "src",
-          "args": null,
           "name": "uri",
+          "args": null,
           "storageKey": null
         }
-      ],
-      "storageKey": "profilePicture{\"size\":32}"
+      ]
     },
     {
       "kind": "LinkedField",
       "alias": null,
+      "name": "profilePicture",
+      "storageKey": null,
       "args": [
         {
           "kind": "Variable",
@@ -130,36 +133,36 @@
         }
       ],
       "concreteType": "Image",
-      "name": "profilePicture",
       "plural": false,
       "selections": [
         {
           "kind": "ScalarField",
           "alias": null,
-          "args": null,
           "name": "height",
+          "args": null,
           "storageKey": null
         },
         {
           "kind": "ScalarField",
           "alias": null,
-          "args": null,
           "name": "width",
+          "args": null,
           "storageKey": null
         },
         {
           "kind": "ScalarField",
           "alias": "src",
-          "args": null,
           "name": "uri",
+          "args": null,
           "storageKey": null
         }
-      ],
-      "storageKey": null
+      ]
     },
     {
       "kind": "LinkedField",
       "alias": "scaled",
+      "name": "profilePicture",
+      "storageKey": null,
       "args": [
         {
           "kind": "Variable",
@@ -169,18 +172,16 @@
         }
       ],
       "concreteType": "Image",
-      "name": "profilePicture",
       "plural": false,
       "selections": [
         {
           "kind": "ScalarField",
           "alias": null,
-          "args": null,
           "name": "uri",
+          "args": null,
           "storageKey": null
         }
-      ],
-      "storageKey": null
+      ]
     },
     {
       "kind": "Condition",
@@ -190,18 +191,26 @@
         {
           "kind": "ScalarField",
           "alias": null,
-          "args": null,
           "name": "name",
+          "args": null,
           "storageKey": null
         }
       ]
     }
-  ],
-  "type": "User"
+  ]
 }
 
 {
+  "kind": "Request",
+  "operationKind": "query",
+  "name": "NodeQuery",
+  "id": null,
+  "metadata": {},
   "fragment": {
+    "kind": "Fragment",
+    "name": "NodeQuery",
+    "type": "Query",
+    "metadata": null,
     "argumentDefinitions": [
       {
         "kind": "LocalArgument",
@@ -222,13 +231,12 @@
         "defaultValue": null
       }
     ],
-    "kind": "Fragment",
-    "metadata": null,
-    "name": "NodeQuery",
     "selections": [
       {
         "kind": "LinkedField",
         "alias": null,
+        "name": "node",
+        "storageKey": null,
         "args": [
           {
             "kind": "Variable",
@@ -238,14 +246,13 @@
           }
         ],
         "concreteType": null,
-        "name": "node",
         "plural": false,
         "selections": [
           {
             "kind": "ScalarField",
             "alias": null,
-            "args": null,
             "name": "id",
+            "args": null,
             "storageKey": null
           },
           {
@@ -272,25 +279,21 @@
                   {
                     "kind": "ScalarField",
                     "alias": null,
-                    "args": null,
                     "name": "name",
+                    "args": null,
                     "storageKey": null
                   }
                 ]
               }
             ]
           }
-        ],
-        "storageKey": null
+        ]
       }
-    ],
-    "type": "Query"
+    ]
   },
-  "id": null,
-  "kind": "Batch",
-  "metadata": {},
-  "name": "NodeQuery",
-  "query": {
+  "operation": {
+    "kind": "Operation",
+    "name": "NodeQuery",
     "argumentDefinitions": [
       {
         "kind": "LocalArgument",
@@ -311,13 +314,12 @@
         "defaultValue": null
       }
     ],
-    "kind": "Root",
-    "name": "NodeQuery",
-    "operation": "query",
     "selections": [
       {
         "kind": "LinkedField",
         "alias": null,
+        "name": "node",
+        "storageKey": null,
         "args": [
           {
             "kind": "Variable",
@@ -327,21 +329,20 @@
           }
         ],
         "concreteType": null,
-        "name": "node",
         "plural": false,
         "selections": [
           {
             "kind": "ScalarField",
             "alias": null,
-            "args": null,
             "name": "__typename",
+            "args": null,
             "storageKey": null
           },
           {
             "kind": "ScalarField",
             "alias": null,
-            "args": null,
             "name": "id",
+            "args": null,
             "storageKey": null
           },
           {
@@ -356,20 +357,22 @@
                   {
                     "kind": "ScalarField",
                     "alias": null,
+                    "name": "name",
                     "args": null,
-                    "name": "__typename",
                     "storageKey": null
                   },
                   {
                     "kind": "ScalarField",
                     "alias": null,
+                    "name": "__typename",
                     "args": null,
-                    "name": "name",
                     "storageKey": null
                   },
                   {
                     "kind": "LinkedField",
                     "alias": null,
+                    "name": "friends",
+                    "storageKey": "friends{\"first\":5}",
                     "args": [
                       {
                         "kind": "Literal",
@@ -379,22 +382,22 @@
                       }
                     ],
                     "concreteType": "FriendsConnection",
-                    "name": "friends",
                     "plural": false,
                     "selections": [
                       {
                         "kind": "ScalarField",
                         "alias": null,
-                        "args": null,
                         "name": "count",
+                        "args": null,
                         "storageKey": null
                       }
-                    ],
-                    "storageKey": "friends{\"first\":5}"
+                    ]
                   },
                   {
                     "kind": "LinkedField",
                     "alias": "thumbnail",
+                    "name": "profilePicture",
+                    "storageKey": "profilePicture{\"size\":32}",
                     "args": [
                       {
                         "kind": "Literal",
@@ -404,36 +407,36 @@
                       }
                     ],
                     "concreteType": "Image",
-                    "name": "profilePicture",
                     "plural": false,
                     "selections": [
                       {
                         "kind": "ScalarField",
                         "alias": null,
-                        "args": null,
                         "name": "height",
+                        "args": null,
                         "storageKey": null
                       },
                       {
                         "kind": "ScalarField",
                         "alias": null,
-                        "args": null,
                         "name": "width",
+                        "args": null,
                         "storageKey": null
                       },
                       {
                         "kind": "ScalarField",
                         "alias": "src",
-                        "args": null,
                         "name": "uri",
+                        "args": null,
                         "storageKey": null
                       }
-                    ],
-                    "storageKey": "profilePicture{\"size\":32}"
+                    ]
                   },
                   {
                     "kind": "LinkedField",
                     "alias": null,
+                    "name": "profilePicture",
+                    "storageKey": null,
                     "args": [
                       {
                         "kind": "Variable",
@@ -443,36 +446,36 @@
                       }
                     ],
                     "concreteType": "Image",
-                    "name": "profilePicture",
                     "plural": false,
                     "selections": [
                       {
                         "kind": "ScalarField",
                         "alias": null,
-                        "args": null,
                         "name": "height",
+                        "args": null,
                         "storageKey": null
                       },
                       {
                         "kind": "ScalarField",
                         "alias": null,
-                        "args": null,
                         "name": "width",
+                        "args": null,
                         "storageKey": null
                       },
                       {
                         "kind": "ScalarField",
                         "alias": "src",
-                        "args": null,
                         "name": "uri",
+                        "args": null,
                         "storageKey": null
                       }
-                    ],
-                    "storageKey": null
+                    ]
                   },
                   {
                     "kind": "LinkedField",
                     "alias": "scaled",
+                    "name": "profilePicture",
+                    "storageKey": null,
                     "args": [
                       {
                         "kind": "Variable",
@@ -482,25 +485,22 @@
                       }
                     ],
                     "concreteType": "Image",
-                    "name": "profilePicture",
                     "plural": false,
                     "selections": [
                       {
                         "kind": "ScalarField",
                         "alias": null,
-                        "args": null,
                         "name": "uri",
+                        "args": null,
                         "storageKey": null
                       }
-                    ],
-                    "storageKey": null
+                    ]
                   }
                 ]
               }
             ]
           }
-        ],
-        "storageKey": null
+        ]
       }
     ]
   }
@@ -524,8 +524,8 @@ query NodeQuery(
 }
 
 fragment UserFragment_3M2EvT on User {
-  __typename
   id
+  __typename
   friends(first: 5) {
     count
   }

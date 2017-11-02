@@ -14,14 +14,14 @@ require('configureForRelayOSS');
 
 jest.mock('warning');
 
-const QueryBuilder = require('QueryBuilder');
+const QueryBuilder = require('../QueryBuilder');
 const React = require('React');
 const RelayClassic = require('RelayClassic');
-const RelayQuery = require('RelayQuery');
-const RelayQueryCaching = require('RelayQueryCaching');
+const RelayQuery = require('../RelayQuery');
+const RelayQueryCaching = require('../../tools/RelayQueryCaching');
 const RelayTestUtils = require('RelayTestUtils');
 
-const buildRQL = require('buildRQL');
+const buildRQL = require('../buildRQL');
 
 describe('buildRQL', () => {
   const {getNode} = RelayTestUtils;

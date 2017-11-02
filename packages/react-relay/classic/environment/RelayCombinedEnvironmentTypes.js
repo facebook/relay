@@ -4,17 +4,15 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayCombinedEnvironmentTypes
  * @flow
  * @format
  */
 
 'use strict';
 
-import type {DataID} from 'RelayInternalTypes';
-import type RelayObservable from 'RelayObservable';
-import type {SelectorStoreUpdater} from 'RelayStoreTypes';
-import type {RerunParam, Variables} from 'RelayTypes';
+import type {DataID} from '../tools/RelayInternalTypes';
+import type {RerunParam, Variables} from '../tools/RelayTypes';
+import type {Observable, SelectorStoreUpdater} from 'RelayRuntime';
 
 /**
  * Settings for how a query response may be cached.
@@ -131,9 +129,9 @@ export type CFragmentMap<TFragment> = {[key: string]: TFragment};
  * - `fragment`: a selector intended for use in reading or subscribing to
  *   the results of the the operation.
  */
-export type COperationSelector<TNode, TOperation> = {
+export type COperationSelector<TNode, TRequest> = {
   fragment: CSelector<TNode>,
-  node: TOperation,
+  node: TRequest,
   root: CSelector<TNode>,
   variables: Variables,
 };
@@ -147,7 +145,7 @@ export interface CEnvironment<
   TFragment,
   TGraphQLTaggedNode,
   TNode,
-  TOperation,
+  TRequest,
   TPayload,
 > {
   /**
@@ -186,17 +184,17 @@ export interface CEnvironment<
    * the result is subscribed to: environment.execute({...}).subscribe({...}).
    */
   execute(config: {|
-    operation: COperationSelector<TNode, TOperation>,
+    operation: COperationSelector<TNode, TRequest>,
     cacheConfig?: ?CacheConfig,
     updater?: ?SelectorStoreUpdater,
-  |}): RelayObservable<TPayload>,
+  |}): Observable<TPayload>,
 
   unstable_internal: CUnstableEnvironmentCore<
     TEnvironment,
     TFragment,
     TGraphQLTaggedNode,
     TNode,
-    TOperation,
+    TRequest,
   >,
 }
 
@@ -205,7 +203,7 @@ export interface CUnstableEnvironmentCore<
   TFragment,
   TGraphQLTaggedNode,
   TNode,
-  TOperation,
+  TRequest,
 > {
   /**
    * Create an instance of a FragmentSpecResolver.
@@ -229,9 +227,9 @@ export interface CUnstableEnvironmentCore<
    * operation, and default values are populated for null values.
    */
   createOperationSelector: (
-    operation: TOperation,
+    request: TRequest,
     variables: Variables,
-  ) => COperationSelector<TNode, TOperation>,
+  ) => COperationSelector<TNode, TRequest>,
 
   /**
    * Given a graphql`...` tagged template, extract a fragment definition usable
@@ -242,9 +240,9 @@ export interface CUnstableEnvironmentCore<
   /**
    * Given a graphql`...` tagged template, extract an operation definition
    * usable by this version of Relay core. Throws if the value is not an
-   * operation.
+   * operation (or batch request).
    */
-  getOperation: (node: TGraphQLTaggedNode) => TOperation,
+  getRequest: (node: TGraphQLTaggedNode) => TRequest,
 
   /**
    * Determine if two selectors are equal (represent the same selection). Note

@@ -25,14 +25,32 @@ describe('RelayCodeGenerator', () => {
 
   it('matches expected output', () => {
     expect('fixtures/code-generator').toMatchGolden(text => {
-      const {definitions} = parseGraphQLText(RelayTestSchema, text);
-      const context = new GraphQLCompilerContext(RelayTestSchema).addAll(
-        definitions,
-      );
-      return context
-        .documents()
-        .map(doc => prettyStringify(RelayCodeGenerator.generate(doc)))
-        .join('\n\n');
+      try {
+        const {definitions} = parseGraphQLText(RelayTestSchema, text);
+        const context = new GraphQLCompilerContext(RelayTestSchema).addAll(
+          definitions,
+        );
+        return context
+          .documents()
+          .map(doc => {
+            const node =
+              doc.kind === 'Fragment'
+                ? doc
+                : {
+                    fragment: null,
+                    id: null,
+                    kind: 'Batch',
+                    metadata: {},
+                    name: doc.name,
+                    operation: doc,
+                    text: null,
+                  };
+            return prettyStringify(RelayCodeGenerator.generate(node));
+          })
+          .join('\n\n');
+      } catch (e) {
+        return 'ERROR:\n' + e;
+      }
     });
   });
 });

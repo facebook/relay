@@ -11,4 +11,6 @@
 
 jest.unmock('recycleNodesInto');
 
-module.exports = require('recycleNodesInto');
+const {recycleNodesInto} = require('RelayRuntime');
+
+module.exports = recycleNodesInto;

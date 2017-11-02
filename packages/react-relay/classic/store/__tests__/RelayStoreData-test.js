@@ -14,12 +14,14 @@ jest.enableAutomock();
 
 require('configureForRelayOSS');
 
-jest.unmock('GraphQLRange').unmock('GraphQLSegment');
+jest
+  .unmock('../../legacy/store/GraphQLRange')
+  .unmock('../../legacy/store/GraphQLSegment');
 
 const {ConnectionInterface} = require('RelayRuntime');
-const RelayQueryPath = require('RelayQueryPath');
-const RelayStoreData = require('RelayStoreData');
-const RelayGarbageCollector = require('RelayGarbageCollector');
+const RelayQueryPath = require('../../query/RelayQueryPath');
+const RelayStoreData = require('../RelayStoreData');
+const RelayGarbageCollector = require('../RelayGarbageCollector');
 const RelayTestUtils = require('RelayTestUtils');
 
 const {CLIENT_MUTATION_ID} = ConnectionInterface.get();
@@ -36,7 +38,7 @@ describe('RelayStoreData', () => {
     // @side-effect related to garbage collection
     RelayClassic = require('RelayClassic');
 
-    RelayQueryTracker = require('RelayQueryTracker');
+    RelayQueryTracker = require('../RelayQueryTracker');
 
     expect.extend(RelayTestUtils.matchers);
   });

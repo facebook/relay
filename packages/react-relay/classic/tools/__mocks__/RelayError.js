@@ -9,4 +9,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('RelayError');
+module.exports = require.requireActual('../RelayError');

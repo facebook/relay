@@ -4,13 +4,12 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule GraphQLSegment
  * @format
  */
 
 'use strict';
 
-const RelayRecord = require('RelayRecord');
+const RelayRecord = require('../../store/RelayRecord');
 
 /**
  * Represents one contiguous segment of edges within a `GraphQLRange`. Has

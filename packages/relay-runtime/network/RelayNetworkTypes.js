@@ -11,10 +11,13 @@
 
 'use strict';
 
-import type {CacheConfig, Disposable} from 'RelayCombinedEnvironmentTypes';
-import type {ConcreteBatch} from 'RelayConcreteNode';
+import type {ConcreteOperation, RequestNode} from 'RelayConcreteNode';
 import type RelayObservable, {ObservableFromValue} from 'RelayObservable';
-import type {Variables} from 'RelayTypes';
+import type {
+  CacheConfig,
+  Disposable,
+} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
+import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 /**
  * An interface for fetching the data for one or more (possibly interdependent)
@@ -48,9 +51,12 @@ export type GraphQLResponse = {|
  * raw GraphQL network response as well as any related client metadata.
  */
 export type ExecutePayload = {|
-  response: GraphQLResponse,
+  // The operation executed
+  operation: ConcreteOperation,
   // The variables which were used during this execution.
-  variables?: ?Variables,
+  variables: Variables,
+  // The response from GraphQL execution
+  response: GraphQLResponse,
 |};
 
 /**
@@ -58,7 +64,7 @@ export type ExecutePayload = {|
  * a GraphQL operation.
  */
 export type ExecuteFunction = (
-  operation: ConcreteBatch,
+  request: RequestNode,
   variables: Variables,
   cacheConfig: CacheConfig,
   uploadables?: ?UploadableMap,
@@ -71,7 +77,7 @@ export type ExecuteFunction = (
  * a composed ExecutePayload object supporting additional metadata.
  */
 export type FetchFunction = (
-  operation: ConcreteBatch,
+  request: RequestNode,
   variables: Variables,
   cacheConfig: CacheConfig,
   uploadables: ?UploadableMap,
@@ -85,7 +91,7 @@ export type FetchFunction = (
  * fourth parameter.
  */
 export type SubscribeFunction = (
-  operation: ConcreteBatch,
+  request: RequestNode,
   variables: Variables,
   cacheConfig: CacheConfig,
   observer?: LegacyObserver<GraphQLResponse>,
@@ -99,8 +105,8 @@ export type Uploadable = File | Blob;
 export type UploadableMap = {[key: string]: Uploadable};
 
 // Supports legacy SubscribeFunction definitions. Do not use in new code.
-export type LegacyObserver<T> = {
-  onCompleted?: ?() => void,
-  onError?: ?(error: Error) => void,
-  onNext?: ?(data: T) => void,
-};
+export type LegacyObserver<-T> = {|
+  +onCompleted?: ?() => void,
+  +onError?: ?(error: Error) => void,
+  +onNext?: ?(data: T) => void,
+|};

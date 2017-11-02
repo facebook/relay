@@ -12,7 +12,7 @@
 
 jest.useFakeTimers();
 
-const RelayTaskQueue = require('RelayTaskQueue');
+const RelayTaskQueue = require('../RelayTaskQueue');
 const RelayTestUtils = require('RelayTestUtils');
 
 const resolveImmediate = require('resolveImmediate');

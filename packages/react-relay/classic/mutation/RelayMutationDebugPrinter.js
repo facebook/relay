@@ -4,15 +4,14 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayMutationDebugPrinter
  * @flow
  * @format
  */
 
 'use strict';
-const printRelayQuery = require('printRelayQuery');
+const printRelayQuery = require('../traversal/printRelayQuery');
 
-import type RelayQuery from 'RelayQuery';
+import type RelayQuery from '../query/RelayQuery';
 
 /**
  * @internal

@@ -13,10 +13,10 @@
 
 const invariant = require('invariant');
 
-import type {CacheConfig} from 'RelayCombinedEnvironmentTypes';
-import type {ConcreteBatch} from 'RelayConcreteNode';
+import type {RequestNode} from 'RelayConcreteNode';
 import type {ExecutePayload, UploadableMap} from 'RelayNetworkTypes';
-import type {Variables} from 'RelayTypes';
+import type {CacheConfig} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
+import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 let queryID = 1;
 
@@ -29,13 +29,13 @@ export interface IRelayNetworkLoggerTransaction {
   getCacheConfig(): ?CacheConfig,
   getIdentifier(): string,
   getLogsToPrint(): Array<RelayNetworkLog>,
-  getOperation(): ConcreteBatch,
+  getRequest(): RequestNode,
   getUploadables(): ?UploadableMap,
   getVariables(): Variables,
 }
 
 type TransactionConfig = {
-  operation: ConcreteBatch,
+  request: RequestNode,
   variables: Variables,
   cacheConfig: ?CacheConfig,
   uploadables?: ?UploadableMap,
@@ -58,19 +58,19 @@ class RelayNetworkLoggerTransaction implements IRelayNetworkLoggerTransaction {
   _hasCommittedLogs = false;
   _id: number;
   _logs: Array<RelayNetworkLog> = [];
-  _operation: ConcreteBatch;
+  _request: RequestNode;
   _uploadables: ?UploadableMap;
   _variables: Variables;
 
   constructor({
-    operation,
+    request,
     variables,
     cacheConfig,
     uploadables,
   }: TransactionConfig): void {
     this._cacheConfig = cacheConfig;
     this._id = queryID++;
-    this._operation = operation;
+    this._request = request;
     this._uploadables = uploadables;
     this._variables = variables;
   }
@@ -123,7 +123,7 @@ class RelayNetworkLoggerTransaction implements IRelayNetworkLoggerTransaction {
   }
 
   getIdentifier(): string {
-    return `[${this._id}] Relay Modern: ${this._operation.name}`;
+    return `[${this._id}] Relay Modern: ${this._request.name}`;
   }
 
   getLogsToPrint(
@@ -134,8 +134,8 @@ class RelayNetworkLoggerTransaction implements IRelayNetworkLoggerTransaction {
     return this._logs;
   }
 
-  getOperation(): ConcreteBatch {
-    return this._operation;
+  getRequest(): RequestNode {
+    return this._request;
   }
 
   getUploadables(): ?UploadableMap {

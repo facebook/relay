@@ -9,7 +9,7 @@
 
 'use strict';
 
-const RelayQueryPath = require.requireActual('RelayQueryPath');
+const RelayQueryPath = require.requireActual('../RelayQueryPath');
 
 RelayQueryPath.fromJSON = jest.fn(RelayQueryPath.fromJSON);
 

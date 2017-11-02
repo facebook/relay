@@ -26,17 +26,15 @@ const {
   CodegenDirectory,
   CompilerContext,
   SchemaUtils,
-} = require('../graphql-compiler/GraphQLCompilerPublic');
+} = require('graphql-compiler');
 const {Map: ImmutableMap} = require('immutable');
 
-import type {RelayGeneratedNode} from '../core/RelayCodeGenerator';
 import type {ScalarTypeMapping} from '../core/RelayFlowTypeTransformers';
 import type {
-  CompiledNode,
   CompiledDocumentMap,
   CompilerTransforms,
   FileWriterInterface,
-} from '../graphql-compiler/GraphQLCompilerPublic';
+} from 'graphql-compiler';
 import type {FormatModule} from './writeRelayGeneratedFile';
 // TODO T21875029 ../../relay-runtime/util/RelayConcreteNode
 import type {GeneratedNode} from 'RelayConcreteNode';
@@ -97,8 +95,6 @@ class RelayFileWriter implements FileWriterInterface {
   }
 
   async writeAll(): Promise<Map<string, CodegenDirectory>> {
-    const tStart = Date.now();
-
     // Can't convert to IR unless the schema already has Relay-local extensions
     const transformedSchema = ASTConvert.transformASTSchema(
       this._baseSchema,
@@ -185,16 +181,13 @@ class RelayFileWriter implements FileWriterInterface {
 
     compiler.addDefinitions(definitions);
 
-    const transformedFlowContext = RelayFlowGenerator.flowTransforms.reduce(
-      (ctx, transform) => transform(ctx, extendedSchema),
-      compiler.context(),
-    );
+    const transformedFlowContext = compiler
+      .context()
+      .applyTransforms(RelayFlowGenerator.flowTransforms, extendedSchema);
     const transformedQueryContext = compiler.transformedQueryContext();
     const compiledDocumentMap: CompiledDocumentMap<
-      RelayGeneratedNode,
+      GeneratedNode,
     > = compiler.compile();
-
-    const tCompiled = Date.now();
 
     const existingFragmentNames = new Set(
       definitions.map(definition => definition.name),
@@ -206,7 +199,6 @@ class RelayFileWriter implements FileWriterInterface {
       existingFragmentNames.delete(baseDefinitionName);
     });
 
-    let tGenerated;
     try {
       await Promise.all(
         transformedFlowContext.documents().map(async node => {
@@ -244,7 +236,7 @@ class RelayFileWriter implements FileWriterInterface {
           );
           await writeRelayGeneratedFile(
             getGeneratedDirectory(compiledNode.name),
-            getGeneratedNode(compiledNode),
+            compiledNode,
             this._config.formatModule,
             flowTypes,
             this._config.persistQuery,
@@ -253,7 +245,6 @@ class RelayFileWriter implements FileWriterInterface {
           );
         }),
       );
-      tGenerated = Date.now();
 
       if (this._config.generateExtraFiles) {
         const configDirectory = this._config.outputDir;
@@ -281,7 +272,6 @@ class RelayFileWriter implements FileWriterInterface {
         dir.deleteExtraFiles();
       });
     } catch (error) {
-      tGenerated = Date.now();
       let details;
       try {
         details = JSON.parse(error.message);
@@ -289,37 +279,13 @@ class RelayFileWriter implements FileWriterInterface {
       if (details && details.name === 'GraphQL2Exception' && details.message) {
         throw new Error('GraphQL error writing modules:\n' + details.message);
       }
-      throw new Error('Error writing modules:\n' + error.toString());
+      throw new Error(
+        'Error writing modules:\n' + String(error.stack || error),
+      );
     }
 
-    const tExtra = Date.now();
-    // eslint-disable-next-line no-console
-    console.log(
-      'Writer time: %s [%s compiling, %s generating, %s extra]',
-      toSeconds(tStart, tExtra),
-      toSeconds(tStart, tCompiled),
-      toSeconds(tCompiled, tGenerated),
-      toSeconds(tGenerated, tExtra),
-    );
     return allOutputDirectories;
   }
-}
-
-function getGeneratedNode(
-  compiledNode: CompiledNode<RelayGeneratedNode>,
-): GeneratedNode {
-  invariant(
-    typeof compiledNode === 'object' &&
-      compiledNode !== null &&
-      (compiledNode.kind === 'Fragment' || compiledNode.kind === 'Batch'),
-    'getGeneratedNode: Expected a GeneratedNode, got `%s`.',
-    JSON.stringify(compiledNode),
-  );
-  return (compiledNode: any);
-}
-
-function toSeconds(t0, t1) {
-  return ((t1 - t0) / 1000).toFixed(2) + 's';
 }
 
 function validateConfig(config: Object): void {

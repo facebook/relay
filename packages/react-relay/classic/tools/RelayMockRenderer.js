@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayMockRenderer
  * @flow
  * @format
  */
@@ -13,8 +12,8 @@
 
 const PropTypes = require('prop-types');
 const React = require('React');
-const RelayEnvironment = require('RelayEnvironment');
-const RelayPropTypes = require('RelayPropTypes');
+const RelayEnvironment = require('../store/RelayEnvironment');
+const RelayPropTypes = require('../container/RelayPropTypes');
 
 /**
  * A helper for rendering RelayContainers with mock data, outside of a

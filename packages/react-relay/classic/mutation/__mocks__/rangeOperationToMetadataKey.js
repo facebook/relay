@@ -10,4 +10,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('rangeOperationToMetadataKey');
+module.exports = require.requireActual('../rangeOperationToMetadataKey');

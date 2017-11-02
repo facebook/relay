@@ -12,7 +12,7 @@
 
 const RelayTestUtils = require('RelayTestUtils');
 
-const validateMutationConfig = require('validateMutationConfig');
+const validateMutationConfig = require('../validateMutationConfig');
 
 describe('validateMutationConfig()', () => {
   let config;

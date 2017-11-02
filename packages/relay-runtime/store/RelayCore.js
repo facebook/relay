@@ -15,7 +15,7 @@ const RelayModernFragmentSpecResolver = require('RelayModernFragmentSpecResolver
 
 const warning = require('warning');
 
-const {getFragment, getOperation} = require('RelayModernGraphQLTag');
+const {getFragment, getRequest} = require('RelayModernGraphQLTag');
 const {createOperationSelector} = require('RelayModernOperationSelector');
 const {
   areEqualSelectors,
@@ -26,8 +26,11 @@ const {
   getVariablesFromObject,
 } = require('RelayModernSelector');
 
-import type {FragmentSpecResolver, Props} from 'RelayCombinedEnvironmentTypes';
 import type {FragmentMap, RelayContext} from 'RelayStoreTypes';
+import type {
+  FragmentSpecResolver,
+  Props,
+} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 function createFragmentSpecResolver(
   context: RelayContext,
@@ -64,7 +67,7 @@ module.exports = {
   createOperationSelector,
   getDataIDsFromObject,
   getFragment,
-  getOperation,
+  getRequest,
   getSelector,
   getSelectorList,
   getSelectorsFromObject,

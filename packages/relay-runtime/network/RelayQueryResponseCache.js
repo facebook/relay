@@ -15,7 +15,7 @@ const invariant = require('invariant');
 const stableJSONStringify = require('stableJSONStringify');
 
 import type {GraphQLResponse} from 'RelayNetworkTypes';
-import type {Variables} from 'RelayTypes';
+import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 type Response = {
   fetchTime: number,

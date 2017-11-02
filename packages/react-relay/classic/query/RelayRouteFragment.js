@@ -4,15 +4,14 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayRouteFragment
  * @flow
  * @format
  */
 
 'use strict';
 
-import type RelayMetaRoute from 'RelayMetaRoute';
-import type {RelayConcreteNode} from 'RelayQL';
+import type RelayMetaRoute from '../route/RelayMetaRoute';
+import type {RelayConcreteNode} from './RelayQL';
 
 type FragmentBuilder = (route: RelayMetaRoute) => ?RelayConcreteNode;
 

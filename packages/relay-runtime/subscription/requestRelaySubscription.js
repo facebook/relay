@@ -14,10 +14,13 @@
 const setRelayModernMutationConfigs = require('setRelayModernMutationConfigs');
 const warning = require('warning');
 
-import type {Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {Environment, SelectorStoreUpdater} from 'RelayStoreTypes';
-import type {RelayMutationConfig, Variables} from 'RelayTypes';
+import type {Disposable} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
+import type {
+  RelayMutationConfig,
+  Variables,
+} from 'react-relay/classic/tools/RelayTypes';
 
 export type GraphQLSubscriptionConfig = {|
   configs?: Array<RelayMutationConfig>,
@@ -33,8 +36,13 @@ function requestRelaySubscription(
   environment: Environment,
   config: GraphQLSubscriptionConfig,
 ): Disposable {
-  const {createOperationSelector, getOperation} = environment.unstable_internal;
-  const subscription = getOperation(config.subscription);
+  const {createOperationSelector, getRequest} = environment.unstable_internal;
+  const subscription = getRequest(config.subscription);
+  if (subscription.operationKind !== 'subscription') {
+    throw new Error(
+      'requestRelaySubscription: Must use Subscription operation',
+    );
+  }
   const {configs, onCompleted, onError, onNext, variables} = config;
   const operation = createOperationSelector(subscription, variables);
 

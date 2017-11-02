@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule ForceRelayClassicContext
  * @flow
  * @format
  */
@@ -12,9 +11,9 @@
 'use strict';
 
 const React = require('React');
-const RelayPropTypes = require('RelayPropTypes');
-const RelayRoute = require('RelayRoute');
-const RelayStore = require('RelayStore');
+const RelayPropTypes = require('../../classic/container/RelayPropTypes');
+const RelayRoute = require('../../classic/route/RelayRoute');
+const RelayStore = require('../../classic/store/RelayStore');
 
 // Dummy Route
 /* $FlowFixMe(>=0.54.0) This comment suppresses an error

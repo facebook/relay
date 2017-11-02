@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule forEachRootCallArg
  * @flow
  * @format
  */
@@ -12,10 +11,10 @@
 'use strict';
 
 const invariant = require('invariant');
-const stableStringify = require('stableStringify');
+const stableStringify = require('./stableStringify');
 
-import type {CallValue} from 'RelayInternalTypes';
-import type RelayQuery from 'RelayQuery';
+import type {CallValue} from '../tools/RelayInternalTypes';
+import type RelayQuery from './RelayQuery';
 
 type IdentifyingArg = {
   identifyingArgValue: CallValue,

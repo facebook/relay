@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayCompatMutations
  * @flow
  * @format
  */
@@ -17,15 +16,14 @@ const warning = require('warning');
 const {
   getRelayClassicEnvironment,
   getRelayModernEnvironment,
-} = require('RelayCompatEnvironment');
+} = require('../RelayCompatEnvironment');
 const {applyOptimisticMutation, commitMutation} = require('RelayRuntime');
 
-import type {ConcreteOperationDefinition} from 'ConcreteQuery';
-import type {Disposable} from 'RelayCombinedEnvironmentTypes';
-import type {CompatEnvironment} from 'RelayCompatTypes';
-import type {Environment as ClassicEnvironment} from 'RelayEnvironmentTypes';
-import type {OptimisticMutationConfig} from 'applyRelayModernOptimisticMutation';
-import type {MutationConfig} from 'commitRelayModernMutation';
+import type {Disposable} from '../../classic/environment/RelayCombinedEnvironmentTypes';
+import type {Environment as ClassicEnvironment} from '../../classic/environment/RelayEnvironmentTypes';
+import type {ConcreteOperationDefinition} from '../../classic/query/ConcreteQuery';
+import type {CompatEnvironment} from '../react/RelayCompatTypes';
+import type {MutationConfig, OptimisticMutationConfig} from 'RelayRuntime';
 
 const RelayCompatMutations = {
   commitUpdate<T>(
@@ -89,8 +87,8 @@ function commitRelayClassicMutation<T>(
     uploadables,
   }: MutationConfig<T>,
 ): Disposable {
-  const {getOperation} = environment.unstable_internal;
-  const operation = getOperation(mutation);
+  const {getRequest} = environment.unstable_internal;
+  const operation = getRequest(mutation);
   // TODO: remove this check after we fix flow.
   if (typeof optimisticResponse === 'function') {
     warning(
@@ -122,8 +120,11 @@ function applyRelayClassicMutation(
   environment: ClassicEnvironment,
   {configs, mutation, optimisticResponse, variables}: OptimisticMutationConfig,
 ): Disposable {
-  const {getOperation} = environment.unstable_internal;
-  const operation = getOperation(mutation);
+  const {getRequest} = environment.unstable_internal;
+  const operation = getRequest(mutation);
+  if (operation.operation !== 'mutation') {
+    throw new Error('RelayCompatMutations: Expected mutation operation');
+  }
 
   // RelayClassic can't update anything without response.
   if (!optimisticResponse) {

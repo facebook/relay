@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayInternalTypes
  * @flow
  * @format
  */
@@ -17,8 +16,8 @@
  * These are types shared across multiple files within Relay internals.
  */
 
-import typeof GraphQLMutatorConstants from 'GraphQLMutatorConstants';
-import type RelayQuery from 'RelayQuery';
+import typeof GraphQLMutatorConstants from '../legacy/mutation/GraphQLMutatorConstants';
+import type RelayQuery from '../query/RelayQuery';
 
 type AfterConnectionArgumentMap = {
   after: string,

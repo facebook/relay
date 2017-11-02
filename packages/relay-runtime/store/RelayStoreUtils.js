@@ -17,7 +17,7 @@ const invariant = require('invariant');
 const stableJSONStringify = require('stableJSONStringify');
 
 import type {ConcreteArgument, ConcreteField} from 'RelayConcreteNode';
-import type {Variables} from 'RelayTypes';
+import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 const {VARIABLE} = RelayConcreteNode;
 

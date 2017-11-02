@@ -14,17 +14,19 @@ jest.enableAutomock();
 
 require('configureForRelayOSS');
 
-jest.unmock('GraphQLRange').unmock('GraphQLSegment');
+jest
+  .unmock('../../legacy/store/GraphQLRange')
+  .unmock('../../legacy/store/GraphQLSegment');
 
-const GraphQLMutatorConstants = require('GraphQLMutatorConstants');
-const RelayClassic = require('RelayClassic');
+const GraphQLMutatorConstants = require('../../legacy/mutation/GraphQLMutatorConstants');
+const Relay = require('../../RelayPublic');
 const {ConnectionInterface} = require('RelayRuntime');
 const RelayMockCacheManager = require('RelayMockCacheManager');
-const RelayMutationType = require('RelayMutationType');
-const RelayStoreData = require('RelayStoreData');
+const RelayMutationType = require('../../mutation/RelayMutationType');
+const RelayStoreData = require('../RelayStoreData');
 const RelayTestUtils = require('RelayTestUtils');
 
-const transformRelayQueryPayload = require('transformRelayQueryPayload');
+const transformRelayQueryPayload = require('../../traversal/transformRelayQueryPayload');
 
 describe('RelayStoreData', function() {
   let cacheManager;
@@ -111,7 +113,7 @@ describe('RelayStoreData', function() {
   });
 
   it('caches node metadata', () => {
-    const query = getNode(RelayClassic.QL`query{node(id:"123"){id}}`);
+    const query = getNode(Relay.QL`query{node(id:"123"){id}}`);
     const response = {
       node: {
         __typename: 'User',
@@ -136,7 +138,7 @@ describe('RelayStoreData', function() {
   });
 
   it('caches custom root calls', () => {
-    const query = getNode(RelayClassic.QL`query{username(name:"yuzhi"){id}}`);
+    const query = getNode(Relay.QL`query{username(name:"yuzhi"){id}}`);
     const response = {
       username: {
         __typename: 'User',
@@ -166,7 +168,7 @@ describe('RelayStoreData', function() {
   });
 
   it('caches nodes with client IDs', () => {
-    const query = getNode(RelayClassic.QL`query{viewer{isFbEmployee}}`);
+    const query = getNode(Relay.QL`query{viewer{isFbEmployee}}`);
     const response = {
       viewer: {
         __typename: 'User',
@@ -192,7 +194,7 @@ describe('RelayStoreData', function() {
 
   it('caches linked records', () => {
     const query = getNode(
-      RelayClassic.QL`
+      Relay.QL`
       query {
         node(id:"123") {
           id
@@ -241,7 +243,7 @@ describe('RelayStoreData', function() {
 
   it('caches plural fields', () => {
     const query = getNode(
-      RelayClassic.QL`
+      Relay.QL`
       query {
         node(id:"123") {
           id
@@ -290,7 +292,7 @@ describe('RelayStoreData', function() {
 
   it('caches connection fields', () => {
     const query = getNode(
-      RelayClassic.QL`
+      Relay.QL`
       query {
         node(id:"123") {
           id
@@ -387,7 +389,7 @@ describe('RelayStoreData', function() {
 
   it('caches connection fields with no edges', () => {
     const query = getNode(
-      RelayClassic.QL`
+      Relay.QL`
       query {
         node(id:"123") {
           id
@@ -445,9 +447,7 @@ describe('RelayStoreData', function() {
   });
 
   it('caches simple mutations', () => {
-    const query = getNode(
-      RelayClassic.QL`query{node(id:"123"){id,doesViewerLike}}`,
-    );
+    const query = getNode(Relay.QL`query{node(id:"123"){id,doesViewerLike}}`);
     const response = {
       node: {
         __typename: 'User',
@@ -459,7 +459,7 @@ describe('RelayStoreData', function() {
     const {mutationWriter} = cacheManager.mocks;
 
     const mutationQuery = getNode(
-      RelayClassic.QL`
+      Relay.QL`
       mutation {
         feedbackLike(input:$input) {
           clientMutationId
@@ -497,7 +497,7 @@ describe('RelayStoreData', function() {
 
   it('caches mutation that inserts an edge', () => {
     const query = getNode(
-      RelayClassic.QL`
+      Relay.QL`
       query {
         node(id:"123") {
           id
@@ -552,7 +552,7 @@ describe('RelayStoreData', function() {
     ];
 
     const mutationQuery = getNode(
-      RelayClassic.QL`
+      Relay.QL`
       mutation {
         commentCreate(input:$input) {
           clientMutationId
@@ -624,7 +624,7 @@ describe('RelayStoreData', function() {
 
   it('caches mutation that deletes an edge', () => {
     const query = getNode(
-      RelayClassic.QL`
+      Relay.QL`
       query {
         node(id:"123") {
           id
@@ -678,7 +678,7 @@ describe('RelayStoreData', function() {
     ];
 
     const mutationQuery = getNode(
-      RelayClassic.QL`
+      Relay.QL`
       mutation {
         commentDelete(input:$input) {
           clientMutationId

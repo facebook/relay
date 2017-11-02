@@ -19,8 +19,6 @@ const RelayTestSchema = require('RelayTestSchema');
 
 const getGoldenMatchers = require('getGoldenMatchers');
 
-import type CompilerContext from 'GraphQLCompilerContext';
-
 describe('RelayGenerateTypeNameTransform', () => {
   beforeEach(() => {
     expect.extend(getGoldenMatchers(__filename));
@@ -36,10 +34,9 @@ describe('RelayGenerateTypeNameTransform', () => {
       const transformContext = ((ctx, transform) => transform(ctx): any);
       const codegenContext = [
         InlineFragmentsTransform.transform,
-        (ctx: CompilerContext) =>
-          FlattenTransform.transform(ctx, {
-            flattenAbstractTypes: true,
-          }),
+        FlattenTransform.transformWithOptions({
+          flattenAbstractTypes: true,
+        }),
         RelayGenerateTypeNameTransform.transform,
       ].reduce(transformContext, context);
       return codegenContext

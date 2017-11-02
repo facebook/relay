@@ -92,7 +92,7 @@ type State = {
  * type, and (2) is removed because the `ClientType` type does not exist in the
  * base schema.
  */
-function transform(
+function skipClientFieldTransform(
   context: GraphQLCompilerContext,
   schema: GraphQLSchema,
 ): GraphQLCompilerContext {
@@ -184,12 +184,7 @@ function visitFragmentSpread(
   state: State,
 ): ?FragmentSpread {
   const context = this.getContext();
-  const fragment = context.get(spread.name);
-  invariant(
-    fragment && fragment.kind === 'Fragment',
-    'SkipClientFieldTransform: Expected a fragment named `%s` to be defined.',
-    spread.name,
-  );
+  const fragment = context.getFragment(spread.name);
   if (state.schema.getType(fragment.type.name)) {
     return this.traverse(spread, state);
   }
@@ -215,4 +210,6 @@ function visitInlineFragment(
   return null;
 }
 
-module.exports = {transform};
+module.exports = {
+  transform: skipClientFieldTransform,
+};

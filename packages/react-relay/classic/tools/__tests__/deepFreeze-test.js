@@ -10,7 +10,7 @@
 
 'use strict';
 
-const deepFreeze = require('deepFreeze');
+const deepFreeze = require('../deepFreeze');
 
 describe('deepFreeze()', () => {
   beforeEach(() => {

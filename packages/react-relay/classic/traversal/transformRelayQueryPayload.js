@@ -4,20 +4,19 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule transformRelayQueryPayload
  * @flow
  * @format
  */
 
 'use strict';
 
-const RelayQuery = require('RelayQuery');
-const RelayQueryVisitor = require('RelayQueryVisitor');
+const RelayQuery = require('../query/RelayQuery');
+const RelayQueryVisitor = require('../query/RelayQueryVisitor');
 
 const invariant = require('invariant');
 const mapObject = require('mapObject');
 
-import type {QueryPayload} from 'RelayInternalTypes';
+import type {QueryPayload} from '../tools/RelayInternalTypes';
 
 type PayloadState = {
   client: QueryPayload,

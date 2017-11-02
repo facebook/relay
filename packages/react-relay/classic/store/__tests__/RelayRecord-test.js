@@ -10,7 +10,7 @@
 
 'use strict';
 
-const RelayRecord = require('RelayRecord');
+const RelayRecord = require('../RelayRecord');
 
 describe('RelayRecord', () => {
   beforeEach(() => {

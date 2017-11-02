@@ -4,17 +4,16 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayInternals
  * @flow
  * @format
  */
 
 'use strict';
 
-const RelayStore = require('RelayStore');
+const RelayStore = require('../store/RelayStore');
 
-const flattenRelayQuery = require('flattenRelayQuery');
-const printRelayQuery = require('printRelayQuery');
+const flattenRelayQuery = require('../traversal/flattenRelayQuery');
+const printRelayQuery = require('../traversal/printRelayQuery');
 
 /**
  * This module contains internal Relay modules that we expose for development

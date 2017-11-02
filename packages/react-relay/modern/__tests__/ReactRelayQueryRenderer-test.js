@@ -11,17 +11,18 @@
 'use strict';
 
 const React = require('React');
-const ReactRelayPropTypes = require('ReactRelayPropTypes');
-const ReactRelayQueryRenderer = require('ReactRelayQueryRenderer');
+const ReactRelayPropTypes = require('../ReactRelayPropTypes');
+const ReactRelayQueryRenderer = require('../ReactRelayQueryRenderer');
 const ReactTestRenderer = require('ReactTestRenderer');
-const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
-const RelayMarkSweepStore = require('RelayMarkSweepStore');
-const RelayModernEnvironment = require('RelayModernEnvironment');
-const RelayNetwork = require('RelayNetwork');
-
-const simpleClone = require('simpleClone');
 
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
+const {
+  Environment,
+  Network,
+  RecordSource,
+  Store,
+  simpleClone,
+} = require('RelayRuntime');
 
 describe('ReactRelayQueryRenderer', () => {
   let TestQuery;
@@ -96,7 +97,9 @@ describe('ReactRelayQueryRenderer', () => {
       );
       expect(environment.retain).toBeCalled();
       expect(environment.retain.mock.calls[0][0].dataID).toBe('client:root');
-      expect(environment.retain.mock.calls[0][0].node).toBe(TestQuery.query);
+      expect(environment.retain.mock.calls[0][0].node).toBe(
+        TestQuery.operation,
+      );
       expect(environment.retain.mock.calls[0][0].variables).toEqual(variables);
       const dispose = environment.retain.mock.dispose;
       expect(dispose).not.toBeCalled();
@@ -161,9 +164,9 @@ describe('ReactRelayQueryRenderer', () => {
         },
       };
       const fetch = () => response;
-      store = new RelayMarkSweepStore(new RelayInMemoryRecordSource());
-      environment = new RelayModernEnvironment({
-        network: RelayNetwork.create(fetch),
+      store = new Store(new RecordSource());
+      environment = new Environment({
+        network: Network.create(fetch),
         store,
       });
       ReactTestRenderer.create(
@@ -193,9 +196,9 @@ describe('ReactRelayQueryRenderer', () => {
     it('skip loading state when request failed synchronously', () => {
       const error = new Error('Mock Network Error');
       const fetch = () => error;
-      store = new RelayMarkSweepStore(new RelayInMemoryRecordSource());
-      environment = new RelayModernEnvironment({
-        network: RelayNetwork.create(fetch),
+      store = new Store(new RecordSource());
+      environment = new Environment({
+        network: Network.create(fetch),
         store,
       });
       ReactTestRenderer.create(
@@ -810,7 +813,9 @@ describe('ReactRelayQueryRenderer', () => {
       environment.mockClear();
       instance.getInstance().setProps(nextProps);
       expect(environment.retain.mock.calls[0][0].dataID).toBe('client:root');
-      expect(environment.retain.mock.calls[0][0].node).toBe(NextQuery.query);
+      expect(environment.retain.mock.calls[0][0].node).toBe(
+        NextQuery.operation,
+      );
       expect(environment.retain.mock.calls[0][0].variables).toEqual(variables);
     });
 
@@ -907,7 +912,9 @@ describe('ReactRelayQueryRenderer', () => {
       instance.getInstance().setProps(nextProps);
       expect(environment.retain.mock.calls.length).toBe(1);
       expect(environment.retain.mock.calls[0][0].dataID).toBe('client:root');
-      expect(environment.retain.mock.calls[0][0].node).toBe(NextQuery.query);
+      expect(environment.retain.mock.calls[0][0].node).toBe(
+        NextQuery.operation,
+      );
       expect(environment.retain.mock.calls[0][0].variables).toEqual(variables);
       environment.mock.resolve(NextQuery, {
         data: {
@@ -1013,7 +1020,9 @@ describe('ReactRelayQueryRenderer', () => {
       instance.getInstance().setProps(nextProps);
       expect(environment.retain).toBeCalled();
       expect(environment.retain.mock.calls[0][0].dataID).toBe('client:root');
-      expect(environment.retain.mock.calls[0][0].node).toBe(NextQuery.query);
+      expect(environment.retain.mock.calls[0][0].node).toBe(
+        NextQuery.operation,
+      );
       expect(environment.retain.mock.calls[0][0].variables).toEqual(variables);
       environment.mock.resolve(NextQuery, {
         data: {

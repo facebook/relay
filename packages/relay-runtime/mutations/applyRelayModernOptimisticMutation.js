@@ -15,11 +15,11 @@ const invariant = require('invariant');
 const isRelayModernEnvironment = require('isRelayModernEnvironment');
 const setRelayModernMutationConfigs = require('setRelayModernMutationConfigs');
 
-import type {Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {Environment, SelectorStoreUpdater} from 'RelayStoreTypes';
-import type {RelayMutationConfig} from 'RelayTypes';
-import type {Variables} from 'RelayTypes';
+import type {Disposable} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
+import type {RelayMutationConfig} from 'react-relay/classic/tools/RelayTypes';
+import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 export type OptimisticMutationConfig = {|
   configs?: ?Array<RelayMutationConfig>,
@@ -42,8 +42,11 @@ function applyRelayModernOptimisticMutation(
     'commitRelayModernMutation: expect `environment` to be an instance of ' +
       '`RelayModernEnvironment`.',
   );
-  const {createOperationSelector, getOperation} = environment.unstable_internal;
-  const mutation = getOperation(config.mutation);
+  const {createOperationSelector, getRequest} = environment.unstable_internal;
+  const mutation = getRequest(config.mutation);
+  if (mutation.operationKind !== 'mutation') {
+    throw new Error('commitRelayModernMutation: Expected mutation operation');
+  }
   let {optimisticUpdater} = config;
   const {configs, optimisticResponse, variables} = config;
   const operation = createOperationSelector(mutation, variables);

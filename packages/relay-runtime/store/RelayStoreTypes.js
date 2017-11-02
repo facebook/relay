@@ -12,6 +12,18 @@
 'use strict';
 
 import type {
+  ConcreteScalarField,
+  ConcreteLinkedField,
+  ConcreteFragment,
+  ConcreteSelectableNode,
+  RequestNode,
+} from 'RelayConcreteNode';
+import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
+import type {PayloadData} from 'RelayNetworkTypes';
+import type {PayloadError, UploadableMap} from 'RelayNetworkTypes';
+import type RelayObservable from 'RelayObservable';
+import type {RecordState} from 'RelayRecordState';
+import type {
   /* $FlowFixMe(>=0.55.0 site=www) This comment suppresses an error found when
    * Flow v0.55 was deployed. To see the error delete this comment and run
    * Flow. */
@@ -24,31 +36,19 @@ import type {
   CUnstableEnvironmentCore,
   Disposable,
   Record,
-} from 'RelayCombinedEnvironmentTypes';
-import type {
-  ConcreteBatch,
-  ConcreteScalarField,
-  ConcreteLinkedField,
-  ConcreteFragment,
-  ConcreteSelectableNode,
-} from 'RelayConcreteNode';
-import type {DataID} from 'RelayInternalTypes';
-import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
-import type {PayloadData} from 'RelayNetworkTypes';
-import type {PayloadError, UploadableMap} from 'RelayNetworkTypes';
-import type RelayObservable from 'RelayObservable';
-import type {RecordState} from 'RelayRecordState';
-import type {Variables} from 'RelayTypes';
+} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
+import type {DataID} from 'react-relay/classic/tools/RelayInternalTypes';
+import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 type TEnvironment = Environment;
 type TFragment = ConcreteFragment;
 type TGraphQLTaggedNode = GraphQLTaggedNode;
 type TNode = ConcreteSelectableNode;
-type TOperation = ConcreteBatch;
 type TPayload = RelayResponsePayload;
+type TRequest = RequestNode;
 
 export type FragmentMap = CFragmentMap<TFragment>;
-export type OperationSelector = COperationSelector<TNode, TOperation>;
+export type OperationSelector = COperationSelector<TNode, TRequest>;
 export type RelayContext = CRelayContext<TEnvironment>;
 export type Selector = CSelector<TNode>;
 export type Snapshot = CSnapshot<TNode>;
@@ -57,7 +57,7 @@ export type UnstableEnvironmentCore = CUnstableEnvironmentCore<
   TFragment,
   TGraphQLTaggedNode,
   TNode,
-  TOperation,
+  TRequest,
 >;
 
 /**
@@ -204,7 +204,7 @@ export interface Environment
     TFragment,
     TGraphQLTaggedNode,
     TNode,
-    TOperation,
+    TRequest,
     TPayload,
   > {
   /**

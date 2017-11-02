@@ -10,14 +10,14 @@
 
 'use strict';
 
-jest.mock('generateClientID').mock('warning');
+jest.mock('../../legacy/store/generateClientID').mock('warning');
 
 require('configureForRelayOSS');
 
-const GraphQLRange = require('GraphQLRange');
+const GraphQLRange = require('../../legacy/store/GraphQLRange');
 const RelayClassic = require('RelayClassic');
-const RelayMetaRoute = require('RelayMetaRoute');
-const RelayQuery = require('RelayQuery');
+const RelayMetaRoute = require('../../route/RelayMetaRoute');
+const RelayQuery = require('../../query/RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
 const {ConnectionInterface} = require('RelayRuntime');
@@ -32,8 +32,8 @@ describe('writeRelayQueryPayload()', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    RelayRecordStore = require('RelayRecordStore');
-    RelayRecordWriter = require('RelayRecordWriter');
+    RelayRecordStore = require('../../store/RelayRecordStore');
+    RelayRecordWriter = require('../../store/RelayRecordWriter');
 
     ({
       END_CURSOR,

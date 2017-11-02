@@ -1,13 +1,3 @@
-export type RecursiveFragment = {|
-  +uri: ?string,
-  +width: ?number,
-|};
-
-export type AnotherRecursiveFragment = {|
-  +uri: ?string,
-  +height: ?number,
-|};
-
 import type { FragmentReference } from 'relay-runtime';
 type PhotoFragment = any;
 export type UserProfile = {|
@@ -22,4 +12,14 @@ export type UserProfile = {|
 export type PhotoFragment = {|
   +uri: ?string,
   +width: ?number,
+|};
+
+export type RecursiveFragment = {|
+  +uri: ?string,
+  +width: ?number,
+|};
+
+export type AnotherRecursiveFragment = {|
+  +uri: ?string,
+  +height: ?number,
 |};

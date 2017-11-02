@@ -15,10 +15,10 @@ require('configureForRelayOSS');
 jest.mock('warning');
 
 const RelayClassic = require('RelayClassic');
-const RelayMetaRoute = require('RelayMetaRoute');
-const RelayQueryPath = require('RelayQueryPath');
-const RelayRecordStore = require('RelayRecordStore');
-const RelayRecordWriter = require('RelayRecordWriter');
+const RelayMetaRoute = require('../../route/RelayMetaRoute');
+const RelayQueryPath = require('../RelayQueryPath');
+const RelayRecordStore = require('../../store/RelayRecordStore');
+const RelayRecordWriter = require('../../store/RelayRecordWriter');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayQueryPath', () => {

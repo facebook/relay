@@ -12,17 +12,17 @@
 
 jest.dontMock('GraphQLStoreChangeEmitter').mock('relayUnstableBatchedUpdates');
 
-const RelayEnvironment = require('RelayEnvironment');
-const RelayFragmentSpecResolver = require('RelayFragmentSpecResolver');
-const {ROOT_ID} = require('RelayStoreConstants');
+const RelayEnvironment = require('../../store/RelayEnvironment');
+const RelayFragmentSpecResolver = require('../RelayFragmentSpecResolver');
+const {ROOT_ID} = require('../../store/RelayStoreConstants');
 const RelayTestUtils = require('RelayTestUtils');
-const generateRQLFieldAlias = require('generateRQLFieldAlias');
+const generateRQLFieldAlias = require('../../query/generateRQLFieldAlias');
 const {
   graphql,
   getClassicFragment,
   getClassicOperation,
-} = require('RelayGraphQLTag');
-const {createOperationSelector} = require('RelayOperationSelector');
+} = require('../../query/RelayGraphQLTag');
+const {createOperationSelector} = require('../RelayOperationSelector');
 
 describe('RelayFragmentSpecResolver', () => {
   let UserFragment;

@@ -4,15 +4,14 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule isClassicRelayContext
  * @flow
  * @format
  */
 
 'use strict';
 
-const isClassicRelayEnvironment = require('isClassicRelayEnvironment');
-const isRelayVariables = require('isRelayVariables');
+const isClassicRelayEnvironment = require('./isClassicRelayEnvironment');
+const isRelayVariables = require('../environment/isRelayVariables');
 
 /**
  * Determine if a given value is an object that implements the `RelayContext`

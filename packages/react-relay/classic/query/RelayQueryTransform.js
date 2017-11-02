@@ -4,16 +4,15 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayQueryTransform
  * @flow
  * @format
  */
 
 'use strict';
 
-const RelayQueryVisitor = require('RelayQueryVisitor');
+const RelayQueryVisitor = require('./RelayQueryVisitor');
 
-import type RelayQuery from 'RelayQuery';
+import type RelayQuery from './RelayQuery';
 
 /**
  * @internal

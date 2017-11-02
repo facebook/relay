@@ -10,7 +10,7 @@
 'use strict';
 
 const RelayPendingQueryTracker = jest.genMockFromModule(
-  'RelayPendingQueryTracker',
+  '../RelayPendingQueryTracker',
 );
 
 class MockPendingFetch {

@@ -13,7 +13,7 @@
 jest.useFakeTimers();
 jest.mock('warning');
 
-const RelayReadyState = require('RelayReadyState');
+const RelayReadyState = require('../RelayReadyState');
 const RelayTestUtils = require('RelayTestUtils');
 
 const warning = require('warning');

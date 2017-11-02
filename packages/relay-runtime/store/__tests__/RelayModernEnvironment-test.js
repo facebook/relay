@@ -621,11 +621,10 @@ describe('RelayModernEnvironment', () => {
       error = jest.fn();
       next = jest.fn();
       callbacks = {complete, error, next};
-      fetch = jest.fn(
-        (_query, _variables, _cacheConfig) =>
-          new RelayObservable(sink => {
-            subject = sink;
-          }),
+      fetch = jest.fn((_query, _variables, _cacheConfig) =>
+        RelayObservable.create(sink => {
+          subject = sink;
+        }),
       );
       environment = new RelayModernEnvironment({
         network: RelayNetwork.create(fetch),
@@ -792,11 +791,10 @@ describe('RelayModernEnvironment', () => {
       };
       operation = createOperationSelector(CreateCommentMutation, variables);
 
-      fetch = jest.fn(
-        (_query, _variables, _cacheConfig) =>
-          new RelayObservable(sink => {
-            subject = sink;
-          }),
+      fetch = jest.fn((_query, _variables, _cacheConfig) =>
+        RelayObservable.create(sink => {
+          subject = sink;
+        }),
       );
       environment = new RelayModernEnvironment({
         network: RelayNetwork.create(fetch),

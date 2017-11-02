@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule ReactRelayPaginationContainer
  * @flow
  * @format
  */
@@ -12,38 +11,49 @@
 'use strict';
 
 const React = require('React');
-const RelayProfiler = require('RelayProfiler');
-const RelayPropTypes = require('RelayPropTypes');
+const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
 const areEqual = require('areEqual');
-const buildReactRelayContainer = require('buildReactRelayContainer');
+const buildReactRelayContainer = require('./buildReactRelayContainer');
 const invariant = require('invariant');
-const isRelayContext = require('isRelayContext');
-const isScalarAndEqual = require('isScalarAndEqual');
+const isRelayContext = require('../classic/environment/isRelayContext');
+const isScalarAndEqual = require('../classic/util/isScalarAndEqual');
 const nullthrows = require('nullthrows');
 const warning = require('warning');
 
-const {profileContainer} = require('ReactRelayContainerProfiler');
-const {getComponentName, getReactComponent} = require('RelayContainerUtils');
-const {ConnectionInterface, Observable} = require('RelayRuntime');
+const {
+  getComponentName,
+  getReactComponent,
+} = require('../classic/container/RelayContainerUtils');
+const {profileContainer} = require('./ReactRelayContainerProfiler');
+const {
+  ConnectionInterface,
+  RelayConcreteNode,
+  RelayProfiler,
+  Observable,
+} = require('RelayRuntime');
 
+import type {
+  CacheConfig,
+  Disposable,
+  FragmentSpecResolver,
+} from '../classic/environment/RelayCombinedEnvironmentTypes';
+import type {Variables} from '../classic/tools/RelayTypes';
 import type {
   ObserverOrCallback,
   GeneratedNodeMap,
   RefetchOptions,
   RelayPaginationProp,
-} from 'ReactRelayTypes';
+} from './ReactRelayTypes';
 import type {
-  CacheConfig,
-  Disposable,
-  FragmentSpecResolver,
-} from 'RelayCombinedEnvironmentTypes';
-import type {ConnectionMetadata} from 'RelayConnectionHandler';
-import type {PageInfo} from 'RelayConnectionInterface';
-import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
-import type {Observer, Subscription} from 'RelayObservable';
-import type {FragmentMap, RelayContext} from 'RelayStoreTypes';
-import type {Variables} from 'RelayTypes';
+  ConnectionMetadata,
+  FragmentMap,
+  GraphQLTaggedNode,
+  Observer,
+  PageInfo,
+  RelayContext,
+  Subscription,
+} from 'RelayRuntime';
 
 type ContainerState = {
   data: {[key: string]: mixed},
@@ -296,7 +306,7 @@ function toObserver(observerOrCallback: ?ObserverOrCallback): Observer<void> {
           typeof observerOrCallback === 'function' && observerOrCallback();
         },
       }
-    : observerOrCallback || {};
+    : observerOrCallback || ({}: any);
 }
 
 function createContainerWithFragments<
@@ -574,7 +584,7 @@ function createContainerWithFragments<
       const observer = toObserver(observerOrCallback);
       const connectionData = this._getConnectionData();
       if (!connectionData) {
-        new Observable(sink => sink.complete()).subscribe(observer);
+        Observable.create(sink => sink.complete()).subscribe(observer);
         return null;
       }
       const totalCount = connectionData.edgeCount + pageSize;
@@ -603,7 +613,7 @@ function createContainerWithFragments<
       const {environment} = assertRelayContext(this.context.relay);
       const {
         createOperationSelector,
-        getOperation,
+        getRequest,
         getVariablesFromObject,
       } = environment.unstable_internal;
       const props = {
@@ -644,8 +654,14 @@ function createContainerWithFragments<
       if (cacheConfig && options && options.rerunParamExperimental) {
         cacheConfig.rerunParamExperimental = options.rerunParamExperimental;
       }
-      const query = getOperation(connectionConfig.query);
-      const operation = createOperationSelector(query, fetchVariables);
+      const request = getRequest(connectionConfig.query);
+      if (request.kind === RelayConcreteNode.BATCH_REQUEST) {
+        throw new Error(
+          'ReactRelayPaginationContainer: Batch request not yet ' +
+            'implemented (T22954884)',
+        );
+      }
+      const operation = createOperationSelector(request, fetchVariables);
 
       let refetchSubscription = null;
 
@@ -701,14 +717,13 @@ function createContainerWithFragments<
       this._isARequestInFlight = true;
       refetchSubscription = environment
         .execute({operation, cacheConfig})
-        .mergeMap(
-          payload =>
-            new Observable(sink => {
-              onNext(payload, () => {
-                sink.next(); // pass void to public observer's `next`
-                sink.complete();
-              });
-            }),
+        .mergeMap(payload =>
+          Observable.create(sink => {
+            onNext(payload, () => {
+              sink.next(); // pass void to public observer's `next`
+              sink.complete();
+            });
+          }),
         )
         // use do instead of finally so that observer's `complete` fires after cleanup
         .do({

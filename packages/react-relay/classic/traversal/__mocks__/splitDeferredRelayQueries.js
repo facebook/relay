@@ -9,4 +9,4 @@
 
 'use strict';
 
-module.exports = jest.fn(require.requireActual('splitDeferredRelayQueries'));
+module.exports = jest.fn(require.requireActual('../splitDeferredRelayQueries'));

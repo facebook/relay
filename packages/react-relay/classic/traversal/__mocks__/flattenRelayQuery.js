@@ -9,4 +9,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('flattenRelayQuery');
+module.exports = require.requireActual('../flattenRelayQuery');

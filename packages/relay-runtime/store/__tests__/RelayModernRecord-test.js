@@ -14,7 +14,7 @@ const RelayModernRecord = require('RelayModernRecord');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 const RelayStoreUtils = require('RelayStoreUtils');
 
-const deepFreeze = require('deepFreeze');
+const deepFreeze = require('react-relay/classic/tools/deepFreeze');
 
 const {ID_KEY, REF_KEY, REFS_KEY, TYPENAME_KEY} = RelayStoreUtils;
 

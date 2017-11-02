@@ -9,4 +9,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('RelayRecordWriter');
+module.exports = require.requireActual('../RelayRecordWriter');

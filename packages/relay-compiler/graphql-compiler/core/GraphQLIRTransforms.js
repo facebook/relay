@@ -14,7 +14,6 @@
 const FilterDirectivesTransform = require('../transforms/FilterDirectivesTransform');
 const FlattenTransform = require('../transforms/FlattenTransform');
 const InlineFragmentsTransform = require('../transforms/InlineFragmentsTransform');
-const RelayMaskTransform = require('../transforms/RelayMaskTransform');
 const SkipClientFieldTransform = require('../transforms/SkipClientFieldTransform');
 const SkipRedundantNodesTransform = require('../transforms/SkipRedundantNodesTransform');
 const SkipUnreachableNodeTransform = require('../transforms/SkipUnreachableNodeTransform');
@@ -29,11 +28,7 @@ export type IRTransform = (
 
 // Transforms applied to fragments used for reading data from a store
 const FRAGMENT_TRANSFORMS: Array<IRTransform> = [
-  RelayMaskTransform.transform,
-  (ctx: CompilerContext) =>
-    FlattenTransform.transform(ctx, {
-      flattenAbstractTypes: true,
-    }),
+  FlattenTransform.transformWithOptions({flattenAbstractTypes: true}),
   SkipRedundantNodesTransform.transform,
 ];
 
@@ -47,10 +42,9 @@ const QUERY_TRANSFORMS: Array<IRTransform> = [
 // Transforms applied to the code used to process a query response.
 const CODEGEN_TRANSFORMS: Array<IRTransform> = [
   InlineFragmentsTransform.transform,
-  (ctx: CompilerContext) =>
-    FlattenTransform.transform(ctx, {
-      flattenAbstractTypes: true,
-    }),
+  FlattenTransform.transformWithOptions({
+    flattenAbstractTypes: true,
+  }),
   SkipRedundantNodesTransform.transform,
   FilterDirectivesTransform.transform,
 ];

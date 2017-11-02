@@ -23,7 +23,8 @@ const formatGeneratedModule: FormatModule = ({
   devTextGenerator,
   relayRuntimeModule,
 }) => {
-  const objectName = documentType === 'ConcreteBatch' ? 'batch' : 'fragment';
+  const objectName =
+    documentType === 'ConcreteFragment' ? 'fragment' : 'request';
   const docTextComment = docText ? '\n/*\n' + docText.trim() + '\n*/\n' : '';
   const hashText = hash ? `\n * ${hash}` : '';
   const devOnlyText = devTextGenerator ? devTextGenerator(objectName) : '';

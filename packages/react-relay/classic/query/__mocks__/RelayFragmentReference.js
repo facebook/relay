@@ -9,4 +9,4 @@
 
 'use strict';
 
-module.exports = require.requireActual('RelayFragmentReference');
+module.exports = require.requireActual('../RelayFragmentReference');

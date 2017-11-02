@@ -14,11 +14,11 @@ jest.enableAutomock();
 
 require('configureForRelayOSS');
 
-const GraphQLRange = require('GraphQLRange');
+const GraphQLRange = require('../../legacy/store/GraphQLRange');
 const RelayClassic = require('RelayClassic');
 const RelayTestUtils = require('RelayTestUtils');
 
-const checkRelayQueryData = require('checkRelayQueryData');
+const checkRelayQueryData = require('../checkRelayQueryData');
 
 const {ConnectionInterface} = require('RelayRuntime');
 
@@ -39,7 +39,7 @@ describe('checkRelayQueryData', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    RelayRecordStore = require('RelayRecordStore');
+    RelayRecordStore = require('../../store/RelayRecordStore');
 
     ({HAS_NEXT_PAGE, HAS_PREV_PAGE} = ConnectionInterface.get());
   });

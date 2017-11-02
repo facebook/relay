@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayReadyStateRenderer
  * @flow
  * @format
  */
@@ -12,21 +11,25 @@
 'use strict';
 
 const React = require('React');
-const RelayFragmentPointer = require('RelayFragmentPointer');
-const RelayPropTypes = require('RelayPropTypes');
-const RelayStaticContainer = require('RelayStaticContainer');
+const RelayFragmentPointer = require('../query/RelayFragmentPointer');
+const RelayPropTypes = require('./RelayPropTypes');
+const RelayStaticContainer = require('./RelayStaticContainer');
 
-const getRelayQueries = require('getRelayQueries');
+const getRelayQueries = require('./getRelayQueries');
 const mapObject = require('mapObject');
 
+import type {RelayQueryConfigInterface} from '../query-config/RelayQueryConfig';
+import type RelayQuery from '../query/RelayQuery';
 import type {
   ClassicRelayContext,
   RelayEnvironmentInterface,
-} from 'RelayEnvironment';
-import type {RelayQuerySet} from 'RelayInternalTypes';
-import type RelayQuery from 'RelayQuery';
-import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
-import type {ReadyState, ReadyStateEvent, RelayContainer} from 'RelayTypes';
+} from '../store/RelayEnvironment';
+import type {RelayQuerySet} from '../tools/RelayInternalTypes';
+import type {
+  ReadyState,
+  ReadyStateEvent,
+  RelayContainer,
+} from '../tools/RelayTypes';
 
 type Props = {
   Container: RelayContainer,

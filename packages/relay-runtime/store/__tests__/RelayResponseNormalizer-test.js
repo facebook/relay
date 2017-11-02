@@ -91,7 +91,7 @@ describe('RelayResponseNormalizer', () => {
       recordSource,
       {
         dataID: ROOT_ID,
-        node: FooQuery,
+        node: FooQuery.operation,
         variables: {id: '1', size: 32},
       },
       payload,
@@ -199,7 +199,7 @@ describe('RelayResponseNormalizer', () => {
       recordSource,
       {
         dataID: ROOT_ID,
-        node: UserFriends.query,
+        node: UserFriends.operation,
         variables: {id: '1'},
       },
       payload,
@@ -280,7 +280,7 @@ describe('RelayResponseNormalizer', () => {
       recordSource,
       {
         dataID: ROOT_ID,
-        node: UserFriends.query,
+        node: UserFriends.operation,
         variables: {id: '1', orderBy: ['last name'], isViewerFriend: true},
       },
       payload1,
@@ -318,7 +318,7 @@ describe('RelayResponseNormalizer', () => {
       recordSource,
       {
         dataID: ROOT_ID,
-        node: UserFriends.query,
+        node: UserFriends.operation,
         variables: {id: '1', orderBy: ['first name'], isViewerFriend: true},
       },
       payload2,
@@ -371,7 +371,7 @@ describe('RelayResponseNormalizer', () => {
         recordSource,
         {
           dataID: ROOT_ID,
-          node: BarQuery,
+          node: BarQuery.operation,
           variables: {id: '1'},
         },
         payload,
@@ -432,7 +432,7 @@ describe('RelayResponseNormalizer', () => {
         recordSource,
         {
           dataID: ROOT_ID,
-          node: BarQuery,
+          node: BarQuery.operation,
           variables: {id: '1'},
         },
         payload,
@@ -453,7 +453,7 @@ describe('RelayResponseNormalizer', () => {
         recordSource,
         {
           dataID: ROOT_ID,
-          node: BarQuery,
+          node: BarQuery.operation,
           variables: {id: '1'},
         },
         payload,
@@ -501,7 +501,7 @@ describe('RelayResponseNormalizer', () => {
       recordSource,
       {
         dataID: ROOT_ID,
-        node: StrippedQuery,
+        node: StrippedQuery.operation,
         variables: {id: '1', size: 32},
       },
       payload,

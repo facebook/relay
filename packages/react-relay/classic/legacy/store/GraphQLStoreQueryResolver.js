@@ -4,24 +4,22 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule GraphQLStoreQueryResolver
  * @flow
  * @format
  */
 
 'use strict';
 
-const RelayProfiler = require('RelayProfiler');
-
-const readRelayQueryData = require('readRelayQueryData');
-const recycleNodesInto = require('recycleNodesInto');
+const readRelayQueryData = require('../../store/readRelayQueryData');
 const warning = require('warning');
 
-import type RelayGarbageCollector from 'RelayGarbageCollector';
-import type {DataID} from 'RelayInternalTypes';
-import type RelayQuery from 'RelayQuery';
-import type RelayStoreData from 'RelayStoreData';
-import type {ChangeSubscription, StoreReaderData} from 'RelayTypes';
+const {recycleNodesInto, RelayProfiler} = require('RelayRuntime');
+
+import type RelayQuery from '../../query/RelayQuery';
+import type RelayGarbageCollector from '../../store/RelayGarbageCollector';
+import type RelayStoreData from '../../store/RelayStoreData';
+import type {DataID} from '../../tools/RelayInternalTypes';
+import type {ChangeSubscription, StoreReaderData} from '../../tools/RelayTypes';
 
 type DataIDSet = {[dataID: DataID]: any};
 

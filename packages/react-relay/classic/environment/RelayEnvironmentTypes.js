@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayEnvironmentTypes
  * @flow
  * @format
  */
@@ -15,7 +14,8 @@ import type {
   ConcreteFragment,
   ConcreteFragmentDefinition,
   ConcreteOperationDefinition,
-} from 'ConcreteQuery';
+} from '../query/ConcreteQuery';
+import type {Variables, RelayMutationConfig} from '../tools/RelayTypes';
 import type {
   CEnvironment,
   CFragmentMap,
@@ -25,20 +25,18 @@ import type {
   CSnapshot,
   CUnstableEnvironmentCore,
   Disposable,
-} from 'RelayCombinedEnvironmentTypes';
-import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
-import type {UploadableMap} from 'RelayNetworkTypes';
-import type {Variables, RelayMutationConfig} from 'RelayTypes';
+} from './RelayCombinedEnvironmentTypes';
+import type {GraphQLTaggedNode, UploadableMap} from 'RelayRuntime';
 
 type TEnvironment = Environment;
 type TFragment = ConcreteFragmentDefinition;
 type TGraphQLTaggedNode = GraphQLTaggedNode;
 type TNode = ConcreteFragment;
-type TOperation = ConcreteOperationDefinition;
+type TRequest = ConcreteOperationDefinition;
 type TPayload = Selector;
 
 export type FragmentMap = CFragmentMap<TFragment>;
-export type OperationSelector = COperationSelector<TNode, TOperation>;
+export type OperationSelector = COperationSelector<TNode, TRequest>;
 export type RelayContext = CRelayContext<TEnvironment>;
 export type Selector = CSelector<TNode>;
 export type Snapshot = CSnapshot<TNode>;
@@ -47,7 +45,7 @@ export type UnstableEnvironmentCore = CUnstableEnvironmentCore<
   TFragment,
   TGraphQLTaggedNode,
   TNode,
-  TOperation,
+  TRequest,
 >;
 
 /**
@@ -60,7 +58,7 @@ export interface Environment
     TFragment,
     TGraphQLTaggedNode,
     TNode,
-    TOperation,
+    TRequest,
     TPayload,
   > {
   /**

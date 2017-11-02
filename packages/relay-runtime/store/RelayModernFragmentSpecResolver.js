@@ -12,7 +12,7 @@
 'use strict';
 
 const invariant = require('invariant');
-const isScalarAndEqual = require('isScalarAndEqual');
+const isScalarAndEqual = require('react-relay/classic/util/isScalarAndEqual');
 
 const {
   areEqualSelectors,
@@ -20,19 +20,19 @@ const {
 } = require('RelayModernSelector');
 
 import type {
-  Disposable,
-  FragmentSpecResolver,
-  FragmentSpecResults,
-  SelectorData,
-} from 'RelayCombinedEnvironmentTypes';
-import type {
   Environment,
   FragmentMap,
   RelayContext,
   Selector,
   Snapshot,
 } from 'RelayStoreTypes';
-import type {Variables} from 'RelayTypes';
+import type {
+  Disposable,
+  FragmentSpecResolver,
+  FragmentSpecResults,
+  SelectorData,
+} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
+import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 type Props = {[key: string]: mixed};
 type Resolvers = {[key: string]: ?(SelectorListResolver | SelectorResolver)};

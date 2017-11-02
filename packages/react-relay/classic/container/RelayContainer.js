@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayContainer
  * @flow
  * @format
  */
@@ -14,42 +13,45 @@
 const ErrorUtils = require('ErrorUtils');
 const PropTypes = require('prop-types');
 const React = require('React');
-const RelayContainerComparators = require('RelayContainerComparators');
-const RelayContainerProxy = require('RelayContainerProxy');
-const RelayFragmentPointer = require('RelayFragmentPointer');
-const RelayFragmentReference = require('RelayFragmentReference');
-const RelayMetaRoute = require('RelayMetaRoute');
-const RelayMutationTransaction = require('RelayMutationTransaction');
-const RelayProfiler = require('RelayProfiler');
-const RelayPropTypes = require('RelayPropTypes');
-const RelayQuery = require('RelayQuery');
-const RelayRecord = require('RelayRecord');
-const RelayRecordStatusMap = require('RelayRecordStatusMap');
+const RelayContainerComparators = require('./RelayContainerComparators');
+const RelayContainerProxy = require('./RelayContainerProxy');
+const RelayFragmentPointer = require('../query/RelayFragmentPointer');
+const RelayFragmentReference = require('../query/RelayFragmentReference');
+const RelayMetaRoute = require('../route/RelayMetaRoute');
+const RelayMutationTransaction = require('../mutation/RelayMutationTransaction');
+const RelayPropTypes = require('./RelayPropTypes');
+const RelayQuery = require('../query/RelayQuery');
+const RelayRecord = require('../store/RelayRecord');
+const RelayRecordStatusMap = require('../store/RelayRecordStatusMap');
 
 const areEqual = require('areEqual');
-const buildRQL = require('buildRQL');
+const buildRQL = require('../query/buildRQL');
 const filterObject = require('filterObject');
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
-const isClassicRelayContext = require('isClassicRelayContext');
-const relayUnstableBatchedUpdates = require('relayUnstableBatchedUpdates');
+const isClassicRelayContext = require('../store/isClassicRelayContext');
+const relayUnstableBatchedUpdates = require('../tools/relayUnstableBatchedUpdates');
 const shallowEqual = require('shallowEqual');
 const warning = require('warning');
 
-const {getComponentName, getReactComponent} = require('RelayContainerUtils');
+const {getComponentName, getReactComponent} = require('./RelayContainerUtils');
+const {RelayProfiler} = require('RelayRuntime');
 
-import type {ConcreteFragment} from 'ConcreteQuery';
-import type {FragmentResolver, ClassicRelayContext} from 'RelayEnvironment';
-import type {DataID, RelayQuerySet} from 'RelayInternalTypes';
-import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
+import type {RelayQueryConfigInterface} from '../query-config/RelayQueryConfig';
+import type {ConcreteFragment} from '../query/ConcreteQuery';
+import type {RelayQLFragmentBuilder} from '../query/buildRQL';
+import type {
+  FragmentResolver,
+  ClassicRelayContext,
+} from '../store/RelayEnvironment';
+import type {DataID, RelayQuerySet} from '../tools/RelayInternalTypes';
 import type {
   Abortable,
   ComponentReadyStateChangeCallback,
   RelayContainer as RelayContainerClass,
   RelayProp,
   Variables,
-} from 'RelayTypes';
-import type {RelayQLFragmentBuilder} from 'buildRQL';
+} from '../tools/RelayTypes';
 
 type FragmentPointer = {
   fragment: RelayQuery.Fragment,

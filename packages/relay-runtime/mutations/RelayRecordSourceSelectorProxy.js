@@ -16,13 +16,13 @@ const invariant = require('invariant');
 const {getStorageKey} = require('RelayStoreUtils');
 
 import type {ConcreteLinkedField} from 'RelayConcreteNode';
-import type {DataID} from 'RelayInternalTypes';
 import type {
   RecordProxy,
   Selector,
   RecordSourceProxy,
   RecordSourceSelectorProxy,
 } from 'RelayStoreTypes';
+import type {DataID} from 'react-relay/classic/tools/RelayInternalTypes';
 
 /**
  * @internal

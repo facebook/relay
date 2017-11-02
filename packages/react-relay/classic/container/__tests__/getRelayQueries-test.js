@@ -18,7 +18,7 @@ const React = require('React');
 const RelayClassic = require('RelayClassic');
 const RelayTestUtils = require('RelayTestUtils');
 
-const getRelayQueries = require('getRelayQueries');
+const getRelayQueries = require('../getRelayQueries');
 
 describe('getRelayQueries', () => {
   let MockPageContainer;

@@ -16,12 +16,12 @@ const isRelayModernEnvironment = require('isRelayModernEnvironment');
 const setRelayModernMutationConfigs = require('setRelayModernMutationConfigs');
 const warning = require('warning');
 
-import type {Disposable} from 'RelayCombinedEnvironmentTypes';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {PayloadError, UploadableMap} from 'RelayNetworkTypes';
 import type {Environment, SelectorStoreUpdater} from 'RelayStoreTypes';
-import type {RelayMutationConfig} from 'RelayTypes';
-import type {Variables} from 'RelayTypes';
+import type {Disposable} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
+import type {RelayMutationConfig} from 'react-relay/classic/tools/RelayTypes';
+import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 export type MutationConfig<T> = {|
   configs?: Array<RelayMutationConfig>,
@@ -51,8 +51,11 @@ function commitRelayModernMutation<T>(
     'commitRelayModernMutation: expect `environment` to be an instance of ' +
       '`RelayModernEnvironment`.',
   );
-  const {createOperationSelector, getOperation} = environment.unstable_internal;
-  const mutation = getOperation(config.mutation);
+  const {createOperationSelector, getRequest} = environment.unstable_internal;
+  const mutation = getRequest(config.mutation);
+  if (mutation.operationKind !== 'mutation') {
+    throw new Error('commitRelayModernMutation: Expected mutation operation');
+  }
   let {optimisticResponse, optimisticUpdater, updater} = config;
   const {configs, onError, variables, uploadables} = config;
   const operation = createOperationSelector(mutation, variables);
@@ -67,11 +70,11 @@ function commitRelayModernMutation<T>(
   }
   if (
     optimisticResponse &&
-    mutation.query.selections &&
-    mutation.query.selections.length === 1 &&
-    mutation.query.selections[0].kind === 'LinkedField'
+    mutation.fragment.selections &&
+    mutation.fragment.selections.length === 1 &&
+    mutation.fragment.selections[0].kind === 'LinkedField'
   ) {
-    const mutationRoot = mutation.query.selections[0].name;
+    const mutationRoot = mutation.fragment.selections[0].name;
     warning(
       optimisticResponse[mutationRoot],
       'commitRelayModernMutation: Expected `optimisticResponse` to be wrapped ' +

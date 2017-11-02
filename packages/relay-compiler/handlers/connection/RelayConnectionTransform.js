@@ -15,11 +15,6 @@ const RelayParser = require('../../core/RelayParser');
 
 const invariant = require('invariant');
 
-const {
-  getLiteralArgumentValues,
-  IRTransformer,
-  SchemaUtils,
-} = require('../../graphql-compiler/GraphQLCompilerPublic');
 const {AFTER, BEFORE, FIRST, KEY, LAST} = require('./RelayConnectionConstants');
 // TODO T21875029 ../../../relay-runtime/RelayRuntime
 const {ConnectionInterface} = require('RelayRuntime');
@@ -32,7 +27,14 @@ const {
   GraphQLUnionType,
   parse,
 } = require('graphql');
+const {
+  getLiteralArgumentValues,
+  IRTransformer,
+  SchemaUtils,
+} = require('graphql-compiler');
 
+// TODO T21875029 ../../../relay-runtime/handlers/connection/RelayConnectionHandler
+import type {ConnectionMetadata} from 'RelayConnectionHandler';
 import type {
   Argument,
   Fragment,
@@ -40,9 +42,7 @@ import type {
   LinkedField,
   Root,
   CompilerContext,
-} from '../../graphql-compiler/GraphQLCompilerPublic';
-// TODO T21875029 ../../../relay-runtime/handlers/connection/RelayConnectionHandler
-import type {ConnectionMetadata} from 'RelayConnectionHandler';
+} from 'graphql-compiler';
 import type {GraphQLType} from 'graphql';
 
 type Options = {
@@ -65,7 +65,7 @@ const CONNECTION = 'connection';
  * - Inserts a sub-fragment on the field to ensure that standard connection
  *   fields are fetched (e.g. cursors, node ids, page info).
  */
-function transform(context: CompilerContext): CompilerContext {
+function relayConnectionTransform(context: CompilerContext): CompilerContext {
   return IRTransformer.transform(
     context,
     {
@@ -496,5 +496,5 @@ function validateConnectionType(
 module.exports = {
   CONNECTION,
   SCHEMA_EXTENSION,
-  transform,
+  transform: relayConnectionTransform,
 };

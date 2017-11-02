@@ -4,23 +4,24 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule buildReactRelayContainer
  * @flow
  * @format
  */
 
 'use strict';
 
-const RelayPropTypes = require('RelayPropTypes');
+const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
-const assertFragmentMap = require('assertFragmentMap');
+const assertFragmentMap = require('./assertFragmentMap');
 const mapObject = require('mapObject');
 
-const {getComponentName, getContainerName} = require('RelayContainerUtils');
+const {
+  getComponentName,
+  getContainerName,
+} = require('../classic/container/RelayContainerUtils');
 
-import type {GeneratedNodeMap} from 'ReactRelayTypes';
-import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
-import type {FragmentMap} from 'RelayStoreTypes';
+import type {GeneratedNodeMap} from './ReactRelayTypes';
+import type {GraphQLTaggedNode, FragmentMap} from 'RelayRuntime';
 
 const containerContextTypes = {
   relay: RelayPropTypes.Relay,

@@ -15,17 +15,20 @@ const RelayConnectionHandler = require('RelayConnectionHandler');
 
 const warning = require('warning');
 
-import type {SelectorData} from 'RelayCombinedEnvironmentTypes';
-import type {ConcreteBatch} from 'RelayConcreteNode';
+import type {RequestNode} from 'RelayConcreteNode';
 import type {
   RecordSourceSelectorProxy,
   SelectorStoreUpdater,
 } from 'RelayStoreTypes';
-import type {RelayMutationConfig, Variables} from 'RelayTypes';
+import type {SelectorData} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
+import type {
+  RelayMutationConfig,
+  Variables,
+} from 'react-relay/classic/tools/RelayTypes';
 
 function setRelayModernMutationConfigs(
   configs: Array<RelayMutationConfig>,
-  operation: ConcreteBatch,
+  request: RequestNode,
   optimisticUpdater?: ?(
     store: RecordSourceSelectorProxy,
     data: ?SelectorData,
@@ -37,21 +40,21 @@ function setRelayModernMutationConfigs(
   configs.forEach(config => {
     switch (config.type) {
       case 'NODE_DELETE':
-        const nodeDeleteResult = nodeDelete(config, operation);
+        const nodeDeleteResult = nodeDelete(config, request);
         if (nodeDeleteResult) {
           configOptimisticUpdates.push(nodeDeleteResult);
           configUpdates.push(nodeDeleteResult);
         }
         break;
       case 'RANGE_ADD':
-        const rangeAddResult = rangeAdd(config, operation);
+        const rangeAddResult = rangeAdd(config, request);
         if (rangeAddResult) {
           configOptimisticUpdates.push(rangeAddResult);
           configUpdates.push(rangeAddResult);
         }
         break;
       case 'RANGE_DELETE':
-        const rangeDeleteResult = rangeDelete(config, operation);
+        const rangeDeleteResult = rangeDelete(config, request);
         if (rangeDeleteResult) {
           configOptimisticUpdates.push(rangeDeleteResult);
           configUpdates.push(rangeDeleteResult);
@@ -77,14 +80,14 @@ function setRelayModernMutationConfigs(
 
 function nodeDelete(
   config: RelayMutationConfig,
-  operation: ConcreteBatch,
+  request: RequestNode,
 ): ?SelectorStoreUpdater {
   let updater;
   if (config.type !== 'NODE_DELETE') {
     return;
   }
   const {deletedIDFieldName} = config;
-  const rootField = getRootField(operation);
+  const rootField = getRootField(request);
   if (rootField) {
     updater = (store: RecordSourceSelectorProxy, data: ?SelectorData) => {
       const payload = store.getRootField(rootField);
@@ -105,7 +108,7 @@ function nodeDelete(
 
 function rangeAdd(
   config: RelayMutationConfig,
-  operation: ConcreteBatch,
+  request: RequestNode,
 ): ?SelectorStoreUpdater {
   let updater;
   if (config.type !== 'RANGE_ADD') {
@@ -120,7 +123,7 @@ function rangeAdd(
     );
     return;
   }
-  const rootField = getRootField(operation);
+  const rootField = getRootField(request);
   if (connectionInfo && rootField) {
     updater = (store: RecordSourceSelectorProxy, data: ?SelectorData) => {
       const parent = store.get(parentID);
@@ -178,7 +181,7 @@ function rangeAdd(
 
 function rangeDelete(
   config: RelayMutationConfig,
-  operation: ConcreteBatch,
+  request: RequestNode,
 ): ?SelectorStoreUpdater {
   let updater;
   if (config.type !== 'RANGE_DELETE') {
@@ -198,7 +201,7 @@ function rangeDelete(
     );
     return;
   }
-  const rootField = getRootField(operation);
+  const rootField = getRootField(request);
   if (rootField) {
     updater = (store: RecordSourceSelectorProxy, data: ?SelectorData) => {
       if (data) {
@@ -317,15 +320,14 @@ function deleteNode(
   }
 }
 
-function getRootField(operation: ConcreteBatch): ?string {
+function getRootField(request: RequestNode): ?string {
   let rootField;
   if (
-    operation.fragment &&
-    operation.fragment.selections &&
-    operation.fragment.selections.length > 0 &&
-    operation.fragment.selections[0].kind === 'LinkedField'
+    request.fragment.selections &&
+    request.fragment.selections.length > 0 &&
+    request.fragment.selections[0].kind === 'LinkedField'
   ) {
-    rootField = operation.fragment.selections[0].name;
+    rootField = request.fragment.selections[0].name;
   }
   return rootField;
 }

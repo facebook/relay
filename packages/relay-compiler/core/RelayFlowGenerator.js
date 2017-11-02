@@ -34,10 +34,7 @@ const {
   transformScalarType,
   transformInputType,
 } = require('./RelayFlowTypeTransformers');
-const {
-  GraphQLNonNull,
-  GraphQLInputObjectType,
-} = require('graphql');
+const {GraphQLNonNull} = require('graphql');
 const {FlattenTransform, IRVisitor, SchemaUtils} = require('graphql-compiler');
 
 import type {ScalarTypeMapping} from './RelayFlowTypeTransformers';
@@ -52,14 +49,12 @@ type Options = {|
   +enumsHasteModule: ?string,
   +existingFragmentNames: Set<string>,
   +inputFieldWhiteList: $ReadOnlyArray<string>,
-  +recursiveFields: $ReadOnlyArray<string>,
-  +recursionLimit: number,
   +relayRuntimeModule: string,
 |};
 
 export type State = {|
   ...Options,
-  +recursionLevel: number,
+  +generatedTypes: Array<string>,
   +usedEnums: {[name: string]: GraphQLEnumType},
   +usedFragments: Set<string>,
 |};
@@ -230,9 +225,7 @@ function createVisitor(options: Options) {
     existingFragmentNames: options.existingFragmentNames,
     inputFieldWhiteList: options.inputFieldWhiteList,
     relayRuntimeModule: options.relayRuntimeModule,
-    recursiveFields: options.recursiveFields,
-    recursionLimit: options.recursionLimit,
-    recursionLevel: 0,
+    generatedTypes: [],
     usedEnums: {},
     usedFragments: new Set(),
     useHaste: options.useHaste,

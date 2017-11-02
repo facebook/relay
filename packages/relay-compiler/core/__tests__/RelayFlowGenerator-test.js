@@ -46,8 +46,6 @@ describe('RelayFlowGenerator', () => {
             enumsHasteModule: null,
             existingFragmentNames: new Set(),
             inputFieldWhiteList: [],
-            recursionLimit: 3,
-            recursiveFields: ['feedback', 'comment'],
             relayRuntimeModule: 'relay-runtime',
             useHaste: false,
           }),

@@ -26,6 +26,7 @@ const {
   GraphQLType,
   GraphQLUnionType,
 } = require('graphql');
+const {getRawType} = require('GraphQLSchemaUtils');
 
 export type ScalarTypeMapping = {
   [type: string]: string,
@@ -101,9 +102,9 @@ function transformInputType(type: GraphQLInputType, state: State) {
 }
 
 function transformInputObjectField(name: string, type: GraphQLInputType, state: State) {
-  const { recursiveFields, recursionLimit, recursionLevel } = state;
+  const { generatedTypes } = state;
   const id = t.identifier(name);
-  if (recursiveFields.indexOf(name) > -1 && recursionLevel > recursionLimit) {
+  if (generatedTypes.indexOf(getRawType(type).toString()) > -1) {
     const anyType = t.anyTypeAnnotation();
     if (type instanceof GraphQLList)
       return t.objectTypeProperty(id, readOnlyArrayOfType(anyType));
@@ -124,7 +125,7 @@ function transformNonNullableInputType(type: GraphQLInputType, state: State) {
   } else if (type instanceof GraphQLEnumType) {
     return transformGraphQLEnumType(type, state);
   } else if (type instanceof GraphQLInputObjectType) {
-    state.recursionLevel++;
+    state.generatedTypes.push(getRawType(type).toString());
     const fields = type.getFields();
     const props = Object.keys(fields)
       .map(key => fields[key])

@@ -24,7 +24,6 @@ const {
   GraphQLInterfaceType,
   GraphQLList,
   GraphQLObjectType,
-  GraphQLInputObjectType: InputObjectType,
   GraphQLSchema,
   GraphQLUnionType,
 } = require('graphql');
@@ -266,120 +265,6 @@ function definitionName(definition: DefinitionNode): string {
   throw new Error('Unkown definition kind: ' + definition.kind);
 }
 
-/**
- * Given a graph key->[string], returns the transposed graph
- */
-function transposeGraph(graph) {
-  const transposed = Object.keys(graph).reduce(
-    (g, k) => Object.assign(g, {[k]: []}),
-    {},
-  );
-  Object.keys(graph).forEach(k => {
-    graph[k].forEach(node => {
-      transposed[node].push(k);
-    });
-  });
-  return transposed;
-}
-
-/**
- * Utility function to initialize a visited map for traversing a graph key->[string]
- */
-function initVisited(graph) {
-  return Object.keys(graph).reduce(
-    (v, k) => Object.assign(v, {[k]: false}),
-    {},
-  );
-}
-
-/**
- * A depth first search utiltity function to traverse a graph
- * as deep as it can down a path with a recursive callback
- */
-function graphDFS(graph, key, visited, cb) {
-  visited[key] = true;
-  graph[key].forEach(node => {
-    if (!visited[node]) graphDFS(graph, node, visited, cb);
-    cb(node);
-  });
-}
-
-/**
- * Given a graph, gives the array of nodes in order visited in a depth first search
- */
-function graphOrderNodes(graph) {
-  const visited = initVisited(graph);
-  const orderedNodes = [];
-  Object.keys(graph).forEach(k => {
-    if (!visited[k])
-      graphDFS(graph, k, visited, node => {
-        orderedNodes.push(node);
-      });
-  });
-  return orderedNodes;
-}
-
-/**
- * Given a graph key->[string] and an array of nodes to visit in reverse order
- * gives the strongly connected components of the graph
- */
-function graphSCCs(graph, orderedNodes) {
-  const visited = initVisited(graph);
-  const sccs = [[]];
-  orderedNodes.reverse().forEach(k => {
-    if (!visited[k]) {
-      graphDFS(graph, k, visited, node => {
-        if (sccs[sccs.length - 1].indexOf(node) < 0)
-          sccs[sccs.length - 1].push(node);
-      });
-      sccs.push([]);
-    }
-  });
-  return sccs.filter(c => Boolean(c.length)); //Trim trailing component
-}
-
-function flatten(arr, el): Array<*> {
-  return arr.concat(Array.isArray(el) ? el.reduce(flatten, []) : el);
-}
-
-function objectFields(type: GraphQLType) {
-  const raw = getRawType(type);
-  if (!(raw instanceof InputObjectType)) return [];
-  const fields = raw.getFields();
-  return Object.keys(fields)
-    .map(k => fields[k])
-    .filter(
-      field =>
-        getRawType(field.type) instanceof InputObjectType,
-    );
-}
-
-/**
- * Reducer for an array of fields that builds a graph of
- * fieldName->[fieldNames]
- */
-function buildFieldGraph(graph, field) {
-  if (!field || graph.hasOwnProperty(field.name)) return graph;
-  const fields = objectFields(field.type);
-  return fields.reduce(buildFieldGraph, {
-    ...graph,
-    [field.name]: fields.map(f => f.name),
-  });
-}
-
-/**
- * Given a type, gives the strongly connected components for the sub graph
- * visible by the given type. Each component is represented by an array of strings
- * which is the field name in the schema.
- */
-function getFieldNameSCCS(type: GraphQLType) {
-  const fields = objectFields(type);
-  const graph = fields.reduce(buildFieldGraph, {});
-  const orderedNodes = graphOrderNodes(graph);
-  const transposed = transposeGraph(graph);
-  return graphSCCs(transposed, orderedNodes);
-}
-
 module.exports = {
   assertTypeWithFields,
   definitionName,
@@ -395,5 +280,4 @@ module.exports = {
   isOperationDefinitionAST,
   isSchemaDefinitionAST,
   mayImplement,
-  getFieldNameSCCS,
 };

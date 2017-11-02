@@ -4,9 +4,7 @@ export type CommentCreateMutationVariables = {|
     feedbackId?: ?string,
     feedback?: ?{
       comment?: ?{
-        feedback?: ?{
-          comment?: any,
-        },
+        feedback?: any,
       },
     },
   },

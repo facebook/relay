@@ -10,9 +10,7 @@ export type TestMutationVariables = {|
     feedbackId?: ?string,
     feedback?: ?{
       comment?: ?{
-        feedback?: ?{
-          comment?: any,
-        },
+        feedback?: any,
       },
     },
   },

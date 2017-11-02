@@ -40,10 +40,7 @@ import type {FormatModule} from './writeRelayGeneratedFile';
 import type {GeneratedNode} from 'RelayConcreteNode';
 import type {DocumentNode, GraphQLSchema} from 'graphql';
 
-const {
-  isOperationDefinitionAST,
-  getFieldNameSCCS,
-} = SchemaUtils;
+const {isOperationDefinitionAST} = SchemaUtils;
 
 export type GenerateExtraFiles = (
   getOutputDirectory: (path?: string) => CodegenDirectory,
@@ -62,7 +59,6 @@ export type WriterConfig = {
   persistQuery?: (text: string) => Promise<string>,
   platform?: string,
   relayRuntimeModule?: string,
-  recursionLimitForFlow: number,
   schemaExtensions: Array<string>,
   useHaste: boolean,
   // Haste style module that exports flow types for GraphQL enums.
@@ -210,20 +206,11 @@ class RelayFileWriter implements FileWriterInterface {
           const relayRuntimeModule =
             this._config.relayRuntimeModule || 'relay-runtime';
 
-          const recursiveFields = (node.argumentDefinitions || [])
-            .map(arg =>
-              getFieldNameSCCS(arg.type)
-              .filter(component => component.length > 1),
-            )
-            .reduce(flatten, []);
-
           const flowTypes = RelayFlowGenerator.generate(node, {
             customScalars: this._config.customScalars,
             enumsHasteModule: this._config.enumsHasteModule,
             existingFragmentNames,
             inputFieldWhiteList: this._config.inputFieldWhiteListForFlow,
-            recursionLimit: this._config.recursionLimitForFlow,
-            recursiveFields,
             relayRuntimeModule,
             useHaste: this._config.useHaste,
           });

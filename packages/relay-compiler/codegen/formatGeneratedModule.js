@@ -21,6 +21,7 @@ const formatGeneratedModule: FormatModule = ({
   flowText,
   hash,
   relayRuntimeModule,
+  sourceHash,
 }) => {
   const docTextComment = docText ? '\n/*\n' + docText.trim() + '\n*/\n' : '';
   const hashText = hash ? `\n * ${hash}` : '';
@@ -38,7 +39,8 @@ ${flowText || ''}
 */
 
 ${docTextComment}
-const node /*: ${documentType}*/ = ${concreteText};
+const node/*: ${documentType}*/ = ${concreteText};
+(node/*: any*/).hash = '${sourceHash}';
 module.exports = node;
 `;
 };

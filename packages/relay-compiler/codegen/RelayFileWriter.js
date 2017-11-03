@@ -16,6 +16,8 @@ const RelayFlowGenerator = require('../core/RelayFlowGenerator');
 const RelayParser = require('../core/RelayParser');
 const RelayValidator = require('../core/RelayValidator');
 
+const crypto = require('crypto');
+const graphql = require('graphql');
 const invariant = require('invariant');
 const path = require('path');
 const writeRelayGeneratedFile = require('./writeRelayGeneratedFile');
@@ -113,7 +115,16 @@ class RelayFileWriter implements FileWriterInterface {
         }
       });
     });
-    const definitionDirectories = new Map();
+    const definitionsMeta = new Map();
+    const getDefinitionMeta = (definitionName: string) => {
+      const definitionMeta = definitionsMeta.get(definitionName);
+      invariant(
+        definitionMeta,
+        'RelayFileWriter: Could not determine source for definition: `%s`.',
+        definitionName,
+      );
+      return definitionMeta;
+    };
     const allOutputDirectories: Map<string, CodegenDirectory> = new Map();
     const addCodegenDir = dirPath => {
       const codegenDir = new CodegenDirectory(dirPath, {
@@ -126,18 +137,18 @@ class RelayFileWriter implements FileWriterInterface {
     let configOutputDirectory;
     if (this._config.outputDir) {
       configOutputDirectory = addCodegenDir(this._config.outputDir);
-    } else {
-      this._documents.forEach((doc, filePath) => {
-        doc.definitions.forEach(def => {
-          if (isOperationDefinitionAST(def) && def.name) {
-            definitionDirectories.set(
-              def.name.value,
-              path.join(this._config.baseDir, path.dirname(filePath)),
-            );
-          }
-        });
-      });
     }
+
+    this._documents.forEach((doc, filePath) => {
+      doc.definitions.forEach(def => {
+        if (def.name) {
+          definitionsMeta.set(def.name.value, {
+            dir: path.join(this._config.baseDir, path.dirname(filePath)),
+            ast: def,
+          });
+        }
+      });
+    });
 
     const definitions = ASTConvert.convertASTDocumentsWithBase(
       extendedSchema,
@@ -161,13 +172,10 @@ class RelayFileWriter implements FileWriterInterface {
       if (configOutputDirectory) {
         return configOutputDirectory;
       }
-      const definitionDir = definitionDirectories.get(definitionName);
-      invariant(
-        definitionDir,
-        'RelayFileWriter: Could not determine source directory for definition: %s',
-        definitionName,
+      const generatedPath = path.join(
+        getDefinitionMeta(definitionName).dir,
+        '__generated__',
       );
-      const generatedPath = path.join(definitionDir, '__generated__');
       let cachedDir = allOutputDirectories.get(generatedPath);
       if (!cachedDir) {
         cachedDir = addCodegenDir(generatedPath);
@@ -221,6 +229,11 @@ class RelayFileWriter implements FileWriterInterface {
             'RelayCompiler: did not compile definition: %s',
             node.name,
           );
+
+          const sourceHash = md5(
+            graphql.print(getDefinitionMeta(node.name).ast),
+          );
+
           await writeRelayGeneratedFile(
             getGeneratedDirectory(compiledNode.name),
             compiledNode,
@@ -229,6 +242,7 @@ class RelayFileWriter implements FileWriterInterface {
             this._config.persistQuery,
             this._config.platform,
             relayRuntimeModule,
+            sourceHash,
           );
         }),
       );
@@ -273,6 +287,13 @@ class RelayFileWriter implements FileWriterInterface {
 
     return allOutputDirectories;
   }
+}
+
+function md5(x: string): string {
+  return crypto
+    .createHash('md5')
+    .update(x, 'utf8')
+    .digest('hex');
 }
 
 function validateConfig(config: Object): void {

@@ -37,6 +37,7 @@ export type FormatModule = ({|
   hash: ?string,
   devOnlyQueryText: ?string,
   relayRuntimeModule: string,
+  sourceHash: string,
 |}) => string;
 
 async function writeRelayGeneratedFile(
@@ -47,6 +48,7 @@ async function writeRelayGeneratedFile(
   persistQuery: ?(text: string) => Promise<string>,
   platform: ?string,
   relayRuntimeModule: string,
+  sourceHash: string,
 ): Promise<?GeneratedNode> {
   const moduleName = generatedNode.name + '.graphql';
   const platformName = platform ? moduleName + '.' + platform : moduleName;
@@ -77,7 +79,7 @@ async function writeRelayGeneratedFile(
     const oldContent = codegenDir.read(filename);
     // Hash the concrete node including the query text.
     const hasher = crypto.createHash('md5');
-    hasher.update('cache-breaker-5');
+    hasher.update('cache-breaker-6');
     hasher.update(JSON.stringify(generatedNode));
     if (flowText) {
       hasher.update(flowText);
@@ -114,6 +116,7 @@ async function writeRelayGeneratedFile(
     concreteText: dedupeJSONStringify(generatedNode),
     devOnlyQueryText,
     relayRuntimeModule,
+    sourceHash,
   });
 
   codegenDir.writeFile(filename, moduleText);

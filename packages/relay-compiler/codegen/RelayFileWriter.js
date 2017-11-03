@@ -284,8 +284,4 @@ function validateConfig(config: Object): void {
   }
 }
 
-function flatten(arr, el) {
-  return arr.concat(Array.isArray(el) ? el.reduce(flatten, []) : el);
-}
-
 module.exports = RelayFileWriter;

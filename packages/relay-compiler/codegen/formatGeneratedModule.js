@@ -20,14 +20,10 @@ const formatGeneratedModule: FormatModule = ({
   concreteText,
   flowText,
   hash,
-  devTextGenerator,
   relayRuntimeModule,
 }) => {
-  const objectName =
-    documentType === 'ConcreteFragment' ? 'fragment' : 'request';
   const docTextComment = docText ? '\n/*\n' + docText.trim() + '\n*/\n' : '';
   const hashText = hash ? `\n * ${hash}` : '';
-  const devOnlyText = devTextGenerator ? devTextGenerator(objectName) : '';
   return `/**
  * ${'@'}flow${hashText}
  */
@@ -42,9 +38,8 @@ ${flowText || ''}
 */
 
 ${docTextComment}
-const ${objectName} /*: ${documentType}*/ = ${concreteText};
-${devOnlyText}
-module.exports = ${objectName};
+const node /*: ${documentType}*/ = ${concreteText};
+module.exports = node;
 `;
 };
 

@@ -30,14 +30,14 @@ const {
 const {Map: ImmutableMap} = require('immutable');
 
 import type {ScalarTypeMapping} from '../core/RelayFlowTypeTransformers';
+import type {FormatModule} from './writeRelayGeneratedFile';
+// TODO T21875029 ../../relay-runtime/util/RelayConcreteNode
+import type {GeneratedNode} from 'RelayConcreteNode';
 import type {
   CompiledDocumentMap,
   CompilerTransforms,
   FileWriterInterface,
 } from 'graphql-compiler';
-import type {FormatModule} from './writeRelayGeneratedFile';
-// TODO T21875029 ../../relay-runtime/util/RelayConcreteNode
-import type {GeneratedNode} from 'RelayConcreteNode';
 import type {DocumentNode, GraphQLSchema} from 'graphql';
 
 const {isOperationDefinitionAST} = SchemaUtils;

@@ -29,101 +29,81 @@ describe('BabelPluginRelay', () => {
     expect.extend(getGoldenMatchers(__filename));
   });
 
-  it('transforms source for modern core', () => {
-    expect('fixtures-modern').toMatchGolden(text => {
+  // TODO(T23282195) use transformerWithOptions instead
+  function transformerWithOptionsNoFilename(
+    options: RelayPluginOptions,
+  ): string => string {
+    return text => {
       try {
         return babel.transform(text, {
-          plugins: [BabelPluginRelay],
           compact: false,
           parserOpts: {plugins: ['jsx']},
+          plugins: [[BabelPluginRelay, options]],
         }).code;
       } catch (e) {
         return 'ERROR:\n\n' + e;
       }
-    });
-  });
+    };
+  }
 
-  it('transforms source for compatability mode', () => {
-    expect('fixtures-compat').toMatchGolden(text => {
+  function transformerWithOptions(
+    options: RelayPluginOptions,
+  ): string => string {
+    return (text, filename) => {
       try {
         return babel.transform(text, {
-          plugins: [
-            [
-              BabelPluginRelay,
-              {
-                compat: true,
-                schema: SCHEMA_PATH,
-                substituteVariables: true,
-              },
-            ],
-          ],
-          compact: false,
-          parserOpts: {plugins: ['jsx']},
-        }).code;
-      } catch (e) {
-        return 'ERROR:\n\n' + e;
-      }
-    });
-  });
-
-  it('transforms source for modern core when using haste', () => {
-    expect('fixtures-modern-haste').toMatchGolden(text => {
-      try {
-        return babel.transform(text, {
-          plugins: [[BabelPluginRelay, {haste: true}]],
-          compact: false,
-          parserOpts: {plugins: ['jsx']},
-        }).code;
-      } catch (e) {
-        return 'ERROR:\n\n' + e;
-      }
-    });
-  });
-
-  it('transforms source for compatability mode when using haste and custom module', () => {
-    expect('fixtures-compat-haste').toMatchGolden(text => {
-      try {
-        return babel.transform(text, {
-          plugins: [
-            [
-              BabelPluginRelay,
-              {
-                compat: true,
-                haste: true,
-                schema: SCHEMA_PATH,
-                substituteVariables: true,
-              },
-            ],
-          ],
-          compact: false,
-          parserOpts: {plugins: ['jsx']},
-        }).code;
-      } catch (e) {
-        return 'ERROR:\n\n' + e;
-      }
-    });
-  });
-
-  it('transforms source with classic Relay.QL tags', () => {
-    expect('fixtures-classic').toMatchGolden((text, filename) => {
-      try {
-        return babel.transform(text, {
-          plugins: [
-            [
-              BabelPluginRelay,
-              {
-                schema: OLD_SCHEMA_PATH,
-                substituteVariables: true,
-              },
-            ],
-          ],
           compact: false,
           filename,
           parserOpts: {plugins: ['jsx']},
+          plugins: [[BabelPluginRelay, options]],
         }).code;
       } catch (e) {
         return 'ERROR:\n\n' + e;
       }
-    });
+    };
+  }
+
+  it('transforms source for modern core', () => {
+    expect('fixtures-modern').toMatchGolden(
+      transformerWithOptionsNoFilename({}),
+    );
+  });
+
+  it('transforms source for compatability mode', () => {
+    expect('fixtures-compat').toMatchGolden(
+      transformerWithOptionsNoFilename({
+        compat: true,
+        schema: SCHEMA_PATH,
+        substituteVariables: true,
+      }),
+    );
+  });
+
+  it('transforms source for modern core when using haste', () => {
+    expect('fixtures-modern-haste').toMatchGolden(
+      transformerWithOptionsNoFilename({
+        haste: true,
+      }),
+    );
+  });
+
+  it('transforms source for compatability mode when using haste and custom module', () => {
+    expect('fixtures-compat-haste').toMatchGolden(
+      transformerWithOptionsNoFilename({
+        compat: true,
+        haste: true,
+        schema: SCHEMA_PATH,
+        substituteVariables: true,
+      }),
+    );
+  });
+
+  it('transforms source with classic Relay.QL tags', () => {
+    expect('fixtures-classic').toMatchGolden(
+      transformerWithOptions({
+        schema: OLD_SCHEMA_PATH,
+        substituteVariables: true,
+      }),
+    );
   });
 });

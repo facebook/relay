@@ -29,23 +29,6 @@ describe('BabelPluginRelay', () => {
     expect.extend(getGoldenMatchers(__filename));
   });
 
-  // TODO(T23282195) use transformerWithOptions instead
-  function transformerWithOptionsNoFilename(
-    options: RelayPluginOptions,
-  ): string => string {
-    return text => {
-      try {
-        return babel.transform(text, {
-          compact: false,
-          parserOpts: {plugins: ['jsx']},
-          plugins: [[BabelPluginRelay, options]],
-        }).code;
-      } catch (e) {
-        return 'ERROR:\n\n' + e;
-      }
-    };
-  }
-
   function transformerWithOptions(
     options: RelayPluginOptions,
   ): string => string {
@@ -64,14 +47,12 @@ describe('BabelPluginRelay', () => {
   }
 
   it('transforms source for modern core', () => {
-    expect('fixtures-modern').toMatchGolden(
-      transformerWithOptionsNoFilename({}),
-    );
+    expect('fixtures-modern').toMatchGolden(transformerWithOptions({}));
   });
 
   it('transforms source for compatability mode', () => {
     expect('fixtures-compat').toMatchGolden(
-      transformerWithOptionsNoFilename({
+      transformerWithOptions({
         compat: true,
         schema: SCHEMA_PATH,
         substituteVariables: true,
@@ -81,7 +62,7 @@ describe('BabelPluginRelay', () => {
 
   it('transforms source for modern core when using haste', () => {
     expect('fixtures-modern-haste').toMatchGolden(
-      transformerWithOptionsNoFilename({
+      transformerWithOptions({
         haste: true,
       }),
     );
@@ -89,7 +70,7 @@ describe('BabelPluginRelay', () => {
 
   it('transforms source for compatability mode when using haste and custom module', () => {
     expect('fixtures-compat-haste').toMatchGolden(
-      transformerWithOptionsNoFilename({
+      transformerWithOptions({
         compat: true,
         haste: true,
         schema: SCHEMA_PATH,

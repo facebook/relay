@@ -255,6 +255,7 @@ export type SubscriptionCallbacks<T> = {
 export type Variables = {[name: string]: $FlowFixMe};
 export type RerunParam = {
   param: string,
-  import: string,
+  import?: ?string,
+  target?: ?string,
   max_runs: number,
 };

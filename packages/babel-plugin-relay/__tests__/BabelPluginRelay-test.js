@@ -31,9 +31,12 @@ describe('BabelPluginRelay', () => {
 
   function transformerWithOptions(
     options: RelayPluginOptions,
+    environment: 'development' | 'production' = 'production',
   ): string => string {
     return (text, filename) => {
+      const previousEnv = process.env.BABEL_ENV;
       try {
+        process.env.BABEL_ENV = environment;
         return babel.transform(text, {
           compact: false,
           filename,
@@ -42,6 +45,8 @@ describe('BabelPluginRelay', () => {
         }).code;
       } catch (e) {
         return 'ERROR:\n\n' + e;
+      } finally {
+        process.env.BABEL_ENV = previousEnv;
       }
     };
   }
@@ -86,5 +91,34 @@ describe('BabelPluginRelay', () => {
         substituteVariables: true,
       }),
     );
+  });
+
+  describe('`development` option', () => {
+    it('tests the hash when `development` is set', () => {
+      expect(
+        transformerWithOptions({}, 'development')(
+          'graphql`fragment TestFrag on Node { id }`',
+        ),
+      ).toMatchSnapshot();
+    });
+
+    it('uses a custom build command in message', () => {
+      expect(
+        transformerWithOptions(
+          {
+            buildCommand: 'relay-build',
+          },
+          'development',
+        )('graphql`fragment TestFrag on Node { id }`'),
+      ).toMatchSnapshot();
+    });
+
+    it('does not test the hash when `development` is not set', () => {
+      expect(
+        transformerWithOptions({}, 'production')(
+          'graphql`fragment TestFrag on Node { id }`',
+        ),
+      ).toMatchSnapshot();
+    });
   });
 });

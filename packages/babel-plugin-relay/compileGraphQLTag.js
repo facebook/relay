@@ -84,8 +84,17 @@ function compileGraphQLTag(
 function createAST(t, state, path, graphqlDefinition) {
   const isCompatMode = Boolean(state.opts && state.opts.compat);
   const isHasteMode = Boolean(state.opts && state.opts.haste);
+  // defaults to 'true'
+  const isDevelopment =
+    (process.env.BABEL_ENV || process.env.NODE_ENV) !== 'production';
+  const buildCommand =
+    (state.opts && state.opts.buildCommand) || 'relay-compiler';
 
-  const modernNode = createModernNode(t, graphqlDefinition, isHasteMode);
+  const modernNode = createModernNode(t, graphqlDefinition, {
+    buildCommand,
+    isDevelopment,
+    isHasteMode,
+  });
   if (isCompatMode) {
     return createCompatNode(
       t,

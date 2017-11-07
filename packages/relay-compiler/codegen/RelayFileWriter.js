@@ -39,6 +39,7 @@ import type {
   CompiledDocumentMap,
   CompilerTransforms,
   FileWriterInterface,
+  Reporter,
 } from 'graphql-compiler';
 import type {DocumentNode, GraphQLSchema} from 'graphql';
 
@@ -74,20 +75,29 @@ class RelayFileWriter implements FileWriterInterface {
   _baseSchema: GraphQLSchema;
   _baseDocuments: ImmutableMap<string, DocumentNode>;
   _documents: ImmutableMap<string, DocumentNode>;
+  _reporter: Reporter;
 
-  constructor(options: {
+  constructor({
+    config,
+    onlyValidate,
+    baseDocuments,
+    documents,
+    schema,
+    reporter,
+  }: {
     config: WriterConfig,
     onlyValidate: boolean,
     baseDocuments: ImmutableMap<string, DocumentNode>,
     documents: ImmutableMap<string, DocumentNode>,
     schema: GraphQLSchema,
+    reporter: Reporter,
   }) {
-    const {config, onlyValidate, baseDocuments, documents, schema} = options;
     this._baseDocuments = baseDocuments || ImmutableMap();
     this._baseSchema = schema;
     this._config = config;
     this._documents = documents;
     this._onlyValidate = onlyValidate;
+    this._reporter = reporter;
 
     validateConfig(this._config);
   }
@@ -166,6 +176,7 @@ class RelayFileWriter implements FileWriterInterface {
       compilerContext,
       this._config.compilerTransforms,
       generate,
+      this._reporter,
     );
 
     const getGeneratedDirectory = definitionName => {
@@ -187,7 +198,11 @@ class RelayFileWriter implements FileWriterInterface {
 
     const transformedFlowContext = compiler
       .context()
-      .applyTransforms(RelayFlowGenerator.flowTransforms, extendedSchema);
+      .applyTransforms(
+        RelayFlowGenerator.flowTransforms,
+        extendedSchema,
+        this._reporter,
+      );
     const transformedQueryContext = compiler.transformedQueryContext();
     const compiledDocumentMap: CompiledDocumentMap<
       GeneratedNode,

@@ -15,6 +15,7 @@ const GraphQLIRPrinter = require('./GraphQLIRPrinter');
 
 const filterContextForNode = require('./filterContextForNode');
 
+import type {GraphQLReporter} from '../reporters/GraphQLReporter';
 import type GraphQLCompilerContext from './GraphQLCompilerContext';
 import type {Batch, Fragment, Root} from './GraphQLIR';
 import type {IRTransform} from './GraphQLIRTransforms';
@@ -45,6 +46,7 @@ class GraphQLCompiler<CodegenNode> {
   _transformedQueryContext: ?GraphQLCompilerContext;
   _transforms: CompilerTransforms;
   _codeGenerator: (node: Batch | Fragment) => CodegenNode;
+  _reporter: GraphQLReporter;
 
   // The context passed in must already have any Relay-specific schema extensions
   constructor(
@@ -52,6 +54,7 @@ class GraphQLCompiler<CodegenNode> {
     context: GraphQLCompilerContext,
     transforms: CompilerTransforms,
     codeGenerator: (node: Batch | Fragment) => CodegenNode,
+    reporter: GraphQLReporter,
   ) {
     this._context = context;
     // some transforms depend on this being the original schema,
@@ -59,6 +62,7 @@ class GraphQLCompiler<CodegenNode> {
     this._schema = schema;
     this._transforms = transforms;
     this._codeGenerator = codeGenerator;
+    this._reporter = reporter;
   }
 
   clone(): GraphQLCompiler<CodegenNode> {
@@ -67,6 +71,7 @@ class GraphQLCompiler<CodegenNode> {
       this._context,
       this._transforms,
       this._codeGenerator,
+      this._reporter,
     );
   }
 
@@ -88,6 +93,7 @@ class GraphQLCompiler<CodegenNode> {
     this._transformedQueryContext = this._context.applyTransforms(
       this._transforms.queryTransforms,
       this._schema,
+      this._reporter,
     );
     return this._transformedQueryContext;
   }
@@ -96,15 +102,18 @@ class GraphQLCompiler<CodegenNode> {
     const fragmentContext = this._context.applyTransforms(
       this._transforms.fragmentTransforms,
       this._schema,
+      this._reporter,
     );
     const queryContext = this.transformedQueryContext();
     const printContext = queryContext.applyTransforms(
       this._transforms.printTransforms,
       this._schema,
+      this._reporter,
     );
     const codeGenContext = queryContext.applyTransforms(
       this._transforms.codegenTransforms,
       this._schema,
+      this._reporter,
     );
 
     const compiledDocuments: CompiledDocumentMap<CodegenNode> = new Map();

@@ -58,6 +58,7 @@ export type GetWriter = (
   schema: GraphQLSchema,
   documents: ImmutableMap<string, DocumentNode>,
   baseDocuments: ImmutableMap<string, DocumentNode>,
+  reporter: GraphQLReporter,
 ) => FileWriterInterface;
 
 class CodegenRunner {
@@ -256,6 +257,7 @@ class CodegenRunner {
         schema,
         documents,
         baseDocuments,
+        this._reporter,
       );
 
       const outputDirectories = await writer.writeAll();

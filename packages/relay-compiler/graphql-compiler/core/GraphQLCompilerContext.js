@@ -16,6 +16,7 @@ const invariant = require('invariant');
 
 const {createUserError} = require('./GraphQLCompilerUserError');
 
+import type {GraphQLReporter} from '../reporters/GraphQLReporter';
 import type {Fragment, Root} from './GraphQLIR';
 import type {GraphQLSchema} from 'graphql';
 
@@ -136,11 +137,16 @@ class GraphQLCompilerContext {
       ) => GraphQLCompilerContext,
     >,
     baseSchema: GraphQLSchema,
+    reporter?: GraphQLReporter,
   ) {
-    return transforms.reduce(
-      (ctx, transform) => transform(ctx, baseSchema),
-      this,
-    );
+    return transforms.reduce((ctx, transform) => {
+      const start = process.hrtime();
+      const result = transform(ctx, baseSchema);
+      const delta = process.hrtime(start);
+      const deltaMs = Math.round((delta[0] * 1e9 + delta[1]) / 1e6);
+      reporter && reporter.reportTime(transform.name, deltaMs);
+      return result;
+    }, this);
   }
 
   get(name: string): ?(Fragment | Root) {

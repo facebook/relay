@@ -79,6 +79,7 @@ export type {
   Variable,
 } from './core/GraphQLIR';
 export type {IRTransform} from './core/GraphQLIRTransforms';
+export type {GraphQLReporter as Reporter} from './reporters/GraphQLReporter';
 export type {FlattenOptions} from './transforms/FlattenTransform';
 
 module.exports = {

@@ -4,6 +4,10 @@ export type ExampleQueryResponse = {|
   |},
 |};
 
+export type ExampleFragment = {|
+  +id: string,
+|};
+
 export type TestMutationVariables = {|
   input: {
     clientMutationId?: ?string,
@@ -30,8 +34,4 @@ export type TestSubscriptionResponse = {|
       +id: string,
     |},
   |},
-|};
-
-export type ExampleFragment = {|
-  +id: string,
 |};

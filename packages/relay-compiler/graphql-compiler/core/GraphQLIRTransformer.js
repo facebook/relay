@@ -103,25 +103,25 @@ function transform<S>(
   stateInitializer: void | ((Fragment | Root) => ?S),
 ): GraphQLCompilerContext {
   const transformer = new Transformer(context, visitor);
-  let nextContext = context;
-  context.documents().forEach(prevNode => {
-    let nextNode;
-    if (stateInitializer === undefined) {
-      nextNode = transformer.visit(prevNode, (undefined: $FlowFixMe));
-    } else {
-      const state = stateInitializer(prevNode);
-      if (state != null) {
-        nextNode = transformer.visit(prevNode, state);
+  return context.withMutations(nextContext => {
+    context.forEachDocument(prevNode => {
+      let nextNode;
+      if (stateInitializer === undefined) {
+        nextNode = transformer.visit(prevNode, (undefined: $FlowFixMe));
+      } else {
+        const state = stateInitializer(prevNode);
+        if (state != null) {
+          nextNode = transformer.visit(prevNode, state);
+        }
       }
-    }
-    if (!nextNode) {
-      nextContext = nextContext.remove(prevNode.name);
-    } else if (nextNode !== prevNode) {
-      nextContext = nextContext.remove(prevNode.name);
-      nextContext = nextContext.add(nextNode);
-    }
+      if (!nextNode) {
+        nextContext = nextContext.remove(prevNode.name);
+      } else if (nextNode !== prevNode) {
+        nextContext = nextContext.replace(nextNode);
+      }
+    });
+    return nextContext;
   });
-  return nextContext;
 }
 
 /**

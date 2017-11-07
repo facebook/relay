@@ -79,9 +79,8 @@ class GraphQLCompiler<CodegenNode> {
     return this._context;
   }
 
-  addDefinitions(definitions: Array<Fragment | Root>): Array<Root | Fragment> {
+  addDefinitions(definitions: Array<Fragment | Root>): void {
     this._context = this._context.addAll(definitions);
-    return this._context.documents();
   }
 
   // Can only be called once per compiler. Once run, will use cached context
@@ -117,14 +116,14 @@ class GraphQLCompiler<CodegenNode> {
     );
 
     const compiledDocuments: CompiledDocumentMap<CodegenNode> = new Map();
-    fragmentContext.documents().forEach(node => {
+    fragmentContext.forEachDocument(node => {
       if (node.kind !== 'Fragment') {
         return;
       }
       const generatedFragment = this._codeGenerator(node);
       compiledDocuments.set(node.name, generatedFragment);
     });
-    queryContext.documents().forEach(node => {
+    queryContext.forEachDocument(node => {
       if (node.kind !== 'Root') {
         return;
       }

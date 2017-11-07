@@ -1,21 +1,3 @@
-fragment ActorFragment on Actor {
-  name
-  ... on User {
-    birthdate {
-      day
-      month
-    }
-  }
-}
-
-query UnaliasedIDQuery {
-  viewer {
-    actor {
-      id
-    }
-  }
-}
-
 query NodeQuery(
   $id: ID!
 ) {
@@ -34,6 +16,24 @@ query ViewerQuery {
   viewer {
     actor {
       ...ActorFragment
+      id
+    }
+  }
+}
+
+fragment ActorFragment on Actor {
+  name
+  ... on User {
+    birthdate {
+      day
+      month
+    }
+  }
+}
+
+query UnaliasedIDQuery {
+  viewer {
+    actor {
       id
     }
   }

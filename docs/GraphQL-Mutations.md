@@ -1,10 +1,6 @@
 ---
 id: graphql-mutations
 title: Mutations
-layout: docs
-category: GraphQL
-permalink: docs/graphql-mutations.html
-next: graphql-further-reading
 ---
 
 Relay uses a common pattern for mutations, where they are root fields on the mutation type with a single argument, `input`, and where the input and output both contain a client mutation identifier used to reconcile requests and responses.

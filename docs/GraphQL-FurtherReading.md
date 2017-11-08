@@ -1,10 +1,6 @@
 ---
 id: graphql-further-reading
 title: Further Reading
-layout: docs
-category: GraphQL
-permalink: docs/graphql-further-reading.html
-next: api-reference-relay
 ---
 
 This concludes the overview of the GraphQL Relay Specifications. For the detailed requirements of a Relay-compliant GraphQL server, a more formal description of the [Relay cursor connection](../graphql/connections.htm) model, the [Relay global object identification](../graphql/objectidentification.htm) model, and the [Relay input object mutation](../graphql/mutations.htm) are all available.

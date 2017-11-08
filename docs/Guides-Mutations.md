@@ -1,10 +1,6 @@
 ---
 id: guides-mutations
 title: Mutations
-layout: docs
-category: Relay Classic Guides
-permalink: docs/guides-mutations.html
-next: guides-network-layer
 ---
 
 Up until this point we have only interacted with the GraphQL endpoint to perform queries that fetch data. In this guide, you will learn how to use Relay to perform mutations – operations that consist of writes to the data store followed by a fetch of any changed fields.

@@ -1,10 +1,6 @@
 ---
 id: api-reference-relay-root-container
 title: Relay.RootContainer
-layout: docs
-category: Relay Classic API
-permalink: docs/api-reference-relay-root-container.html
-next: api-reference-relay-ql
 ---
 
 **Relay.RootContainer** is a React component that attempts to fulfill the data required in order to render an instance of `Component` for a given `route`.

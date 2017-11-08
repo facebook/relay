@@ -1,10 +1,6 @@
 ---
 id: interfaces-relay-network-layer
 title: RelayNetworkLayer
-layout: docs
-category: Relay Classic Interfaces
-permalink: docs/interfaces-relay-network-layer.html
-next: interfaces-relay-mutation-request
 ---
 
 Custom network layers that must conform to the `RelayNetworkLayer` interface.

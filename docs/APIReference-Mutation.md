@@ -1,10 +1,6 @@
 ---
 id: api-reference-relay-mutation
 title: Relay.Mutation
-layout: docs
-category: Relay Classic API
-permalink: docs/api-reference-relay-mutation.html
-next: api-reference-relay-graphql-mutation
 ---
 
 Relay makes use of GraphQL mutations; operations that enable us to mutate data on the client and server. To create a mutation for use in our app, we subclass `Relay.Mutation` and implement, at minimum, the four abstract methods listed below.

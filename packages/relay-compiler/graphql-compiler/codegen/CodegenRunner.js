@@ -147,11 +147,10 @@ class CodegenRunner {
       }
     }
 
-    const client = new GraphQLWatchmanClient();
-
     // Check for files in the input
     await Promise.all(
       Object.keys(this.parserConfigs).map(async parserConfigName => {
+        const client = new GraphQLWatchmanClient();
         const config = this.parserConfigs[parserConfigName];
         const dirs = await client.watchProject(config.baseDir);
 
@@ -170,6 +169,8 @@ class CodegenRunner {
         };
 
         const result = await client.command('query', dirs.root, query);
+        client.end();
+
         if (result.files.length > 0) {
           this.parserWriters[parserConfigName].forEach(writerName =>
             dirtyWriters.add(writerName),
@@ -178,7 +179,6 @@ class CodegenRunner {
       }),
     );
 
-    client.end();
     return dirtyWriters;
   }
 

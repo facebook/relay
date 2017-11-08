@@ -17,7 +17,23 @@ exports[`BabelPluginRelay \`development\` option tests the hash when \`developme
       console.error(\\"The definition of 'TestFrag' appears to have changed. Run \`relay-compiler\` to update the generated files to receive the expected data.\\");
     }
 
-    return node;
+    return require(\\"./__generated__/TestFrag.graphql\\");
+  }
+});"
+`;
+
+exports[`BabelPluginRelay \`development\` option tests the hash when \`isDevVariable\` is set 1`] = `
+"({
+  data: function () {
+    if (IS_DEV) {
+      const node = require(\\"./__generated__/TestFrag.graphql\\");
+
+      if (node.hash && node.hash !== \\"0bb6b7b29bc3e910921551c4ff5b6757\\") {
+        console.error(\\"The definition of 'TestFrag' appears to have changed. Run \`relay-compiler\` to update the generated files to receive the expected data.\\");
+      }
+    }
+
+    return require(\\"./__generated__/TestFrag.graphql\\");
   }
 });"
 `;
@@ -31,7 +47,7 @@ exports[`BabelPluginRelay \`development\` option uses a custom build command in 
       console.error(\\"The definition of 'TestFrag' appears to have changed. Run \`relay-build\` to update the generated files to receive the expected data.\\");
     }
 
-    return node;
+    return require(\\"./__generated__/TestFrag.graphql\\");
   }
 });"
 `;

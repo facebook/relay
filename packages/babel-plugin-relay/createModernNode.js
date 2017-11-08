@@ -32,6 +32,8 @@ function createModernNode(
     buildCommand: string,
     // Generate extra validation, defaults to true.
     isDevelopment: boolean,
+    // Wrap the validation code in a conditional checking this variable.
+    isDevVariable: ?string,
     // Use haste style global requires, defaults to false.
     isHasteMode: boolean,
   },
@@ -54,11 +56,11 @@ function createModernNode(
     t.stringLiteral(requiredPath),
   ]);
 
-  let bodyStatements;
-  if (options.isDevelopment) {
+  const bodyStatements = [t.returnStatement(requireGraphQLModule)];
+  if (options.isDevVariable != null || options.isDevelopment) {
     const nodeVariable = t.identifier('node');
     const nodeDotHash = t.memberExpression(nodeVariable, t.identifier('hash'));
-    bodyStatements = [
+    let checkStatements = [
       t.variableDeclaration('const', [
         t.variableDeclarator(nodeVariable, requireGraphQLModule),
       ]),
@@ -74,10 +76,16 @@ function createModernNode(
           ),
         ]),
       ),
-      t.returnStatement(nodeVariable),
     ];
-  } else {
-    bodyStatements = [t.returnStatement(requireGraphQLModule)];
+    if (options.isDevVariable != null) {
+      checkStatements = [
+        t.ifStatement(
+          t.identifier(options.isDevVariable),
+          t.blockStatement(checkStatements),
+        ),
+      ];
+    }
+    bodyStatements.unshift(...checkStatements);
   }
   return t.functionExpression(null, [], t.blockStatement(bodyStatements));
 }

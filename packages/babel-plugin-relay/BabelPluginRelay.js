@@ -31,6 +31,9 @@ export type RelayPluginOptions = {
   // Enable compat mode compiling for modern and classic runtime.
   compat?: boolean,
 
+  // Check this global variable before validation.
+  isDevVariable?: string,
+
   // Classic options
   inputArgumentName?: string,
   schema?: string,

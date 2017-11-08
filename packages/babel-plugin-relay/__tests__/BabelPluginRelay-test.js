@@ -102,6 +102,14 @@ describe('BabelPluginRelay', () => {
       ).toMatchSnapshot();
     });
 
+    it('tests the hash when `isDevVariable` is set', () => {
+      expect(
+        transformerWithOptions({isDevVariable: 'IS_DEV'})(
+          'graphql`fragment TestFrag on Node { id }`',
+        ),
+      ).toMatchSnapshot();
+    });
+
     it('uses a custom build command in message', () => {
       expect(
         transformerWithOptions(

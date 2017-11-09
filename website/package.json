@@ -1,23 +1,18 @@
 {
   "repository": "facebook/relay",
   "license": "MIT",
+  "private": true,
   "scripts": {
-    "start": "node server/server.js"
+    "update-spec": "spec-md spec/Mutations.md > static/graphql/mutations.htm && spec-md spec/Connections.md > static/graphql/connections.htm && spec-md spec/ObjectIdentification.md > static/graphql/objectidentification.htm",
+    "start": "docusaurus-start",
+    "build": "docusaurus-build",
+    "publish-gh-pages": "docusaurus-publish",
+    "write-translations": "docusaurus-write-translations",
+    "crowdin-upload": "crowdin-cli --config ../crowdin.yaml upload sources --auto-update -b master",
+    "crowdin-download": "crowdin-cli --config ../crowdin.yaml download -b master"
   },
   "dependencies": {
-    "compression": "^1.7.0",
-    "connect": "^3.6.2",
-    "errorhandler": "^1.5.0",
-    "fs-extra": "^4.0.0",
-    "glob": "*",
-    "mkdirp": "*",
-    "morgan": "^1.8.2",
-    "object-assign": "^4.1.1",
-    "optimist": "^0.6.1",
-    "react": "^15.6.1",
-    "react-page-middleware": "git://github.com/facebook/react-page-middleware.git",
-    "request": "*",
-    "serve-static": "^1.12.3",
-    "spec-md": "^0.4.8"
+    "docusaurus": "^1.0.0-beta.10",
+    "spec-md": "^0.5.1"
   }
 }

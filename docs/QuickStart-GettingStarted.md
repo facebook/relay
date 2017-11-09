@@ -1,10 +1,6 @@
 ---
 id: getting-started
 title: Getting Started
-layout: docs
-category: Quick Start
-permalink: docs/getting-started.html
-next: tutorial
 ---
 
 To get started building Relay applications, you will need three things:

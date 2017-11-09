@@ -1,10 +1,6 @@
 ---
 id: api-reference-relay-proptypes
 title: Relay.PropTypes
-layout: docs
-category: Relay Classic API
-permalink: docs/api-reference-relay-proptypes.html
-next: api-reference-relay-store
 ---
 
 Relay introduces two new classes of objects: `RelayContainer` and `Relay.Route`. `Relay.PropTypes` provides prop validators used to assert that props are of these types.

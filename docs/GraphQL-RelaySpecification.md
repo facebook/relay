@@ -1,10 +1,6 @@
 ---
 id: graphql-relay-specification
 title: GraphQL Relay Specification
-layout: docs
-category: GraphQL
-permalink: docs/graphql-relay-specification.html
-next: graphql-object-identification
 ---
 
 # Getting Started

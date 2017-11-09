@@ -1,10 +1,6 @@
 ---
 id: api-reference-relay-container
 title: RelayContainer
-layout: docs
-category: Relay Classic API
-permalink: docs/api-reference-relay-container.html
-next: api-reference-relay-route
 ---
 
 `RelayContainer` is a higher-order React component that lets a React component encode its data requirements.

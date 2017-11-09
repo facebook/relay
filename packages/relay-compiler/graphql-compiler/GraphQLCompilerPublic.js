@@ -31,6 +31,7 @@ const GraphQLParser = require('./core/GraphQLParser');
 const GraphQLSchemaUtils = require('./core/GraphQLSchemaUtils');
 const GraphQLValidator = require('./core/GraphQLValidator');
 const GraphQLWatchmanClient = require('./core/GraphQLWatchmanClient');
+const InlineFragmentsTransform = require('./transforms/InlineFragmentsTransform');
 const SkipClientFieldTransform = require('./transforms/SkipClientFieldTransform');
 const SkipRedundantNodesTransform = require('./transforms/SkipRedundantNodesTransform');
 const SkipUnreachableNodeTransform = require('./transforms/SkipUnreachableNodeTransform');
@@ -107,6 +108,7 @@ module.exports = {
   AutoAliasTransform,
   FilterDirectivesTransform,
   FlattenTransform,
+  InlineFragmentsTransform,
   SkipClientFieldTransform,
   SkipRedundantNodesTransform,
   SkipUnreachableNodeTransform,

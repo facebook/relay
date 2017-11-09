@@ -13,19 +13,21 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
-const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
-
-const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
 const invariant = require('invariant');
 const stableJSONStringify = require('stableJSONStringify');
+
+const {
+  CompilerContext,
+  IRTransformer,
+  getLiteralArgumentValues,
+} = require('graphql-compiler');
 
 import type {
   Fragment,
   FragmentSpread,
   InlineFragment,
   ArgumentDefinition,
-} from '../core/GraphQLIR';
+} from 'graphql-compiler';
 
 type State = {
   hoistedArgDefs: Map<
@@ -41,10 +43,8 @@ type State = {
  * A transform that inlines fragment spreads with the @relay(mask: false)
  * directive.
  */
-function relayMaskTransform(
-  context: GraphQLCompilerContext,
-): GraphQLCompilerContext {
-  return GraphQLIRTransformer.transform(
+function relayMaskTransform(context: CompilerContext): CompilerContext {
+  return IRTransformer.transform(
     context,
     {
       FragmentSpread: visitFragmentSpread,

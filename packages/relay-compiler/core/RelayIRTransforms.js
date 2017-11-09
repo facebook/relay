@@ -11,13 +11,12 @@
 
 'use strict';
 
-const InlineFragmentsTransform = require('../graphql-compiler/transforms/InlineFragmentsTransform');
 const RelayApplyFragmentArgumentTransform = require('../transforms/RelayApplyFragmentArgumentTransform');
 const RelayConnectionTransform = require('../handlers/connection//RelayConnectionTransform');
 const RelayFieldHandleTransform = require('../transforms/RelayFieldHandleTransform');
 const RelayGenerateIDFieldTransform = require('../transforms/RelayGenerateIDFieldTransform');
 const RelayGenerateTypeNameTransform = require('../transforms/RelayGenerateTypeNameTransform');
-const RelayMaskTransform = require('../graphql-compiler/transforms/RelayMaskTransform');
+const RelayMaskTransform = require('../transforms/RelayMaskTransform');
 const RelayRelayDirectiveTransform = require('../transforms/RelayRelayDirectiveTransform');
 const RelaySkipHandleFieldTransform = require('../transforms/RelaySkipHandleFieldTransform');
 const RelayViewerHandleTransform = require('../handlers/viewer/RelayViewerHandleTransform');
@@ -25,6 +24,7 @@ const RelayViewerHandleTransform = require('../handlers/viewer/RelayViewerHandle
 const {
   FilterDirectivesTransform,
   FlattenTransform,
+  InlineFragmentsTransform,
   IRTransforms,
   SkipRedundantNodesTransform,
 } = require('graphql-compiler');

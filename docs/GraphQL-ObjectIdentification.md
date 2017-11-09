@@ -1,10 +1,6 @@
 ---
 id: graphql-object-identification
 title: Object Identification
-layout: docs
-category: GraphQL
-permalink: docs/graphql-object-identification.html
-next: graphql-connections
 ---
 
 Both `Faction` and `Ship` have identifiers that we can use to refetch them. We expose this capability to Relay through the `Node` interface and the `node` field on the root query type.

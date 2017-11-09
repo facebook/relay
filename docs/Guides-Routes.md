@@ -1,10 +1,6 @@
 ---
 id: guides-routes
 title: Routes
-layout: docs
-category: Relay Classic Guides
-permalink: docs/guides-routes.html
-next: guides-root-container
 ---
 
 Routes are responsible for defining the entry points into a Relay application. But in order to understand why routes are necessary, we must first understand the difference between GraphQL queries and fragments.

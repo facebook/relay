@@ -1,10 +1,6 @@
 ---
 id: guides-babel-plugin
 title: Babel Relay Plugin
-layout: docs
-category: Relay Classic Guides
-permalink: docs/guides-babel-plugin.html
-next: graphql-relay-specification
 ---
 
 *`babel-relay-plugin` is deprecated. Use [`babel-plugin-relay`](./babel-plugin-relay.html#using-with-relay-classic) with Relay Classic.*

@@ -41,7 +41,11 @@ const filterContextForNode = require('./core/filterContextForNode');
 const getIdentifierForArgumentValue = require('./core/getIdentifierForArgumentValue');
 const getLiteralArgumentValues = require('./core/getLiteralArgumentValues');
 
-export type {ParserConfig, WriterConfig} from './codegen/CodegenRunner';
+export type {
+  GetWriter,
+  ParserConfig,
+  WriterConfig,
+} from './codegen/CodegenRunner';
 export type {
   CompileResult,
   File,

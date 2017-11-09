@@ -102,10 +102,10 @@ describe('writeRelayQueryPayload()', () => {
       diffCalls: [],
       filterCalls: [],
       pageInfo: {
-        [END_CURSOR]: undefined,
+        [END_CURSOR]: null,
         [HAS_NEXT_PAGE]: false,
         [HAS_PREV_PAGE]: false,
-        [START_CURSOR]: undefined,
+        [START_CURSOR]: null,
       },
       requestedEdgeIDs: [],
       filteredEdges: [],

@@ -468,7 +468,7 @@ function createContainerWithFragments<
     };
 
     _getConnectionData(): ?{
-      cursor: string,
+      cursor: ?string,
       edgeCount: number,
       hasMore: boolean,
     } {
@@ -526,7 +526,10 @@ function createContainerWithFragments<
           : pageInfo[HAS_PREV_PAGE];
       const cursor =
         direction === FORWARD ? pageInfo[END_CURSOR] : pageInfo[START_CURSOR];
-      if (typeof hasMore !== 'boolean' || typeof cursor !== 'string') {
+      if (
+        typeof hasMore !== 'boolean' ||
+        (edges.length !== 0 && typeof cursor !== 'string')
+      ) {
         warning(
           false,
           'ReactRelayPaginationContainer: Cannot paginate without %s fields in `%s`. ' +
@@ -549,7 +552,11 @@ function createContainerWithFragments<
 
     _hasMore = (): boolean => {
       const connectionData = this._getConnectionData();
-      return !!connectionData && connectionData.hasMore;
+      return !!(
+        connectionData &&
+        connectionData.hasMore &&
+        connectionData.cursor
+      );
     };
 
     _isLoading = (): boolean => {
@@ -591,9 +598,17 @@ function createContainerWithFragments<
       if (options && options.force) {
         return this._refetchConnection(totalCount, observerOrCallback);
       }
+      const {END_CURSOR, START_CURSOR} = ConnectionInterface.get();
+      const cursor = connectionData.cursor;
+      warning(
+        cursor,
+        'ReactRelayPaginationContainer: Cannot `loadMore` without valid `%s` (got `%s`)',
+        direction === FORWARD ? END_CURSOR : START_CURSOR,
+        cursor,
+      );
       const paginatingVariables = {
         count: pageSize,
-        cursor: connectionData.cursor,
+        cursor: cursor,
         totalCount,
       };
       const fetch = this._fetchPage(paginatingVariables, observer, options);

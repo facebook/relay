@@ -23,11 +23,13 @@ import type {Observable, SelectorStoreUpdater} from 'RelayRuntime';
      in milliseconds. (This value will be passed to setTimeout.)
  * - `rerunParamExperimental`: causes the query to be run with the experimental
  *   batch API on Network interfaces and GraphQL servers that support it.
+ * - `metadata`: user-supplied metadata.
  */
 export type CacheConfig = {
   force?: ?boolean,
   poll?: ?number,
   rerunParamExperimental?: ?RerunParam,
+  metadata?: {[key: string]: mixed},
 };
 
 /**

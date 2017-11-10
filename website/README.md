@@ -36,7 +36,7 @@ The publish script expects you to have two sibling folders named `relay` and `re
 
 ## Building
 
-It's important that you run the server and hit the site at least once before you build. See ‘Developing,’ above. After that's done, build the website.
+It's important that you run the server and hit the site at least once before you build. See [Developing](https://github.com/facebook/relay/tree/master/website#developing) above. After that's done, build the website.
 
 ```
 # From relay/

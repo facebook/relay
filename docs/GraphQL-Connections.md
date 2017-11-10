@@ -250,4 +250,4 @@ So on the first query for ships, GraphQL told us there was a next page, but on t
 
 Relay uses all of this functionality to build out abstractions around connections, to make these easy to work with efficiently without having to manually manage cursors on the client.
 
-Complete details on how the server should behave are available in the [GraphQL Cursor Connections](../graphql/connections.htm) spec.
+Complete details on how the server should behave are available in the [GraphQL Cursor Connections](/relay/graphql/connections.htm) spec.

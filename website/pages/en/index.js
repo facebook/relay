@@ -39,7 +39,7 @@ class HomeSplash extends React.Component {
         <div className="homeSplashFade">
           <div className="wrapper homeWrapper">
             <div className="projectLogo">
-              <img src={`${siteConfig.baseUrl}img/relay.svg`} />
+              <img src={siteConfig.baseUrl + 'img/relay.svg'} />
             </div>
             <div className="inner">
               <h2 className="projectTitle">
@@ -50,7 +50,9 @@ class HomeSplash extends React.Component {
                 <div className="promoRow">
                   <div className="pluginRowBlock">
                     <Button
-                      href={`${siteConfig.baseUrl}docs/en/getting-started.html`}>
+                      href={
+                        siteConfig.baseUrl + 'docs/en/getting-started.html'
+                      }>
                       Get Started
                     </Button>
                   </div>
@@ -90,21 +92,21 @@ class Index extends React.Component {
                 {
                   content:
                     'Declare the data your components need with GraphQL, Relay determines how and when to fetch your data.',
-                  image: ``,
+                  image: '',
                   imageAlign: 'top',
                   title: 'Declarative',
                 },
                 {
                   content:
                     'GraphQL is written next to the views that rely on them. Relay aggregates queries into efficient network requests.',
-                  image: ``,
+                  image: '',
                   imageAlign: 'top',
                   title: 'Colocation',
                 },
                 {
                   content:
                     'Write GraphQL mutations and Relay offers automatic data consistency, optimistic updates, and error handling.',
-                  image: ``,
+                  image: '',
                   imageAlign: 'top',
                   title: 'Mutations',
                 },
@@ -120,7 +122,7 @@ class Index extends React.Component {
                   content:
                     'Relay Modern is a new version of Relay designed from the ground up to be easier to use, more extensible and, most of all, able to improve performance on mobile devices. Relay Modern accomplishes this with static queries and ahead-of-time code generation. Incrementally convert existing Relay apps, or start a new one with Relay Modern.',
                   imageAlign: 'center',
-                  image: ``,
+                  image: '',
                   title: 'Relay Modern',
                 },
               ]}
@@ -135,7 +137,7 @@ class Index extends React.Component {
             <div className="more-users">
               <a
                 className="button"
-                href={`${siteConfig.baseUrl}${this.props.language}/users.html`}>
+                href={siteConfig.baseUrl + this.props.language + '/users.html'}>
                 More Relay Users
               </a>
             </div>

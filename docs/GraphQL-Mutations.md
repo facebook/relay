@@ -69,4 +69,4 @@ and we'll get this result:
 }
 ```
 
-Complete details on how the server should behave are available in the [GraphQL Input Object Mutations](../graphql/mutations.htm) spec.
+Complete details on how the server should behave are available in the [GraphQL Input Object Mutations](/relay/graphql/mutations.htm) spec.

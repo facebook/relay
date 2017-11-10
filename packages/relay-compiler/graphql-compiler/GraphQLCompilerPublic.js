@@ -13,7 +13,6 @@
 
 const ASTCache = require('./core/ASTCache');
 const ASTConvert = require('./core/ASTConvert');
-const AutoAliasTransform = require('./transforms/AutoAliasTransform');
 const CodegenDirectory = require('./codegen/CodegenDirectory');
 const CodegenRunner = require('./codegen/CodegenRunner');
 const DotGraphQLParser = require('./core/DotGraphQLParser');
@@ -109,7 +108,6 @@ module.exports = {
   getIdentifierForArgumentValue,
   getLiteralArgumentValues,
 
-  AutoAliasTransform,
   FilterDirectivesTransform,
   FlattenTransform,
   InlineFragmentsTransform,

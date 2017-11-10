@@ -12,7 +12,7 @@ Let's start a project using the [Relay Starter Kit](https://github.com/relayjs/r
 ```
 git clone https://github.com/relayjs/relay-starter-kit.git relay-treasurehunt
 cd relay-treasurehunt
-npm install
+yarn install
 ```
 
 ## A simple database
@@ -243,8 +243,8 @@ export const Schema = new GraphQLSchema({
 Before going any further, we need to serialize our executable schema to JSON for use by the Relay.QL transpiler, then start up the server. From the command line:
 
 ```
-npm run update-schema
-npm start
+yarn run update-schema
+yarn start
 ```
 
 ## Writing the game

@@ -17,8 +17,7 @@ class Footer extends React.Component {
         <section className="sitemap">
           <a href={this.props.config.baseUrl} className="nav-home">
             <img
-              src={`${this.props.config.baseUrl}${this.props.config
-                .footerIcon}`}
+              src={this.props.config.baseUrl + this.props.config.footerIcon}
               alt={this.props.config.title}
               width="66"
               height="58"
@@ -27,16 +26,16 @@ class Footer extends React.Component {
           <div>
             <h5>Docs</h5>
             <a
-              href={`
-                ${this.props.config.baseUrl}docs/en/getting-started.html`}>
+              href={this.props.config.baseUrl + 'docs/en/getting-started.html'}>
               Getting Started
             </a>
           </div>
           <div>
             <h5>Community</h5>
             <a
-              href={`${this.props.config.baseUrl}${this.props
-                .language}/users.html`}>
+              href={
+                this.props.config.baseUrl + this.props.language + '/users.html'
+              }>
               User Showcase
             </a>
           </div>
@@ -61,7 +60,7 @@ class Footer extends React.Component {
           target="_blank"
           className="fbOpenSource">
           <img
-            src={`${this.props.config.baseUrl}img/oss_logo.png`}
+            src={this.props.config.baseUrl + 'img/oss_logo.png'}
             alt="Facebook Open Source"
             width="170"
             height="45"

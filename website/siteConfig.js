@@ -26,8 +26,8 @@ const siteConfig = {
   title: 'Relay',
   tagline: 'A JavaScript framework for building data-driven React applications',
   url: 'https://facebook.github.io/relay',
-  baseUrl: '/',
-  projectName: 'Relay',
+  baseUrl: '/relay/',
+  projectName: 'relay',
   users,
   editUrl: 'https://github.com/facebook/relay/edit/master/docs/',
   headerLinks: [

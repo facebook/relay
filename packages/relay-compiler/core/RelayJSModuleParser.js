@@ -18,10 +18,12 @@ const fs = require('fs');
 const invariant = require('invariant');
 const path = require('path');
 
-const {ASTCache} = require('graphql-compiler');
+const {ASTCache, Profiler} = require('graphql-compiler');
 
 import type {File, FileFilter} from 'graphql-compiler';
 import type {DocumentNode} from 'graphql';
+
+const parseGraphQL = Profiler.instrument(GraphQL.parse, 'GraphQL.parse');
 
 // Throws an error if parsing the file fails
 function parseFile(baseDir: string, file: File): ?DocumentNode {
@@ -46,7 +48,7 @@ function parseFile(baseDir: string, file: File): ?DocumentNode {
       );
     }
 
-    const ast = GraphQL.parse(new GraphQL.Source(template, file.relPath));
+    const ast = parseGraphQL(new GraphQL.Source(template, file.relPath));
     invariant(
       ast.definitions.length,
       'RelayJSModuleParser: Expected GraphQL text to contain at least one ' +

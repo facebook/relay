@@ -35,7 +35,12 @@ const {
   transformInputType,
 } = require('./RelayFlowTypeTransformers');
 const {GraphQLNonNull} = require('graphql');
-const {FlattenTransform, IRVisitor, SchemaUtils} = require('graphql-compiler');
+const {
+  FlattenTransform,
+  IRVisitor,
+  Profiler,
+  SchemaUtils,
+} = require('graphql-compiler');
 
 import type {ScalarTypeMapping} from './RelayFlowTypeTransformers';
 import type {IRTransform, Fragment, Root} from 'graphql-compiler';
@@ -433,6 +438,6 @@ const FLOW_TRANSFORMS: Array<IRTransform> = [
 ];
 
 module.exports = {
-  generate,
+  generate: Profiler.instrument(generate, 'RelayFlowGenerator.generate'),
   flowTransforms: FLOW_TRANSFORMS,
 };

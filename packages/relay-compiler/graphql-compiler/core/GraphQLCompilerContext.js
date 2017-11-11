@@ -11,6 +11,8 @@
 
 'use strict';
 
+const Profiler = require('./GraphQLCompilerProfiler');
+
 const invariant = require('invariant');
 
 const {createUserError} = require('./GraphQLCompilerUserError');
@@ -104,14 +106,16 @@ class GraphQLCompilerContext {
     baseSchema: GraphQLSchema,
     reporter?: GraphQLReporter,
   ) {
-    return transforms.reduce((ctx, transform) => {
-      const start = process.hrtime();
-      const result = transform(ctx, baseSchema);
-      const delta = process.hrtime(start);
-      const deltaMs = Math.round((delta[0] * 1e9 + delta[1]) / 1e6);
-      reporter && reporter.reportTime(transform.name, deltaMs);
-      return result;
-    }, this);
+    return Profiler.run('applyTransforms', () =>
+      transforms.reduce((ctx, transform) => {
+        const start = process.hrtime();
+        const result = Profiler.instrument(transform)(ctx, baseSchema);
+        const delta = process.hrtime(start);
+        const deltaMs = Math.round((delta[0] * 1e9 + delta[1]) / 1e6);
+        reporter && reporter.reportTime(transform.name, deltaMs);
+        return result;
+      }, this),
+    );
   }
 
   get(name: string): ?(Fragment | Root) {

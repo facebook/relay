@@ -12,6 +12,7 @@
 'use strict';
 
 const GraphQLIRPrinter = require('./GraphQLIRPrinter');
+const Profiler = require('./GraphQLCompilerProfiler');
 
 const filterContextForNode = require('./filterContextForNode');
 
@@ -61,7 +62,7 @@ class GraphQLCompiler<CodegenNode> {
     // not the transformed schema/context's schema
     this._schema = schema;
     this._transforms = transforms;
-    this._codeGenerator = codeGenerator;
+    this._codeGenerator = Profiler.instrument(codeGenerator);
     this._reporter = reporter;
   }
 
@@ -98,66 +99,68 @@ class GraphQLCompiler<CodegenNode> {
   }
 
   compile(): CompiledDocumentMap<CodegenNode> {
-    const fragmentContext = this._context.applyTransforms(
-      this._transforms.fragmentTransforms,
-      this._schema,
-      this._reporter,
-    );
-    const queryContext = this.transformedQueryContext();
-    const printContext = queryContext.applyTransforms(
-      this._transforms.printTransforms,
-      this._schema,
-      this._reporter,
-    );
-    const codeGenContext = queryContext.applyTransforms(
-      this._transforms.codegenTransforms,
-      this._schema,
-      this._reporter,
-    );
+    return Profiler.run('GraphQLCompiler.compile', () => {
+      const fragmentContext = this._context.applyTransforms(
+        this._transforms.fragmentTransforms,
+        this._schema,
+        this._reporter,
+      );
+      const queryContext = this.transformedQueryContext();
+      const printContext = queryContext.applyTransforms(
+        this._transforms.printTransforms,
+        this._schema,
+        this._reporter,
+      );
+      const codeGenContext = queryContext.applyTransforms(
+        this._transforms.codegenTransforms,
+        this._schema,
+        this._reporter,
+      );
 
-    const compiledDocuments: CompiledDocumentMap<CodegenNode> = new Map();
-    fragmentContext.forEachDocument(node => {
-      if (node.kind !== 'Fragment') {
-        return;
-      }
-      const generatedFragment = this._codeGenerator(node);
-      compiledDocuments.set(node.name, generatedFragment);
-    });
-    queryContext.forEachDocument(node => {
-      if (node.kind !== 'Root') {
-        return;
-      }
-      const {name} = node;
-      // The unflattened query is used for printing, since flattening creates an
-      // invalid query.
-      const text = filterContextForNode(
-        printContext.getRoot(name),
-        printContext,
-      )
-        .documents()
-        .map(GraphQLIRPrinter.print)
-        .join('\n');
-      // The original query (with fragment spreads) is converted to a fragment
-      // for reading out the root data.
-      const sourceNode = fragmentContext.getRoot(name);
-      const rootFragment = buildFragmentForRoot(sourceNode);
-      // The flattened query is used for codegen in order to reduce the number of
-      // duplicate fields that must be processed during response normalization.
-      const codeGenNode = codeGenContext.getRoot(name);
+      const compiledDocuments: CompiledDocumentMap<CodegenNode> = new Map();
+      fragmentContext.forEachDocument(node => {
+        if (node.kind !== 'Fragment') {
+          return;
+        }
+        const generatedFragment = this._codeGenerator(node);
+        compiledDocuments.set(node.name, generatedFragment);
+      });
+      queryContext.forEachDocument(node => {
+        if (node.kind !== 'Root') {
+          return;
+        }
+        const {name} = node;
+        // The unflattened query is used for printing, since flattening creates an
+        // invalid query.
+        const text = filterContextForNode(
+          printContext.getRoot(name),
+          printContext,
+        )
+          .documents()
+          .map(GraphQLIRPrinter.print)
+          .join('\n');
+        // The original query (with fragment spreads) is converted to a fragment
+        // for reading out the root data.
+        const sourceNode = fragmentContext.getRoot(name);
+        const rootFragment = buildFragmentForRoot(sourceNode);
+        // The flattened query is used for codegen in order to reduce the number of
+        // duplicate fields that must be processed during response normalization.
+        const codeGenNode = codeGenContext.getRoot(name);
 
-      const batchQuery = {
-        fragment: rootFragment,
-        id: null,
-        kind: 'Batch',
-        metadata: node.metadata || {},
-        name,
-        operation: codeGenNode,
-        text,
-      };
-      const generatedDocument = this._codeGenerator(batchQuery);
-      compiledDocuments.set(name, generatedDocument);
+        const batchQuery = {
+          fragment: rootFragment,
+          id: null,
+          kind: 'Batch',
+          metadata: node.metadata || {},
+          name,
+          operation: codeGenNode,
+          text,
+        };
+        const generatedDocument = this._codeGenerator(batchQuery);
+        compiledDocuments.set(name, generatedDocument);
+      });
+      return compiledDocuments;
     });
-    return compiledDocuments;
   }
 }
 

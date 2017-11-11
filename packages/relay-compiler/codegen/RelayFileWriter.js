@@ -27,6 +27,7 @@ const {
   ASTConvert,
   CodegenDirectory,
   CompilerContext,
+  Profiler,
   SchemaUtils,
 } = require('graphql-compiler');
 const {Map: ImmutableMap} = require('immutable');
@@ -102,205 +103,228 @@ class RelayFileWriter implements FileWriterInterface {
     validateConfig(this._config);
   }
 
-  async writeAll(): Promise<Map<string, CodegenDirectory>> {
-    // Can't convert to IR unless the schema already has Relay-local extensions
-    const transformedSchema = ASTConvert.transformASTSchema(
-      this._baseSchema,
-      this._config.schemaExtensions,
-    );
-    const extendedSchema = ASTConvert.extendASTSchema(
-      transformedSchema,
-      this._baseDocuments
-        .merge(this._documents)
-        .valueSeq()
-        .toArray(),
-    );
-
-    // Build a context from all the documents
-    const baseDefinitionNames = new Set();
-    this._baseDocuments.forEach(doc => {
-      doc.definitions.forEach(def => {
-        if (isOperationDefinitionAST(def) && def.name) {
-          baseDefinitionNames.add(def.name.value);
-        }
-      });
-    });
-    const definitionsMeta = new Map();
-    const getDefinitionMeta = (definitionName: string) => {
-      const definitionMeta = definitionsMeta.get(definitionName);
-      invariant(
-        definitionMeta,
-        'RelayFileWriter: Could not determine source for definition: `%s`.',
-        definitionName,
+  writeAll(): Promise<Map<string, CodegenDirectory>> {
+    return Profiler.asyncContext('RelayFileWriter.writeAll', async () => {
+      // Can't convert to IR unless the schema already has Relay-local extensions
+      const transformedSchema = ASTConvert.transformASTSchema(
+        this._baseSchema,
+        this._config.schemaExtensions,
       );
-      return definitionMeta;
-    };
-    const allOutputDirectories: Map<string, CodegenDirectory> = new Map();
-    const addCodegenDir = dirPath => {
-      const codegenDir = new CodegenDirectory(dirPath, {
-        onlyValidate: this._onlyValidate,
-      });
-      allOutputDirectories.set(dirPath, codegenDir);
-      return codegenDir;
-    };
-
-    let configOutputDirectory;
-    if (this._config.outputDir) {
-      configOutputDirectory = addCodegenDir(this._config.outputDir);
-    }
-
-    this._documents.forEach((doc, filePath) => {
-      doc.definitions.forEach(def => {
-        if (def.name) {
-          definitionsMeta.set(def.name.value, {
-            dir: path.join(this._config.baseDir, path.dirname(filePath)),
-            ast: def,
-          });
-        }
-      });
-    });
-
-    const definitions = ASTConvert.convertASTDocumentsWithBase(
-      extendedSchema,
-      this._baseDocuments.valueSeq().toArray(),
-      this._documents.valueSeq().toArray(),
-      // Verify using local and global rules, can run global verifications here
-      // because all files are processed together
-      [...RelayValidator.LOCAL_RULES, ...RelayValidator.GLOBAL_RULES],
-      RelayParser.transform.bind(RelayParser),
-    );
-
-    const compilerContext = new CompilerContext(extendedSchema);
-    const compiler = new RelayCompiler(
-      this._baseSchema,
-      compilerContext,
-      this._config.compilerTransforms,
-      generate,
-      this._reporter,
-    );
-
-    const getGeneratedDirectory = definitionName => {
-      if (configOutputDirectory) {
-        return configOutputDirectory;
-      }
-      const generatedPath = path.join(
-        getDefinitionMeta(definitionName).dir,
-        '__generated__',
+      const extendedSchema = ASTConvert.extendASTSchema(
+        transformedSchema,
+        this._baseDocuments
+          .merge(this._documents)
+          .valueSeq()
+          .toArray(),
       );
-      let cachedDir = allOutputDirectories.get(generatedPath);
-      if (!cachedDir) {
-        cachedDir = addCodegenDir(generatedPath);
+
+      // Build a context from all the documents
+      const baseDefinitionNames = new Set();
+      this._baseDocuments.forEach(doc => {
+        doc.definitions.forEach(def => {
+          if (isOperationDefinitionAST(def) && def.name) {
+            baseDefinitionNames.add(def.name.value);
+          }
+        });
+      });
+      const definitionsMeta = new Map();
+      const getDefinitionMeta = (definitionName: string) => {
+        const definitionMeta = definitionsMeta.get(definitionName);
+        invariant(
+          definitionMeta,
+          'RelayFileWriter: Could not determine source for definition: `%s`.',
+          definitionName,
+        );
+        return definitionMeta;
+      };
+      const allOutputDirectories: Map<string, CodegenDirectory> = new Map();
+      const addCodegenDir = dirPath => {
+        const codegenDir = new CodegenDirectory(dirPath, {
+          onlyValidate: this._onlyValidate,
+        });
+        allOutputDirectories.set(dirPath, codegenDir);
+        return codegenDir;
+      };
+
+      let configOutputDirectory;
+      if (this._config.outputDir) {
+        configOutputDirectory = addCodegenDir(this._config.outputDir);
       }
-      return cachedDir;
-    };
 
-    compiler.addDefinitions(definitions);
+      this._documents.forEach((doc, filePath) => {
+        doc.definitions.forEach(def => {
+          if (def.name) {
+            definitionsMeta.set(def.name.value, {
+              dir: path.join(this._config.baseDir, path.dirname(filePath)),
+              ast: def,
+            });
+          }
+        });
+      });
 
-    const transformedFlowContext = compiler
-      .context()
-      .applyTransforms(
-        RelayFlowGenerator.flowTransforms,
+      const definitions = ASTConvert.convertASTDocumentsWithBase(
         extendedSchema,
+        this._baseDocuments.valueSeq().toArray(),
+        this._documents.valueSeq().toArray(),
+        // Verify using local and global rules, can run global verifications here
+        // because all files are processed together
+        [...RelayValidator.LOCAL_RULES, ...RelayValidator.GLOBAL_RULES],
+        RelayParser.transform.bind(RelayParser),
+      );
+
+      const compilerContext = new CompilerContext(extendedSchema);
+      const compiler = new RelayCompiler(
+        this._baseSchema,
+        compilerContext,
+        this._config.compilerTransforms,
+        generate,
         this._reporter,
       );
-    const transformedQueryContext = compiler.transformedQueryContext();
-    const compiledDocumentMap: CompiledDocumentMap<
-      GeneratedNode,
-    > = compiler.compile();
 
-    const existingFragmentNames = new Set(
-      definitions.map(definition => definition.name),
-    );
+      const getGeneratedDirectory = definitionName => {
+        if (configOutputDirectory) {
+          return configOutputDirectory;
+        }
+        const generatedPath = path.join(
+          getDefinitionMeta(definitionName).dir,
+          '__generated__',
+        );
+        let cachedDir = allOutputDirectories.get(generatedPath);
+        if (!cachedDir) {
+          cachedDir = addCodegenDir(generatedPath);
+        }
+        return cachedDir;
+      };
 
-    // TODO(T22651734): improve this to correctly account for fragments that
-    // have generated flow types.
-    baseDefinitionNames.forEach(baseDefinitionName => {
-      existingFragmentNames.delete(baseDefinitionName);
-    });
-
-    try {
-      await Promise.all(
-        transformedFlowContext.documents().map(async node => {
-          if (baseDefinitionNames.has(node.name)) {
-            // don't add definitions that were part of base context
-            return;
-          }
-
-          const relayRuntimeModule =
-            this._config.relayRuntimeModule || 'relay-runtime';
-
-          const flowTypes = RelayFlowGenerator.generate(node, {
-            customScalars: this._config.customScalars,
-            enumsHasteModule: this._config.enumsHasteModule,
-            existingFragmentNames,
-            inputFieldWhiteList: this._config.inputFieldWhiteListForFlow,
-            relayRuntimeModule,
-            useHaste: this._config.useHaste,
-          });
-
-          const compiledNode = compiledDocumentMap.get(node.name);
-          invariant(
-            compiledNode,
-            'RelayCompiler: did not compile definition: %s',
-            node.name,
-          );
-
-          const sourceHash = md5(
-            graphql.print(getDefinitionMeta(node.name).ast),
-          );
-
-          await writeRelayGeneratedFile(
-            getGeneratedDirectory(compiledNode.name),
-            compiledNode,
-            this._config.formatModule,
-            flowTypes,
-            this._config.persistQuery,
-            this._config.platform,
-            relayRuntimeModule,
-            sourceHash,
-          );
-        }),
+      Profiler.run('RelayFileWriter:addDefinitions', () =>
+        compiler.addDefinitions(definitions),
       );
 
-      if (this._config.generateExtraFiles) {
-        const configDirectory = this._config.outputDir;
-        this._config.generateExtraFiles(
-          dir => {
-            const outputDirectory = dir || configDirectory;
-            invariant(
-              outputDirectory,
-              'RelayFileWriter: cannot generate extra files without specifying ' +
-                'an outputDir in the config or passing it in.',
-            );
-            let outputDir = allOutputDirectories.get(outputDirectory);
-            if (!outputDir) {
-              outputDir = addCodegenDir(outputDirectory);
+      const transformedFlowContext = compiler
+        .context()
+        .applyTransforms(
+          RelayFlowGenerator.flowTransforms,
+          extendedSchema,
+          this._reporter,
+        );
+      const transformedQueryContext = compiler.transformedQueryContext();
+      const compiledDocumentMap: CompiledDocumentMap<
+        GeneratedNode,
+      > = compiler.compile();
+
+      const existingFragmentNames = new Set(
+        definitions.map(definition => definition.name),
+      );
+
+      // TODO(T22651734): improve this to correctly account for fragments that
+      // have generated flow types.
+      baseDefinitionNames.forEach(baseDefinitionName => {
+        existingFragmentNames.delete(baseDefinitionName);
+      });
+
+      const formatModule = Profiler.instrument(
+        this._config.formatModule,
+        'RelayFileWriter:formatModule',
+      );
+
+      const persistQuery = this._config.persistQuery
+        ? Profiler.instrumentWait(
+            this._config.persistQuery,
+            'RelayFileWriter:persistQuery',
+          )
+        : null;
+
+      try {
+        await Promise.all(
+          transformedFlowContext.documents().map(async node => {
+            if (baseDefinitionNames.has(node.name)) {
+              // don't add definitions that were part of base context
+              return;
             }
-            return outputDir;
-          },
-          transformedQueryContext,
-          getGeneratedDirectory,
+
+            const relayRuntimeModule =
+              this._config.relayRuntimeModule || 'relay-runtime';
+
+            const flowTypes = RelayFlowGenerator.generate(node, {
+              customScalars: this._config.customScalars,
+              enumsHasteModule: this._config.enumsHasteModule,
+              existingFragmentNames,
+              inputFieldWhiteList: this._config.inputFieldWhiteListForFlow,
+              relayRuntimeModule,
+              useHaste: this._config.useHaste,
+            });
+
+            const compiledNode = compiledDocumentMap.get(node.name);
+            invariant(
+              compiledNode,
+              'RelayCompiler: did not compile definition: %s',
+              node.name,
+            );
+
+            const sourceHash = Profiler.run('hashGraphQL', () =>
+              md5(graphql.print(getDefinitionMeta(node.name).ast)),
+            );
+
+            await writeRelayGeneratedFile(
+              getGeneratedDirectory(compiledNode.name),
+              compiledNode,
+              formatModule,
+              flowTypes,
+              persistQuery,
+              this._config.platform,
+              relayRuntimeModule,
+              sourceHash,
+            );
+          }),
+        );
+
+        const generateExtraFiles = this._config.generateExtraFiles;
+        if (generateExtraFiles) {
+          Profiler.run('RelayFileWriter:generateExtraFiles', () => {
+            const configDirectory = this._config.outputDir;
+            generateExtraFiles(
+              dir => {
+                const outputDirectory = dir || configDirectory;
+                invariant(
+                  outputDirectory,
+                  'RelayFileWriter: cannot generate extra files without specifying ' +
+                    'an outputDir in the config or passing it in.',
+                );
+                let outputDir = allOutputDirectories.get(outputDirectory);
+                if (!outputDir) {
+                  outputDir = addCodegenDir(outputDirectory);
+                }
+                return outputDir;
+              },
+              transformedQueryContext,
+              getGeneratedDirectory,
+            );
+          });
+        }
+
+        // clean output directories
+        allOutputDirectories.forEach(dir => {
+          dir.deleteExtraFiles();
+        });
+      } catch (error) {
+        let details;
+        try {
+          details = JSON.parse(error.message);
+        } catch (_) {}
+        if (
+          details &&
+          details.name === 'GraphQL2Exception' &&
+          details.message
+        ) {
+          throw new Error('GraphQL error writing modules:\n' + details.message);
+        }
+        throw new Error(
+          'Error writing modules:\n' + String(error.stack || error),
         );
       }
 
-      // clean output directories
-      allOutputDirectories.forEach(dir => {
-        dir.deleteExtraFiles();
-      });
-    } catch (error) {
-      let details;
-      try {
-        details = JSON.parse(error.message);
-      } catch (_) {}
-      if (details && details.name === 'GraphQL2Exception' && details.message) {
-        throw new Error('GraphQL error writing modules:\n' + details.message);
-      }
-      throw new Error(
-        'Error writing modules:\n' + String(error.stack || error),
-      );
-    }
-
-    return allOutputDirectories;
+      return allOutputDirectories;
+    });
   }
 }
 

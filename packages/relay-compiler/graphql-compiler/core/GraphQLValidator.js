@@ -11,6 +11,8 @@
 
 'use strict';
 
+const Profiler = require('./GraphQLCompilerProfiler');
+
 const util = require('util');
 
 const {
@@ -100,5 +102,5 @@ module.exports = {
     VariablesAreInputTypesRule,
     VariablesInAllowedPositionRule,
   ],
-  validate: validateOrThrow,
+  validate: Profiler.instrument(validateOrThrow, 'GraphQLValidator.validate'),
 };

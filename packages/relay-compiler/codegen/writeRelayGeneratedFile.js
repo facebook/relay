@@ -18,6 +18,8 @@ const crypto = require('crypto');
 const dedupeJSONStringify = require('dedupeJSONStringify');
 const invariant = require('invariant');
 
+const {Profiler} = require('graphql-compiler');
+
 // TODO T21875029 ../../relay-runtime/util/RelayConcreteNode
 import type {GeneratedNode} from 'RelayConcreteNode';
 import type {CodegenDirectory} from 'graphql-compiler';
@@ -76,19 +78,22 @@ async function writeRelayGeneratedFile(
       text,
       'codegen-runner: Expected query to have text before persisting.',
     );
-    const oldContent = codegenDir.read(filename);
-    // Hash the concrete node including the query text.
-    const hasher = crypto.createHash('md5');
-    hasher.update('cache-breaker-6');
-    hasher.update(JSON.stringify(generatedNode));
-    if (flowText) {
-      hasher.update(flowText);
-    }
-    if (persistQuery) {
-      hasher.update('persisted');
-    }
-    hash = hasher.digest('hex');
-    if (hash === extractHash(oldContent)) {
+    const oldHash = Profiler.run('RelayFileWriter:compareHash', () => {
+      const oldContent = codegenDir.read(filename);
+      // Hash the concrete node including the query text.
+      const hasher = crypto.createHash('md5');
+      hasher.update('cache-breaker-6');
+      hasher.update(JSON.stringify(generatedNode));
+      if (flowText) {
+        hasher.update(flowText);
+      }
+      if (persistQuery) {
+        hasher.update('persisted');
+      }
+      hash = hasher.digest('hex');
+      return extractHash(oldContent);
+    });
+    if (hash === oldHash) {
       codegenDir.markUnchanged(filename);
       return null;
     }

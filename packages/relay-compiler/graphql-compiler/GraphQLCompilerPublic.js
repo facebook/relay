@@ -20,6 +20,7 @@ const FilterDirectivesTransform = require('./transforms/FilterDirectivesTransfor
 const FlattenTransform = require('./transforms/FlattenTransform');
 const GraphQLCompiler = require('./core/GraphQLCompiler');
 const GraphQLCompilerContext = require('./core/GraphQLCompilerContext');
+const GraphQLCompilerProfiler = require('./core/GraphQLCompilerProfiler');
 const GraphQLConsoleReporter = require('./reporters/GraphQLConsoleReporter');
 const GraphQLIRPrinter = require('./core/GraphQLIRPrinter');
 const GraphQLIRTransformer = require('./core/GraphQLIRTransformer');
@@ -101,6 +102,7 @@ module.exports = {
   MultiReporter: GraphQLMultiReporter,
   Parser: GraphQLParser,
   Printer: GraphQLIRPrinter,
+  Profiler: GraphQLCompilerProfiler,
   SchemaUtils: GraphQLSchemaUtils,
   Validator: GraphQLValidator,
   WatchmanClient: GraphQLWatchmanClient,

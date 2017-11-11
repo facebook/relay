@@ -19,6 +19,8 @@ const graphql = require('graphql');
 const path = require('path');
 const util = require('util');
 
+const {Profiler} = require('graphql-compiler');
+
 import type {File} from 'graphql-compiler';
 
 // Attempt to be as inclusive as possible of source text.
@@ -316,6 +318,6 @@ function traverse(node, visitors) {
 }
 
 module.exports = {
-  find,
+  find: Profiler.instrument(find, 'FindGraphQLTags.find'),
   memoizedFind,
 };

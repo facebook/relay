@@ -696,11 +696,10 @@ class RelayStoreData {
     };
   }
 
-  /* $FlowFixMe(>=0.59.0 site=www,mobile,react_native_fb) This comment
-   * suppresses an error caught by Flow 0.59 which was not caught before. Most
-   * likely, this error is because an exported function parameter is missing an
-   * annotation. Without an annotation, these parameters are uncovered
-   * by Flow. */
+  /* $FlowFixMe: This comment suppresses an error caught by Flow 0.59 which was
+   * not caught before. Most likely, this error is because an exported function
+   * parameter is missing an annotation. Without an annotation, these parameters
+   * are uncovered by Flow. */
   static fromJSON(obj): RelayStoreData {
     invariant(obj, 'RelayStoreData: JSON object is empty');
     const {

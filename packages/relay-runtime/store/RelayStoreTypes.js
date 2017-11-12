@@ -345,6 +345,8 @@ export type SelectorStoreUpdater = (
 /**
   * A set of configs that can be used to apply an optimistic update into the
   * store.
+  * TODO: we should probably only expose `storeUpdater` and `source` to the
+  * publish queue.
   */
 export type OptimisticUpdate =
   | {|
@@ -354,6 +356,10 @@ export type OptimisticUpdate =
       selectorStoreUpdater: ?SelectorStoreUpdater,
       operation: OperationSelector,
       response: ?Object,
+    |}
+  | {|
+      source: RecordSource,
+      fieldPayloads?: ?Array<HandleFieldPayload>,
     |};
 
 /**
@@ -393,4 +399,5 @@ export type RelayResponsePayload = {|
   fieldPayloads?: ?Array<HandleFieldPayload>,
   source: MutableRecordSource,
   errors: ?Array<PayloadError>,
+  isOptimistic: boolean,
 |};

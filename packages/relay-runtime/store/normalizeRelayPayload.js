@@ -25,6 +25,7 @@ function normalizeRelayPayload(
   selector: Selector,
   payload: PayloadData,
   errors: ?Array<PayloadError>,
+  isOptimistic: ?boolean,
   options: NormalizationOptions = {handleStrippedNulls: false},
 ): RelayResponsePayload {
   const source = new RelayInMemoryRecordSource();
@@ -39,6 +40,7 @@ function normalizeRelayPayload(
     errors,
     fieldPayloads,
     source,
+    isOptimistic: !!isOptimistic,
   };
 }
 

@@ -17,6 +17,7 @@ const RelayDefaultHandlerProvider = require('RelayDefaultHandlerProvider');
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayPublishQueue = require('RelayPublishQueue');
 
+const invariant = require('invariant');
 const normalizePayload = require('normalizePayload');
 const normalizeRelayPayload = require('normalizeRelayPayload');
 const warning = require('warning');
@@ -181,14 +182,41 @@ class RelayModernEnvironment implements Environment {
     cacheConfig?: ?CacheConfig,
     updater?: ?SelectorStoreUpdater,
   }): RelayObservable<RelayResponsePayload> {
+    let optimisticResponse;
     return this._network
       .execute(operation.node, operation.variables, cacheConfig || {})
       .map(normalizePayload)
       .do({
         next: payload => {
-          this._publishQueue.commitPayload(operation, payload, updater);
-          this._publishQueue.run();
+          const {source, fieldPayloads, isOptimistic} = payload;
+          if (isOptimistic) {
+            invariant(
+              optimisticResponse == null,
+              'environment.execute: only support one optimistic respnose per ' +
+                'execute.',
+            );
+            optimisticResponse = {
+              source: source,
+              fieldPayloads: fieldPayloads,
+            };
+            this._publishQueue.applyUpdate(optimisticResponse);
+            this._publishQueue.run();
+          } else {
+            if (optimisticResponse) {
+              this._publishQueue.revertUpdate(optimisticResponse);
+              optimisticResponse = undefined;
+            }
+            this._publishQueue.commitPayload(operation, payload, updater);
+            this._publishQueue.run();
+          }
         },
+      })
+      .finally(() => {
+        if (optimisticResponse) {
+          this._publishQueue.revertUpdate(optimisticResponse);
+          optimisticResponse = undefined;
+          this._publishQueue.run();
+        }
       });
   }
 

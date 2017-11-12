@@ -33,6 +33,7 @@ import type {
 } from '../classic/environment/RelayCombinedEnvironmentTypes';
 import type {Variables} from '../classic/tools/RelayTypes';
 import type {
+  ObserverOrCallback,
   GeneratedNodeMap,
   RefetchOptions,
   RelayRefetchProp,
@@ -216,7 +217,7 @@ function createContainerWithFragments<
         | Variables
         | ((fragmentVariables: Variables) => Variables),
       renderVariables: ?Variables,
-      callback: ?(error: ?Error) => void,
+      observerOrCallback: ?ObserverOrCallback,
       options: ?RefetchOptions,
     ): Disposable => {
       const {environment, variables: rootVariables} = assertRelayContext(
@@ -231,6 +232,17 @@ function createContainerWithFragments<
         ? {...rootVariables, ...renderVariables}
         : fetchVariables;
       const cacheConfig = options ? {force: !!options.force} : undefined;
+
+      const observer =
+        typeof observerOrCallback === 'function'
+          ? {
+              // callback is not exectued on complete or unsubscribe
+              // for backward compatibility
+              next: observerOrCallback,
+              error: observerOrCallback,
+            }
+          : observerOrCallback || ({}: any);
+
       const {
         createOperationSelector,
         getRequest,
@@ -280,11 +292,11 @@ function createContainerWithFragments<
           }
         })
         .subscribe({
+          ...observer,
           start: subscription => {
             this._refetchSubscription = refetchSubscription = subscription;
+            observer.start && observer.start(subscription);
           },
-          next: callback,
-          error: callback,
         });
 
       return {

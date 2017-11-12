@@ -27,12 +27,12 @@ export type RelayPaginationProp = RelayProp & {
   isLoading: () => boolean,
   loadMore: (
     pageSize: number,
-    callbackOrObserver: ?ObserverOrCallback,
+    observerOrCallback: ?ObserverOrCallback,
     options?: RefetchOptions,
   ) => ?Disposable,
   refetchConnection: (
     totalCount: number,
-    callbackOrObserver: ?ObserverOrCallback,
+    observerOrCallback: ?ObserverOrCallback,
     refetchVariables: ?Variables,
   ) => ?Disposable,
 };
@@ -41,7 +41,7 @@ export type RelayRefetchProp = RelayProp & {
   refetch: (
     refetchVariables: Variables | ((fragmentVariables: Variables) => Variables),
     renderVariables: ?Variables,
-    callback: ?(error: ?Error) => void,
+    observerOrCallback: ?ObserverOrCallback,
     options?: RefetchOptions,
   ) => Disposable,
 };

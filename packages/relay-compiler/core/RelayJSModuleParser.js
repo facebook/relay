@@ -25,6 +25,10 @@ import type {DocumentNode} from 'graphql';
 
 const parseGraphQL = Profiler.instrument(GraphQL.parse, 'GraphQL.parse');
 
+const FIND_OPTIONS = {
+  validateNames: true,
+};
+
 // Throws an error if parsing the file fails
 function parseFile(baseDir: string, file: File): ?DocumentNode {
   const text = fs.readFileSync(path.join(baseDir, file.relPath), 'utf8');
@@ -41,13 +45,8 @@ function parseFile(baseDir: string, file: File): ?DocumentNode {
     text,
     baseDir,
     file,
-  ).forEach(({tag, template}) => {
-    if (tag !== 'graphql') {
-      throw new Error(
-        `Invalid tag ${tag} in ${file.relPath}. Expected graphql\`\`.`,
-      );
-    }
-
+    FIND_OPTIONS,
+  ).forEach(template => {
     const ast = parseGraphQL(new GraphQL.Source(template, file.relPath));
     invariant(
       ast.definitions.length,
@@ -55,7 +54,6 @@ function parseFile(baseDir: string, file: File): ?DocumentNode {
         'definition (fragment, mutation, query, subscription), got `%s`.',
       template,
     );
-
     astDefinitions.push(...ast.definitions);
   });
 

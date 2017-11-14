@@ -34,7 +34,6 @@ import type {
   CacheProcessorCallbacks,
 } from '../tools/RelayTypes';
 import type {NodeState} from '../traversal/findRelayQueryLeaves';
-import type RelayGarbageCollector from './RelayGarbageCollector';
 import type {Record, RecordMap} from './RelayRecord';
 import type RelayRecordStore from './RelayRecordStore';
 
@@ -50,7 +49,6 @@ function restoreFragmentDataFromCache(
   store: RelayRecordStore,
   cachedRecords: RecordMap,
   cachedRootCallMap: RootCallMap,
-  garbageCollector: ?RelayGarbageCollector,
   cacheManager: CacheManager,
   changeTracker: RelayChangeTracker,
   callbacks: CacheProcessorCallbacks,
@@ -62,7 +60,6 @@ function restoreFragmentDataFromCache(
     cachedRootCallMap,
     changeTracker,
     callbacks,
-    garbageCollector,
   );
   restorator.restoreFragmentData(dataID, fragment, path);
 
@@ -78,7 +75,6 @@ function restoreQueriesDataFromCache(
   store: RelayRecordStore,
   cachedRecords: RecordMap,
   cachedRootCallMap: RootCallMap,
-  garbageCollector: ?RelayGarbageCollector,
   cacheManager: CacheManager,
   changeTracker: RelayChangeTracker,
   callbacks: CacheProcessorCallbacks,
@@ -90,7 +86,6 @@ function restoreQueriesDataFromCache(
     cachedRootCallMap,
     changeTracker,
     callbacks,
-    garbageCollector,
   );
   restorator.restoreQueriesData(queries);
 
@@ -105,7 +100,6 @@ class RelayCachedDataRestorator extends RelayCacheProcessor<NodeState> {
   _cachedRecords: RecordMap;
   _cachedRootCallMap: RootCallMap;
   _changeTracker: RelayChangeTracker;
-  _garbageCollector: ?RelayGarbageCollector;
   _store: RelayRecordStore;
 
   constructor(
@@ -115,13 +109,11 @@ class RelayCachedDataRestorator extends RelayCacheProcessor<NodeState> {
     cachedRootCallMap: RootCallMap,
     changeTracker: RelayChangeTracker,
     callbacks: CacheProcessorCallbacks,
-    garbageCollector: ?RelayGarbageCollector,
   ) {
     super(cacheManager, callbacks);
     this._cachedRecords = cachedRecords;
     this._cachedRootCallMap = cachedRootCallMap;
     this._changeTracker = changeTracker;
-    this._garbageCollector = garbageCollector;
     this._store = store;
   }
 
@@ -138,11 +130,6 @@ class RelayCachedDataRestorator extends RelayCacheProcessor<NodeState> {
     // been marked as created already. Further, it does not need to be
     // updated since no additional data can be read about a deleted node.
     if (recordState === 'UNKNOWN' && record !== undefined) {
-      // Register immediately in case anything tries to read and subscribe
-      // to this record (which means incrementing reference counts).
-      if (this._garbageCollector) {
-        this._garbageCollector.register(dataID);
-      }
       // Mark as created if the store did not have a record but disk cache
       // did (either a known record or known deletion).
       this._changeTracker.createID(dataID);

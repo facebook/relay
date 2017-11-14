@@ -16,7 +16,6 @@ const warning = require('warning');
 const {recycleNodesInto, RelayProfiler} = require('RelayRuntime');
 
 import type RelayQuery from '../../query/RelayQuery';
-import type RelayGarbageCollector from '../../store/RelayGarbageCollector';
 import type RelayStoreData from '../../store/RelayStoreData';
 import type {DataID} from '../../tools/RelayInternalTypes';
 import type {ChangeSubscription, StoreReaderData} from '../../tools/RelayTypes';
@@ -206,7 +205,6 @@ class GraphQLStorePluralQueryResolver {
 class GraphQLStoreSingleQueryResolver {
   _callback: Function;
   _fragment: ?RelayQuery.Fragment;
-  _garbageCollector: ?RelayGarbageCollector;
   _hasDataChanged: boolean;
   _result: ?StoreReaderData;
   _resultID: ?DataID;
@@ -217,7 +215,6 @@ class GraphQLStoreSingleQueryResolver {
   constructor(storeData: RelayStoreData, callback: Function) {
     this.dispose();
     this._callback = callback;
-    this._garbageCollector = storeData.getGarbageCollector();
     this._storeData = storeData;
     this._subscribedIDs = {};
   }
@@ -231,7 +228,6 @@ class GraphQLStoreSingleQueryResolver {
     this._result = null;
     this._resultID = null;
     this._subscription = null;
-    this._updateGarbageCollectorSubscriptionCount({});
     this._subscribedIDs = {};
   }
 
@@ -285,7 +281,6 @@ class GraphQLStoreSingleQueryResolver {
           Object.keys(subscribedIDs),
           this._handleChange.bind(this),
         );
-        this._updateGarbageCollectorSubscriptionCount(subscribedIDs);
         this._subscribedIDs = subscribedIDs;
       }
       this._resultID = nextID;
@@ -324,33 +319,6 @@ class GraphQLStoreSingleQueryResolver {
       dataID,
     );
     return [data, dataIDs];
-  }
-
-  /**
-   * Updates bookkeeping about the number of subscribers on each record.
-   */
-  _updateGarbageCollectorSubscriptionCount(nextDataIDs: {
-    [dataID: DataID]: boolean,
-  }): void {
-    if (this._garbageCollector) {
-      const garbageCollector = this._garbageCollector;
-      const rangeData = this._storeData.getRangeData();
-      const prevDataIDs = this._subscribedIDs;
-
-      // Note: the same canonical ID may appear in both removed and added: in
-      // that case, it would have been:
-      // - previous step: canonical ID ref count was incremented
-      // - current step: canonical ID is incremented *and* decremented
-      // Note that the net ref count change is +1.
-      Object.keys(nextDataIDs).forEach(id => {
-        id = rangeData.getCanonicalClientID(id);
-        garbageCollector.incrementReferenceCount(id);
-      });
-      Object.keys(prevDataIDs).forEach(id => {
-        id = rangeData.getCanonicalClientID(id);
-        garbageCollector.decrementReferenceCount(id);
-      });
-    }
   }
 }
 

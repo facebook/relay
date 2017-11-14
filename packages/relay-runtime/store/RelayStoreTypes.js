@@ -19,8 +19,12 @@ import type {
   RequestNode,
 } from 'RelayConcreteNode';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
+import type {
+  ExecutePayload,
+  PayloadError,
+  UploadableMap,
+} from 'RelayNetworkTypes';
 import type {PayloadData} from 'RelayNetworkTypes';
-import type {PayloadError, UploadableMap} from 'RelayNetworkTypes';
 import type RelayObservable from 'RelayObservable';
 import type {RecordState} from 'RelayRecordState';
 import type {
@@ -44,7 +48,7 @@ type TEnvironment = Environment;
 type TFragment = ConcreteFragment;
 type TGraphQLTaggedNode = GraphQLTaggedNode;
 type TNode = ConcreteSelectableNode;
-type TPayload = RelayResponsePayload;
+type TPayload = ExecutePayload;
 type TRequest = RequestNode;
 
 export type FragmentMap = CFragmentMap<TFragment>;
@@ -244,7 +248,7 @@ export interface Environment
   getStore(): Store,
 
   /**
-   * Returns an Observable of RelayResponsePayload resulting from executing the
+   * Returns an Observable of ExecutePayload resulting from executing the
    * provided Mutation operation, the result of which is then normalized and
    * committed to the publish queue along with an optional optimistic response
    * or updater.
@@ -259,7 +263,7 @@ export interface Environment
     optimisticResponse?: ?Object,
     updater?: ?SelectorStoreUpdater,
     uploadables?: ?UploadableMap,
-  |}): RelayObservable<RelayResponsePayload>,
+  |}): RelayObservable<ExecutePayload>,
 
   /**
    * Checks if the records required to fulfill the given `selector` are in

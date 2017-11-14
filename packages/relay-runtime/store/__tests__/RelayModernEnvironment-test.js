@@ -565,16 +565,16 @@ describe('RelayModernEnvironment', () => {
             name: 'Joe',
           },
         },
+        errors: undefined,
       };
       deferred.resolve(payload);
       jest.runAllTimers();
 
       expect(next.mock.calls.length).toBe(1);
       expect(next).toBeCalledWith({
-        errors: undefined,
-        fieldPayloads: [],
-        source: jasmine.any(Object),
-        isOptimistic: false,
+        response: payload,
+        variables,
+        operation: operation.node.operation,
       });
       expect(complete).toBeCalled();
       expect(error).not.toBeCalled();
@@ -716,16 +716,16 @@ describe('RelayModernEnvironment', () => {
             name: 'Joe',
           },
         },
+        errors: undefined,
       };
       subject.next(payload);
       jest.runAllTimers();
 
       expect(next.mock.calls.length).toBe(1);
       expect(next).toBeCalledWith({
-        errors: undefined,
-        fieldPayloads: [],
-        source: jasmine.any(Object),
-        isOptimistic: false,
+        response: payload,
+        variables,
+        operation: operation.node.operation,
       });
       expect(complete).not.toBeCalled();
       expect(error).not.toBeCalled();

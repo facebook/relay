@@ -148,14 +148,12 @@ const RelayModernTestUtils = {
     const RelayTestSchema = require('RelayTestSchema');
 
     const ast = RelayParser.parse(RelayTestSchema, text);
-    let context = new GraphQLCompilerContext(RelayTestSchema);
-    context = ast.reduce((ctx, node) => ctx.add(node), context);
-    context = (transforms || []).reduce(
-      (ctx, {transform}) => transform(ctx),
-      context,
-    );
+    let context = new GraphQLCompilerContext(RelayTestSchema).addAll(ast);
+    if (transforms) {
+      context = context.applyTransforms(transforms);
+    }
     const documentMap = {};
-    context.documents().forEach(node => {
+    context.forEachDocument(node => {
       if (node.kind === 'Root') {
         documentMap[node.name] = RelayCodeGenerator.generate({
           kind: 'Batch',

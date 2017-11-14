@@ -403,5 +403,4 @@ export type RelayResponsePayload = {|
   fieldPayloads?: ?Array<HandleFieldPayload>,
   source: MutableRecordSource,
   errors: ?Array<PayloadError>,
-  isOptimistic: boolean,
 |};

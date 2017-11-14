@@ -188,8 +188,8 @@ class RelayModernEnvironment implements Environment {
       .do({
         next: executePayload => {
           const responsePayload = normalizePayload(executePayload);
-          const {source, fieldPayloads, isOptimistic} = responsePayload;
-          if (isOptimistic) {
+          const {source, fieldPayloads} = responsePayload;
+          if (executePayload.isOptimistic) {
             invariant(
               optimisticResponse == null,
               'environment.execute: only support one optimistic respnose per ' +

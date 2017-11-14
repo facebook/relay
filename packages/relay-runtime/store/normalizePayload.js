@@ -21,7 +21,7 @@ import type {ExecutePayload} from 'RelayNetworkTypes';
 import type {RelayResponsePayload} from 'RelayStoreTypes';
 
 function normalizePayload(payload: ExecutePayload): RelayResponsePayload {
-  const {operation, variables, response, isOptimistic} = payload;
+  const {operation, variables, response} = payload;
   const {data, errors} = response;
   if (data != null) {
     return normalizeRelayPayload(
@@ -32,7 +32,6 @@ function normalizePayload(payload: ExecutePayload): RelayResponsePayload {
       },
       data,
       errors,
-      isOptimistic,
       {handleStrippedNulls: true},
     );
   }

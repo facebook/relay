@@ -40,6 +40,7 @@ const StripUnusedVariablesTransform = require('./transforms/StripUnusedVariables
 const filterContextForNode = require('./core/filterContextForNode');
 const getIdentifierForArgumentValue = require('./core/getIdentifierForArgumentValue');
 const getLiteralArgumentValues = require('./core/getLiteralArgumentValues');
+const isEquivalentType = require('./core/isEquivalentType');
 
 export type {
   GetWriter,
@@ -109,6 +110,7 @@ module.exports = {
   filterContextForNode,
   getIdentifierForArgumentValue,
   getLiteralArgumentValues,
+  isEquivalentType,
 
   FilterDirectivesTransform,
   FlattenTransform,

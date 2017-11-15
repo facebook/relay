@@ -14,12 +14,12 @@
 'use strict';
 
 const invariant = require('invariant');
-const stableJSONStringify = require('stableJSONStringify');
 
 const {
   CompilerContext,
   IRTransformer,
   getLiteralArgumentValues,
+  isEquivalentType,
 } = require('graphql-compiler');
 
 import type {
@@ -58,10 +58,14 @@ function relayMaskTransform(context: CompilerContext): CompilerContext {
 
 function visitFragment(fragment: Fragment, state: State): Fragment {
   const result = this.traverse(fragment, state);
-  const existingArgDefs = new Map(
-    result.argumentDefinitions.map(entry => [entry.name, entry]),
-  );
-  const combinedArgDefs = [...result.argumentDefinitions];
+  if (state.hoistedArgDefs.length === 0) {
+    return result;
+  }
+  const existingArgDefs = new Map();
+  result.argumentDefinitions.forEach(argDef => {
+    existingArgDefs.set(argDef.name, argDef);
+  });
+  const combinedArgDefs = result.argumentDefinitions.slice(); // Copy array
   state.hoistedArgDefs.forEach((hoistedArgDef, argName) => {
     const existingArgDef = existingArgDefs.get(argName);
     if (existingArgDef) {
@@ -150,7 +154,13 @@ function areSameArgumentDefinitions(
   argDef1: ArgumentDefinition,
   argDef2: ArgumentDefinition,
 ) {
-  return stableJSONStringify(argDef1) === stableJSONStringify(argDef2);
+  return (
+    argDef1.kind === argDef2.kind &&
+    argDef1.name === argDef2.name &&
+    isEquivalentType(argDef1.type, argDef2.type) &&
+    // Only LocalArgumentDefinition defines defaultValue
+    (argDef1: any).defaultValue === (argDef2: any).defaultValue
+  );
 }
 
 module.exports = {

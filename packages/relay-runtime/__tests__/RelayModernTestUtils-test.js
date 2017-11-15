@@ -17,11 +17,12 @@ describe('RelayModernTestUtils', () => {
     // Define custom matchers to test our custom matchers...
     expect.extend({
       toFail(actual, expected) {
+        const actualMessage = actual.message();
         if (actual.pass) {
           if (expected) {
             return {
               pass: false,
-              message:
+              message: () =>
                 'Expected matcher to fail with message: ' +
                 JSON.stringify(expected) +
                 ' but it passed.',
@@ -29,28 +30,28 @@ describe('RelayModernTestUtils', () => {
           } else {
             return {
               pass: false,
-              message: 'Expected matcher to fail but it passed.',
+              message: () => 'Expected matcher to fail but it passed.',
             };
           }
         } else if (expected instanceof RegExp) {
-          if (!actual.message.match(expected)) {
+          if (!actualMessage.match(expected)) {
             return {
               pass: false,
-              message:
+              message: () =>
                 'Expected matcher to fail with message matching: ' +
                 expected.toString() +
                 ' but it failed with message: ' +
-                JSON.stringify(actual.message),
+                JSON.stringify(actualMessage),
             };
           }
-        } else if (expected && actual.message !== expected) {
+        } else if (expected && actualMessage !== expected) {
           return {
             pass: false,
-            message:
+            message: () =>
               'Expected matcher to fail with message: ' +
               JSON.stringify(expected) +
               ' but it failed with message: ' +
-              JSON.stringify(actual.message),
+              JSON.stringify(actualMessage),
           };
         }
         return {pass: true};
@@ -62,9 +63,9 @@ describe('RelayModernTestUtils', () => {
         } else {
           return {
             pass: false,
-            message:
+            message: () =>
               'Expected matcher to pass but it failed with message: ' +
-              JSON.stringify(actual.message),
+              JSON.stringify(actual.message()),
           };
         }
       },

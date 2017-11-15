@@ -83,7 +83,7 @@ const RelayModernTestUtils = {
         const warned = calls.filter(args => !args[0]).length;
         return {
           pass: !!warned,
-          message:
+          message: () =>
             `Expected ${negative ? 'not ' : ''}to warn but ` +
             '`warning` received the following calls: ' +
             `${formatActual(calls)}.`,
@@ -109,7 +109,7 @@ const RelayModernTestUtils = {
 
       return {
         pass: !!call,
-        message:
+        message: () =>
           `Expected ${negative ? 'not ' : ''}to warn: ` +
           `${formatExpected(expected)} but ` +
           '`warning` received the following calls: ' +
@@ -126,7 +126,7 @@ const RelayModernTestUtils = {
       }
       return {
         pass,
-        message: 'Expected function to throw a TypeError.',
+        message: () => 'Expected function to throw a TypeError.',
       };
     },
   },

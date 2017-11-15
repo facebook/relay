@@ -32,7 +32,6 @@ import type {
   ConcreteField,
   ConcreteLinkedField,
   ConcreteNode,
-  ConcreteSelection,
 } from 'RelayConcreteNode';
 import type {PayloadData} from 'RelayNetworkTypes';
 import type {
@@ -110,7 +109,7 @@ class RelayResponseNormalizer {
       'RelayResponseNormalizer(): Expected root record `%s` to exist.',
       dataID,
     );
-    this._traverseSelections(node.selections, record, data);
+    this._traverseSelections(node, record, data);
     return this._handleFieldPayloads;
   }
 
@@ -134,22 +133,22 @@ class RelayResponseNormalizer {
   }
 
   _traverseSelections(
-    selections: Array<ConcreteSelection>,
+    node: ConcreteNode,
     record: Record,
     data: PayloadData,
   ): void {
-    selections.forEach(selection => {
+    node.selections.forEach(selection => {
       if (selection.kind === SCALAR_FIELD || selection.kind === LINKED_FIELD) {
-        this._normalizeField(selection, record, data);
+        this._normalizeField(node, selection, record, data);
       } else if (selection.kind === CONDITION) {
         const conditionValue = this._getVariableValue(selection.condition);
         if (conditionValue === selection.passingValue) {
-          this._traverseSelections(selection.selections, record, data);
+          this._traverseSelections(selection, record, data);
         }
       } else if (selection.kind === INLINE_FRAGMENT) {
         const typeName = RelayModernRecord.getType(record);
         if (typeName === selection.type) {
-          this._traverseSelections(selection.selections, record, data);
+          this._traverseSelections(selection, record, data);
         }
       } else if (
         selection.kind === LINKED_HANDLE ||
@@ -190,7 +189,12 @@ class RelayResponseNormalizer {
     });
   }
 
-  _normalizeField(selection: ConcreteField, record: Record, data: PayloadData) {
+  _normalizeField(
+    parent: ConcreteNode,
+    selection: ConcreteField,
+    record: Record,
+    data: PayloadData,
+  ) {
     invariant(
       typeof data === 'object' && data,
       'writeField(): Expected data for field `%s` to be an object.',
@@ -206,7 +210,9 @@ class RelayResponseNormalizer {
       }
       if (__DEV__) {
         warning(
-          Object.prototype.hasOwnProperty.call(data, responseKey),
+          parent.kind === LINKED_FIELD && parent.concreteType == null
+            ? true
+            : Object.prototype.hasOwnProperty.call(data, responseKey),
           'RelayResponseNormalizer(): Payload did not contain a value ' +
             'for field `%s: %s`. Check that you are parsing with the same ' +
             'query that was used to fetch the payload.',
@@ -257,7 +263,7 @@ class RelayResponseNormalizer {
     } else if (__DEV__) {
       this._validateRecordType(nextRecord, field, fieldValue);
     }
-    this._traverseSelections(field.selections, nextRecord, fieldValue);
+    this._traverseSelections(field, nextRecord, fieldValue);
   }
 
   _normalizePluralLink(
@@ -311,7 +317,7 @@ class RelayResponseNormalizer {
       } else if (__DEV__) {
         this._validateRecordType(nextRecord, field, item);
       }
-      this._traverseSelections(field.selections, nextRecord, item);
+      this._traverseSelections(field, nextRecord, item);
     });
     RelayModernRecord.setLinkedRecordIDs(record, storageKey, nextIDs);
   }

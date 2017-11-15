@@ -386,6 +386,49 @@ describe('RelayResponseNormalizer', () => {
     ]);
   });
 
+  it('does not warn in __DEV__ if payload data is missing for an abstract field', () => {
+    jest.mock('warning');
+
+    const {BarQuery} = generateAndCompile(
+      `
+      query BarQuery {
+        named {
+          name
+          ... on Node {
+            id
+          }
+        }
+      }
+    `,
+    );
+    const payload = {
+      named: {
+        __typename: 'SimpleNamed',
+        name: 'Alice',
+      },
+    };
+    const recordSource = new RelayInMemoryRecordSource();
+    recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+    expect(() => {
+      normalize(
+        recordSource,
+        {
+          dataID: ROOT_ID,
+          node: BarQuery.operation,
+          variables: {},
+        },
+        payload,
+        {handleStrippedNulls: true},
+      );
+    }).not.toWarn([
+      'RelayResponseNormalizer(): Payload did not contain a value for ' +
+        'field `%s: %s`. Check that you are parsing with the same query that ' +
+        'was used to fetch the payload.',
+      'name',
+      'name',
+    ]);
+  });
+
   it('warns in __DEV__ if payload contains inconsistent types for a record', () => {
     jest.mock('warning');
 

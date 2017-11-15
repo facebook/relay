@@ -42,7 +42,7 @@ import type {
   FileWriterInterface,
   Reporter,
 } from 'graphql-compiler';
-import type {DocumentNode, GraphQLSchema} from 'graphql';
+import type {DocumentNode, GraphQLSchema, ValidationContext} from 'graphql';
 
 const {isOperationDefinitionAST} = SchemaUtils;
 
@@ -51,6 +51,8 @@ export type GenerateExtraFiles = (
   compilerContext: CompilerContext,
   getGeneratedDirectory: (definitionName: string) => CodegenDirectory,
 ) => void;
+
+export type ValidationRule = (context: ValidationContext) => any;
 
 export type WriterConfig = {
   baseDir: string,
@@ -68,6 +70,10 @@ export type WriterConfig = {
   // Haste style module that exports flow types for GraphQL enums.
   // TODO(T22422153) support non-haste environments
   enumsHasteModule?: string,
+  validationRules?: {
+    GLOBAL_RULES?: Array<ValidationRule>,
+    LOCAL_RULES?: Array<ValidationRule>,
+  },
 };
 
 class RelayFileWriter implements FileWriterInterface {
@@ -162,13 +168,26 @@ class RelayFileWriter implements FileWriterInterface {
         });
       });
 
+      // Verify using local and global rules, can run global verifications here
+      // because all files are processed together
+      let validationRules = [
+        ...RelayValidator.LOCAL_RULES,
+        ...RelayValidator.GLOBAL_RULES,
+      ];
+      const customizedValidationRules = this._config.validationRules;
+      if (customizedValidationRules) {
+        validationRules = [
+          ...validationRules,
+          ...(customizedValidationRules.LOCAL_RULES || []),
+          ...(customizedValidationRules.GLOBAL_RULES || []),
+        ];
+      }
+
       const definitions = ASTConvert.convertASTDocumentsWithBase(
         extendedSchema,
         this._baseDocuments.valueSeq().toArray(),
         this._documents.valueSeq().toArray(),
-        // Verify using local and global rules, can run global verifications here
-        // because all files are processed together
-        [...RelayValidator.LOCAL_RULES, ...RelayValidator.GLOBAL_RULES],
+        validationRules,
         RelayParser.transform.bind(RelayParser),
       );
 

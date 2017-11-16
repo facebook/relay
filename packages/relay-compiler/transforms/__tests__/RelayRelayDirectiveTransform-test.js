@@ -16,7 +16,6 @@ const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
 const RelayTestSchema = require('RelayTestSchema');
 
 const getGoldenMatchers = require('getGoldenMatchers');
-const prettyStringify = require('prettyStringify');
 
 const {transformASTSchema} = require('ASTConvert');
 
@@ -35,7 +34,7 @@ describe('RelayRelayDirectiveTransform', () => {
       const nextContext = RelayRelayDirectiveTransform.transform(context);
       const documents = [];
       nextContext.forEachDocument(doc => {
-        documents.push(prettyStringify(doc));
+        documents.push(JSON.stringify(doc, null, 2));
       });
       return documents.join('\n');
     });

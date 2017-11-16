@@ -16,7 +16,6 @@ const RelayTestSchema = require('RelayTestSchema');
 
 const getGoldenMatchers = require('getGoldenMatchers');
 const parseGraphQLText = require('parseGraphQLText');
-const prettyStringify = require('prettyStringify');
 
 describe('RelayCodeGenerator', () => {
   beforeEach(() => {
@@ -45,7 +44,7 @@ describe('RelayCodeGenerator', () => {
                     operation: doc,
                     text: null,
                   };
-            return prettyStringify(RelayCodeGenerator.generate(node));
+            return JSON.stringify(RelayCodeGenerator.generate(node), null, 2);
           })
           .join('\n\n');
       } catch (e) {

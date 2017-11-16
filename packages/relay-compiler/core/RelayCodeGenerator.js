@@ -14,8 +14,6 @@
 // TODO T21875029 ../../relay-runtime/util/formatStorageKey
 const formatStorageKey = require('formatStorageKey');
 const invariant = require('invariant');
-// TODO T21875029 ../../relay-runtime/util/prettyStringify
-const prettyStringify = require('prettyStringify');
 
 const {IRVisitor, SchemaUtils} = require('graphql-compiler');
 const {GraphQLList} = require('graphql');
@@ -224,7 +222,7 @@ const RelayCodeGenVisitor = {
           'InputObjects with nested variables) are not supported, argument ' +
           '`%s` had value `%s`. Source: %s.',
         node.name,
-        prettyStringify(node.value),
+        JSON.stringify(node.value, null, 2),
         getErrorMessage(ancestors[0]),
       );
       return node.value.value !== null ? node.value : null;

@@ -13,8 +13,6 @@
 
 const RelayConcreteNode = require('RelayConcreteNode');
 
-const prettyStringify = require('prettyStringify');
-
 const {convertFetch, convertSubscribe} = require('ConvertToExecuteFunction');
 
 import type {ConcreteRequest} from 'RelayConcreteNode';
@@ -79,7 +77,7 @@ function wrapExecute(
         transaction.addLog('GraphiQL', graphiQLPrinter(request, variables));
       }
       transaction.addLog('Cache Config', cacheConfig);
-      transaction.addLog('Variables', prettyStringify(variables));
+      transaction.addLog('Variables', JSON.stringify(variables, null, 2));
       if (status) {
         transaction.addLog('Status', status);
       }

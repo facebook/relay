@@ -37,8 +37,6 @@ describe('RelayConnectionTransform', () => {
   });
 
   function transformerWithOptions(options) {
-    const prettyStringify = require('prettyStringify');
-
     return text => {
       try {
         const schema = transformASTSchema(RelayTestSchema, [
@@ -53,7 +51,7 @@ describe('RelayConnectionTransform', () => {
             doc =>
               GraphQLIRPrinter.print(doc) +
               '# Metadata:\n' +
-              prettyStringify(doc.metadata),
+              JSON.stringify(doc.metadata, null, 2),
           )
           .join('\n');
       } catch (error) {

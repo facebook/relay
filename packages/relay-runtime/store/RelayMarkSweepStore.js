@@ -52,6 +52,7 @@ type Subscription = {
  * is also enforced in development mode by freezing all records passed to a store.
  */
 class RelayMarkSweepStore implements Store {
+  _gcEnabled: boolean;
   _hasScheduledGC: boolean;
   _index: number;
   _recordSource: MutableRecordSource;
@@ -70,6 +71,7 @@ class RelayMarkSweepStore implements Store {
         }
       }
     }
+    this._gcEnabled = true;
     this._hasScheduledGC = false;
     this._index = 0;
     this._recordSource = source;
@@ -159,7 +161,7 @@ class RelayMarkSweepStore implements Store {
   }
 
   _scheduleGC() {
-    if (this._hasScheduledGC) {
+    if (!this._gcEnabled || this._hasScheduledGC) {
       return;
     }
     this._hasScheduledGC = true;
@@ -188,6 +190,15 @@ class RelayMarkSweepStore implements Store {
         this._recordSource.remove(dataID);
       }
     }
+  }
+
+  // Internal hooks to enable/disable garbage collection for experimentation
+  __enableGC(): void {
+    this._gcEnabled = true;
+  }
+
+  __disableGC(): void {
+    this._gcEnabled = false;
   }
 }
 

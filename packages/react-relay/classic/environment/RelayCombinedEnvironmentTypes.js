@@ -149,6 +149,7 @@ export interface CEnvironment<
   TNode,
   TRequest,
   TPayload,
+  TOperation,
 > {
   /**
    * Read the results of a selector from in-memory records in the store.
@@ -197,6 +198,7 @@ export interface CEnvironment<
     TGraphQLTaggedNode,
     TNode,
     TRequest,
+    TOperation,
   >,
 }
 
@@ -206,6 +208,7 @@ export interface CUnstableEnvironmentCore<
   TGraphQLTaggedNode,
   TNode,
   TRequest,
+  TOperation,
 > {
   /**
    * Create an instance of a FragmentSpecResolver.
@@ -231,6 +234,7 @@ export interface CUnstableEnvironmentCore<
   createOperationSelector: (
     request: TRequest,
     variables: Variables,
+    operation?: TOperation,
   ) => COperationSelector<TNode, TRequest>,
 
   /**

@@ -34,6 +34,7 @@ type TGraphQLTaggedNode = GraphQLTaggedNode;
 type TNode = ConcreteFragment;
 type TRequest = ConcreteOperationDefinition;
 type TPayload = Selector;
+type TOperationCompat = any; // unused type for compat with Modern API
 
 export type FragmentMap = CFragmentMap<TFragment>;
 export type OperationSelector = COperationSelector<TNode, TRequest>;
@@ -46,6 +47,7 @@ export type UnstableEnvironmentCore = CUnstableEnvironmentCore<
   TGraphQLTaggedNode,
   TNode,
   TRequest,
+  TOperationCompat,
 >;
 
 /**
@@ -60,6 +62,7 @@ export interface Environment
     TNode,
     TRequest,
     TPayload,
+    TOperationCompat,
   > {
   /**
    * Applies an optimistic mutation to the store without committing it to the

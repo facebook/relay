@@ -16,7 +16,7 @@ const RelayConcreteNode = require('RelayConcreteNode');
 const {getOperationVariables} = require('RelayConcreteVariables');
 const {ROOT_ID} = require('RelayStoreUtils');
 
-import type {RequestNode} from 'RelayConcreteNode';
+import type {RequestNode, ConcreteOperation} from 'RelayConcreteNode';
 import type {OperationSelector} from 'RelayStoreTypes';
 import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
@@ -29,16 +29,15 @@ import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 function createOperationSelector(
   request: RequestNode,
   variables: Variables,
+  operationFromBatch?: ConcreteOperation,
 ): OperationSelector {
-  if (request.kind === RelayConcreteNode.BATCH_REQUEST) {
-    throw new Error(
-      'createOperationSelect: Batch request not yet supported (T22979467)',
-    );
-  }
-  const operationVariables = getOperationVariables(
-    request.operation,
-    variables,
-  );
+  const operation =
+    operationFromBatch ||
+    (request.kind === RelayConcreteNode.BATCH_REQUEST
+      ? request.requests[0].operation
+      : request.operation);
+
+  const operationVariables = getOperationVariables(operation, variables);
   const dataID = ROOT_ID;
   return {
     fragment: {
@@ -49,7 +48,7 @@ function createOperationSelector(
     node: request,
     root: {
       dataID,
-      node: request.operation,
+      node: operation,
       variables: operationVariables,
     },
     variables: operationVariables,

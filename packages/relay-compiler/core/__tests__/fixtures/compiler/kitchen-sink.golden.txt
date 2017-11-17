@@ -84,7 +84,7 @@
       "kind": "LinkedField",
       "alias": "thumbnail",
       "name": "profilePicture",
-      "storageKey": "profilePicture{\"size\":32}",
+      "storageKey": "profilePicture(size:32)",
       "args": [
         {
           "kind": "Literal",
@@ -372,7 +372,7 @@
                     "kind": "LinkedField",
                     "alias": null,
                     "name": "friends",
-                    "storageKey": "friends{\"first\":5}",
+                    "storageKey": "friends(first:5)",
                     "args": [
                       {
                         "kind": "Literal",
@@ -397,7 +397,7 @@
                     "kind": "LinkedField",
                     "alias": "thumbnail",
                     "name": "profilePicture",
-                    "storageKey": "profilePicture{\"size\":32}",
+                    "storageKey": "profilePicture(size:32)",
                     "args": [
                       {
                         "kind": "Literal",

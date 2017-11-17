@@ -21,7 +21,6 @@ const RelayTestSchema = require('RelayTestSchema');
 
 const getGoldenMatchers = require('getGoldenMatchers');
 const parseGraphQLText = require('parseGraphQLText');
-const prettyStringify = require('prettyStringify');
 
 describe('RelayCompiler', () => {
   beforeEach(() => {
@@ -43,7 +42,7 @@ describe('RelayCompiler', () => {
       compiler.addDefinitions(parseGraphQLText(relaySchema, text).definitions);
       return Array.from(compiler.compile().values())
         .map(({text: queryText, ...ast}) => {
-          let stringified = prettyStringify(ast);
+          let stringified = JSON.stringify(ast, null, 2);
           if (queryText) {
             stringified += '\n\nQUERY:\n\n' + queryText;
           }

@@ -29,6 +29,7 @@ import type {
   LocalArgumentDefinition,
   ObjectFieldValue,
   ObjectValue,
+  Request,
   Root,
   RootArgumentDefinition,
   ScalarField,
@@ -49,6 +50,7 @@ type NodeVisitor<S> = {
   LocalArgumentDefinition?: NodeVisitorFunction<LocalArgumentDefinition, S>,
   ObjectFieldValue?: NodeVisitorFunction<ObjectFieldValue, S>,
   ObjectValue?: NodeVisitorFunction<ObjectValue, S>,
+  Request?: NodeVisitorFunction<Request, S>,
   Root?: NodeVisitorFunction<Root, S>,
   RootArgumentDefinition?: NodeVisitorFunction<RootArgumentDefinition, S>,
   ScalarField?: NodeVisitorFunction<ScalarField, S>,
@@ -103,25 +105,25 @@ function transform<S>(
   stateInitializer: void | ((Fragment | Root) => ?S),
 ): GraphQLCompilerContext {
   const transformer = new Transformer(context, visitor);
-  let nextContext = context;
-  context.documents().forEach(prevNode => {
-    let nextNode;
-    if (stateInitializer === undefined) {
-      nextNode = transformer.visit(prevNode, (undefined: $FlowFixMe));
-    } else {
-      const state = stateInitializer(prevNode);
-      if (state != null) {
-        nextNode = transformer.visit(prevNode, state);
+  return context.withMutations(nextContext => {
+    context.forEachDocument(prevNode => {
+      let nextNode;
+      if (stateInitializer === undefined) {
+        nextNode = transformer.visit(prevNode, (undefined: $FlowFixMe));
+      } else {
+        const state = stateInitializer(prevNode);
+        if (state != null) {
+          nextNode = transformer.visit(prevNode, state);
+        }
       }
-    }
-    if (!nextNode) {
-      nextContext = nextContext.remove(prevNode.name);
-    } else if (nextNode !== prevNode) {
-      nextContext = nextContext.remove(prevNode.name);
-      nextContext = nextContext.add(nextNode);
-    }
+      if (!nextNode) {
+        nextContext = nextContext.remove(prevNode.name);
+      } else if (nextNode !== prevNode) {
+        nextContext = nextContext.replace(nextNode);
+      }
+    });
+    return nextContext;
   });
-  return nextContext;
 }
 
 /**
@@ -201,10 +203,7 @@ class Transformer<S> {
         nextNode = this._traverseChildren(prevNode, null, ['value']);
         break;
       case 'Batch':
-        nextNode = this._traverseChildren(prevNode, null, [
-          'operation',
-          'fragment',
-        ]);
+        nextNode = this._traverseChildren(prevNode, ['requests'], ['fragment']);
         break;
       case 'Literal':
       case 'LocalArgumentDefinition':
@@ -255,6 +254,9 @@ class Transformer<S> {
           'directives',
           'selections',
         ]);
+        break;
+      case 'Request':
+        nextNode = this._traverseChildren(prevNode, null, ['root']);
         break;
       default:
         invariant(

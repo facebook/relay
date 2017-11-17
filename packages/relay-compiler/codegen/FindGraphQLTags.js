@@ -19,6 +19,8 @@ const graphql = require('graphql');
 const path = require('path');
 const util = require('util');
 
+const {Profiler} = require('graphql-compiler');
+
 import type {File} from 'graphql-compiler';
 
 // Attempt to be as inclusive as possible of source text.
@@ -44,10 +46,15 @@ const BABYLON_OPTIONS = {
   strictMode: false,
 };
 
+type Options = {|
+  validateNames: boolean,
+|};
+
 function find(
   text: string,
   filePath: string,
-): Array<{tag: string, template: string}> {
+  {validateNames}: Options,
+): Array<string> {
   const result = [];
   const ast = babylon.parse(text, BABYLON_OPTIONS);
   const moduleName = getModuleName(filePath);
@@ -81,16 +88,15 @@ function find(
             node.callee.name,
           );
           const keyName = property.key.name;
-          const tagName = getGraphQLTagName(property.value.tag);
           invariant(
-            tagName,
+            isGraphQLTag(property.value.tag),
             'FindGraphQLTags: `%s` expects fragment definitions to be tagged ' +
               'with `graphql`, got `%s`.',
             node.callee.name,
             getSourceTextForLocation(text, property.value.tag.loc),
           );
           const template = getGraphQLText(property.value.quasi);
-          if (tagName === 'graphql') {
+          if (validateNames) {
             validateTemplate(
               template,
               moduleName,
@@ -99,10 +105,7 @@ function find(
               getSourceLocationOffset(property.value.quasi),
             );
           }
-          result.push({
-            tag: tagName,
-            template,
-          });
+          result.push(template);
         });
       } else {
         invariant(
@@ -111,16 +114,15 @@ function find(
             'definitions.',
           node.callee.name,
         );
-        const tagName = getGraphQLTagName(fragments.tag);
         invariant(
-          tagName,
+          isGraphQLTag(fragments.tag),
           'FindGraphQLTags: `%s` expects fragment definitions to be tagged ' +
             'with `graphql`, got `%s`.',
           node.callee.name,
           getSourceTextForLocation(text, fragments.tag.loc),
         );
         const template = getGraphQLText(fragments.quasi);
-        if (tagName === 'graphql') {
+        if (validateNames) {
           validateTemplate(
             template,
             moduleName,
@@ -129,10 +131,7 @@ function find(
             getSourceLocationOffset(fragments.quasi),
           );
         }
-        result.push({
-          tag: tagName,
-          template,
-        });
+        result.push(template);
       }
 
       // Visit remaining arguments
@@ -141,10 +140,9 @@ function find(
       }
     },
     TaggedTemplateExpression: node => {
-      const tagName = getGraphQLTagName(node.tag);
-      if (tagName != null) {
+      if (isGraphQLTag(node.tag)) {
         const template = getGraphQLText(node.quasi);
-        if (tagName === 'graphql') {
+        if (validateNames) {
           validateTemplate(
             template,
             moduleName,
@@ -153,10 +151,7 @@ function find(
             getSourceLocationOffset(node.quasi),
           );
         }
-        result.push({
-          tag: tagName,
-          template: node.quasi.quasis[0].value.raw,
-        });
+        result.push(node.quasi.quasis[0].value.raw);
       }
     },
   };
@@ -170,11 +165,15 @@ function memoizedFind(
   text: string,
   baseDir: string,
   file: File,
-): Array<{tag: string, template: string}> {
-  return cache.getOrCompute(file.hash, () => {
-    const absPath = path.join(baseDir, file.relPath);
-    return find(text, absPath);
-  });
+  options: Options,
+): Array<string> {
+  return cache.getOrCompute(
+    file.hash + (options.validateNames ? '1' : '0'),
+    () => {
+      const absPath = path.join(baseDir, file.relPath);
+      return find(text, absPath, options);
+    },
+  );
 }
 
 const CREATE_CONTAINER_FUNCTIONS = {
@@ -200,11 +199,8 @@ const IGNORED_KEYS = {
   type: true,
 };
 
-function getGraphQLTagName(tag) {
-  if (tag.type === 'Identifier' && IDENTIFIERS.hasOwnProperty(tag.name)) {
-    return tag.name;
-  }
-  return null;
+function isGraphQLTag(tag): boolean {
+  return tag.type === 'Identifier' && IDENTIFIERS.hasOwnProperty(tag.name);
 }
 
 function getTemplateNode(quasi) {
@@ -316,6 +312,6 @@ function traverse(node, visitors) {
 }
 
 module.exports = {
-  find,
+  find: Profiler.instrument(find, 'FindGraphQLTags.find'),
   memoizedFind,
 };

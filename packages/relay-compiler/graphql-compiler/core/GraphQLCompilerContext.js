@@ -11,49 +11,28 @@
 
 'use strict';
 
-const immutable = require('immutable');
+const Profiler = require('./GraphQLCompilerProfiler');
+
 const invariant = require('invariant');
 
 const {createUserError} = require('./GraphQLCompilerUserError');
+const {OrderedMap: ImmutableOrderedMap} = require('immutable');
 
+import type {GraphQLReporter} from '../reporters/GraphQLReporter';
 import type {Fragment, Root} from './GraphQLIR';
 import type {GraphQLSchema} from 'graphql';
-
-const {
-  List: ImmutableList,
-  OrderedMap: ImmutableOrderedMap,
-  Record,
-} = immutable;
-
-type Document_ = {
-  errors: ?ImmutableList<Error>,
-  name: ?string, // In practice, documents always have a name
-  node: ?(Fragment | Root), // In practice, documents always have a node
-};
-
-const Document = Record(
-  ({
-    errors: null,
-    name: null,
-    node: null,
-  }: Document_),
-);
-
-// Currently no easy way to get the actual flow type of a generated record :(
-// It's theoretically RecordInstance<T> & T, but flow seems to disagree, and
-// that's really an implementation detail anyway.
-const exemplar = Document({});
-type DocumentT = typeof exemplar;
 
 /**
  * An immutable representation of a corpus of documents being compiled together.
  * For each document, the context stores the IR and any validation errors.
  */
 class GraphQLCompilerContext {
-  _documents: ImmutableOrderedMap<string, DocumentT>;
+  _isMutable: boolean;
+  _documents: ImmutableOrderedMap<string, Fragment | Root>;
   schema: GraphQLSchema;
 
   constructor(schema: GraphQLSchema) {
+    this._isMutable = false;
     this._documents = new ImmutableOrderedMap();
     this.schema = schema;
   }
@@ -62,17 +41,11 @@ class GraphQLCompilerContext {
    * Returns the documents for the context in the order they were added.
    */
   documents(): Array<Fragment | Root> {
-    return this._documents
-      .valueSeq()
-      .map(doc => {
-        const node = doc.get('node');
-        invariant(
-          node,
-          'GraphQLCompilerContext: Documents secretly always have nodes',
-        );
-        return node;
-      })
-      .toArray();
+    return this._documents.toArray();
+  }
+
+  forEachDocument(fn: (Fragment | Root) => void): void {
+    this._documents.forEach(fn);
   }
 
   updateSchema(schema: GraphQLSchema): GraphQLCompilerContext {
@@ -81,42 +54,37 @@ class GraphQLCompilerContext {
     return context;
   }
 
-  add(node: Fragment | Root): GraphQLCompilerContext {
-    invariant(
-      !this._documents.has(node.name),
-      'GraphQLCompilerContext: Duplicate document named `%s`. GraphQL ' +
-        'fragments and roots must have unique names.',
-      node.name,
-    );
+  replace(node: Fragment | Root): GraphQLCompilerContext {
     return this._update(
-      (this._documents.set(
-        node.name,
-        new Document({
-          name: node.name,
-          node,
-        }),
-      ): $FlowFixMe),
+      this._documents.update(node.name, existing => {
+        invariant(
+          existing,
+          'GraphQLCompilerContext: Expected to replace existing node %s, but' +
+            'one was not found in the context.',
+          node.name,
+        );
+        return node;
+      }),
+    );
+  }
+
+  add(node: Fragment | Root): GraphQLCompilerContext {
+    return this._update(
+      this._documents.update(node.name, existing => {
+        invariant(
+          !existing,
+          'GraphQLCompilerContext: Duplicate document named `%s`. GraphQL ' +
+            'fragments and roots must have unique names.',
+          node.name,
+        );
+        return node;
+      }),
     );
   }
 
   addAll(nodes: Array<Fragment | Root>): GraphQLCompilerContext {
-    return nodes.reduce(
-      (ctx: GraphQLCompilerContext, definition: Fragment | Root) =>
-        ctx.add(definition),
-      this,
-    );
-  }
-
-  addError(name: string, error: Error): GraphQLCompilerContext {
-    const record = this._get(name);
-    let errors = record.get('errors');
-    if (errors) {
-      errors = errors.push(error);
-    } else {
-      errors = ImmutableList([error]);
-    }
-    return this._update(
-      (this._documents.set(name, record.set('errors', errors)): $FlowFixMe),
+    return this.withMutations(mutable =>
+      nodes.reduce((ctx, definition) => ctx.add(definition), mutable),
     );
   }
 
@@ -136,22 +104,27 @@ class GraphQLCompilerContext {
       ) => GraphQLCompilerContext,
     >,
     baseSchema: GraphQLSchema,
+    reporter?: GraphQLReporter,
   ) {
-    return transforms.reduce(
-      (ctx, transform) => transform(ctx, baseSchema),
-      this,
+    return Profiler.run('applyTransforms', () =>
+      transforms.reduce((ctx, transform) => {
+        const start = process.hrtime();
+        const result = Profiler.instrument(transform)(ctx, baseSchema);
+        const delta = process.hrtime(start);
+        const deltaMs = Math.round((delta[0] * 1e9 + delta[1]) / 1e6);
+        reporter && reporter.reportTime(transform.name, deltaMs);
+        return result;
+      }, this),
     );
   }
 
   get(name: string): ?(Fragment | Root) {
-    const record = this._documents.get(name);
-    return record ? record.get('node') : null;
+    return this._documents.get(name);
   }
 
   getFragment(name: string): Fragment {
-    const record = this._documents.get(name);
-    const node = record ? record.get('node') : null;
-    if (!(node && node.kind === 'Fragment')) {
+    const node = this._get(name);
+    if (node.kind !== 'Fragment') {
       const childModule = name.substring(0, name.lastIndexOf('_'));
       throw createUserError(
         'GraphQLCompilerContext: Cannot find fragment `%s`.' +
@@ -164,35 +137,43 @@ class GraphQLCompilerContext {
   }
 
   getRoot(name: string): Root {
-    const record = this._documents.get(name);
-    const node = record ? record.get('node') : null;
+    const node = this._get(name);
     invariant(
-      node && node.kind === 'Root',
+      node.kind === 'Root',
       'GraphQLCompilerContext: Expected `%s` to be a root, got `%s`.',
       name,
-      node && node.kind,
+      node.kind,
     );
     return node;
-  }
-
-  getErrors(name: string): ?ImmutableList<Error> {
-    return this._get(name).get('errors');
   }
 
   remove(name: string): GraphQLCompilerContext {
     return this._update(this._documents.delete(name));
   }
 
-  _get(name: string): DocumentT {
-    const record = this._documents.get(name);
-    invariant(record, 'GraphQLCompilerContext: Unknown document `%s`.', name);
-    return record;
+  withMutations(
+    fn: GraphQLCompilerContext => GraphQLCompilerContext,
+  ): GraphQLCompilerContext {
+    const mutableCopy = this._update(this._documents.asMutable());
+    mutableCopy._isMutable = true;
+    const result = fn(mutableCopy);
+    result._isMutable = false;
+    result._documents = result._documents.asImmutable();
+    return result;
+  }
+
+  _get(name: string): Fragment | Root {
+    const document = this._documents.get(name);
+    invariant(document, 'GraphQLCompilerContext: Unknown document `%s`.', name);
+    return document;
   }
 
   _update(
-    documents: ImmutableOrderedMap<string, DocumentT>,
+    documents: ImmutableOrderedMap<string, Fragment | Root>,
   ): GraphQLCompilerContext {
-    const context = new GraphQLCompilerContext(this.schema);
+    const context = this._isMutable
+      ? this
+      : new GraphQLCompilerContext(this.schema);
     context._documents = documents;
     return context;
   }

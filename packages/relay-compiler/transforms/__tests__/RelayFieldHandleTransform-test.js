@@ -31,7 +31,7 @@ describe('RelayFieldHandleTransform', () => {
       );
       const nextContext = RelayFieldHandleTransform.transform(context);
       const documents = [];
-      nextContext.documents().forEach(doc => {
+      nextContext.forEachDocument(doc => {
         documents.push(GraphQLIRPrinter.print(doc));
       });
       return documents.join('\n');

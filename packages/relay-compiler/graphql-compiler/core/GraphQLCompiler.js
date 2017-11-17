@@ -12,9 +12,11 @@
 'use strict';
 
 const GraphQLIRPrinter = require('./GraphQLIRPrinter');
+const Profiler = require('./GraphQLCompilerProfiler');
 
-const filterContextForNode = require('./filterContextForNode');
+const requestsForOperation = require('./requestsForOperation');
 
+import type {GraphQLReporter} from '../reporters/GraphQLReporter';
 import type GraphQLCompilerContext from './GraphQLCompilerContext';
 import type {Batch, Fragment, Root} from './GraphQLIR';
 import type {IRTransform} from './GraphQLIRTransforms';
@@ -45,6 +47,7 @@ class GraphQLCompiler<CodegenNode> {
   _transformedQueryContext: ?GraphQLCompilerContext;
   _transforms: CompilerTransforms;
   _codeGenerator: (node: Batch | Fragment) => CodegenNode;
+  _reporter: GraphQLReporter;
 
   // The context passed in must already have any Relay-specific schema extensions
   constructor(
@@ -52,13 +55,15 @@ class GraphQLCompiler<CodegenNode> {
     context: GraphQLCompilerContext,
     transforms: CompilerTransforms,
     codeGenerator: (node: Batch | Fragment) => CodegenNode,
+    reporter: GraphQLReporter,
   ) {
     this._context = context;
     // some transforms depend on this being the original schema,
     // not the transformed schema/context's schema
     this._schema = schema;
     this._transforms = transforms;
-    this._codeGenerator = codeGenerator;
+    this._codeGenerator = Profiler.instrument(codeGenerator);
+    this._reporter = reporter;
   }
 
   clone(): GraphQLCompiler<CodegenNode> {
@@ -67,6 +72,7 @@ class GraphQLCompiler<CodegenNode> {
       this._context,
       this._transforms,
       this._codeGenerator,
+      this._reporter,
     );
   }
 
@@ -74,9 +80,8 @@ class GraphQLCompiler<CodegenNode> {
     return this._context;
   }
 
-  addDefinitions(definitions: Array<Fragment | Root>): Array<Root | Fragment> {
+  addDefinitions(definitions: Array<Fragment | Root>): void {
     this._context = this._context.addAll(definitions);
-    return this._context.documents();
   }
 
   // Can only be called once per compiler. Once run, will use cached context
@@ -88,68 +93,59 @@ class GraphQLCompiler<CodegenNode> {
     this._transformedQueryContext = this._context.applyTransforms(
       this._transforms.queryTransforms,
       this._schema,
+      this._reporter,
     );
     return this._transformedQueryContext;
   }
 
   compile(): CompiledDocumentMap<CodegenNode> {
-    const fragmentContext = this._context.applyTransforms(
-      this._transforms.fragmentTransforms,
-      this._schema,
-    );
-    const queryContext = this.transformedQueryContext();
-    const printContext = queryContext.applyTransforms(
-      this._transforms.printTransforms,
-      this._schema,
-    );
-    const codeGenContext = queryContext.applyTransforms(
-      this._transforms.codegenTransforms,
-      this._schema,
-    );
-
-    const compiledDocuments: CompiledDocumentMap<CodegenNode> = new Map();
-    fragmentContext.documents().forEach(node => {
-      if (node.kind !== 'Fragment') {
-        return;
-      }
-      const generatedFragment = this._codeGenerator(node);
-      compiledDocuments.set(node.name, generatedFragment);
-    });
-    queryContext.documents().forEach(node => {
-      if (node.kind !== 'Root') {
-        return;
-      }
-      const {name} = node;
+    return Profiler.run('GraphQLCompiler.compile', () => {
+      const fragmentContext = this._context.applyTransforms(
+        this._transforms.fragmentTransforms,
+        this._schema,
+        this._reporter,
+      );
+      const queryContext = this.transformedQueryContext();
       // The unflattened query is used for printing, since flattening creates an
       // invalid query.
-      const text = filterContextForNode(
-        printContext.getRoot(name),
-        printContext,
-      )
-        .documents()
-        .map(GraphQLIRPrinter.print)
-        .join('\n');
-      // The original query (with fragment spreads) is converted to a fragment
-      // for reading out the root data.
-      const sourceNode = fragmentContext.getRoot(name);
-      const rootFragment = buildFragmentForRoot(sourceNode);
+      const printContext = queryContext.applyTransforms(
+        this._transforms.printTransforms,
+        this._schema,
+        this._reporter,
+      );
       // The flattened query is used for codegen in order to reduce the number of
       // duplicate fields that must be processed during response normalization.
-      const codeGenNode = codeGenContext.getRoot(name);
+      const codeGenContext = queryContext.applyTransforms(
+        this._transforms.codegenTransforms,
+        this._schema,
+        this._reporter,
+      );
 
-      const batchQuery = {
-        fragment: rootFragment,
-        id: null,
-        kind: 'Batch',
-        metadata: node.metadata || {},
-        name,
-        operation: codeGenNode,
-        text,
-      };
-      const generatedDocument = this._codeGenerator(batchQuery);
-      compiledDocuments.set(name, generatedDocument);
+      const compiledDocuments: CompiledDocumentMap<CodegenNode> = new Map();
+      fragmentContext.forEachDocument(node => {
+        if (node.kind !== 'Fragment') {
+          return;
+        }
+        const generatedFragment = this._codeGenerator(node);
+        compiledDocuments.set(node.name, generatedFragment);
+      });
+      queryContext.forEachDocument(node => {
+        if (node.kind !== 'Root') {
+          return;
+        }
+        const name = node.name;
+        const batchQuery = {
+          kind: 'Batch',
+          metadata: node.metadata || {},
+          name,
+          fragment: buildFragmentForRoot(fragmentContext.getRoot(name)),
+          requests: requestsForOperation(printContext, codeGenContext, name),
+        };
+        const generatedDocument = this._codeGenerator(batchQuery);
+        compiledDocuments.set(name, generatedDocument);
+      });
+      return compiledDocuments;
     });
-    return compiledDocuments;
   }
 }
 

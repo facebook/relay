@@ -5,22 +5,22 @@ Object {
   "4": Object {
     "__id": "4",
     "__typename": "User",
-    "friends{\\"first\\":1,\\"isViewerFriend\\":true,\\"orderby\\":[\\"last name\\"]}": Object {
-      "__ref": "client:4:friends{\\"first\\":1,\\"isViewerFriend\\":true,\\"orderby\\":[\\"last name\\"]}",
+    "friends(first:1,isViewerFriend:true,orderby:[\\"last name\\"])": Object {
+      "__ref": "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"last name\\"])",
     },
     "id": "4",
   },
-  "client:4:friends{\\"first\\":1,\\"isViewerFriend\\":true,\\"orderby\\":[\\"last name\\"]}": Object {
-    "__id": "client:4:friends{\\"first\\":1,\\"isViewerFriend\\":true,\\"orderby\\":[\\"last name\\"]}",
+  "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"last name\\"])": Object {
+    "__id": "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"last name\\"])",
     "__typename": "FriendsConnection",
     "edges": Object {
       "__refs": Array [
-        "client:4:friends{\\"first\\":1,\\"isViewerFriend\\":true,\\"orderby\\":[\\"last name\\"]}:edges:0",
+        "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"last name\\"]):edges:0",
       ],
     },
   },
-  "client:4:friends{\\"first\\":1,\\"isViewerFriend\\":true,\\"orderby\\":[\\"last name\\"]}:edges:0": Object {
-    "__id": "client:4:friends{\\"first\\":1,\\"isViewerFriend\\":true,\\"orderby\\":[\\"last name\\"]}:edges:0",
+  "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"last name\\"]):edges:0": Object {
+    "__id": "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"last name\\"]):edges:0",
     "__typename": "FriendsEdge",
     "cursor": "cursor:bestFriends",
     "node": Object {
@@ -30,7 +30,7 @@ Object {
   "client:root": Object {
     "__id": "client:root",
     "__typename": "__Root",
-    "node{\\"id\\":\\"1\\"}": Object {
+    "node(id:\\"1\\")": Object {
       "__ref": "4",
     },
   },
@@ -47,11 +47,11 @@ Object {
   "4": Object {
     "__id": "4",
     "__typename": "User",
-    "friends{\\"first\\":1,\\"isViewerFriend\\":true,\\"orderby\\":[\\"first name\\"]}": Object {
-      "__ref": "client:4:friends{\\"first\\":1,\\"isViewerFriend\\":true,\\"orderby\\":[\\"first name\\"]}",
+    "friends(first:1,isViewerFriend:true,orderby:[\\"first name\\"])": Object {
+      "__ref": "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"first name\\"])",
     },
-    "friends{\\"first\\":1,\\"isViewerFriend\\":true,\\"orderby\\":[\\"last name\\"]}": Object {
-      "__ref": "client:4:friends{\\"first\\":1,\\"isViewerFriend\\":true,\\"orderby\\":[\\"last name\\"]}",
+    "friends(first:1,isViewerFriend:true,orderby:[\\"last name\\"])": Object {
+      "__ref": "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"last name\\"])",
     },
     "id": "4",
   },
@@ -60,34 +60,34 @@ Object {
     "__typename": "User",
     "id": "cat",
   },
-  "client:4:friends{\\"first\\":1,\\"isViewerFriend\\":true,\\"orderby\\":[\\"first name\\"]}": Object {
-    "__id": "client:4:friends{\\"first\\":1,\\"isViewerFriend\\":true,\\"orderby\\":[\\"first name\\"]}",
+  "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"first name\\"])": Object {
+    "__id": "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"first name\\"])",
     "__typename": "FriendsConnection",
     "edges": Object {
       "__refs": Array [
-        "client:4:friends{\\"first\\":1,\\"isViewerFriend\\":true,\\"orderby\\":[\\"first name\\"]}:edges:0",
+        "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"first name\\"]):edges:0",
       ],
     },
   },
-  "client:4:friends{\\"first\\":1,\\"isViewerFriend\\":true,\\"orderby\\":[\\"first name\\"]}:edges:0": Object {
-    "__id": "client:4:friends{\\"first\\":1,\\"isViewerFriend\\":true,\\"orderby\\":[\\"first name\\"]}:edges:0",
+  "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"first name\\"]):edges:0": Object {
+    "__id": "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"first name\\"]):edges:0",
     "__typename": "FriendsEdge",
     "cursor": "cursor:bestFriends:2",
     "node": Object {
       "__ref": "cat",
     },
   },
-  "client:4:friends{\\"first\\":1,\\"isViewerFriend\\":true,\\"orderby\\":[\\"last name\\"]}": Object {
-    "__id": "client:4:friends{\\"first\\":1,\\"isViewerFriend\\":true,\\"orderby\\":[\\"last name\\"]}",
+  "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"last name\\"])": Object {
+    "__id": "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"last name\\"])",
     "__typename": "FriendsConnection",
     "edges": Object {
       "__refs": Array [
-        "client:4:friends{\\"first\\":1,\\"isViewerFriend\\":true,\\"orderby\\":[\\"last name\\"]}:edges:0",
+        "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"last name\\"]):edges:0",
       ],
     },
   },
-  "client:4:friends{\\"first\\":1,\\"isViewerFriend\\":true,\\"orderby\\":[\\"last name\\"]}:edges:0": Object {
-    "__id": "client:4:friends{\\"first\\":1,\\"isViewerFriend\\":true,\\"orderby\\":[\\"last name\\"]}:edges:0",
+  "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"last name\\"]):edges:0": Object {
+    "__id": "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"last name\\"]):edges:0",
     "__typename": "FriendsEdge",
     "cursor": "cursor:bestFriends",
     "node": Object {
@@ -97,7 +97,7 @@ Object {
   "client:root": Object {
     "__id": "client:root",
     "__typename": "__Root",
-    "node{\\"id\\":\\"1\\"}": Object {
+    "node(id:\\"1\\")": Object {
       "__ref": "4",
     },
   },
@@ -114,22 +114,22 @@ Object {
   "4": Object {
     "__id": "4",
     "__typename": "User",
-    "friends{\\"first\\":1}": Object {
-      "__ref": "client:4:friends{\\"first\\":1}",
+    "friends(first:1)": Object {
+      "__ref": "client:4:friends(first:1)",
     },
     "id": "4",
   },
-  "client:4:friends{\\"first\\":1}": Object {
-    "__id": "client:4:friends{\\"first\\":1}",
+  "client:4:friends(first:1)": Object {
+    "__id": "client:4:friends(first:1)",
     "__typename": "FriendsConnection",
     "edges": Object {
       "__refs": Array [
-        "client:4:friends{\\"first\\":1}:edges:0",
+        "client:4:friends(first:1):edges:0",
       ],
     },
   },
-  "client:4:friends{\\"first\\":1}:edges:0": Object {
-    "__id": "client:4:friends{\\"first\\":1}:edges:0",
+  "client:4:friends(first:1):edges:0": Object {
+    "__id": "client:4:friends(first:1):edges:0",
     "__typename": "FriendsEdge",
     "cursor": "cursor:bestFriends",
     "node": Object {
@@ -139,7 +139,7 @@ Object {
   "client:root": Object {
     "__id": "client:root",
     "__typename": "__Root",
-    "node{\\"id\\":\\"1\\"}": Object {
+    "node(id:\\"1\\")": Object {
       "__ref": "4",
     },
   },

@@ -195,41 +195,4 @@ describe('RelayRenderer.render', () => {
     request.succeed();
     expect(render.mock.calls.length).toBe(3);
   });
-
-  describe('GC integration', () => {
-    let garbageCollector;
-
-    beforeEach(() => {
-      const storeData = environment.getStoreData();
-      storeData.initializeGarbageCollector(jest.fn());
-      garbageCollector = storeData.getGarbageCollector();
-    });
-
-    it('acquires a GC hold when mounted', () => {
-      garbageCollector.acquireHold = jest.fn();
-      renderElement(
-        <RelayRenderer
-          Container={MockContainer}
-          queryConfig={queryConfig}
-          environment={environment}
-        />,
-      );
-      expect(garbageCollector.acquireHold).toBeCalled();
-    });
-
-    it('releases its GC hold when unmounted', () => {
-      const release = jest.fn();
-      garbageCollector.acquireHold = jest.fn(() => ({release}));
-      renderElement(
-        <RelayRenderer
-          Container={MockContainer}
-          queryConfig={queryConfig}
-          environment={environment}
-        />,
-      );
-      expect(release).not.toBeCalled();
-      container.unmount();
-      expect(release).toBeCalled();
-    });
-  });
 });

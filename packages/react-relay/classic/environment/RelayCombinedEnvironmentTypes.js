@@ -23,11 +23,13 @@ import type {Observable, SelectorStoreUpdater} from 'RelayRuntime';
      in milliseconds. (This value will be passed to setTimeout.)
  * - `rerunParamExperimental`: causes the query to be run with the experimental
  *   batch API on Network interfaces and GraphQL servers that support it.
+ * - `metadata`: user-supplied metadata.
  */
 export type CacheConfig = {
   force?: ?boolean,
   poll?: ?number,
   rerunParamExperimental?: ?RerunParam,
+  metadata?: {[key: string]: mixed},
 };
 
 /**
@@ -147,6 +149,7 @@ export interface CEnvironment<
   TNode,
   TRequest,
   TPayload,
+  TOperation,
 > {
   /**
    * Read the results of a selector from in-memory records in the store.
@@ -195,6 +198,7 @@ export interface CEnvironment<
     TGraphQLTaggedNode,
     TNode,
     TRequest,
+    TOperation,
   >,
 }
 
@@ -204,6 +208,7 @@ export interface CUnstableEnvironmentCore<
   TGraphQLTaggedNode,
   TNode,
   TRequest,
+  TOperation,
 > {
   /**
    * Create an instance of a FragmentSpecResolver.
@@ -229,6 +234,7 @@ export interface CUnstableEnvironmentCore<
   createOperationSelector: (
     request: TRequest,
     variables: Variables,
+    operation?: TOperation,
   ) => COperationSelector<TNode, TRequest>,
 
   /**

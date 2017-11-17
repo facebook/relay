@@ -57,6 +57,8 @@ export type ExecutePayload = {|
   variables: Variables,
   // The response from GraphQL execution
   response: GraphQLResponse,
+  // Default is false
+  isOptimistic?: boolean,
 |};
 
 /**

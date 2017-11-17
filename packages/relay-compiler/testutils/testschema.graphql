@@ -11,6 +11,7 @@ type Query {
   items(filter: ItemFilterInput): ItemFilterResult
   maybeNode: MaybeNode
   neverNode: NeverNode
+  named: Named
   me: User
   node(id: ID): Node
   nodes(ids: [ID!]): [Node]
@@ -319,6 +320,10 @@ type LikersEdge {
 }
 
 interface Named {
+  name: String
+}
+
+type SimpleNamed implements Named {
   name: String
 }
 

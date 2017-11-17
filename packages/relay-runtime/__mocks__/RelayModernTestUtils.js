@@ -83,7 +83,7 @@ const RelayModernTestUtils = {
         const warned = calls.filter(args => !args[0]).length;
         return {
           pass: !!warned,
-          message:
+          message: () =>
             `Expected ${negative ? 'not ' : ''}to warn but ` +
             '`warning` received the following calls: ' +
             `${formatActual(calls)}.`,
@@ -109,7 +109,7 @@ const RelayModernTestUtils = {
 
       return {
         pass: !!call,
-        message:
+        message: () =>
           `Expected ${negative ? 'not ' : ''}to warn: ` +
           `${formatExpected(expected)} but ` +
           '`warning` received the following calls: ' +
@@ -126,7 +126,7 @@ const RelayModernTestUtils = {
       }
       return {
         pass,
-        message: 'Expected function to throw a TypeError.',
+        message: () => 'Expected function to throw a TypeError.',
       };
     },
   },
@@ -148,22 +148,28 @@ const RelayModernTestUtils = {
     const RelayTestSchema = require('RelayTestSchema');
 
     const ast = RelayParser.parse(RelayTestSchema, text);
-    let context = new GraphQLCompilerContext(RelayTestSchema);
-    context = ast.reduce((ctx, node) => ctx.add(node), context);
-    context = (transforms || []).reduce(
-      (ctx, {transform}) => transform(ctx),
-      context,
-    );
+    let context = new GraphQLCompilerContext(RelayTestSchema).addAll(ast);
+    if (transforms) {
+      context = context.applyTransforms(transforms);
+    }
     const documentMap = {};
-    context.documents().forEach(node => {
+    context.forEachDocument(node => {
       if (node.kind === 'Root') {
         documentMap[node.name] = RelayCodeGenerator.generate({
           kind: 'Batch',
           metadata: node.metadata || {},
           name: node.name,
-          operation: node,
           fragment: buildFragmentForRoot(node),
-          text,
+          requests: [
+            {
+              kind: 'Request',
+              name: node.name,
+              id: null,
+              text,
+              root: node,
+              argumentDependencies: [],
+            },
+          ],
         });
       } else {
         documentMap[node.name] = RelayCodeGenerator.generate(node);

@@ -17,10 +17,15 @@ import type {
   ConcreteFragment,
   ConcreteSelectableNode,
   RequestNode,
+  ConcreteOperation,
 } from 'RelayConcreteNode';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
+import type {
+  ExecutePayload,
+  PayloadError,
+  UploadableMap,
+} from 'RelayNetworkTypes';
 import type {PayloadData} from 'RelayNetworkTypes';
-import type {PayloadError, UploadableMap} from 'RelayNetworkTypes';
 import type RelayObservable from 'RelayObservable';
 import type {RecordState} from 'RelayRecordState';
 import type {
@@ -44,8 +49,9 @@ type TEnvironment = Environment;
 type TFragment = ConcreteFragment;
 type TGraphQLTaggedNode = GraphQLTaggedNode;
 type TNode = ConcreteSelectableNode;
-type TPayload = RelayResponsePayload;
+type TPayload = ExecutePayload;
 type TRequest = RequestNode;
+type TOperation = ConcreteOperation;
 
 export type FragmentMap = CFragmentMap<TFragment>;
 export type OperationSelector = COperationSelector<TNode, TRequest>;
@@ -58,6 +64,7 @@ export type UnstableEnvironmentCore = CUnstableEnvironmentCore<
   TGraphQLTaggedNode,
   TNode,
   TRequest,
+  TOperation,
 >;
 
 /**
@@ -206,6 +213,7 @@ export interface Environment
     TNode,
     TRequest,
     TPayload,
+    TOperation,
   > {
   /**
    * Apply an optimistic update to the environment. The mutation can be reverted
@@ -244,7 +252,7 @@ export interface Environment
   getStore(): Store,
 
   /**
-   * Returns an Observable of RelayResponsePayload resulting from executing the
+   * Returns an Observable of ExecutePayload resulting from executing the
    * provided Mutation operation, the result of which is then normalized and
    * committed to the publish queue along with an optional optimistic response
    * or updater.
@@ -259,7 +267,7 @@ export interface Environment
     optimisticResponse?: ?Object,
     updater?: ?SelectorStoreUpdater,
     uploadables?: ?UploadableMap,
-  |}): RelayObservable<RelayResponsePayload>,
+  |}): RelayObservable<ExecutePayload>,
 
   /**
    * Checks if the records required to fulfill the given `selector` are in
@@ -345,6 +353,8 @@ export type SelectorStoreUpdater = (
 /**
   * A set of configs that can be used to apply an optimistic update into the
   * store.
+  * TODO: we should probably only expose `storeUpdater` and `source` to the
+  * publish queue.
   */
 export type OptimisticUpdate =
   | {|
@@ -354,6 +364,10 @@ export type OptimisticUpdate =
       selectorStoreUpdater: ?SelectorStoreUpdater,
       operation: OperationSelector,
       response: ?Object,
+    |}
+  | {|
+      source: RecordSource,
+      fieldPayloads?: ?Array<HandleFieldPayload>,
     |};
 
 /**

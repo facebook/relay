@@ -22,6 +22,18 @@ class GraphQLConsoleReporter implements GraphQLReporter {
     this._verbose = options.verbose;
   }
 
+  reportTime(name: string, ms: number): void {
+    if (this._verbose) {
+      const time =
+        ms === 0
+          ? chalk.gray(' <1ms')
+          : ms < 1000
+            ? chalk.blue(leftPad(5, ms + 'ms'))
+            : chalk.red(Math.floor(ms / 10) / 100 + 's');
+      process.stdout.write('  ' + time + ' ' + chalk.gray(name) + '\n');
+    }
+  }
+
   reportError(caughtLocation: string, error: Error): void {
     process.stdout.write(chalk.red('ERROR:\n' + error.message + '\n'));
     if (this._verbose) {
@@ -35,6 +47,10 @@ class GraphQLConsoleReporter implements GraphQLReporter {
       }
     }
   }
+}
+
+function leftPad(len, str) {
+  return new Array(len - str.length + 1).join(' ') + str;
 }
 
 module.exports = GraphQLConsoleReporter;

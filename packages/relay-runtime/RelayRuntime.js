@@ -120,6 +120,7 @@ module.exports = {
   getSelector: RelayCore.getSelector,
   getSelectorList: RelayCore.getSelectorList,
   getSelectorsFromObject: RelayCore.getSelectorsFromObject,
+  getStorageKey: RelayStoreUtils.getStorageKey,
   getVariablesFromObject: RelayCore.getVariablesFromObject,
   graphql: RelayModernGraphQLTag.graphql,
 

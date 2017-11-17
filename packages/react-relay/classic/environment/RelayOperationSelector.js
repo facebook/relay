@@ -30,6 +30,8 @@ import type {OperationSelector} from './RelayEnvironmentTypes';
 function createOperationSelector(
   operation: ConcreteOperationDefinition,
   variables: Variables,
+  // unused param for compatibility with modern API
+  _modernOperation?: any,
 ): OperationSelector {
   const concreteFragment = QueryBuilder.getFragment(operation.node);
   invariant(

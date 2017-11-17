@@ -42,7 +42,7 @@ describe('RelayViewerHandleTransform', () => {
       );
       context = RelayViewerHandleTransform.transform(context, RelayTestSchema);
       const documents = [];
-      context.documents().forEach(doc => {
+      context.forEachDocument(doc => {
         documents.push(GraphQLIRPrinter.print(doc));
       });
       return documents.join('\n');

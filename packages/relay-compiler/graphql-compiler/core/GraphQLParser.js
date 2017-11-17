@@ -11,6 +11,8 @@
 
 'use strict';
 
+const Profiler = require('./GraphQLCompilerProfiler');
+
 const invariant = require('invariant');
 
 const {DEFAULT_HANDLE_KEY} = require('../util/DefaultHandleKey');
@@ -126,8 +128,10 @@ class GraphQLParser {
     schema: GraphQLSchema,
     definition: OperationDefinitionNode | FragmentDefinitionNode,
   ): Root | Fragment {
-    const parser = new this(schema, definition);
-    return parser.transform();
+    return Profiler.run('GraphQLParser.transform', () => {
+      const parser = new this(schema, definition);
+      return parser.transform();
+    });
   }
 
   constructor(
@@ -397,6 +401,7 @@ class GraphQLParser {
       operation,
       metadata: null,
       name,
+      dependentRequests: [],
       argumentDefinitions,
       directives,
       selections,

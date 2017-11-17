@@ -29,101 +29,104 @@ describe('BabelPluginRelay', () => {
     expect.extend(getGoldenMatchers(__filename));
   });
 
-  it('transforms source for modern core', () => {
-    expect('fixtures-modern').toMatchGolden(text => {
+  function transformerWithOptions(
+    options: RelayPluginOptions,
+    environment: 'development' | 'production' = 'production',
+  ): string => string {
+    return (text, filename) => {
+      const previousEnv = process.env.BABEL_ENV;
       try {
+        process.env.BABEL_ENV = environment;
         return babel.transform(text, {
-          plugins: [BabelPluginRelay],
-          compact: false,
-          parserOpts: {plugins: ['jsx']},
-        }).code;
-      } catch (e) {
-        return 'ERROR:\n\n' + e;
-      }
-    });
-  });
-
-  it('transforms source for compatability mode', () => {
-    expect('fixtures-compat').toMatchGolden(text => {
-      try {
-        return babel.transform(text, {
-          plugins: [
-            [
-              BabelPluginRelay,
-              {
-                compat: true,
-                schema: SCHEMA_PATH,
-                substituteVariables: true,
-              },
-            ],
-          ],
-          compact: false,
-          parserOpts: {plugins: ['jsx']},
-        }).code;
-      } catch (e) {
-        return 'ERROR:\n\n' + e;
-      }
-    });
-  });
-
-  it('transforms source for modern core when using haste', () => {
-    expect('fixtures-modern-haste').toMatchGolden(text => {
-      try {
-        return babel.transform(text, {
-          plugins: [[BabelPluginRelay, {haste: true}]],
-          compact: false,
-          parserOpts: {plugins: ['jsx']},
-        }).code;
-      } catch (e) {
-        return 'ERROR:\n\n' + e;
-      }
-    });
-  });
-
-  it('transforms source for compatability mode when using haste and custom module', () => {
-    expect('fixtures-compat-haste').toMatchGolden(text => {
-      try {
-        return babel.transform(text, {
-          plugins: [
-            [
-              BabelPluginRelay,
-              {
-                compat: true,
-                haste: true,
-                schema: SCHEMA_PATH,
-                substituteVariables: true,
-              },
-            ],
-          ],
-          compact: false,
-          parserOpts: {plugins: ['jsx']},
-        }).code;
-      } catch (e) {
-        return 'ERROR:\n\n' + e;
-      }
-    });
-  });
-
-  it('transforms source with classic Relay.QL tags', () => {
-    expect('fixtures-classic').toMatchGolden((text, filename) => {
-      try {
-        return babel.transform(text, {
-          plugins: [
-            [
-              BabelPluginRelay,
-              {
-                schema: OLD_SCHEMA_PATH,
-                substituteVariables: true,
-              },
-            ],
-          ],
           compact: false,
           filename,
           parserOpts: {plugins: ['jsx']},
+          plugins: [[BabelPluginRelay, options]],
         }).code;
       } catch (e) {
         return 'ERROR:\n\n' + e;
+      } finally {
+        process.env.BABEL_ENV = previousEnv;
       }
+    };
+  }
+
+  it('transforms source for modern core', () => {
+    expect('fixtures-modern').toMatchGolden(transformerWithOptions({}));
+  });
+
+  it('transforms source for compatability mode', () => {
+    expect('fixtures-compat').toMatchGolden(
+      transformerWithOptions({
+        compat: true,
+        schema: SCHEMA_PATH,
+        substituteVariables: true,
+      }),
+    );
+  });
+
+  it('transforms source for modern core when using haste', () => {
+    expect('fixtures-modern-haste').toMatchGolden(
+      transformerWithOptions({
+        haste: true,
+      }),
+    );
+  });
+
+  it('transforms source for compatability mode when using haste and custom module', () => {
+    expect('fixtures-compat-haste').toMatchGolden(
+      transformerWithOptions({
+        compat: true,
+        haste: true,
+        schema: SCHEMA_PATH,
+        substituteVariables: true,
+      }),
+    );
+  });
+
+  it('transforms source with classic Relay.QL tags', () => {
+    expect('fixtures-classic').toMatchGolden(
+      transformerWithOptions({
+        schema: OLD_SCHEMA_PATH,
+        substituteVariables: true,
+      }),
+    );
+  });
+
+  describe('`development` option', () => {
+    it('tests the hash when `development` is set', () => {
+      expect(
+        transformerWithOptions({}, 'development')(
+          'graphql`fragment TestFrag on Node { id }`',
+        ),
+      ).toMatchSnapshot();
+    });
+
+    it('tests the hash when `isDevVariable` is set', () => {
+      expect(
+        transformerWithOptions({isDevVariable: 'IS_DEV'})(
+          'graphql`fragment TestFrag on Node { id }`',
+        ),
+      ).toMatchSnapshot();
+    });
+
+    it('uses a custom build command in message', () => {
+      expect(
+        transformerWithOptions(
+          {
+            buildCommand: 'relay-build',
+          },
+          'development',
+        )('graphql`fragment TestFrag on Node { id }`'),
+      ).toMatchSnapshot();
+    });
+
+    it('does not test the hash when `development` is not set', () => {
+      expect(
+        transformerWithOptions({}, 'production')(
+          'graphql`fragment TestFrag on Node { id }`',
+        ),
+      ).toMatchSnapshot();
     });
   });
 });

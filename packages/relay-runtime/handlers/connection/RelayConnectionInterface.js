@@ -93,10 +93,10 @@ const RelayConnectionInterface = {
    */
   getDefaultPageInfo(): PageInfo {
     return {
-      [config.END_CURSOR]: undefined,
+      [config.END_CURSOR]: null,
       [config.HAS_NEXT_PAGE]: false,
       [config.HAS_PREV_PAGE]: false,
-      [config.START_CURSOR]: undefined,
+      [config.START_CURSOR]: null,
     };
   },
 };

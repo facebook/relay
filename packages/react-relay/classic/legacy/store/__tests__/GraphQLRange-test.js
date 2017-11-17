@@ -77,7 +77,7 @@ describe('GraphQLRange', () => {
   let consoleWarn;
   let range;
 
-  let HAS_NEXT_PAGE, HAS_PREV_PAGE;
+  let HAS_NEXT_PAGE, HAS_PREV_PAGE, START_CURSOR, END_CURSOR;
 
   beforeEach(() => {
     jest.resetModules();
@@ -89,7 +89,12 @@ describe('GraphQLRange', () => {
     });
     range = new GraphQLRange();
 
-    ({HAS_NEXT_PAGE, HAS_PREV_PAGE} = ConnectionInterface.get());
+    ({
+      HAS_NEXT_PAGE,
+      HAS_PREV_PAGE,
+      START_CURSOR,
+      END_CURSOR,
+    } = ConnectionInterface.get());
 
     expect.extend(RelayTestUtils.matchers);
   });
@@ -535,6 +540,8 @@ describe('GraphQLRange', () => {
     expect(result.diffCalls).toEqual([{name: 'first', value: 3}]);
     expect(result.pageInfo[HAS_PREV_PAGE]).toBe(false);
     expect(result.pageInfo[HAS_NEXT_PAGE]).toBe(true);
+    expect(result.pageInfo[START_CURSOR]).toBe(null);
+    expect(result.pageInfo[END_CURSOR]).toBe(null);
 
     const pageInfo = {
       [HAS_NEXT_PAGE]: true,
@@ -644,6 +651,8 @@ describe('GraphQLRange', () => {
     expect(result.diffCalls).toEqual([{name: 'last', value: 3}]);
     expect(result.pageInfo[HAS_PREV_PAGE]).toBe(true);
     expect(result.pageInfo[HAS_NEXT_PAGE]).toBe(false);
+    expect(result.pageInfo[START_CURSOR]).toBe(null);
+    expect(result.pageInfo[END_CURSOR]).toBe(null);
 
     const pageInfo = {
       [HAS_NEXT_PAGE]: false,

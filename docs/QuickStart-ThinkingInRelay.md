@@ -1,10 +1,6 @@
 ---
 id: thinking-in-relay
 title: Thinking In Relay
-layout: docs
-category: Quick Start
-permalink: docs/thinking-in-relay.html
-next: videos
 ---
 
 Relay's approach to data-fetching is heavily inspired by our experience with React. In particular, React breaks complex interfaces into reusable **components**, allowing developers to reason about discrete units of an application in isolation, and reducing the coupling between disparate parts of an application. Even more important is that these components are **declarative**: they allow developers to specify *what* the UI should look like for a given state, and not have to worry about *how* to show that UI. Unlike previous approaches that used imperative commands to manipulate native views (e.g. the DOM), React uses a UI description to automatically determine the necessary commands.

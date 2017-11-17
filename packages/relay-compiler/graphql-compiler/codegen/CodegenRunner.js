@@ -14,6 +14,7 @@
 const CodegenDirectory = require('./CodegenDirectory');
 const CodegenWatcher = require('./CodegenWatcher');
 const GraphQLWatchmanClient = require('../core/GraphQLWatchmanClient');
+const Profiler = require('../core/GraphQLCompilerProfiler');
 
 const invariant = require('invariant');
 const path = require('path');
@@ -58,6 +59,7 @@ export type GetWriter = (
   schema: GraphQLSchema,
   documents: ImmutableMap<string, DocumentNode>,
   baseDocuments: ImmutableMap<string, DocumentNode>,
+  reporter: GraphQLReporter,
 ) => FileWriterInterface;
 
 class CodegenRunner {
@@ -128,57 +130,63 @@ class CodegenRunner {
       writerConfig.baseParsers.forEach(parser => parsers.push(parser));
     }
     // Don't bother resetting the parsers
-    await Promise.all(parsers.map(parser => this.parseEverything(parser)));
+    await Profiler.asyncContext('CodegenRunner:parseEverything', () =>
+      Promise.all(parsers.map(parser => this.parseEverything(parser))),
+    );
 
     return await this.write(writerName);
   }
 
-  async getDirtyWriters(filePaths: Array<string>): Promise<Set<string>> {
-    const dirtyWriters = new Set();
+  getDirtyWriters(filePaths: Array<string>): Promise<Set<string>> {
+    return Profiler.asyncContext('CodegenRunner:getDirtyWriters', async () => {
+      const dirtyWriters = new Set();
 
-    // Check if any files are in the output
-    for (const configName in this.writerConfigs) {
-      const config = this.writerConfigs[configName];
-      for (const filePath of filePaths) {
-        if (config.isGeneratedFile(filePath)) {
-          dirtyWriters.add(configName);
+      // Check if any files are in the output
+      for (const configName in this.writerConfigs) {
+        const config = this.writerConfigs[configName];
+        for (const filePath of filePaths) {
+          if (config.isGeneratedFile(filePath)) {
+            dirtyWriters.add(configName);
+          }
         }
       }
-    }
 
-    const client = new GraphQLWatchmanClient();
+      // Check for files in the input
+      await Promise.all(
+        Object.keys(this.parserConfigs).map(parserConfigName =>
+          Profiler.waitFor('Watchman:query', async () => {
+            const client = new GraphQLWatchmanClient();
+            const config = this.parserConfigs[parserConfigName];
+            const dirs = await client.watchProject(config.baseDir);
 
-    // Check for files in the input
-    await Promise.all(
-      Object.keys(this.parserConfigs).map(async parserConfigName => {
-        const config = this.parserConfigs[parserConfigName];
-        const dirs = await client.watchProject(config.baseDir);
+            const relativeFilePaths = filePaths.map(filePath =>
+              path.relative(config.baseDir, filePath),
+            );
 
-        const relativeFilePaths = filePaths.map(filePath =>
-          path.relative(config.baseDir, filePath),
-        );
+            const query = {
+              expression: [
+                'allof',
+                config.watchmanExpression,
+                ['name', relativeFilePaths, 'wholename'],
+              ],
+              fields: ['exists'],
+              relative_root: dirs.relativePath,
+            };
 
-        const query = {
-          expression: [
-            'allof',
-            config.watchmanExpression,
-            ['name', relativeFilePaths, 'wholename'],
-          ],
-          fields: ['exists'],
-          relative_root: dirs.relativePath,
-        };
+            const result = await client.command('query', dirs.root, query);
+            client.end();
 
-        const result = await client.command('query', dirs.root, query);
-        if (result.files.length > 0) {
-          this.parserWriters[parserConfigName].forEach(writerName =>
-            dirtyWriters.add(writerName),
-          );
-        }
-      }),
-    );
+            if (result.files.length > 0) {
+              this.parserWriters[parserConfigName].forEach(writerName =>
+                dirtyWriters.add(writerName),
+              );
+            }
+          }),
+        ),
+      );
 
-    client.end();
-    return dirtyWriters;
+      return dirtyWriters;
+    });
   }
 
   async parseEverything(parserName: string): Promise<void> {
@@ -221,76 +229,83 @@ class CodegenRunner {
   }
 
   parseFileChanges(parserName: string, files: Set<File>): void {
-    const parser = this.parsers[parserName];
-    // this maybe should be await parser.parseFiles(files);
-    parser.parseFiles(files);
+    return Profiler.run('CodegenRunner.parseFileChanges', () => {
+      const parser = this.parsers[parserName];
+      // this maybe should be await parser.parseFiles(files);
+      parser.parseFiles(files);
+    });
   }
 
   // We cannot do incremental writes right now.
   // When we can, this could be writeChanges(writerName, parserName, parsedDefinitions)
-  async write(writerName: string): Promise<CompileResult> {
-    try {
-      // eslint-disable-next-line no-console
-      console.log('\nWriting %s', writerName);
-      const {
-        getWriter,
-        parser,
-        baseParsers,
-        isGeneratedFile,
-      } = this.writerConfigs[writerName];
+  write(writerName: string): Promise<CompileResult> {
+    return Profiler.asyncContext('CodegenRunner.write', async () => {
+      try {
+        // eslint-disable-next-line no-console
+        console.log('\nWriting %s', writerName);
+        const {
+          getWriter,
+          parser,
+          baseParsers,
+          isGeneratedFile,
+        } = this.writerConfigs[writerName];
 
-      let baseDocuments = ImmutableMap();
-      if (baseParsers) {
-        baseParsers.forEach(baseParserName => {
-          baseDocuments = baseDocuments.merge(
-            this.parsers[baseParserName].documents(),
-          );
-        });
-      }
-
-      // always create a new writer: we have to write everything anyways
-      const documents = this.parsers[parser].documents();
-      const schema = this.parserConfigs[parser].getSchema();
-      const writer = getWriter(
-        this.onlyValidate,
-        schema,
-        documents,
-        baseDocuments,
-      );
-
-      const outputDirectories = await writer.writeAll();
-
-      for (const dir of outputDirectories.values()) {
-        const all = [
-          ...dir.changes.created,
-          ...dir.changes.updated,
-          ...dir.changes.deleted,
-          ...dir.changes.unchanged,
-        ];
-        for (const filename of all) {
-          const filePath = dir.getPath(filename);
-          invariant(
-            isGeneratedFile(filePath),
-            'CodegenRunner: %s returned false for isGeneratedFile, ' +
-              'but was in generated directory',
-            filePath,
-          );
+        let baseDocuments = ImmutableMap();
+        if (baseParsers) {
+          baseParsers.forEach(baseParserName => {
+            baseDocuments = baseDocuments.merge(
+              this.parsers[baseParserName].documents(),
+            );
+          });
         }
-      }
 
-      const combinedChanges = CodegenDirectory.combineChanges(
-        Array.from(outputDirectories.values()),
-      );
-      CodegenDirectory.printChanges(combinedChanges, {
-        onlyValidate: this.onlyValidate,
-      });
-      return CodegenDirectory.hasChanges(combinedChanges)
-        ? 'HAS_CHANGES'
-        : 'NO_CHANGES';
-    } catch (e) {
-      this._reporter.reportError('CodegenRunner.write', e);
-      return 'ERROR';
-    }
+        // always create a new writer: we have to write everything anyways
+        const documents = this.parsers[parser].documents();
+        const schema = Profiler.run('getSchema', () =>
+          this.parserConfigs[parser].getSchema(),
+        );
+        const writer = getWriter(
+          this.onlyValidate,
+          schema,
+          documents,
+          baseDocuments,
+          this._reporter,
+        );
+
+        const outputDirectories = await writer.writeAll();
+
+        for (const dir of outputDirectories.values()) {
+          const all = [
+            ...dir.changes.created,
+            ...dir.changes.updated,
+            ...dir.changes.deleted,
+            ...dir.changes.unchanged,
+          ];
+          for (const filename of all) {
+            const filePath = dir.getPath(filename);
+            invariant(
+              isGeneratedFile(filePath),
+              'CodegenRunner: %s returned false for isGeneratedFile, ' +
+                'but was in generated directory',
+              filePath,
+            );
+          }
+        }
+
+        const combinedChanges = CodegenDirectory.combineChanges(
+          Array.from(outputDirectories.values()),
+        );
+        CodegenDirectory.printChanges(combinedChanges, {
+          onlyValidate: this.onlyValidate,
+        });
+        return CodegenDirectory.hasChanges(combinedChanges)
+          ? 'HAS_CHANGES'
+          : 'NO_CHANGES';
+      } catch (e) {
+        this._reporter.reportError('CodegenRunner.write', e);
+        return 'ERROR';
+      }
+    });
   }
 
   async watchAll(): Promise<void> {

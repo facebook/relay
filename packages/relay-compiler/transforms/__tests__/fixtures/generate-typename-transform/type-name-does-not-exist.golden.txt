@@ -3,6 +3,7 @@
   "operation": "query",
   "metadata": null,
   "name": "EasyTypeNameNotExistsQuery",
+  "dependentRequests": [],
   "argumentDefinitions": [],
   "directives": [],
   "selections": [
@@ -139,6 +140,7 @@
   "operation": "query",
   "metadata": null,
   "name": "TypeNameNotExistsWithFlattenTransformQuery",
+  "dependentRequests": [],
   "argumentDefinitions": [],
   "directives": [],
   "selections": [

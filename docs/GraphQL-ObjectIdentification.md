@@ -1,10 +1,6 @@
 ---
 id: graphql-object-identification
 title: Object Identification
-layout: docs
-category: GraphQL
-permalink: docs/graphql-object-identification.html
-next: graphql-connections
 ---
 
 Both `Faction` and `Ship` have identifiers that we can use to refetch them. We expose this capability to Relay through the `Node` interface and the `node` field on the root query type.
@@ -107,4 +103,4 @@ The `Node` interface and `node` field assume globally unique IDs for this refetc
 
 The IDs we got back were base64 strings. IDs are designed to be opaque (the only thing that should be passed to the `id` argument on `node` is the unaltered result of querying `id` on some object in the system), and base64ing a string is a useful convention in GraphQL to remind viewers that the string is an opaque identifier.
 
-Complete details on how the server should behave are available in the [GraphQL Object Identification](../graphql/objectidentification.htm) spec.
+Complete details on how the server should behave are available in the [GraphQL Object Identification](/relay/graphql/objectidentification.htm) spec.

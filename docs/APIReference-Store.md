@@ -1,10 +1,6 @@
 ---
 id: api-reference-relay-store
 title: Relay.Store
-layout: docs
-category: Relay Classic API
-permalink: docs/api-reference-relay-store.html
-next: interfaces-relay-network-layer
 ---
 
 The Relay `Store` provides an API for dispatching mutations to the server.

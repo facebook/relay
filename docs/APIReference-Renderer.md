@@ -1,10 +1,6 @@
 ---
 id: api-reference-relay-renderer
 title: Relay.Renderer
-layout: docs
-category: Relay Classic API
-permalink: docs/api-reference-relay-renderer.html
-next: api-reference-relay-root-container
 ---
 
 **Relay.Renderer** is a replacement for `Relay.RootContainer` that composes a `Relay.ReadyStateRenderer` and performs data fetching for a given `queryConfig`.

@@ -17,7 +17,6 @@ const GraphQLStoreRangeUtils = require('../legacy/store/GraphQLStoreRangeUtils')
 const QueryBuilder = require('../query/QueryBuilder');
 const RelayChangeTracker = require('./RelayChangeTracker');
 const RelayClassicRecordState = require('./RelayClassicRecordState');
-const RelayGarbageCollector = require('./RelayGarbageCollector');
 const RelayMetaRoute = require('../route/RelayMetaRoute');
 const RelayMutationQueue = require('../mutation/RelayMutationQueue');
 const RelayNetworkLayer = require('../network/RelayNetworkLayer');
@@ -64,7 +63,6 @@ import type {
   CacheProcessorCallbacks,
 } from '../tools/RelayTypes';
 import type {ChangeSet} from './RelayChangeTracker';
-import type {GarbageCollectionScheduler} from './RelayGarbageCollector';
 import type {RecordMap} from './RelayRecord';
 
 const {ID, ID_TYPE, NODE, NODE_TYPE, TYPENAME} = RelayNodeInterface;
@@ -92,7 +90,6 @@ class RelayStoreData {
   _cachedRootCallMap: RootCallMap;
   _cachedStore: RelayRecordStore;
   _changeEmitter: GraphQLStoreChangeEmitter;
-  _garbageCollector: ?RelayGarbageCollector;
   _mutationQueue: RelayMutationQueue;
   _networkLayer: RelayNetworkLayer;
   _nodeRangeMap: NodeRangeMap;
@@ -146,27 +143,6 @@ class RelayStoreData {
     this._rangeData = rangeData;
     this._rootCallMap = rootCallMap;
     this._taskQueue = new RelayTaskQueue();
-  }
-
-  /**
-   * Creates a garbage collector for this instance. After initialization all
-   * newly added DataIDs will be registered in the created garbage collector.
-   * This will show a warning if data has already been added to the instance.
-   */
-  initializeGarbageCollector(scheduler: GarbageCollectionScheduler): void {
-    invariant(
-      !this._garbageCollector,
-      'RelayStoreData: Garbage collector is already initialized.',
-    );
-    const shouldInitialize = this._isStoreDataEmpty();
-    warning(
-      shouldInitialize,
-      'RelayStoreData: Garbage collection can only be initialized when no ' +
-        'data is present.',
-    );
-    if (shouldInitialize) {
-      this._garbageCollector = new RelayGarbageCollector(this, scheduler);
-    }
   }
 
   /**
@@ -249,7 +225,6 @@ class RelayStoreData {
       this._queuedStore,
       this._cachedRecords,
       this._cachedRootCallMap,
-      this._garbageCollector,
       cacheManager,
       changeTracker,
       {
@@ -295,7 +270,6 @@ class RelayStoreData {
       this._queuedStore,
       this._cachedRecords,
       this._cachedRootCallMap,
-      this._garbageCollector,
       cacheManager,
       changeTracker,
       {
@@ -542,10 +516,6 @@ class RelayStoreData {
     return this._cachedRecords;
   }
 
-  getGarbageCollector(): ?RelayGarbageCollector {
-    return this._garbageCollector;
-  }
-
   getMutationQueue(): RelayMutationQueue {
     return this._mutationQueue;
   }
@@ -637,13 +607,11 @@ class RelayStoreData {
   _handleChangedAndNewDataIDs(changeSet: ChangeSet): void {
     const updatedDataIDs = Object.keys(changeSet.updated);
     const createdDataIDs = Object.keys(changeSet.created);
-    const gc = this._garbageCollector;
     updatedDataIDs.forEach(id => this._changeEmitter.broadcastChangeForID(id));
     // Containers may be subscribed to "new" records in the case where they
     // were previously garbage collected or where the link was incrementally
     // loaded from cache prior to the linked record.
     createdDataIDs.forEach(id => {
-      gc && gc.register(id);
       this._changeEmitter.broadcastChangeForID(id);
     });
   }
@@ -696,6 +664,10 @@ class RelayStoreData {
     };
   }
 
+  /* $FlowFixMe: This comment suppresses an error caught by Flow 0.59 which was
+   * not caught before. Most likely, this error is because an exported function
+   * parameter is missing an annotation. Without an annotation, these parameters
+   * are uncovered by Flow. */
   static fromJSON(obj): RelayStoreData {
     invariant(obj, 'RelayStoreData: JSON object is empty');
     const {

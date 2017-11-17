@@ -1,10 +1,6 @@
 ---
 id: api-reference-relay-ql
 title: Relay.QL
-layout: docs
-category: Relay Classic API
-permalink: docs/api-reference-relay-ql.html
-next: api-reference-relay-mutation
 ---
 
 Relay fragments, mutations, and queries must be specified using ES6 template literals tagged with `Relay.QL`. For example:

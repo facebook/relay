@@ -273,9 +273,12 @@ class RelayPublishQueue {
             }
             selectorStoreUpdater &&
               selectorStoreUpdater(selectorStore, selectorData);
-          } else {
+          } else if (optimisticUpdate.storeUpdater) {
             const {storeUpdater} = optimisticUpdate;
             storeUpdater(store);
+          } else {
+            const {source, fieldPayloads} = optimisticUpdate;
+            store.publishSource(source, fieldPayloads);
           }
         });
       }
@@ -298,9 +301,12 @@ class RelayPublishQueue {
             }
             selectorStoreUpdater &&
               selectorStoreUpdater(selectorStore, selectorData);
-          } else {
+          } else if (optimisticUpdate.storeUpdater) {
             const {storeUpdater} = optimisticUpdate;
             storeUpdater(store);
+          } else {
+            const {source, fieldPayloads} = optimisticUpdate;
+            store.publishSource(source, fieldPayloads);
           }
           this._appliedOptimisticUpdates.add(optimisticUpdate);
         });

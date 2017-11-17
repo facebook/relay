@@ -112,7 +112,7 @@
                 "kind": "LinkedField",
                 "alias": null,
                 "name": "friends",
-                "storageKey": "friends{\"first\":10}",
+                "storageKey": "friends(first:10)",
                 "args": [
                   {
                     "kind": "Literal",

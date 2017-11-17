@@ -16,6 +16,8 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
+const {Profiler} = require('graphql-compiler');
+
 /**
  * A file backed cache. Values are JSON encoded on disk, so only JSON
  * serializable values should be used.
@@ -44,13 +46,15 @@ class RelayCompilerCache<T> {
   }
 
   getOrCompute(key: string, compute: () => T): T {
-    const cacheFile = path.join(this._dir, key);
-    if (fs.existsSync(cacheFile)) {
-      return JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
-    }
-    const value = compute();
-    fs.writeFileSync(cacheFile, JSON.stringify(value), 'utf8');
-    return value;
+    return Profiler.run('RelayCompilerCache.getOrCompute', () => {
+      const cacheFile = path.join(this._dir, key);
+      if (fs.existsSync(cacheFile)) {
+        return JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
+      }
+      const value = compute();
+      fs.writeFileSync(cacheFile, JSON.stringify(value), 'utf8');
+      return value;
+    });
   }
 }
 

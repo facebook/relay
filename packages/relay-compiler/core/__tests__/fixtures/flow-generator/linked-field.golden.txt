@@ -1,14 +1,3 @@
-export type UnionTypeTestResponse = {|
-  +neverNode: ?({|
-    +__typename: 'FakeNode',
-    +id: string,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: '%other',
-  |}),
-|};
-
 export type LinkedField = {|
   +profilePicture: ?{|
     +uri: ?string,
@@ -24,4 +13,15 @@ export type LinkedField = {|
   +actor: ?{|
     +id: string,
   |},
+|};
+
+export type UnionTypeTestResponse = {|
+  +neverNode: ?({|
+    +__typename: 'FakeNode',
+    +id: string,
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: '%other',
+  |}),
 |};

@@ -16,8 +16,6 @@ const RelayPropTypes = require('../classic/container/RelayPropTypes');
 const areEqual = require('areEqual');
 const deepFreeze = require('../classic/tools/deepFreeze');
 
-const {RelayConcreteNode} = require('RelayRuntime');
-
 import type {
   CacheConfig,
   Disposable,
@@ -63,18 +61,9 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
   _pendingFetch: ?Disposable;
   _relayContext: RelayContext;
   _rootSubscription: ?Disposable;
-  _selectionReference: ?Disposable;
+  _selectionReferences: Array<Disposable> = [];
 
-  constructor(props: Props, context: Object) {
-    super(props, context);
-    this._pendingFetch = null;
-    this._rootSubscription = null;
-    this._selectionReference = null;
-
-    this.state = {
-      readyState: this._fetchForProps(props),
-    };
-  }
+  state = {readyState: this._fetchForProps(this.props)};
 
   componentWillReceiveProps(nextProps: Props): void {
     if (
@@ -99,7 +88,13 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
     );
   }
 
+  _disposeSelectionReferences(): void {
+    this._selectionReferences.forEach(r => r.dispose());
+    this._selectionReferences = [];
+  }
+
   _release(): void {
+    // order is important, dispose of pendingFetch before selectionReferences
     if (this._pendingFetch) {
       this._pendingFetch.dispose();
       this._pendingFetch = null;
@@ -108,10 +103,7 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
       this._rootSubscription.dispose();
       this._rootSubscription = null;
     }
-    if (this._selectionReference) {
-      this._selectionReference.dispose();
-      this._selectionReference = null;
-    }
+    this._disposeSelectionReferences();
   }
 
   _fetchForProps(props: Props): ReadyState {
@@ -127,12 +119,6 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
         getRequest,
       } = environment.unstable_internal;
       const request = getRequest(query);
-      if (request.kind === RelayConcreteNode.BATCH_REQUEST) {
-        throw new Error(
-          'ReactRelayQueryRenderer: Batch Request not yet ' +
-            'implemented (T22954932)',
-        );
-      }
       const operation = createOperationSelector(request, variables);
       this._relayContext = {
         environment,
@@ -155,13 +141,9 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
 
   _fetch(operation: OperationSelector, cacheConfig: ?CacheConfig): ?ReadyState {
     const {environment} = this._relayContext;
+    const {createOperationSelector} = environment.unstable_internal;
 
-    // Immediately retain the results of the new query to prevent relevant data
-    // from being freed. This is not strictly required if all new data is
-    // fetched in a single step, but is necessary if the network could attempt
-    // to incrementally load data (ex: multiple query entries or incrementally
-    // loading records from disk cache).
-    const nextReference = environment.retain(operation.root);
+    const nextReferences = [];
 
     let readyState = getDefaultState();
     let snapshot: ?Snapshot; // results of the root fragment
@@ -181,7 +163,13 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
         this._pendingFetch = null;
       })
       .subscribe({
-        next: () => {
+        next: payload => {
+          const operationForPayload = createOperationSelector(
+            operation.node,
+            payload.variables,
+            payload.operation,
+          );
+          nextReferences.push(environment.retain(operationForPayload.root));
           // `next` can be called multiple times by network layers that support
           // data subscriptions. Wait until the first payload to render `props`
           // and subscribe for data updates.
@@ -203,14 +191,10 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
             },
           };
 
-          if (this._selectionReference) {
-            this._selectionReference.dispose();
-          }
           this._rootSubscription = environment.subscribe(
             snapshot,
             this._onChange,
           );
-          this._selectionReference = nextReference;
           // This line should be called only once.
           hasSyncResult = true;
           if (hasFunctionReturned) {
@@ -229,21 +213,32 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
               this.setState({readyState: syncReadyState || getDefaultState()});
             },
           };
-          if (this._selectionReference) {
-            this._selectionReference.dispose();
-          }
-          this._selectionReference = nextReference;
+          // We may have partially fulfilled the request, so let the next request
+          // or the unmount dispose of the references.
+          this._selectionReferences = this._selectionReferences.concat(
+            nextReferences,
+          );
           hasSyncResult = true;
           if (hasFunctionReturned) {
             this.setState({readyState});
           }
+        },
+        complete: () => {
+          this._disposeSelectionReferences();
+          this._selectionReferences = nextReferences;
+        },
+        unsubscribe: () => {
+          // Let the next request or the unmount code dispose of the references.
+          // We may have partially fulfilled the request.
+          this._selectionReferences = this._selectionReferences.concat(
+            nextReferences,
+          );
         },
       });
 
     this._pendingFetch = {
       dispose() {
         request.unsubscribe();
-        nextReference.dispose();
       },
     };
     hasFunctionReturned = true;

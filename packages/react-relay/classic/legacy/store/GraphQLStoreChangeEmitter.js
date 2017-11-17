@@ -15,7 +15,6 @@ const ErrorUtils = require('ErrorUtils');
 const resolveImmediate = require('resolveImmediate');
 
 import type {ChangeSubscription} from '../../tools/RelayTypes';
-import type GraphQLStoreRangeUtils from './GraphQLStoreRangeUtils';
 
 type BatchStrategy = (callback: Function) => void;
 type Subscriber = {
@@ -36,11 +35,11 @@ type SubscriptionCallback = () => void;
 class GraphQLStoreChangeEmitter {
   _batchUpdate: BatchStrategy;
   _executingIDs: Object;
-  _rangeData: GraphQLStoreRangeUtils;
+  _rangeData: any; // Should be GraphQLStoreRangeUtils
   _scheduledIDs: ?Object;
   _subscribers: Array<Subscriber>;
 
-  constructor(rangeData: GraphQLStoreRangeUtils) {
+  constructor(rangeData: any) {
     this._batchUpdate = callback => callback();
     this._executingIDs = {};
     this._rangeData = rangeData;

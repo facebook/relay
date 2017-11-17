@@ -96,18 +96,18 @@ describe('RelayResponseNormalizer', () => {
       },
       payload,
     );
-    const friendsID = 'client:1:friends{"first":3}';
+    const friendsID = 'client:1:friends(first:3)';
     const edgeID1 = `${friendsID}:edges:0`;
     const edgeID2 = `${friendsID}:edges:2`;
-    const pictureID = 'client:1:profilePicture{"size":32}';
+    const pictureID = 'client:1:profilePicture(size:32)';
     expect(recordSource.toJSON()).toEqual({
       '1': {
         __id: '1',
         id: '1',
         __typename: 'User',
         firstName: 'Alice',
-        'friends{"first":3}': {__ref: friendsID},
-        'profilePicture{"size":32}': {__ref: pictureID},
+        'friends(first:3)': {__ref: friendsID},
+        'profilePicture(size:32)': {__ref: pictureID},
       },
       '2': {
         __id: '2',
@@ -148,7 +148,7 @@ describe('RelayResponseNormalizer', () => {
       'client:root': {
         __id: 'client:root',
         __typename: '__Root',
-        'node{"id":"1"}': {__ref: '1'},
+        'node(id:"1")': {__ref: '1'},
       },
     });
   });
@@ -216,7 +216,7 @@ describe('RelayResponseNormalizer', () => {
     expect(handleFieldPayloads[1]).toEqual({
       args: {first: 1},
       dataID: '4',
-      fieldKey: 'friends{"first":1}',
+      fieldKey: 'friends(first:1)',
       handle: 'bestFriends',
       handleKey: '__friends_bestFriends',
     });
@@ -290,11 +290,10 @@ describe('RelayResponseNormalizer', () => {
     expect(handleFieldPayloads[0]).toEqual({
       args: {first: 1, orderby: ['last name'], isViewerFriend: true},
       dataID: '4',
-      fieldKey:
-        'friends{"first":1,"isViewerFriend":true,"orderby":["last name"]}',
+      fieldKey: 'friends(first:1,isViewerFriend:true,orderby:["last name"])',
       handle: 'bestFriends',
       handleKey:
-        '__UserFriends_friends_bestFriends{"isViewerFriend":true,"orderby":["last name"]}',
+        '__UserFriends_friends_bestFriends(isViewerFriend:true,orderby:["last name"])',
     });
 
     const payload2 = {
@@ -328,11 +327,10 @@ describe('RelayResponseNormalizer', () => {
     expect(handleFieldPayloads[0]).toEqual({
       args: {first: 1, orderby: ['first name'], isViewerFriend: true},
       dataID: '4',
-      fieldKey:
-        'friends{"first":1,"isViewerFriend":true,"orderby":["first name"]}',
+      fieldKey: 'friends(first:1,isViewerFriend:true,orderby:["first name"])',
       handle: 'bestFriends',
       handleKey:
-        '__UserFriends_friends_bestFriends{"isViewerFriend":true,"orderby":["first name"]}',
+        '__UserFriends_friends_bestFriends(isViewerFriend:true,orderby:["first name"])',
     });
   });
 
@@ -383,6 +381,49 @@ describe('RelayResponseNormalizer', () => {
         'was used to fetch the payload.',
       'firstName',
       'firstName',
+    ]);
+  });
+
+  it('does not warn in __DEV__ if payload data is missing for an abstract field', () => {
+    jest.mock('warning');
+
+    const {BarQuery} = generateAndCompile(
+      `
+      query BarQuery {
+        named {
+          name
+          ... on Node {
+            id
+          }
+        }
+      }
+    `,
+    );
+    const payload = {
+      named: {
+        __typename: 'SimpleNamed',
+        name: 'Alice',
+      },
+    };
+    const recordSource = new RelayInMemoryRecordSource();
+    recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+    expect(() => {
+      normalize(
+        recordSource,
+        {
+          dataID: ROOT_ID,
+          node: BarQuery.operation,
+          variables: {},
+        },
+        payload,
+        {handleStrippedNulls: true},
+      );
+    }).not.toWarn([
+      'RelayResponseNormalizer(): Payload did not contain a value for ' +
+        'field `%s: %s`. Check that you are parsing with the same query that ' +
+        'was used to fetch the payload.',
+      'name',
+      'name',
     ]);
   });
 
@@ -518,7 +559,7 @@ describe('RelayResponseNormalizer', () => {
       'client:root': {
         __id: 'client:root',
         __typename: '__Root',
-        'node{"id":"1"}': {
+        'node(id:"1")': {
           __ref: '1',
         },
       },

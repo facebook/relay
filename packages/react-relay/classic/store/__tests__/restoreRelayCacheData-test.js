@@ -18,7 +18,6 @@ require('configureForRelayOSS');
 const GraphQLRange = require('../../legacy/store/GraphQLRange');
 const RelayClassic = require('RelayClassic');
 const RelayChangeTracker = require('../RelayChangeTracker');
-const RelayGarbageCollector = require('../RelayGarbageCollector');
 const RelayQueryPath = require('../../query/RelayQueryPath');
 const RelayRecordStore = require('../RelayRecordStore');
 const RelayTestUtils = require('RelayTestUtils');
@@ -51,7 +50,6 @@ describe('restoreRelayCacheData', () => {
     dataID,
     diskCacheData,
     fragment,
-    garbageCollector,
     path,
     queries,
     records,
@@ -100,7 +98,6 @@ describe('restoreRelayCacheData', () => {
         store,
         cachedRecords,
         cachedRootCallMap,
-        garbageCollector,
         cacheManager,
         changeTracker,
         callbacks,
@@ -113,7 +110,6 @@ describe('restoreRelayCacheData', () => {
         store,
         cachedRecords,
         cachedRootCallMap,
-        garbageCollector,
         cacheManager,
         changeTracker,
         callbacks,
@@ -1047,40 +1043,6 @@ describe('restoreRelayCacheData', () => {
           '1055790163': true,
         },
       });
-    });
-
-    it('registers new records with the garbage collector', () => {
-      const garbageCollector = new RelayGarbageCollector();
-      RelayGarbageCollector.prototype.register = jest.fn();
-      const queries = {
-        q0: getNode(
-          RelayClassic.QL`
-          query {
-            node(id: "123") {
-              id
-            }
-          }
-        `,
-        ),
-      };
-      const records = {};
-      const diskCacheData = {
-        '123': {
-          __dataID__: '123',
-          __typename: 'User',
-          id: '123',
-        },
-      };
-      performQueriesRestore(queries, {
-        diskCacheData,
-        garbageCollector,
-        records,
-      });
-
-      jest.runAllTimers();
-
-      expect(garbageCollector.register.mock.calls.length).toBe(1);
-      expect(garbageCollector.register.mock.calls[0][0]).toBe('123');
     });
   });
 

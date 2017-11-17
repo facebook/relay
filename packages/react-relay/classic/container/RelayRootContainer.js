@@ -24,7 +24,7 @@ import type {
 } from '../tools/RelayTypes';
 import type {RelayRetryCallback} from './RelayReadyStateRenderer';
 
-type RootContainerProps = {
+export type RootContainerProps = {
   Component: RelayContainer,
   forceFetch?: ?boolean,
   shouldFetch?: ?boolean,

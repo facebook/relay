@@ -19,7 +19,6 @@ const getRelayQueries = require('./getRelayQueries');
 
 import type {RelayQueryConfigInterface} from '../query-config/RelayQueryConfig';
 import type {RelayEnvironmentInterface} from '../store/RelayEnvironment';
-import type {GarbageCollectionHold} from '../store/RelayGarbageCollector';
 import type {RelayQuerySet} from '../tools/RelayInternalTypes';
 import type {
   Abortable,
@@ -138,7 +137,6 @@ class RelayRenderer extends React.Component<Props, State> {
     shouldFetch: true,
   };
 
-  gcHold: ?GarbageCollectionHold;
   lastRequest: ?Abortable;
   mounted: boolean;
   pendingRequest: ?Abortable;
@@ -147,10 +145,6 @@ class RelayRenderer extends React.Component<Props, State> {
 
   constructor(props: Props, context: any) {
     super(props, context);
-    const garbageCollector = this.props.environment
-      .getStoreData()
-      .getGarbageCollector();
-    this.gcHold = garbageCollector && garbageCollector.acquireHold();
     this.mounted = true;
     this.pendingRequest = null;
     this.state = {
@@ -250,15 +244,6 @@ class RelayRenderer extends React.Component<Props, State> {
       nextProps.shouldFetch !== this.props.shouldFetch ||
       (nextProps.forceFetch && !this.props.forceFetch)
     ) {
-      if (nextProps.environment !== this.props.environment) {
-        if (this.gcHold) {
-          this.gcHold.release();
-        }
-        const garbageCollector = nextProps.environment
-          .getStoreData()
-          .getGarbageCollector();
-        this.gcHold = garbageCollector && garbageCollector.acquireHold();
-      }
       this._validateProps(nextProps);
       this._runQueries(nextProps);
       this.setState({readyState: null});
@@ -289,10 +274,6 @@ class RelayRenderer extends React.Component<Props, State> {
     if (this.pendingRequest) {
       this.pendingRequest.abort();
     }
-    if (this.gcHold) {
-      this.gcHold.release();
-    }
-    this.gcHold = null;
     this.mounted = false;
   }
 

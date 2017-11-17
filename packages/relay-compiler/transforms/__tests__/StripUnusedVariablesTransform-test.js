@@ -39,7 +39,7 @@ describe('StripUnusedVariablesTransform', () => {
       );
       context = StripUnusedVariablesTransform.transform(context);
       const documents = [];
-      context.documents().forEach(doc => {
+      context.forEachDocument(doc => {
         documents.push(GraphQLIRPrinter.print(doc));
       });
       return documents.join('\n');

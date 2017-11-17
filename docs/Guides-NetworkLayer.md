@@ -1,10 +1,6 @@
 ---
 id: guides-network-layer
 title: Network Layer
-layout: docs
-category: Relay Classic Guides
-permalink: docs/guides-network-layer.html
-next: guides-babel-plugin
 ---
 
 Relay has a network layer abstraction that separates mutations and queries from the actual machinery that sends requests to the GraphQL server. This gives us the flexibility to configure or even completely replace the default network layer via injection.

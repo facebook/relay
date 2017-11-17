@@ -12,6 +12,7 @@
 'use strict';
 
 const GraphQLValidator = require('./GraphQLValidator');
+const Profiler = require('./GraphQLCompilerProfiler');
 
 const {
   isOperationDefinitionAST,
@@ -41,18 +42,25 @@ function convertASTDocuments(
   validationRules: Array<Function>,
   transform: TransformFn,
 ): Array<Fragment | Root> {
-  const definitions = definitionsFromDocuments(documents);
+  return Profiler.run('ASTConvert.convertASTDocuments', () => {
+    const definitions = definitionsFromDocuments(documents);
 
-  const astDefinitions: Array<ASTDefinitionNode> = [];
-  documents.forEach(doc => {
-    doc.definitions.forEach(definition => {
-      if (isOperationDefinitionAST(definition)) {
-        astDefinitions.push(definition);
-      }
+    const astDefinitions: Array<ASTDefinitionNode> = [];
+    documents.forEach(doc => {
+      doc.definitions.forEach(definition => {
+        if (isOperationDefinitionAST(definition)) {
+          astDefinitions.push(definition);
+        }
+      });
     });
-  });
 
-  return convertASTDefinitions(schema, definitions, validationRules, transform);
+    return convertASTDefinitions(
+      schema,
+      definitions,
+      validationRules,
+      transform,
+    );
+  });
 }
 
 function convertASTDocumentsWithBase(
@@ -62,55 +70,57 @@ function convertASTDocumentsWithBase(
   validationRules: Array<Function>,
   transform: TransformFn,
 ): Array<Fragment | Root> {
-  const baseDefinitions = definitionsFromDocuments(baseDocuments);
-  const definitions = definitionsFromDocuments(documents);
+  return Profiler.run('ASTConvert.convertASTDocumentsWithBase', () => {
+    const baseDefinitions = definitionsFromDocuments(baseDocuments);
+    const definitions = definitionsFromDocuments(documents);
 
-  const requiredDefinitions = new Map();
-  const baseMap: Map<string, ASTDefinitionNode> = new Map();
-  baseDefinitions.forEach(definition => {
-    if (isOperationDefinitionAST(definition)) {
-      if (definition.name) {
-        // If there's no name, no reason to put in the map
-        baseMap.set(definition.name.value, definition);
-      }
-    }
-  });
-
-  const definitionsToVisit: Array<ASTDefinitionNode> = [];
-  definitions.forEach(definition => {
-    if (isOperationDefinitionAST(definition)) {
-      definitionsToVisit.push(definition);
-    }
-  });
-  while (definitionsToVisit.length > 0) {
-    const definition = definitionsToVisit.pop();
-    const name = definition.name;
-    if (!name || requiredDefinitions.has(name.value)) {
-      continue;
-    }
-    requiredDefinitions.set(name.value, definition);
-    visit(definition, {
-      FragmentSpread(spread: FragmentSpreadNode) {
-        const baseDefinition = baseMap.get(spread.name.value);
-        if (baseDefinition) {
-          // We only need to add those definitions not already included
-          // in definitions
-          definitionsToVisit.push(baseDefinition);
+    const requiredDefinitions = new Map();
+    const baseMap: Map<string, ASTDefinitionNode> = new Map();
+    baseDefinitions.forEach(definition => {
+      if (isOperationDefinitionAST(definition)) {
+        if (definition.name) {
+          // If there's no name, no reason to put in the map
+          baseMap.set(definition.name.value, definition);
         }
-      },
+      }
     });
-  }
 
-  const definitionsToConvert = [];
-  requiredDefinitions.forEach(definition =>
-    definitionsToConvert.push(definition),
-  );
-  return convertASTDefinitions(
-    schema,
-    definitionsToConvert,
-    validationRules,
-    transform,
-  );
+    const definitionsToVisit: Array<ASTDefinitionNode> = [];
+    definitions.forEach(definition => {
+      if (isOperationDefinitionAST(definition)) {
+        definitionsToVisit.push(definition);
+      }
+    });
+    while (definitionsToVisit.length > 0) {
+      const definition = definitionsToVisit.pop();
+      const name = definition.name;
+      if (!name || requiredDefinitions.has(name.value)) {
+        continue;
+      }
+      requiredDefinitions.set(name.value, definition);
+      visit(definition, {
+        FragmentSpread(spread: FragmentSpreadNode) {
+          const baseDefinition = baseMap.get(spread.name.value);
+          if (baseDefinition) {
+            // We only need to add those definitions not already included
+            // in definitions
+            definitionsToVisit.push(baseDefinition);
+          }
+        },
+      });
+    }
+
+    const definitionsToConvert = [];
+    requiredDefinitions.forEach(definition =>
+      definitionsToConvert.push(definition),
+    );
+    return convertASTDefinitions(
+      schema,
+      definitionsToConvert,
+      validationRules,
+      transform,
+    );
+  });
 }
 
 function convertASTDefinitions(
@@ -151,31 +161,37 @@ function transformASTSchema(
   schema: GraphQLSchema,
   schemaExtensions: Array<string>,
 ): GraphQLSchema {
-  return schemaExtensions.length > 0
-    ? extendSchema(schema, parse(schemaExtensions.join('\n')))
-    : schema;
+  return Profiler.run(
+    'ASTConvert.transformASTSchema',
+    () =>
+      schemaExtensions.length > 0
+        ? extendSchema(schema, parse(schemaExtensions.join('\n')))
+        : schema,
+  );
 }
 
 function extendASTSchema(
   baseSchema: GraphQLSchema,
   documents: Array<DocumentNode>,
 ): GraphQLSchema {
-  // Should be TypeSystemDefinitionNode
-  const schemaExtensions: Array<DefinitionNode> = [];
-  documents.forEach(doc => {
-    // TODO: isSchemaDefinitionAST should %checks, once %checks is available
-    schemaExtensions.push(...doc.definitions.filter(isSchemaDefinitionAST));
-  });
+  return Profiler.run('ASTConvert.extendASTSchema', () => {
+    // Should be TypeSystemDefinitionNode
+    const schemaExtensions: Array<DefinitionNode> = [];
+    documents.forEach(doc => {
+      // TODO: isSchemaDefinitionAST should %checks, once %checks is available
+      schemaExtensions.push(...doc.definitions.filter(isSchemaDefinitionAST));
+    });
 
-  if (schemaExtensions.length <= 0) {
-    return baseSchema;
-  }
+    if (schemaExtensions.length <= 0) {
+      return baseSchema;
+    }
 
-  return extendSchema(baseSchema, {
-    kind: 'Document',
-    // Flow doesn't recognize that TypeSystemDefinitionNode is a subset of
-    // DefinitionNode
-    definitions: (schemaExtensions: Array<$FlowFixMe>),
+    return extendSchema(baseSchema, {
+      kind: 'Document',
+      // Flow doesn't recognize that TypeSystemDefinitionNode is a subset of
+      // DefinitionNode
+      definitions: (schemaExtensions: Array<$FlowFixMe>),
+    });
   });
 }
 

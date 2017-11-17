@@ -141,7 +141,7 @@ function rangeAdd(
               info.filters,
             );
             if (!connection) {
-              return;
+              continue;
             }
             const clientEdge = RelayConnectionHandler.buildConnectionEdge(
               store,
@@ -149,7 +149,7 @@ function rangeAdd(
               serverEdge,
             );
             if (!clientEdge) {
-              return;
+              continue;
             }
             switch (info.rangeBehavior) {
               case 'append':

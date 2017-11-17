@@ -164,7 +164,7 @@ Ensure that one such file exists in ${srcDir} or its parents.
 }
 
 function getRelayFileWriter(baseDir: string) {
-  return (onlyValidate, schema, documents, baseDocuments) =>
+  return (onlyValidate, schema, documents, baseDocuments, reporter) =>
     new RelayFileWriter({
       config: {
         baseDir,
@@ -184,6 +184,7 @@ function getRelayFileWriter(baseDir: string) {
       schema,
       baseDocuments,
       documents,
+      reporter,
     });
 }
 

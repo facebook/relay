@@ -11,25 +11,26 @@
 
 'use strict';
 
-// TODO T21875029 ../../relay-runtime/util/formatStorageKey
-const formatStorageKey = require('formatStorageKey');
 const invariant = require('invariant');
-// TODO T21875029 ../../relay-runtime/util/prettyStringify
-const prettyStringify = require('prettyStringify');
+// TODO T21875029 ../../relay-runtime/util/stableCopy
+const stableCopy = require('stableCopy');
 
-const {IRVisitor, SchemaUtils} = require('graphql-compiler');
+const {getStorageKey} = require('RelayRuntime');
 const {GraphQLList} = require('graphql');
+const {IRVisitor, SchemaUtils} = require('graphql-compiler');
 
-import type {Batch, Fragment} from 'graphql-compiler';
 // TODO T21875029 ../../relay-runtime/util/RelayConcreteNode
 import type {
   ConcreteArgument,
   ConcreteArgumentDefinition,
   ConcreteFragment,
-  ConcreteOperation,
+  ConcreteField,
+  ConcreteLinkedField,
   ConcreteSelection,
+  ConcreteScalarField,
   RequestNode,
 } from 'RelayConcreteNode';
+import type {Batch, Fragment} from 'graphql-compiler';
 const {getRawType, isAbstractType, getNullableType} = SchemaUtils;
 
 declare function generate(node: Batch): RequestNode;
@@ -54,31 +55,54 @@ function generate(node: Batch | Fragment): RequestNode | ConcreteFragment {
 const RelayCodeGenVisitor = {
   leave: {
     Batch(node): RequestNode {
-      return {
-        kind: 'Request',
-        operationKind: node.operation.operation,
-        name: node.operation.name,
-        id: node.id,
-        text: node.text,
-        metadata: node.metadata,
-        fragment: node.fragment,
-        operation: {
-          kind: 'Operation',
-          name: node.operation.name,
-          argumentDefinitions: node.operation.argumentDefinitions,
-          selections: node.operation.selections,
-        },
-      };
-    },
-
-    Root(node): ConcreteOperation & {operation: string} {
-      return {
-        kind: 'Operation',
-        operation: node.operation,
-        name: node.name,
-        argumentDefinitions: node.argumentDefinitions,
-        selections: flattenArray(node.selections),
-      };
+      invariant(node.requests.length !== 0, 'Batch must contain Requests.');
+      if (isSingleRequest(node)) {
+        const request = node.requests[0];
+        return {
+          kind: 'Request',
+          operationKind: request.root.operation,
+          name: node.name,
+          id: request.id,
+          text: request.text,
+          metadata: node.metadata,
+          fragment: node.fragment,
+          operation: {
+            kind: 'Operation',
+            name: request.root.name,
+            argumentDefinitions: request.root.argumentDefinitions,
+            selections: flattenArray(request.root.selections),
+          },
+        };
+      } else {
+        return {
+          kind: 'BatchRequest',
+          operationKind: node.requests[0].root.operation,
+          name: node.name,
+          metadata: node.metadata,
+          fragment: node.fragment,
+          requests: node.requests.map(request => ({
+            name: request.name,
+            id: request.id,
+            text: request.text,
+            argumentDependencies: request.argumentDependencies.map(
+              dependency => ({
+                name: dependency.argumentName,
+                fromRequestName: dependency.fromName,
+                fromRequestPath: dependency.fromPath,
+                ifList: dependency.ifList,
+                ifNull: dependency.ifNull,
+                maxRecurse: dependency.maxRecurse,
+              }),
+            ),
+            operation: {
+              kind: 'Operation',
+              name: request.root.name,
+              argumentDefinitions: request.root.argumentDefinitions,
+              selections: flattenArray(request.root.selections),
+            },
+          })),
+        };
+      }
     },
 
     Fragment(node): ConcreteFragment {
@@ -141,6 +165,9 @@ const RelayCodeGenVisitor = {
     },
 
     LinkedField(node): Array<ConcreteSelection> {
+      // Note: it is important that the arguments of this field be sorted to
+      // ensure stable generation of storage keys for equivalent arguments
+      // which may have originally appeared in different orders across an app.
       const handles =
         (node.handles &&
           node.handles.map(handle => {
@@ -156,22 +183,25 @@ const RelayCodeGenVisitor = {
           })) ||
         [];
       const type = getRawType(node.type);
-      return [
-        {
-          kind: 'LinkedField',
-          alias: node.alias,
-          name: node.name,
-          storageKey: getStorageKey(node.name, node.args),
-          args: valuesOrNull(sortByName(node.args)),
-          concreteType: !isAbstractType(type) ? type.toString() : null,
-          plural: isPlural(node.type),
-          selections: flattenArray(node.selections),
-        },
-        ...handles,
-      ];
+      const field: ConcreteLinkedField = {
+        kind: 'LinkedField',
+        alias: node.alias,
+        name: node.name,
+        storageKey: null,
+        args: valuesOrNull(sortByName(node.args)),
+        concreteType: !isAbstractType(type) ? type.toString() : null,
+        plural: isPlural(node.type),
+        selections: flattenArray(node.selections),
+      };
+      // Precompute storageKey if possible
+      field.storageKey = getStaticStorageKey(field);
+      return [field].concat(handles);
     },
 
     ScalarField(node): Array<ConcreteSelection> {
+      // Note: it is important that the arguments of this field be sorted to
+      // ensure stable generation of storage keys for equivalent arguments
+      // which may have originally appeared in different orders across an app.
       const handles =
         (node.handles &&
           node.handles.map(handle => {
@@ -186,17 +216,17 @@ const RelayCodeGenVisitor = {
             };
           })) ||
         [];
-      return [
-        {
-          kind: 'ScalarField',
-          alias: node.alias,
-          name: node.name,
-          args: valuesOrNull(sortByName(node.args)),
-          selections: valuesOrUndefined(flattenArray(node.selections)),
-          storageKey: getStorageKey(node.name, node.args),
-        },
-        ...handles,
-      ];
+      const field: ConcreteScalarField = {
+        kind: 'ScalarField',
+        alias: node.alias,
+        name: node.name,
+        args: valuesOrNull(sortByName(node.args)),
+        selections: valuesOrUndefined(flattenArray(node.selections)),
+        storageKey: null,
+      };
+      // Precompute storageKey if possible
+      field.storageKey = getStaticStorageKey(field);
+      return [field].concat(handles);
     },
 
     Variable(node, key, parent): ConcreteArgument {
@@ -212,7 +242,7 @@ const RelayCodeGenVisitor = {
       return {
         kind: 'Literal',
         name: parent.name,
-        value: node.value,
+        value: stableCopy(node.value),
         type: parent.type ? parent.type.toString() : null,
       };
     },
@@ -224,13 +254,20 @@ const RelayCodeGenVisitor = {
           'InputObjects with nested variables) are not supported, argument ' +
           '`%s` had value `%s`. Source: %s.',
         node.name,
-        prettyStringify(node.value),
+        JSON.stringify(node.value, null, 2),
         getErrorMessage(ancestors[0]),
       );
       return node.value.value !== null ? node.value : null;
     },
   },
 };
+
+function isSingleRequest(batch: Batch): boolean {
+  return (
+    batch.requests.length === 1 &&
+    batch.requests[0].argumentDependencies.length === 0
+  );
+}
 
 function isPlural(type: any): boolean {
   return getNullableType(type) instanceof GraphQLList;
@@ -259,31 +296,19 @@ function getErrorMessage(node: any): string {
 }
 
 /**
- * Computes storage key if possible.
- *
- * Storage keys which can be known ahead of runtime are:
- *
- * - Fields that do not take arguments.
- * - Fields whose arguments are all statically known (ie. literals) at build
- *   time.
+ * Pre-computes storage key if possible and advantageous. Storage keys are
+ * generated for fields with supplied arguments that are all statically known
+ * (ie. literals, no variables) at build time.
  */
-function getStorageKey(
-  fieldName: string,
-  args: ?Array<ConcreteArgument>,
-): ?string {
-  if (!args || !args.length) {
+function getStaticStorageKey(field: ConcreteField): ?string {
+  if (
+    !field.args ||
+    field.args.length === 0 ||
+    field.args.some(arg => arg.kind !== 'Literal')
+  ) {
     return null;
   }
-  let isLiteral = true;
-  const preparedArgs = {};
-  args.forEach(arg => {
-    if (arg.kind !== 'Literal') {
-      isLiteral = false;
-    } else {
-      preparedArgs[arg.name] = arg.value;
-    }
-  });
-  return isLiteral ? formatStorageKey(fieldName, preparedArgs) : null;
+  return getStorageKey(field, {});
 }
 
 module.exports = {generate};

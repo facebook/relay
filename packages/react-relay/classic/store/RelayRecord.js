@@ -10,7 +10,6 @@
 
 'use strict';
 
-import type GraphQLRange from '../legacy/store/GraphQLRange';
 import type {QueryPath} from '../query/RelayQueryPath';
 import type {Call, ClientMutationID, DataID} from '../tools/RelayInternalTypes';
 import type {Variables} from '../tools/RelayTypes';
@@ -23,7 +22,7 @@ export type Record = {
   __mutationIDs__?: Array<ClientMutationID>,
   __mutationStatus__?: string,
   __path__?: QueryPath,
-  __range__?: GraphQLRange,
+  __range__?: any, // GraphQLRange
   __resolvedDeferredFragments__?: {[fragmentID: string]: boolean},
   __resolvedFragmentMapGeneration__?: number,
   __resolvedFragmentMap__?: {[fragmentID: string]: boolean},

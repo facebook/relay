@@ -22,8 +22,8 @@ const invariant = require('invariant');
 const warning = require('warning');
 
 const {
-  getHandleFilterValues,
   getArgumentValues,
+  getHandleStorageKey,
   getStorageKey,
   TYPENAME_KEY,
 } = require('RelayStoreUtils');
@@ -159,19 +159,7 @@ class RelayResponseNormalizer {
           : {};
 
         const fieldKey = formatStorageKey(selection.name, args);
-        let handleKey = getRelayHandleKey(
-          selection.handle,
-          selection.key,
-          selection.name,
-        );
-        if (selection.filters) {
-          const filterValues = getHandleFilterValues(
-            selection.args || [],
-            selection.filters,
-            this._variables,
-          );
-          handleKey = formatStorageKey(handleKey, filterValues);
-        }
+        const handleKey = getHandleStorageKey(selection, this._variables);
         this._handleFieldPayloads.push({
           args,
           dataID: RelayModernRecord.getDataID(record),

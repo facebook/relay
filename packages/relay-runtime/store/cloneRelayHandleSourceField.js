@@ -14,11 +14,10 @@
 const RelayConcreteNode = require('RelayConcreteNode');
 
 const areEqual = require('areEqual');
-const formatStorageKey = require('formatStorageKey');
 const getRelayHandleKey = require('getRelayHandleKey');
 const invariant = require('invariant');
 
-const {getHandleFilterValues} = require('RelayStoreUtils');
+const {getHandleStorageKey} = require('RelayStoreUtils');
 
 import type {
   ConcreteLinkedField,
@@ -54,20 +53,7 @@ function cloneRelayHandleSourceField(
       'handle `%s`.',
     handleField.handle,
   );
-  let handleKey = getRelayHandleKey(
-    handleField.handle,
-    handleField.key,
-    handleField.name,
-  );
-  if (handleField.filters && handleField.filters.length > 0) {
-    const filterValues = getHandleFilterValues(
-      handleField.args || [],
-      handleField.filters,
-      variables,
-    );
-    handleKey = formatStorageKey(handleKey, filterValues);
-  }
-
+  const handleKey = getHandleStorageKey(handleField, variables);
   const clonedField = {
     ...sourceField,
     args: null,

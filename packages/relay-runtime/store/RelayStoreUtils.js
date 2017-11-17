@@ -13,10 +13,16 @@
 
 const RelayConcreteNode = require('RelayConcreteNode');
 
+const formatStorageKey = require('formatStorageKey');
+const getRelayHandleKey = require('getRelayHandleKey');
 const invariant = require('invariant');
 const stableJSONStringify = require('stableJSONStringify');
 
-import type {ConcreteArgument, ConcreteField} from 'RelayConcreteNode';
+import type {
+  ConcreteArgument,
+  ConcreteField,
+  ConcreteHandle,
+} from 'RelayConcreteNode';
 import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 const {VARIABLE} = RelayConcreteNode;
@@ -40,13 +46,26 @@ function getArgumentValues(
   return values;
 }
 
-function getHandleFilterValues(
-  args: Array<ConcreteArgument>,
-  filters: Array<string>,
+/**
+ * Given a handle field and variable values, returns a key that can be used to
+ * uniquely identify the combination of the handle name and argument values.
+ *
+ * Note: the word "storage" here refers to the fact this key is primarily used
+ * when writing the results of a key in a normalized graph or "store". This
+ * name was used in previous implementations of Relay internals and is also
+ * used here for consistency.
+ */
+function getHandleStorageKey(
+  handleField: ConcreteHandle,
   variables: Variables,
-): Variables {
+): string {
+  const {handle, key, name, args, filters} = handleField;
+  const handleName = getRelayHandleKey(handle, key, name);
+  if (!args || !filters || args.length === 0 || filters.length === 0) {
+    return handleName;
+  }
   const filterArgs = args.filter(arg => filters.indexOf(arg.name) > -1);
-  return getArgumentValues(filterArgs, variables);
+  return formatStorageKey(handleName, getArgumentValues(filterArgs, variables));
 }
 
 /**
@@ -109,8 +128,8 @@ const RelayStoreUtils = {
   UNPUBLISH_FIELD_SENTINEL: Object.freeze({__UNPUBLISH_FIELD_SENTINEL: true}),
 
   getArgumentValues,
+  getHandleStorageKey,
   getStorageKey,
-  getHandleFilterValues,
 };
 
 module.exports = RelayStoreUtils;

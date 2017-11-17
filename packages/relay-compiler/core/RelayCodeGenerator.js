@@ -12,6 +12,8 @@
 'use strict';
 
 const invariant = require('invariant');
+// TODO T21875029 ../../relay-runtime/util/stableCopy
+const stableCopy = require('stableCopy');
 
 const {getStorageKey} = require('RelayRuntime');
 const {GraphQLList} = require('graphql');
@@ -240,7 +242,7 @@ const RelayCodeGenVisitor = {
       return {
         kind: 'Literal',
         name: parent.name,
-        value: node.value,
+        value: stableCopy(node.value),
         type: parent.type ? parent.type.toString() : null,
       };
     },

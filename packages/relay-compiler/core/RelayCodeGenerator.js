@@ -11,22 +11,24 @@
 
 'use strict';
 
-// TODO T21875029 ../../relay-runtime/util/formatStorageKey
-const formatStorageKey = require('formatStorageKey');
 const invariant = require('invariant');
 
-const {IRVisitor, SchemaUtils} = require('graphql-compiler');
+const {getStorageKey} = require('RelayRuntime');
 const {GraphQLList} = require('graphql');
+const {IRVisitor, SchemaUtils} = require('graphql-compiler');
 
-import type {Batch, Fragment} from 'graphql-compiler';
 // TODO T21875029 ../../relay-runtime/util/RelayConcreteNode
 import type {
   ConcreteArgument,
   ConcreteArgumentDefinition,
   ConcreteFragment,
+  ConcreteField,
+  ConcreteLinkedField,
   ConcreteSelection,
+  ConcreteScalarField,
   RequestNode,
 } from 'RelayConcreteNode';
+import type {Batch, Fragment} from 'graphql-compiler';
 const {getRawType, isAbstractType, getNullableType} = SchemaUtils;
 
 declare function generate(node: Batch): RequestNode;
@@ -161,6 +163,9 @@ const RelayCodeGenVisitor = {
     },
 
     LinkedField(node): Array<ConcreteSelection> {
+      // Note: it is important that the arguments of this field be sorted to
+      // ensure stable generation of storage keys for equivalent arguments
+      // which may have originally appeared in different orders across an app.
       const handles =
         (node.handles &&
           node.handles.map(handle => {
@@ -176,22 +181,25 @@ const RelayCodeGenVisitor = {
           })) ||
         [];
       const type = getRawType(node.type);
-      return [
-        {
-          kind: 'LinkedField',
-          alias: node.alias,
-          name: node.name,
-          storageKey: getStorageKey(node.name, node.args),
-          args: valuesOrNull(sortByName(node.args)),
-          concreteType: !isAbstractType(type) ? type.toString() : null,
-          plural: isPlural(node.type),
-          selections: flattenArray(node.selections),
-        },
-        ...handles,
-      ];
+      const field: ConcreteLinkedField = {
+        kind: 'LinkedField',
+        alias: node.alias,
+        name: node.name,
+        storageKey: null,
+        args: valuesOrNull(sortByName(node.args)),
+        concreteType: !isAbstractType(type) ? type.toString() : null,
+        plural: isPlural(node.type),
+        selections: flattenArray(node.selections),
+      };
+      // Precompute storageKey if possible
+      field.storageKey = getStaticStorageKey(field);
+      return [field].concat(handles);
     },
 
     ScalarField(node): Array<ConcreteSelection> {
+      // Note: it is important that the arguments of this field be sorted to
+      // ensure stable generation of storage keys for equivalent arguments
+      // which may have originally appeared in different orders across an app.
       const handles =
         (node.handles &&
           node.handles.map(handle => {
@@ -206,17 +214,17 @@ const RelayCodeGenVisitor = {
             };
           })) ||
         [];
-      return [
-        {
-          kind: 'ScalarField',
-          alias: node.alias,
-          name: node.name,
-          args: valuesOrNull(sortByName(node.args)),
-          selections: valuesOrUndefined(flattenArray(node.selections)),
-          storageKey: getStorageKey(node.name, node.args),
-        },
-        ...handles,
-      ];
+      const field: ConcreteScalarField = {
+        kind: 'ScalarField',
+        alias: node.alias,
+        name: node.name,
+        args: valuesOrNull(sortByName(node.args)),
+        selections: valuesOrUndefined(flattenArray(node.selections)),
+        storageKey: null,
+      };
+      // Precompute storageKey if possible
+      field.storageKey = getStaticStorageKey(field);
+      return [field].concat(handles);
     },
 
     Variable(node, key, parent): ConcreteArgument {
@@ -286,31 +294,19 @@ function getErrorMessage(node: any): string {
 }
 
 /**
- * Computes storage key if possible.
- *
- * Storage keys which can be known ahead of runtime are:
- *
- * - Fields that do not take arguments.
- * - Fields whose arguments are all statically known (ie. literals) at build
- *   time.
+ * Pre-computes storage key if possible and advantageous. Storage keys are
+ * generated for fields with supplied arguments that are all statically known
+ * (ie. literals, no variables) at build time.
  */
-function getStorageKey(
-  fieldName: string,
-  args: ?Array<ConcreteArgument>,
-): ?string {
-  if (!args || !args.length) {
+function getStaticStorageKey(field: ConcreteField): ?string {
+  if (
+    !field.args ||
+    field.args.length === 0 ||
+    field.args.some(arg => arg.kind !== 'Literal')
+  ) {
     return null;
   }
-  let isLiteral = true;
-  const preparedArgs = {};
-  args.forEach(arg => {
-    if (arg.kind !== 'Literal') {
-      isLiteral = false;
-    } else {
-      preparedArgs[arg.name] = arg.value;
-    }
-  });
-  return isLiteral ? formatStorageKey(fieldName, preparedArgs) : null;
+  return getStorageKey(field, {});
 }
 
 module.exports = {generate};

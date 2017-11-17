@@ -22,7 +22,6 @@ const RelayStoreUtils = require('RelayStoreUtils');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 
-const formatStorageKey = require('formatStorageKey');
 const getRelayHandleKey = require('getRelayHandleKey');
 const simpleClone = require('simpleClone');
 
@@ -33,6 +32,7 @@ const {
   ROOT_ID,
   ROOT_TYPE,
   TYPENAME_KEY,
+  getStableStorageKey,
 } = RelayStoreUtils;
 const {
   END_CURSOR,
@@ -158,7 +158,7 @@ describe('RelayConnectionHandler', () => {
       const payload = {
         args,
         dataID: '4',
-        fieldKey: formatStorageKey('friends', args),
+        fieldKey: getStableStorageKey('friends', args),
         handleKey,
       };
       RelayConnectionHandler.update(proxy, payload);
@@ -289,7 +289,7 @@ describe('RelayConnectionHandler', () => {
       const payload = {
         args,
         dataID: '4',
-        fieldKey: formatStorageKey('friends', args),
+        fieldKey: getStableStorageKey('friends', args),
         handleKey,
       };
       RelayConnectionHandler.update(proxy, payload);
@@ -423,7 +423,7 @@ describe('RelayConnectionHandler', () => {
       const payload = {
         args,
         dataID: '4',
-        fieldKey: formatStorageKey('friends', args),
+        fieldKey: getStableStorageKey('friends', args),
         handleKey,
       };
       RelayConnectionHandler.update(proxy, payload);
@@ -559,7 +559,7 @@ describe('RelayConnectionHandler', () => {
       const payload = {
         args,
         dataID: '4',
-        fieldKey: formatStorageKey('friends', args),
+        fieldKey: getStableStorageKey('friends', args),
         handleKey,
       };
       RelayConnectionHandler.update(proxy, payload);
@@ -641,7 +641,7 @@ describe('RelayConnectionHandler', () => {
       const payload = {
         args,
         dataID: '4',
-        fieldKey: formatStorageKey('friends', args),
+        fieldKey: getStableStorageKey('friends', args),
         handleKey,
       };
       RelayConnectionHandler.update(proxy, payload);
@@ -731,7 +731,7 @@ describe('RelayConnectionHandler', () => {
           ) + '{"orderby":["first name"]}';
         const payload = {
           dataID: '4',
-          fieldKey: formatStorageKey('friends', args),
+          fieldKey: getStableStorageKey('friends', args),
           handleKey,
         };
         RelayConnectionHandler.update(proxy, payload);
@@ -787,7 +787,7 @@ describe('RelayConnectionHandler', () => {
         const payload = {
           args,
           dataID: '4',
-          fieldKey: formatStorageKey('friends', args),
+          fieldKey: getStableStorageKey('friends', args),
           handleKey,
         };
         RelayConnectionHandler.update(proxy, payload);
@@ -867,7 +867,7 @@ describe('RelayConnectionHandler', () => {
         const payload = {
           args,
           dataID: '4',
-          fieldKey: formatStorageKey('friends', args),
+          fieldKey: getStableStorageKey('friends', args),
           handleKey,
         };
         RelayConnectionHandler.update(proxy, payload);
@@ -947,7 +947,7 @@ describe('RelayConnectionHandler', () => {
         const payload = {
           args,
           dataID: '4',
-          fieldKey: formatStorageKey('friends', args),
+          fieldKey: getStableStorageKey('friends', args),
           handleKey,
         };
         RelayConnectionHandler.update(proxy, payload);
@@ -1026,7 +1026,7 @@ describe('RelayConnectionHandler', () => {
         const payload = {
           args,
           dataID: '4',
-          fieldKey: formatStorageKey('friends', args),
+          fieldKey: getStableStorageKey('friends', args),
           handleKey,
         };
         RelayConnectionHandler.update(proxy, payload);
@@ -1106,7 +1106,7 @@ describe('RelayConnectionHandler', () => {
         const payload = {
           args,
           dataID: '4',
-          fieldKey: formatStorageKey('friends', args),
+          fieldKey: getStableStorageKey('friends', args),
           handleKey,
         };
         RelayConnectionHandler.update(proxy, payload);
@@ -1179,7 +1179,7 @@ describe('RelayConnectionHandler', () => {
         const payload = {
           args,
           dataID: '4',
-          fieldKey: formatStorageKey('friends', args),
+          fieldKey: getStableStorageKey('friends', args),
           handleKey,
         };
         RelayConnectionHandler.update(proxy, payload);
@@ -1256,7 +1256,7 @@ describe('RelayConnectionHandler', () => {
         const payload = {
           args,
           dataID: '4',
-          fieldKey: formatStorageKey('friends', args),
+          fieldKey: getStableStorageKey('friends', args),
           handleKey,
         };
         RelayConnectionHandler.update(proxy, payload);
@@ -1350,7 +1350,7 @@ describe('RelayConnectionHandler', () => {
         const payload = {
           args,
           dataID: '4',
-          fieldKey: formatStorageKey('friends', args),
+          fieldKey: getStableStorageKey('friends', args),
           handleKey,
         };
         RelayConnectionHandler.update(proxy, payload);
@@ -1443,7 +1443,7 @@ describe('RelayConnectionHandler', () => {
         const payload = {
           args,
           dataID: '4',
-          fieldKey: formatStorageKey('friends', args),
+          fieldKey: getStableStorageKey('friends', args),
           handleKey,
         };
         RelayConnectionHandler.update(proxy, payload);
@@ -1520,7 +1520,7 @@ describe('RelayConnectionHandler', () => {
         const payload = {
           args,
           dataID: '4',
-          fieldKey: formatStorageKey('friends', args),
+          fieldKey: getStableStorageKey('friends', args),
           handleKey,
         };
         RelayConnectionHandler.update(proxy, payload);
@@ -1593,7 +1593,7 @@ describe('RelayConnectionHandler', () => {
         const payload = {
           args,
           dataID: '4',
-          fieldKey: formatStorageKey('friends', args),
+          fieldKey: getStableStorageKey('friends', args),
           handleKey,
         };
         RelayConnectionHandler.update(proxy, payload);

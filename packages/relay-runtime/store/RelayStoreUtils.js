@@ -25,6 +25,8 @@ import type {
 } from 'RelayConcreteNode';
 import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
+export type Arguments = {[argName: string]: mixed};
+
 const {VARIABLE} = RelayConcreteNode;
 
 /**
@@ -108,6 +110,31 @@ function getStorageKey(
   }
 }
 
+/**
+ * Given a `name` (eg. "foo") and an object representing argument values
+ * (eg. `{orberBy: "name", first: 10}`) returns a unique storage key
+ * (ie. `foo{"first":10,"orderBy":"name"}`).
+ *
+ * This differs from getStorageKey which requires a ConcreteNode where arguments
+ * are assumed to already be sorted into a stable order.
+ */
+function getStableStorageKey(name: string, args: ?Arguments): string {
+  if (!args) {
+    return name;
+  }
+  let stableArgs = args;
+  const argNames = Object.keys(args);
+  if (argNames.length > 1) {
+    stableArgs = {};
+    argNames.sort();
+    for (let i = 0; i < argNames.length; i++) {
+      const argName = argNames[i];
+      stableArgs[argName] = args[argName];
+    }
+  }
+  return formatStorageKey(name, stableArgs);
+}
+
 function getVariableValue(name: string, variables: Variables): mixed {
   invariant(
     variables.hasOwnProperty(name),
@@ -134,6 +161,7 @@ const RelayStoreUtils = {
   getArgumentValues,
   getHandleStorageKey,
   getStorageKey,
+  getStableStorageKey,
 };
 
 module.exports = RelayStoreUtils;

@@ -13,8 +13,6 @@
 const RelayModernTestUtils = require('RelayModernTestUtils');
 const RelayStoreUtils = require('RelayStoreUtils');
 
-const formatStorageKey = require('formatStorageKey');
-
 const {generateAndCompile} = RelayModernTestUtils;
 
 describe('RelayStoreUtils', () => {
@@ -143,10 +141,10 @@ describe('RelayStoreUtils', () => {
     });
   });
 
-  describe('formatStorageKey()', () => {
+  describe('getStableStorageKey()', () => {
     it('imposes a stable ordering', () => {
       const fieldName = 'foo';
-      const argsWithValues = {
+      const argValues = {
         first: 10,
         orderBy: ['name', 'age', 'date'],
         filter: {
@@ -155,7 +153,7 @@ describe('RelayStoreUtils', () => {
           maxCost: 20,
         },
       };
-      expect(formatStorageKey(fieldName, argsWithValues)).toBe(
+      expect(RelayStoreUtils.getStableStorageKey(fieldName, argValues)).toBe(
         'foo{"filter":{"color":"red","maxCost":20,"minSize":200},' +
           '"first":10,"orderBy":["name","age","date"]}',
       );
@@ -163,27 +161,29 @@ describe('RelayStoreUtils', () => {
 
     it('filters arguments without values', () => {
       const fieldName = 'foo';
-      const argsWithValues = {
+      const argValues = {
         first: 10,
         orderBy: null,
       };
-      expect(formatStorageKey(fieldName, argsWithValues)).toBe(
+      expect(RelayStoreUtils.getStableStorageKey(fieldName, argValues)).toBe(
         'foo{"first":10}',
       );
     });
 
     it('suppresses the argument list if all values are unset', () => {
       const fieldName = 'foo';
-      const argsWithValues = {
+      const argValues = {
         first: undefined,
         orderBy: null,
       };
-      expect(formatStorageKey(fieldName, argsWithValues)).toBe('foo');
+      expect(RelayStoreUtils.getStableStorageKey(fieldName, argValues)).toBe(
+        'foo',
+      );
     });
 
     it('disregards a null or undefined arguments object', () => {
-      expect(formatStorageKey('foo')).toBe('foo');
-      expect(formatStorageKey('bar', null)).toBe('bar');
+      expect(RelayStoreUtils.getStableStorageKey('foo')).toBe('foo');
+      expect(RelayStoreUtils.getStableStorageKey('bar', null)).toBe('bar');
     });
   });
 });

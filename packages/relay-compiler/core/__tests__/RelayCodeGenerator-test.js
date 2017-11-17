@@ -37,18 +37,58 @@ describe('RelayCodeGenerator', () => {
                 ? doc
                 : {
                     fragment: null,
-                    id: null,
                     kind: 'Batch',
                     metadata: {},
                     name: doc.name,
-                    operation: doc,
-                    text: null,
+                    requests: [
+                      {
+                        kind: 'Request',
+                        name: doc.name,
+                        id: null,
+                        text: null,
+                        argumentDependencies: [],
+                        root: doc,
+                      },
+                    ],
                   };
             return JSON.stringify(RelayCodeGenerator.generate(node), null, 2);
           })
           .join('\n\n');
       } catch (e) {
         return 'ERROR:\n' + e;
+      }
+    });
+  });
+
+  it('matches expected output when generating batch', () => {
+    expect('fixtures/code-generator-batch').toMatchGolden(text => {
+      try {
+        const {definitions} = parseGraphQLText(RelayTestSchema, text);
+        const context = new GraphQLCompilerContext(RelayTestSchema).addAll(
+          definitions,
+        );
+        return context
+          .documents()
+          .map(doc => {
+            const node = {
+              fragment: null,
+              kind: 'Batch',
+              metadata: {},
+              name: doc.name,
+              requests: [1, 2, 3].map(() => ({
+                kind: 'Request',
+                name: doc.name,
+                id: null,
+                text: null,
+                argumentDependencies: [],
+                root: doc,
+              })),
+            };
+            return JSON.stringify(RelayCodeGenerator.generate(node), null, 2);
+          })
+          .join('\n\n');
+      } catch (e) {
+        return 'ERROR:\n' + e.stack;
       }
     });
   });

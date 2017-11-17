@@ -14,7 +14,7 @@
 const GraphQLIRPrinter = require('./GraphQLIRPrinter');
 const Profiler = require('./GraphQLCompilerProfiler');
 
-const filterContextForNode = require('./filterContextForNode');
+const requestsForOperation = require('./requestsForOperation');
 
 import type {GraphQLReporter} from '../reporters/GraphQLReporter';
 import type GraphQLCompilerContext from './GraphQLCompilerContext';
@@ -106,11 +106,15 @@ class GraphQLCompiler<CodegenNode> {
         this._reporter,
       );
       const queryContext = this.transformedQueryContext();
+      // The unflattened query is used for printing, since flattening creates an
+      // invalid query.
       const printContext = queryContext.applyTransforms(
         this._transforms.printTransforms,
         this._schema,
         this._reporter,
       );
+      // The flattened query is used for codegen in order to reduce the number of
+      // duplicate fields that must be processed during response normalization.
       const codeGenContext = queryContext.applyTransforms(
         this._transforms.codegenTransforms,
         this._schema,
@@ -129,32 +133,13 @@ class GraphQLCompiler<CodegenNode> {
         if (node.kind !== 'Root') {
           return;
         }
-        const {name} = node;
-        // The unflattened query is used for printing, since flattening creates an
-        // invalid query.
-        const text = filterContextForNode(
-          printContext.getRoot(name),
-          printContext,
-        )
-          .documents()
-          .map(GraphQLIRPrinter.print)
-          .join('\n');
-        // The original query (with fragment spreads) is converted to a fragment
-        // for reading out the root data.
-        const sourceNode = fragmentContext.getRoot(name);
-        const rootFragment = buildFragmentForRoot(sourceNode);
-        // The flattened query is used for codegen in order to reduce the number of
-        // duplicate fields that must be processed during response normalization.
-        const codeGenNode = codeGenContext.getRoot(name);
-
+        const name = node.name;
         const batchQuery = {
-          fragment: rootFragment,
-          id: null,
           kind: 'Batch',
           metadata: node.metadata || {},
           name,
-          operation: codeGenNode,
-          text,
+          fragment: buildFragmentForRoot(fragmentContext.getRoot(name)),
+          requests: requestsForOperation(printContext, codeGenContext, name),
         };
         const generatedDocument = this._codeGenerator(batchQuery);
         compiledDocuments.set(name, generatedDocument);

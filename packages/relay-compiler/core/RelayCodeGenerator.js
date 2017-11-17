@@ -24,7 +24,6 @@ import type {
   ConcreteArgument,
   ConcreteArgumentDefinition,
   ConcreteFragment,
-  ConcreteOperation,
   ConcreteSelection,
   RequestNode,
 } from 'RelayConcreteNode';
@@ -52,31 +51,54 @@ function generate(node: Batch | Fragment): RequestNode | ConcreteFragment {
 const RelayCodeGenVisitor = {
   leave: {
     Batch(node): RequestNode {
-      return {
-        kind: 'Request',
-        operationKind: node.operation.operation,
-        name: node.operation.name,
-        id: node.id,
-        text: node.text,
-        metadata: node.metadata,
-        fragment: node.fragment,
-        operation: {
-          kind: 'Operation',
-          name: node.operation.name,
-          argumentDefinitions: node.operation.argumentDefinitions,
-          selections: node.operation.selections,
-        },
-      };
-    },
-
-    Root(node): ConcreteOperation & {operation: string} {
-      return {
-        kind: 'Operation',
-        operation: node.operation,
-        name: node.name,
-        argumentDefinitions: node.argumentDefinitions,
-        selections: flattenArray(node.selections),
-      };
+      invariant(node.requests.length !== 0, 'Batch must contain Requests.');
+      if (isSingleRequest(node)) {
+        const request = node.requests[0];
+        return {
+          kind: 'Request',
+          operationKind: request.root.operation,
+          name: node.name,
+          id: request.id,
+          text: request.text,
+          metadata: node.metadata,
+          fragment: node.fragment,
+          operation: {
+            kind: 'Operation',
+            name: request.root.name,
+            argumentDefinitions: request.root.argumentDefinitions,
+            selections: flattenArray(request.root.selections),
+          },
+        };
+      } else {
+        return {
+          kind: 'BatchRequest',
+          operationKind: node.requests[0].root.operation,
+          name: node.name,
+          metadata: node.metadata,
+          fragment: node.fragment,
+          requests: node.requests.map(request => ({
+            name: request.name,
+            id: request.id,
+            text: request.text,
+            argumentDependencies: request.argumentDependencies.map(
+              dependency => ({
+                name: dependency.argumentName,
+                fromRequestName: dependency.fromName,
+                fromRequestPath: dependency.fromPath,
+                ifList: dependency.ifList,
+                ifNull: dependency.ifNull,
+                maxRecurse: dependency.maxRecurse,
+              }),
+            ),
+            operation: {
+              kind: 'Operation',
+              name: request.root.name,
+              argumentDefinitions: request.root.argumentDefinitions,
+              selections: flattenArray(request.root.selections),
+            },
+          })),
+        };
+      }
     },
 
     Fragment(node): ConcreteFragment {
@@ -229,6 +251,13 @@ const RelayCodeGenVisitor = {
     },
   },
 };
+
+function isSingleRequest(batch: Batch): boolean {
+  return (
+    batch.requests.length === 1 &&
+    batch.requests[0].argumentDependencies.length === 0
+  );
+}
 
 function isPlural(type: any): boolean {
   return getNullableType(type) instanceof GraphQLList;

@@ -401,6 +401,7 @@ class GraphQLParser {
       operation,
       metadata: null,
       name,
+      dependentRequests: [],
       argumentDefinitions,
       directives,
       selections,

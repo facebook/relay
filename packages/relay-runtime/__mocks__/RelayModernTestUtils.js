@@ -159,9 +159,17 @@ const RelayModernTestUtils = {
           kind: 'Batch',
           metadata: node.metadata || {},
           name: node.name,
-          operation: node,
           fragment: buildFragmentForRoot(node),
-          text,
+          requests: [
+            {
+              kind: 'Request',
+              name: node.name,
+              id: null,
+              text,
+              root: node,
+              argumentDependencies: [],
+            },
+          ],
         });
       } else {
         documentMap[node.name] = RelayCodeGenerator.generate(node);

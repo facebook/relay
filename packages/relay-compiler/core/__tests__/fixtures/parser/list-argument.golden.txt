@@ -4,6 +4,7 @@
     "operation": "query",
     "metadata": null,
     "name": "ListArgumentQuery",
+    "dependentRequests": [],
     "argumentDefinitions": [
       {
         "kind": "LocalArgumentDefinition",

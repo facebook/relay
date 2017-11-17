@@ -4,6 +4,7 @@
     "operation": "query",
     "metadata": null,
     "name": "TestQuery",
+    "dependentRequests": [],
     "argumentDefinitions": [
       {
         "kind": "LocalArgumentDefinition",

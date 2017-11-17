@@ -179,7 +179,8 @@ type Comment implements Node {
   url(relative: Boolean, site: String): String
   websites: [String]
   username: String
-  viewerSavedState: String
+  viewerSavedState: String,
+  views(first: Int): CommentViewersConnection
 }
 
 type CommentCreateResponsePayload {
@@ -194,6 +195,12 @@ type CommentDeleteResponsePayload {
   clientMutationId: String
   deletedCommentId: ID
   feedback: Feedback
+}
+
+type CommentViewersConnection {
+  count: Int
+  edges: [UsersEdge]
+  pageInfo: PageInfo
 }
 
 type CommentsConnection {
@@ -263,7 +270,8 @@ type Feedback implements Node {
   url(relative: Boolean, site: String): String
   websites: [String]
   username: String
-  viewerSavedState: String
+  viewerSavedState: String,
+  views: Int
 }
 
 type FeedbackLikeResponsePayload {
@@ -682,6 +690,11 @@ type User implements Named, Node, Actor {
   websites: [String]
   username: String
   viewerSavedState: String
+}
+
+type UsersEdge {
+  cursor: String
+  node: User
 }
 
 input StorySearchInput {

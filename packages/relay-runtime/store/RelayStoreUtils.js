@@ -13,7 +13,6 @@
 
 const RelayConcreteNode = require('RelayConcreteNode');
 
-const formatStorageKey = require('formatStorageKey');
 const getRelayHandleKey = require('getRelayHandleKey');
 const invariant = require('invariant');
 const stableJSONStringify = require('stableJSONStringify');
@@ -36,7 +35,7 @@ const {VARIABLE} = RelayConcreteNode;
 function getArgumentValues(
   args: Array<ConcreteArgument>,
   variables: Variables,
-): Variables {
+): Arguments {
   const values = {};
   args.forEach(arg => {
     if (arg.kind === VARIABLE) {
@@ -88,26 +87,9 @@ function getStorageKey(
     return (field: $FlowFixMe).storageKey;
   }
   const {args, name} = field;
-  if (!args || !args.length) {
-    return name;
-  }
-  const values = [];
-  args.forEach(arg => {
-    let value;
-    if (arg.kind === VARIABLE) {
-      value = getVariableValue(arg.variableName, variables);
-    } else {
-      value = arg.value;
-    }
-    if (value != null) {
-      values.push(`"${arg.name}":${stableJSONStringify(value)}`);
-    }
-  });
-  if (values.length) {
-    return field.name + `{${values.join(',')}}`;
-  } else {
-    return field.name;
-  }
+  return args && args.length !== 0
+    ? formatStorageKey(name, getArgumentValues(args, variables))
+    : name;
 }
 
 /**
@@ -133,6 +115,22 @@ function getStableStorageKey(name: string, args: ?Arguments): string {
     }
   }
   return formatStorageKey(name, stableArgs);
+}
+
+function formatStorageKey(name: string, argValues: ?Arguments): string {
+  if (!argValues) {
+    return name;
+  }
+  const values = [];
+  for (const argName in argValues) {
+    if (argValues.hasOwnProperty(argName)) {
+      const value = argValues[argName];
+      if (value != null) {
+        values.push(`"${argName}":${stableJSONStringify(value)}`);
+      }
+    }
+  }
+  return values.length !== 0 ? name + `{${values.join(',')}}` : name;
 }
 
 function getVariableValue(name: string, variables: Variables): mixed {

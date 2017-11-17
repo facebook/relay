@@ -1,5 +1,3 @@
-import { func } from '../../../../../../../../../home/sushant/.cache/typescript/2.6/node_modules/@types/prop-types';
-
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
  *

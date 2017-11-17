@@ -15,7 +15,7 @@ const RelayConcreteNode = require('RelayConcreteNode');
 
 const getRelayHandleKey = require('getRelayHandleKey');
 const invariant = require('invariant');
-const stableJSONStringify = require('stableJSONStringify');
+const stableCopy = require('stableCopy');
 
 import type {
   ConcreteArgument,
@@ -30,7 +30,7 @@ const {VARIABLE} = RelayConcreteNode;
 
 /**
  * Returns the values of field/fragment arguments as an object keyed by argument
- * names.
+ * names. Guaranteed to return a result with stable ordered nested values.
  */
 function getArgumentValues(
   args: Array<ConcreteArgument>,
@@ -39,8 +39,10 @@ function getArgumentValues(
   const values = {};
   args.forEach(arg => {
     if (arg.kind === VARIABLE) {
-      values[arg.name] = getVariableValue(arg.variableName, variables);
+      // Variables are provided at runtime and are not guaranteed to be stable.
+      values[arg.name] = getStableVariableValue(arg.variableName, variables);
     } else {
+      // The Relay compiler generates stable ConcreteArgument values.
       values[arg.name] = arg.value;
     }
   });
@@ -101,22 +103,15 @@ function getStorageKey(
  * are assumed to already be sorted into a stable order.
  */
 function getStableStorageKey(name: string, args: ?Arguments): string {
-  if (!args) {
-    return name;
-  }
-  let stableArgs = args;
-  const argNames = Object.keys(args);
-  if (argNames.length > 1) {
-    stableArgs = {};
-    argNames.sort();
-    for (let i = 0; i < argNames.length; i++) {
-      const argName = argNames[i];
-      stableArgs[argName] = args[argName];
-    }
-  }
-  return formatStorageKey(name, stableArgs);
+  return formatStorageKey(name, stableCopy(args));
 }
 
+/**
+ * Given a name and argument values, format a storage key.
+ *
+ * Arguments and the values within them are expected to be ordered in a stable
+ * alphabetical ordering.
+ */
 function formatStorageKey(name: string, argValues: ?Arguments): string {
   if (!argValues) {
     return name;
@@ -126,20 +121,24 @@ function formatStorageKey(name: string, argValues: ?Arguments): string {
     if (argValues.hasOwnProperty(argName)) {
       const value = argValues[argName];
       if (value != null) {
-        values.push(`"${argName}":${stableJSONStringify(value)}`);
+        values.push(`"${argName}":${JSON.stringify(value)}`);
       }
     }
   }
   return values.length !== 0 ? name + `{${values.join(',')}}` : name;
 }
 
-function getVariableValue(name: string, variables: Variables): mixed {
+/**
+ * Given Variables and a variable name, return a variable value with
+ * all values in a stable order.
+ */
+function getStableVariableValue(name: string, variables: Variables): mixed {
   invariant(
     variables.hasOwnProperty(name),
     'getVariableValue(): Undefined variable `%s`.',
     name,
   );
-  return variables[name];
+  return stableCopy(variables[name]);
 }
 
 /**

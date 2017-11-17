@@ -24,7 +24,7 @@
             "kind": "LinkedField",
             "alias": null,
             "name": "storyCommentSearch",
-            "storageKey": "storyCommentSearch{\"query\":{\"limit\":2,\"offset\":10,\"text\":\"foo\"}}",
+            "storageKey": "storyCommentSearch(query:{\"limit\":2,\"offset\":10,\"text\":\"foo\"})",
             "args": [
               {
                 "kind": "Literal",

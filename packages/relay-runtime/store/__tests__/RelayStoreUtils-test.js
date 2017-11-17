@@ -61,7 +61,7 @@ describe('RelayStoreUtils', () => {
       );
       const field = UserFragment.selections[0];
       expect(RelayStoreUtils.getStorageKey(field, {})).toBe(
-        'profilePicture{"size":128}',
+        'profilePicture(size:128)',
       );
     });
 
@@ -79,7 +79,7 @@ describe('RelayStoreUtils', () => {
       );
       const field = UserFragment.selections[0];
       expect(RelayStoreUtils.getStorageKey(field, {size: 256})).toBe(
-        'profilePicture{"size":256}',
+        'profilePicture(size:256)',
       );
     });
 
@@ -99,7 +99,7 @@ describe('RelayStoreUtils', () => {
       const field = UserFragment.selections[0];
       expect(
         RelayStoreUtils.getStorageKey(field, {preset: null, size: 128}),
-      ).toBe('profilePicture{"size":128}');
+      ).toBe('profilePicture(size:128)');
     });
 
     it('suppresses the argument list if all values are unset', () => {
@@ -136,7 +136,7 @@ describe('RelayStoreUtils', () => {
 
       // Note that storage key employs stable lexicographical ordering anyway.
       expect(RelayStoreUtils.getStorageKey(field, {})).toBe(
-        'storySearch{"query":{"limit":10,"offset":100,"text":"foo"}}',
+        'storySearch(query:{"limit":10,"offset":100,"text":"foo"})',
       );
     });
   });
@@ -154,8 +154,8 @@ describe('RelayStoreUtils', () => {
         },
       };
       expect(RelayStoreUtils.getStableStorageKey(fieldName, argValues)).toBe(
-        'foo{"filter":{"color":"red","maxCost":20,"minSize":200},' +
-          '"first":10,"orderBy":["name","age","date"]}',
+        'foo(filter:{"color":"red","maxCost":20,"minSize":200},' +
+          'first:10,orderBy:["name","age","date"])',
       );
     });
 
@@ -166,7 +166,7 @@ describe('RelayStoreUtils', () => {
         orderBy: null,
       };
       expect(RelayStoreUtils.getStableStorageKey(fieldName, argValues)).toBe(
-        'foo{"first":10}',
+        'foo(first:10)',
       );
     });
 

@@ -34,8 +34,8 @@ describe('RelayReferenceMarker', () => {
         id: '1',
         __typename: 'User',
         firstName: 'Alice',
-        'friends{"first":3}': {__ref: 'client:1'},
-        'profilePicture{"size":32}': {__ref: 'client:4'},
+        'friends(first:3)': {__ref: 'client:1'},
+        'profilePicture(size:32)': {__ref: 'client:4'},
       },
       '2': {
         __id: '2',
@@ -76,7 +76,7 @@ describe('RelayReferenceMarker', () => {
       'client:root': {
         __id: 'client:root',
         __typename: '__Root',
-        'node{"id":"1"}': {__ref: '1'},
+        'node(id:"1")': {__ref: '1'},
       },
     };
 
@@ -147,7 +147,7 @@ describe('RelayReferenceMarker', () => {
       '1': {
         __id: '1',
         __typename: 'User',
-        'friends{"first":1}': {__ref: 'client:1'},
+        'friends(first:1)': {__ref: 'client:1'},
         __friends_bestFriends: {__ref: 'client:bestFriends'},
       },
       '2': {
@@ -189,7 +189,7 @@ describe('RelayReferenceMarker', () => {
       'client:root': {
         __id: 'client:root',
         __typename: '__Root',
-        'node{"id":"1"}': {__ref: '1'},
+        'node(id:"1")': {__ref: '1'},
       },
     };
     source = new RelayInMemoryRecordSource(data);
@@ -239,11 +239,11 @@ describe('RelayReferenceMarker', () => {
       '1': {
         __id: '1',
         __typename: 'User',
-        'friends{"first":1,"orderby":["first name"]}': {__ref: 'client:1'},
-        '__UserProfile_friends_bestFriends{"orderby":["first name"]}': {
+        'friends(first:1,orderby:["first name"])': {__ref: 'client:1'},
+        '__UserProfile_friends_bestFriends(orderby:["first name"])': {
           __ref: 'client:bestFriends',
         },
-        '__UserProfile_friends_bestFriends{"orderby":["last name"]}': {
+        '__UserProfile_friends_bestFriends(orderby:["last name"])': {
           __ref: 'client:bestFriendsByLastName',
         },
       },
@@ -293,7 +293,7 @@ describe('RelayReferenceMarker', () => {
       'client:root': {
         __id: 'client:root',
         __typename: '__Root',
-        'node{"id":"1"}': {__ref: '1'},
+        'node(id:"1")': {__ref: '1'},
       },
     };
     source = new RelayInMemoryRecordSource(data);

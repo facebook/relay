@@ -121,11 +121,11 @@ function formatStorageKey(name: string, argValues: ?Arguments): string {
     if (argValues.hasOwnProperty(argName)) {
       const value = argValues[argName];
       if (value != null) {
-        values.push(`"${argName}":${JSON.stringify(value)}`);
+        values.push(argName + ':' + JSON.stringify(value));
       }
     }
   }
-  return values.length !== 0 ? name + `{${values.join(',')}}` : name;
+  return values.length === 0 ? name : name + `(${values.join(',')})`;
 }
 
 /**

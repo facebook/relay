@@ -15,7 +15,6 @@ const RelayConcreteNode = require('RelayConcreteNode');
 const RelayModernRecord = require('RelayModernRecord');
 const RelayProfiler = require('RelayProfiler');
 
-const formatStorageKey = require('formatStorageKey');
 const generateRelayClientID = require('generateRelayClientID');
 const getRelayHandleKey = require('getRelayHandleKey');
 const invariant = require('invariant');
@@ -157,8 +156,7 @@ class RelayResponseNormalizer {
         const args = selection.args
           ? getArgumentValues(selection.args, this._variables)
           : {};
-
-        const fieldKey = formatStorageKey(selection.name, args);
+        const fieldKey = getStorageKey(selection, this._variables);
         const handleKey = getHandleStorageKey(selection, this._variables);
         this._handleFieldPayloads.push({
           args,

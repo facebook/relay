@@ -77,9 +77,13 @@ function getHandleStorageKey(
  * name was used in previous implementations of Relay internals and is also
  * used here for consistency.
  */
-function getStorageKey(field: ConcreteField, variables: Variables): string {
+function getStorageKey(
+  field: ConcreteField | ConcreteHandle,
+  variables: Variables,
+): string {
   if (field.storageKey) {
-    return field.storageKey;
+    // TODO T23663664: Handle nodes do not yet define a static storageKey.
+    return (field: $FlowFixMe).storageKey;
   }
   const {args, name} = field;
   if (!args || !args.length) {

@@ -92,6 +92,7 @@ async function run(options: {
   watchman: boolean,
   watch?: ?boolean,
   validate: boolean,
+  quiet: boolean,
 }) {
   const schemaPath = path.resolve(process.cwd(), options.schema);
   if (!fs.existsSync(schemaPath)) {
@@ -118,8 +119,11 @@ Ensure that one such file exists in ${srcDir} or its parents.
     `.trim(),
     );
   }
+  if (options.verbose && options.quiet) {
+    throw new Error('I can\'t be quiet and verbose at the same time');
+  }
 
-  const reporter = new ConsoleReporter({verbose: options.verbose});
+  const reporter = new ConsoleReporter({verbose: options.verbose, quiet: options.quiet});
 
   const useWatchman = options.watchman && (await WatchmanClient.isAvailable());
 
@@ -273,6 +277,10 @@ const argv = yargs
     verbose: {
       describe: 'More verbose logging',
       type: 'boolean',
+    },
+    quiet: {
+      describe: 'No output to stdout',
+      type: 'boolean'
     },
     watchman: {
       describe: 'Use watchman when not in watch mode',

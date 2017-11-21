@@ -242,7 +242,7 @@ class CodegenRunner {
     return Profiler.asyncContext('CodegenRunner.write', async () => {
       try {
         // eslint-disable-next-line no-console
-        console.log('\nWriting %s', writerName);
+        this._reporter.reportMessage(`\nWriting ${writerName}`);
         const {
           getWriter,
           parser,
@@ -361,12 +361,10 @@ class CodegenRunner {
         } catch (error) {
           this._reporter.reportError('CodegenRunner.watch', error);
         }
-        // eslint-disable-next-line no-console
-        console.log('Watching for changes to %s...', parserName);
+        this._reporter.reportMessage(`Watching for changes to ${parserName}...`);
       },
     );
-    // eslint-disable-next-line no-console
-    console.log('Watching for changes to %s...', parserName);
+    this._reporter.reportMessage(`Watching for changes to ${parserName}...`);
   }
 }
 

@@ -1,0 +1,30 @@
+{
+  "kind": "Fragment",
+  "directives": [],
+  "metadata": null,
+  "name": "UserProfile",
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "args": [],
+      "directives": [],
+      "metadata": null,
+      "name": "profilePicture",
+      "selections": [
+        {
+          "kind": "FragmentSpread",
+          "args": [],
+          "metadata": {
+            "mask": false
+          },
+          "name": "PhotoFragment",
+          "directives": []
+        }
+      ],
+      "type": "Image"
+    }
+  ],
+  "type": "User",
+  "argumentDefinitions": []
+}

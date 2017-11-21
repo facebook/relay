@@ -44,20 +44,20 @@ const relayFragmentTransforms: Array<IRTransform> = [
   RelayConnectionTransform.transform,
   RelayViewerHandleTransform.transform,
   RelayRelayDirectiveTransform.transform,
-  RelayFieldHandleTransform.transform,
   RelayMaskTransform.transform,
+  RelayFieldHandleTransform.transform,
   ...fragmentTransforms,
 ];
 
 // Transforms applied to queries/mutations/subscriptions that are used for
 // fetching data from the server and parsing those responses.
 const relayQueryTransforms: Array<IRTransform> = [
-  RelayMaskTransform.transform,
   RelayConnectionTransform.transform,
   RelayViewerHandleTransform.transform,
+  RelayRelayDirectiveTransform.transform,
+  RelayMaskTransform.transform,
   RelayApplyFragmentArgumentTransform.transform,
   ...queryTransforms,
-  RelayRelayDirectiveTransform.transform,
   RelayGenerateIDFieldTransform.transform,
 ];
 

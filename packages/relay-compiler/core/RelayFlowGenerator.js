@@ -13,6 +13,7 @@
 
 const PatchedBabelGenerator = require('./PatchedBabelGenerator');
 const RelayMaskTransform = require('RelayMaskTransform');
+const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
 
 const nullthrows = require('nullthrows');
 const t = require('babel-types');
@@ -218,14 +219,8 @@ function mergeSelections(a: SelectionMap, b: SelectionMap): SelectionMap {
   return merged;
 }
 
-function isPlural({directives}): boolean {
-  const relayDirective = directives.find(({name}) => name === 'relay');
-  return (
-    relayDirective != null &&
-    relayDirective.args.some(
-      ({name, value}) => name === 'plural' && value.value,
-    )
-  );
+function isPlural(node: Fragment): boolean {
+  return Boolean(node.metadata && node.metadata.plural);
 }
 
 function createVisitor(options: Options) {
@@ -452,6 +447,7 @@ function getRefTypeName(name: string): string {
 }
 
 const FLOW_TRANSFORMS: Array<IRTransform> = [
+  RelayRelayDirectiveTransform.transform,
   RelayMaskTransform.transform,
   FlattenTransform.transformWithOptions({}),
 ];

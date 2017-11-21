@@ -201,4 +201,5 @@ export type Variable = {
   kind: 'Variable',
   metadata: ?{[key: string]: mixed},
   variableName: string,
+  type: ?GraphQLInputType,
 };

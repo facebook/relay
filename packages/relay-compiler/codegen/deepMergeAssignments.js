@@ -29,11 +29,8 @@ function collectAssignmentsInto(
   parentPath: Array<string | number>,
   parentValue: Object,
 ): void {
-  // Iterate over the entries in the array of object.
-  const entries = Array.isArray(parentValue)
-    ? parentValue.entries()
-    : Object.entries(parentValue);
-  for (const [key, value] of entries) {
+  // Iterate over the entries in the array or object.
+  forEach(parentValue, (value, key) => {
     // The "path" is the sequence of keys to arrive at this assignment.
     const path = parentPath.concat(key);
     // For each entry, either add an assignment or recurse.
@@ -42,7 +39,7 @@ function collectAssignmentsInto(
     } else {
       assignments.push({path, value});
     }
-  }
+  });
 }
 
 // Print a path/value pair as a JS assignment expression.
@@ -56,6 +53,24 @@ function formatJSAssignment(
     .join('');
   const jsValue = value === undefined ? 'undefined' : JSON.stringify(value);
   return `${objectName}${assignmentPath} = ${jsValue};`;
+}
+
+// Utility for looping over entries in both Arrays and Objects.
+function forEach<T>(
+  value: Array<T> | {[string]: T},
+  fn: (T, number | string) => void,
+) {
+  if (Array.isArray(value)) {
+    for (let i = 0; i < value.length; i++) {
+      fn(value[i], i);
+    }
+  } else {
+    for (const k in value) {
+      if (value.hasOwnProperty(k)) {
+        fn(value[k], k);
+      }
+    }
+  }
 }
 
 module.exports = deepMergeAssignments;

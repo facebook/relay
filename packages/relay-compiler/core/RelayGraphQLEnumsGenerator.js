@@ -24,8 +24,11 @@ function writeForSchema(
   codegenDir: CodegenDirectory,
   moduleName: string,
 ): void {
+  const typeMap = schema.getTypeMap();
+  const stableTypeNames = Object.keys(typeMap).sort();
   const types = [];
-  for (const [name, type] of Object.entries(schema.getTypeMap())) {
+  for (const name of stableTypeNames) {
+    const type = typeMap[name];
     if (type instanceof GraphQLEnumType) {
       const values = type.getValues().map(({value}) => value);
       values.sort();
@@ -36,7 +39,6 @@ function writeForSchema(
       );
     }
   }
-  types.sort();
 
   const content =
     '/**\n' +

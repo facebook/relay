@@ -91,7 +91,7 @@ function visitFragmentSpread(
   fragmentSpread: FragmentSpread,
   state: State,
 ): FragmentSpread {
-  if (!hasRelayMaskFalseDirective(fragmentSpread)) {
+  if (!isUnmaskedSpread(fragmentSpread)) {
     return fragmentSpread;
   }
   invariant(
@@ -139,15 +139,8 @@ function visitFragmentSpread(
   return this.traverse(result, state);
 }
 
-function hasRelayMaskFalseDirective(fragmentSpread: FragmentSpread): boolean {
-  const relayDirective = fragmentSpread.directives.find(
-    ({name}) => name === 'relay',
-  );
-  if (!relayDirective) {
-    return false;
-  }
-  const {mask} = getLiteralArgumentValues(relayDirective.args);
-  return mask === false;
+function isUnmaskedSpread(spread: FragmentSpread): boolean {
+  return Boolean(spread.metadata && spread.metadata.mask === false);
 }
 
 function areSameArgumentDefinitions(

@@ -13,6 +13,7 @@
 
 const PatchedBabelGenerator = require('./PatchedBabelGenerator');
 const RelayMaskTransform = require('RelayMaskTransform');
+const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
 
 const nullthrows = require('nullthrows');
 const t = require('babel-types');
@@ -21,7 +22,6 @@ const {
   anyTypeAlias,
   exactObjectTypeAnnotation,
   exportType,
-  fragmentReference,
   importTypes,
   intersectionTypeAnnotation,
   lineComments,
@@ -113,7 +113,7 @@ const isTypenameSelection = selection => selection.schemaName === '__typename';
 const hasTypenameSelection = selections => selections.some(isTypenameSelection);
 const onlySelectsTypename = selections => selections.every(isTypenameSelection);
 
-function selectionsToBabel(selections, state: State) {
+function selectionsToBabel(selections, state: State, refTypeName?: string) {
   const baseFields = new Map();
   const byConcreteType = {};
 
@@ -144,12 +144,10 @@ function selectionsToBabel(selections, state: State) {
   ) {
     for (const concreteType in byConcreteType) {
       types.push(
-        exactObjectTypeAnnotation(
-          groupRefs([
-            ...Array.from(baseFields.values()),
-            ...byConcreteType[concreteType],
-          ]).map(selection => makeProp(selection, state, concreteType)),
-        ),
+        groupRefs([
+          ...Array.from(baseFields.values()),
+          ...byConcreteType[concreteType],
+        ]).map(selection => makeProp(selection, state, concreteType)),
       );
     }
     // It might be some other type then the listed concrete types. Ideally, we
@@ -163,7 +161,7 @@ function selectionsToBabel(selections, state: State) {
       "This will never be '%other', but we need some",
       'value in case none of the concrete values match.',
     );
-    types.push(exactObjectTypeAnnotation([otherProp]));
+    types.push([otherProp]);
   } else {
     let selectionMap = selectionsToMap(Array.from(baseFields.values()));
     for (const concreteType in byConcreteType) {
@@ -183,10 +181,19 @@ function selectionsToBabel(selections, state: State) {
           ? makeProp({...sel, conditional: false}, state, sel.concreteType)
           : makeProp(sel, state),
     );
-    types.push(exactObjectTypeAnnotation(selectionMapValues));
+    types.push(selectionMapValues);
   }
 
-  return unionTypeAnnotation(types);
+  return unionTypeAnnotation(
+    types.map(props => {
+      if (refTypeName) {
+        props.push(
+          readOnlyObjectTypeProperty('$refType', t.identifier(refTypeName)),
+        );
+      }
+      return exactObjectTypeAnnotation(props);
+    }),
+  );
 }
 
 function mergeSelection(a: ?Selection, b: Selection): Selection {
@@ -216,14 +223,8 @@ function mergeSelections(a: SelectionMap, b: SelectionMap): SelectionMap {
   return merged;
 }
 
-function isPlural({directives}): boolean {
-  const relayDirective = directives.find(({name}) => name === 'relay');
-  return (
-    relayDirective != null &&
-    relayDirective.args.some(
-      ({name, value}) => name === 'plural' && value.value,
-    )
-  );
+function isPlural(node: Fragment): boolean {
+  return Boolean(node.metadata && node.metadata.plural);
 }
 
 function createVisitor(options: Options) {
@@ -280,12 +281,19 @@ function createVisitor(options: Options) {
           }
           return [selection];
         });
-        const baseType = selectionsToBabel(selections, state);
+        const refTypeName = getRefTypeName(node.name);
+        const refType = t.expressionStatement(
+          t.identifier(
+            `export opaque type ${refTypeName}: FragmentReference = FragmentReference`,
+          ),
+        );
+        const baseType = selectionsToBabel(selections, state, refTypeName);
         const type = isPlural(node) ? readOnlyArrayOfType(baseType) : baseType;
-
         return t.program([
           ...getFragmentImports(state),
           ...getEnumDefinitions(state),
+          importTypes(['FragmentReference'], state.relayRuntimeModule),
+          refType,
           exportType(node.name, type),
         ]);
       },
@@ -391,7 +399,9 @@ function groupRefs(props): Array<Selection> {
     }
   });
   if (refs.length > 0) {
-    const value = intersectionTypeAnnotation(refs.map(fragmentReference));
+    const value = intersectionTypeAnnotation(
+      refs.map(ref => t.identifier(getRefTypeName(ref))),
+    );
     result.push({
       key: '__fragments',
       conditional: false,
@@ -404,15 +414,15 @@ function groupRefs(props): Array<Selection> {
 function getFragmentImports(state: State) {
   const imports = [];
   if (state.usedFragments.size > 0) {
-    imports.push(importTypes(['FragmentReference'], state.relayRuntimeModule));
     const usedFragments = Array.from(state.usedFragments).sort();
     for (const usedFragment of usedFragments) {
+      const refTypeName = getRefTypeName(usedFragment);
       if (state.useHaste && state.existingFragmentNames.has(usedFragment)) {
         // TODO(T22653277) support non-haste environments when importing
         // fragments
-        imports.push(importTypes([usedFragment], usedFragment + '.graphql'));
+        imports.push(importTypes([refTypeName], usedFragment + '.graphql'));
       } else {
-        imports.push(anyTypeAlias(usedFragment));
+        imports.push(anyTypeAlias(refTypeName));
       }
     }
   }
@@ -440,7 +450,12 @@ function getEnumDefinitions({enumsHasteModule, usedEnums}: State) {
   });
 }
 
+function getRefTypeName(name: string): string {
+  return `${name}$ref`;
+}
+
 const FLOW_TRANSFORMS: Array<IRTransform> = [
+  RelayRelayDirectiveTransform.transform,
   RelayMaskTransform.transform,
   FlattenTransform.transformWithOptions({}),
 ];

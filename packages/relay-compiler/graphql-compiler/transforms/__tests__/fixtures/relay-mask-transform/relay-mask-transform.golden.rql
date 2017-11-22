@@ -1,25 +1,25 @@
 fragment UserProfile on User {
   profilePicture(size: $ProfilePicture_SIZE) {
-    ... on Image @relay(mask: false) {
+    ... on Image {
       uri
-      ... on Image @relay(mask: false) {
+      ... on Image {
         uri
         width
       }
     }
-    ... on Image @include(if: $cond) @relay(mask: false) {
+    ... on Image @include(if: $cond) {
       uri
     }
     ...PhotoFragment
   }
   smallPic: profilePicture(size: 20) {
-    ...PhotoFragment @relay(mask: true)
+    ...PhotoFragment
   }
 }
 
 fragment PhotoFragment on Image {
   uri
-  ... on Image @relay(mask: false) {
+  ... on Image {
     uri
     width
   }

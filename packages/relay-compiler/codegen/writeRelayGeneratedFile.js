@@ -16,7 +16,8 @@ const RelayConcreteNode = require('RelayConcreteNode');
 
 const crypto = require('crypto');
 const dedupeJSONStringify = require('dedupeJSONStringify');
-const invariant = require('invariant');
+const deepMergeAssignments = require('./deepMergeAssignments');
+const nullthrows = require('nullthrows');
 
 const {Profiler} = require('graphql-compiler');
 
@@ -37,7 +38,7 @@ export type FormatModule = ({|
   concreteText: string,
   flowText: string,
   hash: ?string,
-  devOnlyQueryText: ?string,
+  devOnlyAssignments: ?string,
   relayRuntimeModule: string,
   sourceHash: string,
 |}) => string;
@@ -47,11 +48,13 @@ async function writeRelayGeneratedFile(
   generatedNode: GeneratedNode,
   formatModule: FormatModule,
   flowText: string,
-  persistQuery: ?(text: string) => Promise<string>,
+  _persistQuery: ?(text: string) => Promise<string>,
   platform: ?string,
   relayRuntimeModule: string,
   sourceHash: string,
 ): Promise<?GeneratedNode> {
+  // Copy to const so Flow can refine.
+  const persistQuery = _persistQuery;
   const moduleName = generatedNode.name + '.graphql';
   const platformName = platform ? moduleName + '.' + platform : moduleName;
   const filename = platformName + '.js';
@@ -63,21 +66,20 @@ async function writeRelayGeneratedFile(
         : generatedNode.kind === RelayConcreteNode.BATCH_REQUEST
           ? 'ConcreteBatchRequest'
           : 'empty';
-  let devOnlyQueryText = null;
+  const devOnlyProperties = {};
 
-  let text = null;
-  let hash = null;
-  if (generatedNode.kind === RelayConcreteNode.BATCH_REQUEST) {
-    throw new Error(
-      'writeRelayGeneratedFile: Batch request not yet implemented (T22987143)',
-    );
-  }
+  let docText;
   if (generatedNode.kind === RelayConcreteNode.REQUEST) {
-    text = generatedNode.text;
-    invariant(
-      text,
-      'codegen-runner: Expected query to have text before persisting.',
-    );
+    docText = generatedNode.text;
+  } else if (generatedNode.kind === RelayConcreteNode.BATCH_REQUEST) {
+    docText = generatedNode.requests.map(request => request.text).join('\n\n');
+  }
+
+  let hash = null;
+  if (
+    generatedNode.kind === RelayConcreteNode.REQUEST ||
+    generatedNode.kind === RelayConcreteNode.BATCH_REQUEST
+  ) {
     const oldHash = Profiler.run('RelayFileWriter:compareHash', () => {
       const oldContent = codegenDir.read(filename);
       // Hash the concrete node including the query text.
@@ -102,24 +104,49 @@ async function writeRelayGeneratedFile(
       return null;
     }
     if (persistQuery) {
-      generatedNode = {
-        ...generatedNode,
-        text: null,
-        id: await persistQuery(text),
-      };
-
-      devOnlyQueryText = text;
+      switch (generatedNode.kind) {
+        case RelayConcreteNode.REQUEST:
+          devOnlyProperties.text = generatedNode.text;
+          generatedNode = {
+            ...generatedNode,
+            text: null,
+            id: await persistQuery(nullthrows(generatedNode.text)),
+          };
+          break;
+        case RelayConcreteNode.BATCH_REQUEST:
+          devOnlyProperties.requests = generatedNode.requests.map(request => ({
+            text: request.text,
+          }));
+          generatedNode = {
+            ...generatedNode,
+            requests: await Promise.all(
+              generatedNode.requests.map(async request => ({
+                ...request,
+                text: null,
+                id: await persistQuery(nullthrows(request.text)),
+              })),
+            ),
+          };
+          break;
+        case RelayConcreteNode.FRAGMENT:
+          // Do not persist fragments.
+          break;
+        default:
+          (generatedNode.kind: empty);
+      }
     }
   }
+
+  const devOnlyAssignments = deepMergeAssignments('node', devOnlyProperties);
 
   const moduleText = formatModule({
     moduleName,
     documentType: flowTypeName,
-    docText: text,
+    docText,
     flowText,
     hash: hash ? `@relayHash ${hash}` : null,
     concreteText: dedupeJSONStringify(generatedNode),
-    devOnlyQueryText,
+    devOnlyAssignments,
     relayRuntimeModule,
     sourceHash,
   });

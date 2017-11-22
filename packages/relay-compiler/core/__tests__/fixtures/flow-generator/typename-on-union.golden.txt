@@ -1,27 +1,39 @@
+import type { FragmentReference } from 'relay-runtime';
+export opaque type TypenameInside$ref: FragmentReference = FragmentReference;
 export type TypenameInside = ({|
   +__typename: 'User',
   +firstName: ?string,
+  +$refType: TypenameInside$ref,
 |} | {|
   +__typename: 'Page',
   +username: ?string,
+  +$refType: TypenameInside$ref,
 |} | {|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
   +__typename: '%other',
+  +$refType: TypenameInside$ref,
 |});
 
+import type { FragmentReference } from 'relay-runtime';
+export opaque type TypenameOutside$ref: FragmentReference = FragmentReference;
 export type TypenameOutside = ({|
   +__typename: 'User',
   +firstName: ?string,
+  +$refType: TypenameOutside$ref,
 |} | {|
   +__typename: 'Page',
   +username: ?string,
+  +$refType: TypenameOutside$ref,
 |} | {|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
   +__typename: '%other',
+  +$refType: TypenameOutside$ref,
 |});
 
+import type { FragmentReference } from 'relay-runtime';
+export opaque type TypenameOutsideWithAbstractType$ref: FragmentReference = FragmentReference;
 export type TypenameOutsideWithAbstractType = {|
   +__typename: string,
   +username?: ?string,
@@ -31,21 +43,31 @@ export type TypenameOutsideWithAbstractType = {|
     +street?: ?string,
   |},
   +firstName?: ?string,
+  +$refType: TypenameOutsideWithAbstractType$ref,
 |};
 
+import type { FragmentReference } from 'relay-runtime';
+export opaque type TypenameWithoutSpreads$ref: FragmentReference = FragmentReference;
 export type TypenameWithoutSpreads = {|
   +firstName: ?string,
   +__typename: 'User',
+  +$refType: TypenameWithoutSpreads$ref,
 |};
 
+import type { FragmentReference } from 'relay-runtime';
+export opaque type TypenameWithoutSpreadsAbstractType$ref: FragmentReference = FragmentReference;
 export type TypenameWithoutSpreadsAbstractType = {|
   +__typename: string,
   +id: string,
+  +$refType: TypenameWithoutSpreadsAbstractType$ref,
 |};
 
+import type { FragmentReference } from 'relay-runtime';
+export opaque type TypenameWithCommonSelections$ref: FragmentReference = FragmentReference;
 export type TypenameWithCommonSelections = {|
   +__typename: string,
   +name: ?string,
   +firstName?: ?string,
   +username?: ?string,
+  +$refType: TypenameWithCommonSelections$ref,
 |};

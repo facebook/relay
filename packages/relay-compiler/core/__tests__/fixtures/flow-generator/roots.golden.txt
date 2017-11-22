@@ -4,8 +4,11 @@ export type ExampleQueryResponse = {|
   |},
 |};
 
+import type { FragmentReference } from 'relay-runtime';
+export opaque type ExampleFragment$ref: FragmentReference = FragmentReference;
 export type ExampleFragment = {|
   +id: string,
+  +$refType: ExampleFragment$ref,
 |};
 
 export type TestMutationVariables = {|

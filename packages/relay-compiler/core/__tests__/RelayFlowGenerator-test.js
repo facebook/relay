@@ -46,10 +46,10 @@ describe('RelayFlowGenerator', () => {
             recursionLimit: 1,
             recursiveFields: ['feedback', 'comment'],
             enumsHasteModule: null,
-            existingFragmentNames: new Set(),
+            existingFragmentNames: new Set(['PhotoFragment']),
             inputFieldWhiteList: [],
             relayRuntimeModule: 'relay-runtime',
-            useHaste: false,
+            useHaste: true,
           }),
         )
         .join('\n\n');

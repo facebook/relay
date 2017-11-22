@@ -16,7 +16,8 @@
             "value": {
               "kind": "Variable",
               "metadata": null,
-              "variableName": "PictureSize"
+              "variableName": "PictureSize",
+              "type": "[Int]"
             },
             "type": "[Int]"
           }
@@ -48,7 +49,8 @@
             "value": {
               "kind": "Variable",
               "metadata": null,
-              "variableName": "size"
+              "variableName": "size",
+              "type": "[Int]"
             },
             "type": "[Int]"
           }

@@ -784,6 +784,7 @@ class GraphQLParser {
       kind: 'Variable',
       metadata: null,
       variableName,
+      type,
     };
   }
 
@@ -806,8 +807,20 @@ class GraphQLParser {
           value: parseFloat(ast.value),
         };
       case 'StringValue':
+        return {
+          kind: 'Literal',
+          metadata: null,
+          value: ast.value,
+        };
       case 'BooleanValue':
+        // Note: duplicated because Flow does not understand fall-through cases
+        return {
+          kind: 'Literal',
+          metadata: null,
+          value: ast.value,
+        };
       case 'EnumValue':
+        // Note: duplicated because Flow does not understand fall-through cases
         return {
           kind: 'Literal',
           metadata: null,
@@ -914,15 +927,13 @@ class GraphQLParser {
         }
       case 'Variable':
         return this._transformVariable(ast, type);
-      // eslint-disable: no-fallthrough
       default:
         invariant(
           false,
           'GraphQLParser: Unknown ast kind: %s. Source: %s.',
-          ast.kind,
+          (ast.kind: empty),
           this._getErrorContext(),
         );
-      // eslint-enable
     }
   }
 }

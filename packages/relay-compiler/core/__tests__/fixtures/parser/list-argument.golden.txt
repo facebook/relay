@@ -31,7 +31,8 @@
                 {
                   "kind": "Variable",
                   "metadata": null,
-                  "variableName": "waypoint"
+                  "variableName": "waypoint",
+                  "type": "WayPoint!"
                 },
                 {
                   "kind": "Literal",

@@ -10,7 +10,8 @@ Invariant Violation: RelayCodeGenerator: Complex argument values (Lists or Input
       "value": {
         "kind": "Variable",
         "metadata": null,
-        "variableName": "date"
+        "variableName": "date",
+        "type": "String"
       }
     }
   ]

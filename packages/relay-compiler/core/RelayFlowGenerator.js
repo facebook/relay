@@ -54,11 +54,14 @@ type Options = {|
   +enumsHasteModule: ?string,
   +existingFragmentNames: Set<string>,
   +inputFieldWhiteList: $ReadOnlyArray<string>,
+  +recursiveFields: $ReadOnlyArray<string>,
+  +recursionLimit: number,
   +relayRuntimeModule: string,
 |};
 
 export type State = {|
   ...Options,
+  +recursionLevel: number,
   +generatedTypes: Array<string>,
   +usedEnums: {[name: string]: GraphQLEnumType},
   +usedFragments: Set<string>,
@@ -229,7 +232,10 @@ function createVisitor(options: Options) {
     enumsHasteModule: options.enumsHasteModule,
     existingFragmentNames: options.existingFragmentNames,
     inputFieldWhiteList: options.inputFieldWhiteList,
+    recursiveFields: options.recursiveFields,
+    recursionLimit: options.recursionLimit,
     relayRuntimeModule: options.relayRuntimeModule,
+    recursionLevel: 0,
     generatedTypes: [],
     usedEnums: {},
     usedFragments: new Set(),

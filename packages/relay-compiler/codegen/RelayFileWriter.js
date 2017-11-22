@@ -44,7 +44,10 @@ import type {
 } from 'graphql-compiler';
 import type {DocumentNode, GraphQLSchema, ValidationContext} from 'graphql';
 
-const {isOperationDefinitionAST} = SchemaUtils;
+const {
+  isOperationDefinitionAST,
+  getFieldNameSCCs
+} = SchemaUtils;
 
 export type GenerateExtraFiles = (
   getOutputDirectory: (path?: string) => CodegenDirectory,
@@ -61,6 +64,7 @@ export type WriterConfig = {
   formatModule: FormatModule,
   generateExtraFiles?: GenerateExtraFiles,
   inputFieldWhiteListForFlow: Array<string>,
+  recursionLimitForFlow: number,
   outputDir?: string,
   persistQuery?: (text: string) => Promise<string>,
   platform?: string,
@@ -264,11 +268,17 @@ class RelayFileWriter implements FileWriterInterface {
             const relayRuntimeModule =
               this._config.relayRuntimeModule || 'relay-runtime';
 
+            const recursiveFields = (node.argumentDefinitions || []).map(arg =>
+              getFieldNameSCCs(arg.type).filter(component => component.length > 1)
+            ).reduce(flatten, []);
+
             const flowTypes = RelayFlowGenerator.generate(node, {
               customScalars: this._config.customScalars,
               enumsHasteModule: this._config.enumsHasteModule,
               existingFragmentNames,
               inputFieldWhiteList: this._config.inputFieldWhiteListForFlow,
+              recursionLimit: this._config.recursionLimitForFlow,
+              recursiveFields,
               relayRuntimeModule,
               useHaste: this._config.useHaste,
             });
@@ -345,6 +355,10 @@ class RelayFileWriter implements FileWriterInterface {
       return allOutputDirectories;
     });
   }
+}
+
+function flatten(arr, el) {
+  return arr.concat(Array.isArray(el) ? el.reduce(flatten, []) : el);
 }
 
 function md5(x: string): string {

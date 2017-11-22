@@ -13,9 +13,7 @@ export type TestMutationVariables = {|
     clientMutationId?: ?string,
     feedbackId?: ?string,
     feedback?: ?{
-      comment?: ?{
-        feedback?: any,
-      },
+      comment?: any,
     },
   },
 |};

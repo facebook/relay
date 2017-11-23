@@ -10,7 +10,8 @@
         "condition": {
           "kind": "Variable",
           "metadata": null,
-          "variableName": "Cond"
+          "variableName": "Cond",
+          "type": "Boolean!"
         },
         "metadata": null,
         "passingValue": true,
@@ -31,7 +32,8 @@
         "condition": {
           "kind": "Variable",
           "metadata": null,
-          "variableName": "Cond"
+          "variableName": "Cond",
+          "type": "Boolean!"
         },
         "metadata": null,
         "passingValue": true,
@@ -60,7 +62,8 @@
         "condition": {
           "kind": "Variable",
           "metadata": null,
-          "variableName": "Cond"
+          "variableName": "Cond",
+          "type": "Boolean!"
         },
         "metadata": null,
         "passingValue": true,

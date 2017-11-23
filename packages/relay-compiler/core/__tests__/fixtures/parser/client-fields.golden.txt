@@ -27,7 +27,8 @@
             "value": {
               "kind": "Variable",
               "metadata": null,
-              "variableName": "id"
+              "variableName": "id",
+              "type": "ID"
             },
             "type": "ID"
           }

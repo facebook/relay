@@ -45,6 +45,9 @@ import type {
 import type {DataID} from 'react-relay/classic/tools/RelayInternalTypes';
 import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
+// eslint-disable-next-line no-undef
+export opaque type FragmentReference = empty;
+
 type TEnvironment = Environment;
 type TFragment = ConcreteFragment;
 type TGraphQLTaggedNode = GraphQLTaggedNode;

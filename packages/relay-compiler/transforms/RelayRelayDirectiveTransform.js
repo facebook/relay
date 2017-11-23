@@ -19,7 +19,7 @@ const {
   getLiteralArgumentValues,
 } = require('graphql-compiler');
 
-import type {Fragment} from 'graphql-compiler';
+import type {Fragment, FragmentSpread} from 'graphql-compiler';
 
 const RELAY = 'relay';
 const PLURAL = 'plural';
@@ -49,38 +49,52 @@ const SCHEMA_EXTENSION = `directive @relay(
 function relayRelayDirectiveTransform(
   context: CompilerContext,
 ): CompilerContext {
-  return IRTransformer.transform(
-    context,
-    {
-      Fragment: visitFragment,
-    },
-    () => ({}), // empty state
-  );
+  return IRTransformer.transform(context, {
+    Fragment: visitRelayMetadata(fragmentMetadata),
+    FragmentSpread: visitRelayMetadata(fragmentSpreadMetadata),
+  });
 }
 
-function visitFragment(fragment: Fragment): Fragment {
-  const relayDirective = fragment.directives.find(({name}) => name === RELAY);
-  if (!relayDirective) {
-    return fragment;
-  }
-  const {plural} = getLiteralArgumentValues(relayDirective.args);
+type MixedObj = {[key: string]: mixed};
+function visitRelayMetadata<T: Fragment | FragmentSpread>(
+  metadataFn: MixedObj => MixedObj,
+): T => T {
+  return function(node) {
+    const relayDirective = node.directives.find(({name}) => name === RELAY);
+    if (!relayDirective) {
+      return this.traverse(node);
+    }
+    const argValues = getLiteralArgumentValues(relayDirective.args);
+    const metadata = metadataFn(argValues);
+    return this.traverse({
+      ...node,
+      directives: node.directives.filter(
+        directive => directive !== relayDirective,
+      ),
+      metadata: {
+        ...(node.metadata || {}),
+        ...metadata,
+      },
+    });
+  };
+}
+
+function fragmentMetadata({plural}): MixedObj {
   invariant(
     plural === undefined || typeof plural === 'boolean',
-    'RelayRelayDirectiveTransform: Expected the %s argument to @%s to be ' +
-      'a boolean literal or not specified.',
-    PLURAL,
-    RELAY,
+    'RelayRelayDirectiveTransform: Expected the "plural" argument to @relay ' +
+      'to be a boolean literal if specified.',
   );
-  return {
-    ...fragment,
-    directives: fragment.directives.filter(
-      directive => directive !== relayDirective,
-    ),
-    metadata: {
-      ...(fragment.metadata || {}),
-      plural,
-    },
-  };
+  return {plural};
+}
+
+function fragmentSpreadMetadata({mask}): MixedObj {
+  invariant(
+    mask === undefined || typeof mask === 'boolean',
+    'RelayRelayDirectiveTransform: Expected the "mask" argument to @relay ' +
+      'to be a boolean literal if specified.',
+  );
+  return {mask};
 }
 
 module.exports = {

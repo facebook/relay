@@ -35,11 +35,6 @@ const recycleNodesInto = require('recycleNodesInto');
 const requestRelaySubscription = require('requestRelaySubscription');
 const simpleClone = require('simpleClone');
 
-// There's a lint false positive for opaque types
-// eslint-disable-next-line no-undef
-export opaque type FragmentReference<T> = mixed;
-
-export type {RecordState} from 'RelayRecordState';
 export type {
   GeneratedNode,
   ConcreteRequest,
@@ -50,27 +45,29 @@ export type {
 } from 'RelayConcreteNode';
 export type {ConnectionMetadata} from 'RelayConnectionHandler';
 export type {EdgeRecord, PageInfo} from 'RelayConnectionInterface';
-export type {
-  ObservableFromValue,
-  Observer,
-  Subscribable,
-  Subscription,
-} from 'RelayObservable';
-export type {
-  Environment as IEnvironment,
-  FragmentMap,
-  OperationSelector,
-  RelayContext,
-  Selector,
-  SelectorStoreUpdater,
-  Snapshot,
-} from 'RelayStoreTypes';
 export type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 export type {
   GraphQLResponse,
   PayloadError,
   UploadableMap,
 } from 'RelayNetworkTypes';
+export type {
+  ObservableFromValue,
+  Observer,
+  Subscribable,
+  Subscription,
+} from 'RelayObservable';
+export type {RecordState} from 'RelayRecordState';
+export type {
+  Environment as IEnvironment,
+  FragmentMap,
+  FragmentReference,
+  OperationSelector,
+  RelayContext,
+  Selector,
+  SelectorStoreUpdater,
+  Snapshot,
+} from 'RelayStoreTypes';
 export type {
   OptimisticMutationConfig,
 } from 'applyRelayModernOptimisticMutation';

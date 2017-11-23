@@ -41,10 +41,15 @@ export type PayloadError = {
  * The shape of a GraphQL response as dictated by the
  * [spec](http://facebook.github.io/graphql/#sec-Response)
  */
-export type GraphQLResponse = {|
-  data?: ?PayloadData,
-  errors?: Array<PayloadError>,
-|};
+export type GraphQLResponse =
+  | {
+      data: PayloadData,
+      errors?: Array<PayloadError>,
+    }
+  | {
+      data?: ?PayloadData,
+      errors: Array<PayloadError>,
+    };
 
 /**
  * The data returned from Relay's execute function, which includes both the

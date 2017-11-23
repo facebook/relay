@@ -35,7 +35,8 @@
                   "value": {
                     "kind": "Variable",
                     "metadata": null,
-                    "variableName": "text"
+                    "variableName": "text",
+                    "type": "String"
                   }
                 }
               ]

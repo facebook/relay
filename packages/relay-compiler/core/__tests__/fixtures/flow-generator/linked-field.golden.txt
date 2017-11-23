@@ -1,3 +1,5 @@
+import type { FragmentReference } from 'relay-runtime';
+export opaque type LinkedField$ref: FragmentReference = FragmentReference;
 export type LinkedField = {|
   +profilePicture: ?{|
     +uri: ?string,
@@ -13,6 +15,7 @@ export type LinkedField = {|
   +actor: ?{|
     +id: string,
   |},
+  +$refType: LinkedField$ref,
 |};
 
 export type UnionTypeTestResponse = {|

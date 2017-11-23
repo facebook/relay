@@ -1,25 +1,36 @@
+import type { PhotoFragment$ref } from 'PhotoFragment.graphql';
 import type { FragmentReference } from 'relay-runtime';
-type PhotoFragment = any;
+export opaque type UserProfile$ref: FragmentReference = FragmentReference;
 export type UserProfile = {|
   +profilePicture: ?{|
     +uri: ?string,
     +width: ?number,
     +height: ?number,
-    +__fragments: FragmentReference<PhotoFragment>,
+    +__fragments: PhotoFragment$ref,
   |},
+  +$refType: UserProfile$ref,
 |};
 
+import type { FragmentReference } from 'relay-runtime';
+export opaque type PhotoFragment$ref: FragmentReference = FragmentReference;
 export type PhotoFragment = {|
   +uri: ?string,
   +width: ?number,
+  +$refType: PhotoFragment$ref,
 |};
 
+import type { FragmentReference } from 'relay-runtime';
+export opaque type RecursiveFragment$ref: FragmentReference = FragmentReference;
 export type RecursiveFragment = {|
   +uri: ?string,
   +width: ?number,
+  +$refType: RecursiveFragment$ref,
 |};
 
+import type { FragmentReference } from 'relay-runtime';
+export opaque type AnotherRecursiveFragment$ref: FragmentReference = FragmentReference;
 export type AnotherRecursiveFragment = {|
   +uri: ?string,
   +height: ?number,
+  +$refType: AnotherRecursiveFragment$ref,
 |};

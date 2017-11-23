@@ -27,7 +27,8 @@
             "value": {
               "kind": "Variable",
               "metadata": null,
-              "variableName": "orderby"
+              "variableName": "orderby",
+              "type": "[String]"
             },
             "type": "[String]"
           }

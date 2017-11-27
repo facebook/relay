@@ -36,7 +36,6 @@ const generateForceIndex = require('../legacy/store/generateForceIndex');
 const invariant = require('invariant');
 const mapObject = require('mapObject');
 const nullthrows = require('nullthrows');
-const warning = require('warning');
 const writeRelayQueryPayload = require('../traversal/writeRelayQueryPayload');
 const writeRelayUpdatePayload = require('../traversal/writeRelayUpdatePayload');
 

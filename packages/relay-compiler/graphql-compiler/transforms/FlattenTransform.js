@@ -22,7 +22,6 @@ const isEquivalentType = require('../core/isEquivalentType');
 
 const {createUserError} = require('../core/GraphQLCompilerUserError');
 const {printField} = require('../core/GraphQLIRPrinter');
-const {GraphQLNonNull, GraphQLList} = require('graphql');
 
 import type {
   Condition,
@@ -30,7 +29,6 @@ import type {
   Fragment,
   Handle,
   InlineFragment,
-  Node,
   Root,
   ScalarField,
   LinkedField,

@@ -16,7 +16,6 @@ const RelayModernRecord = require('RelayModernRecord');
 const RelayProfiler = require('RelayProfiler');
 
 const generateRelayClientID = require('generateRelayClientID');
-const getRelayHandleKey = require('getRelayHandleKey');
 const invariant = require('invariant');
 const warning = require('warning');
 

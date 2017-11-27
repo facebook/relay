@@ -11,7 +11,6 @@
 
 'use strict';
 
-const GraphQLIRPrinter = require('./GraphQLIRPrinter');
 const Profiler = require('./GraphQLCompilerProfiler');
 
 const requestsForOperation = require('./requestsForOperation');

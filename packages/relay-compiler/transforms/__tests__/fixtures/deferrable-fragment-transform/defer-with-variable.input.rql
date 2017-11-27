@@ -1,0 +1,13 @@
+query TestDeferWithVariable($size: [Int]) {
+  me {
+    ...ProfilePic @relay(deferrable: true)
+  }
+}
+
+fragment ProfilePic on User {
+  profilePicture(size: $size) {
+    uri
+    width
+    height
+  }
+}

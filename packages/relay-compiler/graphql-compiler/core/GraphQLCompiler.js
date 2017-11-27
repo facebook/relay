@@ -28,7 +28,19 @@ export interface Compiler<CodegenNode> {
   compile(): CompiledDocumentMap<CodegenNode>,
 }
 
+/**
+ * The GraphQLCompiler generates multiple artifacts for Relay's runtime,
+ * each kind of which is the result of a series of transforms. Each kind of
+ * artifact is dependent on transforms being applied in the following order:
+ *
+ *   - Fragment Readers: commonTransforms, fragmentTransforms
+ *   - Fragment Types: commonTransforms, fragmentTransforms
+ *   - Operation Writers: commonTransforms, queryTransforms, codegenTransforms
+ *   - GraphQL Text: commonTransforms, queryTransforms, printTransforms
+ *
+ */
 export type CompilerTransforms = {
+  commonTransforms: Array<IRTransform>,
   codegenTransforms: Array<IRTransform>,
   fragmentTransforms: Array<IRTransform>,
   printTransforms: Array<IRTransform>,
@@ -43,6 +55,7 @@ export type CompilerTransforms = {
 class GraphQLCompiler<CodegenNode> {
   _context: GraphQLCompilerContext;
   _schema: GraphQLSchema;
+  _transformedCommonContext: ?GraphQLCompilerContext;
   _transformedQueryContext: ?GraphQLCompilerContext;
   _transforms: CompilerTransforms;
   _codeGenerator: (node: Batch | Fragment) => CodegenNode;
@@ -83,13 +96,25 @@ class GraphQLCompiler<CodegenNode> {
     this._context = this._context.addAll(definitions);
   }
 
+  transformedCommonContext(): GraphQLCompilerContext {
+    if (this._transformedCommonContext) {
+      return this._transformedCommonContext;
+    }
+    this._transformedCommonContext = this._context.applyTransforms(
+      this._transforms.commonTransforms,
+      this._schema,
+      this._reporter,
+    );
+    return this._transformedCommonContext;
+  }
+
   // Can only be called once per compiler. Once run, will use cached context
   // To re-run, clone the compiler.
   transformedQueryContext(): GraphQLCompilerContext {
     if (this._transformedQueryContext) {
       return this._transformedQueryContext;
     }
-    this._transformedQueryContext = this._context.applyTransforms(
+    this._transformedQueryContext = this.transformedCommonContext().applyTransforms(
       this._transforms.queryTransforms,
       this._schema,
       this._reporter,
@@ -99,7 +124,8 @@ class GraphQLCompiler<CodegenNode> {
 
   compile(): CompiledDocumentMap<CodegenNode> {
     return Profiler.run('GraphQLCompiler.compile', () => {
-      const fragmentContext = this._context.applyTransforms(
+      const commonContext = this.transformedCommonContext();
+      const fragmentContext = commonContext.applyTransforms(
         this._transforms.fragmentTransforms,
         this._schema,
         this._reporter,

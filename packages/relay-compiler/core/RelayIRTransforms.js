@@ -40,13 +40,18 @@ const relaySchemaExtensions: Array<string> = [
   RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
 ];
 
-// Transforms applied to fragments used for reading data from a store
-const relayFragmentTransforms: Array<IRTransform> = [
+// Transforms applied to both operations and fragments for both reading and
+// writing from the store.
+const relayCommonTransforms: Array<IRTransform> = [
   RelayConnectionTransform.transform,
   RelayViewerHandleTransform.transform,
   RelayRelayDirectiveTransform.transform,
   RelayMaskTransform.transform,
   RelayDeferrableFragmentTransform.transformOperations,
+];
+
+// Transforms applied to fragments used for reading data from a store
+const relayFragmentTransforms: Array<IRTransform> = [
   RelayFieldHandleTransform.transform,
   ...fragmentTransforms,
 ];
@@ -54,11 +59,6 @@ const relayFragmentTransforms: Array<IRTransform> = [
 // Transforms applied to queries/mutations/subscriptions that are used for
 // fetching data from the server and parsing those responses.
 const relayQueryTransforms: Array<IRTransform> = [
-  RelayConnectionTransform.transform,
-  RelayViewerHandleTransform.transform,
-  RelayRelayDirectiveTransform.transform,
-  RelayMaskTransform.transform,
-  RelayDeferrableFragmentTransform.transformOperations,
   RelayDeferrableFragmentTransform.transformSpreads,
   RelayApplyFragmentArgumentTransform.transform,
   ...queryTransforms,
@@ -85,6 +85,7 @@ const relayPrintTransforms: Array<IRTransform> = [
 ];
 
 module.exports = {
+  commonTransforms: relayCommonTransforms,
   codegenTransforms: relayCodegenTransforms,
   fragmentTransforms: relayFragmentTransforms,
   printTransforms: relayPrintTransforms,

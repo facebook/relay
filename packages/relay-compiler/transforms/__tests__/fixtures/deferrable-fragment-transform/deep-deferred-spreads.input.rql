@@ -1,0 +1,24 @@
+query TestDeepDeferredSpreads($size: [Int]) {
+  me {
+    ...Birthdate @relay(deferrable: true)
+    ...FriendBirthdates @relay(deferrable: true)
+  }
+}
+
+fragment FriendBirthdates on User {
+  friends {
+    edges {
+      node {
+        ...Birthdate @relay(deferrable: true)
+      }
+    }
+  }
+}
+
+fragment Birthdate on User {
+  birthdate {
+    day
+    month
+    year
+  }
+}

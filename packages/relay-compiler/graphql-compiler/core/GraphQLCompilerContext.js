@@ -20,12 +20,8 @@ const {OrderedMap: ImmutableOrderedMap} = require('immutable');
 
 import type {GraphQLReporter} from '../reporters/GraphQLReporter';
 import type {Fragment, Root} from './GraphQLIR';
+import type {IRTransform} from './GraphQLIRTransforms';
 import type {GraphQLSchema} from 'graphql';
-
-type GraphQLTransform = (
-  GraphQLCompilerContext,
-  GraphQLSchema,
-) => GraphQLCompilerContext;
 
 /**
  * An immutable representation of a corpus of documents being compiled together.
@@ -34,12 +30,15 @@ type GraphQLTransform = (
 class GraphQLCompilerContext {
   _isMutable: boolean;
   _documents: ImmutableOrderedMap<string, Fragment | Root>;
-  schema: GraphQLSchema;
+  +serverSchema: GraphQLSchema;
+  +clientSchema: GraphQLSchema;
 
-  constructor(schema: GraphQLSchema) {
+  constructor(serverSchema: GraphQLSchema, clientSchema?: GraphQLSchema) {
     this._isMutable = false;
     this._documents = new ImmutableOrderedMap();
-    this.schema = schema;
+    this.serverSchema = serverSchema;
+    // If a separate client schema doesn't exist, use the server schema.
+    this.clientSchema = clientSchema || serverSchema;
   }
 
   /**
@@ -51,12 +50,6 @@ class GraphQLCompilerContext {
 
   forEachDocument(fn: (Fragment | Root) => void): void {
     this._documents.forEach(fn);
-  }
-
-  updateSchema(schema: GraphQLSchema): GraphQLCompilerContext {
-    const context = new GraphQLCompilerContext(schema);
-    context._documents = this._documents;
-    return context;
   }
 
   replace(node: Fragment | Root): GraphQLCompilerContext {
@@ -96,14 +89,11 @@ class GraphQLCompilerContext {
   /**
    * Apply a list of compiler transforms and return a new compiler context.
    */
-  applyTransforms(
-    transforms: Array<GraphQLTransform>,
-    reporter?: GraphQLReporter,
-  ) {
+  applyTransforms(transforms: Array<IRTransform>, reporter?: GraphQLReporter) {
     return Profiler.run('applyTransforms', () =>
       transforms.reduce((ctx, transform) => {
         const start = process.hrtime();
-        const result = Profiler.instrument(transform)(ctx, this.schema);
+        const result = Profiler.instrument(transform)(ctx);
         const delta = process.hrtime(start);
         const deltaMs = Math.round((delta[0] * 1e9 + delta[1]) / 1e6);
         reporter && reporter.reportTime(transform.name, deltaMs);
@@ -167,7 +157,7 @@ class GraphQLCompilerContext {
   ): GraphQLCompilerContext {
     const context = this._isMutable
       ? this
-      : new GraphQLCompilerContext(this.schema);
+      : new GraphQLCompilerContext(this.serverSchema, this.clientSchema);
     context._documents = documents;
     return context;
   }

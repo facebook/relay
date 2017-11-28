@@ -19,13 +19,11 @@ describe('GraphQLCompilerContext', () => {
   let queryFoo;
   let fragmentBar;
   let fragmentFoo;
-  let parseGraphQLText;
 
   beforeEach(() => {
     jest.resetModules();
     GraphQLCompilerContext = require('GraphQLCompilerContext');
     RelayParser = require('RelayParser');
-    parseGraphQLText = require('parseGraphQLText');
     RelayTestSchema = require('RelayTestSchema');
     RelayModernTestUtils = require('RelayModernTestUtils');
 
@@ -62,31 +60,6 @@ describe('GraphQLCompilerContext', () => {
         'GraphQLCompilerContext: Duplicate document named `Foo`. GraphQL ' +
           'fragments and roots must have unique names.',
       );
-    });
-  });
-  describe('updateSchema()', () => {
-    it('returns new context for schema extending query', () => {
-      const prevContext = new GraphQLCompilerContext(RelayTestSchema);
-      const {definitions, schema} = parseGraphQLText(
-        RelayTestSchema,
-        `
-        extend type User {
-          best_friends: FriendsConnection
-        }
-        fragment Bar on User {
-          best_friends {
-            edges {
-              node {id}
-            }
-          }
-        }
-      `,
-      );
-      const context = prevContext.updateSchema(schema);
-
-      expect(context).not.toEqual(prevContext);
-      expect(context.schema).not.toEqual(RelayTestSchema);
-      expect(() => context.add(definitions)).not.toThrow();
     });
   });
 });

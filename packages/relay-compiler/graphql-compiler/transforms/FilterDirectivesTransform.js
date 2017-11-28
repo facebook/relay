@@ -15,23 +15,17 @@ const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
 const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 
 import type {Directive} from '../core/GraphQLIR';
-import type {GraphQLSchema} from 'graphql';
-
-type State = GraphQLSchema;
 
 /**
  * A transform that removes any directives that were not present in the
- * original schema.
+ * server schema.
  */
 function filterDirectivesTransform(
   context: GraphQLCompilerContext,
-  schema: GraphQLSchema,
 ): GraphQLCompilerContext {
-  return GraphQLIRTransformer.transform(
-    context,
-    {Directive: visitDirective},
-    () => schema,
-  );
+  return GraphQLIRTransformer.transform(context, {
+    Directive: visitDirective,
+  });
 }
 
 /**
@@ -39,10 +33,10 @@ function filterDirectivesTransform(
  *
  * Skip directives not defined in the original schema.
  */
-function visitDirective(directive: Directive, state: State): ?Directive {
+function visitDirective(directive: Directive): ?Directive {
   if (
-    state
-      .getDirectives()
+    this.getContext()
+      .serverSchema.getDirectives()
       .some(schemaDirective => schemaDirective.name === directive.name)
   ) {
     return directive;

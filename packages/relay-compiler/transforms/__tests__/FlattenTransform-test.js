@@ -32,13 +32,9 @@ describe('FlattenTransform', () => {
       const extendedSchema = transformASTSchema(RelayTestSchema, [
         RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
       ]);
-      let context = new GraphQLCompilerContext(RelayTestSchema).addAll(
-        RelayParser.parse(extendedSchema, text),
-      );
-
-      context = FlattenTransform.transformWithOptions(options)(context);
-
-      return context
+      return new GraphQLCompilerContext(RelayTestSchema, extendedSchema)
+        .addAll(RelayParser.parse(extendedSchema, text))
+        .applyTransforms([FlattenTransform.transformWithOptions(options)])
         .documents()
         .map(doc => GraphQLIRPrinter.print(doc))
         .join('\n');

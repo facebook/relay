@@ -26,15 +26,12 @@ describe('RelayApplyFragmentArgumentTransform', () => {
   it('matches expected output', () => {
     expect('fixtures/apply-fragment-argument-transform').toMatchGolden(text => {
       const ast = RelayParser.parse(RelayTestSchema, text);
-      const context = new GraphQLCompilerContext(RelayTestSchema).addAll(ast);
-      const nextContext = RelayApplyFragmentArgumentTransform.transform(
-        context,
-      );
-      const documents = [];
-      nextContext.forEachDocument(doc => {
-        documents.push(GraphQLIRPrinter.print(doc));
-      });
-      return documents.join('\n');
+      return new GraphQLCompilerContext(RelayTestSchema)
+        .addAll(ast)
+        .applyTransforms([RelayApplyFragmentArgumentTransform.transform])
+        .documents()
+        .map(GraphQLIRPrinter.print)
+        .join('\n');
     });
   });
 });

@@ -34,7 +34,7 @@ describe('RelayCompiler', () => {
         RelayIRTransforms.schemaExtensions,
       );
       const compiler = new RelayCompiler(
-        new GraphQLCompilerContext(relaySchema),
+        new GraphQLCompilerContext(RelayTestSchema, relaySchema),
         RelayIRTransforms,
         generate,
       );

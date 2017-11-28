@@ -26,13 +26,12 @@ describe('SkipUnreachableNodeTransform', () => {
   it('matches expected output', () => {
     expect('fixtures/skip-unreachable-node-transform').toMatchGolden(text => {
       const ast = RelayParser.parse(RelayTestSchema, text);
-      const context = new GraphQLCompilerContext(RelayTestSchema).addAll(ast);
-      const nextContext = SkipUnreachableNodeTransform.transform(context);
-      const documents = [];
-      nextContext.forEachDocument(doc => {
-        documents.push(GraphQLIRPrinter.print(doc));
-      });
-      return documents.join('\n');
+      return new GraphQLCompilerContext(RelayTestSchema)
+        .addAll(ast)
+        .applyTransforms([SkipUnreachableNodeTransform.transform])
+        .documents()
+        .map(GraphQLIRPrinter.print)
+        .join('\n');
     });
   });
 });

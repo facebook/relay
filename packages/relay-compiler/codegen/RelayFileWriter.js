@@ -191,7 +191,10 @@ class RelayFileWriter implements FileWriterInterface {
         RelayParser.transform.bind(RelayParser),
       );
 
-      const compilerContext = new CompilerContext(this._baseSchema);
+      const compilerContext = new CompilerContext(
+        this._baseSchema,
+        extendedSchema,
+      );
       const compiler = new RelayCompiler(
         compilerContext,
         this._config.compilerTransforms,
@@ -220,7 +223,6 @@ class RelayFileWriter implements FileWriterInterface {
 
       const transformedFlowContext = compiler
         .context()
-        .updateSchema(extendedSchema)
         .applyTransforms(RelayFlowGenerator.flowTransforms, this._reporter);
       const transformedQueryContext = compiler.transformedQueryContext();
       const compiledDocumentMap: CompiledDocumentMap<

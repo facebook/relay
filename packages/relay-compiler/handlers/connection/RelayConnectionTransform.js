@@ -283,7 +283,7 @@ function generateConnectionFragment(
     fragmentAST && fragmentAST.kind === 'FragmentDefinition',
     'RelayConnectionTransform: Expected a fragment definition AST.',
   );
-  const fragment = RelayParser.transform(context.schema, fragmentAST);
+  const fragment = RelayParser.transform(context.clientSchema, fragmentAST);
   invariant(
     fragment && fragment.kind === 'Fragment',
     'RelayConnectionTransform: Expected a connection fragment.',

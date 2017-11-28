@@ -26,15 +26,12 @@ describe('RelayFieldHandleTransform', () => {
   it('matches expected output', () => {
     expect('fixtures/field-handle-transform').toMatchGolden(text => {
       const {definitions} = parseGraphQLText(RelayTestSchema, text);
-      const context = new GraphQLCompilerContext(RelayTestSchema).addAll(
-        definitions,
-      );
-      const nextContext = RelayFieldHandleTransform.transform(context);
-      const documents = [];
-      nextContext.forEachDocument(doc => {
-        documents.push(GraphQLIRPrinter.print(doc));
-      });
-      return documents.join('\n');
+      return new GraphQLCompilerContext(RelayTestSchema)
+        .addAll(definitions)
+        .applyTransforms([RelayFieldHandleTransform.transform])
+        .documents()
+        .map(GraphQLIRPrinter.print)
+        .join('\n');
     });
   });
 });

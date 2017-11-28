@@ -32,7 +32,7 @@ describe('RelayDeferrableFragmentTransform', () => {
         RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
       ]);
       const ast = RelayParser.parse(schema, text);
-      const documents = new GraphQLCompilerContext(schema)
+      const documents = new GraphQLCompilerContext(RelayTestSchema, schema)
         .addAll(ast)
         .applyTransforms([
           // Requires Relay directive transform first.

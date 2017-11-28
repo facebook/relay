@@ -31,7 +31,7 @@ describe('RelayFlowGenerator', () => {
         RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
       ]);
       const {definitions} = parseGraphQLText(schema, text);
-      return new GraphQLCompilerContext(schema)
+      return new GraphQLCompilerContext(RelayTestSchema, schema)
         .addAll(definitions)
         .applyTransforms(RelayFlowGenerator.flowTransforms)
         .documents()

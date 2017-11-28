@@ -37,7 +37,7 @@ type State = {
 function relayGenerateTypeNameTransform(
   context: CompilerContext,
 ): CompilerContext {
-  const stringType = assertLeafType(context.schema.getType(STRING_TYPE));
+  const stringType = assertLeafType(context.serverSchema.getType(STRING_TYPE));
   const typenameField: ScalarField = {
     kind: 'ScalarField',
     alias: (null: ?string),

@@ -43,9 +43,9 @@ describe('RelayConnectionTransform', () => {
           RelayConnectionTransform.SCHEMA_EXTENSION,
         ]);
         const {definitions} = parseGraphQLText(schema, text);
-        let context = new GraphQLCompilerContext(schema).addAll(definitions);
-        context = RelayConnectionTransform.transform(context, options);
-        return context
+        return new GraphQLCompilerContext(RelayTestSchema, schema)
+          .addAll(definitions)
+          .applyTransforms([RelayConnectionTransform.transform])
           .documents()
           .map(
             doc =>

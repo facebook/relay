@@ -23,9 +23,9 @@ test('InlineFragmentsTransform', () => {
 
   expect('fixtures/inline-fragments-transform').toMatchGolden(text => {
     const {schema, definitions} = parseGraphQLText(RelayTestSchema, text);
-    let context = new GraphQLCompilerContext(schema).addAll(definitions);
-    context = InlineFragmentsTransform.transform(context);
-    return context
+    return new GraphQLCompilerContext(RelayTestSchema, schema)
+      .addAll(definitions)
+      .applyTransforms([InlineFragmentsTransform.transform])
       .documents()
       .map(doc => GraphQLIRPrinter.print(doc))
       .join('\n');

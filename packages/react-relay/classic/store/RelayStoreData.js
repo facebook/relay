@@ -552,7 +552,7 @@ class RelayStoreData {
       this._records,
       this._rootCallMap,
       false, // isOptimistic
-      (this._nodeRangeMap: $FixMe),
+      (this._nodeRangeMap: $FlowFixMe),
       this._cacheManager ? this._cacheManager.getQueryWriter() : null,
     );
   }
@@ -620,7 +620,7 @@ class RelayStoreData {
       this._records,
       this._rootCallMap,
       false, // isOptimistic
-      (this._nodeRangeMap: $FixMe),
+      (this._nodeRangeMap: $FlowFixMe),
       this._cacheManager ? this._cacheManager.getMutationWriter() : null,
     );
   }

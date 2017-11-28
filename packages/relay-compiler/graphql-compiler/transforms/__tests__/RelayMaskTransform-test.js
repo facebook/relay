@@ -31,14 +31,11 @@ test('RelayMaskTransform', () => {
     const {definitions} = parseGraphQLText(schema, text);
     return new GraphQLCompilerContext(schema)
       .addAll(definitions)
-      .applyTransforms(
-        [
-          // Requires Relay directive transform first.
-          RelayRelayDirectiveTransform.transform,
-          RelayMaskTransform.transform,
-        ],
-        schema,
-      )
+      .applyTransforms([
+        // Requires Relay directive transform first.
+        RelayRelayDirectiveTransform.transform,
+        RelayMaskTransform.transform,
+      ])
       .documents()
       .map(doc => GraphQLIRPrinter.print(doc))
       .join('\n');

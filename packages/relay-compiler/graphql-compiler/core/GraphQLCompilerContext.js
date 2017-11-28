@@ -22,6 +22,11 @@ import type {GraphQLReporter} from '../reporters/GraphQLReporter';
 import type {Fragment, Root} from './GraphQLIR';
 import type {GraphQLSchema} from 'graphql';
 
+type GraphQLTransform = (
+  GraphQLCompilerContext,
+  GraphQLSchema,
+) => GraphQLCompilerContext;
+
 /**
  * An immutable representation of a corpus of documents being compiled together.
  * For each document, the context stores the IR and any validation errors.
@@ -90,26 +95,15 @@ class GraphQLCompilerContext {
 
   /**
    * Apply a list of compiler transforms and return a new compiler context.
-   *
-   * @param transforms List of transforms
-   * @param baseSchema The base schema to pass to each transform. This is not
-   *                   the schema from the compiler context which might be
-   *                   extended by previous transforms.
    */
   applyTransforms(
-    transforms: Array<
-      (
-        context: GraphQLCompilerContext,
-        baseSchema: GraphQLSchema,
-      ) => GraphQLCompilerContext,
-    >,
-    baseSchema: GraphQLSchema,
+    transforms: Array<GraphQLTransform>,
     reporter?: GraphQLReporter,
   ) {
     return Profiler.run('applyTransforms', () =>
       transforms.reduce((ctx, transform) => {
         const start = process.hrtime();
-        const result = Profiler.instrument(transform)(ctx, baseSchema);
+        const result = Profiler.instrument(transform)(ctx, this.schema);
         const delta = process.hrtime(start);
         const deltaMs = Math.round((delta[0] * 1e9 + delta[1]) / 1e6);
         reporter && reporter.reportTime(transform.name, deltaMs);

@@ -19,7 +19,6 @@ import type {GraphQLReporter} from '../reporters/GraphQLReporter';
 import type GraphQLCompilerContext from './GraphQLCompilerContext';
 import type {Batch, Fragment, Root} from './GraphQLIR';
 import type {IRTransform} from './GraphQLIRTransforms';
-import type {GraphQLSchema} from 'graphql';
 
 export type CompiledDocumentMap<CodegenNode> = Map<string, CodegenNode>;
 
@@ -54,7 +53,6 @@ export type CompilerTransforms = {
  */
 class GraphQLCompiler<CodegenNode> {
   _context: GraphQLCompilerContext;
-  _schema: GraphQLSchema;
   _transformedCommonContext: ?GraphQLCompilerContext;
   _transformedQueryContext: ?GraphQLCompilerContext;
   _transforms: CompilerTransforms;
@@ -63,16 +61,12 @@ class GraphQLCompiler<CodegenNode> {
 
   // The context passed in must already have any Relay-specific schema extensions
   constructor(
-    schema: GraphQLSchema,
     context: GraphQLCompilerContext,
     transforms: CompilerTransforms,
     codeGenerator: (node: Batch | Fragment) => CodegenNode,
     reporter: GraphQLReporter,
   ) {
     this._context = context;
-    // some transforms depend on this being the original schema,
-    // not the transformed schema/context's schema
-    this._schema = schema;
     this._transforms = transforms;
     this._codeGenerator = Profiler.instrument(codeGenerator);
     this._reporter = reporter;
@@ -80,7 +74,6 @@ class GraphQLCompiler<CodegenNode> {
 
   clone(): GraphQLCompiler<CodegenNode> {
     return new GraphQLCompiler(
-      this._schema,
       this._context,
       this._transforms,
       this._codeGenerator,
@@ -102,7 +95,6 @@ class GraphQLCompiler<CodegenNode> {
     }
     this._transformedCommonContext = this._context.applyTransforms(
       this._transforms.commonTransforms,
-      this._schema,
       this._reporter,
     );
     return this._transformedCommonContext;
@@ -116,7 +108,6 @@ class GraphQLCompiler<CodegenNode> {
     }
     this._transformedQueryContext = this.transformedCommonContext().applyTransforms(
       this._transforms.queryTransforms,
-      this._schema,
       this._reporter,
     );
     return this._transformedQueryContext;
@@ -127,7 +118,6 @@ class GraphQLCompiler<CodegenNode> {
       const commonContext = this.transformedCommonContext();
       const fragmentContext = commonContext.applyTransforms(
         this._transforms.fragmentTransforms,
-        this._schema,
         this._reporter,
       );
       const queryContext = this.transformedQueryContext();
@@ -135,14 +125,12 @@ class GraphQLCompiler<CodegenNode> {
       // invalid query.
       const printContext = queryContext.applyTransforms(
         this._transforms.printTransforms,
-        this._schema,
         this._reporter,
       );
       // The flattened query is used for codegen in order to reduce the number of
       // duplicate fields that must be processed during response normalization.
       const codeGenContext = queryContext.applyTransforms(
         this._transforms.codegenTransforms,
-        this._schema,
         this._reporter,
       );
 

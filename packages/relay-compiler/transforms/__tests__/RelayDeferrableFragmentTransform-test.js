@@ -34,15 +34,12 @@ describe('RelayDeferrableFragmentTransform', () => {
       const ast = RelayParser.parse(schema, text);
       const documents = new GraphQLCompilerContext(schema)
         .addAll(ast)
-        .applyTransforms(
-          [
-            // Requires Relay directive transform first.
-            RelayRelayDirectiveTransform.transform,
-            RelayDeferrableFragmentTransform.transformOperations,
-            RelayDeferrableFragmentTransform.transformSpreads,
-          ],
-          schema,
-        )
+        .applyTransforms([
+          // Requires Relay directive transform first.
+          RelayRelayDirectiveTransform.transform,
+          RelayDeferrableFragmentTransform.transformOperations,
+          RelayDeferrableFragmentTransform.transformSpreads,
+        ])
         .documents();
       return (
         documents.map(GraphQLIRPrinter.print).join('\n') +

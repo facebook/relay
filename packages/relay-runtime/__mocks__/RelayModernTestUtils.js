@@ -194,14 +194,11 @@ const RelayModernTestUtils = {
     const RelayIRTransforms = require('RelayIRTransforms');
     const RelayTestSchema = require('RelayTestSchema');
     const parseGraphQLText = require('parseGraphQLText');
-
-    schema = schema || RelayTestSchema;
     const relaySchema = transformASTSchema(
-      schema,
+      schema || RelayTestSchema,
       RelayIRTransforms.schemaExtensions,
     );
     const compiler = new RelayCompiler(
-      schema,
       new GraphQLCompilerContext(relaySchema),
       RelayIRTransforms,
       generate,

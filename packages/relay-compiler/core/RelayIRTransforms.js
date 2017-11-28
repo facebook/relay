@@ -26,13 +26,12 @@ const {
   FilterDirectivesTransform,
   FlattenTransform,
   InlineFragmentsTransform,
-  IRTransforms,
+  SkipClientFieldTransform,
   SkipRedundantNodesTransform,
+  SkipUnreachableNodeTransform,
 } = require('graphql-compiler');
 
 import type {IRTransform} from 'graphql-compiler';
-
-const {fragmentTransforms, queryTransforms} = IRTransforms;
 
 // Transforms applied to the code used to process a query response.
 const relaySchemaExtensions: Array<string> = [
@@ -53,7 +52,8 @@ const relayCommonTransforms: Array<IRTransform> = [
 // Transforms applied to fragments used for reading data from a store
 const relayFragmentTransforms: Array<IRTransform> = [
   RelayFieldHandleTransform.transform,
-  ...fragmentTransforms,
+  FlattenTransform.transformWithOptions({flattenAbstractTypes: true}),
+  SkipRedundantNodesTransform.transform,
 ];
 
 // Transforms applied to queries/mutations/subscriptions that are used for
@@ -61,16 +61,15 @@ const relayFragmentTransforms: Array<IRTransform> = [
 const relayQueryTransforms: Array<IRTransform> = [
   RelayDeferrableFragmentTransform.transformSpreads,
   RelayApplyFragmentArgumentTransform.transform,
-  ...queryTransforms,
+  SkipClientFieldTransform.transform,
+  SkipUnreachableNodeTransform.transform,
   RelayGenerateIDFieldTransform.transform,
 ];
 
 // Transforms applied to the code used to process a query response.
 const relayCodegenTransforms: Array<IRTransform> = [
   InlineFragmentsTransform.transform,
-  FlattenTransform.transformWithOptions({
-    flattenAbstractTypes: true,
-  }),
+  FlattenTransform.transformWithOptions({flattenAbstractTypes: true}),
   SkipRedundantNodesTransform.transform,
   RelayGenerateTypeNameTransform.transform,
   FilterDirectivesTransform.transform,

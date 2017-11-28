@@ -20,8 +20,9 @@ const {OrderedMap: ImmutableOrderedMap} = require('immutable');
 
 import type {GraphQLReporter} from '../reporters/GraphQLReporter';
 import type {Fragment, Root} from './GraphQLIR';
-import type {IRTransform} from './GraphQLIRTransforms';
 import type {GraphQLSchema} from 'graphql';
+
+export type IRTransform = GraphQLCompilerContext => GraphQLCompilerContext;
 
 /**
  * An immutable representation of a corpus of documents being compiled together.

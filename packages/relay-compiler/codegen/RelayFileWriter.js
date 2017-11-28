@@ -222,7 +222,13 @@ class RelayFileWriter implements FileWriterInterface {
         RelayFlowGenerator.flowTransforms,
         this._reporter,
       );
-      const transformedQueryContext = compiler.transformedQueryContext();
+      const transformedQueryContext = compilerContext.applyTransforms(
+        [
+          ...this._config.compilerTransforms.commonTransforms,
+          ...this._config.compilerTransforms.queryTransforms,
+        ],
+        this._reporter,
+      );
       const compiledDocumentMap: CompiledDocumentMap<
         GeneratedNode,
       > = compiler.compile();

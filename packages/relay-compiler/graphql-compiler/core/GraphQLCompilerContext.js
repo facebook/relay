@@ -30,12 +30,14 @@ import type {GraphQLSchema} from 'graphql';
 class GraphQLCompilerContext {
   _isMutable: boolean;
   _documents: ImmutableOrderedMap<string, Fragment | Root>;
+  _withTransform: WeakMap<IRTransform, GraphQLCompilerContext>;
   +serverSchema: GraphQLSchema;
   +clientSchema: GraphQLSchema;
 
   constructor(serverSchema: GraphQLSchema, clientSchema?: GraphQLSchema) {
     this._isMutable = false;
     this._documents = new ImmutableOrderedMap();
+    this._withTransform = new WeakMap();
     this.serverSchema = serverSchema;
     // If a separate client schema doesn't exist, use the server schema.
     this.clientSchema = clientSchema || serverSchema;
@@ -89,17 +91,38 @@ class GraphQLCompilerContext {
   /**
    * Apply a list of compiler transforms and return a new compiler context.
    */
-  applyTransforms(transforms: Array<IRTransform>, reporter?: GraphQLReporter) {
+  applyTransforms(
+    transforms: Array<IRTransform>,
+    reporter?: GraphQLReporter,
+  ): GraphQLCompilerContext {
     return Profiler.run('applyTransforms', () =>
-      transforms.reduce((ctx, transform) => {
-        const start = process.hrtime();
-        const result = Profiler.instrument(transform)(ctx);
-        const delta = process.hrtime(start);
-        const deltaMs = Math.round((delta[0] * 1e9 + delta[1]) / 1e6);
-        reporter && reporter.reportTime(transform.name, deltaMs);
-        return result;
-      }, this),
+      transforms.reduce(
+        (ctx, transform) => ctx.applyTransform(transform, reporter),
+        this,
+      ),
     );
+  }
+
+  /**
+   * Applies a transform to this context, returning a new context.
+   *
+   * This is memoized such that applying the same sequence of transforms will
+   * not result in duplicated work.
+   */
+  applyTransform(
+    transform: IRTransform,
+    reporter?: GraphQLReporter,
+  ): GraphQLCompilerContext {
+    let transformed = this._withTransform.get(transform);
+    if (!transformed) {
+      const start = process.hrtime();
+      transformed = Profiler.instrument(transform)(this);
+      const delta = process.hrtime(start);
+      const deltaMs = Math.round((delta[0] * 1e9 + delta[1]) / 1e6);
+      reporter && reporter.reportTime(transform.name, deltaMs);
+      this._withTransform.set(transform, transformed);
+    }
+    return transformed;
   }
 
   get(name: string): ?(Fragment | Root) {
@@ -143,7 +166,7 @@ class GraphQLCompilerContext {
     const result = fn(mutableCopy);
     result._isMutable = false;
     result._documents = result._documents.asImmutable();
-    return result;
+    return this._documents === result._documents ? this : result;
   }
 
   _get(name: string): Fragment | Root {

@@ -53,8 +53,6 @@ export type CompilerTransforms = {
  */
 class GraphQLCompiler<CodegenNode> {
   _context: GraphQLCompilerContext;
-  _transformedCommonContext: ?GraphQLCompilerContext;
-  _transformedQueryContext: ?GraphQLCompilerContext;
   _transforms: CompilerTransforms;
   _codeGenerator: (node: Batch | Fragment) => CodegenNode;
   _reporter: GraphQLReporter;
@@ -72,73 +70,62 @@ class GraphQLCompiler<CodegenNode> {
     this._reporter = reporter;
   }
 
-  transformedCommonContext(): GraphQLCompilerContext {
-    if (this._transformedCommonContext) {
-      return this._transformedCommonContext;
-    }
-    this._transformedCommonContext = this._context.applyTransforms(
-      this._transforms.commonTransforms,
-      this._reporter,
-    );
-    return this._transformedCommonContext;
-  }
-
-  // Can only be called once per compiler. Once run, will use cached context
-  // To re-run, clone the compiler.
-  transformedQueryContext(): GraphQLCompilerContext {
-    if (this._transformedQueryContext) {
-      return this._transformedQueryContext;
-    }
-    this._transformedQueryContext = this.transformedCommonContext().applyTransforms(
-      this._transforms.queryTransforms,
-      this._reporter,
-    );
-    return this._transformedQueryContext;
-  }
-
+  /**
+   * The order of the transforms applied for each context below is important.
+   * CompilerContext will memoize applying each transform, so while
+   * `commonTransforms` appears in each application, it will not result in
+   * repeated work as long as the order remains consistent across each context.
+   */
   compile(): CompiledDocumentMap<CodegenNode> {
     return Profiler.run('GraphQLCompiler.compile', () => {
-      const commonContext = this.transformedCommonContext();
-      const fragmentContext = commonContext.applyTransforms(
-        this._transforms.fragmentTransforms,
-        this._reporter,
-      );
-      const queryContext = this.transformedQueryContext();
-      // The unflattened query is used for printing, since flattening creates an
-      // invalid query.
-      const printContext = queryContext.applyTransforms(
-        this._transforms.printTransforms,
-        this._reporter,
-      );
-      // The flattened query is used for codegen in order to reduce the number of
-      // duplicate fields that must be processed during response normalization.
-      const codeGenContext = queryContext.applyTransforms(
-        this._transforms.codegenTransforms,
+      // The fragment is used for reading data from the normalized store.
+      const fragmentContext = this._context.applyTransforms(
+        [
+          ...this._transforms.commonTransforms,
+          ...this._transforms.fragmentTransforms,
+        ],
         this._reporter,
       );
 
-      const compiledDocuments: CompiledDocumentMap<CodegenNode> = new Map();
+      // The unflattened query is used for printing, since flattening creates an
+      // invalid query.
+      const printContext = this._context.applyTransforms(
+        [
+          ...this._transforms.commonTransforms,
+          ...this._transforms.queryTransforms,
+          ...this._transforms.printTransforms,
+        ],
+        this._reporter,
+      );
+
+      // The flattened query is used for codegen in order to reduce the number of
+      // duplicate fields that must be processed during response normalization.
+      const codeGenContext = this._context.applyTransforms(
+        [
+          ...this._transforms.commonTransforms,
+          ...this._transforms.queryTransforms,
+          ...this._transforms.codegenTransforms,
+        ],
+        this._reporter,
+      );
+
+      const compiledDocuments = new Map();
       fragmentContext.forEachDocument(node => {
-        if (node.kind !== 'Fragment') {
-          return;
-        }
-        const generatedFragment = this._codeGenerator(node);
-        compiledDocuments.set(node.name, generatedFragment);
-      });
-      queryContext.forEachDocument(node => {
-        if (node.kind !== 'Root') {
-          return;
-        }
-        const name = node.name;
-        const batchQuery = {
-          kind: 'Batch',
-          metadata: node.metadata || {},
-          name,
-          fragment: buildFragmentForRoot(fragmentContext.getRoot(name)),
-          requests: requestsForOperation(printContext, codeGenContext, name),
-        };
-        const generatedDocument = this._codeGenerator(batchQuery);
-        compiledDocuments.set(name, generatedDocument);
+        const generatedNode =
+          node.kind === 'Fragment'
+            ? node
+            : {
+                kind: 'Batch',
+                metadata: codeGenContext.getRoot(node.name).metadata || {},
+                name: node.name,
+                fragment: buildFragmentForRoot(node),
+                requests: requestsForOperation(
+                  printContext,
+                  codeGenContext,
+                  node.name,
+                ),
+              };
+        compiledDocuments.set(node.name, this._codeGenerator(generatedNode));
       });
       return compiledDocuments;
     });

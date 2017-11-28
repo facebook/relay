@@ -68,7 +68,7 @@ const RelayCompatMutations = {
       return applyRelayClassicMutation(
         // getRelayClassicEnvironment returns a RelayEnvironmentInterface
         // (classic APIs), but we need the modern APIs on old core here.
-        (relayClassicEnvironment: $FixMe),
+        (relayClassicEnvironment: $FlowFixMe),
         config,
       );
     }

@@ -33,12 +33,15 @@ describe('RelayCompiler', () => {
         RelayTestSchema,
         RelayIRTransforms.schemaExtensions,
       );
+      const compilerContext = new GraphQLCompilerContext(
+        RelayTestSchema,
+        relaySchema,
+      ).addAll(parseGraphQLText(relaySchema, text).definitions);
       const compiler = new RelayCompiler(
-        new GraphQLCompilerContext(RelayTestSchema, relaySchema),
+        compilerContext,
         RelayIRTransforms,
         generate,
       );
-      compiler.addDefinitions(parseGraphQLText(relaySchema, text).definitions);
       return Array.from(compiler.compile().values())
         .map(({text: queryText, ...ast}) => {
           let stringified = JSON.stringify(ast, null, 2);

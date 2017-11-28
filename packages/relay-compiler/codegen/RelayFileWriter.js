@@ -194,7 +194,8 @@ class RelayFileWriter implements FileWriterInterface {
       const compilerContext = new CompilerContext(
         this._baseSchema,
         extendedSchema,
-      );
+      ).addAll(definitions);
+
       const compiler = new RelayCompiler(
         compilerContext,
         this._config.compilerTransforms,
@@ -217,13 +218,10 @@ class RelayFileWriter implements FileWriterInterface {
         return cachedDir;
       };
 
-      Profiler.run('RelayFileWriter:addDefinitions', () =>
-        compiler.addDefinitions(definitions),
+      const transformedFlowContext = compilerContext.applyTransforms(
+        RelayFlowGenerator.flowTransforms,
+        this._reporter,
       );
-
-      const transformedFlowContext = compiler
-        .context()
-        .applyTransforms(RelayFlowGenerator.flowTransforms, this._reporter);
       const transformedQueryContext = compiler.transformedQueryContext();
       const compiledDocumentMap: CompiledDocumentMap<
         GeneratedNode,

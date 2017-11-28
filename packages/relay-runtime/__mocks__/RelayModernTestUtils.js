@@ -198,13 +198,15 @@ const RelayModernTestUtils = {
       schema || RelayTestSchema,
       RelayIRTransforms.schemaExtensions,
     );
+    const compilerContext = new GraphQLCompilerContext(
+      schema || RelayTestSchema,
+      relaySchema,
+    ).addAll(parseGraphQLText(relaySchema, text).definitions);
     const compiler = new RelayCompiler(
-      new GraphQLCompilerContext(schema || RelayTestSchema, relaySchema),
+      compilerContext,
       RelayIRTransforms,
       generate,
     );
-
-    compiler.addDefinitions(parseGraphQLText(relaySchema, text).definitions);
     const documentMap = {};
     compiler.compile().forEach(node => {
       documentMap[node.name] = node;

@@ -72,23 +72,6 @@ class GraphQLCompiler<CodegenNode> {
     this._reporter = reporter;
   }
 
-  clone(): GraphQLCompiler<CodegenNode> {
-    return new GraphQLCompiler(
-      this._context,
-      this._transforms,
-      this._codeGenerator,
-      this._reporter,
-    );
-  }
-
-  context(): GraphQLCompilerContext {
-    return this._context;
-  }
-
-  addDefinitions(definitions: Array<Fragment | Root>): void {
-    this._context = this._context.addAll(definitions);
-  }
-
   transformedCommonContext(): GraphQLCompilerContext {
     if (this._transformedCommonContext) {
       return this._transformedCommonContext;

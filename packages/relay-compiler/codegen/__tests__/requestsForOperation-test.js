@@ -12,7 +12,7 @@
 
 require('configureForRelayOSS');
 
-const GraphQLCompilerContext = require('../GraphQLCompilerContext');
+const {CompilerContext} = require('graphql-compiler');
 const requestsForOperation = require('../requestsForOperation');
 const RelayTestSchema = require('RelayTestSchema');
 const getGoldenMatchers = require('getGoldenMatchers');
@@ -101,9 +101,7 @@ describe('requestsForOperation', () => {
       },
     ];
 
-    const context = new GraphQLCompilerContext(RelayTestSchema).addAll(
-      definitions,
-    );
+    const context = new CompilerContext(RelayTestSchema).addAll(definitions);
     const requests = requestsForOperation(context, context, 'A');
     expect(
       requests.map(({name, argumentDependencies}) => ({
@@ -230,9 +228,7 @@ describe('requestsForOperation', () => {
       },
     ];
 
-    const context = new GraphQLCompilerContext(RelayTestSchema).addAll(
-      definitions,
-    );
+    const context = new CompilerContext(RelayTestSchema).addAll(definitions);
     const requests = requestsForOperation(context, context, 'A');
     expect(
       requests.map(({name, argumentDependencies}) => ({

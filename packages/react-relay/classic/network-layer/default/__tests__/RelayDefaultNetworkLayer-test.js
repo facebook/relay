@@ -10,7 +10,10 @@
 
 'use strict';
 
-jest.enableAutomock().useFakeTimers();
+jest
+  .mock('fetch')
+  .mock('fetchWithRetries')
+  .useFakeTimers();
 
 require('configureForRelayOSS');
 

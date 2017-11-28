@@ -10,13 +10,9 @@
 
 'use strict';
 
-jest.enableAutomock();
+jest.mock('../../legacy/store/generateClientID');
 
 require('configureForRelayOSS');
-
-jest
-  .unmock('../../legacy/store/GraphQLRange')
-  .unmock('../../legacy/store/GraphQLSegment');
 
 const GraphQLMutatorConstants = require('../../legacy/mutation/GraphQLMutatorConstants');
 const Relay = require('../../RelayPublic');

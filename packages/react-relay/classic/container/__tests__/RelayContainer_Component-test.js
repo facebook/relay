@@ -10,9 +10,12 @@
 
 'use strict';
 
-jest.enableAutomock().mock('warning');
-
 require('configureForRelayOSS');
+
+jest
+  .mock('warning')
+  .mock('../../route/RelayRoute')
+  .mock('../../legacy/store/GraphQLStoreQueryResolver');
 
 const GraphQLStoreQueryResolver = require('../../legacy/store/GraphQLStoreQueryResolver');
 const React = require('React');

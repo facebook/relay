@@ -11,8 +11,12 @@
 
 'use strict';
 
-jest.enableAutomock().useFakeTimers();
-jest.mock('warning');
+jest
+  .mock('warning')
+  .mock('../../legacy/store/GraphQLStoreQueryResolver')
+  .mock('../../route/RelayRoute')
+  .mock('../../store/RelayEnvironment')
+  .useFakeTimers();
 
 require('configureForRelayOSS');
 

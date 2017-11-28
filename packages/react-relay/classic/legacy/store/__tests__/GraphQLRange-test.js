@@ -10,11 +10,7 @@
 
 'use strict';
 
-jest
-  .enableAutomock()
-  .unmock('../GraphQLSegment')
-  .unmock('../GraphQLRange')
-  .mock('warning');
+jest.mock('warning').mock('../../../store/RelayRecord');
 
 const RelayTestUtils = require('RelayTestUtils');
 

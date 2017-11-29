@@ -48,9 +48,9 @@ export type {
  */
 module.exports = {
   QueryRenderer: ReactRelayQueryRenderer,
-  createFragmentContainer: (ReactRelayFragmentContainer.createContainer: $FlowFixMe),
-  createPaginationContainer: (ReactRelayPaginationContainer.createContainer: $FlowFixMe),
-  createRefetchContainer: (ReactRelayRefetchContainer.createContainer: $FlowFixMe),
+  createFragmentContainer: ReactRelayFragmentContainer.createContainer,
+  createPaginationContainer: ReactRelayPaginationContainer.createContainer,
+  createRefetchContainer: ReactRelayRefetchContainer.createContainer,
   commitLocalUpdate: commitLocalUpdate,
   commitMutation: commitMutation,
   fetchQuery: fetchQuery,

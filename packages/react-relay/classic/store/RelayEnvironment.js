@@ -162,6 +162,10 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
     };
   }
 
+  check(selector: Selector): boolean {
+    return false;
+  }
+
   commitPayload(
     operationSelector: OperationSelector,
     payload: QueryPayload,

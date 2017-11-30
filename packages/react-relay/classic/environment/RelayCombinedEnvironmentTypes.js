@@ -152,6 +152,16 @@ export interface CEnvironment<
   TOperation,
 > {
   /**
+   * Determine if the selector can be resolved with data in the store (i.e. no
+   * fields are missing).
+   *
+   * Note that this operation effectively "executes" the selector against the
+   * cache and therefore takes time proportional to the size/complexity of the
+   * selector.
+   */
+  check(selector: CSelector<TNode>): boolean,
+
+  /**
    * Read the results of a selector from in-memory records in the store.
    */
   lookup(selector: CSelector<TNode>): CSnapshot<TNode>,

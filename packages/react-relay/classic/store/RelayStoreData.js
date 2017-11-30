@@ -36,7 +36,6 @@ const generateForceIndex = require('../legacy/store/generateForceIndex');
 const invariant = require('invariant');
 const mapObject = require('mapObject');
 const nullthrows = require('nullthrows');
-const warning = require('warning');
 const writeRelayQueryPayload = require('../traversal/writeRelayQueryPayload');
 const writeRelayUpdatePayload = require('../traversal/writeRelayUpdatePayload');
 
@@ -553,7 +552,7 @@ class RelayStoreData {
       this._records,
       this._rootCallMap,
       false, // isOptimistic
-      (this._nodeRangeMap: $FixMe),
+      (this._nodeRangeMap: $FlowFixMe),
       this._cacheManager ? this._cacheManager.getQueryWriter() : null,
     );
   }
@@ -621,7 +620,7 @@ class RelayStoreData {
       this._records,
       this._rootCallMap,
       false, // isOptimistic
-      (this._nodeRangeMap: $FixMe),
+      (this._nodeRangeMap: $FlowFixMe),
       this._cacheManager ? this._cacheManager.getMutationWriter() : null,
     );
   }

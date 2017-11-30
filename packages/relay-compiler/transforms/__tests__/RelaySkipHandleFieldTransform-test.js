@@ -34,18 +34,12 @@ describe('RelaySkipHandleFieldTransform', () => {
   it('removes field handles', () => {
     expect('fixtures/skip-handle-field-transform').toMatchGolden(text => {
       const {definitions} = parseGraphQLText(RelayTestSchema, text);
-      let context = new GraphQLCompilerContext(RelayTestSchema).addAll(
-        definitions,
-      );
-      context = RelaySkipHandleFieldTransform.transform(
-        context,
-        RelayTestSchema,
-      );
-      const documents = [];
-      context.forEachDocument(doc => {
-        documents.push(GraphQLIRPrinter.print(doc));
-      });
-      return documents.join('\n');
+      return new GraphQLCompilerContext(RelayTestSchema)
+        .addAll(definitions)
+        .applyTransforms([RelaySkipHandleFieldTransform.transform])
+        .documents()
+        .map(GraphQLIRPrinter.print)
+        .join('\n');
     });
   });
 });

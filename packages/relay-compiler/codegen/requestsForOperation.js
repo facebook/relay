@@ -10,16 +10,17 @@
 
 'use strict';
 
-const GraphQLIRPrinter = require('./GraphQLIRPrinter');
+const {filterContextForNode, Printer} = require('graphql-compiler');
 
-const filterContextForNode = require('./filterContextForNode');
-
-import type GraphQLCompilerContext from './GraphQLCompilerContext';
-import type {DependentRequest, Request} from './GraphQLIR';
+import type {
+  CompilerContext,
+  DependentRequest,
+  Request,
+} from 'graphql-compiler';
 
 function requestsForOperation(
-  printContext: GraphQLCompilerContext,
-  codeGenContext: GraphQLCompilerContext,
+  printContext: CompilerContext,
+  codeGenContext: CompilerContext,
   initialRootName: string,
 ): Array<Request> {
   const operationToRequestName: Map<string, string> = new Map();
@@ -71,14 +72,11 @@ function requestsForOperation(
   }
 }
 
-function printOperation(
-  printContext: GraphQLCompilerContext,
-  name: string,
-): string {
+function printOperation(printContext: CompilerContext, name: string): string {
   const printableRoot = printContext.getRoot(name);
   return filterContextForNode(printableRoot, printContext)
     .documents()
-    .map(GraphQLIRPrinter.print)
+    .map(Printer.print)
     .join('\n');
 }
 

@@ -182,12 +182,6 @@ const CREATE_CONTAINER_FUNCTIONS = {
   createRefetchContainer: true,
 };
 
-const IDENTIFIERS = {
-  graphql: true,
-  // TODO: remove this deprecated usage
-  Relay2QL: true,
-};
-
 const IGNORED_KEYS = {
   comments: true,
   end: true,
@@ -200,7 +194,7 @@ const IGNORED_KEYS = {
 };
 
 function isGraphQLTag(tag): boolean {
-  return tag.type === 'Identifier' && IDENTIFIERS.hasOwnProperty(tag.name);
+  return tag.type === 'Identifier' && tag.name === 'graphql';
 }
 
 function getTemplateNode(quasi) {

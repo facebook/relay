@@ -10,14 +10,14 @@
 
 'use strict';
 
-jest.enableAutomock();
+jest
+  .mock('../RelayMutation')
+  .mock('../RelayMutationQuery')
+  .mock('../RelayMutationDebugPrinter')
+  .mock('../../network/RelayNetworkLayer')
+  .useFakeTimers();
 
 require('configureForRelayOSS');
-
-jest.useFakeTimers();
-jest
-  .unmock('../RelayMutationTransaction')
-  .unmock('../RelayMutationTransactionStatus');
 
 const RelayClassic = require('RelayClassic');
 const RelayMutation = require('../RelayMutation');

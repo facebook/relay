@@ -10,8 +10,10 @@
 
 'use strict';
 
-jest.enableAutomock().mock('warning');
-jest.useFakeTimers();
+jest
+  .mock('warning')
+  .mock('../../legacy/store/GraphQLRange')
+  .useFakeTimers();
 
 require('configureForRelayOSS');
 

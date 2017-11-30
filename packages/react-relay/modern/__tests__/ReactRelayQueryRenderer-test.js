@@ -23,6 +23,7 @@ const {
   Store,
   simpleClone,
 } = require('RelayRuntime');
+const {ROOT_ID, ROOT_TYPE} = require('RelayStoreUtils');
 
 describe('ReactRelayQueryRenderer', () => {
   let TestQuery;
@@ -140,6 +141,44 @@ describe('ReactRelayQueryRenderer', () => {
         error: null,
         props: null,
         retry: null,
+      }).toBeRendered();
+    });
+
+    it('if initial render set from store, skip loading state when data for query is already available', () => {
+      environment.applyUpdate({
+        storeUpdater: _store => {
+          let root = _store.get(ROOT_ID);
+          if (!root) {
+            root = _store.create(ROOT_ID, ROOT_TYPE);
+          }
+          const user = _store.create('4', 'User');
+          user.setValue('4', 'id');
+          user.setValue('Zuck', 'name');
+          root.setLinkedRecord(user, 'node', {id: '4'});
+        },
+      });
+
+      ReactTestRenderer.create(
+        <ReactRelayQueryRenderer
+          query={TestQuery}
+          dataFrom="STORE_THEN_NETWORK"
+          environment={environment}
+          render={render}
+          variables={variables}
+        />,
+      );
+      expect({
+        error: null,
+        props: {
+          node: {
+            id: '4',
+            __fragments: {
+              TestFragment: {},
+            },
+            __id: '4',
+          },
+        },
+        retry: jasmine.any(Function),
       }).toBeRendered();
     });
 

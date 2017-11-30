@@ -27,21 +27,15 @@ describe('RelayGenerateTypeNameTransform', () => {
   it('matches expected output for codegen', () => {
     expect('fixtures/generate-typename-transform').toMatchGolden(text => {
       const ast = RelayParser.parse(RelayTestSchema, text);
-      const context = ast.reduce(
-        (ctx, node) => ctx.add(node),
-        new GraphQLCompilerContext(RelayTestSchema),
-      );
-      const transformContext = ((ctx, transform) => transform(ctx): any);
-      const codegenContext = [
-        InlineFragmentsTransform.transform,
-        FlattenTransform.transformWithOptions({
-          flattenAbstractTypes: true,
-        }),
-        RelayGenerateTypeNameTransform.transform,
-      ].reduce(transformContext, context);
-      return codegenContext
+      return new GraphQLCompilerContext(RelayTestSchema)
+        .addAll(ast)
+        .applyTransforms([
+          InlineFragmentsTransform.transform,
+          FlattenTransform.transformWithOptions({flattenAbstractTypes: true}),
+          RelayGenerateTypeNameTransform.transform,
+        ])
         .documents()
-        .map(doc => JSON.stringify(doc, null, '  '))
+        .map(doc => JSON.stringify(doc, null, 2))
         .join('\n');
     });
   });

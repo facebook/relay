@@ -225,16 +225,6 @@ export interface Environment
   applyUpdate(optimisticUpdate: OptimisticUpdate): Disposable,
 
   /**
-   * Determine if the selector can be resolved with data in the store (i.e. no
-   * fields are missing).
-   *
-   * Note that this operation effectively "executes" the selector against the
-   * cache and therefore takes time proportional to the size/complexity of the
-   * selector.
-   */
-  check(selector: Selector): boolean,
-
-  /**
    * Commit an updater to the environment. This mutation cannot be reverted and
    * should therefore not be used for optimistic updates. This is mainly
    * intended for updating fields from client schema extensions.

@@ -32,7 +32,6 @@ import type {
   LocalArgumentDefinition,
   Root,
 } from 'graphql-compiler';
-import type {GraphQLSchema} from 'graphql';
 
 type SpreadUse = {|
   spread: FragmentSpread,
@@ -57,10 +56,7 @@ type SpreadUse = {|
  *      necessary to later fulfill that fragment.
  *
  */
-function transformOperations(
-  context: CompilerContext,
-  schema: GraphQLSchema,
-): CompilerContext {
+function transformOperations(context: CompilerContext): CompilerContext {
   // First, in an initial pass over all definitions, collect the path to each
   // fragment spread from within a fragment or operation, as well as the set of
   // all fragments which have been deferred.
@@ -127,7 +123,7 @@ function transformOperations(
   // Finally, add new operations representing each deferrable fragment.
   const deferredOperations = Array.from(deferredFragments).map(fragment => {
     // Create the deferred operation.
-    const deferredOperation = createDeferredOperation(schema, fragment);
+    const deferredOperation = createDeferredOperation(context, fragment);
 
     // Include the deferred operation along with the necessary
     // additional variable definitions and dependent requests.
@@ -162,10 +158,7 @@ function transformOperations(
  * The second step of the Deferrable transform, replacing deferred spreads
  * with deferred refetch references which correspond to the dependent requests.
  */
-function transformSpreads(
-  context: CompilerContext,
-  schema: GraphQLSchema,
-): CompilerContext {
+function transformSpreads(context: CompilerContext): CompilerContext {
   // Next, transform the definitions:
   //  - Replacing deferrable spreads with refetch references.
   //  - Adding dependent requests to operations.
@@ -177,7 +170,7 @@ function transformSpreads(
       // If this spread is deferrable, replace it with a refetch reference.
       // The deferred reference is definitionally not a FragmentSpread,
       // though the transformer expects functions to return the same type.
-      return (createDeferredReference(context, schema, spread): any);
+      return (createDeferredReference(context, spread): any);
     },
   });
 }
@@ -293,9 +286,9 @@ function getDeferrableSpreadUses(
 // operation in a batch request to fulfill the deferred fragment.
 function createDeferredReference(
   context: CompilerContext,
-  schema: GraphQLSchema,
   spread: FragmentSpread,
 ): InlineFragment {
+  const schema = context.clientSchema;
   const nodeType = schema.getType('Node');
   invariant(
     nodeType instanceof GraphQLInterfaceType,
@@ -363,9 +356,10 @@ function createDeferredReference(
 
 // Utility function for creating an operation from a deferred fragment.
 function createDeferredOperation(
-  schema: GraphQLSchema,
+  context: CompilerContext,
   fragment: Fragment,
 ): Root {
+  const schema = context.clientSchema;
   const queryType = schema.getQueryType();
   const nodeField = queryType.getFields().node;
   invariant(

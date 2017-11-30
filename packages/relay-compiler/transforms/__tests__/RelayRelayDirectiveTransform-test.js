@@ -30,13 +30,12 @@ describe('RelayRelayDirectiveTransform', () => {
         RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
       ]);
       const ast = RelayParser.parse(schema, text);
-      const context = new GraphQLCompilerContext(schema).addAll(ast);
-      const nextContext = RelayRelayDirectiveTransform.transform(context);
-      const documents = [];
-      nextContext.forEachDocument(doc => {
-        documents.push(JSON.stringify(doc, null, 2));
-      });
-      return documents.join('\n');
+      return new GraphQLCompilerContext(RelayTestSchema, schema)
+        .addAll(ast)
+        .applyTransforms([RelayRelayDirectiveTransform.transform])
+        .documents()
+        .map(doc => JSON.stringify(doc, null, 2))
+        .join('\n');
     });
   });
 });

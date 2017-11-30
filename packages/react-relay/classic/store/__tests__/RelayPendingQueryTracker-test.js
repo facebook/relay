@@ -10,12 +10,12 @@
 
 'use strict';
 
-jest.enableAutomock();
+jest
+  .mock('../../network/RelayNetworkLayer')
+  .mock('../../traversal/writeRelayQueryPayload')
+  .useFakeTimers();
 
 require('configureForRelayOSS');
-
-jest.useFakeTimers();
-jest.unmock('../RelayPendingQueryTracker').unmock('../../tools/RelayTaskQueue');
 
 const RelayClassic = require('RelayClassic');
 const RelayFetchMode = require('../RelayFetchMode');

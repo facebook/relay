@@ -1,4 +1,123 @@
 {
+  "kind": "Request",
+  "operationKind": "query",
+  "name": "BestFriendsQuery",
+  "id": null,
+  "metadata": {},
+  "fragment": {
+    "kind": "Fragment",
+    "name": "BestFriendsQuery",
+    "type": "Query",
+    "metadata": null,
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID!",
+        "defaultValue": null
+      }
+    ],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "node",
+        "storageKey": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id",
+            "type": "ID"
+          }
+        ],
+        "concreteType": null,
+        "plural": false,
+        "selections": [
+          {
+            "kind": "FragmentSpread",
+            "name": "BestFriends",
+            "args": null
+          },
+          {
+            "kind": "FragmentSpread",
+            "name": "OnlyClientFields",
+            "args": null
+          }
+        ]
+      }
+    ]
+  },
+  "operation": {
+    "kind": "Operation",
+    "name": "BestFriendsQuery",
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID!",
+        "defaultValue": null
+      }
+    ],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "node",
+        "storageKey": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id",
+            "type": "ID"
+          }
+        ],
+        "concreteType": null,
+        "plural": false,
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "__typename",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          }
+        ]
+      }
+    ]
+  }
+}
+
+QUERY:
+
+query BestFriendsQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    __typename
+    ...BestFriends
+    id
+  }
+}
+
+fragment BestFriends on User {
+  ...NodeFragment
+}
+
+fragment NodeFragment on Node {
+  id
+}
+
+
+{
   "kind": "Fragment",
   "name": "OnlyClientFields",
   "type": "User",
@@ -156,122 +275,4 @@
       "storageKey": null
     }
   ]
-}
-
-{
-  "kind": "Request",
-  "operationKind": "query",
-  "name": "BestFriendsQuery",
-  "id": null,
-  "metadata": {},
-  "fragment": {
-    "kind": "Fragment",
-    "name": "BestFriendsQuery",
-    "type": "Query",
-    "metadata": null,
-    "argumentDefinitions": [
-      {
-        "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!",
-        "defaultValue": null
-      }
-    ],
-    "selections": [
-      {
-        "kind": "LinkedField",
-        "alias": null,
-        "name": "node",
-        "storageKey": null,
-        "args": [
-          {
-            "kind": "Variable",
-            "name": "id",
-            "variableName": "id",
-            "type": "ID"
-          }
-        ],
-        "concreteType": null,
-        "plural": false,
-        "selections": [
-          {
-            "kind": "FragmentSpread",
-            "name": "BestFriends",
-            "args": null
-          },
-          {
-            "kind": "FragmentSpread",
-            "name": "OnlyClientFields",
-            "args": null
-          }
-        ]
-      }
-    ]
-  },
-  "operation": {
-    "kind": "Operation",
-    "name": "BestFriendsQuery",
-    "argumentDefinitions": [
-      {
-        "kind": "LocalArgument",
-        "name": "id",
-        "type": "ID!",
-        "defaultValue": null
-      }
-    ],
-    "selections": [
-      {
-        "kind": "LinkedField",
-        "alias": null,
-        "name": "node",
-        "storageKey": null,
-        "args": [
-          {
-            "kind": "Variable",
-            "name": "id",
-            "variableName": "id",
-            "type": "ID"
-          }
-        ],
-        "concreteType": null,
-        "plural": false,
-        "selections": [
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "__typename",
-            "args": null,
-            "storageKey": null
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "id",
-            "args": null,
-            "storageKey": null
-          }
-        ]
-      }
-    ]
-  }
-}
-
-QUERY:
-
-query BestFriendsQuery(
-  $id: ID!
-) {
-  node(id: $id) {
-    __typename
-    ...BestFriends
-    id
-  }
-}
-
-fragment BestFriends on User {
-  ...NodeFragment
-}
-
-fragment NodeFragment on Node {
-  id
 }

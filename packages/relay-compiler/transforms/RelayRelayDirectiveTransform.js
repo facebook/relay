@@ -22,7 +22,6 @@ const {
 import type {Fragment, FragmentSpread} from 'graphql-compiler';
 
 const RELAY = 'relay';
-const PLURAL = 'plural';
 const SCHEMA_EXTENSION = `directive @relay(
   # Marks this fragment spread as being deferrable such that it loads after
   # other portions of the view.

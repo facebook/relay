@@ -34,15 +34,12 @@ describe('StripUnusedVariablesTransform', () => {
   it('matches expected output', () => {
     expect('fixtures/strip-unused-variables-transform').toMatchGolden(text => {
       const {definitions} = parseGraphQLText(RelayTestSchema, text);
-      let context = new GraphQLCompilerContext(RelayTestSchema).addAll(
-        definitions,
-      );
-      context = StripUnusedVariablesTransform.transform(context);
-      const documents = [];
-      context.forEachDocument(doc => {
-        documents.push(GraphQLIRPrinter.print(doc));
-      });
-      return documents.join('\n');
+      return new GraphQLCompilerContext(RelayTestSchema)
+        .addAll(definitions)
+        .applyTransforms([StripUnusedVariablesTransform.transform])
+        .documents()
+        .map(GraphQLIRPrinter.print)
+        .join('\n');
     });
   });
 });

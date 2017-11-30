@@ -12,35 +12,32 @@
 
 require('configureForRelayOSS');
 
-const {transformASTSchema} = require('ASTConvert');
-const {generate} = require('RelayCodeGenerator');
-const RelayCompiler = require('RelayCompiler');
-const GraphQLCompilerContext = require('GraphQLCompilerContext');
+const compileRelayArtifacts = require('../compileRelayArtifacts');
+
+const {ASTConvert, CompilerContext} = require('graphql-compiler');
+
 const RelayIRTransforms = require('RelayIRTransforms');
 const RelayTestSchema = require('RelayTestSchema');
 
 const getGoldenMatchers = require('getGoldenMatchers');
 const parseGraphQLText = require('parseGraphQLText');
 
-describe('RelayCompiler', () => {
+describe('compileRelayArtifacts', () => {
   beforeEach(() => {
     expect.extend(getGoldenMatchers(__filename));
   });
 
   it('matches expected output', () => {
-    expect('fixtures/compiler').toMatchGolden(text => {
-      const relaySchema = transformASTSchema(
+    expect('fixtures/compileRelayArtifacts').toMatchGolden(text => {
+      const relaySchema = ASTConvert.transformASTSchema(
         RelayTestSchema,
         RelayIRTransforms.schemaExtensions,
       );
-      const compiler = new RelayCompiler(
+      const compilerContext = new CompilerContext(
         RelayTestSchema,
-        new GraphQLCompilerContext(relaySchema),
-        RelayIRTransforms,
-        generate,
-      );
-      compiler.addDefinitions(parseGraphQLText(relaySchema, text).definitions);
-      return Array.from(compiler.compile().values())
+        relaySchema,
+      ).addAll(parseGraphQLText(relaySchema, text).definitions);
+      return compileRelayArtifacts(compilerContext, RelayIRTransforms)
         .map(({text: queryText, ...ast}) => {
           let stringified = JSON.stringify(ast, null, 2);
           if (queryText) {

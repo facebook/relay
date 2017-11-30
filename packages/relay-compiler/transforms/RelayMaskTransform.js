@@ -18,7 +18,6 @@ const invariant = require('invariant');
 const {
   CompilerContext,
   IRTransformer,
-  getLiteralArgumentValues,
   isEquivalentType,
 } = require('graphql-compiler');
 

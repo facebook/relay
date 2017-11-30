@@ -16,11 +16,11 @@ const RelayConcreteNode = require('RelayConcreteNode');
 const invariant = require('invariant');
 
 import type {ConcreteFragment, RequestNode} from 'RelayConcreteNode';
-import typeof RelayQL from 'RelayQL';
 import type {
   ConcreteFragmentDefinition,
   ConcreteOperationDefinition,
 } from 'react-relay/classic/query/ConcreteQuery';
+import typeof RelayQL from 'react-relay/classic/query/RelayQL';
 
 // The type of a graphql`...` tagged template expression.
 export type GraphQLTaggedNode =

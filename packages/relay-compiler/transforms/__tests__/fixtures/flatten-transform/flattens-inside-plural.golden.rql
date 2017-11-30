@@ -1,0 +1,12 @@
+query TestQuery(
+  $id: ID!
+) {
+  flattened: usernames(names: []) {
+    name
+  }
+  notFlattened: usernames(names: []) {
+    ... on User {
+      lastName
+    }
+  }
+}

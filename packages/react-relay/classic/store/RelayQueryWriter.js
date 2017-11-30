@@ -355,7 +355,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       field.getFieldByStorageKey(EDGES) ||
       (connectionData != null &&
         typeof connectionData === 'object' &&
-        (connectionData: $FixMe)[EDGES])
+        (connectionData: $FlowFixMe)[EDGES])
     );
     const path = RelayQueryPath.getPath(state.path, field, connectionID);
     // always update the store to ensure the value is present in the appropriate

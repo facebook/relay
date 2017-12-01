@@ -78,9 +78,13 @@ function convertASTDocumentsWithBase(
     const baseMap: Map<string, ASTDefinitionNode> = new Map();
     baseDefinitions.forEach(definition => {
       if (isOperationDefinitionAST(definition)) {
-        if (definition.name) {
-          // If there's no name, no reason to put in the map
-          baseMap.set(definition.name.value, definition);
+        const definitionName = definition.name && definition.name.value;
+        // If there's no name, no reason to put in the map
+        if (definitionName) {
+          if (baseMap.has(definitionName)) {
+            throw new Error(`Duplicate definition of '${definitionName}'.`);
+          }
+          baseMap.set(definitionName, definition);
         }
       }
     });
@@ -93,11 +97,17 @@ function convertASTDocumentsWithBase(
     });
     while (definitionsToVisit.length > 0) {
       const definition = definitionsToVisit.pop();
-      const name = definition.name;
-      if (!name || requiredDefinitions.has(name.value)) {
+      const name = definition.name && definition.name.value;
+      if (!name) {
         continue;
       }
-      requiredDefinitions.set(name.value, definition);
+      if (requiredDefinitions.has(name)) {
+        if (requiredDefinitions.get(name) !== definition) {
+          throw new Error(`Duplicate definition of '${name}'.`);
+        }
+        continue;
+      }
+      requiredDefinitions.set(name, definition);
       visit(definition, {
         FragmentSpread(spread: FragmentSpreadNode) {
           const baseDefinition = baseMap.get(spread.name.value);

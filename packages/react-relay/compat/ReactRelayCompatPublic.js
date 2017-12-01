@@ -40,17 +40,19 @@ export type {
 
 /**
  * The public interface to React Relay which supports a compatibility mode to
- * continue to work with the classic React runtime.
+ * continue to work with the classic Relay runtime.
  */
 module.exports = {
   QueryRenderer: ReactRelayQueryRenderer,
+
   applyOptimisticMutation: RelayCompatMutations.applyUpdate,
   commitMutation: RelayCompatMutations.commitUpdate,
-  createFragmentContainer: (RelayCompatContainer.createContainer: $FlowFixMe),
-  createPaginationContainer: (RelayCompatPaginationContainer.createContainer: $FlowFixMe),
-  createRefetchContainer: (RelayCompatRefetchContainer.createContainer: $FlowFixMe),
+  createFragmentContainer: RelayCompatContainer.createContainer,
+  createPaginationContainer: RelayCompatPaginationContainer.createContainer,
+  createRefetchContainer: RelayCompatRefetchContainer.createContainer,
   fetchQuery: fetchQuery,
   graphql: graphql,
+
   injectDefaultVariablesProvider:
     ReactRelayCompatContainerBuilder.injectDefaultVariablesProvider,
 };

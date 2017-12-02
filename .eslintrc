@@ -4,7 +4,10 @@ extends:
   - fbjs
 
 rules:
-  # this is very noisy, so disable
+  # Consistency with internal config
+  no-class-assign: off
+
+  # This is very noisy, so disable
   consistent-return: off
 
   # Flow declares trip up the no-redeclare rule

@@ -156,3 +156,10 @@ declare var aComplexUserRef: {
 <PluralTest users={usersRef} nullableUsers={null} optionalUsers={usersRef} />;
 // $FlowExpectedError - optional, not nullable!
 <PluralTest users={usersRef} nullableUsers={null} optionalUsers={null} />;
+
+class AnyTest extends React.Component<{
+  anything: any,
+}> {}
+AnyTest = createFragmentContainer(AnyTest, {});
+
+<AnyTest anything={42} />;

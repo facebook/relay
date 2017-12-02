@@ -63,6 +63,7 @@ export type RefetchOptions = {
 // prettier-ignore
 export type $RelayProps<Props, RelayPropT> = $ObjMap<
   $Diff<Props, {relay: RelayPropT | void}>,
+  & (<T: empty>(T) => T)
   & (<TRef: FragmentReference, TFragData: {+$refType: TRef}>(                 TFragData ) =>                  {+__fragments: TRef} )
   & (<TRef: FragmentReference, TFragData: {+$refType: TRef}>(?                TFragData ) => ?                {+__fragments: TRef} )
   & (<TRef: FragmentReference, TFragData: {+$refType: TRef}>( $ReadOnlyArray< TFragData>) =>  $ReadOnlyArray< {+__fragments: TRef}>)

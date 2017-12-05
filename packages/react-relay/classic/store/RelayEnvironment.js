@@ -20,7 +20,7 @@ const RelayQueryRequest = require('../network/RelayQueryRequest');
 const RelayStoreData = require('./RelayStoreData');
 const RelayVariables = require('../query/RelayVariables');
 
-const deepFreeze = require('../tools/deepFreeze');
+const deepFreeze = require('deepFreeze');
 const forEachRootCallArg = require('../query/forEachRootCallArg');
 const generateForceIndex = require('../legacy/store/generateForceIndex');
 const readRelayQueryData = require('./readRelayQueryData');

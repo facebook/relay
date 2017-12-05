@@ -17,7 +17,7 @@ const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
 const invariant = require('invariant');
 const isRelayContext = require('../classic/environment/isRelayContext');
-const isScalarAndEqual = require('../classic/util/isScalarAndEqual');
+const isScalarAndEqual = require('isScalarAndEqual');
 const nullthrows = require('nullthrows');
 
 const {

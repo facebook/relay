@@ -12,7 +12,7 @@
 'use strict';
 
 const areEqual = require('areEqual');
-const deepFreeze = require('react-relay/classic/tools/deepFreeze');
+const deepFreeze = require('deepFreeze');
 const invariant = require('invariant');
 
 const {

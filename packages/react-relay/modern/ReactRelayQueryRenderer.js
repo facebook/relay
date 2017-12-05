@@ -14,7 +14,7 @@ const React = require('React');
 const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
 const areEqual = require('areEqual');
-const deepFreeze = require('../classic/tools/deepFreeze');
+const deepFreeze = require('deepFreeze');
 const invariant = require('invariant');
 
 import type {

@@ -12,7 +12,7 @@
 
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
-const isScalarAndEqual = require('../util/isScalarAndEqual');
+const isScalarAndEqual = require('isScalarAndEqual');
 
 const {areEqualSelectors, getSelectorsFromObject} = require('./RelaySelector');
 

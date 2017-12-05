@@ -23,6 +23,7 @@ requestSubscription(
   },
 );
 ```
+The function returns a `Disposable` on which you could call `dispose()` to cancel the refetch.
 
 Now let's take a closer look at the `config`:
 

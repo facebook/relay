@@ -75,7 +75,10 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
   _rootSubscription: ?Disposable;
   _selectionReferences: Array<Disposable> = [];
 
-  state = {readyState: this._fetchForProps(this.props)};
+  constructor(props: Props, context: Object) {
+    super(props, context);
+    this.state = {readyState: this._fetchForProps(this.props)};
+  }
 
   componentWillReceiveProps(nextProps: Props): void {
     if (

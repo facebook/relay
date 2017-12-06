@@ -10,6 +10,10 @@ const {requestSubscription} = require('react-relay');
 
 type Variables = {[name: string]: any};
 
+type Disposable = {
+  dispose(): void,
+};
+
 requestSubscription(
   environment: Environment,
   config: {
@@ -21,7 +25,7 @@ requestSubscription(
     updater?: ?(store: RecordSourceSelectorProxy, data: SelectorData) => void,
     configs?: Array<RelayMutationConfig>,
   },
-);
+) => Disposable;
 ```
 The function returns a `Disposable` on which you could call `dispose()` to cancel the refetch.
 

@@ -344,11 +344,11 @@ export type SelectorStoreUpdater = (
 ) => void;
 
 /**
-  * A set of configs that can be used to apply an optimistic update into the
-  * store.
-  * TODO: we should probably only expose `storeUpdater` and `source` to the
-  * publish queue.
-  */
+ * A set of configs that can be used to apply an optimistic update into the
+ * store.
+ * TODO: we should probably only expose `storeUpdater` and `source` to the
+ * publish queue.
+ */
 export type OptimisticUpdate =
   | {|
       storeUpdater: StoreUpdater,

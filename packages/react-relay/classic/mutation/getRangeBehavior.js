@@ -66,7 +66,7 @@ function getRangeBehavior(
  *
  * Returns:
  * `{orderby: 'recent'}`
-*/
+ */
 function getObjectFromCalls(
   calls: Array<Call>,
 ): {[argName: string]: CallValue} {

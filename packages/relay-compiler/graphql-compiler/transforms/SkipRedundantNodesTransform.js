@@ -99,7 +99,7 @@ type SelectionMap = IMap<string, ?SelectionMap>;
  *       cc
  *     }
  *   }
-*  }
+ *  }
  * ```
  *
  * Becomes
@@ -114,7 +114,7 @@ type SelectionMap = IMap<string, ?SelectionMap>;
  *       cc
  *     }
  *   }
-*  }
+ *  }
  * ```
  *
  * 1 can be skipped because it is already fetched at the outer level.

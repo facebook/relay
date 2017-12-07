@@ -260,8 +260,9 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
             let error = transaction.getError();
             if (!error) {
               error = new Error(
-                `RelayEnvironment: Unknown error executing mutation ${operation
-                  .node.name}`,
+                `RelayEnvironment: Unknown error executing mutation ${
+                  operation.node.name
+                }`,
               );
             }
             onError(error);

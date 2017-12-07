@@ -309,48 +309,49 @@ class RelayStoreData {
         updateTrackedQueries: true,
       },
     );
-    getRootsWithPayloads(
-      query,
-      payload,
-    ).forEach(({field, root, rootPayload}) => {
-      // Write the results of the field-specific query
-      writeRelayQueryPayload(writer, root, rootPayload);
+    getRootsWithPayloads(query, payload).forEach(
+      ({field, root, rootPayload}) => {
+        // Write the results of the field-specific query
+        writeRelayQueryPayload(writer, root, rootPayload);
 
-      // Ensure the root record exists
-      const path = RelayQueryPath.getRootRecordPath();
-      recordWriter.putRecord(ROOT_ID, query.getType(), path);
-      if (this._queuedStore.getRecordState(ROOT_ID) !== EXISTENT) {
-        changeTracker.createID(ROOT_ID);
-      } else {
-        changeTracker.updateID(ROOT_ID);
-      }
-
-      // Collect linked record ids for this root field
-      const dataIDs = [];
-      RelayNodeInterface.getResultsFromPayload(
-        root,
-        rootPayload,
-      ).forEach(({result, rootCallInfo}) => {
-        const {storageKey, identifyingArgKey} = rootCallInfo;
-        const dataID = recordWriter.getDataID(storageKey, identifyingArgKey);
-        if (dataID != null) {
-          dataIDs.push(dataID);
-        }
-      });
-
-      // Write the field to the root record
-      const storageKey = field.getStorageKey();
-      if (field.isPlural()) {
-        recordWriter.putLinkedRecordIDs(ROOT_ID, storageKey, dataIDs);
-      } else {
-        const dataID = dataIDs[0];
-        if (dataID != null) {
-          recordWriter.putLinkedRecordID(ROOT_ID, storageKey, dataID);
+        // Ensure the root record exists
+        const path = RelayQueryPath.getRootRecordPath();
+        recordWriter.putRecord(ROOT_ID, query.getType(), path);
+        if (this._queuedStore.getRecordState(ROOT_ID) !== EXISTENT) {
+          changeTracker.createID(ROOT_ID);
         } else {
-          recordWriter.putField(ROOT_ID, storageKey, null);
+          changeTracker.updateID(ROOT_ID);
         }
-      }
-    });
+
+        // Collect linked record ids for this root field
+        const dataIDs = [];
+        RelayNodeInterface.getResultsFromPayload(root, rootPayload).forEach(
+          ({result, rootCallInfo}) => {
+            const {storageKey, identifyingArgKey} = rootCallInfo;
+            const dataID = recordWriter.getDataID(
+              storageKey,
+              identifyingArgKey,
+            );
+            if (dataID != null) {
+              dataIDs.push(dataID);
+            }
+          },
+        );
+
+        // Write the field to the root record
+        const storageKey = field.getStorageKey();
+        if (field.isPlural()) {
+          recordWriter.putLinkedRecordIDs(ROOT_ID, storageKey, dataIDs);
+        } else {
+          const dataID = dataIDs[0];
+          if (dataID != null) {
+            recordWriter.putLinkedRecordID(ROOT_ID, storageKey, dataID);
+          } else {
+            recordWriter.putField(ROOT_ID, storageKey, null);
+          }
+        }
+      },
+    );
     this._handleChangedAndNewDataIDs(changeTracker.getChangeSet());
     profiler.stop();
   }

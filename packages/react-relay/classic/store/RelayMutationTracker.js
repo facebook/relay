@@ -35,10 +35,10 @@ const clientNodeIDToErrorMutationID = {};
  */
 const RelayMutationTracker = {
   /**
-  * Checks if the given id represents an object only known on the client side
-  * or not. In this case, it is both a client id and does not have a
-  * corresponding mapping in the client server id map.
-  */
+   * Checks if the given id represents an object only known on the client side
+   * or not. In this case, it is both a client id and does not have a
+   * corresponding mapping in the client server id map.
+   */
   isClientOnlyID: function(dataID: DataID): boolean {
     return RelayRecord.isClientID(dataID) && !clientIDToServerIDMap[dataID];
   },

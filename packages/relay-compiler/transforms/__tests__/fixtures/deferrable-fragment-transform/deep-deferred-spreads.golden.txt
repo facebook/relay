@@ -290,7 +290,9 @@ query FriendBirthdates_Deferred(
 {
   "kind": "Root",
   "operation": "query",
-  "metadata": null,
+  "metadata": {
+    "deferred": true
+  },
   "name": "Birthdate_Deferred",
   "dependentRequests": [],
   "argumentDefinitions": [
@@ -342,7 +344,9 @@ query FriendBirthdates_Deferred(
 {
   "kind": "Root",
   "operation": "query",
-  "metadata": null,
+  "metadata": {
+    "deferred": true
+  },
   "name": "FriendBirthdates_Deferred",
   "dependentRequests": [
     {

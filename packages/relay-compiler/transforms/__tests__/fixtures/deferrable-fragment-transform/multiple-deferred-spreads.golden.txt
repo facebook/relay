@@ -236,7 +236,9 @@ query Birthdate_Deferred(
 {
   "kind": "Root",
   "operation": "query",
-  "metadata": null,
+  "metadata": {
+    "deferred": true
+  },
   "name": "Birthdate_Deferred",
   "dependentRequests": [],
   "argumentDefinitions": [

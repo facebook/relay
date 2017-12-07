@@ -177,7 +177,9 @@ query ProfilePic_Deferred(
 {
   "kind": "Root",
   "operation": "query",
-  "metadata": null,
+  "metadata": {
+    "deferred": true
+  },
   "name": "ProfilePic_Deferred",
   "dependentRequests": [],
   "argumentDefinitions": [

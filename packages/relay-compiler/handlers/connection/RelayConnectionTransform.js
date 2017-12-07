@@ -50,7 +50,7 @@ type Options = {
   path: Array<?string>,
   // Metadata recorded for @connection fields
   connectionMetadata: Array<ConnectionMetadata>,
-  definitionName: ?string,
+  definitionName: string,
 };
 
 const CONNECTION = 'connection';
@@ -73,10 +73,10 @@ function relayConnectionTransform(context: CompilerContext): CompilerContext {
       LinkedField: visitLinkedField,
       Root: visitFragmentOrRoot,
     },
-    () => ({
+    node => ({
       path: [],
       connectionMetadata: [],
-      definitionName: null,
+      definitionName: node.name,
     }),
   );
 }
@@ -91,12 +91,8 @@ function visitFragmentOrRoot<N: Fragment | Root>(
   node: N,
   options: Options,
 ): ?N {
-  const passedOptions = {
-    ...options,
-    definitionName: node.name,
-  };
-  const transformedNode = this.traverse(node, passedOptions);
-  const connectionMetadata = passedOptions.connectionMetadata;
+  const transformedNode = this.traverse(node, options);
+  const connectionMetadata = options.connectionMetadata;
   if (connectionMetadata.length) {
     return {
       ...transformedNode,
@@ -125,11 +121,6 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
     return transformedField;
   }
   const {definitionName} = options;
-  invariant(
-    definitionName,
-    'RelayConnectionTransform: Transform error, expected a name to have ' +
-      'been set by the parent operation or fragment definition.',
-  );
   validateConnectionSelection(definitionName, transformedField);
   validateConnectionType(definitionName, transformedField.type);
 

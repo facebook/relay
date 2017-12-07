@@ -412,39 +412,29 @@ function validateConnectionType(
     definitionName,
   );
   const nodeType = SchemaUtils.getNullableType(node.type);
-  if (
-    !(
-      nodeType instanceof GraphQLInterfaceType ||
+  invariant(
+    nodeType instanceof GraphQLInterfaceType ||
       nodeType instanceof GraphQLUnionType ||
-      nodeType instanceof GraphQLObjectType
-    )
-  ) {
-    invariant(
-      false,
-      'RelayConnectionTransform: Expected type `%s` to have an %s.%s field' +
-        'for which the type is an interface, object, or union in document `%s`.',
-      type,
-      EDGES,
-      NODE,
-      definitionName,
-    );
-  }
+      nodeType instanceof GraphQLObjectType,
+    'RelayConnectionTransform: Expected type `%s` to have an %s.%s field' +
+      'for which the type is an interface, object, or union in document `%s`.',
+    type,
+    EDGES,
+    NODE,
+    definitionName,
+  );
 
   const cursor = edgeType.getFields()[CURSOR];
-  if (
-    !cursor ||
-    !(SchemaUtils.getNullableType(cursor.type) instanceof GraphQLScalarType)
-  ) {
-    invariant(
-      false,
-      'RelayConnectionTransform: Expected type `%s` to have an ' +
-        '%s.%s field for which the type is a scalar in document `%s`.',
-      type,
-      EDGES,
-      CURSOR,
-      definitionName,
-    );
-  }
+  invariant(
+    cursor &&
+      SchemaUtils.getNullableType(cursor.type) instanceof GraphQLScalarType,
+    'RelayConnectionTransform: Expected type `%s` to have an ' +
+      '%s.%s field for which the type is a scalar in document `%s`.',
+    type,
+    EDGES,
+    CURSOR,
+    definitionName,
+  );
 
   const pageInfo = typeFields[PAGE_INFO];
   invariant(
@@ -456,16 +446,14 @@ function validateConnectionType(
     definitionName,
   );
   const pageInfoType = SchemaUtils.getNullableType(pageInfo.type);
-  if (!(pageInfoType instanceof GraphQLObjectType)) {
-    invariant(
-      false,
-      'RelayConnectionTransform: Expected type `%s` to have a %s field for ' +
-        'which the type is an object in document `%s`.',
-      type,
-      PAGE_INFO,
-      definitionName,
-    );
-  }
+  invariant(
+    pageInfoType instanceof GraphQLObjectType,
+    'RelayConnectionTransform: Expected type `%s` to have a %s field for ' +
+      'which the type is an object in document `%s`.',
+    type,
+    PAGE_INFO,
+    definitionName,
+  );
 
   [
     END_CURSOR,
@@ -474,22 +462,16 @@ function validateConnectionType(
     START_CURSOR,
   ].forEach(fieldName => {
     const pageInfoField = pageInfoType.getFields()[fieldName];
-    if (
-      !pageInfoField ||
-      !(
+    invariant(
+      pageInfoField &&
         SchemaUtils.getNullableType(pageInfoField.type) instanceof
-        GraphQLScalarType
-      )
-    ) {
-      invariant(
-        false,
-        'RelayConnectionTransform: Expected type `%s` to have an ' +
-          '%s field for which the type is an scalar in document `%s`.',
-        pageInfo.type,
-        fieldName,
-        definitionName,
-      );
-    }
+          GraphQLScalarType,
+      'RelayConnectionTransform: Expected type `%s` to have an ' +
+        '%s field for which the type is an scalar in document `%s`.',
+      pageInfo.type,
+      fieldName,
+      definitionName,
+    );
   });
 }
 

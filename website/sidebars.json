@@ -38,8 +38,7 @@
       "guides-root-container",
       "guides-ready-state",
       "guides-mutations",
-      "guides-network-layer",
-      "guides-babel-plugin"
+      "guides-network-layer"
     ],
     "GraphQL": [
       "graphql-relay-specification",

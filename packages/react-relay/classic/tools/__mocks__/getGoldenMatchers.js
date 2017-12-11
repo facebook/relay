@@ -75,29 +75,29 @@ function getGoldenMatchers(...args) {
 
   return {
     /**
-    * Implements the "golden" test pattern. Takes a path to a folder of input
-    * and output fixtures, and a function to operate on the contents of each
-    * input file.
-    *
-    * Input files have the form "$BASENAME.input.$EXT" and output files have
-    * the form "$BASENAME.golden.$EXT". Input and output files are matched up
-    * according to their basenames (ie. file extensions are ignored). This
-    * enables viewing and editing input and output files with arbitrary syntax
-    * highlighting in your editor.
-    *
-    * To run the tests:
-    *
-    *    expect('fixtures/parser').toMatchGolden(text => parse(text));
-    *
-    * To update the golden files, re-run the tests with the
-    * `GOLDEN_ACCEPT` environment variable set:
-    *
-    *    GOLDEN_ACCEPT=1 jest MyTestModule
-    *
-    * Additionally, note that adding a new input file and running the tests
-    * will cause the corresponding golden file to be created with a default
-    * ".txt" extension.
-    */
+     * Implements the "golden" test pattern. Takes a path to a folder of input
+     * and output fixtures, and a function to operate on the contents of each
+     * input file.
+     *
+     * Input files have the form "$BASENAME.input.$EXT" and output files have
+     * the form "$BASENAME.golden.$EXT". Input and output files are matched up
+     * according to their basenames (ie. file extensions are ignored). This
+     * enables viewing and editing input and output files with arbitrary syntax
+     * highlighting in your editor.
+     *
+     * To run the tests:
+     *
+     *    expect('fixtures/parser').toMatchGolden(text => parse(text));
+     *
+     * To update the golden files, re-run the tests with the
+     * `GOLDEN_ACCEPT` environment variable set:
+     *
+     *    GOLDEN_ACCEPT=1 jest MyTestModule
+     *
+     * Additionally, note that adding a new input file and running the tests
+     * will cause the corresponding golden file to be created with a default
+     * ".txt" extension.
+     */
     toMatchGolden(fixtures, operation) {
       const fs = require('fs');
       const path = require('path');

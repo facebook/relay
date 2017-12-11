@@ -121,7 +121,9 @@ query FriendCount_Deferred(
 {
   "kind": "Root",
   "operation": "query",
-  "metadata": null,
+  "metadata": {
+    "deferred": true
+  },
   "name": "FriendCount_Deferred",
   "dependentRequests": [],
   "argumentDefinitions": [

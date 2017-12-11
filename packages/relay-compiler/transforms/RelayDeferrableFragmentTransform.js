@@ -375,7 +375,7 @@ function createDeferredOperation(
   return {
     kind: 'Root',
     operation: 'query',
-    metadata: null,
+    metadata: {deferred: true},
     name: fragment.name + '_Deferred',
     dependentRequests: [],
     argumentDefinitions: [

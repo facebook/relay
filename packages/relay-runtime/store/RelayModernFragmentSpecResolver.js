@@ -12,7 +12,7 @@
 'use strict';
 
 const invariant = require('invariant');
-const isScalarAndEqual = require('react-relay/classic/util/isScalarAndEqual');
+const isScalarAndEqual = require('isScalarAndEqual');
 
 const {
   areEqualSelectors,

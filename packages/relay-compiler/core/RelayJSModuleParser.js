@@ -41,21 +41,18 @@ function parseFile(baseDir: string, file: File): ?DocumentNode {
   );
 
   const astDefinitions = [];
-  FindGraphQLTags.memoizedFind(
-    text,
-    baseDir,
-    file,
-    FIND_OPTIONS,
-  ).forEach(template => {
-    const ast = parseGraphQL(new GraphQL.Source(template, file.relPath));
-    invariant(
-      ast.definitions.length,
-      'RelayJSModuleParser: Expected GraphQL text to contain at least one ' +
-        'definition (fragment, mutation, query, subscription), got `%s`.',
-      template,
-    );
-    astDefinitions.push(...ast.definitions);
-  });
+  FindGraphQLTags.memoizedFind(text, baseDir, file, FIND_OPTIONS).forEach(
+    template => {
+      const ast = parseGraphQL(new GraphQL.Source(template, file.relPath));
+      invariant(
+        ast.definitions.length,
+        'RelayJSModuleParser: Expected GraphQL text to contain at least one ' +
+          'definition (fragment, mutation, query, subscription), got `%s`.',
+        template,
+      );
+      astDefinitions.push(...ast.definitions);
+    },
+  );
 
   return {
     kind: 'Document',

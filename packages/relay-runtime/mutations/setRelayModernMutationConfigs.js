@@ -165,7 +165,9 @@ function rangeAdd(
                 warning(
                   false,
                   'setRelayModernMutationConfigs: RANGE_ADD range behavior ' +
-                    `'${info.rangeBehavior}' will not work as expected in RelayModern, ` +
+                    `'${
+                      info.rangeBehavior
+                    }' will not work as expected in RelayModern, ` +
                     "supported range behaviors are 'append', 'prepend', and " +
                     "'ignore'",
                 );

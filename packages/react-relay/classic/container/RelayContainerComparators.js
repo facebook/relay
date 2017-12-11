@@ -10,6 +10,8 @@
 
 'use strict';
 
+const isScalarAndEqual = require('isScalarAndEqual');
+
 /**
  * Compares `objectA` and `objectB` using the provided `isEqual` function.
  *
@@ -49,10 +51,6 @@ function compareObjects(
     }
   }
   return true;
-}
-
-function isScalarAndEqual(valueA, valueB) {
-  return valueA === valueB && (valueA === null || typeof valueA !== 'object');
 }
 
 function isQueryDataEqual(

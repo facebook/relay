@@ -1334,11 +1334,12 @@ describe('restoreRelayCacheData', () => {
         },
       };
 
-      const {
-        abort,
-        callbacks,
-        store,
-      } = performFragmentRestore(dataID, fragment, path, {diskCacheData});
+      const {abort, callbacks, store} = performFragmentRestore(
+        dataID,
+        fragment,
+        path,
+        {diskCacheData},
+      );
 
       abort();
       // this would read 1055790163 from cache if not aborted
@@ -1376,11 +1377,12 @@ describe('restoreRelayCacheData', () => {
         },
       };
 
-      const {
-        abort,
-        callbacks,
-        store,
-      } = performFragmentRestore(dataID, fragment, path, {diskCacheData});
+      const {abort, callbacks, store} = performFragmentRestore(
+        dataID,
+        fragment,
+        path,
+        {diskCacheData},
+      );
 
       abort();
       // The read would fail since `name` is missing from cached data.

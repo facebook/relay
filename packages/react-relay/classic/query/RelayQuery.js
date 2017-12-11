@@ -1232,12 +1232,12 @@ class RelayQueryField extends RelayQueryNode {
   }
 
   /**
-  * An Array of Calls to be used with rangeBehavior config functions.
-  *
-  * Non-core arguments (like connection and identifying arguments) are dropped.
-  *   `field(first: 10, foo: "bar", baz: "bat")` => `'baz(bat).foo(bar)'`
-  *   `username(name: "steve")`                  => `''`
-  */
+   * An Array of Calls to be used with rangeBehavior config functions.
+   *
+   * Non-core arguments (like connection and identifying arguments) are dropped.
+   *   `field(first: 10, foo: "bar", baz: "bat")` => `'baz(bat).foo(bar)'`
+   *   `username(name: "steve")`                  => `''`
+   */
   getRangeBehaviorCalls(): Array<Call> {
     invariant(
       this.isConnection(),

@@ -98,9 +98,9 @@ const RelayRecord = {
   },
 
   /**
-  * Checks whether the given ID was created on the client, as opposed to an ID
-  * that's understood by the server as well.
-  */
+   * Checks whether the given ID was created on the client, as opposed to an ID
+   * that's understood by the server as well.
+   */
   isClientID(dataID: string): boolean {
     return dataID.indexOf('client:') === 0;
   },

@@ -250,7 +250,11 @@ class RelayFileWriter implements FileWriterInterface {
               // don't add definitions that were part of base context
               return;
             }
-
+            if (node.metadata && node.metadata.deferred) {
+              // don't write deferred operations, the batch request is
+              // responsible for them
+              return;
+            }
             const relayRuntimeModule =
               this._config.relayRuntimeModule || 'relay-runtime';
 

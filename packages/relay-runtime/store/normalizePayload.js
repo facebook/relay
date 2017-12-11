@@ -11,7 +11,7 @@
 
 'use strict';
 
-const RelayError = require('react-relay/classic/tools/RelayError');
+const RelayError = require('RelayError');
 
 const normalizeRelayPayload = require('normalizeRelayPayload');
 

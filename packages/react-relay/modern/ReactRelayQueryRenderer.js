@@ -14,7 +14,7 @@ const React = require('React');
 const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
 const areEqual = require('areEqual');
-const deepFreeze = require('../classic/tools/deepFreeze');
+const deepFreeze = require('deepFreeze');
 const invariant = require('invariant');
 
 import type {
@@ -75,7 +75,10 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
   _rootSubscription: ?Disposable;
   _selectionReferences: Array<Disposable> = [];
 
-  state = {readyState: this._fetchForProps(this.props)};
+  constructor(props: Props, context: Object) {
+    super(props, context);
+    this.state = {readyState: this._fetchForProps(this.props)};
+  }
 
   componentWillReceiveProps(nextProps: Props): void {
     if (

@@ -28,7 +28,7 @@ import type {
  * @internal
  *
  * Converts a RelayQuery.Node into a plain object representation. This is
- * equivalent to the AST produced by `babel-relay-plugin` and is intended for
+ * equivalent to the AST produced by `babel-plugin-relay` and is intended for
  * use in serializing RelayQuery nodes.
  *
  * NOTE: This is used by external open source projects.

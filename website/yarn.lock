@@ -820,13 +820,9 @@ detect-indent@^4.0.0:
   dependencies:
     repeating "^2.0.0"
 
-diff@^3.3.0:
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/diff/-/diff-3.4.0.tgz#b1d85507daf3964828de54b37d0d73ba67dda56c"
-
-docusaurus@^1.0.0-beta.10:
-  version "1.0.0-beta.10"
-  resolved "https://registry.yarnpkg.com/docusaurus/-/docusaurus-1.0.0-beta.10.tgz#4b0f56c598e6c27590708c171bd0fc954c04ac74"
+docusaurus@^1.0.0-beta.15:
+  version "1.0.0-beta.15"
+  resolved "https://registry.yarnpkg.com/docusaurus/-/docusaurus-1.0.0-beta.15.tgz#5e92a049597b796fdb702940be328280dd2ab803"
   dependencies:
     babel-preset-env "^1.6.0"
     babel-preset-react "^6.24.1"
@@ -837,13 +833,13 @@ docusaurus@^1.0.0-beta.10:
     classnames "^2.2.5"
     commander "^2.11.0"
     crowdin-cli "^0.3.0"
-    diff "^3.3.0"
+    escape-string-regexp "^1.0.5"
     express "^4.15.3"
     feed "^1.1.0"
     fs-extra "^3.0.1"
     glob "^7.1.2"
     highlight.js "^9.12.0"
-    prettier "^1.5.3"
+    prettier "1.8.2"
     react "^15.5.4"
     react-dom "^15.5.4"
     react-dom-factories "^1.0.1"
@@ -1325,9 +1321,9 @@ performance-now@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
 
-prettier@^1.5.3:
-  version "1.8.1"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.8.1.tgz#91064d778c08c85ac1cbe6b23195c34310d039f9"
+prettier@1.8.2:
+  version "1.8.2"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.8.2.tgz#bff83e7fd573933c607875e5ba3abbdffb96aeb8"
 
 prismjs@1.8.1:
   version "1.8.1"

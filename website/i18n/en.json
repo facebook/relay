@@ -19,7 +19,6 @@
     "graphql-mutations": "Mutations",
     "graphql-object-identification": "Object Identification",
     "graphql-relay-specification": "GraphQL Relay Specification",
-    "guides-babel-plugin": "Babel Relay Plugin",
     "guides-containers": "Containers",
     "guides-mutations": "Mutations",
     "guides-network-layer": "Network Layer",

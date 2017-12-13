@@ -3,7 +3,13 @@ id: prerequisites
 title: Prerequisites
 ---
 
-To get started building Relay applications, you will need two things:
+## React
+
+Relay is a framework for data management with the primary supported binding for React applications, so we assume that you are already familiar with [React](https://reactjs.org/).
+
+## GraphQL
+
+We also assume basic understanding of [GraphQL](http://graphql.org/learn/). In order to start using Relay, you will also need:
 
 ### A GraphQL Schema
 

@@ -3,13 +3,15 @@ id: installation-and-setup
 title: Installation and Setup
 ---
 
-### Install react-relay v1.0.0
+## Installation
+
+Install React and Relay using `yarn` or `npm`:
 
 ```sh
-yarn add react-relay
+yarn add react react-dom react-relay
 ```
 
-### Set up babel-plugin-relay
+## Set up babel-plugin-relay
 
 Relay Modern requires a Babel plugin to convert GraphQL to runtime artifacts:
 
@@ -19,9 +21,9 @@ yarn add --dev babel-plugin-relay
 
 Add `"relay"` to the list of plugins your .babelrc file. See [the docs](./babel-plugin-relay.html) if upgrading an existing Relay app.
 
-### Set up relay-compiler
+## Set up relay-compiler
 
-Relay Modern's ahead-of-time compilation requires the new Relay Compiler:
+Relay Modern's ahead-of-time compilation requires the [Relay Compiler](./relay-compiler.html):
 
 ```sh
 yarn add --dev relay-compiler
@@ -36,7 +38,7 @@ Run the Relay Compiler after making changes to any GraphQL in your Relay applica
 Then after making edits to your application files, just run `yarn run relay` to generate new files, or `yarn run relay --watch` to run the compiler as a long-lived process which automatically generates new files whenever you save.
 
 
-### JavaScript environment requirements
+## JavaScript environment requirements
 
 The Relay Modern packages distributed on NPM use the widely-supported ES5
 version of JavaScript to support as many browser environments as possible.

@@ -18,6 +18,7 @@ export type LinkedField = {|
   +$refType: LinkedField$ref,
 |};
 
+export type UnionTypeTestVariables = {| |};
 export type UnionTypeTestResponse = {|
   +neverNode: ?({|
     +__typename: 'FakeNode',

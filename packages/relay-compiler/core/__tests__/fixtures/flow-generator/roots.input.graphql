@@ -1,5 +1,5 @@
-query ExampleQuery {
-  me {
+query ExampleQuery($id: ID!) {
+  node(id: $id) {
     id
   }
 }

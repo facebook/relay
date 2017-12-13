@@ -1,9 +1,9 @@
 ---
-id: getting-started
-title: Getting Started
+id: prerequisites
+title: Prerequisites
 ---
 
-To get started building Relay applications, you will need three things:
+To get started building Relay applications, you will need two things:
 
 ### A GraphQL Schema
 
@@ -26,9 +26,3 @@ Any server can be taught to load a schema and speak GraphQL. Our [examples](http
 - **[express-graphql](https://github.com/graphql/express-graphql)** on [npm](https://www.npmjs.com/package/express-graphql)
 - **[graphql-up](https://github.com/graphcool/graphql-up)** on [npm](https://www.npmjs.com/package/graphql-up)
 - **[Graphcool](https://www.graph.cool/)** ([Quickstart tutorial](https://www.graph.cool/docs/quickstart/))
-
-### Relay
-
-Relay speaks to GraphQL servers through a network layer. The [network layer](https://facebook.github.io/relay/docs/network-layer.html) that ships with Relay is compatible with express-graphql out of the box, and will continue to evolve as we add new features to the transport.
-
-The best way to get started right now is to take a look at how these three parts come together to form a working example. The tutorial on the next page will lead you through an example application, using the [Relay Starter Kit](https://github.com/facebook/relay-starter-kit), to give you an idea of how you can start using Relay on yours.

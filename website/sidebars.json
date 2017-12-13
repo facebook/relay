@@ -1,11 +1,12 @@
 {
   "docs": {
-    "Quick Start": [
-      "getting-started",
-      "tutorial"
+    "Introduction": [
+      "introduction-to-relay-modern",
+      "prerequisites",
+      "installation-and-setup",
+      "quick-tutorial"
     ],
     "Relay Modern": [
-      "relay-modern",
       "new-in-relay-modern",
       "relay-environment",
       "network-layer",

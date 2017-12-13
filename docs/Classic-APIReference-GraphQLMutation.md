@@ -1,5 +1,5 @@
 ---
-id: api-reference-relay-graphql-mutation
+id: classic-api-reference-relay-graphql-mutation
 title: Relay.GraphQLMutation
 ---
 

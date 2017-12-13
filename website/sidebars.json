@@ -32,29 +32,29 @@
       "api-cheatsheet"
     ],
     "Relay Classic Guides": [
-      "guides-containers",
-      "guides-routes",
-      "guides-root-container",
-      "guides-ready-state",
-      "guides-mutations",
-      "guides-network-layer"
+      "classic-guides-containers",
+      "classic-guides-routes",
+      "classic-guides-root-container",
+      "classic-guides-ready-state",
+      "classic-guides-mutations",
+      "classic-guides-network-layer"
     ],
     "Relay Classic API": [
-      "api-reference-relay",
-      "api-reference-relay-container",
-      "api-reference-relay-route",
-      "api-reference-relay-renderer",
-      "api-reference-relay-root-container",
-      "api-reference-relay-ql",
-      "api-reference-relay-mutation",
-      "api-reference-relay-graphql-mutation",
-      "api-reference-relay-proptypes",
-      "api-reference-relay-store"
+      "classic-api-reference-relay",
+      "classic-api-reference-relay-container",
+      "classic-api-reference-relay-route",
+      "classic-api-reference-relay-renderer",
+      "classic-api-reference-relay-root-container",
+      "classic-api-reference-relay-ql",
+      "classic-api-reference-relay-mutation",
+      "classic-api-reference-relay-graphql-mutation",
+      "classic-api-reference-relay-proptypes",
+      "classic-api-reference-relay-store"
     ],
     "Relay Classic Interfaces": [
-      "interfaces-relay-mutation-request",
-      "interfaces-relay-network-layer",
-      "interfaces-relay-query-request"
+      "classic-interfaces-relay-mutation-request",
+      "classic-interfaces-relay-network-layer",
+      "classic-interfaces-relay-query-request"
     ],
     "Principles & Architecture": [
       "thinking-in-graphql",

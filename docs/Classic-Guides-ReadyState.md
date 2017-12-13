@@ -1,5 +1,5 @@
 ---
-id: guides-ready-state
+id: classic-guides-ready-state
 title: Ready State
 ---
 

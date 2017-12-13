@@ -1,5 +1,5 @@
 ---
-id: api-reference-relay-container
+id: classic-api-reference-relay-container
 title: RelayContainer
 ---
 

@@ -1,5 +1,5 @@
 ---
-id: guides-routes
+id: classic-guides-routes
 title: Routes
 ---
 

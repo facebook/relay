@@ -1,5 +1,5 @@
 ---
-id: guides-containers
+id: classic-guides-containers
 title: Containers
 ---
 

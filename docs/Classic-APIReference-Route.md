@@ -1,5 +1,5 @@
 ---
-id: api-reference-relay-route
+id: classic-api-reference-relay-route
 title: Relay.Route
 ---
 

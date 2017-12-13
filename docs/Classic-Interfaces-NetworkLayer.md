@@ -1,5 +1,5 @@
 ---
-id: interfaces-relay-network-layer
+id: classic-interfaces-relay-network-layer
 title: RelayNetworkLayer
 ---
 

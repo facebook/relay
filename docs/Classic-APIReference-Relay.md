@@ -1,5 +1,5 @@
 ---
-id: api-reference-relay
+id: classic-api-reference-relay
 title: Relay
 ---
 

@@ -1,5 +1,5 @@
 ---
-id: guides-mutations
+id: classic-guides-mutations
 title: Mutations
 ---
 

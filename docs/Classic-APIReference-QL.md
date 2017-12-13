@@ -1,5 +1,5 @@
 ---
-id: api-reference-relay-ql
+id: classic-api-reference-relay-ql
 title: Relay.QL
 ---
 

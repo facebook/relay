@@ -1,5 +1,5 @@
 ---
-id: interfaces-relay-query-request
+id: classic-interfaces-relay-query-request
 title: RelayQueryRequest
 ---
 

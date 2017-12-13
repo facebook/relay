@@ -18,9 +18,9 @@ const {getStableStorageKey} = require('RelayStoreUtils');
 
 import type RelayRecordSourceMutator from 'RelayRecordSourceMutator';
 import type RelayRecordSourceProxy from 'RelayRecordSourceProxy';
+import type {DataID} from 'RelayRuntime';
 import type {RecordProxy} from 'RelayStoreTypes';
 import type {Arguments} from 'RelayStoreUtils';
-import type {DataID} from 'react-relay/classic/tools/RelayInternalTypes';
 
 /**
  * @internal

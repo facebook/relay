@@ -10,8 +10,8 @@
 
 'use strict';
 
-import type {DataID} from '../tools/RelayInternalTypes';
 import type {RerunParam, Variables} from '../tools/RelayTypes';
+import type {DataID} from 'RelayRuntime';
 import type {Disposable, Observable, SelectorStoreUpdater} from 'RelayRuntime';
 
 /**

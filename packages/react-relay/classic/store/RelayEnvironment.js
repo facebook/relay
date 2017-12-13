@@ -44,11 +44,7 @@ import type {
   QueryCallback,
 } from '../network/RelayNetworkLayer';
 import type {ConcreteOperationDefinition} from '../query/ConcreteQuery';
-import type {
-  DataID,
-  QueryPayload,
-  RelayQuerySet,
-} from '../tools/RelayInternalTypes';
+import type {QueryPayload, RelayQuerySet} from '../tools/RelayInternalTypes';
 import type {TaskScheduler} from '../tools/RelayTaskQueue';
 import type {
   Abortable,
@@ -63,6 +59,7 @@ import type {
   Variables,
 } from '../tools/RelayTypes';
 import type RelayQueryTracker from './RelayQueryTracker';
+import type {DataID} from 'RelayRuntime';
 import type {
   Disposable,
   SelectorStoreUpdater,

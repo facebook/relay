@@ -22,7 +22,7 @@ const warning = require('warning');
 const {ConnectionInterface} = require('RelayRuntime');
 
 import type RelayRecordStore from '../store/RelayRecordStore';
-import type {DataID} from '../tools/RelayInternalTypes';
+import type {DataID} from 'RelayRuntime';
 
 const {ID, ID_TYPE, NODE, NODE_TYPE, TYPENAME} = RelayNodeInterface;
 

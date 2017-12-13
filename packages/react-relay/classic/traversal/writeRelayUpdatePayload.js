@@ -28,7 +28,8 @@ const {ConnectionInterface, RelayProfiler} = require('RelayRuntime');
 
 import type RelayQueryWriter from '../store/RelayQueryWriter';
 import type RelayRecordStore from '../store/RelayRecordStore';
-import type {DataID, UpdateOptions} from '../tools/RelayInternalTypes';
+import type {UpdateOptions} from '../tools/RelayInternalTypes';
+import type {DataID} from 'RelayRuntime';
 
 // TODO: Replace with enumeration for possible config types.
 /* OperationConfig was originally typed such that each property had the type

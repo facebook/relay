@@ -23,7 +23,6 @@ const {
   requestSubscription,
 } = require('RelayRuntime');
 
-export type {DataID} from '../classic/tools/RelayInternalTypes';
 export type {Variables} from '../classic/tools/RelayTypes';
 export type {
   RelayPaginationProp,
@@ -31,6 +30,7 @@ export type {
   RelayRefetchProp,
 } from './ReactRelayTypes';
 export type {
+  DataID,
   Disposable,
   // RelayRuntime has two environment exports: one interface, one concrete.
   IEnvironment as Environment,

@@ -23,11 +23,11 @@ import type {RelayConcreteNode} from '../query/RelayQL';
 import type {RelayEnvironmentInterface} from '../store/RelayEnvironment';
 import type {Record} from '../store/RelayRecord';
 import type {
-  DataID,
   FieldValue,
   RangeBehaviors,
   QueryPayload,
 } from './RelayInternalTypes';
+import type {DataID} from 'RelayRuntime';
 import type URI from 'URI';
 
 type RelayContainerErrorEventType =

@@ -26,6 +26,7 @@ const {
   TYPENAME_KEY,
 } = require('RelayStoreUtils');
 
+import type {DataID} from '../util/RelayRuntimeTypes';
 import type {
   ConcreteField,
   ConcreteLinkedField,
@@ -38,7 +39,6 @@ import type {
   Selector,
 } from 'RelayStoreTypes';
 import type {Record} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
-import type {DataID} from 'react-relay/classic/tools/RelayInternalTypes';
 import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 const {

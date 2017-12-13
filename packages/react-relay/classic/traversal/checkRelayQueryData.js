@@ -21,7 +21,7 @@ const {ConnectionInterface, RelayProfiler} = require('RelayRuntime');
 import type RelayQuery from '../query/RelayQuery';
 import type RelayRecordStore from '../store/RelayRecordStore';
 import type {RangeInfo} from '../store/RelayRecordStore';
-import type {DataID} from '../tools/RelayInternalTypes';
+import type {DataID} from 'RelayRuntime';
 
 type CheckerState = {
   dataID: ?DataID,

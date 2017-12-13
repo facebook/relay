@@ -11,8 +11,9 @@
 'use strict';
 
 import type {QueryPath} from '../query/RelayQueryPath';
-import type {Call, ClientMutationID, DataID} from '../tools/RelayInternalTypes';
+import type {Call, ClientMutationID} from '../tools/RelayInternalTypes';
 import type {Variables} from '../tools/RelayTypes';
+import type {DataID} from 'RelayRuntime';
 
 export type Record = {
   // Records may contain many other fields as [fieldName: string]: mixed

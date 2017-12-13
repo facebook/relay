@@ -23,3 +23,5 @@
 export type Disposable = {
   dispose(): void,
 };
+
+export type DataID = string;

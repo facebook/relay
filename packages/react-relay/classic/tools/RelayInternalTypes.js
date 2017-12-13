@@ -20,6 +20,7 @@
 // '../legacy/mutation/GraphQLMutatorConstants', but that file is not Flow typed
 
 import type RelayQuery from '../query/RelayQuery';
+import type {DataID} from 'RelayRuntime';
 
 type AfterConnectionArgumentMap = {
   after: string,
@@ -74,7 +75,6 @@ export type ConnectionArgumentsMap =
   | InitialHeadConnectionArgumentMap
   | InitialTailConnectionArgumentMap
   | TailConnectionArgumentMap;
-export type DataID = string;
 export type Directive = {
   args: Array<Call>,
   name: string,

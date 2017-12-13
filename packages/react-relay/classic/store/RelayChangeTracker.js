@@ -10,7 +10,7 @@
 
 'use strict';
 
-import type {DataID} from '../tools/RelayInternalTypes';
+import type {DataID} from 'RelayRuntime';
 
 type ChangeMap = {[key: string]: boolean};
 

@@ -17,10 +17,10 @@ import type {Variables} from '../tools/RelayTypes';
 
 export type ConfigQueries = {[queryName: string]: RelayQLQueryBuilder};
 export interface RelayQueryConfigInterface {
-  name: string,
-  params: Variables,
-  queries: ConfigQueries,
-  useMockData?: boolean,
+  name: string;
+  params: Variables;
+  queries: ConfigQueries;
+  useMockData?: boolean;
 }
 
 /**

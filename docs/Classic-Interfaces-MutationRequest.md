@@ -1,5 +1,5 @@
 ---
-id: interfaces-relay-mutation-request
+id: classic-interfaces-relay-mutation-request
 title: RelayMutationRequest
 ---
 

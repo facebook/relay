@@ -21,5 +21,5 @@ export type File = {
 };
 
 export interface FileWriterInterface {
-  writeAll(): Promise<Map<string, CodegenDirectory>>,
+  writeAll(): Promise<Map<string, CodegenDirectory>>;
 }

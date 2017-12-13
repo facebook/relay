@@ -6,6 +6,7 @@
  *
  * @typechecks
  * @flow
+ * @format
  */
 
 'use strict';

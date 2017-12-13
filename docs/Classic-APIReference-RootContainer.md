@@ -1,5 +1,5 @@
 ---
-id: api-reference-relay-root-container
+id: classic-api-reference-relay-root-container
 title: Relay.RootContainer
 ---
 

@@ -1,5 +1,5 @@
 ---
-id: api-reference-relay-renderer
+id: classic-api-reference-relay-renderer
 title: Relay.Renderer
 ---
 

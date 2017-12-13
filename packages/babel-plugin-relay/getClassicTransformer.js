@@ -77,7 +77,7 @@ function getSchema(
   }
 
   throw new Error(
-    'Invalid introspection data supplied to the Babel Relay plugin. The ' +
+    'Invalid introspection data supplied to babel-plugin-relay. The ' +
       'resulting schema is not an object with a `__schema` property or ' +
       'a schema IDL language.',
   );

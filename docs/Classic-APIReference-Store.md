@@ -1,5 +1,5 @@
 ---
-id: api-reference-relay-store
+id: classic-api-reference-relay-store
 title: Relay.Store
 ---
 

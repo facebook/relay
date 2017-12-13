@@ -1,5 +1,5 @@
 ---
-id: api-reference-relay-proptypes
+id: classic-api-reference-relay-proptypes
 title: Relay.PropTypes
 ---
 

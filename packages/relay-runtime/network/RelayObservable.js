@@ -64,7 +64,7 @@ type Source<+T> = (Sink<T>) => void | Subscription | (() => mixed);
  * allowing for easily composing Subscribables.
  */
 export interface Subscribable<+T> {
-  subscribe(observer: Observer<T> | Sink<T>): Subscription,
+  subscribe(observer: Observer<T> | Sink<T>): Subscription;
 }
 
 // Note: This should accept Subscribable<T> instead of RelayObservable<T>,

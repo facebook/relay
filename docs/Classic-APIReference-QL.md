@@ -1,5 +1,5 @@
 ---
-id: api-reference-relay-ql
+id: classic-api-reference-relay-ql
 title: Relay.QL
 ---
 
@@ -13,7 +13,7 @@ var fragment = Relay.QL`
 `;
 ```
 
-To execute this code, Relay needs access to the schema - which can be too large to bundle inside the application. Instead, these `Relay.QL` template expressions are transpiled into JavaScript descriptions via the `babel-relay-plugin`. This schema information allows Relay to understand things like the types of field arguments, which fields are connections or lists, and how to efficiently refetch records from the server.
+To execute this code, Relay needs access to the schema - which can be too large to bundle inside the application. Instead, these `Relay.QL` template expressions are transpiled into JavaScript descriptions via the `babel-plugin-relay`. This schema information allows Relay to understand things like the types of field arguments, which fields are connections or lists, and how to efficiently refetch records from the server.
 
 ## Related APIs
 

@@ -1,5 +1,5 @@
 ---
-id: api-reference-relay-mutation
+id: classic-api-reference-relay-mutation
 title: Relay.Mutation
 ---
 

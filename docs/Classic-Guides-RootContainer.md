@@ -1,5 +1,5 @@
 ---
-id: guides-root-container
+id: classic-guides-root-container
 title: Root Container
 ---
 

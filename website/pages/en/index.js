@@ -51,7 +51,8 @@ class HomeSplash extends React.Component {
                   <div className="pluginRowBlock">
                     <Button
                       href={
-                        siteConfig.baseUrl + 'docs/en/getting-started.html'
+                        siteConfig.baseUrl +
+                        'docs/en/introduction-to-relay-modern.html'
                       }>
                       Get Started
                     </Button>

@@ -35,7 +35,6 @@ const {
 
 import type {
   CacheConfig,
-  Disposable,
   FragmentSpecResolver,
 } from '../classic/environment/RelayCombinedEnvironmentTypes';
 import type {Variables} from '../classic/tools/RelayTypes';
@@ -48,6 +47,7 @@ import type {
 } from './ReactRelayTypes';
 import type {
   ConnectionMetadata,
+  Disposable,
   FragmentMap,
   GraphQLTaggedNode,
   Observer,

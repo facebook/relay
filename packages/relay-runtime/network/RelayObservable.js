@@ -13,8 +13,8 @@
 
 const isPromise = require('isPromise');
 
+import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {LegacyObserver} from 'RelayNetworkTypes';
-import type {Disposable} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 /**
  * A Subscription object is returned from .subscribe(), which can be

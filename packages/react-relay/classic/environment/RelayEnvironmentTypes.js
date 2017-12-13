@@ -24,9 +24,8 @@ import type {
   CSelector,
   CSnapshot,
   CUnstableEnvironmentCore,
-  Disposable,
 } from './RelayCombinedEnvironmentTypes';
-import type {GraphQLTaggedNode, UploadableMap} from 'RelayRuntime';
+import type {Disposable, GraphQLTaggedNode, UploadableMap} from 'RelayRuntime';
 
 type TEnvironment = Environment;
 type TFragment = ConcreteFragmentDefinition;

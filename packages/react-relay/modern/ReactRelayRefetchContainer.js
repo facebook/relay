@@ -27,10 +27,7 @@ const {
 const {profileContainer} = require('./ReactRelayContainerProfiler');
 const {Observable, RelayProfiler, RelayConcreteNode} = require('RelayRuntime');
 
-import type {
-  Disposable,
-  FragmentSpecResolver,
-} from '../classic/environment/RelayCombinedEnvironmentTypes';
+import type {FragmentSpecResolver} from '../classic/environment/RelayCombinedEnvironmentTypes';
 import type {Variables} from '../classic/tools/RelayTypes';
 import type {
   $RelayProps,
@@ -39,6 +36,7 @@ import type {
   RefetchOptions,
   RelayRefetchProp,
 } from './ReactRelayTypes';
+import type {Disposable} from 'RelayRuntime';
 import type {
   FragmentMap,
   GraphQLTaggedNode,

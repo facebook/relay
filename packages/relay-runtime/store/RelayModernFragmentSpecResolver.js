@@ -19,6 +19,7 @@ const {
   getSelectorsFromObject,
 } = require('RelayModernSelector');
 
+import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {
   Environment,
   FragmentMap,
@@ -27,7 +28,6 @@ import type {
   Snapshot,
 } from 'RelayStoreTypes';
 import type {
-  Disposable,
   FragmentSpecResolver,
   FragmentSpecResults,
   SelectorData,

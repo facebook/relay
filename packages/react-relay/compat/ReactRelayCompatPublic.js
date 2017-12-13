@@ -19,9 +19,6 @@ const RelayCompatRefetchContainer = require('./react/RelayCompatRefetchContainer
 
 const {graphql, fetchQuery} = require('RelayRuntime');
 
-export type {
-  Disposable,
-} from '../classic/environment/RelayCombinedEnvironmentTypes';
 export type {DataID} from '../classic/tools/RelayInternalTypes';
 export type {Variables} from '../classic/tools/RelayTypes';
 export type {
@@ -29,6 +26,7 @@ export type {
   RelayProp,
   RelayRefetchProp,
 } from '../modern/ReactRelayTypes';
+export type {Disposable} from 'RelayRuntime';
 export type {
   GraphQLTaggedNode,
   IEnvironment,

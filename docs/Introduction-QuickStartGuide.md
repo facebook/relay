@@ -15,6 +15,7 @@ Table of contents:
 - [Composing Fragments](#composing-fragments)
 - [Rendering Fragments](#rendering-fragments)
 - [Mutating Data](#mutating-data)
+- [Next Steps](#next-steps)
 
 ## Setup
 
@@ -64,7 +65,7 @@ function fetchQuery(
     },
     body: JSON.stringify({
       query: operation.text,
-      variables: variables,
+      variables,
     }),
   }).then(response => {
     return response.json();
@@ -75,6 +76,8 @@ const environment = new Environment({
   network: Network.create(fetchQuery),
   store: new Store(new RecordSource()),  
 });
+
+export default environment;
 ```
 A Relay Environment requires at least a [Store](./api-reference-store.html) and a [Network Layer](./network-layer). The above code uses the default implementation for `Store`, and creates a [Network Layer](./network-layer) using a simple `fetchQuery` function to fetch a GraphQL query from our server.
 
@@ -136,9 +139,9 @@ Our app is rendering a `QueryRenderer` in the above code, like any other React C
 - We're passing the `environment` we defined earlier.
 - We're using using the [`graphql`](./api-reference-graphql) function to define our GraphQL query. `graphql` is a function that is never executed at runtime, but rather used by the [Relay Compiler](./relay-compiler) to generate the runtime artifacts that Relay requires to operate. We don't need to worry about this right now; for more details check out our [`graphql`](./api-reference-graphql) and [Relay Compiler](./relay-compiler) docs.
 - We're passing an empty set of `variables`. We'll look into how to use variables in the next section.
-- We're passing a `render` function; as you can tell from the code, Relay gives us some information about whether an error occurred, or if we're still fetching the query. If everything succeeds, the data we requested will be available inside `props`, with the same shape as the one specified in the query.
+- We're passing a `render` function; as you can tell from the code, Relay gives us some information about wether an error occurred, or if we're still fetching the query. If everything succeeds, the data we requested will be available inside `props`, with the same shape as the one specified in the query.
 
-In order to run this app, we need to first compile our query using the Relay Compiler. Assuming the setup from [Installation and Setup](./installation-and-setup), we can just run `yarn relay` or `npm run relay`.
+In order to run this app, we need to first compile our query using the Relay Compiler. Assuming the setup from [Installation and Setup](./installation-and-setup), we can just run `yarn relay`.
 
 For more details on `QueryRenderer`, check out the [docs](./query-renderer).
 
@@ -313,7 +316,7 @@ Before proceeding, don't forget to run the Relay Compiler with `yarn relay`.
 
 ## Composing Fragments
 
-Given that [Fragment Containers](./fragment-containers) are just React components, we can compose them as such, and even re-use fragment containers within other fragment containers. As an example, let's see how we would define a `TodoList` component that just renders a list of todo items:
+Given that [Fragment Containers](./fragment-containers) are just React components, we can compose them as such, and even re-use fragment containers within other fragment containers. As an example, let's see how we would define a `TodoList` component that just renders a list of todo items, and whether all have been completed or not:
 
 ```javascript
 // TodoList.js
@@ -329,27 +332,23 @@ type Props = {
 }
 
 class TodoList extends React.Component<Props> {
-  renderTodos() {
-    return this.props.userTodoData.todos.edges.map(edge =>
-      <Todo
-        key={edge.node.id}
-        {/*We pass the required todo data here*/}
-        todo={edge.node}
-      />
-    );
-  }
-
   render() {
-    const numTodos = this.props.viewer.totalCount;
-    const numCompletedTodos = this.props.viewer.completedCount;
+    const {userTodoData: {totalCount, completedCount, todos}} = this.props;
+
     return (
       <section>
         <input
-          checked={numTodos === numCompletedTodos}
+          checked={totalCount === completedCount}
           type="checkbox"
         />
         <ul>
-          {this.renderTodos()}
+          {todos.edges.map(edge =>
+            <Todo
+              key={edge.node.id}
+              {/*We pass the data required by Todo here*/}
+              todo={edge.node}
+            />
+          )}
         </ul>
       </section>
     );
@@ -359,6 +358,7 @@ class TodoList extends React.Component<Props> {
 export default createFragmentContainer(
   TodoList,
   graphql`
+    # As a convention, we name the fragment as '<ComponentFileName>_<PropName>'
     fragment TodoList_userTodoData on User {
       todos(
         first: 2147483647  # max GraphQLInt, to fetch all todos
@@ -379,19 +379,19 @@ export default createFragmentContainer(
 );
 ```
 
-As with the first fragment container we defined, `TodoList` declares it's data dependencies via a fragment. However, this component additionally also uses a previously defined fragment by the child component, and passes the appropriate data to the child `Todo` fragment containers.
+As with the first fragment container we defined, `TodoList` declares it's data dependencies via a fragment. However, this component additionally re-uses the fragment previously defined by the `Todo` component, and passes the appropriate data to when rendering the child `Todo` components (a.k.a. fragment containers).
 
-One final thing to note when composing fragment containers, is that the parent will not have access to the data defined by the child container, i.e. Relay only allows components to access data they specifically ask for in GraphQL fragments — nothing more. This is called [Data Masking](./thinking-in-relay), and it's intentional to prevent components from depending on data they didn't declare as a dependency.
+One final thing to note when composing fragment containers, is that the parent will not have access to the data defined by the child container, i.e. Relay only allows components to access data they specifically ask for in GraphQL fragments — nothing more. This is called [Data Masking](./thinking-in-relay#data-masking), and it's intentional to prevent components from depending on data they didn't declare as a dependency.
 
 ## Rendering Fragments
 
 Now that we have some components (a.k.a fragment containers) that declare their data dependencies, we need to hook them up to a `QueryRenderer` so that the data is actually fetched and rendered; remember,
 fragment containers do not directly fetch data. Instead, containers declare a specification of the data needed to render, and Relay guarantees that this data is available before rendering.
 
-A `QueryRenderer` using these fragments could look something like the following:
+A `QueryRenderer` rendering these fragment containers could look like the following:
 
 ```javascript
-// UserTodoList.js
+// ViewerTodoList.js
 import React from 'react';
 import PropTypes from 'prop-types';
 import {graphql, QueryRenderer} from 'react-relay';
@@ -399,27 +399,21 @@ import TodoList from './TodoList'
 
 const environment = /* defined or imported above... */;
 
-export default UserTodoList extends React.Component {
-  static propTypes = {
-    userID: PropTypes.string,
-  }
-
+export default ViewerTodoList extends React.Component {
   render() {
-    const {userID} = this.props;
-
     return (
       <QueryRenderer
         environment={environment}
         query={graphql`
-          query UserQuery($userID: ID!) {
-            user: node(id: $userID) {
+          query ViewerQuery {
+            viewer {
               id
               # Re-use the fragment here
               ...TodoList_userTodoData  
             }
           }
         `}
-        variables={{userID}}
+        variables={{}}
         render={({error, props}) => {
           if (error) {
             return <div>Error!</div>;
@@ -444,4 +438,144 @@ Check out or docs for [Fragment Containers](./fragment-container) for more detai
 
 ## Mutating Data
 
-TODO
+Now that we know how to query for and render data, let's move on to changing our data. We know that to change any data in our server, we need to use GraphQL [Mutations](http://graphql.org/learn/queries/#mutations).
+
+From our [schema](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql#L35), we know that we have some mutations available to us, so let's start by writing a mutation to change the `complete` status of a given todo item (i.e. mark or unmark it as done):
+
+```graphql
+mutation ChangeTodoStatusMutation($input: ChangeTodoStatusInput!) {
+  changeTodoStatus(input: $input) {
+    todo {
+      id
+      complete
+    }
+  }
+}
+```
+
+This mutation allows us to query back some data as a [result of the mutation](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql#L18), so we're going to query for the updated `complete` status on the todo item.
+
+In order to execute this mutation in Relay, we're going to write a new mutation using Relay's `commitMutation` api:
+
+```javascript
+// ChangeTodoStatusMutation.js
+import {graphql, commitMutation} from 'react-relay';
+
+// We start by defining our mutation from above using `graphql`
+const mutation = graphql`
+  mutation ChangeTodoStatusMutation($input: ChangeTodoStatusInput!) {
+    changeTodoStatus(input: $input) {
+      todo {
+        id
+        complete
+      }
+    }
+  }
+`;
+
+function commit(
+  environment,
+  complete,
+  todo,
+) {
+  // Now we just call commitMutation with the appropriate parameters
+  return commitMutation(
+    environment,
+    {
+      mutation,
+      variables: {
+        input: {complete, id: todo.id},
+      },
+    }
+  );
+}
+
+export default {commit};
+```
+
+Whenever we call `ChangeTodoStatusMutation.commit(...)`, Relay will send the mutation to the server, and in our case, upon receiving a response it will automatically update the local data store with the latest data from the server. This also means that upon receiving the response, Relay will ensure that any components (i.e. containers) that depend on the updated data are re-rendered.
+
+In order to actually use this mutation in our component, we could update our `Todo` component in the following way:
+
+```javascript
+// Todo.js
+
+// ...
+
+class Todo extends React.Component<Props> {
+  // Add a new event handler that fires off the mutation
+  _handleOnCheckboxChange = (e) => {
+    const complete = e.target.checked;
+    ChangeTodoStatusMutation.commit(
+      this.props.relay.environment,
+      complete,
+      this.props.todo,
+    );
+  };
+
+  render() {
+    // ...
+  }
+}
+
+// ...
+```
+
+### Optimistic Updates
+
+In our example above, the `complete` status in our component won't be updated and re-rendered until we get a response back from the server, which won't make for a great user experience.
+
+In order to make the experience better, we can configure our mutation to do an optimistic update. An optimistic update means immediately updating our local data with what we expect it to be if we get a successful response from the server, i.e. updating the data immediately assuming that the mutation request will succeed. If the request doesn't succeed, we can roll-back our update.
+
+In Relay, there's a couple of options we can pass to `commitMutation` to enable optimistic updates. Let's see what that would look like in our `ChangeTodoStatusMutation`:
+
+```javascript
+// ChangeTodoStatusMutation.js
+
+// ...
+
+function getOptimisticResponse(complete, todo) {
+  return {
+    changeTodoStatus: {
+      todo: {
+        complete: complete,
+        id: todo.id,
+      },
+    },
+  };
+}
+
+function commit(
+  environment,
+  complete,
+  todo
+) {
+  // Now we just call commitMutation with the appropriate parameters
+  return commitMutation(
+    environment,
+    {
+      mutation,
+      variables: {
+        input: {complete, id: todo.id},
+      },
+      optimisticResponse: getOptimisticResponse(complete, todo),
+    }
+  );
+}
+
+export default {commit};
+```
+
+In the simplest case above, we just need to pass an `optimisticResponse` option, which should refer to an object having the same shape as the mutation response payload. When we pass this option, Relay will know to immediately update our local data with the optimistic response, and then update it with the actual server response, or roll it back if an error occurs.
+
+### Updating local data from mutation responses
+
+By default, Relay will know to update the fields in the records associated with the ids returned in the mutation payload, (i.e. the `todo` in our example). However, this is only the simplest case, and in some cases updating the local data isn't as simple as just updating the fields in a record.
+
+For instance, we might be updating a collection of items, or we might be deleting a record entirely. For these more advanced scenarios, Relay allows us to pass a set of options for us to control how we update the local data from a server response, including a set of [`configs`](./mutations.html#configs), and an [`updater`](https://facebook.github.io/relay/docs/en/mutations.html#updating-the-store-programatically-advanced) function for full control over the update.
+
+For more details and advanced use cases on mutations and updates, check out our [Mutations](./mutations.html) docs.
+
+## Next Steps
+
+This guide just scratches the surface of Relay's API; for more detailed docs and guides, check out our API Reference and Guides sections.

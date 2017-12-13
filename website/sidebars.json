@@ -2,9 +2,7 @@
   "docs": {
     "Quick Start": [
       "getting-started",
-      "tutorial",
-      "thinking-in-graphql",
-      "thinking-in-relay"
+      "tutorial"
     ],
     "Relay Modern": [
       "relay-modern",
@@ -62,6 +60,11 @@
       "interfaces-relay-mutation-request",
       "interfaces-relay-network-layer",
       "interfaces-relay-query-request"
+    ],
+    "Principles & Architecture": [
+      "thinking-in-graphql",
+      "thinking-in-relay",
+      "videos"
     ]
   }
 }

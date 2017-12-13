@@ -49,11 +49,11 @@
     "routing": "Routing",
     "subscriptions": "Subscriptions",
     "upgrading-setvariables": "Upgrading setVariables",
-    "getting-started": "Getting Started",
     "thinking-in-graphql": "Thinking in GraphQL",
     "thinking-in-relay": "Thinking In Relay",
-    "tutorial": "Tutorial",
     "videos": "Videos",
+    "getting-started": "Getting Started",
+    "tutorial": "Tutorial",
     "Docs": "Docs",
     "Support": "Support",
     "GitHub": "GitHub",
@@ -63,7 +63,8 @@
     "Relay Classic Guides": "Relay Classic Guides",
     "GraphQL": "GraphQL",
     "Relay Classic API": "Relay Classic API",
-    "Relay Classic Interfaces": "Relay Classic Interfaces"
+    "Relay Classic Interfaces": "Relay Classic Interfaces",
+    "Principles & Architecture": "Principles & Architecture"
   },
   "pages-strings": {
     "Help Translate|recruit community translators for your project": "Help Translate",

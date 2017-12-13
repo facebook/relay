@@ -20,7 +20,8 @@
       "relay-directives",
       "babel-plugin-relay",
       "relay-compiler",
-      "relay-debugging"
+      "relay-debugging",
+      "graphql-relay-specification"
     ],
     "Relay Compat": [
       "relay-compat",
@@ -37,13 +38,6 @@
       "guides-ready-state",
       "guides-mutations",
       "guides-network-layer"
-    ],
-    "GraphQL": [
-      "graphql-relay-specification",
-      "graphql-object-identification",
-      "graphql-connections",
-      "graphql-mutations",
-      "graphql-further-reading"
     ],
     "Relay Classic API": [
       "api-reference-relay",

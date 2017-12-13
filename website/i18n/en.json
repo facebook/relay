@@ -14,10 +14,6 @@
     "api-reference-relay-root-container": "Relay.RootContainer",
     "api-reference-relay-route": "Relay.Route",
     "api-reference-relay-store": "Relay.Store",
-    "graphql-connections": "Connection",
-    "graphql-further-reading": "Further Reading",
-    "graphql-mutations": "Mutations",
-    "graphql-object-identification": "Object Identification",
     "graphql-relay-specification": "GraphQL Relay Specification",
     "guides-containers": "Containers",
     "guides-mutations": "Mutations",
@@ -62,7 +58,6 @@
     "Relay Modern": "Relay Modern",
     "Relay Compat": "Relay Compat",
     "Relay Classic Guides": "Relay Classic Guides",
-    "GraphQL": "GraphQL",
     "Relay Classic API": "Relay Classic API",
     "Relay Classic Interfaces": "Relay Classic Interfaces",
     "Principles & Architecture": "Principles & Architecture"

@@ -446,24 +446,21 @@ function validateConnectionType(
     definitionName,
   );
 
-  [
-    END_CURSOR,
-    HAS_NEXT_PAGE,
-    HAS_PREV_PAGE,
-    START_CURSOR,
-  ].forEach(fieldName => {
-    const pageInfoField = pageInfoType.getFields()[fieldName];
-    invariant(
-      pageInfoField &&
-        SchemaUtils.getNullableType(pageInfoField.type) instanceof
-          GraphQLScalarType,
-      'RelayConnectionTransform: Expected type `%s` to have an ' +
-        '%s field for which the type is an scalar in document `%s`.',
-      pageInfo.type,
-      fieldName,
-      definitionName,
-    );
-  });
+  [END_CURSOR, HAS_NEXT_PAGE, HAS_PREV_PAGE, START_CURSOR].forEach(
+    fieldName => {
+      const pageInfoField = pageInfoType.getFields()[fieldName];
+      invariant(
+        pageInfoField &&
+          SchemaUtils.getNullableType(pageInfoField.type) instanceof
+            GraphQLScalarType,
+        'RelayConnectionTransform: Expected type `%s` to have an ' +
+          '%s field for which the type is an scalar in document `%s`.',
+        pageInfo.type,
+        fieldName,
+        definitionName,
+      );
+    },
+  );
 }
 
 module.exports = {

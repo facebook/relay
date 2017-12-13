@@ -80,25 +80,25 @@ export interface RelayEnvironmentInterface {
   forceFetch(
     querySet: RelayQuerySet,
     onReadyStateChange: ReadyStateChangeCallback,
-  ): Abortable,
+  ): Abortable;
   getFragmentResolver(
     fragment: RelayQuery.Fragment,
     onNext: () => void,
-  ): FragmentResolver,
-  getStoreData(): RelayStoreData,
+  ): FragmentResolver;
+  getStoreData(): RelayStoreData;
   primeCache(
     querySet: RelayQuerySet,
     onReadyStateChange: ReadyStateChangeCallback,
-  ): Abortable,
+  ): Abortable;
   read(
     node: RelayQuery.Node,
     dataID: DataID,
     options?: StoreReaderOptions,
-  ): ?StoreReaderData,
+  ): ?StoreReaderData;
   readQuery(
     root: RelayQuery.Root,
     options?: StoreReaderOptions,
-  ): Array<?StoreReaderData>,
+  ): Array<?StoreReaderData>;
 }
 
 /**

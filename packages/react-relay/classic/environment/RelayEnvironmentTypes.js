@@ -74,7 +74,7 @@ export interface Environment
     operation: ConcreteOperationDefinition,
     optimisticResponse: Object,
     variables: Variables,
-  |}): Disposable,
+  |}): Disposable;
 
   /**
    * Applies an optimistic mutation if provided and commits the mutation to the
@@ -90,5 +90,5 @@ export interface Environment
     optimisticResponse?: ?Object,
     variables: Variables,
     uploadables?: UploadableMap,
-  |}): Disposable,
+  |}): Disposable;
 }

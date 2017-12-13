@@ -21,17 +21,17 @@ import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 let queryID = 1;
 
 export interface IRelayNetworkLoggerTransaction {
-  constructor(config: TransactionConfig): void,
-  addLog(label: string, ...values: Array<any>): void,
-  commitLogs(error: ?Error, payload: ?ExecutePayload, status?: ?string): void,
-  flushLogs(error: ?Error, payload: ?ExecutePayload, status?: ?string): void,
-  markCommitted(): void,
-  getCacheConfig(): ?CacheConfig,
-  getIdentifier(): string,
-  getLogsToPrint(): Array<RelayNetworkLog>,
-  getRequest(): RequestNode,
-  getUploadables(): ?UploadableMap,
-  getVariables(): Variables,
+  constructor(config: TransactionConfig): void;
+  addLog(label: string, ...values: Array<any>): void;
+  commitLogs(error: ?Error, payload: ?ExecutePayload, status?: ?string): void;
+  flushLogs(error: ?Error, payload: ?ExecutePayload, status?: ?string): void;
+  markCommitted(): void;
+  getCacheConfig(): ?CacheConfig;
+  getIdentifier(): string;
+  getLogsToPrint(): Array<RelayNetworkLog>;
+  getRequest(): RequestNode;
+  getUploadables(): ?UploadableMap;
+  getVariables(): Variables;
 }
 
 type TransactionConfig = {

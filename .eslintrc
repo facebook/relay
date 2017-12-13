@@ -19,6 +19,7 @@ rules:
   comma-dangle: off
   max-len: off
   space-before-function-paren: off
+  flowtype/object-type-delimiter: off
 
   # Tests do not need to follow relay naming rules
   relay/graphql-naming: off

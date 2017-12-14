@@ -3,6 +3,7 @@
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
+ * @format
  */
 
 'use strict';
@@ -26,44 +27,91 @@ class Versions extends React.Component {
             <header className="postHeader">
               <h2>{siteConfig.title + ' Versions'}</h2>
             </header>
+            <a name="next" />
+            <h3>Latest Version</h3>
             <p>
-              Relay Modern is Relay's latest version. Relay Classic is deprecated, but its docs are preserved here for reference.
+              Here you can find the latest unreleased documentation and code.
             </p>
-            <a name="latest" />
-            <h3>Relay Modern Docs</h3>
             <table className="versions">
               <tbody>
                 <tr>
-                  <th>
-                    {latestVersion}
-                  </th>
+                  <th>next</th>
                   <td>
-                    <a href={
-                      siteConfig.baseUrl +
-                      'docs/en/introduction-to-relay-modern.html'
-                    }>Documentation</a>
+                    <a
+                      href={`${
+                        siteConfig.baseUrl
+                      }docs/en/next/introduction-to-relay-modern.html`}>
+                      Documentation
+                    </a>
+                  </td>
+                  <td>
+                    <a href="https://github.com/facebook/relay">Source Code</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <a name="latest" />
+            <h3>Current Version (Stable)</h3>
+            <p>Latest stable version of Relay Modern</p>
+            <table className="versions">
+              <tbody>
+                <tr>
+                  <th>{latestVersion}</th>
+                  <td>
+                    <a
+                      href={`${
+                        siteConfig.baseUrl
+                      }docs/en/introduction-to-relay-modern.html`}>
+                      Documentation
+                    </a>
+                  </td>
+                  <td>
+                    <a
+                      href={`https://github.com/facebook/relay/releases/tag/${latestVersion}`}>
+                      Release Notes
+                    </a>
                   </td>
                 </tr>
               </tbody>
             </table>
             <a name="archive" />
-            <h3>Relay Classic Docs</h3>
+            <h3>Past Versions</h3>
+            <p>
+              This section contains documentation and release notes for previous
+              versions of Relay, as well as a reference to Relay Classic docs,
+              which is the old, now deprecated, version of Relay.
+            </p>
             <table className="versions">
               <tbody>
                 {versions.map(
                   version =>
-                    version !== latestVersion &&
-                    <tr key={version}>
-                      <th>
-                        {version}
-                      </th>
-                      <td>
-                        <a href={
-                          siteConfig.baseUrl +
-                          `docs/en/${version}/classic-guides-containers.html`
-                        }>Documentation</a>
-                      </td>
-                    </tr>
+                    version !== latestVersion && (
+                      <tr key={version}>
+                        <th>{version}</th>
+                        <td>
+                          <a
+                            href={
+                              version === 'classic'
+                                ? `${
+                                    siteConfig.baseUrl
+                                  }docs/en/${version}/classic-guides-containers.html`
+                                : `${
+                                    siteConfig.baseUrl
+                                  }docs/en/${version}/introduction-to-relay-modern.html`
+                            }>
+                            Documentation
+                          </a>
+                        </td>
+                        {version !== 'classic' ? (
+                          <td>
+                            <a
+                              href={`https://github.com/facebook/relay/releases/tag/${version}`}>
+                              Release Notes
+                            </a>
+                          </td>
+                        ) : null}
+                      </tr>
+                    ),
                 )}
               </tbody>
             </table>

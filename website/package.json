@@ -8,12 +8,11 @@
     "build": "docusaurus-build",
     "examples": "docusaurus-examples",
     "version": "docusaurus-version",
-    "update-versions": "rm -rf ./versions.json && docusaurus-version classic && docusaurus-version modern",
+    "rename-version": "docusaurus-rename-version",
     "publish-gh-pages": "docusaurus-publish",
     "write-translations": "docusaurus-write-translations",
     "crowdin-upload": "crowdin-cli --config ../crowdin.yaml upload sources --auto-update -b master",
-    "crowdin-download": "crowdin-cli --config ../crowdin.yaml download -b master",
-    "rename-version": "docusaurus-rename-version"
+    "crowdin-download": "crowdin-cli --config ../crowdin.yaml download -b master"
   },
   "dependencies": {
     "docusaurus": "^1.0.0-beta.15",

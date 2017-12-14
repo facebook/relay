@@ -59,7 +59,10 @@
     "API Reference": "API Reference",
     "Guides": "Guides",
     "Migration Guides": "Migration Guides",
-    "Principles & Architecture": "Principles & Architecture"
+    "Principles & Architecture": "Principles & Architecture",
+    "Relay Classic Guides": "Relay Classic Guides",
+    "Relay Classic API": "Relay Classic API",
+    "Relay Classic Interfaces": "Relay Classic Interfaces"
   },
   "pages-strings": {
     "Help Translate|recruit community translators for your project": "Help Translate",

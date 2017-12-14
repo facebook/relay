@@ -126,7 +126,7 @@ commitMutation(
 );
 ```
 
-Another way to enable optimistic updates is via the `optimisticUpdater`, which can be used for more complicated update scenarios. Using `optimisticUpdater` is covered in the section [below](#using-updater-and-optimisticupdater)
+Another way to enable optimistic updates is via the `optimisticUpdater`, which can be used for more complicated update scenarios. Using `optimisticUpdater` is covered in the section [below](#using-updater-and-optimisticupdater).
 
 ## Updater Configs
 
@@ -239,4 +239,110 @@ const configs = [{
 
 ## Using updater and optimisticUpdater
 
-TODO
+`updater` and `optmisticUpdater` are functions that you can pass to a `commitMutation` call when you need full control over how to update the local data store, either optimistically, or based on a server response. Often times, both of these can be the same function.
+
+When you provide these functions, this is roughly what happens during the mutation request:
+
+- If `optimisticResponse` is provided, Relay will use it to update the fields under the records as specified by the ids in the `optimisticResponse`.
+- If `optimisticUpdater` is provided, Relay will execute it and update the store accordingly.
+- After the network comes back, if any optimistic update was applied, it will be rolled back.
+- Relay will then automatically update the fields under the record corresponding to the ids in the response payload.
+- If an `updater` was provided, Relay will execute it and update the store accordingly. The server payload will be available to the `updater` as a root field in the store.
+
+Here are a quick example of adding a todo item to a Todo list using this [example schema](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql#L36):
+
+```javascript
+// AddTodoMutation.js
+import {commitMutation, graphql} from 'react-relay';
+import {ConnectionHandler} from 'relay-runtime';
+
+const mutation = graphql`
+  mutation AddTodoMutation($input: AddTodoInput!) {
+    addTodo(input:$input) {
+      todoEdge {
+        cursor
+        node {
+          complete
+          id
+          text
+        }
+      }
+      viewer {
+        id
+        totalCount
+      }
+    }
+  }
+`;
+
+function sharedUpdater(store, user, newEdge) {
+  // Get the current user record from the store
+  const userProxy = store.get(user.id);
+
+  // Get the user's Todo List using ConnectionHandler helper
+  const conn = ConnectionHandler.getConnection(
+    userProxy,
+    'TodoList_todos', // This is the connection identifier, defined here: https://github.com/relayjs/relay-examples/blob/master/todo/js/components/TodoList.js#L68
+  );
+
+  // Insert the new todo into the Todo List connection
+  ConnectionHandler.insertEdgeAfter(conn, newEdge);
+}
+
+let tempID = 0;
+
+function commit(
+  environment,
+  text,
+  user
+) {
+  return commitMutation(
+    environment,
+    {
+      mutation,
+      variables: {
+        input: {
+          text,
+          clientMutationId: tempID++,
+        },
+      },
+      updater: (store) => {
+        // Get the payload returned from the server
+        const payload = store.getRootField('addTodo');
+
+        // Get the edge of the newly created todo item
+        const newEdge = payload.getLinkedRecord('todoEdge');
+
+        // Add it to the user's todo list
+        sharedUpdater(store, user, newEdge);
+      },
+      optimisticUpdater: (store) => {
+        // Create a Todo Item record in our store with a tempory ID
+        const id = 'client:newTodo:' + tempID++;
+        const node = store.create(id, 'Todo');
+        node.setValue(text, 'text');
+        node.setValue(id, 'id');
+
+        // Create a new edge that contains the newly created Todo Item
+        const newEdge = store.create(
+          'client:newEdge:' + tempID++,
+          'TodoEdge',
+        );
+        newEdge.setLinkedRecord(node, 'node');
+
+        // Add it to the user's todo list
+        sharedUpdater(store, user, newEdge);
+
+        // Given that we don't have a server response here, we also need to update the todo item count on the user
+        const userRecord = store.get(user.id);
+        userRecord.setValue(
+          userRecord.getValue('totalCount') + 1,
+          'totalCount',
+        );
+      },
+    }
+  );
+}
+```
+
+For details on how to interact with the Relay Store, please refer to our Relay Store [docs](./relay-store).

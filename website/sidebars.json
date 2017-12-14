@@ -31,31 +31,6 @@
       "compatibility-cheatsheet",
       "api-cheatsheet"
     ],
-    "Relay Classic Guides": [
-      "classic-guides-containers",
-      "classic-guides-routes",
-      "classic-guides-root-container",
-      "classic-guides-ready-state",
-      "classic-guides-mutations",
-      "classic-guides-network-layer"
-    ],
-    "Relay Classic API": [
-      "classic-api-reference-relay",
-      "classic-api-reference-relay-container",
-      "classic-api-reference-relay-route",
-      "classic-api-reference-relay-renderer",
-      "classic-api-reference-relay-root-container",
-      "classic-api-reference-relay-ql",
-      "classic-api-reference-relay-mutation",
-      "classic-api-reference-relay-graphql-mutation",
-      "classic-api-reference-relay-proptypes",
-      "classic-api-reference-relay-store"
-    ],
-    "Relay Classic Interfaces": [
-      "classic-interfaces-relay-mutation-request",
-      "classic-interfaces-relay-network-layer",
-      "classic-interfaces-relay-query-request"
-    ],
     "Principles & Architecture": [
       "thinking-in-graphql",
       "thinking-in-relay",

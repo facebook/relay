@@ -1,0 +1,40 @@
+{
+  "version-modern-docs": {
+    "Introduction": [
+      "version-modern-introduction-to-relay-modern",
+      "version-modern-prerequisites",
+      "version-modern-installation-and-setup",
+      "version-modern-quick-start-guide"
+    ],
+    "Relay Modern": [
+      "version-modern-new-in-relay-modern",
+      "version-modern-relay-environment",
+      "version-modern-network-layer",
+      "version-modern-query-renderer",
+      "version-modern-fragment-container",
+      "version-modern-refetch-container",
+      "version-modern-pagination-container",
+      "version-modern-routing",
+      "version-modern-mutations",
+      "version-modern-subscriptions",
+      "version-modern-relay-directives",
+      "version-modern-babel-plugin-relay",
+      "version-modern-relay-compiler",
+      "version-modern-relay-debugging",
+      "version-modern-graphql-relay-specification"
+    ],
+    "Relay Compat": [
+      "version-modern-relay-compat",
+      "version-modern-conversion-playbook",
+      "version-modern-conversion-scripts",
+      "version-modern-upgrading-setvariables",
+      "version-modern-compatibility-cheatsheet",
+      "version-modern-api-cheatsheet"
+    ],
+    "Principles & Architecture": [
+      "version-modern-thinking-in-graphql",
+      "version-modern-thinking-in-relay",
+      "version-modern-videos"
+    ]
+  }
+}

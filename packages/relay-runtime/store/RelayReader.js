@@ -17,7 +17,7 @@ const RelayStoreUtils = require('RelayStoreUtils');
 
 const invariant = require('invariant');
 
-import type {DataID} from '../util/RelayRuntimeTypes';
+import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
   ConcreteFragmentSpread,
   ConcreteLinkedField,
@@ -31,7 +31,6 @@ import type {
   Record,
   SelectorData,
 } from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
-import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 const {
   CONDITION,

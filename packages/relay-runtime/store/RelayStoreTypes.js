@@ -11,7 +11,7 @@
 
 'use strict';
 
-import type {DataID, Disposable} from '../util/RelayRuntimeTypes';
+import type {DataID, Disposable, Variables} from '../util/RelayRuntimeTypes';
 import type {
   ConcreteScalarField,
   ConcreteLinkedField,
@@ -42,7 +42,6 @@ import type {
   CUnstableEnvironmentCore,
   Record,
 } from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
-import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 // eslint-disable-next-line no-undef
 export opaque type FragmentReference = empty;

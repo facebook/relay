@@ -37,10 +37,10 @@ import type {
   RelayMutationTransactionCommitCallbacks,
   RelayMutationTransactionCommitFailureCallback,
   RelayMutationTransactionCommitSuccessCallback,
-  Variables,
 } from '../tools/RelayTypes';
 import type RelayMutation from './RelayMutation';
 import type {FileMap} from './RelayMutation';
+import type {Variables} from 'RelayRuntime';
 
 type CollisionQueueMap = {[key: string]: Array<PendingTransaction>};
 interface PendingTransaction {

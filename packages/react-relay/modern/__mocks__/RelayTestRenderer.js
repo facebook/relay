@@ -17,8 +17,7 @@ const invariant = require('invariant');
 
 const {RelayConcreteNode} = require('RelayRuntime');
 
-import type {Variables} from '../../classic/tools/RelayTypes';
-import type {Snapshot} from 'RelayRuntime';
+import type {Variables, Snapshot} from 'RelayRuntime';
 
 type Props = {
   environment: $FlowFixMe,

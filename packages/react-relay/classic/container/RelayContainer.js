@@ -50,9 +50,8 @@ import type {
   ComponentReadyStateChangeCallback,
   RelayContainer as RelayContainerClass,
   RelayProp,
-  Variables,
 } from '../tools/RelayTypes';
-import type {DataID} from 'RelayRuntime';
+import type {DataID, Variables} from 'RelayRuntime';
 
 type FragmentPointer = {
   fragment: RelayQuery.Fragment,

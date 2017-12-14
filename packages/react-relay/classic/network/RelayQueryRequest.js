@@ -17,7 +17,8 @@ const printRelayOSSQuery = require('../traversal/printRelayOSSQuery');
 const printRelayQuery = require('../traversal/printRelayQuery');
 
 import type {PrintedQuery} from '../tools/RelayInternalTypes';
-import type {QueryResult, Variables} from '../tools/RelayTypes';
+import type {QueryResult} from '../tools/RelayTypes';
+import type {Variables} from 'RelayRuntime';
 
 /**
  * @internal

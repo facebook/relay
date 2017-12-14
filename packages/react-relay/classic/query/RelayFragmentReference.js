@@ -17,8 +17,8 @@ const invariant = require('invariant');
 const warning = require('warning');
 
 import type RelayMetaRoute from '../route/RelayMetaRoute';
-import type {Variables} from '../tools/RelayTypes';
 import type {ConcreteFragment} from './ConcreteQuery';
+import type {Variables} from 'RelayRuntime';
 
 type Condition = {
   passingValue: boolean,

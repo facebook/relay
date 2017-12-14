@@ -23,7 +23,6 @@ const {
   requestSubscription,
 } = require('RelayRuntime');
 
-export type {Variables} from '../classic/tools/RelayTypes';
 export type {
   RelayPaginationProp,
   RelayProp,
@@ -39,6 +38,7 @@ export type {
   RelayContext,
   Selector,
   Snapshot,
+  Variables,
 } from 'RelayRuntime';
 
 /**

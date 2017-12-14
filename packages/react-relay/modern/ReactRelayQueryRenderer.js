@@ -19,14 +19,14 @@ const invariant = require('invariant');
 
 import type {CacheConfig} from '../classic/environment/RelayCombinedEnvironmentTypes';
 import type {RelayEnvironmentInterface as ClassicEnvironment} from '../classic/store/RelayEnvironment';
-import type {Variables} from '../classic/tools/RelayTypes';
 import type {
   Disposable,
-  IEnvironment,
   GraphQLTaggedNode,
+  IEnvironment,
   OperationSelector,
   RelayContext,
   Snapshot,
+  Variables,
 } from 'RelayRuntime';
 
 const NETWORK_ONLY = 'NETWORK_ONLY';

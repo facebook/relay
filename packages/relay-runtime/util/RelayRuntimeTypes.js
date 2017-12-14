@@ -25,3 +25,6 @@ export type Disposable = {
 };
 
 export type DataID = string;
+
+// Variables
+export type Variables = {[name: string]: $FlowFixMe};

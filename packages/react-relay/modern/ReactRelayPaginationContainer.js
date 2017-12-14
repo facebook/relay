@@ -37,7 +37,6 @@ import type {
   CacheConfig,
   FragmentSpecResolver,
 } from '../classic/environment/RelayCombinedEnvironmentTypes';
-import type {Variables} from '../classic/tools/RelayTypes';
 import type {
   $RelayProps,
   ObserverOrCallback,
@@ -54,6 +53,7 @@ import type {
   PageInfo,
   RelayContext,
   Subscription,
+  Variables,
 } from 'RelayRuntime';
 
 type ContainerState = {

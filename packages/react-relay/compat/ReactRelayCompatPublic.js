@@ -19,13 +19,12 @@ const RelayCompatRefetchContainer = require('./react/RelayCompatRefetchContainer
 
 const {graphql, fetchQuery} = require('RelayRuntime');
 
-export type {Variables} from '../classic/tools/RelayTypes';
 export type {
   RelayPaginationProp,
   RelayProp,
   RelayRefetchProp,
 } from '../modern/ReactRelayTypes';
-export type {DataID, Disposable} from 'RelayRuntime';
+export type {DataID, Disposable, Variables} from 'RelayRuntime';
 export type {
   GraphQLTaggedNode,
   IEnvironment,

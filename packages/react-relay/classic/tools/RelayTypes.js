@@ -27,7 +27,7 @@ import type {
   RangeBehaviors,
   QueryPayload,
 } from './RelayInternalTypes';
-import type {DataID} from 'RelayRuntime';
+import type {DataID, Variables} from 'RelayRuntime';
 import type URI from 'URI';
 
 type RelayContainerErrorEventType =
@@ -251,8 +251,6 @@ export type SubscriptionCallbacks<T> = {
   onError(error: Error): void,
   onCompleted(): void,
 };
-// Variables
-export type Variables = {[name: string]: $FlowFixMe};
 export type RerunParam = {
   param: string,
   import?: ?string,

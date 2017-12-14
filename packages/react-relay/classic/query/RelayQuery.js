@@ -33,7 +33,6 @@ const {getFragmentSpreadArguments} = require('./RelayVariables');
 const {ConnectionInterface, RelayProfiler} = require('RelayRuntime');
 
 import type {Call, Directive} from '../tools/RelayInternalTypes';
-import type {Variables} from '../tools/RelayTypes';
 import type {
   ConcreteField,
   ConcreteFieldMetadata,
@@ -45,6 +44,7 @@ import type {
   ConcreteQuery,
   ConcreteQueryMetadata,
 } from './ConcreteQuery';
+import type {Variables} from 'RelayRuntime';
 
 type BatchCall = {
   refParamName: string,

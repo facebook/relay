@@ -15,6 +15,7 @@ const RelayConcreteNode = require('RelayConcreteNode');
 
 const {convertFetch, convertSubscribe} = require('ConvertToExecuteFunction');
 
+import type {Variables} from '../util/RelayRuntimeTypes';
 import type {ConcreteRequest} from 'RelayConcreteNode';
 import type {IRelayNetworkLoggerTransaction} from 'RelayNetworkLoggerTransaction';
 import type {
@@ -22,7 +23,6 @@ import type {
   FetchFunction,
   SubscribeFunction,
 } from 'RelayNetworkTypes';
-import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 export type GraphiQLPrinter = (
   request: ConcreteRequest,

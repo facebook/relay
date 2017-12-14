@@ -17,12 +17,12 @@ const getRelayHandleKey = require('getRelayHandleKey');
 const invariant = require('invariant');
 const stableCopy = require('stableCopy');
 
+import type {Variables} from '../util/RelayRuntimeTypes';
 import type {
   ConcreteArgument,
   ConcreteField,
   ConcreteHandle,
 } from 'RelayConcreteNode';
-import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 export type Arguments = {[argName: string]: mixed};
 

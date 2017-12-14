@@ -11,11 +11,10 @@
 
 'use strict';
 
-import type {Disposable} from '../util/RelayRuntimeTypes';
+import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
 import type {ConcreteOperation, RequestNode} from 'RelayConcreteNode';
 import type RelayObservable, {ObservableFromValue} from 'RelayObservable';
 import type {CacheConfig} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
-import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 /**
  * An interface for fetching the data for one or more (possibly interdependent)

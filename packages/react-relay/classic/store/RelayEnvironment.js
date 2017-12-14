@@ -56,7 +56,6 @@ import type {
   ReadyStateChangeCallback,
   StoreReaderData,
   StoreReaderOptions,
-  Variables,
 } from '../tools/RelayTypes';
 import type RelayQueryTracker from './RelayQueryTracker';
 import type {DataID} from 'RelayRuntime';
@@ -64,6 +63,7 @@ import type {
   Disposable,
   SelectorStoreUpdater,
   UploadableMap,
+  Variables,
 } from 'RelayRuntime';
 
 export type FragmentResolver = {

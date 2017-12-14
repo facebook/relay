@@ -27,11 +27,11 @@ import type {
   RelayMutationConfig,
   RelayMutationTransactionCommitFailureCallback,
   RelayMutationTransactionCommitSuccessCallback,
-  Variables,
 } from '../tools/RelayTypes';
 import type {RelayMutationTransactionCommitCallbacks} from '../tools/RelayTypes';
 import type {FileMap} from './RelayMutation';
 import type RelayMutationTransaction from './RelayMutationTransaction';
+import type {Variables} from 'RelayRuntime';
 
 const COUNTER_PREFIX = 'RelayGraphQLMutation';
 let collisionIDCounter = 0;

@@ -100,20 +100,22 @@ function transformInputType(type: GraphQLInputType, state: State) {
   }
 }
 
-function transformInputObjectField(name: string, type: GraphQLInputType, state: State) {
-  const { recursionLimit, recursionLevel, recursiveFields } = state;
+function transformInputObjectField(
+  name: string,
+  type: GraphQLInputType,
+  state: State,
+) {
+  const {recursionLimit, recursionLevel, recursiveFields} = state;
   const id = t.identifier(name);
   if (recursiveFields.indexOf(name) > -1 && recursionLevel > recursionLimit) {
     const anyType = t.anyTypeAnnotation();
-    if (type instanceof GraphQLList)
+    if (type instanceof GraphQLList) {
       return t.objectTypeProperty(id, readOnlyArrayOfType(anyType));
-    else
+    } else {
       return t.objectTypeProperty(id, anyType);
+    }
   }
-  return t.objectTypeProperty(
-    id,
-    transformInputType(type, state),
-  )
+  return t.objectTypeProperty(id, transformInputType(type, state));
 }
 
 function transformNonNullableInputType(type: GraphQLInputType, state: State) {
@@ -130,7 +132,11 @@ function transformNonNullableInputType(type: GraphQLInputType, state: State) {
       .map(key => fields[key])
       .filter(field => state.inputFieldWhiteList.indexOf(field.name) < 0)
       .map(field => {
-        const property = transformInputObjectField(field.name, field.type, state);
+        const property = transformInputObjectField(
+          field.name,
+          field.type,
+          state,
+        );
         if (!(field.type instanceof GraphQLNonNull)) {
           property.optional = true;
         }

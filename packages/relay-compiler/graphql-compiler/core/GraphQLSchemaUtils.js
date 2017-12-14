@@ -39,7 +39,6 @@ import type {
   GraphQLScalarType,
   GraphQLType,
   TypeNode,
-  DefinitionNode,
 } from 'graphql';
 
 const ID = 'id';
@@ -245,29 +244,31 @@ function getTypeFromAST(schema: GraphQLSchema, ast: TypeNode): GraphQLType {
  *
  * TODO @mmahoney: t16495627 write tests or remove uses of this
  */
-function definitionName(definition: DefinitionNode): string {
-  switch (definition.kind) {
-    case 'DirectiveDefinition':
-    case 'EnumTypeDefinition':
-    case 'FragmentDefinition':
-    case 'InputObjectTypeDefinition':
-    case 'InterfaceTypeDefinition':
-    case 'ObjectTypeDefinition':
-    case 'ScalarTypeDefinition':
-    case 'UnionTypeDefinition':
-      return definition.name.value;
-    case 'OperationDefinition':
-      return definition.name ? definition.name.value : '';
-    case 'TypeExtensionDefinition':
-      return definition.toString();
-    case 'SchemaDefinition':
-      return 'schema';
-  }
-  throw new Error('Unkown definition kind: ' + definition.kind);
-}
+// This function was never used and causing eslint to fail
+//function definitionName(definition: DefinitionNode): string {
+//  switch (definition.kind) {
+//    case 'DirectiveDefinition':
+//    case 'EnumTypeDefinition':
+//    case 'FragmentDefinition':
+//    case 'InputObjectTypeDefinition':
+//    case 'InterfaceTypeDefinition':
+//    case 'ObjectTypeDefinition':
+//    case 'ScalarTypeDefinition':
+//    case 'UnionTypeDefinition':
+//      return definition.name.value;
+//    case 'OperationDefinition':
+//      return definition.name ? definition.name.value : '';
+//    case 'TypeExtensionDefinition':
+//      return definition.toString();
+//    case 'SchemaDefinition':
+//      return 'schema';
+//  }
+//  throw new Error('Unkown definition kind: ' + definition.kind);
+//}
+
 /**
-* Given a graph key->[string], returns the transposed graph
-*/
+ * Given a graph key->[string], returns the transposed graph
+ */
 function transposeGraph(graph) {
   const transposed = Object.keys(graph).reduce(
     (g, k) => Object.assign(g, {[k]: []}),
@@ -298,7 +299,9 @@ function initVisited(graph) {
 function graphDFS(graph, key, visited, cb) {
   visited[key] = true;
   graph[key].forEach(node => {
-    if (!visited[node]) graphDFS(graph, node, visited, cb);
+    if (!visited[node]) {
+      graphDFS(graph, node, visited, cb);
+    }
     cb(node);
   });
 }
@@ -310,10 +313,11 @@ function graphOrderNodes(graph) {
   const visited = initVisited(graph);
   const orderedNodes = [];
   Object.keys(graph).forEach(k => {
-    if (!visited[k])
+    if (!visited[k]) {
       graphDFS(graph, k, visited, node => {
         orderedNodes.push(node);
       });
+    }
   });
   return orderedNodes;
 }
@@ -328,8 +332,9 @@ function graphSCCs(graph, orderedNodes) {
   orderedNodes.reverse().forEach(k => {
     if (!visited[k]) {
       graphDFS(graph, k, visited, node => {
-        if (sccs[sccs.length - 1].indexOf(node) < 0)
+        if (sccs[sccs.length - 1].indexOf(node) < 0) {
           sccs[sccs.length - 1].push(node);
+        }
       });
       sccs.push([]);
     }
@@ -337,20 +342,15 @@ function graphSCCs(graph, orderedNodes) {
   return sccs.filter(c => Boolean(c.length)); //Trim trailing component
 }
 
-function flatten(arr, el): Array<*> {
-  return arr.concat(Array.isArray(el) ? el.reduce(flatten, []) : el);
-}
-
 function objectFields(type: GraphQLType) {
   const raw = getRawType(type);
-  if (!(raw instanceof InputObjectType)) return [];
+  if (!(raw instanceof InputObjectType)) {
+    return [];
+  }
   const fields = raw.getFields();
   return Object.keys(fields)
     .map(k => fields[k])
-    .filter(
-      field =>
-        getRawType(field.type) instanceof InputObjectType,
-    );
+    .filter(field => getRawType(field.type) instanceof InputObjectType);
 }
 
 /**
@@ -358,7 +358,9 @@ function objectFields(type: GraphQLType) {
  * fieldName->[fieldNames]
  */
 function buildFieldGraph(graph, field) {
-  if (!field || graph.hasOwnProperty(field.name)) return graph;
+  if (!field || graph.hasOwnProperty(field.name)) {
+    return graph;
+  }
   const fields = objectFields(field.type);
   return fields.reduce(buildFieldGraph, {
     ...graph,

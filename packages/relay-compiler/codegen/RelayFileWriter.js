@@ -37,10 +37,7 @@ import type {FormatModule} from './writeRelayGeneratedFile';
 import type {FileWriterInterface, Reporter} from 'graphql-compiler';
 import type {DocumentNode, GraphQLSchema, ValidationContext} from 'graphql';
 
-const {
-  isOperationDefinitionAST,
-  getFieldNameSCCs
-} = SchemaUtils;
+const {isOperationDefinitionAST, getFieldNameSCCs} = SchemaUtils;
 
 export type GenerateExtraFiles = (
   getOutputDirectory: (path?: string) => CodegenDirectory,
@@ -269,9 +266,13 @@ class RelayFileWriter implements FileWriterInterface {
               node.name,
             );
 
-            const recursiveFields = (flowNode.argumentDefinitions || []).map(arg =>
-              getFieldNameSCCs(arg.type).filter(component => component.length > 1)
-            ).reduce(flatten, []);
+            const recursiveFields = (flowNode.argumentDefinitions || [])
+              .map(arg =>
+                getFieldNameSCCs(arg.type).filter(
+                  component => component.length > 1,
+                ),
+              )
+              .reduce(flatten, []);
 
             const flowTypes = RelayFlowGenerator.generate(flowNode, {
               customScalars: this._config.customScalars,

@@ -45,6 +45,7 @@
     "relay-compat": "Compatibility Mode",
     "relay-compiler": "Relay Compiler",
     "relay-environment": "Relay Environment",
+    "relay-store": "Relay Store",
     "routing": "Routing",
     "subscriptions": "Subscriptions",
     "upgrading-setvariables": "Upgrading setVariables",
@@ -58,10 +59,7 @@
     "API Reference": "API Reference",
     "Guides": "Guides",
     "Migration Guides": "Migration Guides",
-    "Principles & Architecture": "Principles & Architecture",
-    "Relay Classic Guides": "Relay Classic Guides",
-    "Relay Classic API": "Relay Classic API",
-    "Relay Classic Interfaces": "Relay Classic Interfaces"
+    "Principles & Architecture": "Principles & Architecture"
   },
   "pages-strings": {
     "Help Translate|recruit community translators for your project": "Help Translate",

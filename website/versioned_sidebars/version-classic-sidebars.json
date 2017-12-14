@@ -1,29 +1,43 @@
 {
   "version-classic-docs": {
-    "Relay Classic Guides": [
-      "version-classic-classic-guides-containers",
-      "version-classic-classic-guides-routes",
-      "version-classic-classic-guides-root-container",
-      "version-classic-classic-guides-ready-state",
-      "version-classic-classic-guides-mutations",
-      "version-classic-classic-guides-network-layer"
+    "Introduction": [
+      "version-classic-introduction-to-relay-modern",
+      "version-classic-prerequisites",
+      "version-classic-installation-and-setup",
+      "version-classic-quick-start-guide"
     ],
-    "Relay Classic API": [
-      "version-classic-classic-api-reference-relay",
-      "version-classic-classic-api-reference-relay-container",
-      "version-classic-classic-api-reference-relay-route",
-      "version-classic-classic-api-reference-relay-renderer",
-      "version-classic-classic-api-reference-relay-root-container",
-      "version-classic-classic-api-reference-relay-ql",
-      "version-classic-classic-api-reference-relay-mutation",
-      "version-classic-classic-api-reference-relay-graphql-mutation",
-      "version-classic-classic-api-reference-relay-proptypes",
-      "version-classic-classic-api-reference-relay-store"
+    "API Reference": [
+      "version-classic-relay-compiler",
+      "version-classic-relay-directives",
+      "version-classic-relay-environment",
+      "version-classic-network-layer",
+      "version-classic-query-renderer",
+      "version-classic-fragment-container",
+      "version-classic-refetch-container",
+      "version-classic-pagination-container",
+      "version-classic-mutations",
+      "version-classic-relay-store",
+      "version-classic-subscriptions"
     ],
-    "Relay Classic Interfaces": [
-      "version-classic-classic-interfaces-relay-mutation-request",
-      "version-classic-classic-interfaces-relay-network-layer",
-      "version-classic-classic-interfaces-relay-query-request"
+    "Guides": [
+      "version-classic-graphql-relay-specification",
+      "version-classic-routing",
+      "version-classic-relay-debugging"
+    ],
+    "Migration Guides": [
+      "version-classic-new-in-relay-modern",
+      "version-classic-relay-compat",
+      "version-classic-migration-setup",
+      "version-classic-conversion-playbook",
+      "version-classic-conversion-scripts",
+      "version-classic-upgrading-setvariables",
+      "version-classic-compatibility-cheatsheet",
+      "version-classic-api-cheatsheet"
+    ],
+    "Principles & Architecture": [
+      "version-classic-thinking-in-graphql",
+      "version-classic-thinking-in-relay",
+      "version-classic-videos"
     ]
   }
 }

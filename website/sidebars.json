@@ -16,6 +16,7 @@
       "refetch-container",
       "pagination-container",
       "mutations",
+      "relay-store",
       "subscriptions"
     ],
     "Guides": [

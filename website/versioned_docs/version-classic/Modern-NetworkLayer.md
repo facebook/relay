@@ -1,10 +1,8 @@
 ---
 id: version-classic-network-layer
-title: The Relay Network Layer
+title: Network Layer
 original_id: network-layer
 ---
-
-# Network Layer
 
 In order to know how to access your GraphQL server, Relay Modern requires developers to provide an object implementing the `NetworkLayer` interface when creating an instance of a [Relay Environment](relay-environment.html). The environment uses this network layer to execute queries, mutations, and (if your server supports them) subscriptions. This allows developers to use whatever transport (HTTP, WebSockets, etc) and authentication is most appropriate for their application, decoupling the environment from the particulars of each application's network configuration.
 

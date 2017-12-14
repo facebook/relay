@@ -6,7 +6,6 @@ original_id: new-in-relay-modern
 
 > A summary of the improvements and new features in Relay Modern.
 
-
 ## Compat Mode
 
 [Compat mode](./relay-compat.html) allows the Relay Modern APIs to be incrementally adopted in an existing Relay app. This approach enables the following features compared to Relay Classic:

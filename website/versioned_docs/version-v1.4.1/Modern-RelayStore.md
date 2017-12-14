@@ -1,6 +1,7 @@
 ---
-id: relay-store
+id: version-v1.4.1-relay-store
 title: Relay Store
+original_id: relay-store
 ---
 
 The Relay Store can be used to programatically update client-side data inside [`updater` functions](./mutations.html#using-updater-and-optimisticupdater). The following is a reference of the Relay Store interface.

@@ -10,13 +10,13 @@
 
 'use strict';
 
-jest.enableAutomock();
+jest
+  .mock('../../legacy/store/GraphQLStoreQueryResolver')
+  .mock('react-relay/classic/route/RelayRoute')
+  .mock('../../store/RelayEnvironment')
+  .mock('warning');
 
 require('configureForRelayOSS');
-
-jest.unmock('create-react-class');
-jest.unmock('react-test-renderer/shallow');
-jest.unmock('../RelayContainerComparators').mock('warning');
 
 const GraphQLStoreQueryResolver = require('../../legacy/store/GraphQLStoreQueryResolver');
 const QueryBuilder = require('../../query/QueryBuilder');

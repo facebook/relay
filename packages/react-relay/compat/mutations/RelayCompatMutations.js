@@ -19,11 +19,14 @@ const {
 } = require('../RelayCompatEnvironment');
 const {applyOptimisticMutation, commitMutation} = require('RelayRuntime');
 
-import type {Disposable} from '../../classic/environment/RelayCombinedEnvironmentTypes';
 import type {Environment as ClassicEnvironment} from '../../classic/environment/RelayEnvironmentTypes';
 import type {ConcreteOperationDefinition} from '../../classic/query/ConcreteQuery';
 import type {CompatEnvironment} from '../react/RelayCompatTypes';
-import type {MutationConfig, OptimisticMutationConfig} from 'RelayRuntime';
+import type {
+  Disposable,
+  MutationConfig,
+  OptimisticMutationConfig,
+} from 'RelayRuntime';
 
 const RelayCompatMutations = {
   commitUpdate<T>(
@@ -44,7 +47,7 @@ const RelayCompatMutations = {
       return commitRelayClassicMutation(
         // getRelayClassicEnvironment returns a RelayEnvironmentInterface
         // (classic APIs), but we need the modern APIs on old core here.
-        (relayClassicEnvironment: $FixMe),
+        (relayClassicEnvironment: $FlowFixMe),
         config,
       );
     }
@@ -68,7 +71,7 @@ const RelayCompatMutations = {
       return applyRelayClassicMutation(
         // getRelayClassicEnvironment returns a RelayEnvironmentInterface
         // (classic APIs), but we need the modern APIs on old core here.
-        (relayClassicEnvironment: $FixMe),
+        (relayClassicEnvironment: $FlowFixMe),
         config,
       );
     }

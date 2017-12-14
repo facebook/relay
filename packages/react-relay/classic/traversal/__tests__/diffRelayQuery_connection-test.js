@@ -10,14 +10,9 @@
 
 'use strict';
 
-jest.enableAutomock();
+jest.mock('warning').mock('../../store/RelayQueryTracker');
 
 require('configureForRelayOSS');
-
-jest
-  .unmock('../../legacy/store/GraphQLRange')
-  .unmock('../../legacy/store/GraphQLSegment')
-  .mock('warning');
 
 const Relay = require('../../RelayPublic');
 const RelayQueryTracker = require('../../store/RelayQueryTracker');

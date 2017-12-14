@@ -4,7 +4,7 @@ Relay is one of Facebook's open source projects that is both under very active d
 
 ## [Code of Conduct](https://code.facebook.com/codeofconduct)
 
-Facebook has adopted a Code of Conduct that we expect project participants to adhere to. Please read [the full text](https://code.facebook.com/codeofconduct) so that you can understand what actions will and will not be tolerated.
+The code of conduct is described in [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md)
 
 ## Our Development Process
 

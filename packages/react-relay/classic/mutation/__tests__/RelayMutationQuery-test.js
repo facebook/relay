@@ -10,11 +10,12 @@
 
 'use strict';
 
-jest.enableAutomock();
+jest
+  .mock('warning')
+  .mock('../../store/RelayQueryTracker')
+  .mock('../../traversal/intersectRelayQuery');
 
 require('configureForRelayOSS');
-
-jest.unmock('../RelayMutationQuery').mock('warning');
 
 const GraphQLMutatorConstants = require('../../legacy/mutation/GraphQLMutatorConstants');
 const Relay = require('../../RelayPublic');

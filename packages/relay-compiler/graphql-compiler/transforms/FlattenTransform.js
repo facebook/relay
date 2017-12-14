@@ -18,11 +18,9 @@ const GraphQLSchemaUtils = require('../core/GraphQLSchemaUtils');
 const areEqual = require('../util/areEqualOSS');
 const getIdentifierForSelection = require('../core/getIdentifierForSelection');
 const invariant = require('invariant');
-const isEquivalentType = require('../core/isEquivalentType');
 
 const {createUserError} = require('../core/GraphQLCompilerUserError');
 const {printField} = require('../core/GraphQLIRPrinter');
-const {GraphQLNonNull, GraphQLList} = require('graphql');
 
 import type {
   Condition,
@@ -30,7 +28,6 @@ import type {
   Fragment,
   Handle,
   InlineFragment,
-  Node,
   Root,
   ScalarField,
   LinkedField,
@@ -250,11 +247,10 @@ function shouldFlattenInlineFragment(
   state: State,
   type: GraphQLType,
 ): boolean {
-  return !!(
+  return (
     state.flattenInlineFragments ||
-    isEquivalentType(fragment.typeCondition, type) ||
-    (state.flattenAbstractTypes &&
-      isAbstractType(getRawType(fragment.typeCondition)))
+    fragment.typeCondition.name === getRawType(type).name ||
+    (state.flattenAbstractTypes && isAbstractType(fragment.typeCondition))
   );
 }
 

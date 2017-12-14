@@ -13,6 +13,7 @@
 
 const RelayApplyFragmentArgumentTransform = require('../transforms/RelayApplyFragmentArgumentTransform');
 const RelayConnectionTransform = require('../handlers/connection//RelayConnectionTransform');
+const RelayDeferrableFragmentTransform = require('../transforms/RelayDeferrableFragmentTransform');
 const RelayFieldHandleTransform = require('../transforms/RelayFieldHandleTransform');
 const RelayGenerateIDFieldTransform = require('../transforms/RelayGenerateIDFieldTransform');
 const RelayGenerateTypeNameTransform = require('../transforms/RelayGenerateTypeNameTransform');
@@ -25,13 +26,12 @@ const {
   FilterDirectivesTransform,
   FlattenTransform,
   InlineFragmentsTransform,
-  IRTransforms,
+  SkipClientFieldTransform,
   SkipRedundantNodesTransform,
+  SkipUnreachableNodeTransform,
 } = require('graphql-compiler');
 
 import type {IRTransform} from 'graphql-compiler';
-
-const {fragmentTransforms, queryTransforms} = IRTransforms;
 
 // Transforms applied to the code used to process a query response.
 const relaySchemaExtensions: Array<string> = [
@@ -39,34 +39,37 @@ const relaySchemaExtensions: Array<string> = [
   RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
 ];
 
-// Transforms applied to fragments used for reading data from a store
-const relayFragmentTransforms: Array<IRTransform> = [
+// Transforms applied to both operations and fragments for both reading and
+// writing from the store.
+const relayCommonTransforms: Array<IRTransform> = [
   RelayConnectionTransform.transform,
   RelayViewerHandleTransform.transform,
   RelayRelayDirectiveTransform.transform,
   RelayMaskTransform.transform,
+  RelayDeferrableFragmentTransform.transformOperations,
+];
+
+// Transforms applied to fragments used for reading data from a store
+const relayFragmentTransforms: Array<IRTransform> = [
   RelayFieldHandleTransform.transform,
-  ...fragmentTransforms,
+  FlattenTransform.transformWithOptions({flattenAbstractTypes: true}),
+  SkipRedundantNodesTransform.transform,
 ];
 
 // Transforms applied to queries/mutations/subscriptions that are used for
 // fetching data from the server and parsing those responses.
 const relayQueryTransforms: Array<IRTransform> = [
-  RelayConnectionTransform.transform,
-  RelayViewerHandleTransform.transform,
-  RelayRelayDirectiveTransform.transform,
-  RelayMaskTransform.transform,
+  RelayDeferrableFragmentTransform.transformSpreads,
   RelayApplyFragmentArgumentTransform.transform,
-  ...queryTransforms,
+  SkipClientFieldTransform.transform,
+  SkipUnreachableNodeTransform.transform,
   RelayGenerateIDFieldTransform.transform,
 ];
 
 // Transforms applied to the code used to process a query response.
 const relayCodegenTransforms: Array<IRTransform> = [
   InlineFragmentsTransform.transform,
-  FlattenTransform.transformWithOptions({
-    flattenAbstractTypes: true,
-  }),
+  FlattenTransform.transformWithOptions({flattenAbstractTypes: true}),
   SkipRedundantNodesTransform.transform,
   RelayGenerateTypeNameTransform.transform,
   FilterDirectivesTransform.transform,
@@ -81,6 +84,7 @@ const relayPrintTransforms: Array<IRTransform> = [
 ];
 
 module.exports = {
+  commonTransforms: relayCommonTransforms,
   codegenTransforms: relayCodegenTransforms,
   fragmentTransforms: relayFragmentTransforms,
   printTransforms: relayPrintTransforms,

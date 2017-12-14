@@ -10,17 +10,22 @@
 
 'use strict';
 
-import type {Disposable} from '../classic/environment/RelayCombinedEnvironmentTypes';
 import type {RerunParam, Variables} from '../classic/tools/RelayTypes';
-import type {GraphQLTaggedNode, Observer, IEnvironment} from 'RelayRuntime';
+import type {Disposable} from 'RelayRuntime';
+import type {
+  FragmentReference,
+  GraphQLTaggedNode,
+  IEnvironment,
+  Observer,
+} from 'RelayRuntime';
 
 export type GeneratedNodeMap = {[key: string]: GraphQLTaggedNode};
+
+export type ObserverOrCallback = Observer<void> | ((error: ?Error) => mixed);
 
 export type RelayProp = {
   environment: IEnvironment,
 };
-
-export type ObserverOrCallback = Observer<void> | ((error: ?Error) => mixed);
 
 export type RelayPaginationProp = RelayProp & {
   hasMore: () => boolean,
@@ -50,3 +55,20 @@ export type RefetchOptions = {
   force?: boolean,
   rerunParamExperimental?: RerunParam,
 };
+
+/**
+ * A utility type that takes the Props of a component and the type of
+ * `props.relay` and returns the props of the container.
+ */
+// prettier-ignore
+export type $RelayProps<Props, RelayPropT> = $ObjMap<
+  $Diff<Props, {relay: RelayPropT | void}>,
+  & (<T: empty>(T) => T)
+  & (<TRef: FragmentReference, TFragData: {+$refType: TRef}>(                 TFragData ) =>                  {+__fragments: TRef} )
+  & (<TRef: FragmentReference, TFragData: {+$refType: TRef}>(?                TFragData ) => ?                {+__fragments: TRef} )
+  & (<TRef: FragmentReference, TFragData: {+$refType: TRef}>( $ReadOnlyArray< TFragData>) =>  $ReadOnlyArray< {+__fragments: TRef}>)
+  & (<TRef: FragmentReference, TFragData: {+$refType: TRef}>(?$ReadOnlyArray< TFragData>) => ?$ReadOnlyArray< {+__fragments: TRef}>)
+  & (<TRef: FragmentReference, TFragData: {+$refType: TRef}>( $ReadOnlyArray<?TFragData>) =>  $ReadOnlyArray<?{+__fragments: TRef}>)
+  & (<TRef: FragmentReference, TFragData: {+$refType: TRef}>(?$ReadOnlyArray<?TFragData>) => ?$ReadOnlyArray<?{+__fragments: TRef}>)
+  & (<T>(T) => T),
+>;

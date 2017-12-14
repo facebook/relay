@@ -220,6 +220,7 @@ function createMockEnvironment(options: {
   mockInstanceMethod(environment, 'commitPayload');
   mockInstanceMethod(environment, 'getStore');
   mockInstanceMethod(environment, 'lookup');
+  mockInstanceMethod(environment, 'check');
   mockDisposableMethod(environment, 'subscribe');
   mockDisposableMethod(environment, 'retain');
   mockObservableMethod(environment, 'execute');
@@ -248,6 +249,7 @@ function createMockEnvironment(options: {
     environment.commitPayload.mockClear();
     environment.getStore.mockClear();
     environment.lookup.mockClear();
+    environment.check.mockClear();
     environment.subscribe.mockClear();
     environment.retain.mockClear();
     environment.execute.mockClear();

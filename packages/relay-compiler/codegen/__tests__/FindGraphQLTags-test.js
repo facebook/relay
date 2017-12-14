@@ -24,62 +24,45 @@ describe('FindGraphQLTags', () => {
       expect(find('const foo = 1;')).toEqual([]);
     });
 
-    it('parses Relay2QL templates', () => {
-      expect(
-        find(
-          `
-            const foo = 1;
-            foo(Relay2QL\`fragment FindGraphQLTags on User { id }\`);
-            Relay2QL\`fragment FindGraphQLTags on User { name }\`;
-          `,
-        ),
-      ).toEqual([
-        'fragment FindGraphQLTags on User { id }',
-        'fragment FindGraphQLTags on User { name }',
-      ]);
-    });
-
     it('parses graphql templates', () => {
       expect(
-        find(
-          `
-            const foo = 1;
-            foo(graphql\`fragment FindGraphQLTags on User { id }\`);
-            graphql\`fragment FindGraphQLTags on User { name }\`;
+        find(`
+          const foo = 1;
+          foo(graphql\`fragment FindGraphQLTags on User { id }\`);
+          graphql\`fragment FindGraphQLTags on User { name }\`;
 
-            createFragmentContainer(Component, {
-              foo: graphql\`fragment FindGraphQLTags_foo on Page { id }\`,
-            });
-            createPaginationContainer(
-              Component,
-              {},
-              {
-                query: graphql\`query FindGraphQLTagsPaginationQuery { me { id } }\`,
-              }
-            );
-            createRefetchContainer(
-              Component,
-              {},
-              graphql\`query FindGraphQLTagsRefetchQuery { me { id } }\`
-            );
+          createFragmentContainer(Component, {
+            foo: graphql\`fragment FindGraphQLTags_foo on Page { id }\`,
+          });
+          createPaginationContainer(
+            Component,
+            {},
+            {
+              query: graphql\`query FindGraphQLTagsPaginationQuery { me { id } }\`,
+            }
+          );
+          createRefetchContainer(
+            Component,
+            {},
+            graphql\`query FindGraphQLTagsRefetchQuery { me { id } }\`
+          );
 
-            Relay.createFragmentContainer(Component, {
-              foo: graphql\`fragment FindGraphQLTags_foo on Page { name }\`,
-            });
-            Relay.createPaginationContainer(
-              Component,
-              {},
-              {
-                query: graphql\`query FindGraphQLTagsPaginationQuery { me { name } }\`,
-              }
-            );
-            Relay.createRefetchContainer(
-              Component,
-              {},
-              graphql\`query FindGraphQLTagsRefetchQuery { me { name } }\`
-            );
-          `,
-        ),
+          Relay.createFragmentContainer(Component, {
+            foo: graphql\`fragment FindGraphQLTags_foo on Page { name }\`,
+          });
+          Relay.createPaginationContainer(
+            Component,
+            {},
+            {
+              query: graphql\`query FindGraphQLTagsPaginationQuery { me { name } }\`,
+            }
+          );
+          Relay.createRefetchContainer(
+            Component,
+            {},
+            graphql\`query FindGraphQLTagsRefetchQuery { me { name } }\`
+          );
+        `),
       ).toEqual([
         'fragment FindGraphQLTags on User { id }',
         'fragment FindGraphQLTags on User { name }',
@@ -92,32 +75,19 @@ describe('FindGraphQLTags', () => {
       ]);
     });
 
-    it('parses Relay2QL templates', () => {
-      expect(
-        find(
-          `
-            Relay2QL\`fragment FindGraphQLTags on User { id }\`;
-            Other\`this is not\`;
-          `,
-        ),
-      ).toEqual(['fragment FindGraphQLTags on User { id }']);
-    });
-
     it('parses modern JS syntax with Flow annotations', () => {
       expect(
-        find(
-          `
-            class RelayContainer extends React.Component {
-              // Relay2QL\`this in a comment\`;
-              _loadMore = (
-                pageSize: number,
-                options?: ?RefetchOptions
-              ): ?Disposable => {
-                Relay2QL\`fragment FindGraphQLTags on User { id }\`;
-              }
+        find(`
+          class RelayContainer extends React.Component {
+            // graphql\`this in a comment\`;
+            _loadMore = (
+              pageSize: number,
+              options?: ?RefetchOptions
+            ): ?Disposable => {
+              graphql\`fragment FindGraphQLTags on User { id }\`;
             }
-          `,
-        ),
+          }
+        `),
       ).toEqual(['fragment FindGraphQLTags on User { id }']);
     });
   });

@@ -11,8 +11,9 @@
 'use strict';
 
 import type {QueryPath} from '../query/RelayQueryPath';
-import type {Call, ClientMutationID, DataID} from '../tools/RelayInternalTypes';
+import type {Call, ClientMutationID} from '../tools/RelayInternalTypes';
 import type {Variables} from '../tools/RelayTypes';
+import type {DataID} from 'RelayRuntime';
 
 export type Record = {
   // Records may contain many other fields as [fieldName: string]: mixed
@@ -98,9 +99,9 @@ const RelayRecord = {
   },
 
   /**
-  * Checks whether the given ID was created on the client, as opposed to an ID
-  * that's understood by the server as well.
-  */
+   * Checks whether the given ID was created on the client, as opposed to an ID
+   * that's understood by the server as well.
+   */
   isClientID(dataID: string): boolean {
     return dataID.indexOf('client:') === 0;
   },

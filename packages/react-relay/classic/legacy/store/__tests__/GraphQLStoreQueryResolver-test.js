@@ -10,15 +10,12 @@
 
 'use strict';
 
-jest.enableAutomock();
-
 require('configureForRelayOSS');
 
-jest.useFakeTimers();
 jest
-  .unmock('../GraphQLRange')
-  .unmock('../GraphQLSegment')
-  .unmock('../GraphQLStoreQueryResolver');
+  .mock('../../../store/readRelayQueryData')
+  .mock('../GraphQLStoreChangeEmitter')
+  .useFakeTimers();
 
 const GraphQLStoreQueryResolver = require('../GraphQLStoreQueryResolver');
 const RelayClassic = require('RelayClassic');
@@ -26,7 +23,6 @@ const RelayStoreData = require('../../../store/RelayStoreData');
 const RelayTestUtils = require('RelayTestUtils');
 
 const readRelayQueryData = require('../../../store/readRelayQueryData');
-const transformRelayQueryPayload = require('../../../traversal/transformRelayQueryPayload');
 
 describe('GraphQLStoreQueryResolver', () => {
   let changeEmitter;

@@ -36,7 +36,6 @@ const generateForceIndex = require('../legacy/store/generateForceIndex');
 const invariant = require('invariant');
 const mapObject = require('mapObject');
 const nullthrows = require('nullthrows');
-const warning = require('warning');
 const writeRelayQueryPayload = require('../traversal/writeRelayQueryPayload');
 const writeRelayUpdatePayload = require('../traversal/writeRelayUpdatePayload');
 
@@ -49,7 +48,6 @@ const {ConnectionInterface, RelayProfiler} = require('RelayRuntime');
 import type {QueryPath} from '../query/RelayQueryPath';
 import type {
   ClientMutationID,
-  DataID,
   NodeRangeMap,
   QueryPayload,
   RelayQuerySet,
@@ -64,6 +62,7 @@ import type {
 } from '../tools/RelayTypes';
 import type {ChangeSet} from './RelayChangeTracker';
 import type {RecordMap} from './RelayRecord';
+import type {DataID} from 'RelayRuntime';
 
 const {ID, ID_TYPE, NODE, NODE_TYPE, TYPENAME} = RelayNodeInterface;
 const {ROOT_ID} = require('./RelayStoreConstants');
@@ -310,48 +309,49 @@ class RelayStoreData {
         updateTrackedQueries: true,
       },
     );
-    getRootsWithPayloads(
-      query,
-      payload,
-    ).forEach(({field, root, rootPayload}) => {
-      // Write the results of the field-specific query
-      writeRelayQueryPayload(writer, root, rootPayload);
+    getRootsWithPayloads(query, payload).forEach(
+      ({field, root, rootPayload}) => {
+        // Write the results of the field-specific query
+        writeRelayQueryPayload(writer, root, rootPayload);
 
-      // Ensure the root record exists
-      const path = RelayQueryPath.getRootRecordPath();
-      recordWriter.putRecord(ROOT_ID, query.getType(), path);
-      if (this._queuedStore.getRecordState(ROOT_ID) !== EXISTENT) {
-        changeTracker.createID(ROOT_ID);
-      } else {
-        changeTracker.updateID(ROOT_ID);
-      }
-
-      // Collect linked record ids for this root field
-      const dataIDs = [];
-      RelayNodeInterface.getResultsFromPayload(
-        root,
-        rootPayload,
-      ).forEach(({result, rootCallInfo}) => {
-        const {storageKey, identifyingArgKey} = rootCallInfo;
-        const dataID = recordWriter.getDataID(storageKey, identifyingArgKey);
-        if (dataID != null) {
-          dataIDs.push(dataID);
-        }
-      });
-
-      // Write the field to the root record
-      const storageKey = field.getStorageKey();
-      if (field.isPlural()) {
-        recordWriter.putLinkedRecordIDs(ROOT_ID, storageKey, dataIDs);
-      } else {
-        const dataID = dataIDs[0];
-        if (dataID != null) {
-          recordWriter.putLinkedRecordID(ROOT_ID, storageKey, dataID);
+        // Ensure the root record exists
+        const path = RelayQueryPath.getRootRecordPath();
+        recordWriter.putRecord(ROOT_ID, query.getType(), path);
+        if (this._queuedStore.getRecordState(ROOT_ID) !== EXISTENT) {
+          changeTracker.createID(ROOT_ID);
         } else {
-          recordWriter.putField(ROOT_ID, storageKey, null);
+          changeTracker.updateID(ROOT_ID);
         }
-      }
-    });
+
+        // Collect linked record ids for this root field
+        const dataIDs = [];
+        RelayNodeInterface.getResultsFromPayload(root, rootPayload).forEach(
+          ({result, rootCallInfo}) => {
+            const {storageKey, identifyingArgKey} = rootCallInfo;
+            const dataID = recordWriter.getDataID(
+              storageKey,
+              identifyingArgKey,
+            );
+            if (dataID != null) {
+              dataIDs.push(dataID);
+            }
+          },
+        );
+
+        // Write the field to the root record
+        const storageKey = field.getStorageKey();
+        if (field.isPlural()) {
+          recordWriter.putLinkedRecordIDs(ROOT_ID, storageKey, dataIDs);
+        } else {
+          const dataID = dataIDs[0];
+          if (dataID != null) {
+            recordWriter.putLinkedRecordID(ROOT_ID, storageKey, dataID);
+          } else {
+            recordWriter.putField(ROOT_ID, storageKey, null);
+          }
+        }
+      },
+    );
     this._handleChangedAndNewDataIDs(changeTracker.getChangeSet());
     profiler.stop();
   }
@@ -553,7 +553,7 @@ class RelayStoreData {
       this._records,
       this._rootCallMap,
       false, // isOptimistic
-      (this._nodeRangeMap: $FixMe),
+      (this._nodeRangeMap: $FlowFixMe),
       this._cacheManager ? this._cacheManager.getQueryWriter() : null,
     );
   }
@@ -621,7 +621,7 @@ class RelayStoreData {
       this._records,
       this._rootCallMap,
       false, // isOptimistic
-      (this._nodeRangeMap: $FixMe),
+      (this._nodeRangeMap: $FlowFixMe),
       this._cacheManager ? this._cacheManager.getMutationWriter() : null,
     );
   }

@@ -10,15 +10,15 @@
 
 'use strict';
 
-jest.enableAutomock();
-
-require('configureForRelayOSS');
-
-jest.useFakeTimers();
 jest
   .mock('warning')
-  .unmock('../GraphQLQueryRunner')
-  .unmock('../../../tools/RelayTaskQueue');
+  .mock('../../../traversal/diffRelayQuery')
+  .mock('../../../traversal/checkRelayQueryData')
+  .mock('../../../traversal/splitDeferredRelayQueries')
+  .mock('../../../store/RelayPendingQueryTracker')
+  .useFakeTimers();
+
+require('configureForRelayOSS');
 
 const RelayClassic = require('RelayClassic');
 const RelayFetchMode = require('../../../store/RelayFetchMode');

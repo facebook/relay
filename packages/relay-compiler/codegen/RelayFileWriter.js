@@ -11,18 +11,17 @@
 
 'use strict';
 
-const RelayCompiler = require('../RelayCompiler');
 const RelayFlowGenerator = require('../core/RelayFlowGenerator');
 const RelayParser = require('../core/RelayParser');
 const RelayValidator = require('../core/RelayValidator');
 
+const compileRelayArtifacts = require('./compileRelayArtifacts');
 const crypto = require('crypto');
 const graphql = require('graphql');
 const invariant = require('invariant');
 const path = require('path');
 const writeRelayGeneratedFile = require('./writeRelayGeneratedFile');
 
-const {generate} = require('../core/RelayCodeGenerator');
 const {
   ASTConvert,
   CodegenDirectory,
@@ -33,15 +32,9 @@ const {
 const {Map: ImmutableMap} = require('immutable');
 
 import type {ScalarTypeMapping} from '../core/RelayFlowTypeTransformers';
+import type {RelayCompilerTransforms} from './compileRelayArtifacts';
 import type {FormatModule} from './writeRelayGeneratedFile';
-// TODO T21875029 ../../relay-runtime/util/RelayConcreteNode
-import type {GeneratedNode} from 'RelayConcreteNode';
-import type {
-  CompiledDocumentMap,
-  CompilerTransforms,
-  FileWriterInterface,
-  Reporter,
-} from 'graphql-compiler';
+import type {FileWriterInterface, Reporter} from 'graphql-compiler';
 import type {DocumentNode, GraphQLSchema, ValidationContext} from 'graphql';
 
 const {
@@ -59,7 +52,7 @@ export type ValidationRule = (context: ValidationContext) => any;
 
 export type WriterConfig = {
   baseDir: string,
-  compilerTransforms: CompilerTransforms,
+  compilerTransforms: RelayCompilerTransforms,
   customScalars: ScalarTypeMapping,
   formatModule: FormatModule,
   generateExtraFiles?: GenerateExtraFiles,
@@ -195,14 +188,10 @@ class RelayFileWriter implements FileWriterInterface {
         RelayParser.transform.bind(RelayParser),
       );
 
-      const compilerContext = new CompilerContext(extendedSchema);
-      const compiler = new RelayCompiler(
+      const compilerContext = new CompilerContext(
         this._baseSchema,
-        compilerContext,
-        this._config.compilerTransforms,
-        generate,
-        this._reporter,
-      );
+        extendedSchema,
+      ).addAll(definitions);
 
       const getGeneratedDirectory = definitionName => {
         if (configOutputDirectory) {
@@ -219,21 +208,22 @@ class RelayFileWriter implements FileWriterInterface {
         return cachedDir;
       };
 
-      Profiler.run('RelayFileWriter:addDefinitions', () =>
-        compiler.addDefinitions(definitions),
+      const transformedFlowContext = compilerContext.applyTransforms(
+        RelayFlowGenerator.flowTransforms,
+        this._reporter,
       );
-
-      const transformedFlowContext = compiler
-        .context()
-        .applyTransforms(
-          RelayFlowGenerator.flowTransforms,
-          extendedSchema,
-          this._reporter,
-        );
-      const transformedQueryContext = compiler.transformedQueryContext();
-      const compiledDocumentMap: CompiledDocumentMap<
-        GeneratedNode,
-      > = compiler.compile();
+      const transformedQueryContext = compilerContext.applyTransforms(
+        [
+          ...this._config.compilerTransforms.commonTransforms,
+          ...this._config.compilerTransforms.queryTransforms,
+        ],
+        this._reporter,
+      );
+      const artifacts = compileRelayArtifacts(
+        compilerContext,
+        this._config.compilerTransforms,
+        this._reporter,
+      );
 
       const existingFragmentNames = new Set(
         definitions.map(definition => definition.name),
@@ -259,20 +249,31 @@ class RelayFileWriter implements FileWriterInterface {
 
       try {
         await Promise.all(
-          transformedFlowContext.documents().map(async node => {
+          artifacts.map(async node => {
             if (baseDefinitionNames.has(node.name)) {
               // don't add definitions that were part of base context
               return;
             }
-
+            if (node.metadata && node.metadata.deferred) {
+              // don't write deferred operations, the batch request is
+              // responsible for them
+              return;
+            }
             const relayRuntimeModule =
               this._config.relayRuntimeModule || 'relay-runtime';
 
-            const recursiveFields = (node.argumentDefinitions || []).map(arg =>
+            const flowNode = transformedFlowContext.get(node.name);
+            invariant(
+              flowNode,
+              'RelayFileWriter: did not compile flow types for: %s',
+              node.name,
+            );
+
+            const recursiveFields = (flowNode.argumentDefinitions || []).map(arg =>
               getFieldNameSCCs(arg.type).filter(component => component.length > 1)
             ).reduce(flatten, []);
 
-            const flowTypes = RelayFlowGenerator.generate(node, {
+            const flowTypes = RelayFlowGenerator.generate(flowNode, {
               customScalars: this._config.customScalars,
               enumsHasteModule: this._config.enumsHasteModule,
               existingFragmentNames,
@@ -283,20 +284,13 @@ class RelayFileWriter implements FileWriterInterface {
               useHaste: this._config.useHaste,
             });
 
-            const compiledNode = compiledDocumentMap.get(node.name);
-            invariant(
-              compiledNode,
-              'RelayCompiler: did not compile definition: %s',
-              node.name,
-            );
-
             const sourceHash = Profiler.run('hashGraphQL', () =>
               md5(graphql.print(getDefinitionMeta(node.name).ast)),
             );
 
             await writeRelayGeneratedFile(
-              getGeneratedDirectory(compiledNode.name),
-              compiledNode,
+              getGeneratedDirectory(node.name),
+              node,
               formatModule,
               flowTypes,
               persistQuery,

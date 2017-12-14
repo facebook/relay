@@ -10,9 +10,9 @@
 
 'use strict';
 
-jest.enableAutomock().mock('warning');
-
 require('configureForRelayOSS');
+
+jest.mock('warning').mock('../../query-config/RelayQueryConfig');
 
 const React = require('React');
 const RelayClassic = require('RelayClassic');

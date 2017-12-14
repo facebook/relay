@@ -26,11 +26,11 @@ const warning = require('warning');
 const {ConnectionInterface} = require('RelayRuntime');
 
 import type {QueryPath} from '../query/RelayQueryPath';
-import type {DataID} from '../tools/RelayInternalTypes';
 import type RelayChangeTracker from './RelayChangeTracker';
 import type RelayQueryTracker from './RelayQueryTracker';
 import type RelayRecordStore from './RelayRecordStore';
 import type RelayRecordWriter from './RelayRecordWriter';
+import type {DataID} from 'RelayRuntime';
 
 type WriterOptions = {
   forceIndex?: ?number,
@@ -355,7 +355,7 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       field.getFieldByStorageKey(EDGES) ||
       (connectionData != null &&
         typeof connectionData === 'object' &&
-        (connectionData: $FixMe)[EDGES])
+        (connectionData: $FlowFixMe)[EDGES])
     );
     const path = RelayQueryPath.getPath(state.path, field, connectionID);
     // always update the store to ensure the value is present in the appropriate

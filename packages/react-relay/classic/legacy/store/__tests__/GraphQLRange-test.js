@@ -10,11 +10,7 @@
 
 'use strict';
 
-jest
-  .enableAutomock()
-  .unmock('../GraphQLSegment')
-  .unmock('../GraphQLRange')
-  .mock('warning');
+jest.mock('warning').mock('../../../store/RelayRecord');
 
 const RelayTestUtils = require('RelayTestUtils');
 
@@ -513,6 +509,27 @@ describe('GraphQLRange', () => {
     expect(result.diffCalls.length).toBe(0);
   });
 
+  it('should error for invalid call value on adding', () => {
+    console.error = jest.fn();
+    const queryCalls = [{name: 'first', value: 3}, {name: 'last', value: 3}];
+
+    const pageInfo = {
+      [HAS_NEXT_PAGE]: true,
+      [HAS_PREV_PAGE]: false,
+    };
+
+    const result = range.addItems(queryCalls, first3Edges, pageInfo);
+
+    expect(console.error.mock.calls.length).toBe(1);
+    expect(console.error.mock.calls[0]).toEqual([
+      'GraphQLRange.addItems only handles first(<count>), ' +
+        'after(<cursor>).first(<count>), last(<count>), ' +
+        'before(<cursor>).last(<count>), before(<cursor>).first(<count>), ' +
+        'and after(<cursor>).last(<count>)',
+    ]);
+    expect(result).toBe(undefined);
+  });
+
   it('should error for first().last() query', () => {
     console.error = jest.fn();
     const queryCalls = [{name: 'first', value: 3}, {name: 'last', value: 3}];
@@ -521,7 +538,7 @@ describe('GraphQLRange', () => {
 
     expect(console.error.mock.calls.length).toBe(1);
     expect(console.error.mock.calls[0]).toEqual([
-      'GraphQLRange currently only handles first(<count>), ' +
+      'GraphQLRange.retrieveRangeInfoForQuery only handles first(<count>), ' +
         'after(<cursor>).first(<count>), last(<count>), ' +
         'before(<cursor>).last(<count>), before(<cursor>).first(<count>), ' +
         'and after(<cursor>).last(<count>)',

@@ -10,7 +10,7 @@
 
 'use strict';
 
-jest.enableAutomock();
+jest.mock('../../query-config/RelayQueryConfig');
 
 const React = require('React');
 const ReactTestUtils = require('ReactTestUtils');
@@ -18,14 +18,8 @@ const Relay = require('../../RelayPublic');
 const RelayEnvironment = require('../../store/RelayEnvironment');
 const RelayQueryConfig = require('../../query-config/RelayQueryConfig');
 const RelayReadyStateRenderer = require('../RelayReadyStateRenderer');
-
-jest.dontMock('../RelayStaticContainer');
 const RelayStaticContainer = require('../RelayStaticContainer');
-
-jest.dontMock('pretty-format');
 const prettyFormat = require('pretty-format');
-
-jest.dontMock('react-test-renderer');
 const ReactTestRenderer = require('react-test-renderer');
 
 describe('RelayReadyStateRenderer', () => {

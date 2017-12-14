@@ -37,7 +37,7 @@ const babelOptions = require('./scripts/getBabelOptions')({
     'fb-watchman': 'fb-watchman',
     fs: 'fs',
     graphql: 'graphql',
-    'graphql-compiler': 'graphql-compiler',
+    'graphql-compiler': './GraphQLCompilerPublic',
     immutable: 'immutable',
     net: 'net',
     os: 'os',

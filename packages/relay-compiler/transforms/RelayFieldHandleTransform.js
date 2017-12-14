@@ -18,30 +18,20 @@ const invariant = require('invariant');
 const {CompilerContext, IRTransformer} = require('graphql-compiler');
 
 import type {Field} from 'graphql-compiler';
-import type {GraphQLSchema} from 'graphql';
 
-type State = true;
-
-function relayFieldHandleTransform(
-  context: CompilerContext,
-  schema: GraphQLSchema,
-): CompilerContext {
-  return IRTransformer.transform(
-    context,
-    {
-      LinkedField: visitField,
-      ScalarField: visitField,
-    },
-    () => true,
-  );
+function relayFieldHandleTransform(context: CompilerContext): CompilerContext {
+  return IRTransformer.transform(context, {
+    LinkedField: visitField,
+    ScalarField: visitField,
+  });
 }
 
 /**
  * @internal
  */
-function visitField<F: Field>(field: F, state: State): F {
+function visitField<F: Field>(field: F): F {
   if (field.kind === 'LinkedField') {
-    field = this.traverse(field, state);
+    field = this.traverse(field);
   }
   const handles = field.handles;
   if (!handles || !handles.length) {

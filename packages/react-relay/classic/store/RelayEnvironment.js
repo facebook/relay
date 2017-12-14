@@ -20,7 +20,7 @@ const RelayQueryRequest = require('../network/RelayQueryRequest');
 const RelayStoreData = require('./RelayStoreData');
 const RelayVariables = require('../query/RelayVariables');
 
-const deepFreeze = require('../tools/deepFreeze');
+const deepFreeze = require('deepFreeze');
 const forEachRootCallArg = require('../query/forEachRootCallArg');
 const generateForceIndex = require('../legacy/store/generateForceIndex');
 const readRelayQueryData = require('./readRelayQueryData');
@@ -29,10 +29,7 @@ const warning = require('warning');
 
 const {Observable, recycleNodesInto} = require('RelayRuntime');
 
-import type {
-  CacheConfig,
-  Disposable,
-} from '../environment/RelayCombinedEnvironmentTypes';
+import type {CacheConfig} from '../environment/RelayCombinedEnvironmentTypes';
 import type {
   Environment,
   OperationSelector,
@@ -47,11 +44,7 @@ import type {
   QueryCallback,
 } from '../network/RelayNetworkLayer';
 import type {ConcreteOperationDefinition} from '../query/ConcreteQuery';
-import type {
-  DataID,
-  QueryPayload,
-  RelayQuerySet,
-} from '../tools/RelayInternalTypes';
+import type {QueryPayload, RelayQuerySet} from '../tools/RelayInternalTypes';
 import type {TaskScheduler} from '../tools/RelayTaskQueue';
 import type {
   Abortable,
@@ -66,7 +59,12 @@ import type {
   Variables,
 } from '../tools/RelayTypes';
 import type RelayQueryTracker from './RelayQueryTracker';
-import type {SelectorStoreUpdater, UploadableMap} from 'RelayRuntime';
+import type {DataID} from 'RelayRuntime';
+import type {
+  Disposable,
+  SelectorStoreUpdater,
+  UploadableMap,
+} from 'RelayRuntime';
 
 export type FragmentResolver = {
   dispose(): void,
@@ -80,25 +78,25 @@ export interface RelayEnvironmentInterface {
   forceFetch(
     querySet: RelayQuerySet,
     onReadyStateChange: ReadyStateChangeCallback,
-  ): Abortable,
+  ): Abortable;
   getFragmentResolver(
     fragment: RelayQuery.Fragment,
     onNext: () => void,
-  ): FragmentResolver,
-  getStoreData(): RelayStoreData,
+  ): FragmentResolver;
+  getStoreData(): RelayStoreData;
   primeCache(
     querySet: RelayQuerySet,
     onReadyStateChange: ReadyStateChangeCallback,
-  ): Abortable,
+  ): Abortable;
   read(
     node: RelayQuery.Node,
     dataID: DataID,
     options?: StoreReaderOptions,
-  ): ?StoreReaderData,
+  ): ?StoreReaderData;
   readQuery(
     root: RelayQuery.Root,
     options?: StoreReaderOptions,
-  ): Array<?StoreReaderData>,
+  ): Array<?StoreReaderData>;
 }
 
 /**
@@ -160,6 +158,10 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
         }
       },
     };
+  }
+
+  check(selector: Selector): boolean {
+    return false;
   }
 
   commitPayload(
@@ -256,8 +258,9 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
             let error = transaction.getError();
             if (!error) {
               error = new Error(
-                `RelayEnvironment: Unknown error executing mutation ${operation
-                  .node.name}`,
+                `RelayEnvironment: Unknown error executing mutation ${
+                  operation.node.name
+                }`,
               );
             }
             onError(error);

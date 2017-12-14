@@ -11,12 +11,10 @@
 
 'use strict';
 
+import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {ConcreteOperation, RequestNode} from 'RelayConcreteNode';
 import type RelayObservable, {ObservableFromValue} from 'RelayObservable';
-import type {
-  CacheConfig,
-  Disposable,
-} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
+import type {CacheConfig} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 /**
@@ -41,10 +39,15 @@ export type PayloadError = {
  * The shape of a GraphQL response as dictated by the
  * [spec](http://facebook.github.io/graphql/#sec-Response)
  */
-export type GraphQLResponse = {|
-  data?: ?PayloadData,
-  errors?: Array<PayloadError>,
-|};
+export type GraphQLResponse =
+  | {
+      data: PayloadData,
+      errors?: Array<PayloadError>,
+    }
+  | {
+      data?: ?PayloadData,
+      errors: Array<PayloadError>,
+    };
 
 /**
  * The data returned from Relay's execute function, which includes both the

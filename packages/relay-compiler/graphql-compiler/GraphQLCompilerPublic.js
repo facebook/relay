@@ -18,13 +18,11 @@ const CodegenRunner = require('./codegen/CodegenRunner');
 const DotGraphQLParser = require('./core/DotGraphQLParser');
 const FilterDirectivesTransform = require('./transforms/FilterDirectivesTransform');
 const FlattenTransform = require('./transforms/FlattenTransform');
-const GraphQLCompiler = require('./core/GraphQLCompiler');
 const GraphQLCompilerContext = require('./core/GraphQLCompilerContext');
 const GraphQLCompilerProfiler = require('./core/GraphQLCompilerProfiler');
 const GraphQLConsoleReporter = require('./reporters/GraphQLConsoleReporter');
 const GraphQLIRPrinter = require('./core/GraphQLIRPrinter');
 const GraphQLIRTransformer = require('./core/GraphQLIRTransformer');
-const GraphQLIRTransforms = require('./core/GraphQLIRTransforms');
 const GraphQLIRVisitor = require('./core/GraphQLIRVisitor');
 const GraphQLMultiReporter = require('./reporters/GraphQLMultiReporter');
 const GraphQLParser = require('./core/GraphQLParser');
@@ -53,16 +51,15 @@ export type {
   FileWriterInterface,
 } from './codegen/CodegenTypes';
 export type {FileFilter, WatchmanExpression} from './codegen/CodegenWatcher';
-export type {
-  CompiledDocumentMap,
-  CompilerTransforms,
-} from './core/GraphQLCompiler';
+export type {IRTransform} from './core/GraphQLCompilerContext';
 export type {
   Argument,
   ArgumentDefinition,
+  ArgumentDependency,
   ArgumentValue,
   Batch,
   Condition,
+  DependentRequest,
   Directive,
   Field,
   Fragment,
@@ -77,6 +74,7 @@ export type {
   Node,
   ObjectFieldValue,
   ObjectValue,
+  Request,
   Root,
   RootArgumentDefinition,
   ScalarField,
@@ -84,7 +82,6 @@ export type {
   Selection,
   Variable,
 } from './core/GraphQLIR';
-export type {IRTransform} from './core/GraphQLIRTransforms';
 export type {GraphQLReporter as Reporter} from './reporters/GraphQLReporter';
 export type {FlattenOptions} from './transforms/FlattenTransform';
 
@@ -92,13 +89,11 @@ module.exports = {
   ASTConvert,
   CodegenDirectory,
   CodegenRunner,
-  Compiler: GraphQLCompiler,
   CompilerContext: GraphQLCompilerContext,
   ConsoleReporter: GraphQLConsoleReporter,
   DotGraphQLParser,
   ASTCache,
   IRTransformer: GraphQLIRTransformer,
-  IRTransforms: GraphQLIRTransforms,
   IRVisitor: GraphQLIRVisitor,
   MultiReporter: GraphQLMultiReporter,
   Parser: GraphQLParser,

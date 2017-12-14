@@ -25,11 +25,11 @@ const validateRelayReadQuery = require('./validateRelayReadQuery');
 
 const {ConnectionInterface, RelayProfiler} = require('RelayRuntime');
 
-import type {DataID} from '../tools/RelayInternalTypes';
 import type {StoreReaderData, StoreReaderOptions} from '../tools/RelayTypes';
 import type RelayRecordStore from './RelayRecordStore';
 import type {RangeInfo} from './RelayRecordStore';
 import type RelayStoreData from './RelayStoreData';
+import type {DataID} from 'RelayRuntime';
 
 const {MUTATION_STATUS} = RelayRecord.MetadataKey;
 

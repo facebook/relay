@@ -424,7 +424,9 @@ function createSubstitutionsForFragmentSpreads(t, path, fragments) {
       invariant(
         path.scope.hasBinding(module) || path.scope.hasBinding(propName),
         `BabelPluginRelay: Please make sure module '${module}' is imported and not renamed or the
-        fragment '${fragment.name}' is defined and bound to local variable '${propName}'. `,
+        fragment '${
+          fragment.name
+        }' is defined and bound to local variable '${propName}'. `,
       );
       const fragmentProp = path.scope.hasBinding(propName)
         ? t.memberExpression(t.identifier(propName), t.identifier(propName))

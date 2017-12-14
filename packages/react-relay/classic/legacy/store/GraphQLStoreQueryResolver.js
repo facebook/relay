@@ -17,8 +17,8 @@ const {recycleNodesInto, RelayProfiler} = require('RelayRuntime');
 
 import type RelayQuery from '../../query/RelayQuery';
 import type RelayStoreData from '../../store/RelayStoreData';
-import type {DataID} from '../../tools/RelayInternalTypes';
 import type {ChangeSubscription, StoreReaderData} from '../../tools/RelayTypes';
+import type {DataID} from 'RelayRuntime';
 
 type DataIDSet = {[dataID: DataID]: any};
 

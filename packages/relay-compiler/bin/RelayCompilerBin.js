@@ -36,6 +36,7 @@ const {
 } = require('graphql');
 
 const {
+  commonTransforms,
   codegenTransforms,
   fragmentTransforms,
   printTransforms,
@@ -169,6 +170,7 @@ function getRelayFileWriter(baseDir: string) {
       config: {
         baseDir,
         compilerTransforms: {
+          commonTransforms,
           codegenTransforms,
           fragmentTransforms,
           printTransforms,

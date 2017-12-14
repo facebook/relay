@@ -31,7 +31,6 @@ const {
 
 import type {
   ASTNode,
-  DefinitionNode,
   GraphQLCompositeType,
   GraphQLEnumType,
   GraphQLInputObjectType,
@@ -40,6 +39,7 @@ import type {
   GraphQLScalarType,
   GraphQLType,
   TypeNode,
+  DefinitionNode,
 } from 'graphql';
 
 const ID = 'id';
@@ -381,7 +381,6 @@ function getFieldNameSCCs(type: GraphQLType) {
 
 module.exports = {
   assertTypeWithFields,
-  definitionName,
   canHaveSelections,
   getNullableType,
   getRawType,

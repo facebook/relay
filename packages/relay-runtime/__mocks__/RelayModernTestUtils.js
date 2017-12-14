@@ -138,44 +138,16 @@ const RelayModernTestUtils = {
    */
   generateWithTransforms(
     text: string,
-    transforms?: ?Array<{
-      transform: (context: GraphQLCompilerContext) => GraphQLCompilerContext,
-    }>,
+    transforms?: ?Array<IRTransform>,
   ): {[key: string]: GeneratedNode} {
-    const RelayCodeGenerator = require('RelayCodeGenerator');
-    const GraphQLCompilerContext = require('GraphQLCompilerContext');
-    const RelayParser = require('RelayParser');
     const RelayTestSchema = require('RelayTestSchema');
-
-    const ast = RelayParser.parse(RelayTestSchema, text);
-    let context = new GraphQLCompilerContext(RelayTestSchema).addAll(ast);
-    if (transforms) {
-      context = context.applyTransforms(transforms);
-    }
-    const documentMap = {};
-    context.forEachDocument(node => {
-      if (node.kind === 'Root') {
-        documentMap[node.name] = RelayCodeGenerator.generate({
-          kind: 'Batch',
-          metadata: node.metadata || {},
-          name: node.name,
-          fragment: buildFragmentForRoot(node),
-          requests: [
-            {
-              kind: 'Request',
-              name: node.name,
-              id: null,
-              text,
-              root: node,
-              argumentDependencies: [],
-            },
-          ],
-        });
-      } else {
-        documentMap[node.name] = RelayCodeGenerator.generate(node);
-      }
+    return generate(text, RelayTestSchema, {
+      commonTransforms: transforms || [],
+      fragmentTransforms: [],
+      queryTransforms: [],
+      codegenTransforms: [],
+      printTransforms: [],
     });
-    return documentMap;
   },
 
   /**
@@ -187,48 +159,35 @@ const RelayModernTestUtils = {
     text: string,
     schema?: ?GraphQLSchema,
   ): {[key: string]: GeneratedNode} {
-    const {transformASTSchema} = require('ASTConvert');
-    const {generate} = require('RelayCodeGenerator');
-    const RelayCompiler = require('RelayCompiler');
-    const GraphQLCompilerContext = require('GraphQLCompilerContext');
     const RelayIRTransforms = require('RelayIRTransforms');
     const RelayTestSchema = require('RelayTestSchema');
-    const parseGraphQLText = require('parseGraphQLText');
-
-    schema = schema || RelayTestSchema;
-    const relaySchema = transformASTSchema(
-      schema,
-      RelayIRTransforms.schemaExtensions,
-    );
-    const compiler = new RelayCompiler(
-      schema,
-      new GraphQLCompilerContext(relaySchema),
-      RelayIRTransforms,
-      generate,
-    );
-
-    compiler.addDefinitions(parseGraphQLText(relaySchema, text).definitions);
-    const documentMap = {};
-    compiler.compile().forEach(node => {
-      documentMap[node.name] = node;
-    });
-    return documentMap;
+    return generate(text, schema || RelayTestSchema, RelayIRTransforms);
   },
 };
 
-/**
- * Construct the fragment equivalent of a root node.
- */
-function buildFragmentForRoot(root) {
-  return {
-    argumentDefinitions: (root.argumentDefinitions: $FlowIssue),
-    directives: root.directives,
-    kind: 'Fragment',
-    metadata: null,
-    name: root.name,
-    selections: root.selections,
-    type: root.type,
-  };
+function generate(
+  text: string,
+  schema: GraphQLSchema,
+  transforms: RelayCompilerTransforms,
+): {[key: string]: GeneratedNode} {
+  const {transformASTSchema} = require('ASTConvert');
+  const {compileRelayArtifacts} = require('relay-compiler');
+  const GraphQLCompilerContext = require('GraphQLCompilerContext');
+  const RelayIRTransforms = require('RelayIRTransforms');
+  const parseGraphQLText = require('parseGraphQLText');
+  const relaySchema = transformASTSchema(
+    schema,
+    RelayIRTransforms.schemaExtensions,
+  );
+  const compilerContext = new GraphQLCompilerContext(
+    schema,
+    relaySchema,
+  ).addAll(parseGraphQLText(relaySchema, text).definitions);
+  const documentMap = {};
+  compileRelayArtifacts(compilerContext, transforms).forEach(node => {
+    documentMap[node.name] = node;
+  });
+  return documentMap;
 }
 
 module.exports = RelayModernTestUtils;

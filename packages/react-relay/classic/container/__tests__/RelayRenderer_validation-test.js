@@ -10,12 +10,11 @@
 
 'use strict';
 
-jest.enableAutomock();
+jest
+  .mock('../../query-config/RelayQueryConfig')
+  .mock('../../store/RelayEnvironment');
 
 require('configureForRelayOSS');
-
-jest.unmock('../RelayRenderer');
-jest.unmock('react-test-renderer/shallow');
 
 const React = require('React');
 const Relay = require('../../RelayPublic');

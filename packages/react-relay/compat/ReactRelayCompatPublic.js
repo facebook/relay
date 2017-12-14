@@ -19,16 +19,13 @@ const RelayCompatRefetchContainer = require('./react/RelayCompatRefetchContainer
 
 const {graphql, fetchQuery} = require('RelayRuntime');
 
-export type {
-  Disposable,
-} from '../classic/environment/RelayCombinedEnvironmentTypes';
-export type {DataID} from '../classic/tools/RelayInternalTypes';
 export type {Variables} from '../classic/tools/RelayTypes';
 export type {
   RelayPaginationProp,
   RelayProp,
   RelayRefetchProp,
 } from '../modern/ReactRelayTypes';
+export type {DataID, Disposable} from 'RelayRuntime';
 export type {
   GraphQLTaggedNode,
   IEnvironment,
@@ -40,17 +37,19 @@ export type {
 
 /**
  * The public interface to React Relay which supports a compatibility mode to
- * continue to work with the classic React runtime.
+ * continue to work with the classic Relay runtime.
  */
 module.exports = {
   QueryRenderer: ReactRelayQueryRenderer,
+
   applyOptimisticMutation: RelayCompatMutations.applyUpdate,
   commitMutation: RelayCompatMutations.commitUpdate,
-  createFragmentContainer: (RelayCompatContainer.createContainer: $FlowFixMe),
-  createPaginationContainer: (RelayCompatPaginationContainer.createContainer: $FlowFixMe),
-  createRefetchContainer: (RelayCompatRefetchContainer.createContainer: $FlowFixMe),
+  createFragmentContainer: RelayCompatContainer.createContainer,
+  createPaginationContainer: RelayCompatPaginationContainer.createContainer,
+  createRefetchContainer: RelayCompatRefetchContainer.createContainer,
   fetchQuery: fetchQuery,
   graphql: graphql,
+
   injectDefaultVariablesProvider:
     ReactRelayCompatContainerBuilder.injectDefaultVariablesProvider,
 };

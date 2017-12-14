@@ -22,8 +22,11 @@ const {
 import type {Fragment, FragmentSpread} from 'graphql-compiler';
 
 const RELAY = 'relay';
-const PLURAL = 'plural';
 const SCHEMA_EXTENSION = `directive @relay(
+  # Marks this fragment spread as being deferrable such that it loads after
+  # other portions of the view.
+  deferrable: Boolean,
+
   # Marks a connection field as containing nodes without 'id' fields.
   # This is used to silence the warning when diffing connections.
   isConnectionWithoutNodeID: Boolean,
@@ -88,13 +91,22 @@ function fragmentMetadata({plural}): MixedObj {
   return {plural};
 }
 
-function fragmentSpreadMetadata({mask}): MixedObj {
+function fragmentSpreadMetadata({mask, deferrable}): MixedObj {
   invariant(
     mask === undefined || typeof mask === 'boolean',
     'RelayRelayDirectiveTransform: Expected the "mask" argument to @relay ' +
       'to be a boolean literal if specified.',
   );
-  return {mask};
+  invariant(
+    deferrable === undefined || typeof deferrable === 'boolean',
+    'RelayRelayDirectiveTransform: Expected the "deferrable" argument to ' +
+      '@relay to be a boolean literal if specified.',
+  );
+  invariant(
+    !(deferrable === true && mask === false),
+    'RelayRelayDirectiveTransform: Cannot unmask a deferrable fragment spread.',
+  );
+  return {mask, deferrable};
 }
 
 module.exports = {

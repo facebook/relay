@@ -266,7 +266,7 @@ class GraphQLRange {
 
     if (!isValidRangeCall(calls)) {
       console.error(
-        'GraphQLRange currently only handles first(<count>), ' +
+        'GraphQLRange.addItems only handles first(<count>), ' +
           'after(<cursor>).first(<count>), last(<count>), ' +
           'before(<cursor>).last(<count>), before(<cursor>).first(<count>), ' +
           'and after(<cursor>).last(<count>)',
@@ -740,7 +740,7 @@ class GraphQLRange {
     // without comparing to undefined
     if (!isValidRangeCall(calls)) {
       console.error(
-        'GraphQLRange currently only handles first(<count>), ' +
+        'GraphQLRange.retrieveRangeInfoForQuery only handles first(<count>), ' +
           'after(<cursor>).first(<count>), last(<count>), ' +
           'before(<cursor>).last(<count>), before(<cursor>).first(<count>), ' +
           'and after(<cursor>).last(<count>)',

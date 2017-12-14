@@ -1,0 +1,15 @@
+query TestDeferWithVariableWithDefaultValue($size: [Int]) {
+  me {
+    ...ProfilePic @relay(deferrable: true)
+  }
+}
+
+fragment ProfilePic on User @argumentDefinitions(
+  size: {type: "[Int]", defaultValue: [100]}
+) {
+  profilePicture(size: $size) {
+    uri
+    width
+    height
+  }
+}

@@ -35,6 +35,7 @@ const recycleNodesInto = require('recycleNodesInto');
 const requestRelaySubscription = require('requestRelaySubscription');
 const simpleClone = require('simpleClone');
 
+export type {DataID, Disposable} from './util/RelayRuntimeTypes';
 export type {
   GeneratedNode,
   ConcreteRequest,

@@ -23,10 +23,6 @@ const {
   requestSubscription,
 } = require('RelayRuntime');
 
-export type {
-  Disposable,
-} from '../classic/environment/RelayCombinedEnvironmentTypes';
-export type {DataID} from '../classic/tools/RelayInternalTypes';
 export type {Variables} from '../classic/tools/RelayTypes';
 export type {
   RelayPaginationProp,
@@ -34,6 +30,8 @@ export type {
   RelayRefetchProp,
 } from './ReactRelayTypes';
 export type {
+  DataID,
+  Disposable,
   // RelayRuntime has two environment exports: one interface, one concrete.
   IEnvironment as Environment,
   GraphQLTaggedNode,
@@ -48,9 +46,9 @@ export type {
  */
 module.exports = {
   QueryRenderer: ReactRelayQueryRenderer,
-  createFragmentContainer: (ReactRelayFragmentContainer.createContainer: $FlowFixMe),
-  createPaginationContainer: (ReactRelayPaginationContainer.createContainer: $FlowFixMe),
-  createRefetchContainer: (ReactRelayRefetchContainer.createContainer: $FlowFixMe),
+  createFragmentContainer: ReactRelayFragmentContainer.createContainer,
+  createPaginationContainer: ReactRelayPaginationContainer.createContainer,
+  createRefetchContainer: ReactRelayRefetchContainer.createContainer,
   commitLocalUpdate: commitLocalUpdate,
   commitMutation: commitMutation,
   fetchQuery: fetchQuery,

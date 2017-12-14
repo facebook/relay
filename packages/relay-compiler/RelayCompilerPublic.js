@@ -11,11 +11,11 @@
 
 'use strict';
 
-const RelayCompiler = require('./RelayCompiler');
 const RelayFileWriter = require('./codegen/RelayFileWriter');
 const RelayIRTransforms = require('./core/RelayIRTransforms');
 const RelayJSModuleParser = require('./core/RelayJSModuleParser');
 
+const compileRelayArtifacts = require('./codegen/compileRelayArtifacts');
 const formatGeneratedModule = require('./codegen/formatGeneratedModule');
 
 const {
@@ -27,7 +27,6 @@ const {
 export type {CompileResult, ParserConfig, WriterConfig} from 'graphql-compiler';
 
 module.exports = {
-  Compiler: RelayCompiler,
   ConsoleReporter,
 
   /** @deprecated Use JSModuleParser. */
@@ -38,5 +37,6 @@ module.exports = {
   JSModuleParser: RelayJSModuleParser,
   MultiReporter,
   Runner: CodegenRunner,
+  compileRelayArtifacts,
   formatGeneratedModule,
 };

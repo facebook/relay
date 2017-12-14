@@ -14,7 +14,6 @@
 const RelayConcreteNode = require('RelayConcreteNode');
 
 const areEqual = require('areEqual');
-const getRelayHandleKey = require('getRelayHandleKey');
 const invariant = require('invariant');
 
 const {getHandleStorageKey} = require('RelayStoreUtils');

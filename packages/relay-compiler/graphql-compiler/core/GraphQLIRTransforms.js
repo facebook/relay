@@ -19,12 +19,8 @@ const SkipRedundantNodesTransform = require('../transforms/SkipRedundantNodesTra
 const SkipUnreachableNodeTransform = require('../transforms/SkipUnreachableNodeTransform');
 
 import type CompilerContext from './GraphQLCompilerContext';
-import type {GraphQLSchema} from 'graphql';
 
-export type IRTransform = (
-  context: CompilerContext,
-  schema: GraphQLSchema,
-) => CompilerContext;
+export type IRTransform = CompilerContext => CompilerContext;
 
 // Transforms applied to fragments used for reading data from a store
 const FRAGMENT_TRANSFORMS: Array<IRTransform> = [

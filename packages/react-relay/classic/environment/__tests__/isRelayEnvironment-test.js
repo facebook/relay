@@ -23,6 +23,7 @@ describe('isRelayEnvironment()', () => {
   it('returns true for objects that conform to the interface', () => {
     const environment = {
       applyMutation: jest.fn(),
+      check: jest.fn(),
       lookup: jest.fn(),
       retain: jest.fn(),
       sendMutation: jest.fn(),
@@ -35,6 +36,7 @@ describe('isRelayEnvironment()', () => {
 
   it('returns false for objects that do not conform to the interface', () => {
     const fakeEnvironment = {
+      check: null,
       lookup: null,
       sendQuery: null,
       execute: null,

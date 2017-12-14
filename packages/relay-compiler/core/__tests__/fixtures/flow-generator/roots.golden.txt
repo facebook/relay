@@ -1,5 +1,8 @@
+export type ExampleQueryVariables = {|
+  id: string,
+|};
 export type ExampleQueryResponse = {|
-  +me: ?{|
+  +node: ?{|
     +id: string,
   |},
 |};

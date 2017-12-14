@@ -17,7 +17,7 @@ const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
 const invariant = require('invariant');
 const isRelayContext = require('../classic/environment/isRelayContext');
-const isScalarAndEqual = require('../classic/util/isScalarAndEqual');
+const isScalarAndEqual = require('isScalarAndEqual');
 const nullthrows = require('nullthrows');
 
 const {
@@ -27,17 +27,16 @@ const {
 const {profileContainer} = require('./ReactRelayContainerProfiler');
 const {Observable, RelayProfiler, RelayConcreteNode} = require('RelayRuntime');
 
-import type {
-  Disposable,
-  FragmentSpecResolver,
-} from '../classic/environment/RelayCombinedEnvironmentTypes';
+import type {FragmentSpecResolver} from '../classic/environment/RelayCombinedEnvironmentTypes';
 import type {Variables} from '../classic/tools/RelayTypes';
 import type {
+  $RelayProps,
   ObserverOrCallback,
   GeneratedNodeMap,
   RefetchOptions,
   RelayRefetchProp,
 } from './ReactRelayTypes';
+import type {Disposable} from 'RelayRuntime';
 import type {
   FragmentMap,
   GraphQLTaggedNode,
@@ -355,11 +354,11 @@ function assertRelayContext(relay: mixed): RelayContext {
  * `fragmentSpec` is memoized once per environment, rather than once per
  * instance of the container constructed/rendered.
  */
-function createContainer<TBase: React.ComponentType<*>>(
-  Component: TBase,
+function createContainer<Props: {}>(
+  Component: React.ComponentType<Props>,
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
   taggedNode: GraphQLTaggedNode,
-): TBase {
+): React.ComponentType<$RelayProps<Props, RelayRefetchProp>> {
   const Container = buildReactRelayContainer(
     Component,
     fragmentSpec,

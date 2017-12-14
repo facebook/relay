@@ -13,8 +13,8 @@
 
 const isPromise = require('isPromise');
 
+import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {LegacyObserver} from 'RelayNetworkTypes';
-import type {Disposable} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 /**
  * A Subscription object is returned from .subscribe(), which can be
@@ -64,7 +64,7 @@ type Source<+T> = (Sink<T>) => void | Subscription | (() => mixed);
  * allowing for easily composing Subscribables.
  */
 export interface Subscribable<+T> {
-  subscribe(observer: Observer<T> | Sink<T>): Subscription,
+  subscribe(observer: Observer<T> | Sink<T>): Subscription;
 }
 
 // Note: This should accept Subscribable<T> instead of RelayObservable<T>,
@@ -433,7 +433,6 @@ class RelayObservable<+T> implements Subscribable<T> {
 declare function isObservable(p: mixed): boolean %checks(p instanceof
   RelayObservable);
 
-// prettier-ignore
 function isObservable(obj) {
   return (
     typeof obj === 'object' &&

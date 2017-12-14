@@ -38,29 +38,28 @@ function writeRelayQueryPayload(
   const recordWriter = writer.getRecordWriter();
   const path = RelayQueryPath.create(query);
 
-  RelayNodeInterface.getResultsFromPayload(
-    query,
-    payload,
-  ).forEach(({result, rootCallInfo}) => {
-    const {storageKey, identifyingArgKey} = rootCallInfo;
+  RelayNodeInterface.getResultsFromPayload(query, payload).forEach(
+    ({result, rootCallInfo}) => {
+      const {storageKey, identifyingArgKey} = rootCallInfo;
 
-    let dataID;
-    if (
-      typeof result === 'object' &&
-      result &&
-      typeof result[ID] === 'string'
-    ) {
-      dataID = result[ID];
-    }
+      let dataID;
+      if (
+        typeof result === 'object' &&
+        result &&
+        typeof result[ID] === 'string'
+      ) {
+        dataID = result[ID];
+      }
 
-    if (dataID == null) {
-      dataID =
-        store.getDataID(storageKey, identifyingArgKey) || generateClientID();
-    }
+      if (dataID == null) {
+        dataID =
+          store.getDataID(storageKey, identifyingArgKey) || generateClientID();
+      }
 
-    recordWriter.putDataID(storageKey, identifyingArgKey, dataID);
-    writer.writePayload(query, dataID, result, path);
-  });
+      recordWriter.putDataID(storageKey, identifyingArgKey, dataID);
+      writer.writePayload(query, dataID, result, path);
+    },
+  );
 }
 
 module.exports = RelayProfiler.instrument(

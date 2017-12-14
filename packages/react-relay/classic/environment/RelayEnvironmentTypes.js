@@ -24,9 +24,8 @@ import type {
   CSelector,
   CSnapshot,
   CUnstableEnvironmentCore,
-  Disposable,
 } from './RelayCombinedEnvironmentTypes';
-import type {GraphQLTaggedNode, UploadableMap} from 'RelayRuntime';
+import type {Disposable, GraphQLTaggedNode, UploadableMap} from 'RelayRuntime';
 
 type TEnvironment = Environment;
 type TFragment = ConcreteFragmentDefinition;
@@ -74,7 +73,7 @@ export interface Environment
     operation: ConcreteOperationDefinition,
     optimisticResponse: Object,
     variables: Variables,
-  |}): Disposable,
+  |}): Disposable;
 
   /**
    * Applies an optimistic mutation if provided and commits the mutation to the
@@ -90,5 +89,5 @@ export interface Environment
     optimisticResponse?: ?Object,
     variables: Variables,
     uploadables?: UploadableMap,
-  |}): Disposable,
+  |}): Disposable;
 }

@@ -10,7 +10,7 @@
 
 'use strict';
 
-jest.enableAutomock();
+jest.mock('../../legacy/store/GraphQLRange');
 
 require('configureForRelayOSS');
 

@@ -1,0 +1,11 @@
+query TestDeferSimple {
+  me {
+    ...FriendCount @relay(deferrable: true)
+  }
+}
+
+fragment FriendCount on User {
+  friends {
+    count
+  }
+}

@@ -1,6 +1,6 @@
 ---
 id: network-layer
-title: The Relay Network Layer
+title: Network Layer
 ---
 
 # Network Layer

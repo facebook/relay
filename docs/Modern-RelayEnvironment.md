@@ -1,6 +1,6 @@
 ---
 id: relay-environment
-title: The Relay "Environment"
+title: Relay Environment
 ---
 
 The Relay "Environment" bundles together the configuration, cache storage, and network-handling that Relay needs in order to operate.

@@ -6,25 +6,27 @@
       "installation-and-setup",
       "quick-start-guide"
     ],
-    "Relay Modern": [
-      "new-in-relay-modern",
+    "API Reference": [
+      "relay-compiler",
+      "relay-directives",
       "relay-environment",
       "network-layer",
       "query-renderer",
       "fragment-container",
       "refetch-container",
       "pagination-container",
-      "routing",
       "mutations",
-      "subscriptions",
-      "relay-directives",
-      "babel-plugin-relay",
-      "relay-compiler",
-      "relay-debugging",
-      "graphql-relay-specification"
+      "subscriptions"
     ],
-    "Relay Compat": [
+    "Guides": [
+      "graphql-relay-specification",
+      "routing",
+      "relay-debugging"
+    ],
+    "Migration Guides": [
+      "new-in-relay-modern",
       "relay-compat",
+      "migration-setup",
       "conversion-playbook",
       "conversion-scripts",
       "upgrading-setvariables",

@@ -2,37 +2,18 @@
 id: videos
 title: Videos
 ---
+## [Facebook F8 2017](https://www.f8.com/)
+
+### The Evolution of React and GraphQL at Facebook and Beyond
+
+<iframe src="https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2FFacebookforDevelopers%2Fvideos%2F10154614710193553%2F&show_text=0&width=640" width="640" height="360" frameborder="0" allowfullscreen></iframe>
 
 ## [Silicon Valley ReactJS Meetup](http://www.meetup.com/Silicon-Valley-ReactJS-Meetup/)
 
-### Relay 2: simpler, faster, more predictable ([slides](https://speakerdeck.com/wincent/relay-2-simpler-faster-more-predictable))
+### Relay Modern: simpler, faster, more predictable ([slides](https://speakerdeck.com/wincent/relay-2-simpler-faster-more-predictable))
 
 <iframe width="640" height="360" src="https://www.youtube-nocookie.com/embed/OEfUBN9dAI8" frameborder="0" allowfullscreen></iframe>
-
-## [Relay Tech Talks 2016](https://relaytechtalk.splashthat.com/)
-
-### Relay Deep Dive ([slides](https://speakerdeck.com/wincent/relay-deep-dive))
-
-<iframe width="640" height="360" src="https://www.youtube-nocookie.com/embed/oPSuvaYmXBY" frameborder="0" allowfullscreen></iframe>
 
 ### Zero to GraphQL in 30 minutes
 
 <iframe width="640" height="360" src="https://www.youtube-nocookie.com/embed/UBGzsb2UkeY" frameborder="0" allowfullscreen></iframe>
-
-## [@Scale September 2015](http://www.atscaleconference.com/)
-
-<iframe width="640" height="360" src="https://www.youtube-nocookie.com/embed/Pxdgu2XIAAg?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
-
-## [ReactEurope July 2015](https://www.react-europe.org/2015/2015.html)
-
-<iframe width="640" height="360" src="https://www.youtube-nocookie.com/embed/IrgHurBjQbg?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
-
-## [JSConf US May 2015](http://2015.jsconf.us/)
-
-<iframe width="640" height="360" src="https://www.youtube-nocookie.com/embed/mmke4w4gc6c?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
-
-## [React.js Conf January 2015](http://conf.reactjs.com/)
-
-<iframe width="640" height="360" src="https://www.youtube-nocookie.com/embed/9sc8Pyc51uU?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
-
-Now that we've gone end-to-end with Relay, let's dive into more detail in the guides section.

@@ -1,0 +1,346 @@
+<html><head><meta charset="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1"/><title>Relay.Mutation · Relay</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta property="og:title" content="Relay.Mutation · Relay"/><meta property="og:type" content="website"/><meta property="og:url" content="https://facebook.github.io/relay/index.html"/><meta property="og:description" content="Relay makes use of GraphQL mutations; operations that enable us to mutate data on the client and server. To create a mutation for use in our app, we subclass `Relay.Mutation` and implement, at minimum, the four abstract methods listed below."/><link rel="shortcut icon" href="/relay/img/favicon.png"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.css"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="stylesheet" href="/relay/css/main.css"/></head><body class="sideNavVisible"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/relay/"><img class="logo" src="/relay/img/relay-white.svg"/><h2 class="headerTitle">Relay</h2></a><a href="/relay/en/versions.html"><h3>next</h3></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li><a href="/relay/docs/en/next/introduction-to-relay-modern.html" target="_self">Docs</a></li><li><a href="/relay/en/help.html" target="_self">Support</a></li><li><a href="https://github.com/facebook/relay" target="_self">GitHub</a></li><li><a target="_self"></a></li><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search"/></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/Classic-APIReference-Mutation.md" target="_blank">Edit</a><h1>Relay.Mutation</h1></header><article><div><span><p>Relay makes use of GraphQL mutations; operations that enable us to mutate data on the client and server. To create a mutation for use in our app, we subclass <code>Relay.Mutation</code> and implement, at minimum, the four abstract methods listed below.</p>
+<h2><a class="anchor" aria-hidden="true" name="overview"></a><a href="#overview" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h2>
+<p><em>Properties</em></p>
+<ul class="apiIndex">
+  <li>
+    <a href="#fragments-static-property">
+      <pre>static fragments</pre>
+      Declare this mutation's data dependencies here
+    </a>
+  </li>
+  <li>
+    <a href="#initialvariables-static-property">
+      <pre>static initialVariables</pre>
+      A default set of variables to make available to this mutation's fragment builders
+    </a>
+  </li>
+  <li>
+    <a href="#preparevariables-static-property">
+      <pre>static prepareVariables</pre>
+      A method to modify the variables based on the runtime environment, previous variables, or the meta route
+    </a>
+  </li>
+</ul>
+<p><em>Methods</em></p>
+<ul class="apiIndex">
+  <li>
+    <a href="#constructor">
+      <pre>constructor(props)</pre>
+    </a>
+  </li>
+  <li>
+    <a href="#getconfigs-abstract-method">
+      <pre>abstract getConfigs()</pre>
+    </a>
+  </li>
+  <li>
+    <a href="#getfatquery-abstract-method">
+      <pre>abstract getFatQuery()</pre>
+    </a>
+  </li>
+  <li>
+    <a href="#getmutation-abstract-method">
+      <pre>abstract getMutation()</pre>
+    </a>
+  </li>
+  <li>
+    <a href="#getvariables-abstract-method">
+      <pre>abstract getVariables()</pre>
+    </a>
+  </li>
+  <li>
+    <a href="#getfragment-static-method">
+      <pre>static getFragment(fragmentName[, variableMapping])</pre>
+    </a>
+  </li>
+  <li>
+    <a href="#getcollisionkey">
+      <pre>getCollisionKey()</pre>
+    </a>
+  </li>
+  <li>
+    <a href="#getfiles">
+      <pre>getFiles()</pre>
+    </a>
+  </li>
+  <li>
+    <a href="#getoptimisticconfigs">
+      <pre>getOptimisticConfigs()</pre>
+    </a>
+  </li>
+  <li>
+    <a href="#getoptimisticresponse">
+      <pre>getOptimisticResponse()</pre>
+    </a>
+  </li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" name="properties"></a><a href="#properties" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Properties</h2>
+<h3><a class="anchor" aria-hidden="true" name="fragments-static-property"></a><a href="#fragments-static-property" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>fragments (static property)</h3>
+<pre><code class="hljs"><span class="hljs-title">static</span> fragments: <span class="hljs-type">RelayMutationFragments</span>&lt;$<span class="hljs-type">Keys</span>&lt;<span class="hljs-type">Tp</span>&gt;&gt;
+
+// <span class="hljs-type">Type</span> <span class="hljs-keyword">of</span> <span class="hljs-type">RelayMutationFragments</span>
+<span class="hljs-keyword">type</span> <span class="hljs-type">RelayMutationFragments</span>&lt;<span class="hljs-type">Tk</span>&gt; = {
+  [key: <span class="hljs-type">Tk</span>]: <span class="hljs-type">FragmentBuilder</span>;
+};
+
+// <span class="hljs-type">Type</span> <span class="hljs-keyword">of</span> <span class="hljs-type">FragmentBuilder</span>
+<span class="hljs-keyword">type</span> <span class="hljs-type">FragmentBuilder</span> = (variables: <span class="hljs-type">Variables</span>) =&gt; <span class="hljs-type">RelayConcreteNode</span>;
+</code></pre>
+<p>We declare our mutations' data dependencies here, just as we would with a container. This is particularly useful to ensure that a set of fields we might want to use in this mutation's optimistic response have been fetched.</p>
+<h4><a class="anchor" aria-hidden="true" name="example"></a><a href="#example" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<pre><code class="hljs css {2-9}"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LikeStoryMutation</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Relay</span>.<span class="hljs-title">Mutation</span> </span>{
+  static fragments = {
+    story: () =&gt; <span class="hljs-type">Relay</span>.<span class="hljs-type">QL</span>`
+      fragment on <span class="hljs-type">Story</span> {
+        likers { count },
+        viewerDoesLike,
+      }
+    `,
+  };
+  getOptimisticResponse() {
+    <span class="hljs-comment">// this.props.story.likers.count and this.props.story.viewerDoesLike</span>
+    <span class="hljs-comment">// are guaranteed to have been fetched since we've declared</span>
+    <span class="hljs-comment">// them to be part of this mutation's data dependencies above.</span>
+    <span class="hljs-keyword">return</span> { <span class="hljs-comment">/* ... */</span> };
+  }
+}
+</code></pre>
+<p>See also:
+<a href="guides-mutations.html#fragment-variables">Mutations &gt; Fragment variables</a> and
+<a href="guides-mutations.html#optimistic-updates">Mutations &gt; Optimistic updates</a></p>
+<h3><a class="anchor" aria-hidden="true" name="initialvariables-static-property"></a><a href="#initialvariables-static-property" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>initialVariables (static property)</h3>
+<pre><code class="hljs"><span class="hljs-keyword">static</span> <span class="hljs-string">initialVariables:</span> {[<span class="hljs-string">name:</span> string]: mixed};
+</code></pre>
+<p>The defaults we specify here will become available to our fragment builders:</p>
+<h4><a class="anchor" aria-hidden="true" name="example"></a><a href="#example" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<pre><code class="hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ChangeTodoStatusMutation</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Relay</span>.<span class="hljs-title">Mutation</span> </span>{
+  static initialVariables = {orderby: <span class="hljs-symbol">'priorit</span>y'};
+  static fragments = {
+    todos: () =&gt; <span class="hljs-type">Relay</span>.<span class="hljs-type">QL</span>`
+      # <span class="hljs-type">The</span> variable defined above is available here as $orderby
+      fragment on <span class="hljs-type">User</span> { todos(orderby: $orderby) { ... } }
+    `,
+  };
+  <span class="hljs-comment">/* ... */</span>
+}
+</code></pre>
+<p>See also:
+<a href="guides-mutations.html#fragment-variables">Mutations &gt; Fragment variables</a></p>
+<h3><a class="anchor" aria-hidden="true" name="preparevariables-static-property"></a><a href="#preparevariables-static-property" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>prepareVariables (static property)</h3>
+<pre><code class="hljs"><span class="hljs-keyword">static</span> <span class="hljs-string">prepareVariables:</span> ?(
+  prevVariables: {[<span class="hljs-string">name:</span> string]: mixed},
+<span class="hljs-symbol">  route:</span> RelayMetaRoute,
+) =&gt; {[<span class="hljs-string">name:</span> string]: mixed}
+
+<span class="hljs-comment">// Type of `route` argument</span>
+type RelayMetaRoute = {
+<span class="hljs-symbol">  name:</span> string;
+}
+</code></pre>
+<p>If we provide to a mutation a method that conforms to the signature described above, it will be given the opportunity to modify the fragment builders' variables, based on the previous variables (or the <code>initialVariables</code> if no previous ones exist), the meta route, and the runtime environment. Whatever variables this method returns will become available to this mutation's fragment builders.</p>
+<h4><a class="anchor" aria-hidden="true" name="example"></a><a href="#example" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<pre><code class="hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">BuySongMutation</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Relay</span>.<span class="hljs-title">Mutation</span> </span>{
+  static initialVariables = {format: <span class="hljs-symbol">'mp</span>3'};
+  static prepareVariables = (prevVariables) =&gt; {
+    <span class="hljs-keyword">var</span> overrideVariables = {};
+    <span class="hljs-keyword">var</span> formatPreference = localStorage.getItem(<span class="hljs-symbol">'formatPreferenc</span>e');
+    <span class="hljs-keyword">if</span> (formatPreference) {
+      overrideVariables.format = formatPreference;  <span class="hljs-comment">// Lossless, hopefully</span>
+    }
+    <span class="hljs-keyword">return</span> {...prevVariables, overrideVariables};
+  };
+  <span class="hljs-comment">/* ... */</span>
+}
+</code></pre>
+<p>See also:
+<a href="guides-mutations.html#fragment-variables">Mutations &gt; Fragment variables</a></p>
+<h2><a class="anchor" aria-hidden="true" name="methods"></a><a href="#methods" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Methods</h2>
+<h3><a class="anchor" aria-hidden="true" name="constructor"></a><a href="#constructor" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>constructor</h3>
+<p>Create a mutation instance using the <code>new</code> keyword, optionally passing it some props. Note that <code>this.props</code> is <em>not</em> available inside the constructor function, but are set for all the methods mentioned below (<code>getCollisionKey</code>, <code>getOptimisticResponse</code>, etc). This restriction is due to the fact that mutation props may depend on data from the RelayEnvironment, which isn't known until the mutation is applied with <code>applyUpdate</code> or <code>commitUpdate</code>.</p>
+<h4><a class="anchor" aria-hidden="true" name="example"></a><a href="#example" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<pre><code class="hljs">var <span class="hljs-keyword">bookFlightMutation </span>= new <span class="hljs-keyword">BuyPlaneTicketMutation({airport: </span><span class="hljs-string">'yvr'</span>})<span class="hljs-comment">;</span>
+Relay.Store.commitUpdate(<span class="hljs-keyword">bookFlightMutation);
+</span></code></pre>
+<h3><a class="anchor" aria-hidden="true" name="getconfigs-abstract-method"></a><a href="#getconfigs-abstract-method" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>getConfigs (abstract method)</h3>
+<pre><code class="hljs"><span class="hljs-function"><span class="hljs-keyword">abstract</span> <span class="hljs-title">getConfigs</span>(<span class="hljs-params"></span>): Array&lt;</span>{[key: <span class="hljs-keyword">string</span>]: mixed}&gt;
+</code></pre>
+<p>Implement this required method to give Relay instructions on how to use the response payload from each mutation to update the client-side store.</p>
+<h4><a class="anchor" aria-hidden="true" name="example"></a><a href="#example" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<pre><code class="hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LikeStoryMutation</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Relay</span>.<span class="hljs-title">Mutation</span> </span>{
+  getConfigs() {
+    <span class="hljs-keyword">return</span> [{
+      <span class="hljs-class"><span class="hljs-keyword">type</span></span>: <span class="hljs-symbol">'FIELDS_CHANG</span>E',
+      fieldIDs: {
+        story: <span class="hljs-keyword">this</span>.props.story.id,
+      },
+    }];
+  }
+}
+</code></pre>
+<p>See also: <a href="guides-mutations.html#mutator-configuration">Mutations &gt; Mutator configuration</a></p>
+<h3><a class="anchor" aria-hidden="true" name="getfatquery-abstract-method"></a><a href="#getfatquery-abstract-method" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>getFatQuery (abstract method)</h3>
+<pre><code class="hljs"><span class="hljs-class"><span class="hljs-keyword">abstract</span> <span class="hljs-title">getFatQuery</span>(<span class="hljs-type"></span>): <span class="hljs-title">GraphQL</span>.<span class="hljs-title">Fragment</span>
+</span></code></pre>
+<p>Implement this required method to design a ‘fat query’ – one that represents every field in your data model that could change as a result of this mutation.</p>
+<h4><a class="anchor" aria-hidden="true" name="example"></a><a href="#example" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<pre><code class="hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">BuySongMutation</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Relay</span>.<span class="hljs-title">Mutation</span> </span>{
+  getFatQuery() {
+    <span class="hljs-keyword">return</span> <span class="hljs-type">Relay</span>.<span class="hljs-type">QL</span>`
+      fragment on <span class="hljs-type">BuySongPayload</span> {
+        songs {
+          count,
+          edges,
+        },
+        totalRunTime,
+      }
+    `,
+  }
+}
+</code></pre>
+<p>See also:
+<a href="guides-mutations.html#the-fat-query">Mutations &gt; The fat query</a></p>
+<h3><a class="anchor" aria-hidden="true" name="getmutation-abstract-method"></a><a href="#getmutation-abstract-method" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>getMutation (abstract method)</h3>
+<pre><code class="hljs"><span class="hljs-class"><span class="hljs-keyword">abstract</span> <span class="hljs-title">getMutation</span>(<span class="hljs-type"></span>): <span class="hljs-title">GraphQL</span>.<span class="hljs-title">Mutation</span>
+</span></code></pre>
+<p>Implement this required method to return a GraphQL mutation operation that represents the mutation to be performed.</p>
+<h4><a class="anchor" aria-hidden="true" name="example"></a><a href="#example" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<pre><code class="hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LikeStoryMutation</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Relay</span>.<span class="hljs-title">Mutation</span> </span>{
+  getMutation() {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.props.story.viewerDoesLike
+      ? <span class="hljs-keyword">return</span> <span class="hljs-type">Relay</span>.<span class="hljs-type">QL</span>`mutation {unlikeStory}`
+      : <span class="hljs-keyword">return</span> <span class="hljs-type">Relay</span>.<span class="hljs-type">QL</span>`mutation {likeStory}`;
+  }
+}
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" name="getvariables-abstract-method"></a><a href="#getvariables-abstract-method" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>getVariables (abstract method)</h3>
+<pre><code class="hljs"><span class="hljs-function"><span class="hljs-keyword">abstract</span> <span class="hljs-title">getVariables</span>(<span class="hljs-params"></span>): </span>{[name: <span class="hljs-keyword">string</span>]: mixed}
+</code></pre>
+<p>Implement this required method to prepare variables to be used as input to the mutation.</p>
+<h4><a class="anchor" aria-hidden="true" name="example"></a><a href="#example" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<pre><code class="hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">DestroyShipMutation</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Relay</span>.<span class="hljs-title">Mutation</span> </span>{
+  getVariables() {
+    <span class="hljs-keyword">return</span> {
+      <span class="hljs-comment">// Assume that the server exposes a `destroyShip` mutation</span>
+      <span class="hljs-comment">// that accepts a `shipIDToDestroy` variable as input:</span>
+      shipIDToDestroy: <span class="hljs-keyword">this</span>.props.ship.id,
+    };
+  }
+}
+</code></pre>
+<blockquote>
+<p>Warning</p>
+<p>The term ‘variables’ here refers to the input to the server-side mutation, <strong>not</strong> to the variables made available to this mutation's fragment builders.</p>
+</blockquote>
+<h3><a class="anchor" aria-hidden="true" name="getfragment-static-method"></a><a href="#getfragment-static-method" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>getFragment (static method)</h3>
+<pre><code class="hljs">static getFragment(
+  fragmentName: <span class="hljs-symbol">$</span>Keys&lt;Tp&gt;,
+  variableMapping?: <span class="hljs-keyword">Variables</span>
+): RelayFragmentReference
+
+<span class="hljs-comment">// Type of the variableMapping argument</span>
+type <span class="hljs-comment">Variables = {[name: string]: mixed}</span>;
+</code></pre>
+<p>Gets a fragment reference for use in a parent's query fragment.</p>
+<h4><a class="anchor" aria-hidden="true" name="example"></a><a href="#example" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<pre><code class="hljs css {8}"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">StoryComponent</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{
+  <span class="hljs-comment">/* ... */</span>
+  static fragments = {
+    story: () =&gt; <span class="hljs-type">Relay</span>.<span class="hljs-type">QL</span>`
+      fragment on <span class="hljs-type">Story</span> {
+        id,
+        text,
+        ${<span class="hljs-type">LikeStoryMutation</span>.getFragment(<span class="hljs-symbol">'stor</span>y')},
+      }
+    `,
+  };
+}
+</code></pre>
+<p>You can also pass variables to the mutation's fragment builder from the outer fragment that contains it.</p>
+<pre><code class="hljs css {8-11}"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Movie</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{
+  <span class="hljs-comment">/* ... */</span>
+  static fragments = {
+    movie: (variables) =&gt; <span class="hljs-type">Relay</span>.<span class="hljs-type">QL</span>`
+      fragment on <span class="hljs-type">Movie</span> {
+        posterImage(lang: $lang) { url },
+        trailerVideo(format: $format, lang: $lang) { url },
+        ${<span class="hljs-type">RentMovieMutation</span>.getFragment(<span class="hljs-symbol">'movi</span>e', {
+          format: variables.format,
+          lang: variables.lang,
+        })},
+      }
+    `,
+  };
+}
+</code></pre>
+<blockquote>
+<p>Hint</p>
+<p>In that last example, think of <code>$format</code> and <code>variables.format</code> as the same value.</p>
+</blockquote>
+<h3><a class="anchor" aria-hidden="true" name="getcollisionkey"></a><a href="#getcollisionkey" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>getCollisionKey</h3>
+<pre><code class="hljs">getCollisionKey(): ?<span class="hljs-built_in">string</span>
+</code></pre>
+<p>Implement this method to return a collision key. Relay will send any mutations having the same collision key to the server serially and in-order.</p>
+<h4><a class="anchor" aria-hidden="true" name="example"></a><a href="#example" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<pre><code class="hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LikeStoryMutation</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Relay</span>.<span class="hljs-title">Mutation</span> </span>{
+  getCollisionKey() {
+    <span class="hljs-comment">// Give the same key to like mutations that affect the same story</span>
+    <span class="hljs-keyword">return</span> `like_${<span class="hljs-keyword">this</span>.props.story.id}`;
+  }
+}
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" name="getfiles"></a><a href="#getfiles" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>getFiles</h3>
+<pre><code class="hljs"><span class="hljs-attribute">getFiles()</span>: ?FileMap
+
+<span class="elm">// <span class="hljs-type">Type</span> <span class="hljs-keyword">of</span> the <span class="hljs-type">FileMap</span> object
+<span class="hljs-keyword">type</span> <span class="hljs-type">FileMap</span> = {[key: string]: <span class="hljs-type">File</span>};
+</span></code></pre>
+<p>Implement this method to return a map of <code>File</code> objects to upload as part of a mutation.</p>
+<h4><a class="anchor" aria-hidden="true" name="example"></a><a href="#example" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<pre><code class="hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AttachDocumentMutation</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Relay</span>.<span class="hljs-title">Mutation</span> </span>{
+  getFiles() {
+    <span class="hljs-keyword">return</span> {
+      file: <span class="hljs-keyword">this</span>.props.file,
+    };
+  }
+}
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">FileUploader</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{
+  handleSubmit() {
+    <span class="hljs-keyword">var</span> fileToAttach = <span class="hljs-keyword">this</span>.refs.fileInput.files.item(<span class="hljs-number">0</span>);
+    <span class="hljs-type">Relay</span>.<span class="hljs-type">Store</span>.commitUpdate(
+      <span class="hljs-keyword">new</span> <span class="hljs-type">AttachDocumentMutation</span>({file: fileToAttach})
+    );
+  }
+}
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" name="getoptimisticconfigs"></a><a href="#getoptimisticconfigs" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>getOptimisticConfigs</h3>
+<pre><code class="hljs"><span class="hljs-function"><span class="hljs-title">getOptimisticConfigs</span><span class="hljs-params">()</span></span>: Array&lt;{[key: string]: mixed}&gt;
+</code></pre>
+<p>Implement this method in cases where the mutator configuration needed to handle the optimistic response needs to be different than the one that handles the server response.</p>
+<p>See also: <a href="#getconfigs-abstract-method">Relay.Mutation::getConfigs()</a></p>
+<h3><a class="anchor" aria-hidden="true" name="getoptimisticresponse"></a><a href="#getoptimisticresponse" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>getOptimisticResponse</h3>
+<pre><code class="hljs">getOptimisticResponse(): ?{[<span class="hljs-built_in">key</span>: <span class="hljs-keyword">string</span>]: mixed}
+</code></pre>
+<p>Implement this method to craft an optimistic response having the same shape as the server response payload. This optimistic response will be used to preemptively update the client cache before the server returns, giving the impression that the mutation completed instantaneously.</p>
+<h4><a class="anchor" aria-hidden="true" name="example"></a><a href="#example" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<pre><code class="hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LikeStoryMutation</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Relay</span>.<span class="hljs-title">Mutation</span> </span>{
+  getOptimisticResponse() {
+    <span class="hljs-keyword">return</span> {
+      story: {
+        id: <span class="hljs-keyword">this</span>.props.story.id,
+        likers: {
+          count: <span class="hljs-keyword">this</span>.props.story.likers.count + <span class="hljs-number">1</span>,
+        },
+        viewerDoesLike: !<span class="hljs-keyword">this</span>.props.story.viewerDoesLike,
+      },
+    };
+  }
+}
+</code></pre>
+<p>See also: <a href="guides-mutations.html#optimistic-updates">Mutations &gt; Optimistic updates</a></p>
+</span></div></article></div><div class="docs-prevnext"></div></div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/relay/" class="nav-home"><img src="/relay/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/relay/docs/en/introduction-to-relay-modern.html">Introduction</a></div><div><h5>Community</h5><a href="/relay/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a class="github-button" href="https://github.com/facebook/relay" data-icon="octicon-star" data-count-href="/facebook/relay/stargazers" data-count-api="/repos/facebook/relay#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/relay/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2017 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+              var search = docsearch({
+                apiKey: '3d7d5825d50ea36bca0e6ad06c926f06',
+                indexName: 'relay',
+                inputSelector: '#search_input_react'
+              });
+            </script></body></html>

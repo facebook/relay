@@ -1,0 +1,109 @@
+<html><head><meta charset="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1"/><title>Relay Compiler · Relay</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta property="og:title" content="Relay Compiler · Relay"/><meta property="og:type" content="website"/><meta property="og:url" content="https://facebook.github.io/relay/index.html"/><meta property="og:description" content="Relay Modern uses the Relay Compiler to convert `graphql` literals into generated"/><link rel="shortcut icon" href="/relay/img/favicon.png"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.css"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="stylesheet" href="/relay/css/main.css"/></head><body class="sideNavVisible"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/relay/"><img class="logo" src="/relay/img/relay-white.svg"/><h2 class="headerTitle">Relay</h2></a><a href="/relay/en/versions.html"><h3>classic</h3></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li><a href="/relay/docs/en/classic/introduction-to-relay-modern.html" target="_self">Docs</a></li><li><a href="/relay/en/help.html" target="_self">Support</a></li><li><a href="https://github.com/facebook/relay" target="_self">GitHub</a></li><li><a target="_self"></a></li><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search"/></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/Modern-RelayCompiler.md" target="_blank">Edit</a><h1>Relay Compiler</h1></header><article><div><span><p>Relay Modern uses the Relay Compiler to convert <code>graphql</code> literals into generated
+files that live alongside your source files.</p>
+<p>While you type queries as:</p>
+<pre><code class="hljs css javascript">graphql<span class="hljs-string">`
+  fragment MyComponent on Type {
+    field
+  }
+`</span>
+</code></pre>
+<p>This causes a generated file to appear in <code>./__generated__/MyComponent.graphql</code>,
+with both runtime artifacts (which help to read and write from the Relay Store)
+and <a href="https://flow.org/">Flow types</a> to help you write type-safe code.</p>
+<p>The Relay Compiler is responsible for generating code as part of a build step which, at runtime, can be used statically. By building the query ahead of time, the client's JS runtime is not responsible for generating a query string, and fields that are duplicated in the query can be merged during the build step, to improve parsing efficiency. If you have the ability to persist queries to your server, the compiler's code generation process provides a convenient time to convert a query or mutation's text into a unique identifier, which greatly reduces the upload bytes required.</p>
+<h2><a class="anchor" aria-hidden="true" name="setting-up-relay-compiler"></a><a href="#setting-up-relay-compiler" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Setting up Relay Compiler</h2>
+<p>First, you need <a href="https://facebook.github.io/watchman">watchman</a> installed:</p>
+<pre><code class="hljs css sh">brew install watchman
+</code></pre>
+<p>Next, install the compiler (typically as a <code>devDependency</code>):</p>
+<pre><code class="hljs css sh">yarn add --dev relay-compiler
+</code></pre>
+<p>This installs the bin script <code>relay-compiler</code> in your node_modules folder. It's
+recommended to run this from a yarn/npm script by adding a script to your
+<code>package.json</code> file:</p>
+<pre><code class="hljs css js"><span class="hljs-string">"scripts"</span>: {
+  <span class="hljs-string">"relay"</span>: <span class="hljs-string">"relay-compiler --src ./src --schema ./schema.graphql"</span>
+}
+</code></pre>
+<p>The <code>relay-compiler</code> script requires both the directory which holds your source files as well as a path to your GraphQL schema in either a .json or .graphql schema file.</p>
+<p>Then after making edits to your application files, just run <code>yarn run relay</code> to generate new files, or <code>yarn run relay -- --watch</code> to run the compiler as a long-lived process which automatically generates new files whenever you save.</p>
+<h3><a class="anchor" aria-hidden="true" name="optionally-install-globally"></a><a href="#optionally-install-globally" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Optionally install globally</h3>
+<p>Alternatively, you can install <code>relay-compiler</code> globally so you can access it directly:</p>
+<pre><code class="hljs css sh">yarn global add relay-compiler
+</code></pre>
+<p>Then after making edits to your application files, run <code>relay-compiler --src ./src --schema path/schema.graphql</code> to generate new files, or <code>relay-compiler --src ./src --schema path/schema.graphql --watch</code> to run the compiler as a long-lived process which automatically generates new files whenever you save.</p>
+<h2><a class="anchor" aria-hidden="true" name="graphql-schema"></a><a href="#graphql-schema" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>GraphQL Schema</h2>
+<p>To use the Relay Compiler, you need either a .graphql or .json GraphQL schema file, describing your GraphQL server's API. Typically these files are local representations of a server source of truth and are not edited directly. For example, we might have a <code>schema.graphql</code> like:</p>
+<pre><code class="hljs css graphql">schema {
+  query: Root
+}
+<span class="hljs-built_in">
+type </span>Root {
+  dictionary: [Word]
+}
+<span class="hljs-built_in">
+type </span>Word {
+  id: String!
+  definition: WordDefinition
+}
+<span class="hljs-built_in">
+type </span>WordDefinition {
+  text: String
+  image: String
+}
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" name="source-files"></a><a href="#source-files" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Source files</h2>
+<p>Additionally, you need a directory containing <code>.js</code> files that use the <code>graphql</code> tag to describe GraphQL queries and fragments. Let's call this <code>./src</code>.</p>
+<p>Then run <code>yarn run relay</code> as set up before.</p>
+<p>This will create a series of <code>__generated__</code> directories that are co-located with the corresponding files containing <code>graphql</code> tags.</p>
+<p>For example, given the two files:</p>
+<ul>
+<li><p><code>src/Components/DictionaryComponent.js</code></p>
+<pre><code class="hljs css javascript"><span class="hljs-keyword">const</span> DictionaryWordFragment = graphql<span class="hljs-string">`
+  fragment DictionaryComponent_word on Word {
+    id
+    definition {
+      ...DictionaryComponent_definition
+    }
+  }
+`</span>
+
+<span class="hljs-keyword">const</span> DictionaryDefinitionFragment = graphql<span class="hljs-string">`
+  fragment DictionaryComponent_definition on WordDefinition {
+    text
+    image
+  }
+`</span>
+</code></pre></li>
+<li><p><code>src/Queries/DictionaryQuery.js</code></p>
+<pre><code class="hljs css javascript"><span class="hljs-keyword">const</span> DictionaryQuery = graphql<span class="hljs-string">`
+  query DictionaryQuery {
+    dictionary {
+      ...DictionaryComponent_word
+    }
+  }
+`</span>
+</code></pre></li>
+</ul>
+<p>This would produce three generated files, and two <code>__generated__</code> directories:</p>
+<ul>
+<li><code>src/Components/__generated__/DictionaryComponent_word.graphql.js</code></li>
+<li><code>src/Components/__generated__/DictionaryComponent_definition.graphql.js</code></li>
+<li><code>src/Queries/__generated__/DictionaryQuery.graphql.js</code></li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" name="importing-generated-definitions"></a><a href="#importing-generated-definitions" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Importing generated definitions</h2>
+<p>Typically you will not need to import your generated definitions. The <a href="./babel-plugin-relay.html">Relay Babel plugin</a> will convert the <code>graphql</code> literals to <code>require()</code> the generated files.</p>
+<p>However the Relay Compiler also automatically generates flow types, as <a href="https://flow.org/en/docs/types/comments/">type comments</a>. To import the types:</p>
+<pre><code class="hljs css javascript"><span class="hljs-keyword">import</span> type {DictionaryComponent_word} <span class="hljs-keyword">from</span> <span class="hljs-string">'./__generated__/DictionaryComponent_word.graphql'</span>;
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" name="advanced-usage"></a><a href="#advanced-usage" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Advanced usage</h2>
+<p>In addition to the bin script, the <code>relay-compiler</code> package also <a href="https://github.com/facebook/relay/blob/master/packages/relay-compiler/RelayCompilerPublic.js">exports library
+code</a> which you may use to create more complex configurations for the compiler, or to extend the compiler with your own custom output.</p>
+<p>If you find you need to do something unique (like generate types that conform to an older version of flow, or to parse non-javascript source files), you can build your own version of the Compiler by swapping in your own <code>FileWriter</code> and <code>ASTCache</code>, or by adding on an additional <code>IRTransform</code>. Note, the internal APIs of the <code>RelayCompiler</code> are under constant iteration, so rolling your own version may lead to incompatibilities with future releases.</p>
+</span></div></article></div><div class="docs-prevnext"></div></div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/relay/" class="nav-home"><img src="/relay/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/relay/docs/en/introduction-to-relay-modern.html">Introduction</a></div><div><h5>Community</h5><a href="/relay/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a class="github-button" href="https://github.com/facebook/relay" data-icon="octicon-star" data-count-href="/facebook/relay/stargazers" data-count-api="/repos/facebook/relay#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/relay/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2017 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+              var search = docsearch({
+                apiKey: '3d7d5825d50ea36bca0e6ad06c926f06',
+                indexName: 'relay',
+                inputSelector: '#search_input_react'
+              });
+            </script></body></html>

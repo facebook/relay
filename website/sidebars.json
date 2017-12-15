@@ -37,6 +37,9 @@
     "Principles & Architecture": [
       "thinking-in-graphql",
       "thinking-in-relay",
+      "architecture-overview",
+      "compiler-architecture",
+      "runtime-architecture",
       "videos"
     ]
   }

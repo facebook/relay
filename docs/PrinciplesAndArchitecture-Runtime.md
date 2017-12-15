@@ -1,4 +1,7 @@
-# Relay Runtime
+---
+id: runtime-architecture
+title: Runtime Architecture
+---
 
 The Relay runtime is a full-featured GraphQL client that is designed for high performance even on low-end mobile devices and is capable of scaling to large, complex apps. The runtime API is not intended to be used directly in product code, but rather to provide a foundation for building higher-level product APIs such as React/Relay. This foundation includes:
 

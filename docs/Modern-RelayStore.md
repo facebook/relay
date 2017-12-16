@@ -115,26 +115,26 @@ The `RecordProxy` serves as an interface to mutate records:
 interface RecordProxy {
   copyFieldsFrom(sourceRecord: RecordProxy): void;
   getDataID(): string;
-  getLinkedRecord(name: string, args?: ?Variables): ?RecordProxy;
-  getLinkedRecords(name: string, args?: ?Variables): ?Array<?RecordProxy>;
+  getLinkedRecord(name: string, arguments?: ?Object): ?RecordProxy;
+  getLinkedRecords(name: string, arguments?: ?Object): ?Array<?RecordProxy>;
   getOrCreateLinkedRecord(
     name: string,
     typeName: string,
-    args?: ?Variables,
+    arguments?: ?Object,
   ): RecordProxy;
   getType(): string;
-  getValue(name: string, args?: ?Variables): mixed;
+  getValue(name: string, arguments?: ?Object): mixed;
   setLinkedRecord(
     record: RecordProxy,
     name: string,
-    args?: ?Variables,
+    arguments?: ?Object,
   ): RecordProxy;
   setLinkedRecords(
     records: Array<?RecordProxy>,
     name: string,
-    args?: ?Variables,
+    arguments?: ?Object,
   ): RecordProxy;
-  setValue(value: mixed, name: string, args?: ?Variables): RecordProxy;
+  setValue(value: mixed, name: string, arguments?: ?Object): RecordProxy;
 }
 ```
 
@@ -156,7 +156,7 @@ Gets the type of the current record, as defined by the GraphQL schema.
 const type = user.getType();  // User
 ```
 
-### `getValue(name: string, args?: ?Variables): mixed`
+### `getValue(name: string, arguments?: ?Object): mixed`
 
 Gets the value of a field in the current record given the field name.
 
@@ -192,7 +192,7 @@ Usage:
 const name = viewer.getValue('name', {arg: 'value'});
 ```
 
-### `getLinkedRecord(name: string, args?: ?Variables): ?RecordProxy`
+### `getLinkedRecord(name: string, arguments?: ?Object): ?RecordProxy`
 
 Retrieves the a record associated with the current record given the field name, as defined by the GraphQL document. Returns a `RecordProxy`.
 
@@ -233,7 +233,7 @@ const rootField = store.getRootField('rootField');
 const viewer = rootField.getLinkedRecord('viewer', {arg: 'value'});
 ```
 
-### `getLinkedRecords(name: string, args?: ?Variables): ?Array<?RecordProxy>`
+### `getLinkedRecords(name: string, arguments?: ?Object): ?Array<?RecordProxy>`
 
 Retrieves the set of records associated with the current record given the field name, as defined by the GraphQL document. Returns an array of `RecordProxies`.
 
@@ -273,7 +273,7 @@ const rootField = store.getRootField('rootField');
 const viewer = rootField.getLinkedRecord('viewer', {count: 10});
 ```
 
-### `getOrCreateLinkedRecord(name: string, typeName: string, args?: ?Variables)`
+### `getOrCreateLinkedRecord(name: string, typeName: string, arguments?: ?Object)`
 
 Retrieves the a record associated with the current record given the field name, as defined by the GraphQL document. If the linked record does not exist, it will be created given the type name. Returns a `RecordProxy`.
 
@@ -296,7 +296,7 @@ const newViewer = rootField.getOrCreateLinkedRecord('viewer', 'User'); // Will c
 
 Optionally, if the linked record takes arguments, you can pass a bag of `variables` as well.
 
-### `setValue(value: mixed, name: string, args?: ?Variables): RecordProxy`
+### `setValue(value: mixed, name: string, arguments?: ?Object): RecordProxy`
 
 Mutates the current record by setting a new value on the specified field. Returns the mutated record.
 
@@ -330,7 +330,7 @@ const otherRecord = store.get(id2);
 record.copyFieldsFrom(otherRecord); // Mutates `record`
 ```
 
-### `setLinkedRecord(record: RecordProxy, name: string, args?: ?Variables)`
+### `setLinkedRecord(record: RecordProxy, name: string, arguments?: ?Object)`
 
 Mutates the current record by setting a new linked record on the given the field name.
 
@@ -354,7 +354,7 @@ rootField.setLinkedRecord(newViewer, 'viewer'); //
 
 Optionally, if the linked record takes arguments, you can pass a bag of `variables` as well.
 
-### `setLinkedRecords(records: Array<RecordProxy>, name: string, args?: ?Variables)`
+### `setLinkedRecords(records: Array<RecordProxy>, name: string, variables?: ?Object)`
 
 Mutates the current record by setting a new set of linked records on the given the field name.
 
@@ -388,7 +388,7 @@ interface ConnectionHandler {
   getConnection(
     record: RecordProxy,
     key: string,
-    filters?: ?Variables,
+    filters?: ?Object,
   ): ?RecordProxy,
   createEdge(
     store: RecordSourceProxy,
@@ -410,9 +410,11 @@ interface ConnectionHandler {
 }
 ```
 
-### `getConnection(record: RecordProxy, key: string, filters?: ?Variables)`
+### `getConnection(record: RecordProxy, key: string, filters?: ?Object)`
 
-Given a record and a connection key, retrieves a [`RecordProxy`](#recordproxy) that represents a connection that was annotated with a `@connection` directive. Let's first take a look at a plain connection:
+Given a record and a connection key, and optionally a set of filters, `getConnection` retrieves a [`RecordProxy`](#recordproxy) that represents a connection that was annotated with a `@connection` directive.
+
+First, let's take a look at a plain connection:
 
 ```graphql
 fragment FriendsFragment on User {

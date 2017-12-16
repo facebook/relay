@@ -11,7 +11,7 @@ Table of Contents:
 - [Updater Configs](#updater-configs)
 - [Using updater and optimisticUpdater](#using-updater-and-optimisticupdater)
 
-## commitMutation
+## `commitMutation`
 
 Use `commitMutation` to create and execute mutations. `commitMutation` has the following signature:
 

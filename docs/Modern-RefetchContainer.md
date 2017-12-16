@@ -30,7 +30,7 @@ createRefetchContainer(
   If the fragment name doesn't specify a prop name, the data will be available as a `data` prop.
   * An object whose keys are prop names and values are `graphql` tagged fragments. Each key specified in this object will correspond to a prop available to the resulting Component.
   * **Note:** To enable [compatibility mode](./relay-compat.html), `relay-compiler` enforces fragments to be named as `<FileName>_<propName>`.
-* `refetchQuery`: A `graphql` tagged query to be fetched upon calling [`props.relay.refetch`](#refetch). The component will be re-rendered with the resulting data from the query; for this reason, the query should have the same shape as specified by the `fragmentSpec`, i.e. it should query for the same fields.
+* `refetchQuery`: A `graphql` tagged query to be fetched upon calling [`props.relay.refetch`](#refetch). The component will be re-rendered with the resulting data from this query; for this reason, the query should have the same shape as specified by the `fragmentSpec`, i.e. it should query for the same fields.
 
 ### Available Props
 
@@ -47,7 +47,7 @@ type Props = {
 ```
 * `relay`:
   * `environment`: The current [Relay Environment](./relay-environment.html)
-* `refetch`: See refetch [docs](#refetch)
+  * `refetch`: See `refetch` [docs](#refetch)
 
 ## `refetch`
 
@@ -73,10 +73,10 @@ refetch(
 ### Arguments
 
 * `refetchVariables`:
-  * A bag of variables to pass to the `refetchQuery`.
-  * Or, a function that receives the previous set of variables used to query the data, and returns a new set of variables to pass to the `refetchQuery`.
-* `renderVariables`: Optional bag of variables that indicate which variable values to use when re-rendering the component. Specifically, this indicates which variables to use when querying the data from the
-local data store *after* the new query has been fetched. If not specified, the `refetchVariables` will be used. This is useful when the data you need to render in your component doesn't necessarily match the data you queried for. For example, to implement pagination, you would fetch a page with variables like `{first: 5, after: '<cursor>'}`, but you might want to render the full collection with `{first: 10}`.
+  * A bag of variables to pass to the `refetchQuery` when fetching it from the server.
+  * Or, a function that receives the previous set of variables used to query the data, and returns a new set of variables to pass to the `refetchQuery` when fetching it from the server.
+* `renderVariables`: Optional bag of variables that indicate which variables to use for reading out the data from the store when re-rendering the component. Specifically, this indicates which variables to use when querying the data from the
+local data store *after* the new query has been fetched. If not specified, the `refetchVariables` will be used. This is useful when the data you need to render in your component doesn't necessarily match the data you queried the server for. For example, to implement pagination, you would fetch a page with variables like `{first: 5, after: '<cursor>'}`, but you might want to render the full collection with `{first: 10}`.
 * `callback`: Function to be called after the refetch has completed. If an error occurred during refetch, this function will receive that error as an argument.
 * `options`: Optional object containing set of options.
   * `force`: If the [Network Layer](./network-layer.html) has been configured with a cache, this option forces a refetch even if the data for this query and variables is already available in the cache.
@@ -189,7 +189,8 @@ export default createRefetchContainer(
   },
   graphql`
     # Refetch query to be fetched upon calling `refetch`.
-    # Notice that we re-use our fragment and the shape of this query matches our fragment spec.    query FeedStoriesRefetchQuery($count: Int) {
+    # Notice that we re-use our fragment and the shape of this query matches our fragment spec.
+    query FeedStoriesRefetchQuery($count: Int) {
       feed {
         ...FeedStories_feed @arguments(count: $count)
       }

@@ -39,7 +39,7 @@
     "mutations": "Mutations",
     "network-layer": "Network Layer",
     "new-in-relay-modern": "New in Relay Modern",
-    "pagination-container": "PaginationContainer",
+    "pagination-container": "Pagination Container",
     "query-renderer": "<QueryRenderer />",
     "refetch-container": "Refetch Container",
     "relay-compat": "Compatibility Mode",

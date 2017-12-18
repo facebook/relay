@@ -38,6 +38,11 @@ query ProfilePic_Deferred(
   "dependentRequests": [
     {
       "operationName": "ProfilePic_Deferred",
+      "metadata": {
+        "deferrable": true,
+        "fragmentName": "ProfilePic",
+        "rootFieldVariable": "deferredID"
+      },
       "argumentDependencies": [
         {
           "kind": "ArgumentDependency",
@@ -89,7 +94,12 @@ query ProfilePic_Deferred(
                   "handles": null,
                   "directives": [],
                   "metadata": {
-                    "deferrable": true
+                    "deferrable": true,
+                    "deferred": true,
+                    "deferredFragmentName": "ProfilePic",
+                    "deferredArgumentName": "deferredID",
+                    "deferredArgumentStorageKey": "id",
+                    "idType": "ID"
                   },
                   "type": "ID"
                 }
@@ -227,8 +237,14 @@ query ProfilePic_Deferred(
         {
           "kind": "FragmentSpread",
           "args": [],
-          "metadata": null,
           "name": "ProfilePic",
+          "metadata": {
+            "deferred": true,
+            "deferredFragmentName": "ProfilePic",
+            "deferredArgumentName": "deferredID",
+            "deferredArgumentStorageKey": "id",
+            "idType": "ID"
+          },
           "directives": []
         }
       ],

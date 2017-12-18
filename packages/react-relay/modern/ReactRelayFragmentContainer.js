@@ -73,6 +73,7 @@ function createContainerWithFragments<
       this.state = {
         data: this._resolver.resolve(),
         relayProp: {
+          isLoading: this._resolver.isLoading(),
           environment: relay.environment,
         },
       };
@@ -111,6 +112,7 @@ function createContainerWithFragments<
           this._handleFragmentDataUpdate,
         );
         const relayProp = {
+          isLoading: this._resolver.isLoading(),
           environment: relay.environment,
         };
         this.setState({relayProp});
@@ -119,7 +121,13 @@ function createContainerWithFragments<
       }
       const data = this._resolver.resolve();
       if (data !== this.state.data) {
-        this.setState({data});
+        this.setState({
+          data,
+          relayProp: {
+            isLoading: this._resolver.isLoading(),
+            environment: relay.environment,
+          },
+        });
       }
     }
 
@@ -158,7 +166,16 @@ function createContainerWithFragments<
       const profiler = RelayProfiler.profile(
         'ReactRelayFragmentContainer.handleFragmentDataUpdate',
       );
-      this.setState({data}, profiler.stop);
+      this.setState(
+        {
+          data,
+          relayProp: {
+            ...this.state.relayProp,
+            isLoading: this._resolver.isLoading(),
+          },
+        },
+        profiler.stop,
+      );
     };
 
     render() {

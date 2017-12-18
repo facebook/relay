@@ -53,6 +53,21 @@ function generate(node: Batch | Fragment): RequestNode | ConcreteFragment {
 }
 
 const RelayCodeGenVisitor = {
+  enter(node) {
+    if (
+      (node.kind === 'FragmentSpread' || node.kind === 'ScalarField') &&
+      node.metadata &&
+      node.metadata.deferred
+    ) {
+      return deferredFragmentSpread(
+        node.metadata.deferredFragmentName,
+        node.metadata.deferredArgumentName,
+        node.metadata.deferredArgumentStorageKey,
+        node.metadata.idType,
+      );
+    }
+    return node;
+  },
   leave: {
     Batch(node): RequestNode {
       invariant(node.requests.length !== 0, 'Batch must contain Requests.');
@@ -80,27 +95,42 @@ const RelayCodeGenVisitor = {
           name: node.name,
           metadata: node.metadata,
           fragment: node.fragment,
-          requests: node.requests.map(request => ({
-            name: request.name,
-            id: request.id,
-            text: request.text,
-            argumentDependencies: request.argumentDependencies.map(
-              dependency => ({
-                name: dependency.argumentName,
-                fromRequestName: dependency.fromName,
-                fromRequestPath: dependency.fromPath,
-                ifList: dependency.ifList,
-                ifNull: dependency.ifNull,
-                maxRecurse: dependency.maxRecurse,
-              }),
-            ),
-            operation: {
-              kind: 'Operation',
-              name: request.root.name,
-              argumentDefinitions: request.root.argumentDefinitions,
-              selections: flattenArray(request.root.selections),
-            },
-          })),
+          requests: node.requests.map(request => {
+            const isDeferredFragment =
+              request.metadata && request.metadata.deferrable;
+            const operation = isDeferredFragment
+              ? {
+                  kind: 'DeferredOperation',
+                  name: request.root.name,
+                  argumentDefinitions: request.root.argumentDefinitions,
+                  selections: flattenArray(request.root.selections),
+                  fragmentName: request.metadata.fragmentName,
+                  rootFieldVariable: request.metadata.rootFieldVariable,
+                }
+              : {
+                  kind: 'Operation',
+                  name: request.root.name,
+                  argumentDefinitions: request.root.argumentDefinitions,
+                  selections: flattenArray(request.root.selections),
+                };
+
+            return {
+              name: request.name,
+              id: request.id,
+              text: request.text,
+              argumentDependencies: request.argumentDependencies.map(
+                dependency => ({
+                  name: dependency.argumentName,
+                  fromRequestName: dependency.fromName,
+                  fromRequestPath: dependency.fromPath,
+                  ifList: dependency.ifList,
+                  ifNull: dependency.ifNull,
+                  maxRecurse: dependency.maxRecurse,
+                }),
+              ),
+              operation,
+            };
+          }),
         };
       }
     },
@@ -156,6 +186,15 @@ const RelayCodeGenVisitor = {
       };
     },
 
+    DeferredFragmentSpread(node): ConcreteSelection {
+      return {
+        kind: 'DeferredFragmentSpread',
+        name: node.name,
+        args: node.args,
+        rootFieldVariable: node.rootFieldVariable,
+        storageKey: node.storageKey,
+      };
+    },
     InlineFragment(node): ConcreteSelection {
       return {
         kind: 'InlineFragment',
@@ -309,6 +348,34 @@ function getStaticStorageKey(field: ConcreteField): ?string {
     return null;
   }
   return getStorageKey(field, {});
+}
+
+function deferredFragmentSpread(
+  fragmentName,
+  argumentName,
+  storageKey,
+  idType,
+) {
+  return {
+    kind: 'DeferredFragmentSpread',
+    name: fragmentName,
+    args: [
+      {
+        kind: 'Argument',
+        name: argumentName,
+        metadata: null,
+        value: {
+          kind: 'Variable',
+          variableName: argumentName,
+          metadata: null,
+          type: idType,
+        },
+        type: idType,
+      },
+    ],
+    rootFieldVariable: argumentName,
+    storageKey,
+  };
 }
 
 module.exports = {generate};

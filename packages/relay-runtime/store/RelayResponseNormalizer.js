@@ -15,6 +15,7 @@ const RelayConcreteNode = require('RelayConcreteNode');
 const RelayModernRecord = require('RelayModernRecord');
 const RelayProfiler = require('RelayProfiler');
 
+const deferredFragmentKey = require('deferredFragmentKey');
 const generateRelayClientID = require('generateRelayClientID');
 const invariant = require('invariant');
 const warning = require('warning');
@@ -34,6 +35,7 @@ import type {
 } from 'RelayConcreteNode';
 import type {PayloadData} from 'RelayNetworkTypes';
 import type {
+  DeferredSelections,
   HandleFieldPayload,
   MutableRecordSource,
   Selector,
@@ -47,9 +49,15 @@ const {
   LINKED_HANDLE,
   SCALAR_FIELD,
   SCALAR_HANDLE,
+  DEFERRED_FRAGMENT_SPREAD,
 } = RelayConcreteNode;
 
 export type NormalizationOptions = {handleStrippedNulls: boolean};
+
+export type NormalizedResponse = {
+  fieldPayloads: Array<HandleFieldPayload>,
+  deferredSelections: DeferredSelections,
+};
 
 /**
  * Normalizes the results of a query and standard GraphQL response, writing the
@@ -63,7 +71,7 @@ function normalize(
   selector: Selector,
   response: PayloadData,
   options: NormalizationOptions = {handleStrippedNulls: false},
-): Array<HandleFieldPayload> {
+): NormalizedResponse {
   const {dataID, node, variables} = selector;
   const normalizer = new RelayResponseNormalizer(
     recordSource,
@@ -79,17 +87,17 @@ function normalize(
  * Helper for handling payloads.
  */
 class RelayResponseNormalizer {
-  _handleFieldPayloads: Array<HandleFieldPayload>;
+  _handleFieldPayloads: Array<HandleFieldPayload> = [];
   _recordSource: MutableRecordSource;
   _variables: Variables;
   _handleStrippedNulls: boolean;
+  _deferredSelections: DeferredSelections = new Set();
 
   constructor(
     recordSource: MutableRecordSource,
     variables: Variables,
     options: NormalizationOptions,
   ) {
-    this._handleFieldPayloads = [];
     this._recordSource = recordSource;
     this._variables = variables;
     this._handleStrippedNulls = options.handleStrippedNulls;
@@ -99,7 +107,7 @@ class RelayResponseNormalizer {
     node: ConcreteNode,
     dataID: DataID,
     data: PayloadData,
-  ): Array<HandleFieldPayload> {
+  ): NormalizedResponse {
     const record = this._recordSource.get(dataID);
     invariant(
       record,
@@ -107,7 +115,10 @@ class RelayResponseNormalizer {
       dataID,
     );
     this._traverseSelections(node, record, data);
-    return this._handleFieldPayloads;
+    return {
+      fieldPayloads: this._handleFieldPayloads,
+      deferredSelections: this._deferredSelections,
+    };
   }
 
   _getVariableValue(name: string): mixed {
@@ -163,6 +174,22 @@ class RelayResponseNormalizer {
           handle: selection.handle,
           handleKey,
         });
+      } else if (selection.kind === DEFERRED_FRAGMENT_SPREAD) {
+        const value = RelayModernRecord.getValue(record, selection.storageKey);
+        invariant(
+          typeof value === 'string',
+          'expected ID at %s',
+          selection.storageKey,
+        );
+        const variables = selection.args
+          ? getArgumentValues(selection.args, {
+              ...this._variables,
+              [selection.rootFieldVariable]: value,
+            })
+          : {};
+
+        const key = deferredFragmentKey(value, selection.name, variables);
+        this._deferredSelections.add(key);
       } else {
         invariant(
           false,

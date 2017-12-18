@@ -109,6 +109,8 @@ export interface FragmentSpecResolver {
    * `resolve()` to get the updated results.
    */
   setVariables(variables: Variables): void;
+
+  isLoading(): boolean;
 }
 
 export type CFragmentMap<TFragment> = {[key: string]: TFragment};

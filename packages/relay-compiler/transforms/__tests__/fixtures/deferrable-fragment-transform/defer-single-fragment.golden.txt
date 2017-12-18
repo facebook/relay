@@ -31,6 +31,11 @@ query FriendCount_Deferred(
   "dependentRequests": [
     {
       "operationName": "FriendCount_Deferred",
+      "metadata": {
+        "deferrable": true,
+        "fragmentName": "FriendCount",
+        "rootFieldVariable": "deferredID"
+      },
       "argumentDependencies": [
         {
           "kind": "ArgumentDependency",
@@ -74,7 +79,12 @@ query FriendCount_Deferred(
                   "handles": null,
                   "directives": [],
                   "metadata": {
-                    "deferrable": true
+                    "deferrable": true,
+                    "deferred": true,
+                    "deferredFragmentName": "FriendCount",
+                    "deferredArgumentName": "deferredID",
+                    "deferredArgumentStorageKey": "id",
+                    "idType": "ID"
                   },
                   "type": "ID"
                 }
@@ -162,8 +172,14 @@ query FriendCount_Deferred(
         {
           "kind": "FragmentSpread",
           "args": [],
-          "metadata": null,
           "name": "FriendCount",
+          "metadata": {
+            "deferred": true,
+            "deferredFragmentName": "FriendCount",
+            "deferredArgumentName": "deferredID",
+            "deferredArgumentStorageKey": "id",
+            "idType": "ID"
+          },
           "directives": []
         }
       ],

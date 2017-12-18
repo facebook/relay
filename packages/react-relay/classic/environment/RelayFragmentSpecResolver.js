@@ -167,6 +167,10 @@ class RelayFragmentSpecResolver implements FragmentSpecResolver {
     this._stale = true;
     this._callback();
   };
+
+  isLoading(): boolean {
+    return false;
+  }
 }
 
 /**

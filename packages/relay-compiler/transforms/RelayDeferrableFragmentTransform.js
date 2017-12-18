@@ -38,6 +38,8 @@ type SpreadUse = {|
   path: string,
 |};
 
+const DEFERRED_ARGUMENT_NAME = 'deferredID';
+
 /**
  * Deferrable fragment spreads are transformed into a series of individual
  * dependent operation requests, expected to be executed as part of a batch
@@ -97,6 +99,8 @@ function transformOperations(context: CompilerContext): CompilerContext {
     return context;
   }
 
+  const idType = getIdType(context.clientSchema);
+
   // Next, transform any existing root operations to include references to
   // their dependent requests.
   const transformedContext = IRTransformer.transform(context, {
@@ -151,7 +155,25 @@ function transformOperations(context: CompilerContext): CompilerContext {
     };
     return completeDeferredOperation;
   });
-  return transformedContext.addAll(deferredOperations);
+  const transformedContextPostFragments = IRTransformer.transform(
+    transformedContext,
+    {
+      FragmentSpread(spread): FragmentSpread {
+        if (isDeferrable(spread)) {
+          return {
+            ...spread,
+            metadata: {
+              ...spread.metadata,
+              ...deferredFragmentSpreadMetadata(spread.name, idType),
+            },
+          };
+        }
+        return spread;
+      },
+    },
+  );
+
+  return transformedContextPostFragments.addAll(deferredOperations);
 }
 
 /**
@@ -234,12 +256,17 @@ function createDependentRequests(
   const spreadUses = getDeferrableSpreadUses(context, spreadUsesWithin, from);
   return spreadUses.map(({spread, path}) => ({
     operationName: spread.name + '_Deferred',
+    metadata: {
+      deferrable: true,
+      fragmentName: spread.name,
+      rootFieldVariable: DEFERRED_ARGUMENT_NAME,
+    },
     argumentDependencies: [
       {
         kind: 'ArgumentDependency',
-        argumentName: 'deferredID',
+        argumentName: DEFERRED_ARGUMENT_NAME,
         fromName: from.name,
-        fromPath: path + '.' + spread.name + '_deferredID',
+        fromPath: path + '.' + deferredAlias(spread.name),
         ifList: 'each',
         ifNull: 'skip',
       },
@@ -289,21 +316,8 @@ function createDeferredReference(
   spread: FragmentSpread,
 ): InlineFragment {
   const schema = context.clientSchema;
-  const nodeType = schema.getType('Node');
-  invariant(
-    nodeType instanceof GraphQLInterfaceType,
-    'RelayDeferrableFragmentTransform: Schema must define the interface "Node".',
-  );
-  const idField = nodeType.getFields().id;
-  invariant(
-    idField,
-    'RelayDeferrableFragmentTransform: "Node" must define the field "id"',
-  );
-  const idType = getNamedType(idField.type);
-  invariant(
-    idType instanceof GraphQLScalarType,
-    'RelayDeferrableFragmentTransform: "Node" must define the scalar field "id"',
-  );
+  const nodeType = getNodeType(schema);
+  const idType = getIdType(schema);
   const fragmentType = context.getFragment(spread.name).type;
   invariant(
     doTypesOverlap(schema, fragmentType, nodeType),
@@ -341,11 +355,14 @@ function createDeferredReference(
           {
             kind: 'ScalarField',
             name: 'id',
-            alias: spread.name + '_deferredID',
+            alias: deferredAlias(spread.name),
             args: [],
             handles: null,
             directives: spread.directives,
-            metadata: spread.metadata,
+            metadata: {
+              ...spread.metadata,
+              ...deferredFragmentSpreadMetadata(spread.name, idType),
+            },
             type: idType,
           },
         ],
@@ -382,7 +399,7 @@ function createDeferredOperation(
       {
         kind: 'LocalArgumentDefinition',
         metadata: null,
-        name: 'deferredID',
+        name: DEFERRED_ARGUMENT_NAME,
         defaultValue: null,
         type: idType,
       },
@@ -400,7 +417,7 @@ function createDeferredOperation(
             metadata: null,
             value: {
               kind: 'Variable',
-              variableName: 'deferredID',
+              variableName: DEFERRED_ARGUMENT_NAME,
               metadata: null,
               type: idType,
             },
@@ -414,8 +431,8 @@ function createDeferredOperation(
           {
             kind: 'FragmentSpread',
             args: [],
-            metadata: null,
             name: fragment.name,
+            metadata: deferredFragmentSpreadMetadata(fragment.name, idType),
             directives: [],
           },
         ],
@@ -424,6 +441,44 @@ function createDeferredOperation(
     ],
     type: queryType,
   };
+}
+
+function deferredFragmentSpreadMetadata(name, idType) {
+  return {
+    deferred: true,
+    deferredFragmentName: name,
+    deferredArgumentName: DEFERRED_ARGUMENT_NAME,
+    deferredArgumentStorageKey: 'id',
+    idType: idType,
+  };
+}
+
+function deferredAlias(name: string): string {
+  return `${name}_${DEFERRED_ARGUMENT_NAME}`;
+}
+
+function getNodeType(schema) {
+  const nodeType = schema.getType('Node');
+  invariant(
+    nodeType instanceof GraphQLInterfaceType,
+    'RelayDeferrableFragmentTransform: Schema must define the interface "Node".',
+  );
+  return nodeType;
+}
+
+function getIdType(schema) {
+  const nodeType = getNodeType(schema);
+  const idField = nodeType.getFields().id;
+  invariant(
+    idField,
+    'RelayDeferrableFragmentTransform: "Node" must define the field "id"',
+  );
+  const idType = getNamedType(idField.type);
+  invariant(
+    idType instanceof GraphQLScalarType,
+    'RelayDeferrableFragmentTransform: "Node" must define the scalar field "id"',
+  );
+  return idType;
 }
 
 module.exports = {

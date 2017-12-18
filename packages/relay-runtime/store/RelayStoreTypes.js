@@ -272,6 +272,12 @@ export interface Environment
     selector: Selector,
     handlers: Array<MissingFieldHandler>,
   ): boolean;
+
+  /**
+   * Checks if the environment is waiting for a response from the network for
+   * a deferred fragment.
+   */
+  isSelectorLoading(selector: Selector): boolean;
 }
 
 /**
@@ -396,6 +402,9 @@ export type MissingFieldHandler =
  */
 export type RelayResponsePayload = {|
   fieldPayloads?: ?Array<HandleFieldPayload>,
+  deferredSelections?: ?DeferredSelections,
   source: MutableRecordSource,
   errors: ?Array<PayloadError>,
 |};
+
+export type DeferredSelections = Set<string>;

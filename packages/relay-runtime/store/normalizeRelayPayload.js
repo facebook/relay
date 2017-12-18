@@ -29,7 +29,7 @@ function normalizeRelayPayload(
 ): RelayResponsePayload {
   const source = new RelayInMemoryRecordSource();
   source.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
-  const fieldPayloads = RelayResponseNormalizer.normalize(
+  const {fieldPayloads, deferredSelections} = RelayResponseNormalizer.normalize(
     source,
     selector,
     payload,
@@ -38,6 +38,7 @@ function normalizeRelayPayload(
   return {
     errors,
     fieldPayloads,
+    deferredSelections,
     source,
   };
 }

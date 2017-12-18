@@ -10,9 +10,9 @@
 
 'use strict';
 
-import type {DataID} from '../tools/RelayInternalTypes';
-import type {RerunParam, Variables} from '../tools/RelayTypes';
-import type {Observable, SelectorStoreUpdater} from 'RelayRuntime';
+import type {RerunParam} from '../tools/RelayTypes';
+import type {DataID, Variables} from 'RelayRuntime';
+import type {Disposable, Observable, SelectorStoreUpdater} from 'RelayRuntime';
 
 /**
  * Settings for how a query response may be cached.
@@ -30,15 +30,6 @@ export type CacheConfig = {
   poll?: ?number,
   rerunParamExperimental?: ?RerunParam,
   metadata?: {[key: string]: mixed},
-};
-
-/**
- * Represents any resource that must be explicitly disposed of. The most common
- * use-case is as a return value for subscriptions, where calling `dispose()`
- * would cancel the subscription.
- */
-export type Disposable = {
-  dispose(): void,
 };
 
 /**

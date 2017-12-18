@@ -17,7 +17,8 @@ const printRelayQuery = require('../traversal/printRelayQuery');
 import type {FileMap} from '../mutation/RelayMutation';
 import type RelayQuery from '../query/RelayQuery';
 import type {PrintedQuery} from '../tools/RelayInternalTypes';
-import type {MutationResult, Variables} from '../tools/RelayTypes';
+import type {MutationResult} from '../tools/RelayTypes';
+import type {Variables} from 'RelayRuntime';
 
 /**
  * @internal

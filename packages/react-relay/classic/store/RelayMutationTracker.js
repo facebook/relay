@@ -12,7 +12,8 @@
 
 const RelayRecord = require('./RelayRecord');
 
-import type {DataID, ClientMutationID} from '../tools/RelayInternalTypes';
+import type {ClientMutationID} from '../tools/RelayInternalTypes';
+import type {DataID} from 'RelayRuntime';
 
 // Maintains a map from the client id to the server id of
 // optimistically added nodes

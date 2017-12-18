@@ -15,7 +15,7 @@ const RelayQuery = require('../query/RelayQuery');
 
 const flattenRelayQuery = require('../traversal/flattenRelayQuery');
 
-import type {DataID} from '../tools/RelayInternalTypes';
+import type {DataID} from 'RelayRuntime';
 
 const TYPE = '__type__';
 

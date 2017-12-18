@@ -19,10 +19,9 @@ const invariant = require('invariant');
 const warning = require('warning');
 
 import type {ConcreteFragmentDefinition} from '../query/ConcreteQuery';
-import type {DataID} from '../tools/RelayInternalTypes';
-import type {Variables} from '../tools/RelayTypes';
 import type {Props} from './RelayCombinedEnvironmentTypes';
 import type {FragmentMap, Selector} from './RelayEnvironmentTypes';
+import type {DataID, Variables} from 'RelayRuntime';
 
 /**
  * @public

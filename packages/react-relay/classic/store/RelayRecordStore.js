@@ -25,13 +25,13 @@ import type {QueryPath} from '../query/RelayQueryPath';
 import type {
   Call,
   ClientMutationID,
-  DataID,
   FieldValue,
   NodeRangeMap,
   RootCallMap,
 } from '../tools/RelayInternalTypes';
 import type {RecordState} from './RelayClassicRecordState';
 import type {Record, RecordMap} from './RelayRecord';
+import type {DataID} from 'RelayRuntime';
 import type {PageInfo} from 'RelayRuntime';
 
 type RangeEdge = {

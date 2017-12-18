@@ -23,7 +23,8 @@ import type {QueryPath} from '../query/RelayQueryPath';
 import type {RecordMap} from '../store/RelayRecord';
 import type RelayRecordStore from '../store/RelayRecordStore';
 import type {RangeInfo} from '../store/RelayRecordStore';
-import type {Call, DataID} from '../tools/RelayInternalTypes';
+import type {Call} from '../tools/RelayInternalTypes';
+import type {DataID} from 'RelayRuntime';
 
 type FinderState = {
   dataID: DataID,

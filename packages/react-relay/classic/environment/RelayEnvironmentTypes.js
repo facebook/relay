@@ -15,7 +15,7 @@ import type {
   ConcreteFragmentDefinition,
   ConcreteOperationDefinition,
 } from '../query/ConcreteQuery';
-import type {Variables, RelayMutationConfig} from '../tools/RelayTypes';
+import type {RelayMutationConfig} from '../tools/RelayTypes';
 import type {
   CEnvironment,
   CFragmentMap,
@@ -24,9 +24,13 @@ import type {
   CSelector,
   CSnapshot,
   CUnstableEnvironmentCore,
-  Disposable,
 } from './RelayCombinedEnvironmentTypes';
-import type {GraphQLTaggedNode, UploadableMap} from 'RelayRuntime';
+import type {
+  Disposable,
+  GraphQLTaggedNode,
+  UploadableMap,
+  Variables,
+} from 'RelayRuntime';
 
 type TEnvironment = Environment;
 type TFragment = ConcreteFragmentDefinition;

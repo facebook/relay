@@ -51,7 +51,7 @@ const nodeWithID = RelayQuery.Field.build({
   type: NODE_TYPE,
 });
 
-import type {DataID} from '../tools/RelayInternalTypes';
+import type {DataID} from 'RelayRuntime';
 
 type DiffScope = {
   connectionField: ?RelayQuery.Field,

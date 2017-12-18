@@ -48,7 +48,6 @@ const {ConnectionInterface, RelayProfiler} = require('RelayRuntime');
 import type {QueryPath} from '../query/RelayQueryPath';
 import type {
   ClientMutationID,
-  DataID,
   NodeRangeMap,
   QueryPayload,
   RelayQuerySet,
@@ -63,6 +62,7 @@ import type {
 } from '../tools/RelayTypes';
 import type {ChangeSet} from './RelayChangeTracker';
 import type {RecordMap} from './RelayRecord';
+import type {DataID} from 'RelayRuntime';
 
 const {ID, ID_TYPE, NODE, NODE_TYPE, TYPENAME} = RelayNodeInterface;
 const {ROOT_ID} = require('./RelayStoreConstants');

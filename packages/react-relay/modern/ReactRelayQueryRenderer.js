@@ -17,18 +17,16 @@ const areEqual = require('areEqual');
 const deepFreeze = require('deepFreeze');
 const invariant = require('invariant');
 
-import type {
-  CacheConfig,
-  Disposable,
-} from '../classic/environment/RelayCombinedEnvironmentTypes';
+import type {CacheConfig} from '../classic/environment/RelayCombinedEnvironmentTypes';
 import type {RelayEnvironmentInterface as ClassicEnvironment} from '../classic/store/RelayEnvironment';
-import type {Variables} from '../classic/tools/RelayTypes';
 import type {
-  IEnvironment,
+  Disposable,
   GraphQLTaggedNode,
+  IEnvironment,
   OperationSelector,
   RelayContext,
   Snapshot,
+  Variables,
 } from 'RelayRuntime';
 
 const NETWORK_ONLY = 'NETWORK_ONLY';

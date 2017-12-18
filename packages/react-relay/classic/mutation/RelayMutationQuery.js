@@ -30,8 +30,8 @@ const {ConnectionInterface} = require('RelayRuntime');
 
 import type {ConcreteMutation} from '../query/ConcreteQuery';
 import type RelayQueryTracker from '../store/RelayQueryTracker';
-import type {DataID, RangeBehaviors} from '../tools/RelayInternalTypes';
-import type {Variables} from '../tools/RelayTypes';
+import type {RangeBehaviors} from '../tools/RelayInternalTypes';
+import type {DataID, Variables} from 'RelayRuntime';
 
 type BasicMutationFragmentBuilderConfig = {
   fatQuery: RelayQuery.Fragment,

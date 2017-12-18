@@ -6,13 +6,16 @@
     "update-spec": "spec-md spec/Mutations.md > static/graphql/mutations.htm && spec-md spec/Connections.md > static/graphql/connections.htm && spec-md spec/ObjectIdentification.md > static/graphql/objectidentification.htm",
     "start": "docusaurus-start",
     "build": "docusaurus-build",
+    "examples": "docusaurus-examples",
+    "version": "docusaurus-version",
+    "rename-version": "docusaurus-rename-version",
     "publish-gh-pages": "docusaurus-publish",
     "write-translations": "docusaurus-write-translations",
     "crowdin-upload": "crowdin-cli --config ../crowdin.yaml upload sources --auto-update -b master",
     "crowdin-download": "crowdin-cli --config ../crowdin.yaml download -b master"
   },
   "dependencies": {
-    "docusaurus": "^1.0.0-beta.15",
+    "docusaurus": "^1.0.3",
     "spec-md": "^0.5.1"
   }
 }

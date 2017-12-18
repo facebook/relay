@@ -10,14 +10,21 @@ jobs:
           keys:
             - website-node-modules-{{ checksum "website/yarn.lock" }}
             - website-node-modules-
-      - run: |
-          cd website
-          yarn --no-progress
+      - run:
+          name: Install node_modules
+          command: |
+            cd website
+            yarn --no-progress
+      - run:
+          name: Install apt packages
+          command: |
+            sudo apt install rsync
       - save_cache:
           key: website-node-modules-{{ checksum "website/yarn.lock" }}
           paths:
             - website/node_modules
       - deploy:
+          name: Publish gh-pages
           command: |
             git config --global user.email "relay-bot@users.noreply.github.com"
             git config --global user.name "Relay Bot"

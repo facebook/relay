@@ -10,8 +10,8 @@
 
 'use strict';
 
-import type {Disposable} from '../classic/environment/RelayCombinedEnvironmentTypes';
-import type {RerunParam, Variables} from '../classic/tools/RelayTypes';
+import type {RerunParam} from '../classic/tools/RelayTypes';
+import type {Disposable, Variables} from 'RelayRuntime';
 import type {
   FragmentReference,
   GraphQLTaggedNode,

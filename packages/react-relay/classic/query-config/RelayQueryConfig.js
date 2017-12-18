@@ -13,7 +13,7 @@
 const invariant = require('invariant');
 
 import type {RelayQLQueryBuilder} from '../query/buildRQL';
-import type {Variables} from '../tools/RelayTypes';
+import type {Variables} from 'RelayRuntime';
 
 export type ConfigQueries = {[queryName: string]: RelayQLQueryBuilder};
 export interface RelayQueryConfigInterface {

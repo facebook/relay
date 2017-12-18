@@ -25,13 +25,13 @@ import type {QueryPath} from '../query/RelayQueryPath';
 import type {
   Call,
   ClientMutationID,
-  DataID,
   FieldValue,
   NodeRangeMap,
   RootCallMap,
 } from '../tools/RelayInternalTypes';
 import type {CacheWriter} from '../tools/RelayTypes';
 import type {Record, RecordMap} from './RelayRecord';
+import type {DataID} from 'RelayRuntime';
 import type {EdgeRecord, PageInfo, RecordState} from 'RelayRuntime';
 
 const EMPTY = '';

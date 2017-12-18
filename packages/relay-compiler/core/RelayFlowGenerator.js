@@ -238,10 +238,7 @@ function createVisitor(options: Options) {
   return {
     leave: {
       Root(node) {
-        const inputVariablesType =
-          node.operation !== 'query'
-            ? generateInputVariablesType(node, state)
-            : null;
+        const inputVariablesType = generateInputVariablesType(node, state);
         const responseType = exportType(
           `${node.name}Response`,
           selectionsToBabel(node.selections, state),
@@ -249,7 +246,7 @@ function createVisitor(options: Options) {
         return t.program([
           ...getFragmentImports(state),
           ...getEnumDefinitions(state),
-          ...(inputVariablesType ? [inputVariablesType] : []),
+          inputVariablesType,
           responseType,
         ]);
       },

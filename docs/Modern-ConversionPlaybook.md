@@ -5,9 +5,9 @@ title: Conversion Playbook
 
 Incrementally modernize your Relay Classic app in these steps:
 
-## Step 0: Install Relay v1.0
+## Step 0: Install and configure your environment
 
-Install the latest version of Relay from the [getting started guide](./relay-modern.html).
+Follow the steps outlined in the [Migration Setup](./migration-setup.html) guide.
 
 ## Step 1: Incrementally convert to Relay Compat
 

@@ -44,14 +44,14 @@ import type {
   FragmentResolver,
   ClassicRelayContext,
 } from '../store/RelayEnvironment';
-import type {DataID, RelayQuerySet} from '../tools/RelayInternalTypes';
+import type {RelayQuerySet} from '../tools/RelayInternalTypes';
 import type {
   Abortable,
   ComponentReadyStateChangeCallback,
   RelayContainer as RelayContainerClass,
   RelayProp,
-  Variables,
 } from '../tools/RelayTypes';
+import type {DataID, Variables} from 'RelayRuntime';
 
 type FragmentPointer = {
   fragment: RelayQuery.Fragment,

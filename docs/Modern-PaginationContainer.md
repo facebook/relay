@@ -1,77 +1,204 @@
 ---
 id: pagination-container
-title: PaginationContainer
+title: Pagination Container
 ---
 
-`PaginationContainer` is designed to simplify the workflow of loading more items in a list -- in many cases, we don't want to fetch all the data at once but lazily load more data. It relies on a GraphQL server exposing connections in a standardized way. For a detailed spec, please check out [this page](https://facebook.github.io/relay/graphql/connections.htm).
+Pagination Container is also a [higher-order component](https://reactjs.org/docs/higher-order-components.html), similar to a [Fragment Container](./fragment-container.html), that is designed to simplify the workflow of loading more items in a list &mdash; in many cases, we don't want to fetch all the data at once but lazily load more data. It relies on a GraphQL server exposing connections in a standardized way. For a detailed spec, please check out [this page](https://facebook.github.io/relay/graphql/connections.htm).
 
-`this.props.relay` exposes the following APIs:
+Table of Contents:
+- [`@connection`](#connection)
+- [`createPaginationContainer`](#createpaginationcontainer)
+- [`hasMore`](#hasmore)
+- [`isLoading`](#isloading)
+- [`loadMore`](#loadmore)
+- [`refetchConnection`](#refetchconnection)
+- [Pagination Example](#pagination-example)
+
+## `@connection`
+
+Pagination Container works in a very similar way to the [Fragment Container](#fragment-container.html) in that you also specify the data requirements for a component via GraphQL fragments in the `fragmentSpec`.
+
+However, when [specifying connection fragments](#createpaginationcontainer) for a Pagination Container, it is expected that at least one of the fragments contains a [GraphQL connection](https://facebook.github.io/relay/graphql/connections.htm) to paginate over, and that that the connection field is annotated with a `@connection` directive.
+
+The purpose of the `@connection` directive is to allow Relay to uniquely identify different connections under a parent type. The `@connection` directive takes 2 arguments that help identify the connection:
+
+```graphql
+@connection(key: String!, filters: [String])
+```
+
+* `key`: **Required** String that serves as a unique identifier for the connection under the parent field type. A good practice could be `<ComponentName>_<fieldName | fieldAlias>`.
+* `filters`: **Optional** Array of strings that belong to the set of argument variables defined for the connection field (e.g. `orderBy`, `searchTerm`, etc). The values for the variables specified in this array will be used alongside the user-supplied `key` to uniquely identify a connection. If `filters` is not provided, by default Relay will use the set of all of the arguments the connection field takes, excluding pagination specific arguments (i.e. `first`/`last`, `after`/`before`).
+
+### Examples
+
+Specifying just the `key`:
 
 ```javascript
-type Variables = {[name: string]: any};
-type RefetchOptions = {
-  force?: boolean, // Refetch from the server ignoring anything in the cache.
-};
-type Disposable = {
-  dispose(): void,
+fragment Feed_user on User {
+  # This connection, under a specific User, will be uniquely identified by
+  # the key "Feed_feed" and the value of `$orderBy` (given that no `filters` were provided)
+  feed(
+    first: $count
+    after: $cursor
+    orderby: $orderBy
+  ) @connection(key: "Feed_feed") {
+    edges {
+      node {
+        id,
+        ...Story_story
+      }
+  }
+}
+```
+
+Specifying `key` and `filters`:
+
+```javascript
+fragment Feed_user on User {
+  # This connection, under a specific User, will be uniquely identified by
+  # the key "Feed_feed" and /only/ the value of `$searchTerm`, i.e.
+  # different values of `orderBy` will not distinguish connections.
+  feed(
+    first: $count
+    after: $cursor
+    orderby: $orderBy
+    search_term: $searchTerm
+  ) @connection(key: "Feed_feed", filters: ['searchTerm']) {
+    edges {
+      node {
+        id,
+        ...Story_story
+      }
+  }
+}
+```
+
+## `createPaginationContainer`
+
+`createPaginationContainer` has the following signature:
+
+```javascript
+createPaginationContainer(
+  component: ReactComponentClass,
+  fragmentSpec: GraphQLTaggedNode | {[string]: GraphQLTaggedNode},
+  connectionConfig: ConnectionConfig,
+): ReactComponentClass;
+
+type ConnectionConfig = {
+  direction?: 'backward' | 'forward',
+  getConnectionFromProps?: (props: Object) => ?ConnectionData,
+  getFragmentVariables?: (previousVariables: Object, totalCount: number) => Object,
+  getVariables: (
+    props: Object,
+    paginationInfo: {count: number, cursor: ?string},
+    fragmentVariables: Object,
+  ) => Object,
+  query: GraphQLTaggedNode,
 };
 
-/**
- * Check if there is at least one more page.
- */
+type ConnectionData = {
+  edges?: ?Array<any>,
+  pageInfo?: ?{
+    endCursor: ?string,
+    hasNextPage: boolean,
+    hasPreviousPage: boolean,
+    startCursor: ?string,
+  },
+};
+```
+
+### Arguments
+
+* `component`: The React Component *class* of the component requiring the fragment data.
+* `fragmentSpec`: Specifies the data requirements for the Component via a GraphQL fragment. It is expected that one of the fragments specified here will contain a [`@connection`](#@connection-directive) for pagination. The required data will be available on the component as props that match the shape of the provided fragment. `fragmentSpec` can be one of 2 things:
+  * A `graphql` tagged fragment. If the fragment uses the name convention `<FileName><...>_<propName>`, the fragment's data will be available to the Component as a prop with the given `<propName>`.
+  If the fragment name doesn't specify a prop name, the data will be available as a `data` prop.
+  * An object whose keys are prop names and values are `graphql` tagged fragments. Each key specified in this object will correspond to a prop available to the resulting Component.
+  * **Note:** To enable [compatibility mode](./relay-compat.html), `relay-compiler` enforces fragments to be named as `<FileName>_<propName>`.
+* `connectionConfig`:
+  * `direction`: Either "forward" to indicate forward pagination using after/first, or "backward" to indicate backwards pagination using before/last. If not provided, Relay will infer the direction based on the provided `@connection` directive. **Note:** `direction` is not optional in [compatibility mode](./relay-compat.html).
+  * `getConnectionFromProps`: Function that should indicate which connection to paginate over, given the fragment props (i.e. the props corresponding to the `fragmentSpec`). This is necessary in most cases because the Relay can't automatically tell which connection you mean to paginate over (a container might fetch multiple fragments and connections, but can only paginate one of them). If not provided, Relay will try infer the correct connection to paginate over based on the provided `@connection` directive. See our [example](#pagination-example) for more details. **Note:** `getConnectionFromProps` is not optional in [compatibility mode](./relay-compat.html).
+  * `getFragmentVariables`: Function that should return the bag of variables  to use for reading out the data from the store when re-rendering the component. This function takes the previous set of variables passed to the pagination `query`, and the number of elements that have been fetched in total so far. Specifically, this indicates which variables to use when reading out the data from the
+  local data store *after* the new pagination `query` has been fetched. If not specified, Relay will default to using all of the previous variables and using the total count for the `count` variable. This option is analogous to [`renderVariables`](./refetch-container#refetch) in the Refetch Container. See our [example](#pagination-example) for more details.
+  * `getVariables`: Function that should return the variables to pass to the pagination `query` when fetching it from the server, given the current `props`, `count` and `cursor`. You may set whatever variables here, as well as modify the defaults to use for after/first/before/last arguments. See our [example](#pagination-example) for more details.
+  * `query`: A `graphql` tagged query to be used as the pagination query. The component will be re-rendered with the resulting data from this query; for this reason, the query should have the same shape as specified by the `fragmentSpec`, i.e. it should query for the same fields.
+
+### Available Props
+
+The Component resulting from `createPaginationContainer` will receive the following `props`:
+
+```javascript
+type Props = {
+  relay: {
+    environment: Environment,
+    hasMore(), // See #hasMore section
+    isLoading(), // See #isLoading section
+    loadMore(), // See #loadMore section
+    refetchConnection(), // See #refetchConnection section
+  },
+  // Additional props as specified by the fragmentSpec
+}
+```
+
+* `relay`:
+  * `environment`: The current [Relay Environment](./relay-environment.html)
+  * `hasMore`: See `hasMore` [docs](#hasmore)
+  * `isLoading`: See `isLoading` [docs](#isloading)
+  * `loadMore`: See `loadMore` [docs](#loadmore)
+  * `refetchConnection `: See `refetchConnection` [docs](#refetchconnection)
+
+## `hasMore()`
+
+`hasMore` is a function available on the `relay` [prop](#available-props). This function indicates wether there are more pages to fetch from the server or not.
+
+```javascript
 hasMore: () => boolean,
+```
 
-/**
- * Check if there are pending requests.
- */
+## `isLoading`
+
+`isLoading` is a function available on the `relay` [prop](#available-props). This function indicates if a previous call to [`loadMore()`](#loadmore) is still pending. This is convenient for avoiding duplicate load calls.
+
+```javascript
 isLoading: () => boolean,
+```
 
-/**
- * Execute the pagination query. Relay will infer the pagination direction (either 'forward'
- * or 'backward') from the query parameters. `pageSize` is the additional number of items
- * to load.
- */
-loadMore: (
-  pageSize: number,
-  callback: ?(error: ?Error) => void,
-  options: ?RefetchOptions
-) => ?Disposable,
+## `loadMore`
 
-/**
- * Refetch the items in the connection (with potentially new variables).
- */
+`loadMore` is a function available on the `relay` [prop](#available-props). You can call `loadMore()` to fetch more items from the server based on the `connectionConfig` provided to the container. This will return null if there are no more items to fetch, otherwise it will fetch more items and return a Disposable that can be used to cancel the fetch.
+
+```javascript
+loadMore(pageSize: number, callback: ?(error: ?Error) => void): ?Disposable
+```
+
+### Arguments:
+
+* `pageSize`: The number of **additional** items to fetch (not the total).
+* `callback`: Function called when the new page has been fetched. If an error occurred during refetch, this function will receive that error as an argument.
+
+## `refetchConnection`
+
+`refetchConnection` is a function available on the `relay` [prop](#available-props). You can call `refetchConnection` to restart pagination on a connection from scratch, with optionally a completely new set of variables to pass to the pagination `query`. This is useful for example if you are paginating over a collection based on a userID and the userID changes, you'd want to start paginating over the new collection for the new user.
+
+```javascript
 refetchConnection:(
-  totalCount: number,
+  count: number,
   callback: (error: ?Error) => void,
   refetchVariables: ?Variables,
 ) => ?Disposable,
 ```
 
-## `@connection` directive
+### Arguments:
 
-The pagination container expects the connection field to be annotated with a `@connection(key: ...)` directive, where the `key` is expected to be a unique identifier under the parent field type `User`. A good practice could be `<ComponentName>_<fieldName | fieldAlias>`. By default, Relay generates storage key based on the user-supplied `key` and all non-filter variables of the field. Relay also provides an advanced feature `@connection(key: 'FriendsList_friends', filters:['orderBy', ...])` that allows you to explicitly specify which variables should be used to generate the storage key. Particularly, if you write `@connection(key: ..., filters:[])`, Relay will ignore all the variables.
+* `totalCount`: The total number of elements to fetch
+* `callback`: Function called when the new page has been fetched. If an error occurred during refetch, this function will receive that error as an argument.
+* `refetchVariables`: A potentially new bag of variables to pass to the pagination `query` when fetching it from the server.
 
-```javascript
-graphql`
-  fragment Feed_user on User {
-    feed(first: $count, after: $cursor) @connection(key: "Feed_feed") {
-      edges {
-        node {
-          id,
-          ...Story_story
-        }
-    }
-  }
-`,
-```
-
-## Example
+## Pagination Example
 
 ```javascript
-const {
-  createPaginationContainer,
-  graphql,
-} = require('react-relay');
+// Feed.js
+import {createPaginationContainer, graphql} from 'react-relay';
 
 class Feed extends React.Component {
   render() {
@@ -94,9 +221,9 @@ class Feed extends React.Component {
     }
 
     this.props.relay.loadMore(
-      10, // Fetch the next 10 feed items
-      e => {
-        console.log(e);
+      10,  // Fetch the next 10 feed items
+      error => {
+        console.log(error);
       },
     );
   }
@@ -106,11 +233,16 @@ module.exports = createPaginationContainer(
   Feed,
   {
     user: graphql`
-      fragment Feed_user on User {
+      fragment Feed_user on User
+      @argumentDefinitions(
+        count: {type: "Int", defaultValue: 10}
+        cursor: {type: "ID"}
+        orderby: {type: "[FriendsOrdering]", defaultValue: [DATE_ADDED]}
+      ) {
         feed(
           first: $count
           after: $cursor
-          orderby: $orderBy # other variables
+          orderby: $orderBy # Non-pagination variables
         ) @connection(key: "Feed_feed") {
           edges {
             node {
@@ -127,6 +259,7 @@ module.exports = createPaginationContainer(
     getConnectionFromProps(props) {
       return props.user && props.user.feed;
     },
+    // This is also the default implementation of `getFragmentVariables` if it isn't provided.
     getFragmentVariables(prevVars, totalCount) {
       return {
         ...prevVars,
@@ -137,20 +270,22 @@ module.exports = createPaginationContainer(
       return {
         count,
         cursor,
-        // in most cases, for variables other than connection filters like
-        // `first`, `after`, etc. you may want to use the previous values.
         orderBy: fragmentVariables.orderBy,
+        // userID isn't specified as an @argument for the fragment, but it should be a variable available for the fragment under the query root.
+        userID: fragmentVariables.userID,
       };
     },
     query: graphql`
+      # Pagination query to be fetched upon calling `loadMore`.
+      # Notice that we re-use our fragment, and the shape of this query matches our fragment spec.
       query FeedPaginationQuery(
         $count: Int!
-        $cursor: String
-        $orderby: String!
+        $cursor: ID
+        $orderBy: [FriendsOrdering]!
+        $userID: ID!
       ) {
-        user {
-          # You could reference the fragment defined previously.
-          ...Feed_user
+        user: node(id: $userID) {
+          ...Feed_user @arguments(count: $count, cursor: $cursor, orderBy: $orderBy)
         }
       }
     `

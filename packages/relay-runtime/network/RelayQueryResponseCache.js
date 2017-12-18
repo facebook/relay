@@ -14,8 +14,8 @@
 const invariant = require('invariant');
 const stableCopy = require('stableCopy');
 
+import type {Variables} from '../util/RelayRuntimeTypes';
 import type {GraphQLResponse} from 'RelayNetworkTypes';
-import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 type Response = {
   fetchTime: number,

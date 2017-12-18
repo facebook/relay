@@ -18,9 +18,9 @@ const invariant = require('invariant');
 const isEmpty = require('isEmpty');
 const warning = require('warning');
 
-import type {DataID} from '../tools/RelayInternalTypes';
 import type {CacheManager, CacheProcessorCallbacks} from '../tools/RelayTypes';
 import type {Record} from './RelayRecord';
+import type {DataID} from 'RelayRuntime';
 
 type ProcessorState = 'PENDING' | 'LOADING' | 'COMPLETED';
 

@@ -21,6 +21,7 @@ const normalizeRelayPayload = require('normalizeRelayPayload');
 const {EXISTENT, NONEXISTENT} = require('RelayRecordState');
 const {ROOT_ID, ROOT_TYPE} = require('RelayStoreUtils');
 
+import type {DataID} from '../util/RelayRuntimeTypes';
 import type {HandlerProvider} from 'RelayDefaultHandlerProvider';
 import type RelayRecordSourceMutator from 'RelayRecordSourceMutator';
 import type {
@@ -31,7 +32,6 @@ import type {
   RecordSourceSelectorProxy,
   OperationSelector,
 } from 'RelayStoreTypes';
-import type {DataID} from 'react-relay/classic/tools/RelayInternalTypes';
 
 /**
  * @internal

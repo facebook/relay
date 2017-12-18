@@ -26,11 +26,11 @@ const warning = require('warning');
 const {ConnectionInterface} = require('RelayRuntime');
 
 import type {QueryPath} from '../query/RelayQueryPath';
-import type {DataID} from '../tools/RelayInternalTypes';
 import type RelayChangeTracker from './RelayChangeTracker';
 import type RelayQueryTracker from './RelayQueryTracker';
 import type RelayRecordStore from './RelayRecordStore';
 import type RelayRecordWriter from './RelayRecordWriter';
+import type {DataID} from 'RelayRuntime';
 
 type WriterOptions = {
   forceIndex?: ?number,

@@ -296,7 +296,7 @@ class Todo extends React.Component<Props> {
 export default createFragmentContainer(
   Todo,
   grapqhl`
-    # As a convention, we name the fragment as '<ComponentFileName>_<PropName>'
+    # As a convention, we name the fragment as '<ComponentFileName>_<propName>'
     fragment Todo_todo on Todo {
       complete
       text
@@ -570,7 +570,7 @@ In the simplest case above, we just need to pass an `optimisticResponse` option,
 
 ### Updating local data from mutation responses
 
-By default, Relay will know to update the fields in the records associated with the ids returned in the mutation payload, (i.e. the `todo` in our example). However, this is only the simplest case, and in some cases updating the local data isn't as simple as just updating the fields in a record.
+By default, Relay will know to update the fields on the records referenced by the mutation payload, (i.e. the `todo` in our example). However, this is only the simplest case, and in some cases updating the local data isn't as simple as just updating the fields in a record.
 
 For instance, we might be updating a collection of items, or we might be deleting a record entirely. For these more advanced scenarios, Relay allows us to pass a set of options for us to control how we update the local data from a server response, including a set of [`configs`](./mutations.html#configs), and an [`updater`](https://facebook.github.io/relay/docs/en/mutations.html#updating-the-store-programatically-advanced) function for full control over the update.
 

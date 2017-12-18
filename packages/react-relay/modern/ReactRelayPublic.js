@@ -24,16 +24,13 @@ const {
 } = require('RelayRuntime');
 
 export type {
-  Disposable,
-} from '../classic/environment/RelayCombinedEnvironmentTypes';
-export type {DataID} from '../classic/tools/RelayInternalTypes';
-export type {Variables} from '../classic/tools/RelayTypes';
-export type {
   RelayPaginationProp,
   RelayProp,
   RelayRefetchProp,
 } from './ReactRelayTypes';
 export type {
+  DataID,
+  Disposable,
   // RelayRuntime has two environment exports: one interface, one concrete.
   IEnvironment as Environment,
   GraphQLTaggedNode,
@@ -41,6 +38,7 @@ export type {
   RelayContext,
   Selector,
   Snapshot,
+  Variables,
 } from 'RelayRuntime';
 
 /**

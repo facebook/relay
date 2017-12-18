@@ -29,10 +29,7 @@ const warning = require('warning');
 
 const {Observable, recycleNodesInto} = require('RelayRuntime');
 
-import type {
-  CacheConfig,
-  Disposable,
-} from '../environment/RelayCombinedEnvironmentTypes';
+import type {CacheConfig} from '../environment/RelayCombinedEnvironmentTypes';
 import type {
   Environment,
   OperationSelector,
@@ -47,11 +44,7 @@ import type {
   QueryCallback,
 } from '../network/RelayNetworkLayer';
 import type {ConcreteOperationDefinition} from '../query/ConcreteQuery';
-import type {
-  DataID,
-  QueryPayload,
-  RelayQuerySet,
-} from '../tools/RelayInternalTypes';
+import type {QueryPayload, RelayQuerySet} from '../tools/RelayInternalTypes';
 import type {TaskScheduler} from '../tools/RelayTaskQueue';
 import type {
   Abortable,
@@ -63,10 +56,15 @@ import type {
   ReadyStateChangeCallback,
   StoreReaderData,
   StoreReaderOptions,
-  Variables,
 } from '../tools/RelayTypes';
 import type RelayQueryTracker from './RelayQueryTracker';
-import type {SelectorStoreUpdater, UploadableMap} from 'RelayRuntime';
+import type {DataID} from 'RelayRuntime';
+import type {
+  Disposable,
+  SelectorStoreUpdater,
+  UploadableMap,
+  Variables,
+} from 'RelayRuntime';
 
 export type FragmentResolver = {
   dispose(): void,

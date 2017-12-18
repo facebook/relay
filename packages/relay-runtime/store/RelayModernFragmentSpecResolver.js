@@ -19,6 +19,7 @@ const {
   getSelectorsFromObject,
 } = require('RelayModernSelector');
 
+import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
 import type {
   Environment,
   FragmentMap,
@@ -27,12 +28,10 @@ import type {
   Snapshot,
 } from 'RelayStoreTypes';
 import type {
-  Disposable,
   FragmentSpecResolver,
   FragmentSpecResults,
   SelectorData,
 } from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
-import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 type Props = {[key: string]: mixed};
 type Resolvers = {[key: string]: ?(SelectorListResolver | SelectorResolver)};

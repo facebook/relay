@@ -23,11 +23,11 @@ import type {RelayConcreteNode} from '../query/RelayQL';
 import type {RelayEnvironmentInterface} from '../store/RelayEnvironment';
 import type {Record} from '../store/RelayRecord';
 import type {
-  DataID,
   FieldValue,
   RangeBehaviors,
   QueryPayload,
 } from './RelayInternalTypes';
+import type {DataID, Variables} from 'RelayRuntime';
 import type URI from 'URI';
 
 type RelayContainerErrorEventType =
@@ -251,8 +251,6 @@ export type SubscriptionCallbacks<T> = {
   onError(error: Error): void,
   onCompleted(): void,
 };
-// Variables
-export type Variables = {[name: string]: $FlowFixMe};
 export type RerunParam = {
   param: string,
   import?: ?string,

@@ -17,7 +17,6 @@ const nullthrows = require('nullthrows');
 const {
   doTypesOverlap,
   getNamedType,
-  isScalarType,
   GraphQLInterfaceType,
   GraphQLList,
   GraphQLScalarType,
@@ -379,10 +378,6 @@ function createDeferredOperation(
 ): Root {
   const schema = context.clientSchema;
   const queryType = schema.getQueryType();
-  invariant(
-    queryType,
-    'RelayDeferrableFragmentTransform: "Query" must be a defined type',
-  );
   const nodeField = queryType.getFields().node;
   invariant(
     nodeField,
@@ -390,7 +385,7 @@ function createDeferredOperation(
   );
   const idArg = nodeField.args.find(arg => arg.name === 'id');
   invariant(
-    idArg && isScalarType(idArg.type),
+    idArg,
     'RelayDeferrableFragmentTransform: "node" field must define the argument "id"',
   );
   const idType = idArg.type;

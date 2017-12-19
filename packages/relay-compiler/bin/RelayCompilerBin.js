@@ -197,12 +197,12 @@ function getSchema(schemaPath: string): GraphQLSchema {
       source = printSchema(buildClientSchema(JSON.parse(source).data));
     }
     source = `
-  directive @include(if: Boolean) on FRAGMENT_SPREAD | FIELD
-  directive @skip(if: Boolean) on FRAGMENT_SPREAD | FIELD
+  directive @include(if: Boolean) on FRAGMENT | FIELD
+  directive @skip(if: Boolean) on FRAGMENT | FIELD
 
   ${source}
   `;
-    return buildASTSchema(parse(source), {assumeValid: true});
+    return buildASTSchema(parse(source));
   } catch (error) {
     throw new Error(
       `

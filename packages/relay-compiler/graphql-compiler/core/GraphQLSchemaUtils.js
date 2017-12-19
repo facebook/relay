@@ -171,7 +171,7 @@ function hasConcreteTypeThatImplements(
 function getConcreteTypes(
   schema: GraphQLSchema,
   type: GraphQLType,
-): $ReadOnlyArray<GraphQLObjectType> {
+): Array<GraphQLObjectType> {
   return schema.getPossibleTypes(assertAbstractType(type));
 }
 
@@ -203,20 +203,14 @@ function isOperationDefinitionAST(ast: ASTNode): boolean %checks {
  */
 function isSchemaDefinitionAST(ast: ASTNode): boolean %checks {
   return (
-    ast.kind === 'SchemaDefinition' ||
-    ast.kind === 'ScalarTypeDefinition' ||
-    ast.kind === 'ObjectTypeDefinition' ||
-    ast.kind === 'InterfaceTypeDefinition' ||
-    ast.kind === 'UnionTypeDefinition' ||
+    ast.kind === 'DirectiveDefinition' ||
     ast.kind === 'EnumTypeDefinition' ||
     ast.kind === 'InputObjectTypeDefinition' ||
-    ast.kind === 'DirectiveDefinition' ||
-    ast.kind === 'ScalarTypeExtension' ||
-    ast.kind === 'ObjectTypeExtension' ||
-    ast.kind === 'InterfaceTypeExtension' ||
-    ast.kind === 'UnionTypeExtension' ||
-    ast.kind === 'EnumTypeExtension' ||
-    ast.kind === 'InputObjectTypeExtension'
+    ast.kind === 'InterfaceTypeDefinition' ||
+    ast.kind === 'ObjectTypeDefinition' ||
+    ast.kind === 'ScalarTypeDefinition' ||
+    ast.kind === 'TypeExtensionDefinition' ||
+    ast.kind === 'UnionTypeDefinition'
   );
 }
 

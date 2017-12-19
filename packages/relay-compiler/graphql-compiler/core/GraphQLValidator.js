@@ -16,6 +16,8 @@ const Profiler = require('./GraphQLCompilerProfiler');
 const util = require('util');
 
 const {
+  ArgumentsOfCorrectTypeRule,
+  DefaultValuesOfCorrectTypeRule,
   formatError,
   FragmentsOnCompositeTypesRule,
   KnownArgumentNamesRule,
@@ -32,9 +34,7 @@ const {
   UniqueOperationNamesRule,
   UniqueVariableNamesRule,
   validate,
-  ValuesOfCorrectTypeRule,
   VariablesAreInputTypesRule,
-  VariablesDefaultValueAllowedRule,
   VariablesInAllowedPositionRule,
 } = require('graphql');
 
@@ -88,6 +88,8 @@ module.exports = {
     UniqueVariableNamesRule,
   ],
   LOCAL_RULES: [
+    ArgumentsOfCorrectTypeRule,
+    DefaultValuesOfCorrectTypeRule,
     // TODO #13818691: make this aware of @fixme_fat_interface
     // FieldsOnCorrectTypeRule,
     FragmentsOnCompositeTypesRule,
@@ -97,8 +99,6 @@ module.exports = {
     LoneAnonymousOperationRule,
     PossibleFragmentSpreadsRule,
     ScalarLeafsRule,
-    VariablesDefaultValueAllowedRule,
-    ValuesOfCorrectTypeRule,
     VariablesAreInputTypesRule,
     VariablesInAllowedPositionRule,
   ],

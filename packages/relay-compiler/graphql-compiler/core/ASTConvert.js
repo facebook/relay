@@ -188,6 +188,7 @@ function extendASTSchema(
     // Should be TypeSystemDefinitionNode
     const schemaExtensions: Array<DefinitionNode> = [];
     documents.forEach(doc => {
+      // TODO: isSchemaDefinitionAST should %checks, once %checks is available
       schemaExtensions.push(...doc.definitions.filter(isSchemaDefinitionAST));
     });
 
@@ -195,15 +196,12 @@ function extendASTSchema(
       return baseSchema;
     }
 
-    // TODO T24511737 figure out if this is dangerous
-    return extendSchema(
-      baseSchema,
-      {
-        kind: 'Document',
-        definitions: schemaExtensions,
-      },
-      {assumeValid: true},
-    );
+    return extendSchema(baseSchema, {
+      kind: 'Document',
+      // Flow doesn't recognize that TypeSystemDefinitionNode is a subset of
+      // DefinitionNode
+      definitions: (schemaExtensions: Array<$FlowFixMe>),
+    });
   });
 }
 

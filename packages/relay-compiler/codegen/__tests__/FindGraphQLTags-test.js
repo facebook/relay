@@ -104,7 +104,14 @@ describe('FindGraphQLTags', () => {
             '  }\n' +
             '`);\n',
         );
-      }).toThrow('Syntax Error: Cannot parse the unexpected character "?".');
+      }).toThrow(
+        'Syntax Error /path/to/FindGraphQLTags.js (4:5) ' +
+          'Cannot parse the unexpected character "?".\n\n' +
+          '3:   fragment FindGraphQLTags on User {\n' +
+          '4:     ?\n' +
+          '       ^\n' +
+          '5:     id\n',
+      );
     });
   });
 

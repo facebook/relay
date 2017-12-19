@@ -101,7 +101,7 @@ export type NodeVisitor =
     };
 
 function visitIR(root: VisitNode, visitor: NodeVisitor) {
-  return (visit: $FlowFixMe)(root, visitor, NodeKeys);
+  return visit(root, visitor, NodeKeys);
 }
 
 module.exports = {visit: visitIR};

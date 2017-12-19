@@ -49,11 +49,11 @@ type Props = {
 
 ## Example
 
-To start, let's build the plain React version of a `<TodoItem>` component that displays the text and completion status of a `Todo`.
+To start, let's build the plain React version of a hypothetical `<TodoItem />` component that displays the text and completion status of a `Todo`.
 
 ### React Component
 
-Here's a basic implementation of `<TodoItem>` that ignores styling in order to highlight the functionality:
+Here's a basic implementation of `<TodoItem />` that ignores styling in order to highlight the functionality:
 
 ```javascript
 // TodoItem.js
@@ -79,7 +79,7 @@ class TodoItem extends React.Component {
 
 ### Data Dependencies With GraphQL
 
-In Relay, data dependencies are described using [GraphQL](https://github.com/facebook/graphql). For `<TodoItem>`, the dependency can be expressed as follows. Note that this exactly matches the shape that the component expected for the `item` prop.
+In Relay, data dependencies are described using [GraphQL](https://github.com/facebook/graphql). For `<TodoItem />`, the dependency can be expressed as follows. Note that this exactly matches the shape that the component expected for the `item` prop.
 
 ```javascript
 graphql`
@@ -154,11 +154,11 @@ export default createFragmentContainer(
 
 React and Relay support creating arbitrarily complex applications through *composition*. Larger components can be created by composing smaller components, helping us to create modular, robust applications.
 
-Let's explore how this works via a `<TodoList>` component that composes the `<TodoItem>` we defined above.
+Let's explore how this works via a `<TodoList />` component that composes the `<TodoItem />` we defined above.
 
 ### Composing Views
 
-View composition is *exactly* what you're used to &mdash; Relay containers are just standard React components. Here's the `<TodoList>` component:
+View composition is *exactly* what you're used to &mdash; Relay containers are just standard React components. Here's the `<TodoList />` component:
 
 ```javascript
 class TodoList extends React.Component {
@@ -179,7 +179,7 @@ class TodoList extends React.Component {
 
 ### Composing Fragments
 
-Fragment composition works similarly &mdash; a parent container's fragment composes the fragment for each of its children. In this case, `<TodoList>` needs to fetch information about the `Todo`s that are required by `<TodoItem>`.
+Fragment composition works similarly &mdash; a parent container's fragment composes the fragment for each of its children. In this case, `<TodoList />` needs to fetch information about the `Todo`s that are required by `<TodoItem />`.
 
 ```javascript
 class TodoList extends React.Component {/* as above */}
@@ -202,6 +202,40 @@ export default createFragmentContainer(
 ```
 
 Note that when composing fragments, the type of the composed fragment must match the field on the parent in which it is embedded. For example, it wouldn't make sense to embed a fragment of type `Story` into a parent's field of type `User`. Relay and GraphQL will provide helpful error messages if you get this wrong (and if they aren't helpful, let us know!).
+
+### Passing Arguments to a Fragment
+
+#### `@argumentDefinitions`
+
+When defining a fragment, you can use the [`@argumentDefinitions`](./graphql-in-relay.html#argumentdefinitions) directive to specify any arguments, with potentially default values, that the fragment expects.
+
+For example, let's redefine our `TodoList_list` fragment to take some arguments using `@argumentDefinitions`:
+
+```graphql
+fragment TodoList_list on TodoList @argumentDefinitions(
+  count: {type: "Int", defaultValue: 10},  # Optional argument
+  userID: {type: "ID"},                    # Required argument
+) {
+  title
+  todoItems(userID: $userID, first: $count) {  # Use fragment arguments here as variables
+    ...TodoItem_item
+  }
+}
+```
+
+Any arguments defined inside `@argumentDefinitions` will be local variables available inside the fragment's scope. However, a fragment can also reference global variables that were defined in the root query.
+
+#### `@arguments`
+
+In order to pass arguments to a fragment that has `@argumentDefinitions`, you need to use the [`@arguments`](./graphql-in-relay.html#arguments) directive.
+
+Following our `TodoList_list` example, we would pass arguments to the fragment like so:
+
+```graphql
+query TodoListQuery($userID: ID) {
+  ...TodoList_list @arguments(count: 20, userID: $userID) # Pass arguments here
+}
+```
 
 ### Calling Component Instance Methods
 

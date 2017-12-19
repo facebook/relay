@@ -110,7 +110,7 @@ type ConnectionData = {
 ### Arguments
 
 * `component`: The React Component *class* of the component requiring the fragment data.
-* `fragmentSpec`: Specifies the data requirements for the Component via a GraphQL fragment. It is expected that one of the fragments specified here will contain a [`@connection`](#@connection-directive) for pagination. The required data will be available on the component as props that match the shape of the provided fragment. `fragmentSpec` can be one of 2 things:
+* `fragmentSpec`: Specifies the data requirements for the Component via a GraphQL fragment. It is expected that one of the fragments specified here will contain a [`@connection`](#connection) for pagination. The required data will be available on the component as props that match the shape of the provided fragment. `fragmentSpec` can be one of 2 things:
   * A `graphql` tagged fragment. If the fragment uses the name convention `<FileName><...>_<propName>`, the fragment's data will be available to the Component as a prop with the given `<propName>`.
   If the fragment name doesn't specify a prop name, the data will be available as a `data` prop.
   * An object whose keys are prop names and values are `graphql` tagged fragments. Each key specified in this object will correspond to a prop available to the resulting Component.

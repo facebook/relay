@@ -38,7 +38,7 @@ See the [Migration Setup](./migration-setup.html) guide if upgrading an existing
 
 ## Set up relay-compiler
 
-Relay Modern's ahead-of-time compilation requires the [Relay Compiler](./relay-compiler.html):
+Relay Modern's ahead-of-time compilation requires the [Relay Compiler](./graphql-in-relay.html#relay-compiler):
 
 ```sh
 yarn add --dev relay-compiler

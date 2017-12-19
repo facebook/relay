@@ -7,8 +7,7 @@
       "quick-start-guide"
     ],
     "API Reference": [
-      "relay-compiler",
-      "relay-directives",
+      "graphql-in-relay",
       "relay-environment",
       "network-layer",
       "query-renderer",
@@ -16,8 +15,8 @@
       "refetch-container",
       "pagination-container",
       "mutations",
-      "relay-store",
-      "subscriptions"
+      "subscriptions",
+      "relay-store"
     ],
     "Guides": [
       "graphql-relay-specification",

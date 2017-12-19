@@ -111,7 +111,8 @@ class GraphQLParser {
   ): Array<Root | Fragment> {
     const ast = parse(new Source(text, filename));
     const nodes = [];
-    schema = extendSchema(schema, ast);
+    // TODO T24511737 figure out if this is dangerous
+    schema = extendSchema(schema, ast, {assumeValid: true});
     ast.definitions.forEach(definition => {
       if (isOperationDefinitionAST(definition)) {
         nodes.push(this.transform(schema, definition));
@@ -410,7 +411,7 @@ class GraphQLParser {
   }
 
   _transformArgumentDefinitions(
-    argumentDefinitions: Array<VariableDefinitionNode>,
+    argumentDefinitions: $ReadOnlyArray<VariableDefinitionNode>,
   ): Array<LocalArgumentDefinition> {
     return argumentDefinitions.map(def => {
       const name = getName(def.variable);
@@ -682,7 +683,9 @@ class GraphQLParser {
     return handles;
   }
 
-  _transformDirectives(directives: Array<DirectiveNode>): Array<Directive> {
+  _transformDirectives(
+    directives: $ReadOnlyArray<DirectiveNode>,
+  ): Array<Directive> {
     return directives.map(directive => {
       const name = getName(directive);
       const directiveDef = this._schema.getDirective(name);
@@ -706,7 +709,7 @@ class GraphQLParser {
   }
 
   _transformArguments(
-    args: Array<ArgumentNode>,
+    args: $ReadOnlyArray<ArgumentNode>,
     argumentDefinitions: Array<GraphQLArgument>,
   ): Array<Argument> {
     return args.map(arg => {
@@ -987,8 +990,8 @@ function getName(ast): string {
  * second.
  */
 function partitionArray<Tv>(
-  array: Array<Tv>,
-  predicate: (value: Tv, index: number, array: Array<Tv>) => boolean,
+  array: $ReadOnlyArray<Tv>,
+  predicate: (value: Tv, index: number, array: $ReadOnlyArray<Tv>) => boolean,
   context?: any,
 ): [Array<Tv>, Array<Tv>] {
   var first = [];

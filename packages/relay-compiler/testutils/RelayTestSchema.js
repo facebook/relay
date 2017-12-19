@@ -17,4 +17,6 @@ const path = require('path');
 const {buildASTSchema, parse} = require('graphql');
 
 const schemaPath = path.join(__dirname, 'testschema.graphql');
-module.exports = buildASTSchema(parse(fs.readFileSync(schemaPath, 'utf8')));
+module.exports = buildASTSchema(parse(fs.readFileSync(schemaPath, 'utf8')), {
+  assumeValid: true,
+});

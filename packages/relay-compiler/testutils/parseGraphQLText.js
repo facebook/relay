@@ -27,7 +27,8 @@ function parseGraphQLText(
   schema: ?GraphQLSchema,
 } {
   const ast = parse(text);
-  const extendedSchema = extendSchema(schema, ast);
+  // TODO T24511737 figure out if this is dangerous
+  const extendedSchema = extendSchema(schema, ast, {assumeValid: true});
   const definitions = convertASTDocuments(
     extendedSchema,
     [ast],

@@ -12,8 +12,8 @@
 'use strict';
 
 function find<T>(
-  array: Array<T>,
-  predicate: (element: T, index: number, array: Array<T>) => boolean,
+  array: $ReadOnlyArray<T>,
+  predicate: (element: T, index: number, array: $ReadOnlyArray<T>) => boolean,
   context: any,
 ): ?T {
   for (var ii = 0; ii < array.length; ii++) {

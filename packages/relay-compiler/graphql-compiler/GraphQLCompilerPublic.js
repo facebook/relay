@@ -15,6 +15,7 @@ const ASTCache = require('./core/ASTCache');
 const ASTConvert = require('./core/ASTConvert');
 const CodegenDirectory = require('./codegen/CodegenDirectory');
 const CodegenRunner = require('./codegen/CodegenRunner');
+const CodegenWatcher = require('./codegen/CodegenWatcher');
 const DotGraphQLParser = require('./core/DotGraphQLParser');
 const FilterDirectivesTransform = require('./transforms/FilterDirectivesTransform');
 const FlattenTransform = require('./transforms/FlattenTransform');
@@ -89,6 +90,7 @@ module.exports = {
   ASTConvert,
   CodegenDirectory,
   CodegenRunner,
+  CodegenWatcher,
   CompilerContext: GraphQLCompilerContext,
   ConsoleReporter: GraphQLConsoleReporter,
   DotGraphQLParser,

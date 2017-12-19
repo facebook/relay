@@ -42,7 +42,7 @@ Additionally, we will be using [Flow](https://flow.org/) inside our Javascript c
 
 ## Relay Environment
 
-Before we can start rendering pixels on the screen, we need to configure Relay via a [Relay Envionment](./relay-environment.html). The environment bundles together the configuration, cache storage, and network-handling that Relay needs in order to operate.
+Before we can start rendering pixels on the screen, we need to configure Relay via a [Relay Environment](./relay-environment.html). The environment bundles together the configuration, cache storage, and network-handling that Relay needs in order to operate.
 
 For the purposes of our example, we are simply going to configure our environment to communicate with our existing GraphQL server:
 

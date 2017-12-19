@@ -52,3 +52,39 @@ module.exports = createFragmentContainer(
   `,
 );
 ```
+
+## `@argumentDefinitions and @arguments`
+
+Supported in modern mode. Required `graphql.experimental` tagged template literals prior to v1.4.0. These directives are used to allow local variables in a fragment. They are commonly used with `createRefetchContainer` and `createPaginationContainer`. In the example below, the `Search` component will be initially rendered as a child of a `QueryRenderer`. The `QueryRenderer` will fetch the data for this fragment using the `defaultValues` provided by the `@argumentDefinitions` directive. Since these variables are local, they are not passed to the `QueryRenderer`'s `variables` prop.
+
+Later, when `this.props.relay.refetch` is invoked inside the `Search` component, new values for these variables can be provided. The `@arguments` directive on the `Search_viewer` fragment will tell Relay to use the global variables provided to `SearchRefetchQuery` in the `Search_viewer` fragment.
+
+```javascript
+const SearchRefetchContainer = createRefetchContainer(
+  Search,
+  {
+    viewer: graphql`
+      fragment Search_viewer on Viewer @argumentDefinitions(
+          query: { type: "String", defaultValue: "" }
+          hasQuery: { type: "Boolean", defaultValue: false }
+      ) {
+        search(query: $query) @include(if: $hasQuery) {
+          searchResultsList {
+            value
+          }
+        }
+      }
+    `,
+  },
+  graphql`
+    query SearchRefetchQuery(
+      $query: String = ""
+      $hasQuery: Boolean! 
+    ) {
+      viewer {
+        ...Search_viewer @arguments(query: $query, hasQuery: $hasQuery)
+      }
+    }
+  `,
+);
+```

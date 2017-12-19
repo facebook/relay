@@ -38,20 +38,34 @@ See the [Migration Setup](./migration-setup.html) guide if upgrading an existing
 
 ## Set up relay-compiler
 
-Relay Modern's ahead-of-time compilation requires the [Relay Compiler](./graphql-in-relay.html#relay-compiler):
+Relay's ahead-of-time compilation requires the [Relay Compiler](./graphql-in-relay.html#relay-compiler.html), which you can install via `yarn` or `npm`:
 
 ```sh
 yarn add --dev relay-compiler
 ```
 
-Run the Relay Compiler after making changes to any GraphQL in your Relay application. It may be helpful to add it as a `yarn script`. Add an entry to `"scripts"` in your package.json file.
+This installs the bin script `relay-compiler` in your node_modules folder. It's recommended to run this from a `yarn`/`npm` script by adding a script to your `package.json` file:
 
 ```js
-"relay": "relay-compiler --src ./src --schema path/schema.graphql"
+"scripts": {
+  "relay": "relay-compiler --src ./src --schema ./schema.graphql"
+}
 ```
 
-Then after making edits to your application files, just run `yarn run relay` to generate new files, or `yarn run relay --watch` to run the compiler as a long-lived process which automatically generates new files whenever you save.
+Then, after making edits to your application files, just run the `relay` script to generate new compiled artifacts:
 
+```sh
+yarn run relay
+```
+
+Alternatively, you can pass the `--watch` option to watch for file changes in your source code and automatically re-generate the compiled artifacts (**Note:** Requires [watchman](https://facebook.github.io/watchman) to be installed):
+
+```sh
+yarn run relay -- --watch
+```
+
+
+For more details, check out our [Relay Compiler docs](./graphql-in-relay.html#relay-compiler).
 
 ## JavaScript environment requirements
 

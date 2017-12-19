@@ -1,45 +1,149 @@
 ---
 id: version-classic-refetch-container
-title: RefetchContainer
+title: Refetch Container
 original_id: refetch-container
 ---
 
-A `RefetchContainer` first renders like a regular [`FragmentContainer`](./fragment-container.html), but has the option to execute a new query with different variables and render the response of that query instead when the request comes back.
+A Refetch Container is also a [higher-order component](https://reactjs.org/docs/higher-order-components.html) that works like a regular [Fragment Container](./fragment-container.html), but provides the additional ability to fetch a new GraphQL query with different variables and re-render the component the new result.
 
-`this.props.relay` exports the following API to execute the refetch query:
+Table of Contents:
+- [`createRefetchContainer`](#createrefetchcontainer)
+- [`refetch`](#refetch)
+- [Examples](#examples)
+
+## `createRefetchContainer`
+
+`createRefetchContainer` has the following signature:
 
 ```javascript
-type Variables = {[name: string]: any};
+createRefetchContainer(
+  component: ReactComponentClass,
+  fragmentSpec: GraphQLTaggedNode | {[string]: GraphQLTaggedNode},
+  refetchQuery: GraphQLTaggedNode,
+): ReactComponentClass;
+```
+
+### Arguments
+
+* `component`: The React Component *class* of the component requiring the fragment data.
+* `fragmentSpec`: Specifies the data requirements for the Component via a GraphQL fragment. The required data will be available on the component as props that match the shape of the provided fragment. `fragmentSpec` can be one of 2 things:
+  * A `graphql` tagged fragment. If the fragment uses the name convention `<FileName><...>_<propName>`, the fragment's data will be available to the Component as a prop with the given `<propName>`.
+  If the fragment name doesn't specify a prop name, the data will be available as a `data` prop.
+  * An object whose keys are prop names and values are `graphql` tagged fragments. Each key specified in this object will correspond to a prop available to the resulting Component.
+  * **Note:** To enable [compatibility mode](./relay-compat.html), `relay-compiler` enforces fragments to be named as `<FileName>_<propName>`.
+* `refetchQuery`: A `graphql` tagged query to be fetched upon calling [`props.relay.refetch`](#refetch). The component will be re-rendered with the resulting data from this query; for this reason, the query should have the same shape as specified by the `fragmentSpec`, i.e. it should query for the same fields.
+
+### Available Props
+
+The Component resulting from `createRefetchContainer` will receive the following `props`:
+
+```javascript
+type Props = {
+  relay: {
+    environment: Environment,
+    refetch(), // See #refetch section
+  },
+  // Additional props as specified by the fragmentSpec
+}
+```
+* `relay`:
+  * `environment`: The current [Relay Environment](./relay-environment.html)
+  * `refetch`: See `refetch` [docs](#refetch)
+
+## `refetch`
+
+`refetch` is a function available on the `relay` [prop](#available-props) which can be used to execute the `refetchQuery` and re-render the component with the newly fetched data. `refetch` has the following signature:
+
+```javascript
 type RefetchOptions = {
-  force?: boolean, // Refetch even if already fetched this query and variables.
+  force?: boolean,
 };
+
 type Disposable = {
   dispose(): void,
 };
 
-/**
- * Execute the refetch query
- */
-refetch: (
-  refetchVariables: Variables | (fragmentVariables: Variables) => Variables,
-  renderVariables: ?Variables,
+refetch(
+  refetchVariables: Object | (fragmentVariables: Object) => Object,
+  renderVariables: ?Object,
   callback: ?(error: ?Error) => void,
   options?: RefetchOptions,
-) => Disposable,
+): Disposable,
 ```
 
-* `refetchVariables` is either a bag of variables or a function that takes in the previous fragment variables and returns new variables.
-* `renderVariables` is an optional param that tells Relay which variables to use at when the component is re-rendered after fetching. Without this, the `refetchVariables` will be used. You might use this for more advanced usage, for example, to implement pagination, where you would fetch an additional page with variables like `{first: 5, after: '...'}`, but you would then render the full collection with `{first: 10}`.
-* It returns a `Disposable` on which you could call `dispose()` to cancel the refetch.
+### Arguments
 
+* `refetchVariables`:
+  * A bag of variables to pass to the `refetchQuery` when fetching it from the server.
+  * Or, a function that receives the previous set of variables used to query the data, and returns a new set of variables to pass to the `refetchQuery` when fetching it from the server.
+* `renderVariables`: Optional bag of variables that indicate which variables to use for reading out the data from the store when re-rendering the component. Specifically, this indicates which variables to use when querying the data from the
+local data store *after* the new query has been fetched. If not specified, the `refetchVariables` will be used. This is useful when the data you need to render in your component doesn't necessarily match the data you queried the server for. For example, to implement pagination, you would fetch a page with variables like `{first: 5, after: '<cursor>'}`, but you might want to render the full collection with `{first: 10}`.
+* `callback`: Function to be called after the refetch has completed. If an error occurred during refetch, this function will receive that error as an argument.
+* `options`: Optional object containing set of options.
+  * `force`: If the [Network Layer](./network-layer.html) has been configured with a cache, this option forces a refetch even if the data for this query and variables is already available in the cache.
 
-## Example
+### Return Value
+
+Returns a `Disposable` on which you could call `dispose()` to cancel the refetch.
+
+## Examples
+
+### Refetching latest data
+
+In this simple example, let's assume we want to fetch the latest data for a `TodoItem` from the server:
 
 ```javascript
-const {
-  createRefetchContainer,
-  graphql,
-} = require('react-relay');
+// TodoItem.js
+import {createRefetchContainer, graphql} from 'react-relay';
+
+class TodoItem extends React.Component {
+  render() {
+    const item = this.props.item;
+    return (
+      <View>
+        <Checkbox checked={item.isComplete} />
+        <Text>{item.text}</Text>
+        <button onPress={this._refetch} title="Refresh" />
+      </View>
+    );
+  }
+
+  _refetch = () => {
+    this.props.relay.refetch(
+      {itemID: this.props.item.id},  // Our refetchQuery needs to know the `itemID`
+      null,  // We can use the refetchVariables as renderVariables
+      () => { console.log('Refetch done') },
+      {force: true},  // Assuming we've configured a network layer cache, we want to ensure we fetch the latest data.
+    );
+  }
+}
+
+export default createRefetchContainer(
+  TodoItem,
+  graphql`
+    fragment TodoItem_item on Todo {
+      text
+      isComplete
+    }
+  `,
+  graphql`
+    # Refetch query to be fetched upon calling `refetch`.
+    # Notice that we re-use our fragment and the shape of this query matches our fragment spec.
+    query TodoItemRefetchQuery($itemID: ID!) {
+      item: node(id: $itemID) {
+        ...TodoItem_item
+      }
+    }
+  `
+);
+```
+
+### Loading more data
+
+In this example we are using a Refetch Container to fetch more stories in a story feed component.
+
+```javascript
+import {createRefetchContainer, graphql} from 'react-relay';
 
 class FeedStories extends React.Component {
   render() {
@@ -61,11 +165,11 @@ class FeedStories extends React.Component {
     const refetchVariables = fragmentVariables => ({
       count: fragmentVariables.count + 10,
     });
-    this.props.relay.refetch(refetchVariables, null);
+    this.props.relay.refetch(refetchVariables);
   }
 }
 
-module.exports = createRefetchContainer(
+export default createRefetchContainer(
   FeedStories,
   {
     feed: graphql`
@@ -85,6 +189,8 @@ module.exports = createRefetchContainer(
     `
   },
   graphql`
+    # Refetch query to be fetched upon calling `refetch`.
+    # Notice that we re-use our fragment and the shape of this query matches our fragment spec.
     query FeedStoriesRefetchQuery($count: Int) {
       feed {
         ...FeedStories_feed @arguments(count: $count)

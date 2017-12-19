@@ -31,7 +31,7 @@ const siteConfig = {
   users,
   editUrl: 'https://github.com/facebook/relay/edit/master/docs/',
   headerLinks: [
-    {doc: 'introduction-to-relay-modern', label: 'Docs'},
+    {doc: 'introduction-to-relay', label: 'Docs'},
     {page: 'help', label: 'Support'},
     {
       href: 'https://github.com/facebook/relay',

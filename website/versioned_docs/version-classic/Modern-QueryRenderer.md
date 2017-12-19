@@ -1,12 +1,12 @@
 ---
 id: version-classic-query-renderer
-title: QueryRenderer
+title: <QueryRenderer />
 original_id: query-renderer
 ---
 
-`QueryRenderer` is the root of a Relay tree. It takes a query, fetches its data, and calls the `render` callback with the data.
+A `QueryRenderer` is a React Component at the root of a Relay component tree. It takes a query, fetches the given query, and uses the `render` prop to render the resulting data.
 
-A `QueryRenderer` is a React component, so it can be rendered anywhere that a React component can be rendered, i.e. not just at the top level but *within* other components or containers; for example, to lazily fetch additional data for a popover.
+As React components, `QueryRenderer`s can be rendered anywhere that a React component can be rendered, i.e. not just at the top level but *within* other components or containers; for example, to lazily fetch additional data for a popover.
 
 However, a `QueryRenderer` will not start loading its data until it is mounted, so nested `QueryRenderer` components can lead to request waterfalls if used unnecessarily.
 

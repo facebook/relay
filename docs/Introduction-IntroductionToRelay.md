@@ -1,5 +1,5 @@
 ---
-id: introduction-to-relay-modern
+id: introduction-to-relay
 title: Introduction to Relay
 ---
 

@@ -893,6 +893,50 @@ describe('RelayMutationQuery', () => {
       );
     });
 
+    it('properly handle cases when both field and connection name are same', () => {
+      fatQuery = fromGraphQL.Fragment(
+        Relay.QL`
+        fragment on CommentCreateResponsePayload {
+          feedback {
+            views
+          }
+
+          comment {
+            views(first: 1) {
+              edges {
+                node {
+                  firstName
+                }
+              }
+            }
+          }
+        }
+      `,
+      );
+
+      tracker.getTrackedChildrenForID.mockReturnValue(
+        getNodeChildren(
+          Relay.QL`
+          fragment on Feedback {
+            views
+          }
+        `,
+        )
+      );
+
+      expect(() => {
+        RelayMutationQuery.buildFragmentForEdgeInsertion({
+          fatQuery,
+          tracker,
+          connectionName: 'views',
+          parentID: '123',
+          edgeName: 'UsersEdge',
+          parentName: 'comment',
+          rangeBehaviors,
+        });
+      }).not.toThrow();
+    });
+
     describe('handling invalid connection names', () => {
       it('throws when explicit in the fat query', () => {
         fatQuery = fromGraphQL.Fragment(
@@ -931,31 +975,6 @@ describe('RelayMutationQuery', () => {
             feedback
           }
         `,
-        );
-
-        // As long as we have it in a tracked query.
-        tracker.getTrackedChildrenForID.mockReturnValue(
-          getNodeChildren(
-            Relay.QL`
-          fragment on Feedback {
-            doesViewerLike
-          }
-        `,
-          ),
-        );
-        expect(() => {
-          RelayMutationQuery.buildFragmentForEdgeInsertion({
-            fatQuery,
-            tracker,
-            connectionName: 'doesViewerLike',
-            parentID: '123',
-            edgeName: 'feedbackCommentEdge',
-            parentName: 'feedback',
-            rangeBehaviors,
-          });
-        }).toFailInvariant(
-          'RelayMutationQuery: Expected field `doesViewerLike` on ' +
-            '`feedback` to be a connection.',
         );
 
         // Note that if the tracked query doesn't have the field then we can't

@@ -11,10 +11,8 @@
 
 'use strict';
 
-const RelayParser = require('RelayParser');
-
-const {convertASTDocuments} = require('ASTConvert');
 const {extendSchema, parse} = require('graphql');
+const {Parser, convertASTDocuments} = require('relay-compiler');
 
 import type {Fragment, Root} from 'GraphQLIR';
 import type {GraphQLSchema} from 'graphql';
@@ -33,7 +31,7 @@ function parseGraphQLText(
     extendedSchema,
     [ast],
     [],
-    RelayParser.transform.bind(RelayParser),
+    Parser.transform.bind(Parser),
   );
   return {
     definitions,

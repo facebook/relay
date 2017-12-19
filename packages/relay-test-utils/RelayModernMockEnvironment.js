@@ -4,18 +4,14 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
+ * @providesModule RelayModernMockEnvironment
  * @format
  */
 
 'use strict';
 
-const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
-const RelayMarkSweepStore = require('RelayMarkSweepStore');
-const RelayModernEnvironment = require('RelayModernEnvironment');
 const RelayModernTestUtils = require('RelayModernTestUtils');
-const RelayNetwork = require('RelayNetwork');
-const RelayObservable = require('RelayObservable');
-const RelayQueryResponseCache = require('RelayQueryResponseCache');
+const RelayRuntime = require('RelayRuntime');
 const RelayTestSchema = require('RelayTestSchema');
 
 const areEqual = require('areEqual');
@@ -86,11 +82,19 @@ function createMockEnvironment(options: {
   schema?: ?GraphQLSchema,
   handlerProvider?: ?HandlerProvider,
 }) {
+  const {
+    RecordSource,
+    Store,
+    QueryResponseCache,
+    Observable,
+    Environment,
+    Network,
+  } = RelayRuntime; // destructure here to make jest and inline-requires work
   const schema = options && options.schema;
   const handlerProvider = options && options.handlerProvider;
-  const source = new RelayInMemoryRecordSource();
-  const store = new RelayMarkSweepStore(source);
-  const cache = new RelayQueryResponseCache({
+  const source = new RecordSource();
+  const store = new Store(source);
+  const cache = new QueryResponseCache({
     size: MAX_SIZE,
     ttl: MAX_TTL,
   });
@@ -106,13 +110,13 @@ function createMockEnvironment(options: {
       cachedPayload = cache.get(cacheID, variables);
     }
     if (cachedPayload !== null) {
-      return RelayObservable.from(cachedPayload);
+      return Observable.from(cachedPayload);
     }
 
     const nextRequest = {request, variables, cacheConfig};
     pendingRequests = pendingRequests.concat([nextRequest]);
 
-    return RelayObservable.create(sink => {
+    return Observable.create(sink => {
       nextRequest.sink = sink;
       return () => {
         pendingRequests = pendingRequests.filter(
@@ -209,10 +213,10 @@ function createMockEnvironment(options: {
   };
 
   // Mock instance
-  const environment = new RelayModernEnvironment({
+  const environment = new Environment({
     configName: 'RelayModernMockEnvironment',
     handlerProvider,
-    network: RelayNetwork.create(execute, execute),
+    network: Network.create(execute, execute),
     store,
   });
   // Mock all the functions with their original behavior

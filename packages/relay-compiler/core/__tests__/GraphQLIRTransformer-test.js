@@ -21,49 +21,49 @@ describe('GraphQLIRTransformer', () => {
     const {definitions} = parseGraphQLText(
       RelayTestSchema,
       `
-      query TestQuery($id: ID!) {
-        node(id: $id) {
-          ...on User {
-            id
-            ...UserProfile @include(if: $condition)
-          }
-          ...Foo @arguments(localId: $id)
-        }
-      }
+   query TestQuery($id: ID!) {
+     node(id: $id) {
+       ...on User {
+         id
+         ...UserProfile @include(if: $condition)
+       }
+       ...Foo @arguments(localId: $id)
+     }
+   }
 
-      query ObjectArgumentQuery($text: String!) {
-        checkinSearchQuery(query: {
-          query: $text
-        }) {
-          query
-        }
-      }
+   query ObjectArgumentQuery($text: String!) {
+     checkinSearchQuery(query: {
+       query: $text
+     }) {
+       query
+     }
+   }
 
-      query ListArgumentQuery($waypoint: WayPoint!) {
-        route(waypoints: [$waypoint, {
-          lat: "0.0"
-          lon: "0.0"
-        }]) {
-          steps {
-            note
-          }
-        }
-      }
+   query ListArgumentQuery($waypoint: WayPoint!) {
+     route(waypoints: [$waypoint, {
+       lat: "0.0"
+       lon: "0.0"
+     }]) {
+       steps {
+         note
+       }
+     }
+   }
 
-      fragment UserProfile on User {
-        profilePicture(size: $ProfilePicture_SIZE) {
-          ...PhotoFragment
-        }
-      }
+   fragment UserProfile on User {
+     profilePicture(size: $ProfilePicture_SIZE) {
+       ...PhotoFragment
+     }
+   }
 
-      fragment PhotoFragment on Image @argumentDefinitions(
-        id: {type: "ID", nonNull: true}
-        sizes: {type: "Int", list: true, defaultValue: [32, 64, 128]}
-        scale: {type: "Int"}
-      ) {
-        uri
-      }
-    `,
+   fragment PhotoFragment on Image @argumentDefinitions(
+     id: {type: "ID", nonNull: true}
+     sizes: {type: "Int", list: true, defaultValue: [32, 64, 128]}
+     scale: {type: "Int"}
+   ) {
+     uri
+   }
+ `,
     );
     const context = new GraphQLCompilerContext(RelayTestSchema).addAll(
       definitions,

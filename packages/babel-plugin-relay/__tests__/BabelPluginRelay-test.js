@@ -18,10 +18,8 @@ const babel = require('babel-core');
 const getGoldenMatchers = require('getGoldenMatchers');
 const path = require('path');
 
-const SCHEMA_PATH = path.resolve(
-  __dirname,
-  '../../relay-compiler/testutils/testschema.graphql',
-);
+const {testSchemaPath} = require('../../relay-test-utils/RelayTestUtilsPublic');
+
 const OLD_SCHEMA_PATH = path.resolve(__dirname, './testschema.rfc.graphql');
 
 describe('BabelPluginRelay', () => {
@@ -59,7 +57,7 @@ describe('BabelPluginRelay', () => {
     expect('fixtures-compat').toMatchGolden(
       transformerWithOptions({
         compat: true,
-        schema: SCHEMA_PATH,
+        schema: testSchemaPath,
         substituteVariables: true,
       }),
     );
@@ -78,7 +76,7 @@ describe('BabelPluginRelay', () => {
       transformerWithOptions({
         compat: true,
         haste: true,
-        schema: SCHEMA_PATH,
+        schema: testSchemaPath,
         substituteVariables: true,
       }),
     );

@@ -11,12 +11,12 @@
 
 'use strict';
 
+const RelayTestSchemaPath = require('./RelayTestSchemaPath');
+
 const fs = require('fs');
-const path = require('path');
 
 const {buildASTSchema, parse} = require('graphql');
 
-const schemaPath = path.join(__dirname, 'testschema.graphql');
-module.exports = buildASTSchema(parse(fs.readFileSync(schemaPath, 'utf8')), {
-  assumeValid: true,
-});
+module.exports = buildASTSchema(
+  parse(fs.readFileSync(RelayTestSchemaPath, 'utf8'), {assumeValid: true}),
+);

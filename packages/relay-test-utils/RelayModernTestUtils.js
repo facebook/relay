@@ -4,10 +4,13 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
+ * @providesModule RelayModernTestUtils
  * @format
  */
 
 'use strict';
+
+const parseGraphQLText = require('./parseGraphQLText');
 
 import type {GeneratedNode} from 'RelayConcreteNode';
 
@@ -140,7 +143,7 @@ const RelayModernTestUtils = {
     text: string,
     transforms?: ?Array<IRTransform>,
   ): {[key: string]: GeneratedNode} {
-    const RelayTestSchema = require('RelayTestSchema');
+    const RelayTestSchema = require('./RelayTestSchema');
     return generate(text, RelayTestSchema, {
       commonTransforms: transforms || [],
       fragmentTransforms: [],
@@ -159,9 +162,10 @@ const RelayModernTestUtils = {
     text: string,
     schema?: ?GraphQLSchema,
   ): {[key: string]: GeneratedNode} {
-    const RelayIRTransforms = require('RelayIRTransforms');
-    const RelayTestSchema = require('RelayTestSchema');
-    return generate(text, schema || RelayTestSchema, RelayIRTransforms);
+    const RelayCompilerPublic = require('relay-compiler');
+    const {IRTransforms} = RelayCompilerPublic;
+    const RelayTestSchema = require('./RelayTestSchema');
+    return generate(text, schema || RelayTestSchema, IRTransforms);
   },
 };
 
@@ -170,15 +174,15 @@ function generate(
   schema: GraphQLSchema,
   transforms: RelayCompilerTransforms,
 ): {[key: string]: GeneratedNode} {
-  const {transformASTSchema} = require('ASTConvert');
-  const {compileRelayArtifacts} = require('relay-compiler');
-  const GraphQLCompilerContext = require('GraphQLCompilerContext');
-  const RelayIRTransforms = require('RelayIRTransforms');
-  const parseGraphQLText = require('parseGraphQLText');
-  const relaySchema = transformASTSchema(
-    schema,
-    RelayIRTransforms.schemaExtensions,
-  );
+  const RelayCompilerPublic = require('relay-compiler');
+  const {
+    compileRelayArtifacts,
+    GraphQLCompilerContext,
+    IRTransforms,
+    transformASTSchema,
+  } = RelayCompilerPublic;
+
+  const relaySchema = transformASTSchema(schema, IRTransforms.schemaExtensions);
   const compilerContext = new GraphQLCompilerContext(
     schema,
     relaySchema,

@@ -16,10 +16,7 @@ const createCacheKeyFunction = require('fbjs-scripts/jest/createCacheKeyFunction
 const getBabelOptions = require('../getBabelOptions');
 const path = require('path');
 
-const SCHEMA_PATH = path.resolve(
-  __dirname,
-  '../../packages/relay-compiler/testutils/testschema.graphql'
-);
+const {testSchemaPath} = require('../../dist/relay-test-utils');
 
 const babelOptions = getBabelOptions({
   env: 'test',
@@ -41,7 +38,7 @@ const babelOptions = getBabelOptions({
         compat: true,
         haste: true,
         substituteVariables: true,
-        schema: SCHEMA_PATH
+        schema: testSchemaPath
       }
     ],
     require('babel-plugin-transform-async-to-generator')
@@ -59,7 +56,7 @@ module.exports = {
 
   getCacheKey: createCacheKeyFunction([
     __filename,
-    SCHEMA_PATH,
+    testSchemaPath,
     path.join(
       path.dirname(require.resolve('babel-preset-fbjs')),
       'package.json'

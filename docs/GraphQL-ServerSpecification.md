@@ -1,7 +1,6 @@
 ---
-id: version-classic-graphql-relay-specification
-title: GraphQL Relay Specification
-original_id: graphql-relay-specification
+id: graphql-server-specification
+title: GraphQL Server Specification
 ---
 
 The goal of this document is to specify the assumptions that Relay makes about a GraphQL server and demonstrate them through an example GraphQL schema.
@@ -518,6 +517,6 @@ Complete details on how the server should behave are available in the [GraphQL I
 
 ## Further Reading
 
-This concludes the overview of the GraphQL Relay Specifications. For the detailed requirements of a Relay-compliant GraphQL server, a more formal description of the [Relay cursor connection](/relay/graphql/connections.htm) model, the [Relay global object identification](/relay/graphql/objectidentification.htm) model, and the [Relay input object mutation](/relay/graphql/mutations.htm) are all available.
+This concludes the overview of the GraphQL Sercer Specifications. For the detailed requirements of a Relay-compliant GraphQL server, a more formal description of the [Relay cursor connection](/relay/graphql/connections.htm) model, the [Relay global object identification](/relay/graphql/objectidentification.htm) model, and the [Relay input object mutation](/relay/graphql/mutations.htm) are all available.
 
 To see code implementing the specification, the [GraphQL.js Relay library](https://github.com/graphql/graphql-relay-js) provides helper functions for creating nodes, connections, and mutations; that repository's [`__tests__`](https://github.com/graphql/graphql-relay-js/tree/master/src/__tests__) folder contains an implementation of the above example as integration tests for the repository.

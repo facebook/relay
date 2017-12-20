@@ -15,7 +15,7 @@ We also assume basic understanding of [GraphQL](http://graphql.org/learn/). In o
 
 A description of your data model with an associated set of resolve methods that know how to fetch any data your application could ever need.
 
-GraphQL is designed to support a wide range of data access patterns. In order to understand the structure of an application's data, Relay requires that you follow certain conventions when defining your schema. These are documented in the [GraphQL Relay Specification](graphql-relay-specification.html).
+GraphQL is designed to support a wide range of data access patterns. In order to understand the structure of an application's data, Relay requires that you follow certain conventions when defining your schema. These are documented in the [GraphQL Server Specification](graphql-server-specification.html).
 
 - **[graphql-js](https://github.com/graphql/graphql-js)** on [npm](https://www.npmjs.com/package/graphql)
 

@@ -19,9 +19,9 @@
       "relay-store"
     ],
     "Guides": [
-      "graphql-relay-specification",
       "routing",
-      "relay-debugging"
+      "relay-debugging",
+      "graphql-server-specification"
     ],
     "Migration Guides": [
       "new-in-relay-modern",

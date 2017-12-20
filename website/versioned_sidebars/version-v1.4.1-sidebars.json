@@ -19,9 +19,9 @@
       "version-v1.4.1-relay-store"
     ],
     "Guides": [
-      "version-v1.4.1-graphql-relay-specification",
       "version-v1.4.1-routing",
-      "version-v1.4.1-relay-debugging"
+      "version-v1.4.1-relay-debugging",
+      "version-v1.4.1-graphql-server-specification"
     ],
     "Migration Guides": [
       "version-v1.4.1-new-in-relay-modern",

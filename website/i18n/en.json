@@ -23,7 +23,7 @@
     "classic-interfaces-relay-mutation-request": "RelayMutationRequest",
     "classic-interfaces-relay-network-layer": "RelayNetworkLayer",
     "classic-interfaces-relay-query-request": "RelayQueryRequest",
-    "graphql-relay-specification": "GraphQL Relay Specification",
+    "graphql-server-specification": "GraphQL Server Specification",
     "installation-and-setup": "Installation and Setup",
     "introduction-to-relay": "Introduction to Relay",
     "prerequisites": "Prerequisites",

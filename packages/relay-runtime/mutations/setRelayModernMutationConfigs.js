@@ -27,12 +27,12 @@ import type {RelayMutationConfig} from 'react-relay/classic/tools/RelayTypes';
 function setRelayModernMutationConfigs(
   configs: Array<RelayMutationConfig>,
   request: RequestNode,
-  optimisticUpdater?: ?(
-    store: RecordSourceSelectorProxy,
-    data: ?SelectorData,
-  ) => void,
-  updater?: ?(store: RecordSourceSelectorProxy, data: ?SelectorData) => void,
-): Object {
+  optimisticUpdater?: ?SelectorStoreUpdater,
+  updater?: ?SelectorStoreUpdater,
+): {
+  optimisticUpdater: SelectorStoreUpdater,
+  updater: SelectorStoreUpdater,
+} {
   const configOptimisticUpdates = optimisticUpdater ? [optimisticUpdater] : [];
   const configUpdates = updater ? [updater] : [];
   configs.forEach(config => {
@@ -60,20 +60,21 @@ function setRelayModernMutationConfigs(
         break;
     }
   });
-  optimisticUpdater = (
-    store: RecordSourceSelectorProxy,
-    data: ?SelectorData,
-  ) => {
-    configOptimisticUpdates.forEach(eachOptimisticUpdater => {
-      eachOptimisticUpdater(store, data);
-    });
+  return {
+    optimisticUpdater: (
+      store: RecordSourceSelectorProxy,
+      data: ?SelectorData,
+    ) => {
+      configOptimisticUpdates.forEach(eachOptimisticUpdater => {
+        eachOptimisticUpdater(store, data);
+      });
+    },
+    updater: (store: RecordSourceSelectorProxy, data: ?SelectorData) => {
+      configUpdates.forEach(eachUpdater => {
+        eachUpdater(store, data);
+      });
+    },
   };
-  updater = (store: RecordSourceSelectorProxy, data: ?SelectorData) => {
-    configUpdates.forEach(eachUpdater => {
-      eachUpdater(store, data);
-    });
-  };
-  return {optimisticUpdater, updater};
 }
 
 function nodeDelete(

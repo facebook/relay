@@ -47,7 +47,7 @@ const {
   STATUS,
 } = RelayRecord.MetadataKey;
 
-type RangeOperation = $Keys<GraphQLMutatorConstants.RANGE_OPERATIONS>;
+type RangeOperation = $Keys<typeof GraphQLMutatorConstants.RANGE_OPERATIONS>;
 
 /**
  * @internal

@@ -4,7 +4,7 @@ query TestMultipleDeferredSpreads(
   me {
     ... on User {
       ... on Node {
-        Birthdate_deferredID: id
+        Birthdate_deferrableID: id
       }
     }
     friends {
@@ -12,7 +12,7 @@ query TestMultipleDeferredSpreads(
         node {
           ... on User {
             ... on Node {
-              Birthdate_deferredID: id
+              Birthdate_deferrableID: id
             }
           }
         }
@@ -29,10 +29,10 @@ fragment Birthdate on User {
   }
 }
 
-query Birthdate_Deferred(
-  $deferredID: ID
+query Birthdate_Deferrable(
+  $deferrableID: ID
 ) {
-  node(id: $deferredID) {
+  node(id: $deferrableID) {
     ...Birthdate
   }
 }
@@ -45,36 +45,36 @@ query Birthdate_Deferred(
   "name": "TestMultipleDeferredSpreads",
   "dependentRequests": [
     {
-      "operationName": "Birthdate_Deferred",
+      "operationName": "Birthdate_Deferrable",
       "metadata": {
         "deferrable": true,
         "fragmentName": "Birthdate",
-        "rootFieldVariable": "deferredID"
+        "rootFieldVariable": "deferrableID"
       },
       "argumentDependencies": [
         {
           "kind": "ArgumentDependency",
-          "argumentName": "deferredID",
+          "argumentName": "deferrableID",
           "fromName": "TestMultipleDeferredSpreads",
-          "fromPath": "me.Birthdate_deferredID",
+          "fromPath": "me.Birthdate_deferrableID",
           "ifList": "each",
           "ifNull": "skip"
         }
       ]
     },
     {
-      "operationName": "Birthdate_Deferred",
+      "operationName": "Birthdate_Deferrable",
       "metadata": {
         "deferrable": true,
         "fragmentName": "Birthdate",
-        "rootFieldVariable": "deferredID"
+        "rootFieldVariable": "deferrableID"
       },
       "argumentDependencies": [
         {
           "kind": "ArgumentDependency",
-          "argumentName": "deferredID",
+          "argumentName": "deferrableID",
           "fromName": "TestMultipleDeferredSpreads",
-          "fromPath": "me.friends.edges[*].node.Birthdate_deferredID",
+          "fromPath": "me.friends.edges[*].node.Birthdate_deferrableID",
           "ifList": "each",
           "ifNull": "skip"
         }
@@ -115,7 +115,7 @@ query Birthdate_Deferred(
                 {
                   "kind": "ScalarField",
                   "name": "id",
-                  "alias": "Birthdate_deferredID",
+                  "alias": "Birthdate_deferrableID",
                   "args": [],
                   "handles": null,
                   "directives": [],
@@ -123,7 +123,7 @@ query Birthdate_Deferred(
                     "deferrable": true,
                     "deferred": true,
                     "deferredFragmentName": "Birthdate",
-                    "deferredArgumentName": "deferredID",
+                    "deferredArgumentName": "deferrableID",
                     "deferredArgumentStorageKey": "id",
                     "idType": "ID"
                   },
@@ -172,7 +172,7 @@ query Birthdate_Deferred(
                             {
                               "kind": "ScalarField",
                               "name": "id",
-                              "alias": "Birthdate_deferredID",
+                              "alias": "Birthdate_deferrableID",
                               "args": [],
                               "handles": null,
                               "directives": [],
@@ -180,7 +180,7 @@ query Birthdate_Deferred(
                                 "deferrable": true,
                                 "deferred": true,
                                 "deferredFragmentName": "Birthdate",
-                                "deferredArgumentName": "deferredID",
+                                "deferredArgumentName": "deferrableID",
                                 "deferredArgumentStorageKey": "id",
                                 "idType": "ID"
                               },
@@ -259,13 +259,13 @@ query Birthdate_Deferred(
   "metadata": {
     "deferred": true
   },
-  "name": "Birthdate_Deferred",
+  "name": "Birthdate_Deferrable",
   "dependentRequests": [],
   "argumentDefinitions": [
     {
       "kind": "LocalArgumentDefinition",
       "metadata": null,
-      "name": "deferredID",
+      "name": "deferrableID",
       "defaultValue": null,
       "type": "ID"
     }
@@ -283,7 +283,7 @@ query Birthdate_Deferred(
           "metadata": null,
           "value": {
             "kind": "Variable",
-            "variableName": "deferredID",
+            "variableName": "deferrableID",
             "metadata": null,
             "type": "ID"
           },
@@ -301,7 +301,7 @@ query Birthdate_Deferred(
           "metadata": {
             "deferred": true,
             "deferredFragmentName": "Birthdate",
-            "deferredArgumentName": "deferredID",
+            "deferredArgumentName": "deferrableID",
             "deferredArgumentStorageKey": "id",
             "idType": "ID"
           },

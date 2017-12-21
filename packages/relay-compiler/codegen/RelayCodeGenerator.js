@@ -59,7 +59,7 @@ const RelayCodeGenVisitor = {
       node.metadata &&
       node.metadata.deferred
     ) {
-      return deferredFragmentSpread(
+      return deferrableFragmentSpread(
         node.metadata.deferredFragmentName,
         node.metadata.deferredArgumentName,
         node.metadata.deferredArgumentStorageKey,
@@ -96,11 +96,11 @@ const RelayCodeGenVisitor = {
           metadata: node.metadata,
           fragment: node.fragment,
           requests: node.requests.map(request => {
-            const isDeferredFragment =
+            const isDeferrableFragment =
               request.metadata && request.metadata.deferrable;
-            const operation = isDeferredFragment
+            const operation = isDeferrableFragment
               ? {
-                  kind: 'DeferredOperation',
+                  kind: 'DeferrableOperation',
                   name: request.root.name,
                   argumentDefinitions: request.root.argumentDefinitions,
                   selections: flattenArray(request.root.selections),
@@ -186,9 +186,9 @@ const RelayCodeGenVisitor = {
       };
     },
 
-    DeferredFragmentSpread(node): ConcreteSelection {
+    DeferrableFragmentSpread(node): ConcreteSelection {
       return {
-        kind: 'DeferredFragmentSpread',
+        kind: 'DeferrableFragmentSpread',
         name: node.name,
         args: node.args,
         rootFieldVariable: node.rootFieldVariable,
@@ -350,14 +350,14 @@ function getStaticStorageKey(field: ConcreteField): ?string {
   return getStorageKey(field, {});
 }
 
-function deferredFragmentSpread(
+function deferrableFragmentSpread(
   fragmentName,
   argumentName,
   storageKey,
   idType,
 ) {
   return {
-    kind: 'DeferredFragmentSpread',
+    kind: 'DeferrableFragmentSpread',
     name: fragmentName,
     args: [
       {

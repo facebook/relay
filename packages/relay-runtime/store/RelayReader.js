@@ -19,7 +19,7 @@ const invariant = require('invariant');
 
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
-  ConcreteDeferredFragmentSpread,
+  ConcreteDeferrableFragmentSpread,
   ConcreteFragmentSpread,
   ConcreteLinkedField,
   ConcreteNode,
@@ -35,7 +35,7 @@ import type {
 
 const {
   CONDITION,
-  DEFERRED_FRAGMENT_SPREAD,
+  DEFERRABLE_FRAGMENT_SPREAD,
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
@@ -129,8 +129,8 @@ class RelayReader {
         }
       } else if (selection.kind === FRAGMENT_SPREAD) {
         this._createFragmentPointer(selection, record, data, this._variables);
-      } else if (selection.kind === DEFERRED_FRAGMENT_SPREAD) {
-        this._createDeferredFragmentPointer(selection, record, data);
+      } else if (selection.kind === DEFERRABLE_FRAGMENT_SPREAD) {
+        this._createDeferrableFragmentPointer(selection, record, data);
       } else {
         invariant(
           false,
@@ -223,7 +223,7 @@ class RelayReader {
   }
 
   _createFragmentPointer(
-    fragmentSpread: ConcreteFragmentSpread | ConcreteDeferredFragmentSpread,
+    fragmentSpread: ConcreteFragmentSpread | ConcreteDeferrableFragmentSpread,
     record: Record,
     data: SelectorData,
     variables: Variables,
@@ -243,20 +243,20 @@ class RelayReader {
       : {};
   }
 
-  _createDeferredFragmentPointer(
-    deferredFragment: ConcreteDeferredFragmentSpread,
+  _createDeferrableFragmentPointer(
+    deferrableFragment: ConcreteDeferrableFragmentSpread,
     record: Record,
     data: SelectorData,
   ): void {
     const rootFieldValue = RelayModernRecord.getValue(
       record,
-      deferredFragment.storageKey,
+      deferrableFragment.storageKey,
     );
     const variables = {
       ...this._variables,
-      [deferredFragment.rootFieldVariable]: rootFieldValue,
+      [deferrableFragment.rootFieldVariable]: rootFieldValue,
     };
-    this._createFragmentPointer(deferredFragment, record, data, variables);
+    this._createFragmentPointer(deferrableFragment, record, data, variables);
   }
 }
 

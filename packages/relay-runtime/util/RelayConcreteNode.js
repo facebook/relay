@@ -38,7 +38,7 @@ export type ConcreteBatchRequest = {
     // Arguments in the provided operation to be derived via the results of
     // other requests in this batch.
     argumentDependencies: ?Array<ArgumentDependency>,
-    operation: ConcreteOperation | ConcreteDeferredOperation,
+    operation: ConcreteOperation | ConcreteDeferrableOperation,
   }>,
 };
 /**
@@ -83,23 +83,23 @@ export type ConcreteRequest = {
   text: ?string,
   metadata: {[key: string]: mixed},
   fragment: ConcreteFragment,
-  operation: ConcreteNonDeferredOperation,
+  operation: ConcreteNonDeferrableOperation,
 };
 /**
  * Represents a single operation used to processing and normalize runtime
  * request results.
  */
 export type ConcreteOperation =
-  | ConcreteNonDeferredOperation
-  | ConcreteDeferredOperation;
-type ConcreteNonDeferredOperation = {
+  | ConcreteNonDeferrableOperation
+  | ConcreteDeferrableOperation;
+type ConcreteNonDeferrableOperation = {
   kind: 'Operation',
   name: string,
   argumentDefinitions: Array<ConcreteLocalArgument>,
   selections: Array<ConcreteSelection>,
 };
-type ConcreteDeferredOperation = {
-  kind: 'DeferredOperation',
+type ConcreteDeferrableOperation = {
+  kind: 'DeferrableOperation',
   name: string,
   argumentDefinitions: Array<ConcreteLocalArgument>,
   selections: Array<ConcreteSelection>,
@@ -126,8 +126,8 @@ export type ConcreteFragmentSpread = {
   name: string,
   args: ?Array<ConcreteArgument>,
 };
-export type ConcreteDeferredFragmentSpread = {
-  kind: 'DeferredFragmentSpread',
+export type ConcreteDeferrableFragmentSpread = {
+  kind: 'DeferrableFragmentSpread',
   name: string,
   args: ?Array<ConcreteArgument>,
   rootFieldVariable: string,
@@ -181,7 +181,7 @@ export type ConcreteNode =
   | ConcreteFragment
   | ConcreteInlineFragment
   | ConcreteOperation
-  | ConcreteDeferredOperation;
+  | ConcreteDeferrableOperation;
 export type ConcreteScalarField = {
   kind: 'ScalarField',
   alias: ?string,
@@ -200,7 +200,7 @@ export type ConcreteScalarHandle = {
 };
 export type ConcreteSelection =
   | ConcreteCondition
-  | ConcreteDeferredFragmentSpread
+  | ConcreteDeferrableFragmentSpread
   | ConcreteField
   | ConcreteFragmentSpread
   | ConcreteHandle
@@ -214,15 +214,15 @@ export type ConcreteVariable = {
 export type ConcreteSelectableNode =
   | ConcreteFragment
   | ConcreteOperation
-  | ConcreteDeferredOperation;
+  | ConcreteDeferrableOperation;
 export type RequestNode = ConcreteRequest | ConcreteBatchRequest;
 export type GeneratedNode = RequestNode | ConcreteFragment;
 
 const RelayConcreteNode = {
   BATCH_REQUEST: 'BatchRequest',
   CONDITION: 'Condition',
-  DEFERRED_FRAGMENT_SPREAD: 'DeferredFragmentSpread',
-  DEFERRED_OPERATION: 'DeferredOperation',
+  DEFERRABLE_FRAGMENT_SPREAD: 'DeferrableFragmentSpread',
+  DEFERRABLE_OPERATION: 'DeferrableOperation',
   FRAGMENT: 'Fragment',
   FRAGMENT_SPREAD: 'FragmentSpread',
   INLINE_FRAGMENT: 'InlineFragment',

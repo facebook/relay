@@ -4,7 +4,7 @@ query TestDeferWithVariableWithDefaultValue(
   me {
     ... on User {
       ... on Node {
-        ProfilePic_deferredID: id
+        ProfilePic_deferrableID: id
       }
     }
   }
@@ -20,11 +20,11 @@ fragment ProfilePic on User @argumentDefinitions(
   }
 }
 
-query ProfilePic_Deferred(
-  $deferredID: ID
+query ProfilePic_Deferrable(
+  $deferrableID: ID
   $size: [Int] = [100]
 ) {
-  node(id: $deferredID) {
+  node(id: $deferrableID) {
     ...ProfilePic
   }
 }
@@ -37,18 +37,18 @@ query ProfilePic_Deferred(
   "name": "TestDeferWithVariableWithDefaultValue",
   "dependentRequests": [
     {
-      "operationName": "ProfilePic_Deferred",
+      "operationName": "ProfilePic_Deferrable",
       "metadata": {
         "deferrable": true,
         "fragmentName": "ProfilePic",
-        "rootFieldVariable": "deferredID"
+        "rootFieldVariable": "deferrableID"
       },
       "argumentDependencies": [
         {
           "kind": "ArgumentDependency",
-          "argumentName": "deferredID",
+          "argumentName": "deferrableID",
           "fromName": "TestDeferWithVariableWithDefaultValue",
-          "fromPath": "me.ProfilePic_deferredID",
+          "fromPath": "me.ProfilePic_deferrableID",
           "ifList": "each",
           "ifNull": "skip"
         }
@@ -89,7 +89,7 @@ query ProfilePic_Deferred(
                 {
                   "kind": "ScalarField",
                   "name": "id",
-                  "alias": "ProfilePic_deferredID",
+                  "alias": "ProfilePic_deferrableID",
                   "args": [],
                   "handles": null,
                   "directives": [],
@@ -97,7 +97,7 @@ query ProfilePic_Deferred(
                     "deferrable": true,
                     "deferred": true,
                     "deferredFragmentName": "ProfilePic",
-                    "deferredArgumentName": "deferredID",
+                    "deferredArgumentName": "deferrableID",
                     "deferredArgumentStorageKey": "id",
                     "idType": "ID"
                   },
@@ -190,13 +190,13 @@ query ProfilePic_Deferred(
   "metadata": {
     "deferred": true
   },
-  "name": "ProfilePic_Deferred",
+  "name": "ProfilePic_Deferrable",
   "dependentRequests": [],
   "argumentDefinitions": [
     {
       "kind": "LocalArgumentDefinition",
       "metadata": null,
-      "name": "deferredID",
+      "name": "deferrableID",
       "defaultValue": null,
       "type": "ID"
     },
@@ -223,7 +223,7 @@ query ProfilePic_Deferred(
           "metadata": null,
           "value": {
             "kind": "Variable",
-            "variableName": "deferredID",
+            "variableName": "deferrableID",
             "metadata": null,
             "type": "ID"
           },
@@ -241,7 +241,7 @@ query ProfilePic_Deferred(
           "metadata": {
             "deferred": true,
             "deferredFragmentName": "ProfilePic",
-            "deferredArgumentName": "deferredID",
+            "deferredArgumentName": "deferrableID",
             "deferredArgumentStorageKey": "id",
             "idType": "ID"
           },

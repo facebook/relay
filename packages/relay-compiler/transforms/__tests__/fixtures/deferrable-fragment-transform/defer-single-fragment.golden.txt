@@ -2,7 +2,7 @@ query TestDeferSimple {
   me {
     ... on User {
       ... on Node {
-        FriendCount_deferredID: id
+        FriendCount_deferrableID: id
       }
     }
   }
@@ -14,10 +14,10 @@ fragment FriendCount on User {
   }
 }
 
-query FriendCount_Deferred(
-  $deferredID: ID
+query FriendCount_Deferrable(
+  $deferrableID: ID
 ) {
-  node(id: $deferredID) {
+  node(id: $deferrableID) {
     ...FriendCount
   }
 }
@@ -30,18 +30,18 @@ query FriendCount_Deferred(
   "name": "TestDeferSimple",
   "dependentRequests": [
     {
-      "operationName": "FriendCount_Deferred",
+      "operationName": "FriendCount_Deferrable",
       "metadata": {
         "deferrable": true,
         "fragmentName": "FriendCount",
-        "rootFieldVariable": "deferredID"
+        "rootFieldVariable": "deferrableID"
       },
       "argumentDependencies": [
         {
           "kind": "ArgumentDependency",
-          "argumentName": "deferredID",
+          "argumentName": "deferrableID",
           "fromName": "TestDeferSimple",
-          "fromPath": "me.FriendCount_deferredID",
+          "fromPath": "me.FriendCount_deferrableID",
           "ifList": "each",
           "ifNull": "skip"
         }
@@ -74,7 +74,7 @@ query FriendCount_Deferred(
                 {
                   "kind": "ScalarField",
                   "name": "id",
-                  "alias": "FriendCount_deferredID",
+                  "alias": "FriendCount_deferrableID",
                   "args": [],
                   "handles": null,
                   "directives": [],
@@ -82,7 +82,7 @@ query FriendCount_Deferred(
                     "deferrable": true,
                     "deferred": true,
                     "deferredFragmentName": "FriendCount",
-                    "deferredArgumentName": "deferredID",
+                    "deferredArgumentName": "deferrableID",
                     "deferredArgumentStorageKey": "id",
                     "idType": "ID"
                   },
@@ -134,13 +134,13 @@ query FriendCount_Deferred(
   "metadata": {
     "deferred": true
   },
-  "name": "FriendCount_Deferred",
+  "name": "FriendCount_Deferrable",
   "dependentRequests": [],
   "argumentDefinitions": [
     {
       "kind": "LocalArgumentDefinition",
       "metadata": null,
-      "name": "deferredID",
+      "name": "deferrableID",
       "defaultValue": null,
       "type": "ID"
     }
@@ -158,7 +158,7 @@ query FriendCount_Deferred(
           "metadata": null,
           "value": {
             "kind": "Variable",
-            "variableName": "deferredID",
+            "variableName": "deferrableID",
             "metadata": null,
             "type": "ID"
           },
@@ -176,7 +176,7 @@ query FriendCount_Deferred(
           "metadata": {
             "deferred": true,
             "deferredFragmentName": "FriendCount",
-            "deferredArgumentName": "deferredID",
+            "deferredArgumentName": "deferrableID",
             "deferredArgumentStorageKey": "id",
             "idType": "ID"
           },

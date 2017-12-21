@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule deferredFragmentKey
+ * @providesModule deferrableFragmentKey
  * @flow
  * @format
  */
@@ -13,7 +13,7 @@
 
 import type {Variables} from '../util/RelayRuntimeTypes';
 
-function deferredFragmentKey(
+function deferrableFragmentKey(
   dataID: string,
   fragmentName: string,
   variables: Variables,
@@ -25,4 +25,4 @@ function deferredFragmentKey(
   return `dataID:${dataID},fragment:${fragmentName},variables:${variablesString}`;
 }
 
-module.exports = deferredFragmentKey;
+module.exports = deferrableFragmentKey;

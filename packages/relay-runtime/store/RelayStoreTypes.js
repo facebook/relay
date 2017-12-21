@@ -402,9 +402,9 @@ export type MissingFieldHandler =
  */
 export type RelayResponsePayload = {|
   fieldPayloads?: ?Array<HandleFieldPayload>,
-  deferredSelections?: ?DeferredSelections,
+  deferrableSelections?: ?DeferrableSelections,
   source: MutableRecordSource,
   errors: ?Array<PayloadError>,
 |};
 
-export type DeferredSelections = Set<string>;
+export type DeferrableSelections = Set<string>;

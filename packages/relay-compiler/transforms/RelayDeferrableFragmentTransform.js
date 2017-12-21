@@ -39,7 +39,7 @@ type SpreadUse = {|
   path: string,
 |};
 
-const DEFERRED_ARGUMENT_NAME = 'deferredID';
+const DEFERRABLE_ARGUMENT_NAME = 'deferrableID';
 
 /**
  * Deferrable fragment spreads are transformed into a series of individual
@@ -55,16 +55,16 @@ const DEFERRED_ARGUMENT_NAME = 'deferredID';
  *   2) `transformSpreads` is responsible for replacing deferrable fragment
  *      spreads with an `id` field. This step should only apply to the "query"
  *      compiler phase, so that the request sent to the GraphQL server does not
- *      contain the deferred fragment and in its place has the information
+ *      contain the deferrable fragment and in its place has the information
  *      necessary to later fulfill that fragment.
  *
  */
 function transformOperations(context: CompilerContext): CompilerContext {
   // First, in an initial pass over all definitions, collect the path to each
   // fragment spread from within a fragment or operation, as well as the set of
-  // all fragments which have been deferred.
+  // all fragments which have been deferrable.
   const spreadUsesWithin: Map<Fragment | Root, Array<SpreadUse>> = new Map();
-  const deferredFragments: Set<Fragment> = new Set();
+  const deferrableFragments: Set<Fragment> = new Set();
   context.forEachDocument(document => {
     const pathParts = [];
     const spreadUses = [];
@@ -89,14 +89,14 @@ function transformOperations(context: CompilerContext): CompilerContext {
       FragmentSpread(spread) {
         spreadUses.push({spread, path: pathParts.join('.')});
         if (isDeferrable(spread)) {
-          deferredFragments.add(context.getFragment(spread.name));
+          deferrableFragments.add(context.getFragment(spread.name));
         }
       },
     });
   });
 
-  // If no fragments have been deferred, then no transformation is necessary.
-  if (deferredFragments.size === 0) {
+  // If no fragments have been deferrable, then no transformation is necessary.
+  if (deferrableFragments.size === 0) {
     return context;
   }
 
@@ -126,11 +126,11 @@ function transformOperations(context: CompilerContext): CompilerContext {
   });
 
   // Finally, add new operations representing each deferrable fragment.
-  const deferredOperations = Array.from(deferredFragments).map(fragment => {
-    // Create the deferred operation.
-    const deferredOperation = createDeferredOperation(context, fragment);
+  const deferrableOperations = Array.from(deferrableFragments).map(fragment => {
+    // Create the deferrable operation.
+    const deferrableOperation = createDeferrableOperation(context, fragment);
 
-    // Include the deferred operation along with the necessary
+    // Include the deferrable operation along with the necessary
     // additional variable definitions and dependent requests.
     const argumentDefinitions = createArgumentDefinitions(
       context,
@@ -143,18 +143,18 @@ function transformOperations(context: CompilerContext): CompilerContext {
       spreadUsesWithin,
       fragment,
     );
-    const completeDeferredOperation: Root = {
-      ...deferredOperation,
+    const completeDeferrableOperation: Root = {
+      ...deferrableOperation,
       argumentDefinitions: [
-        ...deferredOperation.argumentDefinitions,
+        ...deferrableOperation.argumentDefinitions,
         ...argumentDefinitions,
       ],
       dependentRequests: [
-        ...deferredOperation.dependentRequests,
+        ...deferrableOperation.dependentRequests,
         ...dependentRequests,
       ],
     };
-    return completeDeferredOperation;
+    return completeDeferrableOperation;
   });
   const transformedContextPostFragments = IRTransformer.transform(
     transformedContext,
@@ -165,7 +165,7 @@ function transformOperations(context: CompilerContext): CompilerContext {
             ...spread,
             metadata: {
               ...spread.metadata,
-              ...deferredFragmentSpreadMetadata(spread.name, idType),
+              ...deferrableFragmentSpreadMetadata(spread.name, idType),
             },
           };
         }
@@ -174,12 +174,12 @@ function transformOperations(context: CompilerContext): CompilerContext {
     },
   );
 
-  return transformedContextPostFragments.addAll(deferredOperations);
+  return transformedContextPostFragments.addAll(deferrableOperations);
 }
 
 /**
- * The second step of the Deferrable transform, replacing deferred spreads
- * with deferred refetch references which correspond to the dependent requests.
+ * The second step of the Deferrable transform, replacing deferrable spreads
+ * with deferrable refetch references which correspond to the dependent requests
  */
 function transformSpreads(context: CompilerContext): CompilerContext {
   // Next, transform the definitions:
@@ -191,9 +191,9 @@ function transformSpreads(context: CompilerContext): CompilerContext {
         return spread;
       }
       // If this spread is deferrable, replace it with a refetch reference.
-      // The deferred reference is definitionally not a FragmentSpread,
+      // The deferrable reference is definitionally not a FragmentSpread,
       // though the transformer expects functions to return the same type.
-      return (createDeferredReference(context, spread): any);
+      return (createDeferrableReference(context, spread): any);
     },
   });
 }
@@ -247,8 +247,8 @@ function createArgumentDefinitions(
 }
 
 // Given a fragment or node, return the set of dependent requests to fulfill.
-// Defines the relationship between deferred reference selections (above) and
-// the deferred operations dependent on them (below).
+// Defines the relationship between deferrable reference selections (above) and
+// the deferrable operations dependent on them (below).
 function createDependentRequests(
   context: CompilerContext,
   spreadUsesWithin: Map<Fragment | Root, Array<SpreadUse>>,
@@ -256,18 +256,18 @@ function createDependentRequests(
 ): Array<DependentRequest> {
   const spreadUses = getDeferrableSpreadUses(context, spreadUsesWithin, from);
   return spreadUses.map(({spread, path}) => ({
-    operationName: spread.name + '_Deferred',
+    operationName: spread.name + '_Deferrable',
     metadata: {
       deferrable: true,
       fragmentName: spread.name,
-      rootFieldVariable: DEFERRED_ARGUMENT_NAME,
+      rootFieldVariable: DEFERRABLE_ARGUMENT_NAME,
     },
     argumentDependencies: [
       {
         kind: 'ArgumentDependency',
-        argumentName: DEFERRED_ARGUMENT_NAME,
+        argumentName: DEFERRABLE_ARGUMENT_NAME,
         fromName: from.name,
-        fromPath: path + '.' + deferredAlias(spread.name),
+        fromPath: path + '.' + deferrableAlias(spread.name),
         ifList: 'each',
         ifNull: 'skip',
       },
@@ -309,10 +309,10 @@ function getDeferrableSpreadUses(
   return deferrableSpreadUses;
 }
 
-// Utility function for creating a deferred reference selection from a
+// Utility function for creating a deferrable reference selection from a
 // deferrable fragment spread. This selection will be depended upon by another
-// operation in a batch request to fulfill the deferred fragment.
-function createDeferredReference(
+// operation in a batch request to fulfill the deferrable fragment.
+function createDeferrableReference(
   context: CompilerContext,
   spread: FragmentSpread,
 ): InlineFragment {
@@ -340,7 +340,7 @@ function createDeferredReference(
   // are unnecessary.
   //
   // The metadata and directives of the deferrable fragment spread are
-  // transferred to the deferred id field.
+  // transferred to the deferrable id field.
   return {
     kind: 'InlineFragment',
     metadata: null,
@@ -356,13 +356,13 @@ function createDeferredReference(
           {
             kind: 'ScalarField',
             name: 'id',
-            alias: deferredAlias(spread.name),
+            alias: deferrableAlias(spread.name),
             args: [],
             handles: null,
             directives: spread.directives,
             metadata: {
               ...spread.metadata,
-              ...deferredFragmentSpreadMetadata(spread.name, idType),
+              ...deferrableFragmentSpreadMetadata(spread.name, idType),
             },
             type: idType,
           },
@@ -372,8 +372,8 @@ function createDeferredReference(
   };
 }
 
-// Utility function for creating an operation from a deferred fragment.
-function createDeferredOperation(
+// Utility function for creating an operation from a deferrable fragment.
+function createDeferrableOperation(
   context: CompilerContext,
   fragment: Fragment,
 ): Root {
@@ -398,13 +398,13 @@ function createDeferredOperation(
     kind: 'Root',
     operation: 'query',
     metadata: {deferred: true},
-    name: fragment.name + '_Deferred',
+    name: fragment.name + '_Deferrable',
     dependentRequests: [],
     argumentDefinitions: [
       {
         kind: 'LocalArgumentDefinition',
         metadata: null,
-        name: DEFERRED_ARGUMENT_NAME,
+        name: DEFERRABLE_ARGUMENT_NAME,
         defaultValue: null,
         type: idType,
       },
@@ -422,7 +422,7 @@ function createDeferredOperation(
             metadata: null,
             value: {
               kind: 'Variable',
-              variableName: DEFERRED_ARGUMENT_NAME,
+              variableName: DEFERRABLE_ARGUMENT_NAME,
               metadata: null,
               type: idType,
             },
@@ -437,7 +437,7 @@ function createDeferredOperation(
             kind: 'FragmentSpread',
             args: [],
             name: fragment.name,
-            metadata: deferredFragmentSpreadMetadata(fragment.name, idType),
+            metadata: deferrableFragmentSpreadMetadata(fragment.name, idType),
             directives: [],
           },
         ],
@@ -448,18 +448,18 @@ function createDeferredOperation(
   };
 }
 
-function deferredFragmentSpreadMetadata(name, idType) {
+function deferrableFragmentSpreadMetadata(name, idType) {
   return {
     deferred: true,
     deferredFragmentName: name,
-    deferredArgumentName: DEFERRED_ARGUMENT_NAME,
+    deferredArgumentName: DEFERRABLE_ARGUMENT_NAME,
     deferredArgumentStorageKey: 'id',
     idType: idType,
   };
 }
 
-function deferredAlias(name: string): string {
-  return `${name}_${DEFERRED_ARGUMENT_NAME}`;
+function deferrableAlias(name: string): string {
+  return `${name}_${DEFERRABLE_ARGUMENT_NAME}`;
 }
 
 function getNodeType(schema) {

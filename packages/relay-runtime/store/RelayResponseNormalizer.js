@@ -15,7 +15,7 @@ const RelayConcreteNode = require('RelayConcreteNode');
 const RelayModernRecord = require('RelayModernRecord');
 const RelayProfiler = require('RelayProfiler');
 
-const deferredFragmentKey = require('deferredFragmentKey');
+const deferrableFragmentKey = require('deferrableFragmentKey');
 const generateRelayClientID = require('generateRelayClientID');
 const invariant = require('invariant');
 const warning = require('warning');
@@ -35,7 +35,7 @@ import type {
 } from 'RelayConcreteNode';
 import type {PayloadData} from 'RelayNetworkTypes';
 import type {
-  DeferredSelections,
+  DeferrableSelections,
   HandleFieldPayload,
   MutableRecordSource,
   Selector,
@@ -49,14 +49,14 @@ const {
   LINKED_HANDLE,
   SCALAR_FIELD,
   SCALAR_HANDLE,
-  DEFERRED_FRAGMENT_SPREAD,
+  DEFERRABLE_FRAGMENT_SPREAD,
 } = RelayConcreteNode;
 
 export type NormalizationOptions = {handleStrippedNulls: boolean};
 
 export type NormalizedResponse = {
   fieldPayloads: Array<HandleFieldPayload>,
-  deferredSelections: DeferredSelections,
+  deferrableSelections: DeferrableSelections,
 };
 
 /**
@@ -91,7 +91,7 @@ class RelayResponseNormalizer {
   _recordSource: MutableRecordSource;
   _variables: Variables;
   _handleStrippedNulls: boolean;
-  _deferredSelections: DeferredSelections = new Set();
+  _deferrableSelections: DeferrableSelections = new Set();
 
   constructor(
     recordSource: MutableRecordSource,
@@ -117,7 +117,7 @@ class RelayResponseNormalizer {
     this._traverseSelections(node, record, data);
     return {
       fieldPayloads: this._handleFieldPayloads,
-      deferredSelections: this._deferredSelections,
+      deferrableSelections: this._deferrableSelections,
     };
   }
 
@@ -174,7 +174,7 @@ class RelayResponseNormalizer {
           handle: selection.handle,
           handleKey,
         });
-      } else if (selection.kind === DEFERRED_FRAGMENT_SPREAD) {
+      } else if (selection.kind === DEFERRABLE_FRAGMENT_SPREAD) {
         const value = RelayModernRecord.getValue(record, selection.storageKey);
         invariant(
           typeof value === 'string',
@@ -188,8 +188,8 @@ class RelayResponseNormalizer {
             })
           : {};
 
-        const key = deferredFragmentKey(value, selection.name, variables);
-        this._deferredSelections.add(key);
+        const key = deferrableFragmentKey(value, selection.name, variables);
+        this._deferrableSelections.add(key);
       } else {
         invariant(
           false,

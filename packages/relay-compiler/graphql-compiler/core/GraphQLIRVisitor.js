@@ -46,7 +46,7 @@ const NodeKeys = {
   RootArgumentDefinition: [],
   ScalarField: ['args', 'directives'],
   Variable: [],
-  DeferredFragmentSpread: ['args'],
+  DeferrableFragmentSpread: ['args'],
 };
 
 export type VisitNode =

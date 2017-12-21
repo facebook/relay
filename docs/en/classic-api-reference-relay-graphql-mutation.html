@@ -109,7 +109,7 @@ const mutation = Relay.GraphQLMutation.createWithFiles(
 )</span>;</span>
 </code></pre>
 <p>This is the general constructor for creating <code>Relay.GraphQLMutation</code> instances with optional <code>files</code>, <code>callbacks</code> and <code>collisionKey</code> arguments.</p>
-<p>Callers must provide an appropriate <code>query</code> and <code>variables</code>. As per the GraphQL Relay Specification:</p>
+<p>Callers must provide an appropriate <code>query</code> and <code>variables</code>. As per the GraphQL Server Relay Specification:</p>
 <ul>
 <li>The mutation should take a single argument named &quot;input&quot;.</li>
 <li>That input argument should contain a (string) &quot;clientMutationId&quot; property for the purposes of reconciling requests and responses (automatically added by the <code>Relay.GraphQLMutation</code> API).</li>

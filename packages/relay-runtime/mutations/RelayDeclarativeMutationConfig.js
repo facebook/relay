@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule setRelayModernMutationConfigs
+ * @providesModule RelayDeclarativeMutationConfig
  * @flow
  * @format
  */
@@ -24,7 +24,7 @@ import type {
 import type {SelectorData} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 import type {RelayMutationConfig} from 'react-relay/classic/tools/RelayTypes';
 
-function setRelayModernMutationConfigs(
+function convert(
   configs: Array<RelayMutationConfig>,
   request: RequestNode,
   optimisticUpdater?: ?SelectorStoreUpdater,
@@ -115,7 +115,7 @@ function rangeAdd(
   if (!parentID) {
     warning(
       false,
-      'setRelayModernMutationConfigs: For mutation config RANGE_ADD ' +
+      'RelayDeclarativeMutationConfig: For mutation config RANGE_ADD ' +
         'to work you must include a parentID',
     );
     return null;
@@ -167,7 +167,7 @@ function rangeAdd(
         default:
           warning(
             false,
-            'setRelayModernMutationConfigs: RANGE_ADD range behavior ' +
+            'RelayDeclarativeMutationConfig: RANGE_ADD range behavior ' +
               `'${
                 info.rangeBehavior
               }' will not work as expected in RelayModern, ` +
@@ -196,7 +196,7 @@ function rangeDelete(
   if (!parentID) {
     warning(
       false,
-      'setRelayModernMutationConfigs: For mutation config RANGE_DELETE ' +
+      'RelayDeclarativeMutationConfig: For mutation config RANGE_DELETE ' +
         'to work you must include a parentID',
     );
     return null;
@@ -267,7 +267,7 @@ function deleteNode(
 ): void {
   warning(
     connectionKeys,
-    'setRelayModernMutationConfigs: RANGE_DELETE must provide a ' +
+    'RelayDeclarativeMutationConfig: RANGE_DELETE must provide a ' +
       'connectionKeys',
   );
   const parent = store.get(parentID);
@@ -277,7 +277,7 @@ function deleteNode(
   if (pathToConnection.length < 2) {
     warning(
       false,
-      'setRelayModernMutationConfigs: RANGE_DELETE ' +
+      'RelayDeclarativeMutationConfig: RANGE_DELETE ' +
         'pathToConnection must include at least parent and connection',
     );
     return;
@@ -292,7 +292,7 @@ function deleteNode(
   if (!connectionKeys || !recordProxy) {
     warning(
       false,
-      'setRelayModernMutationConfigs: RANGE_DELETE ' +
+      'RelayDeclarativeMutationConfig: RANGE_DELETE ' +
         'pathToConnection is incorrect. Unable to find connection with ' +
         'parentID: %s and path: %s',
       parentID,
@@ -325,4 +325,6 @@ function getRootField(request: RequestNode): ?string {
   return null;
 }
 
-module.exports = setRelayModernMutationConfigs;
+module.exports = {
+  convert,
+};

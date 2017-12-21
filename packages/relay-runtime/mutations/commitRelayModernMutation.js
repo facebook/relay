@@ -11,9 +11,10 @@
 
 'use strict';
 
+const RelayDeclarativeMutationConfig = require('RelayDeclarativeMutationConfig');
+
 const invariant = require('invariant');
 const isRelayModernEnvironment = require('isRelayModernEnvironment');
-const setRelayModernMutationConfigs = require('setRelayModernMutationConfigs');
 const warning = require('warning');
 
 import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
@@ -82,7 +83,7 @@ function commitRelayModernMutation<T>(
     );
   }
   if (configs) {
-    ({optimisticUpdater, updater} = setRelayModernMutationConfigs(
+    ({optimisticUpdater, updater} = RelayDeclarativeMutationConfig.convert(
       configs,
       mutation,
       optimisticUpdater,

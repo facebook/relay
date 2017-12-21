@@ -11,7 +11,8 @@
 
 'use strict';
 
-const setRelayModernMutationConfigs = require('setRelayModernMutationConfigs');
+const RelayDeclarativeMutationConfig = require('RelayDeclarativeMutationConfig');
+
 const warning = require('warning');
 
 import type {Disposable} from '../util/RelayRuntimeTypes';
@@ -50,7 +51,7 @@ function requestRelaySubscription(
   );
 
   const {updater} = configs
-    ? setRelayModernMutationConfigs(
+    ? RelayDeclarativeMutationConfig.convert(
         configs,
         subscription,
         null /* optimisticUpdater */,

@@ -51,7 +51,6 @@ import type {
   CacheManager,
   ChangeSubscription,
   NetworkLayer,
-  RelayMutationConfig,
   RelayMutationTransactionCommitCallbacks,
   ReadyStateChangeCallback,
   StoreReaderData,
@@ -61,6 +60,7 @@ import type RelayQueryTracker from './RelayQueryTracker';
 import type {DataID} from 'RelayRuntime';
 import type {
   Disposable,
+  DeclarativeMutationConfig,
   SelectorStoreUpdater,
   UploadableMap,
   Variables,
@@ -133,7 +133,7 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
     optimisticResponse,
     variables,
   }: {
-    configs: Array<RelayMutationConfig>,
+    configs: Array<DeclarativeMutationConfig>,
     operation: ConcreteOperationDefinition,
     optimisticResponse: Object,
     variables: Variables,
@@ -228,7 +228,7 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
     variables,
     uploadables,
   }: {
-    configs: Array<RelayMutationConfig>,
+    configs: Array<DeclarativeMutationConfig>,
     onCompleted?: ?(response: ResponseType) => void,
     onError?: ?(error: Error) => void,
     operation: ConcreteOperationDefinition,

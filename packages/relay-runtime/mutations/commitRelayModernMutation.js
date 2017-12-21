@@ -18,13 +18,13 @@ const isRelayModernEnvironment = require('isRelayModernEnvironment');
 const warning = require('warning');
 
 import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
+import type {DeclarativeMutationConfig} from 'RelayDeclarativeMutationConfig';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {PayloadError, UploadableMap} from 'RelayNetworkTypes';
 import type {Environment, SelectorStoreUpdater} from 'RelayStoreTypes';
-import type {RelayMutationConfig} from 'react-relay/classic/tools/RelayTypes';
 
 export type MutationConfig<T> = {|
-  configs?: Array<RelayMutationConfig>,
+  configs?: Array<DeclarativeMutationConfig>,
   mutation: GraphQLTaggedNode,
   variables: Variables,
   uploadables?: UploadableMap,

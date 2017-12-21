@@ -11,6 +11,7 @@
 'use strict';
 
 const GraphQLMutatorConstants = {
+  // TODO(T24615823, jkassens) Remove in favor of RelayRuntime.RangeOperation
   APPEND: 'append',
   IGNORE: 'ignore',
   PREPEND: 'prepend',

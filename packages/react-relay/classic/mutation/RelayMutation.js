@@ -26,8 +26,7 @@ import type {ConcreteFragment} from '../query/ConcreteQuery';
 import type {RelayConcreteNode} from '../query/RelayQL';
 import type {RelayQLFragmentBuilder} from '../query/buildRQL';
 import type {RelayEnvironmentInterface} from '../store/RelayEnvironment';
-import type {RelayMutationConfig} from '../tools/RelayTypes';
-import type {Variables} from 'RelayRuntime';
+import type {DeclarativeMutationConfig, Variables} from 'RelayRuntime';
 
 export type FileMap = {[key: string]: File};
 export type RelayMutationFragments<Tk> = {
@@ -192,7 +191,7 @@ class RelayMutation<Tp: Object> {
    *      children: Array<RelayQuery.Node>;
    *    }
    */
-  getConfigs(): Array<RelayMutationConfig> {
+  getConfigs(): Array<DeclarativeMutationConfig> {
     invariant(
       false,
       '%s: Expected abstract method `getConfigs` to be implemented.',
@@ -240,7 +239,7 @@ class RelayMutation<Tp: Object> {
    * will be inferred from the optimistic response. Most subclasses shouldn't
    * need to extend this method.
    */
-  getOptimisticConfigs(): ?Array<RelayMutationConfig> {
+  getOptimisticConfigs(): ?Array<DeclarativeMutationConfig> {
     return null;
   }
 

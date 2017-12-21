@@ -17,12 +17,12 @@ const warning = require('warning');
 
 import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {Variables} from '../util/RelayRuntimeTypes';
+import type {DeclarativeMutationConfig} from 'RelayDeclarativeMutationConfig';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {Environment, SelectorStoreUpdater} from 'RelayStoreTypes';
-import type {RelayMutationConfig} from 'react-relay/classic/tools/RelayTypes';
 
 export type GraphQLSubscriptionConfig = {|
-  configs?: Array<RelayMutationConfig>,
+  configs?: Array<DeclarativeMutationConfig>,
   subscription: GraphQLTaggedNode,
   variables: Variables,
   onCompleted?: ?() => void,

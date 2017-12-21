@@ -15,7 +15,7 @@ const sprintf = require('sprintf');
 const testEditDistance = require('../tools/testEditDistance');
 const warning = require('warning');
 
-import type {RelayMutationConfig} from '../tools/RelayTypes';
+import type {DeclarativeMutationConfig} from 'RelayRuntime';
 
 type PropertyDescription = {
   [name: string]: Validator,
@@ -51,7 +51,7 @@ const REQUIRED = {
 };
 
 function validateMutationConfig(
-  config: RelayMutationConfig,
+  config: DeclarativeMutationConfig,
   name: string,
 ): void {
   function assertValid(properties: PropertyDescription): void {

@@ -13,11 +13,8 @@
 const invariant = require('invariant');
 const serializeRelayQueryCall = require('../query/serializeRelayQueryCall');
 
-import type {
-  Call,
-  CallValue,
-  RangeBehaviors,
-} from '../tools/RelayInternalTypes';
+import type {Call, CallValue} from '../tools/RelayInternalTypes';
+import type {RangeBehaviors} from 'RelayDeclarativeMutationConfig';
 
 /**
  * Return the action (prepend/append) to use when adding an item to

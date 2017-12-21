@@ -16,22 +16,26 @@ const RelayCompatContainer = require('./react/RelayCompatContainer');
 const RelayCompatMutations = require('./mutations/RelayCompatMutations');
 const RelayCompatPaginationContainer = require('./react/RelayCompatPaginationContainer');
 const RelayCompatRefetchContainer = require('./react/RelayCompatRefetchContainer');
-
-const {graphql, fetchQuery} = require('RelayRuntime');
+const RelayRuntime = require('RelayRuntime');
 
 export type {
   RelayPaginationProp,
   RelayProp,
   RelayRefetchProp,
 } from '../modern/ReactRelayTypes';
-export type {DataID, Disposable, Variables} from 'RelayRuntime';
 export type {
+  DataID,
+  DeclarativeMutationConfig,
+  Disposable,
   GraphQLTaggedNode,
   IEnvironment,
+  MutationType,
   OperationSelector,
+  RangeOperation,
   RelayContext,
   Selector,
   Snapshot,
+  Variables,
 } from 'RelayRuntime';
 
 /**
@@ -41,13 +45,16 @@ export type {
 module.exports = {
   QueryRenderer: ReactRelayQueryRenderer,
 
+  MutationTypes: RelayRuntime.MutationTypes,
+  RangeOperations: RelayRuntime.RangeOperations,
+
   applyOptimisticMutation: RelayCompatMutations.applyUpdate,
   commitMutation: RelayCompatMutations.commitUpdate,
   createFragmentContainer: RelayCompatContainer.createContainer,
   createPaginationContainer: RelayCompatPaginationContainer.createContainer,
   createRefetchContainer: RelayCompatRefetchContainer.createContainer,
-  fetchQuery: fetchQuery,
-  graphql: graphql,
+  fetchQuery: RelayRuntime.fetchQuery,
+  graphql: RelayRuntime.graphql,
 
   injectDefaultVariablesProvider:
     ReactRelayCompatContainerBuilder.injectDefaultVariablesProvider,

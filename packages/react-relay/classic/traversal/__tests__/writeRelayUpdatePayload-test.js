@@ -14,7 +14,6 @@ jest.mock('../../legacy/store/generateClientID').mock('warning');
 
 require('configureForRelayOSS');
 
-const GraphQLMutatorConstants = require('../../legacy/mutation/GraphQLMutatorConstants');
 const RelayClassic = require('RelayClassic');
 const RelayChangeTracker = require('../../store/RelayChangeTracker');
 const RelayMutationType = require('../../mutation/RelayMutationType');
@@ -27,9 +26,13 @@ const RelayTestUtils = require('RelayTestUtils');
 const generateClientEdgeID = require('../../legacy/store/generateClientEdgeID');
 const writeRelayUpdatePayload = require('../writeRelayUpdatePayload');
 
-const {ConnectionInterface} = require('../../../../relay-runtime/RelayRuntime');
+const {
+  ConnectionInterface,
+  RangeOperations,
+} = require('../../../../relay-runtime/RelayRuntime');
 
 const {CLIENT_MUTATION_ID} = ConnectionInterface.get();
+const {PREPEND, IGNORE} = RangeOperations;
 
 describe('writeRelayUpdatePayload()', () => {
   const {getNode, writePayload} = RelayTestUtils;
@@ -1390,7 +1393,7 @@ describe('writeRelayUpdatePayload()', () => {
           type: RelayMutationType.RANGE_ADD,
           connectionName: 'topLevelComments',
           edgeName: 'feedbackCommentEdge',
-          rangeBehaviors: {'': GraphQLMutatorConstants.PREPEND},
+          rangeBehaviors: {'': PREPEND},
         },
       ];
       const payload = {
@@ -1567,7 +1570,7 @@ describe('writeRelayUpdatePayload()', () => {
           type: RelayMutationType.RANGE_ADD,
           connectionName: 'topLevelComments',
           edgeName: 'feedbackCommentEdge',
-          rangeBehaviors: {'': GraphQLMutatorConstants.IGNORE},
+          rangeBehaviors: {'': IGNORE},
         },
       ];
 
@@ -1664,7 +1667,7 @@ describe('writeRelayUpdatePayload()', () => {
           type: RelayMutationType.RANGE_ADD,
           connectionName: 'topLevelComments',
           edgeName: 'feedbackCommentEdge',
-          rangeBehaviors: {'': GraphQLMutatorConstants.PREPEND},
+          rangeBehaviors: {'': PREPEND},
         },
       ];
 
@@ -1796,7 +1799,7 @@ describe('writeRelayUpdatePayload()', () => {
           type: RelayMutationType.RANGE_ADD,
           connectionName: 'topLevelComments',
           edgeName: 'feedbackCommentEdge',
-          rangeBehaviors: {'': GraphQLMutatorConstants.PREPEND},
+          rangeBehaviors: {'': PREPEND},
         },
       ];
 

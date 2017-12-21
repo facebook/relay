@@ -19,14 +19,10 @@ import type RelayMutationRequest from '../network/RelayMutationRequest';
 import type RelayQueryRequest from '../network/RelayQueryRequest';
 import type {RelayQueryConfigInterface} from '../query-config/RelayQueryConfig';
 import type RelayFragmentReference from '../query/RelayFragmentReference';
-import type {RelayConcreteNode} from '../query/RelayQL';
 import type {RelayEnvironmentInterface} from '../store/RelayEnvironment';
 import type {Record} from '../store/RelayRecord';
-import type {
-  FieldValue,
-  RangeBehaviors,
-  QueryPayload,
-} from './RelayInternalTypes';
+import type {FieldValue, QueryPayload} from './RelayInternalTypes';
+import type {DeclarativeMutationConfig} from 'RelayDeclarativeMutationConfig';
 import type {DataID, Variables} from 'RelayRuntime';
 import type URI from 'URI';
 
@@ -142,47 +138,9 @@ export type ReadyStateEvent = {
  */
 export type RelayContainer = $FlowFixMe;
 
-export type RelayMutationConfig =
-  | {
-      type: 'FIELDS_CHANGE',
-      fieldIDs: {[fieldName: string]: DataID | Array<DataID>},
-    }
-  | {
-      type: 'RANGE_ADD',
-      parentName?: string,
-      parentID?: string,
-      connectionInfo?: Array<{
-        key: string,
-        filters?: Variables,
-        rangeBehavior: string,
-      }>,
-      connectionName?: string,
-      edgeName: string,
-      rangeBehaviors?: RangeBehaviors,
-    }
-  | {
-      type: 'NODE_DELETE',
-      parentName?: string,
-      parentID?: string,
-      connectionName?: string,
-      deletedIDFieldName: string,
-    }
-  | {
-      type: 'RANGE_DELETE',
-      parentName?: string,
-      parentID?: string,
-      connectionKeys?: Array<{
-        key: string,
-        filters?: Variables,
-      }>,
-      connectionName?: string,
-      deletedIDFieldName: string | Array<string>,
-      pathToConnection: Array<string>,
-    }
-  | {
-      type: 'REQUIRED_CHILDREN',
-      children: Array<RelayConcreteNode>,
-    };
+// TODO(#T24585466, jkassens) Remove
+export type RelayMutationConfig = DeclarativeMutationConfig;
+
 export type RelayMutationTransactionCommitCallbacks = {
   onFailure?: ?RelayMutationTransactionCommitFailureCallback,
   onSuccess?: ?RelayMutationTransactionCommitSuccessCallback,

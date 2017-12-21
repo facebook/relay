@@ -30,7 +30,7 @@ const {ConnectionInterface} = require('RelayRuntime');
 
 import type {ConcreteMutation} from '../query/ConcreteQuery';
 import type RelayQueryTracker from '../store/RelayQueryTracker';
-import type {RangeBehaviors} from '../tools/RelayInternalTypes';
+import type {RangeBehaviors} from 'RelayDeclarativeMutationConfig';
 import type {DataID, Variables} from 'RelayRuntime';
 
 type BasicMutationFragmentBuilderConfig = {

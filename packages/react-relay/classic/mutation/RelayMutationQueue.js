@@ -33,23 +33,22 @@ import type RelayQueryTracker from '../store/RelayQueryTracker';
 import type RelayStoreData from '../store/RelayStoreData';
 import type {ClientMutationID} from '../tools/RelayInternalTypes';
 import type {
-  RelayMutationConfig,
   RelayMutationTransactionCommitCallbacks,
   RelayMutationTransactionCommitFailureCallback,
   RelayMutationTransactionCommitSuccessCallback,
 } from '../tools/RelayTypes';
 import type RelayMutation from './RelayMutation';
 import type {FileMap} from './RelayMutation';
-import type {Variables} from 'RelayRuntime';
+import type {DeclarativeMutationConfig, Variables} from 'RelayRuntime';
 
 type CollisionQueueMap = {[key: string]: Array<PendingTransaction>};
 interface PendingTransaction {
   error: ?Error;
   getCallName(): string;
   getCollisionKey(): ?string;
-  getConfigs(): Array<RelayMutationConfig>;
+  getConfigs(): Array<DeclarativeMutationConfig>;
   getFiles(): ?FileMap;
-  getOptimisticConfigs(): ?Array<RelayMutationConfig>;
+  getOptimisticConfigs(): ?Array<DeclarativeMutationConfig>;
   getOptimisticQuery(storeData: RelayStoreData): ?RelayQuery.Mutation;
   getOptimisticResponse(): ?Object;
   getQuery(storeData: RelayStoreData): RelayQuery.Mutation;
@@ -429,7 +428,7 @@ class RelayPendingTransaction {
     return this._collisionKey;
   }
 
-  getConfigs(): Array<RelayMutationConfig> {
+  getConfigs(): Array<DeclarativeMutationConfig> {
     if (!this._configs) {
       this._configs = this.mutation.getConfigs();
     }
@@ -499,7 +498,7 @@ class RelayPendingTransaction {
     return this._mutationNode;
   }
 
-  getOptimisticConfigs(): ?Array<RelayMutationConfig> {
+  getOptimisticConfigs(): ?Array<DeclarativeMutationConfig> {
     if (this._optimisticConfigs === undefined) {
       this._optimisticConfigs = this.mutation.getOptimisticConfigs() || null;
     }

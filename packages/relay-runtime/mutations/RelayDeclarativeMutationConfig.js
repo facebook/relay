@@ -15,17 +15,97 @@ const RelayConnectionHandler = require('RelayConnectionHandler');
 
 const warning = require('warning');
 
-import type {Variables} from '../util/RelayRuntimeTypes';
+import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {RequestNode} from 'RelayConcreteNode';
 import type {
   RecordSourceSelectorProxy,
   SelectorStoreUpdater,
 } from 'RelayStoreTypes';
 import type {SelectorData} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
-import type {RelayMutationConfig} from 'react-relay/classic/tools/RelayTypes';
+import type {RelayConcreteNode} from 'react-relay/classic/query/RelayQL';
+
+const MutationTypes = {
+  RANGE_ADD: 'RANGE_ADD',
+  RANGE_DELETE: 'RANGE_DELETE',
+  NODE_DELETE: 'NODE_DELETE',
+  FIELDS_CHANGE: 'FIELDS_CHANGE',
+  REQUIRED_CHILDREN: 'REQUIRED_CHILDREN',
+};
+export type MutationType = $Values<typeof MutationTypes>;
+
+const RangeOperations = {
+  APPEND: 'append',
+  IGNORE: 'ignore',
+  PREPEND: 'prepend',
+  REFETCH: 'refetch', // legacy only
+  REMOVE: 'remove', // legacy only
+};
+export type RangeOperation = $Values<typeof RangeOperations>;
+
+type RangeBehaviorsFunction = (connectionArgs: {
+  [name: string]: $FlowFixMe,
+}) => RangeOperation;
+type RangeBehaviorsObject = {
+  [key: string]: RangeOperation,
+};
+export type RangeBehaviors = RangeBehaviorsFunction | RangeBehaviorsObject;
+
+type RangeAddConfig = {
+  type: 'RANGE_ADD',
+  parentName?: string,
+  parentID?: string,
+  connectionInfo?: Array<{
+    key: string,
+    filters?: Variables,
+    rangeBehavior: string,
+  }>,
+  connectionName?: string,
+  edgeName: string,
+  rangeBehaviors?: RangeBehaviors,
+};
+
+type RangeDeleteConfig = {
+  type: 'RANGE_DELETE',
+  parentName?: string,
+  parentID?: string,
+  connectionKeys?: Array<{
+    key: string,
+    filters?: Variables,
+  }>,
+  connectionName?: string,
+  deletedIDFieldName: string | Array<string>,
+  pathToConnection: Array<string>,
+};
+
+type NodeDeleteConfig = {
+  type: 'NODE_DELETE',
+  parentName?: string,
+  parentID?: string,
+  connectionName?: string,
+  deletedIDFieldName: string,
+};
+
+// Unused in Relay Modern
+type LegacyFieldsChangeConfig = {
+  type: 'FIELDS_CHANGE',
+  fieldIDs: {[fieldName: string]: DataID | Array<DataID>},
+};
+
+// Unused in Relay Modern
+type LegacyRequiredChildrenConfig = {
+  type: 'REQUIRED_CHILDREN',
+  children: Array<RelayConcreteNode>,
+};
+
+export type DeclarativeMutationConfig =
+  | RangeAddConfig
+  | RangeDeleteConfig
+  | NodeDeleteConfig
+  | LegacyFieldsChangeConfig
+  | LegacyRequiredChildrenConfig;
 
 function convert(
-  configs: Array<RelayMutationConfig>,
+  configs: Array<DeclarativeMutationConfig>,
   request: RequestNode,
   optimisticUpdater?: ?SelectorStoreUpdater,
   updater?: ?SelectorStoreUpdater,
@@ -78,12 +158,9 @@ function convert(
 }
 
 function nodeDelete(
-  config: RelayMutationConfig,
+  config: NodeDeleteConfig,
   request: RequestNode,
 ): ?SelectorStoreUpdater {
-  if (config.type !== 'NODE_DELETE') {
-    return null;
-  }
   const {deletedIDFieldName} = config;
   const rootField = getRootField(request);
   if (!rootField) {
@@ -105,12 +182,9 @@ function nodeDelete(
 }
 
 function rangeAdd(
-  config: RelayMutationConfig,
+  config: RangeAddConfig,
   request: RequestNode,
 ): ?SelectorStoreUpdater {
-  if (config.type !== 'RANGE_ADD') {
-    return null;
-  }
   const {parentID, connectionInfo, edgeName} = config;
   if (!parentID) {
     warning(
@@ -181,12 +255,9 @@ function rangeAdd(
 }
 
 function rangeDelete(
-  config: RelayMutationConfig,
+  config: RangeDeleteConfig,
   request: RequestNode,
 ): ?SelectorStoreUpdater {
-  if (config.type !== 'RANGE_DELETE') {
-    return;
-  }
   const {
     parentID,
     connectionKeys,
@@ -326,5 +397,8 @@ function getRootField(request: RequestNode): ?string {
 }
 
 module.exports = {
+  MutationTypes,
+  RangeOperations,
+
   convert,
 };

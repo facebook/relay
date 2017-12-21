@@ -15,6 +15,7 @@ const RelayConcreteNode = require('RelayConcreteNode');
 const RelayConnectionHandler = require('RelayConnectionHandler');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayCore = require('RelayCore');
+const RelayDeclarativeMutationConfig = require('RelayDeclarativeMutationConfig');
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('RelayMarkSweepStore');
 const RelayModernEnvironment = require('RelayModernEnvironment');
@@ -46,6 +47,11 @@ export type {
 } from 'RelayConcreteNode';
 export type {ConnectionMetadata} from 'RelayConnectionHandler';
 export type {EdgeRecord, PageInfo} from 'RelayConnectionInterface';
+export type {
+  DeclarativeMutationConfig,
+  MutationType,
+  RangeOperation,
+} from 'RelayDeclarativeMutationConfig';
 export type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 export type {
   GraphQLResponse,
@@ -121,6 +127,10 @@ module.exports = {
   getStorageKey: RelayStoreUtils.getStorageKey,
   getVariablesFromObject: RelayCore.getVariablesFromObject,
   graphql: RelayModernGraphQLTag.graphql,
+
+  // Declarative mutation API
+  MutationTypes: RelayDeclarativeMutationConfig.MutationTypes,
+  RangeOperations: RelayDeclarativeMutationConfig.RangeOperations,
 
   // Extensions
   ConnectionHandler: RelayConnectionHandler,

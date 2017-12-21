@@ -17,12 +17,12 @@ const invariant = require('invariant');
 const isRelayModernEnvironment = require('isRelayModernEnvironment');
 
 import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
+import type {DeclarativeMutationConfig} from 'RelayDeclarativeMutationConfig';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {Environment, SelectorStoreUpdater} from 'RelayStoreTypes';
-import type {RelayMutationConfig} from 'react-relay/classic/tools/RelayTypes';
 
 export type OptimisticMutationConfig = {|
-  configs?: ?Array<RelayMutationConfig>,
+  configs?: ?Array<DeclarativeMutationConfig>,
   mutation: GraphQLTaggedNode,
   variables: Variables,
   optimisticUpdater?: ?SelectorStoreUpdater,

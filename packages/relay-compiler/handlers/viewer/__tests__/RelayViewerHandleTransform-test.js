@@ -56,6 +56,7 @@ describe('RelayViewerHandleTransform', () => {
       }
       scalar Viewer
     `),
+      {assumeValid: true},
     );
     const text = `
       query TestQuery {
@@ -84,6 +85,7 @@ describe('RelayViewerHandleTransform', () => {
         id: ID!
       }
     `),
+      {assumeValid: true},
     );
     const text = `
       query TestQuery {

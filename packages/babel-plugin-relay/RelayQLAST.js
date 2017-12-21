@@ -71,6 +71,7 @@ type RelayQLSelection =
   RelayQLInlineFragment;
 
 type RelayQLNodeType = {
+  // TT24544397 Should be +loc?: Location, remove-flow-types doesn't understand
   loc?: Location,
 };
 
@@ -158,6 +159,7 @@ class RelayQLDefinition<T: RelayQLNodeType> extends RelayQLNode<T> {
 }
 
 class RelayQLFragment extends RelayQLDefinition<
+  // $FlowFixMe TT24544397
   FragmentDefinitionNode | InlineFragmentNode,
 > {
   parentType: ?RelayQLType;
@@ -217,18 +219,21 @@ class RelayQLFragment extends RelayQLDefinition<
   }
 }
 
+// $FlowFixMe TT24544397
 class RelayQLMutation extends RelayQLDefinition<OperationDefinitionNode> {
   getType(): RelayQLType {
     return new RelayQLType(this.context, this.context.schema.getMutationType());
   }
 }
 
+// $FlowFixMe TT24544397
 class RelayQLQuery extends RelayQLDefinition<OperationDefinitionNode> {
   getType(): RelayQLType {
     return new RelayQLType(this.context, this.context.schema.getQueryType());
   }
 }
 
+// $FlowFixMe TT24544397
 class RelayQLSubscription extends RelayQLDefinition<OperationDefinitionNode> {
   getType(): RelayQLType {
     return new RelayQLType(
@@ -238,6 +243,7 @@ class RelayQLSubscription extends RelayQLDefinition<OperationDefinitionNode> {
   }
 }
 
+// $FlowFixMe TT24544397
 class RelayQLField extends RelayQLNode<FieldNode> {
   fieldDef: RelayQLFieldDefinition;
 
@@ -316,6 +322,7 @@ class RelayQLField extends RelayQLNode<FieldNode> {
   }
 }
 
+// $FlowFixMe TT24544397
 class RelayQLFragmentSpread extends RelayQLNode<FragmentSpreadNode> {
   getName(): string {
     return this.ast.name.value;
@@ -329,6 +336,7 @@ class RelayQLFragmentSpread extends RelayQLNode<FragmentSpreadNode> {
   }
 }
 
+// $FlowFixMe TT24544397
 class RelayQLInlineFragment extends RelayQLNode<InlineFragmentNode> {
   parentType: RelayQLType;
 

@@ -27,13 +27,13 @@ const {
   parse,
   Source,
   validate,
-  ArgumentsOfCorrectTypeRule,
-  DefaultValuesOfCorrectTypeRule,
   FieldsOnCorrectTypeRule,
   FragmentsOnCompositeTypesRule,
   KnownArgumentNamesRule,
   KnownTypeNamesRule,
   PossibleFragmentSpreadsRule,
+  ValuesOfCorrectTypeRule,
+  VariablesDefaultValueAllowedRule,
   VariablesInAllowedPositionRule,
   ProvidedNonNullArgumentsRule,
 } = require('graphql');
@@ -253,13 +253,13 @@ class RelayQLTransformer {
       validationErrors = validator().validate(this.schema, document);
     } else {
       const rules = [
-        ArgumentsOfCorrectTypeRule,
-        DefaultValuesOfCorrectTypeRule,
         FieldsOnCorrectTypeRule,
         FragmentsOnCompositeTypesRule,
         KnownArgumentNamesRule,
         KnownTypeNamesRule,
         PossibleFragmentSpreadsRule,
+        ValuesOfCorrectTypeRule,
+        VariablesDefaultValueAllowedRule,
         VariablesInAllowedPositionRule,
       ];
       if (!isMutation) {

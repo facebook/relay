@@ -73,7 +73,7 @@ function getSchema(
   } else if (introspection.data && introspection.data.__schema) {
     return buildClientSchema((introspection.data: any));
   } else if (introspection.kind && introspection.kind === 'Document') {
-    return buildASTSchema(introspection);
+    return buildASTSchema(introspection, {assumeValid: true});
   }
 
   throw new Error(

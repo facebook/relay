@@ -17,7 +17,7 @@ const nullthrows = require('nullthrows');
 const {
   doTypesOverlap,
   getNamedType,
-  isScalarType,
+  isInputType,
   GraphQLInterfaceType,
   GraphQLList,
   GraphQLScalarType,
@@ -390,7 +390,7 @@ function createDeferredOperation(
   );
   const idArg = nodeField.args.find(arg => arg.name === 'id');
   invariant(
-    idArg && isScalarType(idArg.type),
+    idArg && isInputType(idArg.type),
     'RelayDeferrableFragmentTransform: "node" field must define the argument "id"',
   );
   const idType = idArg.type;

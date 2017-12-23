@@ -139,7 +139,7 @@ Our app is rendering a `QueryRenderer` in the above code, like any other React C
 - We're passing the `environment` we defined earlier.
 - We're using using the [`graphql`](./graphql-in-relay.html) function to define our GraphQL query. `graphql` is a template tag that is never executed at runtime, but rather used by the [Relay Compiler](./graphql-in-relay.html#relay-compiler) to generate the runtime artifacts that Relay requires to operate. We don't need to worry about this right now; for more details check out our [GraphQL in Relay](./graphql-in-relay.html) docs.
 - We're passing an empty set of `variables`. We'll look into how to use variables in the next section.
-- We're passing a `render` function; as you can tell from the code, Relay gives us some information about wether an error occurred, or if we're still fetching the query. If everything succeeds, the data we requested will be available inside `props`, with the same shape as the one specified in the query.
+- We're passing a `render` function; as you can tell from the code, Relay gives us some information about whether an error occurred, or if we're still fetching the query. If everything succeeds, the data we requested will be available inside `props`, with the same shape as the one specified in the query.
 
 In order to run this app, we need to first compile our query using the Relay Compiler. Assuming the setup from [Installation and Setup](./installation-and-setup), we can just run `yarn relay`.
 

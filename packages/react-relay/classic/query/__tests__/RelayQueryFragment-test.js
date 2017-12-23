@@ -12,7 +12,7 @@
 
 require('configureForRelayOSS');
 
-const RelayClassic = require('RelayClassic');
+const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
 const RelayQuery = require('../RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
@@ -26,12 +26,12 @@ describe('RelayQueryFragment', () => {
 
     expect.extend(RelayTestUtils.matchers);
 
-    const subfrag = RelayClassic.QL`
+    const subfrag = RelayClassic_DEPRECATED.QL`
       fragment on StreetAddress {
         city
       }
     `;
-    const frag = RelayClassic.QL`
+    const frag = RelayClassic_DEPRECATED.QL`
       fragment on StreetAddress {
         country
         ${subfrag}
@@ -42,7 +42,7 @@ describe('RelayQueryFragment', () => {
 
   it('does not equal non-fragments', () => {
     const query = getNode(
-      RelayClassic.QL`
+      RelayClassic_DEPRECATED.QL`
       query {
         me {
           firstName
@@ -57,7 +57,7 @@ describe('RelayQueryFragment', () => {
 
   it('does not equal different fragment', () => {
     const fragment2 = getNode(
-      RelayClassic.QL`
+      RelayClassic_DEPRECATED.QL`
       fragment on StreetAddress {
         country
       }
@@ -74,13 +74,13 @@ describe('RelayQueryFragment', () => {
   it('does not equal equivalent fragments with a different structure', () => {
     expect(fragment.equals(fragment)).toBe(true);
     // invert the fields between outer/inner fragments
-    const subfrag = RelayClassic.QL`
+    const subfrag = RelayClassic_DEPRECATED.QL`
       fragment on StreetAddress {
         country
       }
     `;
     const fragment2 = getNode(
-      RelayClassic.QL`
+      RelayClassic_DEPRECATED.QL`
       fragment on StreetAddress {
         city
         ${subfrag}
@@ -93,13 +93,13 @@ describe('RelayQueryFragment', () => {
 
   it('equals fragments with the same structure', () => {
     expect(fragment.equals(fragment)).toBe(true);
-    const subfrag = RelayClassic.QL`
+    const subfrag = RelayClassic_DEPRECATED.QL`
       fragment on StreetAddress {
         city
       }
     `;
     const fragment2 = getNode(
-      RelayClassic.QL`
+      RelayClassic_DEPRECATED.QL`
       fragment on StreetAddress {
         country
         ${subfrag}
@@ -112,14 +112,18 @@ describe('RelayQueryFragment', () => {
 
   it('equals fragments with different names', () => {
     // NOTE: Two fragments in the same scope will have different names.
-    const fragment1 = getNode(RelayClassic.QL`fragment on Node { id }`);
-    const fragment2 = getNode(RelayClassic.QL`fragment on Node { id }`);
+    const fragment1 = getNode(
+      RelayClassic_DEPRECATED.QL`fragment on Node { id }`,
+    );
+    const fragment2 = getNode(
+      RelayClassic_DEPRECATED.QL`fragment on Node { id }`,
+    );
     expect(fragment1.equals(fragment2)).toBe(true);
     expect(fragment2.equals(fragment1)).toBe(true);
   });
 
   it('returns metadata', () => {
-    const node = RelayClassic.QL`
+    const node = RelayClassic_DEPRECATED.QL`
       fragment on StreetAddress {
         country
       }
@@ -144,7 +148,7 @@ describe('RelayQueryFragment', () => {
 
   it('returns the source composite hash for cloned fragments', () => {
     const query = getNode(
-      RelayClassic.QL`
+      RelayClassic_DEPRECATED.QL`
       fragment on StreetAddress {
         country
         city
@@ -162,7 +166,7 @@ describe('RelayQueryFragment', () => {
 
   it('clones with updated children', () => {
     const query = getNode(
-      RelayClassic.QL`
+      RelayClassic_DEPRECATED.QL`
       fragment on StreetAddress {
         country
         city
@@ -184,7 +188,7 @@ describe('RelayQueryFragment', () => {
   });
 
   it('creates nodes', () => {
-    const fragmentRQL = RelayClassic.QL`
+    const fragmentRQL = RelayClassic_DEPRECATED.QL`
       fragment on StreetAddress {
         city
       }
@@ -199,7 +203,7 @@ describe('RelayQueryFragment', () => {
 
   it('returns directives', () => {
     fragment = getNode(
-      RelayClassic.QL`
+      RelayClassic_DEPRECATED.QL`
       fragment on Story @include(if: $cond) {
         feedback
       }
@@ -222,7 +226,7 @@ describe('RelayQueryFragment', () => {
       // fragment without children
       expect(
         getNode(
-          RelayClassic.QL`fragment on Viewer { ${null} }`,
+          RelayClassic_DEPRECATED.QL`fragment on Viewer { ${null} }`,
         ).canHaveSubselections(),
       ).toBe(true);
     });
@@ -231,7 +235,7 @@ describe('RelayQueryFragment', () => {
   describe('variables argument of @relay directive', () => {
     it('maps listed variables', () => {
       const query = getNode(
-        RelayClassic.QL`
+        RelayClassic_DEPRECATED.QL`
         fragment on User {
           ... on User @relay(variables: ["inner"]) {
             profilePicture(size: $inner)
@@ -247,7 +251,7 @@ describe('RelayQueryFragment', () => {
 
     it('filters non-listed variables', () => {
       const query = getNode(
-        RelayClassic.QL`
+        RelayClassic_DEPRECATED.QL`
         fragment on User {
           ... on User @relay(variables: []) {
             profilePicture(size: $inner)

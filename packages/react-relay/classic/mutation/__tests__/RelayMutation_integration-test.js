@@ -14,7 +14,7 @@ require('configureForRelayOSS');
 
 jest.useFakeTimers().mock('relayUnstableBatchedUpdates');
 
-const RelayClassic = require('RelayClassic');
+const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
 const RelayEnvironment = require('../../store/RelayEnvironment');
 const RelayMutation = require('../RelayMutation');
 
@@ -32,8 +32,8 @@ describe('RelayMutation', () => {
     storeData = environment.getStoreData();
     feedbackID = '123';
 
-    query = RelayClassic.createQuery(
-      RelayClassic.QL`
+    query = RelayClassic_DEPRECATED.createQuery(
+      RelayClassic_DEPRECATED.QL`
         query CreateFeedbackQuery($id: ID!) {
           node(id: $id) {
             ... on Feedback {
@@ -57,7 +57,7 @@ describe('RelayMutation', () => {
         __typename: 'Feedback',
         doesViewerLike: false,
         body: {
-          text: 'Give RelayClassic',
+          text: 'Give RelayClassic_DEPRECATED',
         },
       },
     });
@@ -66,7 +66,7 @@ describe('RelayMutation', () => {
 
   class FeedbackLikeMutation extends RelayMutation {
     getMutation() {
-      return RelayClassic.QL`mutation { feedbackLike }`;
+      return RelayClassic_DEPRECATED.QL`mutation { feedbackLike }`;
     }
     getVariables() {
       return {
@@ -74,7 +74,7 @@ describe('RelayMutation', () => {
       };
     }
     getFatQuery() {
-      return RelayClassic.QL`
+      return RelayClassic_DEPRECATED.QL`
         fragment on FeedbackLikeResponsePayload @relay(pattern: true) {
           clientMutationId
           feedback {
@@ -117,7 +117,7 @@ describe('RelayMutation', () => {
       doesViewerLike: false,
       body: {
         __dataID__: bodyID,
-        text: 'Give RelayClassic',
+        text: 'Give RelayClassic_DEPRECATED',
       },
     });
   });
@@ -139,7 +139,7 @@ describe('RelayMutation', () => {
       doesViewerLike: true,
       body: {
         __dataID__: bodyID,
-        text: 'Give RelayClassic',
+        text: 'Give RelayClassic_DEPRECATED',
       },
     });
   });
@@ -164,7 +164,7 @@ describe('RelayMutation', () => {
       doesViewerLike: true,
       body: {
         __dataID__: bodyID,
-        text: 'Give RelayClassic',
+        text: 'Give RelayClassic_DEPRECATED',
       },
     });
 
@@ -177,7 +177,7 @@ describe('RelayMutation', () => {
       doesViewerLike: false,
       body: {
         __dataID__: bodyID,
-        text: 'Give RelayClassic',
+        text: 'Give RelayClassic_DEPRECATED',
       },
     });
   });
@@ -192,7 +192,7 @@ describe('RelayMutation', () => {
 
     const mutation2 = new FeedbackLikeMutation({
       feedbackID,
-      text: 'Gave RelayClassic!',
+      text: 'Gave RelayClassic_DEPRECATED!',
     });
     environment.applyUpdate(mutation2);
 
@@ -211,7 +211,7 @@ describe('RelayMutation', () => {
         __dataID__: bodyID,
         __mutationStatus__: '1:UNCOMMITTED',
         __status__: 1,
-        text: 'Gave RelayClassic!',
+        text: 'Gave RelayClassic_DEPRECATED!',
       },
     });
 
@@ -229,7 +229,7 @@ describe('RelayMutation', () => {
         __dataID__: bodyID,
         __mutationStatus__: '1:UNCOMMITTED',
         __status__: 1,
-        text: 'Gave RelayClassic!',
+        text: 'Gave RelayClassic_DEPRECATED!',
       },
     });
   });

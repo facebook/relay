@@ -16,7 +16,7 @@ jest.mock('warning');
 
 const QueryBuilder = require('../QueryBuilder');
 const React = require('React');
-const RelayClassic = require('RelayClassic');
+const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
 const RelayQuery = require('../RelayQuery');
 const RelayQueryCaching = require('../../tools/RelayQueryCaching');
 const RelayTestUtils = require('RelayTestUtils');
@@ -35,12 +35,12 @@ describe('buildRQL', () => {
         return <div />;
       }
     };
-    MockContainer = RelayClassic.createContainer(MockComponent, {
+    MockContainer = RelayClassic_DEPRECATED.createContainer(MockComponent, {
       initialVariables: {
         size: null,
       },
       fragments: {
-        foo: () => RelayClassic.QL`fragment on User {
+        foo: () => RelayClassic_DEPRECATED.QL`fragment on User {
           profilePicture(size: $size) {
             uri
           }
@@ -58,7 +58,7 @@ describe('buildRQL', () => {
 
   describe('Fragment()', () => {
     it('returns undefined if the node is not a fragment', () => {
-      const builder = () => RelayClassic.QL`
+      const builder = () => RelayClassic_DEPRECATED.QL`
         query {
           node(id:"123") {
             id
@@ -70,7 +70,7 @@ describe('buildRQL', () => {
 
     it('throws if fragment substitutions are invalid', () => {
       const invalid = {};
-      const builder = () => RelayClassic.QL`
+      const builder = () => RelayClassic_DEPRECATED.QL`
         fragment on Node {
           ${invalid}
         }
@@ -82,7 +82,7 @@ describe('buildRQL', () => {
     });
 
     it('creates fragments with variables', () => {
-      const builder = () => RelayClassic.QL`
+      const builder = () => RelayClassic_DEPRECATED.QL`
         fragment on Node {
           id
           profilePicture(size:$sizeVariable) {
@@ -109,7 +109,7 @@ describe('buildRQL', () => {
     });
 
     it('returns === fragments', () => {
-      const builder = () => RelayClassic.QL`
+      const builder = () => RelayClassic_DEPRECATED.QL`
         fragment on Node {
           id
           profilePicture(size:$sizeVariable) {
@@ -125,7 +125,7 @@ describe('buildRQL', () => {
 
   describe('Query()', () => {
     it('returns undefined if the node is not a query', () => {
-      const builder = () => RelayClassic.QL`
+      const builder = () => RelayClassic_DEPRECATED.QL`
         fragment on Node {
           id
         }
@@ -134,7 +134,7 @@ describe('buildRQL', () => {
     });
 
     it('creates queries with components and variables', () => {
-      const builder = Component => RelayClassic.QL`
+      const builder = Component => RelayClassic_DEPRECATED.QL`
         query {
           node(id:$id) {
             id
@@ -163,7 +163,7 @@ describe('buildRQL', () => {
     });
 
     it('returns === queries for the same component', () => {
-      const builder = Component => RelayClassic.QL`
+      const builder = Component => RelayClassic_DEPRECATED.QL`
         query {
           node(id:$id) {
             ${Component.getFragment('foo')}
@@ -176,13 +176,16 @@ describe('buildRQL', () => {
     });
 
     it('returns different queries for different components', () => {
-      const MockContainer2 = RelayClassic.createContainer(MockComponent, {
-        fragments: {
-          foo: () => RelayClassic.QL`fragment on Node { name }`,
+      const MockContainer2 = RelayClassic_DEPRECATED.createContainer(
+        MockComponent,
+        {
+          fragments: {
+            foo: () => RelayClassic_DEPRECATED.QL`fragment on Node { name }`,
+          },
         },
-      });
+      );
 
-      const builder = Component => RelayClassic.QL`
+      const builder = Component => RelayClassic_DEPRECATED.QL`
         query {
           node(id:$id) {
             ${Component.getFragment('foo')}
@@ -196,7 +199,7 @@ describe('buildRQL', () => {
 
     it('returns different queries for the same component if cache is disabled', () => {
       RelayQueryCaching.disable();
-      const builder = Component => RelayClassic.QL`
+      const builder = Component => RelayClassic_DEPRECATED.QL`
         query {
           node(id:$id) {
             ${Component.getFragment('foo')}
@@ -209,7 +212,7 @@ describe('buildRQL', () => {
     });
 
     it('filters the variables passed to components', () => {
-      const builder = (Component, variables) => RelayClassic.QL`
+      const builder = (Component, variables) => RelayClassic_DEPRECATED.QL`
         query {
           node(id: $id) {
             ${Component.getFragment('foo', variables)}
@@ -229,7 +232,7 @@ describe('buildRQL', () => {
     });
 
     it('implicitly adds component fragments if not provided', () => {
-      const builder = () => RelayClassic.QL`
+      const builder = () => RelayClassic_DEPRECATED.QL`
         query {
           node(id:$id)
         }
@@ -255,20 +258,27 @@ describe('buildRQL', () => {
     });
 
     it('produces equal results for implicit and explicit definitions', () => {
-      const MockContainer2 = RelayClassic.createContainer(MockComponent, {
-        initialVariables: {
-          if: null,
+      const MockContainer2 = RelayClassic_DEPRECATED.createContainer(
+        MockComponent,
+        {
+          initialVariables: {
+            if: null,
+          },
+          fragments: {
+            foo: () =>
+              RelayClassic_DEPRECATED.QL`fragment on Node { firstName(if: $if) }`,
+          },
         },
-        fragments: {
-          foo: () => RelayClassic.QL`fragment on Node { firstName(if: $if) }`,
-        },
-      });
-      const implicitBuilder = () => RelayClassic.QL`
+      );
+      const implicitBuilder = () => RelayClassic_DEPRECATED.QL`
         query {
           viewer
         }
       `;
-      const explicitBuilder = (Component, variables) => RelayClassic.QL`
+      const explicitBuilder = (
+        Component,
+        variables,
+      ) => RelayClassic_DEPRECATED.QL`
         query {
           viewer {
             ${Component.getFragment('foo', variables)}
@@ -295,7 +305,7 @@ describe('buildRQL', () => {
     });
 
     it('throws if non-scalar fields are given', () => {
-      const builder = () => RelayClassic.QL`
+      const builder = () => RelayClassic_DEPRECATED.QL`
         query {
           viewer {
             actor

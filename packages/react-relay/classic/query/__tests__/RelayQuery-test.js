@@ -15,7 +15,7 @@ jest.mock('warning');
 require('configureForRelayOSS');
 
 const QueryBuilder = require('../QueryBuilder');
-const RelayClassic = require('RelayClassic');
+const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
 const RelayFragmentReference = require('../RelayFragmentReference');
 const RelayMetaRoute = require('../../route/RelayMetaRoute');
 const RelayQuery = require('../RelayQuery');
@@ -238,7 +238,7 @@ describe('RelayQuery', () => {
 
     describe('getConcreteFragmentID()', () => {
       it('returns the same id for two different RelayQuery nodes', () => {
-        const concreteNode = RelayClassic.QL`fragment on Node { id }`;
+        const concreteNode = RelayClassic_DEPRECATED.QL`fragment on Node { id }`;
         const fragmentA = getNode(concreteNode);
         const fragmentB = getNode(concreteNode);
         expect(fragmentA.getConcreteFragmentID()).toBe(
@@ -247,8 +247,12 @@ describe('RelayQuery', () => {
       });
 
       it('returns a different id for two different concrete nodes', () => {
-        const fragmentA = getNode(RelayClassic.QL`fragment on Node { id }`);
-        const fragmentB = getNode(RelayClassic.QL`fragment on Node { id }`);
+        const fragmentA = getNode(
+          RelayClassic_DEPRECATED.QL`fragment on Node { id }`,
+        );
+        const fragmentB = getNode(
+          RelayClassic_DEPRECATED.QL`fragment on Node { id }`,
+        );
         expect(fragmentA.getConcreteFragmentID()).not.toBe(
           fragmentB.getConcreteFragmentID(),
         );
@@ -257,7 +261,7 @@ describe('RelayQuery', () => {
 
     describe('getCompositeHash()', () => {
       it('returns one hash for nodes with the same variables / route', () => {
-        const node = RelayClassic.QL`fragment on Node { id }`;
+        const node = RelayClassic_DEPRECATED.QL`fragment on Node { id }`;
         const route = RelayMetaRoute.get('route');
         const variables = {foo: 123};
         expect(
@@ -268,7 +272,7 @@ describe('RelayQuery', () => {
       });
 
       it('returns different hashes for nodes with different variables', () => {
-        const node = RelayClassic.QL`fragment on Node { id }`;
+        const node = RelayClassic_DEPRECATED.QL`fragment on Node { id }`;
         const route = RelayMetaRoute.get('route');
         const variablesA = {foo: 123};
         const variablesB = {foo: 456};
@@ -288,7 +292,7 @@ describe('RelayQuery', () => {
       });
 
       it('returns different hashes for nodes with different routes', () => {
-        const node = RelayClassic.QL`fragment on Node { id }`;
+        const node = RelayClassic_DEPRECATED.QL`fragment on Node { id }`;
         const routeA = RelayMetaRoute.get('routeA');
         const routeB = RelayMetaRoute.get('routeB');
         const variables = {foo: 123};
@@ -309,7 +313,7 @@ describe('RelayQuery', () => {
 
       it('returns one hash for nodes cloned with the same children', () => {
         const fragment = getNode(
-          RelayClassic.QL`fragment on Node { id, __typename }`,
+          RelayClassic_DEPRECATED.QL`fragment on Node { id, __typename }`,
         );
         const fragmentClone = fragment.clone(fragment.getChildren());
         expect(fragmentClone.getCompositeHash()).toBe(
@@ -319,7 +323,7 @@ describe('RelayQuery', () => {
 
       it('returns different hashes for nodes cloned with new children', () => {
         const fragment = getNode(
-          RelayClassic.QL`fragment on Node { id, __typename }`,
+          RelayClassic_DEPRECATED.QL`fragment on Node { id, __typename }`,
         );
         const fragmentClone = fragment.clone(fragment.getChildren().slice(1));
         expect(fragmentClone.getCompositeHash()).not.toBe(
@@ -343,7 +347,9 @@ describe('RelayQuery', () => {
 
       it('builds fields with children', () => {
         const child = buildIdField();
-        const fragment = getNode(RelayClassic.QL`fragment on Node{id}`);
+        const fragment = getNode(
+          RelayClassic_DEPRECATED.QL`fragment on Node{id}`,
+        );
         const field = RelayQuery.Field.build({
           fieldName: 'node',
           children: [child, fragment],
@@ -469,13 +475,13 @@ describe('RelayQuery', () => {
 
   describe('isEquivalent()', () => {
     it('returns false for different concrete nodes', () => {
-      const node1 = getNode(RelayClassic.QL`fragment on Node{id}`);
-      const ndoe2 = getNode(RelayClassic.QL`fragment on Node{id}`);
+      const node1 = getNode(RelayClassic_DEPRECATED.QL`fragment on Node{id}`);
+      const ndoe2 = getNode(RelayClassic_DEPRECATED.QL`fragment on Node{id}`);
       expect(node1.isEquivalent(ndoe2)).toBe(false);
     });
 
     it('return false for different variables', () => {
-      const fragment = RelayClassic.QL`fragment on Node{id}`;
+      const fragment = RelayClassic_DEPRECATED.QL`fragment on Node{id}`;
 
       const node1 = getNode(fragment, {a: true});
       const ndoe2 = getNode(fragment, {a: false});
@@ -483,7 +489,7 @@ describe('RelayQuery', () => {
     });
 
     it('returns false for different routes', () => {
-      const fragment = RelayClassic.QL`fragment on Node{id}`;
+      const fragment = RelayClassic_DEPRECATED.QL`fragment on Node{id}`;
       const variables = {a: false};
       const route1 = RelayMetaRoute.get('route1');
       const route2 = RelayMetaRoute.get('route2');
@@ -494,7 +500,7 @@ describe('RelayQuery', () => {
     });
 
     it('returns true for identical node, route, and variables', () => {
-      const fragment = RelayClassic.QL`fragment on Node{id}`;
+      const fragment = RelayClassic_DEPRECATED.QL`fragment on Node{id}`;
       const variables = {a: false};
       const route = RelayMetaRoute.get('route1');
 
@@ -506,7 +512,7 @@ describe('RelayQuery', () => {
 
   describe('getChildren()', () => {
     it('expands fragment references', () => {
-      const innerFragment = RelayClassic.QL`
+      const innerFragment = RelayClassic_DEPRECATED.QL`
         fragment on User {
           id
           profilePicture(size:$size) {
@@ -524,7 +530,7 @@ describe('RelayQuery', () => {
         },
       );
       const fragment = getNode(
-        RelayClassic.QL`
+        RelayClassic_DEPRECATED.QL`
         fragment on User {
           id
           ${reference}
@@ -575,7 +581,7 @@ describe('RelayQuery', () => {
         fragment: getClassicFragment(fragments.foo),
       };
       const fragment = getNode(
-        RelayClassic.QL`
+        RelayClassic_DEPRECATED.QL`
         fragment on User {
           id
           ${spread}
@@ -630,7 +636,7 @@ describe('RelayQuery', () => {
         fragment: getClassicFragment(fragments.foo),
       };
       const fragment = getNode(
-        RelayClassic.QL`
+        RelayClassic_DEPRECATED.QL`
         fragment on User {
           id
           ${spread}
@@ -658,7 +664,7 @@ describe('RelayQuery', () => {
     });
 
     it('expands route conditional fragments', () => {
-      const innerFragment1 = RelayClassic.QL`
+      const innerFragment1 = RelayClassic_DEPRECATED.QL`
         fragment on User {
           id,
           profilePicture(size:$size) {
@@ -666,7 +672,7 @@ describe('RelayQuery', () => {
           },
         }
       `;
-      const innerFragment2 = RelayClassic.QL`
+      const innerFragment2 = RelayClassic_DEPRECATED.QL`
         fragment on User {
           id,
           firstName
@@ -687,7 +693,7 @@ describe('RelayQuery', () => {
         {},
       );
       const fragment = getNode(
-        RelayClassic.QL`
+        RelayClassic_DEPRECATED.QL`
         fragment on User {
           id,
           ${route => reference1},

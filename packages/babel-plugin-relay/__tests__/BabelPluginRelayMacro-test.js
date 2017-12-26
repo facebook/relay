@@ -12,11 +12,16 @@
 
 require('configureForRelayOSS');
 
-const babel = require('babel-core');
+const pluginTester = require('babel-plugin-tester');
+const plugin = require('babel-plugin-macros');
 
-describe('BabelPluginRelayMacro', () => {
-  test('works', () => {
-    const basic = `
+pluginTester({
+  plugin,
+  snapshot: true,
+  title: 'BabelPluginRelayMacro',
+  babelOptions: {filename: __filename, parserOpts: {plugins: ['jsx']}},
+  tests: {
+    works: `
       'use strict';
 
       const {graphql} = require('../../react-relay/modern/ReactRelayGraphQL.macro');
@@ -32,14 +37,6 @@ describe('BabelPluginRelayMacro', () => {
           }
         }
       \`;
-    `;
-    const {code} = babel.transform(basic, {
-      plugins: ['babel-plugin-macros'],
-      filename: __filename,
-      compact: false,
-      parserOpts: {plugins: ['jsx']},
-      babelrc: false,
-    });
-    expect(code).toMatchSnapshot();
-  });
+    `,
+  },
 });

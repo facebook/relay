@@ -1,7 +1,25 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`BabelPluginRelayMacro works 1`] = `
+exports[`BabelPluginRelayMacro works: works 1`] = `
 "
+'use strict';
+
+const {graphql} = require('../../react-relay/modern/ReactRelayGraphQL.macro');
+const CompatProfilePic = require('CompatProfilePic');
+
+const CompatViewerQuery = graphql\`
+  query CompatViewerQuery($id: ID!, $scale: Float = 1.5) {
+    node(id: $id) {
+      ... on User {
+        id
+        ...CompatProfilePic_user
+      }
+    }
+  }
+\`;
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
 'use strict';
 
 const CompatProfilePic = require('CompatProfilePic');
@@ -14,5 +32,6 @@ const CompatViewerQuery = function () {
   }
 
   return require('./__generated__/CompatViewerQuery.graphql');
-};"
+};
+"
 `;

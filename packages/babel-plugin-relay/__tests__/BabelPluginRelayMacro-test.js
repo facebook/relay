@@ -34,7 +34,7 @@ describe('BabelPluginRelayMacro', () => {
       \`;
     `;
     const {code} = babel.transform(basic, {
-      plugins: ['babel-macros'],
+      plugins: ['babel-plugin-macros'],
       filename: __filename,
       compact: false,
       parserOpts: {plugins: ['jsx']},

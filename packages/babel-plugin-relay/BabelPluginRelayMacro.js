@@ -11,7 +11,7 @@
 
 'use strict';
 
-const {createMacro} = require('babel-macros');
+const {createMacro} = require('babel-plugin-macros');
 const compileGraphQLTag = require('./compileGraphQLTag');
 const getValidGraphQLTag = require('./getValidGraphQLTag');
 

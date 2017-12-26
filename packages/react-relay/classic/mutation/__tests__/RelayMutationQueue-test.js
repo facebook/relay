@@ -10,16 +10,16 @@
 
 'use strict';
 
-jest.enableAutomock();
+jest
+  .mock('../RelayMutation')
+  .mock('../RelayMutationQuery')
+  .mock('../RelayMutationDebugPrinter')
+  .mock('../../network/RelayNetworkLayer')
+  .useFakeTimers();
 
 require('configureForRelayOSS');
 
-jest.useFakeTimers();
-jest
-  .unmock('RelayMutationTransaction')
-  .unmock('RelayMutationTransactionStatus');
-
-const RelayClassic = require('RelayClassic');
+const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
 const RelayMutation = require('../RelayMutation');
 const RelayMutationQuery = require('../RelayMutationQuery');
 const RelayMutationTransactionStatus = require('../RelayMutationTransactionStatus');
@@ -58,8 +58,8 @@ describe('RelayMutationQueue', () => {
     storeData = RelayStore.getStoreData();
     mutationQueue = storeData.getMutationQueue();
     networkLayer = storeData.getNetworkLayer();
-    mutationNode = RelayClassic.QL`mutation{commentCreate(input:$input)}`;
-    fatQuery = RelayClassic.QL`fragment on Comment @relay(pattern: true) {
+    mutationNode = RelayClassic_DEPRECATED.QL`mutation{commentCreate(input:$input)}`;
+    fatQuery = RelayClassic_DEPRECATED.QL`fragment on Comment @relay(pattern: true) {
       ... on Comment {
         likers
         doesViewerLike

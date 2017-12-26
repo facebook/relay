@@ -42,7 +42,7 @@ describe('RelayStore', () => {
           id: '4',
           __typename: 'User',
           name: 'Zuck',
-          'profilePicture{"size":32}': {[REF_KEY]: 'client:1'},
+          'profilePicture(size:32)': {[REF_KEY]: 'client:1'},
         },
         'client:1': {
           __id: 'client:1',
@@ -109,7 +109,7 @@ describe('RelayStore', () => {
         [ROOT_ID]: {
           __id: ROOT_ID,
           __typename: ROOT_TYPE,
-          'node{"id":"842472"}': {[REF_KEY]: '842472'},
+          'node(id:"842472")': {[REF_KEY]: '842472'},
         },
       });
       store.publish(nextSource);
@@ -143,7 +143,7 @@ describe('RelayStore', () => {
           id: '4',
           __typename: 'User',
           name: 'Zuck',
-          'profilePicture{"size":32}': {[REF_KEY]: 'client:1'},
+          'profilePicture(size:32)': {[REF_KEY]: 'client:1'},
         },
         'client:1': {
           __id: 'client:1',
@@ -206,7 +206,7 @@ describe('RelayStore', () => {
         4: {
           __id: '4',
           __typename: 'User',
-          'profilePicture{"size":32}': {[REF_KEY]: 'client:2'},
+          'profilePicture(size:32)': {[REF_KEY]: 'client:2'},
         },
         'client:2': {
           __id: 'client:2',
@@ -252,7 +252,7 @@ describe('RelayStore', () => {
           id: '4',
           __typename: 'User',
           name: 'Zuck',
-          'profilePicture{"size":32}': {[REF_KEY]: 'client:1'},
+          'profilePicture(size:32)': {[REF_KEY]: 'client:1'},
           emailAddresses: ['a@b.com'],
         },
         'client:1': {
@@ -566,7 +566,7 @@ describe('RelayStore', () => {
           id: '4',
           __typename: 'User',
           name: 'Zuck',
-          'profilePicture{"size":32}': {[REF_KEY]: 'client:1'},
+          'profilePicture(size:32)': {[REF_KEY]: 'client:1'},
         },
         'client:1': {
           __id: 'client:1',

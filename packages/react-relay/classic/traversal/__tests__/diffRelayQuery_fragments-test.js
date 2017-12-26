@@ -10,13 +10,11 @@
 
 'use strict';
 
-jest.enableAutomock();
+jest.mock('../../store/RelayQueryTracker');
 
 require('configureForRelayOSS');
 
-jest.unmock('GraphQLRange').unmock('GraphQLSegment');
-
-const RelayClassic = require('RelayClassic');
+const Relay = require('../../RelayPublic');
 const RelayFragmentReference = require('../../query/RelayFragmentReference');
 const RelayQueryTracker = require('../../store/RelayQueryTracker');
 const RelayTestUtils = require('RelayTestUtils');
@@ -53,7 +51,7 @@ describe('diffRelayQuery - fragments', () => {
     const tracker = new RelayQueryTracker();
 
     const query = getNode(
-      RelayClassic.QL`
+      Relay.QL`
       query {
         node(id:"123") {
           ... on User {
@@ -82,13 +80,13 @@ describe('diffRelayQuery - fragments', () => {
     const writer = new RelayRecordWriter(records, {}, false);
     const tracker = new RelayQueryTracker();
 
-    const writeFragment = RelayClassic.QL`
+    const writeFragment = Relay.QL`
       fragment on User {
         firstName
       }
     `;
     const writeQuery = getNode(
-      RelayClassic.QL`
+      Relay.QL`
       query {
         node(id:"123") {
           ${writeFragment}
@@ -106,7 +104,7 @@ describe('diffRelayQuery - fragments', () => {
     writePayload(store, writer, writeQuery, payload, tracker);
 
     const readFragment = getNode(
-      RelayClassic.QL`
+      Relay.QL`
       fragment on User {
         firstName
         lastName
@@ -121,7 +119,7 @@ describe('diffRelayQuery - fragments', () => {
     fragmentReference.defer();
 
     const query = getNode(
-      RelayClassic.QL`
+      Relay.QL`
       query {
         node(id:"123") {
           ${fragmentReference}
@@ -140,7 +138,7 @@ describe('diffRelayQuery - fragments', () => {
 
     expect(diffQueries[0]).toEqualQueryRoot(
       getNode(
-        RelayClassic.QL`
+        Relay.QL`
       query {
         node(id:"123") {
           ... on User {
@@ -161,7 +159,7 @@ describe('diffRelayQuery - fragments', () => {
 
     // Create the first query with a selection on a linked field.
     const firstQuery = getNode(
-      RelayClassic.QL`
+      Relay.QL`
       query {
         node(id:"123") {
           ... on User {
@@ -191,7 +189,7 @@ describe('diffRelayQuery - fragments', () => {
     // Create a second query that requests a different selection on the null
     // linked field.
     const secondQuery = getNode(
-      RelayClassic.QL`
+      Relay.QL`
       query {
         node(id:"123") {
           ... on User {
@@ -222,7 +220,7 @@ describe('diffRelayQuery - fragments', () => {
     const tracker = new RelayQueryTracker();
 
     const query = getNode(
-      RelayClassic.QL`
+      Relay.QL`
       query {
         node(id:"123") {
           ... on User {
@@ -255,7 +253,7 @@ describe('diffRelayQuery - fragments', () => {
     const tracker = new RelayQueryTracker();
 
     const writeQuery = getNode(
-      RelayClassic.QL`
+      Relay.QL`
       query {
         node(id:"123") {
           ... on User {
@@ -278,7 +276,7 @@ describe('diffRelayQuery - fragments', () => {
     writePayload(store, writer, writeQuery, payload, tracker);
 
     const query = getNode(
-      RelayClassic.QL`
+      Relay.QL`
       query {
         node(id:"123") {
           ... on User {
@@ -296,7 +294,7 @@ describe('diffRelayQuery - fragments', () => {
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toEqualQueryRoot(
       getNode(
-        RelayClassic.QL`
+        Relay.QL`
       query {
         node(id:"123") {
           ... on User {
@@ -339,7 +337,7 @@ describe('diffRelayQuery - fragments', () => {
       },
     };
     const query = getNode(
-      RelayClassic.QL`
+      Relay.QL`
       query {
         viewer {
           newsFeed(first: 1) {
@@ -397,7 +395,7 @@ describe('diffRelayQuery - fragments', () => {
       },
     };
     const writeQuery = getNode(
-      RelayClassic.QL`
+      Relay.QL`
         query {
           viewer {
             newsFeed(first: 1) {
@@ -423,7 +421,7 @@ describe('diffRelayQuery - fragments', () => {
     writePayload(store, writer, writeQuery, payload, tracker);
 
     const query = getNode(
-      RelayClassic.QL`
+      Relay.QL`
         query {
           viewer {
             newsFeed(first: 1) {
@@ -451,7 +449,7 @@ describe('diffRelayQuery - fragments', () => {
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toEqualQueryRoot(
       getNode(
-        RelayClassic.QL`
+        Relay.QL`
         query {
           node(id:"s1") {
             ... on Story {
@@ -509,7 +507,7 @@ describe('diffRelayQuery - fragments', () => {
           {cursor: 'c2', node: {id: 's2', __typename: 'Story'}},
         ],
         getNode(
-          RelayClassic.QL`
+          Relay.QL`
           query {
             viewer {
               newsFeed(first: 2) {
@@ -527,7 +525,7 @@ describe('diffRelayQuery - fragments', () => {
     });
 
     it('generates a valid diff query', () => {
-      const feedQuery = RelayClassic.QL`
+      const feedQuery = Relay.QL`
         query {
           viewer {
             newsFeed(after: $after, first: $count) {
@@ -576,7 +574,7 @@ describe('diffRelayQuery - fragments', () => {
       );
       expect(diffQueries[1]).toEqualQueryRoot(
         getNode(
-          RelayClassic.QL`
+          Relay.QL`
         query {
           node(id: "s2") {
             ... on FeedUnit {
@@ -598,7 +596,7 @@ describe('diffRelayQuery - fragments', () => {
 
     it('skips tracked fragments', () => {
       const query = getNode(
-        RelayClassic.QL`
+        Relay.QL`
         query {
           node(id: "123") {
             ... on User {

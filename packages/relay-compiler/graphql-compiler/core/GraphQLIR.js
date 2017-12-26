@@ -30,15 +30,22 @@ export type Argument = {
 export type ArgumentDefinition =
   | LocalArgumentDefinition
   | RootArgumentDefinition;
+export type ArgumentDependency = {
+  argumentName: string,
+  fromName: string,
+  fromPath: string,
+  ifList?: 'first' | 'last' | 'all' | 'each',
+  ifNull?: 'error' | 'allow' | 'skip',
+  kind: 'ArgumentDependency',
+  maxRecurse?: number,
+};
 export type ArgumentValue = ListValue | Literal | ObjectValue | Variable;
 export type Batch = {
   kind: 'Batch',
   fragment: Fragment,
-  id: ?string,
   metadata: {[key: string]: mixed},
   name: string,
-  operation: Root,
-  text: ?string,
+  requests: Array<Request>,
 };
 export type Condition = {
   kind: 'Condition',
@@ -46,6 +53,10 @@ export type Condition = {
   metadata: ?{[key: string]: mixed},
   passingValue: boolean,
   selections: Array<Selection>,
+};
+export type DependentRequest = {
+  operationName: string,
+  argumentDependencies: Array<ArgumentDependency>,
 };
 export type Directive = {
   args: Array<Argument>,
@@ -84,6 +95,7 @@ export type IR =
   | LocalArgumentDefinition
   | ObjectFieldValue
   | ObjectValue
+  | Request
   | Root
   | RootArgumentDefinition
   | ScalarField
@@ -146,9 +158,18 @@ export type ObjectValue = {
   fields: Array<ObjectFieldValue>,
   metadata: ?{[key: string]: mixed},
 };
+export type Request = {
+  kind: 'Request',
+  argumentDependencies: Array<ArgumentDependency>,
+  id: ?string,
+  name: string,
+  root: Root,
+  text: ?string,
+};
 export type Root = {
   argumentDefinitions: Array<LocalArgumentDefinition>,
   directives: Array<Directive>,
+  dependentRequests: Array<DependentRequest>,
   kind: 'Root',
   metadata: ?{[key: string]: mixed},
   name: string,
@@ -180,4 +201,5 @@ export type Variable = {
   kind: 'Variable',
   metadata: ?{[key: string]: mixed},
   variableName: string,
+  type: ?GraphQLInputType,
 };

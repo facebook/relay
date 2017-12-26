@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayQuery
  * @flow
  * @format
  */
@@ -34,7 +33,6 @@ const {getFragmentSpreadArguments} = require('./RelayVariables');
 const {ConnectionInterface, RelayProfiler} = require('RelayRuntime');
 
 import type {Call, Directive} from '../tools/RelayInternalTypes';
-import type {Variables} from '../tools/RelayTypes';
 import type {
   ConcreteField,
   ConcreteFieldMetadata,
@@ -46,6 +44,7 @@ import type {
   ConcreteQuery,
   ConcreteQueryMetadata,
 } from './ConcreteQuery';
+import type {Variables} from 'RelayRuntime';
 
 type BatchCall = {
   refParamName: string,
@@ -1233,12 +1232,12 @@ class RelayQueryField extends RelayQueryNode {
   }
 
   /**
-  * An Array of Calls to be used with rangeBehavior config functions.
-  *
-  * Non-core arguments (like connection and identifying arguments) are dropped.
-  *   `field(first: 10, foo: "bar", baz: "bat")` => `'baz(bat).foo(bar)'`
-  *   `username(name: "steve")`                  => `''`
-  */
+   * An Array of Calls to be used with rangeBehavior config functions.
+   *
+   * Non-core arguments (like connection and identifying arguments) are dropped.
+   *   `field(first: 10, foo: "bar", baz: "bat")` => `'baz(bat).foo(bar)'`
+   *   `username(name: "steve")`                  => `''`
+   */
   getRangeBehaviorCalls(): Array<Call> {
     invariant(
       this.isConnection(),

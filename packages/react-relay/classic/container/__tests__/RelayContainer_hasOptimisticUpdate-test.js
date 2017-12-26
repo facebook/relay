@@ -10,15 +10,15 @@
 
 'use strict';
 
-jest.enableAutomock();
+jest
+  .mock('../../legacy/store/GraphQLStoreQueryResolver')
+  .mock('../../route/RelayRoute');
 
 require('configureForRelayOSS');
 
-jest.unmock('RelayContainer');
-
 const GraphQLStoreQueryResolver = require('../../legacy/store/GraphQLStoreQueryResolver');
 const React = require('React');
-const RelayClassic = require('RelayClassic');
+const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
 const RelayEnvironment = require('../../store/RelayEnvironment');
 const RelayTestUtils = require('RelayTestUtils');
 
@@ -35,8 +35,8 @@ describe('RelayContainer.hasOptimisticUpdate', () => {
         return <div />;
       }
     }
-    MockContainer = RelayClassic.createContainer(MockComponent, {
-      fragments: {foo: () => RelayClassic.QL`fragment on Node{id}`},
+    MockContainer = RelayClassic_DEPRECATED.createContainer(MockComponent, {
+      fragments: {foo: () => RelayClassic_DEPRECATED.QL`fragment on Node{id}`},
     });
     environment = new RelayEnvironment();
     RelayTestRenderer = RelayTestUtils.createRenderer();

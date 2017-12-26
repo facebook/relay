@@ -565,15 +565,16 @@ describe('RelayModernEnvironment', () => {
             name: 'Joe',
           },
         },
+        errors: undefined,
       };
       deferred.resolve(payload);
       jest.runAllTimers();
 
       expect(next.mock.calls.length).toBe(1);
       expect(next).toBeCalledWith({
-        errors: undefined,
-        fieldPayloads: [],
-        source: jasmine.any(Object),
+        response: payload,
+        variables,
+        operation: operation.node.operation,
       });
       expect(complete).toBeCalled();
       expect(error).not.toBeCalled();
@@ -621,11 +622,10 @@ describe('RelayModernEnvironment', () => {
       error = jest.fn();
       next = jest.fn();
       callbacks = {complete, error, next};
-      fetch = jest.fn(
-        (_query, _variables, _cacheConfig) =>
-          new RelayObservable(sink => {
-            subject = sink;
-          }),
+      fetch = jest.fn((_query, _variables, _cacheConfig) =>
+        RelayObservable.create(sink => {
+          subject = sink;
+        }),
       );
       environment = new RelayModernEnvironment({
         network: RelayNetwork.create(fetch),
@@ -716,15 +716,16 @@ describe('RelayModernEnvironment', () => {
             name: 'Joe',
           },
         },
+        errors: undefined,
       };
       subject.next(payload);
       jest.runAllTimers();
 
       expect(next.mock.calls.length).toBe(1);
       expect(next).toBeCalledWith({
-        errors: undefined,
-        fieldPayloads: [],
-        source: jasmine.any(Object),
+        response: payload,
+        variables,
+        operation: operation.node.operation,
       });
       expect(complete).not.toBeCalled();
       expect(error).not.toBeCalled();
@@ -734,6 +735,195 @@ describe('RelayModernEnvironment', () => {
           name: 'Joe',
         },
       });
+    });
+  });
+
+  describe('execute() with network that returns optimistic response', () => {
+    let callbacks;
+    let environment;
+    let fetch;
+    let complete;
+    let error;
+    let next;
+    let operation;
+    let query;
+    let variables;
+    let dataSource;
+
+    beforeEach(() => {
+      ({ActorQuery: query} = generateAndCompile(
+        `
+        query ActorQuery($fetchSize: Boolean!) {
+          me {
+            name
+            profilePicture(size: 42) @include(if: $fetchSize) {
+              uri
+            }
+          }
+        }
+      `,
+      ));
+      variables = {fetchSize: false};
+      operation = createOperationSelector(query, {
+        ...variables,
+        foo: 'bar', // should be filtered from network fetch
+      });
+
+      complete = jest.fn();
+      error = jest.fn();
+      next = jest.fn();
+      callbacks = {complete, error, next};
+      fetch = (_query, _variables, _cacheConfig) => {
+        return RelayObservable.create(sink => {
+          dataSource = sink;
+        });
+      };
+      environment = new RelayModernEnvironment({
+        network: RelayNetwork.create(fetch),
+        store,
+      });
+    });
+
+    it('calls next() and publishes optimisitc payload to the store', () => {
+      const selector = {
+        dataID: ROOT_ID,
+        node: query.fragment,
+        variables,
+      };
+      const snapshot = environment.lookup(selector);
+      const callback = jest.fn();
+      environment.subscribe(snapshot, callback);
+
+      environment.execute({operation}).subscribe(callbacks);
+      const payload = {
+        data: {
+          me: {
+            id: '842472',
+            __typename: 'User',
+            name: 'Joe',
+          },
+        },
+      };
+      dataSource.next({
+        operation: query.operation,
+        variables,
+        response: payload,
+        isOptimistic: true,
+      });
+      jest.runAllTimers();
+
+      expect(next.mock.calls.length).toBe(1);
+      expect(complete).not.toBeCalled();
+      expect(error).not.toBeCalled();
+      expect(callback.mock.calls.length).toBe(1);
+      expect(callback.mock.calls[0][0].data).toEqual({
+        me: {
+          name: 'Joe',
+        },
+      });
+    });
+
+    it('reverts the optimisitc payload before applies regular response', () => {
+      const selector = {
+        dataID: ROOT_ID,
+        node: query.fragment,
+        variables,
+      };
+      const snapshot = environment.lookup(selector);
+      const callback = jest.fn();
+      environment.subscribe(snapshot, callback);
+
+      environment.execute({operation}).subscribe(callbacks);
+      const optimisticResponse = {
+        data: {
+          me: {
+            id: '842472',
+            __typename: 'User',
+            name: 'Joe',
+          },
+        },
+      };
+
+      const realResponse = {
+        data: {
+          me: {
+            id: '842472',
+            __typename: 'User',
+            name: 'Jiyue',
+          },
+        },
+      };
+
+      dataSource.next({
+        operation: query.operation,
+        variables,
+        response: optimisticResponse,
+        isOptimistic: true,
+      });
+
+      jest.runAllTimers();
+      dataSource.next({
+        operation: query.operation,
+        variables,
+        response: realResponse,
+      });
+      jest.runAllTimers();
+
+      expect(next.mock.calls.length).toBe(2);
+      expect(complete).not.toBeCalled();
+      expect(error).not.toBeCalled();
+      expect(callback.mock.calls.length).toBe(2);
+      expect(callback.mock.calls[0][0].data).toEqual({
+        me: {
+          name: 'Joe',
+        },
+      });
+      expect(callback.mock.calls[1][0].data).toEqual({
+        me: {
+          name: 'Jiyue',
+        },
+      });
+    });
+
+    it('reverts optimistic response as a cleanup.', () => {
+      const selector = {
+        dataID: ROOT_ID,
+        node: query.fragment,
+        variables,
+      };
+      const snapshot = environment.lookup(selector);
+      const callback = jest.fn();
+      environment.subscribe(snapshot, callback);
+
+      environment.execute({operation}).subscribe(callbacks);
+      const payload = {
+        data: {
+          me: {
+            id: '842472',
+            __typename: 'User',
+            name: 'Joe',
+          },
+        },
+      };
+      dataSource.next({
+        operation: query.operation,
+        variables,
+        response: payload,
+        isOptimistic: true,
+      });
+      jest.runAllTimers();
+      dataSource.complete();
+
+      expect(next.mock.calls.length).toBe(1);
+      expect(complete).toBeCalled();
+      expect(error).not.toBeCalled();
+      expect(callback.mock.calls.length).toBe(2);
+      expect(callback.mock.calls[0][0].data).toEqual({
+        me: {
+          name: 'Joe',
+        },
+      });
+      expect(callback.mock.calls[1][0].data).toEqual(undefined);
     });
   });
 
@@ -792,11 +982,10 @@ describe('RelayModernEnvironment', () => {
       };
       operation = createOperationSelector(CreateCommentMutation, variables);
 
-      fetch = jest.fn(
-        (_query, _variables, _cacheConfig) =>
-          new RelayObservable(sink => {
-            subject = sink;
-          }),
+      fetch = jest.fn((_query, _variables, _cacheConfig) =>
+        RelayObservable.create(sink => {
+          subject = sink;
+        }),
       );
       environment = new RelayModernEnvironment({
         network: RelayNetwork.create(fetch),

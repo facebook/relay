@@ -10,14 +10,12 @@
 
 'use strict';
 
-jest.enableAutomock();
+jest.mock('warning').mock('../../legacy/store/GraphQLRange');
 
 require('configureForRelayOSS');
 
-jest.mock('warning');
-
 const GraphQLRange = require('../../legacy/store/GraphQLRange');
-const RelayClassic = require('RelayClassic');
+const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
 const RelayQueryPath = require('../../query/RelayQueryPath');
 const RelayRecordStore = require('../RelayRecordStore');
 const RelayRecordWriter = require('../RelayRecordWriter');
@@ -161,7 +159,7 @@ describe('RelayRecordStore', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        RelayClassic.QL`
+        RelayClassic_DEPRECATED.QL`
         query {
           viewer {
             actor {
@@ -186,7 +184,7 @@ describe('RelayRecordStore', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        RelayClassic.QL`
+        RelayClassic_DEPRECATED.QL`
         query {
           viewer {
             actor {

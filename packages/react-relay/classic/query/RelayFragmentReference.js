@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayFragmentReference
  * @flow
  * @format
  */
@@ -18,8 +17,8 @@ const invariant = require('invariant');
 const warning = require('warning');
 
 import type RelayMetaRoute from '../route/RelayMetaRoute';
-import type {Variables} from '../tools/RelayTypes';
 import type {ConcreteFragment} from './ConcreteQuery';
+import type {Variables} from 'RelayRuntime';
 
 type Condition = {
   passingValue: boolean,

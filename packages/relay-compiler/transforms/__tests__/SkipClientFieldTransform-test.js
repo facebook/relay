@@ -34,13 +34,12 @@ describe('SkipClientFieldTransform', () => {
   it('skips fields/types not defined in the original schema', () => {
     expect('fixtures/skip-client-field-transform').toMatchGolden(text => {
       const {definitions, schema} = parseGraphQLText(RelayTestSchema, text);
-      let context = new GraphQLCompilerContext(schema).addAll(definitions);
-      context = SkipClientFieldTransform.transform(context, RelayTestSchema);
-      const documents = [];
-      context.documents().forEach(doc => {
-        documents.push(GraphQLIRPrinter.print(doc));
-      });
-      return documents.join('\n');
+      return new GraphQLCompilerContext(RelayTestSchema, schema)
+        .addAll(definitions)
+        .applyTransforms([SkipClientFieldTransform.transform])
+        .documents()
+        .map(GraphQLIRPrinter.print)
+        .join('\n');
     });
   });
 });

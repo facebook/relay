@@ -15,7 +15,6 @@ require('configureForRelayOSS');
 const RelayParser = require('RelayParser');
 const RelayTestSchema = require('RelayTestSchema');
 const getGoldenMatchers = require('getGoldenMatchers');
-const prettyStringify = require('prettyStringify');
 
 describe('RelayParser', () => {
   beforeEach(() => {
@@ -25,7 +24,8 @@ describe('RelayParser', () => {
   it('matches expected output', () => {
     expect('fixtures/parser').toMatchGolden(text => {
       try {
-        return prettyStringify(RelayParser.parse(RelayTestSchema, text));
+        const ir = RelayParser.parse(RelayTestSchema, text);
+        return JSON.stringify(ir, null, 2);
       } catch (e) {
         return 'ERROR:\n' + e;
       }

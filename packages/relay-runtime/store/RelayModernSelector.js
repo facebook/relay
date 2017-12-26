@@ -18,10 +18,9 @@ const warning = require('warning');
 const {getFragmentVariables} = require('RelayConcreteVariables');
 const {FRAGMENTS_KEY, ID_KEY} = require('RelayStoreUtils');
 
+import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {ConcreteFragment} from 'RelayConcreteNode';
-import type {DataID} from 'RelayInternalTypes';
 import type {Selector} from 'RelayStoreTypes';
-import type {Variables} from 'RelayTypes';
 
 /**
  * @public

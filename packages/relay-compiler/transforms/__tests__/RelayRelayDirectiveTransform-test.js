@@ -16,7 +16,6 @@ const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
 const RelayTestSchema = require('RelayTestSchema');
 
 const getGoldenMatchers = require('getGoldenMatchers');
-const prettyStringify = require('prettyStringify');
 
 const {transformASTSchema} = require('ASTConvert');
 
@@ -31,16 +30,12 @@ describe('RelayRelayDirectiveTransform', () => {
         RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
       ]);
       const ast = RelayParser.parse(schema, text);
-      const context = ast.reduce(
-        (ctx, node) => ctx.add(node),
-        new GraphQLCompilerContext(schema),
-      );
-      const nextContext = RelayRelayDirectiveTransform.transform(context);
-      const documents = [];
-      nextContext.documents().forEach(doc => {
-        documents.push(prettyStringify(doc));
-      });
-      return documents.join('\n');
+      return new GraphQLCompilerContext(RelayTestSchema, schema)
+        .addAll(ast)
+        .applyTransforms([RelayRelayDirectiveTransform.transform])
+        .documents()
+        .map(doc => JSON.stringify(doc, null, 2))
+        .join('\n');
     });
   });
 });

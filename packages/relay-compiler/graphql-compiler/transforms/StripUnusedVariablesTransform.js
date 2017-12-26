@@ -27,9 +27,11 @@ type State = {referencedVariables: Set<string>};
 function stripUnusedVariablesTransform(
   context: GraphQLCompilerContext,
 ): GraphQLCompilerContext {
-  return context.documents().reduce((ctx: GraphQLCompilerContext, node) => {
-    return ctx.add(node.kind === 'Root' ? transformRoot(context, node) : node);
-  }, new GraphQLCompilerContext(context.schema));
+  return GraphQLIRTransformer.transform(context, {
+    Root: root => transformRoot(context, root),
+    // Include fragments, but do not traverse into them.
+    Fragment: id => id,
+  });
 }
 
 function transformRoot(context: GraphQLCompilerContext, root: Root): Root {

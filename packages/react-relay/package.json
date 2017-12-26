@@ -19,5 +19,9 @@
   },
   "peerDependencies": {
     "react": "^16.0.0-a || ^15.0.0 || ^0.14.0"
-  }
+  },
+  "directories": {
+    "": "./"
+  },
+  "haste_commonjs": true
 }

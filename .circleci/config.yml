@@ -1,0 +1,41 @@
+version: 2
+jobs:
+  deploy-website:
+    working_directory: ~/relay
+    docker:
+      - image: circleci/node:8
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - website-node-modules-{{ checksum "website/yarn.lock" }}
+            - website-node-modules-
+      - run:
+          name: Install node_modules
+          command: |
+            cd website
+            yarn --no-progress
+      - run:
+          name: Install apt packages
+          command: |
+            sudo apt install rsync
+      - save_cache:
+          key: website-node-modules-{{ checksum "website/yarn.lock" }}
+          paths:
+            - website/node_modules
+      - deploy:
+          name: Publish gh-pages
+          command: |
+            git config --global user.email "relay-bot@users.noreply.github.com"
+            git config --global user.name "Relay Bot"
+            echo "machine github.com login relay-bot password $GITHUB_TOKEN" > ~/.netrc
+            cd website && yarn install && GIT_USER=relay-bot yarn run publish-gh-pages
+
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - deploy-website:
+          filters:
+            branches:
+              only: master

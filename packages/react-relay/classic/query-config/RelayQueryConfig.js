@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayQueryConfig
  * @flow
  * @format
  */
@@ -14,14 +13,14 @@
 const invariant = require('invariant');
 
 import type {RelayQLQueryBuilder} from '../query/buildRQL';
-import type {Variables} from '../tools/RelayTypes';
+import type {Variables} from 'RelayRuntime';
 
 export type ConfigQueries = {[queryName: string]: RelayQLQueryBuilder};
 export interface RelayQueryConfigInterface {
-  name: string,
-  params: Variables,
-  queries: ConfigQueries,
-  useMockData?: boolean,
+  name: string;
+  params: Variables;
+  queries: ConfigQueries;
+  useMockData?: boolean;
 }
 
 /**

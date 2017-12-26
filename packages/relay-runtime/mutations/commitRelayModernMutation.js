@@ -11,22 +11,20 @@
 
 'use strict';
 
-const RelayConcreteNode = require('RelayConcreteNode');
+const RelayDeclarativeMutationConfig = require('RelayDeclarativeMutationConfig');
 
 const invariant = require('invariant');
 const isRelayModernEnvironment = require('isRelayModernEnvironment');
-const setRelayModernMutationConfigs = require('setRelayModernMutationConfigs');
 const warning = require('warning');
 
-import type {Disposable} from 'RelayCombinedEnvironmentTypes';
+import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
+import type {DeclarativeMutationConfig} from 'RelayDeclarativeMutationConfig';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {PayloadError, UploadableMap} from 'RelayNetworkTypes';
 import type {Environment, SelectorStoreUpdater} from 'RelayStoreTypes';
-import type {RelayMutationConfig} from 'RelayTypes';
-import type {Variables} from 'RelayTypes';
 
 export type MutationConfig<T> = {|
-  configs?: Array<RelayMutationConfig>,
+  configs?: Array<DeclarativeMutationConfig>,
   mutation: GraphQLTaggedNode,
   variables: Variables,
   uploadables?: UploadableMap,
@@ -55,10 +53,7 @@ function commitRelayModernMutation<T>(
   );
   const {createOperationSelector, getRequest} = environment.unstable_internal;
   const mutation = getRequest(config.mutation);
-  if (
-    mutation.kind !== RelayConcreteNode.OPERATION ||
-    mutation.operation !== 'mutation'
-  ) {
+  if (mutation.operationKind !== 'mutation') {
     throw new Error('commitRelayModernMutation: Expected mutation operation');
   }
   let {optimisticResponse, optimisticUpdater, updater} = config;
@@ -75,11 +70,11 @@ function commitRelayModernMutation<T>(
   }
   if (
     optimisticResponse &&
-    mutation.selections &&
-    mutation.selections.length === 1 &&
-    mutation.selections[0].kind === 'LinkedField'
+    mutation.fragment.selections &&
+    mutation.fragment.selections.length === 1 &&
+    mutation.fragment.selections[0].kind === 'LinkedField'
   ) {
-    const mutationRoot = mutation.selections[0].name;
+    const mutationRoot = mutation.fragment.selections[0].name;
     warning(
       optimisticResponse[mutationRoot],
       'commitRelayModernMutation: Expected `optimisticResponse` to be wrapped ' +
@@ -88,7 +83,7 @@ function commitRelayModernMutation<T>(
     );
   }
   if (configs) {
-    ({optimisticUpdater, updater} = setRelayModernMutationConfigs(
+    ({optimisticUpdater, updater} = RelayDeclarativeMutationConfig.convert(
       configs,
       mutation,
       optimisticUpdater,
@@ -111,7 +106,7 @@ function commitRelayModernMutation<T>(
         const {onCompleted} = config;
         if (onCompleted) {
           const snapshot = environment.lookup(operation.fragment);
-          onCompleted((snapshot.data: $FlowFixMe), payload.errors);
+          onCompleted((snapshot.data: $FlowFixMe), payload.response.errors);
         }
       },
       onError,

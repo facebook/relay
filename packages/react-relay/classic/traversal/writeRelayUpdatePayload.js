@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule writeRelayUpdatePayload
  * @flow
  * @format
  */
@@ -29,7 +28,8 @@ const {ConnectionInterface, RelayProfiler} = require('RelayRuntime');
 
 import type RelayQueryWriter from '../store/RelayQueryWriter';
 import type RelayRecordStore from '../store/RelayRecordStore';
-import type {DataID, UpdateOptions} from '../tools/RelayInternalTypes';
+import type {UpdateOptions} from '../tools/RelayInternalTypes';
+import type {DataID} from 'RelayRuntime';
 
 // TODO: Replace with enumeration for possible config types.
 /* OperationConfig was originally typed such that each property had the type

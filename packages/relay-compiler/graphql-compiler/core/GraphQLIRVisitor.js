@@ -23,6 +23,7 @@ import type {
   LinkedField,
   Literal,
   LocalArgumentDefinition,
+  Request,
   Root,
   RootArgumentDefinition,
   ScalarField,
@@ -31,7 +32,7 @@ import type {
 
 const NodeKeys = {
   Argument: ['value'],
-  Batch: ['operation', 'fragment'],
+  Batch: ['requests', 'fragment'],
   Condition: ['condition', 'selections'],
   Directive: ['args'],
   Fragment: ['argumentDefinitions', 'directives', 'selections'],
@@ -40,10 +41,12 @@ const NodeKeys = {
   LinkedField: ['args', 'directives', 'selections'],
   Literal: [],
   LocalArgumentDefinition: [],
+  Request: ['root'],
   Root: ['argumentDefinitions', 'directives', 'selections'],
   RootArgumentDefinition: [],
   ScalarField: ['args', 'directives'],
   Variable: [],
+  DeferrableFragmentSpread: ['args'],
 };
 
 export type VisitNode =
@@ -57,6 +60,7 @@ export type VisitNode =
   | LinkedField
   | Literal
   | LocalArgumentDefinition
+  | Request
   | Root
   | RootArgumentDefinition
   | ScalarField
@@ -89,6 +93,7 @@ export type NodeVisitor =
       LinkedField?: NodeVisitorObject<LinkedField>,
       Literal?: NodeVisitorObject<Literal>,
       LocalArgumentDefinition?: NodeVisitorObject<LocalArgumentDefinition>,
+      Request?: NodeVisitorObject<Request>,
       Root?: NodeVisitorObject<Root>,
       RootArgumentDefinition?: NodeVisitorObject<RootArgumentDefinition>,
       ScalarField?: NodeVisitorObject<ScalarField>,
@@ -96,7 +101,7 @@ export type NodeVisitor =
     };
 
 function visitIR(root: VisitNode, visitor: NodeVisitor) {
-  return visit(root, visitor, NodeKeys);
+  return (visit: $FlowFixMe)(root, visitor, NodeKeys);
 }
 
 module.exports = {visit: visitIR};

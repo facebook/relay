@@ -17,8 +17,9 @@ const RelayStoreUtils = require('RelayStoreUtils');
 
 const invariant = require('invariant');
 
-import type {Record, SelectorData} from 'RelayCombinedEnvironmentTypes';
+import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
+  ConcreteDeferrableFragmentSpread,
   ConcreteFragmentSpread,
   ConcreteLinkedField,
   ConcreteNode,
@@ -26,12 +27,15 @@ import type {
   ConcreteSelection,
   ConcreteSelectableNode,
 } from 'RelayConcreteNode';
-import type {DataID} from 'RelayInternalTypes';
 import type {RecordSource, Selector, Snapshot} from 'RelayStoreTypes';
-import type {Variables} from 'RelayTypes';
+import type {
+  Record,
+  SelectorData,
+} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 const {
   CONDITION,
+  DEFERRABLE_FRAGMENT_SPREAD,
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
@@ -124,7 +128,9 @@ class RelayReader {
           this._traverseSelections(selection.selections, record, data);
         }
       } else if (selection.kind === FRAGMENT_SPREAD) {
-        this._createFragmentPointer(selection, record, data);
+        this._createFragmentPointer(selection, record, data, this._variables);
+      } else if (selection.kind === DEFERRABLE_FRAGMENT_SPREAD) {
+        this._createDeferrableFragmentPointer(selection, record, data);
       } else {
         invariant(
           false,
@@ -217,9 +223,10 @@ class RelayReader {
   }
 
   _createFragmentPointer(
-    fragmentSpread: ConcreteFragmentSpread,
+    fragmentSpread: ConcreteFragmentSpread | ConcreteDeferrableFragmentSpread,
     record: Record,
     data: SelectorData,
+    variables: Variables,
   ): void {
     let fragmentPointers = data[FRAGMENTS_KEY];
     if (!fragmentPointers) {
@@ -231,10 +238,25 @@ class RelayReader {
       fragmentPointers,
     );
     data[ID_KEY] = data[ID_KEY] || RelayModernRecord.getDataID(record);
-    const variables = fragmentSpread.args
-      ? getArgumentValues(fragmentSpread.args, this._variables)
+    fragmentPointers[fragmentSpread.name] = fragmentSpread.args
+      ? getArgumentValues(fragmentSpread.args, variables)
       : {};
-    fragmentPointers[fragmentSpread.name] = variables;
+  }
+
+  _createDeferrableFragmentPointer(
+    deferrableFragment: ConcreteDeferrableFragmentSpread,
+    record: Record,
+    data: SelectorData,
+  ): void {
+    const rootFieldValue = RelayModernRecord.getValue(
+      record,
+      deferrableFragment.storageKey,
+    );
+    const variables = {
+      ...this._variables,
+      [deferrableFragment.rootFieldVariable]: rootFieldValue,
+    };
+    this._createFragmentPointer(deferrableFragment, record, data, variables);
   }
 }
 

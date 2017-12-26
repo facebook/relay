@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayShallowMock
  * @flow
  * @format
  */
@@ -37,7 +36,7 @@
 'use strict';
 
 const React = require('React');
-const Relay = (require: any).requireActual('RelayClassic');
+const Relay = (require: any).requireActual('../RelayPublic');
 
 import type {
   RelayContainerSpec,

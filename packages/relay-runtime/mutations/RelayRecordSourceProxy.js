@@ -21,10 +21,12 @@ const normalizeRelayPayload = require('normalizeRelayPayload');
 const {EXISTENT, NONEXISTENT} = require('RelayRecordState');
 const {ROOT_ID, ROOT_TYPE} = require('RelayStoreUtils');
 
+import type {DataID} from '../util/RelayRuntimeTypes';
 import type {HandlerProvider} from 'RelayDefaultHandlerProvider';
-import type {DataID} from 'RelayInternalTypes';
 import type RelayRecordSourceMutator from 'RelayRecordSourceMutator';
 import type {
+  HandleFieldPayload,
+  RecordSource,
   RecordProxy,
   RecordSourceProxy,
   RecordSourceSelectorProxy,
@@ -50,17 +52,10 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
     this._proxies = {};
   }
 
-  commitPayload(
-    operation: OperationSelector,
-    response: ?Object,
-  ): RecordSourceSelectorProxy {
-    if (!response) {
-      return new RelayRecordSourceSelectorProxy(this, operation.fragment);
-    }
-    const {source, fieldPayloads} = normalizeRelayPayload(
-      operation.root,
-      response,
-    );
+  publishSource(
+    source: RecordSource,
+    fieldPayloads?: ?Array<HandleFieldPayload>,
+  ): void {
     const dataIDs = source.getRecordIDs();
     dataIDs.forEach(dataID => {
       const status = source.getStatus(dataID);
@@ -90,6 +85,20 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
         handler.update(this, fieldPayload);
       });
     }
+  }
+
+  commitPayload(
+    operation: OperationSelector,
+    response: ?Object,
+  ): RecordSourceSelectorProxy {
+    if (!response) {
+      return new RelayRecordSourceSelectorProxy(this, operation.fragment);
+    }
+    const {source, fieldPayloads} = normalizeRelayPayload(
+      operation.root,
+      response,
+    );
+    this.publishSource(source, fieldPayloads);
     return new RelayRecordSourceSelectorProxy(this, operation.fragment);
   }
 

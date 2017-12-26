@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayOperationSelector
  * @flow
  * @format
  */
@@ -19,8 +18,8 @@ const {getOperationVariables} = require('../query/RelayVariables');
 const {ROOT_ID} = require('../store/RelayStoreConstants');
 
 import type {ConcreteOperationDefinition} from '../query/ConcreteQuery';
-import type {Variables} from '../tools/RelayTypes';
 import type {OperationSelector} from './RelayEnvironmentTypes';
+import type {Variables} from 'RelayRuntime';
 
 /**
  * @public
@@ -31,6 +30,8 @@ import type {OperationSelector} from './RelayEnvironmentTypes';
 function createOperationSelector(
   operation: ConcreteOperationDefinition,
   variables: Variables,
+  // unused param for compatibility with modern API
+  _modernOperation?: any,
 ): OperationSelector {
   const concreteFragment = QueryBuilder.getFragment(operation.node);
   invariant(

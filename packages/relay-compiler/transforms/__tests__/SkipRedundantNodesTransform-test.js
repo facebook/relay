@@ -34,16 +34,12 @@ describe('SkipRedundantNodesTransform', () => {
   it('skips redundant nodes', () => {
     expect('fixtures/skip-redundant-nodes-transform').toMatchGolden(text => {
       const ast = RelayParser.parse(RelayTestSchema, text);
-      const context = ast.reduce(
-        (ctx, node) => ctx.add(node),
-        new GraphQLCompilerContext(RelayTestSchema),
-      );
-      const nextContext = SkipRedundantNodesTransform.transform(context);
-      const documents = [];
-      nextContext.documents().forEach(doc => {
-        documents.push(GraphQLIRPrinter.print(doc));
-      });
-      return documents.join('\n');
+      return new GraphQLCompilerContext(RelayTestSchema)
+        .addAll(ast)
+        .applyTransforms([SkipRedundantNodesTransform.transform])
+        .documents()
+        .map(GraphQLIRPrinter.print)
+        .join('\n');
     });
   });
 });

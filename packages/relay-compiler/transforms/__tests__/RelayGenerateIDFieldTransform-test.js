@@ -26,16 +26,12 @@ describe('RelayGenerateIDFieldTransform', () => {
   it('matches expected output', () => {
     expect('fixtures/generate-id-field-transform').toMatchGolden(text => {
       const ast = RelayParser.parse(RelayTestSchema, text);
-      const context = ast.reduce(
-        (ctx, node) => ctx.add(node),
-        new GraphQLCompilerContext(RelayTestSchema),
-      );
-      const nextContext = RelayGenerateIDFieldTransform.transform(context);
-      const documents = [];
-      nextContext.documents().map(doc => {
-        documents.push(GraphQLIRPrinter.print(doc));
-      });
-      return documents.join('\n');
+      return new GraphQLCompilerContext(RelayTestSchema)
+        .addAll(ast)
+        .applyTransforms([RelayGenerateIDFieldTransform.transform])
+        .documents()
+        .map(GraphQLIRPrinter.print)
+        .join('\n');
     });
   });
 });

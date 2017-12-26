@@ -10,7 +10,7 @@
 'use strict';
 
 const GraphQLStoreChangeEmitter = jest.genMockFromModule(
-  'GraphQLStoreChangeEmitter',
+  '../GraphQLStoreChangeEmitter',
 );
 
 GraphQLStoreChangeEmitter.mockImplementation(function() {

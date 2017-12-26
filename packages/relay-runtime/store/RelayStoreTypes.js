@@ -11,6 +11,24 @@
 
 'use strict';
 
+import type {DataID, Disposable, Variables} from '../util/RelayRuntimeTypes';
+import type {
+  ConcreteScalarField,
+  ConcreteLinkedField,
+  ConcreteFragment,
+  ConcreteSelectableNode,
+  RequestNode,
+  ConcreteOperation,
+} from 'RelayConcreteNode';
+import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
+import type {
+  ExecutePayload,
+  PayloadError,
+  UploadableMap,
+} from 'RelayNetworkTypes';
+import type {PayloadData} from 'RelayNetworkTypes';
+import type RelayObservable from 'RelayObservable';
+import type {RecordState} from 'RelayRecordState';
 import type {
   /* $FlowFixMe(>=0.55.0 site=www) This comment suppresses an error found when
    * Flow v0.55 was deployed. To see the error delete this comment and run
@@ -22,35 +40,22 @@ import type {
   CSelector,
   CSnapshot,
   CUnstableEnvironmentCore,
-  Disposable,
   Record,
-} from 'RelayCombinedEnvironmentTypes';
-import type {
-  ConcreteOperation,
-  ConcreteScalarField,
-  ConcreteLinkedField,
-  ConcreteFragment,
-  ConcreteSelectableNode,
-  RequestNode,
-} from 'RelayConcreteNode';
-import type {DataID} from 'RelayInternalTypes';
-import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
-import type {PayloadData} from 'RelayNetworkTypes';
-import type {PayloadError, UploadableMap} from 'RelayNetworkTypes';
-import type RelayObservable from 'RelayObservable';
-import type {RecordState} from 'RelayRecordState';
-import type {Variables} from 'RelayTypes';
+} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
+
+// eslint-disable-next-line no-undef
+export opaque type FragmentReference = empty;
 
 type TEnvironment = Environment;
 type TFragment = ConcreteFragment;
 type TGraphQLTaggedNode = GraphQLTaggedNode;
 type TNode = ConcreteSelectableNode;
-type TOperation = ConcreteOperation;
-type TPayload = RelayResponsePayload;
+type TPayload = ExecutePayload;
 type TRequest = RequestNode;
+type TOperation = ConcreteOperation;
 
 export type FragmentMap = CFragmentMap<TFragment>;
-export type OperationSelector = COperationSelector<TNode, TOperation>;
+export type OperationSelector = COperationSelector<TNode, TRequest>;
 export type RelayContext = CRelayContext<TEnvironment>;
 export type Selector = CSelector<TNode>;
 export type Snapshot = CSnapshot<TNode>;
@@ -59,33 +64,33 @@ export type UnstableEnvironmentCore = CUnstableEnvironmentCore<
   TFragment,
   TGraphQLTaggedNode,
   TNode,
-  TOperation,
   TRequest,
+  TOperation,
 >;
 
 /**
  * A read-only interface for accessing cached graph data.
  */
 export interface RecordSource {
-  get(dataID: DataID): ?Record,
-  getRecordIDs(): Array<DataID>,
-  getStatus(dataID: DataID): RecordState,
-  has(dataID: DataID): boolean,
+  get(dataID: DataID): ?Record;
+  getRecordIDs(): Array<DataID>;
+  getStatus(dataID: DataID): RecordState;
+  has(dataID: DataID): boolean;
   load(
     dataID: DataID,
     callback: (error: ?Error, record: ?Record) => void,
-  ): void,
-  size(): number,
+  ): void;
+  size(): number;
 }
 
 /**
  * A read/write interface for accessing and updating graph data.
  */
 export interface MutableRecordSource extends RecordSource {
-  clear(): void,
-  delete(dataID: DataID): void,
-  remove(dataID: DataID): void,
-  set(dataID: DataID, record: Record): void,
+  clear(): void;
+  delete(dataID: DataID): void;
+  remove(dataID: DataID): void;
+  set(dataID: DataID, record: Record): void;
 }
 
 /**
@@ -96,38 +101,38 @@ export interface Store {
   /**
    * Get a read-only view of the store's internal RecordSource.
    */
-  getSource(): RecordSource,
+  getSource(): RecordSource;
 
   /**
    * Determine if the selector can be resolved with data in the store (i.e. no
    * fields are missing).
    */
-  check(selector: Selector): boolean,
+  check(selector: Selector): boolean;
 
   /**
    * Read the results of a selector from in-memory records in the store.
    */
-  lookup(selector: Selector): Snapshot,
+  lookup(selector: Selector): Snapshot;
 
   /**
    * Notify subscribers (see `subscribe`) of any data that was published
    * (`publish()`) since the last time `notify` was called.
    */
-  notify(): void,
+  notify(): void;
 
   /**
    * Publish new information (e.g. from the network) to the store, updating its
    * internal record source. Subscribers are not immediately notified - this
    * occurs when `notify()` is called.
    */
-  publish(source: RecordSource): void,
+  publish(source: RecordSource): void;
 
   /**
    * Ensure that all the records necessary to fulfill the given selector are
    * retained in-memory. The records will not be eligible for garbage collection
    * until the returned reference is disposed.
    */
-  retain(selector: Selector): Disposable,
+  retain(selector: Selector): Disposable;
 
   /**
    * Subscribe to changes to the results of a selector. The callback is called
@@ -137,7 +142,7 @@ export interface Store {
   subscribe(
     snapshot: Snapshot,
     callback: (snapshot: Snapshot) => void,
-  ): Disposable,
+  ): Disposable;
 }
 
 /**
@@ -147,28 +152,28 @@ export interface Store {
  * the modifications.
  */
 export interface RecordProxy {
-  copyFieldsFrom(source: RecordProxy): void,
-  getDataID(): DataID,
-  getLinkedRecord(name: string, args?: ?Variables): ?RecordProxy,
-  getLinkedRecords(name: string, args?: ?Variables): ?Array<?RecordProxy>,
+  copyFieldsFrom(source: RecordProxy): void;
+  getDataID(): DataID;
+  getLinkedRecord(name: string, args?: ?Variables): ?RecordProxy;
+  getLinkedRecords(name: string, args?: ?Variables): ?Array<?RecordProxy>;
   getOrCreateLinkedRecord(
     name: string,
     typeName: string,
     args?: ?Variables,
-  ): RecordProxy,
-  getType(): string,
-  getValue(name: string, args?: ?Variables): mixed,
+  ): RecordProxy;
+  getType(): string;
+  getValue(name: string, args?: ?Variables): mixed;
   setLinkedRecord(
     record: RecordProxy,
     name: string,
     args?: ?Variables,
-  ): RecordProxy,
+  ): RecordProxy;
   setLinkedRecords(
     records: Array<?RecordProxy>,
     name: string,
     args?: ?Variables,
-  ): RecordProxy,
-  setValue(value: mixed, name: string, args?: ?Variables): RecordProxy,
+  ): RecordProxy;
+  setValue(value: mixed, name: string, args?: ?Variables): RecordProxy;
 }
 
 /**
@@ -178,10 +183,10 @@ export interface RecordProxy {
  * the modifications.
  */
 export interface RecordSourceProxy {
-  create(dataID: DataID, typeName: string): RecordProxy,
-  delete(dataID: DataID): void,
-  get(dataID: DataID): ?RecordProxy,
-  getRoot(): RecordProxy,
+  create(dataID: DataID, typeName: string): RecordProxy;
+  delete(dataID: DataID): void;
+  get(dataID: DataID): ?RecordProxy;
+  getRoot(): RecordProxy;
 }
 
 /**
@@ -189,12 +194,12 @@ export interface RecordSourceProxy {
  * fields of a Selector.
  */
 export interface RecordSourceSelectorProxy {
-  create(dataID: DataID, typeName: string): RecordProxy,
-  delete(dataID: DataID): void,
-  get(dataID: DataID): ?RecordProxy,
-  getRoot(): RecordProxy,
-  getRootField(fieldName: string): ?RecordProxy,
-  getPluralRootField(fieldName: string): ?Array<?RecordProxy>,
+  create(dataID: DataID, typeName: string): RecordProxy;
+  delete(dataID: DataID): void;
+  get(dataID: DataID): ?RecordProxy;
+  getRoot(): RecordProxy;
+  getRootField(fieldName: string): ?RecordProxy;
+  getPluralRootField(fieldName: string): ?Array<?RecordProxy>;
 }
 
 /**
@@ -207,32 +212,22 @@ export interface Environment
     TFragment,
     TGraphQLTaggedNode,
     TNode,
-    TOperation,
-    TPayload,
     TRequest,
+    TPayload,
+    TOperation,
   > {
   /**
    * Apply an optimistic update to the environment. The mutation can be reverted
    * by calling `dispose()` on the returned value.
    */
-  applyUpdate(optimisticUpdate: OptimisticUpdate): Disposable,
-
-  /**
-   * Determine if the selector can be resolved with data in the store (i.e. no
-   * fields are missing).
-   *
-   * Note that this operation effectively "executes" the selector against the
-   * cache and therefore takes time proportional to the size/complexity of the
-   * selector.
-   */
-  check(selector: Selector): boolean,
+  applyUpdate(optimisticUpdate: OptimisticUpdate): Disposable;
 
   /**
    * Commit an updater to the environment. This mutation cannot be reverted and
    * should therefore not be used for optimistic updates. This is mainly
    * intended for updating fields from client schema extensions.
    */
-  commitUpdate(updater: StoreUpdater): void,
+  commitUpdate(updater: StoreUpdater): void;
 
   /**
    * Commit a payload to the environment using the given operation selector.
@@ -240,15 +235,15 @@ export interface Environment
   commitPayload(
     operationSelector: OperationSelector,
     payload: PayloadData,
-  ): void,
+  ): void;
 
   /**
    * Get the environment's internal Store.
    */
-  getStore(): Store,
+  getStore(): Store;
 
   /**
-   * Returns an Observable of RelayResponsePayload resulting from executing the
+   * Returns an Observable of ExecutePayload resulting from executing the
    * provided Mutation operation, the result of which is then normalized and
    * committed to the publish queue along with an optional optimistic response
    * or updater.
@@ -263,7 +258,7 @@ export interface Environment
     optimisticResponse?: ?Object,
     updater?: ?SelectorStoreUpdater,
     uploadables?: ?UploadableMap,
-  |}): RelayObservable<RelayResponsePayload>,
+  |}): RelayObservable<ExecutePayload>;
 
   /**
    * Checks if the records required to fulfill the given `selector` are in
@@ -276,7 +271,13 @@ export interface Environment
   checkSelectorAndUpdateStore(
     selector: Selector,
     handlers: Array<MissingFieldHandler>,
-  ): boolean,
+  ): boolean;
+
+  /**
+   * Checks if the environment is waiting for a response from the network for
+   * a deferred fragment.
+   */
+  isSelectorLoading(selector: Selector): boolean;
 }
 
 /**
@@ -347,9 +348,11 @@ export type SelectorStoreUpdater = (
 ) => void;
 
 /**
-  * A set of configs that can be used to apply an optimistic update into the
-  * store.
-  */
+ * A set of configs that can be used to apply an optimistic update into the
+ * store.
+ * TODO: we should probably only expose `storeUpdater` and `source` to the
+ * publish queue.
+ */
 export type OptimisticUpdate =
   | {|
       storeUpdater: StoreUpdater,
@@ -358,6 +361,10 @@ export type OptimisticUpdate =
       selectorStoreUpdater: ?SelectorStoreUpdater,
       operation: OperationSelector,
       response: ?Object,
+    |}
+  | {|
+      source: RecordSource,
+      fieldPayloads?: ?Array<HandleFieldPayload>,
     |};
 
 /**
@@ -395,6 +402,9 @@ export type MissingFieldHandler =
  */
 export type RelayResponsePayload = {|
   fieldPayloads?: ?Array<HandleFieldPayload>,
+  deferrableSelections?: ?DeferrableSelections,
   source: MutableRecordSource,
   errors: ?Array<PayloadError>,
 |};
+
+export type DeferrableSelections = Set<string>;

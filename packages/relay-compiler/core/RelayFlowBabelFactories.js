@@ -46,16 +46,6 @@ function exportType(name: string, type: BabelAST) {
 }
 
 /**
- * FragmentReference<NAME>
- */
-function fragmentReference(name: string): BabelAST {
-  return t.genericTypeAnnotation(
-    t.identifier('FragmentReference'),
-    t.typeParameterInstantiation([t.genericTypeAnnotation(t.identifier(name))]),
-  );
-}
-
-/**
  * import type {NAMES[0], NAMES[1], ...} from 'MODULE';
  */
 function importTypes(names: Array<string>, module: string) {
@@ -128,7 +118,6 @@ module.exports = {
   anyTypeAlias,
   exactObjectTypeAnnotation,
   exportType,
-  fragmentReference,
   importTypes,
   intersectionTypeAnnotation,
   lineComments,

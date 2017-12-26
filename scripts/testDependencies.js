@@ -78,10 +78,10 @@ function testPackageDependencies(topLevelPackagePath, packagePath) {
     `${packageName} should have no dev dependencies.`,
   );
 
+  const requiredRepoPackages = new Set(['relay-runtime', 'relay-compiler']);
   for (const dependencyName in packageJson.dependencies) {
-    // relay-runtime is one of the packages in this repo, it won't be in the
-    // top level package.json.
-    if (dependencyName === 'relay-runtime') {
+    // packages in this repo, won't be in the top level package.json.
+    if (requiredRepoPackages.has(dependencyName)) {
       continue;
     }
     expectEqual(

@@ -10,6 +10,7 @@
   "homepage": "https://facebook.github.io/relay/",
   "bugs": "https://github.com/facebook/relay/issues",
   "repository": "facebook/relay",
+  "main": "RelayCompilerPublic",
   "bin": {
     "relay-compiler": "bin/relay-compiler"
   },
@@ -25,7 +26,7 @@
     "fast-glob": "^1.0.1",
     "fb-watchman": "^2.0.0",
     "fbjs": "^0.8.14",
-    "graphql": "^0.11.7",
+    "graphql": "^0.12.3",
     "immutable": "~3.7.6",
     "relay-runtime": "1.4.1",
     "signedsource": "^1.0.0",

@@ -4,6 +4,7 @@
     "operation": "query",
     "metadata": null,
     "name": "ObjectArgument",
+    "dependentRequests": [],
     "argumentDefinitions": [
       {
         "kind": "LocalArgumentDefinition",
@@ -34,7 +35,8 @@
                   "value": {
                     "kind": "Variable",
                     "metadata": null,
-                    "variableName": "text"
+                    "variableName": "text",
+                    "type": "String"
                   }
                 }
               ]

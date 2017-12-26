@@ -41,16 +41,12 @@ describe('FilterDirectivesTransform', () => {
         'directive @exampleFilteredDirective on FIELD',
       ]);
       const {definitions} = parseGraphQLText(extendedSchema, text);
-      let context = new GraphQLCompilerContext(extendedSchema).addAll(
-        definitions,
-      );
-
-      context = FilterDirectivesTransform.transform(context, RelayTestSchema);
-      const documents = [];
-      context.documents().forEach(doc => {
-        documents.push(GraphQLIRPrinter.print(doc));
-      });
-      return documents.join('\n');
+      return new GraphQLCompilerContext(RelayTestSchema, extendedSchema)
+        .addAll(definitions)
+        .applyTransforms([FilterDirectivesTransform.transform])
+        .documents()
+        .map(GraphQLIRPrinter.print)
+        .join('\n');
     });
   });
 });

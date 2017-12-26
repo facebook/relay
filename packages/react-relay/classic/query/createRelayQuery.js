@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule createRelayQuery
  * @flow
  * @format
  */
@@ -16,8 +15,8 @@ const RelayQuery = require('./RelayQuery');
 
 const invariant = require('invariant');
 
-import type {Variables} from '../tools/RelayTypes';
 import type {RelayConcreteNode} from './RelayQL';
+import type {Variables} from 'RelayRuntime';
 
 function createRelayQuery(
   node: RelayConcreteNode,

@@ -11,15 +11,16 @@
 
 'use strict';
 
-const formatStorageKey = require('formatStorageKey');
 const generateRelayClientID = require('generateRelayClientID');
 const invariant = require('invariant');
 
-import type {DataID} from 'RelayInternalTypes';
+const {getStableStorageKey} = require('RelayStoreUtils');
+
 import type RelayRecordSourceMutator from 'RelayRecordSourceMutator';
 import type RelayRecordSourceProxy from 'RelayRecordSourceProxy';
+import type {DataID} from 'RelayRuntime';
 import type {RecordProxy} from 'RelayStoreTypes';
-import type {Variables} from 'RelayTypes';
+import type {Arguments} from 'RelayStoreUtils';
 
 /**
  * @internal
@@ -60,25 +61,25 @@ class RelayRecordProxy implements RecordProxy {
     return type;
   }
 
-  getValue(name: string, args?: ?Variables): mixed {
-    const storageKey = args ? formatStorageKey(name, args) : name;
+  getValue(name: string, args?: ?Arguments): mixed {
+    const storageKey = getStableStorageKey(name, args);
     return this._mutator.getValue(this._dataID, storageKey);
   }
 
-  setValue(value: mixed, name: string, args?: ?Variables): RecordProxy {
+  setValue(value: mixed, name: string, args?: ?Arguments): RecordProxy {
     invariant(
       isValidLeafValue(value),
       'RelayRecordProxy#setValue(): Expected a scalar or array of scalars, ' +
         'got `%s`.',
       JSON.stringify(value),
     );
-    const storageKey = args ? formatStorageKey(name, args) : name;
+    const storageKey = getStableStorageKey(name, args);
     this._mutator.setValue(this._dataID, storageKey, value);
     return this;
   }
 
-  getLinkedRecord(name: string, args?: ?Variables): ?RecordProxy {
-    const storageKey = args ? formatStorageKey(name, args) : name;
+  getLinkedRecord(name: string, args?: ?Arguments): ?RecordProxy {
+    const storageKey = getStableStorageKey(name, args);
     const linkedID = this._mutator.getLinkedRecordID(this._dataID, storageKey);
     return linkedID != null ? this._source.get(linkedID) : linkedID;
   }
@@ -86,14 +87,14 @@ class RelayRecordProxy implements RecordProxy {
   setLinkedRecord(
     record: RecordProxy,
     name: string,
-    args?: ?Variables,
+    args?: ?Arguments,
   ): RecordProxy {
     invariant(
       record instanceof RelayRecordProxy,
       'RelayRecordProxy#setLinkedRecord(): Expected a record, got `%s`.',
       record,
     );
-    const storageKey = args ? formatStorageKey(name, args) : name;
+    const storageKey = getStableStorageKey(name, args);
     const linkedID = record.getDataID();
     this._mutator.setLinkedRecordID(this._dataID, storageKey, linkedID);
     return this;
@@ -102,11 +103,11 @@ class RelayRecordProxy implements RecordProxy {
   getOrCreateLinkedRecord(
     name: string,
     typeName: string,
-    args?: ?Variables,
+    args?: ?Arguments,
   ): RecordProxy {
     let linkedRecord = this.getLinkedRecord(name, args);
     if (!linkedRecord) {
-      const storageKey = args ? formatStorageKey(name, args) : name;
+      const storageKey = getStableStorageKey(name, args);
       const clientID = generateRelayClientID(this.getDataID(), storageKey);
       linkedRecord = this._source.create(clientID, typeName);
       this.setLinkedRecord(linkedRecord, name, args);
@@ -114,8 +115,8 @@ class RelayRecordProxy implements RecordProxy {
     return linkedRecord;
   }
 
-  getLinkedRecords(name: string, args?: ?Variables): ?Array<?RecordProxy> {
-    const storageKey = args ? formatStorageKey(name, args) : name;
+  getLinkedRecords(name: string, args?: ?Arguments): ?Array<?RecordProxy> {
+    const storageKey = getStableStorageKey(name, args);
     const linkedIDs = this._mutator.getLinkedRecordIDs(
       this._dataID,
       storageKey,
@@ -131,14 +132,14 @@ class RelayRecordProxy implements RecordProxy {
   setLinkedRecords(
     records: Array<?RecordProxy>,
     name: string,
-    args?: ?Variables,
+    args?: ?Arguments,
   ): RecordProxy {
     invariant(
       Array.isArray(records),
       'RelayRecordProxy#setLinkedRecords(): Expected records to be an array, got `%s`.',
       records,
     );
-    const storageKey = args ? formatStorageKey(name, args) : name;
+    const storageKey = getStableStorageKey(name, args);
     const linkedIDs = records.map(record => record && record.getDataID());
     this._mutator.setLinkedRecordIDs(this._dataID, storageKey, linkedIDs);
     return this;

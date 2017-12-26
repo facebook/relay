@@ -11,67 +11,91 @@
 
 'use strict';
 
+// TODO T21875029 ../../relay-runtime/util/RelayConcreteNode
+const RelayConcreteNode = require('RelayConcreteNode');
+
 const crypto = require('crypto');
 const dedupeJSONStringify = require('dedupeJSONStringify');
-const invariant = require('invariant');
+const deepMergeAssignments = require('./deepMergeAssignments');
+const nullthrows = require('nullthrows');
 
-import type {CodegenDirectory} from '../graphql-compiler/GraphQLCompilerPublic';
+const {Profiler} = require('graphql-compiler');
+
 // TODO T21875029 ../../relay-runtime/util/RelayConcreteNode
 import type {GeneratedNode} from 'RelayConcreteNode';
+import type {CodegenDirectory} from 'graphql-compiler';
 
 /**
  * Generate a module for the given document name/text.
  */
 export type FormatModule = ({|
   moduleName: string,
-  documentType: 'ConcreteOperation' | 'ConcreteFragment',
+  documentType:
+    | typeof RelayConcreteNode.FRAGMENT
+    | typeof RelayConcreteNode.REQUEST
+    | typeof RelayConcreteNode.BATCH_REQUEST,
   docText: ?string,
   concreteText: string,
-  flowText: ?string,
+  flowText: string,
   hash: ?string,
-  devTextGenerator: (objectName: string) => string,
+  devOnlyAssignments: ?string,
   relayRuntimeModule: string,
+  sourceHash: string,
 |}) => string;
 
 async function writeRelayGeneratedFile(
   codegenDir: CodegenDirectory,
   generatedNode: GeneratedNode,
   formatModule: FormatModule,
-  flowText: ?string,
-  persistQuery: ?(text: string) => Promise<string>,
+  flowText: string,
+  _persistQuery: ?(text: string) => Promise<string>,
   platform: ?string,
   relayRuntimeModule: string,
+  sourceHash: string,
 ): Promise<?GeneratedNode> {
+  // Copy to const so Flow can refine.
+  const persistQuery = _persistQuery;
   const moduleName = generatedNode.name + '.graphql';
   const platformName = platform ? moduleName + '.' + platform : moduleName;
   const filename = platformName + '.js';
   const flowTypeName =
-    generatedNode.kind === 'Operation'
-      ? 'ConcreteOperation'
-      : 'ConcreteFragment';
+    generatedNode.kind === RelayConcreteNode.FRAGMENT
+      ? 'ConcreteFragment'
+      : generatedNode.kind === RelayConcreteNode.REQUEST
+        ? 'ConcreteRequest'
+        : generatedNode.kind === RelayConcreteNode.BATCH_REQUEST
+          ? 'ConcreteBatchRequest'
+          : 'empty';
   const devOnlyProperties = {};
 
-  let text = null;
+  let docText;
+  if (generatedNode.kind === RelayConcreteNode.REQUEST) {
+    docText = generatedNode.text;
+  } else if (generatedNode.kind === RelayConcreteNode.BATCH_REQUEST) {
+    docText = generatedNode.requests.map(request => request.text).join('\n\n');
+  }
+
   let hash = null;
-  if (generatedNode.kind === 'Operation') {
-    text = generatedNode.text;
-    invariant(
-      text,
-      'codegen-runner: Expected query to have text before persisting.',
-    );
-    const oldContent = codegenDir.read(filename);
-    // Hash the concrete node including the query text.
-    const hasher = crypto.createHash('md5');
-    hasher.update('cache-breaker-4');
-    hasher.update(JSON.stringify(generatedNode));
-    if (flowText) {
-      hasher.update(flowText);
-    }
-    if (persistQuery) {
-      hasher.update('persisted');
-    }
-    hash = hasher.digest('hex');
-    if (hash === extractHash(oldContent)) {
+  if (
+    generatedNode.kind === RelayConcreteNode.REQUEST ||
+    generatedNode.kind === RelayConcreteNode.BATCH_REQUEST
+  ) {
+    const oldHash = Profiler.run('RelayFileWriter:compareHash', () => {
+      const oldContent = codegenDir.read(filename);
+      // Hash the concrete node including the query text.
+      const hasher = crypto.createHash('md5');
+      hasher.update('cache-breaker-6');
+      hasher.update(JSON.stringify(generatedNode));
+      if (flowText) {
+        hasher.update(flowText);
+      }
+      if (persistQuery) {
+        hasher.update('persisted');
+      }
+      hash = hasher.digest('hex');
+      return extractHash(oldContent);
+    });
+    if (hash === oldHash) {
       codegenDir.markUnchanged(filename);
       return null;
     }
@@ -80,52 +104,55 @@ async function writeRelayGeneratedFile(
       return null;
     }
     if (persistQuery) {
-      generatedNode = {
-        ...generatedNode,
-        text: null,
-        id: await persistQuery(text),
-      };
-
-      devOnlyProperties.text = text;
+      switch (generatedNode.kind) {
+        case RelayConcreteNode.REQUEST:
+          devOnlyProperties.text = generatedNode.text;
+          generatedNode = {
+            ...generatedNode,
+            text: null,
+            id: await persistQuery(nullthrows(generatedNode.text)),
+          };
+          break;
+        case RelayConcreteNode.BATCH_REQUEST:
+          devOnlyProperties.requests = generatedNode.requests.map(request => ({
+            text: request.text,
+          }));
+          generatedNode = {
+            ...generatedNode,
+            requests: await Promise.all(
+              generatedNode.requests.map(async request => ({
+                ...request,
+                text: null,
+                id: await persistQuery(nullthrows(request.text)),
+              })),
+            ),
+          };
+          break;
+        case RelayConcreteNode.FRAGMENT:
+          // Do not persist fragments.
+          break;
+        default:
+          (generatedNode.kind: empty);
+      }
     }
   }
+
+  const devOnlyAssignments = deepMergeAssignments('node', devOnlyProperties);
 
   const moduleText = formatModule({
     moduleName,
     documentType: flowTypeName,
-    docText: text,
+    docText,
     flowText,
     hash: hash ? `@relayHash ${hash}` : null,
     concreteText: dedupeJSONStringify(generatedNode),
-    devTextGenerator: makeDevTextGenerator(devOnlyProperties),
+    devOnlyAssignments,
     relayRuntimeModule,
+    sourceHash,
   });
 
   codegenDir.writeFile(filename, moduleText);
   return generatedNode;
-}
-
-function makeDevTextGenerator(devOnlyProperties: Object) {
-  return objectName => {
-    const assignments = Object.keys(devOnlyProperties).map(key => {
-      const value = devOnlyProperties[key];
-      const stringifiedValue =
-        value === undefined ? 'undefined' : JSON.stringify(value);
-
-      return `  ${objectName}['${key}'] = ${stringifiedValue};`;
-    });
-
-    if (!assignments.length) {
-      return '';
-    }
-
-    return `
-
-if (__DEV__) {
-${assignments.join('\n')}
-}
-`;
-  };
 }
 
 function extractHash(text: ?string): ?string {

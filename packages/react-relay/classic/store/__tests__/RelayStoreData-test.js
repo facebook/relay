@@ -10,22 +10,21 @@
 
 'use strict';
 
-jest.enableAutomock();
+jest
+  .mock('../../legacy/store/GraphQLStoreChangeEmitter')
+  .mock('../../legacy/store/generateClientID');
 
 require('configureForRelayOSS');
-
-jest.unmock('GraphQLRange').unmock('GraphQLSegment');
 
 const {ConnectionInterface} = require('RelayRuntime');
 const RelayQueryPath = require('../../query/RelayQueryPath');
 const RelayStoreData = require('../RelayStoreData');
-const RelayGarbageCollector = require('../RelayGarbageCollector');
 const RelayTestUtils = require('RelayTestUtils');
 
 const {CLIENT_MUTATION_ID} = ConnectionInterface.get();
 
 describe('RelayStoreData', () => {
-  let RelayClassic;
+  let RelayClassic_DEPRECATED;
   let RelayQueryTracker;
 
   const {getNode, getVerbatimNode} = RelayTestUtils;
@@ -34,7 +33,7 @@ describe('RelayStoreData', () => {
     jest.resetModules();
 
     // @side-effect related to garbage collection
-    RelayClassic = require('RelayClassic');
+    RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
 
     RelayQueryTracker = require('../RelayQueryTracker');
 
@@ -46,7 +45,7 @@ describe('RelayStoreData', () => {
       const storeData = new RelayStoreData();
 
       const query = getNode(
-        RelayClassic.QL`
+        RelayClassic_DEPRECATED.QL`
         query {
           node(id:"123") {
             id
@@ -88,7 +87,7 @@ describe('RelayStoreData', () => {
       const storeData = new RelayStoreData();
 
       const query = getNode(
-        RelayClassic.QL`
+        RelayClassic_DEPRECATED.QL`
         query {
           node(id:"123") {
             id
@@ -142,7 +141,7 @@ describe('RelayStoreData', () => {
       const storeData = new RelayStoreData();
 
       const query = getNode(
-        RelayClassic.QL`
+        RelayClassic_DEPRECATED.QL`
         query {
           node(id:"123") {
             id
@@ -187,7 +186,7 @@ describe('RelayStoreData', () => {
       storeData = new RelayStoreData();
 
       fragment = getNode(
-        RelayClassic.QL`
+        RelayClassic_DEPRECATED.QL`
         fragment on Node {
           id
           doesViewerLike
@@ -198,7 +197,7 @@ describe('RelayStoreData', () => {
       `,
       );
       const query = getNode(
-        RelayClassic.QL`
+        RelayClassic_DEPRECATED.QL`
         query {
           node(id:"123") {
             id
@@ -272,7 +271,7 @@ describe('RelayStoreData', () => {
       storeData.getRecordWriter().putRecord('123');
 
       const mutationQuery = getNode(
-        RelayClassic.QL`
+        RelayClassic_DEPRECATED.QL`
         mutation {
           feedbackLike(input:$input) {
             clientMutationId
@@ -322,7 +321,7 @@ describe('RelayStoreData', () => {
       storeData.getRecordWriter().putRecord('123');
 
       const mutationQuery = getNode(
-        RelayClassic.QL`
+        RelayClassic_DEPRECATED.QL`
         mutation {
           feedbackLike(input:$input) {
             clientMutationId
@@ -385,7 +384,7 @@ describe('RelayStoreData', () => {
 
         // write starting values for a query
         const query = getNode(
-          RelayClassic.QL`
+          RelayClassic_DEPRECATED.QL`
           query {
             node(id:"123") {
               id
@@ -411,7 +410,7 @@ describe('RelayStoreData', () => {
 
         // write an optimistic update with the same values as the store
         const mutationQuery = getNode(
-          RelayClassic.QL`
+          RelayClassic_DEPRECATED.QL`
           mutation {
             feedbackLike(input:$input) {
               clientMutationId
@@ -471,7 +470,7 @@ describe('RelayStoreData', () => {
     it('builds root queries for refetchable IDs', () => {
       const data = new RelayStoreData();
       const fragment = getNode(
-        RelayClassic.QL`
+        RelayClassic_DEPRECATED.QL`
         fragment on User {
           id
           name
@@ -481,7 +480,7 @@ describe('RelayStoreData', () => {
       const query = data.buildFragmentQueryForDataID(fragment, '123');
       expect(query).toEqualQueryRoot(
         getNode(
-          RelayClassic.QL`
+          RelayClassic_DEPRECATED.QL`
         query {
           node(id:"123") {
             id
@@ -501,9 +500,9 @@ describe('RelayStoreData', () => {
 
     it('builds root queries using the path for non-refetchable IDs', () => {
       const storeData = new RelayStoreData();
-      const addressFragment = RelayClassic.QL`fragment on User{id,address{city}}`;
+      const addressFragment = RelayClassic_DEPRECATED.QL`fragment on User{id,address{city}}`;
       const node = getNode(
-        RelayClassic.QL`
+        RelayClassic_DEPRECATED.QL`
         query {
           node(id: "123") {
             id
@@ -524,7 +523,7 @@ describe('RelayStoreData', () => {
       storeData.handleQueryPayload(node, payload);
 
       const fragment = getNode(
-        RelayClassic.QL`
+        RelayClassic_DEPRECATED.QL`
         fragment on StreetAddress {
           city
         }
@@ -533,7 +532,7 @@ describe('RelayStoreData', () => {
       const query = storeData.buildFragmentQueryForDataID(fragment, 'client:1');
       expect(query).toEqualQueryRoot(
         getVerbatimNode(
-          RelayClassic.QL`
+          RelayClassic_DEPRECATED.QL`
         query RelayStoreData($id_0: ID!) {
           node(id: $id_0) {
             ... on User {
@@ -554,51 +553,6 @@ describe('RelayStoreData', () => {
       expect(query.getName()).toBe(node.getName());
       expect(query.isAbstract()).toBe(true);
     });
-  });
-
-  describe('garbage collection', () => {
-    it('initializes the garbage collector if no data has been added', () => {
-      const data = new RelayStoreData();
-      expect(data.getGarbageCollector()).toBe(undefined);
-      expect(() => data.initializeGarbageCollector()).not.toThrow();
-      expect(data.getGarbageCollector() instanceof RelayGarbageCollector).toBe(
-        true,
-      );
-    });
-
-    it('warns if initialized after data has been added', () => {
-      jest.mock('warning');
-
-      const response = {node: {id: '123', __typename: 'User'}};
-      const data = new RelayStoreData();
-      const query = getNode(RelayClassic.QL`query{node(id:"123") {id}}`);
-      data.handleQueryPayload(query, response);
-
-      const warningMsg =
-        'RelayStoreData: Garbage collection can only be initialized when ' +
-        'no data is present.';
-      expect([warningMsg]).toBeWarnedNTimes(0);
-      data.initializeGarbageCollector();
-      expect([warningMsg]).toBeWarnedNTimes(1);
-    });
-
-    it(
-      'registers created dataIDs in the garbage collector if it has been ' +
-        'initialized',
-      () => {
-        RelayGarbageCollector.prototype.register = jest.fn();
-        const response = {node: {id: '123'}};
-        const data = new RelayStoreData();
-        data.initializeGarbageCollector();
-        const query = getNode(RelayClassic.QL`query{node(id:"123") {id}}`);
-        const garbageCollector = data.getGarbageCollector();
-
-        expect(garbageCollector.register).not.toBeCalled();
-        data.handleQueryPayload(query, response);
-        expect(garbageCollector.register).toBeCalled();
-        expect(garbageCollector.register.mock.calls[0][0]).toBe('123');
-      },
-    );
   });
 
   describe('injectQueryTracker()', () => {
@@ -628,7 +582,7 @@ describe('RelayStoreData', () => {
   it('should toJSON', () => {
     const storeData = new RelayStoreData();
     const query = getNode(
-      RelayClassic.QL`
+      RelayClassic_DEPRECATED.QL`
       query {
         node(id:"123") {
           id

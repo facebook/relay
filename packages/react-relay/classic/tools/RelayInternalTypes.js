@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayInternalTypes
  * @flow
  * @format
  */
@@ -17,8 +16,8 @@
  * These are types shared across multiple files within Relay internals.
  */
 
-import typeof GraphQLMutatorConstants from '../legacy/mutation/GraphQLMutatorConstants';
 import type RelayQuery from '../query/RelayQuery';
+import type {DataID} from 'RelayRuntime';
 
 type AfterConnectionArgumentMap = {
   after: string,
@@ -42,12 +41,6 @@ type InitialHeadConnectionArgumentMap = {
 };
 type InitialTailConnectionArgumentMap = {
   last: number,
-};
-type RangeBehaviorsFunction = (connectionArgs: {
-  [argName: string]: CallValue,
-}) => $Keys<GraphQLMutatorConstants.RANGE_OPERATIONS>;
-type RangeBehaviorsObject = {
-  [key: string]: $Keys<GraphQLMutatorConstants.RANGE_OPERATIONS>,
 };
 type TailConnectionArgumentMap = {
   after: string,
@@ -73,7 +66,6 @@ export type ConnectionArgumentsMap =
   | InitialHeadConnectionArgumentMap
   | InitialTailConnectionArgumentMap
   | TailConnectionArgumentMap;
-export type DataID = string;
 export type Directive = {
   args: Array<Call>,
   name: string,
@@ -91,7 +83,6 @@ export type PrintedQuery = {
   variables: {[key: string]: mixed},
 };
 export type QueryPayload = {[key: string]: mixed};
-export type RangeBehaviors = RangeBehaviorsFunction | RangeBehaviorsObject;
 export type RelayQuerySet = {[queryName: string]: ?RelayQuery.Root};
 export type RootCallMap = {[storageKey: string]: IdentifyingArgsMap};
 export type UpdateOptions = {

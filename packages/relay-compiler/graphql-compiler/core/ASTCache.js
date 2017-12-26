@@ -11,6 +11,8 @@
 
 'use strict';
 
+const Profiler = require('./GraphQLCompilerProfiler');
+
 const {Map: ImmutableMap} = require('immutable');
 
 import type {File} from '../codegen/CodegenTypes';
@@ -26,7 +28,7 @@ class ASTCache {
 
   constructor(config: {baseDir: string, parse: ParseFn}) {
     this._baseDir = config.baseDir;
-    this._parse = config.parse;
+    this._parse = Profiler.instrument(config.parse, 'ASTCache.parseFn');
   }
 
   // Short-term: we don't do subscriptions/delta updates, instead always use all definitions

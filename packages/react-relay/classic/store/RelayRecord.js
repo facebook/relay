@@ -4,17 +4,15 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayRecord
  * @flow
  * @format
  */
 
 'use strict';
 
-import type GraphQLRange from '../legacy/store/GraphQLRange';
 import type {QueryPath} from '../query/RelayQueryPath';
-import type {Call, ClientMutationID, DataID} from '../tools/RelayInternalTypes';
-import type {Variables} from '../tools/RelayTypes';
+import type {Call, ClientMutationID} from '../tools/RelayInternalTypes';
+import type {DataID, Variables} from 'RelayRuntime';
 
 export type Record = {
   // Records may contain many other fields as [fieldName: string]: mixed
@@ -24,7 +22,7 @@ export type Record = {
   __mutationIDs__?: Array<ClientMutationID>,
   __mutationStatus__?: string,
   __path__?: QueryPath,
-  __range__?: GraphQLRange,
+  __range__?: any, // GraphQLRange
   __resolvedDeferredFragments__?: {[fragmentID: string]: boolean},
   __resolvedFragmentMapGeneration__?: number,
   __resolvedFragmentMap__?: {[fragmentID: string]: boolean},
@@ -100,9 +98,9 @@ const RelayRecord = {
   },
 
   /**
-  * Checks whether the given ID was created on the client, as opposed to an ID
-  * that's understood by the server as well.
-  */
+   * Checks whether the given ID was created on the client, as opposed to an ID
+   * that's understood by the server as well.
+   */
   isClientID(dataID: string): boolean {
     return dataID.indexOf('client:') === 0;
   },

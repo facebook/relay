@@ -11,28 +11,31 @@
 
 'use strict';
 
-const RelayCompiler = require('./RelayCompiler');
+const GraphQLCompilerContext = require('./graphql-compiler/core/GraphQLCompilerContext');
+const RelayCodeGenerator = require('./codegen/RelayCodeGenerator');
 const RelayFileWriter = require('./codegen/RelayFileWriter');
 const RelayIRTransforms = require('./core/RelayIRTransforms');
 const RelayJSModuleParser = require('./core/RelayJSModuleParser');
+const RelayParser = require('./core/RelayParser');
 
+const compileRelayArtifacts = require('./codegen/compileRelayArtifacts');
 const formatGeneratedModule = require('./codegen/formatGeneratedModule');
 
 const {
+  ASTConvert,
   CodegenRunner,
   ConsoleReporter,
   MultiReporter,
-} = require('./graphql-compiler/GraphQLCompilerPublic');
+} = require('graphql-compiler');
 
-export type {
-  CompileResult,
-  ParserConfig,
-  WriterConfig,
-} from './graphql-compiler/GraphQLCompilerPublic';
+export type {CompileResult, ParserConfig, WriterConfig} from 'graphql-compiler';
 
 module.exports = {
-  Compiler: RelayCompiler,
   ConsoleReporter,
+  Parser: RelayParser,
+  CodeGenerator: RelayCodeGenerator,
+
+  GraphQLCompilerContext,
 
   /** @deprecated Use JSModuleParser. */
   FileIRParser: RelayJSModuleParser,
@@ -42,5 +45,8 @@ module.exports = {
   JSModuleParser: RelayJSModuleParser,
   MultiReporter,
   Runner: CodegenRunner,
+  compileRelayArtifacts,
   formatGeneratedModule,
+  convertASTDocuments: ASTConvert.convertASTDocuments,
+  transformASTSchema: ASTConvert.transformASTSchema,
 };

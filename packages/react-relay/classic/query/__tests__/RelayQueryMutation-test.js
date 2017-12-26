@@ -12,7 +12,7 @@
 
 require('configureForRelayOSS');
 
-const RelayClassic = require('RelayClassic');
+const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
 const {ConnectionInterface} = require('RelayRuntime');
 const RelayTestUtils = require('RelayTestUtils');
 
@@ -38,7 +38,7 @@ describe('RelayQueryMutation', () => {
       },
     });
     mutationQuery = getNode(
-      RelayClassic.QL`
+      RelayClassic_DEPRECATED.QL`
       mutation {
         commentCreate(input:$input) {
           clientMutationId
@@ -88,7 +88,7 @@ describe('RelayQueryMutation', () => {
 
   it('tests for equality', () => {
     const equivalentQuery = getNode(
-      RelayClassic.QL`
+      RelayClassic_DEPRECATED.QL`
       mutation {
         commentCreate(input:$input) {
           clientMutationId
@@ -102,7 +102,7 @@ describe('RelayQueryMutation', () => {
       {input},
     );
     const differentQuery = getNode(
-      RelayClassic.QL`
+      RelayClassic_DEPRECATED.QL`
       mutation {
         commentCreate(input:$input) {
           clientMutationId

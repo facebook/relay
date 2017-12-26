@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule ReactRelayCompatContainerBuilder
  * @flow
  * @format
  */
@@ -26,8 +25,8 @@ const {
 
 import type {ConcreteFragmentSpread} from '../classic/query/ConcreteQuery';
 import type {VariableMapping} from '../classic/query/RelayFragmentReference';
-import type {Variables} from '../classic/tools/RelayTypes';
 import type {GeneratedNodeMap} from '../modern/ReactRelayTypes';
+import type {Variables} from 'RelayRuntime';
 
 const containerContextTypes = {
   relay: RelayPropTypes.Relay,

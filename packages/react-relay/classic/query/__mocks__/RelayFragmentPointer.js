@@ -9,7 +9,7 @@
 
 'use strict';
 
-const RelayFragmentPointer = require.requireActual('RelayFragmentPointer');
+const RelayFragmentPointer = require.requireActual('../RelayFragmentPointer');
 
 RelayFragmentPointer.createForRoot = jest.fn(
   RelayFragmentPointer.createForRoot,

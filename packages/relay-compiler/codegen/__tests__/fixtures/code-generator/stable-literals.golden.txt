@@ -1,0 +1,56 @@
+{
+  "kind": "Request",
+  "operationKind": "query",
+  "name": "StableLiteralsTest",
+  "id": null,
+  "text": null,
+  "metadata": {},
+  "fragment": null,
+  "operation": {
+    "kind": "Operation",
+    "name": "StableLiteralsTest",
+    "argumentDefinitions": [],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "me",
+        "storageKey": null,
+        "args": null,
+        "concreteType": "User",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "LinkedField",
+            "alias": null,
+            "name": "storyCommentSearch",
+            "storageKey": "storyCommentSearch(query:{\"limit\":2,\"offset\":10,\"text\":\"foo\"})",
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "query",
+                "value": {
+                  "limit": 2,
+                  "offset": 10,
+                  "text": "foo"
+                },
+                "type": "StoryCommentSearchInput"
+              }
+            ],
+            "concreteType": "Comment",
+            "plural": true,
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "id",
+                "args": null,
+                "storageKey": null
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

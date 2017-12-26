@@ -11,14 +11,13 @@
 
 'use strict';
 
-const RelayConcreteNode = require('RelayConcreteNode');
 const RelayObservable = require('RelayObservable');
 
 const invariant = require('invariant');
 
 const {convertFetch, convertSubscribe} = require('ConvertToExecuteFunction');
 
-import type {CacheConfig} from 'RelayCombinedEnvironmentTypes';
+import type {Variables} from '../util/RelayRuntimeTypes';
 import type {RequestNode} from 'RelayConcreteNode';
 import type {
   FetchFunction,
@@ -27,7 +26,7 @@ import type {
   SubscribeFunction,
   UploadableMap,
 } from 'RelayNetworkTypes';
-import type {Variables} from 'RelayTypes';
+import type {CacheConfig} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 /**
  * Creates an implementation of the `Network` interface defined in
@@ -44,17 +43,12 @@ function create(
     : undefined;
 
   function execute(
-    _request: RequestNode,
+    request: RequestNode,
     variables: Variables,
     cacheConfig: CacheConfig,
     uploadables?: ?UploadableMap,
   ): RelayObservable<ExecutePayload> {
-    // Const so Flow can refine.
-    const request = _request;
-    if (
-      request.kind === RelayConcreteNode.OPERATION &&
-      request.operation === 'subscription'
-    ) {
+    if (request.operationKind === 'subscription') {
       invariant(
         observeSubscribe,
         'RelayNetwork: This network layer does not support Subscriptions. ' +

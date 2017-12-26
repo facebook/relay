@@ -9,7 +9,7 @@
 
 'use strict';
 
-const RelayRecord = require.requireActual('RelayRecord');
+const RelayRecord = require.requireActual('../RelayRecord');
 
 Object.keys(RelayRecord).forEach(name => {
   const method = RelayRecord[name];

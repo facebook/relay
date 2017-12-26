@@ -10,13 +10,16 @@
 
 'use strict';
 
-jest.enableAutomock().mock('warning');
-
 require('configureForRelayOSS');
+
+jest
+  .mock('warning')
+  .mock('../../route/RelayRoute')
+  .mock('../../legacy/store/GraphQLStoreQueryResolver');
 
 const GraphQLStoreQueryResolver = require('../../legacy/store/GraphQLStoreQueryResolver');
 const React = require('React');
-const RelayClassic = require('RelayClassic');
+const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
 const RelayEnvironment = require('../../store/RelayEnvironment');
 const RelayTestUtils = require('RelayTestUtils');
 
@@ -36,11 +39,12 @@ describe('RelayContainer', function() {
     };
 
     mockCreateContainer = component => {
-      MockContainer = RelayClassic.createContainer(component, {
+      MockContainer = RelayClassic_DEPRECATED.createContainer(component, {
         initialVariables: {site: 'mobile'},
         fragments: {
           foo: jest.fn(
-            () => RelayClassic.QL`fragment on Node{id,url(site:$site)}`,
+            () =>
+              RelayClassic_DEPRECATED.QL`fragment on Node{id,url(site:$site)}`,
           ),
         },
       });
@@ -73,7 +77,7 @@ describe('RelayContainer', function() {
     expect(instance.refs.component instanceof MockComponent).toBe(true);
   });
 
-  it('provides RelayClassic statics', () => {
+  it('provides RelayClassic_DEPRECATED statics', () => {
     // The correct implementation of these is asserted in other tests. This
     // test merely checks if the public API exists.
     expect(typeof MockContainer.getFragmentNames).toEqual('function');

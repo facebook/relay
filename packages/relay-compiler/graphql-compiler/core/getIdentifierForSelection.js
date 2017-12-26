@@ -12,7 +12,8 @@
 'use strict';
 
 const invariant = require('invariant');
-const stableJSONStringify = require('../util/stableJSONStringifyOSS');
+
+const {printArguments, printDirectives} = require('./GraphQLIRPrinter');
 
 import type {Selection} from './GraphQLIR';
 
@@ -22,40 +23,31 @@ import type {Selection} from './GraphQLIR';
  * variable and passing value for conditions.
  */
 function getIdentifierForSelection(node: Selection): string {
-  let obj;
-  switch (node.kind) {
-    case 'LinkedField':
-    case 'ScalarField':
-      obj = {
-        directives: node.directives,
-        field: node.alias || node.name,
-      };
-      break;
-    case 'InlineFragment':
-      obj = {
-        inlineFragment: node.typeCondition.toString(),
-      };
-      break;
-    case 'Condition':
-      obj = {
-        condition: node.condition,
-        passingValue: node.passingValue,
-      };
-      break;
-    case 'FragmentSpread':
-      obj = {
-        fragmentSpread: node.name,
-        args: node.args,
-      };
-      break;
-    default:
-      invariant(
-        false,
-        'getIdentifierForSelection: Unexpected kind `%s`.',
-        node.kind,
-      );
+  if (node.kind === 'LinkedField' || node.kind === 'ScalarField') {
+    return node.directives.length === 0
+      ? node.alias || node.name
+      : (node.alias || node.name) + printDirectives(node.directives);
+  } else if (node.kind === 'FragmentSpread') {
+    return node.args.length === 0
+      ? '...' + node.name
+      : '...' + node.name + printArguments(node.args);
+  } else if (node.kind === 'InlineFragment') {
+    return 'I:' + node.typeCondition.name;
+  } else if (node.kind === 'Condition') {
+    return (
+      'C:' +
+      (node.condition.kind === 'Variable'
+        ? '$' + node.condition.variableName
+        : String(node.condition.value)) +
+      String(node.passingValue)
+    );
+  } else {
+    invariant(
+      false,
+      'getIdentifierForSelection: Unexpected kind `%s`.',
+      (node.kind: empty),
+    );
   }
-  return stableJSONStringify(obj);
 }
 
 module.exports = getIdentifierForSelection;

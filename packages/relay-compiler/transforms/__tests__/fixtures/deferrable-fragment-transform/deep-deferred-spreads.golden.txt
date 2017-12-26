@@ -1,0 +1,453 @@
+query TestDeepDeferredSpreads(
+  $size: [Int]
+) {
+  me {
+    ... on User {
+      ... on Node {
+        Birthdate_deferrableID: id
+      }
+    }
+    ... on User {
+      ... on Node {
+        FriendBirthdates_deferrableID: id
+      }
+    }
+  }
+}
+
+fragment FriendBirthdates on User {
+  friends {
+    edges {
+      node {
+        ... on User {
+          ... on Node {
+            Birthdate_deferrableID: id
+          }
+        }
+      }
+    }
+  }
+}
+
+fragment Birthdate on User {
+  birthdate {
+    day
+    month
+    year
+  }
+}
+
+query Birthdate_Deferrable(
+  $deferrableID: ID
+) {
+  node(id: $deferrableID) {
+    ...Birthdate
+  }
+}
+
+query FriendBirthdates_Deferrable(
+  $deferrableID: ID
+) {
+  node(id: $deferrableID) {
+    ...FriendBirthdates
+  }
+}
+
+
+{
+  "kind": "Root",
+  "operation": "query",
+  "metadata": null,
+  "name": "TestDeepDeferredSpreads",
+  "dependentRequests": [
+    {
+      "operationName": "Birthdate_Deferrable",
+      "metadata": {
+        "deferrable": true,
+        "fragmentName": "Birthdate",
+        "rootFieldVariable": "deferrableID"
+      },
+      "argumentDependencies": [
+        {
+          "kind": "ArgumentDependency",
+          "argumentName": "deferrableID",
+          "fromName": "TestDeepDeferredSpreads",
+          "fromPath": "me.Birthdate_deferrableID",
+          "ifList": "each",
+          "ifNull": "skip"
+        }
+      ]
+    },
+    {
+      "operationName": "FriendBirthdates_Deferrable",
+      "metadata": {
+        "deferrable": true,
+        "fragmentName": "FriendBirthdates",
+        "rootFieldVariable": "deferrableID"
+      },
+      "argumentDependencies": [
+        {
+          "kind": "ArgumentDependency",
+          "argumentName": "deferrableID",
+          "fromName": "TestDeepDeferredSpreads",
+          "fromPath": "me.FriendBirthdates_deferrableID",
+          "ifList": "each",
+          "ifNull": "skip"
+        }
+      ]
+    }
+  ],
+  "argumentDefinitions": [
+    {
+      "kind": "LocalArgumentDefinition",
+      "metadata": null,
+      "name": "size",
+      "defaultValue": null,
+      "type": "[Int]"
+    }
+  ],
+  "directives": [],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "args": [],
+      "directives": [],
+      "metadata": null,
+      "name": "me",
+      "selections": [
+        {
+          "kind": "InlineFragment",
+          "metadata": null,
+          "typeCondition": "User",
+          "directives": [],
+          "selections": [
+            {
+              "kind": "InlineFragment",
+              "metadata": null,
+              "typeCondition": "Node",
+              "directives": [],
+              "selections": [
+                {
+                  "kind": "ScalarField",
+                  "name": "id",
+                  "alias": "Birthdate_deferrableID",
+                  "args": [],
+                  "handles": null,
+                  "directives": [],
+                  "metadata": {
+                    "deferrable": true,
+                    "deferred": true,
+                    "deferredFragmentName": "Birthdate",
+                    "deferredArgumentName": "deferrableID",
+                    "deferredArgumentStorageKey": "id",
+                    "idType": "ID"
+                  },
+                  "type": "ID"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "InlineFragment",
+          "metadata": null,
+          "typeCondition": "User",
+          "directives": [],
+          "selections": [
+            {
+              "kind": "InlineFragment",
+              "metadata": null,
+              "typeCondition": "Node",
+              "directives": [],
+              "selections": [
+                {
+                  "kind": "ScalarField",
+                  "name": "id",
+                  "alias": "FriendBirthdates_deferrableID",
+                  "args": [],
+                  "handles": null,
+                  "directives": [],
+                  "metadata": {
+                    "deferrable": true,
+                    "deferred": true,
+                    "deferredFragmentName": "FriendBirthdates",
+                    "deferredArgumentName": "deferrableID",
+                    "deferredArgumentStorageKey": "id",
+                    "idType": "ID"
+                  },
+                  "type": "ID"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "type": "User"
+    }
+  ],
+  "type": "Query"
+}
+{
+  "kind": "Fragment",
+  "directives": [],
+  "metadata": null,
+  "name": "FriendBirthdates",
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "args": [],
+      "directives": [],
+      "metadata": null,
+      "name": "friends",
+      "selections": [
+        {
+          "kind": "LinkedField",
+          "alias": null,
+          "args": [],
+          "directives": [],
+          "metadata": null,
+          "name": "edges",
+          "selections": [
+            {
+              "kind": "LinkedField",
+              "alias": null,
+              "args": [],
+              "directives": [],
+              "metadata": null,
+              "name": "node",
+              "selections": [
+                {
+                  "kind": "InlineFragment",
+                  "metadata": null,
+                  "typeCondition": "User",
+                  "directives": [],
+                  "selections": [
+                    {
+                      "kind": "InlineFragment",
+                      "metadata": null,
+                      "typeCondition": "Node",
+                      "directives": [],
+                      "selections": [
+                        {
+                          "kind": "ScalarField",
+                          "name": "id",
+                          "alias": "Birthdate_deferrableID",
+                          "args": [],
+                          "handles": null,
+                          "directives": [],
+                          "metadata": {
+                            "deferrable": true,
+                            "deferred": true,
+                            "deferredFragmentName": "Birthdate",
+                            "deferredArgumentName": "deferrableID",
+                            "deferredArgumentStorageKey": "id",
+                            "idType": "ID"
+                          },
+                          "type": "ID"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "type": "User"
+            }
+          ],
+          "type": "[FriendsEdge]"
+        }
+      ],
+      "type": "FriendsConnection"
+    }
+  ],
+  "type": "User",
+  "argumentDefinitions": []
+}
+{
+  "kind": "Fragment",
+  "directives": [],
+  "metadata": null,
+  "name": "Birthdate",
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "args": [],
+      "directives": [],
+      "metadata": null,
+      "name": "birthdate",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "args": [],
+          "directives": [],
+          "metadata": null,
+          "name": "day",
+          "type": "Int"
+        },
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "args": [],
+          "directives": [],
+          "metadata": null,
+          "name": "month",
+          "type": "Int"
+        },
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "args": [],
+          "directives": [],
+          "metadata": null,
+          "name": "year",
+          "type": "Int"
+        }
+      ],
+      "type": "Date"
+    }
+  ],
+  "type": "User",
+  "argumentDefinitions": []
+}
+{
+  "kind": "Root",
+  "operation": "query",
+  "metadata": {
+    "deferred": true
+  },
+  "name": "Birthdate_Deferrable",
+  "dependentRequests": [],
+  "argumentDefinitions": [
+    {
+      "kind": "LocalArgumentDefinition",
+      "metadata": null,
+      "name": "deferrableID",
+      "defaultValue": null,
+      "type": "ID"
+    }
+  ],
+  "directives": [],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "name": "node",
+      "alias": null,
+      "args": [
+        {
+          "kind": "Argument",
+          "name": "id",
+          "metadata": null,
+          "value": {
+            "kind": "Variable",
+            "variableName": "deferrableID",
+            "metadata": null,
+            "type": "ID"
+          },
+          "type": "ID"
+        }
+      ],
+      "directives": [],
+      "metadata": null,
+      "handles": null,
+      "selections": [
+        {
+          "kind": "FragmentSpread",
+          "args": [],
+          "name": "Birthdate",
+          "metadata": {
+            "deferred": true,
+            "deferredFragmentName": "Birthdate",
+            "deferredArgumentName": "deferrableID",
+            "deferredArgumentStorageKey": "id",
+            "idType": "ID"
+          },
+          "directives": []
+        }
+      ],
+      "type": "Node"
+    }
+  ],
+  "type": "Query"
+}
+{
+  "kind": "Root",
+  "operation": "query",
+  "metadata": {
+    "deferred": true
+  },
+  "name": "FriendBirthdates_Deferrable",
+  "dependentRequests": [
+    {
+      "operationName": "Birthdate_Deferrable",
+      "metadata": {
+        "deferrable": true,
+        "fragmentName": "Birthdate",
+        "rootFieldVariable": "deferrableID"
+      },
+      "argumentDependencies": [
+        {
+          "kind": "ArgumentDependency",
+          "argumentName": "deferrableID",
+          "fromName": "FriendBirthdates",
+          "fromPath": "friends.edges[*].node.Birthdate_deferrableID",
+          "ifList": "each",
+          "ifNull": "skip"
+        }
+      ]
+    }
+  ],
+  "argumentDefinitions": [
+    {
+      "kind": "LocalArgumentDefinition",
+      "metadata": null,
+      "name": "deferrableID",
+      "defaultValue": null,
+      "type": "ID"
+    }
+  ],
+  "directives": [],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "name": "node",
+      "alias": null,
+      "args": [
+        {
+          "kind": "Argument",
+          "name": "id",
+          "metadata": null,
+          "value": {
+            "kind": "Variable",
+            "variableName": "deferrableID",
+            "metadata": null,
+            "type": "ID"
+          },
+          "type": "ID"
+        }
+      ],
+      "directives": [],
+      "metadata": null,
+      "handles": null,
+      "selections": [
+        {
+          "kind": "FragmentSpread",
+          "args": [],
+          "name": "FriendBirthdates",
+          "metadata": {
+            "deferred": true,
+            "deferredFragmentName": "FriendBirthdates",
+            "deferredArgumentName": "deferrableID",
+            "deferredArgumentStorageKey": "id",
+            "idType": "ID"
+          },
+          "directives": []
+        }
+      ],
+      "type": "Node"
+    }
+  ],
+  "type": "Query"
+}

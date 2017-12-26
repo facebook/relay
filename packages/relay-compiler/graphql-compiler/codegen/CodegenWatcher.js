@@ -11,6 +11,7 @@
 'use strict';
 
 const GraphQLWatchmanClient = require('../core/GraphQLWatchmanClient');
+const Profiler = require('../core/GraphQLCompilerProfiler');
 
 const crypto = require('crypto');
 const fs = require('fs');
@@ -38,18 +39,20 @@ async function queryFiles(
   expression: WatchmanExpression,
   filter: FileFilter,
 ): Promise<Set<File>> {
-  const client = new GraphQLWatchmanClient();
-  const [watchResp, fields] = await Promise.all([
-    client.watchProject(baseDir),
-    getFields(client),
-  ]);
-  const resp = await client.command('query', watchResp.root, {
-    expression,
-    fields: fields,
-    relative_root: watchResp.relativePath,
+  return await Profiler.waitFor('Watchman:query', async () => {
+    const client = new GraphQLWatchmanClient();
+    const [watchResp, fields] = await Promise.all([
+      client.watchProject(baseDir),
+      getFields(client),
+    ]);
+    const resp = await client.command('query', watchResp.root, {
+      expression,
+      fields: fields,
+      relative_root: watchResp.relativePath,
+    });
+    client.end();
+    return updateFiles(new Set(), baseDir, filter, resp.files);
   });
-  client.end();
-  return updateFiles(new Set(), baseDir, filter, resp.files);
 }
 
 async function getFields(
@@ -88,16 +91,18 @@ async function watch(
   expression: WatchmanExpression,
   callback: (changes: WatchmanChanges) => any,
 ): Promise<void> {
-  const client = new GraphQLWatchmanClient();
-  const watchResp = await client.watchProject(baseDir);
+  return await Profiler.waitFor('Watchman:subscribe', async () => {
+    const client = new GraphQLWatchmanClient();
+    const watchResp = await client.watchProject(baseDir);
 
-  await makeSubscription(
-    client,
-    watchResp.root,
-    watchResp.relativePath,
-    expression,
-    callback,
-  );
+    await makeSubscription(
+      client,
+      watchResp.root,
+      watchResp.relativePath,
+      expression,
+      callback,
+    );
+  });
 }
 
 async function makeSubscription(

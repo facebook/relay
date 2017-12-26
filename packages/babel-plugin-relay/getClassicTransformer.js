@@ -73,11 +73,11 @@ function getSchema(
   } else if (introspection.data && introspection.data.__schema) {
     return buildClientSchema((introspection.data: any));
   } else if (introspection.kind && introspection.kind === 'Document') {
-    return buildASTSchema(introspection);
+    return buildASTSchema(introspection, {assumeValid: true});
   }
 
   throw new Error(
-    'Invalid introspection data supplied to the Babel Relay plugin. The ' +
+    'Invalid introspection data supplied to babel-plugin-relay. The ' +
       'resulting schema is not an object with a `__schema` property or ' +
       'a schema IDL language.',
   );

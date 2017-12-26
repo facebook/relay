@@ -11,18 +11,9 @@
 
 'use strict';
 
-const {
-  CompilerContext,
-  IRTransformer,
-} = require('../graphql-compiler/GraphQLCompilerPublic');
+const {CompilerContext, IRTransformer} = require('graphql-compiler');
 
-import type {
-  LinkedField,
-  ScalarField,
-} from '../graphql-compiler/GraphQLCompilerPublic';
-import type {GraphQLSchema} from 'graphql';
-
-type State = true;
+import type {LinkedField, ScalarField} from 'graphql-compiler';
 
 /**
  * A transform that removes field `handles`. Intended for use when e.g.
@@ -30,20 +21,15 @@ type State = true;
  */
 function relaySkipHandleFieldTransform(
   context: CompilerContext,
-  schema: GraphQLSchema,
 ): CompilerContext {
-  return IRTransformer.transform(
-    context,
-    {
-      LinkedField: visitField,
-      ScalarField: visitField,
-    },
-    () => true,
-  );
+  return IRTransformer.transform(context, {
+    LinkedField: visitField,
+    ScalarField: visitField,
+  });
 }
 
-function visitField<F: LinkedField | ScalarField>(field: F, state: State): ?F {
-  const transformedNode = this.traverse(field, state);
+function visitField<F: LinkedField | ScalarField>(field: F): ?F {
+  const transformedNode = this.traverse(field);
   if (transformedNode.handles) {
     return {
       ...transformedNode,

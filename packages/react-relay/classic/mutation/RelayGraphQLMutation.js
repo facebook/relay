@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayGraphQLMutation
  * @flow
  * @format
  */
@@ -24,15 +23,14 @@ import type {RelayConcreteNode} from '../query/RelayQL';
 import type {RelayEnvironmentInterface} from '../store/RelayEnvironment';
 import type RelayStoreData from '../store/RelayStoreData';
 import type {ClientMutationID} from '../tools/RelayInternalTypes';
+import type {RelayMutationTransactionCommitCallbacks} from '../tools/RelayTypes';
 import type {
-  RelayMutationConfig,
   RelayMutationTransactionCommitFailureCallback,
   RelayMutationTransactionCommitSuccessCallback,
-  Variables,
 } from '../tools/RelayTypes';
-import type {RelayMutationTransactionCommitCallbacks} from '../tools/RelayTypes';
 import type {FileMap} from './RelayMutation';
 import type RelayMutationTransaction from './RelayMutationTransaction';
+import type {DeclarativeMutationConfig, Variables} from 'RelayRuntime';
 
 const COUNTER_PREFIX = 'RelayGraphQLMutation';
 let collisionIDCounter = 0;
@@ -165,7 +163,7 @@ class RelayGraphQLMutation {
   applyOptimistic(
     optimisticQuery: RelayConcreteNode,
     optimisticResponse: Object,
-    configs: ?Array<RelayMutationConfig>,
+    configs: ?Array<DeclarativeMutationConfig>,
   ): RelayMutationTransaction {
     invariant(
       !this._transaction,
@@ -190,7 +188,7 @@ class RelayGraphQLMutation {
    *
    * Note: This method may only be called once per instance.
    */
-  commit(configs: ?Array<RelayMutationConfig>): RelayMutationTransaction {
+  commit(configs: ?Array<DeclarativeMutationConfig>): RelayMutationTransaction {
     if (!this._transaction) {
       this._transaction = this._createTransaction();
     }
@@ -241,10 +239,10 @@ class PendingGraphQLTransaction {
 
   // Other properties:
   _collisionKey: string;
-  _configs: Array<RelayMutationConfig>;
+  _configs: Array<DeclarativeMutationConfig>;
   _files: ?FileMap;
   _mutation: ?RelayQuery.Mutation;
-  _optimisticConfigs: ?Array<RelayMutationConfig>;
+  _optimisticConfigs: ?Array<DeclarativeMutationConfig>;
   _optimisticResponse: ?Object;
   _optimisticQuery: ?RelayConcreteNode;
   _optimisticMutation: ?RelayQuery.Mutation;
@@ -299,7 +297,7 @@ class PendingGraphQLTransaction {
     return this._collisionKey;
   }
 
-  getConfigs(): Array<RelayMutationConfig> {
+  getConfigs(): Array<DeclarativeMutationConfig> {
     return this._configs;
   }
 
@@ -307,7 +305,7 @@ class PendingGraphQLTransaction {
     return this._files;
   }
 
-  getOptimisticConfigs(): ?Array<RelayMutationConfig> {
+  getOptimisticConfigs(): ?Array<DeclarativeMutationConfig> {
     return this._optimisticConfigs;
   }
 
@@ -346,7 +344,7 @@ class PendingGraphQLTransaction {
 
   // Additional methods outside the PendingTransaction interface.
 
-  commit(configs: ?Array<RelayMutationConfig>): RelayMutationTransaction {
+  commit(configs: ?Array<DeclarativeMutationConfig>): RelayMutationTransaction {
     if (configs) {
       this._configs = configs;
     }
@@ -354,7 +352,7 @@ class PendingGraphQLTransaction {
   }
 
   applyOptimistic(
-    configs: ?Array<RelayMutationConfig>,
+    configs: ?Array<DeclarativeMutationConfig>,
   ): RelayMutationTransaction {
     if (configs) {
       this._optimisticConfigs = configs;

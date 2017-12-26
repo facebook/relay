@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayRecordStore
  * @flow
  * @format
  */
@@ -26,13 +25,13 @@ import type {QueryPath} from '../query/RelayQueryPath';
 import type {
   Call,
   ClientMutationID,
-  DataID,
   FieldValue,
   NodeRangeMap,
   RootCallMap,
 } from '../tools/RelayInternalTypes';
 import type {RecordState} from './RelayClassicRecordState';
 import type {Record, RecordMap} from './RelayRecord';
+import type {DataID} from 'RelayRuntime';
 import type {PageInfo} from 'RelayRuntime';
 
 type RangeEdge = {

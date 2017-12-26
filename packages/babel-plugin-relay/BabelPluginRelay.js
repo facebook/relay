@@ -22,11 +22,21 @@ import type {Validator} from './RelayQLTransformer';
 import typeof BabelTypes from 'babel-types';
 
 export type RelayPluginOptions = {
-  schema?: string,
-  compat?: boolean,
+  // The command to run to compile Relay files, used for error messages.
+  buildCommand?: string,
+
+  // Use haste style global requires, defaults to false.
   haste?: boolean,
+
+  // Enable compat mode compiling for modern and classic runtime.
+  compat?: boolean,
+
+  // Check this global variable before validation.
+  isDevVariable?: string,
+
   // Classic options
   inputArgumentName?: string,
+  schema?: string,
   snakeCase?: boolean,
   substituteVariables?: boolean,
   validator?: Validator<any>,

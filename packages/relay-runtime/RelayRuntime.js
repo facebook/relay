@@ -15,6 +15,7 @@ const RelayConcreteNode = require('RelayConcreteNode');
 const RelayConnectionHandler = require('RelayConnectionHandler');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayCore = require('RelayCore');
+const RelayDeclarativeMutationConfig = require('RelayDeclarativeMutationConfig');
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('RelayMarkSweepStore');
 const RelayModernEnvironment = require('RelayModernEnvironment');
@@ -35,13 +36,10 @@ const recycleNodesInto = require('recycleNodesInto');
 const requestRelaySubscription = require('requestRelaySubscription');
 const simpleClone = require('simpleClone');
 
-// There's a lint false positive for opaque types
-// eslint-disable-next-line no-undef
-export opaque type FragmentReference<T> = mixed;
-
-export type {RecordState} from 'RelayRecordState';
+export type {DataID, Disposable, Variables} from './util/RelayRuntimeTypes';
 export type {
   GeneratedNode,
+  ConcreteRequest,
   ConcreteBatchRequest,
   ConcreteOperation,
   ConcreteFragment,
@@ -50,26 +48,33 @@ export type {
 export type {ConnectionMetadata} from 'RelayConnectionHandler';
 export type {EdgeRecord, PageInfo} from 'RelayConnectionInterface';
 export type {
-  ObservableFromValue,
-  Observer,
-  Subscribable,
-  Subscription,
-} from 'RelayObservable';
-export type {
-  Environment as IEnvironment,
-  FragmentMap,
-  OperationSelector,
-  RelayContext,
-  Selector,
-  SelectorStoreUpdater,
-  Snapshot,
-} from 'RelayStoreTypes';
+  DeclarativeMutationConfig,
+  MutationType,
+  RangeOperation,
+} from 'RelayDeclarativeMutationConfig';
 export type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 export type {
   GraphQLResponse,
   PayloadError,
   UploadableMap,
 } from 'RelayNetworkTypes';
+export type {
+  ObservableFromValue,
+  Observer,
+  Subscribable,
+  Subscription,
+} from 'RelayObservable';
+export type {RecordState} from 'RelayRecordState';
+export type {
+  Environment as IEnvironment,
+  FragmentMap,
+  FragmentReference,
+  OperationSelector,
+  RelayContext,
+  Selector,
+  SelectorStoreUpdater,
+  Snapshot,
+} from 'RelayStoreTypes';
 export type {
   OptimisticMutationConfig,
 } from 'applyRelayModernOptimisticMutation';
@@ -109,18 +114,23 @@ module.exports = {
   getDataIDsFromObject: RelayCore.getDataIDsFromObject,
   getFragment: RelayModernGraphQLTag.getFragment,
   getRequest: RelayModernGraphQLTag.getRequest,
-  // TODO: enable after getting Flow to pass
-  // getOperation: tag => {
-  //   if (__DEV__) {
-  //     warning(false, 'getOperation() deprecated. Use getRequest().');
-  //   }
-  //   return RelayModernGraphQLTag.getRequest(tag);
-  // },
+  // TODO (T23201154) remove in a future Relay release.
+  getOperation: function() {
+    if (__DEV__) {
+      require('warning')(false, 'getOperation() deprecated. Use getRequest().');
+    }
+    return RelayModernGraphQLTag.getRequest.apply(null, arguments);
+  },
   getSelector: RelayCore.getSelector,
   getSelectorList: RelayCore.getSelectorList,
   getSelectorsFromObject: RelayCore.getSelectorsFromObject,
+  getStorageKey: RelayStoreUtils.getStorageKey,
   getVariablesFromObject: RelayCore.getVariablesFromObject,
   graphql: RelayModernGraphQLTag.graphql,
+
+  // Declarative mutation API
+  MutationTypes: RelayDeclarativeMutationConfig.MutationTypes,
+  RangeOperations: RelayDeclarativeMutationConfig.RangeOperations,
 
   // Extensions
   ConnectionHandler: RelayConnectionHandler,

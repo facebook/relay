@@ -4,14 +4,13 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayChangeTracker
  * @flow
  * @format
  */
 
 'use strict';
 
-import type {DataID} from '../tools/RelayInternalTypes';
+import type {DataID} from 'RelayRuntime';
 
 type ChangeMap = {[key: string]: boolean};
 

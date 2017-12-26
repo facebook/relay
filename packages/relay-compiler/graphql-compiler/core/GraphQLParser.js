@@ -11,6 +11,8 @@
 
 'use strict';
 
+const Profiler = require('./GraphQLCompilerProfiler');
+
 const invariant = require('invariant');
 
 const {DEFAULT_HANDLE_KEY} = require('../util/DefaultHandleKey');
@@ -109,7 +111,8 @@ class GraphQLParser {
   ): Array<Root | Fragment> {
     const ast = parse(new Source(text, filename));
     const nodes = [];
-    schema = extendSchema(schema, ast);
+    // TODO T24511737 figure out if this is dangerous
+    schema = extendSchema(schema, ast, {assumeValid: true});
     ast.definitions.forEach(definition => {
       if (isOperationDefinitionAST(definition)) {
         nodes.push(this.transform(schema, definition));
@@ -126,8 +129,10 @@ class GraphQLParser {
     schema: GraphQLSchema,
     definition: OperationDefinitionNode | FragmentDefinitionNode,
   ): Root | Fragment {
-    const parser = new this(schema, definition);
-    return parser.transform();
+    return Profiler.run('GraphQLParser.transform', () => {
+      const parser = new this(schema, definition);
+      return parser.transform();
+    });
   }
 
   constructor(
@@ -397,6 +402,7 @@ class GraphQLParser {
       operation,
       metadata: null,
       name,
+      dependentRequests: [],
       argumentDefinitions,
       directives,
       selections,
@@ -405,7 +411,7 @@ class GraphQLParser {
   }
 
   _transformArgumentDefinitions(
-    argumentDefinitions: Array<VariableDefinitionNode>,
+    argumentDefinitions: $ReadOnlyArray<VariableDefinitionNode>,
   ): Array<LocalArgumentDefinition> {
     return argumentDefinitions.map(def => {
       const name = getName(def.variable);
@@ -677,7 +683,9 @@ class GraphQLParser {
     return handles;
   }
 
-  _transformDirectives(directives: Array<DirectiveNode>): Array<Directive> {
+  _transformDirectives(
+    directives: $ReadOnlyArray<DirectiveNode>,
+  ): Array<Directive> {
     return directives.map(directive => {
       const name = getName(directive);
       const directiveDef = this._schema.getDirective(name);
@@ -701,7 +709,7 @@ class GraphQLParser {
   }
 
   _transformArguments(
-    args: Array<ArgumentNode>,
+    args: $ReadOnlyArray<ArgumentNode>,
     argumentDefinitions: Array<GraphQLArgument>,
   ): Array<Argument> {
     return args.map(arg => {
@@ -779,6 +787,7 @@ class GraphQLParser {
       kind: 'Variable',
       metadata: null,
       variableName,
+      type,
     };
   }
 
@@ -801,8 +810,20 @@ class GraphQLParser {
           value: parseFloat(ast.value),
         };
       case 'StringValue':
+        return {
+          kind: 'Literal',
+          metadata: null,
+          value: ast.value,
+        };
       case 'BooleanValue':
+        // Note: duplicated because Flow does not understand fall-through cases
+        return {
+          kind: 'Literal',
+          metadata: null,
+          value: ast.value,
+        };
       case 'EnumValue':
+        // Note: duplicated because Flow does not understand fall-through cases
         return {
           kind: 'Literal',
           metadata: null,
@@ -909,15 +930,13 @@ class GraphQLParser {
         }
       case 'Variable':
         return this._transformVariable(ast, type);
-      // eslint-disable: no-fallthrough
       default:
         invariant(
           false,
           'GraphQLParser: Unknown ast kind: %s. Source: %s.',
-          ast.kind,
+          (ast.kind: empty),
           this._getErrorContext(),
         );
-      // eslint-enable
     }
   }
 }
@@ -971,8 +990,8 @@ function getName(ast): string {
  * second.
  */
 function partitionArray<Tv>(
-  array: Array<Tv>,
-  predicate: (value: Tv, index: number, array: Array<Tv>) => boolean,
+  array: $ReadOnlyArray<Tv>,
+  predicate: (value: Tv, index: number, array: $ReadOnlyArray<Tv>) => boolean,
   context?: any,
 ): [Array<Tv>, Array<Tv>] {
   var first = [];

@@ -10,12 +10,12 @@
 
 'use strict';
 
-jest.enableAutomock().mock('warning');
-
 require('configureForRelayOSS');
 
+jest.mock('warning').mock('../../query-config/RelayQueryConfig');
+
 const React = require('React');
-const RelayClassic = require('RelayClassic');
+const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
 const RelayEnvironment = require('../../store/RelayEnvironment');
 const RelayQueryConfig = require('../../query-config/RelayQueryConfig');
 const RelayRecord = require('../../store/RelayRecord');
@@ -45,9 +45,9 @@ describe('RelayContainer', () => {
           return <div />;
         }
       }
-      MockContainer = RelayClassic.createContainer(MockComponent, {
+      MockContainer = RelayClassic_DEPRECATED.createContainer(MockComponent, {
         fragments: {
-          foo: () => RelayClassic.QL`fragment on Node{id}`,
+          foo: () => RelayClassic_DEPRECATED.QL`fragment on Node{id}`,
         },
       });
       const RelayTestRenderer = RelayTestUtils.createRenderer();

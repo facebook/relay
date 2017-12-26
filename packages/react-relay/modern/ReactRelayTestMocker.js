@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule ReactRelayTestMocker
  * @flow
  * @format
  */
@@ -24,31 +23,31 @@ const {
 
 import type {CacheConfig} from '../classic/environment/RelayCombinedEnvironmentTypes';
 import type {ConcreteOperationDefinition} from '../classic/query/ConcreteQuery';
-import type {Variables} from '../classic/tools/RelayTypes';
 import type {
-  ConcreteOperation,
   GraphQLResponse,
+  IEnvironment,
   OperationSelector,
   PayloadError,
-  IEnvironment,
+  RequestNode,
+  Variables,
 } from 'RelayRuntime';
 
 type DataWriteConfig = {
-  query: ConcreteOperation,
+  query: RequestNode,
   variables: Variables,
   payload: GraphQLResponse,
 };
 
 type NetworkWriteConfig = {
-  query: ConcreteOperation,
+  query: RequestNode,
   variables?: Variables,
   payload: GraphQLResponse | (Variables => GraphQLResponse),
 };
 
-type OperationType = ConcreteOperation | ConcreteOperationDefinition;
+type RequestType = RequestNode | ConcreteOperationDefinition;
 
 type PendingFetch = {
-  operation: OperationType,
+  request: RequestType,
   variables?: Variables,
   cacheConfig: ?CacheConfig,
   ident: string,
@@ -102,16 +101,15 @@ class ReactRelayTestMocker {
 
   /**
    * Create a unique identifier for a (query, variables) pair.
-   * @param operation: the operation associated with the query
+   * @param request: the request associated with the query
    * @param variables: the variables associated with this invocation of the
    * query
    *
    * @returns a string which can later be used to uniquely identify this query
    * in the list of pending queries
    */
-  static getIdentifier(operation: OperationType): string {
-    const queryName = operation.name;
-    return queryName;
+  static getIdentifier(request: RequestType): string {
+    return request.name;
   }
 
   /**
@@ -141,8 +139,7 @@ class ReactRelayTestMocker {
    */
   _mockNetworkLayer(env: IEnvironment): IEnvironment {
     const fetch = (request, variables, cacheConfig) => {
-      const operation = request;
-      if (operation.kind === RelayConcreteNode.BATCH_REQUEST) {
+      if (request.kind === RelayConcreteNode.BATCH_REQUEST) {
         throw new Error(
           'ReactRelayTestMocker: Batch request not yet implemented (T22955064)',
         );
@@ -156,7 +153,7 @@ class ReactRelayTestMocker {
       });
 
       const strippedVars = ReactRelayTestMocker.stripUnused(variables);
-      const ident = ReactRelayTestMocker.getIdentifier(operation);
+      const ident = ReactRelayTestMocker.getIdentifier(request);
       const {createOperationSelector} = env.unstable_internal;
 
       // there's a default value for this query, use it
@@ -165,12 +162,12 @@ class ReactRelayTestMocker {
         return typeof payload === 'function' ? payload(strippedVars) : payload;
       }
 
-      const operationSelector = createOperationSelector(operation, variables);
+      const operationSelector = createOperationSelector(request, variables);
       pendingFetches.push({
         ident,
         cacheConfig,
         deferred: {resolve, reject},
-        operation,
+        request,
         variables,
         operationSelector,
       });
@@ -223,8 +220,8 @@ class ReactRelayTestMocker {
    */
   setDefault(toSet: NetworkWriteConfig): void {
     const {query, payload} = toSet;
-    const operation = query;
-    const ident = ReactRelayTestMocker.getIdentifier(operation);
+    const request = query;
+    const ident = ReactRelayTestMocker.getIdentifier(request);
 
     this._defaults[ident] = payload;
   }
@@ -234,8 +231,8 @@ class ReactRelayTestMocker {
    */
   unsetDefault(toUnset: NetworkWriteConfig): void {
     const {query} = toUnset;
-    const operation = query;
-    const ident = ReactRelayTestMocker.getIdentifier(operation);
+    const request = query;
+    const ident = ReactRelayTestMocker.getIdentifier(request);
 
     delete this._defaults[ident];
   }

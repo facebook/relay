@@ -54,7 +54,7 @@ describe('RelayPublishQueue', () => {
           log: '',
           name: 'Mark',
           pet: {[REF_KEY]: 'beast'},
-          'address{"location":"WORK"}': '1 Hacker Way',
+          'address(location:"WORK")': '1 Hacker Way',
         },
         660361306: {
           [ID_KEY]: '660361306',
@@ -595,7 +595,7 @@ describe('RelayPublishQueue', () => {
               __id: 'client:root',
               __typename: '__Root',
               me: {__ref: '4'},
-              'nodes{"ids":["4"]}': {__refs: ['4']},
+              'nodes(ids:["4"])': {__refs: ['4']},
             },
           }),
         },
@@ -619,7 +619,7 @@ describe('RelayPublishQueue', () => {
           __id: 'client:root',
           __typename: '__Root',
           me: {__ref: '4'},
-          'nodes{"ids":["4"]}': {__refs: ['4']},
+          'nodes(ids:["4"])': {__refs: ['4']},
         },
       });
       expect(notify.mock.calls.length).toBe(1);

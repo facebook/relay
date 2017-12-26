@@ -16,6 +16,7 @@ const RelayObservable = require('RelayObservable');
 
 const warning = require('warning');
 
+import type {Variables} from '../util/RelayRuntimeTypes';
 import type {RequestNode} from 'RelayConcreteNode';
 import type {
   ExecuteFunction,
@@ -24,7 +25,6 @@ import type {
   GraphQLResponse,
   SubscribeFunction,
 } from 'RelayNetworkTypes';
-import type {Variables} from 'RelayTypes';
 
 /**
  * Converts a FetchFunction into an ExecuteFunction for use by RelayNetwork.
@@ -36,7 +36,7 @@ function convertFetch(fn: FetchFunction): ExecuteFunction {
     // a failure to fetch. To avoid handling this special case throughout the
     // Relay codebase, it is explicitly handled here.
     if (result instanceof Error) {
-      return new RelayObservable(sink => sink.error(result));
+      return RelayObservable.create(sink => sink.error(result));
     }
     return RelayObservable.from(result).map(value =>
       convertToExecutePayload(request, variables, value),
@@ -50,7 +50,6 @@ function convertFetch(fn: FetchFunction): ExecuteFunction {
 function convertSubscribe(fn: SubscribeFunction): ExecuteFunction {
   return function subscribe(operation, variables, cacheConfig) {
     return RelayObservable.fromLegacy(observer =>
-      // $FlowFixMe: Flow issues with covariant Observable types.
       fn(operation, variables, cacheConfig, observer),
     ).map(value => convertToExecutePayload(operation, variables, value));
   };
@@ -81,13 +80,12 @@ function convertToExecutePayload(
 }
 
 function createExecutePayload(request, variables, response) {
-  const operation = request;
-  if (operation.kind === RelayConcreteNode.BATCH_REQUEST) {
+  if (request.kind === RelayConcreteNode.BATCH_REQUEST) {
     throw new Error(
       'ConvertToExecuteFunction: Batch request must return ExecutePayload.',
     );
   }
-  return {operation, variables, response};
+  return {operation: request.operation, variables, response};
 }
 
 module.exports = {

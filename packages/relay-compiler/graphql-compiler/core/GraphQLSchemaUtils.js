@@ -30,7 +30,6 @@ const {
 
 import type {
   ASTNode,
-  DefinitionNode,
   GraphQLCompositeType,
   GraphQLEnumType,
   GraphQLInputObjectType,
@@ -172,7 +171,7 @@ function hasConcreteTypeThatImplements(
 function getConcreteTypes(
   schema: GraphQLSchema,
   type: GraphQLType,
-): Array<GraphQLObjectType> {
+): $ReadOnlyArray<GraphQLObjectType> {
   return schema.getPossibleTypes(assertAbstractType(type));
 }
 
@@ -204,14 +203,20 @@ function isOperationDefinitionAST(ast: ASTNode): boolean %checks {
  */
 function isSchemaDefinitionAST(ast: ASTNode): boolean %checks {
   return (
-    ast.kind === 'DirectiveDefinition' ||
+    ast.kind === 'SchemaDefinition' ||
+    ast.kind === 'ScalarTypeDefinition' ||
+    ast.kind === 'ObjectTypeDefinition' ||
+    ast.kind === 'InterfaceTypeDefinition' ||
+    ast.kind === 'UnionTypeDefinition' ||
     ast.kind === 'EnumTypeDefinition' ||
     ast.kind === 'InputObjectTypeDefinition' ||
-    ast.kind === 'InterfaceTypeDefinition' ||
-    ast.kind === 'ObjectTypeDefinition' ||
-    ast.kind === 'ScalarTypeDefinition' ||
-    ast.kind === 'TypeExtensionDefinition' ||
-    ast.kind === 'UnionTypeDefinition'
+    ast.kind === 'DirectiveDefinition' ||
+    ast.kind === 'ScalarTypeExtension' ||
+    ast.kind === 'ObjectTypeExtension' ||
+    ast.kind === 'InterfaceTypeExtension' ||
+    ast.kind === 'UnionTypeExtension' ||
+    ast.kind === 'EnumTypeExtension' ||
+    ast.kind === 'InputObjectTypeExtension'
   );
 }
 
@@ -237,37 +242,8 @@ function getTypeFromAST(schema: GraphQLSchema, ast: TypeNode): GraphQLType {
   return (type: any);
 }
 
-/**
- * Given a defitinition AST node, gives us a unique name for that node.
- * Note: this can be tricky for type extensions: while types always have one
- * name, type extensions are defined by everything inside them.
- *
- * TODO @mmahoney: t16495627 write tests or remove uses of this
- */
-function definitionName(definition: DefinitionNode): string {
-  switch (definition.kind) {
-    case 'DirectiveDefinition':
-    case 'EnumTypeDefinition':
-    case 'FragmentDefinition':
-    case 'InputObjectTypeDefinition':
-    case 'InterfaceTypeDefinition':
-    case 'ObjectTypeDefinition':
-    case 'ScalarTypeDefinition':
-    case 'UnionTypeDefinition':
-      return definition.name.value;
-    case 'OperationDefinition':
-      return definition.name ? definition.name.value : '';
-    case 'TypeExtensionDefinition':
-      return definition.toString();
-    case 'SchemaDefinition':
-      return 'schema';
-  }
-  throw new Error('Unkown definition kind: ' + definition.kind);
-}
-
 module.exports = {
   assertTypeWithFields,
-  definitionName,
   canHaveSelections,
   getNullableType,
   getRawType,

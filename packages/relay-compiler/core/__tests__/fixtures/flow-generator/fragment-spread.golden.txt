@@ -1,27 +1,30 @@
+type OtherFragment$ref = any;
+type PictureFragment$ref = any;
+type UserFrag1$ref = any;
+type UserFrag2$ref = any;
 import type { FragmentReference } from 'relay-runtime';
-type OtherFragment = any;
-type PictureFragment = any;
-type UserFrag1 = any;
-type UserFrag2 = any;
+export opaque type FragmentSpread$ref: FragmentReference = FragmentReference;
 export type FragmentSpread = {|
   +id: string,
   +justFrag: ?{|
-    +__fragments: FragmentReference<PictureFragment>,
+    +__fragments: PictureFragment$ref,
   |},
   +fragAndField: ?{|
     +uri: ?string,
-    +__fragments: FragmentReference<PictureFragment>,
+    +__fragments: PictureFragment$ref,
   |},
-  +__fragments: (FragmentReference<OtherFragment> & FragmentReference<UserFrag1> & FragmentReference<UserFrag2>),
+  +__fragments: (OtherFragment$ref & UserFrag1$ref & UserFrag2$ref),
+  +$refType: FragmentSpread$ref,
 |};
 
+type PageFragment$ref = any;
 import type { FragmentReference } from 'relay-runtime';
-type PageFragment = any;
+export opaque type ConcreateTypes$ref: FragmentReference = FragmentReference;
 export type ConcreateTypes = {|
   +actor: ?({|
     +__typename: 'Page',
     +id: string,
-    +__fragments: FragmentReference<PageFragment>,
+    +__fragments: PageFragment$ref,
   |} | {|
     +__typename: 'User',
     +name: ?string,
@@ -30,4 +33,5 @@ export type ConcreateTypes = {|
     // value in case none of the concrete values match.
     +__typename: '%other',
   |}),
+  +$refType: ConcreateTypes$ref,
 |};

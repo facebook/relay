@@ -136,20 +136,20 @@ module.exports = {
      * upgrading Flow's React support are documented at
      * https://fburl.com/eq7bs81w */
     class ProxyChecker extends React.PureComponent {
-      _fooRef: ?Foo;
+      _fooRef: ?FooComponent;
       getString(): string {
         const ok = this._fooRef ? this._fooRef.getNum() : 'default'; // legit
 
-        /** $ShouldBeFlowExpectedError: Foo does not have `missingMethod` **/
+        /** $FlowExpectedError: Foo does not have `missingMethod` **/
         const bad = this._fooRef ? this._fooRef.missingMethod() : 'default';
 
-        /** $ShouldBeFlowExpectedError: Foo `getNum` gives number, but `getString` assumes string  **/
+        /** $FlowExpectedError: Foo `getNum` gives number, but `getString` assumes string  **/
         return bad ? 'not good' : ok;
       }
       render() {
         return (
           <Foo
-            ref={ref => {
+            componentRef={ref => {
               this._fooRef = ref;
             }}
             requiredProp="bar"

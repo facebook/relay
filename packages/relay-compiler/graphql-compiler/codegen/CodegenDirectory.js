@@ -11,6 +11,8 @@
 
 'use strict';
 
+const Profiler = require('../core/GraphQLCompilerProfiler');
+
 const fs = require('fs');
 const invariant = require('invariant');
 const path = require('path');
@@ -104,28 +106,33 @@ class CodegenDirectory {
     );
   }
 
-  static printChanges(changes: Changes, options: {onlyValidate: boolean}) {
-    const output = [];
-    function printFiles(label, files) {
-      if (files.length > 0) {
-        output.push(label + ':');
-        files.forEach(file => {
-          output.push(' - ' + file);
-        });
+  static printChanges(
+    changes: Changes,
+    options: {onlyValidate: boolean},
+  ): void {
+    Profiler.run('CodegenDirectory.printChanges', () => {
+      const output = [];
+      function printFiles(label, files) {
+        if (files.length > 0) {
+          output.push(label + ':');
+          files.forEach(file => {
+            output.push(' - ' + file);
+          });
+        }
       }
-    }
-    if (options.onlyValidate) {
-      printFiles('Missing', changes.created);
-      printFiles('Out of date', changes.updated);
-      printFiles('Extra', changes.deleted);
-    } else {
-      printFiles('Created', changes.created);
-      printFiles('Updated', changes.updated);
-      printFiles('Deleted', changes.deleted);
-      output.push(`Unchanged: ${changes.unchanged.length} files`);
-    }
-    // eslint-disable-next-line no-console
-    console.log(output.join('\n'));
+      if (options.onlyValidate) {
+        printFiles('Missing', changes.created);
+        printFiles('Out of date', changes.updated);
+        printFiles('Extra', changes.deleted);
+      } else {
+        printFiles('Created', changes.created);
+        printFiles('Updated', changes.updated);
+        printFiles('Deleted', changes.deleted);
+        output.push(`Unchanged: ${changes.unchanged.length} files`);
+      }
+      // eslint-disable-next-line no-console
+      console.log(output.join('\n'));
+    });
   }
 
   printChanges(): void {
@@ -158,20 +165,22 @@ class CodegenDirectory {
   }
 
   writeFile(filename: string, content: string): void {
-    this._addGenerated(filename);
-    const filePath = path.join(this._dir, filename);
-    if (fs.existsSync(filePath)) {
-      const existingContent = fs.readFileSync(filePath, 'utf8');
-      if (existingContent === content) {
-        this.changes.unchanged.push(filename);
+    Profiler.run('CodegenDirectory.writeFile', () => {
+      this._addGenerated(filename);
+      const filePath = path.join(this._dir, filename);
+      if (fs.existsSync(filePath)) {
+        const existingContent = fs.readFileSync(filePath, 'utf8');
+        if (existingContent === content) {
+          this.changes.unchanged.push(filename);
+        } else {
+          this._writeFile(filePath, content);
+          this.changes.updated.push(filename);
+        }
       } else {
         this._writeFile(filePath, content);
-        this.changes.updated.push(filename);
+        this.changes.created.push(filename);
       }
-    } else {
-      this._writeFile(filePath, content);
-      this.changes.created.push(filename);
-    }
+    });
   }
 
   _writeFile(filePath: string, content: string): void {
@@ -185,23 +194,25 @@ class CodegenDirectory {
    * files with names starting with ".").
    */
   deleteExtraFiles(): void {
-    fs.readdirSync(this._dir).forEach(actualFile => {
-      if (!this._files.has(actualFile) && !/^\./.test(actualFile)) {
-        if (!this.onlyValidate) {
-          try {
-            fs.unlinkSync(path.join(this._dir, actualFile));
-          } catch (e) {
-            throw new Error(
-              'CodegenDirectory: Failed to delete `' +
-                actualFile +
-                '` in `' +
-                this._dir +
-                '`.',
-            );
+    Profiler.run('CodegenDirectory.deleteExtraFiles', () => {
+      fs.readdirSync(this._dir).forEach(actualFile => {
+        if (!this._files.has(actualFile) && !/^\./.test(actualFile)) {
+          if (!this.onlyValidate) {
+            try {
+              fs.unlinkSync(path.join(this._dir, actualFile));
+            } catch (e) {
+              throw new Error(
+                'CodegenDirectory: Failed to delete `' +
+                  actualFile +
+                  '` in `' +
+                  this._dir +
+                  '`.',
+              );
+            }
           }
+          this.changes.deleted.push(actualFile);
         }
-        this.changes.deleted.push(actualFile);
-      }
+      });
     });
   }
 

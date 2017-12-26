@@ -11,10 +11,10 @@
 
 'use strict';
 
-import type {CacheConfig, Disposable} from 'RelayCombinedEnvironmentTypes';
-import type {RequestNode, ConcreteOperation} from 'RelayConcreteNode';
+import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
+import type {ConcreteOperation, RequestNode} from 'RelayConcreteNode';
 import type RelayObservable, {ObservableFromValue} from 'RelayObservable';
-import type {Variables} from 'RelayTypes';
+import type {CacheConfig} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 /**
  * An interface for fetching the data for one or more (possibly interdependent)
@@ -38,10 +38,15 @@ export type PayloadError = {
  * The shape of a GraphQL response as dictated by the
  * [spec](http://facebook.github.io/graphql/#sec-Response)
  */
-export type GraphQLResponse = {|
-  data?: ?PayloadData,
-  errors?: Array<PayloadError>,
-|};
+export type GraphQLResponse =
+  | {
+      data: PayloadData,
+      errors?: Array<PayloadError>,
+    }
+  | {
+      data?: ?PayloadData,
+      errors: Array<PayloadError>,
+    };
 
 /**
  * The data returned from Relay's execute function, which includes both the
@@ -54,6 +59,8 @@ export type ExecutePayload = {|
   variables: Variables,
   // The response from GraphQL execution
   response: GraphQLResponse,
+  // Default is false
+  isOptimistic?: boolean,
 |};
 
 /**
@@ -86,11 +93,9 @@ export type FetchFunction = (
  *
  * May return an Observable, otherwise must call the callbacks found in the
  * fourth parameter.
- *
- * Note: SubscribeFunction explicitly only supports ConcreteOperation.
  */
 export type SubscribeFunction = (
-  operation: ConcreteOperation,
+  request: RequestNode,
   variables: Variables,
   cacheConfig: CacheConfig,
   observer?: LegacyObserver<GraphQLResponse>,
@@ -104,8 +109,8 @@ export type Uploadable = File | Blob;
 export type UploadableMap = {[key: string]: Uploadable};
 
 // Supports legacy SubscribeFunction definitions. Do not use in new code.
-export type LegacyObserver<T> = {
-  onCompleted?: ?() => void,
-  onError?: ?(error: Error) => void,
-  onNext?: ?(data: T) => void,
-};
+export type LegacyObserver<-T> = {|
+  +onCompleted?: ?() => void,
+  +onError?: ?(error: Error) => void,
+  +onNext?: ?(data: T) => void,
+|};

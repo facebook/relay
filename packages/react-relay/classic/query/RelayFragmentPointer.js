@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayFragmentPointer
  * @flow
  * @format
  */
@@ -20,8 +19,7 @@ const invariant = require('invariant');
 
 import type {Record} from '../store/RelayRecord';
 import type RelayRecordStore from '../store/RelayRecordStore';
-import type {DataID} from '../tools/RelayInternalTypes';
-import type {Variables} from '../tools/RelayTypes';
+import type {DataID, Variables} from 'RelayRuntime';
 
 type FragmentVariablesMap = {
   [fragmentID: string]: Array<Variables>,

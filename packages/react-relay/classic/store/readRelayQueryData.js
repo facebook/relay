@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule readRelayQueryData
  * @flow
  * @format
  */
@@ -26,12 +25,11 @@ const validateRelayReadQuery = require('./validateRelayReadQuery');
 
 const {ConnectionInterface, RelayProfiler} = require('RelayRuntime');
 
-import type GraphQLStoreRangeUtils from '../legacy/store/GraphQLStoreRangeUtils';
-import type {DataID} from '../tools/RelayInternalTypes';
 import type {StoreReaderData, StoreReaderOptions} from '../tools/RelayTypes';
 import type RelayRecordStore from './RelayRecordStore';
 import type {RangeInfo} from './RelayRecordStore';
 import type RelayStoreData from './RelayStoreData';
+import type {DataID} from 'RelayRuntime';
 
 const {MUTATION_STATUS} = RelayRecord.MetadataKey;
 
@@ -75,7 +73,7 @@ function readRelayQueryData(
 }
 
 class RelayStoreReader extends RelayQueryVisitor<State> {
-  _rangeData: GraphQLStoreRangeUtils;
+  _rangeData: any; // GraphQLStoreRangeUtils
   _recordStore: RelayRecordStore;
   _storeData: RelayStoreData;
   _traverseFragmentReferences: boolean;

@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule ReactRelayFragmentContainer
  * @flow
  * @format
  */
@@ -18,7 +17,7 @@ const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
 const invariant = require('invariant');
 const isRelayContext = require('../classic/environment/isRelayContext');
-const isScalarAndEqual = require('../classic/util/isScalarAndEqual');
+const isScalarAndEqual = require('isScalarAndEqual');
 const nullthrows = require('nullthrows');
 
 const {
@@ -29,7 +28,7 @@ const {profileContainer} = require('./ReactRelayContainerProfiler');
 const {RelayProfiler} = require('RelayRuntime');
 
 import type {FragmentSpecResolver} from '../classic/environment/RelayCombinedEnvironmentTypes';
-import type {GeneratedNodeMap, RelayProp} from './ReactRelayTypes';
+import type {$RelayProps, GeneratedNodeMap, RelayProp} from './ReactRelayTypes';
 import type {FragmentMap, GraphQLTaggedNode, RelayContext} from 'RelayRuntime';
 
 type ContainerState = {
@@ -74,6 +73,7 @@ function createContainerWithFragments<
       this.state = {
         data: this._resolver.resolve(),
         relayProp: {
+          isLoading: this._resolver.isLoading(),
           environment: relay.environment,
         },
       };
@@ -112,6 +112,7 @@ function createContainerWithFragments<
           this._handleFragmentDataUpdate,
         );
         const relayProp = {
+          isLoading: this._resolver.isLoading(),
           environment: relay.environment,
         };
         this.setState({relayProp});
@@ -120,7 +121,13 @@ function createContainerWithFragments<
       }
       const data = this._resolver.resolve();
       if (data !== this.state.data) {
-        this.setState({data});
+        this.setState({
+          data,
+          relayProp: {
+            isLoading: this._resolver.isLoading(),
+            environment: relay.environment,
+          },
+        });
       }
     }
 
@@ -159,7 +166,16 @@ function createContainerWithFragments<
       const profiler = RelayProfiler.profile(
         'ReactRelayFragmentContainer.handleFragmentDataUpdate',
       );
-      this.setState({data}, profiler.stop);
+      this.setState(
+        {
+          data,
+          relayProp: {
+            ...this.state.relayProp,
+            isLoading: this._resolver.isLoading(),
+          },
+        },
+        profiler.stop,
+      );
     };
 
     render() {
@@ -207,10 +223,10 @@ function assertRelayContext(relay: mixed): RelayContext {
  * `fragmentSpec` is memoized once per environment, rather than once per
  * instance of the container constructed/rendered.
  */
-function createContainer<TBase: React.ComponentType<*>>(
-  Component: TBase,
+function createContainer<Props: {}>(
+  Component: React.ComponentType<Props>,
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
-): TBase {
+): React.ComponentType<$RelayProps<Props, RelayProp>> {
   return buildReactRelayContainer(
     Component,
     fragmentSpec,

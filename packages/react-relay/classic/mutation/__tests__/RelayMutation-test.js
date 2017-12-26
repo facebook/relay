@@ -14,10 +14,10 @@ require('configureForRelayOSS');
 
 jest.mock('warning');
 
-const RelayClassic = require('RelayClassic');
+const RelayClassic_DEPRECATED = require('../../RelayPublic');
 const RelayEnvironment = require('../../store/RelayEnvironment');
 const RelayQuery = require('../../query/RelayQuery');
-const RelayTestUtils = require('RelayTestUtils');
+const RelayTestUtils = require('../../tools/__mocks__/RelayTestUtils');
 
 const buildRQL = require('../../query/buildRQL');
 
@@ -31,7 +31,9 @@ describe('RelayMutation', function() {
 
   function applyUpdate(mutation) {
     /* eslint-disable no-shadow */
-    const RelayEnvironment = require.requireActual('RelayEnvironment');
+    const RelayEnvironment = require.requireActual(
+      '../../store/RelayEnvironment',
+    );
     const environment = new RelayEnvironment();
     environment.applyUpdate(mutation);
     /* eslint-enable no-shadow */
@@ -45,15 +47,15 @@ describe('RelayMutation', function() {
 
     const initialVariables = {isRelative: false};
     const makeMockMutation = () => {
-      class MockMutationClass extends RelayClassic.Mutation {
+      class MockMutationClass extends RelayClassic_DEPRECATED.Mutation {
         static initialVariables = initialVariables;
         static fragments = {
-          foo: () => RelayClassic.QL`
+          foo: () => RelayClassic_DEPRECATED.QL`
             fragment on Comment {
               url(relative: $isRelative)
             }
           `,
-          bar: () => RelayClassic.QL`
+          bar: () => RelayClassic_DEPRECATED.QL`
             fragment on Node {
               id
             }
@@ -98,7 +100,7 @@ describe('RelayMutation', function() {
     expect.extend(RelayTestUtils.matchers);
   });
 
-  it('throws if used in different RelayClassic environments', () => {
+  it('throws if used in different RelayClassic_DEPRECATED environments', () => {
     mockMutation.bindEnvironment(environment);
     expect(() => {
       mockMutation.bindEnvironment(new RelayEnvironment());
@@ -108,14 +110,14 @@ describe('RelayMutation', function() {
     );
   });
 
-  it('can be reused in the same RelayClassic environment', () => {
+  it('can be reused in the same RelayClassic_DEPRECATED environment', () => {
     mockMutation.bindEnvironment(environment);
     expect(() => {
       mockMutation.bindEnvironment(environment);
     }).not.toThrow();
   });
 
-  it('does not resolve props before binding RelayClassic environment', () => {
+  it('does not resolve props before binding RelayClassic_DEPRECATED environment', () => {
     expect(mockMutation.props).toBeUndefined();
   });
 
@@ -128,7 +130,7 @@ describe('RelayMutation', function() {
     ]);
   });
 
-  it('resolves props after binding RelayClassic environment', () => {
+  it('resolves props after binding RelayClassic_DEPRECATED environment', () => {
     const resolvedProps = {
       bar: {},
       foo: {},
@@ -144,10 +146,10 @@ describe('RelayMutation', function() {
     expect(mockMutation.props.foo).toBe(resolvedProps.foo);
   });
 
-  it('throws if mutation defines invalid `RelayClassic.QL` fragment', () => {
-    class BadMutation extends RelayClassic.Mutation {}
+  it('throws if mutation defines invalid `RelayClassic_DEPRECATED.QL` fragment', () => {
+    class BadMutation extends RelayClassic_DEPRECATED.Mutation {}
     BadMutation.fragments = {
-      foo: () => RelayClassic.QL`query{node(id:"123"){id}}`,
+      foo: () => RelayClassic_DEPRECATED.QL`query{node(id:"123"){id}}`,
     };
     const badFragmentReference = BadMutation.getFragment('foo');
     expect(() => {
@@ -160,7 +162,7 @@ describe('RelayMutation', function() {
   });
 
   it('validates mutation configs when applied', () => {
-    class MisconfiguredMutation extends RelayClassic.Mutation {
+    class MisconfiguredMutation extends RelayClassic_DEPRECATED.Mutation {
       getConfigs() {
         return [
           {
@@ -183,7 +185,7 @@ describe('RelayMutation', function() {
   });
 
   it('complains if mutation configs are not provided', () => {
-    class UnconfiguredMutation extends RelayClassic.Mutation {}
+    class UnconfiguredMutation extends RelayClassic_DEPRECATED.Mutation {}
 
     // Can't validate at construction time because we haven't resolved props
     // yet, and the config may depend on those.

@@ -1,0 +1,50 @@
+{
+  "kind": "Fragment",
+  "name": "LinkedHandleField",
+  "type": "User",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "friends",
+      "storageKey": "friends(first:10)",
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "first",
+          "value": 10,
+          "type": "Int"
+        }
+      ],
+      "concreteType": "FriendsConnection",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "count",
+          "args": null,
+          "storageKey": null
+        }
+      ]
+    },
+    {
+      "kind": "LinkedHandle",
+      "alias": null,
+      "name": "friends",
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "first",
+          "value": 10,
+          "type": "Int"
+        }
+      ],
+      "handle": "clientFriends",
+      "key": "",
+      "filters": null
+    }
+  ]
+}

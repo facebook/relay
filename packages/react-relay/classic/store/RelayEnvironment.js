@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayEnvironment
  * @flow
  * @format
  */
@@ -21,21 +20,16 @@ const RelayQueryRequest = require('../network/RelayQueryRequest');
 const RelayStoreData = require('./RelayStoreData');
 const RelayVariables = require('../query/RelayVariables');
 
-const deepFreeze = require('../tools/deepFreeze');
+const deepFreeze = require('deepFreeze');
 const forEachRootCallArg = require('../query/forEachRootCallArg');
 const generateForceIndex = require('../legacy/store/generateForceIndex');
 const readRelayQueryData = require('./readRelayQueryData');
-// TODO T22703775: .native can't be imported without haste
-// SHOULD be: require('../tools/relayUnstableBatchedUpdates')
-const relayUnstableBatchedUpdates = require('relayUnstableBatchedUpdates');
+const relayUnstableBatchedUpdates = require('../tools/relayUnstableBatchedUpdates');
 const warning = require('warning');
 
 const {Observable, recycleNodesInto} = require('RelayRuntime');
 
-import type {
-  CacheConfig,
-  Disposable,
-} from '../environment/RelayCombinedEnvironmentTypes';
+import type {CacheConfig} from '../environment/RelayCombinedEnvironmentTypes';
 import type {
   Environment,
   OperationSelector,
@@ -50,26 +44,27 @@ import type {
   QueryCallback,
 } from '../network/RelayNetworkLayer';
 import type {ConcreteOperationDefinition} from '../query/ConcreteQuery';
-import type {
-  DataID,
-  QueryPayload,
-  RelayQuerySet,
-} from '../tools/RelayInternalTypes';
+import type {QueryPayload, RelayQuerySet} from '../tools/RelayInternalTypes';
 import type {TaskScheduler} from '../tools/RelayTaskQueue';
 import type {
   Abortable,
   CacheManager,
   ChangeSubscription,
   NetworkLayer,
-  RelayMutationConfig,
   RelayMutationTransactionCommitCallbacks,
   ReadyStateChangeCallback,
   StoreReaderData,
   StoreReaderOptions,
-  Variables,
 } from '../tools/RelayTypes';
 import type RelayQueryTracker from './RelayQueryTracker';
-import type {SelectorStoreUpdater, UploadableMap} from 'RelayRuntime';
+import type {DataID} from 'RelayRuntime';
+import type {
+  Disposable,
+  DeclarativeMutationConfig,
+  SelectorStoreUpdater,
+  UploadableMap,
+  Variables,
+} from 'RelayRuntime';
 
 export type FragmentResolver = {
   dispose(): void,
@@ -83,25 +78,25 @@ export interface RelayEnvironmentInterface {
   forceFetch(
     querySet: RelayQuerySet,
     onReadyStateChange: ReadyStateChangeCallback,
-  ): Abortable,
+  ): Abortable;
   getFragmentResolver(
     fragment: RelayQuery.Fragment,
     onNext: () => void,
-  ): FragmentResolver,
-  getStoreData(): RelayStoreData,
+  ): FragmentResolver;
+  getStoreData(): RelayStoreData;
   primeCache(
     querySet: RelayQuerySet,
     onReadyStateChange: ReadyStateChangeCallback,
-  ): Abortable,
+  ): Abortable;
   read(
     node: RelayQuery.Node,
     dataID: DataID,
     options?: StoreReaderOptions,
-  ): ?StoreReaderData,
+  ): ?StoreReaderData;
   readQuery(
     root: RelayQuery.Root,
     options?: StoreReaderOptions,
-  ): Array<?StoreReaderData>,
+  ): Array<?StoreReaderData>;
 }
 
 /**
@@ -138,7 +133,7 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
     optimisticResponse,
     variables,
   }: {
-    configs: Array<RelayMutationConfig>,
+    configs: Array<DeclarativeMutationConfig>,
     operation: ConcreteOperationDefinition,
     optimisticResponse: Object,
     variables: Variables,
@@ -163,6 +158,10 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
         }
       },
     };
+  }
+
+  check(selector: Selector): boolean {
+    return false;
   }
 
   commitPayload(
@@ -229,7 +228,7 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
     variables,
     uploadables,
   }: {
-    configs: Array<RelayMutationConfig>,
+    configs: Array<DeclarativeMutationConfig>,
     onCompleted?: ?(response: ResponseType) => void,
     onError?: ?(error: Error) => void,
     operation: ConcreteOperationDefinition,
@@ -259,8 +258,9 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
             let error = transaction.getError();
             if (!error) {
               error = new Error(
-                `RelayEnvironment: Unknown error executing mutation ${operation
-                  .node.name}`,
+                `RelayEnvironment: Unknown error executing mutation ${
+                  operation.node.name
+                }`,
               );
             }
             onError(error);

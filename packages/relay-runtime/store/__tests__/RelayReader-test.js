@@ -33,8 +33,8 @@ describe('RelayReader', () => {
         id: '1',
         __typename: 'User',
         firstName: 'Alice',
-        'friends{"first":3}': {__ref: 'client:1'},
-        'profilePicture{"size":32}': {__ref: 'client:4'},
+        'friends(first:3)': {__ref: 'client:1'},
+        'profilePicture(size:32)': {__ref: 'client:4'},
       },
       '2': {
         __id: '2',
@@ -75,7 +75,7 @@ describe('RelayReader', () => {
       'client:root': {
         __id: 'client:root',
         __typename: '__Root',
-        'node{"id":"1"}': {__ref: '1'},
+        'node(id:"1")': {__ref: '1'},
       },
     };
 
@@ -113,7 +113,7 @@ describe('RelayReader', () => {
     `);
     const {data, seenRecords} = read(source, {
       dataID: ROOT_ID,
-      node: FooQuery,
+      node: FooQuery.fragment,
       variables: {id: '1', size: 32},
     });
     expect(data).toEqual({
@@ -317,7 +317,7 @@ describe('RelayReader', () => {
       'client:root': {
         __id: 'client:root',
         __typename: '__Root',
-        'node{"id":"1"}': {__ref: '1'},
+        'node(id:"1")': {__ref: '1'},
       },
     };
     source = new RelayInMemoryRecordSource(records);

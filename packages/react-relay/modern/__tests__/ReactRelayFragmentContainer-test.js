@@ -168,7 +168,8 @@ describe('ReactRelayFragmentContainer', () => {
       bar: 1,
       foo: 'foo',
       relay: {
-        environment: jasmine.any(Object),
+        environment: environment,
+        isLoading: false,
       },
       user: null,
     });
@@ -186,7 +187,8 @@ describe('ReactRelayFragmentContainer', () => {
     expect(render.mock.calls.length).toBe(1);
     expect(render.mock.calls[0][0]).toEqual({
       relay: {
-        environment: jasmine.any(Object),
+        environment: environment,
+        isLoading: false,
       },
       user: null,
     });
@@ -210,7 +212,8 @@ describe('ReactRelayFragmentContainer', () => {
     expect(render.mock.calls.length).toBe(1);
     expect(render.mock.calls[0][0]).toEqual({
       relay: {
-        environment: jasmine.any(Object),
+        environment: environment,
+        isLoading: false,
       },
       user: {
         id: '4',
@@ -266,7 +269,8 @@ describe('ReactRelayFragmentContainer', () => {
     expect(render.mock.calls.length).toBe(1);
     expect(render.mock.calls[0][0]).toEqual({
       relay: {
-        environment: jasmine.any(Object),
+        environment: environment,
+        isLoading: false,
       },
       user: {
         id: '4',
@@ -303,7 +307,8 @@ describe('ReactRelayFragmentContainer', () => {
     expect(render.mock.calls.length).toBe(1);
     expect(render.mock.calls[0][0]).toEqual({
       relay: {
-        environment: jasmine.any(Object),
+        environment: environment,
+        isLoading: false,
       },
       user: {
         id: '842472',
@@ -347,7 +352,8 @@ describe('ReactRelayFragmentContainer', () => {
     expect(render.mock.calls.length).toBe(1);
     expect(render.mock.calls[0][0]).toEqual({
       relay: {
-        environment: jasmine.any(Object),
+        environment: environment,
+        isLoading: false,
       },
       user: {
         id: '4',

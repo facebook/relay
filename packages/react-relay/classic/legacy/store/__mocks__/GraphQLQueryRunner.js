@@ -9,7 +9,7 @@
 
 'use strict';
 
-const GraphQLQueryRunner = jest.genMockFromModule('GraphQLQueryRunner');
+const GraphQLQueryRunner = jest.genMockFromModule('../GraphQLQueryRunner');
 
 const resolveImmediate = require('resolveImmediate');
 

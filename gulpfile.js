@@ -37,13 +37,16 @@ const babelOptions = require('./scripts/getBabelOptions')({
     'fb-watchman': 'fb-watchman',
     fs: 'fs',
     graphql: 'graphql',
+    'graphql-compiler': './GraphQLCompilerPublic',
     immutable: 'immutable',
+    iterall: 'iterall',
     net: 'net',
     os: 'os',
     path: 'path',
     process: 'process',
     'prop-types': 'prop-types',
     React: 'react',
+    'relay-compiler': 'relay-compiler',
     ReactDOM: 'react-dom',
     ReactNative: 'react-native',
     RelayRuntime: 'relay-runtime',
@@ -223,6 +226,21 @@ const builds = [
         libraryTarget: 'umd'
       }
     ]
+  },
+  {
+    package: 'relay-test-utils',
+    exports: {
+      index: 'RelayTestUtilsPublic.js'
+    },
+    bundles: [
+      {
+        entry: 'RelayTestUtilsPublic.js',
+        output: 'relay-test-utils',
+        libraryName: 'RelayTestUtils',
+        target: 'node',
+        noMinify: true // Note: uglify can't yet handle modern JS
+      }
+    ]
   }
 ];
 
@@ -252,14 +270,23 @@ gulp.task('modules', function() {
 gulp.task('copy-files', function() {
   return es.merge(
     builds.map(build =>
-      gulp
-        .src([
-          'LICENSE',
-          '*' + PACKAGES + '/' + build.package + '/*',
-          '!' + PACKAGES + '/' + build.package + '/**/*.js'
-        ])
-        .pipe(flatten())
-        .pipe(gulp.dest(path.join(DIST, build.package)))
+      es.merge([
+        gulp
+          .src([
+            'LICENSE',
+            '*' + PACKAGES + '/' + build.package + '/*',
+            '!' + PACKAGES + '/' + build.package + '/*.graphql',
+            '!' + PACKAGES + '/' + build.package + '/**/*.js'
+          ])
+          .pipe(flatten())
+          .pipe(gulp.dest(path.join(DIST, build.package))),
+        gulp // Move *.graphql files directly to lib without going through babel
+          .src([
+            '*' + PACKAGES + '/' + build.package + '/*.graphql',
+          ])
+          .pipe(flatten())
+          .pipe(gulp.dest(path.join(DIST, build.package, 'lib'))),
+      ])
     )
   );
 });

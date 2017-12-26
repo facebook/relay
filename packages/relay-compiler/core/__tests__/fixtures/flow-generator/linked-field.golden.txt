@@ -1,14 +1,5 @@
-export type UnionTypeTestResponse = {|
-  +neverNode: ?({|
-    +__typename: 'FakeNode',
-    +id: string,
-  |} | {|
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    +__typename: '%other',
-  |}),
-|};
-
+import type { FragmentReference } from 'relay-runtime';
+export opaque type LinkedField$ref: FragmentReference = FragmentReference;
 export type LinkedField = {|
   +profilePicture: ?{|
     +uri: ?string,
@@ -24,4 +15,17 @@ export type LinkedField = {|
   +actor: ?{|
     +id: string,
   |},
+  +$refType: LinkedField$ref,
+|};
+
+export type UnionTypeTestVariables = {| |};
+export type UnionTypeTestResponse = {|
+  +neverNode: ?({|
+    +__typename: 'FakeNode',
+    +id: string,
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: '%other',
+  |}),
 |};

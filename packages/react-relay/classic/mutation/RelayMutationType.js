@@ -4,13 +4,13 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayMutationType
  * @flow
  * @format
  */
 
 'use strict';
 
+// TODO(T24615470, jkassens): Remove in favor of RelayRuntime.MutationType
 const RelayMutationType = {
   FIELDS_CHANGE: 'FIELDS_CHANGE',
   NODE_DELETE: 'NODE_DELETE',

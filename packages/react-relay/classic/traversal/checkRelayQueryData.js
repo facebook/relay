@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule checkRelayQueryData
  * @flow
  * @format
  */
@@ -22,7 +21,7 @@ const {ConnectionInterface, RelayProfiler} = require('RelayRuntime');
 import type RelayQuery from '../query/RelayQuery';
 import type RelayRecordStore from '../store/RelayRecordStore';
 import type {RangeInfo} from '../store/RelayRecordStore';
-import type {DataID} from '../tools/RelayInternalTypes';
+import type {DataID} from 'RelayRuntime';
 
 type CheckerState = {
   dataID: ?DataID,

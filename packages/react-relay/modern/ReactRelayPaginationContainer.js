@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule ReactRelayPaginationContainer
  * @flow
  * @format
  */
@@ -18,7 +17,7 @@ const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
 const invariant = require('invariant');
 const isRelayContext = require('../classic/environment/isRelayContext');
-const isScalarAndEqual = require('../classic/util/isScalarAndEqual');
+const isScalarAndEqual = require('isScalarAndEqual');
 const nullthrows = require('nullthrows');
 const warning = require('warning');
 
@@ -36,11 +35,10 @@ const {
 
 import type {
   CacheConfig,
-  Disposable,
   FragmentSpecResolver,
 } from '../classic/environment/RelayCombinedEnvironmentTypes';
-import type {Variables} from '../classic/tools/RelayTypes';
 import type {
+  $RelayProps,
   ObserverOrCallback,
   GeneratedNodeMap,
   RefetchOptions,
@@ -48,12 +46,14 @@ import type {
 } from './ReactRelayTypes';
 import type {
   ConnectionMetadata,
+  Disposable,
   FragmentMap,
   GraphQLTaggedNode,
   Observer,
   PageInfo,
   RelayContext,
   Subscription,
+  Variables,
 } from 'RelayRuntime';
 
 type ContainerState = {
@@ -307,7 +307,7 @@ function toObserver(observerOrCallback: ?ObserverOrCallback): Observer<void> {
           typeof observerOrCallback === 'function' && observerOrCallback();
         },
       }
-    : observerOrCallback || {};
+    : observerOrCallback || ({}: any);
 }
 
 function createContainerWithFragments<
@@ -469,7 +469,7 @@ function createContainerWithFragments<
     };
 
     _getConnectionData(): ?{
-      cursor: string,
+      cursor: ?string,
       edgeCount: number,
       hasMore: boolean,
     } {
@@ -527,7 +527,10 @@ function createContainerWithFragments<
           : pageInfo[HAS_PREV_PAGE];
       const cursor =
         direction === FORWARD ? pageInfo[END_CURSOR] : pageInfo[START_CURSOR];
-      if (typeof hasMore !== 'boolean' || typeof cursor !== 'string') {
+      if (
+        typeof hasMore !== 'boolean' ||
+        (edges.length !== 0 && typeof cursor !== 'string')
+      ) {
         warning(
           false,
           'ReactRelayPaginationContainer: Cannot paginate without %s fields in `%s`. ' +
@@ -550,7 +553,11 @@ function createContainerWithFragments<
 
     _hasMore = (): boolean => {
       const connectionData = this._getConnectionData();
-      return !!connectionData && connectionData.hasMore;
+      return !!(
+        connectionData &&
+        connectionData.hasMore &&
+        connectionData.cursor
+      );
     };
 
     _isLoading = (): boolean => {
@@ -585,16 +592,24 @@ function createContainerWithFragments<
       const observer = toObserver(observerOrCallback);
       const connectionData = this._getConnectionData();
       if (!connectionData) {
-        new Observable(sink => sink.complete()).subscribe(observer);
+        Observable.create(sink => sink.complete()).subscribe(observer);
         return null;
       }
       const totalCount = connectionData.edgeCount + pageSize;
       if (options && options.force) {
         return this._refetchConnection(totalCount, observerOrCallback);
       }
+      const {END_CURSOR, START_CURSOR} = ConnectionInterface.get();
+      const cursor = connectionData.cursor;
+      warning(
+        cursor,
+        'ReactRelayPaginationContainer: Cannot `loadMore` without valid `%s` (got `%s`)',
+        direction === FORWARD ? END_CURSOR : START_CURSOR,
+        cursor,
+      );
       const paginatingVariables = {
         count: pageSize,
-        cursor: connectionData.cursor,
+        cursor: cursor,
         totalCount,
       };
       const fetch = this._fetchPage(paginatingVariables, observer, options);
@@ -655,14 +670,14 @@ function createContainerWithFragments<
       if (cacheConfig && options && options.rerunParamExperimental) {
         cacheConfig.rerunParamExperimental = options.rerunParamExperimental;
       }
-      const query = getRequest(connectionConfig.query);
-      if (query.kind === RelayConcreteNode.BATCH_REQUEST) {
+      const request = getRequest(connectionConfig.query);
+      if (request.kind === RelayConcreteNode.BATCH_REQUEST) {
         throw new Error(
           'ReactRelayPaginationContainer: Batch request not yet ' +
             'implemented (T22954884)',
         );
       }
-      const operation = createOperationSelector(query, fetchVariables);
+      const operation = createOperationSelector(request, fetchVariables);
 
       let refetchSubscription = null;
 
@@ -718,14 +733,13 @@ function createContainerWithFragments<
       this._isARequestInFlight = true;
       refetchSubscription = environment
         .execute({operation, cacheConfig})
-        .mergeMap(
-          payload =>
-            new Observable(sink => {
-              onNext(payload, () => {
-                sink.next(); // pass void to public observer's `next`
-                sink.complete();
-              });
-            }),
+        .mergeMap(payload =>
+          Observable.create(sink => {
+            onNext(payload, () => {
+              sink.next(); // pass void to public observer's `next`
+              sink.complete();
+            });
+          }),
         )
         // use do instead of finally so that observer's `complete` fires after cleanup
         .do({
@@ -802,11 +816,11 @@ function assertRelayContext(relay: mixed): RelayContext {
  * `fragmentSpec` is memoized once per environment, rather than once per
  * instance of the container constructed/rendered.
  */
-function createContainer<TBase: React.ComponentType<*>>(
-  Component: TBase,
+function createContainer<Props: {}>(
+  Component: React.ComponentType<Props>,
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
   connectionConfig: ConnectionConfig,
-): TBase {
+): React.ComponentType<$RelayProps<Props, RelayPaginationProp>> {
   const Container = buildReactRelayContainer(
     Component,
     fragmentSpec,

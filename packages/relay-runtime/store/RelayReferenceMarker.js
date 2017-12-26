@@ -18,15 +18,14 @@ const RelayStoreUtils = require('RelayStoreUtils');
 const cloneRelayHandleSourceField = require('cloneRelayHandleSourceField');
 const invariant = require('invariant');
 
-import type {Record} from 'RelayCombinedEnvironmentTypes';
+import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
   ConcreteLinkedField,
   ConcreteNode,
   ConcreteSelection,
 } from 'RelayConcreteNode';
-import type {DataID} from 'RelayInternalTypes';
 import type {RecordSource, Selector} from 'RelayStoreTypes';
-import type {Variables} from 'RelayTypes';
+import type {Record} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 const {
   CONDITION,

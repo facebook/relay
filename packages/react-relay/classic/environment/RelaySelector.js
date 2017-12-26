@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelaySelector
  * @flow
  * @format
  */
@@ -20,10 +19,9 @@ const invariant = require('invariant');
 const warning = require('warning');
 
 import type {ConcreteFragmentDefinition} from '../query/ConcreteQuery';
-import type {DataID} from '../tools/RelayInternalTypes';
-import type {Variables} from '../tools/RelayTypes';
 import type {Props} from './RelayCombinedEnvironmentTypes';
 import type {FragmentMap, Selector} from './RelayEnvironmentTypes';
+import type {DataID, Variables} from 'RelayRuntime';
 
 /**
  * @public

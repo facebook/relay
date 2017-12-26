@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayMutationQuery
  * @flow
  * @format
  */
@@ -31,8 +30,8 @@ const {ConnectionInterface} = require('RelayRuntime');
 
 import type {ConcreteMutation} from '../query/ConcreteQuery';
 import type RelayQueryTracker from '../store/RelayQueryTracker';
-import type {DataID, RangeBehaviors} from '../tools/RelayInternalTypes';
-import type {Variables} from '../tools/RelayTypes';
+import type {RangeBehaviors} from 'RelayDeclarativeMutationConfig';
+import type {DataID, Variables} from 'RelayRuntime';
 
 type BasicMutationFragmentBuilderConfig = {
   fatQuery: RelayQuery.Fragment,

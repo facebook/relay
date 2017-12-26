@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule ReactRelayRefetchContainer
  * @flow
  * @format
  */
@@ -18,7 +17,7 @@ const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
 const invariant = require('invariant');
 const isRelayContext = require('../classic/environment/isRelayContext');
-const isScalarAndEqual = require('../classic/util/isScalarAndEqual');
+const isScalarAndEqual = require('isScalarAndEqual');
 const nullthrows = require('nullthrows');
 
 const {
@@ -28,16 +27,15 @@ const {
 const {profileContainer} = require('./ReactRelayContainerProfiler');
 const {Observable, RelayProfiler, RelayConcreteNode} = require('RelayRuntime');
 
+import type {FragmentSpecResolver} from '../classic/environment/RelayCombinedEnvironmentTypes';
 import type {
-  Disposable,
-  FragmentSpecResolver,
-} from '../classic/environment/RelayCombinedEnvironmentTypes';
-import type {Variables} from '../classic/tools/RelayTypes';
-import type {
+  $RelayProps,
+  ObserverOrCallback,
   GeneratedNodeMap,
   RefetchOptions,
   RelayRefetchProp,
 } from './ReactRelayTypes';
+import type {Disposable, Variables} from 'RelayRuntime';
 import type {
   FragmentMap,
   GraphQLTaggedNode,
@@ -217,7 +215,7 @@ function createContainerWithFragments<
         | Variables
         | ((fragmentVariables: Variables) => Variables),
       renderVariables: ?Variables,
-      callback: ?(error: ?Error) => void,
+      observerOrCallback: ?ObserverOrCallback,
       options: ?RefetchOptions,
     ): Disposable => {
       const {environment, variables: rootVariables} = assertRelayContext(
@@ -232,6 +230,17 @@ function createContainerWithFragments<
         ? {...rootVariables, ...renderVariables}
         : fetchVariables;
       const cacheConfig = options ? {force: !!options.force} : undefined;
+
+      const observer =
+        typeof observerOrCallback === 'function'
+          ? {
+              // callback is not exectued on complete or unsubscribe
+              // for backward compatibility
+              next: observerOrCallback,
+              error: observerOrCallback,
+            }
+          : observerOrCallback || ({}: any);
+
       const {
         createOperationSelector,
         getRequest,
@@ -266,7 +275,7 @@ function createContainerWithFragments<
             variables: fragmentVariables,
           };
           this._resolver.setVariables(fragmentVariables);
-          return new Observable(sink =>
+          return Observable.create(sink =>
             this.setState({data: this._resolver.resolve()}, () => {
               sink.next();
               sink.complete();
@@ -281,11 +290,11 @@ function createContainerWithFragments<
           }
         })
         .subscribe({
+          ...observer,
           start: subscription => {
             this._refetchSubscription = refetchSubscription = subscription;
+            observer.start && observer.start(subscription);
           },
-          next: callback,
-          error: callback,
         });
 
       return {
@@ -344,11 +353,11 @@ function assertRelayContext(relay: mixed): RelayContext {
  * `fragmentSpec` is memoized once per environment, rather than once per
  * instance of the container constructed/rendered.
  */
-function createContainer<TBase: React.ComponentType<*>>(
-  Component: TBase,
+function createContainer<Props: {}>(
+  Component: React.ComponentType<Props>,
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
   taggedNode: GraphQLTaggedNode,
-): TBase {
+): React.ComponentType<$RelayProps<Props, RelayRefetchProp>> {
   const Container = buildReactRelayContainer(
     Component,
     fragmentSpec,

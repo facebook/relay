@@ -1,7 +1,17 @@
+export type ExampleQueryVariables = {|
+  id: string,
+|};
 export type ExampleQueryResponse = {|
-  +me: ?{|
+  +node: ?{|
     +id: string,
   |},
+|};
+
+import type { FragmentReference } from 'relay-runtime';
+export opaque type ExampleFragment$ref: FragmentReference = FragmentReference;
+export type ExampleFragment = {|
+  +id: string,
+  +$refType: ExampleFragment$ref,
 |};
 
 export type TestMutationVariables = {|
@@ -30,8 +40,4 @@ export type TestSubscriptionResponse = {|
       +id: string,
     |},
   |},
-|};
-
-export type ExampleFragment = {|
-  +id: string,
 |};

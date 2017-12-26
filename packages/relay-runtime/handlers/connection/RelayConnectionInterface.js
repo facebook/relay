@@ -11,8 +11,8 @@
 
 'use strict';
 
-import type {Call} from 'RelayInternalTypes';
-import type {Record} from 'RelayRecord';
+import type {Record} from 'react-relay/classic/store/RelayRecord';
+import type {Call} from 'react-relay/classic/tools/RelayInternalTypes';
 
 export type EdgeRecord = Record & {
   cursor: mixed,
@@ -93,10 +93,10 @@ const RelayConnectionInterface = {
    */
   getDefaultPageInfo(): PageInfo {
     return {
-      [config.END_CURSOR]: undefined,
+      [config.END_CURSOR]: null,
       [config.HAS_NEXT_PAGE]: false,
       [config.HAS_PREV_PAGE]: false,
-      [config.START_CURSOR]: undefined,
+      [config.START_CURSOR]: null,
     };
   },
 };

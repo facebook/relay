@@ -13,21 +13,19 @@
 
 const RelayConcreteNode = require('RelayConcreteNode');
 
-const prettyStringify = require('prettyStringify');
-
 const {convertFetch, convertSubscribe} = require('ConvertToExecuteFunction');
 
-import type {ConcreteOperation} from 'RelayConcreteNode';
+import type {Variables} from '../util/RelayRuntimeTypes';
+import type {ConcreteRequest} from 'RelayConcreteNode';
 import type {IRelayNetworkLoggerTransaction} from 'RelayNetworkLoggerTransaction';
 import type {
   ExecuteFunction,
   FetchFunction,
   SubscribeFunction,
 } from 'RelayNetworkTypes';
-import type {Variables} from 'RelayTypes';
 
 export type GraphiQLPrinter = (
-  batch: ConcreteOperation,
+  request: ConcreteRequest,
   variables: Variables,
 ) => string;
 
@@ -39,13 +37,13 @@ function createRelayNetworkLogger(
       fetch: FetchFunction,
       graphiQLPrinter?: GraphiQLPrinter,
     ): FetchFunction {
-      return (operation, variables, cacheConfig, uploadables) => {
+      return (request, variables, cacheConfig, uploadables) => {
         const wrapped = wrapExecute(
           convertFetch(fetch),
           LoggerTransaction,
           graphiQLPrinter,
         );
-        return wrapped(operation, variables, cacheConfig, uploadables);
+        return wrapped(request, variables, cacheConfig, uploadables);
       };
     },
 
@@ -53,13 +51,13 @@ function createRelayNetworkLogger(
       subscribe: SubscribeFunction,
       graphiQLPrinter?: GraphiQLPrinter,
     ): SubscribeFunction {
-      return (operation, variables, cacheConfig) => {
+      return (request, variables, cacheConfig) => {
         const wrapped = wrapExecute(
           convertSubscribe(subscribe),
           LoggerTransaction,
           graphiQLPrinter,
         );
-        return wrapped(operation, variables, cacheConfig);
+        return wrapped(request, variables, cacheConfig);
       };
     },
   };
@@ -71,21 +69,15 @@ function wrapExecute(
   graphiQLPrinter: ?GraphiQLPrinter,
 ): ExecuteFunction {
   return (request, variables, cacheConfig, uploadables) => {
-    const operation = request;
-    if (operation.kind === RelayConcreteNode.BATCH_REQUEST) {
-      throw new Error(
-        'createRelayNetworkLogger: Batch request not yet ' +
-          'implemented (T22955154)',
-      );
-    }
     let transaction;
 
     function addLogs(error, response, status) {
-      if (graphiQLPrinter) {
-        transaction.addLog('GraphiQL', graphiQLPrinter(operation, variables));
+      // Only print GraphiQL links for non-batch requests.
+      if (graphiQLPrinter && request.kind === RelayConcreteNode.REQUEST) {
+        transaction.addLog('GraphiQL', graphiQLPrinter(request, variables));
       }
       transaction.addLog('Cache Config', cacheConfig);
-      transaction.addLog('Variables', prettyStringify(variables));
+      transaction.addLog('Variables', JSON.stringify(variables, null, 2));
       if (status) {
         transaction.addLog('Status', status);
       }
@@ -107,16 +99,14 @@ function wrapExecute(
       transaction.commitLogs(error, response, status);
     }
 
-    const observable = execute(operation, variables, cacheConfig, uploadables);
+    const observable = execute(request, variables, cacheConfig, uploadables);
 
-    const isSubscription =
-      operation.kind === RelayConcreteNode.OPERATION &&
-      operation.operation === 'subscription';
+    const isSubscription = request.operationKind === 'subscription';
 
     return observable.do({
       start: () => {
         transaction = new LoggerTransaction({
-          operation,
+          request,
           variables,
           cacheConfig,
           uploadables,

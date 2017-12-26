@@ -37,12 +37,11 @@ describe('RelayViewerHandleTransform', () => {
   it('adds a handle to viewer fields', () => {
     expect('fixtures/viewer-handle-transform').toMatchGolden(text => {
       const {definitions} = parseGraphQLText(RelayTestSchema, text);
-      let context = new GraphQLCompilerContext(RelayTestSchema).addAll(
-        definitions,
-      );
-      context = RelayViewerHandleTransform.transform(context, RelayTestSchema);
+      const context = new GraphQLCompilerContext(RelayTestSchema)
+        .addAll(definitions)
+        .applyTransforms([RelayViewerHandleTransform.transform]);
       const documents = [];
-      context.documents().forEach(doc => {
+      context.forEachDocument(doc => {
         documents.push(GraphQLIRPrinter.print(doc));
       });
       return documents.join('\n');
@@ -57,6 +56,7 @@ describe('RelayViewerHandleTransform', () => {
       }
       scalar Viewer
     `),
+      {assumeValid: true},
     );
     const text = `
       query TestQuery {
@@ -64,8 +64,9 @@ describe('RelayViewerHandleTransform', () => {
       }
     `;
     const {definitions} = parseGraphQLText(schema, text);
-    let context = new GraphQLCompilerContext(schema).addAll(definitions);
-    context = RelayViewerHandleTransform.transform(context, schema);
+    const context = new GraphQLCompilerContext(schema)
+      .addAll(definitions)
+      .applyTransforms([RelayViewerHandleTransform.transform]);
     const TestQuery = context.getRoot('TestQuery');
     const viewer = TestQuery.selections[0];
     expect(viewer.name).toBe('viewer');
@@ -84,6 +85,7 @@ describe('RelayViewerHandleTransform', () => {
         id: ID!
       }
     `),
+      {assumeValid: true},
     );
     const text = `
       query TestQuery {
@@ -93,8 +95,9 @@ describe('RelayViewerHandleTransform', () => {
       }
     `;
     const {definitions} = parseGraphQLText(schema, text);
-    let context = new GraphQLCompilerContext(schema).addAll(definitions);
-    context = RelayViewerHandleTransform.transform(context, schema);
+    const context = new GraphQLCompilerContext(schema)
+      .addAll(definitions)
+      .applyTransforms([RelayViewerHandleTransform.transform]);
     const TestQuery = context.getRoot('TestQuery');
     const viewer = TestQuery.selections[0];
     expect(viewer.name).toBe('viewer');

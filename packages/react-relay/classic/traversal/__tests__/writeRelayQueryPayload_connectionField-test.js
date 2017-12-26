@@ -15,7 +15,7 @@ jest.mock('../../legacy/store/generateClientID').mock('warning');
 require('configureForRelayOSS');
 
 const GraphQLRange = require('../../legacy/store/GraphQLRange');
-const RelayClassic = require('RelayClassic');
+const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
 const RelayMetaRoute = require('../../route/RelayMetaRoute');
 const RelayQuery = require('../../query/RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
@@ -51,7 +51,7 @@ describe('writeRelayQueryPayload()', () => {
     const store = new RelayRecordStore({records});
     const writer = new RelayRecordWriter(records, {}, false);
     const query = getNode(
-      RelayClassic.QL`
+      RelayClassic_DEPRECATED.QL`
       query {
         node(id:"123") {
           friends(first: 3) {
@@ -102,10 +102,10 @@ describe('writeRelayQueryPayload()', () => {
       diffCalls: [],
       filterCalls: [],
       pageInfo: {
-        [END_CURSOR]: undefined,
+        [END_CURSOR]: null,
         [HAS_NEXT_PAGE]: false,
         [HAS_PREV_PAGE]: false,
-        [START_CURSOR]: undefined,
+        [START_CURSOR]: null,
       },
       requestedEdgeIDs: [],
       filteredEdges: [],
@@ -117,7 +117,7 @@ describe('writeRelayQueryPayload()', () => {
     const store = new RelayRecordStore({records});
     const writer = new RelayRecordWriter(records, {}, false);
     const query = getNode(
-      RelayClassic.QL`
+      RelayClassic_DEPRECATED.QL`
       query {
         node(id:"123") {
           friends(first: 3) {
@@ -235,7 +235,7 @@ describe('writeRelayQueryPayload()', () => {
     const store = new RelayRecordStore({records, cachedRecords});
     const writer = new RelayRecordWriter(records, {}, false);
     const query = getNode(
-      RelayClassic.QL`
+      RelayClassic_DEPRECATED.QL`
       query {
         node(id:"123") {
           friends(first: 3) {
@@ -345,7 +345,7 @@ describe('writeRelayQueryPayload()', () => {
     const store = new RelayRecordStore({records});
     const writer = new RelayRecordWriter(records, {}, false);
     const query = getNode(
-      RelayClassic.QL`
+      RelayClassic_DEPRECATED.QL`
       query {
         node(id:"123") {
           friends(first: 3) {
@@ -423,7 +423,7 @@ describe('writeRelayQueryPayload()', () => {
     const store = new RelayRecordStore({records});
     const writer = new RelayRecordWriter(records, {}, false);
     let query = getNode(
-      RelayClassic.QL`
+      RelayClassic_DEPRECATED.QL`
       query {
         node(id:"123") {
           friends {count}
@@ -441,7 +441,7 @@ describe('writeRelayQueryPayload()', () => {
     writePayload(store, writer, query, payload);
 
     query = getNode(
-      RelayClassic.QL`
+      RelayClassic_DEPRECATED.QL`
       query {
         node(id:"123") {
           friends(first: 1) {
@@ -519,7 +519,7 @@ describe('writeRelayQueryPayload()', () => {
     const records = {};
     const store = new RelayRecordStore({records});
     const writer = new RelayRecordWriter(records, {}, false);
-    const edgesFragment = RelayClassic.QL`
+    const edgesFragment = RelayClassic_DEPRECATED.QL`
       fragment on FriendsConnection {
         edges {
           cursor
@@ -537,7 +537,7 @@ describe('writeRelayQueryPayload()', () => {
       }
     `;
     const query = getNode(
-      RelayClassic.QL`
+      RelayClassic_DEPRECATED.QL`
       query {
         node(id:"123") {
           friends(isViewerFriend:true) {
@@ -581,7 +581,7 @@ describe('writeRelayQueryPayload()', () => {
 
     beforeEach(() => {
       const query = getNode(
-        RelayClassic.QL`
+        RelayClassic_DEPRECATED.QL`
         query {
           node(id:"123") {
             friends(first: 1) {
@@ -623,7 +623,7 @@ describe('writeRelayQueryPayload()', () => {
 
     it('appends new edges', () => {
       const query = getNode(
-        RelayClassic.QL`
+        RelayClassic_DEPRECATED.QL`
         query {
           node(id:"123") {
             friends(first: 1,after:"cursor1") {
@@ -688,7 +688,7 @@ describe('writeRelayQueryPayload()', () => {
 
     it('updates existing edges when ids match', () => {
       const query = getNode(
-        RelayClassic.QL`
+        RelayClassic_DEPRECATED.QL`
         query {
           node(id:"123") {
             friends(first: 1) {
@@ -753,7 +753,7 @@ describe('writeRelayQueryPayload()', () => {
     it('updates the range when edge data changes', () => {
       // NOTE: Hack to preserve `source{id}` in all environments for now.
       const query = RelayQuery.Root.create(
-        RelayClassic.QL`
+        RelayClassic_DEPRECATED.QL`
         query {
           node(id:"123") {
             friends(find:"node1") {
@@ -830,7 +830,7 @@ describe('writeRelayQueryPayload()', () => {
 
     it('does not overwrite edges when ids conflict', () => {
       const query = getNode(
-        RelayClassic.QL`
+        RelayClassic_DEPRECATED.QL`
         query {
           node(id:"123") {
             friends(first: 1) {
@@ -896,7 +896,7 @@ describe('writeRelayQueryPayload()', () => {
 
     it('overwrites ranges when force index is set', () => {
       const query = getNode(
-        RelayClassic.QL`
+        RelayClassic_DEPRECATED.QL`
         query {
           node(id:"123") {
             friends(first: 1) {
@@ -961,7 +961,7 @@ describe('writeRelayQueryPayload()', () => {
 
     it('updates page info for empty edges', () => {
       const query = getNode(
-        RelayClassic.QL`
+        RelayClassic_DEPRECATED.QL`
         query {
           node(id:"123") {
             friends(after:"cursor1", first: 1) {

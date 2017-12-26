@@ -302,4 +302,4 @@ function printLiteral(value: mixed, type: ?GraphQLInputType): string {
   }
 }
 
-module.exports = {print, printField};
+module.exports = {print, printField, printArguments, printDirectives};

@@ -12,7 +12,7 @@
 
 require('configureForRelayOSS');
 
-const RelayClassic = require('RelayClassic');
+const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
 const RelayTestUtils = require('RelayTestUtils');
 
 const flattenRelayQuery = require('../flattenRelayQuery');
@@ -26,7 +26,7 @@ describe('flattenRelayQuery', () => {
 
   it('flattens roots', () => {
     const node = getNode(
-      RelayClassic.QL`
+      RelayClassic_DEPRECATED.QL`
       query {
         viewer {
           ... on Viewer {
@@ -45,7 +45,7 @@ describe('flattenRelayQuery', () => {
     `,
     );
     const expected = getNode(
-      RelayClassic.QL`
+      RelayClassic_DEPRECATED.QL`
       query {
         viewer {
           actor {
@@ -62,7 +62,7 @@ describe('flattenRelayQuery', () => {
 
   it('flattens fragments', () => {
     const node = getNode(
-      RelayClassic.QL`
+      RelayClassic_DEPRECATED.QL`
       fragment on Viewer {
         actor {
           firstName
@@ -80,7 +80,7 @@ describe('flattenRelayQuery', () => {
     `,
     );
     const expected = getNode(
-      RelayClassic.QL`
+      RelayClassic_DEPRECATED.QL`
       fragment on Viewer {
         actor {
           firstName
@@ -98,7 +98,7 @@ describe('flattenRelayQuery', () => {
 
   it('flattens fields', () => {
     const node = getNode(
-      RelayClassic.QL`
+      RelayClassic_DEPRECATED.QL`
       query {
         viewer {
           actor {
@@ -114,7 +114,7 @@ describe('flattenRelayQuery', () => {
     `,
     ).getFieldByStorageKey('actor');
     const expected = getNode(
-      RelayClassic.QL`
+      RelayClassic_DEPRECATED.QL`
       query {
         viewer {
           actor {
@@ -130,7 +130,7 @@ describe('flattenRelayQuery', () => {
   });
 
   it('flattens empty fragments', () => {
-    const emptyFragment = RelayClassic.QL`
+    const emptyFragment = RelayClassic_DEPRECATED.QL`
       fragment on TimezoneInfo {
         ${null}
       }
@@ -138,7 +138,7 @@ describe('flattenRelayQuery', () => {
 
     const fragmentNode = getNode(emptyFragment);
     const rootNode = getNode(
-      RelayClassic.QL`
+      RelayClassic_DEPRECATED.QL`
       query {
         viewer {
           timezoneEstimate {
@@ -157,7 +157,7 @@ describe('flattenRelayQuery', () => {
 
   it('optionally removes fragments', () => {
     const node = getNode(
-      RelayClassic.QL`
+      RelayClassic_DEPRECATED.QL`
       query {
         viewer {
           ... on Viewer {
@@ -175,7 +175,7 @@ describe('flattenRelayQuery', () => {
     `,
     );
     const expected = getNode(
-      RelayClassic.QL`
+      RelayClassic_DEPRECATED.QL`
       query {
         viewer {
           actor {
@@ -195,7 +195,7 @@ describe('flattenRelayQuery', () => {
 
   it('optionally preserves empty non-leaf nodes', () => {
     const node = getNode(
-      RelayClassic.QL`
+      RelayClassic_DEPRECATED.QL`
       fragment on Comment {
         likers # can have sub-selections, normally is removed
         doesViewerLike

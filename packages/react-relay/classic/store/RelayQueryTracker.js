@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayQueryTracker
  * @flow
  * @format
  */
@@ -16,7 +15,7 @@ const RelayQuery = require('../query/RelayQuery');
 
 const flattenRelayQuery = require('../traversal/flattenRelayQuery');
 
-import type {DataID} from '../tools/RelayInternalTypes';
+import type {DataID} from 'RelayRuntime';
 
 const TYPE = '__type__';
 

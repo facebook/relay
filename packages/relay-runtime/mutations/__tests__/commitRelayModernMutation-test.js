@@ -12,11 +12,11 @@
 
 const commitRelayModernMutation = require('commitRelayModernMutation');
 
-const {commitMutation} = require('ReactRelayPublic');
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {createOperationSelector} = require('RelayModernOperationSelector');
 const {generateAndCompile} = require('RelayModernTestUtils');
 const {ROOT_ID} = require('RelayStoreUtils');
+const {commitMutation} = require('react-relay/modern/ReactRelayPublic');
 
 describe('Configs: NODE_DELETE', () => {
   jest.resetModules();

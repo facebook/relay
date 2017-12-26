@@ -1,0 +1,35 @@
+fragment UserProfile on User {
+  profilePicture(size: $ProfilePicture_SIZE) {
+    ... on Image {
+      uri
+      ... on Image {
+        uri
+        width
+      }
+    }
+    ... on Image @include(if: $cond) {
+      uri
+    }
+    ...PhotoFragment
+  }
+  smallPic: profilePicture(size: 20) {
+    ...PhotoFragment
+  }
+}
+
+fragment PhotoFragment on Image {
+  uri
+  ... on Image {
+    uri
+    width
+  }
+}
+
+fragment RecursiveFragment on Image {
+  uri
+  width
+}
+
+fragment AnotherRecursiveFragment on Image {
+  uri
+}

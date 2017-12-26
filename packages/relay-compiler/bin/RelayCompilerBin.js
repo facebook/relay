@@ -17,7 +17,7 @@ const {
   CodegenRunner,
   ConsoleReporter,
   WatchmanClient,
-} = require('../graphql-compiler/GraphQLCompilerPublic');
+} = require('graphql-compiler');
 
 const RelayJSModuleParser = require('../core/RelayJSModuleParser');
 const RelayFileWriter = require('../codegen/RelayFileWriter');
@@ -36,6 +36,7 @@ const {
 } = require('graphql');
 
 const {
+  commonTransforms,
   codegenTransforms,
   fragmentTransforms,
   printTransforms,
@@ -164,11 +165,12 @@ Ensure that one such file exists in ${srcDir} or its parents.
 }
 
 function getRelayFileWriter(baseDir: string) {
-  return (onlyValidate, schema, documents, baseDocuments) =>
+  return (onlyValidate, schema, documents, baseDocuments, reporter) =>
     new RelayFileWriter({
       config: {
         baseDir,
         compilerTransforms: {
+          commonTransforms,
           codegenTransforms,
           fragmentTransforms,
           printTransforms,
@@ -184,6 +186,7 @@ function getRelayFileWriter(baseDir: string) {
       schema,
       baseDocuments,
       documents,
+      reporter,
     });
 }
 
@@ -194,12 +197,12 @@ function getSchema(schemaPath: string): GraphQLSchema {
       source = printSchema(buildClientSchema(JSON.parse(source).data));
     }
     source = `
-  directive @include(if: Boolean) on FRAGMENT | FIELD
-  directive @skip(if: Boolean) on FRAGMENT | FIELD
+  directive @include(if: Boolean) on FRAGMENT_SPREAD | FIELD
+  directive @skip(if: Boolean) on FRAGMENT_SPREAD | FIELD
 
   ${source}
   `;
-    return buildASTSchema(parse(source));
+    return buildASTSchema(parse(source), {assumeValid: true});
   } catch (error) {
     throw new Error(
       `

@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule ReactRelayCompatPublic
  * @flow
  * @format
  */
@@ -17,41 +16,46 @@ const RelayCompatContainer = require('./react/RelayCompatContainer');
 const RelayCompatMutations = require('./mutations/RelayCompatMutations');
 const RelayCompatPaginationContainer = require('./react/RelayCompatPaginationContainer');
 const RelayCompatRefetchContainer = require('./react/RelayCompatRefetchContainer');
+const RelayRuntime = require('RelayRuntime');
 
-const {graphql, fetchQuery} = require('RelayRuntime');
-
-export type {
-  Disposable,
-} from '../classic/environment/RelayCombinedEnvironmentTypes';
-export type {DataID} from '../classic/tools/RelayInternalTypes';
-export type {Variables} from '../classic/tools/RelayTypes';
 export type {
   RelayPaginationProp,
   RelayProp,
   RelayRefetchProp,
 } from '../modern/ReactRelayTypes';
 export type {
+  DataID,
+  DeclarativeMutationConfig,
+  Disposable,
   GraphQLTaggedNode,
   IEnvironment,
+  MutationType,
   OperationSelector,
+  RangeOperation,
   RelayContext,
   Selector,
   Snapshot,
+  Variables,
 } from 'RelayRuntime';
 
 /**
  * The public interface to React Relay which supports a compatibility mode to
- * continue to work with the classic React runtime.
+ * continue to work with the classic Relay runtime.
  */
 module.exports = {
   QueryRenderer: ReactRelayQueryRenderer,
+
+  MutationTypes: RelayRuntime.MutationTypes,
+  RangeOperations: RelayRuntime.RangeOperations,
+
   applyOptimisticMutation: RelayCompatMutations.applyUpdate,
   commitMutation: RelayCompatMutations.commitUpdate,
-  createFragmentContainer: (RelayCompatContainer.createContainer: $FlowFixMe),
-  createPaginationContainer: (RelayCompatPaginationContainer.createContainer: $FlowFixMe),
-  createRefetchContainer: (RelayCompatRefetchContainer.createContainer: $FlowFixMe),
-  fetchQuery: fetchQuery,
-  graphql: graphql,
+  createFragmentContainer: RelayCompatContainer.createContainer,
+  createPaginationContainer: RelayCompatPaginationContainer.createContainer,
+  createRefetchContainer: RelayCompatRefetchContainer.createContainer,
+  fetchQuery: RelayRuntime.fetchQuery,
+  graphql: RelayRuntime.graphql,
+
   injectDefaultVariablesProvider:
     ReactRelayCompatContainerBuilder.injectDefaultVariablesProvider,
 };

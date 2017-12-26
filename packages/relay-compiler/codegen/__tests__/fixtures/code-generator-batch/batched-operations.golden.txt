@@ -1,0 +1,144 @@
+{
+  "kind": "BatchRequest",
+  "operationKind": "query",
+  "name": "TestQuery",
+  "metadata": {},
+  "fragment": null,
+  "requests": [
+    {
+      "name": "TestQuery",
+      "id": null,
+      "text": null,
+      "argumentDependencies": [],
+      "operation": {
+        "kind": "Operation",
+        "name": "TestQuery",
+        "argumentDefinitions": [
+          {
+            "kind": "LocalArgument",
+            "name": "id",
+            "type": "ID!",
+            "defaultValue": null
+          }
+        ],
+        "selections": [
+          {
+            "kind": "LinkedField",
+            "alias": null,
+            "name": "node",
+            "storageKey": null,
+            "args": [
+              {
+                "kind": "Variable",
+                "name": "id",
+                "variableName": "id",
+                "type": "ID"
+              }
+            ],
+            "concreteType": null,
+            "plural": false,
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "id",
+                "args": null,
+                "storageKey": null
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "TestQuery",
+      "id": null,
+      "text": null,
+      "argumentDependencies": [],
+      "operation": {
+        "kind": "Operation",
+        "name": "TestQuery",
+        "argumentDefinitions": [
+          {
+            "kind": "LocalArgument",
+            "name": "id",
+            "type": "ID!",
+            "defaultValue": null
+          }
+        ],
+        "selections": [
+          {
+            "kind": "LinkedField",
+            "alias": null,
+            "name": "node",
+            "storageKey": null,
+            "args": [
+              {
+                "kind": "Variable",
+                "name": "id",
+                "variableName": "id",
+                "type": "ID"
+              }
+            ],
+            "concreteType": null,
+            "plural": false,
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "id",
+                "args": null,
+                "storageKey": null
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "TestQuery",
+      "id": null,
+      "text": null,
+      "argumentDependencies": [],
+      "operation": {
+        "kind": "Operation",
+        "name": "TestQuery",
+        "argumentDefinitions": [
+          {
+            "kind": "LocalArgument",
+            "name": "id",
+            "type": "ID!",
+            "defaultValue": null
+          }
+        ],
+        "selections": [
+          {
+            "kind": "LinkedField",
+            "alias": null,
+            "name": "node",
+            "storageKey": null,
+            "args": [
+              {
+                "kind": "Variable",
+                "name": "id",
+                "variableName": "id",
+                "type": "ID"
+              }
+            ],
+            "concreteType": null,
+            "plural": false,
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "id",
+                "args": null,
+                "storageKey": null
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

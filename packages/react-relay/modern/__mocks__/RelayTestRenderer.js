@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayTestRenderer
  * @format
  * @flow
  */
@@ -18,8 +17,7 @@ const invariant = require('invariant');
 
 const {RelayConcreteNode} = require('RelayRuntime');
 
-import type {Variables} from '../../classic/tools/RelayTypes';
-import type {Snapshot} from 'RelayRuntime';
+import type {Variables, Snapshot} from 'RelayRuntime';
 
 type Props = {
   environment: $FlowFixMe,

@@ -1,9 +1,0 @@
-fragment UserFragment on User {
-  ... @include(if: $conditional) {
-    ...NestedFragment
-  }
-}
-
-fragment NestedFragment on User {
-  name
-}

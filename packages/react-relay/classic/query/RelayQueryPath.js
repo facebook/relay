@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayQueryPath
  * @flow
  * @format
  */
@@ -23,7 +22,7 @@ const warning = require('warning');
 const {ConnectionInterface} = require('RelayRuntime');
 
 import type RelayRecordStore from '../store/RelayRecordStore';
-import type {DataID} from '../tools/RelayInternalTypes';
+import type {DataID} from 'RelayRuntime';
 
 const {ID, ID_TYPE, NODE, NODE_TYPE, TYPENAME} = RelayNodeInterface;
 

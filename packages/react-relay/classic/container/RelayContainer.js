@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayContainer
  * @flow
  * @format
  */
@@ -31,9 +30,7 @@ const filterObject = require('filterObject');
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const isClassicRelayContext = require('../store/isClassicRelayContext');
-// TODO T22703775: .native can't be imported without haste
-// SHOULD be: require('../tools/relayUnstableBatchedUpdates')
-const relayUnstableBatchedUpdates = require('relayUnstableBatchedUpdates');
+const relayUnstableBatchedUpdates = require('../tools/relayUnstableBatchedUpdates');
 const shallowEqual = require('shallowEqual');
 const warning = require('warning');
 
@@ -47,14 +44,14 @@ import type {
   FragmentResolver,
   ClassicRelayContext,
 } from '../store/RelayEnvironment';
-import type {DataID, RelayQuerySet} from '../tools/RelayInternalTypes';
+import type {RelayQuerySet} from '../tools/RelayInternalTypes';
 import type {
   Abortable,
   ComponentReadyStateChangeCallback,
   RelayContainer as RelayContainerClass,
   RelayProp,
-  Variables,
 } from '../tools/RelayTypes';
+import type {DataID, Variables} from 'RelayRuntime';
 
 type FragmentPointer = {
   fragment: RelayQuery.Fragment,

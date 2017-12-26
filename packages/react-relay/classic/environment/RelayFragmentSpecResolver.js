@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayFragmentSpecResolver
  * @flow
  * @format
  */
@@ -13,13 +12,11 @@
 
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
-const isScalarAndEqual = require('../util/isScalarAndEqual');
+const isScalarAndEqual = require('isScalarAndEqual');
 
 const {areEqualSelectors, getSelectorsFromObject} = require('./RelaySelector');
 
-import type {Variables} from '../tools/RelayTypes';
 import type {
-  Disposable,
   FragmentSpecResolver,
   FragmentSpecResults,
   Props,
@@ -32,6 +29,7 @@ import type {
   Selector,
   Snapshot,
 } from './RelayEnvironmentTypes';
+import type {Disposable, Variables} from 'RelayRuntime';
 
 type Resolvers = {[key: string]: ?(SelectorListResolver | SelectorResolver)};
 
@@ -169,6 +167,10 @@ class RelayFragmentSpecResolver implements FragmentSpecResolver {
     this._stale = true;
     this._callback();
   };
+
+  isLoading(): boolean {
+    return false;
+  }
 }
 
 /**

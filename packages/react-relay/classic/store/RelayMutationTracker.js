@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayMutationTracker
  * @flow
  * @format
  */
@@ -13,7 +12,8 @@
 
 const RelayRecord = require('./RelayRecord');
 
-import type {DataID, ClientMutationID} from '../tools/RelayInternalTypes';
+import type {ClientMutationID} from '../tools/RelayInternalTypes';
+import type {DataID} from 'RelayRuntime';
 
 // Maintains a map from the client id to the server id of
 // optimistically added nodes
@@ -36,10 +36,10 @@ const clientNodeIDToErrorMutationID = {};
  */
 const RelayMutationTracker = {
   /**
-  * Checks if the given id represents an object only known on the client side
-  * or not. In this case, it is both a client id and does not have a
-  * corresponding mapping in the client server id map.
-  */
+   * Checks if the given id represents an object only known on the client side
+   * or not. In this case, it is both a client id and does not have a
+   * corresponding mapping in the client server id map.
+   */
   isClientOnlyID: function(dataID: DataID): boolean {
     return RelayRecord.isClientID(dataID) && !clientIDToServerIDMap[dataID];
   },

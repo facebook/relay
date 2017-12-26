@@ -13,7 +13,7 @@ const Map = require('Map');
 
 const diff = require('jest-diff');
 
-jest.dontMock('react-test-renderer');
+jest.dontMock('react-test-renderer').mock('../../route/RelayRoute');
 const ReactTestRenderer = require('react-test-renderer');
 
 /**

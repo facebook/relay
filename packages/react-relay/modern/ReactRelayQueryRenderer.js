@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule ReactRelayQueryRenderer
  * @flow
  * @format
  */
@@ -15,31 +14,35 @@ const React = require('React');
 const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
 const areEqual = require('areEqual');
-const deepFreeze = require('../classic/tools/deepFreeze');
+const deepFreeze = require('deepFreeze');
+const invariant = require('invariant');
 
-const {RelayConcreteNode} = require('RelayRuntime');
-
-import type {
-  CacheConfig,
-  Disposable,
-} from '../classic/environment/RelayCombinedEnvironmentTypes';
+import type {CacheConfig} from '../classic/environment/RelayCombinedEnvironmentTypes';
 import type {RelayEnvironmentInterface as ClassicEnvironment} from '../classic/store/RelayEnvironment';
-import type {RerunParam, Variables} from '../classic/tools/RelayTypes';
 import type {
-  IEnvironment,
+  Disposable,
   GraphQLTaggedNode,
+  IEnvironment,
   OperationSelector,
   RelayContext,
   Snapshot,
+  Variables,
 } from 'RelayRuntime';
+
+const NETWORK_ONLY = 'NETWORK_ONLY';
+const STORE_THEN_NETWORK = 'STORE_THEN_NETWORK';
+const DataFrom = {
+  NETWORK_ONLY,
+  STORE_THEN_NETWORK,
+};
 
 export type Props = {
   cacheConfig?: ?CacheConfig,
+  dataFrom?: $Keys<typeof DataFrom>,
   environment: IEnvironment | ClassicEnvironment,
   query: ?GraphQLTaggedNode,
   render: (readyState: ReadyState) => React.Node,
   variables: Variables,
-  rerunParamExperimental?: RerunParam,
 };
 export type ReadyState = {
   error: ?Error,
@@ -61,20 +64,18 @@ type State = {
  * - Subscribes for updates to the root data and re-renders with any changes.
  */
 class ReactRelayQueryRenderer extends React.Component<Props, State> {
+  static defaultProps = {
+    dataFrom: NETWORK_ONLY,
+  };
+
   _pendingFetch: ?Disposable;
   _relayContext: RelayContext;
   _rootSubscription: ?Disposable;
-  _selectionReference: ?Disposable;
+  _selectionReferences: Array<Disposable> = [];
 
   constructor(props: Props, context: Object) {
     super(props, context);
-    this._pendingFetch = null;
-    this._rootSubscription = null;
-    this._selectionReference = null;
-
-    this.state = {
-      readyState: this._fetchForProps(props),
-    };
+    this.state = {readyState: this._fetchForProps(this.props)};
   }
 
   componentWillReceiveProps(nextProps: Props): void {
@@ -100,7 +101,13 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
     );
   }
 
+  _disposeSelectionReferences(): void {
+    this._selectionReferences.forEach(r => r.dispose());
+    this._selectionReferences = [];
+  }
+
   _release(): void {
+    // order is important, dispose of pendingFetch before selectionReferences
     if (this._pendingFetch) {
       this._pendingFetch.dispose();
       this._pendingFetch = null;
@@ -109,10 +116,7 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
       this._rootSubscription.dispose();
       this._rootSubscription = null;
     }
-    if (this._selectionReference) {
-      this._selectionReference.dispose();
-      this._selectionReference = null;
-    }
+    this._disposeSelectionReferences();
   }
 
   _fetchForProps(props: Props): ReadyState {
@@ -128,18 +132,12 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
         getRequest,
       } = environment.unstable_internal;
       const request = getRequest(query);
-      if (request.kind === RelayConcreteNode.BATCH_REQUEST) {
-        throw new Error(
-          'ReactRelayQueryRenderer: Batch Request not yet ' +
-            'implemented (T22954932)',
-        );
-      }
       const operation = createOperationSelector(request, variables);
       this._relayContext = {
         environment,
         variables: operation.variables,
       };
-      return this._fetch(operation, props.cacheConfig) || getDefaultState();
+      return this._fetch(operation, props) || getDefaultState();
     } else {
       this._relayContext = {
         environment,
@@ -154,16 +152,13 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
     }
   }
 
-  _fetch(operation: OperationSelector, cacheConfig: ?CacheConfig): ?ReadyState {
+  _fetch(operation: OperationSelector, props: Props): ?ReadyState {
+    const {cacheConfig, dataFrom} = props;
     const {environment} = this._relayContext;
+    const {createOperationSelector} = environment.unstable_internal;
 
-    // Immediately retain the results of the new query to prevent relevant data
-    // from being freed. This is not strictly required if all new data is
-    // fetched in a single step, but is necessary if the network could attempt
-    // to incrementally load data (ex: multiple query entries or incrementally
-    // loading records from disk cache).
-    const nextReference = environment.retain(operation.root);
-
+    const nextReferences = [];
+    let cacheReference = null;
     let readyState = getDefaultState();
     let snapshot: ?Snapshot; // results of the root fragment
     let hasSyncResult = false;
@@ -176,47 +171,68 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
       this._rootSubscription.dispose();
     }
 
+    const onDataAvailable = () => {
+      // `next` can be called multiple times by network layers that support
+      // data subscriptions. Wait until the first payload to render `props`
+      // and subscribe for data updates.
+      if (snapshot) {
+        return;
+      }
+      snapshot = environment.lookup(operation.fragment);
+      readyState = {
+        error: null,
+        props: snapshot.data,
+        retry: () => {
+          // Do not reset the default state if refetching after success,
+          // handling the case where _fetch may return syncronously instead
+          // of calling setState.
+          const syncReadyState = this._fetch(operation, props);
+          if (syncReadyState) {
+            this.setState({readyState: syncReadyState});
+          }
+        },
+      };
+      this._rootSubscription = environment.subscribe(snapshot, this._onChange);
+      // This line should be called only once.
+      hasSyncResult = true;
+      if (hasFunctionReturned) {
+        this.setState({readyState});
+      }
+    };
+
+    // If we can fulfill this query with data already available in memory,
+    // populate our state with the available data
+    if (dataFrom === STORE_THEN_NETWORK && environment.check(operation.root)) {
+      cacheReference = environment.retain(operation.root);
+      onDataAvailable();
+      invariant(
+        hasSyncResult,
+        'If data was available in store cache, `hasSyncResult` should be true',
+      );
+    }
+
     const request = environment
       .execute({operation, cacheConfig})
       .finally(() => {
         this._pendingFetch = null;
+        if (cacheReference) {
+          cacheReference.dispose();
+          cacheReference = null;
+        }
       })
       .subscribe({
-        next: () => {
-          // `next` can be called multiple times by network layers that support
-          // data subscriptions. Wait until the first payload to render `props`
-          // and subscribe for data updates.
-          if (snapshot) {
-            return;
-          }
-          snapshot = environment.lookup(operation.fragment);
-          readyState = {
-            error: null,
-            props: snapshot.data,
-            retry: () => {
-              // Do not reset the default state if refetching after success,
-              // handling the case where _fetch may return syncronously instead
-              // of calling setState.
-              const syncReadyState = this._fetch(operation, cacheConfig);
-              if (syncReadyState) {
-                this.setState({readyState: syncReadyState});
-              }
-            },
-          };
-
-          if (this._selectionReference) {
-            this._selectionReference.dispose();
-          }
-          this._rootSubscription = environment.subscribe(
-            snapshot,
-            this._onChange,
+        next: payload => {
+          const operationForPayload = createOperationSelector(
+            operation.node,
+            payload.variables,
+            payload.operation,
           );
-          this._selectionReference = nextReference;
-          // This line should be called only once.
-          hasSyncResult = true;
-          if (hasFunctionReturned) {
-            this.setState({readyState});
+          nextReferences.push(environment.retain(operationForPayload.root));
+          if (cacheReference) {
+            cacheReference.dispose();
+            cacheReference = null;
           }
+          onDataAvailable();
         },
         error: error => {
           readyState = {
@@ -226,27 +242,40 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
               // Return to the default state when retrying after an error,
               // handling the case where _fetch may return syncronously instead
               // of calling setState.
-              const syncReadyState = this._fetch(operation, cacheConfig);
+              const syncReadyState = this._fetch(operation, props);
               this.setState({readyState: syncReadyState || getDefaultState()});
             },
           };
-          if (this._selectionReference) {
-            this._selectionReference.dispose();
-          }
-          this._selectionReference = nextReference;
+          // We may have partially fulfilled the request, so let the next request
+          // or the unmount dispose of the references.
+          this._selectionReferences = this._selectionReferences.concat(
+            nextReferences,
+          );
           hasSyncResult = true;
           if (hasFunctionReturned) {
             this.setState({readyState});
           }
+        },
+        complete: () => {
+          this._disposeSelectionReferences();
+          this._selectionReferences = nextReferences;
+        },
+        unsubscribe: () => {
+          // Let the next request or the unmount code dispose of the references.
+          // We may have partially fulfilled the request.
+          this._selectionReferences = this._selectionReferences.concat(
+            nextReferences,
+          );
         },
       });
 
     this._pendingFetch = {
       dispose() {
         request.unsubscribe();
-        nextReference.dispose();
       },
     };
+    // If we have a result synchronously, via the store cache or the network layer,
+    // return our readyState immediately.
     hasFunctionReturned = true;
     return hasSyncResult ? readyState : null;
   }

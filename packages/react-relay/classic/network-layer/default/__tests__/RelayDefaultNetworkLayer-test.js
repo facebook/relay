@@ -10,11 +10,14 @@
 
 'use strict';
 
-jest.enableAutomock().useFakeTimers();
+jest
+  .mock('fetch')
+  .mock('fetchWithRetries')
+  .useFakeTimers();
 
 require('configureForRelayOSS');
 
-const RelayClassic = require('RelayClassic');
+const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
 const {ConnectionInterface} = require('RelayRuntime');
 const RelayDefaultNetworkLayer = require('../RelayDefaultNetworkLayer');
 const RelayMetaRoute = require('../../../route/RelayMetaRoute');
@@ -300,12 +303,12 @@ describe('RelayDefaultNetworkLayer', () => {
     beforeEach(() => {
       const route = RelayMetaRoute.get('$fetchRelayQuery');
       const queryA = RelayQuery.Root.create(
-        RelayClassic.QL`query{node(id:"123"){id}}`,
+        RelayClassic_DEPRECATED.QL`query{node(id:"123"){id}}`,
         route,
         {},
       );
       const queryB = RelayQuery.Root.create(
-        RelayClassic.QL`query{node(id:"456"){id}}`,
+        RelayClassic_DEPRECATED.QL`query{node(id:"456"){id}}`,
         route,
         {},
       );

@@ -29,9 +29,13 @@ test('RelayMaskTransform', () => {
 
   expect('fixtures/relay-mask-transform').toMatchGolden(text => {
     const {definitions} = parseGraphQLText(schema, text);
-    let context = new GraphQLCompilerContext(schema).addAll(definitions);
-    context = RelayMaskTransform.transform(context);
-    return context
+    return new GraphQLCompilerContext(RelayTestSchema, schema)
+      .addAll(definitions)
+      .applyTransforms([
+        // Requires Relay directive transform first.
+        RelayRelayDirectiveTransform.transform,
+        RelayMaskTransform.transform,
+      ])
       .documents()
       .map(doc => GraphQLIRPrinter.print(doc))
       .join('\n');

@@ -4,14 +4,12 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayRecordWriter
  * @flow
  * @format
  */
 
 'use strict';
 
-const GraphQLMutatorConstants = require('../legacy/mutation/GraphQLMutatorConstants');
 const GraphQLRange = require('../legacy/store/GraphQLRange');
 const RelayNodeInterface = require('../interface/RelayNodeInterface');
 const RelayRecord = require('./RelayRecord');
@@ -20,23 +18,28 @@ const RelayRecordStatusMap = require('./RelayRecordStatusMap');
 const invariant = require('invariant');
 const rangeOperationToMetadataKey = require('../mutation/rangeOperationToMetadataKey');
 
-const {ConnectionInterface} = require('RelayRuntime');
+const {ConnectionInterface, RangeOperations} = require('RelayRuntime');
 
 import type {QueryPath} from '../query/RelayQueryPath';
 import type {
   Call,
   ClientMutationID,
-  DataID,
   FieldValue,
   NodeRangeMap,
   RootCallMap,
 } from '../tools/RelayInternalTypes';
 import type {CacheWriter} from '../tools/RelayTypes';
 import type {Record, RecordMap} from './RelayRecord';
-import type {EdgeRecord, PageInfo, RecordState} from 'RelayRuntime';
+import type {
+  DataID,
+  EdgeRecord,
+  PageInfo,
+  RangeOperation,
+  RecordState,
+} from 'RelayRuntime';
 
 const EMPTY = '';
-const {APPEND, PREPEND, REMOVE} = GraphQLMutatorConstants;
+const {APPEND, PREPEND, REMOVE} = RangeOperations;
 const {
   FILTER_CALLS,
   FORCE_INDEX,
@@ -47,8 +50,6 @@ const {
   RESOLVED_FRAGMENT_MAP_GENERATION,
   STATUS,
 } = RelayRecord.MetadataKey;
-
-type RangeOperation = $Keys<GraphQLMutatorConstants.RANGE_OPERATIONS>;
 
 /**
  * @internal

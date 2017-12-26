@@ -11,18 +11,18 @@
 
 'use strict';
 
-const RelayConcreteNode = require('RelayConcreteNode');
+const RelayDeclarativeMutationConfig = require('RelayDeclarativeMutationConfig');
 
-const setRelayModernMutationConfigs = require('setRelayModernMutationConfigs');
 const warning = require('warning');
 
-import type {Disposable} from 'RelayCombinedEnvironmentTypes';
+import type {Disposable} from '../util/RelayRuntimeTypes';
+import type {Variables} from '../util/RelayRuntimeTypes';
+import type {DeclarativeMutationConfig} from 'RelayDeclarativeMutationConfig';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {Environment, SelectorStoreUpdater} from 'RelayStoreTypes';
-import type {RelayMutationConfig, Variables} from 'RelayTypes';
 
 export type GraphQLSubscriptionConfig = {|
-  configs?: Array<RelayMutationConfig>,
+  configs?: Array<DeclarativeMutationConfig>,
   subscription: GraphQLTaggedNode,
   variables: Variables,
   onCompleted?: ?() => void,
@@ -37,10 +37,7 @@ function requestRelaySubscription(
 ): Disposable {
   const {createOperationSelector, getRequest} = environment.unstable_internal;
   const subscription = getRequest(config.subscription);
-  if (
-    subscription.kind !== RelayConcreteNode.OPERATION ||
-    subscription.operation !== 'subscription'
-  ) {
+  if (subscription.operationKind !== 'subscription') {
     throw new Error(
       'requestRelaySubscription: Must use Subscription operation',
     );
@@ -54,7 +51,7 @@ function requestRelaySubscription(
   );
 
   const {updater} = configs
-    ? setRelayModernMutationConfigs(
+    ? RelayDeclarativeMutationConfig.convert(
         configs,
         subscription,
         null /* optimisticUpdater */,

@@ -13,10 +13,13 @@
 
 const RelayRecordState = require('RelayRecordState');
 
-import type {Record, RecordMap} from 'RelayCombinedEnvironmentTypes';
-import type {DataID} from 'RelayInternalTypes';
+import type {DataID} from '../util/RelayRuntimeTypes';
 import type {RecordState} from 'RelayRecordState';
 import type {MutableRecordSource} from 'RelayStoreTypes';
+import type {
+  Record,
+  RecordMap,
+} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 const {EXISTENT, NONEXISTENT, UNKNOWN} = RelayRecordState;
 

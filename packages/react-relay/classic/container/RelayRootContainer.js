@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayRootContainer
  * @flow
  * @format
  */
@@ -25,7 +24,7 @@ import type {
 } from '../tools/RelayTypes';
 import type {RelayRetryCallback} from './RelayReadyStateRenderer';
 
-type RootContainerProps = {
+export type RootContainerProps = {
   Component: RelayContainer,
   forceFetch?: ?boolean,
   shouldFetch?: ?boolean,

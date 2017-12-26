@@ -7,6 +7,12 @@ exports[`BabelPluginRelayMacro works 1`] = `
 const CompatProfilePic = require('CompatProfilePic');
 
 const CompatViewerQuery = function () {
+  const node = require('./__generated__/CompatViewerQuery.graphql');
+
+  if (node.hash && node.hash !== '42a62b166f34144936e64b3c65e42c4d') {
+    console.error('The definition of \\\\'CompatViewerQuery\\\\' appears to have changed. Run \`relay-compiler\` to update the generated files to receive the expected data.');
+  }
+
   return require('./__generated__/CompatViewerQuery.graphql');
 };"
 `;

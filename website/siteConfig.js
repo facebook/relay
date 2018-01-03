@@ -42,7 +42,7 @@ const siteConfig = {
   headerIcon: 'img/relay-white.svg',
   footerIcon: 'img/relay.svg',
   favicon: 'img/favicon.png',
-  customCssFileName: 'relay.css', //the name of your custom css file
+  customCssFileName: 'css/custom.css', //the name of your custom css file
   colors: {
     primaryColor: '#f26b00',
     secondaryColor: '#f26b00',

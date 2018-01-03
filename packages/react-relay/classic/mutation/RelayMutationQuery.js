@@ -25,13 +25,14 @@ const invariant = require('invariant');
 const nullthrows = require('nullthrows');
 const warning = require('warning');
 
-const {REFETCH} = require('../legacy/mutation/GraphQLMutatorConstants');
-const {ConnectionInterface} = require('RelayRuntime');
+const {RangeOperations, ConnectionInterface} = require('RelayRuntime');
 
 import type {ConcreteMutation} from '../query/ConcreteQuery';
 import type RelayQueryTracker from '../store/RelayQueryTracker';
 import type {RangeBehaviors} from 'RelayDeclarativeMutationConfig';
 import type {DataID, Variables} from 'RelayRuntime';
+
+const {REFETCH} = RangeOperations;
 
 type BasicMutationFragmentBuilderConfig = {
   fatQuery: RelayQuery.Fragment,

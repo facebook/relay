@@ -19,7 +19,6 @@ jest
   .unmock('../RelayMutation')
   .unmock('../../network/RelayNetworkLayer');
 
-const GraphQLMutatorConstants = require('../../legacy/mutation/GraphQLMutatorConstants');
 const Relay = require('../../RelayPublic');
 const RelayEnvironment = require('../../store/RelayEnvironment');
 const RelayGraphQLMutation = require('../RelayGraphQLMutation');
@@ -28,7 +27,7 @@ const RelayTestUtils = require('RelayTestUtils');
 const generateRQLFieldAlias = require('../../query/generateRQLFieldAlias');
 const readRelayQueryData = require('../../store/readRelayQueryData');
 
-const {ConnectionInterface} = require('RelayRuntime');
+const {ConnectionInterface, RangeOperations} = require('RelayRuntime');
 
 const {COMMITTING, COMMIT_QUEUED, UNCOMMITTED} = RelayMutationTransactionStatus;
 const {HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO} = ConnectionInterface.get();
@@ -563,8 +562,8 @@ describe('RelayGraphQLMutation', () => {
             parentID: 'aFeedbackId',
             parentName: 'feedback',
             rangeBehaviors: {
-              '': GraphQLMutatorConstants.PREPEND,
-              'if(true)': GraphQLMutatorConstants.PREPEND,
+              '': RangeOperations.PREPEND,
+              'if(true)': RangeOperations.PREPEND,
             },
           },
         ];

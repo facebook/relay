@@ -10,7 +10,6 @@
 
 'use strict';
 
-const GraphQLMutatorConstants = require('../legacy/mutation/GraphQLMutatorConstants');
 const RelayClassicRecordState = require('../store/RelayClassicRecordState');
 const RelayMutationTracker = require('../store/RelayMutationTracker');
 const RelayMutationType = require('../mutation/RelayMutationType');
@@ -24,7 +23,11 @@ const getRangeBehavior = require('../mutation/getRangeBehavior');
 const invariant = require('invariant');
 const warning = require('warning');
 
-const {ConnectionInterface, RelayProfiler} = require('RelayRuntime');
+const {
+  ConnectionInterface,
+  RangeOperations,
+  RelayProfiler,
+} = require('RelayRuntime');
 
 import type RelayQueryWriter from '../store/RelayQueryWriter';
 import type RelayRecordStore from '../store/RelayRecordStore';
@@ -42,7 +45,7 @@ type PayloadArray = Array<Payload>;
 type PayloadObject = {[key: string]: Payload};
 
 const {ANY_TYPE, ID, NODE} = RelayNodeInterface;
-const {APPEND, IGNORE, PREPEND, REFETCH, REMOVE} = GraphQLMutatorConstants;
+const {APPEND, IGNORE, PREPEND, REFETCH, REMOVE} = RangeOperations;
 
 let _edgesField;
 function getEdgesField() {
@@ -445,17 +448,24 @@ function addRangeNode(
   );
 
   // append/prepend the item to the range.
-  if (rangeBehavior in GraphQLMutatorConstants.RANGE_OPERATIONS) {
-    recordWriter.applyRangeUpdate(connectionID, edgeID, (rangeBehavior: any));
+  if (
+    rangeBehavior === APPEND ||
+    rangeBehavior === IGNORE ||
+    rangeBehavior === PREPEND ||
+    rangeBehavior === REFETCH ||
+    rangeBehavior === REMOVE
+  ) {
+    recordWriter.applyRangeUpdate(connectionID, edgeID, rangeBehavior);
     writer.recordUpdate(connectionID);
   } else {
     console.error(
       'writeRelayUpdatePayload(): invalid range operation `%s`, valid ' +
-        'options are `%s`, `%s`, `%s`, or `%s`.',
+        'options are `%s`, `%s`, `%s`, `%s`, or `%s`.',
       rangeBehavior,
       APPEND,
       PREPEND,
       IGNORE,
+      REMOVE,
       REFETCH,
     );
   }

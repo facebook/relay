@@ -21,12 +21,9 @@ const RelayTestUtils = require('RelayTestUtils');
 
 const generateClientID = require('../../legacy/store/generateClientID');
 
-const {
-  APPEND,
-  PREPEND,
-  REMOVE,
-} = require('../../legacy/mutation/GraphQLMutatorConstants');
-const {ConnectionInterface} = require('RelayRuntime');
+const {RangeOperations, ConnectionInterface} = require('RelayRuntime');
+
+const {APPEND, PREPEND, REMOVE} = RangeOperations;
 
 describe('RelayRecordWriter', () => {
   let HAS_NEXT_PAGE, HAS_PREV_PAGE;

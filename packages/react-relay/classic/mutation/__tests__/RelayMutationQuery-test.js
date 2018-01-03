@@ -17,7 +17,6 @@ jest
 
 require('configureForRelayOSS');
 
-const GraphQLMutatorConstants = require('../../legacy/mutation/GraphQLMutatorConstants');
 const Relay = require('../../RelayPublic');
 const RelayMutationQuery = require('../RelayMutationQuery');
 const RelayMutationType = require('../RelayMutationType');
@@ -30,6 +29,7 @@ const fromGraphQL = require('../../query/fromGraphQL');
 const intersectRelayQuery = require('../../traversal/intersectRelayQuery');
 
 const {ConnectionInterface} = require('RelayRuntime');
+const {RangeOperations} = Relay;
 
 describe('RelayMutationQuery', () => {
   const {filterGeneratedFields, getNode} = RelayTestUtils;
@@ -411,8 +411,8 @@ describe('RelayMutationQuery', () => {
       `,
       );
       rangeBehaviors = {
-        '': GraphQLMutatorConstants.PREPEND,
-        'orderby(toplevel)': GraphQLMutatorConstants.PREPEND,
+        '': RangeOperations.PREPEND,
+        'orderby(toplevel)': RangeOperations.PREPEND,
       };
     });
 
@@ -442,7 +442,7 @@ describe('RelayMutationQuery', () => {
         edgeName: 'feedbackCommentEdge',
         parentName: 'feedback',
         rangeBehaviors: {
-          'orderby(ranked_threaded)': GraphQLMutatorConstants.REFETCH,
+          'orderby(ranked_threaded)': RangeOperations.REFETCH,
         },
       });
       const expected = getNodeWithoutSource(
@@ -491,7 +491,7 @@ describe('RelayMutationQuery', () => {
         edgeName: 'feedbackCommentEdge',
         parentName: 'feedback',
         rangeBehaviors: {
-          'orderby(ranked_threaded)': GraphQLMutatorConstants.IGNORE,
+          'orderby(ranked_threaded)': RangeOperations.IGNORE,
         },
       });
       const expected = getNodeWithoutSource(
@@ -1108,7 +1108,7 @@ describe('RelayMutationQuery', () => {
       const connectionName = 'comments';
       const edgeName = 'feedbackCommentEdge';
       const rangeBehaviors = {
-        '': GraphQLMutatorConstants.PREPEND,
+        '': RangeOperations.PREPEND,
       };
       const configs = [
         {
@@ -1502,7 +1502,7 @@ describe('RelayMutationQuery', () => {
       const connectionName = 'comments';
       const edgeName = 'feedbackCommentEdge';
       const rangeBehaviors = {
-        '': GraphQLMutatorConstants.PREPEND,
+        '': RangeOperations.PREPEND,
       };
       const configs = [
         {
@@ -1623,7 +1623,7 @@ describe('RelayMutationQuery', () => {
       const connectionName = 'comments';
       const edgeName = 'feedbackCommentEdge';
       const rangeBehaviors = {
-        '': GraphQLMutatorConstants.PREPEND,
+        '': RangeOperations.PREPEND,
       };
       const fieldIDs = {
         feedback: '123',

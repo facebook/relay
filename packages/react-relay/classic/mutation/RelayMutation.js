@@ -140,14 +140,14 @@ class RelayMutation<Tp: Object> {
    *      connectionName: string;
    *      edgeName: string;
    *      rangeBehaviors:
-   *        {[call: string]: GraphQLMutatorConstants.RANGE_OPERATIONS};
+   *        {[call: string]: RelayClassic.RangeOperation};
    *    }
    *    where `parentName` is the field in the fatQuery that contains the range,
    *    `parentID` is the DataID of `parentName` in the store, `connectionName`
    *    is the name of the range, `edgeName` is the name of the key in server
    *    response that contains the newly created edge, `rangeBehaviors` maps
    *    stringified representation of calls on the connection to
-   *    GraphQLMutatorConstants.RANGE_OPERATIONS.
+   *    RelayClassic.RangeOperation.
    *
    * -  NODE_DELETE provides configuration for deleting a node and the
    *    corresponding edge from a range.

@@ -20,6 +20,12 @@ const users = [
     infoLink: 'https://www.oculus.com/',
     pinned: true,
   },
+  {
+    caption: 'Cirrus CI',
+    image: '/relay/img/logos/cirrus.png',
+    infoLink: 'https://cirrus-ci.com/',
+    pinned: false,
+  },
 ];
 
 const siteConfig = {

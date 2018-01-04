@@ -24,6 +24,7 @@ Using Relay in your production app? If you'd like to add your team to the list, 
 ## C
 
 - [chloe + isabel](https://www.chloeandisabel.com)
+- [Cirrus CI](https://cirrus-ci.com)
 - [Collibra](https://www.collibra.com)
 
 ## E

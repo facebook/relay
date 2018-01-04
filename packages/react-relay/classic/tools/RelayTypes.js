@@ -22,7 +22,6 @@ import type RelayFragmentReference from '../query/RelayFragmentReference';
 import type {RelayEnvironmentInterface} from '../store/RelayEnvironment';
 import type {Record} from '../store/RelayRecord';
 import type {FieldValue, QueryPayload} from './RelayInternalTypes';
-import type {DeclarativeMutationConfig} from 'RelayDeclarativeMutationConfig';
 import type {DataID, Variables} from 'RelayRuntime';
 import type URI from 'URI';
 
@@ -137,9 +136,6 @@ export type ReadyStateEvent = {
  * but have no definition in Relay's types. Suppressing for now.
  */
 export type RelayContainer = $FlowFixMe;
-
-// TODO(#T24585466, jkassens) Remove
-export type RelayMutationConfig = DeclarativeMutationConfig;
 
 export type RelayMutationTransactionCommitCallbacks = {
   onFailure?: ?RelayMutationTransactionCommitFailureCallback,

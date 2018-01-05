@@ -84,6 +84,7 @@ export interface RelayEnvironmentInterface {
     onNext: () => void,
   ): FragmentResolver;
   getStoreData(): RelayStoreData;
+  lookup(selector: Selector): Snapshot;
   primeCache(
     querySet: RelayQuerySet,
     onReadyStateChange: ReadyStateChangeCallback,

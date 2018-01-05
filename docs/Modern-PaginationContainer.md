@@ -121,7 +121,7 @@ type ConnectionData = {
   * `getFragmentVariables`: Function that should return the bag of variables  to use for reading out the data from the store when re-rendering the component. This function takes the previous set of variables passed to the pagination `query`, and the number of elements that have been fetched in total so far. Specifically, this indicates which variables to use when reading out the data from the
   local data store *after* the new pagination `query` has been fetched. If not specified, Relay will default to using all of the previous variables and using the total count for the `count` variable. This option is analogous to [`renderVariables`](./refetch-container#refetch) in the Refetch Container. See our [example](#pagination-example) for more details.
   * `getVariables`: Function that should return the variables to pass to the pagination `query` when fetching it from the server, given the current `props`, `count` and `cursor`. You may set whatever variables here, as well as modify the defaults to use for after/first/before/last arguments. See our [example](#pagination-example) for more details.
-  * `query`: A `graphql` tagged query to be used as the pagination query. The component will be re-rendered with the resulting data from this query; for this reason, the query should have the same shape as specified by the `fragmentSpec`, i.e. it should query for the same fields.
+  * `query`: A `graphql` tagged query to be used as the pagination query to fetch more data upon calling [`loadMore`](#loadmore).
 
 ### Available Props
 

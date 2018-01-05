@@ -30,7 +30,7 @@ createRefetchContainer(
   If the fragment name doesn't specify a prop name, the data will be available as a `data` prop.
   * An object whose keys are prop names and values are `graphql` tagged fragments. Each key specified in this object will correspond to a prop available to the resulting Component.
   * **Note:** To enable [compatibility mode](./relay-compat.html), `relay-compiler` enforces fragments to be named as `<FileName>_<propName>`.
-* `refetchQuery`: A `graphql` tagged query to be fetched upon calling [`props.relay.refetch`](#refetch). The component will be re-rendered with the resulting data from this query; for this reason, the query should have the same shape as specified by the `fragmentSpec`, i.e. it should query for the same fields.
+* `refetchQuery`: A `graphql` tagged query to be fetched upon calling [`props.relay.refetch`](#refetch). As with any query, upon fetching this query, its result will be normalized into the store, any relevant subscriptions associated with the changed records will be fired, and subscribed components will re-render.
 
 ### Available Props
 
@@ -51,7 +51,11 @@ type Props = {
 
 ## `refetch`
 
-`refetch` is a function available on the `relay` [prop](#available-props) which can be used to execute the `refetchQuery` and re-render the component with the newly fetched data. `refetch` has the following signature:
+`refetch` is a function available on the `relay` [prop](#available-props) which can be used to execute the `refetchQuery` and potentially re-render the component with the newly fetched data. Specifically, upon fetching the `refetchQuery`, its result will be normalized into the store, and any relevant subscriptions associated with the changed records will be fired, causing relevant components to re-render.
+
+**Note:** `refetch` is meant to be used for changing variables in the component's fragment. Specifically, in order for *this* component to re-render, it must be subscribed to changes in the records affected by this query. If the fragment for the component doesn't use variables, the component won't be subscribed to changes to new records that might be fetched by this query. A common example of this is using `refetch` to fetch a new node and re-render the component with the data for the new node; in this case the fragment needs to use a variable for the node's id, otherwise the component won't pick up the changes for the new node.
+
+`refetch` has the following signature:
 
 ```javascript
 type RefetchOptions = {

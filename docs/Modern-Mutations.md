@@ -54,7 +54,7 @@ commitMutation(
 Example of a simple mutation:
 
 ```javascript
-import {commitMutation, graphql} from 'react-relay';
+import {commitMutation, graphql} from 'relay-runtime';
 
 const mutation = graphql`
   mutation MarkReadNotificationMutation(
@@ -252,8 +252,7 @@ Here are a quick example of adding a todo item to a Todo list using this [exampl
 
 ```javascript
 // AddTodoMutation.js
-import {commitMutation, graphql} from 'react-relay';
-import {ConnectionHandler} from 'relay-runtime';
+import {ConnectionHandler, commitMutation, graphql} from 'relay-runtime';
 
 const mutation = graphql`
   mutation AddTodoMutation($input: AddTodoInput!) {

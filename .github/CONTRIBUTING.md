@@ -63,4 +63,4 @@ We will eventually have a linter that will catch most styling issues that may ex
 
 ## License
 
-By contributing to Relay, you agree that your contributions will be licensed under its BSD license.
+By contributing to Relay, you agree that your contributions will be licensed under its MIT license.

@@ -49,6 +49,7 @@ export type ValidationRule = (context: ValidationContext) => any;
 
 export type WriterConfig = {
   baseDir: string,
+  fileExtension?: string,
   compilerTransforms: RelayCompilerTransforms,
   customScalars: ScalarTypeMapping,
   formatModule: FormatModule,
@@ -243,6 +244,8 @@ class RelayFileWriter implements FileWriterInterface {
           )
         : null;
 
+      const fileExtension = this._config.fileExtension ? this._config.fileExtension : '.js';
+
       try {
         await Promise.all(
           artifacts.map(async node => {
@@ -280,6 +283,7 @@ class RelayFileWriter implements FileWriterInterface {
 
             await writeRelayGeneratedFile(
               getGeneratedDirectory(node.name),
+              fileExtension,
               node,
               formatModule,
               flowTypes,

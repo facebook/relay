@@ -21,7 +21,7 @@ Table of Contents:
 
 Before starting, make sure to check out our [Prerequisites](./prerequisites.html) and [Installation and Setup](./installation-and-setup.html) guides. As mentioned in the prerequisites, we need to make sure that we've set up a GraphQL server and schema.
 
-Fortunately, we are going to be using this [example todo list app](https://github.com/relayjs/relay-examples/tree/master/todo), which already has a  [server](https://github.com/relayjs/relay-examples/blob/master/todo/server.js) and schema [schema](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql) available for us to use:
+Fortunately, we are going to be using this [example todo list app](https://github.com/relayjs/relay-examples/tree/master/todo), which already has a [server](https://github.com/relayjs/relay-examples/blob/master/todo/server.js) and [schema](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql) available for us to use:
 
 ```graphql
 # From schema.graphql
@@ -106,7 +106,7 @@ import {graphql, QueryRenderer} from 'react-relay';
 
 const environment = /* defined or imported above... */;
 
-export default App extends React.Component {
+export default class App extends React.Component {
   render() {
     return (
       <QueryRenderer
@@ -172,7 +172,7 @@ type Props = {
   userID: string,
 };
 
-export default UserTodoList extends React.Component<Props> {
+export default class UserTodoList extends React.Component<Props> {
   render() {
     const {userID} = this.props;
 
@@ -399,7 +399,7 @@ import TodoList from './TodoList'
 
 const environment = /* defined or imported above... */;
 
-export default ViewerTodoList extends React.Component {
+export default class ViewerTodoList extends React.Component {
   render() {
     return (
       <QueryRenderer

@@ -172,7 +172,7 @@ type Props = {
   userID: string,
 };
 
-export default UserTodoList extends React.Component<Props> {
+export default class UserTodoList extends React.Component<Props> {
   render() {
     const {userID} = this.props;
 
@@ -399,7 +399,7 @@ import TodoList from './TodoList'
 
 const environment = /* defined or imported above... */;
 
-export default ViewerTodoList extends React.Component {
+export default class ViewerTodoList extends React.Component {
   render() {
     return (
       <QueryRenderer

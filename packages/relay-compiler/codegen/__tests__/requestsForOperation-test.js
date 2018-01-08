@@ -15,14 +15,9 @@ require('configureForRelayOSS');
 const {CompilerContext} = require('graphql-compiler');
 const requestsForOperation = require('../requestsForOperation');
 const RelayTestSchema = require('RelayTestSchema');
-const getGoldenMatchers = require('getGoldenMatchers');
 const parseGraphQLText = require('parseGraphQLText');
 
 describe('requestsForOperation', () => {
-  beforeEach(() => {
-    expect.extend(getGoldenMatchers(__filename));
-  });
-
   it('generates nested requests', () => {
     const {definitions} = parseGraphQLText(
       RelayTestSchema,

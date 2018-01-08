@@ -16,15 +16,12 @@ const RelayApplyFragmentArgumentTransform = require('RelayApplyFragmentArgumentT
 const RelayParser = require('RelayParser');
 const RelayTestSchema = require('RelayTestSchema');
 
-const getGoldenMatchers = require('getGoldenMatchers');
+const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 
 describe('RelayApplyFragmentArgumentTransform', () => {
-  beforeEach(() => {
-    expect.extend(getGoldenMatchers(__filename));
-  });
-
-  it('matches expected output', () => {
-    expect('fixtures/apply-fragment-argument-transform').toMatchGolden(text => {
+  generateTestsFromFixtures(
+    `${__dirname}/fixtures/apply-fragment-argument-transform`,
+    text => {
       const ast = RelayParser.parse(RelayTestSchema, text);
       return new GraphQLCompilerContext(RelayTestSchema)
         .addAll(ast)
@@ -32,6 +29,6 @@ describe('RelayApplyFragmentArgumentTransform', () => {
         .documents()
         .map(GraphQLIRPrinter.print)
         .join('\n');
-    });
-  });
+    },
+  );
 });

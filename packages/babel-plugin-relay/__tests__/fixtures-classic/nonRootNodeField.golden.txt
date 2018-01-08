@@ -1,4 +1,0 @@
-ERROR:
-
-Error: nonRootNodeField.input.txt: Relay Transform Error: You defined a `node(id: Int)` field on type `InvalidType`, but Relay requires the `node` field to be defined on the root type. See the Object Identification Guide: 
-http://facebook.github.io/relay/docs/graphql-object-identification.html

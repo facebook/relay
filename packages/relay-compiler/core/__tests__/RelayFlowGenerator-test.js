@@ -15,37 +15,31 @@ const RelayFlowGenerator = require('RelayFlowGenerator');
 const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
 const RelayTestSchema = require('RelayTestSchema');
 
-const getGoldenMatchers = require('getGoldenMatchers');
 const parseGraphQLText = require('parseGraphQLText');
 
 const {transformASTSchema} = require('ASTConvert');
+const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 
 describe('RelayFlowGenerator', () => {
-  beforeEach(() => {
-    expect.extend(getGoldenMatchers(__filename));
-  });
-
-  it('matches expected output', () => {
-    expect('fixtures/flow-generator').toMatchGolden(text => {
-      const schema = transformASTSchema(RelayTestSchema, [
-        RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
-      ]);
-      const {definitions} = parseGraphQLText(schema, text);
-      return new GraphQLCompilerContext(RelayTestSchema, schema)
-        .addAll(definitions)
-        .applyTransforms(RelayFlowGenerator.flowTransforms)
-        .documents()
-        .map(doc =>
-          RelayFlowGenerator.generate(doc, {
-            customScalars: {},
-            enumsHasteModule: null,
-            existingFragmentNames: new Set(['PhotoFragment']),
-            inputFieldWhiteList: [],
-            relayRuntimeModule: 'relay-runtime',
-            useHaste: true,
-          }),
-        )
-        .join('\n\n');
-    });
+  generateTestsFromFixtures(`${__dirname}/fixtures/flow-generator`, text => {
+    const schema = transformASTSchema(RelayTestSchema, [
+      RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
+    ]);
+    const {definitions} = parseGraphQLText(schema, text);
+    return new GraphQLCompilerContext(RelayTestSchema, schema)
+      .addAll(definitions)
+      .applyTransforms(RelayFlowGenerator.flowTransforms)
+      .documents()
+      .map(doc =>
+        RelayFlowGenerator.generate(doc, {
+          customScalars: {},
+          enumsHasteModule: null,
+          existingFragmentNames: new Set(['PhotoFragment']),
+          inputFieldWhiteList: [],
+          relayRuntimeModule: 'relay-runtime',
+          useHaste: true,
+        }),
+      )
+      .join('\n\n');
   });
 });

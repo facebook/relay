@@ -14,54 +14,50 @@ const GraphQLCompilerContext = require('GraphQLCompilerContext');
 const RelayCodeGenerator = require('RelayCodeGenerator');
 const RelayTestSchema = require('RelayTestSchema');
 
-const getGoldenMatchers = require('getGoldenMatchers');
 const parseGraphQLText = require('parseGraphQLText');
 
+const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+
 describe('RelayCodeGenerator', () => {
-  beforeEach(() => {
-    expect.extend(getGoldenMatchers(__filename));
+  generateTestsFromFixtures(`${__dirname}/fixtures/code-generator`, text => {
+    try {
+      const {definitions} = parseGraphQLText(RelayTestSchema, text);
+      const context = new GraphQLCompilerContext(RelayTestSchema).addAll(
+        definitions,
+      );
+      return context
+        .documents()
+        .map(doc => {
+          const node =
+            doc.kind === 'Fragment'
+              ? doc
+              : {
+                  fragment: null,
+                  kind: 'Batch',
+                  metadata: {},
+                  name: doc.name,
+                  requests: [
+                    {
+                      kind: 'Request',
+                      name: doc.name,
+                      id: null,
+                      text: null,
+                      argumentDependencies: [],
+                      root: doc,
+                    },
+                  ],
+                };
+          return JSON.stringify(RelayCodeGenerator.generate(node), null, 2);
+        })
+        .join('\n\n');
+    } catch (e) {
+      return 'ERROR:\n' + e;
+    }
   });
 
-  it('matches expected output', () => {
-    expect('fixtures/code-generator').toMatchGolden(text => {
-      try {
-        const {definitions} = parseGraphQLText(RelayTestSchema, text);
-        const context = new GraphQLCompilerContext(RelayTestSchema).addAll(
-          definitions,
-        );
-        return context
-          .documents()
-          .map(doc => {
-            const node =
-              doc.kind === 'Fragment'
-                ? doc
-                : {
-                    fragment: null,
-                    kind: 'Batch',
-                    metadata: {},
-                    name: doc.name,
-                    requests: [
-                      {
-                        kind: 'Request',
-                        name: doc.name,
-                        id: null,
-                        text: null,
-                        argumentDependencies: [],
-                        root: doc,
-                      },
-                    ],
-                  };
-            return JSON.stringify(RelayCodeGenerator.generate(node), null, 2);
-          })
-          .join('\n\n');
-      } catch (e) {
-        return 'ERROR:\n' + e;
-      }
-    });
-  });
-
-  it('matches expected output when generating batch', () => {
-    expect('fixtures/code-generator-batch').toMatchGolden(text => {
+  generateTestsFromFixtures(
+    `${__dirname}/fixtures/code-generator-batch`,
+    text => {
       try {
         const {definitions} = parseGraphQLText(RelayTestSchema, text);
         const context = new GraphQLCompilerContext(RelayTestSchema).addAll(
@@ -90,6 +86,6 @@ describe('RelayCodeGenerator', () => {
       } catch (e) {
         return 'ERROR:\n' + e.stack;
       }
-    });
-  });
+    },
+  );
 });

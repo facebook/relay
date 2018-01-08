@@ -1,0 +1,1539 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RelayParser matches expected output: argumentDefinitions-with-typo.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment TestFragment on User @argumentDefinitions(
+  id: {type: "ID", nonNull: true}
+  size: {type: "[Int]", defaultValu: [100]} # uh-oh, typo
+) {
+  ...Foo @arguments(size: $size)
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+Invariant Violation: GraphQLParser: Expected definition for variable \`size\` to be an object with the following shape: \`{type: string, defaultValue?: mixed, nonNull?: boolean, list?: boolean}\`, got unknown key(s) \`defaultValu\`. Source: document \`TestFragment\` file: \`GraphQL request\`.
+`;
+
+exports[`RelayParser matches expected output: client-fields.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query BestFriendsQuery($id: ID!) {
+  node(id: $id) {
+    ...BestFriends
+  }
+}
+
+fragment BestFriends on User {
+  # this is the only field that is part of the base schema
+  id
+  # fields defined in type extensions are skipped
+  best_friends {
+    edges {
+      cursor
+      node {
+        id
+      }
+    }
+    pageInfo {
+      hasNextPage
+    }
+  }
+  ... on Node {
+   # fragments on extension types are skipped
+    ...FooFragment
+    ... on Foo {
+      id
+    }
+  }
+}
+
+fragment FooFragment on Foo {
+  id
+}
+
+extend type User {
+  best_friends: FriendsConnection
+}
+
+type Foo {
+  id: ID!
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+[
+  {
+    "kind": "Root",
+    "operation": "query",
+    "metadata": null,
+    "name": "BestFriendsQuery",
+    "dependentRequests": [],
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgumentDefinition",
+        "metadata": null,
+        "name": "id",
+        "defaultValue": null,
+        "type": "ID!"
+      }
+    ],
+    "directives": [],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "id",
+            "value": {
+              "kind": "Variable",
+              "metadata": null,
+              "variableName": "id",
+              "type": "ID"
+            },
+            "type": "ID"
+          }
+        ],
+        "directives": [],
+        "metadata": null,
+        "name": "node",
+        "selections": [
+          {
+            "kind": "FragmentSpread",
+            "args": [],
+            "metadata": null,
+            "name": "BestFriends",
+            "directives": []
+          }
+        ],
+        "type": "Node"
+      }
+    ],
+    "type": "Query"
+  },
+  {
+    "kind": "Fragment",
+    "directives": [],
+    "metadata": null,
+    "name": "BestFriends",
+    "selections": [
+      {
+        "kind": "ScalarField",
+        "alias": null,
+        "args": [],
+        "directives": [],
+        "metadata": null,
+        "name": "id",
+        "type": "ID!"
+      },
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "args": [],
+        "directives": [],
+        "metadata": null,
+        "name": "best_friends",
+        "selections": [
+          {
+            "kind": "LinkedField",
+            "alias": null,
+            "args": [],
+            "directives": [],
+            "metadata": null,
+            "name": "edges",
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "args": [],
+                "directives": [],
+                "metadata": null,
+                "name": "cursor",
+                "type": "String"
+              },
+              {
+                "kind": "LinkedField",
+                "alias": null,
+                "args": [],
+                "directives": [],
+                "metadata": null,
+                "name": "node",
+                "selections": [
+                  {
+                    "kind": "ScalarField",
+                    "alias": null,
+                    "args": [],
+                    "directives": [],
+                    "metadata": null,
+                    "name": "id",
+                    "type": "ID!"
+                  }
+                ],
+                "type": "User"
+              }
+            ],
+            "type": "[FriendsEdge]"
+          },
+          {
+            "kind": "LinkedField",
+            "alias": null,
+            "args": [],
+            "directives": [],
+            "metadata": null,
+            "name": "pageInfo",
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "args": [],
+                "directives": [],
+                "metadata": null,
+                "name": "hasNextPage",
+                "type": "Boolean"
+              }
+            ],
+            "type": "PageInfo"
+          }
+        ],
+        "type": "FriendsConnection"
+      },
+      {
+        "kind": "InlineFragment",
+        "directives": [],
+        "metadata": null,
+        "selections": [
+          {
+            "kind": "FragmentSpread",
+            "args": [],
+            "metadata": null,
+            "name": "FooFragment",
+            "directives": []
+          },
+          {
+            "kind": "InlineFragment",
+            "directives": [],
+            "metadata": null,
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "args": [],
+                "directives": [],
+                "metadata": null,
+                "name": "id",
+                "type": "ID!"
+              }
+            ],
+            "typeCondition": "Foo"
+          }
+        ],
+        "typeCondition": "Node"
+      }
+    ],
+    "type": "User",
+    "argumentDefinitions": []
+  },
+  {
+    "kind": "Fragment",
+    "directives": [],
+    "metadata": null,
+    "name": "FooFragment",
+    "selections": [
+      {
+        "kind": "ScalarField",
+        "alias": null,
+        "args": [],
+        "directives": [],
+        "metadata": null,
+        "name": "id",
+        "type": "ID!"
+      }
+    ],
+    "type": "Foo",
+    "argumentDefinitions": []
+  }
+]
+`;
+
+exports[`RelayParser matches expected output: directive-generic.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment TestFragment on User {
+  id @customDirective(level: 11)
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+[
+  {
+    "kind": "Fragment",
+    "directives": [],
+    "metadata": null,
+    "name": "TestFragment",
+    "selections": [
+      {
+        "kind": "ScalarField",
+        "alias": null,
+        "args": [],
+        "directives": [
+          {
+            "kind": "Directive",
+            "metadata": null,
+            "name": "customDirective",
+            "args": [
+              {
+                "kind": "Argument",
+                "metadata": null,
+                "name": "level",
+                "value": {
+                  "kind": "Literal",
+                  "metadata": null,
+                  "value": 11
+                },
+                "type": "Int!"
+              }
+            ]
+          }
+        ],
+        "metadata": null,
+        "name": "id",
+        "type": "ID!"
+      }
+    ],
+    "type": "User",
+    "argumentDefinitions": []
+  }
+]
+`;
+
+exports[`RelayParser matches expected output: directive-include.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment TestFragment on User {
+  id @include(if: $Cond)
+  ... on User @include(if: $Cond) {
+    firstName
+  }
+  ...Foo @include(if: $Cond)
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+[
+  {
+    "kind": "Fragment",
+    "directives": [],
+    "metadata": null,
+    "name": "TestFragment",
+    "selections": [
+      {
+        "kind": "Condition",
+        "condition": {
+          "kind": "Variable",
+          "metadata": null,
+          "variableName": "Cond",
+          "type": "Boolean!"
+        },
+        "metadata": null,
+        "passingValue": true,
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "args": [],
+            "directives": [],
+            "metadata": null,
+            "name": "id",
+            "type": "ID!"
+          }
+        ]
+      },
+      {
+        "kind": "Condition",
+        "condition": {
+          "kind": "Variable",
+          "metadata": null,
+          "variableName": "Cond",
+          "type": "Boolean!"
+        },
+        "metadata": null,
+        "passingValue": true,
+        "selections": [
+          {
+            "kind": "InlineFragment",
+            "directives": [],
+            "metadata": null,
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "args": [],
+                "directives": [],
+                "metadata": null,
+                "name": "firstName",
+                "type": "String"
+              }
+            ],
+            "typeCondition": "User"
+          }
+        ]
+      },
+      {
+        "kind": "Condition",
+        "condition": {
+          "kind": "Variable",
+          "metadata": null,
+          "variableName": "Cond",
+          "type": "Boolean!"
+        },
+        "metadata": null,
+        "passingValue": true,
+        "selections": [
+          {
+            "kind": "FragmentSpread",
+            "args": [],
+            "metadata": null,
+            "name": "Foo",
+            "directives": []
+          }
+        ]
+      }
+    ],
+    "type": "User",
+    "argumentDefinitions": [
+      {
+        "kind": "RootArgumentDefinition",
+        "metadata": null,
+        "name": "Cond",
+        "type": "Boolean!"
+      }
+    ]
+  }
+]
+`;
+
+exports[`RelayParser matches expected output: field-arguments.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery {
+  task(number: 123) {
+    title
+  }
+  settings(environment: WEB) {
+    notificationSounds
+  }
+  checkinSearchQuery(query: {query: "Relay"}) {
+    query
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+[
+  {
+    "kind": "Root",
+    "operation": "query",
+    "metadata": null,
+    "name": "TestQuery",
+    "dependentRequests": [],
+    "argumentDefinitions": [],
+    "directives": [],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "number",
+            "value": {
+              "kind": "Literal",
+              "metadata": null,
+              "value": 123
+            },
+            "type": "Int"
+          }
+        ],
+        "directives": [],
+        "metadata": null,
+        "name": "task",
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "args": [],
+            "directives": [],
+            "metadata": null,
+            "name": "title",
+            "type": "String"
+          }
+        ],
+        "type": "Task"
+      },
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "environment",
+            "value": {
+              "kind": "Literal",
+              "metadata": null,
+              "value": "WEB"
+            },
+            "type": "Environment"
+          }
+        ],
+        "directives": [],
+        "metadata": null,
+        "name": "settings",
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "args": [],
+            "directives": [],
+            "metadata": null,
+            "name": "notificationSounds",
+            "type": "Boolean"
+          }
+        ],
+        "type": "Settings"
+      },
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "query",
+            "value": {
+              "kind": "Literal",
+              "metadata": null,
+              "value": {
+                "query": "Relay"
+              }
+            },
+            "type": "CheckinSearchInput"
+          }
+        ],
+        "directives": [],
+        "metadata": null,
+        "name": "checkinSearchQuery",
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "args": [],
+            "directives": [],
+            "metadata": null,
+            "name": "query",
+            "type": "String"
+          }
+        ],
+        "type": "CheckinSearchResult"
+      }
+    ],
+    "type": "Query"
+  }
+]
+`;
+
+exports[`RelayParser matches expected output: fragment-with-arguments.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment TestFragment on User @argumentDefinitions(
+  id: {type: "ID", nonNull: true}
+  size: {type: "[Int]", defaultValue: [100]}
+) {
+  profilePicture(size: $PictureSize) {
+    uri
+  }
+  withDefaultArg: profilePicture(size: $size) {
+    uri
+  }
+  ...Foo @arguments(localId: $id)
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+[
+  {
+    "kind": "Fragment",
+    "directives": [],
+    "metadata": null,
+    "name": "TestFragment",
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "size",
+            "value": {
+              "kind": "Variable",
+              "metadata": null,
+              "variableName": "PictureSize",
+              "type": "[Int]"
+            },
+            "type": "[Int]"
+          }
+        ],
+        "directives": [],
+        "metadata": null,
+        "name": "profilePicture",
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "args": [],
+            "directives": [],
+            "metadata": null,
+            "name": "uri",
+            "type": "String"
+          }
+        ],
+        "type": "Image"
+      },
+      {
+        "kind": "LinkedField",
+        "alias": "withDefaultArg",
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "size",
+            "value": {
+              "kind": "Variable",
+              "metadata": null,
+              "variableName": "size",
+              "type": "[Int]"
+            },
+            "type": "[Int]"
+          }
+        ],
+        "directives": [],
+        "metadata": null,
+        "name": "profilePicture",
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "args": [],
+            "directives": [],
+            "metadata": null,
+            "name": "uri",
+            "type": "String"
+          }
+        ],
+        "type": "Image"
+      },
+      {
+        "kind": "FragmentSpread",
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "localId",
+            "value": {
+              "kind": "Variable",
+              "metadata": null,
+              "variableName": "id"
+            },
+            "type": null
+          }
+        ],
+        "metadata": null,
+        "name": "Foo",
+        "directives": []
+      }
+    ],
+    "type": "User",
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgumentDefinition",
+        "defaultValue": null,
+        "metadata": null,
+        "name": "id",
+        "type": "ID"
+      },
+      {
+        "kind": "LocalArgumentDefinition",
+        "defaultValue": [
+          100
+        ],
+        "metadata": null,
+        "name": "size",
+        "type": "[Int]"
+      },
+      {
+        "kind": "RootArgumentDefinition",
+        "metadata": null,
+        "name": "PictureSize",
+        "type": "[Int]"
+      }
+    ]
+  }
+]
+`;
+
+exports[`RelayParser matches expected output: inline-untyped-fragment.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment InlineUntypedFragment on User {
+  ... {
+    name
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+[
+  {
+    "kind": "Fragment",
+    "directives": [],
+    "metadata": null,
+    "name": "InlineUntypedFragment",
+    "selections": [
+      {
+        "kind": "InlineFragment",
+        "directives": [],
+        "metadata": null,
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "args": [],
+            "directives": [],
+            "metadata": null,
+            "name": "name",
+            "type": "String"
+          }
+        ],
+        "typeCondition": "User"
+      }
+    ],
+    "type": "User",
+    "argumentDefinitions": []
+  }
+]
+`;
+
+exports[`RelayParser matches expected output: linked-handle-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment LinkedHandleField on User {
+  friends(first: 10) @__clientField(handle: "clientFriends") @__clientField(handle: "otherFriends") {
+    count
+  }  
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+[
+  {
+    "kind": "Fragment",
+    "directives": [],
+    "metadata": null,
+    "name": "LinkedHandleField",
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "first",
+            "value": {
+              "kind": "Literal",
+              "metadata": null,
+              "value": 10
+            },
+            "type": "Int"
+          }
+        ],
+        "directives": [],
+        "handles": [
+          {
+            "name": "clientFriends",
+            "key": "",
+            "filters": null
+          },
+          {
+            "name": "otherFriends",
+            "key": "",
+            "filters": null
+          }
+        ],
+        "metadata": null,
+        "name": "friends",
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "args": [],
+            "directives": [],
+            "metadata": null,
+            "name": "count",
+            "type": "Int"
+          }
+        ],
+        "type": "FriendsConnection"
+      }
+    ],
+    "type": "User",
+    "argumentDefinitions": []
+  }
+]
+`;
+
+exports[`RelayParser matches expected output: linked-handle-field-with-filters.ql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment LinkedHandleField on User {
+  friends(first: 10, orderby: $orderby) @__clientField(handle: "clientFriends", filters: ["first", "orderby"]) {
+    count
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+[
+  {
+    "kind": "Fragment",
+    "directives": [],
+    "metadata": null,
+    "name": "LinkedHandleField",
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "first",
+            "value": {
+              "kind": "Literal",
+              "metadata": null,
+              "value": 10
+            },
+            "type": "Int"
+          },
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "orderby",
+            "value": {
+              "kind": "Variable",
+              "metadata": null,
+              "variableName": "orderby",
+              "type": "[String]"
+            },
+            "type": "[String]"
+          }
+        ],
+        "directives": [],
+        "handles": [
+          {
+            "name": "clientFriends",
+            "key": "",
+            "filters": [
+              "first",
+              "orderby"
+            ]
+          }
+        ],
+        "metadata": null,
+        "name": "friends",
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "args": [],
+            "directives": [],
+            "metadata": null,
+            "name": "count",
+            "type": "Int"
+          }
+        ],
+        "type": "FriendsConnection"
+      }
+    ],
+    "type": "User",
+    "argumentDefinitions": [
+      {
+        "kind": "RootArgumentDefinition",
+        "metadata": null,
+        "name": "orderby",
+        "type": "[String]"
+      }
+    ]
+  }
+]
+`;
+
+exports[`RelayParser matches expected output: linked-handle-field-with-key.ql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment LinkedHandleField on User {
+  friends(first: 10) @__clientField(handle: "clientFriends", key: "LinkedHandleField_friends") {
+    count
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+[
+  {
+    "kind": "Fragment",
+    "directives": [],
+    "metadata": null,
+    "name": "LinkedHandleField",
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "first",
+            "value": {
+              "kind": "Literal",
+              "metadata": null,
+              "value": 10
+            },
+            "type": "Int"
+          }
+        ],
+        "directives": [],
+        "handles": [
+          {
+            "name": "clientFriends",
+            "key": "LinkedHandleField_friends",
+            "filters": null
+          }
+        ],
+        "metadata": null,
+        "name": "friends",
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "args": [],
+            "directives": [],
+            "metadata": null,
+            "name": "count",
+            "type": "Int"
+          }
+        ],
+        "type": "FriendsConnection"
+      }
+    ],
+    "type": "User",
+    "argumentDefinitions": []
+  }
+]
+`;
+
+exports[`RelayParser matches expected output: linked-handle-filter.ql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment LinkedHandleField on User {
+  friends(first: 10) @__clientField(handle: "clientFriends", filters: ["first"]) @__clientField(handle: "otherFriends") {
+    count
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+[
+  {
+    "kind": "Fragment",
+    "directives": [],
+    "metadata": null,
+    "name": "LinkedHandleField",
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "first",
+            "value": {
+              "kind": "Literal",
+              "metadata": null,
+              "value": 10
+            },
+            "type": "Int"
+          }
+        ],
+        "directives": [],
+        "handles": [
+          {
+            "name": "clientFriends",
+            "key": "",
+            "filters": [
+              "first"
+            ]
+          },
+          {
+            "name": "otherFriends",
+            "key": "",
+            "filters": null
+          }
+        ],
+        "metadata": null,
+        "name": "friends",
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "args": [],
+            "directives": [],
+            "metadata": null,
+            "name": "count",
+            "type": "Int"
+          }
+        ],
+        "type": "FriendsConnection"
+      }
+    ],
+    "type": "User",
+    "argumentDefinitions": []
+  }
+]
+`;
+
+exports[`RelayParser matches expected output: list-argument.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query ListArgumentQuery($waypoint: WayPoint!) {
+  route(waypoints: [$waypoint, {
+    lat: "0.0"
+    lon: "0.0"
+  }]) {
+    steps {
+      note
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+[
+  {
+    "kind": "Root",
+    "operation": "query",
+    "metadata": null,
+    "name": "ListArgumentQuery",
+    "dependentRequests": [],
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgumentDefinition",
+        "metadata": null,
+        "name": "waypoint",
+        "defaultValue": null,
+        "type": "WayPoint!"
+      }
+    ],
+    "directives": [],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "waypoints",
+            "value": {
+              "kind": "ListValue",
+              "metadata": null,
+              "items": [
+                {
+                  "kind": "Variable",
+                  "metadata": null,
+                  "variableName": "waypoint",
+                  "type": "WayPoint!"
+                },
+                {
+                  "kind": "Literal",
+                  "metadata": null,
+                  "value": {
+                    "lat": "0.0",
+                    "lon": "0.0"
+                  }
+                }
+              ]
+            },
+            "type": "[WayPoint!]!"
+          }
+        ],
+        "directives": [],
+        "metadata": null,
+        "name": "route",
+        "selections": [
+          {
+            "kind": "LinkedField",
+            "alias": null,
+            "args": [],
+            "directives": [],
+            "metadata": null,
+            "name": "steps",
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "args": [],
+                "directives": [],
+                "metadata": null,
+                "name": "note",
+                "type": "String"
+              }
+            ],
+            "type": "[RouteStep]"
+          }
+        ],
+        "type": "Route"
+      }
+    ],
+    "type": "Query"
+  }
+]
+`;
+
+exports[`RelayParser matches expected output: list-of-enums.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment TestFragment on User {
+  traits # This is a list of enums.
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+[
+  {
+    "kind": "Fragment",
+    "directives": [],
+    "metadata": null,
+    "name": "TestFragment",
+    "selections": [
+      {
+        "kind": "ScalarField",
+        "alias": null,
+        "args": [],
+        "directives": [],
+        "metadata": null,
+        "name": "traits",
+        "type": "[PersonalityTraits]"
+      }
+    ],
+    "type": "User",
+    "argumentDefinitions": []
+  }
+]
+`;
+
+exports[`RelayParser matches expected output: literal-list-argument.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query LiteralListArgumentQuery {
+  route(waypoints: [{
+    lat: "0.0"
+    lon: "0.0"
+  }]) {
+    steps {
+      note
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+[
+  {
+    "kind": "Root",
+    "operation": "query",
+    "metadata": null,
+    "name": "LiteralListArgumentQuery",
+    "dependentRequests": [],
+    "argumentDefinitions": [],
+    "directives": [],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "waypoints",
+            "value": {
+              "kind": "Literal",
+              "metadata": null,
+              "value": [
+                {
+                  "lat": "0.0",
+                  "lon": "0.0"
+                }
+              ]
+            },
+            "type": "[WayPoint!]!"
+          }
+        ],
+        "directives": [],
+        "metadata": null,
+        "name": "route",
+        "selections": [
+          {
+            "kind": "LinkedField",
+            "alias": null,
+            "args": [],
+            "directives": [],
+            "metadata": null,
+            "name": "steps",
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "args": [],
+                "directives": [],
+                "metadata": null,
+                "name": "note",
+                "type": "String"
+              }
+            ],
+            "type": "[RouteStep]"
+          }
+        ],
+        "type": "Route"
+      }
+    ],
+    "type": "Query"
+  }
+]
+`;
+
+exports[`RelayParser matches expected output: literal-object-argument.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query LiteralObjectArgument {
+  checkinSearchQuery(query: {
+    query: "Facebook"
+  }) {
+    query
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+[
+  {
+    "kind": "Root",
+    "operation": "query",
+    "metadata": null,
+    "name": "LiteralObjectArgument",
+    "dependentRequests": [],
+    "argumentDefinitions": [],
+    "directives": [],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "query",
+            "value": {
+              "kind": "Literal",
+              "metadata": null,
+              "value": {
+                "query": "Facebook"
+              }
+            },
+            "type": "CheckinSearchInput"
+          }
+        ],
+        "directives": [],
+        "metadata": null,
+        "name": "checkinSearchQuery",
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "args": [],
+            "directives": [],
+            "metadata": null,
+            "name": "query",
+            "type": "String"
+          }
+        ],
+        "type": "CheckinSearchResult"
+      }
+    ],
+    "type": "Query"
+  }
+]
+`;
+
+exports[`RelayParser matches expected output: null-values.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query NullValuesQuery {
+  items(filter: { date: null }) {
+    date
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+[
+  {
+    "kind": "Root",
+    "operation": "query",
+    "metadata": null,
+    "name": "NullValuesQuery",
+    "dependentRequests": [],
+    "argumentDefinitions": [],
+    "directives": [],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "filter",
+            "value": {
+              "kind": "Literal",
+              "metadata": null,
+              "value": {
+                "date": null
+              }
+            },
+            "type": "ItemFilterInput"
+          }
+        ],
+        "directives": [],
+        "metadata": null,
+        "name": "items",
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "args": [],
+            "directives": [],
+            "metadata": null,
+            "name": "date",
+            "type": "String"
+          }
+        ],
+        "type": "ItemFilterResult"
+      }
+    ],
+    "type": "Query"
+  }
+]
+`;
+
+exports[`RelayParser matches expected output: object-argument.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query ObjectArgument($text: String!) {
+  checkinSearchQuery(query: {
+    query: $text
+  }) {
+    query
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+[
+  {
+    "kind": "Root",
+    "operation": "query",
+    "metadata": null,
+    "name": "ObjectArgument",
+    "dependentRequests": [],
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgumentDefinition",
+        "metadata": null,
+        "name": "text",
+        "defaultValue": null,
+        "type": "String!"
+      }
+    ],
+    "directives": [],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "query",
+            "value": {
+              "kind": "ObjectValue",
+              "metadata": null,
+              "fields": [
+                {
+                  "kind": "ObjectFieldValue",
+                  "metadata": null,
+                  "name": "query",
+                  "value": {
+                    "kind": "Variable",
+                    "metadata": null,
+                    "variableName": "text",
+                    "type": "String"
+                  }
+                }
+              ]
+            },
+            "type": "CheckinSearchInput"
+          }
+        ],
+        "directives": [],
+        "metadata": null,
+        "name": "checkinSearchQuery",
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "args": [],
+            "directives": [],
+            "metadata": null,
+            "name": "query",
+            "type": "String"
+          }
+        ],
+        "type": "CheckinSearchResult"
+      }
+    ],
+    "type": "Query"
+  }
+]
+`;
+
+exports[`RelayParser matches expected output: scalar-handle-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment ScalarHandleField on User {
+  name @__clientField(handle: "clientName") @__clientField(handle: "clientName2")
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+[
+  {
+    "kind": "Fragment",
+    "directives": [],
+    "metadata": null,
+    "name": "ScalarHandleField",
+    "selections": [
+      {
+        "kind": "ScalarField",
+        "alias": null,
+        "args": [],
+        "directives": [],
+        "handles": [
+          {
+            "name": "clientName",
+            "key": "",
+            "filters": null
+          },
+          {
+            "name": "clientName2",
+            "key": "",
+            "filters": null
+          }
+        ],
+        "metadata": null,
+        "name": "name",
+        "type": "String"
+      }
+    ],
+    "type": "User",
+    "argumentDefinitions": []
+  }
+]
+`;
+
+exports[`RelayParser matches expected output: simple-fragment.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment TestFragment on User {
+  id
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+[
+  {
+    "kind": "Fragment",
+    "directives": [],
+    "metadata": null,
+    "name": "TestFragment",
+    "selections": [
+      {
+        "kind": "ScalarField",
+        "alias": null,
+        "args": [],
+        "directives": [],
+        "metadata": null,
+        "name": "id",
+        "type": "ID!"
+      }
+    ],
+    "type": "User",
+    "argumentDefinitions": []
+  }
+]
+`;
+
+exports[`RelayParser matches expected output: simple-query.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery($id: ID!) {
+  foo: node(id: $id) {
+    id
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+[
+  {
+    "kind": "Root",
+    "operation": "query",
+    "metadata": null,
+    "name": "TestQuery",
+    "dependentRequests": [],
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgumentDefinition",
+        "metadata": null,
+        "name": "id",
+        "defaultValue": null,
+        "type": "ID!"
+      }
+    ],
+    "directives": [],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": "foo",
+        "args": [
+          {
+            "kind": "Argument",
+            "metadata": null,
+            "name": "id",
+            "value": {
+              "kind": "Variable",
+              "metadata": null,
+              "variableName": "id",
+              "type": "ID"
+            },
+            "type": "ID"
+          }
+        ],
+        "directives": [],
+        "metadata": null,
+        "name": "node",
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "args": [],
+            "directives": [],
+            "metadata": null,
+            "name": "id",
+            "type": "ID!"
+          }
+        ],
+        "type": "Node"
+      }
+    ],
+    "type": "Query"
+  }
+]
+`;

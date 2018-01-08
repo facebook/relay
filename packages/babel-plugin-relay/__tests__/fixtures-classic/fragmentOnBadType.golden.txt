@@ -1,6 +1,0 @@
-ERROR:
-
-Error: fragmentOnBadType.input.txt: GraphQL Validation Error: Unknown type "NotAType". Did you mean "__Type"?
->
-> fragment FragmentOnBadTypeRelayQL on NotAType { id }
->                                      ^^^

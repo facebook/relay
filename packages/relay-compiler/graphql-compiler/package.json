@@ -7,8 +7,10 @@
   "dependencies": {
     "chalk": "^1.1.1",
     "fb-watchman": "^2.0.0",
-    "graphql": "^0.12.3",
     "immutable": "~3.7.6"
+  },
+  "peerDependency": {
+    "graphql": "^0.12.3",
   },
   "maintainers": [
     "wincent <greg@hurrell.net>",

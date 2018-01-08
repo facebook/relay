@@ -19,7 +19,7 @@
 </ul>
 <h2><a class="anchor" aria-hidden="true" name="setup"></a><a href="#setup" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Setup</h2>
 <p>Before starting, make sure to check out our <a href="./prerequisites.html">Prerequisites</a> and <a href="./installation-and-setup.html">Installation and Setup</a> guides. As mentioned in the prerequisites, we need to make sure that we've set up a GraphQL server and schema.</p>
-<p>Fortunately, we are going to be using this <a href="https://github.com/relayjs/relay-examples/tree/master/todo">example todo list app</a>, which already has a  <a href="https://github.com/relayjs/relay-examples/blob/master/todo/server.js">server</a> and schema <a href="https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql">schema</a> available for us to use:</p>
+<p>Fortunately, we are going to be using this <a href="https://github.com/relayjs/relay-examples/tree/master/todo">example todo list app</a>, which already has a <a href="https://github.com/relayjs/relay-examples/blob/master/todo/server.js">server</a> and <a href="https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql">schema</a> available for us to use:</p>
 <pre><code class="hljs css graphql"><span class="hljs-comment"># From schema.graphql</span>
 <span class="hljs-comment"># https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql</span>
 <span class="hljs-built_in">
@@ -87,7 +87,7 @@ type </span>Query {
 
 <span class="hljs-keyword">const</span> environment = <span class="hljs-comment">/* defined or imported above... */</span>;
 
-<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> App extends React.Component {
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">App</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{
   render() {
     <span class="hljs-keyword">return</span> (
       <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">QueryRenderer</span>
@@ -119,7 +119,7 @@ type </span>Query {
 <li>We're passing the <code>environment</code> we defined earlier.</li>
 <li>We're using using the <a href="./graphql-in-relay.html"><code>graphql</code></a> function to define our GraphQL query. <code>graphql</code> is a template tag that is never executed at runtime, but rather used by the <a href="./graphql-in-relay.html#relay-compiler">Relay Compiler</a> to generate the runtime artifacts that Relay requires to operate. We don't need to worry about this right now; for more details check out our <a href="./graphql-in-relay.html">GraphQL in Relay</a> docs.</li>
 <li>We're passing an empty set of <code>variables</code>. We'll look into how to use variables in the next section.</li>
-<li>We're passing a <code>render</code> function; as you can tell from the code, Relay gives us some information about wether an error occurred, or if we're still fetching the query. If everything succeeds, the data we requested will be available inside <code>props</code>, with the same shape as the one specified in the query.</li>
+<li>We're passing a <code>render</code> function; as you can tell from the code, Relay gives us some information about whether an error occurred, or if we're still fetching the query. If everything succeeds, the data we requested will be available inside <code>props</code>, with the same shape as the one specified in the query.</li>
 </ul>
 <p>In order to run this app, we need to first compile our query using the Relay Compiler. Assuming the setup from <a href="./installation-and-setup">Installation and Setup</a>, we can just run <code>yarn relay</code>.</p>
 <p>For more details on <code>QueryRenderer</code>, check out the <a href="./query-renderer">docs</a>.</p>
@@ -144,7 +144,7 @@ type Props = {
   <span class="hljs-attr">userID</span>: string,
 };
 
-<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> UserTodoList extends React.Component&lt;Props&gt; {
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserTodoList</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span>&lt;<span class="hljs-title">Props</span>&gt; </span>{
   render() {
     <span class="hljs-keyword">const</span> {userID} = <span class="hljs-keyword">this</span>.props;
 
@@ -345,7 +345,7 @@ fragment containers do not directly fetch data. Instead, containers declare a sp
 
 <span class="hljs-keyword">const</span> environment = <span class="hljs-comment">/* defined or imported above... */</span>;
 
-<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> ViewerTodoList extends React.Component {
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ViewerTodoList</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{
   render() {
     <span class="hljs-keyword">return</span> (
       &lt;QueryRenderer
@@ -498,7 +498,7 @@ fragment containers do not directly fetch data. Instead, containers declare a sp
 <p>For more details and advanced use cases on mutations and updates, check out our <a href="./mutations.html">Mutations</a> docs.</p>
 <h2><a class="anchor" aria-hidden="true" name="next-steps"></a><a href="#next-steps" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Next Steps</h2>
 <p>This guide just scratches the surface of Relay's API; for more detailed docs and guides, check out our API Reference and Guides sections.</p>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="installation-and-setup.html">← Installation and Setup</a><a class="docs-next button" href="graphql-in-relay.html">GraphQL in Relay →</a></div></div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/relay/" class="nav-home"><img src="/relay/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/relay/docs/en/introduction-to-relay.html">Introduction</a></div><div><h5>Community</h5><a href="/relay/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a class="github-button" href="https://github.com/facebook/relay" data-icon="octicon-star" data-count-href="/facebook/relay/stargazers" data-count-api="/repos/facebook/relay#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/relay/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2017 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="installation-and-setup.html">← Installation and Setup</a><a class="docs-next button" href="graphql-in-relay.html">GraphQL in Relay →</a></div></div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/relay/" class="nav-home"><img src="/relay/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/relay/docs/en/introduction-to-relay.html">Introduction</a></div><div><h5>Community</h5><a href="/relay/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a class="github-button" href="https://github.com/facebook/relay" data-icon="octicon-star" data-count-href="/facebook/relay/stargazers" data-count-api="/repos/facebook/relay#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/relay/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2018 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
               var search = docsearch({
                 apiKey: '3d7d5825d50ea36bca0e6ad06c926f06',
                 indexName: 'relay',

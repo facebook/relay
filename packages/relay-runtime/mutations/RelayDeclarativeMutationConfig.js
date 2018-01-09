@@ -24,22 +24,22 @@ import type {
 import type {SelectorData} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 import type {RelayConcreteNode} from 'react-relay/classic/query/RelayQL';
 
-const MutationTypes = {
+const MutationTypes = Object.freeze({
   RANGE_ADD: 'RANGE_ADD',
   RANGE_DELETE: 'RANGE_DELETE',
   NODE_DELETE: 'NODE_DELETE',
   FIELDS_CHANGE: 'FIELDS_CHANGE',
   REQUIRED_CHILDREN: 'REQUIRED_CHILDREN',
-};
+});
 export type MutationType = $Values<typeof MutationTypes>;
 
-const RangeOperations = {
+const RangeOperations = Object.freeze({
   APPEND: 'append',
   IGNORE: 'ignore',
   PREPEND: 'prepend',
   REFETCH: 'refetch', // legacy only
   REMOVE: 'remove', // legacy only
-};
+});
 export type RangeOperation = $Values<typeof RangeOperations>;
 
 type RangeBehaviorsFunction = (connectionArgs: {

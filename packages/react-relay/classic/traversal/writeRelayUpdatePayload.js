@@ -455,7 +455,11 @@ function addRangeNode(
     rangeBehavior === REFETCH ||
     rangeBehavior === REMOVE
   ) {
-    recordWriter.applyRangeUpdate(connectionID, edgeID, rangeBehavior);
+    recordWriter.applyRangeUpdate(
+      connectionID,
+      edgeID,
+      (rangeBehavior: $FlowFixMe),
+    );
     writer.recordUpdate(connectionID);
   } else {
     console.error(

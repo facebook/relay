@@ -21,12 +21,13 @@ import type {DocumentNode} from 'graphql';
 type ParseFn = (baseDir: string, file: File) => ?DocumentNode;
 
 class ASTCache {
-  _documents: Map<string, DocumentNode> = new Map();
+  _documents: Map<string, DocumentNode>;
 
   _baseDir: string;
   _parse: ParseFn;
 
   constructor(config: {baseDir: string, parse: ParseFn}) {
+    this._documents = new Map();
     this._baseDir = config.baseDir;
     this._parse = Profiler.instrument(config.parse, 'ASTCache.parseFn');
   }

@@ -66,7 +66,7 @@ class CodegenRunner {
   parserConfigs: ParserConfigs;
   writerConfigs: WriterConfigs;
   onlyValidate: boolean;
-  parsers: Parsers = {};
+  parsers: Parsers;
   // parser => writers that are affected by it
   parserWriters: {[parser: string]: Set<string>};
   _reporter: GraphQLReporter;
@@ -77,6 +77,7 @@ class CodegenRunner {
     onlyValidate: boolean,
     reporter: GraphQLReporter,
   }) {
+    this.parsers = {};
     this.parserConfigs = options.parserConfigs;
     this.writerConfigs = options.writerConfigs;
     this.onlyValidate = options.onlyValidate;

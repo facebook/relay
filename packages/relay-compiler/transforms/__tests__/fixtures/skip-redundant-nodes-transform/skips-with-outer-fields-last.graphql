@@ -1,4 +1,4 @@
-query SkipWithOuterFieldLast($cond: Boolean, $notCond: Boolean) {
+query SkipWithOuterFieldLast($cond: Boolean!, $notCond: Boolean!) {
   viewer {
     actor {
       ... on User {

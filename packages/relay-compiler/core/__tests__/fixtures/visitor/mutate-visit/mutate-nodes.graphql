@@ -1,6 +1,6 @@
 query NodeQuery(
   $id: ID!
-  $cond: Boolean
+  $cond: Boolean!
   $size: [Int]
 ) {
   node(id: $id) {

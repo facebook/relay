@@ -4,7 +4,7 @@ exports[`GraphQLIRVisitor matches expected output: mutate-nodes.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query NodeQuery(
   $id: ID!
-  $cond: Boolean
+  $cond: Boolean!
   $size: [Int]
 ) {
   node(id: $id) {
@@ -54,7 +54,7 @@ fragment UserFragment on User @argumentDefinitions(
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 query NodeQuery_mutated(
   $id_mutated: ID!
-  $cond_mutated: Boolean
+  $cond_mutated: Boolean!
   $size_mutated: [Int]
 ) {
   node_mutated(id_mutated: $id_mutated) {

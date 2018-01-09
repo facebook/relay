@@ -53,7 +53,7 @@ describe('RelayModernEnvironment', () => {
     beforeEach(() => {
       ({ParentQuery} = generateAndCompile(
         `
-        query ParentQuery($size: Int!) {
+        query ParentQuery($size: [Int]!) {
           me {
             id
             name

@@ -2,7 +2,7 @@
 
 exports[`SkipUnreachableNodeTransform matches expected output: keeps-other-fields.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery($cond: Boolean) {
+query TestQuery($cond: Boolean!) {
   viewer {
     actor {
       id @skip(if: $cond)
@@ -21,7 +21,7 @@ fragment UserFragment on User {
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 query TestQuery(
-  $cond: Boolean
+  $cond: Boolean!
 ) {
   viewer {
     actor {

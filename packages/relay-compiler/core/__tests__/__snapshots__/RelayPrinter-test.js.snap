@@ -3,7 +3,7 @@
 exports[`GraphQLIRPrinter matches expected output: kitchen-sink.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query NodeQuery(
-  $cond: Boolean = false
+  $cond: Boolean! = false
   $id: ID!
   $size: [Int] = [32]
   $query: String!
@@ -55,7 +55,7 @@ fragment UserFragment on User @argumentDefinitions(
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 query NodeQuery(
-  $cond: Boolean = false
+  $cond: Boolean! = false
   $id: ID!
   $size: [Int] = [32]
   $query: String!

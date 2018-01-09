@@ -126,7 +126,7 @@ query AliasedIDQuery {
   }
 }
 
-query ConditionalIDQuery($cond: Boolean) {
+query ConditionalIDQuery($cond: Boolean!) {
   viewer {
     actor {
       id @include(if: $cond)
@@ -186,7 +186,7 @@ query AliasedIDQuery {
 }
 
 query ConditionalIDQuery(
-  $cond: Boolean
+  $cond: Boolean!
 ) {
   viewer {
     actor {

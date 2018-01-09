@@ -187,7 +187,7 @@ query SkipWithOuterFieldFirst(
 
 exports[`SkipRedundantNodesTransform matches expected output: skips-with-outer-fields-last.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query SkipWithOuterFieldLast($cond: Boolean, $notCond: Boolean) {
+query SkipWithOuterFieldLast($cond: Boolean!, $notCond: Boolean!) {
   viewer {
     actor {
       ... on User {
@@ -210,8 +210,8 @@ query SkipWithOuterFieldLast($cond: Boolean, $notCond: Boolean) {
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 query SkipWithOuterFieldLast(
-  $cond: Boolean
-  $notCond: Boolean
+  $cond: Boolean!
+  $notCond: Boolean!
 ) {
   viewer {
     actor {

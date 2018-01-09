@@ -1,5 +1,5 @@
 query NodeQuery(
-  $cond: Boolean = false
+  $cond: Boolean! = false
   $id: ID!
   $size: [Int] = [32]
   $query: String!

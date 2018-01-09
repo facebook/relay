@@ -41,6 +41,8 @@ const getIdentifierForArgumentValue = require('./core/getIdentifierForArgumentVa
 const getLiteralArgumentValues = require('./core/getLiteralArgumentValues');
 const isEquivalentType = require('./core/isEquivalentType');
 
+const {SourceControlMercurial} = require('./codegen/SourceControl');
+
 export type {
   GetWriter,
   ParserConfig,
@@ -52,6 +54,7 @@ export type {
   FileWriterInterface,
 } from './codegen/CodegenTypes';
 export type {FileFilter, WatchmanExpression} from './codegen/CodegenWatcher';
+export type {SourceControl} from './codegen/SourceControl';
 export type {IRTransform} from './core/GraphQLCompilerContext';
 export type {
   Argument,
@@ -102,6 +105,7 @@ module.exports = {
   Printer: GraphQLIRPrinter,
   Profiler: GraphQLCompilerProfiler,
   SchemaUtils: GraphQLSchemaUtils,
+  SourceControlMercurial,
   Validator: GraphQLValidator,
   WatchmanClient: GraphQLWatchmanClient,
   filterContextForNode,

@@ -187,6 +187,7 @@ function getRelayFileWriter(baseDir: string) {
       baseDocuments,
       documents,
       reporter,
+      sourceControl: null,
     });
 }
 

@@ -12,7 +12,19 @@
 'use strict';
 
 const util = require('util');
-const execFile = util.promisify(require('child_process').execFile);
+const childProcess = require('child_process');
+
+function execFile(cmd: string, args: Array<string>): Promise<void> {
+  return new Promise((resolve, reject) => {
+    childProcess.execFile(cmd, args, err => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
 
 /**
  * An abstraction over the source control system to make it injectable.

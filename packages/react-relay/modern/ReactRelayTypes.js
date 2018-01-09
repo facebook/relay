@@ -57,6 +57,42 @@ export type RefetchOptions = {
 };
 
 /**
+ * A utility type which takes the type of a fragment's data (typically found in
+ * a relay generated file) and returns a fragment reference type. This is used
+ * when the input to a Relay component needs to be explicitly typed:
+ *
+ *   // ExampleComponent.js
+ *   import type {ExampleComponent_data} from './generated/ExampleComponent_data.graphql';
+ *   type Props = {
+ *     title: string,
+ *     data: ExampleComponent_data,
+ *   };
+ *
+ *   export default createFragmentContainer(
+ *     (props: Props) => <div>{props.title}, {props.data.someField}</div>,
+ *     graphql`
+ *       fragment ExampleComponent_data on SomeType {
+ *         someField
+ *       }`
+ *   );
+ *
+ *   // ExampleUsage.js
+ *   import type {ExampleComponent_data} from './generated/ExampleComponent_data.graphql';
+ *   type Props = {
+ *     title: string,
+ *     data: $FragmentRef<ExampleComponent_data>,
+ *   };
+ *
+ *   export default function ExampleUsage(props: Props) {
+ *     return <ExampleComponent {...props} />
+ *   }
+ *
+ */
+export type $FragmentRef<T> = {
+  +__fragments: $PropertyType<T, '$refType'>,
+};
+
+/**
  * A utility type that takes the Props of a component and the type of
  * `props.relay` and returns the props of the container.
  */
@@ -64,11 +100,11 @@ export type RefetchOptions = {
 export type $RelayProps<Props, RelayPropT> = $ObjMap<
   $Diff<Props, {relay: RelayPropT | void}>,
   & (<T: empty>(T) => T)
-  & (<TRef: FragmentReference, TFragData: {+$refType: TRef}>(                 TFragData ) =>                  {+__fragments: TRef} )
-  & (<TRef: FragmentReference, TFragData: {+$refType: TRef}>(?                TFragData ) => ?                {+__fragments: TRef} )
-  & (<TRef: FragmentReference, TFragData: {+$refType: TRef}>( $ReadOnlyArray< TFragData>) =>  $ReadOnlyArray< {+__fragments: TRef}>)
-  & (<TRef: FragmentReference, TFragData: {+$refType: TRef}>(?$ReadOnlyArray< TFragData>) => ?$ReadOnlyArray< {+__fragments: TRef}>)
-  & (<TRef: FragmentReference, TFragData: {+$refType: TRef}>( $ReadOnlyArray<?TFragData>) =>  $ReadOnlyArray<?{+__fragments: TRef}>)
-  & (<TRef: FragmentReference, TFragData: {+$refType: TRef}>(?$ReadOnlyArray<?TFragData>) => ?$ReadOnlyArray<?{+__fragments: TRef}>)
+  & (<TRef: FragmentReference, T: {+$refType: TRef}>(                 T ) =>                  $FragmentRef<T> )
+  & (<TRef: FragmentReference, T: {+$refType: TRef}>(?                T ) => ?                $FragmentRef<T> )
+  & (<TRef: FragmentReference, T: {+$refType: TRef}>( $ReadOnlyArray< T>) =>  $ReadOnlyArray< $FragmentRef<T>>)
+  & (<TRef: FragmentReference, T: {+$refType: TRef}>(?$ReadOnlyArray< T>) => ?$ReadOnlyArray< $FragmentRef<T>>)
+  & (<TRef: FragmentReference, T: {+$refType: TRef}>( $ReadOnlyArray<?T>) =>  $ReadOnlyArray<?$FragmentRef<T>>)
+  & (<TRef: FragmentReference, T: {+$refType: TRef}>(?$ReadOnlyArray<?T>) => ?$ReadOnlyArray<?$FragmentRef<T>>)
   & (<T>(T) => T),
 >;

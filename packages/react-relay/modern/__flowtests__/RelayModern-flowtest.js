@@ -16,6 +16,9 @@ const nullthrows = require('nullthrows');
 
 const {createFragmentContainer, graphql} = require('../ReactRelayPublic');
 
+import type {$FragmentRef} from '../ReactRelayPublic';
+import type {RelayModernFlowtest_badref} from './RelayModernFlowtest_badref.graphql';
+import type {RelayModernFlowtest_notref} from './RelayModernFlowtest_notref.graphql';
 import type {
   RelayModernFlowtest_user,
   RelayModernFlowtest_user$ref,
@@ -24,6 +27,49 @@ import type {
   RelayModernFlowtest_users,
   RelayModernFlowtest_users$ref,
 } from './RelayModernFlowtest_users.graphql';
+
+class NotReferencedTest_ extends React.Component<{
+  notref: RelayModernFlowtest_notref,
+}> {
+  render(): React.Node {
+    return null;
+  }
+}
+
+const NotReferencedTest = createFragmentContainer(NotReferencedTest_, {
+  notref: graphql`
+    fragment RelayModernFlowtest_notref on User {
+      id
+      ...RelayModernFlowtest_user
+    }
+  `,
+});
+
+class BadReferenceTest_ extends React.Component<{
+  badref: RelayModernFlowtest_badref,
+}> {
+  render(): React.Node {
+    (this.props.badref.id: string);
+    // $FlowExpectedError
+    this.props.badref.name;
+    // $FlowExpectedError The notref fragment was not used.
+    return <NotReferencedTest notref={this.props.badref} />;
+  }
+}
+
+const BadReferenceTest = createFragmentContainer(BadReferenceTest_, {
+  badref: graphql`
+    fragment RelayModernFlowtest_badref on User {
+      id
+      # Note: this test includes a reference, but *not the right one*.
+      ...RelayModernFlowtest_user
+    }
+  `,
+});
+
+declare var someRef: $FragmentRef<RelayModernFlowtest_badref>;
+
+<BadReferenceTest badref={someRef} />;
 
 class SingularTest extends React.Component<{
   string: string,

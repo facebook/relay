@@ -22,6 +22,7 @@ export type {
   RelayPaginationProp,
   RelayProp,
   RelayRefetchProp,
+  $FragmentRef,
 } from '../modern/ReactRelayTypes';
 export type {
   DataID,

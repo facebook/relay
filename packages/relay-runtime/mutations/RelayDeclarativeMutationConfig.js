@@ -241,12 +241,10 @@ function rangeAdd(
         default:
           warning(
             false,
-            'RelayDeclarativeMutationConfig: RANGE_ADD range behavior ' +
-              `'${
-                info.rangeBehavior
-              }' will not work as expected in RelayModern, ` +
-              "supported range behaviors are 'append', 'prepend', and " +
-              "'ignore'",
+            'RelayDeclarativeMutationConfig: RANGE_ADD range behavior `%s` ' +
+              'will not work as expected in RelayModern, supported range ' +
+              "behaviors are 'append', 'prepend', and 'ignore'.",
+            info.rangeBehavior,
           );
           break;
       }

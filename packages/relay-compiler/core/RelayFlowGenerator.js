@@ -130,14 +130,7 @@ function selectionsToBabel(selections, state: State, refTypeName?: string) {
 
   const types = [];
 
-  if (
-    Object.keys(byConcreteType).length &&
-    onlySelectsTypename(Array.from(baseFields.values())) &&
-    (hasTypenameSelection(Array.from(baseFields.values())) ||
-      Object.keys(byConcreteType).every(type =>
-        hasTypenameSelection(byConcreteType[type]),
-      ))
-  ) {
+  if (Object.keys(byConcreteType).length > 0) {
     for (const concreteType in byConcreteType) {
       types.push(
         groupRefs([
@@ -163,12 +156,7 @@ function selectionsToBabel(selections, state: State, refTypeName?: string) {
     for (const concreteType in byConcreteType) {
       selectionMap = mergeSelections(
         selectionMap,
-        selectionsToMap(
-          byConcreteType[concreteType].map(sel => ({
-            ...sel,
-            conditional: true,
-          })),
-        ),
+        selectionsToMap(byConcreteType[concreteType]),
       );
     }
     const selectionMapValues = groupRefs(Array.from(selectionMap.values())).map(

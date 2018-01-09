@@ -66,7 +66,7 @@ type UserFrag1$ref = any;
 type UserFrag2$ref = any;
 import type { FragmentReference } from 'relay-runtime';
 export opaque type FragmentSpread$ref: FragmentReference = FragmentReference;
-export type FragmentSpread = {|
+export type FragmentSpread = ({|
   +id: string,
   +justFrag: ?{|
     +__fragments: PictureFragment$ref,
@@ -77,7 +77,12 @@ export type FragmentSpread = {|
   |},
   +__fragments: (OtherFragment$ref & UserFrag1$ref & UserFrag2$ref),
   +$refType: FragmentSpread$ref,
-|};
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: '%other',
+  +$refType: FragmentSpread$ref,
+|});
 
 type PageFragment$ref = any;
 import type { FragmentReference } from 'relay-runtime';
@@ -165,28 +170,43 @@ fragment InlineFragmentKitchenSink on Story {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 import type { FragmentReference } from 'relay-runtime';
 export opaque type InlineFragment$ref: FragmentReference = FragmentReference;
-export type InlineFragment = {|
+export type InlineFragment = ({|
   +id: string,
   +name?: ?string,
-  +message?: ?{|
+  +message: ?{|
     +text: ?string,
   |},
   +$refType: InlineFragment$ref,
-|};
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: '%other',
+  +$refType: InlineFragment$ref,
+|});
 
 import type { FragmentReference } from 'relay-runtime';
 export opaque type InlineFragmentWithOverlappingFields$ref: FragmentReference = FragmentReference;
-export type InlineFragmentWithOverlappingFields = {|
-  +hometown?: ?{|
+export type InlineFragmentWithOverlappingFields = ({|
+  +hometown: ?{|
     +id: string,
     +name: ?string,
-    +message?: ?{|
+  |},
+  +$refType: InlineFragmentWithOverlappingFields$ref,
+|} | {|
+  +name: ?string,
+  +hometown: ?{|
+    +id: string,
+    +message: ?{|
       +text: ?string,
     |},
   |},
-  +name?: ?string,
   +$refType: InlineFragmentWithOverlappingFields$ref,
-|};
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: '%other',
+  +$refType: InlineFragmentWithOverlappingFields$ref,
+|});
 
 import type { FragmentReference } from 'relay-runtime';
 export opaque type InlineFragmentConditionalID$ref: FragmentReference = FragmentReference;
@@ -200,16 +220,20 @@ type SomeFragment$ref = any;
 import type { FragmentReference } from 'relay-runtime';
 export opaque type InlineFragmentKitchenSink$ref: FragmentReference = FragmentReference;
 export type InlineFragmentKitchenSink = {|
-  +actor: ?{|
+  +actor: ?({|
     +id: string,
     +profilePicture: ?{|
       +uri: ?string,
       +width?: ?number,
       +height?: ?number,
     |},
-    +name?: ?string,
+    +name: ?string,
     +__fragments: SomeFragment$ref,
-  |},
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: '%other',
+  |}),
   +$refType: InlineFragmentKitchenSink$ref,
 |};
 `;
@@ -569,25 +593,38 @@ export type TypenameOutside = ({|
 
 import type { FragmentReference } from 'relay-runtime';
 export opaque type TypenameOutsideWithAbstractType$ref: FragmentReference = FragmentReference;
-export type TypenameOutsideWithAbstractType = {|
-  +__typename: string,
+export type TypenameOutsideWithAbstractType = ({|
+  +__typename: 'User',
   +username?: ?string,
   +address?: ?{|
     +city: ?string,
     +country: ?string,
-    +street?: ?string,
   |},
-  +firstName?: ?string,
+  +firstName: ?string,
+  +address: ?{|
+    +street: ?string,
+    +city: ?string,
+  |},
   +$refType: TypenameOutsideWithAbstractType$ref,
-|};
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: '%other',
+  +$refType: TypenameOutsideWithAbstractType$ref,
+|});
 
 import type { FragmentReference } from 'relay-runtime';
 export opaque type TypenameWithoutSpreads$ref: FragmentReference = FragmentReference;
-export type TypenameWithoutSpreads = {|
+export type TypenameWithoutSpreads = ({|
   +firstName: ?string,
   +__typename: 'User',
   +$refType: TypenameWithoutSpreads$ref,
-|};
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: '%other',
+  +$refType: TypenameWithoutSpreads$ref,
+|});
 
 import type { FragmentReference } from 'relay-runtime';
 export opaque type TypenameWithoutSpreadsAbstractType$ref: FragmentReference = FragmentReference;
@@ -599,13 +636,22 @@ export type TypenameWithoutSpreadsAbstractType = {|
 
 import type { FragmentReference } from 'relay-runtime';
 export opaque type TypenameWithCommonSelections$ref: FragmentReference = FragmentReference;
-export type TypenameWithCommonSelections = {|
-  +__typename: string,
+export type TypenameWithCommonSelections = ({|
+  +__typename: 'User',
   +name: ?string,
-  +firstName?: ?string,
-  +username?: ?string,
+  +firstName: ?string,
   +$refType: TypenameWithCommonSelections$ref,
-|};
+|} | {|
+  +__typename: 'Page',
+  +name: ?string,
+  +username: ?string,
+  +$refType: TypenameWithCommonSelections$ref,
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: '%other',
+  +$refType: TypenameWithCommonSelections$ref,
+|});
 `;
 
 exports[`RelayFlowGenerator matches expected output: unmasked-fragment-spreads.graphql 1`] = `

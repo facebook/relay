@@ -45,6 +45,7 @@ export type FormatModule = ({|
 
 async function writeRelayGeneratedFile(
   codegenDir: CodegenDirectory,
+  fileExtension: string,
   generatedNode: GeneratedNode,
   formatModule: FormatModule,
   flowText: string,
@@ -57,7 +58,7 @@ async function writeRelayGeneratedFile(
   const persistQuery = _persistQuery;
   const moduleName = generatedNode.name + '.graphql';
   const platformName = platform ? moduleName + '.' + platform : moduleName;
-  const filename = platformName + '.js';
+  const filename = platformName + fileExtension;
   const flowTypeName =
     generatedNode.kind === RelayConcreteNode.FRAGMENT
       ? 'ConcreteFragment'

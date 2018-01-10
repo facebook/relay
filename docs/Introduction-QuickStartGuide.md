@@ -423,8 +423,8 @@ export default class ViewerTodoList extends React.Component {
           }
           return (
             <div>
-              <div>Todo list for User {props.user.id}:</div>
-              <TodoList userTodoData={props.user.userTodoData} />
+              <div>Todo list for User {props.viewer.id}:</div>
+              <TodoList userTodoData={props.viewer} />
             </div>
           );
         }}

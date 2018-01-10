@@ -40,6 +40,7 @@ const filterContextForNode = require('./core/filterContextForNode');
 const getIdentifierForArgumentValue = require('./core/getIdentifierForArgumentValue');
 const getLiteralArgumentValues = require('./core/getLiteralArgumentValues');
 const isEquivalentType = require('./core/isEquivalentType');
+const nullthrows = require('./util/nullthrowsOSS');
 
 export type {
   GetWriter,
@@ -108,6 +109,7 @@ module.exports = {
   getIdentifierForArgumentValue,
   getLiteralArgumentValues,
   isEquivalentType,
+  nullthrows,
 
   FilterDirectivesTransform,
   FlattenTransform,

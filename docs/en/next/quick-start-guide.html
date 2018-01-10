@@ -369,8 +369,8 @@ fragment containers do not directly fetch data. Instead, containers declare a sp
           }
           return (
             &lt;div&gt;
-              &lt;div&gt;Todo list for User {props.user.id}:&lt;/div&gt;
-              &lt;TodoList userTodoData={props.user.userTodoData} /&gt;
+              &lt;div&gt;Todo list for User {props.viewer.id}:&lt;/div&gt;
+              &lt;TodoList userTodoData={props.viewer} /&gt;
             &lt;/div&gt;
           );
         }}

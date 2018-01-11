@@ -34,7 +34,11 @@ const {Map: ImmutableMap} = require('immutable');
 import type {ScalarTypeMapping} from '../core/RelayFlowTypeTransformers';
 import type {RelayCompilerTransforms} from './compileRelayArtifacts';
 import type {FormatModule} from './writeRelayGeneratedFile';
-import type {FileWriterInterface, Reporter} from 'graphql-compiler';
+import type {
+  FileWriterInterface,
+  Reporter,
+  SourceControl,
+} from 'graphql-compiler';
 import type {DocumentNode, GraphQLSchema, ValidationContext} from 'graphql';
 
 const {isOperationDefinitionAST} = SchemaUtils;
@@ -76,6 +80,7 @@ class RelayFileWriter implements FileWriterInterface {
   _baseDocuments: ImmutableMap<string, DocumentNode>;
   _documents: ImmutableMap<string, DocumentNode>;
   _reporter: Reporter;
+  _sourceControl: ?SourceControl;
 
   constructor({
     config,
@@ -84,6 +89,7 @@ class RelayFileWriter implements FileWriterInterface {
     documents,
     schema,
     reporter,
+    sourceControl,
   }: {|
     config: WriterConfig,
     onlyValidate: boolean,
@@ -91,6 +97,7 @@ class RelayFileWriter implements FileWriterInterface {
     documents: ImmutableMap<string, DocumentNode>,
     schema: GraphQLSchema,
     reporter: Reporter,
+    sourceControl: ?SourceControl,
   |}) {
     this._baseDocuments = baseDocuments || ImmutableMap();
     this._baseSchema = schema;
@@ -98,6 +105,7 @@ class RelayFileWriter implements FileWriterInterface {
     this._documents = documents;
     this._onlyValidate = onlyValidate;
     this._reporter = reporter;
+    this._sourceControl = sourceControl;
 
     validateConfig(this._config);
   }
@@ -319,6 +327,12 @@ class RelayFileWriter implements FileWriterInterface {
         allOutputDirectories.forEach(dir => {
           dir.deleteExtraFiles();
         });
+        if (this._sourceControl && !this._onlyValidate) {
+          await CodegenDirectory.sourceControlAddRemove(
+            this._sourceControl,
+            Array.from(allOutputDirectories.values()),
+          );
+        }
       } catch (error) {
         let details;
         try {

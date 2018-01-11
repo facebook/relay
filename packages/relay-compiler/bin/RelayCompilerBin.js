@@ -148,6 +148,8 @@ Ensure that one such file exists in ${srcDir} or its parents.
     parserConfigs,
     writerConfigs,
     onlyValidate: options.validate,
+    // TODO: allow passing in a flag or detect?
+    sourceControl: null,
   });
   if (!options.validate && !options.watch && options.watchman) {
     // eslint-disable-next-line no-console
@@ -171,6 +173,7 @@ function getRelayFileWriter(baseDir: string) {
     schema,
     documents,
     baseDocuments,
+    sourceControl,
     reporter,
   }: GetWriterOptions) =>
     new RelayFileWriter({
@@ -194,6 +197,7 @@ function getRelayFileWriter(baseDir: string) {
       baseDocuments,
       documents,
       reporter,
+      sourceControl,
     });
 }
 

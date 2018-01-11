@@ -25,6 +25,7 @@ import type ASTCache from '../core/ASTCache';
 import type {GraphQLReporter} from '../reporters/GraphQLReporter';
 import type {CompileResult, File, FileWriterInterface} from './CodegenTypes';
 import type {FileFilter, WatchmanExpression} from './CodegenWatcher';
+import type {SourceControl} from './SourceControl';
 import type {DocumentNode, GraphQLSchema} from 'graphql';
 
 export type ParserConfig = {|
@@ -59,6 +60,7 @@ export type GetWriterOptions = {|
   schema: GraphQLSchema,
   documents: ImmutableMap<string, DocumentNode>,
   baseDocuments: ImmutableMap<string, DocumentNode>,
+  sourceControl: ?SourceControl,
   reporter: GraphQLReporter,
 |};
 
@@ -72,18 +74,21 @@ class CodegenRunner {
   // parser => writers that are affected by it
   parserWriters: {[parser: string]: Set<string>};
   _reporter: GraphQLReporter;
+  _sourceControl: ?SourceControl;
 
   constructor(options: {
     parserConfigs: ParserConfigs,
     writerConfigs: WriterConfigs,
     onlyValidate: boolean,
     reporter: GraphQLReporter,
+    sourceControl: ?SourceControl,
   }) {
     this.parsers = {};
     this.parserConfigs = options.parserConfigs;
     this.writerConfigs = options.writerConfigs;
     this.onlyValidate = options.onlyValidate;
     this._reporter = options.reporter;
+    this._sourceControl = options.sourceControl;
 
     this.parserWriters = {};
     for (const parser in options.parserConfigs) {
@@ -272,6 +277,7 @@ class CodegenRunner {
           schema,
           documents,
           baseDocuments,
+          sourceControl: this._sourceControl,
           reporter: this._reporter,
         });
 

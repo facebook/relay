@@ -54,13 +54,15 @@ type WriterConfigs = {
   [writer: string]: WriterConfig,
 };
 
-export type GetWriter = (
+export type GetWriterOptions = {|
   onlyValidate: boolean,
   schema: GraphQLSchema,
   documents: ImmutableMap<string, DocumentNode>,
   baseDocuments: ImmutableMap<string, DocumentNode>,
   reporter: GraphQLReporter,
-) => FileWriterInterface;
+|};
+
+export type GetWriter = GetWriterOptions => FileWriterInterface;
 
 class CodegenRunner {
   parserConfigs: ParserConfigs;
@@ -265,13 +267,13 @@ class CodegenRunner {
         const schema = Profiler.run('getSchema', () =>
           this.parserConfigs[parser].getSchema(),
         );
-        const writer = getWriter(
-          this.onlyValidate,
+        const writer = getWriter({
+          onlyValidate: this.onlyValidate,
           schema,
           documents,
           baseDocuments,
-          this._reporter,
-        );
+          reporter: this._reporter,
+        });
 
         const outputDirectories = await writer.writeAll();
 

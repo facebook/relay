@@ -44,6 +44,7 @@ const {
   schemaExtensions,
 } = RelayIRTransforms;
 
+import type {GetWriterOptions} from 'graphql-compiler';
 import type {GraphQLSchema} from 'graphql';
 
 function buildWatchExpression(options: {
@@ -165,7 +166,13 @@ Ensure that one such file exists in ${srcDir} or its parents.
 }
 
 function getRelayFileWriter(baseDir: string) {
-  return (onlyValidate, schema, documents, baseDocuments, reporter) =>
+  return ({
+    onlyValidate,
+    schema,
+    documents,
+    baseDocuments,
+    reporter,
+  }: GetWriterOptions) =>
     new RelayFileWriter({
       config: {
         baseDir,

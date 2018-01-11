@@ -84,14 +84,14 @@ class RelayFileWriter implements FileWriterInterface {
     documents,
     schema,
     reporter,
-  }: {
+  }: {|
     config: WriterConfig,
     onlyValidate: boolean,
     baseDocuments: ImmutableMap<string, DocumentNode>,
     documents: ImmutableMap<string, DocumentNode>,
     schema: GraphQLSchema,
     reporter: Reporter,
-  }) {
+  |}) {
     this._baseDocuments = baseDocuments || ImmutableMap();
     this._baseSchema = schema;
     this._config = config;

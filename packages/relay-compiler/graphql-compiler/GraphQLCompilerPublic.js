@@ -44,6 +44,7 @@ const nullthrows = require('./util/nullthrowsOSS');
 
 export type {
   GetWriter,
+  GetWriterOptions,
   ParserConfig,
   WriterConfig,
 } from './codegen/CodegenRunner';

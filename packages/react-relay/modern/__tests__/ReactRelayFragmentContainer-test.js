@@ -230,7 +230,7 @@ describe('ReactRelayFragmentContainer', () => {
       },
       node: UserFragment,
       seenRecords: jasmine.any(Object),
-      variables: {cond: true, rootVariable: 'root'},
+      variables: {cond: true},
     });
   });
 
@@ -325,7 +325,7 @@ describe('ReactRelayFragmentContainer', () => {
       },
       node: UserFragment,
       seenRecords: jasmine.any(Object),
-      variables: {cond: true, rootVariable: 'root'},
+      variables: {cond: true},
     });
   });
 
@@ -370,7 +370,7 @@ describe('ReactRelayFragmentContainer', () => {
       },
       node: UserFragment,
       seenRecords: jasmine.any(Object),
-      variables: {cond: true, id: '6'},
+      variables: {cond: true},
     });
   });
 

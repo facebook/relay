@@ -417,6 +417,7 @@ describe('RelayModernSelector', () => {
         {user: zuck},
       );
       expect(variables).toEqual({
+        ...inputVariables,
         cond: true,
         size: 42,
       });
@@ -429,6 +430,7 @@ describe('RelayModernSelector', () => {
         {user: [null, zuck, null]},
       );
       expect(variables).toEqual({
+        ...inputVariables,
         cond: true,
         size: 42,
       });

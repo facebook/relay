@@ -29,15 +29,16 @@ function getFragmentVariables(
   rootVariables: Variables,
   argumentVariables: Variables,
 ): Variables {
-  let variables;
+  const variables = {...rootVariables};
   fragment.argumentDefinitions.forEach(definition => {
-    if (argumentVariables.hasOwnProperty(definition.name)) {
-      return;
-    }
-    variables = variables || {...argumentVariables};
     switch (definition.kind) {
       case 'LocalArgument':
-        variables[definition.name] = definition.defaultValue;
+        variables[definition.name] =
+          argumentVariables[definition.name] != null
+            ? argumentVariables[definition.name]
+            : definition.defaultValue != null
+              ? definition.defaultValue
+              : rootVariables[definition.name];
         break;
       case 'RootArgument':
         if (!rootVariables.hasOwnProperty(definition.name)) {
@@ -59,7 +60,7 @@ function getFragmentVariables(
         );
     }
   });
-  return variables || argumentVariables;
+  return variables;
 }
 
 /**

@@ -3,7 +3,7 @@ id: refetch-container
 title: Refetch Container
 ---
 
-A Refetch Container is also a [higher-order component](https://reactjs.org/docs/higher-order-components.html) that works like a regular [Fragment Container](./fragment-container.html), but provides the additional ability to fetch a new GraphQL query with different variables and re-render the component the new result.
+A Refetch Container is also a [higher-order component](https://reactjs.org/docs/higher-order-components.html) that works like a regular [Fragment Container](./fragment-container.html), but provides the additional ability to fetch a new GraphQL query with different variables and re-render the component with the new result.
 
 Table of Contents:
 - [`createRefetchContainer`](#createrefetchcontainer)

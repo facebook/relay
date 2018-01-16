@@ -11,7 +11,6 @@
 'use strict';
 
 const RelayMetaRoute = require('../route/RelayMetaRoute');
-const RelayMutationType = require('./RelayMutationType');
 const RelayNodeInterface = require('../interface/RelayNodeInterface');
 const RelayOptimisticMutationUtils = require('./RelayOptimisticMutationUtils');
 const RelayQuery = require('../query/RelayQuery');
@@ -25,7 +24,11 @@ const invariant = require('invariant');
 const nullthrows = require('nullthrows');
 const warning = require('warning');
 
-const {RangeOperations, ConnectionInterface} = require('RelayRuntime');
+const {
+  MutationTypes,
+  RangeOperations,
+  ConnectionInterface,
+} = require('RelayRuntime');
 
 import type {ConcreteMutation} from '../query/ConcreteQuery';
 import type RelayQueryTracker from '../store/RelayQueryTracker';
@@ -379,7 +382,7 @@ const RelayMutationQuery = {
     }
     configs.forEach(config => {
       switch (config.type) {
-        case RelayMutationType.REQUIRED_CHILDREN:
+        case MutationTypes.REQUIRED_CHILDREN:
           const newChildren = config.children.map(child =>
             RelayQuery.Fragment.create(
               child,
@@ -400,7 +403,7 @@ const RelayMutationQuery = {
           }
           break;
 
-        case RelayMutationType.RANGE_ADD:
+        case MutationTypes.RANGE_ADD:
           if (__DEV__ && console.groupCollapsed && console.groupEnd) {
             console.groupCollapsed('RANGE_ADD');
           }
@@ -420,8 +423,8 @@ const RelayMutationQuery = {
           }
           break;
 
-        case RelayMutationType.RANGE_DELETE:
-        case RelayMutationType.NODE_DELETE:
+        case MutationTypes.RANGE_DELETE:
+        case MutationTypes.NODE_DELETE:
           const edgeDeletion = RelayMutationQuery.buildFragmentForEdgeDeletion({
             connectionName: config.connectionName,
             fatQuery,
@@ -440,7 +443,7 @@ const RelayMutationQuery = {
           children.push(nodeDeletion);
           if (__DEV__ && console.groupCollapsed && console.groupEnd) {
             const configType =
-              config === RelayMutationType.RANGE_DELETE
+              config === MutationTypes.RANGE_DELETE
                 ? 'RANGE_DELETE'
                 : 'NODE_DELETE';
             console.groupCollapsed(configType);
@@ -459,7 +462,7 @@ const RelayMutationQuery = {
           }
           break;
 
-        case RelayMutationType.FIELDS_CHANGE:
+        case MutationTypes.FIELDS_CHANGE:
           if (__DEV__ && console.groupCollapsed && console.groupEnd) {
             console.groupCollapsed('FIELDS_CHANGE');
           }

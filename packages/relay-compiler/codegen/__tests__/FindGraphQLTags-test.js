@@ -90,6 +90,15 @@ describe('FindGraphQLTags', () => {
         `),
       ).toEqual(['fragment FindGraphQLTags on User { id }']);
     });
+
+    it('parses JS with functions sharing names with object prototype methods', () => {
+      expect(
+        find(`
+          toString();
+          foo(graphql\`fragment FindGraphQLTags on User { id }\`);
+        `),
+      ).toEqual(['fragment FindGraphQLTags on User { id }']);
+    });
   });
 
   describe('query validation', () => {

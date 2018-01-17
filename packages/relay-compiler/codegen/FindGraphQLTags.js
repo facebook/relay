@@ -176,11 +176,11 @@ function memoizedFind(
   );
 }
 
-const CREATE_CONTAINER_FUNCTIONS = {
-  createFragmentContainer: true,
-  createPaginationContainer: true,
-  createRefetchContainer: true,
-};
+const CREATE_CONTAINER_FUNCTIONS = Object.create(null, {
+  createFragmentContainer: {value: true},
+  createPaginationContainer: {value: true},
+  createRefetchContainer: {value: true},
+});
 
 const IGNORED_KEYS = {
   comments: true,

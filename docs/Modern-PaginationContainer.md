@@ -149,7 +149,7 @@ type Props = {
 
 ## `hasMore()`
 
-`hasMore` is a function available on the `relay` [prop](#available-props). This function indicates wether there are more pages to fetch from the server or not.
+`hasMore` is a function available on the `relay` [prop](#available-props). This function indicates whether there are more pages to fetch from the server or not.
 
 ```javascript
 hasMore: () => boolean,

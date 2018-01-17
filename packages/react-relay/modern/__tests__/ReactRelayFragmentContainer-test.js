@@ -565,4 +565,29 @@ describe('ReactRelayFragmentContainer', () => {
 
     expect(() => containerRef.instanceMethod('foo')).toThrow();
   });
+
+  it('can be unwrapped in tests', () => {
+    class TestUnwrapping extends React.Component {
+      render() {
+        return <div>Unwrapped</div>;
+      }
+    }
+
+    const TestUnwrappingContainer = ReactRelayFragmentContainer.createContainer(
+      TestUnwrapping,
+      {
+        user: () => UserFragment,
+      },
+    );
+
+    const UnwrappedComponent = RelayModernTestUtils.unwrapContainer(
+      TestUnwrappingContainer,
+    );
+
+    const renderer = ReactTestRenderer.create(
+      <UnwrappedComponent user={{id: '4', name: 'Mark'}} />,
+    );
+
+    expect(renderer.toJSON()).toMatchSnapshot();
+  });
 });

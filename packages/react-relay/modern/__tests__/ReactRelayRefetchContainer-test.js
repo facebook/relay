@@ -918,4 +918,28 @@ describe('ReactRelayRefetchContainer', () => {
       expect(subscription2.closed).toBe(true);
     });
   });
+  it('can be unwrapped in tests', () => {
+    class TestUnwrapping extends React.Component {
+      render() {
+        return <div>Unwrapped</div>;
+      }
+    }
+
+    const TestUnwrappingContainer = ReactRelayRefetchContainer.createContainer(
+      TestUnwrapping,
+      {
+        user: () => UserFragment,
+      },
+    );
+
+    const UnwrappedComponent = RelayModernTestUtils.unwrapContainer(
+      TestUnwrappingContainer,
+    );
+
+    const renderer = ReactTestRenderer.create(
+      <UnwrappedComponent user={{id: '4', name: 'Mark'}} />,
+    );
+
+    expect(renderer.toJSON()).toMatchSnapshot();
+  });
 });

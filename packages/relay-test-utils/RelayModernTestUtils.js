@@ -13,6 +13,12 @@
 const invariant = require('invariant');
 const parseGraphQLText = require('./parseGraphQLText');
 
+import type {
+  $RelayProps,
+  RelayProp,
+  RelayPaginationProp,
+  RelayRefetchProp,
+} from 'ReactRelayTypes';
 import type {GeneratedNode} from 'RelayConcreteNode';
 
 const FIXTURE_TAG = Symbol.for('FIXTURE_TAG');
@@ -220,6 +226,24 @@ const RelayModernTestUtils = {
         }).toMatchSnapshot(test.file);
       });
     });
+  },
+
+  /**
+   * Returns original component class wrapped by e.g. createFragmentContainer
+   */
+  unwrapContainer<Props>(
+    ComponentClass: React.ComponentType<
+      $RelayProps<Props, RelayProp | RelayPaginationProp | RelayRefetchProp>,
+    >,
+  ): React.ComponentType<Props> {
+    // $FlowExpectedError
+    const unwrapped = ComponentClass.__ComponentClass;
+    invariant(
+      unwrapped != null,
+      'Could not find component for %s, is it a Relay container?',
+      ComponentClass.displayName || ComponentClass.name,
+    );
+    return (unwrapped: any);
   },
 };
 

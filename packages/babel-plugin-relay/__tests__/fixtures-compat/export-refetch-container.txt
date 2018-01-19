@@ -4,8 +4,8 @@
  * @providesModule RefetchExample
  */
 
-const React = require('React');
-const {createRefetchContainer, graphql} = require('RelayClassic');
+const React = require('react');
+const {createRefetchContainer, graphql} = require('react-relay/classic');
 
 class RefetchExample extends React.Component {
   render() {

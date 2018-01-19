@@ -1,4 +1,4 @@
-var RelayClassic = require('RelayClassic');
+const RelayClassic = require('react-relay/classic');
 var foo = RelayClassic.QL`
   fragment on User {
     fakeConnection {

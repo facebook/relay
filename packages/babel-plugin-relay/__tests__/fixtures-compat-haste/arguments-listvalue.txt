@@ -5,7 +5,7 @@
 
 'use strict';
 
-const RelayClassic = require('RelayClassic');
+const RelayClassic = require('react-relay/classic');
 
 const {graphql} = RelayClassic;
 

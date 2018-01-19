@@ -75,6 +75,7 @@ var foo = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 ERROR:
 
@@ -109,6 +110,7 @@ var foo = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var foo = function (RQL_0) {
   return {
@@ -173,6 +175,7 @@ var foo = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var foo = function () {
   return {
@@ -379,6 +382,7 @@ var foo = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var foo = function () {
   return {
@@ -1127,7 +1131,7 @@ exports[`BabelPluginRelay matches expected output: arguments-listvalue.txt 1`] =
 
 'use strict';
 
-const RelayClassic = require('RelayClassic');
+const RelayClassic = require('react-relay/classic');
 
 const {graphql} = RelayClassic;
 
@@ -1157,7 +1161,7 @@ module.exports = RelayClassic.createFragmentContainer(CompatProfile, {
 
 'use strict';
 
-const RelayClassic = require('RelayClassic');
+const RelayClassic = require('react-relay/classic');
 
 const { graphql } = RelayClassic;
 
@@ -1179,7 +1183,7 @@ exports[`BabelPluginRelay matches expected output: arguments-listvalue.txt 2`] =
 
 'use strict';
 
-const RelayClassic = require('RelayClassic');
+const RelayClassic = require('react-relay/classic');
 
 const {graphql} = RelayClassic;
 
@@ -1209,7 +1213,7 @@ module.exports = RelayClassic.createFragmentContainer(CompatProfile, {
 
 'use strict';
 
-const RelayClassic = require('RelayClassic');
+const RelayClassic = require('react-relay/classic');
 
 const { graphql } = RelayClassic;
 
@@ -1291,7 +1295,7 @@ exports[`BabelPluginRelay matches expected output: arguments-listvalue.txt 3`] =
 
 'use strict';
 
-const RelayClassic = require('RelayClassic');
+const RelayClassic = require('react-relay/classic');
 
 const {graphql} = RelayClassic;
 
@@ -1321,7 +1325,7 @@ module.exports = RelayClassic.createFragmentContainer(CompatProfile, {
 
 'use strict';
 
-const RelayClassic = require('RelayClassic');
+const RelayClassic = require('react-relay/classic');
 
 const { graphql } = RelayClassic;
 
@@ -1343,7 +1347,7 @@ exports[`BabelPluginRelay matches expected output: arguments-listvalue.txt 4`] =
 
 'use strict';
 
-const RelayClassic = require('RelayClassic');
+const RelayClassic = require('react-relay/classic');
 
 const {graphql} = RelayClassic;
 
@@ -1373,7 +1377,7 @@ module.exports = RelayClassic.createFragmentContainer(CompatProfile, {
 
 'use strict';
 
-const RelayClassic = require('RelayClassic');
+const RelayClassic = require('react-relay/classic');
 
 const { graphql } = RelayClassic;
 
@@ -1460,6 +1464,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -1573,6 +1578,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 ERROR:
 
@@ -1599,6 +1605,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 ERROR:
 
@@ -1623,6 +1630,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 ERROR:
 
@@ -1647,6 +1655,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -1815,6 +1824,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 ERROR:
 
@@ -1839,6 +1849,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 ERROR:
 
@@ -1863,6 +1874,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -2031,6 +2043,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 ERROR:
 
@@ -2058,6 +2071,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -2224,6 +2238,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -2401,6 +2416,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -2736,6 +2752,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 ERROR:
 
@@ -2762,6 +2779,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 ERROR:
 
@@ -2784,6 +2802,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -2943,6 +2962,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -3095,6 +3115,7 @@ Relay.createContainer(Component, {
     viewer: () => Relay.QL\`fragment on Viewer { actor { id } }\`
   }
 });
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 Relay.createContainer(Component, {
@@ -4102,8 +4123,8 @@ exports[`BabelPluginRelay matches expected output: export-refetch-container.txt 
  * @providesModule RefetchExample
  */
 
-const React = require('React');
-const {createRefetchContainer, graphql} = require('RelayClassic');
+const React = require('react');
+const {createRefetchContainer, graphql} = require('react-relay/classic');
 
 class RefetchExample extends React.Component {
   render() {
@@ -4136,8 +4157,8 @@ module.exports = createRefetchContainer(
  * @providesModule RefetchExample
  */
 
-const React = require('React');
-const { createRefetchContainer, graphql } = require('RelayClassic');
+const React = require('react');
+const { createRefetchContainer, graphql } = require('react-relay/classic');
 
 class RefetchExample extends React.Component {
   render() {
@@ -4162,8 +4183,8 @@ exports[`BabelPluginRelay matches expected output: export-refetch-container.txt 
  * @providesModule RefetchExample
  */
 
-const React = require('React');
-const {createRefetchContainer, graphql} = require('RelayClassic');
+const React = require('react');
+const {createRefetchContainer, graphql} = require('react-relay/classic');
 
 class RefetchExample extends React.Component {
   render() {
@@ -4196,8 +4217,8 @@ module.exports = createRefetchContainer(
  * @providesModule RefetchExample
  */
 
-const React = require('React');
-const { createRefetchContainer, graphql } = require('RelayClassic');
+const React = require('react');
+const { createRefetchContainer, graphql } = require('react-relay/classic');
 
 class RefetchExample extends React.Component {
   render() {
@@ -4309,8 +4330,8 @@ exports[`BabelPluginRelay matches expected output: export-refetch-container.txt 
  * @providesModule RefetchExample
  */
 
-const React = require('React');
-const {createRefetchContainer, graphql} = require('RelayClassic');
+const React = require('react');
+const {createRefetchContainer, graphql} = require('react-relay/classic');
 
 class RefetchExample extends React.Component {
   render() {
@@ -4343,8 +4364,8 @@ module.exports = createRefetchContainer(
  * @providesModule RefetchExample
  */
 
-const React = require('React');
-const { createRefetchContainer, graphql } = require('RelayClassic');
+const React = require('react');
+const { createRefetchContainer, graphql } = require('react-relay/classic');
 
 class RefetchExample extends React.Component {
   render() {
@@ -4369,8 +4390,8 @@ exports[`BabelPluginRelay matches expected output: export-refetch-container.txt 
  * @providesModule RefetchExample
  */
 
-const React = require('React');
-const {createRefetchContainer, graphql} = require('RelayClassic');
+const React = require('react');
+const {createRefetchContainer, graphql} = require('react-relay/classic');
 
 class RefetchExample extends React.Component {
   render() {
@@ -4403,8 +4424,8 @@ module.exports = createRefetchContainer(
  * @providesModule RefetchExample
  */
 
-const React = require('React');
-const { createRefetchContainer, graphql } = require('RelayClassic');
+const React = require('react');
+const { createRefetchContainer, graphql } = require('react-relay/classic');
 
 class RefetchExample extends React.Component {
   render() {
@@ -4520,6 +4541,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -4597,6 +4619,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -4677,6 +4700,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -4776,6 +4800,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -4870,6 +4895,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -4916,6 +4942,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -4980,6 +5007,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -5150,6 +5178,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -5304,7 +5333,7 @@ var x = function () {
 
 exports[`BabelPluginRelay matches expected output: fieldWithFakeConnection.txt 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-var RelayClassic = require('RelayClassic');
+const RelayClassic = require('react-relay/classic');
 var foo = RelayClassic.QL\`
   fragment on User {
     fakeConnection {
@@ -5316,8 +5345,9 @@ var foo = RelayClassic.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-var RelayClassic = require('RelayClassic');
+const RelayClassic = require('react-relay/classic');
 var foo = function () {
   return {
     children: [{
@@ -5395,6 +5425,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -5483,6 +5514,7 @@ exports[`BabelPluginRelay matches expected output: fragment.txt 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = Relay.QL\`fragment on Node { id }\`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -5770,6 +5802,7 @@ exports[`BabelPluginRelay matches expected output: fragmentDirectives.txt 1`] = 
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = Relay.QL\`fragment on Node @relay(plural: true) { id }\`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -5806,6 +5839,7 @@ exports[`BabelPluginRelay matches expected output: fragmentOnBadType.txt 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = Relay.QL\`fragment on NotAType { id }\`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 ERROR:
 
@@ -5821,6 +5855,7 @@ exports[`BabelPluginRelay matches expected output: fragmentWithModuleName.txt 1`
 var Relay = require('react-relay');
 var x = Relay.QL\`fragment Foo on Node { id }\`;
 var y = Relay.QL\`fragment Bar on Node { id }\`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 /** @providesModule Foo.react */
 var Relay = require('react-relay');
@@ -5884,6 +5919,7 @@ exports[`BabelPluginRelay matches expected output: fragmentWithName.txt 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = Relay.QL\`fragment FragmentNameHere on Node { id }\`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -5924,6 +5960,7 @@ var x = Relay.QL\`
     ... on User { id }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -5996,6 +6033,7 @@ exports[`BabelPluginRelay matches expected output: fragmentWithReference.txt 1`]
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = Relay.QL\`fragment on Node { \${reference} }\`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function (RQL_0) {
@@ -6037,6 +6075,7 @@ var x = Relay.QL\`
     id
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function (RQL_0) {
@@ -6078,6 +6117,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -6144,6 +6184,7 @@ var x = Relay.QL\`
   }
 \`;
 */
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 /*
@@ -6170,6 +6211,7 @@ var foo = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var foo = function () {
   return {
@@ -6206,6 +6248,7 @@ var foo = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var foo = function () {
   return {
@@ -6602,6 +6645,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -6766,6 +6810,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -6834,6 +6879,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -6969,6 +7015,7 @@ var x = Relay.QL\`
     node(id: 123)
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -7026,6 +7073,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -7066,6 +7114,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -7137,6 +7186,7 @@ exports[`BabelPluginRelay matches expected output: metadataRequisite.txt 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = Relay.QL\`fragment on Node { id }\`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -7178,6 +7228,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -8304,6 +8355,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -8369,6 +8421,7 @@ var x = Relay.QL\`
     mutationMissingArg
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 ERROR:
 
@@ -8383,6 +8436,7 @@ var x = Relay.QL\`
     mutationWrongArgs
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 ERROR:
 
@@ -8399,6 +8453,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 ERROR:
 
@@ -8418,6 +8473,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function (RQL_0) {
@@ -8458,6 +8514,7 @@ var x = Relay.QL\`
     actorSubscribe
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -9290,6 +9347,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 ERROR:
 
@@ -9301,7 +9359,7 @@ Error: unknown: GraphQL Validation Error: Cannot query field "fakeMutation" on t
 
 exports[`BabelPluginRelay matches expected output: nonRootNodeField.txt 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-var RelayClassic = require('RelayClassic');
+const RelayClassic = require('react-relay/classic');
 var fragment = RelayClassic.QL\`
   fragment on InvalidType {
     node(id: 123) {
@@ -9311,6 +9369,7 @@ var fragment = RelayClassic.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 ERROR:
 
@@ -9333,6 +9392,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -9740,7 +9800,7 @@ const CompatViewerQuery = {
 
 exports[`BabelPluginRelay matches expected output: queryWithArrayObjectArg.txt 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-var RelayClassic = require('RelayClassic');
+const RelayClassic = require('react-relay/classic');
 var q = RelayClassic.QL\`
   query {
     searchAll(queries: [$query]) {
@@ -9748,8 +9808,9 @@ var q = RelayClassic.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-var RelayClassic = require('RelayClassic');
+const RelayClassic = require('react-relay/classic');
 var q = function () {
   return {
     calls: [{
@@ -9784,7 +9845,7 @@ var q = function () {
 
 exports[`BabelPluginRelay matches expected output: queryWithArrayObjectNestedVariable.txt 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-var RelayClassic = require('RelayClassic');
+const RelayClassic = require('react-relay/classic');
 var q = RelayClassic.QL\`
   query {
     searchAll(queries: [{queryText: $query}]) {
@@ -9792,6 +9853,7 @@ var q = RelayClassic.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 ERROR:
 
@@ -9800,7 +9862,7 @@ Error: unknown: Relay Transform Error: Unexpected nested variable \`query\`; var
 
 exports[`BabelPluginRelay matches expected output: queryWithArrayObjectValue.txt 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-var RelayClassic = require('RelayClassic');
+const RelayClassic = require('react-relay/classic');
 var q = RelayClassic.QL\`
   query {
     searchAll(queries: [{queryText: "RelayClassic"}]) {
@@ -9808,8 +9870,9 @@ var q = RelayClassic.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-var RelayClassic = require('RelayClassic');
+const RelayClassic = require('react-relay/classic');
 var q = function () {
   return {
     calls: [{
@@ -9854,6 +9917,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 ERROR:
 
@@ -9870,6 +9934,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 ERROR:
 
@@ -9888,6 +9953,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -9998,6 +10064,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -10077,6 +10144,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -10164,6 +10232,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -10263,6 +10332,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function (RQL_0, RQL_1, RQL_2, RQL_3, RQL_4, RQL_5, RQL_6, RQL_7, RQL_8, RQL_9, RQL_10, RQL_11) {
@@ -10348,6 +10418,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -10401,7 +10472,7 @@ var x = function () {
 
 exports[`BabelPluginRelay matches expected output: queryWithObjectArg.txt 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-var RelayClassic = require('RelayClassic');
+const RelayClassic = require('react-relay/classic');
 var q = RelayClassic.QL\`
   query {
     search(query: $query) {
@@ -10409,8 +10480,9 @@ var q = RelayClassic.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-var RelayClassic = require('RelayClassic');
+const RelayClassic = require('react-relay/classic');
 var q = function () {
   return {
     calls: [{
@@ -10445,7 +10517,7 @@ var q = function () {
 
 exports[`BabelPluginRelay matches expected output: queryWithObjectArgNestedVariable.txt 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-var RelayClassic = require('RelayClassic');
+const RelayClassic = require('react-relay/classic');
 var q = RelayClassic.QL\`
   query {
     search(query: {queryText: $query}) {
@@ -10453,6 +10525,7 @@ var q = RelayClassic.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 ERROR:
 
@@ -10461,7 +10534,7 @@ Error: unknown: Relay Transform Error: Unexpected nested variable \`query\`; var
 
 exports[`BabelPluginRelay matches expected output: queryWithObjectArgValue.txt 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-var RelayClassic = require('RelayClassic');
+const RelayClassic = require('react-relay/classic');
 var q = RelayClassic.QL\`
   query {
     search(query: {queryText: "RelayClassic"}) {
@@ -10469,8 +10542,9 @@ var q = RelayClassic.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-var RelayClassic = require('RelayClassic');
+const RelayClassic = require('react-relay/classic');
 var q = function () {
   return {
     calls: [{
@@ -10515,6 +10589,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -10567,6 +10642,7 @@ exports[`BabelPluginRelay matches expected output: queryWithoutFields.txt 1`] = 
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = Relay.QL\`query { viewer }\`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function () {
@@ -11146,6 +11222,7 @@ var x = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = function (RQL_0) {
@@ -11243,6 +11320,7 @@ var x = RelayQL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var RelayQL = require('react-relay/RelayQL');
 var x = function () {
@@ -11291,6 +11369,7 @@ exports[`BabelPluginRelay matches expected output: templateString.txt 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = \`Just a template string.\`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var Relay = require('react-relay');
 var x = \`Just a template string.\`;
@@ -11305,6 +11384,7 @@ var foo = Relay.QL\`
     }
   }
 \`;
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 var foo = function () {
   return {
@@ -11914,8 +11994,8 @@ exports[`BabelPluginRelay matches expected output: within-class-reference.txt 1`
 
 'use strict';
 
-const {createFragmentContainer, graphql} = require('RelayClassic');
-const React = require('React');
+const {createFragmentContainer, graphql} = require('react-relay/classic');
+const React = require('react');
 const CompatProfilePic = require('CompatProfilePic');
 
 class CompatProfile extends React.Component {
@@ -11963,8 +12043,8 @@ module.exports = createFragmentContainer(CompatProfile, graphql\`
 
 var _graphql;
 
-const { createFragmentContainer, graphql } = require('RelayClassic');
-const React = require('React');
+const { createFragmentContainer, graphql } = require('react-relay/classic');
+const React = require('react');
 const CompatProfilePic = require('CompatProfilePic');
 
 class CompatProfile extends React.Component {
@@ -12000,8 +12080,8 @@ exports[`BabelPluginRelay matches expected output: within-class-reference.txt 2`
 
 'use strict';
 
-const {createFragmentContainer, graphql} = require('RelayClassic');
-const React = require('React');
+const {createFragmentContainer, graphql} = require('react-relay/classic');
+const React = require('react');
 const CompatProfilePic = require('CompatProfilePic');
 
 class CompatProfile extends React.Component {
@@ -12049,8 +12129,8 @@ module.exports = createFragmentContainer(CompatProfile, graphql\`
 
 var _graphql;
 
-const { createFragmentContainer, graphql } = require('RelayClassic');
-const React = require('React');
+const { createFragmentContainer, graphql } = require('react-relay/classic');
+const React = require('react');
 const CompatProfilePic = require('CompatProfilePic');
 
 class CompatProfile extends React.Component {
@@ -12203,8 +12283,8 @@ exports[`BabelPluginRelay matches expected output: within-class-reference.txt 3`
 
 'use strict';
 
-const {createFragmentContainer, graphql} = require('RelayClassic');
-const React = require('React');
+const {createFragmentContainer, graphql} = require('react-relay/classic');
+const React = require('react');
 const CompatProfilePic = require('CompatProfilePic');
 
 class CompatProfile extends React.Component {
@@ -12252,8 +12332,8 @@ module.exports = createFragmentContainer(CompatProfile, graphql\`
 
 var _graphql;
 
-const { createFragmentContainer, graphql } = require('RelayClassic');
-const React = require('React');
+const { createFragmentContainer, graphql } = require('react-relay/classic');
+const React = require('react');
 const CompatProfilePic = require('CompatProfilePic');
 
 class CompatProfile extends React.Component {
@@ -12289,8 +12369,8 @@ exports[`BabelPluginRelay matches expected output: within-class-reference.txt 4`
 
 'use strict';
 
-const {createFragmentContainer, graphql} = require('RelayClassic');
-const React = require('React');
+const {createFragmentContainer, graphql} = require('react-relay/classic');
+const React = require('react');
 const CompatProfilePic = require('CompatProfilePic');
 
 class CompatProfile extends React.Component {
@@ -12338,8 +12418,8 @@ module.exports = createFragmentContainer(CompatProfile, graphql\`
 
 var _graphql;
 
-const { createFragmentContainer, graphql } = require('RelayClassic');
-const React = require('React');
+const { createFragmentContainer, graphql } = require('react-relay/classic');
+const React = require('react');
 const CompatProfilePic = require('CompatProfilePic');
 
 class CompatProfile extends React.Component {

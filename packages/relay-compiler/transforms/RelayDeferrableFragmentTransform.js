@@ -20,12 +20,13 @@ const {
   isInputType,
   GraphQLInterfaceType,
   GraphQLList,
-  GraphQLScalarType,
+  GraphQLInputType,
 } = require('graphql');
 const {IRTransformer, IRVisitor} = require('graphql-compiler');
 
 import type {
   CompilerContext,
+  DeferrableFragmentSpread,
   DependentRequest,
   Fragment,
   FragmentSpread,
@@ -100,8 +101,6 @@ function transformOperations(context: CompilerContext): CompilerContext {
     return context;
   }
 
-  const idType = getIdType(context.clientSchema);
-
   // Next, transform any existing root operations to include references to
   // their dependent requests.
   const transformedContext = IRTransformer.transform(context, {
@@ -156,25 +155,8 @@ function transformOperations(context: CompilerContext): CompilerContext {
     };
     return completeDeferrableOperation;
   });
-  const transformedContextPostFragments = IRTransformer.transform(
-    transformedContext,
-    {
-      FragmentSpread(spread): FragmentSpread {
-        if (isDeferrable(spread)) {
-          return {
-            ...spread,
-            metadata: {
-              ...spread.metadata,
-              ...deferrableFragmentSpreadMetadata(spread.name, idType),
-            },
-          };
-        }
-        return spread;
-      },
-    },
-  );
 
-  return transformedContextPostFragments.addAll(deferrableOperations);
+  return transformedContext.addAll(deferrableOperations);
 }
 
 /**
@@ -352,21 +334,7 @@ function createDeferrableReference(
         metadata: null,
         typeCondition: nodeType,
         directives: [],
-        selections: [
-          {
-            kind: 'ScalarField',
-            name: 'id',
-            alias: deferrableAlias(spread.name),
-            args: [],
-            handles: null,
-            directives: spread.directives,
-            metadata: {
-              ...spread.metadata,
-              ...deferrableFragmentSpreadMetadata(spread.name, idType),
-            },
-            type: idType,
-          },
-        ],
+        selections: [deferrableFragmentSpread(spread, idType)],
       },
     ],
   };
@@ -437,7 +405,7 @@ function createDeferrableOperation(
             kind: 'FragmentSpread',
             args: [],
             name: fragment.name,
-            metadata: deferrableFragmentSpreadMetadata(fragment.name, idType),
+            metadata: null,
             directives: [],
           },
         ],
@@ -448,18 +416,37 @@ function createDeferrableOperation(
   };
 }
 
-function deferrableFragmentSpreadMetadata(name, idType) {
-  return {
-    deferred: true,
-    deferredFragmentName: name,
-    deferredArgumentName: DEFERRABLE_ARGUMENT_NAME,
-    deferredArgumentStorageKey: 'id',
-    idType: idType,
-  };
-}
-
 function deferrableAlias(name: string): string {
   return `${name}_${DEFERRABLE_ARGUMENT_NAME}`;
+}
+
+function deferrableFragmentSpread(
+  spread: FragmentSpread,
+  idType: GraphQLInputType,
+): DeferrableFragmentSpread {
+  return {
+    kind: 'DeferrableFragmentSpread',
+    name: spread.name,
+    directives: [],
+    fragmentArgs: spread.args,
+    args: [
+      {
+        kind: 'Argument',
+        name: DEFERRABLE_ARGUMENT_NAME,
+        metadata: null,
+        value: {
+          kind: 'Variable',
+          variableName: DEFERRABLE_ARGUMENT_NAME,
+          metadata: null,
+          type: idType,
+        },
+        type: idType,
+      },
+    ],
+    rootFieldVariable: DEFERRABLE_ARGUMENT_NAME,
+    storageKey: 'id',
+    alias: deferrableAlias(spread.name),
+  };
 }
 
 function getNodeType(schema) {
@@ -480,7 +467,7 @@ function getIdType(schema) {
   );
   const idType = getNamedType(idField.type);
   invariant(
-    idType instanceof GraphQLScalarType,
+    isInputType(idType),
     'RelayDeferrableFragmentTransform: "Node" must define the scalar field "id"',
   );
   return idType;

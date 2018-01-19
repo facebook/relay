@@ -159,21 +159,27 @@ query FriendBirthdates_Deferrable(
               "directives": [],
               "selections": [
                 {
-                  "kind": "ScalarField",
-                  "name": "id",
-                  "alias": "Birthdate_deferrableID",
-                  "args": [],
-                  "handles": null,
+                  "kind": "DeferrableFragmentSpread",
+                  "name": "Birthdate",
                   "directives": [],
-                  "metadata": {
-                    "deferrable": true,
-                    "deferred": true,
-                    "deferredFragmentName": "Birthdate",
-                    "deferredArgumentName": "deferrableID",
-                    "deferredArgumentStorageKey": "id",
-                    "idType": "ID"
-                  },
-                  "type": "ID"
+                  "fragmentArgs": [],
+                  "args": [
+                    {
+                      "kind": "Argument",
+                      "name": "deferrableID",
+                      "metadata": null,
+                      "value": {
+                        "kind": "Variable",
+                        "variableName": "deferrableID",
+                        "metadata": null,
+                        "type": "ID"
+                      },
+                      "type": "ID"
+                    }
+                  ],
+                  "rootFieldVariable": "deferrableID",
+                  "storageKey": "id",
+                  "alias": "Birthdate_deferrableID"
                 }
               ]
             }
@@ -192,21 +198,27 @@ query FriendBirthdates_Deferrable(
               "directives": [],
               "selections": [
                 {
-                  "kind": "ScalarField",
-                  "name": "id",
-                  "alias": "FriendBirthdates_deferrableID",
-                  "args": [],
-                  "handles": null,
+                  "kind": "DeferrableFragmentSpread",
+                  "name": "FriendBirthdates",
                   "directives": [],
-                  "metadata": {
-                    "deferrable": true,
-                    "deferred": true,
-                    "deferredFragmentName": "FriendBirthdates",
-                    "deferredArgumentName": "deferrableID",
-                    "deferredArgumentStorageKey": "id",
-                    "idType": "ID"
-                  },
-                  "type": "ID"
+                  "fragmentArgs": [],
+                  "args": [
+                    {
+                      "kind": "Argument",
+                      "name": "deferrableID",
+                      "metadata": null,
+                      "value": {
+                        "kind": "Variable",
+                        "variableName": "deferrableID",
+                        "metadata": null,
+                        "type": "ID"
+                      },
+                      "type": "ID"
+                    }
+                  ],
+                  "rootFieldVariable": "deferrableID",
+                  "storageKey": "id",
+                  "alias": "FriendBirthdates_deferrableID"
                 }
               ]
             }
@@ -261,21 +273,27 @@ query FriendBirthdates_Deferrable(
                       "directives": [],
                       "selections": [
                         {
-                          "kind": "ScalarField",
-                          "name": "id",
-                          "alias": "Birthdate_deferrableID",
-                          "args": [],
-                          "handles": null,
+                          "kind": "DeferrableFragmentSpread",
+                          "name": "Birthdate",
                           "directives": [],
-                          "metadata": {
-                            "deferrable": true,
-                            "deferred": true,
-                            "deferredFragmentName": "Birthdate",
-                            "deferredArgumentName": "deferrableID",
-                            "deferredArgumentStorageKey": "id",
-                            "idType": "ID"
-                          },
-                          "type": "ID"
+                          "fragmentArgs": [],
+                          "args": [
+                            {
+                              "kind": "Argument",
+                              "name": "deferrableID",
+                              "metadata": null,
+                              "value": {
+                                "kind": "Variable",
+                                "variableName": "deferrableID",
+                                "metadata": null,
+                                "type": "ID"
+                              },
+                              "type": "ID"
+                            }
+                          ],
+                          "rootFieldVariable": "deferrableID",
+                          "storageKey": "id",
+                          "alias": "Birthdate_deferrableID"
                         }
                       ]
                     }
@@ -387,13 +405,7 @@ query FriendBirthdates_Deferrable(
           "kind": "FragmentSpread",
           "args": [],
           "name": "Birthdate",
-          "metadata": {
-            "deferred": true,
-            "deferredFragmentName": "Birthdate",
-            "deferredArgumentName": "deferrableID",
-            "deferredArgumentStorageKey": "id",
-            "idType": "ID"
-          },
+          "metadata": null,
           "directives": []
         }
       ],
@@ -466,13 +478,7 @@ query FriendBirthdates_Deferrable(
           "kind": "FragmentSpread",
           "args": [],
           "name": "FriendBirthdates",
-          "metadata": {
-            "deferred": true,
-            "deferredFragmentName": "FriendBirthdates",
-            "deferredArgumentName": "deferrableID",
-            "deferredArgumentStorageKey": "id",
-            "idType": "ID"
-          },
+          "metadata": null,
           "directives": []
         }
       ],
@@ -572,21 +578,27 @@ query FriendCount_Deferrable(
               "directives": [],
               "selections": [
                 {
-                  "kind": "ScalarField",
-                  "name": "id",
-                  "alias": "FriendCount_deferrableID",
-                  "args": [],
-                  "handles": null,
+                  "kind": "DeferrableFragmentSpread",
+                  "name": "FriendCount",
                   "directives": [],
-                  "metadata": {
-                    "deferrable": true,
-                    "deferred": true,
-                    "deferredFragmentName": "FriendCount",
-                    "deferredArgumentName": "deferrableID",
-                    "deferredArgumentStorageKey": "id",
-                    "idType": "ID"
-                  },
-                  "type": "ID"
+                  "fragmentArgs": [],
+                  "args": [
+                    {
+                      "kind": "Argument",
+                      "name": "deferrableID",
+                      "metadata": null,
+                      "value": {
+                        "kind": "Variable",
+                        "variableName": "deferrableID",
+                        "metadata": null,
+                        "type": "ID"
+                      },
+                      "type": "ID"
+                    }
+                  ],
+                  "rootFieldVariable": "deferrableID",
+                  "storageKey": "id",
+                  "alias": "FriendCount_deferrableID"
                 }
               ]
             }
@@ -673,13 +685,7 @@ query FriendCount_Deferrable(
           "kind": "FragmentSpread",
           "args": [],
           "name": "FriendCount",
-          "metadata": {
-            "deferred": true,
-            "deferredFragmentName": "FriendCount",
-            "deferredArgumentName": "deferrableID",
-            "deferredArgumentStorageKey": "id",
-            "idType": "ID"
-          },
+          "metadata": null,
           "directives": []
         }
       ],
@@ -798,21 +804,27 @@ query ProfilePic_Deferrable(
               "directives": [],
               "selections": [
                 {
-                  "kind": "ScalarField",
-                  "name": "id",
-                  "alias": "ProfilePic_deferrableID",
-                  "args": [],
-                  "handles": null,
+                  "kind": "DeferrableFragmentSpread",
+                  "name": "ProfilePic",
                   "directives": [],
-                  "metadata": {
-                    "deferrable": true,
-                    "deferred": true,
-                    "deferredFragmentName": "ProfilePic",
-                    "deferredArgumentName": "deferrableID",
-                    "deferredArgumentStorageKey": "id",
-                    "idType": "ID"
-                  },
-                  "type": "ID"
+                  "fragmentArgs": [],
+                  "args": [
+                    {
+                      "kind": "Argument",
+                      "name": "deferrableID",
+                      "metadata": null,
+                      "value": {
+                        "kind": "Variable",
+                        "variableName": "deferrableID",
+                        "metadata": null,
+                        "type": "ID"
+                      },
+                      "type": "ID"
+                    }
+                  ],
+                  "rootFieldVariable": "deferrableID",
+                  "storageKey": "id",
+                  "alias": "ProfilePic_deferrableID"
                 }
               ]
             }
@@ -949,13 +961,7 @@ query ProfilePic_Deferrable(
           "kind": "FragmentSpread",
           "args": [],
           "name": "ProfilePic",
-          "metadata": {
-            "deferred": true,
-            "deferredFragmentName": "ProfilePic",
-            "deferredArgumentName": "deferrableID",
-            "deferredArgumentStorageKey": "id",
-            "idType": "ID"
-          },
+          "metadata": null,
           "directives": []
         }
       ],
@@ -1070,21 +1076,27 @@ query ProfilePic_Deferrable(
               "directives": [],
               "selections": [
                 {
-                  "kind": "ScalarField",
-                  "name": "id",
-                  "alias": "ProfilePic_deferrableID",
-                  "args": [],
-                  "handles": null,
+                  "kind": "DeferrableFragmentSpread",
+                  "name": "ProfilePic",
                   "directives": [],
-                  "metadata": {
-                    "deferrable": true,
-                    "deferred": true,
-                    "deferredFragmentName": "ProfilePic",
-                    "deferredArgumentName": "deferrableID",
-                    "deferredArgumentStorageKey": "id",
-                    "idType": "ID"
-                  },
-                  "type": "ID"
+                  "fragmentArgs": [],
+                  "args": [
+                    {
+                      "kind": "Argument",
+                      "name": "deferrableID",
+                      "metadata": null,
+                      "value": {
+                        "kind": "Variable",
+                        "variableName": "deferrableID",
+                        "metadata": null,
+                        "type": "ID"
+                      },
+                      "type": "ID"
+                    }
+                  ],
+                  "rootFieldVariable": "deferrableID",
+                  "storageKey": "id",
+                  "alias": "ProfilePic_deferrableID"
                 }
               ]
             }
@@ -1215,13 +1227,7 @@ query ProfilePic_Deferrable(
           "kind": "FragmentSpread",
           "args": [],
           "name": "ProfilePic",
-          "metadata": {
-            "deferred": true,
-            "deferredFragmentName": "ProfilePic",
-            "deferredArgumentName": "deferrableID",
-            "deferredArgumentStorageKey": "id",
-            "idType": "ID"
-          },
+          "metadata": null,
           "directives": []
         }
       ],
@@ -1371,21 +1377,27 @@ query Birthdate_Deferrable(
               "directives": [],
               "selections": [
                 {
-                  "kind": "ScalarField",
-                  "name": "id",
-                  "alias": "Birthdate_deferrableID",
-                  "args": [],
-                  "handles": null,
+                  "kind": "DeferrableFragmentSpread",
+                  "name": "Birthdate",
                   "directives": [],
-                  "metadata": {
-                    "deferrable": true,
-                    "deferred": true,
-                    "deferredFragmentName": "Birthdate",
-                    "deferredArgumentName": "deferrableID",
-                    "deferredArgumentStorageKey": "id",
-                    "idType": "ID"
-                  },
-                  "type": "ID"
+                  "fragmentArgs": [],
+                  "args": [
+                    {
+                      "kind": "Argument",
+                      "name": "deferrableID",
+                      "metadata": null,
+                      "value": {
+                        "kind": "Variable",
+                        "variableName": "deferrableID",
+                        "metadata": null,
+                        "type": "ID"
+                      },
+                      "type": "ID"
+                    }
+                  ],
+                  "rootFieldVariable": "deferrableID",
+                  "storageKey": "id",
+                  "alias": "Birthdate_deferrableID"
                 }
               ]
             }
@@ -1428,21 +1440,27 @@ query Birthdate_Deferrable(
                           "directives": [],
                           "selections": [
                             {
-                              "kind": "ScalarField",
-                              "name": "id",
-                              "alias": "Birthdate_deferrableID",
-                              "args": [],
-                              "handles": null,
+                              "kind": "DeferrableFragmentSpread",
+                              "name": "Birthdate",
                               "directives": [],
-                              "metadata": {
-                                "deferrable": true,
-                                "deferred": true,
-                                "deferredFragmentName": "Birthdate",
-                                "deferredArgumentName": "deferrableID",
-                                "deferredArgumentStorageKey": "id",
-                                "idType": "ID"
-                              },
-                              "type": "ID"
+                              "fragmentArgs": [],
+                              "args": [
+                                {
+                                  "kind": "Argument",
+                                  "name": "deferrableID",
+                                  "metadata": null,
+                                  "value": {
+                                    "kind": "Variable",
+                                    "variableName": "deferrableID",
+                                    "metadata": null,
+                                    "type": "ID"
+                                  },
+                                  "type": "ID"
+                                }
+                              ],
+                              "rootFieldVariable": "deferrableID",
+                              "storageKey": "id",
+                              "alias": "Birthdate_deferrableID"
                             }
                           ]
                         }
@@ -1556,13 +1574,7 @@ query Birthdate_Deferrable(
           "kind": "FragmentSpread",
           "args": [],
           "name": "Birthdate",
-          "metadata": {
-            "deferred": true,
-            "deferredFragmentName": "Birthdate",
-            "deferredArgumentName": "deferrableID",
-            "deferredArgumentStorageKey": "id",
-            "idType": "ID"
-          },
+          "metadata": null,
           "directives": []
         }
       ],

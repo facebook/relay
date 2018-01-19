@@ -18,6 +18,7 @@ import type {
   Argument,
   Batch,
   Condition,
+  DeferrableFragmentSpread,
   Directive,
   Fragment,
   FragmentSpread,
@@ -40,6 +41,7 @@ type NodeVisitor<S> = {
   Argument?: NodeVisitorFunction<Argument, S>,
   Batch?: NodeVisitorFunction<Batch, S>,
   Condition?: NodeVisitorFunction<Condition, S>,
+  DeferrableFragmentSpread?: NodeVisitorFunction<DeferrableFragmentSpread, S>,
   Directive?: NodeVisitorFunction<Directive, S>,
   Fragment?: NodeVisitorFunction<Fragment, S>,
   FragmentSpread?: NodeVisitorFunction<FragmentSpread, S>,
@@ -246,6 +248,13 @@ class Transformer<S> {
         if (!nextNode.selections.length) {
           nextNode = null;
         }
+        break;
+      case 'DeferrableFragmentSpread':
+        nextNode = this._traverseChildren(prevNode, [
+          'args',
+          'fragmentArgs',
+          'directives',
+        ]);
         break;
       case 'Fragment':
       case 'Root':

@@ -65,6 +65,7 @@ export type {
   ArgumentValue,
   Batch,
   Condition,
+  DeferrableFragmentSpread,
   DependentRequest,
   Directive,
   Field,

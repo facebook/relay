@@ -54,6 +54,16 @@ export type Condition = {
   passingValue: boolean,
   selections: Array<Selection>,
 };
+export type DeferrableFragmentSpread = {
+  args: Array<Argument>,
+  fragmentArgs: Array<Argument>,
+  directives: Array<Directive>,
+  kind: 'DeferrableFragmentSpread',
+  name: string,
+  rootFieldVariable: string,
+  storageKey: string,
+  alias: string,
+};
 export type DependentRequest = {
   operationName: string,
   argumentDependencies: Array<ArgumentDependency>,
@@ -85,6 +95,7 @@ export type IR =
   | Argument
   | Batch
   | Condition
+  | DeferrableFragmentSpread
   | Directive
   | Fragment
   | FragmentSpread
@@ -193,6 +204,7 @@ export type ScalarField = {
 };
 export type Selection =
   | Condition
+  | DeferrableFragmentSpread
   | FragmentSpread
   | InlineFragment
   | LinkedField

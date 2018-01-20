@@ -68,11 +68,11 @@ function injectDefaultVariablesProvider(variablesProvider: VariablesProvider) {
  * container definitions or unwrapping the environment-specific fragment
  * defintions unnecessarily.
  */
-function buildCompatContainer<TBase: React$ComponentType<*>>(
-  ComponentClass: TBase,
+function buildCompatContainer(
+  ComponentClass: React$ComponentType<any>,
   fragmentSpec: GeneratedNodeMap,
   createContainerWithFragments: ContainerCreator,
-): TBase {
+): any {
   // Sanity-check user-defined fragment input
   const containerName = getContainerName(ComponentClass);
   assertFragmentMap(getComponentName(ComponentClass), fragmentSpec);
@@ -154,13 +154,9 @@ function buildCompatContainer<TBase: React$ComponentType<*>>(
 
   // Create a back-reference from the Component to the Container for cases
   // where a Classic Component might refer to itself, expecting a Container.
-  /* $FlowFixMe(>=0.53.0) This comment suppresses an error
-   * when upgrading Flow's support for React. Common errors found when
-   * upgrading Flow's React support are documented at
-   * https://fburl.com/eq7bs81w */
-  ComponentClass.__container__ = ContainerConstructor;
+  (ComponentClass: any).__container__ = ContainerConstructor;
 
-  return (ContainerConstructor: any);
+  return ContainerConstructor;
 }
 
 module.exports = {injectDefaultVariablesProvider, buildCompatContainer};

@@ -10,12 +10,18 @@
 
 'use strict';
 
+const React = require('React');
 const ReactRelayRefetchContainer = require('../../modern/ReactRelayRefetchContainer');
 const RelayPropTypes = require('../../classic/container/RelayPropTypes');
 
 const {buildCompatContainer} = require('../ReactRelayCompatContainerBuilder');
 
-import type {GeneratedNodeMap} from '../../modern/ReactRelayTypes';
+import type {
+  $RelayProps,
+  GeneratedNodeMap,
+  RelayRefetchProp,
+} from '../../modern/ReactRelayTypes';
+import type {RelayCompatContainer} from './RelayCompatTypes';
 import type {GraphQLTaggedNode} from 'RelayRuntime';
 
 /**
@@ -25,11 +31,11 @@ import type {GraphQLTaggedNode} from 'RelayRuntime';
  * `fragmentSpec` is memoized once per environment, rather than once per
  * instance of the container constructed/rendered.
  */
-function createContainer<TBase: React$ComponentType<*>>(
-  Component: TBase,
+function createContainer<Props: {}>(
+  Component: React.ComponentType<Props>,
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
   taggedNode: GraphQLTaggedNode,
-): TBase {
+): RelayCompatContainer<$RelayProps<Props, RelayRefetchProp>> {
   const Container = buildCompatContainer(
     Component,
     (fragmentSpec: any),
@@ -41,11 +47,7 @@ function createContainer<TBase: React$ComponentType<*>>(
       );
     },
   );
-  /* $FlowFixMe(>=0.53.0) This comment suppresses an error
-   * when upgrading Flow's support for React. Common errors found when
-   * upgrading Flow's React support are documented at
-   * https://fburl.com/eq7bs81w */
-  Container.childContextTypes = {
+  (Container: any).childContextTypes = {
     relay: RelayPropTypes.Relay,
   };
   return Container;

@@ -23,7 +23,7 @@
     "babel-types": "^6.24.1",
     "babylon": "^6.18.0",
     "chalk": "^1.1.1",
-    "fast-glob": "^1.0.1",
+    "fast-glob": "^2.0.0",
     "fb-watchman": "^2.0.0",
     "fbjs": "^0.8.14",
     "graphql": "^0.12.3",

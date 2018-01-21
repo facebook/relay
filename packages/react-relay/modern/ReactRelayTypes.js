@@ -89,7 +89,7 @@ export type RefetchOptions = {
  *
  */
 export type $FragmentRef<T> = {
-  +__fragments: $PropertyType<T, '$refType'>,
+  +$fragmentRefs: $PropertyType<T, '$refType'>,
 };
 
 /**

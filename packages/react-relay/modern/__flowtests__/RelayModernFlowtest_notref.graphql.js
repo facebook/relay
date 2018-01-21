@@ -12,9 +12,9 @@
 
 import type {RelayModernFlowtest_user$ref} from './RelayModernFlowtest_user.graphql';
 import type {FragmentReference} from 'RelayRuntime';
-export opaque type RelayModernFlowtest_notref$ref: FragmentReference = FragmentReference;
+declare export opaque type RelayModernFlowtest_notref$ref: FragmentReference;
 export type RelayModernFlowtest_notref = {|
   +id: string,
-  +__fragments: RelayModernFlowtest_user$ref,
+  +$fragmentRefs: RelayModernFlowtest_user$ref,
   +$refType: RelayModernFlowtest_notref$ref,
 |};

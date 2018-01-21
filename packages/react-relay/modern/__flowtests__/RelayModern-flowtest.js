@@ -119,19 +119,19 @@ PluralTest = createFragmentContainer(PluralTest, {
 });
 
 declare var aUserRef: {
-  +__fragments: RelayModernFlowtest_user$ref,
+  +$fragmentRefs: RelayModernFlowtest_user$ref,
 };
 
 declare var oneOfUsersRef: {
-  +__fragments: RelayModernFlowtest_users$ref,
+  +$fragmentRefs: RelayModernFlowtest_users$ref,
 };
 
 declare var usersRef: $ReadOnlyArray<{
-  +__fragments: RelayModernFlowtest_users$ref,
+  +$fragmentRefs: RelayModernFlowtest_users$ref,
 }>;
 
 declare var nonUserRef: {
-  +__fragments: {thing: true},
+  +$fragmentRefs: {thing: true},
 };
 
 function cb(): void {}
@@ -171,7 +171,7 @@ function cb(): void {}
 />;
 
 declare var aComplexUserRef: {
-  __fragments: {thing1: true} & RelayModernFlowtest_user$ref & {
+  +$fragmentRefs: {thing1: true} & RelayModernFlowtest_user$ref & {
       thing2: true,
     },
 };

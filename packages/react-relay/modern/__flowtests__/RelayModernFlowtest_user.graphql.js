@@ -11,7 +11,7 @@
 'use strict';
 
 import type {FragmentReference} from 'RelayRuntime';
-export opaque type RelayModernFlowtest_user$ref: FragmentReference = FragmentReference;
+declare export opaque type RelayModernFlowtest_user$ref: FragmentReference;
 export type RelayModernFlowtest_user = {|
   +name: ?string,
   +$refType: RelayModernFlowtest_user$ref,

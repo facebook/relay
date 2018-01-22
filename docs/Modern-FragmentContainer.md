@@ -232,8 +232,8 @@ In order to pass arguments to a fragment that has `@argumentDefinitions`, you ne
 Following our `TodoList_list` example, we would pass arguments to the fragment like so:
 
 ```graphql
-query TodoListQuery($userID: ID) {
-  ...TodoList_list @arguments(count: 20, userID: $userID) # Pass arguments here
+query TodoListQuery($count: Int, $userID: ID) {
+  ...TodoList_list @arguments(count: $count, userID: $userID) # Pass arguments here
 }
 ```
 

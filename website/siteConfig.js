@@ -21,6 +21,12 @@ const users = [
     pinned: true,
   },
   {
+    caption: 'Artsy',
+    image: '/relay/img/logos/artsy.png',
+    infoLink: 'http://artsy.github.io/open-source/',
+    pinned: true,
+  },
+  {
     caption: 'Cirrus CI',
     image: '/relay/img/logos/cirrus.png',
     infoLink: 'https://cirrus-ci.com/',

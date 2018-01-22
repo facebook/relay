@@ -205,7 +205,11 @@ declare var aComplexUserRef: {
 
 class AnyTest extends React.Component<{
   anything: any,
+  anyFunction: Function,
+  anyObject: Object,
 }> {}
 AnyTest = createFragmentContainer(AnyTest, {});
 
-<AnyTest anything={42} />;
+<AnyTest anything={42} anyFunction={() => {}} anyObject={{}} />;
+// $FlowExpectedError - can't pass {} for a Function
+<AnyTest anything={42} anyFunction={{}} anyObject={{}} />;

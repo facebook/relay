@@ -99,7 +99,8 @@ export type $FragmentRef<T> = {
 // prettier-ignore
 export type $RelayProps<Props, RelayPropT> = $ObjMap<
   $Diff<Props, {relay: RelayPropT | void}>,
-  & (<T: {+$refType: empty}>(T) => T)
+  & (<T: {+$refType: empty}>( T) =>  T)
+  & (<T: {+$refType: empty}>(?T) => ?T)
   & (<TRef: FragmentReference, T: {+$refType: TRef}>(                 T ) =>                  $FragmentRef<T> )
   & (<TRef: FragmentReference, T: {+$refType: TRef}>(?                T ) => ?                $FragmentRef<T> )
   & (<TRef: FragmentReference, T: {+$refType: TRef}>( $ReadOnlyArray< T>) =>  $ReadOnlyArray< $FragmentRef<T>>)

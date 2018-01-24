@@ -206,10 +206,36 @@ declare var aComplexUserRef: {
 class AnyTest extends React.Component<{
   anything: any,
   anyFunction: Function,
+  optionalFunction?: Function,
+  maybeFunction: ?Function,
+  optionalMaybeFunction?: ?Function,
   anyObject: Object,
 }> {}
 AnyTest = createFragmentContainer(AnyTest, {});
 
-<AnyTest anything={42} anyFunction={() => {}} anyObject={{}} />;
+<AnyTest
+  anything={42}
+  anyFunction={() => {}}
+  maybeFunction={null}
+  anyObject={{}}
+/>;
+<AnyTest
+  anything={42}
+  anyFunction={() => {}}
+  maybeFunction={() => {}}
+  anyObject={{}}
+/>;
+// $FlowExpectedError - optional function cannot be null
+<AnyTest
+  anything={42}
+  anyFunction={() => {}}
+  optionalFunction={() => {}}
+  anyObject={{}}
+/>;
 // $FlowExpectedError - can't pass {} for a Function
-<AnyTest anything={42} anyFunction={{}} anyObject={{}} />;
+<AnyTest
+  anything={42}
+  anyFunction={{}}
+  maybeFunction={() => {}}
+  anyObject={{}}
+/>;

@@ -529,7 +529,7 @@ function createContainerWithFragments<
         direction === FORWARD ? pageInfo[END_CURSOR] : pageInfo[START_CURSOR];
       if (
         typeof hasMore !== 'boolean' ||
-        (edges.length !== 0 && typeof cursor !== 'string')
+        (edges.length !== 0 && typeof cursor === 'undefined')
       ) {
         warning(
           false,

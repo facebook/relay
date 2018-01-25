@@ -123,7 +123,7 @@ graphql.get = <span class="hljs-function"><span class="hljs-params">queryText</s
 <p>A normalized cache ensures that the <em>cache</em> is consistent. But what about our views? Ideally, our React views would always reflect the current information from the cache.</p>
 <p>Consider rendering the text and comments of a story along with the corresponding author names and photos. Here's the GraphQL query:</p>
 <pre><code class="hljs">query {
-  node(<span class="hljs-built_in">id</span>: <span class="hljs-string">"1"</span>) {
+  story(<span class="hljs-built_in">id</span>: <span class="hljs-string">"1"</span>) {
     <span class="hljs-built_in">text</span>,
     author { <span class="hljs-built_in">name</span>, photo },
     comments {

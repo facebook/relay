@@ -30,10 +30,12 @@ import type {GraphQLTaggedNode} from 'RelayRuntime';
  * `fragmentSpec` is memoized once per environment, rather than once per
  * instance of the container constructed/rendered.
  */
-function createContainer<Props: {}>(
-  Component: React.ComponentType<Props>,
+function createContainer<Props: {}, TComponent: React.ComponentType<Props>>(
+  Component: TComponent,
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
-): RelayCompatContainer<$RelayProps<Props, RelayProp>> {
+): RelayCompatContainer<
+  $RelayProps<React.ElementConfig<TComponent>, RelayProp>,
+> {
   return buildCompatContainer(
     Component,
     (fragmentSpec: any),

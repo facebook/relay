@@ -816,11 +816,13 @@ function assertRelayContext(relay: mixed): RelayContext {
  * `fragmentSpec` is memoized once per environment, rather than once per
  * instance of the container constructed/rendered.
  */
-function createContainer<Props: {}>(
-  Component: React.ComponentType<Props>,
+function createContainer<Props: {}, TComponent: React.ComponentType<Props>>(
+  Component: TComponent,
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
   connectionConfig: ConnectionConfig,
-): React.ComponentType<$RelayProps<Props, RelayPaginationProp>> {
+): React.ComponentType<
+  $RelayProps<React.ElementConfig<TComponent>, RelayPaginationProp>,
+> {
   const Container = buildReactRelayContainer(
     Component,
     fragmentSpec,

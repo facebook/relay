@@ -204,7 +204,7 @@ export default class UserTodoList extends React.Component<Props> {
 
 The above code is doing something very similar to our [previous example](#rendering-graphql-queries), however, we are now passing a `$userID` variable to the GraphQL query, via the `variables` prop. This has a couple of important implications:
 
-- Given that `userID` is also a prop that our component takes, it could receive a new `userID` from its parent component at any moment. When this happens, we new `variables` will be passed down to our `QueryRenderer`, which will automatically cause it to re-fetch the query with the new value for `$userID`.
+- Given that `userID` is also a prop that our component takes, it could receive a new `userID` from its parent component at any moment. When this happens, new `variables` will be passed down to our `QueryRenderer`, which will automatically cause it to re-fetch the query with the new value for `$userID`.
 - The `$userID` variable will now be available anywhere inside that query; this will become important when to keep in mind when using fragments.
 
 Now that we've updated the query, don't forget to run `yarn relay`.

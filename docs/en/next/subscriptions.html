@@ -9,6 +9,10 @@
 
 type Variables = {[name: string]: any};
 
+type Disposable = {
+  dispose(): <span class="hljs-keyword">void</span>,
+};
+
 requestSubscription(
   environment: Environment,
   <span class="hljs-attr">config</span>: {
@@ -20,8 +24,9 @@ requestSubscription(
     updater?: ?<span class="hljs-function">(<span class="hljs-params">store: RecordSourceSelectorProxy, data: SelectorData</span>) =&gt;</span> <span class="hljs-keyword">void</span>,
     configs?: <span class="hljs-built_in">Array</span>&lt;DeclarativeMutationConfig&gt;,
   },
-);
+) =&gt; Disposable;
 </code></pre>
+<p>The function returns a <code>Disposable</code> on which you could call <code>dispose()</code> to cancel the refetch.</p>
 <p>Now let's take a closer look at the <code>config</code>:</p>
 <ul>
 <li><code>subscription</code>: the <code>graphql</code> tagged subscription query.</li>

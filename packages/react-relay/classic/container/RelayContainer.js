@@ -18,6 +18,7 @@ const RelayContainerProxy = require('./RelayContainerProxy');
 const RelayFragmentPointer = require('../query/RelayFragmentPointer');
 const RelayFragmentReference = require('../query/RelayFragmentReference');
 const RelayMetaRoute = require('../route/RelayMetaRoute');
+const RelayMutation = require('../mutation/RelayMutation');
 const RelayMutationTransaction = require('../mutation/RelayMutationTransaction');
 const RelayPropTypes = require('./RelayPropTypes');
 const RelayQuery = require('../query/RelayQuery');
@@ -50,6 +51,7 @@ import type {
   ComponentReadyStateChangeCallback,
   RelayContainer as RelayContainerClass,
   RelayProp,
+  RelayMutationTransactionCommitCallbacks,
 } from '../tools/RelayTypes';
 import type {DataID, Variables} from 'RelayRuntime';
 
@@ -158,8 +160,8 @@ function createContainerComponent(
         queryData: {},
         rawVariables: {},
         relayProp: {
-          applyUpdate: this.context.relay.environment.applyUpdate,
-          commitUpdate: this.context.relay.environment.commitUpdate,
+          applyUpdate: this.applyUpdate.bind(this),
+          commitUpdate: this.commitUpdate.bind(this),
           environment: this.context.relay.environment,
           forceFetch: this.forceFetch.bind(this),
           getPendingTransactions: this.getPendingTransactions.bind(this),
@@ -184,6 +186,26 @@ function createContainerComponent(
       callback?: ?ComponentReadyStateChangeCallback,
     ): void {
       this._runVariables(partialVariables, callback, false);
+    }
+
+    /**
+     * Requests a mutation to be applied to the current relay environment.
+     */
+    applyUpdate(
+      mutation: RelayMutation<any>,
+      callbacks?: RelayMutationTransactionCommitCallbacks,
+    ): RelayMutationTransaction {
+      return this.context.relay.environment.applyUpdate(mutation, callbacks);
+    }
+
+    /**
+     * Requests a mutation to be committed to the current relay environment.
+     */
+    commitUpdate(
+      mutation: RelayMutation<any>,
+      callbacks?: RelayMutationTransactionCommitCallbacks,
+    ): RelayMutationTransaction {
+      return this.context.relay.environment.commitUpdate(mutation, callbacks);
     }
 
     /**
@@ -528,12 +550,14 @@ function createContainerComponent(
         rawVariables,
         relayProp:
           this.state.relayProp.route === context.route &&
-          shallowEqual(this.state.relayProp.variables, nextVariables)
+          shallowEqual(this.state.relayProp.variables, nextVariables) &&
+          this.state.relayProp.environment === context.relay.environment
             ? this.state.relayProp
             : {
                 ...this.state.relayProp,
                 route: context.route,
                 variables: nextVariables,
+                environment: context.relay.environment,
               },
       };
     }

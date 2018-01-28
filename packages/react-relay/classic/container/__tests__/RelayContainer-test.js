@@ -538,17 +538,13 @@ describe('RelayContainer', function() {
       render.mockImplementation(function() {
         this.props.relay.applyUpdate(mockMutation);
       });
-      RelayTestRenderer.render(
-        () => <MockContainer />,
-        environment,
-        mockRoute
-      );
+      RelayTestRenderer.render(() => <MockContainer />, environment, mockRoute);
       const otherEnvironment = new RelayEnvironment();
       otherEnvironment.applyUpdate = jest.fn();
       RelayTestRenderer.render(
         () => <MockContainer />,
         otherEnvironment,
-        mockRoute
+        mockRoute,
       );
       expect(environment.applyUpdate.mock.calls.length).toBe(1);
       expect(environment.applyUpdate.mock.calls[0][0]).toBe(mockMutation);
@@ -573,17 +569,13 @@ describe('RelayContainer', function() {
       render.mockImplementation(function() {
         this.props.relay.commitUpdate(mockMutation);
       });
-      RelayTestRenderer.render(
-        () => <MockContainer />,
-        environment,
-        mockRoute
-      );
+      RelayTestRenderer.render(() => <MockContainer />, environment, mockRoute);
       const otherEnvironment = new RelayEnvironment();
       otherEnvironment.commitUpdate = jest.fn();
       RelayTestRenderer.render(
         () => <MockContainer />,
         otherEnvironment,
-        mockRoute
+        mockRoute,
       );
       expect(environment.commitUpdate.mock.calls.length).toBe(1);
       expect(environment.commitUpdate.mock.calls[0][0]).toBe(mockMutation);

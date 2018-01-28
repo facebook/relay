@@ -42,6 +42,10 @@ graphql`
 
 This is no longer needed in Compatibility Mode for neither environments. Relay will normalized the data using the mutation query and id to update the store automatically. You can remove it completely.
 
+### REQUIRED_CHILDREN
+
+This is no longer needed in Compatibility Mode for neither environments. Simply include any fields that you need as part of the mutation query without specifying the config.
+
 ### RANGE_ADD
 
 `RANGE_ADD` needs one additional property in the config named `connectionInfo` to work with the new environment. Learn more about `connectionInfo` [Mutation/RANGE_ADD](mutations.html#range-add)

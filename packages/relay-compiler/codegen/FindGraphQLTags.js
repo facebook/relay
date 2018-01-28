@@ -64,8 +64,6 @@ function find(
       const callee = node.callee;
       if (
         !(
-          (callee.type === 'Identifier' &&
-            CREATE_CONTAINER_FUNCTIONS[callee.name]) ||
           (callee.kind === 'MemberExpression' &&
             callee.object.type === 'Identifier' &&
             callee.object.value === 'Relay' &&

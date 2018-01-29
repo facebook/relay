@@ -50,52 +50,52 @@ type RangeBehaviorsObject = {
 };
 export type RangeBehaviors = RangeBehaviorsFunction | RangeBehaviorsObject;
 
-type RangeAddConfig = {
+type RangeAddConfig = {|
   type: 'RANGE_ADD',
   parentName?: string,
   parentID?: string,
-  connectionInfo?: Array<{
+  connectionInfo?: Array<{|
     key: string,
     filters?: Variables,
     rangeBehavior: string,
-  }>,
+  |}>,
   connectionName?: string,
   edgeName: string,
   rangeBehaviors?: RangeBehaviors,
-};
+|};
 
-type RangeDeleteConfig = {
+type RangeDeleteConfig = {|
   type: 'RANGE_DELETE',
   parentName?: string,
   parentID?: string,
-  connectionKeys?: Array<{
+  connectionKeys?: Array<{|
     key: string,
     filters?: Variables,
-  }>,
+  |}>,
   connectionName?: string,
   deletedIDFieldName: string | Array<string>,
   pathToConnection: Array<string>,
-};
+|};
 
-type NodeDeleteConfig = {
+type NodeDeleteConfig = {|
   type: 'NODE_DELETE',
   parentName?: string,
   parentID?: string,
   connectionName?: string,
   deletedIDFieldName: string,
-};
+|};
 
 // Unused in Relay Modern
-type LegacyFieldsChangeConfig = {
+type LegacyFieldsChangeConfig = {|
   type: 'FIELDS_CHANGE',
   fieldIDs: {[fieldName: string]: DataID | Array<DataID>},
-};
+|};
 
 // Unused in Relay Modern
-type LegacyRequiredChildrenConfig = {
+type LegacyRequiredChildrenConfig = {|
   type: 'REQUIRED_CHILDREN',
   children: Array<RelayConcreteNode>,
-};
+|};
 
 export type DeclarativeMutationConfig =
   | RangeAddConfig
@@ -326,10 +326,10 @@ function rangeDelete(
 
 function deleteNode(
   parentID: string,
-  connectionKeys: ?Array<{
+  connectionKeys: ?Array<{|
     key: string,
     filters?: Variables,
-  }>,
+  |}>,
   pathToConnection: Array<string>,
   store: RecordSourceSelectorProxy,
   deleteIDs: Array<string>,

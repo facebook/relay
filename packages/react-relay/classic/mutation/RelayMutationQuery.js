@@ -32,7 +32,10 @@ const {
 
 import type {ConcreteMutation} from '../query/ConcreteQuery';
 import type RelayQueryTracker from '../store/RelayQueryTracker';
-import type {RangeBehaviors} from 'RelayDeclarativeMutationConfig';
+import type {
+  DeclarativeMutationConfig,
+  RangeBehaviors,
+} from 'RelayDeclarativeMutationConfig';
 import type {DataID, Variables} from 'RelayRuntime';
 
 const {REFETCH} = RangeOperations;
@@ -59,8 +62,6 @@ type EdgeInsertionMutationFragmentBuilderConfig = BasicMutationFragmentBuilderCo
 type FieldsMutationFragmentBuilderConfig = BasicMutationFragmentBuilderConfig & {
   fieldIDs: {[fieldName: string]: DataID | Array<DataID>},
 };
-// This should probably use disjoint unions.
-type MutationConfig = {[key: string]: $FlowFixMe};
 type OptimisticUpdateFragmentBuilderConfig = BasicOptimisticMutationFragmentBuilderConfig & {
   response: Object,
 };
@@ -350,7 +351,7 @@ const RelayMutationQuery = {
 
   /**
    * Creates a RelayQuery.Mutation for the given config. See type
-   * `MutationConfig` and the `buildFragmentForEdgeInsertion`,
+   * `DeclarativeMutationConfig` and the `buildFragmentForEdgeInsertion`,
    * `buildFragmentForEdgeDeletion` and `buildFragmentForFields` methods above
    * for possible configs.
    */
@@ -362,7 +363,7 @@ const RelayMutationQuery = {
     mutation,
     tracker,
   }: {
-    configs: Array<MutationConfig>,
+    configs: Array<DeclarativeMutationConfig>,
     fatQuery: RelayQuery.Fragment,
     input: Variables,
     mutationName: string,
@@ -409,12 +410,17 @@ const RelayMutationQuery = {
           }
           children.push(
             RelayMutationQuery.buildFragmentForEdgeInsertion({
+              // $FlowFixMe TODO T25557273 - fix nullability
               connectionName: config.connectionName,
               edgeName: config.edgeName,
               fatQuery,
+              // $FlowFixMe TODO T25557273 - fix nullability
               parentID: config.parentID,
               parentName: config.parentName,
-              rangeBehaviors: sanitizeRangeBehaviors(config.rangeBehaviors),
+              rangeBehaviors: sanitizeRangeBehaviors(
+                // $FlowFixMe TODO T25557273 - fix nullability
+                config.rangeBehaviors,
+              ),
               tracker,
             }),
           );
@@ -426,9 +432,12 @@ const RelayMutationQuery = {
         case MutationTypes.RANGE_DELETE:
         case MutationTypes.NODE_DELETE:
           const edgeDeletion = RelayMutationQuery.buildFragmentForEdgeDeletion({
+            // $FlowFixMe TODO T25557273 - fix nullability
             connectionName: config.connectionName,
             fatQuery,
+            // $FlowFixMe TODO T25557273 - fix nullability
             parentID: config.parentID,
+            // $FlowFixMe TODO T25557273 - fix nullability
             parentName: config.parentName,
             tracker,
           });

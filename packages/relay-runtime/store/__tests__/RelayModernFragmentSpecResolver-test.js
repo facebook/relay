@@ -350,6 +350,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         environment.subscribe.mockClear();
 
         resolver.setVariables({
+          ...variables,
           fetchSize: false,
           size: null,
         });
@@ -716,6 +717,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         environment.subscribe.mockClear();
 
         resolver.setVariables({
+          ...variables,
           fetchSize: false,
           size: null,
         });

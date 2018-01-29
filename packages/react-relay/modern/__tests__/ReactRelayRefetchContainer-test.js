@@ -385,7 +385,7 @@ describe('ReactRelayRefetchContainer', () => {
       },
       node: UserFragment,
       seenRecords: jasmine.any(Object),
-      variables: {cond: true},
+      variables: {cond: true, id: '4'},
     });
   });
 

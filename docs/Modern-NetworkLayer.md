@@ -44,3 +44,6 @@ const environment = new Environment({
 ```
 
 Note that this is a basic example to help you get started. This example could be extended with additional features such as request/response caching (enabled e.g. when `cacheConfig.force` is false) and uploading form data for mutations (the `uploadables` parameter).
+
+## Custom open-source implementations
+**[react-relay-network-modern](https://github.com/nodkz/react-relay-network-modern)** on [npm](https://www.npmjs.com/package/react-relay-network-modern) - is a Network Layer for Relay Modern which has built-in highly customizable middlewares for commonly used scenarios: batching query requests, caching, authentication, request retrying, logging. Moreover, you may write your own middlewares with custom logic.

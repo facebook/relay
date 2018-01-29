@@ -311,7 +311,6 @@ describe('ReactRelayPaginationContainer', () => {
         after: null,
         count: 1,
         orderby: ['name'],
-        id: '4',
       },
     });
   });
@@ -423,7 +422,6 @@ describe('ReactRelayPaginationContainer', () => {
         after: null,
         count: 1,
         orderby: ['name'],
-        id: '4',
       },
     });
   });
@@ -489,7 +487,6 @@ describe('ReactRelayPaginationContainer', () => {
         after: null,
         count: 1,
         orderby: ['name'],
-        id: '6',
       },
     });
 
@@ -533,7 +530,6 @@ describe('ReactRelayPaginationContainer', () => {
         after: null,
         count: 1,
         orderby: ['name'],
-        id: '6',
       },
     });
   });
@@ -1141,7 +1137,6 @@ describe('ReactRelayPaginationContainer', () => {
           after: null, // fragment variable defaults to null
           count: 1,
           orderby: ['name'],
-          id: '4',
         },
       );
     });
@@ -1426,7 +1421,6 @@ describe('ReactRelayPaginationContainer', () => {
           after: null, // fragment variable defaults to null
           count: 1,
           orderby: ['name'],
-          id: '4',
         },
       );
     });

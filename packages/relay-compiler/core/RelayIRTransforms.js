@@ -29,6 +29,7 @@ const {
   SkipClientFieldTransform,
   SkipRedundantNodesTransform,
   SkipUnreachableNodeTransform,
+  StripUnusedVariablesTransform,
 } = require('graphql-compiler');
 
 import type {IRTransform} from 'graphql-compiler';
@@ -81,6 +82,7 @@ const relayPrintTransforms: Array<IRTransform> = [
   RelayGenerateTypeNameTransform.transform,
   RelaySkipHandleFieldTransform.transform,
   FilterDirectivesTransform.transform,
+  StripUnusedVariablesTransform.transform,
 ];
 
 module.exports = {

@@ -12,9 +12,11 @@ query TestQuery(
   $usedInDirective: Boolean!
   $usedInCall: ID!
   $usedInTestQuery2: Boolean!
+  $usedInNested: Float!
 ) {
   node(id: $usedInCall) {
     ...TestFragment
+    ...NestedTwoLevels
   }
 }
 
@@ -32,6 +34,16 @@ query TestQuery2(
   }
 }
 
+fragment NestedOneLevel on User {
+  ...NestedTwoLevels
+}
+
+fragment NestedTwoLevels on User {
+  profile_picture(scale: $usedInNested) {
+    uri
+  }
+}
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 fragment TestFragment on Actor {
   id @skip(if: $usedInDirective)
@@ -40,9 +52,11 @@ fragment TestFragment on Actor {
 query TestQuery(
   $usedInDirective: Boolean!
   $usedInCall: ID!
+  $usedInNested: Float!
 ) {
   node(id: $usedInCall) {
     ...TestFragment
+    ...NestedTwoLevels
   }
 }
 
@@ -53,6 +67,16 @@ query TestQuery2(
     ... on Actor {
       id @skip(if: $usedInTestQuery2)
     }
+  }
+}
+
+fragment NestedOneLevel on User {
+  ...NestedTwoLevels
+}
+
+fragment NestedTwoLevels on User {
+  profile_picture(scale: $usedInNested) {
+    uri
   }
 }
 

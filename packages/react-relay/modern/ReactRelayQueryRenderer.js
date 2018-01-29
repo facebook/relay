@@ -76,6 +76,8 @@ type State = {
 class ReactRelayQueryRenderer extends React.Component<Props, State> {
   _queryFetcher: ReactRelayQueryFetcher = new ReactRelayQueryFetcher();
   _relayContext: RelayContext;
+  _isMounted: ?boolean;
+  _dataFetchedBeforeComponentWasMounted: {snapshot?: Snapshot, error?: Error};
 
   constructor(props: Props, context: Object) {
     super(props, context);
@@ -94,7 +96,17 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
     }
   }
 
+  componentDidMount(): void {
+    this._isMounted = true;
+    if (this._dataFetchedBeforeComponentWasMounted) {
+      // use the data to call setState
+      const {error, snapshot} = this._dataFetchedBeforeComponentWasMounted;
+      this.setState({renderProps: this._getRenderProps({error, snapshot})});
+    }
+  }
+
   componentWillUnmount(): void {
+    this._isMounted = false;
     this._queryFetcher.dispose();
   }
 
@@ -174,7 +186,21 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
     error?: Error,
     snapshot?: Snapshot,
   }): void => {
-    this.setState({renderProps: this._getRenderProps({error, snapshot})});
+    if (this._isMounted) {
+      // the component mounted, so we can safely call `setState`
+      this.setState({renderProps: this._getRenderProps({error, snapshot})});
+    } else {
+      // This method is optionally called in the constructor;
+      // the data may return before component is mounted in Async React.
+
+      // wait for component to mount
+      // save the snapshot or error,
+      // and handle it in componentDidMount.
+      this._dataFetchedBeforeComponentWasMounted = {
+        error,
+        snapshot,
+      };
+    }
   };
 
   getChildContext(): Object {

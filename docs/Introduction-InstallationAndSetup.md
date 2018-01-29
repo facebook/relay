@@ -51,6 +51,14 @@ This installs the bin script `relay-compiler` in your node_modules folder. It's 
 }
 ```
 
+or if you are using jsx:
+
+```js
+"scripts": {
+  "relay": "relay-compiler --src ./src --schema path/schema.graphql --extensions js jsx"
+}
+```
+
 Then, after making edits to your application files, just run the `relay` script to generate new compiled artifacts:
 
 ```sh

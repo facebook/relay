@@ -12,6 +12,7 @@ Array [
   "ScalarField",
   "Condition",
   "FragmentSpread",
+  "Variable",
   "FragmentSpread",
   "Argument",
   "Variable",

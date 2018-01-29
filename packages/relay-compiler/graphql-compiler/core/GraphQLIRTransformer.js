@@ -240,6 +240,15 @@ class Transformer<S> {
         nextNode = this._traverseChildren(prevNode, ['fields']);
         break;
       case 'Condition':
+        nextNode = this._traverseChildren(
+          prevNode,
+          ['directives', 'selections'],
+          ['condition'],
+        );
+        if (!nextNode.selections.length) {
+          nextNode = null;
+        }
+        break;
       case 'InlineFragment':
         nextNode = this._traverseChildren(prevNode, [
           'directives',

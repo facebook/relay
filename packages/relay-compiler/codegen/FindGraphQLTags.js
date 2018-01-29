@@ -167,6 +167,11 @@ function memoizedFind(
   file: File,
   options: Options,
 ): Array<string> {
+  invariant(
+    file.exists,
+    'FindGraphQLTags: Called with non-existent file `%s`',
+    file.relPath,
+  );
   return cache.getOrCompute(
     file.hash + (options.validateNames ? '1' : '0'),
     () => {

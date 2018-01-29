@@ -42,6 +42,11 @@ class ASTCache {
     let documents = ImmutableMap();
 
     files.forEach(file => {
+      if (!file.exists) {
+        this._documents.delete(file.relPath);
+        return;
+      }
+
       const doc = (() => {
         try {
           return this._parse(this._baseDir, file);

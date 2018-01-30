@@ -21,7 +21,6 @@ const {
   KnownArgumentNamesRule,
   KnownTypeNamesRule,
   LoneAnonymousOperationRule,
-  NoFragmentCyclesRule,
   NoUnusedVariablesRule,
   PossibleFragmentSpreadsRule,
   ProvidedNonNullArgumentsRule,
@@ -68,8 +67,10 @@ module.exports = {
     KnownArgumentNamesRule,
     // TODO #19327202 Relay Classic generates some fragments in runtime, so Relay
     // Modern queries might reference fragments unknown in build time
-    //KnownFragmentNamesRule,
-    NoFragmentCyclesRule,
+    // KnownFragmentNamesRule,
+    // TODO: #25618795 Because of @argumentDefinitions, this validation
+    // incorrectly flags a subset of fragments using @include/@skip as recursive.
+    // NoFragmentCyclesRule,
     // TODO #19327144 Because of @argumentDefinitions, this validation
     // incorrectly marks some fragment variables as undefined.
     // NoUndefinedVariablesRule,

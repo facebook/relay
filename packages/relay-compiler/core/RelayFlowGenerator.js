@@ -59,6 +59,7 @@ type Options = {|
 
 export type State = {|
   ...Options,
+  +generatedFragments: Set<string>,
   +usedEnums: {[name: string]: GraphQLEnumType},
   +usedFragments: Set<string>,
 |};
@@ -228,6 +229,7 @@ function createVisitor(options: Options) {
     customScalars: options.customScalars,
     enumsHasteModule: options.enumsHasteModule,
     existingFragmentNames: options.existingFragmentNames,
+    generatedFragments: new Set(),
     inputFieldWhiteList: options.inputFieldWhiteList,
     relayRuntimeModule: options.relayRuntimeModule,
     usedEnums: {},
@@ -270,6 +272,7 @@ function createVisitor(options: Options) {
           }
           return [selection];
         });
+        state.generatedFragments.add(node.name);
         const refTypeName = getRefTypeName(node.name);
         const refType = t.expressionStatement(
           t.identifier(
@@ -406,12 +409,14 @@ function getFragmentImports(state: State) {
     const usedFragments = Array.from(state.usedFragments).sort();
     for (const usedFragment of usedFragments) {
       const refTypeName = getRefTypeName(usedFragment);
-      if (state.useHaste && state.existingFragmentNames.has(usedFragment)) {
-        // TODO(T22653277) support non-haste environments when importing
-        // fragments
-        imports.push(importTypes([refTypeName], usedFragment + '.graphql'));
-      } else {
-        imports.push(anyTypeAlias(refTypeName));
+      if (!state.generatedFragments.has(usedFragment)) {
+        if (state.useHaste && state.existingFragmentNames.has(usedFragment)) {
+          // TODO(T22653277) support non-haste environments when importing
+          // fragments
+          imports.push(importTypes([refTypeName], usedFragment + '.graphql'));
+        } else {
+          imports.push(anyTypeAlias(refTypeName));
+        }
       }
     }
   }

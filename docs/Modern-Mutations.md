@@ -10,7 +10,7 @@ Table of Contents:
 - [Updater Configs](#updater-configs)
 - [Using updater and optimisticUpdater](#using-updater-and-optimisticupdater)
 
-## commitMutation
+## `commitMutation`
 
 Use `commitMutation` to create and execute mutations. `commitMutation` has the following signature:
 
@@ -25,7 +25,7 @@ commitMutation(
     optimisticResponse?: Object,
     optimisticUpdater?: ?(store: RecordSourceSelectorProxy) => void,
     updater?: ?(store: RecordSourceSelectorProxy, data: SelectorData) => void,
-    configs?: Array<RelayMutationConfig>,
+    configs?: Array<DeclarativeMutationConfig>,
   },
 );
 ```
@@ -238,7 +238,7 @@ const configs = [{
 
 ## Using updater and optimisticUpdater
 
-`updater` and `optmisticUpdater` are functions that you can pass to a `commitMutation` call when you need full control over how to update the local data store, either optimistically, or based on a server response. Often times, both of these can be the same function.
+`updater` and `optimisticUpdater` are functions that you can pass to a `commitMutation` call when you need full control over how to update the local data store, either optimistically, or based on a server response. Often times, both of these can be the same function.
 
 When you provide these functions, this is roughly what happens during the mutation request:
 

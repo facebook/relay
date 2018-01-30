@@ -1,3 +1,0 @@
-ERROR:
-
-Error: queryWithBadDirective.input.txt: Relay Transform Error: You supplied a directive named `bad`, but no such directive exists.

@@ -16,9 +16,6 @@
  * These are types shared across multiple files within Relay internals.
  */
 
-// RANGE_OPERATIONS should be imported from
-// '../legacy/mutation/GraphQLMutatorConstants', but that file is not Flow typed
-
 import type RelayQuery from '../query/RelayQuery';
 import type {DataID} from 'RelayRuntime';
 
@@ -44,12 +41,6 @@ type InitialHeadConnectionArgumentMap = {
 };
 type InitialTailConnectionArgumentMap = {
   last: number,
-};
-type RangeBehaviorsFunction = (connectionArgs: {
-  [argName: string]: CallValue,
-}) => any; // $Keys<GraphQLMutatorConstants.RANGE_OPERATIONS>;
-type RangeBehaviorsObject = {
-  [key: string]: any, // $Keys<GraphQLMutatorConstants.RANGE_OPERATIONS>,
 };
 type TailConnectionArgumentMap = {
   after: string,
@@ -92,7 +83,6 @@ export type PrintedQuery = {
   variables: {[key: string]: mixed},
 };
 export type QueryPayload = {[key: string]: mixed};
-export type RangeBehaviors = RangeBehaviorsFunction | RangeBehaviorsObject;
 export type RelayQuerySet = {[queryName: string]: ?RelayQuery.Root};
 export type RootCallMap = {[storageKey: string]: IdentifyingArgsMap};
 export type UpdateOptions = {

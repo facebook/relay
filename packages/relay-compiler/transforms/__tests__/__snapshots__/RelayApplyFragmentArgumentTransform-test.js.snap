@@ -1,0 +1,150 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RelayApplyFragmentArgumentTransform matches expected output: deletes-unreferenced-fragments.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery($id: ID!) {
+  node(id: $id) {
+    id
+  }
+}
+
+fragment UnreferencedFragment on User {
+  id
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query TestQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+  }
+}
+
+`;
+
+exports[`RelayApplyFragmentArgumentTransform matches expected output: inlines-fragment-arguments.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery(
+  $id: ID!
+  $pictureSize: [Int] = [128]
+  $includeFriends: Boolean = true
+) {
+  node(id: $id) {
+    id
+    ...Profile @arguments(pictureSize: $pictureSize, includeFriends: $includeFriends)
+  }
+}
+
+fragment Profile on User @argumentDefinitions(
+  pictureSize: {type: "[Int]", nonNull: true}
+  includeFriends: {type: "Boolean!", defaultValue: false}
+) {
+  id
+  name
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+  friends(first: 10) @include(if: $includeFriends) {
+    edges {
+      node {
+        ...Profile @arguments(pictureSize: $pictureSize)
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query TestQuery(
+  $id: ID!
+  $pictureSize: [Int] = [128]
+  $includeFriends: Boolean = true
+) {
+  node(id: $id) {
+    id
+    ...Profile_4FmGHP
+  }
+}
+
+fragment Profile_4FmGHP on User {
+  id
+  name
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+  friends(first: 10) @include(if: $includeFriends) {
+    edges {
+      node {
+        ...Profile_4CNNX6
+      }
+    }
+  }
+}
+
+fragment Profile_4CNNX6 on User {
+  id
+  name
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+}
+
+`;
+
+exports[`RelayApplyFragmentArgumentTransform matches expected output: merges-identical-fragments.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery($id: ID!, $pictureSize: [Int] = [128]) {
+  node(id: $id) {
+    id
+    ...Profile @arguments(pictureSize: $pictureSize)
+    ...ProfileFriends
+  }
+}
+
+fragment ProfileFriends on User {
+  friends(first: 10) {
+    edges {
+      node {
+        ...Profile @arguments(pictureSize: $pictureSize)
+      }
+    }
+  }
+}
+
+fragment Profile on User @argumentDefinitions(
+  pictureSize: {type: "[Int]", nonNull: true}
+) {
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query TestQuery(
+  $id: ID!
+  $pictureSize: [Int] = [128]
+) {
+  node(id: $id) {
+    id
+    ...Profile_4CNNX6
+    ...ProfileFriends
+  }
+}
+
+fragment Profile_4CNNX6 on User {
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+}
+
+fragment ProfileFriends on User {
+  friends(first: 10) {
+    edges {
+      node {
+        ...Profile_4CNNX6
+      }
+    }
+  }
+}
+
+`;

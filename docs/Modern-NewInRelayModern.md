@@ -5,9 +5,9 @@ title: New in Relay Modern
 
 > A summary of the improvements and new features in Relay Modern.
 
-## Compat Mode
+## Modern API
 
-[Compat mode](./relay-compat.html) allows the Relay Modern APIs to be incrementally adopted in an existing Relay app. This approach enables the following features compared to Relay Classic:
+Compared to Relay Classic, the Relay Modern API has the following differentiating features:
 
 - A simpler, more predictable mutation API. The restrictions on mutation queries from Relay Classic are also removed: mutation queries are static, fields can be arbitrarily nested, and may use arbitrary arguments.
 - When using [`QueryRenderer`](./query-renderer.html), the restrictions on queries from Relay Classic are removed: queries may contain multiple root fields that use arbitrary arguments and return singular or plural values. The `viewer` root field is now optional.
@@ -15,9 +15,11 @@ title: New in Relay Modern
 - `QueryRenderer` supports rendering small amounts of data directly, instead of requiring a container to access data. [Containers](./fragment-container.html) are optional and can be used as your application grows in size and complexity.
 - The API is overall simpler and more predictable.
 
+You can use [Compat mode](./relay-compat.html) to incrementally adopt Relay Modern APIs in an existing Relay app.
+
 ## Modern Runtime
 
-For new Relay apps or existing apps that have been fully converted to the Compat API, the Relay Modern runtime can be enabled to activate even more features. In addition to those described above, this includes:
+For new Relay apps or existing apps that have been fully converted to the Modern/Compat API, the Relay Modern runtime can be enabled to activate even more features. In addition to those described above, this includes:
 
 ### Performance
 

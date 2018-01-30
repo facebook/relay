@@ -31,7 +31,7 @@ describe('isRelayContainer', function() {
     });
   });
 
-  it('identifies RelayClassic containers correctly', () => {
+  it('identifies RelayClassic_DEPRECATED containers correctly', () => {
     expect(RelayPublic.isContainer(MockContainer)).toBe(true);
 
     expect(RelayPublic.isContainer(MockComponent)).toBe(false);

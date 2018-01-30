@@ -46,6 +46,7 @@ const NodeKeys = {
   RootArgumentDefinition: [],
   ScalarField: ['args', 'directives'],
   Variable: [],
+  DeferrableFragmentSpread: ['args', 'directives', 'fragmentArgs'],
 };
 
 export type VisitNode =
@@ -100,7 +101,7 @@ export type NodeVisitor =
     };
 
 function visitIR(root: VisitNode, visitor: NodeVisitor) {
-  return visit(root, visitor, NodeKeys);
+  return (visit: $FlowFixMe)(root, visitor, NodeKeys);
 }
 
 module.exports = {visit: visitIR};

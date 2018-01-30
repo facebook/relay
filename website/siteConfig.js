@@ -20,6 +20,18 @@ const users = [
     infoLink: 'https://www.oculus.com/',
     pinned: true,
   },
+  {
+    caption: 'Artsy',
+    image: '/relay/img/logos/artsy.png',
+    infoLink: 'http://artsy.github.io/open-source/',
+    pinned: true,
+  },
+  {
+    caption: 'Cirrus CI',
+    image: '/relay/img/logos/cirrus.png',
+    infoLink: 'https://cirrus-ci.com/',
+    pinned: false,
+  },
 ];
 
 const siteConfig = {
@@ -31,7 +43,7 @@ const siteConfig = {
   users,
   editUrl: 'https://github.com/facebook/relay/edit/master/docs/',
   headerLinks: [
-    {doc: 'introduction-to-relay-modern', label: 'Docs'},
+    {doc: 'introduction-to-relay', label: 'Docs'},
     {page: 'help', label: 'Support'},
     {
       href: 'https://github.com/facebook/relay',
@@ -42,7 +54,6 @@ const siteConfig = {
   headerIcon: 'img/relay-white.svg',
   footerIcon: 'img/relay.svg',
   favicon: 'img/favicon.png',
-  customCssFileName: 'relay.css', //the name of your custom css file
   colors: {
     primaryColor: '#f26b00',
     secondaryColor: '#f26b00',

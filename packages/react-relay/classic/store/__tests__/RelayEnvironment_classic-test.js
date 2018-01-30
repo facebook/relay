@@ -18,7 +18,7 @@ jest
 
 require('configureForRelayOSS');
 
-const RelayClassic = require('RelayClassic');
+const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
 const RelayEnvironment = require('../RelayEnvironment');
 const RelayMutation = require('../../mutation/RelayMutation');
 const RelayMutationTransaction = require('../../mutation/RelayMutationTransaction');
@@ -111,7 +111,9 @@ describe('RelayEnvironment', () => {
   describe('readQuery', () => {
     it('accepts a query with no arguments', () => {
       recordWriter.putDataID('viewer', null, 'client:1');
-      environment.readQuery(getNode(RelayClassic.QL`query{viewer{actor{id}}}`));
+      environment.readQuery(
+        getNode(RelayClassic_DEPRECATED.QL`query{viewer{actor{id}}}`),
+      );
       expect(readRelayQueryData.mock.calls.length).toBe(1);
       expect(readRelayQueryData.mock.calls[0][2]).toBe('client:1');
     });
@@ -119,7 +121,7 @@ describe('RelayEnvironment', () => {
     it('accepts a query with arguments', () => {
       environment.readQuery(
         getNode(
-          RelayClassic.QL`
+          RelayClassic_DEPRECATED.QL`
         query {
           nodes(ids:["123","456"]) {
             id
@@ -136,7 +138,7 @@ describe('RelayEnvironment', () => {
     it('accepts a query with unrecognized arguments', () => {
       const result = environment.readQuery(
         getNode(
-          RelayClassic.QL`
+          RelayClassic_DEPRECATED.QL`
         query {
           username(name:"foo") {
             id

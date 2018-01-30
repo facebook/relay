@@ -9,7 +9,6 @@
 
 'use strict';
 
-const GraphQLMutatorConstants = require('../mutation/GraphQLMutatorConstants');
 const GraphQLSegment = require('./GraphQLSegment');
 const RelayRecord = require('../../store/RelayRecord');
 
@@ -19,7 +18,7 @@ const rangeOperationToMetadataKey = require('../../mutation/rangeOperationToMeta
 const serializeRelayQueryCall = require('../../query/serializeRelayQueryCall');
 const warning = require('warning');
 
-const {ConnectionInterface} = require('RelayRuntime');
+const {ConnectionInterface, RangeOperations} = require('RelayRuntime');
 
 /**
  * @param {array<object>} queryCalls
@@ -819,9 +818,7 @@ class GraphQLRange {
    * @return {?array<string>}
    */
   _getAppendedIDsForQueuedRecord(queuedRecord) {
-    return queuedRecord[
-      rangeOperationToMetadataKey[GraphQLMutatorConstants.APPEND]
-    ];
+    return queuedRecord[rangeOperationToMetadataKey[RangeOperations.APPEND]];
   }
 
   /**
@@ -829,9 +826,7 @@ class GraphQLRange {
    * @return {?array<string>}
    */
   _getRemovedIDsForQueuedRecord(queuedRecord) {
-    return queuedRecord[
-      rangeOperationToMetadataKey[GraphQLMutatorConstants.REMOVE]
-    ];
+    return queuedRecord[rangeOperationToMetadataKey[RangeOperations.REMOVE]];
   }
 
   /**
@@ -839,9 +834,7 @@ class GraphQLRange {
    * @return {?array<string>}
    */
   _getPrependedIDsForQueuedRecord(queuedRecord) {
-    return queuedRecord[
-      rangeOperationToMetadataKey[GraphQLMutatorConstants.PREPEND]
-    ];
+    return queuedRecord[rangeOperationToMetadataKey[RangeOperations.PREPEND]];
   }
 
   /**

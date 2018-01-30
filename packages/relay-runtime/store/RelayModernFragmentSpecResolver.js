@@ -19,7 +19,7 @@ const {
   getSelectorsFromObject,
 } = require('RelayModernSelector');
 
-import type {Disposable} from '../util/RelayRuntimeTypes';
+import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
 import type {
   Environment,
   FragmentMap,
@@ -32,7 +32,6 @@ import type {
   FragmentSpecResults,
   SelectorData,
 } from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
-import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 type Props = {[key: string]: mixed};
 type Resolvers = {[key: string]: ?(SelectorListResolver | SelectorResolver)};
@@ -120,6 +119,19 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
       this._stale = false;
     }
     return this._data;
+  }
+
+  isLoading(): boolean {
+    for (const key in this._resolvers) {
+      if (
+        this._resolvers.hasOwnProperty(key) &&
+        this._resolvers[key] &&
+        this._resolvers[key].isLoading()
+      ) {
+        return true;
+      }
+    }
+    return false;
   }
 
   setProps(props: Props): void {
@@ -249,6 +261,10 @@ class SelectorResolver {
     this.setSelector(selector);
   }
 
+  isLoading(): boolean {
+    return this._environment.isSelectorLoading(this._selector);
+  }
+
   _onChange = (snapshot: Snapshot): void => {
     this._data = snapshot.data;
     this._callback();
@@ -328,6 +344,10 @@ class SelectorListResolver {
   setVariables(variables: Variables): void {
     this._resolvers.forEach(resolver => resolver.setVariables(variables));
     this._stale = true;
+  }
+
+  isLoading(): boolean {
+    return this._resolvers.some(resolver => resolver.isLoading());
   }
 
   _onChange = (data: ?Object): void => {

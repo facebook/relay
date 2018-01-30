@@ -11,18 +11,18 @@
 
 'use strict';
 
+const RelayDeclarativeMutationConfig = require('RelayDeclarativeMutationConfig');
+
 const invariant = require('invariant');
 const isRelayModernEnvironment = require('isRelayModernEnvironment');
-const setRelayModernMutationConfigs = require('setRelayModernMutationConfigs');
 
-import type {Disposable} from '../util/RelayRuntimeTypes';
+import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
+import type {DeclarativeMutationConfig} from 'RelayDeclarativeMutationConfig';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {Environment, SelectorStoreUpdater} from 'RelayStoreTypes';
-import type {RelayMutationConfig} from 'react-relay/classic/tools/RelayTypes';
-import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 export type OptimisticMutationConfig = {|
-  configs?: ?Array<RelayMutationConfig>,
+  configs?: ?Array<DeclarativeMutationConfig>,
   mutation: GraphQLTaggedNode,
   variables: Variables,
   optimisticUpdater?: ?SelectorStoreUpdater,
@@ -51,7 +51,7 @@ function applyRelayModernOptimisticMutation(
   const {configs, optimisticResponse, variables} = config;
   const operation = createOperationSelector(mutation, variables);
   if (configs) {
-    ({optimisticUpdater} = setRelayModernMutationConfigs(
+    ({optimisticUpdater} = RelayDeclarativeMutationConfig.convert(
       configs,
       mutation,
       optimisticUpdater,

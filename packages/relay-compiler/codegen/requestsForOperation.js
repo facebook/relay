@@ -66,6 +66,7 @@ function requestsForOperation(
         fromName: operationToRequestName.get(argDep.fromName),
       })),
       root: codeGenRoot,
+      metadata: dependent.metadata || undefined,
     });
     // Collect any requests that were dependent on this one as well.
     return dependentRequests.reduce(requestsInto, requests);

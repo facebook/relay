@@ -14,31 +14,28 @@ const ReactRelayFragmentContainer = require('./ReactRelayFragmentContainer');
 const ReactRelayPaginationContainer = require('./ReactRelayPaginationContainer');
 const ReactRelayQueryRenderer = require('./ReactRelayQueryRenderer');
 const ReactRelayRefetchContainer = require('./ReactRelayRefetchContainer');
+const RelayRuntime = require('RelayRuntime');
 
-const {
-  commitLocalUpdate,
-  commitMutation,
-  fetchQuery,
-  graphql,
-  requestSubscription,
-} = require('RelayRuntime');
-
-export type {Variables} from '../classic/tools/RelayTypes';
 export type {
   RelayPaginationProp,
   RelayProp,
   RelayRefetchProp,
+  $FragmentRef,
 } from './ReactRelayTypes';
 export type {
   DataID,
+  DeclarativeMutationConfig,
   Disposable,
   // RelayRuntime has two environment exports: one interface, one concrete.
   IEnvironment as Environment,
   GraphQLTaggedNode,
+  MutationType,
   OperationSelector,
+  RangeOperation,
   RelayContext,
   Selector,
   Snapshot,
+  Variables,
 } from 'RelayRuntime';
 
 /**
@@ -46,12 +43,16 @@ export type {
  */
 module.exports = {
   QueryRenderer: ReactRelayQueryRenderer,
+
+  MutationTypes: RelayRuntime.MutationTypes,
+  RangeOperations: RelayRuntime.RangeOperations,
+
+  commitLocalUpdate: RelayRuntime.commitLocalUpdate,
+  commitMutation: RelayRuntime.commitMutation,
   createFragmentContainer: ReactRelayFragmentContainer.createContainer,
   createPaginationContainer: ReactRelayPaginationContainer.createContainer,
   createRefetchContainer: ReactRelayRefetchContainer.createContainer,
-  commitLocalUpdate: commitLocalUpdate,
-  commitMutation: commitMutation,
-  fetchQuery: fetchQuery,
-  graphql: graphql,
-  requestSubscription: requestSubscription,
+  fetchQuery: RelayRuntime.fetchQuery,
+  graphql: RelayRuntime.graphql,
+  requestSubscription: RelayRuntime.requestSubscription,
 };

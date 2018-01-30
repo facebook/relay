@@ -14,7 +14,7 @@ jest.mock('../../legacy/store/generateClientID');
 
 require('configureForRelayOSS');
 
-const RelayClassic = require('RelayClassic');
+const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('writeRelayQueryPayload()', () => {
@@ -43,7 +43,7 @@ describe('writeRelayQueryPayload()', () => {
       const writer = new RelayRecordWriter(records, {}, false);
 
       const query = getNode(
-        RelayClassic.QL`
+        RelayClassic_DEPRECATED.QL`
         query {
           node(id:"123") {
             ... on User {
@@ -92,7 +92,7 @@ describe('writeRelayQueryPayload()', () => {
         },
       };
       const query = getNode(
-        RelayClassic.QL`
+        RelayClassic_DEPRECATED.QL`
         query {
           node(id:"123") {
             allPhones {
@@ -178,7 +178,7 @@ describe('writeRelayQueryPayload()', () => {
         },
       };
       const query = getNode(
-        RelayClassic.QL`
+        RelayClassic_DEPRECATED.QL`
         query {
           node(id:"123") {
             allPhones {
@@ -257,7 +257,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        RelayClassic.QL`
+        RelayClassic_DEPRECATED.QL`
         query {
           node(id:"123") {
             allPhones {
@@ -328,7 +328,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        RelayClassic.QL`
+        RelayClassic_DEPRECATED.QL`
         query {
           node(id:"123") {
             allPhones {
@@ -383,7 +383,7 @@ describe('writeRelayQueryPayload()', () => {
       const writer = new RelayRecordWriter(records, {}, false);
 
       const query = getNode(
-        RelayClassic.QL`
+        RelayClassic_DEPRECATED.QL`
         query {
           node(id:"123") {
             allPhones {
@@ -416,7 +416,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        RelayClassic.QL`
+        RelayClassic_DEPRECATED.QL`
         query {
           node(id: "1") {
             actors {
@@ -448,7 +448,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        RelayClassic.QL`
+        RelayClassic_DEPRECATED.QL`
         query {
           node(id: "1") {
             ... on Story {

@@ -10,8 +10,8 @@
 
 'use strict';
 
-import type {RerunParam, Variables} from '../tools/RelayTypes';
-import type {DataID} from 'RelayRuntime';
+import type {RerunParam} from '../tools/RelayTypes';
+import type {DataID, Variables} from 'RelayRuntime';
 import type {Disposable, Observable, SelectorStoreUpdater} from 'RelayRuntime';
 
 /**
@@ -109,6 +109,8 @@ export interface FragmentSpecResolver {
    * `resolve()` to get the updated results.
    */
   setVariables(variables: Variables): void;
+
+  isLoading(): boolean;
 }
 
 export type CFragmentMap<TFragment> = {[key: string]: TFragment};

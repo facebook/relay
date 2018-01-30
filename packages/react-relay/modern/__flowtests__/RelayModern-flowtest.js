@@ -16,6 +16,9 @@ const nullthrows = require('nullthrows');
 
 const {createFragmentContainer, graphql} = require('../ReactRelayPublic');
 
+import type {$FragmentRef} from '../ReactRelayPublic';
+import type {RelayModernFlowtest_badref} from './RelayModernFlowtest_badref.graphql';
+import type {RelayModernFlowtest_notref} from './RelayModernFlowtest_notref.graphql';
 import type {
   RelayModernFlowtest_user,
   RelayModernFlowtest_user$ref,
@@ -24,6 +27,49 @@ import type {
   RelayModernFlowtest_users,
   RelayModernFlowtest_users$ref,
 } from './RelayModernFlowtest_users.graphql';
+
+class NotReferencedTest_ extends React.Component<{
+  notref: RelayModernFlowtest_notref,
+}> {
+  render(): React.Node {
+    return null;
+  }
+}
+
+const NotReferencedTest = createFragmentContainer(NotReferencedTest_, {
+  notref: graphql`
+    fragment RelayModernFlowtest_notref on User {
+      id
+      ...RelayModernFlowtest_user
+    }
+  `,
+});
+
+class BadReferenceTest_ extends React.Component<{
+  badref: RelayModernFlowtest_badref,
+}> {
+  render(): React.Node {
+    (this.props.badref.id: string);
+    // $FlowExpectedError
+    this.props.badref.name;
+    // $FlowExpectedError The notref fragment was not used.
+    return <NotReferencedTest notref={this.props.badref} />;
+  }
+}
+
+const BadReferenceTest = createFragmentContainer(BadReferenceTest_, {
+  badref: graphql`
+    fragment RelayModernFlowtest_badref on User {
+      id
+      # Note: this test includes a reference, but *not the right one*.
+      ...RelayModernFlowtest_user
+    }
+  `,
+});
+
+declare var someRef: $FragmentRef<RelayModernFlowtest_badref>;
+
+<BadReferenceTest badref={someRef} />;
 
 class SingularTest extends React.Component<{
   string: string,
@@ -73,19 +119,19 @@ PluralTest = createFragmentContainer(PluralTest, {
 });
 
 declare var aUserRef: {
-  +__fragments: RelayModernFlowtest_user$ref,
+  +$fragmentRefs: RelayModernFlowtest_user$ref,
 };
 
 declare var oneOfUsersRef: {
-  +__fragments: RelayModernFlowtest_users$ref,
+  +$fragmentRefs: RelayModernFlowtest_users$ref,
 };
 
 declare var usersRef: $ReadOnlyArray<{
-  +__fragments: RelayModernFlowtest_users$ref,
+  +$fragmentRefs: RelayModernFlowtest_users$ref,
 }>;
 
 declare var nonUserRef: {
-  +__fragments: {thing: true},
+  +$fragmentRefs: {thing: true},
 };
 
 function cb(): void {}
@@ -125,7 +171,7 @@ function cb(): void {}
 />;
 
 declare var aComplexUserRef: {
-  __fragments: {thing1: true} & RelayModernFlowtest_user$ref & {
+  +$fragmentRefs: {thing1: true} & RelayModernFlowtest_user$ref & {
       thing2: true,
     },
 };
@@ -159,7 +205,37 @@ declare var aComplexUserRef: {
 
 class AnyTest extends React.Component<{
   anything: any,
+  anyFunction: Function,
+  optionalFunction?: Function,
+  maybeFunction: ?Function,
+  optionalMaybeFunction?: ?Function,
+  anyObject: Object,
 }> {}
 AnyTest = createFragmentContainer(AnyTest, {});
 
-<AnyTest anything={42} />;
+<AnyTest
+  anything={42}
+  anyFunction={() => {}}
+  maybeFunction={null}
+  anyObject={{}}
+/>;
+<AnyTest
+  anything={42}
+  anyFunction={() => {}}
+  maybeFunction={() => {}}
+  anyObject={{}}
+/>;
+// $FlowExpectedError - optional function cannot be null
+<AnyTest
+  anything={42}
+  anyFunction={() => {}}
+  optionalFunction={() => {}}
+  anyObject={{}}
+/>;
+// $FlowExpectedError - can't pass {} for a Function
+<AnyTest
+  anything={42}
+  anyFunction={{}}
+  maybeFunction={() => {}}
+  anyObject={{}}
+/>;

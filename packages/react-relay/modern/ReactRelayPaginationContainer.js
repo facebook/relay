@@ -37,7 +37,6 @@ import type {
   CacheConfig,
   FragmentSpecResolver,
 } from '../classic/environment/RelayCombinedEnvironmentTypes';
-import type {Variables} from '../classic/tools/RelayTypes';
 import type {
   $RelayProps,
   ObserverOrCallback,
@@ -54,6 +53,7 @@ import type {
   PageInfo,
   RelayContext,
   Subscription,
+  Variables,
 } from 'RelayRuntime';
 
 type ContainerState = {
@@ -529,7 +529,7 @@ function createContainerWithFragments<
         direction === FORWARD ? pageInfo[END_CURSOR] : pageInfo[START_CURSOR];
       if (
         typeof hasMore !== 'boolean' ||
-        (edges.length !== 0 && typeof cursor !== 'string')
+        (edges.length !== 0 && typeof cursor === 'undefined')
       ) {
         warning(
           false,
@@ -816,11 +816,13 @@ function assertRelayContext(relay: mixed): RelayContext {
  * `fragmentSpec` is memoized once per environment, rather than once per
  * instance of the container constructed/rendered.
  */
-function createContainer<Props: {}>(
-  Component: React.ComponentType<Props>,
+function createContainer<Props: {}, TComponent: React.ComponentType<Props>>(
+  Component: TComponent,
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
   connectionConfig: ConnectionConfig,
-): React.ComponentType<$RelayProps<Props, RelayPaginationProp>> {
+): React.ComponentType<
+  $RelayProps<React.ElementConfig<TComponent>, RelayPaginationProp>,
+> {
   const Container = buildReactRelayContainer(
     Component,
     fragmentSpec,

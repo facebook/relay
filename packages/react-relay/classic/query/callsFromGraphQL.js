@@ -13,13 +13,13 @@
 const invariant = require('invariant');
 
 import type {Call, CallValue} from '../tools/RelayInternalTypes';
-import type {Variables} from '../tools/RelayTypes';
 import type {
   ConcreteCall,
   ConcreteValue,
   ConcreteCallValue,
   ConcreteCallVariable,
 } from './ConcreteQuery';
+import type {Variables} from 'RelayRuntime';
 
 type CallOrDirective = {
   name: string,

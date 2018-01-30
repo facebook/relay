@@ -24,6 +24,7 @@ const RelayReadyStateRenderer = require('./container/RelayReadyStateRenderer');
 const RelayRenderer = require('./container/RelayRenderer');
 const RelayRootContainer = require('./container/RelayRootContainer');
 const RelayRoute = require('./route/RelayRoute');
+const RelayRuntime = require('RelayRuntime');
 const RelayStore = require('./store/RelayStore');
 
 const createRelayQuery = require('./query/createRelayQuery');
@@ -52,6 +53,9 @@ const RelayPublic = {
   RootContainer: RelayRootContainer,
   Route: RelayRoute,
   Store: RelayStore,
+
+  MutationTypes: RelayRuntime.MutationTypes,
+  RangeOperations: RelayRuntime.RangeOperations,
 
   createContainer: RelayContainer.create,
   createQuery: createRelayQuery,

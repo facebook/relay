@@ -15,16 +15,14 @@ const GraphQLIRPrinter = require('GraphQLIRPrinter');
 const RelayFieldHandleTransform = require('RelayFieldHandleTransform');
 const RelayTestSchema = require('RelayTestSchema');
 
-const getGoldenMatchers = require('getGoldenMatchers');
 const parseGraphQLText = require('parseGraphQLText');
 
-describe('RelayFieldHandleTransform', () => {
-  beforeEach(() => {
-    expect.extend(getGoldenMatchers(__filename));
-  });
+const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 
-  it('matches expected output', () => {
-    expect('fixtures/field-handle-transform').toMatchGolden(text => {
+describe('RelayFieldHandleTransform', () => {
+  generateTestsFromFixtures(
+    `${__dirname}/fixtures/field-handle-transform`,
+    text => {
       const {definitions} = parseGraphQLText(RelayTestSchema, text);
       return new GraphQLCompilerContext(RelayTestSchema)
         .addAll(definitions)
@@ -32,6 +30,6 @@ describe('RelayFieldHandleTransform', () => {
         .documents()
         .map(GraphQLIRPrinter.print)
         .join('\n');
-    });
-  });
+    },
+  );
 });

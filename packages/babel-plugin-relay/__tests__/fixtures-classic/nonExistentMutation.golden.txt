@@ -1,6 +1,0 @@
-ERROR:
-
-Error: nonExistentMutation.input.txt: GraphQL Validation Error: Cannot query field "fakeMutation" on type "Mutation".
->
->     fakeMutation(input: $input) {
->     ^^^

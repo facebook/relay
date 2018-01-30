@@ -13,12 +13,11 @@
 
 const GraphQLCompilerContext = require('../core/GraphQLCompilerContext');
 const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
+const GraphQLIRVisitor = require('../core/GraphQLIRVisitor');
 
-const filterContextForNode = require('../core/filterContextForNode');
+const nullthrows = require('../util/nullthrowsOSS');
 
-import type {Argument, Condition, Root} from '../core/GraphQLIR';
-
-type State = {referencedVariables: Set<string>};
+import type {Root} from '../core/GraphQLIR';
 
 /**
  * A transform that removes variables from root queries that aren't referenced
@@ -27,52 +26,136 @@ type State = {referencedVariables: Set<string>};
 function stripUnusedVariablesTransform(
   context: GraphQLCompilerContext,
 ): GraphQLCompilerContext {
+  const fragmentToVariables: Map<string, Set<string>> = new Map();
+  const fragmentToFragmentSpreads: Map<string, Set<string>> = new Map();
+  const rootToVariables: Map<string, Set<string>> = new Map();
+  const rootToFragmentSpreads: Map<string, Set<string>> = new Map();
+  context.forEachDocument(document => {
+    let fragmentVariables;
+    let fragmentFragmentSpreads;
+    let rootVariables;
+    let rootFragmentSpreads;
+    GraphQLIRVisitor.visit(document, {
+      Root: {
+        enter(root) {
+          rootVariables = new Set();
+          rootToVariables.set(root.name, rootVariables);
+          rootFragmentSpreads = new Set();
+          rootToFragmentSpreads.set(root.name, rootFragmentSpreads);
+        },
+        leave(root) {
+          rootVariables = null;
+          rootFragmentSpreads = null;
+        },
+      },
+      Fragment: {
+        enter(fragment) {
+          fragmentVariables = new Set();
+          fragmentToVariables.set(fragment.name, fragmentVariables);
+          fragmentFragmentSpreads = new Set();
+          fragmentToFragmentSpreads.set(fragment.name, fragmentFragmentSpreads);
+        },
+        leave(fragment) {
+          fragmentVariables = null;
+          fragmentFragmentSpreads = null;
+        },
+      },
+      Variable(variable) {
+        fragmentVariables && fragmentVariables.add(variable.variableName);
+        rootVariables && rootVariables.add(variable.variableName);
+      },
+      FragmentSpread(spread) {
+        fragmentFragmentSpreads && fragmentFragmentSpreads.add(spread.name);
+        rootFragmentSpreads && rootFragmentSpreads.add(spread.name);
+      },
+    });
+  });
+  const variablesMemo = new Map();
+  rootToVariables.forEach((variables, root) => {
+    Array.from(
+      nullthrows(
+        rootToFragmentSpreads.get(root),
+        `root ${root} wasn't found in StripUnusedVariablesTransform`,
+      ),
+    ).forEach(spread =>
+      into(
+        variables,
+        allVariablesReferencedInFragment(
+          variablesMemo,
+          spread,
+          fragmentToVariables,
+          fragmentToFragmentSpreads,
+        ),
+      ),
+    );
+  });
   return GraphQLIRTransformer.transform(context, {
-    Root: root => transformRoot(context, root),
+    Root: root =>
+      transformRoot(
+        context,
+        root,
+        nullthrows(
+          rootToVariables.get(root.name),
+          `root ${root.name} wasn't found in StripUnusedVariablesTransform`,
+        ),
+      ),
     // Include fragments, but do not traverse into them.
     Fragment: id => id,
   });
 }
 
-function transformRoot(context: GraphQLCompilerContext, root: Root): Root {
-  const state = {
-    referencedVariables: new Set(),
-  };
-  const newContext = GraphQLIRTransformer.transform(
-    filterContextForNode(root, context),
-    {
-      Argument: visitArgument,
-      Condition: visitCondition,
-    },
-    () => state,
-  );
-  const transformedNode = newContext.getRoot(root.name);
-  /**
-   * Remove the extraneous arguments *after* transform returns, since fragments
-   * could be transformed after the root query.
-   */
+function allVariablesReferencedInFragment(
+  variablesMemo,
+  fragment,
+  fragmentToVariables,
+  fragmentToFragmentSpreads,
+) {
+  let variables = variablesMemo.get(fragment);
+  if (!variables) {
+    const directVariables = nullthrows(
+      fragmentToVariables.get(fragment),
+      `fragment ${fragment} wasn't found in StripUnusedVariablesTransform`,
+    );
+    variables = Array.from(
+      nullthrows(
+        fragmentToFragmentSpreads.get(fragment),
+        `fragment ${fragment} wasn't found in StripUnusedVariablesTransform`,
+      ),
+    ).reduce(
+      (allVariables, fragmentSpread) =>
+        into(
+          allVariables,
+          allVariablesReferencedInFragment(
+            variablesMemo,
+            fragmentSpread,
+            fragmentToVariables,
+            fragmentToFragmentSpreads,
+          ),
+        ),
+      directVariables,
+    );
+    variablesMemo.set(fragment, variables);
+  }
+  return variables;
+}
+
+function transformRoot(
+  context: GraphQLCompilerContext,
+  root: Root,
+  variables: Set<string>,
+): Root {
   return {
-    ...transformedNode,
-    argumentDefinitions: transformedNode.argumentDefinitions.filter(arg => {
-      return state.referencedVariables.has(arg.name);
+    ...root,
+    argumentDefinitions: root.argumentDefinitions.filter(arg => {
+      return variables.has(arg.name);
     }),
   };
 }
 
-function visitArgument(argument: Argument, state: State): Argument {
-  const {value} = argument;
-  if (value.kind === 'Variable') {
-    state.referencedVariables.add(value.variableName);
-  }
-  return argument;
-}
-
-function visitCondition(condition: Condition, state: State): Condition {
-  const innerCondition = condition.condition;
-  if (innerCondition.kind === 'Variable') {
-    state.referencedVariables.add(innerCondition.variableName);
-  }
-  return condition;
+// Returns the union of setA and setB. Modifies setA!
+function into<T>(setA: Set<T>, setB: Set<T>): Set<T> {
+  setB.forEach(item => setA.add(item));
+  return setA;
 }
 
 module.exports = {

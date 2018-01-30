@@ -1,14 +1,13 @@
 {
   "docs": {
     "Introduction": [
-      "introduction-to-relay-modern",
+      "introduction-to-relay",
       "prerequisites",
       "installation-and-setup",
       "quick-start-guide"
     ],
     "API Reference": [
-      "relay-compiler",
-      "relay-directives",
+      "graphql-in-relay",
       "relay-environment",
       "network-layer",
       "query-renderer",
@@ -16,13 +15,13 @@
       "refetch-container",
       "pagination-container",
       "mutations",
-      "relay-store",
-      "subscriptions"
+      "subscriptions",
+      "relay-store"
     ],
     "Guides": [
-      "graphql-relay-specification",
       "routing",
-      "relay-debugging"
+      "relay-debugging",
+      "graphql-server-specification"
     ],
     "Migration Guides": [
       "new-in-relay-modern",
@@ -31,12 +30,16 @@
       "conversion-playbook",
       "conversion-scripts",
       "upgrading-setvariables",
+      "converting-mutations",
       "compatibility-cheatsheet",
       "api-cheatsheet"
     ],
     "Principles & Architecture": [
       "thinking-in-graphql",
       "thinking-in-relay",
+      "architecture-overview",
+      "compiler-architecture",
+      "runtime-architecture",
       "videos"
     ]
   }

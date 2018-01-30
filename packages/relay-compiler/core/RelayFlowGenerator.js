@@ -281,7 +281,7 @@ function createVisitor(options: Options) {
         const refTypeName = getRefTypeName(node.name);
         const refType = t.expressionStatement(
           t.identifier(
-            `export opaque type ${refTypeName}: FragmentReference = FragmentReference`,
+            `declare export opaque type ${refTypeName}: FragmentReference`,
           ),
         );
         const baseType = selectionsToBabel(selections, state, refTypeName);
@@ -400,7 +400,7 @@ function groupRefs(props): Array<Selection> {
       refs.map(ref => t.identifier(getRefTypeName(ref))),
     );
     result.push({
-      key: '__fragments',
+      key: '$fragmentRefs',
       conditional: false,
       value,
     });

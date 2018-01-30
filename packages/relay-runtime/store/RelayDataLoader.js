@@ -20,7 +20,7 @@ const invariant = require('invariant');
 
 const {EXISTENT, UNKNOWN} = require('RelayRecordState');
 
-import type {DataID} from '../util/RelayRuntimeTypes';
+import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
   ConcreteLinkedField,
   ConcreteNode,
@@ -35,7 +35,6 @@ import type {
   Selector,
 } from 'RelayStoreTypes';
 import type {Record} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
-import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 const {
   CONDITION,

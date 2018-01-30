@@ -44,6 +44,7 @@ const {
   schemaExtensions,
 } = RelayIRTransforms;
 
+import type {GetWriterOptions} from 'graphql-compiler';
 import type {GraphQLSchema} from 'graphql';
 
 function buildWatchExpression(options: {
@@ -147,6 +148,8 @@ Ensure that one such file exists in ${srcDir} or its parents.
     parserConfigs,
     writerConfigs,
     onlyValidate: options.validate,
+    // TODO: allow passing in a flag or detect?
+    sourceControl: null,
   });
   if (!options.validate && !options.watch && options.watchman) {
     // eslint-disable-next-line no-console
@@ -165,7 +168,14 @@ Ensure that one such file exists in ${srcDir} or its parents.
 }
 
 function getRelayFileWriter(baseDir: string) {
-  return (onlyValidate, schema, documents, baseDocuments, reporter) =>
+  return ({
+    onlyValidate,
+    schema,
+    documents,
+    baseDocuments,
+    sourceControl,
+    reporter,
+  }: GetWriterOptions) =>
     new RelayFileWriter({
       config: {
         baseDir,
@@ -188,6 +198,7 @@ function getRelayFileWriter(baseDir: string) {
       baseDocuments,
       documents,
       reporter,
+      sourceControl,
     });
 }
 
@@ -198,12 +209,12 @@ function getSchema(schemaPath: string): GraphQLSchema {
       source = printSchema(buildClientSchema(JSON.parse(source).data));
     }
     source = `
-  directive @include(if: Boolean) on FRAGMENT | FIELD
-  directive @skip(if: Boolean) on FRAGMENT | FIELD
+  directive @include(if: Boolean) on FRAGMENT_SPREAD | FIELD
+  directive @skip(if: Boolean) on FRAGMENT_SPREAD | FIELD
 
   ${source}
   `;
-    return buildASTSchema(parse(source));
+    return buildASTSchema(parse(source), {assumeValid: true});
   } catch (error) {
     throw new Error(
       `

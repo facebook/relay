@@ -11,20 +11,20 @@
 
 'use strict';
 
+const RelayDeclarativeMutationConfig = require('RelayDeclarativeMutationConfig');
+
 const invariant = require('invariant');
 const isRelayModernEnvironment = require('isRelayModernEnvironment');
-const setRelayModernMutationConfigs = require('setRelayModernMutationConfigs');
 const warning = require('warning');
 
-import type {Disposable} from '../util/RelayRuntimeTypes';
+import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
+import type {DeclarativeMutationConfig} from 'RelayDeclarativeMutationConfig';
 import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {PayloadError, UploadableMap} from 'RelayNetworkTypes';
 import type {Environment, SelectorStoreUpdater} from 'RelayStoreTypes';
-import type {RelayMutationConfig} from 'react-relay/classic/tools/RelayTypes';
-import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 export type MutationConfig<T> = {|
-  configs?: Array<RelayMutationConfig>,
+  configs?: Array<DeclarativeMutationConfig>,
   mutation: GraphQLTaggedNode,
   variables: Variables,
   uploadables?: UploadableMap,
@@ -83,7 +83,7 @@ function commitRelayModernMutation<T>(
     );
   }
   if (configs) {
-    ({optimisticUpdater, updater} = setRelayModernMutationConfigs(
+    ({optimisticUpdater, updater} = RelayDeclarativeMutationConfig.convert(
       configs,
       mutation,
       optimisticUpdater,

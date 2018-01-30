@@ -101,7 +101,7 @@ const IF = 'if';
 
 class GraphQLParser {
   _definition: OperationDefinitionNode | FragmentDefinitionNode;
-  _referencedVariables: {[name: string]: ?GraphQLInputType};
+  _referencedVariableTypesByName: {[name: string]: ?GraphQLInputType};
   _schema: GraphQLSchema;
 
   static parse(
@@ -111,7 +111,8 @@ class GraphQLParser {
   ): Array<Root | Fragment> {
     const ast = parse(new Source(text, filename));
     const nodes = [];
-    schema = extendSchema(schema, ast);
+    // TODO T24511737 figure out if this is dangerous
+    schema = extendSchema(schema, ast, {assumeValid: true});
     ast.definitions.forEach(definition => {
       if (isOperationDefinitionAST(definition)) {
         nodes.push(this.transform(schema, definition));
@@ -139,7 +140,7 @@ class GraphQLParser {
     definition: OperationDefinitionNode | FragmentDefinitionNode,
   ) {
     this._definition = definition;
-    this._referencedVariables = {};
+    this._referencedVariableTypesByName = {};
     this._schema = schema;
   }
 
@@ -182,21 +183,37 @@ class GraphQLParser {
     return message;
   }
 
-  _recordVariableReference(name: string, type: ?GraphQLInputType): void {
-    const prevType = this._referencedVariables[name];
-    if (type && prevType) {
+  _recordAndVerifyVariableReference(
+    name: string,
+    usedAsType: ?GraphQLInputType,
+  ): void {
+    const previousType = this._referencedVariableTypesByName[name];
+
+    if (!previousType) {
+      // No previous usage, current type is strongest
+      this._referencedVariableTypesByName[name] = usedAsType;
+    } else if (usedAsType) {
       invariant(
-        this._referencedVariables[name] == null ||
-          isTypeSubTypeOf(this._schema, this._referencedVariables[name], type),
+        isTypeSubTypeOf(this._schema, usedAsType, previousType) ||
+          isTypeSubTypeOf(this._schema, previousType, usedAsType),
         'GraphQLParser: Variable `$%s` was used in locations expecting ' +
           'the conflicting types `%s` and `%s`. Source: %s.',
         name,
-        prevType,
-        type,
+        previousType,
+        usedAsType,
         this._getErrorContext(),
       );
+
+      // If the new used type has stronger requirements, use that type as reference,
+      // otherwise keep referencing the previous type
+      this._referencedVariableTypesByName[name] = isTypeSubTypeOf(
+        this._schema,
+        usedAsType,
+        previousType,
+      )
+        ? usedAsType
+        : previousType;
     }
-    this._referencedVariables[name] = prevType || type;
   }
 
   transform(): Root | Fragment {
@@ -226,9 +243,9 @@ class GraphQLParser {
       getTypeFromAST(this._schema, fragment.typeCondition),
     );
     const selections = this._transformSelections(fragment.selectionSet, type);
-    for (const name in this._referencedVariables) {
-      if (this._referencedVariables.hasOwnProperty(name)) {
-        const variableType = this._referencedVariables[name];
+    for (const name in this._referencedVariableTypesByName) {
+      if (this._referencedVariableTypesByName.hasOwnProperty(name)) {
+        const variableType = this._referencedVariableTypesByName[name];
         const localArgument = argumentDefinitions.find(
           argDef => argDef.name === name,
         );
@@ -410,7 +427,7 @@ class GraphQLParser {
   }
 
   _transformArgumentDefinitions(
-    argumentDefinitions: Array<VariableDefinitionNode>,
+    argumentDefinitions: $ReadOnlyArray<VariableDefinitionNode>,
   ): Array<LocalArgumentDefinition> {
     return argumentDefinitions.map(def => {
       const name = getName(def.variable);
@@ -418,6 +435,19 @@ class GraphQLParser {
       const defaultLiteral = def.defaultValue
         ? this._transformValue(def.defaultValue)
         : null;
+      if (this._referencedVariableTypesByName.hasOwnProperty(name)) {
+        const variableType = this._referencedVariableTypesByName[name];
+        invariant(
+          variableType == null ||
+            isTypeSubTypeOf(this._schema, type, variableType),
+          'GraphQLParser: Variable `$%s` was defined as type `%s`, but used ' +
+            'in a location that expects type `%s`. Source: %s.',
+          name,
+          type,
+          variableType,
+          this._getErrorContext(),
+        );
+      }
       invariant(
         defaultLiteral === null || defaultLiteral.kind === 'Literal',
         'GraphQLParser: Expected null or Literal default value, got: `%s`. ' +
@@ -546,6 +576,7 @@ class GraphQLParser {
   _transformField(field: FieldNode, parentType: GraphQLOutputType): Field {
     const name = getName(field);
     const fieldDef = this.getFieldDefinition(parentType, name, field);
+
     invariant(
       fieldDef,
       'GraphQLParser: Unknown field `%s` on type `%s`. Source: %s.',
@@ -682,7 +713,9 @@ class GraphQLParser {
     return handles;
   }
 
-  _transformDirectives(directives: Array<DirectiveNode>): Array<Directive> {
+  _transformDirectives(
+    directives: $ReadOnlyArray<DirectiveNode>,
+  ): Array<Directive> {
     return directives.map(directive => {
       const name = getName(directive);
       const directiveDef = this._schema.getDirective(name);
@@ -706,7 +739,7 @@ class GraphQLParser {
   }
 
   _transformArguments(
-    args: Array<ArgumentNode>,
+    args: $ReadOnlyArray<ArgumentNode>,
     argumentDefinitions: Array<GraphQLArgument>,
   ): Array<Argument> {
     return args.map(arg => {
@@ -779,7 +812,7 @@ class GraphQLParser {
 
   _transformVariable(ast: VariableNode, type?: ?GraphQLInputType): Variable {
     const variableName = getName(ast);
-    this._recordVariableReference(variableName, type);
+    this._recordAndVerifyVariableReference(variableName, type);
     return {
       kind: 'Variable',
       metadata: null,
@@ -987,8 +1020,8 @@ function getName(ast): string {
  * second.
  */
 function partitionArray<Tv>(
-  array: Array<Tv>,
-  predicate: (value: Tv, index: number, array: Array<Tv>) => boolean,
+  array: $ReadOnlyArray<Tv>,
+  predicate: (value: Tv, index: number, array: $ReadOnlyArray<Tv>) => boolean,
   context?: any,
 ): [Array<Tv>, Array<Tv>] {
   var first = [];

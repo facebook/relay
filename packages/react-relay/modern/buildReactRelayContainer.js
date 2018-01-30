@@ -80,6 +80,7 @@ function buildReactRelayContainer<TBase: React$ComponentType<*>>(
   ContainerConstructor.displayName = containerName;
 
   if (__DEV__) {
+    ContainerConstructor.__ComponentClass = ComponentClass;
     // Classic container static methods.
     ContainerConstructor.getFragment = function getFragmentOnModernContainer() {
       throw new Error(

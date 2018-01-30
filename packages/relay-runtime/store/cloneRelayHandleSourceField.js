@@ -18,12 +18,12 @@ const invariant = require('invariant');
 
 const {getHandleStorageKey} = require('RelayStoreUtils');
 
+import type {Variables} from '../util/RelayRuntimeTypes';
 import type {
   ConcreteLinkedField,
   ConcreteLinkedHandle,
   ConcreteSelection,
 } from 'RelayConcreteNode';
-import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 const {LINKED_FIELD} = RelayConcreteNode;
 

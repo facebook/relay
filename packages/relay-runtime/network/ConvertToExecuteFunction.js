@@ -16,6 +16,7 @@ const RelayObservable = require('RelayObservable');
 
 const warning = require('warning');
 
+import type {Variables} from '../util/RelayRuntimeTypes';
 import type {RequestNode} from 'RelayConcreteNode';
 import type {
   ExecuteFunction,
@@ -24,7 +25,6 @@ import type {
   GraphQLResponse,
   SubscribeFunction,
 } from 'RelayNetworkTypes';
-import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 /**
  * Converts a FetchFunction into an ExecuteFunction for use by RelayNetwork.

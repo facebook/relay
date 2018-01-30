@@ -12,7 +12,7 @@
 
 require('configureForRelayOSS');
 
-const RelayClassic = require('RelayClassic');
+const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
 const RelayQuery = require('../../query/RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
@@ -27,7 +27,7 @@ describe('filterRelayQuery()', () => {
     jest.resetModules();
 
     query = getNode(
-      RelayClassic.QL`
+      RelayClassic_DEPRECATED.QL`
       query {
         viewer {
           newsFeed(first: 10) {
@@ -63,7 +63,7 @@ describe('filterRelayQuery()', () => {
     };
     expect(filterRelayQuery(query, filter)).toEqualQueryRoot(
       getNode(
-        RelayClassic.QL`
+        RelayClassic_DEPRECATED.QL`
       query {
         viewer {
           newsFeed(first: 10) {

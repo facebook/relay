@@ -21,7 +21,7 @@ Table of Contents:
 
 Before starting, make sure to check out our [Prerequisites](./prerequisites.html) and [Installation and Setup](./installation-and-setup.html) guides. As mentioned in the prerequisites, we need to make sure that we've set up a GraphQL server and schema.
 
-Fortunately, we are going to be using this [example todo list app](https://github.com/relayjs/relay-examples/tree/master/todo), which already has a  [server](https://github.com/relayjs/relay-examples/blob/master/todo/server.js) and schema [schema](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql) available for us to use:
+Fortunately, we are going to be using this [example todo list app](https://github.com/relayjs/relay-examples/tree/master/todo), which already has a [server](https://github.com/relayjs/relay-examples/blob/master/todo/server.js) and [schema](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql) available for us to use:
 
 ```graphql
 # From schema.graphql
@@ -42,7 +42,7 @@ Additionally, we will be using [Flow](https://flow.org/) inside our Javascript c
 
 ## Relay Environment
 
-Before we can start rendering pixels on the screen, we need to configure Relay via a [Relay Envionment](./relay-environment.html). The environment bundles together the configuration, cache storage, and network-handling that Relay needs in order to operate.
+Before we can start rendering pixels on the screen, we need to configure Relay via a [Relay Environment](./relay-environment.html). The environment bundles together the configuration, cache storage, and network-handling that Relay needs in order to operate.
 
 For the purposes of our example, we are simply going to configure our environment to communicate with our existing GraphQL server:
 
@@ -79,7 +79,7 @@ const environment = new Environment({
 
 export default environment;
 ```
-A Relay Environment requires at least a [Store](./api-reference-store.html) and a [Network Layer](./network-layer). The above code uses the default implementation for `Store`, and creates a [Network Layer](./network-layer) using a simple `fetchQuery` function to fetch a GraphQL query from our server.
+A Relay Environment requires at least a [Store](./relay-store.html) and a [Network Layer](./network-layer). The above code uses the default implementation for `Store`, and creates a [Network Layer](./network-layer) using a simple `fetchQuery` function to fetch a GraphQL query from our server.
 
 Usually we'd want a single environment in our app, so you could export this environment as a singleton instance from a module to make it accessible across your app.
 
@@ -106,7 +106,7 @@ import {graphql, QueryRenderer} from 'react-relay';
 
 const environment = /* defined or imported above... */;
 
-export default App extends React.Component {
+export default class App extends React.Component {
   render() {
     return (
       <QueryRenderer
@@ -137,9 +137,9 @@ export default App extends React.Component {
 Our app is rendering a `QueryRenderer` in the above code, like any other React Component, but let's see what's going on in the props that we are passing to it:
 
 - We're passing the `environment` we defined earlier.
-- We're using using the [`graphql`](./api-reference-graphql) function to define our GraphQL query. `graphql` is a function that is never executed at runtime, but rather used by the [Relay Compiler](./relay-compiler) to generate the runtime artifacts that Relay requires to operate. We don't need to worry about this right now; for more details check out our [`graphql`](./api-reference-graphql) and [Relay Compiler](./relay-compiler) docs.
+- We're using using the [`graphql`](./graphql-in-relay.html) function to define our GraphQL query. `graphql` is a template tag that is never executed at runtime, but rather used by the [Relay Compiler](./graphql-in-relay.html#relay-compiler) to generate the runtime artifacts that Relay requires to operate. We don't need to worry about this right now; for more details check out our [GraphQL in Relay](./graphql-in-relay.html) docs.
 - We're passing an empty set of `variables`. We'll look into how to use variables in the next section.
-- We're passing a `render` function; as you can tell from the code, Relay gives us some information about wether an error occurred, or if we're still fetching the query. If everything succeeds, the data we requested will be available inside `props`, with the same shape as the one specified in the query.
+- We're passing a `render` function; as you can tell from the code, Relay gives us some information about whether an error occurred, or if we're still fetching the query. If everything succeeds, the data we requested will be available inside `props`, with the same shape as the one specified in the query.
 
 In order to run this app, we need to first compile our query using the Relay Compiler. Assuming the setup from [Installation and Setup](./installation-and-setup), we can just run `yarn relay`.
 
@@ -172,7 +172,7 @@ type Props = {
   userID: string,
 };
 
-export default UserTodoList extends React.Component<Props> {
+export default class UserTodoList extends React.Component<Props> {
   render() {
     const {userID} = this.props;
 
@@ -204,7 +204,7 @@ export default UserTodoList extends React.Component<Props> {
 
 The above code is doing something very similar to our [previous example](#rendering-graphql-queries), however, we are now passing a `$userID` variable to the GraphQL query, via the `variables` prop. This has a couple of important implications:
 
-- Given that `userID` is also a prop that our component takes, it could receive a new `userID` from its parent component at any moment. When this happens, we new `variables` will be passed down to our `QueryRenderer`, which will automatically cause it to re-fetch the query with the new value for `$userID`.
+- Given that `userID` is also a prop that our component takes, it could receive a new `userID` from its parent component at any moment. When this happens, new `variables` will be passed down to our `QueryRenderer`, which will automatically cause it to re-fetch the query with the new value for `$userID`.
 - The `$userID` variable will now be available anywhere inside that query; this will become important when to keep in mind when using fragments.
 
 Now that we've updated the query, don't forget to run `yarn relay`.
@@ -296,7 +296,7 @@ class Todo extends React.Component<Props> {
 export default createFragmentContainer(
   Todo,
   grapqhl`
-    # As a convention, we name the fragment as '<ComponentFileName>_<PropName>'
+    # As a convention, we name the fragment as '<ComponentFileName>_<propName>'
     fragment Todo_todo on Todo {
       complete
       text
@@ -399,7 +399,7 @@ import TodoList from './TodoList'
 
 const environment = /* defined or imported above... */;
 
-export default ViewerTodoList extends React.Component {
+export default class ViewerTodoList extends React.Component {
   render() {
     return (
       <QueryRenderer
@@ -423,8 +423,8 @@ export default ViewerTodoList extends React.Component {
           }
           return (
             <div>
-              <div>Todo list for User {props.user.id}:</div>
-              <TodoList userTodoData={props.user.userTodoData} />
+              <div>Todo list for User {props.viewer.id}:</div>
+              <TodoList userTodoData={props.viewer} />
             </div>
           );
         }}

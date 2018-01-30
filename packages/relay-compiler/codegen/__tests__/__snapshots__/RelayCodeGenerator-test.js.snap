@@ -1,0 +1,578 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RelayCodeGenerator matches expected output: batched-operations.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery($id: ID!) {
+  node(id: $id) {
+    id
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "kind": "BatchRequest",
+  "operationKind": "query",
+  "name": "TestQuery",
+  "metadata": {},
+  "fragment": null,
+  "requests": [
+    {
+      "name": "TestQuery",
+      "id": null,
+      "text": null,
+      "argumentDependencies": [],
+      "operation": {
+        "kind": "Operation",
+        "name": "TestQuery",
+        "argumentDefinitions": [
+          {
+            "kind": "LocalArgument",
+            "name": "id",
+            "type": "ID!",
+            "defaultValue": null
+          }
+        ],
+        "selections": [
+          {
+            "kind": "LinkedField",
+            "alias": null,
+            "name": "node",
+            "storageKey": null,
+            "args": [
+              {
+                "kind": "Variable",
+                "name": "id",
+                "variableName": "id",
+                "type": "ID"
+              }
+            ],
+            "concreteType": null,
+            "plural": false,
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "id",
+                "args": null,
+                "storageKey": null
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "TestQuery",
+      "id": null,
+      "text": null,
+      "argumentDependencies": [],
+      "operation": {
+        "kind": "Operation",
+        "name": "TestQuery",
+        "argumentDefinitions": [
+          {
+            "kind": "LocalArgument",
+            "name": "id",
+            "type": "ID!",
+            "defaultValue": null
+          }
+        ],
+        "selections": [
+          {
+            "kind": "LinkedField",
+            "alias": null,
+            "name": "node",
+            "storageKey": null,
+            "args": [
+              {
+                "kind": "Variable",
+                "name": "id",
+                "variableName": "id",
+                "type": "ID"
+              }
+            ],
+            "concreteType": null,
+            "plural": false,
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "id",
+                "args": null,
+                "storageKey": null
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "TestQuery",
+      "id": null,
+      "text": null,
+      "argumentDependencies": [],
+      "operation": {
+        "kind": "Operation",
+        "name": "TestQuery",
+        "argumentDefinitions": [
+          {
+            "kind": "LocalArgument",
+            "name": "id",
+            "type": "ID!",
+            "defaultValue": null
+          }
+        ],
+        "selections": [
+          {
+            "kind": "LinkedField",
+            "alias": null,
+            "name": "node",
+            "storageKey": null,
+            "args": [
+              {
+                "kind": "Variable",
+                "name": "id",
+                "variableName": "id",
+                "type": "ID"
+              }
+            ],
+            "concreteType": null,
+            "plural": false,
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "id",
+                "args": null,
+                "storageKey": null
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
+`;
+
+exports[`RelayCodeGenerator matches expected output: complex-arguments.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery($date: String) {
+  items(filter: {date: $date}) {
+    date
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+Invariant Violation: RelayCodeGenerator: Complex argument values (Lists or InputObjects with nested variables) are not supported, argument \`filter\` had value \`{
+  "kind": "ObjectValue",
+  "metadata": null,
+  "fields": [
+    {
+      "kind": "ObjectFieldValue",
+      "metadata": null,
+      "name": "date",
+      "value": {
+        "kind": "Variable",
+        "metadata": null,
+        "variableName": "date",
+        "type": "String"
+      }
+    }
+  ]
+}\`. Source: document undefined.
+`;
+
+exports[`RelayCodeGenerator matches expected output: linked-handle-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment LinkedHandleField on User {
+  friends(first: 10) @__clientField(handle: "clientFriends") {
+    count
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "kind": "Fragment",
+  "name": "LinkedHandleField",
+  "type": "User",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "friends",
+      "storageKey": "friends(first:10)",
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "first",
+          "value": 10,
+          "type": "Int"
+        }
+      ],
+      "concreteType": "FriendsConnection",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "count",
+          "args": null,
+          "storageKey": null
+        }
+      ]
+    },
+    {
+      "kind": "LinkedHandle",
+      "alias": null,
+      "name": "friends",
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "first",
+          "value": 10,
+          "type": "Int"
+        }
+      ],
+      "handle": "clientFriends",
+      "key": "",
+      "filters": null
+    }
+  ]
+}
+`;
+
+exports[`RelayCodeGenerator matches expected output: query-with-fragment-variables.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery($id: ID!, $cond: Boolean!, $pictureSize: [Int] = [128]) {
+  node(id: $id) {
+    id
+    ...Profile @arguments(pictureSize: $pictureSize)
+    ...ProfileFriends @include(if: $cond)
+  }
+}
+
+fragment ProfileFriends on User {
+  friends(first: 10) {
+    edges {
+      node {
+        ...Profile @arguments(pictureSize: $pictureSize)
+      }
+    }
+  }
+}
+
+fragment Profile on User @argumentDefinitions(
+  pictureSize: {type: "[Int]", nonNull: true}
+) {
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "kind": "Request",
+  "operationKind": "query",
+  "name": "TestQuery",
+  "id": null,
+  "text": null,
+  "metadata": {},
+  "fragment": null,
+  "operation": {
+    "kind": "Operation",
+    "name": "TestQuery",
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgument",
+        "name": "id",
+        "type": "ID!",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "cond",
+        "type": "Boolean!",
+        "defaultValue": null
+      },
+      {
+        "kind": "LocalArgument",
+        "name": "pictureSize",
+        "type": "[Int]",
+        "defaultValue": [
+          128
+        ]
+      }
+    ],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "node",
+        "storageKey": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id",
+            "type": "ID"
+          }
+        ],
+        "concreteType": null,
+        "plural": false,
+        "selections": [
+          {
+            "kind": "ScalarField",
+            "alias": null,
+            "name": "id",
+            "args": null,
+            "storageKey": null
+          },
+          {
+            "kind": "FragmentSpread",
+            "name": "Profile",
+            "args": [
+              {
+                "kind": "Variable",
+                "name": "pictureSize",
+                "variableName": "pictureSize",
+                "type": null
+              }
+            ]
+          },
+          {
+            "kind": "Condition",
+            "passingValue": true,
+            "condition": "cond",
+            "selections": [
+              {
+                "kind": "FragmentSpread",
+                "name": "ProfileFriends",
+                "args": null
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+
+{
+  "kind": "Fragment",
+  "name": "ProfileFriends",
+  "type": "User",
+  "metadata": null,
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "pictureSize",
+      "type": null
+    }
+  ],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "friends",
+      "storageKey": "friends(first:10)",
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "first",
+          "value": 10,
+          "type": "Int"
+        }
+      ],
+      "concreteType": "FriendsConnection",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "LinkedField",
+          "alias": null,
+          "name": "edges",
+          "storageKey": null,
+          "args": null,
+          "concreteType": "FriendsEdge",
+          "plural": true,
+          "selections": [
+            {
+              "kind": "LinkedField",
+              "alias": null,
+              "name": "node",
+              "storageKey": null,
+              "args": null,
+              "concreteType": "User",
+              "plural": false,
+              "selections": [
+                {
+                  "kind": "FragmentSpread",
+                  "name": "Profile",
+                  "args": [
+                    {
+                      "kind": "Variable",
+                      "name": "pictureSize",
+                      "variableName": "pictureSize",
+                      "type": null
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "Profile",
+  "type": "User",
+  "metadata": null,
+  "argumentDefinitions": [
+    {
+      "kind": "LocalArgument",
+      "name": "pictureSize",
+      "type": "[Int]",
+      "defaultValue": null
+    }
+  ],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "profilePicture",
+      "storageKey": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "size",
+          "variableName": "pictureSize",
+          "type": "[Int]"
+        }
+      ],
+      "concreteType": "Image",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "uri",
+          "args": null,
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}
+`;
+
+exports[`RelayCodeGenerator matches expected output: scalar-handle-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment ScalarHandleField on User {
+  name @__clientField(handle: "clientName")
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "kind": "Fragment",
+  "name": "ScalarHandleField",
+  "type": "User",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "name",
+      "args": null,
+      "storageKey": null
+    },
+    {
+      "kind": "ScalarHandle",
+      "alias": null,
+      "name": "name",
+      "args": null,
+      "handle": "clientName",
+      "key": "",
+      "filters": null
+    }
+  ]
+}
+`;
+
+exports[`RelayCodeGenerator matches expected output: stable-literals.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query StableLiteralsTest {
+  me {
+    # Note: these object fields are not defined in alphabetical order.
+    # The generated artifacts will be produced in alphabetical order.
+    storyCommentSearch(query: {text: "foo" limit: 2 offset: 10}) {
+      id
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "kind": "Request",
+  "operationKind": "query",
+  "name": "StableLiteralsTest",
+  "id": null,
+  "text": null,
+  "metadata": {},
+  "fragment": null,
+  "operation": {
+    "kind": "Operation",
+    "name": "StableLiteralsTest",
+    "argumentDefinitions": [],
+    "selections": [
+      {
+        "kind": "LinkedField",
+        "alias": null,
+        "name": "me",
+        "storageKey": null,
+        "args": null,
+        "concreteType": "User",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "LinkedField",
+            "alias": null,
+            "name": "storyCommentSearch",
+            "storageKey": "storyCommentSearch(query:{\\"limit\\":2,\\"offset\\":10,\\"text\\":\\"foo\\"})",
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "query",
+                "value": {
+                  "limit": 2,
+                  "offset": 10,
+                  "text": "foo"
+                },
+                "type": "StoryCommentSearchInput"
+              }
+            ],
+            "concreteType": "Comment",
+            "plural": true,
+            "selections": [
+              {
+                "kind": "ScalarField",
+                "alias": null,
+                "name": "id",
+                "args": null,
+                "storageKey": null
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+`;

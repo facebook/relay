@@ -12,8 +12,7 @@
 
 import type {QueryPath} from '../query/RelayQueryPath';
 import type {Call, ClientMutationID} from '../tools/RelayInternalTypes';
-import type {Variables} from '../tools/RelayTypes';
-import type {DataID} from 'RelayRuntime';
+import type {DataID, Variables} from 'RelayRuntime';
 
 export type Record = {
   // Records may contain many other fields as [fieldName: string]: mixed

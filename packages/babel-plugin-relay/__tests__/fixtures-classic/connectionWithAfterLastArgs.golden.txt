@@ -1,3 +1,0 @@
-ERROR:
-
-Error: connectionWithAfterLastArgs.input.txt: Relay Transform Error: Connection arguments `friends(after: <cursor>, last: <count>)` are not supported unless both are variables. Use `(last: <count>)`, `(before: <cursor>, last: <count>)`, `(after: <cursor>, first: <count>)`, or `(after: $<var>, last: $<var>)`.

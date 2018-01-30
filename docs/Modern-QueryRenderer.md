@@ -1,22 +1,23 @@
 ---
 id: query-renderer
-title: QueryRenderer
+title: <QueryRenderer />
 ---
 
-`QueryRenderer` is the root of a Relay tree. It takes a query, fetches its data, and calls the `render` callback with the data.
+A `QueryRenderer` is a React Component at the root of a Relay component tree. It takes a query, fetches the given query, and uses the `render` prop to render the resulting data.
 
-A `QueryRenderer` is a React component, so it can be rendered anywhere that a React component can be rendered, i.e. not just at the top level but *within* other components or containers; for example, to lazily fetch additional data for a popover.
+As React components, `QueryRenderer`s can be rendered anywhere that a React component can be rendered, i.e. not just at the top level but *within* other components or containers; for example, to lazily fetch additional data for a popover.
 
 However, a `QueryRenderer` will not start loading its data until it is mounted, so nested `QueryRenderer` components can lead to request waterfalls if used unnecessarily.
 
 ## Props
 
 * `environment`: The [Relay Environment](./relay-environment.html)
-* `query`: The `graphql` tagged query. **Note:** To enable [compatibility mode](./relay-compat.html), `relay-compiler` enforces query to be named as `<FileName>Query`.
+* `query`: The `graphql` tagged query. **Note:** To enable [compatibility mode](./relay-compat.html), `relay-compiler` enforces the query to be named as `<FileName>Query`. Optional, if not provided, an empty `props` object is passed to the `render` callback.
 * `variables`: Object containing set of variables to pass to the GraphQL query, i.e. a mapping from variable name to value. **Note:** If a new set of variables if passed, the `QueryRenderer` will re-fetch the query.
 * `render`: Function of type `({error, props}) => React.Node`. The output of this function will be rendered by the `QueryRenderer`.
   * `props`: Object containing data obtained from the query; the shape of this object will match the shape of the query. If this object is not defined, it means that the data is still being fetched.
   * `error`: Error will be defined if an error has occurred while fetching the query.
+  * `retry`: Reload the data. It is null if `query` was not provided.
 
 ## Example
 

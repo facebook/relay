@@ -80,7 +80,7 @@ const environment = new Environment({
 
 export default environment;
 ```
-A Relay Environment requires at least a [Store](./api-reference-store.html) and a [Network Layer](./network-layer). The above code uses the default implementation for `Store`, and creates a [Network Layer](./network-layer) using a simple `fetchQuery` function to fetch a GraphQL query from our server.
+A Relay Environment requires at least a [Store](./relay-store.html) and a [Network Layer](./network-layer). The above code uses the default implementation for `Store`, and creates a [Network Layer](./network-layer) using a simple `fetchQuery` function to fetch a GraphQL query from our server.
 
 Usually we'd want a single environment in our app, so you could export this environment as a singleton instance from a module to make it accessible across your app.
 
@@ -138,7 +138,7 @@ export default App extends React.Component {
 Our app is rendering a `QueryRenderer` in the above code, like any other React Component, but let's see what's going on in the props that we are passing to it:
 
 - We're passing the `environment` we defined earlier.
-- We're using using the [`graphql`](./api-reference-graphql) function to define our GraphQL query. `graphql` is a function that is never executed at runtime, but rather used by the [Relay Compiler](./relay-compiler) to generate the runtime artifacts that Relay requires to operate. We don't need to worry about this right now; for more details check out our [`graphql`](./api-reference-graphql) and [Relay Compiler](./relay-compiler) docs.
+- We're using using the [`graphql`](./graphql-in-relay.html) function to define our GraphQL query. `graphql` is a template tag that is never executed at runtime, but rather used by the [Relay Compiler](./graphql-in-relay.html#relay-compiler) to generate the runtime artifacts that Relay requires to operate. We don't need to worry about this right now; for more details check out our [GraphQL in Relay](./graphql-in-relay.html) docs.
 - We're passing an empty set of `variables`. We'll look into how to use variables in the next section.
 - We're passing a `render` function; as you can tell from the code, Relay gives us some information about wether an error occurred, or if we're still fetching the query. If everything succeeds, the data we requested will be available inside `props`, with the same shape as the one specified in the query.
 
@@ -297,7 +297,7 @@ class Todo extends React.Component<Props> {
 export default createFragmentContainer(
   Todo,
   grapqhl`
-    # As a convention, we name the fragment as '<ComponentFileName>_<PropName>'
+    # As a convention, we name the fragment as '<ComponentFileName>_<propName>'
     fragment Todo_todo on Todo {
       complete
       text

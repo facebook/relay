@@ -40,7 +40,7 @@ class Versions extends React.Component {
                     <a
                       href={`${
                         siteConfig.baseUrl
-                      }docs/en/next/introduction-to-relay-modern.html`}>
+                      }docs/en/next/introduction-to-relay.html`}>
                       Documentation
                     </a>
                   </td>
@@ -61,7 +61,7 @@ class Versions extends React.Component {
                     <a
                       href={`${
                         siteConfig.baseUrl
-                      }docs/en/introduction-to-relay-modern.html`}>
+                      }docs/en/introduction-to-relay.html`}>
                       Documentation
                     </a>
                   </td>
@@ -97,7 +97,7 @@ class Versions extends React.Component {
                                   }docs/en/${version}/classic-guides-containers.html`
                                 : `${
                                     siteConfig.baseUrl
-                                  }docs/en/${version}/introduction-to-relay-modern.html`
+                                  }docs/en/${version}/introduction-to-relay.html`
                             }>
                             Documentation
                           </a>

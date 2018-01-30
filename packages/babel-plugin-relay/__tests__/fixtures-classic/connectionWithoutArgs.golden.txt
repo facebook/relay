@@ -1,3 +1,0 @@
-ERROR:
-
-Error: connectionWithoutArgs.input.txt: Relay Transform Error: You supplied the `edges` field on a connection named `friends`, but you did not supply an argument necessary for Relay to handle the connection. Please specify a limit argument like `first`, or `last` or fetch a specific item with a `find` argument.

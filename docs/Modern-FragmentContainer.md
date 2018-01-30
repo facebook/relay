@@ -1,20 +1,62 @@
 ---
 id: fragment-container
-title: FragmentContainer
+title: Fragment Container
 ---
 
-The primary way to declare data requirements is via `createFragmentContainer` — a higher-order React component that lets React components encode their data requirements.
+A Fragment Container is a [higher-order component](https://reactjs.org/docs/higher-order-components.html) that allows components to specify their data requirements. A container does not directly fetch data, but instead declares a *specification* of the data needed for rendering, and then Relay will guarantee that this data is available *before* rendering occurs.
 
-Similar to how a React component's `render` method does not directly modify native views, Relay containers do not directly fetch data. Instead, containers declare a *specification* of the data needed to render. Relay guarantees that this data is available *before* rendering.
+Table of Contents:
+- [`createFragmentContainer`](#createfragmentcontainer)
+- [Example](#example)
+- [Container Composition](#container-composition)
+- [Rendering Containers](#rendering-containers)
 
-## A Complete Example
+## `createFragmentContainer`
 
-To start, let's build the plain React version of a `<TodoItem>` component that displays the text and completion status of a `Todo`.
-
-### Base React Component
-Here's a basic implementation of `<TodoItem>` that ignores styling in order to highlight the functionality:
+`createFragmentContainer` has the following signature:
 
 ```javascript
+createFragmentContainer(
+  component: ReactComponentClass,
+  fragmentSpec: GraphQLTaggedNode | {[string]: GraphQLTaggedNode},
+): ReactComponentClass;
+```
+
+### Arguments
+
+* `component`: The React Component *class* of the component requiring the fragment data.
+* `fragmentSpec`: Specifies the data requirements for the Component via a GraphQL fragment. The required data will be available on the component as props that match the shape of the provided fragment. `fragmentSpec` can be one of 2 things:
+  * A `graphql` tagged fragment. If the fragment uses the name convention `<FileName><...>_<propName>`, the fragment's data will be available to the Component as a prop with the given `<propName>`.
+  If the fragment name doesn't specify a prop name, the data will be available as a `data` prop.
+  * An object whose keys are prop names and values are `graphql` tagged fragments. Each key specified in this object will correspond to a prop in the resulting Component.
+  * **Note:** To enable [compatibility mode](./relay-compat.html), `relay-compiler` enforces fragments to be named as `<FileName>_<propName>`.
+
+### Available Props
+
+The Component resulting from `createFragmentContainer` will receive the following `props`:
+
+```
+type Props = {
+  relay: {
+    environment: Environment,
+  },
+  // Additional props as specified by the fragmentSpec
+}
+```
+
+* `relay`:
+  * `environment`: The current [Relay Environment](./relay-environment.html)
+
+## Example
+
+To start, let's build the plain React version of a hypothetical `<TodoItem />` component that displays the text and completion status of a `Todo`.
+
+### React Component
+
+Here's a basic implementation of `<TodoItem />` that ignores styling in order to highlight the functionality:
+
+```javascript
+// TodoItem.js
 class TodoItem extends React.Component {
   render() {
     // Expects the `item` prop to have the following shape:
@@ -37,9 +79,7 @@ class TodoItem extends React.Component {
 
 ### Data Dependencies With GraphQL
 
-In Relay, data dependencies are described using [GraphQL](https://github.com/facebook/graphql). For `<TodoItem>`, the dependency can be expressed as follows. Note that this exactly matches the shape that the component expected for the `item` prop.
-
-A naming convention of `<FileName>_<propName>` for fragments is advised. This restriction is required while migrating from classic to modern APIs to allow for cross-compatibility.
+In Relay, data dependencies are described using [GraphQL](https://github.com/facebook/graphql). For `<TodoItem />`, the dependency can be expressed as follows. Note that this exactly matches the shape that the component expected for the `item` prop.
 
 ```javascript
 graphql`
@@ -51,15 +91,18 @@ graphql`
 `
 ```
 
-### Relay Containers
+### Defining Containers
 
-Given the plain React component and a GraphQL fragment, we can now define a `Container` to tell Relay about this component's data requirements. Let's look at the code first and then see what's happening:
+Given the plain React component and a GraphQL fragment, we can now define a Fragment Container to specify this component's data requirements. Let's look at the code first and then see what's happening:
 
 ```javascript
+// TodoItem.js
+import {createFragmentContainer, graphql} from 'react-relay';
+
 class TodoItem extends React.Component {/* as above */}
 
 // Export a *new* React component that wraps the original `<TodoItem>`.
-module.exports = createFragmentContainer(TodoItem, {
+export default createFragmentContainer(TodoItem, {
   // For each of the props that depend on server data, we define a corresponding
   // key in this object. Here, the component expects server data to populate the
   // `item` prop, so we'll specify the fragment from above at the `item` key.
@@ -72,10 +115,10 @@ module.exports = createFragmentContainer(TodoItem, {
 });
 ```
 
-The example above is very similar to the classic container API, but in the modern API we can just pass the `graphql` template literal directly as the second argument. Relay will infer the prop name from the fragment name according to the fragment naming convention `<FileName>_<propName>`. The example below is equivalent to the one above:
+Relay will infer the prop name from the fragment name according to the fragment naming convention `<FileName><...>_<propName>`. The example below is equivalent to the one above:
 
 ```javascript
-module.exports = createFragmentContainer(
+export default createFragmentContainer(
   TodoItem,
   graphql`
     fragment TodoItem_item on Todo {
@@ -92,10 +135,11 @@ If there is no `_<propName>` suffix, the `data` prop name will be used:
 class TodoItem extends React.Component {
   render() {
     const item = this.props.data;
-
+    // ...
   }
 }
-module.exports = createFragmentContainer(
+
+export default createFragmentContainer(
   TodoItem,
   graphql`
     fragment TodoItem on Todo {
@@ -108,16 +152,13 @@ module.exports = createFragmentContainer(
 
 ## Container Composition
 
-React and Relay support creating arbitrarily complex applications through *composition*. Larger components can be created by composing smaller components, helping us to create modular, robust applications. There are two aspects to composing components in Relay:
+React and Relay support creating arbitrarily complex applications through *composition*. Larger components can be created by composing smaller components, helping us to create modular, robust applications.
 
-- Composing the view logic, and
-- Composing the data descriptions.
+Let's explore how this works via a `<TodoList />` component that composes the `<TodoItem />` we defined above.
 
-Let's explore how this works via a `<TodoList>` component that composes the `<TodoItem>` from above.
+### Composing Views
 
-### Composing Views - It's Plain React
-
-View composition is *exactly* what you're used to — Relay containers are standard React components. Here's the `<TodoList>` component:
+View composition is *exactly* what you're used to &mdash; Relay containers are just standard React components. Here's the `<TodoList />` component:
 
 ```javascript
 class TodoList extends React.Component {
@@ -138,12 +179,12 @@ class TodoList extends React.Component {
 
 ### Composing Fragments
 
-Fragment composition works similarly — a parent container's fragment composes the fragment for each of its children. In this case, `<TodoList>` needs to fetch information about the `Todo`s that are required by `<TodoItem>`.
+Fragment composition works similarly &mdash; a parent container's fragment composes the fragment for each of its children. In this case, `<TodoList />` needs to fetch information about the `Todo`s that are required by `<TodoItem />`.
 
 ```javascript
 class TodoList extends React.Component {/* as above */}
 
-module.exports = createFragmentContainer(
+export default createFragmentContainer(
   TodoList,
   // This `_list` fragment name suffix corresponds to the prop named `list` that
   // is expected to be populated with server data by the `<TodoList>` component.
@@ -162,6 +203,40 @@ module.exports = createFragmentContainer(
 
 Note that when composing fragments, the type of the composed fragment must match the field on the parent in which it is embedded. For example, it wouldn't make sense to embed a fragment of type `Story` into a parent's field of type `User`. Relay and GraphQL will provide helpful error messages if you get this wrong (and if they aren't helpful, let us know!).
 
+### Passing Arguments to a Fragment
+
+#### `@argumentDefinitions`
+
+When defining a fragment, you can use the [`@argumentDefinitions`](./graphql-in-relay.html#argumentdefinitions) directive to specify any arguments, with potentially default values, that the fragment expects.
+
+For example, let's redefine our `TodoList_list` fragment to take some arguments using `@argumentDefinitions`:
+
+```graphql
+fragment TodoList_list on TodoList @argumentDefinitions(
+  count: {type: "Int", defaultValue: 10},  # Optional argument
+  userID: {type: "ID"},                    # Required argument
+) {
+  title
+  todoItems(userID: $userID, first: $count) {  # Use fragment arguments here as variables
+    ...TodoItem_item
+  }
+}
+```
+
+Any arguments defined inside `@argumentDefinitions` will be local variables available inside the fragment's scope. However, a fragment can also reference global variables that were defined in the root query.
+
+#### `@arguments`
+
+In order to pass arguments to a fragment that has `@argumentDefinitions`, you need to use the [`@arguments`](./graphql-in-relay.html#arguments) directive.
+
+Following our `TodoList_list` example, we would pass arguments to the fragment like so:
+
+```graphql
+query TodoListQuery($count: Int, $userID: ID) {
+  ...TodoList_list @arguments(count: $count, userID: $userID) # Pass arguments here
+}
+```
+
 ### Calling Component Instance Methods
 
 React component classes may have methods, often accessed via [refs](https://facebook.github.io/react/docs/refs-and-the-dom.html).
@@ -170,7 +245,7 @@ Since Relay composes these component instances in a container, you need to use t
 Consider an input with a server-defined placeholder text and an imperative method to focus the input node:
 
 ```javascript
-module.exports = createFragmentContainer(
+export default createFragmentContainer(
   class TodoInput extends React.Component {
     focus() {
       this.input.focus();
@@ -194,7 +269,7 @@ module.exports = createFragmentContainer(
 To call this method on the underlying component, first provide a `componentRef` function to the Relay container. This differs from providing a [`ref`](https://facebook.github.io/react/docs/refs-and-the-dom.html) function which would provide a reference to the Relay container itself, not the underlying React Component.
 
 ```javascript
-module.exports = createFragmentContainer(
+export default createFragmentContainer(
   class TodoListView extends React.Component {
     render() {
       return <div onClick={() => this.input.focus()}>
@@ -213,10 +288,6 @@ module.exports = createFragmentContainer(
 );
 ```
 
-
 ## Rendering Containers
 
-As we've learned, Relay fragment containers declare data requirements as GraphQL fragments.
-We're almost ready to let Relay fulfill the data requirements for these components and render them. However, there is one problem. In order to actually fetch data with GraphQL, we need a query root. For example, we need to ground the `<TodoList>` fragment in a GraphQL query.
-
-In Relay, the root of a query is defined by a **QueryRenderer** so check out that section for more details.
+As we've learned, Relay fragment containers only declare data requirements as GraphQL fragments. In order to actually fetch and render the specified data, we need to use a `QueryRenderer` component to render a root query and any fragment containers included within. Please refer to our [`QueryRenderer`](./query-renderer.html) docs for more details.

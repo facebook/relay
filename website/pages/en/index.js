@@ -52,7 +52,7 @@ class HomeSplash extends React.Component {
                     <Button
                       href={
                         siteConfig.baseUrl +
-                        'docs/en/introduction-to-relay-modern.html'
+                        'docs/en/introduction-to-relay.html'
                       }>
                       Get Started
                     </Button>

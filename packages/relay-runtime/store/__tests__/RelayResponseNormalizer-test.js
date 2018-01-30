@@ -33,7 +33,7 @@ describe('RelayResponseNormalizer', () => {
   it('normalizes queries', () => {
     const {FooQuery} = generateWithTransforms(
       `
-      query FooQuery($id: ID, $size: Int) {
+      query FooQuery($id: ID, $size: [Int]) {
         node(id: $id) {
           id
           __typename
@@ -195,7 +195,7 @@ describe('RelayResponseNormalizer', () => {
     };
     const recordSource = new RelayInMemoryRecordSource();
     recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
-    const handleFieldPayloads = normalize(
+    const {fieldPayloads} = normalize(
       recordSource,
       {
         dataID: ROOT_ID,
@@ -205,15 +205,15 @@ describe('RelayResponseNormalizer', () => {
       payload,
     );
     expect(recordSource.toJSON()).toMatchSnapshot();
-    expect(handleFieldPayloads.length).toBe(2);
-    expect(handleFieldPayloads[0]).toEqual({
+    expect(fieldPayloads.length).toBe(2);
+    expect(fieldPayloads[0]).toEqual({
       args: {},
       dataID: 'pet',
       fieldKey: 'name',
       handle: 'friendsName',
       handleKey: '__name_friendsName',
     });
-    expect(handleFieldPayloads[1]).toEqual({
+    expect(fieldPayloads[1]).toEqual({
       args: {first: 1},
       dataID: '4',
       fieldKey: 'friends(first:1)',
@@ -276,7 +276,7 @@ describe('RelayResponseNormalizer', () => {
 
     const recordSource = new RelayInMemoryRecordSource();
     recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
-    let handleFieldPayloads = normalize(
+    let {fieldPayloads} = normalize(
       recordSource,
       {
         dataID: ROOT_ID,
@@ -286,8 +286,8 @@ describe('RelayResponseNormalizer', () => {
       payload1,
     );
     expect(recordSource.toJSON()).toMatchSnapshot();
-    expect(handleFieldPayloads.length).toBe(1);
-    expect(handleFieldPayloads[0]).toEqual({
+    expect(fieldPayloads.length).toBe(1);
+    expect(fieldPayloads[0]).toEqual({
       args: {first: 1, orderby: ['last name'], isViewerFriend: true},
       dataID: '4',
       fieldKey: 'friends(first:1,isViewerFriend:true,orderby:["last name"])',
@@ -313,7 +313,7 @@ describe('RelayResponseNormalizer', () => {
         },
       },
     };
-    handleFieldPayloads = normalize(
+    fieldPayloads = normalize(
       recordSource,
       {
         dataID: ROOT_ID,
@@ -321,10 +321,10 @@ describe('RelayResponseNormalizer', () => {
         variables: {id: '1', orderBy: ['first name'], isViewerFriend: true},
       },
       payload2,
-    );
+    ).fieldPayloads;
     expect(recordSource.toJSON()).toMatchSnapshot();
-    expect(handleFieldPayloads.length).toBe(1);
-    expect(handleFieldPayloads[0]).toEqual({
+    expect(fieldPayloads.length).toBe(1);
+    expect(fieldPayloads[0]).toEqual({
       args: {first: 1, orderby: ['first name'], isViewerFriend: true},
       dataID: '4',
       fieldKey: 'friends(first:1,isViewerFriend:true,orderby:["first name"])',
@@ -515,7 +515,7 @@ describe('RelayResponseNormalizer', () => {
   it('leaves undefined fields unset, as handleStrippedNulls == false', () => {
     const {StrippedQuery} = generateWithTransforms(
       `
-      query StrippedQuery($id: ID, $size: Int) {
+      query StrippedQuery($id: ID, $size: [Int]) {
         node(id: $id) {
           id
           __typename

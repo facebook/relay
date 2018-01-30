@@ -1,6 +1,0 @@
-ERROR:
-
-Error: mutationWithExtraArgs.input.txt: GraphQL Validation Error: Unknown argument "extra" on field "actorSubscribe" of type "Mutation".
->
->     actorSubscribe(input: $input, extra: $extra) {
->                                   ^^^

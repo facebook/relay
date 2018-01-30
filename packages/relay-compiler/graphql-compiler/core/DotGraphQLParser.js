@@ -23,7 +23,9 @@ import type {DocumentNode} from 'graphql';
 
 function parseFile(baseDir: string, file: File): ?DocumentNode {
   const text = fs.readFileSync(path.join(baseDir, file.relPath), 'utf8');
-  return parse(new Source(text, file.relPath));
+  return parse(new Source(text, file.relPath), {
+    experimentalFragmentVariables: true,
+  });
 }
 
 exports.getParser = function getParser(baseDir: string): ASTCache {

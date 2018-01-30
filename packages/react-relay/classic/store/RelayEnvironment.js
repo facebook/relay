@@ -51,19 +51,19 @@ import type {
   CacheManager,
   ChangeSubscription,
   NetworkLayer,
-  RelayMutationConfig,
   RelayMutationTransactionCommitCallbacks,
   ReadyStateChangeCallback,
   StoreReaderData,
   StoreReaderOptions,
-  Variables,
 } from '../tools/RelayTypes';
 import type RelayQueryTracker from './RelayQueryTracker';
 import type {DataID} from 'RelayRuntime';
 import type {
   Disposable,
+  DeclarativeMutationConfig,
   SelectorStoreUpdater,
   UploadableMap,
+  Variables,
 } from 'RelayRuntime';
 
 export type FragmentResolver = {
@@ -84,6 +84,7 @@ export interface RelayEnvironmentInterface {
     onNext: () => void,
   ): FragmentResolver;
   getStoreData(): RelayStoreData;
+  lookup(selector: Selector): Snapshot;
   primeCache(
     querySet: RelayQuerySet,
     onReadyStateChange: ReadyStateChangeCallback,
@@ -133,7 +134,7 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
     optimisticResponse,
     variables,
   }: {
-    configs: Array<RelayMutationConfig>,
+    configs: Array<DeclarativeMutationConfig>,
     operation: ConcreteOperationDefinition,
     optimisticResponse: Object,
     variables: Variables,
@@ -228,7 +229,7 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
     variables,
     uploadables,
   }: {
-    configs: Array<RelayMutationConfig>,
+    configs: Array<DeclarativeMutationConfig>,
     onCompleted?: ?(response: ResponseType) => void,
     onError?: ?(error: Error) => void,
     operation: ConcreteOperationDefinition,

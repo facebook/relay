@@ -17,6 +17,7 @@ const RelayDefaultHandlerProvider = require('RelayDefaultHandlerProvider');
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayPublishQueue = require('RelayPublishQueue');
 
+const deferrableFragmentKey = require('deferrableFragmentKey');
 const invariant = require('invariant');
 const normalizePayload = require('normalizePayload');
 const normalizeRelayPayload = require('normalizeRelayPayload');
@@ -61,6 +62,7 @@ class RelayModernEnvironment implements Environment {
   _store: Store;
   configName: ?string;
   unstable_internal: UnstableEnvironmentCore;
+  _deferrableSelections: Set<string> = new Set();
 
   constructor(config: EnvironmentConfig) {
     this.configName = config.configName;
@@ -165,6 +167,14 @@ class RelayModernEnvironment implements Environment {
     return this._store.retain(selector);
   }
 
+  isSelectorLoading(selector: Selector): boolean {
+    const key = deferrableFragmentKey(
+      selector.dataID,
+      selector.node.name,
+      selector.variables,
+    );
+    return this._deferrableSelections.has(key);
+  }
   /**
    * Returns an Observable of ExecutePayload resulting from executing the
    * provided Query or Subscription operation, each result of which is then
@@ -188,7 +198,10 @@ class RelayModernEnvironment implements Environment {
       .do({
         next: executePayload => {
           const responsePayload = normalizePayload(executePayload);
-          const {source, fieldPayloads} = responsePayload;
+          const {source, fieldPayloads, deferrableSelections} = responsePayload;
+          for (const selectionKey of deferrableSelections || new Set()) {
+            this._deferrableSelections.add(selectionKey);
+          }
           if (executePayload.isOptimistic) {
             invariant(
               optimisticResponse == null,
@@ -211,6 +224,16 @@ class RelayModernEnvironment implements Environment {
               executePayload.variables,
               executePayload.operation,
             );
+            if (executePayload.operation.kind === 'DeferrableOperation') {
+              const fragmentKey = deferrableFragmentKey(
+                executePayload.variables[
+                  executePayload.operation.rootFieldVariable
+                ],
+                executePayload.operation.fragmentName,
+                executePayload.variables,
+              );
+              this._deferrableSelections.delete(fragmentKey);
+            }
             this._publishQueue.commitPayload(
               writeSelector,
               responsePayload,

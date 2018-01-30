@@ -23,13 +23,13 @@ const {
 
 import type {CacheConfig} from '../classic/environment/RelayCombinedEnvironmentTypes';
 import type {ConcreteOperationDefinition} from '../classic/query/ConcreteQuery';
-import type {Variables} from '../classic/tools/RelayTypes';
 import type {
   GraphQLResponse,
+  IEnvironment,
   OperationSelector,
   PayloadError,
   RequestNode,
-  IEnvironment,
+  Variables,
 } from 'RelayRuntime';
 
 type DataWriteConfig = {

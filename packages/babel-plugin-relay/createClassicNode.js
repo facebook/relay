@@ -136,10 +136,12 @@ function createClassicAST(t, definition) {
       let substitutionName = null;
       let isMasked = true;
 
+      // $FlowFixMe graphql 0.12.2
       if (directives.length === 0) {
         substitutionName = fragmentName;
       } else {
         // TODO: maybe add support when unmasked fragment has arguments.
+        // $FlowFixMe graphql 0.12.2
         const directive = directives[0];
         invariant(
           directives.length === 1,
@@ -149,6 +151,7 @@ function createClassicAST(t, definition) {
         switch (directive.name.value) {
           case 'arguments':
             const fragmentArgumentsObject = {};
+            // $FlowFixMe graphql 0.12.2
             directive.arguments.forEach(argNode => {
               const argValue = argNode.value;
               if (argValue.kind === 'Variable') {
@@ -164,13 +167,17 @@ function createClassicAST(t, definition) {
           case 'relay':
             const relayArguments = directive.arguments;
             invariant(
+              // $FlowFixMe graphql 0.12.2
               relayArguments.length === 1 &&
+                // $FlowFixMe graphql 0.12.2
                 relayArguments[0].name.value === 'mask',
               'BabelPluginRelay: Expected `@relay` directive to only have `mask` argument in ' +
                 'compat mode, but get %s',
+              // $FlowFixMe graphql 0.12.2
               relayArguments[0].name.value,
             );
             substitutionName = fragmentName;
+            // $FlowFixMe graphql 0.12.2
             isMasked = relayArguments[0].value.value !== false;
             break;
           default:

@@ -15,17 +15,13 @@ const RelayParser = require('RelayParser');
 const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
 const RelayTestSchema = require('RelayTestSchema');
 
-const getGoldenMatchers = require('getGoldenMatchers');
-
 const {transformASTSchema} = require('ASTConvert');
+const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 
 describe('RelayRelayDirectiveTransform', () => {
-  beforeEach(() => {
-    expect.extend(getGoldenMatchers(__filename));
-  });
-
-  it('matches expected output', () => {
-    expect('fixtures/relay-directive-transform').toMatchGolden(text => {
+  generateTestsFromFixtures(
+    `${__dirname}/fixtures/relay-directive-transform`,
+    text => {
       const schema = transformASTSchema(RelayTestSchema, [
         RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
       ]);
@@ -36,6 +32,6 @@ describe('RelayRelayDirectiveTransform', () => {
         .documents()
         .map(doc => JSON.stringify(doc, null, 2))
         .join('\n');
-    });
-  });
+    },
+  );
 });

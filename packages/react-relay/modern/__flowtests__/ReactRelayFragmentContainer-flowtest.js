@@ -36,15 +36,11 @@ const Foo = createFragmentContainer(
   `,
 );
 
-/* $FlowFixMe(>=0.53.0) This comment suppresses an error
- * when upgrading Flow's support for React. Common errors found when upgrading
- * Flow's React support are documented at https://fburl.com/eq7bs81w */
-class BarComponent extends React.Component {
-  props: {
-    optionalProp?: {foo: number},
-    defaultProp: string,
-    requiredProp: string,
-  };
+class BarComponent extends React.Component<{
+  optionalProp?: {foo: number},
+  defaultProp: string,
+  requiredProp: string,
+}> {
   static defaultProps = {
     defaultProp: 'default',
   };
@@ -80,7 +76,7 @@ const Bar = createFragmentContainer(
 
 module.exports = {
   checkMissingPropOnFunctionalComponent() {
-    /** $ShouldBeFlowExpectedError: Foo missing `requiredProp` **/
+    /** $FlowExpectedError: Foo missing `requiredProp` **/
     return <Foo />;
   },
   checkMinimalPropsOnFunctionalComponent() {
@@ -88,7 +84,7 @@ module.exports = {
     return <Foo requiredProp="foo" />;
   },
   checkMissingPropOnClassComponent() {
-    /** $ShouldBeFlowExpectedError: Bar missing `requiredProp` **/
+    /** $FlowExpectedError: Bar missing `requiredProp` **/
     return <Bar />;
   },
   checkMinimalPropsOnClassComponent() {
@@ -96,19 +92,19 @@ module.exports = {
     return <Bar requiredProp="foo" />;
   },
   checkWrongPropType() {
-    /** $ShouldBeFlowExpectedError: Bar wrong `requiredProp` type, should be string **/
+    /** $FlowExpectedError: Bar wrong `requiredProp` type, should be string **/
     return <Bar requiredProp={17} />;
   },
   checkWrongOptionalType() {
-    /** $ShouldBeFlowExpectedError: Bar wrong `optionalProp` type, should be `{foo: string}` **/
+    /** $FlowExpectedError: Bar wrong `optionalProp` type, should be `{foo: string}` **/
     return <Bar optionalProp="wrongType" requiredProp="foo" />;
   },
   checkNullOptionalType() {
-    /** $ShouldBeFlowExpectedError: Bar `optionalProp` must be omitted or truthy, not null **/
+    /** $FlowExpectedError: Bar `optionalProp` must be omitted or truthy, not null **/
     return <Bar optionalProp={null} requiredProp="foo" />;
   },
   checkWrongDefaultPropType() {
-    /** $ShouldBeFlowExpectedError: Bar wrong `defaultProp` type, should be string **/
+    /** $FlowExpectedError: Bar wrong `defaultProp` type, should be string **/
     return <Bar defaultProp={false} requiredProp="foo" />;
   },
   checkAllPossibleProps() {
@@ -124,15 +120,11 @@ module.exports = {
   },
   checkMissingPropSpread() {
     const props = {defaultProp: 'foo'};
-    /** $ShouldBeFlowExpectedError: Bar missing `requiredProp` with spread **/
+    /** $FlowExpectedError: Bar missing `requiredProp` with spread **/
     return <Bar {...props} />;
   },
   checkStaticsAndMethodsProxying() {
-    /* $FlowFixMe(>=0.53.0) This comment suppresses an
-     * error when upgrading Flow's support for React. Common errors found when
-     * upgrading Flow's React support are documented at
-     * https://fburl.com/eq7bs81w */
-    class ProxyChecker extends React.PureComponent {
+    class ProxyChecker extends React.PureComponent<{||}> {
       _barRef: ?BarComponent;
       getString(): string {
         const ok = this._barRef ? this._barRef.getNum() : 'default'; // legit

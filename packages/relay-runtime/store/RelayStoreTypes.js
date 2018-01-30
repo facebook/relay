@@ -11,7 +11,7 @@
 
 'use strict';
 
-import type {DataID, Disposable} from '../util/RelayRuntimeTypes';
+import type {DataID, Disposable, Variables} from '../util/RelayRuntimeTypes';
 import type {
   ConcreteScalarField,
   ConcreteLinkedField,
@@ -42,7 +42,6 @@ import type {
   CUnstableEnvironmentCore,
   Record,
 } from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
-import type {Variables} from 'react-relay/classic/tools/RelayTypes';
 
 // eslint-disable-next-line no-undef
 export opaque type FragmentReference = empty;
@@ -273,6 +272,12 @@ export interface Environment
     selector: Selector,
     handlers: Array<MissingFieldHandler>,
   ): boolean;
+
+  /**
+   * Checks if the environment is waiting for a response from the network for
+   * a deferred fragment.
+   */
+  isSelectorLoading(selector: Selector): boolean;
 }
 
 /**
@@ -397,6 +402,9 @@ export type MissingFieldHandler =
  */
 export type RelayResponsePayload = {|
   fieldPayloads?: ?Array<HandleFieldPayload>,
+  deferrableSelections?: ?DeferrableSelections,
   source: MutableRecordSource,
   errors: ?Array<PayloadError>,
 |};
+
+export type DeferrableSelections = Set<string>;

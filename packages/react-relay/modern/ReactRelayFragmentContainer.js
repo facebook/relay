@@ -73,6 +73,7 @@ function createContainerWithFragments<
       this.state = {
         data: this._resolver.resolve(),
         relayProp: {
+          isLoading: this._resolver.isLoading(),
           environment: relay.environment,
         },
       };
@@ -111,6 +112,7 @@ function createContainerWithFragments<
           this._handleFragmentDataUpdate,
         );
         const relayProp = {
+          isLoading: this._resolver.isLoading(),
           environment: relay.environment,
         };
         this.setState({relayProp});
@@ -119,7 +121,13 @@ function createContainerWithFragments<
       }
       const data = this._resolver.resolve();
       if (data !== this.state.data) {
-        this.setState({data});
+        this.setState({
+          data,
+          relayProp: {
+            isLoading: this._resolver.isLoading(),
+            environment: relay.environment,
+          },
+        });
       }
     }
 
@@ -158,7 +166,16 @@ function createContainerWithFragments<
       const profiler = RelayProfiler.profile(
         'ReactRelayFragmentContainer.handleFragmentDataUpdate',
       );
-      this.setState({data}, profiler.stop);
+      this.setState(
+        {
+          data,
+          relayProp: {
+            ...this.state.relayProp,
+            isLoading: this._resolver.isLoading(),
+          },
+        },
+        profiler.stop,
+      );
     };
 
     render() {
@@ -206,10 +223,12 @@ function assertRelayContext(relay: mixed): RelayContext {
  * `fragmentSpec` is memoized once per environment, rather than once per
  * instance of the container constructed/rendered.
  */
-function createContainer<Props: {}>(
-  Component: React.ComponentType<Props>,
+function createContainer<Props: {}, TComponent: React.ComponentType<Props>>(
+  Component: TComponent,
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
-): React.ComponentType<$RelayProps<Props, RelayProp>> {
+): React.ComponentType<
+  $RelayProps<React.ElementConfig<TComponent>, RelayProp>,
+> {
   return buildReactRelayContainer(
     Component,
     fragmentSpec,

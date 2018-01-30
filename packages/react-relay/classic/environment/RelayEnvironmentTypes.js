@@ -15,7 +15,6 @@ import type {
   ConcreteFragmentDefinition,
   ConcreteOperationDefinition,
 } from '../query/ConcreteQuery';
-import type {Variables, RelayMutationConfig} from '../tools/RelayTypes';
 import type {
   CEnvironment,
   CFragmentMap,
@@ -25,7 +24,13 @@ import type {
   CSnapshot,
   CUnstableEnvironmentCore,
 } from './RelayCombinedEnvironmentTypes';
-import type {Disposable, GraphQLTaggedNode, UploadableMap} from 'RelayRuntime';
+import type {
+  DeclarativeMutationConfig,
+  Disposable,
+  GraphQLTaggedNode,
+  UploadableMap,
+  Variables,
+} from 'RelayRuntime';
 
 type TEnvironment = Environment;
 type TFragment = ConcreteFragmentDefinition;
@@ -69,7 +74,7 @@ export interface Environment
    * later time.
    */
   applyMutation(config: {|
-    configs: Array<RelayMutationConfig>,
+    configs: Array<DeclarativeMutationConfig>,
     operation: ConcreteOperationDefinition,
     optimisticResponse: Object,
     variables: Variables,
@@ -81,7 +86,7 @@ export interface Environment
    * and `onError` callbacks when the server response is returned.
    */
   sendMutation<ResponseType>(config: {|
-    configs: Array<RelayMutationConfig>,
+    configs: Array<DeclarativeMutationConfig>,
     onCompleted?: ?(response: ResponseType) => void,
     onError?: ?(error: Error) => void,
     operation: ConcreteOperationDefinition,

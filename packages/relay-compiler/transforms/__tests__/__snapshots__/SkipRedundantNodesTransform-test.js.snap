@@ -1,0 +1,223 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SkipRedundantNodesTransform matches expected output: dont-skip-different-ids.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query DontSkipDifferentIds {
+  viewer {
+    actor {
+      id
+      hometown {
+        id # id of a different parent field, can't skip
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query DontSkipDifferentIds {
+  viewer {
+    actor {
+      id
+      hometown {
+        id
+      }
+    }
+  }
+}
+
+`;
+
+exports[`SkipRedundantNodesTransform matches expected output: dont-skip-nested-fields-across-fragments.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query DontSkipNestedFieldsAcrossFragments {
+  viewer {
+    actor {
+      hometown {
+        id
+      }
+      ... on User {
+        hometown {
+          name # keep: not yet fetched
+        }
+      }
+      ... on User {
+        hometown {
+          id # skip: fetched by parent
+          name # skip: fetched by sibling
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query DontSkipNestedFieldsAcrossFragments {
+  viewer {
+    actor {
+      hometown {
+        id
+      }
+      ... on User {
+        hometown {
+          name
+        }
+      }
+    }
+  }
+}
+
+`;
+
+exports[`SkipRedundantNodesTransform matches expected output: skip-nested-linked-fields.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query SkipNestedLinkedFields {
+  viewer {
+    actor {
+      hometown {
+        name
+      }
+      ... on User {
+        hometown {
+          name # skip: fetched by parent
+        }
+      }
+      ... on User {
+        hometown {
+          id # keep: not yet fetched
+          name # skip: fetched by parent
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query SkipNestedLinkedFields {
+  viewer {
+    actor {
+      hometown {
+        name
+      }
+      ... on User {
+        hometown {
+          id
+        }
+      }
+    }
+  }
+}
+
+`;
+
+exports[`SkipRedundantNodesTransform matches expected output: skips-nested-fields.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query SkipNestedFields {
+  viewer {
+    actor {
+      id
+      ... on Actor {
+        name
+        ... on User {
+          name # skip, fetched by parent
+          lastName
+          # Note that this fragment would also be flattend by the
+          # FlattenTransform since the outer/inner types match
+          ... on User {
+            lastName # skip, fetched by parent
+          }
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query SkipNestedFields {
+  viewer {
+    actor {
+      id
+      ... on Actor {
+        name
+        ... on User {
+          lastName
+        }
+      }
+    }
+  }
+}
+
+`;
+
+exports[`SkipRedundantNodesTransform matches expected output: skips-with-outer-fields-first.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query SkipWithOuterFieldFirst($cond: Boolean, $notCond: Boolean) {
+  viewer {
+    actor {
+      id
+      ... on User {
+        id # skip: fetched by parent
+      }
+      # Note that this fragment would also be flattend by the
+      # FlattenTransform since the outer/inner types match
+      ... on Actor @include(if: $cond) @skip(if: $notCond) {
+        id # skip: fetched by parent
+        # Note that this fragment would also be flattend by the
+        # FlattenTransform since the outer/inner types match
+        ... on Actor @include(if: $cond) {
+          id # skip: fetched by parent
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query SkipWithOuterFieldFirst(
+  $cond: Boolean
+  $notCond: Boolean
+) {
+  viewer {
+    actor {
+      id
+    }
+  }
+}
+
+`;
+
+exports[`SkipRedundantNodesTransform matches expected output: skips-with-outer-fields-last.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query SkipWithOuterFieldLast($cond: Boolean!, $notCond: Boolean!) {
+  viewer {
+    actor {
+      ... on User {
+        id # skip: fetched by parent
+      }
+      # Note that this fragment would also be flattend by the
+      # FlattenTransform since the outer/inner types match
+      ... on Actor @include(if: $cond) @skip(if: $notCond) {
+        id # skip: fetched by parent
+        # Note that this fragment would also be flattend by the
+        # FlattenTransform since the outer/inner types match
+        ... on Actor @include(if: $cond) {
+          id # skip: fetched by parent
+        }
+      }
+      id
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query SkipWithOuterFieldLast(
+  $cond: Boolean!
+  $notCond: Boolean!
+) {
+  viewer {
+    actor {
+      id
+    }
+  }
+}
+
+`;

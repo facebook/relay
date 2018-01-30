@@ -146,7 +146,7 @@ constructor(
 
 This is the general constructor for creating `Relay.GraphQLMutation` instances with optional `files`, `callbacks` and `collisionKey` arguments.
 
-Callers must provide an appropriate `query` and `variables`. As per the GraphQL Relay Specification:
+Callers must provide an appropriate `query` and `variables`. As per the GraphQL Server Relay Specification:
 
 - The mutation should take a single argument named "input".
 - That input argument should contain a (string) "clientMutationId" property for the purposes of reconciling requests and responses (automatically added by the `Relay.GraphQLMutation` API).

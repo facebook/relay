@@ -16,12 +16,12 @@ const invariant = require('invariant');
 const mapObject = require('mapObject');
 const warning = require('warning');
 
-import type {Variables} from '../tools/RelayTypes';
 import type {
   ConcreteFragmentDefinition,
   ConcreteOperationDefinition,
 } from './ConcreteQuery';
 import type {VariableMapping} from './RelayFragmentReference';
+import type {Variables} from 'RelayRuntime';
 
 /**
  * Determines the variables that are in scope for a fragment given the variables

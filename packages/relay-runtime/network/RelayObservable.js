@@ -87,7 +87,7 @@ let hostReportError = swallowError;
 class RelayObservable<+T> implements Subscribable<T> {
   +_source: Source<T>;
 
-  static create<+V>(source: Source<V>): RelayObservable<V> {
+  static create<V>(source: Source<V>): RelayObservable<V> {
     return new RelayObservable((source: any));
   }
 
@@ -137,7 +137,7 @@ class RelayObservable<+T> implements Subscribable<T> {
    * Accepts various kinds of data sources, and always returns a RelayObservable
    * useful for accepting the result of a user-provided FetchFunction.
    */
-  static from<+V>(obj: ObservableFromValue<V>): RelayObservable<V> {
+  static from<V>(obj: ObservableFromValue<V>): RelayObservable<V> {
     return isObservable(obj)
       ? fromObservable(obj)
       : isPromise(obj) ? fromPromise(obj) : fromValue(obj);
@@ -150,7 +150,7 @@ class RelayObservable<+T> implements Subscribable<T> {
    * To support migration to Observable, the function may ignore the
    * legacy Relay observer and directly return an Observable instead.
    */
-  static fromLegacy<+V>(
+  static fromLegacy<V>(
     callback: (LegacyObserver<V>) => Disposable | RelayObservable<V>,
   ): RelayObservable<V> {
     return RelayObservable.create(sink => {

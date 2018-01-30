@@ -10,32 +10,20 @@
 
 'use strict';
 
+const GraphQLCompilerContext = require('GraphQLCompilerContext');
+const GraphQLIRPrinter = require('GraphQLIRPrinter');
+const RelayTestSchema = require('RelayTestSchema');
+const RelayViewerHandleTransform = require('RelayViewerHandleTransform');
+
+const parseGraphQLText = require('parseGraphQLText');
+
+const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+const {buildASTSchema, parse} = require('graphql');
+
 describe('RelayViewerHandleTransform', () => {
-  let GraphQLCompilerContext;
-  let GraphQLIRPrinter;
-  let RelayViewerHandleTransform;
-  let RelayTestSchema;
-  let getGoldenMatchers;
-  let parseGraphQLText;
-  let buildASTSchema;
-  let parse;
-
-  beforeEach(() => {
-    jest.resetModules();
-
-    GraphQLCompilerContext = require('GraphQLCompilerContext');
-    GraphQLIRPrinter = require('GraphQLIRPrinter');
-    RelayViewerHandleTransform = require('RelayViewerHandleTransform');
-    RelayTestSchema = require('RelayTestSchema');
-    getGoldenMatchers = require('getGoldenMatchers');
-    parseGraphQLText = require('parseGraphQLText');
-    ({buildASTSchema, parse} = require('graphql'));
-
-    expect.extend(getGoldenMatchers(__filename));
-  });
-
-  it('adds a handle to viewer fields', () => {
-    expect('fixtures/viewer-handle-transform').toMatchGolden(text => {
+  generateTestsFromFixtures(
+    `${__dirname}/fixtures/viewer-handle-transform`,
+    text => {
       const {definitions} = parseGraphQLText(RelayTestSchema, text);
       const context = new GraphQLCompilerContext(RelayTestSchema)
         .addAll(definitions)
@@ -45,8 +33,8 @@ describe('RelayViewerHandleTransform', () => {
         documents.push(GraphQLIRPrinter.print(doc));
       });
       return documents.join('\n');
-    });
-  });
+    },
+  );
 
   it('ignores schemas where viewer is not an object', () => {
     const schema = buildASTSchema(
@@ -56,6 +44,7 @@ describe('RelayViewerHandleTransform', () => {
       }
       scalar Viewer
     `),
+      {assumeValid: true},
     );
     const text = `
       query TestQuery {
@@ -84,6 +73,7 @@ describe('RelayViewerHandleTransform', () => {
         id: ID!
       }
     `),
+      {assumeValid: true},
     );
     const text = `
       query TestQuery {

@@ -10,13 +10,19 @@
 
 'use strict';
 
+const React = require('React');
 const ReactRelayPaginationContainer = require('../../modern/ReactRelayPaginationContainer');
 const RelayPropTypes = require('../../classic/container/RelayPropTypes');
 
 const {buildCompatContainer} = require('../ReactRelayCompatContainerBuilder');
 
 import type {ConnectionConfig} from '../../modern/ReactRelayPaginationContainer';
-import type {GeneratedNodeMap} from '../../modern/ReactRelayTypes';
+import type {
+  $RelayProps,
+  GeneratedNodeMap,
+  RelayPaginationProp,
+} from '../../modern/ReactRelayTypes';
+import type {RelayCompatContainer} from './RelayCompatTypes';
 import type {GraphQLTaggedNode} from 'RelayRuntime';
 
 /**
@@ -26,11 +32,13 @@ import type {GraphQLTaggedNode} from 'RelayRuntime';
  * `fragmentSpec` is memoized once per environment, rather than once per
  * instance of the container constructed/rendered.
  */
-function createContainer<TBase: React$ComponentType<*>>(
-  Component: TBase,
+function createContainer<Props: {}, TComponent: React.ComponentType<Props>>(
+  Component: TComponent,
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
   connectionConfig: ConnectionConfig,
-): TBase {
+): RelayCompatContainer<
+  $RelayProps<React.ElementConfig<TComponent>, RelayPaginationProp>,
+> {
   const Container = buildCompatContainer(
     Component,
     (fragmentSpec: any),
@@ -42,11 +50,7 @@ function createContainer<TBase: React$ComponentType<*>>(
       );
     },
   );
-  /* $FlowFixMe(>=0.53.0) This comment suppresses an error
-   * when upgrading Flow's support for React. Common errors found when
-   * upgrading Flow's React support are documented at
-   * https://fburl.com/eq7bs81w */
-  Container.childContextTypes = {
+  (Container: any).childContextTypes = {
     relay: RelayPropTypes.Relay,
   };
   return Container;

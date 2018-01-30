@@ -7,6 +7,8 @@
  * @format
  */
 
+'use strict';
+
 const React = require('react');
 
 class Footer extends React.Component {
@@ -27,8 +29,7 @@ class Footer extends React.Component {
             <h5>Docs</h5>
             <a
               href={
-                this.props.config.baseUrl +
-                'docs/en/introduction-to-relay-modern.html'
+                this.props.config.baseUrl + 'docs/en/introduction-to-relay.html'
               }>
               Introduction
             </a>

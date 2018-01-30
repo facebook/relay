@@ -161,7 +161,10 @@ function flattenSelectionsInto(
         ...flattenedSelection,
         selections: mergeSelections(flattenedSelection, selection, state, type),
       });
-    } else if (flattenedSelection.kind === 'FragmentSpread') {
+    } else if (
+      flattenedSelection.kind === 'FragmentSpread' ||
+      flattenedSelection.kind === 'DeferrableFragmentSpread'
+    ) {
       // Ignore duplicate fragment spreads.
     } else if (flattenedSelection.kind === 'LinkedField') {
       invariant(

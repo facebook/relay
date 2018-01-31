@@ -10,27 +10,14 @@
 
 'use strict';
 
-import type {RerunParam} from '../tools/RelayTypes';
-import type {DataID, Variables} from 'RelayRuntime';
-import type {Disposable, Observable, SelectorStoreUpdater} from 'RelayRuntime';
-
-/**
- * Settings for how a query response may be cached.
- *
- * - `force`: causes a query to be issued unconditionally, irrespective of the
- *   state of any configured response cache.
- * - `poll`: causes a query to live update by polling at the specified interval
-     in milliseconds. (This value will be passed to setTimeout.)
- * - `rerunParamExperimental`: causes the query to be run with the experimental
- *   batch API on Network interfaces and GraphQL servers that support it.
- * - `metadata`: user-supplied metadata.
- */
-export type CacheConfig = {
-  force?: ?boolean,
-  poll?: ?number,
-  rerunParamExperimental?: ?RerunParam,
-  metadata?: {[key: string]: mixed},
-};
+import type {
+  CacheConfig,
+  DataID,
+  Disposable,
+  Observable,
+  SelectorStoreUpdater,
+  Variables,
+} from 'RelayRuntime';
 
 /**
  * Arbitrary data e.g. received by a container as props.

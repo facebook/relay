@@ -17,10 +17,10 @@ const RelayPropTypes = require('../classic/container/RelayPropTypes');
 const areEqual = require('areEqual');
 const deepFreeze = require('deepFreeze');
 
-import type {CacheConfig} from '../classic/environment/RelayCombinedEnvironmentTypes';
 import type {RelayEnvironmentInterface as ClassicEnvironment} from '../classic/store/RelayEnvironment';
 import type {DataFrom} from './ReactRelayQueryFetcher';
 import type {
+  CacheConfig,
   GraphQLTaggedNode,
   IEnvironment,
   RelayContext,

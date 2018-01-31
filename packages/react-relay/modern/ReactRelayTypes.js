@@ -10,13 +10,14 @@
 
 'use strict';
 
-import type {RerunParam} from '../classic/tools/RelayTypes';
-import type {Disposable, Variables} from 'RelayRuntime';
 import type {
+  Disposable,
   FragmentReference,
   GraphQLTaggedNode,
   IEnvironment,
   Observer,
+  RerunParam,
+  Variables,
 } from 'RelayRuntime';
 
 export type GeneratedNodeMap = {[key: string]: GraphQLTaggedNode};

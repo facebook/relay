@@ -33,10 +33,7 @@ const {
   Observable,
 } = require('RelayRuntime');
 
-import type {
-  CacheConfig,
-  FragmentSpecResolver,
-} from '../classic/environment/RelayCombinedEnvironmentTypes';
+import type {FragmentSpecResolver} from '../classic/environment/RelayCombinedEnvironmentTypes';
 import type {
   $RelayProps,
   ObserverOrCallback,
@@ -45,6 +42,7 @@ import type {
   RelayPaginationProp,
 } from './ReactRelayTypes';
 import type {
+  CacheConfig,
   ConnectionMetadata,
   Disposable,
   FragmentMap,

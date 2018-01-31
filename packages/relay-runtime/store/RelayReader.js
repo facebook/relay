@@ -118,10 +118,7 @@ class RelayReader {
           this._readLink(selection, record, data);
         }
       } else if (selection.kind === CONDITION) {
-        const conditionValue = this._getVariableValue(selection.condition);
-        if (conditionValue === selection.passingValue) {
-          this._traverseSelections(selection.selections, record, data);
-        }
+        this._traverseSelections(selection.selections, record, data);
       } else if (selection.kind === INLINE_FRAGMENT) {
         const typeName = RelayModernRecord.getType(record);
         if (typeName != null && typeName === selection.type) {

@@ -714,7 +714,7 @@ describe('ReactRelayRefetchContainer', () => {
         },
       });
       expect(render.mock.calls.length).toBe(2);
-      expect(render.mock.calls[1][0].user.name).toBe(undefined);
+      expect(render.mock.calls[1][0].user.name).toBe('Zuck');
     });
 
     it('updates context with the results of new variables', () => {

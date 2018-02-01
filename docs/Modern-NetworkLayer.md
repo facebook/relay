@@ -8,7 +8,12 @@ In order to know how to access your GraphQL server, Relay Modern requires develo
 Currently the easiest way to create a network layer is via a helper from the `relay-runtime` package:
 
 ```javascript
-const {Environment, Network} = require('relay-runtime');
+import {
+  Environment,
+  Network,
+  RecordSource,
+  Store,
+} from 'relay-runtime';
 
 // Define a function that fetches the results of an operation (query/mutation/etc)
 // and returns its results as a Promise:
@@ -35,12 +40,15 @@ function fetchQuery(
 
 // Create a network layer from the fetch function
 const network = Network.create(fetchQuery);
+const store = new Store(new RecordSource())
 
-// Create an environment using this network:
 const environment = new Environment({
-  ..., // other options
   network,
+  store
+  // ... other options
 });
+
+export default environment;
 ```
 
 Note that this is a basic example to help you get started. This example could be extended with additional features such as request/response caching (enabled e.g. when `cacheConfig.force` is false) and uploading form data for mutations (the `uploadables` parameter).

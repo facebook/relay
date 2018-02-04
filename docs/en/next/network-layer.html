@@ -6,7 +6,12 @@
           };
         </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/Modern-NetworkLayer.md" target="_blank">Edit</a><h1>Network Layer</h1></header><article><div><span><p>In order to know how to access your GraphQL server, Relay Modern requires developers to provide an object implementing the <code>NetworkLayer</code> interface when creating an instance of a <a href="relay-environment.html">Relay Environment</a>. The environment uses this network layer to execute queries, mutations, and (if your server supports them) subscriptions. This allows developers to use whatever transport (HTTP, WebSockets, etc) and authentication is most appropriate for their application, decoupling the environment from the particulars of each application's network configuration.</p>
 <p>Currently the easiest way to create a network layer is via a helper from the <code>relay-runtime</code> package:</p>
-<pre><code class="hljs css javascript"><span class="hljs-keyword">const</span> {Environment, Network} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'relay-runtime'</span>);
+<pre><code class="hljs css javascript"><span class="hljs-keyword">import</span> {
+  Environment,
+  Network,
+  RecordSource,
+  Store,
+} <span class="hljs-keyword">from</span> <span class="hljs-string">'relay-runtime'</span>;
 
 <span class="hljs-comment">// Define a function that fetches the results of an operation (query/mutation/etc)</span>
 <span class="hljs-comment">// and returns its results as a Promise:</span>
@@ -33,12 +38,15 @@
 
 <span class="hljs-comment">// Create a network layer from the fetch function</span>
 <span class="hljs-keyword">const</span> network = Network.create(fetchQuery);
+<span class="hljs-keyword">const</span> store = <span class="hljs-keyword">new</span> Store(<span class="hljs-keyword">new</span> RecordSource())
 
-<span class="hljs-comment">// Create an environment using this network:</span>
 <span class="hljs-keyword">const</span> environment = <span class="hljs-keyword">new</span> Environment({
-  ..., <span class="hljs-comment">// other options</span>
   network,
+  store
+  <span class="hljs-comment">// ... other options</span>
 });
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> environment;
 </code></pre>
 <p>Note that this is a basic example to help you get started. This example could be extended with additional features such as request/response caching (enabled e.g. when <code>cacheConfig.force</code> is false) and uploading form data for mutations (the <code>uploadables</code> parameter).</p>
 <h2><a class="anchor" aria-hidden="true" name="custom-open-source-implementations"></a><a href="#custom-open-source-implementations" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Custom open-source implementations</h2>

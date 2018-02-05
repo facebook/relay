@@ -355,11 +355,21 @@ function transformFragment(
   if (appliedFragment) {
     return appliedFragment;
   }
-  const fragmentScope = getFragmentScope(
-    fragment.argumentDefinitions,
-    args,
-    parentScope,
-  );
+  let fragmentScope;
+  try {
+    fragmentScope = getFragmentScope(
+      fragment.argumentDefinitions,
+      args,
+      parentScope,
+    );
+  } catch (e) {
+    throw new Error(
+      'RelayApplyFragmentArgumentTransform: Error when transforming `' +
+        fragment.name +
+        '`: ' +
+        e.message,
+    );
+  }
   invariant(
     !fragments.has(fragmentName) || fragments.get(fragmentName) !== undefined,
     'RelayApplyFragmentArgumentTransform: Found a circular reference from ' +

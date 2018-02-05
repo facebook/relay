@@ -25,7 +25,7 @@ const warning = require('warning');
 
 const {createOperationSelector} = require('RelayModernOperationSelector');
 
-import type {Disposable} from '../util/RelayRuntimeTypes';
+import type {CacheConfig, Disposable} from '../util/RelayRuntimeTypes';
 import type {HandlerProvider} from 'RelayDefaultHandlerProvider';
 import type {
   ExecutePayload,
@@ -47,7 +47,6 @@ import type {
   StoreUpdater,
   UnstableEnvironmentCore,
 } from 'RelayStoreTypes';
-import type {CacheConfig} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 export type EnvironmentConfig = {
   configName?: string,

@@ -29,7 +29,6 @@ const warning = require('warning');
 
 const {Observable, recycleNodesInto} = require('RelayRuntime');
 
-import type {CacheConfig} from '../environment/RelayCombinedEnvironmentTypes';
 import type {
   Environment,
   OperationSelector,
@@ -57,10 +56,11 @@ import type {
   StoreReaderOptions,
 } from '../tools/RelayTypes';
 import type RelayQueryTracker from './RelayQueryTracker';
-import type {DataID} from 'RelayRuntime';
 import type {
-  Disposable,
+  CacheConfig,
+  DataID,
   DeclarativeMutationConfig,
+  Disposable,
   SelectorStoreUpdater,
   UploadableMap,
   Variables,

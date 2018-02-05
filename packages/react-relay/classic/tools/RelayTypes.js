@@ -205,9 +205,3 @@ export type SubscriptionCallbacks<T> = {
   onError(error: Error): void,
   onCompleted(): void,
 };
-export type RerunParam = {
-  param: string,
-  import?: ?string,
-  target?: ?string,
-  max_runs: number,
-};

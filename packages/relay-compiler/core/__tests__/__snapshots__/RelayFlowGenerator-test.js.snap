@@ -399,6 +399,25 @@ export type PluralFragment = $ReadOnlyArray<{|
 |}>;
 `;
 
+exports[`RelayFlowGenerator matches expected output: recursive-fragments.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment FragmentSpread on Node {
+  id
+  ... @include(if: $condition) {
+    ...FragmentSpread
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+import type { FragmentReference } from 'relay-runtime';
+declare export opaque type FragmentSpread$ref: FragmentReference;
+export type FragmentSpread = {|
+  +id: string,
+  +$fragmentRefs: FragmentSpread$ref,
+  +$refType: FragmentSpread$ref,
+|};
+`;
+
 exports[`RelayFlowGenerator matches expected output: roots.golden.txt 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 export type ExampleQueryVariables = {|

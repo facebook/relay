@@ -17,7 +17,7 @@ const invariant = require('invariant');
 
 const {convertFetch, convertSubscribe} = require('ConvertToExecuteFunction');
 
-import type {Variables} from '../util/RelayRuntimeTypes';
+import type {CacheConfig, Variables} from '../util/RelayRuntimeTypes';
 import type {RequestNode} from 'RelayConcreteNode';
 import type {
   FetchFunction,
@@ -26,7 +26,6 @@ import type {
   SubscribeFunction,
   UploadableMap,
 } from 'RelayNetworkTypes';
-import type {CacheConfig} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 /**
  * Creates an implementation of the `Network` interface defined in

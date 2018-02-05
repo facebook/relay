@@ -12,8 +12,8 @@
 
 const invariant = require('invariant');
 
-import type {CacheConfig} from '../classic/environment/RelayCombinedEnvironmentTypes';
 import type {
+  CacheConfig,
   Disposable,
   IEnvironment,
   OperationSelector,

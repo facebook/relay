@@ -15,6 +15,8 @@ node_modules/fbjs/flow/lib
 [options]
 module.system=haste
 module.name_mapper='^ReactDOM$' -> 'react-dom'
+; TODO(T25740028) once we're fully on babylon 7, we can remove this hack.
+module.name_mapper='^babylon7$' -> 'babylon'
 module.system.haste.paths.blacklist=<PROJECT_ROOT>/packages/react-relay/.*
 
 esproposal.class_static_fields=enable

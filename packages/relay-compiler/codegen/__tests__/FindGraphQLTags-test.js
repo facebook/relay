@@ -86,6 +86,9 @@ describe('FindGraphQLTags', () => {
             ): ?Disposable => {
               graphql\`fragment FindGraphQLTags on User { id }\`;
             }
+            render() {
+              return <>A Fragment!</>;
+            }
           }
         `),
       ).toEqual(['fragment FindGraphQLTags on User { id }']);

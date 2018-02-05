@@ -9,7 +9,7 @@
     "fb-watchman": "^2.0.0",
     "immutable": "~3.7.6"
   },
-  "peerDependency": {
+  "peerDependencies": {
     "graphql": "^0.12.3"
   },
   "maintainers": [

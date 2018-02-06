@@ -20,6 +20,12 @@ class GraphQLMultiReporter implements GraphQLReporter {
     this._reporters = reporters;
   }
 
+  reportMessage(message: string): void {
+    this._reporters.forEach(reporter => {
+      reporter.reportMessage(message);
+    });
+  }
+
   reportTime(name: string, ms: number): void {
     this._reporters.forEach(reporter => {
       reporter.reportTime(name, ms);

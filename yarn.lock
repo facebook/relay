@@ -2001,14 +2001,14 @@ fast-deep-equal@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/fast-deep-equal/-/fast-deep-equal-1.0.0.tgz#96256a3bc975595eb36d82e9929d060d893439ff"
 
-fast-glob@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/fast-glob/-/fast-glob-1.0.1.tgz#30f9b1120fd57a7f172364a6458fbdbd98187b3c"
+fast-glob@^2.0.0:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/fast-glob/-/fast-glob-2.0.2.tgz#985f01d251ddb045f42af0ca59ade9b9bff87725"
   dependencies:
-    bash-glob "^1.0.1"
-    glob-parent "^3.1.0"
-    micromatch "^3.0.3"
-    readdir-enhanced "^1.5.2"
+    glob-parent "3.1.0"
+    merge2 "1.2.1"
+    micromatch "3.1.5"
+    readdir-enhanced "2.2.0"
 
 fast-json-stable-stringify@^2.0.0:
   version "2.0.0"

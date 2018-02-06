@@ -78,8 +78,6 @@ function getFilepathsFromGlob(
   const glob = require('fast-glob');
   return glob.sync(patterns, {
     cwd: baseDir,
-    bashNative: [],
-    onlyFiles: true,
     ignore: exclude,
   });
 }

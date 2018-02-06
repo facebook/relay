@@ -492,8 +492,8 @@ function createContainerWithFragments<
       invariant(
         typeof connectionData === 'object',
         'ReactRelayPaginationContainer: Expected `getConnectionFromProps()` in `%s`' +
-          'to return `null` or a plain object with %s and %s properties, got `%s`.' +
-          componentName,
+          'to return `null` or a plain object with %s and %s properties, got `%s`.',
+        componentName,
         EDGES,
         PAGE_INFO,
         connectionData,

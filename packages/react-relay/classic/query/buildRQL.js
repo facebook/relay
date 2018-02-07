@@ -20,7 +20,6 @@ const mapObject = require('mapObject');
 
 const {RelayProfiler} = require('RelayRuntime');
 
-import type {RelayContainer} from '../tools/RelayTypes';
 import type {ConcreteFragment, ConcreteQuery} from './ConcreteQuery';
 import type {RelayConcreteNode} from './RelayQL';
 import type {Variables} from 'RelayRuntime';
@@ -29,7 +28,7 @@ export type RelayQLFragmentBuilder = (
   variables: Variables,
 ) => RelayConcreteNode;
 export type RelayQLQueryBuilder = (
-  Component: RelayContainer,
+  Component: $FlowFixMe,
   params: Variables,
 ) => RelayConcreteNode;
 

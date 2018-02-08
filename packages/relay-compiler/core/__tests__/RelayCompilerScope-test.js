@@ -228,31 +228,6 @@ describe('scope', () => {
     });
 
     /**
-     * defs: none
-     * args: size: 42
-     * parentScope: n/a
-     * => Error: unused argument size
-     */
-    it('throws for unused arguments', () => {
-      const definitions = [];
-      const calls = [
-        {
-          kind: 'Argument',
-          name: 'size',
-          value: {
-            kind: 'Literal',
-            value: 42,
-          },
-          type: requiredIntType,
-        },
-      ];
-      const outerScope = {};
-      expect(() => {
-        getFragmentScope(definitions, calls, outerScope);
-      }).toThrow('RelayCompilerScope: unused @argument(s): size');
-    });
-
-    /**
      * defs: implicit usage of global $size
      * args: (no value)
      * parentScope: n/a

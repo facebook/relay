@@ -148,28 +148,3 @@ fragment ProfileFriends on User {
 }
 
 `;
-
-exports[`RelayApplyFragmentArgumentTransform matches expected output: throws-on-extra-arguments.graphql 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery(
-  $pictureSize: [Int] = [128]
-) {
-  node(id: "test") {
-    id
-    ...Profile @arguments(pictureSize: $pictureSize, notReferenced: $pictureSize)
-  }
-}
-
-fragment Profile on User @argumentDefinitions(
-  pictureSize: {type: "[Int]", nonNull: true}
-) {
-  profilePicture(size: $pictureSize) {
-    uri
-  }
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-THROWN EXCEPTION:
-
-Error: RelayApplyFragmentArgumentTransform: Error when transforming \`Profile\`: RelayCompilerScope: unused @argument(s): notReferenced
-`;

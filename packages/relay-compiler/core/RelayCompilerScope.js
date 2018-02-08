@@ -133,9 +133,7 @@ function getFragmentScope(
   parentScope: Scope,
 ): Scope {
   const argMap = {};
-  const unusedArgs = new Set();
   args.forEach(arg => {
-    unusedArgs.add(arg.name);
     if (arg.value.kind === 'Literal') {
       argMap[arg.name] = arg.value;
     } else if (arg.value.kind === 'Variable') {
@@ -159,7 +157,6 @@ function getFragmentScope(
       };
     } else {
       const arg = argMap[definition.name];
-      unusedArgs.delete(definition.name);
       if (arg == null || (arg.kind === 'Literal' && arg.value == null)) {
         // No variable or literal null was passed, fall back to default
         // value.
@@ -181,11 +178,6 @@ function getFragmentScope(
       }
     }
   });
-  invariant(
-    unusedArgs.size === 0,
-    'RelayCompilerScope: unused @argument(s): %s',
-    Array.from(unusedArgs.values()).join(', '),
-  );
   return fragmentScope;
 }
 

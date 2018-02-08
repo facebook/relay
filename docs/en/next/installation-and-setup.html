@@ -32,6 +32,11 @@ Babel's <a href="https://babeljs.io/docs/plugins/#plugin-preset-ordering">docume
   <span class="hljs-string">"relay"</span>: <span class="hljs-string">"relay-compiler --src ./src --schema ./schema.graphql"</span>
 }
 </code></pre>
+<p>or if you are using jsx:</p>
+<pre><code class="hljs css js"><span class="hljs-string">"scripts"</span>: {
+  <span class="hljs-string">"relay"</span>: <span class="hljs-string">"relay-compiler --src ./src --schema path/schema.graphql --extensions js jsx"</span>
+}
+</code></pre>
 <p>Then, after making edits to your application files, just run the <code>relay</code> script to generate new compiled artifacts:</p>
 <pre><code class="hljs css sh">yarn run relay
 </code></pre>

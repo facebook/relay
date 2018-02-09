@@ -20,7 +20,7 @@ const {
   getNullableType,
   getRawType,
   getTypeFromAST,
-  isOperationDefinitionAST,
+  isExecutableDefinitionAST,
 } = require('./GraphQLSchemaUtils');
 const {
   assertCompositeType,
@@ -114,7 +114,7 @@ class GraphQLParser {
     // TODO T24511737 figure out if this is dangerous
     schema = extendSchema(schema, ast, {assumeValid: true});
     ast.definitions.forEach(definition => {
-      if (isOperationDefinitionAST(definition)) {
+      if (isExecutableDefinitionAST(definition)) {
         nodes.push(this.transform(schema, definition));
       }
     }, this);

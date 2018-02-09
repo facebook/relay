@@ -26,7 +26,10 @@ function getSchemaIntrospection(schemaPath: string, basePath: ?string) {
     if (source[0] === '{') {
       return JSON.parse(source);
     }
-    return parse(SCHEMA_EXTENSION + '\n' + source);
+    return parse(SCHEMA_EXTENSION + '\n' + source, {
+      // TODO(T25914961) remove after schema syncs with the new format.
+      allowLegacySDLImplementsInterfaces: true,
+    });
   } catch (error) {
     // Log a more helpful warning (by including the schema path).
     console.error(

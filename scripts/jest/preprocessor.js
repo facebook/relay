@@ -63,7 +63,7 @@ module.exports = {
     testSchemaPath,
     path.join(
       path.dirname(require.resolve('babel-preset-fbjs')),
-      'package.json',
+      'package.json'
     ),
     path.join(__dirname, '..', 'getBabelOptions.js'),
   ]),

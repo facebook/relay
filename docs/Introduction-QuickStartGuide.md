@@ -434,7 +434,7 @@ export default class ViewerTodoList extends React.Component {
 }
 ```
 
-Check out or docs for [Fragment Containers](./fragment-container) for more details, and our guides on [Refetch](./refetch-container) and [Pagination](./pagination-container) for more advanced usage of containers.
+Check out our docs for [Fragment Containers](./fragment-container) for more details, and our guides on [Refetch](./refetch-container) and [Pagination](./pagination-container) for more advanced usage of containers.
 
 ## Mutating Data
 

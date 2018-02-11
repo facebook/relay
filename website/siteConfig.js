@@ -32,6 +32,12 @@ const users = [
     infoLink: 'https://cirrus-ci.com/',
     pinned: false,
   },
+  {
+    caption: 'Friday',
+    image: '/relay/img/logos/friday.png',
+    infoLink: 'https://friday.work/',
+    pinned: false,
+  },
 ];
 
 const siteConfig = {

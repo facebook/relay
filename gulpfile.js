@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  *
- * @format
+ * @noformat
  */
 
 'use strict';
@@ -116,7 +116,7 @@ const buildDist = function(filename, opts, isProduction) {
     plugins: [
       new webpackStream.webpack.DefinePlugin({
         'process.env.NODE_ENV': JSON.stringify(
-          isProduction ? 'production' : 'development',
+          isProduction ? 'production' : 'development'
         ),
       }),
       new webpackStream.webpack.optimize.OccurenceOrderPlugin(),
@@ -131,7 +131,7 @@ const buildDist = function(filename, opts, isProduction) {
           screw_ie8: true,
           warnings: false,
         },
-      }),
+      })
     );
   }
   return webpackStream(webpackOpts, null, function(err, stats) {
@@ -265,8 +265,8 @@ gulp.task('modules', function() {
         ])
         .pipe(babel(babelOptions))
         .pipe(flatten())
-        .pipe(gulp.dest(path.join(DIST, build.package, 'lib'))),
-    ),
+        .pipe(gulp.dest(path.join(DIST, build.package, 'lib')))
+    )
   );
 });
 
@@ -287,8 +287,8 @@ gulp.task('copy-files', function() {
           .src(['*' + PACKAGES + '/' + build.package + '/*.graphql'])
           .pipe(flatten())
           .pipe(gulp.dest(path.join(DIST, build.package, 'lib'))),
-      ]),
-    ),
+      ])
+    )
   );
 });
 
@@ -298,9 +298,9 @@ gulp.task('exports', ['copy-files', 'modules'], function() {
       fs.writeFileSync(
         path.join(DIST, build.package, exportName + '.js'),
         PRODUCTION_HEADER +
-          `\nmodule.exports = require('./lib/${build.exports[exportName]}');`,
-      ),
-    ),
+          `\nmodule.exports = require('./lib/${build.exports[exportName]}');`
+      )
+    )
   );
 });
 
@@ -315,10 +315,10 @@ gulp.task('bins', ['modules'], function() {
             .pipe(buildDist(bin.output, bin, /* isProduction */ false))
             .pipe(header(SCRIPT_HASHBANG + PRODUCTION_HEADER))
             .pipe(chmod(0o755))
-            .pipe(gulp.dest(path.join(DIST, build.package, 'bin'))),
-        ),
-      ),
-    ),
+            .pipe(gulp.dest(path.join(DIST, build.package, 'bin')))
+        )
+      )
+    )
   );
 });
 
@@ -333,15 +333,15 @@ gulp.task('bundles', ['modules'], function() {
               buildDist(
                 bundle.output + '.js',
                 bundle,
-                /* isProduction */ false,
-              ),
+                /* isProduction */ false
+              )
             )
             .pipe(derequire())
             .pipe(header(DEVELOPMENT_HEADER))
-            .pipe(gulp.dest(path.join(DIST, build.package))),
-        ),
-      ),
-    ),
+            .pipe(gulp.dest(path.join(DIST, build.package)))
+        )
+      )
+    )
   );
 });
 
@@ -356,14 +356,14 @@ gulp.task('bundles:min', ['modules'], function() {
               buildDist(
                 bundle.output + '.min.js',
                 bundle,
-                /* isProduction */ true,
-              ),
+                /* isProduction */ true
+              )
             )
             .pipe(header(PRODUCTION_HEADER))
-            .pipe(gulp.dest(path.join(DIST, build.package))),
-        ),
-      ),
-    ),
+            .pipe(gulp.dest(path.join(DIST, build.package)))
+        )
+      )
+    )
   );
 });
 

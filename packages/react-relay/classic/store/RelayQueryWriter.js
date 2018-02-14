@@ -530,6 +530,9 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       // which would cause the generated ID here to not match the ID generated
       // in `_writeLink`.
       this.traverse(edges, {
+        /* $FlowFixMe(>=0.66.0) This comment suppresses an error found when Flow
+         * v0.66 was deployed. To see the error delete this comment and
+         * run Flow. */
         nodeID,
         path,
         recordID: edgeID,
@@ -608,6 +611,8 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     });
     // Write the linked records before traverse to prevent generating extraneous
     // client ids.
+    /* $FlowFixMe(>=0.66.0) This comment suppresses an error found when Flow
+     * v0.66 was deployed. To see the error delete this comment and run Flow. */
     this._writer.putLinkedRecordIDs(recordID, storageKey, nextLinkedIDs);
     nextLinkedIDs.forEach(nextLinkedID => {
       /* $FlowFixMe(>=0.54.0) This comment suppresses an
@@ -618,6 +623,9 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
         this.traverse(field, {
           nodeID: null, // never propagate `nodeID` past the first linked field
           path: itemData.path,
+          /* $FlowFixMe(>=0.66.0) This comment suppresses an error found when
+           * Flow v0.66 was deployed. To see the error delete this comment and
+           * run Flow. */
           recordID: nextLinkedID,
           responseData: itemData.record,
         });
@@ -683,6 +691,8 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
     this.traverse(field, {
       nodeID: null,
       path,
+      /* $FlowFixMe(>=0.66.0) This comment suppresses an error found when Flow
+       * v0.66 was deployed. To see the error delete this comment and run Flow. */
       recordID: nextLinkedID,
       responseData: fieldData,
     });

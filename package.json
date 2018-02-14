@@ -93,7 +93,6 @@
     "roots": [
       "<rootDir>/node_modules/fbjs/lib/",
       "<rootDir>/node_modules/fbjs-scripts/jest",
-      "<rootDir>/node_modules/react/lib/",
       "<rootDir>/packages/"
     ],
     "setupFiles": [

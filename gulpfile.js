@@ -50,6 +50,7 @@ const babelOptions = require('./scripts/getBabelOptions')({
     process: 'process',
     'prop-types': 'prop-types',
     React: 'react',
+    'react-lifecycles-compat': 'react-lifecycles-compat',
     'relay-compiler': 'relay-compiler',
     ReactDOM: 'react-dom',
     ReactNative: 'react-native',

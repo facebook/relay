@@ -16,6 +16,7 @@ const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
 const areEqual = require('areEqual');
 const deepFreeze = require('deepFreeze');
+const polyfill = require('react-lifecycles-compat');
 
 import type {RelayEnvironmentInterface as ClassicEnvironment} from '../classic/store/RelayEnvironment';
 import type {DataFrom} from './ReactRelayQueryFetcher';
@@ -28,11 +29,145 @@ import type {
   Variables,
 } from 'RelayRuntime';
 
+type RetryCallbacks = {
+  handleDataChange: ({
+    error?: Error,
+    snapshot?: Snapshot,
+  }) => void,
+  handleError: (error: Error) => void,
+};
+
 export type RenderProps = {
   error: ?Error,
   props: ?Object,
   retry: ?() => void,
 };
+
+export type Props = {
+  cacheConfig?: ?CacheConfig,
+  dataFrom?: DataFrom,
+  environment: IEnvironment | ClassicEnvironment,
+  query: ?GraphQLTaggedNode,
+  render: (renderProps: RenderProps) => React.Node,
+  variables: Variables,
+};
+
+type State = {
+  prevQuery: ?GraphQLTaggedNode,
+  prevEnvironment: IEnvironment | ClassicEnvironment,
+  prevVariables: Variables,
+  queryFetcher: ReactRelayQueryFetcher,
+  relayContext: RelayContext,
+  renderProps: RenderProps,
+  retryCallbacks: RetryCallbacks,
+};
+
+/**
+ * @public
+ *
+ * Orchestrates fetching and rendering data for a single view or view hierarchy:
+ * - Fetches the query/variables using the given network implementation.
+ * - Normalizes the response(s) to that query, publishing them to the given
+ *   store.
+ * - Renders the pending/fail/success states with the provided render function.
+ * - Subscribes for updates to the root data and re-renders with any changes.
+ */
+class ReactRelayQueryRenderer extends React.Component<Props, State> {
+  static childContextTypes = {
+    relay: RelayPropTypes.Relay,
+  };
+
+  constructor(props: Props, context: Object) {
+    super(props, context);
+
+    const handleDataChange = ({
+      error,
+      snapshot,
+    }: {
+      error?: Error,
+      snapshot?: Snapshot,
+    }): void => {
+      this.setState({
+        renderProps: getRenderProps(
+          error,
+          snapshot,
+          queryFetcher,
+          retryCallbacks,
+        ),
+      });
+    };
+
+    const handleError = (error: Error) =>
+      this.setState({renderProps: getLoadingRenderProps()});
+
+    const retryCallbacks = {
+      handleDataChange,
+      handleError,
+    };
+
+    const queryFetcher = new ReactRelayQueryFetcher();
+
+    this.state = {
+      prevQuery: this.props.query,
+      prevEnvironment: this.props.environment,
+      prevVariables: this.props.variables,
+      queryFetcher,
+      retryCallbacks,
+      ...getStateUpdateForProps(this.props, queryFetcher, retryCallbacks),
+    };
+  }
+
+  static getDerivedStateFromProps(
+    nextProps: Props,
+    prevState: State,
+  ): $Shape<State> | null {
+    if (
+      prevState.prevQuery !== nextProps.query ||
+      prevState.prevEnvironment !== nextProps.environment ||
+      !areEqual(prevState.prevVariables, nextProps.variables)
+    ) {
+      return {
+        prevQuery: nextProps.query,
+        prevEnvironment: nextProps.environment,
+        prevVariables: nextProps.variables,
+        ...getStateUpdateForProps(
+          nextProps,
+          prevState.queryFetcher,
+          prevState.retryCallbacks,
+        ),
+      };
+    }
+
+    return null;
+  }
+
+  componentWillUnmount(): void {
+    this.state.queryFetcher.dispose();
+  }
+
+  shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
+    return (
+      nextProps.render !== this.props.render ||
+      nextState.renderProps !== this.state.renderProps
+    );
+  }
+
+  getChildContext(): Object {
+    return {
+      relay: this.state.relayContext,
+    };
+  }
+
+  render() {
+    // Note that the root fragment results in `renderProps.props` is already
+    // frozen by the store; this call is to freeze the renderProps object and
+    // error property if set.
+    if (__DEV__) {
+      deepFreeze(this.state.renderProps);
+    }
+    return this.props.render(this.state.renderProps);
+  }
+}
 
 function getLoadingRenderProps(): RenderProps {
   return {
@@ -50,152 +185,91 @@ function getEmptyRenderProps(): RenderProps {
   };
 }
 
-export type Props = {
-  cacheConfig?: ?CacheConfig,
-  dataFrom?: DataFrom,
-  environment: IEnvironment | ClassicEnvironment,
-  query: ?GraphQLTaggedNode,
-  render: (renderProps: RenderProps) => React.Node,
-  variables: Variables,
-};
-
-type State = {
-  renderProps: RenderProps,
-};
-
-/**
- * @public
- *
- * Orchestrates fetching and rendering data for a single view or view hierarchy:
- * - Fetches the query/variables using the given network implementation.
- * - Normalizes the response(s) to that query, publishing them to the given
- *   store.
- * - Renders the pending/fail/success states with the provided render function.
- * - Subscribes for updates to the root data and re-renders with any changes.
- */
-class ReactRelayQueryRenderer extends React.Component<Props, State> {
-  _queryFetcher: ReactRelayQueryFetcher = new ReactRelayQueryFetcher();
-  _relayContext: RelayContext;
-
-  constructor(props: Props, context: Object) {
-    super(props, context);
-    this.state = {renderProps: this._fetchForProps(this.props)};
-  }
-
-  componentWillReceiveProps(nextProps: Props): void {
-    if (
-      nextProps.query !== this.props.query ||
-      nextProps.environment !== this.props.environment ||
-      !areEqual(nextProps.variables, this.props.variables)
-    ) {
-      this.setState({
-        renderProps: this._fetchForProps(nextProps),
-      });
-    }
-  }
-
-  componentWillUnmount(): void {
-    this._queryFetcher.dispose();
-  }
-
-  shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
-    return (
-      nextProps.render !== this.props.render ||
-      nextState.renderProps !== this.state.renderProps
-    );
-  }
-
-  _getRenderProps({snapshot, error}: {snapshot?: Snapshot, error?: Error}) {
-    return {
-      error: error ? error : null,
-      props: snapshot ? snapshot.data : null,
-      retry: () => {
-        const syncSnapshot = this._queryFetcher.retry();
-        if (syncSnapshot) {
-          this._onDataChange({snapshot: syncSnapshot});
-        } else if (error) {
-          // If retrying after an error and no synchronous result available,
-          // reset the render props
-          this.setState({renderProps: getLoadingRenderProps()});
-        }
-      },
-    };
-  }
-
-  _fetchForProps(props: Props): RenderProps {
-    // TODO (#16225453) QueryRenderer works with old and new environment, but
-    // the flow typing doesn't quite work abstracted.
-    // $FlowFixMe
-    const environment: IEnvironment = props.environment;
-
-    const {query, variables} = props;
-    if (query) {
-      const {
-        createOperationSelector,
-        getRequest,
-      } = environment.unstable_internal;
-      const request = getRequest(query);
-      const operation = createOperationSelector(request, variables);
-
-      this._relayContext = {
-        environment,
-        variables: operation.variables,
-      };
-
-      try {
-        const snapshot = this._queryFetcher.fetch({
-          cacheConfig: props.cacheConfig,
-          dataFrom: props.dataFrom,
-          environment,
-          onDataChange: this._onDataChange,
-          operation,
-        });
-        if (!snapshot) {
-          return getLoadingRenderProps();
-        }
-        return this._getRenderProps({snapshot});
-      } catch (error) {
-        return this._getRenderProps({error});
+function getRenderProps(
+  error: ?Error,
+  snapshot: ?Snapshot,
+  queryFetcher: ReactRelayQueryFetcher,
+  retryCallbacks: RetryCallbacks,
+): RenderProps {
+  return {
+    error: error ? error : null,
+    props: snapshot ? snapshot.data : null,
+    retry: () => {
+      const syncSnapshot = queryFetcher.retry();
+      if (syncSnapshot) {
+        retryCallbacks.handleDataChange({snapshot: syncSnapshot});
+      } else if (error) {
+        retryCallbacks.handleError(error);
       }
-    }
-
-    this._relayContext = {
-      environment,
-      variables,
-    };
-    this._queryFetcher.dispose();
-    return getEmptyRenderProps();
-  }
-
-  _onDataChange = ({
-    error,
-    snapshot,
-  }: {
-    error?: Error,
-    snapshot?: Snapshot,
-  }): void => {
-    this.setState({renderProps: this._getRenderProps({error, snapshot})});
+    },
   };
+}
 
-  getChildContext(): Object {
-    return {
-      relay: this._relayContext,
+function getStateUpdateForProps(
+  props: Props,
+  queryFetcher: ReactRelayQueryFetcher,
+  retryCallbacks: RetryCallbacks,
+): $Shape<State> {
+  // TODO (#16225453) QueryRenderer works with old and new environment, but
+  // the flow typing doesn't quite work abstracted.
+  // $FlowFixMe
+  const environment: IEnvironment = props.environment;
+
+  const {query, variables} = props;
+  if (query) {
+    const {createOperationSelector, getRequest} = environment.unstable_internal;
+    const request = getRequest(query);
+    const operation = createOperationSelector(request, variables);
+
+    const relayContext = {
+      environment,
+      variables: operation.variables,
     };
-  }
 
-  render() {
-    // Note that the root fragment results in `renderProps.props` is already
-    // frozen by the store; this call is to freeze the renderProps object and
-    // error property if set.
-    if (__DEV__) {
-      deepFreeze(this.state.renderProps);
+    try {
+      const snapshot = queryFetcher.fetch({
+        cacheConfig: props.cacheConfig,
+        dataFrom: props.dataFrom,
+        environment,
+        onDataChange: retryCallbacks.handleDataChange,
+        operation,
+      });
+      if (!snapshot) {
+        return {
+          relayContext,
+          renderProps: getLoadingRenderProps(),
+        };
+      }
+
+      return {
+        relayContext,
+        renderProps: getRenderProps(
+          null,
+          snapshot,
+          queryFetcher,
+          retryCallbacks,
+        ),
+      };
+    } catch (error) {
+      return {
+        relayContext,
+        renderProps: getRenderProps(error, null, queryFetcher, retryCallbacks),
+      };
     }
-    return this.props.render(this.state.renderProps);
+  } else {
+    queryFetcher.dispose();
+
+    return {
+      relayContext: {
+        environment,
+        variables,
+      },
+      renderProps: getEmptyRenderProps(),
+    };
   }
 }
 
-ReactRelayQueryRenderer.childContextTypes = {
-  relay: RelayPropTypes.Relay,
-};
+// Make static getDerivedStateFromProps work with older React versions:
+polyfill(ReactRelayQueryRenderer);
 
 module.exports = ReactRelayQueryRenderer;

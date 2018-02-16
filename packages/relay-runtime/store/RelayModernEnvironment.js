@@ -23,6 +23,7 @@ const normalizePayload = require('normalizePayload');
 const normalizeRelayPayload = require('normalizeRelayPayload');
 const warning = require('warning');
 
+const {getOperationVariables} = require('RelayConcreteVariables');
 const {createOperationSelector} = require('RelayModernOperationSelector');
 
 import type {CacheConfig, Disposable} from '../util/RelayRuntimeTypes';
@@ -229,7 +230,10 @@ class RelayModernEnvironment implements Environment {
                   executePayload.operation.rootFieldVariable
                 ],
                 executePayload.operation.fragmentName,
-                executePayload.variables,
+                getOperationVariables(
+                  executePayload.operation,
+                  executePayload.variables,
+                ),
               );
               this._deferrableSelections.delete(fragmentKey);
             }

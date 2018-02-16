@@ -175,6 +175,7 @@ class RelayResponseNormalizer {
           handleKey,
         });
       } else if (selection.kind === DEFERRABLE_FRAGMENT_SPREAD) {
+        const dataID = RelayModernRecord.getDataID(record);
         const value = RelayModernRecord.getValue(record, selection.storageKey);
         invariant(
           typeof value === 'string',
@@ -187,8 +188,7 @@ class RelayResponseNormalizer {
               [selection.rootFieldVariable]: value,
             })
           : {};
-
-        const key = deferrableFragmentKey(value, selection.name, variables);
+        const key = deferrableFragmentKey(dataID, selection.name, variables);
         this._deferrableSelections.add(key);
       } else {
         invariant(

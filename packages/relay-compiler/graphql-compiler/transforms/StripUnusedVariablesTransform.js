@@ -35,6 +35,7 @@ function stripUnusedVariablesTransform(
     let fragmentFragmentSpreads;
     let rootVariables;
     let rootFragmentSpreads;
+    let insideDeferrableFragmentSpread = false;
     GraphQLIRVisitor.visit(document, {
       Root: {
         enter(root) {
@@ -61,12 +62,24 @@ function stripUnusedVariablesTransform(
         },
       },
       Variable(variable) {
-        fragmentVariables && fragmentVariables.add(variable.variableName);
-        rootVariables && rootVariables.add(variable.variableName);
+        if (!insideDeferrableFragmentSpread) {
+          fragmentVariables && fragmentVariables.add(variable.variableName);
+          rootVariables && rootVariables.add(variable.variableName);
+        }
       },
       FragmentSpread(spread) {
-        fragmentFragmentSpreads && fragmentFragmentSpreads.add(spread.name);
-        rootFragmentSpreads && rootFragmentSpreads.add(spread.name);
+        if (!insideDeferrableFragmentSpread) {
+          fragmentFragmentSpreads && fragmentFragmentSpreads.add(spread.name);
+          rootFragmentSpreads && rootFragmentSpreads.add(spread.name);
+        }
+      },
+      DeferrableFragmentSpread: {
+        enter() {
+          insideDeferrableFragmentSpread = true;
+        },
+        leave() {
+          insideDeferrableFragmentSpread = false;
+        },
       },
     });
   });

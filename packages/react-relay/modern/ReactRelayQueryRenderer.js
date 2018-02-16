@@ -34,7 +34,7 @@ type RetryCallbacks = {
     error?: Error,
     snapshot?: Snapshot,
   }) => void,
-  handleError: (error: Error) => void,
+  handleRetryAfterError: (error: Error) => void,
 };
 
 export type RenderProps = {
@@ -73,6 +73,8 @@ type State = {
  * - Subscribes for updates to the root data and re-renders with any changes.
  */
 class ReactRelayQueryRenderer extends React.Component<Props, State> {
+  // TODO (T25783053) Update this component to use the new React context API,
+  // Once we have confirmed that it's okay to raise min React version to 16.3.
   static childContextTypes = {
     relay: RelayPropTypes.Relay,
   };
@@ -97,12 +99,12 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
       });
     };
 
-    const handleError = (error: Error) =>
+    const handleRetryAfterError = (error: Error) =>
       this.setState({renderProps: getLoadingRenderProps()});
 
     const retryCallbacks = {
       handleDataChange,
-      handleError,
+      handleRetryAfterError,
     };
 
     const queryFetcher = new ReactRelayQueryFetcher();
@@ -113,7 +115,11 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
       prevVariables: this.props.variables,
       queryFetcher,
       retryCallbacks,
-      ...getStateUpdateForProps(this.props, queryFetcher, retryCallbacks),
+      ...fetchQueryAndComputeStateFromProps(
+        this.props,
+        queryFetcher,
+        retryCallbacks,
+      ),
     };
   }
 
@@ -130,7 +136,7 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
         prevQuery: nextProps.query,
         prevEnvironment: nextProps.environment,
         prevVariables: nextProps.variables,
-        ...getStateUpdateForProps(
+        ...fetchQueryAndComputeStateFromProps(
           nextProps,
           prevState.queryFetcher,
           prevState.retryCallbacks,
@@ -199,13 +205,15 @@ function getRenderProps(
       if (syncSnapshot) {
         retryCallbacks.handleDataChange({snapshot: syncSnapshot});
       } else if (error) {
-        retryCallbacks.handleError(error);
+        // If retrying after an error and no synchronous result available,
+        // reset the render props
+        retryCallbacks.handleRetryAfterError(error);
       }
     },
   };
 }
 
-function getStateUpdateForProps(
+function fetchQueryAndComputeStateFromProps(
   props: Props,
   queryFetcher: ReactRelayQueryFetcher,
   retryCallbacks: RetryCallbacks,

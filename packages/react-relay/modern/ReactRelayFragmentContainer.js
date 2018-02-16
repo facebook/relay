@@ -11,33 +11,33 @@
 'use strict';
 
 const React = require('React');
-const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
 const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
 const invariant = require('invariant');
 const isRelayContext = require('../classic/environment/isRelayContext');
 const isScalarAndEqual = require('isScalarAndEqual');
-const nullthrows = require('nullthrows');
+const polyfill = require('react-lifecycles-compat');
 
 const {
   getComponentName,
   getReactComponent,
 } = require('../classic/container/RelayContainerUtils');
 const {profileContainer} = require('./ReactRelayContainerProfiler');
+const {injectContext} = require('./ReactRelayContextConsumer');
 const {RelayProfiler} = require('RelayRuntime');
 
 import type {FragmentSpecResolver} from '../classic/environment/RelayCombinedEnvironmentTypes';
 import type {$RelayProps, GeneratedNodeMap, RelayProp} from './ReactRelayTypes';
 import type {FragmentMap, GraphQLTaggedNode, RelayContext} from 'RelayRuntime';
 
+type ContainerProps = $FlowFixMeProps;
 type ContainerState = {
   data: {[key: string]: mixed},
+  fragmentSpecResolverCallback: () => void,
+  prevProps: ContainerProps,
   relayProp: RelayProp,
-};
-
-const containerContextTypes = {
-  relay: RelayPropTypes.Relay,
+  resolver: FragmentSpecResolver,
 };
 
 /**
@@ -56,14 +56,12 @@ function createContainerWithFragments<
   const componentName = getComponentName(Component);
   const containerName = `Relay(${componentName})`;
 
-  class Container extends React.Component<$FlowFixMeProps, ContainerState> {
-    _resolver: FragmentSpecResolver;
-
-    constructor(props, context) {
-      super(props, context);
-      const relay = assertRelayContext(context.relay);
+  class Container extends React.Component<ContainerProps, ContainerState> {
+    constructor(props) {
+      super(props);
+      const relay = assertRelayContext(props.relay);
       const {createFragmentSpecResolver} = relay.environment.unstable_internal;
-      this._resolver = createFragmentSpecResolver(
+      const resolver = createFragmentSpecResolver(
         relay,
         containerName,
         fragments,
@@ -71,11 +69,14 @@ function createContainerWithFragments<
         this._handleFragmentDataUpdate,
       );
       this.state = {
-        data: this._resolver.resolve(),
+        data: resolver.resolve(),
+        fragmentSpecResolverCallback: this._handleFragmentDataUpdate,
+        prevProps: this.props,
         relayProp: {
-          isLoading: this._resolver.isLoading(),
+          isLoading: resolver.isLoading(),
           environment: relay.environment,
         },
+        resolver,
       };
     }
 
@@ -84,63 +85,78 @@ function createContainerWithFragments<
      * for updates. Props may be the same in which case previous data and
      * subscriptions can be reused.
      */
-    componentWillReceiveProps(nextProps, nextContext) {
-      const context = nullthrows(nextContext);
-      const relay = assertRelayContext(context.relay);
+    static getDerivedStateFromProps(
+      nextProps: ContainerProps,
+      prevState: ContainerState,
+    ): $Shape<ContainerState> | null {
+      // Any props change could impact the query, so we mirror props in state.
+      // This is an unusual pattern, but necessary for this container usecase.
+      const {prevProps} = prevState;
+
+      const relay = assertRelayContext(nextProps.relay);
       const {
         createFragmentSpecResolver,
         getDataIDsFromObject,
       } = relay.environment.unstable_internal;
-      const prevIDs = getDataIDsFromObject(fragments, this.props);
+      const prevIDs = getDataIDsFromObject(fragments, prevProps);
       const nextIDs = getDataIDsFromObject(fragments, nextProps);
+
+      let resolver: FragmentSpecResolver = prevState.resolver;
+
       // If the environment has changed or props point to new records then
       // previously fetched data and any pending fetches no longer apply:
       // - Existing references are on the old environment.
       // - Existing references are based on old variables.
       // - Pending fetches are for the previous records.
       if (
-        this.context.relay.environment !== relay.environment ||
-        this.context.relay.variables !== relay.variables ||
+        prevProps.relay.environment !== relay.environment ||
+        prevProps.relay.variables !== relay.variables ||
         !areEqual(prevIDs, nextIDs)
       ) {
-        this._resolver.dispose();
-        this._resolver = createFragmentSpecResolver(
+        resolver.dispose();
+        resolver = createFragmentSpecResolver(
           relay,
           containerName,
           fragments,
           nextProps,
-          this._handleFragmentDataUpdate,
+          prevState.fragmentSpecResolverCallback,
         );
-        const relayProp = {
-          isLoading: this._resolver.isLoading(),
-          environment: relay.environment,
-        };
-        this.setState({relayProp});
-      } else {
-        this._resolver.setProps(nextProps);
-      }
-      const data = this._resolver.resolve();
-      if (data !== this.state.data) {
-        this.setState({
-          data,
+
+        return {
+          data: resolver.resolve(),
+          prevProps: nextProps,
           relayProp: {
-            isLoading: this._resolver.isLoading(),
+            isLoading: resolver.isLoading(),
             environment: relay.environment,
           },
-        });
+          resolver,
+        };
+      } else {
+        resolver.setProps(nextProps);
+
+        const data = resolver.resolve();
+        if (data !== prevState.data) {
+          return {
+            data,
+            prevProps: nextProps,
+            relayProp: {
+              isLoading: resolver.isLoading(),
+              environment: relay.environment,
+            },
+          };
+        }
       }
+
+      return null;
     }
 
     componentWillUnmount() {
-      this._resolver.dispose();
+      this.state.resolver.dispose();
     }
 
-    shouldComponentUpdate(nextProps, nextState, nextContext): boolean {
+    shouldComponentUpdate(nextProps, nextState): boolean {
       // Short-circuit if any Relay-related data has changed
-      if (
-        nextContext.relay !== this.context.relay ||
-        nextState.data !== this.state.data
-      ) {
+      if (nextState.data !== this.state.data) {
         return true;
       }
       // Otherwise, for convenience short-circuit if all non-Relay props
@@ -148,11 +164,20 @@ function createContainerWithFragments<
       const keys = Object.keys(nextProps);
       for (let ii = 0; ii < keys.length; ii++) {
         const key = keys[ii];
-        if (
-          !fragments.hasOwnProperty(key) &&
-          !isScalarAndEqual(nextProps[key], this.props[key])
-        ) {
-          return true;
+        if (key === 'relay') {
+          if (
+            nextProps.relay.environment !== this.props.relay.environment ||
+            nextProps.relay.variables !== this.props.relay.variables
+          ) {
+            return true;
+          }
+        } else {
+          if (
+            !fragments.hasOwnProperty(key) &&
+            !isScalarAndEqual(nextProps[key], this.props[key])
+          ) {
+            return true;
+          }
         }
       }
       return false;
@@ -162,18 +187,17 @@ function createContainerWithFragments<
      * Render new data for the existing props/context.
      */
     _handleFragmentDataUpdate = () => {
-      const data = this._resolver.resolve();
       const profiler = RelayProfiler.profile(
         'ReactRelayFragmentContainer.handleFragmentDataUpdate',
       );
       this.setState(
-        {
-          data,
+        state => ({
+          data: state.resolver.resolve(),
           relayProp: {
-            ...this.state.relayProp,
-            isLoading: this._resolver.isLoading(),
+            isLoading: state.resolver.isLoading(),
+            environment: state.relayProp.environment,
           },
-        },
+        }),
         profiler.stop,
       );
     };
@@ -200,10 +224,13 @@ function createContainerWithFragments<
     }
   }
   profileContainer(Container, 'ReactRelayFragmentContainer');
-  Container.contextTypes = containerContextTypes;
   Container.displayName = containerName;
 
-  return (Container: any);
+  // Make static getDerivedStateFromProps work with older React versions:
+  polyfill(Container);
+
+  // Inject context.relay as a prop so it's pasesd to getDerivedStateFromProps()
+  return injectContext(Container);
 }
 
 function assertRelayContext(relay: mixed): RelayContext {

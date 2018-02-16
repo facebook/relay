@@ -1,7 +1,7 @@
 {
   "name": "relay-runtime",
   "description": "A core runtime for building GraphQL-driven applications.",
-  "version": "1.5.0-rc.1",
+  "version": "1.5.0",
   "keywords": [
     "graphql",
     "relay"
@@ -15,6 +15,6 @@
     "fbjs": "^0.8.14"
   },
   "peerDependencies": {
-    "relay-compiler": "1.5.0-rc.1"
+    "relay-compiler": "1.5.0"
   }
 }

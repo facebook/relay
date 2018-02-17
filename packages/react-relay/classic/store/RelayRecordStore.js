@@ -282,7 +282,6 @@ class RelayRecordStore {
     let connectionIDs;
     forEachObject(record, (datum, key) => {
       if (datum && getFieldNameFromKey(key) === schemaName) {
-        // $FlowFixMe: datum isn't guaranteed to be an object.
         const connectionID = RelayRecord.getDataIDForObject(datum);
         if (connectionID) {
           connectionIDs = connectionIDs || [];

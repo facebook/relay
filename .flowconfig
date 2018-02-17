@@ -8,8 +8,11 @@
 <PROJECT_ROOT>/node_modules/react-static-container/node_modules/.*
 <PROJECT_ROOT>/website-prototyping-tools/node_modules/.*
 <PROJECT_ROOT>/website/node_modules/.*
+; TODO: Update `iterall` to Flow 0.66
+<PROJECT_ROOT>/node_modules/graphql/node_modules/iterall/.*
 
 [libs]
+flow
 node_modules/fbjs/flow/lib
 
 [options]
@@ -35,4 +38,4 @@ suppress_comment=\\(.\\|\n\\)*\\$FlowFixedInNextDeploy
 suppress_comment=\\(.\\|\n\\)*\\$FlowExpectedError
 
 [version]
-^0.65.0
+^0.66.0

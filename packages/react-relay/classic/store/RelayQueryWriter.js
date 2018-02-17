@@ -53,8 +53,6 @@ const {EXISTENT} = RelayClassicRecordState;
  * Helper for writing the result of one or more queries/operations into the
  * store, updating tracked queries, and recording changed record IDs.
  */
-/* $FlowFixMe - Flow error detected during the deployment of v0.38.0. To see the
- * error, remove this comment and run flow */
 class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
   _changeTracker: RelayChangeTracker;
   _forceIndex: number;
@@ -597,7 +595,6 @@ class RelayQueryWriter extends RelayQueryVisitor<WriterState> {
       // Reuse existing generated IDs if the node does not have its own `id`.
       const prevLinkedID = prevLinkedIDs && prevLinkedIDs[nextIndex];
       const nextLinkedID = nextRecord[ID] || prevLinkedID || generateClientID();
-      // $FlowFixMe(>=0.33.0)
       nextLinkedIDs.push(nextLinkedID);
 
       // $FlowFixMe(>=0.33.0)

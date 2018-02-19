@@ -79,7 +79,7 @@ fragment TodoItems_items on TodoItem @relay(plural: true) {
         manager {
           ...Component_internUser @relay(mask: false)
         }
-        .... on Employee {
+        ... on Employee {
           admins {
             ...Component_internUser @relay(mask: false)
           }

@@ -282,6 +282,7 @@ class RelayRecordStore {
     let connectionIDs;
     forEachObject(record, (datum, key) => {
       if (datum && getFieldNameFromKey(key) === schemaName) {
+        // $FlowFixMe(site=www,mobile) forEachObject is only typed in www
         const connectionID = RelayRecord.getDataIDForObject(datum);
         if (connectionID) {
           connectionIDs = connectionIDs || [];

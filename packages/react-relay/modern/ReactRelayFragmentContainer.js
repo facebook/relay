@@ -11,6 +11,7 @@
 'use strict';
 
 const React = require('React');
+const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
 const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
@@ -24,18 +25,27 @@ const {
   getReactComponent,
 } = require('../classic/container/RelayContainerUtils');
 const {profileContainer} = require('./ReactRelayContainerProfiler');
-const {injectContext} = require('./ReactRelayContextConsumer');
 const {RelayProfiler} = require('RelayRuntime');
 
 import type {FragmentSpecResolver} from '../classic/environment/RelayCombinedEnvironmentTypes';
+import type {RelayEnvironmentInterface as ClassicEnvironment} from '../classic/store/RelayEnvironment';
 import type {$RelayProps, GeneratedNodeMap, RelayProp} from './ReactRelayTypes';
-import type {FragmentMap, GraphQLTaggedNode, RelayContext} from 'RelayRuntime';
+import type {
+  FragmentMap,
+  GraphQLTaggedNode,
+  IEnvironment,
+  RelayContext,
+  Variables,
+} from 'RelayRuntime';
 
 type ContainerProps = $FlowFixMeProps;
 type ContainerState = {
   data: {[key: string]: mixed},
   prevProps: ContainerProps,
+  relay: RelayContext,
+  relayEnvironment: IEnvironment | ClassicEnvironment,
   relayProp: RelayProp,
+  relayVariables: Variables,
   resolver: FragmentSpecResolver,
 };
 
@@ -56,11 +66,14 @@ function createContainerWithFragments<
   const containerName = `Relay(${componentName})`;
 
   class Container extends React.Component<ContainerProps, ContainerState> {
-    constructor(props) {
-      super(props);
-      const relay = assertRelayContext(props.relay);
-      const {createFragmentSpecResolver} = relay.environment.unstable_internal;
+    static contextTypes = {
+      relay: RelayPropTypes.Relay,
+    };
 
+    constructor(props, context) {
+      super(props, context);
+      const relay = assertRelayContext(context.relay);
+      const {createFragmentSpecResolver} = relay.environment.unstable_internal;
       // Do not provide a subscription/callback here.
       // It is possible for this render to be interrupted or aborted,
       // In which case the subscription would cause a leak.
@@ -73,7 +86,10 @@ function createContainerWithFragments<
       );
       this.state = {
         data: resolver.resolve(),
+        relay,
+        relayEnvironment: context.relay.environment,
         prevProps: this.props,
+        relayVariables: context.relay.variables,
         relayProp: {
           isLoading: resolver.isLoading(),
           environment: relay.environment,
@@ -93,9 +109,8 @@ function createContainerWithFragments<
     ): $Shape<ContainerState> | null {
       // Any props change could impact the query, so we mirror props in state.
       // This is an unusual pattern, but necessary for this container usecase.
-      const {prevProps} = prevState;
+      const {prevProps, relay} = prevState;
 
-      const relay = assertRelayContext(nextProps.relay);
       const {
         createFragmentSpecResolver,
         getDataIDsFromObject,
@@ -111,8 +126,8 @@ function createContainerWithFragments<
       // - Existing references are based on old variables.
       // - Pending fetches are for the previous records.
       if (
-        prevProps.relay.environment !== relay.environment ||
-        prevProps.relay.variables !== relay.variables ||
+        prevState.relayEnvironment !== relay.environment ||
+        prevState.relayVariables !== relay.variables ||
         !areEqual(prevIDs, nextIDs)
       ) {
         // Do not provide a subscription/callback here.
@@ -128,7 +143,9 @@ function createContainerWithFragments<
 
         return {
           data: resolver.resolve(),
+          relayEnvironment: relay.environment,
           prevProps: nextProps,
+          relayVariables: relay.variables,
           relayProp: {
             isLoading: resolver.isLoading(),
             environment: relay.environment,
@@ -142,7 +159,9 @@ function createContainerWithFragments<
         if (data !== prevState.data) {
           return {
             data,
+            relayEnvironment: relay.environment,
             prevProps: nextProps,
+            relayVariables: relay.variables,
             relayProp: {
               isLoading: resolver.isLoading(),
               environment: relay.environment,
@@ -182,8 +201,8 @@ function createContainerWithFragments<
         const key = keys[ii];
         if (key === 'relay') {
           if (
-            nextProps.relay.environment !== this.props.relay.environment ||
-            nextProps.relay.variables !== this.props.relay.variables
+            nextState.relayEnvironment !== this.state.relayEnvironment ||
+            nextState.relayVariables !== this.state.relayVariables
           ) {
             return true;
           }
@@ -260,8 +279,7 @@ function createContainerWithFragments<
   // Make static getDerivedStateFromProps work with older React versions:
   polyfill(Container);
 
-  // Inject context.relay as a prop so it's pasesd to getDerivedStateFromProps()
-  return injectContext(Container);
+  return Container;
 }
 
 function assertRelayContext(relay: mixed): RelayContext {

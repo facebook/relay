@@ -53,11 +53,12 @@ export type Props = {
 };
 
 type State = {
+  prevPropsEnvironment: IEnvironment | ClassicEnvironment,
+  prevPropsVariables: Variables,
   prevQuery: ?GraphQLTaggedNode,
-  prevEnvironment: IEnvironment | ClassicEnvironment,
-  prevVariables: Variables,
   queryFetcher: ReactRelayQueryFetcher,
-  relayContext: RelayContext,
+  relayContextEnvironment: IEnvironment | ClassicEnvironment,
+  relayContextVariables: Variables,
   renderProps: RenderProps,
   retryCallbacks: RetryCallbacks,
 };
@@ -73,10 +74,16 @@ type State = {
  * - Subscribes for updates to the root data and re-renders with any changes.
  */
 class ReactRelayQueryRenderer extends React.Component<Props, State> {
-  // TODO (T25783053) Update this component to use the new React context API,
+  // TODO T25783053 Update this component to use the new React context API,
   // Once we have confirmed that it's okay to raise min React version to 16.3.
   static childContextTypes = {
     relay: RelayPropTypes.Relay,
+  };
+
+  _relayContext: RelayContext = {
+    // $FlowFixMe TODO t16225453 QueryRenderer works with old+new environment.
+    environment: (this.props.environment: IEnvironment),
+    variables: this.props.variables,
   };
 
   constructor(props: Props, context: Object) {
@@ -110,13 +117,13 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
     const queryFetcher = new ReactRelayQueryFetcher();
 
     this.state = {
-      prevQuery: this.props.query,
-      prevEnvironment: this.props.environment,
-      prevVariables: this.props.variables,
+      prevPropsEnvironment: props.environment,
+      prevPropsVariables: props.variables,
+      prevQuery: props.query,
       queryFetcher,
       retryCallbacks,
       ...fetchQueryAndComputeStateFromProps(
-        this.props,
+        props,
         queryFetcher,
         retryCallbacks,
       ),
@@ -129,13 +136,13 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
   ): $Shape<State> | null {
     if (
       prevState.prevQuery !== nextProps.query ||
-      prevState.prevEnvironment !== nextProps.environment ||
-      !areEqual(prevState.prevVariables, nextProps.variables)
+      prevState.prevPropsEnvironment !== nextProps.environment ||
+      !areEqual(prevState.prevPropsVariables, nextProps.variables)
     ) {
       return {
         prevQuery: nextProps.query,
-        prevEnvironment: nextProps.environment,
-        prevVariables: nextProps.variables,
+        prevPropsEnvironment: nextProps.environment,
+        prevPropsVariables: nextProps.variables,
         ...fetchQueryAndComputeStateFromProps(
           nextProps,
           prevState.queryFetcher,
@@ -160,18 +167,33 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
 
   getChildContext(): Object {
     return {
-      relay: this.state.relayContext,
+      relay: this._relayContext,
     };
   }
 
   render() {
+    const {
+      relayContextEnvironment,
+      relayContextVariables,
+      renderProps,
+    } = this.state;
+
+    // HACK Mutate the context.relay object before updating children,
+    // To account for any changes made by static gDSFP.
+    // Updating this value in gDSFP would be less safe, since props changes
+    // could be interrupted and we might re-render based on a setState call.
+    // Child containers rely on context.relay being mutated (also for gDSFP).
+    // $FlowFixMe TODO t16225453 QueryRenderer works with old+new environment.
+    this._relayContext.environment = (relayContextEnvironment: IEnvironment);
+    this._relayContext.variables = relayContextVariables;
+
     // Note that the root fragment results in `renderProps.props` is already
     // frozen by the store; this call is to freeze the renderProps object and
     // error property if set.
     if (__DEV__) {
-      deepFreeze(this.state.renderProps);
+      deepFreeze(renderProps);
     }
-    return this.props.render(this.state.renderProps);
+    return this.props.render(renderProps);
   }
 }
 
@@ -218,39 +240,37 @@ function fetchQueryAndComputeStateFromProps(
   queryFetcher: ReactRelayQueryFetcher,
   retryCallbacks: RetryCallbacks,
 ): $Shape<State> {
-  // TODO (#16225453) QueryRenderer works with old and new environment, but
-  // the flow typing doesn't quite work abstracted.
-  // $FlowFixMe
-  const environment: IEnvironment = props.environment;
-
-  const {query, variables} = props;
+  const {environment, query, variables} = props;
   if (query) {
-    const {createOperationSelector, getRequest} = environment.unstable_internal;
+    // $FlowFixMe TODO t16225453 QueryRenderer works with old+new environment.
+    const genericEnvironment = (environment: IEnvironment);
+
+    const {
+      createOperationSelector,
+      getRequest,
+    } = genericEnvironment.unstable_internal;
     const request = getRequest(query);
     const operation = createOperationSelector(request, variables);
-
-    const relayContext = {
-      environment,
-      variables: operation.variables,
-    };
 
     try {
       const snapshot = queryFetcher.fetch({
         cacheConfig: props.cacheConfig,
         dataFrom: props.dataFrom,
-        environment,
+        environment: genericEnvironment,
         onDataChange: retryCallbacks.handleDataChange,
         operation,
       });
       if (!snapshot) {
         return {
-          relayContext,
+          relayContextEnvironment: environment,
+          relayContextVariables: operation.variables,
           renderProps: getLoadingRenderProps(),
         };
       }
 
       return {
-        relayContext,
+        relayContextEnvironment: environment,
+        relayContextVariables: operation.variables,
         renderProps: getRenderProps(
           null,
           snapshot,
@@ -260,7 +280,8 @@ function fetchQueryAndComputeStateFromProps(
       };
     } catch (error) {
       return {
-        relayContext,
+        relayContextEnvironment: environment,
+        relayContextVariables: operation.variables,
         renderProps: getRenderProps(error, null, queryFetcher, retryCallbacks),
       };
     }
@@ -268,10 +289,8 @@ function fetchQueryAndComputeStateFromProps(
     queryFetcher.dispose();
 
     return {
-      relayContext: {
-        environment,
-        variables,
-      },
+      relayContextEnvironment: environment,
+      relayContextVariables: variables,
       renderProps: getEmptyRenderProps(),
     };
   }

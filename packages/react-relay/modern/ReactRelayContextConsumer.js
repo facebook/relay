@@ -22,19 +22,12 @@ function injectContext(
 ): React.ComponentType<any> {
   // TODO (T25783053) Update this container to use the new React context API,
   // Once we have confirmed that it's okay to raise min React version to 16.3.
-  class ReactRelayContextConsumer extends React.Component<any> {
-    static contextTypes = {
-      relay: RelayPropTypes.Relay,
-    };
-
-    render() {
-      return React.createElement(Component, {
-        ...this.props,
-        relay: this.context.relay,
-      });
-    }
+  function ReactRelayContextConsumer(props: any, context: any) {
+    return <Component {...props} relay={context.relay} />;
   }
-
+  ReactRelayContextConsumer.contextTypes = {
+    relay: RelayPropTypes.Relay,
+  };
   return ReactRelayContextConsumer;
 }
 

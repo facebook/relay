@@ -97,6 +97,12 @@ export interface FragmentSpecResolver {
    */
   setVariables(variables: Variables): void;
 
+  /**
+   * Subscribe to resolver updates.
+   * Overrides existing callback (if one has been specified).
+   */
+  setCallback(callback: () => void): void;
+
   isLoading(): boolean;
 }
 
@@ -212,7 +218,7 @@ export interface CUnstableEnvironmentCore<
     containerName: string,
     fragments: CFragmentMap<TFragment>,
     props: Props,
-    callback: () => void,
+    callback?: () => void,
   ) => FragmentSpecResolver;
 
   /**

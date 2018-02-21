@@ -34,7 +34,6 @@ import type {FragmentMap, GraphQLTaggedNode, RelayContext} from 'RelayRuntime';
 type ContainerProps = $FlowFixMeProps;
 type ContainerState = {
   data: {[key: string]: mixed},
-  fragmentSpecResolverCallback: () => void,
   prevProps: ContainerProps,
   relayProp: RelayProp,
   resolver: FragmentSpecResolver,
@@ -61,16 +60,19 @@ function createContainerWithFragments<
       super(props);
       const relay = assertRelayContext(props.relay);
       const {createFragmentSpecResolver} = relay.environment.unstable_internal;
+
+      // Do not provide a subscription/callback here.
+      // It is possible for this render to be interrupted or aborted,
+      // In which case the subscription would cause a leak.
+      // We will add the subscription in componentDidMount().
       const resolver = createFragmentSpecResolver(
         relay,
         containerName,
         fragments,
         props,
-        this._handleFragmentDataUpdate,
       );
       this.state = {
         data: resolver.resolve(),
-        fragmentSpecResolverCallback: this._handleFragmentDataUpdate,
         prevProps: this.props,
         relayProp: {
           isLoading: resolver.isLoading(),
@@ -113,13 +115,15 @@ function createContainerWithFragments<
         prevProps.relay.variables !== relay.variables ||
         !areEqual(prevIDs, nextIDs)
       ) {
-        resolver.dispose();
+        // Do not provide a subscription/callback here.
+        // It is possible for this render to be interrupted or aborted,
+        // In which case the subscription would cause a leak.
+        // We will add the subscription in componentDidUpdate().
         resolver = createFragmentSpecResolver(
           relay,
           containerName,
           fragments,
           nextProps,
-          prevState.fragmentSpecResolverCallback,
         );
 
         return {
@@ -148,6 +152,18 @@ function createContainerWithFragments<
       }
 
       return null;
+    }
+
+    componentDidMount() {
+      this._subscribeToNewResolver();
+    }
+
+    componentDidUpdate(prevProps: ContainerProps, prevState: ContainerState) {
+      if (this.state.resolver !== prevState.resolver) {
+        prevState.resolver.dispose();
+
+        this._subscribeToNewResolver();
+      }
     }
 
     componentWillUnmount() {
@@ -201,6 +217,21 @@ function createContainerWithFragments<
         profiler.stop,
       );
     };
+
+    _subscribeToNewResolver() {
+      const {data, resolver} = this.state;
+
+      // Event listeners are only safe to add during the commit phase,
+      // So they won't leak if render is interrupted or errors.
+      resolver.setCallback(this._handleFragmentDataUpdate);
+
+      // External values could change between render and commit.
+      // Check for this case, even though it requires an extra store read.
+      const maybeNewData = resolver.resolve();
+      if (data !== maybeNewData) {
+        this.setState({data: maybeNewData});
+      }
+    }
 
     render() {
       if (ComponentClass) {

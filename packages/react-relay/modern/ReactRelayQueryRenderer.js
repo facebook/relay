@@ -63,6 +63,19 @@ type State = {
   retryCallbacks: RetryCallbacks,
 };
 
+const MAX_INT = 2147483647;
+const makeQueryKey = (name, variables) => JSON.stringify({name, variables});
+const isCacheable = (subs, cacheConfig = {}) => Boolean(subs || cacheConfig.force === false || cacheConfig.ttl);
+
+class SafeQueryFetcher extends ReactRelayQueryFetcher {
+  readyToGC() {
+    return this._readyToGC;
+  }
+  flagForGC() {
+    this._readyToGC = true;
+  }
+}
+
 /**
  * @public
  *
@@ -90,9 +103,9 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
     super(props, context);
 
     const handleDataChange = ({
-      error,
-      snapshot,
-    }: {
+                                error,
+                                snapshot,
+                              }: {
       error?: Error,
       snapshot?: Snapshot,
     }): void => {
@@ -114,7 +127,10 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
       handleRetryAfterError,
     };
 
-    const queryFetcher = new ReactRelayQueryFetcher();
+    const queryFetcher = new SafeQueryFetcher();
+    if (!isCacheable(props.subscriptions, props.cacheConfig)) {
+      queryFetcher.flagForGC();
+    }
 
     this.state = {
       prevPropsEnvironment: props.environment,
@@ -130,6 +146,13 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
     };
   }
 
+  static timeouts = {};
+
+  static renewTTL(queryKey) {
+    clearTimeout(ReactRelayQueryRenderer.timeouts[queryKey]);
+    delete ReactRelayQueryRenderer.timeouts[queryKey];
+  }
+
   static getDerivedStateFromProps(
     nextProps: Props,
     prevState: State,
@@ -139,6 +162,7 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
       prevState.prevPropsEnvironment !== nextProps.environment ||
       !areEqual(prevState.prevPropsVariables, nextProps.variables)
     ) {
+
       return {
         prevQuery: nextProps.query,
         prevPropsEnvironment: nextProps.environment,
@@ -155,7 +179,7 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
   }
 
   componentWillUnmount(): void {
-    this.state.queryFetcher.dispose();
+    this._requestRelease();
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
@@ -169,6 +193,30 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
     return {
       relay: this._relayContext,
     };
+  }
+
+  _requestRelease() {
+    const {environment, cacheConfig = {}} = this.props;
+    const {ttl} = cacheConfig;
+    const {queryKey, queryFetcher} = this.state;
+    if (queryFetcher.readyToGC()) {
+      environment.unregisterQuery(queryKey);
+      queryFetcher.dispose();
+    } else {
+      this._scheduleRelease(ttl, queryKey);
+    }
+  }
+
+  _scheduleRelease(ttl, queryKey) {
+    if (ttl !== undefined && ttl <= MAX_INT) {
+      const {timeouts} = ReactRelayQueryRenderer;
+      timeouts[queryKey] = setTimeout(() => {
+        const {relayContextEnvironment, queryFetcher} = this.state;
+        queryFetcher.dispose();
+        relayContextEnvironment.unregisterQuery(queryKey);
+        delete timeouts[queryKey];
+      }, ttl);
+    }
   }
 
   render() {
@@ -251,6 +299,11 @@ function fetchQueryAndComputeStateFromProps(
     } = genericEnvironment.unstable_internal;
     const request = getRequest(query);
     const operation = createOperationSelector(request, variables);
+    const queryKey = makeQueryKey(request.name, operation.variables);
+    ReactRelayQueryRenderer.renewTTL(queryKey);
+    if (props.subscriptions) {
+      environment.registerQuery(queryKey, props.subscriptions, props.subParams, operation.variables, queryFetcher);
+    }
 
     try {
       const snapshot = queryFetcher.fetch({
@@ -262,6 +315,7 @@ function fetchQueryAndComputeStateFromProps(
       });
       if (!snapshot) {
         return {
+          queryKey,
           relayContextEnvironment: environment,
           relayContextVariables: operation.variables,
           renderProps: getLoadingRenderProps(),
@@ -269,6 +323,7 @@ function fetchQueryAndComputeStateFromProps(
       }
 
       return {
+        queryKey,
         relayContextEnvironment: environment,
         relayContextVariables: operation.variables,
         renderProps: getRenderProps(
@@ -280,13 +335,14 @@ function fetchQueryAndComputeStateFromProps(
       };
     } catch (error) {
       return {
+        queryKey,
         relayContextEnvironment: environment,
         relayContextVariables: operation.variables,
         renderProps: getRenderProps(error, null, queryFetcher, retryCallbacks),
       };
     }
   } else {
-    queryFetcher.dispose();
+    this._requestRelease();
 
     return {
       relayContextEnvironment: environment,

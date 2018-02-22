@@ -348,7 +348,7 @@ describe('ReactRelayFragmentContainer', () => {
     // Context object should be mutated (for compat with gDSFP).
     const context = instance.getInstance().getChildContext();
     context.relay.variables = {id: '6'};
-    instance.getInstance().setProps();
+    instance.getInstance().setProps({});
 
     // New data & variables are passed to component
     expect(render.mock.calls.length).toBe(1);

@@ -103,9 +103,9 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
     super(props, context);
 
     const handleDataChange = ({
-                                error,
-                                snapshot,
-                              }: {
+      error,
+      snapshot,
+    }: {
       error?: Error,
       snapshot?: Snapshot,
     }): void => {
@@ -162,7 +162,6 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
       prevState.prevPropsEnvironment !== nextProps.environment ||
       !areEqual(prevState.prevPropsVariables, nextProps.variables)
     ) {
-
       return {
         prevQuery: nextProps.query,
         prevPropsEnvironment: nextProps.environment,

@@ -19,7 +19,6 @@ const deepFreeze = require('deepFreeze');
 const polyfill = require('react-lifecycles-compat');
 
 import type {RelayEnvironmentInterface as ClassicEnvironment} from '../classic/store/RelayEnvironment';
-import type {DataFrom} from './ReactRelayQueryFetcher';
 import type {
   CacheConfig,
   GraphQLTaggedNode,
@@ -42,6 +41,14 @@ export type RenderProps = {
   props: ?Object,
   retry: ?() => void,
 };
+
+const NETWORK_ONLY = 'NETWORK_ONLY';
+const STORE_THEN_NETWORK = 'STORE_THEN_NETWORK';
+const DataFromEnum = {
+  NETWORK_ONLY,
+  STORE_THEN_NETWORK,
+};
+type DataFrom = $Keys<typeof DataFromEnum>;
 
 export type Props = {
   cacheConfig?: ?CacheConfig,
@@ -253,13 +260,19 @@ function fetchQueryAndComputeStateFromProps(
     const operation = createOperationSelector(request, variables);
 
     try {
-      const snapshot = queryFetcher.fetch({
+      const storeSnapshot =
+        props.dataFrom === STORE_THEN_NETWORK
+          ? queryFetcher.lookupInStore(genericEnvironment, operation)
+          : null;
+      const querySnapshot = queryFetcher.fetch({
         cacheConfig: props.cacheConfig,
         dataFrom: props.dataFrom,
         environment: genericEnvironment,
         onDataChange: retryCallbacks.handleDataChange,
         operation,
       });
+      // Use network data first, since it may be fresher
+      const snapshot = querySnapshot || storeSnapshot;
       if (!snapshot) {
         return {
           relayContextEnvironment: environment,

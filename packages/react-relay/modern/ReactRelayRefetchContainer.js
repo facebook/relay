@@ -28,6 +28,7 @@ const {profileContainer} = require('./ReactRelayContainerProfiler');
 const {Observable, RelayProfiler, RelayConcreteNode} = require('RelayRuntime');
 
 import type {FragmentSpecResolver} from '../classic/environment/RelayCombinedEnvironmentTypes';
+import type {RelayEnvironmentInterface as ClassicEnvironment} from '../classic/store/RelayEnvironment';
 import type {
   $RelayProps,
   ObserverOrCallback,
@@ -39,13 +40,16 @@ import type {Disposable, Variables} from 'RelayRuntime';
 import type {
   FragmentMap,
   GraphQLTaggedNode,
+  IEnvironment,
   RelayContext,
   Subscription,
 } from 'RelayRuntime';
 
 type ContainerState = {
   data: {[key: string]: mixed},
+  relayEnvironment: IEnvironment | ClassicEnvironment,
   relayProp: RelayRefetchProp,
+  relayVariables: Variables,
 };
 const containerContextTypes = {
   relay: RelayPropTypes.Relay,
@@ -90,12 +94,14 @@ function createContainerWithFragments<
         this._handleFragmentDataUpdate,
       );
       this._relayContext = {
-        environment: this.context.relay.environment,
-        variables: this.context.relay.variables,
+        environment: relay.environment,
+        variables: relay.variables,
       };
       this.state = {
         data: this._resolver.resolve(),
+        relayEnvironment: relay.environment,
         relayProp: this._buildRelayProp(relay),
+        relayVariables: relay.variables,
       };
     }
 
@@ -120,16 +126,15 @@ function createContainerWithFragments<
       // - Existing references are based on old variables.
       // - Pending fetches are for the previous records.
       if (
-        this.context.relay.environment !== relay.environment ||
-        this.context.relay.variables !== relay.variables ||
+        this.state.relayEnvironment !== relay.environment ||
+        this.state.relayVariables !== relay.variables ||
         !areEqual(prevIDs, nextIDs)
       ) {
         this._release();
         this._localVariables = null;
-        this._relayContext = {
-          environment: relay.environment,
-          variables: relay.variables,
-        };
+        // Child containers rely on context.relay being mutated (for gDSFP).
+        this._relayContext.environment = relay.environment;
+        this._relayContext.variables = relay.variables;
         this._resolver = createFragmentSpecResolver(
           relay,
           containerName,
@@ -137,7 +142,11 @@ function createContainerWithFragments<
           nextProps,
           this._handleFragmentDataUpdate,
         );
-        this.setState({relayProp: this._buildRelayProp(relay)});
+        this.setState({
+          relayEnvironment: relay.environment,
+          relayProp: this._buildRelayProp(relay),
+          relayVariables: relay.variables,
+        });
       } else if (!this._localVariables) {
         this._resolver.setProps(nextProps);
       }
@@ -154,7 +163,6 @@ function createContainerWithFragments<
     shouldComponentUpdate(nextProps, nextState, nextContext): boolean {
       // Short-circuit if any Relay-related data has changed
       if (
-        nextContext.relay !== this.context.relay ||
         nextState.data !== this.state.data ||
         nextState.relayProp !== this.state.relayProp
       ) {
@@ -165,11 +173,20 @@ function createContainerWithFragments<
       const keys = Object.keys(nextProps);
       for (let ii = 0; ii < keys.length; ii++) {
         const key = keys[ii];
-        if (
-          !fragments.hasOwnProperty(key) &&
-          !isScalarAndEqual(nextProps[key], this.props[key])
-        ) {
-          return true;
+        if (key === 'relay') {
+          if (
+            nextState.relayEnvironment !== this.state.relayEnvironment ||
+            nextState.relayVariables !== this.state.relayVariables
+          ) {
+            return true;
+          }
+        } else {
+          if (
+            !fragments.hasOwnProperty(key) &&
+            !isScalarAndEqual(nextProps[key], this.props[key])
+          ) {
+            return true;
+          }
         }
       }
       return false;
@@ -270,10 +287,9 @@ function createContainerWithFragments<
       environment
         .execute({operation, cacheConfig})
         .mergeMap(response => {
-          this._relayContext = {
-            environment: this.context.relay.environment,
-            variables: fragmentVariables,
-          };
+          // Child containers rely on context.relay being mutated (for gDSFP).
+          this._relayContext.environment = this.context.relay.environment;
+          this._relayContext.variables = fragmentVariables;
           this._resolver.setVariables(fragmentVariables);
           return Observable.create(sink =>
             this.setState({data: this._resolver.resolve()}, () => {

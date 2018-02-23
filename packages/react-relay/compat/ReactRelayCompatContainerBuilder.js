@@ -135,6 +135,10 @@ function buildCompatContainer(
       const {getFragment: getFragmentFromTag} = environment.unstable_internal;
       const fragments = mapObject(fragmentSpec, getFragmentFromTag);
       Container = createContainerWithFragments(ComponentClass, fragments);
+
+      // Attach static lifecycle to wrapper component so React can see it.
+      ContainerConstructor.getDerivedStateFromProps = (Container: any).getDerivedStateFromProps;
+
       RelayContainerProxy.proxyMethods(Container, ComponentClass);
     }
     /* $FlowFixMe(>=0.53.0) This comment suppresses an

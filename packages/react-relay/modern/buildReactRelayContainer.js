@@ -70,7 +70,7 @@ function buildReactRelayContainer<TBase: React$ComponentType<*>>(
       const fragments = mapObject(fragmentSpec, getFragmentFromTag);
       Container = createContainerWithFragments(ComponentClass, fragments);
 
-      // Attach static lifecycle to wrapper component so React can see them.
+      // Attach static lifecycle to wrapper component so React can see it.
       ContainerConstructor.getDerivedStateFromProps = (Container: any).getDerivedStateFromProps;
     }
     /* $FlowFixMe(>=0.53.0) This comment suppresses an

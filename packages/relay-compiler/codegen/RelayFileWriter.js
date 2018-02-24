@@ -355,10 +355,6 @@ class RelayFileWriter implements FileWriterInterface {
   }
 }
 
-function flatten(arr, el) {
-  return arr.concat(Array.isArray(el) ? el.reduce(flatten, []) : el);
-}
-
 function md5(x: string): string {
   return crypto
     .createHash('md5')

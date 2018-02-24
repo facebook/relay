@@ -100,24 +100,6 @@ function transformInputType(type: GraphQLInputType, state: State) {
   }
 }
 
-function transformInputObjectField(
-  name: string,
-  type: GraphQLInputType,
-  state: State,
-) {
-  const {recursionLimit, recursionLevel, recursiveFields} = state;
-  const id = t.identifier(name);
-  if (recursiveFields.indexOf(name) > -1 && recursionLevel > recursionLimit) {
-    const anyType = t.anyTypeAnnotation();
-    if (type instanceof GraphQLList) {
-      return t.objectTypeProperty(id, readOnlyArrayOfType(anyType));
-    } else {
-      return t.objectTypeProperty(id, anyType);
-    }
-  }
-  return t.objectTypeProperty(id, transformInputType(type, state));
-}
-
 function transformNonNullableInputType(type: GraphQLInputType, state: State) {
   if (type instanceof GraphQLList) {
     return readOnlyArrayOfType(transformInputType(type.ofType, state));
@@ -126,23 +108,7 @@ function transformNonNullableInputType(type: GraphQLInputType, state: State) {
   } else if (type instanceof GraphQLEnumType) {
     return transformGraphQLEnumType(type, state);
   } else if (type instanceof GraphQLInputObjectType) {
-    state.recursionLevel++;
-    const fields = type.getFields();
-    const props = Object.keys(fields)
-      .map(key => fields[key])
-      .filter(field => state.inputFieldWhiteList.indexOf(field.name) < 0)
-      .map(field => {
-        const property = transformInputObjectField(
-          field.name,
-          field.type,
-          state,
-        );
-        if (!(field.type instanceof GraphQLNonNull)) {
-          property.optional = true;
-        }
-        return property;
-      });
-    return t.objectTypeAnnotation(props);
+    return t.genericTypeAnnotation(t.identifier(`${type.name}Variables`));
   } else {
     throw new Error(`Could not convert from GraphQL type ${type.toString()}`);
   }

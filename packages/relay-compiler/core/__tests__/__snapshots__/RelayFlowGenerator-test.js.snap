@@ -334,16 +334,21 @@ mutation CommentCreateMutation(
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+type CommentCreateInputVariables = {|
+  clientMutationId: ?string,
+  feedbackId: ?string,
+  feedback: ?CommentfeedbackFeedbackVariables,
+|};
+type CommentfeedbackFeedbackVariables = {|
+  comment: ?FeedbackcommentCommentVariables,
+|};
+type FeedbackcommentCommentVariables = {|
+  feedback: ?CommentfeedbackFeedbackVariables,
+|};
 export type CommentCreateMutationVariables = {|
-  input: {
-    clientMutationId?: ?string,
-    feedbackId?: ?string,
-    feedback?: ?{
-      comment?: any,
-    },
-  },
-  first?: ?number,
-  orderBy?: ?$ReadOnlyArray<string>,
+  input: CommentCreateInputVariables,
+  first: ?number,
+  orderBy: ?$ReadOnlyArray<string>,
 |};
 export type CommentCreateMutationResponse = {|
   +commentCreate: ?{|
@@ -369,11 +374,12 @@ mutation InputHasArray($input: UpdateAllSeenStateInput) {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+type UpdateAllSeenStateInputVariables = {|
+  clientMutationId: ?string,
+  storyIds: ?$ReadOnlyArray<?string>,
+|};
 export type InputHasArrayVariables = {|
-  input?: ?{
-    clientMutationId?: ?string,
-    storyIds?: ?$ReadOnlyArray<?string>,
-  },
+  input: ?UpdateAllSeenStateInputVariables,
 |};
 export type InputHasArrayResponse = {|
   +viewerNotificationsUpdateAllSeenState: ?{|
@@ -524,14 +530,19 @@ export type ExampleFragment = {|
   +$refType: ExampleFragment$ref,
 |};
 
+type CommentCreateInputVariables = {|
+  clientMutationId: ?string,
+  feedbackId: ?string,
+  feedback: ?CommentfeedbackFeedbackVariables,
+|};
+type CommentfeedbackFeedbackVariables = {|
+  comment: ?FeedbackcommentCommentVariables,
+|};
+type FeedbackcommentCommentVariables = {|
+  feedback: ?CommentfeedbackFeedbackVariables,
+|};
 export type TestMutationVariables = {|
-  input: {
-    clientMutationId?: ?string,
-    feedbackId?: ?string,
-    feedback?: ?{
-      comment?: any,
-    },
-  },
+  input: CommentCreateInputVariables,
 |};
 export type TestMutationResponse = {|
   +commentCreate: ?{|
@@ -541,11 +552,12 @@ export type TestMutationResponse = {|
   |},
 |};
 
+type FeedbackLikeInputVariables = {|
+  clientMutationId: ?string,
+  feedbackId: ?string,
+|};
 export type TestSubscriptionVariables = {|
-  input?: ?{
-    clientMutationId?: ?string,
-    feedbackId?: ?string,
-  },
+  input: ?FeedbackLikeInputVariables,
 |};
 export type TestSubscriptionResponse = {|
   +feedbackLikeSubscribe: ?{|

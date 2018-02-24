@@ -318,7 +318,8 @@ describe('ReactRelayQueryRenderer', () => {
         variables,
       });
 
-      expect(relayContext).not.toBe(previousContext);
+      // Context object should be mutated (for compat with gDSFP).
+      expect(relayContext).toBe(previousContext);
       expect(relayContext.environment).toBe(environment);
       expect(relayContext.variables).toEqual(variables);
     });
@@ -345,7 +346,8 @@ describe('ReactRelayQueryRenderer', () => {
         variables,
       });
 
-      expect(relayContext).not.toBe(previousContext);
+      // Context object should be mutated (for compat with gDSFP).
+      expect(relayContext).toBe(previousContext);
       expect(relayContext.environment).toBe(environment);
       expect(relayContext.variables).toEqual(variables);
     });
@@ -372,7 +374,8 @@ describe('ReactRelayQueryRenderer', () => {
         variables,
       });
 
-      expect(relayContext).not.toBe(previousContext);
+      // Context object should be mutated (for compat with gDSFP).
+      expect(relayContext).toBe(previousContext);
       expect(relayContext.environment).toBe(environment);
       expect(relayContext.variables).toEqual({
         id: '<default>',

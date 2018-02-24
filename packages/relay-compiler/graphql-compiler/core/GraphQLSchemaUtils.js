@@ -190,7 +190,7 @@ function getInterfaces(type: GraphQLType): Array<GraphQLInterfaceType> {
  *
  * Determine if an AST node contains a fragment/operation definition.
  */
-function isOperationDefinitionAST(ast: ASTNode): boolean %checks {
+function isExecutableDefinitionAST(ast: ASTNode): boolean %checks {
   return (
     ast.kind === 'FragmentDefinition' || ast.kind === 'OperationDefinition'
   );
@@ -282,7 +282,7 @@ module.exports = {
   implementsInterface,
   isAbstractType,
   isUnionType,
-  isOperationDefinitionAST,
+  isExecutableDefinitionAST,
   isSchemaDefinitionAST,
   mayImplement,
 };

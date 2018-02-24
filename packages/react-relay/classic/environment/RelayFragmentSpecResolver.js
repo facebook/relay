@@ -46,7 +46,7 @@ type Resolvers = {[key: string]: ?(SelectorListResolver | SelectorResolver)};
  * recomputed the first time `resolve()` is called.
  */
 class RelayFragmentSpecResolver implements FragmentSpecResolver {
-  _callback: () => void;
+  _callback: ?() => void;
   _context: RelayContext;
   _data: Object;
   _fragments: FragmentMap;
@@ -58,7 +58,7 @@ class RelayFragmentSpecResolver implements FragmentSpecResolver {
     context: RelayContext,
     fragments: FragmentMap,
     props: Props,
-    callback: () => void,
+    callback?: () => void,
   ) {
     this._callback = callback;
     this._context = context;
@@ -102,6 +102,10 @@ class RelayFragmentSpecResolver implements FragmentSpecResolver {
       this._stale = false;
     }
     return this._data;
+  }
+
+  setCallback(callback: () => void): void {
+    this._callback = callback;
   }
 
   setProps(props: Props): void {
@@ -165,7 +169,9 @@ class RelayFragmentSpecResolver implements FragmentSpecResolver {
 
   _onChange = (): void => {
     this._stale = true;
-    this._callback();
+    if (typeof this._callback === 'function') {
+      this._callback();
+    }
   };
 
   isLoading(): boolean {

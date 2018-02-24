@@ -87,7 +87,9 @@ const RelayProfiler = {
   ): void {
     for (const key in names) {
       if (names.hasOwnProperty(key)) {
-        object[key] = RelayProfiler.instrument(names[key], object[key]);
+        if (typeof object[key] === 'function') {
+          object[key] = RelayProfiler.instrument(names[key], object[key]);
+        }
       }
     }
   },

@@ -175,7 +175,7 @@ const RelayCodeGenVisitor = {
       return {
         kind: 'DeferrableFragmentSpread',
         name: node.name,
-        args: node.args,
+        args: valuesOrNull(sortByName(node.args)),
         rootFieldVariable: node.rootFieldVariable,
         storageKey: node.storageKey,
       };

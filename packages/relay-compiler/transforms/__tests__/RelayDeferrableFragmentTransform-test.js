@@ -33,8 +33,7 @@ describe('RelayDeferrableFragmentTransform', () => {
         .applyTransforms([
           // Requires Relay directive transform first.
           RelayRelayDirectiveTransform.transform,
-          RelayDeferrableFragmentTransform.transformOperations,
-          RelayDeferrableFragmentTransform.transformSpreads,
+          RelayDeferrableFragmentTransform.transform,
         ])
         .documents();
       return (

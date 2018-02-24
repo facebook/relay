@@ -22,7 +22,7 @@ function deferrableFragmentKey(
     (acc, key) => `${acc}${acc ? ',' : ''}${key}:${variables[key]}`,
     '',
   );
-  return `dataID:${dataID},fragment:${fragmentName},variables:${variablesString}`;
+  return `path:${dataID},key:${fragmentName},request:${variablesString}`;
 }
 
 module.exports = deferrableFragmentKey;

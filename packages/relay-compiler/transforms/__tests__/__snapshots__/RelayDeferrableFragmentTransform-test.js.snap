@@ -166,15 +166,15 @@ query FriendBirthdates_Deferrable(
                   "args": [
                     {
                       "kind": "Argument",
-                      "name": "deferrableID",
                       "metadata": null,
+                      "name": "deferrableID",
+                      "type": "ID",
                       "value": {
                         "kind": "Variable",
-                        "variableName": "deferrableID",
                         "metadata": null,
-                        "type": "ID"
-                      },
-                      "type": "ID"
+                        "type": "ID",
+                        "variableName": "deferrableID"
+                      }
                     }
                   ],
                   "rootFieldVariable": "deferrableID",
@@ -205,15 +205,15 @@ query FriendBirthdates_Deferrable(
                   "args": [
                     {
                       "kind": "Argument",
-                      "name": "deferrableID",
                       "metadata": null,
+                      "name": "deferrableID",
+                      "type": "ID",
                       "value": {
                         "kind": "Variable",
-                        "variableName": "deferrableID",
                         "metadata": null,
-                        "type": "ID"
-                      },
-                      "type": "ID"
+                        "type": "ID",
+                        "variableName": "deferrableID"
+                      }
                     }
                   ],
                   "rootFieldVariable": "deferrableID",
@@ -280,15 +280,15 @@ query FriendBirthdates_Deferrable(
                           "args": [
                             {
                               "kind": "Argument",
-                              "name": "deferrableID",
                               "metadata": null,
+                              "name": "deferrableID",
+                              "type": "ID",
                               "value": {
                                 "kind": "Variable",
-                                "variableName": "deferrableID",
                                 "metadata": null,
-                                "type": "ID"
-                              },
-                              "type": "ID"
+                                "type": "ID",
+                                "variableName": "deferrableID"
+                              }
                             }
                           ],
                           "rootFieldVariable": "deferrableID",
@@ -585,15 +585,15 @@ query FriendCount_Deferrable(
                   "args": [
                     {
                       "kind": "Argument",
-                      "name": "deferrableID",
                       "metadata": null,
+                      "name": "deferrableID",
+                      "type": "ID",
                       "value": {
                         "kind": "Variable",
-                        "variableName": "deferrableID",
                         "metadata": null,
-                        "type": "ID"
-                      },
-                      "type": "ID"
+                        "type": "ID",
+                        "variableName": "deferrableID"
+                      }
                     }
                   ],
                   "rootFieldVariable": "deferrableID",
@@ -811,15 +811,27 @@ query ProfilePic_Deferrable(
                   "args": [
                     {
                       "kind": "Argument",
-                      "name": "deferrableID",
                       "metadata": null,
+                      "name": "size",
+                      "type": "[Int]",
                       "value": {
                         "kind": "Variable",
-                        "variableName": "deferrableID",
                         "metadata": null,
-                        "type": "ID"
-                      },
-                      "type": "ID"
+                        "type": "[Int]",
+                        "variableName": "size"
+                      }
+                    },
+                    {
+                      "kind": "Argument",
+                      "metadata": null,
+                      "name": "deferrableID",
+                      "type": "ID",
+                      "value": {
+                        "kind": "Variable",
+                        "metadata": null,
+                        "type": "ID",
+                        "variableName": "deferrableID"
+                      }
                     }
                   ],
                   "rootFieldVariable": "deferrableID",
@@ -1083,15 +1095,27 @@ query ProfilePic_Deferrable(
                   "args": [
                     {
                       "kind": "Argument",
-                      "name": "deferrableID",
                       "metadata": null,
+                      "name": "size",
+                      "type": "[Int]",
                       "value": {
                         "kind": "Variable",
-                        "variableName": "deferrableID",
                         "metadata": null,
-                        "type": "ID"
-                      },
-                      "type": "ID"
+                        "type": "[Int]",
+                        "variableName": "size"
+                      }
+                    },
+                    {
+                      "kind": "Argument",
+                      "metadata": null,
+                      "name": "deferrableID",
+                      "type": "ID",
+                      "value": {
+                        "kind": "Variable",
+                        "metadata": null,
+                        "type": "ID",
+                        "variableName": "deferrableID"
+                      }
                     }
                   ],
                   "rootFieldVariable": "deferrableID",
@@ -1196,7 +1220,8 @@ query ProfilePic_Deferrable(
       "kind": "LocalArgumentDefinition",
       "metadata": null,
       "name": "size",
-      "type": "[Int]"
+      "type": "[Int]",
+      "defaultValue": null
     }
   ],
   "directives": [],
@@ -1384,15 +1409,15 @@ query Birthdate_Deferrable(
                   "args": [
                     {
                       "kind": "Argument",
-                      "name": "deferrableID",
                       "metadata": null,
+                      "name": "deferrableID",
+                      "type": "ID",
                       "value": {
                         "kind": "Variable",
-                        "variableName": "deferrableID",
                         "metadata": null,
-                        "type": "ID"
-                      },
-                      "type": "ID"
+                        "type": "ID",
+                        "variableName": "deferrableID"
+                      }
                     }
                   ],
                   "rootFieldVariable": "deferrableID",
@@ -1447,15 +1472,15 @@ query Birthdate_Deferrable(
                               "args": [
                                 {
                                   "kind": "Argument",
-                                  "name": "deferrableID",
                                   "metadata": null,
+                                  "name": "deferrableID",
+                                  "type": "ID",
                                   "value": {
                                     "kind": "Variable",
-                                    "variableName": "deferrableID",
                                     "metadata": null,
-                                    "type": "ID"
-                                  },
-                                  "type": "ID"
+                                    "type": "ID",
+                                    "variableName": "deferrableID"
+                                  }
                                 }
                               ],
                               "rootFieldVariable": "deferrableID",

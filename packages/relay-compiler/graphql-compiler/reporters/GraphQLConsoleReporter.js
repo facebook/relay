@@ -17,13 +17,21 @@ import type {GraphQLReporter} from './GraphQLReporter';
 
 class GraphQLConsoleReporter implements GraphQLReporter {
   _verbose: boolean;
+  _quiet: boolean;
 
-  constructor(options: {verbose: boolean}) {
+  constructor(options: {verbose: boolean, quiet: boolean}) {
     this._verbose = options.verbose;
+    this._quiet = options.quiet;
+  }
+
+  reportMessage(message: string): void {
+    if (!this._quiet) {
+      process.stdout.write(message + '\n');
+    }
   }
 
   reportTime(name: string, ms: number): void {
-    if (this._verbose) {
+    if (this._verbose && !this.quiet) {
       const time =
         ms === 0
           ? chalk.gray(' <1ms')
@@ -35,15 +43,17 @@ class GraphQLConsoleReporter implements GraphQLReporter {
   }
 
   reportError(caughtLocation: string, error: Error): void {
-    process.stdout.write(chalk.red('ERROR:\n' + error.message + '\n'));
-    if (this._verbose) {
-      const frames = error.stack.match(/^ {4}at .*$/gm);
-      if (frames) {
-        process.stdout.write(
-          chalk.gray(
-            'From: ' + caughtLocation + '\n' + frames.join('\n') + '\n',
-          ),
-        );
+    if (!this._quiet) {
+      process.stdout.write(chalk.red('ERROR:\n' + error.message + '\n'));
+      if (this._verbose) {
+        const frames = error.stack.match(/^ {4}at .*$/gm);
+        if (frames) {
+          process.stdout.write(
+            chalk.gray(
+              'From: ' + caughtLocation + '\n' + frames.join('\n') + '\n',
+            ),
+          );
+        }
       }
     }
   }

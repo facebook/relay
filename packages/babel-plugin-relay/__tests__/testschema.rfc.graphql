@@ -136,7 +136,7 @@ interface Node {
   id: String
 }
 
-type User implements Node Actor {
+type User implements Node & Actor {
   friends(first: Int, last: Int, orderby: [String], find: String, isViewerFriend: Boolean, gender: Gender, before: ID, after: ID): UserConnection
   id: String
   name: String

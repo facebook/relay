@@ -37,7 +37,7 @@ function createFragmentSpecResolver(
   containerName: string,
   fragments: FragmentMap,
   props: Props,
-  callback: () => void,
+  callback?: () => void,
 ): FragmentSpecResolver {
   if (__DEV__) {
     const fragmentNames = Object.keys(fragments);

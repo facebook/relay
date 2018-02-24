@@ -26,6 +26,18 @@ function profileContainer(
     componentWillUnmount: `${containerName}.prototype.componentWillUnmount`,
     shouldComponentUpdate: `${containerName}.prototype.shouldComponentUpdate`,
   });
+
+  // Copy static getDerivedStateFromProps() to the instrumented constructor.
+  // This is necessary to support the react-lifecycle-compat poyfill.
+  // This can be removed once react-relay requires React 16.3+.
+  if (
+    Container.prototype !== null &&
+    typeof Container.prototype === 'object' &&
+    typeof Container.getDerivedStateFromProps === 'function'
+  ) {
+    Container.prototype.constructor.getDerivedStateFromProps =
+      Container.getDerivedStateFromProps;
+  }
 }
 
 module.exports = {profileContainer};

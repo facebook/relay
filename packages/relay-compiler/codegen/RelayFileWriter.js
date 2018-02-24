@@ -41,7 +41,7 @@ import type {
 } from 'graphql-compiler';
 import type {DocumentNode, GraphQLSchema, ValidationContext} from 'graphql';
 
-const {isOperationDefinitionAST} = SchemaUtils;
+const {isExecutableDefinitionAST} = SchemaUtils;
 
 export type GenerateExtraFiles = (
   getOutputDirectory: (path?: string) => CodegenDirectory,
@@ -129,7 +129,7 @@ class RelayFileWriter implements FileWriterInterface {
       const baseDefinitionNames = new Set();
       this._baseDocuments.forEach(doc => {
         doc.definitions.forEach(def => {
-          if (isOperationDefinitionAST(def) && def.name) {
+          if (isExecutableDefinitionAST(def) && def.name) {
             baseDefinitionNames.add(def.name.value);
           }
         });

@@ -110,7 +110,7 @@ export default createFragmentContainer(
         manager {
           ...Component_internUser @relay(mask: false)
         }
-        .... on Employee {
+        ... on Employee {
           admins {
             ...Component_internUser @relay(mask: false)
           }

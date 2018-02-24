@@ -72,7 +72,13 @@ class CodegenDirectory {
         dir,
       );
     } else if (!this.onlyValidate) {
-      fs.mkdirSync(dir);
+      const dirs = [dir];
+      let parent = path.dirname(dir);
+      while (!fs.existsSync(parent)) {
+        dirs.unshift(parent);
+        parent = path.dirname(parent);
+      }
+      dirs.forEach(d => fs.mkdirSync(d));
     }
     this._files = new Set();
     this.changes = {

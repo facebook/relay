@@ -107,6 +107,7 @@ export type SubscribeFunction = (
   | RelayObservable<GraphQLResponse>
   | Disposable;
 
+// $FlowFixMe(>=0.66.0) this is compatible with classic api see D4658012
 export type Uploadable = File | Blob;
 // $FlowFixMe this is compatible with classic api see D4658012
 export type UploadableMap = {[key: string]: Uploadable};

@@ -15,7 +15,7 @@ const GraphQLValidator = require('./GraphQLValidator');
 const Profiler = require('./GraphQLCompilerProfiler');
 
 const {
-  isOperationDefinitionAST,
+  isExecutableDefinitionAST,
   isSchemaDefinitionAST,
 } = require('./GraphQLSchemaUtils');
 const {extendSchema, parse, visit} = require('graphql');
@@ -48,7 +48,7 @@ function convertASTDocuments(
     const astDefinitions: Array<ASTDefinitionNode> = [];
     documents.forEach(doc => {
       doc.definitions.forEach(definition => {
-        if (isOperationDefinitionAST(definition)) {
+        if (isExecutableDefinitionAST(definition)) {
           astDefinitions.push(definition);
         }
       });
@@ -77,7 +77,7 @@ function convertASTDocumentsWithBase(
     const requiredDefinitions = new Map();
     const baseMap: Map<string, ASTDefinitionNode> = new Map();
     baseDefinitions.forEach(definition => {
-      if (isOperationDefinitionAST(definition)) {
+      if (isExecutableDefinitionAST(definition)) {
         const definitionName = definition.name && definition.name.value;
         // If there's no name, no reason to put in the map
         if (definitionName) {
@@ -91,7 +91,7 @@ function convertASTDocumentsWithBase(
 
     const definitionsToVisit: Array<ASTDefinitionNode> = [];
     definitions.forEach(definition => {
-      if (isOperationDefinitionAST(definition)) {
+      if (isExecutableDefinitionAST(definition)) {
         definitionsToVisit.push(definition);
       }
     });
@@ -141,7 +141,7 @@ function convertASTDefinitions(
 ): Array<Fragment | Root> {
   const operationDefinitions: Array<ASTDefinitionNode> = [];
   definitions.forEach(definition => {
-    if (isOperationDefinitionAST(definition)) {
+    if (isExecutableDefinitionAST(definition)) {
       operationDefinitions.push(definition);
     }
   });

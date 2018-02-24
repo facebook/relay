@@ -25,14 +25,10 @@ import type {
   RelayEnvironmentInterface,
 } from '../store/RelayEnvironment';
 import type {RelayQuerySet} from '../tools/RelayInternalTypes';
-import type {
-  ReadyState,
-  ReadyStateEvent,
-  RelayContainer,
-} from '../tools/RelayTypes';
+import type {ReadyState, ReadyStateEvent} from '../tools/RelayTypes';
 
 type Props = {
-  Container: RelayContainer,
+  Container: React.ComponentType<any>,
   environment: RelayEnvironmentInterface,
   queryConfig: RelayQueryConfigInterface,
   readyState?: ?ReadyState,

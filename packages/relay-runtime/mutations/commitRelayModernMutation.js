@@ -40,9 +40,6 @@ export type MutationConfig<T> = {|
  * environment.
  */
 function commitRelayModernMutation<T>(
-  /* $FlowFixMe(>=0.55.0 site=www) This comment suppresses an error found when
-   * Flow v0.55 was deployed. To see the error delete this comment and run
-   * Flow. */
   environment: Environment,
   config: MutationConfig<T>,
 ): Disposable {

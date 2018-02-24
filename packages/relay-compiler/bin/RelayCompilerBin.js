@@ -22,6 +22,7 @@ const {
 const RelaySourceModuleParser = require('../core/RelaySourceModuleParser');
 const RelayFileWriter = require('../codegen/RelayFileWriter');
 const RelayIRTransforms = require('../core/RelayIRTransforms');
+const persistQuery = require('../codegen/persistQuery');
 const RelayLanguagePluginJavaScript = require('../language/javascript/RelayLanguagePluginJavaScript');
 
 const fs = require('fs');
@@ -139,6 +140,8 @@ async function run(options: {
   watch?: ?boolean,
   validate: boolean,
   quiet: boolean,
+  persist: boolean,
+  'persist-output': string,
   noFutureProofEnums: boolean,
   language: string,
   artifactDirectory: ?string,
@@ -149,7 +152,26 @@ async function run(options: {
   }
   const srcDir = path.resolve(process.cwd(), options.src);
   if (!fs.existsSync(srcDir)) {
-    throw new Error(`--source path does not exist: ${srcDir}.`);
+    throw new Error(`--src path does not exist: ${srcDir}.`);
+  }
+
+  const persist = options.persist;
+  let persistOutput = options['persist-output'];
+  if (persistOutput) {
+    persistOutput = path.resolve(process.cwd(), persistOutput);
+    const persistOutputDir = path.dirname(persistOutput);
+    if (!fs.existsSync(persistOutputDir)) {
+      throw new Error(
+        `--persist-output path does not exist: ${persistOutputDir}.`,
+      );
+    }
+
+    const persistOutputFileExtension = path.extname(persistOutput);
+    if (persistOutputFileExtension !== '.json') {
+      throw new Error(
+        `--persist-output must be a path to a .json file: ${persistOutput}.`,
+      );
+    }
   }
   if (options.watch && !options.watchman) {
     throw new Error('Watchman is required to watch for changes.');
@@ -244,9 +266,12 @@ Ensure that one such file exists in ${srcDir} or its parents.
         languagePlugin,
         options.noFutureProofEnums,
         artifactDirectory,
+        persist,
+        persistOutput,
       ),
       isGeneratedFile: (filePath: string) =>
-        filePath.endsWith('.graphql.' + outputExtension) &&
+        (filePath.endsWith('.graphql.' + outputExtension) ||
+          filePath.endsWith('.queryMap.json')) &&
         filePath.includes(generatedDirectoryName),
       parser: sourceParserName,
       baseParsers: ['graphql'],
@@ -281,6 +306,8 @@ function getRelayFileWriter(
   languagePlugin: PluginInterface,
   noFutureProofEnums: boolean,
   outputDir?: ?string,
+  persist: boolean,
+  persistOutput: string,
 ) {
   return ({
     onlyValidate,
@@ -305,6 +332,8 @@ function getRelayFileWriter(
         optionalInputFieldsForFlow: [],
         schemaExtensions,
         useHaste: false,
+        persistQuery: persist ? persistQuery : undefined,
+        persistOutput,
         noFutureProofEnums,
         extension: languagePlugin.outputExtension,
         typeGenerator: languagePlugin.typeGenerator,
@@ -425,6 +454,14 @@ const argv = yargs
         'writing to disk',
       type: 'boolean',
       default: false,
+    },
+    persist: {
+      describe: 'Use an md5 hash as query id to replace operation text',
+      type: 'boolean',
+    },
+    'persist-output': {
+      describe:
+        'The json filepath where the complete query map file will be written to',
     },
     noFutureProofEnums: {
       describe:

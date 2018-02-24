@@ -22,7 +22,8 @@
     "Guides": [
       "routing",
       "relay-debugging",
-      "graphql-server-specification"
+      "graphql-server-specification",
+      "persisted-queries"
     ],
     "Migration Guides": [
       "new-in-relay-modern",

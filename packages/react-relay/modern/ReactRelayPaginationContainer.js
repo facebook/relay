@@ -86,8 +86,8 @@ export type ConnectionConfig = {
   query: GraphQLTaggedNode,
 };
 export type ConnectionData = {
-  edges?: ?Array<any>,
-  pageInfo?: ?PageInfo,
+  +edges?: ?$ReadOnlyArray<any>,
+  +pageInfo?: ?PageInfo,
 };
 
 /**

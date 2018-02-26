@@ -48,6 +48,7 @@ function commitRelayModernMutation<T>(
     'commitRelayModernMutation: expect `environment` to be an instance of ' +
       '`RelayModernEnvironment`.',
   );
+  const mutationUid = nextMutationUid();
   const {createOperationSelector, getRequest} = environment.unstable_internal;
   const mutation = getRequest(config.mutation);
   if (mutation.operationKind !== 'mutation') {
@@ -55,7 +56,7 @@ function commitRelayModernMutation<T>(
   }
   let {optimisticResponse, optimisticUpdater, updater} = config;
   const {configs, onError, variables, uploadables} = config;
-  const operation = createOperationSelector(mutation, variables);
+  const operation = createOperationSelector(mutation, variables, undefined, mutationUid);
   // TODO: remove this check after we fix flow.
   if (typeof optimisticResponse === 'function') {
     optimisticResponse = optimisticResponse();
@@ -108,6 +109,13 @@ function commitRelayModernMutation<T>(
       },
       onError,
     });
+}
+
+
+let mutationUidCounter = 0;
+const mutationUidPrefix = Math.random().toString();
+function nextMutationUid() {
+  return mutationUidPrefix + mutationUidCounter++;
 }
 
 module.exports = commitRelayModernMutation;

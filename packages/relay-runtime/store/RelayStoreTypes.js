@@ -186,7 +186,7 @@ export interface RecordSourceProxy {
   create(dataID: DataID, typeName: string): RecordProxy;
   delete(dataID: DataID): void;
   get(dataID: DataID): ?RecordProxy;
-  getRoot(): RecordProxy;
+  getRoot(dataID?: DataID): RecordProxy;
 }
 
 /**

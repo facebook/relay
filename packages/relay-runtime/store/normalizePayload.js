@@ -15,18 +15,19 @@ const RelayError = require('RelayError');
 
 const normalizeRelayPayload = require('normalizeRelayPayload');
 
-const {ROOT_ID} = require('RelayStoreUtils');
-
 import type {ExecutePayload} from 'RelayNetworkTypes';
-import type {RelayResponsePayload} from 'RelayStoreTypes';
+import type {RelayResponsePayload, OperationSelector} from 'RelayStoreTypes';
 
-function normalizePayload(payload: ExecutePayload): RelayResponsePayload {
+function normalizePayload(
+  payload: ExecutePayload,
+  operationSelector: OperationSelector,
+): RelayResponsePayload {
   const {operation, variables, response} = payload;
   const {data, errors} = response;
   if (data != null) {
     return normalizeRelayPayload(
       {
-        dataID: ROOT_ID,
+        dataID: operationSelector.root.dataID,
         node: operation,
         variables,
       },

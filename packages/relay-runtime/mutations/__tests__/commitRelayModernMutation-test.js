@@ -106,14 +106,14 @@ describe('Configs: NODE_DELETE', () => {
     ];
     const optimisticUpdater = jest.fn();
     const updater = jest.fn();
+    const operationSelector = createOperationSelector(FeedbackCommentQuery, {});
+    environment.commitPayload(operationSelector, payload);
     const snapshot = store.lookup({
       dataID: ROOT_ID,
       node: FeedbackCommentQuery.fragment,
       variables: {},
     });
     const callback = jest.fn();
-    const operationSelector = createOperationSelector(FeedbackCommentQuery, {});
-    environment.commitPayload(operationSelector, payload);
     store.subscribe(snapshot, callback);
     commitRelayModernMutation(environment, {
       configs,
@@ -547,13 +547,13 @@ describe('Configs: RANGE_ADD', () => {
         edgeName: 'feedbackCommentEdge',
       },
     ];
+    const operationSelector = createOperationSelector(CommentQuery, {});
+    environment.commitPayload(operationSelector, payload);
     const snapshot = store.lookup({
       dataID: ROOT_ID,
       node: CommentQuery.fragment,
       variables: {},
     });
-    const operationSelector = createOperationSelector(CommentQuery, {});
-    environment.commitPayload(operationSelector, payload);
     store.subscribe(snapshot, callback);
     commitMutation(environment, {
       configs,
@@ -757,13 +757,13 @@ describe('Configs: RANGE_ADD', () => {
         edgeName: 'feedbackCommentEdge',
       },
     ];
+    const operationSelector = createOperationSelector(CommentQuery, {});
+    environment.commitPayload(operationSelector, payload);
     const snapshot = store.lookup({
       dataID: ROOT_ID,
       node: CommentQuery.fragment,
       variables: {},
     });
-    const operationSelector = createOperationSelector(CommentQuery, {});
-    environment.commitPayload(operationSelector, payload);
     store.subscribe(snapshot, callback);
     commitMutation(environment, {
       configs,

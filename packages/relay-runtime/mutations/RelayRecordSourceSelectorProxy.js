@@ -54,7 +54,7 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
   }
 
   getRoot(): RecordProxy {
-    return this.__recordSource.getRoot();
+    return this.__recordSource.getRoot(this._readSelector.dataID);
   }
 
   _getRootField(

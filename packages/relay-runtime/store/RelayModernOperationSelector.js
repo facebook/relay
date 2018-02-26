@@ -16,7 +16,7 @@ const RelayConcreteNode = require('RelayConcreteNode');
 const {getOperationVariables} = require('RelayConcreteVariables');
 const {ROOT_ID} = require('RelayStoreUtils');
 
-import type {Variables} from '../util/RelayRuntimeTypes';
+import type {Variables, DataID} from '../util/RelayRuntimeTypes';
 import type {RequestNode, ConcreteOperation} from 'RelayConcreteNode';
 import type {OperationSelector} from 'RelayStoreTypes';
 
@@ -30,6 +30,7 @@ function createOperationSelector(
   request: RequestNode,
   variables: Variables,
   operationFromBatch?: ConcreteOperation,
+  dataID: DataID = ROOT_ID,
 ): OperationSelector {
   const operation =
     operationFromBatch ||
@@ -38,7 +39,6 @@ function createOperationSelector(
       : request.operation);
 
   const operationVariables = getOperationVariables(operation, variables);
-  const dataID = ROOT_ID;
   return {
     fragment: {
       dataID,

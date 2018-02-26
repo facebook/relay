@@ -197,7 +197,7 @@ class RelayModernEnvironment implements Environment {
       .execute(operation.node, operation.variables, cacheConfig || {})
       .do({
         next: executePayload => {
-          const responsePayload = normalizePayload(executePayload);
+          const responsePayload = normalizePayload(executePayload, operation);
           const {source, fieldPayloads, deferrableSelections} = responsePayload;
           for (const selectionKey of deferrableSelections || new Set()) {
             this._deferrableSelections.add(selectionKey);
@@ -303,7 +303,7 @@ class RelayModernEnvironment implements Environment {
           }
           this._publishQueue.commitPayload(
             operation,
-            normalizePayload(payload),
+            normalizePayload(payload, operation),
             updater,
           );
           this._publishQueue.run();

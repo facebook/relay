@@ -28,7 +28,7 @@ function normalizeRelayPayload(
   options: NormalizationOptions = {handleStrippedNulls: false},
 ): RelayResponsePayload {
   const source = new RelayInMemoryRecordSource();
-  source.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+  source.set(selector.dataID, RelayModernRecord.create(selector.dataID, ROOT_TYPE));
   const {
     fieldPayloads,
     deferrableSelections,

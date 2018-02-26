@@ -139,10 +139,10 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
     return this._proxies[dataID];
   }
 
-  getRoot(): RecordProxy {
-    let root = this.get(ROOT_ID);
+  getRoot(dataID: DataID = ROOT_ID): RecordProxy {
+    let root = this.get(dataID);
     if (!root) {
-      root = this.create(ROOT_ID, ROOT_TYPE);
+      root = this.create(dataID, ROOT_TYPE);
     }
     invariant(
       root && root.getType() === ROOT_TYPE,

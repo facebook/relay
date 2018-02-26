@@ -15,7 +15,7 @@ const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayModernRecord = require('RelayModernRecord');
 const RelayResponseNormalizer = require('RelayResponseNormalizer');
 
-const {ROOT_ID, ROOT_TYPE} = require('RelayStoreUtils');
+const {ROOT_TYPE} = require('RelayStoreUtils');
 
 import type {PayloadData, PayloadError} from 'RelayNetworkTypes';
 import type {NormalizationOptions} from 'RelayResponseNormalizer';

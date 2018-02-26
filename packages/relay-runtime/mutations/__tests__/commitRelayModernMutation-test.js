@@ -17,6 +17,7 @@ const {createOperationSelector} = require('RelayModernOperationSelector');
 const {generateAndCompile} = require('RelayModernTestUtils');
 const {ROOT_ID} = require('RelayStoreUtils');
 const {commitMutation} = require('react-relay/modern/ReactRelayPublic');
+const ConnectionHandler = require('RelayConnectionHandler');
 
 describe('Configs: NODE_DELETE', () => {
   jest.resetModules();
@@ -417,7 +418,7 @@ describe('Configs: RANGE_DELETE', () => {
   });
 });
 
-describe('Configs: RANGE_ADD', () => {
+describe('Adding to connections', () => {
   let callback,
     CommentQuery,
     data,
@@ -532,7 +533,7 @@ describe('Configs: RANGE_ADD', () => {
     };
   });
 
-  it('appends new edge', () => {
+  it('Configs: RANGE_ADD appends new edge', () => {
     const configs = [
       {
         type: 'RANGE_ADD',
@@ -575,7 +576,7 @@ describe('Configs: RANGE_ADD', () => {
     expect(callback.mock.calls.length).toBe(0);
   });
 
-  it('does not overwrite previous edge when appended multiple times', () => {
+  it('Configs: RANGE_ADD does not overwrite previous edge when appended multiple times', () => {
     const configs = [
       {
         type: 'RANGE_ADD',
@@ -742,7 +743,171 @@ describe('Configs: RANGE_ADD', () => {
     });
   });
 
-  it('prepends new edge', () => {
+  it('Updater function not overwrite previous edge when appended multiple times', () => {
+    const updater = (store) => {
+      const payload = store.getRootField('commentCreate');
+      const newEdge = payload.getLinkedRecord('feedbackCommentEdge');
+      const feedbackProxy = store.get(feedbackID);
+      const conn = ConnectionHandler.getConnection(
+        feedbackProxy,
+        'Feedback_topLevelComments',
+      );
+      ConnectionHandler.insertEdgeAfter(conn, newEdge);
+    };
+    // prepare existing data
+    const operationSelector = createOperationSelector(CommentQuery, {});
+    environment.commitPayload(operationSelector, {
+      node: {
+        id: feedbackID,
+        __typename: 'Feedback',
+        topLevelComments: {
+          count: 1,
+          edges: [
+            {
+              cursor: 'comment1:cursor',
+              node: {
+                id: 'comment1',
+              },
+            },
+          ],
+        },
+      },
+    });
+
+    // send mutation
+    commitMutation(environment, {
+      updater,
+      mutation,
+      variables,
+    });
+
+    let serverResponse = {
+      data: {
+        commentCreate: {
+          feedbackCommentEdge: {
+            __typename: 'CommentsEdge',
+            cursor: 'comment2:cursor',
+            node: {
+              id: 'comment2',
+              // these are extra fields which should be stripped off before appending
+              // to the connection.
+              body: {
+                text: variables.input.message.text,
+              },
+            },
+          },
+        },
+      },
+    };
+    const node = environment.executeMutation.mock.calls[0][0].operation.node;
+    environment.mock.resolve(node, serverResponse);
+    jest.runAllTimers();
+
+    let snapshot = store.lookup({
+      dataID: ROOT_ID,
+      node: CommentQuery.fragment,
+      variables: {},
+    });
+    expect(snapshot.data).toEqual({
+      node: {
+        topLevelComments: {
+          edges: [
+            {
+              cursor: 'comment1:cursor',
+              node: {
+                __typename: 'Comment',
+                id: 'comment1',
+              },
+            },
+            {
+              cursor: 'comment2:cursor',
+              node: {
+                __typename: 'Comment',
+                id: 'comment2',
+              },
+            },
+          ],
+          // The following fields are not quite related. Though not explicted requested in the query,
+          // Relay now automatically adds the page info.
+          pageInfo: {
+            endCursor: null,
+            hasNextPage: false,
+          },
+        },
+      },
+    });
+
+    serverResponse = {
+      data: {
+        commentCreate: {
+          feedbackCommentEdge: {
+            __typename: 'CommentsEdge',
+            cursor: 'comment3:cursor',
+            node: {
+              id: 'comment3',
+              // these are extra fields which should be stripped off before appending
+              // to the connection.
+              body: {
+                text: variables.input.message.text,
+              },
+            },
+          },
+        },
+      },
+    };
+    // send the same mutation again
+    commitMutation(environment, {
+      updater,
+      mutation,
+      variables,
+    });
+    environment.mock.resolve(node, serverResponse);
+    jest.runAllTimers();
+
+    snapshot = store.lookup({
+      dataID: ROOT_ID,
+      node: CommentQuery.fragment,
+      variables: {},
+    });
+
+    expect(snapshot.data).toEqual({
+      node: {
+        topLevelComments: {
+          edges: [
+            {
+              cursor: 'comment1:cursor',
+              node: {
+                __typename: 'Comment',
+                id: 'comment1',
+              },
+            },
+            {
+              cursor: 'comment2:cursor',
+              node: {
+                __typename: 'Comment',
+                id: 'comment2',
+              },
+            },
+            {
+              cursor: 'comment3:cursor',
+              node: {
+                __typename: 'Comment',
+                id: 'comment3',
+              },
+            },
+          ],
+          // The following fields are not quite related. Though not explicted requested in the query,
+          // Relay now automatically adds the page info.
+          pageInfo: {
+            endCursor: null,
+            hasNextPage: false,
+          },
+        },
+      },
+    });
+  });
+
+  it('Configs: RANGE_ADD prepends new edge', () => {
     const configs = [
       {
         type: 'RANGE_ADD',
@@ -785,7 +950,7 @@ describe('Configs: RANGE_ADD', () => {
     expect(callback.mock.calls.length).toBe(0);
   });
 
-  it('filters connections then applies the rangeBehavior', () => {
+  it('Configs: RANGE_ADD filters connections then applies the rangeBehavior', () => {
     const configs = [
       {
         type: 'RANGE_ADD',

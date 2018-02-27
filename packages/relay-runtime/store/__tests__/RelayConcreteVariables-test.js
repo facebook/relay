@@ -25,158 +25,23 @@ describe('RelayConcreteVariables', () => {
   });
 
   describe('getFragmentVariables()', () => {
-    describe('sets variables to literal argument values', () => {
-      it('correctly sets argument value', () => {
-        const {Fragment} = generateAndCompile(
-          `
-        fragment Fragment on User @argumentDefinitions(
-          size: {type: "[Int]"}
-        ) {
-          profilePicture(size: $size) { uri }
-        }
-      `,
-        );
-        const variables = getFragmentVariables(Fragment, {}, {size: 32});
-        expect(variables).toEqual({
-          size: 32,
-        });
-      });
-
-      it('correctly sets boolean argument values', () => {
-        const {Fragment} = generateAndCompile(
-          `
-        fragment Fragment on User @argumentDefinitions(
-          condition: {type: "Boolean"}
-        ) {
-          firstName(if: $condition)
-        }
-      `,
-        );
-        const variables = getFragmentVariables(
-          Fragment,
-          {},
-          {condition: false},
-        );
-        expect(variables).toEqual({
-          condition: false,
-        });
-      });
-
-      it('correctly sets null argument values', () => {
-        const {Fragment} = generateAndCompile(
-          `
-        fragment Fragment on User @argumentDefinitions(
-          condition: {type: "Boolean"}
-        ) {
-          firstName(if: $condition)
-        }
-      `,
-        );
-        const variables = getFragmentVariables(Fragment, {}, {condition: null});
-        expect(variables).toEqual({
-          condition: null,
-        });
-      });
-
-      it('correctly ignores default value when argument passed', () => {
-        const {Fragment} = generateAndCompile(
-          `
-        fragment Fragment on User @argumentDefinitions(
-          size: {type: "[Int]", defaultValue: 42}
-        ) {
-          profilePicture(size: $size) { uri }
-        }
-      `,
-        );
-        const variables = getFragmentVariables(Fragment, {}, {size: 32});
-        expect(variables).toEqual({
-          size: 32,
-        });
-      });
-
-      it('correctly sets argument value even if variable is available in root variables', () => {
-        const {Fragment} = generateAndCompile(
-          `
-        fragment Fragment on User @argumentDefinitions(
-          size: {type: "[Int]"}
-        ) {
-          profilePicture(size: $size) { uri }
-        }
-      `,
-        );
-        const variables = getFragmentVariables(
-          Fragment,
-          {size: 16},
-          {size: 32},
-        );
-        expect(variables).toEqual({
-          size: 32,
-        });
-      });
-    });
-
     /**
-     * defs: n/a
-     * root vars: size: Int = 16, id: ID = "1"
-     * arg vars: n/a
-     * => size: 16, id: '1'
-     */
-    it('includes all rootVariables in scope', () => {
-      const {Fragment} = generateAndCompile(
-        `
-        fragment Fragment on User @argumentDefinitions(
-          size: {type: "[Int]"}
-        ) {
-          profilePicture(size: $size) { uri }
-        }
-      `,
-      );
-      const variables = getFragmentVariables(Fragment, {size: 16, id: '1'}, {});
-      expect(variables).toEqual({
-        size: 16,
-        id: '1',
-      });
-    });
-
-    /**
-     * defs: n/a
-     * root vars: size: [Int] = 16
-     * arg vars: n/a
-     * => size: 16
-     */
-    it('sets variables to root variable values if defined and no argument passed ', () => {
-      const {Fragment} = generateAndCompile(
-        `
-        fragment Fragment on User @argumentDefinitions(
-          size: {type: "[Int]"}
-        ) {
-          profilePicture(size: $size) { uri }
-        }
-      `,
-      );
-      const variables = getFragmentVariables(Fragment, {size: 16}, {});
-      expect(variables).toEqual({
-        size: 16,
-      });
-    });
-
-    /**
-     * defs: size: [Int] = 42
-     * root vars: size: [Int] = 16
-     * arg vars: n/a
+     * defs: size: [Int]
+     * root vars: n/a
+     * arg vars: {size: 42}
      * => size: 42
      */
-    it('sets variables to default values if defined and no argument passed even if root variable is available', () => {
+    it('sets variables to literal argument values', () => {
       const {Fragment} = generateAndCompile(
         `
         fragment Fragment on User @argumentDefinitions(
-          size: {type: "[Int]", defaultValue: 42}
+          size: {type: "[Int]"}
         ) {
           profilePicture(size: $size) { uri }
         }
       `,
       );
-      const variables = getFragmentVariables(Fragment, {size: 16}, {});
+      const variables = getFragmentVariables(Fragment, {}, {size: 42});
       expect(variables).toEqual({
         size: 42,
       });
@@ -188,7 +53,7 @@ describe('RelayConcreteVariables', () => {
      * arg vars: n/a
      * => size: 42
      */
-    it('sets variables to default values if defined and no argument passed and no root variable available', () => {
+    it('sets variables to default values if defined and no argument', () => {
       const {Fragment} = generateAndCompile(
         `
         fragment Fragment on User @argumentDefinitions(

@@ -45,11 +45,14 @@ import type {
   Subscription,
 } from 'RelayRuntime';
 
+type ContainerProps = $FlowFixMeProps;
+
 type ContainerState = {
   data: {[key: string]: mixed},
   relayEnvironment: IEnvironment | ClassicEnvironment,
   relayProp: RelayRefetchProp,
   relayVariables: Variables,
+  resolver: FragmentSpecResolver,
 };
 const containerContextTypes = {
   relay: RelayPropTypes.Relay,
@@ -72,12 +75,11 @@ function createContainerWithFragments<
   const componentName = getComponentName(Component);
   const containerName = `Relay(${componentName})`;
 
-  class Container extends React.Component<$FlowFixMeProps, ContainerState> {
+  class Container extends React.Component<ContainerProps, ContainerState> {
     _localVariables: ?Variables;
     _refetchSubscription: ?Subscription;
     _references: Array<Disposable>;
     _relayContext: RelayContext;
-    _resolver: FragmentSpecResolver;
 
     constructor(props, context) {
       super(props, context);
@@ -86,23 +88,39 @@ function createContainerWithFragments<
       this._localVariables = null;
       this._refetchSubscription = null;
       this._references = [];
-      this._resolver = createFragmentSpecResolver(
+      // Do not provide a subscription/callback here.
+      // It is possible for this render to be interrupted or aborted,
+      // In which case the subscription would cause a leak.
+      // We will add the subscription in componentDidMount().
+      const resolver = createFragmentSpecResolver(
         relay,
         containerName,
         fragments,
         props,
-        this._handleFragmentDataUpdate,
       );
       this._relayContext = {
         environment: relay.environment,
         variables: relay.variables,
       };
       this.state = {
-        data: this._resolver.resolve(),
+        data: resolver.resolve(),
         relayEnvironment: relay.environment,
         relayProp: this._buildRelayProp(relay),
         relayVariables: relay.variables,
+        resolver,
       };
+    }
+
+    componentDidMount() {
+      this._subscribeToNewResolver();
+    }
+
+    componentDidUpdate(prevProps: ContainerProps, prevState: ContainerState) {
+      if (this.state.resolver !== prevState.resolver) {
+        prevState.resolver.dispose();
+
+        this._subscribeToNewResolver();
+      }
     }
 
     /**
@@ -120,6 +138,7 @@ function createContainerWithFragments<
       const prevIDs = getDataIDsFromObject(fragments, this.props);
       const nextIDs = getDataIDsFromObject(fragments, nextProps);
 
+      let resolver = this.state.resolver;
       // If the environment has changed or props point to new records then
       // previously fetched data and any pending fetches no longer apply:
       // - Existing references are on the old environment.
@@ -130,34 +149,44 @@ function createContainerWithFragments<
         this.state.relayVariables !== relay.variables ||
         !areEqual(prevIDs, nextIDs)
       ) {
-        this._release();
+        this._references.forEach(disposable => disposable.dispose());
+        this._references.length = 0;
+        this._refetchSubscription && this._refetchSubscription.unsubscribe();
         this._localVariables = null;
         // Child containers rely on context.relay being mutated (for gDSFP).
         this._relayContext.environment = relay.environment;
         this._relayContext.variables = relay.variables;
-        this._resolver = createFragmentSpecResolver(
+
+        // Do not provide a subscription/callback here.
+        // It is possible for this render to be interrupted or aborted,
+        // In which case the subscription would cause a leak.
+        // We will add the subscription in componentDidUpdate().
+        resolver = createFragmentSpecResolver(
           relay,
           containerName,
           fragments,
           nextProps,
-          this._handleFragmentDataUpdate,
         );
         this.setState({
           relayEnvironment: relay.environment,
           relayProp: this._buildRelayProp(relay),
           relayVariables: relay.variables,
+          resolver,
         });
       } else if (!this._localVariables) {
-        this._resolver.setProps(nextProps);
+        this.state.resolver.setProps(nextProps);
       }
-      const data = this._resolver.resolve();
+      const data = resolver.resolve();
       if (data !== this.state.data) {
         this.setState({data});
       }
     }
 
     componentWillUnmount() {
-      this._release();
+      this.state.resolver.dispose();
+      this._references.forEach(disposable => disposable.dispose());
+      this._references.length = 0;
+      this._refetchSubscription && this._refetchSubscription.unsubscribe();
     }
 
     shouldComponentUpdate(nextProps, nextState, nextContext): boolean {
@@ -192,11 +221,19 @@ function createContainerWithFragments<
       return false;
     }
 
-    _release(): void {
-      this._resolver.dispose();
-      this._references.forEach(disposable => disposable.dispose());
-      this._references.length = 0;
-      this._refetchSubscription && this._refetchSubscription.unsubscribe();
+    _subscribeToNewResolver() {
+      const {data, resolver} = this.state;
+
+      // Event listeners are only safe to add during the commit phase,
+      // So they won't leak if render is interrupted or errors.
+      resolver.setCallback(this._handleFragmentDataUpdate);
+
+      // External values could change between render and commit.
+      // Check for this case, even though it requires an extra store read.
+      const maybeNewData = resolver.resolve();
+      if (data !== maybeNewData) {
+        this.setState({data: maybeNewData});
+      }
     }
 
     _buildRelayProp(relay: RelayContext): RelayRefetchProp {
@@ -213,7 +250,18 @@ function createContainerWithFragments<
       const profiler = RelayProfiler.profile(
         'ReactRelayRefetchContainer.handleFragmentDataUpdate',
       );
-      this.setState({data: this._resolver.resolve()}, profiler.stop);
+      const resolverFromThisUpdate = this.state.resolver;
+      this.setState(updatedState => {
+        // If this event belongs to the current data source, update.
+        // Otherwise we should ignore it.
+        if (resolverFromThisUpdate === updatedState.resolver) {
+          return {
+            data: updatedState.resolver.resolve(),
+          };
+        }
+
+        return null;
+      }, profiler.stop);
     };
 
     _getFragmentVariables(): Variables {
@@ -290,9 +338,9 @@ function createContainerWithFragments<
           // Child containers rely on context.relay being mutated (for gDSFP).
           this._relayContext.environment = this.context.relay.environment;
           this._relayContext.variables = fragmentVariables;
-          this._resolver.setVariables(fragmentVariables);
+          this.state.resolver.setVariables(fragmentVariables);
           return Observable.create(sink =>
-            this.setState({data: this._resolver.resolve()}, () => {
+            this.setState({data: this.state.resolver.resolve()}, () => {
               sink.next();
               sink.complete();
             }),

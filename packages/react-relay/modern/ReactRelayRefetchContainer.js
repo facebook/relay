@@ -116,8 +116,16 @@ function createContainerWithFragments<
     }
 
     componentDidUpdate(prevProps: ContainerProps, prevState: ContainerState) {
+      // If the environment has changed or props point to new records then
+      // previously fetched data and any pending fetches no longer apply:
+      // - Existing references are on the old environment.
+      // - Existing references are based on old variables.
+      // - Pending fetches are for the previous records.
       if (this.state.resolver !== prevState.resolver) {
         prevState.resolver.dispose();
+        this._references.forEach(disposable => disposable.dispose());
+        this._references.length = 0;
+        this._refetchSubscription && this._refetchSubscription.unsubscribe();
 
         this._subscribeToNewResolver();
       }
@@ -149,9 +157,6 @@ function createContainerWithFragments<
         this.state.relayVariables !== relay.variables ||
         !areEqual(prevIDs, nextIDs)
       ) {
-        this._references.forEach(disposable => disposable.dispose());
-        this._references.length = 0;
-        this._refetchSubscription && this._refetchSubscription.unsubscribe();
         this._localVariables = null;
         // Child containers rely on context.relay being mutated (for gDSFP).
         this._relayContext.environment = relay.environment;

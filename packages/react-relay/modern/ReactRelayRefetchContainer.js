@@ -18,7 +18,7 @@ const buildReactRelayContainer = require('./buildReactRelayContainer');
 const invariant = require('invariant');
 const isRelayContext = require('../classic/environment/isRelayContext');
 const isScalarAndEqual = require('isScalarAndEqual');
-const nullthrows = require('nullthrows');
+const polyfill = require('react-lifecycles-compat');
 
 const {
   getComponentName,
@@ -36,19 +36,24 @@ import type {
   RefetchOptions,
   RelayRefetchProp,
 } from './ReactRelayTypes';
-import type {Disposable, Variables} from 'RelayRuntime';
 import type {
+  Disposable,
   FragmentMap,
   GraphQLTaggedNode,
   IEnvironment,
   RelayContext,
   Subscription,
+  Variables,
 } from 'RelayRuntime';
 
 type ContainerProps = $FlowFixMeProps;
 
 type ContainerState = {
   data: {[key: string]: mixed},
+  prevProps: ContainerProps,
+  localVariables: ?Variables,
+  relay: RelayContext,
+  relayContext: RelayContext,
   relayEnvironment: IEnvironment | ClassicEnvironment,
   relayProp: RelayRefetchProp,
   relayVariables: Variables,
@@ -76,16 +81,13 @@ function createContainerWithFragments<
   const containerName = `Relay(${componentName})`;
 
   class Container extends React.Component<ContainerProps, ContainerState> {
-    _localVariables: ?Variables;
     _refetchSubscription: ?Subscription;
     _references: Array<Disposable>;
-    _relayContext: RelayContext;
 
     constructor(props, context) {
       super(props, context);
       const relay = assertRelayContext(context.relay);
       const {createFragmentSpecResolver} = relay.environment.unstable_internal;
-      this._localVariables = null;
       this._refetchSubscription = null;
       this._references = [];
       // Do not provide a subscription/callback here.
@@ -98,14 +100,20 @@ function createContainerWithFragments<
         fragments,
         props,
       );
-      this._relayContext = {
-        environment: relay.environment,
-        variables: relay.variables,
-      };
       this.state = {
         data: resolver.resolve(),
+        localVariables: null,
+        relay,
+        relayContext: {
+          environment: relay.environment,
+          variables: relay.variables,
+        },
         relayEnvironment: relay.environment,
-        relayProp: this._buildRelayProp(relay),
+        relayProp: {
+          environment: relay.environment,
+          refetch: this._refetch,
+        },
+        prevProps: this.props,
         relayVariables: relay.variables,
         resolver,
       };
@@ -132,35 +140,41 @@ function createContainerWithFragments<
     }
 
     /**
-     * When new props are received, read data for the new props and subscribe
-     * for updates. Props may be the same in which case previous data and
-     * subscriptions can be reused.
+     * When new props are received, read data for the new props and add it to
+     * state. Props may be the same in which case previous data can be reused.
      */
-    componentWillReceiveProps(nextProps, nextContext) {
-      const context = nullthrows(nextContext);
-      const relay = assertRelayContext(context.relay);
+    static getDerivedStateFromProps(
+      nextProps: ContainerProps,
+      prevState: ContainerState,
+    ): $Shape<ContainerState> | null {
+      // Any props change could impact the query, so we mirror props in state.
+      // This is an unusual pattern, but necessary for this container usecase.
+      const {prevProps} = prevState;
+      const relay = assertRelayContext(prevState.relay);
+
       const {
         createFragmentSpecResolver,
         getDataIDsFromObject,
       } = relay.environment.unstable_internal;
-      const prevIDs = getDataIDsFromObject(fragments, this.props);
+      const prevIDs = getDataIDsFromObject(fragments, prevProps);
       const nextIDs = getDataIDsFromObject(fragments, nextProps);
 
-      let resolver = this.state.resolver;
+      let resolver = prevState.resolver;
+
       // If the environment has changed or props point to new records then
       // previously fetched data and any pending fetches no longer apply:
       // - Existing references are on the old environment.
       // - Existing references are based on old variables.
       // - Pending fetches are for the previous records.
       if (
-        this.state.relayEnvironment !== relay.environment ||
-        this.state.relayVariables !== relay.variables ||
+        prevState.relayEnvironment !== relay.environment ||
+        prevState.relayVariables !== relay.variables ||
         !areEqual(prevIDs, nextIDs)
       ) {
-        this._localVariables = null;
         // Child containers rely on context.relay being mutated (for gDSFP).
-        this._relayContext.environment = relay.environment;
-        this._relayContext.variables = relay.variables;
+        const mutatedRelayContext = prevState.relayContext;
+        mutatedRelayContext.environment = relay.environment;
+        mutatedRelayContext.variables = relay.variables;
 
         // Do not provide a subscription/callback here.
         // It is possible for this render to be interrupted or aborted,
@@ -172,19 +186,31 @@ function createContainerWithFragments<
           fragments,
           nextProps,
         );
-        this.setState({
+        return {
+          data: resolver.resolve(),
+          localVariables: null,
+          prevProps: nextProps,
+          relayContext: mutatedRelayContext,
           relayEnvironment: relay.environment,
-          relayProp: this._buildRelayProp(relay),
+          relayProp: {
+            environment: relay.environment,
+            // refetch should never really change
+            refetch: prevState.relayProp.refetch,
+          },
           relayVariables: relay.variables,
           resolver,
-        });
-      } else if (!this._localVariables) {
-        this.state.resolver.setProps(nextProps);
+        };
+      } else if (!prevState.localVariables) {
+        resolver.setProps(nextProps);
       }
       const data = resolver.resolve();
-      if (data !== this.state.data) {
-        this.setState({data});
+      if (data !== prevState.data) {
+        return {
+          data,
+          prevProps: nextProps,
+        };
       }
+      return null;
     }
 
     componentWillUnmount() {
@@ -239,13 +265,6 @@ function createContainerWithFragments<
       if (data !== maybeNewData) {
         this.setState({data: maybeNewData});
       }
-    }
-
-    _buildRelayProp(relay: RelayContext): RelayRefetchProp {
-      return {
-        environment: relay.environment,
-        refetch: this._refetch,
-      };
     }
 
     /**
@@ -329,7 +348,10 @@ function createContainerWithFragments<
       const reference = environment.retain(operation.root);
       this._references.push(reference);
 
-      this._localVariables = fetchVariables;
+      // TODO: T26288752 find a better way
+      /* eslint-disable lint/react-state-props-mutation */
+      this.state.localVariables = fetchVariables;
+      /* eslint-enable lint/react-state-props-mutation */
 
       // Cancel any previously running refetch.
       this._refetchSubscription && this._refetchSubscription.unsubscribe();
@@ -341,8 +363,11 @@ function createContainerWithFragments<
         .execute({operation, cacheConfig})
         .mergeMap(response => {
           // Child containers rely on context.relay being mutated (for gDSFP).
-          this._relayContext.environment = this.context.relay.environment;
-          this._relayContext.variables = fragmentVariables;
+          // TODO: T26288752 find a better way
+          /* eslint-disable lint/react-state-props-mutation */
+          this.state.relayContext.environment = this.context.relay.environment;
+          this.state.relayContext.variables = fragmentVariables;
+          /* eslint-enable lint/react-state-props-mutation */
           this.state.resolver.setVariables(fragmentVariables);
           return Observable.create(sink =>
             this.setState({data: this.state.resolver.resolve()}, () => {
@@ -374,7 +399,7 @@ function createContainerWithFragments<
     };
 
     getChildContext(): Object {
-      return {relay: this._relayContext};
+      return {relay: this.state.relayContext};
     }
 
     render() {
@@ -401,6 +426,9 @@ function createContainerWithFragments<
   profileContainer(Container, 'ReactRelayRefetchContainer');
   Container.contextTypes = containerContextTypes;
   Container.displayName = containerName;
+
+  // Make static getDerivedStateFromProps work with older React versions:
+  polyfill(Container);
 
   return (Container: any);
 }

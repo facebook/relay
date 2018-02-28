@@ -113,7 +113,7 @@ function commitRelayModernMutation<T>(
 
 
 let mutationUidCounter = 0;
-const mutationUidPrefix = Math.random().toString();
+const mutationUidPrefix = 'mutationRoot';
 function nextMutationUid() {
   return mutationUidPrefix + mutationUidCounter++;
 }

@@ -11,6 +11,7 @@
 'use strict';
 
 const React = require('React');
+const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
 const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
 const areEqual = require('areEqual');
@@ -25,7 +26,7 @@ const {
   getReactComponent,
 } = require('../classic/container/RelayContainerUtils');
 const {profileContainer} = require('./ReactRelayContainerProfiler');
-const {Observable, RelayProfiler, RelayConcreteNode} = require('RelayRuntime');
+const {Observable, RelayProfiler} = require('RelayRuntime');
 
 import type {FragmentSpecResolver} from '../classic/environment/RelayCombinedEnvironmentTypes';
 import type {RelayEnvironmentInterface as ClassicEnvironment} from '../classic/store/RelayEnvironment';
@@ -82,14 +83,13 @@ function createContainerWithFragments<
 
   class Container extends React.Component<ContainerProps, ContainerState> {
     _refetchSubscription: ?Subscription;
-    _references: Array<Disposable>;
+    _queryFetcher: ?ReactRelayQueryFetcher;
 
     constructor(props, context) {
       super(props, context);
       const relay = assertRelayContext(context.relay);
       const {createFragmentSpecResolver} = relay.environment.unstable_internal;
       this._refetchSubscription = null;
-      this._references = [];
       // Do not provide a subscription/callback here.
       // It is possible for this render to be interrupted or aborted,
       // In which case the subscription would cause a leak.
@@ -131,8 +131,7 @@ function createContainerWithFragments<
       // - Pending fetches are for the previous records.
       if (this.state.resolver !== prevState.resolver) {
         prevState.resolver.dispose();
-        this._references.forEach(disposable => disposable.dispose());
-        this._references.length = 0;
+        this._queryFetcher && this._queryFetcher.dispose();
         this._refetchSubscription && this._refetchSubscription.unsubscribe();
 
         this._subscribeToNewResolver();
@@ -215,8 +214,7 @@ function createContainerWithFragments<
 
     componentWillUnmount() {
       this.state.resolver.dispose();
-      this._references.forEach(disposable => disposable.dispose());
-      this._references.length = 0;
+      this._queryFetcher && this._queryFetcher.dispose();
       this._refetchSubscription && this._refetchSubscription.unsubscribe();
     }
 
@@ -299,6 +297,13 @@ function createContainerWithFragments<
       );
     }
 
+    _getQueryFetcher(): ReactRelayQueryFetcher {
+      if (!this._queryFetcher) {
+        this._queryFetcher = new ReactRelayQueryFetcher();
+      }
+      return this._queryFetcher;
+    }
+
     _refetch = (
       refetchVariables:
         | Variables
@@ -335,18 +340,7 @@ function createContainerWithFragments<
         getRequest,
       } = this.context.relay.environment.unstable_internal;
       const query = getRequest(taggedNode);
-      if (query.kind === RelayConcreteNode.BATCH_REQUEST) {
-        throw new Error(
-          'ReactRelayRefetchContainer: Batch request not yet ' +
-            'implemented (T22955000)',
-        );
-      }
       const operation = createOperationSelector(query, fetchVariables);
-
-      // Immediately retain the results of the query to prevent cached
-      // data from being evicted
-      const reference = environment.retain(operation.root);
-      this._references.push(reference);
 
       // TODO: T26288752 find a better way
       /* eslint-disable lint/react-state-props-mutation */
@@ -359,8 +353,14 @@ function createContainerWithFragments<
       // Declare refetchSubscription before assigning it in .start(), since
       // synchronous completion may call callbacks .subscribe() returns.
       let refetchSubscription;
-      environment
-        .execute({operation, cacheConfig})
+      this._getQueryFetcher()
+        .execute({
+          environment,
+          operation,
+          cacheConfig,
+          // TODO (T26430099): Cleanup old references
+          preservePreviousReferences: true,
+        })
         .mergeMap(response => {
           // Child containers rely on context.relay being mutated (for gDSFP).
           // TODO: T26288752 find a better way

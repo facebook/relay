@@ -12,6 +12,8 @@
 
 const invariant = require('invariant');
 
+import type {ExecutePayload} from 'RelayNetworkTypes';
+import type RelayObservable from 'RelayObservable';
 import type {
   CacheConfig,
   Disposable,
@@ -26,6 +28,14 @@ export type FetchOptions = {
   onDataChange: ({error?: Error, snapshot?: Snapshot}) => void,
   operation: OperationSelector,
 };
+
+export type ExecuteConfig = {|
+  environment: IEnvironment,
+  operation: OperationSelector,
+  cacheConfig?: ?CacheConfig,
+  // Allows pagination container to retain results from previous queries
+  preservePreviousReferences?: boolean,
+|};
 
 class ReactRelayQueryFetcher {
   _fetchOptions: ?FetchOptions;
@@ -45,6 +55,53 @@ class ReactRelayQueryFetcher {
     }
     return null;
   }
+
+  execute({
+    environment,
+    operation,
+    cacheConfig,
+    preservePreviousReferences = false,
+  }: ExecuteConfig): RelayObservable<ExecutePayload> {
+    const {createOperationSelector} = environment.unstable_internal;
+    const nextReferences = [];
+
+    return environment
+      .execute({operation, cacheConfig})
+      .map(payload => {
+        const operationForPayload = createOperationSelector(
+          operation.node,
+          payload.variables,
+          payload.operation,
+        );
+        nextReferences.push(environment.retain(operationForPayload.root));
+        return payload;
+      })
+      .do({
+        error: () => {
+          // We may have partially fulfilled the request, so let the next request
+          // or the unmount dispose of the references.
+          this._selectionReferences = this._selectionReferences.concat(
+            nextReferences,
+          );
+        },
+        complete: () => {
+          if (!preservePreviousReferences) {
+            this._disposeSelectionReferences();
+          }
+          this._selectionReferences = this._selectionReferences.concat(
+            nextReferences,
+          );
+        },
+        unsubscribe: () => {
+          // Let the next request or the unmount code dispose of the references.
+          // We may have partially fulfilled the request.
+          this._selectionReferences = this._selectionReferences.concat(
+            nextReferences,
+          );
+        },
+      });
+  }
+
   /**
    * `fetch` fetches the data for the given operation.
    * If a result is immediately available synchronously, it will be synchronously
@@ -56,39 +113,27 @@ class ReactRelayQueryFetcher {
    */
   fetch(fetchOptions: FetchOptions): ?Snapshot {
     const {cacheConfig, environment, onDataChange, operation} = fetchOptions;
-    const {createOperationSelector} = environment.unstable_internal;
-    const nextReferences = [];
     let fetchHasReturned = false;
     let error;
 
     this._disposeRequest();
     this._fetchOptions = fetchOptions;
 
-    const request = environment
-      .execute({operation, cacheConfig})
+    const request = this.execute({
+      environment,
+      operation,
+      cacheConfig,
+    })
       .finally(() => {
         this._pendingRequest = null;
       })
       .subscribe({
-        next: payload => {
-          const operationForPayload = createOperationSelector(
-            operation.node,
-            payload.variables,
-            payload.operation,
-          );
-          nextReferences.push(environment.retain(operationForPayload.root));
-
+        next: () => {
           // Only notify of the first result if `next` is being called **asynchronously**
           // (i.e. after `fetch` has returned).
           this._onQueryDataAvailable({notifyFirstResult: fetchHasReturned});
         },
         error: err => {
-          // We may have partially fulfilled the request, so let the next request
-          // or the unmount dispose of the references.
-          this._selectionReferences = this._selectionReferences.concat(
-            nextReferences,
-          );
-
           // Only notify of error if `error` is being called **asynchronously**
           // (i.e. after `fetch` has returned).
           if (fetchHasReturned) {
@@ -96,17 +141,6 @@ class ReactRelayQueryFetcher {
           } else {
             error = err;
           }
-        },
-        complete: () => {
-          this._disposeSelectionReferences();
-          this._selectionReferences = nextReferences;
-        },
-        unsubscribe: () => {
-          // Let the next request or the unmount code dispose of the references.
-          // We may have partially fulfilled the request.
-          this._selectionReferences = this._selectionReferences.concat(
-            nextReferences,
-          );
         },
       });
 

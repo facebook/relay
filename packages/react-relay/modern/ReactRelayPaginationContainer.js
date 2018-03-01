@@ -11,6 +11,7 @@
 'use strict';
 
 const React = require('React');
+const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
 const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
 const areEqual = require('areEqual');
@@ -28,7 +29,6 @@ const {
 const {profileContainer} = require('./ReactRelayContainerProfiler');
 const {
   ConnectionInterface,
-  RelayConcreteNode,
   RelayProfiler,
   Observable,
 } = require('RelayRuntime');
@@ -345,9 +345,9 @@ function createContainerWithFragments<
     _isARequestInFlight: boolean;
     _localVariables: ?Variables;
     _refetchSubscription: ?Subscription;
-    _references: Array<Disposable>;
     _relayContext: RelayContext;
     _resolver: FragmentSpecResolver;
+    _queryFetcher: ?ReactRelayQueryFetcher;
 
     constructor(props, context) {
       super(props, context);
@@ -356,7 +356,6 @@ function createContainerWithFragments<
       this._isARequestInFlight = false;
       this._localVariables = null;
       this._refetchSubscription = null;
-      this._references = [];
       this._resolver = createFragmentSpecResolver(
         relay,
         containerName,
@@ -631,6 +630,13 @@ function createContainerWithFragments<
       return {dispose: fetch.unsubscribe};
     };
 
+    _getQueryFetcher(): ReactRelayQueryFetcher {
+      if (!this._queryFetcher) {
+        this._queryFetcher = new ReactRelayQueryFetcher();
+      }
+      return this._queryFetcher;
+    }
+
     _fetchPage(
       paginatingVariables: {
         count: number,
@@ -686,20 +692,9 @@ function createContainerWithFragments<
         cacheConfig.rerunParamExperimental = options.rerunParamExperimental;
       }
       const request = getRequest(connectionConfig.query);
-      if (request.kind === RelayConcreteNode.BATCH_REQUEST) {
-        throw new Error(
-          'ReactRelayPaginationContainer: Batch request not yet ' +
-            'implemented (T22954884)',
-        );
-      }
       const operation = createOperationSelector(request, fetchVariables);
 
       let refetchSubscription = null;
-
-      // Immediately retain the results of the query to prevent cached
-      // data from being evicted
-      const reference = environment.retain(operation.root);
-      this._references.push(reference);
 
       if (this._refetchSubscription) {
         this._refetchSubscription.unsubscribe();
@@ -745,8 +740,13 @@ function createContainerWithFragments<
       };
 
       this._isARequestInFlight = true;
-      refetchSubscription = environment
-        .execute({operation, cacheConfig})
+      refetchSubscription = this._getQueryFetcher()
+        .execute({
+          environment,
+          operation,
+          cacheConfig,
+          preservePreviousReferences: true,
+        })
         .mergeMap(payload =>
           Observable.create(sink => {
             onNext(payload, () => {
@@ -772,12 +772,13 @@ function createContainerWithFragments<
 
     _release() {
       this._resolver.dispose();
-      this._references.forEach(disposable => disposable.dispose());
-      this._references.length = 0;
       if (this._refetchSubscription) {
         this._refetchSubscription.unsubscribe();
         this._refetchSubscription = null;
         this._isARequestInFlight = false;
+      }
+      if (this._queryFetcher) {
+        this._queryFetcher.dispose();
       }
     }
 

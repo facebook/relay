@@ -540,7 +540,7 @@ class RelayQLType {
       if (hasTypeName && fieldName === '__type__') {
         schemaFieldDef = {
           name: '__type__',
-          type: new GraphQLNonNull(this.context.schema.getType('Type')),
+          type: new GraphQLNonNull(this.context.schema.getType('Object')),
           description: 'The introspected type of this object.',
           deprecatedReason: 'Use __typename',
           args: [],

@@ -15,6 +15,7 @@
     "conversion-scripts": "Conversion Scripts",
     "converting-mutations": "Converting Mutations",
     "relay-debugging": "Debugging",
+    "fetch-query": "fetchQuery",
     "fragment-container": "Fragment Container",
     "graphql-in-relay": "GraphQL in Relay",
     "migration-setup": "Migration Setup",

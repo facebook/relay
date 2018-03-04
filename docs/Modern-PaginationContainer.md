@@ -16,7 +16,7 @@ Table of Contents:
 
 ## `@connection`
 
-Pagination Container works in a very similar way to the [Fragment Container](#fragment-container.html) in that you also specify the data requirements for a component via GraphQL fragments in the `fragmentSpec`.
+Pagination Container works in a very similar way to the [Fragment Container](https://facebook.github.io/relay/docs/en/fragment-container.html) in that you also specify the data requirements for a component via GraphQL fragments in the `fragmentSpec`.
 
 However, when [specifying connection fragments](#createpaginationcontainer) for a Pagination Container, it is expected that at least one of the fragments contains a [GraphQL connection](https://facebook.github.io/relay/graphql/connections.htm) to paginate over, and that that the connection field is annotated with a `@connection` directive.
 

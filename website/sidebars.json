@@ -16,7 +16,8 @@
       "pagination-container",
       "mutations",
       "subscriptions",
-      "relay-store"
+      "relay-store",
+      "fetch-query"
     ],
     "Guides": [
       "routing",

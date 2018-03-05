@@ -4,6 +4,8 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
+ *
+ * @format
  */
 
 'use strict';
@@ -23,6 +25,8 @@ const babelOptions = getBabelOptions({
   // Tests use a Promise polfill so they can use jest.runAllTimers().
   autoImport: true,
   moduleMap: {
+    // TODO(T25740028) once we're fully on babylon 7, we can remove this hack.
+    babylon7: 'babylon',
     immutable: 'immutable',
     React: 'react',
     reactComponentExpect: 'react-dom/lib/reactComponentExpect',
@@ -38,18 +42,18 @@ const babelOptions = getBabelOptions({
         compat: true,
         haste: true,
         substituteVariables: true,
-        schema: testSchemaPath
-      }
+        schema: testSchemaPath,
+      },
     ],
-    require('babel-plugin-transform-async-to-generator')
-  ]
+    require('babel-plugin-transform-async-to-generator'),
+  ],
 });
 
 module.exports = {
   process: function(src, filename) {
     const options = assign({}, babelOptions, {
       filename: filename,
-      retainLines: true
+      retainLines: true,
     });
     return babel.transform(src, options).code;
   },
@@ -61,6 +65,6 @@ module.exports = {
       path.dirname(require.resolve('babel-preset-fbjs')),
       'package.json'
     ),
-    path.join(__dirname, '..', 'getBabelOptions.js')
-  ])
+    path.join(__dirname, '..', 'getBabelOptions.js'),
+  ]),
 };

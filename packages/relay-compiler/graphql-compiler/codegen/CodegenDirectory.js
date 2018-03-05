@@ -17,6 +17,8 @@ const fs = require('fs');
 const invariant = require('invariant');
 const path = require('path');
 
+import type {SourceControl} from './SourceControl';
+
 type Changes = {
   deleted: Array<string>,
   updated: Array<string>,
@@ -70,7 +72,13 @@ class CodegenDirectory {
         dir,
       );
     } else if (!this.onlyValidate) {
-      fs.mkdirSync(dir);
+      const dirs = [dir];
+      let parent = path.dirname(dir);
+      while (!fs.existsSync(parent)) {
+        dirs.unshift(parent);
+        parent = path.dirname(parent);
+      }
+      dirs.forEach(d => fs.mkdirSync(d));
     }
     this._files = new Set();
     this.changes = {
@@ -133,6 +141,23 @@ class CodegenDirectory {
       // eslint-disable-next-line no-console
       console.log(output.join('\n'));
     });
+  }
+
+  static async sourceControlAddRemove(
+    sourceControl: SourceControl,
+    dirs: $ReadOnlyArray<CodegenDirectory>,
+  ): Promise<void> {
+    const allAdded = [];
+    const allRemoved = [];
+    dirs.forEach(dir => {
+      dir.changes.created.forEach(name => {
+        allAdded.push(dir.getPath(name));
+      });
+      dir.changes.deleted.forEach(name => {
+        allRemoved.push(dir.getPath(name));
+      });
+    });
+    sourceControl.addRemove(allAdded, allRemoved);
   }
 
   printChanges(): void {

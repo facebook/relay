@@ -1,3 +1,0 @@
-ERROR:
-
-Error: queryWithArrayObjectNestedVariable.input.txt: Relay Transform Error: Unexpected nested variable `query`; variables are supported as top-level arguments - `node(id: $id)` - or directly within lists - `nodes(ids: [$id])`.

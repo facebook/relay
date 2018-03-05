@@ -21,12 +21,13 @@ import type {DocumentNode} from 'graphql';
 type ParseFn = (baseDir: string, file: File) => ?DocumentNode;
 
 class ASTCache {
-  _documents: Map<string, DocumentNode> = new Map();
+  _documents: Map<string, DocumentNode>;
 
   _baseDir: string;
   _parse: ParseFn;
 
   constructor(config: {baseDir: string, parse: ParseFn}) {
+    this._documents = new Map();
     this._baseDir = config.baseDir;
     this._parse = Profiler.instrument(config.parse, 'ASTCache.parseFn');
   }
@@ -41,6 +42,11 @@ class ASTCache {
     let documents = ImmutableMap();
 
     files.forEach(file => {
+      if (!file.exists) {
+        this._documents.delete(file.relPath);
+        return;
+      }
+
       const doc = (() => {
         try {
           return this._parse(this._baseDir, file);

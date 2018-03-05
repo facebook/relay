@@ -125,23 +125,12 @@ export type ReadyStateEvent = {
   type: RelayContainerLoadingEventType | RelayContainerErrorEventType,
   error?: Error,
 };
-// Containers
 
-/**
- * FIXME: RelayContainer used to be typed with ReactClass<any>, but
- * ReactClass is broken and allows for access to any property. For example
- * ReactClass<any>.getFragment('foo') is valid even though ReactClass has no
- * such getFragment() type definition. When ReactClass is fixed this causes a
- * lot of errors in Relay code since methods like getFragment() are used often
- * but have no definition in Relay's types. Suppressing for now.
- */
-export type RelayContainer = $FlowFixMe;
-
+// Mutations
 export type RelayMutationTransactionCommitCallbacks = {
   onFailure?: ?RelayMutationTransactionCommitFailureCallback,
   onSuccess?: ?RelayMutationTransactionCommitSuccessCallback,
 };
-// Mutations
 export type RelayMutationTransactionCommitFailureCallback = (
   transaction: RelayMutationTransaction,
   preventAutoRollback: () => void,
@@ -204,10 +193,4 @@ export type SubscriptionCallbacks<T> = {
   onNext(value: T): void,
   onError(error: Error): void,
   onCompleted(): void,
-};
-export type RerunParam = {
-  param: string,
-  import?: ?string,
-  target?: ?string,
-  max_runs: number,
 };

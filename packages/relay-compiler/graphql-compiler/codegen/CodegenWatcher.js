@@ -189,19 +189,28 @@ function updateFiles(
 ): Set<File> {
   const fileMap = new Map();
   files.forEach(file => {
-    fileMap.set(file.relPath, file);
+    file.exists && fileMap.set(file.relPath, file);
   });
 
   fileChanges.forEach(({name, exists, 'content.sha1hex': hash}) => {
-    const file = {
-      relPath: name,
-      hash: hash || hashFile(path.join(baseDir, name)),
-    };
-    if (exists && filter(file)) {
-      fileMap.set(name, file);
-    } else {
-      fileMap.delete(name);
+    let shouldRemove = !exists;
+    if (!shouldRemove) {
+      const file = {
+        exists: true,
+        relPath: name,
+        hash: hash || hashFile(path.join(baseDir, name)),
+      };
+      if (filter(file)) {
+        fileMap.set(name, file);
+      } else {
+        shouldRemove = true;
+      }
     }
+    shouldRemove &&
+      fileMap.set(name, {
+        exists: false,
+        relPath: name,
+      });
   });
   return new Set(fileMap.values());
 }

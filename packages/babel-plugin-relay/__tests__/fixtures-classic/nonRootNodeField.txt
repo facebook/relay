@@ -1,0 +1,10 @@
+const RelayClassic = require('react-relay/classic');
+var fragment = RelayClassic.QL`
+  fragment on InvalidType {
+    node(id: 123) {
+      ... on User {
+        name
+      }
+    }
+  }
+`;

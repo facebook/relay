@@ -15,7 +15,7 @@ require('configureForRelayOSS');
 const BabelPluginRelay = require('BabelPluginRelay');
 
 const babel = require('babel-core');
-const getGoldenMatchers = require('getGoldenMatchers');
+const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 const path = require('path');
 
 const {testSchemaPath} = require('../../relay-test-utils/RelayTestUtilsPublic');
@@ -23,10 +23,6 @@ const {testSchemaPath} = require('../../relay-test-utils/RelayTestUtilsPublic');
 const OLD_SCHEMA_PATH = path.resolve(__dirname, './testschema.rfc.graphql');
 
 describe('BabelPluginRelay', () => {
-  beforeEach(() => {
-    expect.extend(getGoldenMatchers(__filename));
-  });
-
   function transformerWithOptions(
     options: RelayPluginOptions,
     environment: 'development' | 'production' = 'production',
@@ -49,47 +45,44 @@ describe('BabelPluginRelay', () => {
     };
   }
 
-  it('transforms source for modern core', () => {
-    expect('fixtures-modern').toMatchGolden(transformerWithOptions({}));
-  });
+  generateTestsFromFixtures(
+    `${__dirname}/fixtures-modern`,
+    transformerWithOptions({}),
+  );
 
-  it('transforms source for compatability mode', () => {
-    expect('fixtures-compat').toMatchGolden(
-      transformerWithOptions({
-        compat: true,
-        schema: testSchemaPath,
-        substituteVariables: true,
-      }),
-    );
-  });
+  generateTestsFromFixtures(
+    `${__dirname}/fixtures-compat`,
+    transformerWithOptions({
+      compat: true,
+      schema: testSchemaPath,
+      substituteVariables: true,
+    }),
+  );
 
-  it('transforms source for modern core when using haste', () => {
-    expect('fixtures-modern-haste').toMatchGolden(
-      transformerWithOptions({
-        haste: true,
-      }),
-    );
-  });
+  generateTestsFromFixtures(
+    `${__dirname}/fixtures-modern-haste`,
+    transformerWithOptions({
+      haste: true,
+    }),
+  );
 
-  it('transforms source for compatability mode when using haste and custom module', () => {
-    expect('fixtures-compat-haste').toMatchGolden(
-      transformerWithOptions({
-        compat: true,
-        haste: true,
-        schema: testSchemaPath,
-        substituteVariables: true,
-      }),
-    );
-  });
+  generateTestsFromFixtures(
+    `${__dirname}/fixtures-compat-haste`,
+    transformerWithOptions({
+      compat: true,
+      haste: true,
+      schema: testSchemaPath,
+      substituteVariables: true,
+    }),
+  );
 
-  it('transforms source with classic Relay.QL tags', () => {
-    expect('fixtures-classic').toMatchGolden(
-      transformerWithOptions({
-        schema: OLD_SCHEMA_PATH,
-        substituteVariables: true,
-      }),
-    );
-  });
+  generateTestsFromFixtures(
+    `${__dirname}/fixtures-classic`,
+    transformerWithOptions({
+      schema: OLD_SCHEMA_PATH,
+      substituteVariables: true,
+    }),
+  );
 
   describe('`development` option', () => {
     it('tests the hash when `development` is set', () => {

@@ -12,7 +12,6 @@
 
 const RelayClassicRecordState = require('../store/RelayClassicRecordState');
 const RelayMutationTracker = require('../store/RelayMutationTracker');
-const RelayMutationType = require('../mutation/RelayMutationType');
 const RelayNodeInterface = require('../interface/RelayNodeInterface');
 const RelayQuery = require('../query/RelayQuery');
 const RelayQueryPath = require('../query/RelayQueryPath');
@@ -23,6 +22,7 @@ const getRangeBehavior = require('../mutation/getRangeBehavior');
 const invariant = require('invariant');
 const warning = require('warning');
 
+const {MutationTypes} = require('RelayRuntime');
 const {
   ConnectionInterface,
   RangeOperations,
@@ -78,17 +78,17 @@ function writeRelayUpdatePayload(
 ): void {
   configs.forEach(config => {
     switch (config.type) {
-      case RelayMutationType.NODE_DELETE:
+      case MutationTypes.NODE_DELETE:
         handleNodeDelete(writer, payload, config);
         break;
-      case RelayMutationType.RANGE_ADD:
+      case MutationTypes.RANGE_ADD:
         handleRangeAdd(writer, payload, operation, config, isOptimisticUpdate);
         break;
-      case RelayMutationType.RANGE_DELETE:
+      case MutationTypes.RANGE_DELETE:
         handleRangeDelete(writer, payload, config);
         break;
-      case RelayMutationType.FIELDS_CHANGE:
-      case RelayMutationType.REQUIRED_CHILDREN:
+      case MutationTypes.FIELDS_CHANGE:
+      case MutationTypes.REQUIRED_CHILDREN:
         break;
       default:
         console.error(
@@ -455,7 +455,11 @@ function addRangeNode(
     rangeBehavior === REFETCH ||
     rangeBehavior === REMOVE
   ) {
-    recordWriter.applyRangeUpdate(connectionID, edgeID, rangeBehavior);
+    recordWriter.applyRangeUpdate(
+      connectionID,
+      edgeID,
+      (rangeBehavior: $FlowFixMe),
+    );
     writer.recordUpdate(connectionID);
   } else {
     console.error(

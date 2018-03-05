@@ -48,7 +48,6 @@ import type {RelayQuerySet} from '../tools/RelayInternalTypes';
 import type {
   Abortable,
   ComponentReadyStateChangeCallback,
-  RelayContainer as RelayContainerClass,
   RelayProp,
 } from '../tools/RelayTypes';
 import type {DataID, Variables} from 'RelayRuntime';
@@ -98,7 +97,7 @@ const containerContextTypes = {
 function createContainerComponent(
   Component: React.ComponentType<any>,
   spec: RelayContainerSpec,
-): RelayContainerClass {
+): $FlowFixMe {
   const ComponentClass = getReactComponent(Component);
   const componentName = getComponentName(Component);
   const containerName = getContainerName(Component);
@@ -910,7 +909,7 @@ function resetPropOverridesForVariables(
   return variables;
 }
 
-function initializeProfiler(RelayContainer: RelayContainerClass): void {
+function initializeProfiler(RelayContainer: $FlowFixMe): void {
   RelayProfiler.instrumentMethods(RelayContainer.prototype, {
     componentWillMount: 'RelayContainer.prototype.componentWillMount',
     componentWillReceiveProps:

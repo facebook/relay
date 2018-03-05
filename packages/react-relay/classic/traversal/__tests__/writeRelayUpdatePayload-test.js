@@ -16,7 +16,6 @@ require('configureForRelayOSS');
 
 const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
 const RelayChangeTracker = require('../../store/RelayChangeTracker');
-const RelayMutationType = require('../../mutation/RelayMutationType');
 const RelayQueryTracker = require('../../store/RelayQueryTracker');
 const RelayQueryWriter = require('../../store/RelayQueryWriter');
 const RelayRecordStore = require('../../store/RelayRecordStore');
@@ -25,6 +24,8 @@ const RelayTestUtils = require('RelayTestUtils');
 
 const generateClientEdgeID = require('../../legacy/store/generateClientEdgeID');
 const writeRelayUpdatePayload = require('../writeRelayUpdatePayload');
+
+const {MutationTypes} = require('RelayRuntime');
 
 const {
   ConnectionInterface,
@@ -142,7 +143,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
       const configs = [
         {
-          type: RelayMutationType.FIELDS_CHANGE,
+          type: MutationTypes.FIELDS_CHANGE,
           fieldIDs: {feedback: 'feedback_id'},
         },
       ];
@@ -190,7 +191,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
       const configs = [
         {
-          type: RelayMutationType.FIELDS_CHANGE,
+          type: MutationTypes.FIELDS_CHANGE,
           fieldIDs: {feedback: 'feedback_id'},
         },
       ];
@@ -311,7 +312,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
       const configs = [
         {
-          type: RelayMutationType.RANGE_DELETE,
+          type: MutationTypes.RANGE_DELETE,
           deletedIDFieldName: 'deletedCommentId',
           pathToConnection: ['feedback', 'topLevelComments'],
         },
@@ -398,7 +399,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
       const configs = [
         {
-          type: RelayMutationType.RANGE_DELETE,
+          type: MutationTypes.RANGE_DELETE,
           deletedIDFieldName: 'deletedCommentId',
           pathToConnection: ['feedback', 'topLevelComments'],
         },
@@ -515,7 +516,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
       const configs = [
         {
-          type: RelayMutationType.RANGE_DELETE,
+          type: MutationTypes.RANGE_DELETE,
           parentName: 'actor',
           parentID: '123',
           connectionName: 'friends',
@@ -671,7 +672,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
       const configs = [
         {
-          type: RelayMutationType.RANGE_DELETE,
+          type: MutationTypes.RANGE_DELETE,
           deletedIDFieldName: 'deletedCommentId',
           pathToConnection: ['feedback', 'topLevelComments'],
         },
@@ -772,7 +773,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
       const configs = [
         {
-          type: RelayMutationType.RANGE_DELETE,
+          type: MutationTypes.RANGE_DELETE,
           deletedIDFieldName: 'deletedCommentId',
           pathToConnection: ['feedback', 'topLevelComments'],
         },
@@ -951,7 +952,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
       const configs = [
         {
-          type: RelayMutationType.NODE_DELETE,
+          type: MutationTypes.NODE_DELETE,
           deletedIDFieldName: 'deletedCommentId',
         },
       ];
@@ -1048,7 +1049,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
       const configs = [
         {
-          type: RelayMutationType.NODE_DELETE,
+          type: MutationTypes.NODE_DELETE,
           deletedIDFieldName: 'deletedCommentId',
         },
       ];
@@ -1180,7 +1181,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
       const configs = [
         {
-          type: RelayMutationType.NODE_DELETE,
+          type: MutationTypes.NODE_DELETE,
           deletedIDFieldName: 'deletedRequestIds',
         },
       ];
@@ -1248,7 +1249,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
       const configs = [
         {
-          type: RelayMutationType.NODE_DELETE,
+          type: MutationTypes.NODE_DELETE,
           deletedIDFieldName: 'deletedRequestIds',
         },
       ];
@@ -1390,7 +1391,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
       const configs = [
         {
-          type: RelayMutationType.RANGE_ADD,
+          type: MutationTypes.RANGE_ADD,
           connectionName: 'topLevelComments',
           edgeName: 'feedbackCommentEdge',
           rangeBehaviors: {'': PREPEND},
@@ -1473,7 +1474,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
       const configs = [
         {
-          type: RelayMutationType.RANGE_ADD,
+          type: MutationTypes.RANGE_ADD,
           connectionName: 'topLevelComments',
           edgeName: 'feedbackCommentEdge',
           rangeBehaviors: {'': null},
@@ -1567,7 +1568,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
       const configs = [
         {
-          type: RelayMutationType.RANGE_ADD,
+          type: MutationTypes.RANGE_ADD,
           connectionName: 'topLevelComments',
           edgeName: 'feedbackCommentEdge',
           rangeBehaviors: {'': IGNORE},
@@ -1664,7 +1665,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
       const configs = [
         {
-          type: RelayMutationType.RANGE_ADD,
+          type: MutationTypes.RANGE_ADD,
           connectionName: 'topLevelComments',
           edgeName: 'feedbackCommentEdge',
           rangeBehaviors: {'': PREPEND},
@@ -1796,7 +1797,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
       const configs = [
         {
-          type: RelayMutationType.RANGE_ADD,
+          type: MutationTypes.RANGE_ADD,
           connectionName: 'topLevelComments',
           edgeName: 'feedbackCommentEdge',
           rangeBehaviors: {'': PREPEND},

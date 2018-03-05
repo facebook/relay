@@ -37,7 +37,7 @@ function createFragmentSpecResolver(
   containerName: string,
   fragments: FragmentMap,
   props: Props,
-  callback: () => void,
+  callback?: () => void,
 ): FragmentSpecResolver {
   return new RelayFragmentSpecResolver(context, fragments, props, callback);
 }

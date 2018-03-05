@@ -16,28 +16,30 @@ const RelayMaskTransform = require('RelayMaskTransform');
 const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
 const RelayTestSchema = require('RelayTestSchema');
 
-const getGoldenMatchers = require('getGoldenMatchers');
 const parseGraphQLText = require('parseGraphQLText');
 
 const {transformASTSchema} = require('ASTConvert');
+const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 
-test('RelayMaskTransform', () => {
-  expect.extend(getGoldenMatchers(__filename));
+describe('RelayMaskTransform', () => {
   const schema = transformASTSchema(RelayTestSchema, [
     RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
   ]);
 
-  expect('fixtures/relay-mask-transform').toMatchGolden(text => {
-    const {definitions} = parseGraphQLText(schema, text);
-    return new GraphQLCompilerContext(RelayTestSchema, schema)
-      .addAll(definitions)
-      .applyTransforms([
-        // Requires Relay directive transform first.
-        RelayRelayDirectiveTransform.transform,
-        RelayMaskTransform.transform,
-      ])
-      .documents()
-      .map(doc => GraphQLIRPrinter.print(doc))
-      .join('\n');
-  });
+  generateTestsFromFixtures(
+    `${__dirname}/fixtures/relay-mask-transform`,
+    text => {
+      const {definitions} = parseGraphQLText(schema, text);
+      return new GraphQLCompilerContext(RelayTestSchema, schema)
+        .addAll(definitions)
+        .applyTransforms([
+          // Requires Relay directive transform first.
+          RelayRelayDirectiveTransform.transform,
+          RelayMaskTransform.transform,
+        ])
+        .documents()
+        .map(doc => GraphQLIRPrinter.print(doc))
+        .join('\n');
+    },
+  );
 });

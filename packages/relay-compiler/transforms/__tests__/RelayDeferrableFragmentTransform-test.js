@@ -17,17 +17,13 @@ const RelayParser = require('RelayParser');
 const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
 const RelayTestSchema = require('RelayTestSchema');
 
-const getGoldenMatchers = require('getGoldenMatchers');
-
 const {transformASTSchema} = require('ASTConvert');
+const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 
 describe('RelayDeferrableFragmentTransform', () => {
-  beforeEach(() => {
-    expect.extend(getGoldenMatchers(__filename));
-  });
-
-  it('matches expected output', () => {
-    expect('fixtures/deferrable-fragment-transform').toMatchGolden(text => {
+  generateTestsFromFixtures(
+    `${__dirname}/fixtures/deferrable-fragment-transform`,
+    text => {
       const schema = transformASTSchema(RelayTestSchema, [
         RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
       ]);
@@ -37,8 +33,7 @@ describe('RelayDeferrableFragmentTransform', () => {
         .applyTransforms([
           // Requires Relay directive transform first.
           RelayRelayDirectiveTransform.transform,
-          RelayDeferrableFragmentTransform.transformOperations,
-          RelayDeferrableFragmentTransform.transformSpreads,
+          RelayDeferrableFragmentTransform.transform,
         ])
         .documents();
       return (
@@ -46,6 +41,6 @@ describe('RelayDeferrableFragmentTransform', () => {
         '\n\n' +
         documents.map(doc => JSON.stringify(doc, null, 2)).join('\n')
       );
-    });
-  });
+    },
+  );
 });

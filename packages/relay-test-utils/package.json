@@ -1,7 +1,7 @@
 {
   "name": "relay-test-utils",
   "description": "Utilities for testing Relay applications.",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "keywords": [
     "graphql",
     "relay"
@@ -13,9 +13,10 @@
   "dependencies": {
     "babel-runtime": "^6.23.0",
     "fbjs": "^0.8.14",
+    "graphql": "^0.13.1",
     "prop-types": "^15.5.8",
-    "relay-runtime": "1.4.1",
-    "relay-compiler": "1.4.1"
+    "relay-runtime": "1.5.0",
+    "relay-compiler": "1.5.0"
   },
   "haste_commonjs": true
 }

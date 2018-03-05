@@ -17,10 +17,9 @@ require('configureForRelayOSS');
 const Relay = require('../../RelayPublic');
 const {ConnectionInterface} = require('RelayRuntime');
 const RelayMockCacheManager = require('RelayMockCacheManager');
-const RelayMutationType = require('../../mutation/RelayMutationType');
 const RelayStoreData = require('../RelayStoreData');
 const RelayTestUtils = require('RelayTestUtils');
-const {RangeOperations} = require('RelayRuntime');
+const {RangeOperations, MutationTypes} = require('RelayRuntime');
 
 const transformRelayQueryPayload = require('../../traversal/transformRelayQueryPayload');
 
@@ -540,7 +539,7 @@ describe('RelayStoreData', function() {
 
     const configs = [
       {
-        type: RelayMutationType.RANGE_ADD,
+        type: MutationTypes.RANGE_ADD,
         connectionName: 'comments',
         edgeName: 'feedbackCommentEdge',
         rangeBehaviors: {'': RangeOperations.PREPEND},
@@ -667,7 +666,7 @@ describe('RelayStoreData', function() {
 
     const configs = [
       {
-        type: RelayMutationType.RANGE_DELETE,
+        type: MutationTypes.RANGE_DELETE,
         pathToConnection: ['feedback', 'comments'],
         deletedIDFieldName: 'deletedCommentId',
       },

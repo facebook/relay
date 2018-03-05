@@ -126,7 +126,7 @@ class RelayMutation<Tp: Object> {
    *
    * -  FIELDS_CHANGE provides configuration for mutation fields.
    *    {
-   *      type: RelayMutationType.FIELDS_CHANGE;
+   *      type: MutationTypes.FIELDS_CHANGE;
    *      fieldIDs: {[fieldName: string]: DataID | Array<DataID>};
    *    }
    *    where fieldIDs map `fieldName`s from the fatQuery to a DataID or
@@ -134,7 +134,7 @@ class RelayMutation<Tp: Object> {
    *
    * -  RANGE_ADD provides configuration for adding a new edge to a range.
    *    {
-   *      type: RelayMutationType.RANGE_ADD;
+   *      type: MutationTypes.RANGE_ADD;
    *      parentName: string;
    *      parentID: string;
    *      connectionName: string;
@@ -152,7 +152,7 @@ class RelayMutation<Tp: Object> {
    * -  NODE_DELETE provides configuration for deleting a node and the
    *    corresponding edge from a range.
    *    {
-   *      type: RelayMutationType.NODE_DELETE;
+   *      type: MutationTypes.NODE_DELETE;
    *      parentName: string;
    *      parentID: string;
    *      connectionName: string;
@@ -165,7 +165,7 @@ class RelayMutation<Tp: Object> {
    * -  RANGE_DELETE provides configuration for deleting an edge from a range
    *    but doesn't delete the node.
    *    {
-   *      type: RelayMutationType.RANGE_DELETE;
+   *      type: MutationTypes.RANGE_DELETE;
    *      parentName: string;
    *      parentID: string;
    *      connectionName: string;
@@ -187,7 +187,7 @@ class RelayMutation<Tp: Object> {
    *    attempt to fetch because it has not previously fetched anything for that
    *    object).
    *    {
-   *      type: RelayMutationType.REQUIRED_CHILDREN;
+   *      type: MutationTypes.REQUIRED_CHILDREN;
    *      children: Array<RelayQuery.Node>;
    *    }
    */

@@ -21,9 +21,9 @@ const {
   RelayConcreteNode,
 } = require('RelayRuntime');
 
-import type {CacheConfig} from '../classic/environment/RelayCombinedEnvironmentTypes';
 import type {ConcreteOperationDefinition} from '../classic/query/ConcreteQuery';
 import type {
+  CacheConfig,
   GraphQLResponse,
   IEnvironment,
   OperationSelector,

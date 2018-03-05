@@ -67,6 +67,17 @@ function transformNode<T: Node>(
           nextSelection = transformNode(context, fragments, selection);
         }
         break;
+      case 'DeferrableFragmentSpread':
+        // Skip deferred fragment spreads if the referenced fragment is empty
+        if (!fragments.has(selection.name)) {
+          const fragment = context.getFragment(selection.name);
+          const nextFragment = transformNode(context, fragments, fragment);
+          fragments.set(selection.name, nextFragment);
+        }
+        if (fragments.get(selection.name)) {
+          nextSelection = selection;
+        }
+        break;
       case 'FragmentSpread':
         // Skip fragment spreads if the referenced fragment is empty
         if (!fragments.has(selection.name)) {

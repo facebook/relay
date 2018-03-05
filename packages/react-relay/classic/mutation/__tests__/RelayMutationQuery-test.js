@@ -19,7 +19,6 @@ require('configureForRelayOSS');
 
 const Relay = require('../../RelayPublic');
 const RelayMutationQuery = require('../RelayMutationQuery');
-const RelayMutationType = require('../RelayMutationType');
 const RelayOptimisticMutationUtils = require('../RelayOptimisticMutationUtils');
 const RelayQueryTracker = require('../../store/RelayQueryTracker');
 const RelayTestUtils = require('RelayTestUtils');
@@ -29,7 +28,7 @@ const fromGraphQL = require('../../query/fromGraphQL');
 const intersectRelayQuery = require('../../traversal/intersectRelayQuery');
 
 const {ConnectionInterface} = require('RelayRuntime');
-const {RangeOperations} = Relay;
+const {MutationTypes, RangeOperations} = Relay;
 
 describe('RelayMutationQuery', () => {
   const {filterGeneratedFields, getNode} = RelayTestUtils;
@@ -1112,7 +1111,7 @@ describe('RelayMutationQuery', () => {
       };
       const configs = [
         {
-          type: RelayMutationType.RANGE_ADD,
+          type: MutationTypes.RANGE_ADD,
           parentName,
           parentID,
           connectionName,
@@ -1202,7 +1201,7 @@ describe('RelayMutationQuery', () => {
       const deletedIDFieldName = 'deletedCommentId';
       const configs = [
         {
-          type: RelayMutationType.NODE_DELETE,
+          type: MutationTypes.NODE_DELETE,
           parentName,
           parentID,
           connectionName,
@@ -1281,7 +1280,7 @@ describe('RelayMutationQuery', () => {
       const deletedIDFieldName = 'deletedCommentId';
       const configs = [
         {
-          type: RelayMutationType.RANGE_DELETE,
+          type: MutationTypes.RANGE_DELETE,
           parentName,
           parentID,
           connectionName,
@@ -1354,7 +1353,7 @@ describe('RelayMutationQuery', () => {
       );
       const configs = [
         {
-          type: RelayMutationType.RANGE_DELETE,
+          type: MutationTypes.RANGE_DELETE,
           parentName: 'actor',
           parentID: '123',
           connectionName: 'friends',
@@ -1426,7 +1425,7 @@ describe('RelayMutationQuery', () => {
       };
       const configs = [
         {
-          type: RelayMutationType.FIELDS_CHANGE,
+          type: MutationTypes.FIELDS_CHANGE,
           fieldIDs,
         },
       ];
@@ -1506,7 +1505,7 @@ describe('RelayMutationQuery', () => {
       };
       const configs = [
         {
-          type: RelayMutationType.RANGE_ADD,
+          type: MutationTypes.RANGE_ADD,
           parentName,
           parentID,
           connectionName,
@@ -1514,7 +1513,7 @@ describe('RelayMutationQuery', () => {
           rangeBehaviors,
         },
         {
-          type: RelayMutationType.REQUIRED_CHILDREN,
+          type: MutationTypes.REQUIRED_CHILDREN,
           children: [
             Relay.QL`
             fragment on CommentCreateResponsePayload {
@@ -1630,7 +1629,7 @@ describe('RelayMutationQuery', () => {
       };
       const configs = [
         {
-          type: RelayMutationType.RANGE_ADD,
+          type: MutationTypes.RANGE_ADD,
           parentName,
           parentID,
           connectionName,
@@ -1638,7 +1637,7 @@ describe('RelayMutationQuery', () => {
           rangeBehaviors,
         },
         {
-          type: RelayMutationType.FIELDS_CHANGE,
+          type: MutationTypes.FIELDS_CHANGE,
           fieldIDs,
         },
       ];

@@ -17,6 +17,7 @@ const {
   CodegenRunner,
   ConsoleReporter,
   WatchmanClient,
+  DotGraphQLParser,
 } = require('graphql-compiler');
 
 const RelayJSModuleParser = require('../core/RelayJSModuleParser');
@@ -44,6 +45,7 @@ const {
   schemaExtensions,
 } = RelayIRTransforms;
 
+import type {GetWriterOptions} from 'graphql-compiler';
 import type {GraphQLSchema} from 'graphql';
 
 function buildWatchExpression(options: {
@@ -77,8 +79,6 @@ function getFilepathsFromGlob(
   const glob = require('fast-glob');
   return glob.sync(patterns, {
     cwd: baseDir,
-    bashNative: [],
-    onlyFiles: true,
     ignore: exclude,
   });
 }
@@ -93,6 +93,7 @@ async function run(options: {
   watchman: boolean,
   watch?: ?boolean,
   validate: boolean,
+  quiet: boolean,
 }) {
   const schemaPath = path.resolve(process.cwd(), options.schema);
   if (!fs.existsSync(schemaPath)) {
@@ -119,27 +120,54 @@ Ensure that one such file exists in ${srcDir} or its parents.
     `.trim(),
     );
   }
+  if (options.verbose && options.quiet) {
+    throw new Error("I can't be quiet and verbose at the same time");
+  }
 
-  const reporter = new ConsoleReporter({verbose: options.verbose});
+  const reporter = new ConsoleReporter({
+    verbose: options.verbose,
+    quiet: options.quiet,
+  });
 
   const useWatchman = options.watchman && (await WatchmanClient.isAvailable());
 
+  const schema = getSchema(schemaPath);
   const parserConfigs = {
-    default: {
+    js: {
       baseDir: srcDir,
       getFileFilter: RelayJSModuleParser.getFileFilter,
       getParser: RelayJSModuleParser.getParser,
-      getSchema: () => getSchema(schemaPath),
+      getSchema: () => schema,
       watchmanExpression: useWatchman ? buildWatchExpression(options) : null,
       filepaths: useWatchman ? null : getFilepathsFromGlob(srcDir, options),
     },
+    graphql: {
+      baseDir: srcDir,
+      getParser: DotGraphQLParser.getParser,
+      getSchema: () => schema,
+      watchmanExpression: useWatchman
+        ? buildWatchExpression({
+            extensions: ['graphql'],
+            include: options.include,
+            exclude: options.exclude,
+          })
+        : null,
+      filepaths: useWatchman
+        ? null
+        : getFilepathsFromGlob(srcDir, {
+            extensions: ['graphql'],
+            include: options.include,
+            exclude: options.exclude,
+          }),
+    },
   };
   const writerConfigs = {
-    default: {
+    js: {
       getWriter: getRelayFileWriter(srcDir),
       isGeneratedFile: (filePath: string) =>
         filePath.endsWith('.js') && filePath.includes('__generated__'),
-      parser: 'default',
+      parser: 'js',
+      baseParsers: ['graphql'],
     },
   };
   const codegenRunner = new CodegenRunner({
@@ -147,6 +175,8 @@ Ensure that one such file exists in ${srcDir} or its parents.
     parserConfigs,
     writerConfigs,
     onlyValidate: options.validate,
+    // TODO: allow passing in a flag or detect?
+    sourceControl: null,
   });
   if (!options.validate && !options.watch && options.watchman) {
     // eslint-disable-next-line no-console
@@ -165,7 +195,14 @@ Ensure that one such file exists in ${srcDir} or its parents.
 }
 
 function getRelayFileWriter(baseDir: string) {
-  return (onlyValidate, schema, documents, baseDocuments, reporter) =>
+  return ({
+    onlyValidate,
+    schema,
+    documents,
+    baseDocuments,
+    sourceControl,
+    reporter,
+  }: GetWriterOptions) =>
     new RelayFileWriter({
       config: {
         baseDir,
@@ -187,6 +224,7 @@ function getRelayFileWriter(baseDir: string) {
       baseDocuments,
       documents,
       reporter,
+      sourceControl,
     });
 }
 
@@ -274,6 +312,10 @@ const argv = yargs
     },
     verbose: {
       describe: 'More verbose logging',
+      type: 'boolean',
+    },
+    quiet: {
+      describe: 'No output to stdout',
       type: 'boolean',
     },
     watchman: {

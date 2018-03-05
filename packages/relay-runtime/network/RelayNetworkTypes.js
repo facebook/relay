@@ -11,10 +11,13 @@
 
 'use strict';
 
-import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
+import type {
+  CacheConfig,
+  Disposable,
+  Variables,
+} from '../util/RelayRuntimeTypes';
 import type {ConcreteOperation, RequestNode} from 'RelayConcreteNode';
 import type RelayObservable, {ObservableFromValue} from 'RelayObservable';
-import type {CacheConfig} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 /**
  * An interface for fetching the data for one or more (possibly interdependent)
@@ -104,6 +107,7 @@ export type SubscribeFunction = (
   | RelayObservable<GraphQLResponse>
   | Disposable;
 
+// $FlowFixMe(>=0.66.0) this is compatible with classic api see D4658012
 export type Uploadable = File | Blob;
 // $FlowFixMe this is compatible with classic api see D4658012
 export type UploadableMap = {[key: string]: Uploadable};

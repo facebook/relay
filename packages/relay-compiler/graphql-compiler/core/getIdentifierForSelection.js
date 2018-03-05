@@ -27,7 +27,10 @@ function getIdentifierForSelection(node: Selection): string {
     return node.directives.length === 0
       ? node.alias || node.name
       : (node.alias || node.name) + printDirectives(node.directives);
-  } else if (node.kind === 'FragmentSpread') {
+  } else if (
+    node.kind === 'FragmentSpread' ||
+    node.kind === 'DeferrableFragmentSpread'
+  ) {
     return node.args.length === 0
       ? '...' + node.name
       : '...' + node.name + printArguments(node.args);

@@ -1,8 +1,0 @@
-var RelayClassic = require('RelayClassic');
-var q = RelayClassic.QL`
-  query {
-    searchAll(queries: [{queryText: "RelayClassic"}]) {
-      title
-    }
-  }
-`;

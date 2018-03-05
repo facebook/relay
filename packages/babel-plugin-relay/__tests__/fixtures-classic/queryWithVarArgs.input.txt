@@ -1,8 +1,0 @@
-var Relay = require('react-relay');
-var x = Relay.QL`
-  query {
-    nodes(ids: [123,456]) {
-      id
-    }
-  }
-`;

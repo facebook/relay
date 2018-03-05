@@ -53,21 +53,6 @@ function generate(node: Batch | Fragment): RequestNode | ConcreteFragment {
 }
 
 const RelayCodeGenVisitor = {
-  enter(node) {
-    if (
-      (node.kind === 'FragmentSpread' || node.kind === 'ScalarField') &&
-      node.metadata &&
-      node.metadata.deferred
-    ) {
-      return deferrableFragmentSpread(
-        node.metadata.deferredFragmentName,
-        node.metadata.deferredArgumentName,
-        node.metadata.deferredArgumentStorageKey,
-        node.metadata.idType,
-      );
-    }
-    return node;
-  },
   leave: {
     Batch(node): RequestNode {
       invariant(node.requests.length !== 0, 'Batch must contain Requests.');
@@ -190,7 +175,7 @@ const RelayCodeGenVisitor = {
       return {
         kind: 'DeferrableFragmentSpread',
         name: node.name,
-        args: node.args,
+        args: valuesOrNull(sortByName(node.args)),
         rootFieldVariable: node.rootFieldVariable,
         storageKey: node.storageKey,
       };
@@ -348,34 +333,6 @@ function getStaticStorageKey(field: ConcreteField): ?string {
     return null;
   }
   return getStorageKey(field, {});
-}
-
-function deferrableFragmentSpread(
-  fragmentName,
-  argumentName,
-  storageKey,
-  idType,
-) {
-  return {
-    kind: 'DeferrableFragmentSpread',
-    name: fragmentName,
-    args: [
-      {
-        kind: 'Argument',
-        name: argumentName,
-        metadata: null,
-        value: {
-          kind: 'Variable',
-          variableName: argumentName,
-          metadata: null,
-          type: idType,
-        },
-        type: idType,
-      },
-    ],
-    rootFieldVariable: argumentName,
-    storageKey,
-  };
 }
 
 module.exports = {generate};

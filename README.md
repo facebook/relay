@@ -14,7 +14,9 @@ The [relay-examples](https://github.com/relayjs/relay-examples) repository conta
 
 ```
 git clone https://github.com/relayjs/relay-examples.git
-cd relay-examples/todo && npm install
+cd relay-examples/todo
+npm install
+npm run build
 npm start
 ```
 

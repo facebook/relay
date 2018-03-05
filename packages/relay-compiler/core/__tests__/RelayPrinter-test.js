@@ -16,22 +16,16 @@ const GraphQLCompilerContext = require('GraphQLCompilerContext');
 const RelayParser = require('RelayParser');
 const GraphQLIRPrinter = require('GraphQLIRPrinter');
 const RelayTestSchema = require('RelayTestSchema');
-const getGoldenMatchers = require('getGoldenMatchers');
+const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 
 describe('GraphQLIRPrinter', () => {
-  beforeEach(() => {
-    expect.extend(getGoldenMatchers(__filename));
-  });
-
-  it('matches expected output', () => {
-    expect('fixtures/printer').toMatchGolden(text => {
-      const ast = RelayParser.parse(RelayTestSchema, text);
-      const context = new GraphQLCompilerContext(RelayTestSchema).addAll(ast);
-      const documents = [];
-      context.forEachDocument(doc => {
-        documents.push(GraphQLIRPrinter.print(doc));
-      });
-      return documents.join('\n');
+  generateTestsFromFixtures(`${__dirname}/fixtures/printer`, text => {
+    const ast = RelayParser.parse(RelayTestSchema, text);
+    const context = new GraphQLCompilerContext(RelayTestSchema).addAll(ast);
+    const documents = [];
+    context.forEachDocument(doc => {
+      documents.push(GraphQLIRPrinter.print(doc));
     });
+    return documents.join('\n');
   });
 });

@@ -10,29 +10,19 @@
 
 'use strict';
 
+const GraphQLCompilerContext = require('GraphQLCompilerContext');
+const GraphQLIRPrinter = require('GraphQLIRPrinter');
+const RelaySkipHandleFieldTransform = require('RelaySkipHandleFieldTransform');
+const RelayTestSchema = require('RelayTestSchema');
+
+const parseGraphQLText = require('parseGraphQLText');
+
+const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+
 describe('RelaySkipHandleFieldTransform', () => {
-  let GraphQLCompilerContext;
-  let GraphQLIRPrinter;
-  let RelaySkipHandleFieldTransform;
-  let RelayTestSchema;
-  let getGoldenMatchers;
-  let parseGraphQLText;
-
-  beforeEach(() => {
-    jest.resetModules();
-
-    GraphQLCompilerContext = require('GraphQLCompilerContext');
-    GraphQLIRPrinter = require('GraphQLIRPrinter');
-    RelaySkipHandleFieldTransform = require('RelaySkipHandleFieldTransform');
-    RelayTestSchema = require('RelayTestSchema');
-    getGoldenMatchers = require('getGoldenMatchers');
-    parseGraphQLText = require('parseGraphQLText');
-
-    expect.extend(getGoldenMatchers(__filename));
-  });
-
-  it('removes field handles', () => {
-    expect('fixtures/skip-handle-field-transform').toMatchGolden(text => {
+  generateTestsFromFixtures(
+    `${__dirname}/fixtures/skip-handle-field-transform`,
+    text => {
       const {definitions} = parseGraphQLText(RelayTestSchema, text);
       return new GraphQLCompilerContext(RelayTestSchema)
         .addAll(definitions)
@@ -40,6 +30,6 @@ describe('RelaySkipHandleFieldTransform', () => {
         .documents()
         .map(GraphQLIRPrinter.print)
         .join('\n');
-    });
-  });
+    },
+  );
 });

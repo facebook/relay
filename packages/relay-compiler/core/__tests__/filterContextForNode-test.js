@@ -16,30 +16,24 @@ const GraphQLCompilerContext = require('GraphQLCompilerContext');
 const GraphQLIRPrinter = require('GraphQLIRPrinter');
 const RelayTestSchema = require('RelayTestSchema');
 const filterContextForNode = require('filterContextForNode');
-const getGoldenMatchers = require('getGoldenMatchers');
+const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 const parseGraphQLText = require('parseGraphQLText');
 
 const MAIN_QUERY_NAME = 'MainQuery';
 
 describe('filterContextForNode', () => {
-  beforeEach(() => {
-    expect.extend(getGoldenMatchers(__filename));
-  });
-
-  it('matches expected output', () => {
-    expect('fixtures/filter-context').toMatchGolden(text => {
-      const {definitions} = parseGraphQLText(RelayTestSchema, text);
-      const context = new GraphQLCompilerContext(RelayTestSchema).addAll(
-        definitions,
-      );
-      const printerContext = filterContextForNode(
-        context.get(MAIN_QUERY_NAME),
-        context,
-      );
-      return printerContext
-        .documents()
-        .map(GraphQLIRPrinter.print)
-        .join('\n');
-    });
+  generateTestsFromFixtures(`${__dirname}/fixtures/filter-context`, text => {
+    const {definitions} = parseGraphQLText(RelayTestSchema, text);
+    const context = new GraphQLCompilerContext(RelayTestSchema).addAll(
+      definitions,
+    );
+    const printerContext = filterContextForNode(
+      context.get(MAIN_QUERY_NAME),
+      context,
+    );
+    return printerContext
+      .documents()
+      .map(GraphQLIRPrinter.print)
+      .join('\n');
   });
 });

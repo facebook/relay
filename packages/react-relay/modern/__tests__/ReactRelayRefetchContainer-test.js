@@ -360,8 +360,10 @@ describe('ReactRelayRefetchContainer', () => {
     environment.subscribe.mockClear();
 
     // Update the variables in context
-    const newVariables = {id: '4'};
-    instance.getInstance().setContext(environment, newVariables);
+    // Context object should be mutated (for compat with gDSFP).
+    const context = instance.getInstance().getChildContext();
+    context.relay.variables = {id: '4'};
+    instance.getInstance().setProps({});
 
     // New data & variables are passed to component
     expect(render.mock.calls.length).toBe(1);
@@ -866,7 +868,11 @@ describe('ReactRelayRefetchContainer', () => {
         cond: true,
         id: '842472',
       };
-      instance.getInstance().setContext(environment, updateVariables);
+      // Update the variables in context.
+      // Context object should be mutated (for compat with gDSFP).
+      const context = instance.getInstance().getChildContext();
+      context.relay.variables = updateVariables;
+      instance.getInstance().setProps({});
 
       expect(relayContext.environment).toBe(environment);
       expect(relayContext.variables).toEqual(updateVariables);
@@ -917,5 +923,29 @@ describe('ReactRelayRefetchContainer', () => {
       expect(subscription1.closed).toBe(true);
       expect(subscription2.closed).toBe(true);
     });
+  });
+  it('can be unwrapped in tests', () => {
+    class TestUnwrapping extends React.Component {
+      render() {
+        return <div>Unwrapped</div>;
+      }
+    }
+
+    const TestUnwrappingContainer = ReactRelayRefetchContainer.createContainer(
+      TestUnwrapping,
+      {
+        user: () => UserFragment,
+      },
+    );
+
+    const UnwrappedComponent = RelayModernTestUtils.unwrapContainer(
+      TestUnwrappingContainer,
+    );
+
+    const renderer = ReactTestRenderer.create(
+      <UnwrappedComponent user={{id: '4', name: 'Mark'}} />,
+    );
+
+    expect(renderer.toJSON()).toMatchSnapshot();
   });
 });

@@ -221,7 +221,10 @@ describe('scope', () => {
       const outerScope = {};
       expect(() => {
         getFragmentScope(definitions, calls, outerScope);
-      }).toThrow();
+      }).toThrow(
+        'RelayCompilerScope: No value found for required argument ' +
+          '`$size: Int!`.',
+      );
     });
 
     /**
@@ -277,7 +280,11 @@ describe('scope', () => {
       const outerScope = {};
       expect(() => {
         getFragmentScope(definitions, calls, outerScope);
-      }).toThrow();
+      }).toThrow(
+        'RelayCompilerScope: Unexpected argument for global variable `size`. ' +
+          '@arguments may only be provided for variables defined in the ' +
+          "fragment's @argumentDefinitions list.",
+      );
     });
   });
 });

@@ -28,6 +28,7 @@ import type {
   ArgumentValue,
   Condition,
   CompilerContext,
+  DeferrableFragmentSpread,
   Directive,
   Field,
   Fragment,
@@ -139,6 +140,32 @@ function transformFragmentSpread(
   };
 }
 
+function transformDeferrableFragmentSpread(
+  context: CompilerContext,
+  fragments: Map<string, ?Fragment>,
+  scope: Scope,
+  spread: DeferrableFragmentSpread,
+): ?DeferrableFragmentSpread {
+  const directives = transformDirectives(scope, spread.directives);
+  const fragment = context.getFragment(spread.name);
+  const appliedFragment = transformFragment(
+    context,
+    fragments,
+    scope,
+    fragment,
+    spread.fragmentArgs,
+  );
+  if (!appliedFragment) {
+    return null;
+  }
+  return {
+    ...spread,
+    fragmentArgs: [],
+    directives,
+    name: appliedFragment.name,
+  };
+}
+
 function transformField<T: Field>(
   context: CompilerContext,
   fragments: Map<string, ?Fragment>,
@@ -226,6 +253,13 @@ function transformSelections(
       nextSelection = transformNode(context, fragments, scope, selection);
     } else if (selection.kind === 'FragmentSpread') {
       nextSelection = transformFragmentSpread(
+        context,
+        fragments,
+        scope,
+        selection,
+      );
+    } else if (selection.kind === 'DeferrableFragmentSpread') {
+      nextSelection = transformDeferrableFragmentSpread(
         context,
         fragments,
         scope,

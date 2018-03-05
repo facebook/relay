@@ -1,7 +1,0 @@
-query TestQuery(
-  $id: ID!
-) {
-  node(id: $id) {
-    id
-  }
-}

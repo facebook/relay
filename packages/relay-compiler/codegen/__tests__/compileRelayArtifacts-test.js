@@ -19,16 +19,13 @@ const {ASTConvert, CompilerContext} = require('graphql-compiler');
 const RelayIRTransforms = require('RelayIRTransforms');
 const RelayTestSchema = require('RelayTestSchema');
 
-const getGoldenMatchers = require('getGoldenMatchers');
+const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 const parseGraphQLText = require('parseGraphQLText');
 
 describe('compileRelayArtifacts', () => {
-  beforeEach(() => {
-    expect.extend(getGoldenMatchers(__filename));
-  });
-
-  it('matches expected output', () => {
-    expect('fixtures/compileRelayArtifacts').toMatchGolden(text => {
+  generateTestsFromFixtures(
+    `${__dirname}/fixtures/compileRelayArtifacts`,
+    text => {
       const relaySchema = ASTConvert.transformASTSchema(
         RelayTestSchema,
         RelayIRTransforms.schemaExtensions,
@@ -46,6 +43,6 @@ describe('compileRelayArtifacts', () => {
           return stringified;
         })
         .join('\n\n');
-    });
-  });
+    },
+  );
 });

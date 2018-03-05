@@ -15,19 +15,21 @@ const GraphQLIRPrinter = require('GraphQLIRPrinter');
 const InlineFragmentsTransform = require('InlineFragmentsTransform');
 const RelayTestSchema = require('RelayTestSchema');
 
-const getGoldenMatchers = require('getGoldenMatchers');
 const parseGraphQLText = require('parseGraphQLText');
 
-test('InlineFragmentsTransform', () => {
-  expect.extend(getGoldenMatchers(__filename));
+const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 
-  expect('fixtures/inline-fragments-transform').toMatchGolden(text => {
-    const {schema, definitions} = parseGraphQLText(RelayTestSchema, text);
-    return new GraphQLCompilerContext(RelayTestSchema, schema)
-      .addAll(definitions)
-      .applyTransforms([InlineFragmentsTransform.transform])
-      .documents()
-      .map(doc => GraphQLIRPrinter.print(doc))
-      .join('\n');
-  });
+describe('InlineFragmentsTransform', () => {
+  generateTestsFromFixtures(
+    `${__dirname}/fixtures/inline-fragments-transform`,
+    text => {
+      const {schema, definitions} = parseGraphQLText(RelayTestSchema, text);
+      return new GraphQLCompilerContext(RelayTestSchema, schema)
+        .addAll(definitions)
+        .applyTransforms([InlineFragmentsTransform.transform])
+        .documents()
+        .map(doc => GraphQLIRPrinter.print(doc))
+        .join('\n');
+    },
+  );
 });

@@ -1,3 +1,0 @@
-ERROR:
-
-Error: error_unexpected-operation.input.txt: BabelPluginRelay: Expected only fragments within this graphql tag.

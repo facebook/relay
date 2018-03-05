@@ -10,7 +10,7 @@
     "immutable": "~3.7.6"
   },
   "peerDependencies": {
-    "graphql": "^0.12.3"
+    "graphql": "^0.13.1"
   },
   "maintainers": [
     "wincent <greg@hurrell.net>",

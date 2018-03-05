@@ -535,42 +535,33 @@ class RelayQLType {
       schemaFieldDef = type.getFields()[fieldName];
     }
 
-    // Temporary workarounds to support legacy schemas
-    if (!schemaFieldDef) {
-      if (hasTypeName && fieldName === '__type__') {
-        schemaFieldDef = {
-          name: '__type__',
-          type: new GraphQLNonNull(this.context.schema.getType('Type')),
-          description: 'The introspected type of this object.',
-          deprecatedReason: 'Use __typename',
-          args: [],
-        };
-      } else if (
-        isAbstractType(type) &&
-        fieldAST &&
-        fieldAST.directives &&
-        fieldAST.directives.some(
-          directive => directive.name.value === 'fixme_fat_interface',
-        )
-      ) {
-        const possibleTypes = this.context.schema.getPossibleTypes(type);
-        for (let ii = 0; ii < possibleTypes.length; ii++) {
-          const possibleField = possibleTypes[ii].getFields()[fieldName];
-          if (possibleField) {
-            // Fat interface fields can have differing arguments. Try to return
-            // a field with matching arguments, but still return a field if the
-            // arguments do not match.
-            schemaFieldDef = possibleField;
-            if (fieldAST && fieldAST.arguments) {
-              const argumentsAllExist = fieldAST.arguments.every(argument =>
-                find(
-                  possibleField.args,
-                  argDef => argDef.name === argument.name.value,
-                ),
-              );
-              if (argumentsAllExist) {
-                break;
-              }
+    // Temporary workaround to support fixme_fat_interface
+    if (
+      !schemaFieldDef &&
+      isAbstractType(type) &&
+      fieldAST &&
+      fieldAST.directives &&
+      fieldAST.directives.some(
+        directive => directive.name.value === 'fixme_fat_interface',
+      )
+    ) {
+      const possibleTypes = this.context.schema.getPossibleTypes(type);
+      for (let ii = 0; ii < possibleTypes.length; ii++) {
+        const possibleField = possibleTypes[ii].getFields()[fieldName];
+        if (possibleField) {
+          // Fat interface fields can have differing arguments. Try to return
+          // a field with matching arguments, but still return a field if the
+          // arguments do not match.
+          schemaFieldDef = possibleField;
+          if (fieldAST && fieldAST.arguments) {
+            const argumentsAllExist = fieldAST.arguments.every(argument =>
+              find(
+                possibleField.args,
+                argDef => argDef.name === argument.name.value,
+              ),
+            );
+            if (argumentsAllExist) {
+              break;
             }
           }
         }

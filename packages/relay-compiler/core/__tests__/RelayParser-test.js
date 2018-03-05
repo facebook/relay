@@ -14,21 +14,15 @@ require('configureForRelayOSS');
 
 const RelayParser = require('RelayParser');
 const RelayTestSchema = require('RelayTestSchema');
-const getGoldenMatchers = require('getGoldenMatchers');
+const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 
 describe('RelayParser', () => {
-  beforeEach(() => {
-    expect.extend(getGoldenMatchers(__filename));
-  });
-
-  it('matches expected output', () => {
-    expect('fixtures/parser').toMatchGolden(text => {
-      try {
-        const ir = RelayParser.parse(RelayTestSchema, text);
-        return JSON.stringify(ir, null, 2);
-      } catch (e) {
-        return 'ERROR:\n' + e;
-      }
-    });
+  generateTestsFromFixtures(`${__dirname}/fixtures/parser`, text => {
+    try {
+      const ir = RelayParser.parse(RelayTestSchema, text);
+      return JSON.stringify(ir, null, 2);
+    } catch (e) {
+      return 'ERROR:\n' + e;
+    }
   });
 });

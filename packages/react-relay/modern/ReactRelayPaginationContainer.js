@@ -11,6 +11,7 @@
 'use strict';
 
 const React = require('React');
+const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
 const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
 const areEqual = require('areEqual');
@@ -28,15 +29,12 @@ const {
 const {profileContainer} = require('./ReactRelayContainerProfiler');
 const {
   ConnectionInterface,
-  RelayConcreteNode,
   RelayProfiler,
   Observable,
 } = require('RelayRuntime');
 
-import type {
-  CacheConfig,
-  FragmentSpecResolver,
-} from '../classic/environment/RelayCombinedEnvironmentTypes';
+import type {FragmentSpecResolver} from '../classic/environment/RelayCombinedEnvironmentTypes';
+import type {RelayEnvironmentInterface as ClassicEnvironment} from '../classic/store/RelayEnvironment';
 import type {
   $RelayProps,
   ObserverOrCallback,
@@ -45,10 +43,12 @@ import type {
   RelayPaginationProp,
 } from './ReactRelayTypes';
 import type {
+  CacheConfig,
   ConnectionMetadata,
   Disposable,
   FragmentMap,
   GraphQLTaggedNode,
+  IEnvironment,
   Observer,
   PageInfo,
   RelayContext,
@@ -58,7 +58,9 @@ import type {
 
 type ContainerState = {
   data: {[key: string]: mixed},
+  relayEnvironment: IEnvironment | ClassicEnvironment,
   relayProp: RelayPaginationProp,
+  relayVariables: Variables,
 };
 
 const containerContextTypes = {
@@ -84,8 +86,8 @@ export type ConnectionConfig = {
   query: GraphQLTaggedNode,
 };
 export type ConnectionData = {
-  edges?: ?Array<any>,
-  pageInfo?: ?PageInfo,
+  +edges?: ?$ReadOnlyArray<any>,
+  +pageInfo?: ?PageInfo,
 };
 
 /**
@@ -343,9 +345,9 @@ function createContainerWithFragments<
     _isARequestInFlight: boolean;
     _localVariables: ?Variables;
     _refetchSubscription: ?Subscription;
-    _references: Array<Disposable>;
     _relayContext: RelayContext;
     _resolver: FragmentSpecResolver;
+    _queryFetcher: ?ReactRelayQueryFetcher;
 
     constructor(props, context) {
       super(props, context);
@@ -354,7 +356,6 @@ function createContainerWithFragments<
       this._isARequestInFlight = false;
       this._localVariables = null;
       this._refetchSubscription = null;
-      this._references = [];
       this._resolver = createFragmentSpecResolver(
         relay,
         containerName,
@@ -363,12 +364,14 @@ function createContainerWithFragments<
         this._handleFragmentDataUpdate,
       );
       this._relayContext = {
-        environment: this.context.relay.environment,
-        variables: this.context.relay.variables,
+        environment: relay.environment,
+        variables: relay.variables,
       };
       this.state = {
         data: this._resolver.resolve(),
+        relayEnvironment: relay.environment,
         relayProp: this._buildRelayProp(relay),
+        relayVariables: relay.variables,
       };
     }
 
@@ -393,16 +396,15 @@ function createContainerWithFragments<
       // - Existing references are based on old variables.
       // - Pending fetches are for the previous records.
       if (
-        this.context.relay.environment !== relay.environment ||
-        this.context.relay.variables !== relay.variables ||
+        this.state.relayEnvironment !== relay.environment ||
+        this.state.relayVariables !== relay.variables ||
         !areEqual(prevIDs, nextIDs)
       ) {
         this._release();
         this._localVariables = null;
-        this._relayContext = {
-          environment: relay.environment,
-          variables: relay.variables,
-        };
+        // Child containers rely on context.relay being mutated (for gDSFP).
+        this._relayContext.environment = relay.environment;
+        this._relayContext.variables = relay.variables;
         this._resolver = createFragmentSpecResolver(
           relay,
           containerName,
@@ -410,7 +412,11 @@ function createContainerWithFragments<
           nextProps,
           this._handleFragmentDataUpdate,
         );
-        this.setState({relayProp: this._buildRelayProp(relay)});
+        this.setState({
+          relayEnvironment: relay.environment,
+          relayProp: this._buildRelayProp(relay),
+          relayVariables: relay.variables,
+        });
       } else if (!this._localVariables) {
         this._resolver.setProps(nextProps);
       }
@@ -427,7 +433,6 @@ function createContainerWithFragments<
     shouldComponentUpdate(nextProps, nextState, nextContext): boolean {
       // Short-circuit if any Relay-related data has changed
       if (
-        nextContext.relay !== this.context.relay ||
         nextState.data !== this.state.data ||
         nextState.relayProp !== this.state.relayProp
       ) {
@@ -438,11 +443,20 @@ function createContainerWithFragments<
       const keys = Object.keys(nextProps);
       for (let ii = 0; ii < keys.length; ii++) {
         const key = keys[ii];
-        if (
-          !fragments.hasOwnProperty(key) &&
-          !isScalarAndEqual(nextProps[key], this.props[key])
-        ) {
-          return true;
+        if (key === 'relay') {
+          if (
+            nextState.relayEnvironment !== this.state.relayEnvironment ||
+            nextState.relayVariables !== this.state.relayVariables
+          ) {
+            return true;
+          }
+        } else {
+          if (
+            !fragments.hasOwnProperty(key) &&
+            !isScalarAndEqual(nextProps[key], this.props[key])
+          ) {
+            return true;
+          }
         }
       }
       return false;
@@ -494,8 +508,8 @@ function createContainerWithFragments<
       invariant(
         typeof connectionData === 'object',
         'ReactRelayPaginationContainer: Expected `getConnectionFromProps()` in `%s`' +
-          'to return `null` or a plain object with %s and %s properties, got `%s`.' +
-          componentName,
+          'to return `null` or a plain object with %s and %s properties, got `%s`.',
+        componentName,
         EDGES,
         PAGE_INFO,
         connectionData,
@@ -529,7 +543,7 @@ function createContainerWithFragments<
         direction === FORWARD ? pageInfo[END_CURSOR] : pageInfo[START_CURSOR];
       if (
         typeof hasMore !== 'boolean' ||
-        (edges.length !== 0 && typeof cursor !== 'string')
+        (edges.length !== 0 && typeof cursor === 'undefined')
       ) {
         warning(
           false,
@@ -616,6 +630,13 @@ function createContainerWithFragments<
       return {dispose: fetch.unsubscribe};
     };
 
+    _getQueryFetcher(): ReactRelayQueryFetcher {
+      if (!this._queryFetcher) {
+        this._queryFetcher = new ReactRelayQueryFetcher();
+      }
+      return this._queryFetcher;
+    }
+
     _fetchPage(
       paginatingVariables: {
         count: number,
@@ -671,32 +692,20 @@ function createContainerWithFragments<
         cacheConfig.rerunParamExperimental = options.rerunParamExperimental;
       }
       const request = getRequest(connectionConfig.query);
-      if (request.kind === RelayConcreteNode.BATCH_REQUEST) {
-        throw new Error(
-          'ReactRelayPaginationContainer: Batch request not yet ' +
-            'implemented (T22954884)',
-        );
-      }
       const operation = createOperationSelector(request, fetchVariables);
 
       let refetchSubscription = null;
-
-      // Immediately retain the results of the query to prevent cached
-      // data from being evicted
-      const reference = environment.retain(operation.root);
-      this._references.push(reference);
 
       if (this._refetchSubscription) {
         this._refetchSubscription.unsubscribe();
       }
 
       const onNext = (payload, complete) => {
-        this._relayContext = {
-          environment: this.context.relay.environment,
-          variables: {
-            ...this.context.relay.variables,
-            ...fragmentVariables,
-          },
+        // Child containers rely on context.relay being mutated (for gDSFP).
+        this._relayContext.environment = this.context.relay.environment;
+        this._relayContext.variables = {
+          ...this.context.relay.variables,
+          ...fragmentVariables,
         };
         const prevData = this._resolver.resolve();
         this._resolver.setVariables(
@@ -731,8 +740,13 @@ function createContainerWithFragments<
       };
 
       this._isARequestInFlight = true;
-      refetchSubscription = environment
-        .execute({operation, cacheConfig})
+      refetchSubscription = this._getQueryFetcher()
+        .execute({
+          environment,
+          operation,
+          cacheConfig,
+          preservePreviousReferences: true,
+        })
         .mergeMap(payload =>
           Observable.create(sink => {
             onNext(payload, () => {
@@ -758,12 +772,13 @@ function createContainerWithFragments<
 
     _release() {
       this._resolver.dispose();
-      this._references.forEach(disposable => disposable.dispose());
-      this._references.length = 0;
       if (this._refetchSubscription) {
         this._refetchSubscription.unsubscribe();
         this._refetchSubscription = null;
         this._isARequestInFlight = false;
+      }
+      if (this._queryFetcher) {
+        this._queryFetcher.dispose();
       }
     }
 
@@ -816,11 +831,13 @@ function assertRelayContext(relay: mixed): RelayContext {
  * `fragmentSpec` is memoized once per environment, rather than once per
  * instance of the container constructed/rendered.
  */
-function createContainer<Props: {}>(
-  Component: React.ComponentType<Props>,
+function createContainer<Props: {}, TComponent: React.ComponentType<Props>>(
+  Component: TComponent,
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
   connectionConfig: ConnectionConfig,
-): React.ComponentType<$RelayProps<Props, RelayPaginationProp>> {
+): React.ComponentType<
+  $RelayProps<React.ElementConfig<TComponent>, RelayPaginationProp>,
+> {
   const Container = buildReactRelayContainer(
     Component,
     fragmentSpec,

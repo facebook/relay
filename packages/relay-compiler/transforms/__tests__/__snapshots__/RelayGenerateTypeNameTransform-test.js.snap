@@ -1,0 +1,608 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RelayGenerateTypeNameTransform matches expected output: type-name-does-not-exist.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query EasyTypeNameNotExistsQuery {
+  viewer {
+    newsFeed(first: 10) {
+      edges {
+        node {
+          id
+          message {
+            text
+          }
+          ...NonNodeStory_feedUnit
+        }
+      }
+    }
+  }
+}
+
+fragment NonNodeStory_feedUnit on FeedUnit {
+  id
+  actor {
+    name
+  }
+}
+
+query TypeNameNotExistsWithFlattenTransformQuery {
+  node(id: "123") {
+    comments(first: 10) {
+      edges {
+        node {
+          id
+          ...CommentFragment_comment
+        }
+      }
+    }
+  }
+}
+
+fragment CommentFragment_comment on Comment {
+  body {
+    text
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "kind": "Root",
+  "operation": "query",
+  "metadata": null,
+  "name": "EasyTypeNameNotExistsQuery",
+  "dependentRequests": [],
+  "argumentDefinitions": [],
+  "directives": [],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "args": [],
+      "directives": [],
+      "metadata": null,
+      "name": "viewer",
+      "selections": [
+        {
+          "kind": "LinkedField",
+          "alias": null,
+          "args": [
+            {
+              "kind": "Argument",
+              "metadata": null,
+              "name": "first",
+              "value": {
+                "kind": "Literal",
+                "metadata": null,
+                "value": 10
+              },
+              "type": "Int"
+            }
+          ],
+          "directives": [],
+          "metadata": null,
+          "name": "newsFeed",
+          "selections": [
+            {
+              "kind": "LinkedField",
+              "alias": null,
+              "args": [],
+              "directives": [],
+              "metadata": null,
+              "name": "edges",
+              "selections": [
+                {
+                  "kind": "LinkedField",
+                  "alias": null,
+                  "args": [],
+                  "directives": [],
+                  "metadata": null,
+                  "name": "node",
+                  "selections": [
+                    {
+                      "kind": "ScalarField",
+                      "alias": null,
+                      "args": [],
+                      "directives": [],
+                      "handles": null,
+                      "metadata": null,
+                      "name": "__typename",
+                      "type": "String"
+                    },
+                    {
+                      "kind": "ScalarField",
+                      "alias": null,
+                      "args": [],
+                      "directives": [],
+                      "metadata": null,
+                      "name": "id",
+                      "type": "ID!"
+                    },
+                    {
+                      "kind": "LinkedField",
+                      "alias": null,
+                      "args": [],
+                      "directives": [],
+                      "metadata": null,
+                      "name": "message",
+                      "selections": [
+                        {
+                          "kind": "ScalarField",
+                          "alias": null,
+                          "args": [],
+                          "directives": [],
+                          "metadata": null,
+                          "name": "text",
+                          "type": "String"
+                        }
+                      ],
+                      "type": "Text"
+                    },
+                    {
+                      "kind": "LinkedField",
+                      "alias": null,
+                      "args": [],
+                      "directives": [],
+                      "metadata": null,
+                      "name": "actor",
+                      "selections": [
+                        {
+                          "kind": "ScalarField",
+                          "alias": null,
+                          "args": [],
+                          "directives": [],
+                          "handles": null,
+                          "metadata": null,
+                          "name": "__typename",
+                          "type": "String"
+                        },
+                        {
+                          "kind": "ScalarField",
+                          "alias": null,
+                          "args": [],
+                          "directives": [],
+                          "metadata": null,
+                          "name": "name",
+                          "type": "String"
+                        }
+                      ],
+                      "type": "Actor"
+                    }
+                  ],
+                  "type": "FeedUnit"
+                }
+              ],
+              "type": "[NewsFeedEdge]"
+            }
+          ],
+          "type": "NewsFeedConnection"
+        }
+      ],
+      "type": "Viewer"
+    }
+  ],
+  "type": "Query"
+}
+{
+  "kind": "Root",
+  "operation": "query",
+  "metadata": null,
+  "name": "TypeNameNotExistsWithFlattenTransformQuery",
+  "dependentRequests": [],
+  "argumentDefinitions": [],
+  "directives": [],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "args": [
+        {
+          "kind": "Argument",
+          "metadata": null,
+          "name": "id",
+          "value": {
+            "kind": "Literal",
+            "metadata": null,
+            "value": "123"
+          },
+          "type": "ID"
+        }
+      ],
+      "directives": [],
+      "metadata": null,
+      "name": "node",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "args": [],
+          "directives": [],
+          "handles": null,
+          "metadata": null,
+          "name": "__typename",
+          "type": "String"
+        },
+        {
+          "kind": "LinkedField",
+          "alias": null,
+          "args": [
+            {
+              "kind": "Argument",
+              "metadata": null,
+              "name": "first",
+              "value": {
+                "kind": "Literal",
+                "metadata": null,
+                "value": 10
+              },
+              "type": "Int"
+            }
+          ],
+          "directives": [],
+          "metadata": null,
+          "name": "comments",
+          "selections": [
+            {
+              "kind": "LinkedField",
+              "alias": null,
+              "args": [],
+              "directives": [],
+              "metadata": null,
+              "name": "edges",
+              "selections": [
+                {
+                  "kind": "LinkedField",
+                  "alias": null,
+                  "args": [],
+                  "directives": [],
+                  "metadata": null,
+                  "name": "node",
+                  "selections": [
+                    {
+                      "kind": "ScalarField",
+                      "alias": null,
+                      "args": [],
+                      "directives": [],
+                      "metadata": null,
+                      "name": "id",
+                      "type": "ID!"
+                    },
+                    {
+                      "kind": "LinkedField",
+                      "alias": null,
+                      "args": [],
+                      "directives": [],
+                      "metadata": null,
+                      "name": "body",
+                      "selections": [
+                        {
+                          "kind": "ScalarField",
+                          "alias": null,
+                          "args": [],
+                          "directives": [],
+                          "metadata": null,
+                          "name": "text",
+                          "type": "String"
+                        }
+                      ],
+                      "type": "Text"
+                    }
+                  ],
+                  "type": "Comment"
+                }
+              ],
+              "type": "[CommentsEdge]"
+            }
+          ],
+          "type": "CommentsConnection"
+        }
+      ],
+      "type": "Node"
+    }
+  ],
+  "type": "Query"
+}
+`;
+
+exports[`RelayGenerateTypeNameTransform matches expected output: type-name-exists.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query EasyTypeNameExistsQuery {
+  viewer {
+    newsFeed(first: 10) {
+      edges {
+        node {
+          id
+          __typename
+          message {
+            text
+          }
+          ...NonNodeStory_feedUnit
+        }
+      }
+    }
+  }
+}
+
+fragment NonNodeStory_feedUnit on FeedUnit {
+  __typename
+  id
+  actor {
+    name
+    __typename
+  }
+}
+
+query TypeNameExistsWithFlattenTransformQuery {
+  node(id: "123") {
+    comments(first: 10) {
+      edges {
+        node {
+          id
+          ...CommentFragment_comment
+        }
+      }
+    }
+  }
+}
+
+fragment CommentFragment_comment on Comment {
+  body {
+    text
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "kind": "Root",
+  "operation": "query",
+  "metadata": null,
+  "name": "EasyTypeNameExistsQuery",
+  "dependentRequests": [],
+  "argumentDefinitions": [],
+  "directives": [],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "args": [],
+      "directives": [],
+      "metadata": null,
+      "name": "viewer",
+      "selections": [
+        {
+          "kind": "LinkedField",
+          "alias": null,
+          "args": [
+            {
+              "kind": "Argument",
+              "metadata": null,
+              "name": "first",
+              "value": {
+                "kind": "Literal",
+                "metadata": null,
+                "value": 10
+              },
+              "type": "Int"
+            }
+          ],
+          "directives": [],
+          "metadata": null,
+          "name": "newsFeed",
+          "selections": [
+            {
+              "kind": "LinkedField",
+              "alias": null,
+              "args": [],
+              "directives": [],
+              "metadata": null,
+              "name": "edges",
+              "selections": [
+                {
+                  "kind": "LinkedField",
+                  "alias": null,
+                  "args": [],
+                  "directives": [],
+                  "metadata": null,
+                  "name": "node",
+                  "selections": [
+                    {
+                      "kind": "ScalarField",
+                      "alias": null,
+                      "args": [],
+                      "directives": [],
+                      "metadata": null,
+                      "name": "id",
+                      "type": "ID!"
+                    },
+                    {
+                      "kind": "ScalarField",
+                      "alias": null,
+                      "args": [],
+                      "directives": [],
+                      "metadata": null,
+                      "name": "__typename",
+                      "type": "String!"
+                    },
+                    {
+                      "kind": "LinkedField",
+                      "alias": null,
+                      "args": [],
+                      "directives": [],
+                      "metadata": null,
+                      "name": "message",
+                      "selections": [
+                        {
+                          "kind": "ScalarField",
+                          "alias": null,
+                          "args": [],
+                          "directives": [],
+                          "metadata": null,
+                          "name": "text",
+                          "type": "String"
+                        }
+                      ],
+                      "type": "Text"
+                    },
+                    {
+                      "kind": "LinkedField",
+                      "alias": null,
+                      "args": [],
+                      "directives": [],
+                      "metadata": null,
+                      "name": "actor",
+                      "selections": [
+                        {
+                          "kind": "ScalarField",
+                          "alias": null,
+                          "args": [],
+                          "directives": [],
+                          "metadata": null,
+                          "name": "name",
+                          "type": "String"
+                        },
+                        {
+                          "kind": "ScalarField",
+                          "alias": null,
+                          "args": [],
+                          "directives": [],
+                          "metadata": null,
+                          "name": "__typename",
+                          "type": "String!"
+                        }
+                      ],
+                      "type": "Actor"
+                    }
+                  ],
+                  "type": "FeedUnit"
+                }
+              ],
+              "type": "[NewsFeedEdge]"
+            }
+          ],
+          "type": "NewsFeedConnection"
+        }
+      ],
+      "type": "Viewer"
+    }
+  ],
+  "type": "Query"
+}
+{
+  "kind": "Root",
+  "operation": "query",
+  "metadata": null,
+  "name": "TypeNameExistsWithFlattenTransformQuery",
+  "dependentRequests": [],
+  "argumentDefinitions": [],
+  "directives": [],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "args": [
+        {
+          "kind": "Argument",
+          "metadata": null,
+          "name": "id",
+          "value": {
+            "kind": "Literal",
+            "metadata": null,
+            "value": "123"
+          },
+          "type": "ID"
+        }
+      ],
+      "directives": [],
+      "metadata": null,
+      "name": "node",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "args": [],
+          "directives": [],
+          "handles": null,
+          "metadata": null,
+          "name": "__typename",
+          "type": "String"
+        },
+        {
+          "kind": "LinkedField",
+          "alias": null,
+          "args": [
+            {
+              "kind": "Argument",
+              "metadata": null,
+              "name": "first",
+              "value": {
+                "kind": "Literal",
+                "metadata": null,
+                "value": 10
+              },
+              "type": "Int"
+            }
+          ],
+          "directives": [],
+          "metadata": null,
+          "name": "comments",
+          "selections": [
+            {
+              "kind": "LinkedField",
+              "alias": null,
+              "args": [],
+              "directives": [],
+              "metadata": null,
+              "name": "edges",
+              "selections": [
+                {
+                  "kind": "LinkedField",
+                  "alias": null,
+                  "args": [],
+                  "directives": [],
+                  "metadata": null,
+                  "name": "node",
+                  "selections": [
+                    {
+                      "kind": "ScalarField",
+                      "alias": null,
+                      "args": [],
+                      "directives": [],
+                      "metadata": null,
+                      "name": "id",
+                      "type": "ID!"
+                    },
+                    {
+                      "kind": "LinkedField",
+                      "alias": null,
+                      "args": [],
+                      "directives": [],
+                      "metadata": null,
+                      "name": "body",
+                      "selections": [
+                        {
+                          "kind": "ScalarField",
+                          "alias": null,
+                          "args": [],
+                          "directives": [],
+                          "metadata": null,
+                          "name": "text",
+                          "type": "String"
+                        }
+                      ],
+                      "type": "Text"
+                    }
+                  ],
+                  "type": "Comment"
+                }
+              ],
+              "type": "[CommentsEdge]"
+            }
+          ],
+          "type": "CommentsConnection"
+        }
+      ],
+      "type": "Node"
+    }
+  ],
+  "type": "Query"
+}
+`;

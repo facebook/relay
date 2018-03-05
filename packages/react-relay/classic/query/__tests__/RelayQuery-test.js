@@ -545,7 +545,7 @@ describe('RelayQuery', () => {
       expect(children[0].getSchemaName()).toBe('id');
 
       // the reference is expanded with overridden query variables
-      expect(children[1] instanceof RelayQuery.Fragment);
+      expect(children[1]).toBeInstanceOf(RelayQuery.Fragment);
       expect(children[1].getType()).toBe('User');
       const grandchildren = children[1].getChildren();
       expect(grandchildren.length).toBe(2);
@@ -596,7 +596,7 @@ describe('RelayQuery', () => {
       expect(children[0].getSchemaName()).toBe('id');
 
       // the reference is expanded with overridden query variables
-      expect(children[1] instanceof RelayQuery.Fragment);
+      expect(children[1]).toBeInstanceOf(RelayQuery.Fragment);
       expect(children[1].getType()).toBe('User');
       expect(children[1].getVariables()).toEqual({
         size: 'override',
@@ -648,7 +648,7 @@ describe('RelayQuery', () => {
       expect(children[0].getSchemaName()).toBe('id');
 
       // the reference is expanded with overridden query variables
-      expect(children[1] instanceof RelayQuery.Fragment);
+      expect(children[1]).toBeInstanceOf(RelayQuery.Fragment);
       expect(children[1].getType()).toBe('User');
       expect(children[1].getVariables()).toEqual({
         size: 'override',
@@ -709,7 +709,7 @@ describe('RelayQuery', () => {
       expect(children.length).toBe(3);
       expect(children[0].getSchemaName()).toBe('id');
 
-      expect(children[1] instanceof RelayQuery.Fragment);
+      expect(children[1]).toBeInstanceOf(RelayQuery.Fragment);
       expect(children[1].getType()).toBe('User');
       let grandchildren = children[1].getChildren();
       expect(grandchildren.length).toBe(2);
@@ -719,7 +719,7 @@ describe('RelayQuery', () => {
         {name: 'size', type: '[Int]', value: 'override'},
       ]);
 
-      expect(children[2] instanceof RelayQuery.Fragment);
+      expect(children[2]).toBeInstanceOf(RelayQuery.Fragment);
       expect(children[2].getType()).toBe('User');
       grandchildren = children[2].getChildren();
       expect(grandchildren.length).toBe(2);

@@ -17,8 +17,6 @@ const flattenRelayQuery = require('../traversal/flattenRelayQuery');
 
 import type {DataID} from 'RelayRuntime';
 
-const TYPE = '__type__';
-
 class RelayQueryTracker {
   _trackedNodesByID: {
     [key: string]: {
@@ -32,11 +30,6 @@ class RelayQueryTracker {
   }
 
   trackNodeForID(node: RelayQuery.Node, dataID: DataID): void {
-    // Don't track legacy `__type__` fields
-    if (node instanceof RelayQuery.Field && node.getSchemaName() === TYPE) {
-      return;
-    }
-
     this._trackedNodesByID[dataID] = this._trackedNodesByID[dataID] || {
       trackedNodes: [],
       isMerged: false,

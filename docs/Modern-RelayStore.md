@@ -478,7 +478,7 @@ Creates an edge given a [`store`](#recordsourceselectorproxy), a connection, the
 
 Given a connection, inserts the edge at the beginning of the connection, or before the specified `cursor`.
 
-#### `inserEdgeAfter(connection: RecordProxy, newEdge: RecordProxy, cursor?: ?string)`
+#### `insertEdgeAfter(connection: RecordProxy, newEdge: RecordProxy, cursor?: ?string)`
 
 Given a connection, inserts the edge at the end of the connection, or after the specified `cursor`.
 

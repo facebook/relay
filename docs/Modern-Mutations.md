@@ -6,7 +6,7 @@ title: Mutations
 Table of Contents:
 - [`commitMutation`](#commitmutation)
 - [Simple Example](#simple-example)
-- [Optimistic Updates](#optmistic-updates)
+- [Optimistic Updates](#optimistic-updates)
 - [Updater Configs](#updater-configs)
 - [Using updater and optimisticUpdater](#using-updater-and-optimisticupdater)
 

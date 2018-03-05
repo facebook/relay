@@ -1,3 +1,0 @@
-fragment ScalarHandleField on User {
-  name @__clientField(handle: "otherClientName") @__clientField(handle: "clientName")
-}

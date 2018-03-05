@@ -17,11 +17,9 @@ const RelayParser = require('RelayParser');
 const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
 const RelayTestSchema = require('RelayTestSchema');
 
-const getGoldenMatchers = require('getGoldenMatchers');
+const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 
 import type {FlattenOptions} from 'FlattenTransform';
-
-expect.extend(getGoldenMatchers(__filename));
 
 describe('FlattenTransform', () => {
   function printContextTransform(
@@ -41,32 +39,18 @@ describe('FlattenTransform', () => {
     };
   }
 
-  it('flattens inline fragments with compatible types', () => {
-    expect('fixtures/flatten-transform').toMatchGolden(
-      printContextTransform({}),
-    );
-  });
+  generateTestsFromFixtures(
+    `${__dirname}/fixtures/flatten-transform`,
+    printContextTransform({}),
+  );
 
-  it('optionally flattens abstract fragments', () => {
-    expect('fixtures/flatten-transform-option-flatten-abstract').toMatchGolden(
-      printContextTransform({flattenAbstractTypes: true}),
-    );
-  });
+  generateTestsFromFixtures(
+    `${__dirname}/fixtures/flatten-transform-option-flatten-inline`,
+    printContextTransform({flattenInlineFragments: true}),
+  );
 
-  it('flattens inline fragments', () => {
-    expect('fixtures/flatten-transform-option-flatten-inline').toMatchGolden(
-      printContextTransform({flattenInlineFragments: true}),
-    );
-  });
-
-  it('throws errors under some conditions', () => {
-    expect('fixtures/flatten-transform-errors').toMatchGolden(text => {
-      try {
-        printContextTransform({})(text);
-      } catch (error) {
-        return error.toString();
-      }
-      throw new Error('This transform should have thrown an error');
-    });
-  });
+  generateTestsFromFixtures(
+    `${__dirname}/fixtures/flatten-transform-errors`,
+    printContextTransform({flattenInlineFragments: true}),
+  );
 });

@@ -119,6 +119,8 @@ function printSelection(
     str += parentCondition;
     str += printFragmentArguments(selection.args);
     str += printDirectives(selection.directives);
+  } else if (selection.kind === 'DeferrableFragmentSpread') {
+    str = `${selection.alias}: ${selection.storageKey}`;
   } else if (selection.kind === 'Condition') {
     const value = printValue(selection.condition);
     // For Flow

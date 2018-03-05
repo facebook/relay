@@ -53,6 +53,19 @@ describe('RelayProfiler', function() {
       expect(actualReturnValue).toBe(expectedReturnValue);
     });
 
+    it('does not create wrapper methods unless they exist on the instance', () => {
+      class Container {
+        methodThatExists() {}
+      }
+      RelayProfiler.instrumentMethods(Container.prototype, {
+        methodThatExists: 'Container.prototype.methodThatExists',
+        methodThatDoesNotExist: 'Container.prototype.methodThatDoesNotExist',
+      });
+      const container = new Container();
+      expect(typeof container.methodThatExists).toBe('function');
+      expect(typeof container.methodThatDoesNotExist).toBe('undefined');
+    });
+
     it('invokes attached handlers', () => {
       const actualOrdering = [];
 

@@ -1,0 +1,67 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RelayMaskTransform matches expected output: relay-mask-transform.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment UserProfile on User {
+  profilePicture(size: $ProfilePicture_SIZE) {
+    ...PhotoFragment @relay(mask: false)
+    ...AnotherRecursiveFragment @relay(mask: false) @include(if: $cond)
+    ...PhotoFragment
+  }
+  smallPic: profilePicture(size: 20) {
+    ...PhotoFragment @relay(mask: true)
+  }
+}
+
+fragment PhotoFragment on Image {
+  uri
+  ...RecursiveFragment @relay(mask: false)
+}
+
+fragment RecursiveFragment on Image {
+  uri
+  width
+}
+
+fragment AnotherRecursiveFragment on Image {
+  uri
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment UserProfile on User {
+  profilePicture(size: $ProfilePicture_SIZE) {
+    ... on Image {
+      uri
+      ... on Image {
+        uri
+        width
+      }
+    }
+    ... on Image @include(if: $cond) {
+      uri
+    }
+    ...PhotoFragment
+  }
+  smallPic: profilePicture(size: 20) {
+    ...PhotoFragment
+  }
+}
+
+fragment PhotoFragment on Image {
+  uri
+  ... on Image {
+    uri
+    width
+  }
+}
+
+fragment RecursiveFragment on Image {
+  uri
+  width
+}
+
+fragment AnotherRecursiveFragment on Image {
+  uri
+}
+
+`;

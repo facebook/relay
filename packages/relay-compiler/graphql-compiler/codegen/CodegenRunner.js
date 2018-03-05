@@ -25,6 +25,7 @@ import type ASTCache from '../core/ASTCache';
 import type {GraphQLReporter} from '../reporters/GraphQLReporter';
 import type {CompileResult, File, FileWriterInterface} from './CodegenTypes';
 import type {FileFilter, WatchmanExpression} from './CodegenWatcher';
+import type {SourceControl} from './SourceControl';
 import type {DocumentNode, GraphQLSchema} from 'graphql';
 
 export type ParserConfig = {|
@@ -54,33 +55,40 @@ type WriterConfigs = {
   [writer: string]: WriterConfig,
 };
 
-export type GetWriter = (
+export type GetWriterOptions = {|
   onlyValidate: boolean,
   schema: GraphQLSchema,
   documents: ImmutableMap<string, DocumentNode>,
   baseDocuments: ImmutableMap<string, DocumentNode>,
+  sourceControl: ?SourceControl,
   reporter: GraphQLReporter,
-) => FileWriterInterface;
+|};
+
+export type GetWriter = GetWriterOptions => FileWriterInterface;
 
 class CodegenRunner {
   parserConfigs: ParserConfigs;
   writerConfigs: WriterConfigs;
   onlyValidate: boolean;
-  parsers: Parsers = {};
+  parsers: Parsers;
   // parser => writers that are affected by it
   parserWriters: {[parser: string]: Set<string>};
   _reporter: GraphQLReporter;
+  _sourceControl: ?SourceControl;
 
   constructor(options: {
     parserConfigs: ParserConfigs,
     writerConfigs: WriterConfigs,
     onlyValidate: boolean,
     reporter: GraphQLReporter,
+    sourceControl: ?SourceControl,
   }) {
+    this.parsers = {};
     this.parserConfigs = options.parserConfigs;
     this.writerConfigs = options.writerConfigs;
     this.onlyValidate = options.onlyValidate;
     this._reporter = options.reporter;
+    this._sourceControl = options.sourceControl;
 
     this.parserWriters = {};
     for (const parser in options.parserConfigs) {
@@ -241,8 +249,7 @@ class CodegenRunner {
   write(writerName: string): Promise<CompileResult> {
     return Profiler.asyncContext('CodegenRunner.write', async () => {
       try {
-        // eslint-disable-next-line no-console
-        console.log('\nWriting %s', writerName);
+        this._reporter.reportMessage(`\nWriting ${writerName}`);
         const {
           getWriter,
           parser,
@@ -264,13 +271,14 @@ class CodegenRunner {
         const schema = Profiler.run('getSchema', () =>
           this.parserConfigs[parser].getSchema(),
         );
-        const writer = getWriter(
-          this.onlyValidate,
+        const writer = getWriter({
+          onlyValidate: this.onlyValidate,
           schema,
           documents,
           baseDocuments,
-          this._reporter,
-        );
+          sourceControl: this._sourceControl,
+          reporter: this._reporter,
+        });
 
         const outputDirectories = await writer.writeAll();
 
@@ -361,12 +369,12 @@ class CodegenRunner {
         } catch (error) {
           this._reporter.reportError('CodegenRunner.watch', error);
         }
-        // eslint-disable-next-line no-console
-        console.log('Watching for changes to %s...', parserName);
+        this._reporter.reportMessage(
+          `Watching for changes to ${parserName}...`,
+        );
       },
     );
-    // eslint-disable-next-line no-console
-    console.log('Watching for changes to %s...', parserName);
+    this._reporter.reportMessage(`Watching for changes to ${parserName}...`);
   }
 }
 

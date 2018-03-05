@@ -33,7 +33,7 @@ describe('RelayResponseNormalizer', () => {
   it('normalizes queries', () => {
     const {FooQuery} = generateWithTransforms(
       `
-      query FooQuery($id: ID, $size: Int) {
+      query FooQuery($id: ID, $size: [Int]) {
         node(id: $id) {
           id
           __typename
@@ -515,7 +515,7 @@ describe('RelayResponseNormalizer', () => {
   it('leaves undefined fields unset, as handleStrippedNulls == false', () => {
     const {StrippedQuery} = generateWithTransforms(
       `
-      query StrippedQuery($id: ID, $size: Int) {
+      query StrippedQuery($id: ID, $size: [Int]) {
         node(id: $id) {
           id
           __typename

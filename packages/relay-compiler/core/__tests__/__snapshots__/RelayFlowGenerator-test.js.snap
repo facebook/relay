@@ -278,6 +278,43 @@ export type UnionTypeTestResponse = {|
 |};
 `;
 
+exports[`RelayFlowGenerator matches expected output: mutation.golden.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+export type CommentCreateMutationVariables = {|
+  input: {
+    clientMutationId?: ?string,
+    feedbackId?: ?string,
+    feedback?: ?{
+      comment?: any,
+    },
+  },
+  first?: ?number,
+  orderBy?: ?$ReadOnlyArray<string>,
+|};
+export type CommentCreateMutationResponse = {|
+  +commentCreate: ?{|
+    +comment: ?{|
+      +id: string,
+      +name: ?string,
+      +friends: ?{|
+        +count: ?number,
+      |},
+    |},
+  |},
+|};
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Syntax Error: Unexpected Name "export"
+
+GraphQL request (1:1)
+1: export type CommentCreateMutationVariables = {|
+   ^
+2:   input: {
+
+`;
+
 exports[`RelayFlowGenerator matches expected output: mutation.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 mutation CommentCreateMutation(
@@ -297,13 +334,21 @@ mutation CommentCreateMutation(
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+type CommentCreateInputVariables = {|
+  clientMutationId: ?string,
+  feedbackId: ?string,
+  feedback: ?CommentfeedbackFeedbackVariables,
+|};
+type CommentfeedbackFeedbackVariables = {|
+  comment: ?FeedbackcommentCommentVariables,
+|};
+type FeedbackcommentCommentVariables = {|
+  feedback: ?CommentfeedbackFeedbackVariables,
+|};
 export type CommentCreateMutationVariables = {|
-  input: {
-    clientMutationId?: ?string,
-    feedbackId?: ?string,
-  },
-  first?: ?number,
-  orderBy?: ?$ReadOnlyArray<string>,
+  input: CommentCreateInputVariables,
+  first: ?number,
+  orderBy: ?$ReadOnlyArray<string>,
 |};
 export type CommentCreateMutationResponse = {|
   +commentCreate: ?{|
@@ -329,11 +374,12 @@ mutation InputHasArray($input: UpdateAllSeenStateInput) {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+type UpdateAllSeenStateInputVariables = {|
+  clientMutationId: ?string,
+  storyIds: ?$ReadOnlyArray<?string>,
+|};
 export type InputHasArrayVariables = {|
-  input?: ?{
-    clientMutationId?: ?string,
-    storyIds?: ?$ReadOnlyArray<?string>,
-  },
+  input: ?UpdateAllSeenStateInputVariables,
 |};
 export type InputHasArrayResponse = {|
   +viewerNotificationsUpdateAllSeenState: ?{|
@@ -376,6 +422,67 @@ export type FragmentSpread = {|
   +$fragmentRefs: FragmentSpread$ref,
   +$refType: FragmentSpread$ref,
 |};
+`;
+
+exports[`RelayFlowGenerator matches expected output: roots.golden.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+export type ExampleQueryVariables = {|
+  id: string,
+|};
+export type ExampleQueryResponse = {|
+  +node: ?{|
+    +id: string,
+  |},
+|};
+
+import type { FragmentReference } from 'relay-runtime';
+export opaque type ExampleFragment$ref: FragmentReference = FragmentReference;
+export type ExampleFragment = {|
+  +id: string,
+  +$refType: ExampleFragment$ref,
+|};
+
+export type TestMutationVariables = {|
+  input: {
+    clientMutationId?: ?string,
+    feedbackId?: ?string,
+    feedback?: ?{
+      comment?: any,
+    },
+  },
+|};
+export type TestMutationResponse = {|
+  +commentCreate: ?{|
+    +comment: ?{|
+      +id: string,
+    |},
+  |},
+|};
+
+export type TestSubscriptionVariables = {|
+  input?: ?{
+    clientMutationId?: ?string,
+    feedbackId?: ?string,
+  },
+|};
+export type TestSubscriptionResponse = {|
+  +feedbackLikeSubscribe: ?{|
+    +feedback: ?{|
+      +id: string,
+    |},
+  |},
+|};
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Syntax Error: Unexpected Name "export"
+
+GraphQL request (1:1)
+1: export type ExampleQueryVariables = {|
+   ^
+2:   id: string,
+
 `;
 
 exports[`RelayFlowGenerator matches expected output: roots.graphql 1`] = `
@@ -423,11 +530,19 @@ export type ExampleFragment = {|
   +$refType: ExampleFragment$ref,
 |};
 
+type CommentCreateInputVariables = {|
+  clientMutationId: ?string,
+  feedbackId: ?string,
+  feedback: ?CommentfeedbackFeedbackVariables,
+|};
+type CommentfeedbackFeedbackVariables = {|
+  comment: ?FeedbackcommentCommentVariables,
+|};
+type FeedbackcommentCommentVariables = {|
+  feedback: ?CommentfeedbackFeedbackVariables,
+|};
 export type TestMutationVariables = {|
-  input: {
-    clientMutationId?: ?string,
-    feedbackId?: ?string,
-  },
+  input: CommentCreateInputVariables,
 |};
 export type TestMutationResponse = {|
   +commentCreate: ?{|
@@ -437,11 +552,12 @@ export type TestMutationResponse = {|
   |},
 |};
 
+type FeedbackLikeInputVariables = {|
+  clientMutationId: ?string,
+  feedbackId: ?string,
+|};
 export type TestSubscriptionVariables = {|
-  input?: ?{
-    clientMutationId?: ?string,
-    feedbackId?: ?string,
-  },
+  input: ?FeedbackLikeInputVariables,
 |};
 export type TestSubscriptionResponse = {|
   +feedbackLikeSubscribe: ?{|

@@ -242,6 +242,35 @@ function getTypeFromAST(schema: GraphQLSchema, ast: TypeNode): GraphQLType {
   return (type: any);
 }
 
+/**
+ * Given a defitinition AST node, gives us a unique name for that node.
+ * Note: this can be tricky for type extensions: while types always have one
+ * name, type extensions are defined by everything inside them.
+ *
+ * TODO @mmahoney: t16495627 write tests or remove uses of this
+ */
+// This function was never used and causing eslint to fail
+//function definitionName(definition: DefinitionNode): string {
+//  switch (definition.kind) {
+//    case 'DirectiveDefinition':
+//    case 'EnumTypeDefinition':
+//    case 'FragmentDefinition':
+//    case 'InputObjectTypeDefinition':
+//    case 'InterfaceTypeDefinition':
+//    case 'ObjectTypeDefinition':
+//    case 'ScalarTypeDefinition':
+//    case 'UnionTypeDefinition':
+//      return definition.name.value;
+//    case 'OperationDefinition':
+//      return definition.name ? definition.name.value : '';
+//    case 'TypeExtensionDefinition':
+//      return definition.toString();
+//    case 'SchemaDefinition':
+//      return 'schema';
+//  }
+//  throw new Error('Unkown definition kind: ' + definition.kind);
+//}
+
 module.exports = {
   assertTypeWithFields,
   canHaveSelections,

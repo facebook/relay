@@ -33,6 +33,8 @@ describe('RelayFlowGenerator', () => {
       .map(doc =>
         RelayFlowGenerator.generate(doc, {
           customScalars: {},
+          recursionLimit: 1,
+          recursiveFields: ['feedback', 'comment'],
           enumsHasteModule: null,
           existingFragmentNames: new Set(['PhotoFragment']),
           inputFieldWhiteList: [],

@@ -108,21 +108,7 @@ function transformNonNullableInputType(type: GraphQLInputType, state: State) {
   } else if (type instanceof GraphQLEnumType) {
     return transformGraphQLEnumType(type, state);
   } else if (type instanceof GraphQLInputObjectType) {
-    const fields = type.getFields();
-    const props = Object.keys(fields)
-      .map(key => fields[key])
-      .filter(field => state.inputFieldWhiteList.indexOf(field.name) < 0)
-      .map(field => {
-        const property = t.objectTypeProperty(
-          t.identifier(field.name),
-          transformInputType(field.type, state),
-        );
-        if (!(field.type instanceof GraphQLNonNull)) {
-          property.optional = true;
-        }
-        return property;
-      });
-    return t.objectTypeAnnotation(props);
+    return t.genericTypeAnnotation(t.identifier(`${type.name}Variables`));
   } else {
     throw new Error(`Could not convert from GraphQL type ${type.toString()}`);
   }

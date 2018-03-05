@@ -34,7 +34,11 @@ const {
   transformScalarType,
   transformInputType,
 } = require('./RelayFlowTypeTransformers');
-const {GraphQLNonNull} = require('graphql');
+const {
+  GraphQLNonNull,
+  GraphQLInputType,
+  GraphQLInputObjectType,
+} = require('graphql');
 const {
   FlattenTransform,
   IRVisitor,
@@ -46,7 +50,7 @@ import type {ScalarTypeMapping} from './RelayFlowTypeTransformers';
 import type {IRTransform, Fragment, Root} from 'graphql-compiler';
 import type {GraphQLEnumType} from 'graphql';
 
-const {isAbstractType} = SchemaUtils;
+const {isAbstractType, getRawType} = SchemaUtils;
 
 type Options = {|
   +customScalars: ScalarTypeMapping,
@@ -248,7 +252,7 @@ function createVisitor(options: Options) {
         return t.program([
           ...getFragmentImports(state),
           ...getEnumDefinitions(state),
-          inputVariablesType,
+          ...inputVariablesType,
           responseType,
         ]);
       },
@@ -362,20 +366,71 @@ function flattenArray<T>(arrayOfArrays: Array<Array<T>>): Array<T> {
   return result;
 }
 
+function collectObjectTypes(result, type: GraphQLInputObjectType) {
+  if (result.hasOwnProperty(type.name)) {
+    return result;
+  }
+  const fieldMap = type.getFields();
+  return Object.keys(fieldMap)
+    .map(k => fieldMap[k].type)
+    .reduce(onlyInputObjectTypes, [])
+    .reduce(collectObjectTypes, {
+      ...result,
+      [type.name]: type,
+    });
+}
+
+function variablesObjectPropertyType(
+  name: string,
+  type: GraphQLInputType,
+  state: State,
+) {
+  const property = t.objectTypeProperty(
+    t.identifier(name),
+    transformInputType(type, state),
+  );
+  if (!type instanceof GraphQLNonNull) {
+    property.optional = true;
+  }
+  return property;
+}
+
+function onlyInputObjectTypes(
+  types: Array<GraphQLInputObjectType>,
+  type: GraphQLInputType,
+) {
+  const raw = getRawType(type);
+  if (raw instanceof GraphQLInputObjectType) {
+    return types.concat(raw);
+  }
+  return types;
+}
+
 function generateInputVariablesType(node: Root, state: State) {
-  return exportType(
-    `${node.name}Variables`,
-    exactObjectTypeAnnotation(
-      node.argumentDefinitions.map(arg => {
-        const property = t.objectTypeProperty(
-          t.identifier(arg.name),
-          transformInputType(arg.type, state),
-        );
-        if (!(arg.type instanceof GraphQLNonNull)) {
-          property.optional = true;
-        }
-        return property;
-      }),
+  const innerObjectTypeMap = node.argumentDefinitions
+    .map(arg => arg.type)
+    .reduce(onlyInputObjectTypes, [])
+    .reduce(collectObjectTypes, {});
+  const innerObjectTypes = Object.keys(innerObjectTypeMap).map(name => {
+    const fieldMap = innerObjectTypeMap[name].getFields();
+    return t.typeAlias(
+      t.identifier(`${name}Variables`),
+      null,
+      exactObjectTypeAnnotation(
+        Object.keys(fieldMap).map(k =>
+          variablesObjectPropertyType(k, fieldMap[k].type, state),
+        ),
+      ),
+    );
+  });
+  return innerObjectTypes.concat(
+    exportType(
+      `${node.name}Variables`,
+      exactObjectTypeAnnotation(
+        node.argumentDefinitions.map(arg =>
+          variablesObjectPropertyType(arg.name, arg.type, state),
+        ),
+      ),
     ),
   );
 }

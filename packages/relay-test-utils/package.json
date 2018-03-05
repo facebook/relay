@@ -13,10 +13,12 @@
   "dependencies": {
     "babel-runtime": "^6.23.0",
     "fbjs": "^0.8.14",
-    "graphql": "^0.13.1",
     "prop-types": "^15.5.8",
     "relay-runtime": "1.5.0",
     "relay-compiler": "1.5.0"
+  },
+  "peerDependencies": {
+    "graphql": "^0.12.0 || ^0.13.0"
   },
   "haste_commonjs": true
 }

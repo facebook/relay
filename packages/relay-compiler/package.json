@@ -26,10 +26,12 @@
     "fast-glob": "^2.0.0",
     "fb-watchman": "^2.0.0",
     "fbjs": "^0.8.14",
-    "graphql": "^0.13.1",
     "immutable": "~3.7.6",
     "relay-runtime": "1.5.0",
     "signedsource": "^1.0.0",
     "yargs": "^9.0.0"
+  },
+  "peerDependencies": {
+    "graphql": "^0.12.0 || ^0.13.0"
   }
 }

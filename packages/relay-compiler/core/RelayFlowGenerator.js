@@ -15,6 +15,7 @@ const PatchedBabelGenerator = require('./PatchedBabelGenerator');
 const RelayMaskTransform = require('RelayMaskTransform');
 const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
 
+const invariant = require('invariant');
 const nullthrows = require('nullthrows');
 const t = require('babel-types');
 
@@ -34,7 +35,7 @@ const {
   transformScalarType,
   transformInputType,
 } = require('./RelayFlowTypeTransformers');
-const {GraphQLNonNull} = require('graphql');
+const {GraphQLInputObjectType, GraphQLNonNull} = require('graphql');
 const {
   FlattenTransform,
   IRVisitor,
@@ -60,6 +61,9 @@ type Options = {|
 export type State = {|
   ...Options,
   +generatedFragments: Set<string>,
+  +generatedInputObjectTypes: {
+    [name: string]: GraphQLInputObjectType | 'pending',
+  },
   +usedEnums: {[name: string]: GraphQLEnumType},
   +usedFragments: Set<string>,
 |};
@@ -230,6 +234,7 @@ function createVisitor(options: Options) {
     enumsHasteModule: options.enumsHasteModule,
     existingFragmentNames: options.existingFragmentNames,
     generatedFragments: new Set(),
+    generatedInputObjectTypes: {},
     inputFieldWhiteList: options.inputFieldWhiteList,
     relayRuntimeModule: options.relayRuntimeModule,
     usedEnums: {},
@@ -241,6 +246,7 @@ function createVisitor(options: Options) {
     leave: {
       Root(node) {
         const inputVariablesType = generateInputVariablesType(node, state);
+        const inputObjectTypes = generateInputObjectTypes(state);
         const responseType = exportType(
           `${node.name}Response`,
           selectionsToBabel(node.selections, state),
@@ -248,6 +254,7 @@ function createVisitor(options: Options) {
         return t.program([
           ...getFragmentImports(state),
           ...getEnumDefinitions(state),
+          ...inputObjectTypes,
           inputVariablesType,
           responseType,
         ]);
@@ -360,6 +367,18 @@ function flattenArray<T>(arrayOfArrays: Array<Array<T>>): Array<T> {
   const result = [];
   arrayOfArrays.forEach(array => result.push(...array));
   return result;
+}
+
+function generateInputObjectTypes(state: State) {
+  return Object.keys(state.generatedInputObjectTypes).map(typeIdentifier => {
+    const inputObjectType = state.generatedInputObjectTypes[typeIdentifier];
+    invariant(
+      typeof inputObjectType !== 'string',
+      'RelayCompilerFlowGenerator: Expected input object type to have been' +
+        ' defined before calling `generateInputObjectTypes`',
+    );
+    return exportType(typeIdentifier, inputObjectType);
+  });
 }
 
 function generateInputVariablesType(node: Root, state: State) {

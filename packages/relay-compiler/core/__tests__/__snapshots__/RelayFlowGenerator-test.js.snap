@@ -297,11 +297,19 @@ mutation CommentCreateMutation(
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+export type CommentCreateInput = {
+  clientMutationId?: ?string,
+  feedbackId?: ?string,
+  feedback?: ?CommentfeedbackFeedback,
+};
+export type CommentfeedbackFeedback = {
+  comment?: ?FeedbackcommentComment,
+};
+export type FeedbackcommentComment = {
+  feedback?: ?CommentfeedbackFeedback,
+};
 export type CommentCreateMutationVariables = {|
-  input: {
-    clientMutationId?: ?string,
-    feedbackId?: ?string,
-  },
+  input: CommentCreateInput,
   first?: ?number,
   orderBy?: ?$ReadOnlyArray<string>,
 |};
@@ -329,11 +337,12 @@ mutation InputHasArray($input: UpdateAllSeenStateInput) {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+export type UpdateAllSeenStateInput = {
+  clientMutationId?: ?string,
+  storyIds?: ?$ReadOnlyArray<?string>,
+};
 export type InputHasArrayVariables = {|
-  input?: ?{
-    clientMutationId?: ?string,
-    storyIds?: ?$ReadOnlyArray<?string>,
-  },
+  input?: ?UpdateAllSeenStateInput,
 |};
 export type InputHasArrayResponse = {|
   +viewerNotificationsUpdateAllSeenState: ?{|
@@ -423,11 +432,19 @@ export type ExampleFragment = {|
   +$refType: ExampleFragment$ref,
 |};
 
+export type CommentCreateInput = {
+  clientMutationId?: ?string,
+  feedbackId?: ?string,
+  feedback?: ?CommentfeedbackFeedback,
+};
+export type CommentfeedbackFeedback = {
+  comment?: ?FeedbackcommentComment,
+};
+export type FeedbackcommentComment = {
+  feedback?: ?CommentfeedbackFeedback,
+};
 export type TestMutationVariables = {|
-  input: {
-    clientMutationId?: ?string,
-    feedbackId?: ?string,
-  },
+  input: CommentCreateInput,
 |};
 export type TestMutationResponse = {|
   +commentCreate: ?{|
@@ -437,11 +454,12 @@ export type TestMutationResponse = {|
   |},
 |};
 
+export type FeedbackLikeInput = {
+  clientMutationId?: ?string,
+  feedbackId?: ?string,
+};
 export type TestSubscriptionVariables = {|
-  input?: ?{
-    clientMutationId?: ?string,
-    feedbackId?: ?string,
-  },
+  input?: ?FeedbackLikeInput,
 |};
 export type TestSubscriptionResponse = {|
   +feedbackLikeSubscribe: ?{|

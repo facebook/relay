@@ -33,6 +33,10 @@ export type ScalarTypeMapping = {
 
 import type {State} from './RelayFlowGenerator';
 
+function getInputObjectTypeIdentifier(type: GraphQLInputObjectType): string {
+  return type.name;
+}
+
 function transformScalarType(
   type: GraphQLType,
   state: State,
@@ -108,6 +112,11 @@ function transformNonNullableInputType(type: GraphQLInputType, state: State) {
   } else if (type instanceof GraphQLEnumType) {
     return transformGraphQLEnumType(type, state);
   } else if (type instanceof GraphQLInputObjectType) {
+    const typeIdentifier = getInputObjectTypeIdentifier(type);
+    if (state.generatedInputObjectTypes[typeIdentifier]) {
+      return t.identifier(typeIdentifier);
+    }
+    state.generatedInputObjectTypes[typeIdentifier] = 'pending';
     const fields = type.getFields();
     const props = Object.keys(fields)
       .map(key => fields[key])
@@ -122,7 +131,10 @@ function transformNonNullableInputType(type: GraphQLInputType, state: State) {
         }
         return property;
       });
-    return t.objectTypeAnnotation(props);
+    state.generatedInputObjectTypes[typeIdentifier] = t.objectTypeAnnotation(
+      props,
+    );
+    return t.identifier(typeIdentifier);
   } else {
     throw new Error(`Could not convert from GraphQL type ${type.toString()}`);
   }

@@ -132,6 +132,13 @@ Ensure that one such file exists in ${srcDir} or its parents.
   const useWatchman = options.watchman && (await WatchmanClient.isAvailable());
 
   const schema = getSchema(schemaPath);
+
+  const graphqlSearchOptions = {
+    extensions: ['graphql'],
+    include: options.include,
+    exclude: [path.relative(srcDir, schemaPath)].concat(options.exclude),
+  };
+
   const parserConfigs = {
     js: {
       baseDir: srcDir,
@@ -146,19 +153,11 @@ Ensure that one such file exists in ${srcDir} or its parents.
       getParser: DotGraphQLParser.getParser,
       getSchema: () => schema,
       watchmanExpression: useWatchman
-        ? buildWatchExpression({
-            extensions: ['graphql'],
-            include: options.include,
-            exclude: options.exclude,
-          })
+        ? buildWatchExpression(graphqlSearchOptions)
         : null,
       filepaths: useWatchman
         ? null
-        : getFilepathsFromGlob(srcDir, {
-            extensions: ['graphql'],
-            include: options.include,
-            exclude: options.exclude,
-          }),
+        : getFilepathsFromGlob(srcDir, graphqlSearchOptions),
     },
   };
   const writerConfigs = {

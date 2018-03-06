@@ -225,16 +225,22 @@ function createContainerWithFragments<
       const profiler = RelayProfiler.profile(
         'ReactRelayFragmentContainer.handleFragmentDataUpdate',
       );
-      this.setState(
-        state => ({
-          data: state.resolver.resolve(),
-          relayProp: {
-            isLoading: state.resolver.isLoading(),
-            environment: state.relayProp.environment,
-          },
-        }),
-        profiler.stop,
-      );
+      const resolverFromThisUpdate = this.state.resolver;
+      this.setState(updatedState => {
+        // If this event belongs to the current data source, update.
+        // Otherwise we should ignore it.
+        if (resolverFromThisUpdate === updatedState.resolver) {
+          return {
+            data: updatedState.resolver.resolve(),
+            relayProp: {
+              isLoading: updatedState.resolver.isLoading(),
+              environment: updatedState.relayProp.environment,
+            },
+          };
+        }
+
+        return null;
+      }, profiler.stop);
     };
 
     _subscribeToNewResolver() {

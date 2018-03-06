@@ -27,7 +27,7 @@ import type {
 
 export type ConnectionMetadata = {
   path: ?Array<string>,
-  direction: ?('forward' | 'backward'),
+  direction: ?('forward' | 'backward' | 'bidirectional'),
   cursor: ?string,
   count: ?string,
 };

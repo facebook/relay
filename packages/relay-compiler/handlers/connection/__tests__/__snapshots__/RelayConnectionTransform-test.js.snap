@@ -184,6 +184,20 @@ query NodeQuery(
             id
           }
         }
+        ... on CommentsConnection {
+          edges {
+            cursor
+            node {
+              __typename
+            }
+          }
+          pageInfo {
+            endCursor
+            hasNextPage
+            hasPreviousPage
+            startCursor
+          }
+        }
       }
     }
   }
@@ -212,7 +226,7 @@ query NodeQuery(
     {
       "count": null,
       "cursor": null,
-      "direction": null,
+      "direction": "bidirectional",
       "path": [
         "node",
         "mixedDirectionComments"

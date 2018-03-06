@@ -138,6 +138,9 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
     direction = 'backward';
     countArg = lastArg;
     cursorArg = findArg(transformedField, BEFORE);
+  } else if (lastArg && firstArg) {
+    direction = 'bidirectional';
+    // TODO(T26511885) Maybe add connection metadata to this case
   }
   const countVariable =
     countArg && countArg.value.kind === 'Variable'
@@ -226,7 +229,7 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
 function generateConnectionFragment(
   context: CompilerContext,
   type: GraphQLType,
-  direction: 'forward' | 'backward',
+  direction: 'forward' | 'backward' | 'bidirectional',
 ): InlineFragment {
   const {
     CURSOR,
@@ -249,8 +252,15 @@ function generateConnectionFragment(
       ${END_CURSOR}
       ${HAS_NEXT_PAGE}
     }`;
+  } else if (direction === 'backward') {
+    pageInfo += `{
+      ${HAS_PREV_PAGE}
+      ${START_CURSOR}
+    }`;
   } else {
     pageInfo += `{
+      ${END_CURSOR}
+      ${HAS_NEXT_PAGE}
       ${HAS_PREV_PAGE}
       ${START_CURSOR}
     }`;

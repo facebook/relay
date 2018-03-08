@@ -55,12 +55,14 @@ type ContainerState = {
  * updates.
  */
 function createContainerWithFragments<
-  TConfig,
-  TClass: React.ComponentType<TConfig>,
+  Props: {},
+  TComponent: React.ComponentType<Props>,
 >(
-  Component: TClass,
+  Component: TComponent,
   fragments: FragmentMap,
-): React.ComponentType<TConfig & {componentRef?: any}> {
+): React.ComponentType<
+  $RelayProps<React.ElementConfig<TComponent>, RelayProp>,
+> {
   const ComponentClass = getReactComponent(Component);
   const componentName = getComponentName(Component);
   const containerName = `Relay(${componentName})`;

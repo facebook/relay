@@ -70,13 +70,15 @@ const containerContextTypes = {
  * updates.
  */
 function createContainerWithFragments<
-  TConfig,
-  TClass: React.ComponentType<TConfig>,
+  Props: {},
+  TComponent: React.ComponentType<Props>,
 >(
-  Component: TClass,
+  Component: TComponent,
   fragments: FragmentMap,
   taggedNode: GraphQLTaggedNode,
-): React.ComponentType<TConfig & {componentRef?: any}> {
+): React.ComponentType<
+  $RelayProps<React.ElementConfig<TComponent>, RelayRefetchProp>,
+> {
   const ComponentClass = getReactComponent(Component);
   const componentName = getComponentName(Component);
   const containerName = `Relay(${componentName})`;
@@ -431,7 +433,7 @@ function createContainerWithFragments<
   // Make static getDerivedStateFromProps work with older React versions:
   polyfill(Container);
 
-  return (Container: any);
+  return Container;
 }
 
 function assertRelayContext(relay: mixed): RelayContext {

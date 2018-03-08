@@ -313,13 +313,15 @@ function toObserver(observerOrCallback: ?ObserverOrCallback): Observer<void> {
 }
 
 function createContainerWithFragments<
-  TConfig,
-  TClass: React.ComponentType<TConfig>,
+  Props: {},
+  TComponent: React.ComponentType<Props>,
 >(
-  Component: TClass,
+  Component: TComponent,
   fragments: FragmentMap,
   connectionConfig: ConnectionConfig,
-): React.ComponentType<TConfig & {componentRef?: any}> {
+): React.ComponentType<
+  $RelayProps<React.ElementConfig<TComponent>, RelayPaginationProp>,
+> {
   const ComponentClass = getReactComponent(Component);
   const componentName = getComponentName(Component);
   const containerName = `Relay(${componentName})`;
@@ -812,7 +814,7 @@ function createContainerWithFragments<
   }
   profileContainer(Container, 'ReactRelayPaginationContainer');
 
-  return (Container: any);
+  return Container;
 }
 
 function assertRelayContext(relay: mixed): RelayContext {

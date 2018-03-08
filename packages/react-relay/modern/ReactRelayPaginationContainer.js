@@ -342,6 +342,9 @@ function createContainerWithFragments<
     createGetFragmentVariables(metadata);
 
   class Container extends React.Component<$FlowFixMeProps, ContainerState> {
+    static displayName = containerName;
+    static contextTypes = containerContextTypes;
+
     _isARequestInFlight: boolean;
     _localVariables: ?Variables;
     _refetchSubscription: ?Subscription;
@@ -808,8 +811,6 @@ function createContainerWithFragments<
     }
   }
   profileContainer(Container, 'ReactRelayPaginationContainer');
-  Container.contextTypes = containerContextTypes;
-  Container.displayName = containerName;
 
   return (Container: any);
 }

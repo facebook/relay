@@ -66,6 +66,7 @@ function createContainerWithFragments<
   const containerName = `Relay(${componentName})`;
 
   class Container extends React.Component<ContainerProps, ContainerState> {
+    static displayName = containerName;
     static contextTypes = {
       relay: RelayPropTypes.Relay,
     };
@@ -280,7 +281,6 @@ function createContainerWithFragments<
     }
   }
   profileContainer(Container, 'ReactRelayFragmentContainer');
-  Container.displayName = containerName;
 
   // Make static getDerivedStateFromProps work with older React versions:
   polyfill(Container);

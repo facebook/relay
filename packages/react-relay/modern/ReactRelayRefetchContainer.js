@@ -82,6 +82,9 @@ function createContainerWithFragments<
   const containerName = `Relay(${componentName})`;
 
   class Container extends React.Component<ContainerProps, ContainerState> {
+    static displayName = containerName;
+    static contextTypes = containerContextTypes;
+
     _refetchSubscription: ?Subscription;
     _queryFetcher: ?ReactRelayQueryFetcher;
 
@@ -424,8 +427,6 @@ function createContainerWithFragments<
     }
   }
   profileContainer(Container, 'ReactRelayRefetchContainer');
-  Container.contextTypes = containerContextTypes;
-  Container.displayName = containerName;
 
   // Make static getDerivedStateFromProps work with older React versions:
   polyfill(Container);

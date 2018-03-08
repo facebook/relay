@@ -16,8 +16,6 @@ const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
 const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
-const invariant = require('invariant');
-const isRelayContext = require('../classic/environment/isRelayContext');
 const isScalarAndEqual = require('isScalarAndEqual');
 const polyfill = require('react-lifecycles-compat');
 
@@ -25,6 +23,7 @@ const {
   getComponentName,
   getReactComponent,
 } = require('../classic/container/RelayContainerUtils');
+const {assertRelayContext} = require('../classic/environment/RelayContext');
 const {profileContainer} = require('./ReactRelayContainerProfiler');
 const {Observable, RelayProfiler} = require('RelayRuntime');
 
@@ -434,16 +433,6 @@ function createContainerWithFragments<
   polyfill(Container);
 
   return Container;
-}
-
-function assertRelayContext(relay: mixed): RelayContext {
-  invariant(
-    isRelayContext(relay),
-    'ReactRelayRefetchContainer: Expected `context.relay` to be an object ' +
-      'conforming to the `RelayContext` interface, got `%s`.',
-    relay,
-  );
-  return (relay: any);
 }
 
 /**

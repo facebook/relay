@@ -14,9 +14,10 @@ const PropTypes = require('prop-types');
 
 const isClassicRelayEnvironment = require('../store/isClassicRelayEnvironment');
 const isRelayContainer = require('./isRelayContainer');
-const isRelayContext = require('../environment/isRelayContext');
 const isRelayEnvironment = require('../environment/isRelayEnvironment');
 const sprintf = require('sprintf');
+
+const {isRelayContext} = require('../environment/RelayContext');
 
 const RelayPropTypes = {
   Container(props: Object, propName: string, componentName: string): ?Error {

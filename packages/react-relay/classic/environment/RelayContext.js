@@ -10,8 +10,25 @@
 
 'use strict';
 
+const invariant = require('invariant');
 const isRelayEnvironment = require('./isRelayEnvironment');
 const isRelayVariables = require('./isRelayVariables');
+
+import type {RelayContext} from 'RelayRuntime';
+
+/**
+ * Asserts that the input is a matches the `RelayContext` type defined in
+ * `RelayEnvironmentTypes` and returns it as that type.
+ */
+function assertRelayContext(relay: mixed): RelayContext {
+  invariant(
+    isRelayContext(relay),
+    'RelayContext: Expected `context.relay` to be an object conforming to ' +
+      'the `RelayContext` interface, got `%s`.',
+    relay,
+  );
+  return (relay: any);
+}
 
 /**
  * Determine if the input is a plain object that matches the `RelayContext`
@@ -27,4 +44,7 @@ function isRelayContext(context: mixed): boolean {
   );
 }
 
-module.exports = isRelayContext;
+module.exports = {
+  assertRelayContext,
+  isRelayContext,
+};

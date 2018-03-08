@@ -30,9 +30,6 @@ import type {PayloadData} from 'RelayNetworkTypes';
 import type RelayObservable from 'RelayObservable';
 import type {RecordState} from 'RelayRecordState';
 import type {
-  /* $FlowFixMe(>=0.55.0 site=www) This comment suppresses an error found when
-   * Flow v0.55 was deployed. To see the error delete this comment and run
-   * Flow. */
   CEnvironment,
   CFragmentMap,
   COperationSelector,

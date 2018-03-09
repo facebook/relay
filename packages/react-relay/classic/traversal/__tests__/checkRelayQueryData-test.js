@@ -15,7 +15,7 @@ jest.mock('../../legacy/store/GraphQLRange');
 require('configureForRelayOSS');
 
 const GraphQLRange = require('../../legacy/store/GraphQLRange');
-const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
+const RelayClassic = require('../../RelayPublic');
 const RelayTestUtils = require('RelayTestUtils');
 
 const checkRelayQueryData = require('../checkRelayQueryData');
@@ -47,7 +47,7 @@ describe('checkRelayQueryData', () => {
   it('returns false when node is not in the store', () => {
     const result = hasData(
       getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {id}
         }
@@ -65,7 +65,7 @@ describe('checkRelayQueryData', () => {
 
     const result = hasData(
       getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
        query {
          node(id:"1055790163") {id}
        }
@@ -88,7 +88,7 @@ describe('checkRelayQueryData', () => {
 
     const result = hasData(
       getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {id}
         }
@@ -111,7 +111,7 @@ describe('checkRelayQueryData', () => {
 
     const result = hasData(
       getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           nodes(ids:["1055790163","4"]) {id}
         }
@@ -134,7 +134,7 @@ describe('checkRelayQueryData', () => {
 
     const result = hasData(
       getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           username(name:"yuzhi") {id}
         }
@@ -159,7 +159,7 @@ describe('checkRelayQueryData', () => {
 
     const result = hasData(
       getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -184,7 +184,7 @@ describe('checkRelayQueryData', () => {
 
     const result = hasData(
       getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -215,7 +215,7 @@ describe('checkRelayQueryData', () => {
 
     const result = hasData(
       getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -241,7 +241,7 @@ describe('checkRelayQueryData', () => {
 
     const result = hasData(
       getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -270,7 +270,7 @@ describe('checkRelayQueryData', () => {
 
     const result = hasData(
       getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -301,7 +301,7 @@ describe('checkRelayQueryData', () => {
 
     const result = hasData(
       getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -328,7 +328,7 @@ describe('checkRelayQueryData', () => {
 
     const result = hasData(
       getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -358,7 +358,7 @@ describe('checkRelayQueryData', () => {
 
     const result = hasData(
       getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -394,7 +394,7 @@ describe('checkRelayQueryData', () => {
 
     const result = hasData(
       getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -431,7 +431,7 @@ describe('checkRelayQueryData', () => {
 
     const result = hasData(
       getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -469,7 +469,7 @@ describe('checkRelayQueryData', () => {
 
     const result = hasData(
       getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           viewer {
             configs(named:"some_gk") {
@@ -520,7 +520,7 @@ describe('checkRelayQueryData', () => {
 
     const result = hasData(
       getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -565,7 +565,7 @@ describe('checkRelayQueryData', () => {
 
     const result = hasData(
       getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -591,15 +591,15 @@ describe('checkRelayQueryData', () => {
       },
     };
 
-    const fragment1 = RelayClassic_DEPRECATED.QL`
+    const fragment1 = RelayClassic.QL`
       fragment on Node {username}
     `;
-    const fragment2 = RelayClassic_DEPRECATED.QL`
+    const fragment2 = RelayClassic.QL`
       fragment on Node {name}
     `;
     let result = hasData(
       getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {id, ${fragment1}}
         }
@@ -611,7 +611,7 @@ describe('checkRelayQueryData', () => {
     expect(result).toEqual(true);
     result = hasData(
       getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {id, ${fragment2}}
         }
@@ -634,7 +634,7 @@ describe('checkRelayQueryData', () => {
     };
     const result = hasData(
       getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -660,7 +660,7 @@ describe('checkRelayQueryData', () => {
     };
     const result = hasData(
       getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -686,7 +686,7 @@ describe('checkRelayQueryData', () => {
     };
     const result = hasData(
       getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id

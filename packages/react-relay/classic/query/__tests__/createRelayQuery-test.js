@@ -12,7 +12,7 @@
 
 require('configureForRelayOSS');
 
-const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
+const RelayClassic = require('../../RelayPublic');
 const RelayQuery = require('../RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
@@ -27,7 +27,7 @@ describe('createRelayQuery', () => {
 
   it('creates queries from GraphQL', () => {
     const root = createRelayQuery(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
         query {
           viewer {
             newsFeed(first: $count) {

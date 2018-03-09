@@ -17,7 +17,7 @@ jest
 
 require('configureForRelayOSS');
 
-const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
+const RelayClassic = require('../../RelayPublic');
 const {ConnectionInterface} = require('RelayRuntime');
 const RelayDefaultNetworkLayer = require('../RelayDefaultNetworkLayer');
 const RelayMetaRoute = require('../../../route/RelayMetaRoute');
@@ -303,12 +303,12 @@ describe('RelayDefaultNetworkLayer', () => {
     beforeEach(() => {
       const route = RelayMetaRoute.get('$fetchRelayQuery');
       const queryA = RelayQuery.Root.create(
-        RelayClassic_DEPRECATED.QL`query{node(id:"123"){id}}`,
+        RelayClassic.QL`query{node(id:"123"){id}}`,
         route,
         {},
       );
       const queryB = RelayQuery.Root.create(
-        RelayClassic_DEPRECATED.QL`query{node(id:"456"){id}}`,
+        RelayClassic.QL`query{node(id:"456"){id}}`,
         route,
         {},
       );

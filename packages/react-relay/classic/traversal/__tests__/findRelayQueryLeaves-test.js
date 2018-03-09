@@ -15,7 +15,7 @@ jest.mock('../../legacy/store/GraphQLRange');
 require('configureForRelayOSS');
 
 const GraphQLRange = require('../../legacy/store/GraphQLRange');
-const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
+const RelayClassic = require('../../RelayPublic');
 const RelayQuery = require('../../query/RelayQuery');
 const RelayQueryPath = require('../../query/RelayQueryPath');
 const RelayRecordStore = require('../../store/RelayRecordStore');
@@ -71,7 +71,7 @@ describe('findRelayQueryLeaves', () => {
 
     dummyPath = RelayQueryPath.create(
       getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
       query {
         node(id:"dummy") {
           id
@@ -93,7 +93,7 @@ describe('findRelayQueryLeaves', () => {
 
   it('returns pendingNodeStates when node is not in the store', () => {
     const queryNode = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on Node {
         id
       }
@@ -114,7 +114,7 @@ describe('findRelayQueryLeaves', () => {
 
   it('returns missingData when node is not in the cache', () => {
     const queryNode = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on Node {
         id
       }
@@ -133,7 +133,7 @@ describe('findRelayQueryLeaves', () => {
 
   it('has all required data when node is in store', () => {
     const queryNode = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on Node {
         id
       }
@@ -153,7 +153,7 @@ describe('findRelayQueryLeaves', () => {
 
   it('has all required data when node is in cache', () => {
     const queryNode = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on Node {
         id
       }
@@ -173,7 +173,7 @@ describe('findRelayQueryLeaves', () => {
 
   it('returns pendingNodeStates when field is not in the store', () => {
     const queryNode = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on Node {
         id
         firstName
@@ -202,7 +202,7 @@ describe('findRelayQueryLeaves', () => {
 
   it('returns missingData when field is not in the cache', () => {
     const queryNode = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on Node {
         id
         firstName
@@ -224,7 +224,7 @@ describe('findRelayQueryLeaves', () => {
 
   it('has all required data when field is in store', () => {
     const queryNode = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on Node {
         id
         firstName
@@ -247,7 +247,7 @@ describe('findRelayQueryLeaves', () => {
 
   it('has all required data when field is in cache', () => {
     const queryNode = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on Node {
         id
         firstName
@@ -270,7 +270,7 @@ describe('findRelayQueryLeaves', () => {
 
   it('returns pendingNodeStates when linked node is not in the store', () => {
     const queryNode = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on Node {
         id
         friends {count}
@@ -301,7 +301,7 @@ describe('findRelayQueryLeaves', () => {
 
   it('returns missingData when linked node is not in the cache', () => {
     const queryNode = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on Node {
         id
         friends {count}
@@ -325,7 +325,7 @@ describe('findRelayQueryLeaves', () => {
 
   it('has all required data when linked node is in store', () => {
     const queryNode = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on Node {
         id
         friends {count}
@@ -352,7 +352,7 @@ describe('findRelayQueryLeaves', () => {
 
   it('has all required data when linked node is in cache', () => {
     const queryNode = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on Node {
         id
         friends {count}
@@ -379,7 +379,7 @@ describe('findRelayQueryLeaves', () => {
 
   it('returns pendingNodeStates when plural node is not in the store', () => {
     const queryNode = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on Node {
         id
         screennames {service}
@@ -421,7 +421,7 @@ describe('findRelayQueryLeaves', () => {
 
   it('returns missingData when plural node is not in the cache', () => {
     const queryNode = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on Node {
         id
         screennames {service}
@@ -449,7 +449,7 @@ describe('findRelayQueryLeaves', () => {
 
   it('has all required data when plural node is in store', () => {
     const queryNode = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on Node {
         id
         screennames {service}
@@ -483,7 +483,7 @@ describe('findRelayQueryLeaves', () => {
 
   it('has all required data when plural node is in cache', () => {
     const queryNode = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on Node {
         id
         screennames {service}
@@ -518,7 +518,7 @@ describe('findRelayQueryLeaves', () => {
 
   it('returns pendingNodeStates when range node is not in the store', () => {
     const queryNode = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on Node {
         id
         friends(first: 10) {
@@ -554,7 +554,7 @@ describe('findRelayQueryLeaves', () => {
 
   it('returns missingData when range node is not in the cache', () => {
     const queryNode = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on Node {
         id
         friends(first: 10) {
@@ -581,7 +581,7 @@ describe('findRelayQueryLeaves', () => {
 
   it('returns pendingNodeStates when range field is not in the store', () => {
     const queryNode = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on Node {
         id
         friends(first: 10) {
@@ -618,7 +618,7 @@ describe('findRelayQueryLeaves', () => {
 
   it('returns missingData when range field is not in the cache', () => {
     const queryNode = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on Node {
         id
         friends(first: 10) {
@@ -647,7 +647,7 @@ describe('findRelayQueryLeaves', () => {
 
   it('returns missingData when range has diffQuery in the store', () => {
     const queryNode = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on Node {
         id
         friends(first: 10) {
@@ -681,7 +681,7 @@ describe('findRelayQueryLeaves', () => {
 
   it('returns missingData when range has diffQuery in the cache', () => {
     const queryNode = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on Node {
         id
         friends(first: 10) {
@@ -715,7 +715,7 @@ describe('findRelayQueryLeaves', () => {
 
   it('returns pendingNodeStates when edge node is not in the store', () => {
     const queryNode = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on FriendsConnection {
         edges { node {id}}
       }
@@ -763,7 +763,7 @@ describe('findRelayQueryLeaves', () => {
 
   it('returns missingData when edge node is not in the cache', () => {
     const queryNode = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on FriendsConnection {
         edges { node {id}}
       }
@@ -804,7 +804,7 @@ describe('findRelayQueryLeaves', () => {
 
   it('has all required data when the range and edges are is in store', () => {
     const queryNode = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on FriendsConnection {
         edges { node {id}}
       }
@@ -853,7 +853,7 @@ describe('findRelayQueryLeaves', () => {
 
   it('has all required data when the range and edges are is in cache', () => {
     const queryNode = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on FriendsConnection {
         edges { node {id}}
       }
@@ -902,7 +902,7 @@ describe('findRelayQueryLeaves', () => {
 
   it('returns pendingNodeStates when root node is not in the store', () => {
     const queryNode = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         node(id:"1055790163") {
           id
@@ -925,7 +925,7 @@ describe('findRelayQueryLeaves', () => {
 
   it('returns missingData when root node is not in the cache', () => {
     const queryNode = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         node(id:"1055790163") {
           id
@@ -947,7 +947,7 @@ describe('findRelayQueryLeaves', () => {
 
   it('returns pendingNodeStates when matched fragment is not in the store', () => {
     const queryNode = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on Node {
         id
         ... on User {
@@ -981,7 +981,7 @@ describe('findRelayQueryLeaves', () => {
 
   it('returns missingData when matched fragment is not in the cache', () => {
     const queryNode = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on Node {
         id
         ... on User {
@@ -1005,7 +1005,7 @@ describe('findRelayQueryLeaves', () => {
 
   it('has all required data in store when ignoring unmatched fragment', () => {
     const queryNode = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on Node {
         id
         ... on Page {
@@ -1029,7 +1029,7 @@ describe('findRelayQueryLeaves', () => {
 
   it('has all required data in cache when ignoring unmatched fragment', () => {
     const queryNode = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on Node {
         id
         ... on Page {

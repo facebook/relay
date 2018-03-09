@@ -12,7 +12,7 @@
 
 require('configureForRelayOSS');
 
-const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
+const RelayClassic = require('../../RelayPublic');
 const RelayQuery = require('../../query/RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
@@ -24,7 +24,7 @@ describe('transformClientPayload()', () => {
 
   it('transforms singular root payloads', () => {
     const query = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         node(id: "123") {
           friends(first: 1) {
@@ -86,7 +86,7 @@ describe('transformClientPayload()', () => {
 
   it('transforms plural root payloads of arrays', () => {
     const query = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         nodes(ids: ["123", "456"]) {
           ... on User {
@@ -130,7 +130,7 @@ describe('transformClientPayload()', () => {
 
   it('transforms plural root payloads of objects (OSS)', () => {
     const query = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         nodes(ids: ["123", "456"]) {
           ... on User {
@@ -178,7 +178,7 @@ describe('transformClientPayload()', () => {
 
   it('transforms plural root payloads of objects (FB)', () => {
     const query = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         nodes(ids: ["123", "456"]) {
           ... on User {
@@ -239,7 +239,7 @@ describe('transformClientPayload()', () => {
       ),
     };
     const query = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         me {
           id

@@ -15,7 +15,7 @@ require('configureForRelayOSS');
 jest.mock('warning');
 
 const React = require('React');
-const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
+const RelayClassic = require('../../RelayPublic');
 const RelayTestUtils = require('RelayTestUtils');
 
 const getRelayQueries = require('../getRelayQueries');
@@ -37,19 +37,15 @@ describe('getRelayQueries', () => {
       }
     };
 
-    MockPageContainer = RelayClassic_DEPRECATED.createContainer(
-      MockPageComponent,
-      {
-        fragments: {
-          first: () =>
-            RelayClassic_DEPRECATED.QL`fragment on Node{id,firstName}`,
-          last: () => RelayClassic_DEPRECATED.QL`fragment on Node{id,lastName}`,
-        },
+    MockPageContainer = RelayClassic.createContainer(MockPageComponent, {
+      fragments: {
+        first: () => RelayClassic.QL`fragment on Node{id,firstName}`,
+        last: () => RelayClassic.QL`fragment on Node{id,lastName}`,
       },
-    );
+    });
 
     makeRoute = function() {
-      class MockRoute extends RelayClassic_DEPRECATED.Route {}
+      class MockRoute extends RelayClassic.Route {}
       MockRoute.routeName = 'MockRoute';
       MockRoute.path = '/{id}';
       MockRoute.paramDefinitions = {
@@ -59,14 +55,14 @@ describe('getRelayQueries', () => {
         },
       };
       MockRoute.queries = {
-        first: Component => RelayClassic_DEPRECATED.QL`
+        first: Component => RelayClassic.QL`
           query {
             node(id:$id) {
               ${Component.getFragment('first')}
             }
           }
         `,
-        last: Component => RelayClassic_DEPRECATED.QL`
+        last: Component => RelayClassic.QL`
           query {
             node(id:$id) {
               ${Component.getFragment('last')}
@@ -87,19 +83,19 @@ describe('getRelayQueries', () => {
 
     const expected = {
       first: getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id: "123") {
-            ${RelayClassic_DEPRECATED.QL`fragment on Node{id,firstName}`}
+            ${RelayClassic.QL`fragment on Node{id,firstName}`}
           }
         }
       `,
       ),
       last: getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id: "123") {
-            ${RelayClassic_DEPRECATED.QL`fragment on Node{id,lastName}`}
+            ${RelayClassic.QL`fragment on Node{id,lastName}`}
           }
         }
       `,
@@ -125,10 +121,10 @@ describe('getRelayQueries', () => {
   });
 
   it('returns null for fragments without a matching route query', () => {
-    class FirstRoute extends RelayClassic_DEPRECATED.Route {}
+    class FirstRoute extends RelayClassic.Route {}
     FirstRoute.routeName = 'BadRoute';
     FirstRoute.queries = {
-      first: () => RelayClassic_DEPRECATED.QL`query { node(id:"123") }`,
+      first: () => RelayClassic.QL`query { node(id:"123") }`,
     };
     const route = new FirstRoute({});
     var queries = getRelayQueries(MockPageContainer, route);
@@ -137,10 +133,10 @@ describe('getRelayQueries', () => {
   });
 
   it('throws for invalid `Relay.QL` queries', () => {
-    class BadRoute extends RelayClassic_DEPRECATED.Route {}
+    class BadRoute extends RelayClassic.Route {}
     BadRoute.routeName = 'BadRoute';
     BadRoute.queries = {
-      first: () => RelayClassic_DEPRECATED.QL`fragment on Node{id}`,
+      first: () => RelayClassic.QL`fragment on Node{id}`,
     };
     const badRoute = new BadRoute({});
 
@@ -156,11 +152,11 @@ describe('getRelayQueries', () => {
     const MockRoute = makeRoute();
     const route = new MockRoute({id: '123'});
 
-    const AnotherMockContainer = RelayClassic_DEPRECATED.createContainer(
+    const AnotherMockContainer = RelayClassic.createContainer(
       MockPageComponent,
       {
         fragments: {
-          first: () => RelayClassic_DEPRECATED.QL`fragment on Node{id}`,
+          first: () => RelayClassic.QL`fragment on Node{id}`,
         },
       },
     );
@@ -179,12 +175,12 @@ describe('getRelayQueries', () => {
   });
 
   it('sets root fragment variables to route params', () => {
-    class MockRoute extends RelayClassic_DEPRECATED.Route {}
+    class MockRoute extends RelayClassic.Route {}
     MockRoute.routeName = 'MockRoute';
     MockRoute.path = '/';
     MockRoute.paramDefinitions = {};
     MockRoute.queries = {
-      first: () => RelayClassic_DEPRECATED.QL`
+      first: () => RelayClassic.QL`
         query {
           viewer
         }
@@ -196,14 +192,14 @@ describe('getRelayQueries', () => {
       otherParam: 'bar',
     });
 
-    const AnotherMockContainer = RelayClassic_DEPRECATED.createContainer(
+    const AnotherMockContainer = RelayClassic.createContainer(
       MockPageComponent,
       {
         initialVariables: {
           fragmentParam: null,
         },
         fragments: {
-          first: () => RelayClassic_DEPRECATED.QL`fragment on Node{id}`,
+          first: () => RelayClassic.QL`fragment on Node{id}`,
         },
       },
     );

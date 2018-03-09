@@ -12,7 +12,7 @@
 
 require('configureForRelayOSS');
 
-const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
+const RelayClassic = require('../../RelayPublic');
 const RelayFragmentReference = require('../../query/RelayFragmentReference');
 const RelayTestUtils = require('RelayTestUtils');
 
@@ -51,7 +51,7 @@ describe('validateRelayReadQuery', () => {
   });
 
   it('logs an error if fragment and containing query have no aliases', () => {
-    const fragment = RelayClassic_DEPRECATED.QL`
+    const fragment = RelayClassic.QL`
       fragment on Node {
         profilePicture(size: 100) {
           height
@@ -59,7 +59,7 @@ describe('validateRelayReadQuery', () => {
       }
     `;
     const query = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           profilePicture(size: 50) {
@@ -75,14 +75,14 @@ describe('validateRelayReadQuery', () => {
   });
 
   it('logs an error for two local fragments without aliases', () => {
-    const fragment = RelayClassic_DEPRECATED.QL`
+    const fragment = RelayClassic.QL`
       fragment on Node {
         profilePicture(size: 100) {
           height
         }
       }
     `;
-    const otherFragment = RelayClassic_DEPRECATED.QL`
+    const otherFragment = RelayClassic.QL`
       fragment on Node {
         profilePicture(size: 50) {
           height
@@ -90,7 +90,7 @@ describe('validateRelayReadQuery', () => {
       }
     `;
     const query = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           ${fragment}
@@ -104,7 +104,7 @@ describe('validateRelayReadQuery', () => {
   });
 
   it('logs an error for local fragments containing linked fields', () => {
-    const nestedFragment = RelayClassic_DEPRECATED.QL`
+    const nestedFragment = RelayClassic.QL`
       fragment on Viewer {
         actor {
           profilePicture(size: 100) {
@@ -113,7 +113,7 @@ describe('validateRelayReadQuery', () => {
         }
       }
     `;
-    const fragment = RelayClassic_DEPRECATED.QL`
+    const fragment = RelayClassic.QL`
       fragment on Viewer {
         actor {
           profilePicture(size: 50) {
@@ -124,7 +124,7 @@ describe('validateRelayReadQuery', () => {
       }
     `;
     const query = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         viewer {
           ${fragment}
@@ -138,7 +138,7 @@ describe('validateRelayReadQuery', () => {
 
   it('logs an error for colliding fields within the same query', () => {
     const query = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           profilePicture(size: 50) {
@@ -157,7 +157,7 @@ describe('validateRelayReadQuery', () => {
 
   it('logs an error if both fields have aliases but they collide', () => {
     const query = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           pic: profilePicture(size: 50) {
@@ -176,7 +176,7 @@ describe('validateRelayReadQuery', () => {
 
   it('logs an error for two different fields with colliding aliases', () => {
     const query = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           special: profilePicture(size: 50) {
@@ -195,7 +195,7 @@ describe('validateRelayReadQuery', () => {
     // We test this separately because we traverse pageInfo as though it were a
     // linked field.
     const query = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           friends(first: 1) {
@@ -214,7 +214,7 @@ describe('validateRelayReadQuery', () => {
 
   it('logs no error when alias is the same as a connection subfield', () => {
     const query = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on User {
         count: friends {
           count
@@ -227,7 +227,7 @@ describe('validateRelayReadQuery', () => {
   });
 
   it('logs no error if containing query has a distinguishing alias ', () => {
-    const fragment = RelayClassic_DEPRECATED.QL`
+    const fragment = RelayClassic.QL`
       fragment on Node {
         profilePicture(size: 100) {
           height
@@ -235,7 +235,7 @@ describe('validateRelayReadQuery', () => {
       }
     `;
     const query = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           medium_profile: profilePicture(size: 50) {
@@ -251,7 +251,7 @@ describe('validateRelayReadQuery', () => {
   });
 
   it('logs no error if fragment has a distinguishing alias', () => {
-    const fragment = RelayClassic_DEPRECATED.QL`
+    const fragment = RelayClassic.QL`
       fragment on Node {
         large_profile: profilePicture(size: 100) {
           height
@@ -259,7 +259,7 @@ describe('validateRelayReadQuery', () => {
       }
     `;
     const query = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           profilePicture(size: 50) {
@@ -275,7 +275,7 @@ describe('validateRelayReadQuery', () => {
   });
 
   it('logs no error when both fragment and query have aliases', () => {
-    const fragment = RelayClassic_DEPRECATED.QL`
+    const fragment = RelayClassic.QL`
       fragment on Node {
         large_profile: profilePicture(size: 100) {
           height
@@ -283,7 +283,7 @@ describe('validateRelayReadQuery', () => {
       }
     `;
     const query = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           medium_profile: profilePicture(size: 50) {
@@ -300,7 +300,7 @@ describe('validateRelayReadQuery', () => {
 
   it('logs no error when one of two fields in a query has an alias', () => {
     const query = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           medium_profile: profilePicture(size: 50) {
@@ -319,7 +319,7 @@ describe('validateRelayReadQuery', () => {
 
   it('logs no error when two fields in a query both have aliases', () => {
     const query = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           medium_profile: profilePicture(size: 50) {
@@ -339,11 +339,11 @@ describe('validateRelayReadQuery', () => {
   it('logs no error for a non-local fragment which would collide', () => {
     const fragment = RelayFragmentReference.createForContainer(
       () =>
-        RelayClassic_DEPRECATED.QL`fragment on User {profilePicture(size: 100){height}}`,
+        RelayClassic.QL`fragment on User {profilePicture(size: 100){height}}`,
       {},
     );
     const query = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on User {
         profilePicture(size: 50) {
           height
@@ -358,7 +358,7 @@ describe('validateRelayReadQuery', () => {
 
   it('logs no error for fields at different levels', () => {
     const query = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on User {
         profilePicture(size: 50) {
           height

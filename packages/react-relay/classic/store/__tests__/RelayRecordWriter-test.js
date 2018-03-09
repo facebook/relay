@@ -11,7 +11,7 @@
 'use strict';
 
 const GraphQLRange = require('../../legacy/store/GraphQLRange');
-const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
+const RelayClassic = require('../../RelayPublic');
 const RelayMockCacheManager = require('RelayMockCacheManager');
 const RelayQueryPath = require('../../query/RelayQueryPath');
 const RelayRecordStatusMap = require('../RelayRecordStatusMap');
@@ -103,7 +103,7 @@ describe('RelayRecordWriter', () => {
 
       const writer = new RelayRecordWriter({}, {}, false);
       const path = RelayQueryPath.create(
-        getNode(RelayClassic_DEPRECATED.QL`query { viewer }`),
+        getNode(RelayClassic.QL`query { viewer }`),
       );
       writer.putRecord('1', 'Type', path);
       expect(writer.getPathToRecord('1')).toBe(undefined);
@@ -114,7 +114,7 @@ describe('RelayRecordWriter', () => {
 
       const writer = new RelayRecordWriter({}, {}, false);
       const path = RelayQueryPath.create(
-        getNode(RelayClassic_DEPRECATED.QL`query { viewer }`),
+        getNode(RelayClassic.QL`query { viewer }`),
       );
       const id = generateClientID();
       writer.putRecord(id, 'Type', path);

@@ -14,7 +14,7 @@ jest.mock('../../legacy/store/generateClientID').mock('warning');
 
 require('configureForRelayOSS');
 
-const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
+const RelayClassic = require('../../RelayPublic');
 const RelayTestUtils = require('RelayTestUtils');
 
 const stableStringify = require('../../query/stableStringify');
@@ -47,7 +47,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records}, {rootCallMap});
       const writer = new RelayRecordWriter(records, rootCallMap, false);
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           me {
             id
@@ -78,7 +78,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records}, {rootCallMap});
       const writer = new RelayRecordWriter(records, rootCallMap, false);
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           viewer {
             actor {
@@ -124,7 +124,7 @@ describe('writeRelayQueryPayload()', () => {
         {cachedRootCallMap, rootCallMap},
       );
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           viewer {
             actor {
@@ -161,7 +161,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records}, {rootCallMap});
       const writer = new RelayRecordWriter(records, rootCallMap, false);
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           username(name:"yuzhi") {
             id
@@ -192,7 +192,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records}, {rootCallMap});
       const writer = new RelayRecordWriter(records, rootCallMap, false);
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           username(name:"yuzhi") {
             id
@@ -230,7 +230,7 @@ describe('writeRelayQueryPayload()', () => {
       const writer = new RelayRecordWriter(records, rootCallMap, false);
       // note: this test simulates an `id`-less root call
       let query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           username(name:"yuzhi") {
             name
@@ -263,7 +263,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getRefNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           nodes(ids:$ref_q0) {
             id
@@ -295,7 +295,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           nodes(ids: ["123","456"]) {
             id
@@ -333,7 +333,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records}, {rootCallMap});
       const writer = new RelayRecordWriter(records, rootCallMap, false);
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           task(number: 5) {
             title
@@ -344,7 +344,7 @@ describe('writeRelayQueryPayload()', () => {
       expect(query.getIdentifyingArg().value).toBe(5);
       const payload = {
         task: {
-          title: 'RelayClassic_DEPRECATED Next',
+          title: 'RelayClassic Next',
         },
       };
       const results = writeVerbatimPayload(store, writer, query, payload);
@@ -355,9 +355,7 @@ describe('writeRelayQueryPayload()', () => {
         updated: {},
       });
       expect(store.getRecordState('client:1')).toBe('EXISTENT');
-      expect(store.getField('client:1', 'title')).toBe(
-        'RelayClassic_DEPRECATED Next',
-      );
+      expect(store.getField('client:1', 'title')).toBe('RelayClassic Next');
       expect(store.getDataID('task', '5')).toBe('client:1');
     });
 
@@ -367,7 +365,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records}, {rootCallMap});
       const writer = new RelayRecordWriter(records, rootCallMap, false);
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           checkinSearchQuery(query: {query: "Facebook"}) {
             query
@@ -405,7 +403,7 @@ describe('writeRelayQueryPayload()', () => {
     //     {lat: '0.0', lon: '0.0'},
     //     {lat: '1.1', lon: '1.1'}
     //   ];
-    //   var query = getNode(RelayClassic_DEPRECATED.QL`
+    //   var query = getNode(RelayClassic.QL`
     //     query {
     //       route(waypoints: $waypoints) {
     //         steps {
@@ -445,7 +443,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node {
             id
@@ -469,7 +467,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             id
@@ -498,7 +496,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             id
@@ -524,7 +522,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           nodes(ids:["123", "456"]) {
             id
@@ -552,7 +550,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           me {
             id
@@ -585,7 +583,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getRefNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           nodes(ids:$ref_q0) {
             id
@@ -621,7 +619,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             id
@@ -644,7 +642,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             actor {
@@ -664,7 +662,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             id
@@ -698,7 +696,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             id
@@ -730,7 +728,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             id
@@ -767,7 +765,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             id
@@ -795,7 +793,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id: "123") {
             id
@@ -821,7 +819,7 @@ describe('writeRelayQueryPayload()', () => {
       const writer = new RelayRecordWriter(records, {}, false);
       // No `id` or `__typename` fields
       const query = getVerbatimNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id: "123") {
             name
@@ -854,7 +852,7 @@ describe('writeRelayQueryPayload()', () => {
       writer.putRecord('123', 'User', null);
       // No `id` or `__typename` fields
       const query = getVerbatimNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id: "123") {
             name
@@ -883,7 +881,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           viewer {
             actor {

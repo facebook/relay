@@ -12,16 +12,14 @@
 
 require('configureForRelayOSS');
 
-const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
+const RelayClassic = require('../../RelayPublic');
 const RelayTestUtils = require('RelayTestUtils');
 
 const flattenSplitRelayQueries = require('../flattenSplitRelayQueries');
 
 describe('flattenSplitRelayQueries', () => {
   function getQuery() {
-    return RelayTestUtils.getNode(
-      RelayClassic_DEPRECATED.QL`query{node(id:"4"){id}}`,
-    );
+    return RelayTestUtils.getNode(RelayClassic.QL`query{node(id:"4"){id}}`);
   }
 
   it('returns an empty array when there are no queries', () => {

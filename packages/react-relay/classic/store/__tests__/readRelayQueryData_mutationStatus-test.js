@@ -10,7 +10,7 @@
 
 'use strict';
 
-const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
+const RelayClassic = require('../../RelayPublic');
 const RelayMutationTransaction = require('../../mutation/RelayMutationTransaction');
 const RelayMutationTransactionStatus = require('../../mutation/RelayMutationTransactionStatus');
 const RelayStoreData = require('../RelayStoreData');
@@ -77,7 +77,7 @@ describe('readRelayQueryData (mutationStatus)', () => {
 
     writeQueryPayload({
       query: getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id: "123") {
             ...on Actor {
@@ -103,7 +103,7 @@ describe('readRelayQueryData (mutationStatus)', () => {
     const data = read({
       dataID: '123',
       node: getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         fragment on Actor {
           firstName
         }
@@ -126,7 +126,7 @@ describe('readRelayQueryData (mutationStatus)', () => {
     const data = read({
       dataID: '123',
       node: getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         fragment on Actor {
           firstName
         }
@@ -155,7 +155,7 @@ describe('readRelayQueryData (mutationStatus)', () => {
     const dataA = read({
       dataID: '123',
       node: getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         fragment on Actor {
           firstName
         }
@@ -176,7 +176,7 @@ describe('readRelayQueryData (mutationStatus)', () => {
     const dataB = read({
       dataID: '123',
       node: getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         fragment on Actor {
           firstName
         }

@@ -14,7 +14,7 @@ jest.mock('../../legacy/store/generateClientID').mock('warning');
 
 require('configureForRelayOSS');
 
-const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
+const RelayClassic = require('../../RelayPublic');
 const RelayRecordStore = require('../../store/RelayRecordStore');
 const RelayRecordWriter = require('../../store/RelayRecordWriter');
 const RelayTestUtils = require('RelayTestUtils');
@@ -34,7 +34,7 @@ describe('writeRelayQueryPayload()', () => {
       const writer = new RelayRecordWriter(records, {}, false);
 
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             id
@@ -65,7 +65,7 @@ describe('writeRelayQueryPayload()', () => {
       const writer = new RelayRecordWriter(records, {}, false);
 
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             id
@@ -102,7 +102,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           viewer {
             actor {
@@ -137,7 +137,7 @@ describe('writeRelayQueryPayload()', () => {
       const writer = new RelayRecordWriter(records, {}, false);
 
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             allPhones {
@@ -171,7 +171,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             friends(first: 3) {

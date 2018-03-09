@@ -12,7 +12,7 @@
 
 jest.mock('performanceNow');
 
-const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
+const RelayClassic = require('../../RelayPublic');
 // jest doesn't like when this is a relative path
 const RelayProfiler = require('RelayProfiler');
 const RelayMetricsRecorder = require('../RelayMetricsRecorder');
@@ -29,7 +29,7 @@ describe('RelayMetricsRecorder', () => {
 
     const {getNode} = RelayTestUtils;
     query = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         node(id: "123") {
           ... on User {

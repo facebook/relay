@@ -14,7 +14,7 @@ jest.mock('../../legacy/store/generateClientID').mock('warning');
 
 require('configureForRelayOSS');
 
-const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
+const RelayClassic = require('../../RelayPublic');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('writeRelayQueryPayload()', () => {
@@ -43,7 +43,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           viewer {
             actor {
@@ -84,7 +84,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           viewer {
             actor {
@@ -116,7 +116,7 @@ describe('writeRelayQueryPayload()', () => {
       const writer = new RelayRecordWriter(records, {}, false);
       const actorID = '123';
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           viewer {
             actor {
@@ -162,7 +162,7 @@ describe('writeRelayQueryPayload()', () => {
       const writer = new RelayRecordWriter(records, {}, false);
       const nextActorID = '456';
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           viewer {
             actor {
@@ -199,7 +199,7 @@ describe('writeRelayQueryPayload()', () => {
       const writer = new RelayRecordWriter(records, {}, false);
       const addressID = 'client:1';
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             address {
@@ -251,7 +251,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"123") {
             address {
@@ -286,7 +286,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           viewer {
             actor {
@@ -315,7 +315,7 @@ describe('writeRelayQueryPayload()', () => {
       const writer = new RelayRecordWriter(records, {}, false);
       // No `id` or `__typename` fields or responses
       const query = getVerbatimNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           viewer {
             actor {
@@ -346,7 +346,7 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           me {
             id

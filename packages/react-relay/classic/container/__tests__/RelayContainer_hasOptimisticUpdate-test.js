@@ -18,7 +18,7 @@ require('configureForRelayOSS');
 
 const GraphQLStoreQueryResolver = require('../../legacy/store/GraphQLStoreQueryResolver');
 const React = require('React');
-const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
+const RelayClassic = require('../../RelayPublic');
 const RelayEnvironment = require('../../store/RelayEnvironment');
 const RelayTestUtils = require('RelayTestUtils');
 
@@ -35,8 +35,8 @@ describe('RelayContainer.hasOptimisticUpdate', () => {
         return <div />;
       }
     }
-    MockContainer = RelayClassic_DEPRECATED.createContainer(MockComponent, {
-      fragments: {foo: () => RelayClassic_DEPRECATED.QL`fragment on Node{id}`},
+    MockContainer = RelayClassic.createContainer(MockComponent, {
+      fragments: {foo: () => RelayClassic.QL`fragment on Node{id}`},
     });
     environment = new RelayEnvironment();
     RelayTestRenderer = RelayTestUtils.createRenderer();

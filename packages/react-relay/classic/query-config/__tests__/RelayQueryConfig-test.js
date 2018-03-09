@@ -12,7 +12,7 @@
 
 require('configureForRelayOSS');
 
-const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
+const RelayClassic = require('../../RelayPublic');
 const RelayQueryConfig = require('../RelayQueryConfig');
 const RelayTestUtils = require('RelayTestUtils');
 
@@ -29,14 +29,14 @@ describe('RelayQueryConfig', () => {
       }> {}
       MockConfig.routeName = 'MockConfig';
       MockConfig.queries = {
-        required: Component => RelayClassic_DEPRECATED.QL`
+        required: Component => RelayClassic.QL`
           query {
             node(id:$required) {
               ${Component.getQuery('required')}
             }
           }
         `,
-        optional: Component => RelayClassic_DEPRECATED.QL`
+        optional: Component => RelayClassic.QL`
           query {
             node(id:$optional) {
               ${Component.getQuery('optional')}

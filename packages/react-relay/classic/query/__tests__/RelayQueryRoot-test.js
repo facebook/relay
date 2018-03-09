@@ -13,7 +13,7 @@
 require('configureForRelayOSS');
 
 const QueryBuilder = require('../QueryBuilder');
-const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
+const RelayClassic = require('../../RelayPublic');
 const RelayQuery = require('../RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
@@ -29,7 +29,7 @@ describe('RelayQueryRoot', () => {
     expect.extend(RelayTestUtils.matchers);
 
     me = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         me {
           name1: firstName
@@ -40,7 +40,7 @@ describe('RelayQueryRoot', () => {
     );
 
     usernames = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         usernames(names:"mroch") {
           firstName
@@ -55,12 +55,8 @@ describe('RelayQueryRoot', () => {
   });
 
   it('has a unique ID', () => {
-    const lastID = getNode(
-      RelayClassic_DEPRECATED.QL`query{me{firstName}}`,
-    ).getID();
-    const nextID = getNode(
-      RelayClassic_DEPRECATED.QL`query{me{lastName}}`,
-    ).getID();
+    const lastID = getNode(RelayClassic.QL`query{me{firstName}}`).getID();
+    const nextID = getNode(RelayClassic.QL`query{me{lastName}}`).getID();
     expect(lastID).toMatch(/^q\d+/);
     expect(nextID).toMatch(/^q\d+/);
     expect(nextID).not.toEqual(lastID);
@@ -85,7 +81,7 @@ describe('RelayQueryRoot', () => {
 
   it('does not return skipped children', () => {
     const query = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         me {
           id
@@ -106,7 +102,7 @@ describe('RelayQueryRoot', () => {
 
   it('returns included children', () => {
     const query = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         me {
           id
@@ -155,7 +151,7 @@ describe('RelayQueryRoot', () => {
 
   it('clones with updated children', () => {
     const query = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         me {
           firstName
@@ -181,7 +177,7 @@ describe('RelayQueryRoot', () => {
 
     expect(
       getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
       query {
         usernames(names:["a","b","c"]) {
           firstName
@@ -202,7 +198,7 @@ describe('RelayQueryRoot', () => {
 
     // ref query:
     const root = getNode({
-      ...RelayClassic_DEPRECATED.QL`
+      ...RelayClassic.QL`
         query {
           node(id: "123") {
             id
@@ -226,7 +222,7 @@ describe('RelayQueryRoot', () => {
 
   it('is not equal to non-root nodes', () => {
     const fragment = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on Viewer {
         actor {
           id
@@ -241,7 +237,7 @@ describe('RelayQueryRoot', () => {
 
   it('is not equal to queries with different root calls', () => {
     const diffRoot = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         usernames(names:"joesavona") {
           firstName
@@ -259,7 +255,7 @@ describe('RelayQueryRoot', () => {
 
   it('equals equivalent queries', () => {
     const me2 = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         me {
           name1: firstName
@@ -270,7 +266,7 @@ describe('RelayQueryRoot', () => {
     );
 
     const usernames2 = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         usernames(names:"mroch") {
           firstName
@@ -291,7 +287,7 @@ describe('RelayQueryRoot', () => {
 
   it('does not equal different queries with the same root', () => {
     const me2 = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         me {
           name1: firstName
@@ -302,7 +298,7 @@ describe('RelayQueryRoot', () => {
     );
 
     const usernames2 = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         usernames(names:"mroch") {
           firstName
@@ -319,7 +315,7 @@ describe('RelayQueryRoot', () => {
 
   it('equals identical ref queries with matching ref params', () => {
     const node = getNode({
-      ...RelayClassic_DEPRECATED.QL`query { node(id: "123") }`,
+      ...RelayClassic.QL`query { node(id: "123") }`,
       calls: [
         QueryBuilder.createCall(
           'id',
@@ -328,7 +324,7 @@ describe('RelayQueryRoot', () => {
       ],
     });
     const other = getNode({
-      ...RelayClassic_DEPRECATED.QL`query { node(id: "123") }`,
+      ...RelayClassic.QL`query { node(id: "123") }`,
       calls: [
         QueryBuilder.createCall(
           'id',
@@ -341,7 +337,7 @@ describe('RelayQueryRoot', () => {
 
   it('does not equal queries with different ref params', () => {
     const node = getNode({
-      ...RelayClassic_DEPRECATED.QL`query { node(id: "123") }`,
+      ...RelayClassic.QL`query { node(id: "123") }`,
       calls: [
         QueryBuilder.createCall(
           'id',
@@ -350,7 +346,7 @@ describe('RelayQueryRoot', () => {
       ],
     });
     const other = getNode({
-      ...RelayClassic_DEPRECATED.QL`query { node(id: "123") }`,
+      ...RelayClassic.QL`query { node(id: "123") }`,
       calls: [
         QueryBuilder.createCall(
           'id',
@@ -373,9 +369,7 @@ describe('RelayQueryRoot', () => {
   });
 
   it('returns the identifying argument type', () => {
-    const nodeQuery = getNode(
-      RelayClassic_DEPRECATED.QL`query{node(id:"123"){id}}`,
-    );
+    const nodeQuery = getNode(RelayClassic.QL`query{node(id:"123"){id}}`);
     nodeQuery.getConcreteQueryNode().metadata = {
       identifyingArgName: 'id',
       identifyingArgType: 'scalar',
@@ -384,14 +378,14 @@ describe('RelayQueryRoot', () => {
     expect(nodeIdentifyingArg).toBeDefined();
     expect(nodeIdentifyingArg.type).toBe('scalar');
 
-    me = getNode(RelayClassic_DEPRECATED.QL`query{me{id}}`);
+    me = getNode(RelayClassic.QL`query{me{id}}`);
     const meIdentifyingArg = me.getIdentifyingArg();
     expect(meIdentifyingArg).toBeUndefined();
   });
 
   it('returns numeric identifying arguments', () => {
     const query = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         task(number: 5) {
           title
@@ -409,7 +403,7 @@ describe('RelayQueryRoot', () => {
 
   it('returns input-object identifying arguments', () => {
     const query = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         checkinSearchQuery(query: {query: "Facebook"}) {
           query
@@ -429,7 +423,7 @@ describe('RelayQueryRoot', () => {
 
   it('returns array identifying arguments', () => {
     const query = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         route(waypoints: [
           {lat: "0.0", lon: "0.0"}
@@ -452,7 +446,7 @@ describe('RelayQueryRoot', () => {
 
   it('creates nodes', () => {
     const query = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         viewer {
           actor {
@@ -462,7 +456,7 @@ describe('RelayQueryRoot', () => {
       }
     `,
     );
-    const node = RelayClassic_DEPRECATED.QL`
+    const node = RelayClassic.QL`
       fragment on Viewer {
         actor {
           id
@@ -478,7 +472,7 @@ describe('RelayQueryRoot', () => {
 
   it('returns directives', () => {
     const query = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         me @include(if: $cond) {
           id
@@ -496,27 +490,19 @@ describe('RelayQueryRoot', () => {
   });
 
   it('returns isAbstract', () => {
-    expect(getNode(RelayClassic_DEPRECATED.QL`query { me }`).isAbstract()).toBe(
-      false,
+    expect(getNode(RelayClassic.QL`query { me }`).isAbstract()).toBe(false);
+    expect(getNode(RelayClassic.QL`query { viewer }`).isAbstract()).toBe(false);
+    expect(getNode(RelayClassic.QL`query { node(id: "4") }`).isAbstract()).toBe(
+      true,
     );
-    expect(
-      getNode(RelayClassic_DEPRECATED.QL`query { viewer }`).isAbstract(),
-    ).toBe(false);
-    expect(
-      getNode(RelayClassic_DEPRECATED.QL`query { node(id: "4") }`).isAbstract(),
-    ).toBe(true);
   });
 
   it('returns the root type', () => {
-    expect(getNode(RelayClassic_DEPRECATED.QL`query { me }`).getType()).toBe(
-      'User',
+    expect(getNode(RelayClassic.QL`query { me }`).getType()).toBe('User');
+    expect(getNode(RelayClassic.QL`query { viewer }`).getType()).toBe('Viewer');
+    expect(getNode(RelayClassic.QL`query { node(id: "123") }`).getType()).toBe(
+      'Node',
     );
-    expect(
-      getNode(RelayClassic_DEPRECATED.QL`query { viewer }`).getType(),
-    ).toBe('Viewer');
-    expect(
-      getNode(RelayClassic_DEPRECATED.QL`query { node(id: "123") }`).getType(),
-    ).toBe('Node');
   });
 
   describe('canHaveSubselections()', () => {
@@ -526,7 +512,7 @@ describe('RelayQueryRoot', () => {
 
       // empty query
       const query = getNode({
-        ...RelayClassic_DEPRECATED.QL`query { viewer }`,
+        ...RelayClassic.QL`query { viewer }`,
         children: [],
       });
       expect(query.canHaveSubselections()).toBe(true);
@@ -536,7 +522,7 @@ describe('RelayQueryRoot', () => {
   describe('getStorageKey()', () => {
     it('delegates to RelayQueryField::getStorageKey', () => {
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`query { settings(environment: MOBILE) }`,
+        RelayClassic.QL`query { settings(environment: MOBILE) }`,
       );
       // Inherit all of the other RelayQueryField::getStorageKey() behavior,
       // like stripping out spurious if/unless and connection args.
@@ -549,7 +535,7 @@ describe('RelayQueryRoot', () => {
 
     it('strips identifying arguments', () => {
       const identifyingQuery = getNode(
-        RelayClassic_DEPRECATED.QL`query { username(name:"yuzhi") }`,
+        RelayClassic.QL`query { username(name:"yuzhi") }`,
       );
       identifyingQuery.getConcreteQueryNode().metadata = {
         identifyingArgName: 'name',
@@ -567,7 +553,7 @@ describe('RelayQueryRoot', () => {
     write a test to ensure that non-identifying args don't get stripped out.
 
     it('does not strip out non-identifying arguments', () => {
-      const query = getNode(RelayClassic_DEPRECATED.QL`query { settings(environment: MOBILE) }`);
+      const query = getNode(RelayClassic.QL`query { settings(environment: MOBILE) }`);
       expect(query.getStorageKey()).toBe('settings.environment(MOBILE)');
     });
     */

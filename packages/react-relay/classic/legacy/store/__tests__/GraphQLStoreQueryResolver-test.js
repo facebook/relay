@@ -18,7 +18,7 @@ jest
   .useFakeTimers();
 
 const GraphQLStoreQueryResolver = require('../GraphQLStoreQueryResolver');
-const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
+const RelayClassic = require('../../../RelayPublic');
 const RelayStoreData = require('../../../store/RelayStoreData');
 const RelayTestUtils = require('RelayTestUtils');
 
@@ -52,11 +52,9 @@ describe('GraphQLStoreQueryResolver', () => {
 
     dataID = '1038750002';
     mockCallback = jest.fn();
-    mockQueryFragment = getNode(
-      RelayClassic_DEPRECATED.QL`fragment on Node{id,name}`,
-    );
+    mockQueryFragment = getNode(RelayClassic.QL`fragment on Node{id,name}`);
     mockPluralQueryFragment = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       fragment on Node @relay(plural:true) {
         id
         name

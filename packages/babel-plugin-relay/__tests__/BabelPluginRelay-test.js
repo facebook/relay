@@ -12,7 +12,7 @@
 
 require('configureForRelayOSS');
 
-const BabelPluginRelay = require('BabelPluginRelay');
+const BabelPluginRelay = require('../BabelPluginRelay');
 
 const babel = require('babel-core');
 const {generateTestsFromFixtures} = require('RelayModernTestUtils');

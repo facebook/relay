@@ -296,7 +296,7 @@ class Todo extends React.Component<Props> {
 
 export default createFragmentContainer(
   Todo,
-  grapqhl`
+  graphql`
     # As a convention, we name the fragment as '<ComponentFileName>_<propName>'
     fragment Todo_todo on Todo {
       complete

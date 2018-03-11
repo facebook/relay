@@ -248,7 +248,7 @@ type Props = {
 
 export default createFragmentContainer(
   Todo,
-  grapqhl`
+  graphql`
     # As a convention, we name the fragment as '&lt;ComponentFileName&gt;_&lt;propName&gt;'
     fragment Todo_todo on Todo {
       complete

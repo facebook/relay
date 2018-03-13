@@ -17,7 +17,7 @@
  * For convenience, and for consistency with the behavior of `Object.freeze`,
  * returns the now-frozen original object.
  */
-function deepFreeze(object: Object): Object {
+function deepFreeze<T: {}>(object: T): T {
   Object.freeze(object);
   Object.getOwnPropertyNames(object).forEach(name => {
     const property = object[name];

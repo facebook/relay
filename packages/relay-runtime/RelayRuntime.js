@@ -33,9 +33,12 @@ const commitRelayModernMutation = require('commitRelayModernMutation');
 const fetchRelayModernQuery = require('fetchRelayModernQuery');
 const isRelayModernEnvironment = require('isRelayModernEnvironment');
 const recycleNodesInto = require('recycleNodesInto');
-const requestRelaySubscription = require('requestRelaySubscription');
+const requestRelaySubscription = require('./subscription/requestRelaySubscription');
 const simpleClone = require('simpleClone');
 
+export type {
+  GraphQLSubscriptionConfig,
+} from './subscription/requestRelaySubscription';
 export type {
   CacheConfig,
   DataID,

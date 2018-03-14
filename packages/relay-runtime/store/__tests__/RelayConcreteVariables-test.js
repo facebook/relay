@@ -15,7 +15,7 @@ const RelayModernTestUtils = require('RelayModernTestUtils');
 const {
   getFragmentVariables,
   getOperationVariables,
-} = require('RelayConcreteVariables');
+} = require('../RelayConcreteVariables');
 
 describe('RelayConcreteVariables', () => {
   const {generateAndCompile} = RelayModernTestUtils;

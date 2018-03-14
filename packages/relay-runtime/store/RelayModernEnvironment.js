@@ -11,29 +11,29 @@
 
 'use strict';
 
-const RelayCore = require('RelayCore');
-const RelayDefaultHandlerProvider = require('RelayDefaultHandlerProvider');
-const RelayPublishQueue = require('RelayPublishQueue');
+const RelayCore = require('./RelayCore');
+const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
+const RelayPublishQueue = require('./RelayPublishQueue');
 
-const deferrableFragmentKey = require('deferrableFragmentKey');
+const deferrableFragmentKey = require('./deferrableFragmentKey');
 const invariant = require('invariant');
-const normalizePayload = require('normalizePayload');
-const normalizeRelayPayload = require('normalizeRelayPayload');
+const normalizePayload = require('./normalizePayload');
+const normalizeRelayPayload = require('./normalizeRelayPayload');
 const warning = require('warning');
 
-const {getOperationVariables} = require('RelayConcreteVariables');
-const {createOperationSelector} = require('RelayModernOperationSelector');
+const {getOperationVariables} = require('./RelayConcreteVariables');
+const {createOperationSelector} = require('./RelayModernOperationSelector');
 
 import type {CacheConfig, Disposable} from '../util/RelayRuntimeTypes';
-import type {HandlerProvider} from 'RelayDefaultHandlerProvider';
+import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {
   ExecutePayload,
   Network,
   PayloadData,
   PayloadError,
   UploadableMap,
-} from 'RelayNetworkTypes';
-import type RelayObservable from 'RelayObservable';
+} from '../network/RelayNetworkTypes';
+import type RelayObservable from '../network/RelayObservable';
 import type {
   Environment,
   OperationSelector,
@@ -44,7 +44,7 @@ import type {
   Store,
   StoreUpdater,
   UnstableEnvironmentCore,
-} from 'RelayStoreTypes';
+} from './RelayStoreTypes';
 
 export type EnvironmentConfig = {
   configName?: string,

@@ -11,21 +11,21 @@
 
 'use strict';
 
-const RelayObservable = require('RelayObservable');
+const RelayObservable = require('./RelayObservable');
 
 const invariant = require('invariant');
 
-const {convertFetch, convertSubscribe} = require('ConvertToExecuteFunction');
+const {convertFetch, convertSubscribe} = require('./ConvertToExecuteFunction');
 
 import type {CacheConfig, Variables} from '../util/RelayRuntimeTypes';
-import type {RequestNode} from 'RelayConcreteNode';
+import type {RequestNode} from '../util/RelayConcreteNode';
 import type {
   FetchFunction,
   Network,
   ExecutePayload,
   SubscribeFunction,
   UploadableMap,
-} from 'RelayNetworkTypes';
+} from './RelayNetworkTypes';
 
 /**
  * Creates an implementation of the `Network` interface defined in

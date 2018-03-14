@@ -12,7 +12,7 @@
 
 require('configureForRelayOSS');
 
-const RelayQueryResponseCache = require('RelayQueryResponseCache');
+const RelayQueryResponseCache = require('../RelayQueryResponseCache');
 
 describe('RelayQueryResponseCache', () => {
   let dateNow;

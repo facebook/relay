@@ -12,7 +12,7 @@
 'use strict';
 
 const areEqual = require('areEqual');
-const deepFreeze = require('deepFreeze');
+const deepFreeze = require('../util/deepFreeze');
 const invariant = require('invariant');
 
 const {
@@ -21,7 +21,7 @@ const {
   REFS_KEY,
   TYPENAME_KEY,
   UNPUBLISH_FIELD_SENTINEL,
-} = require('RelayStoreUtils');
+} = require('./RelayStoreUtils');
 
 import type {DataID} from '../util/RelayRuntimeTypes';
 import type {Record} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';

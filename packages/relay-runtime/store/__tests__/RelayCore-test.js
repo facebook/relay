@@ -15,7 +15,7 @@ jest.mock('warning');
 const RelayTestUtils = require('RelayTestUtils');
 const {generateAndCompile} = require('RelayModernTestUtils');
 
-const {createFragmentSpecResolver} = require('RelayCore');
+const {createFragmentSpecResolver} = require('../RelayCore');
 
 describe('RelayCore', () => {
   describe('createFragmentSpecResolver', () => {

@@ -14,8 +14,8 @@
 const invariant = require('invariant');
 
 import type {CacheConfig, Variables} from '../util/RelayRuntimeTypes';
-import type {RequestNode} from 'RelayConcreteNode';
-import type {ExecutePayload, UploadableMap} from 'RelayNetworkTypes';
+import type {RequestNode} from '../util/RelayConcreteNode';
+import type {ExecutePayload, UploadableMap} from './RelayNetworkTypes';
 
 let queryID = 1;
 

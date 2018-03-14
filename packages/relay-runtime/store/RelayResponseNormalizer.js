@@ -11,12 +11,12 @@
 
 'use strict';
 
-const RelayConcreteNode = require('RelayConcreteNode');
-const RelayModernRecord = require('RelayModernRecord');
-const RelayProfiler = require('RelayProfiler');
+const RelayConcreteNode = require('../util/RelayConcreteNode');
+const RelayModernRecord = require('./RelayModernRecord');
+const RelayProfiler = require('../util/RelayProfiler');
 
-const deferrableFragmentKey = require('deferrableFragmentKey');
-const generateRelayClientID = require('generateRelayClientID');
+const deferrableFragmentKey = require('./deferrableFragmentKey');
+const generateRelayClientID = require('./generateRelayClientID');
 const invariant = require('invariant');
 const warning = require('warning');
 
@@ -25,21 +25,21 @@ const {
   getHandleStorageKey,
   getStorageKey,
   TYPENAME_KEY,
-} = require('RelayStoreUtils');
+} = require('./RelayStoreUtils');
 
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
   ConcreteField,
   ConcreteLinkedField,
   ConcreteNode,
-} from 'RelayConcreteNode';
-import type {PayloadData} from 'RelayNetworkTypes';
+} from '../util/RelayConcreteNode';
+import type {PayloadData} from '../network/RelayNetworkTypes';
 import type {
   DeferrableSelections,
   HandleFieldPayload,
   MutableRecordSource,
   Selector,
-} from 'RelayStoreTypes';
+} from './RelayStoreTypes';
 import type {Record} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 const {

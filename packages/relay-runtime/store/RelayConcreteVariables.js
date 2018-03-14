@@ -15,7 +15,7 @@ const invariant = require('invariant');
 const warning = require('warning');
 
 import type {Variables} from '../util/RelayRuntimeTypes';
-import type {ConcreteOperation, ConcreteFragment} from 'RelayConcreteNode';
+import type {ConcreteOperation, ConcreteFragment} from '../util/RelayConcreteNode';
 
 /**
  * Determines the variables that are in scope for a fragment given the variables

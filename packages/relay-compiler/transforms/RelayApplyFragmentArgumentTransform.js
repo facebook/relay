@@ -11,7 +11,6 @@
 
 'use strict';
 
-const Map = require('Map');
 const RelayCompilerScope = require('../core/RelayCompilerScope');
 
 const invariant = require('invariant');

@@ -16,7 +16,6 @@ const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayReferenceMarker = require('RelayReferenceMarker');
 const RelayStoreUtils = require('RelayStoreUtils');
 const RelayModernTestUtils = require('RelayModernTestUtils');
-const Set = require('Set');
 
 const {mark} = RelayReferenceMarker;
 const {ROOT_ID} = RelayStoreUtils;

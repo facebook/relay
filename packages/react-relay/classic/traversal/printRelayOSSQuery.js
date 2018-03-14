@@ -10,7 +10,6 @@
 
 'use strict';
 
-const Map = require('Map');
 const RelayQuery = require('../query/RelayQuery');
 
 const base62 = require('base62');

@@ -10,7 +10,6 @@
 
 'use strict';
 
-const Map = require('Map');
 const QueryBuilder = require('./QueryBuilder');
 const RelayQueryCaching = require('../tools/RelayQueryCaching');
 

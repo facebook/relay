@@ -10,7 +10,6 @@
 
 'use strict';
 
-const Map = require('Map');
 const RelayMetaRoute = require('../route/RelayMetaRoute');
 const RelayQuery = require('../query/RelayQuery');
 const RelayQueryCaching = require('../tools/RelayQueryCaching');

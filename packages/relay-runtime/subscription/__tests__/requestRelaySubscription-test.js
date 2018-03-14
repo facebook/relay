@@ -11,7 +11,7 @@
 
 'use strict';
 
-const requestRelaySubscription = require('../requestRelaySubscription');
+const requestRelaySubscription = require('requestRelaySubscription');
 
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {createOperationSelector} = require('RelayModernOperationSelector');

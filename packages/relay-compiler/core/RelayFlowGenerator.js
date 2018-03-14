@@ -55,6 +55,7 @@ type Options = {|
   +existingFragmentNames: Set<string>,
   +inputFieldWhiteList: $ReadOnlyArray<string>,
   +relayRuntimeModule: string,
+  +strictFlowTypes: boolean,
 |};
 
 export type State = {|
@@ -235,6 +236,7 @@ function createVisitor(options: Options) {
     usedEnums: {},
     usedFragments: new Set(),
     useHaste: options.useHaste,
+    strictFlowTypes: options.strictFlowTypes,
   };
 
   return {
@@ -423,7 +425,11 @@ function getFragmentImports(state: State) {
   return imports;
 }
 
-function getEnumDefinitions({enumsHasteModule, usedEnums}: State) {
+function getEnumDefinitions({
+  enumsHasteModule,
+  usedEnums,
+  strictFlowTypes,
+}: State) {
   const enumNames = Object.keys(usedEnums).sort();
   if (enumNames.length === 0) {
     return [];
@@ -434,7 +440,9 @@ function getEnumDefinitions({enumsHasteModule, usedEnums}: State) {
   return enumNames.map(name => {
     const values = usedEnums[name].getValues().map(({value}) => value);
     values.sort();
-    values.push('%future added value');
+    if (!strictFlowTypes) {
+      values.push('%future added value');
+    }
     return exportType(
       name,
       t.unionTypeAnnotation(

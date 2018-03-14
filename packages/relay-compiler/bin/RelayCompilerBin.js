@@ -94,6 +94,7 @@ async function run(options: {
   watch?: ?boolean,
   validate: boolean,
   quiet: boolean,
+  strictFlowTypes: boolean,
 }) {
   const schemaPath = path.resolve(process.cwd(), options.schema);
   if (!fs.existsSync(schemaPath)) {
@@ -163,7 +164,7 @@ Ensure that one such file exists in ${srcDir} or its parents.
   };
   const writerConfigs = {
     js: {
-      getWriter: getRelayFileWriter(srcDir),
+      getWriter: getRelayFileWriter(srcDir, options.strictFlowTypes),
       isGeneratedFile: (filePath: string) =>
         filePath.endsWith('.js') && filePath.includes('__generated__'),
       parser: 'js',
@@ -194,7 +195,7 @@ Ensure that one such file exists in ${srcDir} or its parents.
   }
 }
 
-function getRelayFileWriter(baseDir: string) {
+function getRelayFileWriter(baseDir: string, strictFlowTypes: boolean) {
   return ({
     onlyValidate,
     schema,
@@ -218,6 +219,7 @@ function getRelayFileWriter(baseDir: string) {
         inputFieldWhiteListForFlow: [],
         schemaExtensions,
         useHaste: false,
+        strictFlowTypes,
       },
       onlyValidate,
       schema,
@@ -332,6 +334,12 @@ const argv = yargs
         'Looks for pending changes and exits with non-zero code instead of ' +
         'writing to disk',
       type: 'boolean',
+      default: false,
+    },
+    strictFlowTypes: {
+      describe:
+        'Generate flow types that more closely match the schema. This should be avoided ' +
+        'if the GraphQL server can change enum values without updating its schema',
       default: false,
     },
   })

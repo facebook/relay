@@ -10,7 +10,7 @@
 
 'use strict';
 
-const stableCopy = require('stableCopy');
+const stableCopy = require('../stableCopy');
 
 describe('stableCopy', () => {
   it('returns non-objects', () => {

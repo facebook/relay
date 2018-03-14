@@ -4,18 +4,17 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayReferenceMarker
  * @flow
  * @format
  */
 
 'use strict';
 
-const RelayConcreteNode = require('RelayConcreteNode');
-const RelayModernRecord = require('RelayModernRecord');
-const RelayStoreUtils = require('RelayStoreUtils');
+const RelayConcreteNode = require('../util/RelayConcreteNode');
+const RelayModernRecord = require('./RelayModernRecord');
+const RelayStoreUtils = require('./RelayStoreUtils');
 
-const cloneRelayHandleSourceField = require('cloneRelayHandleSourceField');
+const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
 const invariant = require('invariant');
 
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
@@ -23,8 +22,8 @@ import type {
   ConcreteLinkedField,
   ConcreteNode,
   ConcreteSelection,
-} from 'RelayConcreteNode';
-import type {RecordSource, Selector} from 'RelayStoreTypes';
+} from '../util/RelayConcreteNode';
+import type {RecordSource, Selector} from './RelayStoreTypes';
 import type {Record} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 const {

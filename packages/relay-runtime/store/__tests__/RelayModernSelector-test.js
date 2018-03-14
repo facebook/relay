@@ -19,9 +19,9 @@ const {
   getSelectorList,
   getSelectorsFromObject,
   getVariablesFromObject,
-} = require('RelayModernSelector');
+} = require('../RelayModernSelector');
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
-const {ROOT_ID} = require('RelayStoreUtils');
+const {ROOT_ID} = require('../RelayStoreUtils');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 
 describe('RelayModernSelector', () => {

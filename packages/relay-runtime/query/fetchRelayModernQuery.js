@@ -4,19 +4,18 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule fetchRelayModernQuery
  * @flow
  * @format
  */
 
 'use strict';
 
-const RelayConcreteNode = require('RelayConcreteNode');
+const RelayConcreteNode = require('../util/RelayConcreteNode');
 
 const invariant = require('invariant');
 
 import type {CacheConfig, Variables} from '../util/RelayRuntimeTypes';
-import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
+import type {GraphQLTaggedNode} from './RelayModernGraphQLTag';
 
 /**
  * A helper function to fetch the results of a query. Note that results for

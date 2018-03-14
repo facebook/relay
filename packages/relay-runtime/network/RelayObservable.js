@@ -11,10 +11,10 @@
 
 'use strict';
 
-const isPromise = require('isPromise');
+const isPromise = require('../util/isPromise');
 
 import type {Disposable} from '../util/RelayRuntimeTypes';
-import type {LegacyObserver} from 'RelayNetworkTypes';
+import type {LegacyObserver} from './RelayNetworkTypes';
 
 /**
  * A Subscription object is returned from .subscribe(), which can be

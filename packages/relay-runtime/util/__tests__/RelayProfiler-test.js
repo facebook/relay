@@ -10,7 +10,7 @@
 
 'use strict';
 
-const RelayProfiler = require('RelayProfiler');
+const RelayProfiler = require('../RelayProfiler');
 
 describe('RelayProfiler', function() {
   const DEV = __DEV__;

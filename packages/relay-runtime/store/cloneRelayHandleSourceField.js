@@ -4,26 +4,25 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule cloneRelayHandleSourceField
  * @flow
  * @format
  */
 
 'use strict';
 
-const RelayConcreteNode = require('RelayConcreteNode');
+const RelayConcreteNode = require('../util/RelayConcreteNode');
 
 const areEqual = require('areEqual');
 const invariant = require('invariant');
 
-const {getHandleStorageKey} = require('RelayStoreUtils');
+const {getHandleStorageKey} = require('./RelayStoreUtils');
 
 import type {Variables} from '../util/RelayRuntimeTypes';
 import type {
   ConcreteLinkedField,
   ConcreteLinkedHandle,
   ConcreteSelection,
-} from 'RelayConcreteNode';
+} from '../util/RelayConcreteNode';
 
 const {LINKED_FIELD} = RelayConcreteNode;
 

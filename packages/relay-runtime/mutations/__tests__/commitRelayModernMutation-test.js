@@ -10,12 +10,12 @@
 
 'use strict';
 
-const commitRelayModernMutation = require('commitRelayModernMutation');
+const commitRelayModernMutation = require('../commitRelayModernMutation');
 
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
-const {createOperationSelector} = require('RelayModernOperationSelector');
+const {createOperationSelector} = require('../../store/RelayModernOperationSelector');
 const {generateAndCompile} = require('RelayModernTestUtils');
-const {ROOT_ID} = require('RelayStoreUtils');
+const {ROOT_ID} = require('../../store/RelayStoreUtils');
 const {commitMutation} = require('react-relay/modern/ReactRelayPublic');
 
 describe('Configs: NODE_DELETE', () => {

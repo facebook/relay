@@ -13,7 +13,7 @@
 
 const invariant = require('invariant');
 
-const {DEFAULT_HANDLE_KEY} = require('RelayDefaultHandleKey');
+const {DEFAULT_HANDLE_KEY} = require('./RelayDefaultHandleKey');
 
 /**
  * @internal

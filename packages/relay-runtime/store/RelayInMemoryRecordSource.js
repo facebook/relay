@@ -4,18 +4,17 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayInMemoryRecordSource
  * @flow
  * @format
  */
 
 'use strict';
 
-const RelayRecordState = require('RelayRecordState');
+const RelayRecordState = require('./RelayRecordState');
 
 import type {DataID} from '../util/RelayRuntimeTypes';
-import type {RecordState} from 'RelayRecordState';
-import type {MutableRecordSource} from 'RelayStoreTypes';
+import type {RecordState} from './RelayRecordState';
+import type {MutableRecordSource} from './RelayStoreTypes';
 import type {
   Record,
   RecordMap,

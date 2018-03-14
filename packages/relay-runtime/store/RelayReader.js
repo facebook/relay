@@ -4,16 +4,15 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayReader
  * @flow
  * @format
  */
 
 'use strict';
 
-const RelayConcreteNode = require('RelayConcreteNode');
-const RelayModernRecord = require('RelayModernRecord');
-const RelayStoreUtils = require('RelayStoreUtils');
+const RelayConcreteNode = require('../util/RelayConcreteNode');
+const RelayModernRecord = require('./RelayModernRecord');
+const RelayStoreUtils = require('./RelayStoreUtils');
 
 const invariant = require('invariant');
 
@@ -26,8 +25,8 @@ import type {
   ConcreteScalarField,
   ConcreteSelection,
   ConcreteSelectableNode,
-} from 'RelayConcreteNode';
-import type {RecordSource, Selector, Snapshot} from 'RelayStoreTypes';
+} from '../util/RelayConcreteNode';
+import type {RecordSource, Selector, Snapshot} from './RelayStoreTypes';
 import type {
   Record,
   SelectorData,

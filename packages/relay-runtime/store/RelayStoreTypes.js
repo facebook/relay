@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayStoreTypes
  * @flow
  * @format
  */
@@ -19,16 +18,16 @@ import type {
   ConcreteSelectableNode,
   RequestNode,
   ConcreteOperation,
-} from 'RelayConcreteNode';
-import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
+} from '../util/RelayConcreteNode';
+import type {GraphQLTaggedNode} from '../query/RelayModernGraphQLTag';
 import type {
   ExecutePayload,
   PayloadError,
   UploadableMap,
-} from 'RelayNetworkTypes';
-import type {PayloadData} from 'RelayNetworkTypes';
-import type RelayObservable from 'RelayObservable';
-import type {RecordState} from 'RelayRecordState';
+} from '../network/RelayNetworkTypes';
+import type {PayloadData} from '../network/RelayNetworkTypes';
+import type RelayObservable from '../network/RelayObservable';
+import type {RecordState} from './RelayRecordState';
 import type {
   CEnvironment,
   CFragmentMap,

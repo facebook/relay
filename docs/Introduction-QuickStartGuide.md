@@ -566,7 +566,13 @@ function commit(
 export default {commit};
 ```
 
-In the simplest case above, we just need to pass an `optimisticResponse` option, which should refer to an object having the same shape as the mutation response payload. Please note that the actual query and response payload may not have the exact same shape as your code, because sometimes Relay will add extra fields for you. For example, Relay will add an `id` field if it exists on the type for cache purpose. Relay will also add an `__typename` field if the type is an union or an interface. You can inspect the network request or response to see the exact shape.
+In the simplest case above, we just need to pass an `optimisticResponse` option, which should refer to an object having the same shape as the mutation response payload. Please note that the actual query and response payload may not have the exact same shape as the selection in your code, because sometimes Relay will add extra fields for you. For example:
+
+* Relay will add an `id` field if it exists on the type for caching purpose.
+
+* Relay will also add an `__typename` field if the type is an union or an interface.
+
+You can inspect the network request or response to see the exact shape.
 
 When we pass this option, Relay will know to immediately update our local data with the optimistic response, and then update it with the actual server response or roll it back if an error occurs.
 

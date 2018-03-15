@@ -26,7 +26,7 @@ const babelOptions = getBabelOptions({
   autoImport: true,
   moduleMap: {
     // TODO(T25740028) once we're fully on babylon 7, we can remove this hack.
-    babylon7: 'babylon',
+    'metro-babylon7': 'babylon',
     immutable: 'immutable',
     React: 'react',
     reactComponentExpect: 'react-dom/lib/reactComponentExpect',
@@ -63,7 +63,7 @@ module.exports = {
     testSchemaPath,
     path.join(
       path.dirname(require.resolve('babel-preset-fbjs')),
-      'package.json'
+      'package.json',
     ),
     path.join(__dirname, '..', 'getBabelOptions.js'),
   ]),

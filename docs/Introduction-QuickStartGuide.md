@@ -568,7 +568,7 @@ export default {commit};
 
 In the simplest case above, we just need to pass an `optimisticResponse` option, which should refer to an object having the same shape as the mutation response payload. When we pass this option, Relay will know to immediately update our local data with the optimistic response, and then update it with the actual server response or roll it back if an error occurs.
 
-Please note that the actual query and response payload may not have the exact same shape as the selection in your code, because sometimes Relay will select extra fields for you. For example:
+Please note that the actual query and response payload may not have the exact same shape as the selection in your code, because sometimes Relay will select extra fields for you, and you need to add these fields to your optimistic response. For example:
 
 * Relay will select an `id` field if it exists on the type for caching purpose.
 

@@ -31,8 +31,14 @@ function profileContainer(
   // This is necessary to support the react-lifecycle-compat poyfill.
   // This can be removed once react-relay requires React 16.3+.
   if (
+    /* $FlowFixMe(>=0.68.0 site=www,mobile) This comment suppresses an error
+     * found when Flow v0.68 was deployed. To see the error delete this comment
+     * and run Flow. */
     Container.prototype !== null &&
     typeof Container.prototype === 'object' &&
+    /* $FlowFixMe(>=0.68.0 site=www,mobile) This comment suppresses an error
+     * found when Flow v0.68 was deployed. To see the error delete this comment
+     * and run Flow. */
     typeof Container.getDerivedStateFromProps === 'function'
   ) {
     Container.prototype.constructor.getDerivedStateFromProps =

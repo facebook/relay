@@ -30,14 +30,15 @@ function recycleNodesInto<T>(prevData: T, nextData: T): T {
   const prevArray = Array.isArray(prevData) ? prevData : null;
   const nextArray = Array.isArray(nextData) ? nextData : null;
   if (prevArray && nextArray) {
+    const isFrozen = __DEV__ && Object.isFrozen(nextArray);
     canRecycle =
       nextArray.reduce((wasEqual, nextItem, ii) => {
         const prevValue = prevArray[ii];
         const nextValue = recycleNodesInto(prevValue, nextItem);
-        if (nextValue !== nextArray[ii]) {
+        if (nextValue !== nextArray[ii] && !isFrozen) {
           nextArray[ii] = nextValue;
         }
-        return wasEqual && nextArray[ii] === prevArray[ii];
+        return wasEqual && nextValue === prevArray[ii];
       }, true) && prevArray.length === nextArray.length;
   } else if (!prevArray && !nextArray) {
     // Assign local variables to preserve Flow type refinement.
@@ -45,14 +46,15 @@ function recycleNodesInto<T>(prevData: T, nextData: T): T {
     const nextObject = nextData;
     const prevKeys = Object.keys(prevObject);
     const nextKeys = Object.keys(nextObject);
+    const isFrozen = __DEV__ && Object.isFrozen(nextObject);
     canRecycle =
       nextKeys.reduce((wasEqual, key) => {
         const prevValue = prevObject[key];
         const nextValue = recycleNodesInto(prevValue, nextObject[key]);
-        if (nextValue !== nextObject[key]) {
+        if (nextValue !== nextObject[key] && !isFrozen) {
           nextObject[key] = nextValue;
         }
-        return wasEqual && nextObject[key] === prevObject[key];
+        return wasEqual && nextValue === prevObject[key];
       }, true) && prevKeys.length === nextKeys.length;
   }
   return canRecycle ? prevData : nextData;

@@ -61,9 +61,11 @@ module.exports = {
   getCacheKey: createCacheKeyFunction([
     __filename,
     testSchemaPath,
+    // We cannot have trailing commas in this file for node < 8
+    // prettier-ignore
     path.join(
       path.dirname(require.resolve('babel-preset-fbjs')),
-      'package.json',
+      'package.json'
     ),
     path.join(__dirname, '..', 'getBabelOptions.js'),
   ]),

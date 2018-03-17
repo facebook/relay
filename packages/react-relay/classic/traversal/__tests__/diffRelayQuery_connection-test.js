@@ -1151,4 +1151,74 @@ describe('diffRelayQuery', () => {
     expect(trackedQueries[1][1]).toBe('client:1');
     expect(trackedQueries[1][0]).toEqualQueryRoot(secondQuery);
   });
+
+  it('tracks fragments for empty connections', () => {
+    const records = {};
+    const store = new RelayRecordStore({records}, {rootCallMap});
+    const writer = new RelayRecordWriter(records, rootCallMap, false);
+    const tracker = new RelayQueryTracker();
+
+    // Create the first query with a selection on a connection.
+    const firstQuery = getNode(
+      Relay.QL`
+      query {
+        viewer {
+          newsFeed(first: 3) {
+            edges {
+              node {
+                id
+                actor {
+                  name
+                }
+              }
+            }
+          }
+        }
+      }
+    `,
+    );
+
+    const firstPayload = {
+      viewer: {
+        newsFeed: {
+          edges: [],
+        },
+      },
+    };
+    writePayload(store, writer, firstQuery, firstPayload, tracker);
+    let trackedQueries = tracker.trackNodeForID.mock.calls;
+    expect(trackedQueries.length).toBe(1);
+    expect(trackedQueries[0][1]).toBe('client:1');
+    expect(trackedQueries[0][0]).toEqualQueryRoot(firstQuery);
+
+    // Create a second query that requests a different selection on the empty
+    // connection.
+    const secondQuery = getNode(
+      Relay.QL`
+      query {
+        viewer {
+          newsFeed(first: 3) {
+            edges {
+              node {
+                message {
+                  text
+                }
+              }
+            }
+          }
+        }
+      }
+    `,
+    );
+
+    // Everything can be diffed out, connection is empty.
+    const diffQueries = diffRelayQuery(secondQuery, store, tracker);
+    expect(diffQueries.length).toBe(0);
+
+    // Ensure the new `message { text }` field is tracked.
+    trackedQueries = tracker.trackNodeForID.mock.calls;
+    expect(trackedQueries.length).toBe(2);
+    expect(trackedQueries[1][1]).toBe('client:1');
+    expect(trackedQueries[1][0]).toEqualQueryRoot(secondQuery);
+  });
 });

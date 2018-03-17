@@ -628,6 +628,11 @@ class RelayDiffQueryBuilder {
     // to be tracked as-is.
     if (hasSplitQueries) {
       trackedNode = field;
+    } else if (filteredEdges.length === 0) {
+      // if the connection does not have any edges, then we must track the
+      // entire field since there's no tracking details generated from
+      // enumerating the edges.
+      trackedNode = field;
     }
 
     return {

@@ -55,7 +55,7 @@ type Options = {|
   +existingFragmentNames: Set<string>,
   +inputFieldWhiteList: $ReadOnlyArray<string>,
   +relayRuntimeModule: string,
-  +strictFlowTypes: boolean,
+  +noFutureProofEnums: boolean,
 |};
 
 export type State = {|
@@ -236,7 +236,7 @@ function createVisitor(options: Options) {
     usedEnums: {},
     usedFragments: new Set(),
     useHaste: options.useHaste,
-    strictFlowTypes: options.strictFlowTypes,
+    noFutureProofEnums: options.noFutureProofEnums,
   };
 
   return {
@@ -428,7 +428,7 @@ function getFragmentImports(state: State) {
 function getEnumDefinitions({
   enumsHasteModule,
   usedEnums,
-  strictFlowTypes,
+  noFutureProofEnums,
 }: State) {
   const enumNames = Object.keys(usedEnums).sort();
   if (enumNames.length === 0) {
@@ -440,7 +440,7 @@ function getEnumDefinitions({
   return enumNames.map(name => {
     const values = usedEnums[name].getValues().map(({value}) => value);
     values.sort();
-    if (!strictFlowTypes) {
+    if (!noFutureProofEnums) {
       values.push('%future added value');
     }
     return exportType(

@@ -94,7 +94,7 @@ async function run(options: {
   watch?: ?boolean,
   validate: boolean,
   quiet: boolean,
-  strictFlowTypes: boolean,
+  noFutureProofEnums: boolean,
 }) {
   const schemaPath = path.resolve(process.cwd(), options.schema);
   if (!fs.existsSync(schemaPath)) {
@@ -164,7 +164,7 @@ Ensure that one such file exists in ${srcDir} or its parents.
   };
   const writerConfigs = {
     js: {
-      getWriter: getRelayFileWriter(srcDir, options.strictFlowTypes),
+      getWriter: getRelayFileWriter(srcDir, options.noFutureProofEnums),
       isGeneratedFile: (filePath: string) =>
         filePath.endsWith('.js') && filePath.includes('__generated__'),
       parser: 'js',
@@ -195,7 +195,7 @@ Ensure that one such file exists in ${srcDir} or its parents.
   }
 }
 
-function getRelayFileWriter(baseDir: string, strictFlowTypes: boolean) {
+function getRelayFileWriter(baseDir: string, noFutureProofEnums: boolean) {
   return ({
     onlyValidate,
     schema,
@@ -219,7 +219,7 @@ function getRelayFileWriter(baseDir: string, strictFlowTypes: boolean) {
         inputFieldWhiteListForFlow: [],
         schemaExtensions,
         useHaste: false,
-        strictFlowTypes,
+        noFutureProofEnums,
       },
       onlyValidate,
       schema,
@@ -336,10 +336,12 @@ const argv = yargs
       type: 'boolean',
       default: false,
     },
-    strictFlowTypes: {
+    noFutureProofEnums: {
       describe:
-        'Generate flow types that more closely match the schema. This should be avoided ' +
-        'if the GraphQL server can change enum values without updating its schema',
+        'This option controls whether or not a catch-all entry is added to enum type definitions ' +
+        'for values that may be added in the future. Enabling this means you will have to update ' +
+        'your application whenever the GraphQL server schema adds new enum values to prevent it ' +
+        'from breaking.',
       default: false,
     },
   })

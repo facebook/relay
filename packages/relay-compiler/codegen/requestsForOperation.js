@@ -67,6 +67,9 @@ function requestsForOperation(
         fromName: operationToRequestName.get(argDep.fromName),
       })),
       root: codeGenRoot,
+      /* $FlowFixMe(>=0.68.0 site=react_native_fb,react_native_oss) This comment
+       * suppresses an error found when Flow v0.68 was deployed. To see the
+       * error delete this comment and run Flow. */
       metadata: dependent.metadata || undefined,
     });
     // Collect any requests that were dependent on this one as well.

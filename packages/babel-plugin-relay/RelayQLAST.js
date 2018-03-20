@@ -107,6 +107,9 @@ class RelayQLNode<T: RelayQLNodeType> {
   }
 
   getSelections(): Array<RelayQLSelection> {
+    /* $FlowFixMe(>=0.68.0 site=react_native_fb,react_native_oss) This comment
+     * suppresses an error found when Flow v0.68 was deployed. To see the error
+     * delete this comment and run Flow. */
     if (!this.ast.selectionSet) {
       return [];
     }
@@ -151,6 +154,9 @@ class RelayQLNode<T: RelayQLNodeType> {
 class RelayQLDefinition<T: RelayQLNodeType> extends RelayQLNode<T> {
   getName(): ?string {
     // TODO: this.context.definitionName;
+    /* $FlowFixMe(>=0.68.0 site=react_native_fb,react_native_oss) This comment
+     * suppresses an error found when Flow v0.68 was deployed. To see the error
+     * delete this comment and run Flow. */
     return this.ast.name
       ? // $FlowFixMe
         this.ast.name.value

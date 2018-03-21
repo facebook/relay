@@ -27,7 +27,12 @@ class Help extends React.Component {
       },
       {
         content:
-          'Many developers and users idle on Discord in [#relay](https://discord.gg/0ZcbPKXt5bX40xsQ) on [Reactiflux](https://www.reactiflux.com/).',
+          'Many developers and users idle on Slack in the [#relay](https://graphql.slack.com/messages/relay) channel of [the GraphQL Slack community](https://graphql-slack.herokuapp.com/).',
+        title: 'Slack',
+      },
+      {
+        content:
+          'Many users idle on Discord in [#relay](https://discord.gg/0ZcbPKXt5bX40xsQ) on [Reactiflux](https://www.reactiflux.com/).',
         title: 'Discord',
       },
       {

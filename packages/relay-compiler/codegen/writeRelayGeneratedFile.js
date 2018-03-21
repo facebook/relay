@@ -86,6 +86,7 @@ async function writeRelayGeneratedFile(
       const hasher = crypto.createHash('md5');
       hasher.update('cache-breaker-6');
       hasher.update(JSON.stringify(generatedNode));
+      hasher.update(sourceHash);
       if (flowText) {
         hasher.update(flowText);
       }

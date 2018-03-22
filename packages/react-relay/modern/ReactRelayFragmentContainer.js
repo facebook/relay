@@ -285,7 +285,13 @@ function createContainerWithFragments<
     _legacyRef = __DEV__
       ? component => {
           this.refs = {
-            get component() {
+            __INTERNAL__component: component,
+          };
+          // Getter syntax is causing problems on www so falling back to
+          // Object.defineProperty.
+          // $FlowFixMe
+          Object.defineProperty(this.refs, 'component', {
+            get() {
               warning(
                 false,
                 'RelayContainer: Do not use `container.refs.component` for ' +
@@ -295,8 +301,7 @@ function createContainerWithFragments<
               );
               return component;
             },
-            __INTERNAL__component: component,
-          };
+          });
         }
       : 'component';
   }

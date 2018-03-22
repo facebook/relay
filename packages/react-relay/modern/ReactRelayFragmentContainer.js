@@ -17,6 +17,7 @@ const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
 const isScalarAndEqual = require('isScalarAndEqual');
 const polyfill = require('react-lifecycles-compat');
+const warning = require('warning');
 
 const {
   getComponentName,
@@ -267,7 +268,7 @@ function createContainerWithFragments<
             {...this.props}
             {...this.state.data}
             // TODO: Remove the string ref fallback.
-            ref={this.props.componentRef || 'component'}
+            ref={this.props.componentRef || this._legacyRef}
             relay={this.state.relayProp}
           />
         );
@@ -280,6 +281,24 @@ function createContainerWithFragments<
         });
       }
     }
+
+    _legacyRef = __DEV__
+      ? component => {
+          this.refs = {
+            get component() {
+              warning(
+                false,
+                'RelayContainer: Do not use `container.refs.component` for ' +
+                  'RelayCompat or RelayModern containers. Instead pass ' +
+                  '`containerRef={ref}` to `%s`.',
+                componentName,
+              );
+              return component;
+            },
+            __INTERNAL__component: component,
+          };
+        }
+      : 'component';
   }
   profileContainer(Container, 'ReactRelayFragmentContainer');
 

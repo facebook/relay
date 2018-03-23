@@ -568,6 +568,14 @@ export default {commit};
 
 In the simplest case above, we just need to pass an `optimisticResponse` option, which should refer to an object having the same shape as the mutation response payload. When we pass this option, Relay will know to immediately update our local data with the optimistic response, and then update it with the actual server response or roll it back if an error occurs.
 
+Please note that the actual query and response payload may not have the exact same shape as the selection in your code, because sometimes Relay will add extra fields for you during the compilation step, and you need to add these fields to your optimistic response. For example:
+
+* Relay will add an `id` field if it exists on the type for caching purpose.
+
+* Relay will add a `__typename` field if the type is an union or an interface.
+
+You can inspect the network request or response to see the exact shape.
+
 ### Updating local data from mutation responses
 
 By default, Relay will know to update the fields on the records referenced by the mutation payload, (i.e. the `todo` in our example). However, this is only the simplest case. In some cases updating the local data isn't as simple as just updating the fields in a record.

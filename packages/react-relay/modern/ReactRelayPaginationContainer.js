@@ -181,7 +181,6 @@ export type ConnectionData = {
  *     },
  *     getVariables(props, {count, cursor}, fragmentVariables) {
  *       return {
- *         ...RelayFBCompatQueryConstants.get(),
  *         id: props.user.id,
  *         afterCursor: cursor,
  *         count,

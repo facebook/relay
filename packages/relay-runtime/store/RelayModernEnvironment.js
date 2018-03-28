@@ -193,6 +193,10 @@ class RelayModernEnvironment implements Environment {
     let optimisticResponse;
     return this._network
       .execute(operation.node, operation.variables, cacheConfig || {})
+      .map(executePayload => {
+        normalizePayload(executePayload);
+        return executePayload;
+      })
       .do({
         next: executePayload => {
           const responsePayload = normalizePayload(executePayload);

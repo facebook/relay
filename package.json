@@ -16,6 +16,9 @@
     "test-dependencies": "node ./scripts/testDependencies.js",
     "typecheck": "flow check"
   },
+  "resolutions": {
+    "fbjs": "^0.8.16"
+  },
   "dependencies": {
     "babel-cli": "6.24.1",
     "babel-core": "6.25.0",
@@ -62,10 +65,10 @@
     "object-assign": "4.1.1",
     "prettier": "1.9.1",
     "prop-types": "^15.5.8",
-    "react": "16.0.0-beta.5",
-    "react-dom": "16.0.0-beta.5",
+    "react": "^16.3.0",
+    "react-dom": "^16.3.0",
     "react-lifecycles-compat": "^1.0.2",
-    "react-test-renderer": "16.0.0-beta.5",
+    "react-test-renderer": "^16.3.0",
     "run-sequence": "2.2.1",
     "signedsource": "^1.0.0",
     "webpack": "1.13.1",

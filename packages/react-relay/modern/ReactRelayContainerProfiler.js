@@ -22,7 +22,7 @@ function profileContainer(
    * https://fburl.com/eq7bs81w */
   RelayProfiler.instrumentMethods(Container.prototype, {
     constructor: `${containerName}.prototype.constructor`,
-    componentWillReceiveProps: `${containerName}.prototype.componentWillReceiveProps`,
+    UNSAFE_componentWillReceiveProps: `${containerName}.prototype.UNSAFE_componentWillReceiveProps`,
     componentWillUnmount: `${containerName}.prototype.componentWillUnmount`,
     shouldComponentUpdate: `${containerName}.prototype.shouldComponentUpdate`,
   });

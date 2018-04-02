@@ -457,7 +457,7 @@ function createContainerComponent(
       );
     }
 
-    componentWillMount(): void {
+    UNSAFE_componentWillMount(): void {
       if (this.context.route.useMockData) {
         return;
       }
@@ -466,7 +466,7 @@ function createContainerComponent(
       );
     }
 
-    componentWillReceiveProps(
+    UNSAFE_componentWillReceiveProps(
       nextProps: Object,
       maybeNextContext?: RelayContainerContext,
     ): void {
@@ -911,9 +911,10 @@ function resetPropOverridesForVariables(
 
 function initializeProfiler(RelayContainer: $FlowFixMe): void {
   RelayProfiler.instrumentMethods(RelayContainer.prototype, {
-    componentWillMount: 'RelayContainer.prototype.componentWillMount',
-    componentWillReceiveProps:
-      'RelayContainer.prototype.componentWillReceiveProps',
+    UNSAFE_componentWillMount:
+      'RelayContainer.prototype.UNSAFE_componentWillMount',
+    UNSAFE_componentWillReceiveProps:
+      'RelayContainer.prototype.UNSAFE_componentWillReceiveProps',
     shouldComponentUpdate: 'RelayContainer.prototype.shouldComponentUpdate',
   });
 }

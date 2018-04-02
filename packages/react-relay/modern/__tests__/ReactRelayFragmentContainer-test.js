@@ -38,7 +38,7 @@ describe('ReactRelayFragmentContainer', () => {
       this.relay = {environment, variables};
       this.state = {props: null};
     }
-    componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps) {
       // eslint-disable-next-line no-shadow
       const {environment, variables} = nextProps;
       if (

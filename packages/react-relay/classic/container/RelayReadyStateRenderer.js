@@ -96,7 +96,7 @@ class RelayReadyStateRenderer extends React.Component<
     };
   }
 
-  componentWillReceiveProps(nextProps: Props): void {
+  UNSAFE_componentWillReceiveProps(nextProps: Props): void {
     if (
       this.props.environment !== nextProps.environment ||
       this.props.queryConfig !== nextProps.queryConfig

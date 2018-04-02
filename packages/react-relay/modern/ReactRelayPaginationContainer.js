@@ -384,7 +384,7 @@ function createContainerWithFragments<
      * for updates. Props may be the same in which case previous data and
      * subscriptions can be reused.
      */
-    componentWillReceiveProps(nextProps, nextContext) {
+    UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
       const context = nullthrows(nextContext);
       const relay = assertRelayContext(context.relay);
       const {

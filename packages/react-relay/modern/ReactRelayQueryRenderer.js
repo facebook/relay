@@ -16,7 +16,6 @@ const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
 const areEqual = require('areEqual');
 const deepFreeze = require('deepFreeze');
-const polyfill = require('react-lifecycles-compat');
 
 import type {RelayEnvironmentInterface as ClassicEnvironment} from '../classic/store/RelayEnvironment';
 import type {
@@ -308,8 +307,5 @@ function fetchQueryAndComputeStateFromProps(
     };
   }
 }
-
-// Make static getDerivedStateFromProps work with older React versions:
-polyfill(ReactRelayQueryRenderer);
 
 module.exports = ReactRelayQueryRenderer;

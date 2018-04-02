@@ -67,7 +67,6 @@
     "prop-types": "^15.5.8",
     "react": "^16.3.0",
     "react-dom": "^16.3.0",
-    "react-lifecycles-compat": "^1.0.2",
     "react-test-renderer": "^16.3.0",
     "run-sequence": "2.2.1",
     "signedsource": "^1.0.0",

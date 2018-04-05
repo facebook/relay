@@ -76,7 +76,8 @@ function transformNonNullableScalarType(
 }
 
 function transformGraphQLScalarType(type: GraphQLScalarType, state: State) {
-  switch (state.customScalars[type.name] || type.name) {
+  const customType = state.customScalars[type.name];
+  switch (customType || type.name) {
     case 'ID':
     case 'String':
     case 'Url':
@@ -87,7 +88,9 @@ function transformGraphQLScalarType(type: GraphQLScalarType, state: State) {
     case 'Boolean':
       return t.booleanTypeAnnotation();
     default:
-      return t.anyTypeAnnotation();
+      return customType == null
+        ? t.anyTypeAnnotation()
+        : t.genericTypeAnnotation(t.identifier(customType));
   }
 }
 

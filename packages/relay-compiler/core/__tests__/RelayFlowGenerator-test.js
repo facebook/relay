@@ -23,6 +23,12 @@ const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 function generate(text, options) {
   const schema = transformASTSchema(RelayTestSchema, [
     RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
+    `
+      scalar Color
+      extend type User {
+        color: Color
+      }
+    `,
   ]);
   const {definitions} = parseGraphQLText(schema, text);
   return new GraphQLCompilerContext(RelayTestSchema, schema)
@@ -65,5 +71,45 @@ describe('RelayFlowGenerator', () => {
     expect(types).toContain(
       "export type PersonalityTraits = ('CHEERFUL' | 'DERISIVE' | 'HELPFUL' | 'SNARKY');",
     );
+  });
+
+  describe('custom scalars', () => {
+    const text = `
+      fragment ScalarField on User {
+        name
+        color
+      }
+    `;
+    const generateWithMapping = mapping =>
+      generate(text, {
+        customScalars: mapping,
+        relayRuntimeModule: 'relay-runtime',
+      });
+
+    it('maps unspecified types to `any`', () => {
+      expect(
+        generateWithMapping({
+          // empty mapping
+        }),
+      ).toContain('+color: ?any,');
+    });
+
+    it('maps GraphQL types to their Flow representation', () => {
+      expect(
+        generateWithMapping({
+          Color: 'String',
+        }),
+      ).toContain('+color: ?string,');
+    });
+
+    it('maps other types to global types', () => {
+      const types = generateWithMapping({
+        // customScalars mapping can override build in types
+        String: 'LocalizedString',
+        Color: 'Color',
+      });
+      expect(types).toContain('+color: ?Color,');
+      expect(types).toContain('+name: ?LocalizedString,');
+    });
   });
 });

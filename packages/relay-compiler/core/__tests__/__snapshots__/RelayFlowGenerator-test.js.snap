@@ -13,14 +13,14 @@ fragment NestedCondition on Node {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-import type { FragmentReference } from 'relay-runtime';
+import type { FragmentReference } from "relay-runtime";
 declare export opaque type ConditionField$ref: FragmentReference;
 export type ConditionField = {|
   +id?: string,
   +$refType: ConditionField$ref,
 |};
 
-import type { FragmentReference } from 'relay-runtime';
+import type { FragmentReference } from "relay-runtime";
 declare export opaque type NestedCondition$ref: FragmentReference;
 export type NestedCondition = {|
   +id?: string,
@@ -64,36 +64,36 @@ type OtherFragment$ref = any;
 type PictureFragment$ref = any;
 type UserFrag1$ref = any;
 type UserFrag2$ref = any;
-import type { FragmentReference } from 'relay-runtime';
+import type { FragmentReference } from "relay-runtime";
 declare export opaque type FragmentSpread$ref: FragmentReference;
 export type FragmentSpread = {|
   +id: string,
   +justFrag: ?{|
-    +$fragmentRefs: PictureFragment$ref,
+    +$fragmentRefs: PictureFragment$ref
   |},
   +fragAndField: ?{|
     +uri: ?string,
     +$fragmentRefs: PictureFragment$ref,
   |},
-  +$fragmentRefs: (OtherFragment$ref & UserFrag1$ref & UserFrag2$ref),
+  +$fragmentRefs: OtherFragment$ref & UserFrag1$ref & UserFrag2$ref,
   +$refType: FragmentSpread$ref,
 |};
 
 type PageFragment$ref = any;
-import type { FragmentReference } from 'relay-runtime';
+import type { FragmentReference } from "relay-runtime";
 declare export opaque type ConcreateTypes$ref: FragmentReference;
 export type ConcreateTypes = {|
   +actor: ?({|
-    +__typename: 'Page',
+    +__typename: "Page",
     +id: string,
     +$fragmentRefs: PageFragment$ref,
   |} | {|
-    +__typename: 'User',
+    +__typename: "User",
     +name: ?string,
   |} | {|
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
-    +__typename: '%other',
+    +__typename: "%other"
   |}),
   +$refType: ConcreateTypes$ref,
 |};
@@ -163,32 +163,32 @@ fragment InlineFragmentKitchenSink on Story {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-import type { FragmentReference } from 'relay-runtime';
+import type { FragmentReference } from "relay-runtime";
 declare export opaque type InlineFragment$ref: FragmentReference;
 export type InlineFragment = {|
   +id: string,
   +name?: ?string,
   +message?: ?{|
-    +text: ?string,
+    +text: ?string
   |},
   +$refType: InlineFragment$ref,
 |};
 
-import type { FragmentReference } from 'relay-runtime';
+import type { FragmentReference } from "relay-runtime";
 declare export opaque type InlineFragmentWithOverlappingFields$ref: FragmentReference;
 export type InlineFragmentWithOverlappingFields = {|
   +hometown?: ?{|
     +id: string,
     +name: ?string,
     +message?: ?{|
-      +text: ?string,
+      +text: ?string
     |},
   |},
   +name?: ?string,
   +$refType: InlineFragmentWithOverlappingFields$ref,
 |};
 
-import type { FragmentReference } from 'relay-runtime';
+import type { FragmentReference } from "relay-runtime";
 declare export opaque type InlineFragmentConditionalID$ref: FragmentReference;
 export type InlineFragmentConditionalID = {|
   +id?: string,
@@ -197,7 +197,7 @@ export type InlineFragmentConditionalID = {|
 |};
 
 type SomeFragment$ref = any;
-import type { FragmentReference } from 'relay-runtime';
+import type { FragmentReference } from "relay-runtime";
 declare export opaque type InlineFragmentKitchenSink$ref: FragmentReference;
 export type InlineFragmentKitchenSink = {|
   +actor: ?{|
@@ -245,7 +245,7 @@ query UnionTypeTest {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-import type { FragmentReference } from 'relay-runtime';
+import type { FragmentReference } from "relay-runtime";
 declare export opaque type LinkedField$ref: FragmentReference;
 export type LinkedField = {|
   +profilePicture: ?{|
@@ -256,25 +256,25 @@ export type LinkedField = {|
   +hometown: ?{|
     +id: string,
     +profilePicture: ?{|
-      +uri: ?string,
+      +uri: ?string
     |},
   |},
   +actor: ?{|
-    +id: string,
+    +id: string
   |},
   +$refType: LinkedField$ref,
 |};
 
-export type UnionTypeTestVariables = {| |};
+export type UnionTypeTestVariables = {||};
 export type UnionTypeTestResponse = {|
   +neverNode: ?({|
-    +__typename: 'FakeNode',
+    +__typename: "FakeNode",
     +id: string,
   |} | {|
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
-    +__typename: '%other',
-  |}),
+    +__typename: "%other"
+  |})
 |};
 `;
 
@@ -303,10 +303,10 @@ export type CommentCreateInput = {
   feedback?: ?CommentfeedbackFeedback,
 };
 export type CommentfeedbackFeedback = {
-  comment?: ?FeedbackcommentComment,
+  comment?: ?FeedbackcommentComment
 };
 export type FeedbackcommentComment = {
-  feedback?: ?CommentfeedbackFeedback,
+  feedback?: ?CommentfeedbackFeedback
 };
 export type CommentCreateMutationVariables = {|
   input: CommentCreateInput,
@@ -319,10 +319,10 @@ export type CommentCreateMutationResponse = {|
       +id: string,
       +name: ?string,
       +friends: ?{|
-        +count: ?number,
+        +count: ?number
       |},
-    |},
-  |},
+    |}
+  |}
 |};
 `;
 
@@ -342,14 +342,14 @@ export type UpdateAllSeenStateInput = {
   storyIds?: ?$ReadOnlyArray<?string>,
 };
 export type InputHasArrayVariables = {|
-  input?: ?UpdateAllSeenStateInput,
+  input?: ?UpdateAllSeenStateInput
 |};
 export type InputHasArrayResponse = {|
   +viewerNotificationsUpdateAllSeenState: ?{|
     +stories: ?$ReadOnlyArray<?{|
-      +actorCount: ?number,
-    |}>,
-  |},
+      +actorCount: ?number
+    |}>
+  |}
 |};
 `;
 
@@ -360,7 +360,7 @@ fragment PluralFragment on Node @relay(plural: true) {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-import type { FragmentReference } from 'relay-runtime';
+import type { FragmentReference } from "relay-runtime";
 declare export opaque type PluralFragment$ref: FragmentReference;
 export type PluralFragment = $ReadOnlyArray<{|
   +id: string,
@@ -378,7 +378,7 @@ fragment FragmentSpread on Node {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-import type { FragmentReference } from 'relay-runtime';
+import type { FragmentReference } from "relay-runtime";
 declare export opaque type FragmentSpread$ref: FragmentReference;
 export type FragmentSpread = {|
   +id: string,
@@ -417,15 +417,15 @@ subscription TestSubscription($input: FeedbackLikeInput) {
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 export type ExampleQueryVariables = {|
-  id: string,
+  id: string
 |};
 export type ExampleQueryResponse = {|
   +node: ?{|
-    +id: string,
-  |},
+    +id: string
+  |}
 |};
 
-import type { FragmentReference } from 'relay-runtime';
+import type { FragmentReference } from "relay-runtime";
 declare export opaque type ExampleFragment$ref: FragmentReference;
 export type ExampleFragment = {|
   +id: string,
@@ -438,20 +438,20 @@ export type CommentCreateInput = {
   feedback?: ?CommentfeedbackFeedback,
 };
 export type CommentfeedbackFeedback = {
-  comment?: ?FeedbackcommentComment,
+  comment?: ?FeedbackcommentComment
 };
 export type FeedbackcommentComment = {
-  feedback?: ?CommentfeedbackFeedback,
+  feedback?: ?CommentfeedbackFeedback
 };
 export type TestMutationVariables = {|
-  input: CommentCreateInput,
+  input: CommentCreateInput
 |};
 export type TestMutationResponse = {|
   +commentCreate: ?{|
     +comment: ?{|
-      +id: string,
-    |},
-  |},
+      +id: string
+    |}
+  |}
 |};
 
 export type FeedbackLikeInput = {
@@ -459,14 +459,14 @@ export type FeedbackLikeInput = {
   feedbackId?: ?string,
 };
 export type TestSubscriptionVariables = {|
-  input?: ?FeedbackLikeInput,
+  input?: ?FeedbackLikeInput
 |};
 export type TestSubscriptionResponse = {|
   +feedbackLikeSubscribe: ?{|
     +feedback: ?{|
-      +id: string,
-    |},
-  |},
+      +id: string
+    |}
+  |}
 |};
 `;
 
@@ -487,8 +487,8 @@ fragment ScalarField on User {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-export type PersonalityTraits = ('CHEERFUL' | 'DERISIVE' | 'HELPFUL' | 'SNARKY' | '%future added value');
-import type { FragmentReference } from 'relay-runtime';
+export type PersonalityTraits = "CHEERFUL" | "DERISIVE" | "HELPFUL" | "SNARKY" | "%future added value";
+import type { FragmentReference } from "relay-runtime";
 declare export opaque type ScalarField$ref: FragmentReference;
 export type ScalarField = {|
   +id: string,
@@ -496,7 +496,7 @@ export type ScalarField = {|
   +websites: ?$ReadOnlyArray<?string>,
   +traits: ?$ReadOnlyArray<?PersonalityTraits>,
   +aliasedLinkedField: ?{|
-    +aliasedField: ?number,
+    +aliasedField: ?number
   |},
   +screennames: ?$ReadOnlyArray<?{|
     +name: ?string,
@@ -570,41 +570,41 @@ fragment TypenameWithCommonSelections on Actor {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-import type { FragmentReference } from 'relay-runtime';
+import type { FragmentReference } from "relay-runtime";
 declare export opaque type TypenameInside$ref: FragmentReference;
-export type TypenameInside = ({|
-  +__typename: 'User',
+export type TypenameInside = {|
+  +__typename: "User",
   +firstName: ?string,
   +$refType: TypenameInside$ref,
 |} | {|
-  +__typename: 'Page',
+  +__typename: "Page",
   +username: ?string,
   +$refType: TypenameInside$ref,
 |} | {|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  +__typename: '%other',
+  +__typename: "%other",
   +$refType: TypenameInside$ref,
-|});
+|};
 
-import type { FragmentReference } from 'relay-runtime';
+import type { FragmentReference } from "relay-runtime";
 declare export opaque type TypenameOutside$ref: FragmentReference;
-export type TypenameOutside = ({|
-  +__typename: 'User',
+export type TypenameOutside = {|
+  +__typename: "User",
   +firstName: ?string,
   +$refType: TypenameOutside$ref,
 |} | {|
-  +__typename: 'Page',
+  +__typename: "Page",
   +username: ?string,
   +$refType: TypenameOutside$ref,
 |} | {|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  +__typename: '%other',
+  +__typename: "%other",
   +$refType: TypenameOutside$ref,
-|});
+|};
 
-import type { FragmentReference } from 'relay-runtime';
+import type { FragmentReference } from "relay-runtime";
 declare export opaque type TypenameOutsideWithAbstractType$ref: FragmentReference;
 export type TypenameOutsideWithAbstractType = {|
   +__typename: string,
@@ -618,15 +618,15 @@ export type TypenameOutsideWithAbstractType = {|
   +$refType: TypenameOutsideWithAbstractType$ref,
 |};
 
-import type { FragmentReference } from 'relay-runtime';
+import type { FragmentReference } from "relay-runtime";
 declare export opaque type TypenameWithoutSpreads$ref: FragmentReference;
 export type TypenameWithoutSpreads = {|
   +firstName: ?string,
-  +__typename: 'User',
+  +__typename: "User",
   +$refType: TypenameWithoutSpreads$ref,
 |};
 
-import type { FragmentReference } from 'relay-runtime';
+import type { FragmentReference } from "relay-runtime";
 declare export opaque type TypenameWithoutSpreadsAbstractType$ref: FragmentReference;
 export type TypenameWithoutSpreadsAbstractType = {|
   +__typename: string,
@@ -634,7 +634,7 @@ export type TypenameWithoutSpreadsAbstractType = {|
   +$refType: TypenameWithoutSpreadsAbstractType$ref,
 |};
 
-import type { FragmentReference } from 'relay-runtime';
+import type { FragmentReference } from "relay-runtime";
 declare export opaque type TypenameWithCommonSelections$ref: FragmentReference;
 export type TypenameWithCommonSelections = {|
   +__typename: string,
@@ -675,8 +675,8 @@ fragment AnotherRecursiveFragment on Image {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-import type { PhotoFragment$ref } from 'PhotoFragment.graphql';
-import type { FragmentReference } from 'relay-runtime';
+import type { PhotoFragment$ref } from "PhotoFragment.graphql";
+import type { FragmentReference } from "relay-runtime";
 declare export opaque type UserProfile$ref: FragmentReference;
 export type UserProfile = {|
   +profilePicture: ?{|
@@ -688,7 +688,7 @@ export type UserProfile = {|
   +$refType: UserProfile$ref,
 |};
 
-import type { FragmentReference } from 'relay-runtime';
+import type { FragmentReference } from "relay-runtime";
 declare export opaque type PhotoFragment$ref: FragmentReference;
 export type PhotoFragment = {|
   +uri: ?string,
@@ -696,7 +696,7 @@ export type PhotoFragment = {|
   +$refType: PhotoFragment$ref,
 |};
 
-import type { FragmentReference } from 'relay-runtime';
+import type { FragmentReference } from "relay-runtime";
 declare export opaque type RecursiveFragment$ref: FragmentReference;
 export type RecursiveFragment = {|
   +uri: ?string,
@@ -704,7 +704,7 @@ export type RecursiveFragment = {|
   +$refType: RecursiveFragment$ref,
 |};
 
-import type { FragmentReference } from 'relay-runtime';
+import type { FragmentReference } from "relay-runtime";
 declare export opaque type AnotherRecursiveFragment$ref: FragmentReference;
 export type AnotherRecursiveFragment = {|
   +uri: ?string,

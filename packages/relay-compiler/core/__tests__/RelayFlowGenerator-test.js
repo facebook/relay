@@ -69,7 +69,7 @@ describe('RelayFlowGenerator', () => {
     });
     // Without the option, PersonalityTraits would be `('CHEERFUL' | ... | '%future added value');`
     expect(types).toContain(
-      "export type PersonalityTraits = ('CHEERFUL' | 'DERISIVE' | 'HELPFUL' | 'SNARKY');",
+      'export type PersonalityTraits = "CHEERFUL" | "DERISIVE" | "HELPFUL" | "SNARKY";',
     );
   });
 

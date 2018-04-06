@@ -20,6 +20,8 @@
     "fbjs": "^0.8.16"
   },
   "dependencies": {
+    "@babel/generator": "^7.0.0-beta",
+    "@babel/types": "^7.0.0-beta",
     "babel-cli": "6.24.1",
     "babel-core": "6.25.0",
     "babel-eslint": "7.2.3",

@@ -11,7 +11,7 @@
 
 'use strict';
 
-const t = require('babel-types');
+const t = require('@babel/types');
 
 const {readOnlyArrayOfType} = require('RelayFlowBabelFactories');
 const {
@@ -117,7 +117,7 @@ function transformNonNullableInputType(type: GraphQLInputType, state: State) {
   } else if (type instanceof GraphQLInputObjectType) {
     const typeIdentifier = getInputObjectTypeIdentifier(type);
     if (state.generatedInputObjectTypes[typeIdentifier]) {
-      return t.identifier(typeIdentifier);
+      return t.genericTypeAnnotation(t.identifier(typeIdentifier));
     }
     state.generatedInputObjectTypes[typeIdentifier] = 'pending';
     const fields = type.getFields();
@@ -137,7 +137,7 @@ function transformNonNullableInputType(type: GraphQLInputType, state: State) {
     state.generatedInputObjectTypes[typeIdentifier] = t.objectTypeAnnotation(
       props,
     );
-    return t.identifier(typeIdentifier);
+    return t.genericTypeAnnotation(t.identifier(typeIdentifier));
   } else {
     throw new Error(`Could not convert from GraphQL type ${type.toString()}`);
   }

@@ -12,7 +12,7 @@
 'use strict';
 
 const invariant = require('invariant');
-const t = require('babel-types');
+const t = require('@babel/types');
 
 type BabelAST = mixed;
 
@@ -91,7 +91,7 @@ function readOnlyArrayOfType(thing: BabelAST) {
  */
 function readOnlyObjectTypeProperty(key: string, value: BabelAST) {
   const prop = t.objectTypeProperty(t.identifier(key), value);
-  prop.variance = 'plus';
+  prop.variance = t.variance('plus');
   return prop;
 }
 

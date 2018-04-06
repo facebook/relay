@@ -11,7 +11,7 @@
 
 'use strict';
 
-const PatchedBabelGenerator = require('./PatchedBabelGenerator');
+const babelGenerator = require('@babel/generator').default;
 const RelayMaskTransform = require('RelayMaskTransform');
 const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
 
@@ -71,7 +71,7 @@ export type State = {|
 
 function generate(node: Root | Fragment, options: Options): string {
   const ast = IRVisitor.visit(node, createVisitor(options));
-  return PatchedBabelGenerator.generate(ast);
+  return babelGenerator(ast).code;
 }
 
 type Selection = {
@@ -190,7 +190,10 @@ function selectionsToBabel(selections, state: State, refTypeName?: string) {
     types.map(props => {
       if (refTypeName) {
         props.push(
-          readOnlyObjectTypeProperty('$refType', t.identifier(refTypeName)),
+          readOnlyObjectTypeProperty(
+            '$refType',
+            t.genericTypeAnnotation(t.identifier(refTypeName)),
+          ),
         );
       }
       return exactObjectTypeAnnotation(props);
@@ -413,7 +416,9 @@ function groupRefs(props): Array<Selection> {
   });
   if (refs.length > 0) {
     const value = intersectionTypeAnnotation(
-      refs.map(ref => t.identifier(getRefTypeName(ref))),
+      refs.map(ref =>
+        t.genericTypeAnnotation(t.identifier(getRefTypeName(ref))),
+      ),
     );
     result.push({
       key: '$fragmentRefs',

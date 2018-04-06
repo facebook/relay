@@ -13,6 +13,8 @@
 const babel = require('gulp-babel');
 const babelOptions = require('./scripts/getBabelOptions')({
   moduleMap: {
+    '@babel/generator': '@babel/generator',
+    '@babel/types': '@babel/types',
     'babel-core': 'babel-core',
     'babel-generator': 'babel-generator',
     'babel-generator/lib/printer': 'babel-generator/lib/printer',

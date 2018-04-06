@@ -286,9 +286,11 @@ function createVisitor(options: Options) {
         });
         state.generatedFragments.add(node.name);
         const refTypeName = getRefTypeName(node.name);
-        const refType = t.expressionStatement(
-          t.identifier(
-            `declare export opaque type ${refTypeName}: FragmentReference`,
+        const refType = t.declareExportDeclaration(
+          t.declareOpaqueType(
+            t.identifier(refTypeName),
+            null,
+            t.genericTypeAnnotation(t.identifier('FragmentReference')),
           ),
         );
         const baseType = selectionsToBabel(selections, state, refTypeName);

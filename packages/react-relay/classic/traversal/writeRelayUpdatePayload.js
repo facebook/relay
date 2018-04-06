@@ -389,9 +389,7 @@ function addRangeNode(
   const store = writer.getRecordStore();
   const recordWriter = writer.getRecordWriter();
   const filterCalls = store.getRangeFilterCalls(connectionID);
-  const rangeBehavior = filterCalls
-    ? getRangeBehavior(config.rangeBehaviors, filterCalls)
-    : null;
+  const rangeBehavior = getRangeBehavior(config.rangeBehaviors, filterCalls);
 
   // no range behavior specified for this combination of filter calls
   if (!rangeBehavior) {

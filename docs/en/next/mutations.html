@@ -241,7 +241,7 @@ objects containing a connection key and optionally filters.
 
 <span class="hljs-keyword">const</span> mutation = graphql<span class="hljs-string">`
   mutation AddTodoMutation($input: AddTodoInput!) {
-    addTodo(input:$input) {
+    addTodo(input: $input) {
       todoEdge {
         cursor
         node {
@@ -293,20 +293,20 @@ objects containing a connection key and optionally filters.
         <span class="hljs-comment">// Get the payload returned from the server</span>
         <span class="hljs-keyword">const</span> payload = store.getRootField(<span class="hljs-string">'addTodo'</span>);
 
-        <span class="hljs-comment">// Get the edge of the newly created todo item</span>
+        <span class="hljs-comment">// Get the edge of the newly created Todo record</span>
         <span class="hljs-keyword">const</span> newEdge = payload.getLinkedRecord(<span class="hljs-string">'todoEdge'</span>);
 
         <span class="hljs-comment">// Add it to the user's todo list</span>
         sharedUpdater(store, user, newEdge);
       },
       <span class="hljs-attr">optimisticUpdater</span>: <span class="hljs-function">(<span class="hljs-params">store</span>) =&gt;</span> {
-        <span class="hljs-comment">// Create a Todo Item record in our store with a tempory ID</span>
+        <span class="hljs-comment">// Create a Todo record in our store with a temporary ID</span>
         <span class="hljs-keyword">const</span> id = <span class="hljs-string">'client:newTodo:'</span> + tempID++;
         <span class="hljs-keyword">const</span> node = store.create(id, <span class="hljs-string">'Todo'</span>);
         node.setValue(text, <span class="hljs-string">'text'</span>);
         node.setValue(id, <span class="hljs-string">'id'</span>);
 
-        <span class="hljs-comment">// Create a new edge that contains the newly created Todo Item</span>
+        <span class="hljs-comment">// Create a new edge that contains the newly created Todo record</span>
         <span class="hljs-keyword">const</span> newEdge = store.create(
           <span class="hljs-string">'client:newEdge:'</span> + tempID++,
           <span class="hljs-string">'TodoEdge'</span>,

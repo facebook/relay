@@ -389,6 +389,13 @@ var {
   font-style: italic;
 }
 
+*[data-name] {
+  transition: 0.15s background ease-out;
+  border-radius: 2px;
+  padding: 0 3px;
+  margin: 0 -3px;
+}
+
 
 /* Grammar semantics, algorithms and calls */
 
@@ -762,7 +769,34 @@ pre[class*="language-"] {
 .token.entity {
 	cursor: help;
 }
-</style></head><body><header><h1>Relay Global Object Identification Specification</h1><section id="intro"><p>Relay&rsquo;s support for object identification relies on the GraphQL server exposing object identifiers in a standardized way. In the query, the schema should provide a standard mechanism for asking for an object by ID. In the response, the schema provides a standard way of providing these IDs.</p><p>We refer to objects with identifiers as &ldquo;nodes&rdquo;.</p><p>An example of both of those is the following query:</p><pre><code><span class="token punctuation">{</span>
+</style><script>(function (){
+var styleSheet = document.getElementsByTagName('style')[0].sheet;
+var ruleIndex;
+
+function removeHighlight() {
+  if (ruleIndex) {
+    styleSheet.deleteRule(ruleIndex);
+    ruleIndex = void 0;
+  }
+}
+
+function highlightKeyword(name) {
+  removeHighlight();
+  ruleIndex = styleSheet.insertRule(
+    '*[data-name="' + name + '"] { background: #FBF8D0; }',
+    styleSheet.cssRules.length
+  );
+}
+
+document.documentElement.addEventListener('mouseover', function (event) {
+  var nameAttribute = event.target.attributes['data-name'];
+  if (nameAttribute) {
+    highlightKeyword(nameAttribute.value);
+  }
+});
+
+document.documentElement.addEventListener('mouseout', removeHighlight);
+})()</script></head><body><header><h1>Relay Global Object Identification Specification</h1><section id="intro"><p>Relay&rsquo;s support for object identification relies on the GraphQL server exposing object identifiers in a standardized way. In the query, the schema should provide a standard mechanism for asking for an object by ID. In the response, the schema provides a standard way of providing these IDs.</p><p>We refer to objects with identifiers as &ldquo;nodes&rdquo;.</p><p>An example of both of those is the following query:</p><pre><code><span class="token punctuation">{</span>
   node<span class="token punctuation">(</span><span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token string">"4"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     id
     <span class="token operator">...</span> <span class="token keyword">on</span> User <span class="token punctuation">{</span>

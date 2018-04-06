@@ -389,6 +389,13 @@ var {
   font-style: italic;
 }
 
+*[data-name] {
+  transition: 0.15s background ease-out;
+  border-radius: 2px;
+  padding: 0 3px;
+  margin: 0 -3px;
+}
+
 
 /* Grammar semantics, algorithms and calls */
 
@@ -762,7 +769,34 @@ pre[class*="language-"] {
 .token.entity {
 	cursor: help;
 }
-</style></head><body><header><h1>Relay Input Object Mutations Specification</h1><section id="intro"><p>Relay&rsquo;s support for mutations relies on the GraphQL server exposing mutation fields in a standardized way. These mutations accept and emit a identifier string, which allows Relay to track mutations and responses.</p><p>All mutations may include in their input a <code>clientMutationId</code> string, which is then returned as part of the object returned by the mutation field.</p><p>An example of this is the following query:</p><pre><code><span class="token keyword">mutation</span> M <span class="token punctuation">{</span>
+</style><script>(function (){
+var styleSheet = document.getElementsByTagName('style')[0].sheet;
+var ruleIndex;
+
+function removeHighlight() {
+  if (ruleIndex) {
+    styleSheet.deleteRule(ruleIndex);
+    ruleIndex = void 0;
+  }
+}
+
+function highlightKeyword(name) {
+  removeHighlight();
+  ruleIndex = styleSheet.insertRule(
+    '*[data-name="' + name + '"] { background: #FBF8D0; }',
+    styleSheet.cssRules.length
+  );
+}
+
+document.documentElement.addEventListener('mouseover', function (event) {
+  var nameAttribute = event.target.attributes['data-name'];
+  if (nameAttribute) {
+    highlightKeyword(nameAttribute.value);
+  }
+});
+
+document.documentElement.addEventListener('mouseout', removeHighlight);
+})()</script></head><body><header><h1>Relay Input Object Mutations Specification</h1><section id="intro"><p>Relay&rsquo;s support for mutations relies on the GraphQL server exposing mutation fields in a standardized way. These mutations accept and emit a identifier string, which allows Relay to track mutations and responses.</p><p>All mutations may include in their input a <code>clientMutationId</code> string, which is then returned as part of the object returned by the mutation field.</p><p>An example of this is the following query:</p><pre><code><span class="token keyword">mutation</span> M <span class="token punctuation">{</span>
   updateStatus<span class="token punctuation">(</span><span class="token attr-name">input</span><span class="token punctuation">:</span> <span class="token variable">$input</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     clientMutationId
     status <span class="token punctuation">{</span>

@@ -17,7 +17,7 @@ const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
 
 const invariant = require('invariant');
 const nullthrows = require('nullthrows');
-const t = require('babel-types');
+const t = require('@babel/types');
 
 const {
   anyTypeAlias,

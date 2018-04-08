@@ -32,6 +32,7 @@ const commitLocalUpdate = require('commitLocalUpdate');
 const commitRelayModernMutation = require('commitRelayModernMutation');
 const fetchRelayModernQuery = require('fetchRelayModernQuery');
 const isRelayModernEnvironment = require('isRelayModernEnvironment');
+const isScalarAndEqual = require('isScalarAndEqual');
 const recycleNodesInto = require('recycleNodesInto');
 const requestRelaySubscription = require('requestRelaySubscription');
 const simpleClone = require('simpleClone');
@@ -162,4 +163,5 @@ module.exports = {
   simpleClone: simpleClone,
   ROOT_ID: RelayStoreUtils.ROOT_ID,
   RelayConcreteNode: RelayConcreteNode,
+  isScalarAndEqual: isScalarAndEqual,
 };

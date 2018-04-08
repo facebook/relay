@@ -22,9 +22,9 @@ const getRangeBehavior = require('../mutation/getRangeBehavior');
 const invariant = require('invariant');
 const warning = require('warning');
 
-const {MutationTypes} = require('RelayRuntime');
 const {
   ConnectionInterface,
+  MutationTypes,
   RangeOperations,
   RelayProfiler,
 } = require('RelayRuntime');

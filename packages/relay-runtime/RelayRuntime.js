@@ -32,6 +32,7 @@ const commitLocalUpdate = require('commitLocalUpdate');
 const commitRelayModernMutation = require('commitRelayModernMutation');
 const deepFreeze = require('deepFreeze');
 const fetchRelayModernQuery = require('fetchRelayModernQuery');
+const getRelayHandleKey = require('getRelayHandleKey');
 const isRelayModernEnvironment = require('isRelayModernEnvironment');
 const isScalarAndEqual = require('isScalarAndEqual');
 const recycleNodesInto = require('recycleNodesInto');
@@ -161,6 +162,7 @@ module.exports = {
 
   // INTERNAL-ONLY: These exports might be removed at any point.
   deepFreeze: deepFreeze,
+  getRelayHandleKey: getRelayHandleKey,
   isScalarAndEqual: isScalarAndEqual,
   recycleNodesInto: recycleNodesInto,
   simpleClone: simpleClone,

@@ -260,7 +260,6 @@ gulp.task('modules', function() {
       gulp
         .src([
           '*' + PACKAGES + '/' + build.package + '/**/*.js',
-          // '*' + PACKAGES + '/relay-runtime/util/*.js',
           '!' + PACKAGES + '/**/__tests__/**/*.js',
           '!' + PACKAGES + '/**/__mocks__/**/*.js',
         ])

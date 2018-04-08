@@ -30,6 +30,7 @@ const RelayViewerHandler = require('RelayViewerHandler');
 const applyRelayModernOptimisticMutation = require('applyRelayModernOptimisticMutation');
 const commitLocalUpdate = require('commitLocalUpdate');
 const commitRelayModernMutation = require('commitRelayModernMutation');
+const deepFreeze = require('deepFreeze');
 const fetchRelayModernQuery = require('fetchRelayModernQuery');
 const isRelayModernEnvironment = require('isRelayModernEnvironment');
 const isScalarAndEqual = require('isScalarAndEqual');
@@ -157,11 +158,11 @@ module.exports = {
   // Utilities
   RelayProfiler: RelayProfiler,
 
-  // TODO T22766889 remove cross-cell imports of internal modules
-  // INTERNAL-ONLY: these WILL be removed from this API in the next release
+  // INTERNAL-ONLY: These exports might be removed at any point.
+  deepFreeze: deepFreeze,
+  isScalarAndEqual: isScalarAndEqual,
   recycleNodesInto: recycleNodesInto,
   simpleClone: simpleClone,
   ROOT_ID: RelayStoreUtils.ROOT_ID,
   RelayConcreteNode: RelayConcreteNode,
-  isScalarAndEqual: isScalarAndEqual,
 };

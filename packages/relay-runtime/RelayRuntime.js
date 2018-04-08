@@ -37,6 +37,7 @@ const isScalarAndEqual = require('isScalarAndEqual');
 const recycleNodesInto = require('recycleNodesInto');
 const requestRelaySubscription = require('requestRelaySubscription');
 const simpleClone = require('simpleClone');
+const stableCopy = require('stableCopy');
 
 export type {
   CacheConfig,
@@ -163,6 +164,7 @@ module.exports = {
   isScalarAndEqual: isScalarAndEqual,
   recycleNodesInto: recycleNodesInto,
   simpleClone: simpleClone,
+  stableCopy: stableCopy,
   ROOT_ID: RelayStoreUtils.ROOT_ID,
   RelayConcreteNode: RelayConcreteNode,
 };

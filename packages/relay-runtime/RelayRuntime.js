@@ -16,6 +16,7 @@ const RelayConnectionHandler = require('RelayConnectionHandler');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayCore = require('RelayCore');
 const RelayDeclarativeMutationConfig = require('RelayDeclarativeMutationConfig');
+const RelayDefaultHandleKey = require('RelayDefaultHandleKey');
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('RelayMarkSweepStore');
 const RelayModernEnvironment = require('RelayModernEnvironment');
@@ -161,12 +162,14 @@ module.exports = {
   RelayProfiler: RelayProfiler,
 
   // INTERNAL-ONLY: These exports might be removed at any point.
+  RelayConcreteNode: RelayConcreteNode,
+  DEFAULT_HANDLE_KEY: RelayDefaultHandleKey.DEFAULT_HANDLE_KEY,
+  ROOT_ID: RelayStoreUtils.ROOT_ID,
+
   deepFreeze: deepFreeze,
   getRelayHandleKey: getRelayHandleKey,
   isScalarAndEqual: isScalarAndEqual,
   recycleNodesInto: recycleNodesInto,
   simpleClone: simpleClone,
   stableCopy: stableCopy,
-  ROOT_ID: RelayStoreUtils.ROOT_ID,
-  RelayConcreteNode: RelayConcreteNode,
 };

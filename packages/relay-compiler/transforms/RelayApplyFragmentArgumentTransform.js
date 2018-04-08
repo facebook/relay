@@ -14,7 +14,7 @@
 const RelayCompilerScope = require('../core/RelayCompilerScope');
 
 const invariant = require('invariant');
-const murmurHash = require('murmurHash');
+const murmurHash = require('../util/murmurHash');
 
 const {
   getIdentifierForArgumentValue,

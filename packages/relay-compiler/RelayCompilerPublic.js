@@ -11,7 +11,6 @@
 
 'use strict';
 
-const GraphQLCompilerContext = require('./graphql-compiler/core/GraphQLCompilerContext');
 const RelayCodeGenerator = require('./codegen/RelayCodeGenerator');
 const RelayFileWriter = require('./codegen/RelayFileWriter');
 const RelayIRTransforms = require('./core/RelayIRTransforms');
@@ -21,6 +20,7 @@ const RelayParser = require('./core/RelayParser');
 const compileRelayArtifacts = require('./codegen/compileRelayArtifacts');
 const formatGeneratedModule = require('./codegen/formatGeneratedModule');
 
+const {CompilerContext: GraphQLCompilerContext} = require('graphql-compiler');
 const {
   ASTConvert,
   CodegenRunner,

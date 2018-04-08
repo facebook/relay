@@ -864,9 +864,9 @@ detect-indent@^4.0.0:
   dependencies:
     repeating "^2.0.0"
 
-docusaurus@^1.0.7:
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/docusaurus/-/docusaurus-1.0.7.tgz#54fc4ae0c25e510b0a3a2742f8c555cbf2083e94"
+docusaurus@^1.0.9:
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/docusaurus/-/docusaurus-1.0.9.tgz#1f703ca9e7f9319f690630fe7eee6381843dc761"
   dependencies:
     babel-plugin-transform-class-properties "^6.24.1"
     babel-plugin-transform-object-rest-spread "^6.26.0"

@@ -11,8 +11,7 @@
 
 'use strict';
 
-// TODO T21875029 ../../relay-runtime/util/RelayConcreteNode
-const RelayConcreteNode = require('RelayConcreteNode');
+const {RelayConcreteNode} = require('RelayRuntime');
 
 const crypto = require('crypto');
 const dedupeJSONStringify = require('dedupeJSONStringify');

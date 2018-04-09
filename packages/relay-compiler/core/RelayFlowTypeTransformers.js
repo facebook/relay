@@ -80,7 +80,6 @@ function transformGraphQLScalarType(type: GraphQLScalarType, state: State) {
   switch (customType || type.name) {
     case 'ID':
     case 'String':
-    case 'Url':
       return t.stringTypeAnnotation();
     case 'Float':
     case 'Int':

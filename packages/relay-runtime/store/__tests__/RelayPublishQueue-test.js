@@ -135,7 +135,7 @@ describe('RelayPublishQueue', () => {
         response: {
           actorNameChange: {
             actor: {
-              id: '4',
+              __id: '4',
               name: 'zuck',
               __typename: 'Actor',
             },
@@ -170,7 +170,7 @@ describe('RelayPublishQueue', () => {
         response: {
           actorNameChange: {
             actor: {
-              id: '4',
+              __id: '4',
               name: 'zuck',
               __typename: 'Actor',
             },
@@ -207,7 +207,7 @@ describe('RelayPublishQueue', () => {
         response: {
           actorNameChange: {
             actor: {
-              id: '4',
+              __id: '4',
               name: 'zuck',
               __typename: 'Actor',
             },
@@ -229,7 +229,7 @@ describe('RelayPublishQueue', () => {
         response: {
           actorNameChange: {
             actor: {
-              id: '4',
+              __id: '4',
               name: 'zuck',
               __typename: 'Actor',
             },
@@ -254,7 +254,7 @@ describe('RelayPublishQueue', () => {
         response: {
           actorNameChange: {
             actor: {
-              id: '4',
+              __id: '4',
               name: 'zuck',
               __typename: 'Actor',
             },
@@ -279,7 +279,7 @@ describe('RelayPublishQueue', () => {
         response: {
           actorNameChange: {
             actor: {
-              id: '4',
+              __id: '4',
               name: 'zuck',
               __typename: 'Actor',
             },
@@ -584,7 +584,10 @@ describe('RelayPublishQueue', () => {
         expect(nodes.length).toBe(1);
         expect(nodes[0]).toBe(zuck);
 
-        expect(data).toEqual({me: {name: 'Zuck'}, nodes: [{name: 'Zuck'}]});
+        expect(data).toEqual({
+          me: {__id: '4', name: 'Zuck'},
+          nodes: [{__id: '4', name: 'Zuck'}],
+        });
 
         zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
       });
@@ -805,7 +808,7 @@ describe('RelayPublishQueue', () => {
             me: {[REF_KEY]: '4'},
           },
           4: {
-            id: '4',
+            __id: '4',
             __typename: 'User',
             name: 'zuck',
           },
@@ -821,7 +824,7 @@ describe('RelayPublishQueue', () => {
         },
         4: {
           ...initialData['4'],
-          id: '4', // added by server payload
+          __id: '4', // added by server payload
           name: 'ZUCK', // optimistic update is re-applied on the new data
         },
       });
@@ -865,7 +868,7 @@ describe('RelayPublishQueue', () => {
             me: {[REF_KEY]: '4'},
           },
           4: {
-            id: '4',
+            __id: '4',
             __typename: 'User',
             name: 'zuck',
           },
@@ -881,7 +884,7 @@ describe('RelayPublishQueue', () => {
         },
         4: {
           ...initialData['4'],
-          id: '4', // added by server payload
+          __id: '4', // added by server payload
           name: 'ZUCK', // optimistic update is re-applied on the new data
         },
       });
@@ -925,7 +928,7 @@ describe('RelayPublishQueue', () => {
             me: {[REF_KEY]: '4'},
           },
           4: {
-            id: '4',
+            __id: '4',
             __typename: 'User',
             name: 'zuck',
           },
@@ -943,7 +946,7 @@ describe('RelayPublishQueue', () => {
         },
         4: {
           ...initialData['4'],
-          id: '4', // added by server payload
+          __id: '4', // added by server payload
           name: 'zuck', // reverts to the server data, not initial data
         },
       });
@@ -1107,7 +1110,7 @@ describe('RelayPublishQueue', () => {
               me: {[REF_KEY]: '4'},
             },
             4: {
-              id: '4',
+              __id: '4',
               __typename: 'User',
               name: 'zuck',
             },
@@ -1115,7 +1118,7 @@ describe('RelayPublishQueue', () => {
         };
         nameSource = new RelayInMemoryRecordSource({
           4: {
-            id: '4',
+            __id: '4',
             __typename: 'User',
             name: 'mark',
           },
@@ -1133,7 +1136,7 @@ describe('RelayPublishQueue', () => {
             me: {[REF_KEY]: '4'},
           },
           4: {
-            id: '4',
+            __id: '4',
             __typename: 'User',
             name: 'zuck',
           },
@@ -1150,7 +1153,7 @@ describe('RelayPublishQueue', () => {
             me: {[REF_KEY]: '4'},
           },
           4: {
-            id: '4',
+            __id: '4',
             __typename: 'User',
             name: 'mark',
           },
@@ -1181,7 +1184,7 @@ describe('RelayPublishQueue', () => {
       queue.commitSource(
         new RelayInMemoryRecordSource({
           4: {
-            id: '4',
+            __id: '4',
             __typename: 'User',
             name: 'zuck',
           },
@@ -1192,7 +1195,7 @@ describe('RelayPublishQueue', () => {
       expect(sourceData).toEqual({
         4: {
           ...initialData['4'],
-          id: '4', // added by server payload
+          __id: '4', // added by server payload
           name: 'ZUCK', // optimistic update is re-applied on the new data
         },
       });
@@ -1221,7 +1224,7 @@ describe('RelayPublishQueue', () => {
       queue.commitSource(
         new RelayInMemoryRecordSource({
           4: {
-            id: '4',
+            __id: '4',
             __typename: 'User',
             name: 'zuck',
           },
@@ -1234,7 +1237,7 @@ describe('RelayPublishQueue', () => {
       expect(sourceData).toEqual({
         4: {
           ...initialData['4'],
-          id: '4', // added by server payload
+          __id: '4', // added by server payload
           name: 'zuck', // reverts to the server data, not initial data
         },
       });
@@ -1335,7 +1338,7 @@ describe('RelayPublishQueue', () => {
       // Query payload sets name to 'zuck'
       queue.commitPayload(createOperationSelector(NameQuery, {id: '4'}), {
         me: {
-          id: '4',
+          __id: '4',
           __typename: 'User',
           name: 'zuck',
         },

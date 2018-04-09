@@ -63,14 +63,12 @@ describe('RelayModernFragmentSpecResolver', () => {
         }
       }
       fragment UserFragment on User {
-        id
         name
         profilePicture(size: $size) @include(if: $fetchSize) {
           uri
         }
       }
       fragment UsersFragment on User @relay(plural: true) {
-        id
         name
         profilePicture(size: $size) @include(if: $fetchSize) {
           uri
@@ -86,7 +84,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       }),
       {
         node: {
-          id: '4',
+          __id: '4',
           __typename: 'User',
           name: 'Zuck',
         },
@@ -100,7 +98,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       }),
       {
         node: {
-          id: 'beast',
+          __id: 'beast',
           __typename: 'User',
           name: 'Beast',
         },
@@ -185,7 +183,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       );
       expect(resolver.resolve()).toEqual({
         user: {
-          id: '4',
+          __id: '4',
           name: 'Zuck',
         },
       });
@@ -203,7 +201,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       expect(callback).toBeCalled();
       expect(resolver.resolve()).toEqual({
         user: {
-          id: '4',
+          __id: '4',
           name: 'Mark',
         },
       });
@@ -222,7 +220,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       expect(callback).not.toBeCalled();
       expect(resolver.resolve()).toEqual({
         user: {
-          id: '4',
+          __id: '4',
           name: 'Zuck', // does not reflect latest changes
         },
       });
@@ -271,7 +269,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         expect(callback).toBeCalled();
         expect(resolver.resolve()).toEqual({
           user: {
-            id: '4',
+            __id: '4',
             name: 'Mark', // reflects updated value
           },
         });
@@ -288,7 +286,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         resolver.setProps({user: beast});
         expect(resolver.resolve()).toEqual({
           user: {
-            id: 'beast',
+            __id: 'beast',
             name: 'Beast',
           },
         });
@@ -308,7 +306,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         expect(callback).toBeCalled();
         expect(resolver.resolve()).toEqual({
           user: {
-            id: 'beast',
+            __id: 'beast',
             name: 'BEAST', // reflects updated value
           },
         });
@@ -322,7 +320,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         expect(callback).not.toBeCalled();
         expect(resolver.resolve()).toEqual({
           user: {
-            id: 'beast',
+            __id: 'beast',
             name: 'Beast', // does not update
           },
         });
@@ -371,7 +369,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         expect(dispose).toBeCalled();
         expect(resolver.resolve()).toEqual({
           user: {
-            id: '4',
+            __id: '4',
             name: 'Zuck',
             profilePicture: {
               uri: 'https://4.jpg',
@@ -391,7 +389,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         expect(callback).toBeCalled();
         expect(resolver.resolve()).toEqual({
           user: {
-            id: '4',
+            __id: '4',
             name: 'Zuck',
             profilePicture: {
               uri: 'https://zuck.jpg',
@@ -441,7 +439,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       expect(resolver.resolve()).toEqual({
         user: [
           {
-            id: '4',
+            __id: '4',
             name: 'Zuck',
           },
         ],
@@ -461,7 +459,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       expect(resolver.resolve()).toEqual({
         user: [
           {
-            id: '4',
+            __id: '4',
             name: 'Mark',
           },
         ],
@@ -479,11 +477,11 @@ describe('RelayModernFragmentSpecResolver', () => {
       expect(resolver.resolve()).toEqual({
         user: [
           {
-            id: '4',
+            __id: '4',
             name: 'Zuck',
           },
           {
-            id: 'beast',
+            __id: 'beast',
             name: 'Beast',
           },
         ],
@@ -494,7 +492,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       expect(resolver.resolve()).toEqual({
         user: [
           {
-            id: '4',
+            __id: '4',
             name: 'Zuck',
           },
         ],
@@ -515,7 +513,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       expect(resolver.resolve()).toEqual({
         user: [
           {
-            id: '4',
+            __id: '4',
             name: 'Zuck', // does not reflect latest changes
           },
         ],
@@ -566,7 +564,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         expect(resolver.resolve()).toEqual({
           user: [
             {
-              id: '4',
+              __id: '4',
               name: 'Mark', // reflects updated value
             },
           ],
@@ -585,7 +583,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         expect(resolver.resolve()).toEqual({
           user: [
             {
-              id: 'beast',
+              __id: 'beast',
               name: 'Beast',
             },
           ],
@@ -607,7 +605,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         expect(resolver.resolve()).toEqual({
           user: [
             {
-              id: 'beast',
+              __id: 'beast',
               name: 'BEAST', // reflects updated value
             },
           ],
@@ -623,7 +621,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         expect(resolver.resolve()).toEqual({
           user: [
             {
-              id: 'beast',
+              __id: 'beast',
               name: 'Beast', // does not update
             },
           ],
@@ -635,11 +633,11 @@ describe('RelayModernFragmentSpecResolver', () => {
         expect(resolver.resolve()).toEqual({
           user: [
             {
-              id: '4',
+              __id: '4',
               name: 'Zuck',
             },
             {
-              id: 'beast',
+              __id: 'beast',
               name: 'Beast',
             },
           ],
@@ -656,11 +654,11 @@ describe('RelayModernFragmentSpecResolver', () => {
         expect(resolver.resolve()).toEqual({
           user: [
             {
-              id: '4',
+              __id: '4',
               name: 'Zuck',
             },
             {
-              id: 'beast',
+              __id: 'beast',
               name: 'BEAST', // updated value
             },
           ],
@@ -674,11 +672,11 @@ describe('RelayModernFragmentSpecResolver', () => {
         expect(resolver.resolve()).toEqual({
           user: [
             {
-              id: '4',
+              __id: '4',
               name: 'Mark',
             },
             {
-              id: 'beast',
+              __id: 'beast',
               name: 'Beast',
             },
           ],
@@ -738,7 +736,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         expect(resolver.resolve()).toEqual({
           user: [
             {
-              id: '4',
+              __id: '4',
               name: 'Zuck',
               profilePicture: {
                 uri: 'https://4.jpg',
@@ -760,7 +758,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         expect(resolver.resolve()).toEqual({
           user: [
             {
-              id: '4',
+              __id: '4',
               name: 'Zuck',
               profilePicture: {
                 uri: 'https://zuck.jpg',

@@ -1,6 +1,6 @@
 query NodeQuery($id: ID! $cond: Boolean! $PictureSize: [Int]!) {
   node(id: $id) {
-    id
+    __id: id
     ... on User @include(if: $cond) {
       name
     }
@@ -14,7 +14,7 @@ fragment UserFragment on User @argumentDefinitions(
   first: {type: "Int", defaultValue: 5}
   size: {type: "[Int]"}
 ) {
-  id
+  __id: id
   __typename
   friends(after: $after, first: $first) {
     count

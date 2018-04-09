@@ -17,7 +17,7 @@ The Relay runtime is a full-featured GraphQL client that is designed for high pe
 
 ## Comparison to Classic Relay
 
-For users of classic Relay, note that the runtime makes as few assumptions as possible about GraphQL. Compared to earlier versions of Relay there is no concept of routes, there are no limitations on mutation input arguments or side-effects, arbitrary root fields just work, etc. At present, the main restriction from classic Relay that remains is the use of the `Node` interface and `id` field for object identification. However there is no fundamental reason that this restriction can't be relaxed (there is a single place in the codebase where object identity is determined), and we welcome feedback from the community about ways to support customizable object identity without negatively impacting performance.
+For users of classic Relay, note that the runtime makes as few assumptions as possible about GraphQL. Compared to earlier versions of Relay there is no concept of routes, there are no limitations on mutation input arguments or side-effects, arbitrary root fields just work, etc. Like classic Relay, modern Relay still uses the `Node` interface for object identification purposes; however, rather than always assuming the globally unique field to be `id`, modern Relay will inflect it from the `Node` interface by searching for either an `ID` or `ID!` field.
 
 ## Data Types
 

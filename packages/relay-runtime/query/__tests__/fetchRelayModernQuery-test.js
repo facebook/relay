@@ -61,13 +61,14 @@ describe('fetchRelayModernQuery', () => {
     environment.mock.nextValue(query, {
       data: {
         me: {
-          id: '842472',
+          __id: '842472',
           name: 'Joe',
         },
       },
     });
     expect(await promise).toEqual({
       me: {
+        __id: '842472',
         name: 'Joe',
       },
     });

@@ -11,6 +11,7 @@
 'use strict';
 
 const RelayConnectionHandler = require('../handlers/connection/RelayConnectionHandler');
+const {ID_KEY} = require('../store/RelayStoreUtils');
 
 const warning = require('warning');
 
@@ -278,7 +279,7 @@ function rangeDelete(
       return;
     }
     const deleteIDs = [];
-    let deletedIDField = data[rootField];
+    let deletedIDField: any = data[rootField];
     if (deletedIDField && Array.isArray(deletedIDFieldName)) {
       for (const eachField of deletedIDFieldName) {
         if (deletedIDField && typeof deletedIDField === 'object') {
@@ -289,19 +290,19 @@ function rangeDelete(
         deletedIDField.forEach(idObject => {
           if (
             idObject &&
-            idObject.id &&
+            idObject[ID_KEY] &&
             typeof idObject === 'object' &&
-            typeof idObject.id === 'string'
+            typeof idObject[ID_KEY] === 'string'
           ) {
-            deleteIDs.push(idObject.id);
+            deleteIDs.push(idObject[ID_KEY]);
           }
         });
       } else if (
         deletedIDField &&
-        deletedIDField.id &&
-        typeof deletedIDField.id === 'string'
+        deletedIDField[ID_KEY] &&
+        typeof deletedIDField[ID_KEY] === 'string'
       ) {
-        deleteIDs.push(deletedIDField.id);
+        deleteIDs.push(deletedIDField[ID_KEY]);
       }
     } else if (
       deletedIDField &&

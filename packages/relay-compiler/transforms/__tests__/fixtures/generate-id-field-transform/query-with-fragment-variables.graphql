@@ -24,14 +24,7 @@ fragment ActorFragment on Actor {
       month
     }
   }
-}
-
-query UnaliasedIDQuery {
-  viewer {
-    actor {
-      id
-    }
-  }
+  __id: id
 }
 
 query AliasedIDQuery {
@@ -45,7 +38,7 @@ query AliasedIDQuery {
 query ConditionalIDQuery($cond: Boolean!) {
   viewer {
     actor {
-      id @include(if: $cond)
+      __id: id @include(if: $cond)
     }
   }
 }

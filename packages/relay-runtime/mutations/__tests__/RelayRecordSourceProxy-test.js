@@ -203,7 +203,7 @@ describe('RelayRecordSourceProxy', () => {
       const operationSelector = createOperationSelector(Query, {});
       const rawPayload = {
         node: {
-          id: 'sf',
+          __id: 'sf',
           __typename: 'Page',
           name: 'SF',
         },
@@ -232,7 +232,7 @@ describe('RelayRecordSourceProxy', () => {
       const operationSelector = createOperationSelector(Query, {});
       const rawPayload = {
         node: {
-          id: 'seattle',
+          __id: 'seattle',
           __typename: 'Page',
           name: 'Seattle',
         },
@@ -258,7 +258,6 @@ describe('RelayRecordSourceProxy', () => {
         `
         query Query {
           node(id: "sf") {
-            id
             __typename
             name @__clientField(handle: "handlerName")
           }
@@ -268,7 +267,7 @@ describe('RelayRecordSourceProxy', () => {
       const operationSelector = createOperationSelector(Query, {});
       const rawPayload = {
         node: {
-          id: 'sf',
+          __id: 'sf',
           __typename: 'Page',
           name: 'SF',
         },

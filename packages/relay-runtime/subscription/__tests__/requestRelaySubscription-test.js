@@ -37,7 +37,6 @@ describe('requestRelaySubscription-test', () => {
 							comments(first: 2)@connection(key: "FeedbackCommentQuery_comments") {
 								edges {
 									node {
-                    id
                     body {
                       text
                     }
@@ -51,13 +50,13 @@ describe('requestRelaySubscription-test', () => {
     const payload = {
       node: {
         __typename: 'Feedback',
-        id: feedbackId,
+        __id: feedbackId,
         comments: {
           edges: [
             {
               cursor: '<cursor>',
               node: {
-                id: firstCommentId,
+                __id: firstCommentId,
                 __typename: 'Comment',
                 body: {
                   text: firstCommentBody,
@@ -86,7 +85,6 @@ describe('requestRelaySubscription-test', () => {
         commentCreateSubscribe(input: $input) {
           feedbackCommentEdge {
             node {
-              id
               body {
                 text
               }
@@ -128,7 +126,7 @@ describe('requestRelaySubscription-test', () => {
           feedbackCommentEdge: {
             node: {
               __typename: 'Comment',
-              id: secondCommentId,
+              __id: secondCommentId,
               body: {
                 text: secondCommentBody,
               },
@@ -154,7 +152,7 @@ describe('requestRelaySubscription-test', () => {
                 body: {
                   text: firstCommentBody,
                 },
-                id: firstCommentId,
+                __id: firstCommentId,
               },
             },
             {
@@ -164,7 +162,7 @@ describe('requestRelaySubscription-test', () => {
                 body: {
                   text: secondCommentBody,
                 },
-                id: secondCommentId,
+                __id: secondCommentId,
               },
             },
           ],
@@ -173,6 +171,7 @@ describe('requestRelaySubscription-test', () => {
             hasNextPage: false,
           },
         },
+        __id: 'foo',
       },
     });
   });

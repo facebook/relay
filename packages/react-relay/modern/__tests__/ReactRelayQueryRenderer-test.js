@@ -39,7 +39,7 @@ describe('ReactRelayQueryRenderer', () => {
     data: {
       node: {
         __typename: 'User',
-        id: '4',
+        __id: '4',
         name: 'Zuck',
       },
     },

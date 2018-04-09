@@ -327,7 +327,6 @@ describe('RelayReader', () => {
               edges {
                 cursor
                 node {
-                  id
                   name @__clientField(handle: "friendsName")
                 }
               }
@@ -348,7 +347,7 @@ describe('RelayReader', () => {
             {
               cursor: 'cursor:bestFriendsEdge',
               node: {
-                id: '2',
+                __id: '2',
                 name: 'handleName',
               },
             },
@@ -399,7 +398,6 @@ describe('RelayReader', () => {
           edges {
             cursor
             node {
-              id
               name @__clientField(handle: "friendsName")
             }
           }
@@ -417,7 +415,7 @@ describe('RelayReader', () => {
           {
             cursor: 'cursor:bestFriendsEdge',
             node: {
-              id: '2',
+              __id: '2',
               name: 'handleName',
             },
           },

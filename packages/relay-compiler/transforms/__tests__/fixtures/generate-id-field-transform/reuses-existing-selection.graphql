@@ -1,0 +1,6 @@
+query StoryQuery {
+  story {
+    lastName
+    __id: id
+  }
+}

@@ -20,7 +20,7 @@ fragment BestFriends on User {
     edges {
       cursor
       node {
-        id
+        __id: id
       }
     }
     pageInfo {
@@ -37,7 +37,7 @@ fragment BestFriends on User {
 }
 
 fragment NodeFragment on Node {
-  id
+  __id: id
 }
 
 fragment FooFragment on Foo {

@@ -17,6 +17,7 @@ const RelayModernRecord = require('../RelayModernRecord');
 const {normalize} = require('../RelayResponseNormalizer');
 const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
 const RelayModernTestUtils = require('RelayModernTestUtils');
+const RelayGenerateIDFieldTransform = require('RelayGenerateIDFieldTransform');
 
 describe('RelayResponseNormalizer', () => {
   const {
@@ -35,7 +36,6 @@ describe('RelayResponseNormalizer', () => {
       `
       query FooQuery($id: ID, $size: [Int]) {
         node(id: $id) {
-          id
           __typename
           ... on User {
             firstName
@@ -43,7 +43,6 @@ describe('RelayResponseNormalizer', () => {
               edges {
                 cursor
                 node {
-                  id
                   firstName
                 }
               }
@@ -54,11 +53,12 @@ describe('RelayResponseNormalizer', () => {
           }
         }
       }
-    `,
+      `,
+      [RelayGenerateIDFieldTransform.transform],
     );
     const payload = {
       node: {
-        id: '1',
+        __id: '1',
         __typename: 'User',
         firstName: 'Alice',
         friends: {
@@ -66,7 +66,7 @@ describe('RelayResponseNormalizer', () => {
             {
               cursor: 'cursor:2',
               node: {
-                id: '2',
+                __id: '2',
                 firstName: 'Bob',
               },
             },
@@ -74,7 +74,7 @@ describe('RelayResponseNormalizer', () => {
             {
               cursor: 'cursor:3',
               node: {
-                id: '3',
+                __id: '3',
                 firstName: 'Claire',
               },
             },
@@ -103,8 +103,8 @@ describe('RelayResponseNormalizer', () => {
     expect(recordSource.toJSON()).toEqual({
       '1': {
         __id: '1',
-        id: '1',
         __typename: 'User',
+        id: '1',
         firstName: 'Alice',
         'friends(first:3)': {__ref: friendsID},
         'profilePicture(size:32)': {__ref: pictureID},
@@ -158,14 +158,12 @@ describe('RelayResponseNormalizer', () => {
       `
       query UserFriends($id: ID!) {
         node(id: $id) {
-          id
           __typename
           ... on User {
             friends(first: 1) @__clientField(handle: "bestFriends") {
               edges {
                 cursor
                 node {
-                  id
                   name @__clientField(handle: "friendsName")
                 }
               }
@@ -178,14 +176,14 @@ describe('RelayResponseNormalizer', () => {
 
     const payload = {
       node: {
-        id: '4',
+        __id: '4',
         __typename: 'User',
         friends: {
           edges: [
             {
               cursor: 'cursor:bestFriends',
               node: {
-                id: 'pet',
+                __id: 'pet',
                 name: 'Beast',
               },
             },
@@ -231,7 +229,6 @@ describe('RelayResponseNormalizer', () => {
         $isViewerFriend: Boolean,
       ) {
         node(id: $id) {
-          id
           __typename
           ... on User {
             friends(first: 1, orderby: $orderBy, isViewerFriend: $isViewerFriend)@__clientField(
@@ -242,7 +239,7 @@ describe('RelayResponseNormalizer', () => {
               edges {
                 cursor
                 node {
-                  id
+                  __id: id
                 }
               }
               pageInfo {
@@ -258,14 +255,14 @@ describe('RelayResponseNormalizer', () => {
 
     const payload1 = {
       node: {
-        id: '4',
+        __id: '4',
         __typename: 'User',
         friends: {
           edges: [
             {
               cursor: 'cursor:bestFriends',
               node: {
-                id: 'pet',
+                __id: 'pet',
                 name: 'Beast',
               },
             },
@@ -298,14 +295,14 @@ describe('RelayResponseNormalizer', () => {
 
     const payload2 = {
       node: {
-        id: '4',
+        __id: '4',
         __typename: 'User',
         friends: {
           edges: [
             {
               cursor: 'cursor:bestFriends:2',
               node: {
-                id: 'cat',
+                __id: 'cat',
                 name: 'Betty',
               },
             },
@@ -434,33 +431,31 @@ describe('RelayResponseNormalizer', () => {
       `
       query BarQuery($id: ID) {
         node(id: $id) {
-          id
           __typename
           ... on User {
             actor {
-              id
               __typename
             }
             actors {
-              id
               __typename
             }
           }
         }
       }
-    `,
+      `,
+      [RelayGenerateIDFieldTransform.transform],
     );
     const payload = {
       node: {
-        id: '1',
+        __id: '1',
         __typename: 'User',
         actor: {
-          id: '1',
+          __id: '1',
           __typename: 'Actor', // <- invalid
         },
         actors: [
           {
-            id: '1',
+            __id: '1',
             __typename: 'Actors', // <- invalid
           },
         ],
@@ -517,7 +512,6 @@ describe('RelayResponseNormalizer', () => {
       `
       query StrippedQuery($id: ID, $size: [Int]) {
         node(id: $id) {
-          id
           __typename
           ... on User {
             firstName
@@ -527,11 +521,12 @@ describe('RelayResponseNormalizer', () => {
           }
         }
       }
-    `,
+      `,
+      [RelayGenerateIDFieldTransform.transform],
     );
     const payload = {
       node: {
-        id: '1',
+        __id: '1',
         __typename: 'User',
         firstName: 'Alice',
       },

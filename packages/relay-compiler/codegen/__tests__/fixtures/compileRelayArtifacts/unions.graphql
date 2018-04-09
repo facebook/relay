@@ -4,7 +4,7 @@ query UnionQuery {
       name
     }
     ... on Story {
-      id
+      __id: id
       body {
         text
       }

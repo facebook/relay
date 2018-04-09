@@ -86,7 +86,6 @@ describe('ReactRelayFragmentContainer', () => {
       fragment UserFragment on User @argumentDefinitions(
         cond: {type: "Boolean!", defaultValue: true}
       ) {
-        id
         name @include(if: $cond)
       }
     `,
@@ -107,7 +106,7 @@ describe('ReactRelayFragmentContainer', () => {
     // Pre-populate the store with data
     environment.commitPayload(createOperationSelector(UserQuery, {id: '4'}), {
       node: {
-        id: '4',
+        __id: '4',
         __typename: 'User',
         name: 'Zuck',
       },
@@ -116,7 +115,7 @@ describe('ReactRelayFragmentContainer', () => {
       createOperationSelector(UserQuery, {id: '842472'}),
       {
         node: {
-          id: '842472',
+          __id: '842472',
           __typename: 'User',
           name: 'Joe',
         },
@@ -217,7 +216,7 @@ describe('ReactRelayFragmentContainer', () => {
         isLoading: false,
       },
       user: {
-        id: '4',
+        __id: '4',
         name: 'Zuck',
       },
     });
@@ -226,7 +225,7 @@ describe('ReactRelayFragmentContainer', () => {
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
       dataID: '4',
       data: {
-        id: '4',
+        __id: '4',
         name: 'Zuck',
       },
       node: UserFragment,
@@ -257,7 +256,7 @@ describe('ReactRelayFragmentContainer', () => {
       node: UserFragment,
       variables: {cond: true},
       data: {
-        id: '4',
+        __id: '4',
         name: 'Mark', // !== 'Zuck'
       },
       seenRecords: {},
@@ -274,7 +273,7 @@ describe('ReactRelayFragmentContainer', () => {
         isLoading: false,
       },
       user: {
-        id: '4',
+        __id: '4',
         name: 'Mark',
       },
     });
@@ -312,7 +311,7 @@ describe('ReactRelayFragmentContainer', () => {
         isLoading: false,
       },
       user: {
-        id: '842472',
+        __id: '842472',
         name: 'Joe',
       },
     });
@@ -321,7 +320,7 @@ describe('ReactRelayFragmentContainer', () => {
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
       dataID: '842472',
       data: {
-        id: '842472',
+        __id: '842472',
         name: 'Joe',
       },
       node: UserFragment,
@@ -359,7 +358,7 @@ describe('ReactRelayFragmentContainer', () => {
         isLoading: false,
       },
       user: {
-        id: '4',
+        __id: '4',
         name: 'Zuck',
       },
     });
@@ -368,7 +367,7 @@ describe('ReactRelayFragmentContainer', () => {
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
       dataID: '4',
       data: {
-        id: '4',
+        __id: '4',
         name: 'Zuck',
       },
       node: UserFragment,
@@ -588,7 +587,7 @@ describe('ReactRelayFragmentContainer', () => {
     );
 
     const renderer = ReactTestRenderer.create(
-      <UnwrappedComponent user={{id: '4', name: 'Mark'}} />,
+      <UnwrappedComponent user={{__id: '4', name: 'Mark'}} />,
     );
 
     expect(renderer.toJSON()).toMatchSnapshot();

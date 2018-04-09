@@ -55,7 +55,6 @@ describe('RelayModernEnvironment', () => {
         `
         query ParentQuery($size: [Int]!) {
           me {
-            id
             name
             profilePicture(size: $size) {
               uri
@@ -71,7 +70,7 @@ describe('RelayModernEnvironment', () => {
     it('returns true if all data exists in the environment', () => {
       environment.commitPayload(operationSelector, {
         me: {
-          id: '4',
+          __id: '4',
           name: 'Zuck',
           profilePicture: {
             uri: 'https://...',
@@ -84,7 +83,7 @@ describe('RelayModernEnvironment', () => {
     it('returns false if data is missing from the environment', () => {
       environment.commitPayload(operationSelector, {
         me: {
-          id: '4',
+          __id: '4',
           name: 'Zuck',
           profilePicture: {
             uri: undefined,
@@ -104,12 +103,10 @@ describe('RelayModernEnvironment', () => {
         `
         query ParentQuery {
           me {
-            id
             name
           }
         }
         fragment ChildFragment on User {
-          id
           name
         }
       `,
@@ -118,7 +115,7 @@ describe('RelayModernEnvironment', () => {
       const operationSelector = createOperationSelector(ParentQuery, {});
       environment.commitPayload(operationSelector, {
         me: {
-          id: '4',
+          __id: '4',
           name: 'Zuck',
         },
       });
@@ -132,7 +129,7 @@ describe('RelayModernEnvironment', () => {
       });
       expect(snapshot.data).toEqual({
         me: {
-          id: '4',
+          __id: '4',
           name: 'Zuck',
         },
       });
@@ -157,12 +154,10 @@ describe('RelayModernEnvironment', () => {
         `
         query ParentQuery {
           me {
-            id
             name
           }
         }
         fragment ChildFragment on User {
-          id
           name
         }
       `,
@@ -171,7 +166,7 @@ describe('RelayModernEnvironment', () => {
       const operationSelector = createOperationSelector(ParentQuery, {});
       environment.commitPayload(operationSelector, {
         me: {
-          id: '4',
+          __id: '4',
           name: 'Zuck',
         },
       });
@@ -190,7 +185,7 @@ describe('RelayModernEnvironment', () => {
       const nextSnapshot = callback.mock.calls[0][0];
       expect(nextSnapshot.data).toEqual({
         me: {
-          id: '4',
+          __id: '4',
           name: 'Mark', // reflects updated value
         },
       });
@@ -219,12 +214,10 @@ describe('RelayModernEnvironment', () => {
         `
         query ParentQuery {
           me {
-            id
             name
           }
         }
         fragment ChildFragment on User {
-          id
           name
         }
       `,
@@ -233,7 +226,7 @@ describe('RelayModernEnvironment', () => {
       const operationSelector = createOperationSelector(ParentQuery, {});
       environment.commitPayload(operationSelector, {
         me: {
-          id: '4',
+          __id: '4',
           name: 'Zuck',
         },
       });
@@ -253,7 +246,7 @@ describe('RelayModernEnvironment', () => {
       // data is still in the store
       expect(snapshot.data).toEqual({
         me: {
-          id: '4',
+          __id: '4',
           name: 'Zuck',
         },
       });
@@ -274,7 +267,7 @@ describe('RelayModernEnvironment', () => {
       // GC runs asynchronously; data should still be in the store
       expect(environment.lookup(selector).data).toEqual({
         me: {
-          id: '4',
+          __id: '4',
           name: 'Zuck',
         },
       });
@@ -292,7 +285,6 @@ describe('RelayModernEnvironment', () => {
       ({UserFragment} = generateAndCompile(
         `
         fragment UserFragment on User {
-          id
           name
         }
       `,
@@ -319,7 +311,7 @@ describe('RelayModernEnvironment', () => {
       });
       expect(callback.mock.calls.length).toBe(1);
       expect(callback.mock.calls[0][0].data).toEqual({
-        id: '4',
+        __id: '4',
         name: 'zuck',
       });
     });
@@ -373,10 +365,10 @@ describe('RelayModernEnvironment', () => {
       });
       expect(callback.mock.calls.length).toBe(2);
       expect(callback.mock.calls[0][0].data).toEqual({
-        id: '4',
+        __id: '4',
       });
       expect(callback.mock.calls[1][0].data).toEqual({
-        id: '4',
+        __id: '4',
         name: 'zuck',
       });
     });
@@ -410,7 +402,7 @@ describe('RelayModernEnvironment', () => {
 
       environment.commitPayload(operationSelector, {
         me: {
-          id: '4',
+          __id: '4',
           __typename: 'User',
           name: 'Zuck',
         },
@@ -418,6 +410,7 @@ describe('RelayModernEnvironment', () => {
       expect(callback.mock.calls.length).toBe(1);
       expect(callback.mock.calls[0][0].data).toEqual({
         me: {
+          __id: '4',
           name: 'Zuck',
         },
       });
@@ -440,7 +433,7 @@ describe('RelayModernEnvironment', () => {
 
       environment.commitPayload(operationSelector, {
         me: {
-          id: '4',
+          __id: '4',
           __typename: 'User',
           name: 'Zuck',
         },
@@ -448,6 +441,7 @@ describe('RelayModernEnvironment', () => {
       expect(callback.mock.calls.length).toBe(1);
       expect(callback.mock.calls[0][0].data).toEqual({
         me: {
+          __id: '4',
           name: 'ZUCK',
         },
       });
@@ -523,7 +517,7 @@ describe('RelayModernEnvironment', () => {
       deferred.resolve({
         data: {
           me: {
-            id: '842472',
+            __id: '842472',
             __typename: 'User',
             name: 'Joe',
           },
@@ -560,7 +554,7 @@ describe('RelayModernEnvironment', () => {
       const payload = {
         data: {
           me: {
-            id: '842472',
+            __id: '842472',
             __typename: 'User',
             name: 'Joe',
           },
@@ -581,6 +575,7 @@ describe('RelayModernEnvironment', () => {
       expect(callback.mock.calls.length).toBe(1);
       expect(callback.mock.calls[0][0].data).toEqual({
         me: {
+          __id: '842472',
           name: 'Joe',
         },
       });
@@ -655,7 +650,7 @@ describe('RelayModernEnvironment', () => {
       subject.next({
         data: {
           me: {
-            id: '842472',
+            __id: '842472',
             __typename: 'User',
             name: 'Joe',
           },
@@ -666,7 +661,7 @@ describe('RelayModernEnvironment', () => {
       subject.next({
         data: {
           me: {
-            id: '842472',
+            __id: '842472',
             __typename: 'User',
             name: 'Joseph',
           },
@@ -711,7 +706,7 @@ describe('RelayModernEnvironment', () => {
       const payload = {
         data: {
           me: {
-            id: '842472',
+            __id: '842472',
             __typename: 'User',
             name: 'Joe',
           },
@@ -732,6 +727,7 @@ describe('RelayModernEnvironment', () => {
       expect(callback.mock.calls.length).toBe(1);
       expect(callback.mock.calls[0][0].data).toEqual({
         me: {
+          __id: '842472',
           name: 'Joe',
         },
       });
@@ -798,7 +794,7 @@ describe('RelayModernEnvironment', () => {
       const payload = {
         data: {
           me: {
-            id: '842472',
+            __id: '842472',
             __typename: 'User',
             name: 'Joe',
           },
@@ -818,6 +814,7 @@ describe('RelayModernEnvironment', () => {
       expect(callback.mock.calls.length).toBe(1);
       expect(callback.mock.calls[0][0].data).toEqual({
         me: {
+          __id: '842472',
           name: 'Joe',
         },
       });
@@ -837,7 +834,7 @@ describe('RelayModernEnvironment', () => {
       const optimisticResponse = {
         data: {
           me: {
-            id: '842472',
+            __id: '842472',
             __typename: 'User',
             name: 'Joe',
           },
@@ -847,7 +844,7 @@ describe('RelayModernEnvironment', () => {
       const realResponse = {
         data: {
           me: {
-            id: '842472',
+            __id: '842472',
             __typename: 'User',
             name: 'Jiyue',
           },
@@ -875,11 +872,13 @@ describe('RelayModernEnvironment', () => {
       expect(callback.mock.calls.length).toBe(2);
       expect(callback.mock.calls[0][0].data).toEqual({
         me: {
+          __id: '842472',
           name: 'Joe',
         },
       });
       expect(callback.mock.calls[1][0].data).toEqual({
         me: {
+          __id: '842472',
           name: 'Jiyue',
         },
       });
@@ -899,7 +898,7 @@ describe('RelayModernEnvironment', () => {
       const payload = {
         data: {
           me: {
-            id: '842472',
+            __id: '842472',
             __typename: 'User',
             name: 'Joe',
           },
@@ -920,6 +919,7 @@ describe('RelayModernEnvironment', () => {
       expect(callback.mock.calls.length).toBe(2);
       expect(callback.mock.calls[0][0].data).toEqual({
         me: {
+          __id: '842472',
           name: 'Joe',
         },
       });
@@ -1031,6 +1031,7 @@ describe('RelayModernEnvironment', () => {
       expect(error).not.toBeCalled();
       expect(callback.mock.calls.length).toBe(1);
       expect(callback.mock.calls[0][0].data).toEqual({
+        __id: commentID,
         id: commentID,
         body: {
           text: 'Give Relay',
@@ -1098,7 +1099,7 @@ describe('RelayModernEnvironment', () => {
         data: {
           commentCreate: {
             comment: {
-              id: commentID,
+              __id: commentID,
               body: {
                 text: 'Gave Relay',
               },
@@ -1112,6 +1113,7 @@ describe('RelayModernEnvironment', () => {
       expect(error).not.toBeCalled();
       expect(callback.mock.calls.length).toBe(1);
       expect(callback.mock.calls[0][0].data).toEqual({
+        __id: commentID,
         id: commentID,
         body: {
           text: 'Gave Relay',
@@ -1146,7 +1148,7 @@ describe('RelayModernEnvironment', () => {
         data: {
           commentCreate: {
             comment: {
-              id: commentID,
+              __id: commentID,
               body: {
                 text: 'Gave Relay', // server data is lowercase
               },
@@ -1160,6 +1162,7 @@ describe('RelayModernEnvironment', () => {
       expect(error).not.toBeCalled();
       expect(callback.mock.calls.length).toBe(1);
       expect(callback.mock.calls[0][0].data).toEqual({
+        __id: commentID,
         id: commentID,
         body: {
           text: 'GAVE RELAY', // converted to uppercase by updater
@@ -1222,7 +1225,7 @@ describe('RelayModernEnvironment', () => {
           optimisticResponse: {
             commentCreate: {
               comment: {
-                id: commentID,
+                __id: commentID,
                 body: {
                   text: 'Give Relay',
                 },
@@ -1236,6 +1239,7 @@ describe('RelayModernEnvironment', () => {
       expect(error).not.toBeCalled();
       expect(callback.mock.calls.length).toBe(1);
       expect(callback.mock.calls[0][0].data).toEqual({
+        __id: commentID,
         id: commentID,
         body: {
           text: 'Give Relay',

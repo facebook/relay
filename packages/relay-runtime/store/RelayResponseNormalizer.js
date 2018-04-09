@@ -28,6 +28,7 @@ const {
   DEFERRABLE_FRAGMENT_SPREAD,
 } = require('../util/RelayConcreteNode');
 const {
+  ID_KEY,
   getArgumentValues,
   getHandleStorageKey,
   getStorageKey,
@@ -253,7 +254,7 @@ class RelayResponseNormalizer {
       storageKey,
     );
     const nextID =
-      fieldValue.id ||
+      fieldValue[ID_KEY] ||
       // Reuse previously generated client IDs
       RelayModernRecord.getLinkedRecordID(record, storageKey) ||
       generateRelayClientID(RelayModernRecord.getDataID(record), storageKey);
@@ -302,7 +303,7 @@ class RelayResponseNormalizer {
       );
 
       const nextID =
-        item.id ||
+        item[ID_KEY] ||
         (prevIDs && prevIDs[nextIndex]) || // Reuse previously generated client IDs
         generateRelayClientID(
           RelayModernRecord.getDataID(record),

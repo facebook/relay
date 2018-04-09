@@ -17,7 +17,6 @@ const requestsForOperation = require('./requestsForOperation');
 
 const {Profiler} = require('graphql-compiler');
 
-// TODO T21875029 relay-runtime
 import type {GeneratedNode} from 'RelayConcreteNode';
 import type {CompilerContext, IRTransform, Reporter} from 'graphql-compiler';
 

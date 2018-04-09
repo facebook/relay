@@ -12,14 +12,11 @@
 'use strict';
 
 const invariant = require('invariant');
-// TODO T21875029 ../../relay-runtime/util/stableCopy
-const stableCopy = require('stableCopy');
 
-const {getStorageKey} = require('RelayRuntime');
+const {getStorageKey, stableCopy} = require('RelayRuntime');
 const {GraphQLList} = require('graphql');
 const {IRVisitor, SchemaUtils} = require('graphql-compiler');
 
-// TODO T21875029 ../../relay-runtime/util/RelayConcreteNode
 import type {
   ConcreteArgument,
   ConcreteArgumentDefinition,

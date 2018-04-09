@@ -11,17 +11,14 @@
 
 'use strict';
 
-// TODO T21875029 ../../relay-runtime/util/RelayConcreteNode
-const RelayConcreteNode = require('RelayConcreteNode');
-
 const crypto = require('crypto');
 const dedupeJSONStringify = require('dedupeJSONStringify');
 const deepMergeAssignments = require('./deepMergeAssignments');
 const nullthrows = require('nullthrows');
 
+const {RelayConcreteNode} = require('RelayRuntime');
 const {Profiler} = require('graphql-compiler');
 
-// TODO T21875029 ../../relay-runtime/util/RelayConcreteNode
 import type {GeneratedNode} from 'RelayConcreteNode';
 import type {CodegenDirectory} from 'graphql-compiler';
 

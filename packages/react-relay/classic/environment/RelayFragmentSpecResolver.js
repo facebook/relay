@@ -12,9 +12,9 @@
 
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
-const isScalarAndEqual = require('isScalarAndEqual');
 
 const {areEqualSelectors, getSelectorsFromObject} = require('./RelaySelector');
+const {isScalarAndEqual} = require('RelayRuntime');
 
 import type {
   FragmentSpecResolver,

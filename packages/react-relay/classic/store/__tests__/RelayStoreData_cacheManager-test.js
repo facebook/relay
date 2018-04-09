@@ -15,11 +15,14 @@ jest.mock('../../legacy/store/generateClientID');
 require('configureForRelayOSS');
 
 const Relay = require('../../RelayPublic');
-const {ConnectionInterface} = require('RelayRuntime');
 const RelayMockCacheManager = require('RelayMockCacheManager');
 const RelayStoreData = require('../RelayStoreData');
 const RelayTestUtils = require('RelayTestUtils');
-const {RangeOperations, MutationTypes} = require('RelayRuntime');
+const {
+  ConnectionInterface,
+  RangeOperations,
+  MutationTypes,
+} = require('RelayRuntime');
 
 const transformRelayQueryPayload = require('../../traversal/transformRelayQueryPayload');
 

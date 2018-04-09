@@ -20,14 +20,13 @@ const RelayQueryRequest = require('../network/RelayQueryRequest');
 const RelayStoreData = require('./RelayStoreData');
 const RelayVariables = require('../query/RelayVariables');
 
-const deepFreeze = require('deepFreeze');
 const forEachRootCallArg = require('../query/forEachRootCallArg');
 const generateForceIndex = require('../legacy/store/generateForceIndex');
 const readRelayQueryData = require('./readRelayQueryData');
 const relayUnstableBatchedUpdates = require('../tools/relayUnstableBatchedUpdates');
 const warning = require('warning');
 
-const {Observable, recycleNodesInto} = require('RelayRuntime');
+const {Observable, deepFreeze, recycleNodesInto} = require('RelayRuntime');
 
 import type {
   Environment,

@@ -16,7 +16,6 @@ const RelayParser = require('../../core/RelayParser');
 const invariant = require('invariant');
 
 const {AFTER, BEFORE, FIRST, KEY, LAST} = require('./RelayConnectionConstants');
-// TODO T21875029 ../../../relay-runtime/RelayRuntime
 const {ConnectionInterface} = require('RelayRuntime');
 const {
   assertCompositeType,
@@ -33,7 +32,6 @@ const {
   SchemaUtils,
 } = require('graphql-compiler');
 
-// TODO T21875029 ../../../relay-runtime/handlers/connection/RelayConnectionHandler
 import type {ConnectionMetadata} from 'RelayConnectionHandler';
 import type {
   Argument,

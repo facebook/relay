@@ -11,8 +11,7 @@
 
 'use strict';
 
-// TODO T21875029 ../../../relay-runtime/util/RelayDefaultHandleKey
-const {DEFAULT_HANDLE_KEY} = require('RelayDefaultHandleKey');
+const {DEFAULT_HANDLE_KEY} = require('RelayRuntime');
 const {GraphQLObjectType} = require('graphql');
 const {IRTransformer, SchemaUtils} = require('graphql-compiler');
 

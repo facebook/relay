@@ -15,7 +15,6 @@ const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
 const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
-const isScalarAndEqual = require('isScalarAndEqual');
 const warning = require('warning');
 
 const {
@@ -24,7 +23,7 @@ const {
 } = require('../classic/container/RelayContainerUtils');
 const {assertRelayContext} = require('../classic/environment/RelayContext');
 const {profileContainer} = require('./ReactRelayContainerProfiler');
-const {RelayProfiler} = require('RelayRuntime');
+const {RelayProfiler, isScalarAndEqual} = require('RelayRuntime');
 
 import type {FragmentSpecResolver} from '../classic/environment/RelayCombinedEnvironmentTypes';
 import type {RelayEnvironmentInterface as ClassicEnvironment} from '../classic/store/RelayEnvironment';

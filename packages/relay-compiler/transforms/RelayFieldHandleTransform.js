@@ -11,11 +11,10 @@
 
 'use strict';
 
-// TODO T21875029 ../../relay-runtime/util/getRelayHandleKey
-const getRelayHandleKey = require('getRelayHandleKey');
 const invariant = require('invariant');
 
 const {CompilerContext, IRTransformer} = require('graphql-compiler');
+const {getRelayHandleKey} = require('RelayRuntime');
 
 import type {Field} from 'graphql-compiler';
 

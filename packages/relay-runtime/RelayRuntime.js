@@ -16,6 +16,7 @@ const RelayConnectionHandler = require('RelayConnectionHandler');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 const RelayCore = require('RelayCore');
 const RelayDeclarativeMutationConfig = require('RelayDeclarativeMutationConfig');
+const RelayDefaultHandleKey = require('RelayDefaultHandleKey');
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('RelayMarkSweepStore');
 const RelayModernEnvironment = require('RelayModernEnvironment');
@@ -30,11 +31,15 @@ const RelayViewerHandler = require('RelayViewerHandler');
 const applyRelayModernOptimisticMutation = require('applyRelayModernOptimisticMutation');
 const commitLocalUpdate = require('commitLocalUpdate');
 const commitRelayModernMutation = require('commitRelayModernMutation');
+const deepFreeze = require('deepFreeze');
 const fetchRelayModernQuery = require('fetchRelayModernQuery');
+const getRelayHandleKey = require('getRelayHandleKey');
 const isRelayModernEnvironment = require('isRelayModernEnvironment');
+const isScalarAndEqual = require('isScalarAndEqual');
 const recycleNodesInto = require('recycleNodesInto');
 const requestRelaySubscription = require('requestRelaySubscription');
 const simpleClone = require('simpleClone');
+const stableCopy = require('stableCopy');
 
 export type {
   CacheConfig,
@@ -156,10 +161,15 @@ module.exports = {
   // Utilities
   RelayProfiler: RelayProfiler,
 
-  // TODO T22766889 remove cross-cell imports of internal modules
-  // INTERNAL-ONLY: these WILL be removed from this API in the next release
+  // INTERNAL-ONLY: These exports might be removed at any point.
+  RelayConcreteNode: RelayConcreteNode,
+  DEFAULT_HANDLE_KEY: RelayDefaultHandleKey.DEFAULT_HANDLE_KEY,
+  ROOT_ID: RelayStoreUtils.ROOT_ID,
+
+  deepFreeze: deepFreeze,
+  getRelayHandleKey: getRelayHandleKey,
+  isScalarAndEqual: isScalarAndEqual,
   recycleNodesInto: recycleNodesInto,
   simpleClone: simpleClone,
-  ROOT_ID: RelayStoreUtils.ROOT_ID,
-  RelayConcreteNode: RelayConcreteNode,
+  stableCopy: stableCopy,
 };

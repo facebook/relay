@@ -10,7 +10,7 @@
 
 'use strict';
 
-const isScalarAndEqual = require('isScalarAndEqual');
+const {isScalarAndEqual} = require('RelayRuntime');
 
 /**
  * Compares `objectA` and `objectB` using the provided `isEqual` function.

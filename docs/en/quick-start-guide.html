@@ -117,7 +117,7 @@ type </span>Query {
 <p>Our app is rendering a <code>QueryRenderer</code> in the above code, like any other React Component, but let's see what's going on in the props that we are passing to it:</p>
 <ul>
 <li>We're passing the <code>environment</code> we defined earlier.</li>
-<li>We're using using the <a href="./graphql-in-relay.html"><code>graphql</code></a> function to define our GraphQL query. <code>graphql</code> is a template tag that is never executed at runtime, but rather used by the <a href="./graphql-in-relay.html#relay-compiler">Relay Compiler</a> to generate the runtime artifacts that Relay requires to operate. We don't need to worry about this right now; for more details check out our <a href="./graphql-in-relay.html">GraphQL in Relay</a> docs.</li>
+<li>We're using the <a href="./graphql-in-relay.html"><code>graphql</code></a> function to define our GraphQL query. <code>graphql</code> is a template tag that is never executed at runtime, but rather used by the <a href="./graphql-in-relay.html#relay-compiler">Relay Compiler</a> to generate the runtime artifacts that Relay requires to operate. We don't need to worry about this right now; for more details check out our <a href="./graphql-in-relay.html">GraphQL in Relay</a> docs.</li>
 <li>We're passing an empty set of <code>variables</code>. We'll look into how to use variables in the next section.</li>
 <li>We're passing a <code>render</code> function; as you can tell from the code, Relay gives us some information about whether an error occurred, or if we're still fetching the query. If everything succeeds, the data we requested will be available inside <code>props</code>, with the same shape as the one specified in the query.</li>
 </ul>

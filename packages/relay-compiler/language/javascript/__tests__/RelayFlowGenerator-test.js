@@ -20,7 +20,9 @@ const parseGraphQLText = require('parseGraphQLText');
 const {transformASTSchema} = require('ASTConvert');
 const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 
-function generate(text, options) {
+import type {TypeGeneratorOptions} from '../../RelayLanguagePluginInterface';
+
+function generate(text, options: TypeGeneratorOptions) {
   const schema = transformASTSchema(RelayTestSchema, [
     RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
     `
@@ -33,7 +35,7 @@ function generate(text, options) {
   const {definitions} = parseGraphQLText(schema, text);
   return new GraphQLCompilerContext(RelayTestSchema, schema)
     .addAll(definitions)
-    .applyTransforms(RelayFlowGenerator.flowTransforms)
+    .applyTransforms(RelayFlowGenerator.transforms)
     .documents()
     .map(doc => RelayFlowGenerator.generate(doc, options))
     .join('\n\n');
@@ -48,6 +50,7 @@ describe('RelayFlowGenerator', () => {
       inputFieldWhiteList: [],
       relayRuntimeModule: 'relay-runtime',
       useHaste: true,
+      useSingleArtifactDirectory: false,
     }),
   );
 
@@ -64,6 +67,7 @@ describe('RelayFlowGenerator', () => {
       inputFieldWhiteList: [],
       relayRuntimeModule: 'relay-runtime',
       useHaste: true,
+      useSingleArtifactDirectory: false,
       // This is what's different from the tests above.
       noFutureProofEnums: true,
     });
@@ -111,5 +115,26 @@ describe('RelayFlowGenerator', () => {
       expect(types).toContain('+color: ?Color,');
       expect(types).toContain('+name: ?LocalizedString,');
     });
+  });
+
+  it('imports fragment refs from siblings in a single artifact dir', () => {
+    const text = `
+      fragment Picture on Image {
+        ...PhotoFragment
+      }
+    `;
+    const types = generate(text, {
+      customScalars: {},
+      enumsHasteModule: null,
+      existingFragmentNames: new Set(['PhotoFragment']),
+      inputFieldWhiteList: [],
+      relayRuntimeModule: 'relay-runtime',
+      // This is what's different from the tests above.
+      useHaste: false,
+      useSingleArtifactDirectory: true,
+    });
+    expect(types).toContain(
+      'import type { PhotoFragment$ref } from "./PhotoFragment.graphql";',
+    );
   });
 });

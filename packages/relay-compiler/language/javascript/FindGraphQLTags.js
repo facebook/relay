@@ -10,17 +10,12 @@
 
 'use strict';
 
-const RelayCompilerCache = require('../util/RelayCompilerCache');
-
 const babylon = require('@babel/parser');
-const getModuleName = require('../util/getModuleName');
-const graphql = require('graphql');
-const path = require('path');
 const util = require('util');
 
 const {Profiler} = require('graphql-compiler');
 
-import type {File} from 'graphql-compiler';
+import type {GraphQLTag} from '../RelayLanguagePluginInterface';
 
 // Attempt to be as inclusive as possible of source text.
 const BABYLON_OPTIONS = {
@@ -48,18 +43,9 @@ const BABYLON_OPTIONS = {
   strictMode: false,
 };
 
-type Options = {|
-  validateNames: boolean,
-|};
-
-function find(
-  text: string,
-  filePath: string,
-  {validateNames}: Options,
-): Array<string> {
-  const result = [];
+function find(text: string): Array<GraphQLTag> {
+  const result: Array<GraphQLTag> = [];
   const ast = babylon.parse(text, BABYLON_OPTIONS);
-  const moduleName = getModuleName(filePath);
 
   const visitors = {
     CallExpression: node => {
@@ -89,7 +75,6 @@ function find(
               '`key: graphql`.',
             node.callee.name,
           );
-          const keyName = property.key.name;
           invariant(
             isGraphQLTag(property.value.tag),
             'FindGraphQLTags: `%s` expects fragment definitions to be tagged ' +
@@ -97,17 +82,11 @@ function find(
             node.callee.name,
             getSourceTextForLocation(text, property.value.tag.loc),
           );
-          const template = getGraphQLText(property.value.quasi);
-          if (validateNames) {
-            validateTemplate(
-              template,
-              moduleName,
-              keyName,
-              filePath,
-              getSourceLocationOffset(property.value.quasi),
-            );
-          }
-          result.push(template);
+          result.push({
+            keyName: property.key.name,
+            template: getGraphQLText(property.value.quasi),
+            sourceLocationOffset: getSourceLocationOffset(property.value.quasi),
+          });
         });
       } else {
         invariant(
@@ -123,17 +102,11 @@ function find(
           node.callee.name,
           getSourceTextForLocation(text, fragments.tag.loc),
         );
-        const template = getGraphQLText(fragments.quasi);
-        if (validateNames) {
-          validateTemplate(
-            template,
-            moduleName,
-            null,
-            filePath,
-            getSourceLocationOffset(fragments.quasi),
-          );
-        }
-        result.push(template);
+        result.push({
+          keyName: null,
+          template: getGraphQLText(fragments.quasi),
+          sourceLocationOffset: getSourceLocationOffset(fragments.quasi),
+        });
       }
 
       // Visit remaining arguments
@@ -143,44 +116,16 @@ function find(
     },
     TaggedTemplateExpression: node => {
       if (isGraphQLTag(node.tag)) {
-        const template = getGraphQLText(node.quasi);
-        if (validateNames) {
-          validateTemplate(
-            template,
-            moduleName,
-            null,
-            filePath,
-            getSourceLocationOffset(node.quasi),
-          );
-        }
-        result.push(node.quasi.quasis[0].value.raw);
+        result.push({
+          keyName: null,
+          template: node.quasi.quasis[0].value.raw,
+          sourceLocationOffset: getSourceLocationOffset(node.quasi),
+        });
       }
     },
   };
   visit(ast, visitors);
   return result;
-}
-
-const cache = new RelayCompilerCache('FindGraphQLTags', 'v1');
-
-function memoizedFind(
-  text: string,
-  baseDir: string,
-  file: File,
-  options: Options,
-): Array<string> {
-  invariant(
-    file.exists,
-    'FindGraphQLTags: Called with non-existent file `%s`',
-    file.relPath,
-  );
-  return cache.getOrCompute(
-    file.hash + (options.validateNames ? '1' : '0'),
-    () => {
-      const absPath = path.join(baseDir, file.relPath);
-      return find(text, absPath, options);
-    },
-  );
 }
 
 const CREATE_CONTAINER_FUNCTIONS = Object.create(null, {
@@ -213,7 +158,7 @@ function getTemplateNode(quasi) {
   return quasis[0];
 }
 
-function getGraphQLText(quasi) {
+function getGraphQLText(quasi): string {
   return getTemplateNode(quasi).value.raw;
 }
 
@@ -233,50 +178,6 @@ function getSourceTextForLocation(text, loc) {
   lines[0] = lines[0].slice(loc.start.column);
   lines[lines.length - 1] = lines[lines.length - 1].slice(0, loc.end.column);
   return lines.join('\n');
-}
-
-function validateTemplate(template, moduleName, keyName, filePath, loc) {
-  const ast = graphql.parse(new graphql.Source(template, filePath, loc));
-  ast.definitions.forEach((def: any) => {
-    invariant(
-      def.name,
-      'FindGraphQLTags: In module `%s`, a definition of kind `%s` requires a name.',
-      moduleName,
-      def.kind,
-    );
-    const definitionName = def.name.value;
-    if (def.kind === 'OperationDefinition') {
-      const operationNameParts = definitionName.match(
-        /^(.*)(Mutation|Query|Subscription)$/,
-      );
-      invariant(
-        operationNameParts && definitionName.startsWith(moduleName),
-        'FindGraphQLTags: Operation names in graphql tags must be prefixed ' +
-          'with the module name and end in "Mutation", "Query", or ' +
-          '"Subscription". Got `%s` in module `%s`.',
-        definitionName,
-        moduleName,
-      );
-    } else if (def.kind === 'FragmentDefinition') {
-      if (keyName) {
-        invariant(
-          definitionName === moduleName + '_' + keyName,
-          'FindGraphQLTags: Container fragment names must be ' +
-            '`<ModuleName>_<propName>`. Got `%s`, expected `%s`.',
-          definitionName,
-          moduleName + '_' + keyName,
-        );
-      } else {
-        invariant(
-          definitionName.startsWith(moduleName),
-          'FindGraphQLTags: Fragment names in graphql tags must be prefixed ' +
-            'with the module name. Got `%s` in module `%s`.',
-          definitionName,
-          moduleName,
-        );
-      }
-    }
-  });
 }
 
 function invariant(condition, msg, ...args) {
@@ -314,5 +215,4 @@ function traverse(node, visitors) {
 
 module.exports = {
   find: Profiler.instrument(find, 'FindGraphQLTags.find'),
-  memoizedFind,
 };

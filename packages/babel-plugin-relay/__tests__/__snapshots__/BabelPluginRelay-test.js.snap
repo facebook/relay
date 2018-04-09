@@ -1114,6 +1114,76 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
 });
 `;
 
+exports[`BabelPluginRelay matches expected output: arguments.txt 5`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule CompatProfile
+ */
+
+'use strict';
+
+const RelayCompatContainer = require('RelayCompatContainer');
+const graphql = require('graphql');
+
+const CompatProfilePic = () => null;
+
+module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
+  passing: graphql\`
+    fragment CompatProfile_passing on User {
+      ...ProfilePic_user @arguments(size: 40, scale: 1.5, title: "Photo")
+      ...ProfilePic_user @arguments(size: $pictureSize)
+    }
+  \`,
+  receiving: graphql\`
+    fragment CompatProfile_receiving on User @argumentDefinitions(
+      first: {type: "Int", defaultValue: 5}
+      named: {type: "String", defaultValue: "john"}
+      scale: {type: "Float", defaultValue: 1.5}
+      noDefault: {type: "Int"}
+    ) {
+      friends(first: $first, named: $named, scale: $scale) {
+        count
+      }
+    }
+  \`,
+  receivingGlobals: graphql\`
+    fragment CompatProfile_receivingGlobals on User {
+      friends(first: $friendsCount) {
+        count
+      }
+    }
+  \`,
+});
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule CompatProfile
+ */
+
+'use strict';
+
+const RelayCompatContainer = require('RelayCompatContainer');
+const graphql = require('graphql');
+
+const CompatProfilePic = () => null;
+
+module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
+  passing: function () {
+    return require('../test/artifacts/CompatProfile_passing.graphql');
+  },
+  receiving: function () {
+    return require('../test/artifacts/CompatProfile_receiving.graphql');
+  },
+  receivingGlobals: function () {
+    return require('../test/artifacts/CompatProfile_receivingGlobals.graphql');
+  }
+});
+`;
+
 exports[`BabelPluginRelay matches expected output: arguments-listvalue.txt 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 /**
@@ -1430,6 +1500,58 @@ module.exports = RelayClassic.createFragmentContainer(CompatProfile, {
         }()
       };
     }
+  }
+});
+`;
+
+exports[`BabelPluginRelay matches expected output: arguments-listvalue.txt 5`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ * @providesModule CompatProfile
+ */
+
+'use strict';
+
+const RelayClassic = require('RelayClassic');
+
+const {graphql} = RelayClassic;
+
+const CompatProfile = () => null;
+
+module.exports = RelayClassic.createFragmentContainer(CompatProfile, {
+  viewer: graphql\`
+    fragment CompatProfile_viewer on Viewer @argumentDefinitions(
+      browserContext: {type: "MarketplaceBrowseContext", defaultValue: BROWSE_FEED}
+      priceRange: {type: "[Float]", defaultValue: [0, 50]}
+    ) {
+      marketplace_explore(
+        marketplace_browse_context: $browserContext,
+        with_price_between: $priceRange,
+      ) {
+        count
+      }
+    }
+  \`
+});
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ * @providesModule CompatProfile
+ */
+
+'use strict';
+
+const RelayClassic = require('RelayClassic');
+
+const { graphql } = RelayClassic;
+
+const CompatProfile = () => null;
+
+module.exports = RelayClassic.createFragmentContainer(CompatProfile, {
+  viewer: function () {
+    return require('../test/artifacts/CompatProfile_viewer.graphql');
   }
 });
 `;
@@ -3583,6 +3705,66 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
 });
 `;
 
+exports[`BabelPluginRelay matches expected output: duplicate-variables.txt 5`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule CompatProfile
+ */
+
+'use strict';
+
+const RelayCompatContainer = require('RelayCompatContainer');
+const graphql = require('graphql');
+
+const CompatProfilePic = () => null;
+
+module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
+  user: graphql\`
+    fragment CompatProfile_user on User @argumentDefinitions(
+     scale: {type: "Float"}
+    ) {
+      profile_picture(scale: $scale) {
+        uri
+      }
+    }
+  \`,
+  user2: graphql\`
+    fragment CompatProfile_user2 on User @argumentDefinitions(
+     scale: {type: "Float"}
+    ) {
+      profile_picture(scale: $scale) {
+        uri
+      }
+    }
+  \`
+});
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule CompatProfile
+ */
+
+'use strict';
+
+const RelayCompatContainer = require('RelayCompatContainer');
+const graphql = require('graphql');
+
+const CompatProfilePic = () => null;
+
+module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
+  user: function () {
+    return require('../test/artifacts/CompatProfile_user.graphql');
+  },
+  user2: function () {
+    return require('../test/artifacts/CompatProfile_user2.graphql');
+  }
+});
+`;
+
 exports[`BabelPluginRelay matches expected output: error_confusing-fragment-name.txt 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 /**
@@ -3685,6 +3867,33 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, graphql\`
 ERROR:
 
 Error: unknown: BabelPluginGraphQL: Fragment \`CompatProfile_data\` should not end in \`_data\` to avoid conflict with a fragment named \`CompatProfile\` which also provides resulting data via the React prop \`data\`. Either rename this fragment to \`CompatProfile\` or choose a different prop name.
+`;
+
+exports[`BabelPluginRelay matches expected output: error_confusing-fragment-name.txt 5`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule CompatProfile
+ */
+
+'use strict';
+
+const RelayCompatContainer = require('RelayCompatContainer');
+const graphql = require('graphql');
+
+const CompatProfile = () => null;
+
+module.exports = RelayCompatContainer.createContainer(CompatProfile, graphql\`
+  fragment CompatProfile_data on User {
+    name
+  }
+\`);
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+
+Error: /testing/Container.js: BabelPluginGraphQL: Fragment \`CompatProfile_data\` should not end in \`_data\` to avoid conflict with a fragment named \`CompatProfile\` which also provides resulting data via the React prop \`data\`. Either rename this fragment to \`CompatProfile\` or choose a different prop name.
 `;
 
 exports[`BabelPluginRelay matches expected output: error_too-many-fragments.txt 1`] = `
@@ -3813,6 +4022,39 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, {
 ERROR:
 
 Error: unknown: BabelPluginRelay: Expected exactly one fragment in the graphql tag referenced by the property user.
+`;
+
+exports[`BabelPluginRelay matches expected output: error_too-many-fragments.txt 5`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule CompatProfile
+ */
+
+'use strict';
+
+const RelayCompatContainer = require('RelayCompatContainer');
+const graphql = require('graphql');
+
+const CompatProfile = () => null;
+
+module.exports = RelayCompatContainer.createContainer(CompatProfile, {
+  user: graphql\`
+    fragment CompatProfile_user on User {
+      name
+    }
+
+    fragment CompatProfile_viewer on User {
+      name
+    }
+  \`,
+});
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+
+Error: /testing/Container.js: BabelPluginRelay: Expected exactly one fragment in the graphql tag referenced by the property user.
 `;
 
 exports[`BabelPluginRelay matches expected output: error_unexpected-fragment.txt 1`] = `
@@ -3955,6 +4197,42 @@ ERROR:
 Error: unknown: BabelPluginRelay: Expected exactly one operation (query, mutation, or subscription) per graphql tag.
 `;
 
+exports[`BabelPluginRelay matches expected output: error_unexpected-fragment.txt 5`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule Compat
+ */
+
+'use strict';
+
+const graphql = require('graphql');
+const CompatProfilePic = require('CompatProfilePic');
+
+const CompatCommentCreateMutation = graphql\`
+  mutation CompatCommentCreateMutation($input: CommentCreateInput!) {
+    commentCreate(input: $input) {
+      viewer {
+        actor {
+          id
+          ...CompatProfilePic_user
+        }
+      }
+    }
+  }
+
+  fragment Whoopsie_key on User {
+    name
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+
+Error: /testing/Container.js: BabelPluginRelay: Expected exactly one operation (query, mutation, or subscription) per graphql tag.
+`;
+
 exports[`BabelPluginRelay matches expected output: error_unexpected-operation.txt 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 /**
@@ -4073,6 +4351,37 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, graphql\`
 ERROR:
 
 Error: unknown: BabelPluginRelay: Expected only fragments within this graphql tag.
+`;
+
+exports[`BabelPluginRelay matches expected output: error_unexpected-operation.txt 5`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule CompatProfile
+ */
+
+'use strict';
+
+const RelayCompatContainer = require('RelayCompatContainer');
+const graphql = require('graphql');
+
+const CompatProfile = () => null;
+
+module.exports = RelayCompatContainer.createContainer(CompatProfile, graphql\`
+  fragment CompatProfile_user on User {
+    name
+  }
+
+  query Whoopsie {
+    name
+  }
+\`);
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+ERROR:
+
+Error: /testing/Container.js: BabelPluginRelay: Expected only fragments within this graphql tag.
 `;
 
 exports[`BabelPluginRelay matches expected output: export-refetch-container.txt 1`] = `
@@ -4478,6 +4787,66 @@ module.exports = createRefetchContainer(RefetchExample, {
       }()
     };
   }
+});
+`;
+
+exports[`BabelPluginRelay matches expected output: export-refetch-container.txt 5`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule RefetchExample
+ */
+
+const React = require('React');
+const {createRefetchContainer, graphql} = require('RelayClassic');
+
+class RefetchExample extends React.Component {
+  render() {
+    return <div>{this.props.user.name}</div>;
+  }
+}
+
+module.exports = createRefetchContainer(
+  RefetchExample,
+  graphql\`
+    fragment RefetchExample_user on User {
+      name
+    }
+  \`,
+  graphql\`
+    query RefetchExampleRefetchQuery {
+      viewer {
+        actor {
+          ...RefetchExample_user
+        }
+      }
+    }
+  \`,
+);
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule RefetchExample
+ */
+
+const React = require('React');
+const { createRefetchContainer, graphql } = require('RelayClassic');
+
+class RefetchExample extends React.Component {
+  render() {
+    return <div>{this.props.user.name}</div>;
+  }
+}
+
+module.exports = createRefetchContainer(RefetchExample, {
+  user: function () {
+    return require('../test/artifacts/RefetchExample_user.graphql');
+  }
+}, function () {
+  return require('../test/artifacts/RefetchExampleRefetchQuery.graphql');
 });
 `;
 
@@ -5742,6 +6111,53 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, {
 });
 `;
 
+exports[`BabelPluginRelay matches expected output: fragment-spread.txt 5`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule CompatProfile
+ */
+
+'use strict';
+
+const CompatProfilePic = require('CompatProfilePic');
+const RelayCompatContainer = require('RelayCompatContainer');
+const graphql = require('graphql');
+
+const CompatProfile = () => null;
+
+module.exports = RelayCompatContainer.createContainer(CompatProfile, {
+  user: graphql\`
+    fragment CompatProfile_user on User {
+      name
+      ...CompatProfilePic_user
+    }
+  \`,
+});
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule CompatProfile
+ */
+
+'use strict';
+
+const CompatProfilePic = require('CompatProfilePic');
+const RelayCompatContainer = require('RelayCompatContainer');
+const graphql = require('graphql');
+
+const CompatProfile = () => null;
+
+module.exports = RelayCompatContainer.createContainer(CompatProfile, {
+  user: function () {
+    return require('../test/artifacts/CompatProfile_user.graphql');
+  }
+});
+`;
+
 exports[`BabelPluginRelay matches expected output: fragmentDirectives.txt 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 var Relay = require('react-relay');
@@ -6556,6 +6972,62 @@ function SomeTopLevelView() {
           }()
         };
       }
+    })} variables={{ id: '12345' }} />
+    </View>;
+}
+`;
+
+exports[`BabelPluginRelay matches expected output: memoize-inner-scope.txt 5`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule SomeTopLevelView
+ */
+
+'use strict';
+
+const ProfilePic = require('ProfilePic');
+
+function SomeTopLevelView() {
+  let _graphql = 'unrelated';
+
+  return (
+    <View>
+      <QueryRenderer
+        environment={RelayStore}
+        query={graphql\`
+          query ExampleQuery($id: ID!) {
+            node(id: $id) {
+              ...ProfilePic_user
+            }
+          }
+        \`}
+        variables={{id: '12345'}}
+      />
+    </View>
+  );
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule SomeTopLevelView
+ */
+
+'use strict';
+
+var _graphql2;
+
+const ProfilePic = require('ProfilePic');
+
+function SomeTopLevelView() {
+  let _graphql = 'unrelated';
+
+  return <View>
+      <QueryRenderer environment={RelayStore} query={_graphql2 || (_graphql2 = function () {
+      return require('../test/artifacts/ExampleQuery.graphql');
     })} variables={{ id: '12345' }} />
     </View>;
 }
@@ -7527,6 +7999,49 @@ const CompatCommentCreateMutation = {
 };
 `;
 
+exports[`BabelPluginRelay matches expected output: module-operation.txt 5`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule CompatCommentCreateMutation
+ */
+
+'use strict';
+
+const graphql = require('graphql');
+const CompatProfilePic = require('CompatProfilePic');
+
+const CompatCommentCreateMutation = graphql\`
+  mutation CompatCommentCreateMutation($input: CommentCreateInput!) {
+    commentCreate(input: $input) {
+      viewer {
+        actor {
+          id
+          ...CompatProfilePic_user
+        }
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule CompatCommentCreateMutation
+ */
+
+'use strict';
+
+const graphql = require('graphql');
+const CompatProfilePic = require('CompatProfilePic');
+
+const CompatCommentCreateMutation = function () {
+  return require('../test/artifacts/CompatCommentCreateMutation.graphql');
+};
+`;
+
 exports[`BabelPluginRelay matches expected output: multiple-root-fields.txt 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 /**
@@ -7935,6 +8450,53 @@ const CompatViewerQuery = {
 };
 `;
 
+exports[`BabelPluginRelay matches expected output: multiple-root-fields.txt 5`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule Compat
+ */
+
+'use strict';
+
+const graphql = require('graphql');
+const CompatProfilePic = require('CompatProfilePic');
+
+const CompatViewerQuery = graphql\`
+   query CompatViewerQuery($id: ID!, $scale: Float = 1.5) {
+    viewer {
+      actor {
+        id
+        ...CompatProfilePic_user
+      }
+    }
+    user: node(id: $id) {
+      ... on User {
+        id
+        ...CompatProfilePic_user
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule Compat
+ */
+
+'use strict';
+
+const graphql = require('graphql');
+const CompatProfilePic = require('CompatProfilePic');
+
+const CompatViewerQuery = function () {
+  return require('../test/artifacts/CompatViewerQuery.graphql');
+};
+`;
+
 exports[`BabelPluginRelay matches expected output: mutation.txt 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 /**
@@ -8323,6 +8885,49 @@ var x = function () {
 }();
 `;
 
+exports[`BabelPluginRelay matches expected output: mutation.txt 6`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule Compat
+ */
+
+'use strict';
+
+const graphql = require('graphql');
+const CompatProfilePic = require('CompatProfilePic');
+
+const CompatCommentCreateMutation = graphql\`
+  mutation CompatCommentCreateMutation($input: CommentCreateInput!) {
+    commentCreate(input: $input) {
+      viewer {
+        actor {
+          id
+          ...CompatProfilePic_user
+        }
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule Compat
+ */
+
+'use strict';
+
+const graphql = require('graphql');
+const CompatProfilePic = require('CompatProfilePic');
+
+const CompatCommentCreateMutation = function () {
+  return require('../test/artifacts/CompatCommentCreateMutation.graphql');
+};
+`;
+
 exports[`BabelPluginRelay matches expected output: mutationBadSchemaMissingArgs.txt 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 var Relay = require('react-relay');
@@ -8687,6 +9292,50 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, {
 });
 `;
 
+exports[`BabelPluginRelay matches expected output: no-fragment-spread.txt 5`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule CompatProfile
+ */
+
+'use strict';
+
+const RelayCompatContainer = require('RelayCompatContainer');
+const graphql = require('graphql');
+
+const CompatProfile = () => null;
+
+module.exports = RelayCompatContainer.createContainer(CompatProfile, {
+  user: graphql\`
+    fragment CompatProfile_user on User {
+      name
+    }
+  \`,
+});
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule CompatProfile
+ */
+
+'use strict';
+
+const RelayCompatContainer = require('RelayCompatContainer');
+const graphql = require('graphql');
+
+const CompatProfile = () => null;
+
+module.exports = RelayCompatContainer.createContainer(CompatProfile, {
+  user: function () {
+    return require('../test/artifacts/CompatProfile_user.graphql');
+  }
+});
+`;
+
 exports[`BabelPluginRelay matches expected output: no-object.txt 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 /**
@@ -8905,6 +9554,48 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, {
         }()
       };
     }
+  }
+});
+`;
+
+exports[`BabelPluginRelay matches expected output: no-object.txt 5`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule CompatProfile
+ */
+
+'use strict';
+
+const RelayCompatContainer = require('RelayCompatContainer');
+const graphql = require('graphql');
+
+const CompatProfile = () => null;
+
+module.exports = RelayCompatContainer.createContainer(CompatProfile, graphql\`
+  fragment CompatProfile_user on User {
+    name
+  }
+\`);
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule CompatProfile
+ */
+
+'use strict';
+
+const RelayCompatContainer = require('RelayCompatContainer');
+const graphql = require('graphql');
+
+const CompatProfile = () => null;
+
+module.exports = RelayCompatContainer.createContainer(CompatProfile, {
+  user: function () {
+    return require('../test/artifacts/CompatProfile_user.graphql');
   }
 });
 `;
@@ -9217,6 +9908,55 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, {
         }()
       };
     }
+  }
+});
+`;
+
+exports[`BabelPluginRelay matches expected output: no-object-many-fragments.txt 5`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule CompatProfile
+ */
+
+'use strict';
+
+const RelayCompatContainer = require('RelayCompatContainer');
+const graphql = require('graphql');
+
+const CompatProfile = () => null;
+
+module.exports = RelayCompatContainer.createContainer(CompatProfile, graphql\`
+  fragment CompatProfile_user on User {
+    name
+  }
+
+  fragment CompatProfile_viewer on User {
+    name
+  }
+\`);
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule CompatProfile
+ */
+
+'use strict';
+
+const RelayCompatContainer = require('RelayCompatContainer');
+const graphql = require('graphql');
+
+const CompatProfile = () => null;
+
+module.exports = RelayCompatContainer.createContainer(CompatProfile, {
+  user: function () {
+    return require('../test/artifacts/CompatProfile_user.graphql');
+  },
+  viewer: function () {
+    return require('../test/artifacts/CompatProfile_viewer.graphql');
   }
 });
 `;
@@ -9673,6 +10413,47 @@ const CompatViewerQuery = {
       }()
     };
   }
+};
+`;
+
+exports[`BabelPluginRelay matches expected output: query.txt 5`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule Compat
+ */
+
+'use strict';
+
+const graphql = require('graphql');
+const CompatProfilePic = require('CompatProfilePic');
+
+const CompatViewerQuery = graphql\`
+   query CompatViewerQuery($id: ID!, $scale: Float = 1.5) {
+    node(id: $id) {
+      ... on User {
+        id
+        ...CompatProfilePic_user
+      }
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule Compat
+ */
+
+'use strict';
+
+const graphql = require('graphql');
+const CompatProfilePic = require('CompatProfilePic');
+
+const CompatViewerQuery = function () {
+  return require('../test/artifacts/CompatViewerQuery.graphql');
 };
 `;
 
@@ -10762,6 +11543,49 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, {
 });
 `;
 
+exports[`BabelPluginRelay matches expected output: simple-named-fragment.txt 5`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule CompatProfile
+ */
+
+'use strict';
+
+const RelayCompatContainer = require('RelayCompatContainer');
+const graphql = require('graphql');
+
+const CompatProfile = () => null;
+
+module.exports = RelayCompatContainer.createContainer(CompatProfile, graphql\`
+  fragment CompatProfile on User {
+    name
+    ...SomeOtherContainer
+  }
+\`);
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule CompatProfile
+ */
+
+'use strict';
+
+const RelayCompatContainer = require('RelayCompatContainer');
+const graphql = require('graphql');
+
+const CompatProfile = () => null;
+
+module.exports = RelayCompatContainer.createContainer(CompatProfile, {
+  data: function () {
+    return require('../test/artifacts/CompatProfile.graphql');
+  }
+});
+`;
+
 exports[`BabelPluginRelay matches expected output: simple-named-with-many-fragments.txt 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 /**
@@ -11070,6 +11894,55 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, {
         }()
       };
     }
+  }
+});
+`;
+
+exports[`BabelPluginRelay matches expected output: simple-named-with-many-fragments.txt 5`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule CompatProfile
+ */
+
+'use strict';
+
+const RelayCompatContainer = require('RelayCompatContainer');
+const graphql = require('graphql');
+
+const CompatProfile = () => null;
+
+module.exports = RelayCompatContainer.createContainer(CompatProfile, graphql\`
+  fragment CompatProfile on User {
+    name
+  }
+
+  fragment CompatProfile_viewer on User {
+    name
+  }
+\`);
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule CompatProfile
+ */
+
+'use strict';
+
+const RelayCompatContainer = require('RelayCompatContainer');
+const graphql = require('graphql');
+
+const CompatProfile = () => null;
+
+module.exports = RelayCompatContainer.createContainer(CompatProfile, {
+  data: function () {
+    return require('../test/artifacts/CompatProfile.graphql');
+  },
+  viewer: function () {
+    return require('../test/artifacts/CompatProfile_viewer.graphql');
   }
 });
 `;
@@ -12403,6 +13276,92 @@ module.exports = createFragmentContainer(CompatProfile, {
         }()
       };
     }
+  }
+});
+`;
+
+exports[`BabelPluginRelay matches expected output: within-class-reference.txt 5`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule CompatStory
+ */
+
+'use strict';
+
+const {createFragmentContainer, graphql} = require('RelayClassic');
+const React = require('React');
+const CompatProfilePic = require('CompatProfilePic');
+
+class CompatProfile extends React.Component {
+  render() {
+    return <div>
+      <CompatProfilePic user={this.props.data} />
+      {this.props.data.name}
+      {this.props.data.subscribeStatus}
+    </div>;
+  }
+
+  doSomething() {
+    commitMutation(
+      this.props.relay,
+      graphql\`
+        mutation ActorSubscribe($input: ActorSubscribeInput!) {
+          actorSubscribe(input: $input) {
+            subscribee {
+              ...CompatProfile
+            }
+          }
+        }
+      \`,
+      { input: { subscribeeId: 123 } }
+    )
+  }
+}
+
+module.exports = createFragmentContainer(CompatProfile, graphql\`
+  fragment CompatProfile on Actor {
+    name
+    subscribeStatus
+    ...CompatProfilePic_user
+  }
+\`);
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule CompatStory
+ */
+
+'use strict';
+
+var _graphql;
+
+const { createFragmentContainer, graphql } = require('RelayClassic');
+const React = require('React');
+const CompatProfilePic = require('CompatProfilePic');
+
+class CompatProfile extends React.Component {
+  render() {
+    return <div>
+      <CompatProfilePic user={this.props.data} />
+      {this.props.data.name}
+      {this.props.data.subscribeStatus}
+    </div>;
+  }
+
+  doSomething() {
+    commitMutation(this.props.relay, _graphql || (_graphql = function () {
+      return require('../test/artifacts/ActorSubscribe.graphql');
+    }), { input: { subscribeeId: 123 } });
+  }
+}
+
+module.exports = createFragmentContainer(CompatProfile, {
+  data: function () {
+    return require('../test/artifacts/CompatProfile.graphql');
   }
 });
 `;

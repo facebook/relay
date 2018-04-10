@@ -316,7 +316,7 @@ Before proceeding, don't forget to run the Relay Compiler with `yarn relay`.
 
 ## Composing Fragments
 
-Given that [Fragment Containers](./fragment-containers) are just React components, we can compose them as such. We can even re-use fragment containers within other fragment containers. As an example, let's see how we would define a `TodoList` component that just renders a list of todo items, and whether all have been completed or not:
+Given that [Fragment Containers](./fragment-container) are just React components, we can compose them as such. We can even re-use fragment containers within other fragment containers. As an example, let's see how we would define a `TodoList` component that just renders a list of todo items, and whether all have been completed or not:
 
 ```javascript
 // TodoList.js

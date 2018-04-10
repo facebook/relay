@@ -1,6 +1,6 @@
 {
   "name": "graphql-compiler",
-  "version": "0.0.1-alpha6",
+  "version": "1.5.0",
   "license": "MIT",
   "description": "A Code-generation toolkit for GraphQL",
   "main": "GraphQLCompilerPublic.js",
@@ -11,9 +11,5 @@
   },
   "peerDependencies": {
     "graphql": "^0.12.0 || ^0.13.0"
-  },
-  "maintainers": [
-    "wincent <greg@hurrell.net>",
-    "yanj <yj334@cornell.edu>"
-  ]
+  }
 }

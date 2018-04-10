@@ -75,7 +75,11 @@ function testPackageDependencies(topLevelPackagePath, packagePath) {
     `${packageName} should have no dev dependencies.`
   );
 
-  const requiredRepoPackages = new Set(['relay-runtime', 'relay-compiler']);
+  const requiredRepoPackages = new Set([
+    'graphql-compiler',
+    'relay-compiler',
+    'relay-runtime'
+  ]);
   for (const dependencyName in packageJson.dependencies) {
     // packages in this repo, won't be in the top level package.json.
     if (requiredRepoPackages.has(dependencyName)) {

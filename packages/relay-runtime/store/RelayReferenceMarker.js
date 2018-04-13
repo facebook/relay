@@ -145,9 +145,8 @@ class RelayReferenceMarker {
           break;
         case SCALAR_FIELD:
         case SCALAR_HANDLE:
-          break;
         case DEFERRABLE_FRAGMENT_SPREAD:
-          invariant(false, 'RelayReferenceMarker: TODO');
+          break;
         default:
           (selection: empty);
           invariant(

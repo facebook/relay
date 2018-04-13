@@ -287,9 +287,11 @@ function getDeferrableSpreadUses(
           context.getFragment(spreadUse.spread.name),
         );
         for (const nestedSpreadUse of nestedSpreadUses) {
+          const separator =
+            spreadUse.path === '' || nestedSpreadUse.path === '' ? '' : '.';
           deferrableSpreadUses.push({
             spread: nestedSpreadUse.spread,
-            path: spreadUse.path + '.' + nestedSpreadUse.path,
+            path: spreadUse.path + separator + nestedSpreadUse.path,
           });
         }
       }

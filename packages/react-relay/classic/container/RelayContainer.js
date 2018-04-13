@@ -30,6 +30,7 @@ const filterObject = require('filterObject');
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const isClassicRelayContext = require('../store/isClassicRelayContext');
+const makeLegacyStringishComponentRef = require('../util/makeLegacyStringishComponentRef');
 const relayUnstableBatchedUpdates = require('../tools/relayUnstableBatchedUpdates');
 const shallowEqual = require('shallowEqual');
 const warning = require('warning');
@@ -820,7 +821,7 @@ function createContainerComponent(
           <ComponentClass
             {...this.props}
             {...this.state.queryData}
-            ref={'component'} // eslint-disable-line react/no-string-refs
+            ref={this._legacyStringishRef}
             relay={this.state.relayProp}
           />
         );
@@ -834,6 +835,9 @@ function createContainerComponent(
         });
       }
     }
+
+    // @TODO (T28161354) Remove this once string ref usage is gone.
+    _legacyStringishRef = makeLegacyStringishComponentRef(this, componentName);
   }
 
   function getFragment(

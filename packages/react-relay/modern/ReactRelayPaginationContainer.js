@@ -17,6 +17,7 @@ const RelayPropTypes = require('../classic/container/RelayPropTypes');
 const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
 const invariant = require('invariant');
+const makeLegacyStringishComponentRef = require('../classic/util/makeLegacyStringishComponentRef');
 const nullthrows = require('nullthrows');
 const warning = require('warning');
 
@@ -796,8 +797,8 @@ function createContainerWithFragments<
           <ComponentClass
             {...this.props}
             {...this.state.data}
-            // TODO: Remove the string ref fallback.
-            ref={this.props.componentRef || 'component'}
+            // @TODO (T28161354) Remove the string ref fallback
+            ref={this.props.componentRef || this._legacyStringishRef}
             relay={this.state.relayProp}
           />
         );
@@ -810,6 +811,9 @@ function createContainerWithFragments<
         });
       }
     }
+
+    // @TODO (T28161354) Remove this once string ref usage is gone.
+    _legacyStringishRef = makeLegacyStringishComponentRef(this, componentName);
   }
   profileContainer(Container, 'ReactRelayPaginationContainer');
 

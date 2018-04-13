@@ -15,7 +15,7 @@ const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
 const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
-const warning = require('warning');
+const makeLegacyStringishComponentRef = require('../classic/util/makeLegacyStringishComponentRef');
 
 const {
   getComponentName,
@@ -265,8 +265,8 @@ function createContainerWithFragments<
           <ComponentClass
             {...this.props}
             {...this.state.data}
-            // TODO: Remove the string ref fallback.
-            ref={this.props.componentRef || this._legacyRef}
+            // @TODO (T28161354) Remove the string ref fallback
+            ref={this.props.componentRef || this._legacyStringishRef}
             relay={this.state.relayProp}
           />
         );
@@ -280,28 +280,8 @@ function createContainerWithFragments<
       }
     }
 
-    _legacyRef = __DEV__
-      ? component => {
-          this.refs = {
-            __INTERNAL__component: component,
-          };
-          // Getter syntax is causing problems on www so falling back to
-          // Object.defineProperty.
-          // $FlowFixMe
-          Object.defineProperty(this.refs, 'component', {
-            get() {
-              warning(
-                false,
-                'RelayContainer: Do not use `container.refs.component` for ' +
-                  'RelayCompat or RelayModern containers. Instead pass ' +
-                  '`containerRef={ref}` to `%s`.',
-                componentName,
-              );
-              return component;
-            },
-          });
-        }
-      : 'component';
+    // @TODO (T28161354) Remove this once string ref usage is gone.
+    _legacyStringishRef = makeLegacyStringishComponentRef(this, componentName);
   }
   profileContainer(Container, 'ReactRelayFragmentContainer');
 

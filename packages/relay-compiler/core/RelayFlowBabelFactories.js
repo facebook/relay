@@ -73,6 +73,9 @@ function intersectionTypeAnnotation(types: Array<BabelAST>): BabelAST {
 }
 
 function lineComments(...lines: Array<string>) {
+  /* $FlowFixMe(>=0.70.0) This comment suppresses an error found when
+   * Flow v0.70 was deployed. To see the error delete this comment and
+   * run Flow. */
   return lines.map(line => ({type: 'CommentLine', value: ' ' + line}));
 }
 

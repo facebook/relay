@@ -41,6 +41,8 @@ const NodeKeys = {
   LinkedField: ['args', 'directives', 'selections'],
   Literal: [],
   LocalArgumentDefinition: [],
+  ObjectValue: [`fields`],
+  ObjectFieldValue: [`value`],
   Request: ['root'],
   Root: ['argumentDefinitions', 'directives', 'selections'],
   RootArgumentDefinition: [],

@@ -206,7 +206,9 @@ function sortSelections(selections: Array<Selection>): Array<Selection> {
   return [...selections].sort((a, b) => {
     return a.kind === 'InlineFragment' || a.kind === 'Condition'
       ? 1
-      : b.kind === 'InlineFragment' || b.kind === 'Condition' ? -1 : 0;
+      : b.kind === 'InlineFragment' || b.kind === 'Condition'
+        ? -1
+        : 0;
   });
 }
 

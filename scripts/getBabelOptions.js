@@ -17,7 +17,7 @@ module.exports = function(options) {
       moduleMap: {},
       plugins: [],
     },
-    options
+    options,
   );
 
   const fbjsPreset = require('babel-preset-fbjs/configure')({

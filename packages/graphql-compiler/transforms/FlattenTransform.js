@@ -91,7 +91,9 @@ function flattenSelections<T: HasSelections>(node: T, state: State): T {
   const type =
     node.kind === 'Condition'
       ? parentType
-      : node.kind === 'InlineFragment' ? node.typeCondition : node.type;
+      : node.kind === 'InlineFragment'
+        ? node.typeCondition
+        : node.type;
   invariant(type, 'FlattenTransform: Expected parent type.');
 
   // Flatten the selections in this node, creating a new node with flattened

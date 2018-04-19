@@ -799,12 +799,16 @@ class GraphQLParser {
       if (a.condition.kind === 'Variable' && b.condition.kind === 'Variable') {
         return a.condition.variableName < b.condition.variableName
           ? -1
-          : a.condition.variableName > b.condition.variableName ? 1 : 0;
+          : a.condition.variableName > b.condition.variableName
+            ? 1
+            : 0;
       } else {
         // sort literals earlier, variables later
         return a.condition.kind === 'Variable'
           ? 1
-          : b.condition.kind === 'Variable' ? -1 : 0;
+          : b.condition.kind === 'Variable'
+            ? -1
+            : 0;
       }
     });
     return [sortedConditions, directives];

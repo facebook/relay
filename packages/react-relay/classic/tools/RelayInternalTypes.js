@@ -57,7 +57,8 @@ export type CallValue = ?(
   | number
   | string
   | {[key: string]: CallValue}
-  | Array<CallValue>);
+  | Array<CallValue>
+);
 export type ClientMutationID = string;
 export type ConnectionArgumentsMap =
   | AfterConnectionArgumentMap

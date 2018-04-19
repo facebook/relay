@@ -25,7 +25,9 @@ function getValidRelayQLTag(path: any): [any, ?string, ?string] {
       ? 'RelayClassic_DEPRECATED.QL'
       : tag.matchesPattern('RelayClassic.QL')
         ? 'RelayClassic.QL'
-        : tag.isIdentifier({name: 'RelayQL'}) ? 'RelayQL' : null;
+        : tag.isIdentifier({name: 'RelayQL'})
+          ? 'RelayQL'
+          : null;
   if (!tagName) {
     return [null, null, null];
   }

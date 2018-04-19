@@ -39,3 +39,11 @@ fragment NestedTwoLevels on User {
     uri
   }
 }
+
+query TestQuery3(
+  $usedInInputObject: String!
+) {
+  items(filter: { date: $usedInInputObject }) {
+    date
+  }
+}

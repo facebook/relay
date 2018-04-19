@@ -44,6 +44,14 @@ fragment NestedTwoLevels on User {
   }
 }
 
+query TestQuery3(
+  $usedInInputObject: String!
+) {
+  items(filter: { date: $usedInInputObject }) {
+    date
+  }
+}
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 fragment TestFragment on Actor {
   id @skip(if: $usedInDirective)
@@ -77,6 +85,14 @@ fragment NestedOneLevel on User {
 fragment NestedTwoLevels on User {
   profile_picture(scale: $usedInNested) {
     uri
+  }
+}
+
+query TestQuery3(
+  $usedInInputObject: String!
+) {
+  items(filter: {date: $usedInInputObject}) {
+    date
   }
 }
 

@@ -24,20 +24,19 @@ const warning = require('warning');
 function makeLegacyStringishComponentRef(
   parentComponent: Object,
   componentName: string,
-): (c: Object) => void {
+): ((c: Object) => void) | string {
   let hasWarned = false;
+  if (__DEV__) {
+    return function ref(childComponent: Object): void {
+      if (!Object.isExtensible(parentComponent.refs)) {
+        // Probably emptyObject. >.>
+        parentComponent.refs = {};
+      }
 
-  return function ref(childComponent: Object): void {
-    if (!Object.isExtensible(parentComponent.refs)) {
-      // Probably emptyObject. >.>
-      parentComponent.refs = {};
-    }
+      // RelayFBContainerProxy uses this getter to avoid triggering the warning.
+      // This proxy component logs a separate warning to track its usage.
+      parentComponent.refs.__INTERNAL__component = childComponent;
 
-    // RelayFBContainerProxy uses this getter to avoid triggering the warning.
-    // This proxy component logs a separate warning to track its usage.
-    parentComponent.refs.__INTERNAL__component = childComponent;
-
-    if (__DEV__) {
       // $FlowFixMe https://github.com/facebook/flow/issues/285
       Object.defineProperty(parentComponent.refs, 'component', {
         configurable: true,
@@ -55,10 +54,10 @@ function makeLegacyStringishComponentRef(
           return childComponent;
         },
       });
-    } else {
-      parentComponent.refs.component = childComponent;
-    }
-  };
+    };
+  } else {
+    return 'component';
+  }
 }
 
 module.exports = makeLegacyStringishComponentRef;

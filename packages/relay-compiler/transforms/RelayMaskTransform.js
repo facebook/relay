@@ -6,7 +6,6 @@
  *
  * All rights reserved.
  *
- * @providesModule RelayMaskTransform
  * @flow
  * @format
  */

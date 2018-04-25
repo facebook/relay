@@ -39,6 +39,7 @@ ${flowText || ''}
 
 ${docTextComment}
 const node/*: ${documentType}*/ = ${concreteText};
+// prettier-ignore
 (node/*: any*/).hash = '${sourceHash}';
 module.exports = node;
 `;

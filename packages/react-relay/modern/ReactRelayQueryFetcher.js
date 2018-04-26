@@ -22,10 +22,12 @@ import type {
   Snapshot,
 } from 'RelayRuntime';
 
+type OnDataChange = null | (({error?: Error, snapshot?: Snapshot}) => void);
+
 export type FetchOptions = {
   cacheConfig?: ?CacheConfig,
   environment: IEnvironment,
-  onDataChange: ({error?: Error, snapshot?: Snapshot}) => void,
+  onDataChange: OnDataChange,
   operation: OperationSelector,
 };
 
@@ -43,7 +45,9 @@ class ReactRelayQueryFetcher {
   _rootSubscription: ?Disposable;
   _selectionReferences: Array<Disposable> = [];
   _snapshot: ?Snapshot; // results of the root fragment;
+  _error: ?Error; // fetch error
   _cacheSelectionReference: ?Disposable;
+  _callOnDataChangeWhenSet: boolean = false;
 
   lookupInStore(
     environment: IEnvironment,
@@ -102,6 +106,26 @@ class ReactRelayQueryFetcher {
       });
   }
 
+  setOnDataChange(onDataChange: OnDataChange): void {
+    invariant(
+      this._fetchOptions,
+      'ReactRelayQueryFetcher: `setOnDataChange` should have been called after having called `fetch`',
+    );
+
+    // Mutate the most recent fetchOptions in place,
+    // So that in-progress requests can access the updated callback.
+    this._fetchOptions.onDataChange = onDataChange;
+
+    if (this._callOnDataChangeWhenSet && typeof onDataChange === 'function') {
+      this._callOnDataChangeWhenSet = false;
+      if (this._error != null) {
+        onDataChange({error: this._error});
+      } else if (this._snapshot != null) {
+        onDataChange({snapshot: this._snapshot});
+      }
+    }
+  }
+
   /**
    * `fetch` fetches the data for the given operation.
    * If a result is immediately available synchronously, it will be synchronously
@@ -112,7 +136,7 @@ class ReactRelayQueryFetcher {
    * and then subsequently whenever the data changes.
    */
   fetch(fetchOptions: FetchOptions): ?Snapshot {
-    const {cacheConfig, environment, onDataChange, operation} = fetchOptions;
+    const {cacheConfig, environment, operation} = fetchOptions;
     let fetchHasReturned = false;
     let error;
 
@@ -129,15 +153,36 @@ class ReactRelayQueryFetcher {
       })
       .subscribe({
         next: () => {
+          const onDataChange = this._fetchOptions
+            ? this._fetchOptions.onDataChange
+            : null;
+
+          // If we received a response when we didn't have a change callback,
+          // Make a note that to notify the callback when it's later added.
+          this._callOnDataChangeWhenSet = typeof onDataChange !== 'function';
+          this._error = null;
+
           // Only notify of the first result if `next` is being called **asynchronously**
           // (i.e. after `fetch` has returned).
           this._onQueryDataAvailable({notifyFirstResult: fetchHasReturned});
         },
         error: err => {
+          const onDataChange = this._fetchOptions
+            ? this._fetchOptions.onDataChange
+            : null;
+
+          // If we received a response when we didn't have a change callback,
+          // Make a note that to notify the callback when it's later added.
+          this._callOnDataChangeWhenSet = typeof onDataChange !== 'function';
+          this._error = err;
+          this._snapshot = null;
+
           // Only notify of error if `error` is being called **asynchronously**
           // (i.e. after `fetch` has returned).
           if (fetchHasReturned) {
-            onDataChange({error: err});
+            if (typeof onDataChange === 'function') {
+              onDataChange({error: err});
+            }
           } else {
             error = err;
           }
@@ -151,9 +196,11 @@ class ReactRelayQueryFetcher {
     };
 
     fetchHasReturned = true;
+
     if (error) {
       throw error;
     }
+
     return this._snapshot;
   }
 
@@ -171,6 +218,7 @@ class ReactRelayQueryFetcher {
   }
 
   _disposeRequest() {
+    this._error = null;
     this._snapshot = null;
 
     // order is important, dispose of pendingFetch before selectionReferences
@@ -215,14 +263,25 @@ class ReactRelayQueryFetcher {
     if (this._snapshot) {
       return;
     }
+
     this._snapshot = environment.lookup(operation.fragment);
 
     // Subscribe to changes in the data of the root fragment
-    this._rootSubscription = environment.subscribe(this._snapshot, snapshot =>
-      onDataChange({snapshot}),
-    );
+    this._rootSubscription = environment.subscribe(this._snapshot, snapshot => {
+      // Read from this._fetchOptions in case onDataChange() was lazily added.
+      if (this._fetchOptions != null) {
+        const maybeNewOnDataChange = this._fetchOptions.onDataChange;
+        if (typeof maybeNewOnDataChange === 'function') {
+          maybeNewOnDataChange({snapshot});
+        }
+      }
+    });
 
-    if (this._snapshot && notifyFirstResult) {
+    if (
+      this._snapshot &&
+      notifyFirstResult &&
+      typeof onDataChange === 'function'
+    ) {
       onDataChange({snapshot: this._snapshot});
     }
   }

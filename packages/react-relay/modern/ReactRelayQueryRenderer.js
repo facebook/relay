@@ -29,11 +29,13 @@ import type {
 } from 'RelayRuntime';
 
 type RetryCallbacks = {
-  handleDataChange: ({
-    error?: Error,
-    snapshot?: Snapshot,
-  }) => void,
-  handleRetryAfterError: (error: Error) => void,
+  handleDataChange:
+    | null
+    | (({
+        error?: Error,
+        snapshot?: Snapshot,
+      }) => void),
+  handleRetryAfterError: null | ((error: Error) => void),
 };
 
 export type RenderProps = {
@@ -60,6 +62,7 @@ export type Props = {
 };
 
 type State = {
+  error: Error | null,
   prevPropsEnvironment: IEnvironment | ClassicEnvironment,
   prevPropsVariables: Variables,
   prevQuery: ?GraphQLTaggedNode,
@@ -68,6 +71,7 @@ type State = {
   relayContextVariables: Variables,
   renderProps: RenderProps,
   retryCallbacks: RetryCallbacks,
+  snapshot: Snapshot | null,
 };
 
 /**
@@ -96,29 +100,15 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
   constructor(props: Props, context: Object) {
     super(props, context);
 
-    const handleDataChange = ({
-      error,
-      snapshot,
-    }: {
-      error?: Error,
-      snapshot?: Snapshot,
-    }): void => {
-      this.setState({
-        renderProps: getRenderProps(
-          error,
-          snapshot,
-          queryFetcher,
-          retryCallbacks,
-        ),
-      });
-    };
-
-    const handleRetryAfterError = (error: Error) =>
-      this.setState({renderProps: getLoadingRenderProps()});
-
+    // Callbacks are attached to the current instance and shared with static
+    // lifecyles by bundling with state. This is okay to do because the
+    // callbacks don't change in reaction to props. However we should not
+    // "leak" them before mounting (since we would be unable to clean up). For
+    // that reason, we define them as null initially and fill them in after
+    // mounting to avoid leaking memory.
     const retryCallbacks = {
-      handleDataChange,
-      handleRetryAfterError,
+      handleDataChange: null,
+      handleRetryAfterError: null,
     };
 
     const queryFetcher = new ReactRelayQueryFetcher();
@@ -159,6 +149,43 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
     }
 
     return null;
+  }
+
+  componentDidMount() {
+    const {retryCallbacks, queryFetcher} = this.state;
+
+    retryCallbacks.handleDataChange = (params: {
+      error?: Error,
+      snapshot?: Snapshot,
+    }): void => {
+      const error = params.error == null ? null : params.error;
+      const snapshot = params.snapshot == null ? null : params.snapshot;
+
+      this.setState(prevState => {
+        // Don't update state if nothing has changed.
+        if (snapshot === prevState.snapshot && error === prevState.error) {
+          return null;
+        }
+        return {
+          renderProps: getRenderProps(
+            error,
+            snapshot,
+            queryFetcher,
+            retryCallbacks,
+          ),
+          snapshot,
+        };
+      });
+    };
+
+    retryCallbacks.handleRetryAfterError = (error: Error) =>
+      this.setState({renderProps: getLoadingRenderProps()});
+
+    // Re-initialize the ReactRelayQueryFetcher with callbacks.
+    // If data has changed since constructions, this will re-render.
+    if (this.props.query) {
+      queryFetcher.setOnDataChange(retryCallbacks.handleDataChange);
+    }
   }
 
   componentWillUnmount(): void {
@@ -231,9 +258,15 @@ function getRenderProps(
     props: snapshot ? snapshot.data : null,
     retry: () => {
       const syncSnapshot = queryFetcher.retry();
-      if (syncSnapshot) {
+      if (
+        syncSnapshot &&
+        typeof retryCallbacks.handleDataChange === 'function'
+      ) {
         retryCallbacks.handleDataChange({snapshot: syncSnapshot});
-      } else if (error) {
+      } else if (
+        error &&
+        typeof retryCallbacks.handleRetryAfterError === 'function'
+      ) {
         // If retrying after an error and no synchronous result available,
         // reset the render props
         retryCallbacks.handleRetryAfterError(error);
@@ -275,13 +308,16 @@ function fetchQueryAndComputeStateFromProps(
       const snapshot = querySnapshot || storeSnapshot;
       if (!snapshot) {
         return {
+          error: null,
           relayContextEnvironment: environment,
           relayContextVariables: operation.variables,
           renderProps: getLoadingRenderProps(),
+          snapshot: null,
         };
       }
 
       return {
+        error: null,
         relayContextEnvironment: environment,
         relayContextVariables: operation.variables,
         renderProps: getRenderProps(
@@ -290,18 +326,22 @@ function fetchQueryAndComputeStateFromProps(
           queryFetcher,
           retryCallbacks,
         ),
+        snapshot,
       };
     } catch (error) {
       return {
+        error,
         relayContextEnvironment: environment,
         relayContextVariables: operation.variables,
         renderProps: getRenderProps(error, null, queryFetcher, retryCallbacks),
+        snapshot: null,
       };
     }
   } else {
     queryFetcher.dispose();
 
     return {
+      error: null,
       relayContextEnvironment: environment,
       relayContextVariables: variables,
       renderProps: getEmptyRenderProps(),

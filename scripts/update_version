@@ -1,0 +1,47 @@
+#!/bin/sh
+
+set +x
+
+export PACKAGES_DIR=$(dirname $(realpath $(dirname $0)))/packages
+export PACKAGES=$(ls $PACKAGES_DIR)
+export NEW_VERSION=$1
+
+node <<SCRIPT
+var path = require('path');
+var fs = require('fs');
+
+var packagesDir = process.env.PACKAGES_DIR;
+var packages = process.env.PACKAGES.split('\n');
+var NEW_VERSION = process.env.NEW_VERSION;
+
+if (!NEW_VERSION || !/^\d\.\d+\.\d+(\-[\d\w\.]+)?$/.test(NEW_VERSION)) {
+  console.error(
+    'Invalid version "' + NEW_VERSION + '".\n' +
+    'USAGE:\n' +
+    '  update_version 1.2.3\n' +
+    '  update_version 1.2.3-rc.1'
+  );
+  process.exit(1);
+}
+
+packages.forEach(function(package) {
+
+  var packageJsonPath = path.join(packagesDir, package, 'package.json');
+  var packageJson = require(packageJsonPath);
+
+  packageJson.version = NEW_VERSION;
+  ['dependencies', 'peerDependencies'].forEach(dependenciesKey => {
+    for (var dep in packageJson[dependenciesKey]) {
+      if (packages.indexOf(dep) != -1) {
+        packageJson[dependenciesKey][dep] = NEW_VERSION;
+      }
+    }
+  });
+
+  fs.writeFileSync(
+    packageJsonPath,
+    JSON.stringify(packageJson, null, 2) + '\n',
+    'utf8'
+  );
+})
+SCRIPT

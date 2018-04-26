@@ -438,7 +438,6 @@ exports[`BabelPluginRelay matches expected output: arguments.txt 1`] = `
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -480,7 +479,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -508,7 +506,6 @@ exports[`BabelPluginRelay matches expected output: arguments.txt 2`] = `
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -558,7 +555,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -810,7 +806,6 @@ exports[`BabelPluginRelay matches expected output: arguments.txt 3`] = `
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -852,7 +847,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -880,7 +874,6 @@ exports[`BabelPluginRelay matches expected output: arguments.txt 4`] = `
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -922,7 +915,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -1126,7 +1118,6 @@ exports[`BabelPluginRelay matches expected output: arguments-listvalue.txt 1`] =
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -1156,7 +1147,6 @@ module.exports = RelayClassic.createFragmentContainer(CompatProfile, {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -1178,7 +1168,6 @@ exports[`BabelPluginRelay matches expected output: arguments-listvalue.txt 2`] =
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -1208,7 +1197,6 @@ module.exports = RelayClassic.createFragmentContainer(CompatProfile, {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -1290,7 +1278,6 @@ exports[`BabelPluginRelay matches expected output: arguments-listvalue.txt 3`] =
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -1320,7 +1307,6 @@ module.exports = RelayClassic.createFragmentContainer(CompatProfile, {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -1342,7 +1328,6 @@ exports[`BabelPluginRelay matches expected output: arguments-listvalue.txt 4`] =
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -1372,7 +1357,6 @@ module.exports = RelayClassic.createFragmentContainer(CompatProfile, {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -3156,7 +3140,6 @@ exports[`BabelPluginRelay matches expected output: duplicate-variables.txt 1`] =
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -3191,7 +3174,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -3216,7 +3198,6 @@ exports[`BabelPluginRelay matches expected output: duplicate-variables.txt 2`] =
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -3251,7 +3232,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -3384,7 +3364,6 @@ exports[`BabelPluginRelay matches expected output: duplicate-variables.txt 3`] =
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -3419,7 +3398,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -3444,7 +3422,6 @@ exports[`BabelPluginRelay matches expected output: duplicate-variables.txt 4`] =
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -3479,7 +3456,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfilePic, {
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -3612,7 +3588,6 @@ exports[`BabelPluginRelay matches expected output: error_confusing-fragment-name
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -3639,7 +3614,6 @@ exports[`BabelPluginRelay matches expected output: error_confusing-fragment-name
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -3666,7 +3640,6 @@ exports[`BabelPluginRelay matches expected output: error_confusing-fragment-name
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -3693,7 +3666,6 @@ exports[`BabelPluginRelay matches expected output: error_confusing-fragment-name
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -3720,7 +3692,6 @@ exports[`BabelPluginRelay matches expected output: error_too-many-fragments.txt 
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -3753,7 +3724,6 @@ exports[`BabelPluginRelay matches expected output: error_too-many-fragments.txt 
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -3786,7 +3756,6 @@ exports[`BabelPluginRelay matches expected output: error_too-many-fragments.txt 
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -3819,7 +3788,6 @@ exports[`BabelPluginRelay matches expected output: error_too-many-fragments.txt 
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -3852,7 +3820,6 @@ exports[`BabelPluginRelay matches expected output: error_unexpected-fragment.txt
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule Compat
  */
 
 'use strict';
@@ -3888,7 +3855,6 @@ exports[`BabelPluginRelay matches expected output: error_unexpected-fragment.txt
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule Compat
  */
 
 'use strict';
@@ -3924,7 +3890,6 @@ exports[`BabelPluginRelay matches expected output: error_unexpected-fragment.txt
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule Compat
  */
 
 'use strict';
@@ -3960,7 +3925,6 @@ exports[`BabelPluginRelay matches expected output: error_unexpected-fragment.txt
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule Compat
  */
 
 'use strict';
@@ -3996,7 +3960,6 @@ exports[`BabelPluginRelay matches expected output: error_unexpected-operation.tx
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -4027,7 +3990,6 @@ exports[`BabelPluginRelay matches expected output: error_unexpected-operation.tx
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -4058,7 +4020,6 @@ exports[`BabelPluginRelay matches expected output: error_unexpected-operation.tx
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -4089,7 +4050,6 @@ exports[`BabelPluginRelay matches expected output: error_unexpected-operation.tx
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -4120,7 +4080,6 @@ exports[`BabelPluginRelay matches expected output: export-refetch-container.txt 
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule RefetchExample
  */
 
 const React = require('react');
@@ -4154,7 +4113,6 @@ module.exports = createRefetchContainer(
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule RefetchExample
  */
 
 const React = require('react');
@@ -4180,7 +4138,6 @@ exports[`BabelPluginRelay matches expected output: export-refetch-container.txt 
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule RefetchExample
  */
 
 const React = require('react');
@@ -4214,7 +4171,6 @@ module.exports = createRefetchContainer(
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule RefetchExample
  */
 
 const React = require('react');
@@ -4327,7 +4283,6 @@ exports[`BabelPluginRelay matches expected output: export-refetch-container.txt 
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule RefetchExample
  */
 
 const React = require('react');
@@ -4361,7 +4316,6 @@ module.exports = createRefetchContainer(
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule RefetchExample
  */
 
 const React = require('react');
@@ -4387,7 +4341,6 @@ exports[`BabelPluginRelay matches expected output: export-refetch-container.txt 
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule RefetchExample
  */
 
 const React = require('react');
@@ -4421,7 +4374,6 @@ module.exports = createRefetchContainer(
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule RefetchExample
  */
 
 const React = require('react');
@@ -5551,7 +5503,6 @@ exports[`BabelPluginRelay matches expected output: fragment-spread.txt 1`] = `
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -5575,7 +5526,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, {
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -5598,7 +5548,6 @@ exports[`BabelPluginRelay matches expected output: fragment-spread.txt 2`] = `
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -5622,7 +5571,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, {
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -5677,7 +5625,6 @@ exports[`BabelPluginRelay matches expected output: fragment-spread.txt 3`] = `
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -5701,7 +5648,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, {
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -5724,7 +5670,6 @@ exports[`BabelPluginRelay matches expected output: fragment-spread.txt 4`] = `
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -5748,7 +5693,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, {
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -5851,13 +5795,11 @@ Error: unknown: GraphQL Validation Error: Unknown type "NotAType". Did you mean 
 
 exports[`BabelPluginRelay matches expected output: fragmentWithModuleName.txt 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-/** @providesModule Foo.react */
 var Relay = require('react-relay');
 var x = Relay.QL\`fragment Foo on Node { id }\`;
 var y = Relay.QL\`fragment Bar on Node { id }\`;
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-/** @providesModule Foo.react */
 var Relay = require('react-relay');
 var x = function () {
   return {
@@ -6286,7 +6228,6 @@ exports[`BabelPluginRelay matches expected output: memoize-inner-scope.txt 1`] =
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule SomeTopLevelView
  */
 
 'use strict';
@@ -6317,7 +6258,6 @@ function SomeTopLevelView() {
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule SomeTopLevelView
  */
 
 'use strict';
@@ -6342,7 +6282,6 @@ exports[`BabelPluginRelay matches expected output: memoize-inner-scope.txt 2`] =
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule SomeTopLevelView
  */
 
 'use strict';
@@ -6373,7 +6312,6 @@ function SomeTopLevelView() {
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule SomeTopLevelView
  */
 
 'use strict';
@@ -6459,7 +6397,6 @@ exports[`BabelPluginRelay matches expected output: memoize-inner-scope.txt 3`] =
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule SomeTopLevelView
  */
 
 'use strict';
@@ -6490,7 +6427,6 @@ function SomeTopLevelView() {
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule SomeTopLevelView
  */
 
 'use strict';
@@ -6515,7 +6451,6 @@ exports[`BabelPluginRelay matches expected output: memoize-inner-scope.txt 4`] =
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule SomeTopLevelView
  */
 
 'use strict';
@@ -6546,7 +6481,6 @@ function SomeTopLevelView() {
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule SomeTopLevelView
  */
 
 'use strict';
@@ -7280,7 +7214,6 @@ exports[`BabelPluginRelay matches expected output: module-operation.txt 1`] = `
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatCommentCreateMutation
  */
 
 'use strict';
@@ -7305,7 +7238,6 @@ const CompatCommentCreateMutation = graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatCommentCreateMutation
  */
 
 'use strict';
@@ -7323,7 +7255,6 @@ exports[`BabelPluginRelay matches expected output: module-operation.txt 2`] = `
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatCommentCreateMutation
  */
 
 'use strict';
@@ -7348,7 +7279,6 @@ const CompatCommentCreateMutation = graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatCommentCreateMutation
  */
 
 'use strict';
@@ -7443,7 +7373,6 @@ exports[`BabelPluginRelay matches expected output: module-operation.txt 3`] = `
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatCommentCreateMutation
  */
 
 'use strict';
@@ -7468,7 +7397,6 @@ const CompatCommentCreateMutation = graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatCommentCreateMutation
  */
 
 'use strict';
@@ -7486,7 +7414,6 @@ exports[`BabelPluginRelay matches expected output: module-operation.txt 4`] = `
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatCommentCreateMutation
  */
 
 'use strict';
@@ -7511,7 +7438,6 @@ const CompatCommentCreateMutation = graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatCommentCreateMutation
  */
 
 'use strict';
@@ -7606,7 +7532,6 @@ exports[`BabelPluginRelay matches expected output: multiple-root-fields.txt 1`] 
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule Compat
  */
 
 'use strict';
@@ -7635,7 +7560,6 @@ const CompatViewerQuery = graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule Compat
  */
 
 'use strict';
@@ -7653,7 +7577,6 @@ exports[`BabelPluginRelay matches expected output: multiple-root-fields.txt 2`] 
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule Compat
  */
 
 'use strict';
@@ -7682,7 +7605,6 @@ const CompatViewerQuery = graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule Compat
  */
 
 'use strict';
@@ -7814,7 +7736,6 @@ exports[`BabelPluginRelay matches expected output: multiple-root-fields.txt 3`] 
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule Compat
  */
 
 'use strict';
@@ -7843,7 +7764,6 @@ const CompatViewerQuery = graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule Compat
  */
 
 'use strict';
@@ -7861,7 +7781,6 @@ exports[`BabelPluginRelay matches expected output: multiple-root-fields.txt 4`] 
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule Compat
  */
 
 'use strict';
@@ -7890,7 +7809,6 @@ const CompatViewerQuery = graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule Compat
  */
 
 'use strict';
@@ -8022,7 +7940,6 @@ exports[`BabelPluginRelay matches expected output: mutation.txt 1`] = `
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule Compat
  */
 
 'use strict';
@@ -8047,7 +7964,6 @@ const CompatCommentCreateMutation = graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule Compat
  */
 
 'use strict';
@@ -8065,7 +7981,6 @@ exports[`BabelPluginRelay matches expected output: mutation.txt 2`] = `
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule Compat
  */
 
 'use strict';
@@ -8090,7 +8005,6 @@ const CompatCommentCreateMutation = graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule Compat
  */
 
 'use strict';
@@ -8185,7 +8099,6 @@ exports[`BabelPluginRelay matches expected output: mutation.txt 3`] = `
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule Compat
  */
 
 'use strict';
@@ -8210,7 +8123,6 @@ const CompatCommentCreateMutation = graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule Compat
  */
 
 'use strict';
@@ -8228,7 +8140,6 @@ exports[`BabelPluginRelay matches expected output: mutation.txt 4`] = `
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule Compat
  */
 
 'use strict';
@@ -8253,7 +8164,6 @@ const CompatCommentCreateMutation = graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule Compat
  */
 
 'use strict';
@@ -8552,7 +8462,6 @@ exports[`BabelPluginRelay matches expected output: no-fragment-spread.txt 1`] = 
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -8574,7 +8483,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, {
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -8596,7 +8504,6 @@ exports[`BabelPluginRelay matches expected output: no-fragment-spread.txt 2`] = 
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -8618,7 +8525,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, {
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -8671,7 +8577,6 @@ exports[`BabelPluginRelay matches expected output: no-fragment-spread.txt 3`] = 
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -8693,7 +8598,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, {
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -8715,7 +8619,6 @@ exports[`BabelPluginRelay matches expected output: no-fragment-spread.txt 4`] = 
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -8737,7 +8640,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, {
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -8790,7 +8692,6 @@ exports[`BabelPluginRelay matches expected output: no-object.txt 1`] = `
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -8810,7 +8711,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -8832,7 +8732,6 @@ exports[`BabelPluginRelay matches expected output: no-object.txt 2`] = `
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -8852,7 +8751,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -8905,7 +8803,6 @@ exports[`BabelPluginRelay matches expected output: no-object.txt 3`] = `
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -8925,7 +8822,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -8947,7 +8843,6 @@ exports[`BabelPluginRelay matches expected output: no-object.txt 4`] = `
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -8967,7 +8862,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -9020,7 +8914,6 @@ exports[`BabelPluginRelay matches expected output: no-object-many-fragments.txt 
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -9044,7 +8937,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -9069,7 +8961,6 @@ exports[`BabelPluginRelay matches expected output: no-object-many-fragments.txt 
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -9093,7 +8984,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -9180,7 +9070,6 @@ exports[`BabelPluginRelay matches expected output: no-object-many-fragments.txt 
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -9204,7 +9093,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -9229,7 +9117,6 @@ exports[`BabelPluginRelay matches expected output: no-object-many-fragments.txt 
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -9253,7 +9140,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -9481,7 +9367,6 @@ exports[`BabelPluginRelay matches expected output: query.txt 1`] = `
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule Compat
  */
 
 'use strict';
@@ -9504,7 +9389,6 @@ const CompatViewerQuery = graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule Compat
  */
 
 'use strict';
@@ -9522,7 +9406,6 @@ exports[`BabelPluginRelay matches expected output: query.txt 2`] = `
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule Compat
  */
 
 'use strict';
@@ -9545,7 +9428,6 @@ const CompatViewerQuery = graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule Compat
  */
 
 'use strict';
@@ -9642,7 +9524,6 @@ exports[`BabelPluginRelay matches expected output: query.txt 3`] = `
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule Compat
  */
 
 'use strict';
@@ -9665,7 +9546,6 @@ const CompatViewerQuery = graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule Compat
  */
 
 'use strict';
@@ -9683,7 +9563,6 @@ exports[`BabelPluginRelay matches expected output: query.txt 4`] = `
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule Compat
  */
 
 'use strict';
@@ -9706,7 +9585,6 @@ const CompatViewerQuery = graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule Compat
  */
 
 'use strict';
@@ -10661,7 +10539,6 @@ exports[`BabelPluginRelay matches expected output: simple-named-fragment.txt 1`]
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -10682,7 +10559,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -10704,7 +10580,6 @@ exports[`BabelPluginRelay matches expected output: simple-named-fragment.txt 2`]
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -10725,7 +10600,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -10779,7 +10653,6 @@ exports[`BabelPluginRelay matches expected output: simple-named-fragment.txt 3`]
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -10800,7 +10673,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -10822,7 +10694,6 @@ exports[`BabelPluginRelay matches expected output: simple-named-fragment.txt 4`]
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -10843,7 +10714,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -10897,7 +10767,6 @@ exports[`BabelPluginRelay matches expected output: simple-named-with-many-fragme
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -10921,7 +10790,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -10946,7 +10814,6 @@ exports[`BabelPluginRelay matches expected output: simple-named-with-many-fragme
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -10970,7 +10837,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -11057,7 +10923,6 @@ exports[`BabelPluginRelay matches expected output: simple-named-with-many-fragme
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -11081,7 +10946,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -11106,7 +10970,6 @@ exports[`BabelPluginRelay matches expected output: simple-named-with-many-fragme
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -11130,7 +10993,6 @@ module.exports = RelayCompatContainer.createContainer(CompatProfile, graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -11425,7 +11287,6 @@ exports[`BabelPluginRelay matches expected output: unmaskDirectiveCaller.txt 1`]
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatUtil
  */
 
 'use strict';
@@ -11455,7 +11316,6 @@ module.exports = Relay.createFragmentContainer(CompatProfile, {
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatUtil
  */
 
 'use strict';
@@ -11540,7 +11400,6 @@ exports[`BabelPluginRelay matches expected output: unmaskDirectiveInTheSameModul
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatUtil
  */
 
 'use strict';
@@ -11575,7 +11434,6 @@ module.exports = {
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatUtil
  */
 
 'use strict';
@@ -11669,7 +11527,6 @@ exports[`BabelPluginRelay matches expected output: unmaskDirectiveSharedModule.t
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatUtil
  */
 
 'use strict';
@@ -11698,7 +11555,6 @@ module.exports = {
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatUtil
  */
 
 'use strict';
@@ -11954,7 +11810,6 @@ exports[`BabelPluginRelay matches expected output: unmaskDirectiveWithArguments.
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatProfile
  */
 
 'use strict';
@@ -11989,7 +11844,6 @@ exports[`BabelPluginRelay matches expected output: within-class-reference.txt 1`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatStory
  */
 
 'use strict';
@@ -12036,7 +11890,6 @@ module.exports = createFragmentContainer(CompatProfile, graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatStory
  */
 
 'use strict';
@@ -12075,7 +11928,6 @@ exports[`BabelPluginRelay matches expected output: within-class-reference.txt 2`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatStory
  */
 
 'use strict';
@@ -12122,7 +11974,6 @@ module.exports = createFragmentContainer(CompatProfile, graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatStory
  */
 
 'use strict';
@@ -12278,7 +12129,6 @@ exports[`BabelPluginRelay matches expected output: within-class-reference.txt 3`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatStory
  */
 
 'use strict';
@@ -12325,7 +12175,6 @@ module.exports = createFragmentContainer(CompatProfile, graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatStory
  */
 
 'use strict';
@@ -12364,7 +12213,6 @@ exports[`BabelPluginRelay matches expected output: within-class-reference.txt 4`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatStory
  */
 
 'use strict';
@@ -12411,7 +12259,6 @@ module.exports = createFragmentContainer(CompatProfile, graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatStory
  */
 
 'use strict';

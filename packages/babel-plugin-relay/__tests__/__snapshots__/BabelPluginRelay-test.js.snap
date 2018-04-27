@@ -11669,7 +11669,6 @@ exports[`BabelPluginRelay matches expected output: unmaskDirectiveSharedModule-2
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatUtil
  */
 
 'use strict';
@@ -11695,7 +11694,6 @@ module.exports = graphql\`
 /**
  * Copyright 2004-present Facebook. All Rights Reserved.
  *
- * @providesModule CompatUtil
  */
 
 'use strict';

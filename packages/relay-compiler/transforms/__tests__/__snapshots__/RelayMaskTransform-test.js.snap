@@ -65,3 +65,51 @@ fragment AnotherRecursiveFragment on Image {
 }
 
 `;
+
+exports[`RelayMaskTransform matches expected output: relay-mask-transform-mixed-null.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment ParentFragment on Query {
+  ...NullableFieldFragment @relay(mask: false)
+  ...NonNullFieldFragment @relay(mask: false)
+}
+
+fragment NullableFieldFragment on Query {
+  node(id: $id) {
+    id
+  }
+}
+
+fragment NonNullFieldFragment on Query {
+  node_id_required(id: $id) {
+    id
+  }
+}
+
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment ParentFragment on Query {
+  ... on Query {
+    node(id: $id) {
+      id
+    }
+  }
+  ... on Query {
+    node_id_required(id: $id) {
+      id
+    }
+  }
+}
+
+fragment NullableFieldFragment on Query {
+  node(id: $id) {
+    id
+  }
+}
+
+fragment NonNullFieldFragment on Query {
+  node_id_required(id: $id) {
+    id
+  }
+}
+
+`;

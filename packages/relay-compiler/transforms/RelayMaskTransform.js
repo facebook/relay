@@ -20,6 +20,8 @@ const {
   isEquivalentType,
 } = require('graphql-compiler');
 
+const {GraphQLNonNull} = require('graphql');
+
 import type {
   Fragment,
   FragmentSpread,
@@ -145,10 +147,21 @@ function areSameArgumentDefinitions(
   argDef1: ArgumentDefinition,
   argDef2: ArgumentDefinition,
 ) {
+
+  let typeOrSubType1 = argDef1.type;
+  if (argDef1.type instanceof GraphQLNonNull) {
+    typeOrSubType1 = argDef1.type.ofType;
+  }
+
+  let typeOrSubType2 = argDef2.type;
+  if (argDef2.type instanceof GraphQLNonNull) {
+    typeOrSubType2 = argDef2.type.ofType;
+  }
+
   return (
     argDef1.kind === argDef2.kind &&
     argDef1.name === argDef2.name &&
-    isEquivalentType(argDef1.type, argDef2.type) &&
+    isEquivalentType(typeOrSubType1, typeOrSubType2) &&
     // Only LocalArgumentDefinition defines defaultValue
     (argDef1: any).defaultValue === (argDef2: any).defaultValue
   );

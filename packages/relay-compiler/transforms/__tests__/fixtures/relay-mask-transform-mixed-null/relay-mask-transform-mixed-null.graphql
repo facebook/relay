@@ -1,0 +1,17 @@
+fragment ParentFragment on Query {
+  ...NullableFieldFragment @relay(mask: false)
+  ...NonNullFieldFragment @relay(mask: false)
+}
+
+fragment NullableFieldFragment on Query {
+  node(id: $id) {
+    id
+  }
+}
+
+fragment NonNullFieldFragment on Query {
+  node_id_required(id: $id) {
+    id
+  }
+}
+

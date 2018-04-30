@@ -17,6 +17,6 @@
     "babel-types": "^6.24.1"
   },
   "peerDependencies": {
-    "graphql": "^0.12.0 || ^0.13.0"
+    "graphql": "^0.13.0"
   }
 }

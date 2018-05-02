@@ -47,7 +47,7 @@ function makeLegacyStringishComponentRef(
               false,
               'RelayContainer: Do not use `container.refs.component` for ' +
                 'RelayCompat or RelayModern containers. Instead pass ' +
-                '`containerRef={ref}` to `%s`.',
+                '`componentRef={ref}` to `%s`.',
               componentName,
             );
           }

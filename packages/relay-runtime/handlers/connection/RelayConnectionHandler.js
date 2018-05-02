@@ -178,7 +178,11 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
     }
     // Page info should be updated even if no new edge were returned.
     if (clientPageInfo && serverPageInfo) {
-      if (args.before != null || (args.after == null && args.last)) {
+      if (args.after == null && args.before == null) {
+        // The connection was refetched from the beginning/end: replace
+        // page_info
+        clientPageInfo.copyFieldsFrom(serverPageInfo);
+      } else if (args.before != null || (args.after == null && args.last)) {
         clientPageInfo.setValue(
           !!serverPageInfo.getValue(HAS_PREV_PAGE),
           HAS_PREV_PAGE,

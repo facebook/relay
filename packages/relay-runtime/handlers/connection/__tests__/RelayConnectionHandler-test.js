@@ -979,7 +979,9 @@ describe('RelayConnectionHandler', () => {
               'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
             [TYPENAME_KEY]: 'PageInfo',
             [END_CURSOR]: 'cursor:0',
+            [HAS_PREV_PAGE]: false,
             [HAS_NEXT_PAGE]: true,
+            [START_CURSOR]: 'cursor:0',
           },
         });
       });

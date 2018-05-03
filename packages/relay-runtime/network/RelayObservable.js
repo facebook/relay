@@ -613,7 +613,7 @@ if (__DEV__) {
       });
     } else if (typeof console !== 'undefined') {
       // Otherwise, log the unhandled error for visibility.
-      // eslint-ignore-next-line no-console
+      // eslint-disable-next-line no-console
       console.error('RelayObservable: Unhandled Error', error);
     }
   });

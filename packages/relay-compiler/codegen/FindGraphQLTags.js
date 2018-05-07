@@ -41,6 +41,7 @@ const BABYLON_OPTIONS = {
     'functionSent',
     'jsx',
     'objectRestSpread',
+    'optionalChaining',
   ],
   strictMode: false,
 };

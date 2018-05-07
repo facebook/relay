@@ -72,7 +72,7 @@ function getRequest(taggedNode: GraphQLTaggedNode): RequestNode {
       request !== null &&
       (request.kind === RelayConcreteNode.REQUEST ||
         request.kind === RelayConcreteNode.BATCH_REQUEST),
-    'RelayModernGraphQLTag: Expected an request, got `%s`.',
+    'RelayModernGraphQLTag: Expected a request, got `%s`.',
     JSON.stringify(request),
   );
   return (request: any);

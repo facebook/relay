@@ -194,7 +194,7 @@ const name = viewer.getValue('name', {arg: 'value'});
 
 ### `getLinkedRecord(name: string, arguments?: ?Object): ?RecordProxy`
 
-Retrieves the a record associated with the current record given the field name, as defined by the GraphQL document. Returns a `RecordProxy`.
+Retrieves a record associated with the current record given the field name, as defined by the GraphQL document. Returns a `RecordProxy`.
 
 #### Example
 

@@ -1,0 +1,28 @@
+test_task:
+  container:
+    matrix:
+      image: node:8
+      image: node:7
+      image: node:6
+  install_script:
+    - npm install --global gulp-cli
+    - yarn install
+  test_script: yarn run jest -- --runInBand --no-watchman
+
+lint_task:
+  container:
+    image: node:8
+  node_modules_cache:
+    folder: node_modules
+    fingerprint_script: cat yarn.lock
+    populate_script: yarn install --ignore-scripts
+  lint_script: yarn run test-dependencies && yarn run lint
+
+typecheck_task:
+  container:
+    image: node:8
+  node_modules_cache:
+    folder: node_modules
+    fingerprint_script: cat yarn.lock
+    populate_script: yarn install --ignore-scripts
+  typecheck_script: yarn run typecheck

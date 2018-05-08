@@ -15,7 +15,7 @@ However, a `QueryRenderer` will not start loading its data until it is mounted, 
 * `query`: The `graphql` tagged query. **Note:** To enable [compatibility mode](./relay-compat.html), `relay-compiler` enforces the query to be named as `<FileName>Query`. Optional, if not provided, an empty `props` object is passed to the `render` callback.
 * `cacheConfig?`: Optional object containing a set of cache configuration options, i.e. `force: true` requires the fetch to be issued regardless of the state of any configured response cache.
 * `variables`: Object containing set of variables to pass to the GraphQL query, i.e. a mapping from variable name to value. **Note:** If a new set of variables is passed, the `QueryRenderer` will re-fetch the query.
-* `render`: Function of type `({error, props}) => React.Node`. The output of this function will be rendered by the `QueryRenderer`.
+* `render`: Function of type `({error, props, retry}) => React.Node`. The output of this function will be rendered by the `QueryRenderer`.
   * `props`: Object containing data obtained from the query; the shape of this object will match the shape of the query. If this object is not defined, it means that the data is still being fetched.
   * `error`: Error will be defined if an error has occurred while fetching the query.
   * `retry`: Reload the data. It is null if `query` was not provided.

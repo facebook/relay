@@ -13,7 +13,7 @@
 <li><code>query</code>: The <code>graphql</code> tagged query. <strong>Note:</strong> To enable <a href="./relay-compat.html">compatibility mode</a>, <code>relay-compiler</code> enforces the query to be named as <code>&lt;FileName&gt;Query</code>. Optional, if not provided, an empty <code>props</code> object is passed to the <code>render</code> callback.</li>
 <li><code>cacheConfig?</code>: Optional object containing a set of cache configuration options, i.e. <code>force: true</code> requires the fetch to be issued regardless of the state of any configured response cache.</li>
 <li><code>variables</code>: Object containing set of variables to pass to the GraphQL query, i.e. a mapping from variable name to value. <strong>Note:</strong> If a new set of variables is passed, the <code>QueryRenderer</code> will re-fetch the query.</li>
-<li><code>render</code>: Function of type <code>({error, props}) =&gt; React.Node</code>. The output of this function will be rendered by the <code>QueryRenderer</code>.
+<li><code>render</code>: Function of type <code>({error, props, retry}) =&gt; React.Node</code>. The output of this function will be rendered by the <code>QueryRenderer</code>.
 <ul>
 <li><code>props</code>: Object containing data obtained from the query; the shape of this object will match the shape of the query. If this object is not defined, it means that the data is still being fetched.</li>
 <li><code>error</code>: Error will be defined if an error has occurred while fetching the query.</li>

@@ -68,7 +68,7 @@ yarn run relay
 Alternatively, you can pass the `--watch` option to watch for file changes in your source code and automatically re-generate the compiled artifacts (**Note:** Requires [watchman](https://facebook.github.io/watchman) to be installed):
 
 ```sh
-yarn run relay -- --watch
+yarn run relay --watch
 ```
 
 

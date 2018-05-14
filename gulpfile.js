@@ -70,7 +70,7 @@ const babelOptions = require('./scripts/getBabelOptions')({
 });
 const del = require('del');
 const derequire = require('gulp-derequire');
-const es = require('event-stream');
+const es = require('merge-stream');
 const flatten = require('gulp-flatten');
 const fs = require('fs');
 const gulp = require('gulp');
@@ -78,7 +78,6 @@ const chmod = require('gulp-chmod');
 const gulpUtil = require('gulp-util');
 const header = require('gulp-header');
 const path = require('path');
-const runSequence = require('run-sequence');
 const webpackStream = require('webpack-stream');
 
 const SCRIPT_HASHBANG = '#!/usr/bin/env node\n';
@@ -269,7 +268,7 @@ gulp.task('clean', function() {
 });
 
 gulp.task('modules', function() {
-  return es.merge(
+  return es(
     builds.map(build =>
       gulp
         .src([
@@ -284,10 +283,10 @@ gulp.task('modules', function() {
   );
 });
 
-gulp.task('copy-files', function() {
-  return es.merge(
+gulp.task('copy-files', function(cb) {
+  return es(
     builds.map(build =>
-      es.merge([
+      es([
         gulp
           .src([
             'LICENSE',
@@ -300,13 +299,14 @@ gulp.task('copy-files', function() {
         gulp // Move *.graphql files directly to lib without going through babel
           .src(['*' + PACKAGES + '/' + build.package + '/*.graphql'])
           .pipe(flatten())
-          .pipe(gulp.dest(path.join(DIST, build.package, 'lib'))),
+          .pipe(gulp.dest(path.join(DIST, build.package, 'lib')))
+          .on('end', function() { cb(); }),
       ])
     )
   );
 });
 
-gulp.task('exports', ['copy-files', 'modules'], function() {
+gulp.task('exports', gulp.series('copy-files', 'modules', function(cb) {
   builds.map(build =>
     Object.keys(build.exports).map(exportName =>
       fs.writeFileSync(
@@ -316,13 +316,14 @@ gulp.task('exports', ['copy-files', 'modules'], function() {
       )
     )
   );
-});
+  cb();
+}));
 
-gulp.task('bins', ['modules'], function() {
+gulp.task('bins', gulp.series('modules', function(cb) {
   const buildsWithBins = builds.filter(build => build.bins);
-  return es.merge(
+  return es(
     buildsWithBins.map(build =>
-      es.merge(
+      es(
         build.bins.map(bin =>
           gulp
             .src(path.join(DIST, build.package, 'lib', bin.entry))
@@ -330,16 +331,17 @@ gulp.task('bins', ['modules'], function() {
             .pipe(header(SCRIPT_HASHBANG + PRODUCTION_HEADER))
             .pipe(chmod(0o755))
             .pipe(gulp.dest(path.join(DIST, build.package, 'bin')))
+            .on('end', function() { cb(); })
         )
       )
     )
   );
-});
+}));
 
-gulp.task('bundles', ['modules'], function() {
-  return es.merge(
+gulp.task('bundles', gulp.series('modules', function(cb) {
+  return es(
     builds.map(build =>
-      es.merge(
+      es(
         build.bundles.map(bundle =>
           gulp
             .src(path.join(DIST, build.package, 'lib', bundle.entry))
@@ -353,16 +355,17 @@ gulp.task('bundles', ['modules'], function() {
             .pipe(derequire())
             .pipe(header(DEVELOPMENT_HEADER))
             .pipe(gulp.dest(path.join(DIST, build.package)))
+            .on('end', function() { cb(); })
         )
       )
     )
   );
-});
+}));
 
-gulp.task('bundles:min', ['modules'], function() {
-  return es.merge(
+gulp.task('bundles:min', gulp.series('modules', function(cb) {
+  return es(
     builds.map(build =>
-      es.merge(
+      es(
         build.bundles.map(bundle =>
           gulp
             .src(path.join(DIST, build.package, 'lib', bundle.entry))
@@ -375,16 +378,15 @@ gulp.task('bundles:min', ['modules'], function() {
             )
             .pipe(header(PRODUCTION_HEADER))
             .pipe(gulp.dest(path.join(DIST, build.package)))
+            .on('end', function() { cb(); })
         )
       )
     )
   );
-});
+}));
 
 gulp.task('watch', function() {
   gulp.watch(PACKAGES + '/**/*.js', ['exports', 'bundles']);
 });
 
-gulp.task('default', function(cb) {
-  runSequence('clean', ['exports', 'bins', 'bundles', 'bundles:min'], cb);
-});
+gulp.task('default', gulp.series('clean', 'exports', 'bins', 'bundles', 'bundles:min'));

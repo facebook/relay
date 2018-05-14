@@ -25,7 +25,8 @@ const babelOptions = getBabelOptions({
   // Tests use a Promise polfill so they can use jest.runAllTimers().
   autoImport: true,
   moduleMap: {
-    babylon: 'babylon',
+    // TODO(T25740028) once we're fully on babylon 7, we can remove this hack.
+    'metro-babylon7': 'babylon',
     immutable: 'immutable',
     React: 'react',
     reactComponentExpect: 'react-dom/lib/reactComponentExpect',

@@ -33,7 +33,9 @@ const babelOptions = require('./scripts/getBabelOptions')({
       'babel-runtime/helpers/toConsumableArray',
     'babel-traverse': 'babel-traverse',
     'babel-types': 'babel-types',
-    'babylon': 'babylon',
+    // TODO(T25740028) once we're fully on babylon 7, we can revert this to just
+    // babylon
+    'metro-babylon7': 'babylon',
     chalk: 'chalk',
     child_process: 'child_process',
     crypto: 'crypto',

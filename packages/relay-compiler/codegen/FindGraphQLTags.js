@@ -12,7 +12,7 @@
 
 const RelayCompilerCache = require('../util/RelayCompilerCache');
 
-const babylon = require('babylon');
+const babylon = require('metro-babylon7');
 const getModuleName = require('../util/getModuleName');
 const graphql = require('graphql');
 const path = require('path');

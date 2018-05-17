@@ -40,6 +40,7 @@ const BABYLON_OPTIONS = {
     'functionBind',
     'functionSent',
     'jsx',
+    'nullishCoalescingOperator',
     'objectRestSpread',
     'optionalChaining',
   ],

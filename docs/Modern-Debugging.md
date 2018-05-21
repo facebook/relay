@@ -18,7 +18,7 @@ If you're new to Relay, we provide some basic debugging strategies that should s
 2. If your app isn't rendering properly, use `console.log(props);` for every component to see the props you are actually passing.
 3. Once your app is rendering, uncomment the deepest fragment container and add that fragment back to your top-level query. Everything should still render. If not, use `console.log(props);` again.
 4. Continue uncommenting fragments and confirming that your app renders until your top-level query is as desired.
-5. If this still fails, come back to your code later and try debugging with a fresh mind. Additionally, you can [post an issue](https://github.com/facebook/relay/issues/new) and someone should get back to you within 1-2 days.
+5. If this still fails, come back to your code later and try debugging with a fresh mind. Additionally, you can [post an issue](https://github.com/facebook/relay/issues/new) and someone should get back to you hopefully within a few days.
 
 ## Tools
 

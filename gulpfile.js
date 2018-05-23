@@ -12,6 +12,7 @@
 
 const babel = require('gulp-babel');
 const babelOptions = require('./scripts/getBabelOptions')({
+  ast: false,
   moduleMap: {
     '@babel/generator': '@babel/generator',
     '@babel/types': '@babel/types',
@@ -69,6 +70,7 @@ const babelOptions = require('./scripts/getBabelOptions')({
     'transform-async-to-generator',
     'transform-es2015-modules-commonjs',
   ],
+  sourceType: 'script',
 });
 const del = require('del');
 const derequire = require('gulp-derequire');

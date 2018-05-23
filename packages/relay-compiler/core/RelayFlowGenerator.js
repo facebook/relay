@@ -27,7 +27,6 @@ const {
   lineComments,
   readOnlyArrayOfType,
   readOnlyObjectTypeProperty,
-  stringLiteralTypeAnnotation,
   unionTypeAnnotation,
 } = require('./RelayFlowBabelFactories');
 const {
@@ -101,7 +100,7 @@ function makeProp(
     );
   }
   if (schemaName === '__typename' && concreteType) {
-    value = stringLiteralTypeAnnotation(concreteType);
+    value = t.stringLiteralTypeAnnotation(concreteType);
   }
   const typeProperty = readOnlyObjectTypeProperty(key, value);
   if (conditional) {
@@ -156,7 +155,7 @@ function selectionsToBabel(selections, state: State, refTypeName?: string) {
     // this doesn't exist in Flow at the time.
     const otherProp = readOnlyObjectTypeProperty(
       '__typename',
-      stringLiteralTypeAnnotation('%other'),
+      t.stringLiteralTypeAnnotation('%other'),
     );
     otherProp.leadingComments = lineComments(
       "This will never be '%other', but we need some",
@@ -471,7 +470,7 @@ function getEnumDefinitions({
     return exportType(
       name,
       t.unionTypeAnnotation(
-        values.map(value => stringLiteralTypeAnnotation(value)),
+        values.map(value => t.stringLiteralTypeAnnotation(value)),
       ),
     );
   });

@@ -1171,7 +1171,7 @@ describe('RelayContainer', function() {
     const mockDataSet = {
       '42': {__dataID__: '42', name: 'Tim'},
     };
-    render = jest.genMockFunction().mockImplementation(() => <div />);
+    render = jest.fn().mockImplementation(() => <div />);
     const shouldComponentUpdate = jest.fn(() => true);
     const MockAlwaysUpdateComponent = Relay.createContainer(
       createReactClass({
@@ -1183,7 +1183,7 @@ describe('RelayContainer', function() {
         shouldComponentUpdate,
         fragments: {
           foo: jest
-            .genMockFunction()
+            .fn()
             .mockImplementation(() => Relay.QL`fragment on Node{id,name}`),
         },
       },

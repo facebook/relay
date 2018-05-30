@@ -141,10 +141,7 @@ function buildCompatContainer(
 
       RelayContainerProxy.proxyMethods(Container, ComponentClass);
     }
-    /* $FlowFixMe(>=0.53.0) This comment suppresses an
-     * error when upgrading Flow's support for React. Common errors found when
-     * upgrading Flow's React support are documented at
-     * https://fburl.com/eq7bs81w */
+    // $FlowFixMe
     return new Container(props, context);
   }
   ContainerConstructor.contextTypes = containerContextTypes;

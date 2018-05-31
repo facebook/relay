@@ -22,11 +22,14 @@ const nullthrows = require('nullthrows');
 const warning = require('warning');
 
 const {
-  getComponentName,
   getReactComponent,
-} = require('../classic/container/RelayContainerUtils');
+} = require('../classic/container/RelayClassicContainerUtils');
 const {assertRelayContext} = require('../classic/environment/RelayContext');
 const {profileContainer} = require('./ReactRelayContainerProfiler');
+const {
+  getComponentName,
+  getContainerName,
+} = require('./ReactRelayContainerUtils');
 const {
   ConnectionInterface,
   RelayProfiler,
@@ -324,7 +327,7 @@ function createContainerWithFragments<
 > {
   const ComponentClass = getReactComponent(Component);
   const componentName = getComponentName(Component);
-  const containerName = `Relay(${componentName})`;
+  const containerName = getContainerName(Component);
 
   const metadata = findConnectionMetadata(fragments);
 

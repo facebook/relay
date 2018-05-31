@@ -53,26 +53,6 @@ function getReactComponent(
   }
 }
 
-function getComponentName(Component: React$ComponentType<any>): string {
-  let name;
-  const ComponentClass = getReactComponent(Component);
-  if (ComponentClass) {
-    name = ComponentClass.displayName || ComponentClass.name;
-  } else if (typeof Component === 'function') {
-    // This is a stateless functional component.
-    name = Component.displayName || Component.name || 'StatelessComponent';
-  } else {
-    name = 'ReactElement';
-  }
-  return String(name);
-}
-
-function getContainerName(Component: React$ComponentType<any>): string {
-  return 'Relay(' + getComponentName(Component) + ')';
-}
-
 module.exports = {
-  getComponentName,
-  getContainerName,
   getReactComponent,
 };

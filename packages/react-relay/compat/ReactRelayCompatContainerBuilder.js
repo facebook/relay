@@ -21,7 +21,7 @@ const mapObject = require('mapObject');
 const {
   getComponentName,
   getContainerName,
-} = require('../classic/container/RelayContainerUtils');
+} = require('../modern/ReactRelayContainerUtils');
 
 import type {ConcreteFragmentSpread} from '../classic/query/ConcreteQuery';
 import type {VariableMapping} from '../classic/query/RelayFragmentReference';

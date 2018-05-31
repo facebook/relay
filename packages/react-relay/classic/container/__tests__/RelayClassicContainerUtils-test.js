@@ -14,7 +14,7 @@ const React = require('React');
 
 const createReactClass = require('create-react-class');
 
-const {getComponentName, getReactComponent} = require('../RelayContainerUtils');
+const {getReactComponent} = require('../RelayClassicContainerUtils');
 
 const CreateClassComponent = createReactClass({
   displayName: 'CreateClassComponent',
@@ -29,7 +29,7 @@ class ReactComponentSubclass extends React.Component {
 
 const FunctionalComponent = () => <div />;
 
-describe('RelayContainerUtils', () => {
+describe('RelayClassicContainerUtils', () => {
   describe('getReactComponent', () => {
     it('returns a component that extends React.Component', () => {
       expect(getReactComponent(ReactComponentSubclass)).toBe(
@@ -45,24 +45,6 @@ describe('RelayContainerUtils', () => {
 
     it('returns null for functional components', () => {
       expect(getReactComponent(FunctionalComponent)).toBe(null);
-    });
-  });
-
-  describe('getComponentName', () => {
-    it('returns a name for a component that extends React.Component', () => {
-      expect(getComponentName(ReactComponentSubclass)).toBe(
-        'ReactComponentSubclass',
-      );
-    });
-
-    it('returns a name for a component created by React.createClass()', () => {
-      expect(getComponentName(CreateClassComponent)).toBe(
-        'CreateClassComponent',
-      );
-    });
-
-    it('returns a name for functional components', () => {
-      expect(getComponentName(FunctionalComponent)).toBe('FunctionalComponent');
     });
   });
 });

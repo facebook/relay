@@ -18,11 +18,14 @@ const buildReactRelayContainer = require('./buildReactRelayContainer');
 const makeLegacyStringishComponentRef = require('../classic/util/makeLegacyStringishComponentRef');
 
 const {
-  getComponentName,
   getReactComponent,
-} = require('../classic/container/RelayContainerUtils');
+} = require('../classic/container/RelayClassicContainerUtils');
 const {assertRelayContext} = require('../classic/environment/RelayContext');
 const {profileContainer} = require('./ReactRelayContainerProfiler');
+const {
+  getComponentName,
+  getContainerName,
+} = require('./ReactRelayContainerUtils');
 const {RelayProfiler, isScalarAndEqual} = require('RelayRuntime');
 
 import type {FragmentSpecResolver} from '../classic/environment/RelayCombinedEnvironmentTypes';
@@ -63,7 +66,7 @@ function createContainerWithFragments<
 > {
   const ComponentClass = getReactComponent(Component);
   const componentName = getComponentName(Component);
-  const containerName = `Relay(${componentName})`;
+  const containerName = getContainerName(Component);
 
   class Container extends React.Component<ContainerProps, ContainerState> {
     static displayName = containerName;

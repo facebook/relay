@@ -18,7 +18,7 @@ const mapObject = require('mapObject');
 const {
   getComponentName,
   getContainerName,
-} = require('../classic/container/RelayContainerUtils');
+} = require('./ReactRelayContainerUtils');
 
 import type {GeneratedNodeMap} from './ReactRelayTypes';
 import type {GraphQLTaggedNode, FragmentMap} from 'RelayRuntime';

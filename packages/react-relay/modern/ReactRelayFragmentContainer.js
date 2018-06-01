@@ -308,6 +308,7 @@ function createContainer<Props: {}, TComponent: React.ComponentType<Props>>(
     Component,
     fragmentSpec,
     createContainerWithFragments,
+    /* provides child context */ false,
   );
 }
 

@@ -42,6 +42,7 @@ function buildReactRelayContainer<TBase: React$ComponentType<*>>(
   ComponentClass: TBase,
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
   createContainerWithFragments: ContainerCreator,
+  providesChildContext: boolean,
 ): TBase {
   // Sanity-check user-defined fragment input
   const containerName = getContainerName(ComponentClass);
@@ -77,6 +78,9 @@ function buildReactRelayContainer<TBase: React$ComponentType<*>>(
     return new Container(props, context);
   }
   ContainerConstructor.contextTypes = containerContextTypes;
+  if (providesChildContext) {
+    ContainerConstructor.childContextTypes = containerContextTypes;
+  }
   ContainerConstructor.displayName = containerName;
 
   if (__DEV__) {

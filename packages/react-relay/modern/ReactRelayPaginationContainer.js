@@ -837,15 +837,13 @@ function createContainer<Props: {}, TComponent: React.ComponentType<Props>>(
 ): React.ComponentType<
   $RelayProps<React.ElementConfig<TComponent>, RelayPaginationProp>,
 > {
-  const Container = buildReactRelayContainer(
+  return buildReactRelayContainer(
     Component,
     fragmentSpec,
     (ComponentClass, fragments) =>
       createContainerWithFragments(ComponentClass, fragments, connectionConfig),
+    /* provides child context */ true,
   );
-  // $FlowFixMe
-  Container.childContextTypes = containerContextTypes;
-  return Container;
 }
 
 module.exports = {createContainer, createContainerWithFragments};

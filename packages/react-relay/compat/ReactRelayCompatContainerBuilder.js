@@ -72,6 +72,7 @@ function buildCompatContainer(
   ComponentClass: React$ComponentType<any>,
   fragmentSpec: GeneratedNodeMap,
   createContainerWithFragments: ContainerCreator,
+  providesChildContext: boolean,
 ): any {
   // Sanity-check user-defined fragment input
   const containerName = getContainerName(ComponentClass);
@@ -145,6 +146,9 @@ function buildCompatContainer(
     return new Container(props, context);
   }
   ContainerConstructor.contextTypes = containerContextTypes;
+  if (providesChildContext) {
+    ContainerConstructor.childContextTypes = containerContextTypes;
+  }
   ContainerConstructor.displayName = containerName;
 
   // Classic container static methods

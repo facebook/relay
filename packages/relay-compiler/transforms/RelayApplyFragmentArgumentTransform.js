@@ -357,9 +357,10 @@ function transformFragment(
     fragment.argumentDefinitions,
     args,
     parentScope,
+    fragment.name,
   );
   invariant(
-    !fragments.has(fragmentName) || fragments.get(fragmentName) !== undefined,
+    !fragments.has(fragmentName) || fragments.get(fragmentName) != null,
     'RelayApplyFragmentArgumentTransform: Found a circular reference from ' +
       'fragment `%s`.',
     fragment.name,

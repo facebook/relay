@@ -10,6 +10,7 @@
 
 'use strict';
 
+const ErrorUtils = require('ErrorUtils');
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayReader = require('RelayReader');
 const RelayRecordSourceMutator = require('RelayRecordSourceMutator');
@@ -235,7 +236,13 @@ class RelayPublishQueue {
         sink,
       );
       const store = new RelayRecordSourceProxy(mutator);
-      updater(store);
+      ErrorUtils.applyWithGuard(
+        updater,
+        null,
+        [store],
+        null,
+        'RelayPublishQueue:commitUpdaters',
+      );
     });
     this._store.publish(sink);
     this._pendingUpdaters.clear();
@@ -271,10 +278,22 @@ class RelayPublishQueue {
               selectorData = lookupSelector(source, operation.fragment);
             }
             selectorStoreUpdater &&
-              selectorStoreUpdater(selectorStore, selectorData);
+              ErrorUtils.applyWithGuard(
+                selectorStoreUpdater,
+                null,
+                [selectorStore, selectorData],
+                null,
+                'RelayPublishQueue:applyUpdates',
+              );
           } else if (optimisticUpdate.storeUpdater) {
             const {storeUpdater} = optimisticUpdate;
-            storeUpdater(store);
+            ErrorUtils.applyWithGuard(
+              storeUpdater,
+              null,
+              [store],
+              null,
+              'RelayPublishQueue:applyUpdates',
+            );
           } else {
             const {source, fieldPayloads} = optimisticUpdate;
             store.publishSource(source, fieldPayloads);
@@ -299,10 +318,22 @@ class RelayPublishQueue {
               selectorData = lookupSelector(source, operation.fragment);
             }
             selectorStoreUpdater &&
-              selectorStoreUpdater(selectorStore, selectorData);
+              ErrorUtils.applyWithGuard(
+                selectorStoreUpdater,
+                null,
+                [selectorStore, selectorData],
+                null,
+                'RelayPublishQueue:applyUpdates',
+              );
           } else if (optimisticUpdate.storeUpdater) {
             const {storeUpdater} = optimisticUpdate;
-            storeUpdater(store);
+            ErrorUtils.applyWithGuard(
+              storeUpdater,
+              null,
+              [store],
+              null,
+              'RelayPublishQueue:applyUpdates',
+            );
           } else {
             const {source, fieldPayloads} = optimisticUpdate;
             store.publishSource(source, fieldPayloads);

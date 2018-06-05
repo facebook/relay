@@ -1,0 +1,11 @@
+query TestQuery {
+  task(number: 123) {
+    title
+  }
+  settings(environment: WEB) {
+    notificationSounds
+  }
+  checkinSearchQuery(query: {query: "Relay"}) {
+    query
+  }
+}

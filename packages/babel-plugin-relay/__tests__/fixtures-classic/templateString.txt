@@ -1,0 +1,2 @@
+var Relay = require('react-relay');
+var x = `Just a template string.`;

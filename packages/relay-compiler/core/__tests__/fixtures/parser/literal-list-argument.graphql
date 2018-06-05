@@ -1,0 +1,10 @@
+query LiteralListArgumentQuery {
+  route(waypoints: [{
+    lat: "0.0"
+    lon: "0.0"
+  }]) {
+    steps {
+      note
+    }
+  }
+}

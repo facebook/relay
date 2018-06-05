@@ -1,0 +1,10 @@
+var Relay = require('react-relay');
+var x = Relay.QL`
+  mutation {
+    actorSubscribe(input: $input) {
+      actor {
+        profilePicture
+      }
+    }
+  }
+`;

@@ -1,0 +1,22 @@
+{
+  "name": "babel-plugin-relay",
+  "description": "A Babel Plugin for use with Relay applications.",
+  "version": "1.6.0",
+  "keywords": [
+    "graphql",
+    "relay",
+    "babel",
+    "babel-plugin"
+  ],
+  "license": "MIT",
+  "homepage": "https://facebook.github.io/relay/",
+  "bugs": "https://github.com/facebook/relay/issues",
+  "repository": "facebook/relay",
+  "dependencies": {
+    "babel-runtime": "^6.23.0",
+    "babel-types": "^6.24.1"
+  },
+  "peerDependencies": {
+    "graphql": "^0.13.0"
+  }
+}

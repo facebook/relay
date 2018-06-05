@@ -1,112 +1,128 @@
 {
-  "name": "react-relay",
+  "name": "relay",
   "description": "A framework for building data-driven React applications.",
-  "version": "0.10.0",
-  "keywords": [
-    "graphql",
-    "react",
-    "relay"
-  ],
-  "license": "BSD-3-Clause",
+  "version": "1.6.0",
+  "license": "MIT",
   "homepage": "https://facebook.github.io/relay/",
   "bugs": "https://github.com/facebook/relay/issues",
-  "files": [
-    "LICENSE",
-    "PATENTS",
-    "README.md",
-    "dist/",
-    "lib/"
-  ],
-  "main": "lib/Relay.js",
   "repository": "facebook/relay",
   "scripts": {
     "build": "gulp",
     "jest": "NODE_ENV=test jest \"$@\"",
-    "lint": "eslint .",
+    "lint": "eslint --max-warnings 0 .",
     "prepublish": "node node_modules/fbjs-scripts/node/check-dev-engines.js package.json && npm run build",
-    "test": "f() { EXIT=0; npm run typecheck || EXIT=$?; npm run jest \"$@\" || EXIT=$?; exit $EXIT; }; f",
-    "typecheck": "flow check src/",
-    "update-schema": "babel-node ./scripts/jest/updateSchema.js"
+    "prettier": "find . -name node_modules -prune -or -name dist -prune -or -name '*.js' -print | xargs prettier --write",
+    "test": "f() { EXIT=0; npm run typecheck || EXIT=$?; npm run test-dependencies || EXIT=$?; npm run jest \"$@\" || EXIT=$?; exit $EXIT; }; f",
+    "test-dependencies": "node ./scripts/testDependencies.js",
+    "typecheck": "flow check"
+  },
+  "resolutions": {
+    "fbjs": "^0.8.16"
   },
   "dependencies": {
-    "babel-runtime": "^6.6.1",
-    "fbjs": "^0.8.1",
-    "react-static-container": "^1.0.1"
+    "@babel/generator": "7.0.0-beta.47",
+    "@babel/types": "7.0.0-beta.47",
+    "babel-cli": "6.24.1",
+    "babel-core": "6.25.0",
+    "babel-eslint": "7.2.3",
+    "babel-plugin-transform-async-to-generator": "6.24.1",
+    "babel-plugin-transform-es2015-modules-commonjs": "6.24.1",
+    "babel-plugin-transform-flow-strip-types": "6.22.0",
+    "babel-plugin-transform-regenerator": "6.24.1",
+    "babel-plugin-transform-runtime": "6.23.0",
+    "babel-polyfill": "^6.20.0",
+    "babel-preset-fbjs": "^2.1.4",
+    "babel-runtime": "^6.23.0",
+    "babel-traverse": "^6.26.0",
+    "babel-types": "^6.24.1",
+    "babylon": "7.0.0-beta.47",
+    "chalk": "^1.1.1",
+    "create-react-class": "^15.6.0",
+    "del": "3.0.0",
+    "eslint": "4.7.1",
+    "eslint-config-fbjs": "2.0.0",
+    "eslint-plugin-babel": "5.1.0",
+    "eslint-plugin-flowtype": "2.35.1",
+    "eslint-plugin-jsx-a11y": "6.0.2",
+    "eslint-plugin-react": "7.3.0",
+    "eslint-plugin-relay": "0.0.21",
+    "event-stream": "3.3.4",
+    "fast-glob": "^2.0.0",
+    "fb-watchman": "^2.0.0",
+    "fbjs": "0.8.16",
+    "fbjs-scripts": "0.7.1",
+    "flow-bin": "^0.73.0",
+    "graphql": "^0.13.1",
+    "gulp": "3.9.1",
+    "gulp-babel": "6.1.2",
+    "gulp-chmod": "2.0.0",
+    "gulp-derequire": "2.1.0",
+    "gulp-flatten": "0.4.0",
+    "gulp-header": "1.8.9",
+    "gulp-util": "3.0.8",
+    "immutable": "~3.7.6",
+    "iterall": "^1.2.1",
+    "jest": "^22.0.3",
+    "object-assign": "4.1.1",
+    "prettier": "1.12.1",
+    "prop-types": "^15.5.8",
+    "react": "^16.3.0",
+    "react-dom": "^16.3.0",
+    "react-test-renderer": "^16.3.0",
+    "run-sequence": "2.2.1",
+    "signedsource": "^1.0.0",
+    "webpack": "1.13.1",
+    "webpack-stream": "3.2.0",
+    "yargs": "^9.0.0"
   },
-  "peerDependencies": {
-    "babel-relay-plugin": "0.11.0",
-    "react": "^15.0.0 || ^0.14.0"
-  },
-  "devDependencies": {
-    "babel-cli": "^6.9.0",
-    "babel-core": "^6.9.0",
-    "babel-eslint": "^6.1.2",
-    "babel-plugin-transform-runtime": "^6.9.0",
-    "babel-polyfill": "^6.9.0",
-    "babel-preset-fbjs": "^2.0.0",
-    "del": "^2.2.0",
-    "eslint": "^3.0.1",
-    "eslint-config-fbjs": "^1.0.0",
-    "eslint-plugin-babel": "^3.3.0",
-    "eslint-plugin-flowtype": "2.30.0",
-    "eslint-plugin-react": "^5.2.2",
-    "fbjs-scripts": "^0.7.1",
-    "flow-bin": "^0.38.0",
-    "graphql": "0.9.1",
-    "gulp": "^3.9.1",
-    "gulp-babel": "^6.1.2",
-    "gulp-derequire": "^2.1.0",
-    "gulp-flatten": "^0.3.0",
-    "gulp-header": "1.8.7",
-    "gulp-util": "^3.0.7",
-    "jest": "^17.0.3",
-    "object-assign": "^4.1.0",
-    "react": "^15.1.0",
-    "react-addons-test-utils": "^15.0.0",
-    "react-dom": "^15.1.0",
-    "react-test-renderer": "^15.1.0",
-    "run-sequence": "^1.2.1",
-    "webpack": "^1.13.1",
-    "webpack-stream": "^3.2.0"
-  },
+  "private": true,
   "devEngines": {
     "node": ">=4.x",
     "npm": ">=2.x"
   },
+  "prettier": {
+    "requirePragma": true,
+    "singleQuote": true,
+    "trailingComma": "all",
+    "bracketSpacing": false,
+    "jsxBracketSameLine": true,
+    "parser": "flow"
+  },
   "jest": {
-    "rootDir": "",
-    "setupFiles": [
-      "node_modules/fbjs-scripts/jest/environment.js"
+    "haste": {
+      "hasteImplModulePath": "<rootDir>/scripts/jest/hasteImpl.js"
+    },
+    "modulePathIgnorePatterns": [
+      "<rootDir>/lib/",
+      "<rootDir>/node_modules/(?!(fbjs/lib/|react/lib/|fbjs-scripts/jest))"
     ],
+    "rootDir": "",
+    "roots": [
+      "<rootDir>/node_modules/fbjs/lib/",
+      "<rootDir>/node_modules/fbjs-scripts/jest",
+      "<rootDir>/packages/"
+    ],
+    "setupFiles": [
+      "<rootDir>/node_modules/fbjs-scripts/jest/environment.js",
+      "<rootDir>/scripts/jest/environment.js"
+    ],
+    "timers": "fake",
     "transform": {
-      ".*": "scripts/jest/preprocessor.js"
+      ".*": "<rootDir>/scripts/jest/preprocessor.js"
     },
     "transformIgnorePatterns": [
       "<rootDir>/node_modules/"
     ],
-    "automock": true,
-    "modulePathIgnorePatterns": [
-      "<rootDir>/lib/",
-      "<rootDir>/src/(.*).native.js",
-      "<rootDir>/node_modules/(?!(fbjs/lib/|react/lib/|fbjs-scripts/jest))"
-    ],
-    "testPathDirs": [
-      "<rootDir>/node_modules/fbjs/lib/",
-      "<rootDir>/node_modules/fbjs-scripts/jest",
-      "<rootDir>/node_modules/react/lib/",
-      "<rootDir>/node_modules/react-static-container/lib/",
-      "<rootDir>/src/"
-    ],
     "unmockedModulePathPatterns": [
       "<rootDir>/node_modules/fbjs-scripts/",
+      "<rootDir>/node_modules/fbjs/lib/(?!(ErrorUtils.js$|fetch.js$|fetchWithRetries.js$))",
       "<rootDir>/node_modules/fbjs/node_modules/core-js/",
       "<rootDir>/node_modules/fbjs/node_modules/promise/",
-      "<rootDir>/node_modules/fbjs/lib/(?!(ErrorUtils.js$|fetch.js$|fetchWithRetries.js$))",
       "<rootDir>/node_modules/object-assign/",
-      "<rootDir>/node_modules/react/",
-      "<rootDir>/node_modules/react-addons-test-utils/",
+      "<rootDir>/node_modules/prop-types/",
       "<rootDir>/node_modules/react-dom/",
-      "<rootDir>/node_modules/react-static-container/"
-    ]
+      "<rootDir>/node_modules/react/"
+    ],
+    "testEnvironment": "node"
   }
 }

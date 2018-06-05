@@ -1,0 +1,339 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FlattenTransform matches expected output: flatten-inline-fragments.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ... on Node {
+      id
+    }
+    ... on User {
+      name
+      id
+      friends(first: 10) {
+        edges {
+          node {
+            ... on User {
+              id
+            }
+          }
+        }
+      }
+    }
+    ... on Actor {
+      name
+      friends(first: 10) {
+        edges {
+          node {
+            name
+          }
+        }
+      }
+      moreFriends: friends(first: 20) {
+        edges {
+          node {
+            ... on User {
+              id
+            }
+            ... on Actor {
+              name
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query TestQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    name
+    friends(first: 10) {
+      edges {
+        node {
+          id
+          name
+        }
+      }
+    }
+    moreFriends: friends(first: 20) {
+      edges {
+        node {
+          id
+          name
+        }
+      }
+    }
+  }
+}
+
+`;
+
+exports[`FlattenTransform matches expected output: flatten-same-alias-different-args.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ... on User {
+      friendsAlias: friends(first: 5) {
+        count
+      }
+    }
+    ... on User {
+      friendsAlias: friends(first: 10) {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Expected all fields on the same parent with the name or alias \`friendsAlias\` to have the same name and arguments. Got \`friendsAlias: friends(first: 10)\` and \`friendsAlias: friends(first: 5)\`.
+`;
+
+exports[`FlattenTransform matches expected output: flatten-same-name-different-args.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ... on User {
+      friends(first: 5) {
+        count
+      }
+    }
+    ... on User {
+      friends(first: 10) {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: Expected all fields on the same parent with the name or alias \`friends\` to have the same name and arguments. Got \`friends(first: 10)\` and \`friends(first: 5)\`.
+`;
+
+exports[`FlattenTransform matches expected output: flattens-inline-inside-condition.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment UserFragment on User {
+  ... @include(if: $conditional) {
+    ...NestedFragment
+  }
+  name
+  ... @skip(if: $conditional) {
+    ...NestedFragment2
+  }
+}
+
+fragment NestedFragment on User {
+  name
+}
+
+fragment NestedFragment2 on User {
+  name
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment UserFragment on User {
+  ...NestedFragment @include(if: $conditional)
+  name
+  ...NestedFragment2 @skip(if: $conditional)
+}
+
+fragment NestedFragment on User {
+  name
+}
+
+fragment NestedFragment2 on User {
+  name
+}
+
+`;
+
+exports[`FlattenTransform matches expected output: flattens-inside-plural.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery(
+  $id: ID!
+) {
+  flattened: usernames(names: []) {
+    ... on Actor {
+      name
+    }
+  }
+  notFlattened: usernames(names: []) {
+    ... on User {
+      lastName
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query TestQuery(
+  $id: ID!
+) {
+  flattened: usernames(names: []) {
+    name
+  }
+  notFlattened: usernames(names: []) {
+    ... on User {
+      lastName
+    }
+  }
+}
+
+`;
+
+exports[`FlattenTransform matches expected output: flattens-matching-fragment-types.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery($id: ID!) {
+  node(id: $id) {
+    id
+    __typename
+    type: __typename
+    ... on Node {
+      id
+      __typename
+      typeName: __typename
+    }
+    ... on User {
+      ... on Node {
+        id
+      }
+      firstName
+      surname: lastName
+      friends(first: 10) {
+        edges {
+          node {
+            id
+            firstName
+          }
+        }
+      }
+      ... on User {
+        firstName
+        lastName
+        friends(first: 10) {
+          edges {
+            cursor
+            node {
+              id
+              lastName
+            }
+          }
+        }
+      }
+      firstName @customDirective(level: 1)
+      lastName @customDirective(level: 3)
+      ... on User {
+        firstName @customDirective(level: 2)
+        lastName @customDirective(level: 3)
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query TestQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    __typename
+    type: __typename
+    typeName: __typename
+    ... on User {
+      ... on Node {
+        id
+      }
+      firstName
+      surname: lastName
+      friends(first: 10) {
+        edges {
+          node {
+            id
+            firstName
+            lastName
+          }
+          cursor
+        }
+      }
+      lastName
+      firstName @customDirective(level: 1)
+      lastName @customDirective(level: 3)
+      firstName @customDirective(level: 2)
+    }
+  }
+}
+
+`;
+
+exports[`FlattenTransform matches expected output: linked-handle-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment LinkedHandleField on User {
+  friends(first: 10) @__clientField(handle: "clientFriends") {
+    count
+  }
+  ... on User {
+    # should be de-duped
+    friends(first: 10) @__clientField(handle: "clientFriends") {
+      count
+    }
+    ... on User {
+      friends(first: 10) @__clientField(handle: "recentFriends") {
+        count
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment LinkedHandleField on User {
+  friends(first: 10) @__clientField(handle: "clientFriends") @__clientField(handle: "recentFriends") {
+    count
+  }
+}
+
+`;
+
+exports[`FlattenTransform matches expected output: scalar-handle-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment ScalarHandleField on User {
+  name @__clientField(handle: "clientName")
+  ... on User {
+    # should be de-duped
+    name @__clientField(handle: "clientName")
+    ... on User {
+      name @__clientField(handle: "otherClientName")
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment ScalarHandleField on User {
+  name @__clientField(handle: "otherClientName") @__clientField(handle: "clientName")
+}
+
+`;

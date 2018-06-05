@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<!-- Built with spec-md -->
+<html><head><meta charset="utf-8"><title>Relay Cursor Connections Specification</title><style>body {
+  color: #333333;
+  font: 13pt/18pt Cambria, "Palatino Linotype", Palatino, "Liberation Serif", serif;
+  margin: 6rem auto 3rem;
+  max-width: 780px;
+}
+
+
+/* Links */
+
+a {
+  color: #3B5998;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+
+/* Section headers */
+
+h1, h2, h3, h4, h5, h6, h7, h8 {
+  margin: 3rem 0 1em;
+  position: relative;
+}
+
+h1 {
+  font-size: 1.5em;
+  margin: 8rem 0 2em;
+}
+
+h2 {
+  font-size: 1.45em;
+  margin: 8rem 0 1em;
+}
+
+h3 {
+  font-size: 1.30em;
+  margin: 5rem 0 1em;
+}
+
+h4 {
+  font-size: 1.20em;
+}
+
+h5 {
+  font-size: 1.12em;
+}
+
+h6, h7, h8 {
+  font-size: 1.1em;
+}
+
+section .spec-secid {
+  margin-right: 1ex;
+  position: absolute;
+  right: 100%;
+  text-align: right;
+  white-space: nowrap;
+}
+
+footer {
+  font-size: 75%;
+  opacity: 0.5;
+  text-align: center;
+  margin-top: 12rem;
+}
+
+
+/* Table of contents */
+
+.spec-toc {
+  margin: 1rem 0 3rem;
+}
+
+.spec-toc .title {
+  content: 'Contents';
+  display: block;
+  font-weight: bold;
+  margin: 3rem 0 1rem;
+}
+
+.spec-toc .spec-secid {
+  margin-right: 1ex;
+}
+
+.spec-toc ol {
+  list-style: none;
+  padding-left: 0;
+}
+
+.spec-toc ol ol {
+  list-style: none;
+  padding-left: 2ex;
+}
+
+.spec-toc li {
+  position: relative;
+  padding: 5px 0 0 30px;
+  margin: -5px 0 0 -30px;
+}
+
+.spec-toc a {
+  color: #333333;
+}
+
+.spec-toc a:hover {
+  text-decoration: none;
+}
+
+.spec-toc a .spec-secid {
+  color: #3B5998;
+}
+
+.spec-toc a:hover .spec-secid {
+  text-decoration: underline;
+}
+
+.spec-toc .toggle {
+  display: none;
+}
+
+.spec-toc .toggle + label {
+  cursor: pointer;
+  left: 10px;
+  opacity: 1;
+  padding: 3px 5px 3px 6px;
+  position: absolute;
+  top: 8px;
+  transform: rotate(0deg);
+  transition: all 0.18s ease-in-out;
+}
+
+.spec-toc .toggle + label:after {
+  border-color: transparent transparent transparent #bbc;
+  border-style: solid;
+  border-width: 6px 0 6px 7px;
+  content: ' ';
+  display: block;
+  height: 0;
+  width: 0;
+}
+
+.spec-toc .toggle:checked + label {
+  transform: rotate(90deg);
+}
+
+.spec-toc li:not(:hover) > .toggle:checked + label {
+  opacity: 0;
+}
+
+.spec-toc .toggle:not(:checked) ~ ol {
+  max-height: 0;
+  overflow: hidden;
+}
+
+
+/* Sidebar */
+
+.spec-sidebar-toggle {
+  display: none;
+}
+
+.spec-sidebar-toggle + label {
+  position: fixed;
+  right: 0;
+  top: 0;
+  padding: 10px 15px;
+  font-size: 30px;
+  color: rgba(0,0,0,0.7);
+  z-index: 2;
+  cursor: pointer;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
+
+.spec-sidebar {
+  display: none;
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 320px;
+  font-size: 80%;
+  overflow-y: scroll;
+  height: 100%;
+  padding: 0 0 5rem 30px;
+  box-sizing: border-box;
+  background: #f0f0f0;
+}
+
+.spec-sidebar-toggle:checked ~ .spec-sidebar {
+  display: block;
+  box-shadow:
+    -1px 0 rgba(0,0,0,0.12),
+    -4px 0 8px -2px rgba(0,0,0,0.05);
+}
+
+.spec-sidebar .viewing > a:after {
+  color: #8b9;
+  content: '\2022';
+  margin-left: 1ex;
+}
+
+@media (min-width: 1240px) {
+  .spec-sidebar-toggle + label {
+    display: none;
+  }
+
+  .spec-sidebar {
+    display: block;
+    box-shadow:
+      inset 1px 0 rgba(0,0,0,0.05),
+      inset 4px 0 8px -2px rgba(0,0,0,0.08) !important;
+  }
+
+  body {
+    padding-right: 300px;
+  }
+}
+
+
+/* Notes */
+
+.spec-note {
+  background: #FEFEF3;
+  border-left: solid 4px #F4E925;
+  margin: 1em -1em;
+  min-width: 416px;
+  padding: 1ex 1em 1ex calc(1em - 4px);
+  width: -moz-fit-content;
+  width: -webkit-fit-content;
+  width: fit-content;
+}
+
+.spec-note::before {
+  color: #6C6613;
+  content: 'Note';
+  display: block;
+  font: italic 11pt/18pt Cambria, "Palatino Linotype", Palatino, "Liberation Serif", serif;
+  opacity: 0.6;
+  user-select: none;
+}
+
+
+/* Todos */
+
+.spec-todo {
+  color: #666666;
+  margin: 1em 0 1em 5em;
+  min-height: 1em;
+}
+
+.spec-todo::before {
+  content: 'todo';
+  display: block;
+  float: left;
+  margin-left: -5em;
+  text-transform: uppercase;
+}
+
+/* Index table */
+
+.spec-index ol {
+  list-style-type: none;
+  margin: 0 0 0 2rem;
+  padding: 0;
+  column-width: 210px;
+  column-gap: 2rem;
+}
+
+.spec-index ol li {
+  width: min-content;
+}
+
+/* Code */
+
+code {
+  background: #FAFAFA;
+  font-family: Consolas, Monaco, monospace;
+  font-size: 85%;
+  font-weight: inherit;
+  margin: -2px -1px;
+  padding: 3px 3px;
+  white-space: pre;
+}
+
+pre code {
+  background: none;
+  font-weight: inherit;
+  margin: 0;
+  padding: 0;
+}
+
+pre {
+  background: #FAFAFA;
+  border-left: solid 4px #E9E9E9;
+  margin: 1em -1em;
+  min-width: 40ch;
+  padding: 1ex 1em 1ex calc(1em - 4px);
+  width: -moz-fit-content;
+  width: -webkit-fit-content;
+  width: fit-content;
+}
+
+.spec-example {
+  background: #FAFAFF;
+  border-left: solid 4px #BBBBFF;
+}
+
+.spec-counter-example {
+  background: #FFFAFA;
+  border-left: solid 4px #FFBBBB;
+}
+
+.spec-example > a,
+.spec-counter-example > a {
+  display: block;
+  font: italic 11pt/18pt Cambria, "Palatino Linotype", Palatino, "Liberation Serif", serif;
+  opacity: 0.6;
+  user-select: none;
+}
+
+.spec-counter-example > a {
+  color: #98593b;
+}
+
+
+/* Tables */
+
+table {
+  border-collapse: collapse;
+}
+
+th {
+  background-color: #F9F9F9;
+}
+
+td, th {
+  border: 1px solid #D0D0D0;
+  padding: 0.4em;
+  vertical-align: baseline;
+}
+
+
+/* Edits */
+
+ins {
+  background-color: rgba(0, 200, 30, 0.08);
+  text-decoration: none;
+}
+
+del {
+  background-color: rgba(200, 0, 0, 0.08);
+}
+
+.spec-added, .spec-removed {
+  border-left: 4px solid;
+  margin-left: -18px;
+  padding-left: 14px;
+}
+
+.spec-added {
+  border-color: #396;
+}
+
+.spec-removed {
+  border-color: #933;
+  text-decoration: line-through;
+}
+
+
+/* Values */
+
+.spec-keyword {
+  font-weight: bold;
+}
+
+.spec-string {
+  font-family: Consolas, Monaco, monospace;
+  white-space: pre;
+}
+
+var {
+  font-style: italic;
+}
+
+*[data-name] {
+  transition: 0.15s background ease-out;
+  border-radius: 2px;
+  padding: 0 3px;
+  margin: 0 -3px;
+}
+
+
+/* Grammar semantics, algorithms and calls */
+
+.spec-semantic,
+.spec-algo {
+  margin: 1rem 0 1rem 2rem;
+}
+
+.spec-semantic > .spec-rhs {
+  display: inline-block;
+  margin-left: 1ex;
+}
+
+.spec-semantic > .spec-nt::after,
+.spec-algo > .spec-call:first-child::after {
+  content: ':';
+  font-style: normal;
+  font-weight: bold;
+  margin-left: 1ex;
+}
+
+.spec-semantic ol, .spec-semantic ol ol ol ol,
+.spec-algo ol, .spec-algo ol ol ol ol {
+  list-style-type: decimal;
+}
+
+.spec-semantic ol ol, .spec-semantic ol ol ol ol ol,
+.spec-algo ol ol, .spec-algo ol ol ol ol ol {
+  list-style-type: lower-alpha;
+}
+
+.spec-semantic ol ol ol, .spec-semantic ol ol ol ol ol ol,
+.spec-algo ol ol ol, .spec-algo ol ol ol ol ol ol {
+  list-style-type: lower-roman;
+}
+
+.spec-call > a {
+  color: inherit;
+}
+
+
+/* Grammar productions */
+
+.spec-production {
+  margin: 1rem 0 1rem 2rem;
+}
+
+.spec-production > .spec-nt::after {
+  content: ':';
+  font-style: normal;
+  font-weight: bold;
+  margin: 0 1ex;
+}
+
+.spec-semantic.d2 > .spec-nt::after,
+.spec-production.d2 > .spec-nt::after {
+  content: '::';
+}
+
+.spec-semantic.d3 > .spec-nt::after,
+.spec-production.d3 > .spec-nt::after {
+  content: ':::';
+}
+
+.spec-rhs {
+  margin-left: 2rem;
+}
+
+.spec-oneof {
+  display: inline;
+}
+
+.spec-oneof::before {
+  content: 'one of';
+  font-style: normal;
+  font-weight: bold;
+}
+
+.spec-oneof > table {
+  margin-left: 2rem;
+}
+
+.spec-oneof .spec-rhs {
+  border: none;
+  margin: 0;
+  padding: 0 0.5em;
+  vertical-align: baseline;
+}
+
+.spec-rhs .spec-constrained:not(:first-child),
+.spec-rhs .spec-quantified:not(:first-child),
+.spec-rhs .spec-nt:not(:first-child),
+.spec-rhs .spec-t:not(:first-child),
+.spec-rhs .spec-rx:not(:first-child),
+.spec-rhs .spec-prose:not(:first-child),
+.spec-rhs .spec-empty:not(:first-child),
+.spec-rhs .spec-lookahead:not(:first-child) {
+  margin-left: 1ex;
+}
+
+.spec-condition {
+  font-size: 85%;
+}
+
+.spec-condition::before {
+  content: '[+'
+}
+
+.spec-condition.not::before {
+  content: '[~'
+}
+
+.spec-condition::after {
+  content: ']'
+}
+
+.spec-empty,
+.spec-prose {
+  color: #666666;
+}
+
+.spec-nt {
+  font-style: italic;
+}
+
+.spec-nt > a {
+  color: inherit;
+}
+
+.spec-quantifiers,
+.spec-params {
+  font-size: 65%;
+  font-style: normal;
+  vertical-align: sub;
+}
+
+.spec-quantifier.list {
+  color: #3348D3;
+}
+
+.spec-quantifier.optional {
+  color: #83238E;
+}
+
+.spec-params,
+.spec-condition {
+  color: #1C7758;
+}
+
+.spec-params::before {
+  content: '[';
+}
+
+.spec-params::after {
+  content: ']';
+}
+
+.spec-quantifier:not(:last-child)::after,
+.spec-param:not(:last-child)::after {
+  color: #666666;
+  content: ', ';
+}
+
+.spec-param.conditional::before {
+  content: '?';
+}
+
+.spec-t, .spec-rx {
+  color: #333333;
+  font-family: monospace;
+  font-weight: bold;
+}
+
+.spec-butnot::before {
+  color: #666666;
+  content: 'but not';
+  font-family: Cambria, "Palatino Linotype", Palatino, "Liberation Serif", serif;
+  font-weight: normal;
+  margin-right: 1ex;
+}
+
+.spec-butnot > *:not(:first-child)::before {
+  color: #666666;
+  content: 'or';
+  font-family: Cambria, "Palatino Linotype", Palatino, "Liberation Serif", serif;
+  font-weight: normal;
+  margin-right: 1ex;
+}
+
+.spec-rhs .spec-oneof::before,
+.spec-rhs .spec-butnot::before {
+  margin-left: 1ex;
+}
+
+.spec-lookahead > * {
+  margin: 0 !important;
+}
+
+.spec-lookahead > *:not(:first-child)::before {
+  color: #666666;
+  content: ', ';
+  font-family: Cambria, "Palatino Linotype", Palatino, "Liberation Serif", serif;
+  font-style: normal;
+  font-weight: normal;
+}
+
+.spec-lookahead::before {
+  color: #666666;
+  content: '[lookahead = ';
+  font-family: Cambria, "Palatino Linotype", Palatino, "Liberation Serif", serif;
+  font-style: normal;
+  font-weight: normal;
+}
+
+.spec-lookahead.not::before {
+  content: '[lookahead \2260  ';
+}
+
+.spec-lookahead.set::before {
+  content: '[lookahead \2208  {';
+  margin-right: 0;
+}
+
+.spec-lookahead.set.not::before {
+  content: '[lookahead \2209  {';
+}
+
+.spec-lookahead::after {
+  color: #666666;
+  content: ']';
+}
+
+.spec-lookahead.set::after {
+  content: '}]';
+}
+</style><style>/* Copied from node_modules/prismjs/themes/prism.css */
+/**
+ * prism.js default theme for JavaScript, CSS and HTML
+ * Based on dabblet (http://dabblet.com)
+ * @author Lea Verou
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+	color: black;
+	background: none;
+	text-shadow: 0 1px white;
+	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+	word-wrap: normal;
+	line-height: 1.5;
+
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
+	tab-size: 4;
+
+	-webkit-hyphens: none;
+	-moz-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+}
+
+pre[class*="language-"]::-moz-selection, pre[class*="language-"] ::-moz-selection,
+code[class*="language-"]::-moz-selection, code[class*="language-"] ::-moz-selection {
+	text-shadow: none;
+	background: #b3d4fc;
+}
+
+pre[class*="language-"]::selection, pre[class*="language-"] ::selection,
+code[class*="language-"]::selection, code[class*="language-"] ::selection {
+	text-shadow: none;
+	background: #b3d4fc;
+}
+
+@media print {
+	code[class*="language-"],
+	pre[class*="language-"] {
+		text-shadow: none;
+	}
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+	padding: 1em;
+	margin: .5em 0;
+	overflow: auto;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+	background: #f5f2f0;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+	padding: .1em;
+	border-radius: .3em;
+	white-space: normal;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: slategray;
+}
+
+.token.punctuation {
+	color: #999;
+}
+
+.namespace {
+	opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+	color: #905;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+	color: #690;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+	color: #a67f59;
+	background: hsla(0, 0%, 100%, .5);
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+	color: #07a;
+}
+
+.token.function {
+	color: #DD4A68;
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+	color: #e90;
+}
+
+.token.important,
+.token.bold {
+	font-weight: bold;
+}
+.token.italic {
+	font-style: italic;
+}
+
+.token.entity {
+	cursor: help;
+}
+</style><script>(function (){
+var styleSheet = document.getElementsByTagName('style')[0].sheet;
+var ruleIndex;
+
+function removeHighlight() {
+  if (ruleIndex) {
+    styleSheet.deleteRule(ruleIndex);
+    ruleIndex = void 0;
+  }
+}
+
+function highlightKeyword(name) {
+  removeHighlight();
+  ruleIndex = styleSheet.insertRule(
+    '*[data-name="' + name + '"] { background: #FBF8D0; }',
+    styleSheet.cssRules.length
+  );
+}
+
+document.documentElement.addEventListener('mouseover', function (event) {
+  var nameAttribute = event.target.attributes['data-name'];
+  if (nameAttribute) {
+    highlightKeyword(nameAttribute.value);
+  }
+});
+
+document.documentElement.addEventListener('mouseout', removeHighlight);
+})()</script></head><body><header><h1>Relay Cursor Connections Specification</h1><section id="intro"><p>Relay&rsquo;s support for pagination relies on the GraphQL server exposing connections in a standardized way. In the query, the connection model provides a standard mechanism for slicing and paginating the result set. In the response, the connection model provides a standard way of providing cursors, and a way of telling the client when more results are available.</p><p>An example of all four of those is the following query:</p><pre><code><span class="token punctuation">{</span>
+  user <span class="token punctuation">{</span>
+    id
+    name
+    friends<span class="token punctuation">(</span><span class="token attr-name">first</span><span class="token punctuation">:</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token attr-name">after</span><span class="token punctuation">:</span> <span class="token string">"opaqueCursor"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      edges <span class="token punctuation">{</span>
+        cursor
+        node <span class="token punctuation">{</span>
+          id
+          name
+        <span class="token punctuation">}</span>
+      <span class="token punctuation">}</span>
+      pageInfo <span class="token punctuation">{</span>
+        hasNextPage
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre><p>In this case, <code>friends</code> is a connection. That query demonstrates the four features described above:</p><ul><li>Slicing is done with the <code>first</code> argument to <code>friends</code>. This asks for the connection to return 10 friends.</li><li>Pagination is done with the <code>after</code> argument to <code>friends</code>. We passed in a cursor, so we asked for the server to return friends after that cursor.</li><li>For each edge in the connection, we asked for a cursor. This cursor is an opaque string, and is precisely what we would pass to the <code>after</code> arg to paginate starting after this edge.</li><li>We asked for <code>hasNextPage</code>; that will tell us if there are more edges available, or if we&rsquo;ve reached the end of this connection.</li></ul><p>This section of the spec describes the formal requirements around connections.</p></section><nav class="spec-toc"><div class="title">Contents</div><ol><li><a href="#sec-Reserved-Types"><span class="spec-secid">1</span>Reserved Types</a></li><li><a href="#sec-Connection-Types"><span class="spec-secid">2</span>Connection Types</a><input hidden class="toggle" type="checkbox" checked id="_toggle_2" /><label for="_toggle_2"></label><ol><li><a href="#sec-Connection-Types.Fields"><span class="spec-secid">2.1</span>Fields</a><input hidden class="toggle" type="checkbox" checked id="_toggle_2.1" /><label for="_toggle_2.1"></label><ol><li><a href="#sec-Edges"><span class="spec-secid">2.1.1</span>Edges</a></li><li><a href="#sec-Connection-Types.Fields.PageInfo"><span class="spec-secid">2.1.2</span>PageInfo</a></li></ol></li><li><a href="#sec-Connection-Types.Introspection"><span class="spec-secid">2.2</span>Introspection</a></li></ol></li><li><a href="#sec-Edge-Types"><span class="spec-secid">3</span>Edge Types</a><input hidden class="toggle" type="checkbox" checked id="_toggle_3" /><label for="_toggle_3"></label><ol><li><a href="#sec-Edge-Types.Fields"><span class="spec-secid">3.1</span>Fields</a><input hidden class="toggle" type="checkbox" checked id="_toggle_3.1" /><label for="_toggle_3.1"></label><ol><li><a href="#sec-Node"><span class="spec-secid">3.1.1</span>Node</a></li><li><a href="#sec-Cursor"><span class="spec-secid">3.1.2</span>Cursor</a></li></ol></li><li><a href="#sec-Edge-Types.Introspection"><span class="spec-secid">3.2</span>Introspection</a></li></ol></li><li><a href="#sec-Arguments"><span class="spec-secid">4</span>Arguments</a><input hidden class="toggle" type="checkbox" checked id="_toggle_4" /><label for="_toggle_4"></label><ol><li><a href="#sec-Forward-pagination-arguments"><span class="spec-secid">4.1</span>Forward pagination arguments</a></li><li><a href="#sec-Backward-pagination-arguments"><span class="spec-secid">4.2</span>Backward pagination arguments</a></li><li><a href="#sec-Pagination-algorithm"><span class="spec-secid">4.3</span>Pagination algorithm</a></li></ol></li><li><a href="#sec-undefined.PageInfo"><span class="spec-secid">5</span>PageInfo</a><input hidden class="toggle" type="checkbox" checked id="_toggle_5" /><label for="_toggle_5"></label><ol><li><a href="#sec-undefined.PageInfo.Fields"><span class="spec-secid">5.1</span>Fields</a></li><li><a href="#sec-undefined.PageInfo.Introspection"><span class="spec-secid">5.2</span>Introspection</a></li></ol></li><li><a href="#index"><span class="spec-secid">§</span>Index</a></li></ol></nav></header><section id="sec-Reserved-Types" secid="1"><h2><span class="spec-secid" title="link to this section"><a href="#sec-Reserved-Types">1</a></span>Reserved Types</h2><p>A GraphQL Relay server must reserve certain types and type names to support the pagination model used by Relay. In particular, this spec creates guidelines for the following types:</p><ul><li>Any object whose name ends in &ldquo;Connection&rdquo;.</li><li>An object named <code>PageInfo</code>.</li></ul></section><section id="sec-Connection-Types" secid="2"><h2><span class="spec-secid" title="link to this section"><a href="#sec-Connection-Types">2</a></span>Connection Types</h2><p>Any type whose name ends in &ldquo;Connection&rdquo; is considered by Relay to be a <em>Connection Type</em>. Connection types must be an &ldquo;Object&rdquo; as defined in the &ldquo;Type System&rdquo; section of the GraphQL Specification.</p><section id="sec-Connection-Types.Fields" secid="2.1"><h3><span class="spec-secid" title="link to this section"><a href="#sec-Connection-Types.Fields">2.1</a></span>Fields</h3><p>Connection types must have fields named <code>edges</code> and <code>pageInfo</code>. They may have additional fields related to the connection, as the schema designer sees fit.</p><section id="sec-Edges" secid="2.1.1"><h4><span class="spec-secid" title="link to this section"><a href="#sec-Edges">2.1.1</a></span>Edges</h4><p>A &ldquo;Connection Type&rdquo; must contain a field called <code>edges</code>. This field must return a list type that wraps an edge type, where the requirements of an edge type are defined in the &ldquo;Edge Types&rdquo; section below.</p></section><section id="sec-Connection-Types.Fields.PageInfo" secid="2.1.2"><h4><span class="spec-secid" title="link to this section"><a href="#sec-Connection-Types.Fields.PageInfo">2.1.2</a></span>PageInfo</h4><p>A &ldquo;Connection Type&rdquo; must contain a field called <code>pageInfo</code>. This field must return a non&#8208;null <code>PageInfo</code> object, as defined in the &ldquo;PageInfo&rdquo; section below.</p></section></section><section id="sec-Connection-Types.Introspection" secid="2.2"><h3><span class="spec-secid" title="link to this section"><a href="#sec-Connection-Types.Introspection">2.2</a></span>Introspection</h3><p>If <code>ExampleConnection</code> existed in the type system, it would be a connection, since its name ends in &ldquo;Connection&rdquo;. If this connection&rsquo;s edge type was named <code>ExampleEdge</code>, then a server that correctly implements the above requirement would accept the following introspection query, and return the provided response:</p><pre><code><span class="token punctuation">{</span>
+  __type<span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token string">"ExampleConnection"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    fields <span class="token punctuation">{</span>
+      name
+      type <span class="token punctuation">{</span>
+        name
+        kind
+        ofType <span class="token punctuation">{</span>
+          name
+          kind
+        <span class="token punctuation">}</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre><p>returns</p><pre><code><span class="token punctuation">{</span>
+  <span class="token property">"data"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">"__type"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token property">"fields"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+        // May contain other items
+        <span class="token punctuation">{</span>
+          <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"pageInfo"</span><span class="token punctuation">,</span>
+          <span class="token property">"type"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+            <span class="token property">"name"</span><span class="token operator">:</span> <span class="token null">null</span><span class="token punctuation">,</span>
+            <span class="token property">"kind"</span><span class="token operator">:</span> <span class="token string">"NON_NULL"</span><span class="token punctuation">,</span>
+            <span class="token property">"ofType"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+              <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"PageInfo"</span><span class="token punctuation">,</span>
+              <span class="token property">"kind"</span><span class="token operator">:</span> <span class="token string">"OBJECT"</span>
+            <span class="token punctuation">}</span>
+          <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+        <span class="token punctuation">{</span>
+          <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"edges"</span><span class="token punctuation">,</span>
+          <span class="token property">"type"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+            <span class="token property">"name"</span><span class="token operator">:</span> <span class="token null">null</span><span class="token punctuation">,</span>
+            <span class="token property">"kind"</span><span class="token operator">:</span> <span class="token string">"LIST"</span><span class="token punctuation">,</span>
+            <span class="token property">"ofType"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+              <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"ExampleEdge"</span><span class="token punctuation">,</span>
+              <span class="token property">"kind"</span><span class="token operator">:</span> <span class="token string">"OBJECT"</span>
+            <span class="token punctuation">}</span>
+          <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+      <span class="token punctuation">]</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></section></section><section id="sec-Edge-Types" secid="3"><h2><span class="spec-secid" title="link to this section"><a href="#sec-Edge-Types">3</a></span>Edge Types</h2><p>A type that is returned in list form by a connection type&rsquo;s <code>edges</code> field is considered by Relay to be an <em>Edge Type</em>. Edge types must be an &ldquo;Object&rdquo; as defined in the &ldquo;Type System&rdquo; section of the GraphQL Specification.</p><section id="sec-Edge-Types.Fields" secid="3.1"><h3><span class="spec-secid" title="link to this section"><a href="#sec-Edge-Types.Fields">3.1</a></span>Fields</h3><p>Edge types must have fields named <code>node</code> and <code>cursor</code>. They may have additional fields related to the edge, as the schema designer sees fit.</p><section id="sec-Node" secid="3.1.1"><h4><span class="spec-secid" title="link to this section"><a href="#sec-Node">3.1.1</a></span>Node</h4><p>An &ldquo;Edge Type&rdquo; must contain a field called <code>node</code>. This field must return either a Scalar, Enum, Object, Interface, Union, or a Non&#8208;Null wrapper around one of those types. Notably, this field <em>cannot</em> return a list.</p><div class="spec-note">The naming echoes that of the &ldquo;Node&rdquo; interface and &ldquo;node&rdquo; root field as described in a later section of this spec. Relay can perform certain optimizations if this field returns an object that implements <code>Node</code>, however, this is not a strict requirement for use of Relay.</div></section><section id="sec-Cursor" secid="3.1.2"><h4><span class="spec-secid" title="link to this section"><a href="#sec-Cursor">3.1.2</a></span>Cursor</h4><p>An &ldquo;Edge Type&rdquo; must contain a field called <code>cursor</code>. This field must return a type that serializes as a String; this may be a String, a Non&#8208;Null wrapper around a String, a custom scalar that serializes as a String, or a Non&#8208;Null wrapper around a custom scalar that serializes as a String.</p><p>Whatever type this field returns will be referred to as the <em>cursor type</em> in the rest of this spec.</p><p>The result of this field is considered opaque by Relay, but will be passed back to the server as described in the &ldquo;Arguments&rdquo; section below.</p></section></section><section id="sec-Edge-Types.Introspection" secid="3.2"><h3><span class="spec-secid" title="link to this section"><a href="#sec-Edge-Types.Introspection">3.2</a></span>Introspection</h3><p>If <code>ExampleEdge</code> is an edge type in our schema, that returned &ldquo;Example&rdquo; objects, then a server that correctly implements the above requirement would accept the following introspection query, and return the provided response:</p><pre><code><span class="token punctuation">{</span>
+  __type<span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token string">"ExampleEdge"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    fields <span class="token punctuation">{</span>
+      name
+      type <span class="token punctuation">{</span>
+        name
+        kind
+        ofType <span class="token punctuation">{</span>
+          name
+          kind
+        <span class="token punctuation">}</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre><p>returns</p><pre><code><span class="token punctuation">{</span>
+  <span class="token property">"data"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">"__type"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token property">"fields"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+        // May contain other items
+        <span class="token punctuation">{</span>
+          <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"node"</span><span class="token punctuation">,</span>
+          <span class="token property">"type"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+            <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"Example"</span><span class="token punctuation">,</span>
+            <span class="token property">"kind"</span><span class="token operator">:</span> <span class="token string">"OBJECT"</span><span class="token punctuation">,</span>
+            <span class="token property">"ofType"</span><span class="token operator">:</span> <span class="token null">null</span>
+          <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+        <span class="token punctuation">{</span>
+          <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"cursor"</span><span class="token punctuation">,</span>
+          <span class="token property">"type"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+            // This shows the cursor type as String!<span class="token punctuation">,</span> other types are possible
+            <span class="token property">"name"</span><span class="token operator">:</span> <span class="token null">null</span><span class="token punctuation">,</span>
+            <span class="token property">"kind"</span><span class="token operator">:</span> <span class="token string">"NON_NULL"</span><span class="token punctuation">,</span>
+            <span class="token property">"ofType"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+              <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"String"</span><span class="token punctuation">,</span>
+              <span class="token property">"kind"</span><span class="token operator">:</span> <span class="token string">"SCALAR"</span>
+            <span class="token punctuation">}</span>
+          <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+      <span class="token punctuation">]</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></section></section><section id="sec-Arguments" secid="4"><h2><span class="spec-secid" title="link to this section"><a href="#sec-Arguments">4</a></span>Arguments</h2><p>A field that returns a <em>Connection Type</em> must include forward pagination arguments, backward pagination arguments, or both. These pagination arguments allow the client to slice the set of edges before it is returned.</p><section id="sec-Forward-pagination-arguments" secid="4.1"><h3><span class="spec-secid" title="link to this section"><a href="#sec-Forward-pagination-arguments">4.1</a></span>Forward pagination arguments</h3><p>To enable forward pagination, two arguments are required.</p><ul><li><code>first</code> takes a non&#8208;negative integer.</li><li><code>after</code> takes the <em>cursor type</em> as described in the <code>cursor</code> field section.</li></ul><p>The server should use those two arguments to modify the edges returned by the connection, returning edges after the <code>after</code> cursor, and returning at most <code>first</code> edges.</p></section><section id="sec-Backward-pagination-arguments" secid="4.2"><h3><span class="spec-secid" title="link to this section"><a href="#sec-Backward-pagination-arguments">4.2</a></span>Backward pagination arguments</h3><p>To enable backward pagination, two arguments are required.</p><ul><li><code>last</code> takes a non&#8208;negative integer.</li><li><code>before</code> takes the <em>cursor type</em> as described in the <code>cursor</code> field section.</li></ul><p>The server should use those two arguments to modify the edges returned by the connection, returning edges before the <code>before</code> cursor, and returning at most <code>last</code> edges.</p></section><section id="sec-Pagination-algorithm" secid="4.3"><h3><span class="spec-secid" title="link to this section"><a href="#sec-Pagination-algorithm">4.3</a></span>Pagination algorithm</h3><p>To determine what edges to return, the connection evaluates the <code>before</code> and <code>after</code> cursors to filter the edges, then evaluates <code>first</code> to slice the edges, then <code>last</code> to slice the edges.</p><div class="spec-note">Including a value for both <code>first</code> and <code>last</code> is strongly discouraged, as it is likely to lead to confusing queries and results. The <code>PageInfo</code> section goes into more detail here.</div><p>More formally:</p><div class="spec-algo" id="EdgesToReturn()"><span class="spec-call"><a href="#EdgesToReturn()" data-name="EdgesToReturn">EdgesToReturn</a>(<var data-name="allEdges">allEdges</var>, <var data-name="before">before</var>, <var data-name="after">after</var>, <var data-name="first">first</var>, <var data-name="last">last</var>)</span><ol><li>Let <var data-name="edges">edges</var> be the result of calling <span class="spec-call"><a href="#ApplyCursorsToEdges()" data-name="ApplyCursorsToEdges">ApplyCursorsToEdges</a>(<var data-name="allEdges">allEdges</var>, <var data-name="before">before</var>, <var data-name="after">after</var>)</span>.</li><li>If <var data-name="first">first</var> is set:<ol><li>If <var data-name="first">first</var> is less than 0:<ol><li>Throw an error.</li></ol></li><li>If <var data-name="edges">edges</var> has length greater than than <var data-name="first">first</var>:<ol><li>Slice <var data-name="edges">edges</var> to be of length <var data-name="first">first</var> by removing edges from the end of <var data-name="edges">edges</var>.</li></ol></li></ol></li><li>If <var data-name="last">last</var> is set:<ol><li>If <var data-name="last">last</var> is less than 0:<ol><li>Throw an error.</li></ol></li><li>If <var data-name="edges">edges</var> has length greater than than <var data-name="last">last</var>:<ol><li>Slice <var data-name="edges">edges</var> to be of length <var data-name="last">last</var> by removing edges from the start of <var data-name="edges">edges</var>.</li></ol></li></ol></li><li>Return <var data-name="edges">edges</var>.</li></ol></div><div class="spec-algo" id="ApplyCursorsToEdges()"><span class="spec-call"><a href="#ApplyCursorsToEdges()" data-name="ApplyCursorsToEdges">ApplyCursorsToEdges</a>(<var data-name="allEdges">allEdges</var>, <var data-name="before">before</var>, <var data-name="after">after</var>)</span><ol><li>Initialize <var data-name="edges">edges</var> to be <var data-name="allEdges">allEdges</var>.</li><li>If <var data-name="after">after</var> is set:<ol><li>Let <var data-name="afterEdge">afterEdge</var> be the edge in <var data-name="edges">edges</var> whose <var data-name="cursor">cursor</var> is equal to the <var data-name="after">after</var> argument.</li><li>If <var data-name="afterEdge">afterEdge</var> exists:<ol><li>Remove all elements of <var data-name="edges">edges</var> before and including <var data-name="afterEdge">afterEdge</var>.</li></ol></li></ol></li><li>If <var data-name="before">before</var> is set:<ol><li>Let <var data-name="beforeEdge">beforeEdge</var> be the edge in <var data-name="edges">edges</var> whose <var data-name="cursor">cursor</var> is equal to the <var data-name="before">before</var> argument.</li><li>If <var data-name="beforeEdge">beforeEdge</var> exists:<ol><li>Remove all elements of <var data-name="edges">edges</var> after and including <var data-name="beforeEdge">beforeEdge</var>.</li></ol></li></ol></li><li>Return <var data-name="edges">edges</var>.</li></ol></div></section></section><section id="sec-undefined.PageInfo" secid="5"><h2><span class="spec-secid" title="link to this section"><a href="#sec-undefined.PageInfo">5</a></span>PageInfo</h2><p>The server must provide a type called <code>PageInfo</code>.</p><section id="sec-undefined.PageInfo.Fields" secid="5.1"><h3><span class="spec-secid" title="link to this section"><a href="#sec-undefined.PageInfo.Fields">5.1</a></span>Fields</h3><p><code>PageInfo</code> must contain fields <code>hasPreviousPage</code> and <code>hasNextPage</code>, both of which return non&#8208;null booleans.</p><p><code>hasPreviousPage</code> is used to indicate whether more edges exist prior to the set defined by the clients arguments. If the client is paginating with <code>last</code>/<code>before</code>, then the server must return <span class="spec-keyword">true</span> if prior edges exist, otherwise <span class="spec-keyword">false</span>. If the client is paginating with <code>first</code>/<code>after</code>, then the client may return <span class="spec-keyword">true</span> if edges prior to <code>after</code> exist, if it can do so efficiently, otherwise may return <span class="spec-keyword">false</span>. More formally:</p><div class="spec-algo" id="HasPreviousPage()"><span class="spec-call"><a href="#HasPreviousPage()" data-name="HasPreviousPage">HasPreviousPage</a>(<var data-name="allEdges">allEdges</var>, <var data-name="before">before</var>, <var data-name="after">after</var>, <var data-name="first">first</var>, <var data-name="last">last</var>)</span><ol><li>If <var data-name="last">last</var> is set:<ol><li>Let <var data-name="edges">edges</var> be the result of calling <span class="spec-call"><a href="#ApplyCursorsToEdges()" data-name="ApplyCursorsToEdges">ApplyCursorsToEdges</a>(<var data-name="allEdges">allEdges</var>, <var data-name="before">before</var>, <var data-name="after">after</var>)</span>.</li><li>If <var data-name="edges">edges</var> contains more than <var data-name="last">last</var> elements return <span class="spec-keyword">true</span>, otherwise <span class="spec-keyword">false</span>.</li></ol></li><li>If <var data-name="after">after</var> is set:<ol><li>If the server can efficiently determine that elements exist prior to <var data-name="after">after</var>, return <span class="spec-keyword">true</span>.</li></ol></li><li>Return <span class="spec-keyword">false</span>.</li></ol></div><p><code>hasNextPage</code> is used to indicate whether more edges exist following the set defined by the clients arguments. If the client is paginating with <code>first</code>/<code>after</code>, then the server must return <span class="spec-keyword">true</span> if further edges exist, otherwise <span class="spec-keyword">false</span>. If the client is paginating with <code>last</code>/<code>before</code>, then the client may return <span class="spec-keyword">true</span> if edges further from <code>before</code> exist, if it can do so efficiently, otherwise may return <span class="spec-keyword">false</span>. More formally:</p><div class="spec-algo" id="HasNextPage()"><span class="spec-call"><a href="#HasNextPage()" data-name="HasNextPage">HasNextPage</a>(<var data-name="allEdges">allEdges</var>, <var data-name="before">before</var>, <var data-name="after">after</var>, <var data-name="first">first</var>, <var data-name="last">last</var>)</span><ol><li>If <var data-name="first">first</var> is set:<ol><li>Let <var data-name="edges">edges</var> be the result of calling <span class="spec-call"><a href="#ApplyCursorsToEdges()" data-name="ApplyCursorsToEdges">ApplyCursorsToEdges</a>(<var data-name="allEdges">allEdges</var>, <var data-name="before">before</var>, <var data-name="after">after</var>)</span>.</li><li>If <var data-name="edges">edges</var> contains more than <var data-name="first">first</var> elements return <span class="spec-keyword">true</span>, otherwise <span class="spec-keyword">false</span>.</li></ol></li><li>If <var data-name="before">before</var> is set:<ol><li>If the server can efficiently determine that elements exist following <var data-name="before">before</var>, return <span class="spec-keyword">true</span>.</li></ol></li><li>Return <span class="spec-keyword">false</span>.</li></ol></div><div class="spec-note">When both <code>first</code> and <code>last</code> are included, both of the fields should be set according to the above algorithms, but their meaning as it relates to pagination becomes unclear. This is among the reasons that pagination with both <code>first</code> and <code>last</code> is discouraged.</div></section><section id="sec-undefined.PageInfo.Introspection" secid="5.2"><h3><span class="spec-secid" title="link to this section"><a href="#sec-undefined.PageInfo.Introspection">5.2</a></span>Introspection</h3><p>A server that correctly implements the above requirement would accept the following introspection query, and return the provided response:</p><pre><code><span class="token punctuation">{</span>
+  __type<span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token string">"PageInfo"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    fields <span class="token punctuation">{</span>
+      name
+      type <span class="token punctuation">{</span>
+        name
+        kind
+        ofType <span class="token punctuation">{</span>
+          name
+          kind
+        <span class="token punctuation">}</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre><p>returns</p><pre><code><span class="token punctuation">{</span>
+  <span class="token property">"data"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">"__type"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token property">"fields"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+        // May contain other fields.
+        <span class="token punctuation">{</span>
+          <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"hasNextPage"</span><span class="token punctuation">,</span>
+          <span class="token property">"type"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+            <span class="token property">"name"</span><span class="token operator">:</span> <span class="token null">null</span><span class="token punctuation">,</span>
+            <span class="token property">"kind"</span><span class="token operator">:</span> <span class="token string">"NON_NULL"</span><span class="token punctuation">,</span>
+            <span class="token property">"ofType"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+              <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"Boolean"</span><span class="token punctuation">,</span>
+              <span class="token property">"kind"</span><span class="token operator">:</span> <span class="token string">"SCALAR"</span>
+            <span class="token punctuation">}</span>
+          <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+        <span class="token punctuation">{</span>
+          <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"hasPreviousPage"</span><span class="token punctuation">,</span>
+          <span class="token property">"type"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+            <span class="token property">"name"</span><span class="token operator">:</span> <span class="token null">null</span><span class="token punctuation">,</span>
+            <span class="token property">"kind"</span><span class="token operator">:</span> <span class="token string">"NON_NULL"</span><span class="token punctuation">,</span>
+            <span class="token property">"ofType"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+              <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"Boolean"</span><span class="token punctuation">,</span>
+              <span class="token property">"kind"</span><span class="token operator">:</span> <span class="token string">"SCALAR"</span>
+            <span class="token punctuation">}</span>
+          <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+      <span class="token punctuation">]</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></section></section><section id="index" secid="index" class="spec-index"><h1><span class="spec-secid" title="link to the index"><a href="#index">§</a></span>Index</h1><ol><li><a href="#ApplyCursorsToEdges()">ApplyCursorsToEdges</a></li><li><a href="#EdgesToReturn()">EdgesToReturn</a></li><li><a href="#HasNextPage()">HasNextPage</a></li><li><a href="#HasPreviousPage()">HasPreviousPage</a></li></ol></section><footer>Written in <a href="http://leebyron.com/spec-md/" target="_blank">Spec Markdown</a>.</footer><input hidden class="spec-sidebar-toggle" type="checkbox" id="spec-sidebar-toggle" aria-hidden /><label for="spec-sidebar-toggle" aria-hidden>&#x2630;</label><div class="spec-sidebar" aria-hidden><div class="spec-toc"><div class="title"><a href="#">Relay Cursor Connections Specification</a></div><ol><li id="_sidebar_1"><a href="#sec-Reserved-Types"><span class="spec-secid">1</span>Reserved Types</a></li><li id="_sidebar_2"><a href="#sec-Connection-Types"><span class="spec-secid">2</span>Connection Types</a><input hidden class="toggle" type="checkbox" id="_sidebar_toggle_2" /><label for="_sidebar_toggle_2"></label><ol><li id="_sidebar_2.1"><a href="#sec-Connection-Types.Fields"><span class="spec-secid">2.1</span>Fields</a><input hidden class="toggle" type="checkbox" id="_sidebar_toggle_2.1" /><label for="_sidebar_toggle_2.1"></label><ol><li id="_sidebar_2.1.1"><a href="#sec-Edges"><span class="spec-secid">2.1.1</span>Edges</a></li><li id="_sidebar_2.1.2"><a href="#sec-Connection-Types.Fields.PageInfo"><span class="spec-secid">2.1.2</span>PageInfo</a></li></ol></li><li id="_sidebar_2.2"><a href="#sec-Connection-Types.Introspection"><span class="spec-secid">2.2</span>Introspection</a></li></ol></li><li id="_sidebar_3"><a href="#sec-Edge-Types"><span class="spec-secid">3</span>Edge Types</a><input hidden class="toggle" type="checkbox" id="_sidebar_toggle_3" /><label for="_sidebar_toggle_3"></label><ol><li id="_sidebar_3.1"><a href="#sec-Edge-Types.Fields"><span class="spec-secid">3.1</span>Fields</a><input hidden class="toggle" type="checkbox" id="_sidebar_toggle_3.1" /><label for="_sidebar_toggle_3.1"></label><ol><li id="_sidebar_3.1.1"><a href="#sec-Node"><span class="spec-secid">3.1.1</span>Node</a></li><li id="_sidebar_3.1.2"><a href="#sec-Cursor"><span class="spec-secid">3.1.2</span>Cursor</a></li></ol></li><li id="_sidebar_3.2"><a href="#sec-Edge-Types.Introspection"><span class="spec-secid">3.2</span>Introspection</a></li></ol></li><li id="_sidebar_4"><a href="#sec-Arguments"><span class="spec-secid">4</span>Arguments</a><input hidden class="toggle" type="checkbox" id="_sidebar_toggle_4" /><label for="_sidebar_toggle_4"></label><ol><li id="_sidebar_4.1"><a href="#sec-Forward-pagination-arguments"><span class="spec-secid">4.1</span>Forward pagination arguments</a></li><li id="_sidebar_4.2"><a href="#sec-Backward-pagination-arguments"><span class="spec-secid">4.2</span>Backward pagination arguments</a></li><li id="_sidebar_4.3"><a href="#sec-Pagination-algorithm"><span class="spec-secid">4.3</span>Pagination algorithm</a></li></ol></li><li id="_sidebar_5"><a href="#sec-undefined.PageInfo"><span class="spec-secid">5</span>PageInfo</a><input hidden class="toggle" type="checkbox" id="_sidebar_toggle_5" /><label for="_sidebar_toggle_5"></label><ol><li id="_sidebar_5.1"><a href="#sec-undefined.PageInfo.Fields"><span class="spec-secid">5.1</span>Fields</a></li><li id="_sidebar_5.2"><a href="#sec-undefined.PageInfo.Introspection"><span class="spec-secid">5.2</span>Introspection</a></li></ol></li><li id="_sidebar_index"><a href="#index"><span class="spec-secid">§</span>Index</a></li></ol></div><script>(function (){
+var currentSection;
+var numberedSections = [];
+
+var sections = document.getElementsByTagName('section');
+for (var i = 0; i < sections.length; i++) {
+  if (sections[i].getAttribute('secid')) {
+    numberedSections.push(sections[i]);
+  }
+}
+
+var scrollPos = window.scrollY;
+var pending = false;
+window.addEventListener('scroll', function (e) {
+  scrollPos = window.scrollY;
+  if (!pending) {
+    pending = true;
+    window.requestAnimationFrame(function () {
+      updateSectionFocus(scrollPos);
+      pending = false;
+    });
+  }
+});
+
+function updateSectionFocus(pos) {
+  var readLine = pos + document.documentElement.clientHeight / 4;
+
+  var focusedSection;
+  for (var n = numberedSections.length - 1; n >= 0; n--) {
+    if (numberedSections[n].offsetTop < readLine) {
+      focusedSection = numberedSections[n];
+      break;
+    }
+  }
+
+  var secid = focusedSection && focusedSection.getAttribute('secid');
+  if (secid !== currentSection) {
+    currentSection && fold(currentSection, false);
+    secid && fold(secid, true);
+    currentSection = secid;
+  }
+}
+
+function fold(secid, check) {
+  document.getElementById('_sidebar_' + secid).className = check ? 'viewing' : '';
+  var sections = secid.split('.');
+  while (sections.length) {
+    var toggle = document.getElementById('_sidebar_toggle_' + sections.join('.'));
+    if (toggle) {
+      toggle.checked = check;
+    }
+    sections.pop();
+  }
+}
+
+updateSectionFocus(window.scrollY);
+})()</script></div></body></html>

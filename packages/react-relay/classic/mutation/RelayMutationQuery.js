@@ -1,0 +1,728 @@
+/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @flow
+ * @format
+ */
+
+'use strict';
+
+const RelayMetaRoute = require('../route/RelayMetaRoute');
+const RelayNodeInterface = require('../interface/RelayNodeInterface');
+const RelayOptimisticMutationUtils = require('./RelayOptimisticMutationUtils');
+const RelayQuery = require('../query/RelayQuery');
+const RelayRecord = require('../store/RelayRecord');
+
+const flattenRelayQuery = require('../traversal/flattenRelayQuery');
+const forEachObject = require('forEachObject');
+const getRangeBehavior = require('./getRangeBehavior');
+const intersectRelayQuery = require('../traversal/intersectRelayQuery');
+const invariant = require('invariant');
+const nullthrows = require('nullthrows');
+const warning = require('warning');
+
+const {
+  MutationTypes,
+  RangeOperations,
+  ConnectionInterface,
+} = require('RelayRuntime');
+
+import type {ConcreteMutation} from '../query/ConcreteQuery';
+import type RelayQueryTracker from '../store/RelayQueryTracker';
+import type {
+  DeclarativeMutationConfig,
+  RangeBehaviors,
+} from 'RelayDeclarativeMutationConfig';
+import type {DataID, Variables} from 'RelayRuntime';
+
+const {REFETCH} = RangeOperations;
+
+type BasicMutationFragmentBuilderConfig = {
+  fatQuery: RelayQuery.Fragment,
+  tracker: RelayQueryTracker,
+};
+type BasicOptimisticMutationFragmentBuilderConfig = {
+  fatQuery: RelayQuery.Fragment,
+};
+type EdgeDeletionMutationFragmentBuilderConfig = BasicMutationFragmentBuilderConfig & {
+  connectionName: string,
+  parentID: DataID,
+  parentName: string,
+};
+type EdgeInsertionMutationFragmentBuilderConfig = BasicMutationFragmentBuilderConfig & {
+  connectionName: string,
+  parentID: DataID,
+  edgeName: string,
+  parentName?: string,
+  rangeBehaviors: RangeBehaviors,
+};
+type FieldsMutationFragmentBuilderConfig = BasicMutationFragmentBuilderConfig & {
+  fieldIDs: {[fieldName: string]: DataID | Array<DataID>},
+};
+type OptimisticUpdateFragmentBuilderConfig = BasicOptimisticMutationFragmentBuilderConfig & {
+  response: Object,
+};
+type OptimisticUpdateQueryBuilderConfig = BasicOptimisticMutationFragmentBuilderConfig & {
+  mutation: ConcreteMutation,
+  response: Object,
+};
+
+const {ANY_TYPE, ID, TYPENAME} = RelayNodeInterface;
+
+/**
+ * @internal
+ *
+ * Constructs query fragments that are sent with mutations, which should ensure
+ * that any records changed as a result of mutations are brought up-to-date.
+ *
+ * The fragments are a minimal subset created by intersecting the "fat query"
+ * (fields that a mutation declares may have changed) with the "tracked query"
+ * (fields representing data previously queried and written into the store).
+ */
+const RelayMutationQuery = {
+  /**
+   * Accepts a mapping from field names to data IDs. The field names must exist
+   * as top-level fields in the fat query. These top-level fields are used to
+   * re-fetch any data that has changed for records identified by the data IDs.
+   *
+   * The supplied mapping may contain multiple field names. In addition, each
+   * field name may map to an array of data IDs if the field is plural.
+   */
+  buildFragmentForFields({
+    fatQuery,
+    fieldIDs,
+    tracker,
+  }: FieldsMutationFragmentBuilderConfig): RelayQuery.Fragment {
+    const mutatedFields = [];
+    forEachObject(fieldIDs, (dataIDOrIDs, fieldName) => {
+      const fatField = getFieldFromFatQuery(fatQuery, fieldName);
+      const dataIDs = [].concat(dataIDOrIDs);
+      const trackedChildren = [];
+      dataIDs.forEach(dataID => {
+        trackedChildren.push(...tracker.getTrackedChildrenForID(dataID));
+      });
+      const trackedField = fatField.clone(trackedChildren);
+      let mutationField = null;
+      if (trackedField) {
+        mutationField = intersectRelayQuery(trackedField, fatField);
+        if (mutationField) {
+          mutatedFields.push(mutationField);
+        }
+      }
+      /* eslint-disable no-console */
+      if (__DEV__ && console.groupCollapsed && console.groupEnd) {
+        console.groupCollapsed('Building fragment for `' + fieldName + '`');
+        console.log(RelayNodeInterface.ID + ': ', dataIDOrIDs);
+
+        const RelayMutationDebugPrinter = require('./RelayMutationDebugPrinter');
+        RelayMutationDebugPrinter.printMutation(
+          trackedField && buildMutationFragment(fatQuery, [trackedField]),
+          'Tracked Fragment',
+        );
+        RelayMutationDebugPrinter.printMutation(
+          buildMutationFragment(fatQuery, [fatField]),
+          'Fat Fragment',
+        );
+        RelayMutationDebugPrinter.printMutation(
+          mutationField && buildMutationFragment(fatQuery, [mutationField]),
+          'Intersected Fragment',
+        );
+        console.groupEnd();
+      }
+      /* eslint-enable no-console */
+    });
+    return buildMutationFragment(fatQuery, mutatedFields);
+  },
+
+  /**
+   * Creates a fragment used to update any data as a result of a mutation that
+   * deletes an edge from a connection. The primary difference between this and
+   * `createForFields` is whether or not the connection edges are re-fetched.
+   *
+   * `connectionName`
+   *   Name of the connection field from which the edge is being deleted.
+   *
+   * `parentID`
+   *   ID of the parent record containing the connection which may have metadata
+   *   that needs to be re-fetched.
+   *
+   * `parentName`
+   *   Name of the top-level field in the fat query that corresponds to the
+   *   parent record.
+   */
+  buildFragmentForEdgeDeletion({
+    fatQuery,
+    connectionName,
+    parentID,
+    parentName,
+    tracker,
+  }: EdgeDeletionMutationFragmentBuilderConfig): RelayQuery.Fragment {
+    const fatParent = getFieldFromFatQuery(fatQuery, parentName);
+
+    // The connection may not be explicit in the fat query, but if it is, we
+    // try to validate it.
+    getConnectionAndValidate(fatParent, parentName, connectionName);
+
+    const mutatedFields = [];
+    const trackedParent = fatParent.clone(
+      tracker.getTrackedChildrenForID(parentID),
+    );
+    if (trackedParent) {
+      const filterUnterminatedRange = node =>
+        node.getSchemaName() === connectionName;
+      const mutatedField = intersectRelayQuery(
+        trackedParent,
+        fatParent,
+        filterUnterminatedRange,
+      );
+      if (mutatedField) {
+        // If we skipped validation above, we get a second chance here.
+        getConnectionAndValidate(mutatedField, parentName, connectionName);
+
+        mutatedFields.push(mutatedField);
+      }
+    }
+    return buildMutationFragment(fatQuery, mutatedFields);
+  },
+
+  /**
+   * Creates a fragment used to fetch data necessary to insert a new edge into
+   * an existing connection.
+   *
+   * `connectionName`
+   *   Name of the connection field into which the edge is being inserted.
+   *
+   * `parentID`
+   *   ID of the parent record containing the connection which may have metadata
+   *   that needs to be re-fetched.
+   *
+   * `edgeName`
+   *   Name of the top-level field in the fat query that corresponds to the
+   *   newly inserted edge.
+   *
+   * `parentName`
+   *   Name of the top-level field in the fat query that corresponds to the
+   *   parent record. If not supplied, metadata on the parent record and any
+   *   connections without entries in `rangeBehaviors` will not be updated.
+   */
+  buildFragmentForEdgeInsertion({
+    fatQuery,
+    connectionName,
+    parentID,
+    edgeName,
+    parentName,
+    rangeBehaviors,
+    tracker,
+  }: EdgeInsertionMutationFragmentBuilderConfig): RelayQuery.Fragment {
+    const mutatedFields = [];
+    const keysWithoutRangeBehavior: {[hash: string]: boolean} = {};
+    const trackedChildren = tracker.getTrackedChildrenForID(parentID);
+    const trackedConnections = [];
+    trackedChildren.forEach(trackedChild => {
+      trackedConnections.push(
+        ...findDescendantFields(trackedChild, connectionName),
+      );
+    });
+
+    if (trackedConnections.length) {
+      // If the first instance of the connection passes validation, all will.
+      validateConnection(parentName, connectionName, trackedConnections[0]);
+
+      const mutatedEdgeFields = [];
+      trackedConnections.forEach(trackedConnection => {
+        const trackedEdges = findDescendantFields(trackedConnection, 'edges');
+        if (!trackedEdges.length) {
+          return;
+        }
+
+        const callsWithValues = trackedConnection.getRangeBehaviorCalls();
+        const rangeBehavior = getRangeBehavior(rangeBehaviors, callsWithValues);
+        /* eslint-disable no-console */
+        if (__DEV__ && console.groupCollapsed && console.groupEnd) {
+          const serializeRelayQueryCall = require('../query/serializeRelayQueryCall');
+          const serializedCalls = callsWithValues
+            .map(serializeRelayQueryCall)
+            .sort()
+            .join('');
+          console.log(serializedCalls + ': ' + (rangeBehavior || ''));
+        }
+        /* eslint-enable no-console */
+        if (rangeBehavior && rangeBehavior !== REFETCH) {
+          // Include edges from all connections that exist in `rangeBehaviors`.
+          // This may add duplicates, but they will eventually be flattened.
+          trackedEdges.forEach(trackedEdge => {
+            mutatedEdgeFields.push(...trackedEdge.getChildren());
+          });
+        } else {
+          // If the connection is not in `rangeBehaviors` or we have explicitly
+          // set the behavior to `refetch`, re-fetch it.
+          warning(
+            rangeBehavior === REFETCH,
+            'RelayMutation: The connection `%s` on the mutation field `%s` ' +
+              'that corresponds to the ID `%s` did not match any of the ' +
+              '`rangeBehaviors` specified in your RANGE_ADD config. This means ' +
+              'that the entire connection will be refetched. Configure a range ' +
+              'behavior for this mutation in order to fetch only the new edge ' +
+              'and to enable optimistic mutations or use `refetch` to squelch ' +
+              'this warning.',
+            trackedConnection.getStorageKey(),
+            parentName,
+            parentID,
+          );
+          keysWithoutRangeBehavior[trackedConnection.getShallowHash()] = true;
+        }
+      });
+      if (mutatedEdgeFields.length) {
+        mutatedFields.push(
+          buildEdgeField(parentID, edgeName, mutatedEdgeFields),
+        );
+      }
+    }
+
+    if (parentName != null) {
+      const fatParent = getFieldFromFatQuery(fatQuery, parentName);
+
+      // The connection may not be explicit in the fat query, but if it is, we
+      // try to validate it.
+      getConnectionAndValidate(fatParent, parentName, connectionName);
+
+      const trackedParent = fatParent.clone(trackedChildren);
+      if (trackedParent) {
+        const filterUnterminatedRange = node =>
+          node.getSchemaName() === connectionName &&
+          !keysWithoutRangeBehavior.hasOwnProperty(node.getShallowHash());
+        const mutatedParent = intersectRelayQuery(
+          trackedParent,
+          fatParent,
+          filterUnterminatedRange,
+        );
+        if (mutatedParent) {
+          mutatedFields.push(mutatedParent);
+        }
+      }
+    }
+
+    return buildMutationFragment(fatQuery, mutatedFields);
+  },
+
+  /**
+   * Creates a fragment used to fetch the given optimistic response.
+   */
+  buildFragmentForOptimisticUpdate({
+    response,
+    fatQuery,
+  }: OptimisticUpdateFragmentBuilderConfig): RelayQuery.Fragment {
+    // Silences RelayQueryNode being incompatible with sub-class RelayQueryField
+    // A detailed error description is available in #7635477
+    const mutatedFields = (RelayOptimisticMutationUtils.inferRelayFieldsFromData(
+      response,
+    ): $FlowIssue);
+    return buildMutationFragment(fatQuery, mutatedFields);
+  },
+
+  /**
+   * Creates a RelayQuery.Mutation used to fetch the given optimistic response.
+   */
+  buildQueryForOptimisticUpdate({
+    fatQuery,
+    mutation,
+    response,
+  }: OptimisticUpdateQueryBuilderConfig): RelayQuery.Mutation {
+    const children = [
+      nullthrows(
+        RelayMutationQuery.buildFragmentForOptimisticUpdate({
+          response,
+          fatQuery,
+        }),
+      ),
+    ];
+    return RelayQuery.Mutation.build(
+      'OptimisticQuery',
+      fatQuery.getType(),
+      mutation.calls[0].name,
+      null,
+      children,
+      mutation.metadata,
+    );
+  },
+
+  /**
+   * Creates a RelayQuery.Mutation for the given config. See type
+   * `DeclarativeMutationConfig` and the `buildFragmentForEdgeInsertion`,
+   * `buildFragmentForEdgeDeletion` and `buildFragmentForFields` methods above
+   * for possible configs.
+   */
+  buildQuery({
+    configs,
+    fatQuery,
+    input,
+    mutationName,
+    mutation,
+    tracker,
+  }: {
+    configs: Array<DeclarativeMutationConfig>,
+    fatQuery: RelayQuery.Fragment,
+    input: Variables,
+    mutationName: string,
+    mutation: ConcreteMutation,
+    tracker: RelayQueryTracker,
+  }): RelayQuery.Mutation {
+    const {CLIENT_MUTATION_ID} = ConnectionInterface.get();
+    let children: Array<?RelayQuery.Node> = [
+      RelayQuery.Field.build({
+        fieldName: CLIENT_MUTATION_ID,
+        type: 'String',
+        metadata: {isRequisite: true},
+      }),
+    ];
+    if (__DEV__ && console.groupCollapsed && console.groupEnd) {
+      console.groupCollapsed('Mutation Configs');
+    }
+    configs.forEach(config => {
+      switch (config.type) {
+        case MutationTypes.REQUIRED_CHILDREN:
+          const newChildren = config.children.map(child =>
+            RelayQuery.Fragment.create(
+              child,
+              RelayMetaRoute.get('$buildQuery'),
+              {},
+            ),
+          );
+          children = children.concat(newChildren);
+          if (__DEV__ && console.groupCollapsed && console.groupEnd) {
+            const RelayMutationDebugPrinter = require('./RelayMutationDebugPrinter');
+            console.groupCollapsed('REQUIRED_CHILDREN');
+            newChildren.forEach((child, index) => {
+              console.groupCollapsed(index);
+              RelayMutationDebugPrinter.printMutation(child);
+              console.groupEnd();
+            });
+            console.groupEnd();
+          }
+          break;
+
+        case MutationTypes.RANGE_ADD:
+          if (__DEV__ && console.groupCollapsed && console.groupEnd) {
+            console.groupCollapsed('RANGE_ADD');
+          }
+          children.push(
+            RelayMutationQuery.buildFragmentForEdgeInsertion({
+              // $FlowFixMe TODO T25557273 - fix nullability
+              connectionName: config.connectionName,
+              edgeName: config.edgeName,
+              fatQuery,
+              // $FlowFixMe TODO T25557273 - fix nullability
+              parentID: config.parentID,
+              parentName: config.parentName,
+              rangeBehaviors: sanitizeRangeBehaviors(
+                // $FlowFixMe TODO T25557273 - fix nullability
+                config.rangeBehaviors,
+              ),
+              tracker,
+            }),
+          );
+          if (__DEV__ && console.groupCollapsed && console.groupEnd) {
+            console.groupEnd();
+          }
+          break;
+
+        case MutationTypes.RANGE_DELETE:
+        case MutationTypes.NODE_DELETE:
+          const edgeDeletion = RelayMutationQuery.buildFragmentForEdgeDeletion({
+            // $FlowFixMe TODO T25557273 - fix nullability
+            connectionName: config.connectionName,
+            fatQuery,
+            // $FlowFixMe TODO T25557273 - fix nullability
+            parentID: config.parentID,
+            // $FlowFixMe TODO T25557273 - fix nullability
+            parentName: config.parentName,
+            tracker,
+          });
+          children.push(edgeDeletion);
+          const deletedIDFieldName = Array.isArray(config.deletedIDFieldName)
+            ? config.deletedIDFieldName.concat(ID)
+            : [config.deletedIDFieldName];
+          const nodeDeletion = buildFragmentForDeletedConnectionNodeID(
+            deletedIDFieldName,
+            fatQuery,
+          );
+          children.push(nodeDeletion);
+          if (__DEV__ && console.groupCollapsed && console.groupEnd) {
+            const configType =
+              config === MutationTypes.RANGE_DELETE
+                ? 'RANGE_DELETE'
+                : 'NODE_DELETE';
+            console.groupCollapsed(configType);
+
+            const RelayMutationDebugPrinter = require('./RelayMutationDebugPrinter');
+            RelayMutationDebugPrinter.printMutation(
+              edgeDeletion,
+              'Edge Fragment',
+            );
+            RelayMutationDebugPrinter.printMutation(
+              nodeDeletion,
+              'Node Fragment',
+            );
+
+            console.groupEnd();
+          }
+          break;
+
+        case MutationTypes.FIELDS_CHANGE:
+          if (__DEV__ && console.groupCollapsed && console.groupEnd) {
+            console.groupCollapsed('FIELDS_CHANGE');
+          }
+          children.push(
+            RelayMutationQuery.buildFragmentForFields({
+              fatQuery,
+              fieldIDs: config.fieldIDs,
+              tracker,
+            }),
+          );
+          if (__DEV__ && console.groupCollapsed && console.groupEnd) {
+            console.groupEnd();
+          }
+          break;
+
+        default:
+          invariant(
+            false,
+            'RelayMutationQuery: Unrecognized config key `%s` for `%s`.',
+            config.type,
+            mutationName,
+          );
+      }
+    });
+    if (__DEV__ && console.groupCollapsed && console.groupEnd) {
+      console.groupEnd();
+    }
+    return RelayQuery.Mutation.build(
+      mutationName,
+      fatQuery.getType(),
+      mutation.calls[0].name,
+      input,
+      (children.filter(child => child != null): any),
+      mutation.metadata,
+    );
+  },
+};
+
+function getFieldFromFatQuery(
+  fatQuery: RelayQuery.Node,
+  fieldName: string,
+): RelayQuery.Field {
+  const field = fatQuery.getFieldByStorageKey(fieldName);
+  invariant(
+    field,
+    'RelayMutationQuery: Invalid field name on fat query, `%s`.',
+    fieldName,
+  );
+  return field;
+}
+
+function buildMutationFragment(
+  fatQuery: RelayQuery.Fragment,
+  fields: Array<RelayQuery.Node>,
+): RelayQuery.Fragment {
+  const fragment = RelayQuery.Fragment.build(
+    'MutationQuery',
+    fatQuery.getType(),
+    fields,
+  );
+
+  invariant(
+    fragment instanceof RelayQuery.Fragment,
+    'RelayMutationQuery: Expected a fragment.',
+  );
+  return fragment;
+}
+
+function buildFragmentForDeletedConnectionNodeID(
+  fieldNames: Array<string>,
+  fatQuery: RelayQuery.Fragment,
+): RelayQuery.Fragment {
+  invariant(
+    fieldNames.length > 0,
+    'RelayMutationQuery: Invalid deleted node id name.',
+  );
+  let field = RelayQuery.Field.build({
+    fieldName: fieldNames[fieldNames.length - 1],
+    type: 'String',
+  });
+  for (let ii = fieldNames.length - 2; ii >= 0; ii--) {
+    field = RelayQuery.Field.build({
+      fieldName: fieldNames[ii],
+      type: ANY_TYPE,
+      children: [field],
+      metadata: {
+        canHaveSubselections: true,
+      },
+    });
+  }
+  return buildMutationFragment(fatQuery, [field]);
+}
+
+function buildEdgeField(
+  parentID: DataID,
+  edgeName: string,
+  edgeFields: Array<RelayQuery.Node>,
+): RelayQuery.Field {
+  const fields = [
+    RelayQuery.Field.build({
+      fieldName: 'cursor',
+      type: 'String',
+    }),
+    RelayQuery.Field.build({
+      fieldName: TYPENAME,
+      type: 'String',
+    }),
+  ];
+  if (
+    ConnectionInterface.get().EDGES_HAVE_SOURCE_FIELD &&
+    !RelayRecord.isClientID(parentID)
+  ) {
+    fields.push(
+      RelayQuery.Field.build({
+        children: [
+          RelayQuery.Field.build({
+            fieldName: ID,
+            type: 'String',
+          }),
+          RelayQuery.Field.build({
+            fieldName: TYPENAME,
+            type: 'String',
+          }),
+        ],
+        fieldName: 'source',
+        metadata: {canHaveSubselections: true},
+        type: ANY_TYPE,
+      }),
+    );
+  }
+  fields.push(...edgeFields);
+  const edgeField = flattenRelayQuery(
+    RelayQuery.Field.build({
+      children: fields,
+      fieldName: edgeName,
+      metadata: {canHaveSubselections: true},
+      type: ANY_TYPE,
+    }),
+  );
+  invariant(
+    edgeField instanceof RelayQuery.Field,
+    'RelayMutationQuery: Expected a field.',
+  );
+  return edgeField;
+}
+
+function sanitizeRangeBehaviors(
+  rangeBehaviors: RangeBehaviors,
+): RangeBehaviors {
+  // Prior to 0.4.1 you would have to specify the args in your range behaviors
+  // in the same order they appeared in your query. From 0.4.1 onward, args in a
+  // range behavior key must be in alphabetical order.
+
+  // No need to sanitize if defined as a function
+  if (typeof rangeBehaviors === 'function') {
+    return rangeBehaviors;
+  }
+
+  let unsortedKeys;
+  forEachObject(rangeBehaviors, (value, key) => {
+    if (key !== '') {
+      const keyParts = key
+        // Remove the last parenthesis
+        .slice(0, -1)
+        // Slice on unescaped parentheses followed immediately by a `.`
+        .split(/\)\./);
+      const sortedKey =
+        keyParts.sort().join(').') + (keyParts.length ? ')' : '');
+      if (sortedKey !== key) {
+        unsortedKeys = unsortedKeys || [];
+        unsortedKeys.push(key);
+      }
+    }
+  });
+  if (unsortedKeys) {
+    invariant(
+      false,
+      'RelayMutation: To define a range behavior key without sorting ' +
+        'the arguments alphabetically is disallowed as of Relay 0.5.1. Please ' +
+        'sort the argument names of the range behavior key%s `%s`%s.',
+      unsortedKeys.length === 1 ? '' : 's',
+      unsortedKeys.length === 1
+        ? unsortedKeys[0]
+        : unsortedKeys.length === 2
+          ? `${unsortedKeys[0]}\` and \`${unsortedKeys[1]}`
+          : unsortedKeys.slice(0, -1).join('`, `'),
+      unsortedKeys.length > 2 ? `, and \`${unsortedKeys.slice(-1)}\`` : '',
+    );
+  }
+  return rangeBehaviors;
+}
+
+/**
+ * Confirms that the `connection` field extracted from the fat query at
+ * `parentName` -> `connectionName` is actually a connection.
+ */
+function validateConnection(
+  parentName: ?string,
+  connectionName: string,
+  connection: RelayQuery.Field,
+): void {
+  invariant(
+    connection.isConnection(),
+    'RelayMutationQuery: Expected field `%s`%s to be a connection.',
+    connectionName,
+    parentName ? ' on `' + parentName + '`' : '',
+  );
+}
+
+/**
+ * Convenience wrapper around validateConnection that gracefully attempts to
+ * extract the connection identified by `connectionName` from the `parentField`.
+ * If the connection isn't present (because it wasn't in the fat query or
+ * because it didn't survive query intersection), validation is skipped.
+ */
+function getConnectionAndValidate(
+  parentField: RelayQuery.Node,
+  parentName: string,
+  connectionName: string,
+): void {
+  const connections = findDescendantFields(parentField, connectionName);
+  if (connections.length) {
+    // If the first instance of the connection passes validation, all will.
+    validateConnection(parentName, connectionName, connections[0]);
+  }
+}
+
+/**
+ * Finds all direct and indirect child fields of `node` with the given
+ * field name.
+ */
+function findDescendantFields(
+  rootNode: RelayQuery.Node,
+  fieldName: string,
+): Array<RelayQuery.Field> {
+  const fields = [];
+  function traverse(node) {
+    if (node instanceof RelayQuery.Field) {
+      if (node.getSchemaName() === fieldName) {
+        fields.push(node);
+        return;
+      }
+    }
+    if (node === rootNode || node instanceof RelayQuery.Fragment) {
+      // Search fragments and the root node for matching fields, but skip
+      // descendant non-matching fields.
+      node.getChildren().forEach(child => traverse(child));
+    }
+  }
+  traverse(rootNode);
+  return fields;
+}
+
+module.exports = RelayMutationQuery;

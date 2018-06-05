@@ -24,11 +24,19 @@ Using Relay in your production app? If you'd like to add your team to the list, 
 ## C
 
 - [chloe + isabel](https://www.chloeandisabel.com)
+- [Cirrus CI](https://cirrus-ci.com)
 - [Collibra](https://www.collibra.com)
+
+## E
+- [Entria](https://entria.com.br/)
 
 ## F
 
 - [Facebook](https://www.facebook.com/)
+
+## H
+
+- [Hudl](https://www.hudl.com/)
 
 ## J
 
@@ -38,14 +46,17 @@ Using Relay in your production app? If you'd like to add your team to the list, 
 ## M
 
 - [M1 Finance](https://www.m1finance.com/)
+- [MeasureChina](http://www.measurechina.cn/)
 - [Mixcloud](https://www.mixcloud.com/)
 
 ## N
 
+- [New York Times](https://www.nytimes.com) (See [NYT dev team blog entry](https://open.nytimes.com/react-relay-and-graphql-under-the-hood-of-the-times-website-redesign-22fb62ea9764))
 - [Notarize](http://www.notarize.com/)
 
 ## O
 
+- [ONEHOPE Wine](https://beta.onehopewine.com)
 - [OpenGov](http://opengov.com/)
 
 ## P
@@ -57,9 +68,19 @@ Using Relay in your production app? If you'd like to add your team to the list, 
 - [RelateRocket](https://relaterocket.co/)
 - [Reploy](https://reploy.io)
 - [re:Culture](https://reculture.us)
+- [RetroAnalytics](https://retroanalytics.io)
+
+## S
+
+- [Sainsburys](https://sainsburys.co.uk/)
+- [Sigma](https://sig.ma)
 
 ## T
 
 - [ThoughtMachine](https://thoughtmachine.net/)
 - [Twitter](https://fabric.io/blog/building-fabric-mission-control-with-graphql-and-relay)
 - [Two-N](http://two-n.com/)
+
+## Z
+
+- [Zzish](https://zzish.com/)

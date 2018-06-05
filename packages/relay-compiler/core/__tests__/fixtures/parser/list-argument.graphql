@@ -1,0 +1,10 @@
+query ListArgumentQuery($waypoint: WayPoint!) {
+  route(waypoints: [$waypoint, {
+    lat: "0.0"
+    lon: "0.0"
+  }]) {
+    steps {
+      note
+    }
+  }
+}

@@ -64,7 +64,7 @@
     "iterall": "^1.2.1",
     "jest": "^22.0.3",
     "object-assign": "4.1.1",
-    "prettier": "1.12.1",
+    "prettier": "1.13.4",
     "prop-types": "^15.5.8",
     "react": "^16.3.0",
     "react-dom": "^16.3.0",

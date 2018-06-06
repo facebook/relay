@@ -97,20 +97,22 @@ class RelayTaskQueue {
         if (nextIndex >= callbacks.length) {
           resolve(value);
         } else {
-          this._queue.push((): void => {
-            enqueueNext(
-              ((): any => {
-                const nextCallback = callbacks[nextIndex++];
-                try {
-                  value = nextCallback(value);
-                } catch (e) {
-                  error = e;
-                  value = undefined;
-                }
-                return value;
-              })(),
-            );
-          });
+          this._queue.push(
+            (): void => {
+              enqueueNext(
+                ((): any => {
+                  const nextCallback = callbacks[nextIndex++];
+                  try {
+                    value = nextCallback(value);
+                  } catch (e) {
+                    error = e;
+                    value = undefined;
+                  }
+                  return value;
+                })(),
+              );
+            },
+          );
         }
       };
       enqueueNext(undefined);

@@ -10,6 +10,7 @@
 
 'use strict';
 
+const React = require('React');
 const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
 const assertFragmentMap = require('./assertFragmentMap');
@@ -81,12 +82,23 @@ function buildReactRelayContainer<TBase: React$ComponentType<*>>(
   if (providesChildContext) {
     ContainerConstructor.childContextTypes = containerContextTypes;
   }
-  ContainerConstructor.displayName = containerName;
+
+  function forwardRef(props, ref) {
+    return (
+      <ContainerConstructor
+        {...props}
+        componentRef={props.componentRef || ref}
+      />
+    );
+  }
+  forwardRef.displayName = containerName;
+  // $FlowFixMe
+  const ForwardContainer = React.forwardRef(forwardRef);
 
   if (__DEV__) {
-    ContainerConstructor.__ComponentClass = ComponentClass;
+    ForwardContainer.__ComponentClass = ComponentClass;
     // Classic container static methods.
-    ContainerConstructor.getFragment = function getFragmentOnModernContainer() {
+    ForwardContainer.getFragment = function getFragmentOnModernContainer() {
       throw new Error(
         `RelayModernContainer: ${containerName}.getFragment() was called on ` +
           'a Relay Modern component by a Relay Classic or Relay Compat ' +
@@ -99,7 +111,7 @@ function buildReactRelayContainer<TBase: React$ComponentType<*>>(
     };
   }
 
-  return (ContainerConstructor: any);
+  return ForwardContainer;
 }
 
 module.exports = buildReactRelayContainer;

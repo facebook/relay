@@ -16,17 +16,10 @@ const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
 const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
-const makeLegacyStringishComponentRef = require('../classic/util/makeLegacyStringishComponentRef');
 
-const {
-  getReactComponent,
-} = require('../classic/container/RelayClassicContainerUtils');
 const {assertRelayContext} = require('../classic/environment/RelayContext');
 const {profileContainer} = require('./ReactRelayContainerProfiler');
-const {
-  getComponentName,
-  getContainerName,
-} = require('./ReactRelayContainerUtils');
+const {getContainerName} = require('./ReactRelayContainerUtils');
 const {Observable, RelayProfiler, isScalarAndEqual} = require('RelayRuntime');
 
 import type {FragmentSpecResolver} from '../classic/environment/RelayCombinedEnvironmentTypes';
@@ -80,8 +73,6 @@ function createContainerWithFragments<
 ): React.ComponentType<
   $RelayProps<React.ElementConfig<TComponent>, RelayRefetchProp>,
 > {
-  const ComponentClass = getReactComponent(Component);
-  const componentName = getComponentName(Component);
   const containerName = getContainerName(Component);
 
   class Container extends React.Component<ContainerProps, ContainerState> {
@@ -409,28 +400,14 @@ function createContainerWithFragments<
     }
 
     render() {
-      if (ComponentClass) {
-        return (
-          <ComponentClass
-            {...this.props}
-            {...this.state.data}
-            // @TODO (T28161354) Remove the string ref fallback
-            ref={this.props.componentRef || this._legacyStringishRef}
-            relay={this.state.relayProp}
-          />
-        );
-      } else {
-        // Stateless functional, doesn't support `ref`
-        return React.createElement(Component, {
-          ...this.props,
-          ...this.state.data,
-          relay: this.state.relayProp,
-        });
-      }
+      const {componentRef, ...props} = this.props;
+      return React.createElement(Component, {
+        ...props,
+        ...this.state.data,
+        ref: componentRef,
+        relay: this.state.relayProp,
+      });
     }
-
-    // @TODO (T28161354) Remove this once string ref usage is gone.
-    _legacyStringishRef = makeLegacyStringishComponentRef(this, componentName);
   }
   profileContainer(Container, 'ReactRelayRefetchContainer');
 

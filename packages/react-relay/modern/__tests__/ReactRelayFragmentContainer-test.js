@@ -125,7 +125,8 @@ describe('ReactRelayFragmentContainer', () => {
   });
 
   it('generates a name for containers', () => {
-    expect(TestContainer.displayName).toBe('Relay(TestComponent)');
+    expect(TestContainer.$$typeof).toBe(Symbol.for('react.forward_ref'));
+    expect(TestContainer.render.displayName).toBe('Relay(TestComponent)');
   });
 
   it('throws for invalid fragment set', () => {

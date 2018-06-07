@@ -17,13 +17,9 @@ const RelayPropTypes = require('../classic/container/RelayPropTypes');
 const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
 const invariant = require('invariant');
-const makeLegacyStringishComponentRef = require('../classic/util/makeLegacyStringishComponentRef');
 const nullthrows = require('nullthrows');
 const warning = require('warning');
 
-const {
-  getReactComponent,
-} = require('../classic/container/RelayClassicContainerUtils');
 const {assertRelayContext} = require('../classic/environment/RelayContext');
 const {profileContainer} = require('./ReactRelayContainerProfiler');
 const {
@@ -325,7 +321,6 @@ function createContainerWithFragments<
 ): React.ComponentType<
   $RelayProps<React.ElementConfig<TComponent>, RelayPaginationProp>,
 > {
-  const ComponentClass = getReactComponent(Component);
   const componentName = getComponentName(Component);
   const containerName = getContainerName(Component);
 
@@ -496,8 +491,9 @@ function createContainerWithFragments<
       hasMore: boolean,
     } {
       // Extract connection data and verify there are more edges to fetch
+      const {componentRef: _, ...restProps} = this.props;
       const props = {
-        ...this.props,
+        ...restProps,
         ...this.state.data,
       };
       const connectionData = getConnectionFromProps(props);
@@ -661,14 +657,15 @@ function createContainerWithFragments<
         getRequest,
         getVariablesFromObject,
       } = environment.unstable_internal;
+      const {componentRef: _, ...restProps} = this.props;
       const props = {
-        ...this.props,
+        ...restProps,
         ...this.state.data,
       };
       let fragmentVariables = getVariablesFromObject(
         this._relayContext.variables,
         fragments,
-        this.props,
+        restProps,
       );
       fragmentVariables = {...fragmentVariables, ...refetchVariables};
       let fetchVariables = connectionConfig.getVariables(
@@ -795,28 +792,14 @@ function createContainerWithFragments<
     }
 
     render() {
-      if (ComponentClass) {
-        return (
-          <ComponentClass
-            {...this.props}
-            {...this.state.data}
-            // @TODO (T28161354) Remove the string ref fallback
-            ref={this.props.componentRef || this._legacyStringishRef}
-            relay={this.state.relayProp}
-          />
-        );
-      } else {
-        // Stateless functional, doesn't support `ref`
-        return React.createElement(Component, {
-          ...this.props,
-          ...this.state.data,
-          relay: this.state.relayProp,
-        });
-      }
+      const {componentRef, ...props} = this.props;
+      return React.createElement(Component, {
+        ...props,
+        ...this.state.data,
+        ref: componentRef,
+        relay: this.state.relayProp,
+      });
     }
-
-    // @TODO (T28161354) Remove this once string ref usage is gone.
-    _legacyStringishRef = makeLegacyStringishComponentRef(this, componentName);
   }
   profileContainer(Container, 'ReactRelayPaginationContainer');
 

@@ -15,7 +15,7 @@ fragment PhotoFragment on Image {
   ...RecursiveFragment @relay(mask: false)
 }
 
-fragment RecursiveFragment on Image {
+fragment RecursiveFragment on Image @relay(mask: false) {
   uri
   width
 }

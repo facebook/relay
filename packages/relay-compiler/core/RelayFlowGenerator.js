@@ -87,6 +87,7 @@ type SelectionMap = Map<string, Selection>;
 function makeProp(
   {key, schemaName, value, conditional, nodeType, nodeSelections}: Selection,
   state: State,
+  unmasked: boolean,
   concreteType?: string,
 ) {
   if (nodeType) {
@@ -96,6 +97,7 @@ function makeProp(
       selectionsToBabel(
         [Array.from(nullthrows(nodeSelections).values())],
         state,
+        unmasked,
       ),
     );
   }
@@ -113,7 +115,12 @@ const isTypenameSelection = selection => selection.schemaName === '__typename';
 const hasTypenameSelection = selections => selections.some(isTypenameSelection);
 const onlySelectsTypename = selections => selections.every(isTypenameSelection);
 
-function selectionsToBabel(selections, state: State, refTypeName?: string) {
+function selectionsToBabel(
+  selections,
+  state: State,
+  unmasked: boolean,
+  refTypeName?: string,
+) {
   const baseFields = new Map();
   const byConcreteType = {};
 
@@ -147,7 +154,7 @@ function selectionsToBabel(selections, state: State, refTypeName?: string) {
         groupRefs([
           ...Array.from(baseFields.values()),
           ...byConcreteType[concreteType],
-        ]).map(selection => makeProp(selection, state, concreteType)),
+        ]).map(selection => makeProp(selection, state, unmasked, concreteType)),
       );
     }
     // It might be some other type then the listed concrete types. Ideally, we
@@ -178,8 +185,13 @@ function selectionsToBabel(selections, state: State, refTypeName?: string) {
     const selectionMapValues = groupRefs(Array.from(selectionMap.values())).map(
       sel =>
         isTypenameSelection(sel) && sel.concreteType
-          ? makeProp({...sel, conditional: false}, state, sel.concreteType)
-          : makeProp(sel, state),
+          ? makeProp(
+              {...sel, conditional: false},
+              state,
+              unmasked,
+              sel.concreteType,
+            )
+          : makeProp(sel, state, unmasked),
     );
     types.push(selectionMapValues);
   }
@@ -194,7 +206,9 @@ function selectionsToBabel(selections, state: State, refTypeName?: string) {
           ),
         );
       }
-      return exactObjectTypeAnnotation(props);
+      return unmasked
+        ? t.objectTypeAnnotation(props)
+        : exactObjectTypeAnnotation(props);
     }),
   );
 }
@@ -252,7 +266,7 @@ function createVisitor(options: Options) {
         const inputObjectTypes = generateInputObjectTypes(state);
         const responseType = exportType(
           `${node.name}Response`,
-          selectionsToBabel(node.selections, state),
+          selectionsToBabel(node.selections, state, false),
         );
         return t.program([
           ...getFragmentImports(state),
@@ -291,7 +305,13 @@ function createVisitor(options: Options) {
             t.genericTypeAnnotation(t.identifier('FragmentReference')),
           ),
         );
-        const baseType = selectionsToBabel(selections, state, refTypeName);
+        const unmasked = node.metadata && node.metadata.mask === false;
+        const baseType = selectionsToBabel(
+          selections,
+          state,
+          unmasked,
+          unmasked ? undefined : refTypeName,
+        );
         const type = isPlural(node) ? readOnlyArrayOfType(baseType) : baseType;
         return t.program([
           ...getFragmentImports(state),

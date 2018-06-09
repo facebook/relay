@@ -569,6 +569,27 @@ fragment TypenameWithCommonSelections on Actor {
   }
 }
 
+fragment TypenameAlias on Actor {
+  _typeAlias: __typename
+  ... on User {
+    firstName
+  }
+  ... on Page {
+    username
+  }
+}
+
+fragment TypenameAliases on Actor {
+  _typeAlias1: __typename
+  _typeAlias2: __typename
+  ... on User {
+    firstName
+  }
+  ... on Page {
+    username
+  }
+}
+
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type TypenameInside$ref: FragmentReference;
@@ -642,6 +663,45 @@ export type TypenameWithCommonSelections = {|
   +firstName?: ?string,
   +username?: ?string,
   +$refType: TypenameWithCommonSelections$ref,
+|};
+
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type TypenameAlias$ref: FragmentReference;
+export type TypenameAlias = {|
+  +_typeAlias: "User",
+  +firstName: ?string,
+  +$refType: TypenameAlias$ref,
+|} | {|
+  +_typeAlias: "Page",
+  +username: ?string,
+  +$refType: TypenameAlias$ref,
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +_typeAlias: "%other",
+  +$refType: TypenameAlias$ref,
+|};
+
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type TypenameAliases$ref: FragmentReference;
+export type TypenameAliases = {|
+  +_typeAlias1: "User",
+  +_typeAlias2: "User",
+  +firstName: ?string,
+  +$refType: TypenameAliases$ref,
+|} | {|
+  +_typeAlias1: "Page",
+  +_typeAlias2: "Page",
+  +username: ?string,
+  +$refType: TypenameAliases$ref,
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +_typeAlias1: "%other",
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +_typeAlias2: "%other",
+  +$refType: TypenameAliases$ref,
 |};
 `;
 

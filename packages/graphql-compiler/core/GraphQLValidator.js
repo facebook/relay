@@ -22,7 +22,6 @@ const {
   LoneAnonymousOperationRule,
   NoUnusedVariablesRule,
   PossibleFragmentSpreadsRule,
-  ProvidedNonNullArgumentsRule,
   ScalarLeafsRule,
   UniqueArgumentNamesRule,
   UniqueFragmentNamesRule,
@@ -32,7 +31,6 @@ const {
   validate,
   ValuesOfCorrectTypeRule,
   VariablesAreInputTypesRule,
-  VariablesDefaultValueAllowedRule,
   VariablesInAllowedPositionRule,
 } = require('graphql');
 
@@ -80,7 +78,6 @@ module.exports = {
     // TODO #19327202 Relay Classic auto-resolves overlapping fields by
     // generating aliases
     //OverlappingFieldsCanBeMergedRule,
-    ProvidedNonNullArgumentsRule,
     UniqueArgumentNamesRule,
     UniqueFragmentNamesRule,
     UniqueInputFieldNamesRule,
@@ -97,7 +94,6 @@ module.exports = {
     LoneAnonymousOperationRule,
     PossibleFragmentSpreadsRule,
     ScalarLeafsRule,
-    VariablesDefaultValueAllowedRule,
     ValuesOfCorrectTypeRule,
     VariablesAreInputTypesRule,
     VariablesInAllowedPositionRule,

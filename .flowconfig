@@ -35,8 +35,6 @@ module.system.haste.paths.whitelist=<PROJECT_ROOT>/packages/.*
 module.system.haste.paths.whitelist=<PROJECT_ROOT>/node_modules/fbjs/lib/.*
 
 module.name_mapper='^ReactDOM$' -> 'react-dom'
-; TODO(T25740028) once we're fully on babylon 7, we can remove this hack.
-module.name_mapper='^metro-babylon7$' -> 'babylon'
 
 esproposal.class_static_fields=enable
 esproposal.class_instance_fields=enable

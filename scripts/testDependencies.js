@@ -85,10 +85,6 @@ function testPackageDependencies(topLevelPackagePath, packagePath) {
     if (requiredRepoPackages.has(dependencyName)) {
       continue;
     }
-    if (dependencyName === 'babylon') {
-      // TODO(T25740028) once we're fully on babylon 7, we can remove this hack.
-      continue;
-    }
     expectEqual(
       errors,
       getDependency(topLevelPackageJson, dependencyName),

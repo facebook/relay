@@ -170,6 +170,7 @@ function createContainerWithFragments<
 
     componentDidMount() {
       this._subscribeToNewResolver();
+      this._rerenderIfStoreHasChanged();
     }
 
     componentDidUpdate(prevProps: ContainerProps, prevState: ContainerState) {
@@ -178,6 +179,7 @@ function createContainerWithFragments<
 
         this._subscribeToNewResolver();
       }
+      this._rerenderIfStoreHasChanged();
     }
 
     componentWillUnmount() {
@@ -238,19 +240,22 @@ function createContainerWithFragments<
       }, profiler.stop);
     };
 
-    _subscribeToNewResolver() {
+    _rerenderIfStoreHasChanged() {
       const {data, resolver} = this.state;
-
-      // Event listeners are only safe to add during the commit phase,
-      // So they won't leak if render is interrupted or errors.
-      resolver.setCallback(this._handleFragmentDataUpdate);
-
       // External values could change between render and commit.
       // Check for this case, even though it requires an extra store read.
       const maybeNewData = resolver.resolve();
       if (data !== maybeNewData) {
         this.setState({data: maybeNewData});
       }
+    }
+
+    _subscribeToNewResolver() {
+      const {resolver} = this.state;
+
+      // Event listeners are only safe to add during the commit phase,
+      // So they won't leak if render is interrupted or errors.
+      resolver.setCallback(this._handleFragmentDataUpdate);
     }
 
     render() {

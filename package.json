@@ -49,7 +49,7 @@
     "event-stream": "3.3.4",
     "fast-glob": "^2.0.0",
     "fb-watchman": "^2.0.0",
-    "fbjs": "0.8.16",
+    "fbjs": "0.8.17",
     "fbjs-scripts": "0.7.1",
     "flow-bin": "^0.74.0",
     "graphql": "^0.13.1",

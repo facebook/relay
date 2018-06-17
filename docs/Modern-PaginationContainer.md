@@ -182,7 +182,7 @@ loadMore(pageSize: number, callback: ?(error: ?Error) => void): ?Disposable
 
 ```javascript
 refetchConnection:(
-  count: number,
+  totalCount: number,
   callback: (error: ?Error) => void,
   refetchVariables: ?Variables,
 ) => ?Disposable,

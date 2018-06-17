@@ -15,7 +15,7 @@
     "crowdin-download": "crowdin-cli --config ../crowdin.yaml download -b master"
   },
   "dependencies": {
-    "docusaurus": "^1.0.9",
+    "docusaurus": "1.2.0",
     "spec-md": "^0.6.0"
   }
 }

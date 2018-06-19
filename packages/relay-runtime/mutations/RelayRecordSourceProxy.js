@@ -15,7 +15,7 @@ const RelayRecordProxy = require('RelayRecordProxy');
 const RelayRecordSourceSelectorProxy = require('RelayRecordSourceSelectorProxy');
 
 const invariant = require('invariant');
-const normalizeRelayPayload = require('normalizeRelayPayload');
+const normalizeRelayPayload = require('../store/normalizeRelayPayload');
 
 const {EXISTENT, NONEXISTENT} = require('RelayRecordState');
 const {ROOT_ID, ROOT_TYPE} = require('RelayStoreUtils');

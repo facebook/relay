@@ -16,8 +16,8 @@ const RelayPublishQueue = require('RelayPublishQueue');
 
 const deferrableFragmentKey = require('deferrableFragmentKey');
 const invariant = require('invariant');
-const normalizePayload = require('normalizePayload');
-const normalizeRelayPayload = require('normalizeRelayPayload');
+const normalizePayload = require('./normalizePayload');
+const normalizeRelayPayload = require('./normalizeRelayPayload');
 const warning = require('warning');
 
 const {getOperationVariables} = require('RelayConcreteVariables');

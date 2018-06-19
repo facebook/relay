@@ -12,7 +12,7 @@
 
 const RelayError = require('RelayError');
 
-const normalizeRelayPayload = require('normalizeRelayPayload');
+const normalizeRelayPayload = require('./normalizeRelayPayload');
 
 const {ROOT_ID} = require('RelayStoreUtils');
 

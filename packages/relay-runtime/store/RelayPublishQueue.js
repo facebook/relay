@@ -18,7 +18,7 @@ const RelayRecordSourceProxy = require('RelayRecordSourceProxy');
 const RelayRecordSourceSelectorProxy = require('RelayRecordSourceSelectorProxy');
 
 const invariant = require('invariant');
-const normalizeRelayPayload = require('normalizeRelayPayload');
+const normalizeRelayPayload = require('./normalizeRelayPayload');
 
 import type {HandlerProvider} from 'RelayDefaultHandlerProvider';
 import type {

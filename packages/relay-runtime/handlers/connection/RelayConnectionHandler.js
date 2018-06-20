@@ -13,7 +13,7 @@
 const RelayConnectionInterface = require('RelayConnectionInterface');
 
 const generateRelayClientID = require('generateRelayClientID');
-const getRelayHandleKey = require('getRelayHandleKey');
+const getRelayHandleKey = require('../../util/getRelayHandleKey');
 const invariant = require('invariant');
 const warning = require('warning');
 

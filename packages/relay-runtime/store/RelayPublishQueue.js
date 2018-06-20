@@ -351,7 +351,7 @@ class RelayPublishQueue {
 function lookupSelector(source, selector): ?SelectorData {
   const selectorData = RelayReader.read(source, selector).data;
   if (__DEV__) {
-    const deepFreeze = require('deepFreeze');
+    const deepFreeze = require('../util/deepFreeze');
     if (selectorData) {
       deepFreeze(selectorData);
     }

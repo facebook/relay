@@ -11,7 +11,7 @@
 'use strict';
 
 const invariant = require('invariant');
-const stableCopy = require('stableCopy');
+const stableCopy = require('../util/stableCopy');
 
 import type {Variables} from '../util/RelayRuntimeTypes';
 import type {GraphQLResponse} from 'RelayNetworkTypes';

@@ -11,7 +11,7 @@
 'use strict';
 
 const areEqual = require('areEqual');
-const deepFreeze = require('deepFreeze');
+const deepFreeze = require('../util/deepFreeze');
 const invariant = require('invariant');
 
 const {

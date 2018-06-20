@@ -12,9 +12,9 @@
 
 const RelayConcreteNode = require('RelayConcreteNode');
 
-const getRelayHandleKey = require('getRelayHandleKey');
+const getRelayHandleKey = require('../util/getRelayHandleKey');
 const invariant = require('invariant');
-const stableCopy = require('stableCopy');
+const stableCopy = require('../util/stableCopy');
 
 import type {Variables} from '../util/RelayRuntimeTypes';
 import type {

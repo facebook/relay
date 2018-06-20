@@ -11,7 +11,7 @@
 'use strict';
 
 const invariant = require('invariant');
-const isScalarAndEqual = require('isScalarAndEqual');
+const isScalarAndEqual = require('../util/isScalarAndEqual');
 
 const {
   areEqualSelectors,

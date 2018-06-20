@@ -16,9 +16,9 @@ const RelayProfiler = require('RelayProfiler');
 const RelayReader = require('./RelayReader');
 const RelayReferenceMarker = require('./RelayReferenceMarker');
 
-const deepFreeze = require('deepFreeze');
+const deepFreeze = require('../util/deepFreeze');
 const hasOverlappingIDs = require('./hasOverlappingIDs');
-const recycleNodesInto = require('recycleNodesInto');
+const recycleNodesInto = require('../util/recycleNodesInto');
 const resolveImmediate = require('resolveImmediate');
 
 const {UNPUBLISH_RECORD_SENTINEL} = require('RelayStoreUtils');

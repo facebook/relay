@@ -30,15 +30,15 @@ const RelayViewerHandler = require('RelayViewerHandler');
 const applyRelayModernOptimisticMutation = require('applyRelayModernOptimisticMutation');
 const commitLocalUpdate = require('commitLocalUpdate');
 const commitRelayModernMutation = require('commitRelayModernMutation');
-const deepFreeze = require('deepFreeze');
+const deepFreeze = require('./util/deepFreeze');
 const fetchRelayModernQuery = require('fetchRelayModernQuery');
-const getRelayHandleKey = require('getRelayHandleKey');
+const getRelayHandleKey = require('./util/getRelayHandleKey');
 const isRelayModernEnvironment = require('isRelayModernEnvironment');
-const isScalarAndEqual = require('isScalarAndEqual');
-const recycleNodesInto = require('recycleNodesInto');
+const isScalarAndEqual = require('./util/isScalarAndEqual');
+const recycleNodesInto = require('./util/recycleNodesInto');
 const requestRelaySubscription = require('requestRelaySubscription');
-const simpleClone = require('simpleClone');
-const stableCopy = require('stableCopy');
+const simpleClone = require('./util/simpleClone');
+const stableCopy = require('./util/stableCopy');
 
 export type {
   CacheConfig,

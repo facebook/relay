@@ -17,16 +17,15 @@ const RelayPropTypes = require('../classic/container/RelayPropTypes');
 const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
 const invariant = require('invariant');
-const makeLegacyStringishComponentRef = require('../classic/util/makeLegacyStringishComponentRef');
 const nullthrows = require('nullthrows');
 const warning = require('warning');
 
-const {
-  getComponentName,
-  getReactComponent,
-} = require('../classic/container/RelayContainerUtils');
 const {assertRelayContext} = require('../classic/environment/RelayContext');
 const {profileContainer} = require('./ReactRelayContainerProfiler');
+const {
+  getComponentName,
+  getContainerName,
+} = require('./ReactRelayContainerUtils');
 const {
   ConnectionInterface,
   RelayProfiler,
@@ -322,9 +321,8 @@ function createContainerWithFragments<
 ): React.ComponentType<
   $RelayProps<React.ElementConfig<TComponent>, RelayPaginationProp>,
 > {
-  const ComponentClass = getReactComponent(Component);
   const componentName = getComponentName(Component);
-  const containerName = `Relay(${componentName})`;
+  const containerName = getContainerName(Component);
 
   const metadata = findConnectionMetadata(fragments);
 
@@ -493,8 +491,9 @@ function createContainerWithFragments<
       hasMore: boolean,
     } {
       // Extract connection data and verify there are more edges to fetch
+      const {componentRef: _, ...restProps} = this.props;
       const props = {
-        ...this.props,
+        ...restProps,
         ...this.state.data,
       };
       const connectionData = getConnectionFromProps(props);
@@ -658,14 +657,15 @@ function createContainerWithFragments<
         getRequest,
         getVariablesFromObject,
       } = environment.unstable_internal;
+      const {componentRef: _, ...restProps} = this.props;
       const props = {
-        ...this.props,
+        ...restProps,
         ...this.state.data,
       };
       let fragmentVariables = getVariablesFromObject(
         this._relayContext.variables,
         fragments,
-        this.props,
+        restProps,
       );
       fragmentVariables = {...fragmentVariables, ...refetchVariables};
       let fetchVariables = connectionConfig.getVariables(
@@ -792,28 +792,14 @@ function createContainerWithFragments<
     }
 
     render() {
-      if (ComponentClass) {
-        return (
-          <ComponentClass
-            {...this.props}
-            {...this.state.data}
-            // @TODO (T28161354) Remove the string ref fallback
-            ref={this.props.componentRef || this._legacyStringishRef}
-            relay={this.state.relayProp}
-          />
-        );
-      } else {
-        // Stateless functional, doesn't support `ref`
-        return React.createElement(Component, {
-          ...this.props,
-          ...this.state.data,
-          relay: this.state.relayProp,
-        });
-      }
+      const {componentRef, ...props} = this.props;
+      return React.createElement(Component, {
+        ...props,
+        ...this.state.data,
+        ref: componentRef,
+        relay: this.state.relayProp,
+      });
     }
-
-    // @TODO (T28161354) Remove this once string ref usage is gone.
-    _legacyStringishRef = makeLegacyStringishComponentRef(this, componentName);
   }
   profileContainer(Container, 'ReactRelayPaginationContainer');
 
@@ -834,18 +820,13 @@ function createContainer<Props: {}, TComponent: React.ComponentType<Props>>(
 ): React.ComponentType<
   $RelayProps<React.ElementConfig<TComponent>, RelayPaginationProp>,
 > {
-  const Container = buildReactRelayContainer(
+  return buildReactRelayContainer(
     Component,
     fragmentSpec,
     (ComponentClass, fragments) =>
       createContainerWithFragments(ComponentClass, fragments, connectionConfig),
+    /* provides child context */ true,
   );
-  /* $FlowFixMe(>=0.53.0) This comment suppresses an error
-   * when upgrading Flow's support for React. Common errors found when
-   * upgrading Flow's React support are documented at
-   * https://fburl.com/eq7bs81w */
-  Container.childContextTypes = containerContextTypes;
-  return Container;
 }
 
 module.exports = {createContainer, createContainerWithFragments};

@@ -98,9 +98,7 @@ function readOnlyObjectTypeProperty(key: string, value: BabelAST) {
 }
 
 function stringLiteralTypeAnnotation(value: string) {
-  const annotation = t.stringLiteralTypeAnnotation();
-  annotation.value = value;
-  return annotation;
+  return t.stringLiteralTypeAnnotation(value);
 }
 
 /**

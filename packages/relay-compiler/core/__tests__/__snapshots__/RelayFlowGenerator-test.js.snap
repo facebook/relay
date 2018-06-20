@@ -664,7 +664,7 @@ fragment PhotoFragment on Image {
   ...RecursiveFragment @relay(mask: false)
 }
 
-fragment RecursiveFragment on Image {
+fragment RecursiveFragment on Image @relay(mask: false) {
   uri
   width
 }
@@ -698,11 +698,10 @@ export type PhotoFragment = {|
 
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type RecursiveFragment$ref: FragmentReference;
-export type RecursiveFragment = {|
+export type RecursiveFragment = {
   +uri: ?string,
   +width: ?number,
-  +$refType: RecursiveFragment$ref,
-|};
+};
 
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type AnotherRecursiveFragment$ref: FragmentReference;

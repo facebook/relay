@@ -17,12 +17,30 @@
  * created with React.Component or React.createClass().
  */
 function isReactComponent(component: mixed): boolean {
-  return !!(
-    component &&
+  if (component == null) {
+    return false;
+  }
+
+  // React class component or createClass()
+  if (
     typeof component.prototype === 'object' &&
     component.prototype &&
     component.prototype.isReactComponent
-  );
+  ) {
+    return true;
+  }
+
+  // @TODO (T28161354) Remove this check
+  // React.forwardRef component
+  if (
+    // $FlowFixMe: add 'symbol' as a valid return value for typeof
+    typeof component.$$typeof === 'symbol' && // ES6 symbol
+    typeof component.render === 'function'
+  ) {
+    return true;
+  }
+
+  return false;
 }
 
 function getReactComponent(
@@ -35,26 +53,6 @@ function getReactComponent(
   }
 }
 
-function getComponentName(Component: React$ComponentType<any>): string {
-  let name;
-  const ComponentClass = getReactComponent(Component);
-  if (ComponentClass) {
-    name = ComponentClass.displayName || ComponentClass.name;
-  } else if (typeof Component === 'function') {
-    // This is a stateless functional component.
-    name = Component.displayName || Component.name || 'StatelessComponent';
-  } else {
-    name = 'ReactElement';
-  }
-  return String(name);
-}
-
-function getContainerName(Component: React$ComponentType<any>): string {
-  return 'Relay(' + getComponentName(Component) + ')';
-}
-
 module.exports = {
-  getComponentName,
-  getContainerName,
   getReactComponent,
 };

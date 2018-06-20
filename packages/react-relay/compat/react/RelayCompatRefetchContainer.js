@@ -12,7 +12,6 @@
 
 const React = require('React');
 const ReactRelayRefetchContainer = require('../../modern/ReactRelayRefetchContainer');
-const RelayPropTypes = require('../../classic/container/RelayPropTypes');
 
 const {buildCompatContainer} = require('../ReactRelayCompatContainerBuilder');
 
@@ -38,7 +37,7 @@ function createContainer<Props: {}, TComponent: React.ComponentType<Props>>(
 ): RelayCompatContainer<
   $RelayProps<React.ElementConfig<TComponent>, RelayRefetchProp>,
 > {
-  const Container = buildCompatContainer(
+  return buildCompatContainer(
     Component,
     (fragmentSpec: any),
     (ComponentClass, fragments) => {
@@ -48,11 +47,8 @@ function createContainer<Props: {}, TComponent: React.ComponentType<Props>>(
         taggedNode,
       );
     },
+    /* provides child context */ true,
   );
-  (Container: any).childContextTypes = {
-    relay: RelayPropTypes.Relay,
-  };
-  return Container;
 }
 
 module.exports = {createContainer};

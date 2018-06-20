@@ -18,7 +18,7 @@ Table of Contents:
 
 Pagination Container works in a very similar way to the [Fragment Container](https://facebook.github.io/relay/docs/en/fragment-container.html) in that you also specify the data requirements for a component via GraphQL fragments in the `fragmentSpec`.
 
-However, when [specifying connection fragments](#createpaginationcontainer) for a Pagination Container, it is expected that at least one of the fragments contains a [GraphQL connection](https://facebook.github.io/relay/graphql/connections.htm) to paginate over, and that that the connection field is annotated with a `@connection` directive.
+However, when [specifying connection fragments](#createpaginationcontainer) for a Pagination Container, it is expected that at least one of the fragments contains a [GraphQL connection](https://facebook.github.io/relay/graphql/connections.htm) to paginate over, and that the connection field is annotated with a `@connection` directive.
 
 The purpose of the `@connection` directive is to allow Relay to uniquely identify different connections under a parent type. The `@connection` directive takes 2 arguments that help identify the connection:
 
@@ -182,7 +182,7 @@ loadMore(pageSize: number, callback: ?(error: ?Error) => void): ?Disposable
 
 ```javascript
 refetchConnection:(
-  count: number,
+  totalCount: number,
   callback: (error: ?Error) => void,
   refetchVariables: ?Variables,
 ) => ?Disposable,

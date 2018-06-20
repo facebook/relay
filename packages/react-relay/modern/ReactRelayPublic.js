@@ -47,6 +47,7 @@ module.exports = {
   MutationTypes: RelayRuntime.MutationTypes,
   RangeOperations: RelayRuntime.RangeOperations,
 
+  applyOptimisticMutation: RelayRuntime.applyOptimisticMutation,
   commitLocalUpdate: RelayRuntime.commitLocalUpdate,
   commitMutation: RelayRuntime.commitMutation,
   createFragmentContainer: ReactRelayFragmentContainer.createContainer,

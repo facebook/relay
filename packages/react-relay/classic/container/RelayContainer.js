@@ -35,7 +35,8 @@ const relayUnstableBatchedUpdates = require('../tools/relayUnstableBatchedUpdate
 const shallowEqual = require('shallowEqual');
 const warning = require('warning');
 
-const {getComponentName, getReactComponent} = require('./RelayContainerUtils');
+const {getComponentName} = require('../../modern/ReactRelayContainerUtils');
+const {getReactComponent} = require('./RelayClassicContainerUtils');
 const {RelayProfiler} = require('RelayRuntime');
 
 import type {RelayQueryConfigInterface} from '../query-config/RelayQueryConfig';

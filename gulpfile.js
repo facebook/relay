@@ -12,6 +12,7 @@
 
 const babel = require('gulp-babel');
 const babelOptions = require('./scripts/getBabelOptions')({
+  ast: false,
   moduleMap: {
     '@babel/generator': '@babel/generator',
     '@babel/types': '@babel/types',
@@ -19,18 +20,14 @@ const babelOptions = require('./scripts/getBabelOptions')({
     'babel-generator': 'babel-generator',
     'babel-generator/lib/printer': 'babel-generator/lib/printer',
     'babel-polyfill': 'babel-polyfill',
-    'babel-runtime/helpers/asyncToGenerator':
-      'babel-runtime/helpers/asyncToGenerator',
-    'babel-runtime/helpers/classCallCheck':
-      'babel-runtime/helpers/classCallCheck',
-    'babel-runtime/helpers/defineProperty':
-      'babel-runtime/helpers/defineProperty',
+    'babel-runtime/helpers/asyncToGenerator': 'babel-runtime/helpers/asyncToGenerator',
+    'babel-runtime/helpers/classCallCheck': 'babel-runtime/helpers/classCallCheck',
+    'babel-runtime/helpers/defineProperty': 'babel-runtime/helpers/defineProperty',
     'babel-runtime/helpers/extends': 'babel-runtime/helpers/extends',
     'babel-runtime/helpers/inherits': 'babel-runtime/helpers/inherits',
-    'babel-runtime/helpers/possibleConstructorReturn':
-      'babel-runtime/helpers/possibleConstructorReturn',
-    'babel-runtime/helpers/toConsumableArray':
-      'babel-runtime/helpers/toConsumableArray',
+    'babel-runtime/helpers/objectWithoutProperties': 'babel-runtime/helpers/objectWithoutProperties',
+    'babel-runtime/helpers/possibleConstructorReturn': 'babel-runtime/helpers/possibleConstructorReturn',
+    'babel-runtime/helpers/toConsumableArray': 'babel-runtime/helpers/toConsumableArray',
     'babel-traverse': 'babel-traverse',
     'babel-types': 'babel-types',
     'babylon': 'babylon',
@@ -67,6 +64,7 @@ const babelOptions = require('./scripts/getBabelOptions')({
     'transform-async-to-generator',
     'transform-es2015-modules-commonjs',
   ],
+  sourceType: 'script',
 });
 const del = require('del');
 const derequire = require('gulp-derequire');

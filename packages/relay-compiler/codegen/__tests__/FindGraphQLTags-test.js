@@ -87,6 +87,7 @@ describe('FindGraphQLTags', () => {
               graphql\`fragment FindGraphQLTags on User { id }\`;
             }
             render() {
+              const x = window?.foo?.bar ?? 'default';
               return <>A Fragment!</>;
             }
           }

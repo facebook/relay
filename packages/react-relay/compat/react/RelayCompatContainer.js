@@ -40,6 +40,7 @@ function createContainer<Props: {}, TComponent: React.ComponentType<Props>>(
     Component,
     (fragmentSpec: any),
     ReactRelayFragmentContainer.createContainerWithFragments,
+    /* provides child context */ false,
   );
 }
 

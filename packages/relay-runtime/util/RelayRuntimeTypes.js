@@ -42,6 +42,8 @@ export type RerunParam = {
  *   state of any configured response cache.
  * - `poll`: causes a query to live update by polling at the specified interval
  *   in milliseconds. (This value will be passed to setTimeout.)
+ * - `liveConfigId`: causes a query to live update by calling GraphQLLiveQuery,
+ *   it represents a configuration of gateway when doing live query
  * - `rerunParamExperimental`: causes the query to be run with the experimental
  *   batch API on Network interfaces and GraphQL servers that support it.
  * - `metadata`: user-supplied metadata.
@@ -49,6 +51,7 @@ export type RerunParam = {
 export type CacheConfig = {
   force?: ?boolean,
   poll?: ?number,
+  liveConfigId?: ?string,
   rerunParamExperimental?: ?RerunParam,
   metadata?: {[key: string]: mixed},
 };

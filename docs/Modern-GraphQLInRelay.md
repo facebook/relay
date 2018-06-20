@@ -88,6 +88,8 @@ Relay by default will only expose the data for fields explicitly requested by a 
 
 However, `@relay(mask: false)` can be used to prevent data masking; when including a fragment and annotating it with `@relay(mask: false)`, its data will be available to the parent, recursively including the data from the fields of the referenced fragment.
 
+Applied to a fragment definition, `@relay(mask: false)` changes the generated Flow types to be better usable when the fragment is included with the same directive. The Flow types will no longer be exact objects and no longer contain internal marker fields.
+
 This may be helpful to reduce redundant fragments when dealing with nested or recursive data within a single Component.
 
 Keep in mind that it is typically considered an **anti-pattern** to create a single fragment shared across many containers. Abusing this directive could result in over-fetching in your application.
@@ -96,7 +98,7 @@ In the example below, the `user` prop will include the data for `id` and `name` 
 
 ```javascript
 graphql`
-  fragment Component_internUser on InternUser {
+  fragment Component_internUser on InternUser @relay(mask: false) {
     id
     name
   }

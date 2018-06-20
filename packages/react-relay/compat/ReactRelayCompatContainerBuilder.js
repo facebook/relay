@@ -10,7 +10,7 @@
 
 'use strict';
 
-const RelayContainerProxy = require('../classic/container/RelayContainerProxy');
+const React = require('React');
 const RelayGraphQLTag = require('../classic/query/RelayGraphQLTag');
 const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
@@ -21,7 +21,7 @@ const mapObject = require('mapObject');
 const {
   getComponentName,
   getContainerName,
-} = require('../classic/container/RelayContainerUtils');
+} = require('../modern/ReactRelayContainerUtils');
 
 import type {ConcreteFragmentSpread} from '../classic/query/ConcreteQuery';
 import type {VariableMapping} from '../classic/query/RelayFragmentReference';
@@ -72,6 +72,7 @@ function buildCompatContainer(
   ComponentClass: React$ComponentType<any>,
   fragmentSpec: GeneratedNodeMap,
   createContainerWithFragments: ContainerCreator,
+  providesChildContext: boolean,
 ): any {
   // Sanity-check user-defined fragment input
   const containerName = getContainerName(ComponentClass);
@@ -138,29 +139,38 @@ function buildCompatContainer(
 
       // Attach static lifecycle to wrapper component so React can see it.
       ContainerConstructor.getDerivedStateFromProps = (Container: any).getDerivedStateFromProps;
-
-      RelayContainerProxy.proxyMethods(Container, ComponentClass);
     }
-    /* $FlowFixMe(>=0.53.0) This comment suppresses an
-     * error when upgrading Flow's support for React. Common errors found when
-     * upgrading Flow's React support are documented at
-     * https://fburl.com/eq7bs81w */
+    // $FlowFixMe
     return new Container(props, context);
   }
   ContainerConstructor.contextTypes = containerContextTypes;
-  ContainerConstructor.displayName = containerName;
+  if (providesChildContext) {
+    ContainerConstructor.childContextTypes = containerContextTypes;
+  }
+
+  function forwardRef(props, ref) {
+    return (
+      <ContainerConstructor
+        {...props}
+        componentRef={props.componentRef || ref}
+      />
+    );
+  }
+  forwardRef.displayName = containerName;
+  // $FlowFixMe
+  const ForwardContainer = React.forwardRef(forwardRef);
 
   // Classic container static methods
-  ContainerConstructor.getFragment = getFragment;
-  ContainerConstructor.getFragmentNames = () => Object.keys(fragmentSpec);
-  ContainerConstructor.hasFragment = name => fragmentSpec.hasOwnProperty(name);
-  ContainerConstructor.hasVariable = hasVariable;
+  ForwardContainer.getFragment = getFragment;
+  ForwardContainer.getFragmentNames = () => Object.keys(fragmentSpec);
+  ForwardContainer.hasFragment = name => fragmentSpec.hasOwnProperty(name);
+  ForwardContainer.hasVariable = hasVariable;
 
   // Create a back-reference from the Component to the Container for cases
   // where a Classic Component might refer to itself, expecting a Container.
-  (ComponentClass: any).__container__ = ContainerConstructor;
+  (ComponentClass: any).__container__ = ForwardContainer;
 
-  return ContainerConstructor;
+  return ForwardContainer;
 }
 
 module.exports = {injectDefaultVariablesProvider, buildCompatContainer};

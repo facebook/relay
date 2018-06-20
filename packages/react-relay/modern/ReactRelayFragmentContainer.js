@@ -15,14 +15,10 @@ const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
 const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
-const makeLegacyStringishComponentRef = require('../classic/util/makeLegacyStringishComponentRef');
 
-const {
-  getComponentName,
-  getReactComponent,
-} = require('../classic/container/RelayContainerUtils');
 const {assertRelayContext} = require('../classic/environment/RelayContext');
 const {profileContainer} = require('./ReactRelayContainerProfiler');
+const {getContainerName} = require('./ReactRelayContainerUtils');
 const {RelayProfiler, isScalarAndEqual} = require('RelayRuntime');
 
 import type {FragmentSpecResolver} from '../classic/environment/RelayCombinedEnvironmentTypes';
@@ -61,9 +57,7 @@ function createContainerWithFragments<
 ): React.ComponentType<
   $RelayProps<React.ElementConfig<TComponent>, RelayProp>,
 > {
-  const ComponentClass = getReactComponent(Component);
-  const componentName = getComponentName(Component);
-  const containerName = `Relay(${componentName})`;
+  const containerName = getContainerName(Component);
 
   class Container extends React.Component<ContainerProps, ContainerState> {
     static displayName = containerName;
@@ -176,6 +170,7 @@ function createContainerWithFragments<
 
     componentDidMount() {
       this._subscribeToNewResolver();
+      this._rerenderIfStoreHasChanged();
     }
 
     componentDidUpdate(prevProps: ContainerProps, prevState: ContainerState) {
@@ -184,6 +179,7 @@ function createContainerWithFragments<
 
         this._subscribeToNewResolver();
       }
+      this._rerenderIfStoreHasChanged();
     }
 
     componentWillUnmount() {
@@ -244,13 +240,8 @@ function createContainerWithFragments<
       }, profiler.stop);
     };
 
-    _subscribeToNewResolver() {
+    _rerenderIfStoreHasChanged() {
       const {data, resolver} = this.state;
-
-      // Event listeners are only safe to add during the commit phase,
-      // So they won't leak if render is interrupted or errors.
-      resolver.setCallback(this._handleFragmentDataUpdate);
-
       // External values could change between render and commit.
       // Check for this case, even though it requires an extra store read.
       const maybeNewData = resolver.resolve();
@@ -259,29 +250,23 @@ function createContainerWithFragments<
       }
     }
 
-    render() {
-      if (ComponentClass) {
-        return (
-          <ComponentClass
-            {...this.props}
-            {...this.state.data}
-            // @TODO (T28161354) Remove the string ref fallback
-            ref={this.props.componentRef || this._legacyStringishRef}
-            relay={this.state.relayProp}
-          />
-        );
-      } else {
-        // Stateless functional, doesn't support `ref`
-        return React.createElement(Component, {
-          ...this.props,
-          ...this.state.data,
-          relay: this.state.relayProp,
-        });
-      }
+    _subscribeToNewResolver() {
+      const {resolver} = this.state;
+
+      // Event listeners are only safe to add during the commit phase,
+      // So they won't leak if render is interrupted or errors.
+      resolver.setCallback(this._handleFragmentDataUpdate);
     }
 
-    // @TODO (T28161354) Remove this once string ref usage is gone.
-    _legacyStringishRef = makeLegacyStringishComponentRef(this, componentName);
+    render() {
+      const {componentRef, ...props} = this.props;
+      return React.createElement(Component, {
+        ...props,
+        ...this.state.data,
+        ref: componentRef,
+        relay: this.state.relayProp,
+      });
+    }
   }
   profileContainer(Container, 'ReactRelayFragmentContainer');
 
@@ -305,6 +290,7 @@ function createContainer<Props: {}, TComponent: React.ComponentType<Props>>(
     Component,
     fragmentSpec,
     createContainerWithFragments,
+    /* provides child context */ false,
   );
 }
 

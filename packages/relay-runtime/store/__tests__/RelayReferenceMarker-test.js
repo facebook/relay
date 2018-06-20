@@ -13,7 +13,7 @@
 jest.mock('generateClientID');
 
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
-const RelayReferenceMarker = require('RelayReferenceMarker');
+const RelayReferenceMarker = require('../RelayReferenceMarker');
 const RelayStoreUtils = require('RelayStoreUtils');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 

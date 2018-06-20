@@ -13,11 +13,11 @@
 const RelayDataLoader = require('RelayDataLoader');
 const RelayModernRecord = require('RelayModernRecord');
 const RelayProfiler = require('RelayProfiler');
-const RelayReader = require('RelayReader');
-const RelayReferenceMarker = require('RelayReferenceMarker');
+const RelayReader = require('./RelayReader');
+const RelayReferenceMarker = require('./RelayReferenceMarker');
 
 const deepFreeze = require('deepFreeze');
-const hasOverlappingIDs = require('hasOverlappingIDs');
+const hasOverlappingIDs = require('./hasOverlappingIDs');
 const recycleNodesInto = require('recycleNodesInto');
 const resolveImmediate = require('resolveImmediate');
 

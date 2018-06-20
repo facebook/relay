@@ -12,7 +12,7 @@
 
 const ErrorUtils = require('ErrorUtils');
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
-const RelayReader = require('RelayReader');
+const RelayReader = require('./RelayReader');
 const RelayRecordSourceMutator = require('RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('RelayRecordSourceProxy');
 const RelayRecordSourceSelectorProxy = require('RelayRecordSourceSelectorProxy');

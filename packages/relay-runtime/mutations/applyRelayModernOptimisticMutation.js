@@ -15,9 +15,9 @@ const RelayDeclarativeMutationConfig = require('RelayDeclarativeMutationConfig')
 const invariant = require('invariant');
 const isRelayModernEnvironment = require('isRelayModernEnvironment');
 
+import type {GraphQLTaggedNode} from '../query/RelayModernGraphQLTag';
 import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
 import type {DeclarativeMutationConfig} from 'RelayDeclarativeMutationConfig';
-import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {Environment, SelectorStoreUpdater} from 'RelayStoreTypes';
 
 export type OptimisticMutationConfig = {|

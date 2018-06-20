@@ -19,7 +19,7 @@ const RelayDefaultHandleKey = require('RelayDefaultHandleKey');
 const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('RelayMarkSweepStore');
 const RelayModernEnvironment = require('RelayModernEnvironment');
-const RelayModernGraphQLTag = require('RelayModernGraphQLTag');
+const RelayModernGraphQLTag = require('./query/RelayModernGraphQLTag');
 const RelayNetwork = require('RelayNetwork');
 const RelayObservable = require('RelayObservable');
 const RelayProfiler = require('RelayProfiler');
@@ -31,7 +31,7 @@ const applyRelayModernOptimisticMutation = require('applyRelayModernOptimisticMu
 const commitLocalUpdate = require('commitLocalUpdate');
 const commitRelayModernMutation = require('commitRelayModernMutation');
 const deepFreeze = require('./util/deepFreeze');
-const fetchRelayModernQuery = require('fetchRelayModernQuery');
+const fetchRelayModernQuery = require('./query/fetchRelayModernQuery');
 const getRelayHandleKey = require('./util/getRelayHandleKey');
 const isRelayModernEnvironment = require('isRelayModernEnvironment');
 const isScalarAndEqual = require('./util/isScalarAndEqual');
@@ -40,6 +40,7 @@ const requestRelaySubscription = require('requestRelaySubscription');
 const simpleClone = require('./util/simpleClone');
 const stableCopy = require('./util/stableCopy');
 
+export type {GraphQLTaggedNode} from './query/RelayModernGraphQLTag';
 export type {
   CacheConfig,
   DataID,
@@ -62,7 +63,6 @@ export type {
   MutationType,
   RangeOperation,
 } from 'RelayDeclarativeMutationConfig';
-export type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 export type {
   GraphQLResponse,
   PayloadError,

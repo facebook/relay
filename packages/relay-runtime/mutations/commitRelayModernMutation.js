@@ -16,9 +16,9 @@ const invariant = require('invariant');
 const isRelayModernEnvironment = require('isRelayModernEnvironment');
 const warning = require('warning');
 
+import type {GraphQLTaggedNode} from '../query/RelayModernGraphQLTag';
 import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
 import type {DeclarativeMutationConfig} from 'RelayDeclarativeMutationConfig';
-import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {PayloadError, UploadableMap} from 'RelayNetworkTypes';
 import type {Environment, SelectorStoreUpdater} from 'RelayStoreTypes';
 

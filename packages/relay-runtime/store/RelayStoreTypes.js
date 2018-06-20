@@ -10,6 +10,7 @@
 
 'use strict';
 
+import type {GraphQLTaggedNode} from '../query/RelayModernGraphQLTag';
 import type {DataID, Disposable, Variables} from '../util/RelayRuntimeTypes';
 import type {
   ConcreteScalarField,
@@ -19,7 +20,6 @@ import type {
   RequestNode,
   ConcreteOperation,
 } from 'RelayConcreteNode';
-import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
 import type {
   ExecutePayload,
   PayloadError,

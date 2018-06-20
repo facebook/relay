@@ -14,7 +14,7 @@ const RelayModernFragmentSpecResolver = require('RelayModernFragmentSpecResolver
 
 const warning = require('warning');
 
-const {getFragment, getRequest} = require('RelayModernGraphQLTag');
+const {getFragment, getRequest} = require('../query/RelayModernGraphQLTag');
 const {createOperationSelector} = require('RelayModernOperationSelector');
 const {
   areEqualSelectors,

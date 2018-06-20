@@ -10,14 +10,7 @@
 
 'use strict';
 
-require('configureForRelayOSS');
-
-jest.unmock('recycleNodesInto');
-
-const RelayClassic = require('../../../RelayPublic');
-const RelayTestUtils = require('RelayTestUtils');
-
-const {recycleNodesInto} = require('RelayRuntime');
+const recycleNodesInto = require('../recycleNodesInto');
 
 describe('recycleNodesInto', () => {
   beforeEach(() => {
@@ -195,55 +188,6 @@ describe('recycleNodesInto', () => {
       const prevData = Object.assign(Object.create({length: 2}), {0: 1, 1: 2});
       const nextData = [1, 2];
       expect(recycleNodesInto(prevData, nextData)).not.toBe(prevData);
-    });
-  });
-
-  describe('fragment pointers', () => {
-    let getPointer;
-
-    beforeEach(() => {
-      const {getNode} = RelayTestUtils;
-
-      const fragment = getNode(RelayClassic.QL`fragment on Node{id}`);
-      getPointer = function(dataID) {
-        return RelayTestUtils.getPointer(dataID, fragment);
-      };
-    });
-
-    it('recycles equal fragment pointers', () => {
-      const prevData = getPointer('A');
-      const nextData = getPointer('A');
-      expect(recycleNodesInto(prevData, nextData)).toBe(prevData);
-    });
-
-    it('recycles parent objects with equal fragment pointers', () => {
-      const prevData = {foo: getPointer('A')};
-      const nextData = {foo: getPointer('A')};
-      expect(recycleNodesInto(prevData, nextData)).toBe(prevData);
-    });
-
-    it('recycles arrays with equal fragment pointers', () => {
-      const prevData = [getPointer('A')];
-      const nextData = [getPointer('A')];
-      expect(recycleNodesInto(prevData, nextData)).toBe(prevData);
-    });
-
-    it('does not recycle unequal fragment pointers', () => {
-      const prevData = getPointer('A');
-      const nextData = getPointer('B');
-      expect(recycleNodesInto(prevData, nextData)).toBe(nextData);
-    });
-
-    it('does not recycle parent objects with unequal fragment pointers', () => {
-      const prevData = {foo: getPointer('A')};
-      const nextData = {foo: getPointer('B')};
-      expect(recycleNodesInto(prevData, nextData)).toBe(nextData);
-    });
-
-    it('does not recycle arrays with unequal fragment pointers', () => {
-      const prevData = [getPointer('A')];
-      const nextData = [getPointer('B')];
-      expect(recycleNodesInto(prevData, nextData)).toBe(nextData);
     });
   });
 });

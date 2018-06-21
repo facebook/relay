@@ -36,11 +36,14 @@ const getRelayHandleKey = require('./util/getRelayHandleKey');
 const isRelayModernEnvironment = require('isRelayModernEnvironment');
 const isScalarAndEqual = require('./util/isScalarAndEqual');
 const recycleNodesInto = require('./util/recycleNodesInto');
-const requestRelaySubscription = require('requestRelaySubscription');
+const requestRelaySubscription = require('./subscription/requestRelaySubscription');
 const simpleClone = require('./util/simpleClone');
 const stableCopy = require('./util/stableCopy');
 
 export type {GraphQLTaggedNode} from './query/RelayModernGraphQLTag';
+export type {
+  GraphQLSubscriptionConfig,
+} from './subscription/requestRelaySubscription';
 export type {
   CacheConfig,
   DataID,

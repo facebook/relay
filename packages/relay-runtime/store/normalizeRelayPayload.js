@@ -10,7 +10,7 @@
 
 'use strict';
 
-const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
+const RelayInMemoryRecordSource = require('./RelayInMemoryRecordSource');
 const RelayModernRecord = require('RelayModernRecord');
 const RelayResponseNormalizer = require('RelayResponseNormalizer');
 

@@ -10,8 +10,8 @@
 
 'use strict';
 
-const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
-const RelayMarkSweepStore = require('RelayMarkSweepStore');
+const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
+const RelayMarkSweepStore = require('../RelayMarkSweepStore');
 const RelayModernEnvironment = require('RelayModernEnvironment');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 const RelayNetwork = require('RelayNetwork');

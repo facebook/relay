@@ -13,7 +13,7 @@
 const RelayConcreteNode = require('RelayConcreteNode');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 
-const cloneRelayHandleSourceField = require('cloneRelayHandleSourceField');
+const cloneRelayHandleSourceField = require('../cloneRelayHandleSourceField');
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
 
 const {generateWithTransforms, matchers} = RelayModernTestUtils;

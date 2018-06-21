@@ -14,7 +14,7 @@
 jest.mock('generateClientID');
 
 const RelayDataLoader = require('RelayDataLoader');
-const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
+const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayStoreUtils = require('RelayStoreUtils');
 const RelayModernRecord = require('RelayModernRecord');
 const RelayModernTestUtils = require('RelayModernTestUtils');

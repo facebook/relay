@@ -13,8 +13,8 @@
 require('configureForRelayOSS');
 
 const RelayConnectionHandler = require('RelayConnectionHandler');
-const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
-const RelayMarkSweepStore = require('RelayMarkSweepStore');
+const RelayInMemoryRecordSource = require('../../../store/RelayInMemoryRecordSource');
+const RelayMarkSweepStore = require('../../../store/RelayMarkSweepStore');
 const RelayRecordSourceMutator = require('RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('RelayRecordSourceProxy');
 const RelayResponseNormalizer = require('RelayResponseNormalizer');

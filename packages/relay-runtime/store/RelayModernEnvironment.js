@@ -14,7 +14,7 @@ const RelayCore = require('RelayCore');
 const RelayDefaultHandlerProvider = require('RelayDefaultHandlerProvider');
 const RelayPublishQueue = require('./RelayPublishQueue');
 
-const deferrableFragmentKey = require('deferrableFragmentKey');
+const deferrableFragmentKey = require('./deferrableFragmentKey');
 const invariant = require('invariant');
 const normalizePayload = require('./normalizePayload');
 const normalizeRelayPayload = require('./normalizeRelayPayload');

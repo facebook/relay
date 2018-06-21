@@ -14,7 +14,7 @@ const RelayConcreteNode = require('RelayConcreteNode');
 const RelayModernRecord = require('RelayModernRecord');
 const RelayProfiler = require('RelayProfiler');
 
-const deferrableFragmentKey = require('deferrableFragmentKey');
+const deferrableFragmentKey = require('./deferrableFragmentKey');
 const generateRelayClientID = require('generateRelayClientID');
 const invariant = require('invariant');
 const warning = require('warning');

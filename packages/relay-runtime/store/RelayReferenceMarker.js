@@ -14,7 +14,7 @@ const RelayConcreteNode = require('RelayConcreteNode');
 const RelayModernRecord = require('RelayModernRecord');
 const RelayStoreUtils = require('RelayStoreUtils');
 
-const cloneRelayHandleSourceField = require('cloneRelayHandleSourceField');
+const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
 const invariant = require('invariant');
 
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';

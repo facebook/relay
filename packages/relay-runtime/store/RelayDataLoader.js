@@ -14,7 +14,7 @@ const RelayConcreteNode = require('RelayConcreteNode');
 const RelayRecordSourceMutator = require('RelayRecordSourceMutator');
 const RelayStoreUtils = require('RelayStoreUtils');
 
-const cloneRelayHandleSourceField = require('cloneRelayHandleSourceField');
+const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
 const invariant = require('invariant');
 
 const {EXISTENT, UNKNOWN} = require('RelayRecordState');

@@ -22,8 +22,8 @@ const RelayStoreUtils = require('RelayStoreUtils');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 const RelayConnectionInterface = require('RelayConnectionInterface');
 
-const getRelayHandleKey = require('getRelayHandleKey');
-const simpleClone = require('simpleClone');
+const getRelayHandleKey = require('../../../util/getRelayHandleKey');
+const simpleClone = require('../../../util/simpleClone');
 
 const {
   ID_KEY,

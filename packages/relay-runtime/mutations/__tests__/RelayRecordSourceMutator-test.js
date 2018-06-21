@@ -16,7 +16,7 @@ const RelayRecordSourceMutator = require('RelayRecordSourceMutator');
 const RelayRecordState = require('RelayRecordState');
 const RelayStoreUtils = require('RelayStoreUtils');
 
-const simpleClone = require('simpleClone');
+const simpleClone = require('../../util/simpleClone');
 
 const {
   ID_KEY,

@@ -17,7 +17,7 @@ const RelayRecordSourceMutator = require('RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('RelayRecordSourceProxy');
 const RelayStoreUtils = require('RelayStoreUtils');
 
-const simpleClone = require('simpleClone');
+const simpleClone = require('../../util/simpleClone');
 
 const {createOperationSelector} = require('RelayModernOperationSelector');
 

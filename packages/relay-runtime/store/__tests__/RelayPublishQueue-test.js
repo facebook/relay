@@ -18,9 +18,9 @@ const RelayModernTestUtils = require('RelayModernTestUtils');
 const RelayPublishQueue = require('../RelayPublishQueue');
 const RelayStoreUtils = require('RelayStoreUtils');
 
-const getRelayHandleKey = require('getRelayHandleKey');
+const getRelayHandleKey = require('../../util/getRelayHandleKey');
 const invariant = require('invariant');
-const simpleClone = require('simpleClone');
+const simpleClone = require('../../util/simpleClone');
 
 const {createOperationSelector} = require('RelayModernOperationSelector');
 

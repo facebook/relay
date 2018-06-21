@@ -10,7 +10,7 @@
 
 'use strict';
 
-const isPromise = require('isPromise');
+const isPromise = require('../util/isPromise');
 
 import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {LegacyObserver} from 'RelayNetworkTypes';

@@ -16,5 +16,9 @@
   },
   "peerDependencies": {
     "relay-compiler": "1.6.0"
-  }
+  },
+  "directories": {
+    "": "./"
+  },
+  "haste_commonjs": true
 }

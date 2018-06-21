@@ -10,7 +10,7 @@
 
 'use strict';
 
-const RelayCore = require('RelayCore');
+const RelayCore = require('./RelayCore');
 const RelayDefaultHandlerProvider = require('RelayDefaultHandlerProvider');
 const RelayPublishQueue = require('./RelayPublishQueue');
 

@@ -18,7 +18,7 @@ const {EXISTENT} = require('../store/RelayRecordState');
 const {
   UNPUBLISH_FIELD_SENTINEL,
   UNPUBLISH_RECORD_SENTINEL,
-} = require('RelayStoreUtils');
+} = require('../store/RelayStoreUtils');
 
 import type {RecordState} from '../store/RelayRecordState';
 import type {MutableRecordSource, RecordSource} from '../store/RelayStoreTypes';

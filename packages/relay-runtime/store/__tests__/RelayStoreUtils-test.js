@@ -11,7 +11,7 @@
 'use strict';
 
 const RelayModernTestUtils = require('RelayModernTestUtils');
-const RelayStoreUtils = require('RelayStoreUtils');
+const RelayStoreUtils = require('../RelayStoreUtils');
 
 const {generateAndCompile} = RelayModernTestUtils;
 

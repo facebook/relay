@@ -10,12 +10,12 @@
 
 'use strict';
 
-const RelayConcreteNode = require('RelayConcreteNode');
+const RelayConcreteNode = require('../util/RelayConcreteNode');
 
 const areEqual = require('areEqual');
 const invariant = require('invariant');
 
-const {getHandleStorageKey} = require('RelayStoreUtils');
+const {getHandleStorageKey} = require('./RelayStoreUtils');
 
 import type {Variables} from '../util/RelayRuntimeTypes';
 import type {

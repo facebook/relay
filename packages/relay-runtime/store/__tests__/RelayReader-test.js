@@ -13,12 +13,10 @@
 jest.mock('generateClientID');
 
 const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
-const RelayReader = require('../RelayReader');
-const RelayStoreUtils = require('RelayStoreUtils');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 
-const {read} = RelayReader;
-const {ROOT_ID} = RelayStoreUtils;
+const {read} = require('../RelayReader');
+const {ROOT_ID} = require('../RelayStoreUtils');
 
 describe('RelayReader', () => {
   const {generateAndCompile, generateWithTransforms} = RelayModernTestUtils;

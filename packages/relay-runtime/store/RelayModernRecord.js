@@ -20,7 +20,7 @@ const {
   REFS_KEY,
   TYPENAME_KEY,
   UNPUBLISH_FIELD_SENTINEL,
-} = require('RelayStoreUtils');
+} = require('./RelayStoreUtils');
 
 import type {DataID} from '../util/RelayRuntimeTypes';
 import type {Record} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';

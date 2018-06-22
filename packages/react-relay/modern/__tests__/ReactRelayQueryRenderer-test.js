@@ -22,8 +22,9 @@ const {
   RecordSource,
   Store,
   simpleClone,
+  ROOT_ID,
 } = require('RelayRuntime');
-const {ROOT_ID, ROOT_TYPE} = require('RelayStoreUtils');
+const {ROOT_TYPE} = require('relay-runtime/store/RelayStoreUtils');
 
 describe('ReactRelayQueryRenderer', () => {
   let TestQuery;

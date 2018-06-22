@@ -12,13 +12,13 @@
 
 const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('../RelayMarkSweepStore');
-const RelayModernEnvironment = require('RelayModernEnvironment');
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const RelayModernTestUtils = require('RelayModernTestUtils');
-const RelayNetwork = require('RelayNetwork');
-const RelayObservable = require('RelayObservable');
+const RelayNetwork = require('../../network/RelayNetwork');
+const RelayObservable = require('../../network/RelayObservable');
 
-const {createOperationSelector} = require('RelayModernOperationSelector');
-const {ROOT_ID} = require('RelayStoreUtils');
+const {createOperationSelector} = require('../RelayModernOperationSelector');
+const {ROOT_ID} = require('../RelayStoreUtils');
 
 describe('RelayModernEnvironment', () => {
   const {generateAndCompile} = RelayModernTestUtils;

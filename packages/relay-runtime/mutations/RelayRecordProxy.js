@@ -10,16 +10,16 @@
 
 'use strict';
 
-const generateRelayClientID = require('generateRelayClientID');
+const generateRelayClientID = require('../store/generateRelayClientID');
 const invariant = require('invariant');
 
-const {getStableStorageKey} = require('RelayStoreUtils');
+const {getStableStorageKey} = require('../store/RelayStoreUtils');
 
-import type RelayRecordSourceMutator from 'RelayRecordSourceMutator';
-import type RelayRecordSourceProxy from 'RelayRecordSourceProxy';
-import type {DataID} from 'RelayRuntime';
-import type {RecordProxy} from 'RelayStoreTypes';
-import type {Arguments} from 'RelayStoreUtils';
+import type {RecordProxy} from '../store/RelayStoreTypes';
+import type {Arguments} from '../store/RelayStoreUtils';
+import type {DataID} from '../util/RelayRuntimeTypes';
+import type RelayRecordSourceMutator from './RelayRecordSourceMutator';
+import type RelayRecordSourceProxy from './RelayRecordSourceProxy';
 
 /**
  * @internal

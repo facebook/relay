@@ -32,8 +32,9 @@ const {
   getHandleStorageKey,
   getStorageKey,
   TYPENAME_KEY,
-} = require('RelayStoreUtils');
+} = require('./RelayStoreUtils');
 
+import type {PayloadData} from '../network/RelayNetworkTypes';
 import type {
   ConcreteField,
   ConcreteLinkedField,
@@ -46,7 +47,6 @@ import type {
   MutableRecordSource,
   Selector,
 } from './RelayStoreTypes';
-import type {PayloadData} from 'RelayNetworkTypes';
 import type {Record} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 export type NormalizationOptions = {handleStrippedNulls: boolean};

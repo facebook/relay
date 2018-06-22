@@ -10,11 +10,14 @@
 
 'use strict';
 
-const generateRelayClientID = require('generateRelayClientID');
+const generateRelayClientID = require('../../store/generateRelayClientID');
 
-const {ROOT_ID} = require('RelayStoreUtils');
+const {ROOT_ID} = require('../../store/RelayStoreUtils');
 
-import type {HandleFieldPayload, RecordSourceProxy} from 'RelayStoreTypes';
+import type {
+  HandleFieldPayload,
+  RecordSourceProxy,
+} from '../../store/RelayStoreTypes';
 
 const VIEWER_ID = generateRelayClientID(ROOT_ID, 'viewer');
 const VIEWER_TYPE = 'Viewer';

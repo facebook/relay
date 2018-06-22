@@ -15,20 +15,20 @@ const t = require('@babel/types');
 const {readOnlyArrayOfType} = require('RelayFlowBabelFactories');
 const {
   GraphQLEnumType,
-  GraphQLInputType,
   GraphQLInputObjectType,
   GraphQLInterfaceType,
   GraphQLList,
   GraphQLNonNull,
   GraphQLObjectType,
   GraphQLScalarType,
-  GraphQLType,
   GraphQLUnionType,
 } = require('graphql');
 
 export type ScalarTypeMapping = {
   [type: string]: string,
 };
+
+import type {GraphQLInputType, GraphQLType} from 'graphql';
 
 import type {State} from './RelayFlowGenerator';
 

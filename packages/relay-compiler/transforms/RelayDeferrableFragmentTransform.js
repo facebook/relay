@@ -19,7 +19,6 @@ const {
   isInputType,
   GraphQLInterfaceType,
   GraphQLList,
-  GraphQLInputType,
 } = require('graphql');
 const {IRTransformer, IRVisitor} = require('graphql-compiler');
 
@@ -33,6 +32,7 @@ import type {
   LocalArgumentDefinition,
   Root,
 } from 'graphql-compiler';
+import type {GraphQLInputType} from 'graphql';
 
 type SpreadUse = {|
   spread: FragmentSpread,

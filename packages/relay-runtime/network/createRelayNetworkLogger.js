@@ -12,7 +12,7 @@
 
 const RelayConcreteNode = require('RelayConcreteNode');
 
-const {convertFetch, convertSubscribe} = require('ConvertToExecuteFunction');
+const {convertFetch, convertSubscribe} = require('./ConvertToExecuteFunction');
 
 import type {Variables} from '../util/RelayRuntimeTypes';
 import type {ConcreteRequest, ConcreteBatchSubRequest} from 'RelayConcreteNode';

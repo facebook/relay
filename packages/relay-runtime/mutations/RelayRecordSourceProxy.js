@@ -10,19 +10,17 @@
 
 'use strict';
 
-const RelayModernRecord = require('RelayModernRecord');
-const RelayRecordProxy = require('RelayRecordProxy');
-const RelayRecordSourceSelectorProxy = require('RelayRecordSourceSelectorProxy');
+const RelayModernRecord = require('../store/RelayModernRecord');
+const RelayRecordProxy = require('./RelayRecordProxy');
+const RelayRecordSourceSelectorProxy = require('./RelayRecordSourceSelectorProxy');
 
 const invariant = require('invariant');
 const normalizeRelayPayload = require('../store/normalizeRelayPayload');
 
-const {EXISTENT, NONEXISTENT} = require('RelayRecordState');
-const {ROOT_ID, ROOT_TYPE} = require('RelayStoreUtils');
+const {EXISTENT, NONEXISTENT} = require('../store/RelayRecordState');
+const {ROOT_ID, ROOT_TYPE} = require('../store/RelayStoreUtils');
 
-import type {DataID} from '../util/RelayRuntimeTypes';
-import type {HandlerProvider} from 'RelayDefaultHandlerProvider';
-import type RelayRecordSourceMutator from 'RelayRecordSourceMutator';
+import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {
   HandleFieldPayload,
   RecordSource,
@@ -30,7 +28,9 @@ import type {
   RecordSourceProxy,
   RecordSourceSelectorProxy,
   OperationSelector,
-} from 'RelayStoreTypes';
+} from '../store/RelayStoreTypes';
+import type {DataID} from '../util/RelayRuntimeTypes';
+import type RelayRecordSourceMutator from './RelayRecordSourceMutator';
 
 /**
  * @internal

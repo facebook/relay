@@ -10,12 +10,12 @@
 
 'use strict';
 
-const RelayModernFragmentSpecResolver = require('RelayModernFragmentSpecResolver');
+const RelayModernFragmentSpecResolver = require('./RelayModernFragmentSpecResolver');
 
 const warning = require('warning');
 
 const {getFragment, getRequest} = require('../query/RelayModernGraphQLTag');
-const {createOperationSelector} = require('RelayModernOperationSelector');
+const {createOperationSelector} = require('./RelayModernOperationSelector');
 const {
   areEqualSelectors,
   getDataIDsFromObject,
@@ -23,9 +23,9 @@ const {
   getSelectorList,
   getSelectorsFromObject,
   getVariablesFromObject,
-} = require('RelayModernSelector');
+} = require('./RelayModernSelector');
 
-import type {FragmentMap, RelayContext} from 'RelayStoreTypes';
+import type {FragmentMap, RelayContext} from './RelayStoreTypes';
 import type {
   FragmentSpecResolver,
   Props,

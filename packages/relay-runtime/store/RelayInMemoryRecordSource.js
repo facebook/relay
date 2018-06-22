@@ -10,11 +10,11 @@
 
 'use strict';
 
-const RelayRecordState = require('RelayRecordState');
+const RelayRecordState = require('./RelayRecordState');
 
 import type {DataID} from '../util/RelayRuntimeTypes';
-import type {RecordState} from 'RelayRecordState';
-import type {MutableRecordSource} from 'RelayStoreTypes';
+import type {RecordState} from './RelayRecordState';
+import type {MutableRecordSource} from './RelayStoreTypes';
 import type {
   Record,
   RecordMap,

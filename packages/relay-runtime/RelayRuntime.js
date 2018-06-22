@@ -10,74 +10,65 @@
 
 'use strict';
 
-const RelayConcreteNode = require('RelayConcreteNode');
-const RelayConnectionHandler = require('RelayConnectionHandler');
-const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayConcreteNode = require('./util/RelayConcreteNode');
+const RelayConnectionHandler = require('./handlers/connection/RelayConnectionHandler');
+const RelayConnectionInterface = require('./handlers/connection/RelayConnectionInterface');
 const RelayCore = require('./store/RelayCore');
-const RelayDeclarativeMutationConfig = require('RelayDeclarativeMutationConfig');
-const RelayDefaultHandleKey = require('RelayDefaultHandleKey');
+const RelayDeclarativeMutationConfig = require('./mutations/RelayDeclarativeMutationConfig');
+const RelayDefaultHandleKey = require('./util/RelayDefaultHandleKey');
 const RelayInMemoryRecordSource = require('./store/RelayInMemoryRecordSource');
-const RelayMarkSweepStore = require('RelayMarkSweepStore');
-const RelayModernEnvironment = require('RelayModernEnvironment');
+const RelayMarkSweepStore = require('./store/RelayMarkSweepStore');
+const RelayModernEnvironment = require('./store/RelayModernEnvironment');
 const RelayModernGraphQLTag = require('./query/RelayModernGraphQLTag');
-const RelayNetwork = require('RelayNetwork');
-const RelayObservable = require('RelayObservable');
-const RelayProfiler = require('RelayProfiler');
-const RelayQueryResponseCache = require('RelayQueryResponseCache');
-const RelayStoreUtils = require('RelayStoreUtils');
-const RelayViewerHandler = require('RelayViewerHandler');
+const RelayNetwork = require('./network/RelayNetwork');
+const RelayObservable = require('./network/RelayObservable');
+const RelayProfiler = require('./util/RelayProfiler');
+const RelayQueryResponseCache = require('./network/RelayQueryResponseCache');
+const RelayStoreUtils = require('./store/RelayStoreUtils');
+const RelayViewerHandler = require('./handlers/viewer/RelayViewerHandler');
 
-const applyRelayModernOptimisticMutation = require('applyRelayModernOptimisticMutation');
-const commitLocalUpdate = require('commitLocalUpdate');
-const commitRelayModernMutation = require('commitRelayModernMutation');
+const applyRelayModernOptimisticMutation = require('./mutations/applyRelayModernOptimisticMutation');
+const commitLocalUpdate = require('./mutations/commitLocalUpdate');
+const commitRelayModernMutation = require('./mutations/commitRelayModernMutation');
 const deepFreeze = require('./util/deepFreeze');
 const fetchRelayModernQuery = require('./query/fetchRelayModernQuery');
 const getRelayHandleKey = require('./util/getRelayHandleKey');
-const isRelayModernEnvironment = require('isRelayModernEnvironment');
+const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
 const isScalarAndEqual = require('./util/isScalarAndEqual');
 const recycleNodesInto = require('./util/recycleNodesInto');
 const requestRelaySubscription = require('./subscription/requestRelaySubscription');
 const simpleClone = require('./util/simpleClone');
 const stableCopy = require('./util/stableCopy');
 
-export type {GraphQLTaggedNode} from './query/RelayModernGraphQLTag';
 export type {
-  GraphQLSubscriptionConfig,
-} from './subscription/requestRelaySubscription';
+  ConnectionMetadata,
+} from './handlers/connection/RelayConnectionHandler';
 export type {
-  CacheConfig,
-  DataID,
-  Disposable,
-  RerunParam,
-  Variables,
-} from './util/RelayRuntimeTypes';
-export type {
-  GeneratedNode,
-  ConcreteRequest,
-  ConcreteBatchRequest,
-  ConcreteOperation,
-  ConcreteFragment,
-  RequestNode,
-} from 'RelayConcreteNode';
-export type {ConnectionMetadata} from 'RelayConnectionHandler';
-export type {EdgeRecord, PageInfo} from 'RelayConnectionInterface';
+  EdgeRecord,
+  PageInfo,
+} from './handlers/connection/RelayConnectionInterface';
 export type {
   DeclarativeMutationConfig,
   MutationType,
   RangeOperation,
-} from 'RelayDeclarativeMutationConfig';
+} from './mutations/RelayDeclarativeMutationConfig';
+export type {
+  OptimisticMutationConfig,
+} from './mutations/applyRelayModernOptimisticMutation';
+export type {MutationConfig} from './mutations/commitRelayModernMutation';
 export type {
   GraphQLResponse,
   PayloadError,
   UploadableMap,
-} from 'RelayNetworkTypes';
+} from './network/RelayNetworkTypes';
 export type {
   ObservableFromValue,
   Observer,
   Subscribable,
   Subscription,
-} from 'RelayObservable';
-export type {RecordState} from 'RelayRecordState';
+} from './network/RelayObservable';
+export type {GraphQLTaggedNode} from './query/RelayModernGraphQLTag';
+export type {RecordState} from './store/RelayRecordState';
 export type {
   Environment as IEnvironment,
   FragmentMap,
@@ -87,11 +78,25 @@ export type {
   Selector,
   SelectorStoreUpdater,
   Snapshot,
-} from 'RelayStoreTypes';
+} from './store/RelayStoreTypes';
 export type {
-  OptimisticMutationConfig,
-} from 'applyRelayModernOptimisticMutation';
-export type {MutationConfig} from 'commitRelayModernMutation';
+  GraphQLSubscriptionConfig,
+} from './subscription/requestRelaySubscription';
+export type {
+  GeneratedNode,
+  ConcreteRequest,
+  ConcreteBatchRequest,
+  ConcreteOperation,
+  ConcreteFragment,
+  RequestNode,
+} from './util/RelayConcreteNode';
+export type {
+  CacheConfig,
+  DataID,
+  Disposable,
+  RerunParam,
+  Variables,
+} from './util/RelayRuntimeTypes';
 
 // As early as possible, check for the existence of the JavaScript globals which
 // Relay Runtime relies upon, and produce a clear message if they do not exist.

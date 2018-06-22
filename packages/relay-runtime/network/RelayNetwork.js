@@ -14,7 +14,7 @@ const RelayObservable = require('RelayObservable');
 
 const invariant = require('invariant');
 
-const {convertFetch, convertSubscribe} = require('ConvertToExecuteFunction');
+const {convertFetch, convertSubscribe} = require('./ConvertToExecuteFunction');
 
 import type {CacheConfig, Variables} from '../util/RelayRuntimeTypes';
 import type {RequestNode} from 'RelayConcreteNode';

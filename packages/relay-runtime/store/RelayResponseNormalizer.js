@@ -10,36 +10,13 @@
 
 'use strict';
 
-const RelayConcreteNode = require('RelayConcreteNode');
-const RelayModernRecord = require('RelayModernRecord');
-const RelayProfiler = require('RelayProfiler');
+const RelayModernRecord = require('./RelayModernRecord');
+const RelayProfiler = require('../util/RelayProfiler');
 
 const deferrableFragmentKey = require('./deferrableFragmentKey');
-const generateRelayClientID = require('generateRelayClientID');
+const generateRelayClientID = require('./generateRelayClientID');
 const invariant = require('invariant');
 const warning = require('warning');
-
-const {
-  getArgumentValues,
-  getHandleStorageKey,
-  getStorageKey,
-  TYPENAME_KEY,
-} = require('RelayStoreUtils');
-
-import type {DataID, Variables} from '../util/RelayRuntimeTypes';
-import type {
-  ConcreteField,
-  ConcreteLinkedField,
-  ConcreteNode,
-} from 'RelayConcreteNode';
-import type {PayloadData} from 'RelayNetworkTypes';
-import type {
-  DeferrableSelections,
-  HandleFieldPayload,
-  MutableRecordSource,
-  Selector,
-} from 'RelayStoreTypes';
-import type {Record} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 const {
   CONDITION,
@@ -49,7 +26,28 @@ const {
   SCALAR_FIELD,
   SCALAR_HANDLE,
   DEFERRABLE_FRAGMENT_SPREAD,
-} = RelayConcreteNode;
+} = require('../util/RelayConcreteNode');
+const {
+  getArgumentValues,
+  getHandleStorageKey,
+  getStorageKey,
+  TYPENAME_KEY,
+} = require('RelayStoreUtils');
+
+import type {
+  ConcreteField,
+  ConcreteLinkedField,
+  ConcreteNode,
+} from '../util/RelayConcreteNode';
+import type {DataID, Variables} from '../util/RelayRuntimeTypes';
+import type {
+  DeferrableSelections,
+  HandleFieldPayload,
+  MutableRecordSource,
+  Selector,
+} from './RelayStoreTypes';
+import type {PayloadData} from 'RelayNetworkTypes';
+import type {Record} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 export type NormalizationOptions = {handleStrippedNulls: boolean};
 

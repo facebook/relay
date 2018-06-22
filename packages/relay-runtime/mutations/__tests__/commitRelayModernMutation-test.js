@@ -10,7 +10,7 @@
 
 'use strict';
 
-const commitRelayModernMutation = require('commitRelayModernMutation');
+const commitRelayModernMutation = require('../commitRelayModernMutation');
 
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {createOperationSelector} = require('RelayModernOperationSelector');

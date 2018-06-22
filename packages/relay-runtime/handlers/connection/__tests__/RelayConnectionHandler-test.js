@@ -12,15 +12,15 @@
 
 require('configureForRelayOSS');
 
-const RelayConnectionHandler = require('RelayConnectionHandler');
+const RelayConnectionHandler = require('../RelayConnectionHandler');
 const RelayInMemoryRecordSource = require('../../../store/RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('../../../store/RelayMarkSweepStore');
-const RelayRecordSourceMutator = require('RelayRecordSourceMutator');
-const RelayRecordSourceProxy = require('RelayRecordSourceProxy');
-const RelayResponseNormalizer = require('RelayResponseNormalizer');
-const RelayStoreUtils = require('RelayStoreUtils');
+const RelayRecordSourceMutator = require('../../../mutations/RelayRecordSourceMutator');
+const RelayRecordSourceProxy = require('../../../mutations/RelayRecordSourceProxy');
+const RelayResponseNormalizer = require('../../../store/RelayResponseNormalizer');
+const RelayStoreUtils = require('../../../store/RelayStoreUtils');
 const RelayModernTestUtils = require('RelayModernTestUtils');
-const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayConnectionInterface = require('../RelayConnectionInterface');
 
 const getRelayHandleKey = require('../../../util/getRelayHandleKey');
 const simpleClone = require('../../../util/simpleClone');

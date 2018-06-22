@@ -10,9 +10,9 @@
 
 'use strict';
 
-const RelayDataLoader = require('RelayDataLoader');
-const RelayModernRecord = require('RelayModernRecord');
-const RelayProfiler = require('RelayProfiler');
+const RelayDataLoader = require('./RelayDataLoader');
+const RelayModernRecord = require('./RelayModernRecord');
+const RelayProfiler = require('../util/RelayProfiler');
 const RelayReader = require('./RelayReader');
 const RelayReferenceMarker = require('./RelayReferenceMarker');
 
@@ -21,7 +21,7 @@ const hasOverlappingIDs = require('./hasOverlappingIDs');
 const recycleNodesInto = require('../util/recycleNodesInto');
 const resolveImmediate = require('resolveImmediate');
 
-const {UNPUBLISH_RECORD_SENTINEL} = require('RelayStoreUtils');
+const {UNPUBLISH_RECORD_SENTINEL} = require('./RelayStoreUtils');
 
 import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {
@@ -31,7 +31,7 @@ import type {
   Snapshot,
   Store,
   UpdatedRecords,
-} from 'RelayStoreTypes';
+} from './RelayStoreTypes';
 
 type Subscription = {
   callback: (snapshot: Snapshot) => void,

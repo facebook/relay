@@ -10,20 +10,20 @@
 
 'use strict';
 
-const RelayConcreteNode = require('RelayConcreteNode');
-const RelayObservable = require('RelayObservable');
+const RelayConcreteNode = require('../util/RelayConcreteNode');
+const RelayObservable = require('./RelayObservable');
 
 const warning = require('warning');
 
+import type {RequestNode} from '../util/RelayConcreteNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
-import type {RequestNode} from 'RelayConcreteNode';
 import type {
   ExecuteFunction,
   ExecutePayload,
   FetchFunction,
   GraphQLResponse,
   SubscribeFunction,
-} from 'RelayNetworkTypes';
+} from './RelayNetworkTypes';
 
 /**
  * Converts a FetchFunction into an ExecuteFunction for use by RelayNetwork.

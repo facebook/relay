@@ -10,14 +10,14 @@
 
 'use strict';
 
-const RelayDeclarativeMutationConfig = require('RelayDeclarativeMutationConfig');
+const RelayDeclarativeMutationConfig = require('../mutations/RelayDeclarativeMutationConfig');
 
 const warning = require('warning');
 
+import type {DeclarativeMutationConfig} from '../mutations/RelayDeclarativeMutationConfig';
 import type {GraphQLTaggedNode} from '../query/RelayModernGraphQLTag';
+import type {Environment, SelectorStoreUpdater} from '../store/RelayStoreTypes';
 import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
-import type {DeclarativeMutationConfig} from 'RelayDeclarativeMutationConfig';
-import type {Environment, SelectorStoreUpdater} from 'RelayStoreTypes';
 
 export type GraphQLSubscriptionConfig = {|
   configs?: Array<DeclarativeMutationConfig>,

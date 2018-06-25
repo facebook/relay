@@ -10,21 +10,18 @@
 
 'use strict';
 
-const RelayConcreteNode = require('../util/RelayConcreteNode');
-
 const areEqual = require('areEqual');
 const invariant = require('invariant');
 
+const {LINKED_FIELD} = require('../util/RelayConcreteNode');
 const {getHandleStorageKey} = require('./RelayStoreUtils');
 
-import type {Variables} from '../util/RelayRuntimeTypes';
 import type {
   ConcreteLinkedField,
   ConcreteLinkedHandle,
   ConcreteSelection,
-} from 'RelayConcreteNode';
-
-const {LINKED_FIELD} = RelayConcreteNode;
+} from '../util/RelayConcreteNode';
+import type {Variables} from '../util/RelayRuntimeTypes';
 
 /**
  * @private

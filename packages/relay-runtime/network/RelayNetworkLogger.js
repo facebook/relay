@@ -10,8 +10,8 @@
 
 'use strict';
 
-const RelayNetworkLoggerTransaction = require('RelayNetworkLoggerTransaction');
+const RelayNetworkLoggerTransaction = require('./RelayNetworkLoggerTransaction');
 
-const createRelayNetworkLogger = require('createRelayNetworkLogger');
+const createRelayNetworkLogger = require('./createRelayNetworkLogger');
 
 module.exports = createRelayNetworkLogger(RelayNetworkLoggerTransaction);

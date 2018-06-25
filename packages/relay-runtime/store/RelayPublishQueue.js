@@ -13,14 +13,14 @@
 const ErrorUtils = require('ErrorUtils');
 const RelayInMemoryRecordSource = require('./RelayInMemoryRecordSource');
 const RelayReader = require('./RelayReader');
-const RelayRecordSourceMutator = require('RelayRecordSourceMutator');
-const RelayRecordSourceProxy = require('RelayRecordSourceProxy');
-const RelayRecordSourceSelectorProxy = require('RelayRecordSourceSelectorProxy');
+const RelayRecordSourceMutator = require('../mutations/RelayRecordSourceMutator');
+const RelayRecordSourceProxy = require('../mutations/RelayRecordSourceProxy');
+const RelayRecordSourceSelectorProxy = require('../mutations/RelayRecordSourceSelectorProxy');
 
 const invariant = require('invariant');
 const normalizeRelayPayload = require('./normalizeRelayPayload');
 
-import type {HandlerProvider} from 'RelayDefaultHandlerProvider';
+import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {
   HandleFieldPayload,
   MutableRecordSource,
@@ -31,7 +31,7 @@ import type {
   StoreUpdater,
   RecordSource,
   RelayResponsePayload,
-} from 'RelayStoreTypes';
+} from './RelayStoreTypes';
 import type {SelectorData} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 type Payload = {

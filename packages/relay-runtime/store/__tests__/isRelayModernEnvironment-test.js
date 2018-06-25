@@ -13,9 +13,9 @@
 const RelayEnvironment = require('react-relay/classic/store/RelayEnvironment');
 const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('../RelayMarkSweepStore');
-const RelayModernEnvironment = require('RelayModernEnvironment');
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 
-const isRelayModernEnvironment = require('isRelayModernEnvironment');
+const isRelayModernEnvironment = require('../isRelayModernEnvironment');
 
 describe('isRelayModernEnvironment()', () => {
   it('returns true for `RelayModernEnvironment` instances', () => {

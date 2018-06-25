@@ -10,19 +10,19 @@
 
 'use strict';
 
-const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayConnectionInterface = require('./RelayConnectionInterface');
 
-const generateRelayClientID = require('generateRelayClientID');
+const generateRelayClientID = require('../../store/generateRelayClientID');
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
 const invariant = require('invariant');
 const warning = require('warning');
 
-import type {DataID, Variables} from '../../util/RelayRuntimeTypes';
 import type {
   HandleFieldPayload,
   RecordProxy,
   RecordSourceProxy,
-} from 'RelayStoreTypes';
+} from '../../store/RelayStoreTypes';
+import type {DataID, Variables} from '../../util/RelayRuntimeTypes';
 
 export type ConnectionMetadata = {
   path: ?Array<string>,

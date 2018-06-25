@@ -10,7 +10,7 @@
 
 'use strict';
 
-const RelayConcreteNode = require('RelayConcreteNode');
+const RelayConcreteNode = require('../util/RelayConcreteNode');
 
 const invariant = require('invariant');
 

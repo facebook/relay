@@ -10,7 +10,7 @@
 
 'use strict';
 
-import type {StoreUpdater, Environment} from 'RelayStoreTypes';
+import type {StoreUpdater, Environment} from '../store/RelayStoreTypes';
 
 function commitLocalUpdate(
   environment: Environment,

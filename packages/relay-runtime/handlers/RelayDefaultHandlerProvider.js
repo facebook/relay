@@ -10,12 +10,12 @@
 
 'use strict';
 
-const RelayConnectionHandler = require('RelayConnectionHandler');
-const RelayViewerHandler = require('RelayViewerHandler');
+const RelayConnectionHandler = require('./connection/RelayConnectionHandler');
+const RelayViewerHandler = require('./viewer/RelayViewerHandler');
 
 const invariant = require('invariant');
 
-import type {Handler} from 'RelayStoreTypes';
+import type {Handler} from '../store/RelayStoreTypes';
 export type HandlerProvider = (name: string) => ?Handler;
 
 function RelayDefaultHandlerProvider(handle: string): Handler {

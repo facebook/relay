@@ -10,7 +10,7 @@
 
 'use strict';
 
-import type {UpdatedRecords, Snapshot} from 'RelayStoreTypes';
+import type {UpdatedRecords, Snapshot} from './RelayStoreTypes';
 
 function hasOverlappingIDs(
   snapshot: Snapshot,

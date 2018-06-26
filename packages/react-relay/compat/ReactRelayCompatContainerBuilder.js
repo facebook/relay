@@ -166,6 +166,10 @@ function buildCompatContainer(
   ForwardContainer.hasFragment = name => fragmentSpec.hasOwnProperty(name);
   ForwardContainer.hasVariable = hasVariable;
 
+  if (__DEV__) {
+    ForwardContainer.__ComponentClass = ComponentClass;
+  }
+
   // Create a back-reference from the Component to the Container for cases
   // where a Classic Component might refer to itself, expecting a Container.
   (ComponentClass: any).__container__ = ForwardContainer;

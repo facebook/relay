@@ -13,7 +13,6 @@
 const invariant = require('invariant');
 
 import type {ExecutePayload} from 'RelayNetworkTypes';
-import type RelayObservable from 'RelayObservable';
 import type {
   CacheConfig,
   Disposable,
@@ -21,6 +20,7 @@ import type {
   OperationSelector,
   Snapshot,
 } from 'RelayRuntime';
+import type {Observable} from 'RelayRuntime';
 
 type OnDataChange = null | (({error?: Error, snapshot?: Snapshot}) => void);
 
@@ -65,7 +65,7 @@ class ReactRelayQueryFetcher {
     operation,
     cacheConfig,
     preservePreviousReferences = false,
-  }: ExecuteConfig): RelayObservable<ExecutePayload> {
+  }: ExecuteConfig): Observable<ExecutePayload> {
     const {createOperationSelector} = environment.unstable_internal;
     const nextReferences = [];
 

@@ -276,6 +276,10 @@ export type UnionTypeTestResponse = {|
     +__typename: "%other"
   |})
 |};
+export type UnionTypeTest = {|
+  variables: UnionTypeTestVariables,
+  response: UnionTypeTestResponse,
+|};
 `;
 
 exports[`RelayFlowGenerator matches expected output: mutation.graphql 1`] = `
@@ -324,6 +328,10 @@ export type CommentCreateMutationResponse = {|
     |}
   |}
 |};
+export type CommentCreateMutation = {|
+  variables: CommentCreateMutationVariables,
+  response: CommentCreateMutationResponse,
+|};
 `;
 
 exports[`RelayFlowGenerator matches expected output: mutation-input-has-array.graphql 1`] = `
@@ -350,6 +358,10 @@ export type InputHasArrayResponse = {|
       +actorCount: ?number
     |}>
   |}
+|};
+export type InputHasArray = {|
+  variables: InputHasArrayVariables,
+  response: InputHasArrayResponse,
 |};
 `;
 
@@ -424,6 +436,10 @@ export type ExampleQueryResponse = {|
     +id: string
   |}
 |};
+export type ExampleQuery = {|
+  variables: ExampleQueryVariables,
+  response: ExampleQueryResponse,
+|};
 
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type ExampleFragment$ref: FragmentReference;
@@ -453,6 +469,10 @@ export type TestMutationResponse = {|
     |}
   |}
 |};
+export type TestMutation = {|
+  variables: TestMutationVariables,
+  response: TestMutationResponse,
+|};
 
 export type FeedbackLikeInput = {
   clientMutationId?: ?string,
@@ -467,6 +487,10 @@ export type TestSubscriptionResponse = {|
       +id: string
     |}
   |}
+|};
+export type TestSubscription = {|
+  variables: TestSubscriptionVariables,
+  response: TestSubscriptionResponse,
 |};
 `;
 

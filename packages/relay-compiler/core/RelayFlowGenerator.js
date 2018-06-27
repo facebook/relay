@@ -268,12 +268,26 @@ function createVisitor(options: Options) {
           `${node.name}Response`,
           selectionsToBabel(node.selections, state, false),
         );
+        const operationType = exportType(
+          node.name,
+          exactObjectTypeAnnotation([
+            t.objectTypeProperty(
+              t.identifier('variables'),
+              t.genericTypeAnnotation(t.identifier(`${node.name}Variables`)),
+            ),
+            t.objectTypeProperty(
+              t.identifier('response'),
+              t.genericTypeAnnotation(t.identifier(`${node.name}Response`)),
+            ),
+          ]),
+        );
         return t.program([
           ...getFragmentImports(state),
           ...getEnumDefinitions(state),
           ...inputObjectTypes,
           inputVariablesType,
           responseType,
+          operationType,
         ]);
       },
 

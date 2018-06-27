@@ -14,28 +14,21 @@ const RelayConcreteNode = require('../util/RelayConcreteNode');
 
 const invariant = require('invariant');
 
-import type {CacheConfig, Variables} from '../util/RelayRuntimeTypes';
+import type {CacheConfig, OperationType} from '../util/RelayRuntimeTypes';
 import type {GraphQLTaggedNode} from './RelayModernGraphQLTag';
 
 /**
  * A helper function to fetch the results of a query. Note that results for
  * fragment spreads are masked: fields must be explicitly listed in the query in
  * order to be accessible in the result object.
- *
- * NOTE: This module is primarily intended for integrating with classic APIs.
- * Most product code should use a Renderer or Container.
- *
- * TODO(t16875667): The return type should be `Promise<?SelectorData>`, but
- * that's not really helpful as `SelectorData` is essentially just `mixed`. We
- * can probably leverage generated flow types here to return the real expected
- * shape.
  */
-function fetchRelayModernQuery(
+
+function fetchRelayModernQuery<T: OperationType>(
   environment: $FlowFixMe,
   taggedNode: GraphQLTaggedNode,
-  variables: Variables,
+  variables: $PropertyType<T, 'variables'>,
   cacheConfig?: ?CacheConfig,
-): Promise<$FlowFixMe> {
+): Promise<$PropertyType<T, 'response'>> {
   invariant(
     environment.unstable_internal,
     'fetchRelayModernQuery: Expected a valid Relay environment, got `%s`.',

@@ -28,6 +28,14 @@ export type DataID = string;
 // Variables
 export type Variables = {[name: string]: $FlowFixMe};
 
+/**
+ * Generated operation flow types are subtypes of this.
+ */
+export type OperationType = {|
+  +variables: mixed,
+  +response: mixed,
+|};
+
 export type RerunParam = {
   param: string,
   import?: ?string,

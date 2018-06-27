@@ -56,10 +56,7 @@ function relayMaskTransform(context: CompilerContext): CompilerContext {
 
 function visitFragment(fragment: Fragment, state: State): Fragment {
   const result = this.traverse(fragment, state);
-  /* $FlowFixMe(>=0.68.0 site=react_native_fb,react_native_oss) This comment
-   * suppresses an error found when Flow v0.68 was deployed. To see the error
-   * delete this comment and run Flow. */
-  if (state.hoistedArgDefs.length === 0) {
+  if (state.hoistedArgDefs.size === 0) {
     return result;
   }
   const existingArgDefs = new Map();

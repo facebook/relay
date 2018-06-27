@@ -1726,9 +1726,9 @@ eslint-plugin-react@7.3.0:
     jsx-ast-utils "^2.0.0"
     prop-types "^15.5.10"
 
-eslint-plugin-relay@0.0.21:
-  version "0.0.21"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-relay/-/eslint-plugin-relay-0.0.21.tgz#fbda01bd783aa7ed9eb0effe410049911e1449ef"
+eslint-plugin-relay@0.0.23:
+  version "0.0.23"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-relay/-/eslint-plugin-relay-0.0.23.tgz#fdca1d40b5ea3b15d2871d4eaa3cd33d260323e6"
   dependencies:
     graphql "^0.13.0"
 

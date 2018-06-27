@@ -42,7 +42,7 @@
     "eslint-plugin-flowtype": "2.35.1",
     "eslint-plugin-jsx-a11y": "6.0.2",
     "eslint-plugin-react": "7.3.0",
-    "eslint-plugin-relay": "0.0.21",
+    "eslint-plugin-relay": "0.0.23",
     "event-stream": "3.3.4",
     "fast-glob": "^2.0.0",
     "fb-watchman": "^2.0.0",

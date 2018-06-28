@@ -84,17 +84,20 @@ function clone(record: Record): Record {
 /**
  * @public
  *
- * Copies all fields from `source` to `sink`, excluding `__id` and `__typename`.
+ * Copies all fields from `source` to `sink`, excluding `__id`.
  *
  * NOTE: This function does not treat `id` specially. To preserve the id,
  * manually reset it after calling this function. Also note that values are
  * copied by reference and not value; callers should ensure that values are
  * copied on write.
+ *
+ * `__typename` is not excluded because two normalized payloads could
+ * have the same `storageKey`, but different `__typename` values
  */
 function copyFields(source: Record, sink: Record): void {
   for (const key in source) {
     if (source.hasOwnProperty(key)) {
-      if (key !== ID_KEY && key !== TYPENAME_KEY) {
+      if (key !== ID_KEY) {
         sink[key] = source[key];
       }
     }

@@ -60,7 +60,7 @@ describe('RelayModernRecord', () => {
       RelayModernRecord.copyFields(source, sink);
       expect(sink).toEqual({
         [ID_KEY]: '4',
-        [TYPENAME_KEY]: 'User',
+        [TYPENAME_KEY]: '__User',
         name: 'Zuck',
         pet: {[REF_KEY]: 'beast'},
         pets: {[REFS_KEY]: ['beast']},

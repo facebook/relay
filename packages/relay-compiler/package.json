@@ -23,7 +23,7 @@
     "babel-traverse": "^6.26.0",
     "babylon": "7.0.0-beta.47",
     "chalk": "^1.1.1",
-    "fast-glob": "^2.0.0",
+    "fast-glob": "^2.2.2",
     "fb-watchman": "^2.0.0",
     "fbjs": "0.8.17",
     "graphql-compiler": "1.6.0",

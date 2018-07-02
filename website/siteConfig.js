@@ -44,6 +44,12 @@ const users = [
     infoLink: 'https://www.1stdibs.com/',
     pinned: false,
   },
+  {
+    caption: 'Loggi',
+    image: '/relay/img/logos/loggi.png',
+    infoLink: 'https://www.loggi.com/',
+    pinned: false,
+  },
 ];
 
 const siteConfig = {

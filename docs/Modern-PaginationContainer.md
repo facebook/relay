@@ -63,7 +63,7 @@ fragment Feed_user on User {
     after: $cursor
     orderby: $orderBy
     search_term: $searchTerm
-  ) @connection(key: "Feed_feed", filters: ['searchTerm']) {
+  ) @connection(key: "Feed_feed", filters: ["searchTerm"]) {
     edges {
       node {
         id,

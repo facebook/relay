@@ -330,18 +330,19 @@ class GraphQLParser {
         this._getErrorContext(),
       );
       const value = argValue.value;
-      invariant(
-        !Array.isArray(value) &&
-          typeof value === 'object' &&
-          value !== null &&
-          typeof value.type === 'string',
-        'GraphQLParser: Expected definition for variable `%s` to be an ' +
-          'object with the following shape: `{type: string, defaultValue?: ' +
-          'mixed, nonNull?: boolean, list?: boolean}`, got `%s`. Source: %s.',
-        argName,
-        argValue,
-        this._getErrorContext(),
-      );
+      if (
+        Array.isArray(value) ||
+        typeof value !== 'object' ||
+        value === null ||
+        typeof value.type !== 'string'
+      ) {
+        throw new Error(
+          `GraphQLParser: Expected definition for variable \`${argName}\` to ` +
+            'be an object with the following shape: `{type: string, ' +
+            'defaultValue?: mixed, nonNull?: boolean, list?: boolean}`, got ' +
+            `\`${String(argValue)}\`. Source: ${this._getErrorContext()}.`,
+        );
+      }
 
       const valueType = value.type;
 
@@ -352,16 +353,16 @@ class GraphQLParser {
           key !== 'nonNull' &&
           key !== 'list',
       );
-      invariant(
-        unknownKeys.length === 0,
-        'GraphQLParser: Expected definition for variable `%s` to be an ' +
-          'object with the following shape: `{type: string, defaultValue?: ' +
-          'mixed, nonNull?: boolean, list?: boolean}`, got unknown key(s) ' +
-          '`%s`. Source: %s.',
-        argName,
-        unknownKeys.join('`, `'),
-        this._getErrorContext(),
-      );
+      if (unknownKeys.length !== 0) {
+        const unknownKeysString = '`' + unknownKeys.join('`, `') + '`';
+        throw new Error(
+          `GraphQLParser: Expected definition for variable \`${argName}\` to ` +
+            'be an object with the following shape: `{type: string, ' +
+            'defaultValue?: mixed, nonNull?: boolean, list?: boolean}`, got ' +
+            `unknown key(s) ${unknownKeysString}. ` +
+            `Source: ${this._getErrorContext()}.`,
+        );
+      }
 
       const typeAST = parseType(valueType);
       const type = assertInputType(getTypeFromAST(this._schema, typeAST));

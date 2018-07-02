@@ -268,15 +268,15 @@ const RelayCodeGenVisitor = {
     },
 
     Argument(node, key, parent, ancestors): ?ConcreteArgument {
-      invariant(
-        ['Variable', 'Literal'].indexOf(node.value.kind) >= 0,
-        'RelayCodeGenerator: Complex argument values (Lists or ' +
-          'InputObjects with nested variables) are not supported, argument ' +
-          '`%s` had value `%s`. Source: %s.',
-        node.name,
-        JSON.stringify(node.value, null, 2),
-        getErrorMessage(ancestors[0]),
-      );
+      if (['Variable', 'Literal'].indexOf(node.value.kind) < 0) {
+        const valueString = JSON.stringify(node.value, null, 2);
+        throw new Error(
+          'RelayCodeGenerator: Complex argument values (Lists or ' +
+            'InputObjects with nested variables) are not supported, argument ' +
+            `\`${node.name}\` had value \`${valueString}\`. ` +
+            `Source: ${getErrorMessage(ancestors[0])}.`,
+        );
+      }
       return node.value.value !== null ? node.value : null;
     },
   },

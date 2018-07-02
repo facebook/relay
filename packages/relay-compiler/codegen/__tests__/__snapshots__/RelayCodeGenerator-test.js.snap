@@ -165,7 +165,7 @@ query TestQuery($date: String) {
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 ERROR:
-Invariant Violation: RelayCodeGenerator: Complex argument values (Lists or InputObjects with nested variables) are not supported, argument \`filter\` had value \`{
+Error: RelayCodeGenerator: Complex argument values (Lists or InputObjects with nested variables) are not supported, argument \`filter\` had value \`{
   "kind": "ObjectValue",
   "metadata": null,
   "fields": [

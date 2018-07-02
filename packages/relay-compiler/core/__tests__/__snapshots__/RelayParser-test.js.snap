@@ -11,7 +11,7 @@ fragment TestFragment on User @argumentDefinitions(
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 ERROR:
-Invariant Violation: GraphQLParser: Expected definition for variable \`size\` to be an object with the following shape: \`{type: string, defaultValue?: mixed, nonNull?: boolean, list?: boolean}\`, got unknown key(s) \`defaultValu\`. Source: document \`TestFragment\` file: \`GraphQL request\`.
+Error: GraphQLParser: Expected definition for variable \`size\` to be an object with the following shape: \`{type: string, defaultValue?: mixed, nonNull?: boolean, list?: boolean}\`, got unknown key(s) \`defaultValu\`. Source: document \`TestFragment\` file: \`GraphQL request\`.
 `;
 
 exports[`RelayParser matches expected output: client-fields.graphql 1`] = `

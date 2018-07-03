@@ -24,6 +24,10 @@ rules:
   # Tests do not need to follow relay naming rules
   relay/graphql-naming: off
 
+  # TODO T31139228: re-enable these rules once eslint is fixed
+  no-undef: off
+  no-unused-vars: off
+
   # Relay uses console statements for debugging and compile feedback
   no-console:
     - warn

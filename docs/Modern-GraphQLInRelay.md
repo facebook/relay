@@ -86,7 +86,7 @@ fragment TodoItems_items on TodoItem @relay(plural: true) {
 
 Relay by default will only expose the data for fields explicitly requested by a [component's fragment](./fragment-container.html#createfragmentcontainer), which is known as [data masking](./thinking-in-relay#data-masking).
 
-However, `@relay(mask: false)` can be used to prevent data masking; when including a fragment and annotating it with `@relay(mask: false)`, its data will be available to the parent, recursively including the data from the fields of the referenced fragment.
+However, `@relay(mask: false)` can be used to prevent data masking; when including a fragment and annotating it with `@relay(mask: false)`, its data will be available directly to the parent instead of being masked for a different container.
 
 Applied to a fragment definition, `@relay(mask: false)` changes the generated Flow types to be better usable when the fragment is included with the same directive. The Flow types will no longer be exact objects and no longer contain internal marker fields.
 

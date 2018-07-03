@@ -44,6 +44,12 @@ const users = [
     infoLink: 'https://www.1stdibs.com/',
     pinned: false,
   },
+  {
+    caption: 'Parabol',
+    image: '/relay/img/logos/parabol.png',
+    infoLink: 'https://www.parabol.co/',
+    pinned: false,
+  },
 ];
 
 const siteConfig = {

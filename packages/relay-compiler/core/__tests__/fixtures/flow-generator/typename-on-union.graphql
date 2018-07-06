@@ -58,3 +58,24 @@ fragment TypenameWithCommonSelections on Actor {
     username
   }
 }
+
+fragment TypenameAlias on Actor {
+  _typeAlias: __typename
+  ... on User {
+    firstName
+  }
+  ... on Page {
+    username
+  }
+}
+
+fragment TypenameAliases on Actor {
+  _typeAlias1: __typename
+  _typeAlias2: __typename
+  ... on User {
+    firstName
+  }
+  ... on Page {
+    username
+  }
+}

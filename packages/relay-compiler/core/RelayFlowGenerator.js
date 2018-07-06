@@ -149,26 +149,36 @@ function selectionsToBabel(
         hasTypenameSelection(byConcreteType[type]),
       ))
   ) {
+    const typenameAliases = new Set();
     for (const concreteType in byConcreteType) {
       types.push(
         groupRefs([
           ...Array.from(baseFields.values()),
           ...byConcreteType[concreteType],
-        ]).map(selection => makeProp(selection, state, unmasked, concreteType)),
+        ]).map(selection => {
+          if (selection.schemaName === '__typename') {
+            typenameAliases.add(selection.key);
+          }
+          return makeProp(selection, state, unmasked, concreteType);
+        }),
       );
     }
     // It might be some other type then the listed concrete types. Ideally, we
     // would set the type to diff(string, set of listed concrete types), but
     // this doesn't exist in Flow at the time.
-    const otherProp = readOnlyObjectTypeProperty(
-      '__typename',
-      t.stringLiteralTypeAnnotation('%other'),
+    types.push(
+      Array.from(typenameAliases).map(typenameAlias => {
+        const otherProp = readOnlyObjectTypeProperty(
+          typenameAlias,
+          t.stringLiteralTypeAnnotation('%other'),
+        );
+        otherProp.leadingComments = lineComments(
+          "This will never be '%other', but we need some",
+          'value in case none of the concrete values match.',
+        );
+        return otherProp;
+      }),
     );
-    otherProp.leadingComments = lineComments(
-      "This will never be '%other', but we need some",
-      'value in case none of the concrete values match.',
-    );
-    types.push([otherProp]);
   } else {
     let selectionMap = selectionsToMap(Array.from(baseFields.values()));
     for (const concreteType in byConcreteType) {

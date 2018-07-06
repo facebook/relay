@@ -17,7 +17,7 @@ const {
   isExecutableDefinitionAST,
   isSchemaDefinitionAST,
 } = require('./GraphQLSchemaUtils');
-const {extendSchema, parse, visit} = require('graphql');
+const {extendSchema, parse, print, visit} = require('graphql');
 
 import type {Fragment, Root} from './GraphQLIR';
 import type {
@@ -27,6 +27,7 @@ import type {
   FragmentSpreadNode,
   GraphQLSchema,
   OperationDefinitionNode,
+  TypeSystemDefinitionNode,
 } from 'graphql';
 
 type ASTDefinitionNode = FragmentDefinitionNode | OperationDefinitionNode;
@@ -166,44 +167,79 @@ function definitionsFromDocuments(
   return definitions;
 }
 
+/**
+ * Extends a GraphQLSchema with a list of schema extensions in string form.
+ */
 function transformASTSchema(
   schema: GraphQLSchema,
   schemaExtensions: Array<string>,
 ): GraphQLSchema {
-  return Profiler.run(
-    'ASTConvert.transformASTSchema',
-    () =>
-      schemaExtensions.length > 0
-        ? extendSchema(schema, parse(schemaExtensions.join('\n')))
-        : schema,
-  );
+  return Profiler.run('ASTConvert.transformASTSchema', () => {
+    if (schemaExtensions.length === 0) {
+      return schema;
+    }
+    const extension = schemaExtensions.join('\n');
+    return cachedExtend(schema, extension, () =>
+      extendSchema(schema, parse(extension)),
+    );
+  });
 }
 
+/**
+ * Extends a GraphQLSchema with a list of schema extensions in AST form.
+ */
 function extendASTSchema(
   baseSchema: GraphQLSchema,
   documents: Array<DocumentNode>,
 ): GraphQLSchema {
   return Profiler.run('ASTConvert.extendASTSchema', () => {
-    // Should be TypeSystemDefinitionNode
-    const schemaExtensions: Array<DefinitionNode> = [];
+    const schemaExtensions: Array<TypeSystemDefinitionNode> = [];
     documents.forEach(doc => {
-      schemaExtensions.push(...doc.definitions.filter(isSchemaDefinitionAST));
+      doc.definitions.forEach(definition => {
+        if (isSchemaDefinitionAST(definition)) {
+          schemaExtensions.push(definition);
+        }
+      });
     });
-
-    if (schemaExtensions.length <= 0) {
+    if (schemaExtensions.length === 0) {
       return baseSchema;
     }
-
-    // TODO T24511737 figure out if this is dangerous
-    return extendSchema(
-      baseSchema,
-      {
-        kind: 'Document',
-        definitions: schemaExtensions,
-      },
-      {assumeValid: true},
+    const key = schemaExtensions.map(print).join('\n');
+    return cachedExtend(baseSchema, key, () =>
+      extendSchema(
+        baseSchema,
+        {
+          kind: 'Document',
+          definitions: schemaExtensions,
+        },
+        // TODO T24511737 figure out if this is dangerous
+        {assumeValid: true},
+      ),
     );
   });
+}
+
+const extendedSchemas: Map<
+  GraphQLSchema,
+  {[key: string]: GraphQLSchema},
+> = new Map();
+
+function cachedExtend(
+  schema: GraphQLSchema,
+  key: string,
+  compute: () => GraphQLSchema,
+): GraphQLSchema {
+  let cache = extendedSchemas.get(schema);
+  if (!cache) {
+    cache = {};
+    extendedSchemas.set(schema, cache);
+  }
+  let extendedSchema = cache[key];
+  if (!extendedSchema) {
+    extendedSchema = compute();
+    cache[key] = extendedSchema;
+  }
+  return extendedSchema;
 }
 
 module.exports = {

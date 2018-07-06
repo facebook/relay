@@ -318,27 +318,24 @@ function validateConnectionSelection(
 ): void {
   const {EDGES} = ConnectionInterface.get();
 
-  invariant(
-    findArg(field, FIRST) || findArg(field, LAST),
-    'RelayConnectionTransform: Expected field `%s: %s` to have a %s or %s ' +
-      'argument in document `%s`.',
-    field.name,
-    field.type,
-    FIRST,
-    LAST,
-    definitionName,
-  );
-  invariant(
-    field.selections.some(
+  if (!findArg(field, FIRST) && !findArg(field, LAST)) {
+    throw new Error(
+      `RelayConnectionTransform: Expected field \`${field.name}: ` +
+        `${String(field.type)}\` to have a ${FIRST} or ${LAST} argument in ` +
+        `document \`${definitionName}\`.`,
+    );
+  }
+  if (
+    !field.selections.some(
       selection => selection.kind === 'LinkedField' && selection.name === EDGES,
-    ),
-    'RelayConnectionTransform: Expected field `%s: %s` to have a %s ' +
-      'selection in document `%s`.',
-    field.name,
-    field.type,
-    EDGES,
-    definitionName,
-  );
+    )
+  ) {
+    throw new Error(
+      `RelayConnectionTransform: Expected field \`${field.name}: ` +
+        `${String(field.type)}\` to have a ${EDGES} selection in document ` +
+        `\`${definitionName}\`.`,
+    );
+  }
 }
 
 /**

@@ -19,7 +19,7 @@ matrix:
 script:
 - |
     if [ $TEST ]; then
-      yarn install && yarn run jest -- --runInBand --no-watchman
+      yarn install && yarn run jest -- --no-watchman
     fi
 - |
     if [ $TYPECHECK ]; then

@@ -36,7 +36,7 @@
     "chalk": "^1.1.1",
     "create-react-class": "^15.6.0",
     "del": "3.0.0",
-    "eslint": "5.0.1",
+    "eslint": "5.1.0",
     "eslint-config-fbjs": "2.0.1",
     "eslint-plugin-babel": "5.1.0",
     "eslint-plugin-flowtype": "2.35.1",

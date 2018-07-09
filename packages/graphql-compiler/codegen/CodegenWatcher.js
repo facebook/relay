@@ -54,6 +54,23 @@ async function queryFiles(
   });
 }
 
+async function queryDirectories(
+  baseDir: string,
+  expression: WatchmanExpression,
+): Promise<Array<string>> {
+  return await Profiler.waitFor('Watchman:query', async () => {
+    const client = new GraphQLWatchmanClient();
+    const watchResp = await client.watchProject(baseDir);
+    const resp = await client.command('query', watchResp.root, {
+      expression,
+      fields: ['name'],
+      relative_root: watchResp.relativePath,
+    });
+    client.end();
+    return resp.files;
+  });
+}
+
 async function getFields(
   client: GraphQLWatchmanClient,
 ): Promise<Array<string>> {
@@ -223,6 +240,7 @@ function hashFile(filename: string): string {
 }
 
 module.exports = {
+  queryDirectories,
   queryFiles,
   queryFilepaths,
   watch,

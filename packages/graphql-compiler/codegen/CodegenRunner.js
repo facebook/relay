@@ -32,6 +32,7 @@ export type ParserConfig = {|
   getFileFilter?: (baseDir: string) => FileFilter,
   getParser: (baseDir: string) => ASTCache,
   getSchema: () => GraphQLSchema,
+  generatedDirectoriesWatchmanExpression?: ?WatchmanExpression,
   watchmanExpression?: ?WatchmanExpression,
   filepaths?: ?Array<string>,
 |};
@@ -61,6 +62,7 @@ export type GetWriterOptions = {|
   baseDocuments: ImmutableMap<string, DocumentNode>,
   sourceControl: ?SourceControl,
   reporter: GraphQLReporter,
+  generatedDirectories?: Array<string>,
 |};
 
 export type GetWriter = GetWriterOptions => FileWriterInterface;
@@ -265,6 +267,19 @@ class CodegenRunner {
           });
         }
 
+        const {
+          baseDir,
+          generatedDirectoriesWatchmanExpression,
+        } = this.parserConfigs[parser];
+        let generatedDirectories = [];
+        if (generatedDirectoriesWatchmanExpression) {
+          const relativePaths = await CodegenWatcher.queryDirectories(
+            baseDir,
+            generatedDirectoriesWatchmanExpression,
+          );
+          generatedDirectories = relativePaths.map(x => path.join(baseDir, x));
+        }
+
         // always create a new writer: we have to write everything anyways
         const documents = this.parsers[parser].documents();
         const schema = Profiler.run('getSchema', () =>
@@ -275,6 +290,7 @@ class CodegenRunner {
           schema,
           documents,
           baseDocuments,
+          generatedDirectories,
           sourceControl: this._sourceControl,
           reporter: this._reporter,
         });

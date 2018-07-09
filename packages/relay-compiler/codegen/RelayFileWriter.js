@@ -58,6 +58,7 @@ export type WriterConfig = {
   generateExtraFiles?: GenerateExtraFiles,
   inputFieldWhiteListForFlow: Array<string>,
   outputDir?: string,
+  generatedDirectories?: Array<string>,
   persistQuery?: (text: string) => Promise<string>,
   platform?: string,
   relayRuntimeModule?: string,
@@ -152,6 +153,10 @@ class RelayFileWriter implements FileWriterInterface {
         allOutputDirectories.set(dirPath, codegenDir);
         return codegenDir;
       };
+
+      for (const existingDirectory of this._config.generatedDirectories || []) {
+        addCodegenDir(existingDirectory);
+      }
 
       let configOutputDirectory;
       if (this._config.outputDir) {

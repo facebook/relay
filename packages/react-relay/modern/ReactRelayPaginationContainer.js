@@ -346,8 +346,9 @@ function createContainerWithFragments<
     static contextTypes = containerContextTypes;
 
     _isARequestInFlight: boolean;
-    _localVariables: ?Variables;
+    _hasPaginated: boolean;
     _refetchSubscription: ?Subscription;
+    _refetchVariables: ?Variables;
     _relayContext: RelayContext;
     _resolver: FragmentSpecResolver;
     _queryFetcher: ?ReactRelayQueryFetcher;
@@ -357,8 +358,9 @@ function createContainerWithFragments<
       const relay = assertRelayContext(context.relay);
       const {createFragmentSpecResolver} = relay.environment.unstable_internal;
       this._isARequestInFlight = false;
-      this._localVariables = null;
+      this._hasPaginated = false;
       this._refetchSubscription = null;
+      this._refetchVariables = null;
       this._resolver = createFragmentSpecResolver(
         relay,
         containerName,
@@ -403,8 +405,7 @@ function createContainerWithFragments<
         this.state.relayVariables !== relay.variables ||
         !areEqual(prevIDs, nextIDs)
       ) {
-        this._release();
-        this._localVariables = null;
+        this._cleanup();
         // Child containers rely on context.relay being mutated (for gDSFP).
         this._relayContext.environment = relay.environment;
         this._relayContext.variables = relay.variables;
@@ -420,7 +421,7 @@ function createContainerWithFragments<
           relayProp: this._buildRelayProp(relay),
           relayVariables: relay.variables,
         });
-      } else if (!this._localVariables) {
+      } else if (!this._hasPaginated) {
         this._resolver.setProps(nextProps);
       }
       const data = this._resolver.resolve();
@@ -430,10 +431,10 @@ function createContainerWithFragments<
     }
 
     componentWillUnmount() {
-      this._release();
+      this._cleanup();
     }
 
-    shouldComponentUpdate(nextProps, nextState, nextContext): boolean {
+    shouldComponentUpdate(nextProps, nextState): boolean {
       // Short-circuit if any Relay-related data has changed
       if (
         nextState.data !== this.state.data ||
@@ -587,6 +588,7 @@ function createContainerWithFragments<
       observerOrCallback: ?ObserverOrCallback,
       refetchVariables: ?Variables,
     ): Disposable => {
+      this._refetchVariables = refetchVariables;
       const paginatingVariables = {
         count: totalCount,
         cursor: null,
@@ -596,7 +598,6 @@ function createContainerWithFragments<
         paginatingVariables,
         toObserver(observerOrCallback),
         {force: true},
-        refetchVariables,
       );
 
       return {dispose: fetch.unsubscribe};
@@ -630,6 +631,7 @@ function createContainerWithFragments<
         cursor: cursor,
         totalCount,
       };
+      this._hasPaginated = true;
       const fetch = this._fetchPage(paginatingVariables, observer, options);
       return {dispose: fetch.unsubscribe};
     };
@@ -649,7 +651,6 @@ function createContainerWithFragments<
       },
       observer: Observer<void>,
       options: ?RefetchOptions,
-      refetchVariables: ?Variables,
     ): Subscription {
       const {environment} = assertRelayContext(this.context.relay);
       const {
@@ -662,19 +663,23 @@ function createContainerWithFragments<
         ...restProps,
         ...this.state.data,
       };
+      const rootVariables = this._relayContext.variables;
       let fragmentVariables = getVariablesFromObject(
-        this._relayContext.variables,
+        rootVariables,
         fragments,
         restProps,
       );
-      fragmentVariables = {...fragmentVariables, ...refetchVariables};
+      fragmentVariables = {
+        ...rootVariables,
+        ...fragmentVariables,
+        ...this._refetchVariables,
+      };
       let fetchVariables = connectionConfig.getVariables(
         props,
         {
           count: paginatingVariables.count,
           cursor: paginatingVariables.cursor,
         },
-        // Pass the variables used to fetch the fragments initially
         fragmentVariables,
       );
       invariant(
@@ -686,9 +691,8 @@ function createContainerWithFragments<
       );
       fetchVariables = {
         ...fetchVariables,
-        ...refetchVariables,
+        ...this._refetchVariables,
       };
-      this._localVariables = fetchVariables;
 
       const cacheConfig: ?CacheConfig = options
         ? {force: !!options.force}
@@ -775,8 +779,10 @@ function createContainerWithFragments<
       return refetchSubscription;
     }
 
-    _release() {
+    _cleanup() {
       this._resolver.dispose();
+      this._hasPaginated = false;
+      this._refetchVariables = null;
       if (this._refetchSubscription) {
         this._refetchSubscription.unsubscribe();
         this._refetchSubscription = null;

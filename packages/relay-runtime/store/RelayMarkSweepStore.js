@@ -165,12 +165,12 @@ class RelayMarkSweepStore implements Store {
     }
     this._hasScheduledGC = true;
     resolveImmediate(() => {
-      this._gc();
+      this.__gc();
       this._hasScheduledGC = false;
     });
   }
 
-  _gc(): void {
+  __gc(): void {
     const references = new Set();
     // Mark all records that are traversable from a root
     this._roots.forEach(selector => {

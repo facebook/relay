@@ -253,6 +253,7 @@ RelayProfiler.instrumentMethods(RelayMarkSweepStore.prototype, {
   publish: 'RelayMarkSweepStore.prototype.publish',
   retain: 'RelayMarkSweepStore.prototype.retain',
   subscribe: 'RelayMarkSweepStore.prototype.subscribe',
+  __gc: 'RelayMarkSweepStore.prototype.__gc',
 });
 
 module.exports = RelayMarkSweepStore;

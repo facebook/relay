@@ -136,9 +136,9 @@ class RelayQLNode<T: RelayQLNodeType> {
 
   getDirectives(): Array<RelayQLDirective> {
     // $FlowFixMe
-    return (this.ast.directives || [])
-      .filter(directive => directive.name.value !== 'fb_native_field')
-      .map(directive => new RelayQLDirective(this.context, directive));
+    return (this.ast.directives || []).map(
+      directive => new RelayQLDirective(this.context, directive),
+    );
   }
 
   hasDirective(name: string): boolean {

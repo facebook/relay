@@ -43,6 +43,7 @@ const BABYLON_OPTIONS = {
     'nullishCoalescingOperator',
     'objectRestSpread',
     'optionalChaining',
+    'optionalCatchBinding',
   ],
   strictMode: false,
 };

@@ -25,7 +25,7 @@ const babelOptions = getBabelOptions({
   // Tests use a Promise polfill so they can use jest.runAllTimers().
   autoImport: true,
   moduleMap: {
-    babylon: 'babylon',
+    '@babel/parser': '@babel/parser',
     immutable: 'immutable',
     React: 'react',
     reactComponentExpect: 'react-dom/lib/reactComponentExpect',

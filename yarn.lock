@@ -14,11 +14,11 @@
   dependencies:
     "@babel/highlight" "7.0.0-beta.51"
 
-"@babel/generator@7.0.0-beta.47":
-  version "7.0.0-beta.47"
-  resolved "https://registry.yarnpkg.com/@babel/generator/-/generator-7.0.0-beta.47.tgz#1835709f377cc4d2a4affee6d9258a10bbf3b9d1"
+"@babel/generator@7.0.0-beta.48":
+  version "7.0.0-beta.48"
+  resolved "https://registry.yarnpkg.com/@babel/generator/-/generator-7.0.0-beta.48.tgz#53d1c359f66a25b8c1e82bc6642fe0a62d22d1ce"
   dependencies:
-    "@babel/types" "7.0.0-beta.47"
+    "@babel/types" "7.0.0-beta.48"
     jsesc "^2.5.1"
     lodash "^4.17.5"
     source-map "^0.5.0"
@@ -70,6 +70,10 @@
     esutils "^2.0.2"
     js-tokens "^3.0.0"
 
+"@babel/parser@7.0.0-beta.48":
+  version "7.0.0-beta.48"
+  resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.0.0-beta.48.tgz#f93895cbacee703c0ec98e5af3901c77edd9f1d7"
+
 "@babel/parser@7.0.0-beta.52":
   version "7.0.0-beta.52"
   resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.0.0-beta.52.tgz#4e935b62cd9bf872bd37bcf1f63d82fe7b0237a2"
@@ -98,9 +102,9 @@
     invariant "^2.2.0"
     lodash "^4.17.5"
 
-"@babel/types@7.0.0-beta.47":
-  version "7.0.0-beta.47"
-  resolved "https://registry.yarnpkg.com/@babel/types/-/types-7.0.0-beta.47.tgz#e6fcc1a691459002c2671d558a586706dddaeef8"
+"@babel/types@7.0.0-beta.48":
+  version "7.0.0-beta.48"
+  resolved "https://registry.yarnpkg.com/@babel/types/-/types-7.0.0-beta.48.tgz#095872fa6f8a87846f5872a39a938f34d5dc55a3"
   dependencies:
     esutils "^2.0.2"
     lodash "^4.17.5"
@@ -990,10 +994,6 @@ babel-types@^6.18.0, babel-types@^6.19.0, babel-types@^6.24.1, babel-types@^6.25
     esutils "^2.0.2"
     lodash "^4.17.4"
     to-fast-properties "^1.0.3"
-
-babylon@7.0.0-beta.47:
-  version "7.0.0-beta.47"
-  resolved "https://registry.yarnpkg.com/babylon/-/babylon-7.0.0-beta.47.tgz#6d1fa44f0abec41ab7c780481e62fd9aafbdea80"
 
 babylon@^6.17.2, babylon@^6.18.0:
   version "6.18.0"

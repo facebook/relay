@@ -15,6 +15,7 @@ const babelOptions = require('./scripts/getBabelOptions')({
   ast: false,
   moduleMap: {
     '@babel/generator': '@babel/generator',
+    '@babel/parser': '@babel/parser',
     '@babel/types': '@babel/types',
     'babel-core': 'babel-core',
     'babel-generator': 'babel-generator',
@@ -30,7 +31,6 @@ const babelOptions = require('./scripts/getBabelOptions')({
     'babel-runtime/helpers/toConsumableArray': 'babel-runtime/helpers/toConsumableArray',
     'babel-traverse': 'babel-traverse',
     'babel-types': 'babel-types',
-    'babylon': 'babylon',
     chalk: 'chalk',
     child_process: 'child_process',
     crypto: 'crypto',

@@ -12,7 +12,7 @@
 
 const t = require('@babel/types');
 
-const {readOnlyArrayOfType} = require('RelayFlowBabelFactories');
+const {readOnlyArrayOfType} = require('./RelayFlowBabelFactories');
 const {
   GraphQLEnumType,
   GraphQLInputObjectType,

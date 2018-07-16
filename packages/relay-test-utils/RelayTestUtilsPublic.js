@@ -10,8 +10,8 @@
 
 'use strict';
 
-const RelayModernMockEnvironment = require('RelayModernMockEnvironment');
-const RelayTestSchemaPath = require('RelayTestSchemaPath');
+const RelayModernMockEnvironment = require('./RelayModernMockEnvironment');
+const RelayTestSchemaPath = require('./RelayTestSchemaPath');
 
 /**
  * The public interface to Relay Test Utils.

@@ -51,12 +51,14 @@ export type {
   DeclarativeMutationConfig,
   MutationType,
   RangeOperation,
+  RangeBehaviors,
 } from './mutations/RelayDeclarativeMutationConfig';
 export type {
   OptimisticMutationConfig,
 } from './mutations/applyRelayModernOptimisticMutation';
 export type {MutationConfig} from './mutations/commitRelayModernMutation';
 export type {
+  ExecutePayload,
   GraphQLResponse,
   PayloadError,
   UploadableMap,
@@ -83,11 +85,17 @@ export type {
   GraphQLSubscriptionConfig,
 } from './subscription/requestRelaySubscription';
 export type {
-  GeneratedNode,
-  ConcreteRequest,
+  ConcreteArgument,
+  ConcreteArgumentDefinition,
   ConcreteBatchRequest,
-  ConcreteOperation,
+  ConcreteField,
   ConcreteFragment,
+  ConcreteLinkedField,
+  ConcreteOperation,
+  ConcreteRequest,
+  ConcreteScalarField,
+  ConcreteSelection,
+  GeneratedNode,
   RequestNode,
 } from './util/RelayConcreteNode';
 export type {

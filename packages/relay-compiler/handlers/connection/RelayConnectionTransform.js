@@ -31,7 +31,7 @@ const {
   SchemaUtils,
 } = require('graphql-compiler');
 
-import type {ConnectionMetadata} from 'RelayConnectionHandler';
+import type {ConnectionMetadata} from 'RelayRuntime';
 import type {
   Argument,
   Fragment,

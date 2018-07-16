@@ -108,6 +108,102 @@ describe('RelayPublishQueue', () => {
       operationSelector = createOperationSelector(mutationQuery, variables);
     });
 
+    // Applying two basic store updates works as expected:
+    // both updates are reflected in the final value
+    it('two store updates before `run()`', () => {
+      const queue = new RelayPublishQueue(store);
+      const optimisticUpdate = {
+        storeUpdater: storeProxy => {
+          const zuck = storeProxy.get('4');
+          zuck.setValue('zuck', 'name');
+        },
+      };
+      const optimisticUpdate2 = {
+        storeUpdater: storeProxy => {
+          const zuck = storeProxy.get('4');
+          zuck.setValue('zuckerberg', 'lastName');
+        },
+      };
+      queue.applyUpdate(optimisticUpdate);
+      queue.applyUpdate(optimisticUpdate2);
+      queue.run();
+      // Works as expected
+      expect(sourceData).toEqual({
+        ...initialData,
+        4: {
+          ...initialData['4'],
+          name: 'zuck',
+          lastName: 'zuckerberg',
+        },
+      });
+    });
+
+    // Applying two selector store updates does not work as
+    // expected: the effect of the first update is undone
+    // by the second update.
+    it('two selector store updates before `run()`', () => {
+      // This mutation stretches the `actorNameChange`
+      // mutation to set `lastName` with the `Actor`
+      // payload. Doing this instead of adding a new
+      // mutation to the schema.
+      const mutationQuery2 = generateAndCompile(
+        `
+        mutation ChangeNameMutation2(
+          $input: ActorNameChangeInput!
+        ) {
+          actorNameChange(input: $input) {
+            actor {
+              lastName
+            }
+          }
+        }
+      `,
+      ).ChangeNameMutation2;
+      const variables = {
+        input: {},
+      };
+      const operationSelector2 = createOperationSelector(
+        mutationQuery2,
+        variables
+      );
+      const queue = new RelayPublishQueue(store);
+      // First update, set `name`. This is undone back to
+      // 'Mark' by the second update.
+      queue.applyUpdate({
+        operation: operationSelector,
+        response: {
+          actorNameChange: {
+            actor: {
+              id: '4',
+              name: 'zuck',
+              __typename: 'Actor',
+            },
+          },
+        },
+      });
+      // Second update, set `lastName`. This undoes the
+      // first update because the mutator copies fields from
+      // the base.
+      queue.applyUpdate({
+        operation: operationSelector2,
+        response: {
+          actorNameChange: {
+            actor: {
+              id: '4',
+              lastName: 'zuckerberg',
+              __typename: 'Actor',
+            },
+          },
+        },
+      });
+      queue.run();
+      // Yes
+      expect(sourceData['4'].lastName).toEqual('zuckerberg');
+      // No: name is set back to 'Mark' during the second
+      // update
+      expect(sourceData['4'].name).toEqual('zuck');
+    });
+
     it('runs an `storeUpdater` and applies the changes to the store', () => {
       const queue = new RelayPublishQueue(store);
       const optimisticUpdate = {

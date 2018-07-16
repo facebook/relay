@@ -16,6 +16,9 @@
  * the same objects for the duplicate subtrees.
  */
 function dedupeJSONStringify(jsonValue: mixed): string {
+  // Clone the object to convert references to the same object instance into
+  // copies. This is needed for the WeakMap/Map to recognize them as duplicates.
+  jsonValue = JSON.parse(JSON.stringify(jsonValue));
   const metadataForHash = new Map();
   const metadataForVal = new WeakMap();
   const varDefs = [];

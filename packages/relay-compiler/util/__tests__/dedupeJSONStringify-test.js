@@ -101,6 +101,22 @@ test('extract duplicates', () => {
   );
 });
 
+test('extract identical references', () => {
+  const obj = {name: 'id'};
+  runTest(
+    [obj, obj],
+    `(function(){
+    var v0 = {
+      "name": "id"
+    };
+    return [
+      v0,
+      v0
+    ];
+    })()`,
+  );
+});
+
 test('extract recursive duplicates', () => {
   runTest(
     [

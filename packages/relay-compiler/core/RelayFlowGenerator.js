@@ -11,8 +11,8 @@
 'use strict';
 
 const babelGenerator = require('@babel/generator').default;
-const RelayMaskTransform = require('RelayMaskTransform');
-const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
+const RelayMaskTransform = require('../transforms/RelayMaskTransform');
+const RelayRelayDirectiveTransform = require('../transforms/RelayRelayDirectiveTransform');
 
 const invariant = require('invariant');
 const nullthrows = require('nullthrows');

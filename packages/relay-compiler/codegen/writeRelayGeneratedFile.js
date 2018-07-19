@@ -11,14 +11,14 @@
 'use strict';
 
 const crypto = require('crypto');
-const dedupeJSONStringify = require('dedupeJSONStringify');
+const dedupeJSONStringify = require('../util/dedupeJSONStringify');
 const deepMergeAssignments = require('./deepMergeAssignments');
 const nullthrows = require('nullthrows');
 
 const {RelayConcreteNode} = require('RelayRuntime');
 const {Profiler} = require('graphql-compiler');
 
-import type {GeneratedNode} from 'RelayConcreteNode';
+import type {GeneratedNode} from 'RelayRuntime';
 import type {CodegenDirectory} from 'graphql-compiler';
 
 /**

@@ -14,7 +14,7 @@ const SignedSource = require('signedsource');
 
 const {GraphQLEnumType} = require('graphql');
 
-import type CodegenDirectory from 'CodegenDirectory';
+import type {CodegenDirectory} from 'graphql-compiler';
 import type {GraphQLSchema} from 'graphql';
 
 function writeForSchema(

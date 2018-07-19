@@ -11,7 +11,7 @@
 
 'use strict';
 
-const GraphQLParser = require('GraphQLParser');
+const GraphQLParser = require('../GraphQLParser');
 const RelayTestSchema = require('RelayTestSchema');
 
 /**

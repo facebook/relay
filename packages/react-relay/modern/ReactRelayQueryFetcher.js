@@ -12,15 +12,15 @@
 
 const invariant = require('invariant');
 
-import type {ExecutePayload} from 'RelayNetworkTypes';
 import type {
   CacheConfig,
   Disposable,
+  ExecutePayload,
   IEnvironment,
+  Observable,
   OperationSelector,
   Snapshot,
 } from 'RelayRuntime';
-import type {Observable} from 'RelayRuntime';
 
 type OnDataChange = null | (({error?: Error, snapshot?: Snapshot}) => void);
 

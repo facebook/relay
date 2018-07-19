@@ -25,7 +25,7 @@ import type {
   ConcreteSelection,
   ConcreteScalarField,
   RequestNode,
-} from 'RelayConcreteNode';
+} from 'RelayRuntime';
 import type {Batch, Fragment} from 'graphql-compiler';
 const {getRawType, isAbstractType, getNullableType} = SchemaUtils;
 

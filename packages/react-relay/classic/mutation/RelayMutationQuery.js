@@ -33,10 +33,11 @@ const {
 import type {ConcreteMutation} from '../query/ConcreteQuery';
 import type RelayQueryTracker from '../store/RelayQueryTracker';
 import type {
+  DataID,
+  Variables,
   DeclarativeMutationConfig,
   RangeBehaviors,
-} from 'RelayDeclarativeMutationConfig';
-import type {DataID, Variables} from 'RelayRuntime';
+} from 'RelayRuntime';
 
 const {REFETCH} = RangeOperations;
 

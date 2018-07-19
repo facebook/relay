@@ -16,6 +16,7 @@ const RelayConnectionInterface = require('./handlers/connection/RelayConnectionI
 const RelayCore = require('./store/RelayCore');
 const RelayDeclarativeMutationConfig = require('./mutations/RelayDeclarativeMutationConfig');
 const RelayDefaultHandleKey = require('./util/RelayDefaultHandleKey');
+const RelayError = require('./util/RelayError');
 const RelayInMemoryRecordSource = require('./store/RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('./store/RelayMarkSweepStore');
 const RelayModernEnvironment = require('./store/RelayModernEnvironment');
@@ -178,6 +179,7 @@ module.exports = {
 
   // INTERNAL-ONLY: These exports might be removed at any point.
   RelayConcreteNode: RelayConcreteNode,
+  RelayError: RelayError,
   DEFAULT_HANDLE_KEY: RelayDefaultHandleKey.DEFAULT_HANDLE_KEY,
   ROOT_ID: RelayStoreUtils.ROOT_ID,
 

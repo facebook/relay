@@ -22,6 +22,7 @@ const RelayMarkSweepStore = require('./store/RelayMarkSweepStore');
 const RelayModernEnvironment = require('./store/RelayModernEnvironment');
 const RelayModernGraphQLTag = require('./query/RelayModernGraphQLTag');
 const RelayNetwork = require('./network/RelayNetwork');
+const RelayNetworkLoggerTransaction = require('./network/RelayNetworkLoggerTransaction');
 const RelayObservable = require('./network/RelayObservable');
 const RelayProfiler = require('./util/RelayProfiler');
 const RelayQueryResponseCache = require('./network/RelayQueryResponseCache');
@@ -31,6 +32,7 @@ const RelayViewerHandler = require('./handlers/viewer/RelayViewerHandler');
 const applyRelayModernOptimisticMutation = require('./mutations/applyRelayModernOptimisticMutation');
 const commitLocalUpdate = require('./mutations/commitLocalUpdate');
 const commitRelayModernMutation = require('./mutations/commitRelayModernMutation');
+const createRelayNetworkLogger = require('./network/createRelayNetworkLogger');
 const deepFreeze = require('./util/deepFreeze');
 const fetchRelayModernQuery = require('./query/fetchRelayModernQuery');
 const getRelayHandleKey = require('./util/getRelayHandleKey');
@@ -58,6 +60,7 @@ export type {
   OptimisticMutationConfig,
 } from './mutations/applyRelayModernOptimisticMutation';
 export type {MutationConfig} from './mutations/commitRelayModernMutation';
+export type {RelayNetworkLog} from './network/RelayNetworkLoggerTransaction';
 export type {
   ExecutePayload,
   GraphQLResponse,
@@ -181,9 +184,11 @@ module.exports = {
   // INTERNAL-ONLY: These exports might be removed at any point.
   RelayConcreteNode: RelayConcreteNode,
   RelayError: RelayError,
+  RelayNetworkLoggerTransaction: RelayNetworkLoggerTransaction,
   DEFAULT_HANDLE_KEY: RelayDefaultHandleKey.DEFAULT_HANDLE_KEY,
   ROOT_ID: RelayStoreUtils.ROOT_ID,
 
+  createRelayNetworkLogger: createRelayNetworkLogger,
   deepFreeze: deepFreeze,
   getRelayHandleKey: getRelayHandleKey,
   isScalarAndEqual: isScalarAndEqual,

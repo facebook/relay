@@ -48,10 +48,18 @@ class RelayCompilerCache<T> {
     return Profiler.run('RelayCompilerCache.getOrCompute', () => {
       const cacheFile = path.join(this._dir, key);
       if (fs.existsSync(cacheFile)) {
-        return JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
+        try {
+          return JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
+        } catch (e) {
+          // ignore
+        }
       }
       const value = compute();
-      fs.writeFileSync(cacheFile, JSON.stringify(value), 'utf8');
+      try {
+        fs.writeFileSync(cacheFile, JSON.stringify(value), 'utf8');
+      } catch (e) {
+        // ignore
+      }
       return value;
     });
   }

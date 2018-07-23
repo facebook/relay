@@ -35,6 +35,7 @@ const commitRelayModernMutation = require('./mutations/commitRelayModernMutation
 const createRelayNetworkLogger = require('./network/createRelayNetworkLogger');
 const deepFreeze = require('./util/deepFreeze');
 const fetchRelayModernQuery = require('./query/fetchRelayModernQuery');
+const generateRelayClientID = require('./store/generateRelayClientID');
 const getRelayHandleKey = require('./util/getRelayHandleKey');
 const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
 const isScalarAndEqual = require('./util/isScalarAndEqual');
@@ -191,6 +192,7 @@ module.exports = {
 
   createRelayNetworkLogger: createRelayNetworkLogger,
   deepFreeze: deepFreeze,
+  generateClientID: generateRelayClientID,
   getRelayHandleKey: getRelayHandleKey,
   isScalarAndEqual: isScalarAndEqual,
   recycleNodesInto: recycleNodesInto,

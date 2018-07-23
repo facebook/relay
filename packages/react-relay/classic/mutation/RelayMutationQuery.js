@@ -28,7 +28,7 @@ const {
   MutationTypes,
   RangeOperations,
   ConnectionInterface,
-} = require('RelayRuntime');
+} = require('relay-runtime');
 
 import type {ConcreteMutation} from '../query/ConcreteQuery';
 import type RelayQueryTracker from '../store/RelayQueryTracker';
@@ -37,7 +37,7 @@ import type {
   Variables,
   DeclarativeMutationConfig,
   RangeBehaviors,
-} from 'RelayRuntime';
+} from 'relay-runtime';
 
 const {REFETCH} = RangeOperations;
 

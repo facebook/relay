@@ -14,7 +14,7 @@ const invariant = require('invariant');
 const serializeRelayQueryCall = require('../query/serializeRelayQueryCall');
 
 import type {Call, CallValue} from '../tools/RelayInternalTypes';
-import type {RangeBehaviors} from 'RelayRuntime';
+import type {RangeBehaviors} from 'relay-runtime';
 
 /**
  * Return the action (prepend/append) to use when adding an item to

@@ -19,7 +19,7 @@ const invariant = require('invariant');
 const stableStringify = require('../query/stableStringify');
 const warning = require('warning');
 
-const {RelayProfiler} = require('RelayRuntime');
+const {RelayProfiler} = require('relay-runtime');
 
 import type {RelayQueryConfigInterface} from '../query-config/RelayQueryConfig';
 import type {RelayQuerySet} from '../tools/RelayInternalTypes';

@@ -26,7 +26,7 @@ import type {ConcreteFragment} from '../query/ConcreteQuery';
 import type {RelayConcreteNode} from '../query/RelayQL';
 import type {RelayQLFragmentBuilder} from '../query/buildRQL';
 import type {RelayEnvironmentInterface} from '../store/RelayEnvironment';
-import type {DeclarativeMutationConfig, Variables} from 'RelayRuntime';
+import type {DeclarativeMutationConfig, Variables} from 'relay-runtime';
 
 export type FileMap = {[key: string]: File};
 export type RelayMutationFragments<Tk> = {

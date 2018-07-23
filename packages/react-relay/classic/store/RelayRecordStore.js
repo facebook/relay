@@ -19,7 +19,7 @@ const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const warning = require('warning');
 
-const {ConnectionInterface} = require('RelayRuntime');
+const {ConnectionInterface} = require('relay-runtime');
 
 import type {QueryPath} from '../query/RelayQueryPath';
 import type {
@@ -31,8 +31,8 @@ import type {
 } from '../tools/RelayInternalTypes';
 import type {RecordState} from './RelayClassicRecordState';
 import type {Record, RecordMap} from './RelayRecord';
-import type {DataID} from 'RelayRuntime';
-import type {PageInfo} from 'RelayRuntime';
+import type {DataID} from 'relay-runtime';
+import type {PageInfo} from 'relay-runtime';
 
 type RangeEdge = {
   edgeID: string,

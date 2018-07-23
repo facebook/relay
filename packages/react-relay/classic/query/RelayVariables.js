@@ -21,7 +21,7 @@ import type {
   ConcreteOperationDefinition,
 } from './ConcreteQuery';
 import type {VariableMapping} from './RelayFragmentReference';
-import type {Variables} from 'RelayRuntime';
+import type {Variables} from 'relay-runtime';
 
 /**
  * Determines the variables that are in scope for a fragment given the variables

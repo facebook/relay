@@ -12,7 +12,7 @@
 
 const isRelayVariables = require('../classic/environment/isRelayVariables');
 
-const {isRelayModernEnvironment} = require('RelayRuntime');
+const {isRelayModernEnvironment} = require('relay-runtime');
 
 /**
  * Determine if the object is a plain object that matches the `RelayContext`

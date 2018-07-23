@@ -17,7 +17,7 @@ const ReactTestRenderer = require('ReactTestRenderer');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
-const {createOperationSelector, ROOT_ID} = require('RelayRuntime');
+const {createOperationSelector, ROOT_ID} = require('relay-runtime');
 
 describe('ReactRelayFragmentContainer', () => {
   let TestComponent;

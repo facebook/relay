@@ -21,7 +21,7 @@ const RelayTestUtils = require('RelayTestUtils');
 
 const generateClientID = require('../../legacy/store/generateClientID');
 
-const {RangeOperations, ConnectionInterface} = require('RelayRuntime');
+const {RangeOperations, ConnectionInterface} = require('relay-runtime');
 
 const {APPEND, PREPEND, REMOVE} = RangeOperations;
 

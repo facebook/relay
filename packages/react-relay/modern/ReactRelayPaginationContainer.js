@@ -31,7 +31,7 @@ const {
   RelayProfiler,
   Observable,
   isScalarAndEqual,
-} = require('RelayRuntime');
+} = require('relay-runtime');
 
 import type {FragmentSpecResolver} from '../classic/environment/RelayCombinedEnvironmentTypes';
 import type {RelayEnvironmentInterface as ClassicEnvironment} from '../classic/store/RelayEnvironment';
@@ -54,7 +54,7 @@ import type {
   RelayContext,
   Subscription,
   Variables,
-} from 'RelayRuntime';
+} from 'relay-runtime';
 
 type ContainerState = {
   data: {[key: string]: mixed},

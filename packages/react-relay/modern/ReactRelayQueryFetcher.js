@@ -20,7 +20,7 @@ import type {
   Observable,
   OperationSelector,
   Snapshot,
-} from 'RelayRuntime';
+} from 'relay-runtime';
 
 type OnDataChange = null | (({error?: Error, snapshot?: Snapshot}) => void);
 

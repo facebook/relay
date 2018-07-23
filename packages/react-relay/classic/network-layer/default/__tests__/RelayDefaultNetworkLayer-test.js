@@ -18,7 +18,7 @@ jest
 require('configureForRelayOSS');
 
 const RelayClassic = require('../../RelayPublic');
-const {ConnectionInterface} = require('RelayRuntime');
+const {ConnectionInterface} = require('relay-runtime');
 const RelayDefaultNetworkLayer = require('../RelayDefaultNetworkLayer');
 const RelayMetaRoute = require('../../../route/RelayMetaRoute');
 const RelayMutationRequest = require('../../../network/RelayMutationRequest');

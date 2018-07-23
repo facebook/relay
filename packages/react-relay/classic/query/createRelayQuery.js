@@ -16,7 +16,7 @@ const RelayQuery = require('./RelayQuery');
 const invariant = require('invariant');
 
 import type {RelayConcreteNode} from './RelayQL';
-import type {Variables} from 'RelayRuntime';
+import type {Variables} from 'relay-runtime';
 
 function createRelayQuery(
   node: RelayConcreteNode,

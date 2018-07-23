@@ -52,6 +52,7 @@ const babelOptions = require('./scripts/getBabelOptions')({
     ReactDOM: 'react-dom',
     ReactNative: 'react-native',
     RelayRuntime: 'relay-runtime',
+    'relay-runtime': 'relay-runtime',
     signedsource: 'signedsource',
     util: 'util',
     yargs: 'yargs',

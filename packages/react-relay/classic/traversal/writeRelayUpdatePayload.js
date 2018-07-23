@@ -27,12 +27,12 @@ const {
   MutationTypes,
   RangeOperations,
   RelayProfiler,
-} = require('RelayRuntime');
+} = require('relay-runtime');
 
 import type RelayQueryWriter from '../store/RelayQueryWriter';
 import type RelayRecordStore from '../store/RelayRecordStore';
 import type {UpdateOptions} from '../tools/RelayInternalTypes';
-import type {DataID} from 'RelayRuntime';
+import type {DataID} from 'relay-runtime';
 
 // TODO: Replace with enumeration for possible config types.
 /* OperationConfig was originally typed such that each property had the type

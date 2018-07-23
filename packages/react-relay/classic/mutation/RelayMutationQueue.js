@@ -26,7 +26,7 @@ const invariant = require('invariant');
 const nullthrows = require('nullthrows');
 const resolveImmediate = require('resolveImmediate');
 
-const {ConnectionInterface} = require('RelayRuntime');
+const {ConnectionInterface} = require('relay-runtime');
 
 import type {ConcreteMutation} from '../query/ConcreteQuery';
 import type RelayQueryTracker from '../store/RelayQueryTracker';
@@ -39,7 +39,7 @@ import type {
 } from '../tools/RelayTypes';
 import type RelayMutation from './RelayMutation';
 import type {FileMap} from './RelayMutation';
-import type {DeclarativeMutationConfig, Variables} from 'RelayRuntime';
+import type {DeclarativeMutationConfig, Variables} from 'relay-runtime';
 
 type CollisionQueueMap = {[key: string]: Array<PendingTransaction>};
 interface PendingTransaction {

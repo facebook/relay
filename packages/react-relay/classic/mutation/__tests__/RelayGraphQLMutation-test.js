@@ -27,7 +27,7 @@ const RelayTestUtils = require('RelayTestUtils');
 const generateRQLFieldAlias = require('../../query/generateRQLFieldAlias');
 const readRelayQueryData = require('../../store/readRelayQueryData');
 
-const {ConnectionInterface, RangeOperations} = require('RelayRuntime');
+const {ConnectionInterface, RangeOperations} = require('relay-runtime');
 
 const {COMMITTING, COMMIT_QUEUED, UNCOMMITTED} = RelayMutationTransactionStatus;
 const {HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO} = ConnectionInterface.get();

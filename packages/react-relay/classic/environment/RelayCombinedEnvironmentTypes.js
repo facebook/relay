@@ -17,7 +17,7 @@ import type {
   Observable,
   SelectorStoreUpdater,
   Variables,
-} from 'RelayRuntime';
+} from 'relay-runtime';
 
 /**
  * Arbitrary data e.g. received by a container as props.

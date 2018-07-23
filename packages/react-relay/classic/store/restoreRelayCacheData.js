@@ -20,7 +20,7 @@ const findRelayQueryLeaves = require('../traversal/findRelayQueryLeaves');
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 
-const {RelayProfiler} = require('RelayRuntime');
+const {RelayProfiler} = require('relay-runtime');
 
 import type {QueryPath} from '../query/RelayQueryPath';
 import type {RelayQuerySet, RootCallMap} from '../tools/RelayInternalTypes';
@@ -32,7 +32,7 @@ import type {
 import type {NodeState} from '../traversal/findRelayQueryLeaves';
 import type {Record, RecordMap} from './RelayRecord';
 import type RelayRecordStore from './RelayRecordStore';
-import type {DataID} from 'RelayRuntime';
+import type {DataID} from 'relay-runtime';
 
 /**
  * @internal

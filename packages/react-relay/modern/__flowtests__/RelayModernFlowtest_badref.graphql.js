@@ -11,7 +11,7 @@
 'use strict';
 
 import type {RelayModernFlowtest_user$ref} from './RelayModernFlowtest_user.graphql';
-import type {FragmentReference} from 'RelayRuntime';
+import type {FragmentReference} from 'relay-runtime';
 declare export opaque type RelayModernFlowtest_badref$ref: FragmentReference;
 export type RelayModernFlowtest_badref = {|
   +id: string,

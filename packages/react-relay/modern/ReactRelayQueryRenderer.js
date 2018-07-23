@@ -16,7 +16,7 @@ const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
 const areEqual = require('areEqual');
 
-const {deepFreeze} = require('RelayRuntime');
+const {deepFreeze} = require('relay-runtime');
 
 import type {RelayEnvironmentInterface as ClassicEnvironment} from '../classic/store/RelayEnvironment';
 import type {
@@ -26,7 +26,7 @@ import type {
   RelayContext,
   Snapshot,
   Variables,
-} from 'RelayRuntime';
+} from 'relay-runtime';
 
 type RetryCallbacks = {
   handleDataChange:

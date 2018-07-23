@@ -18,7 +18,7 @@ const RelayRecordStatusMap = require('./RelayRecordStatusMap');
 const invariant = require('invariant');
 const rangeOperationToMetadataKey = require('../mutation/rangeOperationToMetadataKey');
 
-const {ConnectionInterface, RangeOperations} = require('RelayRuntime');
+const {ConnectionInterface, RangeOperations} = require('relay-runtime');
 
 import type {QueryPath} from '../query/RelayQueryPath';
 import type {
@@ -36,7 +36,7 @@ import type {
   PageInfo,
   RangeOperation,
   RecordState,
-} from 'RelayRuntime';
+} from 'relay-runtime';
 
 const EMPTY = '';
 const {APPEND, PREPEND, REMOVE} = RangeOperations;

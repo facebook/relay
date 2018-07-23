@@ -26,7 +26,7 @@ const readRelayQueryData = require('./readRelayQueryData');
 const relayUnstableBatchedUpdates = require('../tools/relayUnstableBatchedUpdates');
 const warning = require('warning');
 
-const {Observable, deepFreeze, recycleNodesInto} = require('RelayRuntime');
+const {Observable, deepFreeze, recycleNodesInto} = require('relay-runtime');
 
 import type {
   Environment,
@@ -63,7 +63,7 @@ import type {
   SelectorStoreUpdater,
   UploadableMap,
   Variables,
-} from 'RelayRuntime';
+} from 'relay-runtime';
 
 export type FragmentResolver = {
   dispose(): void,

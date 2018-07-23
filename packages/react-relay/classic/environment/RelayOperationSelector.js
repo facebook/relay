@@ -19,7 +19,7 @@ const {ROOT_ID} = require('../store/RelayStoreConstants');
 
 import type {ConcreteOperationDefinition} from '../query/ConcreteQuery';
 import type {OperationSelector} from './RelayEnvironmentTypes';
-import type {Variables} from 'RelayRuntime';
+import type {Variables} from 'relay-runtime';
 
 /**
  * @public

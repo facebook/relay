@@ -18,7 +18,7 @@ import type {
   Observer,
   RerunParam,
   Variables,
-} from 'RelayRuntime';
+} from 'relay-runtime';
 
 export type GeneratedNodeMap = {[key: string]: GraphQLTaggedNode};
 

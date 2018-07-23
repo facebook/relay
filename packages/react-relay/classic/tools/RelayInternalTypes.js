@@ -17,7 +17,7 @@
  */
 
 import type RelayQuery from '../query/RelayQuery';
-import type {DataID} from 'RelayRuntime';
+import type {DataID} from 'relay-runtime';
 
 type AfterConnectionArgumentMap = {
   after: string,

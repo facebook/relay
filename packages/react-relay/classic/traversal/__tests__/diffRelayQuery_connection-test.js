@@ -22,7 +22,7 @@ const RelayTestUtils = require('RelayTestUtils');
 
 const diffRelayQuery = require('../diffRelayQuery');
 
-const {ConnectionInterface} = require('RelayRuntime');
+const {ConnectionInterface} = require('relay-runtime');
 
 describe('diffRelayQuery', () => {
   const {getNode, getVerbatimNode, writePayload} = RelayTestUtils;

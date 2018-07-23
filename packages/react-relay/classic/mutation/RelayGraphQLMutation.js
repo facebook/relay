@@ -17,7 +17,7 @@ const RelayQuery = require('../query/RelayQuery');
 
 const invariant = require('invariant');
 
-const {ConnectionInterface} = require('RelayRuntime');
+const {ConnectionInterface} = require('relay-runtime');
 
 import type {RelayConcreteNode} from '../query/RelayQL';
 import type {RelayEnvironmentInterface} from '../store/RelayEnvironment';
@@ -30,7 +30,7 @@ import type {
 } from '../tools/RelayTypes';
 import type {FileMap} from './RelayMutation';
 import type RelayMutationTransaction from './RelayMutationTransaction';
-import type {DeclarativeMutationConfig, Variables} from 'RelayRuntime';
+import type {DeclarativeMutationConfig, Variables} from 'relay-runtime';
 
 const COUNTER_PREFIX = 'RelayGraphQLMutation';
 let collisionIDCounter = 0;

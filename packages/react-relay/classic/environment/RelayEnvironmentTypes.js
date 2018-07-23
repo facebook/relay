@@ -30,7 +30,7 @@ import type {
   GraphQLTaggedNode,
   UploadableMap,
   Variables,
-} from 'RelayRuntime';
+} from 'relay-runtime';
 
 type TEnvironment = Environment;
 type TFragment = ConcreteFragmentDefinition;

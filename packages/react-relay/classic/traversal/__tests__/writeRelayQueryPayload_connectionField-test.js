@@ -20,7 +20,7 @@ const RelayMetaRoute = require('../../route/RelayMetaRoute');
 const RelayQuery = require('../../query/RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
-const {ConnectionInterface} = require('RelayRuntime');
+const {ConnectionInterface} = require('relay-runtime');
 
 describe('writeRelayQueryPayload()', () => {
   let RelayRecordStore;

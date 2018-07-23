@@ -14,7 +14,7 @@ const ReactRelayFragmentContainer = require('./ReactRelayFragmentContainer');
 const ReactRelayPaginationContainer = require('./ReactRelayPaginationContainer');
 const ReactRelayQueryRenderer = require('./ReactRelayQueryRenderer');
 const ReactRelayRefetchContainer = require('./ReactRelayRefetchContainer');
-const RelayRuntime = require('RelayRuntime');
+const RelayRuntime = require('relay-runtime');
 
 export type {
   RelayPaginationProp,
@@ -36,7 +36,7 @@ export type {
   Selector,
   Snapshot,
   Variables,
-} from 'RelayRuntime';
+} from 'relay-runtime';
 
 /**
  * The public interface to React Relay.

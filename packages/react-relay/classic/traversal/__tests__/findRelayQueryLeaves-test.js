@@ -24,7 +24,7 @@ const RelayTestUtils = require('RelayTestUtils');
 const findRelayQueryLeaves = require('../findRelayQueryLeaves');
 const mapObject = require('mapObject');
 
-const {ConnectionInterface} = require('RelayRuntime');
+const {ConnectionInterface} = require('relay-runtime');
 
 describe('findRelayQueryLeaves', () => {
   const {getNode} = RelayTestUtils;

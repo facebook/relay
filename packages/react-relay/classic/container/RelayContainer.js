@@ -37,7 +37,7 @@ const warning = require('warning');
 
 const {getComponentName} = require('../../modern/ReactRelayContainerUtils');
 const {getReactComponent} = require('./RelayClassicContainerUtils');
-const {RelayProfiler} = require('RelayRuntime');
+const {RelayProfiler} = require('relay-runtime');
 
 import type {RelayQueryConfigInterface} from '../query-config/RelayQueryConfig';
 import type {ConcreteFragment} from '../query/ConcreteQuery';
@@ -52,7 +52,7 @@ import type {
   ComponentReadyStateChangeCallback,
   RelayProp,
 } from '../tools/RelayTypes';
-import type {DataID, Variables} from 'RelayRuntime';
+import type {DataID, Variables} from 'relay-runtime';
 
 type FragmentPointer = {
   fragment: RelayQuery.Fragment,

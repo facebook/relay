@@ -22,7 +22,7 @@ const {
   ConnectionInterface,
   RangeOperations,
   MutationTypes,
-} = require('RelayRuntime');
+} = require('relay-runtime');
 
 const transformRelayQueryPayload = require('../../traversal/transformRelayQueryPayload');
 

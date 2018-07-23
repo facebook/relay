@@ -27,7 +27,7 @@ const filterRelayQuery = require('../../traversal/filterRelayQuery');
 const fromGraphQL = require('../../query/fromGraphQL');
 const intersectRelayQuery = require('../../traversal/intersectRelayQuery');
 
-const {ConnectionInterface} = require('RelayRuntime');
+const {ConnectionInterface} = require('relay-runtime');
 const {MutationTypes, RangeOperations} = Relay;
 
 describe('RelayMutationQuery', () => {

@@ -15,7 +15,7 @@ const RelayQueryPath = require('../query/RelayQueryPath');
 
 const generateClientID = require('../legacy/store/generateClientID');
 
-const {RelayProfiler} = require('RelayRuntime');
+const {RelayProfiler} = require('relay-runtime');
 
 import type RelayQuery from '../query/RelayQuery';
 import type RelayQueryWriter from '../store/RelayQueryWriter';

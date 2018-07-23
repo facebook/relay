@@ -17,7 +17,7 @@ const {
   getRelayClassicEnvironment,
   getRelayModernEnvironment,
 } = require('../RelayCompatEnvironment');
-const {applyOptimisticMutation, commitMutation} = require('RelayRuntime');
+const {applyOptimisticMutation, commitMutation} = require('relay-runtime');
 
 import type {Environment as ClassicEnvironment} from '../../classic/environment/RelayEnvironmentTypes';
 import type {ConcreteOperationDefinition} from '../../classic/query/ConcreteQuery';
@@ -26,7 +26,7 @@ import type {
   Disposable,
   MutationConfig,
   OptimisticMutationConfig,
-} from 'RelayRuntime';
+} from 'relay-runtime';
 
 const RelayCompatMutations = {
   commitUpdate<T>(

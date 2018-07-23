@@ -18,7 +18,7 @@ const RelayRefQueryDescriptor = require('../query/RelayRefQueryDescriptor');
 
 const invariant = require('invariant');
 
-const {RelayProfiler} = require('RelayRuntime');
+const {RelayProfiler} = require('relay-runtime');
 
 import type {NodePath} from '../query/RelayRefQueryDescriptor';
 

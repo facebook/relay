@@ -30,7 +30,7 @@ const RelayTestUtils = require('RelayTestUtils');
 const flattenRelayQuery = require('../../traversal/flattenRelayQuery');
 const fromGraphQL = require('../../query/fromGraphQL');
 
-const {ConnectionInterface} = require('RelayRuntime');
+const {ConnectionInterface} = require('relay-runtime');
 
 const {
   COLLISION_COMMIT_FAILED,

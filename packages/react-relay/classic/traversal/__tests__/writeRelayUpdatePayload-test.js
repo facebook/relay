@@ -25,12 +25,11 @@ const RelayTestUtils = require('RelayTestUtils');
 const generateClientEdgeID = require('../../legacy/store/generateClientEdgeID');
 const writeRelayUpdatePayload = require('../writeRelayUpdatePayload');
 
-const {MutationTypes} = require('RelayRuntime');
-
 const {
   ConnectionInterface,
+  MutationTypes,
   RangeOperations,
-} = require('../../../../relay-runtime/RelayRuntime');
+} = require('relay-runtime');
 
 const {CLIENT_MUTATION_ID} = ConnectionInterface.get();
 const {PREPEND, IGNORE} = RangeOperations;

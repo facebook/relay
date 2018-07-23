@@ -30,7 +30,7 @@ const shallowEqual = require('shallowEqual');
 const stableStringify = require('./stableStringify');
 
 const {getFragmentSpreadArguments} = require('./RelayVariables');
-const {ConnectionInterface, RelayProfiler} = require('RelayRuntime');
+const {ConnectionInterface, RelayProfiler} = require('relay-runtime');
 
 import type {Call, Directive} from '../tools/RelayInternalTypes';
 import type {
@@ -44,7 +44,7 @@ import type {
   ConcreteQuery,
   ConcreteQueryMetadata,
 } from './ConcreteQuery';
-import type {Variables} from 'RelayRuntime';
+import type {Variables} from 'relay-runtime';
 
 type BatchCall = {
   refParamName: string,

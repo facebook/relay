@@ -13,7 +13,7 @@
 require('configureForRelayOSS');
 
 const RelayClassic = require('../../RelayPublic');
-const {ConnectionInterface} = require('RelayRuntime');
+const {ConnectionInterface} = require('relay-runtime');
 const RelayOptimisticMutationUtils = require('../RelayOptimisticMutationUtils');
 const RelayQuery = require('../../query/RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');

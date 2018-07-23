@@ -16,7 +16,7 @@ jest
 
 require('configureForRelayOSS');
 
-const {ConnectionInterface} = require('RelayRuntime');
+const {ConnectionInterface} = require('relay-runtime');
 const RelayQueryPath = require('../../query/RelayQueryPath');
 const RelayStoreData = require('../RelayStoreData');
 const RelayTestUtils = require('RelayTestUtils');

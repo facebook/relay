@@ -14,7 +14,7 @@ const invariant = require('invariant');
 const isRelayEnvironment = require('./isRelayEnvironment');
 const isRelayVariables = require('./isRelayVariables');
 
-import type {RelayContext} from 'RelayRuntime';
+import type {RelayContext} from 'relay-runtime';
 
 /**
  * Asserts that the input is a matches the `RelayContext` type defined in

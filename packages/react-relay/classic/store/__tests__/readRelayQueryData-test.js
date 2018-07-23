@@ -16,7 +16,7 @@ require('configureForRelayOSS');
 
 const GraphQLRange = require('../../legacy/store/GraphQLRange');
 const RelayClassic = require('../../RelayPublic');
-const {ConnectionInterface} = require('RelayRuntime');
+const {ConnectionInterface} = require('relay-runtime');
 const RelayFragmentReference = require('../../query/RelayFragmentReference');
 const RelayStoreData = require('../RelayStoreData');
 const RelayRecordStatusMap = require('../RelayRecordStatusMap');

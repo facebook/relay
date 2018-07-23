@@ -22,8 +22,8 @@ import type RelayFragmentReference from '../query/RelayFragmentReference';
 import type {RelayEnvironmentInterface} from '../store/RelayEnvironment';
 import type {Record} from '../store/RelayRecord';
 import type {FieldValue, QueryPayload} from './RelayInternalTypes';
-import type {DataID, Variables} from 'RelayRuntime';
 import type URI from 'URI';
+import type {DataID, Variables} from 'relay-runtime';
 
 type RelayContainerErrorEventType =
   | 'CACHE_RESTORE_FAILED'

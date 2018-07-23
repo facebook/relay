@@ -24,7 +24,7 @@ const RelayReadyStateRenderer = require('./container/RelayReadyStateRenderer');
 const RelayRenderer = require('./container/RelayRenderer');
 const RelayRootContainer = require('./container/RelayRootContainer');
 const RelayRoute = require('./route/RelayRoute');
-const RelayRuntime = require('RelayRuntime');
+const RelayRuntime = require('relay-runtime');
 const RelayStore = require('./store/RelayStore');
 
 const createRelayQuery = require('./query/createRelayQuery');

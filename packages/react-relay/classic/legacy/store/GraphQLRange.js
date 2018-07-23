@@ -18,7 +18,7 @@ const rangeOperationToMetadataKey = require('../../mutation/rangeOperationToMeta
 const serializeRelayQueryCall = require('../../query/serializeRelayQueryCall');
 const warning = require('warning');
 
-const {ConnectionInterface, RangeOperations} = require('RelayRuntime');
+const {ConnectionInterface, RangeOperations} = require('relay-runtime');
 
 /**
  * @param {array<object>} queryCalls

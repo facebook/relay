@@ -15,7 +15,7 @@ const emptyFunction = require('emptyFunction');
 const invariant = require('invariant');
 const warning = require('warning');
 
-const {Network, isRelayModernEnvironment} = require('RelayRuntime');
+const {Network, isRelayModernEnvironment} = require('relay-runtime');
 
 import type {ConcreteOperationDefinition} from '../classic/query/ConcreteQuery';
 import type {
@@ -26,7 +26,7 @@ import type {
   PayloadError,
   RequestNode,
   Variables,
-} from 'RelayRuntime';
+} from 'relay-runtime';
 
 type DataWriteConfig = {
   query: RequestNode,

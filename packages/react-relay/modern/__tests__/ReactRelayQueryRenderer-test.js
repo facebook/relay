@@ -23,7 +23,7 @@ const {
   Store,
   simpleClone,
   ROOT_ID,
-} = require('RelayRuntime');
+} = require('relay-runtime');
 const {ROOT_TYPE} = require('relay-runtime/store/RelayStoreUtils');
 
 describe('ReactRelayQueryRenderer', () => {

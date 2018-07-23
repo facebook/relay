@@ -10,7 +10,7 @@
 
 'use strict';
 
-const {RelayProfiler} = require('RelayRuntime');
+const {RelayProfiler} = require('relay-runtime');
 
 function profileContainer(Container: $FlowFixMe, containerName: string): void {
   RelayProfiler.instrumentMethods(Container.prototype, {

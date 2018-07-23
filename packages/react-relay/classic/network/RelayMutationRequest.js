@@ -18,7 +18,7 @@ import type {FileMap} from '../mutation/RelayMutation';
 import type RelayQuery from '../query/RelayQuery';
 import type {PrintedQuery} from '../tools/RelayInternalTypes';
 import type {MutationResult} from '../tools/RelayTypes';
-import type {Variables} from 'RelayRuntime';
+import type {Variables} from 'relay-runtime';
 
 /**
  * @internal

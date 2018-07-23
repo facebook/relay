@@ -16,12 +16,12 @@ const RelayQueryVisitor = require('../query/RelayQueryVisitor');
 const forEachRootCallArg = require('../query/forEachRootCallArg');
 const isCompatibleRelayFragmentType = require('../tools/isCompatibleRelayFragmentType');
 
-const {ConnectionInterface, RelayProfiler} = require('RelayRuntime');
+const {ConnectionInterface, RelayProfiler} = require('relay-runtime');
 
 import type RelayQuery from '../query/RelayQuery';
 import type RelayRecordStore from '../store/RelayRecordStore';
 import type {RangeInfo} from '../store/RelayRecordStore';
-import type {DataID} from 'RelayRuntime';
+import type {DataID} from 'relay-runtime';
 
 type CheckerState = {
   dataID: ?DataID,

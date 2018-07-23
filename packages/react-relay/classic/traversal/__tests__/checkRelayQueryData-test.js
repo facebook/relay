@@ -20,7 +20,7 @@ const RelayTestUtils = require('RelayTestUtils');
 
 const checkRelayQueryData = require('../checkRelayQueryData');
 
-const {ConnectionInterface} = require('RelayRuntime');
+const {ConnectionInterface} = require('relay-runtime');
 
 describe('checkRelayQueryData', () => {
   let RelayRecordStore;

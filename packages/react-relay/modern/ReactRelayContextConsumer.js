@@ -13,7 +13,7 @@
 const React = require('React');
 const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
-import type {RelayContext} from 'RelayRuntime';
+import type {RelayContext} from 'relay-runtime';
 
 /**
  * Decorates a component and injects Relay context as a prop.

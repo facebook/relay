@@ -22,7 +22,7 @@ const {
   ConnectionHandler,
   ConnectionInterface,
   ROOT_ID,
-} = require('RelayRuntime');
+} = require('relay-runtime');
 const {generateAndCompile} = RelayModernTestUtils;
 
 describe('ReactRelayPaginationContainer', () => {

@@ -13,7 +13,7 @@
 const RelayQuery = require('../query/RelayQuery');
 const RelayQueryVisitor = require('../query/RelayQueryVisitor');
 
-const {RelayProfiler} = require('RelayRuntime');
+const {RelayProfiler} = require('relay-runtime');
 
 type FlattenedQuery = {
   node: RelayQuery.Node,

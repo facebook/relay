@@ -26,7 +26,7 @@ const {
 import type {ConcreteFragmentSpread} from '../classic/query/ConcreteQuery';
 import type {VariableMapping} from '../classic/query/RelayFragmentReference';
 import type {GeneratedNodeMap} from '../modern/ReactRelayTypes';
-import type {Variables} from 'RelayRuntime';
+import type {Variables} from 'relay-runtime';
 
 const containerContextTypes = {
   relay: RelayPropTypes.Relay,

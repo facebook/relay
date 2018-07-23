@@ -15,7 +15,7 @@ const RelayQuery = require('../query/RelayQuery');
 
 const flattenRelayQuery = require('../traversal/flattenRelayQuery');
 
-import type {DataID} from 'RelayRuntime';
+import type {DataID} from 'relay-runtime';
 
 class RelayQueryTracker {
   _trackedNodesByID: {

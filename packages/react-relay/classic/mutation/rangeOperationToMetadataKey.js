@@ -10,9 +10,9 @@
 
 'use strict';
 
-const {RangeOperations} = require('RelayRuntime');
+const {RangeOperations} = require('relay-runtime');
 
-import type {RangeOperation} from 'RelayRuntime';
+import type {RangeOperation} from 'relay-runtime';
 
 /**
  * @internal

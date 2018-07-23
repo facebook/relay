@@ -20,7 +20,7 @@ const invariant = require('invariant');
 const isCompatibleRelayFragmentType = require('../tools/isCompatibleRelayFragmentType');
 const warning = require('warning');
 
-const {ConnectionInterface, RelayProfiler} = require('RelayRuntime');
+const {ConnectionInterface, RelayProfiler} = require('relay-runtime');
 
 import type {QueryPath} from '../query/RelayQueryPath';
 import type RelayQueryTracker from '../store/RelayQueryTracker';
@@ -51,7 +51,7 @@ const nodeWithID = RelayQuery.Field.build({
   type: NODE_TYPE,
 });
 
-import type {DataID} from 'RelayRuntime';
+import type {DataID} from 'relay-runtime';
 
 type DiffScope = {
   connectionField: ?RelayQuery.Field,

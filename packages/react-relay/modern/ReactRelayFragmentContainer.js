@@ -19,7 +19,7 @@ const buildReactRelayContainer = require('./buildReactRelayContainer');
 const {assertRelayContext} = require('../classic/environment/RelayContext');
 const {profileContainer} = require('./ReactRelayContainerProfiler');
 const {getContainerName} = require('./ReactRelayContainerUtils');
-const {RelayProfiler, isScalarAndEqual} = require('RelayRuntime');
+const {RelayProfiler, isScalarAndEqual} = require('relay-runtime');
 
 import type {FragmentSpecResolver} from '../classic/environment/RelayCombinedEnvironmentTypes';
 import type {RelayEnvironmentInterface as ClassicEnvironment} from '../classic/store/RelayEnvironment';
@@ -30,7 +30,7 @@ import type {
   IEnvironment,
   RelayContext,
   Variables,
-} from 'RelayRuntime';
+} from 'relay-runtime';
 
 type ContainerProps = $FlowFixMeProps;
 type ContainerState = {

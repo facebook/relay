@@ -18,7 +18,7 @@ import type {
   ConcreteFragmentDefinition,
   ConcreteOperationDefinition,
 } from './ConcreteQuery';
-import type {GraphQLTaggedNode} from 'RelayRuntime';
+import type {GraphQLTaggedNode} from 'relay-runtime';
 
 /**
  * Runtime function to correspond to the `graphql` tagged template function.

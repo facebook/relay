@@ -15,7 +15,7 @@ jest.mock('warning').mock('../../../store/RelayRecord');
 const RelayTestUtils = require('RelayTestUtils');
 
 const GraphQLRange = require('../GraphQLRange');
-const {ConnectionInterface} = require('RelayRuntime');
+const {ConnectionInterface} = require('relay-runtime');
 const RelayRecord = require('../../../store/RelayRecord');
 
 function getFirstSegment(range) {

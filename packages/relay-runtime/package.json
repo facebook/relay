@@ -20,5 +20,6 @@
   "directories": {
     "": "./"
   },
+  "main": "RelayRuntime.js",
   "haste_commonjs": true
 }

@@ -6,7 +6,7 @@
  *
  * Based on implementations by Gary Court and Austin Appleby, 2011, MIT.
  *
- * @flow strict-local
+ * @flow strict
  * @format
  */
 

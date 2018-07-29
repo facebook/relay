@@ -15,7 +15,7 @@
     "fbjs": "0.8.17"
   },
   "peerDependencies": {
-    "relay-compiler": "1.6.0"
+    "relay-compiler": "1.6.1"
   },
   "directories": {
     "": "./"

@@ -10,18 +10,21 @@
 
 'use strict';
 
-import type {FormatModule} from './writeRelayGeneratedFile';
+import type {FormatModule} from '../RelayLanguagePluginInterface';
 
 const formatGeneratedModule: FormatModule = ({
   moduleName,
   documentType,
   docText,
   concreteText,
-  flowText,
+  typeText,
   hash,
   relayRuntimeModule,
   sourceHash,
 }) => {
+  const documentTypeImport = documentType
+    ? `import type { ${documentType} } from '${relayRuntimeModule}';`
+    : '';
   const docTextComment = docText ? '\n/*\n' + docText.trim() + '\n*/\n' : '';
   const hashText = hash ? `\n * ${hash}` : '';
   return `/**
@@ -33,12 +36,12 @@ const formatGeneratedModule: FormatModule = ({
 'use strict';
 
 /*::
-import type { ${documentType} } from '${relayRuntimeModule}';
-${flowText || ''}
+${documentTypeImport}
+${typeText || ''}
 */
 
 ${docTextComment}
-const node/*: ${documentType}*/ = ${concreteText};
+const node/*: ${documentType || 'empty'}*/ = ${concreteText};
 // prettier-ignore
 (node/*: any*/).hash = '${sourceHash}';
 module.exports = node;

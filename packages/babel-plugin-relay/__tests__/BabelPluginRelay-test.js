@@ -26,14 +26,15 @@ describe('BabelPluginRelay', () => {
   function transformerWithOptions(
     options: RelayPluginOptions,
     environment: 'development' | 'production' = 'production',
+    filename?: string,
   ): string => string {
-    return (text, filename) => {
+    return (text, providedFileName) => {
       const previousEnv = process.env.BABEL_ENV;
       try {
         process.env.BABEL_ENV = environment;
         return babel.transform(text, {
           compact: false,
-          filename,
+          filename: filename || providedFileName,
           parserOpts: {plugins: ['jsx']},
           plugins: [[BabelPluginRelay, options]],
         }).code;
@@ -82,6 +83,17 @@ describe('BabelPluginRelay', () => {
       schema: OLD_SCHEMA_PATH,
       substituteVariables: true,
     }),
+  );
+
+  generateTestsFromFixtures(
+    `${__dirname}/fixtures-modern-artifact-directory`,
+    transformerWithOptions(
+      {
+        artifactDirectory: '/test/artifacts',
+      },
+      'production',
+      '/testing/Container.js',
+    ),
   );
 
   describe('`development` option', () => {

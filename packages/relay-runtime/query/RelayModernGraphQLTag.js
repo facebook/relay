@@ -50,7 +50,9 @@ function getNode(taggedNode) {
   if (typeof fn !== 'function') {
     return (taggedNode: any);
   }
-  return fn();
+  const data: any = fn();
+  // Support for languages that work (best) with ES6 modules, such as TypeScript.
+  return data.default ? data.default : data;
 }
 
 function getFragment(taggedNode: GraphQLTaggedNode): ConcreteFragment {

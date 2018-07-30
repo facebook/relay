@@ -251,6 +251,8 @@ The server should use those two arguments to modify the edges returned by
 the connection, returning edges after the `after` cursor, and returning at
 most `first` edges.
 
+You should generally pass the previous page's `pageInfo.endCursor` for `after`.
+
 ## Backward pagination arguments
 
 To enable backward pagination, two arguments are required.
@@ -261,6 +263,22 @@ To enable backward pagination, two arguments are required.
 The server should use those two arguments to modify the edges returned by
 the connection, returning edges before the `before` cursor, and returning at
 most `last` edges.
+
+You should generally pass the next page's `pageInfo.startCursor` for `before`.
+
+## Edge order
+
+You may order the edges however your business logic dictates, and may determine
+the ordering based upon additional arguments not covered by this specification.
+But the ordering must be consistent from page to page, and importantly,
+*The ordering of edges should be the same when using `first`/`after` as when using
+`last`/`before`, all other arguments being equal.*  It should not be reversed when
+using `last`/`before`.  More formally:
+
+* When `before: cursor` is used, the edge closest to `cursor` must come **last**
+  in the result `edges`.
+* When `after: cursor` is used, the edge closest to `cursor` must come **first**
+  in the result `edges`.
 
 ## Pagination algorithm
 

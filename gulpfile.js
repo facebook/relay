@@ -235,7 +235,7 @@ const builds = [
   {
     package: 'relay-runtime',
     exports: {
-      index: 'RelayRuntime.js',
+      index: 'index.js',
     },
     bundles: [
       {
@@ -311,7 +311,7 @@ gulp.task('exports', ['copy-files', 'modules'], function() {
       fs.writeFileSync(
         path.join(DIST, build.package, exportName + '.js'),
         PRODUCTION_HEADER +
-          `\nmodule.exports = require('./lib/${build.exports[exportName]}');`
+          `\nmodule.exports = require('./lib/${build.exports[exportName]}');\n`
       )
     )
   );

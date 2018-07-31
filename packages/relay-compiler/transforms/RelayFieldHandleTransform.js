@@ -12,7 +12,7 @@
 
 const invariant = require('invariant');
 
-const {getRelayHandleKey} = require('RelayRuntime');
+const {getRelayHandleKey} = require('relay-runtime');
 const {CompilerContext, IRTransformer} = require('graphql-compiler');
 
 import type {Field} from 'graphql-compiler';

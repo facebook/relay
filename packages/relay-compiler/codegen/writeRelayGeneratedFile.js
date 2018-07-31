@@ -15,11 +15,11 @@ const dedupeJSONStringify = require('../util/dedupeJSONStringify');
 const deepMergeAssignments = require('./deepMergeAssignments');
 const nullthrows = require('nullthrows');
 
-const {RelayConcreteNode} = require('RelayRuntime');
 const {Profiler} = require('graphql-compiler');
+const {RelayConcreteNode} = require('relay-runtime');
 
-import type {GeneratedNode} from 'RelayRuntime';
 import type {CodegenDirectory} from 'graphql-compiler';
+import type {GeneratedNode} from 'relay-runtime';
 
 /**
  * Generate a module for the given document name/text.

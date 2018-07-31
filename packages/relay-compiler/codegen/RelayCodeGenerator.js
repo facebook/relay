@@ -12,10 +12,11 @@
 
 const invariant = require('invariant');
 
-const {getStorageKey, stableCopy} = require('RelayRuntime');
 const {GraphQLList} = require('graphql');
 const {IRVisitor, SchemaUtils} = require('graphql-compiler');
+const {getStorageKey, stableCopy} = require('relay-runtime');
 
+import type {Batch, Fragment} from 'graphql-compiler';
 import type {
   ConcreteArgument,
   ConcreteArgumentDefinition,
@@ -25,8 +26,7 @@ import type {
   ConcreteSelection,
   ConcreteScalarField,
   RequestNode,
-} from 'RelayRuntime';
-import type {Batch, Fragment} from 'graphql-compiler';
+} from 'relay-runtime';
 const {getRawType, isAbstractType, getNullableType} = SchemaUtils;
 
 declare function generate(node: Batch): RequestNode;

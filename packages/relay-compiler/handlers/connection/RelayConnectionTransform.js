@@ -15,7 +15,6 @@ const RelayParser = require('../../core/RelayParser');
 const invariant = require('invariant');
 
 const {AFTER, BEFORE, FIRST, KEY, LAST} = require('./RelayConnectionConstants');
-const {ConnectionInterface} = require('RelayRuntime');
 const {
   assertCompositeType,
   GraphQLInterfaceType,
@@ -30,8 +29,8 @@ const {
   IRTransformer,
   SchemaUtils,
 } = require('graphql-compiler');
+const {ConnectionInterface} = require('relay-runtime');
 
-import type {ConnectionMetadata} from 'RelayRuntime';
 import type {
   Argument,
   Fragment,
@@ -41,6 +40,7 @@ import type {
   CompilerContext,
 } from 'graphql-compiler';
 import type {GraphQLType} from 'graphql';
+import type {ConnectionMetadata} from 'relay-runtime';
 
 type Options = {
   // The current path

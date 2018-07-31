@@ -23,7 +23,7 @@ function injectContext<TProps, TComponent: React.ComponentType<TProps>>(
   Component: TComponent,
 ): React.ComponentType<
   $Diff<
-    React.ElementConfig<TComponent>,
+    React$ElementConfig<TComponent>,
     {
       relay: RelayContext,
     },

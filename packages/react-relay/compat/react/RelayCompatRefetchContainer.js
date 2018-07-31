@@ -35,7 +35,7 @@ function createContainer<Props: {}, TComponent: React.ComponentType<Props>>(
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
   taggedNode: GraphQLTaggedNode,
 ): RelayCompatContainer<
-  $RelayProps<React.ElementConfig<TComponent>, RelayRefetchProp>,
+  $RelayProps<React$ElementConfig<TComponent>, RelayRefetchProp>,
 > {
   return buildCompatContainer(
     Component,

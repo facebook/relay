@@ -36,7 +36,7 @@ function createContainer<Props: {}, TComponent: React.ComponentType<Props>>(
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
   connectionConfig: ConnectionConfig,
 ): RelayCompatContainer<
-  $RelayProps<React.ElementConfig<TComponent>, RelayPaginationProp>,
+  $RelayProps<React$ElementConfig<TComponent>, RelayPaginationProp>,
 > {
   return buildCompatContainer(
     Component,

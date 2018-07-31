@@ -55,7 +55,7 @@ function createContainerWithFragments<
   Component: TComponent,
   fragments: FragmentMap,
 ): React.ComponentType<
-  $RelayProps<React.ElementConfig<TComponent>, RelayProp>,
+  $RelayProps<React$ElementConfig<TComponent>, RelayProp>,
 > {
   const containerName = getContainerName(Component);
 
@@ -284,7 +284,7 @@ function createContainer<Props: {}, TComponent: React.ComponentType<Props>>(
   Component: TComponent,
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
 ): React.ComponentType<
-  $RelayProps<React.ElementConfig<TComponent>, RelayProp>,
+  $RelayProps<React$ElementConfig<TComponent>, RelayProp>,
 > {
   return buildReactRelayContainer(
     Component,

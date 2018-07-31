@@ -27,7 +27,6 @@ module.system.haste.name_reducers='^\(.*\)\.native$' -> '\1'
 
 module.system.haste.paths.blacklist=.*/__tests__/.*
 module.system.haste.paths.blacklist=.*/__mocks__/.*
-module.system.haste.paths.whitelist=<PROJECT_ROOT>/packages/relay-runtime/RelayRuntime.js
 module.system.haste.paths.whitelist=<PROJECT_ROOT>/node_modules/fbjs/lib/.*
 
 module.name_mapper='^ReactDOM$' -> 'react-dom'

@@ -12,7 +12,7 @@
 
 const invariant = require('invariant');
 
-const {getStorageKey, stableCopy} = require('RelayRuntime');
+const {getStorageKey, stableCopy} = require('relay-runtime');
 const {GraphQLList} = require('graphql');
 const {IRVisitor, SchemaUtils} = require('graphql-compiler');
 
@@ -25,7 +25,7 @@ import type {
   ConcreteSelection,
   ConcreteScalarField,
   RequestNode,
-} from 'RelayRuntime';
+} from 'relay-runtime';
 import type {Batch, Fragment} from 'graphql-compiler';
 const {getRawType, isAbstractType, getNullableType} = SchemaUtils;
 

@@ -10,7 +10,7 @@
 
 'use strict';
 
-const {DEFAULT_HANDLE_KEY} = require('RelayRuntime');
+const {DEFAULT_HANDLE_KEY} = require('relay-runtime');
 const {GraphQLObjectType} = require('graphql');
 const {IRTransformer, SchemaUtils} = require('graphql-compiler');
 

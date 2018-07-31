@@ -281,7 +281,8 @@ function sharedUpdater(store, user, newEdge) {
   // Get the user's Todo List using ConnectionHandler helper
   const conn = ConnectionHandler.getConnection(
     userProxy,
-    'TodoList_todos', // This is the connection identifier, defined here: https://github.com/relayjs/relay-examples/blob/master/todo/js/components/TodoList.js#L68
+    'TodoList_todos', // This is the connection identifier, defined here
+    // https://github.com/relayjs/relay-examples/blob/master/todo/js/components/TodoList.js#L68
   );
 
   // Insert the new todo into the Todo List connection
@@ -332,7 +333,8 @@ function commit(
         // Add it to the user's todo list
         sharedUpdater(store, user, newEdge);
 
-        // Given that we don't have a server response here, we also need to update the todo item count on the user
+        // Given that we don't have a server response here,
+        // we also need to update the todo item count on the user
         const userRecord = store.get(user.id);
         userRecord.setValue(
           userRecord.getValue('totalCount') + 1,

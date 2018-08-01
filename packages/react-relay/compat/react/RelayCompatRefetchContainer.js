@@ -47,7 +47,6 @@ function createContainer<Props: {}, TComponent: React.ComponentType<Props>>(
         taggedNode,
       );
     },
-    /* provides child context */ true,
   );
 }
 

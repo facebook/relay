@@ -12,6 +12,9 @@
 
 const React = require('React');
 const RelayPropTypes = require('../classic/container/RelayPropTypes');
+const ReactRelayContext = require('../classic/tools/ReactRelayContext');
+
+const useContext = require('../classic/tools/useContext');
 
 import type {RelayContext} from 'relay-runtime';
 
@@ -29,16 +32,9 @@ function injectContext<TProps, TComponent: React.ComponentType<TProps>>(
     },
   >,
 > {
-  // TODO (T25783053) Update this container to use the new React context API,
-  // Once we have confirmed that it's okay to raise min React version to 16.3.
-  class ReactRelayContextConsumer extends React.Component<TProps> {
-    static contextTypes = {
-      relay: RelayPropTypes.Relay,
-    };
-
-    render() {
-      return <Component {...this.props} relay={this.context.relay} />;
-    }
+  function ReactRelayContextConsumer(props: TProps) {
+    const {relay} = useContext(ReactRelayContext);
+    return <Component {...this.props} relay={relay} />;
   }
 
   return ReactRelayContextConsumer;

@@ -15,6 +15,7 @@ const ReactRelayPropTypes = require('../ReactRelayPropTypes');
 const ReactRelayRefetchContainer = require('../ReactRelayRefetchContainer');
 const ReactTestRenderer = require('ReactTestRenderer');
 const RelayModernTestUtils = require('RelayModernTestUtils');
+const ReactRelayContext = require('../../classic/tools/ReactRelayContext');
 
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {createOperationSelector, ROOT_ID} = require('relay-runtime');
@@ -51,7 +52,7 @@ describe('ReactRelayRefetchContainer', () => {
       }
     }
     getChildContext() {
-      return {relay: this.relay};
+      return {};
     }
     setProps(props) {
       this.setState({props});
@@ -61,16 +62,22 @@ describe('ReactRelayRefetchContainer', () => {
       this.setState({context: {environment: env, variables: vars}});
     }
     render() {
-      const child = React.Children.only(this.props.children);
-      if (this.state.props) {
-        return React.cloneElement(child, this.state.props);
+      function getChild() {
+        const child = React.Children.only(this.props.children);
+        if (this.state.props) {
+          return React.cloneElement(child, this.state.props);
+        }
+        return child;
       }
-      return child;
+      return (
+        <ReactRelayContext.Provider value={{
+          relay: this.relay,
+        }}>
+          {getChild()}
+        </ReactRelayContext.Provider>
+      );
     }
   }
-  ContextSetter.childContextTypes = {
-    relay: ReactRelayPropTypes.Relay,
-  };
 
   beforeEach(() => {
     jest.resetModules();
@@ -98,17 +105,16 @@ describe('ReactRelayRefetchContainer', () => {
 
     ContextGetter = class extends React.Component {
       componentDidMount() {
-        relayContext = this.context.relay;
+        const {relay} = useContext(ReactRelayContext);
+        relayContext = relay;
       }
       componentDidUpdate() {
-        relayContext = this.context.relay;
+        const {relay} = useContext(ReactRelayContext);
+        relayContext = relay;
       }
       render() {
         return <div />;
       }
-    };
-    ContextGetter.contextTypes = {
-      relay: ReactRelayPropTypes.Relay,
     };
 
     render = jest.fn(props => {

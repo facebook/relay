@@ -13,6 +13,7 @@ const diff = require('jest-diff');
 
 jest.dontMock('react-test-renderer').mock('../../route/RelayRoute');
 const ReactTestRenderer = require('react-test-renderer');
+const ReactRelayContext = require('../ReactRelayContext');
 
 /**
  * Utility methods (eg. for unmocking Relay internals) and custom Jasmine
@@ -41,18 +42,14 @@ const RelayTestUtils = {
     const RelayRoute = require('../../route/RelayRoute');
     const invariant = require('invariant');
 
-    class ContextSetter extends React.Component {
-      getChildContext() {
-        return this.props.context;
-      }
-      render() {
-        return this.props.render();
-      }
+    // TODO: maybe this component is not needed anymore with the new context API
+    function ContextSetter({context}) {
+      return (
+        <ReactRelayContext.Provider value={context}>
+          {this.props.render()}
+        </ReactRelayContext.Provider>
+      );
     }
-    ContextSetter.childContextTypes = {
-      relay: RelayPropTypes.ClassicRelay,
-      route: RelayPropTypes.QueryConfig.isRequired,
-    };
 
     class MockPointer {
       constructor(dataID) {

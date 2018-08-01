@@ -12,10 +12,12 @@
 
 const React = require('React');
 const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
+const ReactRelayContext = require('../classic/tools/ReactRelayContext');
 const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
 const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
+const useContext = require('../classic/tools/useContext');
 
 const {assertRelayContext} = require('../classic/environment/RelayContext');
 const {profileContainer} = require('./ReactRelayContainerProfiler');
@@ -54,9 +56,6 @@ type ContainerState = {
   relayVariables: Variables,
   resolver: FragmentSpecResolver,
 };
-const containerContextTypes = {
-  relay: RelayPropTypes.Relay,
-};
 
 /**
  * Composes a React component class, returning a new class that intercepts
@@ -77,13 +76,13 @@ function createContainerWithFragments<
 
   class Container extends React.Component<ContainerProps, ContainerState> {
     static displayName = containerName;
-    static contextTypes = containerContextTypes;
 
     _refetchSubscription: ?Subscription;
     _queryFetcher: ?ReactRelayQueryFetcher;
 
-    constructor(props, context) {
-      super(props, context);
+    constructor(props) {
+      super(props);
+      const context = useContext(ReactRelayContext);
       const relay = assertRelayContext(context.relay);
       const {createFragmentSpecResolver} = relay.environment.unstable_internal;
       this._refetchSubscription = null;
@@ -215,7 +214,7 @@ function createContainerWithFragments<
       this._refetchSubscription && this._refetchSubscription.unsubscribe();
     }
 
-    shouldComponentUpdate(nextProps, nextState, nextContext): boolean {
+    shouldComponentUpdate(nextProps, nextState): boolean {
       // Short-circuit if any Relay-related data has changed
       if (
         nextState.data !== this.state.data ||
@@ -433,7 +432,6 @@ function createContainer<Props: {}, TComponent: React.ComponentType<Props>>(
     fragmentSpec,
     (ComponentClass, fragments) =>
       createContainerWithFragments(ComponentClass, fragments, taggedNode),
-    /* provides child context */ true,
   );
 }
 

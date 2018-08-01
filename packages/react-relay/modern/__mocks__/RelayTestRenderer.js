@@ -12,6 +12,7 @@
 
 const React = require('React');
 const RelayPropTypes = require('../../classic/container/RelayPropTypes');
+const ReactRelayContext = require('../../classic/tools/ReactRelayContext');
 
 const invariant = require('invariant');
 
@@ -57,16 +58,6 @@ class RelayTestRenderer extends React.Component<Props, $FlowFixMe> {
     environment.subscribe(snapshot, this._onChange);
   }
 
-  getChildContext() {
-    return {
-      relay: {
-        environment:
-          this.props.environment || this.props.children.props.environment,
-        variables: this.props.variables || this.props.children.props.variables,
-      },
-    };
-  }
-
   _onChange = (snapshot: Snapshot): void => {
     this.setState({data: snapshot.data});
   };
@@ -74,17 +65,23 @@ class RelayTestRenderer extends React.Component<Props, $FlowFixMe> {
   render() {
     const childProps = this.props.children.props;
     const newProps = {...childProps, ...this.state.data};
-    return React.cloneElement(
-      this.props.children,
-      newProps,
-      // $FlowFixMe: error found when enabling flow for this file.
-      this.props.children.children,
+    return (
+      <ReactRelayContext.Provider value={{
+        relay: {
+          environment:
+            this.props.environment || this.props.children.props.environment,
+          variables: this.props.variables || this.props.children.props.variables,
+        }
+      }}>
+        {React.cloneElement(
+          this.props.children,
+          newProps,
+          // $FlowFixMe: error found when enabling flow for this file.
+          this.props.children.children,
+        )}
+      </ReactRelayContext.Provider>
     );
   }
 }
-
-RelayTestRenderer.childContextTypes = {
-  relay: RelayPropTypes.Relay,
-};
 
 module.exports = RelayTestRenderer;

@@ -12,7 +12,6 @@
 
 const PropTypes = require('prop-types');
 const React = require('React');
-const RelayEnvironment = require('../store/RelayEnvironment');
 const RelayPropTypes = require('../container/RelayPropTypes');
 
 /**
@@ -29,36 +28,9 @@ const RelayPropTypes = require('../container/RelayPropTypes');
  * Currently ReactDOM and ReactTestRenderer cannot both be loaded in the same
  * test, and Relay transitively includes ReactDOM under its default settings.
  */
+
+// this should be deprecated
 class RelayMockRenderer extends React.Component<$FlowFixMeProps> {
-  mockContext: any;
-
-  static childContextTypes = {
-    relay: RelayPropTypes.ClassicRelay,
-    route: RelayPropTypes.QueryConfig.isRequired,
-    useFakeData: PropTypes.bool,
-  };
-
-  constructor() {
-    super();
-    this.mockContext = {
-      relay: {
-        environment: new RelayEnvironment(),
-        variables: {},
-      },
-      route: {
-        name: '$RelayMockRenderer',
-        params: {},
-        queries: {},
-        useMockData: true,
-      },
-      useFakeData: true,
-    };
-  }
-
-  getChildContext() {
-    return this.mockContext;
-  }
-
   render() {
     return this.props.render();
   }

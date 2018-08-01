@@ -24,10 +24,6 @@ const {
 import type {GeneratedNodeMap} from './ReactRelayTypes';
 import type {GraphQLTaggedNode, FragmentMap} from 'relay-runtime';
 
-const containerContextTypes = {
-  relay: RelayPropTypes.Relay,
-};
-
 type ContainerCreator = (
   Component: React$ComponentType<any>,
   fragments: FragmentMap,
@@ -43,7 +39,6 @@ function buildReactRelayContainer<TBase: React$ComponentType<*>>(
   ComponentClass: TBase,
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
   createContainerWithFragments: ContainerCreator,
-  providesChildContext: boolean,
 ): TBase {
   // Sanity-check user-defined fragment input
   const containerName = getContainerName(ComponentClass);
@@ -77,10 +72,6 @@ function buildReactRelayContainer<TBase: React$ComponentType<*>>(
     }
     // $FlowFixMe
     return new Container(props, context);
-  }
-  ContainerConstructor.contextTypes = containerContextTypes;
-  if (providesChildContext) {
-    ContainerConstructor.childContextTypes = containerContextTypes;
   }
 
   function forwardRef(props, ref) {

@@ -14,6 +14,8 @@ const React = require('React');
 const ReactRelayPropTypes = require('../ReactRelayPropTypes');
 const ReactRelayQueryRenderer = require('../ReactRelayQueryRenderer');
 const ReactTestRenderer = require('ReactTestRenderer');
+const useContext = require('../../classic/tools/useContext');
+const ReactRelayContext = require('../../classic/tools/ReactRelayContext');
 
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {
@@ -246,18 +248,16 @@ describe('ReactRelayQueryRenderer', () => {
     beforeEach(() => {
       ContextGetter = class extends React.Component {
         componentDidMount() {
-          relayContext = this.context.relay;
+          relayContext = useContext(ReactRelayContext).relay;
         }
         componentDidUpdate() {
-          relayContext = this.context.relay;
+          relayContext = useContext(ReactRelayContext).relay;
         }
         render() {
           return <div />;
         }
       };
-      ContextGetter.contextTypes = {
-        relay: ReactRelayPropTypes.Relay,
-      };
+      
       render = jest.fn(() => <ContextGetter />);
     });
 

@@ -15,6 +15,7 @@ const ReactRelayPropTypes = require('../../modern/ReactRelayPropTypes');
 const ReactTestRenderer = require('ReactTestRenderer');
 const RelayCompatFragmentContainer = require('../react/RelayCompatContainer');
 const RelayModernTestUtils = require('RelayModernTestUtils');
+const ReactRelayContext = require('../classic/tools/ReactRelayContext');
 
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
 
@@ -54,9 +55,6 @@ describe('RelayCompatFragmentContainer', () => {
           this.relay = {environment, variables};
         }
       }
-      getChildContext() {
-        return {relay: this.relay};
-      }
       setProps(props) {
         this.setState({props});
       }
@@ -65,16 +63,22 @@ describe('RelayCompatFragmentContainer', () => {
         this.setState({context: {environment: env, variables: vars}});
       }
       render() {
-        const child = React.Children.only(this.props.children);
-        if (this.state.props) {
-          return React.cloneElement(child, this.state.props);
+        function getChild() {
+          const child = React.Children.only(this.props.children);
+          if (this.state.props) {
+            return React.cloneElement(child, this.state.props);
+          }
+          return child;
         }
-        return child;
+        return (
+          <ReactRelayContext.Provider value={{
+            relay: this.relay,
+          }}>
+            {getChild()}
+          </ReactRelayContext.Provider>
+        );
       }
     }
-    ContextSetter.childContextTypes = {
-      relay: ReactRelayPropTypes.Relay,
-    };
 
     const environment = createMockEnvironment();
     const {UserFragment} = environment.mock.compile(`

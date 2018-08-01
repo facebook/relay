@@ -12,9 +12,11 @@
 
 const React = require('React');
 const RelayPropTypes = require('../classic/container/RelayPropTypes');
+const ReactRelayContext = require('../classic/tools/ReactRelayContext');
 
 const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
+const useContext = require('../classic/tools/useContext');
 
 const {assertRelayContext} = require('../classic/environment/RelayContext');
 const {profileContainer} = require('./ReactRelayContainerProfiler');
@@ -61,12 +63,10 @@ function createContainerWithFragments<
 
   class Container extends React.Component<ContainerProps, ContainerState> {
     static displayName = containerName;
-    static contextTypes = {
-      relay: RelayPropTypes.Relay,
-    };
 
-    constructor(props, context) {
-      super(props, context);
+    constructor(props) {
+      super(props);
+      const context = useContext(ReactRelayContext);
       const relay = assertRelayContext(context.relay);
       const {createFragmentSpecResolver} = relay.environment.unstable_internal;
       // Do not provide a subscription/callback here.
@@ -290,7 +290,6 @@ function createContainer<Props: {}, TComponent: React.ComponentType<Props>>(
     Component,
     fragmentSpec,
     createContainerWithFragments,
-    /* provides child context */ false,
   );
 }
 

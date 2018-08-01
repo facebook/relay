@@ -15,6 +15,7 @@ const ReactRelayPaginationContainer = require('../ReactRelayPaginationContainer'
 const ReactRelayPropTypes = require('../ReactRelayPropTypes');
 const ReactTestRenderer = require('ReactTestRenderer');
 const RelayModernTestUtils = require('RelayModernTestUtils');
+const ReactRelayContext = require('../../classic/tools/ReactRelayContext');
 
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {
@@ -59,9 +60,6 @@ describe('ReactRelayPaginationContainer', () => {
         this.relay = {environment, variables};
       }
     }
-    getChildContext() {
-      return {relay: this.relay};
-    }
     setProps(props) {
       this.setState({props});
     }
@@ -70,16 +68,22 @@ describe('ReactRelayPaginationContainer', () => {
       this.setState({context: {environment: env, variables: vars}});
     }
     render() {
-      const child = React.Children.only(this.props.children);
-      if (this.state.props) {
-        return React.cloneElement(child, this.state.props);
+      function getChild() {
+        const child = React.Children.only(this.props.children);
+        if (this.state.props) {
+          return React.cloneElement(child, this.state.props);
+        }
+        return child;
       }
-      return child;
+      return (
+        <ReactRelayContext.Provider value={{
+          relay: this.relay,
+        }}>
+          {getChild()}
+        </ReactRelayContext.Provider>
+      );
     }
   }
-  ContextSetter.childContextTypes = {
-    relay: ReactRelayPropTypes.Relay,
-  };
 
   beforeEach(() => {
     jest.resetModules();

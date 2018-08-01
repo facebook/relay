@@ -48,7 +48,6 @@ function createContainer<Props: {}, TComponent: React.ComponentType<Props>>(
         connectionConfig,
       );
     },
-    /* provides child context */ true,
   );
 }
 

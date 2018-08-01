@@ -18,6 +18,8 @@ const RelayStaticContainer = require('./RelayStaticContainer');
 const getRelayQueries = require('./getRelayQueries');
 const mapObject = require('mapObject');
 
+const ReactRelayContext = require('../tools/ReactRelayContext');
+
 import type {RelayQueryConfigInterface} from '../query-config/RelayQueryConfig';
 import type RelayQuery from '../query/RelayQuery';
 import type {
@@ -71,11 +73,6 @@ class RelayReadyStateRenderer extends React.Component<
     getContainerProps: RelayContainerPropsFactory,
   },
 > {
-  static childContextTypes = {
-    relay: RelayPropTypes.ClassicRelay,
-    route: RelayPropTypes.QueryConfig.isRequired,
-  };
-
   _relay: ClassicRelayContext;
 
   constructor(props: Props, context: any) {
@@ -86,13 +83,6 @@ class RelayReadyStateRenderer extends React.Component<
     };
     this.state = {
       getContainerProps: createContainerPropsFactory(),
-    };
-  }
-
-  getChildContext(): Object {
-    return {
-      relay: this._relay,
-      route: this.props.queryConfig,
     };
   }
 
@@ -167,9 +157,14 @@ class RelayReadyStateRenderer extends React.Component<
       shouldUpdate = false;
     }
     return (
-      <RelayStaticContainer shouldUpdate={shouldUpdate}>
-        {children}
-      </RelayStaticContainer>
+      <ReactRelayContext.Provider value={{
+        relay: this._relay,
+        route: this.props.queryConfig,
+      }}>
+        <RelayStaticContainer shouldUpdate={shouldUpdate}>
+          {children}
+        </RelayStaticContainer>
+      </ReactRelayContext.Provider>
     );
   }
 }

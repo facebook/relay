@@ -11,6 +11,7 @@
 'use strict';
 
 const React = require('React');
+const ReactRelayContext = require('../classic/tools/ReactRelayContext');
 const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
 const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
@@ -18,6 +19,7 @@ const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
 const invariant = require('invariant');
 const nullthrows = require('nullthrows');
+const useContext = require('../classic/tools/useContext');
 const warning = require('warning');
 
 const {assertRelayContext} = require('../classic/environment/RelayContext');
@@ -61,10 +63,6 @@ type ContainerState = {
   relayEnvironment: IEnvironment | ClassicEnvironment,
   relayProp: RelayPaginationProp,
   relayVariables: Variables,
-};
-
-const containerContextTypes = {
-  relay: RelayPropTypes.Relay,
 };
 
 const FORWARD = 'forward';
@@ -343,7 +341,6 @@ function createContainerWithFragments<
 
   class Container extends React.Component<$FlowFixMeProps, ContainerState> {
     static displayName = containerName;
-    static contextTypes = containerContextTypes;
 
     _isARequestInFlight: boolean;
     _hasPaginated: boolean;
@@ -353,8 +350,9 @@ function createContainerWithFragments<
     _resolver: FragmentSpecResolver;
     _queryFetcher: ?ReactRelayQueryFetcher;
 
-    constructor(props, context) {
-      super(props, context);
+    constructor(props) {
+      super(props);
+      const context = useContext(ReactRelayContext);
       const relay = assertRelayContext(context.relay);
       const {createFragmentSpecResolver} = relay.environment.unstable_internal;
       this._isARequestInFlight = false;
@@ -385,8 +383,8 @@ function createContainerWithFragments<
      * for updates. Props may be the same in which case previous data and
      * subscriptions can be reused.
      */
-    UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
-      const context = nullthrows(nextContext);
+    UNSAFE_componentWillReceiveProps(nextProps) {
+      const context = nullthrows(useContext(ReactRelayContext));
       const relay = assertRelayContext(context.relay);
       const {
         createFragmentSpecResolver,
@@ -652,7 +650,8 @@ function createContainerWithFragments<
       observer: Observer<void>,
       options: ?RefetchOptions,
     ): Subscription {
-      const {environment} = assertRelayContext(this.context.relay);
+      const {relay} = useContext(ReactRelayContext);
+      const {environment} = assertRelayContext(relay);
       const {
         createOperationSelector,
         getRequest,
@@ -710,10 +709,11 @@ function createContainerWithFragments<
       }
 
       const onNext = (payload, complete) => {
+        const context = useContext(ReactRelayContext);
         // Child containers rely on context.relay being mutated (for gDSFP).
-        this._relayContext.environment = this.context.relay.environment;
+        this._relayContext.environment = context.relay.environment;
         this._relayContext.variables = {
-          ...this.context.relay.variables,
+          ...context.relay.variables,
           ...fragmentVariables,
         };
         const prevData = this._resolver.resolve();
@@ -831,7 +831,6 @@ function createContainer<Props: {}, TComponent: React.ComponentType<Props>>(
     fragmentSpec,
     (ComponentClass, fragments) =>
       createContainerWithFragments(ComponentClass, fragments, connectionConfig),
-    /* provides child context */ true,
   );
 }
 

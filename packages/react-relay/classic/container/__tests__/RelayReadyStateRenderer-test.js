@@ -21,6 +21,8 @@ const RelayReadyStateRenderer = require('../RelayReadyStateRenderer');
 const RelayStaticContainer = require('../RelayStaticContainer');
 const prettyFormat = require('pretty-format');
 const ReactTestRenderer = require('react-test-renderer');
+const useContext = require('../../tools/useContext');
+const ReactRelayContext = require('../../tools/ReactRelayContext');
 
 describe('RelayReadyStateRenderer', () => {
   /**
@@ -535,15 +537,10 @@ describe('RelayReadyStateRenderer', () => {
 
   describe('context', () => {
     it('sets environment and query config on the React context', () => {
-      class TestComponent extends React.Component {
-        static contextTypes = {
-          relay: Relay.PropTypes.Relay,
-          route: Relay.PropTypes.QueryConfig.isRequired,
-        };
-        render() {
-          this.props.onRenderContext(this.context);
-          return null;
-        }
+      function TestComponent() {
+        const context = useContext(RelayContext);
+        this.props.onRenderContext(context);
+        return null;
       }
 
       const onRenderContext = jest.fn();

@@ -13,6 +13,7 @@
 const React = require('React');
 const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
 const RelayPropTypes = require('../classic/container/RelayPropTypes');
+const ReactRelayContext = require('../classic/tools/ReactRelayContext');
 
 const areEqual = require('areEqual');
 
@@ -85,12 +86,6 @@ type State = {
  * - Subscribes for updates to the root data and re-renders with any changes.
  */
 class ReactRelayQueryRenderer extends React.Component<Props, State> {
-  // TODO T25783053 Update this component to use the new React context API,
-  // Once we have confirmed that it's okay to raise min React version to 16.3.
-  static childContextTypes = {
-    relay: RelayPropTypes.Relay,
-  };
-
   _relayContext: RelayContext = {
     // $FlowFixMe TODO t16225453 QueryRenderer works with old+new environment.
     environment: (this.props.environment: IEnvironment),
@@ -199,12 +194,6 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
     );
   }
 
-  getChildContext(): Object {
-    return {
-      relay: this._relayContext,
-    };
-  }
-
   render() {
     const {
       relayContextEnvironment,
@@ -227,7 +216,13 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
     if (__DEV__) {
       deepFreeze(renderProps);
     }
-    return this.props.render(renderProps);
+    return (
+      <ReactRelayContext.Provider value={{
+        relay: this._relayContext,
+      }}>
+        {this.props.render(renderProps)}
+      </ReactRelayContext.Provider>
+    );
   }
 }
 

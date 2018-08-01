@@ -23,6 +23,8 @@ const RelayPropTypes = require('./RelayPropTypes');
 const RelayQuery = require('../query/RelayQuery');
 const RelayRecord = require('../store/RelayRecord');
 const RelayRecordStatusMap = require('../store/RelayRecordStatusMap');
+const ReactRelayContext = require('../tools/ReactRelayContext');
+const useContext = require('../tools/useContext');
 
 const areEqual = require('areEqual');
 const buildRQL = require('../query/buildRQL');
@@ -77,12 +79,6 @@ export type RelayContainerSpec = {
 };
 export type RelayLazyContainer = Function;
 
-const containerContextTypes = {
-  relay: RelayPropTypes.ClassicRelay,
-  route: RelayPropTypes.QueryConfig.isRequired,
-  useFakeData: PropTypes.bool,
-};
-
 /**
  * @public
  *
@@ -128,10 +124,10 @@ function createContainerComponent(
       request: Abortable,
     };
 
-    constructor(props, context) {
-      super(props, context);
+    constructor(props) {
+      super(props);
+      const {relay, route} = useContext(ReactRelayContext);
 
-      const {relay, route} = context;
       invariant(
         isClassicRelayContext(relay),
         'RelayContainer: `%s` was rendered with invalid Relay context `%s`. ' +
@@ -159,9 +155,9 @@ function createContainerComponent(
         queryData: {},
         rawVariables: {},
         relayProp: {
-          applyUpdate: this.context.relay.environment.applyUpdate,
-          commitUpdate: this.context.relay.environment.commitUpdate,
-          environment: this.context.relay.environment,
+          applyUpdate: relay.environment.applyUpdate,
+          commitUpdate: relay.environment.commitUpdate,
+          environment: relay.environment,
           forceFetch: this.forceFetch.bind(this),
           getPendingTransactions: this.getPendingTransactions.bind(this),
           hasFragmentData: this.hasFragmentData.bind(this),
@@ -213,11 +209,20 @@ function createContainerComponent(
     } {
       const fragmentPointers = {};
       const querySet = {};
-      const storeData = this.context.relay.environment.getStoreData();
+      const {relay, route} = useContext(ReactRelayContext);
+
+      invariant(
+        route != null,
+        'RelayContext: Expected `context.route` to be an object conforming to ' +
+          'the `RelayContext` interface, got `%s`.',
+        route,
+      );
+
+      const storeData = relay.environment.getStoreData();
       fragmentNames.forEach(fragmentName => {
         const fragment = getFragment(
           fragmentName,
-          this.context.route,
+          route,
           variables,
         );
         const queryData = this.state.queryData[fragmentName];
@@ -865,7 +870,6 @@ function createContainerComponent(
   }
 
   initializeProfiler(RelayContainer);
-  RelayContainer.contextTypes = containerContextTypes;
   RelayContainer.displayName = containerName;
   RelayContainerProxy.proxyMethods(RelayContainer, Component);
 
@@ -1110,7 +1114,6 @@ function create(
     );
   };
 
-  ContainerConstructor.contextTypes = containerContextTypes;
   ContainerConstructor.displayName = containerName;
   ContainerConstructor.moduleName = (null: ?string);
 

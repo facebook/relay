@@ -28,10 +28,6 @@ import type {VariableMapping} from '../classic/query/RelayFragmentReference';
 import type {GeneratedNodeMap} from '../modern/ReactRelayTypes';
 import type {Variables} from 'relay-runtime';
 
-const containerContextTypes = {
-  relay: RelayPropTypes.Relay,
-};
-
 type ContainerCreator = (
   Component: React$ComponentType<any>,
   fragments: Object,
@@ -72,7 +68,6 @@ function buildCompatContainer(
   ComponentClass: React$ComponentType<any>,
   fragmentSpec: GeneratedNodeMap,
   createContainerWithFragments: ContainerCreator,
-  providesChildContext: boolean,
 ): any {
   // Sanity-check user-defined fragment input
   const containerName = getContainerName(ComponentClass);
@@ -142,10 +137,6 @@ function buildCompatContainer(
     }
     // $FlowFixMe
     return new Container(props, context);
-  }
-  ContainerConstructor.contextTypes = containerContextTypes;
-  if (providesChildContext) {
-    ContainerConstructor.childContextTypes = containerContextTypes;
   }
 
   function forwardRef(props, ref) {

@@ -352,6 +352,7 @@ function createContainerWithFragments<
     _relayContext: RelayContext;
     _resolver: FragmentSpecResolver;
     _queryFetcher: ?ReactRelayQueryFetcher;
+    _isUnmounted: boolean;
 
     constructor(props, context) {
       super(props, context);
@@ -378,6 +379,7 @@ function createContainerWithFragments<
         relayProp: this._buildRelayProp(relay),
         relayVariables: relay.variables,
       };
+      this._isUnmounted = false;
     }
 
     /**
@@ -431,6 +433,7 @@ function createContainerWithFragments<
     }
 
     componentWillUnmount() {
+      this._isUnmounted = true;
       this._cleanup();
     }
 
@@ -588,6 +591,11 @@ function createContainerWithFragments<
       observerOrCallback: ?ObserverOrCallback,
       refetchVariables: ?Variables,
     ): Disposable => {
+      if (!this._canFetchPage('refetchConnection')) {
+        return {
+          dispose() {},
+        };
+      }
       this._refetchVariables = refetchVariables;
       const paginatingVariables = {
         count: totalCount,
@@ -608,6 +616,12 @@ function createContainerWithFragments<
       observerOrCallback: ?ObserverOrCallback,
       options: ?RefetchOptions,
     ): ?Disposable => {
+      if (!this._canFetchPage('loadMore')) {
+        return {
+          dispose() {},
+        };
+      }
+
       const observer = toObserver(observerOrCallback);
       const connectionData = this._getConnectionData();
       if (!connectionData) {
@@ -641,6 +655,24 @@ function createContainerWithFragments<
         this._queryFetcher = new ReactRelayQueryFetcher();
       }
       return this._queryFetcher;
+    }
+
+    _canFetchPage(method): boolean {
+      if (this._isUnmounted) {
+        warning(
+          false,
+          'ReactRelayPaginationContainer: Unexpected call of `%s` ' +
+            'on unmounted container `%s`. It looks like some instances ' +
+            'of your container still trying to fetch data but they already ' +
+            'unmounted. Please make sure you clear all timers, intervals, async ' +
+            'calls, etc that may trigger `%s` call.',
+          method,
+          containerName,
+          method,
+        );
+        return false;
+      }
+      return true;
     }
 
     _fetchPage(

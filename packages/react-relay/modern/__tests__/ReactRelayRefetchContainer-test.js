@@ -924,7 +924,42 @@ describe('ReactRelayRefetchContainer', () => {
       expect(subscription1.closed).toBe(true);
       expect(subscription2.closed).toBe(true);
     });
+
+    it('should not refetch data is container unmounted', () => {
+      const userPointer = environment.lookup({
+        dataID: ROOT_ID,
+        node: UserQuery.fragment,
+        variables: {id: '4'},
+      }).data.node;
+
+      class TestContainerWrapper extends React.Component {
+        state = {
+          mounted: true,
+        };
+        componentDidMount() {
+          setTimeout(() => {
+            this.setState({mounted: false});
+          }, 1);
+        }
+        render() {
+          return this.state.mounted ? (
+            <TestContainer user={userPointer} />
+          ) : null;
+        }
+      }
+
+      instance = ReactTestRenderer.create(
+        <ContextSetter environment={environment} variables={variables}>
+          <TestContainerWrapper />
+        </ContextSetter>,
+      );
+      jest.runOnlyPendingTimers();
+      const callback = jest.fn();
+      refetch({}, null, callback);
+      expect(callback).not.toBeCalled();
+    });
   });
+
   it('can be unwrapped in tests', () => {
     class TestUnwrapping extends React.Component {
       render() {

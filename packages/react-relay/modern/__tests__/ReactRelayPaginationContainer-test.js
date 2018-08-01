@@ -1393,6 +1393,38 @@ describe('ReactRelayPaginationContainer', () => {
       expect(references.length).toBe(1);
       expect(references[0].dispose).toBeCalled();
     });
+    it('should not load more data if container is unmounted', () => {
+      const userPointer = environment.lookup({
+        dataID: ROOT_ID,
+        node: UserQuery.fragment,
+        variables,
+      }).data.node;
+      class TestContainerWrapper extends React.Component {
+        state = {
+          mounted: true,
+        };
+        componentDidMount() {
+          setTimeout(() => {
+            this.setState({mounted: false});
+          }, 1);
+        }
+        render() {
+          return this.state.mounted ? (
+            <TestContainer user={userPointer} />
+          ) : null;
+        }
+      }
+      instance = ReactTestRenderer.create(
+        <ContextSetter environment={environment} variables={variables}>
+          <TestContainerWrapper />
+        </ContextSetter>,
+      );
+      variables = {};
+      jest.runOnlyPendingTimers();
+      const callback = jest.fn();
+      loadMore(1, callback);
+      expect(callback).not.toBeCalled();
+    });
   });
 
   describe('refetchConnection()', () => {
@@ -1763,6 +1795,39 @@ describe('ReactRelayPaginationContainer', () => {
         id: '4',
       };
       expect(environment.mock.isLoading(UserQuery, variables)).toBe(true);
+    });
+
+    it('should not refetch connection if container is unmounted', () => {
+      const userPointer = environment.lookup({
+        dataID: ROOT_ID,
+        node: UserQuery.fragment,
+        variables,
+      }).data.node;
+      class TestContainerWrapper extends React.Component {
+        state = {
+          mounted: true,
+        };
+        componentDidMount() {
+          setTimeout(() => {
+            this.setState({mounted: false});
+          }, 1000);
+        }
+
+        render() {
+          return this.state.mounted ? (
+            <TestContainer user={userPointer} />
+          ) : null;
+        }
+      }
+      instance = ReactTestRenderer.create(
+        <ContextSetter environment={environment} variables={variables}>
+          <TestContainerWrapper />
+        </ContextSetter>,
+      );
+      jest.runOnlyPendingTimers();
+      const callback = jest.fn();
+      refetchConnection(1, callback);
+      expect(callback).not.toBeCalled();
     });
   });
   it('can be unwrapped in tests', () => {

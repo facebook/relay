@@ -16,6 +16,7 @@ const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
 const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
+const warning = require('warning');
 
 const {assertRelayContext} = require('../classic/environment/RelayContext');
 const {profileContainer} = require('./ReactRelayContainerProfiler');
@@ -81,6 +82,7 @@ function createContainerWithFragments<
 
     _refetchSubscription: ?Subscription;
     _queryFetcher: ?ReactRelayQueryFetcher;
+    _isUnmounted: boolean;
 
     constructor(props, context) {
       super(props, context);
@@ -114,6 +116,7 @@ function createContainerWithFragments<
         relayVariables: relay.variables,
         resolver,
       };
+      this._isUnmounted = false;
     }
 
     componentDidMount() {
@@ -210,6 +213,7 @@ function createContainerWithFragments<
     }
 
     componentWillUnmount() {
+      this._isUnmounted = true;
       this.state.resolver.dispose();
       this._queryFetcher && this._queryFetcher.dispose();
       this._refetchSubscription && this._refetchSubscription.unsubscribe();
@@ -309,6 +313,21 @@ function createContainerWithFragments<
       observerOrCallback: ?ObserverOrCallback,
       options: ?RefetchOptions,
     ): Disposable => {
+      if (this._isUnmounted) {
+        warning(
+          false,
+          'ReactRelayRefetchContainer: Unexpected call of `refetch` ' +
+            'on unmounted container `%s`. It looks like some instances ' +
+            'of your container still trying to refetch the data but they already ' +
+            'unmounted. Please make sure you clear all timers, intervals, async ' +
+            'calls, etc that may trigger `refetch`.',
+          containerName,
+        );
+        return {
+          dispose() {},
+        };
+      }
+
       const {environment, variables: rootVariables} = assertRelayContext(
         this.context.relay,
       );

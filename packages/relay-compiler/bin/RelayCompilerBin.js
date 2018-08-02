@@ -19,11 +19,11 @@ const {
   DotGraphQLParser,
 } = require('graphql-compiler');
 
-const RelayJSModuleParser = require('../core/RelayJSModuleParser');
+const RelaySourceModuleParser = require('../core/RelaySourceModuleParser');
 const RelayFileWriter = require('../codegen/RelayFileWriter');
 const RelayIRTransforms = require('../core/RelayIRTransforms');
+const RelayLanguagePluginJavaScript = require('../language/javascript/RelayLanguagePluginJavaScript');
 
-const formatGeneratedModule = require('../codegen/formatGeneratedModule');
 const fs = require('fs');
 const path = require('path');
 const yargs = require('yargs');
@@ -46,6 +46,10 @@ const {
 
 import type {GetWriterOptions} from 'graphql-compiler';
 import type {GraphQLSchema} from 'graphql';
+import type {
+  PluginInitializer,
+  PluginInterface,
+} from '../language/RelayLanguagePluginInterface';
 
 function buildWatchExpression(options: {
   extensions: Array<string>,
@@ -82,6 +86,48 @@ function getFilepathsFromGlob(
   });
 }
 
+type LanguagePlugin = PluginInitializer | {default: PluginInitializer};
+
+/**
+ * Unless the requested plugin is the builtin `javascript` one, import a
+ * language plugin as either a CommonJS or ES2015 module.
+ *
+ * When importing, first check if it’s a path to an existing file, otherwise
+ * assume it’s a package and prepend the plugin namespace prefix.
+ *
+ * Make sure to always use Node's `require` function, which otherwise would get
+ * replaced with `__webpack_require__` when bundled using webpack, by using
+ * `eval` to get it at runtime.
+ */
+function getLanguagePlugin(language: string): PluginInterface {
+  if (language === 'javascript') {
+    return RelayLanguagePluginJavaScript();
+  } else {
+    const pluginPath = path.resolve(process.cwd(), language);
+    const requirePath = fs.existsSync(pluginPath)
+      ? pluginPath
+      : `relay-compiler-language-${language}`;
+    try {
+      // eslint-disable-next-line no-eval
+      let languagePlugin: LanguagePlugin = eval('require')(requirePath);
+      if (languagePlugin.default) {
+        languagePlugin = languagePlugin.default;
+      }
+      if (typeof languagePlugin === 'function') {
+        return languagePlugin();
+      } else {
+        throw new Error('Expected plugin to export a function.');
+      }
+    } catch (err) {
+      const e = new Error(
+        `Unable to load language plugin ${requirePath}: ${err.message}`,
+      );
+      e.stack = err.stack;
+      throw e;
+    }
+  }
+}
+
 async function run(options: {
   schema: string,
   src: string,
@@ -94,6 +140,8 @@ async function run(options: {
   validate: boolean,
   quiet: boolean,
   noFutureProofEnums: boolean,
+  language: string,
+  artifactDirectory: ?string,
 }) {
   const schemaPath = path.resolve(process.cwd(), options.schema);
   if (!fs.existsSync(schemaPath)) {
@@ -133,6 +181,31 @@ Ensure that one such file exists in ${srcDir} or its parents.
 
   const schema = getSchema(schemaPath);
 
+  const languagePlugin = getLanguagePlugin(options.language);
+
+  const inputExtensions = options.extensions || languagePlugin.inputExtensions;
+  const outputExtension = languagePlugin.outputExtension;
+
+  const sourceParserName = inputExtensions.join('/');
+  const sourceWriterName = outputExtension;
+
+  const sourceModuleParser = RelaySourceModuleParser(
+    languagePlugin.findGraphQLTags,
+  );
+
+  const providedArtifactDirectory = options.artifactDirectory;
+  const artifactDirectory =
+    providedArtifactDirectory != null
+      ? path.resolve(process.cwd(), providedArtifactDirectory)
+      : null;
+
+  const generatedDirectoryName = artifactDirectory || '__generated__';
+
+  const sourceSearchOptions = {
+    extensions: inputExtensions,
+    include: options.include,
+    exclude: ['**/*.graphql.*', ...options.exclude], // Do not include artifacts
+  };
   const graphqlSearchOptions = {
     extensions: ['graphql'],
     include: options.include,
@@ -140,13 +213,17 @@ Ensure that one such file exists in ${srcDir} or its parents.
   };
 
   const parserConfigs = {
-    js: {
+    [sourceParserName]: {
       baseDir: srcDir,
-      getFileFilter: RelayJSModuleParser.getFileFilter,
-      getParser: RelayJSModuleParser.getParser,
+      getFileFilter: sourceModuleParser.getFileFilter,
+      getParser: sourceModuleParser.getParser,
       getSchema: () => schema,
-      watchmanExpression: useWatchman ? buildWatchExpression(options) : null,
-      filepaths: useWatchman ? null : getFilepathsFromGlob(srcDir, options),
+      watchmanExpression: useWatchman
+        ? buildWatchExpression(sourceSearchOptions)
+        : null,
+      filepaths: useWatchman
+        ? null
+        : getFilepathsFromGlob(srcDir, sourceSearchOptions),
     },
     graphql: {
       baseDir: srcDir,
@@ -161,11 +238,17 @@ Ensure that one such file exists in ${srcDir} or its parents.
     },
   };
   const writerConfigs = {
-    js: {
-      getWriter: getRelayFileWriter(srcDir, options.noFutureProofEnums),
+    [sourceWriterName]: {
+      getWriter: getRelayFileWriter(
+        srcDir,
+        languagePlugin,
+        options.noFutureProofEnums,
+        artifactDirectory,
+      ),
       isGeneratedFile: (filePath: string) =>
-        filePath.endsWith('.js') && filePath.includes('__generated__'),
-      parser: 'js',
+        filePath.endsWith('.graphql.' + outputExtension) &&
+        filePath.includes(generatedDirectoryName),
+      parser: sourceParserName,
       baseParsers: ['graphql'],
     },
   };
@@ -193,7 +276,12 @@ Ensure that one such file exists in ${srcDir} or its parents.
   }
 }
 
-function getRelayFileWriter(baseDir: string, noFutureProofEnums: boolean) {
+function getRelayFileWriter(
+  baseDir: string,
+  languagePlugin: PluginInterface,
+  noFutureProofEnums: boolean,
+  outputDir?: ?string,
+) {
   return ({
     onlyValidate,
     schema,
@@ -213,11 +301,14 @@ function getRelayFileWriter(baseDir: string, noFutureProofEnums: boolean) {
           queryTransforms,
         },
         customScalars: {},
-        formatModule: formatGeneratedModule,
+        formatModule: languagePlugin.formatModule,
         inputFieldWhiteListForFlow: [],
         schemaExtensions,
         useHaste: false,
         noFutureProofEnums,
+        extension: languagePlugin.outputExtension,
+        typeGenerator: languagePlugin.typeGenerator,
+        outputDir,
       },
       onlyValidate,
       schema,
@@ -306,8 +397,9 @@ const argv = yargs
     },
     extensions: {
       array: true,
-      default: ['js'],
-      describe: 'File extensions to compile (--extensions js jsx)',
+      describe:
+        'File extensions to compile (defaults to extensions provided by the ' +
+        'language plugin)',
       type: 'string',
     },
     verbose: {
@@ -341,6 +433,19 @@ const argv = yargs
         'your application whenever the GraphQL server schema adds new enum values to prevent it ' +
         'from breaking.',
       default: false,
+    },
+    language: {
+      describe:
+        'The name of the language plugin used for input files and artifacts',
+      type: 'string',
+      default: 'javascript',
+    },
+    artifactDirectory: {
+      describe:
+        'A specific directory to output all artifacts to. When enabling this ' +
+        'the babel plugin needs `artifactDirectory` set as well.',
+      type: 'string',
+      default: null,
     },
   })
   .help().argv;

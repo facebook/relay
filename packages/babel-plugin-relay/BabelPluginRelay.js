@@ -39,6 +39,8 @@ export type RelayPluginOptions = {
   snakeCase?: boolean,
   substituteVariables?: boolean,
   validator?: Validator<any>,
+  // Directory as specified by outputDir when running relay-compiler
+  artifactDirectory?: string,
 };
 
 export type BabelState = {

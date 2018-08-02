@@ -14,9 +14,6 @@
     "babel-runtime": "^6.23.0",
     "fbjs": "0.8.17"
   },
-  "peerDependencies": {
-    "relay-compiler": "1.6.2"
-  },
   "directories": {
     "": "./"
   },

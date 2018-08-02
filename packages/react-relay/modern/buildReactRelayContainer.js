@@ -12,6 +12,8 @@
 
 const React = require('React');
 const RelayPropTypes = require('../classic/container/RelayPropTypes');
+const ReactRelayContext = require('../classic/tools/ReactRelayContext');
+const useContext = require('../classic/tools/useContext');
 
 const assertFragmentMap = require('./assertFragmentMap');
 const mapObject = require('mapObject');
@@ -47,7 +49,8 @@ function buildReactRelayContainer<TBase: React$ComponentType<*>>(
   // Memoize a container for the last environment instance encountered
   let environment;
   let Container;
-  function ContainerConstructor(props, context) {
+  function ContainerConstructor(props) {
+    const context = useContext(ReactRelayContext);
     if (Container == null || context.relay.environment !== environment) {
       environment = context.relay.environment;
       if (__DEV__) {
@@ -71,7 +74,7 @@ function buildReactRelayContainer<TBase: React$ComponentType<*>>(
       ContainerConstructor.getDerivedStateFromProps = (Container: any).getDerivedStateFromProps;
     }
     // $FlowFixMe
-    return new Container(props, context);
+    return new Container(props);
   }
 
   function forwardRef(props, ref) {

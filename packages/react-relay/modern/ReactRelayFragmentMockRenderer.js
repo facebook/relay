@@ -22,7 +22,7 @@ function ReactRelayFragmentMockRenderer(props: Object) {
         variables: {},
       },
     }}>
-      {this.props.render()}
+      {props.render()}
     </ReactRelayContext.Provider>
   );
 }

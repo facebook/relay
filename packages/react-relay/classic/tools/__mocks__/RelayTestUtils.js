@@ -43,10 +43,10 @@ const RelayTestUtils = {
     const invariant = require('invariant');
 
     // TODO: maybe this component is not needed anymore with the new context API
-    function ContextSetter({context}) {
+    function ContextSetter({context, render}) {
       return (
         <ReactRelayContext.Provider value={context}>
-          {this.props.render()}
+          {render()}
         </ReactRelayContext.Provider>
       );
     }

@@ -62,19 +62,19 @@ describe('RelayCompatFragmentContainer', () => {
         this.relay = {environment: env, variables: vars};
         this.setState({context: {environment: env, variables: vars}});
       }
-      render() {
-        function getChild() {
-          const child = React.Children.only(this.props.children);
-          if (this.state.props) {
-            return React.cloneElement(child, this.state.props);
-          }
-          return child;
+      getChild() {
+        const child = React.Children.only(this.props.children);
+        if (this.state.props) {
+          return React.cloneElement(child, this.state.props);
         }
+        return child;
+      }
+      render() {
         return (
           <ReactRelayContext.Provider value={{
             relay: this.relay,
           }}>
-            {getChild()}
+            {this.getChild()}
           </ReactRelayContext.Provider>
         );
       }

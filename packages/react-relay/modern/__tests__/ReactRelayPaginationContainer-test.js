@@ -67,19 +67,19 @@ describe('ReactRelayPaginationContainer', () => {
       this.relay = {environment: env, variables: vars};
       this.setState({context: {environment: env, variables: vars}});
     }
-    render() {
-      function getChild() {
-        const child = React.Children.only(this.props.children);
-        if (this.state.props) {
-          return React.cloneElement(child, this.state.props);
-        }
-        return child;
+    getChild() {
+      const child = React.Children.only(this.props.children);
+      if (this.state.props) {
+        return React.cloneElement(child, this.state.props);
       }
+      return child;
+    }
+    render() {
       return (
         <ReactRelayContext.Provider value={{
           relay: this.relay,
         }}>
-          {getChild()}
+          {this.getChild()}
         </ReactRelayContext.Provider>
       );
     }
@@ -1667,7 +1667,7 @@ describe('ReactRelayPaginationContainer', () => {
       expect(references[0].dispose).toBeCalled();
     });
 
-    it('rerenders with the results of new overridden variables', () => {
+    fit('rerenders with the results of new overridden variables', () => {
       expect.assertions(8);
       expect(render.mock.calls.length).toBe(1);
       expect(render.mock.calls[0][0].user.friends.edges.length).toBe(1);

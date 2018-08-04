@@ -91,6 +91,69 @@ fragment Profile_4CNNX6 on User {
 
 `;
 
+exports[`RelayApplyFragmentArgumentTransform matches expected output: literal-argument.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query TestQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ...Profile @arguments(pictureSize: [128])
+    friends(first: 10) {
+      edges {
+        node {
+          ...Profile @arguments(pictureSize: [256])
+        }
+      }
+    }
+  }
+}
+
+fragment Profile on User @argumentDefinitions(
+  pictureSize: {type: "[Int]", nonNull: true}
+) {
+  id
+  name
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query TestQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ...Profile_17y1Ti
+    friends(first: 10) {
+      edges {
+        node {
+          ...Profile_1tVpuC
+        }
+      }
+    }
+  }
+}
+
+fragment Profile_17y1Ti on User {
+  id
+  name
+  profilePicture(size: [128]) {
+    uri
+  }
+}
+
+fragment Profile_1tVpuC on User {
+  id
+  name
+  profilePicture(size: [256]) {
+    uri
+  }
+}
+
+`;
+
 exports[`RelayApplyFragmentArgumentTransform matches expected output: merges-identical-fragments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query TestQuery($id: ID!, $pictureSize: [Int] = [128]) {

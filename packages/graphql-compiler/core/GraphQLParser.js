@@ -546,19 +546,15 @@ class GraphQLParser {
     if (argumentDirectives.length) {
       args = (argumentDirectives[0].arguments || []).map(arg => {
         const argValue = arg.value;
-        invariant(
-          argValue.kind === 'Variable',
-          'GraphQLParser: All @arguments() args must be variables, got %s. ' +
-            'Source: %s.',
-          argValue.kind,
-          this._getErrorContext(),
-        );
 
         return {
           kind: 'Argument',
           metadata: null,
           name: getName(arg),
-          value: this._transformVariable(argValue),
+          value:
+            argValue.kind === 'Variable'
+              ? this._transformVariable(argValue)
+              : this._transformValue(arg.value, null),
           type: null, // TODO: can't get type until referenced fragment is defined
         };
       });

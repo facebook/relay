@@ -101,3 +101,12 @@ it('should error when parsing fragment that references undeclared variables are 
     /Variable `\\$id` was used in locations expecting the conflicting types `ID` and `Int`/,
   );
 });
+
+it('should transform fragments with @arguments', () => {
+  const text = `fragment TestFragment on Query {
+    viewer {
+      ...MyFragment_viewer @arguments(foo: "bar")
+    }
+  }`;
+  expect(() => GraphQLParser.parse(RelayTestSchema, text)).not.toThrowError();
+});

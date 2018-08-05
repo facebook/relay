@@ -1,0 +1,28 @@
+query TestQuery($id: ID!, $pictureSize: [Int] = [64]) {
+  node(id: $id) {
+    id
+    globalSize: profilePicture(size: $pictureSize) {
+      uri
+    }
+    ...Profile @arguments(pictureSize: [128])
+    ...ProfileFriends
+  }
+}
+
+fragment ProfileFriends on User {
+  friends(first: 10) {
+    edges {
+      node {
+        ...Profile @arguments(pictureSize: [128])
+      }
+    }
+  }
+}
+
+fragment Profile on User @argumentDefinitions(
+  pictureSize: {type: "[Int]", nonNull: true}
+) {
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+}

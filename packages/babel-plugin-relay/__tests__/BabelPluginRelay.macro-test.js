@@ -24,15 +24,15 @@ pluginTester({
     works: `
       'use strict';
 
-      const {graphql} = require('../../react-relay/modern/ReactRelayGraphQL.macro');
-      const CompatProfilePic = require('CompatProfilePic');
+      const {graphql} = require('../BabelPluginRelay.macro');
+      const ProfilePic = require('ProfilePic');
 
-      const CompatViewerQuery = graphql\`
-        query CompatViewerQuery($id: ID!, $scale: Float = 1.5) {
+      const ViewerQuery = graphql\`
+        query ViewerQuery($id: ID!, $scale: Float = 1.5) {
           node(id: $id) {
             ... on User {
               id
-              ...CompatProfilePic_user
+              ...ProfilePic_user
             }
           }
         }

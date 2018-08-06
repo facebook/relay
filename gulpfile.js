@@ -18,6 +18,7 @@ const babelOptions = require('./scripts/getBabelOptions')({
     '@babel/parser': '@babel/parser',
     '@babel/types': '@babel/types',
     'babel-core': 'babel-core',
+    'babel-plugin-macros': 'babel-plugin-macros',
     'babel-generator': 'babel-generator',
     'babel-generator/lib/printer': 'babel-generator/lib/printer',
     'babel-polyfill': 'babel-polyfill',
@@ -153,6 +154,7 @@ const builds = [
     package: 'babel-plugin-relay',
     exports: {
       index: 'BabelPluginRelay.js',
+      macro: 'BabelPluginRelay.macro.js',
     },
     bundles: [
       {
@@ -170,7 +172,6 @@ const builds = [
       classic: 'ReactRelayClassicExports.js',
       compat: 'ReactRelayCompatPublic.js',
       index: 'ReactRelayPublic.js',
-      macro: 'ReactRelayGraphQL.macro.js'
     },
     bundles: [
       {

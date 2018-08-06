@@ -40,7 +40,7 @@ module.exports = (tagFinder: GraphQLTagFinder) => {
       text.indexOf('graphql') >= 0,
       'RelaySourceModuleParser: Files should be filtered before passed to the ' +
         'parser, got unfiltered file `%s`.',
-      file,
+      file.relPath,
     );
 
     const astDefinitions = [];

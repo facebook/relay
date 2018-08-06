@@ -78,5 +78,6 @@ module.exports = (tagFinder: GraphQLTagFinder) => {
   return {
     getParser,
     getFileFilter,
+    parseFile,
   };
 };

@@ -1,0 +1,263 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Fragment Container · Relay</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="A Fragment Container is a [higher-order component](https://reactjs.org/docs/higher-order-components.html) that allows components to specify their data requirements. A container does not directly fetch data, but instead declares a *specification* of the data needed for rendering, and then Relay will guarantee that this data is available *before* rendering occurs."/><meta property="og:title" content="Fragment Container · Relay"/><meta property="og:type" content="website"/><meta property="og:url" content="https://facebook.github.io/relay/index.html"/><meta property="og:description" content="A Fragment Container is a [higher-order component](https://reactjs.org/docs/higher-order-components.html) that allows components to specify their data requirements. A container does not directly fetch data, but instead declares a *specification* of the data needed for rendering, and then Relay will guarantee that this data is available *before* rendering occurs."/><meta name="twitter:card" content="summary"/><link rel="shortcut icon" href="/relay/img/favicon.png"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.css"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="stylesheet" href="/relay/css/main.css"/></head><body class="sideNavVisible doc"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/relay/en"><img class="logo" src="/relay/img/relay-white.svg" alt="Relay"/><h2 class="headerTitleWithLogo">Relay</h2></a><a href="/relay/en/versions.html"><h3>1.6.1</h3></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/relay/docs/en/1.6.1/introduction-to-relay.html" target="_self">Docs</a></li><li class=""><a href="/relay/en/help.html" target="_self">Support</a></li><li class=""><a href="https://github.com/facebook/relay" target="_self">GitHub</a></li><li class=""><a target="_self"></a></li><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><i></i></div><h2><i>›</i><span>API Reference</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup navGroupActive"><h3>Introduction</h3><ul><li class="navListItem"><a class="navItem" href="/relay/docs/en/1.6.1/introduction-to-relay.html">Introduction to Relay</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/1.6.1/prerequisites.html">Prerequisites</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/1.6.1/installation-and-setup.html">Installation and Setup</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/1.6.1/quick-start-guide.html">Quick Start Guide</a></li></ul></div><div class="navGroup navGroupActive"><h3>API Reference</h3><ul><li class="navListItem"><a class="navItem" href="/relay/docs/en/1.6.1/graphql-in-relay.html">GraphQL in Relay</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/1.6.1/relay-environment.html">Relay Environment</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/1.6.1/network-layer.html">Network Layer</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/1.6.1/query-renderer.html">&lt;QueryRenderer /&gt;</a></li><li class="navListItem navListItemActive"><a class="navItem navItemActive" href="/relay/docs/en/1.6.1/fragment-container.html">Fragment Container</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/1.6.1/refetch-container.html">Refetch Container</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/1.6.1/pagination-container.html">Pagination Container</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/1.6.1/mutations.html">Mutations</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/1.6.1/subscriptions.html">Subscriptions</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/1.6.1/relay-store.html">Relay Store</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/1.6.1/fetch-query.html">fetchQuery</a></li></ul></div><div class="navGroup navGroupActive"><h3>Guides</h3><ul><li class="navListItem"><a class="navItem" href="/relay/docs/en/1.6.1/routing.html">Routing</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/1.6.1/relay-debugging.html">Debugging</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/1.6.1/graphql-server-specification.html">GraphQL Server Specification</a></li></ul></div><div class="navGroup navGroupActive"><h3>Migration Guides</h3><ul><li class="navListItem"><a class="navItem" href="/relay/docs/en/1.6.1/new-in-relay-modern.html">New in Relay Modern</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/1.6.1/relay-compat.html">Compatibility Mode</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/1.6.1/migration-setup.html">Migration Setup</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/1.6.1/conversion-playbook.html">Conversion Playbook</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/1.6.1/conversion-scripts.html">Conversion Scripts</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/1.6.1/upgrading-setvariables.html">Upgrading setVariables</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/1.6.1/converting-mutations.html">Converting Mutations</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/1.6.1/compatibility-cheatsheet.html">Compatibility Cheatsheet</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/1.6.1/api-cheatsheet.html">API Cheatsheet</a></li></ul></div><div class="navGroup navGroupActive"><h3>Principles &amp; Architecture</h3><ul><li class="navListItem"><a class="navItem" href="/relay/docs/en/1.6.1/thinking-in-graphql.html">Thinking in GraphQL</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/1.6.1/thinking-in-relay.html">Thinking In Relay</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/1.6.1/architecture-overview.html">Architecture Overview</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/1.6.1/compiler-architecture.html">Compiler Architecture</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/1.6.1/runtime-architecture.html">Runtime Architecture</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/1.6.1/videos.html">Videos</a></li></ul></div></div></section></div><script>
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              const headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                if (event.target.tagName === 'A') {
+                  document.body.classList.remove('tocActive');
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/Modern-FragmentContainer.md" target="_blank" rel="noreferrer noopener">Edit</a><h1>Fragment Container</h1></header><article><div><span><p>A Fragment Container is a <a href="https://reactjs.org/docs/higher-order-components.html">higher-order component</a> that allows components to specify their data requirements. A container does not directly fetch data, but instead declares a <em>specification</em> of the data needed for rendering, and then Relay will guarantee that this data is available <em>before</em> rendering occurs.</p>
+<p>Table of Contents:</p>
+<ul>
+<li><a href="#createfragmentcontainer"><code>createFragmentContainer</code></a></li>
+<li><a href="#example">Example</a></li>
+<li><a href="#container-composition">Container Composition</a></li>
+<li><a href="#rendering-containers">Rendering Containers</a></li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="createfragmentcontainer"></a><a href="#createfragmentcontainer" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>createFragmentContainer</code></h2>
+<p><code>createFragmentContainer</code> has the following signature:</p>
+<pre><code class="hljs css languages- javascript">createFragmentContainer(
+  component: ReactComponentClass,
+  <span class="hljs-attr">fragmentSpec</span>: GraphQLTaggedNode | {[string]: GraphQLTaggedNode},
+): ReactComponentClass;
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="arguments"></a><a href="#arguments" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Arguments</h3>
+<ul>
+<li><code>component</code>: The React Component <em>class</em> of the component requiring the fragment data.</li>
+<li><code>fragmentSpec</code>: Specifies the data requirements for the Component via a GraphQL fragment. The required data will be available on the component as props that match the shape of the provided fragment. <code>fragmentSpec</code> can be one of 2 things:
+<ul>
+<li>A <code>graphql</code> tagged fragment. If the fragment uses the name convention <code>&lt;FileName&gt;&lt;...&gt;_&lt;propName&gt;</code>, the fragment's data will be available to the Component as a prop with the given <code>&lt;propName&gt;</code>.
+If the fragment name doesn't specify a prop name, the data will be available as a <code>data</code> prop.</li>
+<li>An object whose keys are prop names and values are <code>graphql</code> tagged fragments. Each key specified in this object will correspond to a prop in the resulting Component.</li>
+<li><strong>Note:</strong> To enable <a href="./relay-compat.html">compatibility mode</a>, <code>relay-compiler</code> enforces fragments to be named as <code>&lt;FileName&gt;_&lt;propName&gt;</code>.</li>
+</ul></li>
+</ul>
+<h3><a class="anchor" aria-hidden="true" id="available-props"></a><a href="#available-props" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Available Props</h3>
+<p>The Component resulting from <code>createFragmentContainer</code> will receive the following <code>props</code>:</p>
+<pre><code class="hljs"><span class="hljs-keyword">type</span> <span class="hljs-type">Props</span> = {
+  relay: {
+    environment: <span class="hljs-type">Environment</span>,
+  },
+  // <span class="hljs-type">Additional</span> props <span class="hljs-keyword">as</span> specified by the fragmentSpec
+}
+</code></pre>
+<ul>
+<li><code>relay</code>:
+<ul>
+<li><code>environment</code>: The current <a href="./relay-environment.html">Relay Environment</a></li>
+</ul></li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="example"></a><a href="#example" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h2>
+<p>To start, let's build the plain React version of a hypothetical <code>&lt;TodoItem /&gt;</code> component that displays the text and completion status of a <code>Todo</code>.</p>
+<h3><a class="anchor" aria-hidden="true" id="react-component"></a><a href="#react-component" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>React Component</h3>
+<p>Here's a basic implementation of <code>&lt;TodoItem /&gt;</code> that ignores styling in order to highlight the functionality:</p>
+<pre><code class="hljs css languages- javascript"><span class="hljs-comment">// TodoItem.js</span>
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TodoItem</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{
+  render() {
+    <span class="hljs-comment">// Expects the `item` prop to have the following shape:</span>
+    <span class="hljs-comment">// {</span>
+    <span class="hljs-comment">//   item: {</span>
+    <span class="hljs-comment">//     text,</span>
+    <span class="hljs-comment">//     isComplete</span>
+    <span class="hljs-comment">//   }</span>
+    <span class="hljs-comment">// }</span>
+    <span class="hljs-keyword">const</span> item = <span class="hljs-keyword">this</span>.props.item;
+    <span class="hljs-keyword">return</span> (
+      <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">View</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">Checkbox</span> <span class="hljs-attr">checked</span>=<span class="hljs-string">{item.isComplete}</span> /&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">Text</span>&gt;</span>{item.text}<span class="hljs-tag">&lt;/<span class="hljs-name">Text</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">View</span>&gt;</span>
+    );
+  }
+}
+</span></code></pre>
+<h3><a class="anchor" aria-hidden="true" id="data-dependencies-with-graphql"></a><a href="#data-dependencies-with-graphql" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Data Dependencies With GraphQL</h3>
+<p>In Relay, data dependencies are described using <a href="https://github.com/facebook/graphql">GraphQL</a>. For <code>&lt;TodoItem /&gt;</code>, the dependency can be expressed as follows. Note that this exactly matches the shape that the component expected for the <code>item</code> prop.</p>
+<pre><code class="hljs css languages- javascript">graphql<span class="hljs-string">`
+  # This fragment only applies to objects of type 'Todo'.
+  fragment TodoItem_item on Todo {
+    text
+    isComplete
+  }
+`</span>
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="defining-containers"></a><a href="#defining-containers" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Defining Containers</h3>
+<p>Given the plain React component and a GraphQL fragment, we can now define a Fragment Container to specify this component's data requirements. Let's look at the code first and then see what's happening:</p>
+<pre><code class="hljs css languages- javascript"><span class="hljs-comment">// TodoItem.js</span>
+<span class="hljs-keyword">import</span> {createFragmentContainer, graphql} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay'</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TodoItem</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{<span class="hljs-comment">/* as above */</span>}
+
+<span class="hljs-comment">// Export a *new* React component that wraps the original `&lt;TodoItem&gt;`.</span>
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> createFragmentContainer(TodoItem, {
+  <span class="hljs-comment">// For each of the props that depend on server data, we define a corresponding</span>
+  <span class="hljs-comment">// key in this object. Here, the component expects server data to populate the</span>
+  <span class="hljs-comment">// `item` prop, so we'll specify the fragment from above at the `item` key.</span>
+  item: graphql<span class="hljs-string">`
+    fragment TodoItem_item on Todo {
+      text
+      isComplete
+    }
+  `</span>,
+});
+</code></pre>
+<p>Relay will infer the prop name from the fragment name according to the fragment naming convention <code>&lt;FileName&gt;&lt;...&gt;_&lt;propName&gt;</code>. The example below is equivalent to the one above:</p>
+<pre><code class="hljs css languages- javascript"><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> createFragmentContainer(
+  TodoItem,
+  graphql<span class="hljs-string">`
+    fragment TodoItem_item on Todo {
+      text
+      isComplete
+    }
+  `</span>,
+);
+</code></pre>
+<p>If there is no <code>_&lt;propName&gt;</code> suffix, the <code>data</code> prop name will be used:</p>
+<pre><code class="hljs css languages- javascript"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TodoItem</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{
+  render() {
+    <span class="hljs-keyword">const</span> item = <span class="hljs-keyword">this</span>.props.data;
+    <span class="hljs-comment">// ...</span>
+  }
+}
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> createFragmentContainer(
+  TodoItem,
+  graphql<span class="hljs-string">`
+    fragment TodoItem on Todo {
+      text
+      isComplete
+    }
+  `</span>,
+);
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="container-composition"></a><a href="#container-composition" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Container Composition</h2>
+<p>React and Relay support creating arbitrarily complex applications through <em>composition</em>. Larger components can be created by composing smaller components, helping us to create modular, robust applications.</p>
+<p>Let's explore how this works via a <code>&lt;TodoList /&gt;</code> component that composes the <code>&lt;TodoItem /&gt;</code> we defined above.</p>
+<h3><a class="anchor" aria-hidden="true" id="composing-views"></a><a href="#composing-views" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Composing Views</h3>
+<p>View composition is <em>exactly</em> what you're used to — Relay containers are just standard React components. Here's the <code>&lt;TodoList /&gt;</code> component:</p>
+<pre><code class="hljs css languages- javascript"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TodoList</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{
+  render() {
+    <span class="hljs-comment">// Expects a `list` with a string `title`, as well as the information</span>
+    <span class="hljs-comment">// for the `&lt;TodoItem&gt;`s (we'll get that next).</span>
+    <span class="hljs-keyword">const</span> list = <span class="hljs-keyword">this</span>.props.list;
+    <span class="hljs-keyword">return</span> (
+      <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">View</span>&gt;</span>
+        {/* It works just like a React component, because it is one! */}
+        <span class="hljs-tag">&lt;<span class="hljs-name">Text</span>&gt;</span>{list.title}<span class="hljs-tag">&lt;/<span class="hljs-name">Text</span>&gt;</span>
+        {list.todoItems.map(item =&gt; <span class="hljs-tag">&lt;<span class="hljs-name">TodoItem</span> <span class="hljs-attr">item</span>=<span class="hljs-string">{item}</span> /&gt;</span>)}
+      <span class="hljs-tag">&lt;/<span class="hljs-name">View</span>&gt;</span>
+    );
+  }
+}
+</span></code></pre>
+<h3><a class="anchor" aria-hidden="true" id="composing-fragments"></a><a href="#composing-fragments" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Composing Fragments</h3>
+<p>Fragment composition works similarly — a parent container's fragment composes the fragment for each of its children. In this case, <code>&lt;TodoList /&gt;</code> needs to fetch information about the <code>Todo</code>s that are required by <code>&lt;TodoItem /&gt;</code>.</p>
+<pre><code class="hljs css languages- javascript"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TodoList</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{<span class="hljs-comment">/* as above */</span>}
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> createFragmentContainer(
+  TodoList,
+  <span class="hljs-comment">// This `_list` fragment name suffix corresponds to the prop named `list` that</span>
+  <span class="hljs-comment">// is expected to be populated with server data by the `&lt;TodoList&gt;` component.</span>
+  graphql<span class="hljs-string">`
+    fragment TodoList_list on TodoList {
+      # Specify any fields required by '&lt;TodoList&gt;' itself.
+      title
+      # Include a reference to the fragment from the child component.
+      todoItems {
+        ...TodoItem_item
+      }
+    }
+  `</span>,
+);
+</code></pre>
+<p>Note that when composing fragments, the type of the composed fragment must match the field on the parent in which it is embedded. For example, it wouldn't make sense to embed a fragment of type <code>Story</code> into a parent's field of type <code>User</code>. Relay and GraphQL will provide helpful error messages if you get this wrong (and if they aren't helpful, let us know!).</p>
+<h3><a class="anchor" aria-hidden="true" id="passing-arguments-to-a-fragment"></a><a href="#passing-arguments-to-a-fragment" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Passing Arguments to a Fragment</h3>
+<h4><a class="anchor" aria-hidden="true" id="argumentdefinitions"></a><a href="#argumentdefinitions" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>@argumentDefinitions</code></h4>
+<p>When defining a fragment, you can use the <a href="./graphql-in-relay.html#argumentdefinitions"><code>@argumentDefinitions</code></a> directive to specify any arguments, with potentially default values, that the fragment expects.</p>
+<p>For example, let's redefine our <code>TodoList_list</code> fragment to take some arguments using <code>@argumentDefinitions</code>:</p>
+<pre><code class="hljs css languages- graphql"><span class="hljs-keyword">fragment</span> TodoList_list <span class="hljs-keyword">on</span> TodoList @argumentDefinitions(
+  count: {type: <span class="hljs-string">"Int"</span>, <span class="hljs-keyword">default</span>Value: <span class="hljs-number">10</span>},  <span class="hljs-comment"># Optional argument</span>
+  <span class="hljs-keyword">user</span>ID: {type: <span class="hljs-string">"ID"</span>},                    <span class="hljs-comment"># Required argument</span>
+) {
+  title
+  todoItems(<span class="hljs-keyword">user</span>ID: <span class="hljs-variable">$userID</span>, first: <span class="hljs-variable">$count</span>) {  <span class="hljs-comment"># Use fragment arguments here as variables</span>
+    ...TodoItem_item
+  }
+}
+</code></pre>
+<p>Any arguments defined inside <code>@argumentDefinitions</code> will be local variables available inside the fragment's scope. However, a fragment can also reference global variables that were defined in the root query.</p>
+<h4><a class="anchor" aria-hidden="true" id="arguments-1"></a><a href="#arguments-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>@arguments</code></h4>
+<p>In order to pass arguments to a fragment that has <code>@argumentDefinitions</code>, you need to use the <a href="./graphql-in-relay.html#arguments"><code>@arguments</code></a> directive.</p>
+<p>Following our <code>TodoList_list</code> example, we would pass arguments to the fragment like so:</p>
+<pre><code class="hljs css languages- graphql">query TodoListQuery($count: <span class="hljs-built_in">Int</span>, $userID: ID) {
+  ...TodoList_list <span class="hljs-symbol">@arguments</span>(count: $count, userID: $userID) <span class="hljs-meta"># Pass arguments here</span>
+}
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="calling-component-instance-methods"></a><a href="#calling-component-instance-methods" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Calling Component Instance Methods</h3>
+<p>React component classes may have methods, often accessed via <a href="https://facebook.github.io/react/docs/refs-and-the-dom.html">refs</a>.
+Since Relay composes these component instances in a container, you need to use the <code>componentRef</code> prop to access them:</p>
+<p>Consider an input with a server-defined placeholder text and an imperative method to focus the input node:</p>
+<pre><code class="hljs css languages- javascript"><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> createFragmentContainer(
+  <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TodoInput</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{
+    focus() {
+      <span class="hljs-keyword">this</span>.input.focus();
+    }
+
+    render() {
+      <span class="hljs-keyword">return</span> <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">input</span>
+        <span class="hljs-attr">ref</span>=<span class="hljs-string">{node</span> =&gt;</span> { this.input = node; }}
+        placeholder={this.props.data.suggestedNextTitle}
+      /&gt;;
+    }
+  },
+  graphql`
+    fragment TodoInput on TodoList {
+      suggestedNextTitle
+    }
+  `,
+);
+</span></code></pre>
+<p>To call this method on the underlying component, first provide a <code>componentRef</code> function to the Relay container. This differs from providing a <a href="https://facebook.github.io/react/docs/refs-and-the-dom.html"><code>ref</code></a> function which would provide a reference to the Relay container itself, not the underlying React Component.</p>
+<pre><code class="hljs css languages- javascript"><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> createFragmentContainer(
+  <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TodoListView</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{
+    render() {
+      <span class="hljs-keyword">return</span> <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{()</span> =&gt;</span> this.input.focus()}&gt;
+        <span class="hljs-tag">&lt;<span class="hljs-name">TodoInput</span>
+          <span class="hljs-attr">data</span>=<span class="hljs-string">{this.props.data}</span>
+          <span class="hljs-attr">componentRef</span>=<span class="hljs-string">{ref</span> =&gt;</span> { this.input = ref; }}
+        /&gt;
+      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>;
+    }
+  },
+  graphql`
+    fragment TodoListView on TodoList {
+      ...TodoInput
+    }
+  `,
+);
+</span></code></pre>
+<h2><a class="anchor" aria-hidden="true" id="rendering-containers"></a><a href="#rendering-containers" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Rendering Containers</h2>
+<p>As we've learned, Relay fragment containers only declare data requirements as GraphQL fragments. In order to actually fetch and render the specified data, we need to use a <code>QueryRenderer</code> component to render a root query and any fragment containers included within. Please refer to our <a href="./query-renderer.html"><code>QueryRenderer</code></a> docs for more details.</p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="query-renderer.html">← &lt;QueryRenderer /&gt;</a><a class="docs-next button" href="refetch-container.html">Refetch Container →</a></div></div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/relay/" class="nav-home"><img src="/relay/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/relay/docs/en/introduction-to-relay.html">Introduction</a></div><div><h5>Community</h5><a href="/relay/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a class="github-button" href="https://github.com/facebook/relay" data-icon="octicon-star" data-count-href="/facebook/relay/stargazers" data-count-api="/repos/facebook/relay#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/relay/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2018 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+              var search = docsearch({
+                
+                apiKey: '3d7d5825d50ea36bca0e6ad06c926f06',
+                indexName: 'relay',
+                inputSelector: '#search_input_react'
+              });
+            </script></body></html>

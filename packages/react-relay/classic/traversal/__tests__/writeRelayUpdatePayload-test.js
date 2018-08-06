@@ -14,9 +14,8 @@ jest.mock('../../legacy/store/generateClientID').mock('warning');
 
 require('configureForRelayOSS');
 
-const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
+const RelayClassic = require('../../RelayPublic');
 const RelayChangeTracker = require('../../store/RelayChangeTracker');
-const RelayMutationType = require('../../mutation/RelayMutationType');
 const RelayQueryTracker = require('../../store/RelayQueryTracker');
 const RelayQueryWriter = require('../../store/RelayQueryWriter');
 const RelayRecordStore = require('../../store/RelayRecordStore');
@@ -28,8 +27,9 @@ const writeRelayUpdatePayload = require('../writeRelayUpdatePayload');
 
 const {
   ConnectionInterface,
+  MutationTypes,
   RangeOperations,
-} = require('../../../../relay-runtime/RelayRuntime');
+} = require('relay-runtime');
 
 const {CLIENT_MUTATION_ID} = ConnectionInterface.get();
 const {PREPEND, IGNORE} = RangeOperations;
@@ -82,7 +82,7 @@ describe('writeRelayUpdatePayload()', () => {
         'mutationID',
       );
       query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query TestQuery {
           node(id:"feedback_id") {
             topLevelComments(first: 1) {
@@ -125,7 +125,7 @@ describe('writeRelayUpdatePayload()', () => {
         deletedCommentId: commentID,
       };
       const mutation = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         mutation {
           commentDelete(input:$input) {
             feedback {
@@ -142,7 +142,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
       const configs = [
         {
-          type: RelayMutationType.FIELDS_CHANGE,
+          type: MutationTypes.FIELDS_CHANGE,
           fieldIDs: {feedback: 'feedback_id'},
         },
       ];
@@ -190,7 +190,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
       const configs = [
         {
-          type: RelayMutationType.FIELDS_CHANGE,
+          type: MutationTypes.FIELDS_CHANGE,
           fieldIDs: {feedback: 'feedback_id'},
         },
       ];
@@ -249,7 +249,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
 
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"feedback_id") {
             topLevelComments(first: 1) {
@@ -293,7 +293,7 @@ describe('writeRelayUpdatePayload()', () => {
         deletedCommentId: commentID,
       };
       const mutation = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         mutation {
           commentDelete(input:$input) {
             deletedCommentId
@@ -311,7 +311,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
       const configs = [
         {
-          type: RelayMutationType.RANGE_DELETE,
+          type: MutationTypes.RANGE_DELETE,
           deletedIDFieldName: 'deletedCommentId',
           pathToConnection: ['feedback', 'topLevelComments'],
         },
@@ -380,7 +380,7 @@ describe('writeRelayUpdatePayload()', () => {
         deletedCommentId: commentID,
       };
       const mutation = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         mutation {
           commentDelete(input:$input) {
             deletedCommentId
@@ -398,7 +398,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
       const configs = [
         {
-          type: RelayMutationType.RANGE_DELETE,
+          type: MutationTypes.RANGE_DELETE,
           deletedIDFieldName: 'deletedCommentId',
           pathToConnection: ['feedback', 'topLevelComments'],
         },
@@ -455,7 +455,7 @@ describe('writeRelayUpdatePayload()', () => {
         store,
         writer,
         getNode(
-          RelayClassic_DEPRECATED.QL`
+          RelayClassic.QL`
           query {
             viewer {
               actor {
@@ -497,7 +497,7 @@ describe('writeRelayUpdatePayload()', () => {
         friendId: '456',
       };
       const mutation = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         mutation {
           unfriend(input: $input) {
             actor {
@@ -515,7 +515,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
       const configs = [
         {
-          type: RelayMutationType.RANGE_DELETE,
+          type: MutationTypes.RANGE_DELETE,
           parentName: 'actor',
           parentID: '123',
           connectionName: 'friends',
@@ -607,7 +607,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
 
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"feedback_id") {
             topLevelComments(first: 3) {
@@ -653,7 +653,7 @@ describe('writeRelayUpdatePayload()', () => {
         deletedCommentId: commentIDs,
       };
       const mutation = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         mutation {
           commentDelete(input:$input) {
             deletedCommentId
@@ -671,7 +671,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
       const configs = [
         {
-          type: RelayMutationType.RANGE_DELETE,
+          type: MutationTypes.RANGE_DELETE,
           deletedIDFieldName: 'deletedCommentId',
           pathToConnection: ['feedback', 'topLevelComments'],
         },
@@ -754,7 +754,7 @@ describe('writeRelayUpdatePayload()', () => {
         deletedCommentId: commentIDs,
       };
       const mutation = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         mutation {
           commentDelete(input:$input) {
             deletedCommentId
@@ -772,7 +772,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
       const configs = [
         {
-          type: RelayMutationType.RANGE_DELETE,
+          type: MutationTypes.RANGE_DELETE,
           deletedIDFieldName: 'deletedCommentId',
           pathToConnection: ['feedback', 'topLevelComments'],
         },
@@ -879,7 +879,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
 
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"feedback123") {
             topLevelComments(first: 2) {
@@ -932,7 +932,7 @@ describe('writeRelayUpdatePayload()', () => {
         deletedCommentId: firstCommentID,
       };
       const mutation = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         mutation {
           commentDelete(input:$input) {
             deletedCommentId
@@ -951,7 +951,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
       const configs = [
         {
-          type: RelayMutationType.NODE_DELETE,
+          type: MutationTypes.NODE_DELETE,
           deletedIDFieldName: 'deletedCommentId',
         },
       ];
@@ -1029,7 +1029,7 @@ describe('writeRelayUpdatePayload()', () => {
         deletedCommentId: firstCommentID,
       };
       const mutation = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         mutation {
           commentDelete(input:$input) {
             deletedCommentId
@@ -1048,7 +1048,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
       const configs = [
         {
-          type: RelayMutationType.NODE_DELETE,
+          type: MutationTypes.NODE_DELETE,
           deletedIDFieldName: 'deletedCommentId',
         },
       ];
@@ -1141,7 +1141,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
 
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           nodes(ids:["request1","request2","request3"]) {
             id
@@ -1167,7 +1167,7 @@ describe('writeRelayUpdatePayload()', () => {
         deletedRequestIds: [firstRequestID, secondRequestID],
       };
       const mutation = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         mutation {
           applicationRequestDeleteAll(input:$input) {
             deletedRequestIds
@@ -1180,7 +1180,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
       const configs = [
         {
-          type: RelayMutationType.NODE_DELETE,
+          type: MutationTypes.NODE_DELETE,
           deletedIDFieldName: 'deletedRequestIds',
         },
       ];
@@ -1235,7 +1235,7 @@ describe('writeRelayUpdatePayload()', () => {
         deletedRequestIds: [firstRequestID, secondRequestID],
       };
       const mutation = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         mutation {
           applicationRequestDeleteAll(input:$input) {
             deletedRequestIds
@@ -1248,7 +1248,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
       const configs = [
         {
-          type: RelayMutationType.NODE_DELETE,
+          type: MutationTypes.NODE_DELETE,
           deletedIDFieldName: 'deletedRequestIds',
         },
       ];
@@ -1329,7 +1329,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
 
       const query = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           node(id:"feedback123") {
             topLevelComments(first: 1) {
@@ -1374,7 +1374,7 @@ describe('writeRelayUpdatePayload()', () => {
         feedback_id: feedbackID,
       };
       const mutation = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         mutation {
           commentCreate(input:$input) {
             feedback {
@@ -1390,7 +1390,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
       const configs = [
         {
-          type: RelayMutationType.RANGE_ADD,
+          type: MutationTypes.RANGE_ADD,
           connectionName: 'topLevelComments',
           edgeName: 'feedbackCommentEdge',
           rangeBehaviors: {'': PREPEND},
@@ -1443,7 +1443,7 @@ describe('writeRelayUpdatePayload()', () => {
       };
 
       const mutation = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         mutation {
           commentCreate(input:$input) {
             feedback {
@@ -1473,7 +1473,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
       const configs = [
         {
-          type: RelayMutationType.RANGE_ADD,
+          type: MutationTypes.RANGE_ADD,
           connectionName: 'topLevelComments',
           edgeName: 'feedbackCommentEdge',
           rangeBehaviors: {'': null},
@@ -1537,7 +1537,7 @@ describe('writeRelayUpdatePayload()', () => {
       };
 
       const mutation = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         mutation {
           commentCreate(input:$input) {
             feedback {
@@ -1567,7 +1567,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
       const configs = [
         {
-          type: RelayMutationType.RANGE_ADD,
+          type: MutationTypes.RANGE_ADD,
           connectionName: 'topLevelComments',
           edgeName: 'feedbackCommentEdge',
           rangeBehaviors: {'': IGNORE},
@@ -1634,7 +1634,7 @@ describe('writeRelayUpdatePayload()', () => {
       };
 
       const mutation = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         mutation {
           commentCreate(input:$input) {
             feedback {
@@ -1664,7 +1664,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
       const configs = [
         {
-          type: RelayMutationType.RANGE_ADD,
+          type: MutationTypes.RANGE_ADD,
           connectionName: 'topLevelComments',
           edgeName: 'feedbackCommentEdge',
           rangeBehaviors: {'': PREPEND},
@@ -1766,7 +1766,7 @@ describe('writeRelayUpdatePayload()', () => {
       };
 
       const mutation = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         mutation {
           commentCreate(input:$input) {
             feedback {
@@ -1796,7 +1796,7 @@ describe('writeRelayUpdatePayload()', () => {
       );
       const configs = [
         {
-          type: RelayMutationType.RANGE_ADD,
+          type: MutationTypes.RANGE_ADD,
           connectionName: 'topLevelComments',
           edgeName: 'feedbackCommentEdge',
           rangeBehaviors: {'': PREPEND},

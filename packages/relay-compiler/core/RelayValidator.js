@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @flow
- * @providesModule RelayValidator
  * @format
  */
 
@@ -21,8 +20,14 @@ function DisallowIdAsAliasValidationRule(context: ValidationContext) {
   return {
     Field(field: GraphQLField<*, *>): void {
       if (
+        /* $FlowFixMe(>=0.68.0 site=react_native_fb,react_native_oss) This
+         * comment suppresses an error found when Flow v0.68 was deployed. To
+         * see the error delete this comment and run Flow. */
         field.alias &&
         field.alias.value === 'id' &&
+        /* $FlowFixMe(>=0.68.0 site=react_native_fb,react_native_oss) This
+         * comment suppresses an error found when Flow v0.68 was deployed. To
+         * see the error delete this comment and run Flow. */
         field.name.value !== 'id'
       ) {
         throw new Error(

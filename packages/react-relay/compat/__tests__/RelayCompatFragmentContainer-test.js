@@ -45,7 +45,7 @@ describe('RelayCompatFragmentContainer', () => {
         this.relay = {environment, variables};
         this.state = {props: null};
       }
-      componentWillReceiveProps(nextProps) {
+      UNSAFE_componentWillReceiveProps(nextProps) {
         const {environment, variables} = nextProps;
         if (
           environment !== this.relay.environment ||

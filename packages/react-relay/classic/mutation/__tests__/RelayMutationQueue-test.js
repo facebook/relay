@@ -19,7 +19,7 @@ jest
 
 require('configureForRelayOSS');
 
-const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
+const RelayClassic = require('../../RelayPublic');
 const RelayMutation = require('../RelayMutation');
 const RelayMutationQuery = require('../RelayMutationQuery');
 const RelayMutationTransactionStatus = require('../RelayMutationTransactionStatus');
@@ -30,7 +30,7 @@ const RelayTestUtils = require('RelayTestUtils');
 const flattenRelayQuery = require('../../traversal/flattenRelayQuery');
 const fromGraphQL = require('../../query/fromGraphQL');
 
-const {ConnectionInterface} = require('RelayRuntime');
+const {ConnectionInterface} = require('relay-runtime');
 
 const {
   COLLISION_COMMIT_FAILED,
@@ -58,8 +58,8 @@ describe('RelayMutationQueue', () => {
     storeData = RelayStore.getStoreData();
     mutationQueue = storeData.getMutationQueue();
     networkLayer = storeData.getNetworkLayer();
-    mutationNode = RelayClassic_DEPRECATED.QL`mutation{commentCreate(input:$input)}`;
-    fatQuery = RelayClassic_DEPRECATED.QL`fragment on Comment @relay(pattern: true) {
+    mutationNode = RelayClassic.QL`mutation{commentCreate(input:$input)}`;
+    fatQuery = RelayClassic.QL`fragment on Comment @relay(pattern: true) {
       ... on Comment {
         likers
         doesViewerLike

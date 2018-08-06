@@ -23,13 +23,13 @@ const invariant = require('invariant');
 const isCompatibleRelayFragmentType = require('../tools/isCompatibleRelayFragmentType');
 const validateRelayReadQuery = require('./validateRelayReadQuery');
 
-const {ConnectionInterface, RelayProfiler} = require('RelayRuntime');
+const {ConnectionInterface, RelayProfiler} = require('relay-runtime');
 
 import type {StoreReaderData, StoreReaderOptions} from '../tools/RelayTypes';
 import type RelayRecordStore from './RelayRecordStore';
 import type {RangeInfo} from './RelayRecordStore';
 import type RelayStoreData from './RelayStoreData';
-import type {DataID} from 'RelayRuntime';
+import type {DataID} from 'relay-runtime';
 
 const {MUTATION_STATUS} = RelayRecord.MetadataKey;
 

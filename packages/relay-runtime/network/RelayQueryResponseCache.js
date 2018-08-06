@@ -4,18 +4,17 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayQueryResponseCache
- * @flow
+ * @flow strict-local
  * @format
  */
 
 'use strict';
 
 const invariant = require('invariant');
-const stableCopy = require('stableCopy');
+const stableCopy = require('../util/stableCopy');
 
 import type {Variables} from '../util/RelayRuntimeTypes';
-import type {GraphQLResponse} from 'RelayNetworkTypes';
+import type {GraphQLResponse} from './RelayNetworkTypes';
 
 type Response = {
   fetchTime: number,

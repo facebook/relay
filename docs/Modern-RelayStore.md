@@ -194,7 +194,7 @@ const name = viewer.getValue('name', {arg: 'value'});
 
 ### `getLinkedRecord(name: string, arguments?: ?Object): ?RecordProxy`
 
-Retrieves the a record associated with the current record given the field name, as defined by the GraphQL document. Returns a `RecordProxy`.
+Retrieves a record associated with the current record given the field name, as defined by the GraphQL document. Returns a `RecordProxy`.
 
 #### Example
 
@@ -478,7 +478,7 @@ Creates an edge given a [`store`](#recordsourceselectorproxy), a connection, the
 
 Given a connection, inserts the edge at the beginning of the connection, or before the specified `cursor`.
 
-#### `inserEdgeAfter(connection: RecordProxy, newEdge: RecordProxy, cursor?: ?string)`
+#### `insertEdgeAfter(connection: RecordProxy, newEdge: RecordProxy, cursor?: ?string)`
 
 Given a connection, inserts the edge at the end of the connection, or after the specified `cursor`.
 

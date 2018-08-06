@@ -15,7 +15,7 @@ const RelayQueryTransform = require('../query/RelayQueryTransform');
 
 const invariant = require('invariant');
 
-const {ConnectionInterface} = require('RelayRuntime');
+const {ConnectionInterface} = require('relay-runtime');
 
 type UnterminatedRangeFilter = (node: RelayQuery.Field) => boolean;
 

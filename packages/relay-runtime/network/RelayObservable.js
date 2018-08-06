@@ -4,17 +4,16 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayObservable
  * @flow
  * @format
  */
 
 'use strict';
 
-const isPromise = require('isPromise');
+const isPromise = require('../util/isPromise');
 
 import type {Disposable} from '../util/RelayRuntimeTypes';
-import type {LegacyObserver} from 'RelayNetworkTypes';
+import type {LegacyObserver} from './RelayNetworkTypes';
 
 /**
  * A Subscription object is returned from .subscribe(), which can be
@@ -87,7 +86,7 @@ let hostReportError = swallowError;
 class RelayObservable<+T> implements Subscribable<T> {
   +_source: Source<T>;
 
-  static create<+V>(source: Source<V>): RelayObservable<V> {
+  static create<V>(source: Source<V>): RelayObservable<V> {
     return new RelayObservable((source: any));
   }
 
@@ -137,10 +136,12 @@ class RelayObservable<+T> implements Subscribable<T> {
    * Accepts various kinds of data sources, and always returns a RelayObservable
    * useful for accepting the result of a user-provided FetchFunction.
    */
-  static from<+V>(obj: ObservableFromValue<V>): RelayObservable<V> {
+  static from<V>(obj: ObservableFromValue<V>): RelayObservable<V> {
     return isObservable(obj)
       ? fromObservable(obj)
-      : isPromise(obj) ? fromPromise(obj) : fromValue(obj);
+      : isPromise(obj)
+        ? fromPromise(obj)
+        : fromValue(obj);
   }
 
   /**
@@ -150,7 +151,7 @@ class RelayObservable<+T> implements Subscribable<T> {
    * To support migration to Observable, the function may ignore the
    * legacy Relay observer and directly return an Observable instead.
    */
-  static fromLegacy<+V>(
+  static fromLegacy<V>(
     callback: (LegacyObserver<V>) => Disposable | RelayObservable<V>,
   ): RelayObservable<V> {
     return RelayObservable.create(sink => {
@@ -612,7 +613,7 @@ if (__DEV__) {
       });
     } else if (typeof console !== 'undefined') {
       // Otherwise, log the unhandled error for visibility.
-      // eslint-ignore-next-line no-console
+      // eslint-disable-next-line no-console
       console.error('RelayObservable: Unhandled Error', error);
     }
   });

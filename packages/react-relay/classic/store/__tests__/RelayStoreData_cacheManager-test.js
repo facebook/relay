@@ -14,13 +14,15 @@ jest.mock('../../legacy/store/generateClientID');
 
 require('configureForRelayOSS');
 
-const GraphQLMutatorConstants = require('../../legacy/mutation/GraphQLMutatorConstants');
 const Relay = require('../../RelayPublic');
-const {ConnectionInterface} = require('RelayRuntime');
 const RelayMockCacheManager = require('RelayMockCacheManager');
-const RelayMutationType = require('../../mutation/RelayMutationType');
 const RelayStoreData = require('../RelayStoreData');
 const RelayTestUtils = require('RelayTestUtils');
+const {
+  ConnectionInterface,
+  RangeOperations,
+  MutationTypes,
+} = require('relay-runtime');
 
 const transformRelayQueryPayload = require('../../traversal/transformRelayQueryPayload');
 
@@ -540,10 +542,10 @@ describe('RelayStoreData', function() {
 
     const configs = [
       {
-        type: RelayMutationType.RANGE_ADD,
+        type: MutationTypes.RANGE_ADD,
         connectionName: 'comments',
         edgeName: 'feedbackCommentEdge',
-        rangeBehaviors: {'': GraphQLMutatorConstants.PREPEND},
+        rangeBehaviors: {'': RangeOperations.PREPEND},
       },
     ];
 
@@ -667,7 +669,7 @@ describe('RelayStoreData', function() {
 
     const configs = [
       {
-        type: RelayMutationType.RANGE_DELETE,
+        type: MutationTypes.RANGE_DELETE,
         pathToConnection: ['feedback', 'comments'],
         deletedIDFieldName: 'deletedCommentId',
       },

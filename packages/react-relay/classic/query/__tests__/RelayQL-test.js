@@ -11,7 +11,7 @@
 'use strict';
 
 const QueryBuilder = require('../QueryBuilder');
-const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
+const RelayClassic = require('../../RelayPublic');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayQL', () => {
@@ -22,7 +22,7 @@ describe('RelayQL', () => {
   });
 
   it('throws if not transformed', () => {
-    const badQL = RelayClassic_DEPRECATED.QL;
+    const badQL = RelayClassic.QL;
     expect(() => {
       // Transform cannot find this call site.
       badQL`
@@ -43,7 +43,7 @@ describe('RelayQL', () => {
 
   it('does not throw if transformed', () => {
     expect(() => {
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
         query {
           viewer {
             actor {
@@ -58,7 +58,7 @@ describe('RelayQL', () => {
   it('permits valid variable substitutions', () => {
     const SIZE = 42;
     expect(() => {
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
         query {
           viewer {
             actor {
@@ -74,7 +74,7 @@ describe('RelayQL', () => {
 
   it('wraps variable substituted values in concrete call values', () => {
     const SIZE = 42;
-    expect(RelayClassic_DEPRECATED.QL.__var(SIZE)).toEqual({
+    expect(RelayClassic.QL.__var(SIZE)).toEqual({
       kind: 'CallValue',
       callValue: SIZE,
     });
@@ -85,7 +85,7 @@ describe('RelayQL', () => {
       size: QueryBuilder.createCallVariable('size'),
     };
     expect(() => {
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
         query {
           viewer {
             actor {
@@ -108,7 +108,7 @@ describe('RelayQL', () => {
       type: 'Bar',
     });
     expect(() => {
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
         query {
           viewer {
             ${fragment}
@@ -124,7 +124,7 @@ describe('RelayQL', () => {
       type: 'Bar',
     });
     expect(() => {
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
         query {
           viewer {
             ${[fragment]}
@@ -136,7 +136,7 @@ describe('RelayQL', () => {
 
   it('throws for invalid fragment substitutions', () => {
     expect(() => {
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
         query {
           viewer {
             ${'foo'}
@@ -149,7 +149,7 @@ describe('RelayQL', () => {
     );
 
     expect(() => {
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
         query {
           viewer {
             ${['foo']}
@@ -166,7 +166,7 @@ describe('RelayQL', () => {
       type: 'Bar',
     });
     expect(() => {
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
         query {
           viewer {
             ${[[fragment]]}
@@ -180,7 +180,7 @@ describe('RelayQL', () => {
   });
 
   it('generates unique concrete fragment IDs', () => {
-    const getFragment = () => RelayClassic_DEPRECATED.QL`
+    const getFragment = () => RelayClassic.QL`
       fragment on Node {
         id
       }

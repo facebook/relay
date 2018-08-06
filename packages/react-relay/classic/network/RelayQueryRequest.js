@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
@@ -18,7 +18,7 @@ const printRelayQuery = require('../traversal/printRelayQuery');
 
 import type {PrintedQuery} from '../tools/RelayInternalTypes';
 import type {QueryResult} from '../tools/RelayTypes';
-import type {Variables} from 'RelayRuntime';
+import type {Variables} from 'relay-runtime';
 
 /**
  * @internal

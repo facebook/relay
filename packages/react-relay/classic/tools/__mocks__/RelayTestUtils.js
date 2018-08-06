@@ -9,8 +9,6 @@
 
 'use strict';
 
-const Map = require('Map');
-
 const diff = require('jest-diff');
 
 jest.dontMock('react-test-renderer').mock('../../route/RelayRoute');

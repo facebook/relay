@@ -1,8 +1,0 @@
-var Relay = require('react-relay');
-var x = Relay.QL`
-  query {
-    node(id: 123) @if(bad: $foo) {
-      id
-    }
-  }
-`;

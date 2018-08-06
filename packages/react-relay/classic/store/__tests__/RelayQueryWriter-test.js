@@ -12,7 +12,7 @@
 
 require('configureForRelayOSS');
 
-const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
+const RelayClassic = require('../../RelayPublic');
 const RelayChangeTracker = require('../RelayChangeTracker');
 const RelayQueryPath = require('../../query/RelayQueryPath');
 const RelayQueryTracker = require('../RelayQueryTracker');
@@ -38,7 +38,7 @@ describe('RelayQueryWriter', () => {
     store = new RelayRecordStore({records});
     recordWriter = new RelayRecordWriter(records, {}, false);
     changeTracker = new RelayChangeTracker();
-    node = getNode(RelayClassic_DEPRECATED.QL`query { me }`);
+    node = getNode(RelayClassic.QL`query { me }`);
     path = RelayQueryPath.create(node);
     payload = {
       __typename: 'User',

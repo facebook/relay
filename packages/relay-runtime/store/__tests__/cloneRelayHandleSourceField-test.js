@@ -10,14 +10,11 @@
 
 'use strict';
 
-const RelayConcreteNode = require('RelayConcreteNode');
-const RelayModernTestUtils = require('RelayModernTestUtils');
+const cloneRelayHandleSourceField = require('../cloneRelayHandleSourceField');
+const getRelayHandleKey = require('../../util/getRelayHandleKey');
 
-const cloneRelayHandleSourceField = require('cloneRelayHandleSourceField');
-const getRelayHandleKey = require('getRelayHandleKey');
-
-const {generateWithTransforms, matchers} = RelayModernTestUtils;
-const {LINKED_FIELD, LINKED_HANDLE} = RelayConcreteNode;
+const {LINKED_FIELD, LINKED_HANDLE} = require('../../util/RelayConcreteNode');
+const {generateWithTransforms, matchers} = require('RelayModernTestUtils');
 
 describe('cloneRelayHandleSourceField()', () => {
   let selections;

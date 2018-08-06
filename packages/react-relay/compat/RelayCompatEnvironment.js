@@ -12,11 +12,11 @@
 
 const isClassicRelayEnvironment = require('../classic/store/isClassicRelayEnvironment');
 
-const {isRelayModernEnvironment} = require('RelayRuntime');
+const {isRelayModernEnvironment} = require('relay-runtime');
 
 import type {RelayEnvironmentInterface} from '../classic/store/RelayEnvironment';
 import type {CompatEnvironment} from './react/RelayCompatTypes';
-import type {IEnvironment} from 'RelayRuntime';
+import type {IEnvironment} from 'relay-runtime';
 
 function getRelayModernEnvironment(
   environment: CompatEnvironment,

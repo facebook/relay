@@ -4,7 +4,7 @@
 
 We want to keep signal strong in the GitHub issue tracker – to make sure that it remains the best place to track issues that affect the development of Relay.
 
-If you have a question on how to use Relay, please [post it to Stack Overflow](https://stackoverflow.com/questions/ask?tags=relayjs) with the tag [#relayjs](http://stackoverflow.com/questions/tagged/relayjs).
+If you have a question on how to use Relay, please get in touch with community members through one of the channels listed [here](https://facebook.github.io/relay/en/help.html) instead.
 
 ## Reporting issues with Relay
 
@@ -18,8 +18,3 @@ You can also provide a public repository with a runnable example.
 ## Security bugs
 
 Facebook has a [bounty program](https://www.facebook.com/whitehat/) for the safe disclosure of security bugs. With that in mind, please do not file public issues; go through the process outlined on that page.
-
-## How to Get in Touch
-
-* Discord - [#relay](https://discord.gg/0ZcbPKXt5bX40xsQ) on [Reactiflux](https://www.reactiflux.com/)
-* Stack Overflow - [#relayjs](https://stackoverflow.com/questions/tagged/relayjs)

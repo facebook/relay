@@ -11,12 +11,14 @@
 
 'use strict';
 
-const requestRelaySubscription = require('requestRelaySubscription');
+const requestRelaySubscription = require('../requestRelaySubscription');
 
+const {
+  createOperationSelector,
+} = require('../../store/RelayModernOperationSelector');
+const {ROOT_ID} = require('../../store/RelayStoreUtils');
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
-const {createOperationSelector} = require('RelayModernOperationSelector');
 const {generateAndCompile} = require('RelayModernTestUtils');
-const {ROOT_ID} = require('RelayStoreUtils');
 
 describe('requestRelaySubscription-test', () => {
   it('Config: `RANGE_ADD`', () => {

@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayModernSelector
  * @flow
  * @format
  */
@@ -15,12 +14,12 @@ const areEqual = require('areEqual');
 const invariant = require('invariant');
 const warning = require('warning');
 
-const {getFragmentVariables} = require('RelayConcreteVariables');
-const {FRAGMENTS_KEY, ID_KEY} = require('RelayStoreUtils');
+const {getFragmentVariables} = require('./RelayConcreteVariables');
+const {FRAGMENTS_KEY, ID_KEY} = require('./RelayStoreUtils');
 
+import type {ConcreteFragment} from '../util/RelayConcreteNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
-import type {ConcreteFragment} from 'RelayConcreteNode';
-import type {Selector} from 'RelayStoreTypes';
+import type {Selector} from './RelayStoreTypes';
 
 /**
  * @public

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
@@ -12,7 +12,7 @@
 
 const isRelayVariables = require('../classic/environment/isRelayVariables');
 
-const {isRelayModernEnvironment} = require('RelayRuntime');
+const {isRelayModernEnvironment} = require('relay-runtime');
 
 /**
  * Determine if the object is a plain object that matches the `RelayContext`

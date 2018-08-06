@@ -10,29 +10,18 @@
 
 'use strict';
 
+const GraphQLCompilerContext = require('GraphQLCompilerContext');
+const GraphQLIRPrinter = require('GraphQLIRPrinter');
+const RelayParser = require('RelayParser');
+const RelayTestSchema = require('RelayTestSchema');
+const SkipRedundantNodesTransform = require('SkipRedundantNodesTransform');
+
+const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+
 describe('SkipRedundantNodesTransform', () => {
-  let GraphQLCompilerContext;
-  let RelayParser;
-  let GraphQLIRPrinter;
-  let SkipRedundantNodesTransform;
-  let RelayTestSchema;
-  let getGoldenMatchers;
-
-  beforeEach(() => {
-    jest.resetModules();
-
-    GraphQLCompilerContext = require('GraphQLCompilerContext');
-    RelayParser = require('RelayParser');
-    GraphQLIRPrinter = require('GraphQLIRPrinter');
-    SkipRedundantNodesTransform = require('SkipRedundantNodesTransform');
-    RelayTestSchema = require('RelayTestSchema');
-    getGoldenMatchers = require('getGoldenMatchers');
-
-    expect.extend(getGoldenMatchers(__filename));
-  });
-
-  it('skips redundant nodes', () => {
-    expect('fixtures/skip-redundant-nodes-transform').toMatchGolden(text => {
+  generateTestsFromFixtures(
+    `${__dirname}/fixtures/skip-redundant-nodes-transform`,
+    text => {
       const ast = RelayParser.parse(RelayTestSchema, text);
       return new GraphQLCompilerContext(RelayTestSchema)
         .addAll(ast)
@@ -40,6 +29,6 @@ describe('SkipRedundantNodesTransform', () => {
         .documents()
         .map(GraphQLIRPrinter.print)
         .join('\n');
-    });
-  });
+    },
+  );
 });

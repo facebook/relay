@@ -20,7 +20,7 @@ const warning = require('warning');
 
 import type {CacheManager, CacheProcessorCallbacks} from '../tools/RelayTypes';
 import type {Record} from './RelayRecord';
-import type {DataID} from 'RelayRuntime';
+import type {DataID} from 'relay-runtime';
 
 type ProcessorState = 'PENDING' | 'LOADING' | 'COMPLETED';
 

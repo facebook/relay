@@ -19,10 +19,10 @@ const forEachRootCallArg = require('./forEachRootCallArg');
 const invariant = require('invariant');
 const warning = require('warning');
 
-const {ConnectionInterface} = require('RelayRuntime');
+const {ConnectionInterface} = require('relay-runtime');
 
 import type RelayRecordStore from '../store/RelayRecordStore';
-import type {DataID} from 'RelayRuntime';
+import type {DataID} from 'relay-runtime';
 
 const {ID, ID_TYPE, NODE, NODE_TYPE, TYPENAME} = RelayNodeInterface;
 

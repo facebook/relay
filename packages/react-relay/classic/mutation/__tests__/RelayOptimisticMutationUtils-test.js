@@ -12,8 +12,8 @@
 
 require('configureForRelayOSS');
 
-const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
-const {ConnectionInterface} = require('RelayRuntime');
+const RelayClassic = require('../../RelayPublic');
+const {ConnectionInterface} = require('relay-runtime');
 const RelayOptimisticMutationUtils = require('../RelayOptimisticMutationUtils');
 const RelayQuery = require('../../query/RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
@@ -47,7 +47,7 @@ describe('RelayOptimisticMutationUtils', () => {
         id: '123',
       });
       expect(query).toEqualFields(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         fragment on Actor {
           id
         }
@@ -63,7 +63,7 @@ describe('RelayOptimisticMutationUtils', () => {
           name: 'Alice',
         }),
       ).toEqualFields(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         fragment on Actor {
           id
           name
@@ -80,7 +80,7 @@ describe('RelayOptimisticMutationUtils', () => {
         },
       });
       expect(fields).toEqualFields(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         fragment on Actor {
           id
           address {
@@ -117,7 +117,7 @@ describe('RelayOptimisticMutationUtils', () => {
         websites: ['facebook.com', 'google.com'],
       });
       expect(fields).toEqualFields(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         fragment on Actor {
           id
           websites
@@ -133,7 +133,7 @@ describe('RelayOptimisticMutationUtils', () => {
         screennames: [{service: 'GTALK'}, {service: 'TWITTER'}],
       });
       expect(fields).toEqualFields(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         fragment on Actor {
           id
           screennames {
@@ -152,7 +152,7 @@ describe('RelayOptimisticMutationUtils', () => {
           websites: [],
         }),
       ).toEqualFields(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         fragment on Actor {
           id
           websites
@@ -168,7 +168,7 @@ describe('RelayOptimisticMutationUtils', () => {
           websites: [null],
         }),
       ).toEqualFields(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         fragment on Actor {
           id
           websites
@@ -184,7 +184,7 @@ describe('RelayOptimisticMutationUtils', () => {
           'url(site: "www")': 'https://...',
         }),
       ).toEqualFields(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         fragment on Actor {
           id
           url(site: "www")
@@ -199,7 +199,7 @@ describe('RelayOptimisticMutationUtils', () => {
           'url(relative: true)': '//...',
         }),
       ).toEqualFields(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         fragment on Actor {
           url(relative: true)
         }
@@ -215,7 +215,7 @@ describe('RelayOptimisticMutationUtils', () => {
           },
         }),
       ).toEqualFields(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         fragment on Comment {
           comments(last: 10) {
             count
@@ -261,7 +261,7 @@ describe('RelayOptimisticMutationUtils', () => {
           },
         }),
       ).toEqualFields(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         fragment on Actor {
           id
           friends(first: 2) {
@@ -291,7 +291,7 @@ describe('RelayOptimisticMutationUtils', () => {
           },
         }),
       ).toEqualFields(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         fragment on NodeSavedStateResponsePayload {
           node {
             id
@@ -312,7 +312,7 @@ describe('RelayOptimisticMutationUtils', () => {
           name: 'Alice',
         }),
       ).toEqualFields(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         fragment on Node {
           id
           name

@@ -4,8 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayCompilerScope
- * @flow
+ * @flow strict-local
  * @format
  */
 
@@ -131,6 +130,7 @@ function getFragmentScope(
   definitions: Array<ArgumentDefinition>,
   args: Array<Argument>,
   parentScope: Scope,
+  fragmentName: string,
 ): Scope {
   const argMap = {};
   args.forEach(arg => {
@@ -146,10 +146,11 @@ function getFragmentScope(
     if (definition.kind === 'RootArgumentDefinition') {
       invariant(
         !argMap.hasOwnProperty(definition.name),
-        'RelayCompilerScope: Unexpected argument for global variable `%s`. ' +
-          '@arguments may only be provided for variables defined in the ' +
-          "fragment's @argumentDefinitions list.",
+        'RelayCompilerScope: Unexpected argument for global variable `%s` ' +
+          'for `%s`. @arguments may only be provided for variables ' +
+          "defined in the fragment's @argumentDefinitions list.",
         definition.name,
+        fragmentName,
       );
       fragmentScope[definition.name] = {
         kind: 'Variable',
@@ -164,9 +165,10 @@ function getFragmentScope(
           definition.defaultValue != null ||
             !(definition.type instanceof GraphQLNonNull),
           'RelayCompilerScope: No value found for required argument ' +
-            '`$%s: %s`.',
+            '`$%s: %s` in `%s`.',
           definition.name,
           definition.type.toString(),
+          fragmentName,
         );
         fragmentScope[definition.name] = {
           kind: 'Literal',

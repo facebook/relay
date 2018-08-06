@@ -12,10 +12,10 @@
 
 jest.mock('generateClientID');
 
-const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
-const RelayModernRecord = require('RelayModernRecord');
-const {normalize} = require('RelayResponseNormalizer');
-const {ROOT_ID, ROOT_TYPE} = require('RelayStoreUtils');
+const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
+const RelayModernRecord = require('../RelayModernRecord');
+const {normalize} = require('../RelayResponseNormalizer');
+const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 
 describe('RelayResponseNormalizer', () => {
@@ -33,7 +33,7 @@ describe('RelayResponseNormalizer', () => {
   it('normalizes queries', () => {
     const {FooQuery} = generateWithTransforms(
       `
-      query FooQuery($id: ID, $size: Int) {
+      query FooQuery($id: ID, $size: [Int]) {
         node(id: $id) {
           id
           __typename
@@ -515,7 +515,7 @@ describe('RelayResponseNormalizer', () => {
   it('leaves undefined fields unset, as handleStrippedNulls == false', () => {
     const {StrippedQuery} = generateWithTransforms(
       `
-      query StrippedQuery($id: ID, $size: Int) {
+      query StrippedQuery($id: ID, $size: [Int]) {
         node(id: $id) {
           id
           __typename

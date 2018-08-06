@@ -16,9 +16,9 @@ Table of Contents:
 
 ## `@connection`
 
-Pagination Container works in a very similar way to the [Fragment Container](#fragment-container.html) in that you also specify the data requirements for a component via GraphQL fragments in the `fragmentSpec`.
+Pagination Container works in a very similar way to the [Fragment Container](https://facebook.github.io/relay/docs/en/fragment-container.html) in that you also specify the data requirements for a component via GraphQL fragments in the `fragmentSpec`.
 
-However, when [specifying connection fragments](#createpaginationcontainer) for a Pagination Container, it is expected that at least one of the fragments contains a [GraphQL connection](https://facebook.github.io/relay/graphql/connections.htm) to paginate over, and that that the connection field is annotated with a `@connection` directive.
+However, when [specifying connection fragments](#createpaginationcontainer) for a Pagination Container, it is expected that at least one of the fragments contains a [GraphQL connection](https://facebook.github.io/relay/graphql/connections.htm) to paginate over, and that the connection field is annotated with a `@connection` directive.
 
 The purpose of the `@connection` directive is to allow Relay to uniquely identify different connections under a parent type. The `@connection` directive takes 2 arguments that help identify the connection:
 
@@ -63,7 +63,7 @@ fragment Feed_user on User {
     after: $cursor
     orderby: $orderBy
     search_term: $searchTerm
-  ) @connection(key: "Feed_feed", filters: ['searchTerm']) {
+  ) @connection(key: "Feed_feed", filters: ["searchTerm"]) {
     edges {
       node {
         id,
@@ -121,7 +121,7 @@ type ConnectionData = {
   * `getFragmentVariables`: Function that should return the bag of variables  to use for reading out the data from the store when re-rendering the component. This function takes the previous set of variables passed to the pagination `query`, and the number of elements that have been fetched in total so far. Specifically, this indicates which variables to use when reading out the data from the
   local data store *after* the new pagination `query` has been fetched. If not specified, Relay will default to using all of the previous variables and using the total count for the `count` variable. This option is analogous to [`renderVariables`](./refetch-container#refetch) in the Refetch Container. See our [example](#pagination-example) for more details.
   * `getVariables`: Function that should return the variables to pass to the pagination `query` when fetching it from the server, given the current `props`, `count` and `cursor`. You may set whatever variables here, as well as modify the defaults to use for after/first/before/last arguments. See our [example](#pagination-example) for more details.
-  * `query`: A `graphql` tagged query to be used as the pagination query. The component will be re-rendered with the resulting data from this query; for this reason, the query should have the same shape as specified by the `fragmentSpec`, i.e. it should query for the same fields.
+  * `query`: A `graphql` tagged query to be used as the pagination query to fetch more data upon calling [`loadMore`](#loadmore).
 
 ### Available Props
 
@@ -149,7 +149,7 @@ type Props = {
 
 ## `hasMore()`
 
-`hasMore` is a function available on the `relay` [prop](#available-props). This function indicates wether there are more pages to fetch from the server or not.
+`hasMore` is a function available on the `relay` [prop](#available-props). This function indicates whether there are more pages to fetch from the server or not.
 
 ```javascript
 hasMore: () => boolean,
@@ -182,7 +182,7 @@ loadMore(pageSize: number, callback: ?(error: ?Error) => void): ?Disposable
 
 ```javascript
 refetchConnection:(
-  count: number,
+  totalCount: number,
   callback: (error: ?Error) => void,
   refetchVariables: ?Variables,
 ) => ?Disposable,

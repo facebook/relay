@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
- * @flow
+ * @flow strict-local
  */
 
 'use strict';
@@ -15,9 +15,9 @@ const RelayPropTypes = require('../../classic/container/RelayPropTypes');
 
 const invariant = require('invariant');
 
-const {RelayConcreteNode} = require('RelayRuntime');
+const {RelayConcreteNode} = require('relay-runtime');
 
-import type {Variables, Snapshot} from 'RelayRuntime';
+import type {Variables, Snapshot} from 'relay-runtime';
 
 type Props = {
   environment: $FlowFixMe,

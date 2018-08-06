@@ -26,7 +26,7 @@ const splitDeferredRelayQueries = require('../../traversal/splitDeferredRelayQue
 const throwFailedPromise = require('../../util/throwFailedPromise');
 const warning = require('warning');
 
-const {RelayProfiler} = require('RelayRuntime');
+const {RelayProfiler} = require('relay-runtime');
 
 import type RelayQuery from '../../query/RelayQuery';
 import type {FetchMode} from '../../store/RelayFetchMode';

@@ -17,7 +17,7 @@ const ReactTestRenderer = require('ReactTestRenderer');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
-const {createOperationSelector, ROOT_ID} = require('RelayRuntime');
+const {createOperationSelector, ROOT_ID} = require('relay-runtime');
 
 describe('ReactRelayRefetchContainer', () => {
   let TestComponent;
@@ -40,7 +40,7 @@ describe('ReactRelayRefetchContainer', () => {
       this.relay = {environment, variables};
       this.state = {props: null};
     }
-    componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps) {
       // eslint-disable-next-line no-shadow
       const {environment, variables} = nextProps;
       if (
@@ -147,7 +147,8 @@ describe('ReactRelayRefetchContainer', () => {
   });
 
   it('generates a name for containers', () => {
-    expect(TestContainer.displayName).toBe('Relay(TestComponent)');
+    expect(TestContainer.$$typeof).toBe(Symbol.for('react.forward_ref'));
+    expect(TestContainer.render.displayName).toBe('Relay(TestComponent)');
   });
 
   it('throws for invalid fragments', () => {
@@ -360,8 +361,10 @@ describe('ReactRelayRefetchContainer', () => {
     environment.subscribe.mockClear();
 
     // Update the variables in context
-    const newVariables = {id: '4'};
-    instance.getInstance().setContext(environment, newVariables);
+    // Context object should be mutated (for compat with gDSFP).
+    const context = instance.getInstance().getChildContext();
+    context.relay.variables = {id: '4'};
+    instance.getInstance().setProps({});
 
     // New data & variables are passed to component
     expect(render.mock.calls.length).toBe(1);
@@ -866,7 +869,11 @@ describe('ReactRelayRefetchContainer', () => {
         cond: true,
         id: '842472',
       };
-      instance.getInstance().setContext(environment, updateVariables);
+      // Update the variables in context.
+      // Context object should be mutated (for compat with gDSFP).
+      const context = instance.getInstance().getChildContext();
+      context.relay.variables = updateVariables;
+      instance.getInstance().setProps({});
 
       expect(relayContext.environment).toBe(environment);
       expect(relayContext.variables).toEqual(updateVariables);
@@ -917,5 +924,64 @@ describe('ReactRelayRefetchContainer', () => {
       expect(subscription1.closed).toBe(true);
       expect(subscription2.closed).toBe(true);
     });
+
+    it('should not refetch data is container unmounted', () => {
+      const userPointer = environment.lookup({
+        dataID: ROOT_ID,
+        node: UserQuery.fragment,
+        variables: {id: '4'},
+      }).data.node;
+
+      class TestContainerWrapper extends React.Component {
+        state = {
+          mounted: true,
+        };
+        componentDidMount() {
+          setTimeout(() => {
+            this.setState({mounted: false});
+          }, 1);
+        }
+        render() {
+          return this.state.mounted ? (
+            <TestContainer user={userPointer} />
+          ) : null;
+        }
+      }
+
+      instance = ReactTestRenderer.create(
+        <ContextSetter environment={environment} variables={variables}>
+          <TestContainerWrapper />
+        </ContextSetter>,
+      );
+      jest.runOnlyPendingTimers();
+      const callback = jest.fn();
+      refetch({}, null, callback);
+      expect(callback).not.toBeCalled();
+    });
+  });
+
+  it('can be unwrapped in tests', () => {
+    class TestUnwrapping extends React.Component {
+      render() {
+        return <div>Unwrapped</div>;
+      }
+    }
+
+    const TestUnwrappingContainer = ReactRelayRefetchContainer.createContainer(
+      TestUnwrapping,
+      {
+        user: () => UserFragment,
+      },
+    );
+
+    const UnwrappedComponent = RelayModernTestUtils.unwrapContainer(
+      TestUnwrappingContainer,
+    );
+
+    const renderer = ReactTestRenderer.create(
+      <UnwrappedComponent user={{id: '4', name: 'Mark'}} />,
+    );
+
+    expect(renderer.toJSON()).toMatchSnapshot();
   });
 });

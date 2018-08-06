@@ -4,21 +4,20 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayModernOperationSelector
- * @flow
+ * @flow strict-local
  * @format
  */
 
 'use strict';
 
-const RelayConcreteNode = require('RelayConcreteNode');
+const RelayConcreteNode = require('../util/RelayConcreteNode');
 
-const {getOperationVariables} = require('RelayConcreteVariables');
-const {ROOT_ID} = require('RelayStoreUtils');
+const {getOperationVariables} = require('./RelayConcreteVariables');
+const {ROOT_ID} = require('./RelayStoreUtils');
 
+import type {RequestNode, ConcreteOperation} from '../util/RelayConcreteNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
-import type {RequestNode, ConcreteOperation} from 'RelayConcreteNode';
-import type {OperationSelector} from 'RelayStoreTypes';
+import type {OperationSelector} from './RelayStoreTypes';
 
 /**
  * Creates an instance of the `OperationSelector` type defined in

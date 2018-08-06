@@ -10,7 +10,7 @@
 
 'use strict';
 
-const RelayContainerProxy = require('../classic/container/RelayContainerProxy');
+const React = require('React');
 const RelayGraphQLTag = require('../classic/query/RelayGraphQLTag');
 const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
@@ -21,12 +21,12 @@ const mapObject = require('mapObject');
 const {
   getComponentName,
   getContainerName,
-} = require('../classic/container/RelayContainerUtils');
+} = require('../modern/ReactRelayContainerUtils');
 
 import type {ConcreteFragmentSpread} from '../classic/query/ConcreteQuery';
 import type {VariableMapping} from '../classic/query/RelayFragmentReference';
 import type {GeneratedNodeMap} from '../modern/ReactRelayTypes';
-import type {Variables} from 'RelayRuntime';
+import type {Variables} from 'relay-runtime';
 
 const containerContextTypes = {
   relay: RelayPropTypes.Relay,
@@ -68,11 +68,12 @@ function injectDefaultVariablesProvider(variablesProvider: VariablesProvider) {
  * container definitions or unwrapping the environment-specific fragment
  * defintions unnecessarily.
  */
-function buildCompatContainer<TBase: React$ComponentType<*>>(
-  ComponentClass: TBase,
+function buildCompatContainer(
+  ComponentClass: React$ComponentType<any>,
   fragmentSpec: GeneratedNodeMap,
   createContainerWithFragments: ContainerCreator,
-): TBase {
+  providesChildContext: boolean,
+): any {
   // Sanity-check user-defined fragment input
   const containerName = getContainerName(ComponentClass);
   assertFragmentMap(getComponentName(ComponentClass), fragmentSpec);
@@ -135,32 +136,45 @@ function buildCompatContainer<TBase: React$ComponentType<*>>(
       const {getFragment: getFragmentFromTag} = environment.unstable_internal;
       const fragments = mapObject(fragmentSpec, getFragmentFromTag);
       Container = createContainerWithFragments(ComponentClass, fragments);
-      RelayContainerProxy.proxyMethods(Container, ComponentClass);
+
+      // Attach static lifecycle to wrapper component so React can see it.
+      ContainerConstructor.getDerivedStateFromProps = (Container: any).getDerivedStateFromProps;
     }
-    /* $FlowFixMe(>=0.53.0) This comment suppresses an
-     * error when upgrading Flow's support for React. Common errors found when
-     * upgrading Flow's React support are documented at
-     * https://fburl.com/eq7bs81w */
+    // $FlowFixMe
     return new Container(props, context);
   }
   ContainerConstructor.contextTypes = containerContextTypes;
-  ContainerConstructor.displayName = containerName;
+  if (providesChildContext) {
+    ContainerConstructor.childContextTypes = containerContextTypes;
+  }
+
+  function forwardRef(props, ref) {
+    return (
+      <ContainerConstructor
+        {...props}
+        componentRef={props.componentRef || ref}
+      />
+    );
+  }
+  forwardRef.displayName = containerName;
+  // $FlowFixMe
+  const ForwardContainer = React.forwardRef(forwardRef);
 
   // Classic container static methods
-  ContainerConstructor.getFragment = getFragment;
-  ContainerConstructor.getFragmentNames = () => Object.keys(fragmentSpec);
-  ContainerConstructor.hasFragment = name => fragmentSpec.hasOwnProperty(name);
-  ContainerConstructor.hasVariable = hasVariable;
+  ForwardContainer.getFragment = getFragment;
+  ForwardContainer.getFragmentNames = () => Object.keys(fragmentSpec);
+  ForwardContainer.hasFragment = name => fragmentSpec.hasOwnProperty(name);
+  ForwardContainer.hasVariable = hasVariable;
+
+  if (__DEV__) {
+    ForwardContainer.__ComponentClass = ComponentClass;
+  }
 
   // Create a back-reference from the Component to the Container for cases
   // where a Classic Component might refer to itself, expecting a Container.
-  /* $FlowFixMe(>=0.53.0) This comment suppresses an error
-   * when upgrading Flow's support for React. Common errors found when
-   * upgrading Flow's React support are documented at
-   * https://fburl.com/eq7bs81w */
-  ComponentClass.__container__ = ContainerConstructor;
+  (ComponentClass: any).__container__ = ForwardContainer;
 
-  return (ContainerConstructor: any);
+  return ForwardContainer;
 }
 
 module.exports = {injectDefaultVariablesProvider, buildCompatContainer};

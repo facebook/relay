@@ -10,11 +10,11 @@
 
 'use strict';
 
-const RelayModernRecord = require('RelayModernRecord');
+const RelayModernRecord = require('../RelayModernRecord');
 const RelayModernTestUtils = require('RelayModernTestUtils');
-const RelayStoreUtils = require('RelayStoreUtils');
+const RelayStoreUtils = require('../RelayStoreUtils');
 
-const deepFreeze = require('deepFreeze');
+const deepFreeze = require('../../util/deepFreeze');
 
 const {ID_KEY, REF_KEY, REFS_KEY, TYPENAME_KEY} = RelayStoreUtils;
 

@@ -4,25 +4,24 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayMarkSweepStore
- * @flow
+ * @flow strict-local
  * @format
  */
 
 'use strict';
 
-const RelayDataLoader = require('RelayDataLoader');
-const RelayModernRecord = require('RelayModernRecord');
-const RelayProfiler = require('RelayProfiler');
-const RelayReader = require('RelayReader');
-const RelayReferenceMarker = require('RelayReferenceMarker');
+const RelayDataLoader = require('./RelayDataLoader');
+const RelayModernRecord = require('./RelayModernRecord');
+const RelayProfiler = require('../util/RelayProfiler');
+const RelayReader = require('./RelayReader');
+const RelayReferenceMarker = require('./RelayReferenceMarker');
 
-const deepFreeze = require('deepFreeze');
-const hasOverlappingIDs = require('hasOverlappingIDs');
-const recycleNodesInto = require('recycleNodesInto');
+const deepFreeze = require('../util/deepFreeze');
+const hasOverlappingIDs = require('./hasOverlappingIDs');
+const recycleNodesInto = require('../util/recycleNodesInto');
 const resolveImmediate = require('resolveImmediate');
 
-const {UNPUBLISH_RECORD_SENTINEL} = require('RelayStoreUtils');
+const {UNPUBLISH_RECORD_SENTINEL} = require('./RelayStoreUtils');
 
 import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {
@@ -32,7 +31,7 @@ import type {
   Snapshot,
   Store,
   UpdatedRecords,
-} from 'RelayStoreTypes';
+} from './RelayStoreTypes';
 
 type Subscription = {
   callback: (snapshot: Snapshot) => void,
@@ -166,12 +165,12 @@ class RelayMarkSweepStore implements Store {
     }
     this._hasScheduledGC = true;
     resolveImmediate(() => {
-      this._gc();
+      this.__gc();
       this._hasScheduledGC = false;
     });
   }
 
-  _gc(): void {
+  __gc(): void {
     const references = new Set();
     // Mark all records that are traversable from a root
     this._roots.forEach(selector => {
@@ -254,6 +253,7 @@ RelayProfiler.instrumentMethods(RelayMarkSweepStore.prototype, {
   publish: 'RelayMarkSweepStore.prototype.publish',
   retain: 'RelayMarkSweepStore.prototype.retain',
   subscribe: 'RelayMarkSweepStore.prototype.subscribe',
+  __gc: 'RelayMarkSweepStore.prototype.__gc',
 });
 
 module.exports = RelayMarkSweepStore;

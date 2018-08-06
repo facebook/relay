@@ -4,21 +4,20 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule normalizePayload
  * @flow
  * @format
  */
 
 'use strict';
 
-const RelayError = require('RelayError');
+const RelayError = require('../util/RelayError');
 
-const normalizeRelayPayload = require('normalizeRelayPayload');
+const normalizeRelayPayload = require('./normalizeRelayPayload');
 
-const {ROOT_ID} = require('RelayStoreUtils');
+const {ROOT_ID} = require('./RelayStoreUtils');
 
-import type {ExecutePayload} from 'RelayNetworkTypes';
-import type {RelayResponsePayload} from 'RelayStoreTypes';
+import type {ExecutePayload} from '../network/RelayNetworkTypes';
+import type {RelayResponsePayload} from './RelayStoreTypes';
 
 function normalizePayload(payload: ExecutePayload): RelayResponsePayload {
   const {operation, variables, response} = payload;

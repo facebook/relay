@@ -22,7 +22,7 @@ const {
   ConnectionHandler,
   ConnectionInterface,
   ROOT_ID,
-} = require('RelayRuntime');
+} = require('relay-runtime');
 const {generateAndCompile} = RelayModernTestUtils;
 
 describe('ReactRelayPaginationContainer', () => {
@@ -49,7 +49,7 @@ describe('ReactRelayPaginationContainer', () => {
       this.relay = {environment, variables};
       this.state = {props: null};
     }
-    componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps) {
       // eslint-disable-next-line no-shadow
       const {environment, variables} = nextProps;
       if (
@@ -95,19 +95,27 @@ describe('ReactRelayPaginationContainer', () => {
         $count: Int!
         $id: ID!
         $orderby: [String]
+        $isViewerFriend: Boolean
       ) {
         node(id: $id) {
           id
           __typename
-          ...UserFragment
+          ...UserFragment @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
         }
       }
 
-      fragment UserFragment on User {
-        id
-        friends(after: $after, first: $count, orderby: $orderby) @connection(
-          key: "UserFragment_friends"
+      fragment UserFragment on User
+        @argumentDefinitions(
+          isViewerFriendLocal: {type: "Boolean", defaultValue: false}
+          orderby: {type: "[String]"}
         ) {
+        id
+        friends(
+          after: $after,
+          first: $count,
+          orderby: $orderby,
+          isViewerFriend: $isViewerFriendLocal
+        ) @connection(key: "UserFragment_friends") {
           edges {
             node {
               id
@@ -127,15 +135,18 @@ describe('ReactRelayPaginationContainer', () => {
       count: 1,
       id: '4',
       orderby: ['name'],
+      isViewerFriend: false,
     };
 
     getConnectionFromProps = jest.fn(props => props.user.friends);
-    getVariables = jest.fn((props, {count, cursor}) => ({
-      after: cursor,
-      count,
-      id: props.user.id,
-      orderby: ['name'],
-    }));
+    getVariables = jest.fn((props, {count, cursor}, fragmentVariables) => {
+      return {
+        ...fragmentVariables,
+        id: props.user.id,
+        after: cursor,
+        count,
+      };
+    });
     TestComponent = render;
     TestComponent.displayName = 'TestComponent';
     TestContainer = ReactRelayPaginationContainer.createContainer(
@@ -148,6 +159,7 @@ describe('ReactRelayPaginationContainer', () => {
         getConnectionFromProps,
         getFragmentVariables: (vars, totalCount) => ({
           ...vars,
+          isViewerFriendLocal: vars.isViewerFriend,
           count: totalCount,
         }),
         getVariables,
@@ -199,7 +211,8 @@ describe('ReactRelayPaginationContainer', () => {
   });
 
   it('generates a name for containers', () => {
-    expect(TestContainer.displayName).toBe('Relay(TestComponent)');
+    expect(TestContainer.$$typeof).toBe(Symbol.for('react.forward_ref'));
+    expect(TestContainer.render.displayName).toBe('Relay(TestComponent)');
   });
 
   it('throws for invalid fragments', () => {
@@ -311,6 +324,7 @@ describe('ReactRelayPaginationContainer', () => {
         after: null,
         count: 1,
         orderby: ['name'],
+        isViewerFriendLocal: false,
       },
     });
   });
@@ -422,6 +436,7 @@ describe('ReactRelayPaginationContainer', () => {
         after: null,
         count: 1,
         orderby: ['name'],
+        isViewerFriendLocal: false,
       },
     });
   });
@@ -487,6 +502,7 @@ describe('ReactRelayPaginationContainer', () => {
         after: null,
         count: 1,
         orderby: ['name'],
+        isViewerFriendLocal: false,
       },
     });
 
@@ -530,6 +546,7 @@ describe('ReactRelayPaginationContainer', () => {
         after: null,
         count: 1,
         orderby: ['name'],
+        isViewerFriendLocal: false,
       },
     });
   });
@@ -1004,6 +1021,7 @@ describe('ReactRelayPaginationContainer', () => {
           count: 1,
           id: '4',
           orderby: ['name'],
+          isViewerFriend: false,
         },
         {
           data: {
@@ -1136,7 +1154,10 @@ describe('ReactRelayPaginationContainer', () => {
         {
           after: null, // fragment variable defaults to null
           count: 1,
+          id: '4',
           orderby: ['name'],
+          isViewerFriend: false,
+          isViewerFriendLocal: false,
         },
       );
     });
@@ -1160,6 +1181,7 @@ describe('ReactRelayPaginationContainer', () => {
         count: 1,
         id: '4',
         orderby: ['name'],
+        isViewerFriend: false,
       };
       loadMore(1, jest.fn());
       expect(environment.mock.isLoading(UserQuery, variables)).toBe(true);
@@ -1171,6 +1193,7 @@ describe('ReactRelayPaginationContainer', () => {
         count: 2, // existing edges + additional edges
         id: '4',
         orderby: ['name'],
+        isViewerFriend: false,
       };
       const fetchOption = {force: true};
       loadMore(1, jest.fn(), fetchOption);
@@ -1187,6 +1210,7 @@ describe('ReactRelayPaginationContainer', () => {
         count: 1,
         id: '4',
         orderby: ['name'],
+        isViewerFriend: false,
       };
       loadMore(1, callback);
       environment.mock.resolve(UserQuery, {
@@ -1216,6 +1240,7 @@ describe('ReactRelayPaginationContainer', () => {
           count: 1,
           id: '4',
           orderby: ['name'],
+          isViewerFriend: false,
         },
         {
           data: {
@@ -1309,6 +1334,8 @@ describe('ReactRelayPaginationContainer', () => {
           after: null,
           count: 1,
           id: '842472',
+          isViewerFriend: false,
+          orderby: ['name'],
         },
       }).data.node;
       instance.getInstance().setProps({user: userPointer});
@@ -1358,11 +1385,45 @@ describe('ReactRelayPaginationContainer', () => {
           after: null,
           first: 1,
           id: '842472', // different user
+          isViewerFriend: false,
+          orderby: ['name'],
         },
       }).data.node;
       instance.getInstance().setProps({user: userPointer});
       expect(references.length).toBe(1);
       expect(references[0].dispose).toBeCalled();
+    });
+    it('should not load more data if container is unmounted', () => {
+      const userPointer = environment.lookup({
+        dataID: ROOT_ID,
+        node: UserQuery.fragment,
+        variables,
+      }).data.node;
+      class TestContainerWrapper extends React.Component {
+        state = {
+          mounted: true,
+        };
+        componentDidMount() {
+          setTimeout(() => {
+            this.setState({mounted: false});
+          }, 1);
+        }
+        render() {
+          return this.state.mounted ? (
+            <TestContainer user={userPointer} />
+          ) : null;
+        }
+      }
+      instance = ReactTestRenderer.create(
+        <ContextSetter environment={environment} variables={variables}>
+          <TestContainerWrapper />
+        </ContextSetter>,
+      );
+      variables = {};
+      jest.runOnlyPendingTimers();
+      const callback = jest.fn();
+      loadMore(1, callback);
+      expect(callback).not.toBeCalled();
     });
   });
 
@@ -1420,7 +1481,10 @@ describe('ReactRelayPaginationContainer', () => {
         {
           after: null, // fragment variable defaults to null
           count: 1,
+          id: '4',
           orderby: ['name'],
+          isViewerFriend: false,
+          isViewerFriendLocal: false,
         },
       );
     });
@@ -1443,6 +1507,7 @@ describe('ReactRelayPaginationContainer', () => {
         count: 1,
         id: '4',
         orderby: ['name'],
+        isViewerFriend: false,
       };
       const cacheConfig = {
         force: true,
@@ -1570,6 +1635,8 @@ describe('ReactRelayPaginationContainer', () => {
           after: null,
           count: 1,
           id: '842472',
+          isViewerFriend: false,
+          orderby: ['name'],
         },
       }).data.node;
       instance.getInstance().setProps({user: userPointer});
@@ -1619,6 +1686,8 @@ describe('ReactRelayPaginationContainer', () => {
           after: null,
           first: 1,
           id: '842472', // different user
+          isViewerFriend: false,
+          orderby: ['name'],
         },
       }).data.node;
       instance.getInstance().setProps({user: userPointer});
@@ -1687,5 +1756,112 @@ describe('ReactRelayPaginationContainer', () => {
         },
       });
     });
+
+    it('paginates with the results of new refetch/overridden variables', () => {
+      refetchConnection(1, jest.fn(), {
+        orderby: ['last_name'],
+        isViewerFriend: true,
+      });
+      environment.mock.resolve(UserQuery, {
+        data: {
+          node: {
+            id: '4',
+            __typename: 'User',
+            friends: {
+              edges: [
+                {
+                  cursor: 'cursor:7',
+                  node: {
+                    __typename: 'User',
+                    id: 'node:7',
+                  },
+                },
+              ],
+              pageInfo: {
+                endCursor: 'cursor:7',
+                hasNextPage: true,
+              },
+            },
+          },
+        },
+      });
+
+      loadMore(2, jest.fn());
+      variables = {
+        after: 'cursor:7',
+        count: 2,
+        orderby: ['last_name'],
+        isViewerFriend: true,
+        id: '4',
+      };
+      expect(environment.mock.isLoading(UserQuery, variables)).toBe(true);
+    });
+
+    it('should not refetch connection if container is unmounted', () => {
+      const userPointer = environment.lookup({
+        dataID: ROOT_ID,
+        node: UserQuery.fragment,
+        variables,
+      }).data.node;
+      class TestContainerWrapper extends React.Component {
+        state = {
+          mounted: true,
+        };
+        componentDidMount() {
+          setTimeout(() => {
+            this.setState({mounted: false});
+          }, 1000);
+        }
+
+        render() {
+          return this.state.mounted ? (
+            <TestContainer user={userPointer} />
+          ) : null;
+        }
+      }
+      instance = ReactTestRenderer.create(
+        <ContextSetter environment={environment} variables={variables}>
+          <TestContainerWrapper />
+        </ContextSetter>,
+      );
+      jest.runOnlyPendingTimers();
+      const callback = jest.fn();
+      refetchConnection(1, callback);
+      expect(callback).not.toBeCalled();
+    });
+  });
+  it('can be unwrapped in tests', () => {
+    class TestUnwrapping extends React.Component {
+      render() {
+        return <div>Unwrapped</div>;
+      }
+    }
+
+    const TestUnwrappingContainer = ReactRelayPaginationContainer.createContainer(
+      TestUnwrapping,
+      {
+        user: () => UserFragment,
+      },
+      {
+        direction: 'forward',
+        getConnectionFromProps,
+        getFragmentVariables: (vars, totalCount) => ({
+          ...vars,
+          count: totalCount,
+        }),
+        getVariables,
+        query: UserQuery,
+      },
+    );
+
+    const UnwrappedComponent = RelayModernTestUtils.unwrapContainer(
+      TestUnwrappingContainer,
+    );
+
+    const renderer = ReactTestRenderer.create(
+      <UnwrappedComponent user={{id: '4', name: 'Mark'}} />,
+    );
+
+    expect(renderer.toJSON()).toMatchSnapshot();
   });
 });

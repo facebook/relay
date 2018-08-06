@@ -4,18 +4,16 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayFieldHandleTransform
  * @flow
  * @format
  */
 
 'use strict';
 
-// TODO T21875029 ../../relay-runtime/util/getRelayHandleKey
-const getRelayHandleKey = require('getRelayHandleKey');
 const invariant = require('invariant');
 
 const {CompilerContext, IRTransformer} = require('graphql-compiler');
+const {getRelayHandleKey} = require('relay-runtime');
 
 import type {Field} from 'graphql-compiler';
 

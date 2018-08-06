@@ -8,14 +8,28 @@
 <PROJECT_ROOT>/node_modules/react-static-container/node_modules/.*
 <PROJECT_ROOT>/website-prototyping-tools/node_modules/.*
 <PROJECT_ROOT>/website/node_modules/.*
+; TODO: Update `iterall` to Flow 0.66
+<PROJECT_ROOT>/node_modules/graphql/node_modules/iterall/.*
 
 [libs]
+flow
 node_modules/fbjs/flow/lib
 
 [options]
 module.system=haste
+module.system.haste.use_name_reducers=true
+# get basename
+module.system.haste.name_reducers='^.*/\([a-zA-Z0-9$_.-]+\.js\(\.flow\)?\)$' -> '\1'
+# strip .js or .js.flow suffix
+module.system.haste.name_reducers='^\(.*\)\.js\(\.flow\)?$' -> '\1'
+# strip .native suffix
+module.system.haste.name_reducers='^\(.*\)\.native$' -> '\1'
+
+module.system.haste.paths.blacklist=.*/__tests__/.*
+module.system.haste.paths.blacklist=.*/__mocks__/.*
+module.system.haste.paths.whitelist=<PROJECT_ROOT>/node_modules/fbjs/lib/.*
+
 module.name_mapper='^ReactDOM$' -> 'react-dom'
-module.system.haste.paths.blacklist=<PROJECT_ROOT>/packages/react-relay/.*
 
 esproposal.class_static_fields=enable
 esproposal.class_instance_fields=enable
@@ -32,7 +46,5 @@ suppress_comment=\\(.\\|\n\\)*\\$FlowIssue\\((\\(<VERSION>\\)? *\\(site=[a-z,_]*
 suppress_comment=\\(.\\|\n\\)*\\$FlowFixedInNextDeploy
 suppress_comment=\\(.\\|\n\\)*\\$FlowExpectedError
 
-unsafe.enable_getters_and_setters=true
-
 [version]
-^0.61.0
+^0.77.0

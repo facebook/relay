@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayProfiler
  * @flow
  * @format
  */
@@ -87,7 +86,9 @@ const RelayProfiler = {
   ): void {
     for (const key in names) {
       if (names.hasOwnProperty(key)) {
-        object[key] = RelayProfiler.instrument(names[key], object[key]);
+        if (typeof object[key] === 'function') {
+          object[key] = RelayProfiler.instrument(names[key], object[key]);
+        }
       }
     }
   },

@@ -24,7 +24,6 @@ import type {
   Abortable,
   ComponentReadyState,
   ReadyState,
-  RelayContainer,
 } from '../tools/RelayTypes';
 import type {
   RelayRenderCallback,
@@ -32,7 +31,7 @@ import type {
 } from './RelayReadyStateRenderer';
 
 type Props = {
-  Container: RelayContainer,
+  Container: React.ComponentType<any>,
   shouldFetch?: ?boolean,
   forceFetch?: ?boolean,
   onForceFetch?: ?(
@@ -236,7 +235,7 @@ class RelayRenderer extends React.Component<Props, State> {
     }
   }
 
-  componentWillReceiveProps(nextProps: Props): void {
+  UNSAFE_componentWillReceiveProps(nextProps: Props): void {
     if (
       nextProps.Container !== this.props.Container ||
       nextProps.environment !== this.props.environment ||

@@ -12,10 +12,12 @@
 
 const RelayModernTestUtils = require('RelayModernTestUtils');
 
-const fetchRelayModernQuery = require('fetchRelayModernQuery');
+const fetchRelayModernQuery = require('../fetchRelayModernQuery');
 
+const {
+  createOperationSelector,
+} = require('../../store/RelayModernOperationSelector');
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
-const {createOperationSelector} = require('RelayModernOperationSelector');
 
 describe('fetchRelayModernQuery', () => {
   const {generateAndCompile} = RelayModernTestUtils;

@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule BabelPluginRelay
  * @flow
  * @format
  */
@@ -40,6 +39,8 @@ export type RelayPluginOptions = {
   snakeCase?: boolean,
   substituteVariables?: boolean,
   validator?: Validator<any>,
+  // Directory as specified by outputDir when running relay-compiler
+  artifactDirectory?: string,
 };
 
 export type BabelState = {

@@ -18,7 +18,7 @@ const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const warning = require('warning');
 
-const {ConnectionInterface} = require('RelayRuntime');
+const {ConnectionInterface} = require('relay-runtime');
 
 const ARGUMENTS = /^(\w+)(?:\((.+?)\))?$/;
 const ARGUMENT_NAME = /(\w+)(?=\s*:)/;

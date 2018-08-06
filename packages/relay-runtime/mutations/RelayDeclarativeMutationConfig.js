@@ -4,42 +4,41 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayDeclarativeMutationConfig
  * @flow
  * @format
  */
 
 'use strict';
 
-const RelayConnectionHandler = require('RelayConnectionHandler');
+const RelayConnectionHandler = require('../handlers/connection/RelayConnectionHandler');
 
 const warning = require('warning');
 
-import type {DataID, Variables} from '../util/RelayRuntimeTypes';
-import type {RequestNode} from 'RelayConcreteNode';
 import type {
   RecordSourceSelectorProxy,
   SelectorStoreUpdater,
-} from 'RelayStoreTypes';
+} from '../store/RelayStoreTypes';
+import type {RequestNode} from '../util/RelayConcreteNode';
+import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {SelectorData} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 import type {RelayConcreteNode} from 'react-relay/classic/query/RelayQL';
 
-const MutationTypes = {
+const MutationTypes = Object.freeze({
   RANGE_ADD: 'RANGE_ADD',
   RANGE_DELETE: 'RANGE_DELETE',
   NODE_DELETE: 'NODE_DELETE',
   FIELDS_CHANGE: 'FIELDS_CHANGE',
   REQUIRED_CHILDREN: 'REQUIRED_CHILDREN',
-};
+});
 export type MutationType = $Values<typeof MutationTypes>;
 
-const RangeOperations = {
+const RangeOperations = Object.freeze({
   APPEND: 'append',
   IGNORE: 'ignore',
   PREPEND: 'prepend',
   REFETCH: 'refetch', // legacy only
   REMOVE: 'remove', // legacy only
-};
+});
 export type RangeOperation = $Values<typeof RangeOperations>;
 
 type RangeBehaviorsFunction = (connectionArgs: {
@@ -50,52 +49,52 @@ type RangeBehaviorsObject = {
 };
 export type RangeBehaviors = RangeBehaviorsFunction | RangeBehaviorsObject;
 
-type RangeAddConfig = {
+type RangeAddConfig = {|
   type: 'RANGE_ADD',
   parentName?: string,
   parentID?: string,
-  connectionInfo?: Array<{
+  connectionInfo?: Array<{|
     key: string,
     filters?: Variables,
     rangeBehavior: string,
-  }>,
+  |}>,
   connectionName?: string,
   edgeName: string,
   rangeBehaviors?: RangeBehaviors,
-};
+|};
 
-type RangeDeleteConfig = {
+type RangeDeleteConfig = {|
   type: 'RANGE_DELETE',
   parentName?: string,
   parentID?: string,
-  connectionKeys?: Array<{
+  connectionKeys?: Array<{|
     key: string,
     filters?: Variables,
-  }>,
+  |}>,
   connectionName?: string,
   deletedIDFieldName: string | Array<string>,
   pathToConnection: Array<string>,
-};
+|};
 
-type NodeDeleteConfig = {
+type NodeDeleteConfig = {|
   type: 'NODE_DELETE',
   parentName?: string,
   parentID?: string,
   connectionName?: string,
   deletedIDFieldName: string,
-};
+|};
 
 // Unused in Relay Modern
-type LegacyFieldsChangeConfig = {
+type LegacyFieldsChangeConfig = {|
   type: 'FIELDS_CHANGE',
   fieldIDs: {[fieldName: string]: DataID | Array<DataID>},
-};
+|};
 
 // Unused in Relay Modern
-type LegacyRequiredChildrenConfig = {
+type LegacyRequiredChildrenConfig = {|
   type: 'REQUIRED_CHILDREN',
   children: Array<RelayConcreteNode>,
-};
+|};
 
 export type DeclarativeMutationConfig =
   | RangeAddConfig
@@ -241,12 +240,10 @@ function rangeAdd(
         default:
           warning(
             false,
-            'RelayDeclarativeMutationConfig: RANGE_ADD range behavior ' +
-              `'${
-                info.rangeBehavior
-              }' will not work as expected in RelayModern, ` +
-              "supported range behaviors are 'append', 'prepend', and " +
-              "'ignore'",
+            'RelayDeclarativeMutationConfig: RANGE_ADD range behavior `%s` ' +
+              'will not work as expected in RelayModern, supported range ' +
+              "behaviors are 'append', 'prepend', and 'ignore'.",
+            info.rangeBehavior,
           );
           break;
       }
@@ -328,10 +325,10 @@ function rangeDelete(
 
 function deleteNode(
   parentID: string,
-  connectionKeys: ?Array<{
+  connectionKeys: ?Array<{|
     key: string,
     filters?: Variables,
-  }>,
+  |}>,
   pathToConnection: Array<string>,
   store: RecordSourceSelectorProxy,
   deleteIDs: Array<string>,

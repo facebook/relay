@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayModernRecord
  * @flow
  * @format
  */
@@ -12,7 +11,7 @@
 'use strict';
 
 const areEqual = require('areEqual');
-const deepFreeze = require('deepFreeze');
+const deepFreeze = require('../util/deepFreeze');
 const invariant = require('invariant');
 
 const {
@@ -21,7 +20,7 @@ const {
   REFS_KEY,
   TYPENAME_KEY,
   UNPUBLISH_FIELD_SENTINEL,
-} = require('RelayStoreUtils');
+} = require('./RelayStoreUtils');
 
 import type {DataID} from '../util/RelayRuntimeTypes';
 import type {Record} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';

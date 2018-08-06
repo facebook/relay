@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
@@ -16,9 +16,8 @@ const requestsForOperation = require('./requestsForOperation');
 
 const {Profiler} = require('graphql-compiler');
 
-// TODO T21875029 relay-runtime
-import type {GeneratedNode} from 'RelayConcreteNode';
 import type {CompilerContext, IRTransform, Reporter} from 'graphql-compiler';
+import type {GeneratedNode} from 'relay-runtime';
 
 export type RelayCompilerTransforms = {
   commonTransforms: Array<IRTransform>,

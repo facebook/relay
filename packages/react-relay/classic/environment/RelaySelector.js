@@ -21,7 +21,7 @@ const warning = require('warning');
 import type {ConcreteFragmentDefinition} from '../query/ConcreteQuery';
 import type {Props} from './RelayCombinedEnvironmentTypes';
 import type {FragmentMap, Selector} from './RelayEnvironmentTypes';
-import type {DataID, Variables} from 'RelayRuntime';
+import type {DataID, Variables} from 'relay-runtime';
 
 /**
  * @public

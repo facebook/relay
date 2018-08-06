@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
@@ -24,7 +24,7 @@ const RelayReadyStateRenderer = require('./container/RelayReadyStateRenderer');
 const RelayRenderer = require('./container/RelayRenderer');
 const RelayRootContainer = require('./container/RelayRootContainer');
 const RelayRoute = require('./route/RelayRoute');
-const RelayRuntime = require('RelayRuntime');
+const RelayRuntime = require('relay-runtime');
 const RelayStore = require('./store/RelayStore');
 
 const createRelayQuery = require('./query/createRelayQuery');

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
@@ -15,7 +15,7 @@ const RelayQueryPath = require('../query/RelayQueryPath');
 
 const generateClientID = require('../legacy/store/generateClientID');
 
-const {RelayProfiler} = require('RelayRuntime');
+const {RelayProfiler} = require('relay-runtime');
 
 import type RelayQuery from '../query/RelayQuery';
 import type RelayQueryWriter from '../store/RelayQueryWriter';

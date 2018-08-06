@@ -4,22 +4,20 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule requestRelaySubscription
  * @flow
  * @format
  */
 
 'use strict';
 
-const RelayDeclarativeMutationConfig = require('RelayDeclarativeMutationConfig');
+const RelayDeclarativeMutationConfig = require('../mutations/RelayDeclarativeMutationConfig');
 
 const warning = require('warning');
 
-import type {Disposable} from '../util/RelayRuntimeTypes';
-import type {Variables} from '../util/RelayRuntimeTypes';
-import type {DeclarativeMutationConfig} from 'RelayDeclarativeMutationConfig';
-import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
-import type {Environment, SelectorStoreUpdater} from 'RelayStoreTypes';
+import type {DeclarativeMutationConfig} from '../mutations/RelayDeclarativeMutationConfig';
+import type {GraphQLTaggedNode} from '../query/RelayModernGraphQLTag';
+import type {Environment, SelectorStoreUpdater} from '../store/RelayStoreTypes';
+import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
 
 export type GraphQLSubscriptionConfig = {|
   configs?: Array<DeclarativeMutationConfig>,

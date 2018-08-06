@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
@@ -15,9 +15,7 @@ const RelayQuery = require('../query/RelayQuery');
 
 const flattenRelayQuery = require('../traversal/flattenRelayQuery');
 
-import type {DataID} from 'RelayRuntime';
-
-const TYPE = '__type__';
+import type {DataID} from 'relay-runtime';
 
 class RelayQueryTracker {
   _trackedNodesByID: {
@@ -32,11 +30,6 @@ class RelayQueryTracker {
   }
 
   trackNodeForID(node: RelayQuery.Node, dataID: DataID): void {
-    // Don't track legacy `__type__` fields
-    if (node instanceof RelayQuery.Field && node.getSchemaName() === TYPE) {
-      return;
-    }
-
     this._trackedNodesByID[dataID] = this._trackedNodesByID[dataID] || {
       trackedNodes: [],
       isMerged: false,

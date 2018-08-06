@@ -10,23 +10,24 @@
 
 'use strict';
 
-const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
-const RelayMarkSweepStore = require('RelayMarkSweepStore');
-const RelayModernRecord = require('RelayModernRecord');
+const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
+const RelayMarkSweepStore = require('../RelayMarkSweepStore');
+const RelayModernRecord = require('../RelayModernRecord');
 const RelayModernTestUtils = require('RelayModernTestUtils');
-const RelayStoreUtils = require('RelayStoreUtils');
 
-const simpleClone = require('simpleClone');
+const simpleClone = require('../../util/simpleClone');
 
-const {REF_KEY, ROOT_ID, ROOT_TYPE} = RelayStoreUtils;
+const {
+  REF_KEY,
+  ROOT_ID,
+  ROOT_TYPE,
+  UNPUBLISH_RECORD_SENTINEL,
+} = require('../RelayStoreUtils');
+
+expect.extend(RelayModernTestUtils.matchers);
 
 describe('RelayStore', () => {
   const {generateWithTransforms} = RelayModernTestUtils;
-
-  beforeEach(() => {
-    jest.resetModules();
-    expect.extend(RelayModernTestUtils.matchers);
-  });
 
   describe('retain()', () => {
     let UserFragment;
@@ -504,7 +505,7 @@ describe('RelayStore', () => {
 
     it('unpublishes records via a sentinel value', () => {
       const nextSource = new RelayInMemoryRecordSource({});
-      nextSource.set('4', RelayStoreUtils.UNPUBLISH_RECORD_SENTINEL);
+      nextSource.set('4', UNPUBLISH_RECORD_SENTINEL);
       store.publish(nextSource);
 
       expect(source.has('4')).toBe(false);

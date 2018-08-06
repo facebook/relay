@@ -12,7 +12,7 @@
 
 require('configureForRelayOSS');
 
-const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
+const RelayClassic = require('../../RelayPublic');
 const RelayQuery = require('../RelayQuery');
 const RelayQueryTransform = require('../RelayQueryTransform');
 const RelayTestUtils = require('RelayTestUtils');
@@ -27,7 +27,7 @@ describe('RelayQueryTransform', () => {
       after: 'offset',
     };
 
-    const fragment = RelayClassic_DEPRECATED.QL`
+    const fragment = RelayClassic.QL`
       fragment on User {
         friends(first:$first,after:$after) {
           edges {
@@ -43,7 +43,7 @@ describe('RelayQueryTransform', () => {
       }
     `;
     query = getNode(
-      RelayClassic_DEPRECATED.QL`
+      RelayClassic.QL`
       query {
         node(id:"4") {
           id

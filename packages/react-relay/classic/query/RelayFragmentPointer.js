@@ -19,7 +19,7 @@ const invariant = require('invariant');
 
 import type {Record} from '../store/RelayRecord';
 import type RelayRecordStore from '../store/RelayRecordStore';
-import type {DataID, Variables} from 'RelayRuntime';
+import type {DataID, Variables} from 'relay-runtime';
 
 type FragmentVariablesMap = {
   [fragmentID: string]: Array<Variables>,

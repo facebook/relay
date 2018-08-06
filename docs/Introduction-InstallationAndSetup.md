@@ -16,7 +16,7 @@ yarn add react react-dom react-relay
 Relay Modern requires a Babel plugin to convert GraphQL to runtime artifacts:
 
 ```sh
-yarn add --dev babel-plugin-relay
+yarn add --dev babel-plugin-relay graphql
 ```
 
 Add `"relay"` to the list of plugins your `.babelrc` file:
@@ -31,7 +31,7 @@ Add `"relay"` to the list of plugins your `.babelrc` file:
 
 Please note that the `"relay"` plugin should run before other plugins or
 presets to ensure the `graphql` template literals are correctly transformed. See
-Babel's [documentation on this topic](https://babeljs.io/docs/plugins/#plugin-preset-ordering).
+Babel's [documentation on this topic](https://babeljs.io/docs/plugins/#pluginpreset-ordering).
 
 See the [Migration Setup](./migration-setup.html) guide if upgrading an existing Relay app.
 
@@ -46,7 +46,7 @@ const {graphql} = require('react-relay/macro');
 Relay's ahead-of-time compilation requires the [Relay Compiler](./graphql-in-relay.html#relay-compiler.html), which you can install via `yarn` or `npm`:
 
 ```sh
-yarn add --dev relay-compiler
+yarn add --dev relay-compiler graphql
 ```
 
 This installs the bin script `relay-compiler` in your node_modules folder. It's recommended to run this from a `yarn`/`npm` script by adding a script to your `package.json` file:
@@ -54,6 +54,14 @@ This installs the bin script `relay-compiler` in your node_modules folder. It's 
 ```js
 "scripts": {
   "relay": "relay-compiler --src ./src --schema ./schema.graphql"
+}
+```
+
+or if you are using jsx:
+
+```js
+"scripts": {
+  "relay": "relay-compiler --src ./src --schema ./schema.graphql --extensions js jsx"
 }
 ```
 
@@ -66,7 +74,7 @@ yarn run relay
 Alternatively, you can pass the `--watch` option to watch for file changes in your source code and automatically re-generate the compiled artifacts (**Note:** Requires [watchman](https://facebook.github.io/watchman) to be installed):
 
 ```sh
-yarn run relay -- --watch
+yarn run relay --watch
 ```
 
 

@@ -12,7 +12,7 @@
 
 require('configureForRelayOSS');
 
-const RelayObservable = require('RelayObservable');
+const RelayObservable = require('../RelayObservable');
 
 jest.useFakeTimers();
 

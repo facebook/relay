@@ -10,29 +10,19 @@
 
 'use strict';
 
+const GraphQLCompilerContext = require('GraphQLCompilerContext');
+const GraphQLIRPrinter = require('GraphQLIRPrinter');
+const RelayTestSchema = require('RelayTestSchema');
+const StripUnusedVariablesTransform = require('StripUnusedVariablesTransform');
+
+const parseGraphQLText = require('parseGraphQLText');
+
+const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+
 describe('StripUnusedVariablesTransform', () => {
-  let GraphQLCompilerContext;
-  let GraphQLIRPrinter;
-  let StripUnusedVariablesTransform;
-  let RelayTestSchema;
-  let getGoldenMatchers;
-  let parseGraphQLText;
-
-  beforeEach(() => {
-    jest.resetModules();
-
-    GraphQLCompilerContext = require('GraphQLCompilerContext');
-    GraphQLIRPrinter = require('GraphQLIRPrinter');
-    StripUnusedVariablesTransform = require('StripUnusedVariablesTransform');
-    RelayTestSchema = require('RelayTestSchema');
-    getGoldenMatchers = require('getGoldenMatchers');
-    parseGraphQLText = require('parseGraphQLText');
-
-    expect.extend(getGoldenMatchers(__filename));
-  });
-
-  it('matches expected output', () => {
-    expect('fixtures/strip-unused-variables-transform').toMatchGolden(text => {
+  generateTestsFromFixtures(
+    `${__dirname}/fixtures/strip-unused-variables-transform`,
+    text => {
       const {definitions} = parseGraphQLText(RelayTestSchema, text);
       return new GraphQLCompilerContext(RelayTestSchema)
         .addAll(definitions)
@@ -40,6 +30,6 @@ describe('StripUnusedVariablesTransform', () => {
         .documents()
         .map(GraphQLIRPrinter.print)
         .join('\n');
-    });
-  });
+    },
+  );
 });

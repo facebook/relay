@@ -19,7 +19,7 @@ import type {
   ConcreteCallValue,
   ConcreteCallVariable,
 } from './ConcreteQuery';
-import type {Variables} from 'RelayRuntime';
+import type {Variables} from 'relay-runtime';
 
 type CallOrDirective = {
   name: string,

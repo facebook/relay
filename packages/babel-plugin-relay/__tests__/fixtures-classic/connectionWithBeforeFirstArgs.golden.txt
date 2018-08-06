@@ -1,3 +1,0 @@
-ERROR:
-
-Error: connectionWithBeforeFirstArgs.input.txt: Relay Transform Error: Connection arguments `friends(before: <cursor>, first: <count>)` are not supported unless both are variables. Use `(first: <count>)`, `(after: <cursor>, first: <count>)`, `(before: <cursor>, last: <count>)`, or `(before: $<var>, first: $<var>)`.

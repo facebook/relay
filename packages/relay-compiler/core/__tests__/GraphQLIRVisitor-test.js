@@ -29,7 +29,7 @@ import type {
 const RelayParser = require('RelayParser');
 const GraphQLIRPrinter = require('GraphQLIRPrinter');
 const RelayTestSchema = require('RelayTestSchema');
-const getGoldenMatchers = require('getGoldenMatchers');
+const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 const {visit} = require('GraphQLIRVisitor');
 
 type VisitNodeWithName =
@@ -42,19 +42,18 @@ type VisitNodeWithName =
   | ArgumentDefinition;
 
 describe('GraphQLIRVisitor', () => {
-  beforeEach(() => {
-    expect.extend(getGoldenMatchers(__filename));
-  });
-
-  it('visits and does nothing with each node', () => {
-    expect('fixtures/visitor/no-op-visit').toMatchGolden(text => {
+  generateTestsFromFixtures(
+    `${__dirname}/fixtures/visitor/no-op-visit`,
+    text => {
       const ast = RelayParser.parse(RelayTestSchema, text);
       const sameAst = ast.map(fragment => visit(fragment, {}));
       return sameAst.map(doc => GraphQLIRPrinter.print(doc)).join('\n');
-    });
-  });
-  it('visits and mutates each type of node', () => {
-    expect('fixtures/visitor/mutate-visit').toMatchGolden(text => {
+    },
+  );
+
+  generateTestsFromFixtures(
+    `${__dirname}/fixtures/visitor/mutate-visit`,
+    text => {
       const ast = RelayParser.parse(RelayTestSchema, text);
       const mutateNameVisitor = {
         leave: (node: VisitNodeWithName) => {
@@ -115,6 +114,6 @@ describe('GraphQLIRVisitor', () => {
       );
 
       return mutatedAst.map(doc => GraphQLIRPrinter.print(doc)).join('\n');
-    });
-  });
+    },
+  );
 });

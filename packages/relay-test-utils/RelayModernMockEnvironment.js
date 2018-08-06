@@ -4,14 +4,12 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayModernMockEnvironment
  * @format
  */
 
 'use strict';
 
 const RelayModernTestUtils = require('RelayModernTestUtils');
-const RelayRuntime = require('RelayRuntime');
 const RelayTestSchema = require('RelayTestSchema');
 
 const areEqual = require('areEqual');
@@ -89,7 +87,7 @@ function createMockEnvironment(options: {
     Observable,
     Environment,
     Network,
-  } = RelayRuntime; // destructure here to make jest and inline-requires work
+  } = require('relay-runtime');
   const schema = options && options.schema;
   const handlerProvider = options && options.handlerProvider;
   const source = new RecordSource();

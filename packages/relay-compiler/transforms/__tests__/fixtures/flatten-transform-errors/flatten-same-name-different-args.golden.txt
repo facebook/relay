@@ -1,1 +1,0 @@
-Error: Expected all fields on the same parent with the name or alias `friends` to have the same name and arguments. Got `friends(first: 10)` and `friends(first: 5)`.

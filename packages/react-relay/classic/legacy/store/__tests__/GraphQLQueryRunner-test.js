@@ -20,7 +20,7 @@ jest
 
 require('configureForRelayOSS');
 
-const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
+const RelayClassic = require('../../../RelayPublic');
 const RelayFetchMode = require('../../../store/RelayFetchMode');
 const RelayStoreData = require('../../../store/RelayStoreData');
 const RelayTestUtils = require('RelayTestUtils');
@@ -74,8 +74,8 @@ describe('GraphQLQueryRunner', () => {
 
     mockCallback = jest.fn();
     mockQuerySet = {
-      foo: getNode(RelayClassic_DEPRECATED.QL`query{viewer{actor{id,name}}}`),
-      bar: getNode(RelayClassic_DEPRECATED.QL`query{node(id:"4"){id,name}}`),
+      foo: getNode(RelayClassic.QL`query{viewer{actor{id,name}}}`),
+      bar: getNode(RelayClassic.QL`query{node(id:"4"){id,name}}`),
       baz: null,
     };
 
@@ -134,11 +134,9 @@ describe('GraphQLQueryRunner', () => {
       supports: () => false,
     });
 
-    const fragment = RelayClassic_DEPRECATED.QL`fragment on Node{id}`;
+    const fragment = RelayClassic.QL`fragment on Node{id}`;
     const querySet = {
-      foo: getNode(
-        RelayClassic_DEPRECATED.QL`query{node(id:"123"){${defer(fragment)}}}`,
-      ),
+      foo: getNode(RelayClassic.QL`query{node(id:"123"){${defer(fragment)}}}`),
     };
 
     warning.mockClear();
@@ -872,7 +870,7 @@ describe('GraphQLQueryRunner', () => {
       diffRelayQuery.mockImplementation(query => [query]);
 
       const mockQuery = getNode(
-        RelayClassic_DEPRECATED.QL`
+        RelayClassic.QL`
         query {
           viewer{actor{id,firstName,lastName,name,address{city},hometown{id}}}
         }
@@ -881,29 +879,29 @@ describe('GraphQLQueryRunner', () => {
 
       const mockSplitQueries = {
         required: getNode(
-          RelayClassic_DEPRECATED.QL`
+          RelayClassic.QL`
           query {
             viewer{actor{id,name}}
           }
         `,
         ),
         deferred: [
-          RelayClassic_DEPRECATED.QL`
+          RelayClassic.QL`
             query {
               viewer{actor{id,address{city}}}
             }
           `,
-          RelayClassic_DEPRECATED.QL`
+          RelayClassic.QL`
             query {
               viewer{actor{id,hometown{id}}}
             }
           `,
-          RelayClassic_DEPRECATED.QL`
+          RelayClassic.QL`
             query {
               viewer{actor{id,firstName}}
             }
           `,
-          RelayClassic_DEPRECATED.QL`
+          RelayClassic.QL`
             query {
               viewer{actor{id,lastName}}
             }

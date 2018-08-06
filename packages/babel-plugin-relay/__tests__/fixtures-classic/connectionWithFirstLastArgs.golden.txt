@@ -1,3 +1,0 @@
-ERROR:
-
-Error: connectionWithFirstLastArgs.input.txt: Relay Transform Error: Connection arguments `friends(first: <count>, last: <count>)` are not supported unless both are variables. Use `(first: <count>)`, `(last: <count>)`, or `(first: $<var>, last: $<var>)`.

@@ -10,19 +10,17 @@
 
 'use strict';
 
-import type {RelayContainer} from '../tools/RelayTypes';
-
 /**
  * This feature is deprecated and unavailable in open source.
  */
 const RelayContainerProxy = {
   proxyMethods(
-    Container: RelayContainer,
+    Container: React$ComponentType<any>,
     Component: React$ComponentType<any>,
   ): void {},
   injectProxyMethods(
     proxyMethods: (
-      Container: RelayContainer,
+      Container: React$ComponentType<any>,
       Component: React$ComponentType<any>,
     ) => void,
   ) {

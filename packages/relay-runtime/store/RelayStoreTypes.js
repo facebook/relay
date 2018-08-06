@@ -4,14 +4,20 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayStoreTypes
  * @flow
  * @format
  */
 
 'use strict';
 
-import type {DataID, Disposable, Variables} from '../util/RelayRuntimeTypes';
+import type {
+  ExecutePayload,
+  PayloadError,
+  UploadableMap,
+} from '../network/RelayNetworkTypes';
+import type {PayloadData} from '../network/RelayNetworkTypes';
+import type RelayObservable from '../network/RelayObservable';
+import type {GraphQLTaggedNode} from '../query/RelayModernGraphQLTag';
 import type {
   ConcreteScalarField,
   ConcreteLinkedField,
@@ -19,20 +25,10 @@ import type {
   ConcreteSelectableNode,
   RequestNode,
   ConcreteOperation,
-} from 'RelayConcreteNode';
-import type {GraphQLTaggedNode} from 'RelayModernGraphQLTag';
+} from '../util/RelayConcreteNode';
+import type {DataID, Disposable, Variables} from '../util/RelayRuntimeTypes';
+import type {RecordState} from './RelayRecordState';
 import type {
-  ExecutePayload,
-  PayloadError,
-  UploadableMap,
-} from 'RelayNetworkTypes';
-import type {PayloadData} from 'RelayNetworkTypes';
-import type RelayObservable from 'RelayObservable';
-import type {RecordState} from 'RelayRecordState';
-import type {
-  /* $FlowFixMe(>=0.55.0 site=www) This comment suppresses an error found when
-   * Flow v0.55 was deployed. To see the error delete this comment and run
-   * Flow. */
   CEnvironment,
   CFragmentMap,
   COperationSelector,
@@ -259,19 +255,6 @@ export interface Environment
     updater?: ?SelectorStoreUpdater,
     uploadables?: ?UploadableMap,
   |}): RelayObservable<ExecutePayload>;
-
-  /**
-   * Checks if the records required to fulfill the given `selector` are in
-   * the. Missing fields use the provided `handlers` to attempt to provide
-   * substitutes. After traversal, the changes suggested by the `handlers` are
-   * published back to the store.
-   *
-   * returns `true` if all records exist and all fields are fetched, false otherwise.
-   */
-  checkSelectorAndUpdateStore(
-    selector: Selector,
-    handlers: Array<MissingFieldHandler>,
-  ): boolean;
 
   /**
    * Checks if the environment is waiting for a response from the network for

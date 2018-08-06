@@ -4,25 +4,24 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayStoreUtils
  * @flow
  * @format
  */
 
 'use strict';
 
-const RelayConcreteNode = require('RelayConcreteNode');
+const RelayConcreteNode = require('../util/RelayConcreteNode');
 
-const getRelayHandleKey = require('getRelayHandleKey');
+const getRelayHandleKey = require('../util/getRelayHandleKey');
 const invariant = require('invariant');
-const stableCopy = require('stableCopy');
+const stableCopy = require('../util/stableCopy');
 
-import type {Variables} from '../util/RelayRuntimeTypes';
 import type {
   ConcreteArgument,
   ConcreteField,
   ConcreteHandle,
-} from 'RelayConcreteNode';
+} from '../util/RelayConcreteNode';
+import type {Variables} from '../util/RelayRuntimeTypes';
 
 export type Arguments = {[argName: string]: mixed};
 

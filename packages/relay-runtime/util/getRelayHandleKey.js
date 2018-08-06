@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @flow
- * @providesModule getRelayHandleKey
  * @format
  */
 
@@ -13,7 +12,7 @@
 
 const invariant = require('invariant');
 
-const {DEFAULT_HANDLE_KEY} = require('RelayDefaultHandleKey');
+const {DEFAULT_HANDLE_KEY} = require('./RelayDefaultHandleKey');
 
 /**
  * @internal

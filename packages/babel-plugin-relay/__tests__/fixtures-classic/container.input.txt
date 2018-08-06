@@ -1,6 +1,0 @@
-var Relay = require('react-relay');
-Relay.createContainer(Component, {
-  queries: {
-    viewer: () => Relay.QL`fragment on Viewer { actor { id } }`
-  }
-});

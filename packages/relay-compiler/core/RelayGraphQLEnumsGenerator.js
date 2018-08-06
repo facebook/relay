@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayGraphQLEnumsGenerator
  * @flow
  * @format
  */
@@ -15,7 +14,7 @@ const SignedSource = require('signedsource');
 
 const {GraphQLEnumType} = require('graphql');
 
-import type CodegenDirectory from 'CodegenDirectory';
+import type {CodegenDirectory} from 'graphql-compiler';
 import type {GraphQLSchema} from 'graphql';
 
 function writeForSchema(
@@ -44,7 +43,6 @@ function writeForSchema(
     '/**\n' +
     licenseHeader.map(line => ` * ${line}\n`).join('') +
     ' *\n' +
-    ` * @providesModule ${moduleName}\n` +
     ` * ${SignedSource.getSigningToken()}\n` +
     ' * @flow\n' +
     ' */\n' +

@@ -39,3 +39,6 @@ workflows:
           filters:
             branches:
               only: master
+
+git:
+  depth: 5

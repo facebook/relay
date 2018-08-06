@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule createModernNode
  * @flow
  * @format
  */
@@ -12,6 +11,8 @@
 'use strict';
 
 const crypto = require('crypto');
+const invariant = require('./invariant');
+const path = require('path');
 
 const {print} = require('graphql');
 
@@ -19,6 +20,7 @@ const GENERATED = './__generated__/';
 
 import typeof BabelTypes from 'babel-types';
 import type {OperationDefinitionNode, FragmentDefinitionNode} from 'graphql';
+import type {BabelState} from './BabelPluginRelay';
 
 /**
  * Relay Modern creates separate generated files, so Babel transforms graphql
@@ -27,7 +29,10 @@ import type {OperationDefinitionNode, FragmentDefinitionNode} from 'graphql';
 function createModernNode(
   t: BabelTypes,
   graphqlDefinition: OperationDefinitionNode | FragmentDefinitionNode,
+  state: BabelState,
   options: {
+    // If an output directory is specified when running relay-compiler this should point to that directory
+    artifactDirectory: ?string,
     // The command to run to compile Relay files, used for error messages.
     buildCommand: string,
     // Generate extra validation, defaults to true.
@@ -45,7 +50,9 @@ function createModernNode(
   const requiredFile = definitionName + '.graphql';
   const requiredPath = options.isHasteMode
     ? requiredFile
-    : GENERATED + requiredFile;
+    : options.artifactDirectory
+      ? getRelativeImportPath(state, options.artifactDirectory, requiredFile)
+      : GENERATED + requiredFile;
 
   const hash = crypto
     .createHash('md5')
@@ -106,6 +113,25 @@ function warnNeedsRebuild(
       ),
     ],
   );
+}
+
+function getRelativeImportPath(
+  state: BabelState,
+  artifactDirectory: string,
+  fileToRequire: string,
+): string {
+  invariant(state.file != null, 'babel state file is null');
+  const filename = state.file.opts.filename;
+
+  const relative = path.relative(
+    path.dirname(filename),
+    path.resolve(artifactDirectory),
+  );
+
+  const relativeReference =
+    relative.length === 0 || !relative.startsWith('.') ? './' : '';
+
+  return relativeReference + path.join(relative, fileToRequire);
 }
 
 module.exports = createModernNode;

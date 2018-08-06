@@ -10,32 +10,20 @@
 
 'use strict';
 
+const FilterDirectivesTransform = require('FilterDirectivesTransform');
+const GraphQLCompilerContext = require('GraphQLCompilerContext');
+const GraphQLIRPrinter = require('GraphQLIRPrinter');
+const RelayTestSchema = require('RelayTestSchema');
+
+const parseGraphQLText = require('parseGraphQLText');
+
+const {transformASTSchema} = require('ASTConvert');
+const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+
 describe('FilterDirectivesTransform', () => {
-  let GraphQLCompilerContext;
-  let FilterDirectivesTransform;
-  let GraphQLIRPrinter;
-  let RelayTestSchema;
-  let getGoldenMatchers;
-  let parseGraphQLText;
-  let transformASTSchema;
-
-  beforeEach(() => {
-    jest.resetModules();
-
-    GraphQLCompilerContext = require('GraphQLCompilerContext');
-    FilterDirectivesTransform = require('FilterDirectivesTransform');
-    GraphQLIRPrinter = require('GraphQLIRPrinter');
-    RelayTestSchema = require('RelayTestSchema');
-    getGoldenMatchers = require('getGoldenMatchers');
-    parseGraphQLText = require('parseGraphQLText');
-
-    ({transformASTSchema} = require('ASTConvert'));
-
-    expect.extend(getGoldenMatchers(__filename));
-  });
-
-  it('filters out directives not defined in the original schema', () => {
-    expect('fixtures/filter-directives-transform').toMatchGolden(text => {
+  generateTestsFromFixtures(
+    `${__dirname}/fixtures/filter-directives-transform`,
+    text => {
       // Extend the schema with a directive for testing purposes.
       const extendedSchema = transformASTSchema(RelayTestSchema, [
         'directive @exampleFilteredDirective on FIELD',
@@ -47,6 +35,6 @@ describe('FilterDirectivesTransform', () => {
         .documents()
         .map(GraphQLIRPrinter.print)
         .join('\n');
-    });
-  });
+    },
+  );
 });

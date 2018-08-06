@@ -1,7 +1,7 @@
 {
   "name": "relay-compiler",
   "description": "A compiler tool for building GraphQL-driven applications.",
-  "version": "1.4.1",
+  "version": "1.6.2",
   "keywords": [
     "graphql",
     "relay"
@@ -15,21 +15,24 @@
     "relay-compiler": "bin/relay-compiler"
   },
   "dependencies": {
-    "babel-generator": "^6.26.0",
+    "@babel/generator": "7.0.0-beta.54",
+    "@babel/parser": "7.0.0-beta.54",
+    "@babel/types": "7.0.0-beta.54",
     "babel-polyfill": "^6.20.0",
-    "babel-preset-fbjs": "^2.1.4",
+    "babel-preset-fbjs": "2.2.0",
     "babel-runtime": "^6.23.0",
     "babel-traverse": "^6.26.0",
-    "babel-types": "^6.24.1",
-    "babylon": "^6.18.0",
     "chalk": "^1.1.1",
-    "fast-glob": "^1.0.1",
+    "fast-glob": "^2.2.2",
     "fb-watchman": "^2.0.0",
-    "fbjs": "^0.8.14",
-    "graphql": "^0.12.3",
+    "fbjs": "0.8.17",
+    "graphql-compiler": "1.6.2",
     "immutable": "~3.7.6",
-    "relay-runtime": "1.4.1",
+    "relay-runtime": "1.6.2",
     "signedsource": "^1.0.0",
     "yargs": "^9.0.0"
+  },
+  "peerDependencies": {
+    "graphql": "^0.13.0"
   }
 }

@@ -21,7 +21,7 @@ Table of Contents:
 
 Before starting, make sure to check out our [Prerequisites](./prerequisites.html) and [Installation and Setup](./installation-and-setup.html) guides. As mentioned in the prerequisites, we need to make sure that we've set up a GraphQL server and schema.
 
-Fortunately, we are going to be using this [example todo list app](https://github.com/relayjs/relay-examples/tree/master/todo), which already has a  [server](https://github.com/relayjs/relay-examples/blob/master/todo/server.js) and schema [schema](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql) available for us to use:
+Fortunately, we are going to be using this [example todo list app](https://github.com/relayjs/relay-examples/tree/master/todo), which already has a [server](https://github.com/relayjs/relay-examples/blob/master/todo/server.js) and [schema](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql) available for us to use:
 
 ```graphql
 # From schema.graphql
@@ -106,7 +106,7 @@ import {graphql, QueryRenderer} from 'react-relay';
 
 const environment = /* defined or imported above... */;
 
-export default App extends React.Component {
+export default class App extends React.Component {
   render() {
     return (
       <QueryRenderer
@@ -137,7 +137,7 @@ export default App extends React.Component {
 Our app is rendering a `QueryRenderer` in the above code, like any other React Component, but let's see what's going on in the props that we are passing to it:
 
 - We're passing the `environment` we defined earlier.
-- We're using using the [`graphql`](./graphql-in-relay.html) function to define our GraphQL query. `graphql` is a template tag that is never executed at runtime, but rather used by the [Relay Compiler](./graphql-in-relay.html#relay-compiler) to generate the runtime artifacts that Relay requires to operate. We don't need to worry about this right now; for more details check out our [GraphQL in Relay](./graphql-in-relay.html) docs.
+- We're using the [`graphql`](./graphql-in-relay.html) function to define our GraphQL query. `graphql` is a template tag that is never executed at runtime, but rather used by the [Relay Compiler](./graphql-in-relay.html#relay-compiler) to generate the runtime artifacts that Relay requires to operate. We don't need to worry about this right now; for more details check out our [GraphQL in Relay](./graphql-in-relay.html) docs.
 - We're passing an empty set of `variables`. We'll look into how to use variables in the next section.
 - We're passing a `render` function; as you can tell from the code, Relay gives us some information about whether an error occurred, or if we're still fetching the query. If everything succeeds, the data we requested will be available inside `props`, with the same shape as the one specified in the query.
 
@@ -147,7 +147,7 @@ For more details on `QueryRenderer`, check out the [docs](./query-renderer).
 
 ## Using Query Variables
 
-Let's assume for a moment that in our app we want to be able to view data for different users, so we're going to somehow need to query users by id. From our [schema](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql#L69), we know we can query nodes given an id, so let's write a parametrized query to get a user by id:
+Let's assume for a moment that in our app we want to be able to view data for different users, so we're going to somehow need to query users by id. From our [schema](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql#L69), we know we can query nodes given an id, so let's write a parameterized query to get a user by id:
 
 ```graphql
 query UserQuery($userID: ID!) {
@@ -172,7 +172,7 @@ type Props = {
   userID: string,
 };
 
-export default UserTodoList extends React.Component<Props> {
+export default class UserTodoList extends React.Component<Props> {
   render() {
     const {userID} = this.props;
 
@@ -202,10 +202,10 @@ export default UserTodoList extends React.Component<Props> {
 }
 ```
 
-The above code is doing something very similar to our [previous example](#rendering-graphql-queries), however, we are now passing a `$userID` variable to the GraphQL query, via the `variables` prop. This has a couple of important implications:
+The above code is doing something very similar to our [previous example](#rendering-graphql-queries). However, we are now passing a `$userID` variable to the GraphQL query via the `variables` prop. This has a couple of important implications:
 
-- Given that `userID` is also a prop that our component takes, it could receive a new `userID` from its parent component at any moment. When this happens, we new `variables` will be passed down to our `QueryRenderer`, which will automatically cause it to re-fetch the query with the new value for `$userID`.
-- The `$userID` variable will now be available anywhere inside that query; this will become important when to keep in mind when using fragments.
+- Given that `userID` is also a prop that our component takes, it could receive a new `userID` from its parent component at any moment. When this happens, new `variables` will be passed down to our `QueryRenderer`, which will automatically cause it to re-fetch the query with the new value for `$userID`.
+- The `$userID` variable will now be available anywhere inside that query. This will become important to keep in mind when using fragments.
 
 Now that we've updated the query, don't forget to run `yarn relay`.
 
@@ -213,7 +213,7 @@ Now that we've updated the query, don't forget to run `yarn relay`.
 
 Now that we know how to define and fetch queries, let's actually start building a todo list.
 
-First, let's start at the bottom; let's say that we want to render a component that given a todo item, simply displays the item's text and completed state:
+First, let's start at the bottom. Suppose that we want to render a component that simply displays a given todo item's text and completed state:
 
 ```javascript
 // Todo.js
@@ -247,7 +247,7 @@ export default class Todo extends React.Component<Props> {
 }
 ```
 
-From our [schema](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql#L107), we know that we can query this data on the `Todo` type. However, we don't want to have to send a separate query for each todo item; that would defeat the purpose of using GraphQL over a traditional REST API. We could manually query for these fields directly in our `QueryRenderer` query, but that would hurt re-usability: what if we want to query the same set of fields as part of a different query? Additionally, we wouldn't know which component needs the data we're querying, a problem Relay directly tries to address.
+From our [schema](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql#L107), we know that we can query this data on the `Todo` type. However, we don't want to have to send a separate query for each todo item; that would defeat the purpose of using GraphQL over a traditional REST API. We could manually query for these fields directly in our `QueryRenderer` query, but that would hurt re-usability: what if we want to query the same set of fields as part of a different query? Additionally, we wouldn't know which component needs the data we're querying, which is a problem Relay directly tries to address.
 
 Instead, we can define a reusable [Fragment](http://graphql.org/learn/queries/#fragments), which allows us to define a set of fields on a type and reuse them within our queries wherever we need to:
 
@@ -295,7 +295,7 @@ class Todo extends React.Component<Props> {
 
 export default createFragmentContainer(
   Todo,
-  grapqhl`
+  graphql`
     # As a convention, we name the fragment as '<ComponentFileName>_<propName>'
     fragment Todo_todo on Todo {
       complete
@@ -316,7 +316,7 @@ Before proceeding, don't forget to run the Relay Compiler with `yarn relay`.
 
 ## Composing Fragments
 
-Given that [Fragment Containers](./fragment-containers) are just React components, we can compose them as such, and even re-use fragment containers within other fragment containers. As an example, let's see how we would define a `TodoList` component that just renders a list of todo items, and whether all have been completed or not:
+Given that [Fragment Containers](./fragment-container) are just React components, we can compose them as such. We can even re-use fragment containers within other fragment containers. As an example, let's see how we would define a `TodoList` component that just renders a list of todo items, and whether all have been completed or not:
 
 ```javascript
 // TodoList.js
@@ -379,13 +379,13 @@ export default createFragmentContainer(
 );
 ```
 
-As with the first fragment container we defined, `TodoList` declares it's data dependencies via a fragment. However, this component additionally re-uses the fragment previously defined by the `Todo` component, and passes the appropriate data to when rendering the child `Todo` components (a.k.a. fragment containers).
+As with the first fragment container we defined, `TodoList` declares it's data dependencies via a fragment. However, this component additionally re-uses the fragment previously defined by the `Todo` component, and passes the appropriate data when rendering the child `Todo` components (a.k.a. fragment containers).
 
-One final thing to note when composing fragment containers, is that the parent will not have access to the data defined by the child container, i.e. Relay only allows components to access data they specifically ask for in GraphQL fragments — nothing more. This is called [Data Masking](./thinking-in-relay#data-masking), and it's intentional to prevent components from depending on data they didn't declare as a dependency.
+One final thing to note when composing fragment containers is that the parent will not have access to the data defined by the child container. Relay only allows components to access data they specifically ask for in GraphQL fragments — nothing more. This is called [Data Masking](./thinking-in-relay#data-masking), and it's intentional to prevent components from depending on data they didn't declare as a dependency.
 
 ## Rendering Fragments
 
-Now that we have some components (a.k.a fragment containers) that declare their data dependencies, we need to hook them up to a `QueryRenderer` so that the data is actually fetched and rendered; remember,
+Now that we have some components (a.k.a fragment containers) that declare their data dependencies, we need to hook them up to a `QueryRenderer` so that the data is actually fetched and rendered. Remember,
 fragment containers do not directly fetch data. Instead, containers declare a specification of the data needed to render, and Relay guarantees that this data is available before rendering.
 
 A `QueryRenderer` rendering these fragment containers could look like the following:
@@ -399,7 +399,7 @@ import TodoList from './TodoList'
 
 const environment = /* defined or imported above... */;
 
-export default ViewerTodoList extends React.Component {
+export default class ViewerTodoList extends React.Component {
   render() {
     return (
       <QueryRenderer
@@ -423,8 +423,8 @@ export default ViewerTodoList extends React.Component {
           }
           return (
             <div>
-              <div>Todo list for User {props.user.id}:</div>
-              <TodoList userTodoData={props.user.userTodoData} />
+              <div>Todo list for User {props.viewer.id}:</div>
+              <TodoList userTodoData={props.viewer} />
             </div>
           );
         }}
@@ -434,7 +434,7 @@ export default ViewerTodoList extends React.Component {
 }
 ```
 
-Check out or docs for [Fragment Containers](./fragment-container) for more details, and our guides on [Refetch](./refetch-container) and [Pagination](./pagination-container) for more advanced usage of containers.
+Check out our docs for [Fragment Containers](./fragment-container) for more details, and our guides on [Refetch](./refetch-container) and [Pagination](./pagination-container) for more advanced usage of containers.
 
 ## Mutating Data
 
@@ -493,7 +493,7 @@ function commit(
 export default {commit};
 ```
 
-Whenever we call `ChangeTodoStatusMutation.commit(...)`, Relay will send the mutation to the server, and in our case, upon receiving a response it will automatically update the local data store with the latest data from the server. This also means that upon receiving the response, Relay will ensure that any components (i.e. containers) that depend on the updated data are re-rendered.
+Whenever we call `ChangeTodoStatusMutation.commit(...)`, Relay will send the mutation to the server and, in our case, upon receiving a response it will automatically update the local data store with the latest data from the server. This also means that upon receiving the response, Relay will ensure that any components (i.e. containers) that depend on the updated data are re-rendered.
 
 In order to actually use this mutation in our component, we could update our `Todo` component in the following way:
 
@@ -566,16 +566,24 @@ function commit(
 export default {commit};
 ```
 
-In the simplest case above, we just need to pass an `optimisticResponse` option, which should refer to an object having the same shape as the mutation response payload. When we pass this option, Relay will know to immediately update our local data with the optimistic response, and then update it with the actual server response, or roll it back if an error occurs.
+In the simplest case above, we just need to pass an `optimisticResponse` option, which should refer to an object having the same shape as the mutation response payload. When we pass this option, Relay will know to immediately update our local data with the optimistic response, and then update it with the actual server response or roll it back if an error occurs.
+
+Please note that the actual query and response payload may not have the exact same shape as the selection in your code, because sometimes Relay will add extra fields for you during the compilation step, and you need to add these fields to your optimistic response. For example:
+
+* Relay will add an `id` field if it exists on the type for caching purpose.
+
+* Relay will add a `__typename` field if the type is an union or an interface.
+
+You can inspect the network request or response to see the exact shape.
 
 ### Updating local data from mutation responses
 
-By default, Relay will know to update the fields on the records referenced by the mutation payload, (i.e. the `todo` in our example). However, this is only the simplest case, and in some cases updating the local data isn't as simple as just updating the fields in a record.
+By default, Relay will know to update the fields on the records referenced by the mutation payload, (i.e. the `todo` in our example). However, this is only the simplest case. In some cases updating the local data isn't as simple as just updating the fields in a record.
 
-For instance, we might be updating a collection of items, or we might be deleting a record entirely. For these more advanced scenarios, Relay allows us to pass a set of options for us to control how we update the local data from a server response, including a set of [`configs`](./mutations.html#configs), and an [`updater`](https://facebook.github.io/relay/docs/en/mutations.html#updating-the-store-programatically-advanced) function for full control over the update.
+For instance, we might be updating a collection of items, or we might be deleting a record entirely. For these more advanced scenarios Relay allows us to pass a set of options for us to control how we update the local data from a server response, including a set of [`configs`](./mutations.html#configs) and an [`updater`](https://facebook.github.io/relay/docs/en/mutations.html#updating-the-store-programatically-advanced) function for full control over the update.
 
 For more details and advanced use cases on mutations and updates, check out our [Mutations](./mutations.html) docs.
 
 ## Next Steps
 
-This guide just scratches the surface of Relay's API; for more detailed docs and guides, check out our API Reference and Guides sections.
+This guide just scratches the surface of Relay's API. For more detailed docs and guides, check out our API Reference and Guides sections.

@@ -10,7 +10,6 @@
 
 'use strict';
 
-const Map = require('Map');
 const RelayQuery = require('../query/RelayQuery');
 
 const base62 = require('base62');
@@ -18,7 +17,7 @@ const invariant = require('invariant');
 const nullthrows = require('nullthrows');
 
 const {TYPENAME} = require('../interface/RelayNodeInterface');
-const {RelayProfiler} = require('RelayRuntime');
+const {RelayProfiler} = require('relay-runtime');
 
 import type {PrintedQuery} from '../tools/RelayInternalTypes';
 

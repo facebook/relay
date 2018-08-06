@@ -30,12 +30,14 @@ const filterObject = require('filterObject');
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const isClassicRelayContext = require('../store/isClassicRelayContext');
+const makeLegacyStringishComponentRef = require('../util/makeLegacyStringishComponentRef');
 const relayUnstableBatchedUpdates = require('../tools/relayUnstableBatchedUpdates');
 const shallowEqual = require('shallowEqual');
 const warning = require('warning');
 
-const {getComponentName, getReactComponent} = require('./RelayContainerUtils');
-const {RelayProfiler} = require('RelayRuntime');
+const {getComponentName} = require('../../modern/ReactRelayContainerUtils');
+const {getReactComponent} = require('./RelayClassicContainerUtils');
+const {RelayProfiler} = require('relay-runtime');
 
 import type {RelayQueryConfigInterface} from '../query-config/RelayQueryConfig';
 import type {ConcreteFragment} from '../query/ConcreteQuery';
@@ -48,10 +50,9 @@ import type {RelayQuerySet} from '../tools/RelayInternalTypes';
 import type {
   Abortable,
   ComponentReadyStateChangeCallback,
-  RelayContainer as RelayContainerClass,
   RelayProp,
 } from '../tools/RelayTypes';
-import type {DataID, Variables} from 'RelayRuntime';
+import type {DataID, Variables} from 'relay-runtime';
 
 type FragmentPointer = {
   fragment: RelayQuery.Fragment,
@@ -98,7 +99,7 @@ const containerContextTypes = {
 function createContainerComponent(
   Component: React.ComponentType<any>,
   spec: RelayContainerSpec,
-): RelayContainerClass {
+): $FlowFixMe {
   const ComponentClass = getReactComponent(Component);
   const componentName = getComponentName(Component);
   const containerName = getContainerName(Component);
@@ -458,7 +459,7 @@ function createContainerComponent(
       );
     }
 
-    componentWillMount(): void {
+    UNSAFE_componentWillMount(): void {
       if (this.context.route.useMockData) {
         return;
       }
@@ -467,7 +468,7 @@ function createContainerComponent(
       );
     }
 
-    componentWillReceiveProps(
+    UNSAFE_componentWillReceiveProps(
       nextProps: Object,
       maybeNextContext?: RelayContainerContext,
     ): void {
@@ -821,7 +822,7 @@ function createContainerComponent(
           <ComponentClass
             {...this.props}
             {...this.state.queryData}
-            ref={'component'} // eslint-disable-line react/no-string-refs
+            ref={this._legacyStringishRef}
             relay={this.state.relayProp}
           />
         );
@@ -835,6 +836,9 @@ function createContainerComponent(
         });
       }
     }
+
+    // @TODO (T28161354) Remove this once string ref usage is gone.
+    _legacyStringishRef = makeLegacyStringishComponentRef(this, componentName);
   }
 
   function getFragment(
@@ -910,11 +914,12 @@ function resetPropOverridesForVariables(
   return variables;
 }
 
-function initializeProfiler(RelayContainer: RelayContainerClass): void {
+function initializeProfiler(RelayContainer: $FlowFixMe): void {
   RelayProfiler.instrumentMethods(RelayContainer.prototype, {
-    componentWillMount: 'RelayContainer.prototype.componentWillMount',
-    componentWillReceiveProps:
-      'RelayContainer.prototype.componentWillReceiveProps',
+    UNSAFE_componentWillMount:
+      'RelayContainer.prototype.UNSAFE_componentWillMount',
+    UNSAFE_componentWillReceiveProps:
+      'RelayContainer.prototype.UNSAFE_componentWillReceiveProps',
     shouldComponentUpdate: 'RelayContainer.prototype.shouldComponentUpdate',
   });
 }

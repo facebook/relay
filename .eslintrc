@@ -24,6 +24,11 @@ rules:
   # Tests do not need to follow relay naming rules
   relay/graphql-naming: off
 
+  # TODO T31139228: remove or re-enable these once eslint-plugin-flowtype
+  # is compatible with babel-eslint >= 8
+  no-undef: off
+  no-unused-vars: off
+
   # Relay uses console statements for debugging and compile feedback
   no-console:
     - warn

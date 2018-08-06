@@ -11,46 +11,67 @@
 'use strict';
 
 const React = require('React');
+const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
 const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
 const areEqual = require('areEqual');
-const deepFreeze = require('deepFreeze');
-const invariant = require('invariant');
 
-import type {CacheConfig} from '../classic/environment/RelayCombinedEnvironmentTypes';
+const {deepFreeze} = require('relay-runtime');
+
 import type {RelayEnvironmentInterface as ClassicEnvironment} from '../classic/store/RelayEnvironment';
 import type {
-  Disposable,
+  CacheConfig,
   GraphQLTaggedNode,
   IEnvironment,
-  OperationSelector,
   RelayContext,
   Snapshot,
   Variables,
-} from 'RelayRuntime';
+} from 'relay-runtime';
 
-const NETWORK_ONLY = 'NETWORK_ONLY';
-const STORE_THEN_NETWORK = 'STORE_THEN_NETWORK';
-const DataFrom = {
-  NETWORK_ONLY,
-  STORE_THEN_NETWORK,
+type RetryCallbacks = {
+  handleDataChange:
+    | null
+    | (({
+        error?: Error,
+        snapshot?: Snapshot,
+      }) => void),
+  handleRetryAfterError: null | ((error: Error) => void),
 };
 
-export type Props = {
-  cacheConfig?: ?CacheConfig,
-  dataFrom?: $Keys<typeof DataFrom>,
-  environment: IEnvironment | ClassicEnvironment,
-  query: ?GraphQLTaggedNode,
-  render: (readyState: ReadyState) => React.Node,
-  variables: Variables,
-};
-export type ReadyState = {
+export type RenderProps = {
   error: ?Error,
   props: ?Object,
   retry: ?() => void,
 };
+
+const NETWORK_ONLY = 'NETWORK_ONLY';
+const STORE_THEN_NETWORK = 'STORE_THEN_NETWORK';
+const DataFromEnum = {
+  NETWORK_ONLY,
+  STORE_THEN_NETWORK,
+};
+type DataFrom = $Keys<typeof DataFromEnum>;
+
+export type Props = {
+  cacheConfig?: ?CacheConfig,
+  dataFrom?: DataFrom,
+  environment: IEnvironment | ClassicEnvironment,
+  query: ?GraphQLTaggedNode,
+  render: (renderProps: RenderProps) => React.Node,
+  variables: Variables,
+};
+
 type State = {
-  readyState: ReadyState,
+  error: Error | null,
+  prevPropsEnvironment: IEnvironment | ClassicEnvironment,
+  prevPropsVariables: Variables,
+  prevQuery: ?GraphQLTaggedNode,
+  queryFetcher: ReactRelayQueryFetcher,
+  relayContextEnvironment: IEnvironment | ClassicEnvironment,
+  relayContextVariables: Variables,
+  renderProps: RenderProps,
+  retryCallbacks: RetryCallbacks,
+  snapshot: Snapshot | null,
 };
 
 /**
@@ -64,230 +85,119 @@ type State = {
  * - Subscribes for updates to the root data and re-renders with any changes.
  */
 class ReactRelayQueryRenderer extends React.Component<Props, State> {
-  static defaultProps = {
-    dataFrom: NETWORK_ONLY,
+  // TODO T25783053 Update this component to use the new React context API,
+  // Once we have confirmed that it's okay to raise min React version to 16.3.
+  static childContextTypes = {
+    relay: RelayPropTypes.Relay,
   };
 
-  _pendingFetch: ?Disposable;
-  _relayContext: RelayContext;
-  _rootSubscription: ?Disposable;
-  _selectionReferences: Array<Disposable> = [];
+  _relayContext: RelayContext = {
+    // $FlowFixMe TODO t16225453 QueryRenderer works with old+new environment.
+    environment: (this.props.environment: IEnvironment),
+    variables: this.props.variables,
+  };
 
   constructor(props: Props, context: Object) {
     super(props, context);
-    this.state = {readyState: this._fetchForProps(this.props)};
+
+    // Callbacks are attached to the current instance and shared with static
+    // lifecyles by bundling with state. This is okay to do because the
+    // callbacks don't change in reaction to props. However we should not
+    // "leak" them before mounting (since we would be unable to clean up). For
+    // that reason, we define them as null initially and fill them in after
+    // mounting to avoid leaking memory.
+    const retryCallbacks = {
+      handleDataChange: null,
+      handleRetryAfterError: null,
+    };
+
+    const queryFetcher = new ReactRelayQueryFetcher();
+
+    this.state = {
+      prevPropsEnvironment: props.environment,
+      prevPropsVariables: props.variables,
+      prevQuery: props.query,
+      queryFetcher,
+      retryCallbacks,
+      ...fetchQueryAndComputeStateFromProps(
+        props,
+        queryFetcher,
+        retryCallbacks,
+      ),
+    };
   }
 
-  componentWillReceiveProps(nextProps: Props): void {
+  static getDerivedStateFromProps(
+    nextProps: Props,
+    prevState: State,
+  ): $Shape<State> | null {
     if (
-      nextProps.query !== this.props.query ||
-      nextProps.environment !== this.props.environment ||
-      !areEqual(nextProps.variables, this.props.variables)
+      prevState.prevQuery !== nextProps.query ||
+      prevState.prevPropsEnvironment !== nextProps.environment ||
+      !areEqual(prevState.prevPropsVariables, nextProps.variables)
     ) {
-      this.setState({
-        readyState: this._fetchForProps(nextProps),
+      return {
+        prevQuery: nextProps.query,
+        prevPropsEnvironment: nextProps.environment,
+        prevPropsVariables: nextProps.variables,
+        ...fetchQueryAndComputeStateFromProps(
+          nextProps,
+          prevState.queryFetcher,
+          prevState.retryCallbacks,
+        ),
+      };
+    }
+
+    return null;
+  }
+
+  componentDidMount() {
+    const {retryCallbacks, queryFetcher} = this.state;
+
+    retryCallbacks.handleDataChange = (params: {
+      error?: Error,
+      snapshot?: Snapshot,
+    }): void => {
+      const error = params.error == null ? null : params.error;
+      const snapshot = params.snapshot == null ? null : params.snapshot;
+
+      this.setState(prevState => {
+        // Don't update state if nothing has changed.
+        if (snapshot === prevState.snapshot && error === prevState.error) {
+          return null;
+        }
+        return {
+          renderProps: getRenderProps(
+            error,
+            snapshot,
+            queryFetcher,
+            retryCallbacks,
+          ),
+          snapshot,
+        };
       });
+    };
+
+    retryCallbacks.handleRetryAfterError = (error: Error) =>
+      this.setState({renderProps: getLoadingRenderProps()});
+
+    // Re-initialize the ReactRelayQueryFetcher with callbacks.
+    // If data has changed since constructions, this will re-render.
+    if (this.props.query) {
+      queryFetcher.setOnDataChange(retryCallbacks.handleDataChange);
     }
   }
 
   componentWillUnmount(): void {
-    this._release();
+    this.state.queryFetcher.dispose();
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
     return (
       nextProps.render !== this.props.render ||
-      nextState.readyState !== this.state.readyState
+      nextState.renderProps !== this.state.renderProps
     );
   }
-
-  _disposeSelectionReferences(): void {
-    this._selectionReferences.forEach(r => r.dispose());
-    this._selectionReferences = [];
-  }
-
-  _release(): void {
-    // order is important, dispose of pendingFetch before selectionReferences
-    if (this._pendingFetch) {
-      this._pendingFetch.dispose();
-      this._pendingFetch = null;
-    }
-    if (this._rootSubscription) {
-      this._rootSubscription.dispose();
-      this._rootSubscription = null;
-    }
-    this._disposeSelectionReferences();
-  }
-
-  _fetchForProps(props: Props): ReadyState {
-    // TODO (#16225453) QueryRenderer works with old and new environment, but
-    // the flow typing doesn't quite work abstracted.
-    // $FlowFixMe
-    const environment: IEnvironment = props.environment;
-
-    const {query, variables} = props;
-    if (query) {
-      const {
-        createOperationSelector,
-        getRequest,
-      } = environment.unstable_internal;
-      const request = getRequest(query);
-      const operation = createOperationSelector(request, variables);
-      this._relayContext = {
-        environment,
-        variables: operation.variables,
-      };
-      return this._fetch(operation, props) || getDefaultState();
-    } else {
-      this._relayContext = {
-        environment,
-        variables,
-      };
-      this._release();
-      return {
-        error: null,
-        props: {},
-        retry: null,
-      };
-    }
-  }
-
-  _fetch(operation: OperationSelector, props: Props): ?ReadyState {
-    const {cacheConfig, dataFrom} = props;
-    const {environment} = this._relayContext;
-    const {createOperationSelector} = environment.unstable_internal;
-
-    const nextReferences = [];
-    let cacheReference = null;
-    let readyState = getDefaultState();
-    let snapshot: ?Snapshot; // results of the root fragment
-    let hasSyncResult = false;
-    let hasFunctionReturned = false;
-
-    if (this._pendingFetch) {
-      this._pendingFetch.dispose();
-    }
-    if (this._rootSubscription) {
-      this._rootSubscription.dispose();
-    }
-
-    const onDataAvailable = () => {
-      // `next` can be called multiple times by network layers that support
-      // data subscriptions. Wait until the first payload to render `props`
-      // and subscribe for data updates.
-      if (snapshot) {
-        return;
-      }
-      snapshot = environment.lookup(operation.fragment);
-      readyState = {
-        error: null,
-        props: snapshot.data,
-        retry: () => {
-          // Do not reset the default state if refetching after success,
-          // handling the case where _fetch may return syncronously instead
-          // of calling setState.
-          const syncReadyState = this._fetch(operation, props);
-          if (syncReadyState) {
-            this.setState({readyState: syncReadyState});
-          }
-        },
-      };
-      this._rootSubscription = environment.subscribe(snapshot, this._onChange);
-      // This line should be called only once.
-      hasSyncResult = true;
-      if (hasFunctionReturned) {
-        this.setState({readyState});
-      }
-    };
-
-    // If we can fulfill this query with data already available in memory,
-    // populate our state with the available data
-    if (dataFrom === STORE_THEN_NETWORK && environment.check(operation.root)) {
-      cacheReference = environment.retain(operation.root);
-      onDataAvailable();
-      invariant(
-        hasSyncResult,
-        'If data was available in store cache, `hasSyncResult` should be true',
-      );
-    }
-
-    const request = environment
-      .execute({operation, cacheConfig})
-      .finally(() => {
-        this._pendingFetch = null;
-        if (cacheReference) {
-          cacheReference.dispose();
-          cacheReference = null;
-        }
-      })
-      .subscribe({
-        next: payload => {
-          const operationForPayload = createOperationSelector(
-            operation.node,
-            payload.variables,
-            payload.operation,
-          );
-          nextReferences.push(environment.retain(operationForPayload.root));
-          if (cacheReference) {
-            cacheReference.dispose();
-            cacheReference = null;
-          }
-          onDataAvailable();
-        },
-        error: error => {
-          readyState = {
-            error,
-            props: null,
-            retry: () => {
-              // Return to the default state when retrying after an error,
-              // handling the case where _fetch may return syncronously instead
-              // of calling setState.
-              const syncReadyState = this._fetch(operation, props);
-              this.setState({readyState: syncReadyState || getDefaultState()});
-            },
-          };
-          // We may have partially fulfilled the request, so let the next request
-          // or the unmount dispose of the references.
-          this._selectionReferences = this._selectionReferences.concat(
-            nextReferences,
-          );
-          hasSyncResult = true;
-          if (hasFunctionReturned) {
-            this.setState({readyState});
-          }
-        },
-        complete: () => {
-          this._disposeSelectionReferences();
-          this._selectionReferences = nextReferences;
-        },
-        unsubscribe: () => {
-          // Let the next request or the unmount code dispose of the references.
-          // We may have partially fulfilled the request.
-          this._selectionReferences = this._selectionReferences.concat(
-            nextReferences,
-          );
-        },
-      });
-
-    this._pendingFetch = {
-      dispose() {
-        request.unsubscribe();
-      },
-    };
-    // If we have a result synchronously, via the store cache or the network layer,
-    // return our readyState immediately.
-    hasFunctionReturned = true;
-    return hasSyncResult ? readyState : null;
-  }
-
-  _onChange = (snapshot: Snapshot): void => {
-    this.setState({
-      readyState: {
-        ...this.state.readyState,
-        props: snapshot.data,
-      },
-    });
-  };
 
   getChildContext(): Object {
     return {
@@ -296,26 +206,147 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
   }
 
   render() {
-    // Note that the root fragment results in `readyState.props` is already
-    // frozen by the store; this call is to freeze the readyState object and
+    const {
+      relayContextEnvironment,
+      relayContextVariables,
+      renderProps,
+    } = this.state;
+
+    // HACK Mutate the context.relay object before updating children,
+    // To account for any changes made by static gDSFP.
+    // Updating this value in gDSFP would be less safe, since props changes
+    // could be interrupted and we might re-render based on a setState call.
+    // Child containers rely on context.relay being mutated (also for gDSFP).
+    // $FlowFixMe TODO t16225453 QueryRenderer works with old+new environment.
+    this._relayContext.environment = (relayContextEnvironment: IEnvironment);
+    this._relayContext.variables = relayContextVariables;
+
+    // Note that the root fragment results in `renderProps.props` is already
+    // frozen by the store; this call is to freeze the renderProps object and
     // error property if set.
     if (__DEV__) {
-      deepFreeze(this.state.readyState);
+      deepFreeze(renderProps);
     }
-    return this.props.render(this.state.readyState);
+    return this.props.render(renderProps);
   }
 }
 
-ReactRelayQueryRenderer.childContextTypes = {
-  relay: RelayPropTypes.Relay,
-};
-
-function getDefaultState(): ReadyState {
+function getLoadingRenderProps(): RenderProps {
   return {
     error: null,
-    props: null,
+    props: null, // `props: null` indicates that the data is being fetched (i.e. loading)
     retry: null,
   };
+}
+
+function getEmptyRenderProps(): RenderProps {
+  return {
+    error: null,
+    props: {}, // `props: {}` indicates no data available
+    retry: null,
+  };
+}
+
+function getRenderProps(
+  error: ?Error,
+  snapshot: ?Snapshot,
+  queryFetcher: ReactRelayQueryFetcher,
+  retryCallbacks: RetryCallbacks,
+): RenderProps {
+  return {
+    error: error ? error : null,
+    props: snapshot ? snapshot.data : null,
+    retry: () => {
+      const syncSnapshot = queryFetcher.retry();
+      if (
+        syncSnapshot &&
+        typeof retryCallbacks.handleDataChange === 'function'
+      ) {
+        retryCallbacks.handleDataChange({snapshot: syncSnapshot});
+      } else if (
+        error &&
+        typeof retryCallbacks.handleRetryAfterError === 'function'
+      ) {
+        // If retrying after an error and no synchronous result available,
+        // reset the render props
+        retryCallbacks.handleRetryAfterError(error);
+      }
+    },
+  };
+}
+
+function fetchQueryAndComputeStateFromProps(
+  props: Props,
+  queryFetcher: ReactRelayQueryFetcher,
+  retryCallbacks: RetryCallbacks,
+): $Shape<State> {
+  const {environment, query, variables} = props;
+  if (query) {
+    // $FlowFixMe TODO t16225453 QueryRenderer works with old+new environment.
+    const genericEnvironment = (environment: IEnvironment);
+
+    const {
+      createOperationSelector,
+      getRequest,
+    } = genericEnvironment.unstable_internal;
+    const request = getRequest(query);
+    const operation = createOperationSelector(request, variables);
+
+    try {
+      const storeSnapshot =
+        props.dataFrom === STORE_THEN_NETWORK
+          ? queryFetcher.lookupInStore(genericEnvironment, operation)
+          : null;
+      const querySnapshot = queryFetcher.fetch({
+        cacheConfig: props.cacheConfig,
+        dataFrom: props.dataFrom,
+        environment: genericEnvironment,
+        onDataChange: retryCallbacks.handleDataChange,
+        operation,
+      });
+      // Use network data first, since it may be fresher
+      const snapshot = querySnapshot || storeSnapshot;
+      if (!snapshot) {
+        return {
+          error: null,
+          relayContextEnvironment: environment,
+          relayContextVariables: operation.variables,
+          renderProps: getLoadingRenderProps(),
+          snapshot: null,
+        };
+      }
+
+      return {
+        error: null,
+        relayContextEnvironment: environment,
+        relayContextVariables: operation.variables,
+        renderProps: getRenderProps(
+          null,
+          snapshot,
+          queryFetcher,
+          retryCallbacks,
+        ),
+        snapshot,
+      };
+    } catch (error) {
+      return {
+        error,
+        relayContextEnvironment: environment,
+        relayContextVariables: operation.variables,
+        renderProps: getRenderProps(error, null, queryFetcher, retryCallbacks),
+        snapshot: null,
+      };
+    }
+  } else {
+    queryFetcher.dispose();
+
+    return {
+      error: null,
+      relayContextEnvironment: environment,
+      relayContextVariables: variables,
+      renderProps: getEmptyRenderProps(),
+    };
+  }
 }
 
 module.exports = ReactRelayQueryRenderer;

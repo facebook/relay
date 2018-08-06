@@ -13,12 +13,12 @@
 const readRelayQueryData = require('../../store/readRelayQueryData');
 const warning = require('warning');
 
-const {recycleNodesInto, RelayProfiler} = require('RelayRuntime');
+const {recycleNodesInto, RelayProfiler} = require('relay-runtime');
 
 import type RelayQuery from '../../query/RelayQuery';
 import type RelayStoreData from '../../store/RelayStoreData';
 import type {ChangeSubscription, StoreReaderData} from '../../tools/RelayTypes';
-import type {DataID} from 'RelayRuntime';
+import type {DataID} from 'relay-runtime';
 
 type DataIDSet = {[dataID: DataID]: any};
 
@@ -35,7 +35,8 @@ class GraphQLStoreQueryResolver {
   _fragment: RelayQuery.Fragment;
   _resolver: ?(
     | GraphQLStorePluralQueryResolver
-    | GraphQLStoreSingleQueryResolver);
+    | GraphQLStoreSingleQueryResolver
+  );
   _storeData: RelayStoreData;
 
   constructor(

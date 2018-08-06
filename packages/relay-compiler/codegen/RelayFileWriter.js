@@ -4,14 +4,12 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayFileWriter
  * @flow
  * @format
  */
 
 'use strict';
 
-const RelayFlowGenerator = require('../core/RelayFlowGenerator');
 const RelayParser = require('../core/RelayParser');
 const RelayValidator = require('../core/RelayValidator');
 
@@ -31,13 +29,20 @@ const {
 } = require('graphql-compiler');
 const {Map: ImmutableMap} = require('immutable');
 
-import type {ScalarTypeMapping} from '../core/RelayFlowTypeTransformers';
+import type {
+  FormatModule,
+  TypeGenerator,
+} from '../language/RelayLanguagePluginInterface';
+import type {ScalarTypeMapping} from '../language/javascript/RelayFlowTypeTransformers';
 import type {RelayCompilerTransforms} from './compileRelayArtifacts';
-import type {FormatModule} from './writeRelayGeneratedFile';
-import type {FileWriterInterface, Reporter} from 'graphql-compiler';
+import type {
+  FileWriterInterface,
+  Reporter,
+  SourceControl,
+} from 'graphql-compiler';
 import type {DocumentNode, GraphQLSchema, ValidationContext} from 'graphql';
 
-const {isOperationDefinitionAST} = SchemaUtils;
+const {isExecutableDefinitionAST} = SchemaUtils;
 
 export type GenerateExtraFiles = (
   getOutputDirectory: (path?: string) => CodegenDirectory,
@@ -54,12 +59,16 @@ export type WriterConfig = {
   formatModule: FormatModule,
   generateExtraFiles?: GenerateExtraFiles,
   inputFieldWhiteListForFlow: Array<string>,
-  outputDir?: string,
+  outputDir?: ?string,
+  generatedDirectories?: Array<string>,
   persistQuery?: (text: string) => Promise<string>,
   platform?: string,
   relayRuntimeModule?: string,
   schemaExtensions: Array<string>,
+  noFutureProofEnums: boolean,
   useHaste: boolean,
+  extension: string,
+  typeGenerator: TypeGenerator,
   // Haste style module that exports flow types for GraphQL enums.
   // TODO(T22422153) support non-haste environments
   enumsHasteModule?: string,
@@ -76,6 +85,7 @@ class RelayFileWriter implements FileWriterInterface {
   _baseDocuments: ImmutableMap<string, DocumentNode>;
   _documents: ImmutableMap<string, DocumentNode>;
   _reporter: Reporter;
+  _sourceControl: ?SourceControl;
 
   constructor({
     config,
@@ -84,20 +94,23 @@ class RelayFileWriter implements FileWriterInterface {
     documents,
     schema,
     reporter,
-  }: {
+    sourceControl,
+  }: {|
     config: WriterConfig,
     onlyValidate: boolean,
     baseDocuments: ImmutableMap<string, DocumentNode>,
     documents: ImmutableMap<string, DocumentNode>,
     schema: GraphQLSchema,
     reporter: Reporter,
-  }) {
+    sourceControl: ?SourceControl,
+  |}) {
     this._baseDocuments = baseDocuments || ImmutableMap();
     this._baseSchema = schema;
     this._config = config;
     this._documents = documents;
     this._onlyValidate = onlyValidate;
     this._reporter = reporter;
+    this._sourceControl = sourceControl;
 
     validateConfig(this._config);
   }
@@ -121,7 +134,7 @@ class RelayFileWriter implements FileWriterInterface {
       const baseDefinitionNames = new Set();
       this._baseDocuments.forEach(doc => {
         doc.definitions.forEach(def => {
-          if (isOperationDefinitionAST(def) && def.name) {
+          if (isExecutableDefinitionAST(def) && def.name) {
             baseDefinitionNames.add(def.name.value);
           }
         });
@@ -144,6 +157,10 @@ class RelayFileWriter implements FileWriterInterface {
         allOutputDirectories.set(dirPath, codegenDir);
         return codegenDir;
       };
+
+      for (const existingDirectory of this._config.generatedDirectories || []) {
+        addCodegenDir(existingDirectory);
+      }
 
       let configOutputDirectory;
       if (this._config.outputDir) {
@@ -205,7 +222,7 @@ class RelayFileWriter implements FileWriterInterface {
       };
 
       const transformedFlowContext = compilerContext.applyTransforms(
-        RelayFlowGenerator.flowTransforms,
+        this._config.typeGenerator.transforms,
         this._reporter,
       );
       const transformedQueryContext = compilerContext.applyTransforms(
@@ -258,20 +275,22 @@ class RelayFileWriter implements FileWriterInterface {
             const relayRuntimeModule =
               this._config.relayRuntimeModule || 'relay-runtime';
 
-            const flowNode = transformedFlowContext.get(node.name);
+            const typeNode = transformedFlowContext.get(node.name);
             invariant(
-              flowNode,
-              'RelayFileWriter: did not compile flow types for: %s',
+              typeNode,
+              'RelayFileWriter: did not compile types for: %s',
               node.name,
             );
 
-            const flowTypes = RelayFlowGenerator.generate(flowNode, {
+            const typeText = this._config.typeGenerator.generate(typeNode, {
               customScalars: this._config.customScalars,
               enumsHasteModule: this._config.enumsHasteModule,
               existingFragmentNames,
               inputFieldWhiteList: this._config.inputFieldWhiteListForFlow,
               relayRuntimeModule,
               useHaste: this._config.useHaste,
+              useSingleArtifactDirectory: !!this._config.outputDir,
+              noFutureProofEnums: this._config.noFutureProofEnums,
             });
 
             const sourceHash = Profiler.run('hashGraphQL', () =>
@@ -282,11 +301,12 @@ class RelayFileWriter implements FileWriterInterface {
               getGeneratedDirectory(node.name),
               node,
               formatModule,
-              flowTypes,
+              typeText,
               persistQuery,
               this._config.platform,
               relayRuntimeModule,
               sourceHash,
+              this._config.extension,
             );
           }),
         );
@@ -319,11 +339,17 @@ class RelayFileWriter implements FileWriterInterface {
         allOutputDirectories.forEach(dir => {
           dir.deleteExtraFiles();
         });
+        if (this._sourceControl && !this._onlyValidate) {
+          await CodegenDirectory.sourceControlAddRemove(
+            this._sourceControl,
+            Array.from(allOutputDirectories.values()),
+          );
+        }
       } catch (error) {
         let details;
         try {
           details = JSON.parse(error.message);
-        } catch (_) {}
+        } catch (_) {} // eslint-disable-line lint/no-unused-catch-bindings
         if (
           details &&
           details.name === 'GraphQL2Exception' &&

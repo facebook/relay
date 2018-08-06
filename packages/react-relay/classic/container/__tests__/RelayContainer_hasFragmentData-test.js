@@ -15,7 +15,7 @@ require('configureForRelayOSS');
 jest.mock('warning').mock('../../query-config/RelayQueryConfig');
 
 const React = require('React');
-const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
+const RelayClassic = require('../../RelayPublic');
 const RelayEnvironment = require('../../store/RelayEnvironment');
 const RelayQueryConfig = require('../../query-config/RelayQueryConfig');
 const RelayRecord = require('../../store/RelayRecord');
@@ -45,9 +45,9 @@ describe('RelayContainer', () => {
           return <div />;
         }
       }
-      MockContainer = RelayClassic_DEPRECATED.createContainer(MockComponent, {
+      MockContainer = RelayClassic.createContainer(MockComponent, {
         fragments: {
-          foo: () => RelayClassic_DEPRECATED.QL`fragment on Node{id}`,
+          foo: () => RelayClassic.QL`fragment on Node{id}`,
         },
       });
       const RelayTestRenderer = RelayTestUtils.createRenderer();

@@ -12,14 +12,11 @@
 
 jest.mock('generateClientID');
 
-const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
-const RelayReferenceMarker = require('RelayReferenceMarker');
-const RelayStoreUtils = require('RelayStoreUtils');
+const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayModernTestUtils = require('RelayModernTestUtils');
-const Set = require('Set');
 
-const {mark} = RelayReferenceMarker;
-const {ROOT_ID} = RelayStoreUtils;
+const {mark} = require('../RelayReferenceMarker');
+const {ROOT_ID} = require('../RelayStoreUtils');
 
 describe('RelayReferenceMarker', () => {
   const {generateAndCompile} = RelayModernTestUtils;
@@ -140,6 +137,40 @@ describe('RelayReferenceMarker', () => {
       'client:4',
       'client:root',
     ]);
+  });
+
+  it('handles deferrable queries', () => {
+    const {FooQuery} = generateAndCompile(
+      `
+    query FooQuery($id: ID!) {
+      node(id: $id) {
+        id
+        __typename
+        ... on Page {
+          actors {
+            name
+          }
+        }
+        ...UserProfile @relay(deferrable: true)
+      }
+    }
+
+    fragment UserProfile on User {
+      firstName
+    }
+  `,
+    );
+    const references = new Set();
+    mark(
+      source,
+      {
+        dataID: ROOT_ID,
+        node: FooQuery.requests[0].operation,
+        variables: {id: '1'},
+      },
+      references,
+    );
+    expect(Array.from(references).sort()).toEqual(['1', 'client:root']);
   });
 
   it('marks "handle" nodes for queries', () => {

@@ -11,6 +11,14 @@
 'use strict';
 
 import type {RelayEnvironmentInterface as RelayClassicEnvironment} from '../../classic/store/RelayEnvironment';
-import type {IEnvironment} from 'RelayRuntime';
+import type {IEnvironment} from 'relay-runtime';
 
 export type CompatEnvironment = IEnvironment | RelayClassicEnvironment;
+
+declare class RelayCompatContainerClass<Props> extends React$Component<Props> {
+  static getFragment: Function;
+}
+
+export type RelayCompatContainer<Props> = Class<
+  RelayCompatContainerClass<Props>,
+>;

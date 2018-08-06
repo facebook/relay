@@ -26,7 +26,7 @@ const invariant = require('invariant');
 const nullthrows = require('nullthrows');
 const resolveImmediate = require('resolveImmediate');
 
-const {ConnectionInterface} = require('RelayRuntime');
+const {ConnectionInterface} = require('relay-runtime');
 
 import type {ConcreteMutation} from '../query/ConcreteQuery';
 import type RelayQueryTracker from '../store/RelayQueryTracker';
@@ -39,7 +39,7 @@ import type {
 } from '../tools/RelayTypes';
 import type RelayMutation from './RelayMutation';
 import type {FileMap} from './RelayMutation';
-import type {DeclarativeMutationConfig, Variables} from 'RelayRuntime';
+import type {DeclarativeMutationConfig, Variables} from 'relay-runtime';
 
 type CollisionQueueMap = {[key: string]: Array<PendingTransaction>};
 interface PendingTransaction {
@@ -388,8 +388,7 @@ class RelayPendingTransaction {
   // Lazily computed and memoized private properties
   _callName: string;
   _collisionKey: ?string;
-  // $FlowFixMe(>=0.34.0)
-  _configs: Array<{[key: string]: mixed}>;
+  _configs: Array<DeclarativeMutationConfig>;
   _error: ?Error;
   _fatQuery: RelayQuery.Fragment;
   _files: ?FileMap;
@@ -397,8 +396,7 @@ class RelayPendingTransaction {
   _mutationNode: ConcreteMutation;
   _onCommitFailureCallback: ?RelayMutationTransactionCommitFailureCallback;
   _onCommitSuccessCallback: ?RelayMutationTransactionCommitSuccessCallback;
-  // $FlowFixMe(>=0.34.0)
-  _optimisticConfigs: ?Array<{[key: string]: mixed}>;
+  _optimisticConfigs: ?Array<DeclarativeMutationConfig>;
   _optimisticQuery: ?RelayQuery.Mutation;
   _optimisticResponse: ?Object;
   _query: RelayQuery.Mutation;

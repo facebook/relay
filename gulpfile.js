@@ -4,32 +4,33 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
+ *
+ * @noformat
  */
 
 'use strict';
 
 const babel = require('gulp-babel');
 const babelOptions = require('./scripts/getBabelOptions')({
+  ast: false,
   moduleMap: {
+    '@babel/generator': '@babel/generator',
+    '@babel/parser': '@babel/parser',
+    '@babel/types': '@babel/types',
     'babel-core': 'babel-core',
     'babel-generator': 'babel-generator',
     'babel-generator/lib/printer': 'babel-generator/lib/printer',
     'babel-polyfill': 'babel-polyfill',
-    'babel-runtime/helpers/asyncToGenerator':
-      'babel-runtime/helpers/asyncToGenerator',
-    'babel-runtime/helpers/classCallCheck':
-      'babel-runtime/helpers/classCallCheck',
-    'babel-runtime/helpers/defineProperty':
-      'babel-runtime/helpers/defineProperty',
+    'babel-runtime/helpers/asyncToGenerator': 'babel-runtime/helpers/asyncToGenerator',
+    'babel-runtime/helpers/classCallCheck': 'babel-runtime/helpers/classCallCheck',
+    'babel-runtime/helpers/defineProperty': 'babel-runtime/helpers/defineProperty',
     'babel-runtime/helpers/extends': 'babel-runtime/helpers/extends',
     'babel-runtime/helpers/inherits': 'babel-runtime/helpers/inherits',
-    'babel-runtime/helpers/possibleConstructorReturn':
-      'babel-runtime/helpers/possibleConstructorReturn',
-    'babel-runtime/helpers/toConsumableArray':
-      'babel-runtime/helpers/toConsumableArray',
+    'babel-runtime/helpers/objectWithoutProperties': 'babel-runtime/helpers/objectWithoutProperties',
+    'babel-runtime/helpers/possibleConstructorReturn': 'babel-runtime/helpers/possibleConstructorReturn',
+    'babel-runtime/helpers/toConsumableArray': 'babel-runtime/helpers/toConsumableArray',
     'babel-traverse': 'babel-traverse',
     'babel-types': 'babel-types',
-    babylon: 'babylon',
     chalk: 'chalk',
     child_process: 'child_process',
     crypto: 'crypto',
@@ -37,7 +38,7 @@ const babelOptions = require('./scripts/getBabelOptions')({
     'fb-watchman': 'fb-watchman',
     fs: 'fs',
     graphql: 'graphql',
-    'graphql-compiler': './GraphQLCompilerPublic',
+    'graphql-compiler': 'graphql-compiler',
     immutable: 'immutable',
     iterall: 'iterall',
     net: 'net',
@@ -46,22 +47,25 @@ const babelOptions = require('./scripts/getBabelOptions')({
     process: 'process',
     'prop-types': 'prop-types',
     React: 'react',
+    'react-lifecycles-compat': 'react-lifecycles-compat',
     'relay-compiler': 'relay-compiler',
     ReactDOM: 'react-dom',
     ReactNative: 'react-native',
     RelayRuntime: 'relay-runtime',
+    'relay-runtime': 'relay-runtime',
     signedsource: 'signedsource',
     util: 'util',
-    yargs: 'yargs'
+    yargs: 'yargs',
   },
   plugins: [
     'transform-flow-strip-types',
-    ['transform-runtime', {polyfill: false}]
+    ['transform-runtime', {polyfill: false}],
   ],
   postPlugins: [
     'transform-async-to-generator',
-    'transform-es2015-modules-commonjs'
-  ]
+    'transform-es2015-modules-commonjs',
+  ],
+  sourceType: 'script',
 });
 const del = require('del');
 const derequire = require('gulp-derequire');
@@ -89,7 +93,7 @@ const PRODUCTION_HEADER =
     ' *',
     ' * This source code is licensed under the MIT license found in the',
     ' * LICENSE file in the root directory of this source tree.',
-    ' */'
+    ' */',
   ].join('\n') + '\n';
 
 const buildDist = function(filename, opts, isProduction) {
@@ -102,22 +106,22 @@ const buildDist = function(filename, opts, isProduction) {
       net: 'empty',
       path: 'empty',
       child_process: 'empty',
-      util: 'empty'
+      util: 'empty',
     },
     output: {
       filename: filename,
       libraryTarget: opts.libraryTarget,
-      library: opts.libraryName
+      library: opts.libraryName,
     },
     plugins: [
       new webpackStream.webpack.DefinePlugin({
         'process.env.NODE_ENV': JSON.stringify(
           isProduction ? 'production' : 'development'
-        )
+        ),
       }),
       new webpackStream.webpack.optimize.OccurenceOrderPlugin(),
-      new webpackStream.webpack.optimize.DedupePlugin()
-    ]
+      new webpackStream.webpack.optimize.DedupePlugin(),
+    ],
   };
   if (isProduction && !opts.noMinify) {
     webpackOpts.plugins.push(
@@ -125,8 +129,8 @@ const buildDist = function(filename, opts, isProduction) {
         compress: {
           hoist_vars: true,
           screw_ie8: true,
-          warnings: false
-        }
+          warnings: false,
+        },
       })
     );
   }
@@ -148,7 +152,7 @@ const builds = [
   {
     package: 'babel-plugin-relay',
     exports: {
-      index: 'BabelPluginRelay.js'
+      index: 'BabelPluginRelay.js',
     },
     bundles: [
       {
@@ -156,9 +160,9 @@ const builds = [
         output: 'babel-plugin-relay',
         libraryName: 'BabelPluginRelay',
         libraryTarget: 'commonjs2',
-        target: 'node'
-      }
-    ]
+        target: 'node',
+      },
+    ],
   },
   {
     package: 'react-relay',
@@ -173,26 +177,26 @@ const builds = [
         entry: 'ReactRelayClassicExports.js',
         output: 'react-relay-classic',
         libraryName: 'ReactRelayClassic',
-        libraryTarget: 'umd'
+        libraryTarget: 'umd',
       },
       {
         entry: 'ReactRelayCompatPublic.js',
         output: 'react-relay-compat',
         libraryName: 'ReactRelayCompat',
-        libraryTarget: 'umd'
+        libraryTarget: 'umd',
       },
       {
         entry: 'ReactRelayPublic.js',
         output: 'react-relay',
         libraryName: 'ReactRelay',
-        libraryTarget: 'umd'
-      }
-    ]
+        libraryTarget: 'umd',
+      },
+    ],
   },
   {
     package: 'relay-compiler',
     exports: {
-      index: 'RelayCompilerPublic.js'
+      index: 'RelayCompilerPublic.js',
     },
     bundles: [
       {
@@ -201,36 +205,52 @@ const builds = [
         libraryName: 'RelayCompiler',
         libraryTarget: 'commonjs2',
         target: 'node',
-        noMinify: true // Note: uglify can't yet handle modern JS
-      }
+        noMinify: true, // Note: uglify can't yet handle modern JS
+      },
     ],
     bins: [
       {
         entry: 'RelayCompilerBin.js',
         output: 'relay-compiler',
         libraryTarget: 'commonjs2',
-        target: 'node'
-      }
-    ]
+        target: 'node',
+      },
+    ],
+  },
+  {
+    package: 'graphql-compiler',
+    exports: {
+      index: 'GraphQLCompilerPublic.js',
+    },
+    bundles: [
+      {
+        entry: 'GraphQLCompilerPublic.js',
+        output: 'graphql-compiler',
+        libraryName: 'GraphQLCompiler',
+        libraryTarget: 'commonjs2',
+        target: 'node',
+        noMinify: true, // Note: uglify can't yet handle modern JS
+      },
+    ],
   },
   {
     package: 'relay-runtime',
     exports: {
-      index: 'RelayRuntime.js'
+      index: 'index.js',
     },
     bundles: [
       {
         entry: 'RelayRuntime.js',
         output: 'relay-runtime',
         libraryName: 'RelayRuntime',
-        libraryTarget: 'umd'
-      }
-    ]
+        libraryTarget: 'umd',
+      },
+    ],
   },
   {
     package: 'relay-test-utils',
     exports: {
-      index: 'RelayTestUtilsPublic.js'
+      index: 'RelayTestUtilsPublic.js',
     },
     bundles: [
       {
@@ -238,10 +258,10 @@ const builds = [
         output: 'relay-test-utils',
         libraryName: 'RelayTestUtils',
         target: 'node',
-        noMinify: true // Note: uglify can't yet handle modern JS
-      }
-    ]
-  }
+        noMinify: true, // Note: uglify can't yet handle modern JS
+      },
+    ],
+  },
 ];
 
 gulp.task('clean', function() {
@@ -254,11 +274,8 @@ gulp.task('modules', function() {
       gulp
         .src([
           '*' + PACKAGES + '/' + build.package + '/**/*.js',
-          '*' + PACKAGES + '/react-relay/classic/tools/*.js',
-          '*' + PACKAGES + '/react-relay/classic/util/*.js',
-          '*' + PACKAGES + '/relay-runtime/util/*.js',
           '!' + PACKAGES + '/**/__tests__/**/*.js',
-          '!' + PACKAGES + '/**/__mocks__/**/*.js'
+          '!' + PACKAGES + '/**/__mocks__/**/*.js',
         ])
         .pipe(babel(babelOptions))
         .pipe(flatten())
@@ -276,14 +293,12 @@ gulp.task('copy-files', function() {
             'LICENSE',
             '*' + PACKAGES + '/' + build.package + '/*',
             '!' + PACKAGES + '/' + build.package + '/*.graphql',
-            '!' + PACKAGES + '/' + build.package + '/**/*.js'
+            '!' + PACKAGES + '/' + build.package + '/**/*.js',
           ])
           .pipe(flatten())
           .pipe(gulp.dest(path.join(DIST, build.package))),
         gulp // Move *.graphql files directly to lib without going through babel
-          .src([
-            '*' + PACKAGES + '/' + build.package + '/*.graphql',
-          ])
+          .src(['*' + PACKAGES + '/' + build.package + '/*.graphql'])
           .pipe(flatten())
           .pipe(gulp.dest(path.join(DIST, build.package, 'lib'))),
       ])
@@ -297,7 +312,7 @@ gulp.task('exports', ['copy-files', 'modules'], function() {
       fs.writeFileSync(
         path.join(DIST, build.package, exportName + '.js'),
         PRODUCTION_HEADER +
-          `\nmodule.exports = require('./lib/${build.exports[exportName]}');`
+          `\nmodule.exports = require('./lib/${build.exports[exportName]}');\n`
       )
     )
   );

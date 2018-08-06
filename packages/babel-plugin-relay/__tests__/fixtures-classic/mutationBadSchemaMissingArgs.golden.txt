@@ -1,3 +1,0 @@
-ERROR:
-
-Error: mutationBadSchemaMissingArgs.input.txt: Relay Transform Error: Your schema defines a mutation field `mutationMissingArg` that takes 0 arguments, but mutation fields must have exactly one argument named `input`.

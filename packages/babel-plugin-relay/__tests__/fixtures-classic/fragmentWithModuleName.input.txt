@@ -1,4 +1,0 @@
-/** @providesModule Foo.react */
-var Relay = require('react-relay');
-var x = Relay.QL`fragment Foo on Node { id }`;
-var y = Relay.QL`fragment Bar on Node { id }`;

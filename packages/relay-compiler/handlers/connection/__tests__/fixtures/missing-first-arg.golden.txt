@@ -1,1 +1,0 @@
-RelayConnectionTransform: Expected field `comments: CommentsConnection` to have a first or last argument in document `NodeQuery`.

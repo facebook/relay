@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
@@ -14,7 +14,7 @@ const invariant = require('invariant');
 const serializeRelayQueryCall = require('../query/serializeRelayQueryCall');
 
 import type {Call, CallValue} from '../tools/RelayInternalTypes';
-import type {RangeBehaviors} from 'RelayDeclarativeMutationConfig';
+import type {RangeBehaviors} from 'relay-runtime';
 
 /**
  * Return the action (prepend/append) to use when adding an item to

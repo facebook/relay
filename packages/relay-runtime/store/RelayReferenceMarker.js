@@ -4,31 +4,31 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayReferenceMarker
- * @flow
+ * @flow strict-local
  * @format
  */
 
 'use strict';
 
-const RelayConcreteNode = require('RelayConcreteNode');
-const RelayModernRecord = require('RelayModernRecord');
-const RelayStoreUtils = require('RelayStoreUtils');
+const RelayConcreteNode = require('../util/RelayConcreteNode');
+const RelayModernRecord = require('./RelayModernRecord');
+const RelayStoreUtils = require('./RelayStoreUtils');
 
-const cloneRelayHandleSourceField = require('cloneRelayHandleSourceField');
+const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
 const invariant = require('invariant');
 
-import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
   ConcreteLinkedField,
   ConcreteNode,
   ConcreteSelection,
-} from 'RelayConcreteNode';
-import type {RecordSource, Selector} from 'RelayStoreTypes';
+} from '../util/RelayConcreteNode';
+import type {DataID, Variables} from '../util/RelayRuntimeTypes';
+import type {RecordSource, Selector} from './RelayStoreTypes';
 import type {Record} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 const {
   CONDITION,
+  DEFERRABLE_FRAGMENT_SPREAD,
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
@@ -93,55 +93,66 @@ class RelayReferenceMarker {
     record: Record,
   ): void {
     selections.forEach(selection => {
-      if (selection.kind === LINKED_FIELD) {
-        if (selection.plural) {
-          this._traversePluralLink(selection, record);
-        } else {
-          this._traverseLink(selection, record);
-        }
-      } else if (selection.kind === CONDITION) {
-        const conditionValue = this._getVariableValue(selection.condition);
-        if (conditionValue === selection.passingValue) {
-          this._traverseSelections(selection.selections, record);
-        }
-      } else if (selection.kind === INLINE_FRAGMENT) {
-        const typeName = RelayModernRecord.getType(record);
-        if (typeName != null && typeName === selection.type) {
-          this._traverseSelections(selection.selections, record);
-        }
-      } else if (selection.kind === FRAGMENT_SPREAD) {
-        invariant(
-          false,
-          'RelayReferenceMarker(): Unexpected fragment spread `...%s`, ' +
-            'expected all fragments to be inlined.',
-          selection.name,
-        );
-      } else if (selection.kind === LINKED_HANDLE) {
-        // The selections for a "handle" field are the same as those of the
-        // original linked field where the handle was applied. Reference marking
-        // therefore requires traversing the original field selections against
-        // the synthesized client field.
-        //
-        // TODO: Instead of finding the source field in `selections`, change
-        // the concrete structure to allow shared subtrees, and have the linked
-        // handle directly refer to the same selections as the LinkedField that
-        // it was split from.
-        const handleField = cloneRelayHandleSourceField(
-          selection,
-          selections,
-          this._variables,
-        );
-        if (handleField.plural) {
-          this._traversePluralLink(handleField, record);
-        } else {
-          this._traverseLink(handleField, record);
-        }
-      } else {
-        invariant(
-          selection.kind === SCALAR_FIELD || selection.kind === SCALAR_HANDLE,
-          'RelayReferenceMarker(): Unexpected ast kind `%s`.',
-          selection.kind,
-        );
+      /* eslint-disable no-fallthrough */
+      switch (selection.kind) {
+        case LINKED_FIELD:
+          if (selection.plural) {
+            this._traversePluralLink(selection, record);
+          } else {
+            this._traverseLink(selection, record);
+          }
+          break;
+        case CONDITION:
+          const conditionValue = this._getVariableValue(selection.condition);
+          if (conditionValue === selection.passingValue) {
+            this._traverseSelections(selection.selections, record);
+          }
+          break;
+        case INLINE_FRAGMENT:
+          const typeName = RelayModernRecord.getType(record);
+          if (typeName != null && typeName === selection.type) {
+            this._traverseSelections(selection.selections, record);
+          }
+          break;
+        case FRAGMENT_SPREAD:
+          invariant(
+            false,
+            'RelayReferenceMarker(): Unexpected fragment spread `...%s`, ' +
+              'expected all fragments to be inlined.',
+            selection.name,
+          );
+        case LINKED_HANDLE:
+          // The selections for a "handle" field are the same as those of the
+          // original linked field where the handle was applied. Reference marking
+          // therefore requires traversing the original field selections against
+          // the synthesized client field.
+          //
+          // TODO: Instead of finding the source field in `selections`, change
+          // the concrete structure to allow shared subtrees, and have the linked
+          // handle directly refer to the same selections as the LinkedField that
+          // it was split from.
+          const handleField = cloneRelayHandleSourceField(
+            selection,
+            selections,
+            this._variables,
+          );
+          if (handleField.plural) {
+            this._traversePluralLink(handleField, record);
+          } else {
+            this._traverseLink(handleField, record);
+          }
+          break;
+        case SCALAR_FIELD:
+        case SCALAR_HANDLE:
+        case DEFERRABLE_FRAGMENT_SPREAD:
+          break;
+        default:
+          (selection: empty);
+          invariant(
+            false,
+            'RelayReferenceMarker: Unknown AST node `%s`.',
+            selection,
+          );
       }
     });
   }

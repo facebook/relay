@@ -4,18 +4,16 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayApplyFragmentArgumentTransform
  * @flow
  * @format
  */
 
 'use strict';
 
-const Map = require('Map');
 const RelayCompilerScope = require('../core/RelayCompilerScope');
 
 const invariant = require('invariant');
-const murmurHash = require('murmurHash');
+const murmurHash = require('../util/murmurHash');
 
 const {
   getIdentifierForArgumentValue,
@@ -28,6 +26,7 @@ import type {
   ArgumentValue,
   Condition,
   CompilerContext,
+  DeferrableFragmentSpread,
   Directive,
   Field,
   Fragment,
@@ -139,6 +138,32 @@ function transformFragmentSpread(
   };
 }
 
+function transformDeferrableFragmentSpread(
+  context: CompilerContext,
+  fragments: Map<string, ?Fragment>,
+  scope: Scope,
+  spread: DeferrableFragmentSpread,
+): ?DeferrableFragmentSpread {
+  const directives = transformDirectives(scope, spread.directives);
+  const fragment = context.getFragment(spread.name);
+  const appliedFragment = transformFragment(
+    context,
+    fragments,
+    scope,
+    fragment,
+    spread.fragmentArgs,
+  );
+  if (!appliedFragment) {
+    return null;
+  }
+  return {
+    ...spread,
+    fragmentArgs: [],
+    directives,
+    name: appliedFragment.name,
+  };
+}
+
 function transformField<T: Field>(
   context: CompilerContext,
   fragments: Map<string, ?Fragment>,
@@ -226,6 +251,13 @@ function transformSelections(
       nextSelection = transformNode(context, fragments, scope, selection);
     } else if (selection.kind === 'FragmentSpread') {
       nextSelection = transformFragmentSpread(
+        context,
+        fragments,
+        scope,
+        selection,
+      );
+    } else if (selection.kind === 'DeferrableFragmentSpread') {
+      nextSelection = transformDeferrableFragmentSpread(
         context,
         fragments,
         scope,
@@ -325,9 +357,10 @@ function transformFragment(
     fragment.argumentDefinitions,
     args,
     parentScope,
+    fragment.name,
   );
   invariant(
-    !fragments.has(fragmentName) || fragments.get(fragmentName) !== undefined,
+    !fragments.has(fragmentName) || fragments.get(fragmentName) != null,
     'RelayApplyFragmentArgumentTransform: Found a circular reference from ' +
       'fragment `%s`.',
     fragment.name,

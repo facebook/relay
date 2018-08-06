@@ -17,7 +17,7 @@ const resolveImmediate = require('resolveImmediate');
 const throwFailedPromise = require('../util/throwFailedPromise');
 const warning = require('warning');
 
-const {RelayProfiler} = require('RelayRuntime');
+const {RelayProfiler} = require('relay-runtime');
 
 import type RelayQuery from '../query/RelayQuery';
 import type {ChangeSubscription, NetworkLayer} from '../tools/RelayTypes';
@@ -105,7 +105,6 @@ class RelayNetworkLayer {
     this._subscribers.forEach(({queryCallback}) => {
       if (queryCallback) {
         queryRequests.forEach(request => {
-          // $FlowIssue #10907496 queryCallback was checked above
           queryCallback(request);
         });
       }

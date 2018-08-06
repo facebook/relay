@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayModernFragmentSpecResolver
  * @flow
  * @format
  */
@@ -12,12 +11,12 @@
 'use strict';
 
 const invariant = require('invariant');
-const isScalarAndEqual = require('isScalarAndEqual');
+const isScalarAndEqual = require('../util/isScalarAndEqual');
 
 const {
   areEqualSelectors,
   getSelectorsFromObject,
-} = require('RelayModernSelector');
+} = require('./RelayModernSelector');
 
 import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
 import type {
@@ -26,7 +25,7 @@ import type {
   RelayContext,
   Selector,
   Snapshot,
-} from 'RelayStoreTypes';
+} from './RelayStoreTypes';
 import type {
   FragmentSpecResolver,
   FragmentSpecResults,
@@ -56,7 +55,7 @@ type Resolvers = {[key: string]: ?(SelectorListResolver | SelectorResolver)};
  * recomputed the first time `resolve()` is called.
  */
 class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
-  _callback: () => void;
+  _callback: ?() => void;
   _context: RelayContext;
   _data: Object;
   _fragments: FragmentMap;
@@ -68,7 +67,7 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
     context: RelayContext,
     fragments: FragmentMap,
     props: Props,
-    callback: () => void,
+    callback?: () => void,
   ) {
     this._callback = callback;
     this._context = context;
@@ -132,6 +131,10 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
       }
     }
     return false;
+  }
+
+  setCallback(callback: () => void): void {
+    this._callback = callback;
   }
 
   setProps(props: Props): void {
@@ -201,7 +204,10 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
 
   _onChange = (): void => {
     this._stale = true;
-    this._callback();
+
+    if (typeof this._callback === 'function') {
+      this._callback();
+    }
   };
 }
 

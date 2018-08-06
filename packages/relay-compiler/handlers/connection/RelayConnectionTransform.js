@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @flow
- * @providesModule RelayConnectionTransform
  * @format
  */
 
@@ -16,8 +15,6 @@ const RelayParser = require('../../core/RelayParser');
 const invariant = require('invariant');
 
 const {AFTER, BEFORE, FIRST, KEY, LAST} = require('./RelayConnectionConstants');
-// TODO T21875029 ../../../relay-runtime/RelayRuntime
-const {ConnectionInterface} = require('RelayRuntime');
 const {
   assertCompositeType,
   GraphQLInterfaceType,
@@ -32,9 +29,8 @@ const {
   IRTransformer,
   SchemaUtils,
 } = require('graphql-compiler');
+const {ConnectionInterface} = require('relay-runtime');
 
-// TODO T21875029 ../../../relay-runtime/handlers/connection/RelayConnectionHandler
-import type {ConnectionMetadata} from 'RelayConnectionHandler';
 import type {
   Argument,
   Fragment,
@@ -44,6 +40,7 @@ import type {
   CompilerContext,
 } from 'graphql-compiler';
 import type {GraphQLType} from 'graphql';
+import type {ConnectionMetadata} from 'relay-runtime';
 
 type Options = {
   // The current path
@@ -138,6 +135,9 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
     direction = 'backward';
     countArg = lastArg;
     cursorArg = findArg(transformedField, BEFORE);
+  } else if (lastArg && firstArg) {
+    direction = 'bidirectional';
+    // TODO(T26511885) Maybe add connection metadata to this case
   }
   const countVariable =
     countArg && countArg.value.kind === 'Variable'
@@ -226,7 +226,7 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
 function generateConnectionFragment(
   context: CompilerContext,
   type: GraphQLType,
-  direction: 'forward' | 'backward',
+  direction: 'forward' | 'backward' | 'bidirectional',
 ): InlineFragment {
   const {
     CURSOR,
@@ -249,8 +249,15 @@ function generateConnectionFragment(
       ${END_CURSOR}
       ${HAS_NEXT_PAGE}
     }`;
+  } else if (direction === 'backward') {
+    pageInfo += `{
+      ${HAS_PREV_PAGE}
+      ${START_CURSOR}
+    }`;
   } else {
     pageInfo += `{
+      ${END_CURSOR}
+      ${HAS_NEXT_PAGE}
       ${HAS_PREV_PAGE}
       ${START_CURSOR}
     }`;
@@ -311,27 +318,24 @@ function validateConnectionSelection(
 ): void {
   const {EDGES} = ConnectionInterface.get();
 
-  invariant(
-    findArg(field, FIRST) || findArg(field, LAST),
-    'RelayConnectionTransform: Expected field `%s: %s` to have a %s or %s ' +
-      'argument in document `%s`.',
-    field.name,
-    field.type,
-    FIRST,
-    LAST,
-    definitionName,
-  );
-  invariant(
-    field.selections.some(
+  if (!findArg(field, FIRST) && !findArg(field, LAST)) {
+    throw new Error(
+      `RelayConnectionTransform: Expected field \`${field.name}: ` +
+        `${String(field.type)}\` to have a ${FIRST} or ${LAST} argument in ` +
+        `document \`${definitionName}\`.`,
+    );
+  }
+  if (
+    !field.selections.some(
       selection => selection.kind === 'LinkedField' && selection.name === EDGES,
-    ),
-    'RelayConnectionTransform: Expected field `%s: %s` to have a %s ' +
-      'selection in document `%s`.',
-    field.name,
-    field.type,
-    EDGES,
-    definitionName,
-  );
+    )
+  ) {
+    throw new Error(
+      `RelayConnectionTransform: Expected field \`${field.name}: ` +
+        `${String(field.type)}\` to have a ${EDGES} selection in document ` +
+        `\`${definitionName}\`.`,
+    );
+  }
 }
 
 /**

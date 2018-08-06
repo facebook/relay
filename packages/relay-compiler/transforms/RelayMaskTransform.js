@@ -6,7 +6,6 @@
  *
  * All rights reserved.
  *
- * @providesModule RelayMaskTransform
  * @flow
  * @format
  */
@@ -57,7 +56,7 @@ function relayMaskTransform(context: CompilerContext): CompilerContext {
 
 function visitFragment(fragment: Fragment, state: State): Fragment {
   const result = this.traverse(fragment, state);
-  if (state.hoistedArgDefs.length === 0) {
+  if (state.hoistedArgDefs.size === 0) {
     return result;
   }
   const existingArgDefs = new Map();

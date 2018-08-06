@@ -49,7 +49,7 @@ Fragments can be composed in one of two ways:
 
 ### Container.getFragment()
 
-Composing the fragments of child components is discussed in detail in the [Containers Guide](guides-containers.html), but here's a quick example:
+Composing the fragments of child components is discussed in detail in the [Containers Guide](classic-guides-containers.html), but here's a quick example:
 
 ```{5}
 Relay.createContainer(Foo, {

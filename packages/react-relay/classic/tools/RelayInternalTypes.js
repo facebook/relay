@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
@@ -17,7 +17,7 @@
  */
 
 import type RelayQuery from '../query/RelayQuery';
-import type {DataID} from 'RelayRuntime';
+import type {DataID} from 'relay-runtime';
 
 type AfterConnectionArgumentMap = {
   after: string,
@@ -57,7 +57,8 @@ export type CallValue = ?(
   | number
   | string
   | {[key: string]: CallValue}
-  | Array<CallValue>);
+  | Array<CallValue>
+);
 export type ClientMutationID = string;
 export type ConnectionArgumentsMap =
   | AfterConnectionArgumentMap

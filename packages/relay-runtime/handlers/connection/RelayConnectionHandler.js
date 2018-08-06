@@ -4,30 +4,29 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayConnectionHandler
  * @flow
  * @format
  */
 
 'use strict';
 
-const RelayConnectionInterface = require('RelayConnectionInterface');
+const RelayConnectionInterface = require('./RelayConnectionInterface');
 
-const generateRelayClientID = require('generateRelayClientID');
-const getRelayHandleKey = require('getRelayHandleKey');
+const generateRelayClientID = require('../../store/generateRelayClientID');
+const getRelayHandleKey = require('../../util/getRelayHandleKey');
 const invariant = require('invariant');
 const warning = require('warning');
 
-import type {DataID, Variables} from '../../util/RelayRuntimeTypes';
 import type {
   HandleFieldPayload,
   RecordProxy,
   RecordSourceProxy,
-} from 'RelayStoreTypes';
+} from '../../store/RelayStoreTypes';
+import type {DataID, Variables} from '../../util/RelayRuntimeTypes';
 
 export type ConnectionMetadata = {
   path: ?Array<string>,
-  direction: ?('forward' | 'backward'),
+  direction: ?('forward' | 'backward' | 'bidirectional'),
   cursor: ?string,
   count: ?string,
 };
@@ -179,7 +178,11 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
     }
     // Page info should be updated even if no new edge were returned.
     if (clientPageInfo && serverPageInfo) {
-      if (args.before != null || (args.after == null && args.last)) {
+      if (args.after == null && args.before == null) {
+        // The connection was refetched from the beginning/end: replace
+        // page_info
+        clientPageInfo.copyFieldsFrom(serverPageInfo);
+      } else if (args.before != null || (args.after == null && args.last)) {
         clientPageInfo.setValue(
           !!serverPageInfo.getValue(HAS_PREV_PAGE),
           HAS_PREV_PAGE,
@@ -492,7 +495,7 @@ function buildConnectionEdge(
  * @internal
  *
  * Adds the source edges to the target edges, skipping edges with
- * duplicate cursors or node ids.
+ * duplicate node ids.
  */
 function mergeEdges(
   sourceEdges: Array<?RecordProxy>,

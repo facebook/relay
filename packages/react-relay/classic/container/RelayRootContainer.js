@@ -17,15 +17,11 @@ const RelayRenderer = require('./RelayRenderer');
 const RelayStore = require('../store/RelayStore');
 
 import type {RelayQueryConfigInterface} from '../query-config/RelayQueryConfig';
-import type {
-  ComponentFetchState,
-  ReadyState,
-  RelayContainer,
-} from '../tools/RelayTypes';
+import type {ComponentFetchState, ReadyState} from '../tools/RelayTypes';
 import type {RelayRetryCallback} from './RelayReadyStateRenderer';
 
 export type RootContainerProps = {
-  Component: RelayContainer,
+  Component: React.ComponentType<any>,
   forceFetch?: ?boolean,
   shouldFetch?: ?boolean,
   onReadyStateChange?: ?(readyState: ReadyState) => void,

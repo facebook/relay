@@ -38,7 +38,7 @@ Once you have an environment, you can pass it in to your [`QueryRenderer`](./que
 
 ## Adding a `handlerProvider`
 
-The example above did not configure a `handlerProvider`, which means that a default one will be provided. Relay Modern comes with a couple of built-in handlers that augment the core with special functionality for handling connections (which is not a standard GraphQL feature, but a set of pagination conventions used at Facebook, specified in detail in the [Relay Cursor Connections Specification](./graphql-connections.html), and well-supported by Relay itself) and the `viewer` field (again, not a standard GraphQL schema feature, but one which has been conventionally used extensively within Facebook).
+The example above did not configure a `handlerProvider`, which means that a default one will be provided. Relay Modern comes with a couple of built-in handlers that augment the core with special functionality for handling connections (which is not a standard GraphQL feature, but a set of pagination conventions used at Facebook, specified in detail in the [Relay Cursor Connections Specification](https://facebook.github.io/relay/graphql/connections.htm), and well-supported by Relay itself) and the `viewer` field (again, not a standard GraphQL schema feature, but one which has been conventionally used extensively within Facebook).
 
 If you wish to provide your own `handlerProvider`, you can do so:
 

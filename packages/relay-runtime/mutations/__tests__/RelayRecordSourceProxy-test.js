@@ -10,16 +10,18 @@
 
 'use strict';
 
-const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
+const RelayInMemoryRecordSource = require('../../store/RelayInMemoryRecordSource');
 const RelayModernTestUtils = require('RelayModernTestUtils');
-const RelayRecordProxy = require('RelayRecordProxy');
-const RelayRecordSourceMutator = require('RelayRecordSourceMutator');
-const RelayRecordSourceProxy = require('RelayRecordSourceProxy');
-const RelayStoreUtils = require('RelayStoreUtils');
+const RelayRecordProxy = require('../RelayRecordProxy');
+const RelayRecordSourceMutator = require('../RelayRecordSourceMutator');
+const RelayRecordSourceProxy = require('../RelayRecordSourceProxy');
+const RelayStoreUtils = require('../../store/RelayStoreUtils');
 
-const simpleClone = require('simpleClone');
+const simpleClone = require('../../util/simpleClone');
 
-const {createOperationSelector} = require('RelayModernOperationSelector');
+const {
+  createOperationSelector,
+} = require('../../store/RelayModernOperationSelector');
 
 const {
   ID_KEY,

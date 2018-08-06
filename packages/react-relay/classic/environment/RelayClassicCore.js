@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
@@ -37,7 +37,7 @@ function createFragmentSpecResolver(
   containerName: string,
   fragments: FragmentMap,
   props: Props,
-  callback: () => void,
+  callback?: () => void,
 ): FragmentSpecResolver {
   return new RelayFragmentSpecResolver(context, fragments, props, callback);
 }

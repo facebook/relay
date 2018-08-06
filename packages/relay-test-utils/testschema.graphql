@@ -14,6 +14,7 @@ type Query {
   named: Named
   me: User
   node(id: ID): Node
+  node_id_required(id: ID!): Node
   nodes(ids: [ID!]): [Node]
   settings(environment: Environment): Settings
   story: Story
@@ -92,6 +93,15 @@ input ApplicationRequestDeleteAllInput {
 input CommentCreateInput {
   clientMutationId: String
   feedbackId: ID
+  feedback: CommentfeedbackFeedback
+}
+
+input CommentfeedbackFeedback {
+  comment: FeedbackcommentComment
+}
+
+input FeedbackcommentComment {
+  feedback: CommentfeedbackFeedback
 }
 
 input CommentCreateSubscriptionInput {
@@ -392,7 +402,7 @@ type NodeSavedStateResponsePayload {
   node: Node
 }
 
-type Page implements Node Actor {
+type Page implements Node & Actor {
   actor: Actor
   actors: [Actor]
   actorCount: Int
@@ -484,7 +494,7 @@ type NonNodeStory implements FeedUnit {
   tracking: String
 }
 
-type PhotoStory implements FeedUnit Node {
+type PhotoStory implements FeedUnit & Node {
   # PhotoStory
   photo: Image
 
@@ -530,7 +540,7 @@ type PhotoStory implements FeedUnit Node {
   viewerSavedState: String
 }
 
-type Story implements FeedUnit Node {
+type Story implements FeedUnit & Node {
   attachments: [StoryAttachment]
 
   # FeedUnit
@@ -628,7 +638,7 @@ type UnfriendResponsePayload {
   formerFriend: User
 }
 
-type User implements Named, Node, Actor {
+type User implements Named & Node & Actor {
   actor: Actor
   actors: [Actor]
   actorCount: Int

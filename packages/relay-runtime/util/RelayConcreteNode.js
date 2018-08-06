@@ -4,8 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayConcreteNode
- * @flow
+ * @flow strict
  * @format
  */
 
@@ -31,15 +30,16 @@ export type ConcreteBatchRequest = {
   name: string,
   metadata: {[key: string]: mixed},
   fragment: ConcreteFragment,
-  requests: Array<{
-    name: string,
-    id: ?string,
-    text: ?string,
-    // Arguments in the provided operation to be derived via the results of
-    // other requests in this batch.
-    argumentDependencies: ?Array<ArgumentDependency>,
-    operation: ConcreteOperation | ConcreteDeferrableOperation,
-  }>,
+  requests: Array<ConcreteBatchSubRequest>,
+};
+export type ConcreteBatchSubRequest = {
+  name: string,
+  id: ?string,
+  text: ?string,
+  // Arguments in the provided operation to be derived via the results of
+  // other requests in this batch.
+  argumentDependencies: ?Array<ArgumentDependency>,
+  operation: ConcreteOperation | ConcreteDeferrableOperation,
 };
 /**
  * Argument in the provided operation to be derived via the results of

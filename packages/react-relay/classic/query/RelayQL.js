@@ -23,7 +23,7 @@ import type {
   ConcreteOperationDefinition,
 } from './ConcreteQuery';
 import type {VariableMapping} from './RelayFragmentReference';
-import type {GraphQLTaggedNode} from 'RelayRuntime';
+import type {GraphQLTaggedNode} from 'relay-runtime';
 
 export type RelayConcreteNode = mixed;
 

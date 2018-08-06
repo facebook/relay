@@ -4,17 +4,19 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayNetworkTypes
- * @flow
+ * @flow strict-local
  * @format
  */
 
 'use strict';
 
-import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
-import type {ConcreteOperation, RequestNode} from 'RelayConcreteNode';
-import type RelayObservable, {ObservableFromValue} from 'RelayObservable';
-import type {CacheConfig} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
+import type {ConcreteOperation, RequestNode} from '../util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Disposable,
+  Variables,
+} from '../util/RelayRuntimeTypes';
+import type RelayObservable, {ObservableFromValue} from './RelayObservable';
 
 /**
  * An interface for fetching the data for one or more (possibly interdependent)
@@ -104,6 +106,7 @@ export type SubscribeFunction = (
   | RelayObservable<GraphQLResponse>
   | Disposable;
 
+// $FlowFixMe this is compatible with classic api see D4658012
 export type Uploadable = File | Blob;
 // $FlowFixMe this is compatible with classic api see D4658012
 export type UploadableMap = {[key: string]: Uploadable};

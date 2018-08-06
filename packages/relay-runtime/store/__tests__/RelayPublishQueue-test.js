@@ -10,18 +10,19 @@
 
 'use strict';
 
-const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
-const RelayMarkSweepStore = require('RelayMarkSweepStore');
-const RelayModernRecord = require('RelayModernRecord');
+const ErrorUtils = require('ErrorUtils');
+const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
+const RelayMarkSweepStore = require('../RelayMarkSweepStore');
+const RelayModernRecord = require('../RelayModernRecord');
 const RelayModernTestUtils = require('RelayModernTestUtils');
-const RelayPublishQueue = require('RelayPublishQueue');
-const RelayStoreUtils = require('RelayStoreUtils');
+const RelayPublishQueue = require('../RelayPublishQueue');
+const RelayStoreUtils = require('../RelayStoreUtils');
 
-const getRelayHandleKey = require('getRelayHandleKey');
+const getRelayHandleKey = require('../../util/getRelayHandleKey');
 const invariant = require('invariant');
-const simpleClone = require('simpleClone');
+const simpleClone = require('../../util/simpleClone');
 
-const {createOperationSelector} = require('RelayModernOperationSelector');
+const {createOperationSelector} = require('../RelayModernOperationSelector');
 
 const {ID_KEY, REF_KEY, ROOT_ID, ROOT_TYPE, TYPENAME_KEY} = RelayStoreUtils;
 
@@ -31,6 +32,12 @@ describe('RelayPublishQueue', () => {
   beforeEach(() => {
     jest.resetModules();
     expect.extend(RelayModernTestUtils.matchers);
+
+    ErrorUtils.applyWithGuard = jest.fn((callback, context, params) => {
+      try {
+        callback.apply(context, params);
+      } catch (guarded) {}
+    });
   });
 
   describe('applyUpdate()/revertUpdate()', () => {
@@ -987,6 +994,64 @@ describe('RelayPublishQueue', () => {
       // The optimistic update (+1) is reverted, the client mutation (set 10)
       // remains.
       expect(getVolume()).toBe(10);
+    });
+    it('can commit payload with buggy updaters', () => {
+      const sourceData = {
+        4: {
+          __id: '4',
+          __typename: 'User',
+          name: 'mark',
+        },
+      };
+      const initialData = simpleClone(sourceData);
+      const source = new RelayInMemoryRecordSource(sourceData);
+      const store = new RelayMarkSweepStore(source);
+      const queue = new RelayPublishQueue(store);
+      const buggyUpdater = storeProxy => {
+        invariant(false, 'buggy updater throwing error');
+      };
+      const mutation = {
+        storeUpdater: buggyUpdater,
+      };
+      queue.applyUpdate(mutation);
+      queue.commitUpdate(buggyUpdater);
+      const {NameQuery} = generateAndCompile(
+        `
+        query NameQuery {
+          me {
+            name
+          }
+        }
+      `,
+      );
+      // Query payload sets name to 'zuck'
+      queue.commitPayload(createOperationSelector(NameQuery, {id: '4'}), {
+        source: new RelayInMemoryRecordSource({
+          [ROOT_ID]: {
+            [ID_KEY]: ROOT_ID,
+            [TYPENAME_KEY]: ROOT_TYPE,
+            me: {[REF_KEY]: '4'},
+          },
+          4: {
+            id: '4',
+            __typename: 'User',
+            name: 'zuck',
+          },
+        }),
+      });
+      queue.run();
+      expect(sourceData).toEqual({
+        [ROOT_ID]: {
+          __id: ROOT_ID,
+          __typename: ROOT_TYPE,
+          me: {[REF_KEY]: '4'},
+        },
+        4: {
+          ...initialData['4'],
+          id: '4', // added by server payload
+          name: 'zuck', // reverts to the server data, not initial data
+        },
+      });
     });
   });
 

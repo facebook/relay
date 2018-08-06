@@ -4,26 +4,25 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayRecordSourceMutator
- * @flow
+ * @flow strict-local
  * @format
  */
 
 'use strict';
 
-const RelayModernRecord = require('RelayModernRecord');
+const RelayModernRecord = require('../store/RelayModernRecord');
 
 const invariant = require('invariant');
 
-const {EXISTENT} = require('RelayRecordState');
+const {EXISTENT} = require('../store/RelayRecordState');
 const {
   UNPUBLISH_FIELD_SENTINEL,
   UNPUBLISH_RECORD_SENTINEL,
-} = require('RelayStoreUtils');
+} = require('../store/RelayStoreUtils');
 
+import type {RecordState} from '../store/RelayRecordState';
+import type {MutableRecordSource, RecordSource} from '../store/RelayStoreTypes';
 import type {DataID} from '../util/RelayRuntimeTypes';
-import type {RecordState} from 'RelayRecordState';
-import type {MutableRecordSource, RecordSource} from 'RelayStoreTypes';
 import type {Record} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 /**

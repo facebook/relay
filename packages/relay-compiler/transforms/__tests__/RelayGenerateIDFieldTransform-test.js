@@ -16,15 +16,12 @@ const RelayGenerateIDFieldTransform = require('RelayGenerateIDFieldTransform');
 const RelayParser = require('RelayParser');
 const RelayTestSchema = require('RelayTestSchema');
 
-const getGoldenMatchers = require('getGoldenMatchers');
+const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 
 describe('RelayGenerateIDFieldTransform', () => {
-  beforeEach(() => {
-    expect.extend(getGoldenMatchers(__filename));
-  });
-
-  it('matches expected output', () => {
-    expect('fixtures/generate-id-field-transform').toMatchGolden(text => {
+  generateTestsFromFixtures(
+    `${__dirname}/fixtures/generate-id-field-transform`,
+    text => {
       const ast = RelayParser.parse(RelayTestSchema, text);
       return new GraphQLCompilerContext(RelayTestSchema)
         .addAll(ast)
@@ -32,6 +29,6 @@ describe('RelayGenerateIDFieldTransform', () => {
         .documents()
         .map(GraphQLIRPrinter.print)
         .join('\n');
-    });
-  });
+    },
+  );
 });

@@ -33,9 +33,7 @@ const {
   KnownTypeNamesRule,
   PossibleFragmentSpreadsRule,
   ValuesOfCorrectTypeRule,
-  VariablesDefaultValueAllowedRule,
   VariablesInAllowedPositionRule,
-  ProvidedNonNullArgumentsRule,
 } = require('graphql');
 
 import type {RelayQLDefinition} from './RelayQLAST';
@@ -242,10 +240,6 @@ class RelayQLTransformer {
       documentName,
       document.definitions.length,
     );
-    const definition = document.definitions[0];
-    const isMutation =
-      definition.kind === 'OperationDefinition' &&
-      definition.operation === 'mutation';
 
     const validator = this.options.validator;
     let validationErrors;
@@ -259,12 +253,8 @@ class RelayQLTransformer {
         KnownTypeNamesRule,
         PossibleFragmentSpreadsRule,
         ValuesOfCorrectTypeRule,
-        VariablesDefaultValueAllowedRule,
         VariablesInAllowedPositionRule,
       ];
-      if (!isMutation) {
-        rules.push(ProvidedNonNullArgumentsRule);
-      }
       validationErrors = validate(this.schema, document, rules);
     }
 

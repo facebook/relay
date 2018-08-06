@@ -1,3 +1,0 @@
-ERROR:
-
-Error: connectionWithNodesField.input.txt: Relay Transform Error: You supplied a field named `nodes` on a connection named `friends`, but pagination is not supported on connections without using `edges`. Use `friends{edges{node{...}}}` instead.

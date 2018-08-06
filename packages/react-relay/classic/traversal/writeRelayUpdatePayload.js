@@ -10,10 +10,8 @@
 
 'use strict';
 
-const GraphQLMutatorConstants = require('../legacy/mutation/GraphQLMutatorConstants');
 const RelayClassicRecordState = require('../store/RelayClassicRecordState');
 const RelayMutationTracker = require('../store/RelayMutationTracker');
-const RelayMutationType = require('../mutation/RelayMutationType');
 const RelayNodeInterface = require('../interface/RelayNodeInterface');
 const RelayQuery = require('../query/RelayQuery');
 const RelayQueryPath = require('../query/RelayQueryPath');
@@ -24,12 +22,17 @@ const getRangeBehavior = require('../mutation/getRangeBehavior');
 const invariant = require('invariant');
 const warning = require('warning');
 
-const {ConnectionInterface, RelayProfiler} = require('RelayRuntime');
+const {
+  ConnectionInterface,
+  MutationTypes,
+  RangeOperations,
+  RelayProfiler,
+} = require('relay-runtime');
 
 import type RelayQueryWriter from '../store/RelayQueryWriter';
 import type RelayRecordStore from '../store/RelayRecordStore';
 import type {UpdateOptions} from '../tools/RelayInternalTypes';
-import type {DataID} from 'RelayRuntime';
+import type {DataID} from 'relay-runtime';
 
 // TODO: Replace with enumeration for possible config types.
 /* OperationConfig was originally typed such that each property had the type
@@ -42,7 +45,7 @@ type PayloadArray = Array<Payload>;
 type PayloadObject = {[key: string]: Payload};
 
 const {ANY_TYPE, ID, NODE} = RelayNodeInterface;
-const {APPEND, IGNORE, PREPEND, REFETCH, REMOVE} = GraphQLMutatorConstants;
+const {APPEND, IGNORE, PREPEND, REFETCH, REMOVE} = RangeOperations;
 
 let _edgesField;
 function getEdgesField() {
@@ -75,17 +78,17 @@ function writeRelayUpdatePayload(
 ): void {
   configs.forEach(config => {
     switch (config.type) {
-      case RelayMutationType.NODE_DELETE:
+      case MutationTypes.NODE_DELETE:
         handleNodeDelete(writer, payload, config);
         break;
-      case RelayMutationType.RANGE_ADD:
+      case MutationTypes.RANGE_ADD:
         handleRangeAdd(writer, payload, operation, config, isOptimisticUpdate);
         break;
-      case RelayMutationType.RANGE_DELETE:
+      case MutationTypes.RANGE_DELETE:
         handleRangeDelete(writer, payload, config);
         break;
-      case RelayMutationType.FIELDS_CHANGE:
-      case RelayMutationType.REQUIRED_CHILDREN:
+      case MutationTypes.FIELDS_CHANGE:
+      case MutationTypes.REQUIRED_CHILDREN:
         break;
       default:
         console.error(
@@ -445,17 +448,28 @@ function addRangeNode(
   );
 
   // append/prepend the item to the range.
-  if (rangeBehavior in GraphQLMutatorConstants.RANGE_OPERATIONS) {
-    recordWriter.applyRangeUpdate(connectionID, edgeID, (rangeBehavior: any));
+  if (
+    rangeBehavior === APPEND ||
+    rangeBehavior === IGNORE ||
+    rangeBehavior === PREPEND ||
+    rangeBehavior === REFETCH ||
+    rangeBehavior === REMOVE
+  ) {
+    recordWriter.applyRangeUpdate(
+      connectionID,
+      edgeID,
+      (rangeBehavior: $FlowFixMe),
+    );
     writer.recordUpdate(connectionID);
   } else {
     console.error(
       'writeRelayUpdatePayload(): invalid range operation `%s`, valid ' +
-        'options are `%s`, `%s`, `%s`, or `%s`.',
+        'options are `%s`, `%s`, `%s`, `%s`, or `%s`.',
       rangeBehavior,
       APPEND,
       PREPEND,
       IGNORE,
+      REMOVE,
       REFETCH,
     );
   }

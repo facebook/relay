@@ -4,18 +4,17 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayModernGraphQLTag
  * @flow
  * @format
  */
 
 'use strict';
 
-const RelayConcreteNode = require('RelayConcreteNode');
+const RelayConcreteNode = require('../util/RelayConcreteNode');
 
 const invariant = require('invariant');
 
-import type {ConcreteFragment, RequestNode} from 'RelayConcreteNode';
+import type {ConcreteFragment, RequestNode} from '../util/RelayConcreteNode';
 import type {
   ConcreteFragmentDefinition,
   ConcreteOperationDefinition,
@@ -51,7 +50,9 @@ function getNode(taggedNode) {
   if (typeof fn !== 'function') {
     return (taggedNode: any);
   }
-  return fn();
+  const data: any = fn();
+  // Support for languages that work (best) with ES6 modules, such as TypeScript.
+  return data.default ? data.default : data;
 }
 
 function getFragment(taggedNode: GraphQLTaggedNode): ConcreteFragment {
@@ -73,7 +74,7 @@ function getRequest(taggedNode: GraphQLTaggedNode): RequestNode {
       request !== null &&
       (request.kind === RelayConcreteNode.REQUEST ||
         request.kind === RelayConcreteNode.BATCH_REQUEST),
-    'RelayModernGraphQLTag: Expected an request, got `%s`.',
+    'RelayModernGraphQLTag: Expected a request, got `%s`.',
     JSON.stringify(request),
   );
   return (request: any);

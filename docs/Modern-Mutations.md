@@ -6,7 +6,7 @@ title: Mutations
 Table of Contents:
 - [`commitMutation`](#commitmutation)
 - [Simple Example](#simple-example)
-- [Optimistic Updates](#optmistic-updates)
+- [Optimistic Updates](#optimistic-updates)
 - [Updater Configs](#updater-configs)
 - [Using updater and optimisticUpdater](#using-updater-and-optimisticupdater)
 
@@ -257,7 +257,7 @@ import {ConnectionHandler} from 'relay-runtime';
 
 const mutation = graphql`
   mutation AddTodoMutation($input: AddTodoInput!) {
-    addTodo(input:$input) {
+    addTodo(input: $input) {
       todoEdge {
         cursor
         node {
@@ -281,7 +281,8 @@ function sharedUpdater(store, user, newEdge) {
   // Get the user's Todo List using ConnectionHandler helper
   const conn = ConnectionHandler.getConnection(
     userProxy,
-    'TodoList_todos', // This is the connection identifier, defined here: https://github.com/relayjs/relay-examples/blob/master/todo/js/components/TodoList.js#L68
+    'TodoList_todos', // This is the connection identifier, defined here
+    // https://github.com/relayjs/relay-examples/blob/master/todo/js/components/TodoList.js#L68
   );
 
   // Insert the new todo into the Todo List connection
@@ -309,20 +310,20 @@ function commit(
         // Get the payload returned from the server
         const payload = store.getRootField('addTodo');
 
-        // Get the edge of the newly created todo item
+        // Get the edge of the newly created Todo record
         const newEdge = payload.getLinkedRecord('todoEdge');
 
         // Add it to the user's todo list
         sharedUpdater(store, user, newEdge);
       },
       optimisticUpdater: (store) => {
-        // Create a Todo Item record in our store with a tempory ID
+        // Create a Todo record in our store with a temporary ID
         const id = 'client:newTodo:' + tempID++;
         const node = store.create(id, 'Todo');
         node.setValue(text, 'text');
         node.setValue(id, 'id');
 
-        // Create a new edge that contains the newly created Todo Item
+        // Create a new edge that contains the newly created Todo record
         const newEdge = store.create(
           'client:newEdge:' + tempID++,
           'TodoEdge',
@@ -332,7 +333,8 @@ function commit(
         // Add it to the user's todo list
         sharedUpdater(store, user, newEdge);
 
-        // Given that we don't have a server response here, we also need to update the todo item count on the user
+        // Given that we don't have a server response here,
+        // we also need to update the todo item count on the user
         const userRecord = store.get(user.id);
         userRecord.setValue(
           userRecord.getValue('totalCount') + 1,

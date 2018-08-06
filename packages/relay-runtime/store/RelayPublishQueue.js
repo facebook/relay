@@ -4,23 +4,23 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
- * @providesModule RelayPublishQueue
+ * @flow strict-local
  * @format
  */
 
 'use strict';
 
-const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
-const RelayReader = require('RelayReader');
-const RelayRecordSourceMutator = require('RelayRecordSourceMutator');
-const RelayRecordSourceProxy = require('RelayRecordSourceProxy');
-const RelayRecordSourceSelectorProxy = require('RelayRecordSourceSelectorProxy');
+const ErrorUtils = require('ErrorUtils');
+const RelayInMemoryRecordSource = require('./RelayInMemoryRecordSource');
+const RelayReader = require('./RelayReader');
+const RelayRecordSourceMutator = require('../mutations/RelayRecordSourceMutator');
+const RelayRecordSourceProxy = require('../mutations/RelayRecordSourceProxy');
+const RelayRecordSourceSelectorProxy = require('../mutations/RelayRecordSourceSelectorProxy');
 
 const invariant = require('invariant');
-const normalizeRelayPayload = require('normalizeRelayPayload');
+const normalizeRelayPayload = require('./normalizeRelayPayload');
 
-import type {HandlerProvider} from 'RelayDefaultHandlerProvider';
+import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {
   HandleFieldPayload,
   MutableRecordSource,
@@ -31,7 +31,7 @@ import type {
   StoreUpdater,
   RecordSource,
   RelayResponsePayload,
-} from 'RelayStoreTypes';
+} from './RelayStoreTypes';
 import type {SelectorData} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 type Payload = {
@@ -236,7 +236,13 @@ class RelayPublishQueue {
         sink,
       );
       const store = new RelayRecordSourceProxy(mutator);
-      updater(store);
+      ErrorUtils.applyWithGuard(
+        updater,
+        null,
+        [store],
+        null,
+        'RelayPublishQueue:commitUpdaters',
+      );
     });
     this._store.publish(sink);
     this._pendingUpdaters.clear();
@@ -272,10 +278,22 @@ class RelayPublishQueue {
               selectorData = lookupSelector(source, operation.fragment);
             }
             selectorStoreUpdater &&
-              selectorStoreUpdater(selectorStore, selectorData);
+              ErrorUtils.applyWithGuard(
+                selectorStoreUpdater,
+                null,
+                [selectorStore, selectorData],
+                null,
+                'RelayPublishQueue:applyUpdates',
+              );
           } else if (optimisticUpdate.storeUpdater) {
             const {storeUpdater} = optimisticUpdate;
-            storeUpdater(store);
+            ErrorUtils.applyWithGuard(
+              storeUpdater,
+              null,
+              [store],
+              null,
+              'RelayPublishQueue:applyUpdates',
+            );
           } else {
             const {source, fieldPayloads} = optimisticUpdate;
             store.publishSource(source, fieldPayloads);
@@ -300,10 +318,22 @@ class RelayPublishQueue {
               selectorData = lookupSelector(source, operation.fragment);
             }
             selectorStoreUpdater &&
-              selectorStoreUpdater(selectorStore, selectorData);
+              ErrorUtils.applyWithGuard(
+                selectorStoreUpdater,
+                null,
+                [selectorStore, selectorData],
+                null,
+                'RelayPublishQueue:applyUpdates',
+              );
           } else if (optimisticUpdate.storeUpdater) {
             const {storeUpdater} = optimisticUpdate;
-            storeUpdater(store);
+            ErrorUtils.applyWithGuard(
+              storeUpdater,
+              null,
+              [store],
+              null,
+              'RelayPublishQueue:applyUpdates',
+            );
           } else {
             const {source, fieldPayloads} = optimisticUpdate;
             store.publishSource(source, fieldPayloads);
@@ -321,7 +351,7 @@ class RelayPublishQueue {
 function lookupSelector(source, selector): ?SelectorData {
   const selectorData = RelayReader.read(source, selector).data;
   if (__DEV__) {
-    const deepFreeze = require('deepFreeze');
+    const deepFreeze = require('../util/deepFreeze');
     if (selectorData) {
       deepFreeze(selectorData);
     }

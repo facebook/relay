@@ -4,8 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayIRTransforms
- * @flow
+ * @flow strict-local
  * @format
  */
 
@@ -29,6 +28,7 @@ const {
   SkipClientFieldTransform,
   SkipRedundantNodesTransform,
   SkipUnreachableNodeTransform,
+  StripUnusedVariablesTransform,
 } = require('graphql-compiler');
 
 import type {IRTransform} from 'graphql-compiler';
@@ -46,7 +46,7 @@ const relayCommonTransforms: Array<IRTransform> = [
   RelayViewerHandleTransform.transform,
   RelayRelayDirectiveTransform.transform,
   RelayMaskTransform.transform,
-  RelayDeferrableFragmentTransform.transformOperations,
+  RelayDeferrableFragmentTransform.transform,
 ];
 
 // Transforms applied to fragments used for reading data from a store
@@ -59,7 +59,6 @@ const relayFragmentTransforms: Array<IRTransform> = [
 // Transforms applied to queries/mutations/subscriptions that are used for
 // fetching data from the server and parsing those responses.
 const relayQueryTransforms: Array<IRTransform> = [
-  RelayDeferrableFragmentTransform.transformSpreads,
   RelayApplyFragmentArgumentTransform.transform,
   SkipClientFieldTransform.transform,
   SkipUnreachableNodeTransform.transform,
@@ -81,6 +80,7 @@ const relayPrintTransforms: Array<IRTransform> = [
   RelayGenerateTypeNameTransform.transform,
   RelaySkipHandleFieldTransform.transform,
   FilterDirectivesTransform.transform,
+  StripUnusedVariablesTransform.transform,
 ];
 
 module.exports = {

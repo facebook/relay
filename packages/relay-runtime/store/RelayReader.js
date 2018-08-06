@@ -4,34 +4,15 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayReader
  * @flow
  * @format
  */
 
 'use strict';
 
-const RelayConcreteNode = require('RelayConcreteNode');
-const RelayModernRecord = require('RelayModernRecord');
-const RelayStoreUtils = require('RelayStoreUtils');
+const RelayModernRecord = require('./RelayModernRecord');
 
 const invariant = require('invariant');
-
-import type {DataID, Variables} from '../util/RelayRuntimeTypes';
-import type {
-  ConcreteDeferrableFragmentSpread,
-  ConcreteFragmentSpread,
-  ConcreteLinkedField,
-  ConcreteNode,
-  ConcreteScalarField,
-  ConcreteSelection,
-  ConcreteSelectableNode,
-} from 'RelayConcreteNode';
-import type {RecordSource, Selector, Snapshot} from 'RelayStoreTypes';
-import type {
-  Record,
-  SelectorData,
-} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 const {
   CONDITION,
@@ -40,13 +21,29 @@ const {
   INLINE_FRAGMENT,
   LINKED_FIELD,
   SCALAR_FIELD,
-} = RelayConcreteNode;
+} = require('../util/RelayConcreteNode');
 const {
   FRAGMENTS_KEY,
   ID_KEY,
   getArgumentValues,
   getStorageKey,
-} = RelayStoreUtils;
+} = require('./RelayStoreUtils');
+
+import type {
+  ConcreteDeferrableFragmentSpread,
+  ConcreteFragmentSpread,
+  ConcreteLinkedField,
+  ConcreteNode,
+  ConcreteScalarField,
+  ConcreteSelection,
+  ConcreteSelectableNode,
+} from '../util/RelayConcreteNode';
+import type {DataID, Variables} from '../util/RelayRuntimeTypes';
+import type {RecordSource, Selector, Snapshot} from './RelayStoreTypes';
+import type {
+  Record,
+  SelectorData,
+} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 function read(recordSource: RecordSource, selector: Selector): Snapshot {
   const {dataID, node, variables} = selector;

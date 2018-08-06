@@ -145,7 +145,7 @@ function formatSize(bytes: number): string {
   while (bytes >= Math.pow(1024, i + 1) && i < ALL_UNITS.length) {
     i++;
   }
-  const value = sign * bytes * 1.0 / Math.pow(1024, i);
+  const value = (sign * bytes * 1.0) / Math.pow(1024, i);
   return Number(value.toFixed(2)) + ALL_UNITS[i];
 }
 

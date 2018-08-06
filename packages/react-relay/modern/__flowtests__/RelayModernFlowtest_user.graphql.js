@@ -4,14 +4,14 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
 'use strict';
 
-import type {FragmentReference} from 'RelayRuntime';
-export opaque type RelayModernFlowtest_user$ref: FragmentReference = FragmentReference;
+import type {FragmentReference} from 'relay-runtime';
+declare export opaque type RelayModernFlowtest_user$ref: FragmentReference;
 export type RelayModernFlowtest_user = {|
   +name: ?string,
   +$refType: RelayModernFlowtest_user$ref,

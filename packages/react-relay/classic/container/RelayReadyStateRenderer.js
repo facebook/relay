@@ -25,14 +25,10 @@ import type {
   RelayEnvironmentInterface,
 } from '../store/RelayEnvironment';
 import type {RelayQuerySet} from '../tools/RelayInternalTypes';
-import type {
-  ReadyState,
-  ReadyStateEvent,
-  RelayContainer,
-} from '../tools/RelayTypes';
+import type {ReadyState, ReadyStateEvent} from '../tools/RelayTypes';
 
 type Props = {
-  Container: RelayContainer,
+  Container: React.ComponentType<any>,
   environment: RelayEnvironmentInterface,
   queryConfig: RelayQueryConfigInterface,
   readyState?: ?ReadyState,
@@ -100,7 +96,7 @@ class RelayReadyStateRenderer extends React.Component<
     };
   }
 
-  componentWillReceiveProps(nextProps: Props): void {
+  UNSAFE_componentWillReceiveProps(nextProps: Props): void {
     if (
       this.props.environment !== nextProps.environment ||
       this.props.queryConfig !== nextProps.queryConfig

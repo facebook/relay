@@ -4,8 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule deferrableFragmentKey
- * @flow
+ * @flow strict
  * @format
  */
 
@@ -22,7 +21,7 @@ function deferrableFragmentKey(
     (acc, key) => `${acc}${acc ? ',' : ''}${key}:${variables[key]}`,
     '',
   );
-  return `dataID:${dataID},fragment:${fragmentName},variables:${variablesString}`;
+  return `path:${dataID},key:${fragmentName},request:${variablesString}`;
 }
 
 module.exports = deferrableFragmentKey;

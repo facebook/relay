@@ -4,36 +4,35 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayDataLoader
- * @flow
+ * @flow strict-local
  * @format
  */
 
 'use strict';
 
-const RelayConcreteNode = require('RelayConcreteNode');
-const RelayRecordSourceMutator = require('RelayRecordSourceMutator');
-const RelayStoreUtils = require('RelayStoreUtils');
+const RelayConcreteNode = require('../util/RelayConcreteNode');
+const RelayRecordSourceMutator = require('../mutations/RelayRecordSourceMutator');
+const RelayStoreUtils = require('./RelayStoreUtils');
 
-const cloneRelayHandleSourceField = require('cloneRelayHandleSourceField');
+const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
 const invariant = require('invariant');
 
-const {EXISTENT, UNKNOWN} = require('RelayRecordState');
+const {EXISTENT, UNKNOWN} = require('./RelayRecordState');
 
-import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
   ConcreteLinkedField,
   ConcreteNode,
   ConcreteScalarField,
   ConcreteSelection,
   ConcreteField,
-} from 'RelayConcreteNode';
+} from '../util/RelayConcreteNode';
+import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
   MissingFieldHandler,
   MutableRecordSource,
   RecordSource,
   Selector,
-} from 'RelayStoreTypes';
+} from './RelayStoreTypes';
 import type {Record} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 const {

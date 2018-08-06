@@ -10,16 +10,16 @@
 
 'use strict';
 
-const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
-const RelayModernRecord = require('RelayModernRecord');
+const RelayInMemoryRecordSource = require('../../../store/RelayInMemoryRecordSource');
+const RelayModernRecord = require('../../../store/RelayModernRecord');
 const RelayModernTestUtils = require('RelayModernTestUtils');
-const RelayRecordSourceMutator = require('RelayRecordSourceMutator');
-const RelayRecordSourceProxy = require('RelayRecordSourceProxy');
-const RelayStoreUtils = require('RelayStoreUtils');
-const RelayViewerHandler = require('RelayViewerHandler');
+const RelayRecordSourceMutator = require('../../../mutations/RelayRecordSourceMutator');
+const RelayRecordSourceProxy = require('../../../mutations/RelayRecordSourceProxy');
+const RelayStoreUtils = require('../../../store/RelayStoreUtils');
+const RelayViewerHandler = require('../RelayViewerHandler');
 
-const generateRelayClientID = require('generateRelayClientID');
-const getRelayHandleKey = require('getRelayHandleKey');
+const generateRelayClientID = require('../../../store/generateRelayClientID');
+const getRelayHandleKey = require('../../../util/getRelayHandleKey');
 
 const {ID_KEY, REF_KEY, ROOT_ID, ROOT_TYPE, TYPENAME_KEY} = RelayStoreUtils;
 

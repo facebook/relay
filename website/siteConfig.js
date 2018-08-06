@@ -20,6 +20,36 @@ const users = [
     infoLink: 'https://www.oculus.com/',
     pinned: true,
   },
+  {
+    caption: 'Artsy',
+    image: '/relay/img/logos/artsy.png',
+    infoLink: 'http://artsy.github.io/open-source/',
+    pinned: true,
+  },
+  {
+    caption: 'Cirrus CI',
+    image: '/relay/img/logos/cirrus.png',
+    infoLink: 'https://cirrus-ci.com/',
+    pinned: false,
+  },
+  {
+    caption: 'Friday',
+    image: '/relay/img/logos/friday.png',
+    infoLink: 'https://friday.work/',
+    pinned: false,
+  },
+  {
+    caption: '1stdibs',
+    image: '/relay/img/logos/1stdibs.png',
+    infoLink: 'https://www.1stdibs.com/',
+    pinned: false,
+  },
+  {
+    caption: 'Parabol',
+    image: '/relay/img/logos/parabol.png',
+    infoLink: 'https://www.parabol.co/',
+    pinned: false,
+  },
 ];
 
 const siteConfig = {
@@ -42,7 +72,6 @@ const siteConfig = {
   headerIcon: 'img/relay-white.svg',
   footerIcon: 'img/relay.svg',
   favicon: 'img/favicon.png',
-  customCssFileName: 'relay.css', //the name of your custom css file
   colors: {
     primaryColor: '#f26b00',
     secondaryColor: '#f26b00',

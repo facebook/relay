@@ -4,8 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayRelayDirectiveTransform
- * @flow
+ * @flow strict-local
  * @format
  */
 
@@ -82,13 +81,18 @@ function visitRelayMetadata<T: Fragment | FragmentSpread>(
   };
 }
 
-function fragmentMetadata({plural}): MixedObj {
+function fragmentMetadata({mask, plural}): MixedObj {
   invariant(
     plural === undefined || typeof plural === 'boolean',
     'RelayRelayDirectiveTransform: Expected the "plural" argument to @relay ' +
       'to be a boolean literal if specified.',
   );
-  return {plural};
+  invariant(
+    mask === undefined || typeof mask === 'boolean',
+    'RelayRelayDirectiveTransform: Expected the "mask" argument to @relay ' +
+      'to be a boolean literal if specified.',
+  );
+  return {mask, plural};
 }
 
 function fragmentSpreadMetadata({mask, deferrable}): MixedObj {

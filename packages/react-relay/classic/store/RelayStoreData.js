@@ -43,7 +43,7 @@ const {
   restoreFragmentDataFromCache,
   restoreQueriesDataFromCache,
 } = require('./restoreRelayCacheData');
-const {ConnectionInterface, RelayProfiler} = require('RelayRuntime');
+const {ConnectionInterface, RelayProfiler} = require('relay-runtime');
 
 import type {QueryPath} from '../query/RelayQueryPath';
 import type {
@@ -62,7 +62,7 @@ import type {
 } from '../tools/RelayTypes';
 import type {ChangeSet} from './RelayChangeTracker';
 import type {RecordMap} from './RelayRecord';
-import type {DataID} from 'RelayRuntime';
+import type {DataID} from 'relay-runtime';
 
 const {ID, ID_TYPE, NODE, NODE_TYPE, TYPENAME} = RelayNodeInterface;
 const {ROOT_ID} = require('./RelayStoreConstants');

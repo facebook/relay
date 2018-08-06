@@ -4,8 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayRecordSourceSelectorProxy
- * @flow
+ * @flow strict-local
  * @format
  */
 
@@ -13,16 +12,16 @@
 
 const invariant = require('invariant');
 
-const {getStorageKey} = require('RelayStoreUtils');
+const {getStorageKey} = require('../store/RelayStoreUtils');
 
-import type {DataID} from '../util/RelayRuntimeTypes';
-import type {ConcreteLinkedField} from 'RelayConcreteNode';
 import type {
   RecordProxy,
   Selector,
   RecordSourceProxy,
   RecordSourceSelectorProxy,
-} from 'RelayStoreTypes';
+} from '../store/RelayStoreTypes';
+import type {ConcreteLinkedField} from '../util/RelayConcreteNode';
+import type {DataID} from '../util/RelayRuntimeTypes';
 
 /**
  * @internal

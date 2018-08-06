@@ -19,7 +19,7 @@ jest
 
 const GraphQLStoreQueryResolver = require('../../legacy/store/GraphQLStoreQueryResolver');
 const React = require('React');
-const RelayClassic_DEPRECATED = require('RelayClassic_DEPRECATED');
+const RelayClassic = require('../../RelayPublic');
 const RelayEnvironment = require('../../store/RelayEnvironment');
 const RelayTestUtils = require('RelayTestUtils');
 
@@ -39,12 +39,11 @@ describe('RelayContainer', function() {
     };
 
     mockCreateContainer = component => {
-      MockContainer = RelayClassic_DEPRECATED.createContainer(component, {
+      MockContainer = RelayClassic.createContainer(component, {
         initialVariables: {site: 'mobile'},
         fragments: {
           foo: jest.fn(
-            () =>
-              RelayClassic_DEPRECATED.QL`fragment on Node{id,url(site:$site)}`,
+            () => RelayClassic.QL`fragment on Node{id,url(site:$site)}`,
           ),
         },
       });
@@ -77,7 +76,7 @@ describe('RelayContainer', function() {
     expect(instance.refs.component instanceof MockComponent).toBe(true);
   });
 
-  it('provides RelayClassic_DEPRECATED statics', () => {
+  it('provides RelayClassic statics', () => {
     // The correct implementation of these is asserted in other tests. This
     // test merely checks if the public API exists.
     expect(typeof MockContainer.getFragmentNames).toEqual('function');
@@ -96,14 +95,14 @@ describe('RelayContainer', function() {
     expect(MockContainer.displayName).toEqual('Relay(MyComponent)');
   });
 
-  it('defaults to "StatelessComponent" when using a component without name', () => {
+  it('defaults to "Component" when using a component without name', () => {
     mockCreateContainer(() => <span />);
-    expect(MockContainer.displayName).toEqual('Relay(StatelessComponent)');
+    expect(MockContainer.displayName).toEqual('Relay(Component)');
   });
 
-  it('defaults to "ReactElement" when using a ReactElement', () => {
+  it('defaults to "Component" when using a ReactElement', () => {
     mockCreateContainer(<span />);
-    expect(MockContainer.displayName).toEqual('Relay(ReactElement)');
+    expect(MockContainer.displayName).toEqual('Relay(Component)');
   });
 
   it('works with ES6 classes', () => {

@@ -387,21 +387,6 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
     return {dispose};
   }
 
-  streamQuery(config: {
-    cacheConfig?: ?CacheConfig,
-    onCompleted?: ?() => void,
-    onError?: ?(error: Error) => void,
-    onNext?: ?(selector: Selector) => void,
-    operation: OperationSelector,
-  }): Disposable {
-    warning(
-      false,
-      'environment.streamQuery() is deprecated. Update to the latest ' +
-        'version of react-relay, and use environment.execute().',
-    );
-    return this.sendQuery(config);
-  }
-
   execute({
     operation,
     cacheConfig,

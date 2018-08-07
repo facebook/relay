@@ -352,34 +352,6 @@ class RelayModernEnvironment implements Environment {
   }
 
   /**
-   * @deprecated Use Environment.execute().subscribe()
-   */
-  streamQuery({
-    cacheConfig,
-    onCompleted,
-    onError,
-    onNext,
-    operation,
-  }: {
-    cacheConfig?: ?CacheConfig,
-    onCompleted?: ?() => void,
-    onError?: ?(error: Error) => void,
-    onNext?: ?(payload: ExecutePayload) => void,
-    operation: OperationSelector,
-  }): Disposable {
-    warning(
-      false,
-      'environment.streamQuery() is deprecated. Update to the latest ' +
-        'version of react-relay, and use environment.execute().',
-    );
-    return this.execute({operation, cacheConfig}).subscribeLegacy({
-      onNext,
-      onError,
-      onCompleted,
-    });
-  }
-
-  /**
    * @deprecated Use Environment.executeMutation().subscribe()
    */
   sendMutation({

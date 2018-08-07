@@ -82,10 +82,14 @@ export type {
   FragmentMap,
   FragmentReference,
   OperationSelector,
+  RecordProxy,
+  RecordSourceProxy,
+  RecordSourceSelectorProxy,
   RelayContext,
   Selector,
   SelectorStoreUpdater,
   Snapshot,
+  StoreUpdater,
 } from './store/RelayStoreTypes';
 export type {
   GraphQLSubscriptionConfig,

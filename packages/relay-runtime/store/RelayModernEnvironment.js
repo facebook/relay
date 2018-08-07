@@ -393,34 +393,6 @@ class RelayModernEnvironment implements Environment {
       onCompleted,
     });
   }
-
-  /**
-   * @deprecated Use Environment.execute().subscribe()
-   */
-  sendSubscription({
-    onCompleted,
-    onNext,
-    onError,
-    operation,
-    updater,
-  }: {
-    onCompleted?: ?(errors: ?Array<PayloadError>) => void,
-    onNext?: ?(payload: ExecutePayload) => void,
-    onError?: ?(error: Error) => void,
-    operation: OperationSelector,
-    updater?: ?SelectorStoreUpdater,
-  }): Disposable {
-    warning(
-      false,
-      'environment.sendSubscription() is deprecated. Update to the latest ' +
-        'version of react-relay, and use environment.execute().',
-    );
-    return this.execute({
-      operation,
-      updater,
-      cacheConfig: {force: true},
-    }).subscribeLegacy({onNext, onError, onCompleted});
-  }
 }
 
 // Add a sigil for detection by `isRelayModernEnvironment()` to avoid a

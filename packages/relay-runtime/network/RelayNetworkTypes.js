@@ -24,6 +24,7 @@ import type RelayObservable, {ObservableFromValue} from './RelayObservable';
  */
 export type Network = {|
   execute: ExecuteFunction,
+  executeWithEvents: StreamFunction,
 |};
 
 export type PayloadData = {[key: string]: mixed};
@@ -55,6 +56,7 @@ export type GraphQLResponse =
  * raw GraphQL network response as well as any related client metadata.
  */
 export type ExecutePayload = {|
+  kind: 'data',
   // The operation executed
   operation: ConcreteOperation,
   // The variables which were used during this execution.
@@ -66,6 +68,20 @@ export type ExecutePayload = {|
 |};
 
 /**
+ * Events sent over a GraphQL stream operation (such as subscriptions).
+ * Only received if executeWithEvents is called instead of execute.
+ */
+export type EventPayload = {|
+  kind: 'event',
+  event: string,
+|};
+
+/**
+ * A stream consists of data and events.
+ */
+export type StreamPayload = ExecutePayload | EventPayload;
+
+/**
  * A function that returns an Observable representing the response of executing
  * a GraphQL operation.
  */
@@ -75,6 +91,17 @@ export type ExecuteFunction = (
   cacheConfig: CacheConfig,
   uploadables?: ?UploadableMap,
 ) => RelayObservable<ExecutePayload>;
+
+/**
+ * A function that returns an Observable representing the stream of data and
+ * events pushed by a GraphQL subscription
+ */
+export type StreamFunction = (
+  request: RequestNode,
+  variables: Variables,
+  cacheConfig: CacheConfig,
+  uploadables?: ?UploadableMap,
+) => RelayObservable<StreamPayload>;
 
 /**
  * A function that executes a GraphQL operation with request/response semantics.
@@ -102,7 +129,7 @@ export type SubscribeFunction = (
   cacheConfig: CacheConfig,
   observer?: LegacyObserver<GraphQLResponse>,
 ) =>
-  | RelayObservable<ExecutePayload>
+  | RelayObservable<StreamPayload>
   | RelayObservable<GraphQLResponse>
   | Disposable;
 

@@ -29,6 +29,7 @@ import type {
   Network,
   PayloadData,
   PayloadError,
+  StreamPayload,
   UploadableMap,
 } from '../network/RelayNetworkTypes';
 import type RelayObservable from '../network/RelayObservable';
@@ -195,6 +196,87 @@ class RelayModernEnvironment implements Environment {
       .execute(operation.node, operation.variables, cacheConfig || {})
       .do({
         next: executePayload => {
+          const responsePayload = normalizePayload(executePayload);
+          const {source, fieldPayloads, deferrableSelections} = responsePayload;
+          for (const selectionKey of deferrableSelections || new Set()) {
+            this._deferrableSelections.add(selectionKey);
+          }
+          if (executePayload.isOptimistic) {
+            invariant(
+              optimisticResponse == null,
+              'environment.execute: only support one optimistic respnose per ' +
+                'execute.',
+            );
+            optimisticResponse = {
+              source: source,
+              fieldPayloads: fieldPayloads,
+            };
+            this._publishQueue.applyUpdate(optimisticResponse);
+            this._publishQueue.run();
+          } else {
+            if (optimisticResponse) {
+              this._publishQueue.revertUpdate(optimisticResponse);
+              optimisticResponse = undefined;
+            }
+            const writeSelector = createOperationSelector(
+              operation.node,
+              executePayload.variables,
+              executePayload.operation,
+            );
+            if (executePayload.operation.kind === 'DeferrableOperation') {
+              const fragmentKey = deferrableFragmentKey(
+                executePayload.variables[
+                  executePayload.operation.rootFieldVariable
+                ],
+                executePayload.operation.fragmentName,
+                getOperationVariables(
+                  executePayload.operation,
+                  executePayload.variables,
+                ),
+              );
+              this._deferrableSelections.delete(fragmentKey);
+            }
+            this._publishQueue.commitPayload(
+              writeSelector,
+              responsePayload,
+              updater,
+            );
+            this._publishQueue.run();
+          }
+        },
+      })
+      .finally(() => {
+        if (optimisticResponse) {
+          this._publishQueue.revertUpdate(optimisticResponse);
+          optimisticResponse = undefined;
+          this._publishQueue.run();
+        }
+      });
+  }
+
+  /**
+   * Returns an Observable of StreamPayload. Similar to .execute({...}),
+   * except the stream can also return events, which is especially useful when
+   * executing a GraphQL subscription. However, events are not commited to
+   * the publish queue, they are simply ignored in the .do({...}) stream.
+   */
+  executeWithEvents({
+    operation,
+    cacheConfig,
+    updater,
+  }: {
+    operation: OperationSelector,
+    cacheConfig?: ?CacheConfig,
+    updater?: ?SelectorStoreUpdater,
+  }): RelayObservable<StreamPayload> {
+    let optimisticResponse;
+    return this._network
+      .executeWithEvents(operation.node, operation.variables, cacheConfig || {})
+      .do({
+        next: executePayload => {
+          if (executePayload.kind !== 'data') {
+            return;
+          }
           const responsePayload = normalizePayload(executePayload);
           const {source, fieldPayloads, deferrableSelections} = responsePayload;
           for (const selectionKey of deferrableSelections || new Set()) {

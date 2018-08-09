@@ -190,6 +190,7 @@ function createMockEnvironment(options: {
   const nextValue = (request, payload) => {
     const {sink, variables} = getRequest(request);
     sink.next({
+      kind: 'data',
       operation: request.operation,
       variables: variables,
       response: ensureValidPayload(payload),
@@ -203,6 +204,7 @@ function createMockEnvironment(options: {
   const resolve = (request, payload) => {
     const {sink, variables} = getRequest(request);
     sink.next({
+      kind: 'data',
       operation: request.operation,
       variables: variables,
       response: ensureValidPayload(payload),

@@ -63,9 +63,11 @@ export type {
 export type {MutationConfig} from './mutations/commitRelayModernMutation';
 export type {RelayNetworkLog} from './network/RelayNetworkLoggerTransaction';
 export type {
+  EventPayload,
   ExecutePayload,
   GraphQLResponse,
   PayloadError,
+  StreamPayload,
   UploadableMap,
 } from './network/RelayNetworkTypes';
 export type {

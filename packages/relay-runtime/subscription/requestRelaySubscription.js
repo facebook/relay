@@ -27,6 +27,7 @@ export type GraphQLSubscriptionConfig = {|
   onError?: ?(error: Error) => void,
   onNext?: ?(response: ?Object) => void,
   updater?: ?SelectorStoreUpdater,
+  receiveEvents?: boolean,
 |};
 
 function requestRelaySubscription(
@@ -40,7 +41,14 @@ function requestRelaySubscription(
       'requestRelaySubscription: Must use Subscription operation',
     );
   }
-  const {configs, onCompleted, onError, onNext, variables} = config;
+  const {
+    configs,
+    onCompleted,
+    onError,
+    onNext,
+    variables,
+    receiveEvents,
+  } = config;
   const operation = createOperationSelector(subscription, variables);
 
   warning(
@@ -57,18 +65,41 @@ function requestRelaySubscription(
       )
     : config;
 
-  return environment
-    .execute({
-      operation,
-      updater,
-      cacheConfig: {force: true},
-    })
-    .map(() => environment.lookup(operation.fragment).data)
-    .subscribeLegacy({
-      onNext,
-      onError,
-      onCompleted,
-    });
+  if (receiveEvents) {
+    return environment
+      .executeWithEvents({
+        operation,
+        updater,
+        cacheConfig: {force: true},
+      })
+      .subscribeLegacy({
+        onNext: payload => {
+          if (onNext) {
+            if (payload.kind === 'event') {
+              onNext(payload);
+            } else {
+              const data = environment.lookup(operation.fragment).data;
+              onNext({kind: 'data', ...data});
+            }
+          }
+        },
+        onError,
+        onCompleted,
+      });
+  } else {
+    return environment
+      .execute({
+        operation,
+        updater,
+        cacheConfig: {force: true},
+      })
+      .map(() => environment.lookup(operation.fragment).data)
+      .subscribeLegacy({
+        onNext,
+        onError,
+        onCompleted,
+      });
+  }
 }
 
 module.exports = requestRelaySubscription;

@@ -572,6 +572,7 @@ describe('RelayModernEnvironment', () => {
 
       expect(next.mock.calls.length).toBe(1);
       expect(next).toBeCalledWith({
+        kind: 'data',
         response: payload,
         variables,
         operation: operation.node.operation,
@@ -723,6 +724,7 @@ describe('RelayModernEnvironment', () => {
 
       expect(next.mock.calls.length).toBe(1);
       expect(next).toBeCalledWith({
+        kind: 'data',
         response: payload,
         variables,
         operation: operation.node.operation,
@@ -805,6 +807,7 @@ describe('RelayModernEnvironment', () => {
         },
       };
       dataSource.next({
+        kind: 'data',
         operation: query.operation,
         variables,
         response: payload,
@@ -855,6 +858,7 @@ describe('RelayModernEnvironment', () => {
       };
 
       dataSource.next({
+        kind: 'data',
         operation: query.operation,
         variables,
         response: optimisticResponse,
@@ -863,6 +867,7 @@ describe('RelayModernEnvironment', () => {
 
       jest.runAllTimers();
       dataSource.next({
+        kind: 'data',
         operation: query.operation,
         variables,
         response: realResponse,
@@ -906,6 +911,7 @@ describe('RelayModernEnvironment', () => {
         },
       };
       dataSource.next({
+        kind: 'data',
         operation: query.operation,
         variables,
         response: payload,

@@ -16,6 +16,14 @@ const ReactRelayQueryRenderer = require('./ReactRelayQueryRenderer');
 const ReactRelayRefetchContainer = require('./ReactRelayRefetchContainer');
 const RelayRuntime = require('relay-runtime');
 
+/**
+ * An id used for the root of the graph, corresponding to the "Query" type.
+ * Conceptually, root fields in queries can be viewed as normal fields on a
+ * synthesized root record.
+ */
+
+export const ROOT_ID = 'client:root';
+
 export type {
   RelayPaginationProp,
   RelayProp,

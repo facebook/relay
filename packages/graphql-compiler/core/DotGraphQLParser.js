@@ -27,6 +27,11 @@ function parseFile(baseDir: string, file: File): ?DocumentNode {
   });
 }
 
-exports.getParser = function getParser(baseDir: string): ASTCache {
+function getParser(baseDir: string): ASTCache {
   return new ASTCache({baseDir, parse: parseFile});
+}
+
+module.exports = {
+  parseFile,
+  getParser,
 };

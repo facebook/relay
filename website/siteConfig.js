@@ -50,6 +50,12 @@ const users = [
     infoLink: 'https://www.parabol.co/',
     pinned: false,
   },
+  {
+    caption: 'Entria',
+    image: '/relay/img/logos/entria.png',
+    infoLink: 'https://github.com/entria',
+    pinned: false,
+  },
 ];
 
 const siteConfig = {

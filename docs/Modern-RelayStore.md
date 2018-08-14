@@ -251,7 +251,7 @@ rootField {
 Usage:
 ```javascript
 const rootField = store.getRootField('rootField');
-const nodes = rootField.getLinkedRecord('nodes');
+const nodes = rootField.getLinkedRecords('nodes');
 ```
 
 Optionally, if the linked record takes arguments, you can pass a bag of `variables` as well.

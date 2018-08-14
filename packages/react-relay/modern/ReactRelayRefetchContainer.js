@@ -333,7 +333,7 @@ function createContainerWithFragments<
       );
       let fetchVariables =
         typeof refetchVariables === 'function'
-          ? refetchVariables(this._getFragmentVariables())
+          ? refetchVariables(this.state.localVariables || this._getFragmentVariables())
           : refetchVariables;
       fetchVariables = {...rootVariables, ...fetchVariables};
       const fragmentVariables = renderVariables

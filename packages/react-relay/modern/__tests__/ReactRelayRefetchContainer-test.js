@@ -752,6 +752,49 @@ describe('ReactRelayRefetchContainer', () => {
       expect(relayContext.variables).toEqual(refetchVariables);
     });
 
+    it('passes last fetched variables to refetchVariables()', () => {
+      expect.assertions(1);
+
+      const refetchVariables = {
+        cond: false,
+        id: '4',
+      };
+      refetch(refetchVariables, null, jest.fn());
+
+      environment.mock.resolve(UserQuery, {
+        data: {
+          node: {
+            id: '4',
+            __typename: 'User',
+            name: 'Zuck',
+          },
+        },
+      });
+
+      // expects given id to be '4' and returns '44'
+      const refetchVariables2 = ({
+        cond,
+        id,
+      }) => ({
+        cond,
+        id: id + '4',
+      });
+      refetch(refetchVariables2, null, jest.fn());
+
+      environment.mock.resolve(UserQuery, {
+        data: {
+          node: {
+            id: '44',
+            __typename: 'User',
+            name: 'Zuck',
+          },
+        },
+      });
+
+      // new context after successful refetch
+      expect(relayContext.variables.id).toEqual('44');
+    });
+
     it('does not update variables on failure', () => {
       expect.assertions(4);
       expect(render.mock.calls.length).toBe(1);

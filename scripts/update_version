@@ -25,7 +25,6 @@ if (!NEW_VERSION || !/^\d\.\d+\.\d+(\-[\d\w\.]+)?$/.test(NEW_VERSION)) {
 }
 
 packages.forEach(function(package) {
-
   var packageJsonPath = path.join(packagesDir, package, 'package.json');
   var packageJson = require(packageJsonPath);
 

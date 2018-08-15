@@ -2,7 +2,8 @@
 
 set +x
 
-export PACKAGES_DIR=$(dirname $(realpath $(dirname $0)))/packages
+export ROOT_DIR="$(dirname $(realpath $(dirname $0)))"
+export PACKAGES_DIR="$ROOT_DIR/packages"
 export PACKAGES=$(ls $PACKAGES_DIR)
 export NEW_VERSION=$1
 
@@ -10,6 +11,7 @@ node <<SCRIPT
 var path = require('path');
 var fs = require('fs');
 
+var ROOT_DIR = process.env.ROOT_DIR;
 var packagesDir = process.env.PACKAGES_DIR;
 var packages = process.env.PACKAGES.split('\n');
 var NEW_VERSION = process.env.NEW_VERSION;
@@ -24,8 +26,12 @@ if (!NEW_VERSION || !/^\d\.\d+\.\d+(\-[\d\w\.]+)?$/.test(NEW_VERSION)) {
   process.exit(1);
 }
 
+updatePackageJson(path.join(ROOT_DIR, 'package.json'));
 packages.forEach(function(package) {
-  var packageJsonPath = path.join(packagesDir, package, 'package.json');
+  updatePackageJson(path.join(packagesDir, package, 'package.json'));
+});
+
+function updatePackageJson(packageJsonPath) {
   var packageJson = require(packageJsonPath);
 
   packageJson.version = NEW_VERSION;
@@ -42,5 +48,5 @@ packages.forEach(function(package) {
     JSON.stringify(packageJson, null, 2) + '\n',
     'utf8'
   );
-})
+}
 SCRIPT

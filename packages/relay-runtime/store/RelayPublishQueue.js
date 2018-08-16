@@ -21,6 +21,7 @@ const invariant = require('invariant');
 const normalizeRelayPayload = require('./normalizeRelayPayload');
 
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
+import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {
   HandleFieldPayload,
   MutableRecordSource,
@@ -82,6 +83,8 @@ class RelayPublishQueue {
   // Optimistic updaters that are already added and might be rerun in order to
   // rebase them.
   _appliedOptimisticUpdates: Set<OptimisticUpdate>;
+  // Garbage collection hold, should rerun gc on dispose
+  _gcHold: ?Disposable;
 
   constructor(store: Store, handlerProvider?: ?HandlerProvider) {
     this._backup = new RelayInMemoryRecordSource();
@@ -92,6 +95,7 @@ class RelayPublishQueue {
     this._pendingOptimisticUpdates = new Set();
     this._store = store;
     this._appliedOptimisticUpdates = new Set();
+    this._gcHold = null;
   }
 
   /**
@@ -175,6 +179,12 @@ class RelayPublishQueue {
     this._commitUpdaters();
     this._applyUpdates();
     this._pendingBackupRebase = false;
+    if (this._appliedOptimisticUpdates.size > 0 && !this._gcHold) {
+      this._gcHold = this._store.holdGC();
+    } else if (this._gcHold) {
+      this._gcHold.dispose();
+      this._gcHold = null;
+    }
     this._store.notify();
   }
 

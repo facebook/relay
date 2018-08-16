@@ -146,6 +146,42 @@ describe('Configs: NODE_DELETE', () => {
     expect(updater).toBeCalled();
     expect(callback.mock.calls.length).toBe(0);
   });
+  it('throws error with classic environment', () => {
+    const RelayEnvironment = require.requireActual(
+      'react-relay/classic/store/__mocks__/RelayEnvironment',
+    );
+    const environment = new RelayEnvironment();
+    const mutation = generateAndCompile(`
+      mutation CommentDeleteMutation(
+        $input: CommentDeleteInput
+      ) {
+        __typename
+      }
+    `).CommentDeleteMutation;
+
+    const firstCommentID = 'comment456';
+
+    const variables = {
+      input: {
+        clientMutationId: '0',
+        deletedCommentId: firstCommentID,
+      },
+    };
+
+    expect(() =>
+      commitRelayModernMutation(environment, {
+        mutation,
+        variables,
+      }),
+    ).toThrowError(
+      'commitRelayModernMutation: expected `environment` to be an instance of ' +
+        '`RelayModernEnvironment`.\n' +
+        'When using Relay Modern and Relay Classic in the same ' +
+        'application, ensure mutations use Relay Compat to work in ' +
+        'both environments.\n' +
+        'See: http://facebook.github.io/relay/docs/relay-compat.html',
+    );
+  });
 });
 
 describe('Configs: RANGE_DELETE', () => {

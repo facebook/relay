@@ -58,6 +58,8 @@ class RelayMarkSweepStore implements Store {
   _roots: Map<number, Selector>;
   _subscriptions: Set<Subscription>;
   _updatedRecordIDs: UpdatedRecords;
+  _gcHoldCounter: number;
+  _shouldScheduleGC: boolean;
 
   constructor(source: MutableRecordSource) {
     // Prevent mutation of a record from outside the store.
@@ -77,6 +79,8 @@ class RelayMarkSweepStore implements Store {
     this._roots = new Map();
     this._subscriptions = new Set();
     this._updatedRecordIDs = {};
+    this._gcHoldCounter = 0;
+    this._shouldScheduleGC = false;
   }
 
   getSource(): RecordSource {
@@ -133,6 +137,20 @@ class RelayMarkSweepStore implements Store {
     return {dispose};
   }
 
+  holdGC(): Disposable {
+    this._gcHoldCounter++;
+    const dispose = () => {
+      if (this._gcHoldCounter > 0) {
+        this._gcHoldCounter--;
+        if (this._gcHoldCounter === 0 && this._shouldScheduleGC) {
+          this._scheduleGC();
+          this._shouldScheduleGC = false;
+        }
+      }
+    };
+    return {dispose};
+  }
+
   // Internal API
   __getUpdatedRecordIDs(): UpdatedRecords {
     return this._updatedRecordIDs;
@@ -160,6 +178,10 @@ class RelayMarkSweepStore implements Store {
   }
 
   _scheduleGC() {
+    if (this._gcHoldCounter > 0) {
+      this._shouldScheduleGC = true;
+      return;
+    }
     if (!this._gcEnabled || this._hasScheduledGC) {
       return;
     }
@@ -254,6 +276,7 @@ RelayProfiler.instrumentMethods(RelayMarkSweepStore.prototype, {
   retain: 'RelayMarkSweepStore.prototype.retain',
   subscribe: 'RelayMarkSweepStore.prototype.subscribe',
   __gc: 'RelayMarkSweepStore.prototype.__gc',
+  holdGC: 'RelayMarkSweepStore.prototype.holdGC',
 });
 
 module.exports = RelayMarkSweepStore;

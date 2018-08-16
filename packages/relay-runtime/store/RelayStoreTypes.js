@@ -145,6 +145,12 @@ export interface Store {
     snapshot: Snapshot,
     callback: (snapshot: Snapshot) => void,
   ): Disposable;
+
+  /**
+   * The method should disable garbage collection until
+   * the returned reference is disposed.
+   */
+  holdGC(): Disposable;
 }
 
 /**

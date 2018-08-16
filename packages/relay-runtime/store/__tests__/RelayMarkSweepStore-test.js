@@ -642,4 +642,57 @@ describe('RelayStore', () => {
       expect(store.check(selector)).toBe(false);
     });
   });
+
+  describe('holdGC()', () => {
+    let UserFragment;
+    let data;
+    let initialData;
+    let source;
+    let store;
+
+    beforeEach(() => {
+      data = {
+        '4': {
+          __id: '4',
+          id: '4',
+          __typename: 'User',
+          name: 'Zuck',
+          'profilePicture(size:32)': {[REF_KEY]: 'client:1'},
+        },
+        'client:1': {
+          __id: 'client:1',
+          uri: 'https://photo1.jpg',
+        },
+      };
+      initialData = simpleClone(data);
+      source = new RelayInMemoryRecordSource(data);
+      store = new RelayMarkSweepStore(source);
+      ({UserFragment} = generateWithTransforms(
+        `
+        fragment UserFragment on User {
+          name
+          profilePicture(size: $size) {
+            uri
+          }
+        }
+      `,
+      ));
+    });
+
+    it('prevents data from being collected with disabled GC, and reruns GC when it is enabled', () => {
+      const gcHold = store.holdGC();
+      const {dispose} = store.retain({
+        dataID: '4',
+        node: UserFragment,
+        variables: {size: 32},
+      });
+      dispose();
+      expect(data).toEqual(initialData);
+      jest.runAllTimers();
+      expect(source.toJSON()).toEqual(initialData);
+      gcHold.dispose();
+      jest.runAllTimers();
+      expect(source.toJSON()).toEqual({});
+    });
+  });
 });

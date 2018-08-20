@@ -358,7 +358,7 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
       operation.variables,
     );
     const request = new RelayQueryRequest(query);
-    request.then(
+    request.getPromise().then(
       payload => {
         if (isDisposed) {
           return;

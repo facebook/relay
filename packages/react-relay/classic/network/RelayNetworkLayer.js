@@ -170,7 +170,14 @@ function profileQueue(currentQueue: Array<RelayQueryRequest>): void {
         firstResultProfiler = null;
       }
     };
-    query.done(onSettle, onSettle);
+    query
+      .getPromise()
+      .then(onSettle, onSettle)
+      .catch(error => {
+        setTimeout(() => {
+          throw error;
+        }, 0);
+      });
   });
 }
 

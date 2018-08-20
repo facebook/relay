@@ -306,10 +306,17 @@ class RelayMutationQueue {
     );
     this._storeData.getNetworkLayer().sendMutation(request);
 
-    request.done(
-      result => this._handleCommitSuccess(transaction, result.response),
-      error => this._handleCommitFailure(transaction, error),
-    );
+    request
+      .getPromise()
+      .then(
+        result => this._handleCommitSuccess(transaction, result.response),
+        error => this._handleCommitFailure(transaction, error),
+      )
+      .catch(error => {
+        setTimeout(() => {
+          throw error;
+        }, 0);
+      });
   }
 
   _handleRollback(transaction: PendingTransaction): void {

@@ -124,16 +124,23 @@ function createMockEnvironment(options: {
     });
   };
 
-  function getRequest(request) {
-    const foundRequest = pendingRequests.find(
+  // The same request may be made by multiple query renderers
+  function getRequests(request) {
+    const foundRequests = pendingRequests.filter(
       pending => pending.request === request,
     );
     invariant(
-      foundRequest && foundRequest.sink,
-      'MockEnvironment: Cannot respond to `%s`, it has not been requested yet.',
-      request.name,
+      foundRequests.length,
+      'MockEnvironment: Cannot respond to request, it has not been requested yet.',
     );
-    return foundRequest;
+    foundRequests.forEach(foundRequest => {
+      invariant(
+        foundRequest.sink,
+        'MockEnvironment: Cannot respond to `%s`, it has not been requested yet.',
+        foundRequest.name,
+      );
+    });
+    return foundRequests;
   }
 
   function ensureValidPayload(payload) {
@@ -184,32 +191,38 @@ function createMockEnvironment(options: {
     if (typeof error === 'string') {
       error = new Error(error);
     }
-    getRequest(request).sink.error(error);
+    getRequests(request).forEach(foundRequest =>
+      foundRequest.sink.error(error),
+    );
   };
 
   const nextValue = (request, payload) => {
-    const {sink, variables} = getRequest(request);
-    sink.next({
-      kind: 'data',
-      operation: request.operation,
-      variables: variables,
-      response: ensureValidPayload(payload),
+    getRequests(request).forEach(foundRequest => {
+      const {sink, variables} = foundRequest;
+      sink.next({
+        kind: 'data',
+        operation: request.operation,
+        variables: variables,
+        response: ensureValidPayload(payload),
+      });
     });
   };
 
   const complete = request => {
-    getRequest(request).sink.complete();
+    getRequests(request).forEach(foundRequest => foundRequest.sink.complete());
   };
 
   const resolve = (request, payload) => {
-    const {sink, variables} = getRequest(request);
-    sink.next({
-      kind: 'data',
-      operation: request.operation,
-      variables: variables,
-      response: ensureValidPayload(payload),
+    getRequests(request).forEach(foundRequest => {
+      const {sink, variables} = foundRequest;
+      sink.next({
+        kind: 'data',
+        operation: request.operation,
+        variables: variables,
+        response: ensureValidPayload(payload),
+      });
+      sink.complete();
     });
-    sink.complete();
   };
 
   // Mock instance

@@ -753,6 +753,80 @@ describe('ReactRelayQueryRenderer', () => {
     });
   });
 
+  describe('with two identical query fetchers', () => {
+    // Regression test for T32896427
+    describe('when the fetch succeeds', () => {
+      it('renders the query results', () => {
+        const mockA = jest.fn().mockReturnValue('A');
+        const mockB = jest.fn().mockReturnValue('B');
+        class Example extends React.Component {
+          render() {
+            return (
+              <React.Fragment>
+                <ReactRelayQueryRenderer
+                  query={TestQuery}
+                  cacheConfig={cacheConfig}
+                  environment={environment}
+                  render={mockA}
+                  variables={variables}
+                />
+                <ReactRelayQueryRenderer
+                  query={TestQuery}
+                  cacheConfig={cacheConfig}
+                  environment={environment}
+                  render={mockB}
+                  variables={variables}
+                />
+              </React.Fragment>
+            );
+          }
+        }
+        const renderer = ReactTestRenderer.create(<Example />);
+        expect.assertions(3);
+        mockA.mockClear();
+        mockB.mockClear();
+        environment.mock.resolve(TestQuery, response);
+        const mockACalls = mockA.mock.calls;
+        const mockBCalls = mockB.mock.calls;
+        expect(mockACalls).toEqual([
+          [
+            {
+              error: null,
+              props: {
+                node: {
+                  id: '4',
+                  __fragments: {
+                    TestFragment: {},
+                  },
+                  __id: '4',
+                },
+              },
+              retry: jasmine.any(Function),
+            },
+          ],
+        ]);
+        expect(mockBCalls).toEqual([
+          [
+            {
+              error: null,
+              props: {
+                node: {
+                  id: '4',
+                  __fragments: {
+                    TestFragment: {},
+                  },
+                  __id: '4',
+                },
+              },
+              retry: jasmine.any(Function),
+            },
+          ],
+        ]);
+        expect(renderer.toJSON()).toEqual(['A', 'B']);
+      });
+    });
+  });
+
   describe('when the fetch succeeds', () => {
     beforeEach(() => {
       ReactTestRenderer.create(
@@ -811,7 +885,6 @@ describe('ReactRelayQueryRenderer', () => {
       );
     });
   });
-
   describe('when props change during a fetch', () => {
     let NextQuery;
     let renderer;

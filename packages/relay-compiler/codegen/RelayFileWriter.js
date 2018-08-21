@@ -113,8 +113,6 @@ class RelayFileWriter implements FileWriterInterface {
     this._onlyValidate = onlyValidate;
     this._reporter = reporter;
     this._sourceControl = sourceControl;
-
-    validateConfig(this._config);
   }
 
   writeAll(): Promise<Map<string, CodegenDirectory>> {
@@ -376,15 +374,6 @@ function md5(x: string): string {
     .createHash('md5')
     .update(x, 'utf8')
     .digest('hex');
-}
-
-function validateConfig(config: Object): void {
-  if (config.buildCommand) {
-    process.stderr.write(
-      'WARNING: RelayFileWriter: For RelayFileWriter to work you must ' +
-        'replace config.buildCommand with config.formatModule.\n',
-    );
-  }
 }
 
 module.exports = RelayFileWriter;

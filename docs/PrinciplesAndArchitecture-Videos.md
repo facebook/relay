@@ -17,3 +17,10 @@ title: Videos
 ### Zero to GraphQL in 30 minutes
 
 <iframe width="640" height="360" src="https://www.youtube-nocookie.com/embed/UBGzsb2UkeY" frameborder="0" allowfullscreen></iframe>
+
+## [GraphQL Europe 2018](https://www.graphql-europe.org/)
+
+### Data Masking in GraphQL Clients
+
+<iframe width="640" height="360" src="https://www.youtube-nocookie.com/embed/ww5UQ50oHok" frameborder="0" allowfullscreen></iframe>
+

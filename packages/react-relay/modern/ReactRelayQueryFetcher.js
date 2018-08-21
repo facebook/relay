@@ -22,12 +22,12 @@ import type {
   Snapshot,
 } from 'relay-runtime';
 
-type OnDataChange = null | (({error?: Error, snapshot?: Snapshot}) => void);
+type OnDataChange = ({error?: Error, snapshot?: Snapshot}) => void;
 
 export type FetchOptions = {
   cacheConfig?: ?CacheConfig,
   environment: IEnvironment,
-  onDataChange: OnDataChange,
+  onDataChangeCallbacks?: null | Array<OnDataChange>,
   operation: OperationSelector,
 };
 
@@ -112,16 +112,20 @@ class ReactRelayQueryFetcher {
       'ReactRelayQueryFetcher: `setOnDataChange` should have been called after having called `fetch`',
     );
 
-    // Mutate the most recent fetchOptions in place,
-    // So that in-progress requests can access the updated callback.
-    this._fetchOptions.onDataChange = onDataChange;
+    if (typeof onDataChange === 'function') {
+      // Mutate the most recent fetchOptions in place,
+      // So that in-progress requests can access the updated callback.
+      this._fetchOptions.onDataChangeCallbacks =
+        this._fetchOptions.onDataChangeCallbacks || [];
+      this._fetchOptions.onDataChangeCallbacks.push(onDataChange);
 
-    if (this._callOnDataChangeWhenSet && typeof onDataChange === 'function') {
-      this._callOnDataChangeWhenSet = false;
-      if (this._error != null) {
-        onDataChange({error: this._error});
-      } else if (this._snapshot != null) {
-        onDataChange({snapshot: this._snapshot});
+      if (this._callOnDataChangeWhenSet) {
+        // We don't reset '_callOnDataChangeWhenSet' because another callback may be set
+        if (this._error != null) {
+          onDataChange({error: this._error});
+        } else if (this._snapshot != null) {
+          onDataChange({snapshot: this._snapshot});
+        }
       }
     }
   }
@@ -153,13 +157,9 @@ class ReactRelayQueryFetcher {
       })
       .subscribe({
         next: () => {
-          const onDataChange = this._fetchOptions
-            ? this._fetchOptions.onDataChange
-            : null;
-
-          // If we received a response when we didn't have a change callback,
+          // If we received a response,
           // Make a note that to notify the callback when it's later added.
-          this._callOnDataChangeWhenSet = typeof onDataChange !== 'function';
+          this._callOnDataChangeWhenSet = true;
           this._error = null;
 
           // Only notify of the first result if `next` is being called **asynchronously**
@@ -167,21 +167,22 @@ class ReactRelayQueryFetcher {
           this._onQueryDataAvailable({notifyFirstResult: fetchHasReturned});
         },
         error: err => {
-          const onDataChange = this._fetchOptions
-            ? this._fetchOptions.onDataChange
-            : null;
-
           // If we received a response when we didn't have a change callback,
           // Make a note that to notify the callback when it's later added.
-          this._callOnDataChangeWhenSet = typeof onDataChange !== 'function';
+          this._callOnDataChangeWhenSet = true;
           this._error = err;
           this._snapshot = null;
+
+          const onDataChangeCallbacks =
+            this._fetchOptions && this._fetchOptions.onDataChangeCallbacks;
 
           // Only notify of error if `error` is being called **asynchronously**
           // (i.e. after `fetch` has returned).
           if (fetchHasReturned) {
-            if (typeof onDataChange === 'function') {
-              onDataChange({error: err});
+            if (onDataChangeCallbacks) {
+              onDataChangeCallbacks.forEach(onDataChange => {
+                onDataChange({error: err});
+              });
             }
           } else {
             error = err;
@@ -255,7 +256,7 @@ class ReactRelayQueryFetcher {
       this._fetchOptions,
       'ReactRelayQueryFetcher: `_onQueryDataAvailable` should have been called after having called `fetch`',
     );
-    const {environment, onDataChange, operation} = this._fetchOptions;
+    const {environment, onDataChangeCallbacks, operation} = this._fetchOptions;
 
     // `_onQueryDataAvailable` can be called synchronously the first time and can be called
     // multiple times by network layers that support data subscriptions.
@@ -270,9 +271,12 @@ class ReactRelayQueryFetcher {
     this._rootSubscription = environment.subscribe(this._snapshot, snapshot => {
       // Read from this._fetchOptions in case onDataChange() was lazily added.
       if (this._fetchOptions != null) {
-        const maybeNewOnDataChange = this._fetchOptions.onDataChange;
-        if (typeof maybeNewOnDataChange === 'function') {
-          maybeNewOnDataChange({snapshot});
+        const maybeNewOnDataChangeCallbacks = this._fetchOptions
+          .onDataChangeCallbacks;
+        if (Array.isArray(maybeNewOnDataChangeCallbacks)) {
+          maybeNewOnDataChangeCallbacks.forEach(onDataChange =>
+            onDataChange({snapshot}),
+          );
         }
       }
     });
@@ -280,9 +284,10 @@ class ReactRelayQueryFetcher {
     if (
       this._snapshot &&
       notifyFirstResult &&
-      typeof onDataChange === 'function'
+      Array.isArray(onDataChangeCallbacks)
     ) {
-      onDataChange({snapshot: this._snapshot});
+      const snapshot = this._snapshot;
+      onDataChangeCallbacks.forEach(onDataChange => onDataChange({snapshot}));
     }
   }
 }

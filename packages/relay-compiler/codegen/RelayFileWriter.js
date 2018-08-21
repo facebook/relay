@@ -76,6 +76,8 @@ export type WriterConfig = {
     GLOBAL_RULES?: Array<ValidationRule>,
     LOCAL_RULES?: Array<ValidationRule>,
   },
+  // EXPERIMENTAL: skips deleting extra files in the generated directories
+  experimental_noDeleteExtraFiles?: boolean,
 };
 
 class RelayFileWriter implements FileWriterInterface {
@@ -336,9 +338,11 @@ class RelayFileWriter implements FileWriterInterface {
         }
 
         // clean output directories
-        allOutputDirectories.forEach(dir => {
-          dir.deleteExtraFiles();
-        });
+        if (this._config.experimental_noDeleteExtraFiles !== true) {
+          allOutputDirectories.forEach(dir => {
+            dir.deleteExtraFiles();
+          });
+        }
         if (this._sourceControl && !this._onlyValidate) {
           await CodegenDirectory.sourceControlAddRemove(
             this._sourceControl,

@@ -63,6 +63,7 @@ export type GetWriterOptions = {|
   sourceControl: ?SourceControl,
   reporter: GraphQLReporter,
   generatedDirectories?: Array<string>,
+  experimental_noDeleteExtraFiles?: boolean,
 |};
 
 export type GetWriter = GetWriterOptions => FileWriterInterface;

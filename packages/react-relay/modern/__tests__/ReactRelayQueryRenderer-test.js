@@ -112,6 +112,58 @@ describe('ReactRelayQueryRenderer', () => {
       ).toBe(true);
     });
 
+    describe('when constructor fires multiple times', () => {
+      // TODO: (T31970852) make this test pass
+      xit('fetches the query only once', () => {
+        const fetch = jest.fn().mockReturnValue(response);
+        store = new Store(new RecordSource());
+        environment = new Environment({
+          network: Network.create(fetch),
+          store,
+        });
+
+        function Child(props) {
+          // NOTE the unstable_yield method will move to the static renderer.
+          // When React sync runs we need to update this.
+          renderer.unstable_yield(props.children);
+          return props.children;
+        }
+
+        class Example extends React.Component {
+          render() {
+            return (
+              <React.Fragment>
+                <Child>A</Child>
+                <ReactRelayQueryRenderer
+                  query={TestQuery}
+                  cacheConfig={cacheConfig}
+                  environment={environment}
+                  render={render}
+                  variables={variables}
+                />
+                <Child>B</Child>
+                <Child>C</Child>
+              </React.Fragment>
+            );
+          }
+        }
+        const renderer = ReactTestRenderer.create(<Example />, {
+          unstable_isAsync: true,
+        });
+
+        // Flush some of the changes, but don't commit
+        expect(renderer.unstable_flushThrough(['A', 'B'])).toEqual(['A', 'B']);
+        expect(renderer.toJSON()).toEqual(null);
+
+        // Interrupt with higher priority updates
+        renderer.unstable_flushSync(() => {
+          renderer.update(<Example />);
+        });
+
+        expect(fetch.mock.calls.length).toBe(1);
+      });
+    });
+
     it('fetches the query with default variables', () => {
       ReactTestRenderer.create(
         <ReactRelayQueryRenderer

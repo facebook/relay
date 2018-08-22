@@ -76,6 +76,95 @@ export type WriterConfig = {
   experimental_noDeleteExtraFiles?: boolean,
 };
 
+function compileAll({
+  baseDir,
+  baseDocuments,
+  baseSchema,
+  compilerTransforms,
+  documents,
+  extraValidationRules,
+  reporter,
+  schemaExtensions,
+  typeGenerator,
+}: {|
+  baseDir: string,
+  baseDocuments: ImmutableMap<string, DocumentNode>,
+  baseSchema: GraphQLSchema,
+  compilerTransforms: RelayCompilerTransforms,
+  documents: ImmutableMap<string, DocumentNode>,
+  extraValidationRules?: {
+    GLOBAL_RULES?: Array<ValidationRule>,
+    LOCAL_RULES?: Array<ValidationRule>,
+  },
+  reporter: Reporter,
+  schemaExtensions: Array<string>,
+  typeGenerator: TypeGenerator,
+|}) {
+  // Can't convert to IR unless the schema already has Relay-local extensions
+  const transformedSchema = ASTConvert.transformASTSchema(
+    baseSchema,
+    schemaExtensions,
+  );
+  const extendedSchema = ASTConvert.extendASTSchema(
+    transformedSchema,
+    baseDocuments
+      .merge(documents)
+      .valueSeq()
+      .toArray(),
+  );
+
+  // Verify using local and global rules, can run global verifications here
+  // because all files are processed together
+  let validationRules = [
+    ...RelayValidator.LOCAL_RULES,
+    ...RelayValidator.GLOBAL_RULES,
+  ];
+  if (extraValidationRules) {
+    validationRules = [
+      ...validationRules,
+      ...(extraValidationRules.LOCAL_RULES || []),
+      ...(extraValidationRules.GLOBAL_RULES || []),
+    ];
+  }
+
+  const definitions = ASTConvert.convertASTDocumentsWithBase(
+    extendedSchema,
+    baseDocuments.valueSeq().toArray(),
+    documents.valueSeq().toArray(),
+    validationRules,
+    RelayParser.transform.bind(RelayParser),
+  );
+
+  const compilerContext = new CompilerContext(
+    baseSchema,
+    extendedSchema,
+  ).addAll(definitions);
+
+  const transformedTypeContext = compilerContext.applyTransforms(
+    typeGenerator.transforms,
+    reporter,
+  );
+  const transformedQueryContext = compilerContext.applyTransforms(
+    [
+      ...compilerTransforms.commonTransforms,
+      ...compilerTransforms.queryTransforms,
+    ],
+    reporter,
+  );
+  const artifacts = compileRelayArtifacts(
+    compilerContext,
+    compilerTransforms,
+    reporter,
+  );
+
+  return {
+    artifacts,
+    definitions,
+    transformedQueryContext,
+    transformedTypeContext,
+  };
+}
+
 function writeAll({
   config: writerConfig,
   onlyValidate,
@@ -94,17 +183,25 @@ function writeAll({
   sourceControl: ?SourceControl,
 |}): Promise<Map<string, CodegenDirectory>> {
   return Profiler.asyncContext('RelayFileWriter.writeAll', async () => {
-    // Can't convert to IR unless the schema already has Relay-local extensions
-    const transformedSchema = ASTConvert.transformASTSchema(
+    const {
+      artifacts,
+      definitions,
+      transformedTypeContext,
+      transformedQueryContext,
+    } = compileAll({
+      baseDir: writerConfig.baseDir,
+      baseDocuments,
       baseSchema,
-      writerConfig.schemaExtensions,
-    );
-    const extendedSchema = ASTConvert.extendASTSchema(
-      transformedSchema,
-      baseDocuments
-        .merge(documents)
-        .valueSeq()
-        .toArray(),
+      compilerTransforms: writerConfig.compilerTransforms,
+      documents,
+      extraValidationRules: writerConfig.validationRules,
+      reporter,
+      schemaExtensions: writerConfig.schemaExtensions,
+      typeGenerator: writerConfig.typeGenerator,
+    });
+
+    const existingFragmentNames = new Set(
+      definitions.map(definition => definition.name),
     );
 
     // Build a context from all the documents
@@ -126,6 +223,23 @@ function writeAll({
       );
       return definitionMeta;
     };
+    documents.forEach((doc, filePath) => {
+      doc.definitions.forEach(def => {
+        if (def.name) {
+          definitionsMeta.set(def.name.value, {
+            dir: path.join(writerConfig.baseDir, path.dirname(filePath)),
+            ast: def,
+          });
+        }
+      });
+    });
+
+    // TODO(T22651734): improve this to correctly account for fragments that
+    // have generated flow types.
+    baseDefinitionNames.forEach(baseDefinitionName => {
+      existingFragmentNames.delete(baseDefinitionName);
+    });
+
     const allOutputDirectories: Map<string, CodegenDirectory> = new Map();
     const addCodegenDir = dirPath => {
       const codegenDir = new CodegenDirectory(dirPath, {
@@ -144,45 +258,6 @@ function writeAll({
       configOutputDirectory = addCodegenDir(writerConfig.outputDir);
     }
 
-    documents.forEach((doc, filePath) => {
-      doc.definitions.forEach(def => {
-        if (def.name) {
-          definitionsMeta.set(def.name.value, {
-            dir: path.join(writerConfig.baseDir, path.dirname(filePath)),
-            ast: def,
-          });
-        }
-      });
-    });
-
-    // Verify using local and global rules, can run global verifications here
-    // because all files are processed together
-    let validationRules = [
-      ...RelayValidator.LOCAL_RULES,
-      ...RelayValidator.GLOBAL_RULES,
-    ];
-    const customizedValidationRules = writerConfig.validationRules;
-    if (customizedValidationRules) {
-      validationRules = [
-        ...validationRules,
-        ...(customizedValidationRules.LOCAL_RULES || []),
-        ...(customizedValidationRules.GLOBAL_RULES || []),
-      ];
-    }
-
-    const definitions = ASTConvert.convertASTDocumentsWithBase(
-      extendedSchema,
-      baseDocuments.valueSeq().toArray(),
-      documents.valueSeq().toArray(),
-      validationRules,
-      RelayParser.transform.bind(RelayParser),
-    );
-
-    const compilerContext = new CompilerContext(
-      baseSchema,
-      extendedSchema,
-    ).addAll(definitions);
-
     const getGeneratedDirectory = definitionName => {
       if (configOutputDirectory) {
         return configOutputDirectory;
@@ -197,33 +272,6 @@ function writeAll({
       }
       return cachedDir;
     };
-
-    const transformedFlowContext = compilerContext.applyTransforms(
-      writerConfig.typeGenerator.transforms,
-      reporter,
-    );
-    const transformedQueryContext = compilerContext.applyTransforms(
-      [
-        ...writerConfig.compilerTransforms.commonTransforms,
-        ...writerConfig.compilerTransforms.queryTransforms,
-      ],
-      reporter,
-    );
-    const artifacts = compileRelayArtifacts(
-      compilerContext,
-      writerConfig.compilerTransforms,
-      reporter,
-    );
-
-    const existingFragmentNames = new Set(
-      definitions.map(definition => definition.name),
-    );
-
-    // TODO(T22651734): improve this to correctly account for fragments that
-    // have generated flow types.
-    baseDefinitionNames.forEach(baseDefinitionName => {
-      existingFragmentNames.delete(baseDefinitionName);
-    });
 
     const formatModule = Profiler.instrument(
       writerConfig.formatModule,
@@ -252,7 +300,7 @@ function writeAll({
           const relayRuntimeModule =
             writerConfig.relayRuntimeModule || 'relay-runtime';
 
-          const typeNode = transformedFlowContext.get(node.name);
+          const typeNode = transformedTypeContext.get(node.name);
           invariant(
             typeNode,
             'RelayFileWriter: did not compile types for: %s',

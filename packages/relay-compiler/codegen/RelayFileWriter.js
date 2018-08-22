@@ -59,7 +59,6 @@ export type WriterConfig = {
   generatedDirectories?: Array<string>,
   persistQuery?: (text: string) => Promise<string>,
   platform?: string,
-  relayRuntimeModule?: string,
   schemaExtensions: Array<string>,
   noFutureProofEnums: boolean,
   useHaste: boolean,
@@ -297,8 +296,6 @@ function writeAll({
             // responsible for them
             return;
           }
-          const relayRuntimeModule =
-            writerConfig.relayRuntimeModule || 'relay-runtime';
 
           const typeNode = transformedTypeContext.get(node.name);
           invariant(
@@ -312,7 +309,6 @@ function writeAll({
             enumsHasteModule: writerConfig.enumsHasteModule,
             existingFragmentNames,
             inputFieldWhiteList: writerConfig.inputFieldWhiteListForFlow,
-            relayRuntimeModule,
             useHaste: writerConfig.useHaste,
             useSingleArtifactDirectory: !!writerConfig.outputDir,
             noFutureProofEnums: writerConfig.noFutureProofEnums,
@@ -329,7 +325,6 @@ function writeAll({
             typeText,
             persistQuery,
             writerConfig.platform,
-            relayRuntimeModule,
             sourceHash,
             writerConfig.extension,
           );

@@ -19,11 +19,10 @@ const formatGeneratedModule: FormatModule = ({
   concreteText,
   typeText,
   hash,
-  relayRuntimeModule,
   sourceHash,
 }) => {
   const documentTypeImport = documentType
-    ? `import type { ${documentType} } from '${relayRuntimeModule}';`
+    ? `import type { ${documentType} } from 'relay-runtime';`
     : '';
   const docTextComment = docText ? '\n/*\n' + docText.trim() + '\n*/\n' : '';
   const hashText = hash ? `\n * ${hash}` : '';

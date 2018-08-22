@@ -29,7 +29,6 @@ async function writeRelayGeneratedFile(
   typeText: string,
   _persistQuery: ?(text: string) => Promise<string>,
   platform: ?string,
-  relayRuntimeModule: string,
   sourceHash: string,
   extension: string,
 ): Promise<?GeneratedNode> {
@@ -128,7 +127,6 @@ async function writeRelayGeneratedFile(
     hash: hash ? `@relayHash ${hash}` : null,
     concreteText: dedupeJSONStringify(generatedNode),
     devOnlyAssignments,
-    relayRuntimeModule,
     sourceHash,
   });
 

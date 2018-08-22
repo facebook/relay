@@ -48,7 +48,6 @@ describe('RelayFlowGenerator', () => {
       enumsHasteModule: null,
       existingFragmentNames: new Set(['PhotoFragment']),
       inputFieldWhiteList: [],
-      relayRuntimeModule: 'relay-runtime',
       useHaste: true,
       useSingleArtifactDirectory: false,
     }),
@@ -65,7 +64,6 @@ describe('RelayFlowGenerator', () => {
       enumsHasteModule: null,
       existingFragmentNames: new Set(['PhotoFragment']),
       inputFieldWhiteList: [],
-      relayRuntimeModule: 'relay-runtime',
       useHaste: true,
       useSingleArtifactDirectory: false,
       // This is what's different from the tests above.
@@ -87,7 +85,6 @@ describe('RelayFlowGenerator', () => {
     const generateWithMapping = mapping =>
       generate(text, {
         customScalars: mapping,
-        relayRuntimeModule: 'relay-runtime',
       });
 
     it('maps unspecified types to `any`', () => {
@@ -128,7 +125,6 @@ describe('RelayFlowGenerator', () => {
       enumsHasteModule: null,
       existingFragmentNames: new Set(['PhotoFragment']),
       inputFieldWhiteList: [],
-      relayRuntimeModule: 'relay-runtime',
       // This is what's different from the tests above.
       useHaste: false,
       useSingleArtifactDirectory: true,

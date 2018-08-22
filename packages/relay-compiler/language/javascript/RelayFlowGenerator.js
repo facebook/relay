@@ -255,7 +255,6 @@ function createVisitor(options: TypeGeneratorOptions) {
     generatedFragments: new Set(),
     generatedInputObjectTypes: {},
     inputFieldWhiteList: options.inputFieldWhiteList,
-    relayRuntimeModule: options.relayRuntimeModule,
     usedEnums: {},
     usedFragments: new Set(),
     useHaste: options.useHaste,
@@ -334,7 +333,7 @@ function createVisitor(options: TypeGeneratorOptions) {
         return t.program([
           ...getFragmentImports(state),
           ...getEnumDefinitions(state),
-          importTypes(['FragmentReference'], state.relayRuntimeModule),
+          importTypes(['FragmentReference'], 'relay-runtime'),
           refType,
           exportType(node.name, type),
         ]);

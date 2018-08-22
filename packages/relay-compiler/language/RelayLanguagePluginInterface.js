@@ -146,11 +146,6 @@ export type FormatModule = ({|
   typeText: string,
 
   /**
-   * The name of the relay-runtime module being used.
-   */
-  relayRuntimeModule: string,
-
-  /**
    * A hash of the concrete node including the query text.
    *
    * @todo Document how this is different from `sourceHash`.
@@ -193,13 +188,6 @@ export type TypeGeneratorOptions = {|
    * to import/reference other artifacts.
    */
   +existingFragmentNames: Set<string>,
-
-  /**
-   * The name of the relay-runtime module.
-   *
-   * This defaults to `relay-runtime`.
-   */
-  +relayRuntimeModule: string,
 
   /**
    * Whether or not relay-compiler will store artifacts next to the module that

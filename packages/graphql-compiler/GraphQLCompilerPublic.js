@@ -44,16 +44,12 @@ const nullthrows = require('./util/nullthrowsOSS');
 const {SourceControlMercurial} = require('./codegen/SourceControl');
 
 export type {
-  GetWriter,
-  GetWriterOptions,
+  WriteFiles,
+  WriteFilesOptions,
   ParserConfig,
   WriterConfig,
 } from './codegen/CodegenRunner';
-export type {
-  CompileResult,
-  File,
-  FileWriterInterface,
-} from './codegen/CodegenTypes';
+export type {CompileResult, File} from './codegen/CodegenTypes';
 export type {FileFilter, WatchmanExpression} from './codegen/CodegenWatcher';
 export type {SourceControl} from './codegen/SourceControl';
 export type {IRTransform} from './core/GraphQLCompilerContext';

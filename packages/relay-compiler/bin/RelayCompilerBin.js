@@ -44,7 +44,7 @@ const {
   schemaExtensions,
 } = RelayIRTransforms;
 
-import type {GetWriterOptions} from 'graphql-compiler';
+import type {WriteFilesOptions} from 'graphql-compiler';
 import type {GraphQLSchema} from 'graphql';
 import type {
   PluginInitializer,
@@ -289,8 +289,8 @@ function getRelayFileWriter(
     baseDocuments,
     sourceControl,
     reporter,
-  }: GetWriterOptions) =>
-    new RelayFileWriter({
+  }: WriteFilesOptions) => () =>
+    RelayFileWriter.writeAll({
       config: {
         baseDir,
         compilerTransforms: {

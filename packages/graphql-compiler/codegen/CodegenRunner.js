@@ -22,7 +22,7 @@ const {Map: ImmutableMap} = require('immutable');
 
 import type ASTCache from '../core/ASTCache';
 import type {GraphQLReporter} from '../reporters/GraphQLReporter';
-import type {CompileResult, File, FileWriterInterface} from './CodegenTypes';
+import type {CompileResult, File} from './CodegenTypes';
 import type {FileFilter, WatchmanExpression} from './CodegenWatcher';
 import type {SourceControl} from './SourceControl';
 import type {DocumentNode, GraphQLSchema} from 'graphql';
@@ -44,18 +44,18 @@ type Parsers = {
   [parser: string]: ASTCache,
 };
 
-export type WriterConfig = {
+export type WriterConfig = {|
   parser: string,
   baseParsers?: Array<string>,
   isGeneratedFile: (filePath: string) => boolean,
-  getWriter: GetWriter,
-};
+  writeFiles: WriteFiles,
+|};
 
 type WriterConfigs = {
   [writer: string]: WriterConfig,
 };
 
-export type GetWriterOptions = {|
+export type WriteFilesOptions = {|
   onlyValidate: boolean,
   schema: GraphQLSchema,
   documents: ImmutableMap<string, DocumentNode>,
@@ -66,7 +66,9 @@ export type GetWriterOptions = {|
   experimental_noDeleteExtraFiles?: boolean,
 |};
 
-export type GetWriter = GetWriterOptions => FileWriterInterface;
+export type WriteFiles = WriteFilesOptions => Promise<
+  Map<string, CodegenDirectory>,
+>;
 
 class CodegenRunner {
   parserConfigs: ParserConfigs;
@@ -253,7 +255,7 @@ class CodegenRunner {
       try {
         this._reporter.reportMessage(`\nWriting ${writerName}`);
         const {
-          getWriter,
+          writeFiles,
           parser,
           baseParsers,
           isGeneratedFile,
@@ -286,7 +288,8 @@ class CodegenRunner {
         const schema = Profiler.run('getSchema', () =>
           this.parserConfigs[parser].getSchema(),
         );
-        const writer = getWriter({
+
+        const outputDirectories = await writeFiles({
           onlyValidate: this.onlyValidate,
           schema,
           documents,
@@ -295,8 +298,6 @@ class CodegenRunner {
           sourceControl: this._sourceControl,
           reporter: this._reporter,
         });
-
-        const outputDirectories = await writer.writeAll();
 
         for (const dir of outputDirectories.values()) {
           const all = [

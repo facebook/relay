@@ -42,6 +42,7 @@ describe('RelayPublishQueue', () => {
 
   describe('applyUpdate()/revertUpdate()', () => {
     let operationSelector;
+    let operationSelectorAliased;
     let initialData;
     let sourceData;
     let source;
@@ -98,6 +99,21 @@ describe('RelayPublishQueue', () => {
         }
       `,
       ).ChangeNameMutation;
+
+      const mutationQueryAliased = generateAndCompile(
+        `
+        mutation ChangeNameMutation(
+          $input: ActorNameChangeInput!
+        ) {
+          changeName: actorNameChange(input: $input) {
+            actor {
+              name
+            }
+          }
+        }
+      `,
+      ).ChangeNameMutation;
+
       const variables = {
         input: {
           clientMutationId: '0',
@@ -105,6 +121,10 @@ describe('RelayPublishQueue', () => {
         },
       };
       operationSelector = createOperationSelector(mutationQuery, variables);
+      operationSelectorAliased = createOperationSelector(
+        mutationQueryAliased,
+        variables,
+      );
     });
 
     it('runs an `storeUpdater` and applies the changes to the store', () => {
@@ -133,6 +153,26 @@ describe('RelayPublishQueue', () => {
         operation: operationSelector,
         response: {
           actorNameChange: {
+            actor: {
+              id: '4',
+              name: 'zuck',
+              __typename: 'Actor',
+            },
+          },
+        },
+      };
+      queue.applyUpdate(optimisticUpdate);
+      expect(sourceData).toEqual(initialData);
+      queue.run();
+      expect(sourceData['4'].name).toEqual('zuck');
+    });
+
+    it('handles aliases correctly when used with optimistic update', () => {
+      const queue = new RelayPublishQueue(store);
+      const optimisticUpdate = {
+        operation: operationSelectorAliased,
+        response: {
+          changeName: {
             actor: {
               id: '4',
               name: 'zuck',

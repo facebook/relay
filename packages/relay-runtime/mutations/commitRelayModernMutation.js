@@ -14,6 +14,7 @@ const RelayDeclarativeMutationConfig = require('./RelayDeclarativeMutationConfig
 
 const invariant = require('invariant');
 const isRelayModernEnvironment = require('../store/isRelayModernEnvironment');
+const validateMutation = require('./validateMutation');
 const warning = require('warning');
 
 import type {PayloadError, UploadableMap} from '../network/RelayNetworkTypes';
@@ -56,6 +57,11 @@ function commitRelayModernMutation<T>(
   if (mutation.operationKind !== 'mutation') {
     throw new Error('commitRelayModernMutation: Expected mutation operation');
   }
+  if (mutation.kind !== 'Request') {
+    throw new Error(
+      'commitRelayModernMutation: Expected mutation to be of type request',
+    );
+  }
   let {optimisticResponse, optimisticUpdater, updater} = config;
   const {configs, onError, variables, uploadables} = config;
   const operation = createOperationSelector(mutation, variables);
@@ -68,19 +74,10 @@ function commitRelayModernMutation<T>(
         'received a function.',
     );
   }
-  if (
-    optimisticResponse &&
-    mutation.fragment.selections &&
-    mutation.fragment.selections.length === 1 &&
-    mutation.fragment.selections[0].kind === 'LinkedField'
-  ) {
-    const mutationRoot = mutation.fragment.selections[0].name;
-    warning(
-      optimisticResponse[mutationRoot],
-      'commitRelayModernMutation: Expected `optimisticResponse` to be wrapped ' +
-        'in mutation name `%s`',
-      mutationRoot,
-    );
+  if (__DEV__) {
+    if (optimisticResponse instanceof Object) {
+      validateMutation(optimisticResponse, mutation, config.variables);
+    }
   }
   if (configs) {
     ({optimisticUpdater, updater} = RelayDeclarativeMutationConfig.convert(

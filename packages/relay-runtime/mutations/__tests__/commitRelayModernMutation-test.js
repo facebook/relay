@@ -884,3 +884,45 @@ describe('Configs: RANGE_ADD', () => {
     expect(callback.mock.calls.length).toBe(0);
   });
 });
+
+describe('Aliased mutation roots', () => {
+  beforeEach(() => jest.mock('warning'));
+  it('does not present a warning when mutation uses an aliased in combination with a optimistcResponse', () => {
+    const environment = createMockEnvironment();
+    const mutation = generateAndCompile(`
+      mutation CommentDeleteMutation(
+        $input: CommentDeleteInput
+      ) {
+        alias: commentDelete(input: $input) {
+          deletedCommentId
+          feedback {
+            id
+            topLevelComments {
+              count
+            }
+          }
+        }
+      }
+    `).CommentDeleteMutation;
+    commitMutation(environment, {
+      mutation,
+      variables: {},
+      optimisticResponse: {
+        alias: {
+          deletedCommentId: 'oo ahh zippy do wah',
+          feedback: {
+            id: 'the feedback id',
+            topLevelComments: {
+              count: '>9000',
+            },
+          },
+        },
+      },
+    });
+    expect(require('warning')).not.toHaveBeenCalledWith(
+      undefined,
+      expect.anything(),
+      expect.anything(),
+    );
+  });
+});

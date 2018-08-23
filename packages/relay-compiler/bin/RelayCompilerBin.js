@@ -239,7 +239,7 @@ Ensure that one such file exists in ${srcDir} or its parents.
   };
   const writerConfigs = {
     [sourceWriterName]: {
-      getWriter: getRelayFileWriter(
+      writeFiles: getRelayFileWriter(
         srcDir,
         languagePlugin,
         options.noFutureProofEnums,
@@ -289,7 +289,7 @@ function getRelayFileWriter(
     baseDocuments,
     sourceControl,
     reporter,
-  }: WriteFilesOptions) => () =>
+  }: WriteFilesOptions) =>
     RelayFileWriter.writeAll({
       config: {
         baseDir,

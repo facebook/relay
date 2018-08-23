@@ -39,7 +39,7 @@ import type {DocumentNode, GraphQLSchema} from 'graphql';
 function validateOrThrow(
   document: DocumentNode,
   schema: GraphQLSchema,
-  rules: Array<Function>,
+  rules: $ReadOnlyArray<Function>,
 ): void {
   const validationErrors = validate(schema, document, rules);
   if (validationErrors && validationErrors.length > 0) {

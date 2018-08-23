@@ -20,7 +20,7 @@ function parseGraphQLText(
   schema: GraphQLSchema,
   text: string,
 ): {
-  definitions: Array<Fragment | Root>,
+  definitions: $ReadOnlyArray<Fragment | Root>,
   schema: ?GraphQLSchema,
 } {
   const ast = parse(text);

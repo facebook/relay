@@ -87,10 +87,10 @@ function compileAll({
   typeGenerator,
 }: {|
   baseDir: string,
-  baseDocuments: ImmutableMap<string, DocumentNode>,
+  baseDocuments: $ReadOnlyArray<DocumentNode>,
   baseSchema: GraphQLSchema,
   compilerTransforms: RelayCompilerTransforms,
-  documents: ImmutableMap<string, DocumentNode>,
+  documents: $ReadOnlyArray<DocumentNode>,
   extraValidationRules?: {
     GLOBAL_RULES?: Array<ValidationRule>,
     LOCAL_RULES?: Array<ValidationRule>,
@@ -104,13 +104,10 @@ function compileAll({
     baseSchema,
     schemaExtensions,
   );
-  const extendedSchema = ASTConvert.extendASTSchema(
-    transformedSchema,
-    baseDocuments
-      .merge(documents)
-      .valueSeq()
-      .toArray(),
-  );
+  const extendedSchema = ASTConvert.extendASTSchema(transformedSchema, [
+    ...baseDocuments,
+    ...documents,
+  ]);
 
   // Verify using local and global rules, can run global verifications here
   // because all files are processed together
@@ -128,8 +125,8 @@ function compileAll({
 
   const definitions = ASTConvert.convertASTDocumentsWithBase(
     extendedSchema,
-    baseDocuments.valueSeq().toArray(),
-    documents.valueSeq().toArray(),
+    baseDocuments,
+    documents,
     validationRules,
     RelayParser.transform.bind(RelayParser),
   );
@@ -189,10 +186,10 @@ function writeAll({
       transformedQueryContext,
     } = compileAll({
       baseDir: writerConfig.baseDir,
-      baseDocuments,
+      baseDocuments: baseDocuments.valueSeq().toArray(),
       baseSchema,
       compilerTransforms: writerConfig.compilerTransforms,
-      documents,
+      documents: documents.valueSeq().toArray(),
       extraValidationRules: writerConfig.validationRules,
       reporter,
       schemaExtensions: writerConfig.schemaExtensions,

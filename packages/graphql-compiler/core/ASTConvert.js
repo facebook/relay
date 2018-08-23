@@ -148,9 +148,7 @@ function convertASTDefinitions(
 
   const validationAST = {
     kind: 'Document',
-    // DocumentNode doesn't accept that a node of type
-    // FragmentDefinitionNode | OperationDefinitionNode is a DefinitionNode
-    definitions: (operationDefinitions: Array<$FlowFixMe>),
+    definitions: operationDefinitions,
   };
   // Will throw an error if there are validation issues
   GraphQLValidator.validate(validationAST, schema, validationRules);

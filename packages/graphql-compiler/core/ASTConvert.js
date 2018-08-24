@@ -188,7 +188,7 @@ function transformASTSchema(
  */
 function extendASTSchema(
   baseSchema: GraphQLSchema,
-  documents: Array<DocumentNode>,
+  documents: $ReadOnlyArray<DocumentNode>,
 ): GraphQLSchema {
   return Profiler.run('ASTConvert.extendASTSchema', () => {
     const schemaExtensions: Array<TypeSystemDefinitionNode> = [];

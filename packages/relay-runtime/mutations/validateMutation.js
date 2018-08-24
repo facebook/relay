@@ -127,26 +127,25 @@ if (__DEV__) {
     optimisticResponse: Object,
     context: ValidationContext,
   ) => {
-    Object.entries(optimisticResponse).forEach(
-      ([key, value]: [string, mixed]) => {
-        const path = `${context.path}.${key}`;
-        if (!context.visitedPaths.has(path)) {
-          warning(
-            false,
-            'validateMutation: `optimisticResponse` for mutation `%s`, contains an unused field %s',
-            context.operationName,
-            path,
-          );
-          return;
-        }
-        if (value instanceof Object) {
-          validateOptimisticResponse(value, {
-            ...context,
-            path,
-          });
-        }
-      },
-    );
+    Object.keys(optimisticResponse).forEach((key: string) => {
+      const value = optimisticResponse[key];
+      const path = `${context.path}.${key}`;
+      if (!context.visitedPaths.has(path)) {
+        warning(
+          false,
+          'validateMutation: `optimisticResponse` for mutation `%s`, contains an unused field %s',
+          context.operationName,
+          path,
+        );
+        return;
+      }
+      if (value instanceof Object) {
+        validateOptimisticResponse(value, {
+          ...context,
+          path,
+        });
+      }
+    });
   };
 }
 

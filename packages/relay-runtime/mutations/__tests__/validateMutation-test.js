@@ -333,11 +333,11 @@ describe('validateOptimisticResponse', () => {
       if (shouldWarn) {
         expect(() =>
           validateMutation(optimisticResponse, mutation, variables),
-        ).toThrow(Error);
+        ).toThrow();
       } else {
         expect(() =>
           validateMutation(optimisticResponse, mutation, variables),
-        ).not.toThrow(Error);
+        ).not.toThrow();
       }
     });
   });

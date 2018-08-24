@@ -24,12 +24,22 @@ import type {
 
 type OnDataChange = ({error?: Error, snapshot?: Snapshot}) => void;
 
+/** The external API of 'fetch' **/
 export type FetchOptions = {
   cacheConfig?: ?CacheConfig,
   environment: IEnvironment,
-  onDataChangeCallbacks?: null | Array<OnDataChange>,
+  onDataChange?: null | OnDataChange,
   operation: OperationSelector,
 };
+
+// Internally we keep an array of onDataChange callbacks, to support reusing
+// the queryRenderer for multiple components.
+type FetchOptionsInternal = {|
+  cacheConfig?: ?CacheConfig,
+  environment: IEnvironment,
+  onDataChangeCallbacks: Array<OnDataChange>,
+  operation: OperationSelector,
+|};
 
 export type ExecuteConfig = {|
   environment: IEnvironment,
@@ -40,7 +50,7 @@ export type ExecuteConfig = {|
 |};
 
 class ReactRelayQueryFetcher {
-  _fetchOptions: ?FetchOptions;
+  _fetchOptions: ?FetchOptionsInternal;
   _pendingRequest: ?Disposable;
   _rootSubscription: ?Disposable;
   _selectionReferences: Array<Disposable> = [];
@@ -140,20 +150,25 @@ class ReactRelayQueryFetcher {
    * and then subsequently whenever the data changes.
    */
   fetch(fetchOptions: FetchOptions): ?Snapshot {
-    const {cacheConfig, environment, operation} = fetchOptions;
+    const {cacheConfig, environment, operation, onDataChange} = fetchOptions;
     let fetchHasReturned = false;
     let error;
 
     this._disposeRequest();
     const oldOnDataChangeCallbacks =
       this._fetchOptions && this._fetchOptions.onDataChangeCallbacks;
-    this._fetchOptions = fetchOptions;
-    this._fetchOptions.onDataChangeCallbacks =
-      this._fetchOptions.onDataChangeCallbacks || [];
-    if (oldOnDataChangeCallbacks) {
-      this._fetchOptions.onDataChangeCallbacks.push(
-        ...oldOnDataChangeCallbacks,
-      );
+    this._fetchOptions = {
+      cacheConfig,
+      environment,
+      onDataChangeCallbacks: oldOnDataChangeCallbacks || [],
+      operation,
+    };
+
+    if (
+      onDataChange &&
+      this._fetchOptions.onDataChangeCallbacks.indexOf(onDataChange) === -1
+    ) {
+      this._fetchOptions.onDataChangeCallbacks.push(onDataChange);
     }
 
     const request = this.execute({
@@ -219,7 +234,12 @@ class ReactRelayQueryFetcher {
       this._fetchOptions,
       'ReactRelayQueryFetcher: `retry` should be called after having called `fetch`',
     );
-    return this.fetch(this._fetchOptions);
+    return this.fetch({
+      cacheConfig: this._fetchOptions.cacheConfig,
+      environment: this._fetchOptions.environment,
+      operation: this._fetchOptions.operation,
+      onDataChange: null, // If there are onDataChangeCallbacks they will be reused
+    });
   }
 
   dispose() {

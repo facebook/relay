@@ -386,16 +386,11 @@ function fetchQueryAndComputeStateFromProps(
         props.dataFrom === STORE_THEN_NETWORK
           ? queryFetcher.lookupInStore(genericEnvironment, operation)
           : null;
-      let onDataChangeCallbacks;
-      const handleDataChange = retryCallbacks.handleDataChange;
-      if (handleDataChange) {
-        onDataChangeCallbacks = [handleDataChange];
-      }
       const querySnapshot = queryFetcher.fetch({
         cacheConfig: props.cacheConfig,
         dataFrom: props.dataFrom,
         environment: genericEnvironment,
-        onDataChangeCallbacks,
+        onDataChange: retryCallbacks.handleDataChange,
         operation,
       });
       requestCacheKey =

@@ -35,6 +35,7 @@ export type PayloadError = {
     line: number,
     column: number,
   }>,
+  severity?: 'CRITICAL' | 'ERROR' | 'WARNING', // Not officially part of the spec, but used at Facebook
 };
 
 /**

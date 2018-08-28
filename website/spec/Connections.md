@@ -251,7 +251,8 @@ The server should use those two arguments to modify the edges returned by
 the connection, returning edges after the `after` cursor, and returning at
 most `first` edges.
 
-You should generally pass the previous page's `pageInfo.endCursor` for `after`.
+You should generally pass the `cursor` of the last edge in the previous page for
+`after`.
 
 ## Backward pagination arguments
 
@@ -264,7 +265,8 @@ The server should use those two arguments to modify the edges returned by
 the connection, returning edges before the `before` cursor, and returning at
 most `last` edges.
 
-You should generally pass the next page's `pageInfo.startCursor` for `before`.
+You should generally pass the `cursor` of the first edge in the next page for
+`before`.
 
 ## Edge order
 

@@ -10,14 +10,12 @@
 
 'use strict';
 
-import typeof BabelTypes from 'babel-types';
-
 /**
  * Relay Compat transforms graphql definitions into objects with `modern` and
  * `classic` keys, each containing the resulting transforms.
  */
 function createCompatNode(
-  t: BabelTypes,
+  t: $FlowFixMe,
   modernNode: Object,
   classicNode: Object,
 ): Object {

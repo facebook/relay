@@ -18,7 +18,6 @@ const getValidRelayQLTag = require('./getValidRelayQLTag');
 const invariant = require('./invariant');
 
 import type {Validator} from './RelayQLTransformer';
-import typeof BabelTypes from 'babel-types';
 
 export type RelayPluginOptions = {
   // The command to run to compile Relay files, used for error messages.
@@ -66,7 +65,7 @@ export type BabelState = {
  *     }
  *
  */
-module.exports = function BabelPluginRelay(context: {types: BabelTypes}): any {
+module.exports = function BabelPluginRelay(context: {types: $FlowFixMe}): any {
   const {types: t} = context;
   if (!t) {
     throw new Error(

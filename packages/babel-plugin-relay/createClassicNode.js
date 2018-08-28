@@ -18,14 +18,13 @@ const getFragmentNameParts = require('./getFragmentNameParts');
 const invariant = require('./invariant');
 
 import type {BabelState} from './BabelPluginRelay';
-import typeof BabelTypes from 'babel-types';
 import type {DefinitionNode} from 'graphql';
 
 /**
  * Relay Classic transforms to inline generated content.
  */
 function createClassicNode(
-  t: BabelTypes,
+  t: $FlowFixMe,
   path: Object,
   graphqlDefinition: DefinitionNode,
   state: BabelState,

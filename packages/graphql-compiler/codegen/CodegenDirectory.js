@@ -18,12 +18,12 @@ const path = require('path');
 
 import type {SourceControl} from './SourceControl';
 
-type Changes = {
-  deleted: Array<string>,
-  updated: Array<string>,
-  created: Array<string>,
-  unchanged: Array<string>,
-};
+type Changes = {|
+  +deleted: Array<string>,
+  +updated: Array<string>,
+  +created: Array<string>,
+  +unchanged: Array<string>,
+|};
 
 /**
  * CodegenDirectory is a helper class for scripts that generate code into one

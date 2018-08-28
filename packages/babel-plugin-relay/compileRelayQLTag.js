@@ -15,14 +15,13 @@ const getClassicTransformer = require('./getClassicTransformer');
 
 import type {BabelState} from './BabelPluginRelay';
 import type {GraphQLSchemaProvider} from './getClassicTransformer';
-import typeof BabelTypes from 'babel-types';
 
 /**
  * Given all the metadata about a found RelayQL tag, compile it and return
  * the resulting Babel AST.
  */
 function compileRelayQLTag(
-  t: BabelTypes,
+  t: $FlowFixMe,
   path: Object,
   schemaProvider: GraphQLSchemaProvider,
   quasi: Object,

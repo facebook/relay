@@ -16,7 +16,6 @@ const createModernNode = require('./createModernNode');
 const getFragmentNameParts = require('./getFragmentNameParts');
 
 import type {BabelState} from './BabelPluginRelay';
-import typeof BabelTypes from 'babel-types';
 import type {DocumentNode} from 'graphql';
 
 /**
@@ -24,7 +23,7 @@ import type {DocumentNode} from 'graphql';
  * runtime artifact.
  */
 function compileGraphQLTag(
-  t: BabelTypes,
+  t: $FlowFixMe,
   path: Object,
   state: BabelState,
   ast: DocumentNode,

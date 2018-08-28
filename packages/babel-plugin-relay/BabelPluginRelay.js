@@ -18,7 +18,6 @@ const getValidRelayQLTag = require('./getValidRelayQLTag');
 const invariant = require('./invariant');
 
 import type {Validator} from './RelayQLTransformer';
-import typeof BabelTypes from 'babel-types';
 
 export type RelayPluginOptions = {
   // The command to run to compile Relay files, used for error messages.

@@ -31,7 +31,6 @@ const babelOptions = require('./scripts/getBabelOptions')({
     'babel-runtime/helpers/possibleConstructorReturn': 'babel-runtime/helpers/possibleConstructorReturn',
     'babel-runtime/helpers/toConsumableArray': 'babel-runtime/helpers/toConsumableArray',
     'babel-traverse': 'babel-traverse',
-    'babel-types': 'babel-types',
     chalk: 'chalk',
     child_process: 'child_process',
     crypto: 'crypto',

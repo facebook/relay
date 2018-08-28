@@ -18,7 +18,6 @@ const {print} = require('graphql');
 
 const GENERATED = './__generated__/';
 
-import typeof BabelTypes from 'babel-types';
 import type {OperationDefinitionNode, FragmentDefinitionNode} from 'graphql';
 import type {BabelState} from './BabelPluginRelay';
 
@@ -27,7 +26,7 @@ import type {BabelState} from './BabelPluginRelay';
  * definitions to lazy require function calls.
  */
 function createModernNode(
-  t: BabelTypes,
+  t: $FlowFixMe,
   graphqlDefinition: OperationDefinitionNode | FragmentDefinitionNode,
   state: BabelState,
   options: {

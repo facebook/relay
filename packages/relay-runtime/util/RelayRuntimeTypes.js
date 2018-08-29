@@ -32,7 +32,8 @@ export type Variables = {[name: string]: $FlowFixMe};
  * Generated operation flow types are subtypes of this.
  */
 export type OperationType = {|
-  +variables: mixed,
+  // TODO(T33395812) Make this an open object type
+  +variables: Variables,
   +response: mixed,
 |};
 

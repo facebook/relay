@@ -27,7 +27,7 @@ const BABYLON_OPTIONS = {
     // Previously "*"
     'asyncGenerators',
     'classProperties',
-    'decorators',
+    ['decorators', {decoratorsBeforeExport: true}],
     'doExpressions',
     'dynamicImport',
     'exportExtensions',

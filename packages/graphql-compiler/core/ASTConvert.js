@@ -28,6 +28,7 @@ import type {
   GraphQLSchema,
   OperationDefinitionNode,
   TypeSystemDefinitionNode,
+  TypeSystemExtensionNode,
 } from 'graphql';
 
 type ASTDefinitionNode = FragmentDefinitionNode | OperationDefinitionNode;
@@ -191,7 +192,9 @@ function extendASTSchema(
   documents: $ReadOnlyArray<DocumentNode>,
 ): GraphQLSchema {
   return Profiler.run('ASTConvert.extendASTSchema', () => {
-    const schemaExtensions: Array<TypeSystemDefinitionNode> = [];
+    const schemaExtensions: Array<
+      TypeSystemDefinitionNode | TypeSystemExtensionNode,
+    > = [];
     documents.forEach(doc => {
       doc.definitions.forEach(definition => {
         if (isSchemaDefinitionAST(definition)) {

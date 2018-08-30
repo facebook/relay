@@ -19,7 +19,7 @@
     "relay-runtime": "1.7.0-rc.1"
   },
   "peerDependencies": {
-    "graphql": "^0.13.0"
+    "graphql": "^14.0.0"
   },
   "haste_commonjs": true
 }

@@ -75,7 +75,7 @@ export type GraphQLTag = {
   /**
    * The location in the source file that the tag is placed at.
    */
-  sourceLocationOffset: {
+  sourceLocationOffset: {|
     /**
      * The line in the source file that the tag is placed on.
      *
@@ -89,7 +89,7 @@ export type GraphQLTag = {
      * Columns use 1-based indexing.
      */
     column: number,
-  },
+  |},
 };
 
 /**

@@ -16,6 +16,6 @@
     "babel-plugin-macros": "^2.0.0"
   },
   "peerDependencies": {
-    "graphql": "^0.13.0"
+    "graphql": "^14.0.0"
   }
 }

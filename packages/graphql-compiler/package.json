@@ -10,6 +10,6 @@
     "immutable": "~3.7.6"
   },
   "peerDependencies": {
-    "graphql": "^0.13.0"
+    "graphql": "^14.0.0"
   }
 }

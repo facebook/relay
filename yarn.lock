@@ -1842,11 +1842,12 @@ eslint-plugin-react@7.11.1:
     jsx-ast-utils "^2.0.1"
     prop-types "^15.6.2"
 
-eslint-plugin-relay@0.0.27:
-  version "0.0.27"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-relay/-/eslint-plugin-relay-0.0.27.tgz#e44ee3d2dbf966de8d0565ec8a76bf8df8151231"
+eslint-plugin-relay@0.0.28:
+  version "0.0.28"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-relay/-/eslint-plugin-relay-0.0.28.tgz#dd9ba7dc03fd21f3a30e053d21d90e5bf2ecff34"
+  integrity sha512-CvyT/WxEQmcUKE4lVqjxgioTj3zSvHnT9bvR4cISgs9j2z4J5Ojsurjcv/kWe4I6gf6L+lV6zcVuZ2LkiRIO6g==
   dependencies:
-    graphql "^0.13.0"
+    graphql "^14.0.0"
 
 eslint-rule-composer@^0.3.0:
   version "0.3.0"
@@ -2518,12 +2519,6 @@ graceful-fs@^4.1.11, graceful-fs@^4.1.2:
 graceful-fs@~1.2.0:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-1.2.3.tgz#15a4806a57547cb2d2dbf27f42e89a8c3451b364"
-
-graphql@^0.13.0:
-  version "0.13.2"
-  resolved "https://registry.yarnpkg.com/graphql/-/graphql-0.13.2.tgz#4c740ae3c222823e7004096f832e7b93b2108270"
-  dependencies:
-    iterall "^1.2.1"
 
 graphql@^14.0.0:
   version "14.0.0"

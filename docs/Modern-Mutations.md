@@ -58,7 +58,7 @@ import {commitMutation, graphql} from 'react-relay';
 
 const mutation = graphql`
   mutation MarkReadNotificationMutation(
-    $input: MarkReadNotificationData!
+    $input: MarkReadNotificationInput!
   ) {
     markReadNotification(data: $input) {
       notification {
@@ -97,7 +97,7 @@ To improve perceived responsiveness, you may wish to perform an "optimistic upda
 ```javascript
 const mutation = graphql`
   mutation MarkReadNotificationMutation(
-    $input: MarkReadNotificationData!
+    $input: MarkReadNotificationInput!
   ) {
     markReadNotification(data: $input) {
       notification {
@@ -135,12 +135,12 @@ We can give Relay instructions in the form of a `configs` array on how to use th
 Given a deletedIDFieldName, Relay will remove the node(s) from the connection.
 
 #### Arguments
-* `deletedIDFieldName: string`: The field name in the response that contains the DataID of the deleted node
+* `deletedIDFieldName: string`: The field name in the response that contains the DataID or DataIDs of the deleted node or nodes
 
 #### Example
 ```javascript
 const mutation = graphql`
-  mutation DestroyShipMutation($input: DestroyShipData!) {
+  mutation DestroyShipMutation($input: DestroyShipInput!) {
     destroyShip(input: $input) {
       destroyedShipId
       faction {
@@ -173,27 +173,34 @@ containing optional filters, and a range behavior depending on what behavior we 
 #### Example
 ```javascript
 const mutation = graphql`
-  mutation AddShipMutation($input: AddShipData!) {
+  mutation AddShipMutation($input: AddShipInput!) {
     addShip(input: $input) {
-      faction {
-        ships {
-          id
+      shipEdge {
+        node {
+          name
         }
       }
-      newShipEdge
     }
   }
 `;
 
-const configs = [{
-  type: 'RANGE_ADD',
-  parentID: 'shipId',
-  connectionInfo: [{
-    key: 'AddShip_ships',
-    rangeBehavior: 'append',
-  }],
-  edgeName: 'newShipEdge',
-}];
+function commit(environment, factionId, name) {
+  return commitMutation(environment, {
+    mutation,
+    variables: {
+      input: { factionId, name },
+    },
+    configs: [{
+      type: 'RANGE_ADD',
+      parentID: factionId,
+      connectionInfo: [{
+        key: 'AddShip_ships',
+        rangeBehavior: 'append',
+      }],
+      edgeName: 'shipEdge',
+    }],
+  });
+}
 ```
 
 ### RANGE_DELETE
@@ -208,32 +215,35 @@ connection.
 objects containing a connection key and optionally filters.
   * `filters`: An object containing GraphQL calls e.g. `const filters = {'orderby': 'chronological'};`.
 * `pathToConnection: Array<string>`: An array containing the field names between the parent and the connection, including the parent and the connection.
-* `deletedIDFieldName: string | Array<string>`: The field name in the response that contains the DataID of the removed node, or the path to the node removed from the connection
+* `deletedIDFieldName: string | Array<string>`: The field name in the response that contains the DataID or DataIDs of the removed node or nodes, or the path to the node or nodes removed from the connection
 
 #### Example
 ```javascript
 const mutation = graphql`
-  mutation RemoveTagsMutation($input: RemoveTagsData!) {
-    removeTags(input: $input) {
-      todo {
-        tags {
-          id
-        }
-      }
+  mutation RemoveTagMutation($input: RemoveTagInput!) {
+    removeTag(input: $input) {
       removedTagId
     }
   }
 `;
 
-const configs = [{
-  type: 'RANGE_DELETE',
-  parentID: 'todoId',
-  connectionKeys: [{
-    key: RemoveTags_tags,
-  }],
-  pathToConnection: ['todo', 'tags'],
-  deletedIDFieldName: removedTagId
-}];
+function commit(environment, todoId, tagId) {
+  return commitMutation(environment, {
+    mutation,
+    variables: {
+      input: { todoId, tagId },
+    },
+    configs: [{
+      type: 'RANGE_DELETE',
+      parentID: todoId,
+      connectionKeys: [{
+        key: 'RemoveTags_tags',
+      }],
+      pathToConnection: ['todo', 'tags'],
+      deletedIDFieldName: 'removedTagId',
+    }],
+  });
+}
 ```
 
 ## Using updater and optimisticUpdater
@@ -291,58 +301,51 @@ function sharedUpdater(store, user, newEdge) {
 
 let tempID = 0;
 
-function commit(
-  environment,
-  text,
-  user
-) {
-  return commitMutation(
-    environment,
-    {
-      mutation,
-      variables: {
-        input: {
-          text,
-          clientMutationId: tempID++,
-        },
+function commit(environment, text, user) {
+  return commitMutation(environment, {
+    mutation,
+    variables: {
+      input: {
+        text,
+        clientMutationId: tempID++,
       },
-      updater: (store) => {
-        // Get the payload returned from the server
-        const payload = store.getRootField('addTodo');
+    },
+    updater: (store) => {
+      // Get the payload returned from the server
+      const payload = store.getRootField('addTodo');
 
-        // Get the edge of the newly created Todo record
-        const newEdge = payload.getLinkedRecord('todoEdge');
+      // Get the edge of the newly created Todo record
+      const newEdge = payload.getLinkedRecord('todoEdge');
 
-        // Add it to the user's todo list
-        sharedUpdater(store, user, newEdge);
-      },
-      optimisticUpdater: (store) => {
-        // Create a Todo record in our store with a temporary ID
-        const id = 'client:newTodo:' + tempID++;
-        const node = store.create(id, 'Todo');
-        node.setValue(text, 'text');
-        node.setValue(id, 'id');
+      // Add it to the user's todo list
+      sharedUpdater(store, user, newEdge);
+    },
+    optimisticUpdater: (store) => {
+      // Create a Todo record in our store with a temporary ID
+      const id = 'client:newTodo:' + tempID++;
+      const node = store.create(id, 'Todo');
+      node.setValue(text, 'text');
+      node.setValue(id, 'id');
 
-        // Create a new edge that contains the newly created Todo record
-        const newEdge = store.create(
-          'client:newEdge:' + tempID++,
-          'TodoEdge',
-        );
-        newEdge.setLinkedRecord(node, 'node');
+      // Create a new edge that contains the newly created Todo record
+      const newEdge = store.create(
+        'client:newEdge:' + tempID++,
+        'TodoEdge',
+      );
+      newEdge.setLinkedRecord(node, 'node');
 
-        // Add it to the user's todo list
-        sharedUpdater(store, user, newEdge);
+      // Add it to the user's todo list
+      sharedUpdater(store, user, newEdge);
 
-        // Given that we don't have a server response here,
-        // we also need to update the todo item count on the user
-        const userRecord = store.get(user.id);
-        userRecord.setValue(
-          userRecord.getValue('totalCount') + 1,
-          'totalCount',
-        );
-      },
-    }
-  );
+      // Given that we don't have a server response here,
+      // we also need to update the todo item count on the user
+      const userRecord = store.get(user.id);
+      userRecord.setValue(
+        userRecord.getValue('totalCount') + 1,
+        'totalCount',
+      );
+    },
+  });
 }
 ```
 

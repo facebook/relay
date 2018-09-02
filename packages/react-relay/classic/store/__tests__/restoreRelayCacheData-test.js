@@ -1,34 +1,34 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
-jest.mock('warning');
-jest.useFakeTimers();
+jest
+  .mock('warning')
+  .mock('../../legacy/store/GraphQLRange')
+  .useFakeTimers();
 
 require('configureForRelayOSS');
 
-const GraphQLRange = require('GraphQLRange');
-const Relay = require('Relay');
-const RelayChangeTracker = require('RelayChangeTracker');
-const RelayGarbageCollector = require('RelayGarbageCollector');
-const RelayQueryPath = require('RelayQueryPath');
-const RelayRecordStore = require('RelayRecordStore');
+const GraphQLRange = require('../../legacy/store/GraphQLRange');
+const RelayClassic = require('../../RelayPublic');
+const RelayChangeTracker = require('../RelayChangeTracker');
+const RelayQueryPath = require('../../query/RelayQueryPath');
+const RelayRecordStore = require('../RelayRecordStore');
 const RelayTestUtils = require('RelayTestUtils');
 
 const invariant = require('invariant');
 const {
   restoreFragmentDataFromCache,
   restoreQueriesDataFromCache,
-} = require('restoreRelayCacheData');
+} = require('../restoreRelayCacheData');
 
 describe('restoreRelayCacheData', () => {
   const {getNode} = RelayTestUtils;
@@ -52,7 +52,6 @@ describe('restoreRelayCacheData', () => {
     dataID,
     diskCacheData,
     fragment,
-    garbageCollector,
     path,
     queries,
     records,
@@ -70,7 +69,7 @@ describe('restoreRelayCacheData', () => {
       {
         rootCallMap: rootCallMap || {},
         cachedRootCallMap,
-      }
+      },
     );
 
     const cacheManager = {
@@ -79,14 +78,12 @@ describe('restoreRelayCacheData', () => {
           callback(undefined, diskCacheData[id]);
         });
       }),
-      readRootCall: jest.fn(
-        (callName, callArg, callback) => {
-          const rootKey = callName + '*' + callArg;
-          setTimeout(() => {
-            callback(undefined, diskCacheData[rootKey]);
-          });
-        }
-      ),
+      readRootCall: jest.fn((callName, callArg, callback) => {
+        const rootKey = callName + '*' + callArg;
+        setTimeout(() => {
+          callback(undefined, diskCacheData[rootKey]);
+        });
+      }),
     };
 
     const changeTracker = new RelayChangeTracker();
@@ -103,10 +100,9 @@ describe('restoreRelayCacheData', () => {
         store,
         cachedRecords,
         cachedRootCallMap,
-        garbageCollector,
         cacheManager,
         changeTracker,
-        callbacks
+        callbacks,
       ));
     } else if (dataID && fragment && path) {
       ({abort} = restoreFragmentDataFromCache(
@@ -116,10 +112,9 @@ describe('restoreRelayCacheData', () => {
         store,
         cachedRecords,
         cachedRootCallMap,
-        garbageCollector,
         cacheManager,
         changeTracker,
-        callbacks
+        callbacks,
       ));
     } else {
       invariant(false, 'Input did not match for reading queries nor fragments');
@@ -131,16 +126,17 @@ describe('restoreRelayCacheData', () => {
   beforeEach(() => {
     jest.resetModules();
     jest.clearAllTimers();
-    jasmine.addMatchers(RelayTestUtils.matchers);
-
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('restoreQueriesDataFromCache', () => {
     it('reads disk for custom root call', () => {
       const queries = {
-        q0: getNode(Relay.QL`
+        q0: getNode(
+          RelayClassic.QL`
           query {username(name:"yuzhi") {id}}
-        `),
+        `,
+        ),
       };
       const {cacheManager} = performQueriesRestore(queries);
 
@@ -151,9 +147,11 @@ describe('restoreRelayCacheData', () => {
 
     it('does not read disk for node root call', () => {
       const queries = {
-        q0: getNode(Relay.QL`
+        q0: getNode(
+          RelayClassic.QL`
           query {node(id:"1055790163") {id}}
-        `),
+        `,
+        ),
       };
       const {cacheManager} = performQueriesRestore(queries);
 
@@ -162,9 +160,11 @@ describe('restoreRelayCacheData', () => {
 
     it('calls `onFailure` when custom root call is not on disk', () => {
       const queries = {
-        q0: getNode(Relay.QL`
+        q0: getNode(
+          RelayClassic.QL`
           query {username(name:"yuzhi") {id}}
-        `),
+        `,
+        ),
       };
       const {cacheManager, callbacks} = performQueriesRestore(queries);
 
@@ -181,9 +181,11 @@ describe('restoreRelayCacheData', () => {
 
     it('calls `onSuccess` when custom root call is on disk ', () => {
       const queries = {
-        q0: getNode(Relay.QL`
+        q0: getNode(
+          RelayClassic.QL`
           query {username(name:"yuzhi") {id}}
-        `),
+        `,
+        ),
       };
       const diskCacheData = {
         'username*yuzhi': '1055790163',
@@ -194,8 +196,12 @@ describe('restoreRelayCacheData', () => {
         },
       };
 
-      const {cacheManager, callbacks, changeTracker, store} =
-        performQueriesRestore(queries, {diskCacheData});
+      const {
+        cacheManager,
+        callbacks,
+        changeTracker,
+        store,
+      } = performQueriesRestore(queries, {diskCacheData});
 
       const mockReadRoot = cacheManager.readRootCall.mock;
       expect(mockReadRoot.calls.length).toBe(1);
@@ -223,9 +229,11 @@ describe('restoreRelayCacheData', () => {
 
     it('calls `onSuccess` when custom root call is in store ', () => {
       const queries = {
-        q0: getNode(Relay.QL`
+        q0: getNode(
+          RelayClassic.QL`
           query {username(name:"yuzhi") {id}}
-        `),
+        `,
+        ),
       };
       const records = {
         '1055790163': {
@@ -236,8 +244,12 @@ describe('restoreRelayCacheData', () => {
       };
       const rootCallMap = {username: {yuzhi: '1055790163'}};
 
-      const {cacheManager, callbacks, changeTracker, store} =
-        performQueriesRestore(queries, {records, rootCallMap});
+      const {
+        cacheManager,
+        callbacks,
+        changeTracker,
+        store,
+      } = performQueriesRestore(queries, {records, rootCallMap});
 
       expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
       expect(cacheManager.readNode.mock.calls.length).toBe(0);
@@ -255,9 +267,11 @@ describe('restoreRelayCacheData', () => {
 
     it('calls `onSuccess` when custom root call is in cached store ', () => {
       const queries = {
-        q0: getNode(Relay.QL`
+        q0: getNode(
+          RelayClassic.QL`
           query {username(name:"yuzhi") {id}}
-        `),
+        `,
+        ),
       };
       const cachedRecords = {
         '1055790163': {
@@ -268,8 +282,12 @@ describe('restoreRelayCacheData', () => {
       };
       const cachedRootCallMap = {username: {yuzhi: '1055790163'}};
 
-      const {cacheManager, callbacks, changeTracker, store} =
-        performQueriesRestore(queries, {cachedRecords, cachedRootCallMap});
+      const {
+        cacheManager,
+        callbacks,
+        changeTracker,
+        store,
+      } = performQueriesRestore(queries, {cachedRecords, cachedRootCallMap});
 
       expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
       expect(cacheManager.readNode.mock.calls.length).toBe(0);
@@ -287,9 +305,11 @@ describe('restoreRelayCacheData', () => {
 
     it('calls `onFailure` when node is not on disk', () => {
       const queries = {
-        q0: getNode(Relay.QL`
+        q0: getNode(
+          RelayClassic.QL`
           query {node(id:"1055790163") {id}}
-        `),
+        `,
+        ),
       };
       const {cacheManager, callbacks} = performQueriesRestore(queries);
 
@@ -304,9 +324,11 @@ describe('restoreRelayCacheData', () => {
 
     it('calls `onFailure` when a field is not on disk', () => {
       const queries = {
-        q0: getNode(Relay.QL`
+        q0: getNode(
+          RelayClassic.QL`
           query {node(id:"1055790163") {id, name}}
-        `),
+        `,
+        ),
       };
 
       // Missing `name`
@@ -318,8 +340,12 @@ describe('restoreRelayCacheData', () => {
         },
       };
 
-      const {cacheManager, callbacks, changeTracker, store} =
-        performQueriesRestore(queries, {diskCacheData});
+      const {
+        cacheManager,
+        callbacks,
+        changeTracker,
+        store,
+      } = performQueriesRestore(queries, {diskCacheData});
 
       expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
       expect(cacheManager.readNode.mock.calls.length).toBe(1);
@@ -345,9 +371,11 @@ describe('restoreRelayCacheData', () => {
 
     it('calls `onFailure` when a nested node is not on disk', () => {
       const queries = {
-        q0: getNode(Relay.QL`
+        q0: getNode(
+          RelayClassic.QL`
           query {node(id:"1055790163") {id, hometown {name}}}
-        `),
+        `,
+        ),
       };
 
       // Missing `hometownid`
@@ -360,8 +388,12 @@ describe('restoreRelayCacheData', () => {
         },
       };
 
-      const {cacheManager, callbacks, changeTracker, store} =
-        performQueriesRestore(queries, {diskCacheData});
+      const {
+        cacheManager,
+        callbacks,
+        changeTracker,
+        store,
+      } = performQueriesRestore(queries, {diskCacheData});
 
       expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
       expect(cacheManager.readNode.mock.calls.length).toBe(1);
@@ -379,8 +411,9 @@ describe('restoreRelayCacheData', () => {
       // Confirm that partial data was read into the cache:
       expect(store.getRecordState('1055790163')).toBe('EXISTENT');
       expect(store.getField('1055790163', 'id')).toBe('1055790163');
-      expect(store.getLinkedRecordID('1055790163', 'hometown'))
-        .toBe('hometownid');
+      expect(store.getLinkedRecordID('1055790163', 'hometown')).toBe(
+        'hometownid',
+      );
       expect(store.getType('1055790163')).toBe('User');
       expect(store.getRecordState('hometownid')).toBe('UNKNOWN');
       expect(changeTracker.getChangeSet()).toEqual({
@@ -393,9 +426,11 @@ describe('restoreRelayCacheData', () => {
 
     it('calls `onFailure` when one of the plural nodes is not on disk', () => {
       const queries = {
-        q0: getNode(Relay.QL`
+        q0: getNode(
+          RelayClassic.QL`
           query {node(id:"1055790163") {id, screennames {service}}}
-        `),
+        `,
+        ),
       };
 
       // Missing `sn2`
@@ -406,14 +441,18 @@ describe('restoreRelayCacheData', () => {
           __typename: 'User',
           screennames: [{__dataID__: 'sn1'}, {__dataID__: 'sn2'}],
         },
-        'sn1': {
+        sn1: {
           __dataID__: 'sn1',
           service: 'GTALK',
         },
       };
 
-      const {cacheManager, callbacks, changeTracker, store} =
-        performQueriesRestore(queries, {diskCacheData});
+      const {
+        cacheManager,
+        callbacks,
+        changeTracker,
+        store,
+      } = performQueriesRestore(queries, {diskCacheData});
 
       expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
       expect(cacheManager.readNode.mock.calls.length).toBe(1);
@@ -434,8 +473,10 @@ describe('restoreRelayCacheData', () => {
       // Confirm that partial data was read into the cache:
       expect(store.getRecordState('1055790163')).toBe('EXISTENT');
       expect(store.getField('1055790163', 'id')).toBe('1055790163');
-      expect(store.getLinkedRecordIDs('1055790163', 'screennames'))
-        .toEqual(['sn1', 'sn2']);
+      expect(store.getLinkedRecordIDs('1055790163', 'screennames')).toEqual([
+        'sn1',
+        'sn2',
+      ]);
       expect(store.getType('1055790163')).toBe('User');
       expect(store.getRecordState('sn1')).toBe('EXISTENT');
       expect(store.getField('sn1', 'service')).toBe('GTALK');
@@ -443,7 +484,7 @@ describe('restoreRelayCacheData', () => {
       expect(changeTracker.getChangeSet()).toEqual({
         created: {
           '1055790163': true,
-          'sn1': true,
+          sn1: true,
         },
         updated: {},
       });
@@ -451,7 +492,8 @@ describe('restoreRelayCacheData', () => {
 
     it('calls `onFailure` when range field is not on disk', () => {
       const queries = {
-        q0: getNode(Relay.QL`
+        q0: getNode(
+          RelayClassic.QL`
           query {
             node(id:"1055790163") {
               friends(first: 5) {
@@ -464,7 +506,8 @@ describe('restoreRelayCacheData', () => {
               }
             }
           }
-        `),
+        `,
+        ),
       };
 
       // Missing `__range__`
@@ -475,14 +518,18 @@ describe('restoreRelayCacheData', () => {
           __typename: 'User',
           friends: {__dataID__: 'friends_id'},
         },
-        'friends_id': {
+        friends_id: {
           __dataID__: 'friends_id',
           count: 500,
         },
       };
 
-      const {cacheManager, callbacks, changeTracker, store} =
-        performQueriesRestore(queries, {diskCacheData});
+      const {
+        cacheManager,
+        callbacks,
+        changeTracker,
+        store,
+      } = performQueriesRestore(queries, {diskCacheData});
 
       expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
       expect(cacheManager.readNode.mock.calls.length).toBe(1);
@@ -502,15 +549,16 @@ describe('restoreRelayCacheData', () => {
       // Confirm that partial data was read into the cache:
       expect(store.getRecordState('1055790163')).toBe('EXISTENT');
       expect(store.getField('1055790163', 'id')).toBe('1055790163');
-      expect(store.getLinkedRecordID('1055790163', 'friends'))
-        .toBe('friends_id');
+      expect(store.getLinkedRecordID('1055790163', 'friends')).toBe(
+        'friends_id',
+      );
       expect(store.getType('1055790163')).toBe('User');
       expect(store.getRecordState('friends_id')).toBe('EXISTENT');
       expect(store.getField('friends_id', 'count')).toBe(500);
       expect(changeTracker.getChangeSet()).toEqual({
         created: {
           '1055790163': true,
-          'friends_id': true,
+          friends_id: true,
         },
         updated: {},
       });
@@ -518,7 +566,8 @@ describe('restoreRelayCacheData', () => {
 
     it('calls `onFailure` when range on disk has diff calls', () => {
       const queries = {
-        q0: getNode(Relay.QL`
+        q0: getNode(
+          RelayClassic.QL`
           query {
             node(id:"1055790163") {
               friends(first: 5) {
@@ -531,7 +580,8 @@ describe('restoreRelayCacheData', () => {
               }
             }
           }
-        `),
+        `,
+        ),
       };
 
       const diskCacheData = {
@@ -541,20 +591,25 @@ describe('restoreRelayCacheData', () => {
           __typename: 'User',
           friends: {__dataID__: 'friends_id'},
         },
-        'friends_id': {
+        friends_id: {
           __dataID__: 'friends_id',
           __range__: new GraphQLRange(),
         },
       };
 
-      diskCacheData.friends_id.__range__.retrieveRangeInfoForQuery
-        .mockReturnValue({
+      diskCacheData.friends_id.__range__.retrieveRangeInfoForQuery.mockReturnValue(
+        {
           requestedEdgeIDs: [],
           diffCalls: [RelayTestUtils.createCall('first', 5)],
           pageInfo: {},
-        });
-      const {cacheManager, callbacks, changeTracker, store} =
-        performQueriesRestore(queries, {diskCacheData});
+        },
+      );
+      const {
+        cacheManager,
+        callbacks,
+        changeTracker,
+        store,
+      } = performQueriesRestore(queries, {diskCacheData});
 
       expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
       expect(cacheManager.readNode.mock.calls.length).toBe(1);
@@ -574,15 +629,16 @@ describe('restoreRelayCacheData', () => {
       // Confirm that partial data was read into the cache:
       expect(store.getRecordState('1055790163')).toBe('EXISTENT');
       expect(store.getField('1055790163', 'id')).toBe('1055790163');
-      expect(store.getLinkedRecordID('1055790163', 'friends'))
-        .toBe('friends_id');
+      expect(store.getLinkedRecordID('1055790163', 'friends')).toBe(
+        'friends_id',
+      );
       expect(store.getType('1055790163')).toBe('User');
       expect(store.getRecordState('friends_id')).toBe('EXISTENT');
       expect(store.hasRange('friends_id')).toBe(true);
       expect(changeTracker.getChangeSet()).toEqual({
         created: {
           '1055790163': true,
-          'friends_id': true,
+          friends_id: true,
         },
         updated: {},
       });
@@ -590,7 +646,8 @@ describe('restoreRelayCacheData', () => {
 
     it('calls `onFailure` when edge node is not on disk', () => {
       const queries = {
-        q0: getNode(Relay.QL`
+        q0: getNode(
+          RelayClassic.QL`
           query {
             node(id:"1055790163") {
               friends(first: 5) {
@@ -603,7 +660,8 @@ describe('restoreRelayCacheData', () => {
               }
             }
           }
-        `),
+        `,
+        ),
       };
 
       // Missing `edge_id`
@@ -614,20 +672,25 @@ describe('restoreRelayCacheData', () => {
           __typename: 'User',
           friends: {__dataID__: 'friends_id'},
         },
-        'friends_id': {
+        friends_id: {
           __dataID__: 'friends_id',
           __range__: new GraphQLRange(),
         },
       };
 
-      diskCacheData.friends_id.__range__.retrieveRangeInfoForQuery
-        .mockReturnValue({
+      diskCacheData.friends_id.__range__.retrieveRangeInfoForQuery.mockReturnValue(
+        {
           requestedEdgeIDs: ['edge_id'],
           diffCalls: [],
           pageInfo: {},
-        });
-      const {cacheManager, callbacks, changeTracker, store} =
-        performQueriesRestore(queries, {diskCacheData});
+        },
+      );
+      const {
+        cacheManager,
+        callbacks,
+        changeTracker,
+        store,
+      } = performQueriesRestore(queries, {diskCacheData});
 
       expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
       expect(cacheManager.readNode.mock.calls.length).toBe(1);
@@ -652,8 +715,9 @@ describe('restoreRelayCacheData', () => {
       // Confirm that partial data was read into the cache:
       expect(store.getRecordState('1055790163')).toBe('EXISTENT');
       expect(store.getField('1055790163', 'id')).toBe('1055790163');
-      expect(store.getLinkedRecordID('1055790163', 'friends'))
-        .toBe('friends_id');
+      expect(store.getLinkedRecordID('1055790163', 'friends')).toBe(
+        'friends_id',
+      );
       expect(store.getType('1055790163')).toBe('User');
       expect(store.getRecordState('friends_id')).toBe('EXISTENT');
       expect(store.hasRange('friends_id')).toBe(true);
@@ -661,7 +725,7 @@ describe('restoreRelayCacheData', () => {
       expect(changeTracker.getChangeSet()).toEqual({
         created: {
           '1055790163': true,
-          'friends_id': true,
+          friends_id: true,
         },
         updated: {},
       });
@@ -669,7 +733,8 @@ describe('restoreRelayCacheData', () => {
 
     it('calls `onSuccess` when connection is on disk', () => {
       const queries = {
-        q0: getNode(Relay.QL`
+        q0: getNode(
+          RelayClassic.QL`
           query {
             node(id:"1055790163") {
               friends(first: 5) {
@@ -682,7 +747,8 @@ describe('restoreRelayCacheData', () => {
               }
             }
           }
-        `),
+        `,
+        ),
       };
 
       const diskCacheData = {
@@ -701,7 +767,7 @@ describe('restoreRelayCacheData', () => {
           cursor: '1234',
           node: {__dataID__: 'friend_id'},
         },
-        'friend_id': {
+        friend_id: {
           __dataID__: 'friend_id',
           id: 'friend_id',
           name: 'name',
@@ -713,10 +779,15 @@ describe('restoreRelayCacheData', () => {
         diffCalls: [],
         pageInfo: {},
       };
-      diskCacheData['client:friends_id'].__range__.retrieveRangeInfoForQuery
-        .mockReturnValue(rangeInfo);
-      const {cacheManager, callbacks, changeTracker, store} =
-        performQueriesRestore(queries, {diskCacheData});
+      diskCacheData[
+        'client:friends_id'
+      ].__range__.retrieveRangeInfoForQuery.mockReturnValue(rangeInfo);
+      const {
+        cacheManager,
+        callbacks,
+        changeTracker,
+        store,
+      } = performQueriesRestore(queries, {diskCacheData});
 
       expect(cacheManager.readRootCall.mock.calls.length).toBe(0);
       expect(cacheManager.readNode.mock.calls.length).toBe(1);
@@ -745,39 +816,45 @@ describe('restoreRelayCacheData', () => {
       expect(store.getRecordState('1055790163')).toBe('EXISTENT');
       expect(store.getField('1055790163', 'id')).toBe('1055790163');
       expect(store.getType('1055790163')).toBe('User');
-      expect(store.getLinkedRecordID('1055790163', 'friends'))
-        .toBe('client:friends_id');
+      expect(store.getLinkedRecordID('1055790163', 'friends')).toBe(
+        'client:friends_id',
+      );
       expect(store.getRecordState('client:friends_id')).toBe('EXISTENT');
       const query = queries.q0;
       const friendsField = query.getFieldByStorageKey('friends');
       const friendsPath = RelayQueryPath.getPath(
         RelayQueryPath.create(query),
         query.getFieldByStorageKey('friends'),
-        'client:friends_id'
-      );
-      expect(store.getPathToRecord('client:friends_id'))
-        .toMatchPath(friendsPath);
-      expect(store.getRangeMetadata(
         'client:friends_id',
-        [{name:'first', value: '5'}]
-      )).toEqual({
+      );
+      expect(store.getPathToRecord('client:friends_id')).toMatchPath(
+        friendsPath,
+      );
+      expect(
+        store.getRangeMetadata('client:friends_id', [
+          {name: 'first', value: '5'},
+        ]),
+      ).toEqual({
         ...rangeInfo,
         filterCalls: [],
-        filteredEdges: [{
-          edgeID: 'client:edge_id',
-          nodeID: 'friend_id',
-        }],
+        filteredEdges: [
+          {
+            edgeID: 'client:edge_id',
+            nodeID: 'friend_id',
+          },
+        ],
       });
       expect(store.getRecordState('client:edge_id')).toBe('EXISTENT');
       const edgePath = RelayQueryPath.getPath(
         friendsPath,
         friendsField.getFieldByStorageKey('edges'),
-        'client:edge_id'
+        'client:edge_id',
       );
       expect(store.getPathToRecord('client:edge_id')).toMatchPath(edgePath);
       expect(store.getField('client:edge_id', 'cursor')).toBe('1234');
-      expect(store.getLinkedRecordID('client:edge_id', 'node'))
-        .toBe('friend_id');
+      expect(store.getLinkedRecordID('client:edge_id', 'node')).toBe(
+        'friend_id',
+      );
       expect(store.getRecordState('friend_id')).toBe('EXISTENT');
       expect(store.getField('friend_id', 'id')).toBe('friend_id');
       expect(store.getField('friend_id', 'name')).toBe('name');
@@ -786,7 +863,7 @@ describe('restoreRelayCacheData', () => {
           '1055790163': true,
           'client:friends_id': true,
           'client:edge_id': true,
-          'friend_id': true,
+          friend_id: true,
         },
         updated: {},
       });
@@ -794,7 +871,8 @@ describe('restoreRelayCacheData', () => {
 
     it('marks records as updated when more fields are read from cache', () => {
       const queries = {
-        q0: getNode(Relay.QL`
+        q0: getNode(
+          RelayClassic.QL`
           query {
             node(id:"1055790163") {
               id
@@ -803,7 +881,8 @@ describe('restoreRelayCacheData', () => {
               }
             }
           }
-        `),
+        `,
+        ),
       };
       const records = {
         '1055790163': {
@@ -819,13 +898,15 @@ describe('restoreRelayCacheData', () => {
           __typename: 'User',
           screennames: [{__dataID__: 'sn1'}],
         },
-        'sn1': {
+        sn1: {
           __dataID__: 'sn1',
           service: 'GTALK',
         },
       };
-      const {callbacks, changeTracker, store} =
-        performQueriesRestore(queries, {diskCacheData, records});
+      const {callbacks, changeTracker, store} = performQueriesRestore(queries, {
+        diskCacheData,
+        records,
+      });
 
       jest.runAllTimers();
 
@@ -837,13 +918,14 @@ describe('restoreRelayCacheData', () => {
       expect(store.getRecordState('1055790163')).toBe('EXISTENT');
       expect(store.getField('1055790163', 'id')).toBe('1055790163');
       expect(store.getType('1055790163')).toBe('User');
-      expect(store.getLinkedRecordIDs('1055790163', 'screennames'))
-        .toEqual(['sn1']);
+      expect(store.getLinkedRecordIDs('1055790163', 'screennames')).toEqual([
+        'sn1',
+      ]);
       expect(store.getRecordState('sn1')).toBe('EXISTENT');
       expect(store.getField('sn1', 'service')).toBe('GTALK');
       expect(changeTracker.getChangeSet()).toEqual({
         created: {
-          'sn1': true,
+          sn1: true,
         },
         updated: {
           '1055790163': true,
@@ -853,7 +935,8 @@ describe('restoreRelayCacheData', () => {
 
     it('marks records as created if they are null in the cache', () => {
       const queries = {
-        q0: getNode(Relay.QL`
+        q0: getNode(
+          RelayClassic.QL`
           query {
             node(id:"1055790163") {
               id
@@ -862,7 +945,8 @@ describe('restoreRelayCacheData', () => {
               }
             }
           }
-        `),
+        `,
+        ),
       };
       const records = {
         '1055790163': {
@@ -878,11 +962,13 @@ describe('restoreRelayCacheData', () => {
           __typename: 'User',
           screennames: [{__dataID__: 'sn1'}, {__dataID__: 'sn2'}],
         },
-        'sn1': null,
-        'sn2': undefined,
+        sn1: null,
+        sn2: undefined,
       };
-      const {callbacks, changeTracker, store} =
-        performQueriesRestore(queries, {diskCacheData, records});
+      const {callbacks, changeTracker, store} = performQueriesRestore(queries, {
+        diskCacheData,
+        records,
+      });
 
       jest.runAllTimers();
 
@@ -895,7 +981,7 @@ describe('restoreRelayCacheData', () => {
       expect(store.getRecordState('sn2')).toBe('UNKNOWN');
       expect(changeTracker.getChangeSet()).toEqual({
         created: {
-          'sn1': true,
+          sn1: true,
           // sn2 not created since the value is unknown in the cache
         },
         updated: {
@@ -906,7 +992,8 @@ describe('restoreRelayCacheData', () => {
 
     it('does not mark deleted records as updated', () => {
       const queries = {
-        q0: getNode(Relay.QL`
+        q0: getNode(
+          RelayClassic.QL`
           query {
             node(id:"1055790163") {
               id
@@ -915,7 +1002,8 @@ describe('restoreRelayCacheData', () => {
               }
             }
           }
-        `),
+        `,
+        ),
       };
       const records = {
         '1055790163': {
@@ -924,7 +1012,7 @@ describe('restoreRelayCacheData', () => {
           __typename: 'User',
         },
         // linked from the above in diskCache only
-        'sn1': null,
+        sn1: null,
       };
       const diskCacheData = {
         '1055790163': {
@@ -933,20 +1021,23 @@ describe('restoreRelayCacheData', () => {
           __typename: 'User',
           screennames: [{__dataID__: 'sn1'}],
         },
-        'sn1': {
+        sn1: {
           __dataID__: 'sn1',
           service: 'GTALK',
         },
       };
-      const {callbacks, changeTracker, store} =
-        performQueriesRestore(queries, {diskCacheData, records});
+      const {callbacks, changeTracker, store} = performQueriesRestore(queries, {
+        diskCacheData,
+        records,
+      });
 
       jest.runAllTimers();
 
       expect(callbacks.onFailure.mock.calls.length).toBe(0);
       expect(callbacks.onSuccess.mock.calls.length).toBe(1);
-      expect(store.getLinkedRecordIDs('1055790163', 'screennames'))
-        .toEqual(['sn1']);
+      expect(store.getLinkedRecordIDs('1055790163', 'screennames')).toEqual([
+        'sn1',
+      ]);
       expect(store.getRecordState('sn1')).toBe('NONEXISTENT');
       expect(changeTracker.getChangeSet()).toEqual({
         created: {},
@@ -954,39 +1045,6 @@ describe('restoreRelayCacheData', () => {
           '1055790163': true,
         },
       });
-    });
-
-    it('registers new records with the garbage collector', () => {
-      const garbageCollector = new RelayGarbageCollector();
-      RelayGarbageCollector.prototype.register = jest.fn();
-      const queries = {
-        q0: getNode(Relay.QL`
-          query {
-            node(id: "123") {
-              id
-            }
-          }
-        `),
-      };
-      const records = {
-      };
-      const diskCacheData = {
-        '123': {
-          __dataID__: '123',
-          __typename: 'User',
-          id: '123',
-        },
-      };
-      performQueriesRestore(queries, {
-        diskCacheData,
-        garbageCollector,
-        records,
-      });
-
-      jest.runAllTimers();
-
-      expect(garbageCollector.register.mock.calls.length).toBe(1);
-      expect(garbageCollector.register.mock.calls[0][0]).toBe('123');
     });
   });
 
@@ -996,22 +1054,32 @@ describe('restoreRelayCacheData', () => {
 
   describe('restoreFragmentDataFromCache', () => {
     it('calls `onFailure` when node is not in disk', () => {
-      const fragment = getNode(Relay.QL`
+      const fragment = getNode(
+        RelayClassic.QL`
         fragment on Node {
           id
           name
         }
-      `);
-      const path = RelayQueryPath.create(getNode(Relay.QL`
+      `,
+      );
+      const path = RelayQueryPath.create(
+        getNode(
+          RelayClassic.QL`
         query {
           node(id: "1055790163") {id}
         }
-     `));
+     `,
+        ),
+      );
       const dataID = '1055790163';
       const diskCacheData = {};
 
-      const {cacheManager, callbacks, changeTracker, store} =
-        performFragmentRestore(dataID, fragment, path, {diskCacheData});
+      const {
+        cacheManager,
+        callbacks,
+        changeTracker,
+        store,
+      } = performFragmentRestore(dataID, fragment, path, {diskCacheData});
 
       jest.runAllTimers();
 
@@ -1028,17 +1096,23 @@ describe('restoreRelayCacheData', () => {
     });
 
     it('calls `onFailure` when a field is not on disk', () => {
-      const fragment = getNode(Relay.QL`
+      const fragment = getNode(
+        RelayClassic.QL`
         fragment on Node {
           id
           name
         }
-      `);
-      const path = RelayQueryPath.create(getNode(Relay.QL`
+      `,
+      );
+      const path = RelayQueryPath.create(
+        getNode(
+          RelayClassic.QL`
         query {
           node(id: "1055790163") {id}
         }
-     `));
+     `,
+        ),
+      );
       const dataID = '1055790163';
       const diskCacheData = {
         '1055790163': {
@@ -1048,8 +1122,12 @@ describe('restoreRelayCacheData', () => {
         },
       };
 
-      const {cacheManager, callbacks, changeTracker, store} =
-        performFragmentRestore(dataID, fragment, path, {diskCacheData});
+      const {
+        cacheManager,
+        callbacks,
+        changeTracker,
+        store,
+      } = performFragmentRestore(dataID, fragment, path, {diskCacheData});
 
       jest.runAllTimers();
 
@@ -1071,17 +1149,23 @@ describe('restoreRelayCacheData', () => {
     });
 
     it('calls `onSuccess` when node is in disk', () => {
-      const fragment = getNode(Relay.QL`
+      const fragment = getNode(
+        RelayClassic.QL`
         fragment on Node {
           id
           name
         }
-      `);
-      const path = RelayQueryPath.create(getNode(Relay.QL`
+      `,
+      );
+      const path = RelayQueryPath.create(
+        getNode(
+          RelayClassic.QL`
         query {
           node(id: "1055790163") {id}
         }
-     `));
+     `,
+        ),
+      );
       const dataID = '1055790163';
       const diskCacheData = {
         '1055790163': {
@@ -1092,8 +1176,12 @@ describe('restoreRelayCacheData', () => {
         },
       };
 
-      const {cacheManager, callbacks, changeTracker, store} =
-        performFragmentRestore(dataID, fragment, path, {diskCacheData});
+      const {
+        cacheManager,
+        callbacks,
+        changeTracker,
+        store,
+      } = performFragmentRestore(dataID, fragment, path, {diskCacheData});
 
       jest.runAllTimers();
 
@@ -1115,17 +1203,23 @@ describe('restoreRelayCacheData', () => {
     });
 
     it('calls `onSuccess` when node is in cached store', () => {
-      const fragment = getNode(Relay.QL`
+      const fragment = getNode(
+        RelayClassic.QL`
         fragment on Node {
           id
           name
         }
-      `);
-      const path = RelayQueryPath.create(getNode(Relay.QL`
+      `,
+      );
+      const path = RelayQueryPath.create(
+        getNode(
+          RelayClassic.QL`
         query {
           node(id: "1055790163") {id}
         }
-     `));
+     `,
+        ),
+      );
       const dataID = '1055790163';
       const cachedRecords = {
         '1055790163': {
@@ -1136,8 +1230,12 @@ describe('restoreRelayCacheData', () => {
         },
       };
 
-      const {cacheManager, callbacks, changeTracker, store} =
-        performFragmentRestore(dataID, fragment, path, {cachedRecords});
+      const {
+        cacheManager,
+        callbacks,
+        changeTracker,
+        store,
+      } = performFragmentRestore(dataID, fragment, path, {cachedRecords});
 
       jest.runAllTimers();
 
@@ -1156,17 +1254,23 @@ describe('restoreRelayCacheData', () => {
     });
 
     it('calls `onSuccess` when node is in store', () => {
-      const fragment = getNode(Relay.QL`
+      const fragment = getNode(
+        RelayClassic.QL`
         fragment on Node {
           id
           name
         }
-      `);
-      const path = RelayQueryPath.create(getNode(Relay.QL`
+      `,
+      );
+      const path = RelayQueryPath.create(
+        getNode(
+          RelayClassic.QL`
         query {
           node(id: "1055790163") {id}
         }
-     `));
+     `,
+        ),
+      );
       const dataID = '1055790163';
       const records = {
         '1055790163': {
@@ -1177,8 +1281,12 @@ describe('restoreRelayCacheData', () => {
         },
       };
 
-      const {cacheManager, callbacks, changeTracker, store} =
-        performFragmentRestore(dataID, fragment, path, {records});
+      const {
+        cacheManager,
+        callbacks,
+        changeTracker,
+        store,
+      } = performFragmentRestore(dataID, fragment, path, {records});
 
       jest.runAllTimers();
 
@@ -1199,17 +1307,23 @@ describe('restoreRelayCacheData', () => {
 
   describe('abort', () => {
     it('does not call `onSuccess` if aborted', () => {
-      const fragment = getNode(Relay.QL`
+      const fragment = getNode(
+        RelayClassic.QL`
         fragment on Node {
           id
           name
         }
-      `);
-      const path = RelayQueryPath.create(getNode(Relay.QL`
+      `,
+      );
+      const path = RelayQueryPath.create(
+        getNode(
+          RelayClassic.QL`
         query {
           node(id: "1055790163") {id}
         }
-     `));
+     `,
+        ),
+      );
       const dataID = '1055790163';
       const diskCacheData = {
         '1055790163': {
@@ -1220,8 +1334,12 @@ describe('restoreRelayCacheData', () => {
         },
       };
 
-      const {abort, callbacks, store} =
-        performFragmentRestore(dataID, fragment, path, {diskCacheData});
+      const {abort, callbacks, store} = performFragmentRestore(
+        dataID,
+        fragment,
+        path,
+        {diskCacheData},
+      );
 
       abort();
       // this would read 1055790163 from cache if not aborted
@@ -1233,17 +1351,23 @@ describe('restoreRelayCacheData', () => {
     });
 
     it('does not `onFailure` if aborted', () => {
-      const fragment = getNode(Relay.QL`
+      const fragment = getNode(
+        RelayClassic.QL`
         fragment on Node {
           id
           name
         }
-      `);
-      const path = RelayQueryPath.create(getNode(Relay.QL`
+      `,
+      );
+      const path = RelayQueryPath.create(
+        getNode(
+          RelayClassic.QL`
         query {
           node(id: "1055790163") {id}
         }
-     `));
+     `,
+        ),
+      );
       const dataID = '1055790163';
       const diskCacheData = {
         '1055790163': {
@@ -1253,8 +1377,12 @@ describe('restoreRelayCacheData', () => {
         },
       };
 
-      const {abort, callbacks, store} =
-        performFragmentRestore(dataID, fragment, path, {diskCacheData});
+      const {abort, callbacks, store} = performFragmentRestore(
+        dataID,
+        fragment,
+        path,
+        {diskCacheData},
+      );
 
       abort();
       // The read would fail since `name` is missing from cached data.

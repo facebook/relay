@@ -1,26 +1,27 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
-jest.mock('warning');
-
 require('configureForRelayOSS');
 
-const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+jest
+  .mock('warning')
+  .mock('../../route/RelayRoute')
+  .mock('../../legacy/store/GraphQLStoreQueryResolver');
+
+const GraphQLStoreQueryResolver = require('../../legacy/store/GraphQLStoreQueryResolver');
 const React = require('React');
-const Relay = require('Relay');
-const RelayEnvironment = require('RelayEnvironment');
+const RelayClassic = require('../../RelayPublic');
+const RelayEnvironment = require('../../store/RelayEnvironment');
 const RelayTestUtils = require('RelayTestUtils');
-const reactComponentExpect = require('reactComponentExpect');
 
 describe('RelayContainer', function() {
   let MockComponent;
@@ -31,16 +32,18 @@ describe('RelayContainer', function() {
   beforeEach(function() {
     jest.resetModules();
 
-    MockComponent = React.createClass({
-      render: jest.fn(() => <div />),
-    });
+    MockComponent = class MockComponent_ extends React.Component {
+      render() {
+        return <div />;
+      }
+    };
 
     mockCreateContainer = component => {
-      MockContainer = Relay.createContainer(component, {
+      MockContainer = RelayClassic.createContainer(component, {
         initialVariables: {site: 'mobile'},
         fragments: {
           foo: jest.fn(
-            () => Relay.QL`fragment on Node{id,url(site:$site)}`
+            () => RelayClassic.QL`fragment on Node{id,url(site:$site)}`,
           ),
         },
       });
@@ -59,26 +62,21 @@ describe('RelayContainer', function() {
     mockRender = () => {
       return RelayTestRenderer.render(
         genMockPointer => <MockContainer foo={genMockPointer('42')} />,
-        environment
+        environment,
       );
     };
   });
 
-  it('creates and instance and renders', () => {
+  it('creates an instance and renders', () => {
     let instance;
     expect(() => {
       instance = mockRender();
     }).not.toThrow();
 
-    reactComponentExpect(instance)
-      .toBeCompositeComponentWithType(MockContainer)
-      .expectRenderedChild()
-      .toBeCompositeComponentWithType(MockComponent)
-      .expectRenderedChild()
-      .toBeComponentOfType('div');
+    expect(instance.refs.component instanceof MockComponent).toBe(true);
   });
 
-  it('provides Relay statics', () => {
+  it('provides RelayClassic statics', () => {
     // The correct implementation of these is asserted in other tests. This
     // test merely checks if the public API exists.
     expect(typeof MockContainer.getFragmentNames).toEqual('function');
@@ -86,7 +84,7 @@ describe('RelayContainer', function() {
   });
 
   it('has the correct displayName when using class components', () => {
-    expect(MockContainer.displayName).toEqual('Relay(MockComponent)');
+    expect(MockContainer.displayName).toEqual('Relay(MockComponent_)');
   });
 
   it('has the correct displayName when using stateless components', () => {
@@ -97,32 +95,26 @@ describe('RelayContainer', function() {
     expect(MockContainer.displayName).toEqual('Relay(MyComponent)');
   });
 
-  it('defaults to "StatelessComponent" when using a component without name', () => {
+  it('defaults to "Component" when using a component without name', () => {
     mockCreateContainer(() => <span />);
-    expect(MockContainer.displayName).toEqual('Relay(StatelessComponent)');
+    expect(MockContainer.displayName).toEqual('Relay(Component)');
   });
 
-  it('defaults to "ReactElement" when using a ReactElement', () => {
+  it('defaults to "Component" when using a ReactElement', () => {
     mockCreateContainer(<span />);
-    expect(MockContainer.displayName).toEqual('Relay(ReactElement)');
+    expect(MockContainer.displayName).toEqual('Relay(Component)');
   });
 
   it('works with ES6 classes', () => {
+    const render = jest.fn().mockImplementation(() => <span />);
     class MyComponent extends React.Component {
-      render() {
-        return <span />;
-      }
+      render = render;
     }
 
     mockCreateContainer(MyComponent);
 
     const instance = mockRender();
-
-    reactComponentExpect(instance)
-      .toBeCompositeComponentWithType(MockContainer)
-      .expectRenderedChild()
-      .toBeCompositeComponentWithType(MyComponent)
-      .expectRenderedChild()
-      .toBeComponentOfType('span');
+    expect(instance.refs.component).toBeInstanceOf(MyComponent);
+    expect(render).toHaveBeenCalledTimes(1);
   });
 });

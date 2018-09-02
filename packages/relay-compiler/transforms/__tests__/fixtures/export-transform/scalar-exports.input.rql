@@ -1,5 +1,0 @@
-query TestQuery($id: ID!, $count: Int!) {
-  node(id: $id) {
-    id @export(as: "id")
-  }
-}

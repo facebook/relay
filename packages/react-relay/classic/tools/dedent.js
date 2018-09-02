@@ -1,13 +1,11 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule dedent
- * @flow
+ * @flow strict
+ * @format
  */
 
 'use strict';
@@ -36,18 +34,17 @@ function dedent(string: string, padding: string = ''): string {
       return acc;
     }
     const leadingWhitespace = line.match(/^(\s*)/);
-    return Math.min(
-      acc,
-      leadingWhitespace ? leadingWhitespace[1].length : 0,
-    );
+    return Math.min(acc, leadingWhitespace ? leadingWhitespace[1].length : 0);
   }, Infinity);
 
-  return lines.map(line => {
-    if (line.match(blankLine)) {
-      return '';
-    }
-    return padding + line.slice(minLeadingSpace);
-  }).join('\n');
+  return lines
+    .map(line => {
+      if (line.match(blankLine)) {
+        return '';
+      }
+      return padding + line.slice(minLeadingSpace);
+    })
+    .join('\n');
 }
 
 module.exports = dedent;

@@ -1,7 +1,0 @@
-query TestQuery($id: ID!, $count: Int!) {
-  node(id: $id) {
-    ... on User {
-      emailAddresses @export(as: "email")
-    }
-  }
-}

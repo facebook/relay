@@ -1,21 +1,19 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayNodeInterface
  * @flow
+ * @format
  */
 
 'use strict';
 
-const forEachRootCallArg = require('forEachRootCallArg');
+const forEachRootCallArg = require('../query/forEachRootCallArg');
 const invariant = require('invariant');
 
-import type RelayQuery from 'RelayQuery';
+import type RelayQuery from '../query/RelayQuery';
 
 export type PayloadResult = {
   result: mixed,
@@ -52,7 +50,7 @@ const RelayNodeInterface = {
 
   getResultsFromPayload(
     query: RelayQuery.Root,
-    payload: {[key: string]: mixed}
+    payload: {[key: string]: mixed},
   ): Array<PayloadResult> {
     return getResultsFromPayloadImpl(query, payload);
   },
@@ -67,7 +65,7 @@ const RelayNodeInterface = {
 
 function getResultsFromPayload(
   query: RelayQuery.Root,
-  payload: {[key: string]: mixed}
+  payload: {[key: string]: mixed},
 ): Array<PayloadResult> {
   const results = [];
 
@@ -81,9 +79,9 @@ function getResultsFromPayload(
       invariant(
         typeof dataID === 'string',
         'RelayNodeInterface.getResultsFromPayload(): Unable to write ' +
-        'result with no `%s` field for query, `%s`.',
+          'result with no `%s` field for query, `%s`.',
         RelayNodeInterface.ID,
-        query.getName()
+        query.getName(),
       );
       results.push({
         result,
@@ -112,7 +110,7 @@ function getResultsFromPayload(
 
 function getPayloadRecords(
   query: RelayQuery.Root,
-  payload: {[key: string]: mixed}
+  payload: {[key: string]: mixed},
 ): Array<mixed> {
   const fieldName = query.getFieldName();
   const identifyingArg = query.getIdentifyingArg();
@@ -123,25 +121,25 @@ function getPayloadRecords(
       invariant(
         Array.isArray(records),
         'RelayNodeInterface: Expected payload for root field `%s` to be ' +
-        'an array with %s results, instead received a single non-array result.',
+          'an array with %s results, instead received a single non-array result.',
         fieldName,
-        identifyingArgValue.length
+        identifyingArgValue.length,
       );
       invariant(
         records.length === identifyingArgValue.length,
         'RelayNodeInterface: Expected payload for root field `%s` to be ' +
-        'an array with %s results, instead received an array with %s results.',
+          'an array with %s results, instead received an array with %s results.',
         fieldName,
         identifyingArgValue.length,
-        records.length
+        records.length,
       );
     } else if (Array.isArray(records)) {
       invariant(
         false,
         'RelayNodeInterface: Expected payload for root field `%s` to be ' +
-        'a single non-array result, instead received an array with %s results.',
+          'a single non-array result, instead received an array with %s results.',
         fieldName,
-        records.length
+        records.length,
       );
     }
   }

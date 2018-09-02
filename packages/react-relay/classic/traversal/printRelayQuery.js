@@ -1,22 +1,20 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule printRelayQuery
- * @flow
+ * @flow strict-local
+ * @format
  */
 
 'use strict';
 
-const RelayQuery = require('RelayQuery');
+const RelayQuery = require('../query/RelayQuery');
 
-const printRelayOSSQuery = require('printRelayOSSQuery');
+const printRelayOSSQuery = require('./printRelayOSSQuery');
 
-import type {PrintedQuery} from 'RelayInternalTypes';
+import type {PrintedQuery} from '../tools/RelayInternalTypes';
 
 /**
  * To support legacy behavior, allow the classic relay printer to be injectable.
@@ -31,7 +29,7 @@ module.exports = function printRelayQuery(node: RelayQuery.Node): PrintedQuery {
 };
 
 module.exports.injectImpl = function injectImpl(
-  impl: (node: RelayQuery.Node) => PrintedQuery
+  impl: (node: RelayQuery.Node) => PrintedQuery,
 ): void {
   printRelayQueryImpl = impl;
 };

@@ -1,20 +1,19 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayMockRenderer
  * @flow
+ * @format
  */
 
 'use strict';
 
+const PropTypes = require('prop-types');
 const React = require('React');
-const RelayEnvironment = require('RelayEnvironment');
-const RelayPropTypes = require('RelayPropTypes');
+const RelayEnvironment = require('../store/RelayEnvironment');
+const RelayPropTypes = require('../container/RelayPropTypes');
 
 /**
  * A helper for rendering RelayContainers with mock data, outside of a
@@ -24,21 +23,19 @@ const RelayPropTypes = require('RelayPropTypes');
  * Note: For unit tests, you may need to mock `ReactDOM` as follows:
  *
  * ```
- * jest
- *   .disableAutomock()
- *   .mock('ReactDOM', () => ({}));
+ * jest.mock('ReactDOM', () => ({}));
  * ```
  *
  * Currently ReactDOM and ReactTestRenderer cannot both be loaded in the same
  * test, and Relay transitively includes ReactDOM under its default settings.
  */
-class RelayMockRenderer extends React.Component {
+class RelayMockRenderer extends React.Component<$FlowFixMeProps> {
   mockContext: any;
 
   static childContextTypes = {
     relay: RelayPropTypes.ClassicRelay,
     route: RelayPropTypes.QueryConfig.isRequired,
-    useFakeData: React.PropTypes.bool,
+    useFakeData: PropTypes.bool,
   };
 
   constructor() {

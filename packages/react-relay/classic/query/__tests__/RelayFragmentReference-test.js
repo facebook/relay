@@ -1,12 +1,11 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -15,10 +14,10 @@ require('configureForRelayOSS');
 
 jest.mock('warning');
 
-const QueryBuilder = require('QueryBuilder');
-const Relay = require('Relay');
-const RelayFragmentReference = require('RelayFragmentReference');
-const RelayMetaRoute = require('RelayMetaRoute');
+const QueryBuilder = require('../QueryBuilder');
+const RelayClassic = require('../../RelayPublic');
+const RelayFragmentReference = require('../RelayFragmentReference');
+const RelayMetaRoute = require('../../route/RelayMetaRoute');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayFragmentReference', () => {
@@ -28,11 +27,11 @@ describe('RelayFragmentReference', () => {
     jest.resetModules();
 
     route = new RelayMetaRoute('');
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('creates fragments with default variables', () => {
-    const node = Relay.QL`
+    const node = RelayClassic.QL`
       fragment on User {
         profilePicture(size:$size) {
           uri
@@ -40,12 +39,9 @@ describe('RelayFragmentReference', () => {
       }
     `;
     // equivalent to `getQuery('foo')` without variables
-    const reference = new RelayFragmentReference(
-      () => node,
-      {
-        size: 'default',
-      }
-    );
+    const reference = new RelayFragmentReference(() => node, {
+      size: 'default',
+    });
     const variables = {size: 'ignored'};
     expect(reference instanceof RelayFragmentReference).toBe(true);
     // size ignored because no variables are passed into the fragment
@@ -56,7 +52,7 @@ describe('RelayFragmentReference', () => {
   });
 
   it('creates fragments with a variable mapping', () => {
-    const node = Relay.QL`
+    const node = RelayClassic.QL`
       fragment on User {
         profilePicture(size:$size) {
           uri
@@ -71,7 +67,7 @@ describe('RelayFragmentReference', () => {
       },
       {
         size: QueryBuilder.createCallVariable('outerSize'),
-      }
+      },
     );
     // no outer variable, default is used
     let variables = {};
@@ -89,7 +85,7 @@ describe('RelayFragmentReference', () => {
   });
 
   it('creates deferred fragment references', () => {
-    const node = Relay.QL`fragment on Node{id}`;
+    const node = RelayClassic.QL`fragment on Node{id}`;
     const reference = new RelayFragmentReference(() => node, {});
     reference.defer();
 
@@ -100,7 +96,7 @@ describe('RelayFragmentReference', () => {
   });
 
   it('creates fragments with if/unless conditions', () => {
-    const node = Relay.QL`fragment on Node{id}`;
+    const node = RelayClassic.QL`fragment on Node{id}`;
     const reference = new RelayFragmentReference(() => node, {});
     reference.if(QueryBuilder.createCallVariable('if'));
     reference.unless(QueryBuilder.createCallVariable('unless'));
@@ -119,7 +115,7 @@ describe('RelayFragmentReference', () => {
   });
 
   it('processes variables using the route', () => {
-    const node = Relay.QL`fragment on Node{id}`;
+    const node = RelayClassic.QL`fragment on Node{id}`;
     const prepareVariables = jest.fn();
     const reference = new RelayFragmentReference(
       () => node,
@@ -127,7 +123,7 @@ describe('RelayFragmentReference', () => {
         size: 'default',
       },
       {},
-      prepareVariables
+      prepareVariables,
     );
 
     const customVariables = {
@@ -143,14 +139,14 @@ describe('RelayFragmentReference', () => {
   });
 
   it('warns if a variable is undefined', () => {
-    const node = Relay.QL`fragment on Node{id}`;
+    const node = RelayClassic.QL`fragment on Node{id}`;
     const reference = new RelayFragmentReference(
       () => node,
       {},
       {
         dynamic: QueryBuilder.createCallVariable('dynamic'),
         static: undefined,
-      }
+      },
     );
     const variables = {};
     expect(reference.getFragment(variables)).toBe(node);

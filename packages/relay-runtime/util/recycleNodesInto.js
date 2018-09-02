@@ -1,13 +1,11 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule recycleNodesInto
- * @flow
+ * @flow strict
+ * @format
  */
 
 'use strict';
@@ -16,9 +14,13 @@
  * Recycles subtrees from `prevData` by replacing equal subtrees in `nextData`.
  */
 function recycleNodesInto<T>(prevData: T, nextData: T): T {
-  if (prevData === nextData ||
-      typeof prevData !== 'object' || !prevData ||
-      typeof nextData !== 'object' || !nextData) {
+  if (
+    prevData === nextData ||
+    typeof prevData !== 'object' ||
+    !prevData ||
+    typeof nextData !== 'object' ||
+    !nextData
+  ) {
     return nextData;
   }
   let canRecycle = false;
@@ -35,8 +37,7 @@ function recycleNodesInto<T>(prevData: T, nextData: T): T {
           nextArray[ii] = nextValue;
         }
         return wasEqual && nextArray[ii] === prevArray[ii];
-      }, true) &&
-      prevArray.length === nextArray.length;
+      }, true) && prevArray.length === nextArray.length;
   } else if (!prevArray && !nextArray) {
     // Assign local variables to preserve Flow type refinement.
     const prevObject = prevData;
@@ -51,8 +52,7 @@ function recycleNodesInto<T>(prevData: T, nextData: T): T {
           nextObject[key] = nextValue;
         }
         return wasEqual && nextObject[key] === prevObject[key];
-      }, true) &&
-      prevKeys.length === nextKeys.length;
+      }, true) && prevKeys.length === nextKeys.length;
   }
   return canRecycle ? prevData : nextData;
 }

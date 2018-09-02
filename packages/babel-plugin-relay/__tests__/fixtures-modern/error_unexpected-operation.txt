@@ -1,0 +1,21 @@
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ */
+
+'use strict';
+
+const RelayCompatContainer = require('RelayCompatContainer');
+const graphql = require('graphql');
+
+const CompatProfile = () => null;
+
+module.exports = RelayCompatContainer.createContainer(CompatProfile, graphql`
+  fragment CompatProfile_user on User {
+    name
+  }
+
+  query Whoopsie {
+    name
+  }
+`);

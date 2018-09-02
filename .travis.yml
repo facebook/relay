@@ -1,29 +1,34 @@
 ---
 language: node_js
 install: true
+cache: yarn
+
 matrix:
   include:
+  - node_js: '10'
+    env: TEST=1
+  - node_js: '8'
+    env: TEST=1
   - node_js: '6'
-    env: TEST=.
-  - node_js: '7'
-    env: TEST=.
+    env: TEST=1
+  - node_js: '10'
+    env: TYPECHECK=1
+  - node_js: '10'
+    env: LINT=1
 
-  - node_js: '6'
-    env: TEST=scripts/babel-relay-plugin
-  - node_js: '7'
-    env: TEST=scripts/babel-relay-plugin
-
-  - node_js: '6'
-    env: TYPECHECK=.
-
-  - node_js: '6'
-    env: TYPECHECK=scripts/babel-relay-plugin
 script:
 - |
     if [ $TEST ]; then
-      cd $TEST && npm install && npm run jest -- --runInBand --no-watchman
+      yarn install && yarn run jest -- --runInBand --no-watchman
     fi
 - |
     if [ $TYPECHECK ]; then
-      cd $TYPECHECK && npm install && npm run typecheck
+      yarn install --ignore-scripts && yarn run typecheck
     fi
+- |
+    if [ $LINT ]; then
+      yarn install --ignore-scripts && yarn run test-dependencies && yarn run lint
+    fi
+
+notifications:
+  webhooks: https://code.facebook.com/travis/webhook/

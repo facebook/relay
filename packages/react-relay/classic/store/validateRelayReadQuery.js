@@ -1,23 +1,21 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule validateRelayReadQuery
  * @flow
+ * @format
  */
 
 'use strict';
 
-const RelayQueryVisitor = require('RelayQueryVisitor');
+const RelayQueryVisitor = require('../query/RelayQueryVisitor');
 
 const emptyFunction = require('emptyFunction');
 
-import type RelayQuery from 'RelayQuery';
-import type {StoreReaderOptions} from 'RelayTypes';
+import type RelayQuery from '../query/RelayQuery';
+import type {StoreReaderOptions} from '../tools/RelayTypes';
 
 type AliasMap = {
   children: {[applicationName: string]: AliasMap},
@@ -41,7 +39,7 @@ if (__DEV__) {
      */
     validateRelayReadQuery = function _validateRelayReadQuery(
       queryNode: RelayQuery.Node,
-      options?: StoreReaderOptions
+      options?: StoreReaderOptions,
     ): void {
       const validator = new RelayStoreReadValidator(options);
       validator.visit(queryNode, {
@@ -55,7 +53,7 @@ if (__DEV__) {
      */
     function getAliasMap(
       node: RelayQuery.Field,
-      parentAliasMap: AliasMap
+      parentAliasMap: AliasMap,
     ): AliasMap {
       const applicationName = node.getApplicationName();
       const hash = node.getShallowHash();
@@ -68,7 +66,7 @@ if (__DEV__) {
       } else if (children[applicationName].hash !== hash) {
         console.error(
           '`%s` is used as an alias more than once. Please use unique aliases.',
-          applicationName
+          applicationName,
         );
       }
       return children[applicationName];
@@ -77,18 +75,13 @@ if (__DEV__) {
     class RelayStoreReadValidator extends RelayQueryVisitor<AliasMap> {
       _traverseFragmentReferences: boolean;
 
-      constructor(
-        options?: StoreReaderOptions
-      ) {
+      constructor(options?: StoreReaderOptions) {
         super();
         this._traverseFragmentReferences =
           (options && options.traverseFragmentReferences) || false;
       }
 
-      visitField(
-        node: RelayQuery.Field,
-        parentAliasMap: AliasMap
-      ): void {
+      visitField(node: RelayQuery.Field, parentAliasMap: AliasMap): void {
         const aliasMap = getAliasMap(node, parentAliasMap);
 
         if (node.isGenerated()) {
@@ -103,10 +96,7 @@ if (__DEV__) {
         }
       }
 
-      visitFragment(
-        node: RelayQuery.Fragment,
-        aliasMap: AliasMap
-      ): void {
+      visitFragment(node: RelayQuery.Fragment, aliasMap: AliasMap): void {
         if (this._traverseFragmentReferences || !node.isContainerFragment()) {
           this.traverse(node, aliasMap);
         }
@@ -121,7 +111,7 @@ if (__DEV__) {
         this.traverse(node, aliasMap);
       }
     }
-  }());
+  })();
 }
 
 module.exports = validateRelayReadQuery;

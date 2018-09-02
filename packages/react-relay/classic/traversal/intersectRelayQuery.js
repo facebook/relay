@@ -1,22 +1,21 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule intersectRelayQuery
  * @flow
+ * @format
  */
 
 'use strict';
 
-const RelayConnectionInterface = require('RelayConnectionInterface');
-const RelayQuery = require('RelayQuery');
-const RelayQueryTransform = require('RelayQueryTransform');
+const RelayQuery = require('../query/RelayQuery');
+const RelayQueryTransform = require('../query/RelayQueryTransform');
 
 const invariant = require('invariant');
+
+const {ConnectionInterface} = require('relay-runtime');
 
 type UnterminatedRangeFilter = (node: RelayQuery.Field) => boolean;
 
@@ -61,40 +60,44 @@ class RelayQueryIntersector extends RelayQueryTransform<RelayQuery.Node> {
       return subjectNode;
     }
     if (!hasChildren(patternNode)) {
-      if (subjectNode instanceof RelayQuery.Field &&
-          subjectNode.isConnection() &&
-          this._filterUnterminatedRange(subjectNode)) {
+      if (
+        subjectNode instanceof RelayQuery.Field &&
+        subjectNode.isConnection() &&
+        this._filterUnterminatedRange(subjectNode)
+      ) {
         return filterRangeFields(subjectNode);
       }
       // Unterminated `patternNode` is the same as containing every descendant
       // sub-field, so `subjectNode` must be in the intersection.
       return subjectNode;
     }
-    return subjectNode.clone(subjectNode.getChildren().map(subjectChild => {
-      if (subjectChild instanceof RelayQuery.Fragment) {
-        return this.visit(subjectChild, patternNode);
-      }
-      if (subjectChild instanceof RelayQuery.Field) {
-        const schemaName = subjectChild.getSchemaName();
-        let patternChild;
-        const patternChildren = patternNode.getChildren();
-        for (let ii = 0; ii < patternChildren.length; ii++) {
-          const child = patternChildren[ii];
-          invariant(
-            child instanceof RelayQuery.Field,
-            'intersectRelayQuery(): Nodes in `patternNode` must be fields.'
-          );
-          if (child.getSchemaName() === schemaName) {
-            patternChild = child;
-            break;
+    return subjectNode.clone(
+      subjectNode.getChildren().map(subjectChild => {
+        if (subjectChild instanceof RelayQuery.Fragment) {
+          return this.visit(subjectChild, patternNode);
+        }
+        if (subjectChild instanceof RelayQuery.Field) {
+          const schemaName = subjectChild.getSchemaName();
+          let patternChild;
+          const patternChildren = patternNode.getChildren();
+          for (let ii = 0; ii < patternChildren.length; ii++) {
+            const child = patternChildren[ii];
+            invariant(
+              child instanceof RelayQuery.Field,
+              'intersectRelayQuery(): Nodes in `patternNode` must be fields.',
+            );
+            if (child.getSchemaName() === schemaName) {
+              patternChild = child;
+              break;
+            }
+          }
+          if (patternChild) {
+            return this.visit(subjectChild, patternChild);
           }
         }
-        if (patternChild) {
-          return this.visit(subjectChild, patternChild);
-        }
-      }
-      return null;
-    }));
+        return null;
+      }),
+    );
   }
 }
 
@@ -103,9 +106,10 @@ class RelayQueryIntersector extends RelayQueryTransform<RelayQuery.Node> {
  */
 class RelayQueryRangeFilter extends RelayQueryTransform<void> {
   visitField(node: RelayQuery.Field): ?RelayQuery.Node {
+    const {EDGES, PAGE_INFO} = ConnectionInterface.get();
+
     const schemaName = node.getSchemaName();
-    if (schemaName === RelayConnectionInterface.EDGES ||
-        schemaName === RelayConnectionInterface.PAGE_INFO) {
+    if (schemaName === EDGES || schemaName === PAGE_INFO) {
       return null;
     } else {
       return node;

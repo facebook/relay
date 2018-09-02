@@ -1,40 +1,37 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayMarkSweepStore
- * @flow
+ * @flow strict-local
+ * @format
  */
 
 'use strict';
 
-const RelayAsyncLoader = require('RelayAsyncLoader');
-const RelayProfiler = require('RelayProfiler');
-const RelayReader = require('RelayReader');
-const RelayReferenceMarker = require('RelayReferenceMarker');
-const RelayStaticRecord = require('RelayStaticRecord');
+const RelayDataLoader = require('./RelayDataLoader');
+const RelayModernRecord = require('./RelayModernRecord');
+const RelayProfiler = require('../util/RelayProfiler');
+const RelayReader = require('./RelayReader');
+const RelayReferenceMarker = require('./RelayReferenceMarker');
 
-const deepFreeze = require('deepFreeze');
-const hasOverlappingIDs = require('hasOverlappingIDs');
-const recycleNodesInto = require('recycleNodesInto');
+const deepFreeze = require('../util/deepFreeze');
+const hasOverlappingIDs = require('./hasOverlappingIDs');
+const recycleNodesInto = require('../util/recycleNodesInto');
 const resolveImmediate = require('resolveImmediate');
 
-const {UNPUBLISH_RECORD_SENTINEL} = require('RelayStoreUtils');
+const {UNPUBLISH_RECORD_SENTINEL} = require('./RelayStoreUtils');
 
-import type {Disposable} from 'RelayCombinedEnvironmentTypes';
+import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {
-  AsyncLoadCallback,
   MutableRecordSource,
   RecordSource,
   Selector,
   Snapshot,
   Store,
   UpdatedRecords,
-} from 'RelayStoreTypes';
+} from './RelayStoreTypes';
 
 type Subscription = {
   callback: (snapshot: Snapshot) => void,
@@ -54,12 +51,15 @@ type Subscription = {
  * is also enforced in development mode by freezing all records passed to a store.
  */
 class RelayMarkSweepStore implements Store {
+  _gcEnabled: boolean;
   _hasScheduledGC: boolean;
   _index: number;
   _recordSource: MutableRecordSource;
   _roots: Map<number, Selector>;
   _subscriptions: Set<Subscription>;
   _updatedRecordIDs: UpdatedRecords;
+  _gcHoldCounter: number;
+  _shouldScheduleGC: boolean;
 
   constructor(source: MutableRecordSource) {
     // Prevent mutation of a record from outside the store.
@@ -68,20 +68,32 @@ class RelayMarkSweepStore implements Store {
       for (let ii = 0; ii < storeIDs.length; ii++) {
         const record = source.get(storeIDs[ii]);
         if (record) {
-          RelayStaticRecord.freeze(record);
+          RelayModernRecord.freeze(record);
         }
       }
     }
+    this._gcEnabled = true;
     this._hasScheduledGC = false;
     this._index = 0;
     this._recordSource = source;
     this._roots = new Map();
     this._subscriptions = new Set();
     this._updatedRecordIDs = {};
+    this._gcHoldCounter = 0;
+    this._shouldScheduleGC = false;
   }
 
   getSource(): RecordSource {
     return this._recordSource;
+  }
+
+  check(selector: Selector): boolean {
+    return RelayDataLoader.check(
+      this._recordSource,
+      this._recordSource,
+      selector,
+      [],
+    );
   }
 
   retain(selector: Selector): Disposable {
@@ -110,29 +122,12 @@ class RelayMarkSweepStore implements Store {
   }
 
   publish(source: RecordSource): void {
-    updateTargetFromSource(
-      this._recordSource,
-      source,
-      this._updatedRecordIDs
-    );
-  }
-
-  resolve(
-    target: MutableRecordSource,
-    selector: Selector,
-    callback: AsyncLoadCallback
-  ): void {
-    RelayAsyncLoader.load(
-      this._recordSource,
-      target,
-      selector,
-      callback
-    );
+    updateTargetFromSource(this._recordSource, source, this._updatedRecordIDs);
   }
 
   subscribe(
     snapshot: Snapshot,
-    callback: (snapshot: Snapshot) => void
+    callback: (snapshot: Snapshot) => void,
   ): Disposable {
     const subscription = {callback, snapshot};
     const dispose = () => {
@@ -140,6 +135,25 @@ class RelayMarkSweepStore implements Store {
     };
     this._subscriptions.add(subscription);
     return {dispose};
+  }
+
+  holdGC(): Disposable {
+    this._gcHoldCounter++;
+    const dispose = () => {
+      if (this._gcHoldCounter > 0) {
+        this._gcHoldCounter--;
+        if (this._gcHoldCounter === 0 && this._shouldScheduleGC) {
+          this._scheduleGC();
+          this._shouldScheduleGC = false;
+        }
+      }
+    };
+    return {dispose};
+  }
+
+  // Internal API
+  __getUpdatedRecordIDs(): UpdatedRecords {
+    return this._updatedRecordIDs;
   }
 
   _updateSubscription(subscription: Subscription): void {
@@ -164,25 +178,25 @@ class RelayMarkSweepStore implements Store {
   }
 
   _scheduleGC() {
-    if (this._hasScheduledGC) {
+    if (this._gcHoldCounter > 0) {
+      this._shouldScheduleGC = true;
+      return;
+    }
+    if (!this._gcEnabled || this._hasScheduledGC) {
       return;
     }
     this._hasScheduledGC = true;
     resolveImmediate(() => {
-      this._gc();
+      this.__gc();
       this._hasScheduledGC = false;
     });
   }
 
-  _gc(): void {
+  __gc(): void {
     const references = new Set();
     // Mark all records that are traversable from a root
     this._roots.forEach(selector => {
-      RelayReferenceMarker.mark(
-        this._recordSource,
-        selector,
-        references
-      );
+      RelayReferenceMarker.mark(this._recordSource, selector, references);
     });
     // Short-circuit if *nothing* is referenced
     if (!references.size) {
@@ -197,6 +211,15 @@ class RelayMarkSweepStore implements Store {
         this._recordSource.remove(dataID);
       }
     }
+  }
+
+  // Internal hooks to enable/disable garbage collection for experimentation
+  __enableGC(): void {
+    this._gcEnabled = true;
+  }
+
+  __disableGC(): void {
+    this._gcEnabled = false;
   }
 }
 
@@ -217,7 +240,7 @@ function updateTargetFromSource(
     // Prevent mutation of a record from outside the store.
     if (__DEV__) {
       if (sourceRecord) {
-        RelayStaticRecord.freeze(sourceRecord);
+        RelayModernRecord.freeze(sourceRecord);
       }
     }
     if (sourceRecord === UNPUBLISH_RECORD_SENTINEL) {
@@ -225,11 +248,11 @@ function updateTargetFromSource(
       target.remove(dataID);
       updatedRecordIDs[dataID] = true;
     } else if (sourceRecord && targetRecord) {
-      const nextRecord = RelayStaticRecord.update(targetRecord, sourceRecord);
+      const nextRecord = RelayModernRecord.update(targetRecord, sourceRecord);
       if (nextRecord !== targetRecord) {
         // Prevent mutation of a record from outside the store.
         if (__DEV__) {
-          RelayStaticRecord.freeze(nextRecord);
+          RelayModernRecord.freeze(nextRecord);
         }
         updatedRecordIDs[dataID] = true;
         target.set(dataID, nextRecord);
@@ -252,6 +275,8 @@ RelayProfiler.instrumentMethods(RelayMarkSweepStore.prototype, {
   publish: 'RelayMarkSweepStore.prototype.publish',
   retain: 'RelayMarkSweepStore.prototype.retain',
   subscribe: 'RelayMarkSweepStore.prototype.subscribe',
+  __gc: 'RelayMarkSweepStore.prototype.__gc',
+  holdGC: 'RelayMarkSweepStore.prototype.holdGC',
 });
 
 module.exports = RelayMarkSweepStore;

@@ -1,42 +1,38 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayRecordStore
  * @flow
+ * @format
  */
 
 'use strict';
 
-const GraphQLRange = require('GraphQLRange');
-const RelayClassicRecordState = require('RelayClassicRecordState');
-const RelayConnectionInterface = require('RelayConnectionInterface');
-const RelayNodeInterface = require('RelayNodeInterface');
-const RelayRecord = require('RelayRecord');
+const GraphQLRange = require('../legacy/store/GraphQLRange');
+const RelayClassicRecordState = require('./RelayClassicRecordState');
+const RelayNodeInterface = require('../interface/RelayNodeInterface');
+const RelayRecord = require('./RelayRecord');
 
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const warning = require('warning');
 
-import type {RecordState} from 'RelayClassicRecordState';
-import type {PageInfo} from 'RelayConnectionInterface';
+const {ConnectionInterface} = require('relay-runtime');
+
+import type {QueryPath} from '../query/RelayQueryPath';
 import type {
   Call,
   ClientMutationID,
-  DataID,
   FieldValue,
   NodeRangeMap,
   RootCallMap,
-} from 'RelayInternalTypes';
-import type {QueryPath} from 'RelayQueryPath';
-import type {
-  Record,
-  RecordMap,
-} from 'RelayRecord';
+} from '../tools/RelayInternalTypes';
+import type {RecordState} from './RelayClassicRecordState';
+import type {Record, RecordMap} from './RelayRecord';
+import type {DataID} from 'relay-runtime';
+import type {PageInfo} from 'relay-runtime';
 
 type RangeEdge = {
   edgeID: string,
@@ -61,7 +57,6 @@ export type RangeInfo = {
 };
 
 const EMPTY = '';
-const {NODE} = RelayConnectionInterface;
 const {
   FILTER_CALLS,
   FORCE_INDEX,
@@ -115,24 +110,23 @@ class RelayRecordStore {
    * Get the data ID associated with a storage key (and optionally an
    * identifying argument value) for a root query.
    */
-  getDataID(
-    storageKey: string,
-    identifyingArgValue: ?string
-  ): ?DataID {
+  getDataID(storageKey: string, identifyingArgValue: ?string): ?DataID {
     if (RelayNodeInterface.isNodeRootCall(storageKey)) {
       invariant(
         identifyingArgValue != null,
         'RelayRecordStore.getDataID(): Argument to `%s()` ' +
-        'cannot be null or undefined.',
-        storageKey
+          'cannot be null or undefined.',
+        storageKey,
       );
       return identifyingArgValue;
     }
     if (identifyingArgValue == null) {
       identifyingArgValue = EMPTY;
     }
-    if (this._rootCallMap.hasOwnProperty(storageKey) &&
-        this._rootCallMap[storageKey].hasOwnProperty(identifyingArgValue)) {
+    if (
+      this._rootCallMap.hasOwnProperty(storageKey) &&
+      this._rootCallMap[storageKey].hasOwnProperty(identifyingArgValue)
+    ) {
       return this._rootCallMap[storageKey][identifyingArgValue];
     } else if (this._cachedRootCallMap.hasOwnProperty(storageKey)) {
       return this._cachedRootCallMap[storageKey][identifyingArgValue];
@@ -155,9 +149,7 @@ class RelayRecordStore {
   /**
    * Returns the path to a non-refetchable record.
    */
-  getPathToRecord(
-    dataID: DataID
-  ): ?QueryPath {
+  getPathToRecord(dataID: DataID): ?QueryPath {
     const path: ?QueryPath = (this._getField(dataID, PATH): any);
     return path;
   }
@@ -167,9 +159,7 @@ class RelayRecordStore {
    */
   hasOptimisticUpdate(dataID: DataID): boolean {
     const queuedRecords = this._queuedRecords;
-    return queuedRecords ?
-      queuedRecords.hasOwnProperty(dataID) :
-      false;
+    return queuedRecords ? queuedRecords.hasOwnProperty(dataID) : false;
   }
 
   /**
@@ -196,10 +186,10 @@ class RelayRecordStore {
     invariant(
       typeof resolvedFragmentMap === 'object' || resolvedFragmentMap == null,
       'RelayRecordStore.hasFragmentData(): Expected the map of ' +
-      'resolved deferred fragments associated with record `%s` to be null or ' +
-      'an object. Found a(n) `%s`.',
+        'resolved deferred fragments associated with record `%s` to be null or ' +
+        'an object. Found a(n) `%s`.',
       dataID,
-      typeof resolvedFragmentMap
+      typeof resolvedFragmentMap,
     );
     return !!(resolvedFragmentMap && resolvedFragmentMap[fragmentID]);
   }
@@ -212,10 +202,7 @@ class RelayRecordStore {
   /**
    * Returns the value of the field for the given dataID.
    */
-  getField(
-    dataID: DataID,
-    storageKey: string
-  ): ?FieldValue {
+  getField(dataID: DataID, storageKey: string): ?FieldValue {
     return this._getField(dataID, storageKey);
   }
 
@@ -223,10 +210,7 @@ class RelayRecordStore {
    * Returns the Data ID of a linked record (eg the ID of the `address` record
    * in `actor{address}`).
    */
-  getLinkedRecordID(
-    dataID: DataID,
-    storageKey: string
-  ): ?DataID {
+  getLinkedRecordID(dataID: DataID, storageKey: string): ?DataID {
     const field = this._getField(dataID, storageKey);
     if (field == null) {
       return field;
@@ -235,9 +219,9 @@ class RelayRecordStore {
     invariant(
       record,
       'RelayRecordStore.getLinkedRecordID(): Expected field `%s` for record ' +
-      '`%s` to have a linked record.',
+        '`%s` to have a linked record.',
       storageKey,
-      dataID
+      dataID,
     );
     return RelayRecord.getDataID(record);
   }
@@ -246,10 +230,7 @@ class RelayRecordStore {
    * Returns an array of Data ID for a plural linked field (eg the actor IDs of
    * the `likers` in `story{likers}`).
    */
-  getLinkedRecordIDs(
-    dataID: DataID,
-    storageKey: string
-  ): ?Array<DataID> {
+  getLinkedRecordIDs(dataID: DataID, storageKey: string): ?Array<DataID> {
     const field = this._getField(dataID, storageKey);
     if (field == null) {
       return field;
@@ -257,19 +238,19 @@ class RelayRecordStore {
     invariant(
       Array.isArray(field),
       'RelayRecordStore.getLinkedRecordIDs(): Expected field `%s` for ' +
-      'record `%s` to have an array of linked records.',
+        'record `%s` to have an array of linked records.',
       storageKey,
-      dataID
+      dataID,
     );
     return field.map((element, ii) => {
       const record = RelayRecord.getRecord(element);
       invariant(
         record,
         'RelayRecordStore.getLinkedRecordIDs(): Expected element at index %s ' +
-        'in field `%s` for record `%s` to be a linked record.',
+          'in field `%s` for record `%s` to be a linked record.',
         ii,
         storageKey,
-        dataID
+        dataID,
       );
       return RelayRecord.getDataID(record);
     });
@@ -280,9 +261,7 @@ class RelayRecordStore {
    * record as a `node`, or null if the record does not appear as a `node` in
    * any connection.
    */
-  getConnectionIDsForRecord(
-    dataID: DataID
-  ): ?Array<DataID> {
+  getConnectionIDsForRecord(dataID: DataID): ?Array<DataID> {
     const connectionIDs = this._nodeConnectionMap[dataID];
     if (connectionIDs) {
       return Object.keys(connectionIDs);
@@ -294,10 +273,7 @@ class RelayRecordStore {
    * Gets the connectionIDs for all variations of calls for the given base
    * schema name (Ex: `posts.orderby(recent)` and `posts.orderby(likes)`).
    */
-  getConnectionIDsForField(
-    dataID: DataID,
-    schemaName: string
-  ): ?Array<DataID> {
+  getConnectionIDsForField(dataID: DataID, schemaName: string): ?Array<DataID> {
     // ignore queued records because not all range fields may be present there
     const record = this._records[dataID];
     if (record == null) {
@@ -306,6 +282,7 @@ class RelayRecordStore {
     let connectionIDs;
     forEachObject(record, (datum, key) => {
       if (datum && getFieldNameFromKey(key) === schemaName) {
+        // $FlowFixMe(site=www,mobile) forEachObject is only typed in www
         const connectionID = RelayRecord.getDataIDForObject(datum);
         if (connectionID) {
           connectionIDs = connectionIDs || [];
@@ -319,10 +296,11 @@ class RelayRecordStore {
   /**
    * Get the force index associated with the range at `connectionID`.
    */
-  getRangeForceIndex(
-    connectionID: DataID
-  ): number {
-    const forceIndex: ?number = (this._getField(connectionID, FORCE_INDEX): any);
+  getRangeForceIndex(connectionID: DataID): number {
+    const forceIndex: ?number = (this._getField(
+      connectionID,
+      FORCE_INDEX,
+    ): any);
     if (forceIndex === null) {
       return -1;
     }
@@ -334,9 +312,7 @@ class RelayRecordStore {
    * Ex: for a field `photos.orderby(recent)`, this would be
    * [{name: 'orderby', value: 'recent'}]
    */
-  getRangeFilterCalls(
-    connectionID: DataID
-  ): ?Array<Call> {
+  getRangeFilterCalls(connectionID: DataID): ?Array<Call> {
     return (this._getField(connectionID, FILTER_CALLS): any);
   }
 
@@ -349,10 +325,7 @@ class RelayRecordStore {
    * - `filterCalls`: the subset of `calls` that are condition calls
    *   (`orderby`).
    */
-  getRangeMetadata(
-    connectionID: ?DataID,
-    calls: Array<Call>
-  ): ?RangeInfo {
+  getRangeMetadata(connectionID: ?DataID, calls: Array<Call>): ?RangeInfo {
     if (connectionID == null) {
       return connectionID;
     }
@@ -362,7 +335,7 @@ class RelayRecordStore {
         warning(
           false,
           'RelayRecordStore.getRangeMetadata(): Expected range to exist if ' +
-          '`edges` has been fetched.'
+            '`edges` has been fetched.',
         );
       }
       return undefined;
@@ -379,15 +352,12 @@ class RelayRecordStore {
         filteredEdges: [],
       };
     }
-    const queuedRecord = this._queuedRecords ?
-      this._queuedRecords[connectionID] :
-      null;
+    const queuedRecord = this._queuedRecords
+      ? this._queuedRecords[connectionID]
+      : null;
     const rangeInfo = range.retrieveRangeInfoForQuery(calls, queuedRecord);
     let {diffCalls} = rangeInfo;
-    const {
-      pageInfo,
-      requestedEdgeIDs,
-    } = rangeInfo;
+    const {pageInfo, requestedEdgeIDs} = rangeInfo;
     if (diffCalls && diffCalls.length) {
       diffCalls = filterCalls.concat(diffCalls);
     } else {
@@ -395,6 +365,7 @@ class RelayRecordStore {
     }
     let filteredEdges;
     if (requestedEdgeIDs) {
+      const {NODE} = ConnectionInterface.get();
       filteredEdges = requestedEdgeIDs
         .map(edgeID => ({
           edgeID,
@@ -472,7 +443,7 @@ class RelayRecordStore {
  * (ex: `orderby(TOP_STORIES)`), removing generic calls (ex: `first`, `find`).
  */
 function getFilterCalls(calls: Array<Call>): Array<Call> {
-  return calls.filter(call => !RelayConnectionInterface.isConnectionCall(call));
+  return calls.filter(call => !ConnectionInterface.isConnectionCall(call));
 }
 
 /**

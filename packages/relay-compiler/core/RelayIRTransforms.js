@@ -1,92 +1,93 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayIRTransforms
- * @flow
+ * @flow strict-local
+ * @format
  */
 
 'use strict';
 
-const RelayApplyFragmentArgumentTransform = require('RelayApplyFragmentArgumentTransform');
-const RelayConnectionTransform = require('RelayConnectionTransform');
-const RelayExportTransform = require('RelayExportTransform');
-const RelayFieldHandleTransform = require('RelayFieldHandleTransform');
-const RelayFilterDirectivesTransform = require('RelayFilterDirectivesTransform');
-const RelayFlattenTransform = require('RelayFlattenTransform');
-const RelayGenerateRequisiteFieldsTransform = require('RelayGenerateRequisiteFieldsTransform');
-const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
-const RelaySkipClientFieldTransform = require('RelaySkipClientFieldTransform');
-const RelaySkipHandleFieldTransform = require('RelaySkipHandleFieldTransform');
-const RelaySkipRedundantNodesTransform = require('RelaySkipRedundantNodesTransform');
-const RelaySkipUnreachableNodeTransform = require('RelaySkipUnreachableNodeTransform');
-const RelayViewerHandleTransform = require('RelayViewerHandleTransform');
+const RelayApplyFragmentArgumentTransform = require('../transforms/RelayApplyFragmentArgumentTransform');
+const RelayConnectionTransform = require('../handlers/connection//RelayConnectionTransform');
+const RelayDeferrableFragmentTransform = require('../transforms/RelayDeferrableFragmentTransform');
+const RelayFieldHandleTransform = require('../transforms/RelayFieldHandleTransform');
+const RelayGenerateIDFieldTransform = require('../transforms/RelayGenerateIDFieldTransform');
+const RelayGenerateTypeNameTransform = require('../transforms/RelayGenerateTypeNameTransform');
+const RelayMaskTransform = require('../transforms/RelayMaskTransform');
+const RelayRelayDirectiveTransform = require('../transforms/RelayRelayDirectiveTransform');
+const RelaySkipHandleFieldTransform = require('../transforms/RelaySkipHandleFieldTransform');
+const RelayViewerHandleTransform = require('../handlers/viewer/RelayViewerHandleTransform');
 
-import type CompilerContext from 'RelayCompilerContext';
-import type {GraphQLSchema} from 'graphql';
+const {
+  FilterDirectivesTransform,
+  FlattenTransform,
+  InlineFragmentsTransform,
+  SkipClientFieldTransform,
+  SkipRedundantNodesTransform,
+  SkipUnreachableNodeTransform,
+  StripUnusedVariablesTransform,
+} = require('graphql-compiler');
 
-export type SchemaTransform = (schema: GraphQLSchema) => GraphQLSchema;
-export type IRTransform = (context: CompilerContext, schema: GraphQLSchema) => CompilerContext;
+import type {IRTransform} from 'graphql-compiler';
 
 // Transforms applied to the code used to process a query response.
-const SCHEMA_TRANSFORMS: Array<SchemaTransform> = [
-  RelayConnectionTransform.transformSchema,
-  RelayExportTransform.transformSchema,
-  RelayRelayDirectiveTransform.transformSchema,
+const relaySchemaExtensions: Array<string> = [
+  RelayConnectionTransform.SCHEMA_EXTENSION,
+  RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
+];
+
+// Transforms applied to both operations and fragments for both reading and
+// writing from the store.
+const relayCommonTransforms: Array<IRTransform> = [
+  RelayConnectionTransform.transform,
+  RelayViewerHandleTransform.transform,
+  RelayRelayDirectiveTransform.transform,
+  RelayMaskTransform.transform,
+  RelayDeferrableFragmentTransform.transform,
 ];
 
 // Transforms applied to fragments used for reading data from a store
-const FRAGMENT_TRANSFORMS: Array<IRTransform> = [
-  (ctx: CompilerContext) => RelayConnectionTransform.transform(ctx),
-  RelayViewerHandleTransform.transform,
-  RelayRelayDirectiveTransform.transform,
+const relayFragmentTransforms: Array<IRTransform> = [
   RelayFieldHandleTransform.transform,
-  (ctx: CompilerContext) => RelayFlattenTransform.transform(ctx, {
-    flattenAbstractTypes: true,
-  }),
-  RelaySkipRedundantNodesTransform.transform,
+  FlattenTransform.transformWithOptions({flattenAbstractTypes: true}),
+  SkipRedundantNodesTransform.transform,
 ];
 
 // Transforms applied to queries/mutations/subscriptions that are used for
 // fetching data from the server and parsing those responses.
-const QUERY_TRANSFORMS: Array<IRTransform> = [
-  (ctx: CompilerContext) => RelayConnectionTransform.transform(ctx, {
-    generateRequisiteFields: true,
-  }),
-  RelayViewerHandleTransform.transform,
+const relayQueryTransforms: Array<IRTransform> = [
   RelayApplyFragmentArgumentTransform.transform,
-  RelaySkipClientFieldTransform.transform,
-  RelaySkipUnreachableNodeTransform.transform,
-  RelayExportTransform.transform,
-  RelayRelayDirectiveTransform.transform,
-  RelayGenerateRequisiteFieldsTransform.transform,
+  SkipClientFieldTransform.transform,
+  SkipUnreachableNodeTransform.transform,
+  RelayGenerateIDFieldTransform.transform,
 ];
 
 // Transforms applied to the code used to process a query response.
-const CODEGEN_TRANSFORMS: Array<IRTransform> = [
-  RelayFilterDirectivesTransform.transform,
-  (ctx: CompilerContext) => RelayFlattenTransform.transform(ctx, {
-    flattenAbstractTypes: true,
-    flattenFragmentSpreads: true,
-  }),
-  RelaySkipRedundantNodesTransform.transform,
+const relayCodegenTransforms: Array<IRTransform> = [
+  InlineFragmentsTransform.transform,
+  FlattenTransform.transformWithOptions({flattenAbstractTypes: true}),
+  SkipRedundantNodesTransform.transform,
+  RelayGenerateTypeNameTransform.transform,
+  FilterDirectivesTransform.transform,
 ];
 
 // Transforms applied before printing the query sent to the server.
-const PRINT_TRANSFORMS: Array<IRTransform> = [
-  RelayFilterDirectivesTransform.transform,
-  (ctx: CompilerContext) => RelayFlattenTransform.transform(ctx, {}),
+const relayPrintTransforms: Array<IRTransform> = [
+  FlattenTransform.transformWithOptions({}),
+  RelayGenerateTypeNameTransform.transform,
   RelaySkipHandleFieldTransform.transform,
+  FilterDirectivesTransform.transform,
+  StripUnusedVariablesTransform.transform,
 ];
 
 module.exports = {
-  codegenTransforms: CODEGEN_TRANSFORMS,
-  fragmentTransforms: FRAGMENT_TRANSFORMS,
-  printTransforms: PRINT_TRANSFORMS,
-  queryTransforms: QUERY_TRANSFORMS,
-  schemaTransforms: SCHEMA_TRANSFORMS,
+  commonTransforms: relayCommonTransforms,
+  codegenTransforms: relayCodegenTransforms,
+  fragmentTransforms: relayFragmentTransforms,
+  printTransforms: relayPrintTransforms,
+  queryTransforms: relayQueryTransforms,
+  schemaExtensions: relaySchemaExtensions,
 };

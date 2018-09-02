@@ -1,25 +1,18 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayRecord
  * @flow
+ * @format
  */
 
 'use strict';
 
-import type GraphQLRange from 'GraphQLRange';
-import type {
-  Call,
-  ClientMutationID,
-  DataID,
-} from 'RelayInternalTypes';
-import type {QueryPath} from 'RelayQueryPath';
-import type {Variables} from 'RelayTypes';
+import type {QueryPath} from '../query/RelayQueryPath';
+import type {Call, ClientMutationID} from '../tools/RelayInternalTypes';
+import type {DataID, Variables} from 'relay-runtime';
 
 export type Record = {
   // Records may contain many other fields as [fieldName: string]: mixed
@@ -29,7 +22,7 @@ export type Record = {
   __mutationIDs__?: Array<ClientMutationID>,
   __mutationStatus__?: string,
   __path__?: QueryPath,
-  __range__?: GraphQLRange,
+  __range__?: any, // GraphQLRange
   __resolvedDeferredFragments__?: {[fragmentID: string]: boolean},
   __resolvedFragmentMapGeneration__?: number,
   __resolvedFragmentMap__?: {[fragmentID: string]: boolean},
@@ -66,7 +59,6 @@ Object.keys(MetadataKey).forEach(name => {
  * Records are plain objects with special metadata properties.
  */
 const RelayRecord = {
-
   MetadataKey,
 
   create(dataID: string): Record {
@@ -75,7 +67,7 @@ const RelayRecord = {
 
   createWithFields<Fields: Object>(
     dataID: string,
-    fields: Fields
+    fields: Fields,
   ): Record & Fields {
     return {__dataID__: dataID, ...fields};
   },
@@ -105,12 +97,12 @@ const RelayRecord = {
     return maybeRecord.__dataID__;
   },
 
- /**
-  * Checks whether the given ID was created on the client, as opposed to an ID
-  * that's understood by the server as well.
-  */
+  /**
+   * Checks whether the given ID was created on the client, as opposed to an ID
+   * that's understood by the server as well.
+   */
   isClientID(dataID: string): boolean {
-    return dataID.startsWith('client:');
+    return dataID.indexOf('client:') === 0;
   },
 
   isMetadataKey(key: string): boolean {

@@ -1,21 +1,19 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule callsToGraphQL
- * @flow
+ * @flow strict-local
+ * @format
  */
 
 'use strict';
 
-const QueryBuilder = require('QueryBuilder');
+const QueryBuilder = require('./QueryBuilder');
 
-import type {ConcreteCall} from 'ConcreteQuery';
-import type {Call} from 'RelayInternalTypes';
+import type {Call} from '../tools/RelayInternalTypes';
+import type {ConcreteCall} from './ConcreteQuery';
 
 /**
  * @internal
@@ -27,7 +25,7 @@ function callsToGraphQL(calls: Array<Call>): Array<ConcreteCall> {
     let concreteValue = null;
     if (Array.isArray(value)) {
       concreteValue = value.map(QueryBuilder.createCallValue);
-    } else if (value != null)  {
+    } else if (value != null) {
       concreteValue = QueryBuilder.createCallValue(value);
     }
     return QueryBuilder.createCall(name, concreteValue, type);

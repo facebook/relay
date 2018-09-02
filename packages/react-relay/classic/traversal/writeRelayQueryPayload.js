@@ -1,26 +1,25 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule writeRelayQueryPayload
- * @flow
+ * @flow strict-local
+ * @format
  */
 
 'use strict';
 
-const RelayNodeInterface = require('RelayNodeInterface');
-const RelayProfiler = require('RelayProfiler');
-const RelayQueryPath = require('RelayQueryPath');
+const RelayNodeInterface = require('../interface/RelayNodeInterface');
+const RelayQueryPath = require('../query/RelayQueryPath');
 
-const generateClientID = require('generateClientID');
+const generateClientID = require('../legacy/store/generateClientID');
 
-import type {QueryPayload} from 'RelayInternalTypes';
-import type RelayQuery from 'RelayQuery';
-import type RelayQueryWriter from 'RelayQueryWriter';
+const {RelayProfiler} = require('relay-runtime');
+
+import type RelayQuery from '../query/RelayQuery';
+import type RelayQueryWriter from '../store/RelayQueryWriter';
+import type {QueryPayload} from '../tools/RelayInternalTypes';
 
 const {ID} = RelayNodeInterface;
 
@@ -33,14 +32,14 @@ const {ID} = RelayNodeInterface;
 function writeRelayQueryPayload(
   writer: RelayQueryWriter,
   query: RelayQuery.Root,
-  payload: QueryPayload
+  payload: QueryPayload,
 ): void {
   const store = writer.getRecordStore();
   const recordWriter = writer.getRecordWriter();
   const path = RelayQueryPath.create(query);
 
-  RelayNodeInterface.getResultsFromPayload(query, payload)
-    .forEach(({result, rootCallInfo}) => {
+  RelayNodeInterface.getResultsFromPayload(query, payload).forEach(
+    ({result, rootCallInfo}) => {
       const {storageKey, identifyingArgKey} = rootCallInfo;
 
       let dataID;
@@ -57,16 +56,13 @@ function writeRelayQueryPayload(
           store.getDataID(storageKey, identifyingArgKey) || generateClientID();
       }
 
-      recordWriter.putDataID(
-        storageKey,
-        identifyingArgKey,
-        dataID
-      );
+      recordWriter.putDataID(storageKey, identifyingArgKey, dataID);
       writer.writePayload(query, dataID, result, path);
-    });
+    },
+  );
 }
 
 module.exports = RelayProfiler.instrument(
   'writeRelayQueryPayload',
-  writeRelayQueryPayload
+  writeRelayQueryPayload,
 );

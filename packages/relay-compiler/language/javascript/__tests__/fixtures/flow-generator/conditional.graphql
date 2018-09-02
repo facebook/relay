@@ -1,0 +1,9 @@
+fragment ConditionField on Node {
+  id @include(if: $condition)
+}
+
+fragment NestedCondition on Node {
+  ... @include(if: $condition) {
+    id
+  }
+}

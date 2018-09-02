@@ -1,23 +1,21 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayMutationTransaction
- * @flow
+ * @flow strict-local
+ * @format
  */
 
 'use strict';
 
-const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
+const RelayMutationTransactionStatus = require('./RelayMutationTransactionStatus');
 
 const invariant = require('invariant');
 
-import type {ClientMutationID} from 'RelayInternalTypes';
-import type RelayMutationQueue from 'RelayMutationQueue';
+import type {ClientMutationID} from '../tools/RelayInternalTypes';
+import type RelayMutationQueue from './RelayMutationQueue';
 
 const {
   COLLISION_COMMIT_FAILED,
@@ -50,7 +48,7 @@ class RelayMutationTransaction {
     invariant(
       status === CREATED,
       'RelayMutationTransaction: Only transactions with status `CREATED` ' +
-      'can be applied.'
+        'can be applied.',
     );
 
     this._mutationQueue.applyOptimistic(this._id);
@@ -67,7 +65,7 @@ class RelayMutationTransaction {
     invariant(
       status === CREATED || status === UNCOMMITTED,
       'RelayMutationTransaction: Only transactions with status `CREATED` or ' +
-      '`UNCOMMITTED` can be committed.'
+        '`UNCOMMITTED` can be committed.',
     );
 
     this._mutationQueue.commit(this._id);
@@ -78,11 +76,11 @@ class RelayMutationTransaction {
     const status = this.getStatus();
     invariant(
       status === COLLISION_COMMIT_FAILED ||
-      status === COMMIT_FAILED ||
-      status === CREATED,
+        status === COMMIT_FAILED ||
+        status === CREATED,
       'RelayMutationTransaction: Only transaction with status ' +
-      '`CREATED`, `COMMIT_FAILED`, or `COLLISION_COMMIT_FAILED` can be ' +
-      'recomitted.'
+        '`CREATED`, `COMMIT_FAILED`, or `COLLISION_COMMIT_FAILED` can be ' +
+        'recomitted.',
     );
 
     this._mutationQueue.commit(this._id);
@@ -92,13 +90,13 @@ class RelayMutationTransaction {
     const status = this.getStatus();
     invariant(
       status === COLLISION_COMMIT_FAILED ||
-      status === COMMIT_FAILED ||
-      status === COMMIT_QUEUED ||
-      status === CREATED ||
-      status === UNCOMMITTED,
+        status === COMMIT_FAILED ||
+        status === COMMIT_QUEUED ||
+        status === CREATED ||
+        status === UNCOMMITTED,
       'RelayMutationTransaction: Only transactions with status `CREATED`, ' +
-      '`UNCOMMITTED`, `COMMIT_FAILED`, `COLLISION_COMMIT_FAILED`, or ' +
-      '`COMMIT_QUEUED` can be rolled back.'
+        '`UNCOMMITTED`, `COMMIT_FAILED`, `COLLISION_COMMIT_FAILED`, or ' +
+        '`COMMIT_QUEUED` can be rolled back.',
     );
 
     this._rolledBack = true;
@@ -110,9 +108,9 @@ class RelayMutationTransaction {
   }
 
   getStatus(): $Keys<typeof RelayMutationTransactionStatus> {
-    return this._rolledBack ?
-      RelayMutationTransactionStatus.ROLLED_BACK :
-      this._mutationQueue.getStatus(this._id);
+    return this._rolledBack
+      ? RelayMutationTransactionStatus.ROLLED_BACK
+      : this._mutationQueue.getStatus(this._id);
   }
 
   getHash(): string {

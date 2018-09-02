@@ -1,24 +1,20 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
+jest.mock('../../legacy/store/generateClientID').mock('warning');
+
 require('configureForRelayOSS');
 
-jest
-  .unmock('GraphQLRange')
-  .unmock('GraphQLSegment')
-  .mock('warning');
-
-const Relay = require('Relay');
+const RelayClassic = require('../../RelayPublic');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('writeRelayQueryPayload()', () => {
@@ -35,10 +31,10 @@ describe('writeRelayQueryPayload()', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    RelayRecordStore = require('RelayRecordStore');
-    RelayRecordWriter = require('RelayRecordWriter');
+    RelayRecordStore = require('../../store/RelayRecordStore');
+    RelayRecordWriter = require('../../store/RelayRecordWriter');
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('linked fields', () => {
@@ -46,7 +42,8 @@ describe('writeRelayQueryPayload()', () => {
       const records = {};
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           viewer {
             actor {
@@ -54,7 +51,8 @@ describe('writeRelayQueryPayload()', () => {
             }
           }
         }
-      `);
+      `,
+      );
       const payload = {
         viewer: {
           actor: null,
@@ -85,7 +83,8 @@ describe('writeRelayQueryPayload()', () => {
       };
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           viewer {
             actor {
@@ -93,7 +92,8 @@ describe('writeRelayQueryPayload()', () => {
             }
           }
         }
-      `);
+      `,
+      );
       const payload = {
         viewer: {
           actor: null,
@@ -101,8 +101,7 @@ describe('writeRelayQueryPayload()', () => {
       };
       const results = writePayload(store, writer, query, payload);
       expect(results).toEqual({
-        created: {
-        },
+        created: {},
         updated: {
           'client:1': true,
         },
@@ -116,7 +115,8 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const actorID = '123';
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           viewer {
             actor {
@@ -124,7 +124,8 @@ describe('writeRelayQueryPayload()', () => {
             }
           }
         }
-      `);
+      `,
+      );
       const payload = {
         viewer: {
           actor: {
@@ -160,7 +161,8 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const nextActorID = '456';
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           viewer {
             actor {
@@ -168,7 +170,8 @@ describe('writeRelayQueryPayload()', () => {
             }
           }
         }
-      `);
+      `,
+      );
       const payload = {
         viewer: {
           actor: {
@@ -195,7 +198,8 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const addressID = 'client:1';
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           node(id:"123") {
             address {
@@ -203,7 +207,8 @@ describe('writeRelayQueryPayload()', () => {
             }
           }
         }
-      `);
+      `,
+      );
       const payload = {
         node: {
           id: '123',
@@ -245,7 +250,8 @@ describe('writeRelayQueryPayload()', () => {
       };
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           node(id:"123") {
             address {
@@ -253,7 +259,8 @@ describe('writeRelayQueryPayload()', () => {
             }
           }
         }
-      `);
+      `,
+      );
       const payload = {
         node: {
           id: '123',
@@ -278,7 +285,8 @@ describe('writeRelayQueryPayload()', () => {
       const records = {};
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           viewer {
             actor {
@@ -287,7 +295,8 @@ describe('writeRelayQueryPayload()', () => {
             }
           }
         }
-      `);
+      `,
+      );
       const payload = {
         viewer: {
           actor: {
@@ -305,7 +314,8 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       // No `id` or `__typename` fields or responses
-      const query = getVerbatimNode(Relay.QL`
+      const query = getVerbatimNode(
+        RelayClassic.QL`
         query {
           viewer {
             actor {
@@ -313,7 +323,8 @@ describe('writeRelayQueryPayload()', () => {
             }
           }
         }
-      `);
+      `,
+      );
       const payload = {
         viewer: {
           actor: {
@@ -334,7 +345,8 @@ describe('writeRelayQueryPayload()', () => {
       const records = {};
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           me {
             id
@@ -346,7 +358,8 @@ describe('writeRelayQueryPayload()', () => {
             }
           }
         }
-      `);
+      `,
+      );
       const payload = {
         me: {
           id: '123',

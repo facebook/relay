@@ -1,25 +1,24 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
-jest.mock('warning');
-
 require('configureForRelayOSS');
 
+jest.mock('warning').mock('../../query-config/RelayQueryConfig');
+
 const React = require('React');
-const Relay = require('Relay');
-const RelayEnvironment = require('RelayEnvironment');
-const RelayQueryConfig = require('RelayQueryConfig');
-const RelayRecord = require('RelayRecord');
+const RelayClassic = require('../../RelayPublic');
+const RelayEnvironment = require('../../store/RelayEnvironment');
+const RelayQueryConfig = require('../../query-config/RelayQueryConfig');
+const RelayRecord = require('../../store/RelayRecord');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayContainer', () => {
@@ -46,9 +45,9 @@ describe('RelayContainer', () => {
           return <div />;
         }
       }
-      MockContainer = Relay.createContainer(MockComponent, {
+      MockContainer = RelayClassic.createContainer(MockComponent, {
         fragments: {
-          foo: () => Relay.QL`fragment on Node{id}`,
+          foo: () => RelayClassic.QL`fragment on Node{id}`,
         },
       });
       const RelayTestRenderer = RelayTestUtils.createRenderer();
@@ -58,36 +57,36 @@ describe('RelayContainer', () => {
       container = RelayTestRenderer.render(
         genMockPointer => <MockContainer foo={genMockPointer('42')} />,
         environment,
-        queryConfig
+        queryConfig,
       );
       store = environment.getStoreData().getCachedStore();
 
-      jasmine.addMatchers(RelayTestUtils.matchers);
+      expect.extend(RelayTestUtils.matchers);
     });
 
     it('returns true for deferred fragments with resolved data', () => {
       store.hasFragmentData = jest.fn(() => true);
       const hasData = container.hasFragmentData(
         MockContainer.getFragment('foo').defer(),
-        RelayRecord.create('42')
+        RelayRecord.create('42'),
       );
       expect(hasData).toBe(true);
       expect(store.hasFragmentData).toBeCalledWith(
         '42',
-        getFragmentCompositeHash(MockContainer.getFragment('foo'), queryConfig)
+        getFragmentCompositeHash(MockContainer.getFragment('foo'), queryConfig),
       );
     });
 
     it('returns false for deferred fragments without resolved data', () => {
       store.hasFragmentData = jest.fn(() => false);
       const hasData = container.hasFragmentData(
-       MockContainer.getFragment('foo').defer(),
-       RelayRecord.create('42')
+        MockContainer.getFragment('foo').defer(),
+        RelayRecord.create('42'),
       );
       expect(hasData).toBe(false);
       expect(store.hasFragmentData).toBeCalledWith(
         '42',
-        getFragmentCompositeHash(MockContainer.getFragment('foo'), queryConfig)
+        getFragmentCompositeHash(MockContainer.getFragment('foo'), queryConfig),
       );
     });
   });

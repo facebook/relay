@@ -1,5 +1,0 @@
-fragment InlineUntypedFragment on User {
-  ... {
-    name
-  }
-}

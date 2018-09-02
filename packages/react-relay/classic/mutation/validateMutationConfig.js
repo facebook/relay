@@ -1,26 +1,24 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule validateMutationConfig
  * @flow
+ * @format
  */
 
 'use strict';
 
 const invariant = require('invariant');
 const sprintf = require('sprintf');
-const testEditDistance = require('testEditDistance');
+const testEditDistance = require('../tools/testEditDistance');
 const warning = require('warning');
 
-import type {RelayMutationConfig} from 'RelayTypes';
+import type {DeclarativeMutationConfig} from 'relay-runtime';
 
 type PropertyDescription = {
-  [name: string]: Validator;
+  [name: string]: Validator,
 };
 type Validator = {
   assert: Function,
@@ -53,7 +51,7 @@ const REQUIRED = {
 };
 
 function validateMutationConfig(
-  config: RelayMutationConfig,
+  config: DeclarativeMutationConfig,
   name: string,
 ): void {
   function assertValid(properties: PropertyDescription): void {
@@ -66,20 +64,18 @@ function validateMutationConfig(
       if (!properties.hasOwnProperty(property)) {
         const message = sprintf(
           'validateMutationConfig: Unexpected key `%s` in `%s` config ' +
-          'for `%s`',
+            'for `%s`',
           property,
           config.type,
-          name
+          name,
         );
-        const suggestion = Object.keys(properties).find(
-          candidate => testEditDistance(candidate, property, FUZZY_THRESHOLD)
+        const suggestion = Object.keys(properties).find(candidate =>
+          testEditDistance(candidate, property, FUZZY_THRESHOLD),
         );
         if (suggestion) {
           invariant(false, '%s; did you mean `%s`?', message, suggestion);
         } else {
-          /* eslint-disable fb-www/sprintf-like-args-uniqueness */
           invariant(false, '%s.', message);
-          /* eslint-enable fb-www/sprintf-like-args-uniqueness */
         }
       }
     });
@@ -90,17 +86,14 @@ function validateMutationConfig(
       const isRequired = validator.type === 'REQUIRED';
       const isDeprecated = validator.type === 'DEPRECATED';
       const present = config.hasOwnProperty(property);
-      if (
-        isRequired && !present ||
-        isDeprecated && present
-      ) {
+      if ((isRequired && !present) || (isDeprecated && present)) {
         validator.assert(
           false,
           'validateMutationConfig: `%s` config on `%s` %s `%s`.',
           config.type,
           name,
           validator.message,
-          property
+          property,
         );
       }
     });

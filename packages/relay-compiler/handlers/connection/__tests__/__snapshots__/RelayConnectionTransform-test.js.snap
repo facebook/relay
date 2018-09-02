@@ -1,0 +1,607 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RelayConnectionTransform matches expected output: connection.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query NodeQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10) @connection(key: "NodeQuery_comments") {
+        edges {
+          node {
+            actor {
+              name
+              friends(first: 10) @connection(key: "NodeQuery_friends") {
+                edges {
+                  node {
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query NodeQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10) @__clientField(handle: "connection", key: "NodeQuery_comments") {
+        edges {
+          node {
+            actor {
+              name
+              friends(first: 10) @__clientField(handle: "connection", key: "NodeQuery_friends") {
+                edges {
+                  node {
+                    name
+                  }
+                }
+                ... on FriendsConnection {
+                  edges {
+                    cursor
+                    node {
+                      __typename
+                    }
+                  }
+                  pageInfo {
+                    endCursor
+                    hasNextPage
+                  }
+                }
+              }
+            }
+          }
+        }
+        ... on CommentsConnection {
+          edges {
+            cursor
+            node {
+              __typename
+            }
+          }
+          pageInfo {
+            endCursor
+            hasNextPage
+          }
+        }
+      }
+    }
+  }
+}
+# Metadata:
+{
+  "connection": [
+    {
+      "count": null,
+      "cursor": null,
+      "direction": "forward",
+      "path": null
+    },
+    {
+      "count": null,
+      "cursor": null,
+      "direction": "forward",
+      "path": [
+        "node",
+        "comments"
+      ]
+    }
+  ]
+}
+`;
+
+exports[`RelayConnectionTransform matches expected output: connection-directions.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query NodeQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ... on Story {
+      forwardComments: comments(first: 1) @connection(key: "NodeQuery_forwardComments") {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      backwardComments: comments(last: 2) @connection(key: "NodeQuery_backwardComments") {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      mixedDirectionComments: comments(last: $last, first: $first) @connection(key: "NodeQuery_mixedDirectionComments") {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query NodeQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ... on Story {
+      forwardComments: comments(first: 1) @__clientField(handle: "connection", key: "NodeQuery_forwardComments") {
+        edges {
+          node {
+            id
+          }
+        }
+        ... on CommentsConnection {
+          edges {
+            cursor
+            node {
+              __typename
+            }
+          }
+          pageInfo {
+            endCursor
+            hasNextPage
+          }
+        }
+      }
+      backwardComments: comments(last: 2) @__clientField(handle: "connection", key: "NodeQuery_backwardComments") {
+        edges {
+          node {
+            id
+          }
+        }
+        ... on CommentsConnection {
+          edges {
+            cursor
+            node {
+              __typename
+            }
+          }
+          pageInfo {
+            hasPreviousPage
+            startCursor
+          }
+        }
+      }
+      mixedDirectionComments: comments(last: $last, first: $first) @__clientField(handle: "connection", key: "NodeQuery_mixedDirectionComments") {
+        edges {
+          node {
+            id
+          }
+        }
+        ... on CommentsConnection {
+          edges {
+            cursor
+            node {
+              __typename
+            }
+          }
+          pageInfo {
+            endCursor
+            hasNextPage
+            hasPreviousPage
+            startCursor
+          }
+        }
+      }
+    }
+  }
+}
+# Metadata:
+{
+  "connection": [
+    {
+      "count": null,
+      "cursor": null,
+      "direction": "forward",
+      "path": [
+        "node",
+        "forwardComments"
+      ]
+    },
+    {
+      "count": null,
+      "cursor": null,
+      "direction": "backward",
+      "path": [
+        "node",
+        "backwardComments"
+      ]
+    },
+    {
+      "count": null,
+      "cursor": null,
+      "direction": "bidirectional",
+      "path": [
+        "node",
+        "mixedDirectionComments"
+      ]
+    }
+  ]
+}
+`;
+
+exports[`RelayConnectionTransform matches expected output: connection-filters.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query NodeQuery(
+  $id: ID!
+  $orderBy: String
+) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10, orderby: $orderBy) @connection(key: "NodeQuery_comments", filters: ["orderby", "first"]) {
+        edges {
+          node {
+            actor {
+              name
+              friends(first: 10) @connection(key: "NodeQuery_friends") {
+                edges {
+                  node {
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query NodeQuery(
+  $id: ID!
+  $orderBy: String
+) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10, orderby: $orderBy) @__clientField(handle: "connection", key: "NodeQuery_comments", filters: ["first","orderby"]) {
+        edges {
+          node {
+            actor {
+              name
+              friends(first: 10) @__clientField(handle: "connection", key: "NodeQuery_friends") {
+                edges {
+                  node {
+                    name
+                  }
+                }
+                ... on FriendsConnection {
+                  edges {
+                    cursor
+                    node {
+                      __typename
+                    }
+                  }
+                  pageInfo {
+                    endCursor
+                    hasNextPage
+                  }
+                }
+              }
+            }
+          }
+        }
+        ... on CommentsConnection {
+          edges {
+            cursor
+            node {
+              __typename
+            }
+          }
+          pageInfo {
+            endCursor
+            hasNextPage
+          }
+        }
+      }
+    }
+  }
+}
+# Metadata:
+{
+  "connection": [
+    {
+      "count": null,
+      "cursor": null,
+      "direction": "forward",
+      "path": null
+    },
+    {
+      "count": null,
+      "cursor": null,
+      "direction": "forward",
+      "path": [
+        "node",
+        "comments"
+      ]
+    }
+  ]
+}
+`;
+
+exports[`RelayConnectionTransform matches expected output: connection-generate-filters.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query NodeQuery(
+  $id: ID!
+  $orderBy: String
+  $traits: [PersonalityTraits]
+) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10, orderby: $orderBy) @connection(key: "NodeQuery_comments") {
+        edges {
+          node {
+            actor {
+              name
+              friends(first: 10, isViewerFriend: true, traits: $traits) @connection(
+                key: "NodeQuery_friends"
+              ) {
+                edges {
+                  node {
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query NodeQuery(
+  $id: ID!
+  $orderBy: String
+  $traits: [PersonalityTraits]
+) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10, orderby: $orderBy) @__clientField(handle: "connection", key: "NodeQuery_comments", filters: ["orderby"]) {
+        edges {
+          node {
+            actor {
+              name
+              friends(first: 10, isViewerFriend: true, traits: $traits) @__clientField(handle: "connection", key: "NodeQuery_friends", filters: ["isViewerFriend","traits"]) {
+                edges {
+                  node {
+                    name
+                  }
+                }
+                ... on FriendsConnection {
+                  edges {
+                    cursor
+                    node {
+                      __typename
+                    }
+                  }
+                  pageInfo {
+                    endCursor
+                    hasNextPage
+                  }
+                }
+              }
+            }
+          }
+        }
+        ... on CommentsConnection {
+          edges {
+            cursor
+            node {
+              __typename
+            }
+          }
+          pageInfo {
+            endCursor
+            hasNextPage
+          }
+        }
+      }
+    }
+  }
+}
+# Metadata:
+{
+  "connection": [
+    {
+      "count": null,
+      "cursor": null,
+      "direction": "forward",
+      "path": null
+    },
+    {
+      "count": null,
+      "cursor": null,
+      "direction": "forward",
+      "path": [
+        "node",
+        "comments"
+      ]
+    }
+  ]
+}
+`;
+
+exports[`RelayConnectionTransform matches expected output: connection-with-page-info.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment Example on User {
+  friends(
+    first: $friendsFirst
+    after: $friendsAfter
+  ) @connection(key: "Example_friends") {
+    edges {
+      node {
+        profilePicture(preset: $preset) {
+          uri
+        }
+      }
+    }
+    pageInfo {
+      endCursor
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment Example on User {
+  friends(first: $friendsFirst, after: $friendsAfter) @__clientField(handle: "connection", key: "Example_friends") {
+    edges {
+      node {
+        profilePicture(preset: $preset) {
+          uri
+        }
+      }
+    }
+    pageInfo {
+      endCursor
+    }
+    ... on FriendsConnection {
+      edges {
+        cursor
+        node {
+          __typename
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
+  }
+}
+# Metadata:
+{
+  "connection": [
+    {
+      "count": "friendsFirst",
+      "cursor": "friendsAfter",
+      "direction": "forward",
+      "path": [
+        "friends"
+      ]
+    }
+  ]
+}
+`;
+
+exports[`RelayConnectionTransform matches expected output: connection-with-variables.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment Example on User {
+  friends(
+    first: $friendsFirst
+    after: $friendsAfter
+  ) @connection(key: "Example_friends") {
+    edges {
+      node {
+        profilePicture(preset: $preset) {
+          uri
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment Example on User {
+  friends(first: $friendsFirst, after: $friendsAfter) @__clientField(handle: "connection", key: "Example_friends") {
+    edges {
+      node {
+        profilePicture(preset: $preset) {
+          uri
+        }
+      }
+    }
+    ... on FriendsConnection {
+      edges {
+        cursor
+        node {
+          __typename
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
+  }
+}
+# Metadata:
+{
+  "connection": [
+    {
+      "count": "friendsFirst",
+      "cursor": "friendsAfter",
+      "direction": "forward",
+      "path": [
+        "friends"
+      ]
+    }
+  ]
+}
+`;
+
+exports[`RelayConnectionTransform matches expected output: invalid-type.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query NodeQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ... on Story {
+      actors @connection {
+        name
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+RelayConnectionTransform: Expected field \`actors: [Actor]\` to have a first or last argument in document \`NodeQuery\`.
+`;
+
+exports[`RelayConnectionTransform matches expected output: missing-first-arg.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query NodeQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments @connection {
+        edges {
+          node {
+            actor {
+              name
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+RelayConnectionTransform: Expected field \`comments: CommentsConnection\` to have a first or last argument in document \`NodeQuery\`.
+`;

@@ -1,61 +1,63 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
 require('configureForRelayOSS');
 
-const QueryBuilder = require('QueryBuilder');
-const Relay = require('Relay');
-const RelayNodeInterface = require('RelayNodeInterface');
-const RelayQuery = require('RelayQuery');
+const QueryBuilder = require('../../query/QueryBuilder');
+const RelayClassic = require('../../RelayPublic');
+const RelayNodeInterface = require('../../interface/RelayNodeInterface');
+const RelayQuery = require('../../query/RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
-const {graphql, getClassicOperation} = require('RelayGraphQLTag');
-const generateRQLFieldAlias = require('generateRQLFieldAlias');
-const printRelayOSSQuery = require('printRelayOSSQuery');
+const {graphql, getClassicOperation} = require('../../query/RelayGraphQLTag');
+const generateRQLFieldAlias = require('../../query/generateRQLFieldAlias');
+const printRelayOSSQuery = require('../printRelayOSSQuery');
 
 describe('printRelayOSSQuery', () => {
   const {getNode} = RelayTestUtils;
 
   beforeEach(() => {
     jest.resetModules();
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('OSS queries', () => {
     it('prints a query with multiple root fields', () => {
-      const query = getNode(getClassicOperation(graphql`
-        query printRelayOSSQuery(
-          $taskNumber: Int,
-          $id: ID!,
-        ) {
-          user: node(id: $id) {
-            ... on User {
-              name
+      const query = getNode(
+        getClassicOperation(
+          graphql`
+            query printRelayOSSQueryTest($taskNumber: Int, $id: ID!) {
+              user: node(id: $id) {
+                ... on User {
+                  name
+                }
+              }
+              activeTask: task(number: $taskNumber) {
+                title
+              }
             }
-          }
-          activeTask: task(number: $taskNumber) {
-            title
-          }
-        }
-      `), {
-        id: '842472',
-        taskNumber: 2,
-      });
+          `,
+        ),
+        {
+          id: '842472',
+          taskNumber: 2,
+        },
+      );
       const {text, variables} = printRelayOSSQuery(query);
       const nodeAlias = generateRQLFieldAlias('node.user.id(842472)');
       const taskAlias = generateRQLFieldAlias('task.activeTask.number(2)');
-      expect(text).toEqualPrintedQuery(`
-        query PrintRelayOSSQuery($number_0: Int!) {
+      expect(text).toEqualPrintedQuery(
+        `
+        query PrintRelayOSSQueryTest($number_0: Int!) {
           ${nodeAlias}: node(id: "842472") {
             id,
             __typename,
@@ -69,57 +71,71 @@ describe('printRelayOSSQuery', () => {
           name,
           id
         }
-      `);
+      `,
+      );
       expect(variables).toEqual({
         number_0: 2,
       });
     });
 
     it('prints "empty" queries', () => {
-      const query = getNode(getClassicOperation(graphql`
-        query printRelayOSSQuery($cond: Boolean!) {
-          viewer {
-            actor @include(if: $cond) {
-              name
+      const query = getNode(
+        getClassicOperation(
+          graphql`
+            query printRelayOSSQueryTest($cond: Boolean!) {
+              viewer {
+                actor @include(if: $cond) {
+                  name
+                }
+              }
             }
-          }
-        }
-      `), {
-        cond: false,
-      });
+          `,
+        ),
+        {
+          cond: false,
+        },
+      );
       const {text, variables} = printRelayOSSQuery(query);
-      expect(text).toEqualPrintedQuery(`
-        query PrintRelayOSSQuery {
+      expect(text).toEqualPrintedQuery(
+        `
+        query PrintRelayOSSQueryTest {
           __typename
         }
-      `);
+      `,
+      );
       expect(variables).toEqual({});
     });
 
     it('skips "empty" fields', () => {
-      const query = getNode(getClassicOperation(graphql`
-        query printRelayOSSQuery($cond: Boolean!, $id: ID!) {
-          node(id: $id) {
-            ... on User {
-              name
+      const query = getNode(
+        getClassicOperation(
+          graphql`
+            query printRelayOSSQueryTest($cond: Boolean!, $id: ID!) {
+              node(id: $id) {
+                ... on User {
+                  name
+                }
+              }
+              # viewer is empty once directives are accounted for,
+              # is skipped in output
+              viewer {
+                actor @include(if: $cond) {
+                  name
+                }
+              }
             }
-          }
-          # viewer is empty once directives are accounted for,
-          # is skipped in output
-          viewer {
-            actor @include(if: $cond) {
-              name
-            }
-          }
-        }
-      `), {
-        cond: false,
-        id: '842472',
-      });
+          `,
+        ),
+        {
+          cond: false,
+          id: '842472',
+        },
+      );
       const nodeAlias = generateRQLFieldAlias('node.id(842472)');
       const {text, variables} = printRelayOSSQuery(query);
-      expect(text).toEqualPrintedQuery(`
-        query PrintRelayOSSQuery {
+      expect(text).toEqualPrintedQuery(
+        `
+        query PrintRelayOSSQueryTest {
           ${nodeAlias}: node(id: "842472") {
             id,
             __typename,
@@ -130,23 +146,27 @@ describe('printRelayOSSQuery', () => {
           name,
           id
         }
-      `);
+      `,
+      );
       expect(variables).toEqual({});
     });
   });
 
   describe('roots', () => {
     it('prints a query with no root arguments', () => {
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           me {
             firstName
             lastName
           }
         }
-      `);
+      `,
+      );
       const {text, variables} = printRelayOSSQuery(query);
-      expect(text).toEqualPrintedQuery(`
+      expect(text).toEqualPrintedQuery(
+        `
         query PrintRelayOSSQuery {
           me {
             firstName,
@@ -154,7 +174,8 @@ describe('printRelayOSSQuery', () => {
             id
           }
         }
-      `);
+      `,
+      );
       expect(variables).toEqual({});
     });
 
@@ -176,31 +197,36 @@ describe('printRelayOSSQuery', () => {
           isDeferred: false,
           isPlural: false,
         },
-        'Node'
+        'Node',
       );
       const {text, variables} = printRelayOSSQuery(query);
-      expect(text).toEqualPrintedQuery(`
+      expect(text).toEqualPrintedQuery(
+        `
         query FooQuery($id_0: ID!) {
           node(id: $id_0) {
             id
           }
         }
-      `);
+      `,
+      );
       expect(variables).toEqual({
         id_0: '123',
       });
     });
 
     it('prints a query with one root argument', () => {
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           node(id:"123") {
             name
           }
         }
-      `);
+      `,
+      );
       const {text, variables} = printRelayOSSQuery(query);
-      expect(text).toEqualPrintedQuery(`
+      expect(text).toEqualPrintedQuery(
+        `
         query PrintRelayOSSQuery($id_0: ID!) {
           node(id: $id_0) {
             name,
@@ -208,23 +234,27 @@ describe('printRelayOSSQuery', () => {
             __typename
           }
         }
-      `);
+      `,
+      );
       expect(variables).toEqual({
         id_0: '123',
       });
     });
 
     it('prints a query with one root numeric argument', () => {
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query FooQuery {
           node(id: 123) {
             name
             id
           }
         }
-      `);
+      `,
+      );
       const {text, variables} = printRelayOSSQuery(query);
-      expect(text).toEqualPrintedQuery(`
+      expect(text).toEqualPrintedQuery(
+        `
         query FooQuery($id_0: ID!) {
           node(id: $id_0) {
             name,
@@ -232,23 +262,27 @@ describe('printRelayOSSQuery', () => {
             __typename
           }
         }
-      `);
+      `,
+      );
       expect(variables).toEqual({
         id_0: 123,
       });
     });
 
     it('prints a query with multiple root arguments', () => {
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           usernames(names:["a","b","c"]) {
             firstName
             lastName
           }
         }
-      `);
+      `,
+      );
       const {text, variables} = printRelayOSSQuery(query);
-      expect(text).toEqualPrintedQuery(`
+      expect(text).toEqualPrintedQuery(
+        `
         query PrintRelayOSSQuery($names_0: [String!]!) {
           usernames(names: $names_0) {
             firstName,
@@ -257,23 +291,27 @@ describe('printRelayOSSQuery', () => {
             __typename
           }
         }
-      `);
+      `,
+      );
       expect(variables).toEqual({
         names_0: ['a', 'b', 'c'],
       });
     });
 
     it('prints a query with multiple numeric arguments', () => {
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query FooQuery {
           nodes(ids: [123, 456]) {
             name
             id
           }
         }
-      `);
+      `,
+      );
       const {text, variables} = printRelayOSSQuery(query);
-      expect(text).toEqualPrintedQuery(`
+      expect(text).toEqualPrintedQuery(
+        `
         query FooQuery($ids_0: [ID!]!) {
           nodes(ids: $ids_0) {
             name,
@@ -281,7 +319,8 @@ describe('printRelayOSSQuery', () => {
             __typename
           }
         }
-      `);
+      `,
+      );
       expect(variables).toEqual({
         ids_0: [123, 456],
       });
@@ -289,23 +328,28 @@ describe('printRelayOSSQuery', () => {
 
     it('prints enum call values', () => {
       const enumValue = 'WEB';
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query FooQuery {
           settings(environment: $env) {
             notificationSounds
           }
         }
-      `, {
-        env: enumValue,
-      });
+      `,
+        {
+          env: enumValue,
+        },
+      );
       const {text, variables} = printRelayOSSQuery(query);
-      expect(text).toEqualPrintedQuery(`
+      expect(text).toEqualPrintedQuery(
+        `
         query FooQuery($environment_0: Environment!) {
           settings(environment: $environment_0) {
             notificationSounds
           }
         }
-      `);
+      `,
+      );
       expect(variables).toEqual({
         environment_0: enumValue,
       });
@@ -313,46 +357,55 @@ describe('printRelayOSSQuery', () => {
 
     it('prints object call values', () => {
       const objectValue = {query: 'Menlo Park'};
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           checkinSearchQuery(query: $q) {
             query
           }
         }
-      `, {
-        q: objectValue,
-      });
+      `,
+        {
+          q: objectValue,
+        },
+      );
 
       const {text, variables} = printRelayOSSQuery(query);
-      expect(text).toEqualPrintedQuery(`
+      expect(text).toEqualPrintedQuery(
+        `
         query PrintRelayOSSQuery($query_0: CheckinSearchInput!) {
           checkinSearchQuery(query: $query_0) {
             query
           }
         }
-      `);
+      `,
+      );
       expect(variables).toEqual({
         query_0: objectValue,
       });
     });
 
     it('prints literal object call values', () => {
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           checkinSearchQuery(query: {query: "Menlo Park"}) {
             query
           }
         }
-      `);
+      `,
+      );
 
       const {text, variables} = printRelayOSSQuery(query);
-      expect(text).toEqualPrintedQuery(`
+      expect(text).toEqualPrintedQuery(
+        `
         query PrintRelayOSSQuery($query_0: CheckinSearchInput!) {
           checkinSearchQuery(query: $query_0) {
             query
           }
         }
-      `);
+      `,
+      );
       expect(variables).toEqual({
         query_0: {
           query: 'Menlo Park',
@@ -362,29 +415,36 @@ describe('printRelayOSSQuery', () => {
 
     it('dedupes enum variables', () => {
       const enumValue = 'WEB';
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query FooQuery {
           defaultSettings {
             env: notifications(environment: $env)
             web: notifications(environment: WEB)
           }
         }
-      `, {
-        env: enumValue,
-      });
-      const envAlias =
-        generateRQLFieldAlias('notifications.env.environment(WEB)');
-      const webAlias =
-        generateRQLFieldAlias('notifications.web.environment(WEB)');
+      `,
+        {
+          env: enumValue,
+        },
+      );
+      const envAlias = generateRQLFieldAlias(
+        'notifications.env.environment(WEB)',
+      );
+      const webAlias = generateRQLFieldAlias(
+        'notifications.web.environment(WEB)',
+      );
       const {text, variables} = printRelayOSSQuery(query);
-      expect(text).toEqualPrintedQuery(`
+      expect(text).toEqualPrintedQuery(
+        `
         query FooQuery($environment_0: Environment!) {
           defaultSettings {
             ${envAlias}: notifications(environment: $environment_0),
             ${webAlias}: notifications(environment: $environment_0)
           }
         }
-      `);
+      `,
+      );
       expect(variables).toEqual({
         environment_0: enumValue,
       });
@@ -393,7 +453,8 @@ describe('printRelayOSSQuery', () => {
     it('dedupes object variables', () => {
       const query1 = {query: 'foo'};
       const query2 = {query: 'foo'};
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query FooQuery {
           node(id: "123") {
             ... on User {
@@ -406,16 +467,21 @@ describe('printRelayOSSQuery', () => {
             }
           }
         }
-      `, {
-        query1,
-        query2,
-      });
-      const fooAlias =
-        generateRQLFieldAlias('storySearch.foo.query({"query":"foo"})');
-      const barAlias =
-        generateRQLFieldAlias('storySearch.bar.query({"query":"foo"})');
+      `,
+        {
+          query1,
+          query2,
+        },
+      );
+      const fooAlias = generateRQLFieldAlias(
+        'storySearch.foo.query({"query":"foo"})',
+      );
+      const barAlias = generateRQLFieldAlias(
+        'storySearch.bar.query({"query":"foo"})',
+      );
       const {text, variables} = printRelayOSSQuery(query);
-      expect(text).toEqualPrintedQuery(`
+      expect(text).toEqualPrintedQuery(
+        `
         query FooQuery($id_0: ID!, $query_1: StorySearchInput!) {
           node(id: $id_0) {
             id,
@@ -432,7 +498,8 @@ describe('printRelayOSSQuery', () => {
           },
           id
         }
-      `);
+      `,
+      );
       expect(variables).toEqual({
         id_0: '123',
         query_1: query1,
@@ -440,9 +507,10 @@ describe('printRelayOSSQuery', () => {
     });
 
     it('creates distinct variables for values of different types', () => {
-      // Relay allows the same variable at both locations, regardless of type:
+      // RelayClassic allows the same variable at both locations, regardless of
+      // type:
       const query = getNode(
-        Relay.QL`
+        RelayClassic.QL`
           query DistinctVars {
             node(id: "123") {
               ... on User {
@@ -456,14 +524,17 @@ describe('printRelayOSSQuery', () => {
           query: {text: 'foo'},
         },
       );
-      const storySearchAlias =
-        generateRQLFieldAlias('storySearch.query({"text":"foo"})');
-      const storyCommentSearchAlias =
-        generateRQLFieldAlias('storyCommentSearch.query({"text":"foo"})');
+      const storySearchAlias = generateRQLFieldAlias(
+        'storySearch.query({"text":"foo"})',
+      );
+      const storyCommentSearchAlias = generateRQLFieldAlias(
+        'storyCommentSearch.query({"text":"foo"})',
+      );
       const {text, variables} = printRelayOSSQuery(query);
       // GraphQL requires that a different variable be used for values of
       // different types:
-      expect(text).toEqualPrintedQuery(`
+      expect(text).toEqualPrintedQuery(
+        `
         query DistinctVars(
           $id_0: ID!,
           $query_1: StorySearchInput!,
@@ -484,7 +555,8 @@ describe('printRelayOSSQuery', () => {
           },
           id
         }
-      `);
+      `,
+      );
       expect(variables).toEqual({
         id_0: '123',
         query_1: {text: 'foo'},
@@ -505,15 +577,16 @@ describe('printRelayOSSQuery', () => {
           isDeferred: true,
           identifyingArgName: RelayNodeInterface.ID,
           type: RelayNodeInterface.NODE_TYPE,
-        }
+        },
       );
       expect(() => printRelayOSSQuery(query)).toFailInvariant(
-        'printRelayOSSQuery(): Deferred queries are not supported.'
+        'printRelayOSSQuery(): Deferred queries are not supported.',
       );
     });
 
     it('prints "empty" queries', () => {
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query($cond: Boolean!) {
           viewer {
             actor @include(if: $cond) {
@@ -521,20 +594,24 @@ describe('printRelayOSSQuery', () => {
             }
           }
         }
-      `, {
-        cond: false,
-      });
+      `,
+        {
+          cond: false,
+        },
+      );
       const {text, variables} = printRelayOSSQuery(query);
-      expect(text).toEqualPrintedQuery(`
+      expect(text).toEqualPrintedQuery(
+        `
         query PrintRelayOSSQuery {
           __typename
         }
-      `);
+      `,
+      );
       expect(variables).toEqual({});
     });
 
     it('prints queries with "empty" fragment references', () => {
-      const fragment = Relay.QL`
+      const fragment = RelayClassic.QL`
         fragment on Viewer {
           ... on Viewer @include(if: false) {
             actor {
@@ -543,46 +620,55 @@ describe('printRelayOSSQuery', () => {
           }
         }
       `;
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           viewer {
             ${RelayTestUtils.createContainerFragment(fragment)}
           }
         }
-      `);
+      `,
+      );
       const {text, variables} = printRelayOSSQuery(query);
-      expect(text).toEqualPrintedQuery(`
+      expect(text).toEqualPrintedQuery(
+        `
         query PrintRelayOSSQuery {
           __typename
         }
-      `);
+      `,
+      );
       expect(variables).toEqual({});
     });
   });
 
   describe('fragments', () => {
     it('prints fragments', () => {
-      const fragment = getNode(Relay.QL`
+      const fragment = getNode(
+        RelayClassic.QL`
         fragment on Viewer {
           actor {
             id
           }
         }
-      `);
+      `,
+      );
       const {text, variables} = printRelayOSSQuery(fragment);
-      expect(text).toEqualPrintedQuery(`
+      expect(text).toEqualPrintedQuery(
+        `
         fragment PrintRelayOSSQueryRelayQL on Viewer {
           actor {
             id,
             __typename
           }
         }
-      `);
+      `,
+      );
       expect(variables).toEqual({});
     });
 
     it('prints inline fragments', () => {
-      const fragment = getNode(Relay.QL`
+      const fragment = getNode(
+        RelayClassic.QL`
         fragment on Viewer {
           actor {
             id
@@ -596,9 +682,11 @@ describe('printRelayOSSQuery', () => {
             }
           }
         }
-      `);
+      `,
+      );
       const {text, variables} = printRelayOSSQuery(fragment);
-      expect(text).toEqualPrintedQuery(`
+      expect(text).toEqualPrintedQuery(
+        `
         fragment PrintRelayOSSQueryRelayQL on Viewer {
           actor {
             id,
@@ -617,21 +705,79 @@ describe('printRelayOSSQuery', () => {
           },
           id
         }
+      `,
+      );
+      expect(variables).toEqual({});
+    });
+
+    it('prints inline fragments without types', () => {
+      const fragment = getNode(
+        RelayClassic.QL`
+        fragment on User {
+          ... {
+            name
+          }
+        }
+      `,
+        {foo: true},
+      );
+      const {text, variables} = printRelayOSSQuery(fragment);
+      expect(text).toEqualPrintedQuery(
+        `
+          fragment PrintRelayOSSQueryRelayQL on User {
+            id,
+            ...F0
+          }
+          fragment F0 on User{
+            name,
+            id
+          }
+        `,
+      );
+      expect(variables).toEqual({});
+    });
+
+    it('prints inline fragments with conditional', () => {
+      const fragment = getNode(
+        RelayClassic.QL`
+          fragment on User {
+            ... @include(if: $cond){
+              name
+            }
+          }
+        `,
+        {cond: true},
+      );
+      const {text, variables} = printRelayOSSQuery(fragment);
+      expect(text).toEqualPrintedQuery(`
+        fragment PrintRelayOSSQueryRelayQL on User {
+          id,
+          ...F0
+        }
+        fragment F0 on User {
+          ... @include(if:true) {
+            name,
+            id
+          }
+        }
       `);
       expect(variables).toEqual({});
     });
 
     it('prints fragments with incrementing names', () => {
-      const fragmentA = Relay.QL`fragment on User { firstName }`;
-      const fragmentB = Relay.QL`fragment on User { lastName }`;
-      const fragment = getNode(Relay.QL`
+      const fragmentA = RelayClassic.QL`fragment on User { firstName }`;
+      const fragmentB = RelayClassic.QL`fragment on User { lastName }`;
+      const fragment = getNode(
+        RelayClassic.QL`
         fragment on Node {
           ${fragmentA}
           ${fragmentB}
         }
-      `);
+      `,
+      );
       const {text, variables} = printRelayOSSQuery(fragment);
-      expect(text).toEqualPrintedQuery(`
+      expect(text).toEqualPrintedQuery(
+        `
         fragment PrintRelayOSSQueryRelayQL on Node {
           id,
           __typename,
@@ -646,21 +792,25 @@ describe('printRelayOSSQuery', () => {
           lastName,
           id
         }
-      `);
+      `,
+      );
       expect(variables).toEqual({});
     });
 
     it('prints fragments with identical children only once', () => {
-      const fragmentA = Relay.QL`fragment on User { name }`;
-      const fragmentB = Relay.QL`fragment on User { name }`;
-      const fragment = getNode(Relay.QL`
+      const fragmentA = RelayClassic.QL`fragment on User { name }`;
+      const fragmentB = RelayClassic.QL`fragment on User { name }`;
+      const fragment = getNode(
+        RelayClassic.QL`
         fragment on Node {
           ${fragmentA}
           ${fragmentB}
         }
-      `);
+      `,
+      );
       const {text, variables} = printRelayOSSQuery(fragment);
-      expect(text).toEqualPrintedQuery(`
+      expect(text).toEqualPrintedQuery(
+        `
         fragment PrintRelayOSSQueryRelayQL on Node {
           id,
           __typename,
@@ -670,24 +820,26 @@ describe('printRelayOSSQuery', () => {
           name,
           id
         }
-      `);
+      `,
+      );
       expect(variables).toEqual({});
     });
 
     it('prints fragments with different variables separately', () => {
-      const concreteFragment = Relay.QL`
+      const concreteFragment = RelayClassic.QL`
         fragment on User {
           profilePicture(size: [$width, $height]) {
             uri
           }
         }
       `;
-      const fragment = getNode(Relay.QL`fragment on User { id }`).clone([
+      const fragment = getNode(RelayClassic.QL`fragment on User { id }`).clone([
         getNode(concreteFragment, {width: 32, height: 32}),
         getNode(concreteFragment, {width: 64, height: 64}),
       ]);
       const {text, variables} = printRelayOSSQuery(fragment);
-      expect(text).toEqualPrintedQuery(`
+      expect(text).toEqualPrintedQuery(
+        `
         fragment PrintRelayOSSQueryRelayQL on User {
           ...F0,
           ...F1
@@ -706,7 +858,8 @@ describe('printRelayOSSQuery', () => {
           },
           id
         }
-      `);
+      `,
+      );
       expect(variables).toEqual({
         size_0: [32, 32],
         size_1: [64, 64],
@@ -715,19 +868,22 @@ describe('printRelayOSSQuery', () => {
 
     it('prints fragments with different runtime children separately', () => {
       let child;
-      child = Relay.QL`fragment on User { name }`;
-      const fragmentA = Relay.QL`fragment on User { ${child} }`;
-      child = Relay.QL`fragment on User { profilePicture { uri } }`;
-      const fragmentB = Relay.QL`fragment on User { ${child} }`;
+      child = RelayClassic.QL`fragment on User { name }`;
+      const fragmentA = RelayClassic.QL`fragment on User { ${child} }`;
+      child = RelayClassic.QL`fragment on User { profilePicture { uri } }`;
+      const fragmentB = RelayClassic.QL`fragment on User { ${child} }`;
 
-      const fragment = getNode(Relay.QL`
+      const fragment = getNode(
+        RelayClassic.QL`
         fragment on Node {
           ${fragmentA}
           ${fragmentB}
         }
-      `);
+      `,
+      );
       const {text, variables} = printRelayOSSQuery(fragment);
-      expect(text).toEqualPrintedQuery(`
+      expect(text).toEqualPrintedQuery(
+        `
         fragment PrintRelayOSSQueryRelayQL on Node {
           id,
           __typename,
@@ -752,18 +908,20 @@ describe('printRelayOSSQuery', () => {
           id,
           ...F2
         }
-      `);
+      `,
+      );
       expect(variables).toEqual({});
     });
 
     it('prints fragments with different IDs but identical output once', () => {
-      const concreteFragment = Relay.QL`fragment on User { name }`;
-      const fragment = getNode(Relay.QL`fragment on User { id }`).clone([
+      const concreteFragment = RelayClassic.QL`fragment on User { name }`;
+      const fragment = getNode(RelayClassic.QL`fragment on User { id }`).clone([
         getNode(concreteFragment, {value: 123}),
         getNode(concreteFragment, {value: 456}),
       ]);
       const {text, variables} = printRelayOSSQuery(fragment);
-      expect(text).toEqualPrintedQuery(`
+      expect(text).toEqualPrintedQuery(
+        `
         fragment PrintRelayOSSQueryRelayQL on User {
           ...F0
         }
@@ -771,12 +929,14 @@ describe('printRelayOSSQuery', () => {
           name,
           id
         }
-      `);
+      `,
+      );
       expect(variables).toEqual({});
     });
 
     it('omits empty fragments', () => {
-      const fragment = getNode(Relay.QL`
+      const fragment = getNode(
+        RelayClassic.QL`
         fragment on Viewer {
           actor {
             id
@@ -787,23 +947,28 @@ describe('printRelayOSSQuery', () => {
             }
           }
         }
-      `, {false: false});
+      `,
+        {false: false},
+      );
       const {text} = printRelayOSSQuery(fragment);
-      expect(text).toEqualPrintedQuery(`
+      expect(text).toEqualPrintedQuery(
+        `
         fragment PrintRelayOSSQueryRelayQL on Viewer {
           actor {
             id,
             __typename
           }
         }
-      `);
+      `,
+      );
     });
   });
 
   describe('fields', () => {
     it('prints a field with one argument', () => {
       const alias = generateRQLFieldAlias('newsFeed.first(10)');
-      const fragment = getNode(Relay.QL`
+      const fragment = getNode(
+        RelayClassic.QL`
         fragment on Viewer {
           newsFeed(first:$first) {
             edges {
@@ -813,9 +978,12 @@ describe('printRelayOSSQuery', () => {
             }
           }
         }
-      `, {first: 10});
+      `,
+        {first: 10},
+      );
       const {text, variables} = printRelayOSSQuery(fragment);
-      expect(text).toEqualPrintedQuery(`
+      expect(text).toEqualPrintedQuery(
+        `
         fragment PrintRelayOSSQueryRelayQL on Viewer {
           ${alias}:newsFeed(first:$first_0) {
             edges {
@@ -831,21 +999,25 @@ describe('printRelayOSSQuery', () => {
             }
           }
         }
-      `);
+      `,
+      );
       expect(variables).toEqual({first_0: 10});
     });
 
     it('prints a field with multiple arguments', () => {
       const alias = generateRQLFieldAlias('profilePicture.size(32,64)');
-      const fragment = getNode(Relay.QL`
+      const fragment = getNode(
+        RelayClassic.QL`
         fragment on Actor {
           profilePicture(size:[32, 64]) {
             uri
           }
         }
-      `);
+      `,
+      );
       const {text, variables} = printRelayOSSQuery(fragment);
-      expect(text).toEqualPrintedQuery(`
+      expect(text).toEqualPrintedQuery(
+        `
         fragment PrintRelayOSSQueryRelayQL on Actor {
           ${alias}:profilePicture(size:$size_0) {
             uri
@@ -853,24 +1025,29 @@ describe('printRelayOSSQuery', () => {
           id,
           __typename
         }
-      `);
+      `,
+      );
       expect(variables).toEqual({size_0: [32, 64]});
     });
 
     it('prints a field with multiple variable arguments', () => {
       const alias = generateRQLFieldAlias('profilePicture.size(32,64)');
-      const fragment = getNode(Relay.QL`
+      const fragment = getNode(
+        RelayClassic.QL`
         fragment on Actor {
           profilePicture(size:[$width,$height]) {
             uri
           }
         }
-      `, {
-        height: 64,
-        width: 32,
-      });
+      `,
+        {
+          height: 64,
+          width: 32,
+        },
+      );
       const {text, variables} = printRelayOSSQuery(fragment);
-      expect(text).toEqualPrintedQuery(`
+      expect(text).toEqualPrintedQuery(
+        `
         fragment PrintRelayOSSQueryRelayQL on Actor {
           ${alias}:profilePicture(size:$size_0) {
             uri
@@ -878,12 +1055,14 @@ describe('printRelayOSSQuery', () => {
           id,
           __typename
         }
-      `);
+      `,
+      );
       expect(variables).toEqual({size_0: [32, 64]});
     });
 
     it('prints scalar arguments', () => {
-      const fragment = getNode(Relay.QL`
+      const fragment = getNode(
+        RelayClassic.QL`
         fragment on Actor {
           friends(
             first: $first
@@ -897,14 +1076,17 @@ describe('printRelayOSSQuery', () => {
             }
           }
         }
-      `, {
-        first: 10,
-        orderby: ['name'],
-        isViewerFriend: false,
-      });
+      `,
+        {
+          first: 10,
+          orderby: ['name'],
+          isViewerFriend: false,
+        },
+      );
       const alias = fragment.getChildren()[0].getSerializationKey();
       const {text, variables} = printRelayOSSQuery(fragment);
-      expect(text).toEqualPrintedQuery(`
+      expect(text).toEqualPrintedQuery(
+        `
         fragment PrintRelayOSSQueryRelayQL on Actor {
           ${alias}:friends(first:$first_0,orderby:["name"],isViewerFriend:false) {
             edges {
@@ -921,29 +1103,34 @@ describe('printRelayOSSQuery', () => {
           id,
           __typename
         }
-      `);
+      `,
+      );
       expect(variables).toEqual({first_0: 10});
     });
 
     it('prints object call values', () => {
       const enumValue = 'WEB';
-      const fragment = Relay.QL`
+      const fragment = RelayClassic.QL`
         fragment on Settings {
           notifications(environment: $env)
         }
       `;
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           defaultSettings {
             ${fragment}
           }
         }
-      `, {
-        env: enumValue,
-      });
+      `,
+        {
+          env: enumValue,
+        },
+      );
       const alias = generateRQLFieldAlias('notifications.environment(WEB)');
       const {text, variables} = printRelayOSSQuery(query);
-      expect(text).toEqualPrintedQuery(`
+      expect(text).toEqualPrintedQuery(
+        `
         query PrintRelayOSSQuery($environment_0: Environment!) {
           defaultSettings {
             ...F0
@@ -952,7 +1139,8 @@ describe('printRelayOSSQuery', () => {
         fragment F0 on Settings {
           ${alias}:notifications(environment: $environment_0)
         }
-      `);
+      `,
+      );
       expect(variables).toEqual({
         environment_0: enumValue,
       });
@@ -960,8 +1148,9 @@ describe('printRelayOSSQuery', () => {
 
     it('prints inline fragments as references', () => {
       // these fragments have different types and cannot be flattened
-      const nestedFragment = Relay.QL`fragment on User { name }`;
-      const fragment = getNode(Relay.QL`
+      const nestedFragment = RelayClassic.QL`fragment on User { name }`;
+      const fragment = getNode(
+        RelayClassic.QL`
         fragment on Viewer {
           actor {
             id
@@ -969,9 +1158,11 @@ describe('printRelayOSSQuery', () => {
             ${nestedFragment}
           }
         }
-      `);
+      `,
+      );
       const {text, variables} = printRelayOSSQuery(fragment);
-      expect(text).toEqualPrintedQuery(`
+      expect(text).toEqualPrintedQuery(
+        `
         fragment PrintRelayOSSQueryRelayQL on Viewer {
           actor {
             id,
@@ -983,7 +1174,8 @@ describe('printRelayOSSQuery', () => {
           name,
           id
         }
-      `);
+      `,
+      );
       expect(variables).toEqual({});
     });
   });
@@ -993,7 +1185,8 @@ describe('printRelayOSSQuery', () => {
       clientMutationId: '123',
       foo: 'bar',
     };
-    const mutation = getNode(Relay.QL`
+    const mutation = getNode(
+      RelayClassic.QL`
       mutation {
         feedbackLike(input: $input) {
           clientMutationId
@@ -1009,11 +1202,14 @@ describe('printRelayOSSQuery', () => {
           }
         }
       }
-    `, {input: inputValue});
+    `,
+      {input: inputValue},
+    );
 
     const alias = generateRQLFieldAlias('profilePicture.preset(SMALL)');
     const {text, variables} = printRelayOSSQuery(mutation);
-    expect(text).toEqualPrintedQuery(`
+    expect(text).toEqualPrintedQuery(
+      `
       mutation PrintRelayOSSQuery(
         $input_0: FeedbackLikeInput!,
         $preset_1: PhotoSize!
@@ -1038,7 +1234,8 @@ describe('printRelayOSSQuery', () => {
           }
         }
       }
-    `);
+    `,
+    );
     expect(variables).toEqual({
       input_0: inputValue,
       preset_1: 'SMALL',
@@ -1049,7 +1246,8 @@ describe('printRelayOSSQuery', () => {
     const inputValue = {
       foo: 'bar',
     };
-    const subscription = getNode(Relay.QL`
+    const subscription = getNode(
+      RelayClassic.QL`
       subscription {
         feedbackLikeSubscribe(input: $input) {
           clientSubscriptionId
@@ -1065,11 +1263,14 @@ describe('printRelayOSSQuery', () => {
           }
         }
       }
-    `, {input: inputValue});
+    `,
+      {input: inputValue},
+    );
 
     const alias = generateRQLFieldAlias('profilePicture.preset(SMALL)');
     const {text, variables} = printRelayOSSQuery(subscription);
-    expect(text).toEqualPrintedQuery(`
+    expect(text).toEqualPrintedQuery(
+      `
       subscription PrintRelayOSSQuery(
         $input_0: FeedbackLikeInput!,
         $preset_1: PhotoSize!
@@ -1095,7 +1296,8 @@ describe('printRelayOSSQuery', () => {
           clientMutationId
         }
       }
-    `);
+    `,
+    );
     expect(variables).toEqual({
       input_0: inputValue,
       preset_1: 'SMALL',
@@ -1104,31 +1306,36 @@ describe('printRelayOSSQuery', () => {
 
   it('prints directives', () => {
     const params = {cond: true};
-    const nestedFragment = Relay.QL`
+    const nestedFragment = RelayClassic.QL`
       fragment on User @include(if: $cond) {
         name @skip(if: $cond)
       }
     `;
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      RelayClassic.QL`
       query {
         node(id: 123) @skip(if: true) {
           ${nestedFragment}
         }
       }
-    `, params);
+    `,
+      params,
+    );
     const {text, variables} = printRelayOSSQuery(query);
-    expect(text).toEqualPrintedQuery(`
-      query PrintRelayOSSQuery($id_0: ID!) {
-        node(id: $id_0) @skip(if: true) {
-          id,
-          __typename,
-          ...F0
-        }
-      }
-      fragment F0 on User @include(if: true) {
-        id
-      }
-    `);
+    expect(text).toBe(
+      `query PrintRelayOSSQuery($id_0:ID!) {
+  node(id:$id_0) @skip(if:true) {
+    id,
+    __typename,
+    ...F0
+  }
+}
+fragment F0 on User {
+  ... @include(if:true) {
+    id
+  }
+}`,
+    );
     expect(variables).toEqual({
       id_0: 123,
     });
@@ -1136,16 +1343,19 @@ describe('printRelayOSSQuery', () => {
 
   it('throws for directives with complex values', () => {
     const params = {data: {foo: 'bar'}};
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      RelayClassic.QL`
       query {
         node(id: 123) @include(if: $data) {
           id
         }
       }
-    `, params);
+    `,
+      params,
+    );
     expect(() => printRelayOSSQuery(query)).toFailInvariant(
       'printRelayOSSQuery(): Relay only supports directives with scalar ' +
-      'values (boolean, number, or string), got `if: [object Object]`.'
+        'values (boolean, number, or string), got `if: [object Object]`.',
     );
   });
 });

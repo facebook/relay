@@ -1,26 +1,27 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
+jest
+  .mock('../../query-config/RelayQueryConfig')
+  .mock('../../store/RelayEnvironment');
+
 require('configureForRelayOSS');
 
-jest.unmock('RelayRenderer');
-
 const React = require('React');
-const ReactDOM = require('ReactDOM');
-const Relay = require('Relay');
-const RelayEnvironment = require('RelayEnvironment');
-const RelayQueryConfig = require('RelayQueryConfig');
-const RelayRenderer = require('RelayRenderer');
+const ReactTestRenderer = require('react-test-renderer');
+const Relay = require('../../RelayPublic');
+const RelayEnvironment = require('../../store/RelayEnvironment');
+const RelayQueryConfig = require('../../query-config/RelayQueryConfig');
+const RelayRenderer = require('../RelayRenderer');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayRenderer.renderArgs', () => {
@@ -33,44 +34,44 @@ describe('RelayRenderer.renderArgs', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    const MockComponent = React.createClass({render: () => <div />});
+    class MockComponent extends React.Component {
+      render() {
+        return <div />;
+      }
+    }
     MockContainer = Relay.createContainer(MockComponent, {
       fragments: {},
     });
 
-    const container = document.createElement('div');
+    const container = ReactTestRenderer.create();
     queryConfig = RelayQueryConfig.genMockInstance();
     environment = new RelayEnvironment();
 
     render = jest.fn();
-    ReactDOM.render(
+    container.update(
       <RelayRenderer
         Container={MockContainer}
         queryConfig={queryConfig}
         environment={environment}
         render={render}
       />,
-      container
     );
-    jasmine.addMatchers(RelayTestUtils.matchers);
-    jasmine.addMatchers({
-      toRenderWithArgs() {
+    expect.extend(RelayTestUtils.matchers);
+    expect.extend({
+      toRenderWithArgs(actual, expected) {
+        // Assume that if `forceFetch` requests exist, they were last.
+        const requests =
+          environment.forceFetch.mock.requests.length > 0
+            ? environment.forceFetch.mock.requests
+            : environment.primeCache.mock.requests;
+        actual(requests[requests.length - 1]);
+        const renders = render.mock.calls;
+        const renderArgs = renders[renders.length - 1][0];
         return {
-          compare(actual, expected) {
-            // Assume that if `forceFetch` requests exist, they were last.
-            const requests = environment.forceFetch.mock.requests.length > 0 ?
-              environment.forceFetch.mock.requests :
-              environment.primeCache.mock.requests;
-            actual(requests[requests.length - 1]);
-            const renders = render.mock.calls;
-            const renderArgs = renders[renders.length - 1][0];
-            return {
-              pass: Object.keys(expected).every(argName => {
-                expect(renderArgs[argName]).toEqual(expected[argName]);
-                return true;
-              }),
-            };
-          },
+          pass: Object.keys(expected).every(argName => {
+            expect(renderArgs[argName]).toEqual(expected[argName]);
+            return true;
+          }),
         };
       },
     });
@@ -113,7 +114,7 @@ describe('RelayRenderer.renderArgs', () => {
   });
 
   it('is `stale` and has `props` when request resolves from cache', () => {
-    expect(request => request.resolve({stale:true})).toRenderWithArgs({
+    expect(request => request.resolve({stale: true})).toRenderWithArgs({
       done: false,
       error: null,
       props: {},

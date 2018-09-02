@@ -1,13 +1,11 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule filterExclusiveKeys
  * @flow
+ * @format
  */
 
 'use strict';
@@ -19,13 +17,12 @@ const hasOwnProperty = Object.prototype.hasOwnProperty;
  */
 function filterExclusiveKeys(
   a: ?Object,
-  b: ?Object
+  b: ?Object,
 ): [Array<string>, Array<string>] {
   const keysA = a ? Object.keys(a) : [];
   const keysB = b ? Object.keys(b) : [];
 
-  if (keysA.length === 0 ||
-      keysB.length === 0) {
+  if (keysA.length === 0 || keysB.length === 0) {
     return [keysA, keysB];
   }
   return [

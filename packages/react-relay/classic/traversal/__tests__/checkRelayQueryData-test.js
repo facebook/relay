@@ -1,24 +1,26 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
+jest.mock('../../legacy/store/GraphQLRange');
+
 require('configureForRelayOSS');
 
-const GraphQLRange = require('GraphQLRange');
-const Relay = require('Relay');
-const RelayConnectionInterface = require('RelayConnectionInterface');
+const GraphQLRange = require('../../legacy/store/GraphQLRange');
+const RelayClassic = require('../../RelayPublic');
 const RelayTestUtils = require('RelayTestUtils');
 
-const checkRelayQueryData = require('checkRelayQueryData');
+const checkRelayQueryData = require('../checkRelayQueryData');
+
+const {ConnectionInterface} = require('relay-runtime');
 
 describe('checkRelayQueryData', () => {
   let RelayRecordStore;
@@ -26,15 +28,10 @@ describe('checkRelayQueryData', () => {
   const {getNode} = RelayTestUtils;
   let HAS_NEXT_PAGE, HAS_PREV_PAGE;
 
-  function hasData(
-    query,
-    records,
-    rootCallMap,
-    fragmentFilter
-  ) {
+  function hasData(query, records, rootCallMap, fragmentFilter) {
     const store = new RelayRecordStore(
       {records: records || {}},
-      {rootCallMap: rootCallMap || {}}
+      {rootCallMap: rootCallMap || {}},
     );
     return checkRelayQueryData(store, query, fragmentFilter);
   }
@@ -42,19 +39,21 @@ describe('checkRelayQueryData', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    RelayRecordStore = require('RelayRecordStore');
+    RelayRecordStore = require('../../store/RelayRecordStore');
 
-    ({HAS_NEXT_PAGE, HAS_PREV_PAGE} = RelayConnectionInterface);
+    ({HAS_NEXT_PAGE, HAS_PREV_PAGE} = ConnectionInterface.get());
   });
 
   it('returns false when node is not in the store', () => {
-    const result = hasData(getNode(
-      Relay.QL`
+    const result = hasData(
+      getNode(
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {id}
         }
       `,
-    ));
+      ),
+    );
 
     expect(result).toEqual(false);
   });
@@ -64,13 +63,15 @@ describe('checkRelayQueryData', () => {
       1055790163: null,
     };
 
-    const result = hasData(getNode(
-     Relay.QL`
+    const result = hasData(
+      getNode(
+        RelayClassic.QL`
        query {
          node(id:"1055790163") {id}
        }
-     `),
-      records
+     `,
+      ),
+      records,
     );
 
     expect(result).toEqual(true);
@@ -85,13 +86,15 @@ describe('checkRelayQueryData', () => {
       },
     };
 
-    const result = hasData(getNode(
-      Relay.QL`
+    const result = hasData(
+      getNode(
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {id}
         }
-      `),
-      records
+      `,
+      ),
+      records,
     );
 
     expect(result).toEqual(true);
@@ -106,13 +109,15 @@ describe('checkRelayQueryData', () => {
       },
     };
 
-    const result = hasData(getNode(
-      Relay.QL`
+    const result = hasData(
+      getNode(
+        RelayClassic.QL`
         query {
           nodes(ids:["1055790163","4"]) {id}
         }
-      `),
-      records
+      `,
+      ),
+      records,
     );
 
     expect(result).toEqual(false);
@@ -127,14 +132,16 @@ describe('checkRelayQueryData', () => {
       },
     };
 
-    const result = hasData(getNode(
-      Relay.QL`
+    const result = hasData(
+      getNode(
+        RelayClassic.QL`
         query {
           username(name:"yuzhi") {id}
         }
-      `),
+      `,
+      ),
       records,
-      {username: {yuzhi: '1055790163'}}
+      {username: {yuzhi: '1055790163'}},
     );
 
     expect(result).toEqual(true);
@@ -150,16 +157,18 @@ describe('checkRelayQueryData', () => {
       },
     };
 
-    const result = hasData(getNode(
-      Relay.QL`
+    const result = hasData(
+      getNode(
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
             firstName
           }
         }
-      `),
-      records
+      `,
+      ),
+      records,
     );
 
     expect(result).toEqual(true);
@@ -173,16 +182,18 @@ describe('checkRelayQueryData', () => {
       },
     };
 
-    const result = hasData(getNode(
-      Relay.QL`
+    const result = hasData(
+      getNode(
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
             firstName
           }
         }
-      `),
-      records
+      `,
+      ),
+      records,
     );
 
     expect(result).toEqual(false);
@@ -194,24 +205,26 @@ describe('checkRelayQueryData', () => {
         id: '1055790163',
         __dataID__: '1055790163',
         __typename: 'User',
-        friends: { __dataID__: 'friends_id'},
+        friends: {__dataID__: 'friends_id'},
       },
       friends_id: {
-        __dataID__:'friends_id',
+        __dataID__: 'friends_id',
         count: 500,
       },
     };
 
-    const result = hasData(getNode(
-      Relay.QL`
+    const result = hasData(
+      getNode(
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
             friends {count}
           }
         }
-      `),
-      records
+      `,
+      ),
+      records,
     );
 
     expect(result).toEqual(true);
@@ -222,20 +235,22 @@ describe('checkRelayQueryData', () => {
       1055790163: {
         id: '1055790163',
         __dataID__: '1055790163',
-        friends: { __dataID__: 'friends_id'},
+        friends: {__dataID__: 'friends_id'},
       },
     };
 
-    const result = hasData(getNode(
-      Relay.QL`
+    const result = hasData(
+      getNode(
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
             friends {count}
           }
         }
-      `),
-      records
+      `,
+      ),
+      records,
     );
 
     expect(result).toEqual(false);
@@ -246,23 +261,25 @@ describe('checkRelayQueryData', () => {
       1055790163: {
         id: '1055790163',
         __dataID__: '1055790163',
-        friends: { __dataID__: 'friends_id'},
+        friends: {__dataID__: 'friends_id'},
       },
       friends_id: {
         __dataID__: 'friends_id',
       },
     };
 
-    const result = hasData(getNode(
-      Relay.QL`
+    const result = hasData(
+      getNode(
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
             friends {count}
           }
         }
-      `),
-      records
+      `,
+      ),
+      records,
     );
 
     expect(result).toEqual(false);
@@ -282,16 +299,18 @@ describe('checkRelayQueryData', () => {
       },
     };
 
-    const result = hasData(getNode(
-      Relay.QL`
+    const result = hasData(
+      getNode(
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
             screennames {service}
           }
         }
-      `),
-      records
+      `,
+      ),
+      records,
     );
 
     expect(result).toEqual(true);
@@ -307,16 +326,18 @@ describe('checkRelayQueryData', () => {
       },
     };
 
-    const result = hasData(getNode(
-      Relay.QL`
+    const result = hasData(
+      getNode(
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
             screennames {service}
           }
         }
-      `),
-      records
+      `,
+      ),
+      records,
     );
 
     expect(result).toEqual(false);
@@ -335,16 +356,18 @@ describe('checkRelayQueryData', () => {
       },
     };
 
-    const result = hasData(getNode(
-      Relay.QL`
+    const result = hasData(
+      getNode(
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
             screennames {service}
           }
         }
-      `),
-      records
+      `,
+      ),
+      records,
     );
 
     expect(result).toEqual(false);
@@ -356,21 +379,22 @@ describe('checkRelayQueryData', () => {
         id: '1055790163',
         __dataID__: '1055790163',
         __typename: 'User',
-        friends: { __dataID__: 'friends_id'},
+        friends: {__dataID__: 'friends_id'},
       },
       friends_id: {
-        __dataID__:'friends_id',
+        __dataID__: 'friends_id',
         __range__: new GraphQLRange(),
       },
     };
     records.friends_id.__range__.retrieveRangeInfoForQuery.mockReturnValue({
       requestedEdgeIDs: [],
       diffCalls: [],
-      pageInfo: {[HAS_NEXT_PAGE]: false, [HAS_PREV_PAGE]: false },
+      pageInfo: {[HAS_NEXT_PAGE]: false, [HAS_PREV_PAGE]: false},
     });
 
-    const result = hasData(getNode(
-      Relay.QL`
+    const result = hasData(
+      getNode(
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -379,8 +403,9 @@ describe('checkRelayQueryData', () => {
             }
           }
         }
-      `),
-      records
+      `,
+      ),
+      records,
     );
     expect(result).toEqual(true);
   });
@@ -391,21 +416,22 @@ describe('checkRelayQueryData', () => {
         id: '1055790163',
         __dataID__: '1055790163',
         __typename: 'User',
-        friends: { __dataID__: 'friends_id'},
+        friends: {__dataID__: 'friends_id'},
       },
       friends_id: {
-        __dataID__:'friends_id',
+        __dataID__: 'friends_id',
         __range__: new GraphQLRange(),
       },
     };
     records.friends_id.__range__.retrieveRangeInfoForQuery.mockReturnValue({
       requestedEdgeIDs: [],
       diffCalls: [RelayTestUtils.createCall('first', 10)],
-      pageInfo: {[HAS_NEXT_PAGE]: false, [HAS_PREV_PAGE]: false },
+      pageInfo: {[HAS_NEXT_PAGE]: false, [HAS_PREV_PAGE]: false},
     });
 
-    const result = hasData(getNode(
-      Relay.QL`
+    const result = hasData(
+      getNode(
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -414,8 +440,9 @@ describe('checkRelayQueryData', () => {
             }
           }
         }
-      `),
-      records
+      `,
+      ),
+      records,
     );
     expect(result).toEqual(false);
   });
@@ -423,7 +450,7 @@ describe('checkRelayQueryData', () => {
   it('returns true when `edges` is available on non-connections', () => {
     const records = {
       viewer_id: {
-        '__configs__{named:"some_gk"}': {__dataID__:'configs_id'},
+        'configs{named:"some_gk"}': {__dataID__: 'configs_id'},
         __dataID__: 'viewer_id',
       },
       configs_id: {
@@ -432,7 +459,7 @@ describe('checkRelayQueryData', () => {
       },
       edge_id: {
         __dataID__: 'edge_id',
-        node: {__dataID__:'node_id'},
+        node: {__dataID__: 'node_id'},
       },
       node_id: {
         __dataID__: 'node_id',
@@ -440,11 +467,12 @@ describe('checkRelayQueryData', () => {
       },
     };
 
-    const result = hasData(getNode(
-      Relay.QL`
+    const result = hasData(
+      getNode(
+        RelayClassic.QL`
         query {
           viewer {
-            __configs__(named:"some_gk") {
+            configs(named:"some_gk") {
               edges {
                 node {
                   name
@@ -453,9 +481,10 @@ describe('checkRelayQueryData', () => {
             }
            }
         }
-      `),
+      `,
+      ),
       records,
-      {viewer: {'': 'viewer_id'}}
+      {viewer: {'': 'viewer_id'}},
     );
 
     expect(result).toEqual(true);
@@ -467,15 +496,15 @@ describe('checkRelayQueryData', () => {
         id: '1055790163',
         __dataID__: '1055790163',
         __typename: 'User',
-        friends: { __dataID__: 'friends_id'},
+        friends: {__dataID__: 'friends_id'},
       },
       friends_id: {
-        __dataID__:'friends_id',
+        __dataID__: 'friends_id',
         __range__: new GraphQLRange(),
       },
       edge_id: {
         __dataID__: 'edge_id',
-        node: {__dataID__:'node_id'},
+        node: {__dataID__: 'node_id'},
       },
       node_id: {
         __dataID__: 'node_id',
@@ -486,11 +515,12 @@ describe('checkRelayQueryData', () => {
     records.friends_id.__range__.retrieveRangeInfoForQuery.mockReturnValue({
       requestedEdgeIDs: ['edge_id'],
       diffCalls: [],
-      pageInfo: {[HAS_NEXT_PAGE]: false, [HAS_PREV_PAGE]: false },
+      pageInfo: {[HAS_NEXT_PAGE]: false, [HAS_PREV_PAGE]: false},
     });
 
-    const result = hasData(getNode(
-      Relay.QL`
+    const result = hasData(
+      getNode(
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -499,8 +529,9 @@ describe('checkRelayQueryData', () => {
             }
           }
         }
-      `),
-      records
+      `,
+      ),
+      records,
     );
     expect(result).toEqual(false);
   });
@@ -510,15 +541,15 @@ describe('checkRelayQueryData', () => {
       1055790163: {
         id: '1055790163',
         __dataID__: '1055790163',
-        friends: { __dataID__: 'friends_id'},
+        friends: {__dataID__: 'friends_id'},
       },
       friends_id: {
-        __dataID__:'friends_id',
+        __dataID__: 'friends_id',
         __range__: new GraphQLRange(),
       },
       edge_id: {
         __dataID__: 'edge_id',
-        node: {__dataID__:'node_id'},
+        node: {__dataID__: 'node_id'},
         cursor: 'cursor',
       },
       node_id: {
@@ -529,11 +560,12 @@ describe('checkRelayQueryData', () => {
     records.friends_id.__range__.retrieveRangeInfoForQuery.mockReturnValue({
       requestedEdgeIDs: ['edge_id'],
       diffCalls: [],
-      pageInfo: {[HAS_NEXT_PAGE]: false, [HAS_PREV_PAGE]: false },
+      pageInfo: {[HAS_NEXT_PAGE]: false, [HAS_PREV_PAGE]: false},
     });
 
-    const result = hasData(getNode(
-      Relay.QL`
+    const result = hasData(
+      getNode(
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -542,8 +574,9 @@ describe('checkRelayQueryData', () => {
             }
           }
         }
-      `),
-      records
+      `,
+      ),
+      records,
     );
     expect(result).toEqual(false);
   });
@@ -558,29 +591,33 @@ describe('checkRelayQueryData', () => {
       },
     };
 
-    const fragment1 = Relay.QL`
+    const fragment1 = RelayClassic.QL`
       fragment on Node {username}
     `;
-    const fragment2 = Relay.QL`
+    const fragment2 = RelayClassic.QL`
       fragment on Node {name}
     `;
-    let result = hasData(getNode(
-      Relay.QL`
+    let result = hasData(
+      getNode(
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {id, ${fragment1}}
         }
-      `),
-      records
+      `,
+      ),
+      records,
     );
 
     expect(result).toEqual(true);
-    result = hasData(getNode(
-      Relay.QL`
+    result = hasData(
+      getNode(
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {id, ${fragment2}}
         }
-      `),
-      records
+      `,
+      ),
+      records,
     );
 
     expect(result).toEqual(false);
@@ -596,7 +633,8 @@ describe('checkRelayQueryData', () => {
       },
     };
     const result = hasData(
-      getNode(Relay.QL`
+      getNode(
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -605,8 +643,9 @@ describe('checkRelayQueryData', () => {
             }
           }
         }
-      `),
-      records
+      `,
+      ),
+      records,
     );
     expect(result).toBe(true);
   });
@@ -620,7 +659,8 @@ describe('checkRelayQueryData', () => {
       },
     };
     const result = hasData(
-      getNode(Relay.QL`
+      getNode(
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -629,8 +669,9 @@ describe('checkRelayQueryData', () => {
             }
           }
         }
-      `),
-      records
+      `,
+      ),
+      records,
     );
     expect(result).toBe(false);
   });
@@ -644,7 +685,8 @@ describe('checkRelayQueryData', () => {
       },
     };
     const result = hasData(
-      getNode(Relay.QL`
+      getNode(
+        RelayClassic.QL`
         query {
           node(id:"1055790163") {
             id
@@ -654,8 +696,9 @@ describe('checkRelayQueryData', () => {
             }
           }
         }
-      `),
-      records
+      `,
+      ),
+      records,
     );
     expect(result).toEqual(true);
   });

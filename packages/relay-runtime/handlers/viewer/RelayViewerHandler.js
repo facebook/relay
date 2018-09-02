@@ -1,25 +1,23 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayViewerHandler
- * @flow
+ * @flow strict-local
+ * @format
  */
 
 'use strict';
 
-const generateRelayClientID = require('generateRelayClientID');
+const generateRelayClientID = require('../../store/generateRelayClientID');
 
-const {ROOT_ID} = require('RelayStoreUtils');
+const {ROOT_ID} = require('../../store/RelayStoreUtils');
 
 import type {
   HandleFieldPayload,
   RecordSourceProxy,
-} from 'RelayStoreTypes';
+} from '../../store/RelayStoreTypes';
 
 const VIEWER_ID = generateRelayClientID(ROOT_ID, 'viewer');
 const VIEWER_TYPE = 'Viewer';
@@ -35,14 +33,15 @@ const VIEWER_TYPE = 'Viewer';
  * NOTE: This means other handles may not be added on viewer, since they may
  * execute after this handle when the server record is already deleted.
  */
-function update(proxy: RecordSourceProxy, payload: HandleFieldPayload): void {
-  const record = proxy.get(payload.dataID);
+function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
+  const record = store.get(payload.dataID);
   if (!record) {
     return;
   }
   const serverViewer = record.getLinkedRecord(payload.fieldKey);
   if (!serverViewer) {
-    record.setValue(null, payload.handleKey);
+    // If `serverViewer` is null, `viewer` key for `client:root` should already
+    // be null, so no need to `setValue` again.
     return;
   }
   // Server data already has viewer data at `client:root:viewer`, so link the
@@ -55,13 +54,14 @@ function update(proxy: RecordSourceProxy, payload: HandleFieldPayload): void {
   // Other ways to access viewer such as mutations may have a different id for
   // viewer: synthesize a record at the canonical viewer id, copy its fields
   // from the server record, and delete the server record link to speed up GC.
-  const clientViewer = proxy.get(VIEWER_ID) || proxy.create(VIEWER_ID, VIEWER_TYPE);
+  const clientViewer =
+    store.get(VIEWER_ID) || store.create(VIEWER_ID, VIEWER_TYPE);
   clientViewer.copyFieldsFrom(serverViewer);
   record.setValue(null, payload.fieldKey);
   record.setLinkedRecord(clientViewer, payload.handleKey);
 
   // Make sure the root object points to the viewer object as well
-  const root = proxy.getRoot();
+  const root = store.getRoot();
   root.setLinkedRecord(clientViewer, payload.handleKey);
 }
 

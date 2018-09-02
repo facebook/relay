@@ -1,32 +1,32 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
 require('configureForRelayOSS');
 
-const Relay = require('Relay');
+const RelayClassic = require('../../RelayPublic');
 const RelayTestUtils = require('RelayTestUtils');
 
-const flattenRelayQuery = require('flattenRelayQuery');
+const flattenRelayQuery = require('../flattenRelayQuery');
 
 describe('flattenRelayQuery', () => {
   const {getNode} = RelayTestUtils;
 
   beforeEach(() => {
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('flattens roots', () => {
-    const node = getNode(Relay.QL`
+    const node = getNode(
+      RelayClassic.QL`
       query {
         viewer {
           ... on Viewer {
@@ -42,8 +42,10 @@ describe('flattenRelayQuery', () => {
           }
         }
       }
-    `);
-    const expected = getNode(Relay.QL`
+    `,
+    );
+    const expected = getNode(
+      RelayClassic.QL`
       query {
         viewer {
           actor {
@@ -53,12 +55,14 @@ describe('flattenRelayQuery', () => {
           }
         }
       }
-    `);
+    `,
+    );
     expect(flattenRelayQuery(node)).toEqualQueryRoot(expected);
   });
 
   it('flattens fragments', () => {
-    const node = getNode(Relay.QL`
+    const node = getNode(
+      RelayClassic.QL`
       fragment on Viewer {
         actor {
           firstName
@@ -73,8 +77,10 @@ describe('flattenRelayQuery', () => {
           }
         }
       }
-    `);
-    const expected = getNode(Relay.QL`
+    `,
+    );
+    const expected = getNode(
+      RelayClassic.QL`
       fragment on Viewer {
         actor {
           firstName
@@ -85,12 +91,14 @@ describe('flattenRelayQuery', () => {
           }
         }
       }
-    `);
+    `,
+    );
     expect(flattenRelayQuery(node)).toEqualQueryNode(expected);
   });
 
   it('flattens fields', () => {
-    const node = getNode(Relay.QL`
+    const node = getNode(
+      RelayClassic.QL`
       query {
         viewer {
           actor {
@@ -103,8 +111,10 @@ describe('flattenRelayQuery', () => {
           }
         }
       }
-    `).getFieldByStorageKey('actor');
-    const expected = getNode(Relay.QL`
+    `,
+    ).getFieldByStorageKey('actor');
+    const expected = getNode(
+      RelayClassic.QL`
       query {
         viewer {
           actor {
@@ -114,19 +124,21 @@ describe('flattenRelayQuery', () => {
           }
         }
       }
-    `).getFieldByStorageKey('actor');
+    `,
+    ).getFieldByStorageKey('actor');
     expect(flattenRelayQuery(node)).toEqualQueryNode(expected);
   });
 
   it('flattens empty fragments', () => {
-    const emptyFragment = Relay.QL`
+    const emptyFragment = RelayClassic.QL`
       fragment on TimezoneInfo {
         ${null}
       }
     `;
 
     const fragmentNode = getNode(emptyFragment);
-    const rootNode = getNode(Relay.QL`
+    const rootNode = getNode(
+      RelayClassic.QL`
       query {
         viewer {
           timezoneEstimate {
@@ -134,7 +146,8 @@ describe('flattenRelayQuery', () => {
           }
         }
       }
-    `);
+    `,
+    );
     const fieldNode = rootNode.getFieldByStorageKey('timezoneEstimate');
 
     expect(flattenRelayQuery(fragmentNode)).toBe(null);
@@ -143,7 +156,8 @@ describe('flattenRelayQuery', () => {
   });
 
   it('optionally removes fragments', () => {
-    const node = getNode(Relay.QL`
+    const node = getNode(
+      RelayClassic.QL`
       query {
         viewer {
           ... on Viewer {
@@ -158,8 +172,10 @@ describe('flattenRelayQuery', () => {
           }
         }
       }
-    `);
-    const expected = getNode(Relay.QL`
+    `,
+    );
+    const expected = getNode(
+      RelayClassic.QL`
       query {
         viewer {
           actor {
@@ -168,19 +184,24 @@ describe('flattenRelayQuery', () => {
           }
         }
       }
-    `);
-    expect(flattenRelayQuery(node, {
-      shouldRemoveFragments: true,
-    })).toEqualQueryNode(expected);
+    `,
+    );
+    expect(
+      flattenRelayQuery(node, {
+        shouldRemoveFragments: true,
+      }),
+    ).toEqualQueryNode(expected);
   });
 
   it('optionally preserves empty non-leaf nodes', () => {
-    const node = getNode(Relay.QL`
+    const node = getNode(
+      RelayClassic.QL`
       fragment on Comment {
         likers # can have sub-selections, normally is removed
         doesViewerLike
       }
-    `);
+    `,
+    );
     const flattened = flattenRelayQuery(node, {
       preserveEmptyNodes: true,
     });

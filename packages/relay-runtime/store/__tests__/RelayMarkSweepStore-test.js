@@ -1,35 +1,33 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @format
+ * @emails oncall+relay
  */
 
 'use strict';
 
-jest
-  .autoMockOff();
+const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
+const RelayMarkSweepStore = require('../RelayMarkSweepStore');
+const RelayModernRecord = require('../RelayModernRecord');
+const RelayModernTestUtils = require('RelayModernTestUtils');
 
-const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
-const RelayMarkSweepStore = require('RelayMarkSweepStore');
-const RelayStaticRecord = require('RelayStaticRecord');
-const RelayStoreUtils = require('RelayStoreUtils');
-const RelayStaticTestUtils = require('RelayStaticTestUtils');
+const simpleClone = require('../../util/simpleClone');
 
-const forEachObject = require('forEachObject');
-const simpleClone = require('simpleClone');
+const {
+  REF_KEY,
+  ROOT_ID,
+  ROOT_TYPE,
+  UNPUBLISH_RECORD_SENTINEL,
+} = require('../RelayStoreUtils');
 
-const {REF_KEY, ROOT_ID, ROOT_TYPE} = RelayStoreUtils;
+expect.extend(RelayModernTestUtils.matchers);
 
 describe('RelayStore', () => {
-  const {generateWithTransforms} = RelayStaticTestUtils;
-
-  beforeEach(() => {
-    jest.resetModules();
-    jasmine.addMatchers(RelayStaticTestUtils.matchers);
-  });
+  const {generateWithTransforms} = RelayModernTestUtils;
 
   describe('retain()', () => {
     let UserFragment;
@@ -45,7 +43,7 @@ describe('RelayStore', () => {
           id: '4',
           __typename: 'User',
           name: 'Zuck',
-          'profilePicture{"size":32}': {[REF_KEY]: 'client:1'},
+          'profilePicture(size:32)': {[REF_KEY]: 'client:1'},
         },
         'client:1': {
           __id: 'client:1',
@@ -55,14 +53,16 @@ describe('RelayStore', () => {
       initialData = simpleClone(data);
       source = new RelayInMemoryRecordSource(data);
       store = new RelayMarkSweepStore(source);
-      ({UserFragment} = generateWithTransforms(`
+      ({UserFragment} = generateWithTransforms(
+        `
         fragment UserFragment on User {
           name
           profilePicture(size: $size) {
             uri
           }
         }
-      `));
+      `,
+      ));
     });
 
     it('prevents data from being collected', () => {
@@ -88,7 +88,8 @@ describe('RelayStore', () => {
     });
 
     it('only collects unreferenced data', () => {
-      const {JoeFragment} = generateWithTransforms(`
+      const {JoeFragment} = generateWithTransforms(
+        `
         fragment JoeFragment on Query @argumentDefinitions(
           id: {type: "ID"}
         ) {
@@ -98,7 +99,8 @@ describe('RelayStore', () => {
             }
           }
         }
-      `);
+      `,
+      );
       const nextSource = new RelayInMemoryRecordSource({
         842472: {
           __id: '842472',
@@ -108,7 +110,7 @@ describe('RelayStore', () => {
         [ROOT_ID]: {
           __id: ROOT_ID,
           __typename: ROOT_TYPE,
-          'node{"id":"842472"}': {[REF_KEY]: '842472'},
+          'node(id:"842472")': {[REF_KEY]: '842472'},
         },
       });
       store.publish(nextSource);
@@ -142,7 +144,7 @@ describe('RelayStore', () => {
           id: '4',
           __typename: 'User',
           name: 'Zuck',
-          'profilePicture{"size":32}': {[REF_KEY]: 'client:1'},
+          'profilePicture(size:32)': {[REF_KEY]: 'client:1'},
         },
         'client:1': {
           __id: 'client:1',
@@ -151,14 +153,16 @@ describe('RelayStore', () => {
       };
       source = new RelayInMemoryRecordSource(data);
       store = new RelayMarkSweepStore(source);
-      ({UserFragment} = generateWithTransforms(`
+      ({UserFragment} = generateWithTransforms(
+        `
         fragment UserFragment on User {
           name
           profilePicture(size: $size) {
             uri
           }
         }
-      `));
+      `,
+      ));
     });
 
     it('returns selector data', () => {
@@ -180,9 +184,12 @@ describe('RelayStore', () => {
           ...data,
         },
       });
-      forEachObject(snapshot.seenRecords, (record, id) => {
-        expect(record).toBe(data[id]);
-      });
+      for (const id in snapshot.seenRecords) {
+        if (snapshot.seenRecords.hasOwnProperty(id)) {
+          const record = snapshot.seenRecords[id];
+          expect(record).toBe(data[id]);
+        }
+      }
     });
 
     it('returns deeply-frozen objects', () => {
@@ -200,7 +207,7 @@ describe('RelayStore', () => {
         4: {
           __id: '4',
           __typename: 'User',
-          'profilePicture{"size":32}': {[REF_KEY]: 'client:2'},
+          'profilePicture(size:32)': {[REF_KEY]: 'client:2'},
         },
         'client:2': {
           __id: 'client:2',
@@ -246,7 +253,7 @@ describe('RelayStore', () => {
           id: '4',
           __typename: 'User',
           name: 'Zuck',
-          'profilePicture{"size":32}': {[REF_KEY]: 'client:1'},
+          'profilePicture(size:32)': {[REF_KEY]: 'client:1'},
           emailAddresses: ['a@b.com'],
         },
         'client:1': {
@@ -256,7 +263,8 @@ describe('RelayStore', () => {
       };
       source = new RelayInMemoryRecordSource(data);
       store = new RelayMarkSweepStore(source);
-      ({UserFragment} = generateWithTransforms(`
+      ({UserFragment} = generateWithTransforms(
+        `
         fragment UserFragment on User {
           name
           profilePicture(size: $size) {
@@ -264,7 +272,8 @@ describe('RelayStore', () => {
           }
           emailAddresses
         }
-      `));
+      `,
+      ));
     });
 
     it('calls subscribers whose data has changed since previous notify', () => {
@@ -496,7 +505,7 @@ describe('RelayStore', () => {
 
     it('unpublishes records via a sentinel value', () => {
       const nextSource = new RelayInMemoryRecordSource({});
-      nextSource.set('4', RelayStoreUtils.UNPUBLISH_RECORD_SENTINEL);
+      nextSource.set('4', UNPUBLISH_RECORD_SENTINEL);
       store.publish(nextSource);
 
       expect(source.has('4')).toBe(false);
@@ -506,46 +515,46 @@ describe('RelayStore', () => {
     it('throws if source records are modified', () => {
       const zuck = source.get('4');
       expect(() => {
-        RelayStaticRecord.setValue(zuck, 'pet', 'Beast');
+        RelayModernRecord.setValue(zuck, 'pet', 'Beast');
       }).toThrowTypeError();
     });
 
     it('throws if published records are modified', () => {
       // Create and publish a source with a new record
       const nextSource = new RelayInMemoryRecordSource();
-      const beast = RelayStaticRecord.create('beast', 'Pet');
+      const beast = RelayModernRecord.create('beast', 'Pet');
       nextSource.set('beast', beast);
       store.publish(nextSource);
       expect(() => {
-        RelayStaticRecord.setValue(beast, 'name', 'Beast');
+        RelayModernRecord.setValue(beast, 'name', 'Beast');
       }).toThrowTypeError();
     });
 
     it('throws if updated records are modified', () => {
       // Create and publish a source with a record of the same id
       const nextSource = new RelayInMemoryRecordSource();
-      const beast = RelayStaticRecord.create('beast', 'Pet');
+      const beast = RelayModernRecord.create('beast', 'Pet');
       nextSource.set('beast', beast);
-      const zuck = RelayStaticRecord.create('4', 'User');
-      RelayStaticRecord.setLinkedRecordID(zuck, 'pet', 'beast');
+      const zuck = RelayModernRecord.create('4', 'User');
+      RelayModernRecord.setLinkedRecordID(zuck, 'pet', 'beast');
       nextSource.set('4', zuck);
       store.publish(nextSource);
 
       // Cannot modify merged record
       expect(() => {
         const mergedRecord = source.get('4');
-        RelayStaticRecord.setValue(mergedRecord, 'pet', null);
+        RelayModernRecord.setValue(mergedRecord, 'pet', null);
       }).toThrowTypeError();
       // Cannot modify the published record, even though it isn't in the store
       // This is for consistency because it is non-deterinistic if published
       // records will be merged into a new object or used as-is.
       expect(() => {
-        RelayStaticRecord.setValue(zuck, 'pet', null);
+        RelayModernRecord.setValue(zuck, 'pet', null);
       }).toThrowTypeError();
     });
   });
 
-  describe('resolve()', () => {
+  describe('check()', () => {
     let UserFragment;
     let data;
     let source;
@@ -558,7 +567,7 @@ describe('RelayStore', () => {
           id: '4',
           __typename: 'User',
           name: 'Zuck',
-          'profilePicture{"size":32}': {[REF_KEY]: 'client:1'},
+          'profilePicture(size:32)': {[REF_KEY]: 'client:1'},
         },
         'client:1': {
           __id: 'client:1',
@@ -567,43 +576,123 @@ describe('RelayStore', () => {
       };
       source = new RelayInMemoryRecordSource(data);
       store = new RelayMarkSweepStore(source);
-      ({UserFragment} = generateWithTransforms(`
+      ({UserFragment} = generateWithTransforms(
+        `
         fragment UserFragment on User {
           name
           profilePicture(size: $size) {
             uri
           }
         }
-      `));
+      `,
+      ));
     });
 
-    it('resolves data from cache', () => {
+    it('returns true if all data exists in the cache', () => {
       const selector = {
         dataID: '4',
         node: UserFragment,
         variables: {size: 32},
       };
-      const callback = jest.fn();
-      const target = new RelayInMemoryRecordSource();
-      store.resolve(target, selector, callback);
-      expect(callback.mock.calls.length).toBe(1);
-      expect(callback).toBeCalledWith({
-        status: 'complete',
-      });
-      const snapshot = store.lookup(selector);
-      expect(snapshot).toEqual({
-        ...selector,
-        data: {
-          name: 'Zuck',
-          profilePicture: {
-            uri: 'https://photo1.jpg',
+      expect(store.check(selector)).toBe(true);
+    });
+
+    it('returns false if a scalar field is missing', () => {
+      const selector = {
+        dataID: '4',
+        node: UserFragment,
+        variables: {size: 32},
+      };
+      store.publish(
+        new RelayInMemoryRecordSource({
+          'client:1': {
+            __id: 'client:1',
+            uri: undefined, // unpublish the field
           },
+        }),
+      );
+      expect(store.check(selector)).toBe(false);
+    });
+
+    it('returns false if a linked field is missing', () => {
+      const selector = {
+        dataID: '4',
+        node: UserFragment,
+        variables: {size: 64}, // unfetched size
+      };
+      expect(store.check(selector)).toBe(false);
+    });
+
+    it('returns false if a linked record is missing', () => {
+      const selector = {
+        dataID: '4',
+        node: UserFragment,
+        variables: {size: 32},
+      };
+      delete data['client:1']; // profile picture
+      expect(store.check(selector)).toBe(false);
+    });
+
+    it('returns false if the root record is missing', () => {
+      const selector = {
+        dataID: '842472', // unfetched record
+        node: UserFragment,
+        variables: {size: 32},
+      };
+      expect(store.check(selector)).toBe(false);
+    });
+  });
+
+  describe('holdGC()', () => {
+    let UserFragment;
+    let data;
+    let initialData;
+    let source;
+    let store;
+
+    beforeEach(() => {
+      data = {
+        '4': {
+          __id: '4',
+          id: '4',
+          __typename: 'User',
+          name: 'Zuck',
+          'profilePicture(size:32)': {[REF_KEY]: 'client:1'},
         },
-        seenRecords: {
-          ...data,
+        'client:1': {
+          __id: 'client:1',
+          uri: 'https://photo1.jpg',
         },
+      };
+      initialData = simpleClone(data);
+      source = new RelayInMemoryRecordSource(data);
+      store = new RelayMarkSweepStore(source);
+      ({UserFragment} = generateWithTransforms(
+        `
+        fragment UserFragment on User {
+          name
+          profilePicture(size: $size) {
+            uri
+          }
+        }
+      `,
+      ));
+    });
+
+    it('prevents data from being collected with disabled GC, and reruns GC when it is enabled', () => {
+      const gcHold = store.holdGC();
+      const {dispose} = store.retain({
+        dataID: '4',
+        node: UserFragment,
+        variables: {size: 32},
       });
-      expect(target.toJSON()).toEqual(data);
+      dispose();
+      expect(data).toEqual(initialData);
+      jest.runAllTimers();
+      expect(source.toJSON()).toEqual(initialData);
+      gcHold.dispose();
+      jest.runAllTimers();
+      expect(source.toJSON()).toEqual({});
     });
   });
 });

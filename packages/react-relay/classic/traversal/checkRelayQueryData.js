@@ -1,37 +1,33 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule checkRelayQueryData
  * @flow
+ * @format
  */
 
 'use strict';
 
-const RelayClassicRecordState = require('RelayClassicRecordState');
-const RelayConnectionInterface = require('RelayConnectionInterface');
-const RelayProfiler = require('RelayProfiler');
-const RelayQueryVisitor = require('RelayQueryVisitor');
+const RelayClassicRecordState = require('../store/RelayClassicRecordState');
+const RelayQueryVisitor = require('../query/RelayQueryVisitor');
 
-const forEachRootCallArg = require('forEachRootCallArg');
-const isCompatibleRelayFragmentType = require('isCompatibleRelayFragmentType');
+const forEachRootCallArg = require('../query/forEachRootCallArg');
+const isCompatibleRelayFragmentType = require('../tools/isCompatibleRelayFragmentType');
 
-import type {DataID} from 'RelayInternalTypes';
-import type RelayQuery from 'RelayQuery';
-import type RelayRecordStore from 'RelayRecordStore';
-import type {RangeInfo} from 'RelayRecordStore';
+const {ConnectionInterface, RelayProfiler} = require('relay-runtime');
+
+import type RelayQuery from '../query/RelayQuery';
+import type RelayRecordStore from '../store/RelayRecordStore';
+import type {RangeInfo} from '../store/RelayRecordStore';
+import type {DataID} from 'relay-runtime';
 
 type CheckerState = {
   dataID: ?DataID,
   rangeInfo: ?RangeInfo,
   result: boolean,
 };
-
-const {EDGES, PAGE_INFO} = RelayConnectionInterface;
 
 /**
  * @internal
@@ -41,9 +37,8 @@ const {EDGES, PAGE_INFO} = RelayConnectionInterface;
  */
 function checkRelayQueryData(
   store: RelayRecordStore,
-  query: RelayQuery.Root
+  query: RelayQuery.Root,
 ): boolean {
-
   const checker = new RelayQueryChecker(store);
 
   const state = {
@@ -67,10 +62,7 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
   /**
    * Skip visiting children if result is already false.
    */
-  traverse<Tn: RelayQuery.Node>(
-    node: Tn,
-    state: CheckerState
-  ): ?Tn {
+  traverse<Tn: RelayQuery.Node>(node: Tn, state: CheckerState): ?Tn {
     const children = node.getChildren();
     for (let ii = 0; ii < children.length; ii++) {
       if (!state.result) {
@@ -80,10 +72,7 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
     }
   }
 
-  visitRoot(
-    root: RelayQuery.Root,
-    state: CheckerState
-  ): void {
+  visitRoot(root: RelayQuery.Root, state: CheckerState): void {
     const storageKey = root.getStorageKey();
     forEachRootCallArg(root, ({identifyingArgKey}) => {
       const dataID = this._store.getDataID(storageKey, identifyingArgKey);
@@ -101,24 +90,18 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
     });
   }
 
-  visitFragment(
-    fragment: RelayQuery.Fragment,
-    state: CheckerState
-  ): void {
+  visitFragment(fragment: RelayQuery.Fragment, state: CheckerState): void {
     const dataID = state.dataID;
     // The dataID check is for Flow; it must be non-null to have gotten here.
-    if (dataID && isCompatibleRelayFragmentType(
-      fragment,
-      this._store.getType(dataID)
-    )) {
+    if (
+      dataID &&
+      isCompatibleRelayFragmentType(fragment, this._store.getType(dataID))
+    ) {
       this.traverse(fragment, state);
     }
   }
 
-  visitField(
-    field: RelayQuery.Field,
-    state: CheckerState
-  ): void {
+  visitField(field: RelayQuery.Field, state: CheckerState): void {
     const dataID = state.dataID;
     const recordState = dataID && this._store.getRecordState(dataID);
     if (recordState === RelayClassicRecordState.UNKNOWN) {
@@ -127,6 +110,7 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
     } else if (recordState === RelayClassicRecordState.NONEXISTENT) {
       return;
     }
+    const {EDGES, PAGE_INFO} = ConnectionInterface.get();
     const rangeInfo = state.rangeInfo;
     if (rangeInfo && field.getSchemaName() === EDGES) {
       this._checkEdges(field, state);
@@ -144,15 +128,16 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
   }
 
   _checkScalar(field: RelayQuery.Field, state: CheckerState): void {
-    const fieldData = state.dataID &&
-      this._store.getField(state.dataID, field.getStorageKey());
+    const fieldData =
+      state.dataID && this._store.getField(state.dataID, field.getStorageKey());
     if (fieldData === undefined) {
       state.result = false;
     }
   }
 
   _checkPlural(field: RelayQuery.Field, state: CheckerState): void {
-    const dataIDs = state.dataID &&
+    const dataIDs =
+      state.dataID &&
       this._store.getLinkedRecordIDs(state.dataID, field.getStorageKey());
     if (dataIDs === undefined) {
       state.result = false;
@@ -176,7 +161,8 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
 
   _checkConnection(field: RelayQuery.Field, state: CheckerState): void {
     const calls = field.getCallsWithValues();
-    const dataID = state.dataID &&
+    const dataID =
+      state.dataID &&
       this._store.getLinkedRecordID(state.dataID, field.getStorageKey());
     if (dataID === undefined) {
       state.result = false;
@@ -229,8 +215,9 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
   }
 
   _checkLinkedField(field: RelayQuery.Field, state: CheckerState): void {
-    const dataID = state.dataID &&
-        this._store.getLinkedRecordID(state.dataID, field.getStorageKey());
+    const dataID =
+      state.dataID &&
+      this._store.getLinkedRecordID(state.dataID, field.getStorageKey());
     if (dataID === undefined) {
       state.result = false;
       return;
@@ -249,5 +236,5 @@ class RelayQueryChecker extends RelayQueryVisitor<CheckerState> {
 
 module.exports = RelayProfiler.instrument(
   'checkRelayQueryData',
-  checkRelayQueryData
+  checkRelayQueryData,
 );

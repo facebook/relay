@@ -1,37 +1,36 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayRecordSourceProxy
  * @flow
+ * @format
  */
 
 'use strict';
 
-const RelayRecordProxy = require('RelayRecordProxy');
-const RelayStaticRecord = require('RelayStaticRecord');
+const RelayModernRecord = require('../store/RelayModernRecord');
+const RelayRecordProxy = require('./RelayRecordProxy');
+const RelayRecordSourceSelectorProxy = require('./RelayRecordSourceSelectorProxy');
 
 const invariant = require('invariant');
-const normalizeRelayPayload = require('normalizeRelayPayload');
+const normalizeRelayPayload = require('../store/normalizeRelayPayload');
 
-const {
-  EXISTENT,
-  NONEXISTENT,
-} = require('RelayRecordState');
-const {ROOT_ID, ROOT_TYPE} = require('RelayStoreUtils');
+const {EXISTENT, NONEXISTENT} = require('../store/RelayRecordState');
+const {ROOT_ID, ROOT_TYPE} = require('../store/RelayStoreUtils');
 
-import type {DataID} from 'RelayInternalTypes';
-import type RelayRecordSourceMutator from 'RelayRecordSourceMutator';
-import type {HandlerProvider} from 'RelayStaticEnvironment';
+import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {
+  HandleFieldPayload,
+  RecordSource,
   RecordProxy,
   RecordSourceProxy,
-  Selector,
-} from 'RelayStoreTypes';
+  RecordSourceSelectorProxy,
+  OperationSelector,
+} from '../store/RelayStoreTypes';
+import type {DataID} from '../util/RelayRuntimeTypes';
+import type RelayRecordSourceMutator from './RelayRecordSourceMutator';
 
 /**
  * @internal
@@ -40,30 +39,32 @@ import type {
  */
 class RelayRecordSourceProxy implements RecordSourceProxy {
   _handlerProvider: ?HandlerProvider;
-  _mutator: RelayRecordSourceMutator;
+  __mutator: RelayRecordSourceMutator;
   _proxies: {[dataID: DataID]: ?RelayRecordProxy};
 
   constructor(
     mutator: RelayRecordSourceMutator,
-    handlerProvider?: ?HandlerProvider
+    handlerProvider?: ?HandlerProvider,
   ) {
-    this._mutator = mutator;
+    this.__mutator = mutator;
     this._handlerProvider = handlerProvider || null;
     this._proxies = {};
   }
 
-  commitPayload(selector: Selector, response: Object): void {
-    const {source, fieldPayloads} = normalizeRelayPayload(selector, response);
+  publishSource(
+    source: RecordSource,
+    fieldPayloads?: ?Array<HandleFieldPayload>,
+  ): void {
     const dataIDs = source.getRecordIDs();
-    dataIDs.forEach((dataID) => {
+    dataIDs.forEach(dataID => {
       const status = source.getStatus(dataID);
       if (status === EXISTENT) {
         const sourceRecord = source.get(dataID);
         if (sourceRecord) {
-          if (this._mutator.getStatus(dataID) !== EXISTENT) {
-            this.create(dataID, RelayStaticRecord.getType(sourceRecord));
+          if (this.__mutator.getStatus(dataID) !== EXISTENT) {
+            this.create(dataID, RelayModernRecord.getType(sourceRecord));
           }
-          this._mutator.copyFieldsFromRecord(sourceRecord, dataID);
+          this.__mutator.copyFieldsFromRecord(sourceRecord, dataID);
           delete this._proxies[dataID];
         }
       } else if (status === NONEXISTENT) {
@@ -77,22 +78,37 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
           this._handlerProvider && this._handlerProvider(fieldPayload.handle);
         invariant(
           handler,
-          'RelayStaticEnvironment: Expected a handler to be provided for handle `%s`.',
-          fieldPayload.handle
+          'RelayModernEnvironment: Expected a handler to be provided for handle `%s`.',
+          fieldPayload.handle,
         );
         handler.update(this, fieldPayload);
       });
     }
   }
 
+  commitPayload(
+    operation: OperationSelector,
+    response: ?Object,
+  ): RecordSourceSelectorProxy {
+    if (!response) {
+      return new RelayRecordSourceSelectorProxy(this, operation.fragment);
+    }
+    const {source, fieldPayloads} = normalizeRelayPayload(
+      operation.root,
+      response,
+    );
+    this.publishSource(source, fieldPayloads);
+    return new RelayRecordSourceSelectorProxy(this, operation.fragment);
+  }
+
   create(dataID: DataID, typeName: string): RecordProxy {
-    this._mutator.create(dataID, typeName);
+    this.__mutator.create(dataID, typeName);
     delete this._proxies[dataID];
     const record = this.get(dataID);
     // For flow
     invariant(
       record,
-      'RelayRecordSourceProxy#create(): Expected the created record to exist.'
+      'RelayRecordSourceProxy#create(): Expected the created record to exist.',
     );
     return record;
   }
@@ -100,17 +116,21 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
   delete(dataID: DataID): void {
     invariant(
       dataID !== ROOT_ID,
-      'RelayRecordSourceProxy#delete(): Cannot delete the root record.'
+      'RelayRecordSourceProxy#delete(): Cannot delete the root record.',
     );
     delete this._proxies[dataID];
-    this._mutator.delete(dataID);
+    this.__mutator.delete(dataID);
   }
 
   get(dataID: DataID): ?RecordProxy {
     if (!this._proxies.hasOwnProperty(dataID)) {
-      const status = this._mutator.getStatus(dataID);
+      const status = this.__mutator.getStatus(dataID);
       if (status === EXISTENT) {
-        this._proxies[dataID] = new RelayRecordProxy(this, this._mutator, dataID);
+        this._proxies[dataID] = new RelayRecordProxy(
+          this,
+          this.__mutator,
+          dataID,
+        );
       } else {
         this._proxies[dataID] = status === NONEXISTENT ? null : undefined;
       }
@@ -126,7 +146,7 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
     invariant(
       root && root.getType() === ROOT_TYPE,
       'RelayRecordSourceProxy#getRoot(): Expected the source to contain a ' +
-      'root record.'
+        'root record.',
     );
     return root;
   }

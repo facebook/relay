@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<!-- Built with spec-md -->
+<html><head><meta charset="utf-8"><title>Relay Global Object Identification Specification</title><style>body {
+  color: #333333;
+  font: 13pt/18pt Cambria, "Palatino Linotype", Palatino, "Liberation Serif", serif;
+  margin: 6rem auto 3rem;
+  max-width: 780px;
+}
+
+
+/* Links */
+
+a {
+  color: #3B5998;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+
+/* Section headers */
+
+h1, h2, h3, h4, h5, h6, h7, h8 {
+  margin: 3rem 0 1em;
+  position: relative;
+}
+
+h1 {
+  font-size: 1.5em;
+  margin: 8rem 0 2em;
+}
+
+h2 {
+  font-size: 1.45em;
+  margin: 8rem 0 1em;
+}
+
+h3 {
+  font-size: 1.30em;
+  margin: 5rem 0 1em;
+}
+
+h4 {
+  font-size: 1.20em;
+}
+
+h5 {
+  font-size: 1.12em;
+}
+
+h6, h7, h8 {
+  font-size: 1.1em;
+}
+
+section .spec-secid {
+  margin-right: 1ex;
+  position: absolute;
+  right: 100%;
+  text-align: right;
+  white-space: nowrap;
+}
+
+footer {
+  font-size: 75%;
+  opacity: 0.5;
+  text-align: center;
+  margin-top: 12rem;
+}
+
+
+/* Table of contents */
+
+.spec-toc {
+  margin: 1rem 0 3rem;
+}
+
+.spec-toc .title {
+  content: 'Contents';
+  display: block;
+  font-weight: bold;
+  margin: 3rem 0 1rem;
+}
+
+.spec-toc .spec-secid {
+  margin-right: 1ex;
+}
+
+.spec-toc ol {
+  list-style: none;
+  padding-left: 0;
+}
+
+.spec-toc ol ol {
+  list-style: none;
+  padding-left: 2ex;
+}
+
+.spec-toc li {
+  position: relative;
+  padding: 5px 0 0 30px;
+  margin: -5px 0 0 -30px;
+}
+
+.spec-toc a {
+  color: #333333;
+}
+
+.spec-toc a:hover {
+  text-decoration: none;
+}
+
+.spec-toc a .spec-secid {
+  color: #3B5998;
+}
+
+.spec-toc a:hover .spec-secid {
+  text-decoration: underline;
+}
+
+.spec-toc .toggle {
+  display: none;
+}
+
+.spec-toc .toggle + label {
+  cursor: pointer;
+  left: 10px;
+  opacity: 1;
+  padding: 3px 5px 3px 6px;
+  position: absolute;
+  top: 8px;
+  transform: rotate(0deg);
+  transition: all 0.18s ease-in-out;
+}
+
+.spec-toc .toggle + label:after {
+  border-color: transparent transparent transparent #bbc;
+  border-style: solid;
+  border-width: 6px 0 6px 7px;
+  content: ' ';
+  display: block;
+  height: 0;
+  width: 0;
+}
+
+.spec-toc .toggle:checked + label {
+  transform: rotate(90deg);
+}
+
+.spec-toc li:not(:hover) > .toggle:checked + label {
+  opacity: 0;
+}
+
+.spec-toc .toggle:not(:checked) ~ ol {
+  max-height: 0;
+  overflow: hidden;
+}
+
+
+/* Sidebar */
+
+.spec-sidebar-toggle {
+  display: none;
+}
+
+.spec-sidebar-toggle + label {
+  position: fixed;
+  right: 0;
+  top: 0;
+  padding: 10px 15px;
+  font-size: 30px;
+  color: rgba(0,0,0,0.7);
+  z-index: 2;
+  cursor: pointer;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
+
+.spec-sidebar {
+  display: none;
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 320px;
+  font-size: 80%;
+  overflow-y: scroll;
+  height: 100%;
+  padding: 0 0 5rem 30px;
+  box-sizing: border-box;
+  background: #f0f0f0;
+}
+
+.spec-sidebar-toggle:checked ~ .spec-sidebar {
+  display: block;
+  box-shadow:
+    -1px 0 rgba(0,0,0,0.12),
+    -4px 0 8px -2px rgba(0,0,0,0.05);
+}
+
+.spec-sidebar .viewing > a:after {
+  color: #8b9;
+  content: '\2022';
+  margin-left: 1ex;
+}
+
+@media (min-width: 1240px) {
+  .spec-sidebar-toggle + label {
+    display: none;
+  }
+
+  .spec-sidebar {
+    display: block;
+    box-shadow:
+      inset 1px 0 rgba(0,0,0,0.05),
+      inset 4px 0 8px -2px rgba(0,0,0,0.08) !important;
+  }
+
+  body {
+    padding-right: 300px;
+  }
+}
+
+
+/* Notes */
+
+.spec-note {
+  background: #FEFEF3;
+  border-left: solid 4px #F4E925;
+  margin: 1em -1em;
+  min-width: 416px;
+  padding: 1ex 1em 1ex calc(1em - 4px);
+  width: -moz-fit-content;
+  width: -webkit-fit-content;
+  width: fit-content;
+}
+
+.spec-note::before {
+  color: #6C6613;
+  content: 'Note';
+  display: block;
+  font: italic 11pt/18pt Cambria, "Palatino Linotype", Palatino, "Liberation Serif", serif;
+  opacity: 0.6;
+  user-select: none;
+}
+
+
+/* Todos */
+
+.spec-todo {
+  color: #666666;
+  margin: 1em 0 1em 5em;
+  min-height: 1em;
+}
+
+.spec-todo::before {
+  content: 'todo';
+  display: block;
+  float: left;
+  margin-left: -5em;
+  text-transform: uppercase;
+}
+
+/* Index table */
+
+.spec-index ol {
+  list-style-type: none;
+  margin: 0 0 0 2rem;
+  padding: 0;
+  column-width: 210px;
+  column-gap: 2rem;
+}
+
+.spec-index ol li {
+  width: min-content;
+}
+
+/* Code */
+
+code {
+  background: #FAFAFA;
+  font-family: Consolas, Monaco, monospace;
+  font-size: 85%;
+  font-weight: inherit;
+  margin: -2px -1px;
+  padding: 3px 3px;
+  white-space: pre;
+}
+
+pre code {
+  background: none;
+  font-weight: inherit;
+  margin: 0;
+  padding: 0;
+}
+
+pre {
+  background: #FAFAFA;
+  border-left: solid 4px #E9E9E9;
+  margin: 1em -1em;
+  min-width: 40ch;
+  padding: 1ex 1em 1ex calc(1em - 4px);
+  width: -moz-fit-content;
+  width: -webkit-fit-content;
+  width: fit-content;
+}
+
+.spec-example {
+  background: #FAFAFF;
+  border-left: solid 4px #BBBBFF;
+}
+
+.spec-counter-example {
+  background: #FFFAFA;
+  border-left: solid 4px #FFBBBB;
+}
+
+.spec-example > a,
+.spec-counter-example > a {
+  display: block;
+  font: italic 11pt/18pt Cambria, "Palatino Linotype", Palatino, "Liberation Serif", serif;
+  opacity: 0.6;
+  user-select: none;
+}
+
+.spec-counter-example > a {
+  color: #98593b;
+}
+
+
+/* Tables */
+
+table {
+  border-collapse: collapse;
+}
+
+th {
+  background-color: #F9F9F9;
+}
+
+td, th {
+  border: 1px solid #D0D0D0;
+  padding: 0.4em;
+  vertical-align: baseline;
+}
+
+
+/* Edits */
+
+ins {
+  background-color: rgba(0, 200, 30, 0.08);
+  text-decoration: none;
+}
+
+del {
+  background-color: rgba(200, 0, 0, 0.08);
+}
+
+.spec-added, .spec-removed {
+  border-left: 4px solid;
+  margin-left: -18px;
+  padding-left: 14px;
+}
+
+.spec-added {
+  border-color: #396;
+}
+
+.spec-removed {
+  border-color: #933;
+  text-decoration: line-through;
+}
+
+
+/* Values */
+
+.spec-keyword {
+  font-weight: bold;
+}
+
+.spec-string {
+  font-family: Consolas, Monaco, monospace;
+  white-space: pre;
+}
+
+var {
+  font-style: italic;
+}
+
+*[data-name] {
+  transition: 0.15s background ease-out;
+  border-radius: 2px;
+  padding: 0 3px;
+  margin: 0 -3px;
+}
+
+
+/* Grammar semantics, algorithms and calls */
+
+.spec-semantic,
+.spec-algo {
+  margin: 1rem 0 1rem 2rem;
+}
+
+.spec-semantic > .spec-rhs {
+  display: inline-block;
+  margin-left: 1ex;
+}
+
+.spec-semantic > .spec-nt::after,
+.spec-algo > .spec-call:first-child::after {
+  content: ':';
+  font-style: normal;
+  font-weight: bold;
+  margin-left: 1ex;
+}
+
+.spec-semantic ol, .spec-semantic ol ol ol ol,
+.spec-algo ol, .spec-algo ol ol ol ol {
+  list-style-type: decimal;
+}
+
+.spec-semantic ol ol, .spec-semantic ol ol ol ol ol,
+.spec-algo ol ol, .spec-algo ol ol ol ol ol {
+  list-style-type: lower-alpha;
+}
+
+.spec-semantic ol ol ol, .spec-semantic ol ol ol ol ol ol,
+.spec-algo ol ol ol, .spec-algo ol ol ol ol ol ol {
+  list-style-type: lower-roman;
+}
+
+.spec-call > a {
+  color: inherit;
+}
+
+
+/* Grammar productions */
+
+.spec-production {
+  margin: 1rem 0 1rem 2rem;
+}
+
+.spec-production > .spec-nt::after {
+  content: ':';
+  font-style: normal;
+  font-weight: bold;
+  margin: 0 1ex;
+}
+
+.spec-semantic.d2 > .spec-nt::after,
+.spec-production.d2 > .spec-nt::after {
+  content: '::';
+}
+
+.spec-semantic.d3 > .spec-nt::after,
+.spec-production.d3 > .spec-nt::after {
+  content: ':::';
+}
+
+.spec-rhs {
+  margin-left: 2rem;
+}
+
+.spec-oneof {
+  display: inline;
+}
+
+.spec-oneof::before {
+  content: 'one of';
+  font-style: normal;
+  font-weight: bold;
+}
+
+.spec-oneof > table {
+  margin-left: 2rem;
+}
+
+.spec-oneof .spec-rhs {
+  border: none;
+  margin: 0;
+  padding: 0 0.5em;
+  vertical-align: baseline;
+}
+
+.spec-rhs .spec-constrained:not(:first-child),
+.spec-rhs .spec-quantified:not(:first-child),
+.spec-rhs .spec-nt:not(:first-child),
+.spec-rhs .spec-t:not(:first-child),
+.spec-rhs .spec-rx:not(:first-child),
+.spec-rhs .spec-prose:not(:first-child),
+.spec-rhs .spec-empty:not(:first-child),
+.spec-rhs .spec-lookahead:not(:first-child) {
+  margin-left: 1ex;
+}
+
+.spec-condition {
+  font-size: 85%;
+}
+
+.spec-condition::before {
+  content: '[+'
+}
+
+.spec-condition.not::before {
+  content: '[~'
+}
+
+.spec-condition::after {
+  content: ']'
+}
+
+.spec-empty,
+.spec-prose {
+  color: #666666;
+}
+
+.spec-nt {
+  font-style: italic;
+}
+
+.spec-nt > a {
+  color: inherit;
+}
+
+.spec-quantifiers,
+.spec-params {
+  font-size: 65%;
+  font-style: normal;
+  vertical-align: sub;
+}
+
+.spec-quantifier.list {
+  color: #3348D3;
+}
+
+.spec-quantifier.optional {
+  color: #83238E;
+}
+
+.spec-params,
+.spec-condition {
+  color: #1C7758;
+}
+
+.spec-params::before {
+  content: '[';
+}
+
+.spec-params::after {
+  content: ']';
+}
+
+.spec-quantifier:not(:last-child)::after,
+.spec-param:not(:last-child)::after {
+  color: #666666;
+  content: ', ';
+}
+
+.spec-param.conditional::before {
+  content: '?';
+}
+
+.spec-t, .spec-rx {
+  color: #333333;
+  font-family: monospace;
+  font-weight: bold;
+}
+
+.spec-butnot::before {
+  color: #666666;
+  content: 'but not';
+  font-family: Cambria, "Palatino Linotype", Palatino, "Liberation Serif", serif;
+  font-weight: normal;
+  margin-right: 1ex;
+}
+
+.spec-butnot > *:not(:first-child)::before {
+  color: #666666;
+  content: 'or';
+  font-family: Cambria, "Palatino Linotype", Palatino, "Liberation Serif", serif;
+  font-weight: normal;
+  margin-right: 1ex;
+}
+
+.spec-rhs .spec-oneof::before,
+.spec-rhs .spec-butnot::before {
+  margin-left: 1ex;
+}
+
+.spec-lookahead > * {
+  margin: 0 !important;
+}
+
+.spec-lookahead > *:not(:first-child)::before {
+  color: #666666;
+  content: ', ';
+  font-family: Cambria, "Palatino Linotype", Palatino, "Liberation Serif", serif;
+  font-style: normal;
+  font-weight: normal;
+}
+
+.spec-lookahead::before {
+  color: #666666;
+  content: '[lookahead = ';
+  font-family: Cambria, "Palatino Linotype", Palatino, "Liberation Serif", serif;
+  font-style: normal;
+  font-weight: normal;
+}
+
+.spec-lookahead.not::before {
+  content: '[lookahead \2260  ';
+}
+
+.spec-lookahead.set::before {
+  content: '[lookahead \2208  {';
+  margin-right: 0;
+}
+
+.spec-lookahead.set.not::before {
+  content: '[lookahead \2209  {';
+}
+
+.spec-lookahead::after {
+  color: #666666;
+  content: ']';
+}
+
+.spec-lookahead.set::after {
+  content: '}]';
+}
+</style><style>/* Copied from node_modules/prismjs/themes/prism.css */
+/**
+ * prism.js default theme for JavaScript, CSS and HTML
+ * Based on dabblet (http://dabblet.com)
+ * @author Lea Verou
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+	color: black;
+	background: none;
+	text-shadow: 0 1px white;
+	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+	word-wrap: normal;
+	line-height: 1.5;
+
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
+	tab-size: 4;
+
+	-webkit-hyphens: none;
+	-moz-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+}
+
+pre[class*="language-"]::-moz-selection, pre[class*="language-"] ::-moz-selection,
+code[class*="language-"]::-moz-selection, code[class*="language-"] ::-moz-selection {
+	text-shadow: none;
+	background: #b3d4fc;
+}
+
+pre[class*="language-"]::selection, pre[class*="language-"] ::selection,
+code[class*="language-"]::selection, code[class*="language-"] ::selection {
+	text-shadow: none;
+	background: #b3d4fc;
+}
+
+@media print {
+	code[class*="language-"],
+	pre[class*="language-"] {
+		text-shadow: none;
+	}
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+	padding: 1em;
+	margin: .5em 0;
+	overflow: auto;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+	background: #f5f2f0;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+	padding: .1em;
+	border-radius: .3em;
+	white-space: normal;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: slategray;
+}
+
+.token.punctuation {
+	color: #999;
+}
+
+.namespace {
+	opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+	color: #905;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+	color: #690;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+	color: #a67f59;
+	background: hsla(0, 0%, 100%, .5);
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+	color: #07a;
+}
+
+.token.function {
+	color: #DD4A68;
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+	color: #e90;
+}
+
+.token.important,
+.token.bold {
+	font-weight: bold;
+}
+.token.italic {
+	font-style: italic;
+}
+
+.token.entity {
+	cursor: help;
+}
+</style><script>(function (){
+var styleSheet = document.getElementsByTagName('style')[0].sheet;
+var ruleIndex;
+
+function removeHighlight() {
+  if (ruleIndex) {
+    styleSheet.deleteRule(ruleIndex);
+    ruleIndex = void 0;
+  }
+}
+
+function highlightKeyword(name) {
+  removeHighlight();
+  ruleIndex = styleSheet.insertRule(
+    '*[data-name="' + name + '"] { background: #FBF8D0; }',
+    styleSheet.cssRules.length
+  );
+}
+
+document.documentElement.addEventListener('mouseover', function (event) {
+  var nameAttribute = event.target.attributes['data-name'];
+  if (nameAttribute) {
+    highlightKeyword(nameAttribute.value);
+  }
+});
+
+document.documentElement.addEventListener('mouseout', removeHighlight);
+})()</script></head><body><header><h1>Relay Global Object Identification Specification</h1><section id="intro"><p>Relay&rsquo;s support for object identification relies on the GraphQL server exposing object identifiers in a standardized way. In the query, the schema should provide a standard mechanism for asking for an object by ID. In the response, the schema provides a standard way of providing these IDs.</p><p>We refer to objects with identifiers as &ldquo;nodes&rdquo;.</p><p>An example of both of those is the following query:</p><pre><code><span class="token punctuation">{</span>
+  node<span class="token punctuation">(</span><span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token string">"4"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    id
+    <span class="token operator">...</span> <span class="token keyword">on</span> User <span class="token punctuation">{</span>
+      name
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+</code></pre><ul><li>Refetching the object is done with the <code>node</code> field on the root query object.</li><li>The ID to be used for refetching is provided in an <code>id</code> field on the result.</li></ul><p>This section of the spec describes the formal requirements around object refetching.</p></section><nav class="spec-toc"><div class="title">Contents</div><ol><li><a href="#sec-Reserved-Types"><span class="spec-secid">1</span>Reserved Types</a></li><li><a href="#sec-Node-Interface"><span class="spec-secid">2</span>Node Interface</a><input hidden class="toggle" type="checkbox" checked id="_toggle_2" /><label for="_toggle_2"></label><ol><li><a href="#sec-Node-Interface.Introspection"><span class="spec-secid">2.1</span>Introspection</a></li></ol></li><li><a href="#sec-Node-root-field"><span class="spec-secid">3</span>Node root field</a><input hidden class="toggle" type="checkbox" checked id="_toggle_3" /><label for="_toggle_3"></label><ol><li><a href="#sec-Node-root-field.Introspection"><span class="spec-secid">3.1</span>Introspection</a></li></ol></li><li><a href="#sec-Field-stability"><span class="spec-secid">4</span>Field stability</a></li><li><a href="#sec-Plural-identifying-root-fields"><span class="spec-secid">5</span>Plural identifying root fields</a><input hidden class="toggle" type="checkbox" checked id="_toggle_5" /><label for="_toggle_5"></label><ol><li><a href="#sec-Fields"><span class="spec-secid">5.1</span>Fields</a></li></ol></li></ol></nav></header><section id="sec-Reserved-Types" secid="1"><h2><span class="spec-secid" title="link to this section"><a href="#sec-Reserved-Types">1</a></span>Reserved Types</h2><p>A GraphQL Relay server must reserve certain types and type names to support the object identification model used by Relay. In particular, this spec creates guidelines for the following types:</p><ul><li>An interface named <code>Node</code>.</li><li>The <code>node</code> field on the root query type.</li></ul></section><section id="sec-Node-Interface" secid="2"><h2><span class="spec-secid" title="link to this section"><a href="#sec-Node-Interface">2</a></span>Node Interface</h2><p>The server must provide an interface called <code>Node</code>. That interface must include exactly one field, called <code>id</code> that returns a non&#8208;null <code>ID</code>.</p><p>This <code>id</code> should be a globally unique identifier for this object, and given just this <code>id</code>, the server should be able to refetch the object.</p><section id="sec-Node-Interface.Introspection" secid="2.1"><h3><span class="spec-secid" title="link to this section"><a href="#sec-Node-Interface.Introspection">2.1</a></span>Introspection</h3><p>A server that correctly implements the above interface will accept the following introspection query, and return the provided response:</p><pre><code><span class="token punctuation">{</span>
+  __type<span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token string">"Node"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    name
+    kind
+    fields <span class="token punctuation">{</span>
+      name
+      type <span class="token punctuation">{</span>
+        kind
+        ofType <span class="token punctuation">{</span>
+          name
+          kind
+        <span class="token punctuation">}</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre><p>yields</p><pre><code><span class="token punctuation">{</span>
+  <span class="token property">"__type"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"Node"</span><span class="token punctuation">,</span>
+    <span class="token property">"kind"</span><span class="token operator">:</span> <span class="token string">"INTERFACE"</span><span class="token punctuation">,</span>
+    <span class="token property">"fields"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+      <span class="token punctuation">{</span>
+        <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"id"</span><span class="token punctuation">,</span>
+        <span class="token property">"type"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+          <span class="token property">"kind"</span><span class="token operator">:</span> <span class="token string">"NON_NULL"</span><span class="token punctuation">,</span>
+          <span class="token property">"ofType"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+            <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"ID"</span><span class="token punctuation">,</span>
+            <span class="token property">"kind"</span><span class="token operator">:</span> <span class="token string">"SCALAR"</span>
+          <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">]</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></section></section><section id="sec-Node-root-field" secid="3"><h2><span class="spec-secid" title="link to this section"><a href="#sec-Node-root-field">3</a></span>Node root field</h2><p>The server must provide a root field called <code>node</code> that returns the <code>Node</code> interface. This root field must take exactly one argument, a non&#8208;null ID named <code>id</code>.</p><p>If a query returns an object that implements <code>Node</code>, then this root field should refetch the identical object when value returned by the server in the <code>Node</code>&lsquo;s <code>id</code> field is passed as the <code>id</code> parameter to the <code>node</code> root field.</p><p>The server must make a best effort to fetch this data, but it may not always be possible; for example, the server may return a <code>User</code> with a valid <code>id</code>, but when the request is made to refetch that user with the <code>node</code> root field, the user&rsquo;s database may be unavailable, or the user may have deleted their account. In this case, the result of querying this field should be <code>null</code>.</p><section id="sec-Node-root-field.Introspection" secid="3.1"><h3><span class="spec-secid" title="link to this section"><a href="#sec-Node-root-field.Introspection">3.1</a></span>Introspection</h3><p>A server that correctly implements the above requirement will accept the following introspection query, and return a response that contains the provided response.</p><pre><code><span class="token punctuation">{</span>
+  __schema <span class="token punctuation">{</span>
+    queryType <span class="token punctuation">{</span>
+      fields <span class="token punctuation">{</span>
+        name
+        type <span class="token punctuation">{</span>
+          name
+          kind
+        <span class="token punctuation">}</span>
+        args <span class="token punctuation">{</span>
+          name
+          type <span class="token punctuation">{</span>
+            kind
+            ofType <span class="token punctuation">{</span>
+              name
+              kind
+            <span class="token punctuation">}</span>
+          <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre><p>yields</p><pre><code><span class="token punctuation">{</span>
+  <span class="token property">"__schema"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">"queryType"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token property">"fields"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+        // This array may have other entries
+        <span class="token punctuation">{</span>
+          <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"node"</span><span class="token punctuation">,</span>
+          <span class="token property">"type"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+            <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"Node"</span><span class="token punctuation">,</span>
+            <span class="token property">"kind"</span><span class="token operator">:</span> <span class="token string">"INTERFACE"</span>
+          <span class="token punctuation">}</span><span class="token punctuation">,</span>
+          <span class="token property">"args"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+            <span class="token punctuation">{</span>
+              <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"id"</span><span class="token punctuation">,</span>
+              <span class="token property">"type"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+                <span class="token property">"kind"</span><span class="token operator">:</span> <span class="token string">"NON_NULL"</span><span class="token punctuation">,</span>
+                <span class="token property">"ofType"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+                  <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"ID"</span><span class="token punctuation">,</span>
+                  <span class="token property">"kind"</span><span class="token operator">:</span> <span class="token string">"SCALAR"</span>
+                <span class="token punctuation">}</span>
+              <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+          <span class="token punctuation">]</span>
+        <span class="token punctuation">}</span>
+      <span class="token punctuation">]</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></section></section><section id="sec-Field-stability" secid="4"><h2><span class="spec-secid" title="link to this section"><a href="#sec-Field-stability">4</a></span>Field stability</h2><p>If two objects appear in a query, both implementing <code>Node</code> with identical IDs, then the two objects must be equal.</p><p>For the purposes of this definition, object equality is defined as follows:</p><ul><li>If a field is queried on both objects, the result of querying that field on the first object must be equal to the result of querying that field on the second object.<ul><li>If the field returns a scalar, equality is defined as is appropriate for that scalar.</li><li>If the field returns an enum, equality is defined as both fields returning the same enum value.</li><li>If the field returns an object, equality is defined recursively as per the above.</li></ul></li></ul><p>For example:</p><pre><code><span class="token punctuation">{</span>
+  <span class="token attr-name">fourNode</span><span class="token punctuation">:</span> node<span class="token punctuation">(</span><span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token string">"4"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    id
+    <span class="token operator">...</span> <span class="token keyword">on</span> User <span class="token punctuation">{</span>
+      name
+      userWithIdOneGreater <span class="token punctuation">{</span>
+        id
+        name
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+  <span class="token attr-name">fiveNode</span><span class="token punctuation">:</span> node<span class="token punctuation">(</span><span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token string">"5"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    id
+    <span class="token operator">...</span> <span class="token keyword">on</span> User <span class="token punctuation">{</span>
+      name
+      userWithIdOneLess <span class="token punctuation">{</span>
+        id
+        name
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre><p>might return:</p><pre><code><span class="token punctuation">{</span>
+  <span class="token property">"fourNode"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">"id"</span><span class="token operator">:</span> <span class="token string">"4"</span><span class="token punctuation">,</span>
+    <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"Mark Zuckerberg"</span><span class="token punctuation">,</span>
+    <span class="token property">"userWithIdOneGreater"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token property">"id"</span><span class="token operator">:</span> <span class="token string">"5"</span><span class="token punctuation">,</span>
+      <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"Chris Hughes"</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token property">"fiveNode"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">"id"</span><span class="token operator">:</span> <span class="token string">"5"</span><span class="token punctuation">,</span>
+    <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"Chris Hughes"</span><span class="token punctuation">,</span>
+    <span class="token property">"userWithIdOneLess"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token property">"id"</span><span class="token operator">:</span> <span class="token string">"4"</span><span class="token punctuation">,</span>
+      <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"Mark Zuckerberg"</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre><p>Because <code>fourNode.id</code> and <code>fiveNode.userWithIdOneLess.id</code> are the same, we are guaranteed by the conditions above that <code>fourNode.name</code> must be the same as <code>fiveNode.userWithIdOneLess.name</code>, and indeed it is.</p></section><section id="sec-Plural-identifying-root-fields" secid="5"><h2><span class="spec-secid" title="link to this section"><a href="#sec-Plural-identifying-root-fields">5</a></span>Plural identifying root fields</h2><p>Imagine a root field named <code>username</code>, that takes a user&rsquo;s username and returns the corresponding user:</p><pre><code><span class="token punctuation">{</span>
+  username<span class="token punctuation">(</span><span class="token attr-name">username</span><span class="token punctuation">:</span> <span class="token string">"zuck"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    id
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre><p>might return:</p><pre><code><span class="token punctuation">{</span>
+  <span class="token property">"username"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">"id"</span><span class="token operator">:</span> <span class="token string">"4"</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre><p>Clearly, we can link up the object in the response, the user with ID 4, with the request, identifying the object with username &ldquo;zuck&rdquo;. Now imagine a root field named <code>usernames</code>, that takes a list of usernames and returns a list of objects:</p><pre><code><span class="token punctuation">{</span>
+  usernames<span class="token punctuation">(</span><span class="token attr-name">usernames</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"zuck"</span><span class="token punctuation">,</span> <span class="token string">"moskov"</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    id
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre><p>might return:</p><pre><code><span class="token punctuation">{</span>
+  <span class="token property">"usernames"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">{</span>
+      <span class="token property">"id"</span><span class="token operator">:</span> <span class="token string">"4"</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">{</span>
+      <span class="token property">"id"</span><span class="token operator">:</span> <span class="token string">"6"</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre><p>For Relay to be able to link the usernames to the responses, it needs to know that the array in the response will be the same size as the array passed as an argument, and that the order in the response will match the order in the argument. We call these <em>plural identifying root fields</em>, and their requirements are described below.</p><section id="sec-Fields" secid="5.1"><h3><span class="spec-secid" title="link to this section"><a href="#sec-Fields">5.1</a></span>Fields</h3><p>A Relay&#8208;compliant server may expose root fields that accept a list of input arguments, and returns a list of responses. For Relay to use these fields, these fields must be <em>plural identifying root fields</em>, and obey the following requirements.</p><div class="spec-note">Relay&#8208;compliant servers may expose root fields that are not <em>plural identifying root fields</em>; the Relay client will just be unable to use those fields as root fields in its queries.</div><p><em>Plural identifying root fields</em> must have a single argument. The type of that argument must be a non&#8208;null list of non&#8208;nulls. In our <code>usernames</code> example, the field would take a single argument named <code>usernames</code>, whose type (using our type system shorthand) would be <code>[String!]!</code>.</p><p>The return type of a <em>plural identifying root field</em> must be a list, or a non&#8208;null wrapper around a list. The list must wrap the <code>Node</code> interface, an object that implements the <code>Node</code> interface, or a non&#8208;null wrapper around those types.</p><p>Whenever the <em>plural identifying root field</em> is used, the length of the list in the response must be the same as the length of the list in the arguments. Each item in the response must correspond to its item in the input; more formally, if passing the root field an input list <code>Lin</code> resulted in output value <code>Lout</code>, then for an arbitrary permutation <code>P</code>, passing the root field <code>P(Lin)</code> must result in output value <code>P(Lout)</code>.</p><p>Because of this, servers are advised to not have the response type wrap a non&#8208;null wrapper, because if it is unable to fetch the object for a given entry in the input, it still must provide a value in the output for that input entry; <code>null</code> is a useful value for doing so. </p></section></section><footer>Written in <a href="http://leebyron.com/spec-md/" target="_blank">Spec Markdown</a>.</footer><input hidden class="spec-sidebar-toggle" type="checkbox" id="spec-sidebar-toggle" aria-hidden /><label for="spec-sidebar-toggle" aria-hidden>&#x2630;</label><div class="spec-sidebar" aria-hidden><div class="spec-toc"><div class="title"><a href="#">Relay Global Object Identification Specification</a></div><ol><li id="_sidebar_1"><a href="#sec-Reserved-Types"><span class="spec-secid">1</span>Reserved Types</a></li><li id="_sidebar_2"><a href="#sec-Node-Interface"><span class="spec-secid">2</span>Node Interface</a><input hidden class="toggle" type="checkbox" id="_sidebar_toggle_2" /><label for="_sidebar_toggle_2"></label><ol><li id="_sidebar_2.1"><a href="#sec-Node-Interface.Introspection"><span class="spec-secid">2.1</span>Introspection</a></li></ol></li><li id="_sidebar_3"><a href="#sec-Node-root-field"><span class="spec-secid">3</span>Node root field</a><input hidden class="toggle" type="checkbox" id="_sidebar_toggle_3" /><label for="_sidebar_toggle_3"></label><ol><li id="_sidebar_3.1"><a href="#sec-Node-root-field.Introspection"><span class="spec-secid">3.1</span>Introspection</a></li></ol></li><li id="_sidebar_4"><a href="#sec-Field-stability"><span class="spec-secid">4</span>Field stability</a></li><li id="_sidebar_5"><a href="#sec-Plural-identifying-root-fields"><span class="spec-secid">5</span>Plural identifying root fields</a><input hidden class="toggle" type="checkbox" id="_sidebar_toggle_5" /><label for="_sidebar_toggle_5"></label><ol><li id="_sidebar_5.1"><a href="#sec-Fields"><span class="spec-secid">5.1</span>Fields</a></li></ol></li></ol></div><script>(function (){
+var currentSection;
+var numberedSections = [];
+
+var sections = document.getElementsByTagName('section');
+for (var i = 0; i < sections.length; i++) {
+  if (sections[i].getAttribute('secid')) {
+    numberedSections.push(sections[i]);
+  }
+}
+
+var scrollPos = window.scrollY;
+var pending = false;
+window.addEventListener('scroll', function (e) {
+  scrollPos = window.scrollY;
+  if (!pending) {
+    pending = true;
+    window.requestAnimationFrame(function () {
+      updateSectionFocus(scrollPos);
+      pending = false;
+    });
+  }
+});
+
+function updateSectionFocus(pos) {
+  var readLine = pos + document.documentElement.clientHeight / 4;
+
+  var focusedSection;
+  for (var n = numberedSections.length - 1; n >= 0; n--) {
+    if (numberedSections[n].offsetTop < readLine) {
+      focusedSection = numberedSections[n];
+      break;
+    }
+  }
+
+  var secid = focusedSection && focusedSection.getAttribute('secid');
+  if (secid !== currentSection) {
+    currentSection && fold(currentSection, false);
+    secid && fold(secid, true);
+    currentSection = secid;
+  }
+}
+
+function fold(secid, check) {
+  document.getElementById('_sidebar_' + secid).className = check ? 'viewing' : '';
+  var sections = secid.split('.');
+  while (sections.length) {
+    var toggle = document.getElementById('_sidebar_toggle_' + sections.join('.'));
+    if (toggle) {
+      toggle.checked = check;
+    }
+    sections.pop();
+  }
+}
+
+updateSectionFocus(window.scrollY);
+})()</script></div></body></html>

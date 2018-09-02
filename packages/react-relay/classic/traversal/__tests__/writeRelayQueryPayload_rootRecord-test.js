@@ -1,27 +1,23 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
+jest.mock('../../legacy/store/generateClientID').mock('warning');
+
 require('configureForRelayOSS');
 
-jest
-  .unmock('GraphQLRange')
-  .unmock('GraphQLSegment')
-  .mock('warning');
-
-const Relay = require('Relay');
+const RelayClassic = require('../../RelayPublic');
 const RelayTestUtils = require('RelayTestUtils');
 
-const stableStringify = require('stableStringify');
+const stableStringify = require('../../query/stableStringify');
 
 describe('writeRelayQueryPayload()', () => {
   let RelayRecordStore;
@@ -38,26 +34,27 @@ describe('writeRelayQueryPayload()', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    RelayRecordStore = require('RelayRecordStore');
-    RelayRecordWriter = require('RelayRecordWriter');
+    RelayRecordStore = require('../../store/RelayRecordStore');
+    RelayRecordWriter = require('../../store/RelayRecordWriter');
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('root record', () => {
-
     it('is created for argument-less custom root calls with an id', () => {
       const records = {};
       const rootCallMap = {};
       const store = new RelayRecordStore({records}, {rootCallMap});
       const writer = new RelayRecordWriter(records, rootCallMap, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           me {
             id
           }
         }
-      `);
+      `,
+      );
       const payload = {
         me: {
           id: '123',
@@ -80,7 +77,8 @@ describe('writeRelayQueryPayload()', () => {
       const rootCallMap = {};
       const store = new RelayRecordStore({records}, {rootCallMap});
       const writer = new RelayRecordWriter(records, rootCallMap, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           viewer {
             actor {
@@ -88,7 +86,8 @@ describe('writeRelayQueryPayload()', () => {
             }
           }
         }
-      `);
+      `,
+      );
       const payload = {
         viewer: {
           actor: {
@@ -111,7 +110,7 @@ describe('writeRelayQueryPayload()', () => {
 
     it('uses existing id for custom root calls without an id', () => {
       const cachedRootCallMap = {
-        'viewer': {'': 'client:12345'},
+        viewer: {'': 'client:12345'},
       };
       const cachedRecords = {
         'client:12345': {__dataID__: 'client:12345'},
@@ -122,9 +121,10 @@ describe('writeRelayQueryPayload()', () => {
       const writer = new RelayRecordWriter(records, rootCallMap, false);
       const cachedStore = new RelayRecordStore(
         {records, cachedRecords},
-        {cachedRootCallMap, rootCallMap}
+        {cachedRootCallMap, rootCallMap},
       );
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           viewer {
             actor {
@@ -132,7 +132,8 @@ describe('writeRelayQueryPayload()', () => {
             }
           }
         }
-      `);
+      `,
+      );
       const payload = {
         viewer: {
           actor: {
@@ -159,13 +160,15 @@ describe('writeRelayQueryPayload()', () => {
       const rootCallMap = {};
       const store = new RelayRecordStore({records}, {rootCallMap});
       const writer = new RelayRecordWriter(records, rootCallMap, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           username(name:"yuzhi") {
             id
           }
         }
-      `);
+      `,
+      );
       const payload = {
         username: {
           id: '1055790163',
@@ -188,13 +191,15 @@ describe('writeRelayQueryPayload()', () => {
       const rootCallMap = {};
       const store = new RelayRecordStore({records}, {rootCallMap});
       const writer = new RelayRecordWriter(records, rootCallMap, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           username(name:"yuzhi") {
             id
           }
         }
-      `);
+      `,
+      );
       const payload = {
         username: {
           id: '1055790163',
@@ -224,13 +229,15 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records}, {rootCallMap});
       const writer = new RelayRecordWriter(records, rootCallMap, false);
       // note: this test simulates an `id`-less root call
-      let query = getNode(Relay.QL`
+      let query = getNode(
+        RelayClassic.QL`
         query {
           username(name:"yuzhi") {
             name
           }
         }
-      `);
+      `,
+      );
       // remove the autogenerated `id` field
       query = query.clone(query.getChildren().slice(0, 1));
       // no `id` value is present, so the root ID is autogenerated
@@ -255,13 +262,16 @@ describe('writeRelayQueryPayload()', () => {
       const records = {};
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
-      const query = getRefNode(Relay.QL`
+      const query = getRefNode(
+        RelayClassic.QL`
         query {
           nodes(ids:$ref_q0) {
             id
           }
         }
-      `, {path: '$.*.id'}); // This path is bogus.
+      `,
+        {path: '$.*.id'},
+      ); // This path is bogus.
       const payload = {
         nodes: [
           {
@@ -284,13 +294,15 @@ describe('writeRelayQueryPayload()', () => {
       const records = {};
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           nodes(ids: ["123","456"]) {
             id
           }
         }
-      `);
+      `,
+      );
       const payload = {
         nodes: [
           {
@@ -320,17 +332,19 @@ describe('writeRelayQueryPayload()', () => {
       const rootCallMap = {};
       const store = new RelayRecordStore({records}, {rootCallMap});
       const writer = new RelayRecordWriter(records, rootCallMap, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           task(number: 5) {
             title
           }
         }
-      `);
+      `,
+      );
       expect(query.getIdentifyingArg().value).toBe(5);
       const payload = {
         task: {
-          title: 'Relay Next',
+          title: 'RelayClassic Next',
         },
       };
       const results = writeVerbatimPayload(store, writer, query, payload);
@@ -341,7 +355,7 @@ describe('writeRelayQueryPayload()', () => {
         updated: {},
       });
       expect(store.getRecordState('client:1')).toBe('EXISTENT');
-      expect(store.getField('client:1', 'title')).toBe('Relay Next');
+      expect(store.getField('client:1', 'title')).toBe('RelayClassic Next');
       expect(store.getDataID('task', '5')).toBe('client:1');
     });
 
@@ -350,13 +364,15 @@ describe('writeRelayQueryPayload()', () => {
       const rootCallMap = {};
       const store = new RelayRecordStore({records}, {rootCallMap});
       const writer = new RelayRecordWriter(records, rootCallMap, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           checkinSearchQuery(query: {query: "Facebook"}) {
             query
           }
         }
-      `);
+      `,
+      );
       const payload = {
         checkinSearchQuery: {
           query: 'Facebook',
@@ -373,7 +389,7 @@ describe('writeRelayQueryPayload()', () => {
       expect(store.getField('client:1', 'query')).toBe('Facebook');
       const identifyingArgKey = stableStringify({query: 'Facebook'});
       expect(store.getDataID('checkinSearchQuery', identifyingArgKey)).toBe(
-        'client:1'
+        'client:1',
       );
     });
 
@@ -387,7 +403,7 @@ describe('writeRelayQueryPayload()', () => {
     //     {lat: '0.0', lon: '0.0'},
     //     {lat: '1.1', lon: '1.1'}
     //   ];
-    //   var query = getNode(Relay.QL`
+    //   var query = getNode(RelayClassic.QL`
     //     query {
     //       route(waypoints: $waypoints) {
     //         steps {
@@ -426,13 +442,15 @@ describe('writeRelayQueryPayload()', () => {
       const records = {};
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           node {
             id
           }
         }
-      `);
+      `,
+      );
       const payload = {
         node: null,
       };
@@ -440,7 +458,7 @@ describe('writeRelayQueryPayload()', () => {
         writePayload(store, writer, query, payload);
       }).toFailInvariant(
         'RelayRecordStore.getDataID(): Argument to `node()` cannot be ' +
-        'null or undefined.'
+          'null or undefined.',
       );
     });
 
@@ -448,13 +466,15 @@ describe('writeRelayQueryPayload()', () => {
       const records = {};
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           node(id:"123") {
             id
           }
         }
-      `);
+      `,
+      );
       const payload = {
         node: null,
       };
@@ -475,13 +495,15 @@ describe('writeRelayQueryPayload()', () => {
       };
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           node(id:"123") {
             id
           }
         }
-      `);
+      `,
+      );
       const payload = {
         node: null,
       };
@@ -499,13 +521,15 @@ describe('writeRelayQueryPayload()', () => {
       const records = {};
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           nodes(ids:["123", "456"]) {
             id
           }
         }
-      `);
+      `,
+      );
       const payload = {
         me: {
           __dataID__: '123',
@@ -516,8 +540,8 @@ describe('writeRelayQueryPayload()', () => {
         writePayload(store, writer, query, payload);
       }).toFailInvariant(
         'RelayNodeInterface: Expected payload for root field `nodes` to ' +
-        'be an array with 2 results, instead received a single non-array ' +
-        'result.'
+          'be an array with 2 results, instead received a single non-array ' +
+          'result.',
       );
     });
 
@@ -525,13 +549,15 @@ describe('writeRelayQueryPayload()', () => {
       const records = {};
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           me {
             id
           }
         }
-      `);
+      `,
+      );
       const payload = {
         me: [
           {
@@ -548,7 +574,7 @@ describe('writeRelayQueryPayload()', () => {
         writePayload(store, writer, query, payload);
       }).toFailInvariant(
         'RelayNodeInterface: Expected payload for root field `me` to be a ' +
-        'single non-array result, instead received an array with 2 results.'
+          'single non-array result, instead received an array with 2 results.',
       );
     });
 
@@ -556,14 +582,17 @@ describe('writeRelayQueryPayload()', () => {
       const records = {};
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
-      const query = getRefNode(Relay.QL`
+      const query = getRefNode(
+        RelayClassic.QL`
         query {
           nodes(ids:$ref_q0) {
             id
             name
           }
         }
-      `, {path: '$.*.id'}); // This path is bogus.
+      `,
+        {path: '$.*.id'},
+      ); // This path is bogus.
       const payload = {
         nodes: [
           {
@@ -589,13 +618,15 @@ describe('writeRelayQueryPayload()', () => {
       const records = {};
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           node(id:"123") {
             id
           }
         }
-      `);
+      `,
+      );
       const payload = {};
       writePayload(store, writer, query, payload);
       expect(store.getRecordState('123')).toBe('NONEXISTENT');
@@ -610,7 +641,8 @@ describe('writeRelayQueryPayload()', () => {
       };
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           node(id:"123") {
             actor {
@@ -618,7 +650,8 @@ describe('writeRelayQueryPayload()', () => {
             }
           }
         }
-      `);
+      `,
+      );
       const payload = {};
       writePayload(store, writer, query, payload);
       expect(store.getRecordState('123')).toBe('NONEXISTENT');
@@ -628,13 +661,15 @@ describe('writeRelayQueryPayload()', () => {
       const records = {};
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           node(id:"123") {
             id
           }
         }
-      `);
+      `,
+      );
       const payload = {
         node: {
           id: '123',
@@ -660,13 +695,15 @@ describe('writeRelayQueryPayload()', () => {
       };
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           node(id:"123") {
             id
           }
         }
-      `);
+      `,
+      );
       const payload = {
         node: {
           id: '123',
@@ -690,14 +727,16 @@ describe('writeRelayQueryPayload()', () => {
       };
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           node(id:"123") {
             id
             name
           }
         }
-      `);
+      `,
+      );
       const payload = {
         node: {
           id: '123',
@@ -725,13 +764,15 @@ describe('writeRelayQueryPayload()', () => {
       };
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           node(id:"123") {
             id
           }
         }
-      `);
+      `,
+      );
       const payload = {
         node: {
           id: '123',
@@ -751,14 +792,16 @@ describe('writeRelayQueryPayload()', () => {
       const records = {};
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           node(id: "123") {
             id
             __typename
           }
         }
-      `);
+      `,
+      );
       const payload = {
         node: {
           id: '123',
@@ -775,13 +818,15 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       // No `id` or `__typename` fields
-      const query = getVerbatimNode(Relay.QL`
+      const query = getVerbatimNode(
+        RelayClassic.QL`
         query {
           node(id: "123") {
             name
           }
         }
-      `);
+      `,
+      );
       // But the payload contains an `id` so the writer will attempt to store a
       // `__typename`.
       const payload = {
@@ -806,13 +851,15 @@ describe('writeRelayQueryPayload()', () => {
       // Add the record to the store with a concrete type
       writer.putRecord('123', 'User', null);
       // No `id` or `__typename` fields
-      const query = getVerbatimNode(Relay.QL`
+      const query = getVerbatimNode(
+        RelayClassic.QL`
         query {
           node(id: "123") {
             name
           }
         }
-      `);
+      `,
+      );
       // No typename in the payload; this will warn for new records, but
       // shouldn't for existing ones with a known type.
       const payload = {
@@ -833,7 +880,8 @@ describe('writeRelayQueryPayload()', () => {
       const records = {};
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        RelayClassic.QL`
         query {
           viewer {
             actor {
@@ -841,7 +889,8 @@ describe('writeRelayQueryPayload()', () => {
             }
           }
         }
-      `);
+      `,
+      );
       const payload = {
         viewer: {
           actor: {

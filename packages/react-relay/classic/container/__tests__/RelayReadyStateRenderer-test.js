@@ -1,24 +1,26 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
+jest.mock('../../query-config/RelayQueryConfig');
+
 const React = require('React');
-const ReactDOM = require('ReactDOM');
 const ReactTestUtils = require('ReactTestUtils');
-const Relay = require('Relay');
-const RelayEnvironment = require('RelayEnvironment');
-const RelayQueryConfig = require('RelayQueryConfig');
-const RelayReadyStateRenderer = require('RelayReadyStateRenderer');
-const StaticContainer = require('StaticContainer.react');
+const Relay = require('../../RelayPublic');
+const RelayEnvironment = require('../../store/RelayEnvironment');
+const RelayQueryConfig = require('../../query-config/RelayQueryConfig');
+const RelayReadyStateRenderer = require('../RelayReadyStateRenderer');
+const RelayStaticContainer = require('../RelayStaticContainer');
+const prettyFormat = require('pretty-format');
+const ReactTestRenderer = require('react-test-renderer');
 
 describe('RelayReadyStateRenderer', () => {
   /**
@@ -52,15 +54,17 @@ describe('RelayReadyStateRenderer', () => {
    * Pretty printer that prints top-level React elements using JSX.
    */
   const ppReactElement = element => {
-    if (!ReactTestUtils.isElement(element) ||
-        !element.type ||
-        !element.type.name) {
-      return jasmine.pp(element);
+    if (
+      !ReactTestUtils.isElement(element) ||
+      !element.type ||
+      !element.type.name
+    ) {
+      return prettyFormat(element);
     }
     const ppProps = Object.keys(element.props)
       .map(key => {
         const value = element.props[key];
-        const ppValue = jasmine.pp(value);
+        const ppValue = prettyFormat(value);
         return ` ${key}={${ppValue.length > 120 ? '...' : ppValue}}`;
       })
       .join('');
@@ -101,37 +105,33 @@ describe('RelayReadyStateRenderer', () => {
 
   describe('arguments', () => {
     beforeEach(() => {
-      const container = document.createElement('div');
-      jasmine.addMatchers({
-        toRenderWithArgs: () => ({
-          compare(elementOrReadyState, expected) {
-            const render = jest.fn(() => <div />);
-            const element = ReactTestUtils.isElement(elementOrReadyState) ?
-              React.cloneElement(elementOrReadyState, {render}) :
-              <RelayReadyStateRenderer
-                {...defaultProps}
-                readyState={elementOrReadyState}
-                render={render}
-              />;
-            ReactDOM.render(element, container);
-            const actual = render.mock.calls[0][0];
-            const pass = jasmine.matchersUtil.equals(
-              actual,
-              jasmine.objectContaining(expected)
-            );
-            return {
-              get message() {
-                const not = pass ? ' not' : '';
-                return (
-                  `Expected ${ppReactElement(elementOrReadyState)}${not} ` +
-                  `to render with arguments ${jasmine.pp(expected)}. ` +
-                  `Instead, it rendered with arguments ${jasmine.pp(actual)}.`
-                );
-              },
-              pass,
-            };
-          },
-        }),
+      expect.extend({
+        toRenderWithArgs(elementOrReadyState, expected) {
+          const render = jest.fn(() => <div />);
+          const element = ReactTestUtils.isElement(elementOrReadyState) ? (
+            React.cloneElement(elementOrReadyState, {render})
+          ) : (
+            <RelayReadyStateRenderer
+              {...defaultProps}
+              readyState={elementOrReadyState}
+              render={render}
+            />
+          );
+          ReactTestRenderer.create(element);
+          const actual = render.mock.calls[0][0];
+          const pass = this.equals(actual, jasmine.objectContaining(expected));
+          return {
+            get message() {
+              const not = pass ? ' not' : '';
+              return (
+                `Expected ${ppReactElement(elementOrReadyState)}${not} ` +
+                `to render with arguments ${prettyFormat(expected)}. ` +
+                `Instead, it rendered with arguments ${prettyFormat(actual)}.`
+              );
+            },
+            pass,
+          };
+        },
       });
     });
 
@@ -207,7 +207,7 @@ describe('RelayReadyStateRenderer', () => {
           {...defaultProps}
           queryConfig={anotherQueryConfig}
           readyState={{...defaultReadyState, ready: true}}
-        />
+        />,
       ).toRenderWithArgs({
         props: jasmine.objectContaining({
           foo: 123,
@@ -221,7 +221,7 @@ describe('RelayReadyStateRenderer', () => {
         <RelayReadyStateRenderer
           {...defaultProps}
           readyState={{...defaultReadyState, ready: true}}
-        />
+        />,
       ).toRenderWithArgs({
         props: {node: anyRecord({dataID: '123'})},
       });
@@ -237,7 +237,7 @@ describe('RelayReadyStateRenderer', () => {
           {...defaultProps}
           queryConfig={new AnotherQueryConfig()}
           readyState={{...defaultReadyState, ready: true}}
-        />
+        />,
       ).toRenderWithArgs({
         props: {node: anyRecord({dataID: '456'})},
       });
@@ -262,24 +262,30 @@ describe('RelayReadyStateRenderer', () => {
         queryConfig: anotherQueryConfig,
         retry: jest.fn(),
       };
-      environment.getStoreData().getRecordWriter().putDataID('me', null, '123');
+      environment
+        .getStoreData()
+        .getRecordWriter()
+        .putDataID('me', null, '123');
       expect(
         <RelayReadyStateRenderer
           {...defaultProps}
           queryConfig={anotherQueryConfig}
           readyState={{...defaultReadyState, ready: true}}
-        />
+        />,
       ).toRenderWithArgs({
         props: {me: anyRecord({dataID: '123'})},
       });
 
-      environment.getStoreData().getRecordWriter().putDataID('me', null, '456');
+      environment
+        .getStoreData()
+        .getRecordWriter()
+        .putDataID('me', null, '456');
       expect(
         <RelayReadyStateRenderer
           {...defaultProps}
           queryConfig={anotherQueryConfig}
           readyState={{...defaultReadyState, ready: true}}
-        />
+        />,
       ).toRenderWithArgs({
         props: {me: anyRecord({dataID: '456'})},
       });
@@ -304,24 +310,30 @@ describe('RelayReadyStateRenderer', () => {
         queryConfig: anotherQueryConfig,
         retry: jest.fn(),
       };
-      environment.getStoreData().getRecordWriter().putDataID('me', null, null);
+      environment
+        .getStoreData()
+        .getRecordWriter()
+        .putDataID('me', null, null);
       expect(
         <RelayReadyStateRenderer
           {...defaultProps}
           queryConfig={anotherQueryConfig}
           readyState={{...defaultReadyState, ready: true}}
-        />
+        />,
       ).toRenderWithArgs({
         props: {me: null},
       });
 
-      environment.getStoreData().getRecordWriter().putDataID('me', null, '123');
+      environment
+        .getStoreData()
+        .getRecordWriter()
+        .putDataID('me', null, '123');
       expect(
         <RelayReadyStateRenderer
           {...defaultProps}
           queryConfig={anotherQueryConfig}
           readyState={{...defaultReadyState, ready: true}}
-        />
+        />,
       ).toRenderWithArgs({
         props: {me: anyRecord({dataID: '123'})},
       });
@@ -332,7 +344,7 @@ describe('RelayReadyStateRenderer', () => {
         <RelayReadyStateRenderer
           {...defaultProps}
           readyState={{...defaultReadyState, ready: true}}
-        />
+        />,
       ).toRenderWithArgs({
         props: {
           node: anyRecord({
@@ -352,7 +364,7 @@ describe('RelayReadyStateRenderer', () => {
           {...defaultProps}
           Container={AnotherContainer}
           readyState={{...defaultReadyState, ready: true}}
-        />
+        />,
       ).toRenderWithArgs({
         props: {
           node: anyRecord({
@@ -372,7 +384,8 @@ describe('RelayReadyStateRenderer', () => {
         },
       });
 
-      defaultProps.environment.getStoreData()
+      defaultProps.environment
+        .getStoreData()
         .getRecordWriter()
         .putDataID('me', null, '123');
       expect(
@@ -380,7 +393,7 @@ describe('RelayReadyStateRenderer', () => {
           {...defaultProps}
           queryConfig={new AnotherQueryConfig()}
           readyState={{...defaultReadyState, ready: true}}
-        />
+        />,
       ).toRenderWithArgs({
         props: {
           node: anyRecord({dataID: '123'}),
@@ -388,7 +401,8 @@ describe('RelayReadyStateRenderer', () => {
       });
 
       const anotherEnvironment = new RelayEnvironment();
-      anotherEnvironment.getStoreData()
+      anotherEnvironment
+        .getStoreData()
         .getRecordWriter()
         .putDataID('me', null, '456');
       expect(
@@ -397,7 +411,7 @@ describe('RelayReadyStateRenderer', () => {
           environment={anotherEnvironment}
           queryConfig={new AnotherQueryConfig()}
           readyState={{...defaultReadyState, ready: true}}
-        />
+        />,
       ).toRenderWithArgs({
         props: {
           node: anyRecord({dataID: '456'}),
@@ -408,57 +422,46 @@ describe('RelayReadyStateRenderer', () => {
 
   describe('children', () => {
     beforeEach(() => {
-      const container = document.createElement('div');
       function render(element) {
         return ReactTestUtils.findRenderedComponentWithType(
-          ReactDOM.render(element, container),
-          StaticContainer
+          ReactTestRenderer.create(element).getInstance(),
+          RelayStaticContainer,
         );
       }
 
-      jasmine.addMatchers({
-        toRenderChild: () => ({
-          compare(element, expected) {
-            const pass = jasmine.matchersUtil.equals(
-              render(element).props.children,
-              expected
-            );
-            return {
-              get message() {
-                const not = pass ? ' not' : '';
-                return (
-                  `Expected ${ppReactElement(element)}${not} ` +
-                  `to render child ${jasmine.pp(expected)}.`
-                );
-              },
-              pass,
-            };
-          },
-        }),
-        toUpdateChild: () => ({
-          compare(element) {
-            const pass = render(element).props.shouldUpdate;
-            return {
-              get message() {
-                const not = pass ? ' not' : '';
-                return (
-                  `Expected ${ppReactElement(element)}${(not)} ` +
-                  'to update child.'
-                );
-              },
-              pass,
-            };
-          },
-        }),
+      expect.extend({
+        toRenderChild(element, expected) {
+          const pass = this.equals(render(element).props.children, expected);
+          return {
+            get message() {
+              const not = pass ? ' not' : '';
+              return (
+                `Expected ${ppReactElement(element)}${not} ` +
+                `to render child ${prettyFormat(expected)}.`
+              );
+            },
+            pass,
+          };
+        },
+        toUpdateChild(element) {
+          const pass = render(element).props.shouldUpdate;
+          return {
+            get message() {
+              const not = pass ? ' not' : '';
+              return (
+                `Expected ${ppReactElement(element)}${not} ` +
+                'to update child.'
+              );
+            },
+            pass,
+          };
+        },
       });
     });
 
     it('renders null if `readyState` is initially omitted', () => {
       expect(
-        <RelayReadyStateRenderer
-          {...defaultProps}
-          render={() => <div />}
-        />
+        <RelayReadyStateRenderer {...defaultProps} render={() => <div />} />,
       ).toRenderChild(null);
     });
 
@@ -467,7 +470,7 @@ describe('RelayReadyStateRenderer', () => {
         <RelayReadyStateRenderer
           {...defaultProps}
           readyState={defaultReadyState}
-        />
+        />,
       ).toRenderChild(null);
     });
 
@@ -476,10 +479,8 @@ describe('RelayReadyStateRenderer', () => {
         <RelayReadyStateRenderer
           {...defaultProps}
           readyState={{...defaultReadyState, ready: true}}
-        />
-      ).toRenderChild(
-        jasmine.objectContaining({type: defaultProps.Container})
-      );
+        />,
+      ).toRenderChild(jasmine.objectContaining({type: defaultProps.Container}));
     });
 
     it('renders null if `render` returns null', () => {
@@ -488,7 +489,7 @@ describe('RelayReadyStateRenderer', () => {
           {...defaultProps}
           readyState={defaultReadyState}
           render={() => null}
-        />
+        />,
       ).toRenderChild(null);
     });
 
@@ -499,7 +500,7 @@ describe('RelayReadyStateRenderer', () => {
           {...defaultProps}
           readyState={defaultReadyState}
           render={() => prevChild}
-        />
+        />,
       ).toRenderChild(prevChild);
 
       expect(
@@ -507,7 +508,7 @@ describe('RelayReadyStateRenderer', () => {
           {...defaultProps}
           readyState={defaultReadyState}
           render={() => undefined}
-        />
+        />,
       ).not.toUpdateChild();
     });
 
@@ -518,7 +519,7 @@ describe('RelayReadyStateRenderer', () => {
           {...defaultProps}
           readyState={defaultReadyState}
           render={() => prevChild}
-        />
+        />,
       ).toRenderChild(prevChild);
 
       const nextChild = <div />;
@@ -527,7 +528,7 @@ describe('RelayReadyStateRenderer', () => {
           {...defaultProps}
           readyState={defaultReadyState}
           render={() => nextChild}
-        />
+        />,
       ).toUpdateChild(nextChild);
     });
   });
@@ -546,14 +547,12 @@ describe('RelayReadyStateRenderer', () => {
       }
 
       const onRenderContext = jest.fn();
-      const container = document.createElement('div');
-      ReactDOM.render(
+      ReactTestRenderer.create(
         <RelayReadyStateRenderer
           {...defaultProps}
           readyState={defaultReadyState}
           render={() => <TestComponent onRenderContext={onRenderContext} />}
         />,
-        container
       );
       expect(onRenderContext).toBeCalledWith({
         relay: {

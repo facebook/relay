@@ -1,45 +1,35 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayQueryTracker
- * @flow
+ * @flow strict-local
+ * @format
  */
 
 'use strict';
 
-const RelayNodeInterface = require('RelayNodeInterface');
-const RelayQuery = require('RelayQuery');
+const RelayNodeInterface = require('../interface/RelayNodeInterface');
+const RelayQuery = require('../query/RelayQuery');
 
-const flattenRelayQuery = require('flattenRelayQuery');
+const flattenRelayQuery = require('../traversal/flattenRelayQuery');
 
-import type {DataID} from 'RelayInternalTypes';
-
-const TYPE = '__type__';
+import type {DataID} from 'relay-runtime';
 
 class RelayQueryTracker {
-  _trackedNodesByID: {[key: string]: {
-    isMerged: boolean,
-    trackedNodes: Array<RelayQuery.Node>,
-  }};
+  _trackedNodesByID: {
+    [key: string]: {
+      isMerged: boolean,
+      trackedNodes: Array<RelayQuery.Node>,
+    },
+  };
 
   constructor() {
     this._trackedNodesByID = {};
   }
 
-  trackNodeForID(
-    node: RelayQuery.Node,
-    dataID: DataID
-  ): void {
-    // Don't track legacy `__type__` fields
-    if (node instanceof RelayQuery.Field && node.getSchemaName() === TYPE) {
-      return;
-    }
-
+  trackNodeForID(node: RelayQuery.Node, dataID: DataID): void {
     this._trackedNodesByID[dataID] = this._trackedNodesByID[dataID] || {
       trackedNodes: [],
       isMerged: false,
@@ -51,9 +41,7 @@ class RelayQueryTracker {
   /**
    * Get the children that are tracked for the given `dataID`, if any.
    */
-  getTrackedChildrenForID(
-    dataID: DataID
-  ): Array<RelayQuery.Node> {
+  getTrackedChildrenForID(dataID: DataID): Array<RelayQuery.Node> {
     const trackedNodesByID = this._trackedNodesByID[dataID];
     if (!trackedNodesByID) {
       return [];
@@ -69,7 +57,7 @@ class RelayQueryTracker {
       let containerNode = RelayQuery.Fragment.build(
         'RelayQueryTracker',
         RelayNodeInterface.NODE_TYPE,
-        trackedChildren
+        trackedChildren,
       );
       containerNode = flattenRelayQuery(containerNode);
       if (containerNode) {
@@ -87,9 +75,7 @@ class RelayQueryTracker {
    * Removes all nodes that are tracking the given DataID from the
    * query-tracker.
    */
-  untrackNodesForID(
-    dataID: DataID
-  ): void {
+  untrackNodesForID(dataID: DataID): void {
     delete this._trackedNodesByID[dataID];
   }
 }

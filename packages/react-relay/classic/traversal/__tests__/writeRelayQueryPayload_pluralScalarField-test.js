@@ -1,23 +1,22 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
+jest
+  .mock('../../store/RelayQueryTracker')
+  .mock('../../store/RelayClassicRecordState');
+
 require('configureForRelayOSS');
 
-jest
-  .unmock('GraphQLRange')
-  .unmock('GraphQLSegment');
-
-const Relay = require('Relay');
+const Relay = require('../../RelayPublic');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('writeRelayQueryPayload()', () => {
@@ -29,8 +28,8 @@ describe('writeRelayQueryPayload()', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    RelayRecordStore = require('RelayRecordStore');
-    RelayRecordWriter = require('RelayRecordWriter');
+    RelayRecordStore = require('../../store/RelayRecordStore');
+    RelayRecordWriter = require('../../store/RelayRecordWriter');
   });
 
   describe('plural scalar fields', () => {
@@ -47,13 +46,15 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const newEmail = 'user2@example.com';
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        Relay.QL`
         query {
           node(id:"123") {
             emailAddresses
           }
         }
-      `);
+      `,
+      );
       const payload = {
         node: {
           __typename: 'User',
@@ -84,13 +85,15 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const newEmail = 'user2@example.com';
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        Relay.QL`
         query {
           node(id:"123") {
             emailAddresses
           }
         }
-      `);
+      `,
+      );
       const payload = {
         node: {
           __typename: 'User',
@@ -105,8 +108,10 @@ describe('writeRelayQueryPayload()', () => {
           '123': true,
         },
       });
-      expect(store.getField('123', 'emailAddresses'))
-        .toEqual([newEmail, email]);
+      expect(store.getField('123', 'emailAddresses')).toEqual([
+        newEmail,
+        email,
+      ]);
     });
 
     it('appends elements to a plural field', () => {
@@ -122,13 +127,15 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
       const newEmail = 'user2@example.com';
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        Relay.QL`
         query {
           node(id:"123") {
             emailAddresses
           }
         }
-      `);
+      `,
+      );
       const payload = {
         node: {
           __typename: 'User',
@@ -143,8 +150,10 @@ describe('writeRelayQueryPayload()', () => {
           '123': true,
         },
       });
-      expect(store.getField('123', 'emailAddresses'))
-        .toEqual([email, newEmail]);
+      expect(store.getField('123', 'emailAddresses')).toEqual([
+        email,
+        newEmail,
+      ]);
     });
 
     it('does not update if a plural field is unchanged', () => {
@@ -160,13 +169,15 @@ describe('writeRelayQueryPayload()', () => {
       const store = new RelayRecordStore({records});
       const writer = new RelayRecordWriter(records, {}, false);
 
-      const query = getNode(Relay.QL`
+      const query = getNode(
+        Relay.QL`
         query {
           node(id:"123") {
             emailAddresses
           }
         }
-      `);
+      `,
+      );
       const payload = {
         node: {
           __typename: 'User',

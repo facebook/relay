@@ -1,48 +1,41 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayRootContainer
  * @flow
+ * @format
  */
 
 'use strict';
 
+const PropTypes = require('prop-types');
 const React = require('React');
-const RelayPropTypes = require('RelayPropTypes');
-const RelayRenderer = require('RelayRenderer');
-const RelayStore = require('RelayStore');
+const RelayPropTypes = require('./RelayPropTypes');
+const RelayRenderer = require('./RelayRenderer');
+const RelayStore = require('../store/RelayStore');
 
-import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
-import type {RelayRetryCallback} from 'RelayReadyStateRenderer';
-import type {
-  ComponentFetchState,
-  ReadyState,
-  RelayContainer,
-} from 'RelayTypes';
+import type {RelayQueryConfigInterface} from '../query-config/RelayQueryConfig';
+import type {ComponentFetchState, ReadyState} from '../tools/RelayTypes';
+import type {RelayRetryCallback} from './RelayReadyStateRenderer';
 
-type RootContainerProps = {
-  Component: RelayContainer,
+export type RootContainerProps = {
+  Component: React.ComponentType<any>,
   forceFetch?: ?boolean,
   shouldFetch?: ?boolean,
   onReadyStateChange?: ?(readyState: ReadyState) => void,
   renderFailure?: ?(
     error: Error,
-    retry: RelayRetryCallback
+    retry: RelayRetryCallback,
   ) => ?React.Element<any>,
   renderFetched?: ?(
     data: Object,
-    fetchState: ComponentFetchState
+    fetchState: ComponentFetchState,
   ) => ?React.Element<any>,
   renderLoading?: ?() => ?React.Element<any>,
   route: RelayQueryConfigInterface,
 };
-
-const {PropTypes} = React;
 
 /**
  * @public

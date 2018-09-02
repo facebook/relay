@@ -1,40 +1,41 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule ReactRelayCompatContainerBuilder
  * @flow
+ * @format
  */
 
 'use strict';
 
-const RelayContainerProxy = require('RelayContainerProxy');
-const RelayGraphQLTag = require('RelayGraphQLTag');
-const RelayPropTypes = require('RelayPropTypes');
+const React = require('React');
+const RelayGraphQLTag = require('../classic/query/RelayGraphQLTag');
+const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
-const forEachObject = require('forEachObject');
+const assertFragmentMap = require('../modern/assertFragmentMap');
 const invariant = require('invariant');
 const mapObject = require('mapObject');
 
-const {getComponentName} = require('RelayContainerUtils');
+const {
+  getComponentName,
+  getContainerName,
+} = require('../modern/ReactRelayContainerUtils');
 
-import type {ConcreteFragmentSpread} from 'ConcreteQuery';
-import type {GeneratedNodeMap} from 'ReactRelayTypes';
-import type {VariableMapping} from 'RelayFragmentReference';
-import type {Variables} from 'RelayTypes';
+import type {ConcreteFragmentSpread} from '../classic/query/ConcreteQuery';
+import type {VariableMapping} from '../classic/query/RelayFragmentReference';
+import type {GeneratedNodeMap} from '../modern/ReactRelayTypes';
+import type {Variables} from 'relay-runtime';
 
 const containerContextTypes = {
   relay: RelayPropTypes.Relay,
 };
 
 type ContainerCreator = (
-  Component: ReactClass<any>,
+  Component: React$ComponentType<any>,
   fragments: Object,
-) => ReactClass<any>;
+) => React$ComponentType<any>;
 
 type VariablesProvider = () => Variables;
 
@@ -49,7 +50,7 @@ let injectedDefaultVariablesProvider = null;
 function injectDefaultVariablesProvider(variablesProvider: VariablesProvider) {
   invariant(
     !injectedDefaultVariablesProvider,
-    'injectDefaultVariablesProvider must be called no more than once.'
+    'injectDefaultVariablesProvider must be called no more than once.',
   );
   injectedDefaultVariablesProvider = variablesProvider;
 }
@@ -67,11 +68,12 @@ function injectDefaultVariablesProvider(variablesProvider: VariablesProvider) {
  * container definitions or unwrapping the environment-specific fragment
  * defintions unnecessarily.
  */
-function buildCompatContainer<TBase: ReactClass<*>>(
-  ComponentClass: TBase,
+function buildCompatContainer(
+  ComponentClass: React$ComponentType<any>,
   fragmentSpec: GeneratedNodeMap,
   createContainerWithFragments: ContainerCreator,
-): TBase {
+  providesChildContext: boolean,
+): any {
   // Sanity-check user-defined fragment input
   const containerName = getContainerName(ComponentClass);
   assertFragmentMap(getComponentName(ComponentClass), fragmentSpec);
@@ -79,9 +81,9 @@ function buildCompatContainer<TBase: ReactClass<*>>(
   let injectedDefaultVariables = null;
   function getDefaultVariables() {
     if (injectedDefaultVariables == null) {
-      injectedDefaultVariables = injectedDefaultVariablesProvider ?
-        injectedDefaultVariablesProvider() :
-        {};
+      injectedDefaultVariables = injectedDefaultVariablesProvider
+        ? injectedDefaultVariablesProvider()
+        : {};
     }
     return injectedDefaultVariables;
   }
@@ -96,9 +98,9 @@ function buildCompatContainer<TBase: ReactClass<*>>(
     invariant(
       taggedNode,
       'ReactRelayCompatContainerBuilder: Expected a fragment named `%s` to be defined ' +
-      'on `%s`.',
+        'on `%s`.',
       fragmentName,
-      containerName
+      containerName,
     );
     const fragment = RelayGraphQLTag.getClassicFragment(taggedNode);
 
@@ -116,8 +118,12 @@ function buildCompatContainer<TBase: ReactClass<*>>(
 
   function hasVariable(variableName: string): boolean {
     return Object.keys(fragmentSpec).some(fragmentName => {
-      const fragment = RelayGraphQLTag.getClassicFragment(fragmentSpec[fragmentName]);
-      return fragment.argumentDefinitions.some(argDef => argDef.name === variableName);
+      const fragment = RelayGraphQLTag.getClassicFragment(
+        fragmentSpec[fragmentName],
+      );
+      return fragment.argumentDefinitions.some(
+        argDef => argDef.name === variableName,
+      );
     });
   }
 
@@ -130,47 +136,45 @@ function buildCompatContainer<TBase: ReactClass<*>>(
       const {getFragment: getFragmentFromTag} = environment.unstable_internal;
       const fragments = mapObject(fragmentSpec, getFragmentFromTag);
       Container = createContainerWithFragments(ComponentClass, fragments);
-      RelayContainerProxy.proxyMethods(Container, ComponentClass);
+
+      // Attach static lifecycle to wrapper component so React can see it.
+      ContainerConstructor.getDerivedStateFromProps = (Container: any).getDerivedStateFromProps;
     }
+    // $FlowFixMe
     return new Container(props, context);
   }
   ContainerConstructor.contextTypes = containerContextTypes;
-  ContainerConstructor.displayName = containerName;
+  if (providesChildContext) {
+    ContainerConstructor.childContextTypes = containerContextTypes;
+  }
+
+  function forwardRef(props, ref) {
+    return (
+      <ContainerConstructor
+        {...props}
+        componentRef={props.componentRef || ref}
+      />
+    );
+  }
+  forwardRef.displayName = containerName;
+  // $FlowFixMe
+  const ForwardContainer = React.forwardRef(forwardRef);
 
   // Classic container static methods
-  ContainerConstructor.getFragment = getFragment;
-  ContainerConstructor.getFragmentNames = () => Object.keys(fragmentSpec);
-  ContainerConstructor.hasFragment = name => fragmentSpec.hasOwnProperty(name);
-  ContainerConstructor.hasVariable = hasVariable;
+  ForwardContainer.getFragment = getFragment;
+  ForwardContainer.getFragmentNames = () => Object.keys(fragmentSpec);
+  ForwardContainer.hasFragment = name => fragmentSpec.hasOwnProperty(name);
+  ForwardContainer.hasVariable = hasVariable;
+
+  if (__DEV__) {
+    ForwardContainer.__ComponentClass = ComponentClass;
+  }
 
   // Create a back-reference from the Component to the Container for cases
   // where a Classic Component might refer to itself, expecting a Container.
-  ComponentClass.__container__ = ContainerConstructor;
+  (ComponentClass: any).__container__ = ForwardContainer;
 
-  return (ContainerConstructor: any);
-}
-
-/**
- * Fail fast if the user supplies invalid fragments as input.
- */
-function assertFragmentMap(
-  componentName: string,
-  fragments: GeneratedNodeMap,
-): void {
-  forEachObject(fragments, (fragment, key) => {
-    invariant(
-      typeof fragment === 'object' && fragment !== null,
-      'ReactRelayCompatContainerBuilder: Could not create container for `%s`. The ' +
-      'value of fragment `%s` was expected to be a fragment, got `%s` instead.',
-      componentName,
-      key,
-      fragment,
-    );
-  });
-}
-
-function getContainerName(Component: ReactClass<any>): string {
-  return 'Relay(' + getComponentName(Component) + ')';
+  return ForwardContainer;
 }
 
 module.exports = {injectDefaultVariablesProvider, buildCompatContainer};

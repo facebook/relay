@@ -1,32 +1,32 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
-jest.useFakeTimers();
-jest.unmock('RelayEnvironment');
+jest
+  .mock('../../legacy/store/GraphQLQueryRunner')
+  .mock('../readRelayQueryData')
+  .mock('../../mutation/RelayMutation')
+  .useFakeTimers();
 
 require('configureForRelayOSS');
 
-const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
-const Relay = require('Relay');
-const RelayEnvironment = require('RelayEnvironment');
-const RelayQueryResultObservable = require('RelayQueryResultObservable');
-const RelayMutation = require('RelayMutation');
-const RelayMutationTransaction = require('RelayMutationTransaction');
-const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
-const RelayMutationQueue = require('RelayMutationQueue');
+const RelayClassic = require('../../RelayPublic');
+const RelayEnvironment = require('../RelayEnvironment');
+const RelayMutation = require('../../mutation/RelayMutation');
+const RelayMutationTransaction = require('../../mutation/RelayMutationTransaction');
+const RelayMutationTransactionStatus = require('../../mutation/RelayMutationTransactionStatus');
+const RelayMutationQueue = require('../../mutation/RelayMutationQueue');
 const RelayTestUtils = require('RelayTestUtils');
 
-const readRelayQueryData = require('readRelayQueryData');
+const readRelayQueryData = require('../readRelayQueryData');
 
 const {CREATED, ROLLED_BACK, UNCOMMITTED} = RelayMutationTransactionStatus;
 
@@ -95,14 +95,14 @@ describe('RelayEnvironment', () => {
       environment.readAll(queries, dataIDs);
       expect(readRelayQueryData.mock.calls.length).toBe(dataIDs.length);
       expect(readRelayQueryData.mock.calls.map(call => call[2])).toEqual(
-        dataIDs
+        dataIDs,
       );
     });
 
     it('invokes `readRelayQueryData` with a filter', () => {
       environment.readAll(queries, dataIDs, filter);
       expect(readRelayQueryData.mock.calls.length).toBe(dataIDs.length);
-      readRelayQueryData.mock.calls.forEach((call) => {
+      readRelayQueryData.mock.calls.forEach(call => {
         expect(call[3]).toBe(filter);
       });
     });
@@ -111,63 +111,42 @@ describe('RelayEnvironment', () => {
   describe('readQuery', () => {
     it('accepts a query with no arguments', () => {
       recordWriter.putDataID('viewer', null, 'client:1');
-      environment.readQuery(getNode(Relay.QL`query{viewer{actor{id}}}`));
+      environment.readQuery(getNode(RelayClassic.QL`query{viewer{actor{id}}}`));
       expect(readRelayQueryData.mock.calls.length).toBe(1);
       expect(readRelayQueryData.mock.calls[0][2]).toBe('client:1');
     });
 
     it('accepts a query with arguments', () => {
-      environment.readQuery(getNode(Relay.QL`
+      environment.readQuery(
+        getNode(
+          RelayClassic.QL`
         query {
           nodes(ids:["123","456"]) {
             id
           }
         }
-      `));
+      `,
+        ),
+      );
       expect(readRelayQueryData.mock.calls.length).toBe(2);
       expect(readRelayQueryData.mock.calls[0][2]).toBe('123');
       expect(readRelayQueryData.mock.calls[1][2]).toBe('456');
     });
 
     it('accepts a query with unrecognized arguments', () => {
-      const result = environment.readQuery(getNode(Relay.QL`
+      const result = environment.readQuery(
+        getNode(
+          RelayClassic.QL`
         query {
           username(name:"foo") {
             id
           }
         }
-      `));
+      `,
+        ),
+      );
       expect(readRelayQueryData.mock.calls.length).toBe(0);
       expect(result).toEqual([undefined]);
-    });
-  });
-
-  describe('observe', () => {
-    it('instantiates RelayQueryResultObservable', () => {
-      const fragment = getNode(Relay.QL`
-        fragment on Node {
-          id
-        }
-      `);
-      GraphQLStoreQueryResolver.mockDefaultResolveImplementation(
-        (pointerFragment, dataID) => {
-          expect(pointerFragment).toBe(fragment);
-          expect(dataID).toBe('123');
-          return {
-            __dataID__: '123',
-            id: '123',
-          };
-        }
-      );
-
-      const observer = environment.observe(fragment, '123');
-      const onNext = jest.fn();
-      expect(observer instanceof RelayQueryResultObservable).toBe(true);
-      observer.subscribe({onNext});
-      expect(onNext).toBeCalledWith({
-        __dataID__: '123',
-        id: '123',
-      });
     });
   });
 
@@ -182,7 +161,9 @@ describe('RelayEnvironment', () => {
     beforeEach(() => {
       status = CREATED;
       mockQueue = {
-        applyOptimistic: () => { status = UNCOMMITTED; },
+        applyOptimistic: () => {
+          status = UNCOMMITTED;
+        },
         getStatus: jest.fn(() => status),
       };
       mockTransaction = new RelayMutationTransaction(mockQueue);
@@ -212,12 +193,14 @@ describe('RelayEnvironment', () => {
       });
 
       it('creates a new RelayMutationTransaction without committing it', () => {
-        const transaction =
-          environment.applyUpdate(mockMutation, mockCallbacks);
+        const transaction = environment.applyUpdate(
+          mockMutation,
+          mockCallbacks,
+        );
         expect(transaction).toEqual(mockTransaction);
         expect(createTransactionMock).toBeCalledWith(
           mockMutation,
-          mockCallbacks
+          mockCallbacks,
         );
         expect(mockTransaction.commit).not.toBeCalled();
       });
@@ -244,7 +227,7 @@ describe('RelayEnvironment', () => {
         environment.commitUpdate(mockMutation, mockCallbacks);
         expect(createTransactionMock).toBeCalledWith(
           mockMutation,
-          mockCallbacks
+          mockCallbacks,
         );
         expect(mockTransaction.commit).not.toBeCalled();
         jest.runAllTimers();
@@ -255,7 +238,7 @@ describe('RelayEnvironment', () => {
         environment.commitUpdate(mockMutation, mockCallbacks);
         expect(createTransactionMock).toBeCalledWith(
           mockMutation,
-          mockCallbacks
+          mockCallbacks,
         );
         expect(mockTransaction.commit).not.toBeCalled();
         status = ROLLED_BACK;
@@ -268,9 +251,9 @@ describe('RelayEnvironment', () => {
       it('passes down the cacheManager to the store data', () => {
         const mockCacheManager = {};
         environment.injectCacheManager(mockCacheManager);
-        expect(
-          environment.getStoreData().getCacheManager()
-        ).toBe(mockCacheManager);
+        expect(environment.getStoreData().getCacheManager()).toBe(
+          mockCacheManager,
+        );
       });
     });
   });

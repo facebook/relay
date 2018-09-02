@@ -1,7 +1,0 @@
-query ViewerQuery {
-  viewer {
-    actor {
-      id
-    }
-  }
-}

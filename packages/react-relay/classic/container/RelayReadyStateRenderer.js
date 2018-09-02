@@ -1,33 +1,34 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayReadyStateRenderer
  * @flow
+ * @format
  */
 
 'use strict';
 
 const React = require('React');
-const RelayFragmentPointer = require('RelayFragmentPointer');
-const RelayPropTypes = require('RelayPropTypes');
-const StaticContainer = require('StaticContainer.react');
+const RelayFragmentPointer = require('../query/RelayFragmentPointer');
+const RelayPropTypes = require('./RelayPropTypes');
+const RelayStaticContainer = require('./RelayStaticContainer');
 
-const getRelayQueries = require('getRelayQueries');
+const getRelayQueries = require('./getRelayQueries');
 const mapObject = require('mapObject');
 
-import type {ClassicRelayContext, RelayEnvironmentInterface} from 'RelayEnvironment';
-import type {RelayQuerySet} from 'RelayInternalTypes';
-import type RelayQuery from 'RelayQuery';
-import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
-import type {ReadyState, ReadyStateEvent, RelayContainer} from 'RelayTypes';
+import type {RelayQueryConfigInterface} from '../query-config/RelayQueryConfig';
+import type RelayQuery from '../query/RelayQuery';
+import type {
+  ClassicRelayContext,
+  RelayEnvironmentInterface,
+} from '../store/RelayEnvironment';
+import type {RelayQuerySet} from '../tools/RelayInternalTypes';
+import type {ReadyState, ReadyStateEvent} from '../tools/RelayTypes';
 
 type Props = {
-  Container: RelayContainer,
+  Container: React.ComponentType<any>,
   environment: RelayEnvironmentInterface,
   queryConfig: RelayQueryConfigInterface,
   readyState?: ?ReadyState,
@@ -35,7 +36,7 @@ type Props = {
   retry: RelayRetryCallback,
 };
 type RelayContainerProps = {
-  [propName: string]: mixed;
+  [propName: string]: mixed,
 };
 type RelayContainerPropsFactory = RelayContainerPropsFactory;
 type RelayRenderArgs = {
@@ -50,7 +51,7 @@ type RelayRenderArgs = {
 export type RelayRenderCallback =
   /* $FlowFixMe(>=0.38.0 site=www) - Flow error detected during the deployment
    * of v0.38.0. To see the error, remove this comment and run flow */
-  (renderArgs: RelayRenderArgs) => ?React.Element<*>;
+  (renderArgs: RelayRenderArgs) => ?React.Element<any>;
 export type RelayRetryCallback = () => void;
 
 /**
@@ -64,17 +65,18 @@ export type RelayRetryCallback = () => void;
  * If `readyState` is not supplied, the previously rendered `readyState` will
  * continue to be rendered (or null if there is no previous `readyState`).
  */
-class RelayReadyStateRenderer extends React.Component {
+class RelayReadyStateRenderer extends React.Component<
+  Props,
+  {
+    getContainerProps: RelayContainerPropsFactory,
+  },
+> {
   static childContextTypes = {
     relay: RelayPropTypes.ClassicRelay,
     route: RelayPropTypes.QueryConfig.isRequired,
   };
 
   _relay: ClassicRelayContext;
-  props: Props;
-  state: {
-    getContainerProps: RelayContainerPropsFactory,
-  };
 
   constructor(props: Props, context: any) {
     super(props, context);
@@ -94,7 +96,7 @@ class RelayReadyStateRenderer extends React.Component {
     };
   }
 
-  componentWillReceiveProps(nextProps: Props): void {
+  UNSAFE_componentWillReceiveProps(nextProps: Props): void {
     if (
       this.props.environment !== nextProps.environment ||
       this.props.queryConfig !== nextProps.queryConfig
@@ -122,8 +124,7 @@ class RelayReadyStateRenderer extends React.Component {
     }
     const prevReadyState = prevProps.readyState;
     const nextReadyState = nextProps.readyState;
-    if (prevReadyState == null ||
-        nextReadyState == null) {
+    if (prevReadyState == null || nextReadyState == null) {
       return true;
     }
     if (
@@ -138,7 +139,7 @@ class RelayReadyStateRenderer extends React.Component {
     return nextReadyState.ready;
   }
 
-  render(): ?React.Element<*> {
+  render(): React.Node {
     let children;
     let shouldUpdate = false;
 
@@ -149,9 +150,9 @@ class RelayReadyStateRenderer extends React.Component {
           done: readyState.done,
           error: readyState.error,
           events: readyState.events,
-          props: readyState.ready ?
-            this.state.getContainerProps(this.props) :
-            null,
+          props: readyState.ready
+            ? this.state.getContainerProps(this.props)
+            : null,
           retry: this.props.retry,
           stale: readyState.stale,
         });
@@ -166,9 +167,9 @@ class RelayReadyStateRenderer extends React.Component {
       shouldUpdate = false;
     }
     return (
-      <StaticContainer shouldUpdate={shouldUpdate}>
+      <RelayStaticContainer shouldUpdate={shouldUpdate}>
         {children}
-      </StaticContainer>
+      </RelayStaticContainer>
     );
   }
 }
@@ -184,16 +185,12 @@ function createContainerPropsFactory(): RelayContainerPropsFactory {
       prevProps.Container !== nextProps.Container ||
       prevProps.queryConfig !== nextProps.queryConfig
     ) {
-      querySet = getRelayQueries(
-        nextProps.Container,
-        nextProps.queryConfig
-      );
+      querySet = getRelayQueries(nextProps.Container, nextProps.queryConfig);
     }
     const containerProps = {
       ...nextProps.queryConfig.params,
-      ...mapObject(
-        querySet,
-        query => createFragmentPointerForRoot(nextProps.environment, query)
+      ...mapObject(querySet, query =>
+        createFragmentPointerForRoot(nextProps.environment, (query: any)),
       ),
     };
     prevProps = nextProps;
@@ -203,14 +200,14 @@ function createContainerPropsFactory(): RelayContainerPropsFactory {
 
 function createFragmentPointerForRoot(
   environment: RelayEnvironmentInterface,
-  query: RelayQuery.Root
+  query: RelayQuery.Root,
 ) {
-  return query ?
-    RelayFragmentPointer.createForRoot(
-      environment.getStoreData().getQueuedStore(),
-      query
-    ) :
-    null;
+  return query
+    ? RelayFragmentPointer.createForRoot(
+        environment.getStoreData().getQueuedStore(),
+        query,
+      )
+    : null;
 }
 
 module.exports = RelayReadyStateRenderer;

@@ -1,0 +1,8 @@
+const RelayClassic = require('react-relay/classic');
+var q = RelayClassic.QL`
+  query {
+    searchAll(queries: [$query]) {
+      title
+    }
+  }
+`;

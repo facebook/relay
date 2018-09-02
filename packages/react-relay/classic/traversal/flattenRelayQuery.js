@@ -1,21 +1,19 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule flattenRelayQuery
- * @flow
+ * @flow strict-local
+ * @format
  */
 
 'use strict';
 
-const Map = require('Map');
-const RelayProfiler = require('RelayProfiler');
-const RelayQuery = require('RelayQuery');
-const RelayQueryVisitor = require('RelayQueryVisitor');
+const RelayQuery = require('../query/RelayQuery');
+const RelayQueryVisitor = require('../query/RelayQueryVisitor');
+
+const {RelayProfiler} = require('relay-runtime');
 
 type FlattenedQuery = {
   node: RelayQuery.Node,
@@ -40,10 +38,10 @@ export type FlattenRelayQueryOptions = {
  */
 function flattenRelayQuery<Tn: RelayQuery.Node>(
   node: Tn,
-  options?: FlattenRelayQueryOptions
+  options?: FlattenRelayQueryOptions,
 ): ?Tn {
   const flattener = new RelayQueryFlattener(
-    options && options.shouldRemoveFragments
+    options && options.shouldRemoveFragments,
   );
   const state = {
     node,
@@ -57,11 +55,8 @@ function flattenRelayQuery<Tn: RelayQuery.Node>(
 
 function toQuery<Tn: RelayQuery.Node>(
   node: Tn,
-  {
-    flattenedFieldMap,
-    flattenedFragmentMap,
-  }: FlattenedQuery,
-  preserveEmptyNodes: boolean
+  {flattenedFieldMap, flattenedFragmentMap}: FlattenedQuery,
+  preserveEmptyNodes: boolean,
 ): ?Tn {
   const children = [];
   const aliases = Array.from(flattenedFieldMap.keys());
@@ -93,10 +88,7 @@ class RelayQueryFlattener extends RelayQueryVisitor<FlattenedQuery> {
     this._shouldRemoveFragments = !!shouldRemoveFragments;
   }
 
-  visitFragment(
-    node: RelayQuery.Fragment,
-    state: FlattenedQuery
-  ): void {
+  visitFragment(node: RelayQuery.Fragment, state: FlattenedQuery): void {
     const type = node.getType();
     if (this._shouldRemoveFragments || type === state.type) {
       this.traverse(node, state);
@@ -115,10 +107,7 @@ class RelayQueryFlattener extends RelayQueryVisitor<FlattenedQuery> {
     this.traverse(node, flattenedFragment);
   }
 
-  visitField(
-    node: RelayQuery.Field,
-    state: FlattenedQuery
-  ): void {
+  visitField(node: RelayQuery.Field, state: FlattenedQuery): void {
     const hash = node.getShallowHash();
     let flattenedField = state.flattenedFieldMap.get(hash);
     if (!flattenedField) {
@@ -136,5 +125,5 @@ class RelayQueryFlattener extends RelayQueryVisitor<FlattenedQuery> {
 
 module.exports = RelayProfiler.instrument(
   'flattenRelayQuery',
-  flattenRelayQuery
+  flattenRelayQuery,
 );

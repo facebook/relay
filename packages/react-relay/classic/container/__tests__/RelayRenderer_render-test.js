@@ -1,28 +1,29 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
+jest
+  .mock('../../query-config/RelayQueryConfig')
+  .mock('../../store/RelayEnvironment');
+
 require('configureForRelayOSS');
 
-jest.unmock('RelayRenderer');
-
 const React = require('React');
-const ReactDOM = require('ReactDOM');
+const ReactTestRenderer = require('react-test-renderer');
 const ReactTestUtils = require('ReactTestUtils');
-const Relay = require('Relay');
-const RelayEnvironment = require('RelayEnvironment');
-const RelayQueryConfig = require('RelayQueryConfig');
-const RelayRenderer = require('RelayRenderer');
-const StaticContainer = require('StaticContainer.react');
+const Relay = require('../../RelayPublic');
+const RelayEnvironment = require('../../store/RelayEnvironment');
+const RelayQueryConfig = require('../../query-config/RelayQueryConfig');
+const RelayRenderer = require('../RelayRenderer');
+const RelayStaticContainer = require('../RelayStaticContainer');
 
 describe('RelayRenderer.render', () => {
   let MockContainer;
@@ -30,48 +31,43 @@ describe('RelayRenderer.render', () => {
   let container;
   let queryConfig;
   let environment;
-  let renderedComponent;
 
   function renderElement(element) {
-    renderedComponent = ReactDOM.render(element, container);
+    container.update(element);
   }
 
   function getRenderOutput() {
     return ReactTestUtils.findRenderedComponentWithType(
-      renderedComponent,
-      StaticContainer
+      container.getInstance(),
+      RelayStaticContainer,
     );
   }
 
   beforeEach(() => {
     jest.resetModules();
 
-    const MockComponent = React.createClass({render: () => <div />});
+    class MockComponent extends React.Component {
+      render() {
+        return <div />;
+      }
+    }
     MockContainer = Relay.createContainer(MockComponent, {
       fragments: {},
     });
 
-    container = document.createElement('div');
+    container = ReactTestRenderer.create();
     queryConfig = RelayQueryConfig.genMockInstance();
     environment = new RelayEnvironment();
 
-    jasmine.addMatchers({
-      toBeUpdated() {
+    expect.extend({
+      toBeUpdated(actual) {
         return {
-          compare(actual) {
-            return {
-              pass: actual.props.shouldUpdate,
-            };
-          },
+          pass: actual.props.shouldUpdate,
         };
       },
-      toBeRenderedChild() {
+      toBeRenderedChild(actual) {
         return {
-          compare(actual) {
-            return {
-              pass: getRenderOutput().props.children === actual,
-            };
-          },
+          pass: getRenderOutput().props.children === actual,
         };
       },
     });
@@ -86,7 +82,7 @@ describe('RelayRenderer.render', () => {
         queryConfig={queryConfig}
         environment={environment}
         render={render}
-      />
+      />,
     );
     expect(render).toBeCalled();
     expect(initialView).toBeRenderedChild();
@@ -98,7 +94,7 @@ describe('RelayRenderer.render', () => {
         Container={MockContainer}
         queryConfig={queryConfig}
         environment={environment}
-      />
+      />,
     );
     const loadingView = <div />;
     renderElement(
@@ -107,7 +103,7 @@ describe('RelayRenderer.render', () => {
         queryConfig={RelayQueryConfig.genMockInstance()}
         environment={environment}
         render={() => loadingView}
-      />
+      />,
     );
     // Since RelayRenderer has not yet sent a request, view gets to update.
     expect(getRenderOutput()).toBeUpdated();
@@ -119,7 +115,7 @@ describe('RelayRenderer.render', () => {
         Container={MockContainer}
         queryConfig={queryConfig}
         environment={environment}
-      />
+      />,
     );
     environment.primeCache.mock.requests[0].block();
 
@@ -130,7 +126,7 @@ describe('RelayRenderer.render', () => {
         queryConfig={RelayQueryConfig.genMockInstance()}
         environment={environment}
         render={() => loadingView}
-      />
+      />,
     );
     // RelayRenderer does not synchronously update because the ready state (and
     // therefore render arguments) for the new `queryConfig` is not yet known.
@@ -148,7 +144,7 @@ describe('RelayRenderer.render', () => {
           queryConfig={queryConfig}
           environment={environment}
           render={render}
-        />
+        />,
       );
     }
     update();
@@ -182,7 +178,7 @@ describe('RelayRenderer.render', () => {
         queryConfig={queryConfig}
         environment={environment}
         render={render}
-      />
+      />,
     );
 
     const request = environment.primeCache.mock.requests[0];
@@ -197,43 +193,5 @@ describe('RelayRenderer.render', () => {
 
     request.succeed();
     expect(render.mock.calls.length).toBe(3);
-  });
-
-  describe('GC integration', () => {
-    let garbageCollector;
-
-    beforeEach(() => {
-      const storeData = environment.getStoreData();
-      storeData.initializeGarbageCollector(jest.fn());
-      garbageCollector = storeData.getGarbageCollector();
-    });
-
-    it('acquires a GC hold when mounted', () => {
-      garbageCollector.acquireHold = jest.fn();
-      renderElement(
-        <RelayRenderer
-          Container={MockContainer}
-          queryConfig={queryConfig}
-          environment={environment}
-        />
-      );
-      expect(garbageCollector.acquireHold).toBeCalled();
-    });
-
-    it('releases its GC hold when unmounted', () => {
-      const release = jest.fn();
-      garbageCollector.acquireHold =
-        jest.fn(() => ({release}));
-      renderElement(
-        <RelayRenderer
-          Container={MockContainer}
-          queryConfig={queryConfig}
-          environment={environment}
-        />
-      );
-      expect(release).not.toBeCalled();
-      ReactDOM.unmountComponentAtNode(container);
-      expect(release).toBeCalled();
-    });
   });
 });

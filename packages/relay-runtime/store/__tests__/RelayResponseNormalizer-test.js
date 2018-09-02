@@ -1,39 +1,39 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @format
+ * @emails oncall+relay
  */
 
 'use strict';
 
-jest
-  .autoMockOff()
-  .mock('generateClientID');
+jest.mock('generateClientID');
 
-const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
-const RelayStaticRecord = require('RelayStaticRecord');
-const {normalize} = require('RelayResponseNormalizer');
-const {ROOT_ID, ROOT_TYPE} = require('RelayStoreUtils');
-const RelayStaticTestUtils = require('RelayStaticTestUtils');
+const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
+const RelayModernRecord = require('../RelayModernRecord');
+const {normalize} = require('../RelayResponseNormalizer');
+const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
+const RelayModernTestUtils = require('RelayModernTestUtils');
 
 describe('RelayResponseNormalizer', () => {
   const {
     generateAndCompile,
     generateWithTransforms,
     matchers,
-  } = RelayStaticTestUtils;
+  } = RelayModernTestUtils;
 
   beforeEach(() => {
     jest.resetModules();
-    jest.addMatchers(matchers);
+    expect.extend(matchers);
   });
 
   it('normalizes queries', () => {
-    const {FooQuery} = generateWithTransforms(`
-      query FooQuery($id: ID, $size: Int) {
+    const {FooQuery} = generateWithTransforms(
+      `
+      query FooQuery($id: ID, $size: [Int]) {
         node(id: $id) {
           id
           __typename
@@ -54,7 +54,8 @@ describe('RelayResponseNormalizer', () => {
           }
         }
       }
-    `);
+    `,
+    );
     const payload = {
       node: {
         id: '1',
@@ -85,28 +86,28 @@ describe('RelayResponseNormalizer', () => {
       },
     };
     const recordSource = new RelayInMemoryRecordSource();
-    recordSource.set(ROOT_ID, RelayStaticRecord.create(ROOT_ID, ROOT_TYPE));
+    recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
     normalize(
       recordSource,
       {
         dataID: ROOT_ID,
-        node: FooQuery,
+        node: FooQuery.operation,
         variables: {id: '1', size: 32},
       },
-      payload
+      payload,
     );
-    const friendsID = 'client:1:friends{"first":3}';
+    const friendsID = 'client:1:friends(first:3)';
     const edgeID1 = `${friendsID}:edges:0`;
     const edgeID2 = `${friendsID}:edges:2`;
-    const pictureID = 'client:1:profilePicture{"size":32}';
+    const pictureID = 'client:1:profilePicture(size:32)';
     expect(recordSource.toJSON()).toEqual({
       '1': {
         __id: '1',
         id: '1',
         __typename: 'User',
         firstName: 'Alice',
-        'friends{"first":3}': {__ref: friendsID},
-        'profilePicture{"size":32}': {__ref: pictureID},
+        'friends(first:3)': {__ref: friendsID},
+        'profilePicture(size:32)': {__ref: pictureID},
       },
       '2': {
         __id: '2',
@@ -147,13 +148,14 @@ describe('RelayResponseNormalizer', () => {
       'client:root': {
         __id: 'client:root',
         __typename: '__Root',
-        'node{"id":"1"}': {__ref: '1'},
+        'node(id:"1")': {__ref: '1'},
       },
     });
   });
 
   it('normalizes queries with "handle" fields', () => {
-    const {UserFriends} = generateAndCompile(`
+    const {UserFriends} = generateAndCompile(
+      `
       query UserFriends($id: ID!) {
         node(id: $id) {
           id
@@ -171,54 +173,58 @@ describe('RelayResponseNormalizer', () => {
           }
         }
       }
-    `);
+    `,
+    );
 
     const payload = {
       node: {
         id: '4',
         __typename: 'User',
         friends: {
-          edges: [{
-            cursor: 'cursor:bestFriends',
-            node: {
-              id: 'pet',
-              name: 'Beast',
+          edges: [
+            {
+              cursor: 'cursor:bestFriends',
+              node: {
+                id: 'pet',
+                name: 'Beast',
+              },
             },
-          }],
+          ],
         },
       },
     };
     const recordSource = new RelayInMemoryRecordSource();
-    recordSource.set(ROOT_ID, RelayStaticRecord.create(ROOT_ID, ROOT_TYPE));
-    const handleFieldPayloads = normalize(
+    recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+    const {fieldPayloads} = normalize(
       recordSource,
       {
         dataID: ROOT_ID,
-        node: UserFriends.query,
+        node: UserFriends.operation,
         variables: {id: '1'},
       },
-      payload
+      payload,
     );
     expect(recordSource.toJSON()).toMatchSnapshot();
-    expect(handleFieldPayloads.length).toBe(2);
-    expect(handleFieldPayloads[0]).toEqual({
+    expect(fieldPayloads.length).toBe(2);
+    expect(fieldPayloads[0]).toEqual({
       args: {},
       dataID: 'pet',
       fieldKey: 'name',
       handle: 'friendsName',
       handleKey: '__name_friendsName',
     });
-    expect(handleFieldPayloads[1]).toEqual({
+    expect(fieldPayloads[1]).toEqual({
       args: {first: 1},
       dataID: '4',
-      fieldKey: 'friends{"first":1}',
+      fieldKey: 'friends(first:1)',
       handle: 'bestFriends',
       handleKey: '__friends_bestFriends',
     });
   });
 
   it('normalizes queries with "filters"', () => {
-    const {UserFriends} = generateAndCompile(`
+    const {UserFriends} = generateAndCompile(
+      `
       query UserFriends(
         $id: ID!,
         $orderBy: [String],
@@ -247,43 +253,47 @@ describe('RelayResponseNormalizer', () => {
           }
         }
       }
-    `);
+    `,
+    );
 
     const payload1 = {
       node: {
         id: '4',
         __typename: 'User',
         friends: {
-          edges: [{
-            cursor: 'cursor:bestFriends',
-            node: {
-              id: 'pet',
-              name: 'Beast',
+          edges: [
+            {
+              cursor: 'cursor:bestFriends',
+              node: {
+                id: 'pet',
+                name: 'Beast',
+              },
             },
-          }],
+          ],
         },
       },
     };
 
     const recordSource = new RelayInMemoryRecordSource();
-    recordSource.set(ROOT_ID, RelayStaticRecord.create(ROOT_ID, ROOT_TYPE));
-    let handleFieldPayloads = normalize(
+    recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+    let {fieldPayloads} = normalize(
       recordSource,
       {
         dataID: ROOT_ID,
-        node: UserFriends.query,
+        node: UserFriends.operation,
         variables: {id: '1', orderBy: ['last name'], isViewerFriend: true},
       },
-      payload1
+      payload1,
     );
     expect(recordSource.toJSON()).toMatchSnapshot();
-    expect(handleFieldPayloads.length).toBe(1);
-    expect(handleFieldPayloads[0]).toEqual({
+    expect(fieldPayloads.length).toBe(1);
+    expect(fieldPayloads[0]).toEqual({
       args: {first: 1, orderby: ['last name'], isViewerFriend: true},
       dataID: '4',
-      fieldKey: 'friends{"first":1,"isViewerFriend":true,"orderby":["last name"]}',
+      fieldKey: 'friends(first:1,isViewerFriend:true,orderby:["last name"])',
       handle: 'bestFriends',
-      handleKey: '__UserFriends_friends_bestFriends{"isViewerFriend":true,"orderby":["last name"]}',
+      handleKey:
+        '__UserFriends_friends_bestFriends(isViewerFriend:true,orderby:["last name"])',
     });
 
     const payload2 = {
@@ -291,40 +301,44 @@ describe('RelayResponseNormalizer', () => {
         id: '4',
         __typename: 'User',
         friends: {
-          edges: [{
-            cursor: 'cursor:bestFriends:2',
-            node: {
-              id: 'cat',
-              name: 'Betty',
+          edges: [
+            {
+              cursor: 'cursor:bestFriends:2',
+              node: {
+                id: 'cat',
+                name: 'Betty',
+              },
             },
-          }],
+          ],
         },
       },
     };
-    handleFieldPayloads = normalize(
+    fieldPayloads = normalize(
       recordSource,
       {
         dataID: ROOT_ID,
-        node: UserFriends.query,
+        node: UserFriends.operation,
         variables: {id: '1', orderBy: ['first name'], isViewerFriend: true},
       },
       payload2,
-    );
+    ).fieldPayloads;
     expect(recordSource.toJSON()).toMatchSnapshot();
-    expect(handleFieldPayloads.length).toBe(1);
-    expect(handleFieldPayloads[0]).toEqual({
+    expect(fieldPayloads.length).toBe(1);
+    expect(fieldPayloads[0]).toEqual({
       args: {first: 1, orderby: ['first name'], isViewerFriend: true},
       dataID: '4',
-      fieldKey: 'friends{"first":1,"isViewerFriend":true,"orderby":["first name"]}',
+      fieldKey: 'friends(first:1,isViewerFriend:true,orderby:["first name"])',
       handle: 'bestFriends',
-      handleKey: '__UserFriends_friends_bestFriends{"isViewerFriend":true,"orderby":["first name"]}',
+      handleKey:
+        '__UserFriends_friends_bestFriends(isViewerFriend:true,orderby:["first name"])',
     });
   });
 
   it('warns in __DEV__ if payload data is missing an expected field', () => {
     jest.mock('warning');
 
-    const {BarQuery} = generateWithTransforms(`
+    const {BarQuery} = generateWithTransforms(
+      `
       query BarQuery($id: ID) {
         node(id: $id) {
           id
@@ -337,7 +351,8 @@ describe('RelayResponseNormalizer', () => {
           }
         }
       }
-    `);
+    `,
+    );
     const payload = {
       node: {
         id: '1',
@@ -348,13 +363,13 @@ describe('RelayResponseNormalizer', () => {
       },
     };
     const recordSource = new RelayInMemoryRecordSource();
-    recordSource.set(ROOT_ID, RelayStaticRecord.create(ROOT_ID, ROOT_TYPE));
+    recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
     expect(() => {
       normalize(
         recordSource,
         {
           dataID: ROOT_ID,
-          node: BarQuery,
+          node: BarQuery.operation,
           variables: {id: '1'},
         },
         payload,
@@ -362,16 +377,145 @@ describe('RelayResponseNormalizer', () => {
       );
     }).toWarn([
       'RelayResponseNormalizer(): Payload did not contain a value for ' +
-      'field `%s: %s`. Check that you are parsing with the same query that ' +
-      'was used to fetch the payload.',
+        'field `%s: %s`. Check that you are parsing with the same query that ' +
+        'was used to fetch the payload.',
       'firstName',
       'firstName',
     ]);
   });
 
+  it('does not warn in __DEV__ if payload data is missing for an abstract field', () => {
+    jest.mock('warning');
+
+    const {BarQuery} = generateAndCompile(
+      `
+      query BarQuery {
+        named {
+          name
+          ... on Node {
+            id
+          }
+        }
+      }
+    `,
+    );
+    const payload = {
+      named: {
+        __typename: 'SimpleNamed',
+        name: 'Alice',
+      },
+    };
+    const recordSource = new RelayInMemoryRecordSource();
+    recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+    expect(() => {
+      normalize(
+        recordSource,
+        {
+          dataID: ROOT_ID,
+          node: BarQuery.operation,
+          variables: {},
+        },
+        payload,
+        {handleStrippedNulls: true},
+      );
+    }).not.toWarn([
+      'RelayResponseNormalizer(): Payload did not contain a value for ' +
+        'field `%s: %s`. Check that you are parsing with the same query that ' +
+        'was used to fetch the payload.',
+      'name',
+      'name',
+    ]);
+  });
+
+  it('warns in __DEV__ if payload contains inconsistent types for a record', () => {
+    jest.mock('warning');
+
+    const {BarQuery} = generateWithTransforms(
+      `
+      query BarQuery($id: ID) {
+        node(id: $id) {
+          id
+          __typename
+          ... on User {
+            actor {
+              id
+              __typename
+            }
+            actors {
+              id
+              __typename
+            }
+          }
+        }
+      }
+    `,
+    );
+    const payload = {
+      node: {
+        id: '1',
+        __typename: 'User',
+        actor: {
+          id: '1',
+          __typename: 'Actor', // <- invalid
+        },
+        actors: [
+          {
+            id: '1',
+            __typename: 'Actors', // <- invalid
+          },
+        ],
+      },
+    };
+    const recordSource = new RelayInMemoryRecordSource();
+    recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+    expect(() => {
+      normalize(
+        recordSource,
+        {
+          dataID: ROOT_ID,
+          node: BarQuery.operation,
+          variables: {id: '1'},
+        },
+        payload,
+        {handleStrippedNulls: true},
+      );
+    }).toWarn([
+      'RelayResponseNormalizer: Invalid record `%s`. Expected %s to be ' +
+        'be consistent, but the record was assigned conflicting types `%s` ' +
+        'and `%s`. The GraphQL server likely violated the globally unique ' +
+        'id requirement by returning the same id for different objects.',
+      '1',
+      '__typename',
+      'User',
+      'Actor',
+    ]);
+    expect(() => {
+      normalize(
+        recordSource,
+        {
+          dataID: ROOT_ID,
+          node: BarQuery.operation,
+          variables: {id: '1'},
+        },
+        payload,
+        {handleStrippedNulls: true},
+      );
+    }).toWarn([
+      'RelayResponseNormalizer: Invalid record `%s`. Expected %s to be ' +
+        'be consistent, but the record was assigned conflicting types `%s` ' +
+        'and `%s`. The GraphQL server likely violated the globally unique ' +
+        'id requirement by returning the same id for different objects.',
+      '1',
+      '__typename',
+      'Actor', // `User` is already overwritten when the plural field is reached
+      'Actors',
+    ]);
+  });
+
   it('leaves undefined fields unset, as handleStrippedNulls == false', () => {
-    const {StrippedQuery} = generateWithTransforms(`
-      query StrippedQuery($id: ID, $size: Int) {
+    const {StrippedQuery} = generateWithTransforms(
+      `
+      query StrippedQuery($id: ID, $size: [Int]) {
         node(id: $id) {
           id
           __typename
@@ -383,7 +527,8 @@ describe('RelayResponseNormalizer', () => {
           }
         }
       }
-    `);
+    `,
+    );
     const payload = {
       node: {
         id: '1',
@@ -392,16 +537,16 @@ describe('RelayResponseNormalizer', () => {
       },
     };
     const recordSource = new RelayInMemoryRecordSource();
-    recordSource.set(ROOT_ID, RelayStaticRecord.create(ROOT_ID, ROOT_TYPE));
+    recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
     normalize(
       recordSource,
       {
         dataID: ROOT_ID,
-        node: StrippedQuery,
+        node: StrippedQuery.operation,
         variables: {id: '1', size: 32},
       },
       payload,
-      {handleStrippedNulls: false}
+      {handleStrippedNulls: false},
     );
     expect(recordSource.toJSON()).toEqual({
       '1': {
@@ -414,7 +559,7 @@ describe('RelayResponseNormalizer', () => {
       'client:root': {
         __id: 'client:root',
         __typename: '__Root',
-        'node{"id":"1"}': {
+        'node(id:"1")': {
           __ref: '1',
         },
       },

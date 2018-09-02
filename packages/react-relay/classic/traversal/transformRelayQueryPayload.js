@@ -1,24 +1,22 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule transformRelayQueryPayload
  * @flow
+ * @format
  */
 
 'use strict';
 
-const RelayQuery = require('RelayQuery');
-const RelayQueryVisitor = require('RelayQueryVisitor');
+const RelayQuery = require('../query/RelayQuery');
+const RelayQueryVisitor = require('../query/RelayQueryVisitor');
 
 const invariant = require('invariant');
 const mapObject = require('mapObject');
 
-import type {QueryPayload} from 'RelayInternalTypes';
+import type {QueryPayload} from '../tools/RelayInternalTypes';
 
 type PayloadState = {
   client: QueryPayload,
@@ -31,9 +29,9 @@ type TransformConfig = {
     callback: (
       child: RelayQuery.Node,
       index: number,
-      children: Array<RelayQuery.Node>
+      children: Array<RelayQuery.Node>,
     ) => void,
-    context: any
+    context: any,
   ) => void,
 };
 
@@ -46,18 +44,16 @@ type TransformConfig = {
 function transformRelayQueryPayload(
   root: RelayQuery.Root,
   clientData: QueryPayload,
-  config?: TransformConfig
+  config?: TransformConfig,
 ): QueryPayload {
   if (clientData == null) {
     return clientData;
   } else {
-    return mapObject(clientData, item => {
+    return mapObject((clientData: any), item => {
       // Handle both FB & OSS formats for root payloads on plural calls: FB
       // returns objects, OSS returns arrays.
       if (Array.isArray(item)) {
-        return item.map(
-          innerItem => transform(root, innerItem, config)
-        );
+        return item.map(innerItem => transform(root, innerItem, config));
       }
       return transform(root, item, config);
     });
@@ -67,7 +63,7 @@ function transformRelayQueryPayload(
 function transform(
   root: RelayQuery.Root,
   clientData: QueryPayload,
-  config: ?TransformConfig
+  config: ?TransformConfig,
 ): QueryPayload {
   if (clientData == null) {
     return clientData;
@@ -88,9 +84,9 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
     callback: (
       child: RelayQuery.Node,
       index: number,
-      children: Array<RelayQuery.Node>
+      children: Array<RelayQuery.Node>,
     ) => void,
-    context: any
+    context: any,
   ) => void;
 
   constructor(config: ?TransformConfig) {
@@ -111,9 +107,9 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
     callback: (
       child: RelayQuery.Node,
       index: number,
-      children: Array<RelayQuery.Node>
+      children: Array<RelayQuery.Node>,
     ) => void,
-    context: any
+    context: any,
   ): void {
     if (this._traverseChildren) {
       this._traverseChildren(node, callback, context);
@@ -122,10 +118,7 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
     }
   }
 
-  visitField(
-    node: RelayQuery.Field,
-    state: PayloadState
-  ): void {
+  visitField(node: RelayQuery.Field, state: PayloadState): void {
     const {client, server} = state;
     const applicationName = this._getKeyForClientData(node);
     const serializationKey = node.getSerializationKey();
@@ -144,8 +137,8 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
         invariant(
           Array.isArray(serverData),
           'RelayPayloadTransformer: Got conflicting values for field `%s`: ' +
-          'expected values to be arrays.',
-          applicationName
+            'expected values to be arrays.',
+          applicationName,
         );
         if (clientItem == null) {
           serverData[index] = clientItem;
@@ -166,13 +159,13 @@ class RelayPayloadTransformer extends RelayQueryVisitor<PayloadState> {
       invariant(
         typeof clientData === 'object' && clientData !== null,
         'RelayPayloadTransformer: Expected an object value for field `%s`.',
-        applicationName
+        applicationName,
       );
       invariant(
         serverData == null || typeof serverData === 'object',
         'RelayPayloadTransformer: Got conflicting values for field `%s`: ' +
-        'expected values to be objects.',
-        applicationName
+          'expected values to be objects.',
+        applicationName,
       );
       if (serverData == null) {
         server[serializationKey] = serverData = {};

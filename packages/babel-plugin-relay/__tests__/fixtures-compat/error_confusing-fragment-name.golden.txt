@@ -1,3 +1,0 @@
-ERROR:
-
-Error: unknown: BabelPluginGraphQL: Fragment `CompatProfile_data` should not end in `_data` to avoid conflict with a fragment named `CompatProfile` which also provides resulting data via the React prop `data`. Either rename this fragment to `CompatProfile` or choose a different prop name.

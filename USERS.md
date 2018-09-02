@@ -24,7 +24,11 @@ Using Relay in your production app? If you'd like to add your team to the list, 
 ## C
 
 - [chloe + isabel](https://www.chloeandisabel.com)
+- [Cirrus CI](https://cirrus-ci.com)
 - [Collibra](https://www.collibra.com)
+
+## E
+- [Entria](https://entria.com.br/)
 
 ## F
 
@@ -42,10 +46,13 @@ Using Relay in your production app? If you'd like to add your team to the list, 
 ## M
 
 - [M1 Finance](https://www.m1finance.com/)
+- [MeasureChina](http://www.measurechina.cn/)
 - [Mixcloud](https://www.mixcloud.com/)
 
 ## N
 
+- [Nau Studio](https://naustud.io)
+- [New York Times](https://www.nytimes.com) (See [NYT dev team blog entry](https://open.nytimes.com/react-relay-and-graphql-under-the-hood-of-the-times-website-redesign-22fb62ea9764))
 - [Notarize](http://www.notarize.com/)
 
 ## O
@@ -62,6 +69,12 @@ Using Relay in your production app? If you'd like to add your team to the list, 
 - [RelateRocket](https://relaterocket.co/)
 - [Reploy](https://reploy.io)
 - [re:Culture](https://reculture.us)
+- [RetroAnalytics](https://retroanalytics.io)
+
+## S
+
+- [Sainsburys](https://sainsburys.co.uk/)
+- [Sigma](https://sig.ma)
 
 ## T
 

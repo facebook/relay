@@ -1,27 +1,26 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
+jest
+  .mock('../../store/RelayQueryTracker')
+  .mock('../../store/RelayClassicRecordState');
+
 require('configureForRelayOSS');
 
-jest
-  .unmock('GraphQLRange')
-  .unmock('GraphQLSegment');
-
-const Relay = require('Relay');
-const RelayQueryTracker = require('RelayQueryTracker');
+const Relay = require('../../public/RelayPublic');
+const RelayQueryTracker = require('../../store/RelayQueryTracker');
 const RelayTestUtils = require('RelayTestUtils');
 
-const diffRelayQuery = require('diffRelayQuery');
+const diffRelayQuery = require('../diffRelayQuery');
 
 describe('diffRelayQuery', () => {
   let RelayRecordStore;
@@ -32,10 +31,10 @@ describe('diffRelayQuery', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    RelayRecordStore = require('RelayRecordStore');
-    RelayRecordWriter = require('RelayRecordWriter');
+    RelayRecordStore = require('../../store/RelayRecordStore');
+    RelayRecordWriter = require('../../store/RelayRecordWriter');
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('keeps queries if the root dataID is unknown', () => {
@@ -43,7 +42,8 @@ describe('diffRelayQuery', () => {
     const store = new RelayRecordStore({records});
     const tracker = new RelayQueryTracker();
 
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       query {
         username(name:"joe") {
           id
@@ -51,7 +51,8 @@ describe('diffRelayQuery', () => {
           lastName
         }
       }
-    `);
+    `,
+    );
     const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toBeQueryRoot(query);
@@ -62,7 +63,8 @@ describe('diffRelayQuery', () => {
     const store = new RelayRecordStore({records});
     const tracker = new RelayQueryTracker();
 
-    const query = getNode(Relay.QL`
+    const query = getNode(
+      Relay.QL`
       query {
         node(id:"123") {
           id
@@ -70,7 +72,8 @@ describe('diffRelayQuery', () => {
           lastName
         }
       }
-    `);
+    `,
+    );
     const diffQueries = diffRelayQuery(query, store, tracker);
     expect(diffQueries.length).toBe(1);
     expect(diffQueries[0]).toBeQueryRoot(query);
@@ -82,13 +85,15 @@ describe('diffRelayQuery', () => {
     const writer = new RelayRecordWriter(records, {}, false);
     const tracker = new RelayQueryTracker();
 
-    const writeQuery = getNode(Relay.QL`
+    const writeQuery = getNode(
+      Relay.QL`
       query {
         node(id:"123") {
           firstName
         }
       }
-    `);
+    `,
+    );
     const payload = {
       node: {
         id: '123',
@@ -98,7 +103,8 @@ describe('diffRelayQuery', () => {
     };
     writePayload(store, writer, writeQuery, payload, tracker);
 
-    const fetchQuery = getNode(Relay.QL`
+    const fetchQuery = getNode(
+      Relay.QL`
       query {
         node(id:"123") {
           id
@@ -106,15 +112,20 @@ describe('diffRelayQuery', () => {
           lastName
         }
       }
-    `);
+    `,
+    );
     const diffQueries = diffRelayQuery(fetchQuery, store, tracker);
     expect(diffQueries.length).toBe(1);
-    expect(diffQueries[0]).toEqualQueryRoot(getNode(Relay.QL`
+    expect(diffQueries[0]).toEqualQueryRoot(
+      getNode(
+        Relay.QL`
       query {
         node(id:"123") {
           lastName
         }
       }
-    `));
+    `,
+      ),
+    );
   });
 });

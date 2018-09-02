@@ -1,35 +1,27 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @format
+ * @emails oncall+relay
  */
 
 'use strict';
 
-jest
-  .autoMockOff();
+const RelayInMemoryRecordSource = require('../../../store/RelayInMemoryRecordSource');
+const RelayModernRecord = require('../../../store/RelayModernRecord');
+const RelayModernTestUtils = require('RelayModernTestUtils');
+const RelayRecordSourceMutator = require('../../../mutations/RelayRecordSourceMutator');
+const RelayRecordSourceProxy = require('../../../mutations/RelayRecordSourceProxy');
+const RelayStoreUtils = require('../../../store/RelayStoreUtils');
+const RelayViewerHandler = require('../RelayViewerHandler');
 
-const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
-const RelayStaticRecord = require('RelayStaticRecord');
-const RelayRecordSourceMutator = require('RelayRecordSourceMutator');
-const RelayRecordSourceProxy = require('RelayRecordSourceProxy');
-const RelayStoreUtils = require('RelayStoreUtils');
-const RelayStaticTestUtils = require('RelayStaticTestUtils');
-const RelayViewerHandler = require('RelayViewerHandler');
+const generateRelayClientID = require('../../../store/generateRelayClientID');
+const getRelayHandleKey = require('../../../util/getRelayHandleKey');
 
-const generateRelayClientID = require('generateRelayClientID');
-const getRelayStaticHandleKey = require('getRelayStaticHandleKey');
-
-const {
-  ID_KEY,
-  REF_KEY,
-  ROOT_ID,
-  ROOT_TYPE,
-  TYPENAME_KEY,
-} = RelayStoreUtils;
+const {ID_KEY, REF_KEY, ROOT_ID, ROOT_TYPE, TYPENAME_KEY} = RelayStoreUtils;
 
 const VIEWER_ID = generateRelayClientID(ROOT_ID, 'viewer');
 
@@ -39,11 +31,11 @@ describe('RelayViewerHandler', () => {
   let sinkData;
   let sinkSource;
   let mutator;
-  let proxy;
+  let store;
 
   beforeEach(() => {
     jest.resetModules();
-    jasmine.addMatchers(RelayStaticTestUtils.matchers);
+    expect.extend(RelayModernTestUtils.matchers);
 
     baseData = {
       [ROOT_ID]: {
@@ -55,67 +47,61 @@ describe('RelayViewerHandler', () => {
     sinkData = {};
     sinkSource = new RelayInMemoryRecordSource(sinkData);
     mutator = new RelayRecordSourceMutator(baseSource, sinkSource);
-    proxy = new RelayRecordSourceProxy(mutator);
+    store = new RelayRecordSourceProxy(mutator);
   });
 
   it('does nothing if the payload record does not exist', () => {
     const payload = {
       dataID: 'unfetched',
       fieldKey: 'viewer',
-      handleKey: getRelayStaticHandleKey('viewer', null, 'viewer'),
+      handleKey: getRelayHandleKey('viewer', null, 'viewer'),
     };
-    RelayViewerHandler.update(proxy, payload);
+    RelayViewerHandler.update(store, payload);
     expect(sinkData).toEqual({});
   });
 
-  it('sets the handle as deleted if the server viewer is null', () => {
-    baseSource.delete(VIEWER_ID);
-    RelayStaticRecord.setLinkedRecordID(baseSource.get(ROOT_ID), 'viewer', VIEWER_ID);
-
-    const payload = {
-      dataID: ROOT_ID,
-      fieldKey: 'viewer',
-      handleKey: getRelayStaticHandleKey('viewer', null, 'viewer'),
-    };
-    RelayViewerHandler.update(proxy, payload);
-    expect(sinkData).toEqual({
-      [ROOT_ID]: {
-        [ID_KEY]: ROOT_ID,
-        [TYPENAME_KEY]: ROOT_TYPE,
-        [payload.handleKey]: null,
-      },
-    });
-  });
-
-  it('sets the handle as deleted if the server viewer is undefined', () => {
-    RelayStaticRecord.setLinkedRecordID(baseSource.get(ROOT_ID), 'viewer', VIEWER_ID);
-
-    const payload = {
-      dataID: ROOT_ID,
-      fieldKey: 'viewer',
-      handleKey: getRelayStaticHandleKey('viewer', null, 'viewer'),
-    };
-    RelayViewerHandler.update(proxy, payload);
-    expect(sinkData).toEqual({
-      [ROOT_ID]: {
-        [ID_KEY]: ROOT_ID,
-        [TYPENAME_KEY]: ROOT_TYPE,
-        [payload.handleKey]: null,
-      },
-    });
-  });
-
   it('links the handle to the server viewer for query data', () => {
-    const viewer = RelayStaticRecord.create(VIEWER_ID, 'Viewer');
+    const viewer = RelayModernRecord.create(VIEWER_ID, 'Viewer');
     baseSource.set(VIEWER_ID, viewer);
-    RelayStaticRecord.setLinkedRecordID(baseSource.get(ROOT_ID), 'viewer', VIEWER_ID);
+    RelayModernRecord.setLinkedRecordID(
+      baseSource.get(ROOT_ID),
+      'viewer',
+      VIEWER_ID,
+    );
 
     const payload = {
       dataID: ROOT_ID,
       fieldKey: 'viewer',
-      handleKey: getRelayStaticHandleKey('viewer', null, 'viewer'),
+      handleKey: getRelayHandleKey('viewer', null, 'viewer'),
     };
-    RelayViewerHandler.update(proxy, payload);
+    RelayViewerHandler.update(store, payload);
+    expect(sinkData).toEqual({
+      [ROOT_ID]: {
+        [ID_KEY]: ROOT_ID,
+        [TYPENAME_KEY]: ROOT_TYPE,
+        viewer: null,
+        [payload.handleKey]: {[REF_KEY]: VIEWER_ID},
+      },
+    });
+  });
+
+  it('links the handle to the server viewer when called multiple times', () => {
+    const viewer = RelayModernRecord.create(VIEWER_ID, 'Viewer');
+    baseSource.set(VIEWER_ID, viewer);
+    RelayModernRecord.setLinkedRecordID(
+      baseSource.get(ROOT_ID),
+      'viewer',
+      VIEWER_ID,
+    );
+
+    const payload = {
+      dataID: ROOT_ID,
+      fieldKey: 'viewer',
+      handleKey: getRelayHandleKey('viewer', null, 'viewer'),
+    };
+    // called twice should not break
+    RelayViewerHandler.update(store, payload);
+    RelayViewerHandler.update(store, payload);
     expect(sinkData).toEqual({
       [ROOT_ID]: {
         [ID_KEY]: ROOT_ID,
@@ -129,21 +115,28 @@ describe('RelayViewerHandler', () => {
   it('copies the handle field from server viewer for mutation data', () => {
     const commentAlias = 'commentCreate{"input":{}}';
     const commentID = generateRelayClientID(ROOT_ID, commentAlias);
-    const comment = RelayStaticRecord.create(commentID, 'CommentCreateResponsePayload');
+    const comment = RelayModernRecord.create(
+      commentID,
+      'CommentCreateResponsePayload',
+    );
     baseSource.set(commentID, comment);
     const viewerID = generateRelayClientID(commentID, 'viewer');
-    const viewer = RelayStaticRecord.create(viewerID, 'Viewer');
-    RelayStaticRecord.setLinkedRecordID(viewer, 'actor', '842472');
+    const viewer = RelayModernRecord.create(viewerID, 'Viewer');
+    RelayModernRecord.setLinkedRecordID(viewer, 'actor', '842472');
     baseSource.set(viewerID, viewer);
-    RelayStaticRecord.setLinkedRecordID(comment, 'viewer', viewerID);
-    RelayStaticRecord.setLinkedRecordID(baseSource.get(ROOT_ID), commentAlias, commentID);
+    RelayModernRecord.setLinkedRecordID(comment, 'viewer', viewerID);
+    RelayModernRecord.setLinkedRecordID(
+      baseSource.get(ROOT_ID),
+      commentAlias,
+      commentID,
+    );
 
     const payload = {
       dataID: commentID,
       fieldKey: 'viewer',
-      handleKey: getRelayStaticHandleKey('viewer', null, 'viewer'),
+      handleKey: getRelayHandleKey('viewer', null, 'viewer'),
     };
-    RelayViewerHandler.update(proxy, payload);
+    RelayViewerHandler.update(store, payload);
     expect(sinkData).toEqual({
       [ROOT_ID]: {
         [ID_KEY]: ROOT_ID,

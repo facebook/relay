@@ -1,43 +1,39 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule GraphQLQueryRunner
  * @flow
+ * @format
  */
 
 'use strict';
 
-const RelayFetchMode = require('RelayFetchMode');
-const RelayProfiler = require('RelayProfiler');
-const RelayReadyState = require('RelayReadyState');
+const RelayFetchMode = require('../../store/RelayFetchMode');
+const RelayReadyState = require('../../store/RelayReadyState');
 
-const checkRelayQueryData = require('checkRelayQueryData');
-const diffRelayQuery = require('diffRelayQuery');
+const checkRelayQueryData = require('../../traversal/checkRelayQueryData');
+const diffRelayQuery = require('../../traversal/diffRelayQuery');
 const everyObject = require('everyObject');
-const flattenSplitRelayQueries = require('flattenSplitRelayQueries');
+const flattenSplitRelayQueries = require('../../traversal/flattenSplitRelayQueries');
 const forEachObject = require('forEachObject');
-const generateForceIndex = require('generateForceIndex');
+const generateForceIndex = require('./generateForceIndex');
 const mapObject = require('mapObject');
 const resolveImmediate = require('resolveImmediate');
 const someObject = require('someObject');
-const splitDeferredRelayQueries = require('splitDeferredRelayQueries');
-const throwFailedPromise = require('throwFailedPromise');
+const splitDeferredRelayQueries = require('../../traversal/splitDeferredRelayQueries');
+const throwFailedPromise = require('../../util/throwFailedPromise');
 const warning = require('warning');
 
-import type {FetchMode} from 'RelayFetchMode';
-import type {RelayQuerySet} from 'RelayInternalTypes';
-import type {PendingFetch} from 'RelayPendingQueryTracker';
-import type RelayQuery from 'RelayQuery';
-import type RelayStoreData from 'RelayStoreData';
-import type {
-  Abortable,
-  ReadyStateChangeCallback,
-} from 'RelayTypes';
+const {RelayProfiler} = require('relay-runtime');
+
+import type RelayQuery from '../../query/RelayQuery';
+import type {FetchMode} from '../../store/RelayFetchMode';
+import type {PendingFetch} from '../../store/RelayPendingQueryTracker';
+import type RelayStoreData from '../../store/RelayStoreData';
+import type {RelayQuerySet} from '../../tools/RelayInternalTypes';
+import type {Abortable, ReadyStateChangeCallback} from '../../tools/RelayTypes';
 
 /**
  * This is the high-level entry point for sending queries to the GraphQL
@@ -64,7 +60,7 @@ class GraphQLQueryRunner {
   run(
     querySet: RelayQuerySet,
     callback: ReadyStateChangeCallback,
-    fetchMode?: FetchMode = RelayFetchMode.CLIENT
+    fetchMode?: FetchMode = RelayFetchMode.CLIENT,
   ): Abortable {
     return runQueries(this._storeData, querySet, callback, fetchMode);
   }
@@ -78,7 +74,7 @@ class GraphQLQueryRunner {
    */
   forceFetch(
     querySet: RelayQuerySet,
-    callback: ReadyStateChangeCallback
+    callback: ReadyStateChangeCallback,
   ): Abortable {
     const fetchMode = RelayFetchMode.REFETCH;
     return runQueries(this._storeData, querySet, callback, fetchMode);
@@ -91,7 +87,7 @@ function hasItems(map: Object): boolean {
 
 function splitAndFlattenQueries(
   storeData: RelayStoreData,
-  queries: Array<RelayQuery.Root>
+  queries: Array<RelayQuery.Root>,
 ): Array<RelayQuery.Root> {
   if (!storeData.getNetworkLayer().supports('defer')) {
     if (__DEV__) {
@@ -99,9 +95,9 @@ function splitAndFlattenQueries(
         warning(
           !query.hasDeferredDescendant(),
           'Relay: Query `%s` contains a deferred fragment (e.g. ' +
-          '`getFragment(\'foo\').defer()`) which is not supported by the ' +
-          'default network layer. This query will be sent without deferral.',
-          query.getName()
+            "`getFragment('foo').defer()`) which is not supported by the " +
+            'default network layer. This query will be sent without deferral.',
+          query.getName(),
         );
       });
     }
@@ -111,9 +107,7 @@ function splitAndFlattenQueries(
   const flattenedQueries = [];
   queries.forEach(query => {
     return flattenedQueries.push(
-      ...flattenSplitRelayQueries(
-        splitDeferredRelayQueries(query)
-      )
+      ...flattenSplitRelayQueries(splitDeferredRelayQueries(query)),
     );
   });
   return flattenedQueries;
@@ -123,11 +117,12 @@ function runQueries(
   storeData: RelayStoreData,
   querySet: RelayQuerySet,
   callback: ReadyStateChangeCallback,
-  fetchMode: FetchMode
+  fetchMode: FetchMode,
 ): Abortable {
-  const profiler = fetchMode === RelayFetchMode.REFETCH ?
-    RelayProfiler.profile('GraphQLQueryRunner.forceFetch') :
-    RelayProfiler.profile('GraphQLQueryRunner.primeCache');
+  const profiler =
+    fetchMode === RelayFetchMode.REFETCH
+      ? RelayProfiler.profile('GraphQLQueryRunner.forceFetch')
+      : RelayProfiler.profile('GraphQLQueryRunner.primeCache');
 
   const readyState = new RelayReadyState(callback);
 
@@ -153,17 +148,23 @@ function runQueries(
     }
 
     if (hasItems(remainingFetchMap)) {
-      readyState.update({
-        done: false,
-        ready: true,
-        stale: false,
-      }, [{type: 'NETWORK_QUERY_RECEIVED_REQUIRED'}]);
+      readyState.update(
+        {
+          done: false,
+          ready: true,
+          stale: false,
+        },
+        [{type: 'NETWORK_QUERY_RECEIVED_REQUIRED'}],
+      );
     } else {
-      readyState.update({
-        done: true,
-        ready: true,
-        stale: false,
-      }, [{type: 'NETWORK_QUERY_RECEIVED_ALL'}]);
+      readyState.update(
+        {
+          done: true,
+          ready: true,
+          stale: false,
+        },
+        [{type: 'NETWORK_QUERY_RECEIVED_ALL'}],
+      );
     }
   }
 
@@ -172,113 +173,127 @@ function runQueries(
   }
 
   function canResolve(fetch: PendingFetch): boolean {
-    return checkRelayQueryData(
-      storeData.getQueuedStore(),
-      fetch.getQuery()
-    );
+    return checkRelayQueryData(storeData.getQueuedStore(), fetch.getQuery());
   }
 
-  throwFailedPromise(storeData.getTaskQueue().enqueue(() => {
-    const forceIndex = fetchMode === RelayFetchMode.REFETCH ?
-      generateForceIndex() :
-      null;
+  throwFailedPromise(
+    storeData.getTaskQueue().enqueue(() => {
+      const forceIndex =
+        fetchMode === RelayFetchMode.REFETCH ? generateForceIndex() : null;
 
-    const queries = [];
-    if (fetchMode === RelayFetchMode.CLIENT) {
-      forEachObject(querySet, query => {
-        if (query) {
-          queries.push(...diffRelayQuery(
-            query,
-            storeData.getRecordStore(),
-            storeData.getQueryTracker()
-          ));
-        }
-      });
-    } else {
-      forEachObject(querySet, query => {
-        if (query) {
-          queries.push(query);
-        }
-      });
-    }
-
-    const flattenedQueries = splitAndFlattenQueries(storeData, queries);
-
-    const networkEvent = [];
-    if (flattenedQueries.length) {
-      networkEvent.push({type: 'NETWORK_QUERY_START'});
-    }
-
-    flattenedQueries.forEach(query => {
-      const pendingFetch = storeData.getPendingQueryTracker().add(
-        {query, fetchMode, forceIndex, storeData}
-      );
-      const queryID = query.getID();
-      remainingFetchMap[queryID] = pendingFetch;
-      if (!query.isDeferred()) {
-        remainingRequiredFetchMap[queryID] = pendingFetch;
-      }
-      pendingFetch.getResolvedPromise().then(
-        onResolved.bind(null, pendingFetch),
-        onRejected.bind(null, pendingFetch)
-      );
-    });
-
-    if (!hasItems(remainingFetchMap)) {
-      readyState.update({
-        done: true,
-        ready: true,
-      }, [...networkEvent, {type: 'STORE_FOUND_ALL'}]);
-    } else {
-      if (!hasItems(remainingRequiredFetchMap)) {
-        readyState.update(
-          {ready: true},
-          [...networkEvent, {type: 'STORE_FOUND_REQUIRED'}]
-        );
-      } else {
-        readyState.update(
-          {ready: false},
-          [...networkEvent, {type: 'CACHE_RESTORE_START'}]
-        );
-
-        resolveImmediate(() => {
-          if (storeData.hasCacheManager()) {
-            const requiredQueryMap = mapObject(
-              remainingRequiredFetchMap,
-              value => value.getQuery()
+      const queries = [];
+      if (fetchMode === RelayFetchMode.CLIENT) {
+        forEachObject(querySet, query => {
+          if (query) {
+            queries.push(
+              ...diffRelayQuery(
+                query,
+                storeData.getRecordStore(),
+                storeData.getQueryTracker(),
+              ),
             );
-            storeData.restoreQueriesFromCache(requiredQueryMap, {
-              onSuccess: () => {
-                readyState.update({
-                  ready: true,
-                  stale: true,
-                }, [{type: 'CACHE_RESTORED_REQUIRED'}]);
-              },
-              onFailure: (error: any) => {
-                readyState.update({
-                  error,
-                }, [{type: 'CACHE_RESTORE_FAILED', error}]);
-              },
-            });
-          } else {
-            if (
-              everyObject(remainingRequiredFetchMap, canResolve) &&
-              hasItems(remainingRequiredFetchMap)
-            ) {
-              readyState.update({
-                ready: true,
-                stale: true,
-              }, [{type: 'CACHE_RESTORED_REQUIRED'}]);
-            } else {
-              readyState.update({}, [{type: 'CACHE_RESTORE_FAILED'}]);
-            }
+          }
+        });
+      } else {
+        forEachObject(querySet, query => {
+          if (query) {
+            queries.push(query);
           }
         });
       }
-    }
-    // Stop profiling when queries have been sent to the network layer.
-    profiler.stop();
-  }));
+
+      const flattenedQueries = splitAndFlattenQueries(storeData, queries);
+
+      const networkEvent = [];
+      if (flattenedQueries.length) {
+        networkEvent.push({type: 'NETWORK_QUERY_START'});
+      }
+
+      flattenedQueries.forEach(query => {
+        const pendingFetch = storeData
+          .getPendingQueryTracker()
+          .add({query, fetchMode, forceIndex, storeData});
+        const queryID = query.getID();
+        remainingFetchMap[queryID] = pendingFetch;
+        if (!query.isDeferred()) {
+          remainingRequiredFetchMap[queryID] = pendingFetch;
+        }
+        pendingFetch
+          .getResolvedPromise()
+          .then(
+            onResolved.bind(null, pendingFetch),
+            onRejected.bind(null, pendingFetch),
+          );
+      });
+
+      if (!hasItems(remainingFetchMap)) {
+        readyState.update(
+          {
+            done: true,
+            ready: true,
+          },
+          [...networkEvent, {type: 'STORE_FOUND_ALL'}],
+        );
+      } else {
+        if (!hasItems(remainingRequiredFetchMap)) {
+          readyState.update({ready: true}, [
+            ...networkEvent,
+            {type: 'STORE_FOUND_REQUIRED'},
+          ]);
+        } else {
+          readyState.update({ready: false}, [
+            ...networkEvent,
+            {type: 'CACHE_RESTORE_START'},
+          ]);
+
+          resolveImmediate(() => {
+            if (storeData.hasCacheManager()) {
+              const requiredQueryMap = mapObject(
+                remainingRequiredFetchMap,
+                value => value.getQuery(),
+              );
+              storeData.restoreQueriesFromCache(requiredQueryMap, {
+                onSuccess: () => {
+                  readyState.update(
+                    {
+                      ready: true,
+                      stale: true,
+                    },
+                    [{type: 'CACHE_RESTORED_REQUIRED'}],
+                  );
+                },
+                onFailure: (error: any) => {
+                  readyState.update(
+                    {
+                      error,
+                    },
+                    [{type: 'CACHE_RESTORE_FAILED', error}],
+                  );
+                },
+              });
+            } else {
+              if (
+                everyObject(remainingRequiredFetchMap, canResolve) &&
+                hasItems(remainingRequiredFetchMap)
+              ) {
+                readyState.update(
+                  {
+                    ready: true,
+                    stale: true,
+                  },
+                  [{type: 'CACHE_RESTORED_REQUIRED'}],
+                );
+              } else {
+                readyState.update({}, [{type: 'CACHE_RESTORE_FAILED'}]);
+              }
+            }
+          });
+        }
+      }
+      // Stop profiling when queries have been sent to the network layer.
+      profiler.stop();
+    }),
+  );
 
   return {
     abort(): void {

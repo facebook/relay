@@ -1,31 +1,29 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule getRelayQueries
  * @flow
+ * @format
  */
 
 'use strict';
 
-const Map = require('Map');
-const RelayMetaRoute = require('RelayMetaRoute');
-const RelayProfiler = require('RelayProfiler');
-const RelayQuery = require('RelayQuery');
-const RelayQueryCaching = require('RelayQueryCaching');
+const RelayMetaRoute = require('../route/RelayMetaRoute');
+const RelayQuery = require('../query/RelayQuery');
+const RelayQueryCaching = require('../tools/RelayQueryCaching');
 
-const buildRQL = require('buildRQL');
+const buildRQL = require('../query/buildRQL');
 const invariant = require('invariant');
-const stableStringify = require('stableStringify');
+const stableStringify = require('../query/stableStringify');
 const warning = require('warning');
 
-import type {RelayLazyContainer} from 'RelayContainer';
-import type {RelayQuerySet} from 'RelayInternalTypes';
-import type {RelayQueryConfigInterface} from 'RelayQueryConfig';
+const {RelayProfiler} = require('relay-runtime');
+
+import type {RelayQueryConfigInterface} from '../query-config/RelayQueryConfig';
+import type {RelayQuerySet} from '../tools/RelayInternalTypes';
+import type {RelayLazyContainer} from './RelayContainer';
 
 const queryCache = new Map();
 
@@ -36,7 +34,7 @@ const queryCache = new Map();
  */
 function getRelayQueries(
   Component: RelayLazyContainer,
-  route: RelayQueryConfigInterface
+  route: RelayQueryConfigInterface,
 ): RelayQuerySet {
   const queryCachingEnabled = RelayQueryCaching.getEnabled();
   if (!queryCachingEnabled) {
@@ -61,7 +59,7 @@ function getRelayQueries(
  */
 function buildQuerySet(
   Component: RelayLazyContainer,
-  route: RelayQueryConfigInterface
+  route: RelayQueryConfigInterface,
 ): RelayQuerySet {
   const querySet = {};
   Component.getFragmentNames().forEach(fragmentName => {
@@ -72,11 +70,11 @@ function buildQuerySet(
       warning(
         false,
         'Relay.QL: query `%s.queries.%s` is invalid, expected fragment ' +
-        '`%s.fragments.%s` to be defined.',
+          '`%s.fragments.%s` to be defined.',
         route.name,
         queryName,
         Component.displayName,
-        queryName
+        queryName,
       );
       return;
     }
@@ -86,20 +84,20 @@ function buildQuerySet(
         queryBuilder,
         Component,
         queryName,
-        route.params
+        route.params,
       );
       invariant(
         concreteQuery !== undefined,
         'Relay.QL: query `%s.queries.%s` is invalid, a typical query is ' +
-        'defined using: () => Relay.QL`query { ... }`.',
+          'defined using: () => Relay.QL`query { ... }`.',
         route.name,
-        queryName
+        queryName,
       );
       if (concreteQuery) {
         const rootQuery = RelayQuery.Root.create(
           concreteQuery,
           RelayMetaRoute.get(route.name),
-          route.params
+          route.params,
         );
         const identifyingArg = rootQuery.getIdentifyingArg();
         if (!identifyingArg || identifyingArg.value !== undefined) {

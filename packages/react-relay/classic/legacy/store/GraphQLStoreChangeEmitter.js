@@ -1,13 +1,11 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule GraphQLStoreChangeEmitter
  * @flow
+ * @format
  */
 
 'use strict';
@@ -16,8 +14,7 @@ const ErrorUtils = require('ErrorUtils');
 
 const resolveImmediate = require('resolveImmediate');
 
-import type GraphQLStoreRangeUtils from 'GraphQLStoreRangeUtils';
-import type {ChangeSubscription} from 'RelayTypes';
+import type {ChangeSubscription} from '../../tools/RelayTypes';
 
 type BatchStrategy = (callback: Function) => void;
 type Subscriber = {
@@ -38,11 +35,11 @@ type SubscriptionCallback = () => void;
 class GraphQLStoreChangeEmitter {
   _batchUpdate: BatchStrategy;
   _executingIDs: Object;
-  _rangeData: GraphQLStoreRangeUtils;
+  _rangeData: any; // Should be GraphQLStoreRangeUtils
   _scheduledIDs: ?Object;
   _subscribers: Array<Subscriber>;
 
-  constructor(rangeData: GraphQLStoreRangeUtils) {
+  constructor(rangeData: any) {
     this._batchUpdate = callback => callback();
     this._executingIDs = {};
     this._rangeData = rangeData;
@@ -52,7 +49,7 @@ class GraphQLStoreChangeEmitter {
 
   addListenerForIDs(
     ids: Array<string>,
-    callback: SubscriptionCallback
+    callback: SubscriptionCallback,
   ): ChangeSubscription {
     const subscribedIDs = ids.map(id => this._getBroadcastID(id));
     const index = this._subscribers.length;
@@ -93,13 +90,13 @@ class GraphQLStoreChangeEmitter {
    */
   _processSubscribers(): void {
     this._subscribers.forEach((subscriber, subscriberIndex) =>
-      this._processSubscriber(subscriber, subscriberIndex)
+      this._processSubscriber(subscriber, subscriberIndex),
     );
   }
 
   _processSubscriber(
     {subscribedIDs, callback}: Subscriber,
-    subscriberIndex: number
+    subscriberIndex: number,
   ): void {
     for (const broadcastID in this._executingIDs) {
       if (this._executingIDs.hasOwnProperty(broadcastID)) {
@@ -114,7 +111,7 @@ class GraphQLStoreChangeEmitter {
             null,
             null,
             null,
-            'GraphQLStoreChangeEmitter'
+            'GraphQLStoreChangeEmitter',
           );
           break;
         }

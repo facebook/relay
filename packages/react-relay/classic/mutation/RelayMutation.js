@@ -1,41 +1,36 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayMutation
  * @flow
+ * @format
  */
 
 'use strict';
 
-const RelayFragmentPointer = require('RelayFragmentPointer');
-const RelayFragmentReference = require('RelayFragmentReference');
-const RelayMetaRoute = require('RelayMetaRoute');
-const RelayQuery = require('RelayQuery');
-const RelayRecord = require('RelayRecord');
+const RelayFragmentPointer = require('../query/RelayFragmentPointer');
+const RelayFragmentReference = require('../query/RelayFragmentReference');
+const RelayMetaRoute = require('../route/RelayMetaRoute');
+const RelayQuery = require('../query/RelayQuery');
+const RelayRecord = require('../store/RelayRecord');
 
-const buildRQL = require('buildRQL');
+const buildRQL = require('../query/buildRQL');
 const forEachObject = require('forEachObject');
 const invariant = require('invariant');
-const validateMutationConfig = require('validateMutationConfig');
+const validateMutationConfig = require('./validateMutationConfig');
 const warning = require('warning');
 
-import type {ConcreteFragment} from 'ConcreteQuery';
-import type {RelayEnvironmentInterface} from 'RelayEnvironment';
-import type {RelayConcreteNode} from 'RelayQL';
-import type {
-  RelayMutationConfig,
-  Variables,
-} from 'RelayTypes';
-import type {RelayQLFragmentBuilder} from 'buildRQL';
+import type {ConcreteFragment} from '../query/ConcreteQuery';
+import type {RelayConcreteNode} from '../query/RelayQL';
+import type {RelayQLFragmentBuilder} from '../query/buildRQL';
+import type {RelayEnvironmentInterface} from '../store/RelayEnvironment';
+import type {DeclarativeMutationConfig, Variables} from 'relay-runtime';
 
 export type FileMap = {[key: string]: File};
 export type RelayMutationFragments<Tk> = {
-  [key: Tk]: RelayQLFragmentBuilder;
+  [key: Tk]: RelayQLFragmentBuilder,
 };
 
 /**
@@ -49,7 +44,7 @@ class RelayMutation<Tp: Object> {
   static initialVariables: Variables;
   static prepareVariables: ?(
     prevVariables: Variables,
-    route: RelayMetaRoute
+    route: RelayMetaRoute,
   ) => Variables;
 
   props: Tp;
@@ -75,7 +70,7 @@ class RelayMutation<Tp: Object> {
       invariant(
         environment === this._environment,
         '%s: Mutation instance cannot be used in different Relay environments.',
-        this.constructor.name
+        this.constructor.name,
       );
     }
   }
@@ -88,7 +83,7 @@ class RelayMutation<Tp: Object> {
     invariant(
       false,
       '%s: Expected abstract method `getMutation` to be implemented.',
-      this.constructor.name
+      this.constructor.name,
     );
   }
 
@@ -118,7 +113,7 @@ class RelayMutation<Tp: Object> {
     invariant(
       false,
       '%s: Expected abstract method `getFatQuery` to be implemented.',
-      this.constructor.name
+      this.constructor.name,
     );
   }
 
@@ -131,7 +126,7 @@ class RelayMutation<Tp: Object> {
    *
    * -  FIELDS_CHANGE provides configuration for mutation fields.
    *    {
-   *      type: RelayMutationType.FIELDS_CHANGE;
+   *      type: MutationTypes.FIELDS_CHANGE;
    *      fieldIDs: {[fieldName: string]: DataID | Array<DataID>};
    *    }
    *    where fieldIDs map `fieldName`s from the fatQuery to a DataID or
@@ -139,25 +134,25 @@ class RelayMutation<Tp: Object> {
    *
    * -  RANGE_ADD provides configuration for adding a new edge to a range.
    *    {
-   *      type: RelayMutationType.RANGE_ADD;
+   *      type: MutationTypes.RANGE_ADD;
    *      parentName: string;
    *      parentID: string;
    *      connectionName: string;
    *      edgeName: string;
    *      rangeBehaviors:
-   *        {[call: string]: GraphQLMutatorConstants.RANGE_OPERATIONS};
+   *        {[call: string]: RelayClassic.RangeOperation};
    *    }
    *    where `parentName` is the field in the fatQuery that contains the range,
    *    `parentID` is the DataID of `parentName` in the store, `connectionName`
    *    is the name of the range, `edgeName` is the name of the key in server
    *    response that contains the newly created edge, `rangeBehaviors` maps
    *    stringified representation of calls on the connection to
-   *    GraphQLMutatorConstants.RANGE_OPERATIONS.
+   *    RelayClassic.RangeOperation.
    *
    * -  NODE_DELETE provides configuration for deleting a node and the
    *    corresponding edge from a range.
    *    {
-   *      type: RelayMutationType.NODE_DELETE;
+   *      type: MutationTypes.NODE_DELETE;
    *      parentName: string;
    *      parentID: string;
    *      connectionName: string;
@@ -170,7 +165,7 @@ class RelayMutation<Tp: Object> {
    * -  RANGE_DELETE provides configuration for deleting an edge from a range
    *    but doesn't delete the node.
    *    {
-   *      type: RelayMutationType.RANGE_DELETE;
+   *      type: MutationTypes.RANGE_DELETE;
    *      parentName: string;
    *      parentID: string;
    *      connectionName: string;
@@ -192,15 +187,15 @@ class RelayMutation<Tp: Object> {
    *    attempt to fetch because it has not previously fetched anything for that
    *    object).
    *    {
-   *      type: RelayMutationType.REQUIRED_CHILDREN;
+   *      type: MutationTypes.REQUIRED_CHILDREN;
    *      children: Array<RelayQuery.Node>;
    *    }
    */
-  getConfigs(): Array<RelayMutationConfig> {
+  getConfigs(): Array<DeclarativeMutationConfig> {
     invariant(
       false,
       '%s: Expected abstract method `getConfigs` to be implemented.',
-      this.constructor.name
+      this.constructor.name,
     );
   }
 
@@ -211,7 +206,7 @@ class RelayMutation<Tp: Object> {
     invariant(
       false,
       '%s: Expected abstract method `getVariables` to be implemented.',
-      this.constructor.name
+      this.constructor.name,
     );
   }
 
@@ -244,7 +239,7 @@ class RelayMutation<Tp: Object> {
    * will be inferred from the optimistic response. Most subclasses shouldn't
    * need to extend this method.
    */
-  getOptimisticConfigs(): ?Array<RelayMutationConfig> {
+  getOptimisticConfigs(): ?Array<DeclarativeMutationConfig> {
     return null;
   }
 
@@ -269,9 +264,9 @@ class RelayMutation<Tp: Object> {
       warning(
         propValue !== undefined,
         'RelayMutation: Expected data for fragment `%s` to be supplied to ' +
-        '`%s` as a prop. Pass an explicit `null` if this is intentional.',
+          '`%s` as a prop. Pass an explicit `null` if this is intentional.',
         fragmentName,
-        this.constructor.name
+        this.constructor.name,
       );
 
       if (propValue == null) {
@@ -281,9 +276,9 @@ class RelayMutation<Tp: Object> {
         warning(
           false,
           'RelayMutation: Expected data for fragment `%s` supplied to `%s` ' +
-          'to be an object.',
+            'to be an object.',
           fragmentName,
-          this.constructor.name
+          this.constructor.name,
         );
         return;
       }
@@ -293,43 +288,45 @@ class RelayMutation<Tp: Object> {
           this.constructor.name,
           fragmentName,
           fragmentBuilder,
-          initialVariables
+          initialVariables,
         ),
         RelayMetaRoute.get(`$RelayMutation_${this.constructor.name}`),
-        initialVariables
+        initialVariables,
       );
 
       if (fragment.isPlural()) {
         invariant(
           Array.isArray(propValue),
           'RelayMutation: Invalid prop `%s` supplied to `%s`, expected an ' +
-          'array of records because the corresponding fragment is plural.',
+            'array of records because the corresponding fragment is plural.',
           fragmentName,
-          this.constructor.name
+          this.constructor.name,
         );
         const dataIDs = propValue.map((item, ii) => {
           invariant(
             typeof item === 'object' && item != null,
             'RelayMutation: Invalid prop `%s` supplied to `%s`, ' +
-            'expected element at index %s to have query data.',
+              'expected element at index %s to have query data.',
             fragmentName,
             this.constructor.name,
-            ii
+            ii,
           );
           if (__DEV__) {
-            const hasFragmentData =
-              RelayFragmentPointer.hasFragment(item, fragment);
+            const hasFragmentData = RelayFragmentPointer.hasFragment(
+              item,
+              fragment,
+            );
             if (!hasFragmentData && !this._didShowFakeDataWarning) {
               this._didShowFakeDataWarning = true;
               warning(
                 false,
                 'RelayMutation: Expected prop `%s` element at index %s ' +
-                'supplied to `%s` to be data fetched by Relay. This is ' +
-                'likely an error unless you are purposely passing in mock ' +
-                'data that conforms to the shape of this mutation\'s fragment.',
+                  'supplied to `%s` to be data fetched by Relay. This is ' +
+                  'likely an error unless you are purposely passing in mock ' +
+                  "data that conforms to the shape of this mutation's fragment.",
                 fragmentName,
                 ii,
-                this.constructor.name
+                this.constructor.name,
               );
             }
           }
@@ -337,38 +334,40 @@ class RelayMutation<Tp: Object> {
           invariant(
             dataID,
             'RelayMutation: Invalid prop `%s` supplied to `%s`, ' +
-            'expected element at index %s to have query data.',
+              'expected element at index %s to have query data.',
             fragmentName,
             this.constructor.name,
-            ii
+            ii,
           );
           return dataID;
         });
 
-        resolvedProps[fragmentName] = dataIDs.map(
-          dataID => this._environment.read(fragment, dataID)
+        resolvedProps[fragmentName] = dataIDs.map(dataID =>
+          this._environment.read(fragment, dataID),
         );
       } else {
         invariant(
           !Array.isArray(propValue),
           'RelayMutation: Invalid prop `%s` supplied to `%s`, expected a ' +
-          'single record because the corresponding fragment is not plural.',
+            'single record because the corresponding fragment is not plural.',
           fragmentName,
-          this.constructor.name
+          this.constructor.name,
         );
         if (__DEV__) {
-          const hasFragmentData =
-            RelayFragmentPointer.hasFragment(propValue, fragment);
+          const hasFragmentData = RelayFragmentPointer.hasFragment(
+            propValue,
+            fragment,
+          );
           if (!hasFragmentData && !this._didShowFakeDataWarning) {
             this._didShowFakeDataWarning = true;
             warning(
               false,
               'RelayMutation: Expected prop `%s` supplied to `%s` to ' +
-              'be data fetched by Relay. This is likely an error unless ' +
-              'you are purposely passing in mock data that conforms to ' +
-              'the shape of this mutation\'s fragment.',
+                'be data fetched by Relay. This is likely an error unless ' +
+                'you are purposely passing in mock data that conforms to ' +
+                "the shape of this mutation's fragment.",
               fragmentName,
-              this.constructor.name
+              this.constructor.name,
             );
           }
         }
@@ -376,7 +375,7 @@ class RelayMutation<Tp: Object> {
         if (dataID) {
           resolvedProps[fragmentName] = this._environment.read(
             fragment,
-            dataID
+            dataID,
           );
         }
       }
@@ -384,8 +383,8 @@ class RelayMutation<Tp: Object> {
     this.props = resolvedProps;
 
     if (!this._didValidateConfig) {
-      this.getConfigs().forEach(
-        config => validateMutationConfig(config, this.constructor.name)
+      this.getConfigs().forEach(config =>
+        validateMutationConfig(config, this.constructor.name),
       );
       this._didValidateConfig = true;
     }
@@ -393,7 +392,7 @@ class RelayMutation<Tp: Object> {
 
   static getFragment(
     fragmentName: $Keys<Tp>,
-    variableMapping?: Variables
+    variableMapping?: Variables,
   ): RelayFragmentReference {
     const fragments = this.fragments;
     const fragmentBuilder = fragments[fragmentName];
@@ -401,10 +400,12 @@ class RelayMutation<Tp: Object> {
       invariant(
         false,
         '%s.getFragment(): `%s` is not a valid fragment name. Available ' +
-        'fragments names: %s',
+          'fragments names: %s',
         this.name,
         fragmentName,
-        Object.keys(fragments).map(name => '`' + name + '`').join(', ')
+        Object.keys(fragments)
+          .map(name => '`' + name + '`')
+          .join(', '),
       );
     }
 
@@ -412,15 +413,16 @@ class RelayMutation<Tp: Object> {
     const prepareVariables = this.prepareVariables;
 
     return RelayFragmentReference.createForContainer(
-      () => buildMutationFragment(
-        this.name,
-        fragmentName,
-        fragmentBuilder,
-        initialVariables
-      ),
+      () =>
+        buildMutationFragment(
+          this.name,
+          fragmentName,
+          fragmentBuilder,
+          initialVariables,
+        ),
       initialVariables,
       variableMapping,
-      prepareVariables
+      prepareVariables,
     );
   }
 }
@@ -432,18 +434,15 @@ function buildMutationFragment(
   mutationName: string,
   fragmentName: string,
   fragmentBuilder: RelayQLFragmentBuilder,
-  variables: Variables
+  variables: Variables,
 ): ConcreteFragment {
-  const fragment = buildRQL.Fragment(
-    fragmentBuilder,
-    variables
-  );
+  const fragment = buildRQL.Fragment(fragmentBuilder, variables);
   invariant(
     fragment,
     'Relay.QL defined on mutation `%s` named `%s` is not a valid fragment. ' +
-    'A typical fragment is defined using: Relay.QL`fragment on Type {...}`',
+      'A typical fragment is defined using: Relay.QL`fragment on Type {...}`',
     mutationName,
-    fragmentName
+    fragmentName,
   );
   return fragment;
 }

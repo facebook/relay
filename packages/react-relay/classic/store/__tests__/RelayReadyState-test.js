@@ -1,12 +1,11 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -14,7 +13,7 @@
 jest.useFakeTimers();
 jest.mock('warning');
 
-const RelayReadyState = require('RelayReadyState');
+const RelayReadyState = require('../RelayReadyState');
 const RelayTestUtils = require('RelayTestUtils');
 
 const warning = require('warning');
@@ -29,7 +28,7 @@ describe('RelayReadyState', () => {
     onReadyStateChange = jest.fn();
     readyState = new RelayReadyState(onReadyStateChange);
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('adds to event stream', () => {
@@ -39,18 +38,20 @@ describe('RelayReadyState', () => {
     jest.runAllTimers();
 
     expect(onReadyStateChange.mock.calls).toEqual([
-      [{
-        aborted: false,
-        done: false,
-        error: null,
-        events: [
-          {
-            type: 'NETWORK_QUERY_START',
-          },
-        ],
-        ready: false,
-        stale: false,
-      }],
+      [
+        {
+          aborted: false,
+          done: false,
+          error: null,
+          events: [
+            {
+              type: 'NETWORK_QUERY_START',
+            },
+          ],
+          ready: false,
+          stale: false,
+        },
+      ],
     ]);
 
     readyState.update({}, [{type: 'NETWORK_QUERY_RECEIVED_REQUIRED'}]);
@@ -81,14 +82,16 @@ describe('RelayReadyState', () => {
     jest.runAllTimers();
 
     expect(onReadyStateChange.mock.calls).toEqual([
-      [{
-        aborted: false,
-        done: false,
-        error: null,
-        events: [],
-        ready: true,
-        stale: false,
-      }],
+      [
+        {
+          aborted: false,
+          done: false,
+          error: null,
+          events: [],
+          ready: true,
+          stale: false,
+        },
+      ],
     ]);
   });
 
@@ -99,14 +102,16 @@ describe('RelayReadyState', () => {
     jest.runAllTimers();
 
     expect(onReadyStateChange.mock.calls).toEqual([
-      [{
-        aborted: false,
-        done: true,
-        error: null,
-        events: [],
-        ready: true,
-        stale: false,
-      }],
+      [
+        {
+          aborted: false,
+          done: true,
+          error: null,
+          events: [],
+          ready: true,
+          stale: false,
+        },
+      ],
     ]);
   });
 
@@ -118,14 +123,16 @@ describe('RelayReadyState', () => {
     jest.runAllTimers();
 
     expect(onReadyStateChange.mock.calls).toEqual([
-      [{
-        aborted: true,
-        done: false,
-        error: null,
-        events: [],
-        ready: false,
-        stale: false,
-      }],
+      [
+        {
+          aborted: true,
+          done: false,
+          error: null,
+          events: [],
+          ready: false,
+          stale: false,
+        },
+      ],
     ]);
   });
 
@@ -135,14 +142,16 @@ describe('RelayReadyState', () => {
     jest.runAllTimers();
 
     expect(onReadyStateChange.mock.calls).toEqual([
-      [{
-        aborted: true,
-        done: false,
-        error: null,
-        events: [],
-        ready: false,
-        stale: false,
-      }],
+      [
+        {
+          aborted: true,
+          done: false,
+          error: null,
+          events: [],
+          ready: false,
+          stale: false,
+        },
+      ],
     ]);
   });
 
@@ -153,9 +162,14 @@ describe('RelayReadyState', () => {
 
     expect([
       'RelayReadyState: Invalid state change from `%s` to `%s`.',
-      JSON.stringify(
-        {aborted: false, done: true, error: null, events: [], ready: true, stale: false}
-      ),
+      JSON.stringify({
+        aborted: false,
+        done: true,
+        error: null,
+        events: [],
+        ready: true,
+        stale: false,
+      }),
       JSON.stringify({ready: true}),
     ]).toBeWarnedNTimes(1);
 
@@ -172,9 +186,14 @@ describe('RelayReadyState', () => {
 
     expect([
       'RelayReadyState: Invalid state change from `%s` to `%s`.',
-      JSON.stringify(
-        {aborted: false, done: false, error, events: [], ready: false, stale: false}
-      ),
+      JSON.stringify({
+        aborted: false,
+        done: false,
+        error,
+        events: [],
+        ready: false,
+        stale: false,
+      }),
       JSON.stringify({ready: true}),
     ]).toBeWarnedNTimes(1);
 
@@ -216,7 +235,7 @@ describe('RelayReadyState', () => {
   });
 
   it('invokes stale ready state change after an error occurred', () => {
-    const error =  new Error('Expected error.');
+    const error = new Error('Expected error.');
     readyState.update({error});
     jest.runAllTimers();
     readyState.update({ready: true, stale: true});
@@ -224,8 +243,15 @@ describe('RelayReadyState', () => {
 
     expect(warning).not.toBeCalled();
     expect(onReadyStateChange.mock.calls.length).toBe(2);
-    expect(onReadyStateChange.mock.calls[1]).toEqual(
-      [{aborted: false, done: false, error, events: [], ready: true, stale: true}]
-    );
+    expect(onReadyStateChange.mock.calls[1]).toEqual([
+      {
+        aborted: false,
+        done: false,
+        error,
+        events: [],
+        ready: true,
+        stale: true,
+      },
+    ]);
   });
 });

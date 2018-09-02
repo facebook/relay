@@ -1,28 +1,27 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayNetworkLayer
  * @flow
+ * @format
  */
 
 'use strict';
 
-const RelayProfiler = require('RelayProfiler');
-const RelayQueryRequest = require('RelayQueryRequest');
+const RelayQueryRequest = require('./RelayQueryRequest');
 
 const invariant = require('invariant');
 const resolveImmediate = require('resolveImmediate');
-const throwFailedPromise = require('throwFailedPromise');
+const throwFailedPromise = require('../util/throwFailedPromise');
 const warning = require('warning');
 
-import type RelayMutationRequest from 'RelayMutationRequest';
-import type RelayQuery from 'RelayQuery';
-import type {ChangeSubscription, NetworkLayer} from 'RelayTypes';
+const {RelayProfiler} = require('relay-runtime');
+
+import type RelayQuery from '../query/RelayQuery';
+import type {ChangeSubscription, NetworkLayer} from '../tools/RelayTypes';
+import type RelayMutationRequest from './RelayMutationRequest';
 
 type Subscriber = {
   queryCallback: ?QueryCallback,
@@ -57,7 +56,7 @@ class RelayNetworkLayer {
       warning(
         false,
         'RelayNetworkLayer: Call received to injectDefaultImplementation(), ' +
-        'but a default layer was already injected.'
+          'but a default layer was already injected.',
       );
     }
     this._defaultImplementation = implementation;
@@ -68,7 +67,7 @@ class RelayNetworkLayer {
       warning(
         false,
         'RelayNetworkLayer: Call received to injectImplementation(), but ' +
-        'a layer was already injected.'
+          'a layer was already injected.',
       );
     }
     this._implementation = implementation;
@@ -76,8 +75,8 @@ class RelayNetworkLayer {
 
   addNetworkSubscriber(
     queryCallback?: ?QueryCallback,
-    mutationCallback?: ?MutationCallback
-  ) : ChangeSubscription {
+    mutationCallback?: ?MutationCallback,
+  ): ChangeSubscription {
     const index = this._subscribers.length;
     this._subscribers.push({queryCallback, mutationCallback});
     return {
@@ -101,11 +100,11 @@ class RelayNetworkLayer {
   }
 
   sendQueries(queryRequests: Array<RelayQueryRequest>): void {
+    profileQueue(queryRequests);
     const implementation = this._getImplementation();
     this._subscribers.forEach(({queryCallback}) => {
       if (queryCallback) {
         queryRequests.forEach(request => {
-          // $FlowIssue #10907496 queryCallback was checked above
           queryCallback(request);
         });
       }
@@ -126,7 +125,7 @@ class RelayNetworkLayer {
     invariant(
       implementation,
       'RelayNetworkLayer: Use `RelayEnvironment.injectNetworkLayer` to ' +
-      'configure a network layer.'
+        'configure a network layer.',
     );
     return implementation;
   }
@@ -144,7 +143,6 @@ class RelayNetworkLayer {
       this._queue = currentQueue;
       resolveImmediate(() => {
         this._queue = null;
-        profileQueue(currentQueue);
         this.sendQueries(currentQueue);
       });
     }
@@ -161,7 +159,10 @@ function profileQueue(currentQueue: Array<RelayQueryRequest>): void {
   // TODO #8783781: remove aggregate `fetchRelayQuery` profiler
   let firstResultProfiler = RelayProfiler.profile('fetchRelayQuery');
   currentQueue.forEach(query => {
-    const profiler = RelayProfiler.profile('fetchRelayQuery.query');
+    const profiler = RelayProfiler.profile(
+      'fetchRelayQuery.query',
+      query.getQuery().getName(),
+    );
     const onSettle = () => {
       profiler.stop();
       if (firstResultProfiler) {
@@ -169,7 +170,14 @@ function profileQueue(currentQueue: Array<RelayQueryRequest>): void {
         firstResultProfiler = null;
       }
     };
-    query.done(onSettle, onSettle);
+    query
+      .getPromise()
+      .then(onSettle, onSettle)
+      .catch(error => {
+        setTimeout(() => {
+          throw error;
+        }, 0);
+      });
   });
 }
 

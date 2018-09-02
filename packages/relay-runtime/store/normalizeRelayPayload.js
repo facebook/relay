@@ -1,26 +1,24 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule normalizeRelayPayload
- * @flow
+ * @flow strict-local
+ * @format
  */
 
 'use strict';
 
-const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
-const RelayResponseNormalizer = require('RelayResponseNormalizer');
-const RelayStaticRecord = require('RelayStaticRecord');
+const RelayInMemoryRecordSource = require('./RelayInMemoryRecordSource');
+const RelayModernRecord = require('./RelayModernRecord');
+const RelayResponseNormalizer = require('./RelayResponseNormalizer');
 
-const {ROOT_ID, ROOT_TYPE} = require('RelayStoreUtils');
+const {ROOT_ID, ROOT_TYPE} = require('./RelayStoreUtils');
 
-import type {PayloadData, PayloadError, RelayResponsePayload} from 'RelayNetworkTypes';
-import type {NormalizationOptions} from 'RelayResponseNormalizer';
-import type {Selector} from 'RelayStoreTypes';
+import type {PayloadData, PayloadError} from '../network/RelayNetworkTypes';
+import type {NormalizationOptions} from './RelayResponseNormalizer';
+import type {RelayResponsePayload, Selector} from './RelayStoreTypes';
 
 function normalizeRelayPayload(
   selector: Selector,
@@ -29,16 +27,15 @@ function normalizeRelayPayload(
   options: NormalizationOptions = {handleStrippedNulls: false},
 ): RelayResponsePayload {
   const source = new RelayInMemoryRecordSource();
-  source.set(ROOT_ID, RelayStaticRecord.create(ROOT_ID, ROOT_TYPE));
-  const fieldPayloads = RelayResponseNormalizer.normalize(
-    source,
-    selector,
-    payload,
-    options,
-  );
+  source.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+  const {
+    fieldPayloads,
+    deferrableSelections,
+  } = RelayResponseNormalizer.normalize(source, selector, payload, options);
   return {
     errors,
     fieldPayloads,
+    deferrableSelections,
     source,
   };
 }

@@ -1,25 +1,26 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
+jest
+  .mock('../../legacy/store/GraphQLStoreQueryResolver')
+  .mock('../../route/RelayRoute');
+
 require('configureForRelayOSS');
 
-jest.unmock('RelayContainer');
-
-const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+const GraphQLStoreQueryResolver = require('../../legacy/store/GraphQLStoreQueryResolver');
 const React = require('React');
-const Relay = require('Relay');
-const RelayEnvironment = require('RelayEnvironment');
-const RelayRecordStatusMap = require('RelayRecordStatusMap');
+const RelayClassic = require('../../RelayPublic');
+const RelayEnvironment = require('../../store/RelayEnvironment');
+const RelayRecordStatusMap = require('../../store/RelayRecordStatusMap');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayContainer.hasPartialData', () => {
@@ -35,8 +36,8 @@ describe('RelayContainer.hasPartialData', () => {
         return <div />;
       }
     }
-    MockContainer = Relay.createContainer(MockComponent, {
-      fragments: {foo: () => Relay.QL`fragment on Node{id}`},
+    MockContainer = RelayClassic.createContainer(MockComponent, {
+      fragments: {foo: () => RelayClassic.QL`fragment on Node{id}`},
     });
     environment = new RelayEnvironment();
     RelayTestRenderer = RelayTestUtils.createRenderer();
@@ -45,13 +46,13 @@ describe('RelayContainer.hasPartialData', () => {
       return {__dataID__: dataID, id: dataID};
     });
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('returns true for records with partial data bit set', () => {
     const instance = RelayTestRenderer.render(
       genMockPointer => <MockContainer foo={genMockPointer('123')} />,
-      environment
+      environment,
     );
     const prop = {
       __dataID__: '123',
@@ -63,7 +64,7 @@ describe('RelayContainer.hasPartialData', () => {
   it('returns false for records without partial data bit set', () => {
     const instance = RelayTestRenderer.render(
       genMockPointer => <MockContainer foo={genMockPointer('123')} />,
-      environment
+      environment,
     );
     expect(instance.hasPartialData({__dataID__: '123'})).toBe(false);
   });

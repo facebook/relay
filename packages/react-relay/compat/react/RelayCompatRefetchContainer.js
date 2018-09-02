@@ -1,29 +1,42 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayCompatRefetchContainer
  * @flow
+ * @format
  */
 
 'use strict';
 
-const ReactRelayRefetchContainer = require('ReactRelayRefetchContainer');
+const React = require('React');
+const ReactRelayRefetchContainer = require('../../modern/ReactRelayRefetchContainer');
 
-const {buildCompatContainer} = require('ReactRelayCompatContainerBuilder');
+const {buildCompatContainer} = require('../ReactRelayCompatContainerBuilder');
 
-import type {GeneratedNodeMap} from 'ReactRelayTypes';
-import type {GraphQLTaggedNode} from 'RelayStaticGraphQLTag';
+import type {
+  $RelayProps,
+  GeneratedNodeMap,
+  RelayRefetchProp,
+} from '../../modern/ReactRelayTypes';
+import type {RelayCompatContainer} from './RelayCompatTypes';
+import type {GraphQLTaggedNode} from 'relay-runtime';
 
-function createContainer<TBase: ReactClass<*>>(
-  Component: TBase,
+/**
+ * Wrap the basic `createContainer()` function with logic to adapt to the
+ * `context.relay.environment` in which it is rendered. Specifically, the
+ * extraction of the environment-specific version of fragments in the
+ * `fragmentSpec` is memoized once per environment, rather than once per
+ * instance of the container constructed/rendered.
+ */
+function createContainer<Props: {}, TComponent: React.ComponentType<Props>>(
+  Component: TComponent,
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
   taggedNode: GraphQLTaggedNode,
-): TBase {
+): RelayCompatContainer<
+  $RelayProps<React$ElementConfig<TComponent>, RelayRefetchProp>,
+> {
   return buildCompatContainer(
     Component,
     (fragmentSpec: any),
@@ -34,6 +47,7 @@ function createContainer<TBase: ReactClass<*>>(
         taggedNode,
       );
     },
+    /* provides child context */ true,
   );
 }
 

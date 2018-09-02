@@ -1,159 +1,118 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayNetwork
- * @flow
+ * @flow strict-local
+ * @format
  */
 
 'use strict';
 
-const RelayError = require('RelayError');
+const RelayObservable = require('./RelayObservable');
 
 const invariant = require('invariant');
-const normalizeRelayPayload = require('normalizeRelayPayload');
 
-const {ROOT_ID} = require('RelayStoreUtils');
+const {
+  convertFetch,
+  convertSubscribe,
+  convertSubscribeWithEvents,
+} = require('./ConvertToExecuteFunction');
 
-import type {CacheConfig, Disposable} from 'RelayCombinedEnvironmentTypes';
-import type {ConcreteBatch} from 'RelayConcreteNode';
+import type {RequestNode} from '../util/RelayConcreteNode';
+import type {CacheConfig, Variables} from '../util/RelayRuntimeTypes';
 import type {
   FetchFunction,
   Network,
-  QueryPayload,
-  RelayResponsePayload,
+  ExecutePayload,
+  StreamPayload,
   SubscribeFunction,
   UploadableMap,
-} from 'RelayNetworkTypes';
-import type {Observer} from 'RelayStoreTypes';
-import type {Variables} from 'RelayTypes';
+} from './RelayNetworkTypes';
 
 /**
  * Creates an implementation of the `Network` interface defined in
- * `RelayNetworkTypes` given a single `fetch` function.
+ * `RelayNetworkTypes` given `fetch` and `subscribe` functions.
  */
 function create(
-  fetch: FetchFunction,
-  subscribe?: SubscribeFunction,
+  fetchFn: FetchFunction,
+  subscribeFn?: SubscribeFunction,
 ): Network {
-  function request(
-    operation: ConcreteBatch,
-    variables: Variables,
-    cacheConfig?: ?CacheConfig,
-    uploadables?: UploadableMap,
-  ): Promise<RelayResponsePayload> {
-    return fetch(operation, variables, cacheConfig, uploadables).then(
-      payload => normalizePayload(operation, variables, payload)
-    );
-  }
+  // Convert to functions that returns RelayObservable.
+  const observeFetch = convertFetch(fetchFn);
+  const observeSubscribe = subscribeFn
+    ? convertSubscribe(subscribeFn)
+    : undefined;
+  const observeSubscribeWithEvents = subscribeFn
+    ? convertSubscribeWithEvents(subscribeFn)
+    : undefined;
 
-  function requestStream(
-    operation: ConcreteBatch,
+  function execute(
+    request: RequestNode,
     variables: Variables,
-    cacheConfig: ?CacheConfig,
-    {onCompleted, onError, onNext}: Observer<RelayResponsePayload>,
-  ): Disposable {
-    if (operation.query.operation === 'subscription') {
+    cacheConfig: CacheConfig,
+    uploadables?: ?UploadableMap,
+  ): RelayObservable<ExecutePayload> {
+    if (request.operationKind === 'subscription') {
       invariant(
-        subscribe,
-        'The default network layer does not support GraphQL Subscriptions. To use ' +
-        'Subscriptions, provide a custom network layer.',
+        observeSubscribe,
+        'RelayNetwork: This network layer does not support Subscriptions. ' +
+          'To use Subscriptions, provide a custom network layer.',
       );
-      return subscribe(operation, variables, null, {
-        onCompleted,
-        onError,
-        onNext: payload => {
-          let relayPayload;
-          try {
-            relayPayload = normalizePayload(operation, variables, payload);
-          } catch (err) {
-            onError && onError(err);
-            return;
-          }
-          onNext && onNext(relayPayload);
-        },
-      });
+
+      invariant(
+        !uploadables,
+        'RelayNetwork: Cannot provide uploadables while subscribing.',
+      );
+      return observeSubscribe(request, variables, cacheConfig);
     }
 
-    let isDisposed = false;
-    fetch(operation, variables, cacheConfig)
-      .then(
-        payload => {
-          if (isDisposed) {
-            return;
-          }
-          let relayPayload;
-          try {
-            relayPayload = normalizePayload(operation, variables, payload);
-          } catch (err) {
-            onError && onError(err);
-            return;
-          }
-          onNext && onNext(relayPayload);
-          onCompleted && onCompleted();
-        },
-        error => {
-          if (isDisposed) {
-            return;
-          }
-          onError && onError(error);
-        },
-      )
-      .catch(rethrow);
-    return {
-      dispose() {
-        isDisposed = true;
-      },
-    };
+    const pollInterval = cacheConfig.poll;
+    if (pollInterval != null) {
+      invariant(
+        !uploadables,
+        'RelayNetwork: Cannot provide uploadables while polling.',
+      );
+      return observeFetch(request, variables, {force: true}).poll(pollInterval);
+    }
+
+    return observeFetch(request, variables, cacheConfig, uploadables);
   }
 
-  return {
-    fetch,
-    request,
-    requestStream,
-  };
-}
+  function executeWithEvents(
+    request: RequestNode,
+    variables: Variables,
+    cacheConfig: CacheConfig,
+    uploadables?: ?UploadableMap,
+  ): RelayObservable<StreamPayload> {
+    if (request.operationKind === 'subscription') {
+      invariant(
+        observeSubscribeWithEvents,
+        'RelayNetwork: This network layer does not support Subscriptions. ' +
+          'To use Subscriptions, provide a custom network layer.',
+      );
 
-function normalizePayload(
-  operation: ConcreteBatch,
-  variables: Variables,
-  payload: QueryPayload,
-): RelayResponsePayload {
-  const {data, errors} = payload;
-  if (data != null) {
-    return normalizeRelayPayload(
-      {
-        dataID: ROOT_ID,
-        node: operation.query,
-        variables,
-      },
-      data,
-      errors,
-      {handleStrippedNulls: true},
-    );
+      invariant(
+        !uploadables,
+        'RelayNetwork: Cannot provide uploadables while subscribing.',
+      );
+      return observeSubscribeWithEvents(request, variables, cacheConfig);
+    }
+
+    const pollInterval = cacheConfig.poll;
+    if (pollInterval != null) {
+      invariant(
+        !uploadables,
+        'RelayNetwork: Cannot provide uploadables while polling.',
+      );
+      return observeFetch(request, variables, {force: true}).poll(pollInterval);
+    }
+
+    return observeFetch(request, variables, cacheConfig, uploadables);
   }
-  const error = RelayError.create(
-    'RelayNetwork',
-    'No data returned for operation `%s`, got error(s):\n%s\n\nSee the error ' +
-      '`source` property for more information.',
-    operation.name,
-    errors ? errors.map(({message}) => message).join('\n') : '(No errors)',
-  );
-  (error: any).source = {errors, operation, variables};
-  throw error;
-}
 
-function rethrow(err) {
-  setTimeout(
-    () => {
-      throw err;
-    },
-    0,
-  );
+  return {execute, executeWithEvents};
 }
 
 module.exports = {create};

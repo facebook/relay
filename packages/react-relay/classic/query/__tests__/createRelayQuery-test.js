@@ -1,34 +1,33 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
 require('configureForRelayOSS');
 
-const Relay = require('Relay');
-const RelayQuery = require('RelayQuery');
+const RelayClassic = require('../../RelayPublic');
+const RelayQuery = require('../RelayQuery');
 const RelayTestUtils = require('RelayTestUtils');
 
-const createRelayQuery = require('createRelayQuery');
+const createRelayQuery = require('../createRelayQuery');
 
 describe('createRelayQuery', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('creates queries from GraphQL', () => {
     const root = createRelayQuery(
-      Relay.QL`
+      RelayClassic.QL`
         query {
           viewer {
             newsFeed(first: $count) {
@@ -43,11 +42,11 @@ describe('createRelayQuery', () => {
       `,
       {
         count: 10,
-      }
+      },
     );
     expect(root instanceof RelayQuery.Root).toBe(true);
-    expect(root.getFieldByStorageKey('newsFeed').getCallsWithValues()).toEqual(
-      [{name: 'first', type: 'Int', value: 10}]
-    );
+    expect(root.getFieldByStorageKey('newsFeed').getCallsWithValues()).toEqual([
+      {name: 'first', type: 'Int', value: 10},
+    ]);
   });
 });

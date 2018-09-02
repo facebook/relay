@@ -1,20 +1,18 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule QueryBuilder
  * @flow
+ * @format
  */
 
 'use strict';
 
-const RelayNodeInterface = require('RelayNodeInterface');
+const RelayNodeInterface = require('../interface/RelayNodeInterface');
 
-const generateConcreteFragmentID = require('generateConcreteFragmentID');
+const generateConcreteFragmentID = require('./generateConcreteFragmentID');
 const warning = require('warning');
 
 import type {
@@ -39,7 +37,7 @@ import type {
   ConcreteSelection,
   ConcreteSubscription,
   ConcreteValue,
-} from 'ConcreteQuery';
+} from './ConcreteQuery';
 
 const EMPTY_CALLS: Array<ConcreteCall> = [];
 const EMPTY_CHILDREN: Array<?ConcreteSelection> = [];
@@ -61,7 +59,7 @@ if (__DEV__) {
 const QueryBuilder = {
   createBatchCallVariable(
     sourceQueryID: string,
-    jsonPath: string
+    jsonPath: string,
   ): ConcreteBatchCallVariable {
     return {
       kind: 'BatchCallVariable',
@@ -73,7 +71,7 @@ const QueryBuilder = {
   createCall(
     name: string,
     value: ?ConcreteValue,
-    type?: ?string
+    type?: ?string,
   ): ConcreteCall {
     return {
       kind: 'Call',
@@ -85,18 +83,14 @@ const QueryBuilder = {
     };
   },
 
-  createCallValue(
-    callValue: mixed
-  ): ConcreteCallValue {
+  createCallValue(callValue: mixed): ConcreteCallValue {
     return {
       kind: 'CallValue',
       callValue,
     };
   },
 
-  createCallVariable(
-    callVariableName: string
-  ): ConcreteCallVariable {
+  createCallVariable(callVariableName: string): ConcreteCallVariable {
     return {
       kind: 'CallVariable',
       callVariableName,
@@ -105,7 +99,7 @@ const QueryBuilder = {
 
   createDirective(
     name: string,
-    args: Array<ConcreteDirectiveArgument>
+    args: Array<ConcreteDirectiveArgument>,
   ): ConcreteDirective {
     return {
       args,
@@ -116,7 +110,7 @@ const QueryBuilder = {
 
   createDirectiveArgument(
     name: string,
-    value: ?ConcreteDirectiveValue
+    value: ?ConcreteDirectiveValue,
   ): ConcreteDirectiveArgument {
     return {
       name,
@@ -225,15 +219,17 @@ const QueryBuilder = {
       warning(
         partialQuery.identifyingArgValue != null,
         'QueryBuilder.createQuery(): An argument value may be required for ' +
-        'query `%s(%s: ???)`.',
+          'query `%s(%s: ???)`.',
         partialQuery.fieldName,
-        identifyingArgName
-      );
-      calls = [QueryBuilder.createCall(
         identifyingArgName,
-        partialQuery.identifyingArgValue,
-        metadata.identifyingArgType
-      )];
+      );
+      calls = [
+        QueryBuilder.createCall(
+          identifyingArgName,
+          partialQuery.identifyingArgValue,
+          metadata.identifyingArgType,
+        ),
+      ];
     }
     return {
       calls,
@@ -337,11 +333,7 @@ const QueryBuilder = {
 };
 
 function isConcreteKind(node: mixed, kind: string): boolean {
-  return (
-    typeof node === 'object' &&
-    node !== null &&
-    node.kind === kind
-  );
+  return typeof node === 'object' && node !== null && node.kind === kind;
 }
 
 module.exports = QueryBuilder;

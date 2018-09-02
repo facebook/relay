@@ -1,27 +1,25 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule callsFromGraphQL
  * @flow
+ * @format
  */
 
 'use strict';
 
 const invariant = require('invariant');
 
+import type {Call, CallValue} from '../tools/RelayInternalTypes';
 import type {
   ConcreteCall,
   ConcreteValue,
   ConcreteCallValue,
   ConcreteCallVariable,
-} from 'ConcreteQuery';
-import type {Call, CallValue} from 'RelayInternalTypes';
-import type {Variables} from 'RelayTypes';
+} from './ConcreteQuery';
+import type {Variables} from 'relay-runtime';
 
 type CallOrDirective = {
   name: string,
@@ -38,7 +36,7 @@ type CallOrDirective = {
  */
 function callsFromGraphQL(
   concreteCalls: Array<ConcreteCall>,
-  variables: Variables
+  variables: Variables,
 ): Array<Call> {
   // $FlowIssue: ConcreteCall should flow into CallOrDirective
   const callsOrDirectives: Array<CallOrDirective> = (concreteCalls: $FlowIssue);
@@ -68,7 +66,7 @@ function callsFromGraphQL(
 
 function getCallValue(
   concreteValue: ConcreteCallValue | ConcreteCallVariable,
-  variables: Variables
+  variables: Variables,
 ): ?CallValue {
   let callValue;
   if (concreteValue.kind === 'CallValue') {
@@ -78,7 +76,7 @@ function getCallValue(
     invariant(
       variables.hasOwnProperty(variableName),
       'callsFromGraphQL(): Expected a declared value for variable, `$%s`.',
-      variableName
+      variableName,
     );
     callValue = variables[variableName];
   }
@@ -87,13 +85,13 @@ function getCallValue(
   const valueType = typeof callValue;
   invariant(
     callValue == null ||
-    valueType === 'boolean' ||
-    valueType === 'number' ||
-    valueType === 'string' ||
-    valueType === 'object',
+      valueType === 'boolean' ||
+      valueType === 'number' ||
+      valueType === 'string' ||
+      valueType === 'object',
     'callsFromGraphQL(): Expected argument value `%s` to either be null or a ' +
-    'boolean, number, string, or array/object.',
-    JSON.stringify(callValue)
+      'boolean, number, string, or array/object.',
+    JSON.stringify(callValue),
   );
   return (callValue: any);
 }

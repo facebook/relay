@@ -1,26 +1,25 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayRecordProxy
- * @flow
+ * @flow strict-local
+ * @format
  */
 
 'use strict';
 
-const formatStorageKey = require('formatStorageKey');
-const generateRelayClientID = require('generateRelayClientID');
+const generateRelayClientID = require('../store/generateRelayClientID');
 const invariant = require('invariant');
 
-import type {DataID} from 'RelayInternalTypes';
-import type RelayRecordSourceMutator from 'RelayRecordSourceMutator';
-import type RelayRecordSourceProxy from 'RelayRecordSourceProxy';
-import type {RecordProxy} from 'RelayStoreTypes';
-import type {Variables} from 'RelayTypes';
+const {getStableStorageKey} = require('../store/RelayStoreUtils');
+
+import type {RecordProxy} from '../store/RelayStoreTypes';
+import type {Arguments} from '../store/RelayStoreUtils';
+import type {DataID} from '../util/RelayRuntimeTypes';
+import type RelayRecordSourceMutator from './RelayRecordSourceMutator';
+import type RelayRecordSourceProxy from './RelayRecordSourceProxy';
 
 /**
  * @internal
@@ -36,7 +35,7 @@ class RelayRecordProxy implements RecordProxy {
   constructor(
     source: RelayRecordSourceProxy,
     mutator: RelayRecordSourceMutator,
-    dataID: DataID
+    dataID: DataID,
   ) {
     this._dataID = dataID;
     this._mutator = mutator;
@@ -56,51 +55,58 @@ class RelayRecordProxy implements RecordProxy {
     invariant(
       type != null,
       'RelayRecordProxy: Cannot get the type of deleted record `%s`.',
-      this._dataID
+      this._dataID,
     );
     return type;
   }
 
-  getValue(name: string, args?: ?Variables): mixed {
-    const storageKey = args ? formatStorageKey(name, args) : name;
+  getValue(name: string, args?: ?Arguments): mixed {
+    const storageKey = getStableStorageKey(name, args);
     return this._mutator.getValue(this._dataID, storageKey);
   }
 
-  setValue(value: mixed, name: string, args?: ?Variables): RecordProxy {
+  setValue(value: mixed, name: string, args?: ?Arguments): RecordProxy {
     invariant(
-      value == null || typeof value !== 'object',
-      'RelayRecordProxy#setValue(): Expected a scalar value, got `%s`.',
+      isValidLeafValue(value),
+      'RelayRecordProxy#setValue(): Expected a scalar or array of scalars, ' +
+        'got `%s`.',
       JSON.stringify(value),
     );
-    const storageKey = args ? formatStorageKey(name, args) : name;
+    const storageKey = getStableStorageKey(name, args);
     this._mutator.setValue(this._dataID, storageKey, value);
     return this;
   }
 
-  getLinkedRecord(name: string, args?: ?Variables): ?RecordProxy {
-    const storageKey = args ? formatStorageKey(name, args) : name;
+  getLinkedRecord(name: string, args?: ?Arguments): ?RecordProxy {
+    const storageKey = getStableStorageKey(name, args);
     const linkedID = this._mutator.getLinkedRecordID(this._dataID, storageKey);
-    return linkedID != null ?
-      this._source.get(linkedID) :
-      linkedID;
+    return linkedID != null ? this._source.get(linkedID) : linkedID;
   }
 
-  setLinkedRecord(record: RecordProxy, name: string, args?: ?Variables): RecordProxy {
+  setLinkedRecord(
+    record: RecordProxy,
+    name: string,
+    args?: ?Arguments,
+  ): RecordProxy {
     invariant(
       record instanceof RelayRecordProxy,
       'RelayRecordProxy#setLinkedRecord(): Expected a record, got `%s`.',
       record,
     );
-    const storageKey = args ? formatStorageKey(name, args) : name;
+    const storageKey = getStableStorageKey(name, args);
     const linkedID = record.getDataID();
     this._mutator.setLinkedRecordID(this._dataID, storageKey, linkedID);
     return this;
   }
 
-  getOrCreateLinkedRecord(name: string, typeName: string, args?: ?Variables): RecordProxy {
+  getOrCreateLinkedRecord(
+    name: string,
+    typeName: string,
+    args?: ?Arguments,
+  ): RecordProxy {
     let linkedRecord = this.getLinkedRecord(name, args);
     if (!linkedRecord) {
-      const storageKey = args ? formatStorageKey(name, args) : name;
+      const storageKey = getStableStorageKey(name, args);
       const clientID = generateRelayClientID(this.getDataID(), storageKey);
       linkedRecord = this._source.create(clientID, typeName);
       this.setLinkedRecord(linkedRecord, name, args);
@@ -108,30 +114,43 @@ class RelayRecordProxy implements RecordProxy {
     return linkedRecord;
   }
 
-  getLinkedRecords(name: string, args?: ?Variables): ?Array<?RecordProxy> {
-    const storageKey = args ? formatStorageKey(name, args) : name;
-    const linkedIDs = this._mutator.getLinkedRecordIDs(this._dataID, storageKey);
+  getLinkedRecords(name: string, args?: ?Arguments): ?Array<?RecordProxy> {
+    const storageKey = getStableStorageKey(name, args);
+    const linkedIDs = this._mutator.getLinkedRecordIDs(
+      this._dataID,
+      storageKey,
+    );
     if (linkedIDs == null) {
       return linkedIDs;
     }
     return linkedIDs.map(linkedID => {
-      return linkedID != null ?
-        this._source.get(linkedID) :
-        linkedID;
+      return linkedID != null ? this._source.get(linkedID) : linkedID;
     });
   }
 
-  setLinkedRecords(records: Array<?RecordProxy>, name: string, args?: ?Variables): RecordProxy {
+  setLinkedRecords(
+    records: Array<?RecordProxy>,
+    name: string,
+    args?: ?Arguments,
+  ): RecordProxy {
     invariant(
       Array.isArray(records),
       'RelayRecordProxy#setLinkedRecords(): Expected records to be an array, got `%s`.',
       records,
     );
-    const storageKey = args ? formatStorageKey(name, args) : name;
+    const storageKey = getStableStorageKey(name, args);
     const linkedIDs = records.map(record => record && record.getDataID());
     this._mutator.setLinkedRecordIDs(this._dataID, storageKey, linkedIDs);
     return this;
   }
+}
+
+function isValidLeafValue(value: mixed): boolean {
+  return (
+    value == null ||
+    typeof value !== 'object' ||
+    (Array.isArray(value) && value.every(isValidLeafValue))
+  );
 }
 
 module.exports = RelayRecordProxy;

@@ -1,34 +1,36 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
+jest
+  .mock('../RelayMutation')
+  .mock('../RelayMutationQuery')
+  .mock('../RelayMutationDebugPrinter')
+  .mock('../../network/RelayNetworkLayer')
+  .useFakeTimers();
+
 require('configureForRelayOSS');
 
-jest.useFakeTimers();
-jest
-  .unmock('RelayMutationTransaction')
-  .unmock('RelayMutationTransactionStatus');
-
-const Relay = require('Relay');
-const RelayConnectionInterface = require('RelayConnectionInterface');
-const RelayMutation = require('RelayMutation');
-const RelayMutationQuery = require('RelayMutationQuery');
-const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
-const RelayStore = require('RelayStore');
-const RelayStoreData = require('RelayStoreData');
+const RelayClassic = require('../../RelayPublic');
+const RelayMutation = require('../RelayMutation');
+const RelayMutationQuery = require('../RelayMutationQuery');
+const RelayMutationTransactionStatus = require('../RelayMutationTransactionStatus');
+const RelayStore = require('../../store/RelayStore');
+const RelayStoreData = require('../../store/RelayStoreData');
 const RelayTestUtils = require('RelayTestUtils');
 
-const flattenRelayQuery = require('flattenRelayQuery');
-const fromGraphQL = require('fromGraphQL');
+const flattenRelayQuery = require('../../traversal/flattenRelayQuery');
+const fromGraphQL = require('../../query/fromGraphQL');
+
+const {ConnectionInterface} = require('relay-runtime');
 
 const {
   COLLISION_COMMIT_FAILED,
@@ -39,6 +41,7 @@ const {
   ROLLED_BACK,
   UNCOMMITTED,
 } = RelayMutationTransactionStatus;
+let CLIENT_MUTATION_ID;
 
 describe('RelayMutationQueue', () => {
   let fatQuery;
@@ -55,8 +58,8 @@ describe('RelayMutationQueue', () => {
     storeData = RelayStore.getStoreData();
     mutationQueue = storeData.getMutationQueue();
     networkLayer = storeData.getNetworkLayer();
-    mutationNode = Relay.QL`mutation{commentCreate(input:$input)}`;
-    fatQuery = Relay.QL`fragment on Comment @relay(pattern: true) {
+    mutationNode = RelayClassic.QL`mutation{commentCreate(input:$input)}`;
+    fatQuery = RelayClassic.QL`fragment on Comment @relay(pattern: true) {
       ... on Comment {
         likers
         doesViewerLike
@@ -67,7 +70,9 @@ describe('RelayMutationQueue', () => {
     RelayMutation.prototype.getConfigs.mockReturnValue('configs');
     RelayMutation.prototype.getMutation.mockReturnValue(mutationNode);
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    ({CLIENT_MUTATION_ID} = ConnectionInterface.get());
+
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('createTransaction()', () => {
@@ -81,11 +86,12 @@ describe('RelayMutationQueue', () => {
 
   describe('createTransactionWithPendingTransaction()', () => {
     it('complains if not passed a pending transaction or builder', () => {
-      expect(() => mutationQueue.createTransactionWithPendingTransaction())
-        .toFailInvariant(
-          'RelayMutationQueue: `createTransactionWithPendingTransaction()` ' +
-          'expects a PendingTransaction or TransactionBuilder.'
-        );
+      expect(() =>
+        mutationQueue.createTransactionWithPendingTransaction(),
+      ).toFailInvariant(
+        'RelayMutationQueue: `createTransactionWithPendingTransaction()` ' +
+          'expects a PendingTransaction or TransactionBuilder.',
+      );
     });
   });
 
@@ -108,7 +114,7 @@ describe('RelayMutationQueue', () => {
       expect(buildQueryCalls[0][0].configs).toBe('optimisticConfigs');
       expect(buildQueryCalls[0][0].input).toEqual({
         ...input,
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+        [CLIENT_MUTATION_ID]: '0',
       });
       expect(buildQueryCalls[0][0].mutation).toBe(mutationNode);
       expect(buildQueryCalls[0][0].mutationName).toBe('RelayMutation');
@@ -117,19 +123,21 @@ describe('RelayMutationQueue', () => {
         flattenRelayQuery(fromGraphQL.Fragment(fatQuery), {
           preserveEmptyNodes: true,
           shouldRemoveFragments: true,
-        })
+        }),
       );
-      expect(storeData.handleUpdatePayload.mock.calls).toEqual([[
-        'optimisticQuery',
-        {[RelayConnectionInterface.CLIENT_MUTATION_ID]: '0'},
-        {configs: 'optimisticConfigs', isOptimisticUpdate: true},
-      ]]);
+      expect(storeData.handleUpdatePayload.mock.calls).toEqual([
+        [
+          'optimisticQuery',
+          {[CLIENT_MUTATION_ID]: '0'},
+          {configs: 'optimisticConfigs', isOptimisticUpdate: true},
+        ],
+      ]);
     });
 
     it('infers optimistic query if mutation does not have one', () => {
       mockMutation.getOptimisticResponse.mockReturnValue({});
       RelayMutationQuery.buildQueryForOptimisticUpdate.mockReturnValue(
-        'optimisticQuery'
+        'optimisticQuery',
       );
 
       mutationQueue.createTransaction(mockMutation).applyOptimistic();
@@ -139,19 +147,21 @@ describe('RelayMutationQueue', () => {
       expect(buildQueryCalls.length).toBe(1);
       expect(buildQueryCalls[0][0].mutation).toBe(mutationNode);
       expect(buildQueryCalls[0][0].response).toEqual({
-        [RelayConnectionInterface.CLIENT_MUTATION_ID]: '0',
+        [CLIENT_MUTATION_ID]: '0',
       });
       expect(buildQueryCalls[0][0].fatQuery).toEqualQueryNode(
         flattenRelayQuery(fromGraphQL.Fragment(fatQuery), {
           preserveEmptyNodes: true,
           shouldRemoveFragments: true,
-        })
+        }),
       );
-      expect(storeData.handleUpdatePayload.mock.calls).toEqual([[
-        'optimisticQuery',
-        {[RelayConnectionInterface.CLIENT_MUTATION_ID]: '0'},
-        {configs: 'configs', isOptimisticUpdate: true},
-      ]]);
+      expect(storeData.handleUpdatePayload.mock.calls).toEqual([
+        [
+          'optimisticQuery',
+          {[CLIENT_MUTATION_ID]: '0'},
+          {configs: 'configs', isOptimisticUpdate: true},
+        ],
+      ]);
     });
   });
 
@@ -177,36 +187,32 @@ describe('RelayMutationQueue', () => {
       transaction.commit();
       expect(() => transaction.commit()).toFailInvariant(
         'RelayMutationTransaction: Only transactions with status `CREATED` ' +
-        'or `UNCOMMITTED` can be committed.'
+          'or `UNCOMMITTED` can be committed.',
       );
     });
 
     it('calls `onSuccess` with response', () => {
       const successCallback1 = jest.fn();
-      const transaction1 = mutationQueue.createTransaction(
-        mockMutation1,
-        {onSuccess: successCallback1}
-      );
+      const transaction1 = mutationQueue.createTransaction(mockMutation1, {
+        onSuccess: successCallback1,
+      });
       transaction1.commit();
       expect(networkLayer.sendMutation.mock.calls.length).toBe(1);
 
       const request = networkLayer.sendMutation.mock.calls[0][0];
-      request.resolve({response: {'res': 'ponse'}});
+      request.resolve({response: {res: 'ponse'}});
       jest.runAllTimers();
-      expect(successCallback1.mock.calls).toEqual([[{'res': 'ponse'}]]);
+      expect(successCallback1.mock.calls).toEqual([[{res: 'ponse'}]]);
     });
 
     it('calls `onFailure` with transaction', () => {
-      const failureCallback1 = jest.fn(
-        transaction => {
-          expect(transaction).toBe(transaction1);
-          expect(transaction.getError()).toBe(mockError);
-        }
-      );
-      const transaction1 = mutationQueue.createTransaction(
-        mockMutation1,
-        {onFailure: failureCallback1}
-      );
+      const failureCallback1 = jest.fn(transaction => {
+        expect(transaction).toBe(transaction1);
+        expect(transaction.getError()).toBe(mockError);
+      });
+      const transaction1 = mutationQueue.createTransaction(mockMutation1, {
+        onFailure: failureCallback1,
+      });
       const mockError = new Error('error');
       transaction1.commit();
 
@@ -219,10 +225,9 @@ describe('RelayMutationQueue', () => {
 
     it('queues commits for colliding transactions', () => {
       const successCallback1 = jest.fn();
-      const transaction1 = mutationQueue.createTransaction(
-        mockMutation1,
-        {onSuccess: successCallback1}
-      );
+      const transaction1 = mutationQueue.createTransaction(mockMutation1, {
+        onSuccess: successCallback1,
+      });
       transaction1.commit();
 
       expect(transaction1.getStatus()).toBe(COMMITTING);
@@ -271,18 +276,15 @@ describe('RelayMutationQueue', () => {
     });
 
     it('rolls back transactions in onFailure', () => {
-      const failureCallback1 = jest.fn(
-        (transaction, preventAutoRollback) => {
-          expect(transaction.getStatus()).toBe(COMMIT_FAILED);
-          expect(transaction.getError()).toBe(error);
-          preventAutoRollback();
-          transaction.rollback();
-        }
-      );
-      const transaction1 = mutationQueue.createTransaction(
-        mockMutation1,
-        {onFailure: failureCallback1}
-      );
+      const failureCallback1 = jest.fn((transaction, preventAutoRollback) => {
+        expect(transaction.getStatus()).toBe(COMMIT_FAILED);
+        expect(transaction.getError()).toBe(error);
+        preventAutoRollback();
+        transaction.rollback();
+      });
+      const transaction1 = mutationQueue.createTransaction(mockMutation1, {
+        onFailure: failureCallback1,
+      });
       transaction1.commit();
 
       expect(transaction1.getStatus()).toBe(COMMITTING);
@@ -297,33 +299,27 @@ describe('RelayMutationQueue', () => {
     });
 
     it('empties collision queue after a failure', () => {
-      const failureCallback1 = jest.fn(
-        (transaction, preventAutoRollback) => {
-          expect(transaction).toBe(transaction1);
-          expect(transaction.getStatus()).toBe(COMMIT_FAILED);
-        }
-      );
-      const transaction1 = mutationQueue.createTransaction(
-        mockMutation1,
-        {onFailure: failureCallback1}
-      );
+      const failureCallback1 = jest.fn((transaction, preventAutoRollback) => {
+        expect(transaction).toBe(transaction1);
+        expect(transaction.getStatus()).toBe(COMMIT_FAILED);
+      });
+      const transaction1 = mutationQueue.createTransaction(mockMutation1, {
+        onFailure: failureCallback1,
+      });
       transaction1.commit();
 
       expect(transaction1.getStatus()).toBe(COMMITTING);
       expect(networkLayer.sendMutation.mock.calls.length).toBe(1);
 
-      const failureCallback2 = jest.fn(
-        (transaction, preventAutoRollback) => {
-          expect(transaction).toBe(transaction2);
-          expect(transaction.getStatus()).toBe(COLLISION_COMMIT_FAILED);
+      const failureCallback2 = jest.fn((transaction, preventAutoRollback) => {
+        expect(transaction).toBe(transaction2);
+        expect(transaction.getStatus()).toBe(COLLISION_COMMIT_FAILED);
 
-          preventAutoRollback();
-        }
-      );
-      const transaction2 = mutationQueue.createTransaction(
-        mockMutation1,
-        {onFailure: failureCallback2}
-      );
+        preventAutoRollback();
+      });
+      const transaction2 = mutationQueue.createTransaction(mockMutation1, {
+        onFailure: failureCallback2,
+      });
       transaction2.commit();
 
       expect(transaction2.getStatus()).toBe(COMMIT_QUEUED);
@@ -336,7 +332,7 @@ describe('RelayMutationQueue', () => {
       expect(failureCallback1).toBeCalled();
       expect(failureCallback2).toBeCalled();
       expect(() => transaction1.getStatus()).toFailInvariant(
-        'RelayMutationQueue: `0` is not a valid pending transaction ID.'
+        'RelayMutationQueue: `0` is not a valid pending transaction ID.',
       );
       expect(transaction2.getStatus()).toBe(COLLISION_COMMIT_FAILED);
 
@@ -348,42 +344,33 @@ describe('RelayMutationQueue', () => {
     });
 
     it('rolls back colliding transactions on failure unless prevented', () => {
-      const failureCallback1 = jest.fn(
-        (transaction, preventAutoRollback) => {
-          expect(transaction).toBe(transaction1);
-          expect(transaction.getStatus()).toBe(COMMIT_FAILED);
-          preventAutoRollback();
-        }
-      );
-      const transaction1 = mutationQueue.createTransaction(
-        mockMutation1,
-        {onFailure: failureCallback1}
-      );
+      const failureCallback1 = jest.fn((transaction, preventAutoRollback) => {
+        expect(transaction).toBe(transaction1);
+        expect(transaction.getStatus()).toBe(COMMIT_FAILED);
+        preventAutoRollback();
+      });
+      const transaction1 = mutationQueue.createTransaction(mockMutation1, {
+        onFailure: failureCallback1,
+      });
       transaction1.commit();
 
-      const failureCallback2 = jest.fn(
-        (transaction, preventAutoRollback) => {
-          expect(transaction).toBe(transaction2);
-          expect(transaction.getStatus()).toBe(COLLISION_COMMIT_FAILED);
-        }
-      );
-      const transaction2 = mutationQueue.createTransaction(
-        mockMutation1,
-        {onFailure: failureCallback2}
-      );
+      const failureCallback2 = jest.fn((transaction, preventAutoRollback) => {
+        expect(transaction).toBe(transaction2);
+        expect(transaction.getStatus()).toBe(COLLISION_COMMIT_FAILED);
+      });
+      const transaction2 = mutationQueue.createTransaction(mockMutation1, {
+        onFailure: failureCallback2,
+      });
       transaction2.commit();
 
-      const failureCallback3 = jest.fn(
-        (transaction, preventAutoRollback) => {
-          expect(transaction).toBe(transaction3);
-          expect(transaction.getStatus()).toBe(COLLISION_COMMIT_FAILED);
-          preventAutoRollback();
-        }
-      );
-      const transaction3 = mutationQueue.createTransaction(
-        mockMutation1,
-        {onFailure: failureCallback3}
-      );
+      const failureCallback3 = jest.fn((transaction, preventAutoRollback) => {
+        expect(transaction).toBe(transaction3);
+        expect(transaction.getStatus()).toBe(COLLISION_COMMIT_FAILED);
+        preventAutoRollback();
+      });
+      const transaction3 = mutationQueue.createTransaction(mockMutation1, {
+        onFailure: failureCallback3,
+      });
       transaction3.commit();
 
       expect(transaction1.getStatus()).toBe(COMMITTING);
@@ -391,17 +378,15 @@ describe('RelayMutationQueue', () => {
       expect(transaction3.getStatus()).toBe(COMMIT_QUEUED);
 
       const failureCallback4 = jest.fn();
-      const transaction4 = mutationQueue.createTransaction(
-        mockMutation2,
-        {onFailure: failureCallback4}
-      );
+      const transaction4 = mutationQueue.createTransaction(mockMutation2, {
+        onFailure: failureCallback4,
+      });
       transaction4.commit();
 
       const failureCallback5 = jest.fn();
-      const transaction5 = mutationQueue.createTransaction(
-        mockMutation2,
-        {onFailure: failureCallback5}
-      );
+      const transaction5 = mutationQueue.createTransaction(mockMutation2, {
+        onFailure: failureCallback5,
+      });
       transaction5.commit();
 
       expect(transaction4.getStatus()).toBe(COMMITTING);
@@ -419,7 +404,7 @@ describe('RelayMutationQueue', () => {
       expect(failureCallback5).not.toBeCalled();
       expect(transaction1.getStatus()).toBe(COMMIT_FAILED);
       expect(() => transaction2.getStatus()).toFailInvariant(
-        'RelayMutationQueue: `1` is not a valid pending transaction ID.'
+        'RelayMutationQueue: `1` is not a valid pending transaction ID.',
       );
       expect(transaction3.getStatus()).toBe(COLLISION_COMMIT_FAILED);
       expect(transaction4.getStatus()).toBe(COMMITTING);
@@ -435,16 +420,13 @@ describe('RelayMutationQueue', () => {
 
     it('re-queues the transaction', () => {
       const successCallback1 = jest.fn();
-      const failureCallback1 = jest.fn(
-        (transaction, preventAutoRollback) => preventAutoRollback()
+      const failureCallback1 = jest.fn((transaction, preventAutoRollback) =>
+        preventAutoRollback(),
       );
-      const transaction1 = mutationQueue.createTransaction(
-        mockMutation,
-        {
-          onSuccess: successCallback1,
-          onFailure: failureCallback1,
-        }
-      );
+      const transaction1 = mutationQueue.createTransaction(mockMutation, {
+        onSuccess: successCallback1,
+        onFailure: failureCallback1,
+      });
       transaction1.commit();
 
       expect(networkLayer.sendMutation.mock.calls.length).toBe(1);
@@ -456,10 +438,9 @@ describe('RelayMutationQueue', () => {
       expect(transaction1.getStatus()).toBe(COMMIT_FAILED);
 
       const successCallback2 = jest.fn();
-      const transaction2 = mutationQueue.createTransaction(
-        mockMutation,
-        {onSuccess: successCallback2}
-      );
+      const transaction2 = mutationQueue.createTransaction(mockMutation, {
+        onSuccess: successCallback2,
+      });
       transaction2.commit();
 
       expect(networkLayer.sendMutation.mock.calls.length).toBe(2);
@@ -518,7 +499,7 @@ describe('RelayMutationQueue', () => {
       expect(transaction2.getStatus()).toBe(ROLLED_BACK);
 
       const request = networkLayer.sendMutation.mock.calls[0][0];
-      request.resolve({response: {'res': 'ponse'}});
+      request.resolve({response: {res: 'ponse'}});
       jest.runAllTimers();
 
       expect(networkLayer.sendMutation.mock.calls.length).toBe(2);
@@ -545,12 +526,12 @@ describe('RelayMutationQueue', () => {
       storeData.injectQueryTracker(null);
       expect(() => transaction.commit()).toFailInvariant(
         'RelayMutationQueue: a RelayQueryTracker was not configured but an ' +
-        'attempt to process a RelayMutation instance was made. Either use ' +
-        'RelayGraphQLMutation (which does not require a tracker), or use ' +
-        '`RelayStoreData.injectQueryTracker()` to configure a tracker. Be ' +
-        'aware that trackers are provided by default, so if you are seeing ' +
-        'this error it means that somebody has explicitly intended to opt ' +
-        'out of query tracking.'
+          'attempt to process a RelayMutation instance was made. Either use ' +
+          'RelayGraphQLMutation (which does not require a tracker), or use ' +
+          '`RelayStoreData.injectQueryTracker()` to configure a tracker. Be ' +
+          'aware that trackers are provided by default, so if you are seeing ' +
+          'this error it means that somebody has explicitly intended to opt ' +
+          'out of query tracking.',
       );
     });
   });

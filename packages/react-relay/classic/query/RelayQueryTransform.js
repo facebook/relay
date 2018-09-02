@@ -1,20 +1,18 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayQueryTransform
- * @flow
+ * @flow strict-local
+ * @format
  */
 
 'use strict';
 
-const RelayQueryVisitor = require('RelayQueryVisitor');
+const RelayQueryVisitor = require('./RelayQueryVisitor');
 
-import type RelayQuery from 'RelayQuery';
+import type RelayQuery from './RelayQuery';
 
 /**
  * @internal
@@ -50,24 +48,26 @@ import type RelayQuery from 'RelayQuery';
  * @see RelayQueryVisitor
  */
 class RelayQueryTransform<Ts> extends RelayQueryVisitor<Ts> {
-  traverse<Tn: RelayQuery.Node>(
-    node: Tn,
-    nextState: Ts
-  ): ?Tn {
+  traverse<Tn: RelayQuery.Node>(node: Tn, nextState: Ts): ?Tn {
     if (!node.canHaveSubselections()) {
       return node;
     }
     let nextChildren;
-    this.traverseChildren(node, nextState, function(child, index, children) {
-      const prevChild = children[index];
-      const nextChild = this.visit(prevChild, nextState);
-      if (nextChild !== prevChild) {
-        nextChildren = nextChildren || children.slice(0, index);
-      }
-      if (nextChildren && nextChild) {
-        nextChildren.push(nextChild);
-      }
-    }, this);
+    this.traverseChildren(
+      node,
+      nextState,
+      function(child, index, children) {
+        const prevChild = children[index];
+        const nextChild = this.visit(prevChild, nextState);
+        if (nextChild !== prevChild) {
+          nextChildren = nextChildren || children.slice(0, index);
+        }
+        if (nextChildren && nextChild) {
+          nextChildren.push(nextChild);
+        }
+      },
+      this,
+    );
     if (nextChildren) {
       if (!nextChildren.length) {
         return null;

@@ -1,29 +1,28 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
-const QueryBuilder = require('QueryBuilder');
-const Relay = require('Relay');
+const QueryBuilder = require('../QueryBuilder');
+const RelayClassic = require('../../RelayPublic');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayQL', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('throws if not transformed', () => {
-    const badQL = Relay.QL;
+    const badQL = RelayClassic.QL;
     expect(() => {
       // Transform cannot find this call site.
       badQL`
@@ -37,14 +36,14 @@ describe('RelayQL', () => {
       `;
     }).toFailInvariant(
       'RelayQL: Unexpected invocation at runtime. Either the Babel transform ' +
-      'was not set up, or it failed to identify this call site. Make sure it ' +
-      'is being used verbatim as `Relay.QL`.'
+        'was not set up, or it failed to identify this call site. Make sure it ' +
+        'is being used verbatim as `Relay.QL`.',
     );
   });
 
   it('does not throw if transformed', () => {
     expect(() => {
-      Relay.QL`
+      RelayClassic.QL`
         query {
           viewer {
             actor {
@@ -59,7 +58,7 @@ describe('RelayQL', () => {
   it('permits valid variable substitutions', () => {
     const SIZE = 42;
     expect(() => {
-      Relay.QL`
+      RelayClassic.QL`
         query {
           viewer {
             actor {
@@ -75,7 +74,7 @@ describe('RelayQL', () => {
 
   it('wraps variable substituted values in concrete call values', () => {
     const SIZE = 42;
-    expect(Relay.QL.__var(SIZE)).toEqual({
+    expect(RelayClassic.QL.__var(SIZE)).toEqual({
       kind: 'CallValue',
       callValue: SIZE,
     });
@@ -86,7 +85,7 @@ describe('RelayQL', () => {
       size: QueryBuilder.createCallVariable('size'),
     };
     expect(() => {
-      Relay.QL`
+      RelayClassic.QL`
         query {
           viewer {
             actor {
@@ -99,7 +98,7 @@ describe('RelayQL', () => {
       `;
     }).toFailInvariant(
       'RelayQL: Invalid argument `size` supplied via template substitution. ' +
-      'Instead, use an inline variable (e.g. `comments(count: $count)`).'
+        'Instead, use an inline variable (e.g. `comments(count: $count)`).',
     );
   });
 
@@ -109,7 +108,7 @@ describe('RelayQL', () => {
       type: 'Bar',
     });
     expect(() => {
-      Relay.QL`
+      RelayClassic.QL`
         query {
           viewer {
             ${fragment}
@@ -125,7 +124,7 @@ describe('RelayQL', () => {
       type: 'Bar',
     });
     expect(() => {
-      Relay.QL`
+      RelayClassic.QL`
         query {
           viewer {
             ${[fragment]}
@@ -137,7 +136,7 @@ describe('RelayQL', () => {
 
   it('throws for invalid fragment substitutions', () => {
     expect(() => {
-      Relay.QL`
+      RelayClassic.QL`
         query {
           viewer {
             ${'foo'}
@@ -146,11 +145,11 @@ describe('RelayQL', () => {
       `;
     }).toFailInvariant(
       'RelayQL: Invalid fragment composition, use ' +
-      '`${Child.getFragment(\'name\')}`.'
+        "`${Child.getFragment('name')}`.",
     );
 
     expect(() => {
-      Relay.QL`
+      RelayClassic.QL`
         query {
           viewer {
             ${['foo']}
@@ -159,7 +158,7 @@ describe('RelayQL', () => {
       `;
     }).toFailInvariant(
       'RelayQL: Invalid fragment composition, use ' +
-      '`${Child.getFragment(\'name\')}`.'
+        "`${Child.getFragment('name')}`.",
     );
 
     const fragment = QueryBuilder.createFragment({
@@ -167,7 +166,7 @@ describe('RelayQL', () => {
       type: 'Bar',
     });
     expect(() => {
-      Relay.QL`
+      RelayClassic.QL`
         query {
           viewer {
             ${[[fragment]]}
@@ -176,12 +175,12 @@ describe('RelayQL', () => {
       `;
     }).toFailInvariant(
       'RelayQL: Invalid fragment composition, use ' +
-      '`${Child.getFragment(\'name\')}`.'
+        "`${Child.getFragment('name')}`.",
     );
   });
 
   it('generates unique concrete fragment IDs', () => {
-    const getFragment = () => Relay.QL`
+    const getFragment = () => RelayClassic.QL`
       fragment on Node {
         id
       }
@@ -190,17 +189,5 @@ describe('RelayQL', () => {
     const nodeB = getFragment();
     expect(nodeA).not.toBe(nodeB);
     expect(nodeA.id).not.toBe(nodeB.id);
-  });
-
-  it('generates identical concrete IDs for static fragments', () => {
-    const getFragment = () => Relay.QL`
-      fragment on Node @relay(isStaticFragment: true) {
-        id
-      }
-    `;
-    const nodeA = getFragment();
-    const nodeB = getFragment();
-    expect(nodeA).not.toBe(nodeB);
-    expect(nodeA.id).toBe(nodeB.id);
   });
 });

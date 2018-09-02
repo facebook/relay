@@ -1,19 +1,16 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
-jest.unmock('dedent');
-
-const dedent = require('dedent');
+const dedent = require('../dedent');
 
 describe('dedent()', () => {
   describe('with an empty string', () => {
@@ -65,11 +62,7 @@ describe('dedent()', () => {
         }
       `;
       expect(dedent(string)).toBe(
-        'query MyQuery {\n' +
-        '  example {\n' +
-        '    text\n' +
-        '  }\n' +
-        '}'
+        'query MyQuery {\n  example {\n    text\n  }\n}',
       );
     });
 
@@ -83,10 +76,10 @@ describe('dedent()', () => {
       `;
       expect(dedent(string, '    ')).toBe(
         '    query MyQuery {\n' +
-        '      example {\n' +
-        '        text\n' +
-        '      }\n' +
-        '    }'
+          '      example {\n' +
+          '        text\n' +
+          '      }\n' +
+          '    }',
       );
     });
 
@@ -102,12 +95,12 @@ describe('dedent()', () => {
       `;
       expect(dedent(string)).toBe(
         'query MyQuery {\n' +
-        '  example {\n' +
-        '    text\n' +
-        '  }\n' +
-        '\n' +
-        '  more\n' +
-        '}'
+          '  example {\n' +
+          '    text\n' +
+          '  }\n' +
+          '\n' +
+          '  more\n' +
+          '}',
       );
     });
 
@@ -123,17 +116,16 @@ describe('dedent()', () => {
       `;
       expect(dedent(string, '  ')).toBe(
         '  query MyQuery {\n' +
-        '    example {\n' +
-        '      text\n' +
-        '    }\n' +
-        '\n' +
-        '    more\n' +
-        '  }'
+          '    example {\n' +
+          '      text\n' +
+          '    }\n' +
+          '\n' +
+          '    more\n' +
+          '  }',
       );
     });
 
     it('suppresses blank lines in the output', () => {
-      /* eslint-disable no-trailing-spaces */
       const string = `
         query MyQuery {
           example {
@@ -143,15 +135,14 @@ describe('dedent()', () => {
           more
         }
       `;
-      /* eslint-enable no-trailing-spaces */
       expect(dedent(string, '  ')).toBe(
         '  query MyQuery {\n' +
-        '    example {\n' +
-        '      text\n' +
-        '    }\n' +
-        '\n' +
-        '    more\n' +
-        '  }'
+          '    example {\n' +
+          '      text\n' +
+          '    }\n' +
+          '\n' +
+          '    more\n' +
+          '  }',
       );
     });
   });

@@ -1,19 +1,17 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayMutationDebugPrinter
  * @flow
+ * @format
  */
 
 'use strict';
-const printRelayQuery = require('printRelayQuery');
+const printRelayQuery = require('../traversal/printRelayQuery');
 
-import type RelayQuery from 'RelayQuery';
+import type RelayQuery from '../query/RelayQuery';
 
 /**
  * @internal
@@ -21,10 +19,7 @@ import type RelayQuery from 'RelayQuery';
  * Helper functions to print mutation queries for debugging purposes.
  */
 const RelayMutationDebugPrinter = {
-  printOptimisticMutation(
-    query: ?RelayQuery.Node,
-    response: ?Object
-  ): void {
+  printOptimisticMutation(query: ?RelayQuery.Node, response: ?Object): void {
     /* eslint-disable no-console */
     if (!console.groupCollapsed || !console.groupEnd) {
       return;
@@ -54,7 +49,6 @@ const RelayMutationDebugPrinter = {
     console.groupEnd();
     /* eslint-enable no-console */
   },
-
 };
 
 module.exports = RelayMutationDebugPrinter;

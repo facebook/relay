@@ -1,17 +1,15 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule GraphQLSegment
+ * @format
  */
 
 'use strict';
 
-const RelayRecord = require('RelayRecord');
+const RelayRecord = require('../../store/RelayRecord');
 
 /**
  * Represents one contiguous segment of edges within a `GraphQLRange`. Has
@@ -105,7 +103,7 @@ class GraphQLSegment {
     }
   }
 
- /**
+  /**
    * @return {boolean} returns whether cursor is after the last non-deleted
    * cursor inclusively.
    */
@@ -291,7 +289,7 @@ class GraphQLSegment {
     if (idIndex !== undefined && this._getEdgeAtIndex(idIndex)) {
       console.warn(
         'Attempted to add an ID already in GraphQLSegment: %s',
-        edgeID
+        edgeID,
       );
       return;
     }
@@ -306,7 +304,7 @@ class GraphQLSegment {
     } else {
       console.warn(
         `Attempted to add noncontiguous index to GraphQLSegment: ${index} to ` +
-        `(${this._minIndex}, ${this._maxIndex})`
+          `(${this._minIndex}, ${this._maxIndex})`,
       );
 
       return;
@@ -332,7 +330,7 @@ class GraphQLSegment {
   prependEdge(edge) {
     this._addEdgeAtIndex(
       edge,
-      this._minIndex !== null ? this._minIndex - 1 : 0
+      this._minIndex !== null ? this._minIndex - 1 : 0,
     );
   }
 
@@ -342,7 +340,7 @@ class GraphQLSegment {
   appendEdge(edge) {
     this._addEdgeAtIndex(
       edge,
-      this._maxIndex !== null ? this._maxIndex + 1 : 0
+      this._maxIndex !== null ? this._maxIndex + 1 : 0,
     );
   }
 
@@ -356,15 +354,14 @@ class GraphQLSegment {
     if (index === undefined) {
       console.warn(
         'Attempted to remove edge with ID that was never in GraphQLSegment: ' +
-        id
+          id,
       );
       return;
     }
     const data = this._indexToMetadataMap[index];
     if (data.deleted) {
       console.warn(
-        'Attempted to remove edge with ID that was already removed: ' +
-        id
+        'Attempted to remove edge with ID that was already removed: ' + id,
       );
       return;
     }
@@ -421,8 +418,10 @@ class GraphQLSegment {
       } else {
         console.warn(
           'Attempted to do an overwrite to GraphQLSegment: ' +
-          'last index is ' + this._maxIndex +
-          ' trying to add edges before ' + index
+            'last index is ' +
+            this._maxIndex +
+            ' trying to add edges before ' +
+            index,
         );
         return;
       }
@@ -431,10 +430,7 @@ class GraphQLSegment {
     const startIndex = index + 1;
     for (let ii = 0; ii < edges.length; ii++) {
       const edge = edges[ii];
-      this._addEdgeAtIndex(
-        edge,
-        startIndex + ii
-      );
+      this._addEdgeAtIndex(edge, startIndex + ii);
     }
   }
 
@@ -466,8 +462,10 @@ class GraphQLSegment {
       } else {
         console.warn(
           'Attempted to do an overwrite to GraphQLSegment: ' +
-          'first index is ' + this._minIndex +
-          ' trying to add edges after ' + index
+            'first index is ' +
+            this._minIndex +
+            ' trying to add edges after ' +
+            index,
         );
         return;
       }
@@ -479,10 +477,7 @@ class GraphQLSegment {
     for (let ii = 0; ii < edges.length; ii++) {
       // Iterates from edges.length - 1 to 0
       const edge = edges[edges.length - ii - 1];
-      this._addEdgeAtIndex(
-        edge,
-        startIndex - ii
-      );
+      this._addEdgeAtIndex(edge, startIndex - ii);
     }
   }
 
@@ -567,8 +562,9 @@ class GraphQLSegment {
       const idIndex = this._getIndexForID(newEdge.edgeID);
       if (!idRollbackMap.hasOwnProperty(newEdge.edgeID)) {
         if (this._idToIndicesMap[newEdge.edgeID]) {
-          idRollbackMap[newEdge.edgeID] =
-            this._idToIndicesMap[newEdge.edgeID].slice();
+          idRollbackMap[newEdge.edgeID] = this._idToIndicesMap[
+            newEdge.edgeID
+          ].slice();
         } else {
           idRollbackMap[newEdge.edgeID] = undefined;
         }
@@ -584,7 +580,7 @@ class GraphQLSegment {
         } else if (!newEdge.deleted) {
           console.warn(
             'Attempt to concat an ID already in GraphQLSegment: %s',
-            newEdge.edgeID
+            newEdge.edgeID,
           );
           this._rollback(cursorRollbackMap, idRollbackMap, counterState);
           return false;
@@ -608,20 +604,22 @@ class GraphQLSegment {
           // We want to map to most recent edge. Only write in the cursor map if
           // existing edge with cursor is deleted or have and older deletion
           // time.
-          cursorRollbackMap[newEdge.cursor] =
-            this._cursorToIndexMap[newEdge.cursor];
+          cursorRollbackMap[newEdge.cursor] = this._cursorToIndexMap[
+            newEdge.cursor
+          ];
           this._cursorToIndexMap[newEdge.cursor] = index;
         } else if (!newEdge.deleted) {
           console.warn(
             'Attempt to concat a cursor already in GraphQLSegment: %s',
-            newEdge.cursor
+            newEdge.cursor,
           );
           this._rollback(cursorRollbackMap, idRollbackMap, counterState);
           return false;
         }
       } else if (newEdge.cursor) {
-        cursorRollbackMap[newEdge.cursor] =
-          this._cursorToIndexMap[newEdge.cursor];
+        cursorRollbackMap[newEdge.cursor] = this._cursorToIndexMap[
+          newEdge.cursor
+        ];
         this._cursorToIndexMap[newEdge.cursor] = index;
       }
       if (!newEdge.deleted) {
@@ -667,7 +665,7 @@ class GraphQLSegment {
     return {
       metadata: this._indexToMetadataMap,
       idToIndices: this._idToIndicesMap,
-      cursorToIndex:  this._cursorToIndexMap,
+      cursorToIndex: this._cursorToIndexMap,
     };
   }
 

@@ -1,17 +1,16 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
-const serializeRelayQueryCall = require('serializeRelayQueryCall');
+const serializeRelayQueryCall = require('../serializeRelayQueryCall');
 
 describe('serializeRelayQueryCall', () => {
   it('serializes a call with a null argument', () => {
@@ -76,7 +75,7 @@ describe('serializeRelayQueryCall', () => {
       value: JSON.stringify({query: 'Menlo Park'}),
     };
     expect(serializeRelayQueryCall(call)).toEqual(
-      '.checkin_search_query({"query":"Menlo Park"})'
+      '.checkin_search_query({"query":"Menlo Park"})',
     );
   });
 
@@ -85,9 +84,7 @@ describe('serializeRelayQueryCall', () => {
       name: 'query',
       value: '',
     };
-    expect(serializeRelayQueryCall(call)).toEqual(
-      '.query()'
-    );
+    expect(serializeRelayQueryCall(call)).toEqual('.query()');
   });
 
   it('serializes string values with leading/trailing whitespace', () => {
@@ -95,8 +92,6 @@ describe('serializeRelayQueryCall', () => {
       name: 'query',
       value: ' ',
     };
-    expect(serializeRelayQueryCall(call)).toEqual(
-      '.query( )'
-    );
+    expect(serializeRelayQueryCall(call)).toEqual('.query( )');
   });
 });

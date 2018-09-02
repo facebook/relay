@@ -1,40 +1,23 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayCombinedEnvironmentTypes
- * @flow
+ * @flow strict-local
+ * @format
  */
 
 'use strict';
 
-import type {DataID} from 'RelayInternalTypes';
 import type {
+  CacheConfig,
+  DataID,
+  Disposable,
+  Observable,
+  SelectorStoreUpdater,
   Variables,
-} from 'RelayTypes';
-
-/**
- * Settings for how a query response may be cached.
- *
- * - `force`: causes a query to be issued unconditionally, irrespective of the
- *   state of any configured response cache.
- */
-export type CacheConfig = {
-  force: boolean,
-};
-
-/**
- * Represents any resource that must be explicitly disposed of. The most common
- * use-case is as a return value for subscriptions, where calling `dispose()`
- * would cancel the subscription.
- */
-export type Disposable = {
-  dispose(): void,
-};
+} from 'relay-runtime';
 
 /**
  * Arbitrary data e.g. received by a container as props.
@@ -95,24 +78,32 @@ export interface FragmentSpecResolver {
   /**
    * Stop watching for changes to the results of the fragments.
    */
-  dispose(): void,
+  dispose(): void;
 
   /**
    * Get the current results.
    */
-  resolve(): FragmentSpecResults,
+  resolve(): FragmentSpecResults;
 
   /**
    * Update the resolver with new inputs. Call `resolve()` to get the updated
    * results.
    */
-  setProps(props: Props): void,
+  setProps(props: Props): void;
 
   /**
    * Override the variables used to read the results of the fragments. Call
    * `resolve()` to get the updated results.
    */
-  setVariables(variables: Variables): void,
+  setVariables(variables: Variables): void;
+
+  /**
+   * Subscribe to resolver updates.
+   * Overrides existing callback (if one has been specified).
+   */
+  setCallback(callback: () => void): void;
+
+  isLoading(): boolean;
 }
 
 export type CFragmentMap<TFragment> = {[key: string]: TFragment};
@@ -126,9 +117,9 @@ export type CFragmentMap<TFragment> = {[key: string]: TFragment};
  * - `fragment`: a selector intended for use in reading or subscribing to
  *   the results of the the operation.
  */
-export type COperationSelector<TNode, TOperation> = {
+export type COperationSelector<TNode, TRequest> = {
   fragment: CSelector<TNode>,
-  node: TOperation,
+  node: TRequest,
   root: CSelector<TNode>,
   variables: Variables,
 };
@@ -142,15 +133,24 @@ export interface CEnvironment<
   TFragment,
   TGraphQLTaggedNode,
   TNode,
-  TOperation,
+  TRequest,
   TPayload,
+  TOperation,
 > {
+  /**
+   * Determine if the selector can be resolved with data in the store (i.e. no
+   * fields are missing).
+   *
+   * Note that this operation effectively "executes" the selector against the
+   * cache and therefore takes time proportional to the size/complexity of the
+   * selector.
+   */
+  check(selector: CSelector<TNode>): boolean;
+
   /**
    * Read the results of a selector from in-memory records in the store.
    */
-  lookup(
-    selector: CSelector<TNode>,
-  ): CSnapshot<TNode>,
+  lookup(selector: CSelector<TNode>): CSnapshot<TNode>;
 
   /**
    * Subscribe to changes to the results of a selector. The callback is called
@@ -160,7 +160,7 @@ export interface CEnvironment<
   subscribe(
     snapshot: CSnapshot<TNode>,
     callback: (snapshot: CSnapshot<TNode>) => void,
-  ): Disposable,
+  ): Disposable;
 
   /**
    * Ensure that all the records necessary to fulfill the given selector are
@@ -169,50 +169,33 @@ export interface CEnvironment<
    *
    * Note: This is a no-op in the classic core.
    */
-  retain(selector: CSelector<TNode>): Disposable,
+  retain(selector: CSelector<TNode>): Disposable;
 
   /**
-   * Send a query to the server with request/response semantics: the query will
-   * either complete successfully (calling `onNext` and `onCompleted`) or fail
-   * (calling `onError`).
-   *
-   * Note: Most applications should use `streamQuery` in order to
-   * optionally receive updated information over time, should that feature be
-   * supported by the network/server. A good rule of thumb is to use this method
-   * if you would otherwise immediately dispose the `streamQuery()`
-   * after receving the first `onNext` result.
-   */
-  sendQuery(config: {|
-    cacheConfig?: ?CacheConfig,
-    onCompleted?: ?() => void,
-    onError?: ?(error: Error) => void,
-    onNext?: ?(payload: TPayload) => void,
-    operation: COperationSelector<TNode, TOperation>,
-  |}): Disposable,
-
-  /**
-   * Send a query to the server with request/subscription semantics: one or more
-   * responses may be returned (via `onNext`) over time followed by either
-   * the request completing (`onCompleted`) or an error (`onError`).
+   * Send a query to the server with Observer semantics: one or more
+   * responses may be returned (via `next`) over time followed by either
+   * the request completing (`completed`) or an error (`error`).
    *
    * Networks/servers that support subscriptions may choose to hold the
-   * subscription open indefinitely such that `onCompleted` is not called.
+   * subscription open indefinitely such that `complete` is not called.
+   *
+   * Note: Observables are lazy, so calling this method will do nothing until
+   * the result is subscribed to: environment.execute({...}).subscribe({...}).
    */
-  streamQuery(config: {|
+  execute(config: {|
+    operation: COperationSelector<TNode, TRequest>,
     cacheConfig?: ?CacheConfig,
-    onCompleted?: ?() => void,
-    onError?: ?(error: Error) => void,
-    onNext?: ?(payload: TPayload) => void,
-    operation: COperationSelector<TNode, TOperation>,
-  |}): Disposable,
+    updater?: ?SelectorStoreUpdater,
+  |}): Observable<TPayload>;
 
   unstable_internal: CUnstableEnvironmentCore<
     TEnvironment,
     TFragment,
     TGraphQLTaggedNode,
     TNode,
+    TRequest,
     TOperation,
-  >,
+  >;
 }
 
 export interface CUnstableEnvironmentCore<
@@ -220,6 +203,7 @@ export interface CUnstableEnvironmentCore<
   TFragment,
   TGraphQLTaggedNode,
   TNode,
+  TRequest,
   TOperation,
 > {
   /**
@@ -231,10 +215,11 @@ export interface CUnstableEnvironmentCore<
    */
   createFragmentSpecResolver: (
     context: CRelayContext<TEnvironment>,
+    containerName: string,
     fragments: CFragmentMap<TFragment>,
     props: Props,
-    callback: () => void,
-  ) => FragmentSpecResolver,
+    callback?: () => void,
+  ) => FragmentSpecResolver;
 
   /**
    * Creates an instance of an OperationSelector given an operation definition
@@ -243,29 +228,30 @@ export interface CUnstableEnvironmentCore<
    * operation, and default values are populated for null values.
    */
   createOperationSelector: (
-    operation: TOperation,
+    request: TRequest,
     variables: Variables,
-  ) => COperationSelector<TNode, TOperation>,
+    operation?: TOperation,
+  ) => COperationSelector<TNode, TRequest>;
 
   /**
    * Given a graphql`...` tagged template, extract a fragment definition usable
    * by this version of Relay core. Throws if the value is not a fragment.
    */
-  getFragment: (node: TGraphQLTaggedNode) => TFragment,
+  getFragment: (node: TGraphQLTaggedNode) => TFragment;
 
   /**
    * Given a graphql`...` tagged template, extract an operation definition
    * usable by this version of Relay core. Throws if the value is not an
-   * operation.
+   * operation (or batch request).
    */
-  getOperation: (node: TGraphQLTaggedNode) => TOperation,
+  getRequest: (node: TGraphQLTaggedNode) => TRequest;
 
   /**
    * Determine if two selectors are equal (represent the same selection). Note
    * that this function returns `false` when the two queries/fragments are
    * different objects, even if they select the same fields.
    */
-  areEqualSelectors: (a: CSelector<TNode>, b: CSelector<TNode>) => boolean,
+  areEqualSelectors: (a: CSelector<TNode>, b: CSelector<TNode>) => boolean;
 
   /**
    * Given the result `item` from a parent that fetched `fragment`, creates a
@@ -298,7 +284,7 @@ export interface CUnstableEnvironmentCore<
     operationVariables: Variables,
     fragment: TFragment,
     prop: mixed,
-  ) => ?CSelector<TNode>,
+  ) => ?CSelector<TNode>;
 
   /**
    * Given the result `items` from a parent that fetched `fragment`, creates a
@@ -310,7 +296,7 @@ export interface CUnstableEnvironmentCore<
     operationVariables: Variables,
     fragment: TFragment,
     props: Array<mixed>,
-  ) => ?Array<CSelector<TNode>>,
+  ) => ?Array<CSelector<TNode>>;
 
   /**
    * Given a mapping of keys -> results and a mapping of keys -> fragments,
@@ -324,7 +310,7 @@ export interface CUnstableEnvironmentCore<
     operationVariables: Variables,
     fragments: CFragmentMap<TFragment>,
     props: Props,
-  ) => {[key: string]: ?(CSelector<TNode> | Array<CSelector<TNode>>)},
+  ) => {[key: string]: ?(CSelector<TNode> | Array<CSelector<TNode>>)};
 
   /**
    * Given a mapping of keys -> results and a mapping of keys -> fragments,
@@ -336,7 +322,7 @@ export interface CUnstableEnvironmentCore<
   getDataIDsFromObject: (
     fragments: CFragmentMap<TFragment>,
     props: Props,
-  ) => {[key: string]: ?(DataID | Array<DataID>)},
+  ) => {[key: string]: ?(DataID | Array<DataID>)};
 
   /**
    * Given a mapping of keys -> results and a mapping of keys -> fragments,
@@ -350,7 +336,7 @@ export interface CUnstableEnvironmentCore<
     operationVariables: Variables,
     fragments: CFragmentMap<TFragment>,
     props: Props,
-  ) => Variables,
+  ) => Variables;
 }
 
 /**

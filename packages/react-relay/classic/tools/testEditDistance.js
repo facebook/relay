@@ -1,13 +1,11 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule testEditDistance
  * @flow
+ * @format
  *
  */
 'use strict';
@@ -85,12 +83,7 @@ function testEditDistance(a: string, b: string, threshold: number): boolean {
       t2 = t + 1;
     }
 
-    t = Math.max(
-      t,
-      fkp[k - 1 + zeroK][p],
-      fkp[k + 1 + zeroK][p] + 1,
-      t2
-    );
+    t = Math.max(t, fkp[k - 1 + zeroK][p], fkp[k + 1 + zeroK][p] + 1, t2);
 
     while (a[t] === b[t + k] && t < Math.min(m, n - k)) {
       t++;

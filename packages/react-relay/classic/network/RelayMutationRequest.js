@@ -1,25 +1,24 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayMutationRequest
- * @flow
+ * @flow strict-local
+ * @format
  */
 
 'use strict';
 
 const Deferred = require('Deferred');
 
-const printRelayQuery = require('printRelayQuery');
+const printRelayQuery = require('../traversal/printRelayQuery');
 
-import type {PrintedQuery} from 'RelayInternalTypes';
-import type {FileMap} from 'RelayMutation';
-import type RelayQuery from 'RelayQuery';
-import type {MutationResult, Variables} from 'RelayTypes';
+import type {FileMap} from '../mutation/RelayMutation';
+import type RelayQuery from '../query/RelayQuery';
+import type {PrintedQuery} from '../tools/RelayInternalTypes';
+import type {MutationResult} from '../tools/RelayTypes';
+import type {Variables} from 'relay-runtime';
 
 /**
  * @internal
@@ -31,10 +30,7 @@ class RelayMutationRequest extends Deferred<MutationResult, Error> {
   _printedQuery: ?PrintedQuery;
   _files: ?FileMap;
 
-  constructor(
-    mutation: RelayQuery.Mutation,
-    files: ?FileMap
-  ) {
+  constructor(mutation: RelayQuery.Mutation, files: ?FileMap) {
     super();
     this._mutation = mutation;
     this._printedQuery = null;

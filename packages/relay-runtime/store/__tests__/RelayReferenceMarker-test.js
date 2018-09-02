@@ -1,29 +1,25 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @format
+ * @emails oncall+relay
  */
 
 'use strict';
 
-jest
-  .autoMockOff()
-  .mock('generateClientID');
+jest.mock('generateClientID');
 
-const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
-const RelayReferenceMarker = require('RelayReferenceMarker');
-const RelayStoreUtils = require('RelayStoreUtils');
-const RelayStaticTestUtils = require('RelayStaticTestUtils');
-const Set = require('Set');
+const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
+const RelayModernTestUtils = require('RelayModernTestUtils');
 
-const {mark} = RelayReferenceMarker;
-const {ROOT_ID} = RelayStoreUtils;
+const {mark} = require('../RelayReferenceMarker');
+const {ROOT_ID} = require('../RelayStoreUtils');
 
 describe('RelayReferenceMarker', () => {
-  const {generateAndCompile} = RelayStaticTestUtils;
+  const {generateAndCompile} = RelayModernTestUtils;
   let source;
 
   beforeEach(() => {
@@ -35,8 +31,8 @@ describe('RelayReferenceMarker', () => {
         id: '1',
         __typename: 'User',
         firstName: 'Alice',
-        'friends{"first":3}': {__ref: 'client:1'},
-        'profilePicture{"size":32}': {__ref: 'client:4'},
+        'friends(first:3)': {__ref: 'client:1'},
+        'profilePicture(size:32)': {__ref: 'client:4'},
       },
       '2': {
         __id: '2',
@@ -77,7 +73,7 @@ describe('RelayReferenceMarker', () => {
       'client:root': {
         __id: 'client:root',
         __typename: '__Root',
-        'node{"id":"1"}': {__ref: '1'},
+        'node(id:"1")': {__ref: '1'},
       },
     };
 
@@ -85,7 +81,8 @@ describe('RelayReferenceMarker', () => {
   });
 
   it('marks referenced records', () => {
-    const {FooQuery} = generateAndCompile(`
+    const {FooQuery} = generateAndCompile(
+      `
       query FooQuery($id: ID, $size: [Int]) {
         node(id: $id) {
           id
@@ -118,16 +115,17 @@ describe('RelayReferenceMarker', () => {
           }
         }
       }
-    `);
+    `,
+    );
     const references = new Set();
     mark(
       source,
       {
         dataID: ROOT_ID,
-        node: FooQuery.query,
+        node: FooQuery.operation,
         variables: {id: '1', size: 32},
       },
-      references
+      references,
     );
     expect(Array.from(references).sort()).toEqual([
       '1',
@@ -141,13 +139,47 @@ describe('RelayReferenceMarker', () => {
     ]);
   });
 
+  it('handles deferrable queries', () => {
+    const {FooQuery} = generateAndCompile(
+      `
+    query FooQuery($id: ID!) {
+      node(id: $id) {
+        id
+        __typename
+        ... on Page {
+          actors {
+            name
+          }
+        }
+        ...UserProfile @relay(deferrable: true)
+      }
+    }
+
+    fragment UserProfile on User {
+      firstName
+    }
+  `,
+    );
+    const references = new Set();
+    mark(
+      source,
+      {
+        dataID: ROOT_ID,
+        node: FooQuery.requests[0].operation,
+        variables: {id: '1'},
+      },
+      references,
+    );
+    expect(Array.from(references).sort()).toEqual(['1', 'client:root']);
+  });
+
   it('marks "handle" nodes for queries', () => {
     const data = {
       '1': {
         __id: '1',
         __typename: 'User',
-        'friends{"first":1}': {__ref: 'client:1'},
-        '__friends_bestFriends': {__ref: 'client:bestFriends'},
+        'friends(first:1)': {__ref: 'client:1'},
+        __friends_bestFriends: {__ref: 'client:bestFriends'},
       },
       '2': {
         __id: '2',
@@ -188,11 +220,12 @@ describe('RelayReferenceMarker', () => {
       'client:root': {
         __id: 'client:root',
         __typename: '__Root',
-        'node{"id":"1"}': {__ref: '1'},
+        'node(id:"1")': {__ref: '1'},
       },
     };
     source = new RelayInMemoryRecordSource(data);
-    const {UserProfile} = generateAndCompile(`
+    const {UserProfile} = generateAndCompile(
+      `
       query UserProfile($id: ID!) {
         node(id: $id) {
           ... on User {
@@ -208,16 +241,17 @@ describe('RelayReferenceMarker', () => {
           }
         }
       }
-    `);
+    `,
+    );
     const references = new Set();
     mark(
       source,
       {
         dataID: ROOT_ID,
-        node: UserProfile.query,
+        node: UserProfile.operation,
         variables: {id: '1'},
       },
-      references
+      references,
     );
     expect(Array.from(references).sort()).toEqual([
       '1',
@@ -236,9 +270,13 @@ describe('RelayReferenceMarker', () => {
       '1': {
         __id: '1',
         __typename: 'User',
-        'friends{"first":1,"orderby":["first name"]}': {__ref: 'client:1'},
-        '__UserProfile_friends_bestFriends{"orderby":["first name"]}': {__ref: 'client:bestFriends'},
-        '__UserProfile_friends_bestFriends{"orderby":["last name"]}': {__ref: 'client:bestFriendsByLastName'},
+        'friends(first:1,orderby:["first name"])': {__ref: 'client:1'},
+        '__UserProfile_friends_bestFriends(orderby:["first name"])': {
+          __ref: 'client:bestFriends',
+        },
+        '__UserProfile_friends_bestFriends(orderby:["last name"])': {
+          __ref: 'client:bestFriendsByLastName',
+        },
       },
       '2': {
         __id: '2',
@@ -286,11 +324,12 @@ describe('RelayReferenceMarker', () => {
       'client:root': {
         __id: 'client:root',
         __typename: '__Root',
-        'node{"id":"1"}': {__ref: '1'},
+        'node(id:"1")': {__ref: '1'},
       },
     };
     source = new RelayInMemoryRecordSource(data);
-    const {UserProfile} = generateAndCompile(`
+    const {UserProfile} = generateAndCompile(
+      `
       query UserProfile($id: ID!, $orderby: [String]) {
         node(id: $id) {
           ... on User {
@@ -310,16 +349,17 @@ describe('RelayReferenceMarker', () => {
           }
         }
       }
-    `);
+    `,
+    );
     let references = new Set();
     mark(
       source,
       {
         dataID: ROOT_ID,
-        node: UserProfile.query,
+        node: UserProfile.operation,
         variables: {id: '1', orderby: ['first name']},
       },
-      references
+      references,
     );
     expect(Array.from(references).sort()).toEqual([
       '1',
@@ -337,10 +377,10 @@ describe('RelayReferenceMarker', () => {
       source,
       {
         dataID: ROOT_ID,
-        node: UserProfile.query,
+        node: UserProfile.operation,
         variables: {id: '1', orderby: ['last name']},
       },
-      references
+      references,
     );
     expect(Array.from(references).sort()).toEqual([
       '1',

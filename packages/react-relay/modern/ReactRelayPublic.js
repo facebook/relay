@@ -1,58 +1,59 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule ReactRelayPublic
- * @flow
+ * @flow strict-local
+ * @format
  */
 
 'use strict';
 
-const ReactRelayFragmentContainer = require('ReactRelayFragmentContainer');
-const ReactRelayPaginationContainer = require('ReactRelayPaginationContainer');
-const ReactRelayQueryRenderer = require('ReactRelayQueryRenderer');
-const ReactRelayRefetchContainer = require('ReactRelayRefetchContainer');
+const ReactRelayFragmentContainer = require('./ReactRelayFragmentContainer');
+const ReactRelayPaginationContainer = require('./ReactRelayPaginationContainer');
+const ReactRelayQueryRenderer = require('./ReactRelayQueryRenderer');
+const ReactRelayRefetchContainer = require('./ReactRelayRefetchContainer');
+const RelayRuntime = require('relay-runtime');
 
-const {
-  commitLocalUpdate,
-  commitMutation,
-  fetchQuery,
-  graphql,
-  requestSubscription,
-} = require('RelayRuntime');
-
-export type {GraphQLTaggedNode} from 'RelayStaticGraphQLTag';
-export type {
-  Environment,
-  OperationSelector,
-  RelayContext,
-  Selector,
-  Snapshot,
-} from 'RelayStoreTypes';
-export type {DataID} from 'RelayInternalTypes';
-export type {Disposable} from 'RelayCombinedEnvironmentTypes';
-export type {Variables} from 'RelayTypes';
 export type {
   RelayPaginationProp,
   RelayProp,
   RelayRefetchProp,
-} from 'ReactRelayTypes';
+  $FragmentRef,
+} from './ReactRelayTypes';
+export type {
+  DataID,
+  DeclarativeMutationConfig,
+  Disposable,
+  // RelayRuntime has two environment exports: one interface, one concrete.
+  IEnvironment as Environment,
+  GraphQLTaggedNode,
+  MutationType,
+  OperationSelector,
+  RangeOperation,
+  RelayContext,
+  Selector,
+  Snapshot,
+  Variables,
+} from 'relay-runtime';
 
 /**
  * The public interface to React Relay.
  */
 module.exports = {
   QueryRenderer: ReactRelayQueryRenderer,
-  createFragmentContainer: (ReactRelayFragmentContainer.createContainer: $FlowFixMe),
-  createPaginationContainer: (ReactRelayPaginationContainer.createContainer: $FlowFixMe),
-  createRefetchContainer: (ReactRelayRefetchContainer.createContainer: $FlowFixMe),
-  commitLocalUpdate: commitLocalUpdate,
-  commitMutation: commitMutation,
-  fetchQuery: fetchQuery,
-  graphql: graphql,
-  requestSubscription: requestSubscription,
+
+  MutationTypes: RelayRuntime.MutationTypes,
+  RangeOperations: RelayRuntime.RangeOperations,
+
+  applyOptimisticMutation: RelayRuntime.applyOptimisticMutation,
+  commitLocalUpdate: RelayRuntime.commitLocalUpdate,
+  commitMutation: RelayRuntime.commitMutation,
+  createFragmentContainer: ReactRelayFragmentContainer.createContainer,
+  createPaginationContainer: ReactRelayPaginationContainer.createContainer,
+  createRefetchContainer: ReactRelayRefetchContainer.createContainer,
+  fetchQuery: RelayRuntime.fetchQuery,
+  graphql: RelayRuntime.graphql,
+  requestSubscription: RelayRuntime.requestSubscription,
 };

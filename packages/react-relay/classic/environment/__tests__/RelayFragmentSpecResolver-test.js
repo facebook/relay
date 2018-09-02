@@ -1,25 +1,28 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @format
+ * @emails oncall+relay
  */
 
 'use strict';
 
-jest
-  .dontMock('GraphQLStoreChangeEmitter')
-  .mock('relayUnstableBatchedUpdates')
-  .autoMockOff();
+jest.dontMock('GraphQLStoreChangeEmitter').mock('relayUnstableBatchedUpdates');
 
-const RelayEnvironment = require('RelayEnvironment');
-const RelayFragmentSpecResolver = require('RelayFragmentSpecResolver');
-const {ROOT_ID} = require('RelayStoreConstants');
+const RelayEnvironment = require('../../store/RelayEnvironment');
+const RelayFragmentSpecResolver = require('../RelayFragmentSpecResolver');
+const {ROOT_ID} = require('../../store/RelayStoreConstants');
 const RelayTestUtils = require('RelayTestUtils');
-const generateRQLFieldAlias = require('generateRQLFieldAlias');
-const {graphql, getClassicFragment, getClassicOperation} = require('RelayGraphQLTag');
+const generateRQLFieldAlias = require('../../query/generateRQLFieldAlias');
+const {
+  graphql,
+  getClassicFragment,
+  getClassicOperation,
+} = require('../../query/RelayGraphQLTag');
+const {createOperationSelector} = require('../RelayOperationSelector');
 
 describe('RelayFragmentSpecResolver', () => {
   let UserFragment;
@@ -53,15 +56,11 @@ describe('RelayFragmentSpecResolver', () => {
   function setName(id, name) {
     const nodeAlias = generateRQLFieldAlias(`node.id(${id})`);
     environment.commitPayload(
-      {
-        dataID: ROOT_ID,
-        node: UserQuery.node,
-        variables: {
-          fetchSize: false,
-          id,
-          size: null,
-        },
-      },
+      createOperationSelector(UserQuery, {
+        fetchSize: false,
+        id,
+        size: null,
+      }),
       {
         [nodeAlias]: {
           id,
@@ -79,15 +78,11 @@ describe('RelayFragmentSpecResolver', () => {
     // If name is not specified it will be nulled out
     const name = environment.getStoreData().getNodeData()[id].name;
     environment.commitPayload(
-      {
-        dataID: ROOT_ID,
-        node: UserQuery.node,
-        variables: {
-          fetchSize: true,
-          id,
-          size,
-        },
-      },
+      createOperationSelector(UserQuery, {
+        fetchSize: true,
+        id,
+        size,
+      }),
       {
         [nodeAlias]: {
           id,
@@ -103,31 +98,36 @@ describe('RelayFragmentSpecResolver', () => {
   }
 
   beforeEach(() => {
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
 
     environment = new RelayEnvironment();
     mockInstanceMethod(environment, 'lookup');
     mockDisposableMethod(environment, 'subscribe');
 
     const fragments = {
-      user: getClassicFragment(graphql`
-        fragment RelayFragmentSpecResolver_user on User {
-          id
-          name
-          profilePicture(size: $size) @include(if: $fetchSize) {
-            uri
+      user: getClassicFragment(
+        graphql`
+          fragment RelayFragmentSpecResolver_user on User {
+            id
+            name
+            profilePicture(size: $size) @include(if: $fetchSize) {
+              uri
+            }
           }
-        }
-      `),
-      users: getClassicFragment(graphql`
-        fragment RelayFragmentSpecResolver_users on User @relay(plural: true) {
-          id
-          name
-          profilePicture(size: $size) @include(if: $fetchSize) {
-            uri
+        `,
+      ),
+      users: getClassicFragment(
+        graphql`
+          fragment RelayFragmentSpecResolver_users on User
+            @relay(plural: true) {
+            id
+            name
+            profilePicture(size: $size) @include(if: $fetchSize) {
+              uri
+            }
           }
-        }
-      `),
+        `,
+      ),
     };
     // Fake a container: The `...Container_*` fragment spreads below are
     // transformed to `Container.getFragment('*')` calls.
@@ -142,24 +142,30 @@ describe('RelayFragmentSpecResolver', () => {
         };
       },
     };
-    UserQuery = getClassicOperation(graphql`
-      query RelayFragmentSpecResolverQuery($id: ID!, $size: Int, $fetchSize: Boolean!) {
-        node(id: $id) {
-          ...Container_user
-          ...Container_users
+    UserQuery = getClassicOperation(
+      graphql`
+        query RelayFragmentSpecResolverQuery(
+          $id: ID!
+          $size: Int
+          $fetchSize: Boolean!
+        ) {
+          node(id: $id) {
+            ...Container_user
+            ...Container_users
+          }
         }
-      }
-    `);
+      `,
+    );
     UserFragment = fragments.user;
     UsersFragment = fragments.users;
 
     let nodeAlias = generateRQLFieldAlias('node.id(4)');
     environment.commitPayload(
-      {
-        dataID: ROOT_ID,
-        node: UserQuery.node,
-        variables: {fetchSize: false, id: '4', size: null},
-      },
+      createOperationSelector(UserQuery, {
+        fetchSize: false,
+        id: '4',
+        size: null,
+      }),
       {
         [nodeAlias]: {
           id: '4',
@@ -170,11 +176,11 @@ describe('RelayFragmentSpecResolver', () => {
     );
     nodeAlias = generateRQLFieldAlias('node.id(beast)');
     environment.commitPayload(
-      {
-        dataID: ROOT_ID,
-        node: UserQuery.node,
-        variables: {fetchSize: false, id: 'beast', size: null},
-      },
+      createOperationSelector(UserQuery, {
+        fetchSize: false,
+        id: 'beast',
+        size: null,
+      }),
       {
         [nodeAlias]: {
           id: 'beast',
@@ -531,11 +537,13 @@ describe('RelayFragmentSpecResolver', () => {
         jest.fn(),
       );
       expect(resolver.resolve()).toEqual({
-        user: [{
-          __dataID__: '4',
-          id: '4',
-          name: 'Zuck',
-        }],
+        user: [
+          {
+            __dataID__: '4',
+            id: '4',
+            name: 'Zuck',
+          },
+        ],
       });
     });
 
@@ -550,11 +558,13 @@ describe('RelayFragmentSpecResolver', () => {
       setName('4', 'Mark'); // Zuck -> Mark
       expect(callback).toBeCalled();
       expect(resolver.resolve()).toEqual({
-        user: [{
-          __dataID__: '4',
-          id: '4',
-          name: 'Mark',
-        }],
+        user: [
+          {
+            __dataID__: '4',
+            id: '4',
+            name: 'Mark',
+          },
+        ],
       });
     });
 
@@ -570,11 +580,13 @@ describe('RelayFragmentSpecResolver', () => {
       setName('4', 'Mark'); // Zuck -> Mark
       expect(callback).not.toBeCalled();
       expect(resolver.resolve()).toEqual({
-        user: [{
-          __dataID__: '4',
-          id: '4',
-          name: 'Zuck', // does not reflect latest changes
-        }],
+        user: [
+          {
+            __dataID__: '4',
+            id: '4',
+            name: 'Zuck', // does not reflect latest changes
+          },
+        ],
       });
     });
 
@@ -620,11 +632,13 @@ describe('RelayFragmentSpecResolver', () => {
         setName('4', 'Mark'); // Zuck -> Mark
         expect(callback).toBeCalled();
         expect(resolver.resolve()).toEqual({
-          user: [{
-            __dataID__: '4',
-            id: '4',
-            name: 'Mark', // reflects updated value
-          }],
+          user: [
+            {
+              __dataID__: '4',
+              id: '4',
+              name: 'Mark', // reflects updated value
+            },
+          ],
         });
       });
 
@@ -638,11 +652,13 @@ describe('RelayFragmentSpecResolver', () => {
       it('resolves fragment data if a prop changes', () => {
         resolver.setProps({user: [beast]}); // zuck -> beast
         expect(resolver.resolve()).toEqual({
-          user: [{
-            __dataID__: 'beast',
-            id: 'beast',
-            name: 'Beast',
-          }],
+          user: [
+            {
+              __dataID__: 'beast',
+              id: 'beast',
+              name: 'Beast',
+            },
+          ],
         });
       });
 
@@ -659,11 +675,13 @@ describe('RelayFragmentSpecResolver', () => {
         setName('beast', 'BEAST'); // all caps
         expect(callback).toBeCalled();
         expect(resolver.resolve()).toEqual({
-          user: [{
-            __dataID__: 'beast',
-            id: 'beast',
-            name: 'BEAST', // reflects updated value
-          }],
+          user: [
+            {
+              __dataID__: 'beast',
+              id: 'beast',
+              name: 'BEAST', // reflects updated value
+            },
+          ],
         });
       });
 
@@ -674,26 +692,31 @@ describe('RelayFragmentSpecResolver', () => {
         setName('beast', 'BEAST'); // all caps
         expect(callback).not.toBeCalled();
         expect(resolver.resolve()).toEqual({
-          user: [{
-            __dataID__: 'beast',
-            id: 'beast',
-            name: 'Beast', // does not update
-          }],
+          user: [
+            {
+              __dataID__: 'beast',
+              id: 'beast',
+              name: 'Beast', // does not update
+            },
+          ],
         });
       });
 
       it('resolves added items', () => {
         resolver.setProps({user: [zuck, beast]}); // add beast
         expect(resolver.resolve()).toEqual({
-          user: [{
-            __dataID__: '4',
-            id: '4',
-            name: 'Zuck',
-          }, {
-            __dataID__: 'beast',
-            id: 'beast',
-            name: 'Beast',
-          }],
+          user: [
+            {
+              __dataID__: '4',
+              id: '4',
+              name: 'Zuck',
+            },
+            {
+              __dataID__: 'beast',
+              id: 'beast',
+              name: 'Beast',
+            },
+          ],
         });
       });
 
@@ -705,15 +728,18 @@ describe('RelayFragmentSpecResolver', () => {
         setName('beast', 'BEAST'); // all caps
         expect(callback).toBeCalled();
         expect(resolver.resolve()).toEqual({
-          user: [{
-            __dataID__: '4',
-            id: '4',
-            name: 'Zuck',
-          }, {
-            __dataID__: 'beast',
-            id: 'beast',
-            name: 'BEAST', // updated value
-          }],
+          user: [
+            {
+              __dataID__: '4',
+              id: '4',
+              name: 'Zuck',
+            },
+            {
+              __dataID__: 'beast',
+              id: 'beast',
+              name: 'BEAST', // updated value
+            },
+          ],
         });
       });
 
@@ -722,15 +748,18 @@ describe('RelayFragmentSpecResolver', () => {
         setName('4', 'Mark'); // Zuck -> Mark
         expect(callback).toBeCalled();
         expect(resolver.resolve()).toEqual({
-          user: [{
-            __dataID__: '4',
-            id: '4',
-            name: 'Mark',
-          }, {
-            __dataID__: 'beast',
-            id: 'beast',
-            name: 'Beast',
-          }],
+          user: [
+            {
+              __dataID__: '4',
+              id: '4',
+              name: 'Mark',
+            },
+            {
+              __dataID__: 'beast',
+              id: 'beast',
+              name: 'Beast',
+            },
+          ],
         });
       });
 
@@ -785,15 +814,17 @@ describe('RelayFragmentSpecResolver', () => {
         expect(callback).not.toBeCalled();
         expect(dispose).toBeCalled();
         expect(resolver.resolve()).toEqual({
-          user: [{
-            __dataID__: '4',
-            id: '4',
-            name: 'Zuck',
-            profilePicture: {
-              __dataID__: jasmine.any(String),
-              uri: 'https://4.jpg',
+          user: [
+            {
+              __dataID__: '4',
+              id: '4',
+              name: 'Zuck',
+              profilePicture: {
+                __dataID__: jasmine.any(String),
+                uri: 'https://4.jpg',
+              },
             },
-          }],
+          ],
         });
       });
 
@@ -807,15 +838,17 @@ describe('RelayFragmentSpecResolver', () => {
         setPhotoUri('4', 1, 'https://zuck.jpg');
         expect(callback).toBeCalled();
         expect(resolver.resolve()).toEqual({
-          user: [{
-            __dataID__: '4',
-            id: '4',
-            name: 'Zuck',
-            profilePicture: {
-              __dataID__: jasmine.any(String),
-              uri: 'https://zuck.jpg',
+          user: [
+            {
+              __dataID__: '4',
+              id: '4',
+              name: 'Zuck',
+              profilePicture: {
+                __dataID__: jasmine.any(String),
+                uri: 'https://zuck.jpg',
+              },
             },
-          }],
+          ],
         });
       });
     });

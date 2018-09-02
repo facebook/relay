@@ -1,39 +1,36 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayGraphQLMutation
  * @flow
+ * @format
  */
 
 'use strict';
 
-const QueryBuilder = require('QueryBuilder');
-const RelayMetaRoute = require('RelayMetaRoute');
-const RelayMutationTransactionStatus = require('RelayMutationTransactionStatus');
-const RelayQuery = require('RelayQuery');
+const QueryBuilder = require('../query/QueryBuilder');
+const RelayMetaRoute = require('../route/RelayMetaRoute');
+const RelayMutationTransactionStatus = require('./RelayMutationTransactionStatus');
+const RelayQuery = require('../query/RelayQuery');
 
 const invariant = require('invariant');
 
-const {CLIENT_MUTATION_ID} = require('RelayConnectionInterface');
+const {ConnectionInterface} = require('relay-runtime');
 
-import type {RelayEnvironmentInterface} from 'RelayEnvironment';
-import type {ClientMutationID} from 'RelayInternalTypes';
-import type {FileMap} from 'RelayMutation';
-import type RelayMutationTransaction from 'RelayMutationTransaction';
-import type {RelayConcreteNode} from 'RelayQL';
-import type RelayStoreData from 'RelayStoreData';
+import type {RelayConcreteNode} from '../query/RelayQL';
+import type {RelayEnvironmentInterface} from '../store/RelayEnvironment';
+import type RelayStoreData from '../store/RelayStoreData';
+import type {ClientMutationID} from '../tools/RelayInternalTypes';
+import type {RelayMutationTransactionCommitCallbacks} from '../tools/RelayTypes';
 import type {
-  RelayMutationConfig,
   RelayMutationTransactionCommitFailureCallback,
   RelayMutationTransactionCommitSuccessCallback,
-  Variables,
-} from 'RelayTypes';
-import type {RelayMutationTransactionCommitCallbacks} from 'RelayTypes';
+} from '../tools/RelayTypes';
+import type {FileMap} from './RelayMutation';
+import type RelayMutationTransaction from './RelayMutationTransaction';
+import type {DeclarativeMutationConfig, Variables} from 'relay-runtime';
 
 const COUNTER_PREFIX = 'RelayGraphQLMutation';
 let collisionIDCounter = 0;
@@ -71,7 +68,7 @@ class RelayGraphQLMutation {
   static create(
     mutation: RelayConcreteNode,
     variables: Object,
-    environment: RelayEnvironmentInterface
+    environment: RelayEnvironmentInterface,
   ): RelayGraphQLMutation {
     return new RelayGraphQLMutation(mutation, variables, null, environment);
   }
@@ -85,7 +82,7 @@ class RelayGraphQLMutation {
     mutation: RelayConcreteNode,
     variables: Variables,
     files: FileMap,
-    environment: RelayEnvironmentInterface
+    environment: RelayEnvironmentInterface,
   ): RelayGraphQLMutation {
     return new RelayGraphQLMutation(mutation, variables, files, environment);
   }
@@ -140,7 +137,7 @@ class RelayGraphQLMutation {
     files: ?FileMap,
     environment: RelayEnvironmentInterface,
     callbacks: ?RelayMutationTransactionCommitCallbacks,
-    collisionKey: ?string
+    collisionKey: ?string,
   ) {
     this._query = query;
     this._variables = variables;
@@ -148,8 +145,7 @@ class RelayGraphQLMutation {
     this._environment = environment;
     this._callbacks = callbacks || null;
     this._collisionKey =
-      collisionKey ||
-      `${COUNTER_PREFIX}:collisionKey:${getNextCollisionID()}`;
+      collisionKey || `${COUNTER_PREFIX}:collisionKey:${getNextCollisionID()}`;
     this._transaction = null;
   }
 
@@ -167,12 +163,12 @@ class RelayGraphQLMutation {
   applyOptimistic(
     optimisticQuery: RelayConcreteNode,
     optimisticResponse: Object,
-    configs: ?Array<RelayMutationConfig>
+    configs: ?Array<DeclarativeMutationConfig>,
   ): RelayMutationTransaction {
     invariant(
       !this._transaction,
       'RelayGraphQLMutation: `applyOptimistic()` was called on an instance ' +
-      'that already has a transaction in progress.'
+        'that already has a transaction in progress.',
     );
     this._transaction = this._createTransaction(
       optimisticQuery,
@@ -192,7 +188,7 @@ class RelayGraphQLMutation {
    *
    * Note: This method may only be called once per instance.
    */
-  commit(configs: ?Array<RelayMutationConfig>): RelayMutationTransaction {
+  commit(configs: ?Array<DeclarativeMutationConfig>): RelayMutationTransaction {
     if (!this._transaction) {
       this._transaction = this._createTransaction();
     }
@@ -217,7 +213,7 @@ class RelayGraphQLMutation {
       optimisticQuery,
       optimisticResponse,
       this._collisionKey,
-      this._callbacks
+      this._callbacks,
     );
   }
 }
@@ -243,10 +239,10 @@ class PendingGraphQLTransaction {
 
   // Other properties:
   _collisionKey: string;
-  _configs: Array<RelayMutationConfig>;
+  _configs: Array<DeclarativeMutationConfig>;
   _files: ?FileMap;
   _mutation: ?RelayQuery.Mutation;
-  _optimisticConfigs: ?Array<RelayMutationConfig>;
+  _optimisticConfigs: ?Array<DeclarativeMutationConfig>;
   _optimisticResponse: ?Object;
   _optimisticQuery: ?RelayConcreteNode;
   _optimisticMutation: ?RelayQuery.Mutation;
@@ -261,7 +257,7 @@ class PendingGraphQLTransaction {
     optimisticQuery: ?RelayConcreteNode,
     optimisticResponse: ?Object,
     collisionKey: string,
-    callbacks: ?RelayMutationTransactionCommitCallbacks
+    callbacks: ?RelayMutationTransactionCommitCallbacks,
   ) {
     this._configs = [];
     this._query = query;
@@ -292,7 +288,7 @@ class PendingGraphQLTransaction {
     invariant(
       this._mutation,
       'RelayGraphQLMutation: `getCallName()` called but no mutation exists ' +
-      '(`getQuery()` must be called first to construct the mutation).'
+        '(`getQuery()` must be called first to construct the mutation).',
     );
     return this._mutation.getCall().name;
   }
@@ -301,7 +297,7 @@ class PendingGraphQLTransaction {
     return this._collisionKey;
   }
 
-  getConfigs(): Array<RelayMutationConfig> {
+  getConfigs(): Array<DeclarativeMutationConfig> {
     return this._configs;
   }
 
@@ -309,7 +305,7 @@ class PendingGraphQLTransaction {
     return this._files;
   }
 
-  getOptimisticConfigs(): ?Array<RelayMutationConfig> {
+  getOptimisticConfigs(): ?Array<DeclarativeMutationConfig> {
     return this._optimisticConfigs;
   }
 
@@ -319,10 +315,9 @@ class PendingGraphQLTransaction {
       const mutation = RelayQuery.Mutation.create(
         concreteMutation,
         RelayMetaRoute.get('$RelayGraphQLMutation'),
-        this._getVariables()
+        this._getVariables(),
       );
-      this._optimisticMutation =
-        (mutation: any); // Cast RelayQuery.{Node -> Mutation}.
+      this._optimisticMutation = (mutation: any); // Cast RelayQuery.{Node -> Mutation}.
     }
     return this._optimisticMutation;
   }
@@ -330,7 +325,7 @@ class PendingGraphQLTransaction {
   getOptimisticResponse(): ?Object {
     return {
       ...this._optimisticResponse,
-      [CLIENT_MUTATION_ID]: this.id,
+      [ConnectionInterface.get().CLIENT_MUTATION_ID]: this.id,
     };
   }
 
@@ -340,7 +335,7 @@ class PendingGraphQLTransaction {
       const mutation = RelayQuery.Mutation.create(
         concreteMutation,
         RelayMetaRoute.get('$RelayGraphQLMutation'),
-        this._getVariables()
+        this._getVariables(),
       );
       this._mutation = (mutation: any); // Cast RelayQuery.{Node -> Mutation}.
     }
@@ -349,7 +344,7 @@ class PendingGraphQLTransaction {
 
   // Additional methods outside the PendingTransaction interface.
 
-  commit(configs: ?Array<RelayMutationConfig>): RelayMutationTransaction {
+  commit(configs: ?Array<DeclarativeMutationConfig>): RelayMutationTransaction {
     if (configs) {
       this._configs = configs;
     }
@@ -357,7 +352,7 @@ class PendingGraphQLTransaction {
   }
 
   applyOptimistic(
-    configs: ?Array<RelayMutationConfig>
+    configs: ?Array<DeclarativeMutationConfig>,
   ): RelayMutationTransaction {
     if (configs) {
       this._optimisticConfigs = configs;
@@ -375,15 +370,15 @@ class PendingGraphQLTransaction {
       invariant(
         false,
         'RelayGraphQLMutation: Required `input` variable is missing ' +
-        '(supplied variables were: [%s]).',
-        Object.keys(this._variables).join(', ')
+          '(supplied variables were: [%s]).',
+        Object.keys(this._variables).join(', '),
       );
     }
     return {
       ...this._variables,
       input: {
         ...(input: $FlowFixMe),
-        [CLIENT_MUTATION_ID]: this.id,
+        [ConnectionInterface.get().CLIENT_MUTATION_ID]: this.id,
       },
     };
   }

@@ -1,27 +1,27 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayRecordSourceSelectorProxy
- * @flow
+ * @flow strict-local
+ * @format
  */
 
 'use strict';
 
-const RelayRecordSourceProxy = require('RelayRecordSourceProxy');
-
 const invariant = require('invariant');
 
-const {getStorageKey} = require('RelayStoreUtils');
+const {getStorageKey} = require('../store/RelayStoreUtils');
 
-import type {ConcreteLinkedField} from 'RelayConcreteNode';
-import type RelayRecordSourceMutator from 'RelayRecordSourceMutator';
-import type {HandlerProvider} from 'RelayStaticEnvironment';
-import type {RecordProxy, Selector, RecordSourceSelectorProxy} from 'RelayStoreTypes';
+import type {
+  RecordProxy,
+  Selector,
+  RecordSourceProxy,
+  RecordSourceSelectorProxy,
+} from '../store/RelayStoreTypes';
+import type {ConcreteLinkedField} from '../util/RelayConcreteNode';
+import type {DataID} from '../util/RelayRuntimeTypes';
 
 /**
  * @internal
@@ -31,51 +31,66 @@ import type {RecordProxy, Selector, RecordSourceSelectorProxy} from 'RelayStoreT
  * complex arguments and it can be tedious to re-construct the correct sets of
  * arguments to pass to e.g. `getRoot().getLinkedRecord()`.
  */
-class RelayRecordSourceSelectorProxy
-  extends RelayRecordSourceProxy
-  implements RecordSourceSelectorProxy {
+class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
+  __recordSource: RecordSourceProxy;
+  _readSelector: Selector;
 
-  _selector: Selector;
-
-  constructor(
-    mutator: RelayRecordSourceMutator,
-    selector: Selector,
-    handlerProvider?: ?HandlerProvider
-  ) {
-    super(mutator, handlerProvider);
-    this._selector = selector;
+  constructor(recordSource: RecordSourceProxy, readSelector: Selector) {
+    this.__recordSource = recordSource;
+    this._readSelector = readSelector;
   }
 
-  _getRootField(fieldName: string, plural: boolean): ConcreteLinkedField {
-    const field = this._selector.node.selections.find(selection =>
-      selection.kind === 'LinkedField' && selection.name === fieldName
+  create(dataID: DataID, typeName: string): RecordProxy {
+    return this.__recordSource.create(dataID, typeName);
+  }
+
+  delete(dataID: DataID): void {
+    this.__recordSource.delete(dataID);
+  }
+
+  get(dataID: DataID): ?RecordProxy {
+    return this.__recordSource.get(dataID);
+  }
+
+  getRoot(): RecordProxy {
+    return this.__recordSource.getRoot();
+  }
+
+  _getRootField(
+    selector: Selector,
+    fieldName: string,
+    plural: boolean,
+  ): ConcreteLinkedField {
+    const field = selector.node.selections.find(
+      selection =>
+        selection.kind === 'LinkedField' && selection.name === fieldName,
     );
     invariant(
       field && field.kind === 'LinkedField',
       'RelayRecordSourceSelectorProxy#getRootField(): Cannot find root ' +
-      'field `%s`, no such field is defined on GraphQL document `%s`.',
+        'field `%s`, no such field is defined on GraphQL document `%s`.',
       fieldName,
-      this._selector.node.name,
+      selector.node.name,
     );
     invariant(
       field.plural === plural,
       'RelayRecordSourceSelectorProxy#getRootField(): Expected root field ' +
-      '`%s` to be %s.',
+        '`%s` to be %s.',
       fieldName,
-      plural ? 'plural' : 'singular'
+      plural ? 'plural' : 'singular',
     );
     return field;
   }
 
   getRootField(fieldName: string): ?RecordProxy {
-    const field = this._getRootField(fieldName, false);
-    const storageKey = getStorageKey(field, this._selector.variables);
+    const field = this._getRootField(this._readSelector, fieldName, false);
+    const storageKey = getStorageKey(field, this._readSelector.variables);
     return this.getRoot().getLinkedRecord(storageKey);
   }
 
   getPluralRootField(fieldName: string): ?Array<?RecordProxy> {
-    const field = this._getRootField(fieldName, true);
-    const storageKey = getStorageKey(field, this._selector.variables);
+    const field = this._getRootField(this._readSelector, fieldName, true);
+    const storageKey = getStorageKey(field, this._readSelector.variables);
     return this.getRoot().getLinkedRecords(storageKey);
   }
 }

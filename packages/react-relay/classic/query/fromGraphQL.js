@@ -1,29 +1,26 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule fromGraphQL
- * @flow
+ * @flow strict-local
+ * @format
  */
 
 'use strict';
 
-const RelayMetaRoute = require('RelayMetaRoute');
-const RelayQuery = require('RelayQuery');
+const RelayMetaRoute = require('../route/RelayMetaRoute');
+const RelayQuery = require('./RelayQuery');
 
 const invariant = require('invariant');
 
 type ConcreteQueryObject = mixed;
-type QueryClass = (
-  typeof RelayQuery.Field |
-  typeof RelayQuery.Fragment |
-  typeof RelayQuery.Operation |
-  typeof RelayQuery.Root
-);
+type QueryClass =
+  | typeof RelayQuery.Field
+  | typeof RelayQuery.Fragment
+  | typeof RelayQuery.Operation
+  | typeof RelayQuery.Root;
 
 /**
  * @internal
@@ -35,7 +32,7 @@ const fromGraphQL = {
     const node = createNode(query, RelayQuery.Field);
     invariant(
       node instanceof RelayQuery.Field,
-      'fromGraphQL.Field(): Expected a GraphQL field node.'
+      'fromGraphQL.Field(): Expected a GraphQL field node.',
     );
     return node;
   },
@@ -43,7 +40,7 @@ const fromGraphQL = {
     const node = createNode(query, RelayQuery.Fragment);
     invariant(
       node instanceof RelayQuery.Fragment,
-      'fromGraphQL.Fragment(): Expected a GraphQL fragment node.'
+      'fromGraphQL.Fragment(): Expected a GraphQL fragment node.',
     );
     return node;
   },
@@ -51,7 +48,7 @@ const fromGraphQL = {
     const node = createNode(query, RelayQuery.Root);
     invariant(
       node instanceof RelayQuery.Root,
-      'fromGraphQL.Query(): Expected a root node.'
+      'fromGraphQL.Query(): Expected a root node.',
     );
     return node;
   },
@@ -59,7 +56,7 @@ const fromGraphQL = {
     const node = createNode(query, RelayQuery.Operation);
     invariant(
       node instanceof RelayQuery.Operation,
-      'fromGraphQL.Operation(): Expected a mutation/subscription node.'
+      'fromGraphQL.Operation(): Expected a mutation/subscription node.',
     );
     return node;
   },
@@ -67,7 +64,7 @@ const fromGraphQL = {
 
 function createNode(
   query: ConcreteQueryObject,
-  desiredType: QueryClass
+  desiredType: QueryClass,
 ): RelayQuery.Node {
   const variables = {};
   const route = RelayMetaRoute.get('$fromGraphQL');

@@ -1,22 +1,19 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
 require('configureForRelayOSS');
 
-jest.unmock('GraphQLStoreRangeUtils');
-
-const QueryBuilder = require('QueryBuilder');
-const GraphQLStoreRangeUtils = require('GraphQLStoreRangeUtils');
+const QueryBuilder = require('../../../query/QueryBuilder');
+const GraphQLStoreRangeUtils = require('../GraphQLStoreRangeUtils');
 
 describe('GraphQLStoreRangeUtils', () => {
   let rangeData;
@@ -31,21 +28,17 @@ describe('GraphQLStoreRangeUtils', () => {
 
     const firstCall = QueryBuilder.createCall(
       'first',
-      QueryBuilder.createCallVariable('count')
+      QueryBuilder.createCallVariable('count'),
     );
 
     const afterCall = QueryBuilder.createCall(
       'after',
-      QueryBuilder.createCallVariable('cursor')
+      QueryBuilder.createCallVariable('cursor'),
     );
 
     const calls = [firstCall, afterCall];
 
-    const rangeID = rangeData.getClientIDForRangeWithID(
-      calls,
-      callValues,
-      id
-    );
+    const rangeID = rangeData.getClientIDForRangeWithID(calls, callValues, id);
 
     // TODO: This is technically an implementation detail. We shouldn't test
     // the actual value of the string; instead we should just confirm that it's
@@ -61,16 +54,11 @@ describe('GraphQLStoreRangeUtils', () => {
 
   it('removes range data for records', () => {
     const id = 'client:1';
-    const calls = [QueryBuilder.createCall(
-      'first',
-      QueryBuilder.createCallValue(1)
-    )];
+    const calls = [
+      QueryBuilder.createCall('first', QueryBuilder.createCallValue(1)),
+    ];
     const callValues = {};
-    const rangeID = rangeData.getClientIDForRangeWithID(
-      calls,
-      callValues,
-      id
-    );
+    const rangeID = rangeData.getClientIDForRangeWithID(calls, callValues, id);
     expect(rangeData.parseRangeClientID(rangeID)).toEqual({
       dataID: id,
       calls,
@@ -80,5 +68,4 @@ describe('GraphQLStoreRangeUtils', () => {
     rangeData.removeRecord(id);
     expect(rangeData.parseRangeClientID(rangeID)).toBe(null);
   });
-
 });

@@ -1,60 +1,66 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule ReactRelayPaginationContainer
  * @flow
+ * @format
  */
 
 'use strict';
 
 const React = require('React');
-const RelayProfiler = require('RelayProfiler');
-const RelayPropTypes = require('RelayPropTypes');
+const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
+const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
 const areEqual = require('areEqual');
+const buildReactRelayContainer = require('./buildReactRelayContainer');
 const invariant = require('invariant');
-const isRelayContext = require('isRelayContext');
-const isScalarAndEqual = require('isScalarAndEqual');
 const nullthrows = require('nullthrows');
 const warning = require('warning');
 
-const {buildCompatContainer} = require('ReactRelayCompatContainerBuilder');
-const {profileContainer} = require('ReactRelayContainerProfiler');
+const {assertRelayContext} = require('../classic/environment/RelayContext');
+const {profileContainer} = require('./ReactRelayContainerProfiler');
 const {
-  EDGES,
-  PAGE_INFO,
-  HAS_NEXT_PAGE,
-  HAS_PREV_PAGE,
-  END_CURSOR,
-  START_CURSOR,
-} = require('RelayConnectionInterface');
-const {getComponentName, getReactComponent} = require('RelayContainerUtils');
+  getComponentName,
+  getContainerName,
+} = require('./ReactRelayContainerUtils');
+const {
+  ConnectionInterface,
+  RelayProfiler,
+  Observable,
+  isScalarAndEqual,
+} = require('relay-runtime');
 
+import type {FragmentSpecResolver} from '../classic/environment/RelayCombinedEnvironmentTypes';
+import type {RelayEnvironmentInterface as ClassicEnvironment} from '../classic/store/RelayEnvironment';
 import type {
+  $RelayProps,
+  ObserverOrCallback,
   GeneratedNodeMap,
   RefetchOptions,
   RelayPaginationProp,
-} from 'ReactRelayTypes';
+} from './ReactRelayTypes';
 import type {
+  CacheConfig,
+  ConnectionMetadata,
   Disposable,
-  FragmentSpecResolver,
-} from 'RelayCombinedEnvironmentTypes';
-import type {PageInfo} from 'RelayConnectionInterface';
-import type {GraphQLTaggedNode} from 'RelayStaticGraphQLTag';
-import type {
   FragmentMap,
+  GraphQLTaggedNode,
+  IEnvironment,
+  Observer,
+  PageInfo,
   RelayContext,
-} from 'RelayStoreTypes';
-import type {Variables} from 'RelayTypes';
+  Subscription,
+  Variables,
+} from 'relay-runtime';
 
 type ContainerState = {
   data: {[key: string]: mixed},
+  relayEnvironment: IEnvironment | ClassicEnvironment,
   relayProp: RelayPaginationProp,
+  relayVariables: Variables,
 };
 
 const containerContextTypes = {
@@ -63,13 +69,15 @@ const containerContextTypes = {
 
 const FORWARD = 'forward';
 
+type FragmentVariablesGetter = (
+  prevVars: Variables,
+  totalCount: number,
+) => Variables;
+
 export type ConnectionConfig = {
-  direction: 'backward' | 'forward',
-  getConnectionFromProps: (props: Object) => ?ConnectionData,
-  getFragmentVariables: (
-    prevVars: Variables,
-    totalCount: number,
-  ) => Variables,
+  direction?: 'backward' | 'forward',
+  getConnectionFromProps?: (props: Object) => ?ConnectionData,
+  getFragmentVariables?: FragmentVariablesGetter,
   getVariables: (
     props: Object,
     paginationInfo: {count: number, cursor: ?string},
@@ -78,17 +86,17 @@ export type ConnectionConfig = {
   query: GraphQLTaggedNode,
 };
 export type ConnectionData = {
-  edges?: ?Array<any>,
-  pageInfo?: ?PageInfo,
+  +edges?: ?$ReadOnlyArray<any>,
+  +pageInfo?: ?PageInfo,
 };
 
 /**
- * Extends the functionality of RelayCompatContainer by providing a mechanism
+ * Extends the functionality of RelayFragmentContainer by providing a mechanism
  * to load more data from a connection.
  *
  * # Configuring a PaginationContainer
  *
- * PaginationContainer accepts the standard CompatContainer arguments and an
+ * PaginationContainer accepts the standard FragmentContainer arguments and an
  * additional `connectionConfig` argument:
  *
  * - `Component`: the component to be wrapped/rendered.
@@ -120,7 +128,7 @@ export type ConnectionData = {
  * total).
  *
  * ```
- * loadMore(pageSize: number, callback: (error: ?Error) => void): ?Disposable
+ * loadMore(pageSize: number, callback: ?(error: ?Error) => void): ?Disposable
  * ```
  *
  * A complete example:
@@ -149,9 +157,11 @@ export type ConnectionData = {
  *     user: graphql`fragment FriendsFragment on User {
  *       friends(after: $afterCursor first: $count) @connection {
  *         edges { ... }
- *         page_info {
- *           end_cursor
- *           has_next_page
+ *         pageInfo {
+ *           startCursor
+ *           endCursor
+ *           hasNextPage
+ *           hasPreviousPage
  *         }
  *       }
  *     }`,
@@ -171,7 +181,6 @@ export type ConnectionData = {
  *     },
  *     getVariables(props, {count, cursor}, fragmentVariables) {
  *       return {
- *         ...RelayFBQueryConstants.get(),
  *         id: props.user.id,
  *         afterCursor: cursor,
  *         count,
@@ -212,39 +221,165 @@ export type ConnectionData = {
  *   typically reference one of the container's fragment (as in the example)
  *   to ensure that all the necessary fields for sub-components are fetched.
  */
-function createContainerWithFragments<TDefaultProps, TProps>(
-  Component: Class<React.Component<TDefaultProps, TProps, *>> | ReactClass<TProps>,
+
+function createGetConnectionFromProps(metadata: ReactConnectionMetadata) {
+  const path = metadata.path;
+  invariant(
+    path,
+    'ReactRelayPaginationContainer: Unable to synthesize a ' +
+      'getConnectionFromProps function.',
+  );
+  return props => {
+    let data = props[metadata.fragmentName];
+    for (let i = 0; i < path.length; i++) {
+      if (!data || typeof data !== 'object') {
+        return null;
+      }
+      data = data[path[i]];
+    }
+    return data;
+  };
+}
+
+function createGetFragmentVariables(
+  metadata: ReactConnectionMetadata,
+): FragmentVariablesGetter {
+  const countVariable = metadata.count;
+  invariant(
+    countVariable,
+    'ReactRelayPaginationContainer: Unable to synthesize a ' +
+      'getFragmentVariables function.',
+  );
+  return (prevVars: Variables, totalCount: number) => ({
+    ...prevVars,
+    [countVariable]: totalCount,
+  });
+}
+
+type ReactConnectionMetadata = ConnectionMetadata & {
+  fragmentName: string,
+};
+
+function findConnectionMetadata(fragments): ReactConnectionMetadata {
+  let foundConnectionMetadata = null;
+  let isRelayModern = false;
+  for (const fragmentName in fragments) {
+    const fragment = fragments[fragmentName];
+    const connectionMetadata: ?Array<ConnectionMetadata> = (fragment.metadata &&
+      fragment.metadata.connection: any);
+    // HACK: metadata is always set to `undefined` in classic. In modern, even
+    // if empty, it is set to null (never undefined). We use that knowlege to
+    // check if we're dealing with classic or modern
+    if (fragment.metadata !== undefined) {
+      isRelayModern = true;
+    }
+    if (connectionMetadata) {
+      invariant(
+        connectionMetadata.length === 1,
+        'ReactRelayPaginationContainer: Only a single @connection is ' +
+          'supported, `%s` has %s.',
+        fragmentName,
+        connectionMetadata.length,
+      );
+      invariant(
+        !foundConnectionMetadata,
+        'ReactRelayPaginationContainer: Only a single fragment with ' +
+          '@connection is supported.',
+      );
+      foundConnectionMetadata = {
+        ...connectionMetadata[0],
+        fragmentName,
+      };
+    }
+  }
+  invariant(
+    !isRelayModern || foundConnectionMetadata !== null,
+    'ReactRelayPaginationContainer: A @connection directive must be present.',
+  );
+  return foundConnectionMetadata || ({}: any);
+}
+
+function toObserver(observerOrCallback: ?ObserverOrCallback): Observer<void> {
+  return typeof observerOrCallback === 'function'
+    ? {
+        error: observerOrCallback,
+        complete: observerOrCallback,
+        unsubscribe: subscription => {
+          typeof observerOrCallback === 'function' && observerOrCallback();
+        },
+      }
+    : observerOrCallback || ({}: any);
+}
+
+function createContainerWithFragments<
+  Props: {},
+  TComponent: React.ComponentType<Props>,
+>(
+  Component: TComponent,
   fragments: FragmentMap,
   connectionConfig: ConnectionConfig,
-): Class<React.Component<TDefaultProps, TProps, *>> {
-  const ComponentClass = getReactComponent(Component);
+): React.ComponentType<
+  $RelayProps<React$ElementConfig<TComponent>, RelayPaginationProp>,
+> {
   const componentName = getComponentName(Component);
-  const containerName = `Relay(${componentName})`;
+  const containerName = getContainerName(Component);
 
-  class Container extends React.Component {
-    state: ContainerState;
-    _localVariables: ?Variables;
-    _pendingRefetch: ?Disposable;
-    _references: Array<Disposable>;
+  const metadata = findConnectionMetadata(fragments);
+
+  const getConnectionFromProps =
+    connectionConfig.getConnectionFromProps ||
+    createGetConnectionFromProps(metadata);
+
+  const direction = connectionConfig.direction || metadata.direction;
+  invariant(
+    direction,
+    'ReactRelayPaginationContainer: Unable to infer direction of the ' +
+      'connection, possibly because both first and last are provided.',
+  );
+
+  const getFragmentVariables =
+    connectionConfig.getFragmentVariables ||
+    createGetFragmentVariables(metadata);
+
+  class Container extends React.Component<$FlowFixMeProps, ContainerState> {
+    static displayName = containerName;
+    static contextTypes = containerContextTypes;
+
+    _isARequestInFlight: boolean;
+    _hasPaginated: boolean;
+    _refetchSubscription: ?Subscription;
+    _refetchVariables: ?Variables;
+    _relayContext: RelayContext;
     _resolver: FragmentSpecResolver;
+    _queryFetcher: ?ReactRelayQueryFetcher;
+    _isUnmounted: boolean;
 
     constructor(props, context) {
       super(props, context);
       const relay = assertRelayContext(context.relay);
       const {createFragmentSpecResolver} = relay.environment.unstable_internal;
-      this._localVariables = null;
-      this._pendingRefetch = null;
-      this._references = [];
+      this._isARequestInFlight = false;
+      this._hasPaginated = false;
+      this._refetchSubscription = null;
+      this._refetchVariables = null;
       this._resolver = createFragmentSpecResolver(
         relay,
+        containerName,
         fragments,
         props,
         this._handleFragmentDataUpdate,
       );
+      this._relayContext = {
+        environment: relay.environment,
+        variables: relay.variables,
+      };
       this.state = {
         data: this._resolver.resolve(),
+        relayEnvironment: relay.environment,
         relayProp: this._buildRelayProp(relay),
+        relayVariables: relay.variables,
       };
+      this._isUnmounted = false;
     }
 
     /**
@@ -252,7 +387,7 @@ function createContainerWithFragments<TDefaultProps, TProps>(
      * for updates. Props may be the same in which case previous data and
      * subscriptions can be reused.
      */
-    componentWillReceiveProps(nextProps, nextContext) {
+    UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
       const context = nullthrows(nextContext);
       const relay = assertRelayContext(context.relay);
       const {
@@ -265,21 +400,30 @@ function createContainerWithFragments<TDefaultProps, TProps>(
       // If the environment has changed or props point to new records then
       // previously fetched data and any pending fetches no longer apply:
       // - Existing references are on the old environment.
+      // - Existing references are based on old variables.
       // - Pending fetches are for the previous records.
       if (
-        this.context.relay.environment !== relay.environment ||
+        this.state.relayEnvironment !== relay.environment ||
+        this.state.relayVariables !== relay.variables ||
         !areEqual(prevIDs, nextIDs)
       ) {
-        this._release();
-        this._localVariables = null;
+        this._cleanup();
+        // Child containers rely on context.relay being mutated (for gDSFP).
+        this._relayContext.environment = relay.environment;
+        this._relayContext.variables = relay.variables;
         this._resolver = createFragmentSpecResolver(
           relay,
+          containerName,
           fragments,
           nextProps,
           this._handleFragmentDataUpdate,
         );
-        this.setState({relayProp: this._buildRelayProp(relay)});
-      } else if (!this._localVariables) {
+        this.setState({
+          relayEnvironment: relay.environment,
+          relayProp: this._buildRelayProp(relay),
+          relayVariables: relay.variables,
+        });
+      } else if (!this._hasPaginated) {
         this._resolver.setProps(nextProps);
       }
       const data = this._resolver.resolve();
@@ -289,13 +433,13 @@ function createContainerWithFragments<TDefaultProps, TProps>(
     }
 
     componentWillUnmount() {
-      this._release();
+      this._isUnmounted = true;
+      this._cleanup();
     }
 
-    shouldComponentUpdate(nextProps, nextState, nextContext): boolean {
+    shouldComponentUpdate(nextProps, nextState): boolean {
       // Short-circuit if any Relay-related data has changed
       if (
-        nextContext.relay !== this.context.relay ||
         nextState.data !== this.state.data ||
         nextState.relayProp !== this.state.relayProp
       ) {
@@ -306,11 +450,20 @@ function createContainerWithFragments<TDefaultProps, TProps>(
       const keys = Object.keys(nextProps);
       for (let ii = 0; ii < keys.length; ii++) {
         const key = keys[ii];
-        if (
-          !fragments.hasOwnProperty(key) &&
-          !isScalarAndEqual(nextProps[key], this.props[key])
-        ) {
-          return true;
+        if (key === 'relay') {
+          if (
+            nextState.relayEnvironment !== this.state.relayEnvironment ||
+            nextState.relayVariables !== this.state.relayVariables
+          ) {
+            return true;
+          }
+        } else {
+          if (
+            !fragments.hasOwnProperty(key) &&
+            !isScalarAndEqual(nextProps[key], this.props[key])
+          ) {
+            return true;
+          }
         }
       }
       return false;
@@ -331,33 +484,43 @@ function createContainerWithFragments<TDefaultProps, TProps>(
      */
     _handleFragmentDataUpdate = () => {
       const profiler = RelayProfiler.profile(
-        'ReactRelayPaginationContainer.handleFragmentDataUpdate'
+        'ReactRelayPaginationContainer.handleFragmentDataUpdate',
       );
       this.setState({data: this._resolver.resolve()}, profiler.stop);
     };
 
     _getConnectionData(): ?{
-      cursor: string,
+      cursor: ?string,
       edgeCount: number,
       hasMore: boolean,
     } {
       // Extract connection data and verify there are more edges to fetch
+      const {componentRef: _, ...restProps} = this.props;
       const props = {
-        ...this.props,
+        ...restProps,
         ...this.state.data,
       };
-      const connectionData = connectionConfig.getConnectionFromProps(props);
+      const connectionData = getConnectionFromProps(props);
       if (connectionData == null) {
         return null;
       }
+      const {
+        EDGES,
+        PAGE_INFO,
+        HAS_NEXT_PAGE,
+        HAS_PREV_PAGE,
+        END_CURSOR,
+        START_CURSOR,
+      } = ConnectionInterface.get();
+
       invariant(
         typeof connectionData === 'object',
         'ReactRelayPaginationContainer: Expected `getConnectionFromProps()` in `%s`' +
-        'to return `null` or a plain object with %s and %s properties, got `%s`.' +
+          'to return `null` or a plain object with %s and %s properties, got `%s`.',
         componentName,
         EDGES,
         PAGE_INFO,
-        connectionData
+        connectionData,
       );
       const edges = connectionData[EDGES];
       const pageInfo = connectionData[PAGE_INFO];
@@ -367,35 +530,38 @@ function createContainerWithFragments<TDefaultProps, TProps>(
       invariant(
         Array.isArray(edges),
         'ReactRelayPaginationContainer: Expected `getConnectionFromProps()` in `%s`' +
-        'to return an object with %s: Array, got `%s`.',
+          'to return an object with %s: Array, got `%s`.',
         componentName,
         EDGES,
-        edges
+        edges,
       );
       invariant(
         typeof pageInfo === 'object',
         'ReactRelayPaginationContainer: Expected `getConnectionFromProps()` in `%s`' +
-        'to return an object with %s: Object, got `%s`.',
+          'to return an object with %s: Object, got `%s`.',
         componentName,
         PAGE_INFO,
-        pageInfo
+        pageInfo,
       );
-      const hasMore = connectionConfig.direction === FORWARD ?
-        pageInfo[HAS_NEXT_PAGE] :
-        pageInfo[HAS_PREV_PAGE];
-      const cursor = connectionConfig.direction === FORWARD ?
-        pageInfo[END_CURSOR] :
-        pageInfo[START_CURSOR];
-      if (typeof hasMore !== 'boolean' || typeof cursor !== 'string') {
+      const hasMore =
+        direction === FORWARD
+          ? pageInfo[HAS_NEXT_PAGE]
+          : pageInfo[HAS_PREV_PAGE];
+      const cursor =
+        direction === FORWARD ? pageInfo[END_CURSOR] : pageInfo[START_CURSOR];
+      if (
+        typeof hasMore !== 'boolean' ||
+        (edges.length !== 0 && typeof cursor === 'undefined')
+      ) {
         warning(
           false,
           'ReactRelayPaginationContainer: Cannot paginate without %s fields in `%s`. ' +
-          'Be sure to fetch %s (got `%s`) and %s (got `%s`).',
+            'Be sure to fetch %s (got `%s`) and %s (got `%s`).',
           PAGE_INFO,
           componentName,
-          connectionConfig.direction === FORWARD ? HAS_NEXT_PAGE : HAS_PREV_PAGE,
+          direction === FORWARD ? HAS_NEXT_PAGE : HAS_PREV_PAGE,
           hasMore,
-          connectionConfig.direction === FORWARD ? END_CURSOR : START_CURSOR,
+          direction === FORWARD ? END_CURSOR : START_CURSOR,
           cursor,
         );
         return null;
@@ -409,45 +575,105 @@ function createContainerWithFragments<TDefaultProps, TProps>(
 
     _hasMore = (): boolean => {
       const connectionData = this._getConnectionData();
-      return !!connectionData && connectionData.hasMore;
+      return !!(
+        connectionData &&
+        connectionData.hasMore &&
+        connectionData.cursor
+      );
     };
 
     _isLoading = (): boolean => {
-      return !!this._pendingRefetch;
+      return !!this._refetchSubscription;
     };
 
     _refetchConnection = (
       totalCount: number,
-      callback: (error: ?Error) => void,
-    ): ?Disposable => {
+      observerOrCallback: ?ObserverOrCallback,
+      refetchVariables: ?Variables,
+    ): Disposable => {
+      if (!this._canFetchPage('refetchConnection')) {
+        return {
+          dispose() {},
+        };
+      }
+      this._refetchVariables = refetchVariables;
       const paginatingVariables = {
         count: totalCount,
         cursor: null,
         totalCount,
       };
-      return this._fetchPage(paginatingVariables, callback, {force: true});
+      const fetch = this._fetchPage(
+        paginatingVariables,
+        toObserver(observerOrCallback),
+        {force: true},
+      );
+
+      return {dispose: fetch.unsubscribe};
     };
 
     _loadMore = (
       pageSize: number,
-      callback: (error: ?Error) => void,
-      options: ?RefetchOptions
+      observerOrCallback: ?ObserverOrCallback,
+      options: ?RefetchOptions,
     ): ?Disposable => {
+      if (!this._canFetchPage('loadMore')) {
+        return {
+          dispose() {},
+        };
+      }
+
+      const observer = toObserver(observerOrCallback);
       const connectionData = this._getConnectionData();
       if (!connectionData) {
+        Observable.create(sink => sink.complete()).subscribe(observer);
         return null;
       }
       const totalCount = connectionData.edgeCount + pageSize;
       if (options && options.force) {
-        return this._refetchConnection(totalCount, callback);
+        return this._refetchConnection(totalCount, observerOrCallback);
       }
+      const {END_CURSOR, START_CURSOR} = ConnectionInterface.get();
+      const cursor = connectionData.cursor;
+      warning(
+        cursor,
+        'ReactRelayPaginationContainer: Cannot `loadMore` without valid `%s` (got `%s`)',
+        direction === FORWARD ? END_CURSOR : START_CURSOR,
+        cursor,
+      );
       const paginatingVariables = {
         count: pageSize,
-        cursor: connectionData.cursor,
+        cursor: cursor,
         totalCount,
       };
-      return this._fetchPage(paginatingVariables, callback, options);
+      this._hasPaginated = true;
+      const fetch = this._fetchPage(paginatingVariables, observer, options);
+      return {dispose: fetch.unsubscribe};
     };
+
+    _getQueryFetcher(): ReactRelayQueryFetcher {
+      if (!this._queryFetcher) {
+        this._queryFetcher = new ReactRelayQueryFetcher();
+      }
+      return this._queryFetcher;
+    }
+
+    _canFetchPage(method): boolean {
+      if (this._isUnmounted) {
+        warning(
+          false,
+          'ReactRelayPaginationContainer: Unexpected call of `%s` ' +
+            'on unmounted container `%s`. It looks like some instances ' +
+            'of your container still trying to fetch data but they already ' +
+            'unmounted. Please make sure you clear all timers, intervals, async ' +
+            'calls, etc that may trigger `%s` call.',
+          method,
+          containerName,
+          method,
+        );
+        return false;
+      }
+      return true;
+    }
 
     _fetchPage(
       paginatingVariables: {
@@ -455,157 +681,167 @@ function createContainerWithFragments<TDefaultProps, TProps>(
         cursor: ?string,
         totalCount: number,
       },
-      callback: (error: ?Error) => void,
-      options: ?RefetchOptions
-    ): ?Disposable {
+      observer: Observer<void>,
+      options: ?RefetchOptions,
+    ): Subscription {
       const {environment} = assertRelayContext(this.context.relay);
       const {
         createOperationSelector,
-        getOperation,
+        getRequest,
         getVariablesFromObject,
       } = environment.unstable_internal;
+      const {componentRef: _, ...restProps} = this.props;
       const props = {
-        ...this.props,
+        ...restProps,
         ...this.state.data,
       };
-      const fragmentVariables = getVariablesFromObject(
-        this.context.relay.variables,
+      const rootVariables = this._relayContext.variables;
+      let fragmentVariables = getVariablesFromObject(
+        rootVariables,
         fragments,
-        this.props,
+        restProps,
       );
-      const fetchVariables = connectionConfig.getVariables(
+      fragmentVariables = {
+        ...rootVariables,
+        ...fragmentVariables,
+        ...this._refetchVariables,
+      };
+      let fetchVariables = connectionConfig.getVariables(
         props,
         {
           count: paginatingVariables.count,
           cursor: paginatingVariables.cursor,
         },
-        // Pass the variables used to fetch the fragments initially
         fragmentVariables,
       );
       invariant(
         typeof fetchVariables === 'object' && fetchVariables !== null,
         'ReactRelayPaginationContainer: Expected `getVariables()` to ' +
-        'return an object, got `%s` in `%s`.',
+          'return an object, got `%s` in `%s`.',
         fetchVariables,
-        componentName
+        componentName,
       );
-      this._localVariables = fetchVariables;
-
-      const cacheConfig = options ? {force: !!options.force} : undefined;
-      const query = getOperation(connectionConfig.query);
-      const operation = createOperationSelector(query, fetchVariables);
-
-      const onCompleted = () => {
-        this._pendingRefetch = null;
-        callback();
-        this._updateSnapshots(paginatingVariables.totalCount);
-      };
-      const onError = error => {
-        this._pendingRefetch = null;
-        callback(error);
+      fetchVariables = {
+        ...fetchVariables,
+        ...this._refetchVariables,
       };
 
-      // Immediately retain the results of the query to prevent cached
-      // data from being evicted
-      const reference = environment.retain(operation.root);
-      this._references.push(reference);
-
-      if (this._pendingRefetch) {
-        this._pendingRefetch.dispose();
+      const cacheConfig: ?CacheConfig = options
+        ? {force: !!options.force}
+        : undefined;
+      if (cacheConfig && options && options.rerunParamExperimental) {
+        cacheConfig.rerunParamExperimental = options.rerunParamExperimental;
       }
-      const pendingRefetch = environment.streamQuery({
-        cacheConfig,
-        onCompleted,
-        onError,
-        operation,
-      });
-      this._pendingRefetch = pendingRefetch;
-      return {
-        dispose: () => {
-          // Disposing a loadMore() call should always dispose the fetch itself,
-          // but should not clear this._pendingFetch unless the loadMore() being
-          // cancelled is the most recent call.
-          pendingRefetch.dispose();
-          if (this._pendingRefetch === pendingRefetch) {
-            this._pendingRefetch = null;
-          }
-        },
+      const request = getRequest(connectionConfig.query);
+      const operation = createOperationSelector(request, fetchVariables);
+
+      let refetchSubscription = null;
+
+      if (this._refetchSubscription) {
+        this._refetchSubscription.unsubscribe();
+      }
+
+      const onNext = (payload, complete) => {
+        // Child containers rely on context.relay being mutated (for gDSFP).
+        this._relayContext.environment = this.context.relay.environment;
+        this._relayContext.variables = {
+          ...this.context.relay.variables,
+          ...fragmentVariables,
+        };
+        const prevData = this._resolver.resolve();
+        this._resolver.setVariables(
+          getFragmentVariables(
+            fragmentVariables,
+            paginatingVariables.totalCount,
+          ),
+        );
+        const nextData = this._resolver.resolve();
+
+        // Workaround slightly different handling for connection in different
+        // core implementations:
+        // - Classic core requires the count to be explicitly incremented
+        // - Modern core automatically appends new items, updating the count
+        //   isn't required to see new data.
+        //
+        // `setState` is only required if changing the variables would change the
+        // resolved data.
+        // TODO #14894725: remove PaginationContainer equal check
+        if (!areEqual(prevData, nextData)) {
+          this.setState({data: nextData}, complete);
+        } else {
+          complete();
+        }
       };
+
+      const cleanup = () => {
+        if (this._refetchSubscription === refetchSubscription) {
+          this._refetchSubscription = null;
+          this._isARequestInFlight = false;
+        }
+      };
+
+      this._isARequestInFlight = true;
+      refetchSubscription = this._getQueryFetcher()
+        .execute({
+          environment,
+          operation,
+          cacheConfig,
+          preservePreviousReferences: true,
+        })
+        .mergeMap(payload =>
+          Observable.create(sink => {
+            onNext(payload, () => {
+              sink.next(); // pass void to public observer's `next`
+              sink.complete();
+            });
+          }),
+        )
+        // use do instead of finally so that observer's `complete` fires after cleanup
+        .do({
+          error: cleanup,
+          complete: cleanup,
+          unsubscribe: cleanup,
+        })
+        .subscribe(observer || {});
+
+      this._refetchSubscription = this._isARequestInFlight
+        ? refetchSubscription
+        : null;
+
+      return refetchSubscription;
     }
 
-    _updateSnapshots(totalCount: number): void {
-      const {getVariablesFromObject} = this.context.relay.environment.unstable_internal;
-      const prevVariables = getVariablesFromObject(
-        this.context.relay.variables,
-        fragments,
-        this.props,
-      );
-      const nextVariables = connectionConfig.getFragmentVariables(
-        prevVariables,
-        totalCount,
-      );
-      const prevData = this._resolver.resolve();
-      this._resolver.setVariables(nextVariables);
-      const nextData = this._resolver.resolve();
-      // Workaround slightly different handling for connection in different
-      // core implementations:
-      // - Classic core requires the count to be explicitly incremented
-      // - Modern core automatically appends new items, updating the count
-      //   isn't required to see new data.
-      //
-      // `setState` is only required if changing the variables would change the
-      // resolved data.
-      // TODO #14894725: remove PaginationContainer equal check
-      if (!areEqual(prevData, nextData)) {
-        this.setState({data: nextData});
-      }
-    }
-
-    _release() {
+    _cleanup() {
       this._resolver.dispose();
-      this._references.forEach(disposable => disposable.dispose());
-      this._references.length = 0;
-      if (this._pendingRefetch) {
-        this._pendingRefetch.dispose();
-        this._pendingRefetch = null;
+      this._hasPaginated = false;
+      this._refetchVariables = null;
+      if (this._refetchSubscription) {
+        this._refetchSubscription.unsubscribe();
+        this._refetchSubscription = null;
+        this._isARequestInFlight = false;
       }
+      if (this._queryFetcher) {
+        this._queryFetcher.dispose();
+      }
+    }
+
+    getChildContext(): Object {
+      return {relay: this._relayContext};
     }
 
     render() {
-      if (ComponentClass) {
-        return (
-          <ComponentClass
-            {...this.props}
-            {...this.state.data}
-            ref={'component'} // eslint-disable-line react/no-string-refs
-            relay={this.state.relayProp}
-          />
-        );
-      } else {
-        // Stateless functional, doesn't support `ref`
-        return React.createElement(Component, {
-          ...this.props,
-          ...this.state.data,
-          relay: this.state.relayProp,
-        });
-      }
+      const {componentRef, ...props} = this.props;
+      return React.createElement(Component, {
+        ...props,
+        ...this.state.data,
+        ref: componentRef,
+        relay: this.state.relayProp,
+      });
     }
   }
   profileContainer(Container, 'ReactRelayPaginationContainer');
-  Container.contextTypes = containerContextTypes;
-  Container.displayName = containerName;
 
-  return (Container: any);
-}
-
-function assertRelayContext(relay: mixed): RelayContext {
-  invariant(
-    isRelayContext(relay),
-    'ReactRelayPaginationContainer: Expected `context.relay` to be an object ' +
-    'conforming to the `RelayContext` interface, got `%s`.',
-    relay
-  );
-  return (relay: any);
+  return Container;
 }
 
 /**
@@ -615,21 +851,20 @@ function assertRelayContext(relay: mixed): RelayContext {
  * `fragmentSpec` is memoized once per environment, rather than once per
  * instance of the container constructed/rendered.
  */
-function createContainer<TBase: ReactClass<*>>(
-  Component: TBase,
+function createContainer<Props: {}, TComponent: React.ComponentType<Props>>(
+  Component: TComponent,
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
   connectionConfig: ConnectionConfig,
-): TBase {
-  return buildCompatContainer(
+): React.ComponentType<
+  $RelayProps<React$ElementConfig<TComponent>, RelayPaginationProp>,
+> {
+  return buildReactRelayContainer(
     Component,
-    (fragmentSpec: any),
-    (ComponentClass, fragments) => {
-      return createContainerWithFragments(ComponentClass, fragments, connectionConfig);
-    },
+    fragmentSpec,
+    (ComponentClass, fragments) =>
+      createContainerWithFragments(ComponentClass, fragments, connectionConfig),
+    /* provides child context */ true,
   );
 }
 
-module.exports = {
-  createContainer,
-  createContainerWithFragments,
-};
+module.exports = {createContainer, createContainerWithFragments};

@@ -1,21 +1,20 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
 require('configureForRelayOSS');
 
-const Relay = require('Relay');
-const RelayQuery = require('RelayQuery');
-const RelayQueryVisitor = require('RelayQueryVisitor');
+const RelayClassic = require('../../RelayPublic');
+const RelayQuery = require('../RelayQuery');
+const RelayQueryVisitor = require('../RelayQueryVisitor');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayQueryVisitor', () => {
@@ -28,7 +27,7 @@ describe('RelayQueryVisitor', () => {
       after: 'offset',
     };
 
-    const fragment = Relay.QL`
+    const fragment = RelayClassic.QL`
       fragment on User {
         friends(first:$first,after:$after) {
           edges {
@@ -43,7 +42,8 @@ describe('RelayQueryVisitor', () => {
         }
       }
     `;
-    query = getNode(Relay.QL`
+    query = getNode(
+      RelayClassic.QL`
       query {
         node(id:"4") {
           id
@@ -61,7 +61,10 @@ describe('RelayQueryVisitor', () => {
           }
         }
       }
-    `, null, variables);
+    `,
+      null,
+      variables,
+    );
   });
 
   it('traverses fields in-order', () => {
@@ -111,10 +114,7 @@ describe('RelayQueryVisitor', () => {
 
   it('does not automatically traverse subtrees when visitor is defined', () => {
     class NoTraversal extends RelayQueryVisitor<Array> {
-      visitField(
-        field: RelayQuery.Field,
-        state: Array
-      ): ?RelayQuery.Node {
+      visitField(field: RelayQuery.Field, state: Array): ?RelayQuery.Node {
         // should never get here
         state.push(field.getSchemaName());
         return field;
@@ -122,17 +122,14 @@ describe('RelayQueryVisitor', () => {
 
       visitFragment(
         fragment: RelayQuery.Fragment,
-        state: Array
+        state: Array,
       ): ?RelayQuery.Node {
         // should never get here
         state.push(fragment.getName());
         return fragment;
       }
 
-      visitRoot(
-        root: RelayQuery.Root,
-        state: Array
-      ): ?RelayQuery.Node {
+      visitRoot(root: RelayQuery.Root, state: Array): ?RelayQuery.Node {
         state.push(query.getName());
         // should stop transform from looking at fields/fragments
         return root;

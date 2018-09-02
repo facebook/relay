@@ -1,17 +1,16 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
-const stableStringify = require('stableStringify');
+const stableStringify = require('../stableStringify');
 
 describe('stableStringify', () => {
   it('stringifies non-objects', () => {
@@ -65,11 +64,7 @@ describe('stableStringify', () => {
           other: false,
         },
       },
-      top1: [
-        {first: true},
-        {first: false},
-        'random',
-      ],
+      top1: [{first: true}, {first: false}, 'random'],
       misc: true,
       extra: null,
     };

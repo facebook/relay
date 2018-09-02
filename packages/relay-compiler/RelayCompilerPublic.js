@@ -1,27 +1,54 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @flow
- * @providesModule RelayCompilerPublic
+ * @flow strict-local
+ * @format
  */
 
 'use strict';
 
-const RelayCodegenRunner = require('RelayCodegenRunner');
-const RelayCompiler = require('RelayCompiler');
-const RelayFileIRParser = require('RelayFileIRParser');
-const RelayFileWriter = require('RelayFileWriter');
-const RelayIRTransforms = require('RelayIRTransforms');
+const FindGraphQLTags = require('./language/javascript/FindGraphQLTags');
+const RelayCodeGenerator = require('./codegen/RelayCodeGenerator');
+const RelayFileWriter = require('./codegen/RelayFileWriter');
+const RelayIRTransforms = require('./core/RelayIRTransforms');
+const RelayParser = require('./core/RelayParser');
+const RelaySourceModuleParser = require('./core/RelaySourceModuleParser');
+
+const compileRelayArtifacts = require('./codegen/compileRelayArtifacts');
+const formatGeneratedModule = require('./language/javascript/formatGeneratedModule');
+
+const {CompilerContext: GraphQLCompilerContext} = require('graphql-compiler');
+const {
+  ASTConvert,
+  CodegenRunner,
+  ConsoleReporter,
+  MultiReporter,
+} = require('graphql-compiler');
+
+export type {CompileResult, ParserConfig, WriterConfig} from 'graphql-compiler';
+
+const RelayJSModuleParser = RelaySourceModuleParser(FindGraphQLTags.find);
 
 module.exports = {
-  Compiler: RelayCompiler,
-  FileIRParser: RelayFileIRParser,
+  ConsoleReporter,
+  Parser: RelayParser,
+  CodeGenerator: RelayCodeGenerator,
+
+  GraphQLCompilerContext,
+
+  /** @deprecated Use JSModuleParser. */
+  FileIRParser: RelayJSModuleParser,
+
   FileWriter: RelayFileWriter,
   IRTransforms: RelayIRTransforms,
-  Runner: RelayCodegenRunner,
+  JSModuleParser: RelayJSModuleParser,
+  MultiReporter,
+  Runner: CodegenRunner,
+  compileRelayArtifacts,
+  formatGeneratedModule,
+  convertASTDocuments: ASTConvert.convertASTDocuments,
+  transformASTSchema: ASTConvert.transformASTSchema,
 };

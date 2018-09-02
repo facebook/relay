@@ -1,20 +1,19 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
 
 require('configureForRelayOSS');
 
-const Relay = require('Relay');
-const RelayRoute = require('RelayRoute');
+const RelayClassic = require('../../RelayPublic');
+const RelayRoute = require('../RelayRoute');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayRoute', () => {
@@ -38,14 +37,14 @@ describe('RelayRoute', () => {
         },
       };
       MockRoute.queries = {
-        required: Component => Relay.QL`
+        required: Component => RelayClassic.QL`
           query {
             node(id:$required) {
               ${Component.getFragment('required')}
             }
           }
         `,
-        optional: Component => Relay.QL`
+        optional: Component => RelayClassic.QL`
           query {
             node(id:$optional) {
               ${Component.getFragment('optional')}
@@ -56,7 +55,7 @@ describe('RelayRoute', () => {
       return MockRoute;
     };
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   it('can be created using inheritance', () => {
@@ -69,7 +68,7 @@ describe('RelayRoute', () => {
 
   it('has an immutable spec in __DEV__', () => {
     const dev = __DEV__;
-    window.__DEV__ = true;
+    global.__DEV__ = true;
 
     const MockRoute = makeRoute();
     const route = new MockRoute({required: 'foo'});
@@ -89,13 +88,12 @@ describe('RelayRoute', () => {
       route.queries.myCustomQuery = () => {};
     }).toThrow();
 
-    window.__DEV__ = dev;
+    global.__DEV__ = dev;
   });
 
   it('allows params to be processed if `prepareParams` is defined', () => {
     const MockRoute = makeRoute();
-    MockRoute.prepareParams =
-      jest.fn(() => ({required: 'bar'}));
+    MockRoute.prepareParams = jest.fn(() => ({required: 'bar'}));
     const route = new MockRoute({required: 'foo'});
     expect(MockRoute.prepareParams).toBeCalledWith({required: 'foo'});
     expect(route.params.required).toEqual('bar');
@@ -109,7 +107,7 @@ describe('RelayRoute', () => {
       /* eslint-enable no-new */
     }).toFailInvariant(
       'RelayRoute: Missing required parameter `required` in `MockRoute`. ' +
-      'Check the supplied params or URI.'
+        'Check the supplied params or URI.',
     );
   });
 
@@ -127,9 +125,7 @@ describe('RelayRoute', () => {
   });
 
   it('allows to inject a URI creator', () => {
-    RelayRoute.injectURICreator(
-      (_, params) => '/foo/' + params.required
-    );
+    RelayRoute.injectURICreator((_, params) => '/foo/' + params.required);
     const MockRoute = makeRoute();
     const route = new MockRoute({required: 'bar'});
 
@@ -156,7 +152,7 @@ describe('RelayRoute', () => {
       new InvalidRoute();
       /* eslint-enable no-new */
     }).toFailInvariant(
-      'InvalidRoute: Subclasses of RelayRoute must define a `routeName`.'
+      'InvalidRoute: Subclasses of RelayRoute must define a `routeName`.',
     );
   });
 });

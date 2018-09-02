@@ -1,24 +1,21 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayCore
  * @flow
+ * @format
  */
 
 'use strict';
 
-const RelayStaticFragmentSpecResolver = require('RelayStaticFragmentSpecResolver');
+const RelayModernFragmentSpecResolver = require('./RelayModernFragmentSpecResolver');
 
-const {
-  getFragment,
-  getOperation,
-} = require('RelayStaticGraphQLTag');
-const {createOperationSelector} = require('RelayStaticOperationSelector');
+const warning = require('warning');
+
+const {getFragment, getRequest} = require('../query/RelayModernGraphQLTag');
+const {createOperationSelector} = require('./RelayModernOperationSelector');
 const {
   areEqualSelectors,
   getDataIDsFromObject,
@@ -26,24 +23,41 @@ const {
   getSelectorList,
   getSelectorsFromObject,
   getVariablesFromObject,
-} = require('RelayStaticSelector');
+} = require('./RelayModernSelector');
 
+import type {FragmentMap, RelayContext} from './RelayStoreTypes';
 import type {
   FragmentSpecResolver,
   Props,
-} from 'RelayCombinedEnvironmentTypes';
-import type {
-  FragmentMap,
-  RelayContext,
-} from 'RelayStoreTypes';
+} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 function createFragmentSpecResolver(
   context: RelayContext,
+  containerName: string,
   fragments: FragmentMap,
   props: Props,
-  callback: () => void,
+  callback?: () => void,
 ): FragmentSpecResolver {
-  return new RelayStaticFragmentSpecResolver(context, fragments, props, callback);
+  if (__DEV__) {
+    const fragmentNames = Object.keys(fragments);
+    fragmentNames.forEach(fragmentName => {
+      const propValue = props[fragmentName];
+      warning(
+        propValue !== undefined,
+        'createFragmentSpecResolver: Expected prop `%s` to be supplied to `%s`, but ' +
+          'got `undefined`. Pass an explicit `null` if this is intentional.',
+        fragmentName,
+        containerName,
+      );
+    });
+  }
+
+  return new RelayModernFragmentSpecResolver(
+    context,
+    fragments,
+    props,
+    callback,
+  );
 }
 
 module.exports = {
@@ -52,7 +66,7 @@ module.exports = {
   createOperationSelector,
   getDataIDsFromObject,
   getFragment,
-  getOperation,
+  getRequest,
   getSelector,
   getSelectorList,
   getSelectorsFromObject,

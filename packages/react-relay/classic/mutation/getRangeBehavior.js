@@ -1,25 +1,20 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
- * @providesModule getRangeBehavior
- * @flow
+ * @flow strict-local
+ * @format
  */
 
 'use strict';
 
 const invariant = require('invariant');
-const serializeRelayQueryCall = require('serializeRelayQueryCall');
+const serializeRelayQueryCall = require('../query/serializeRelayQueryCall');
 
-import type {
-  Call,
-  CallValue,
-  RangeBehaviors,
-} from 'RelayInternalTypes';
+import type {Call, CallValue} from '../tools/RelayInternalTypes';
+import type {RangeBehaviors} from 'relay-runtime';
 
 /**
  * Return the action (prepend/append) to use when adding an item to
@@ -33,14 +28,17 @@ import type {
  */
 function getRangeBehavior(
   rangeBehaviors: RangeBehaviors,
-  calls: Array<Call>
+  calls: Array<Call>,
 ): ?string {
   if (typeof rangeBehaviors === 'function') {
     const rangeFilterCalls = getObjectFromCalls(calls);
     return rangeBehaviors(rangeFilterCalls);
   } else {
-    const rangeBehaviorKey =
-      calls.map(serializeRelayQueryCall).sort().join('').slice(1);
+    const rangeBehaviorKey = calls
+      .map(serializeRelayQueryCall)
+      .sort()
+      .join('')
+      .slice(1);
     const behavior = rangeBehaviors[rangeBehaviorKey];
     if (behavior == null) {
       return null;
@@ -48,9 +46,9 @@ function getRangeBehavior(
     invariant(
       typeof behavior === 'string',
       'getRangeBehavior(): Expected range behavior for key `%s` to be a ' +
-      'string, got `%s`.',
+        'string, got `%s`.',
       rangeBehaviorKey,
-      behavior
+      behavior,
     );
     return behavior;
   }
@@ -65,9 +63,9 @@ function getRangeBehavior(
  *
  * Returns:
  * `{orderby: 'recent'}`
-*/
+ */
 function getObjectFromCalls(
-  calls: Array<Call>
+  calls: Array<Call>,
 ): {[argName: string]: CallValue} {
   const behaviors: {[argName: string]: CallValue} = {};
   calls.forEach(call => {

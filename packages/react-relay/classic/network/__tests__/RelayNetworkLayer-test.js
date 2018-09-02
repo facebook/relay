@@ -1,12 +1,11 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
+ * @format
  */
 
 'use strict';
@@ -14,10 +13,12 @@
 require('configureForRelayOSS');
 
 jest.useFakeTimers();
-jest.unmock('RelayNetworkLayer');
+jest.unmock('../RelayNetworkLayer');
 
 const Deferred = require('Deferred');
-const RelayNetworkLayer = require('RelayNetworkLayer');
+const RelayNetworkLayer = require('../RelayNetworkLayer');
+const RelayQuery = require('../../query/RelayQuery');
+const RelayQueryRequest = require('../RelayQueryRequest');
 const RelayTestUtils = require('RelayTestUtils');
 
 describe('RelayNetworkLayer', () => {
@@ -27,8 +28,8 @@ describe('RelayNetworkLayer', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    const RelayQuery = jest.genMockFromModule('RelayQuery');
-    jest.setMock('RelayQuery', RelayQuery);
+    const RelayQuery = jest.genMockFromModule('../../query/RelayQuery');
+    jest.setMock('../../query/RelayQuery', RelayQuery);
     jest.mock('warning');
 
     injectedNetworkLayer = {
@@ -39,7 +40,7 @@ describe('RelayNetworkLayer', () => {
     networkLayer = new RelayNetworkLayer();
     networkLayer.injectImplementation(injectedNetworkLayer);
 
-    jasmine.addMatchers(RelayTestUtils.matchers);
+    expect.extend(RelayTestUtils.matchers);
   });
 
   describe('layer injection', () => {
@@ -50,7 +51,7 @@ describe('RelayNetworkLayer', () => {
     it('complains if no implementation is injected', () => {
       expect(() => networkLayer.supports([])).toFailInvariant(
         'RelayNetworkLayer: Use `RelayEnvironment.injectNetworkLayer` to ' +
-        'configure a network layer.'
+          'configure a network layer.',
       );
     });
 
@@ -81,7 +82,7 @@ describe('RelayNetworkLayer', () => {
       expect(second.mock.calls.length).toBe(1);
       expect([
         'RelayNetworkLayer: Call received to injectDefaultImplementation(), ' +
-        'but a default layer was already injected.',
+          'but a default layer was already injected.',
       ]).toBeWarnedNTimes(1);
     });
 
@@ -95,7 +96,7 @@ describe('RelayNetworkLayer', () => {
       expect(second.mock.calls.length).toBe(1);
       expect([
         'RelayNetworkLayer: Call received to injectImplementation(), but ' +
-        'a layer was already injected.',
+          'a layer was already injected.',
       ]).toBeWarnedNTimes(1);
     });
   });
@@ -107,7 +108,7 @@ describe('RelayNetworkLayer', () => {
         networkLayer.sendQueries([]);
       }).toFailInvariant(
         'RelayNetworkLayer: Use `RelayEnvironment.injectNetworkLayer` to ' +
-        'configure a network layer.'
+          'configure a network layer.',
       );
     });
 
@@ -125,7 +126,7 @@ describe('RelayNetworkLayer', () => {
         networkLayer.sendQueries([]);
       }).toFailInvariant(
         'RelayNetworkLayer: Use `RelayEnvironment.injectNetworkLayer` to ' +
-        'configure a network layer.'
+          'configure a network layer.',
       );
     });
 
@@ -150,7 +151,14 @@ describe('RelayNetworkLayer', () => {
       resolvedCallback = jest.fn();
       rejectedCallback = jest.fn();
       deferred = new Deferred();
-      deferred.done(resolvedCallback, rejectedCallback);
+      deferred
+        .getPromise()
+        .then(resolvedCallback, rejectedCallback)
+        .catch(error => {
+          setTimeout(() => {
+            throw error;
+          }, 0);
+        });
     });
 
     it('throws when no network layer is injected', () => {
@@ -159,7 +167,7 @@ describe('RelayNetworkLayer', () => {
         networkLayer.sendMutation({mutation, variables, deferred});
       }).toFailInvariant(
         'RelayNetworkLayer: Use `RelayEnvironment.injectNetworkLayer` to ' +
-        'configure a network layer.'
+          'configure a network layer.',
       );
     });
 
@@ -211,21 +219,29 @@ describe('RelayNetworkLayer', () => {
     let changeSubscriber;
 
     beforeEach(() => {
-
       mutationCallback = jest.fn();
       queryCallback = jest.fn();
 
-      changeSubscriber =
-        networkLayer.addNetworkSubscriber(queryCallback, mutationCallback);
+      changeSubscriber = networkLayer.addNetworkSubscriber(
+        queryCallback,
+        mutationCallback,
+      );
     });
 
     it('calls subscriber with query', () => {
       expect(queryCallback).not.toBeCalled();
 
-      const deferred1 = new Deferred();
-      const deferred2 = new Deferred();
-      deferred2.done(jest.fn(), jest.fn());
-      networkLayer.sendQueries([deferred1, deferred2]);
+      const request1 = new RelayQueryRequest(new RelayQuery.Root());
+      const request2 = new RelayQueryRequest(new RelayQuery.Root());
+      request2
+        .getPromise()
+        .then(jest.fn(), jest.fn())
+        .catch(error => {
+          setTimeout(() => {
+            throw error;
+          }, 0);
+        });
+      networkLayer.sendQueries([request1, request2]);
       const pendingQueries = injectedNetworkLayer.sendQueries.mock.calls[0][0];
       const response = 'response';
       pendingQueries[0].resolve(response);
@@ -253,10 +269,10 @@ describe('RelayNetworkLayer', () => {
     it('does not call subscriber once it is removed', () => {
       changeSubscriber.remove();
 
-      const deferred1 = new Deferred();
-      const deferred2 = new Deferred();
-      networkLayer.sendQueries([deferred1]);
-      networkLayer.sendMutation(deferred2);
+      const request1 = new RelayQueryRequest(new RelayQuery.Root());
+      const request2 = new RelayQueryRequest(new RelayQuery.Root());
+      networkLayer.sendQueries([request1]);
+      networkLayer.sendMutation(request2);
       const pendingQuery = injectedNetworkLayer.sendQueries.mock.calls[0][0][0];
       pendingQuery.resolve('response');
       const pendingMutation =

@@ -12,7 +12,10 @@
 
 const t = require('@babel/types');
 
-const {readOnlyArrayOfType} = require('./RelayFlowBabelFactories');
+const {
+  exactObjectTypeAnnotation,
+  readOnlyArrayOfType,
+} = require('./RelayFlowBabelFactories');
 const {
   GraphQLEnumType,
   GraphQLInputObjectType,
@@ -132,7 +135,7 @@ function transformNonNullableInputType(type: GraphQLInputType, state: State) {
         }
         return property;
       });
-    state.generatedInputObjectTypes[typeIdentifier] = t.objectTypeAnnotation(
+    state.generatedInputObjectTypes[typeIdentifier] = exactObjectTypeAnnotation(
       props,
     );
     return t.genericTypeAnnotation(t.identifier(typeIdentifier));

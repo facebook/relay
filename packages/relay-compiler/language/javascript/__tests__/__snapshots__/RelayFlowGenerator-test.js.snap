@@ -301,17 +301,17 @@ mutation CommentCreateMutation(
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-export type CommentCreateInput = {
+export type CommentCreateInput = {|
   clientMutationId?: ?string,
   feedbackId?: ?string,
   feedback?: ?CommentfeedbackFeedback,
-};
-export type CommentfeedbackFeedback = {
+|};
+export type CommentfeedbackFeedback = {|
   comment?: ?FeedbackcommentComment
-};
-export type FeedbackcommentComment = {
+|};
+export type FeedbackcommentComment = {|
   feedback?: ?CommentfeedbackFeedback
-};
+|};
 export type CommentCreateMutationVariables = {|
   input: CommentCreateInput,
   first?: ?number,
@@ -345,10 +345,10 @@ mutation InputHasArray($input: UpdateAllSeenStateInput) {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-export type UpdateAllSeenStateInput = {
+export type UpdateAllSeenStateInput = {|
   clientMutationId?: ?string,
   storyIds?: ?$ReadOnlyArray<?string>,
-};
+|};
 export type InputHasArrayVariables = {|
   input?: ?UpdateAllSeenStateInput
 |};
@@ -448,17 +448,17 @@ export type ExampleFragment = {|
   +$refType: ExampleFragment$ref,
 |};
 
-export type CommentCreateInput = {
+export type CommentCreateInput = {|
   clientMutationId?: ?string,
   feedbackId?: ?string,
   feedback?: ?CommentfeedbackFeedback,
-};
-export type CommentfeedbackFeedback = {
+|};
+export type CommentfeedbackFeedback = {|
   comment?: ?FeedbackcommentComment
-};
-export type FeedbackcommentComment = {
+|};
+export type FeedbackcommentComment = {|
   feedback?: ?CommentfeedbackFeedback
-};
+|};
 export type TestMutationVariables = {|
   input: CommentCreateInput
 |};
@@ -474,10 +474,10 @@ export type TestMutation = {|
   response: TestMutationResponse,
 |};
 
-export type FeedbackLikeInput = {
+export type FeedbackLikeInput = {|
   clientMutationId?: ?string,
   feedbackId?: ?string,
-};
+|};
 export type TestSubscriptionVariables = {|
   input?: ?FeedbackLikeInput
 |};

@@ -124,13 +124,15 @@ function transformNonNullableInputType(type: GraphQLInputType, state: State) {
     const fields = type.getFields();
     const props = Object.keys(fields)
       .map(key => fields[key])
-      .filter(field => state.inputFieldWhiteList.indexOf(field.name) < 0)
       .map(field => {
         const property = t.objectTypeProperty(
           t.identifier(field.name),
           transformInputType(field.type, state),
         );
-        if (!(field.type instanceof GraphQLNonNull)) {
+        if (
+          state.inputFieldWhiteList.indexOf(field.name) >= 0 ||
+          !(field.type instanceof GraphQLNonNull)
+        ) {
           property.optional = true;
         }
         return property;

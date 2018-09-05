@@ -171,6 +171,179 @@ describe('ReactRelayQueryRenderer', () => {
           }).toBeRendered();
         });
       });
+      describe('when store has a snapshot', () => {
+        it('fetches the query only once, renders snapshot from store', () => {
+          environment.mockClear();
+          environment.applyUpdate({
+            storeUpdater: _store => {
+              let root = _store.get(ROOT_ID);
+              if (!root) {
+                root = _store.create(ROOT_ID, ROOT_TYPE);
+              }
+              const user = _store.create('4', 'User');
+              user.setValue('4', 'id');
+              user.setValue('Zuck', 'name');
+              root.setLinkedRecord(user, 'node', {id: '4'});
+            },
+          });
+
+          function Child(props) {
+            // NOTE the unstable_yield method will move to the static renderer.
+            // When React sync runs we need to update this.
+            renderer.unstable_yield(props.children);
+            return props.children;
+          }
+
+          class Example extends React.Component {
+            render() {
+              return (
+                <React.Fragment>
+                  <Child>A</Child>
+                  <ReactRelayQueryRenderer
+                    query={TestQuery}
+                    dataFrom="STORE_THEN_NETWORK"
+                    environment={environment}
+                    render={render}
+                    variables={variables}
+                  />
+                  <Child>B</Child>
+                  <Child>C</Child>
+                </React.Fragment>
+              );
+            }
+          }
+          const renderer = ReactTestRenderer.create(<Example />, {
+            unstable_isAsync: true,
+          });
+
+          // Flush some of the changes, but don't commit
+          expect(renderer.unstable_flushThrough(['A', 'B'])).toEqual([
+            'A',
+            'B',
+          ]);
+          expect(renderer.toJSON()).toEqual(null);
+          expect({
+            error: null,
+            props: {
+              node: {
+                id: '4',
+                __fragments: {
+                  TestFragment: {},
+                },
+                __id: '4',
+              },
+            },
+            retry: jasmine.any(Function),
+          }).toBeRendered();
+          expect(environment.execute.mock.calls.length).toBe(1);
+          render.mockClear();
+
+          // Interrupt with higher priority updates
+          renderer.unstable_flushSync(() => {
+            renderer.update(<Example />);
+          });
+          expect(environment.execute.mock.calls.length).toBe(1);
+          // TODO (T33397535) make this pass
+          /*
+          expect({
+            error: null,
+            props: {
+              node: {
+                id: '4',
+                __fragments: {
+                  TestFragment: {},
+                },
+                __id: '4',
+              },
+            },
+            retry: jasmine.any(Function),
+          }).toBeRendered();
+          */
+        });
+      });
+      describe('when fetch returns a response synchronously', () => {
+        it('fetches the query only once, renders snapshot returned by fetch', () => {
+          const fetch = jest.fn().mockReturnValue(response);
+          store = new Store(new RecordSource());
+          environment = new Environment({
+            network: Network.create(fetch),
+            store,
+          });
+
+          function Child(props) {
+            // NOTE the unstable_yield method will move to the static renderer.
+            // When React sync runs we need to update this.
+            renderer.unstable_yield(props.children);
+            return props.children;
+          }
+
+          class Example extends React.Component {
+            render() {
+              return (
+                <React.Fragment>
+                  <Child>A</Child>
+                  <ReactRelayQueryRenderer
+                    query={TestQuery}
+                    dataFrom="STORE_THEN_NETWORK"
+                    environment={environment}
+                    render={render}
+                    variables={variables}
+                  />
+                  <Child>B</Child>
+                  <Child>C</Child>
+                </React.Fragment>
+              );
+            }
+          }
+          const renderer = ReactTestRenderer.create(<Example />, {
+            unstable_isAsync: true,
+          });
+
+          // Flush some of the changes, but don't commit
+          expect(renderer.unstable_flushThrough(['A', 'B'])).toEqual([
+            'A',
+            'B',
+          ]);
+          expect(renderer.toJSON()).toEqual(null);
+          expect({
+            error: null,
+            props: {
+              node: {
+                id: '4',
+                __fragments: {
+                  TestFragment: {},
+                },
+                __id: '4',
+              },
+            },
+            retry: jasmine.any(Function),
+          }).toBeRendered();
+          expect(fetch.mock.calls.length).toBe(1);
+          render.mockClear();
+
+          // Interrupt with higher priority updates
+          renderer.unstable_flushSync(() => {
+            renderer.update(<Example />);
+          });
+          expect(fetch.mock.calls.length).toBe(1);
+          // TODO (T33397535) make this pass
+          /*
+          expect({
+            error: null,
+            props: {
+              node: {
+                id: '4',
+                __fragments: {
+                  TestFragment: {},
+                },
+                __id: '4',
+              },
+            },
+            retry: jasmine.any(Function),
+          }).toBeRendered();
+          */
+        });
+      });
     });
 
     it('fetches the query with default variables', () => {

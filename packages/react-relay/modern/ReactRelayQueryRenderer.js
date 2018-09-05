@@ -132,7 +132,7 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
       const request = getRequest(query);
       requestCacheKey = getRequestCacheKey(request, props.variables);
       queryFetcher = requestCache[requestCacheKey]
-        ? requestCache[requestCacheKey]
+        ? requestCache[requestCacheKey].queryFetcher
         : new ReactRelayQueryFetcher();
     } else {
       queryFetcher = new ReactRelayQueryFetcher();
@@ -369,15 +369,34 @@ function fetchQueryAndComputeStateFromProps(
     const operation = createOperationSelector(request, variables);
     if (typeof requestCacheKey === 'string' && requestCache[requestCacheKey]) {
       // This same request is already in flight.
-      // Render loading state
-      return {
-        error: null,
-        relayContextEnvironment: environment,
-        relayContextVariables: operation.variables,
-        renderProps: getLoadingRenderProps(),
-        snapshot: null,
-        requestCacheKey,
-      };
+
+      const {snapshot} = requestCache[requestCacheKey];
+      if (snapshot) {
+        // Use the cached response
+        return {
+          error: null,
+          relayContextEnvironment: environment,
+          relayContextVariables: operation.variables,
+          renderProps: getRenderProps(
+            null,
+            snapshot,
+            queryFetcher,
+            retryCallbacks,
+          ),
+          snapshot,
+          requestCacheKey,
+        };
+      } else {
+        // Render loading state
+        return {
+          error: null,
+          relayContextEnvironment: environment,
+          relayContextVariables: operation.variables,
+          renderProps: getLoadingRenderProps(),
+          snapshot: null,
+          requestCacheKey,
+        };
+      }
     }
 
     try {
@@ -392,11 +411,15 @@ function fetchQueryAndComputeStateFromProps(
         onDataChange: retryCallbacks.handleDataChange,
         operation,
       });
-      requestCacheKey =
-        requestCacheKey || getRequestCacheKey(request, props.variables);
-      requestCache[requestCacheKey] = queryFetcher;
+
       // Use network data first, since it may be fresher
       const snapshot = querySnapshot || storeSnapshot;
+
+      // cache the request to avoid duplicate requests
+      requestCacheKey =
+        requestCacheKey || getRequestCacheKey(request, props.variables);
+      requestCache[requestCacheKey] = {queryFetcher, snapshot};
+
       if (!snapshot) {
         return {
           error: null,

@@ -243,8 +243,6 @@ describe('ReactRelayQueryRenderer', () => {
             renderer.update(<Example />);
           });
           expect(environment.execute.mock.calls.length).toBe(1);
-          // TODO (T33397535) make this pass
-          /*
           expect({
             error: null,
             props: {
@@ -258,12 +256,11 @@ describe('ReactRelayQueryRenderer', () => {
             },
             retry: jasmine.any(Function),
           }).toBeRendered();
-          */
         });
       });
-      describe('when fetch returns a response synchronously', () => {
-        it('fetches the query only once, renders snapshot returned by fetch', () => {
-          const fetch = jest.fn().mockReturnValue(response);
+      describe('when fetch returns a response synchronously first time', () => {
+        it('fetches the query once, always renders snapshot returned by fetch', () => {
+          const fetch = jest.fn().mockReturnValueOnce(response);
           store = new Store(new RecordSource());
           environment = new Environment({
             network: Network.create(fetch),
@@ -326,8 +323,6 @@ describe('ReactRelayQueryRenderer', () => {
             renderer.update(<Example />);
           });
           expect(fetch.mock.calls.length).toBe(1);
-          // TODO (T33397535) make this pass
-          /*
           expect({
             error: null,
             props: {
@@ -341,7 +336,6 @@ describe('ReactRelayQueryRenderer', () => {
             },
             retry: jasmine.any(Function),
           }).toBeRendered();
-          */
         });
       });
     });

@@ -367,7 +367,6 @@ function fetchQueryAndComputeStateFromProps(
     } = genericEnvironment.unstable_internal;
     const request = getRequest(query);
     const operation = createOperationSelector(request, variables);
-
     if (typeof requestCacheKey === 'string' && requestCache[requestCacheKey]) {
       // This same request is already in flight.
       // Render loading state

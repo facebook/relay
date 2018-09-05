@@ -113,53 +113,63 @@ describe('ReactRelayQueryRenderer', () => {
     });
 
     describe('when constructor fires multiple times', () => {
-      it('fetches the query only once', () => {
-        const fetch = jest.fn().mockReturnValue(response);
-        store = new Store(new RecordSource());
-        environment = new Environment({
-          network: Network.create(fetch),
-          store,
-        });
-
-        function Child(props) {
-          // NOTE the unstable_yield method will move to the static renderer.
-          // When React sync runs we need to update this.
-          renderer.unstable_yield(props.children);
-          return props.children;
-        }
-
-        class Example extends React.Component {
-          render() {
-            return (
-              <React.Fragment>
-                <Child>A</Child>
-                <ReactRelayQueryRenderer
-                  query={TestQuery}
-                  cacheConfig={cacheConfig}
-                  environment={environment}
-                  render={render}
-                  variables={variables}
-                />
-                <Child>B</Child>
-                <Child>C</Child>
-              </React.Fragment>
-            );
+      describe('when store does not have snapshot and fetch does not return snapshot', () => {
+        it('fetches the query only once, renders loading state', () => {
+          environment.mockClear();
+          function Child(props) {
+            // NOTE the unstable_yield method will move to the static renderer.
+            // When React sync runs we need to update this.
+            renderer.unstable_yield(props.children);
+            return props.children;
           }
-        }
-        const renderer = ReactTestRenderer.create(<Example />, {
-          unstable_isAsync: true,
+
+          class Example extends React.Component {
+            render() {
+              return (
+                <React.Fragment>
+                  <Child>A</Child>
+                  <ReactRelayQueryRenderer
+                    query={TestQuery}
+                    cacheConfig={cacheConfig}
+                    environment={environment}
+                    render={render}
+                    variables={variables}
+                  />
+                  <Child>B</Child>
+                  <Child>C</Child>
+                </React.Fragment>
+              );
+            }
+          }
+          const renderer = ReactTestRenderer.create(<Example />, {
+            unstable_isAsync: true,
+          });
+
+          // Flush some of the changes, but don't commit
+          expect(renderer.unstable_flushThrough(['A', 'B'])).toEqual([
+            'A',
+            'B',
+          ]);
+          expect(renderer.toJSON()).toEqual(null);
+          expect({
+            error: null,
+            props: null,
+            retry: null,
+          }).toBeRendered();
+          expect(environment.execute.mock.calls.length).toBe(1);
+          render.mockClear();
+
+          // Interrupt with higher priority updates
+          renderer.unstable_flushSync(() => {
+            renderer.update(<Example />);
+          });
+          expect(environment.execute.mock.calls.length).toBe(1);
+          expect({
+            error: null,
+            props: null,
+            retry: null,
+          }).toBeRendered();
         });
-
-        // Flush some of the changes, but don't commit
-        expect(renderer.unstable_flushThrough(['A', 'B'])).toEqual(['A', 'B']);
-        expect(renderer.toJSON()).toEqual(null);
-
-        // Interrupt with higher priority updates
-        renderer.unstable_flushSync(() => {
-          renderer.update(<Example />);
-        });
-
-        expect(fetch.mock.calls.length).toBe(1);
       });
     });
 

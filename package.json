@@ -68,7 +68,6 @@
     "react-test-renderer": "^16.3.0",
     "run-sequence": "2.2.1",
     "signedsource": "^1.0.0",
-    "webpack": "1.13.1",
     "webpack-stream": "3.2.0",
     "yargs": "^9.0.0"
   },

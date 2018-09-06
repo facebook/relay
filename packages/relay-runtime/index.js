@@ -34,6 +34,7 @@ const commitLocalUpdate = require('./mutations/commitLocalUpdate');
 const commitRelayModernMutation = require('./mutations/commitRelayModernMutation');
 const createRelayNetworkLogger = require('./network/createRelayNetworkLogger');
 const deepFreeze = require('./util/deepFreeze');
+const fetchQuery_UNSTABLE = require('./experimental/fetchQuery_UNSTABLE');
 const fetchRelayModernQuery = require('./query/fetchRelayModernQuery');
 const generateRelayClientID = require('./store/generateRelayClientID');
 const getRelayHandleKey = require('./util/getRelayHandleKey');
@@ -204,4 +205,7 @@ module.exports = {
   recycleNodesInto: recycleNodesInto,
   simpleClone: simpleClone,
   stableCopy: stableCopy,
+
+  // EXPERIMENTAL
+  fetchQuery_UNSTABLE: fetchQuery_UNSTABLE,
 };

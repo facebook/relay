@@ -11,6 +11,7 @@
 'use strict';
 
 const RelayConcreteNode = require('./util/RelayConcreteNode');
+const RelayConcreteVariables = require('./store/RelayConcreteVariables');
 const RelayConnectionHandler = require('./handlers/connection/RelayConnectionHandler');
 const RelayConnectionInterface = require('./handlers/connection/RelayConnectionInterface');
 const RelayCore = require('./store/RelayCore');
@@ -205,6 +206,9 @@ module.exports = {
   recycleNodesInto: recycleNodesInto,
   simpleClone: simpleClone,
   stableCopy: stableCopy,
+  __internal: {
+    getModernOperationVariables: RelayConcreteVariables.getOperationVariables,
+  },
 
   // EXPERIMENTAL
   fetchQuery_UNSTABLE: fetchQuery_UNSTABLE,

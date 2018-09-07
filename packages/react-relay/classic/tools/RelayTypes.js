@@ -194,3 +194,10 @@ export type SubscriptionCallbacks<T> = {
   onError(error: Error): void,
   onCompleted(): void,
 };
+
+export type RelayClassicContext = {|
+  environment: RelayEnvironmentInterface,
+  variables: Variables,
+  route: RelayQueryConfigInterface,
+  useFakeData: boolean,
+|};

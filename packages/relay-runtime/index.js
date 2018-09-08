@@ -43,6 +43,7 @@ const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
 const isScalarAndEqual = require('./util/isScalarAndEqual');
 const recycleNodesInto = require('./util/recycleNodesInto');
 const requestRelaySubscription = require('./subscription/requestRelaySubscription');
+const retainQuery_UNSTABLE = require('./experimental/retainQuery_UNSTABLE');
 const simpleClone = require('./util/simpleClone');
 const stableCopy = require('./util/stableCopy');
 
@@ -219,4 +220,5 @@ module.exports = {
 
   // EXPERIMENTAL
   fetchQuery_UNSTABLE: fetchQuery_UNSTABLE,
+  retainQuery_UNSTABLE: retainQuery_UNSTABLE,
 };

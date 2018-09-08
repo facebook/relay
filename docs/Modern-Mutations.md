@@ -229,10 +229,10 @@ const configs = [{
   type: 'RANGE_DELETE',
   parentID: 'todoId',
   connectionKeys: [{
-    key: RemoveTags_tags,
+    key: 'RemoveTags_tags',
   }],
   pathToConnection: ['todo', 'tags'],
-  deletedIDFieldName: removedTagId
+  deletedIDFieldName: 'removedTagId'
 }];
 ```
 

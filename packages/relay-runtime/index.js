@@ -31,7 +31,6 @@ const RelayStoreUtils = require('./store/RelayStoreUtils');
 const RelayViewerHandler = require('./handlers/viewer/RelayViewerHandler');
 
 const applyRelayModernOptimisticMutation = require('./mutations/applyRelayModernOptimisticMutation');
-const checkQuery_UNSTABLE = require('./experimental/checkQuery_UNSTABLE');
 const commitLocalUpdate = require('./mutations/commitLocalUpdate');
 const commitRelayModernMutation = require('./mutations/commitRelayModernMutation');
 const createRelayNetworkLogger = require('./network/createRelayNetworkLogger');
@@ -39,20 +38,12 @@ const deepFreeze = require('./util/deepFreeze');
 const fetchRelayModernQuery = require('./query/fetchRelayModernQuery');
 const generateRelayClientID = require('./store/generateRelayClientID');
 const getRelayHandleKey = require('./util/getRelayHandleKey');
-const getRequestKey_UNSTABLE = require('./experimental/getRequestKey_UNSTABLE');
 const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
 const isScalarAndEqual = require('./util/isScalarAndEqual');
-const readQuery_UNSTABLE = require('./experimental/readQuery_UNSTABLE');
 const recycleNodesInto = require('./util/recycleNodesInto');
 const requestRelaySubscription = require('./subscription/requestRelaySubscription');
-const retainQuery_UNSTABLE = require('./experimental/retainQuery_UNSTABLE');
 const simpleClone = require('./util/simpleClone');
 const stableCopy = require('./util/stableCopy');
-
-const {
-  fetchQuery_UNSTABLE,
-  getPromiseForQueryRequest_UNSTABLE,
-} = require('./experimental/fetchQuery_UNSTABLE');
 
 export type {
   ConnectionMetadata,
@@ -225,12 +216,4 @@ module.exports = {
   __internal: {
     getModernOperationVariables: RelayConcreteVariables.getOperationVariables,
   },
-
-  // EXPERIMENTAL
-  checkQuery_UNSTABLE: checkQuery_UNSTABLE,
-  fetchQuery_UNSTABLE: fetchQuery_UNSTABLE,
-  getPromiseForQueryRequest_UNSTABLE: getPromiseForQueryRequest_UNSTABLE,
-  getRequestKey_UNSTABLE: getRequestKey_UNSTABLE,
-  readQuery_UNSTABLE: readQuery_UNSTABLE,
-  retainQuery_UNSTABLE: retainQuery_UNSTABLE,
 };

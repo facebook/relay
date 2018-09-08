@@ -55,12 +55,29 @@ function getNode(taggedNode) {
   return data.default ? data.default : data;
 }
 
+function isFragment(node: GraphQLTaggedNode) {
+  const fragment = getNode(node);
+  return (
+    typeof fragment === 'object' &&
+    fragment !== null &&
+    fragment.kind === RelayConcreteNode.FRAGMENT
+  );
+}
+
+function isRequest(node: GraphQLTaggedNode) {
+  const request = getNode(node);
+  return (
+    typeof request === 'object' &&
+    request !== null &&
+    (request.kind === RelayConcreteNode.REQUEST ||
+      request.kind === RelayConcreteNode.BATCH_REQUEST)
+  );
+}
+
 function getFragment(taggedNode: GraphQLTaggedNode): ConcreteFragment {
   const fragment = getNode(taggedNode);
   invariant(
-    typeof fragment === 'object' &&
-      fragment !== null &&
-      fragment.kind === RelayConcreteNode.FRAGMENT,
+    isFragment(fragment),
     'RelayModernGraphQLTag: Expected a fragment, got `%s`.',
     JSON.stringify(fragment),
   );
@@ -70,10 +87,7 @@ function getFragment(taggedNode: GraphQLTaggedNode): ConcreteFragment {
 function getRequest(taggedNode: GraphQLTaggedNode): RequestNode {
   const request = getNode(taggedNode);
   invariant(
-    typeof request === 'object' &&
-      request !== null &&
-      (request.kind === RelayConcreteNode.REQUEST ||
-        request.kind === RelayConcreteNode.BATCH_REQUEST),
+    isRequest(request),
     'RelayModernGraphQLTag: Expected a request, got `%s`.',
     JSON.stringify(request),
   );
@@ -84,4 +98,6 @@ module.exports = {
   getFragment,
   getRequest,
   graphql,
+  isFragment,
+  isRequest,
 };

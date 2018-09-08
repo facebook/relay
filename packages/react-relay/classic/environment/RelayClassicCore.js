@@ -15,6 +15,8 @@ const RelayFragmentSpecResolver = require('./RelayFragmentSpecResolver');
 const {
   getClassicFragment,
   getClassicOperation,
+  isClassicFragment,
+  isClassicOperation,
 } = require('../query/RelayGraphQLTag');
 const {createOperationSelector} = require('./RelayOperationSelector');
 const {
@@ -57,4 +59,6 @@ module.exports = {
   getSelectorList,
   getSelectorsFromObject,
   getVariablesFromObject,
+  isFragment: isClassicFragment,
+  isRequest: isClassicOperation,
 };

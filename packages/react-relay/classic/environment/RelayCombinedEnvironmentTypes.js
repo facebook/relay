@@ -247,6 +247,18 @@ export interface CUnstableEnvironmentCore<
   getRequest: (node: TGraphQLTaggedNode) => TRequest;
 
   /**
+   * Given a graphql`...` tagged template, returns true if the value is a
+   * fragment definiton, or false otherwise.
+   */
+  isFragment: (node: TGraphQLTaggedNode) => boolean;
+
+  /**
+   * Given a graphql`...` tagged template, returns true if the value is an
+   * operation or batch request (i.e. query), or false otherwise.
+   */
+  isRequest: (node: TGraphQLTaggedNode) => boolean;
+
+  /**
    * Determine if two selectors are equal (represent the same selection). Note
    * that this function returns `false` when the two queries/fragments are
    * different objects, even if they select the same fields.

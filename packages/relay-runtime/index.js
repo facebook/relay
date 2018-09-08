@@ -125,6 +125,7 @@ export type {
   CacheConfig,
   DataID,
   Disposable,
+  OperationType,
   RerunParam,
   Variables,
 } from './util/RelayRuntimeTypes';

@@ -31,6 +31,7 @@ const RelayStoreUtils = require('./store/RelayStoreUtils');
 const RelayViewerHandler = require('./handlers/viewer/RelayViewerHandler');
 
 const applyRelayModernOptimisticMutation = require('./mutations/applyRelayModernOptimisticMutation');
+const checkQuery_UNSTABLE = require('./experimental/checkQuery_UNSTABLE');
 const commitLocalUpdate = require('./mutations/commitLocalUpdate');
 const commitRelayModernMutation = require('./mutations/commitRelayModernMutation');
 const createRelayNetworkLogger = require('./network/createRelayNetworkLogger');
@@ -42,6 +43,7 @@ const getRelayHandleKey = require('./util/getRelayHandleKey');
 const getRequestKey_UNSTABLE = require('./experimental/getRequestKey_UNSTABLE');
 const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
 const isScalarAndEqual = require('./util/isScalarAndEqual');
+const readQuery_UNSTABLE = require('./experimental/readQuery_UNSTABLE');
 const recycleNodesInto = require('./util/recycleNodesInto');
 const requestRelaySubscription = require('./subscription/requestRelaySubscription');
 const retainQuery_UNSTABLE = require('./experimental/retainQuery_UNSTABLE');
@@ -221,7 +223,9 @@ module.exports = {
   },
 
   // EXPERIMENTAL
+  checkQuery_UNSTABLE: checkQuery_UNSTABLE,
   fetchQuery_UNSTABLE: fetchQuery_UNSTABLE,
   getRequestKey_UNSTABLE: getRequestKey_UNSTABLE,
+  readQuery_UNSTABLE: readQuery_UNSTABLE,
   retainQuery_UNSTABLE: retainQuery_UNSTABLE,
 };

@@ -66,10 +66,16 @@ export type {MutationConfig} from './mutations/commitRelayModernMutation';
 export type {RelayNetworkLog} from './network/RelayNetworkLoggerTransaction';
 export type {
   EventPayload,
+  ExecuteFunction,
   ExecutePayload,
+  FetchFunction,
   GraphQLResponse,
+  LegacyObserver,
+  Network as INetwork,
+  PayloadData,
   PayloadError,
   StreamPayload,
+  SubscribeFunction,
   UploadableMap,
 } from './network/RelayNetworkTypes';
 export type {
@@ -91,6 +97,7 @@ export type {
   RecordSourceSelectorProxy,
   RelayContext,
   Selector,
+  SelectorData,
   SelectorStoreUpdater,
   Snapshot,
   StoreUpdater,

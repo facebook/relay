@@ -45,6 +45,10 @@ import type {
   Record,
 } from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
+export type {
+  SelectorData,
+} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
+
 // eslint-disable-next-line no-undef
 export opaque type FragmentReference = empty;
 

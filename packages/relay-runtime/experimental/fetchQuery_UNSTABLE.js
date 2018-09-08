@@ -21,6 +21,7 @@ import type {
   CacheConfig,
   Disposable,
   OperationType,
+  Variables,
 } from '../util/RelayRuntimeTypes';
 
 type ObserverEvent = {|
@@ -122,15 +123,15 @@ function fetchQuery_UNSTABLE<TQuery: OperationType>(args: {|
     networkLayerCacheConfig,
   } = args;
   const {createOperationSelector, getRequest} = environment.unstable_internal;
-  const queryRequestNode = getRequest(query);
+  const queryNode = getRequest(query);
   invariant(
-    queryRequestNode.operationKind === 'query',
+    queryNode.operationKind === 'query',
     'fetchQuery_UNSTABLE: Expected query operation',
   );
   const requestCache = getRequestCache(environment);
   const referencesCache = getReferencesCache(environment);
-  const operation = createOperationSelector(queryRequestNode, variables);
-  const cacheKey = getRequestKey_UNSTABLE(queryRequestNode, variables);
+  const operation = createOperationSelector(queryNode, variables);
+  const cacheKey = getRequestKey_UNSTABLE(queryNode, variables);
   const cachedRequest = requestCache.get(cacheKey);
   const cachedReferences = referencesCache.get(cacheKey);
 
@@ -269,6 +270,55 @@ function fetchQuery_UNSTABLE<TQuery: OperationType>(args: {|
   };
 }
 
+/**
+ * If a request is in flight for the given query, variables and environment,
+ * this function will return a Promise that will resolve when that request has
+ * completed and the data has been saved to the store.
+ * If no request is in flight, null will be returned
+ */
+function getPromiseForQueryRequest_UNSTABLE(args: {|
+  environment: Environment,
+  query: GraphQLTaggedNode,
+  variables: Variables,
+|}): Promise<void> | null {
+  const {environment, query, variables} = args;
+  const {getRequest} = environment.unstable_internal;
+  const queryNode = getRequest(query);
+  const requestCache = getRequestCache(environment);
+  const cacheKey = getRequestKey_UNSTABLE(queryNode, variables);
+  const cachedRequest = requestCache.get(cacheKey);
+  if (cachedRequest == null) {
+    return null;
+  }
+  return new Promise(resolve => {
+    fetchQuery_UNSTABLE({
+      environment,
+      query,
+      variables,
+      observer: {
+        complete: resolve,
+      },
+    });
+  });
+}
+
+function addReceivedEvent(
+  requestCache: Map<string, RequestCacheEntry>,
+  cacheKey: string,
+  observerEvent: ObserverEvent,
+) {
+  const cached = requestCache.get(cacheKey);
+  invariant(
+    cached != null,
+    'fetchQuery_UNSTABLE: Expected request to be cached',
+  );
+  const receivedEvents = [...cached.receivedEvents, observerEvent];
+  requestCache.set(cacheKey, {
+    ...cached,
+    receivedEvents,
+  });
+}
+
 function getRequestCache(
   environment: Environment,
 ): Map<string, RequestCacheEntry> {
@@ -305,21 +355,7 @@ function getCachedObservers(
   return cached.observers;
 }
 
-function addReceivedEvent(
-  requestCache: Map<string, RequestCacheEntry>,
-  cacheKey: string,
-  observerEvent: ObserverEvent,
-) {
-  const cached = requestCache.get(cacheKey);
-  invariant(
-    cached != null,
-    'fetchQuery_UNSTABLE: Expected request to be cached',
-  );
-  const receivedEvents = [...cached.receivedEvents, observerEvent];
-  requestCache.set(cacheKey, {
-    ...cached,
-    receivedEvents,
-  });
-}
-
-module.exports = fetchQuery_UNSTABLE;
+module.exports = {
+  fetchQuery_UNSTABLE,
+  getPromiseForQueryRequest_UNSTABLE,
+};

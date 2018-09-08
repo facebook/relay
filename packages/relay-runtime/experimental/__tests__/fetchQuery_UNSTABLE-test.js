@@ -11,8 +11,7 @@
 
 'use strict';
 
-const fetchQuery_UNSTABLE = require('../fetchQuery_UNSTABLE');
-
+const {fetchQuery_UNSTABLE} = require('../fetchQuery_UNSTABLE');
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {generateAndCompile} = require('RelayModernTestUtils');
 

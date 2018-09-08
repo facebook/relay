@@ -36,7 +36,6 @@ const commitLocalUpdate = require('./mutations/commitLocalUpdate');
 const commitRelayModernMutation = require('./mutations/commitRelayModernMutation');
 const createRelayNetworkLogger = require('./network/createRelayNetworkLogger');
 const deepFreeze = require('./util/deepFreeze');
-const fetchQuery_UNSTABLE = require('./experimental/fetchQuery_UNSTABLE');
 const fetchRelayModernQuery = require('./query/fetchRelayModernQuery');
 const generateRelayClientID = require('./store/generateRelayClientID');
 const getRelayHandleKey = require('./util/getRelayHandleKey');
@@ -49,6 +48,11 @@ const requestRelaySubscription = require('./subscription/requestRelaySubscriptio
 const retainQuery_UNSTABLE = require('./experimental/retainQuery_UNSTABLE');
 const simpleClone = require('./util/simpleClone');
 const stableCopy = require('./util/stableCopy');
+
+const {
+  fetchQuery_UNSTABLE,
+  getPromiseForQueryRequest_UNSTABLE,
+} = require('./experimental/fetchQuery_UNSTABLE');
 
 export type {
   ConnectionMetadata,
@@ -225,6 +229,7 @@ module.exports = {
   // EXPERIMENTAL
   checkQuery_UNSTABLE: checkQuery_UNSTABLE,
   fetchQuery_UNSTABLE: fetchQuery_UNSTABLE,
+  getPromiseForQueryRequest_UNSTABLE: getPromiseForQueryRequest_UNSTABLE,
   getRequestKey_UNSTABLE: getRequestKey_UNSTABLE,
   readQuery_UNSTABLE: readQuery_UNSTABLE,
   retainQuery_UNSTABLE: retainQuery_UNSTABLE,

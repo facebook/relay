@@ -39,6 +39,7 @@ const fetchQuery_UNSTABLE = require('./experimental/fetchQuery_UNSTABLE');
 const fetchRelayModernQuery = require('./query/fetchRelayModernQuery');
 const generateRelayClientID = require('./store/generateRelayClientID');
 const getRelayHandleKey = require('./util/getRelayHandleKey');
+const getRequestKey_UNSTABLE = require('./experimental/getRequestKey_UNSTABLE');
 const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
 const isScalarAndEqual = require('./util/isScalarAndEqual');
 const recycleNodesInto = require('./util/recycleNodesInto');
@@ -221,5 +222,6 @@ module.exports = {
 
   // EXPERIMENTAL
   fetchQuery_UNSTABLE: fetchQuery_UNSTABLE,
+  getRequestKey_UNSTABLE: getRequestKey_UNSTABLE,
   retainQuery_UNSTABLE: retainQuery_UNSTABLE,
 };

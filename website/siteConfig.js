@@ -56,6 +56,12 @@ const users = [
     infoLink: 'https://github.com/entria',
     pinned: false,
   },
+  {
+    caption: 'itDAGENE',
+    image: '/relay/img/logos/itdagene.png',
+    infoLink: 'https://github.com/itdagene-ntnu/itdagene-webapp',
+    pinned: false,
+  },
 ];
 
 const siteConfig = {

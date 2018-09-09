@@ -75,7 +75,7 @@ This function takes a <code>store</code>, which is a proxy of the in-memory <a h
 
 <span class="hljs-keyword">const</span> mutation = graphql<span class="hljs-string">`
   mutation MarkReadNotificationMutation(
-    $input: MarkReadNotificationData!
+    $input: MarkReadNotificationInput!
   ) {
     markReadNotification(data: $input) {
       notification {
@@ -110,7 +110,7 @@ This function takes a <code>store</code>, which is a proxy of the in-memory <a h
 <p>To improve perceived responsiveness, you may wish to perform an &quot;optimistic update&quot;, in which the client immediately updates to reflect the anticipated new value even before the response from the server has come back. The simplest way to do this is by providing an <code>optimisticResponse</code> and adding it to the <code>config</code> that we pass into <code>commitMutation</code>:</p>
 <pre><code class="hljs css languages- javascript"><span class="hljs-keyword">const</span> mutation = graphql<span class="hljs-string">`
   mutation MarkReadNotificationMutation(
-    $input: MarkReadNotificationData!
+    $input: MarkReadNotificationInput!
   ) {
     markReadNotification(data: $input) {
       notification {
@@ -144,11 +144,11 @@ commitMutation(
 <p>Given a deletedIDFieldName, Relay will remove the node(s) from the connection.</p>
 <h4><a class="anchor" aria-hidden="true" id="arguments-1"></a><a href="#arguments-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Arguments</h4>
 <ul>
-<li><code>deletedIDFieldName: string</code>: The field name in the response that contains the DataID of the deleted node</li>
+<li><code>deletedIDFieldName: string</code>: The field name in the response that contains the DataID or DataIDs of the deleted node or nodes</li>
 </ul>
 <h4><a class="anchor" aria-hidden="true" id="example"></a><a href="#example" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
 <pre><code class="hljs css languages- javascript"><span class="hljs-keyword">const</span> mutation = graphql<span class="hljs-string">`
-  mutation DestroyShipMutation($input: DestroyShipData!) {
+  mutation DestroyShipMutation($input: DestroyShipInput!) {
     destroyShip(input: $input) {
       destroyedShipId
       faction {
@@ -180,27 +180,34 @@ containing optional filters, and a range behavior depending on what behavior we 
 </ul>
 <h4><a class="anchor" aria-hidden="true" id="example-1"></a><a href="#example-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
 <pre><code class="hljs css languages- javascript"><span class="hljs-keyword">const</span> mutation = graphql<span class="hljs-string">`
-  mutation AddShipMutation($input: AddShipData!) {
+  mutation AddShipMutation($input: AddShipInput!) {
     addShip(input: $input) {
-      faction {
-        ships {
-          id
+      shipEdge {
+        node {
+          name
         }
       }
-      newShipEdge
     }
   }
 `</span>;
 
-<span class="hljs-keyword">const</span> configs = [{
-  <span class="hljs-attr">type</span>: <span class="hljs-string">'RANGE_ADD'</span>,
-  <span class="hljs-attr">parentID</span>: <span class="hljs-string">'shipId'</span>,
-  <span class="hljs-attr">connectionInfo</span>: [{
-    <span class="hljs-attr">key</span>: <span class="hljs-string">'AddShip_ships'</span>,
-    <span class="hljs-attr">rangeBehavior</span>: <span class="hljs-string">'append'</span>,
-  }],
-  <span class="hljs-attr">edgeName</span>: <span class="hljs-string">'newShipEdge'</span>,
-}];
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">commit</span>(<span class="hljs-params">environment, factionId, name</span>) </span>{
+  <span class="hljs-keyword">return</span> commitMutation(environment, {
+    mutation,
+    <span class="hljs-attr">variables</span>: {
+      <span class="hljs-attr">input</span>: { factionId, name },
+    },
+    <span class="hljs-attr">configs</span>: [{
+      <span class="hljs-attr">type</span>: <span class="hljs-string">'RANGE_ADD'</span>,
+      <span class="hljs-attr">parentID</span>: factionId,
+      <span class="hljs-attr">connectionInfo</span>: [{
+        <span class="hljs-attr">key</span>: <span class="hljs-string">'AddShip_ships'</span>,
+        <span class="hljs-attr">rangeBehavior</span>: <span class="hljs-string">'append'</span>,
+      }],
+      <span class="hljs-attr">edgeName</span>: <span class="hljs-string">'shipEdge'</span>,
+    }],
+  });
+}
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="range-delete"></a><a href="#range-delete" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>RANGE_DELETE</h3>
 <p>Given a parent, connectionKeys, one or more DataIDs in the response payload, and
@@ -216,31 +223,34 @@ objects containing a connection key and optionally filters.
 <li><code>filters</code>: An object containing GraphQL calls e.g. <code>const filters = {'orderby': 'chronological'};</code>.</li>
 </ul></li>
 <li><code>pathToConnection: Array&lt;string&gt;</code>: An array containing the field names between the parent and the connection, including the parent and the connection.</li>
-<li><code>deletedIDFieldName: string | Array&lt;string&gt;</code>: The field name in the response that contains the DataID of the removed node, or the path to the node removed from the connection</li>
+<li><code>deletedIDFieldName: string | Array&lt;string&gt;</code>: The field name in the response that contains the DataID or DataIDs of the removed node or nodes, or the path to the node or nodes removed from the connection</li>
 </ul>
 <h4><a class="anchor" aria-hidden="true" id="example-2"></a><a href="#example-2" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
 <pre><code class="hljs css languages- javascript"><span class="hljs-keyword">const</span> mutation = graphql<span class="hljs-string">`
-  mutation RemoveTagsMutation($input: RemoveTagsData!) {
-    removeTags(input: $input) {
-      todo {
-        tags {
-          id
-        }
-      }
+  mutation RemoveTagMutation($input: RemoveTagInput!) {
+    removeTag(input: $input) {
       removedTagId
     }
   }
 `</span>;
 
-<span class="hljs-keyword">const</span> configs = [{
-  <span class="hljs-attr">type</span>: <span class="hljs-string">'RANGE_DELETE'</span>,
-  <span class="hljs-attr">parentID</span>: <span class="hljs-string">'todoId'</span>,
-  <span class="hljs-attr">connectionKeys</span>: [{
-    <span class="hljs-attr">key</span>: RemoveTags_tags,
-  }],
-  <span class="hljs-attr">pathToConnection</span>: [<span class="hljs-string">'todo'</span>, <span class="hljs-string">'tags'</span>],
-  <span class="hljs-attr">deletedIDFieldName</span>: removedTagId
-}];
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">commit</span>(<span class="hljs-params">environment, todoId, tagId</span>) </span>{
+  <span class="hljs-keyword">return</span> commitMutation(environment, {
+    mutation,
+    <span class="hljs-attr">variables</span>: {
+      <span class="hljs-attr">input</span>: { todoId, tagId },
+    },
+    <span class="hljs-attr">configs</span>: [{
+      <span class="hljs-attr">type</span>: <span class="hljs-string">'RANGE_DELETE'</span>,
+      <span class="hljs-attr">parentID</span>: todoId,
+      <span class="hljs-attr">connectionKeys</span>: [{
+        <span class="hljs-attr">key</span>: <span class="hljs-string">'RemoveTags_tags'</span>,
+      }],
+      <span class="hljs-attr">pathToConnection</span>: [<span class="hljs-string">'todo'</span>, <span class="hljs-string">'tags'</span>],
+      <span class="hljs-attr">deletedIDFieldName</span>: <span class="hljs-string">'removedTagId'</span>,
+    }],
+  });
+}
 </code></pre>
 <h2><a class="anchor" aria-hidden="true" id="using-updater-and-optimisticupdater"></a><a href="#using-updater-and-optimisticupdater" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Using updater and optimisticUpdater</h2>
 <p><code>updater</code> and <code>optimisticUpdater</code> are functions that you can pass to a <code>commitMutation</code> call when you need full control over how to update the local data store, either optimistically, or based on a server response. Often times, both of these can be the same function.</p>
@@ -293,58 +303,51 @@ objects containing a connection key and optionally filters.
 
 <span class="hljs-keyword">let</span> tempID = <span class="hljs-number">0</span>;
 
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">commit</span>(<span class="hljs-params">
-  environment,
-  text,
-  user
-</span>) </span>{
-  <span class="hljs-keyword">return</span> commitMutation(
-    environment,
-    {
-      mutation,
-      <span class="hljs-attr">variables</span>: {
-        <span class="hljs-attr">input</span>: {
-          text,
-          <span class="hljs-attr">clientMutationId</span>: tempID++,
-        },
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">commit</span>(<span class="hljs-params">environment, text, user</span>) </span>{
+  <span class="hljs-keyword">return</span> commitMutation(environment, {
+    mutation,
+    <span class="hljs-attr">variables</span>: {
+      <span class="hljs-attr">input</span>: {
+        text,
+        <span class="hljs-attr">clientMutationId</span>: tempID++,
       },
-      <span class="hljs-attr">updater</span>: <span class="hljs-function">(<span class="hljs-params">store</span>) =&gt;</span> {
-        <span class="hljs-comment">// Get the payload returned from the server</span>
-        <span class="hljs-keyword">const</span> payload = store.getRootField(<span class="hljs-string">'addTodo'</span>);
+    },
+    <span class="hljs-attr">updater</span>: <span class="hljs-function">(<span class="hljs-params">store</span>) =&gt;</span> {
+      <span class="hljs-comment">// Get the payload returned from the server</span>
+      <span class="hljs-keyword">const</span> payload = store.getRootField(<span class="hljs-string">'addTodo'</span>);
 
-        <span class="hljs-comment">// Get the edge of the newly created Todo record</span>
-        <span class="hljs-keyword">const</span> newEdge = payload.getLinkedRecord(<span class="hljs-string">'todoEdge'</span>);
+      <span class="hljs-comment">// Get the edge of the newly created Todo record</span>
+      <span class="hljs-keyword">const</span> newEdge = payload.getLinkedRecord(<span class="hljs-string">'todoEdge'</span>);
 
-        <span class="hljs-comment">// Add it to the user's todo list</span>
-        sharedUpdater(store, user, newEdge);
-      },
-      <span class="hljs-attr">optimisticUpdater</span>: <span class="hljs-function">(<span class="hljs-params">store</span>) =&gt;</span> {
-        <span class="hljs-comment">// Create a Todo record in our store with a temporary ID</span>
-        <span class="hljs-keyword">const</span> id = <span class="hljs-string">'client:newTodo:'</span> + tempID++;
-        <span class="hljs-keyword">const</span> node = store.create(id, <span class="hljs-string">'Todo'</span>);
-        node.setValue(text, <span class="hljs-string">'text'</span>);
-        node.setValue(id, <span class="hljs-string">'id'</span>);
+      <span class="hljs-comment">// Add it to the user's todo list</span>
+      sharedUpdater(store, user, newEdge);
+    },
+    <span class="hljs-attr">optimisticUpdater</span>: <span class="hljs-function">(<span class="hljs-params">store</span>) =&gt;</span> {
+      <span class="hljs-comment">// Create a Todo record in our store with a temporary ID</span>
+      <span class="hljs-keyword">const</span> id = <span class="hljs-string">'client:newTodo:'</span> + tempID++;
+      <span class="hljs-keyword">const</span> node = store.create(id, <span class="hljs-string">'Todo'</span>);
+      node.setValue(text, <span class="hljs-string">'text'</span>);
+      node.setValue(id, <span class="hljs-string">'id'</span>);
 
-        <span class="hljs-comment">// Create a new edge that contains the newly created Todo record</span>
-        <span class="hljs-keyword">const</span> newEdge = store.create(
-          <span class="hljs-string">'client:newEdge:'</span> + tempID++,
-          <span class="hljs-string">'TodoEdge'</span>,
-        );
-        newEdge.setLinkedRecord(node, <span class="hljs-string">'node'</span>);
+      <span class="hljs-comment">// Create a new edge that contains the newly created Todo record</span>
+      <span class="hljs-keyword">const</span> newEdge = store.create(
+        <span class="hljs-string">'client:newEdge:'</span> + tempID++,
+        <span class="hljs-string">'TodoEdge'</span>,
+      );
+      newEdge.setLinkedRecord(node, <span class="hljs-string">'node'</span>);
 
-        <span class="hljs-comment">// Add it to the user's todo list</span>
-        sharedUpdater(store, user, newEdge);
+      <span class="hljs-comment">// Add it to the user's todo list</span>
+      sharedUpdater(store, user, newEdge);
 
-        <span class="hljs-comment">// Given that we don't have a server response here,</span>
-        <span class="hljs-comment">// we also need to update the todo item count on the user</span>
-        <span class="hljs-keyword">const</span> userRecord = store.get(user.id);
-        userRecord.setValue(
-          userRecord.getValue(<span class="hljs-string">'totalCount'</span>) + <span class="hljs-number">1</span>,
-          <span class="hljs-string">'totalCount'</span>,
-        );
-      },
-    }
-  );
+      <span class="hljs-comment">// Given that we don't have a server response here,</span>
+      <span class="hljs-comment">// we also need to update the todo item count on the user</span>
+      <span class="hljs-keyword">const</span> userRecord = store.get(user.id);
+      userRecord.setValue(
+        userRecord.getValue(<span class="hljs-string">'totalCount'</span>) + <span class="hljs-number">1</span>,
+        <span class="hljs-string">'totalCount'</span>,
+      );
+    },
+  });
 }
 </code></pre>
 <p>For details on how to interact with the Relay Store, please refer to our Relay Store <a href="./relay-store">docs</a>.</p>

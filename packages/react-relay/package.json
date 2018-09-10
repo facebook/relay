@@ -19,7 +19,7 @@
     "relay-runtime": "1.7.0-rc.1"
   },
   "peerDependencies": {
-    "react": "16.4.2"
+    "react": "^16.5.0"
   },
   "directories": {
     "": "./"

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
+ * @format strict-local
  * @emails oncall+relay
  */
 
@@ -119,7 +119,7 @@ describe('ReactRelayQueryRenderer', () => {
           function Child(props) {
             // NOTE the unstable_yield method will move to the static renderer.
             // When React sync runs we need to update this.
-            renderer.unstable_yield(props.children);
+            ReactTestRenderer.unstable_yield(props.children);
             return props.children;
           }
 
@@ -146,10 +146,7 @@ describe('ReactRelayQueryRenderer', () => {
           });
 
           // Flush some of the changes, but don't commit
-          expect(renderer.unstable_flushThrough(['A', 'B'])).toEqual([
-            'A',
-            'B',
-          ]);
+          expect(renderer.unstable_flushNumberOfYields(2)).toEqual(['A', 'B']);
           expect(renderer.toJSON()).toEqual(null);
           expect({
             error: null,
@@ -190,7 +187,7 @@ describe('ReactRelayQueryRenderer', () => {
           function Child(props) {
             // NOTE the unstable_yield method will move to the static renderer.
             // When React sync runs we need to update this.
-            renderer.unstable_yield(props.children);
+            ReactTestRenderer.unstable_yield(props.children);
             return props.children;
           }
 
@@ -217,10 +214,7 @@ describe('ReactRelayQueryRenderer', () => {
           });
 
           // Flush some of the changes, but don't commit
-          expect(renderer.unstable_flushThrough(['A', 'B'])).toEqual([
-            'A',
-            'B',
-          ]);
+          expect(renderer.unstable_flushNumberOfYields(2)).toEqual(['A', 'B']);
           expect(renderer.toJSON()).toEqual(null);
           expect({
             error: null,
@@ -270,7 +264,7 @@ describe('ReactRelayQueryRenderer', () => {
           function Child(props) {
             // NOTE the unstable_yield method will move to the static renderer.
             // When React sync runs we need to update this.
-            renderer.unstable_yield(props.children);
+            ReactTestRenderer.unstable_yield(props.children);
             return props.children;
           }
 
@@ -297,10 +291,7 @@ describe('ReactRelayQueryRenderer', () => {
           });
 
           // Flush some of the changes, but don't commit
-          expect(renderer.unstable_flushThrough(['A', 'B'])).toEqual([
-            'A',
-            'B',
-          ]);
+          expect(renderer.unstable_flushNumberOfYields(2)).toEqual(['A', 'B']);
           expect(renderer.toJSON()).toEqual(null);
           expect({
             error: null,

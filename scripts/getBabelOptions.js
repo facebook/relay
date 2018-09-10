@@ -28,10 +28,18 @@ module.exports = function(options) {
 
   // The module rewrite transform needs to be positioned relative to fbjs's
   // many other transforms.
+  const moduleMap = Object.assign(
+    {},
+    require('fbjs/module-map'),
+    options.moduleMap,
+  );
+  // TODO: Delete `nullthrows` from fbjs.
+  moduleMap.nullthrows = 'nullthrows';
+
   fbjsPreset.presets[0].plugins.push([
     require('./rewrite-modules'),
     {
-      map: Object.assign({}, require('fbjs/module-map'), options.moduleMap),
+      map: moduleMap,
     },
   ]);
 

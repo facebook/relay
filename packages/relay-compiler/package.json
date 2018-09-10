@@ -28,6 +28,7 @@
     "fbjs": "0.8.17",
     "graphql-compiler": "1.7.0-rc.1",
     "immutable": "~3.7.6",
+    "nullthrows": "^1.1.0",
     "relay-runtime": "1.7.0-rc.1",
     "signedsource": "^1.0.0",
     "yargs": "^9.0.0"

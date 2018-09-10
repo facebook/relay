@@ -28,6 +28,7 @@ const {
   MultiReporter,
 } = require('graphql-compiler');
 
+export type {FormatModule} from './language/RelayLanguagePluginInterface';
 export type {CompileResult, ParserConfig, WriterConfig} from 'graphql-compiler';
 
 const RelayJSModuleParser = RelaySourceModuleParser(FindGraphQLTags.find);

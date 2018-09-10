@@ -214,7 +214,7 @@ export type TypeGeneratorOptions = {|
   /**
    * @todo Document this.
    */
-  +inputFieldWhiteList: $ReadOnlyArray<string>,
+  +optionalInputFields: $ReadOnlyArray<string>,
 
   /**
    * Whether or not the Haste module system is being used. This will currently

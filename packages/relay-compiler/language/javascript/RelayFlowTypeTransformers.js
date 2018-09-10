@@ -130,7 +130,7 @@ function transformNonNullableInputType(type: GraphQLInputType, state: State) {
           transformInputType(field.type, state),
         );
         if (
-          state.inputFieldWhiteList.indexOf(field.name) >= 0 ||
+          state.optionalInputFields.indexOf(field.name) >= 0 ||
           !(field.type instanceof GraphQLNonNull)
         ) {
           property.optional = true;

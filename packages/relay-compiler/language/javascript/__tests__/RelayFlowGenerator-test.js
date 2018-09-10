@@ -47,7 +47,7 @@ describe('RelayFlowGenerator', () => {
       customScalars: {},
       enumsHasteModule: null,
       existingFragmentNames: new Set(['PhotoFragment']),
-      inputFieldWhiteList: [],
+      optionalInputFields: [],
       useHaste: true,
       useSingleArtifactDirectory: false,
     }),
@@ -63,7 +63,7 @@ describe('RelayFlowGenerator', () => {
       customScalars: {},
       enumsHasteModule: null,
       existingFragmentNames: new Set(['PhotoFragment']),
-      inputFieldWhiteList: [],
+      optionalInputFields: [],
       useHaste: true,
       useSingleArtifactDirectory: false,
       // This is what's different from the tests above.
@@ -124,7 +124,7 @@ describe('RelayFlowGenerator', () => {
       customScalars: {},
       enumsHasteModule: null,
       existingFragmentNames: new Set(['PhotoFragment']),
-      inputFieldWhiteList: [],
+      optionalInputFields: [],
       // This is what's different from the tests above.
       useHaste: false,
       useSingleArtifactDirectory: true,

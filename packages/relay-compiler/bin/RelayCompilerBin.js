@@ -302,7 +302,7 @@ function getRelayFileWriter(
         },
         customScalars: {},
         formatModule: languagePlugin.formatModule,
-        inputFieldWhiteListForFlow: [],
+        optionalInputFieldsForFlow: [],
         schemaExtensions,
         useHaste: false,
         noFutureProofEnums,

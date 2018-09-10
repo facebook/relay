@@ -31,7 +31,7 @@ module.exports = function(options) {
   const moduleMap = Object.assign(
     {},
     require('fbjs/module-map'),
-    options.moduleMap,
+    options.moduleMap
   );
   // TODO: Delete `nullthrows` from fbjs.
   moduleMap.nullthrows = 'nullthrows';

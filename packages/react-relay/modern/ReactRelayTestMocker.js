@@ -17,7 +17,6 @@ const warning = require('warning');
 
 const {Network, isRelayModernEnvironment} = require('relay-runtime');
 
-import type {ConcreteOperationDefinition} from '../classic/query/ConcreteQuery';
 import type {
   CacheConfig,
   GraphQLResponse,
@@ -40,10 +39,8 @@ type NetworkWriteConfig = {
   payload: GraphQLResponse | (Variables => GraphQLResponse),
 };
 
-type RequestType = RequestNode | ConcreteOperationDefinition;
-
 type PendingFetch = {
-  request: RequestType,
+  request: RequestNode,
   variables?: Variables,
   cacheConfig: ?CacheConfig,
   ident: string,
@@ -104,7 +101,7 @@ class ReactRelayTestMocker {
    * @returns a string which can later be used to uniquely identify this query
    * in the list of pending queries
    */
-  static getIdentifier(request: RequestType): string {
+  static getIdentifier(request: RequestNode): string {
     return request.name;
   }
 

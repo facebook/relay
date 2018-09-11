@@ -17,6 +17,7 @@ const RelayConnectionInterface = require('./handlers/connection/RelayConnectionI
 const RelayCore = require('./store/RelayCore');
 const RelayDeclarativeMutationConfig = require('./mutations/RelayDeclarativeMutationConfig');
 const RelayDefaultHandleKey = require('./util/RelayDefaultHandleKey');
+const RelayDefaultHandlerProvider = require('./handlers/RelayDefaultHandlerProvider');
 const RelayError = require('./util/RelayError');
 const RelayInMemoryRecordSource = require('./store/RelayInMemoryRecordSource');
 const RelayMarkSweepStore = require('./store/RelayMarkSweepStore');
@@ -181,6 +182,7 @@ module.exports = {
   RangeOperations: RelayDeclarativeMutationConfig.RangeOperations,
 
   // Extensions
+  DefaultHandlerProvider: RelayDefaultHandlerProvider,
   ConnectionHandler: RelayConnectionHandler,
   ViewerHandler: RelayViewerHandler,
 

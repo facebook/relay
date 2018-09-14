@@ -27,13 +27,13 @@ import type {
   Variables,
 } from 'relay-runtime';
 
-type DataWriteConfig = {
+export type DataWriteConfig = {
   query: RequestNode,
   variables: Variables,
   payload: GraphQLResponse,
 };
 
-type NetworkWriteConfig = {
+export type NetworkWriteConfig = {
   query: RequestNode,
   variables?: Variables,
   payload: GraphQLResponse | (Variables => GraphQLResponse),

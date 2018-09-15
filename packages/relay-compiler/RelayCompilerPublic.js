@@ -13,12 +13,15 @@
 const FindGraphQLTags = require('./language/javascript/FindGraphQLTags');
 const RelayCodeGenerator = require('./codegen/RelayCodeGenerator');
 const RelayFileWriter = require('./codegen/RelayFileWriter');
+const RelayFlowGenerator = require('./language/javascript/RelayFlowGenerator');
 const RelayIRTransforms = require('./core/RelayIRTransforms');
 const RelayParser = require('./core/RelayParser');
 const RelaySourceModuleParser = require('./core/RelaySourceModuleParser');
+const RelayValidator = require('./core/RelayValidator');
 
 const compileRelayArtifacts = require('./codegen/compileRelayArtifacts');
 const formatGeneratedModule = require('./language/javascript/formatGeneratedModule');
+const writeRelayGeneratedFile = require('./codegen/writeRelayGeneratedFile');
 
 const {CompilerContext: GraphQLCompilerContext} = require('graphql-compiler');
 const {
@@ -28,15 +31,20 @@ const {
   MultiReporter,
 } = require('graphql-compiler');
 
-export type {FormatModule} from './language/RelayLanguagePluginInterface';
+export type {RelayCompilerTransforms} from './codegen/compileRelayArtifacts';
+export type {
+  FormatModule,
+  TypeGenerator,
+} from './language/RelayLanguagePluginInterface';
 export type {CompileResult, ParserConfig, WriterConfig} from 'graphql-compiler';
-
 const RelayJSModuleParser = RelaySourceModuleParser(FindGraphQLTags.find);
 
 module.exports = {
   ConsoleReporter,
   Parser: RelayParser,
+  Validator: RelayValidator,
   CodeGenerator: RelayCodeGenerator,
+  FlowGenerator: RelayFlowGenerator,
 
   GraphQLCompilerContext,
 
@@ -52,4 +60,6 @@ module.exports = {
   formatGeneratedModule,
   convertASTDocuments: ASTConvert.convertASTDocuments,
   transformASTSchema: ASTConvert.transformASTSchema,
+
+  writeRelayGeneratedFile,
 };

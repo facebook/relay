@@ -78,7 +78,8 @@ function testPackageDependencies(topLevelPackagePath, packagePath) {
   const requiredRepoPackages = new Set([
     'graphql-compiler',
     'relay-compiler',
-    'relay-runtime'
+    'relay-runtime',
+    'react-relay',
   ]);
   for (const dependencyName in packageJson.dependencies) {
     // packages in this repo, won't be in the top level package.json.

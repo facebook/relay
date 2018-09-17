@@ -20,7 +20,16 @@ type ReactRelayCompatContext = {|
   variables: Variables,
 |};
 
-type ContextType = ReactRelayCompatContext | RelayClassicContext | null;
+type ReactRelayModernContext = {|
+  environment: IEnvironment,
+  variables: Variables,
+|};
+
+type ContextType =
+  | ReactRelayModernContext
+  | ReactRelayCompatContext
+  | RelayClassicContext
+  | null;
 
 const ReactRelayContext = React.createContext<ContextType>(null);
 

@@ -11,6 +11,7 @@
 'use strict';
 
 const checkQuery_UNSTABLE = require('./helpers/checkQuery_UNSTABLE');
+const createQueryRenderer_UNSTABLE = require('./renderers/createQueryRenderer_UNSTABLE');
 const getRequestKey_UNSTABLE = require('./helpers/getRequestKey_UNSTABLE');
 const readQuery_UNSTABLE = require('./helpers/readQuery_UNSTABLE');
 const retainQuery_UNSTABLE = require('./helpers/retainQuery_UNSTABLE');
@@ -27,4 +28,6 @@ module.exports = {
   getRequestKey_UNSTABLE: getRequestKey_UNSTABLE,
   readQuery_UNSTABLE: readQuery_UNSTABLE,
   retainQuery_UNSTABLE: retainQuery_UNSTABLE,
+
+  createQueryRenderer_UNSTABLE: createQueryRenderer_UNSTABLE,
 };

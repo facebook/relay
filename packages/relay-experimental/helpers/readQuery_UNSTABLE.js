@@ -10,8 +10,6 @@
 
 'use strict';
 
-const invariant = require('invariant');
-
 import type {
   GraphQLTaggedNode,
   IEnvironment,
@@ -25,19 +23,11 @@ import type {
  */
 function readQuery_UNSTABLE(
   environment: IEnvironment,
-  gqlNode: GraphQLTaggedNode,
+  query: GraphQLTaggedNode,
   variables: Variables,
 ): Snapshot {
-  const {
-    getRequest,
-    isRequest,
-    createOperationSelector,
-  } = environment.unstable_internal;
-  invariant(
-    isRequest(gqlNode),
-    'readQuery_UNSTABLE: Expected graphql node to be a query',
-  );
-  const queryNode = getRequest(gqlNode);
+  const {getRequest, createOperationSelector} = environment.unstable_internal;
+  const queryNode = getRequest(query);
   const operation = createOperationSelector(queryNode, variables);
   return environment.lookup(operation.fragment);
 }

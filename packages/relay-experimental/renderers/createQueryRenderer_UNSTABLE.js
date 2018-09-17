@@ -227,16 +227,16 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
       // If we didn't, new mounts of the component would always find the data
       // cached in DataResourceCache and not read from the store or fetch
       const DataResourceCache = getCacheForEnvironment(environment);
-      DataResourceCache.invalidate({gqlNode: query, variables});
+      DataResourceCache.invalidateQuery({query, variables});
     }
 
     _handleDataUpdate = latestSnapshot => {
       const {environment, variables} = this.props;
       const DataResourceCache = getCacheForEnvironment(environment);
 
-      DataResourceCache.invalidate({gqlNode: query, variables});
-      DataResourceCache.set({
-        gqlNode: query,
+      DataResourceCache.invalidateQuery({query, variables});
+      DataResourceCache.setQuery({
+        query,
         variables,
         snapshot: latestSnapshot,
       });
@@ -267,7 +267,7 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
       const {children, dataAccess, environment, variables} = this.props;
       const DataResourceCache = getCacheForEnvironment(environment);
 
-      const {snapshot, data, fetchDisposable} = DataResourceCache.read({
+      const {snapshot, data, fetchDisposable} = DataResourceCache.readQuery({
         environment,
         query,
         variables,

@@ -16,6 +16,8 @@ const RelayCore = require('relay-runtime/store/RelayCore');
 const checkQuery_UNSTABLE = require('../helpers/checkQuery_UNSTABLE');
 const getRequestKey_UNSTABLE = require('../helpers/getRequestKey_UNSTABLE');
 const invariant = require('invariant');
+const mapObject = require('mapObject');
+const readFragment_UNSTABLE = require('../helpers/readFragment_UNSTABLE');
 const readQuery_UNSTABLE = require('../helpers/readQuery_UNSTABLE');
 
 const {
@@ -38,20 +40,38 @@ type CacheReadResult = {
   fetchDisposable: Disposable | null,
 };
 
+export type FragmentSpec = {[string]: GraphQLTaggedNode};
 export type DataAccessPolicy =
   | 'STORE_ONLY'
   | 'STORE_OR_NETWORK'
   | 'STORE_THEN_NETWORK'
   | 'NETWORK_ONLY';
 
-const {getRequest, isRequest} = RelayCore;
+const {getFragment, getRequest} = RelayCore;
 
 const DATA_RETENTION_TIMEOUT = 30 * 1000;
 
-function getCacheKey(gqlNode: GraphQLTaggedNode, variables: Variables): string {
-  invariant(isRequest(gqlNode), 'DataResourceCache: Expected a query');
-  const requestNode = getRequest(gqlNode);
+function getQueryCacheKey(
+  query: GraphQLTaggedNode,
+  variables: Variables,
+): string {
+  const requestNode = getRequest(query);
   return getRequestKey_UNSTABLE(requestNode, variables);
+}
+
+function getFragmentCacheKey(
+  fragment: GraphQLTaggedNode,
+  fragmentRef: mixed,
+  variables: Variables,
+): string {
+  invariant(
+    fragmentRef != null,
+    'RenderDataResource: Expected fragmentRef to be provided',
+  );
+  const fragmentNode = getFragment(fragment);
+  return `${fragmentNode.name}-${fragmentNode.type}-${JSON.stringify(
+    fragmentRef,
+  )}-${JSON.stringify(variables)}`;
 }
 
 function hasData(snapshot: Snapshot | $ReadOnlyArray<Snapshot>) {
@@ -138,7 +158,7 @@ function createCache() {
     dataAccess?: DataAccessPolicy,
   |}): Disposable {
     const {environment, query, variables} = args;
-    const cacheKey = getCacheKey(query, variables);
+    const cacheKey = getQueryCacheKey(query, variables);
     const dataAccess = args.dataAccess ?? 'NETWORK_ONLY';
     let shouldFetch;
     switch (dataAccess) {
@@ -153,7 +173,7 @@ function createCache() {
           // It is possible for queries to be fetched completely outside of React
           // rendering, which is why we check if a request is in flight globally
           // for this query.
-          const promiseForQuery = getPromiseForRequestInFlight({
+          const promiseForQuery = getPromiseForQueryRequestInFlight({
             environment,
             query,
             variables,
@@ -259,9 +279,10 @@ function createCache() {
    * Checks if a request for a query is in flight globally, and if so, returns
    * a Promise for that query.
    * Before the promise resolves, it will store in cache the latest data from
-   * the Relay store, or an error if one occurred during the request
+   * the Relay store for the query, or an error if one occurred during the
+   * request.
    */
-  function getPromiseForRequestInFlight(args: {|
+  function getPromiseForQueryRequestInFlight(args: {|
     environment: IEnvironment,
     query: GraphQLTaggedNode,
     variables: Variables,
@@ -276,7 +297,7 @@ function createCache() {
       return null;
     }
 
-    const cacheKey = getCacheKey(query, variables);
+    const cacheKey = getQueryCacheKey(query, variables);
     // When the Promise for the request resolves, we need to make sure to
     // update the cache with the latest data available in the store before
     // resolving the Promise
@@ -291,6 +312,51 @@ function createCache() {
           cache.set(cacheKey, latestSnapshot);
         } else {
           cache.delete(cacheKey);
+        }
+      })
+      .catch(error => {
+        cache.set(cacheKey, error);
+      });
+  }
+
+  /**
+   * Checks if a request for a the parent query for a fragment is in flight
+   * globally, and if so, returns a Promise for that query.
+   * Before the promise resolves, it will store in cache the latest data from
+   * the Relay store for the fragment, or an error if one occurred during the
+   * request.
+   */
+  function getPromiseForFragmentRequestInFlight(args: {|
+    environment: IEnvironment,
+    fragment: GraphQLTaggedNode,
+    fragmentRef: mixed,
+    parentQuery: GraphQLTaggedNode,
+    variables: Variables,
+  |}): Promise<void> | null {
+    const {environment, fragment, fragmentRef, parentQuery, variables} = args;
+    const promise = getPromiseForRequestInFlight_UNSTABLE({
+      environment,
+      query: parentQuery,
+      variables,
+    });
+    if (!promise) {
+      return null;
+    }
+
+    const cacheKey = getFragmentCacheKey(fragment, fragmentRef, variables);
+    // When the Promise for the request resolves, we need to make sure to
+    // update the cache with the latest data available in the store before
+    // resolving the Promise
+    return promise
+      .then(() => {
+        const latestSnapshot = readFragment_UNSTABLE(
+          environment,
+          fragment,
+          fragmentRef,
+          variables,
+        );
+        if (hasData(latestSnapshot)) {
+          cache.set(cacheKey, latestSnapshot);
         }
       })
       .catch(error => {
@@ -314,19 +380,56 @@ function createCache() {
   function makeDataResult(args: {
     environment: IEnvironment,
     query: GraphQLTaggedNode,
+    fragment?: GraphQLTaggedNode,
+    fragmentRef?: mixed,
     variables: Variables,
     snapshot: Snapshot | $ReadOnlyArray<Snapshot>,
-    fetchDisposable: Disposable | null,
+    fetchDisposable?: Disposable,
   }): CacheReadResult {
-    const {environment, query, variables, snapshot, fetchDisposable} = args;
-    invariant(isRequest(query), 'DataResourceCache: Expected a query');
+    const {
+      environment,
+      query,
+      fetchDisposable,
+      fragment,
+      fragmentRef,
+      variables,
+      snapshot,
+    } = args;
     invariant(
       hasData(snapshot),
       'DataResourceCache: Expected snapshot to have data when returning a result',
     );
     const handleFieldMissing = () => {
+      if (fragment != null) {
+        // Check if a request is in flight for the parent query  this field
+        // belongs to.
+        const suspender = getPromiseForFragmentRequestInFlight({
+          environment,
+          fragment,
+          fragmentRef,
+          parentQuery: query,
+          variables,
+        });
+        if (suspender) {
+          const cacheKey = getFragmentCacheKey(
+            fragment,
+            fragmentRef,
+            variables,
+          );
+          cache.set(cacheKey, suspender);
+          throw suspender;
+        }
+
+        // Otherwise, throw an error.
+        // This means that we're trying to read a field that isn't available and
+        // isn't being fetched at all.
+        // This can happen if the dataAccess policy is STORE_ONLY
+        throw new Error(
+          'DataResourceCache_UNSTABLE: Tried reading a fragment that is not available locally and is not being fetched',
+        );
+      }
       // Check if a request is in flight for the query this field belongs to.
-      const suspender = getPromiseForRequestInFlight({
+      const suspender = getPromiseForQueryRequestInFlight({
         environment,
         query,
         variables,
@@ -334,7 +437,7 @@ function createCache() {
 
       // If so, suspend with the Promise for that request
       if (suspender) {
-        const cacheKey = getCacheKey(query, variables);
+        const cacheKey = getQueryCacheKey(query, variables);
         cache.set(cacheKey, suspender);
         throw suspender;
       }
@@ -352,7 +455,7 @@ function createCache() {
       data: Array.isArray(snapshot)
         ? proxyDataResult(snapshot.map(s => s.data), handleFieldMissing)
         : proxyDataResult(snapshot.data, handleFieldMissing),
-      fetchDisposable,
+      fetchDisposable: fetchDisposable ?? null,
       snapshot,
     };
   }
@@ -369,15 +472,14 @@ function createCache() {
      *     Promise for that request
      *   - Otherwise, return empty data.
      */
-    read(args: {|
+    readQuery(args: {|
       environment: IEnvironment,
       query: GraphQLTaggedNode,
       variables: Variables,
       dataAccess?: DataAccessPolicy,
     |}): CacheReadResult {
       const {environment, query, variables} = args;
-      invariant(isRequest(query), 'DataResourceCache: Expected a query');
-      const cacheKey = getCacheKey(query, variables);
+      const cacheKey = getQueryCacheKey(query, variables);
 
       // 1. Check if there's a cached value for this query
       let cachedValue = cache.get(cacheKey);
@@ -390,7 +492,6 @@ function createCache() {
           query,
           variables,
           snapshot: cachedValue,
-          fetchDisposable: null,
         });
       }
 
@@ -421,20 +522,97 @@ function createCache() {
       );
     },
 
+    readFragmentSpec(args: {|
+      environment: IEnvironment,
+      variables: Variables,
+      fragmentSpec: FragmentSpec,
+      fragmentRefs: {[string]: mixed},
+      parentQuery: GraphQLTaggedNode,
+    |}): {[string]: CacheReadResult} {
+      const {
+        environment,
+        fragmentSpec,
+        fragmentRefs,
+        parentQuery,
+        variables,
+      } = args;
+      return mapObject(fragmentSpec, (fragment, key) => {
+        const fragmentRef = fragmentRefs[key];
+        const cacheKey = getFragmentCacheKey(fragment, fragmentRef, variables);
+        const cachedValue = cache.get(cacheKey) ?? null;
+
+        // 1. Check if there's a cached value for this fragment
+        if (cachedValue != null) {
+          if (cachedValue instanceof Promise || cachedValue instanceof Error) {
+            throw cachedValue;
+          }
+          return makeDataResult({
+            environment,
+            query: parentQuery,
+            fragment,
+            fragmentRef,
+            variables,
+            snapshot: cachedValue,
+          });
+        }
+
+        // 2. If not, try reading the fragment from the Relay store.
+        // If the snapshot has data, return it and save it in cache
+        const snapshot = readFragment_UNSTABLE(
+          environment,
+          fragment,
+          fragmentRef,
+          variables,
+        );
+        if (hasData(snapshot)) {
+          cache.set(cacheKey, snapshot);
+          return makeDataResult({
+            environment,
+            query: parentQuery,
+            fragment,
+            fragmentRef,
+            variables,
+            snapshot,
+          });
+        }
+
+        // 3. If we don't have data in the store, check if a request is in
+        // flight for the fragment's parent query. If so, suspend with the Promise
+        // for that request.
+        const suspender = getPromiseForFragmentRequestInFlight({
+          environment,
+          fragment,
+          fragmentRef,
+          parentQuery,
+          variables,
+        });
+        if (suspender != null) {
+          throw suspender;
+        }
+
+        // 3. If a cached value still isn't available, throw an error.
+        // This means that we're trying to read a query that isn't available and
+        // isn't being fetched at all.
+        // This can happen if the dataAccess policy is STORE_ONLY
+        throw new Error(
+          'DataResourceCache_UNSTABLE: Tried reading a fragment that is not available locally and is not being fetched',
+        );
+      });
+    },
+
     /**
      * If a query isn't already saved in cache, attempts to fetch, retain and
      * store data for a query, based on the provided data access policy.
      * See: fetchQuery.
      */
-    preload(args: {|
+    preloadQuery(args: {|
       environment: IEnvironment,
       query: GraphQLTaggedNode,
       variables: Variables,
       dataAccess?: DataAccessPolicy,
     |}): Disposable {
       const {environment, query, variables, dataAccess} = args;
-      invariant(isRequest(query), 'DataResourceCache: Expected a query');
-      const cacheKey = getCacheKey(query, variables);
+      const cacheKey = getQueryCacheKey(query, variables);
       if (cache.has(cacheKey)) {
         return {dispose: () => {}};
       }
@@ -442,25 +620,77 @@ function createCache() {
     },
 
     /**
-     * Removes entry from cache
+     * Removes entry for query from cache
      */
-    invalidate(args: {|gqlNode: GraphQLTaggedNode, variables: Variables|}) {
-      const {gqlNode, variables} = args;
-      const cacheKey = getCacheKey(gqlNode, variables);
+    invalidateQuery(args: {|query: GraphQLTaggedNode, variables: Variables|}) {
+      const {query, variables} = args;
+      const cacheKey = getQueryCacheKey(query, variables);
       cache.delete(cacheKey);
     },
 
     /**
-     * Sets data snapshot in cache if data isn't empty
+     * Removes entry for fragment from cache
      */
-    set(args: {|
-      gqlNode: GraphQLTaggedNode,
+    invalidateFragment(args: {|
+      fragment: GraphQLTaggedNode,
+      fragmentRef: mixed,
+      variables: Variables,
+    |}): void {
+      const {fragment, fragmentRef, variables} = args;
+      const cacheKey = getFragmentCacheKey(fragment, fragmentRef, variables);
+      cache.delete(cacheKey);
+    },
+
+    /**
+     * Removes entry for each provided fragment from cache
+     */
+    invalidateFragmentSpec(args: {|
+      fragmentSpec: FragmentSpec,
+      fragmentRefs: {[string]: mixed},
+      variables: Variables,
+    |}): void {
+      const {fragmentSpec, fragmentRefs, variables} = args;
+      Object.keys(fragmentSpec).forEach(key => {
+        const fragment = fragmentSpec[key];
+        const fragmentRef = fragmentRefs[key];
+        invariant(
+          fragment != null,
+          'RenderDataResource: Expected fragment to be defined',
+        );
+
+        const cacheKey = getFragmentCacheKey(fragment, fragmentRef, variables);
+        cache.delete(cacheKey);
+      });
+    },
+
+    /**
+     * Sets snapshot for query in cache if data in snapshot isn't empty
+     */
+    setQuery(args: {|
+      query: GraphQLTaggedNode,
+      variables: Variables,
+      snapshot: Snapshot,
+    |}): void {
+      const {query, snapshot, variables} = args;
+      if (hasData(snapshot)) {
+        const cacheKey = getQueryCacheKey(query, variables);
+        cache.set(cacheKey, snapshot);
+      }
+    },
+
+    /**
+     * Sets snapshot in cache for provided fragment if data in snapshot
+     * isn't empty
+     */
+    setFragment(args: {|
+      fragment: GraphQLTaggedNode,
+      fragmentRef: mixed,
       variables: Variables,
       snapshot: Snapshot | $ReadOnlyArray<Snapshot>,
     |}): void {
-      const {gqlNode, snapshot, variables} = args;
-      const cacheKey = getCacheKey(gqlNode, variables);
+      const {fragment, fragmentRef, variables, snapshot} = args;
       if (hasData(snapshot)) {
+        const cacheKey = getFragmentCacheKey(fragment, fragmentRef, variables);
         cache.set(cacheKey, snapshot);
       }
     },

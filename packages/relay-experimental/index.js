@@ -17,13 +17,13 @@ const retainQuery_UNSTABLE = require('./helpers/retainQuery_UNSTABLE');
 
 const {
   fetchQuery_UNSTABLE,
-  getPromiseForQueryRequest_UNSTABLE,
+  getPromiseForRequestInFlight_UNSTABLE,
 } = require('./helpers/fetchQuery_UNSTABLE');
 
 module.exports = {
   checkQuery_UNSTABLE: checkQuery_UNSTABLE,
   fetchQuery_UNSTABLE: fetchQuery_UNSTABLE,
-  getPromiseForQueryRequest_UNSTABLE: getPromiseForQueryRequest_UNSTABLE,
+  getPromiseForRequestInFlight_UNSTABLE: getPromiseForRequestInFlight_UNSTABLE,
   getRequestKey_UNSTABLE: getRequestKey_UNSTABLE,
   readQuery_UNSTABLE: readQuery_UNSTABLE,
   retainQuery_UNSTABLE: retainQuery_UNSTABLE,

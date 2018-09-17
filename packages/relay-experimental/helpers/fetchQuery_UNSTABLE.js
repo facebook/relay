@@ -277,7 +277,7 @@ function fetchQuery_UNSTABLE<TQuery: OperationType>(args: {|
  * completed and the data has been saved to the store.
  * If no request is in flight, null will be returned
  */
-function getPromiseForQueryRequest_UNSTABLE(args: {|
+function getPromiseForRequestInFlight_UNSTABLE(args: {|
   environment: IEnvironment,
   query: GraphQLTaggedNode,
   variables: Variables,
@@ -291,13 +291,24 @@ function getPromiseForQueryRequest_UNSTABLE(args: {|
   if (cachedRequest == null) {
     return null;
   }
-  return new Promise(resolve => {
-    fetchQuery_UNSTABLE({
+  return new Promise((resolve, reject) => {
+    const disposable: ?Disposable = fetchQuery_UNSTABLE({
       environment,
       query,
       variables,
       observer: {
-        complete: resolve,
+        complete: () => {
+          if (disposable) {
+            disposable.dispose();
+          }
+          resolve();
+        },
+        error: error => {
+          if (disposable) {
+            disposable.dispose();
+          }
+          reject(error);
+        },
       },
     });
   });
@@ -358,5 +369,5 @@ function getCachedObservers(
 
 module.exports = {
   fetchQuery_UNSTABLE,
-  getPromiseForQueryRequest_UNSTABLE,
+  getPromiseForRequestInFlight_UNSTABLE,
 };

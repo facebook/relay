@@ -23,6 +23,7 @@ const {
 } = require('./DataResourceCache_UNSTABLE');
 
 import type {DataAccessPolicy} from './DataResourceCache_UNSTABLE';
+import type {ReactRelayModernContext} from 'react-relay/modern/ReactRelayContext';
 import type {
   Disposable,
   GraphQLTaggedNode,
@@ -123,10 +124,7 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
   |};
 
   type State = {|
-    mirroredEnvironmentAndVariables: {|
-      environment: IEnvironment,
-      variables: $ElementType<TQuery, 'variables'>,
-    |},
+    reactRelayContext: ReactRelayModernContext,
   |};
 
   return class QueryRenderer extends React.Component<Props, State> {
@@ -140,8 +138,9 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
       const {environment, variables} = props;
 
       this.state = {
-        mirroredEnvironmentAndVariables: {
+        reactRelayContext: {
           environment: environment,
+          query,
           variables: variables,
         },
       };
@@ -152,17 +151,16 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
       prevState: State,
     ): $Shape<State> | null {
       const {environment, variables} = nextProps;
-      const mirroredEnvironment =
-        prevState.mirroredEnvironmentAndVariables.environment;
-      const mirroredVariables =
-        prevState.mirroredEnvironmentAndVariables.variables;
+      const mirroredEnvironment = prevState.reactRelayContext.environment;
+      const mirroredVariables = prevState.reactRelayContext.variables;
       if (
         environment !== mirroredEnvironment ||
         !areEqual(variables, mirroredVariables)
       ) {
         return {
-          mirroredEnvironmentAndVariables: {
+          reactRelayContext: {
             environment,
+            query,
             variables,
           },
         };
@@ -201,8 +199,7 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
         this._fetchDisposable = null;
       }
       const mustResubscribe =
-        prevState.mirroredEnvironmentAndVariables !==
-        this.state.mirroredEnvironmentAndVariables;
+        prevState.reactRelayContext !== this.state.reactRelayContext;
       if (mustResubscribe) {
         if (this._retainHandle) {
           this._retainHandle.dispose();
@@ -290,7 +287,7 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
       // We keep environment and variables mirrored in state so we don't pass
       // a new object on every render to ReactRelayContext.Provider, which would
       // always trigger an update to all consumers
-      const reactRelayContext = this.state.mirroredEnvironmentAndVariables;
+      const {reactRelayContext} = this.state;
       return (
         <ReactRelayContext.Provider value={reactRelayContext}>
           <DataResourceCacheContext.Provider value={DataResourceCache}>

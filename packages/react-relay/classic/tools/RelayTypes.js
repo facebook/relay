@@ -200,4 +200,5 @@ export type RelayClassicContext = {|
   variables: Variables,
   route: RelayQueryConfigInterface,
   useFakeData: boolean,
+  query?: empty,
 |};

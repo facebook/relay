@@ -13,24 +13,26 @@ const React = require('React');
 
 import type {RelayEnvironmentInterface as ClassicEnvironment} from '../classic/store/RelayEnvironment';
 import type {RelayClassicContext} from '../classic/tools/RelayTypes';
-import type {IEnvironment, Variables} from 'relay-runtime';
+import type {GraphQLTaggedNode, IEnvironment, Variables} from 'relay-runtime';
 
-type ReactRelayCompatContext = {|
+export type ReactRelayCompatContext = {|
   environment: IEnvironment | ClassicEnvironment,
+  query?: GraphQLTaggedNode,
   variables: Variables,
 |};
 
-type ReactRelayModernContext = {|
+export type ReactRelayModernContext = {|
   environment: IEnvironment,
+  query?: GraphQLTaggedNode,
   variables: Variables,
 |};
 
-type ContextType =
+export type ReactRelayContextType =
   | ReactRelayModernContext
   | ReactRelayCompatContext
   | RelayClassicContext
   | null;
 
-const ReactRelayContext = React.createContext<ContextType>(null);
+const ReactRelayContext = React.createContext<ReactRelayContextType>(null);
 
 module.exports = ReactRelayContext;

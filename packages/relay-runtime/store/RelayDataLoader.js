@@ -6,6 +6,7 @@
  *
  * @flow strict-local
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
@@ -58,7 +59,7 @@ function check(
   source: RecordSource,
   target: MutableRecordSource,
   selector: Selector,
-  handlers: Array<MissingFieldHandler>,
+  handlers: $ReadOnlyArray<MissingFieldHandler>,
 ): boolean {
   const {dataID, node, variables} = selector;
   const loader = new RelayDataLoader(source, target, variables, handlers);
@@ -74,13 +75,13 @@ class RelayDataLoader {
   _mutator: RelayRecordSourceMutator;
   _variables: Variables;
   _recordWasMissing: boolean;
-  _handlers: Array<MissingFieldHandler>;
+  _handlers: $ReadOnlyArray<MissingFieldHandler>;
 
   constructor(
     source: RecordSource,
     target: MutableRecordSource,
     variables: Variables,
-    handlers: Array<MissingFieldHandler>,
+    handlers: $ReadOnlyArray<MissingFieldHandler>,
   ) {
     this._source = source;
     this._variables = variables;

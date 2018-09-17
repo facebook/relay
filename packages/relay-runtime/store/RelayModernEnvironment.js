@@ -6,12 +6,15 @@
  *
  * @flow
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
 
 const RelayCore = require('./RelayCore');
+const RelayDataLoader = require('./RelayDataLoader');
 const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
+const RelayInMemoryRecordSource = require('./RelayInMemoryRecordSource');
 const RelayPublishQueue = require('./RelayPublishQueue');
 
 const deferrableFragmentKey = require('./deferrableFragmentKey');
@@ -35,6 +38,7 @@ import type {
 import type RelayObservable from '../network/RelayObservable';
 import type {
   Environment,
+  MissingFieldHandler,
   OperationSelector,
   OptimisticUpdate,
   Selector,
@@ -51,6 +55,7 @@ export type EnvironmentConfig = {
   handlerProvider?: HandlerProvider,
   network: Network,
   store: Store,
+  missingFieldHandlers?: $ReadOnlyArray<MissingFieldHandler>,
 };
 
 class RelayModernEnvironment implements Environment {
@@ -60,6 +65,7 @@ class RelayModernEnvironment implements Environment {
   configName: ?string;
   unstable_internal: UnstableEnvironmentCore;
   _deferrableSelections: Set<string> = new Set();
+  _missingFieldHandlers: ?$ReadOnlyArray<MissingFieldHandler>;
 
   constructor(config: EnvironmentConfig) {
     this.configName = config.configName;
@@ -84,6 +90,9 @@ class RelayModernEnvironment implements Environment {
     const devToolsHook = _global && _global.__RELAY_DEVTOOLS_HOOK__;
     if (devToolsHook) {
       devToolsHook.registerEnvironment(this);
+    }
+    if (config.missingFieldHandlers != null) {
+      this._missingFieldHandlers = config.missingFieldHandlers;
     }
   }
 
@@ -133,7 +142,13 @@ class RelayModernEnvironment implements Environment {
   }
 
   check(readSelector: Selector): boolean {
-    return this._store.check(readSelector);
+    if (this._missingFieldHandlers == null) {
+      return this._store.check(readSelector);
+    }
+    return this._checkSelectorAndHandleMissingFields(
+      readSelector,
+      this._missingFieldHandlers,
+    );
   }
 
   commitPayload(
@@ -174,6 +189,25 @@ class RelayModernEnvironment implements Environment {
     );
     return this._deferrableSelections.has(key);
   }
+
+  _checkSelectorAndHandleMissingFields(
+    selector: Selector,
+    handlers: $ReadOnlyArray<MissingFieldHandler>,
+  ): boolean {
+    const target = new RelayInMemoryRecordSource();
+    const result = RelayDataLoader.check(
+      this._store.getSource(),
+      target,
+      selector,
+      handlers,
+    );
+    if (target.size() > 0) {
+      this._publishQueue.commitSource(target);
+      this._publishQueue.run();
+    }
+    return result;
+  }
+
   /**
    * Returns an Observable of ExecutePayload resulting from executing the
    * provided Query or Subscription operation, each result of which is then

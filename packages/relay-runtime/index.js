@@ -91,6 +91,7 @@ export type {
   Environment as IEnvironment,
   FragmentMap,
   FragmentReference,
+  MissingFieldHandler,
   OperationSelector,
   RecordProxy,
   RecordSourceProxy,
@@ -206,6 +207,7 @@ module.exports = {
   RelayNetworkLoggerTransaction: RelayNetworkLoggerTransaction,
   DEFAULT_HANDLE_KEY: RelayDefaultHandleKey.DEFAULT_HANDLE_KEY,
   ROOT_ID: RelayStoreUtils.ROOT_ID,
+  ROOT_TYPE: RelayStoreUtils.ROOT_TYPE,
 
   createRelayNetworkLogger: createRelayNetworkLogger,
   deepFreeze: deepFreeze,

@@ -21,6 +21,7 @@ const RelayReadyStateRenderer = require('../RelayReadyStateRenderer');
 const RelayStaticContainer = require('../RelayStaticContainer');
 const prettyFormat = require('pretty-format');
 const ReactTestRenderer = require('react-test-renderer');
+const ReactRelayContext = require('../../../modern/ReactRelayContext');
 
 describe('RelayReadyStateRenderer', () => {
   /**
@@ -535,15 +536,15 @@ describe('RelayReadyStateRenderer', () => {
 
   describe('context', () => {
     it('sets environment and query config on the React context', () => {
-      class TestComponent extends React.Component {
-        static contextTypes = {
-          relay: Relay.PropTypes.Relay,
-          route: Relay.PropTypes.QueryConfig.isRequired,
-        };
-        render() {
-          this.props.onRenderContext(this.context);
-          return null;
-        }
+      function TestComponent({onRenderContext}) {
+        return (
+          <ReactRelayContext.Consumer>
+            {context => {
+              onRenderContext(context);
+              return null;
+            }}
+          </ReactRelayContext.Consumer>
+        );
       }
 
       const onRenderContext = jest.fn();
@@ -555,10 +556,8 @@ describe('RelayReadyStateRenderer', () => {
         />,
       );
       expect(onRenderContext).toBeCalledWith({
-        relay: {
-          environment: defaultProps.environment,
-          variables: {},
-        },
+        environment: defaultProps.environment,
+        variables: {},
         route: defaultProps.queryConfig,
       });
     });

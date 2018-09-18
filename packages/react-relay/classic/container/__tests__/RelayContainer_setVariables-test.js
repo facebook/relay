@@ -612,7 +612,7 @@ describe('RelayContainer.setVariables', function() {
         prepared: false,
       });
       expect(calls[1]).toBe(
-        RelayMetaRoute.get(mockInstance.context.route.name),
+        RelayMetaRoute.get(mockInstance.props.__relayContext.route.name),
       );
 
       // `prepareVariables` output is used to prime the cache...

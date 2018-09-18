@@ -328,22 +328,15 @@ describe('RelayContainer', function() {
     });
   });
 
-  it('throws if rendered without a relay context', () => {
-    expect(() =>
-      shallowRenderer.render(<MockContainer foo={mockFooPointer} />),
-    ).toFailInvariant(
-      'RelayContainer: `Relay(MockComponent)` was rendered with invalid ' +
-        'Relay context `undefined`. Make sure the `relay` property on the ' +
-        'React context conforms to the `RelayEnvironment` interface.',
-    );
-  });
-
   it('throws if rendered with an invalid relay context', () => {
     const fakeContext = {};
     expect(() =>
-      shallowRenderer.render(<MockContainer foo={mockFooPointer} />, {
-        relay: fakeContext,
-      }),
+      RelayTestRenderer.render(
+        () => <MockContainer foo={mockFooPointer} />,
+        null,
+        null,
+        fakeContext,
+      ),
     ).toFailInvariant(
       'RelayContainer: `Relay(MockComponent)` was rendered with invalid ' +
         'Relay context `[object Object]`. Make sure the `relay` property on ' +
@@ -357,7 +350,12 @@ describe('RelayContainer', function() {
       variables: {},
     };
     expect(() =>
-      shallowRenderer.render(<MockContainer foo={mockFooPointer} />, {relay}),
+      RelayTestRenderer.render(
+        () => <MockContainer foo={mockFooPointer} />,
+        null,
+        null,
+        relay,
+      ),
     ).toFailInvariant(
       'RelayContainer: `Relay(MockComponent)` was rendered without a valid ' +
         'route. Make sure the route is valid, and make sure that it is ' +
@@ -1066,7 +1064,9 @@ describe('RelayContainer', function() {
     expect(propNamesA.sort()).toEqual(propNamesB.sort());
 
     propNamesA.forEach(propName => {
-      expect(propsA[propName]).toBe(propsB[propName]);
+      if (propName !== '__relayContext') {
+        expect(propsA[propName]).toBe(propsB[propName]);
+      }
     });
   });
 

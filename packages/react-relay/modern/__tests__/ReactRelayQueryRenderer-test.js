@@ -11,7 +11,7 @@
 'use strict';
 
 const React = require('React');
-const ReactRelayPropTypes = require('../ReactRelayPropTypes');
+const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayQueryRenderer = require('../ReactRelayQueryRenderer');
 const ReactTestRenderer = require('ReactTestRenderer');
 
@@ -464,18 +464,16 @@ describe('ReactRelayQueryRenderer', () => {
 
     beforeEach(() => {
       ContextGetter = class extends React.Component {
-        componentDidMount() {
-          relayContext = this.context.relay;
-        }
-        componentDidUpdate() {
-          relayContext = this.context.relay;
-        }
         render() {
-          return <div />;
+          return (
+            <ReactRelayContext.Consumer>
+              {context => {
+                relayContext = context;
+                return <div />;
+              }}
+            </ReactRelayContext.Consumer>
+          );
         }
-      };
-      ContextGetter.contextTypes = {
-        relay: ReactRelayPropTypes.Relay,
       };
       render = jest.fn(() => <ContextGetter />);
     });
@@ -538,8 +536,7 @@ describe('ReactRelayQueryRenderer', () => {
         variables,
       });
 
-      // Context object should be mutated (for compat with gDSFP).
-      expect(relayContext).toBe(previousContext);
+      expect(relayContext).not.toBe(previousContext);
       expect(relayContext.environment).toBe(environment);
       expect(relayContext.variables).toEqual(variables);
     });
@@ -566,8 +563,7 @@ describe('ReactRelayQueryRenderer', () => {
         variables,
       });
 
-      // Context object should be mutated (for compat with gDSFP).
-      expect(relayContext).toBe(previousContext);
+      expect(relayContext).not.toBe(previousContext);
       expect(relayContext.environment).toBe(environment);
       expect(relayContext.variables).toEqual(variables);
     });
@@ -594,8 +590,7 @@ describe('ReactRelayQueryRenderer', () => {
         variables,
       });
 
-      // Context object should be mutated (for compat with gDSFP).
-      expect(relayContext).toBe(previousContext);
+      expect(relayContext).not.toBe(previousContext);
       expect(relayContext.environment).toBe(environment);
       expect(relayContext.variables).toEqual({
         id: '<default>',

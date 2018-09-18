@@ -11,8 +11,8 @@
 'use strict';
 
 const React = require('React');
+const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayPaginationContainer = require('../ReactRelayPaginationContainer');
-const ReactRelayPropTypes = require('../ReactRelayPropTypes');
 const ReactTestRenderer = require('ReactTestRenderer');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 
@@ -43,43 +43,37 @@ describe('ReactRelayPaginationContainer', () => {
 
   class ContextSetter extends React.Component {
     constructor(props) {
-      super();
-      // eslint-disable-next-line no-shadow
-      const {environment, variables} = props;
-      this.relay = {environment, variables};
-      this.state = {props: null};
+      super(props);
+
+      this.state = {
+        props: null,
+        __relayContext: {
+          environment: props.environment,
+          variables: props.variables,
+        },
+      };
     }
-    UNSAFE_componentWillReceiveProps(nextProps) {
-      // eslint-disable-next-line no-shadow
-      const {environment, variables} = nextProps;
-      if (
-        environment !== this.relay.environment ||
-        variables !== this.relay.variables
-      ) {
-        this.relay = {environment, variables};
-      }
-    }
-    getChildContext() {
-      return {relay: this.relay};
-    }
+
     setProps(props) {
       this.setState({props});
     }
     setContext(env, vars) {
-      this.relay = {environment: env, variables: vars};
-      this.setState({context: {environment: env, variables: vars}});
+      this.setState({__relayContext: {environment: env, variables: vars}});
     }
+
     render() {
-      const child = React.Children.only(this.props.children);
+      let child = React.Children.only(this.props.children);
       if (this.state.props) {
-        return React.cloneElement(child, this.state.props);
+        child = React.cloneElement(child, this.state.props);
       }
-      return child;
+
+      return (
+        <ReactRelayContext.Provider value={this.state.__relayContext}>
+          {child}
+        </ReactRelayContext.Provider>
+      );
     }
   }
-  ContextSetter.childContextTypes = {
-    relay: ReactRelayPropTypes.Relay,
-  };
 
   beforeEach(() => {
     jest.resetModules();
@@ -230,7 +224,7 @@ describe('ReactRelayPaginationContainer', () => {
   it('passes non-fragment props to the component', () => {
     ReactTestRenderer.create(
       <ContextSetter environment={environment} variables={variables}>
-        <TestContainer bar={1} foo={'foo'} />
+        <TestContainer bar={1} foo="foo" />
       </ContextSetter>,
     );
     expect(render.mock.calls.length).toBe(1);

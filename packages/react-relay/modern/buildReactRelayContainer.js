@@ -11,7 +11,7 @@
 'use strict';
 
 const React = require('React');
-const RelayPropTypes = require('../classic/container/RelayPropTypes');
+const ReactRelayContext = require('./ReactRelayContext');
 
 const assertFragmentMap = require('./assertFragmentMap');
 const mapObject = require('mapObject');
@@ -23,10 +23,6 @@ const {
 
 import type {GeneratedNodeMap} from './ReactRelayTypes';
 import type {GraphQLTaggedNode, FragmentMap} from 'relay-runtime';
-
-const containerContextTypes = {
-  relay: RelayPropTypes.Relay,
-};
 
 type ContainerCreator = (
   Component: React$ComponentType<any>,
@@ -43,7 +39,6 @@ function buildReactRelayContainer<TBase: React$ComponentType<*>>(
   ComponentClass: TBase,
   fragmentSpec: GraphQLTaggedNode | GeneratedNodeMap,
   createContainerWithFragments: ContainerCreator,
-  providesChildContext: boolean,
 ): TBase {
   // Sanity-check user-defined fragment input
   const containerName = getContainerName(ComponentClass);
@@ -52,9 +47,9 @@ function buildReactRelayContainer<TBase: React$ComponentType<*>>(
   // Memoize a container for the last environment instance encountered
   let environment;
   let Container;
-  function ContainerConstructor(props, context) {
-    if (Container == null || context.relay.environment !== environment) {
-      environment = context.relay.environment;
+  function ContainerConstructor(props) {
+    if (Container == null || props.__relayContext.environment !== environment) {
+      environment = props.__relayContext.environment;
       if (__DEV__) {
         const {isRelayModernEnvironment} = require('relay-runtime');
         if (!isRelayModernEnvironment(environment)) {
@@ -76,23 +71,26 @@ function buildReactRelayContainer<TBase: React$ComponentType<*>>(
       ContainerConstructor.getDerivedStateFromProps = (Container: any).getDerivedStateFromProps;
     }
     // $FlowFixMe
-    return new Container(props, context);
-  }
-  ContainerConstructor.contextTypes = containerContextTypes;
-  if (providesChildContext) {
-    ContainerConstructor.childContextTypes = containerContextTypes;
+    return new Container(props);
   }
 
   function forwardRef(props, ref) {
     return (
-      <ContainerConstructor
-        {...props}
-        componentRef={props.componentRef || ref}
-      />
+      <ReactRelayContext.Consumer>
+        {context => {
+          return (
+            <ContainerConstructor
+              {...props}
+              __relayContext={context}
+              componentRef={props.componentRef || ref}
+            />
+          );
+        }}
+      </ReactRelayContext.Consumer>
     );
   }
   forwardRef.displayName = containerName;
-  // $FlowFixMe
+  // $FlowExpectedError See https://github.com/facebook/flow/issues/6103
   const ForwardContainer = React.forwardRef(forwardRef);
 
   if (__DEV__) {

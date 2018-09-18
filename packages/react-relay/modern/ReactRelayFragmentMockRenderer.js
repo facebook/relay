@@ -11,31 +11,18 @@
 'use strict';
 
 const React = require('React');
-const RelayPropTypes = require('../classic/container/RelayPropTypes');
+const ReactRelayContext = require('./ReactRelayContext');
 
-class ReactRelayFragmentMockRenderer extends React.Component<Object> {
-  mockContext: any;
-
-  static childContextTypes = {
-    relay: RelayPropTypes.Relay,
-  };
-  constructor(props: Object) {
-    super();
-    this.mockContext = {
-      relay: {
+function ReactRelayFragmentMockRenderer(props: Object) {
+  return (
+    <ReactRelayContext.Provider
+      value={{
         environment: props.environment,
         variables: {},
-      },
-    };
-  }
-
-  getChildContext() {
-    return this.mockContext;
-  }
-
-  render() {
-    return this.props.render();
-  }
+      }}>
+      {props.render()}
+    </ReactRelayContext.Provider>
+  );
 }
 
 module.exports = ReactRelayFragmentMockRenderer;

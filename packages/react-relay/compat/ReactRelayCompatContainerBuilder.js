@@ -11,8 +11,8 @@
 'use strict';
 
 const React = require('React');
+const ReactRelayContext = require('../modern/ReactRelayContext');
 const RelayGraphQLTag = require('../classic/query/RelayGraphQLTag');
-const RelayPropTypes = require('../classic/container/RelayPropTypes');
 
 const assertFragmentMap = require('../modern/assertFragmentMap');
 const invariant = require('invariant');
@@ -27,10 +27,6 @@ import type {ConcreteFragmentSpread} from '../classic/query/ConcreteQuery';
 import type {VariableMapping} from '../classic/query/RelayFragmentReference';
 import type {GeneratedNodeMap} from '../modern/ReactRelayTypes';
 import type {Variables} from 'relay-runtime';
-
-const containerContextTypes = {
-  relay: RelayPropTypes.Relay,
-};
 
 type ContainerCreator = (
   Component: React$ComponentType<any>,
@@ -72,7 +68,6 @@ function buildCompatContainer(
   ComponentClass: React$ComponentType<any>,
   fragmentSpec: GeneratedNodeMap,
   createContainerWithFragments: ContainerCreator,
-  providesChildContext: boolean,
 ): any {
   // Sanity-check user-defined fragment input
   const containerName = getContainerName(ComponentClass);
@@ -130,9 +125,10 @@ function buildCompatContainer(
   // Memoize a container for the last environment instance encountered
   let environment;
   let Container;
-  function ContainerConstructor(props, context) {
-    if (Container == null || context.relay.environment !== environment) {
-      environment = context.relay.environment;
+  function ContainerConstructor(props) {
+    if (Container == null || props.__relayContext.environment !== environment) {
+      environment = props.__relayContext.environment;
+
       const {getFragment: getFragmentFromTag} = environment.unstable_internal;
       const fragments = mapObject(fragmentSpec, getFragmentFromTag);
       Container = createContainerWithFragments(ComponentClass, fragments);
@@ -141,23 +137,26 @@ function buildCompatContainer(
       ContainerConstructor.getDerivedStateFromProps = (Container: any).getDerivedStateFromProps;
     }
     // $FlowFixMe
-    return new Container(props, context);
-  }
-  ContainerConstructor.contextTypes = containerContextTypes;
-  if (providesChildContext) {
-    ContainerConstructor.childContextTypes = containerContextTypes;
+    return new Container(props);
   }
 
   function forwardRef(props, ref) {
     return (
-      <ContainerConstructor
-        {...props}
-        componentRef={props.componentRef || ref}
-      />
+      <ReactRelayContext.Consumer>
+        {context => {
+          return (
+            <ContainerConstructor
+              {...props}
+              __relayContext={context}
+              componentRef={props.componentRef || ref}
+            />
+          );
+        }}
+      </ReactRelayContext.Consumer>
     );
   }
   forwardRef.displayName = containerName;
-  // $FlowFixMe
+  // $FlowExpectedError See https://github.com/facebook/flow/issues/6103
   const ForwardContainer = React.forwardRef(forwardRef);
 
   // Classic container static methods

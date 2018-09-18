@@ -23,12 +23,12 @@ const {
 } = require('./DataResourceCache_UNSTABLE');
 
 import type {DataAccessPolicy} from './DataResourceCache_UNSTABLE';
-import type {ReactRelayModernContext} from 'react-relay/modern/ReactRelayContext';
 import type {
   Disposable,
   GraphQLTaggedNode,
   IEnvironment,
   OperationType,
+  RelayContext,
   Snapshot,
 } from 'relay-runtime';
 
@@ -124,7 +124,7 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
   |};
 
   type State = {|
-    reactRelayContext: ReactRelayModernContext,
+    reactRelayContext: RelayContext,
   |};
 
   return class QueryRenderer extends React.Component<Props, State> {

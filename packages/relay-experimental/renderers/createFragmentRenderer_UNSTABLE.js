@@ -24,13 +24,13 @@ import type {
   FragmentSpec,
   TDataResourceCache,
 } from './DataResourceCache_UNSTABLE';
-import type {ReactRelayModernContext} from 'react-relay/modern/ReactRelayContext';
 import type {$FragmentRef} from 'react-relay/modern/ReactRelayTypes';
 import type {
   Disposable,
   FragmentReference,
   GraphQLTaggedNode,
   Snapshot,
+  RelayContext,
 } from 'relay-runtime';
 
 // prettier-ignore
@@ -66,7 +66,7 @@ function createFragmentRenderer<TFragmentData: {[string]: mixed}>(
 
   type InternalProps = {|
     ...Props,
-    reactRelayContext: {|...ReactRelayModernContext, query: GraphQLTaggedNode|},
+    reactRelayContext: RelayContext & {query: GraphQLTaggedNode},
     DataResourceCache: TDataResourceCache,
   |};
 
@@ -266,6 +266,7 @@ function createFragmentRenderer<TFragmentData: {[string]: mixed}>(
       'FragmentRenderer: Expected ReactRelayContext to have been passed',
     );
     invariant(
+      // $FlowFixMe
       reactRelayContext.query != null,
       'FragmentRenderer: Expected query to be avialable in context',
     );

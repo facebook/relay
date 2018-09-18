@@ -17,9 +17,9 @@
     "typecheck": "flow check"
   },
   "dependencies": {
-    "@babel/generator": "7.0.0",
-    "@babel/parser": "7.0.0",
-    "@babel/types": "7.0.0",
+    "@babel/generator": "^7.0.0",
+    "@babel/parser": "^7.0.0",
+    "@babel/types": "^7.0.0",
     "babel-core": "6.25.0",
     "babel-eslint": "9.0.0",
     "babel-plugin-macros": "^2.0.0",

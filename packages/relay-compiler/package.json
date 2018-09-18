@@ -15,9 +15,9 @@
     "relay-compiler": "bin/relay-compiler"
   },
   "dependencies": {
-    "@babel/generator": "7.0.0",
-    "@babel/parser": "7.0.0",
-    "@babel/types": "7.0.0",
+    "@babel/generator": "^7.0.0",
+    "@babel/parser": "^7.0.0",
+    "@babel/types": "^7.0.0",
     "babel-polyfill": "^6.20.0",
     "babel-preset-fbjs": "2.3.0",
     "babel-runtime": "^6.23.0",

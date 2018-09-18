@@ -14,7 +14,7 @@
   dependencies:
     "@babel/highlight" "7.0.0-beta.51"
 
-"@babel/generator@7.0.0", "@babel/generator@^7.0.0":
+"@babel/generator@^7.0.0":
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/@babel/generator/-/generator-7.0.0.tgz#1efd58bffa951dc846449e58ce3a1d7f02d393aa"
   dependencies:
@@ -60,7 +60,7 @@
     esutils "^2.0.2"
     js-tokens "^4.0.0"
 
-"@babel/parser@7.0.0", "@babel/parser@^7.0.0":
+"@babel/parser@^7.0.0":
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.0.0.tgz#697655183394facffb063437ddf52c0277698775"
 
@@ -86,7 +86,7 @@
     globals "^11.1.0"
     lodash "^4.17.10"
 
-"@babel/types@7.0.0", "@babel/types@^7.0.0":
+"@babel/types@^7.0.0":
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/@babel/types/-/types-7.0.0.tgz#6e191793d3c854d19c6749989e3bc55f0e962118"
   dependencies:

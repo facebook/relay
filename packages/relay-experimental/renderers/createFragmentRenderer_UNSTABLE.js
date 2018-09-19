@@ -34,7 +34,7 @@ import type {
 } from 'relay-runtime';
 
 // prettier-ignore
-type $FragmentRefs<TFragmentData> = $Exact<
+export type $FragmentRefs<TFragmentData> = $Exact<
   $ObjMap<
     TFragmentData,
     & (<T: {+$refType: empty}>( T) =>  T)
@@ -53,7 +53,8 @@ type RenderProps<TFragmentData> = {|
   data: TFragmentData,
 |};
 
-function createFragmentRenderer<TFragmentData: {[string]: mixed}>(
+// $FlowExpectedError - FragmentData can contain any types; it is only used to enforce the type of RenderProps
+function createFragmentRenderer_UNSTABLE<TFragmentData: {[string]: any}>(
   fragmentSpec: FragmentSpec,
 ): React.ComponentType<{|
   ...$FragmentRefs<TFragmentData>,
@@ -280,4 +281,4 @@ function createFragmentRenderer<TFragmentData: {[string]: mixed}>(
   };
 }
 
-module.exports = createFragmentRenderer;
+module.exports = createFragmentRenderer_UNSTABLE;

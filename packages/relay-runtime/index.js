@@ -206,6 +206,10 @@ module.exports = {
   RelayError: RelayError,
   RelayNetworkLoggerTransaction: RelayNetworkLoggerTransaction,
   DEFAULT_HANDLE_KEY: RelayDefaultHandleKey.DEFAULT_HANDLE_KEY,
+  FRAGMENTS_KEY: RelayStoreUtils.FRAGMENTS_KEY,
+  ID_KEY: RelayStoreUtils.ID_KEY,
+  REF_KEY: RelayStoreUtils.REF_KEY,
+  REFS_KEY: RelayStoreUtils.REFS_KEY,
   ROOT_ID: RelayStoreUtils.ROOT_ID,
   ROOT_TYPE: RelayStoreUtils.ROOT_TYPE,
 

@@ -24,6 +24,13 @@ const {
   fetchQuery_UNSTABLE,
   getPromiseForRequestInFlight_UNSTABLE,
 } = require('../helpers/fetchQuery_UNSTABLE');
+const {
+  FRAGMENTS_KEY,
+  ID_KEY,
+  REF_KEY,
+  REFS_KEY,
+  ROOT_TYPE,
+} = require('relay-runtime');
 
 import type {
   Disposable,
@@ -69,9 +76,37 @@ function getFragmentCacheKey(
     'RenderDataResource: Expected fragmentRef to be provided',
   );
   const fragmentNode = getFragment(fragment);
-  return `${fragmentNode.name}-${fragmentNode.type}-${JSON.stringify(
-    fragmentRef,
-  )}-${JSON.stringify(variables)}`;
+  let fragmentRefID = '';
+  if (Array.isArray(fragmentRef)) {
+    fragmentRefID = fragmentRef
+      .map(ref => {
+        invariant(
+          typeof ref === 'object' && ref !== null && !Array.isArray(ref),
+          'DataResourceCache_UNSTABLE: Expected value for fragmentRef to be an object',
+        );
+        const id = ref[ID_KEY];
+        invariant(
+          typeof id === 'string',
+          'DataResourceCache_UNSTABLE: Expected  fragmentRef ID_KEY to be a string',
+        );
+        return `${id}-${JSON.stringify(ref[FRAGMENTS_KEY])}`;
+      })
+      .join('-');
+  } else {
+    invariant(
+      typeof fragmentRef === 'object' &&
+        'DataResourceCache_UNSTABLE: Expected value for fragmentRef to be an object',
+    );
+    const id = fragmentRef[ID_KEY];
+    invariant(
+      typeof id === 'string',
+      'DataResourceCache_UNSTABLE: Expected  fragmentRef ID_KEY to be a string',
+    );
+    fragmentRefID = `${id}-${JSON.stringify(fragmentRef[FRAGMENTS_KEY])}`;
+  }
+  return `${fragmentNode.name}-${
+    fragmentNode.type
+  }-${fragmentRefID}-${JSON.stringify(variables)}`;
 }
 
 function hasData(snapshot: Snapshot | $ReadOnlyArray<Snapshot>) {
@@ -105,7 +140,15 @@ function proxyDataResult(
   return new Proxy(proxyTarget, {
     get: (obj, prop) => {
       // Don't attempt to proxy special Relay fields
-      if (prop === '$refType' || prop === '$fragmentRefs') {
+      if (
+        prop === '$refType' ||
+        prop === '$fragmentRefs' ||
+        prop === ID_KEY ||
+        prop === FRAGMENTS_KEY ||
+        prop === REF_KEY ||
+        prop === REFS_KEY ||
+        prop === ROOT_TYPE
+      ) {
         return obj[prop];
       }
       const res = obj[prop];

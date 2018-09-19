@@ -170,7 +170,7 @@ function getLinkedRecordID(record: Record, storageKey: string): ?DataID {
       'was `%s`.',
     record[ID_KEY],
     storageKey,
-    link,
+    JSON.stringify(link),
   );
   return link[REF_KEY];
 }

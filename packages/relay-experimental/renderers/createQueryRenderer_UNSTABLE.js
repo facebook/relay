@@ -136,12 +136,17 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
     constructor(props: Props) {
       super(props);
       const {environment, variables} = props;
-
+      const {
+        getRequest,
+        createOperationSelector,
+      } = environment.unstable_internal;
+      const queryNode = getRequest(query);
+      const operation = createOperationSelector(queryNode, variables);
       this.state = {
         reactRelayContext: {
           environment: environment,
           query,
-          variables: variables,
+          variables: operation.variables,
         },
       };
     }
@@ -157,11 +162,17 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
         environment !== mirroredEnvironment ||
         !areEqual(variables, mirroredVariables)
       ) {
+        const {
+          getRequest,
+          createOperationSelector,
+        } = environment.unstable_internal;
+        const queryNode = getRequest(query);
+        const operation = createOperationSelector(queryNode, variables);
         return {
           reactRelayContext: {
             environment,
             query,
-            variables,
+            variables: operation.variables,
           },
         };
       }

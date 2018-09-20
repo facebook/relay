@@ -5,18 +5,22 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
+ * @flow strict-local
  * @format
  */
 
 'use strict';
 
-const RelayEnvironment = require('../../store/RelayEnvironment');
-
 const isRelayEnvironment = require('../isRelayEnvironment');
+
+const {Environment} = require('relay-runtime');
 
 describe('isRelayEnvironment()', () => {
   it('returns true for `RelayEnvironment` instances', () => {
-    const environment = new RelayEnvironment();
+    const environment = new Environment({
+      network: (null: $FlowFixMe),
+      store: (null: $FlowFixMe),
+    });
     expect(isRelayEnvironment(environment)).toBe(true);
   });
 

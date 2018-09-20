@@ -18,9 +18,9 @@ const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
 const warning = require('warning');
 
-const {assertRelayContext} = require('../classic/environment/RelayContext');
 const {profileContainer} = require('./ReactRelayContainerProfiler');
 const {getContainerName} = require('./ReactRelayContainerUtils');
+const {assertRelayContext} = require('./RelayContext');
 const {Observable, RelayProfiler, isScalarAndEqual} = require('relay-runtime');
 
 import type {FragmentSpecResolver} from '../classic/environment/RelayCombinedEnvironmentTypes';

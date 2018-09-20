@@ -312,7 +312,22 @@ describe('RelayProfiler', function() {
 
       expect(mockStart).toBeCalledWith('mockBehavior', state);
       expect(mockStop).toBeCalled();
-      expect(mockStop.mock.calls[0].length).toBe(0);
+      expect(mockStop.mock.calls[0].length).toBe(1);
+      expect(mockStop.mock.calls[0][0]).toEqual(undefined);
+    });
+
+    it('passes error to each stop handler', () => {
+      const mockStop = jest.fn();
+      const mockStart = jest.fn(() => mockStop);
+      const state = {};
+
+      RelayProfiler.attachProfileHandler('mockBehavior', mockStart);
+      const profiler = RelayProfiler.profile('mockBehavior', state);
+      const error = new Error();
+      profiler.stop(error);
+
+      expect(mockStart).toBeCalledWith('mockBehavior', state);
+      expect(mockStop).toBeCalledWith(error);
     });
   });
 });

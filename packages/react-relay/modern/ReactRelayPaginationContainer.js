@@ -17,15 +17,14 @@ const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
 const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
 const invariant = require('invariant');
-const nullthrows = require('nullthrows');
 const warning = require('warning');
 
-const {assertRelayContext} = require('../classic/environment/RelayContext');
 const {profileContainer} = require('./ReactRelayContainerProfiler');
 const {
   getComponentName,
   getContainerName,
 } = require('./ReactRelayContainerUtils');
+const {assertRelayContext} = require('./RelayContext');
 const {
   ConnectionInterface,
   RelayProfiler,

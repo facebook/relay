@@ -16,7 +16,6 @@ const ReactRelayContext = require('react-relay/modern/ReactRelayContext');
 const areEqual = require('areEqual');
 const invariant = require('invariant');
 const mapObject = require('mapObject');
-const useContext = require('react-relay/modern/useContext');
 
 const {DataResourceCacheContext} = require('./DataResourceCache_UNSTABLE');
 
@@ -260,8 +259,10 @@ function createFragmentRenderer_UNSTABLE<TFragmentData: {[string]: any}>(
   }
 
   return function FragmentRenderer(props: Props) {
-    const DataResourceCache = useContext(DataResourceCacheContext);
-    const reactRelayContext = useContext(ReactRelayContext);
+    // $FlowFixMe unstable_read is not yet typed
+    const DataResourceCache = DataResourceCacheContext.unstable_read();
+    // $FlowFixMe unstable_read is not yet typed
+    const reactRelayContext = ReactRelayContext.unstable_read();
     invariant(
       reactRelayContext != null,
       'FragmentRenderer: Expected ReactRelayContext to have been passed',

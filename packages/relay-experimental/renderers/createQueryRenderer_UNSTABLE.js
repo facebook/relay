@@ -22,7 +22,7 @@ const {
   DataResourceCacheContext,
 } = require('./DataResourceCache_UNSTABLE');
 
-import type {DataAccessPolicy} from './DataResourceCache_UNSTABLE';
+import type {FetchPolicy, ReadPolicy} from './DataResourceCache_UNSTABLE';
 import type {
   Disposable,
   GraphQLTaggedNode,
@@ -74,53 +74,67 @@ Fetching and Reading Behavior
 =============================
 
 By default, the QueryRenderer will always attempt to fetch the query from the
-network without using any data that might be available locally in the in-memory
-Relay store.
+network, without using any locally available data.
 
-This behavior can be configured by passing a `dataAccess` prop, which can be
-one of the following values:
+This behavior can be configured by the `readPolicy` and `fetchPolicy` props.
 
-- "STORE_ONLY": The QueryRenderer will only attempt to _read_ the data for the
-  query from the local store, without making any network requests. In this mode
-  the responsibility of _fetching_ the data is left to the caller.
-  Additionally, the QueryRenderer will provide the data ***even if*** it's only
-  partially available in the store (e.g. some of the queried fields or records
-  might be empty).
-  In this mode, the QueryRenderer will only attempt to suspend rendering for
-  missing data if a network request for the query is initiated elsewhere _and_
-  is in flight, otherwise it will provide the data as is: fully or partially
-  available.
-- "STORE_OR_NETWORK": The QueryRenderer will attempt to _read_ the data for the
-  query from the local store. If the data for the entire query is fully available
-  in the store, the query renderer will ***not** make a network request.
-  Otherwise, a network request will be initiated and the partially available
-  will be provided.
-  If data that isn't available is accessed, rendering will be suspended until
-  the network request completes.
-- "STORE_THEN_NETWORK": The QueryRenderer will attempt to _read_ the data for the
-  query from the local store, and provide it regardless of if it is fully or
-  partially available.
-  Additionally, a network request will be initiated; if data that isn't
-  available is accessed, rendering will be suspended until the network request
-  completes.
-- "NETWORK_ONLY": This is the default behavior: the QueryRenderer will always
-  attempt to fetch the query from the network without using any data that might
-   be available locally in the store, and will suspend rendering until the
-   network request completes.
+`readPolicy` will be ***"lazy"*** by default, and can be one of the following values:
+- **"eager"**: Will try to read as much data as possible, even if the full query is
+  not available in the Relay store. If any data is available, it will be
+  provided to render, and a network request might be initiated based on the
+  specified `fetchPolicy`.
+- **"lazy"**: Will not attempt to read a query unless the data for the full query is
+  available in the Relay store. If the full query is available, it will be provided for
+  render. A network request might be initiated based on the specified
+  `fetchPolicy`.
+
+`fetchPolicy`  will be ***"network-only"*** by default, and can be one of the following values:
+- **"store-only"**: The QueryRenderer will only attempt to _read_ the query from
+  the store based on the specified `readPolicy`, without making any network
+  requests.
+  In this mode, the responsibility of fetching the data is left to the caller.
+  The QueryRenderer will only attempt to suspend rendering for missing data
+  if a network request for the query has been initiated elsewhere _and_ is in
+  flight, otherwise an error will be thrown.
+
+- **"store-or-network"**: The QueryRenderer will attempt to _read_ the query
+  from the store, based on the specified `readPolicy`.
+  - If the `readPolicy` is "eager" and if any data is available from the store
+    read, the data will be provided for render, and a network request will **not**
+    be initiated. Otherwise, a network request to fetch the query will be
+    initiated.
+    If missing data is accessed, render will be suspended if a network request
+    is in flight, otherwise an error will be thrown.
+  - If the `readPolicy` is "lazy", if the full query is available in the relay
+    store, it will be read and a network request will **not** be initiated.
+    Otherwise a network request to fetch the query will be initiated, and render
+    will be suspended until the request completes.
+
+- **"store-and-network"**: The QueryRenderer will attempt to _read_ the query
+  from the store based on the specified `readPolicy`.
+  Additionally, a network request will always be initiated; if missing data is
+  accessed, rendering will be suspended until the network request completes.
+
+- **"network-only"**: The QueryRenderer will always attempt to fetch the
+  query from the network without using any data that might
+  be available locally in the store, and will suspend rendering until the
+  network request completes.
 */
 function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
   query: GraphQLTaggedNode,
 ): React.ComponentType<{|
   children: (RenderProps<$ElementType<TQuery, 'response'>>) => React.Node,
-  dataAccess?: DataAccessPolicy,
   environment: IEnvironment,
   variables: $ElementType<TQuery, 'variables'>,
+  fetchPolicy?: FetchPolicy,
+  readPolicy?: ReadPolicy,
 |}> {
   type Props = {|
     children: (RenderProps<$ElementType<TQuery, 'response'>>) => React.Node,
-    dataAccess?: DataAccessPolicy,
     environment: IEnvironment,
     variables: $ElementType<TQuery, 'variables'>,
+    fetchPolicy?: FetchPolicy,
+    readPolicy?: ReadPolicy,
   |};
 
   type State = {|
@@ -275,14 +289,21 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
     }
 
     render() {
-      const {children, dataAccess, environment, variables} = this.props;
+      const {
+        children,
+        fetchPolicy,
+        environment,
+        readPolicy,
+        variables,
+      } = this.props;
       const DataResourceCache = getCacheForEnvironment(environment);
 
       const {snapshot, data, fetchDisposable} = DataResourceCache.readQuery({
         environment,
         query,
         variables,
-        dataAccess,
+        fetchPolicy,
+        readPolicy,
       });
       invariant(
         !Array.isArray(snapshot),

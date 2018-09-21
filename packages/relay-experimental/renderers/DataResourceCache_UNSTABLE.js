@@ -48,11 +48,12 @@ type CacheReadResult = {
 };
 
 export type FragmentSpec = {[string]: GraphQLTaggedNode};
-export type DataAccessPolicy =
-  | 'STORE_ONLY'
-  | 'STORE_OR_NETWORK'
-  | 'STORE_THEN_NETWORK'
-  | 'NETWORK_ONLY';
+export type ReadPolicy = 'eager' | 'lazy';
+export type FetchPolicy =
+  | 'store-only'
+  | 'store-or-network'
+  | 'store-and-network'
+  | 'network-only';
 
 const {getFragment, getRequest} = RelayCore;
 
@@ -166,20 +167,34 @@ function createCache() {
 
   /**
    * Attempts to fetch, retain and store data for a query, based on the
-   * provided data access policy:
-   * - STORE_ONLY:
-   *   - Will only read query from the Relay Store and save it to the cache if
-   *     any data for the query is available
-   * - STORE_OR_NETWORK:
-   *   - Will check if data for //entire// query is available in store.
-   *   - If so, will save it to cache and do nothing else.
-   *   - If not, will attempt to fetch the query.
-   * - STORE_THEN_NETWORK:
-   *   - Will read query from the Relay Store and save it to the cache if
-   *     any data for the query is available
-   *   - Additionally, it will attempt fetch the query.
-   * - NETWORK_ONLY:
-   *   - Will only attempt to fetch the query.
+   * provided fetchPoicy and readPolicy,
+   * ReadPolicy:
+   * - eager:
+   *   - Will try to read as much data as possible, even if the full query is
+   *     not available in the Relay store. If any data is available, it will be
+   *     saved to the cache.
+   * - lazy:
+   *   - Will not read a query from the store unless the full query is available
+   *     in the Relay store. If the full query is available, it will be saved
+   *     to the cache.
+   *
+   * FetchPolicy:
+   * - store-only:
+   *   - Will read the query from the Relay Store and save it to cache based on
+   *     the specified ReadPolicy.
+   *   - It will not make any network requests
+   * - store-or-network:
+   *   - Will read the query from the Relay Store and save it to cache based on
+   *     the specified ReadPolicy.
+   *   - If data was available from read, it will not make any network requests.
+   *   - If not, it will attempt to fetch the query from the network.
+   * - store-and-network:
+   *   - Will read the query from the Relay Store and save it to cache based on
+   *     the specified ReadPolicy.
+   *   - Additionally, it will always attempt to fetch the query.
+   * - network-only:
+   *   - Will only attempt to fetch the query without reading from the
+   *     Relay Store.
    *
    * fetchQuery will de-dupe requests that are in flight (globally) by default.
    * This function will save the result from the network fetch to the cache:
@@ -198,18 +213,27 @@ function createCache() {
     environment: IEnvironment,
     query: GraphQLTaggedNode,
     variables: Variables,
-    dataAccess?: DataAccessPolicy,
+    fetchPolicy?: FetchPolicy,
+    readPolicy?: ReadPolicy,
   |}): Disposable {
     const {environment, query, variables} = args;
     const cacheKey = getQueryCacheKey(query, variables);
-    const dataAccess = args.dataAccess ?? 'NETWORK_ONLY';
+    const fetchPolicy = args.fetchPolicy ?? 'network-only';
+    const readPolicy = args.readPolicy ?? 'lazy';
+
+    const canRead =
+      readPolicy === 'lazy'
+        ? checkQuery_UNSTABLE(environment, query, variables)
+        : true;
     let shouldFetch;
-    switch (dataAccess) {
-      case 'STORE_ONLY': {
+    switch (fetchPolicy) {
+      case 'store-only': {
         shouldFetch = false;
-        const snapshot = readQuery_UNSTABLE(environment, query, variables);
-        if (hasData(snapshot)) {
-          cache.set(cacheKey, snapshot);
+        if (canRead) {
+          const snapshot = readQuery_UNSTABLE(environment, query, variables);
+          if (hasData(snapshot)) {
+            cache.set(cacheKey, snapshot);
+          }
         } else {
           // Check if there's a global request in flight for this query, even
           // if one won't be initiated by the component associated with this render.
@@ -227,24 +251,31 @@ function createCache() {
         }
         break;
       }
-      case 'STORE_OR_NETWORK': {
-        const hasFullQuery = checkQuery_UNSTABLE(environment, query, variables);
-        shouldFetch = hasFullQuery === false;
-        if (hasFullQuery) {
+      case 'store-or-network': {
+        if (canRead) {
           const snapshot = readQuery_UNSTABLE(environment, query, variables);
-          cache.set(cacheKey, snapshot);
+          if (hasData(snapshot)) {
+            shouldFetch = false;
+            cache.set(cacheKey, snapshot);
+          } else {
+            shouldFetch = true;
+          }
+        } else {
+          shouldFetch = true;
         }
         break;
       }
-      case 'STORE_THEN_NETWORK': {
+      case 'store-and-network': {
         shouldFetch = true;
-        const snapshot = readQuery_UNSTABLE(environment, query, variables);
-        if (hasData(snapshot)) {
-          cache.set(cacheKey, snapshot);
+        if (canRead) {
+          const snapshot = readQuery_UNSTABLE(environment, query, variables);
+          if (hasData(snapshot)) {
+            cache.set(cacheKey, snapshot);
+          }
         }
         break;
       }
-      case 'NETWORK_ONLY':
+      case 'network-only':
       default: {
         shouldFetch = true;
         break;
@@ -466,7 +497,7 @@ function createCache() {
         // Otherwise, throw an error.
         // This means that we're trying to read a field that isn't available and
         // isn't being fetched at all.
-        // This can happen if the dataAccess policy is STORE_ONLY
+        // This can happen if the fetchPolicy policy is store-only
         throw new Error(
           'DataResourceCache_UNSTABLE: Tried reading a fragment that is not available locally and is not being fetched',
         );
@@ -488,7 +519,7 @@ function createCache() {
       // Otherwise, throw an error.
       // This means that we're trying to read a field that isn't available and
       // isn't being fetched at all.
-      // This can happen if the dataAccess policy is STORE_ONLY
+      // This can happen if the fetchPolicy policy is store-only
       throw new Error(
         'DataResourceCache_UNSTABLE: Tried reading a query that is not available locally and is not being fetched',
       );
@@ -519,7 +550,8 @@ function createCache() {
       environment: IEnvironment,
       query: GraphQLTaggedNode,
       variables: Variables,
-      dataAccess?: DataAccessPolicy,
+      fetchPolicy?: FetchPolicy,
+      readPolicy?: ReadPolicy,
     |}): CacheReadResult {
       const {environment, query, variables} = args;
       const cacheKey = getQueryCacheKey(query, variables);
@@ -559,7 +591,7 @@ function createCache() {
       // 3. If a cached value still isn't available, throw an error.
       // This means that we're trying to read a query that isn't available and
       // isn't being fetched at all.
-      // This can happen if the dataAccess policy is STORE_ONLY
+      // This can happen if the fetchPolicy policy is store-only
       throw new Error(
         'DataResourceCache_UNSTABLE: Tried reading a query that is not available locally and is not being fetched',
       );
@@ -636,7 +668,7 @@ function createCache() {
         // 3. If a cached value still isn't available, throw an error.
         // This means that we're trying to read a query that isn't available and
         // isn't being fetched at all.
-        // This can happen if the dataAccess policy is STORE_ONLY
+        // This can happen if the fetchPolicy policy is store-only
         throw new Error(
           'DataResourceCache_UNSTABLE: Tried reading a fragment that is not available locally and is not being fetched',
         );
@@ -652,14 +684,21 @@ function createCache() {
       environment: IEnvironment,
       query: GraphQLTaggedNode,
       variables: Variables,
-      dataAccess?: DataAccessPolicy,
+      fetchPolicy?: FetchPolicy,
+      readPolicy?: ReadPolicy,
     |}): Disposable {
-      const {environment, query, variables, dataAccess} = args;
+      const {environment, query, variables, fetchPolicy, readPolicy} = args;
       const cacheKey = getQueryCacheKey(query, variables);
       if (cache.has(cacheKey)) {
         return {dispose: () => {}};
       }
-      return fetchQuery({environment, query, variables, dataAccess});
+      return fetchQuery({
+        environment,
+        query,
+        variables,
+        fetchPolicy,
+        readPolicy,
+      });
     },
 
     /**

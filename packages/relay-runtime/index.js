@@ -76,6 +76,7 @@ export type {
   PayloadError,
   StreamPayload,
   SubscribeFunction,
+  Uploadable,
   UploadableMap,
 } from './network/RelayNetworkTypes';
 export type {

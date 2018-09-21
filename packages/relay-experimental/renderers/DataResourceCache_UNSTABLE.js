@@ -221,10 +221,13 @@ function createCache() {
     const fetchPolicy = args.fetchPolicy ?? 'network-only';
     const readPolicy = args.readPolicy ?? 'lazy';
 
-    const canRead =
-      readPolicy === 'lazy'
-        ? checkQuery_UNSTABLE(environment, query, variables)
-        : true;
+    // NOTE: Running `check` will write missing data to the store using any
+    // missing data handlers specified on the environment;
+    // We run it here first to make the handlers get a chance to populate
+    // missing data.
+    const hasFullQuery = checkQuery_UNSTABLE(environment, query, variables);
+
+    const canRead = readPolicy === 'lazy' ? hasFullQuery : true;
     let shouldFetch;
     switch (fetchPolicy) {
       case 'store-only': {

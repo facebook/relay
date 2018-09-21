@@ -15,6 +15,7 @@ const createFragmentContainer_UNSTABLE = require('./renderers/createFragmentCont
 const createFragmentRenderer_UNSTABLE = require('./renderers/createFragmentRenderer_UNSTABLE');
 const createQueryRenderer_UNSTABLE = require('./renderers/createQueryRenderer_UNSTABLE');
 const getRequestKey_UNSTABLE = require('./helpers/getRequestKey_UNSTABLE');
+const readFragment_UNSTABLE = require('./helpers/readFragment_UNSTABLE');
 const readQuery_UNSTABLE = require('./helpers/readQuery_UNSTABLE');
 const retainQuery_UNSTABLE = require('./helpers/retainQuery_UNSTABLE');
 
@@ -28,6 +29,7 @@ module.exports = {
   fetchQuery_UNSTABLE: fetchQuery_UNSTABLE,
   getPromiseForRequestInFlight_UNSTABLE: getPromiseForRequestInFlight_UNSTABLE,
   getRequestKey_UNSTABLE: getRequestKey_UNSTABLE,
+  readFragment_UNSTABLE: readFragment_UNSTABLE,
   readQuery_UNSTABLE: readQuery_UNSTABLE,
   retainQuery_UNSTABLE: retainQuery_UNSTABLE,
 

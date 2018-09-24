@@ -289,7 +289,6 @@ function createCache() {
     let disposable: ?Disposable = null;
     if (shouldFetch) {
       let resolveSuspender = () => {};
-      let snapshot = null;
       let error = null;
       disposable = fetchQuery_UNSTABLE({
         environment,
@@ -313,8 +312,8 @@ function createCache() {
             resolveSuspender();
           },
           next: () => {
-            if (snapshot && hasData(snapshot)) {
-              snapshot = readQuery_UNSTABLE(environment, query, variables);
+            const snapshot = readQuery_UNSTABLE(environment, query, variables);
+            if (hasData(snapshot)) {
               cache.set(cacheKey, snapshot);
               resolveSuspender();
             }

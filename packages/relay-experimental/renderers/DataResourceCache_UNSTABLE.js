@@ -140,8 +140,10 @@ function proxyDataResult(
   const proxyTarget: {} = Object.isFrozen(data) ? {...data} : (data: any);
   return new Proxy(proxyTarget, {
     get: (obj, prop) => {
-      // Don't attempt to proxy special Relay fields
+      // Don't attempt to proxy special React and Relay fields
       if (
+        typeof prop !== 'string' ||
+        prop === '_reactFragment' ||
         prop === '$refType' ||
         prop === '$fragmentRefs' ||
         prop === ID_KEY ||
@@ -153,7 +155,7 @@ function proxyDataResult(
         return obj[prop];
       }
       const res = obj[prop];
-      if (res === undefined) {
+      if (obj.hasOwnProperty(prop) && res === undefined) {
         onFieldMissing(obj, prop);
       }
       return proxyDataResult(res, onFieldMissing);

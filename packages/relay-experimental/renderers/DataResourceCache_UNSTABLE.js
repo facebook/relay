@@ -296,6 +296,7 @@ function createCache() {
         environment,
         query,
         variables,
+        networkLayerCacheConfig: {force: true},
         observer: {
           complete: () => {
             // NOTE: fetchQuery_UNSTABLE retains data in the Relay store by default.

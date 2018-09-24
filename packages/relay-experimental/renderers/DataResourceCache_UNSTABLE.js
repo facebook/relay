@@ -477,7 +477,7 @@ function createCache() {
       hasData(snapshot),
       'DataResourceCache: Expected snapshot to have data when returning a result',
     );
-    const handleFieldMissing = () => {
+    const handleFieldMissing = (obj, field) => {
       if (fragment != null) {
         // Check if a request is in flight for the parent query  this field
         // belongs to.
@@ -502,8 +502,14 @@ function createCache() {
         // This means that we're trying to read a field that isn't available and
         // isn't being fetched at all.
         // This can happen if the fetchPolicy policy is store-only
+        const queryNode = getRequest(query);
+        const fragmentNode = getFragment(fragment);
         throw new Error(
-          'DataResourceCache_UNSTABLE: Tried reading a fragment that is not available locally and is not being fetched',
+          `DataResourceCache_UNSTABLE: Tried reading field ${field} on fragment ${
+            fragmentNode.name
+          } included in query ${
+            queryNode.name
+          }, which is not available locally and is not being fetched`,
         );
       }
       // Check if a request is in flight for the query this field belongs to.
@@ -524,8 +530,11 @@ function createCache() {
       // This means that we're trying to read a field that isn't available and
       // isn't being fetched at all.
       // This can happen if the fetchPolicy policy is store-only
+      const queryNode = getRequest(query);
       throw new Error(
-        'DataResourceCache_UNSTABLE: Tried reading a query that is not available locally and is not being fetched',
+        `DataResourceCache_UNSTABLE: Tried reading field ${field} on query ${
+          queryNode.name
+        }, which is not available locally and is not being fetched`,
       );
     };
 

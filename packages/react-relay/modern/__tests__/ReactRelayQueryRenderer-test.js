@@ -459,22 +459,15 @@ describe('ReactRelayQueryRenderer', () => {
   });
 
   describe('context', () => {
-    let ContextGetter;
     let relayContext;
 
     beforeEach(() => {
-      ContextGetter = class extends React.Component {
-        render() {
-          return (
-            <ReactRelayContext.Consumer>
-              {context => {
-                relayContext = context;
-                return <div />;
-              }}
-            </ReactRelayContext.Consumer>
-          );
-        }
-      };
+      function ContextGetter() {
+        // $FlowFixMe unstable_read is not yet typed
+        relayContext = ReactRelayContext.unstable_read();
+        return null;
+      }
+
       render = jest.fn(() => <ContextGetter />);
     });
 

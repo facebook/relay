@@ -141,18 +141,20 @@ function buildCompatContainer(
   }
 
   function forwardRef(props, ref) {
+    // $FlowFixMe unstable_read is not yet typed
+    const context = ReactRelayContext.unstable_read();
+    invariant(
+      context,
+      `${containerName} tried to render a context that was ` +
+        `not valid this means that ${containerName} was rendered outside of a ` +
+        'query renderer.',
+    );
     return (
-      <ReactRelayContext.Consumer>
-        {context => {
-          return (
-            <ContainerConstructor
-              {...props}
-              __relayContext={context}
-              componentRef={props.componentRef || ref}
-            />
-          );
-        }}
-      </ReactRelayContext.Consumer>
+      <ContainerConstructor
+        {...props}
+        __relayContext={context}
+        componentRef={props.componentRef || ref}
+      />
     );
   }
   forwardRef.displayName = containerName;

@@ -29,7 +29,6 @@ describe('ReactRelayRefetchContainer', () => {
   let refetch;
   let render;
   let variables;
-  let ContextGetter;
   let relayContext;
 
   class ContextSetter extends React.Component {
@@ -63,7 +62,7 @@ describe('ReactRelayRefetchContainer', () => {
         environment: env,
         variables: vars,
       };
-      this.forceUpdate();
+      this.setProps({});
     }
     render() {
       let child = React.Children.only(this.props.children);
@@ -101,16 +100,11 @@ describe('ReactRelayRefetchContainer', () => {
     `,
     ));
 
-    ContextGetter = () => {
-      return (
-        <ReactRelayContext.Consumer>
-          {context => {
-            relayContext = context;
-            return <div />;
-          }}
-        </ReactRelayContext.Consumer>
-      );
-    };
+    function ContextGetter() {
+      // $FlowFixMe unstable_read is not yet typed
+      relayContext = ReactRelayContext.unstable_read();
+      return null;
+    }
 
     render = jest.fn(props => {
       refetch = props.relay.refetch;

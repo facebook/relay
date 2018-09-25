@@ -45,12 +45,13 @@ describe('ReactRelayPaginationContainer', () => {
     constructor(props) {
       super(props);
 
+      this.__relayContext = {
+        environment: props.environment,
+        variables: props.variables,
+      };
+
       this.state = {
         props: null,
-        __relayContext: {
-          environment: props.environment,
-          variables: props.variables,
-        },
       };
     }
 
@@ -58,7 +59,11 @@ describe('ReactRelayPaginationContainer', () => {
       this.setState({props});
     }
     setContext(env, vars) {
-      this.setState({__relayContext: {environment: env, variables: vars}});
+      this.__relayContext = {
+        environment: env,
+        variables: vars,
+      };
+      this.setProps({});
     }
 
     render() {
@@ -68,7 +73,7 @@ describe('ReactRelayPaginationContainer', () => {
       }
 
       return (
-        <ReactRelayContext.Provider value={this.state.__relayContext}>
+        <ReactRelayContext.Provider value={this.__relayContext}>
           {child}
         </ReactRelayContext.Provider>
       );

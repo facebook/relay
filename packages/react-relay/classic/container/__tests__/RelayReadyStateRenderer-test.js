@@ -537,14 +537,10 @@ describe('RelayReadyStateRenderer', () => {
   describe('context', () => {
     it('sets environment and query config on the React context', () => {
       function TestComponent({onRenderContext}) {
-        return (
-          <ReactRelayContext.Consumer>
-            {context => {
-              onRenderContext(context);
-              return null;
-            }}
-          </ReactRelayContext.Consumer>
-        );
+        // $FlowFixMe unstable_read is not yet typed
+        const context = ReactRelayContext.unstable_read();
+        onRenderContext(context);
+        return null;
       }
 
       const onRenderContext = jest.fn();

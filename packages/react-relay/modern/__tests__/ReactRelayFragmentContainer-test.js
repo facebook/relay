@@ -57,7 +57,7 @@ describe('ReactRelayFragmentContainer', () => {
         environment: env,
         variables: vars,
       };
-      this.forceUpdate();
+      this.setProps({});
     }
     render() {
       let child = React.Children.only(this.props.children);

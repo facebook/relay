@@ -30,11 +30,8 @@ import type {
   OperationType,
   RelayContext,
   Snapshot,
+  Variables,
 } from 'relay-runtime';
-
-type RenderProps<TQueryResponse> = {|
-  data: TQueryResponse,
-|};
 
 /**
 Query Renderer
@@ -120,6 +117,10 @@ This behavior can be configured by the `readPolicy` and `fetchPolicy` props.
   be available locally in the store, and will suspend rendering until the
   network request completes.
 */
+type RenderProps<TQueryResponse> = {|
+  data: TQueryResponse,
+|};
+
 function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
   query: GraphQLTaggedNode,
 ): React.ComponentType<{|
@@ -137,61 +138,54 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
     readPolicy?: ReadPolicy,
   |};
 
-  type State = {|
-    reactRelayContext: RelayContext,
-  |};
+  function getReactRelayContext(
+    environment: IEnvironment,
+    variables: Variables,
+  ) {
+    const {getRequest, createOperationSelector} = environment.unstable_internal;
+    const queryNode = getRequest(query);
+    const operation = createOperationSelector(queryNode, variables);
+    return {
+      environment,
+      query,
+      variables: operation.variables,
+    };
+  }
 
-  return class QueryRenderer extends React.Component<Props, State> {
+  function memoizedGetRelayContext(
+    relayContextByEnvironment,
+    environment: IEnvironment,
+    variables: Variables,
+  ): RelayContext {
+    const cachedValue: ?{
+      relayContext: RelayContext,
+      variables: Variables,
+    } = relayContextByEnvironment.get(environment);
+
+    // We don't want to use the object identity of variables as a cache key
+    // because variables are often times re-created on each render.
+    // We also don't want to do a deep comparison of variables, e.g. by using
+    // JSON.stringify as the cache key.
+    // So, we do a shallow comparison each time.
+    if (cachedValue && areEqual(cachedValue.variables, variables)) {
+      return cachedValue.relayContext;
+    }
+
+    const newRelayContext = getReactRelayContext(environment, variables);
+    relayContextByEnvironment.set(environment, {
+      relayContext: newRelayContext,
+      variables,
+    });
+    return newRelayContext;
+  }
+
+  return class QueryRenderer extends React.Component<Props> {
+    _relayContextByEnvironment =
+      typeof WeakMap === 'function' ? new WeakMap() : new Map();
     _dataSubscription: Disposable | null = null;
     _fetchDisposable: Disposable | null = null;
     _renderedSnapshot: Snapshot | null = null;
     _retainHandle: Disposable | null = null;
-
-    constructor(props: Props) {
-      super(props);
-      const {environment, variables} = props;
-      const {
-        getRequest,
-        createOperationSelector,
-      } = environment.unstable_internal;
-      const queryNode = getRequest(query);
-      const operation = createOperationSelector(queryNode, variables);
-      this.state = {
-        reactRelayContext: {
-          environment: environment,
-          query,
-          variables: operation.variables,
-        },
-      };
-    }
-
-    static getDerivedStateFromProps(
-      nextProps: Props,
-      prevState: State,
-    ): $Shape<State> | null {
-      const {environment, variables} = nextProps;
-      const mirroredEnvironment = prevState.reactRelayContext.environment;
-      const mirroredVariables = prevState.reactRelayContext.variables;
-      if (
-        environment !== mirroredEnvironment ||
-        !areEqual(variables, mirroredVariables)
-      ) {
-        const {
-          getRequest,
-          createOperationSelector,
-        } = environment.unstable_internal;
-        const queryNode = getRequest(query);
-        const operation = createOperationSelector(queryNode, variables);
-        return {
-          reactRelayContext: {
-            environment,
-            query,
-            variables: operation.variables,
-          },
-        };
-      }
-      return null;
-    }
 
     componentDidMount() {
       // TODO Check if data has changed between render and mount. Schedule another
@@ -211,7 +205,7 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
       this._subscribe();
     }
 
-    componentDidUpdate(prevProps: Props, prevState: State) {
+    componentDidUpdate(prevProps: Props) {
       // TODO Check if data has changed between render and update. Schedule another
       // update if so
       const {environment, variables} = this.props;
@@ -223,8 +217,17 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
         this._fetchDisposable.dispose();
         this._fetchDisposable = null;
       }
-      const mustResubscribe =
-        prevState.reactRelayContext !== this.state.reactRelayContext;
+      const prevRelayContext = memoizedGetRelayContext(
+        this._relayContextByEnvironment,
+        prevProps.environment,
+        prevProps.variables,
+      );
+      const currentRelayContext = memoizedGetRelayContext(
+        this._relayContextByEnvironment,
+        environment,
+        variables,
+      );
+      const mustResubscribe = prevRelayContext !== currentRelayContext;
       if (mustResubscribe) {
         if (this._retainHandle) {
           this._retainHandle.dispose();
@@ -316,10 +319,14 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
       this._fetchDisposable = fetchDisposable;
       this._renderedSnapshot = snapshot;
 
-      // We keep environment and variables mirrored in state so we don't pass
-      // a new object on every render to ReactRelayContext.Provider, which would
-      // always trigger an update to all consumers
-      const {reactRelayContext} = this.state;
+      // We memoize the ReactRelayContext so we don't pass a new object on
+      // every render to ReactRelayContext.Provider, which would always trigger
+      // an update to all consumers
+      const reactRelayContext = memoizedGetRelayContext(
+        this._relayContextByEnvironment,
+        environment,
+        variables,
+      );
       return (
         <ReactRelayContext.Provider value={reactRelayContext}>
           <DataResourceCacheContext.Provider value={DataResourceCache}>

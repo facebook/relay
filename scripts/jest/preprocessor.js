@@ -43,7 +43,15 @@ const babelOptions = getBabelOptions({
         schema: testSchemaPath,
       },
     ],
-    require('@babel/plugin-transform-async-to-generator'),
+    '@babel/plugin-transform-flow-strip-types',
+    '@babel/plugin-transform-runtime',
+    '@babel/plugin-proposal-nullish-coalescing-operator',
+    '@babel/plugin-proposal-optional-chaining',
+    '@babel/plugin-transform-async-to-generator',
+  ],
+  postPlugins: [
+    '@babel/plugin-transform-async-to-generator',
+    '@babel/plugin-transform-modules-commonjs',
   ],
 });
 

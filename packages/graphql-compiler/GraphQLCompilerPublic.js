@@ -43,6 +43,7 @@ const nullthrows = require('./util/nullthrowsOSS');
 
 const {SourceControlMercurial} = require('./codegen/SourceControl');
 
+export type {Filesystem} from './codegen/CodegenDirectory';
 export type {
   WriteFiles,
   WriteFilesOptions,

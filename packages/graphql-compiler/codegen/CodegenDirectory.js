@@ -12,7 +12,6 @@
 
 const Profiler = require('../core/GraphQLCompilerProfiler');
 
-const fs = require('fs');
 const invariant = require('invariant');
 const path = require('path');
 
@@ -24,6 +23,20 @@ type Changes = {|
   +created: Array<string>,
   +unchanged: Array<string>,
 |};
+
+export interface Filesystem {
+  existsSync(path: string): boolean;
+  mkdirSync(path: string): void;
+  readdirSync(path: string): Array<string>;
+  readFileSync(path: string, encoding: string): string;
+  statSync(
+    path: string,
+  ): {
+    isDirectory(): boolean,
+  };
+  unlinkSync(path: string): void;
+  writeFileSync(filename: string, data: string, options: string): void;
+}
 
 /**
  * CodegenDirectory is a helper class for scripts that generate code into one
@@ -53,31 +66,37 @@ type Changes = {|
  */
 class CodegenDirectory {
   changes: Changes;
+  _filesystem: Filesystem;
   _files: Set<string>;
   _dir: string;
   onlyValidate: boolean;
 
   constructor(
     dir: string,
-    options: {
-      onlyValidate?: boolean,
-    } = {},
+    {
+      filesystem,
+      onlyValidate,
+    }: {|
+      filesystem?: Filesystem,
+      onlyValidate: boolean,
+    |},
   ) {
-    this.onlyValidate = !!options.onlyValidate;
-    if (fs.existsSync(dir)) {
+    this._filesystem = filesystem || require('fs');
+    this.onlyValidate = onlyValidate;
+    if (this._filesystem.existsSync(dir)) {
       invariant(
-        fs.statSync(dir).isDirectory(),
+        this._filesystem.statSync(dir).isDirectory(),
         'Expected `%s` to be a directory.',
         dir,
       );
     } else if (!this.onlyValidate) {
       const dirs = [dir];
       let parent = path.dirname(dir);
-      while (!fs.existsSync(parent)) {
+      while (!this._filesystem.existsSync(parent)) {
         dirs.unshift(parent);
         parent = path.dirname(parent);
       }
-      dirs.forEach(d => fs.mkdirSync(d));
+      dirs.forEach(d => this._filesystem.mkdirSync(d));
     }
     this._files = new Set();
     this.changes = {
@@ -167,8 +186,8 @@ class CodegenDirectory {
 
   read(filename: string): ?string {
     const filePath = path.join(this._dir, filename);
-    if (fs.existsSync(filePath)) {
-      return fs.readFileSync(filePath, 'utf8');
+    if (this._filesystem.existsSync(filePath)) {
+      return this._filesystem.readFileSync(filePath, 'utf8');
     }
     return null;
   }
@@ -192,8 +211,8 @@ class CodegenDirectory {
     Profiler.run('CodegenDirectory.writeFile', () => {
       this._addGenerated(filename);
       const filePath = path.join(this._dir, filename);
-      if (fs.existsSync(filePath)) {
-        const existingContent = fs.readFileSync(filePath, 'utf8');
+      if (this._filesystem.existsSync(filePath)) {
+        const existingContent = this._filesystem.readFileSync(filePath, 'utf8');
         if (existingContent === content) {
           this.changes.unchanged.push(filename);
         } else {
@@ -209,7 +228,7 @@ class CodegenDirectory {
 
   _writeFile(filePath: string, content: string): void {
     if (!this.onlyValidate) {
-      fs.writeFileSync(filePath, content, 'utf8');
+      this._filesystem.writeFileSync(filePath, content, 'utf8');
     }
   }
 
@@ -219,11 +238,11 @@ class CodegenDirectory {
    */
   deleteExtraFiles(): void {
     Profiler.run('CodegenDirectory.deleteExtraFiles', () => {
-      fs.readdirSync(this._dir).forEach(actualFile => {
+      this._filesystem.readdirSync(this._dir).forEach(actualFile => {
         if (!this._files.has(actualFile) && !/^\./.test(actualFile)) {
           if (!this.onlyValidate) {
             try {
-              fs.unlinkSync(path.join(this._dir, actualFile));
+              this._filesystem.unlinkSync(path.join(this._dir, actualFile));
             } catch (e) {
               throw new Error(
                 'CodegenDirectory: Failed to delete `' +

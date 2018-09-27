@@ -9,4 +9,4 @@
 
 'use strict';
 
-require('babel-runtime/regenerator');
+require('@babel/runtime/regenerator');

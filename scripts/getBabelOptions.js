@@ -50,7 +50,7 @@ module.exports = function(options) {
   }
 
   return {
-    plugins: options.plugins.concat('transform-es2015-spread'),
+    plugins: options.plugins.concat('@babel/plugin-transform-spread'),
     presets: [fbjsPreset],
   };
 };

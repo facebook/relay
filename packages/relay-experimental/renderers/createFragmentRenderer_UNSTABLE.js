@@ -268,7 +268,6 @@ function createFragmentRenderer_UNSTABLE<TFragmentData: {[string]: any}>(
       'FragmentRenderer: Expected ReactRelayContext to have been passed',
     );
     invariant(
-      // $FlowFixMe
       reactRelayContext.query != null,
       'FragmentRenderer: Expected query to be avialable in context',
     );

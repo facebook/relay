@@ -16,6 +16,7 @@ const {
   assertCompositeType,
   assertLeafType,
 } = require('graphql');
+const invariant = require('invariant');
 const {
   CompilerContext,
   SchemaUtils,
@@ -48,7 +49,10 @@ type State = {
 function relayGenerateIDFieldTransform(
   context: CompilerContext,
 ): CompilerContext {
-  const idType = assertLeafType(context.serverSchema.getType(ID_TYPE));
+  let idType = context.serverSchema.getType(ID_TYPE);
+  invariant(idType, 'Schema does not contain an id field on any types');
+  // reassigning avoids flow error, would love to hear thoughts on this
+  idType = assertLeafType(idType);
   const idField: ScalarField = {
     kind: 'ScalarField',
     alias: (null: ?string),

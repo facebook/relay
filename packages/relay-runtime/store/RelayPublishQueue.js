@@ -179,11 +179,15 @@ class RelayPublishQueue {
     this._commitUpdaters();
     this._applyUpdates();
     this._pendingBackupRebase = false;
-    if (this._appliedOptimisticUpdates.size > 0 && !this._gcHold) {
-      this._gcHold = this._store.holdGC();
-    } else if (this._gcHold) {
-      this._gcHold.dispose();
-      this._gcHold = null;
+    if (this._appliedOptimisticUpdates.size > 0) {
+      if (!this._gcHold) {
+        this._gcHold = this._store.holdGC();
+      }
+    } else {
+      if (this._gcHold) {
+        this._gcHold.dispose();
+        this._gcHold = null;
+      }
     }
     this._store.notify();
   }

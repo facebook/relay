@@ -1488,6 +1488,11 @@ describe('RelayPublishQueue', () => {
       expect(holdGC).toBeCalled();
       expect(disposeGC).not.toBeCalled();
       queue.run();
+      expect(disposeGC).not.toBeCalled(); // Exactly! We should not dispose GC on each run
+      // Let's revert all updates
+      queue.revertAll();
+      queue.run();
+      // Now, it's time to release GC
       expect(disposeGC).toBeCalled();
     });
   });

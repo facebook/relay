@@ -13,7 +13,7 @@
 const BabelPluginRelay = require('../../dist/babel-plugin-relay');
 
 const assign = require('object-assign');
-const babel = require('babel-core');
+const babel = require('@babel/core');
 const createCacheKeyFunction = require('fbjs-scripts/jest/createCacheKeyFunction');
 const getBabelOptions = require('../getBabelOptions');
 const path = require('path');
@@ -43,7 +43,11 @@ const babelOptions = getBabelOptions({
         schema: testSchemaPath,
       },
     ],
-    require('babel-plugin-transform-async-to-generator'),
+    '@babel/plugin-transform-flow-strip-types',
+    '@babel/plugin-transform-runtime',
+    '@babel/plugin-proposal-nullish-coalescing-operator',
+    '@babel/plugin-proposal-optional-chaining',
+    '@babel/plugin-transform-async-to-generator',
   ],
 });
 

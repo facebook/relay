@@ -89,7 +89,7 @@ However, Relay Modern expects modern JavaScript global types (`Map`, `Set`,
 `Promise`, `Object.assign`) to be defined. If you support older browsers and
 devices which may not yet provide these natively, consider including a global
 polyfill in your bundled application, such as [core-js][] or
-[babel-polyfill](https://babeljs.io/docs/usage/polyfill/).
+[@babel/polyfill](https://babeljs.io/docs/usage/polyfill/).
 
 A polyfilled environment for Relay using [core-js][] to support older browsers
 might look like:

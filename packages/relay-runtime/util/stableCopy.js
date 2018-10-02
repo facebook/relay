@@ -16,12 +16,14 @@
  * results.
  */
 function stableCopy<T: mixed>(value: T): T {
-  if (!value || typeof value !== 'object') {
+  if (!value || typeof value !== 'object' || value.constructor === Date) {
     return value;
   }
+
   if (Array.isArray(value)) {
     return value.map(stableCopy);
   }
+
   const keys = Object.keys(value).sort();
   const stable = {};
   for (let i = 0; i < keys.length; i++) {

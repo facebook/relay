@@ -83,4 +83,13 @@ describe('stableCopy', () => {
         '}',
     );
   });
+
+  it('copies objects with Date Object values', () => {
+    const object = {};
+    object.date = new Date(Date.UTC(1972, 8, 29));
+    expect(stableCopy(object)).toEqual(object);
+    expect(JSON.stringify(stableCopy(object))).toEqual(
+      '{"date":"1972-09-29T00:00:00.000Z"}',
+    );
+  });
 });

@@ -48,7 +48,7 @@
     "fb-watchman": "^2.0.0",
     "fbjs": "^1.0.0",
     "fbjs-scripts": "0.8.3",
-    "flow-bin": "^0.81.0",
+    "flow-bin": "^0.82.0",
     "graphql": "^14.0.0",
     "gulp": "3.9.1",
     "gulp-babel": "7.0.1",

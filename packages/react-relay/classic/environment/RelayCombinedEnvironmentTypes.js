@@ -50,6 +50,7 @@ export type CSelector<TNode> = {
 export type CSnapshot<TNode> = CSelector<TNode> & {
   data: ?SelectorData,
   seenRecords: RecordMap,
+  isMissingData: boolean,
 };
 
 /**

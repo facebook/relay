@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
@@ -58,10 +58,12 @@ class RelayReader {
   _recordSource: RecordSource;
   _seenRecords: {[dataID: DataID]: ?Record};
   _variables: Variables;
+  _isMissingData: boolean;
 
   constructor(recordSource: RecordSource, variables: Variables) {
     this._recordSource = recordSource;
     this._seenRecords = {};
+    this._isMissingData = false;
     this._variables = variables;
   }
 
@@ -73,6 +75,7 @@ class RelayReader {
       node,
       seenRecords: this._seenRecords,
       variables: this._variables,
+      isMissingData: this._isMissingData,
     };
   }
 
@@ -84,6 +87,9 @@ class RelayReader {
     const record = this._recordSource.get(dataID);
     this._seenRecords[dataID] = record;
     if (record == null) {
+      if (record === undefined) {
+        this._isMissingData = true;
+      }
       return record;
     }
     const data = prevData || {};
@@ -143,9 +149,12 @@ class RelayReader {
     record: Record,
     data: SelectorData,
   ): void {
-    const applicationName = field.alias || field.name;
+    const applicationName = field.alias ?? field.name;
     const storageKey = getStorageKey(field, this._variables);
     const value = RelayModernRecord.getValue(record, storageKey);
+    if (value === undefined) {
+      this._isMissingData = true;
+    }
     data[applicationName] = value;
   }
 
@@ -154,12 +163,14 @@ class RelayReader {
     record: Record,
     data: SelectorData,
   ): void {
-    const applicationName = field.alias || field.name;
+    const applicationName = field.alias ?? field.name;
     const storageKey = getStorageKey(field, this._variables);
     const linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
-
     if (linkedID == null) {
       data[applicationName] = linkedID;
+      if (linkedID === undefined) {
+        this._isMissingData = true;
+      }
       return;
     }
 
@@ -180,12 +191,15 @@ class RelayReader {
     record: Record,
     data: SelectorData,
   ): void {
-    const applicationName = field.alias || field.name;
+    const applicationName = field.alias ?? field.name;
     const storageKey = getStorageKey(field, this._variables);
     const linkedIDs = RelayModernRecord.getLinkedRecordIDs(record, storageKey);
 
     if (linkedIDs == null) {
       data[applicationName] = linkedIDs;
+      if (linkedIDs === undefined) {
+        this._isMissingData = true;
+      }
       return;
     }
 
@@ -201,6 +215,9 @@ class RelayReader {
     const linkedArray = prevData || [];
     linkedIDs.forEach((linkedID, nextIndex) => {
       if (linkedID == null) {
+        if (linkedID === undefined) {
+          this._isMissingData = true;
+        }
         linkedArray[nextIndex] = linkedID;
         return;
       }
@@ -213,8 +230,7 @@ class RelayReader {
         RelayModernRecord.getDataID(record),
         prevItem,
       );
-      const linkedItem = this._traverse(field, linkedID, prevItem);
-      linkedArray[nextIndex] = linkedItem;
+      linkedArray[nextIndex] = this._traverse(field, linkedID, prevItem);
     });
     data[applicationName] = linkedArray;
   }
@@ -226,7 +242,7 @@ class RelayReader {
     variables: Variables,
   ): void {
     let fragmentPointers = data[FRAGMENTS_KEY];
-    if (!fragmentPointers) {
+    if (fragmentPointers == null) {
       fragmentPointers = data[FRAGMENTS_KEY] = {};
     }
     invariant(
@@ -234,7 +250,7 @@ class RelayReader {
       'RelayReader: Expected fragment spread data to be an object, got `%s`.',
       fragmentPointers,
     );
-    data[ID_KEY] = data[ID_KEY] || RelayModernRecord.getDataID(record);
+    data[ID_KEY] = data[ID_KEY] ?? RelayModernRecord.getDataID(record);
     fragmentPointers[fragmentSpread.name] = fragmentSpread.args
       ? getArgumentValues(fragmentSpread.args, variables)
       : {};

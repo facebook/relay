@@ -234,6 +234,7 @@ describe('ReactRelayFragmentContainer', () => {
       node: UserFragment,
       seenRecords: jasmine.any(Object),
       variables: {cond: true},
+      isMissingData: false,
     });
   });
 
@@ -329,6 +330,7 @@ describe('ReactRelayFragmentContainer', () => {
       node: UserFragment,
       seenRecords: jasmine.any(Object),
       variables: {cond: true},
+      isMissingData: false,
     });
   });
 
@@ -372,6 +374,7 @@ describe('ReactRelayFragmentContainer', () => {
       node: UserFragment,
       seenRecords: jasmine.any(Object),
       variables: {cond: true},
+      isMissingData: false,
     });
   });
 

@@ -207,6 +207,7 @@ class RelayEnvironment implements Environment, RelayEnvironmentInterface {
       ...selector,
       data,
       seenRecords: (dataIDs: any),
+      isMissingData: false,
     };
   }
 

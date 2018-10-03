@@ -183,6 +183,7 @@ describe('RelayStore', () => {
         seenRecords: {
           ...data,
         },
+        isMissingData: false,
       });
       for (const id in snapshot.seenRecords) {
         if (snapshot.seenRecords.hasOwnProperty(id)) {
@@ -236,6 +237,7 @@ describe('RelayStore', () => {
           4: {...data['4'], ...nextData['4']},
           'client:2': nextData['client:2'],
         },
+        isMissingData: false,
       });
     });
   });

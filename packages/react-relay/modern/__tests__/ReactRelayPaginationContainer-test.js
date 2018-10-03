@@ -325,6 +325,7 @@ describe('ReactRelayPaginationContainer', () => {
         orderby: ['name'],
         isViewerFriendLocal: false,
       },
+      isMissingData: false,
     });
   });
 
@@ -437,6 +438,7 @@ describe('ReactRelayPaginationContainer', () => {
         orderby: ['name'],
         isViewerFriendLocal: false,
       },
+      isMissingData: false,
     });
   });
 
@@ -503,6 +505,7 @@ describe('ReactRelayPaginationContainer', () => {
         orderby: ['name'],
         isViewerFriendLocal: false,
       },
+      isMissingData: false,
     });
 
     // Data & Variables are passed to component
@@ -547,6 +550,7 @@ describe('ReactRelayPaginationContainer', () => {
         orderby: ['name'],
         isViewerFriendLocal: false,
       },
+      isMissingData: false,
     });
   });
 

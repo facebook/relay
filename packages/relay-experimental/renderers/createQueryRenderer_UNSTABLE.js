@@ -251,7 +251,7 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
 
       // We invalidate on unmount because we want to allow a component that is
       // remounting in the future to read fresh data from the Relay store and
-      // potentiatlly initiate a new fetch.
+      // potentially initiate a new fetch.
       // If we didn't, new mounts of the component would always find the data
       // cached in DataResourceCache and not read from the store or fetch
       const DataResourceCache = getCacheForEnvironment(environment);

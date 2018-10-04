@@ -29,7 +29,7 @@ describe('DataResourceCache', () => {
   let fetchPolicy;
   let readPolicy;
   let query;
-  let queryWithName;
+  let queryMissingData;
   const variables = {
     id: '4',
   };
@@ -47,7 +47,7 @@ describe('DataResourceCache', () => {
       }
     `,
     ).UserQuery;
-    queryWithName = generateAndCompile(
+    queryMissingData = generateAndCompile(
       `query UserQuery($id: ID!) {
         node(id: $id) {
           ... on User {
@@ -103,7 +103,7 @@ describe('DataResourceCache', () => {
           try {
             DataResourceCache.readQuery({
               environment,
-              query: queryWithName,
+              query: queryMissingData,
               variables,
               fetchPolicy,
               readPolicy,
@@ -143,7 +143,7 @@ describe('DataResourceCache', () => {
           try {
             DataResourceCache.readQuery({
               environment,
-              query: queryWithName,
+              query: queryMissingData,
               variables,
               fetchPolicy,
               readPolicy,
@@ -184,7 +184,7 @@ describe('DataResourceCache', () => {
           try {
             DataResourceCache.readQuery({
               environment,
-              query: queryWithName,
+              query: queryMissingData,
               variables,
               fetchPolicy,
               readPolicy,
@@ -221,7 +221,7 @@ describe('DataResourceCache', () => {
         it('should throw a promise if request is in progress', () => {
           DataResourceCache.preloadQuery({
             environment,
-            query: queryWithName,
+            query: queryMissingData,
             variables,
           });
           expect(fetchQuery_UNSTABLE).toBeCalled();
@@ -229,7 +229,7 @@ describe('DataResourceCache', () => {
           try {
             DataResourceCache.readQuery({
               environment,
-              query: queryWithName,
+              query: queryMissingData,
               variables,
               fetchPolicy,
               readPolicy,
@@ -246,7 +246,7 @@ describe('DataResourceCache', () => {
           try {
             DataResourceCache.readQuery({
               environment,
-              query: queryWithName,
+              query: queryMissingData,
               variables,
               fetchPolicy,
               readPolicy,
@@ -287,20 +287,22 @@ describe('DataResourceCache', () => {
           });
         });
 
-        it('should return all available (even if data is missing, no network request)', () => {
-          const result = DataResourceCache.readQuery({
-            environment,
-            query: queryWithName,
-            variables,
-            fetchPolicy,
-            readPolicy,
-          });
-          expect(fetchQuery_UNSTABLE).not.toBeCalled();
-          expect(result.data).toMatchObject({
-            node: {
-              id: '4',
-            },
-          });
+        it('should generate a network request if data is missing for the query', () => {
+          let thrown = false;
+          try {
+            DataResourceCache.readQuery({
+              environment,
+              query: queryMissingData,
+              variables,
+              fetchPolicy,
+              readPolicy,
+            });
+          } catch (p) {
+            thrown = true;
+            expect(p).toBeInstanceOf(Promise);
+          }
+          expect(thrown).toBe(true);
+          expect(fetchQuery_UNSTABLE).toBeCalled();
         });
       });
 
@@ -324,20 +326,22 @@ describe('DataResourceCache', () => {
           });
         });
 
-        it('should return all available data and generate network request', () => {
-          const result = DataResourceCache.readQuery({
-            environment,
-            query: queryWithName,
-            variables,
-            fetchPolicy,
-            readPolicy,
-          });
+        it('should generate a network request if data is missing for the query', () => {
+          let thrown = false;
+          try {
+            DataResourceCache.readQuery({
+              environment,
+              query: queryMissingData,
+              variables,
+              fetchPolicy,
+              readPolicy,
+            });
+          } catch (p) {
+            thrown = true;
+            expect(p).toBeInstanceOf(Promise);
+          }
+          expect(thrown).toBe(true);
           expect(fetchQuery_UNSTABLE).toBeCalled();
-          expect(result.data).toMatchObject({
-            node: {
-              id: '4',
-            },
-          });
         });
       });
 
@@ -384,20 +388,43 @@ describe('DataResourceCache', () => {
           });
         });
 
-        it('should return all available data (even if missing)', () => {
-          const result = DataResourceCache.readQuery({
-            environment,
-            query: queryWithName,
-            variables,
-            fetchPolicy,
-            readPolicy,
-          });
+        it('should throw a network request promise if data is missing (and we have pending request)', () => {
+          (getPromiseForRequestInFlight_UNSTABLE: any).mockReturnValueOnce(
+            Promise.resolve(),
+          );
+          let promiseThrown = false;
+          try {
+            DataResourceCache.readQuery({
+              environment,
+              query: queryMissingData,
+              variables,
+              fetchPolicy,
+              readPolicy,
+            });
+          } catch (p) {
+            promiseThrown = true;
+            expect(p).toBeInstanceOf(Promise);
+          }
+          expect(promiseThrown).toBe(true);
           expect(fetchQuery_UNSTABLE).not.toBeCalled();
-          expect(result.data).toMatchObject({
-            node: {
-              id: '4',
-            },
-          });
+        });
+
+        it('should throw an error if data is missing and there are no pending requests', () => {
+          let errorThrown = false;
+          try {
+            DataResourceCache.readQuery({
+              environment,
+              query: queryMissingData,
+              variables,
+              fetchPolicy,
+              readPolicy,
+            });
+          } catch (e) {
+            errorThrown = true;
+            expect(e).toBeInstanceOf(Error);
+          }
+          expect(fetchQuery_UNSTABLE).not.toBeCalled();
+          expect(errorThrown).toBe(true);
         });
       });
     });
@@ -458,7 +485,7 @@ describe('DataResourceCache', () => {
       );
       let thrown = false;
       try {
-        const result = DataResourceCache.readFragmentSpec({
+        DataResourceCache.readFragmentSpec({
           environment,
           parentQuery: UserQuery,
           variables,
@@ -474,10 +501,6 @@ describe('DataResourceCache', () => {
             },
           },
         });
-        // TODO: Remove this once `isMissingData` will be added to Snapshot
-        // We need actually access the `name` field here, so Proxy can check
-        // if data is missing and throw a promise
-        const {name} = (result.user.data: any); //eslint-disable-line no-unused-vars
       } catch (p) {
         expect(p).toBeInstanceOf(Promise);
         thrown = true;
@@ -502,7 +525,7 @@ describe('DataResourceCache', () => {
       );
       let thrown = false;
       try {
-        const result = DataResourceCache.readFragmentSpec({
+        DataResourceCache.readFragmentSpec({
           environment,
           parentQuery: UserQuery,
           variables,
@@ -518,10 +541,6 @@ describe('DataResourceCache', () => {
             },
           },
         });
-        // TODO: Remove this once `isMissingData` will be added to Snapshot
-        // We need actually access the `name` field here, so Proxy can check
-        // if data is missing and throw a promise
-        const {name} = (result.user.data: any); //eslint-disable-line no-unused-vars
       } catch (p) {
         expect(p).toBeInstanceOf(Error);
         thrown = true;

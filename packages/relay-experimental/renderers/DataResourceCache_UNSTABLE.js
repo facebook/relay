@@ -6,6 +6,7 @@
  *
  * @flow strict-local
  * @format
+ * @emails oncall+relay
  */
 
 'use strict';
@@ -24,13 +25,7 @@ const {
   fetchQuery_UNSTABLE,
   getPromiseForRequestInFlight_UNSTABLE,
 } = require('../helpers/fetchQuery_UNSTABLE');
-const {
-  FRAGMENTS_KEY,
-  ID_KEY,
-  REF_KEY,
-  REFS_KEY,
-  ROOT_TYPE,
-} = require('relay-runtime');
+const {FRAGMENTS_KEY, ID_KEY} = require('relay-runtime');
 
 import type {
   Disposable,
@@ -110,57 +105,11 @@ function getFragmentCacheKey(
   }-${fragmentRefID}-${JSON.stringify(variables)}`;
 }
 
-function hasData(snapshot: Snapshot | $ReadOnlyArray<Snapshot>) {
-  return (
-    (Array.isArray(snapshot) && snapshot.every(s => s.data !== undefined)) ||
-    (!Array.isArray(snapshot) && snapshot.data !== undefined)
-  );
-}
-
-/**
- * Wraps data object in a Proxy to detect when callers try to access
- * non-existing fields.
- */
-function proxyDataResult(
-  data: mixed,
-  onFieldMissing: (obj: {}, prop: string) => mixed,
-): mixed {
-  if (data == null) {
-    return data;
+function isMissingData(snapshot: Snapshot | $ReadOnlyArray<Snapshot>) {
+  if (Array.isArray(snapshot)) {
+    return snapshot.some(s => s.isMissingData);
   }
-  if (typeof data === 'string' || typeof data === 'number') {
-    return data;
-  }
-  if (Array.isArray(data)) {
-    return data.map(d => proxyDataResult(d, onFieldMissing));
-  }
-
-  // TODO Check if proxy is supported, if not use polyfill
-  // $FlowExpectedError - Need to be dynamic in this case as we know that data is an object at this point
-  const proxyTarget: {} = Object.isFrozen(data) ? {...data} : (data: any);
-  return new Proxy(proxyTarget, {
-    get: (obj, prop) => {
-      // Don't attempt to proxy special React and Relay fields
-      if (
-        typeof prop !== 'string' ||
-        prop === '_reactFragment' ||
-        prop === '$refType' ||
-        prop === '$fragmentRefs' ||
-        prop === ID_KEY ||
-        prop === FRAGMENTS_KEY ||
-        prop === REF_KEY ||
-        prop === REFS_KEY ||
-        prop === ROOT_TYPE
-      ) {
-        return obj[prop];
-      }
-      const res = obj[prop];
-      if (obj.hasOwnProperty(prop) && res === undefined) {
-        onFieldMissing(obj, prop);
-      }
-      return proxyDataResult(res, onFieldMissing);
-    },
-  });
+  return snapshot.isMissingData;
 }
 
 function createCache() {
@@ -169,7 +118,7 @@ function createCache() {
 
   /**
    * Attempts to fetch, retain and store data for a query, based on the
-   * provided fetchPoicy and readPolicy,
+   * provided fetchPolicy and readPolicy,
    * ReadPolicy:
    * - eager:
    *   - Will try to read as much data as possible, even if the full query is
@@ -185,6 +134,7 @@ function createCache() {
    *   - Will read the query from the Relay Store and save it to cache based on
    *     the specified ReadPolicy.
    *   - It will not make any network requests
+   *   - It will throw an error if there are no pending network requests
    * - store-or-network:
    *   - Will read the query from the Relay Store and save it to cache based on
    *     the specified ReadPolicy.
@@ -200,9 +150,9 @@ function createCache() {
    *
    * fetchQuery will de-dupe requests that are in flight (globally) by default.
    * This function will save the result from the network fetch to the cache:
-   *   - If result from network is available syncrhonously, it will be saved
+   *   - If result from network is available synchronously, it will be saved
    *     to cache.
-   *   - If result from network is not available syncrhonously, a Promise
+   *   - If result from network is not available synchronously, a Promise
    *     for the request will be saved to cache.
    *   - When the request completes, the result or the error will be saved to
    *     to cache.
@@ -236,30 +186,33 @@ function createCache() {
         shouldFetch = false;
         if (canRead) {
           const snapshot = readQuery_UNSTABLE(environment, query, variables);
-          if (hasData(snapshot)) {
+          if (!isMissingData(snapshot)) {
             cache.set(cacheKey, snapshot);
-          }
-        } else {
-          // Check if there's a global request in flight for this query, even
-          // if one won't be initiated by the component associated with this render.
-          // It is possible for queries to be fetched completely outside of React
-          // rendering, which is why we check if a request is in flight globally
-          // for this query.
-          const promiseForQuery = getPromiseForQueryRequestInFlight({
-            environment,
-            query,
-            variables,
-          });
-          if (promiseForQuery != null) {
-            cache.set(cacheKey, promiseForQuery);
+            break;
           }
         }
-        break;
+        // Check if there's a global request in flight for this query, even
+        // if one won't be initiated by the component associated with this render.
+        // It is possible for queries to be fetched completely outside of React
+        // rendering, which is why we check if a request is in flight globally
+        // for this query.
+        const promiseForQuery = getPromiseForQueryRequestInFlight({
+          environment,
+          query,
+          variables,
+        });
+        if (promiseForQuery != null) {
+          cache.set(cacheKey, promiseForQuery);
+          break;
+        }
+        throw new Error(
+          'DataResourceCache_UNSTABLE: Tried reading a query that is not available locally and is not being fetched',
+        );
       }
       case 'store-or-network': {
         if (canRead) {
           const snapshot = readQuery_UNSTABLE(environment, query, variables);
-          if (hasData(snapshot)) {
+          if (!isMissingData(snapshot)) {
             shouldFetch = false;
             cache.set(cacheKey, snapshot);
           } else {
@@ -274,7 +227,7 @@ function createCache() {
         shouldFetch = true;
         if (canRead) {
           const snapshot = readQuery_UNSTABLE(environment, query, variables);
-          if (hasData(snapshot)) {
+          if (!isMissingData(snapshot)) {
             cache.set(cacheKey, snapshot);
           }
         }
@@ -316,7 +269,7 @@ function createCache() {
           },
           next: () => {
             const snapshot = readQuery_UNSTABLE(environment, query, variables);
-            if (hasData(snapshot)) {
+            if (!isMissingData(snapshot)) {
               cache.set(cacheKey, snapshot);
               resolveSuspender();
             }
@@ -387,7 +340,7 @@ function createCache() {
           query,
           variables,
         );
-        if (hasData(latestSnapshot)) {
+        if (!isMissingData(latestSnapshot)) {
           cache.set(cacheKey, latestSnapshot);
         } else {
           cache.delete(cacheKey);
@@ -434,7 +387,7 @@ function createCache() {
           fragmentRef,
           variables,
         );
-        if (hasData(latestSnapshot)) {
+        if (!isMissingData(latestSnapshot)) {
           cache.set(cacheKey, latestSnapshot);
         }
       })
@@ -448,101 +401,17 @@ function createCache() {
    * The result includes:
    * - The Relay store Snapshot, which is necessary if callers want to
    *   subscribe to the snapshot's data.
-   * - The actual data from the Snapshot. This data is not simply the raw data;
-   *   rather, it's wrapped in a Proxy to detect when callers try to access
-   *   non-existing fields.
-   *   If a caller accessess non-existing field on the data object, the proxy
-   *   will:
-   *   - Check if request is in flight, if so throw Promise for that request
-   *   - Otherwise, return the empty data
+   * - The actual data from the Snapshot.
    */
-  function makeDataResult(args: {
-    environment: IEnvironment,
-    query: GraphQLTaggedNode,
-    fragment?: GraphQLTaggedNode,
-    fragmentRef?: mixed,
-    variables: Variables,
+  function makeDataResult(args: {|
     snapshot: Snapshot | $ReadOnlyArray<Snapshot>,
     fetchDisposable?: Disposable,
-  }): CacheReadResult {
-    const {
-      environment,
-      query,
-      fetchDisposable,
-      fragment,
-      fragmentRef,
-      variables,
-      snapshot,
-    } = args;
-    invariant(
-      hasData(snapshot),
-      'DataResourceCache: Expected snapshot to have data when returning a result',
-    );
-    const handleFieldMissing = (obj, field) => {
-      if (fragment != null) {
-        // Check if a request is in flight for the parent query  this field
-        // belongs to.
-        const suspender = getPromiseForFragmentRequestInFlight({
-          environment,
-          fragment,
-          fragmentRef,
-          parentQuery: query,
-          variables,
-        });
-        if (suspender) {
-          const cacheKey = getFragmentCacheKey(
-            fragment,
-            fragmentRef,
-            variables,
-          );
-          cache.set(cacheKey, suspender);
-          throw suspender;
-        }
-
-        // Otherwise, throw an error.
-        // This means that we're trying to read a field that isn't available and
-        // isn't being fetched at all.
-        // This can happen if the fetchPolicy policy is store-only
-        const queryNode = getRequest(query);
-        const fragmentNode = getFragment(fragment);
-        throw new Error(
-          `DataResourceCache_UNSTABLE: Tried reading field ${field} on fragment ${
-            fragmentNode.name
-          } included in query ${
-            queryNode.name
-          }, which is not available locally and is not being fetched`,
-        );
-      }
-      // Check if a request is in flight for the query this field belongs to.
-      const suspender = getPromiseForQueryRequestInFlight({
-        environment,
-        query,
-        variables,
-      });
-
-      // If so, suspend with the Promise for that request
-      if (suspender) {
-        const cacheKey = getQueryCacheKey(query, variables);
-        cache.set(cacheKey, suspender);
-        throw suspender;
-      }
-
-      // Otherwise, throw an error.
-      // This means that we're trying to read a field that isn't available and
-      // isn't being fetched at all.
-      // This can happen if the fetchPolicy policy is store-only
-      const queryNode = getRequest(query);
-      throw new Error(
-        `DataResourceCache_UNSTABLE: Tried reading field ${field} on query ${
-          queryNode.name
-        }, which is not available locally and is not being fetched`,
-      );
-    };
-
+  |}): CacheReadResult {
+    const {fetchDisposable, snapshot} = args;
     return {
       data: Array.isArray(snapshot)
-        ? proxyDataResult(snapshot.map(s => s.data), handleFieldMissing)
-        : proxyDataResult(snapshot.data, handleFieldMissing),
+        ? snapshot.map(({data}) => data)
+        : snapshot.data,
       fetchDisposable: fetchDisposable ?? null,
       snapshot,
     };
@@ -567,7 +436,7 @@ function createCache() {
       fetchPolicy?: FetchPolicy,
       readPolicy?: ReadPolicy,
     |}): CacheReadResult {
-      const {environment, query, variables} = args;
+      const {query, variables} = args;
       const cacheKey = getQueryCacheKey(query, variables);
 
       // 1. Check if there's a cached value for this query
@@ -577,9 +446,6 @@ function createCache() {
           throw cachedValue;
         }
         return makeDataResult({
-          environment,
-          query,
-          variables,
           snapshot: cachedValue,
         });
       }
@@ -588,15 +454,12 @@ function createCache() {
       // fetchQuery will update the cache with either a Promise, Error or a
       // Snapshot
       const fetchDisposable = fetchQuery(args);
-      cachedValue = cache.get(cacheKey) ?? null;
+      cachedValue = cache.get(cacheKey);
       if (cachedValue != null) {
         if (cachedValue instanceof Promise || cachedValue instanceof Error) {
           throw cachedValue;
         }
         return makeDataResult({
-          environment,
-          query,
-          variables,
           snapshot: cachedValue,
           fetchDisposable,
         });
@@ -628,7 +491,7 @@ function createCache() {
       return mapObject(fragmentSpec, (fragment, key) => {
         const fragmentRef = fragmentRefs[key];
         const cacheKey = getFragmentCacheKey(fragment, fragmentRef, variables);
-        const cachedValue = cache.get(cacheKey) ?? null;
+        const cachedValue = cache.get(cacheKey);
 
         // 1. Check if there's a cached value for this fragment
         if (cachedValue != null) {
@@ -636,11 +499,6 @@ function createCache() {
             throw cachedValue;
           }
           return makeDataResult({
-            environment,
-            query: parentQuery,
-            fragment,
-            fragmentRef,
-            variables,
             snapshot: cachedValue,
           });
         }
@@ -653,14 +511,9 @@ function createCache() {
           fragmentRef,
           variables,
         );
-        if (hasData(snapshot)) {
+        if (!isMissingData(snapshot)) {
           cache.set(cacheKey, snapshot);
           return makeDataResult({
-            environment,
-            query: parentQuery,
-            fragment,
-            fragmentRef,
-            variables,
             snapshot,
           });
         }
@@ -768,7 +621,7 @@ function createCache() {
       snapshot: Snapshot,
     |}): void {
       const {query, snapshot, variables} = args;
-      if (hasData(snapshot)) {
+      if (!isMissingData(snapshot)) {
         const cacheKey = getQueryCacheKey(query, variables);
         cache.set(cacheKey, snapshot);
       }
@@ -785,7 +638,7 @@ function createCache() {
       snapshot: Snapshot | $ReadOnlyArray<Snapshot>,
     |}): void {
       const {fragment, fragmentRef, variables, snapshot} = args;
-      if (hasData(snapshot)) {
+      if (!isMissingData(snapshot)) {
         const cacheKey = getFragmentCacheKey(fragment, fragmentRef, variables);
         cache.set(cacheKey, snapshot);
       }

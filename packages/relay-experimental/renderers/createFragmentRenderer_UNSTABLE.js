@@ -269,7 +269,7 @@ function createFragmentRenderer_UNSTABLE<TFragmentData: {[string]: any}>(
     );
     invariant(
       reactRelayContext.query != null,
-      'FragmentRenderer: Expected query to be avialable in context',
+      'FragmentRenderer: Expected query to be available in context',
     );
     return (
       <FragmentRendererInternal

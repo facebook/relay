@@ -211,12 +211,10 @@ function createCache() {
       }
       case 'store-or-network': {
         if (canRead) {
+          shouldFetch = !hasFullQuery;
           const snapshot = readQuery_UNSTABLE(environment, query, variables);
           if (!isMissingData(snapshot)) {
-            shouldFetch = false;
             cache.set(cacheKey, snapshot);
-          } else {
-            shouldFetch = true;
           }
         } else {
           shouldFetch = true;

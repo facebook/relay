@@ -115,6 +115,74 @@ describe('DataResourceCache', () => {
           expect(fetchQuery_UNSTABLE).toBeCalled();
           expect(thrown).toBe(true);
         });
+
+        describe('when using fragments', () => {
+          it('should read data (if all data is available) without network request', () => {
+            const {UserQuery} = generateAndCompile(
+              `
+              fragment UserFragment on User {
+                id
+              }
+              query UserQuery($id: ID!) {
+                node(id: $id) {
+                  __typename
+                  ...UserFragment
+                }
+              }
+            `,
+            );
+
+            const result = DataResourceCache.readQuery({
+              environment,
+              query: UserQuery,
+              variables,
+              fetchPolicy,
+              readPolicy,
+            });
+            expect(fetchQuery_UNSTABLE).not.toBeCalled();
+            expect(result.data).toMatchObject({
+              node: {
+                __fragments: {
+                  UserFragment: {},
+                },
+                __id: '4',
+                __typename: 'User',
+              },
+            });
+          });
+
+          it('throw a promise (fetch query) when some data is missing ', () => {
+            const {UserQuery} = generateAndCompile(
+              `
+              fragment UserFragment on User {
+                id
+                username
+              }
+              query UserQuery($id: ID!) {
+                node(id: $id) {
+                  __typename
+                  ...UserFragment
+                }
+              }
+            `,
+            );
+            let thrown = false;
+            try {
+              DataResourceCache.readQuery({
+                environment,
+                query: UserQuery,
+                variables,
+                fetchPolicy,
+                readPolicy,
+              });
+            } catch (promise) {
+              expect(promise).toBeInstanceOf(Promise);
+              thrown = true;
+            }
+            expect(fetchQuery_UNSTABLE).toBeCalled();
+            expect(thrown).toBe(true);
+          });
+        });
       });
 
       describe('fetchPolicy: store-and-network', () => {
@@ -287,7 +355,7 @@ describe('DataResourceCache', () => {
           });
         });
 
-        it('should generate a network request if data is missing for the query', () => {
+        it('should send a network request (and throw promise) if data is missing for the query', () => {
           let thrown = false;
           try {
             DataResourceCache.readQuery({
@@ -303,6 +371,85 @@ describe('DataResourceCache', () => {
           }
           expect(thrown).toBe(true);
           expect(fetchQuery_UNSTABLE).toBeCalled();
+        });
+
+        describe('when using fragments', () => {
+          it('should read data (if all data is available) without network request', () => {
+            const {UserQuery} = generateAndCompile(
+              `
+              fragment UserFragment on User {
+                id
+              }
+              query UserQuery($id: ID!) {
+                node(id: $id) {
+                  __typename
+                  ...UserFragment
+                }
+              }
+            `,
+            );
+
+            const result = DataResourceCache.readQuery({
+              environment,
+              query: UserQuery,
+              variables,
+              fetchPolicy,
+              readPolicy,
+            });
+            expect(fetchQuery_UNSTABLE).not.toBeCalled();
+            expect(result.data).toMatchObject({
+              node: {
+                __fragments: {
+                  UserFragment: {},
+                },
+                __id: '4',
+                __typename: 'User',
+              },
+            });
+          });
+
+          it(
+            'should read query without throwing a promise, and also start a ' +
+              'network request when some data is missing in fragment',
+            () => {
+              const {UserQuery} = generateAndCompile(
+                `
+                fragment UserFragment on User {
+                  id
+                  username
+                }
+                query UserQuery($id: ID!) {
+                  node(id: $id) {
+                    __typename
+                    ...UserFragment
+                  }
+                }
+              `,
+              );
+              // In this case a promise isn't thrown because the query
+              // doesn't have any missing fields, so it can be read.
+              // The fragment itself is the one that has a missing field, so
+              // attempting to read the fragment should throw, but that's not
+              // being tested here.
+              const result = DataResourceCache.readQuery({
+                environment,
+                query: UserQuery,
+                variables,
+                fetchPolicy,
+                readPolicy,
+              });
+              expect(fetchQuery_UNSTABLE).toBeCalled();
+              expect(result.data).toMatchObject({
+                node: {
+                  __fragments: {
+                    UserFragment: {},
+                  },
+                  __id: '4',
+                  __typename: 'User',
+                },
+              });
+            },
+          );
         });
       });
 

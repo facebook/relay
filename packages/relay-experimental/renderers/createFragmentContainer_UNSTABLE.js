@@ -25,7 +25,7 @@ function createFragmentContainer_UNSTABLE<
   fragmentSpec: FragmentSpec,
 ): React.ComponentType<$FragmentRefs<React.ElementConfig<TComponent>>> {
   const FragmentRenderer = createFragmentRenderer_UNSTABLE(fragmentSpec);
-  return function FragmentContainer(props) {
+  function FragmentContainer(props) {
     const fragmentRefs = {};
     Object.keys(props).forEach(key => {
       if (fragmentSpec.hasOwnProperty(key)) {
@@ -37,7 +37,11 @@ function createFragmentContainer_UNSTABLE<
         {({data}) => <Component {...props} {...data} />}
       </FragmentRenderer>
     );
-  };
+  }
+  if (__DEV__) {
+    FragmentContainer.__ComponentClass = Component;
+  }
+  return FragmentContainer;
 }
 
 module.exports = createFragmentContainer_UNSTABLE;

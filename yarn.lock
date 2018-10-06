@@ -6208,40 +6208,40 @@ rc@^1.1.7:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-react-dom@^16.5.0:
-  version "16.5.0"
-  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-16.5.0.tgz#57704e5718669374b182a17ea79a6d24922cb27d"
-  integrity sha512-qgsQdjFH54pQ1AGLCBKsqjPxib4Pnp+cOsNxGPlkHn5YnsSt43sBvHSif6FheY7NMMS6HPeSJOxXf6ECanjacA==
+react-dom@16.6.0-alpha.400d197:
+  version "16.6.0-alpha.400d197"
+  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-16.6.0-alpha.400d197.tgz#232a07ee19cc05e600440bf3c64d34b86b1a4957"
+  integrity sha512-IoirMkzkxloRiKDvFuQFvPjDqA+6pmNR1jlv44yyZlyUk5ReYQo8+4tV6BbT6oc24xLK4ZyvnKohF7uhb3Pb5w==
   dependencies:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
     prop-types "^15.6.2"
-    schedule "^0.3.0"
+    scheduler "^0.10.0-alpha.400d197"
 
-react-is@^16.5.0:
-  version "16.5.0"
-  resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.5.0.tgz#2ec7c192709698591efe13722fab3ef56144ba55"
-  integrity sha512-kpkCGLsChXTEQJVmowQqHpCjHKJFwB4SIChYaaaiAkq8OtE2aBg5pQe8/xnFlGmz9KmMx1H4oQRUyxP7qC9v5A==
+react-is@^16.6.0-alpha.400d197:
+  version "16.6.0-alpha.400d197"
+  resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.6.0-alpha.400d197.tgz#2ca008cdc80ebc1cdd706ce59dadbd2e3774b30a"
+  integrity sha512-ZmcGAxIHbjEydr+3lswKHHyBwfSMIcISdo8jzPKEhW3ikAUGtJcim/P19iBDxTkrqMVwZZYoGIsc/u7B9KLv0w==
 
-react-test-renderer@^16.5.0:
-  version "16.5.0"
-  resolved "https://registry.yarnpkg.com/react-test-renderer/-/react-test-renderer-16.5.0.tgz#1aeca0edc4f27f63265dcaed80ba82e11e762f56"
-  integrity sha512-cuN9BoZ1p6T3oxrjxN7pQDSmgWzAxWBi8gtCHcViMYcw/1xqOIyatt2YFhiCWg7115TPQqkTKEu+F44YjFE4ig==
+react-test-renderer@16.6.0-alpha.400d197:
+  version "16.6.0-alpha.400d197"
+  resolved "https://registry.yarnpkg.com/react-test-renderer/-/react-test-renderer-16.6.0-alpha.400d197.tgz#f0f5c703fef5685a66fd5bcb43e059994ebaed54"
+  integrity sha512-wGv0xcq/dGInTtsF+LwwBEawprtIbjMTCgJEinZzOW2R8+Izx12PRBPr8pZmAoNCuJVyB/y8fdJsvZdABsQ33w==
   dependencies:
     object-assign "^4.1.1"
     prop-types "^15.6.2"
-    react-is "^16.5.0"
-    schedule "^0.3.0"
+    react-is "^16.6.0-alpha.400d197"
+    scheduler "^0.10.0-alpha.400d197"
 
-react@^16.5.0:
-  version "16.5.0"
-  resolved "https://registry.yarnpkg.com/react/-/react-16.5.0.tgz#f2c1e754bf9751a549d9c6d9aca41905beb56575"
-  integrity sha512-nw/yB/L51kA9PsAy17T1JrzzGRk+BlFCJwFF7p+pwVxgqwPjYNeZEkkH7LXn9dmflolrYMXLWMTkQ77suKPTNQ==
+react@16.6.0-alpha.400d197:
+  version "16.6.0-alpha.400d197"
+  resolved "https://registry.yarnpkg.com/react/-/react-16.6.0-alpha.400d197.tgz#250974bc3abc0327c34088fdcd10e3a62130d195"
+  integrity sha512-Ve8p2P2D9SZTTLro7jrW+pkO1NZkB2lWq8qvyO4c5NEi/OlaLDwQStKcPJGkw2kpMLu8mxBZ4ERDcwrAIwMSdw==
   dependencies:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
     prop-types "^15.6.2"
-    schedule "^0.3.0"
+    scheduler "^0.10.0-alpha.400d197"
 
 read-pkg-up@^1.0.1:
   version "1.0.1"
@@ -6620,11 +6620,12 @@ sax@^1.2.4:
   resolved "https://registry.yarnpkg.com/sax/-/sax-1.2.4.tgz#2816234e2378bddc4e5354fab5caa895df7100d9"
   integrity sha512-NqVDv9TpANUjFm0N8uM5GxL36UgKi9/atZw+x7YFnQ8ckwFGKrl4xX4yWtrey3UJm5nP1kUbnYgLopqWNSRhWw==
 
-schedule@^0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/schedule/-/schedule-0.3.0.tgz#1be2ab2fc2e768536269ce7326efb478d6c045e8"
-  integrity sha512-20+1KVo517sR7Nt+bYBN8a+bEJDKLPEx7Ohtts1kX05E4/HY53YUNuhfkVNItmWAnBYHcpG9vsd2/CJxG+aPCQ==
+scheduler@^0.10.0-alpha.400d197:
+  version "0.10.0-alpha.400d197"
+  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.10.0-alpha.400d197.tgz#9eeea8bd403bba465e177b4a8d30fb846af20b79"
+  integrity sha512-PLCKZLDzUG+b1dIECw6UW35lgrA+OO+VRfHshMbths5qXzlapPTPNmZb9F25FOJy+H288RRqpp21MSZhofXVNQ==
   dependencies:
+    loose-envify "^1.1.0"
     object-assign "^4.1.1"
 
 schema-utils@^0.4.4, schema-utils@^0.4.5:

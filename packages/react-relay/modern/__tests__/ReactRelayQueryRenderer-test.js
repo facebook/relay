@@ -142,7 +142,7 @@ describe('ReactRelayQueryRenderer', () => {
             }
           }
           const renderer = ReactTestRenderer.create(<Example />, {
-            unstable_isAsync: true,
+            unstable_isConcurrent: true,
           });
 
           // Flush some of the changes, but don't commit
@@ -210,7 +210,7 @@ describe('ReactRelayQueryRenderer', () => {
             }
           }
           const renderer = ReactTestRenderer.create(<Example />, {
-            unstable_isAsync: true,
+            unstable_isConcurrent: true,
           });
 
           // Flush some of the changes, but don't commit
@@ -287,7 +287,7 @@ describe('ReactRelayQueryRenderer', () => {
             }
           }
           const renderer = ReactTestRenderer.create(<Example />, {
-            unstable_isAsync: true,
+            unstable_isConcurrent: true,
           });
 
           // Flush some of the changes, but don't commit

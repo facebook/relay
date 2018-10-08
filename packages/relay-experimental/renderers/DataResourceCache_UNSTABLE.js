@@ -69,7 +69,7 @@ function getFragmentCacheKey(
 ): string {
   invariant(
     fragmentRef != null,
-    'RenderDataResource: Expected fragmentRef to be provided',
+    'DataResourceCache_UNSTABLE: Expected fragmentRef to be provided',
   );
   const fragmentNode = getFragment(fragment);
   let fragmentRefID = '';

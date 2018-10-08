@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`createFragmentContainer should change data if new data comes in 1`] = `
+<div>
+  Hey user, 
+  Alice
+   with id 
+  1
+  !
+</div>
+`;
+
+exports[`createFragmentContainer should change data if new data comes in 2`] = `
+<div>
+  Hey user, 
+  Alice in Wonderland
+   with id 
+  1
+  !
+</div>
+`;
+
+exports[`createFragmentContainer should create fragment container and render without error 1`] = `
+<div>
+  Hey user, 
+  Alice
+   with id 
+  1
+  !
+</div>
+`;

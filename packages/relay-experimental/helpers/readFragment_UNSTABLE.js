@@ -38,26 +38,26 @@ function readFragment_UNSTABLE(
   if (fragmentNode.metadata && fragmentNode.metadata.plural === true) {
     invariant(
       Array.isArray(fragmentRef),
-      'Expected fragmentRef to be an array if fragment %s is marked as @relay(plural: true)',
+      'readFragment_UNSTABLE: Expected fragmentRef to be an array if fragment %s is marked as @relay(plural: true)',
       fragmentNode.name,
     );
     const selectors = getSelectorList(variables, fragmentNode, fragmentRef);
     invariant(
       selectors != null,
-      'Expected to be able to read fragment %s',
+      'readFragment_UNSTABLE: Expected to be able to read fragment %s',
       fragmentNode.name,
     );
     return selectors.map(selector => environment.lookup(selector));
   } else {
     invariant(
       !Array.isArray(fragmentRef),
-      'Expected fragmentRef not to be an array if fragment %s is not marked as @relay(plural: true)',
+      'readFragment_UNSTABLE: Expected fragmentRef not to be an array if fragment %s is not marked as @relay(plural: true)',
       fragmentNode.name,
     );
     const selector = getSelector(variables, fragmentNode, fragmentRef);
     invariant(
       selector != null,
-      'Expected to be able to read fragment %s',
+      'readFragment_UNSTABLE: Expected to be able to read fragment %s',
       fragmentNode.name,
     );
     return environment.lookup(selector);

@@ -95,17 +95,9 @@ This behavior can be configured by the `readPolicy` and `fetchPolicy` props.
   flight, otherwise an error will be thrown.
 
 - **"store-or-network"**: The QueryRenderer will attempt to _read_ the query
-  from the store, based on the specified `readPolicy`.
-  - If the `readPolicy` is "eager" and if any data is available from the store
-    read, the data will be provided for render, and a network request will **not**
-    be initiated. Otherwise, a network request to fetch the query will be
-    initiated.
-    If missing data is accessed, render will be suspended if a network request
-    is in flight, otherwise an error will be thrown.
-  - If the `readPolicy` is "lazy", if the full query is available in the relay
-    store, it will be read and a network request will **not** be initiated.
-    Otherwise a network request to fetch the query will be initiated, and render
-    will be suspended until the request completes.
+  from the store, based on the specified `readPolicy`. It will only make a
+  network request if any data is missing for the query. Otherwise, if all of
+  the data is available for the query, a request will not be made.
 
 - **"store-and-network"**: The QueryRenderer will attempt to _read_ the query
   from the store based on the specified `readPolicy`.

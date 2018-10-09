@@ -11,6 +11,7 @@
 
 'use strict';
 
+const LRUCache_UNSTABLE = require('../utils/LRUCache_UNSTABLE');
 const React = require('React');
 const RelayCore = require('relay-runtime/store/RelayCore');
 
@@ -20,6 +21,9 @@ const invariant = require('invariant');
 const mapObject = require('mapObject');
 const readFragment_UNSTABLE = require('../helpers/readFragment_UNSTABLE');
 const readQuery_UNSTABLE = require('../helpers/readQuery_UNSTABLE');
+
+// TODO: This should probably be configurable based on the environment
+const CACHE_CAPACITY = 1000;
 
 const {
   fetchQuery_UNSTABLE,
@@ -113,8 +117,7 @@ function isMissingData(snapshot: Snapshot | $ReadOnlyArray<Snapshot>) {
 }
 
 function createCache() {
-  // TODO Make this LRU
-  const cache: Map<string, CachedValue> = new Map();
+  const cache = LRUCache_UNSTABLE.create<CachedValue>(CACHE_CAPACITY);
 
   /**
    * Attempts to fetch, retain and store data for a query, based on the

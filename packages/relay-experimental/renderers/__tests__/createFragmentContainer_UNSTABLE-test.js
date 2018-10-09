@@ -132,9 +132,13 @@ describe('createFragmentContainer', () => {
   });
 
   it('should throw a promise if data is missing for fragment and request is in flight', () => {
+    // This prevents console.error output in the test, which is expected
+    const spy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
     (getPromiseForRequestInFlight_UNSTABLE: any).mockReturnValueOnce(
       Promise.resolve(),
     );
+
     operationSelector = createOperationSelector(query, {
       id: '2',
     });
@@ -163,9 +167,13 @@ describe('createFragmentContainer', () => {
       expect(p).toBeInstanceOf(Promise);
     }
     expect(thrown).toBe(true);
+    spy.mockRestore();
   });
 
   it('should throw an error if data is missing and there are no pending requests', () => {
+    // This prevents console.error output in the test, which is expected
+    const spy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
     operationSelector = createOperationSelector(query, {
       id: '2',
     });
@@ -194,5 +202,6 @@ describe('createFragmentContainer', () => {
       expect(e).toBeInstanceOf(Error);
     }
     expect(thrown).toBe(true);
+    spy.mockRestore();
   });
 });

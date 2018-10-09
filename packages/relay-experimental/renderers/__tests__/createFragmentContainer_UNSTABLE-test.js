@@ -15,7 +15,7 @@ jest.mock('../../helpers/fetchQuery_UNSTABLE');
 
 const React = require('React');
 const ReactRelayContext = require('react-relay/modern/ReactRelayContext');
-const TestRenderer = require('react-test-renderer');
+const TestRenderer = require('ReactTestRenderer');
 
 const createFragmentContainer_UNSTABLE = require('../createFragmentContainer_UNSTABLE');
 

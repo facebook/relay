@@ -162,13 +162,33 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
       prevState.prevPropsEnvironment !== nextProps.environment ||
       !areEqual(prevState.prevPropsVariables, nextProps.variables)
     ) {
+      const {query} = nextProps;
+      const prevSelectionReferences = prevState.queryFetcher.getSelectionReferences();
+      prevState.queryFetcher.disposeRequest();
+
+      let queryFetcher;
+      if (query) {
+        // $FlowFixMe TODO t16225453 QueryRenderer works with old+new environment.
+        const genericEnvironment = (nextProps.environment: IEnvironment);
+        const {getRequest} = genericEnvironment.unstable_internal;
+        const request = getRequest(query);
+        const requestCacheKey = getRequestCacheKey(
+          request,
+          nextProps.variables,
+        );
+        queryFetcher = requestCache[requestCacheKey]
+          ? requestCache[requestCacheKey].queryFetcher
+          : new ReactRelayQueryFetcher(prevSelectionReferences);
+      } else {
+        queryFetcher = new ReactRelayQueryFetcher(prevSelectionReferences);
+      }
       return {
         prevQuery: nextProps.query,
         prevPropsEnvironment: nextProps.environment,
         prevPropsVariables: nextProps.variables,
         ...fetchQueryAndComputeStateFromProps(
           nextProps,
-          prevState.queryFetcher,
+          queryFetcher,
           prevState.retryCallbacks,
           // passing no requestCacheKey will cause it to be recalculated internally
           // and we want the updated requestCacheKey, since variables may have changed

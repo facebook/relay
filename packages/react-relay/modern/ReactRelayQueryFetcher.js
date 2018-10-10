@@ -59,6 +59,23 @@ class ReactRelayQueryFetcher {
   _cacheSelectionReference: ?Disposable;
   _callOnDataChangeWhenSet: boolean = false;
 
+  constructor(args?: {
+    cacheSelectionReference: ?Disposable,
+    selectionReferences: Array<Disposable>,
+  }) {
+    if (args != null) {
+      this._cacheSelectionReference = args.cacheSelectionReference;
+      this._selectionReferences = args.selectionReferences;
+    }
+  }
+
+  getSelectionReferences() {
+    return {
+      cacheSelectionReference: this._cacheSelectionReference,
+      selectionReferences: this._selectionReferences,
+    };
+  }
+
   lookupInStore(
     environment: IEnvironment,
     operation: OperationSelector,
@@ -100,7 +117,7 @@ class ReactRelayQueryFetcher {
         },
         complete: () => {
           if (!preservePreviousReferences) {
-            this._disposeSelectionReferences();
+            this.disposeSelectionReferences();
           }
           this._selectionReferences = this._selectionReferences.concat(
             nextReferences,
@@ -154,7 +171,7 @@ class ReactRelayQueryFetcher {
     let fetchHasReturned = false;
     let error;
 
-    this._disposeRequest();
+    this.disposeRequest();
     const oldOnDataChangeCallbacks =
       this._fetchOptions && this._fetchOptions.onDataChangeCallbacks;
     this._fetchOptions = {
@@ -243,11 +260,11 @@ class ReactRelayQueryFetcher {
   }
 
   dispose() {
-    this._disposeRequest();
-    this._disposeSelectionReferences();
+    this.disposeRequest();
+    this.disposeSelectionReferences();
   }
 
-  _disposeRequest() {
+  disposeRequest() {
     this._error = null;
     this._snapshot = null;
 
@@ -274,7 +291,7 @@ class ReactRelayQueryFetcher {
     this._cacheSelectionReference = null;
   }
 
-  _disposeSelectionReferences() {
+  disposeSelectionReferences() {
     this._disposeCacheSelectionReference();
     this._selectionReferences.forEach(r => r.dispose());
     this._selectionReferences = [];

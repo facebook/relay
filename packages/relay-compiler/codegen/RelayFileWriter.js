@@ -73,6 +73,11 @@ export type WriterConfig = {
   },
   // EXPERIMENTAL: skips deleting extra files in the generated directories
   experimental_noDeleteExtraFiles?: boolean,
+  // EXPERIMENTAL: skips deleting extra files with the supplied pattern in
+  // the generated directories.
+  // TODO (T35012551): Remove this when no longer necessary with a better
+  // directory structure.
+  experimental_extraFilesPatternToKeep?: RegExp,
 };
 
 function compileAll({
@@ -355,7 +360,9 @@ function writeAll({
       // clean output directories
       if (writerConfig.experimental_noDeleteExtraFiles !== true) {
         allOutputDirectories.forEach(dir => {
-          dir.deleteExtraFiles();
+          dir.deleteExtraFiles(
+            writerConfig.experimental_extraFilesPatternToKeep,
+          );
         });
       }
       if (sourceControl && !onlyValidate) {

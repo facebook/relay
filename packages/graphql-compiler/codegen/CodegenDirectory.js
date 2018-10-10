@@ -234,12 +234,17 @@ class CodegenDirectory {
 
   /**
    * Deletes all non-generated files, except for invisible "dot" files (ie.
-   * files with names starting with ".").
+   * files with names starting with ".") and any files matching the supplied
+   * filePatternToKeep.
    */
-  deleteExtraFiles(): void {
+  deleteExtraFiles(filePatternToKeep?: RegExp): void {
     Profiler.run('CodegenDirectory.deleteExtraFiles', () => {
       this._filesystem.readdirSync(this._dir).forEach(actualFile => {
-        if (!this._files.has(actualFile) && !/^\./.test(actualFile)) {
+        if (
+          !this._files.has(actualFile) &&
+          !/^\./.test(actualFile) &&
+          (filePatternToKeep != null && !filePatternToKeep.test(actualFile))
+        ) {
           if (!this.onlyValidate) {
             try {
               this._filesystem.unlinkSync(path.join(this._dir, actualFile));

@@ -148,8 +148,7 @@ describe('createFragmentContainer', () => {
         id: '2',
       },
     });
-    let thrown = false;
-    try {
+    expect(() => {
       renderer = TestRenderer.create(
         <ContextWrapper>
           <FragmentContainer
@@ -162,11 +161,8 @@ describe('createFragmentContainer', () => {
           />
         </ContextWrapper>,
       );
-    } catch (p) {
-      thrown = true;
-      expect(p).toBeInstanceOf(Promise);
-    }
-    expect(thrown).toBe(true);
+    }).toThrow('An update was suspended, but no placeholder UI was provided.');
+
     spy.mockRestore();
   });
 
@@ -183,8 +179,7 @@ describe('createFragmentContainer', () => {
         id: '2',
       },
     });
-    let thrown = false;
-    try {
+    expect(() => {
       renderer = TestRenderer.create(
         <ContextWrapper>
           <FragmentContainer
@@ -197,11 +192,11 @@ describe('createFragmentContainer', () => {
           />
         </ContextWrapper>,
       );
-    } catch (e) {
-      thrown = true;
-      expect(e).toBeInstanceOf(Error);
-    }
-    expect(thrown).toBe(true);
+    }).toThrow(
+      'DataResourceCache_UNSTABLE: Tried reading a fragment that is not ' +
+        'available locally and is not being fetched',
+    );
+
     spy.mockRestore();
   });
 });

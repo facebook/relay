@@ -19,11 +19,11 @@ const mapObject = require('mapObject');
 
 const {DataResourceCacheContext} = require('./DataResourceCache_UNSTABLE');
 
+import type {TDataResourceCache} from './DataResourceCache_UNSTABLE';
 import type {
-  FragmentSpec,
-  TDataResourceCache,
-} from './DataResourceCache_UNSTABLE';
-import type {$FragmentRef} from 'react-relay/modern/ReactRelayTypes';
+  GeneratedNodeMap,
+  $FragmentRef,
+} from 'react-relay/modern/ReactRelayTypes';
 import type {
   Disposable,
   FragmentReference,
@@ -54,7 +54,7 @@ type RenderProps<TFragmentData> = {|
 
 // $FlowExpectedError - FragmentData can contain any types; it is only used to enforce the type of RenderProps
 function createFragmentRenderer_UNSTABLE<TFragmentData: {[string]: any}>(
-  fragmentSpec: FragmentSpec,
+  fragmentSpec: GeneratedNodeMap,
 ): React.ComponentType<{|
   ...$FragmentRefs<TFragmentData>,
   children: (RenderProps<TFragmentData>) => React.Node,

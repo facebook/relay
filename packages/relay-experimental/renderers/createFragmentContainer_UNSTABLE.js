@@ -12,29 +12,36 @@
 
 const React = require('React');
 
+const assertFragmentMap = require('react-relay/modern/assertFragmentMap');
 const createFragmentRenderer_UNSTABLE = require('./createFragmentRenderer_UNSTABLE');
 
 const {
+  getComponentName,
   getContainerName,
 } = require('react-relay/modern/ReactRelayContainerUtils');
 
-import type {FragmentSpec} from './DataResourceCache_UNSTABLE';
 import type {$FragmentRefs} from './createFragmentRenderer_UNSTABLE';
+import type {GeneratedNodeMap} from 'react-relay/modern/ReactRelayTypes';
+import type {GraphQLTaggedNode} from 'relay-runtime';
 
 function createFragmentContainer_UNSTABLE<
   Props: {},
   TComponent: React.ComponentType<Props>,
 >(
   Component: TComponent,
-  fragmentSpec: FragmentSpec,
+  fragmentMap: GraphQLTaggedNode | GeneratedNodeMap,
 ): React.ComponentType<$FragmentRefs<React.ElementConfig<TComponent>>> {
   const containerName = getContainerName(Component);
+  assertFragmentMap(getComponentName(Component), fragmentMap);
 
-  const FragmentRenderer = createFragmentRenderer_UNSTABLE(fragmentSpec);
+  // $FlowExpectedError - The compiler converts a GraphQLTaggedNode into a GeneratedNodeMap for us
+  const actualFragmentMap: GeneratedNodeMap = (fragmentMap: any);
+
+  const FragmentRenderer = createFragmentRenderer_UNSTABLE(actualFragmentMap);
   function FragmentContainer(props) {
     const fragmentRefs = {};
     Object.keys(props).forEach(key => {
-      if (fragmentSpec.hasOwnProperty(key)) {
+      if (actualFragmentMap.hasOwnProperty(key)) {
         fragmentRefs[key] = props[key];
       }
     });

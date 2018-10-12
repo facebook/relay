@@ -31,6 +31,7 @@ const {
 } = require('../helpers/fetchQuery_UNSTABLE');
 const {FRAGMENTS_KEY, ID_KEY} = require('relay-runtime');
 
+import type {GeneratedNodeMap} from 'react-relay/modern/ReactRelayTypes';
 import type {
   Disposable,
   GraphQLTaggedNode,
@@ -46,7 +47,6 @@ type CacheReadResult = {
   fetchDisposable: Disposable | null,
 };
 
-export type FragmentSpec = {[string]: GraphQLTaggedNode};
 export type ReadPolicy = 'eager' | 'lazy';
 export type FetchPolicy =
   | 'store-only'
@@ -478,7 +478,7 @@ function createCache() {
     readFragmentSpec(args: {|
       environment: IEnvironment,
       variables: Variables,
-      fragmentSpec: FragmentSpec,
+      fragmentSpec: GeneratedNodeMap,
       fragmentRefs: {[string]: mixed},
       parentQuery: GraphQLTaggedNode,
     |}): {[string]: CacheReadResult} {
@@ -595,7 +595,7 @@ function createCache() {
      * Removes entry for each provided fragment from cache
      */
     invalidateFragmentSpec(args: {|
-      fragmentSpec: FragmentSpec,
+      fragmentSpec: GeneratedNodeMap,
       fragmentRefs: {[string]: mixed},
       variables: Variables,
     |}): void {

@@ -25,7 +25,7 @@ const {
   getComponentName,
   getContainerName,
 } = require('react-relay/modern/ReactRelayContainerUtils');
-const {getFragment} = require('relay-runtime');
+const {getFragment, getDataIDsFromObject} = require('relay-runtime');
 
 import type {TDataResourceCache} from './DataResourceCache_UNSTABLE';
 import type {
@@ -56,10 +56,6 @@ function createFragmentContainer_UNSTABLE<
     relayContext: RelayContext & {query: GraphQLTaggedNode},
   |};
 
-  type State = {|
-    mirroredFragmentRefs: {[string]: mixed},
-  |};
-
   const containerName = getContainerName(Component);
   assertFragmentMap(getComponentName(Component), fragmentSpecInput);
 
@@ -67,43 +63,9 @@ function createFragmentContainer_UNSTABLE<
   const fragmentSpec: GeneratedNodeMap = (fragmentSpecInput: any);
   const fragmentNodes = mapObject(fragmentSpec, getFragment);
 
-  class FragmentRenderer extends React.Component<InternalProps, State> {
+  class FragmentRenderer extends React.Component<InternalProps> {
     _dataSubscriptions: Array<Disposable> | null = null;
     _renderedSnapshots: {[string]: Snapshot | $ReadOnlyArray<Snapshot>} = {};
-
-    constructor(props: InternalProps) {
-      super(props);
-      const {fragmentRefs} = props;
-      this.state = {
-        mirroredFragmentRefs: fragmentRefs,
-      };
-    }
-
-    static getDerivedStateFromProps(
-      nextProps: InternalProps,
-      prevState: State,
-    ): $Shape<State> | null {
-      const {DataResourceCache, fragmentRefs, relayContext} = nextProps;
-
-      const {environment, variables} = relayContext;
-      const {getDataIDsFromObject} = environment.unstable_internal;
-      const prevDataIDs = getDataIDsFromObject(
-        fragmentNodes,
-        prevState.mirroredFragmentRefs,
-      );
-      const nextDataIDs = getDataIDsFromObject(fragmentNodes, fragmentRefs);
-      if (!areEqual(prevDataIDs, nextDataIDs)) {
-        DataResourceCache.invalidateFragmentSpec({
-          fragmentNodes,
-          fragmentRefs,
-          variables,
-        });
-        return {
-          mirroredFragmentRefs: fragmentRefs,
-        };
-      }
-      return null;
-    }
 
     componentDidMount() {
       // TODO Check if data has changed between render and mount. Schedule another
@@ -112,12 +74,16 @@ function createFragmentContainer_UNSTABLE<
       this._subscribe();
     }
 
-    componentDidUpdate(prevProps: InternalProps, prevState: State) {
+    componentDidUpdate(prevProps: InternalProps) {
       // TODO Check if data has changed between render and update. Schedule another
       // update if so
       const mustResubscribe =
         prevProps.relayContext !== this.props.relayContext ||
-        prevState.mirroredFragmentRefs !== this.state.mirroredFragmentRefs;
+        !areEqual(
+          getDataIDsFromObject(fragmentNodes, prevProps.fragmentRefs),
+          getDataIDsFromObject(fragmentNodes, this.props.fragmentRefs),
+        );
+
       if (mustResubscribe) {
         this._unsubscribe();
         this._subscribe();

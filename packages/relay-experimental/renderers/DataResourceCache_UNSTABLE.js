@@ -28,8 +28,7 @@ const {
   getPromiseForRequestInFlight_UNSTABLE,
 } = require('../helpers/fetchQuery_UNSTABLE');
 const {
-  FRAGMENTS_KEY,
-  ID_KEY,
+  getDataIDsFromObject,
   getRequest,
   getSelectorsFromObject,
 } = require('relay-runtime');
@@ -73,41 +72,13 @@ function getFragmentCacheKey(
   fragmentRef: mixed,
   variables: Variables,
 ): string {
-  invariant(
-    fragmentRef != null,
-    'DataResourceCache_UNSTABLE: Expected fragmentRef to be provided',
-  );
-  let fragmentRefID = '';
-  if (Array.isArray(fragmentRef)) {
-    fragmentRefID = fragmentRef
-      .map(ref => {
-        invariant(
-          typeof ref === 'object' && ref !== null && !Array.isArray(ref),
-          'DataResourceCache_UNSTABLE: Expected value for fragmentRef to be an object',
-        );
-        const id = ref[ID_KEY];
-        invariant(
-          typeof id === 'string',
-          'DataResourceCache_UNSTABLE: Expected  fragmentRef ID_KEY to be a string',
-        );
-        return `${id}-${JSON.stringify(ref[FRAGMENTS_KEY])}`;
-      })
-      .join('-');
-  } else {
-    invariant(
-      typeof fragmentRef === 'object' &&
-        'DataResourceCache_UNSTABLE: Expected value for fragmentRef to be an object',
-    );
-    const id = fragmentRef[ID_KEY];
-    invariant(
-      typeof id === 'string',
-      'DataResourceCache_UNSTABLE: Expected  fragmentRef ID_KEY to be a string',
-    );
-    fragmentRefID = `${id}-${JSON.stringify(fragmentRef[FRAGMENTS_KEY])}`;
-  }
-  return `${fragmentNode.name}-${
-    fragmentNode.type
-  }-${fragmentRefID}-${JSON.stringify(variables)}`;
+  return JSON.stringify({
+    dataIDs: getDataIDsFromObject(
+      {[fragmentNode.name]: fragmentNode},
+      {[fragmentNode.name]: fragmentRef},
+    ),
+    variables,
+  });
 }
 
 function isMissingData(snapshot: Snapshot | $ReadOnlyArray<Snapshot>) {

@@ -65,7 +65,7 @@ function createFragmentContainer_UNSTABLE<
 
   // $FlowExpectedError - The compiler converts a GraphQLTaggedNode into a GeneratedNodeMap for us
   const fragmentSpec: GeneratedNodeMap = (fragmentSpecInput: any);
-  const concreteFragmentMap = mapObject(fragmentSpec, getFragment);
+  const fragmentNodes = mapObject(fragmentSpec, getFragment);
 
   class FragmentRenderer extends React.Component<InternalProps, State> {
     _dataSubscriptions: Array<Disposable> | null = null;
@@ -88,16 +88,13 @@ function createFragmentContainer_UNSTABLE<
       const {environment, variables} = relayContext;
       const {getDataIDsFromObject} = environment.unstable_internal;
       const prevDataIDs = getDataIDsFromObject(
-        concreteFragmentMap,
+        fragmentNodes,
         prevState.mirroredFragmentRefs,
       );
-      const nextDataIDs = getDataIDsFromObject(
-        concreteFragmentMap,
-        fragmentRefs,
-      );
+      const nextDataIDs = getDataIDsFromObject(fragmentNodes, fragmentRefs);
       if (!areEqual(prevDataIDs, nextDataIDs)) {
         DataResourceCache.invalidateFragmentSpec({
-          fragmentSpec,
+          fragmentNodes,
           fragmentRefs,
           variables,
         });
@@ -137,7 +134,7 @@ function createFragmentContainer_UNSTABLE<
       // If we didn't, new mounts of the component would always find the data
       // cached in DataResourceCache and not read from the store
       DataResourceCache.invalidateFragmentSpec({
-        fragmentSpec,
+        fragmentNodes,
         fragmentRefs,
         variables,
       });
@@ -147,14 +144,14 @@ function createFragmentContainer_UNSTABLE<
       const {DataResourceCache, fragmentRefs, relayContext} = this.props;
       const {variables} = relayContext;
 
-      const fragment = fragmentSpec[fragmentKey];
+      const fragmentNode = fragmentNodes[fragmentKey];
       invariant(
-        fragment != null,
+        fragmentNode != null,
         'SuspenseFragmentContainer: Expected fragment to be available during update',
       );
       const fragmentRef = fragmentRefs[fragmentKey];
       DataResourceCache.setFragment({
-        fragment,
+        fragmentNode,
         fragmentRef,
         variables,
         snapshot: latestSnapshot,
@@ -207,7 +204,7 @@ function createFragmentContainer_UNSTABLE<
       const {environment, query, variables} = relayContext;
       const readResult = DataResourceCache.readFragmentSpec({
         environment,
-        fragmentSpec,
+        fragmentNodes,
         fragmentRefs,
         parentQuery: query,
         variables,

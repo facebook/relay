@@ -16,7 +16,7 @@ jest.mock('../../helpers/fetchQuery_UNSTABLE');
 const {getCacheForEnvironment} = require('../DataResourceCache_UNSTABLE');
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {generateAndCompile} = require('RelayModernTestUtils');
-const {createOperationSelector} = require('relay-runtime');
+const {createOperationSelector, getFragment} = require('relay-runtime');
 
 const {
   fetchQuery_UNSTABLE,
@@ -597,8 +597,8 @@ describe('DataResourceCache', () => {
         environment,
         parentQuery: UserQuery,
         variables,
-        fragmentSpec: {
-          user: UserFragment,
+        fragmentNodes: {
+          user: getFragment(UserFragment),
         },
         fragmentRefs: {
           user: {
@@ -636,8 +636,8 @@ describe('DataResourceCache', () => {
           environment,
           parentQuery: UserQuery,
           variables,
-          fragmentSpec: {
-            user: UserFragment,
+          fragmentNodes: {
+            user: getFragment(UserFragment),
           },
           fragmentRefs: {
             user: {
@@ -676,8 +676,8 @@ describe('DataResourceCache', () => {
           environment,
           parentQuery: UserQuery,
           variables,
-          fragmentSpec: {
-            user: UserFragment,
+          fragmentNodes: {
+            user: getFragment(UserFragment),
           },
           fragmentRefs: {
             user: {

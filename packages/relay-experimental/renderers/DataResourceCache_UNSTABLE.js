@@ -13,13 +13,11 @@
 
 const LRUCache_UNSTABLE = require('../utils/LRUCache_UNSTABLE');
 const React = require('React');
-const RelayCore = require('relay-runtime/store/RelayCore');
 
 const checkQuery_UNSTABLE = require('../helpers/checkQuery_UNSTABLE');
 const getRequestKey_UNSTABLE = require('../helpers/getRequestKey_UNSTABLE');
 const invariant = require('invariant');
 const mapObject = require('mapObject');
-const readFragment_UNSTABLE = require('../helpers/readFragment_UNSTABLE');
 const readQuery_UNSTABLE = require('../helpers/readQuery_UNSTABLE');
 
 // TODO: This should probably be configurable based on the environment
@@ -29,13 +27,19 @@ const {
   fetchQuery_UNSTABLE,
   getPromiseForRequestInFlight_UNSTABLE,
 } = require('../helpers/fetchQuery_UNSTABLE');
-const {FRAGMENTS_KEY, ID_KEY} = require('relay-runtime');
+const {
+  FRAGMENTS_KEY,
+  ID_KEY,
+  getRequest,
+  getSelectorsFromObject,
+} = require('relay-runtime');
 
-import type {GeneratedNodeMap} from 'react-relay/modern/ReactRelayTypes';
 import type {
+  ConcreteFragment,
   Disposable,
   GraphQLTaggedNode,
   IEnvironment,
+  Selector,
   Snapshot,
   Variables,
 } from 'relay-runtime';
@@ -54,8 +58,6 @@ export type FetchPolicy =
   | 'store-and-network'
   | 'network-only';
 
-const {getFragment, getRequest} = RelayCore;
-
 const DATA_RETENTION_TIMEOUT = 30 * 1000;
 
 function getQueryCacheKey(
@@ -67,7 +69,7 @@ function getQueryCacheKey(
 }
 
 function getFragmentCacheKey(
-  fragment: GraphQLTaggedNode,
+  fragmentNode: ConcreteFragment,
   fragmentRef: mixed,
   variables: Variables,
 ): string {
@@ -75,7 +77,6 @@ function getFragmentCacheKey(
     fragmentRef != null,
     'DataResourceCache_UNSTABLE: Expected fragmentRef to be provided',
   );
-  const fragmentNode = getFragment(fragment);
   let fragmentRefID = '';
   if (Array.isArray(fragmentRef)) {
     fragmentRefID = fragmentRef
@@ -361,12 +362,20 @@ function createCache() {
    */
   function getPromiseForFragmentRequestInFlight(args: {|
     environment: IEnvironment,
-    fragment: GraphQLTaggedNode,
+    fragmentNode: ConcreteFragment,
     fragmentRef: mixed,
+    fragmentSelector: Selector,
     parentQuery: GraphQLTaggedNode,
     variables: Variables,
   |}): Promise<void> | null {
-    const {environment, fragment, fragmentRef, parentQuery, variables} = args;
+    const {
+      environment,
+      fragmentNode,
+      fragmentRef,
+      fragmentSelector,
+      parentQuery,
+      variables,
+    } = args;
     const promise = getPromiseForRequestInFlight_UNSTABLE({
       environment,
       query: parentQuery,
@@ -376,18 +385,13 @@ function createCache() {
       return null;
     }
 
-    const cacheKey = getFragmentCacheKey(fragment, fragmentRef, variables);
+    const cacheKey = getFragmentCacheKey(fragmentNode, fragmentRef, variables);
     // When the Promise for the request resolves, we need to make sure to
     // update the cache with the latest data available in the store before
     // resolving the Promise
     return promise
       .then(() => {
-        const latestSnapshot = readFragment_UNSTABLE(
-          environment,
-          fragment,
-          fragmentRef,
-          variables,
-        );
+        const latestSnapshot = environment.lookup(fragmentSelector);
         if (!isMissingData(latestSnapshot)) {
           cache.set(cacheKey, latestSnapshot);
         }
@@ -478,20 +482,30 @@ function createCache() {
     readFragmentSpec(args: {|
       environment: IEnvironment,
       variables: Variables,
-      fragmentSpec: GeneratedNodeMap,
+      fragmentNodes: {[key: string]: ConcreteFragment},
       fragmentRefs: {[string]: mixed},
       parentQuery: GraphQLTaggedNode,
     |}): {[string]: CacheReadResult} {
       const {
         environment,
-        fragmentSpec,
+        fragmentNodes,
         fragmentRefs,
         parentQuery,
         variables,
       } = args;
-      return mapObject(fragmentSpec, (fragment, key) => {
+
+      const selectorsByFragment = getSelectorsFromObject(
+        variables,
+        fragmentNodes,
+        fragmentRefs,
+      );
+      return mapObject(fragmentNodes, (fragmentNode, key) => {
         const fragmentRef = fragmentRefs[key];
-        const cacheKey = getFragmentCacheKey(fragment, fragmentRef, variables);
+        const cacheKey = getFragmentCacheKey(
+          fragmentNode,
+          fragmentRef,
+          variables,
+        );
         const cachedValue = cache.get(cacheKey);
 
         // 1. Check if there's a cached value for this fragment
@@ -506,12 +520,12 @@ function createCache() {
 
         // 2. If not, try reading the fragment from the Relay store.
         // If the snapshot has data, return it and save it in cache
-        const snapshot = readFragment_UNSTABLE(
-          environment,
-          fragment,
-          fragmentRef,
-          variables,
+        const fragmentSelector = selectorsByFragment[key];
+        invariant(
+          fragmentSelector != null,
+          'DataResourceCache_UNSTABLE: Expected selector to be available',
         );
+        const snapshot = environment.lookup(fragmentSelector);
         if (!isMissingData(snapshot)) {
           cache.set(cacheKey, snapshot);
           return makeDataResult({
@@ -524,8 +538,9 @@ function createCache() {
         // for that request.
         const suspender = getPromiseForFragmentRequestInFlight({
           environment,
-          fragment,
+          fragmentNode,
           fragmentRef,
+          fragmentSelector,
           parentQuery,
           variables,
         });
@@ -582,12 +597,16 @@ function createCache() {
      * Removes entry for fragment from cache
      */
     invalidateFragment(args: {|
-      fragment: GraphQLTaggedNode,
+      fragmentNode: ConcreteFragment,
       fragmentRef: mixed,
       variables: Variables,
     |}): void {
-      const {fragment, fragmentRef, variables} = args;
-      const cacheKey = getFragmentCacheKey(fragment, fragmentRef, variables);
+      const {fragmentNode, fragmentRef, variables} = args;
+      const cacheKey = getFragmentCacheKey(
+        fragmentNode,
+        fragmentRef,
+        variables,
+      );
       cache.delete(cacheKey);
     },
 
@@ -595,20 +614,24 @@ function createCache() {
      * Removes entry for each provided fragment from cache
      */
     invalidateFragmentSpec(args: {|
-      fragmentSpec: GeneratedNodeMap,
+      fragmentNodes: {[key: string]: ConcreteFragment},
       fragmentRefs: {[string]: mixed},
       variables: Variables,
     |}): void {
-      const {fragmentSpec, fragmentRefs, variables} = args;
-      Object.keys(fragmentSpec).forEach(key => {
-        const fragment = fragmentSpec[key];
+      const {fragmentNodes, fragmentRefs, variables} = args;
+      Object.keys(fragmentNodes).forEach(key => {
+        const fragmentNode = fragmentNodes[key];
         const fragmentRef = fragmentRefs[key];
         invariant(
-          fragment != null,
+          fragmentNode != null,
           'RenderDataResource: Expected fragment to be defined',
         );
 
-        const cacheKey = getFragmentCacheKey(fragment, fragmentRef, variables);
+        const cacheKey = getFragmentCacheKey(
+          fragmentNode,
+          fragmentRef,
+          variables,
+        );
         cache.delete(cacheKey);
       });
     },
@@ -633,14 +656,18 @@ function createCache() {
      * isn't empty
      */
     setFragment(args: {|
-      fragment: GraphQLTaggedNode,
+      fragmentNode: ConcreteFragment,
       fragmentRef: mixed,
       variables: Variables,
       snapshot: Snapshot | $ReadOnlyArray<Snapshot>,
     |}): void {
-      const {fragment, fragmentRef, variables, snapshot} = args;
+      const {fragmentNode, fragmentRef, variables, snapshot} = args;
       if (!isMissingData(snapshot)) {
-        const cacheKey = getFragmentCacheKey(fragment, fragmentRef, variables);
+        const cacheKey = getFragmentCacheKey(
+          fragmentNode,
+          fragmentRef,
+          variables,
+        );
         cache.set(cacheKey, snapshot);
       }
     },

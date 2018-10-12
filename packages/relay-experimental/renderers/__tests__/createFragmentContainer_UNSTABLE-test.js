@@ -123,6 +123,39 @@ describe('createFragmentContainer', () => {
     expect(UserComponent).toBeRenderedWith({user: {id: '1', name: 'Alice'}});
   });
 
+  it('should support passing a ref', () => {
+    // eslint-disable-next-line lint/flow-no-fixme
+    class UserClassComponent extends React.Component<$FlowFixMe> {
+      render() {
+        const {user} = this.props;
+        return (
+          <div>
+            Hey user, {user.name} with id {user.id}!
+          </div>
+        );
+      }
+    }
+    const Container = createFragmentContainer_UNSTABLE(UserClassComponent, {
+      user: fragment,
+    });
+    const ref = React.createRef();
+    TestRenderer.create(
+      <ContextWrapper>
+        <Container
+          ref={ref}
+          user={{
+            [ID_KEY]: variables.id,
+            [FRAGMENTS_KEY]: {
+              UserFragment: fragment,
+            },
+          }}
+        />
+      </ContextWrapper>,
+    );
+    expect(ref.current).not.toBe(null);
+    expect(ref.current).toBeInstanceOf(UserClassComponent);
+  });
+
   it('should change data if new data comes in', () => {
     environment.commitPayload(operationSelector, {
       node: {

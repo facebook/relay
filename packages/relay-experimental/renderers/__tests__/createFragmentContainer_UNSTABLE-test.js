@@ -55,7 +55,10 @@ describe('createFragmentContainer', () => {
     expect.extend({
       toBeRenderedWith(renderFn, readyState) {
         expect(renderFn).toBeCalledTimes(1);
-        expect(renderFn.mock.calls[0][0]).toEqual(readyState);
+        expect(renderFn.mock.calls[0][0]).toEqual({
+          ...readyState,
+          relay: expect.anything(),
+        });
         renderFn.mockClear();
         return {pass: true};
       },
@@ -121,6 +124,35 @@ describe('createFragmentContainer', () => {
 
   it('should create fragment container and render without error', () => {
     expect(UserComponent).toBeRenderedWith({user: {id: '1', name: 'Alice'}});
+  });
+
+  it('should create fragment container and render without error when extra props included', () => {
+    const UserWithFoo = jest.fn(({user, foo}) => (
+      <div>
+        Hey user, {user.name} with id {user.id} and {foo}!
+      </div>
+    ));
+    // $FlowExpectedError - jest.fn type doesn't match React.Component, but its okay to use
+    const Container = createFragmentContainer_UNSTABLE(UserWithFoo, {
+      user: fragment,
+    });
+    TestRenderer.create(
+      <ContextWrapper>
+        <Container
+          user={{
+            [ID_KEY]: variables.id,
+            [FRAGMENTS_KEY]: {
+              UserFragment: fragment,
+            },
+          }}
+          foo="bar"
+        />
+      </ContextWrapper>,
+    );
+    expect(UserWithFoo).toBeRenderedWith({
+      user: {id: '1', name: 'Alice'},
+      foo: 'bar',
+    });
   });
 
   it('should support passing a ref', () => {

@@ -57,12 +57,8 @@ export type {IRTransform} from './core/GraphQLCompilerContext';
 export type {
   Argument,
   ArgumentDefinition,
-  ArgumentDependency,
   ArgumentValue,
-  Batch,
   Condition,
-  DeferrableFragmentSpread,
-  DependentRequest,
   Directive,
   Field,
   Fragment,

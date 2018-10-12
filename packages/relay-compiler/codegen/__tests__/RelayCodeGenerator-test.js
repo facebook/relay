@@ -32,20 +32,13 @@ describe('RelayCodeGenerator', () => {
             doc.kind === 'Fragment'
               ? doc
               : {
+                  kind: 'Request',
                   fragment: null,
-                  kind: 'Batch',
+                  id: null,
                   metadata: {},
                   name: doc.name,
-                  requests: [
-                    {
-                      kind: 'Request',
-                      name: doc.name,
-                      id: null,
-                      text: null,
-                      argumentDependencies: [],
-                      root: doc,
-                    },
-                  ],
+                  root: doc,
+                  text: null,
                 };
           return JSON.stringify(RelayCodeGenerator.generate(node), null, 2);
         })

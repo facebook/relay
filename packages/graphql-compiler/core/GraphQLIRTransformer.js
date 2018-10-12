@@ -15,9 +15,7 @@ const invariant = require('invariant');
 import type GraphQLCompilerContext from './GraphQLCompilerContext';
 import type {
   Argument,
-  Batch,
   Condition,
-  DeferrableFragmentSpread,
   Directive,
   Fragment,
   FragmentSpread,
@@ -38,9 +36,7 @@ import type {
 
 type NodeVisitor<S> = {
   Argument?: NodeVisitorFunction<Argument, S>,
-  Batch?: NodeVisitorFunction<Batch, S>,
   Condition?: NodeVisitorFunction<Condition, S>,
-  DeferrableFragmentSpread?: NodeVisitorFunction<DeferrableFragmentSpread, S>,
   Directive?: NodeVisitorFunction<Directive, S>,
   Fragment?: NodeVisitorFunction<Fragment, S>,
   FragmentSpread?: NodeVisitorFunction<FragmentSpread, S>,
@@ -203,9 +199,6 @@ class Transformer<S> {
       case 'Argument':
         nextNode = this._traverseChildren(prevNode, null, ['value']);
         break;
-      case 'Batch':
-        nextNode = this._traverseChildren(prevNode, ['requests'], ['fragment']);
-        break;
       case 'Literal':
       case 'LocalArgumentDefinition':
       case 'RootArgumentDefinition':
@@ -257,13 +250,6 @@ class Transformer<S> {
           nextNode = null;
         }
         break;
-      case 'DeferrableFragmentSpread':
-        nextNode = this._traverseChildren(prevNode, [
-          'args',
-          'fragmentArgs',
-          'directives',
-        ]);
-        break;
       case 'Fragment':
       case 'Root':
         nextNode = this._traverseChildren(prevNode, [
@@ -273,7 +259,7 @@ class Transformer<S> {
         ]);
         break;
       case 'Request':
-        nextNode = this._traverseChildren(prevNode, null, ['root']);
+        nextNode = this._traverseChildren(prevNode, null, ['fragment', 'root']);
         break;
       default:
         invariant(

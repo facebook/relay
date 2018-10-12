@@ -12,8 +12,7 @@
 
 const RelayCodeGenerator = require('./RelayCodeGenerator');
 
-const requestsForOperation = require('./requestsForOperation');
-
+const {filterContextForNode, Printer} = require('graphql-compiler');
 const {Profiler} = require('graphql-compiler');
 
 import type {CompilerContext, IRTransform, Reporter} from 'graphql-compiler';
@@ -82,9 +81,7 @@ function compileRelayArtifacts(
         node.kind === 'Fragment'
           ? node
           : {
-              kind: 'Batch',
-              metadata: codeGenContext.getRoot(node.name).metadata || {},
-              name: node.name,
+              kind: 'Request',
               fragment: {
                 kind: 'Fragment',
                 argumentDefinitions: (node.argumentDefinitions: $FlowFixMe),
@@ -94,15 +91,23 @@ function compileRelayArtifacts(
                 selections: node.selections,
                 type: node.type,
               },
-              requests: requestsForOperation(
-                printContext,
-                codeGenContext,
-                node.name,
-              ),
+              id: null,
+              metadata: codeGenContext.getRoot(node.name).metadata || {},
+              name: node.name,
+              root: codeGenContext.getRoot(node.name),
+              text: printOperation(printContext, node.name),
             },
       ),
     );
   });
+}
+
+function printOperation(printContext: CompilerContext, name: string): string {
+  const printableRoot = printContext.getRoot(name);
+  return filterContextForNode(printableRoot, printContext)
+    .documents()
+    .map(Printer.print)
+    .join('\n');
 }
 
 module.exports = compileRelayArtifacts;

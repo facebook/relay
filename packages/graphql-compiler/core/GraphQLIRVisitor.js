@@ -13,7 +13,6 @@ const visit = require('graphql').visit;
 
 import type {
   Argument,
-  Batch,
   Condition,
   Directive,
   Fragment,
@@ -31,7 +30,6 @@ import type {
 
 const NodeKeys = {
   Argument: ['value'],
-  Batch: ['requests', 'fragment'],
   Condition: ['condition', 'selections'],
   Directive: ['args'],
   Fragment: ['argumentDefinitions', 'directives', 'selections'],
@@ -40,17 +38,15 @@ const NodeKeys = {
   LinkedField: ['args', 'directives', 'selections'],
   Literal: [],
   LocalArgumentDefinition: [],
-  Request: ['root'],
+  Request: ['fragment', 'root'],
   Root: ['argumentDefinitions', 'directives', 'selections'],
   RootArgumentDefinition: [],
   ScalarField: ['args', 'directives'],
   Variable: [],
-  DeferrableFragmentSpread: ['args', 'directives', 'fragmentArgs'],
 };
 
 export type VisitNode =
   | Argument
-  | Batch
   | Condition
   | Directive
   | Fragment
@@ -83,7 +79,6 @@ export type NodeVisitor =
   | NodeVisitorObject<VisitNode>
   | {
       Argument?: NodeVisitorObject<Argument>,
-      Batch?: NodeVisitorObject<Batch>,
       Condition?: NodeVisitorObject<Condition>,
       Directive?: NodeVisitorObject<Directive>,
       Fragment?: NodeVisitorObject<Fragment>,

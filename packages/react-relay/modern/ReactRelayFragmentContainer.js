@@ -248,7 +248,7 @@ function createContainerWithFragments<
 }
 
 function getRelayProp(environment) {
-  // TODO @joesavona: remove isLoading property here
+  // TODO T35081051: remove isLoading property from relay prop
   return {
     environment,
     isLoading: false,

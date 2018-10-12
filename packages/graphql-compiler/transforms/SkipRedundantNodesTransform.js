@@ -153,7 +153,6 @@ function transformNode<T: Node>(
     const identifier = getIdentifierForSelection(selection);
     switch (selection.kind) {
       case 'ScalarField':
-      case 'DeferrableFragmentSpread':
       case 'FragmentSpread': {
         if (!selectionMap.has(identifier)) {
           selections.push(selection);

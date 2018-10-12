@@ -16,21 +16,22 @@ const {GraphQLList} = require('graphql');
 const {IRVisitor, SchemaUtils} = require('graphql-compiler');
 const {getStorageKey, stableCopy} = require('relay-runtime');
 
-import type {Batch, Fragment} from 'graphql-compiler';
+import type {Fragment, Request} from 'graphql-compiler';
 import type {
   ConcreteArgument,
   ConcreteArgumentDefinition,
   ConcreteFragment,
   ConcreteField,
   ConcreteLinkedField,
+  ConcreteRequest,
   ConcreteSelection,
   ConcreteScalarField,
   RequestNode,
 } from 'relay-runtime';
 const {getRawType, isAbstractType, getNullableType} = SchemaUtils;
 
-declare function generate(node: Batch): RequestNode;
 declare function generate(node: Fragment): ConcreteFragment;
+declare function generate(node: Request): RequestNode;
 
 /**
  * @public
@@ -38,9 +39,9 @@ declare function generate(node: Fragment): ConcreteFragment;
  * Converts a GraphQLIR node into a plain JS object representation that can be
  * used at runtime.
  */
-function generate(node: Batch | Fragment): RequestNode | ConcreteFragment {
+function generate(node: Fragment | Request): RequestNode | ConcreteFragment {
   invariant(
-    ['Batch', 'Fragment'].indexOf(node.kind) >= 0,
+    ['Fragment', 'Request'].indexOf(node.kind) >= 0,
     'RelayCodeGenerator: Unknown AST kind `%s`. Source: %s.',
     node.kind,
     getErrorMessage(node),
@@ -50,28 +51,22 @@ function generate(node: Batch | Fragment): RequestNode | ConcreteFragment {
 
 const RelayCodeGenVisitor = {
   leave: {
-    Batch(node): RequestNode {
-      invariant(node.requests.length !== 0, 'Batch must contain Requests.');
-      if (isSingleRequest(node)) {
-        const request = node.requests[0];
-        return {
-          kind: 'Request',
-          operationKind: request.root.operation,
-          name: node.name,
-          id: request.id,
-          text: request.text,
-          metadata: node.metadata,
-          fragment: node.fragment,
-          operation: {
-            kind: 'Operation',
-            name: request.root.name,
-            argumentDefinitions: request.root.argumentDefinitions,
-            selections: flattenArray(request.root.selections),
-          },
-        };
-      } else {
-        invariant(false, 'Batch requests not supported');
-      }
+    Request(node): ConcreteRequest {
+      return {
+        kind: 'Request',
+        operationKind: node.root.operation,
+        name: node.name,
+        id: node.id,
+        text: node.text,
+        metadata: node.metadata,
+        fragment: node.fragment,
+        operation: {
+          kind: 'Operation',
+          name: node.root.name,
+          argumentDefinitions: node.root.argumentDefinitions,
+          selections: flattenArray(node.root.selections),
+        },
+      };
     },
 
     Fragment(node): ConcreteFragment {
@@ -230,13 +225,6 @@ const RelayCodeGenVisitor = {
     },
   },
 };
-
-function isSingleRequest(batch: Batch): boolean {
-  return (
-    batch.requests.length === 1 &&
-    batch.requests[0].argumentDependencies.length === 0
-  );
-}
 
 function isPlural(type: any): boolean {
   return getNullableType(type) instanceof GraphQLList;

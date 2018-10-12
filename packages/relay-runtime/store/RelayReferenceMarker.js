@@ -28,7 +28,6 @@ import type {Record} from 'react-relay/classic/environment/RelayCombinedEnvironm
 
 const {
   CONDITION,
-  DEFERRABLE_FRAGMENT_SPREAD,
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
@@ -144,7 +143,6 @@ class RelayReferenceMarker {
           break;
         case SCALAR_FIELD:
         case SCALAR_HANDLE:
-        case DEFERRABLE_FRAGMENT_SPREAD:
           break;
         default:
           (selection: empty);

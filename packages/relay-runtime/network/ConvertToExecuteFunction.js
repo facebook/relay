@@ -114,11 +114,6 @@ function convertToStreamPayload(
 }
 
 function createExecutePayload(request, variables, response) {
-  if (request.kind === RelayConcreteNode.BATCH_REQUEST) {
-    throw new Error(
-      'ConvertToExecuteFunction: Batch request must return ExecutePayload.',
-    );
-  }
   return {kind: 'data', operation: request.operation, variables, response};
 }
 

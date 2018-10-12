@@ -45,11 +45,6 @@ class RelayTestRenderer extends React.Component<Props, $FlowFixMe> {
     const {createOperationSelector, getRequest} = environment.unstable_internal;
 
     const operation = getRequest((query: $FlowFixMe));
-    if (operation.kind === RelayConcreteNode.BATCH_REQUEST) {
-      throw new Error(
-        'RelayTestRender: Batch request not yet implemented (T22955102)',
-      );
-    }
     const operationSelector = createOperationSelector(operation, variables);
     const snapshot = environment.lookup(operationSelector.fragment);
 

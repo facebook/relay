@@ -120,19 +120,6 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
     return this._data;
   }
 
-  isLoading(): boolean {
-    for (const key in this._resolvers) {
-      if (
-        this._resolvers.hasOwnProperty(key) &&
-        this._resolvers[key] &&
-        this._resolvers[key].isLoading()
-      ) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   setCallback(callback: () => void): void {
     this._callback = callback;
   }
@@ -267,10 +254,6 @@ class SelectorResolver {
     this.setSelector(selector);
   }
 
-  isLoading(): boolean {
-    return this._environment.isSelectorLoading(this._selector);
-  }
-
   _onChange = (snapshot: Snapshot): void => {
     this._data = snapshot.data;
     this._callback();
@@ -350,10 +333,6 @@ class SelectorListResolver {
   setVariables(variables: Variables): void {
     this._resolvers.forEach(resolver => resolver.setVariables(variables));
     this._stale = true;
-  }
-
-  isLoading(): boolean {
-    return this._resolvers.some(resolver => resolver.isLoading());
   }
 
   _onChange = (data: ?Object): void => {

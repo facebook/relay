@@ -69,8 +69,7 @@ function isRequest(node: GraphQLTaggedNode) {
   return (
     typeof request === 'object' &&
     request !== null &&
-    (request.kind === RelayConcreteNode.REQUEST ||
-      request.kind === RelayConcreteNode.BATCH_REQUEST)
+    request.kind === RelayConcreteNode.REQUEST
   );
 }
 

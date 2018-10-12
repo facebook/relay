@@ -16,7 +16,6 @@ const invariant = require('invariant');
 
 const {
   CONDITION,
-  DEFERRABLE_FRAGMENT_SPREAD,
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
@@ -30,7 +29,6 @@ const {
 } = require('./RelayStoreUtils');
 
 import type {
-  ConcreteDeferrableFragmentSpread,
   ConcreteFragmentSpread,
   ConcreteLinkedField,
   ConcreteNode,
@@ -132,8 +130,6 @@ class RelayReader {
         }
       } else if (selection.kind === FRAGMENT_SPREAD) {
         this._createFragmentPointer(selection, record, data, this._variables);
-      } else if (selection.kind === DEFERRABLE_FRAGMENT_SPREAD) {
-        this._createDeferrableFragmentPointer(selection, record, data);
       } else {
         invariant(
           false,
@@ -236,7 +232,7 @@ class RelayReader {
   }
 
   _createFragmentPointer(
-    fragmentSpread: ConcreteFragmentSpread | ConcreteDeferrableFragmentSpread,
+    fragmentSpread: ConcreteFragmentSpread,
     record: Record,
     data: SelectorData,
     variables: Variables,
@@ -254,22 +250,6 @@ class RelayReader {
     fragmentPointers[fragmentSpread.name] = fragmentSpread.args
       ? getArgumentValues(fragmentSpread.args, variables)
       : {};
-  }
-
-  _createDeferrableFragmentPointer(
-    deferrableFragment: ConcreteDeferrableFragmentSpread,
-    record: Record,
-    data: SelectorData,
-  ): void {
-    const rootFieldValue = RelayModernRecord.getValue(
-      record,
-      deferrableFragment.storageKey,
-    );
-    const variables = {
-      ...this._variables,
-      [deferrableFragment.rootFieldVariable]: rootFieldValue,
-    };
-    this._createFragmentPointer(deferrableFragment, record, data, variables);
   }
 }
 

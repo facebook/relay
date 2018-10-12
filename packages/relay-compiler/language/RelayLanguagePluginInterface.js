@@ -127,7 +127,6 @@ export type FormatModule = ({|
   documentType:
     | typeof RelayConcreteNode.FRAGMENT
     | typeof RelayConcreteNode.REQUEST
-    | typeof RelayConcreteNode.BATCH_REQUEST
     | null,
 
   /**

@@ -103,8 +103,6 @@ export interface FragmentSpecResolver {
    * Overrides existing callback (if one has been specified).
    */
   setCallback(callback: () => void): void;
-
-  isLoading(): boolean;
 }
 
 export type CFragmentMap<TFragment> = {[key: string]: TFragment};

@@ -139,40 +139,6 @@ describe('RelayReferenceMarker', () => {
     ]);
   });
 
-  it('handles deferrable queries', () => {
-    const {FooQuery} = generateAndCompile(
-      `
-    query FooQuery($id: ID!) {
-      node(id: $id) {
-        id
-        __typename
-        ... on Page {
-          actors {
-            name
-          }
-        }
-        ...UserProfile @relay(deferrable: true)
-      }
-    }
-
-    fragment UserProfile on User {
-      firstName
-    }
-  `,
-    );
-    const references = new Set();
-    mark(
-      source,
-      {
-        dataID: ROOT_ID,
-        node: FooQuery.requests[0].operation,
-        variables: {id: '1'},
-      },
-      references,
-    );
-    expect(Array.from(references).sort()).toEqual(['1', 'client:root']);
-  });
-
   it('marks "handle" nodes for queries', () => {
     const data = {
       '1': {

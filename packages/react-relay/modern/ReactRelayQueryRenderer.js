@@ -339,18 +339,11 @@ function getRequestCacheKey(
   request: RequestNode,
   variables: Variables,
 ): string {
-  if (request.kind === 'BatchRequest') {
-    return JSON.stringify({
-      id: request.requests.map(req => String(req.id || req.text)),
-      variables,
-    });
-  } else {
-    const requestID = request.id || request.text;
-    return JSON.stringify({
-      id: String(requestID),
-      variables,
-    });
-  }
+  const requestID = request.id || request.text;
+  return JSON.stringify({
+    id: String(requestID),
+    variables,
+  });
 }
 
 function fetchQueryAndComputeStateFromProps(

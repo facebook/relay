@@ -42,23 +42,16 @@ async function writeRelayGeneratedFile(
       ? 'ConcreteFragment'
       : generatedNode.kind === RelayConcreteNode.REQUEST
         ? 'ConcreteRequest'
-        : generatedNode.kind === RelayConcreteNode.BATCH_REQUEST
-          ? 'ConcreteBatchRequest'
-          : null;
+        : null;
   const devOnlyProperties = {};
 
   let docText;
   if (generatedNode.kind === RelayConcreteNode.REQUEST) {
     docText = generatedNode.text;
-  } else if (generatedNode.kind === RelayConcreteNode.BATCH_REQUEST) {
-    docText = generatedNode.requests.map(request => request.text).join('\n\n');
   }
 
   let hash = null;
-  if (
-    generatedNode.kind === RelayConcreteNode.REQUEST ||
-    generatedNode.kind === RelayConcreteNode.BATCH_REQUEST
-  ) {
+  if (generatedNode.kind === RelayConcreteNode.REQUEST) {
     const oldHash = Profiler.run('RelayFileWriter:compareHash', () => {
       const oldContent = codegenDir.read(filename);
       // Hash the concrete node including the query text.
@@ -91,21 +84,6 @@ async function writeRelayGeneratedFile(
             ...generatedNode,
             text: null,
             id: await persistQuery(nullthrows(generatedNode.text)),
-          };
-          break;
-        case RelayConcreteNode.BATCH_REQUEST:
-          devOnlyProperties.requests = generatedNode.requests.map(request => ({
-            text: request.text,
-          }));
-          generatedNode = {
-            ...generatedNode,
-            requests: await Promise.all(
-              generatedNode.requests.map(async request => ({
-                ...request,
-                text: null,
-                id: await persistQuery(nullthrows(request.text)),
-              })),
-            ),
           };
           break;
         case RelayConcreteNode.FRAGMENT:

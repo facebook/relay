@@ -54,38 +54,4 @@ describe('RelayCodeGenerator', () => {
       return 'ERROR:\n' + e;
     }
   });
-
-  generateTestsFromFixtures(
-    `${__dirname}/fixtures/code-generator-batch`,
-    text => {
-      try {
-        const {definitions} = parseGraphQLText(RelayTestSchema, text);
-        const context = new GraphQLCompilerContext(RelayTestSchema).addAll(
-          definitions,
-        );
-        return context
-          .documents()
-          .map(doc => {
-            const node = {
-              fragment: null,
-              kind: 'Batch',
-              metadata: {},
-              name: doc.name,
-              requests: [1, 2, 3].map(() => ({
-                kind: 'Request',
-                name: doc.name,
-                id: null,
-                text: null,
-                argumentDependencies: [],
-                root: doc,
-              })),
-            };
-            return JSON.stringify(RelayCodeGenerator.generate(node), null, 2);
-          })
-          .join('\n\n');
-      } catch (e) {
-        return 'ERROR:\n' + e.stack;
-      }
-    },
-  );
 });

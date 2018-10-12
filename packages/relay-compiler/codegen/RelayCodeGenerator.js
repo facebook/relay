@@ -70,49 +70,7 @@ const RelayCodeGenVisitor = {
           },
         };
       } else {
-        return {
-          kind: 'BatchRequest',
-          operationKind: node.requests[0].root.operation,
-          name: node.name,
-          metadata: node.metadata,
-          fragment: node.fragment,
-          requests: node.requests.map(request => {
-            const isDeferrableFragment =
-              request.metadata && request.metadata.deferrable;
-            const operation = isDeferrableFragment
-              ? {
-                  kind: 'DeferrableOperation',
-                  name: request.root.name,
-                  argumentDefinitions: request.root.argumentDefinitions,
-                  selections: flattenArray(request.root.selections),
-                  fragmentName: request.metadata.fragmentName,
-                  rootFieldVariable: request.metadata.rootFieldVariable,
-                }
-              : {
-                  kind: 'Operation',
-                  name: request.root.name,
-                  argumentDefinitions: request.root.argumentDefinitions,
-                  selections: flattenArray(request.root.selections),
-                };
-
-            return {
-              name: request.name,
-              id: request.id,
-              text: request.text,
-              argumentDependencies: request.argumentDependencies.map(
-                dependency => ({
-                  name: dependency.argumentName,
-                  fromRequestName: dependency.fromName,
-                  fromRequestPath: dependency.fromPath,
-                  ifList: dependency.ifList,
-                  ifNull: dependency.ifNull,
-                  maxRecurse: dependency.maxRecurse,
-                }),
-              ),
-              operation,
-            };
-          }),
-        };
+        invariant(false, 'Batch requests not supported');
       }
     },
 
@@ -167,15 +125,6 @@ const RelayCodeGenVisitor = {
       };
     },
 
-    DeferrableFragmentSpread(node): ConcreteSelection {
-      return {
-        kind: 'DeferrableFragmentSpread',
-        name: node.name,
-        args: valuesOrNull(sortByName(node.args)),
-        rootFieldVariable: node.rootFieldVariable,
-        storageKey: node.storageKey,
-      };
-    },
     InlineFragment(node): ConcreteSelection {
       return {
         kind: 'InlineFragment',

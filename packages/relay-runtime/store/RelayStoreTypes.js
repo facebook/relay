@@ -282,12 +282,6 @@ export interface Environment
     updater?: ?SelectorStoreUpdater,
     uploadables?: ?UploadableMap,
   |}): RelayObservable<ExecutePayload>;
-
-  /**
-   * Checks if the environment is waiting for a response from the network for
-   * a deferred fragment.
-   */
-  isSelectorLoading(selector: Selector): boolean;
 }
 
 /**
@@ -412,9 +406,6 @@ export type MissingFieldHandler =
  */
 export type RelayResponsePayload = {|
   fieldPayloads?: ?Array<HandleFieldPayload>,
-  deferrableSelections?: ?DeferrableSelections,
   source: MutableRecordSource,
   errors: ?Array<PayloadError>,
 |};
-
-export type DeferrableSelections = Set<string>;

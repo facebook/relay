@@ -110,10 +110,8 @@ export type {
   GraphQLSubscriptionConfig,
 } from './subscription/requestRelaySubscription';
 export type {
-  ArgumentDependency,
   ConcreteArgument,
   ConcreteArgumentDefinition,
-  ConcreteBatchRequest,
   ConcreteField,
   ConcreteFragment,
   ConcreteLinkedField,

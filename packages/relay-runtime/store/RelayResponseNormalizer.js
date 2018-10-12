@@ -13,7 +13,6 @@
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayProfiler = require('../util/RelayProfiler');
 
-const deferrableFragmentKey = require('./deferrableFragmentKey');
 const generateRelayClientID = require('./generateRelayClientID');
 const invariant = require('invariant');
 const warning = require('warning');
@@ -25,7 +24,6 @@ const {
   LINKED_HANDLE,
   SCALAR_FIELD,
   SCALAR_HANDLE,
-  DEFERRABLE_FRAGMENT_SPREAD,
 } = require('../util/RelayConcreteNode');
 const {
   getArgumentValues,
@@ -42,7 +40,6 @@ import type {
 } from '../util/RelayConcreteNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
-  DeferrableSelections,
   HandleFieldPayload,
   MutableRecordSource,
   Selector,
@@ -53,7 +50,6 @@ export type NormalizationOptions = {handleStrippedNulls: boolean};
 
 export type NormalizedResponse = {
   fieldPayloads: Array<HandleFieldPayload>,
-  deferrableSelections: DeferrableSelections,
 };
 
 /**
@@ -88,7 +84,6 @@ class RelayResponseNormalizer {
   _recordSource: MutableRecordSource;
   _variables: Variables;
   _handleStrippedNulls: boolean;
-  _deferrableSelections: DeferrableSelections = new Set();
 
   constructor(
     recordSource: MutableRecordSource,
@@ -114,7 +109,6 @@ class RelayResponseNormalizer {
     this._traverseSelections(node, record, data);
     return {
       fieldPayloads: this._handleFieldPayloads,
-      deferrableSelections: this._deferrableSelections,
     };
   }
 
@@ -171,22 +165,6 @@ class RelayResponseNormalizer {
           handle: selection.handle,
           handleKey,
         });
-      } else if (selection.kind === DEFERRABLE_FRAGMENT_SPREAD) {
-        const dataID = RelayModernRecord.getDataID(record);
-        const value = RelayModernRecord.getValue(record, selection.storageKey);
-        invariant(
-          typeof value === 'string',
-          'expected ID at %s',
-          selection.storageKey,
-        );
-        const variables = selection.args
-          ? getArgumentValues(selection.args, {
-              ...this._variables,
-              [selection.rootFieldVariable]: value,
-            })
-          : {};
-        const key = deferrableFragmentKey(dataID, selection.name, variables);
-        this._deferrableSelections.add(key);
       } else {
         invariant(
           false,

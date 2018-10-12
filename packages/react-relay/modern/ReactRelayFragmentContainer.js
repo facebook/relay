@@ -71,7 +71,7 @@ function createContainerWithFragments<
         data: resolver.resolve(),
         prevProps: props,
         prevPropsContext: relayContext,
-        relayProp: getRelayProp(relayContext.environment, resolver.isLoading()),
+        relayProp: getRelayProp(relayContext.environment),
         resolver,
       };
     }
@@ -123,10 +123,7 @@ function createContainerWithFragments<
           data: resolver.resolve(),
           prevPropsContext: relayContext,
           prevProps: nextProps,
-          relayProp: getRelayProp(
-            relayContext.environment,
-            resolver.isLoading(),
-          ),
+          relayProp: getRelayProp(relayContext.environment),
           resolver,
         };
       } else {
@@ -138,10 +135,7 @@ function createContainerWithFragments<
             data,
             prevProps: nextProps,
             prevPropsContext: relayContext,
-            relayProp: getRelayProp(
-              relayContext.environment,
-              resolver.isLoading(),
-            ),
+            relayProp: getRelayProp(relayContext.environment),
           };
         }
       }
@@ -212,10 +206,7 @@ function createContainerWithFragments<
         if (resolverFromThisUpdate === updatedState.resolver) {
           return {
             data: updatedState.resolver.resolve(),
-            relayProp: getRelayProp(
-              updatedState.relayProp.environment,
-              updatedState.resolver.isLoading(),
-            ),
+            relayProp: getRelayProp(updatedState.relayProp.environment),
           };
         }
 
@@ -256,10 +247,11 @@ function createContainerWithFragments<
   return Container;
 }
 
-function getRelayProp(environment, isLoading: boolean) {
+function getRelayProp(environment) {
+  // TODO @joesavona: remove isLoading property here
   return {
     environment,
-    isLoading,
+    isLoading: false,
   };
 }
 

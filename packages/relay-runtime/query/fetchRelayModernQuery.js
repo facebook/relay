@@ -36,11 +36,6 @@ function fetchRelayModernQuery<T: OperationType>(
   );
   const {createOperationSelector, getRequest} = environment.unstable_internal;
   const query = getRequest(taggedNode);
-  if (query.kind === RelayConcreteNode.BATCH_REQUEST) {
-    throw new Error(
-      'fetchRelayModernQuery: Batch request not supported in this API.',
-    );
-  }
   if (query.operationKind !== 'query') {
     throw new Error('fetchRelayModernQuery: Expected query operation');
   }

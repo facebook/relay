@@ -17,7 +17,6 @@ const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProv
 const RelayInMemoryRecordSource = require('./RelayInMemoryRecordSource');
 const RelayPublishQueue = require('./RelayPublishQueue');
 
-const deferrableFragmentKey = require('./deferrableFragmentKey');
 const invariant = require('invariant');
 const normalizePayload = require('./normalizePayload');
 const normalizeRelayPayload = require('./normalizeRelayPayload');
@@ -64,7 +63,6 @@ class RelayModernEnvironment implements Environment {
   _store: Store;
   configName: ?string;
   unstable_internal: UnstableEnvironmentCore;
-  _deferrableSelections: Set<string> = new Set();
   _missingFieldHandlers: ?$ReadOnlyArray<MissingFieldHandler>;
 
   constructor(config: EnvironmentConfig) {
@@ -181,15 +179,6 @@ class RelayModernEnvironment implements Environment {
     return this._store.retain(selector);
   }
 
-  isSelectorLoading(selector: Selector): boolean {
-    const key = deferrableFragmentKey(
-      selector.dataID,
-      selector.node.name,
-      selector.variables,
-    );
-    return this._deferrableSelections.has(key);
-  }
-
   _checkSelectorAndHandleMissingFields(
     selector: Selector,
     handlers: $ReadOnlyArray<MissingFieldHandler>,
@@ -231,10 +220,7 @@ class RelayModernEnvironment implements Environment {
       .do({
         next: executePayload => {
           const responsePayload = normalizePayload(executePayload);
-          const {source, fieldPayloads, deferrableSelections} = responsePayload;
-          for (const selectionKey of deferrableSelections || new Set()) {
-            this._deferrableSelections.add(selectionKey);
-          }
+          const {source, fieldPayloads} = responsePayload;
           if (executePayload.isOptimistic) {
             invariant(
               optimisticResponse == null,
@@ -257,19 +243,6 @@ class RelayModernEnvironment implements Environment {
               executePayload.variables,
               executePayload.operation,
             );
-            if (executePayload.operation.kind === 'DeferrableOperation') {
-              const fragmentKey = deferrableFragmentKey(
-                executePayload.variables[
-                  executePayload.operation.rootFieldVariable
-                ],
-                executePayload.operation.fragmentName,
-                getOperationVariables(
-                  executePayload.operation,
-                  executePayload.variables,
-                ),
-              );
-              this._deferrableSelections.delete(fragmentKey);
-            }
             this._publishQueue.commitPayload(
               writeSelector,
               responsePayload,
@@ -312,10 +285,7 @@ class RelayModernEnvironment implements Environment {
             return;
           }
           const responsePayload = normalizePayload(executePayload);
-          const {source, fieldPayloads, deferrableSelections} = responsePayload;
-          for (const selectionKey of deferrableSelections || new Set()) {
-            this._deferrableSelections.add(selectionKey);
-          }
+          const {source, fieldPayloads} = responsePayload;
           if (executePayload.isOptimistic) {
             invariant(
               optimisticResponse == null,
@@ -338,19 +308,6 @@ class RelayModernEnvironment implements Environment {
               executePayload.variables,
               executePayload.operation,
             );
-            if (executePayload.operation.kind === 'DeferrableOperation') {
-              const fragmentKey = deferrableFragmentKey(
-                executePayload.variables[
-                  executePayload.operation.rootFieldVariable
-                ],
-                executePayload.operation.fragmentName,
-                getOperationVariables(
-                  executePayload.operation,
-                  executePayload.variables,
-                ),
-              );
-              this._deferrableSelections.delete(fragmentKey);
-            }
             this._publishQueue.commitPayload(
               writeSelector,
               responsePayload,

@@ -30,11 +30,7 @@ function createOperationSelector(
   variables: Variables,
   operationFromBatch?: ConcreteOperation,
 ): OperationSelector {
-  const operation =
-    operationFromBatch ||
-    (request.kind === RelayConcreteNode.BATCH_REQUEST
-      ? request.requests[0].operation
-      : request.operation);
+  const operation = operationFromBatch || request.operation;
 
   const operationVariables = getOperationVariables(operation, variables);
   const dataID = ROOT_ID;

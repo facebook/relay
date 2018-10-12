@@ -17,17 +17,8 @@ function getRequestKey_UNSTABLE(
   variables: Variables,
 ) {
   let queryKey = '';
-  if (requestNode.kind === 'BatchRequest') {
-    queryKey = JSON.stringify({
-      id: requestNode.requests.map(req =>
-        String(req.id != null ? req.id : req.text),
-      ),
-    });
-  } else {
-    const requestID =
-      requestNode.id != null ? requestNode.id : requestNode.text;
-    queryKey = String(requestID);
-  }
+  const requestID = requestNode.id != null ? requestNode.id : requestNode.text;
+  queryKey = String(requestID);
   return queryKey + JSON.stringify(variables);
 }
 

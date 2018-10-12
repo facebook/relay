@@ -31,11 +31,11 @@ const {
   getPromiseForRequestInFlight_UNSTABLE,
 } = require('../../helpers/fetchQuery_UNSTABLE');
 
-const UserComponent = ({user}) => (
+const UserComponent = jest.fn(({user}) => (
   <div>
     Hey user, {user.name} with id {user.id}!
   </div>
-);
+));
 
 describe('createFragmentContainer', () => {
   let environment;
@@ -51,6 +51,16 @@ describe('createFragmentContainer', () => {
   };
 
   beforeEach(() => {
+    UserComponent.mockClear();
+    expect.extend({
+      toBeRenderedWith(renderFn, readyState) {
+        expect(renderFn).toBeCalledTimes(1);
+        expect(renderFn.mock.calls[0][0]).toEqual(readyState);
+        renderFn.mockClear();
+        return {pass: true};
+      },
+    });
+
     environment = createMockEnvironment();
     const generated = generateAndCompile(
       `
@@ -82,6 +92,7 @@ describe('createFragmentContainer', () => {
       </ReactRelayContext.Provider>
     );
 
+    // $FlowExpectedError - jest.fn type doesn't match React.Component, but its okay to use
     FragmentContainer = createFragmentContainer_UNSTABLE(UserComponent, {
       user: fragment,
     });
@@ -109,7 +120,7 @@ describe('createFragmentContainer', () => {
   });
 
   it('should create fragment container and render without error', () => {
-    expect(renderer.toJSON()).toMatchSnapshot();
+    expect(UserComponent).toBeRenderedWith({user: {id: '1', name: 'Alice'}});
   });
 
   it('should change data if new data comes in', () => {
@@ -120,7 +131,7 @@ describe('createFragmentContainer', () => {
         name: 'Alice',
       },
     });
-    expect(renderer.toJSON()).toMatchSnapshot();
+    expect(UserComponent).toBeRenderedWith({user: {id: '1', name: 'Alice'}});
     environment.commitPayload(operationSelector, {
       node: {
         __typename: 'User',
@@ -128,12 +139,14 @@ describe('createFragmentContainer', () => {
         name: 'Alice in Wonderland',
       },
     });
-    expect(renderer.toJSON()).toMatchSnapshot();
+    expect(UserComponent).toBeRenderedWith({
+      user: {id: '1', name: 'Alice in Wonderland'},
+    });
   });
 
   it('should throw a promise if data is missing for fragment and request is in flight', () => {
     // This prevents console.error output in the test, which is expected
-    const spy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 
     (getPromiseForRequestInFlight_UNSTABLE: any).mockReturnValueOnce(
       Promise.resolve(),
@@ -149,7 +162,7 @@ describe('createFragmentContainer', () => {
       },
     });
     expect(() => {
-      renderer = TestRenderer.create(
+      TestRenderer.create(
         <ContextWrapper>
           <FragmentContainer
             user={{
@@ -162,13 +175,11 @@ describe('createFragmentContainer', () => {
         </ContextWrapper>,
       );
     }).toThrow('An update was suspended, but no placeholder UI was provided.');
-
-    spy.mockRestore();
   });
 
   it('should throw an error if data is missing and there are no pending requests', () => {
     // This prevents console.error output in the test, which is expected
-    const spy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 
     operationSelector = createOperationSelector(query, {
       id: '2',
@@ -180,7 +191,7 @@ describe('createFragmentContainer', () => {
       },
     });
     expect(() => {
-      renderer = TestRenderer.create(
+      TestRenderer.create(
         <ContextWrapper>
           <FragmentContainer
             user={{
@@ -196,7 +207,5 @@ describe('createFragmentContainer', () => {
       'DataResourceCache_UNSTABLE: Tried reading a fragment that is not ' +
         'available locally and is not being fetched',
     );
-
-    spy.mockRestore();
   });
 });

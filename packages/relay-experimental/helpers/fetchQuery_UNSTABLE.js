@@ -106,7 +106,7 @@ const referencesByEnvironment: Map<
  *
  * // After calling this, the data might be garbage collected (i.e. deleted)
  * // from the Relay local store
- * diposable.dispose();
+ * disposable.dispose();
  * ```
  */
 function fetchQuery_UNSTABLE<TQuery: OperationType>(args: {|

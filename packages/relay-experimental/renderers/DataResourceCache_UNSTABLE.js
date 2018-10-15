@@ -335,7 +335,7 @@ function createCache() {
     environment: IEnvironment,
     fragmentNode: ConcreteFragment,
     fragmentRef: mixed,
-    fragmentSelector: Selector,
+    fragmentSelector: Selector | $ReadOnlyArray<Selector>,
     parentQuery: GraphQLTaggedNode,
     variables: Variables,
   |}): Promise<void> | null {
@@ -362,7 +362,9 @@ function createCache() {
     // resolving the Promise
     return promise
       .then(() => {
-        const latestSnapshot = environment.lookup(fragmentSelector);
+        const latestSnapshot = Array.isArray(fragmentSelector)
+          ? fragmentSelector.map(s => environment.lookup(s))
+          : environment.lookup(fragmentSelector);
         if (!isMissingData(latestSnapshot)) {
           cache.set(cacheKey, latestSnapshot);
         }
@@ -491,12 +493,15 @@ function createCache() {
 
         // 2. If not, try reading the fragment from the Relay store.
         // If the snapshot has data, return it and save it in cache
-        const fragmentSelector = selectorsByFragment[key];
+        const fragmentSelector: Selector | $ReadOnlyArray<Selector> =
+          selectorsByFragment[key];
         invariant(
           fragmentSelector != null,
           'DataResourceCache_UNSTABLE: Expected selector to be available',
         );
-        const snapshot = environment.lookup(fragmentSelector);
+        const snapshot = Array.isArray(fragmentSelector)
+          ? fragmentSelector.map(s => environment.lookup(s))
+          : environment.lookup(fragmentSelector);
         if (!isMissingData(snapshot)) {
           cache.set(cacheKey, snapshot);
           return makeDataResult({

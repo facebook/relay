@@ -193,6 +193,85 @@ describe('createFragmentContainer', () => {
     });
   });
 
+  it('should render without error when data is avialable and using plural fragment', () => {
+    const generated = generateAndCompile(
+      `
+        fragment UsersFragment on User @relay(plural: true) {
+          id
+          name
+        }
+
+        query UsersQuery($ids: [ID!]!) {
+          nodes(ids: $ids) {
+            ... on User {
+              ...UsersFragment
+            }
+          }
+      }
+    `,
+    );
+    const usersVariables = {ids: ['1', '2']};
+    query = generated.UsersQuery;
+    fragment = generated.UsersFragment;
+    operationSelector = createOperationSelector(query, usersVariables);
+    environment.commitPayload(operationSelector, {
+      nodes: [
+        {
+          __typename: 'User',
+          id: '1',
+          name: 'Alice',
+        },
+        {
+          __typename: 'User',
+          id: '2',
+          name: 'Bob',
+        },
+      ],
+    });
+
+    const relayContext = {
+      environment,
+      query,
+      variables,
+    };
+    const Users = jest.fn(({users}) => (
+      <div>
+        {users.map(user => (
+          <span key={user.id}>
+            Hey user, {user.name} with id {user.id}!
+          </span>
+        ))}
+      </div>
+    ));
+    // $FlowExpectedError - jest.fn type doesn't match React.Component, but its okay to use
+    const Container = createFragmentContainer_UNSTABLE(Users, {
+      users: fragment,
+    });
+    TestRenderer.create(
+      <ContextWrapper value={relayContext}>
+        <Container
+          users={[
+            {
+              [ID_KEY]: '1',
+              [FRAGMENTS_KEY]: {
+                UsersFragment: fragment,
+              },
+            },
+            {
+              [ID_KEY]: '2',
+              [FRAGMENTS_KEY]: {
+                UsersFragment: fragment,
+              },
+            },
+          ]}
+        />
+      </ContextWrapper>,
+    );
+    expect(Users).toBeRenderedWith({
+      users: [{id: '1', name: 'Alice'}, {id: '2', name: 'Bob'}],
+    });
+  });
+
   it('should support passing a ref', () => {
     // eslint-disable-next-line lint/flow-no-fixme
     class UserClassComponent extends React.Component<$FlowFixMe> {

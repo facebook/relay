@@ -19,6 +19,7 @@ const path = require('path');
 import type {File} from './CodegenTypes';
 
 const SUBSCRIPTION_NAME = 'graphql-codegen';
+const QUERY_RETRIES = 3;
 
 export type WatchmanExpression = Array<string | WatchmanExpression>;
 
@@ -39,7 +40,7 @@ async function queryFiles(
   filter: FileFilter,
 ): Promise<Set<File>> {
   return await Profiler.waitFor('Watchman:query', async () => {
-    const client = new GraphQLWatchmanClient();
+    const client = new GraphQLWatchmanClient(QUERY_RETRIES);
     const [watchResp, fields] = await Promise.all([
       client.watchProject(baseDir),
       getFields(client),

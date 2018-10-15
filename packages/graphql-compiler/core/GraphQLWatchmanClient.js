@@ -6,13 +6,21 @@
  *
  * @flow
  * @format
+ * @emails oncall+relay
  */
 'use strict';
 
 const watchman = require('fb-watchman');
 
+const MAX_ATTEMPT_LIMIT = 42;
+
+function delay(delayMs: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, delayMs));
+}
+
 class GraphQLWatchmanClient {
   _client: any;
+  _attemptLimit: number;
 
   static isAvailable(): Promise<boolean> {
     return new Promise(resolve => {
@@ -34,11 +42,12 @@ class GraphQLWatchmanClient {
     });
   }
 
-  constructor() {
+  constructor(attemptLimit: number = 0) {
     this._client = new watchman.Client();
+    this._attemptLimit = Math.max(Math.min(MAX_ATTEMPT_LIMIT, attemptLimit), 0);
   }
 
-  command(...args: Array<mixed>): Promise<any> {
+  _command(...args: Array<mixed>): Promise<any> {
     return new Promise((resolve, reject) => {
       this._client.command(args, (error, response) => {
         if (error) {
@@ -48,6 +57,23 @@ class GraphQLWatchmanClient {
         }
       });
     });
+  }
+
+  async command(...args: Array<mixed>): Promise<any> {
+    let attempt = 0;
+    while (true) {
+      try {
+        attempt++;
+        return await this._command(...args);
+      } catch (error) {
+        if (attempt > this._attemptLimit) {
+          throw error;
+        }
+        await delay(Math.pow(2, attempt) * 500);
+        this._client.end();
+        this._client = new watchman.Client();
+      }
+    }
   }
 
   async hasCapability(capability: string): Promise<boolean> {

@@ -67,6 +67,7 @@ describe('createFragmentContainer', () => {
   let ContextWrapper;
   let FragmentContainer;
   let renderer;
+  let expectToBeRenderedWith;
 
   const variables = {
     id: '1',
@@ -74,17 +75,14 @@ describe('createFragmentContainer', () => {
 
   beforeEach(() => {
     UserComponent.mockClear();
-    expect.extend({
-      toBeRenderedWith(renderFn, readyState) {
-        expect(renderFn).toBeCalledTimes(1);
-        expect(renderFn.mock.calls[0][0]).toEqual({
-          ...readyState,
-          relay: expect.anything(),
-        });
-        renderFn.mockClear();
-        return {pass: true};
-      },
-    });
+    expectToBeRenderedWith = (renderFn, readyState) => {
+      expect(renderFn).toBeCalledTimes(1);
+      expect(renderFn.mock.calls[0][0]).toEqual({
+        ...readyState,
+        relay: expect.anything(),
+      });
+      renderFn.mockClear();
+    };
 
     environment = createMockEnvironment();
     const generated = generateAndCompile(
@@ -161,7 +159,7 @@ describe('createFragmentContainer', () => {
   });
 
   it('should render without error when data is available', () => {
-    expect(UserComponent).toBeRenderedWith({user: {id: '1', name: 'Alice'}});
+    expectToBeRenderedWith(UserComponent, {user: {id: '1', name: 'Alice'}});
   });
 
   it('should render without error when data is avialable and extra props included', () => {
@@ -187,7 +185,7 @@ describe('createFragmentContainer', () => {
         />
       </ContextWrapper>,
     );
-    expect(UserWithFoo).toBeRenderedWith({
+    expectToBeRenderedWith(UserWithFoo, {
       user: {id: '1', name: 'Alice'},
       foo: 'bar',
     });
@@ -267,7 +265,7 @@ describe('createFragmentContainer', () => {
         />
       </ContextWrapper>,
     );
-    expect(Users).toBeRenderedWith({
+    expectToBeRenderedWith(Users, {
       users: [{id: '1', name: 'Alice'}, {id: '2', name: 'Bob'}],
     });
   });
@@ -306,7 +304,7 @@ describe('createFragmentContainer', () => {
   });
 
   it('should re-read and resubscribe to fragment when fragment pointers change', () => {
-    expect(UserComponent).toBeRenderedWith({user: {id: '1', name: 'Alice'}});
+    expectToBeRenderedWith(UserComponent, {user: {id: '1', name: 'Alice'}});
     environment.commitPayload(operationSelector, {
       node: {
         __typename: 'User',
@@ -315,7 +313,7 @@ describe('createFragmentContainer', () => {
       },
     });
     renderer.getInstance().setProps({id: '200'});
-    expect(UserComponent).toBeRenderedWith({user: {id: '200', name: 'Foo'}});
+    expectToBeRenderedWith(UserComponent, {user: {id: '200', name: 'Foo'}});
 
     environment.commitPayload(operationSelector, {
       node: {
@@ -324,13 +322,13 @@ describe('createFragmentContainer', () => {
         name: 'Foo Updated',
       },
     });
-    expect(UserComponent).toBeRenderedWith({
+    expectToBeRenderedWith(UserComponent, {
       user: {id: '200', name: 'Foo Updated'},
     });
   });
 
   it('should re-read and resubscribe to fragment when variables change', () => {
-    expect(UserComponent).toBeRenderedWith({user: {id: '1', name: 'Alice'}});
+    expectToBeRenderedWith(UserComponent, {user: {id: '1', name: 'Alice'}});
     environment.commitPayload(operationSelector, {
       node: {
         __typename: 'User',
@@ -341,7 +339,7 @@ describe('createFragmentContainer', () => {
     renderer
       .getInstance()
       .setProps({value: {environment, query, variables: {id: '400'}}});
-    expect(UserComponent).toBeRenderedWith({user: {id: '400', name: 'Bar'}});
+    expectToBeRenderedWith(UserComponent, {user: {id: '400', name: 'Bar'}});
 
     environment.commitPayload(operationSelector, {
       node: {
@@ -350,7 +348,7 @@ describe('createFragmentContainer', () => {
         name: 'Bar Updated',
       },
     });
-    expect(UserComponent).toBeRenderedWith({
+    expectToBeRenderedWith(UserComponent, {
       user: {id: '400', name: 'Bar Updated'},
     });
   });
@@ -363,7 +361,7 @@ describe('createFragmentContainer', () => {
         name: 'Alice',
       },
     });
-    expect(UserComponent).toBeRenderedWith({user: {id: '1', name: 'Alice'}});
+    expectToBeRenderedWith(UserComponent, {user: {id: '1', name: 'Alice'}});
     environment.commitPayload(operationSelector, {
       node: {
         __typename: 'User',
@@ -371,7 +369,7 @@ describe('createFragmentContainer', () => {
         name: 'Alice in Wonderland',
       },
     });
-    expect(UserComponent).toBeRenderedWith({
+    expectToBeRenderedWith(UserComponent, {
       user: {id: '1', name: 'Alice in Wonderland'},
     });
   });

@@ -418,7 +418,7 @@ function createContainerWithFragments<
   return Container;
 }
 
-function getRelayProp(environment, refetch) {
+function getRelayProp(environment, refetch): RelayRefetchProp {
   return {
     environment,
     refetch,

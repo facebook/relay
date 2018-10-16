@@ -24,38 +24,42 @@ export type GeneratedNodeMap = {[key: string]: GraphQLTaggedNode};
 
 export type ObserverOrCallback = Observer<void> | ((error: ?Error) => mixed);
 
+// NOTE: This is an inexact type in order to allow a RelayPaginationProp or
+// RelayRefetchProp to flow into a RelayProp.
 export type RelayProp = {
-  environment: IEnvironment,
+  +environment: IEnvironment,
 };
 
-export type RelayPaginationProp = RelayProp & {
-  hasMore: () => boolean,
-  isLoading: () => boolean,
-  loadMore: (
+export type RelayPaginationProp = {|
+  +environment: IEnvironment,
+  +hasMore: () => boolean,
+  +isLoading: () => boolean,
+  +loadMore: (
     pageSize: number,
     observerOrCallback: ?ObserverOrCallback,
     options?: RefetchOptions,
   ) => ?Disposable,
-  refetchConnection: (
+  +refetchConnection: (
     totalCount: number,
     observerOrCallback: ?ObserverOrCallback,
     refetchVariables: ?Variables,
   ) => ?Disposable,
-};
+|};
 
-export type RelayRefetchProp = RelayProp & {
-  refetch: (
+export type RelayRefetchProp = {|
+  +environment: IEnvironment,
+  +refetch: (
     refetchVariables: Variables | ((fragmentVariables: Variables) => Variables),
     renderVariables: ?Variables,
     observerOrCallback: ?ObserverOrCallback,
     options?: RefetchOptions,
   ) => Disposable,
-};
+|};
 
-export type RefetchOptions = {
-  force?: boolean,
-  rerunParamExperimental?: RerunParam,
-};
+export type RefetchOptions = {|
+  +force?: boolean,
+  +rerunParamExperimental?: RerunParam,
+|};
 
 /**
  * A utility type which takes the type of a fragment's data (typically found in

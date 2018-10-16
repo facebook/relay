@@ -248,10 +248,8 @@ function createContainerWithFragments<
 }
 
 function getRelayProp(environment) {
-  // TODO T35081051: remove isLoading property from relay prop
   return {
     environment,
-    isLoading: false,
   };
 }
 

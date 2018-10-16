@@ -172,7 +172,6 @@ describe('ReactRelayFragmentContainer', () => {
       foo: 'foo',
       relay: {
         environment: environment,
-        isLoading: false,
       },
       user: null,
     });
@@ -191,7 +190,6 @@ describe('ReactRelayFragmentContainer', () => {
     expect(render.mock.calls[0][0]).toEqual({
       relay: {
         environment: environment,
-        isLoading: false,
       },
       user: null,
     });
@@ -216,7 +214,6 @@ describe('ReactRelayFragmentContainer', () => {
     expect(render.mock.calls[0][0]).toEqual({
       relay: {
         environment: environment,
-        isLoading: false,
       },
       user: {
         id: '4',
@@ -274,7 +271,6 @@ describe('ReactRelayFragmentContainer', () => {
     expect(render.mock.calls[0][0]).toEqual({
       relay: {
         environment: environment,
-        isLoading: false,
       },
       user: {
         id: '4',
@@ -312,7 +308,6 @@ describe('ReactRelayFragmentContainer', () => {
     expect(render.mock.calls[0][0]).toEqual({
       relay: {
         environment: environment,
-        isLoading: false,
       },
       user: {
         id: '842472',
@@ -356,7 +351,6 @@ describe('ReactRelayFragmentContainer', () => {
     expect(render.mock.calls[0][0]).toEqual({
       relay: {
         environment: environment,
-        isLoading: false,
       },
       user: {
         id: '4',

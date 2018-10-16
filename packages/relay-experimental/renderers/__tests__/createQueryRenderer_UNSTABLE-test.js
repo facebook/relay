@@ -65,10 +65,8 @@ function expectToBeFetched(environment, executeVariables) {
   });
 }
 
-function commitUserPayload(environment, query, id, name) {
-  const operationSelector = createOperationSelector(query, {
-    id,
-  });
+function commitUserPayload(environment, gqlQuery, id, name) {
+  const operationSelector = createOperationSelector(gqlQuery, {id});
   environment.commitPayload(operationSelector, {
     node: {
       __typename: 'User',
@@ -80,7 +78,7 @@ function commitUserPayload(environment, query, id, name) {
 
 describe('createQueryRenderer', () => {
   let environment;
-  let query;
+  let gqlQuery;
   let QueryRenderer;
   let renderFn;
 
@@ -100,14 +98,14 @@ describe('createQueryRenderer', () => {
         }
     `,
     );
-    query = generated.UserQuery;
+    gqlQuery = generated.UserQuery;
     renderFn = jest.fn(() => <div />);
-    QueryRenderer = createQueryRenderer_UNSTABLE(query);
+    QueryRenderer = createQueryRenderer_UNSTABLE(gqlQuery);
   });
 
   it('should render the component if data is available without network request', () => {
     const variables = {id: '<available-data-id>'};
-    commitUserPayload(environment, query, variables.id, 'Alice');
+    commitUserPayload(environment, gqlQuery, variables.id, 'Alice');
     ReactTestRenderer.create(
       <QueryRenderer
         fetchPolicy={fetchPolicy}
@@ -133,7 +131,7 @@ describe('createQueryRenderer', () => {
 
   it('should render data for the query, even if some data is missing for full query and generate a network request for missing data', () => {
     const variables = {id: '<partially-available-data-id>'};
-    commitUserPayload(environment, query, variables.id, undefined);
+    commitUserPayload(environment, gqlQuery, variables.id, undefined);
     ReactTestRenderer.create(
       <QueryRenderer
         fetchPolicy={fetchPolicy}
@@ -208,12 +206,12 @@ describe('createQueryRenderer', () => {
           }
         `,
       );
-      query = generated.UserQuery;
-      QueryRenderer = createQueryRenderer_UNSTABLE(query);
+      gqlQuery = generated.UserQuery;
+      QueryRenderer = createQueryRenderer_UNSTABLE(gqlQuery);
       const variables = {
         id: '<available-data-id>',
       };
-      commitUserPayload(environment, query, variables.id, 'Alice');
+      commitUserPayload(environment, gqlQuery, variables.id, 'Alice');
       ReactTestRenderer.create(
         <QueryRenderer
           fetchPolicy={fetchPolicy}
@@ -232,7 +230,7 @@ describe('createQueryRenderer', () => {
         },
       });
       renderFn.mockReset();
-      commitUserPayload(environment, query, variables.id, 'Bob');
+      commitUserPayload(environment, gqlQuery, variables.id, 'Bob');
       expectToBeRendered(renderFn, {
         data: {
           node: {
@@ -258,7 +256,8 @@ describe('createQueryRenderer', () => {
 
     it('sets an environment and variables on context', () => {
       const variables = {id: '<available-data-id>'};
-      commitUserPayload(environment, query, variables.id, 'Alice');
+      const query = createOperationSelector(gqlQuery, variables);
+      commitUserPayload(environment, gqlQuery, variables.id, 'Alice');
 
       ReactTestRenderer.create(
         <QueryRenderer
@@ -269,14 +268,14 @@ describe('createQueryRenderer', () => {
           children={renderFn}
         />,
       );
-      expect(relayContext.query).toBe(query);
+      expect(relayContext.query).toEqual(query);
       expect(relayContext.environment).toBe(environment);
       expect(relayContext.variables).toEqual(variables);
     });
 
     it('updates the context when the environment changes', () => {
       const variables = {id: '<available-data-id>'};
-      commitUserPayload(environment, query, variables.id, 'Alice');
+      commitUserPayload(environment, gqlQuery, variables.id, 'Alice');
 
       const renderer = ReactTestRenderer.create(
         <PropsSetter>
@@ -290,7 +289,7 @@ describe('createQueryRenderer', () => {
         </PropsSetter>,
       );
       const nextEnvironment = createMockEnvironment();
-      commitUserPayload(nextEnvironment, query, variables.id, 'Bob');
+      commitUserPayload(nextEnvironment, gqlQuery, variables.id, 'Bob');
 
       const previousContext = relayContext;
       renderer.getInstance().setProps({
@@ -305,8 +304,8 @@ describe('createQueryRenderer', () => {
       const variables1 = {id: '<available-data-id-1>'};
       const variables2 = {id: '<available-data-id-2>'};
 
-      commitUserPayload(environment, query, variables1.id, 'Alice');
-      commitUserPayload(environment, query, variables2.id, 'Bob');
+      commitUserPayload(environment, gqlQuery, variables1.id, 'Alice');
+      commitUserPayload(environment, gqlQuery, variables2.id, 'Bob');
 
       const renderer = ReactTestRenderer.create(
         <PropsSetter>
@@ -330,7 +329,7 @@ describe('createQueryRenderer', () => {
 
     it('does not update the context for equivalent variables', () => {
       const variables = {id: '<available-data-id-1>', foo: ['bar']};
-      commitUserPayload(environment, query, variables.id, 'Alice');
+      commitUserPayload(environment, gqlQuery, variables.id, 'Alice');
 
       const renderer = ReactTestRenderer.create(
         <PropsSetter>
@@ -357,7 +356,7 @@ describe('createQueryRenderer', () => {
   describe('when variables change', () => {
     it('should render data from the store', () => {
       const variables1 = {id: '<available-data-id-1>'};
-      commitUserPayload(environment, query, variables1.id, 'Alice');
+      commitUserPayload(environment, gqlQuery, variables1.id, 'Alice');
 
       const renderer = ReactTestRenderer.create(
         <PropsSetter>
@@ -384,7 +383,7 @@ describe('createQueryRenderer', () => {
       renderFn.mockReset();
 
       const variables2 = {id: '<available-data-id-2>'};
-      commitUserPayload(environment, query, variables2.id, 'Bob');
+      commitUserPayload(environment, gqlQuery, variables2.id, 'Bob');
       renderer.getInstance().setProps({
         variables: variables2,
       });
@@ -407,7 +406,7 @@ describe('createQueryRenderer', () => {
       const variables = {
         id: '<available-data-id>',
       };
-      commitUserPayload(environment, query, variables.id, 'Alice');
+      commitUserPayload(environment, gqlQuery, variables.id, 'Alice');
       const renderer = ReactTestRenderer.create(
         <PropsSetter>
           <QueryRenderer
@@ -447,7 +446,7 @@ describe('createQueryRenderer', () => {
       const variables = {
         id: '<missing-id>',
       };
-      commitUserPayload(environment, query, variables.id, undefined);
+      commitUserPayload(environment, gqlQuery, variables.id, undefined);
       function Child(props) {
         // NOTE the unstable_yield method will move to the static renderer.
         // When React sync runs we need to update this.
@@ -546,7 +545,7 @@ describe('createQueryRenderer', () => {
         const variables = {
           id: '<available-id>',
         };
-        commitUserPayload(environment, query, variables.id, 'Alice');
+        commitUserPayload(environment, gqlQuery, variables.id, 'Alice');
         ReactTestRenderer.create(
           <TestComponentWithMultipleQueryRenderer
             variables1={variables}
@@ -561,7 +560,7 @@ describe('createQueryRenderer', () => {
         const variables = {
           id: '<missing-id>',
         };
-        commitUserPayload(environment, query, variables.id, undefined);
+        commitUserPayload(environment, gqlQuery, variables.id, undefined);
         ReactTestRenderer.create(
           <TestComponentWithMultipleQueryRenderer
             variables1={variables}
@@ -583,8 +582,8 @@ describe('createQueryRenderer', () => {
         };
         const renderFn1 = jest.fn();
         const renderFn2 = jest.fn();
-        commitUserPayload(environment, query, variables1.id, 'Alice');
-        commitUserPayload(environment, query, variables2.id, 'Bob');
+        commitUserPayload(environment, gqlQuery, variables1.id, 'Alice');
+        commitUserPayload(environment, gqlQuery, variables2.id, 'Bob');
         ReactTestRenderer.create(
           <TestComponentWithMultipleQueryRenderer
             variables1={variables1}
@@ -625,8 +624,8 @@ describe('createQueryRenderer', () => {
         const variables2 = {
           id: '<missing-id-2>',
         };
-        commitUserPayload(environment, query, variables1.id, 'Alice');
-        commitUserPayload(environment, query, variables2.id, undefined);
+        commitUserPayload(environment, gqlQuery, variables1.id, 'Alice');
+        commitUserPayload(environment, gqlQuery, variables2.id, undefined);
         const renderFn1 = jest.fn();
         const renderFn2 = jest.fn();
         ReactTestRenderer.create(
@@ -701,12 +700,12 @@ describe('createQueryRenderer', () => {
 
     const createExpectedBehaviorAssert = (
       testEnvironment,
-      testQuery,
+      testGqlQuery,
       testVariables,
       expectedRenderOutput,
     ) => {
       return (testFetchPolicy, expectedBehavior) => {
-        const TestQueryRenderer = createQueryRenderer_UNSTABLE(testQuery);
+        const TestQueryRenderer = createQueryRenderer_UNSTABLE(testGqlQuery);
         const testRenderFn = jest.fn();
         switch (expectedBehavior) {
           case RENDER_NO_REQUEST:
@@ -782,7 +781,7 @@ describe('createQueryRenderer', () => {
 
       beforeEach(() => {
         const testEnvironment = createMockEnvironment();
-        const testQuery = generateAndCompile(
+        const testGqlQuery = generateAndCompile(
           `
             query UserQuery($id: ID!) {
               node(id: $id) {
@@ -791,19 +790,19 @@ describe('createQueryRenderer', () => {
               }
             }
           `,
-        );
+        ).UserQuery;
         const testVariables = {
           id: '<available-id>',
         };
         commitUserPayload(
           testEnvironment,
-          testQuery.UserQuery,
+          testGqlQuery,
           testVariables.id,
           'Alice',
         );
         assertExpectedBehavior = createExpectedBehaviorAssert(
           testEnvironment,
-          testQuery.UserQuery,
+          testGqlQuery,
           testVariables,
           {
             data: {
@@ -834,7 +833,7 @@ describe('createQueryRenderer', () => {
 
       beforeEach(() => {
         const testEnvironment = createMockEnvironment();
-        const testQuery = generateAndCompile(
+        const testGqlQuery = generateAndCompile(
           `
             fragment UserFragment on User {
               name
@@ -846,19 +845,19 @@ describe('createQueryRenderer', () => {
               }
             }
           `,
-        );
+        ).UserQuery;
         const testVariables = {
           id: '<partially-available-id>',
         };
         commitUserPayload(
           testEnvironment,
-          testQuery.UserQuery,
+          testGqlQuery,
           testVariables.id,
           undefined,
         );
         assertExpectedBehavior = createExpectedBehaviorAssert(
           testEnvironment,
-          testQuery.UserQuery,
+          testGqlQuery,
           testVariables,
           {
             data: {
@@ -891,7 +890,7 @@ describe('createQueryRenderer', () => {
 
       beforeEach(() => {
         const testEnvironment = createMockEnvironment();
-        const testQuery = generateAndCompile(
+        const testGqlQuery = generateAndCompile(
           `
             query UserQuery($id: ID!) {
               node(id: $id) {
@@ -900,19 +899,19 @@ describe('createQueryRenderer', () => {
               }
             }
         `,
-        );
+        ).UserQuery;
         const testVariables = {
           id: '<missing-id>',
         };
         commitUserPayload(
           testEnvironment,
-          testQuery.UserQuery,
+          testGqlQuery,
           testVariables.id,
           undefined,
         );
         assertExpectedBehavior = createExpectedBehaviorAssert(
           testEnvironment,
-          testQuery.UserQuery,
+          testGqlQuery,
           testVariables,
         );
       });

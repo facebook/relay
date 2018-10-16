@@ -11,7 +11,7 @@
 
 'use strict';
 
-jest.mock('../../helpers/fetchQuery_UNSTABLE');
+jest.mock('../../utils/fetchQueryUtils');
 
 const React = require('React');
 const ReactRelayContext = require('react-relay/modern/ReactRelayContext');
@@ -27,9 +27,7 @@ const {
   ID_KEY,
 } = require('relay-runtime');
 
-const {
-  getPromiseForRequestInFlight_UNSTABLE,
-} = require('../../helpers/fetchQuery_UNSTABLE');
+const {getPromiseForRequestInFlight} = require('../../utils/fetchQueryUtils');
 
 import type {RelayContext} from 'relay-runtime';
 
@@ -60,9 +58,9 @@ class PropsSetter extends React.Component<any, any> {
 
 describe('createFragmentContainer', () => {
   let environment;
-  let query;
+  let gqlQuery;
   let fragment;
-  let operationSelector;
+  let query;
   let FragmentWrapper;
   let ContextWrapper;
   let FragmentContainer;
@@ -99,9 +97,9 @@ describe('createFragmentContainer', () => {
       }
     `,
     );
-    query = generated.UserQuery;
+    gqlQuery = generated.UserQuery;
     fragment = generated.UserFragment;
-    operationSelector = createOperationSelector(query, variables);
+    query = createOperationSelector(gqlQuery, variables);
 
     const relayContext = {
       environment,
@@ -139,7 +137,7 @@ describe('createFragmentContainer', () => {
       </ContextWrapper>
     );
 
-    environment.commitPayload(operationSelector, {
+    environment.commitPayload(query, {
       node: {
         __typename: 'User',
         id: '1',
@@ -209,10 +207,10 @@ describe('createFragmentContainer', () => {
     `,
     );
     const usersVariables = {ids: ['1', '2']};
-    query = generated.UsersQuery;
+    gqlQuery = generated.UsersQuery;
     fragment = generated.UsersFragment;
-    operationSelector = createOperationSelector(query, usersVariables);
-    environment.commitPayload(operationSelector, {
+    query = createOperationSelector(gqlQuery, usersVariables);
+    environment.commitPayload(query, {
       nodes: [
         {
           __typename: 'User',
@@ -305,7 +303,7 @@ describe('createFragmentContainer', () => {
 
   it('should re-read and resubscribe to fragment when fragment pointers change', () => {
     expectToBeRenderedWith(UserComponent, {user: {id: '1', name: 'Alice'}});
-    environment.commitPayload(operationSelector, {
+    environment.commitPayload(query, {
       node: {
         __typename: 'User',
         id: '200',
@@ -315,7 +313,7 @@ describe('createFragmentContainer', () => {
     renderer.getInstance().setProps({id: '200'});
     expectToBeRenderedWith(UserComponent, {user: {id: '200', name: 'Foo'}});
 
-    environment.commitPayload(operationSelector, {
+    environment.commitPayload(query, {
       node: {
         __typename: 'User',
         id: '200',
@@ -329,19 +327,21 @@ describe('createFragmentContainer', () => {
 
   it('should re-read and resubscribe to fragment when variables change', () => {
     expectToBeRenderedWith(UserComponent, {user: {id: '1', name: 'Alice'}});
-    environment.commitPayload(operationSelector, {
+    environment.commitPayload(query, {
       node: {
         __typename: 'User',
         id: '400',
         name: 'Bar',
       },
     });
-    renderer
-      .getInstance()
-      .setProps({value: {environment, query, variables: {id: '400'}}});
+    const nextVariables = {id: '400'};
+    query = createOperationSelector(gqlQuery, nextVariables);
+    renderer.getInstance().setProps({
+      value: {environment, query, variables: nextVariables},
+    });
     expectToBeRenderedWith(UserComponent, {user: {id: '400', name: 'Bar'}});
 
-    environment.commitPayload(operationSelector, {
+    environment.commitPayload(query, {
       node: {
         __typename: 'User',
         id: '400',
@@ -354,7 +354,7 @@ describe('createFragmentContainer', () => {
   });
 
   it('should change data if new data comes in', () => {
-    environment.commitPayload(operationSelector, {
+    environment.commitPayload(query, {
       node: {
         __typename: 'User',
         id: '1',
@@ -362,7 +362,7 @@ describe('createFragmentContainer', () => {
       },
     });
     expectToBeRenderedWith(UserComponent, {user: {id: '1', name: 'Alice'}});
-    environment.commitPayload(operationSelector, {
+    environment.commitPayload(query, {
       node: {
         __typename: 'User',
         id: '1',
@@ -378,14 +378,12 @@ describe('createFragmentContainer', () => {
     // This prevents console.error output in the test, which is expected
     jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 
-    (getPromiseForRequestInFlight_UNSTABLE: any).mockReturnValueOnce(
-      Promise.resolve(),
-    );
+    (getPromiseForRequestInFlight: any).mockReturnValueOnce(Promise.resolve());
 
-    operationSelector = createOperationSelector(query, {
+    query = createOperationSelector(gqlQuery, {
       id: '2',
     });
-    environment.commitPayload(operationSelector, {
+    environment.commitPayload(query, {
       node: {
         __typename: 'User',
         id: '2',
@@ -411,10 +409,10 @@ describe('createFragmentContainer', () => {
     // This prevents console.error output in the test, which is expected
     jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 
-    operationSelector = createOperationSelector(query, {
+    query = createOperationSelector(gqlQuery, {
       id: '2',
     });
-    environment.commitPayload(operationSelector, {
+    environment.commitPayload(query, {
       node: {
         __typename: 'User',
         id: '2',

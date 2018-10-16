@@ -14,30 +14,24 @@
 const LRUCache_UNSTABLE = require('../utils/LRUCache_UNSTABLE');
 const React = require('React');
 
-const checkQuery_UNSTABLE = require('../helpers/checkQuery_UNSTABLE');
-const getRequestKey_UNSTABLE = require('../helpers/getRequestKey_UNSTABLE');
+const getQueryIdentifier_UNSTABLE = require('../helpers/getQueryIdentifier_UNSTABLE');
 const invariant = require('invariant');
 const mapObject = require('mapObject');
-const readQuery_UNSTABLE = require('../helpers/readQuery_UNSTABLE');
 
 // TODO: This should probably be configurable based on the environment
 const CACHE_CAPACITY = 1000;
 
 const {
-  fetchQuery_UNSTABLE,
-  getPromiseForRequestInFlight_UNSTABLE,
-} = require('../helpers/fetchQuery_UNSTABLE');
-const {
-  getDataIDsFromObject,
-  getRequest,
-  getSelectorsFromObject,
-} = require('relay-runtime');
+  fetchQuery,
+  getPromiseForRequestInFlight,
+} = require('../utils/fetchQueryUtils');
+const {getDataIDsFromObject, getSelectorsFromObject} = require('relay-runtime');
 
 import type {
   ConcreteFragment,
   Disposable,
-  GraphQLTaggedNode,
   IEnvironment,
+  OperationSelector,
   Selector,
   Snapshot,
   Variables,
@@ -59,12 +53,8 @@ export type FetchPolicy =
 
 const DATA_RETENTION_TIMEOUT = 30 * 1000;
 
-function getQueryCacheKey(
-  query: GraphQLTaggedNode,
-  variables: Variables,
-): string {
-  const requestNode = getRequest(query);
-  return getRequestKey_UNSTABLE(requestNode, variables);
+function getQueryCacheKey(query: OperationSelector): string {
+  return getQueryIdentifier_UNSTABLE(query);
 }
 
 function getFragmentCacheKey(
@@ -136,15 +126,14 @@ function createCache() {
    * after some period of time determined by DATA_RETENTION_TIMEOUT.
    * The timeout can be cleared by the Disposable returned by this function.
    */
-  function fetchQuery(args: {|
+  function fetchAndSaveQuery(args: {|
     environment: IEnvironment,
-    query: GraphQLTaggedNode,
-    variables: Variables,
+    query: OperationSelector,
     fetchPolicy?: FetchPolicy,
     readPolicy?: ReadPolicy,
   |}): Disposable {
-    const {environment, query, variables} = args;
-    const cacheKey = getQueryCacheKey(query, variables);
+    const {environment, query} = args;
+    const cacheKey = getQueryCacheKey(query);
     const fetchPolicy = args.fetchPolicy ?? 'network-only';
     const readPolicy = args.readPolicy ?? 'lazy';
 
@@ -152,7 +141,7 @@ function createCache() {
     // missing data handlers specified on the environment;
     // We run it here first to make the handlers get a chance to populate
     // missing data.
-    const hasFullQuery = checkQuery_UNSTABLE(environment, query, variables);
+    const hasFullQuery = environment.check(query.root);
 
     const canRead = readPolicy === 'lazy' ? hasFullQuery : true;
     let shouldFetch;
@@ -160,7 +149,7 @@ function createCache() {
       case 'store-only': {
         shouldFetch = false;
         if (canRead) {
-          const snapshot = readQuery_UNSTABLE(environment, query, variables);
+          const snapshot = environment.lookup(query.fragment);
           if (!isMissingData(snapshot)) {
             cache.set(cacheKey, snapshot);
             break;
@@ -174,7 +163,6 @@ function createCache() {
         const promiseForQuery = getPromiseForQueryRequestInFlight({
           environment,
           query,
-          variables,
         });
         if (promiseForQuery != null) {
           cache.set(cacheKey, promiseForQuery);
@@ -187,7 +175,7 @@ function createCache() {
       case 'store-or-network': {
         if (canRead) {
           shouldFetch = !hasFullQuery;
-          const snapshot = readQuery_UNSTABLE(environment, query, variables);
+          const snapshot = environment.lookup(query.fragment);
           if (!isMissingData(snapshot)) {
             cache.set(cacheKey, snapshot);
           }
@@ -199,7 +187,7 @@ function createCache() {
       case 'store-and-network': {
         shouldFetch = true;
         if (canRead) {
-          const snapshot = readQuery_UNSTABLE(environment, query, variables);
+          const snapshot = environment.lookup(query.fragment);
           if (!isMissingData(snapshot)) {
             cache.set(cacheKey, snapshot);
           }
@@ -218,10 +206,9 @@ function createCache() {
     if (shouldFetch) {
       let resolveSuspender = () => {};
       let error = null;
-      disposable = fetchQuery_UNSTABLE({
+      disposable = fetchQuery({
         environment,
         query,
-        variables,
         networkLayerCacheConfig: {force: true},
         observer: {
           complete: () => {
@@ -241,7 +228,7 @@ function createCache() {
             resolveSuspender();
           },
           next: () => {
-            const snapshot = readQuery_UNSTABLE(environment, query, variables);
+            const snapshot = environment.lookup(query.fragment);
             if (!isMissingData(snapshot)) {
               cache.set(cacheKey, snapshot);
               resolveSuspender();
@@ -289,30 +276,24 @@ function createCache() {
    */
   function getPromiseForQueryRequestInFlight(args: {|
     environment: IEnvironment,
-    query: GraphQLTaggedNode,
-    variables: Variables,
+    query: OperationSelector,
   |}): Promise<void> | null {
-    const {environment, query, variables} = args;
-    const promise = getPromiseForRequestInFlight_UNSTABLE({
+    const {environment, query} = args;
+    const promise = getPromiseForRequestInFlight({
       environment,
       query,
-      variables,
     });
     if (!promise) {
       return null;
     }
 
-    const cacheKey = getQueryCacheKey(query, variables);
+    const cacheKey = getQueryCacheKey(query);
     // When the Promise for the request resolves, we need to make sure to
     // update the cache with the latest data available in the store before
     // resolving the Promise
     return promise
       .then(() => {
-        const latestSnapshot = readQuery_UNSTABLE(
-          environment,
-          query,
-          variables,
-        );
+        const latestSnapshot = environment.lookup(query.fragment);
         if (!isMissingData(latestSnapshot)) {
           cache.set(cacheKey, latestSnapshot);
         } else {
@@ -336,8 +317,7 @@ function createCache() {
     fragmentNode: ConcreteFragment,
     fragmentRef: mixed,
     fragmentSelector: Selector | $ReadOnlyArray<Selector>,
-    parentQuery: GraphQLTaggedNode,
-    variables: Variables,
+    parentQuery: OperationSelector,
   |}): Promise<void> | null {
     const {
       environment,
@@ -345,18 +325,20 @@ function createCache() {
       fragmentRef,
       fragmentSelector,
       parentQuery,
-      variables,
     } = args;
-    const promise = getPromiseForRequestInFlight_UNSTABLE({
+    const promise = getPromiseForRequestInFlight({
       environment,
       query: parentQuery,
-      variables,
     });
     if (!promise) {
       return null;
     }
 
-    const cacheKey = getFragmentCacheKey(fragmentNode, fragmentRef, variables);
+    const cacheKey = getFragmentCacheKey(
+      fragmentNode,
+      fragmentRef,
+      parentQuery.variables,
+    );
     // When the Promise for the request resolves, we need to make sure to
     // update the cache with the latest data available in the store before
     // resolving the Promise
@@ -409,13 +391,12 @@ function createCache() {
      */
     readQuery(args: {|
       environment: IEnvironment,
-      query: GraphQLTaggedNode,
-      variables: Variables,
+      query: OperationSelector,
       fetchPolicy?: FetchPolicy,
       readPolicy?: ReadPolicy,
     |}): CacheReadResult {
-      const {query, variables} = args;
-      const cacheKey = getQueryCacheKey(query, variables);
+      const {query} = args;
+      const cacheKey = getQueryCacheKey(query);
 
       // 1. Check if there's a cached value for this query
       let cachedValue = cache.get(cacheKey);
@@ -429,9 +410,9 @@ function createCache() {
       }
 
       // 2. If a cached value isn't available, try fetching the query.
-      // fetchQuery will update the cache with either a Promise, Error or a
-      // Snapshot
-      const fetchDisposable = fetchQuery(args);
+      // fetchAndSaveQuery will update the cache with either a Promise, Error
+      // or a Snapshot
+      const fetchDisposable = fetchAndSaveQuery(args);
       cachedValue = cache.get(cacheKey);
       if (cachedValue != null) {
         if (cachedValue instanceof Promise || cachedValue instanceof Error) {
@@ -454,18 +435,12 @@ function createCache() {
 
     readFragmentSpec(args: {|
       environment: IEnvironment,
-      variables: Variables,
       fragmentNodes: {[key: string]: ConcreteFragment},
       fragmentRefs: {[string]: mixed},
-      parentQuery: GraphQLTaggedNode,
+      parentQuery: OperationSelector,
     |}): {[string]: CacheReadResult} {
-      const {
-        environment,
-        fragmentNodes,
-        fragmentRefs,
-        parentQuery,
-        variables,
-      } = args;
+      const {environment, fragmentNodes, fragmentRefs, parentQuery} = args;
+      const variables = parentQuery.variables;
 
       const selectorsByFragment = getSelectorsFromObject(
         variables,
@@ -518,7 +493,6 @@ function createCache() {
           fragmentRef,
           fragmentSelector,
           parentQuery,
-          variables,
         });
         if (suspender != null) {
           throw suspender;
@@ -537,24 +511,22 @@ function createCache() {
     /**
      * If a query isn't already saved in cache, attempts to fetch, retain and
      * store data for a query, based on the provided data access policy.
-     * See: fetchQuery.
+     * See: fetchAndSaveQuery.
      */
     preloadQuery(args: {|
       environment: IEnvironment,
-      query: GraphQLTaggedNode,
-      variables: Variables,
+      query: OperationSelector,
       fetchPolicy?: FetchPolicy,
       readPolicy?: ReadPolicy,
     |}): Disposable {
-      const {environment, query, variables, fetchPolicy, readPolicy} = args;
-      const cacheKey = getQueryCacheKey(query, variables);
+      const {environment, query, fetchPolicy, readPolicy} = args;
+      const cacheKey = getQueryCacheKey(query);
       if (cache.has(cacheKey)) {
         return {dispose: () => {}};
       }
-      return fetchQuery({
+      return fetchAndSaveQuery({
         environment,
         query,
-        variables,
         fetchPolicy,
         readPolicy,
       });
@@ -563,9 +535,9 @@ function createCache() {
     /**
      * Removes entry for query from cache
      */
-    invalidateQuery(args: {|query: GraphQLTaggedNode, variables: Variables|}) {
-      const {query, variables} = args;
-      const cacheKey = getQueryCacheKey(query, variables);
+    invalidateQuery(args: {|query: OperationSelector|}) {
+      const {query} = args;
+      const cacheKey = getQueryCacheKey(query);
       cache.delete(cacheKey);
     },
 
@@ -615,14 +587,10 @@ function createCache() {
     /**
      * Sets snapshot for query in cache if data in snapshot isn't empty
      */
-    setQuery(args: {|
-      query: GraphQLTaggedNode,
-      variables: Variables,
-      snapshot: Snapshot,
-    |}): void {
-      const {query, snapshot, variables} = args;
+    setQuery(args: {|query: OperationSelector, snapshot: Snapshot|}): void {
+      const {query, snapshot} = args;
       if (!isMissingData(snapshot)) {
-        const cacheKey = getQueryCacheKey(query, variables);
+        const cacheKey = getQueryCacheKey(query);
         cache.set(cacheKey, snapshot);
       }
     },

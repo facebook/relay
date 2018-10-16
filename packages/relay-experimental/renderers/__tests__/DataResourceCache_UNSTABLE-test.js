@@ -11,7 +11,7 @@
 
 'use strict';
 
-jest.mock('../../helpers/fetchQuery_UNSTABLE');
+jest.mock('../../utils/fetchQueryUtils');
 
 const {getCacheForEnvironment} = require('../DataResourceCache_UNSTABLE');
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
@@ -19,17 +19,19 @@ const {generateAndCompile} = require('RelayModernTestUtils');
 const {createOperationSelector, getFragment} = require('relay-runtime');
 
 const {
-  fetchQuery_UNSTABLE,
-  getPromiseForRequestInFlight_UNSTABLE,
-} = require('../../helpers/fetchQuery_UNSTABLE');
+  fetchQuery,
+  getPromiseForRequestInFlight,
+} = require('../../utils/fetchQueryUtils');
 
 describe('DataResourceCache', () => {
   let environment;
   let DataResourceCache;
   let fetchPolicy;
   let readPolicy;
+  let gqlQuery;
   let query;
   let queryMissingData;
+  let gqlQueryMissingData;
   const variables = {
     id: '4',
   };
@@ -37,7 +39,7 @@ describe('DataResourceCache', () => {
   beforeEach(() => {
     environment = createMockEnvironment();
     DataResourceCache = getCacheForEnvironment(environment);
-    query = generateAndCompile(
+    gqlQuery = generateAndCompile(
       `query UserQuery($id: ID!) {
         node(id: $id) {
           ... on User {
@@ -47,7 +49,7 @@ describe('DataResourceCache', () => {
       }
     `,
     ).UserQuery;
-    queryMissingData = generateAndCompile(
+    gqlQueryMissingData = generateAndCompile(
       `query UserQuery($id: ID!) {
         node(id: $id) {
           ... on User {
@@ -58,8 +60,10 @@ describe('DataResourceCache', () => {
       }
     `,
     ).UserQuery;
-    const operationSelector = createOperationSelector(query, variables);
-    environment.commitPayload(operationSelector, {
+
+    queryMissingData = createOperationSelector(gqlQueryMissingData, variables);
+    query = createOperationSelector(gqlQuery, variables);
+    environment.commitPayload(query, {
       node: {
         __typename: 'User',
         id: '4',
@@ -68,8 +72,8 @@ describe('DataResourceCache', () => {
   });
 
   afterEach(() => {
-    (fetchQuery_UNSTABLE: any).mockReset();
-    (getPromiseForRequestInFlight_UNSTABLE: any).mockReset();
+    (fetchQuery: any).mockReset();
+    (getPromiseForRequestInFlight: any).mockReset();
   });
 
   describe('readQuery', () => {
@@ -86,11 +90,10 @@ describe('DataResourceCache', () => {
           const result = DataResourceCache.readQuery({
             environment,
             query,
-            variables,
             fetchPolicy,
             readPolicy,
           });
-          expect(fetchQuery_UNSTABLE).not.toBeCalled();
+          expect(fetchQuery).not.toBeCalled();
           expect(result.data).toMatchObject({
             node: {
               id: '4',
@@ -104,7 +107,6 @@ describe('DataResourceCache', () => {
             DataResourceCache.readQuery({
               environment,
               query: queryMissingData,
-              variables,
               fetchPolicy,
               readPolicy,
             });
@@ -112,7 +114,7 @@ describe('DataResourceCache', () => {
             expect(promise).toBeInstanceOf(Promise);
             thrown = true;
           }
-          expect(fetchQuery_UNSTABLE).toBeCalled();
+          expect(fetchQuery).toBeCalled();
           expect(thrown).toBe(true);
         });
 
@@ -131,15 +133,18 @@ describe('DataResourceCache', () => {
               }
             `,
             );
+            const queryWithFragments = createOperationSelector(
+              UserQuery,
+              variables,
+            );
 
             const result = DataResourceCache.readQuery({
               environment,
-              query: UserQuery,
-              variables,
+              query: queryWithFragments,
               fetchPolicy,
               readPolicy,
             });
-            expect(fetchQuery_UNSTABLE).not.toBeCalled();
+            expect(fetchQuery).not.toBeCalled();
             expect(result.data).toMatchObject({
               node: {
                 __fragments: {
@@ -166,12 +171,15 @@ describe('DataResourceCache', () => {
               }
             `,
             );
+            const queryWithFragments = createOperationSelector(
+              UserQuery,
+              variables,
+            );
             let thrown = false;
             try {
               DataResourceCache.readQuery({
                 environment,
-                query: UserQuery,
-                variables,
+                query: queryWithFragments,
                 fetchPolicy,
                 readPolicy,
               });
@@ -179,7 +187,7 @@ describe('DataResourceCache', () => {
               expect(promise).toBeInstanceOf(Promise);
               thrown = true;
             }
-            expect(fetchQuery_UNSTABLE).toBeCalled();
+            expect(fetchQuery).toBeCalled();
             expect(thrown).toBe(true);
           });
         });
@@ -194,11 +202,10 @@ describe('DataResourceCache', () => {
           const result = DataResourceCache.readQuery({
             environment,
             query,
-            variables,
             fetchPolicy,
             readPolicy,
           });
-          expect(fetchQuery_UNSTABLE).toBeCalled();
+          expect(fetchQuery).toBeCalled();
           expect(result.data).toMatchObject({
             node: {
               id: '4',
@@ -212,7 +219,6 @@ describe('DataResourceCache', () => {
             DataResourceCache.readQuery({
               environment,
               query: queryMissingData,
-              variables,
               fetchPolicy,
               readPolicy,
             });
@@ -220,7 +226,7 @@ describe('DataResourceCache', () => {
             expect(promise).toBeInstanceOf(Promise);
             thrown = true;
           }
-          expect(fetchQuery_UNSTABLE).toBeCalled();
+          expect(fetchQuery).toBeCalled();
           expect(thrown).toBe(true);
         });
       });
@@ -235,7 +241,6 @@ describe('DataResourceCache', () => {
             DataResourceCache.readQuery({
               environment,
               query,
-              variables,
               fetchPolicy,
               readPolicy,
             });
@@ -243,7 +248,7 @@ describe('DataResourceCache', () => {
             expect(promise).toBeInstanceOf(Promise);
             thrown = true;
           }
-          expect(fetchQuery_UNSTABLE).toBeCalled();
+          expect(fetchQuery).toBeCalled();
           expect(thrown).toBe(true);
         });
 
@@ -253,7 +258,6 @@ describe('DataResourceCache', () => {
             DataResourceCache.readQuery({
               environment,
               query: queryMissingData,
-              variables,
               fetchPolicy,
               readPolicy,
             });
@@ -261,7 +265,7 @@ describe('DataResourceCache', () => {
             expect(promise).toBeInstanceOf(Promise);
             thrown = true;
           }
-          expect(fetchQuery_UNSTABLE).toBeCalled();
+          expect(fetchQuery).toBeCalled();
           expect(thrown).toBe(true);
         });
       });
@@ -274,11 +278,10 @@ describe('DataResourceCache', () => {
           const result = DataResourceCache.readQuery({
             environment,
             query,
-            variables,
             fetchPolicy,
             readPolicy,
           });
-          expect(fetchQuery_UNSTABLE).not.toBeCalled();
+          expect(fetchQuery).not.toBeCalled();
           expect(result.data).toMatchObject({
             node: {
               id: '4',
@@ -290,15 +293,13 @@ describe('DataResourceCache', () => {
           DataResourceCache.preloadQuery({
             environment,
             query: queryMissingData,
-            variables,
           });
-          expect(fetchQuery_UNSTABLE).toBeCalled();
+          expect(fetchQuery).toBeCalled();
           let thrown = false;
           try {
             DataResourceCache.readQuery({
               environment,
               query: queryMissingData,
-              variables,
               fetchPolicy,
               readPolicy,
             });
@@ -315,7 +316,6 @@ describe('DataResourceCache', () => {
             DataResourceCache.readQuery({
               environment,
               query: queryMissingData,
-              variables,
               fetchPolicy,
               readPolicy,
             });
@@ -323,7 +323,7 @@ describe('DataResourceCache', () => {
             expect(error).toBeInstanceOf(Error);
             thrown = true;
           }
-          expect(fetchQuery_UNSTABLE).not.toBeCalled();
+          expect(fetchQuery).not.toBeCalled();
           expect(thrown).toBe(true);
         });
       });
@@ -343,11 +343,10 @@ describe('DataResourceCache', () => {
           const result = DataResourceCache.readQuery({
             environment,
             query,
-            variables,
             fetchPolicy,
             readPolicy,
           });
-          expect(fetchQuery_UNSTABLE).not.toBeCalled();
+          expect(fetchQuery).not.toBeCalled();
           expect(result.data).toMatchObject({
             node: {
               id: '4',
@@ -361,7 +360,6 @@ describe('DataResourceCache', () => {
             DataResourceCache.readQuery({
               environment,
               query: queryMissingData,
-              variables,
               fetchPolicy,
               readPolicy,
             });
@@ -370,7 +368,7 @@ describe('DataResourceCache', () => {
             expect(p).toBeInstanceOf(Promise);
           }
           expect(thrown).toBe(true);
-          expect(fetchQuery_UNSTABLE).toBeCalled();
+          expect(fetchQuery).toBeCalled();
         });
 
         describe('when using fragments', () => {
@@ -388,15 +386,18 @@ describe('DataResourceCache', () => {
               }
             `,
             );
+            const queryWithFragments = createOperationSelector(
+              UserQuery,
+              variables,
+            );
 
             const result = DataResourceCache.readQuery({
               environment,
-              query: UserQuery,
-              variables,
+              query: queryWithFragments,
               fetchPolicy,
               readPolicy,
             });
-            expect(fetchQuery_UNSTABLE).not.toBeCalled();
+            expect(fetchQuery).not.toBeCalled();
             expect(result.data).toMatchObject({
               node: {
                 __fragments: {
@@ -426,6 +427,11 @@ describe('DataResourceCache', () => {
                 }
               `,
               );
+              const queryWithFragments = createOperationSelector(
+                UserQuery,
+                variables,
+              );
+
               // In this case a promise isn't thrown because the query
               // doesn't have any missing fields, so it can be read.
               // The fragment itself is the one that has a missing field, so
@@ -433,12 +439,11 @@ describe('DataResourceCache', () => {
               // being tested here.
               const result = DataResourceCache.readQuery({
                 environment,
-                query: UserQuery,
-                variables,
+                query: queryWithFragments,
                 fetchPolicy,
                 readPolicy,
               });
-              expect(fetchQuery_UNSTABLE).toBeCalled();
+              expect(fetchQuery).toBeCalled();
               expect(result.data).toMatchObject({
                 node: {
                   __fragments: {
@@ -461,11 +466,10 @@ describe('DataResourceCache', () => {
           const result = DataResourceCache.readQuery({
             environment,
             query,
-            variables,
             fetchPolicy,
             readPolicy,
           });
-          expect(fetchQuery_UNSTABLE).toBeCalled();
+          expect(fetchQuery).toBeCalled();
           expect(result.data).toMatchObject({
             node: {
               id: '4',
@@ -479,7 +483,6 @@ describe('DataResourceCache', () => {
             DataResourceCache.readQuery({
               environment,
               query: queryMissingData,
-              variables,
               fetchPolicy,
               readPolicy,
             });
@@ -488,7 +491,7 @@ describe('DataResourceCache', () => {
             expect(p).toBeInstanceOf(Promise);
           }
           expect(thrown).toBe(true);
-          expect(fetchQuery_UNSTABLE).toBeCalled();
+          expect(fetchQuery).toBeCalled();
         });
       });
 
@@ -502,7 +505,6 @@ describe('DataResourceCache', () => {
             DataResourceCache.readQuery({
               environment,
               query,
-              variables,
               fetchPolicy,
               readPolicy,
             });
@@ -510,7 +512,7 @@ describe('DataResourceCache', () => {
             expect(promise).toBeInstanceOf(Promise);
             thrown = true;
           }
-          expect(fetchQuery_UNSTABLE).toBeCalled();
+          expect(fetchQuery).toBeCalled();
           expect(thrown).toBe(true);
         });
       });
@@ -523,11 +525,10 @@ describe('DataResourceCache', () => {
           const result = DataResourceCache.readQuery({
             environment,
             query,
-            variables,
             fetchPolicy,
             readPolicy,
           });
-          expect(fetchQuery_UNSTABLE).not.toBeCalled();
+          expect(fetchQuery).not.toBeCalled();
           expect(result.data).toMatchObject({
             node: {
               id: '4',
@@ -536,7 +537,7 @@ describe('DataResourceCache', () => {
         });
 
         it('should throw a network request promise if data is missing (and we have pending request)', () => {
-          (getPromiseForRequestInFlight_UNSTABLE: any).mockReturnValueOnce(
+          (getPromiseForRequestInFlight: any).mockReturnValueOnce(
             Promise.resolve(),
           );
           let promiseThrown = false;
@@ -544,7 +545,6 @@ describe('DataResourceCache', () => {
             DataResourceCache.readQuery({
               environment,
               query: queryMissingData,
-              variables,
               fetchPolicy,
               readPolicy,
             });
@@ -553,7 +553,7 @@ describe('DataResourceCache', () => {
             expect(p).toBeInstanceOf(Promise);
           }
           expect(promiseThrown).toBe(true);
-          expect(fetchQuery_UNSTABLE).not.toBeCalled();
+          expect(fetchQuery).not.toBeCalled();
         });
 
         it('should throw an error if data is missing and there are no pending requests', () => {
@@ -562,7 +562,6 @@ describe('DataResourceCache', () => {
             DataResourceCache.readQuery({
               environment,
               query: queryMissingData,
-              variables,
               fetchPolicy,
               readPolicy,
             });
@@ -570,7 +569,7 @@ describe('DataResourceCache', () => {
             errorThrown = true;
             expect(e).toBeInstanceOf(Error);
           }
-          expect(fetchQuery_UNSTABLE).not.toBeCalled();
+          expect(fetchQuery).not.toBeCalled();
           expect(errorThrown).toBe(true);
         });
       });
@@ -592,11 +591,11 @@ describe('DataResourceCache', () => {
           }
         `,
       );
+      const parentQuery = createOperationSelector(UserQuery, variables);
 
       const result = DataResourceCache.readFragmentSpec({
         environment,
-        parentQuery: UserQuery,
-        variables,
+        parentQuery,
         fragmentNodes: {
           user: getFragment(UserFragment),
         },
@@ -613,7 +612,7 @@ describe('DataResourceCache', () => {
     });
 
     it('should throw a promise if reading missing data (if there is a pending network request)', () => {
-      (getPromiseForRequestInFlight_UNSTABLE: any).mockReturnValueOnce(
+      (getPromiseForRequestInFlight: any).mockReturnValueOnce(
         Promise.resolve(),
       );
       const {UserQuery, UserFragment} = generateAndCompile(
@@ -630,12 +629,13 @@ describe('DataResourceCache', () => {
           }
         `,
       );
+      const parentQuery = createOperationSelector(UserQuery, variables);
+
       let thrown = false;
       try {
         DataResourceCache.readFragmentSpec({
           environment,
-          parentQuery: UserQuery,
-          variables,
+          parentQuery,
           fragmentNodes: {
             user: getFragment(UserFragment),
           },
@@ -670,12 +670,12 @@ describe('DataResourceCache', () => {
           }
         `,
       );
+      const parentQuery = createOperationSelector(UserQuery, variables);
       let thrown = false;
       try {
         DataResourceCache.readFragmentSpec({
           environment,
-          parentQuery: UserQuery,
-          variables,
+          parentQuery,
           fragmentNodes: {
             user: getFragment(UserFragment),
           },

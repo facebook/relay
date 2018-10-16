@@ -15,12 +15,12 @@ const ReactRelayContext = require('react-relay/modern/ReactRelayContext');
 
 const areEqual = require('areEqual');
 const invariant = require('invariant');
-const retainQuery_UNSTABLE = require('../helpers/retainQuery_UNSTABLE');
 
 const {
   getCacheForEnvironment,
   DataResourceCacheContext,
 } = require('./DataResourceCache_UNSTABLE');
+const {getRequest, createOperationSelector} = require('relay-runtime');
 
 import type {FetchPolicy, ReadPolicy} from './DataResourceCache_UNSTABLE';
 import type {
@@ -28,6 +28,7 @@ import type {
   GraphQLTaggedNode,
   IEnvironment,
   OperationType,
+  OperationSelector,
   RelayContext,
   Snapshot,
   Variables,
@@ -114,7 +115,7 @@ type RenderProps<TQueryResponse> = {|
 |};
 
 function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
-  query: GraphQLTaggedNode,
+  gqlQuery: GraphQLTaggedNode,
 ): React.ComponentType<{|
   children: (RenderProps<$ElementType<TQuery, 'response'>>) => React.Node,
   environment: IEnvironment,
@@ -130,27 +131,24 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
     readPolicy?: ReadPolicy,
   |};
 
-  function getReactRelayContext(
-    environment: IEnvironment,
-    variables: Variables,
-  ) {
-    const {getRequest, createOperationSelector} = environment.unstable_internal;
-    const queryNode = getRequest(query);
-    const operation = createOperationSelector(queryNode, variables);
+  const queryNode = getRequest(gqlQuery);
+
+  function getRelayContext(environment: IEnvironment, variables: Variables) {
+    const operationSelector = createOperationSelector(queryNode, variables);
     return {
       environment,
-      query,
-      variables: operation.variables,
+      query: operationSelector,
+      variables: operationSelector.variables,
     };
   }
 
-  function memoizedGetRelayContext(
+  function getRelayContextMemo(
     relayContextByEnvironment,
     environment: IEnvironment,
     variables: Variables,
-  ): RelayContext {
+  ): RelayContext & {query: OperationSelector} {
     const cachedValue: ?{
-      relayContext: RelayContext,
+      relayContext: RelayContext & {query: OperationSelector},
       variables: Variables,
     } = relayContextByEnvironment.get(environment);
 
@@ -163,7 +161,7 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
       return cachedValue.relayContext;
     }
 
-    const newRelayContext = getReactRelayContext(environment, variables);
+    const newRelayContext = getRelayContext(environment, variables);
     relayContextByEnvironment.set(environment, {
       relayContext: newRelayContext,
       variables,
@@ -183,7 +181,6 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
       // TODO Check if data has changed between render and mount. Schedule another
       // update if so
       const {environment, variables} = this.props;
-
       // We dispose of the fetch that was potentially started during the render
       // phase, to release any data it was retaining. We will retain the data here
       // now that the component has mounted
@@ -191,7 +188,13 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
         this._fetchDisposable.dispose();
         this._fetchDisposable = null;
       }
-      this._retainHandle = retainQuery_UNSTABLE(environment, query, variables);
+
+      const {query} = getRelayContextMemo(
+        this._relayContextByEnvironment,
+        environment,
+        variables,
+      );
+      this._retainHandle = environment.retain(query.root);
 
       this._unsubscribe();
       this._subscribe();
@@ -209,12 +212,12 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
         this._fetchDisposable.dispose();
         this._fetchDisposable = null;
       }
-      const prevRelayContext = memoizedGetRelayContext(
+      const prevRelayContext = getRelayContextMemo(
         this._relayContextByEnvironment,
         prevProps.environment,
         prevProps.variables,
       );
-      const currentRelayContext = memoizedGetRelayContext(
+      const currentRelayContext = getRelayContextMemo(
         this._relayContextByEnvironment,
         environment,
         variables,
@@ -224,11 +227,7 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
         if (this._retainHandle) {
           this._retainHandle.dispose();
         }
-        this._retainHandle = retainQuery_UNSTABLE(
-          environment,
-          query,
-          variables,
-        );
+        this._retainHandle = environment.retain(currentRelayContext.query.root);
         this._unsubscribe();
         this._subscribe();
       }
@@ -247,17 +246,25 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
       // If we didn't, new mounts of the component would always find the data
       // cached in DataResourceCache and not read from the store or fetch
       const DataResourceCache = getCacheForEnvironment(environment);
-      DataResourceCache.invalidateQuery({query, variables});
+      const {query} = getRelayContextMemo(
+        this._relayContextByEnvironment,
+        environment,
+        variables,
+      );
+      DataResourceCache.invalidateQuery({query});
     }
 
     _handleDataUpdate = latestSnapshot => {
       const {environment, variables} = this.props;
       const DataResourceCache = getCacheForEnvironment(environment);
+      const {query} = getRelayContextMemo(
+        this._relayContextByEnvironment,
+        environment,
+        variables,
+      );
 
-      DataResourceCache.invalidateQuery({query, variables});
       DataResourceCache.setQuery({
         query,
-        variables,
         snapshot: latestSnapshot,
       });
       this.forceUpdate();
@@ -293,10 +300,19 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
       } = this.props;
       const DataResourceCache = getCacheForEnvironment(environment);
 
+      // We memoize the ReactRelayContext so we don't pass a new object on
+      // every render to ReactRelayContext.Provider, which would always trigger
+      // an update to all consumers
+      const relayContext = getRelayContextMemo(
+        this._relayContextByEnvironment,
+        environment,
+        variables,
+      );
+      const {query} = relayContext;
+
       const {snapshot, data, fetchDisposable} = DataResourceCache.readQuery({
         environment,
         query,
-        variables,
         fetchPolicy,
         readPolicy,
       });
@@ -310,17 +326,8 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
       // commit phase.
       this._fetchDisposable = fetchDisposable;
       this._renderedSnapshot = snapshot;
-
-      // We memoize the ReactRelayContext so we don't pass a new object on
-      // every render to ReactRelayContext.Provider, which would always trigger
-      // an update to all consumers
-      const reactRelayContext = memoizedGetRelayContext(
-        this._relayContextByEnvironment,
-        environment,
-        variables,
-      );
       return (
-        <ReactRelayContext.Provider value={reactRelayContext}>
+        <ReactRelayContext.Provider value={relayContext}>
           <DataResourceCacheContext.Provider value={DataResourceCache}>
             {children({
               data: data,

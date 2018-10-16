@@ -36,6 +36,7 @@ import type {
 import type {
   Disposable,
   GraphQLTaggedNode,
+  OperationSelector,
   Snapshot,
   RelayContext,
 } from 'relay-runtime';
@@ -53,7 +54,7 @@ function createFragmentContainer_UNSTABLE<
     DataResourceCache: TDataResourceCache,
     forwardedRef: React.Ref<TComponent>,
     fragmentRefs: {[string]: mixed},
-    relayContext: RelayContext & {query: GraphQLTaggedNode},
+    relayContext: RelayContext & {query: OperationSelector},
   |};
 
   const containerName = getContainerName(Component);
@@ -167,13 +168,12 @@ function createFragmentContainer_UNSTABLE<
         fragmentRefs,
         relayContext,
       } = this.props;
-      const {environment, query, variables} = relayContext;
+      const {environment, query} = relayContext;
       const readResult = DataResourceCache.readFragmentSpec({
         environment,
         fragmentNodes,
         fragmentRefs,
         parentQuery: query,
-        variables,
       });
 
       this._renderedSnapshots = {};

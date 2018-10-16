@@ -23,6 +23,7 @@ import type {
   CacheConfig,
   GraphQLTaggedNode,
   IEnvironment,
+  OperationSelector,
   Snapshot,
   Variables,
   RelayContext,
@@ -282,11 +283,13 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
 
 function getContext(
   environment: IEnvironment,
-  query: ?GraphQLTaggedNode,
+  query: ?OperationSelector,
   variables: Variables,
 ): RelayContext {
   return {
     environment,
+    // TODO(T35232871) `query` is only added here for compatibility with
+    // Suspense Fragment Containers inside `relay-experimental`
     query,
     variables,
   };
@@ -364,7 +367,7 @@ function fetchQueryAndComputeStateFromProps(
     const operation = createOperationSelector(request, variables);
     const relayContext = getContext(
       genericEnvironment,
-      query,
+      operation,
       operation.variables,
     );
     if (typeof requestCacheKey === 'string' && requestCache[requestCacheKey]) {
@@ -452,7 +455,7 @@ function fetchQueryAndComputeStateFromProps(
     }
   } else {
     queryFetcher.dispose();
-    const relayContext = getContext(genericEnvironment, query, variables);
+    const relayContext = getContext(genericEnvironment, null, variables);
     return {
       error: null,
       relayContext,

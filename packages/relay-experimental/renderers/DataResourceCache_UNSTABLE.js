@@ -493,7 +493,7 @@ function createCache() {
 
         // 2. If not, try reading the fragment from the Relay store.
         // If the snapshot has data, return it and save it in cache
-        const fragmentSelector: Selector | $ReadOnlyArray<Selector> =
+        const fragmentSelector: ?(Selector | $ReadOnlyArray<Selector>) =
           selectorsByFragment[key];
         invariant(
           fragmentSelector != null,

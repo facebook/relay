@@ -10,12 +10,10 @@
 
 'use strict';
 
-const RelayConcreteNode = require('../util/RelayConcreteNode');
-
 const {getOperationVariables} = require('./RelayConcreteVariables');
 const {ROOT_ID} = require('./RelayStoreUtils');
 
-import type {RequestNode, ConcreteOperation} from '../util/RelayConcreteNode';
+import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 import type {OperationSelector} from './RelayStoreTypes';
 
@@ -26,12 +24,10 @@ import type {OperationSelector} from './RelayStoreTypes';
  * operation, and default values are populated for null values.
  */
 function createOperationSelector(
-  request: RequestNode,
+  request: ConcreteRequest,
   variables: Variables,
-  operationFromBatch?: ConcreteOperation,
 ): OperationSelector {
-  const operation = operationFromBatch || request.operation;
-
+  const operation = request.operation;
   const operationVariables = getOperationVariables(operation, variables);
   const dataID = ROOT_ID;
   return {

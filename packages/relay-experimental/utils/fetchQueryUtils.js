@@ -29,14 +29,14 @@ type ObserverEvent = {|
 |};
 
 type RequestCacheEntry = {|
-  subscription: Subscription,
-  receivedEvents: Array<ObserverEvent>,
-  observers: Array<Observer<ExecutePayload>>,
+  +subscription: Subscription,
+  +receivedEvents: Array<ObserverEvent>,
+  +observers: Array<Observer<ExecutePayload>>,
 |};
 
 type ReferencesCacheEntry = {|
-  count: number,
-  references: Array<Disposable>,
+  +count: number,
+  +references: Array<Disposable>,
 |};
 
 const requestsByEnvironment: Map<
@@ -59,24 +59,24 @@ function fetchQuery(args: {|
   networkLayerCacheConfig?: CacheConfig,
 |}): Disposable {
   const {environment, query, observer, networkLayerCacheConfig} = args;
-  const {createOperationSelector} = environment.unstable_internal;
   const requestCache = getRequestCache(environment);
   const referencesCache = getReferencesCache(environment);
   const cacheKey = getQueryIdentifier(query);
   const cachedRequest = requestCache.get(cacheKey);
-  const cachedReferences = referencesCache.get(cacheKey);
+  let cachedReferences = referencesCache.get(cacheKey);
 
   if (cachedReferences) {
-    referencesCache.set(cacheKey, {
+    cachedReferences = {
       ...cachedReferences,
       count: cachedReferences.count + 1,
-    });
+    };
   } else {
-    referencesCache.set(cacheKey, {
+    cachedReferences = {
       references: [],
       count: 1,
-    });
+    };
   }
+  referencesCache.set(cacheKey, cachedReferences);
 
   if (cachedRequest) {
     // We manage observers manually due to the lack of an RxJS Subject abstraction
@@ -103,20 +103,10 @@ function fetchQuery(args: {|
       observers,
     });
   } else {
+    cachedReferences.references.push(environment.retain(query.root));
     environment
       .execute({operation: query, cacheConfig: networkLayerCacheConfig})
       .map(payload => {
-        const operationForPayload = createOperationSelector(
-          query.node,
-          payload.variables,
-          payload.operation,
-        );
-        const cached = referencesCache.get(cacheKey);
-        invariant(
-          cached != null,
-          'fetchQuery: Expected references to be cached',
-        );
-        cached.references.push(environment.retain(operationForPayload.root));
         return payload;
       })
       .finally(() => {

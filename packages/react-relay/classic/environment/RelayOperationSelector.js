@@ -30,8 +30,6 @@ import type {Variables} from 'relay-runtime';
 function createOperationSelector(
   operation: ConcreteOperationDefinition,
   variables: Variables,
-  // unused param for compatibility with modern API
-  _modernOperation?: any,
 ): OperationSelector {
   const concreteFragment = QueryBuilder.getFragment(operation.node);
   invariant(

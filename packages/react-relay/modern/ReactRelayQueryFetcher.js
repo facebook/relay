@@ -93,44 +93,25 @@ class ReactRelayQueryFetcher {
     cacheConfig,
     preservePreviousReferences = false,
   }: ExecuteConfig): Observable<ExecutePayload> {
-    const {createOperationSelector} = environment.unstable_internal;
-    const nextReferences = [];
-
-    return environment
-      .execute({operation, cacheConfig})
-      .map(payload => {
-        const operationForPayload = createOperationSelector(
-          operation.node,
-          payload.variables,
-          payload.operation,
-        );
-        nextReferences.push(environment.retain(operationForPayload.root));
-        return payload;
-      })
-      .do({
-        error: () => {
-          // We may have partially fulfilled the request, so let the next request
-          // or the unmount dispose of the references.
-          this._selectionReferences = this._selectionReferences.concat(
-            nextReferences,
-          );
-        },
-        complete: () => {
-          if (!preservePreviousReferences) {
-            this.disposeSelectionReferences();
-          }
-          this._selectionReferences = this._selectionReferences.concat(
-            nextReferences,
-          );
-        },
-        unsubscribe: () => {
-          // Let the next request or the unmount code dispose of the references.
-          // We may have partially fulfilled the request.
-          this._selectionReferences = this._selectionReferences.concat(
-            nextReferences,
-          );
-        },
-      });
+    const reference = environment.retain(operation.root);
+    return environment.execute({operation, cacheConfig}).do({
+      error: () => {
+        // We may have partially fulfilled the request, so let the next request
+        // or the unmount dispose of the references.
+        this._selectionReferences = this._selectionReferences.concat(reference);
+      },
+      complete: () => {
+        if (!preservePreviousReferences) {
+          this.disposeSelectionReferences();
+        }
+        this._selectionReferences = this._selectionReferences.concat(reference);
+      },
+      unsubscribe: () => {
+        // Let the next request or the unmount code dispose of the references.
+        // We may have partially fulfilled the request.
+        this._selectionReferences = this._selectionReferences.concat(reference);
+      },
+    });
   }
 
   setOnDataChange(onDataChange: OnDataChange): void {

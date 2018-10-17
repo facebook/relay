@@ -229,7 +229,6 @@ export interface CUnstableEnvironmentCore<
   createOperationSelector: (
     request: TRequest,
     variables: Variables,
-    operation?: TOperation,
   ) => COperationSelector<TNode, TRequest>;
 
   /**

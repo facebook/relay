@@ -22,9 +22,6 @@ const normalizePayload = require('./normalizePayload');
 const normalizeRelayPayload = require('./normalizeRelayPayload');
 const warning = require('warning');
 
-const {getOperationVariables} = require('./RelayConcreteVariables');
-const {createOperationSelector} = require('./RelayModernOperationSelector');
-
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {
   ExecutePayload,
@@ -238,13 +235,8 @@ class RelayModernEnvironment implements Environment {
               this._publishQueue.revertUpdate(optimisticResponse);
               optimisticResponse = undefined;
             }
-            const writeSelector = createOperationSelector(
-              operation.node,
-              executePayload.variables,
-              executePayload.operation,
-            );
             this._publishQueue.commitPayload(
-              writeSelector,
+              operation,
               responsePayload,
               updater,
             );
@@ -303,13 +295,8 @@ class RelayModernEnvironment implements Environment {
               this._publishQueue.revertUpdate(optimisticResponse);
               optimisticResponse = undefined;
             }
-            const writeSelector = createOperationSelector(
-              operation.node,
-              executePayload.variables,
-              executePayload.operation,
-            );
             this._publishQueue.commitPayload(
-              writeSelector,
+              operation,
               responsePayload,
               updater,
             );

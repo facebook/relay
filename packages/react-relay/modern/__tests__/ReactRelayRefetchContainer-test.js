@@ -845,6 +845,26 @@ describe('ReactRelayRefetchContainer', () => {
       expect(references[0].dispose).toBeCalled();
     });
 
+    it('releases refetch results if unmounted', () => {
+      expect.assertions(2);
+      variables = {
+        cond: false,
+        id: '4',
+      };
+      refetch(variables, null, jest.fn());
+      environment.mock.resolve(UserQuery, {
+        data: {
+          node: {
+            id: '4',
+            __typename: 'User',
+          },
+        },
+      });
+      instance.unmount();
+      expect(references.length).toBe(1);
+      expect(references[0].dispose).toBeCalled();
+    });
+
     it('updates child context if updated with new variables', () => {
       expect.assertions(2);
       const refetchVariables = {

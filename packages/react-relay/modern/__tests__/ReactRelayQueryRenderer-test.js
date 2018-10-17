@@ -855,11 +855,11 @@ describe('ReactRelayQueryRenderer', () => {
       );
     });
 
-    it('does not retain until the first response', () => {
+    it('retains immediately', () => {
       expect.assertions(1);
       render.mockClear();
       environment.mock.reject(TestQuery, new Error('fail'));
-      expect(environment.retain).not.toBeCalled();
+      expect(environment.retain.mock.calls.length).toBe(1);
     });
 
     it('renders the error and retry', () => {
@@ -1340,9 +1340,12 @@ describe('ReactRelayQueryRenderer', () => {
           variables={variables}
         />,
       );
-      expect(environment.retain).not.toBeCalled();
+      expect(environment.retain).toBeCalled();
+      expect(environment.retain.mock.calls.length).toBe(1);
+      const dispose = environment.retain.mock.dispose;
+      expect(dispose).not.toBeCalled();
       renderer.unmount();
-      expect(environment.retain).not.toBeCalled();
+      expect(dispose).toBeCalled();
     });
 
     it('releases its reference if unmounted after fetch completes', () => {
@@ -1355,6 +1358,8 @@ describe('ReactRelayQueryRenderer', () => {
         />,
       );
       environment.mock.resolve(TestQuery, response);
+      expect(environment.retain).toBeCalled();
+      expect(environment.retain.mock.calls.length).toBe(1);
       const dispose = environment.retain.mock.dispose;
       expect(dispose).not.toBeCalled();
       renderer.unmount();

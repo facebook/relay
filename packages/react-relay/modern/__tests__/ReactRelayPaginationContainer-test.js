@@ -1396,34 +1396,38 @@ describe('ReactRelayPaginationContainer', () => {
       expect(references.length).toBe(1);
       expect(references[0].dispose).toBeCalled();
     });
+
+    it('releases pagination results if unmounted', () => {
+      expect.assertions(2);
+      loadMore(1, jest.fn());
+      environment.mock.resolve(UserQuery, {
+        data: {
+          node: {
+            id: '4',
+            __typename: 'User',
+            // The resuls don't matter, only that their results are retained
+            friends: null,
+          },
+        },
+      });
+      instance.unmount();
+      expect(references.length).toBe(1);
+      expect(references[0].dispose).toBeCalled();
+    });
+
     it('should not load more data if container is unmounted', () => {
       const userPointer = environment.lookup({
         dataID: ROOT_ID,
         node: UserQuery.fragment,
         variables,
       }).data.node;
-      class TestContainerWrapper extends React.Component {
-        state = {
-          mounted: true,
-        };
-        componentDidMount() {
-          setTimeout(() => {
-            this.setState({mounted: false});
-          }, 1);
-        }
-        render() {
-          return this.state.mounted ? (
-            <TestContainer user={userPointer} />
-          ) : null;
-        }
-      }
       instance = ReactTestRenderer.create(
         <ContextSetter environment={environment} variables={variables}>
-          <TestContainerWrapper />
+          <TestContainer user={userPointer} />
         </ContextSetter>,
       );
       variables = {};
-      jest.runOnlyPendingTimers();
+      instance.unmount();
       const callback = jest.fn();
       loadMore(1, callback);
       expect(callback).not.toBeCalled();
@@ -1698,6 +1702,24 @@ describe('ReactRelayPaginationContainer', () => {
       expect(references[0].dispose).toBeCalled();
     });
 
+    it('releases pagination results if unmounted', () => {
+      expect.assertions(2);
+      refetchConnection(1, jest.fn());
+      environment.mock.resolve(UserQuery, {
+        data: {
+          node: {
+            id: '4',
+            __typename: 'User',
+            // The resuls don't matter, only that their results are retained
+            friends: null,
+          },
+        },
+      });
+      instance.unmount();
+      expect(references.length).toBe(1);
+      expect(references[0].dispose).toBeCalled();
+    });
+
     it('rerenders with the results of new overridden variables', () => {
       expect.assertions(8);
       expect(render.mock.calls.length).toBe(1);
@@ -1806,28 +1828,12 @@ describe('ReactRelayPaginationContainer', () => {
         node: UserQuery.fragment,
         variables,
       }).data.node;
-      class TestContainerWrapper extends React.Component {
-        state = {
-          mounted: true,
-        };
-        componentDidMount() {
-          setTimeout(() => {
-            this.setState({mounted: false});
-          }, 1000);
-        }
-
-        render() {
-          return this.state.mounted ? (
-            <TestContainer user={userPointer} />
-          ) : null;
-        }
-      }
       instance = ReactTestRenderer.create(
         <ContextSetter environment={environment} variables={variables}>
-          <TestContainerWrapper />
+          <TestContainer user={userPointer} />
         </ContextSetter>,
       );
-      jest.runOnlyPendingTimers();
+      instance.unmount();
       const callback = jest.fn();
       refetchConnection(1, callback);
       expect(callback).not.toBeCalled();

@@ -14,6 +14,7 @@ const ReactRelayFragmentContainer = require('./ReactRelayFragmentContainer');
 const ReactRelayPaginationContainer = require('./ReactRelayPaginationContainer');
 const ReactRelayQueryRenderer = require('./ReactRelayQueryRenderer');
 const ReactRelayRefetchContainer = require('./ReactRelayRefetchContainer');
+const ReactRelayContext = require('./ReactRelayContext');
 const RelayRuntime = require('relay-runtime');
 
 export type {
@@ -46,6 +47,8 @@ module.exports = {
 
   MutationTypes: RelayRuntime.MutationTypes,
   RangeOperations: RelayRuntime.RangeOperations,
+
+  Context: ReactRelayContext,
 
   applyOptimisticMutation: RelayRuntime.applyOptimisticMutation,
   commitLocalUpdate: RelayRuntime.commitLocalUpdate,

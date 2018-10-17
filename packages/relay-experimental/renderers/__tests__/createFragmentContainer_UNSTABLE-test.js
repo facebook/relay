@@ -432,8 +432,8 @@ describe('createFragmentContainer', () => {
         </ContextWrapper>,
       );
     }).toThrow(
-      'DataResourceCache_UNSTABLE: Tried reading a fragment that is not ' +
-        'available locally and is not being fetched',
+      'DataResourceCache_UNSTABLE: Tried reading a fragment that has ' +
+        'missing data and is not being fetched.',
     );
   });
 });

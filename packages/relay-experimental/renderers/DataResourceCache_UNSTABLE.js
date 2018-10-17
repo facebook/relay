@@ -435,12 +435,18 @@ function createCache() {
 
     readFragmentSpec(args: {|
       environment: IEnvironment,
+      variables: Variables,
       fragmentNodes: {[key: string]: ConcreteFragment},
       fragmentRefs: {[string]: mixed},
-      parentQuery: OperationSelector,
+      parentQuery: ?OperationSelector,
     |}): {[string]: CacheReadResult} {
-      const {environment, fragmentNodes, fragmentRefs, parentQuery} = args;
-      const variables = parentQuery.variables;
+      const {
+        environment,
+        variables,
+        fragmentNodes,
+        fragmentRefs,
+        parentQuery,
+      } = args;
 
       const selectorsByFragment = getSelectorsFromObject(
         variables,
@@ -487,6 +493,11 @@ function createCache() {
         // 3. If we don't have data in the store, check if a request is in
         // flight for the fragment's parent query. If so, suspend with the Promise
         // for that request.
+        invariant(
+          parentQuery != null,
+          'DataResourceCache_UNSTABLE: Tried reading a fragment that ' +
+            "doesn't have a parent query.",
+        );
         const suspender = getPromiseForFragmentRequestInFlight({
           environment,
           fragmentNode,
@@ -503,7 +514,8 @@ function createCache() {
         // isn't being fetched at all.
         // This can happen if the fetchPolicy policy is store-only
         throw new Error(
-          'DataResourceCache_UNSTABLE: Tried reading a fragment that is not available locally and is not being fetched',
+          'DataResourceCache_UNSTABLE: Tried reading a fragment that has ' +
+            'missing data and is not being fetched.',
         );
       });
     },

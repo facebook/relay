@@ -595,6 +595,7 @@ describe('DataResourceCache', () => {
 
       const result = DataResourceCache.readFragmentSpec({
         environment,
+        variables,
         parentQuery,
         fragmentNodes: {
           user: getFragment(UserFragment),
@@ -635,6 +636,7 @@ describe('DataResourceCache', () => {
       try {
         DataResourceCache.readFragmentSpec({
           environment,
+          variables,
           parentQuery,
           fragmentNodes: {
             user: getFragment(UserFragment),
@@ -675,6 +677,7 @@ describe('DataResourceCache', () => {
       try {
         DataResourceCache.readFragmentSpec({
           environment,
+          variables,
           parentQuery,
           fragmentNodes: {
             user: getFragment(UserFragment),

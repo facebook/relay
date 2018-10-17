@@ -54,7 +54,7 @@ function createFragmentContainer_UNSTABLE<
     DataResourceCache: TDataResourceCache,
     forwardedRef: React.Ref<TComponent>,
     fragmentRefs: {[string]: mixed},
-    relayContext: RelayContext & {query: OperationSelector},
+    relayContext: RelayContext & {query?: OperationSelector},
   |};
 
   const containerName = getContainerName(Component);
@@ -168,9 +168,10 @@ function createFragmentContainer_UNSTABLE<
         fragmentRefs,
         relayContext,
       } = this.props;
-      const {environment, query} = relayContext;
+      const {environment, query, variables} = relayContext;
       const readResult = DataResourceCache.readFragmentSpec({
         environment,
+        variables,
         fragmentNodes,
         fragmentRefs,
         parentQuery: query,
@@ -211,12 +212,6 @@ function createFragmentContainer_UNSTABLE<
       `SuspenseFragmentContainer: ${containerName} tried to render with ` +
         `missing context. This means that ${containerName} was not rendered ` +
         'as a descendant of a QueryRenderer.',
-    );
-    invariant(
-      relayContext.query != null,
-      `SuspenseFragmentContainer: ${containerName} tried to render without ` +
-        `a query provided in context. This means that ${containerName} was ` +
-        'not rendered as a descendant of a QueryRenderer.',
     );
 
     if (__DEV__) {

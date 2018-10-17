@@ -283,14 +283,10 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
 
 function getContext(
   environment: IEnvironment,
-  query: ?OperationSelector,
   variables: Variables,
 ): RelayContext {
   return {
     environment,
-    // TODO(T35232871) `query` is only added here for compatibility with
-    // Suspense Fragment Containers inside `relay-experimental`
-    query,
     variables,
   };
 }
@@ -365,11 +361,7 @@ function fetchQueryAndComputeStateFromProps(
     } = genericEnvironment.unstable_internal;
     const request = getRequest(query);
     const operation = createOperationSelector(request, variables);
-    const relayContext = getContext(
-      genericEnvironment,
-      operation,
-      operation.variables,
-    );
+    const relayContext = getContext(genericEnvironment, operation.variables);
     if (typeof requestCacheKey === 'string' && requestCache[requestCacheKey]) {
       // This same request is already in flight.
 
@@ -455,7 +447,7 @@ function fetchQueryAndComputeStateFromProps(
     }
   } else {
     queryFetcher.dispose();
-    const relayContext = getContext(genericEnvironment, null, variables);
+    const relayContext = getContext(genericEnvironment, variables);
     return {
       error: null,
       relayContext,

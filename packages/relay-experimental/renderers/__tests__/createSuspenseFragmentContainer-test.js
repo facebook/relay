@@ -17,7 +17,7 @@ const React = require('React');
 const ReactRelayContext = require('react-relay/modern/ReactRelayContext');
 const TestRenderer = require('ReactTestRenderer');
 
-const createFragmentContainer_UNSTABLE = require('../createFragmentContainer_UNSTABLE');
+const createSuspenseFragmentContainer = require('../createSuspenseFragmentContainer');
 
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {generateAndCompile} = require('RelayModernTestUtils');
@@ -120,7 +120,7 @@ describe('createFragmentContainer', () => {
     );
 
     // $FlowExpectedError - jest.fn type doesn't match React.Component, but its okay to use
-    FragmentContainer = createFragmentContainer_UNSTABLE(UserComponent, {
+    FragmentContainer = createSuspenseFragmentContainer(UserComponent, {
       user: fragment,
     });
 
@@ -167,7 +167,7 @@ describe('createFragmentContainer', () => {
       </div>
     ));
     // $FlowExpectedError - jest.fn type doesn't match React.Component, but its okay to use
-    const Container = createFragmentContainer_UNSTABLE(UserWithFoo, {
+    const Container = createSuspenseFragmentContainer(UserWithFoo, {
       user: fragment,
     });
     TestRenderer.create(
@@ -240,7 +240,7 @@ describe('createFragmentContainer', () => {
       </div>
     ));
     // $FlowExpectedError - jest.fn type doesn't match React.Component, but its okay to use
-    const Container = createFragmentContainer_UNSTABLE(Users, {
+    const Container = createSuspenseFragmentContainer(Users, {
       users: fragment,
     });
     TestRenderer.create(
@@ -280,7 +280,7 @@ describe('createFragmentContainer', () => {
         );
       }
     }
-    const Container = createFragmentContainer_UNSTABLE(UserClassComponent, {
+    const Container = createSuspenseFragmentContainer(UserClassComponent, {
       user: fragment,
     });
     const ref = React.createRef();
@@ -432,7 +432,7 @@ describe('createFragmentContainer', () => {
         </ContextWrapper>,
       );
     }).toThrow(
-      'DataResourceCache_UNSTABLE: Tried reading a fragment that has ' +
+      'DataResource: Tried reading a fragment that has ' +
         'missing data and is not being fetched.',
     );
   });

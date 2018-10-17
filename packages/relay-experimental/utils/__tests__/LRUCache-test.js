@@ -11,12 +11,12 @@
 
 'use strict';
 
-const LRUCache_UNSTABLE = require('../LRUCache_UNSTABLE');
+const LRUCache = require('../LRUCache');
 
 const invariant = require('invariant');
 
 test('LRUCache', () => {
-  const testInstance = LRUCache_UNSTABLE.create<number>(3);
+  const testInstance = LRUCache.create<number>(3);
 
   const testCases = [
     ['', null, 'size', 0],

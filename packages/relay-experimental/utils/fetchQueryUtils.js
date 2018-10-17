@@ -10,7 +10,7 @@
 
 'use strict';
 
-const getQueryIdentifier_UNSTABLE = require('../helpers/getQueryIdentifier_UNSTABLE');
+const getQueryIdentifier = require('../helpers/getQueryIdentifier');
 const invariant = require('invariant');
 
 import type {
@@ -62,7 +62,7 @@ function fetchQuery(args: {|
   const {createOperationSelector} = environment.unstable_internal;
   const requestCache = getRequestCache(environment);
   const referencesCache = getReferencesCache(environment);
-  const cacheKey = getQueryIdentifier_UNSTABLE(query);
+  const cacheKey = getQueryIdentifier(query);
   const cachedRequest = requestCache.get(cacheKey);
   const cachedReferences = referencesCache.get(cacheKey);
 
@@ -214,7 +214,7 @@ function getPromiseForRequestInFlight(args: {|
 |}): Promise<void> | null {
   const {environment, query} = args;
   const requestCache = getRequestCache(environment);
-  const cacheKey = getQueryIdentifier_UNSTABLE(query);
+  const cacheKey = getQueryIdentifier(query);
   const cachedRequest = requestCache.get(cacheKey);
   if (cachedRequest == null) {
     return null;

@@ -15,7 +15,7 @@ const React = require('React');
 const ReactRelayContext = require('react-relay/modern/ReactRelayContext');
 const ReactTestRenderer = require('ReactTestRenderer');
 
-const createQueryRenderer_UNSTABLE = require('../createQueryRenderer_UNSTABLE');
+const createSuspenseQueryRenderer = require('../createSuspenseQueryRenderer');
 const invariant = require('invariant');
 
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
@@ -99,7 +99,7 @@ describe('createQueryRenderer', () => {
     );
     gqlQuery = generated.UserQuery;
     renderFn = jest.fn(() => <div />);
-    QueryRenderer = createQueryRenderer_UNSTABLE(gqlQuery);
+    QueryRenderer = createSuspenseQueryRenderer(gqlQuery);
   });
 
   it('should render the component if data is available without network request', () => {
@@ -110,7 +110,7 @@ describe('createQueryRenderer', () => {
         fetchPolicy={fetchPolicy}
         environment={environment}
         variables={variables}
-        children={renderFn}
+        render={renderFn}
       />,
     );
     expect(environment.execute).not.toBeCalled();
@@ -135,7 +135,7 @@ describe('createQueryRenderer', () => {
         fetchPolicy={fetchPolicy}
         environment={environment}
         variables={variables}
-        children={renderFn}
+        render={renderFn}
       />,
     );
     expectToBeFetched(environment, variables);
@@ -163,7 +163,7 @@ describe('createQueryRenderer', () => {
           fetchPolicy={fetchPolicy}
           environment={environment}
           variables={variables}
-          children={renderFn}
+          render={renderFn}
         />,
       );
     }).toThrow(MISSING_PLACEHOLDER_EXCEPTION);
@@ -179,7 +179,7 @@ describe('createQueryRenderer', () => {
         <QueryRenderer
           fetchPolicy={fetchPolicy}
           environment={environment}
-          children={renderFn}
+          render={renderFn}
           variables={{}}
         />,
       ),
@@ -202,7 +202,7 @@ describe('createQueryRenderer', () => {
         `,
       );
       gqlQuery = generated.UserQuery;
-      QueryRenderer = createQueryRenderer_UNSTABLE(gqlQuery);
+      QueryRenderer = createSuspenseQueryRenderer(gqlQuery);
       const variables = {
         id: '<available-data-id>',
       };
@@ -212,7 +212,7 @@ describe('createQueryRenderer', () => {
           fetchPolicy={fetchPolicy}
           environment={environment}
           variables={variables}
-          children={renderFn}
+          render={renderFn}
         />,
       );
       expectToBeRendered(renderFn, {
@@ -258,7 +258,7 @@ describe('createQueryRenderer', () => {
           fetchPolicy={fetchPolicy}
           environment={environment}
           variables={variables}
-          children={renderFn}
+          render={renderFn}
         />,
       );
       expect(relayContext.query).toEqual(query);
@@ -276,7 +276,7 @@ describe('createQueryRenderer', () => {
             fetchPolicy={fetchPolicy}
             environment={environment}
             variables={variables}
-            children={renderFn}
+            render={renderFn}
           />
         </PropsSetter>,
       );
@@ -305,7 +305,7 @@ describe('createQueryRenderer', () => {
             fetchPolicy={fetchPolicy}
             environment={environment}
             variables={variables1}
-            children={renderFn}
+            render={renderFn}
           />
         </PropsSetter>,
       );
@@ -328,7 +328,7 @@ describe('createQueryRenderer', () => {
             fetchPolicy={fetchPolicy}
             environment={environment}
             variables={variables}
-            children={renderFn}
+            render={renderFn}
           />
         </PropsSetter>,
       );
@@ -354,7 +354,7 @@ describe('createQueryRenderer', () => {
             fetchPolicy={fetchPolicy}
             environment={environment}
             variables={variables1}
-            children={renderFn}
+            render={renderFn}
           />
         </PropsSetter>,
       );
@@ -402,7 +402,7 @@ describe('createQueryRenderer', () => {
             fetchPolicy={fetchPolicy}
             environment={environment}
             variables={variables}
-            children={renderFn}
+            render={renderFn}
           />
         </PropsSetter>,
       );
@@ -451,7 +451,7 @@ describe('createQueryRenderer', () => {
                 fetchPolicy={fetchPolicy}
                 environment={environment}
                 variables={variables}
-                children={renderFn}
+                render={renderFn}
               />
               <Child>B</Child>
               <Child>C</Child>
@@ -513,13 +513,13 @@ describe('createQueryRenderer', () => {
             fetchPolicy={fetchPolicy}
             environment={environment}
             variables={variables1}
-            children={renderFn1}
+            render={renderFn1}
           />
           <QueryRenderer
             fetchPolicy={fetchPolicy}
             environment={environment}
             variables={variables2}
-            children={renderFn2}
+            render={renderFn2}
           />
         </React.Fragment>
       );
@@ -690,7 +690,7 @@ describe('createQueryRenderer', () => {
       expectedRenderOutput,
     ) => {
       return (testFetchPolicy, expectedBehavior) => {
-        const TestQueryRenderer = createQueryRenderer_UNSTABLE(testGqlQuery);
+        const TestQueryRenderer = createSuspenseQueryRenderer(testGqlQuery);
         const testRenderFn = jest.fn();
         switch (expectedBehavior) {
           case RENDER_NO_REQUEST:
@@ -699,7 +699,7 @@ describe('createQueryRenderer', () => {
                 environment={testEnvironment}
                 variables={testVariables}
                 fetchPolicy={testFetchPolicy}
-                children={testRenderFn}
+                render={testRenderFn}
               />,
             );
             expect(testRenderFn).toBeCalledTimes(1);
@@ -712,7 +712,7 @@ describe('createQueryRenderer', () => {
                 environment={testEnvironment}
                 variables={testVariables}
                 fetchPolicy={testFetchPolicy}
-                children={testRenderFn}
+                render={testRenderFn}
               />,
             );
             expect(testRenderFn).toBeCalledTimes(1);
@@ -732,7 +732,7 @@ describe('createQueryRenderer', () => {
                   environment={testEnvironment}
                   variables={testVariables}
                   fetchPolicy={testFetchPolicy}
-                  children={testRenderFn}
+                  render={testRenderFn}
                 />,
               );
             }).toThrow(MISSING_PLACEHOLDER_EXCEPTION);
@@ -744,11 +744,11 @@ describe('createQueryRenderer', () => {
                   environment={testEnvironment}
                   variables={testVariables}
                   fetchPolicy={testFetchPolicy}
-                  children={testRenderFn}
+                  render={testRenderFn}
                 />,
               );
             }).toThrow(
-              'DataResourceCache_UNSTABLE: Tried reading a query that is not available locally and is not being fetched',
+              'DataResource: Tried reading a query that is not available locally and is not being fetched',
             );
             break;
           default:

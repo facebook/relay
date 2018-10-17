@@ -16,11 +16,11 @@ import type {OperationSelector} from 'relay-runtime';
  * Returns a stable identifier for a query OperationSelector,
  * i.e. for the query + the variables being used.
  */
-function getQueryIdentifier_UNSTABLE(query: OperationSelector) {
+function getQueryIdentifier(query: OperationSelector) {
   const {node, variables} = query;
   const requestID = node.id != null ? node.id : node.text;
   const queryKey = String(requestID);
   return queryKey + JSON.stringify(variables);
 }
 
-module.exports = getQueryIdentifier_UNSTABLE;
+module.exports = getQueryIdentifier;

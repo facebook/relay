@@ -16,7 +16,7 @@ import type {IEnvironment} from 'relay-runtime';
 const relayPropCache =
   typeof WeakMap === 'function' ? new WeakMap() : new Map();
 
-function getRelayProp_UNSTABLE(environment: IEnvironment): RelayProp {
+function getRelayProp(environment: IEnvironment): RelayProp {
   const cached = relayPropCache.get(environment);
   if (cached) {
     return cached;
@@ -26,4 +26,4 @@ function getRelayProp_UNSTABLE(environment: IEnvironment): RelayProp {
   return relayProp;
 }
 
-module.exports = getRelayProp_UNSTABLE;
+module.exports = getRelayProp;

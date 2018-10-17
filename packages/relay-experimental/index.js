@@ -10,13 +10,13 @@
 
 'use strict';
 
-const createFragmentContainer_UNSTABLE = require('./renderers/createFragmentContainer_UNSTABLE');
-const createQueryRenderer_UNSTABLE = require('./renderers/createQueryRenderer_UNSTABLE');
+const createSuspenseFragmentContainer = require('./renderers/createSuspenseFragmentContainer');
+const createSuspenseQueryRenderer = require('./renderers/createSuspenseQueryRenderer');
 const fetchQuery_UNSTABLE = require('./helpers/fetchQuery_UNSTABLE');
 
 module.exports = {
   fetchQuery_UNSTABLE: fetchQuery_UNSTABLE,
 
-  createQueryRenderer_UNSTABLE: createQueryRenderer_UNSTABLE,
-  createFragmentContainer_UNSTABLE: createFragmentContainer_UNSTABLE,
+  createSuspenseQueryRenderer: createSuspenseQueryRenderer,
+  createSuspenseFragmentContainer: createSuspenseFragmentContainer,
 };

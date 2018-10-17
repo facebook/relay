@@ -11,10 +11,10 @@
 
 'use strict';
 
-const LRUCache_UNSTABLE = require('../utils/LRUCache_UNSTABLE');
+const LRUCache = require('../utils/LRUCache');
 const React = require('React');
 
-const getQueryIdentifier_UNSTABLE = require('../helpers/getQueryIdentifier_UNSTABLE');
+const getQueryIdentifier = require('../helpers/getQueryIdentifier');
 const invariant = require('invariant');
 const mapObject = require('mapObject');
 
@@ -53,7 +53,7 @@ export type FetchPolicy =
 const DATA_RETENTION_TIMEOUT = 30 * 1000;
 
 function getQueryCacheKey(query: OperationSelector): string {
-  return getQueryIdentifier_UNSTABLE(query);
+  return getQueryIdentifier(query);
 }
 
 function getFragmentCacheKey(
@@ -78,7 +78,7 @@ function isMissingData(snapshot: Snapshot | $ReadOnlyArray<Snapshot>) {
 }
 
 function createCache() {
-  const cache = LRUCache_UNSTABLE.create<CachedValue>(CACHE_CAPACITY);
+  const cache = LRUCache.create<CachedValue>(CACHE_CAPACITY);
 
   /**
    * Attempts to read, fetch, retain and store data for a query, based on the
@@ -153,7 +153,7 @@ function createCache() {
           break;
         }
         throw new Error(
-          'DataResourceCache_UNSTABLE: Tried reading a query that is not available locally and is not being fetched',
+          'DataResource: Tried reading a query that is not available locally and is not being fetched',
         );
       }
       case 'store-or-network': {
@@ -406,7 +406,7 @@ function createCache() {
       // isn't being fetched at all.
       // This can happen if the fetchPolicy policy is store-only
       throw new Error(
-        'DataResourceCache_UNSTABLE: Tried reading a query that is not available locally and is not being fetched',
+        'DataResource: Tried reading a query that is not available locally and is not being fetched',
       );
     },
 
@@ -455,7 +455,7 @@ function createCache() {
           selectorsByFragment[key];
         invariant(
           fragmentSelector != null,
-          'DataResourceCache_UNSTABLE: Expected selector to be available',
+          'DataResource: Expected selector to be available',
         );
         const snapshot = Array.isArray(fragmentSelector)
           ? fragmentSelector.map(s => environment.lookup(s))
@@ -472,7 +472,7 @@ function createCache() {
         // for that request.
         invariant(
           parentQuery != null,
-          'DataResourceCache_UNSTABLE: Tried reading a fragment that ' +
+          'DataResource: Tried reading a fragment that ' +
             "doesn't have a parent query.",
         );
         const suspender = getPromiseForFragmentRequestInFlight({
@@ -491,7 +491,7 @@ function createCache() {
         // isn't being fetched at all.
         // This can happen if the fetchPolicy policy is store-only
         throw new Error(
-          'DataResourceCache_UNSTABLE: Tried reading a fragment that has ' +
+          'DataResource: Tried reading a fragment that has ' +
             'missing data and is not being fetched.',
         );
       });
@@ -619,10 +619,10 @@ function getCacheForEnvironment(environment: IEnvironment): TDataResourceCache {
 export type TDataResourceCache = $Call<<R>(() => R) => R, typeof createCache>;
 
 const globalCache = createCache();
-const DataResourceCacheContext = React.createContext(globalCache);
+const DataResourceContext = React.createContext(globalCache);
 
 module.exports = {
   createCache,
   getCacheForEnvironment,
-  DataResourceCacheContext,
+  DataResourceContext,
 };

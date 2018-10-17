@@ -24,7 +24,7 @@ const invariant = require('invariant');
  *
  * Get does the same: if the key is present, delete and reinsert it.
  */
-class LRUCache_UNSTABLE<T> {
+class LRUCache<T> {
   _capacity: number;
   _map: Map<string, T>;
 
@@ -32,7 +32,7 @@ class LRUCache_UNSTABLE<T> {
     this._capacity = capacity;
     invariant(
       this._capacity > 0,
-      'LRUCache_UNSTABLE: Unable to create instance of cache with zero or negative capacity.',
+      'LRUCache: Unable to create instance of cache with zero or negative capacity.',
     );
 
     this._map = new Map();
@@ -75,8 +75,8 @@ class LRUCache_UNSTABLE<T> {
   }
 }
 
-function create<T>(capacity: number): LRUCache_UNSTABLE<T> {
-  return new LRUCache_UNSTABLE<T>(capacity);
+function create<T>(capacity: number): LRUCache<T> {
+  return new LRUCache<T>(capacity);
 }
 
 module.exports = {

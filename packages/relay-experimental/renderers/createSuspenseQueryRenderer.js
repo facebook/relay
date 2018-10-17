@@ -16,13 +16,10 @@ const ReactRelayContext = require('react-relay/modern/ReactRelayContext');
 const areEqual = require('areEqual');
 const invariant = require('invariant');
 
-const {
-  getCacheForEnvironment,
-  DataResourceCacheContext,
-} = require('./DataResourceCache_UNSTABLE');
+const {getCacheForEnvironment, DataResourceContext} = require('./DataResource');
 const {getRequest, createOperationSelector} = require('relay-runtime');
 
-import type {FetchPolicy} from './DataResourceCache_UNSTABLE';
+import type {FetchPolicy} from './DataResource';
 import type {
   Disposable,
   GraphQLTaggedNode,
@@ -38,8 +35,8 @@ import type {
 Query Renderer
 ==============
 
-Create a QueryRenderer that can be used to render data for a query.
-By default, the QueryRenderer will attempt to _fetch_ the query, and
+Create a SuspenseQueryRenderer that can be used to render data for a query.
+By default, the SuspenseQueryRenderer will attempt to _fetch_ the query, and
 will suspend rendering while the data for the query becomes available.
 
 ```
@@ -53,15 +50,17 @@ const query = graphql`
   }
 `;
 
-const MyQueryRenderer = createQueryRenderer_UNSTABLE<MyQuery>(query);
+const MyQueryRenderer = createSuspenseQueryRenderer<MyQuery>(query);
 
 render() {
   return (
     <ErrorBoundary fallback={'Error loading query.'}>
       <Placeholder delayMs={500} fallback={'Loading query...'}>
-        <MyQueryRenderer environment={environment} variables={{id: '4'}}>
-          {({data}) => <h1>{data.node?.id}</h1>}
-        </MyQueryRenderer>
+        <MyQueryRenderer
+          environment={environment}
+          variables={{id: '4'}}
+          render={({data}) => <h1>{data.node?.id}</h1>}
+        />
       </Placeholder>
     </ErrorBoundary>
   );
@@ -76,29 +75,29 @@ Fetching and rendering behavior can be configured via the `fetchPolicy` prop.
 The `fetchPolicy` will be ***"store-or-network"*** by default, and can be one of
 the values described below.
 
-NOTE: If the QueryRenderer is configured to read data from Relay store before or
+NOTE: If the SuspenseQueryRenderer is configured to read data from Relay store before or
 along with fetching from the network, it will read from the store as much data
 as is available locally for the query.
 
-- **"store-only"**: The QueryRenderer will only attempt to *read* the query from
+- **"store-only"**: The SuspenseQueryRenderer will only attempt to *read* the query from
   the store, without making any network requests.
   In this mode, the responsibility of fetching the data is left to the caller.
-  The QueryRenderer will only attempt to suspend rendering for missing data
+  The SuspenseQueryRenderer will only attempt to suspend rendering for missing data
   if a network request for the query has been initiated elsewhere, *and* is in
   flight, otherwise an error will be thrown.
 
-- **"store-or-network"**: The QueryRenderer will always attempt to *read* the
+- **"store-or-network"**: The SuspenseQueryRenderer will always attempt to *read* the
   query from the store.
   It will only make a network request if any data is missing for the query.
   Otherwise, if all of the data is available for the query, a network request
   will not be made.
 
-- **"store-and-network"**: The QueryRenderer will attempt to *read* the query
+- **"store-and-network"**: The SuspenseQueryRenderer will attempt to *read* the query
   from the store.
   Additionally, a network request will always be initiated; if missing data is
   accessed, rendering will be suspended until the network request completes.
 
-- **"network-only"**: The QueryRenderer will always attempt to fetch the
+- **"network-only"**: The SuspenseQueryRenderer will always attempt to fetch the
   query from the network without using any data that might
   be available locally in the store, and will suspend rendering until the
   network request completes.
@@ -108,18 +107,18 @@ type RenderProps<TQueryResponse> = {|
   data: TQueryResponse,
 |};
 
-function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
+function createSuspenseQueryRenderer<TQuery: OperationType>(
   gqlQuery: GraphQLTaggedNode,
 ): React.ComponentType<{|
-  children: (RenderProps<$ElementType<TQuery, 'response'>>) => React.Node,
   environment: IEnvironment,
   variables: $ElementType<TQuery, 'variables'>,
+  render: (RenderProps<$ElementType<TQuery, 'response'>>) => React.Node,
   fetchPolicy?: FetchPolicy,
 |}> {
   type Props = {|
-    children: (RenderProps<$ElementType<TQuery, 'response'>>) => React.Node,
     environment: IEnvironment,
     variables: $ElementType<TQuery, 'variables'>,
+    render: (RenderProps<$ElementType<TQuery, 'response'>>) => React.Node,
     fetchPolicy?: FetchPolicy,
   |};
 
@@ -161,8 +160,8 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
     return newRelayContext;
   }
 
-  return class QueryRenderer extends React.Component<Props> {
-    static displayName = `RelayQueryRenderer(${queryNode.name})`;
+  return class SuspenseQueryRenderer extends React.Component<Props> {
+    static displayName = `RelaySuspenseQueryRenderer(${queryNode.name})`;
 
     _relayContextByEnvironment =
       typeof WeakMap === 'function' ? new WeakMap() : new Map();
@@ -238,26 +237,26 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
       // remounting in the future to read fresh data from the Relay store and
       // potentially initiate a new fetch.
       // If we didn't, new mounts of the component would always find the data
-      // cached in DataResourceCache and not read from the store or fetch
-      const DataResourceCache = getCacheForEnvironment(environment);
+      // cached in DataResource and not read from the store or fetch
+      const DataResource = getCacheForEnvironment(environment);
       const {query} = getRelayContextMemo(
         this._relayContextByEnvironment,
         environment,
         variables,
       );
-      DataResourceCache.invalidateQuery({query});
+      DataResource.invalidateQuery({query});
     }
 
     _handleDataUpdate = latestSnapshot => {
       const {environment, variables} = this.props;
-      const DataResourceCache = getCacheForEnvironment(environment);
+      const DataResource = getCacheForEnvironment(environment);
       const {query} = getRelayContextMemo(
         this._relayContextByEnvironment,
         environment,
         variables,
       );
 
-      DataResourceCache.setQuery({
+      DataResource.setQuery({
         query,
         snapshot: latestSnapshot,
       });
@@ -269,7 +268,7 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
       const snapshot = this._renderedSnapshot;
       invariant(
         snapshot !== null,
-        'QueryRenderer: Expected to have rendered with a snapshot',
+        'SuspenseQueryRenderer: Expected to have rendered with a snapshot',
       );
       this._dataSubscription = environment.subscribe(
         snapshot,
@@ -285,8 +284,8 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
     }
 
     render() {
-      const {children, fetchPolicy, environment, variables} = this.props;
-      const DataResourceCache = getCacheForEnvironment(environment);
+      const {render, fetchPolicy, environment, variables} = this.props;
+      const DataResource = getCacheForEnvironment(environment);
 
       // We memoize the ReactRelayContext so we don't pass a new object on
       // every render to ReactRelayContext.Provider, which would always trigger
@@ -298,14 +297,14 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
       );
       const {query} = relayContext;
 
-      const {snapshot, data, fetchDisposable} = DataResourceCache.readQuery({
+      const {snapshot, data, fetchDisposable} = DataResource.readQuery({
         environment,
         query,
         fetchPolicy,
       });
       invariant(
         !Array.isArray(snapshot),
-        'QueryRenderer: Expected snapshot not to be an array when reading a query',
+        'SuspenseQueryRenderer: Expected snapshot not to be an array when reading a query',
       );
 
       // WARNING: Keeping instance variables in render can be unsafe; however,
@@ -315,15 +314,15 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
       this._renderedSnapshot = snapshot;
       return (
         <ReactRelayContext.Provider value={relayContext}>
-          <DataResourceCacheContext.Provider value={DataResourceCache}>
-            {children({
+          <DataResourceContext.Provider value={DataResource}>
+            {render({
               data: data,
             })}
-          </DataResourceCacheContext.Provider>
+          </DataResourceContext.Provider>
         </ReactRelayContext.Provider>
       );
     }
   };
 }
 
-module.exports = createQueryRenderer_UNSTABLE;
+module.exports = createSuspenseQueryRenderer;

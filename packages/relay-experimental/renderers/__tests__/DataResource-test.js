@@ -13,7 +13,7 @@
 
 jest.mock('../../utils/fetchQueryUtils');
 
-const {getCacheForEnvironment} = require('../DataResourceCache_UNSTABLE');
+const {getCacheForEnvironment} = require('../DataResource');
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {generateAndCompile} = require('RelayModernTestUtils');
 const {createOperationSelector, getFragment} = require('relay-runtime');
@@ -23,9 +23,9 @@ const {
   getPromiseForRequestInFlight,
 } = require('../../utils/fetchQueryUtils');
 
-describe('DataResourceCache', () => {
+describe('DataResource', () => {
   let environment;
-  let DataResourceCache;
+  let DataResource;
   let fetchPolicy;
   let gqlQuery;
   let query;
@@ -37,7 +37,7 @@ describe('DataResourceCache', () => {
 
   beforeEach(() => {
     environment = createMockEnvironment();
-    DataResourceCache = getCacheForEnvironment(environment);
+    DataResource = getCacheForEnvironment(environment);
     gqlQuery = generateAndCompile(
       `query UserQuery($id: ID!) {
         node(id: $id) {
@@ -82,7 +82,7 @@ describe('DataResourceCache', () => {
       });
 
       it('should read data (if all data is available) without network request', () => {
-        const result = DataResourceCache.readQuery({
+        const result = DataResource.readQuery({
           environment,
           query,
           fetchPolicy,
@@ -98,7 +98,7 @@ describe('DataResourceCache', () => {
       it('should send a network request (and throw promise) if data is missing for the query', () => {
         let thrown = false;
         try {
-          DataResourceCache.readQuery({
+          DataResource.readQuery({
             environment,
             query: queryMissingData,
             fetchPolicy,
@@ -131,7 +131,7 @@ describe('DataResourceCache', () => {
             variables,
           );
 
-          const result = DataResourceCache.readQuery({
+          const result = DataResource.readQuery({
             environment,
             query: queryWithFragments,
             fetchPolicy,
@@ -176,7 +176,7 @@ describe('DataResourceCache', () => {
             // The fragment itself is the one that has a missing field, so
             // attempting to read the fragment should throw, but that's not
             // being tested here.
-            const result = DataResourceCache.readQuery({
+            const result = DataResource.readQuery({
               environment,
               query: queryWithFragments,
               fetchPolicy,
@@ -201,7 +201,7 @@ describe('DataResourceCache', () => {
         fetchPolicy = 'store-and-network';
       });
       it('should read data and send a network request', () => {
-        const result = DataResourceCache.readQuery({
+        const result = DataResource.readQuery({
           environment,
           query,
           fetchPolicy,
@@ -217,7 +217,7 @@ describe('DataResourceCache', () => {
       it('should generate a network request if data is missing for the query', () => {
         let thrown = false;
         try {
-          DataResourceCache.readQuery({
+          DataResource.readQuery({
             environment,
             query: queryMissingData,
             fetchPolicy,
@@ -238,7 +238,7 @@ describe('DataResourceCache', () => {
       it('should send a network request and throw a promise (always)', () => {
         let thrown = false;
         try {
-          DataResourceCache.readQuery({
+          DataResource.readQuery({
             environment,
             query,
             fetchPolicy,
@@ -257,7 +257,7 @@ describe('DataResourceCache', () => {
         fetchPolicy = 'store-only';
       });
       it('should return data from the store (if available)', () => {
-        const result = DataResourceCache.readQuery({
+        const result = DataResource.readQuery({
           environment,
           query,
           fetchPolicy,
@@ -276,7 +276,7 @@ describe('DataResourceCache', () => {
         );
         let promiseThrown = false;
         try {
-          DataResourceCache.readQuery({
+          DataResource.readQuery({
             environment,
             query: queryMissingData,
             fetchPolicy,
@@ -292,7 +292,7 @@ describe('DataResourceCache', () => {
       it('should throw an error if data is missing and there are no pending requests', () => {
         let errorThrown = false;
         try {
-          DataResourceCache.readQuery({
+          DataResource.readQuery({
             environment,
             query: queryMissingData,
             fetchPolicy,
@@ -324,7 +324,7 @@ describe('DataResourceCache', () => {
       );
       const parentQuery = createOperationSelector(UserQuery, variables);
 
-      const result = DataResourceCache.readFragmentSpec({
+      const result = DataResource.readFragmentSpec({
         environment,
         variables,
         parentQuery,
@@ -365,7 +365,7 @@ describe('DataResourceCache', () => {
 
       let thrown = false;
       try {
-        DataResourceCache.readFragmentSpec({
+        DataResource.readFragmentSpec({
           environment,
           variables,
           parentQuery,
@@ -406,7 +406,7 @@ describe('DataResourceCache', () => {
       const parentQuery = createOperationSelector(UserQuery, variables);
       let thrown = false;
       try {
-        DataResourceCache.readFragmentSpec({
+        DataResource.readFragmentSpec({
           environment,
           variables,
           parentQuery,

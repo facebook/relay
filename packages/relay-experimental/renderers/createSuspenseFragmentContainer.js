@@ -16,14 +16,14 @@ const ReactRelayContext = require('react-relay/modern/ReactRelayContext');
 const areEqual = require('areEqual');
 const assertFragmentMap = require('react-relay/modern/assertFragmentMap');
 const forEachObject = require('forEachObject');
-const getRelayProp_UNSTABLE = require('../helpers/getRelayProp_UNSTABLE');
+const getRelayProp = require('../helpers/getRelayProp');
 const invariant = require('invariant');
 const mapObject = require('mapObject');
 
-const {DataResourceCacheContext} = require('./DataResourceCache_UNSTABLE');
+const {DataResourceContext} = require('./DataResource');
 const {getFragment, getDataIDsFromObject} = require('relay-runtime');
 
-import type {TDataResourceCache} from './DataResourceCache_UNSTABLE';
+import type {TDataResourceCache} from './DataResource';
 import type {
   GeneratedNodeMap,
   RelayProp,
@@ -37,7 +37,7 @@ import type {
   RelayContext,
 } from 'relay-runtime';
 
-function createFragmentContainer_UNSTABLE<
+function createSuspenseFragmentContainer<
   Props: {},
   TComponent: React.ComponentType<Props>,
 >(
@@ -47,7 +47,7 @@ function createFragmentContainer_UNSTABLE<
   $RelayProps<React.ElementConfig<TComponent>, RelayProp>,
 > {
   type InternalProps = {|
-    DataResourceCache: TDataResourceCache,
+    DataResource: TDataResourceCache,
     forwardedRef: React.Ref<TComponent>,
     fragmentRefs: {[string]: mixed},
     relayContext: RelayContext & {query?: OperationSelector},
@@ -56,14 +56,16 @@ function createFragmentContainer_UNSTABLE<
   const componentName =
     // $FlowExpectedError - Supress lint: we actually want to do sketchy null check here
     Component.displayName || Component.displayName || 'Unknown';
-  const containerName = `RelayFragmentContainer(${componentName})`;
+  const containerName = `RelaySuspenseFragmentContainer(${componentName})`;
   assertFragmentMap(componentName, fragmentSpecInput);
 
   // $FlowExpectedError - The compiler converts a GraphQLTaggedNode into a GeneratedNodeMap for us
   const fragmentSpec: GeneratedNodeMap = (fragmentSpecInput: any);
   const fragmentNodes = mapObject(fragmentSpec, getFragment);
 
-  class FragmentRenderer extends React.Component<InternalProps> {
+  class SuspenseFragmentRenderer extends React.Component<InternalProps> {
+    static displayName = containerName;
+
     _dataSubscriptions: Array<Disposable> | null = null;
     _renderedSnapshots: {[string]: Snapshot | $ReadOnlyArray<Snapshot>} = {};
 
@@ -91,15 +93,15 @@ function createFragmentContainer_UNSTABLE<
     }
 
     componentWillUnmount() {
-      const {DataResourceCache, fragmentRefs, relayContext} = this.props;
+      const {DataResource, fragmentRefs, relayContext} = this.props;
       const {variables} = relayContext;
       this._unsubscribe();
 
       // We invalidate on unmount because we want to allow a component that is
       // remounting in the future to read fresh data from the Relay store
       // If we didn't, new mounts of the component would always find the data
-      // cached in DataResourceCache and not read from the store
-      DataResourceCache.invalidateFragmentSpec({
+      // cached in DataResource and not read from the store
+      DataResource.invalidateFragmentSpec({
         fragmentNodes,
         fragmentRefs,
         variables,
@@ -107,7 +109,7 @@ function createFragmentContainer_UNSTABLE<
     }
 
     _handleDataUpdate(fragmentKey, latestSnapshot) {
-      const {DataResourceCache, fragmentRefs, relayContext} = this.props;
+      const {DataResource, fragmentRefs, relayContext} = this.props;
       const {variables} = relayContext;
 
       const fragmentNode = fragmentNodes[fragmentKey];
@@ -116,7 +118,7 @@ function createFragmentContainer_UNSTABLE<
         'SuspenseFragmentContainer: Expected fragment to be available during update',
       );
       const fragmentRef = fragmentRefs[fragmentKey];
-      DataResourceCache.setFragment({
+      DataResource.setFragment({
         fragmentNode,
         fragmentRef,
         variables,
@@ -162,13 +164,13 @@ function createFragmentContainer_UNSTABLE<
 
     render() {
       const {
-        DataResourceCache,
+        DataResource,
         forwardedRef,
         fragmentRefs,
         relayContext,
       } = this.props;
       const {environment, query, variables} = relayContext;
-      const readResult = DataResourceCache.readFragmentSpec({
+      const readResult = DataResource.readFragmentSpec({
         environment,
         variables,
         fragmentNodes,
@@ -195,15 +197,15 @@ function createFragmentContainer_UNSTABLE<
           {...fragmentRefs}
           {...data}
           ref={forwardedRef}
-          relay={getRelayProp_UNSTABLE(environment)}
+          relay={getRelayProp(environment)}
         />
       );
     }
   }
 
-  const FragmentContainer = (props, ref) => {
+  const SuspenseFragmentContainer = (props, ref) => {
     // $FlowFixMe - TODO T35024201 unstable_read is not yet typed
-    const DataResourceCache = DataResourceCacheContext.unstable_read();
+    const DataResource = DataResourceContext.unstable_read();
     // $FlowFixMe - TODO T35024201 unstable_read is not yet typed
     const relayContext = ReactRelayContext.unstable_read();
     invariant(
@@ -228,18 +230,20 @@ function createFragmentContainer_UNSTABLE<
     }
 
     return (
-      <FragmentRenderer
+      <SuspenseFragmentRenderer
         relayContext={relayContext}
-        DataResourceCache={DataResourceCache}
+        DataResource={DataResource}
         fragmentRefs={props}
         forwardedRef={ref}
       />
     );
   };
-  FragmentContainer.displayName = containerName;
+  SuspenseFragmentContainer.displayName = containerName;
 
   // $FlowFixMe - TODO T29156721 forwardRef isn't Flow typed yet
-  const ForwardRefFragmentContainer = React.forwardRef(FragmentContainer);
+  const ForwardRefFragmentContainer = React.forwardRef(
+    SuspenseFragmentContainer,
+  );
 
   if (__DEV__) {
     ForwardRefFragmentContainer.__ComponentClass = Component;
@@ -247,4 +251,4 @@ function createFragmentContainer_UNSTABLE<
   return ForwardRefFragmentContainer;
 }
 
-module.exports = createFragmentContainer_UNSTABLE;
+module.exports = createSuspenseFragmentContainer;

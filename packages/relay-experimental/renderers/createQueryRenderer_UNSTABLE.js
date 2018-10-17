@@ -162,6 +162,8 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
   }
 
   return class QueryRenderer extends React.Component<Props> {
+    static displayName = `RelayQueryRenderer(${queryNode.name})`;
+
     _relayContextByEnvironment =
       typeof WeakMap === 'function' ? new WeakMap() : new Map();
     _dataSubscription: Disposable | null = null;

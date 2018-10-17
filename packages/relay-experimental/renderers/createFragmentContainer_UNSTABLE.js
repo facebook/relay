@@ -21,10 +21,6 @@ const invariant = require('invariant');
 const mapObject = require('mapObject');
 
 const {DataResourceCacheContext} = require('./DataResourceCache_UNSTABLE');
-const {
-  getComponentName,
-  getContainerName,
-} = require('react-relay/modern/ReactRelayContainerUtils');
 const {getFragment, getDataIDsFromObject} = require('relay-runtime');
 
 import type {TDataResourceCache} from './DataResourceCache_UNSTABLE';
@@ -57,8 +53,11 @@ function createFragmentContainer_UNSTABLE<
     relayContext: RelayContext & {query?: OperationSelector},
   |};
 
-  const containerName = getContainerName(Component);
-  assertFragmentMap(getComponentName(Component), fragmentSpecInput);
+  const componentName =
+    // $FlowExpectedError - Supress lint: we actually want to do sketchy null check here
+    Component.displayName || Component.displayName || 'Unknown';
+  const containerName = `RelayFragmentContainer(${componentName})`;
+  assertFragmentMap(componentName, fragmentSpecInput);
 
   // $FlowExpectedError - The compiler converts a GraphQLTaggedNode into a GeneratedNodeMap for us
   const fragmentSpec: GeneratedNodeMap = (fragmentSpecInput: any);

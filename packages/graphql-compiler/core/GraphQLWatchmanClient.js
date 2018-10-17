@@ -12,7 +12,7 @@
 
 const watchman = require('fb-watchman');
 
-const MAX_ATTEMPT_LIMIT = 42;
+const MAX_ATTEMPT_LIMIT = 5;
 
 function delay(delayMs: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, delayMs));
@@ -24,7 +24,7 @@ class GraphQLWatchmanClient {
 
   static isAvailable(): Promise<boolean> {
     return new Promise(resolve => {
-      const client = new GraphQLWatchmanClient();
+      const client = new GraphQLWatchmanClient(MAX_ATTEMPT_LIMIT);
       client.on('error', () => {
         resolve(false);
         client.end();

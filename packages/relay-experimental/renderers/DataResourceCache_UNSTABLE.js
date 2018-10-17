@@ -44,7 +44,6 @@ type CacheReadResult = {
   fetchDisposable: Disposable | null,
 };
 
-export type ReadPolicy = 'eager' | 'lazy';
 export type FetchPolicy =
   | 'store-only'
   | 'store-or-network'
@@ -82,32 +81,22 @@ function createCache() {
   const cache = LRUCache_UNSTABLE.create<CachedValue>(CACHE_CAPACITY);
 
   /**
-   * Attempts to fetch, retain and store data for a query, based on the
-   * provided fetchPolicy and readPolicy,
-   * ReadPolicy:
-   * - eager:
-   *   - Will try to read as much data as possible, even if the full query is
-   *     not available in the Relay store. If any data is available, it will be
-   *     saved to the cache.
-   * - lazy:
-   *   - Will not read a query from the store unless the full query is available
-   *     in the Relay store. If the full query is available, it will be saved
-   *     to the cache.
+   * Attempts to read, fetch, retain and store data for a query, based on the
+   * provided fetchPolicy. When reading data from the store, we will eagerly
+   * read as much data from the store as is available locally for the query.
    *
    * FetchPolicy:
    * - store-only:
-   *   - Will read the query from the Relay Store and save it to cache based on
-   *     the specified ReadPolicy.
+   *   - Will read the query from the Relay Store and save the result to cache.
    *   - It will not make any network requests
    *   - It will throw an error if there are no pending network requests
    * - store-or-network:
-   *   - Will read the query from the Relay Store and save it to cache based on
-   *     the specified ReadPolicy.
-   *   - If data was available from read, it will not make any network requests.
+   *   - Will read the query from the Relay Store and save the result to cache.
+   *   - If data for the **full** query is available locally, it will not make
+   *     any network requests.
    *   - If not, it will attempt to fetch the query from the network.
    * - store-and-network:
-   *   - Will read the query from the Relay Store and save it to cache based on
-   *     the specified ReadPolicy.
+   *   - Will read the query from the Relay Store and save the result to cache.
    *   - Additionally, it will always attempt to fetch the query.
    * - network-only:
    *   - Will only attempt to fetch the query without reading from the
@@ -130,12 +119,10 @@ function createCache() {
     environment: IEnvironment,
     query: OperationSelector,
     fetchPolicy?: FetchPolicy,
-    readPolicy?: ReadPolicy,
   |}): Disposable {
     const {environment, query} = args;
     const cacheKey = getQueryCacheKey(query);
     const fetchPolicy = args.fetchPolicy ?? 'network-only';
-    const readPolicy = args.readPolicy ?? 'lazy';
 
     // NOTE: Running `check` will write missing data to the store using any
     // missing data handlers specified on the environment;
@@ -143,17 +130,14 @@ function createCache() {
     // missing data.
     const hasFullQuery = environment.check(query.root);
 
-    const canRead = readPolicy === 'lazy' ? hasFullQuery : true;
     let shouldFetch;
     switch (fetchPolicy) {
       case 'store-only': {
         shouldFetch = false;
-        if (canRead) {
-          const snapshot = environment.lookup(query.fragment);
-          if (!isMissingData(snapshot)) {
-            cache.set(cacheKey, snapshot);
-            break;
-          }
+        const snapshot = environment.lookup(query.fragment);
+        if (!isMissingData(snapshot)) {
+          cache.set(cacheKey, snapshot);
+          break;
         }
         // Check if there's a global request in flight for this query, even
         // if one won't be initiated by the component associated with this render.
@@ -173,24 +157,18 @@ function createCache() {
         );
       }
       case 'store-or-network': {
-        if (canRead) {
-          shouldFetch = !hasFullQuery;
-          const snapshot = environment.lookup(query.fragment);
-          if (!isMissingData(snapshot)) {
-            cache.set(cacheKey, snapshot);
-          }
-        } else {
-          shouldFetch = true;
+        shouldFetch = !hasFullQuery;
+        const snapshot = environment.lookup(query.fragment);
+        if (!isMissingData(snapshot)) {
+          cache.set(cacheKey, snapshot);
         }
         break;
       }
       case 'store-and-network': {
         shouldFetch = true;
-        if (canRead) {
-          const snapshot = environment.lookup(query.fragment);
-          if (!isMissingData(snapshot)) {
-            cache.set(cacheKey, snapshot);
-          }
+        const snapshot = environment.lookup(query.fragment);
+        if (!isMissingData(snapshot)) {
+          cache.set(cacheKey, snapshot);
         }
         break;
       }
@@ -393,7 +371,6 @@ function createCache() {
       environment: IEnvironment,
       query: OperationSelector,
       fetchPolicy?: FetchPolicy,
-      readPolicy?: ReadPolicy,
     |}): CacheReadResult {
       const {query} = args;
       const cacheKey = getQueryCacheKey(query);
@@ -529,9 +506,8 @@ function createCache() {
       environment: IEnvironment,
       query: OperationSelector,
       fetchPolicy?: FetchPolicy,
-      readPolicy?: ReadPolicy,
     |}): Disposable {
-      const {environment, query, fetchPolicy, readPolicy} = args;
+      const {environment, query, fetchPolicy} = args;
       const cacheKey = getQueryCacheKey(query);
       if (cache.has(cacheKey)) {
         return {dispose: () => {}};
@@ -540,7 +516,6 @@ function createCache() {
         environment,
         query,
         fetchPolicy,
-        readPolicy,
       });
     },
 

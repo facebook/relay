@@ -27,7 +27,6 @@ const {
   ID_KEY,
 } = require('relay-runtime');
 
-const readPolicy = 'eager';
 const fetchPolicy = 'store-or-network';
 
 const MISSING_PLACEHOLDER_EXCEPTION =
@@ -109,7 +108,6 @@ describe('createQueryRenderer', () => {
     ReactTestRenderer.create(
       <QueryRenderer
         fetchPolicy={fetchPolicy}
-        readPolicy={readPolicy}
         environment={environment}
         variables={variables}
         children={renderFn}
@@ -135,7 +133,6 @@ describe('createQueryRenderer', () => {
     ReactTestRenderer.create(
       <QueryRenderer
         fetchPolicy={fetchPolicy}
-        readPolicy={readPolicy}
         environment={environment}
         variables={variables}
         children={renderFn}
@@ -164,7 +161,6 @@ describe('createQueryRenderer', () => {
       return ReactTestRenderer.create(
         <QueryRenderer
           fetchPolicy={fetchPolicy}
-          readPolicy={readPolicy}
           environment={environment}
           variables={variables}
           children={renderFn}
@@ -182,7 +178,6 @@ describe('createQueryRenderer', () => {
       ReactTestRenderer.create(
         <QueryRenderer
           fetchPolicy={fetchPolicy}
-          readPolicy={readPolicy}
           environment={environment}
           children={renderFn}
           variables={{}}
@@ -215,7 +210,6 @@ describe('createQueryRenderer', () => {
       ReactTestRenderer.create(
         <QueryRenderer
           fetchPolicy={fetchPolicy}
-          readPolicy={readPolicy}
           environment={environment}
           variables={variables}
           children={renderFn}
@@ -262,7 +256,6 @@ describe('createQueryRenderer', () => {
       ReactTestRenderer.create(
         <QueryRenderer
           fetchPolicy={fetchPolicy}
-          readPolicy={readPolicy}
           environment={environment}
           variables={variables}
           children={renderFn}
@@ -281,7 +274,6 @@ describe('createQueryRenderer', () => {
         <PropsSetter>
           <QueryRenderer
             fetchPolicy={fetchPolicy}
-            readPolicy={readPolicy}
             environment={environment}
             variables={variables}
             children={renderFn}
@@ -311,7 +303,6 @@ describe('createQueryRenderer', () => {
         <PropsSetter>
           <QueryRenderer
             fetchPolicy={fetchPolicy}
-            readPolicy={readPolicy}
             environment={environment}
             variables={variables1}
             children={renderFn}
@@ -335,7 +326,6 @@ describe('createQueryRenderer', () => {
         <PropsSetter>
           <QueryRenderer
             fetchPolicy={fetchPolicy}
-            readPolicy={readPolicy}
             environment={environment}
             variables={variables}
             children={renderFn}
@@ -362,7 +352,6 @@ describe('createQueryRenderer', () => {
         <PropsSetter>
           <QueryRenderer
             fetchPolicy={fetchPolicy}
-            readPolicy={readPolicy}
             environment={environment}
             variables={variables1}
             children={renderFn}
@@ -411,7 +400,6 @@ describe('createQueryRenderer', () => {
         <PropsSetter>
           <QueryRenderer
             fetchPolicy={fetchPolicy}
-            readPolicy={readPolicy}
             environment={environment}
             variables={variables}
             children={renderFn}
@@ -461,7 +449,6 @@ describe('createQueryRenderer', () => {
               <Child>A</Child>
               <QueryRenderer
                 fetchPolicy={fetchPolicy}
-                readPolicy={readPolicy}
                 environment={environment}
                 variables={variables}
                 children={renderFn}
@@ -524,14 +511,12 @@ describe('createQueryRenderer', () => {
         <React.Fragment>
           <QueryRenderer
             fetchPolicy={fetchPolicy}
-            readPolicy={readPolicy}
             environment={environment}
             variables={variables1}
             children={renderFn1}
           />
           <QueryRenderer
             fetchPolicy={fetchPolicy}
-            readPolicy={readPolicy}
             environment={environment}
             variables={variables2}
             children={renderFn2}
@@ -714,7 +699,6 @@ describe('createQueryRenderer', () => {
                 environment={testEnvironment}
                 variables={testVariables}
                 fetchPolicy={testFetchPolicy}
-                readPolicy="eager"
                 children={testRenderFn}
               />,
             );
@@ -728,7 +712,6 @@ describe('createQueryRenderer', () => {
                 environment={testEnvironment}
                 variables={testVariables}
                 fetchPolicy={testFetchPolicy}
-                readPolicy="eager"
                 children={testRenderFn}
               />,
             );
@@ -749,7 +732,6 @@ describe('createQueryRenderer', () => {
                   environment={testEnvironment}
                   variables={testVariables}
                   fetchPolicy={testFetchPolicy}
-                  readPolicy="eager"
                   children={testRenderFn}
                 />,
               );
@@ -762,7 +744,6 @@ describe('createQueryRenderer', () => {
                   environment={testEnvironment}
                   variables={testVariables}
                   fetchPolicy={testFetchPolicy}
-                  readPolicy="eager"
                   children={testRenderFn}
                 />,
               );

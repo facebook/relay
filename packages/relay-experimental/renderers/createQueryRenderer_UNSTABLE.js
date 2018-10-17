@@ -22,7 +22,7 @@ const {
 } = require('./DataResourceCache_UNSTABLE');
 const {getRequest, createOperationSelector} = require('relay-runtime');
 
-import type {FetchPolicy, ReadPolicy} from './DataResourceCache_UNSTABLE';
+import type {FetchPolicy} from './DataResourceCache_UNSTABLE';
 import type {
   Disposable,
   GraphQLTaggedNode,
@@ -74,34 +74,26 @@ Fetching and Reading Behavior
 By default, the QueryRenderer will always attempt to fetch the query from the
 network, without using any locally available data.
 
-This behavior can be configured by the `readPolicy` and `fetchPolicy` props.
-
-`readPolicy` will be ***"lazy"*** by default, and can be one of the following values:
-- **"eager"**: Will try to read as much data as possible, even if the full query is
-  not available in the Relay store. If any data is available, it will be
-  provided to render, and a network request might be initiated based on the
-  specified `fetchPolicy`.
-- **"lazy"**: Will not attempt to read a query unless the data for the full query is
-  available in the Relay store. If the full query is available, it will be provided for
-  render. A network request might be initiated based on the specified
-  `fetchPolicy`.
+This behavior can be configured by the `fetchPolicy` prop. If the QueryRenderer
+is configured to read data from Relay store, we will eagerly read as much data
+from the store as is available locally for the query.
 
 `fetchPolicy`  will be ***"network-only"*** by default, and can be one of the following values:
-- **"store-only"**: The QueryRenderer will only attempt to _read_ the query from
-  the store based on the specified `readPolicy`, without making any network
-  requests.
+- **"store-only"**: The QueryRenderer will only attempt to *read* the query from
+  the store, without making any network requests.
   In this mode, the responsibility of fetching the data is left to the caller.
   The QueryRenderer will only attempt to suspend rendering for missing data
-  if a network request for the query has been initiated elsewhere _and_ is in
+  if a network request for the query has been initiated elsewhere, *and* is in
   flight, otherwise an error will be thrown.
 
-- **"store-or-network"**: The QueryRenderer will attempt to _read_ the query
-  from the store, based on the specified `readPolicy`. It will only make a
-  network request if any data is missing for the query. Otherwise, if all of
-  the data is available for the query, a request will not be made.
+- **"store-or-network"**: The QueryRenderer will always attempt to *read* the
+  query from the store.
+  It will only make a network request if any data is missing for the query.
+  Otherwise, if all of the data is available for the query, a network request
+  will not be made.
 
-- **"store-and-network"**: The QueryRenderer will attempt to _read_ the query
-  from the store based on the specified `readPolicy`.
+- **"store-and-network"**: The QueryRenderer will attempt to *read* the query
+  from the store.
   Additionally, a network request will always be initiated; if missing data is
   accessed, rendering will be suspended until the network request completes.
 
@@ -121,14 +113,12 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
   environment: IEnvironment,
   variables: $ElementType<TQuery, 'variables'>,
   fetchPolicy?: FetchPolicy,
-  readPolicy?: ReadPolicy,
 |}> {
   type Props = {|
     children: (RenderProps<$ElementType<TQuery, 'response'>>) => React.Node,
     environment: IEnvironment,
     variables: $ElementType<TQuery, 'variables'>,
     fetchPolicy?: FetchPolicy,
-    readPolicy?: ReadPolicy,
   |};
 
   const queryNode = getRequest(gqlQuery);
@@ -291,13 +281,7 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
     }
 
     render() {
-      const {
-        children,
-        fetchPolicy,
-        environment,
-        readPolicy,
-        variables,
-      } = this.props;
+      const {children, fetchPolicy, environment, variables} = this.props;
       const DataResourceCache = getCacheForEnvironment(environment);
 
       // We memoize the ReactRelayContext so we don't pass a new object on
@@ -314,7 +298,6 @@ function createQueryRenderer_UNSTABLE<TQuery: OperationType>(
         environment,
         query,
         fetchPolicy,
-        readPolicy,
       });
       invariant(
         !Array.isArray(snapshot),

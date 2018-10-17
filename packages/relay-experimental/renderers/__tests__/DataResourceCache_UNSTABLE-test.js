@@ -27,7 +27,6 @@ describe('DataResourceCache', () => {
   let environment;
   let DataResourceCache;
   let fetchPolicy;
-  let readPolicy;
   let gqlQuery;
   let query;
   let queryMissingData;
@@ -77,304 +76,45 @@ describe('DataResourceCache', () => {
   });
 
   describe('readQuery', () => {
-    describe('readPolicy: lazy', () => {
+    describe('fetchPolicy: store-or-network', () => {
       beforeEach(() => {
-        readPolicy = 'lazy';
+        fetchPolicy = 'store-or-network';
       });
-      describe('fetchPolicy: store-or-network', () => {
-        beforeEach(() => {
-          fetchPolicy = 'store-or-network';
+
+      it('should read data (if all data is available) without network request', () => {
+        const result = DataResourceCache.readQuery({
+          environment,
+          query,
+          fetchPolicy,
         });
-
-        it('should read data (if all data is available) without network request', () => {
-          const result = DataResourceCache.readQuery({
-            environment,
-            query,
-            fetchPolicy,
-            readPolicy,
-          });
-          expect(fetchQuery).not.toBeCalled();
-          expect(result.data).toMatchObject({
-            node: {
-              id: '4',
-            },
-          });
-        });
-
-        it('throw a promise (fetch query) when some data is missing ', () => {
-          let thrown = false;
-          try {
-            DataResourceCache.readQuery({
-              environment,
-              query: queryMissingData,
-              fetchPolicy,
-              readPolicy,
-            });
-          } catch (promise) {
-            expect(promise).toBeInstanceOf(Promise);
-            thrown = true;
-          }
-          expect(fetchQuery).toBeCalled();
-          expect(thrown).toBe(true);
-        });
-
-        describe('when using fragments', () => {
-          it('should read data (if all data is available) without network request', () => {
-            const {UserQuery} = generateAndCompile(
-              `
-              fragment UserFragment on User {
-                id
-              }
-              query UserQuery($id: ID!) {
-                node(id: $id) {
-                  __typename
-                  ...UserFragment
-                }
-              }
-            `,
-            );
-            const queryWithFragments = createOperationSelector(
-              UserQuery,
-              variables,
-            );
-
-            const result = DataResourceCache.readQuery({
-              environment,
-              query: queryWithFragments,
-              fetchPolicy,
-              readPolicy,
-            });
-            expect(fetchQuery).not.toBeCalled();
-            expect(result.data).toMatchObject({
-              node: {
-                __fragments: {
-                  UserFragment: {},
-                },
-                __id: '4',
-                __typename: 'User',
-              },
-            });
-          });
-
-          it('throw a promise (fetch query) when some data is missing ', () => {
-            const {UserQuery} = generateAndCompile(
-              `
-              fragment UserFragment on User {
-                id
-                username
-              }
-              query UserQuery($id: ID!) {
-                node(id: $id) {
-                  __typename
-                  ...UserFragment
-                }
-              }
-            `,
-            );
-            const queryWithFragments = createOperationSelector(
-              UserQuery,
-              variables,
-            );
-            let thrown = false;
-            try {
-              DataResourceCache.readQuery({
-                environment,
-                query: queryWithFragments,
-                fetchPolicy,
-                readPolicy,
-              });
-            } catch (promise) {
-              expect(promise).toBeInstanceOf(Promise);
-              thrown = true;
-            }
-            expect(fetchQuery).toBeCalled();
-            expect(thrown).toBe(true);
-          });
+        expect(fetchQuery).not.toBeCalled();
+        expect(result.data).toMatchObject({
+          node: {
+            id: '4',
+          },
         });
       });
 
-      describe('fetchPolicy: store-and-network', () => {
-        beforeEach(() => {
-          fetchPolicy = 'store-and-network';
-        });
-
-        it('should read data (if all data is available) and send a network request', () => {
-          const result = DataResourceCache.readQuery({
-            environment,
-            query,
-            fetchPolicy,
-            readPolicy,
-          });
-          expect(fetchQuery).toBeCalled();
-          expect(result.data).toMatchObject({
-            node: {
-              id: '4',
-            },
-          });
-        });
-
-        it('should send a network request and throw a promise (if data is missing)', () => {
-          let thrown = false;
-          try {
-            DataResourceCache.readQuery({
-              environment,
-              query: queryMissingData,
-              fetchPolicy,
-              readPolicy,
-            });
-          } catch (promise) {
-            expect(promise).toBeInstanceOf(Promise);
-            thrown = true;
-          }
-          expect(fetchQuery).toBeCalled();
-          expect(thrown).toBe(true);
-        });
-      });
-
-      describe('fetchPolicy: network-only', () => {
-        beforeEach(() => {
-          fetchPolicy = 'network-only';
-        });
-        it('should send a network request and throw a promise', () => {
-          let thrown = false;
-          try {
-            DataResourceCache.readQuery({
-              environment,
-              query,
-              fetchPolicy,
-              readPolicy,
-            });
-          } catch (promise) {
-            expect(promise).toBeInstanceOf(Promise);
-            thrown = true;
-          }
-          expect(fetchQuery).toBeCalled();
-          expect(thrown).toBe(true);
-        });
-
-        it('should send a network request and throw a promise (if data is missing)', () => {
-          let thrown = false;
-          try {
-            DataResourceCache.readQuery({
-              environment,
-              query: queryMissingData,
-              fetchPolicy,
-              readPolicy,
-            });
-          } catch (promise) {
-            expect(promise).toBeInstanceOf(Promise);
-            thrown = true;
-          }
-          expect(fetchQuery).toBeCalled();
-          expect(thrown).toBe(true);
-        });
-      });
-
-      describe('fetchPolicy: store-only', () => {
-        beforeEach(() => {
-          fetchPolicy = 'store-only';
-        });
-        it('should return data from the store (if available)', () => {
-          const result = DataResourceCache.readQuery({
-            environment,
-            query,
-            fetchPolicy,
-            readPolicy,
-          });
-          expect(fetchQuery).not.toBeCalled();
-          expect(result.data).toMatchObject({
-            node: {
-              id: '4',
-            },
-          });
-        });
-
-        it('should throw a promise if request is in progress', () => {
-          DataResourceCache.preloadQuery({
+      it('should send a network request (and throw promise) if data is missing for the query', () => {
+        let thrown = false;
+        try {
+          DataResourceCache.readQuery({
             environment,
             query: queryMissingData,
-          });
-          expect(fetchQuery).toBeCalled();
-          let thrown = false;
-          try {
-            DataResourceCache.readQuery({
-              environment,
-              query: queryMissingData,
-              fetchPolicy,
-              readPolicy,
-            });
-          } catch (promise) {
-            expect(promise).toBeInstanceOf(Promise);
-            thrown = true;
-          }
-          expect(thrown).toBe(true);
-        });
-
-        it('should throw an error if data is missing and there is no pending requests', () => {
-          let thrown = false;
-          try {
-            DataResourceCache.readQuery({
-              environment,
-              query: queryMissingData,
-              fetchPolicy,
-              readPolicy,
-            });
-          } catch (error) {
-            expect(error).toBeInstanceOf(Error);
-            thrown = true;
-          }
-          expect(fetchQuery).not.toBeCalled();
-          expect(thrown).toBe(true);
-        });
-      });
-    });
-
-    describe('readPolicy: eager', () => {
-      beforeEach(() => {
-        readPolicy = 'eager';
-      });
-
-      describe('fetchPolicy: store-or-network', () => {
-        beforeEach(() => {
-          fetchPolicy = 'store-or-network';
-        });
-
-        it('should read data (if all data is available) without network request', () => {
-          const result = DataResourceCache.readQuery({
-            environment,
-            query,
             fetchPolicy,
-            readPolicy,
           });
-          expect(fetchQuery).not.toBeCalled();
-          expect(result.data).toMatchObject({
-            node: {
-              id: '4',
-            },
-          });
-        });
+        } catch (p) {
+          thrown = true;
+          expect(p).toBeInstanceOf(Promise);
+        }
+        expect(thrown).toBe(true);
+        expect(fetchQuery).toBeCalled();
+      });
 
-        it('should send a network request (and throw promise) if data is missing for the query', () => {
-          let thrown = false;
-          try {
-            DataResourceCache.readQuery({
-              environment,
-              query: queryMissingData,
-              fetchPolicy,
-              readPolicy,
-            });
-          } catch (p) {
-            thrown = true;
-            expect(p).toBeInstanceOf(Promise);
-          }
-          expect(thrown).toBe(true);
-          expect(fetchQuery).toBeCalled();
-        });
-
-        describe('when using fragments', () => {
-          it('should read data (if all data is available) without network request', () => {
-            const {UserQuery} = generateAndCompile(
-              `
+      describe('when using fragments', () => {
+        it('should read data (if all data is available) without network request', () => {
+          const {UserQuery} = generateAndCompile(
+            `
               fragment UserFragment on User {
                 id
               }
@@ -385,36 +125,35 @@ describe('DataResourceCache', () => {
                 }
               }
             `,
-            );
-            const queryWithFragments = createOperationSelector(
-              UserQuery,
-              variables,
-            );
+          );
+          const queryWithFragments = createOperationSelector(
+            UserQuery,
+            variables,
+          );
 
-            const result = DataResourceCache.readQuery({
-              environment,
-              query: queryWithFragments,
-              fetchPolicy,
-              readPolicy,
-            });
-            expect(fetchQuery).not.toBeCalled();
-            expect(result.data).toMatchObject({
-              node: {
-                __fragments: {
-                  UserFragment: {},
-                },
-                __id: '4',
-                __typename: 'User',
-              },
-            });
+          const result = DataResourceCache.readQuery({
+            environment,
+            query: queryWithFragments,
+            fetchPolicy,
           });
+          expect(fetchQuery).not.toBeCalled();
+          expect(result.data).toMatchObject({
+            node: {
+              __fragments: {
+                UserFragment: {},
+              },
+              __id: '4',
+              __typename: 'User',
+            },
+          });
+        });
 
-          it(
-            'should read query without throwing a promise, and also start a ' +
-              'network request when some data is missing in fragment',
-            () => {
-              const {UserQuery} = generateAndCompile(
-                `
+        it(
+          'should read query without throwing a promise, and also start a ' +
+            'network request when some data is missing in fragment',
+          () => {
+            const {UserQuery} = generateAndCompile(
+              `
                 fragment UserFragment on User {
                   id
                   username
@@ -426,152 +165,144 @@ describe('DataResourceCache', () => {
                   }
                 }
               `,
-              );
-              const queryWithFragments = createOperationSelector(
-                UserQuery,
-                variables,
-              );
+            );
+            const queryWithFragments = createOperationSelector(
+              UserQuery,
+              variables,
+            );
 
-              // In this case a promise isn't thrown because the query
-              // doesn't have any missing fields, so it can be read.
-              // The fragment itself is the one that has a missing field, so
-              // attempting to read the fragment should throw, but that's not
-              // being tested here.
-              const result = DataResourceCache.readQuery({
-                environment,
-                query: queryWithFragments,
-                fetchPolicy,
-                readPolicy,
-              });
-              expect(fetchQuery).toBeCalled();
-              expect(result.data).toMatchObject({
-                node: {
-                  __fragments: {
-                    UserFragment: {},
-                  },
-                  __id: '4',
-                  __typename: 'User',
+            // In this case a promise isn't thrown because the query
+            // doesn't have any missing fields, so it can be read.
+            // The fragment itself is the one that has a missing field, so
+            // attempting to read the fragment should throw, but that's not
+            // being tested here.
+            const result = DataResourceCache.readQuery({
+              environment,
+              query: queryWithFragments,
+              fetchPolicy,
+            });
+            expect(fetchQuery).toBeCalled();
+            expect(result.data).toMatchObject({
+              node: {
+                __fragments: {
+                  UserFragment: {},
                 },
-              });
-            },
-          );
+                __id: '4',
+                __typename: 'User',
+              },
+            });
+          },
+        );
+      });
+    });
+
+    describe('fetchPolicy: store-and-network', () => {
+      beforeEach(() => {
+        fetchPolicy = 'store-and-network';
+      });
+      it('should read data and send a network request', () => {
+        const result = DataResourceCache.readQuery({
+          environment,
+          query,
+          fetchPolicy,
+        });
+        expect(fetchQuery).toBeCalled();
+        expect(result.data).toMatchObject({
+          node: {
+            id: '4',
+          },
         });
       });
 
-      describe('fetchPolicy: store-and-network', () => {
-        beforeEach(() => {
-          fetchPolicy = 'store-and-network';
-        });
-        it('should read data and send a network request', () => {
-          const result = DataResourceCache.readQuery({
+      it('should generate a network request if data is missing for the query', () => {
+        let thrown = false;
+        try {
+          DataResourceCache.readQuery({
+            environment,
+            query: queryMissingData,
+            fetchPolicy,
+          });
+        } catch (p) {
+          thrown = true;
+          expect(p).toBeInstanceOf(Promise);
+        }
+        expect(thrown).toBe(true);
+        expect(fetchQuery).toBeCalled();
+      });
+    });
+
+    describe('fetchPolicy: network-only', () => {
+      beforeEach(() => {
+        fetchPolicy = 'network-only';
+      });
+      it('should send a network request and throw a promise (always)', () => {
+        let thrown = false;
+        try {
+          DataResourceCache.readQuery({
             environment,
             query,
             fetchPolicy,
-            readPolicy,
           });
-          expect(fetchQuery).toBeCalled();
-          expect(result.data).toMatchObject({
-            node: {
-              id: '4',
-            },
-          });
-        });
+        } catch (promise) {
+          expect(promise).toBeInstanceOf(Promise);
+          thrown = true;
+        }
+        expect(fetchQuery).toBeCalled();
+        expect(thrown).toBe(true);
+      });
+    });
 
-        it('should generate a network request if data is missing for the query', () => {
-          let thrown = false;
-          try {
-            DataResourceCache.readQuery({
-              environment,
-              query: queryMissingData,
-              fetchPolicy,
-              readPolicy,
-            });
-          } catch (p) {
-            thrown = true;
-            expect(p).toBeInstanceOf(Promise);
-          }
-          expect(thrown).toBe(true);
-          expect(fetchQuery).toBeCalled();
+    describe('fetchPolicy: store-only', () => {
+      beforeEach(() => {
+        fetchPolicy = 'store-only';
+      });
+      it('should return data from the store (if available)', () => {
+        const result = DataResourceCache.readQuery({
+          environment,
+          query,
+          fetchPolicy,
+        });
+        expect(fetchQuery).not.toBeCalled();
+        expect(result.data).toMatchObject({
+          node: {
+            id: '4',
+          },
         });
       });
 
-      describe('fetchPolicy: network-only', () => {
-        beforeEach(() => {
-          fetchPolicy = 'network-only';
-        });
-        it('should send a network request and throw a promise (always)', () => {
-          let thrown = false;
-          try {
-            DataResourceCache.readQuery({
-              environment,
-              query,
-              fetchPolicy,
-              readPolicy,
-            });
-          } catch (promise) {
-            expect(promise).toBeInstanceOf(Promise);
-            thrown = true;
-          }
-          expect(fetchQuery).toBeCalled();
-          expect(thrown).toBe(true);
-        });
-      });
-
-      describe('fetchPolicy: store-only', () => {
-        beforeEach(() => {
-          fetchPolicy = 'store-only';
-        });
-        it('should return data from the store (if available)', () => {
-          const result = DataResourceCache.readQuery({
+      it('should throw a network request promise if data is missing (and we have pending request)', () => {
+        (getPromiseForRequestInFlight: any).mockReturnValueOnce(
+          Promise.resolve(),
+        );
+        let promiseThrown = false;
+        try {
+          DataResourceCache.readQuery({
             environment,
-            query,
+            query: queryMissingData,
             fetchPolicy,
-            readPolicy,
           });
-          expect(fetchQuery).not.toBeCalled();
-          expect(result.data).toMatchObject({
-            node: {
-              id: '4',
-            },
+        } catch (p) {
+          promiseThrown = true;
+          expect(p).toBeInstanceOf(Promise);
+        }
+        expect(promiseThrown).toBe(true);
+        expect(fetchQuery).not.toBeCalled();
+      });
+
+      it('should throw an error if data is missing and there are no pending requests', () => {
+        let errorThrown = false;
+        try {
+          DataResourceCache.readQuery({
+            environment,
+            query: queryMissingData,
+            fetchPolicy,
           });
-        });
-
-        it('should throw a network request promise if data is missing (and we have pending request)', () => {
-          (getPromiseForRequestInFlight: any).mockReturnValueOnce(
-            Promise.resolve(),
-          );
-          let promiseThrown = false;
-          try {
-            DataResourceCache.readQuery({
-              environment,
-              query: queryMissingData,
-              fetchPolicy,
-              readPolicy,
-            });
-          } catch (p) {
-            promiseThrown = true;
-            expect(p).toBeInstanceOf(Promise);
-          }
-          expect(promiseThrown).toBe(true);
-          expect(fetchQuery).not.toBeCalled();
-        });
-
-        it('should throw an error if data is missing and there are no pending requests', () => {
-          let errorThrown = false;
-          try {
-            DataResourceCache.readQuery({
-              environment,
-              query: queryMissingData,
-              fetchPolicy,
-              readPolicy,
-            });
-          } catch (e) {
-            errorThrown = true;
-            expect(e).toBeInstanceOf(Error);
-          }
-          expect(fetchQuery).not.toBeCalled();
-          expect(errorThrown).toBe(true);
-        });
+        } catch (e) {
+          errorThrown = true;
+          expect(e).toBeInstanceOf(Error);
+        }
+        expect(fetchQuery).not.toBeCalled();
+        expect(errorThrown).toBe(true);
       });
     });
   });

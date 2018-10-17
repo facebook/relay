@@ -581,8 +581,7 @@ describe('RelayModernEnvironment', () => {
       expect(next).toBeCalledWith({
         kind: 'data',
         response: payload,
-        variables,
-        operation: (operation.node: $FlowFixMe).operation,
+        isOptimistic: false,
       });
       expect(complete).toBeCalled();
       expect(error).not.toBeCalled();
@@ -733,8 +732,7 @@ describe('RelayModernEnvironment', () => {
       expect(next).toBeCalledWith({
         kind: 'data',
         response: payload,
-        variables,
-        operation: (operation.node: $FlowFixMe).operation,
+        isOptimistic: false,
       });
       expect(complete).not.toBeCalled();
       expect(error).not.toBeCalled();
@@ -793,7 +791,7 @@ describe('RelayModernEnvironment', () => {
       });
     });
 
-    it('calls next() and publishes optimisitc payload to the store', () => {
+    it('calls next() and publishes optimistic payload to the store', () => {
       const selector = {
         dataID: ROOT_ID,
         node: query.fragment,
@@ -815,8 +813,6 @@ describe('RelayModernEnvironment', () => {
       };
       dataSource.next({
         kind: 'data',
-        operation: query.operation,
-        variables,
         response: payload,
         isOptimistic: true,
       });
@@ -833,7 +829,7 @@ describe('RelayModernEnvironment', () => {
       });
     });
 
-    it('reverts the optimisitc payload before applies regular response', () => {
+    it('reverts the optimistic payload before applying regular response', () => {
       const selector = {
         dataID: ROOT_ID,
         node: query.fragment,
@@ -866,8 +862,6 @@ describe('RelayModernEnvironment', () => {
 
       dataSource.next({
         kind: 'data',
-        operation: query.operation,
-        variables,
         response: optimisticResponse,
         isOptimistic: true,
       });
@@ -875,9 +869,8 @@ describe('RelayModernEnvironment', () => {
       jest.runAllTimers();
       dataSource.next({
         kind: 'data',
-        operation: query.operation,
-        variables,
         response: realResponse,
+        isOptimistic: false,
       });
       jest.runAllTimers();
 
@@ -919,8 +912,6 @@ describe('RelayModernEnvironment', () => {
       };
       dataSource.next({
         kind: 'data',
-        operation: query.operation,
-        variables,
         response: payload,
         isOptimistic: true,
       });

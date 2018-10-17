@@ -10,10 +10,7 @@
 
 'use strict';
 
-const RelayConcreteNode = require('../util/RelayConcreteNode');
 const RelayObservable = require('./RelayObservable');
-
-const warning = require('warning');
 
 import type {RequestNode} from '../util/RelayConcreteNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
@@ -88,6 +85,7 @@ function convertSubscribeWithEvents(fn: SubscribeFunction): StreamFunction {
  * Given a value which might be a plain GraphQLResponse, coerce to always return
  * an ExecutePayload. A GraphQLResponse may be returned directly from older or
  * simpler Relay Network implementations.
+ * TODO T35261785: Only use convertToStreamPayload w GraphQLResponse sources
  */
 function convertToStreamPayload(
   request: RequestNode,
@@ -95,26 +93,21 @@ function convertToStreamPayload(
   value: GraphQLResponse | StreamPayload,
 ): StreamPayload {
   if (!value.data && !value.errors && value.response) {
-    if (!value.operation) {
-      warning(
-        false,
-        'ConvertToExecuteFunction: execute payload contains response but ' +
-          'is missing operation.',
-      );
-      return createExecutePayload(request, variables, value.response);
-    }
-    // assume value is data if value.response defined, but no kind field given
-    return {...value, kind: 'data'};
+    return {
+      kind: 'data',
+      response: value.response,
+      isOptimistic: value.isOptimistic === true,
+    };
   } else if (!value.data && !value.errors && value.kind === 'event') {
     return value;
   } else {
     // in this case we have a GraphQLResponse
-    return createExecutePayload(request, variables, value);
+    return {
+      kind: 'data',
+      response: value,
+      isOptimistic: false,
+    };
   }
-}
-
-function createExecutePayload(request, variables, response) {
-  return {kind: 'data', operation: request.operation, variables, response};
 }
 
 module.exports = {

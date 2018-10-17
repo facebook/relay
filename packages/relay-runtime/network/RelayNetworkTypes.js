@@ -58,14 +58,10 @@ export type GraphQLResponse =
  */
 export type ExecutePayload = {|
   kind: 'data',
-  // The operation executed
-  operation: ConcreteOperation,
-  // The variables which were used during this execution.
-  variables: Variables,
   // The response from GraphQL execution
   response: GraphQLResponse,
   // Default is false
-  isOptimistic?: boolean,
+  isOptimistic: boolean,
 |};
 
 /**

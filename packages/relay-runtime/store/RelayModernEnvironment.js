@@ -216,12 +216,12 @@ class RelayModernEnvironment implements Environment {
       .execute(operation.node, operation.variables, cacheConfig || {})
       .do({
         next: executePayload => {
-          const responsePayload = normalizePayload(executePayload);
+          const responsePayload = normalizePayload(operation, executePayload);
           const {source, fieldPayloads} = responsePayload;
           if (executePayload.isOptimistic) {
             invariant(
               optimisticResponse == null,
-              'environment.execute: only support one optimistic respnose per ' +
+              'environment.execute: only support one optimistic response per ' +
                 'execute.',
             );
             optimisticResponse = {
@@ -276,12 +276,12 @@ class RelayModernEnvironment implements Environment {
           if (executePayload.kind !== 'data') {
             return;
           }
-          const responsePayload = normalizePayload(executePayload);
+          const responsePayload = normalizePayload(operation, executePayload);
           const {source, fieldPayloads} = responsePayload;
           if (executePayload.isOptimistic) {
             invariant(
               optimisticResponse == null,
-              'environment.execute: only support one optimistic respnose per ' +
+              'environment.execute: only support one optimistic response per ' +
                 'execute.',
             );
             optimisticResponse = {
@@ -361,7 +361,7 @@ class RelayModernEnvironment implements Environment {
           }
           this._publishQueue.commitPayload(
             operation,
-            normalizePayload(payload),
+            normalizePayload(operation, payload),
             updater,
           );
           this._publishQueue.run();

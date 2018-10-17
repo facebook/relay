@@ -645,6 +645,71 @@ describe('RelayStore', () => {
     });
   });
 
+  describe('GC Scheduler', () => {
+    let UserFragment;
+    let data;
+    let initialData;
+    let source;
+    let store;
+    let callbacks;
+    let scheduler;
+
+    beforeEach(() => {
+      data = {
+        '4': {
+          __id: '4',
+          id: '4',
+          __typename: 'User',
+          name: 'Zuck',
+          'profilePicture(size:32)': {[REF_KEY]: 'client:1'},
+        },
+        'client:1': {
+          __id: 'client:1',
+          uri: 'https://photo1.jpg',
+        },
+      };
+      initialData = simpleClone(data);
+      callbacks = [];
+      scheduler = jest.fn(callbacks.push.bind(callbacks));
+      source = new RelayInMemoryRecordSource(data);
+      store = new RelayMarkSweepStore(source, scheduler);
+      ({UserFragment} = generateWithTransforms(
+        `
+        fragment UserFragment on User {
+          name
+          profilePicture(size: $size) {
+            uri
+          }
+        }
+      `,
+      ));
+    });
+
+    it('calls the gc scheduler function when GC should run', () => {
+      const {dispose} = store.retain({
+        dataID: '4',
+        node: UserFragment,
+        variables: {size: 32},
+      });
+      expect(scheduler).not.toBeCalled();
+      dispose();
+      expect(scheduler).toBeCalled();
+      expect(callbacks.length).toBe(1);
+    });
+
+    it('Runs GC when the GC scheduler executes the task', () => {
+      const {dispose} = store.retain({
+        dataID: '4',
+        node: UserFragment,
+        variables: {size: 32},
+      });
+      dispose();
+      expect(source.toJSON()).toEqual(initialData);
+      callbacks[0](); // run gc
+      expect(source.toJSON()).toEqual({});
+    });
+  });
+
   describe('holdGC()', () => {
     let UserFragment;
     let data;

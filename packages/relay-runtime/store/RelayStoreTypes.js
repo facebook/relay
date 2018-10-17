@@ -158,6 +158,12 @@ export interface Store {
 }
 
 /**
+ * A type that accepts a callback and schedules it to run at some future time.
+ * By convention, implementations should not execute the callback immediately.
+ */
+export type Scheduler = (() => void) => void;
+
+/**
  * An interface for imperatively getting/setting properties of a `Record`. This interface
  * is designed to allow the appearance of direct Record manipulation while
  * allowing different implementations that may e.g. create a changeset of

@@ -27,6 +27,7 @@ import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {
   MutableRecordSource,
   RecordSource,
+  Scheduler,
   Selector,
   Snapshot,
   Store,
@@ -52,6 +53,7 @@ type Subscription = {
  */
 class RelayMarkSweepStore implements Store {
   _gcEnabled: boolean;
+  _gcScheduler: Scheduler;
   _hasScheduledGC: boolean;
   _index: number;
   _recordSource: MutableRecordSource;
@@ -61,7 +63,10 @@ class RelayMarkSweepStore implements Store {
   _gcHoldCounter: number;
   _shouldScheduleGC: boolean;
 
-  constructor(source: MutableRecordSource) {
+  constructor(
+    source: MutableRecordSource,
+    gcScheduler: Scheduler = resolveImmediate,
+  ) {
     // Prevent mutation of a record from outside the store.
     if (__DEV__) {
       const storeIDs = source.getRecordIDs();
@@ -73,6 +78,7 @@ class RelayMarkSweepStore implements Store {
       }
     }
     this._gcEnabled = true;
+    this._gcScheduler = gcScheduler;
     this._hasScheduledGC = false;
     this._index = 0;
     this._recordSource = source;
@@ -186,7 +192,7 @@ class RelayMarkSweepStore implements Store {
       return;
     }
     this._hasScheduledGC = true;
-    resolveImmediate(() => {
+    this._gcScheduler(() => {
       this.__gc();
       this._hasScheduledGC = false;
     });

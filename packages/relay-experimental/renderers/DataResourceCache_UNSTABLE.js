@@ -122,7 +122,7 @@ function createCache() {
   |}): Disposable {
     const {environment, query} = args;
     const cacheKey = getQueryCacheKey(query);
-    const fetchPolicy = args.fetchPolicy ?? 'network-only';
+    const fetchPolicy = args.fetchPolicy ?? 'store-or-network';
 
     // NOTE: Running `check` will write missing data to the store using any
     // missing data handlers specified on the environment;

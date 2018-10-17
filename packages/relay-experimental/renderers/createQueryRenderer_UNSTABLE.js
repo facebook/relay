@@ -68,17 +68,18 @@ render() {
 }
 ```
 
-Fetching and Reading Behavior
-=============================
+Fetching and Rendering Behavior
+===============================
 
-By default, the QueryRenderer will always attempt to fetch the query from the
-network, without using any locally available data.
+Fetching and rendering behavior can be configured via the `fetchPolicy` prop.
 
-This behavior can be configured by the `fetchPolicy` prop. If the QueryRenderer
-is configured to read data from Relay store, we will eagerly read as much data
-from the store as is available locally for the query.
+The `fetchPolicy` will be ***"store-or-network"*** by default, and can be one of
+the values described below.
 
-`fetchPolicy`  will be ***"network-only"*** by default, and can be one of the following values:
+NOTE: If the QueryRenderer is configured to read data from Relay store before or
+along with fetching from the network, it will read from the store as much data
+as is available locally for the query.
+
 - **"store-only"**: The QueryRenderer will only attempt to *read* the query from
   the store, without making any network requests.
   In this mode, the responsibility of fetching the data is left to the caller.
@@ -102,6 +103,7 @@ from the store as is available locally for the query.
   be available locally in the store, and will suspend rendering until the
   network request completes.
 */
+
 type RenderProps<TQueryResponse> = {|
   data: TQueryResponse,
 |};

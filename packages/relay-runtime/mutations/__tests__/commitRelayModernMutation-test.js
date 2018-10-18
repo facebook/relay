@@ -147,7 +147,7 @@ describe('Configs: NODE_DELETE', () => {
     expect(callback.mock.calls.length).toBe(0);
   });
   it('throws error with classic environment', () => {
-    const RelayEnvironment = require.requireActual(
+    const RelayEnvironment = jest.requireActual(
       'react-relay/classic/store/__mocks__/RelayEnvironment',
     );
     const environment = new RelayEnvironment();

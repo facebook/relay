@@ -9,7 +9,7 @@
 
 'use strict';
 
-const validateRelayReadQuery = require.requireActual(
+const validateRelayReadQuery = jest.requireActual(
   '../validateRelayReadQuery',
 );
 module.exports = validateRelayReadQuery;

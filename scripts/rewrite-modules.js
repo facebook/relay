@@ -50,7 +50,7 @@ module.exports = function(babel) {
   var t = babel.types;
 
   /**
-   * Transforms `require('Foo')` and `require.requireActual('Foo')`.
+   * Transforms `require('Foo')` and `jest.requireActual('Foo')`.
    */
   function transformRequireCall(path, state) {
     var calleePath = path.get('callee');

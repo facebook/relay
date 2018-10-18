@@ -31,7 +31,7 @@ describe('RelayMutation', function() {
 
   function applyUpdate(mutation) {
     /* eslint-disable no-shadow */
-    const RelayEnvironment = require.requireActual(
+    const RelayEnvironment = jest.requireActual(
       '../../store/RelayEnvironment',
     );
     const environment = new RelayEnvironment();

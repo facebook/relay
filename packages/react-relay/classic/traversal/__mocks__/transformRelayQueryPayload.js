@@ -10,5 +10,5 @@
 'use strict';
 
 module.exports = jest.fn(
-  require.requireActual('../transformRelayQueryPayload'),
+  jest.requireActual('../transformRelayQueryPayload'),
 );

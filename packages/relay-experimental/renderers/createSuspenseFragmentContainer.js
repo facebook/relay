@@ -181,10 +181,10 @@ function createSuspenseFragmentContainer<
       this._renderedSnapshots = {};
       const data = {};
       forEachObject(readResult, (result, key) => {
-        invariant(
-          result != null,
-          'SuspenseFragmentContainer: Expected to have read data',
-        );
+        if (result == null) {
+          data[key] = null;
+          return;
+        }
         data[key] = result.data;
         // WARNING: Keeping instance variables in render can be unsafe; however,
         // in this case it is safe because we're ensuring they are only used in the

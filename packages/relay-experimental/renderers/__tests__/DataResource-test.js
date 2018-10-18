@@ -13,6 +13,7 @@
 
 jest.mock('../../utils/fetchQueryUtils');
 
+const invariant = require('invariant');
 const {getCacheForEnvironment} = require('../DataResource');
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {generateAndCompile} = require('RelayModernTestUtils');
@@ -340,7 +341,38 @@ describe('DataResource', () => {
           },
         },
       });
+      invariant(result.user != null, 'Expected to be able to read fragment');
       expect((result.user.data: any).id).toBe('4');
+    });
+
+    it('should return null data if fragment reference is not provided', () => {
+      const {UserQuery, UserFragment} = generateAndCompile(
+        `
+          fragment UserFragment on User {
+            id
+          }
+          query UserQuery($id: ID!) {
+            node(id: $id) {
+              __typename
+              ...UserFragment
+            }
+          }
+        `,
+      );
+      const parentQuery = createOperationSelector(UserQuery, variables);
+
+      const result = DataResource.readFragmentSpec({
+        environment,
+        variables,
+        parentQuery,
+        fragmentNodes: {
+          user: getFragment(UserFragment),
+        },
+        fragmentRefs: {
+          user: null,
+        },
+      });
+      expect(result.user).toBe(null);
     });
 
     it('should throw a promise if reading missing data (if there is a pending network request)', () => {

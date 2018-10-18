@@ -416,7 +416,7 @@ function createCache() {
       fragmentNodes: {[key: string]: ConcreteFragment},
       fragmentRefs: {[string]: mixed},
       parentQuery: ?OperationSelector,
-    |}): {[string]: CacheReadResult} {
+    |}): {[string]: CacheReadResult | null} {
       const {
         environment,
         variables,
@@ -432,6 +432,9 @@ function createCache() {
       );
       return mapObject(fragmentNodes, (fragmentNode, key) => {
         const fragmentRef = fragmentRefs[key];
+        if (fragmentRef == null) {
+          return null;
+        }
         const cacheKey = getFragmentCacheKey(
           fragmentNode,
           fragmentRef,
@@ -455,7 +458,7 @@ function createCache() {
           selectorsByFragment[key];
         invariant(
           fragmentSelector != null,
-          'DataResource: Expected selector to be available',
+          'DataResource: Expected to have received a valid fragment reference',
         );
         const snapshot = Array.isArray(fragmentSelector)
           ? fragmentSelector.map(s => environment.lookup(s))

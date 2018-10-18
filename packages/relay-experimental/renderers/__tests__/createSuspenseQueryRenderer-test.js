@@ -99,7 +99,7 @@ describe('createQueryRenderer', () => {
     );
     gqlQuery = generated.UserQuery;
     renderFn = jest.fn(() => <div />);
-    QueryRenderer = createSuspenseQueryRenderer(gqlQuery);
+    QueryRenderer = createSuspenseQueryRenderer(gqlQuery, {fetchPolicy});
   });
 
   it('should render the component if data is available without network request', () => {
@@ -107,7 +107,6 @@ describe('createQueryRenderer', () => {
     commitUserPayload(environment, gqlQuery, variables.id, 'Alice');
     ReactTestRenderer.create(
       <QueryRenderer
-        fetchPolicy={fetchPolicy}
         environment={environment}
         variables={variables}
         render={renderFn}
@@ -132,7 +131,6 @@ describe('createQueryRenderer', () => {
     commitUserPayload(environment, gqlQuery, variables.id, undefined);
     ReactTestRenderer.create(
       <QueryRenderer
-        fetchPolicy={fetchPolicy}
         environment={environment}
         variables={variables}
         render={renderFn}
@@ -160,7 +158,6 @@ describe('createQueryRenderer', () => {
     expect(() => {
       return ReactTestRenderer.create(
         <QueryRenderer
-          fetchPolicy={fetchPolicy}
           environment={environment}
           variables={variables}
           render={renderFn}
@@ -177,7 +174,6 @@ describe('createQueryRenderer', () => {
     expect(() =>
       ReactTestRenderer.create(
         <QueryRenderer
-          fetchPolicy={fetchPolicy}
           environment={environment}
           render={renderFn}
           variables={{}}
@@ -209,7 +205,6 @@ describe('createQueryRenderer', () => {
       commitUserPayload(environment, gqlQuery, variables.id, 'Alice');
       ReactTestRenderer.create(
         <QueryRenderer
-          fetchPolicy={fetchPolicy}
           environment={environment}
           variables={variables}
           render={renderFn}
@@ -255,7 +250,6 @@ describe('createQueryRenderer', () => {
 
       ReactTestRenderer.create(
         <QueryRenderer
-          fetchPolicy={fetchPolicy}
           environment={environment}
           variables={variables}
           render={renderFn}
@@ -273,7 +267,6 @@ describe('createQueryRenderer', () => {
       const renderer = ReactTestRenderer.create(
         <PropsSetter>
           <QueryRenderer
-            fetchPolicy={fetchPolicy}
             environment={environment}
             variables={variables}
             render={renderFn}
@@ -302,7 +295,6 @@ describe('createQueryRenderer', () => {
       const renderer = ReactTestRenderer.create(
         <PropsSetter>
           <QueryRenderer
-            fetchPolicy={fetchPolicy}
             environment={environment}
             variables={variables1}
             render={renderFn}
@@ -325,7 +317,6 @@ describe('createQueryRenderer', () => {
       const renderer = ReactTestRenderer.create(
         <PropsSetter>
           <QueryRenderer
-            fetchPolicy={fetchPolicy}
             environment={environment}
             variables={variables}
             render={renderFn}
@@ -351,7 +342,6 @@ describe('createQueryRenderer', () => {
       const renderer = ReactTestRenderer.create(
         <PropsSetter>
           <QueryRenderer
-            fetchPolicy={fetchPolicy}
             environment={environment}
             variables={variables1}
             render={renderFn}
@@ -399,7 +389,6 @@ describe('createQueryRenderer', () => {
       const renderer = ReactTestRenderer.create(
         <PropsSetter>
           <QueryRenderer
-            fetchPolicy={fetchPolicy}
             environment={environment}
             variables={variables}
             render={renderFn}
@@ -448,7 +437,6 @@ describe('createQueryRenderer', () => {
             <React.Fragment>
               <Child>A</Child>
               <QueryRenderer
-                fetchPolicy={fetchPolicy}
                 environment={environment}
                 variables={variables}
                 render={renderFn}
@@ -510,13 +498,11 @@ describe('createQueryRenderer', () => {
       return (
         <React.Fragment>
           <QueryRenderer
-            fetchPolicy={fetchPolicy}
             environment={environment}
             variables={variables1}
             render={renderFn1}
           />
           <QueryRenderer
-            fetchPolicy={fetchPolicy}
             environment={environment}
             variables={variables2}
             render={renderFn2}
@@ -690,7 +676,9 @@ describe('createQueryRenderer', () => {
       expectedRenderOutput,
     ) => {
       return (testFetchPolicy, expectedBehavior) => {
-        const TestQueryRenderer = createSuspenseQueryRenderer(testGqlQuery);
+        const TestQueryRenderer = createSuspenseQueryRenderer(testGqlQuery, {
+          fetchPolicy: testFetchPolicy,
+        });
         const testRenderFn = jest.fn();
         switch (expectedBehavior) {
           case RENDER_NO_REQUEST:
@@ -698,7 +686,6 @@ describe('createQueryRenderer', () => {
               <TestQueryRenderer
                 environment={testEnvironment}
                 variables={testVariables}
-                fetchPolicy={testFetchPolicy}
                 render={testRenderFn}
               />,
             );
@@ -711,7 +698,6 @@ describe('createQueryRenderer', () => {
               <TestQueryRenderer
                 environment={testEnvironment}
                 variables={testVariables}
-                fetchPolicy={testFetchPolicy}
                 render={testRenderFn}
               />,
             );
@@ -731,7 +717,6 @@ describe('createQueryRenderer', () => {
                 <TestQueryRenderer
                   environment={testEnvironment}
                   variables={testVariables}
-                  fetchPolicy={testFetchPolicy}
                   render={testRenderFn}
                 />,
               );
@@ -743,7 +728,6 @@ describe('createQueryRenderer', () => {
                 <TestQueryRenderer
                   environment={testEnvironment}
                   variables={testVariables}
-                  fetchPolicy={testFetchPolicy}
                   render={testRenderFn}
                 />,
               );

@@ -70,7 +70,14 @@ render() {
 Fetching and Rendering Behavior
 ===============================
 
-Fetching and rendering behavior can be configured via the `fetchPolicy` prop.
+Fetching and rendering behavior can be configured via the `fetchPolicy` option:
+
+```
+const MyQueryRenderer = createSuspenseQueryRenderer<MyQuery>(
+  query,
+  {fetchPolicy: "store-or-network"},
+);
+```
 
 The `fetchPolicy` will be ***"store-or-network"*** by default, and can be one of
 the values described below.
@@ -109,20 +116,22 @@ type RenderProps<TQueryResponse> = {|
 
 function createSuspenseQueryRenderer<TQuery: OperationType>(
   gqlQuery: GraphQLTaggedNode,
+  options?: {|
+    fetchPolicy?: FetchPolicy,
+  |},
 ): React.ComponentType<{|
   environment: IEnvironment,
   variables: $ElementType<TQuery, 'variables'>,
   render: (RenderProps<$ElementType<TQuery, 'response'>>) => React.Node,
-  fetchPolicy?: FetchPolicy,
 |}> {
   type Props = {|
     environment: IEnvironment,
     variables: $ElementType<TQuery, 'variables'>,
     render: (RenderProps<$ElementType<TQuery, 'response'>>) => React.Node,
-    fetchPolicy?: FetchPolicy,
   |};
 
   const queryNode = getRequest(gqlQuery);
+  const fetchPolicy = options?.fetchPolicy;
 
   function getRelayContext(environment: IEnvironment, variables: Variables) {
     const operationSelector = createOperationSelector(queryNode, variables);
@@ -284,7 +293,7 @@ function createSuspenseQueryRenderer<TQuery: OperationType>(
     }
 
     render() {
-      const {render, fetchPolicy, environment, variables} = this.props;
+      const {render, environment, variables} = this.props;
       const DataResource = getCacheForEnvironment(environment);
 
       // We memoize the ReactRelayContext so we don't pass a new object on

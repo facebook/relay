@@ -33,6 +33,7 @@ module.name_mapper='^ReactDOM$' -> 'react-dom'
 
 esproposal.class_static_fields=enable
 esproposal.class_instance_fields=enable
+esproposal.optional_chaining=enable
 
 munge_underscores=true
 

@@ -23,10 +23,10 @@ const compileRelayArtifacts = require('./codegen/compileRelayArtifacts');
 const formatGeneratedModule = require('./language/javascript/formatGeneratedModule');
 const writeRelayGeneratedFile = require('./codegen/writeRelayGeneratedFile');
 
-const {CompilerContext: GraphQLCompilerContext} = require('graphql-compiler');
 const {
   ASTConvert,
   CodegenRunner,
+  CompilerContext: GraphQLCompilerContext,
   ConsoleReporter,
   MultiReporter,
 } = require('graphql-compiler');

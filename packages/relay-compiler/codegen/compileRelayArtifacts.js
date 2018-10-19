@@ -12,8 +12,7 @@
 
 const RelayCodeGenerator = require('./RelayCodeGenerator');
 
-const {filterContextForNode, Printer} = require('graphql-compiler');
-const {Profiler} = require('graphql-compiler');
+const {Printer, Profiler, filterContextForNode} = require('graphql-compiler');
 
 import type {CompilerContext, IRTransform, Reporter} from 'graphql-compiler';
 import type {GeneratedNode} from 'relay-runtime';

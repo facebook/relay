@@ -12,8 +12,8 @@
 
 const ErrorUtils = require('ErrorUtils');
 const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
-const RelayMarkSweepStore = require('../RelayMarkSweepStore');
 const RelayModernRecord = require('../RelayModernRecord');
+const RelayModernStore = require('../RelayModernStore');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 const RelayPublishQueue = require('../RelayPublishQueue');
 const RelayStoreUtils = require('../RelayStoreUtils');
@@ -85,7 +85,7 @@ describe('RelayPublishQueue', () => {
       };
       sourceData = simpleClone(initialData);
       source = new RelayInMemoryRecordSource(sourceData);
-      store = new RelayMarkSweepStore(source);
+      store = new RelayModernStore(source);
       const mutationQuery = generateAndCompile(
         `
         mutation ChangeNameMutation(
@@ -431,7 +431,7 @@ describe('RelayPublishQueue', () => {
       };
       sourceData = simpleClone(initialData);
       source = new RelayInMemoryRecordSource(sourceData);
-      store = new RelayMarkSweepStore(source);
+      store = new RelayModernStore(source);
     });
 
     it('reverts executed changes', () => {
@@ -832,7 +832,7 @@ describe('RelayPublishQueue', () => {
       };
       const initialData = simpleClone(sourceData);
       const source = new RelayInMemoryRecordSource(sourceData);
-      const store = new RelayMarkSweepStore(source);
+      const store = new RelayModernStore(source);
       const queue = new RelayPublishQueue(store);
       // Set name to 'MARK' *without* running the update
       queue.applyUpdate({
@@ -891,7 +891,7 @@ describe('RelayPublishQueue', () => {
       };
       const initialData = simpleClone(sourceData);
       const source = new RelayInMemoryRecordSource(sourceData);
-      const store = new RelayMarkSweepStore(source);
+      const store = new RelayModernStore(source);
       const queue = new RelayPublishQueue(store);
       // Set name to 'MARK', running the update immediately
       queue.applyUpdate({
@@ -951,7 +951,7 @@ describe('RelayPublishQueue', () => {
       };
       const initialData = simpleClone(sourceData);
       const source = new RelayInMemoryRecordSource(sourceData);
-      const store = new RelayMarkSweepStore(source);
+      const store = new RelayModernStore(source);
       const queue = new RelayPublishQueue(store);
       // Set name to 'MARK'
       const mutation = {
@@ -1012,7 +1012,7 @@ describe('RelayPublishQueue', () => {
         },
       };
       const source = new RelayInMemoryRecordSource(sourceData);
-      const store = new RelayMarkSweepStore(source);
+      const store = new RelayModernStore(source);
       const queue = new RelayPublishQueue(store);
 
       const increaseVolumeUpdater = {
@@ -1059,7 +1059,7 @@ describe('RelayPublishQueue', () => {
       };
       const initialData = simpleClone(sourceData);
       const source = new RelayInMemoryRecordSource(sourceData);
-      const store = new RelayMarkSweepStore(source);
+      const store = new RelayModernStore(source);
       const queue = new RelayPublishQueue(store);
       const buggyUpdater = storeProxy => {
         invariant(false, 'buggy updater throwing error');
@@ -1144,7 +1144,7 @@ describe('RelayPublishQueue', () => {
       let namePayload, nameSelector, nameSource, sourceData, queue;
       beforeEach(() => {
         sourceData = {};
-        const store = new RelayMarkSweepStore(
+        const store = new RelayModernStore(
           new RelayInMemoryRecordSource(sourceData),
         );
         queue = new RelayPublishQueue(store);
@@ -1227,7 +1227,7 @@ describe('RelayPublishQueue', () => {
       };
       const initialData = simpleClone(sourceData);
       const storeSource = new RelayInMemoryRecordSource(sourceData);
-      const store = new RelayMarkSweepStore(storeSource);
+      const store = new RelayModernStore(storeSource);
       const queue = new RelayPublishQueue(store);
       // Set name to 'MARK', running the update immediately
       queue.applyUpdate({
@@ -1267,7 +1267,7 @@ describe('RelayPublishQueue', () => {
       };
       const initialData = simpleClone(sourceData);
       const storeSource = new RelayInMemoryRecordSource(sourceData);
-      const store = new RelayMarkSweepStore(storeSource);
+      const store = new RelayModernStore(storeSource);
       const queue = new RelayPublishQueue(store);
       // Set name to 'MARK'
       const mutation = {

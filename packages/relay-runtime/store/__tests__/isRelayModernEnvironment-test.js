@@ -12,15 +12,15 @@
 
 const RelayEnvironment = require('react-relay/classic/store/RelayEnvironment');
 const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
-const RelayMarkSweepStore = require('../RelayMarkSweepStore');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
+const RelayModernStore = require('../RelayModernStore');
 
 const isRelayModernEnvironment = require('../isRelayModernEnvironment');
 
 describe('isRelayModernEnvironment()', () => {
   it('returns true for `RelayModernEnvironment` instances', () => {
     const source = new RelayInMemoryRecordSource();
-    const store = new RelayMarkSweepStore(source);
+    const store = new RelayModernStore(source);
     const fetch = jest.fn();
     const environment = new RelayModernEnvironment({fetch, store});
     expect(isRelayModernEnvironment(environment)).toBe(true);

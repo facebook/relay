@@ -11,8 +11,8 @@
 'use strict';
 
 const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
-const RelayMarkSweepStore = require('../RelayMarkSweepStore');
 const RelayModernRecord = require('../RelayModernRecord');
+const RelayModernStore = require('../RelayModernStore');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 
 const simpleClone = require('../../util/simpleClone');
@@ -52,7 +52,7 @@ describe('RelayStore', () => {
       };
       initialData = simpleClone(data);
       source = new RelayInMemoryRecordSource(data);
-      store = new RelayMarkSweepStore(source);
+      store = new RelayModernStore(source);
       ({UserFragment} = generateWithTransforms(
         `
         fragment UserFragment on User {
@@ -152,7 +152,7 @@ describe('RelayStore', () => {
         },
       };
       source = new RelayInMemoryRecordSource(data);
-      store = new RelayMarkSweepStore(source);
+      store = new RelayModernStore(source);
       ({UserFragment} = generateWithTransforms(
         `
         fragment UserFragment on User {
@@ -264,7 +264,7 @@ describe('RelayStore', () => {
         },
       };
       source = new RelayInMemoryRecordSource(data);
-      store = new RelayMarkSweepStore(source);
+      store = new RelayModernStore(source);
       ({UserFragment} = generateWithTransforms(
         `
         fragment UserFragment on User {
@@ -577,7 +577,7 @@ describe('RelayStore', () => {
         },
       };
       source = new RelayInMemoryRecordSource(data);
-      store = new RelayMarkSweepStore(source);
+      store = new RelayModernStore(source);
       ({UserFragment} = generateWithTransforms(
         `
         fragment UserFragment on User {
@@ -672,7 +672,7 @@ describe('RelayStore', () => {
       callbacks = [];
       scheduler = jest.fn(callbacks.push.bind(callbacks));
       source = new RelayInMemoryRecordSource(data);
-      store = new RelayMarkSweepStore(source, scheduler);
+      store = new RelayModernStore(source, scheduler);
       ({UserFragment} = generateWithTransforms(
         `
         fragment UserFragment on User {
@@ -733,7 +733,7 @@ describe('RelayStore', () => {
       };
       initialData = simpleClone(data);
       source = new RelayInMemoryRecordSource(data);
-      store = new RelayMarkSweepStore(source);
+      store = new RelayModernStore(source);
       ({UserFragment} = generateWithTransforms(
         `
         fragment UserFragment on User {

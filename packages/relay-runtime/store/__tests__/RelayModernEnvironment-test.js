@@ -12,8 +12,8 @@
 'use strict';
 
 const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
-const RelayMarkSweepStore = require('../RelayMarkSweepStore');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
+const RelayModernStore = require('../RelayModernStore');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
@@ -31,7 +31,7 @@ describe('RelayModernEnvironment', () => {
     jest.resetModules();
     expect.extend(RelayModernTestUtils.matchers);
     source = new RelayInMemoryRecordSource();
-    store = new RelayMarkSweepStore(source);
+    store = new RelayModernStore(source);
 
     config = {
       network: RelayNetwork.create(jest.fn()),

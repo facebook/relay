@@ -20,9 +20,9 @@ const RelayDefaultHandleKey = require('./util/RelayDefaultHandleKey');
 const RelayDefaultHandlerProvider = require('./handlers/RelayDefaultHandlerProvider');
 const RelayError = require('./util/RelayError');
 const RelayInMemoryRecordSource = require('./store/RelayInMemoryRecordSource');
-const RelayMarkSweepStore = require('./store/RelayMarkSweepStore');
 const RelayModernEnvironment = require('./store/RelayModernEnvironment');
 const RelayModernGraphQLTag = require('./query/RelayModernGraphQLTag');
+const RelayModernStore = require('./store/RelayModernStore');
 const RelayNetwork = require('./network/RelayNetwork');
 const RelayNetworkLoggerTransaction = require('./network/RelayNetworkLoggerTransaction');
 const RelayObservable = require('./network/RelayObservable');
@@ -157,7 +157,7 @@ module.exports = {
   Observable: RelayObservable,
   QueryResponseCache: RelayQueryResponseCache,
   RecordSource: RelayInMemoryRecordSource,
-  Store: RelayMarkSweepStore,
+  Store: RelayModernStore,
 
   areEqualSelectors: RelayCore.areEqualSelectors,
   createFragmentSpecResolver: RelayCore.createFragmentSpecResolver,

@@ -14,7 +14,7 @@ require('configureForRelayOSS');
 
 const RelayConnectionHandler = require('../RelayConnectionHandler');
 const RelayInMemoryRecordSource = require('../../../store/RelayInMemoryRecordSource');
-const RelayMarkSweepStore = require('../../../store/RelayMarkSweepStore');
+const RelayModernStore = require('../../../store/RelayModernStore');
 const RelayRecordSourceMutator = require('../../../mutations/RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('../../../mutations/RelayRecordSourceProxy');
 const RelayResponseNormalizer = require('../../../store/RelayResponseNormalizer');
@@ -162,7 +162,7 @@ describe('RelayConnectionHandler', () => {
         handleKey,
       };
       RelayConnectionHandler.update(proxy, payload);
-      const store = new RelayMarkSweepStore(baseSource);
+      const store = new RelayModernStore(baseSource);
       store.publish(sinkSource);
       baseData = simpleClone(baseData);
       baseSource = new RelayInMemoryRecordSource(baseData);
@@ -293,7 +293,7 @@ describe('RelayConnectionHandler', () => {
         handleKey,
       };
       RelayConnectionHandler.update(proxy, payload);
-      const store = new RelayMarkSweepStore(baseSource);
+      const store = new RelayModernStore(baseSource);
       store.publish(sinkSource);
       baseData = simpleClone(baseData);
       baseSource = new RelayInMemoryRecordSource(baseData);
@@ -427,7 +427,7 @@ describe('RelayConnectionHandler', () => {
         handleKey,
       };
       RelayConnectionHandler.update(proxy, payload);
-      const store = new RelayMarkSweepStore(baseSource);
+      const store = new RelayModernStore(baseSource);
       store.publish(sinkSource);
       baseData = simpleClone(baseData);
       baseSource = new RelayInMemoryRecordSource(baseData);
@@ -735,7 +735,7 @@ describe('RelayConnectionHandler', () => {
           handleKey,
         };
         RelayConnectionHandler.update(proxy, payload);
-        const store = new RelayMarkSweepStore(baseSource);
+        const store = new RelayModernStore(baseSource);
         store.publish(sinkSource);
         baseData = simpleClone(baseData);
         baseSource = new RelayInMemoryRecordSource(baseData);

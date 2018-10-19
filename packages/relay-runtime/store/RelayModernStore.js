@@ -51,7 +51,7 @@ type Subscription = {
  * records or clone existing records and modify the clones. Record immutability
  * is also enforced in development mode by freezing all records passed to a store.
  */
-class RelayMarkSweepStore implements Store {
+class RelayModernStore implements Store {
   _gcEnabled: boolean;
   _gcScheduler: Scheduler;
   _hasScheduledGC: boolean;
@@ -275,14 +275,14 @@ function updateTargetFromSource(
   }
 }
 
-RelayProfiler.instrumentMethods(RelayMarkSweepStore.prototype, {
-  lookup: 'RelayMarkSweepStore.prototype.lookup',
-  notify: 'RelayMarkSweepStore.prototype.notify',
-  publish: 'RelayMarkSweepStore.prototype.publish',
-  retain: 'RelayMarkSweepStore.prototype.retain',
-  subscribe: 'RelayMarkSweepStore.prototype.subscribe',
-  __gc: 'RelayMarkSweepStore.prototype.__gc',
-  holdGC: 'RelayMarkSweepStore.prototype.holdGC',
+RelayProfiler.instrumentMethods(RelayModernStore.prototype, {
+  lookup: 'RelayModernStore.prototype.lookup',
+  notify: 'RelayModernStore.prototype.notify',
+  publish: 'RelayModernStore.prototype.publish',
+  retain: 'RelayModernStore.prototype.retain',
+  subscribe: 'RelayModernStore.prototype.subscribe',
+  __gc: 'RelayModernStore.prototype.__gc',
+  holdGC: 'RelayModernStore.prototype.holdGC',
 });
 
-module.exports = RelayMarkSweepStore;
+module.exports = RelayModernStore;

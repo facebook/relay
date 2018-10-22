@@ -58,9 +58,9 @@ render() {
       <Placeholder delayMs={500} fallback={'Loading query...'}>
         <MyQueryRenderer
           environment={environment}
-          variables={{id: '4'}}
-          render={({data}) => <h1>{data.node?.id}</h1>}
-        />
+          variables={{id: '4'}}>
+          {(data) => <h1>{data.node?.id}</h1>}
+        </MyQueryRenderer>
       </Placeholder>
     </ErrorBoundary>
   );
@@ -110,24 +110,20 @@ as is available locally for the query.
   network request completes.
 */
 
-type RenderProps<TQueryResponse> = {|
-  data: TQueryResponse,
-|};
-
 function createSuspenseQueryRenderer<TQuery: OperationType>(
   gqlQuery: GraphQLTaggedNode,
   options?: {|
     fetchPolicy?: FetchPolicy,
   |},
 ): React.ComponentType<{|
+  children: (data: $ElementType<TQuery, 'response'>) => React.Node,
   environment: IEnvironment,
   variables: $ElementType<TQuery, 'variables'>,
-  render: (RenderProps<$ElementType<TQuery, 'response'>>) => React.Node,
 |}> {
   type Props = {|
+    children: (data: $ElementType<TQuery, 'response'>) => React.Node,
     environment: IEnvironment,
     variables: $ElementType<TQuery, 'variables'>,
-    render: (RenderProps<$ElementType<TQuery, 'response'>>) => React.Node,
   |};
 
   const queryNode = getRequest(gqlQuery);
@@ -293,7 +289,7 @@ function createSuspenseQueryRenderer<TQuery: OperationType>(
     }
 
     render() {
-      const {render, environment, variables} = this.props;
+      const {children, environment, variables} = this.props;
       const DataResource = getCacheForEnvironment(environment);
 
       // We memoize the ReactRelayContext so we don't pass a new object on
@@ -324,9 +320,7 @@ function createSuspenseQueryRenderer<TQuery: OperationType>(
       return (
         <ReactRelayContext.Provider value={relayContext}>
           <DataResourceContext.Provider value={DataResource}>
-            {render({
-              data: data,
-            })}
+            {children(data)}
           </DataResourceContext.Provider>
         </ReactRelayContext.Provider>
       );

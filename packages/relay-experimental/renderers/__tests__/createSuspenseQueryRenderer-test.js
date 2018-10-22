@@ -106,21 +106,17 @@ describe('createQueryRenderer', () => {
     const variables = {id: '<available-data-id>'};
     commitUserPayload(environment, gqlQuery, variables.id, 'Alice');
     ReactTestRenderer.create(
-      <QueryRenderer
-        environment={environment}
-        variables={variables}
-        render={renderFn}
-      />,
+      <QueryRenderer environment={environment} variables={variables}>
+        {renderFn}
+      </QueryRenderer>,
     );
     expect(environment.execute).not.toBeCalled();
     expectToBeRendered(renderFn, {
-      data: {
-        node: {
-          id: variables.id,
-          [ID_KEY]: variables.id,
-          [FRAGMENTS_KEY]: {
-            UserFragment: {},
-          },
+      node: {
+        id: variables.id,
+        [ID_KEY]: variables.id,
+        [FRAGMENTS_KEY]: {
+          UserFragment: {},
         },
       },
     });
@@ -130,21 +126,17 @@ describe('createQueryRenderer', () => {
     const variables = {id: '<partially-available-data-id>'};
     commitUserPayload(environment, gqlQuery, variables.id, undefined);
     ReactTestRenderer.create(
-      <QueryRenderer
-        environment={environment}
-        variables={variables}
-        render={renderFn}
-      />,
+      <QueryRenderer environment={environment} variables={variables}>
+        {renderFn}
+      </QueryRenderer>,
     );
     expectToBeFetched(environment, variables);
     expectToBeRendered(renderFn, {
-      data: {
-        node: {
-          id: variables.id,
-          [ID_KEY]: variables.id,
-          [FRAGMENTS_KEY]: {
-            UserFragment: {},
-          },
+      node: {
+        id: variables.id,
+        [ID_KEY]: variables.id,
+        [FRAGMENTS_KEY]: {
+          UserFragment: {},
         },
       },
     });
@@ -157,11 +149,9 @@ describe('createQueryRenderer', () => {
     const variables = {id: '<missing-id>'};
     expect(() => {
       return ReactTestRenderer.create(
-        <QueryRenderer
-          environment={environment}
-          variables={variables}
-          render={renderFn}
-        />,
+        <QueryRenderer environment={environment} variables={variables}>
+          {renderFn}
+        </QueryRenderer>,
       );
     }).toThrow(MISSING_PLACEHOLDER_EXCEPTION);
     expectToBeFetched(environment, variables);
@@ -173,11 +163,9 @@ describe('createQueryRenderer', () => {
     jest.spyOn(console, 'error').mockImplementationOnce(() => {});
     expect(() =>
       ReactTestRenderer.create(
-        <QueryRenderer
-          environment={environment}
-          render={renderFn}
-          variables={{}}
-        />,
+        <QueryRenderer environment={environment} variables={{}}>
+          {renderFn}
+        </QueryRenderer>,
       ),
     ).toThrow(MISSING_PLACEHOLDER_EXCEPTION);
     expectToBeFetched(environment, {
@@ -204,28 +192,22 @@ describe('createQueryRenderer', () => {
       };
       commitUserPayload(environment, gqlQuery, variables.id, 'Alice');
       ReactTestRenderer.create(
-        <QueryRenderer
-          environment={environment}
-          variables={variables}
-          render={renderFn}
-        />,
+        <QueryRenderer environment={environment} variables={variables}>
+          {renderFn}
+        </QueryRenderer>,
       );
       expectToBeRendered(renderFn, {
-        data: {
-          node: {
-            id: variables.id,
-            name: 'Alice',
-          },
+        node: {
+          id: variables.id,
+          name: 'Alice',
         },
       });
       renderFn.mockReset();
       commitUserPayload(environment, gqlQuery, variables.id, 'Bob');
       expectToBeRendered(renderFn, {
-        data: {
-          node: {
-            id: variables.id,
-            name: 'Bob',
-          },
+        node: {
+          id: variables.id,
+          name: 'Bob',
         },
       });
     });
@@ -249,11 +231,9 @@ describe('createQueryRenderer', () => {
       commitUserPayload(environment, gqlQuery, variables.id, 'Alice');
 
       ReactTestRenderer.create(
-        <QueryRenderer
-          environment={environment}
-          variables={variables}
-          render={renderFn}
-        />,
+        <QueryRenderer environment={environment} variables={variables}>
+          {renderFn}
+        </QueryRenderer>,
       );
       expect(relayContext.query).toEqual(query);
       expect(relayContext.environment).toBe(environment);
@@ -266,11 +246,9 @@ describe('createQueryRenderer', () => {
 
       const renderer = ReactTestRenderer.create(
         <PropsSetter>
-          <QueryRenderer
-            environment={environment}
-            variables={variables}
-            render={renderFn}
-          />
+          <QueryRenderer environment={environment} variables={variables}>
+            {renderFn}
+          </QueryRenderer>
         </PropsSetter>,
       );
       const nextEnvironment = createMockEnvironment();
@@ -294,11 +272,9 @@ describe('createQueryRenderer', () => {
 
       const renderer = ReactTestRenderer.create(
         <PropsSetter>
-          <QueryRenderer
-            environment={environment}
-            variables={variables1}
-            render={renderFn}
-          />
+          <QueryRenderer environment={environment} variables={variables1}>
+            {renderFn}
+          </QueryRenderer>
         </PropsSetter>,
       );
       expect(relayContext.variables).toEqual(variables1);
@@ -316,11 +292,9 @@ describe('createQueryRenderer', () => {
 
       const renderer = ReactTestRenderer.create(
         <PropsSetter>
-          <QueryRenderer
-            environment={environment}
-            variables={variables}
-            render={renderFn}
-          />
+          <QueryRenderer environment={environment} variables={variables}>
+            {renderFn}
+          </QueryRenderer>
         </PropsSetter>,
       );
       const nextVariables = simpleClone(variables);
@@ -341,21 +315,17 @@ describe('createQueryRenderer', () => {
 
       const renderer = ReactTestRenderer.create(
         <PropsSetter>
-          <QueryRenderer
-            environment={environment}
-            variables={variables1}
-            render={renderFn}
-          />
+          <QueryRenderer environment={environment} variables={variables1}>
+            {renderFn}
+          </QueryRenderer>
         </PropsSetter>,
       );
       expectToBeRendered(renderFn, {
-        data: {
-          node: {
-            id: variables1.id,
-            [ID_KEY]: variables1.id,
-            [FRAGMENTS_KEY]: {
-              UserFragment: {},
-            },
+        node: {
+          id: variables1.id,
+          [ID_KEY]: variables1.id,
+          [FRAGMENTS_KEY]: {
+            UserFragment: {},
           },
         },
       });
@@ -367,13 +337,11 @@ describe('createQueryRenderer', () => {
         variables: variables2,
       });
       expectToBeRendered(renderFn, {
-        data: {
-          node: {
-            id: variables2.id,
-            [ID_KEY]: variables2.id,
-            [FRAGMENTS_KEY]: {
-              UserFragment: {},
-            },
+        node: {
+          id: variables2.id,
+          [ID_KEY]: variables2.id,
+          [FRAGMENTS_KEY]: {
+            UserFragment: {},
           },
         },
       });
@@ -388,21 +356,17 @@ describe('createQueryRenderer', () => {
       commitUserPayload(environment, gqlQuery, variables.id, 'Alice');
       const renderer = ReactTestRenderer.create(
         <PropsSetter>
-          <QueryRenderer
-            environment={environment}
-            variables={variables}
-            render={renderFn}
-          />
+          <QueryRenderer environment={environment} variables={variables}>
+            {renderFn}
+          </QueryRenderer>
         </PropsSetter>,
       );
       expectToBeRendered(renderFn, {
-        data: {
-          node: {
-            id: variables.id,
-            [ID_KEY]: variables.id,
-            [FRAGMENTS_KEY]: {
-              UserFragment: {},
-            },
+        node: {
+          id: variables.id,
+          [ID_KEY]: variables.id,
+          [FRAGMENTS_KEY]: {
+            UserFragment: {},
           },
         },
       });
@@ -436,11 +400,9 @@ describe('createQueryRenderer', () => {
           return (
             <React.Fragment>
               <Child>A</Child>
-              <QueryRenderer
-                environment={environment}
-                variables={variables}
-                render={renderFn}
-              />
+              <QueryRenderer environment={environment} variables={variables}>
+                {renderFn}
+              </QueryRenderer>
               <Child>B</Child>
               <Child>C</Child>
             </React.Fragment>
@@ -455,13 +417,11 @@ describe('createQueryRenderer', () => {
       expect(renderer.unstable_flushNumberOfYields(2)).toEqual(['A', 'B']);
       expect(renderer.toJSON()).toEqual(null);
       expectToBeRendered(renderFn, {
-        data: {
-          node: {
-            id: variables.id,
-            [ID_KEY]: variables.id,
-            [FRAGMENTS_KEY]: {
-              UserFragment: {},
-            },
+        node: {
+          id: variables.id,
+          [ID_KEY]: variables.id,
+          [FRAGMENTS_KEY]: {
+            UserFragment: {},
           },
         },
       });
@@ -475,13 +435,11 @@ describe('createQueryRenderer', () => {
       });
       expect(environment.execute).not.toBeCalled();
       expectToBeRendered(renderFn, {
-        data: {
-          node: {
-            id: variables.id,
-            [ID_KEY]: variables.id,
-            [FRAGMENTS_KEY]: {
-              UserFragment: {},
-            },
+        node: {
+          id: variables.id,
+          [ID_KEY]: variables.id,
+          [FRAGMENTS_KEY]: {
+            UserFragment: {},
           },
         },
       });
@@ -497,16 +455,12 @@ describe('createQueryRenderer', () => {
     }: any) => {
       return (
         <React.Fragment>
-          <QueryRenderer
-            environment={environment}
-            variables={variables1}
-            render={renderFn1}
-          />
-          <QueryRenderer
-            environment={environment}
-            variables={variables2}
-            render={renderFn2}
-          />
+          <QueryRenderer environment={environment} variables={variables1}>
+            {renderFn1}
+          </QueryRenderer>
+          <QueryRenderer environment={environment} variables={variables2}>
+            {renderFn2}
+          </QueryRenderer>
         </React.Fragment>
       );
     };
@@ -565,24 +519,20 @@ describe('createQueryRenderer', () => {
         );
         expect(environment.execute).not.toBeCalled();
         expect(renderFn1).toBeCalledWith({
-          data: {
-            node: {
-              id: variables1.id,
-              [ID_KEY]: variables1.id,
-              [FRAGMENTS_KEY]: {
-                UserFragment: {},
-              },
+          node: {
+            id: variables1.id,
+            [ID_KEY]: variables1.id,
+            [FRAGMENTS_KEY]: {
+              UserFragment: {},
             },
           },
         });
         expect(renderFn2).toBeCalledWith({
-          data: {
-            node: {
-              id: variables2.id,
-              [ID_KEY]: variables2.id,
-              [FRAGMENTS_KEY]: {
-                UserFragment: {},
-              },
+          node: {
+            id: variables2.id,
+            [ID_KEY]: variables2.id,
+            [FRAGMENTS_KEY]: {
+              UserFragment: {},
             },
           },
         });
@@ -609,24 +559,20 @@ describe('createQueryRenderer', () => {
         );
         expectToBeFetched(environment, variables2);
         expect(renderFn1).toBeCalledWith({
-          data: {
-            node: {
-              id: variables1.id,
-              [ID_KEY]: variables1.id,
-              [FRAGMENTS_KEY]: {
-                UserFragment: {},
-              },
+          node: {
+            id: variables1.id,
+            [ID_KEY]: variables1.id,
+            [FRAGMENTS_KEY]: {
+              UserFragment: {},
             },
           },
         });
         expect(renderFn2).toBeCalledWith({
-          data: {
-            node: {
-              id: variables2.id,
-              [ID_KEY]: variables2.id,
-              [FRAGMENTS_KEY]: {
-                UserFragment: {},
-              },
+          node: {
+            id: variables2.id,
+            [ID_KEY]: variables2.id,
+            [FRAGMENTS_KEY]: {
+              UserFragment: {},
             },
           },
         });
@@ -685,9 +631,9 @@ describe('createQueryRenderer', () => {
             ReactTestRenderer.create(
               <TestQueryRenderer
                 environment={testEnvironment}
-                variables={testVariables}
-                render={testRenderFn}
-              />,
+                variables={testVariables}>
+                {testRenderFn}
+              </TestQueryRenderer>,
             );
             expect(testRenderFn).toBeCalledTimes(1);
             expect(testRenderFn).toBeCalledWith(expectedRenderOutput);
@@ -697,9 +643,9 @@ describe('createQueryRenderer', () => {
             ReactTestRenderer.create(
               <TestQueryRenderer
                 environment={testEnvironment}
-                variables={testVariables}
-                render={testRenderFn}
-              />,
+                variables={testVariables}>
+                {testRenderFn}
+              </TestQueryRenderer>,
             );
             expect(testRenderFn).toBeCalledTimes(1);
             expect(testRenderFn).toBeCalledWith(expectedRenderOutput);
@@ -716,9 +662,9 @@ describe('createQueryRenderer', () => {
               return ReactTestRenderer.create(
                 <TestQueryRenderer
                   environment={testEnvironment}
-                  variables={testVariables}
-                  render={testRenderFn}
-                />,
+                  variables={testVariables}>
+                  {testRenderFn}
+                </TestQueryRenderer>,
               );
             }).toThrow(MISSING_PLACEHOLDER_EXCEPTION);
             break;
@@ -727,9 +673,9 @@ describe('createQueryRenderer', () => {
               return ReactTestRenderer.create(
                 <TestQueryRenderer
                   environment={testEnvironment}
-                  variables={testVariables}
-                  render={testRenderFn}
-                />,
+                  variables={testVariables}>
+                  {testRenderFn}
+                </TestQueryRenderer>,
               );
             }).toThrow(
               'DataResource: Tried reading a query that is not available locally and is not being fetched',
@@ -770,11 +716,9 @@ describe('createQueryRenderer', () => {
           testGqlQuery,
           testVariables,
           {
-            data: {
-              node: {
-                id: testVariables.id,
-                name: 'Alice',
-              },
+            node: {
+              id: testVariables.id,
+              name: 'Alice',
             },
           },
         );
@@ -825,13 +769,11 @@ describe('createQueryRenderer', () => {
           testGqlQuery,
           testVariables,
           {
-            data: {
-              node: {
-                id: testVariables.id,
-                [ID_KEY]: testVariables.id,
-                [FRAGMENTS_KEY]: {
-                  UserFragment: {},
-                },
+            node: {
+              id: testVariables.id,
+              [ID_KEY]: testVariables.id,
+              [FRAGMENTS_KEY]: {
+                UserFragment: {},
               },
             },
           },

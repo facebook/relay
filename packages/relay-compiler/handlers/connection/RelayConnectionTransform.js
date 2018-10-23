@@ -51,6 +51,7 @@ type Options = {
 };
 
 const CONNECTION = 'connection';
+const HANDLER = 'handler';
 
 /**
  * @public
@@ -79,7 +80,7 @@ function relayConnectionTransform(context: CompilerContext): CompilerContext {
 }
 
 const SCHEMA_EXTENSION =
-  'directive @connection(key: String!, filters: [String]) on FIELD';
+  'directive @connection(key: String!, filters: [String], handler: String) on FIELD';
 
 /**
  * @internal
@@ -155,7 +156,16 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
   });
   options.path.pop();
 
-  const {key, filters} = getLiteralArgumentValues(connectionDirective.args);
+  const {handler, key, filters} = getLiteralArgumentValues(
+    connectionDirective.args,
+  );
+  invariant(
+    handler == null || typeof handler === 'string',
+    'RelayConnectionTransform: Expected the %s argument to @%s to be a string literal for field %s.',
+    HANDLER,
+    CONNECTION,
+    field.name,
+  );
   invariant(
     typeof key === 'string',
     'RelayConnectionTransform: Expected the %s argument to @%s to ' +
@@ -168,7 +178,7 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
   invariant(
     key.endsWith('_' + postfix),
     'RelayConnectionTransform: Expected the %s argument to @%s to ' +
-      'be of form <SomeName>_%s, but get %s. For detailed explanation, check out the dex page ' +
+      'be of form <SomeName>_%s, got %s. For detailed explanation, check out ' +
       'https://facebook.github.io/relay/docs/pagination-container.html#connection-directive',
     KEY,
     CONNECTION,
@@ -190,7 +200,7 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
   };
 
   const handle = {
-    name: CONNECTION,
+    name: handler ?? CONNECTION,
     key,
     filters: filters || generateFilters(),
   };

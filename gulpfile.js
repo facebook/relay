@@ -83,6 +83,7 @@ const babelOptions = require('./scripts/getBabelOptions')({
     '@babel/plugin-transform-flow-strip-types',
     '@babel/plugin-transform-runtime',
     '@babel/plugin-proposal-nullish-coalescing-operator',
+    '@babel/plugin-proposal-optional-catch-binding',
     '@babel/plugin-proposal-optional-chaining',
   ],
   postPlugins: [

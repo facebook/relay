@@ -250,8 +250,7 @@ class CodegenDirectory {
         if (!this.onlyValidate) {
           try {
             this._filesystem.unlinkSync(path.join(this._dir, actualFile));
-            // eslint-disable-next-line lint/no-unused-catch-bindings
-          } catch (e) {
+          } catch {
             throw new Error(
               'CodegenDirectory: Failed to delete `' +
                 actualFile +

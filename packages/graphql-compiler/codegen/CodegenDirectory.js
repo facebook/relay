@@ -240,26 +240,28 @@ class CodegenDirectory {
   deleteExtraFiles(filePatternToKeep?: RegExp): void {
     Profiler.run('CodegenDirectory.deleteExtraFiles', () => {
       this._filesystem.readdirSync(this._dir).forEach(actualFile => {
-        if (
-          !this._files.has(actualFile) &&
-          !/^\./.test(actualFile) &&
-          (filePatternToKeep != null && !filePatternToKeep.test(actualFile))
-        ) {
-          if (!this.onlyValidate) {
-            try {
-              this._filesystem.unlinkSync(path.join(this._dir, actualFile));
-            } catch (e) {
-              throw new Error(
-                'CodegenDirectory: Failed to delete `' +
-                  actualFile +
-                  '` in `' +
-                  this._dir +
-                  '`.',
-              );
-            }
-          }
-          this.changes.deleted.push(actualFile);
+        const shouldFileExist =
+          this._files.has(actualFile) ||
+          /^\./.test(actualFile) ||
+          (filePatternToKeep != null && filePatternToKeep.test(actualFile));
+        if (shouldFileExist) {
+          return;
         }
+        if (!this.onlyValidate) {
+          try {
+            this._filesystem.unlinkSync(path.join(this._dir, actualFile));
+            // eslint-disable-next-line lint/no-unused-catch-bindings
+          } catch (e) {
+            throw new Error(
+              'CodegenDirectory: Failed to delete `' +
+                actualFile +
+                '` in `' +
+                this._dir +
+                '`.',
+            );
+          }
+        }
+        this.changes.deleted.push(actualFile);
       });
     });
   }

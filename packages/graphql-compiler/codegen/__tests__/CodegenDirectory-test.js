@@ -70,10 +70,11 @@ describe('deleteExtraFiles', () => {
       'readFileSync(/generated/bar.js)',
       'writeFileSync(/generated/bar.js)',
       'readdirSync(/generated)',
+      'unlinkSync(/generated/unexpected.js)',
     ]);
     expect(codegenDir.changes).toEqual({
       created: [],
-      deleted: [],
+      deleted: ['unexpected.js'],
       unchanged: ['foo.js'],
       updated: ['bar.js'],
     });
@@ -99,7 +100,7 @@ describe('deleteExtraFiles', () => {
     ]);
     expect(codegenDir.changes).toEqual({
       created: [],
-      deleted: [],
+      deleted: ['unexpected.js'],
       unchanged: ['foo.js'],
       updated: ['bar.js'],
     });

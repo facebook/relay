@@ -345,6 +345,284 @@ describe('DataResource', () => {
       expect((result.user.data: any).id).toBe('4');
     });
 
+    it('should correctly read fragment data when variables change', () => {
+      const {UserQuery, UserFragment} = generateAndCompile(
+        `
+          fragment UserFragment on User {
+            id
+          }
+          query UserQuery($id: ID!) {
+            node(id: $id) {
+              __typename
+              ...UserFragment
+            }
+          }
+        `,
+      );
+      const parentQuery = createOperationSelector(UserQuery, variables);
+
+      let result = DataResource.readFragmentSpec({
+        environment,
+        variables: {
+          id: '4',
+        },
+        parentQuery,
+        fragmentNodes: {
+          user: getFragment(UserFragment),
+        },
+        fragmentRefs: {
+          user: {
+            __id: '4',
+            __fragments: {
+              UserFragment: {},
+            },
+          },
+        },
+      });
+      invariant(result.user != null, 'Expected to be able to read fragment');
+      expect((result.user.data: any).id).toBe('4');
+
+      environment.commitPayload(parentQuery, {
+        node: {
+          __typename: 'User',
+          id: '5',
+        },
+      });
+      result = DataResource.readFragmentSpec({
+        environment,
+        variables: {
+          id: '5',
+        },
+        parentQuery,
+        fragmentNodes: {
+          user: getFragment(UserFragment),
+        },
+        fragmentRefs: {
+          user: {
+            __id: '5',
+            __fragments: {
+              UserFragment: {},
+            },
+          },
+        },
+      });
+      invariant(result.user != null, 'Expected to be able to read fragment');
+      expect((result.user.data: any).id).toBe('5');
+    });
+
+    it('should correctly read fragment data when variables used by fragment change', () => {
+      const {UserQuery, UserFragment} = generateAndCompile(
+        `
+          fragment UserFragment on Query {
+            node(id: $id) {
+              __typename
+              id
+            }
+          }
+          query UserQuery($id: ID!) {
+            ...UserFragment
+          }
+        `,
+      );
+      const prevVars = {id: '4'};
+      let parentQuery = createOperationSelector(UserQuery, prevVars);
+      let result = DataResource.readFragmentSpec({
+        environment,
+        variables: prevVars,
+        parentQuery,
+        fragmentNodes: {
+          user: getFragment(UserFragment),
+        },
+        fragmentRefs: {
+          user: {
+            __id: 'client:root',
+            __fragments: {
+              UserFragment: {},
+            },
+          },
+        },
+      });
+      let data = result.user?.data;
+      invariant(data != null, 'Expected to be able to read fragment');
+      expect(((data: any).node: any).id).toBe('4');
+
+      const nextVars = {id: '5'};
+      parentQuery = createOperationSelector(UserQuery, nextVars);
+      environment.commitPayload(parentQuery, {
+        node: {
+          __typename: 'User',
+          id: '5',
+        },
+      });
+
+      result = DataResource.readFragmentSpec({
+        environment,
+        variables: nextVars,
+        parentQuery,
+        fragmentNodes: {
+          user: getFragment(UserFragment),
+        },
+        fragmentRefs: {
+          user: {
+            __id: 'client:root',
+            __fragments: {
+              UserFragment: {},
+            },
+          },
+        },
+      });
+      data = result.user?.data;
+      invariant(data != null, 'Expected to be able to read fragment');
+      expect(((data: any).node: any).id).toBe('5');
+    });
+
+    it(
+      'should correctly read fragment data when variables used by fragment ' +
+        'in @argumentDefinitions change',
+      () => {
+        const {UserQuery, UserFragment} = generateAndCompile(
+          `
+          fragment UserFragment on Query @argumentDefinitions(id: {type: "ID!"}) {
+            node(id: $id) {
+              __typename
+              id
+            }
+          }
+          query UserQuery($id: ID!) {
+            ...UserFragment @arguments(id: $id)
+          }
+        `,
+        );
+        const prevVars = {id: '4'};
+        let parentQuery = createOperationSelector(UserQuery, prevVars);
+        let result = DataResource.readFragmentSpec({
+          environment,
+          variables: prevVars,
+          parentQuery,
+          fragmentNodes: {
+            user: getFragment(UserFragment),
+          },
+          fragmentRefs: {
+            user: {
+              __id: 'client:root',
+              __fragments: {
+                UserFragment: prevVars,
+              },
+            },
+          },
+        });
+        let data = result.user?.data;
+        invariant(data != null, 'Expected to be able to read fragment');
+        expect(((data: any).node: any).id).toBe('4');
+
+        const nextVars = {id: '5'};
+        parentQuery = createOperationSelector(UserQuery, nextVars);
+        environment.commitPayload(parentQuery, {
+          node: {
+            __typename: 'User',
+            id: '5',
+          },
+        });
+
+        result = DataResource.readFragmentSpec({
+          environment,
+          variables: nextVars,
+          parentQuery,
+          fragmentNodes: {
+            user: getFragment(UserFragment),
+          },
+          fragmentRefs: {
+            user: {
+              __id: 'client:root',
+              __fragments: {
+                UserFragment: nextVars,
+              },
+            },
+          },
+        });
+        data = result.user?.data;
+        invariant(data != null, 'Expected to be able to read fragment');
+        expect(((data: any).node: any).id).toBe('5');
+      },
+    );
+
+    it(
+      'should correctly cache and reuse fragment data when variables ' +
+        'that do not affect the fragment change',
+      () => {
+        const {UserQuery, UserFragment} = generateAndCompile(
+          `
+          fragment UserFragment on User {
+            id
+          }
+          query UserQuery($id: ID!, $foo: Boolean!) {
+            node(id: $id) {
+              __typename
+              ...UserFragment
+            }
+          }
+        `,
+        );
+        const variablesWithFoo = {
+          id: '4',
+          foo: false,
+        };
+        const parentQuery = createOperationSelector(
+          UserQuery,
+          variablesWithFoo,
+        );
+
+        const environmentSpy = jest.spyOn(environment, 'lookup');
+        let result = DataResource.readFragmentSpec({
+          environment,
+          variables: variablesWithFoo,
+          parentQuery,
+          fragmentNodes: {
+            user: getFragment(UserFragment),
+          },
+          fragmentRefs: {
+            user: {
+              __id: '4',
+              __fragments: {
+                UserFragment,
+              },
+            },
+          },
+        });
+        invariant(result.user != null, 'Expected to be able to read fragment');
+        expect((result.user.data: any).id).toBe('4');
+
+        result = DataResource.readFragmentSpec({
+          environment,
+          variables: {
+            ...variablesWithFoo,
+            // Change value of $foo
+            foo: true,
+          },
+          parentQuery,
+          fragmentNodes: {
+            user: getFragment(UserFragment),
+          },
+          fragmentRefs: {
+            user: {
+              __id: '4',
+              __fragments: {
+                UserFragment,
+              },
+            },
+          },
+        });
+        invariant(result.user != null, 'Expected to be able to read fragment');
+        expect((result.user.data: any).id).toBe('4');
+
+        // NOTE: Even if variable $foo changes, the cache key for the fragment
+        // shouldn't change since $foo isn't used by the fragment,
+        // so it should reuse the cached value.
+        expect(environmentSpy).toHaveBeenCalledTimes(1);
+        environmentSpy.mockRestore();
+      },
+    );
+
     it('should return null data if fragment reference is not provided', () => {
       const {UserQuery, UserFragment} = generateAndCompile(
         `

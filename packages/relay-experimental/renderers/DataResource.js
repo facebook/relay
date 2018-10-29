@@ -25,7 +25,11 @@ const {
   fetchQuery,
   getPromiseForRequestInFlight,
 } = require('../utils/fetchQueryUtils');
-const {getDataIDsFromObject, getSelectorsFromObject} = require('relay-runtime');
+const {
+  getDataIDsFromObject,
+  getSelectorsFromObject,
+  getVariablesFromObject,
+} = require('relay-runtime');
 
 import type {
   ConcreteFragment,
@@ -61,12 +65,18 @@ function getFragmentCacheKey(
   fragmentRef: mixed,
   variables: Variables,
 ): string {
-  return JSON.stringify({
-    dataIDs: getDataIDsFromObject(
-      {[fragmentNode.name]: fragmentNode},
-      {[fragmentNode.name]: fragmentRef},
-    ),
+  const fragmentVariables = getVariablesFromObject(
     variables,
+    {[fragmentNode.name]: fragmentNode},
+    {[fragmentNode.name]: fragmentRef},
+  );
+  const dataIDs = getDataIDsFromObject(
+    {[fragmentNode.name]: fragmentNode},
+    {[fragmentNode.name]: fragmentRef},
+  );
+  return JSON.stringify({
+    dataIDs,
+    fragmentVariables,
   });
 }
 

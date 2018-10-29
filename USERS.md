@@ -75,6 +75,7 @@ Using Relay in your production app? If you'd like to add your team to the list, 
 
 - [Sainsburys](https://sainsburys.co.uk/)
 - [Sigma](https://sig.ma)
+- [Skupos](https://www.skupos.com)
 
 ## T
 

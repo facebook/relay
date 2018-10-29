@@ -25,7 +25,6 @@ import type {
   ConcreteFragment,
   ConcreteSelectableNode,
   RequestNode,
-  ConcreteOperation,
 } from '../util/RelayConcreteNode';
 import type {
   CacheConfig,
@@ -58,7 +57,6 @@ type TGraphQLTaggedNode = GraphQLTaggedNode;
 type TNode = ConcreteSelectableNode;
 type TPayload = ExecutePayload;
 type TRequest = RequestNode;
-type TOperation = ConcreteOperation;
 
 export type FragmentMap = CFragmentMap<TFragment>;
 export type OperationSelector = COperationSelector<TNode, TRequest>;
@@ -71,7 +69,6 @@ export type UnstableEnvironmentCore = CUnstableEnvironmentCore<
   TGraphQLTaggedNode,
   TNode,
   TRequest,
-  TOperation,
 >;
 
 /**
@@ -232,7 +229,6 @@ export interface Environment
     TNode,
     TRequest,
     TPayload,
-    TOperation,
   > {
   /**
    * Apply an optimistic update to the environment. The mutation can be reverted

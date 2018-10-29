@@ -134,7 +134,6 @@ export interface CEnvironment<
   TNode,
   TRequest,
   TPayload,
-  TOperation,
 > {
   /**
    * Determine if the selector can be resolved with data in the store (i.e. no
@@ -193,7 +192,6 @@ export interface CEnvironment<
     TGraphQLTaggedNode,
     TNode,
     TRequest,
-    TOperation,
   >;
 }
 
@@ -203,7 +201,6 @@ export interface CUnstableEnvironmentCore<
   TGraphQLTaggedNode,
   TNode,
   TRequest,
-  TOperation,
 > {
   /**
    * Create an instance of a FragmentSpecResolver.

@@ -26,7 +26,7 @@ describe('BabelPluginRelay', () => {
   function transformerWithOptions(
     options: RelayPluginOptions,
     environment: 'development' | 'production' = 'production',
-    filename?: string,
+    filename?: string = '',
   ): string => string {
     return (text, providedFileName) => {
       const previousEnv = process.env.BABEL_ENV;
@@ -35,6 +35,7 @@ describe('BabelPluginRelay', () => {
         return babel.transform(text, {
           compact: false,
           filename: filename || providedFileName,
+          highlightCode: false,
           parserOpts: {plugins: ['jsx']},
           plugins: [[BabelPluginRelay, options]],
         }).code;

@@ -41,7 +41,11 @@ function getDocumentName(path: any, state: BabelState): string {
         }
       }
     }
-    const basename = state.file && getBaseName(state.file.opts.filename);
+    const basename =
+      state.file &&
+      state.file.opts &&
+      state.file.opts.filename &&
+      getBaseName(state.file.opts.filename);
     if (basename && !documentName) {
       const captures = basename.match(/^[_A-Za-z][_0-9A-Za-z]*/);
       if (captures) {

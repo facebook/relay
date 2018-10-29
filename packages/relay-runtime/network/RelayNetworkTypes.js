@@ -10,7 +10,7 @@
 
 'use strict';
 
-import type {ConcreteOperation, RequestNode} from '../util/RelayConcreteNode';
+import type {RequestNode} from '../util/RelayConcreteNode';
 import type {
   CacheConfig,
   Disposable,

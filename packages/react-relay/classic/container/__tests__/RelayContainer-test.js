@@ -28,7 +28,6 @@ const RelayMutation = require('../../mutation/RelayMutation');
 const RelayQuery = require('../../query/RelayQuery');
 const RelayRoute = require('../../route/RelayRoute');
 const RelayTestUtils = require('RelayTestUtils');
-const ShallowRenderer = require('react-test-renderer/shallow');
 
 const warning = require('warning');
 
@@ -43,14 +42,11 @@ describe('RelayContainer', function() {
   let mockFooPointer;
   let mockRoute;
   let render;
-  let shallowRenderer;
 
   const {getNode, getPointer} = RelayTestUtils;
 
   beforeEach(function() {
     jest.resetModules();
-
-    shallowRenderer = new ShallowRenderer();
 
     render = jest.fn(function() {
       // Make it easier to expect prop values.

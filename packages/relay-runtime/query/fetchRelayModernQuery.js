@@ -10,8 +10,6 @@
 
 'use strict';
 
-const RelayConcreteNode = require('../util/RelayConcreteNode');
-
 const invariant = require('invariant');
 
 import type {CacheConfig, OperationType} from '../util/RelayRuntimeTypes';

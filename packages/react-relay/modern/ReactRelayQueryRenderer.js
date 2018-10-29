@@ -23,7 +23,6 @@ import type {
   CacheConfig,
   GraphQLTaggedNode,
   IEnvironment,
-  OperationSelector,
   Snapshot,
   Variables,
   RelayContext,

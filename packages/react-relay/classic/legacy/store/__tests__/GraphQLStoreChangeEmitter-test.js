@@ -32,7 +32,7 @@ describe('GraphQLStoreChangeEmitter', () => {
     ErrorUtils.applyWithGuard = jest.fn(callback => {
       try {
         callback();
-      } catch (guarded) {}
+      } catch {}
     });
     mockCallback = jest.fn();
   });

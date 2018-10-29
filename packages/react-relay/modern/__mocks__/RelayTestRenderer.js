@@ -15,8 +15,6 @@ const ReactRelayContext = require('../ReactRelayContext');
 
 const invariant = require('invariant');
 
-const {RelayConcreteNode} = require('relay-runtime');
-
 import type {Variables, Snapshot} from 'relay-runtime';
 
 type Props = {

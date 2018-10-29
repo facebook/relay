@@ -48,7 +48,6 @@ export type {
   SelectorData,
 } from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
-// eslint-disable-next-line no-undef
 export opaque type FragmentReference = empty;
 
 type TEnvironment = Environment;

@@ -11,9 +11,8 @@
 'use strict';
 
 import type {
-  ExecutePayload,
+  GraphQLResponse,
   PayloadError,
-  StreamPayload,
   UploadableMap,
 } from '../network/RelayNetworkTypes';
 import type {PayloadData} from '../network/RelayNetworkTypes';
@@ -54,7 +53,7 @@ type TEnvironment = Environment;
 type TFragment = ConcreteFragment;
 type TGraphQLTaggedNode = GraphQLTaggedNode;
 type TNode = ConcreteSelectableNode;
-type TPayload = ExecutePayload;
+type TPayload = GraphQLResponse;
 type TRequest = RequestNode;
 
 export type FragmentMap = CFragmentMap<TFragment>;
@@ -256,18 +255,7 @@ export interface Environment
   getStore(): Store;
 
   /**
-   * Returns an Observable that can also possibly include event payloads.
-   * Contrast this with .execute({...}), which will ignore any events pushed
-   * to the Observable.
-   */
-  executeWithEvents({|
-    operation: OperationSelector,
-    cacheConfig?: ?CacheConfig,
-    updater?: ?SelectorStoreUpdater,
-  |}): RelayObservable<StreamPayload>;
-
-  /**
-   * Returns an Observable of ExecutePayload resulting from executing the
+   * Returns an Observable of GraphQLResponse resulting from executing the
    * provided Mutation operation, the result of which is then normalized and
    * committed to the publish queue along with an optional optimistic response
    * or updater.
@@ -282,7 +270,7 @@ export interface Environment
     optimisticResponse?: ?Object,
     updater?: ?SelectorStoreUpdater,
     uploadables?: ?UploadableMap,
-  |}): RelayObservable<ExecutePayload>;
+  |}): RelayObservable<GraphQLResponse>;
 }
 
 /**

@@ -14,15 +14,15 @@ const invariant = require('invariant');
 
 import type {RequestNode} from '../util/RelayConcreteNode';
 import type {CacheConfig, Variables} from '../util/RelayRuntimeTypes';
-import type {ExecutePayload, UploadableMap} from './RelayNetworkTypes';
+import type {GraphQLResponse, UploadableMap} from './RelayNetworkTypes';
 
 let queryID = 1;
 
 export interface IRelayNetworkLoggerTransaction {
   constructor(config: TransactionConfig): void;
   addLog(label: string, ...values: Array<any>): void;
-  commitLogs(error: ?Error, payload: ?ExecutePayload, status?: ?string): void;
-  flushLogs(error: ?Error, payload: ?ExecutePayload, status?: ?string): void;
+  commitLogs(error: ?Error, payload: ?GraphQLResponse, status?: ?string): void;
+  flushLogs(error: ?Error, payload: ?GraphQLResponse, status?: ?string): void;
   markCommitted(): void;
   getCacheConfig(): ?CacheConfig;
   getIdentifier(): string;
@@ -81,7 +81,7 @@ class RelayNetworkLoggerTransaction implements IRelayNetworkLoggerTransaction {
     this._logs = [];
   }
 
-  printLogs(error: ?Error, payload: ?ExecutePayload, status?: ?string): void {
+  printLogs(error: ?Error, payload: ?GraphQLResponse, status?: ?string): void {
     /* eslint-disable no-console */
     const transactionId = this.getIdentifier();
     console.groupCollapsed &&
@@ -94,7 +94,7 @@ class RelayNetworkLoggerTransaction implements IRelayNetworkLoggerTransaction {
     /* eslint-enable no-console */
   }
 
-  commitLogs(error: ?Error, payload: ?ExecutePayload, status?: ?string): void {
+  commitLogs(error: ?Error, payload: ?GraphQLResponse, status?: ?string): void {
     invariant(
       this._hasCommittedLogs === false,
       `The logs for transaction #${this._id} have already been committed.`,
@@ -107,7 +107,7 @@ class RelayNetworkLoggerTransaction implements IRelayNetworkLoggerTransaction {
     this._hasCommittedLogs = true;
   }
 
-  flushLogs(error: ?Error, payload: ?ExecutePayload, status?: ?string): void {
+  flushLogs(error: ?Error, payload: ?GraphQLResponse, status?: ?string): void {
     invariant(
       this._hasCommittedLogs === false,
       `The logs for transaction #${this._id} have already been committed.`,
@@ -126,7 +126,7 @@ class RelayNetworkLoggerTransaction implements IRelayNetworkLoggerTransaction {
 
   getLogsToPrint(
     error: ?Error,
-    payload: ?ExecutePayload,
+    payload: ?GraphQLResponse,
     status: ?string,
   ): Array<RelayNetworkLog> {
     return this._logs;

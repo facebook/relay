@@ -24,11 +24,10 @@ const warning = require('warning');
 
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {
-  ExecutePayload,
+  GraphQLResponse,
   Network,
   PayloadData,
   PayloadError,
-  StreamPayload,
   UploadableMap,
 } from '../network/RelayNetworkTypes';
 import type RelayObservable from '../network/RelayObservable';
@@ -195,7 +194,7 @@ class RelayModernEnvironment implements Environment {
   }
 
   /**
-   * Returns an Observable of ExecutePayload resulting from executing the
+   * Returns an Observable of GraphQLResponse resulting from executing the
    * provided Query or Subscription operation, each result of which is then
    * normalized and committed to the publish queue.
    *
@@ -210,15 +209,15 @@ class RelayModernEnvironment implements Environment {
     operation: OperationSelector,
     cacheConfig?: ?CacheConfig,
     updater?: ?SelectorStoreUpdater,
-  }): RelayObservable<ExecutePayload> {
+  }): RelayObservable<GraphQLResponse> {
     let optimisticResponse;
     return this._network
       .execute(operation.node, operation.variables, cacheConfig || {})
       .do({
-        next: executePayload => {
-          const responsePayload = normalizePayload(operation, executePayload);
+        next: payload => {
+          const responsePayload = normalizePayload(operation, payload);
           const {source, fieldPayloads} = responsePayload;
-          if (executePayload.isOptimistic) {
+          if (payload.extensions?.isOptimistic) {
             invariant(
               optimisticResponse == null,
               'environment.execute: only support one optimistic response per ' +
@@ -254,67 +253,7 @@ class RelayModernEnvironment implements Environment {
   }
 
   /**
-   * Returns an Observable of StreamPayload. Similar to .execute({...}),
-   * except the stream can also return events, which is especially useful when
-   * executing a GraphQL subscription. However, events are not commited to
-   * the publish queue, they are simply ignored in the .do({...}) stream.
-   */
-  executeWithEvents({
-    operation,
-    cacheConfig,
-    updater,
-  }: {
-    operation: OperationSelector,
-    cacheConfig?: ?CacheConfig,
-    updater?: ?SelectorStoreUpdater,
-  }): RelayObservable<StreamPayload> {
-    let optimisticResponse;
-    return this._network
-      .executeWithEvents(operation.node, operation.variables, cacheConfig || {})
-      .do({
-        next: executePayload => {
-          if (executePayload.kind !== 'data') {
-            return;
-          }
-          const responsePayload = normalizePayload(operation, executePayload);
-          const {source, fieldPayloads} = responsePayload;
-          if (executePayload.isOptimistic) {
-            invariant(
-              optimisticResponse == null,
-              'environment.execute: only support one optimistic response per ' +
-                'execute.',
-            );
-            optimisticResponse = {
-              source: source,
-              fieldPayloads: fieldPayloads,
-            };
-            this._publishQueue.applyUpdate(optimisticResponse);
-            this._publishQueue.run();
-          } else {
-            if (optimisticResponse) {
-              this._publishQueue.revertUpdate(optimisticResponse);
-              optimisticResponse = undefined;
-            }
-            this._publishQueue.commitPayload(
-              operation,
-              responsePayload,
-              updater,
-            );
-            this._publishQueue.run();
-          }
-        },
-      })
-      .finally(() => {
-        if (optimisticResponse) {
-          this._publishQueue.revertUpdate(optimisticResponse);
-          optimisticResponse = undefined;
-          this._publishQueue.run();
-        }
-      });
-  }
-
-  /**
-   * Returns an Observable of ExecutePayload resulting from executing the
+   * Returns an Observable of GraphQLResponse resulting from executing the
    * provided Mutation operation, the result of which is then normalized and
    * committed to the publish queue along with an optional optimistic response
    * or updater.
@@ -335,7 +274,7 @@ class RelayModernEnvironment implements Environment {
     optimisticResponse?: ?Object,
     updater?: ?SelectorStoreUpdater,
     uploadables?: ?UploadableMap,
-  |}): RelayObservable<ExecutePayload> {
+  |}): RelayObservable<GraphQLResponse> {
     let optimisticUpdate;
     if (optimisticResponse || optimisticUpdater) {
       optimisticUpdate = {
@@ -396,7 +335,7 @@ class RelayModernEnvironment implements Environment {
     cacheConfig?: ?CacheConfig,
     onCompleted?: ?() => void,
     onError?: ?(error: Error) => void,
-    onNext?: ?(payload: ExecutePayload) => void,
+    onNext?: ?(payload: GraphQLResponse) => void,
     operation: OperationSelector,
   }): Disposable {
     warning(
@@ -447,7 +386,7 @@ class RelayModernEnvironment implements Environment {
       // it a value. When switching to use executeMutation(), the next()
       // Observer should be used to preserve behavior.
       onNext: payload => {
-        onCompleted && onCompleted(payload.response.errors);
+        onCompleted && onCompleted(payload.errors);
       },
       onError,
       onCompleted,

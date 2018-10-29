@@ -198,13 +198,8 @@ function createMockEnvironment(options: {
 
   const nextValue = (request, payload) => {
     getRequests(request).forEach(foundRequest => {
-      const {sink, variables} = foundRequest;
-      sink.next({
-        kind: 'data',
-        operation: request.operation,
-        variables: variables,
-        response: ensureValidPayload(payload),
-      });
+      const {sink} = foundRequest;
+      sink.next(ensureValidPayload(payload));
     });
   };
 
@@ -214,13 +209,8 @@ function createMockEnvironment(options: {
 
   const resolve = (request, payload) => {
     getRequests(request).forEach(foundRequest => {
-      const {sink, variables} = foundRequest;
-      sink.next({
-        kind: 'data',
-        operation: request.operation,
-        variables: variables,
-        response: ensureValidPayload(payload),
-      });
+      const {sink} = foundRequest;
+      sink.next(ensureValidPayload(payload));
       sink.complete();
     });
   };

@@ -14,7 +14,7 @@ const getQueryIdentifier = require('../helpers/getQueryIdentifier');
 const invariant = require('invariant');
 
 import type {
-  ExecutePayload,
+  GraphQLResponse,
   Observer,
   Subscription,
   IEnvironment,
@@ -31,7 +31,7 @@ type ObserverEvent = {|
 type RequestCacheEntry = {|
   +subscription: Subscription,
   +receivedEvents: Array<ObserverEvent>,
-  +observers: Array<Observer<ExecutePayload>>,
+  +observers: Array<Observer<GraphQLResponse>>,
 |};
 
 type ReferencesCacheEntry = {|
@@ -55,7 +55,7 @@ const referencesByEnvironment: Map<
 function fetchQuery(args: {|
   environment: IEnvironment,
   query: OperationSelector,
-  observer?: Observer<ExecutePayload>,
+  observer?: Observer<GraphQLResponse>,
   networkLayerCacheConfig?: CacheConfig,
 |}): Disposable {
   const {environment, query, observer, networkLayerCacheConfig} = args;
@@ -272,7 +272,7 @@ function getReferencesCache(
 function getCachedObservers(
   requestCache: Map<string, RequestCacheEntry>,
   cacheKey: string,
-): Array<Observer<ExecutePayload>> {
+): Array<Observer<GraphQLResponse>> {
   const cached = requestCache.get(cacheKey);
   invariant(cached != null, 'fetchQuery: Expected request to be cached');
   return cached.observers;

@@ -15,7 +15,7 @@ const invariant = require('invariant');
 const {fetchQuery} = require('../utils/fetchQueryUtils');
 
 import type {
-  ExecutePayload,
+  GraphQLResponse,
   Observer,
   GraphQLTaggedNode,
   IEnvironment,
@@ -86,7 +86,7 @@ function fetchQuery_UNSTABLE<TQuery: OperationType>(args: {|
   environment: IEnvironment,
   query: GraphQLTaggedNode,
   variables: $ElementType<TQuery, 'variables'>,
-  observer?: Observer<ExecutePayload>,
+  observer?: Observer<GraphQLResponse>,
   networkLayerCacheConfig?: CacheConfig,
 |}) {
   const {environment, variables, query} = args;

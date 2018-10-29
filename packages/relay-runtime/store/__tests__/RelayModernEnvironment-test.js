@@ -578,11 +578,7 @@ describe('RelayModernEnvironment', () => {
       jest.runAllTimers();
 
       expect(next.mock.calls.length).toBe(1);
-      expect(next).toBeCalledWith({
-        kind: 'data',
-        response: payload,
-        isOptimistic: false,
-      });
+      expect(next).toBeCalledWith(payload);
       expect(complete).toBeCalled();
       expect(error).not.toBeCalled();
       expect(callback.mock.calls.length).toBe(1);
@@ -729,11 +725,7 @@ describe('RelayModernEnvironment', () => {
       jest.runAllTimers();
 
       expect(next.mock.calls.length).toBe(1);
-      expect(next).toBeCalledWith({
-        kind: 'data',
-        response: payload,
-        isOptimistic: false,
-      });
+      expect(next).toBeCalledWith(payload);
       expect(complete).not.toBeCalled();
       expect(error).not.toBeCalled();
       expect(callback.mock.calls.length).toBe(1);
@@ -812,9 +804,10 @@ describe('RelayModernEnvironment', () => {
         },
       };
       dataSource.next({
-        kind: 'data',
-        response: payload,
-        isOptimistic: true,
+        ...payload,
+        extensions: {
+          isOptimistic: true,
+        },
       });
       jest.runAllTimers();
 
@@ -861,17 +854,14 @@ describe('RelayModernEnvironment', () => {
       };
 
       dataSource.next({
-        kind: 'data',
-        response: optimisticResponse,
-        isOptimistic: true,
+        ...optimisticResponse,
+        extensions: {
+          isOptimistic: true,
+        },
       });
 
       jest.runAllTimers();
-      dataSource.next({
-        kind: 'data',
-        response: realResponse,
-        isOptimistic: false,
-      });
+      dataSource.next(realResponse);
       jest.runAllTimers();
 
       expect(next.mock.calls.length).toBe(2);
@@ -911,9 +901,10 @@ describe('RelayModernEnvironment', () => {
         },
       };
       dataSource.next({
-        kind: 'data',
-        response: payload,
-        isOptimistic: true,
+        ...payload,
+        extensions: {
+          isOptimistic: true,
+        },
       });
       jest.runAllTimers();
       dataSource.complete();

@@ -103,7 +103,7 @@ function commitRelayModernMutation<T>(
         const {onCompleted} = config;
         if (onCompleted) {
           const snapshot = environment.lookup(operation.fragment);
-          onCompleted((snapshot.data: $FlowFixMe), payload.response.errors);
+          onCompleted((snapshot.data: $FlowFixMe), payload.errors);
         }
       },
       onError,

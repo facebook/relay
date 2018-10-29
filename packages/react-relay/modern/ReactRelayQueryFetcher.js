@@ -15,7 +15,7 @@ const invariant = require('invariant');
 import type {
   CacheConfig,
   Disposable,
-  ExecutePayload,
+  GraphQLResponse,
   IEnvironment,
   Observable,
   OperationSelector,
@@ -92,7 +92,7 @@ class ReactRelayQueryFetcher {
     operation,
     cacheConfig,
     preservePreviousReferences = false,
-  }: ExecuteConfig): Observable<ExecutePayload> {
+  }: ExecuteConfig): Observable<GraphQLResponse> {
     const reference = environment.retain(operation.root);
     return environment.execute({operation, cacheConfig}).do({
       error: () => {

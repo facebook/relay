@@ -14,15 +14,14 @@ const RelayError = require('../util/RelayError');
 
 const normalizeRelayPayload = require('./normalizeRelayPayload');
 
-import type {ExecutePayload} from '../network/RelayNetworkTypes';
+import type {GraphQLResponse} from '../network/RelayNetworkTypes';
 import type {RelayResponsePayload, OperationSelector} from './RelayStoreTypes';
 
 function normalizePayload(
   operation: OperationSelector,
-  payload: ExecutePayload,
+  payload: GraphQLResponse,
 ): RelayResponsePayload {
-  const {response} = payload;
-  const {data, errors} = response;
+  const {data, errors} = payload;
   if (data != null) {
     return normalizeRelayPayload(operation.root, data, errors, {
       handleStrippedNulls: true,

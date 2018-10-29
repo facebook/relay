@@ -1,0 +1,239 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Thinking in GraphQL · Relay</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="GraphQL presents new ways for clients to fetch data by focusing on the needs of product developers and client applications. It provides a way for developers to specify the precise data needed for a view and enables a client to fetch that data in a single network request. Compared to traditional approaches such as REST, GraphQL helps applications to fetch data more efficiently (compared to resource-oriented REST approaches) and avoid duplication of server logic (which can occur with custom endpoints). Furthermore, GraphQL helps developers to decouple product code and server logic. For example, a product can fetch more or less information without requiring a change to every relevant server endpoint. It&#x27;s a great way to fetch data."/><meta name="docsearch:version" content="v1.5.0"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Thinking in GraphQL · Relay"/><meta property="og:type" content="website"/><meta property="og:url" content="https://facebook.github.io/relay/index.html"/><meta property="og:description" content="GraphQL presents new ways for clients to fetch data by focusing on the needs of product developers and client applications. It provides a way for developers to specify the precise data needed for a view and enables a client to fetch that data in a single network request. Compared to traditional approaches such as REST, GraphQL helps applications to fetch data more efficiently (compared to resource-oriented REST approaches) and avoid duplication of server logic (which can occur with custom endpoints). Furthermore, GraphQL helps developers to decouple product code and server logic. For example, a product can fetch more or less information without requiring a change to every relevant server endpoint. It&#x27;s a great way to fetch data."/><meta name="twitter:card" content="summary"/><link rel="shortcut icon" href="/relay/img/favicon.png"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.css"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="stylesheet" href="/relay/css/main.css"/></head><body class="sideNavVisible"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/relay/en"><img class="logo" src="/relay/img/relay-white.svg" alt="Relay"/><h2 class="headerTitleWithLogo">Relay</h2></a><a href="/relay/en/versions.html"><h3>v1.5.0</h3></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/relay/docs/en/v1.5.0/introduction-to-relay.html" target="_self">Docs</a></li><li class=""><a href="/relay/en/help.html" target="_self">Support</a></li><li class=""><a href="https://github.com/facebook/relay" target="_self">GitHub</a></li><li class=""><a target="_self"></a></li><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><i></i></div><h2><i>›</i><span>Principles &amp; Architecture</span></h2></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">Introduction</h3><ul><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.5.0/introduction-to-relay.html">Introduction to Relay</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.5.0/prerequisites.html">Prerequisites</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.5.0/installation-and-setup.html">Installation and Setup</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.5.0/quick-start-guide.html">Quick Start Guide</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">API Reference</h3><ul><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.5.0/graphql-in-relay.html">GraphQL in Relay</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.5.0/relay-environment.html">Relay Environment</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.5.0/network-layer.html">Network Layer</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.5.0/query-renderer.html">&lt;QueryRenderer /&gt;</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.5.0/fragment-container.html">Fragment Container</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.5.0/refetch-container.html">Refetch Container</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.5.0/pagination-container.html">Pagination Container</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.5.0/mutations.html">Mutations</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.5.0/subscriptions.html">Subscriptions</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.5.0/relay-store.html">Relay Store</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Guides</h3><ul><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.5.0/routing.html">Routing</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.5.0/relay-debugging.html">Debugging</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.5.0/graphql-server-specification.html">GraphQL Server Specification</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Migration Guides</h3><ul><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.5.0/new-in-relay-modern.html">New in Relay Modern</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.5.0/relay-compat.html">Compatibility Mode</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.5.0/migration-setup.html">Migration Setup</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.5.0/conversion-playbook.html">Conversion Playbook</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.5.0/conversion-scripts.html">Conversion Scripts</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.5.0/upgrading-setvariables.html">Upgrading setVariables</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.5.0/converting-mutations.html">Converting Mutations</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.5.0/compatibility-cheatsheet.html">Compatibility Cheatsheet</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.5.0/api-cheatsheet.html">API Cheatsheet</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Principles &amp; Architecture</h3><ul><li class="navListItem navListItemActive"><a class="navItem" href="/relay/docs/en/v1.5.0/thinking-in-graphql.html">Thinking in GraphQL</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.5.0/thinking-in-relay.html">Thinking In Relay</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.5.0/architecture-overview.html">Architecture Overview</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.5.0/compiler-architecture.html">Compiler Architecture</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.5.0/runtime-architecture.html">Runtime Architecture</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.5.0/videos.html">Videos</a></li></ul></div></div></section></div><script>
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              const headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                if (event.target.tagName === 'A') {
+                  document.body.classList.remove('tocActive');
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/PrinciplesAndArchitecture-ThinkingInGraphQL.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">Thinking in GraphQL</h1></header><article><div><span><p>GraphQL presents new ways for clients to fetch data by focusing on the needs of product developers and client applications. It provides a way for developers to specify the precise data needed for a view and enables a client to fetch that data in a single network request. Compared to traditional approaches such as REST, GraphQL helps applications to fetch data more efficiently (compared to resource-oriented REST approaches) and avoid duplication of server logic (which can occur with custom endpoints). Furthermore, GraphQL helps developers to decouple product code and server logic. For example, a product can fetch more or less information without requiring a change to every relevant server endpoint. It's a great way to fetch data.</p>
+<p>In this article we'll explore what it means to build a GraphQL client framework and how this compares to clients for more traditional REST systems. Along the way we'll look at the design decisions behind Relay and see that it's not just a GraphQL client but also a framework for <em>declarative data-fetching</em>. Let's start at the beginning and fetch some data!</p>
+<h2><a class="anchor" aria-hidden="true" id="fetching-data"></a><a href="#fetching-data" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Fetching Data</h2>
+<p>Imagine we have a simple application that fetches a list of stories, and some details about each one. Here's how that might look in resource-oriented REST:</p>
+<pre><code class="hljs css languages- javascript"><span class="hljs-comment">// Fetch the list of story IDs but not their details:</span>
+rest.get(<span class="hljs-string">'/stories'</span>).then(<span class="hljs-function"><span class="hljs-params">stories</span> =&gt;</span>
+  <span class="hljs-comment">// This resolves to a list of items with linked resources:</span>
+  <span class="hljs-comment">// `[ { href: "http://.../story/1" }, ... ]`</span>
+  <span class="hljs-built_in">Promise</span>.all(stories.map(<span class="hljs-function"><span class="hljs-params">story</span> =&gt;</span>
+    rest.get(story.href) <span class="hljs-comment">// Follow the links</span>
+  ))
+).then(<span class="hljs-function"><span class="hljs-params">stories</span> =&gt;</span> {
+  <span class="hljs-comment">// This resolves to a list of story items:</span>
+  <span class="hljs-comment">// `[ { id: "...", text: "..." } ]`</span>
+  <span class="hljs-built_in">console</span>.log(stories);
+});
+</code></pre>
+<p>Note that this approach requires <em>n+1</em> requests to the server: 1 to fetch the list, and <em>n</em> to fetch each item. With GraphQL we can fetch the same data in a single network request to the server (without creating a custom endpoint that we'd then have to maintain):</p>
+<pre><code class="hljs css languages- javascript">graphql.get(<span class="hljs-string">`query { stories { id, text } }`</span>).then(
+  <span class="hljs-function"><span class="hljs-params">stories</span> =&gt;</span> {
+    <span class="hljs-comment">// A list of story items:</span>
+    <span class="hljs-comment">// `[ { id: "...", text: "..." } ]`</span>
+    <span class="hljs-built_in">console</span>.log(stories);
+  }
+);
+</code></pre>
+<p>So far we're just using GraphQL as a more efficient version of typical REST approaches. Note two important benefits in the GraphQL version:</p>
+<ul>
+<li>All data is fetched in a single round trip.</li>
+<li>The client and server are decoupled: the client specifies the data needed instead of <em>relying on</em> the server endpoint to return the correct data.</li>
+</ul>
+<p>For a simple application that's already a nice improvement.</p>
+<h2><a class="anchor" aria-hidden="true" id="client-caching"></a><a href="#client-caching" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Client Caching</h2>
+<p>Repeatedly refetching information from the server can get quite slow. For example, navigating from the list of stories, to a list item, and back to the list of stories means we have to refetch the whole list. We'll solve this with the standard solution: <em>caching</em>.</p>
+<p>In a resource-oriented REST system, we can maintain a <strong>response cache</strong> based on URIs:</p>
+<pre><code class="hljs css languages- javascript"><span class="hljs-keyword">var</span> _cache = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Map</span>();
+rest.get = <span class="hljs-function"><span class="hljs-params">uri</span> =&gt;</span> {
+  <span class="hljs-keyword">if</span> (!_cache.has(uri)) {
+    _cache.set(uri, fetch(uri));
+  }
+  <span class="hljs-keyword">return</span> _cache.get(uri);
+};
+</code></pre>
+<p>Response-caching can also be applied to GraphQL. A basic approach would work similarly to the REST version. The text of the query itself can be used as a cache key:</p>
+<pre><code class="hljs css languages- javascript"><span class="hljs-keyword">var</span> _cache = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Map</span>();
+graphql.get = <span class="hljs-function"><span class="hljs-params">queryText</span> =&gt;</span> {
+  <span class="hljs-keyword">if</span> (!_cache.has(queryText)) {
+    _cache.set(queryText, fetchGraphQL(queryText));
+  }
+  <span class="hljs-keyword">return</span> _cache.get(queryText);
+};
+</code></pre>
+<p>Now, requests for previously cached data can be answered immediately without making a network request. This is a practical approach to improving the perceived performance of an application. However, this method of caching can cause problems with data consistency.</p>
+<h2><a class="anchor" aria-hidden="true" id="cache-consistency"></a><a href="#cache-consistency" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Cache Consistency</h2>
+<p>With GraphQL it is very common for the results of multiple queries to overlap. However, our response cache from the previous section doesn't account for this overlap — it caches based on distinct queries. For example, if we issue a query to fetch stories:</p>
+<pre><code class="hljs">query { stories { <span class="hljs-built_in">id</span>, <span class="hljs-built_in">text</span>, likeCount } }
+</code></pre>
+<p>and then later refetch one of the stories whose <code>likeCount</code> has since been incremented:</p>
+<pre><code class="hljs">query { story(<span class="hljs-built_in">id</span>: <span class="hljs-string">"123"</span>) { <span class="hljs-built_in">id</span>, <span class="hljs-built_in">text</span>, likeCount } }
+</code></pre>
+<p>We'll now see different <code>likeCount</code>s depending on how the story is accessed. A view that uses the first query will see an outdated count, while a view using the second query will see the updated count.</p>
+<h3><a class="anchor" aria-hidden="true" id="caching-a-graph"></a><a href="#caching-a-graph" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Caching A Graph</h3>
+<p>The solution to caching GraphQL is to normalize the hierarchical response into a flat collection of <strong>records</strong>. Relay implements this cache as a map from IDs to records. Each record is a map from field names to field values. Records may also link to other records (allowing it to describe a cyclic graph), and these links are stored as a special value type that references back into the top-level map. With this approach each server record is stored <em>once</em> regardless of how it is fetched.</p>
+<p>Here's an example query that fetches a story's text and its author's name:</p>
+<pre><code class="hljs">query {
+  story(<span class="hljs-built_in">id</span>: <span class="hljs-string">"1"</span>) {
+    <span class="hljs-built_in">text</span>,
+    author {
+      <span class="hljs-built_in">name</span>
+    }
+  }
+}
+</code></pre>
+<p>And here's a possible response:</p>
+<pre><code class="hljs"><span class="hljs-symbol">query:</span> {
+<span class="hljs-symbol">  story:</span> {
+<span class="hljs-symbol">     text:</span> <span class="hljs-string">"Relay is open-source!"</span>,
+<span class="hljs-symbol">     author:</span> {
+<span class="hljs-symbol">       name:</span> <span class="hljs-string">"Jan"</span>
+     }
+  }
+}
+</code></pre>
+<p>Although the response is hierarchical, we'll cache it by flattening all the records. Here is an example of how Relay would cache this query response:</p>
+<pre><code class="hljs css languages- javascript"><span class="hljs-built_in">Map</span> {
+  <span class="hljs-comment">// `story(id: "1")`</span>
+  <span class="hljs-number">1</span>: <span class="hljs-built_in">Map</span> {
+    <span class="hljs-attr">text</span>: <span class="hljs-string">'Relay is open-source!'</span>,
+    <span class="hljs-attr">author</span>: Link(<span class="hljs-number">2</span>),
+  },
+  <span class="hljs-comment">// `story.author`</span>
+  <span class="hljs-number">2</span>: <span class="hljs-built_in">Map</span> {
+    <span class="hljs-attr">name</span>: <span class="hljs-string">'Jan'</span>,
+  },
+};
+</code></pre>
+<p>This is only a simple example: in reality the cache must handle one-to-many associations and pagination (among other things).</p>
+<h3><a class="anchor" aria-hidden="true" id="using-the-cache"></a><a href="#using-the-cache" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Using The Cache</h3>
+<p>So how do we use this cache? Let's look at two operations: writing to the cache when a response is received, and reading from the cache to determine if a query can be fulfilled locally (the equivalent to <code>_cache.has(key)</code> above, but for a graph).</p>
+<h3><a class="anchor" aria-hidden="true" id="populating-the-cache"></a><a href="#populating-the-cache" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Populating The Cache</h3>
+<p>Populating the cache involves walking a hierarchical GraphQL response and creating or updating normalized cache records. At first it may seem that the response alone is sufficient to process the response, but in fact this is only true for very simple queries. Consider <code>user(id: &quot;456&quot;) { photo(size: 32) { uri } }</code> — how should we store <code>photo</code>? Using <code>photo</code> as the field name in the cache won't work because a different query might fetch the same field but with different argument values (e.g. <code>photo(size: 64) {...}</code>). A similar issue occurs with pagination. If we fetch the 11th to 20th stories with <code>stories(first: 10, offset: 10)</code>, these new results should be <em>appended</em> to the existing list.</p>
+<p>Therefore, a normalized response cache for GraphQL requires processing payloads and queries in parallel. For example, the <code>photo</code> field from above might be cached with a generated field name such as <code>photo_size(32)</code> in order to uniquely identify the field and its argument values.</p>
+<h3><a class="anchor" aria-hidden="true" id="reading-from-cache"></a><a href="#reading-from-cache" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Reading From Cache</h3>
+<p>To read from the cache we can walk a query and resolve each field. But wait: that sounds <em>exactly</em> like what a GraphQL server does when it processes a query. And it is! Reading from the cache is a special case of an executor where a) there's no need for user-defined field functions because all results come from a fixed data structure and b) results are always synchronous — we either have the data cached or we don't.</p>
+<p>Relay implements several variations of <strong>query traversal</strong>: operations that walk a query alongside some other data such as the cache or a response payload. For example, when a query is fetched Relay performs a &quot;diff&quot; traversal to determine what fields are missing (much like React diffs virtual DOM trees). This can reduce the amount of data fetched in many common cases and even allow Relay to avoid network requests at all when queries are fully cached.</p>
+<h3><a class="anchor" aria-hidden="true" id="cache-updates"></a><a href="#cache-updates" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Cache Updates</h3>
+<p>Note that this normalized cache structure allows overlapping results to be cached without duplication. Each record is stored once regardless of how it is fetched. Let's return to the earlier example of inconsistent data and see how this cache helps in that scenario.</p>
+<p>The first query was for a list of stories:</p>
+<pre><code class="hljs">query { stories { <span class="hljs-built_in">id</span>, <span class="hljs-built_in">text</span>, likeCount } }
+</code></pre>
+<p>With a normalized response cache, a record would be created for each story in the list. The <code>stories</code> field would store links to each of these records.</p>
+<p>The second query refetched the information for one of those stories:</p>
+<pre><code class="hljs">query { story(<span class="hljs-built_in">id</span>: <span class="hljs-string">"123"</span>) { <span class="hljs-built_in">id</span>, <span class="hljs-built_in">text</span>, likeCount } }
+</code></pre>
+<p>When this response is normalized, Relay can detect that this result overlaps with existing data based on its <code>id</code>. Rather than create a new record, Relay will update the existing <code>123</code> record. The new <code>likeCount</code> is therefore available to <em>both</em> queries, as well as any other query that might reference this story.</p>
+<h2><a class="anchor" aria-hidden="true" id="data-view-consistency"></a><a href="#data-view-consistency" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Data/View Consistency</h2>
+<p>A normalized cache ensures that the <em>cache</em> is consistent. But what about our views? Ideally, our React views would always reflect the current information from the cache.</p>
+<p>Consider rendering the text and comments of a story along with the corresponding author names and photos. Here's the GraphQL query:</p>
+<pre><code class="hljs">query {
+  node(<span class="hljs-built_in">id</span>: <span class="hljs-string">"1"</span>) {
+    <span class="hljs-built_in">text</span>,
+    author { <span class="hljs-built_in">name</span>, photo },
+    comments {
+      <span class="hljs-built_in">text</span>,
+      author { <span class="hljs-built_in">name</span>, photo }
+    }
+  }
+}
+</code></pre>
+<p>After initially fetching this story our cache might be as follows. Note that the story and comment both link to the same record as <code>author</code>:</p>
+<pre><code class="hljs"><span class="hljs-comment">// Note: This is pseudo-code for `Map` initialization to make the structure</span>
+<span class="hljs-comment">// more obvious.</span>
+<span class="hljs-selector-tag">Map</span> {
+  <span class="hljs-comment">// `story(id: "1")`</span>
+  <span class="hljs-attribute">1</span>: Map {
+    <span class="hljs-attribute">text</span>: <span class="hljs-string">'got GraphQL?'</span>,
+    <span class="hljs-attribute">author</span>: Link(<span class="hljs-number">2</span>),
+    <span class="hljs-attribute">comments</span>: [Link(<span class="hljs-number">3</span>)],
+  },
+  <span class="hljs-comment">// `story.author`</span>
+  <span class="hljs-attribute">2</span>: Map {
+    <span class="hljs-attribute">name</span>: <span class="hljs-string">'Yuzhi'</span>,
+    <span class="hljs-attribute">photo</span>: <span class="hljs-string">'http://.../photo1.jpg'</span>,
+  },
+  <span class="hljs-comment">// `story.comments[0]`</span>
+  <span class="hljs-attribute">3</span>: Map {
+    <span class="hljs-attribute">text</span>: <span class="hljs-string">'Here\'</span>s how to get one!',
+    <span class="hljs-attribute">author</span>: Link(<span class="hljs-number">2</span>),
+  },
+}
+</code></pre>
+<p>The author of this story also commented on it — quite common. Now imagine that some other view fetches new information about the author, and her profile photo has changed to a new URI. Here's the <em>only</em> part of our cached data that changes:</p>
+<pre><code class="hljs"><span class="hljs-built_in">Map</span> {
+  <span class="hljs-params">...</span>
+  <span class="hljs-number">2</span>: <span class="hljs-built_in">Map</span> {
+    <span class="hljs-params">...</span>
+    photo: <span class="hljs-string">'http://.../photo2.jpg'</span>,
+  },
+}
+</code></pre>
+<p>The value of the <code>photo</code> field has changed; and therefore the record <code>2</code> has also changed. And that's it. Nothing else in the <em>cache</em> is affected. But clearly our <em>view</em> needs to reflect the update: both instances of the author in the UI (as story author and comment author) need to show the new photo.</p>
+<p>A standard response is to &quot;just use immutable data structures&quot; — but let's see what would happen if we did:</p>
+<pre><code class="hljs"><span class="hljs-selector-tag">ImmutableMap</span> {
+  <span class="hljs-attribute">1</span>: ImmutableMap {<span class="hljs-comment">/* same as before */</span>}
+  <span class="hljs-attribute">2</span>: ImmutableMap {
+    ... <span class="hljs-comment">// other fields unchanged</span>
+    <span class="hljs-attribute">photo</span>: <span class="hljs-string">'http://.../photo2.jpg'</span>,
+  },
+  <span class="hljs-attribute">3</span>: ImmutableMap {<span class="hljs-comment">/* same as before */</span>}
+}
+</code></pre>
+<p>If we replace <code>2</code> with a new immutable record, we'll also get a new immutable instance of the cache object. However, records <code>1</code> and <code>3</code> are untouched. Because the data is normalized, we can't tell that <code>story</code>'s contents have changed just by looking at the <code>story</code> record alone.</p>
+<h3><a class="anchor" aria-hidden="true" id="achieving-view-consistency"></a><a href="#achieving-view-consistency" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Achieving View Consistency</h3>
+<p>There are a variety of solutions for keeping views up to date with a flattened cache. The approach that Relay takes is to maintain a mapping from each UI view to the set of IDs it references. In this case, the story view would subscribe to updates on the story (<code>1</code>), the author (<code>2</code>), and the comments (<code>3</code> and any others). When writing data into the cache, Relay tracks which IDs are affected and notifies <em>only</em> the views that are subscribed to those IDs. The affected views re-render, and unaffected views opt-out of re-rendering for better performance (Relay provides a safe but effective default <code>shouldComponentUpdate</code>). Without this strategy, every view would re-render for even the tiniest change.</p>
+<p>Note that this solution will also work for <em>writes</em>: any update to the cache will notify the affected views, and writes are just another thing that updates the cache.</p>
+<h2><a class="anchor" aria-hidden="true" id="mutations"></a><a href="#mutations" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Mutations</h2>
+<p>So far we've looked at the process of querying data and keeping views up to date, but we haven't looked at writes. In GraphQL, writes are called <strong>mutations</strong>. We can think of them as queries with side effects. Here's an example of calling a mutation that might mark a given story as being liked by the current user:</p>
+<pre><code class="hljs"><span class="hljs-comment">// Give a human-readable name and define the types of the inputs,</span>
+<span class="hljs-comment">// in this case the id of the story to mark as liked.</span>
+<span class="hljs-selector-tag">mutation</span> <span class="hljs-selector-tag">StoryLike</span>($<span class="hljs-attribute">storyID</span>: String) {
+   <span class="hljs-comment">// Call the mutation field and trigger its side effects</span>
+   <span class="hljs-selector-tag">storyLike</span>(<span class="hljs-attribute">storyID</span>: $storyID) {
+     <span class="hljs-comment">// Define fields to re-fetch after the mutation completes</span>
+     <span class="hljs-selector-tag">likeCount</span>
+   }
+}
+</code></pre>
+<p>Notice that we're querying for data that <em>may</em> have changed as a result of the mutation. An obvious question is: why can't the server just tell us what changed? The answer is: it's complicated. GraphQL abstracts over <em>any</em> data storage layer (or an aggregation of multiple sources), and works with any programming language. Furthermore, the goal of GraphQL is to provide data in a form that is useful to product developers building a view.</p>
+<p>We've found that it's common for the GraphQL schema to differ slightly or even substantially from the form in which data is stored on disk. Put simply: there isn't always a 1:1 correspondence between data changes in your underlying <em>data storage</em> (disk) and data changes in your <em>product-visible schema</em> (GraphQL). The perfect example of this is privacy: returning a user-facing field such as <code>age</code> might require accessing numerous records in our data-storage layer to determine if the active user is even allowed to <em>see</em> that <code>age</code> (Are we friends? Is my age shared? Did I block you? etc.).</p>
+<p>Given these real-world constraints, the approach in GraphQL is for clients to query for things that may change after a mutation. But what exactly do we put in that query? During the development of Relay we explored several ideas — let's look at them briefly in order to understand why Relay uses the approach that it does:</p>
+<ul>
+<li><p>Option 1: Re-fetch everything that the app has ever queried. Even though only a small subset of this data will actually change, we'll still have to wait for the server to execute the <em>entire</em> query, wait to download the results, and wait to process them again. This is very inefficient.</p></li>
+<li><p>Option 2: Re-fetch only the queries required by actively rendered views. This is a slight improvement over option 1. However, cached data that <em>isn't</em> currently being viewed won't be updated. Unless this data is somehow marked as stale or evicted from the cache subsequent queries will read outdated information.</p></li>
+<li><p>Option 3: Re-fetch a fixed list of fields that <em>may</em> change after the mutation. We'll call this list a <strong>fat query</strong>. We found this to also be inefficient because typical applications only render a subset of the fat query, but this approach would require fetching all of those fields.</p></li>
+<li><p>Option 4 (Relay): Re-fetch the intersection of what may change (the fat query) and the data in the cache. In addition to the cache of data Relay also remembers the queries used to fetch each item. These are called <strong>tracked queries</strong>. By intersecting the tracked and fat queries, Relay can query exactly the set of information the application needs to update and nothing more.</p></li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="data-fetching-apis"></a><a href="#data-fetching-apis" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Data-Fetching APIs</h2>
+<p>So far we looked at the lower-level aspects of data-fetching and saw how various familiar concepts translate to GraphQL. Next, let's step back and look at some higher-level concerns that product developers often face around data-fetching:</p>
+<ul>
+<li>Fetching all the data for a view hierarchy.</li>
+<li>Managing asynchronous state transitions and coordinating concurrent requests.</li>
+<li>Managing errors.</li>
+<li>Retrying failed requests.</li>
+<li>Updating the local cache after receiving query/mutation responses.</li>
+<li>Queuing mutations to avoid race conditions.</li>
+<li>Optimistically updating the UI while waiting for the server to respond to mutations.</li>
+</ul>
+<p>We've found that typical approaches to data-fetching — with imperative APIs — force developers to deal with too much of this non-essential complexity. For example, consider <em>optimistic UI updates</em>. This is a way of giving the user feedback while waiting for a server response. The logic of <em>what</em> to do can be quite clear: when the user clicks &quot;like&quot;, mark the story as being liked and send the request to the server. But the implementation is often much more complex. Imperative approaches require us to implement all of those steps: reach into the UI and toggle the button, initiate a network request, retry it if necessary, show an error if it fails (and untoggle the button), etc. The same goes for data-fetching: specifying <em>what</em> data we need often dictates <em>how</em> and <em>when</em> it is fetched. Next, we'll explore our approach to solving these concerns with <strong>Relay</strong>.</p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/relay/docs/en/v1.5.0/api-cheatsheet.html">← API Cheatsheet</a><a class="docs-next button" href="/relay/docs/en/v1.5.0/thinking-in-relay.html">Thinking In Relay →</a></div></div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/relay/" class="nav-home"><img src="/relay/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/relay/docs/en/introduction-to-relay.html">Introduction</a></div><div><h5>Community</h5><a href="/relay/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a class="github-button" href="https://github.com/facebook/relay" data-icon="octicon-star" data-count-href="/facebook/relay/stargazers" data-count-api="/repos/facebook/relay#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/relay/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2018 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+              var search = docsearch({
+                
+                apiKey: '3d7d5825d50ea36bca0e6ad06c926f06',
+                indexName: 'relay',
+                inputSelector: '#search_input_react'
+              });
+            </script></body></html>

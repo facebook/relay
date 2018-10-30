@@ -20,7 +20,7 @@ const {
   getLiteralArgumentValues,
 } = require('graphql-compiler');
 
-import type {LinkedField, Selection} from 'graphql-compiler';
+import type {LinkedField, MatchField, Selection} from 'graphql-compiler';
 import type {GraphQLCompositeType} from 'graphql';
 
 const SUPPORTED_ARGUMENT_NAME = 'supported';
@@ -58,8 +58,12 @@ function getMatchSelection(
   });
 }
 
-function visitField(field: LinkedField, state, parent?: mixed): LinkedField {
-  const transformedNode = this.traverse(field);
+function visitField(
+  field: LinkedField,
+  state,
+  parent?: mixed,
+): LinkedField | MatchField {
+  const transformedNode: LinkedField = this.traverse(field, state);
   if (typeof parent !== 'object') {
     return transformedNode;
   }
@@ -107,12 +111,18 @@ function visitField(field: LinkedField, state, parent?: mixed): LinkedField {
     transformedNode.name,
   );
 
-  const result: LinkedField = {
-    kind: 'LinkedField',
-    ...transformedNode,
+  const {alias, name, handles, metadata} = transformedNode;
+  const result: MatchField = {
+    alias,
+    name,
+    handles,
+    metadata,
+    type: outputType,
+    kind: 'MatchField',
     directives: transformedNode.directives.filter(
       directive => directive !== relayDirective,
     ),
+    selections: getMatchSelection(argValues.match),
     args: [
       {
         kind: 'Argument',
@@ -120,6 +130,7 @@ function visitField(field: LinkedField, state, parent?: mixed): LinkedField {
         type: supportedArg.type,
         value: {
           kind: 'ListValue',
+          metadata: null,
           items: argValues.match.map(match => {
             const belongToUnion = outputType
               .getTypes()
@@ -132,14 +143,15 @@ function visitField(field: LinkedField, state, parent?: mixed): LinkedField {
               outputType,
             );
             return {
+              kind: 'Literal',
+              metadata: null,
               value: match.type,
             };
           }),
         },
-        metadata: {},
+        metadata: null,
       },
     ],
-    selections: getMatchSelection(argValues.match),
   };
   return result;
 }

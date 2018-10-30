@@ -87,6 +87,9 @@ function transformNode<T: Node>(
       case 'ScalarField':
         nextSelection = selection;
         break;
+      case 'MatchField':
+        nextSelection = transformNode(context, fragments, selection);
+        break;
       default:
         (selection.kind: empty);
         invariant(

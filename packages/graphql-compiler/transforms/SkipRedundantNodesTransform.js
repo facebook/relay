@@ -160,6 +160,7 @@ function transformNode<T: Node>(
         }
         break;
       }
+      case 'MatchField':
       case 'LinkedField': {
         const transformed = transformNode(
           selection,
@@ -186,6 +187,7 @@ function transformNode<T: Node>(
         break;
       }
       default:
+        (selection: empty);
         invariant(
           false,
           'SkipRedundantNodesTransform: Unexpected node kind `%s`.',

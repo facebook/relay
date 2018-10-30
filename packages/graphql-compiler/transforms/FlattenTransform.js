@@ -164,6 +164,8 @@ function flattenSelectionsInto(
       });
     } else if (flattenedSelection.kind === 'FragmentSpread') {
       // Ignore duplicate fragment spreads.
+    } else if (flattenedSelection.kind === 'MatchField') {
+      // TODO: Figure out what to do with flattenSelections and MatchField nodes
     } else if (flattenedSelection.kind === 'LinkedField') {
       invariant(
         selection.kind === 'LinkedField',

@@ -145,7 +145,7 @@ function transformField<T: Field>(
 ): ?T {
   const args = transformArguments(scope, field.args);
   const directives = transformDirectives(scope, field.directives);
-  if (field.kind === 'LinkedField') {
+  if (field.kind === 'LinkedField' || field.kind === 'MatchField') {
     const selections = transformSelections(
       context,
       fragments,

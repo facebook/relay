@@ -22,7 +22,11 @@ import type {Selection} from './GraphQLIR';
  * variable and passing value for conditions.
  */
 function getIdentifierForSelection(node: Selection): string {
-  if (node.kind === 'LinkedField' || node.kind === 'ScalarField') {
+  if (
+    node.kind === 'LinkedField' ||
+    node.kind === 'ScalarField' ||
+    node.kind === 'MatchField'
+  ) {
     return node.directives.length === 0
       ? node.alias || node.name
       : (node.alias || node.name) + printDirectives(node.directives);

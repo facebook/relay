@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
@@ -25,6 +25,7 @@ import type {
   ListValue,
   Literal,
   LocalArgumentDefinition,
+  MatchField,
   ObjectFieldValue,
   ObjectValue,
   Request,
@@ -41,9 +42,16 @@ type NodeVisitor<S> = {
   Fragment?: NodeVisitorFunction<Fragment, S>,
   FragmentSpread?: NodeVisitorFunction<FragmentSpread, S>,
   InlineFragment?: NodeVisitorFunction<InlineFragment, S>,
-  LinkedField?: NodeVisitorFunction<LinkedField, S>,
+  LinkedField?:
+    | NodeVisitorFunction<LinkedField, S>
+    | ((
+        node: LinkedField,
+        state: S,
+        parentNode?: mixed,
+      ) => LinkedField | MatchField),
   ListValue?: NodeVisitorFunction<ListValue, S>,
   Literal?: NodeVisitorFunction<Literal, S>,
+  MatchField?: NodeVisitorFunction<MatchField, S>,
   LocalArgumentDefinition?: NodeVisitorFunction<LocalArgumentDefinition, S>,
   ObjectFieldValue?: NodeVisitorFunction<ObjectFieldValue, S>,
   ObjectValue?: NodeVisitorFunction<ObjectValue, S>,
@@ -106,7 +114,8 @@ function transform<S>(
   stateInitializer: void | ((Fragment | Root) => ?S),
 ): GraphQLCompilerContext {
   const transformer = new Transformer(context, visitor);
-  return context.withMutations(nextContext => {
+  return context.withMutations(ctx => {
+    let nextContext = ctx;
     context.forEachDocument(prevNode => {
       let nextNode;
       if (stateInitializer === undefined) {
@@ -233,6 +242,13 @@ class Transformer<S> {
         break;
       case 'ListValue':
         nextNode = this._traverseChildren(prevNode, ['items']);
+        break;
+      case 'MatchField':
+        nextNode = this._traverseChildren(prevNode, [
+          'args',
+          'directives',
+          'selections',
+        ]);
         break;
       case 'ObjectFieldValue':
         nextNode = this._traverseChildren(prevNode, null, ['value']);

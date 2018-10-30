@@ -71,6 +71,7 @@ export type {
   Literal,
   LocalArgumentDefinition,
   Node,
+  MatchField,
   ObjectFieldValue,
   ObjectValue,
   Request,

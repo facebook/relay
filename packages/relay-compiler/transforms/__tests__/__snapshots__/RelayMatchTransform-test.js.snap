@@ -2,32 +2,28 @@
 
 exports[`RelayMatchTransform matches expected output: relay-match-transform.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-fragment CommentBody_comment on CommentCreateResponsePayload {
-  comment {
-    commentBody @relay(match: [
-      {
-        type: "MarkdownCommentBody"
-        fragment: "MarkdownBody_comment"
-        module: "MarkdownBodyComponent.react"
-      },
-      {
-        type: "PlainCommentBody"
-        fragment: "PlaintextBody_comment"
-        module: "PlaintextComponent.react"
-      },
-    ]) {
-      __typename
-    }
+fragment CommentBody_comment on Comment {
+  commentBody @relay(match: [
+    {
+      type: "MarkdownCommentBody"
+      fragment: "MarkdownBody_comment"
+      module: "MarkdownBodyComponent.react"
+    },
+    {
+      type: "PlainCommentBody"
+      fragment: "PlaintextBody_comment"
+      module: "PlaintextComponent.react"
+    },
+  ]) {
+    __typename
   }
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-fragment CommentBody_comment on CommentCreateResponsePayload {
-  comment {
-    commentBody(supported: ["MarkdownCommentBody", "PlainCommentBody"]) {
-      ...MarkdownBody_comment
-      ...PlaintextBody_comment
-    }
+fragment CommentBody_comment on Comment {
+  commentBody(supported: ["MarkdownCommentBody", "PlainCommentBody"]) {
+    ...MarkdownBody_comment
+    ...PlaintextBody_comment
   }
 }
 

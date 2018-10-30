@@ -17,6 +17,7 @@ import type {
   GraphQLLeafType,
   GraphQLList,
   GraphQLNonNull,
+  GraphQLUnionType,
 } from 'graphql';
 
 export type Argument = {
@@ -43,7 +44,7 @@ export type Directive = {
   metadata: ?{[key: string]: mixed},
   name: string,
 };
-export type Field = LinkedField | ScalarField;
+export type Field = LinkedField | ScalarField | MatchField;
 export type Fragment = {
   argumentDefinitions: Array<ArgumentDefinition>,
   directives: Array<Directive>,
@@ -71,6 +72,7 @@ export type IR =
   | ListValue
   | Literal
   | LocalArgumentDefinition
+  | MatchField
   | ObjectFieldValue
   | ObjectValue
   | Request
@@ -124,7 +126,24 @@ export type LocalArgumentDefinition = {
   name: string,
   type: GraphQLInputType,
 };
-export type Node = Condition | Fragment | InlineFragment | LinkedField | Root;
+export type MatchField = {
+  alias: ?string,
+  args: Array<Argument>,
+  directives: Array<Directive>,
+  handles: ?Array<Handle>,
+  kind: 'MatchField',
+  metadata: ?{[key: string]: mixed},
+  name: string,
+  type: GraphQLUnionType | GraphQLNonNull<GraphQLUnionType>,
+  selections: Array<Selection>,
+};
+export type Node =
+  | Condition
+  | Fragment
+  | InlineFragment
+  | LinkedField
+  | MatchField
+  | Root;
 export type ObjectFieldValue = {
   kind: 'ObjectFieldValue',
   metadata: ?{[key: string]: mixed},
@@ -174,6 +193,7 @@ export type Selection =
   | FragmentSpread
   | InlineFragment
   | LinkedField
+  | MatchField
   | ScalarField;
 export type Variable = {
   kind: 'Variable',

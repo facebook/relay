@@ -21,6 +21,7 @@ import type {
   LinkedField,
   Literal,
   LocalArgumentDefinition,
+  MatchField,
   Request,
   Root,
   RootArgumentDefinition,
@@ -38,6 +39,7 @@ const NodeKeys = {
   LinkedField: ['args', 'directives', 'selections'],
   Literal: [],
   LocalArgumentDefinition: [],
+  MatchField: ['args', 'directives', 'selections'],
   Request: ['fragment', 'root'],
   Root: ['argumentDefinitions', 'directives', 'selections'],
   RootArgumentDefinition: [],
@@ -55,6 +57,7 @@ export type VisitNode =
   | LinkedField
   | Literal
   | LocalArgumentDefinition
+  | MatchField
   | Request
   | Root
   | RootArgumentDefinition
@@ -85,6 +88,7 @@ export type NodeVisitor =
       FragmentSpread?: NodeVisitorObject<FragmentSpread>,
       InlineFragment?: NodeVisitorObject<InlineFragment>,
       LinkedField?: NodeVisitorObject<LinkedField>,
+      MatchField?: NodeVisitorObject<MatchField>,
       Literal?: NodeVisitorObject<Literal>,
       LocalArgumentDefinition?: NodeVisitorObject<LocalArgumentDefinition>,
       Request?: NodeVisitorObject<Request>,

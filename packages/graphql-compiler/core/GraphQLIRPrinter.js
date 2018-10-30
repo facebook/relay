@@ -106,6 +106,9 @@ function printSelection(
   if (selection.kind === 'LinkedField') {
     str = printField(selection, parentCondition);
     str += printSelections(selection, indent + INDENT);
+  } else if (selection.kind === 'MatchField') {
+    str = printField(selection, parentCondition);
+    str += printSelections(selection, indent + INDENT);
   } else if (selection.kind === 'ScalarField') {
     str = printField(selection, parentCondition);
   } else if (selection.kind === 'InlineFragment') {

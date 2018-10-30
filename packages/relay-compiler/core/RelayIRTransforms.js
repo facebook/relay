@@ -16,6 +16,7 @@ const RelayFieldHandleTransform = require('../transforms/RelayFieldHandleTransfo
 const RelayGenerateIDFieldTransform = require('../transforms/RelayGenerateIDFieldTransform');
 const RelayGenerateTypeNameTransform = require('../transforms/RelayGenerateTypeNameTransform');
 const RelayMaskTransform = require('../transforms/RelayMaskTransform');
+const RelayMatchTransform = require('../transforms/RelayMatchTransform');
 const RelayRelayDirectiveTransform = require('../transforms/RelayRelayDirectiveTransform');
 const RelaySkipHandleFieldTransform = require('../transforms/RelaySkipHandleFieldTransform');
 const RelayViewerHandleTransform = require('../handlers/viewer/RelayViewerHandleTransform');
@@ -45,6 +46,7 @@ const relayCommonTransforms: Array<IRTransform> = [
   RelayViewerHandleTransform.transform,
   RelayRelayDirectiveTransform.transform,
   RelayMaskTransform.transform,
+  RelayMatchTransform.transform,
 ];
 
 // Transforms applied to fragments used for reading data from a store

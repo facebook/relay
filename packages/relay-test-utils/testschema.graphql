@@ -154,6 +154,16 @@ input CheckinSearchInput {
   inputs: [CheckinSearchInput]
 }
 
+type PlainCommentBody {
+  text: Text
+}
+
+type MarkdownCommentBody {
+  text: Text
+}
+
+union CommentBody = PlainCommentBody | MarkdownCommentBody
+
 type Comment implements Node {
   actor: Actor
   actors: [Actor]
@@ -166,6 +176,7 @@ type Comment implements Node {
   body: Text
   canViewerComment: Boolean
   canViewerLike: Boolean
+  commentBody(supported: [String!]!): CommentBody
   comments(first: Int, last: Int, orderby: String): CommentsConnection
   doesViewerLike: Boolean
   emailAddresses: [String]

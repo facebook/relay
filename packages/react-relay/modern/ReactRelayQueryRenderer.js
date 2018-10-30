@@ -46,9 +46,9 @@ export type RenderProps = {
 };
 
 /**
- * React may double-fire the constructor, and we call 'fetch' in the constructor.
- * If a request is already in flight from a previous call to the constructor,
- * just reuse the query fetcher and wait for the response.
+ * React may double-fire the constructor, and we call 'fetch' in the
+ * constructor. If a request is already in flight from a previous call to the
+ * constructor, just reuse the query fetcher and wait for the response.
  */
 const requestCache = {};
 
@@ -132,7 +132,7 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
       const request = getRequest(query);
       requestCacheKey = getRequestCacheKey(request, props.variables);
       queryFetcher = requestCache[requestCacheKey]
-        ? requestCache[requestCacheKey]
+        ? requestCache[requestCacheKey].queryFetcher
         : new ReactRelayQueryFetcher();
     } else {
       queryFetcher = new ReactRelayQueryFetcher();
@@ -255,6 +255,16 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
     }
   }
 
+  componentDidUpdate(): void {
+    // We don't need to cache the request after the component commits
+    const {requestCacheKey} = this.state;
+    if (requestCacheKey) {
+      delete requestCache[requestCacheKey];
+      // HACK
+      delete this.state.requestCacheKey;
+    }
+  }
+
   componentWillUnmount(): void {
     this.state.queryFetcher.dispose();
   }
@@ -367,28 +377,45 @@ function fetchQueryAndComputeStateFromProps(
   requestCacheKey: ?string,
 ): $Shape<State> {
   const {environment, query, variables} = props;
+  // $FlowFixMe TODO t16225453 QueryRenderer works with old+new environment.
+  const genericEnvironment = (environment: IEnvironment);
   if (query) {
-    // $FlowFixMe TODO t16225453 QueryRenderer works with old+new environment.
-    const genericEnvironment = (environment: IEnvironment);
-
     const {
       createOperationSelector,
       getRequest,
     } = genericEnvironment.unstable_internal;
     const request = getRequest(query);
     const operation = createOperationSelector(request, variables);
-
     if (typeof requestCacheKey === 'string' && requestCache[requestCacheKey]) {
       // This same request is already in flight.
-      // Render loading state
-      return {
-        error: null,
-        relayContextEnvironment: environment,
-        relayContextVariables: operation.variables,
-        renderProps: getLoadingRenderProps(),
-        snapshot: null,
-        requestCacheKey,
-      };
+
+      const {snapshot} = requestCache[requestCacheKey];
+      if (snapshot) {
+        // Use the cached response
+        return {
+          error: null,
+          relayContextEnvironment: environment,
+          relayContextVariables: variables,
+          renderProps: getRenderProps(
+            null,
+            snapshot,
+            queryFetcher,
+            retryCallbacks,
+          ),
+          snapshot,
+          requestCacheKey,
+        };
+      } else {
+        // Render loading state
+        return {
+          error: null,
+          relayContextEnvironment: environment,
+          relayContextVariables: variables,
+          renderProps: getLoadingRenderProps(),
+          snapshot: null,
+          requestCacheKey,
+        };
+      }
     }
 
     try {
@@ -403,11 +430,15 @@ function fetchQueryAndComputeStateFromProps(
         onDataChange: retryCallbacks.handleDataChange,
         operation,
       });
-      requestCacheKey =
-        requestCacheKey || getRequestCacheKey(request, props.variables);
-      requestCache[requestCacheKey] = queryFetcher;
+
       // Use network data first, since it may be fresher
       const snapshot = querySnapshot || storeSnapshot;
+
+      // cache the request to avoid duplicate requests
+      requestCacheKey =
+        requestCacheKey || getRequestCacheKey(request, props.variables);
+      requestCache[requestCacheKey] = {queryFetcher, snapshot};
+
       if (!snapshot) {
         return {
           error: null,
@@ -439,7 +470,7 @@ function fetchQueryAndComputeStateFromProps(
         relayContextVariables: operation.variables,
         renderProps: getRenderProps(error, null, queryFetcher, retryCallbacks),
         snapshot: null,
-        requestCacheKey: null, // if there is an error, don't cache request
+        requestCacheKey,
       };
     }
   } else {
@@ -450,6 +481,7 @@ function fetchQueryAndComputeStateFromProps(
       relayContextEnvironment: environment,
       relayContextVariables: variables,
       renderProps: getEmptyRenderProps(),
+      requestCacheKey: null, // if there is an error, don't cache request
     };
   }
 }

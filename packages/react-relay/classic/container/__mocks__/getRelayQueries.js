@@ -9,6 +9,6 @@
 
 'use strict';
 
-const getRelayQueries = require.requireActual('../getRelayQueries');
+const getRelayQueries = jest.requireActual('../getRelayQueries');
 
 module.exports = jest.fn(getRelayQueries);

@@ -1,7 +1,7 @@
 {
   "name": "relay-test-utils",
   "description": "Utilities for testing Relay applications.",
-  "version": "1.7.0-rc.1",
+  "version": "2.0.0-rc.1",
   "keywords": [
     "graphql",
     "relay"
@@ -15,8 +15,8 @@
     "fbjs": "^1.0.0",
     "iterall": "^1.2.1",
     "prop-types": "^15.5.8",
-    "relay-compiler": "1.7.0-rc.1",
-    "relay-runtime": "1.7.0-rc.1"
+    "relay-compiler": "2.0.0-rc.1",
+    "relay-runtime": "2.0.0-rc.1"
   },
   "peerDependencies": {
     "graphql": "^14.0.0"

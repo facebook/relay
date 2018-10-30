@@ -1,0 +1,16 @@
+query NodeQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10) @connection(key: "invalid") {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+    }
+  }
+}

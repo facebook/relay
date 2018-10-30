@@ -662,6 +662,52 @@ fragment Example on User {
 }
 `;
 
+exports[`RelayConnectionTransform matches expected output: invalid-connection-key-name.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query NodeQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10) @connection(key: "invalid") {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+RelayConnectionTransform: Expected the key argument to @connection to be of form <SomeName>_comments, got 'invalid'. For detailed explanation, check out https://facebook.github.io/relay/docs/en/pagination-container.html#connection
+`;
+
+exports[`RelayConnectionTransform matches expected output: invalid-connection-key-type.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query NodeQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10) @connection(key: 10) {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+RelayConnectionTransform: Expected the key argument to @connection to be a string literal for field comments.
+`;
+
 exports[`RelayConnectionTransform matches expected output: invalid-connection-with-custom-handler.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query NodeQuery(

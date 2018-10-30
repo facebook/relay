@@ -159,32 +159,27 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
   const {handler, key, filters} = getLiteralArgumentValues(
     connectionDirective.args,
   );
-  invariant(
-    handler == null || typeof handler === 'string',
-    'RelayConnectionTransform: Expected the %s argument to @%s to be a string literal for field %s.',
-    HANDLER,
-    CONNECTION,
-    field.name,
-  );
-  invariant(
-    typeof key === 'string',
-    'RelayConnectionTransform: Expected the %s argument to @%s to ' +
-      'be a string literal for field %s',
-    KEY,
-    CONNECTION,
-    field.name,
-  );
-  const postfix = `${field.alias || field.name}`;
-  invariant(
-    key.endsWith('_' + postfix),
-    'RelayConnectionTransform: Expected the %s argument to @%s to ' +
-      'be of form <SomeName>_%s, got %s. For detailed explanation, check out ' +
-      'https://facebook.github.io/relay/docs/pagination-container.html#connection-directive',
-    KEY,
-    CONNECTION,
-    postfix,
-    key,
-  );
+  if (handler != null && typeof handler !== 'string') {
+    throw new Error(
+      `RelayConnectionTransform: Expected the ${HANDLER} argument to ` +
+        `@${CONNECTION} to be a string literal for field ${field.name}.`,
+    );
+  }
+  if (typeof key !== 'string') {
+    throw new Error(
+      `RelayConnectionTransform: Expected the ${KEY} argument to ` +
+        `@${CONNECTION} to be a string literal for field ${field.name}.`,
+    );
+  }
+  const postfix = field.alias || field.name;
+  if (!key.endsWith('_' + postfix)) {
+    throw new Error(
+      `RelayConnectionTransform: Expected the ${KEY} argument to ` +
+        `@${CONNECTION} to be of form <SomeName>_${postfix}, got '${key}'. ` +
+        'For detailed explanation, check out ' +
+        'https://facebook.github.io/relay/docs/en/pagination-container.html#connection',
+    );
+  }
 
   const generateFilters = () => {
     const filteredVariableArgs = field.args

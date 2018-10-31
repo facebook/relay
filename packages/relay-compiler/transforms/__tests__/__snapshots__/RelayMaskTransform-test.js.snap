@@ -73,6 +73,22 @@ fragment ParentFragment on Query {
   ...NonNullFieldFragment @relay(mask: false)
 }
 
+fragment FragmentWithField on Query {
+  ...NullableFieldFragment @relay(mask: false)
+  ...NonNullFieldFragment @relay(mask: false)
+  node(id: $id) {
+    id
+  }
+}
+
+fragment FragmentWithNullField on Query {
+  ...NullableFieldFragment @relay(mask: false)
+  ...NonNullFieldFragment @relay(mask: false)
+  node_id_required(id: $id) {
+    id
+  }
+}
+
 fragment NullableFieldFragment on Query {
   node(id: $id) {
     id
@@ -97,6 +113,38 @@ fragment ParentFragment on Query {
     node_id_required(id: $id) {
       id
     }
+  }
+}
+
+fragment FragmentWithField on Query {
+  ... on Query {
+    node(id: $id) {
+      id
+    }
+  }
+  ... on Query {
+    node_id_required(id: $id) {
+      id
+    }
+  }
+  node(id: $id) {
+    id
+  }
+}
+
+fragment FragmentWithNullField on Query {
+  ... on Query {
+    node(id: $id) {
+      id
+    }
+  }
+  ... on Query {
+    node_id_required(id: $id) {
+      id
+    }
+  }
+  node_id_required(id: $id) {
+    id
   }
 }
 

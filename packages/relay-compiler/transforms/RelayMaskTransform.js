@@ -61,29 +61,30 @@ function visitFragment(fragment: Fragment, state: State): Fragment {
   if (state.hoistedArgDefs.size === 0) {
     return result;
   }
-  const existingArgDefs = new Map();
+  const combinedArgDefs = new Map();
   result.argumentDefinitions.forEach(argDef => {
-    existingArgDefs.set(argDef.name, argDef);
+    combinedArgDefs.set(argDef.name, argDef);
   });
-  const combinedArgDefs = result.argumentDefinitions.slice(); // Copy array
+
   state.hoistedArgDefs.forEach((hoistedArgDef, argName) => {
-    const existingArgDef = existingArgDefs.get(argName);
+    const existingArgDef = combinedArgDefs.get(argName);
+    let newArgDef = hoistedArgDef.argDef;
     if (existingArgDef) {
+      newArgDef = findCompatibleArgDef(existingArgDef, hoistedArgDef.argDef);
       invariant(
-        areSameArgumentDefinitions(existingArgDef, hoistedArgDef.argDef),
+        !!newArgDef,
         'RelayMaskTransform: Cannot unmask fragment spread `%s` because ' +
           'argument `%s` has been declared in `%s` and they are not the same.',
         hoistedArgDef.source,
         argName,
         fragment.name,
       );
-      return;
     }
-    combinedArgDefs.push(hoistedArgDef.argDef);
+    combinedArgDefs.set(argName, newArgDef);
   });
   return {
     ...result,
-    argumentDefinitions: combinedArgDefs,
+    argumentDefinitions: [...combinedArgDefs.values()],
   };
 }
 
@@ -120,19 +121,20 @@ function visitFragmentSpread(
 
   for (const argDef of fragment.argumentDefinitions) {
     const hoistedArgDef = state.hoistedArgDefs.get(argDef.name);
+    let newArgDef = argDef;
     if (hoistedArgDef) {
+      newArgDef = findCompatibleArgDef(hoistedArgDef.argDef, argDef);
       invariant(
-        areSameArgumentDefinitions(argDef, hoistedArgDef.argDef),
+        !!newArgDef,
         'RelayMaskTransform: Cannot unmask fragment spread `%s` because ' +
           'argument `%s` has been declared in `%s` and they are not the same.',
         hoistedArgDef.source,
         argDef.name,
         fragmentSpread.name,
       );
-      continue;
     }
     state.hoistedArgDefs.set(argDef.name, {
-      argDef,
+      argDef: newArgDef,
       source: fragmentSpread.name,
     });
   }
@@ -143,28 +145,39 @@ function isUnmaskedSpread(spread: FragmentSpread): boolean {
   return Boolean(spread.metadata && spread.metadata.mask === false);
 }
 
-function areSameArgumentDefinitions(
-  argDef1: ArgumentDefinition,
-  argDef2: ArgumentDefinition,
-) {
+function findCompatibleArgDef(
+  currentArgDef: ArgumentDefinition,
+  newArgDef: ArgumentDefinition,
+): ?ArgumentDefinition {
+  let currentType = currentArgDef.type;
+  let newType = newArgDef.type;
+  let compatibleArgDef = currentArgDef;
 
-  let typeOrSubType1 = argDef1.type;
-  if (argDef1.type instanceof GraphQLNonNull) {
-    typeOrSubType1 = argDef1.type.ofType;
+  if (
+    !(currentArgDef.type instanceof GraphQLNonNull) &&
+    newArgDef.type instanceof GraphQLNonNull
+  ) {
+    // Current argDef is not compatible with new argDef
+    newType = newArgDef.type.ofType;
+    compatibleArgDef = newArgDef;
+  } else if (
+    currentArgDef.type instanceof GraphQLNonNull &&
+    !(newArgDef.type instanceof GraphQLNonNull)
+  ) {
+    currentType = currentArgDef.type.ofType;
   }
 
-  let typeOrSubType2 = argDef2.type;
-  if (argDef2.type instanceof GraphQLNonNull) {
-    typeOrSubType2 = argDef2.type.ofType;
-  }
-
-  return (
-    argDef1.kind === argDef2.kind &&
-    argDef1.name === argDef2.name &&
-    isEquivalentType(typeOrSubType1, typeOrSubType2) &&
+  if (
+    currentArgDef.kind === newArgDef.kind &&
+    currentArgDef.name === newArgDef.name &&
+    isEquivalentType(currentType, newType) &&
     // Only LocalArgumentDefinition defines defaultValue
-    (argDef1: any).defaultValue === (argDef2: any).defaultValue
-  );
+    (currentArgDef: any).defaultValue === (newArgDef: any).defaultValue
+  ) {
+    return compatibleArgDef;
+  }
+
+  return null;
 }
 
 module.exports = {

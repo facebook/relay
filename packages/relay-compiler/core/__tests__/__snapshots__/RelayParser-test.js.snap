@@ -782,7 +782,7 @@ fragment LinkedHandleField on User {
 ]
 `;
 
-exports[`RelayParser matches expected output: linked-handle-field-with-filters.ql 1`] = `
+exports[`RelayParser matches expected output: linked-handle-field-with-filters.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment LinkedHandleField on User {
   friends(first: 10, orderby: $orderby) @__clientField(handle: "clientFriends", filters: ["first", "orderby"]) {
@@ -866,7 +866,7 @@ fragment LinkedHandleField on User {
 ]
 `;
 
-exports[`RelayParser matches expected output: linked-handle-field-with-key.ql 1`] = `
+exports[`RelayParser matches expected output: linked-handle-field-with-key.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment LinkedHandleField on User {
   friends(first: 10) @__clientField(handle: "clientFriends", key: "LinkedHandleField_friends") {
@@ -928,7 +928,7 @@ fragment LinkedHandleField on User {
 ]
 `;
 
-exports[`RelayParser matches expected output: linked-handle-filter.ql 1`] = `
+exports[`RelayParser matches expected output: linked-handle-filter.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment LinkedHandleField on User {
   friends(first: 10) @__clientField(handle: "clientFriends", filters: ["first"]) @__clientField(handle: "otherFriends") {

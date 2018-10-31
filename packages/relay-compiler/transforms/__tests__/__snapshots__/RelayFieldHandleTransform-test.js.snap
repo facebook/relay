@@ -17,7 +17,7 @@ fragment LinkedHandleField on User {
 
 `;
 
-exports[`RelayFieldHandleTransform matches expected output: linked-handle-field-filter.ql 1`] = `
+exports[`RelayFieldHandleTransform matches expected output: linked-handle-field-filter.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment LinkedHandleField on User {
   friends(first: 10, orderby: $orderby) @__clientField(handle: "clientFriends", filters: ["first", "orderby"]) {

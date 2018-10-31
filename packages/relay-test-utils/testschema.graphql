@@ -651,6 +651,20 @@ type UnfriendResponsePayload {
   formerFriend: User
 }
 
+type PlainUserNameRenderer {
+  text: String
+}
+
+type MarkdownUserNameRenderer {
+  markdown: String
+}
+
+type CustomNameRenderer {
+  customField: String
+}
+
+union UserNameRenderer = PlainUserNameRenderer | MarkdownUserNameRenderer | CustomNameRenderer
+
 type User implements Named & Node & Actor {
   actor: Actor
   actors: [Actor]
@@ -690,6 +704,7 @@ type User implements Named & Node & Actor {
   likeSentence: Text
   message: Text
   name: String
+  nameRenderer(supported: [String!]!): UserNameRenderer
   storySearch(query: StorySearchInput): [Story]
   storyCommentSearch(query: StoryCommentSearchInput): [Comment]
   profilePicture(size: [Int], preset: PhotoSize): Image

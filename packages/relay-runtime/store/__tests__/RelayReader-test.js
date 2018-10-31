@@ -432,6 +432,327 @@ describe('RelayReader', () => {
     ]);
   });
 
+  describe('when reading a MatchField from the @match directive', () => {
+    it('creates fragment and module pointers for fragment that matches resolved type (1)', () => {
+      // When the type matches PlainUserNameRenderer
+      const storeData = {
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
+            __ref: 'client:1',
+          },
+        },
+        'client:1': {
+          __id: 'client:1',
+          __typename: 'PlainUserNameRenderer',
+          text: 'plain name',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      source = new RelayInMemoryRecordSource(storeData);
+      const {BarFragment} = generateAndCompile(`
+      fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+        text
+      }
+
+      fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+        markdown
+      }
+
+      fragment BarFragment on User {
+        id
+        nameRenderer
+          @relay(
+            match: [
+              {
+                type: "PlainUserNameRenderer"
+                fragment: "PlainUserNameRenderer_name"
+                module: "PlainUserNameRenderer.react"
+              }
+              {
+                type: "MarkdownUserNameRenderer"
+                fragment: "MarkdownUserNameRenderer_name"
+                module: "MarkdownUserNameRenderer.react"
+              }
+            ]
+          ) {
+            __typename
+          }
+      }
+    `);
+      const {data, seenRecords} = read(source, {
+        dataID: '1',
+        node: BarFragment,
+        variables: {},
+      });
+      expect(data).toEqual({
+        id: '1',
+        nameRenderer: {
+          __id: 'client:1',
+          __fragments: {
+            PlainUserNameRenderer_name: {},
+          },
+          __module: 'PlainUserNameRenderer.react',
+        },
+      });
+      expect(Object.keys(seenRecords)).toEqual(['1', 'client:1']);
+    });
+
+    it('creates fragment and module pointers for fragment that matches resolved type (2)', () => {
+      // When the type matches MarkdownUserNameRenderer
+      const storeData = {
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
+            __ref: 'client:1',
+          },
+        },
+        'client:1': {
+          __id: 'client:1',
+          __typename: 'MarkdownUserNameRenderer',
+          markdown: 'markdown name',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      source = new RelayInMemoryRecordSource(storeData);
+      const {BarFragment} = generateAndCompile(`
+      fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+        text
+      }
+
+      fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+        markdown
+      }
+
+      fragment BarFragment on User {
+        id
+        nameRenderer
+          @relay(
+            match: [
+              {
+                type: "PlainUserNameRenderer"
+                fragment: "PlainUserNameRenderer_name"
+                module: "PlainUserNameRenderer.react"
+              }
+              {
+                type: "MarkdownUserNameRenderer"
+                fragment: "MarkdownUserNameRenderer_name"
+                module: "MarkdownUserNameRenderer.react"
+              }
+            ]
+          ) {
+            __typename
+          }
+      }
+    `);
+      const {data, seenRecords} = read(source, {
+        dataID: '1',
+        node: BarFragment,
+        variables: {},
+      });
+      expect(data).toEqual({
+        id: '1',
+        nameRenderer: {
+          __id: 'client:1',
+          __fragments: {
+            MarkdownUserNameRenderer_name: {},
+          },
+          __module: 'MarkdownUserNameRenderer.react',
+        },
+      });
+      expect(Object.keys(seenRecords)).toEqual(['1', 'client:1']);
+    });
+
+    it('reads data correctly when the resolved type does not match any of the specified cases', () => {
+      const storeData = {
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
+            __ref: 'client:1',
+          },
+        },
+        'client:1': {
+          __id: 'client:1',
+          __typename: 'CustomNameRenderer',
+          customField: 'custom value',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      source = new RelayInMemoryRecordSource(storeData);
+      const {BarFragment} = generateAndCompile(`
+      fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+        text
+      }
+
+      fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+        markdown
+      }
+
+      fragment BarFragment on User {
+        id
+        nameRenderer
+          @relay(
+            match: [
+              {
+                type: "PlainUserNameRenderer"
+                fragment: "PlainUserNameRenderer_name"
+                module: "PlainUserNameRenderer.react"
+              }
+              {
+                type: "MarkdownUserNameRenderer"
+                fragment: "MarkdownUserNameRenderer_name"
+                module: "MarkdownUserNameRenderer.react"
+              }
+            ]
+          ) {
+            __typename
+          }
+      }
+    `);
+      const {data, seenRecords} = read(source, {
+        dataID: '1',
+        node: BarFragment,
+        variables: {},
+      });
+      expect(data).toEqual({
+        id: '1',
+        nameRenderer: null,
+      });
+      expect(Object.keys(seenRecords)).toEqual(['1', 'client:1']);
+    });
+
+    it('reads data correctly when the match field record is null', () => {
+      const storeData = {
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': null,
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      source = new RelayInMemoryRecordSource(storeData);
+      const {BarFragment} = generateAndCompile(`
+      fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+        text
+      }
+
+      fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+        markdown
+      }
+
+      fragment BarFragment on User {
+        id
+        nameRenderer
+          @relay(
+            match: [
+              {
+                type: "PlainUserNameRenderer"
+                fragment: "PlainUserNameRenderer_name"
+                module: "PlainUserNameRenderer.react"
+              }
+              {
+                type: "MarkdownUserNameRenderer"
+                fragment: "MarkdownUserNameRenderer_name"
+                module: "MarkdownUserNameRenderer.react"
+              }
+            ]
+          ) {
+            __typename
+          }
+      }
+    `);
+      const {data, seenRecords} = read(source, {
+        dataID: '1',
+        node: BarFragment,
+        variables: {},
+      });
+      expect(data).toEqual({
+        id: '1',
+        nameRenderer: null,
+      });
+      expect(Object.keys(seenRecords)).toEqual(['1']);
+    });
+
+    it('reads data correctly when the match field record is missing', () => {
+      const storeData = {
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      source = new RelayInMemoryRecordSource(storeData);
+      const {BarFragment} = generateAndCompile(`
+      fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+        text
+      }
+
+      fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+        markdown
+      }
+
+      fragment BarFragment on User {
+        id
+        nameRenderer
+          @relay(
+            match: [
+              {
+                type: "PlainUserNameRenderer"
+                fragment: "PlainUserNameRenderer_name"
+                module: "PlainUserNameRenderer.react"
+              }
+              {
+                type: "MarkdownUserNameRenderer"
+                fragment: "MarkdownUserNameRenderer_name"
+                module: "MarkdownUserNameRenderer.react"
+              }
+            ]
+          ) {
+            __typename
+          }
+      }
+    `);
+      const {data, seenRecords} = read(source, {
+        dataID: '1',
+        node: BarFragment,
+        variables: {},
+      });
+      expect(data).toEqual({
+        id: '1',
+        nameRenderer: undefined,
+      });
+      expect(Object.keys(seenRecords)).toEqual(['1']);
+    });
+  });
+
   describe('`isMissingData` field', () => {
     describe('readScalar', () => {
       it('should have `isMissingData = false` if data is available', () => {

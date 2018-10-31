@@ -1,0 +1,355 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Mutations · Relay</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Table of Contents:"/><meta name="docsearch:version" content="v1.6.2"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Mutations · Relay"/><meta property="og:type" content="website"/><meta property="og:url" content="https://facebook.github.io/relay/index.html"/><meta property="og:description" content="Table of Contents:"/><meta name="twitter:card" content="summary"/><link rel="shortcut icon" href="/relay/img/favicon.png"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.css"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="stylesheet" href="/relay/css/main.css"/></head><body class="sideNavVisible"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/relay/en"><img class="logo" src="/relay/img/relay-white.svg" alt="Relay"/><h2 class="headerTitleWithLogo">Relay</h2></a><a href="/relay/en/versions.html"><h3>v1.6.2</h3></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/relay/docs/en/v1.6.2/introduction-to-relay.html" target="_self">Docs</a></li><li class=""><a href="/relay/en/help.html" target="_self">Support</a></li><li class=""><a href="https://github.com/facebook/relay" target="_self">GitHub</a></li><li class=""><a target="_self"></a></li><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><i></i></div><h2><i>›</i><span>API Reference</span></h2></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">Introduction</h3><ul><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/introduction-to-relay.html">Introduction to Relay</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/prerequisites.html">Prerequisites</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/installation-and-setup.html">Installation and Setup</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/quick-start-guide.html">Quick Start Guide</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">API Reference</h3><ul><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/graphql-in-relay.html">GraphQL in Relay</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/relay-environment.html">Relay Environment</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/network-layer.html">Network Layer</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/query-renderer.html">&lt;QueryRenderer /&gt;</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/fragment-container.html">Fragment Container</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/refetch-container.html">Refetch Container</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/pagination-container.html">Pagination Container</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/relay/docs/en/v1.6.2/mutations.html">Mutations</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/subscriptions.html">Subscriptions</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/relay-store.html">Relay Store</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Guides</h3><ul><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/routing.html">Routing</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/relay-debugging.html">Debugging</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/graphql-server-specification.html">GraphQL Server Specification</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Migration Guides</h3><ul><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/new-in-relay-modern.html">New in Relay Modern</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/relay-compat.html">Compatibility Mode</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/migration-setup.html">Migration Setup</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/conversion-playbook.html">Conversion Playbook</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/conversion-scripts.html">Conversion Scripts</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/upgrading-setvariables.html">Upgrading setVariables</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/converting-mutations.html">Converting Mutations</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/compatibility-cheatsheet.html">Compatibility Cheatsheet</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/api-cheatsheet.html">API Cheatsheet</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Principles &amp; Architecture</h3><ul><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/thinking-in-graphql.html">Thinking in GraphQL</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/thinking-in-relay.html">Thinking In Relay</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/architecture-overview.html">Architecture Overview</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/compiler-architecture.html">Compiler Architecture</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/runtime-architecture.html">Runtime Architecture</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/videos.html">Videos</a></li></ul></div></div></section></div><script>
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              const headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                if (event.target.tagName === 'A') {
+                  document.body.classList.remove('tocActive');
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/Modern-Mutations.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">Mutations</h1></header><article><div><span><p>Table of Contents:</p>
+<ul>
+<li><a href="#commitmutation"><code>commitMutation</code></a></li>
+<li><a href="#simple-example">Simple Example</a></li>
+<li><a href="#optmistic-updates">Optimistic Updates</a></li>
+<li><a href="#updater-configs">Updater Configs</a></li>
+<li><a href="#using-updater-and-optimisticupdater">Using updater and optimisticUpdater</a></li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="commitmutation"></a><a href="#commitmutation" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>commitMutation</code></h2>
+<p>Use <code>commitMutation</code> to create and execute mutations. <code>commitMutation</code> has the following signature:</p>
+<pre><code class="hljs css languages- javascript">commitMutation(
+  environment: Environment,
+  <span class="hljs-attr">config</span>: {
+    <span class="hljs-attr">mutation</span>: GraphQLTaggedNode,
+    <span class="hljs-attr">variables</span>: {[name: string]: any},
+    onCompleted?: ?<span class="hljs-function">(<span class="hljs-params">response: ?<span class="hljs-built_in">Object</span>, errors: ?<span class="hljs-built_in">Array</span>&lt;<span class="hljs-built_in">Error</span>&gt;</span>) =&gt;</span> <span class="hljs-keyword">void</span>,
+    onError?: ?<span class="hljs-function">(<span class="hljs-params">error: <span class="hljs-built_in">Error</span></span>) =&gt;</span> <span class="hljs-keyword">void</span>,
+    optimisticResponse?: <span class="hljs-built_in">Object</span>,
+    optimisticUpdater?: ?<span class="hljs-function">(<span class="hljs-params">store: RecordSourceSelectorProxy</span>) =&gt;</span> <span class="hljs-keyword">void</span>,
+    updater?: ?<span class="hljs-function">(<span class="hljs-params">store: RecordSourceSelectorProxy, data: SelectorData</span>) =&gt;</span> <span class="hljs-keyword">void</span>,
+    configs?: <span class="hljs-built_in">Array</span>&lt;RelayMutationConfig&gt;,
+  },
+);
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="arguments"></a><a href="#arguments" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Arguments</h3>
+<ul>
+<li><code>environment</code>: The <a href="./relay-environment.html">Relay Environment</a>. <strong>Note:</strong> To ensure the mutation is performed on the correct <code>environment</code>, it's recommended to use the environment available within components (from <code>this.props.relay.environment</code>), instead of referencing a global environment.</li>
+<li><code>config</code>:
+<ul>
+<li><code>mutation</code>: The <code>graphql</code> tagged mutation query.</li>
+<li><code>variables</code>: Object containing the variables needed for the mutation. For example, if the mutation defines an <code>$input</code> variable, this object should contain an <code>input</code> key, whose shape must match the shape of the data expected by the mutation as defined by the GraphQL schema.</li>
+<li><code>onCompleted</code>: Callback function executed when the request is completed and the in-memory Relay store is updated with the <code>updater</code> function. Takes a <code>response</code> object, which is the &quot;raw&quot; server response, and <code>errors</code>, an array containing any errors from the server. .</li>
+<li><code>onError</code>: Callback function executed if Relay encounters an error during the request.</li>
+<li><code>optimisticResponse</code>: Object containing the data to optimistically update the local in-memory store, i.e. immediately, before the mutation request has completed. This object must have the same shape as the mutation's response type, as defined by the GraphQL schema. If provided, Relay will use the <code>optimisticResponse</code> data to update the fields on the relevant records in the local data store, <em>before</em> <code>optimisticUpdater</code> is executed. If an error occurs during the mutation request, the optimistic update will be rolled back.</li>
+<li><code>optimisticUpdater</code>: Function used to optimistically update the local in-memory store, i.e. immediately, before the mutation request has completed. If an error occurs during the mutation request, the optimistic update will be rolled back.
+This function takes a <code>store</code>, which is a proxy of the in-memory <a href="./relay-store.html">Relay Store</a>. In this function, the client defines 'how to' update the local data via the <code>store</code> instance. For details on how to use the <code>store</code>, please refer to our <a href="./relay-store.html">Relay Store API Reference</a>.
+<strong>Please note:</strong>
+<ul>
+<li>It is usually preferable to just pass an <code>optimisticResponse</code> option instead of an <code>optimisticUpdater</code>, unless you need to perform updates on the local records that are more complicated than just updating fields (e.g. deleting records or adding items to collections).</li>
+<li>If you do decide to use an <code>optimisticUpdater</code>, often times it can be the same function as <code>updater</code>.</li>
+</ul></li>
+<li><code>updater</code>: Function used to update the local in-memory store based on the <strong>real</strong> server response from the mutation. If <code>updater</code> is not provided, by default, Relay will know to automatically update the fields on the records referenced in the mutation response; however, you should pass an <code>updater</code> if you need to make more complicated updates than just updating fields (e.g. deleting records or adding items to collections).
+When the server response comes back, Relay first reverts any changes introduced by <code>optimisticUpdater</code> or <code>optimisticResponse</code> and will then execute <code>updater</code>.
+This function takes a <code>store</code>, which is a proxy of the in-memory <a href="./relay-store.html">Relay Store</a>. In this function, the client defines 'how to' update the local data based on the server response via the <code>store</code> instance. For details on how to use the <code>store</code>, please refer to our <a href="./relay-store.html">Relay Store API Reference</a>.</li>
+<li><code>configs</code>:  Array containing objects describing <code>optimisticUpdater</code>/<code>updater</code> configurations. <code>configs</code> provides a convenient way to specify the <code>updater</code> behavior without having to write an <code>updater</code> function. See our section on <a href="#updater-configs">Updater Configs</a> for more details.</li>
+</ul></li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="simple-example"></a><a href="#simple-example" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Simple Example</h2>
+<p>Example of a simple mutation:</p>
+<pre><code class="hljs css languages- javascript"><span class="hljs-keyword">import</span> {commitMutation, graphql} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay'</span>;
+
+<span class="hljs-keyword">const</span> mutation = graphql<span class="hljs-string">`
+  mutation MarkReadNotificationMutation(
+    $input: MarkReadNotificationData!
+  ) {
+    markReadNotification(data: $input) {
+      notification {
+        seenState
+      }
+    }
+  }
+`</span>;
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">markNotificationAsRead</span>(<span class="hljs-params">environment, source, storyID</span>) </span>{
+  <span class="hljs-keyword">const</span> variables = {
+    <span class="hljs-attr">input</span>: {
+      source,
+      storyID,
+    },
+  };
+
+  commitMutation(
+    environment,
+    {
+      mutation,
+      variables,
+      <span class="hljs-attr">onCompleted</span>: <span class="hljs-function">(<span class="hljs-params">response, errors</span>) =&gt;</span> {
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Response received from server.'</span>)
+      },
+      <span class="hljs-attr">onError</span>: <span class="hljs-function"><span class="hljs-params">err</span> =&gt;</span> <span class="hljs-built_in">console</span>.error(err),
+    },
+  );
+}
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="optimistic-updates"></a><a href="#optimistic-updates" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Optimistic Updates</h2>
+<p>To improve perceived responsiveness, you may wish to perform an &quot;optimistic update&quot;, in which the client immediately updates to reflect the anticipated new value even before the response from the server has come back. The simplest way to do this is by providing an <code>optimisticResponse</code> and adding it to the <code>config</code> that we pass into <code>commitMutation</code>:</p>
+<pre><code class="hljs css languages- javascript"><span class="hljs-keyword">const</span> mutation = graphql<span class="hljs-string">`
+  mutation MarkReadNotificationMutation(
+    $input: MarkReadNotificationData!
+  ) {
+    markReadNotification(data: $input) {
+      notification {
+        seenState
+      }
+    }
+  }
+`</span>;
+
+<span class="hljs-keyword">const</span> optimisticResponse = {
+  <span class="hljs-attr">markReadNotification</span>: {
+    <span class="hljs-attr">notification</span>: {
+      <span class="hljs-attr">seenState</span>: SEEN,
+    },
+  },
+};
+
+commitMutation(
+  environment,
+  {
+    mutation,
+    optimisticResponse,
+    variables,
+  },
+);
+</code></pre>
+<p>Another way to enable optimistic updates is via the <code>optimisticUpdater</code>, which can be used for more complicated update scenarios. Using <code>optimisticUpdater</code> is covered in the section <a href="#using-updater-and-optimisticupdater">below</a>.</p>
+<h2><a class="anchor" aria-hidden="true" id="updater-configs"></a><a href="#updater-configs" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Updater Configs</h2>
+<p>We can give Relay instructions in the form of a <code>configs</code> array on how to use the response from each mutation to update the client-side store. We do this by configuring the mutation with one or more of the following config types:</p>
+<h3><a class="anchor" aria-hidden="true" id="node-delete"></a><a href="#node-delete" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>NODE_DELETE</h3>
+<p>Given a deletedIDFieldName, Relay will remove the node(s) from the connection.</p>
+<h4><a class="anchor" aria-hidden="true" id="arguments-1"></a><a href="#arguments-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Arguments</h4>
+<ul>
+<li><code>deletedIDFieldName: string</code>: The field name in the response that contains the DataID of the deleted node</li>
+</ul>
+<h4><a class="anchor" aria-hidden="true" id="example"></a><a href="#example" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<pre><code class="hljs css languages- javascript"><span class="hljs-keyword">const</span> mutation = graphql<span class="hljs-string">`
+  mutation DestroyShipMutation($input: DestroyShipData!) {
+    destroyShip(input: $input) {
+      destroyedShipId
+      faction {
+        ships {
+          id
+        }
+      }
+    }
+  }
+`</span>;
+
+<span class="hljs-keyword">const</span> configs = [{
+  <span class="hljs-attr">type</span>: <span class="hljs-string">'NODE_DELETE'</span>,
+  <span class="hljs-attr">deletedIDFieldName</span>: <span class="hljs-string">'destroyedShipId'</span>,
+}];
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="range-add"></a><a href="#range-add" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>RANGE_ADD</h3>
+<p>Given a parent, information about the connection, and the name of the newly created edge in the response payload Relay will add the node to the store and attach it to the connection according to the range behavior(s) specified in the connectionInfo.</p>
+<h4><a class="anchor" aria-hidden="true" id="arguments-2"></a><a href="#arguments-2" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Arguments</h4>
+<ul>
+<li><code>parentID: string</code>: The DataID of the parent node that contains the
+connection.</li>
+<li><code>connectionInfo: Array&lt;{key: string, filters?: Variables, rangeBehavior: string}&gt;</code>: An array of objects containing a connection key, an object
+containing optional filters, and a range behavior depending on what behavior we expect (append, prepend, or ignore).
+<ul>
+<li><code>filters</code>: An object containing GraphQL calls e.g. <code>const filters = {'orderby': 'chronological'};</code>.</li>
+</ul></li>
+<li><code>edgeName: string</code>: The field name in the response that represents the newly created edge</li>
+</ul>
+<h4><a class="anchor" aria-hidden="true" id="example-1"></a><a href="#example-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<pre><code class="hljs css languages- javascript"><span class="hljs-keyword">const</span> mutation = graphql<span class="hljs-string">`
+  mutation AddShipMutation($input: AddShipData!) {
+    addShip(input: $input) {
+      faction {
+        ships {
+          id
+        }
+      }
+      newShipEdge
+    }
+  }
+`</span>;
+
+<span class="hljs-keyword">const</span> configs = [{
+  <span class="hljs-attr">type</span>: <span class="hljs-string">'RANGE_ADD'</span>,
+  <span class="hljs-attr">parentID</span>: <span class="hljs-string">'shipId'</span>,
+  <span class="hljs-attr">connectionInfo</span>: [{
+    <span class="hljs-attr">key</span>: <span class="hljs-string">'AddShip_ships'</span>,
+    <span class="hljs-attr">rangeBehavior</span>: <span class="hljs-string">'append'</span>,
+  }],
+  <span class="hljs-attr">edgeName</span>: <span class="hljs-string">'newShipEdge'</span>,
+}];
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="range-delete"></a><a href="#range-delete" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>RANGE_DELETE</h3>
+<p>Given a parent, connectionKeys, one or more DataIDs in the response payload, and
+a path between the parent and the connection, Relay will remove the node(s)
+from the connection but leave the associated record(s) in the store.</p>
+<h4><a class="anchor" aria-hidden="true" id="arguments-3"></a><a href="#arguments-3" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Arguments</h4>
+<ul>
+<li><code>parentID: string</code>: The DataID of the parent node that contains the
+connection.</li>
+<li><code>connectionKeys: Array&lt;{key: string, filters?: Variables}&gt;</code>: An array of
+objects containing a connection key and optionally filters.
+<ul>
+<li><code>filters</code>: An object containing GraphQL calls e.g. <code>const filters = {'orderby': 'chronological'};</code>.</li>
+</ul></li>
+<li><code>pathToConnection: Array&lt;string&gt;</code>: An array containing the field names between the parent and the connection, including the parent and the connection.</li>
+<li><code>deletedIDFieldName: string | Array&lt;string&gt;</code>: The field name in the response that contains the DataID of the removed node, or the path to the node removed from the connection</li>
+</ul>
+<h4><a class="anchor" aria-hidden="true" id="example-2"></a><a href="#example-2" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
+<pre><code class="hljs css languages- javascript"><span class="hljs-keyword">const</span> mutation = graphql<span class="hljs-string">`
+  mutation RemoveTagsMutation($input: RemoveTagsData!) {
+    removeTags(input: $input) {
+      todo {
+        tags {
+          id
+        }
+      }
+      removedTagId
+    }
+  }
+`</span>;
+
+<span class="hljs-keyword">const</span> configs = [{
+  <span class="hljs-attr">type</span>: <span class="hljs-string">'RANGE_DELETE'</span>,
+  <span class="hljs-attr">parentID</span>: <span class="hljs-string">'todoId'</span>,
+  <span class="hljs-attr">connectionKeys</span>: [{
+    <span class="hljs-attr">key</span>: RemoveTags_tags,
+  }],
+  <span class="hljs-attr">pathToConnection</span>: [<span class="hljs-string">'todo'</span>, <span class="hljs-string">'tags'</span>],
+  <span class="hljs-attr">deletedIDFieldName</span>: removedTagId
+}];
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="using-updater-and-optimisticupdater"></a><a href="#using-updater-and-optimisticupdater" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Using updater and optimisticUpdater</h2>
+<p><code>updater</code> and <code>optmisticUpdater</code> are functions that you can pass to a <code>commitMutation</code> call when you need full control over how to update the local data store, either optimistically, or based on a server response. Often times, both of these can be the same function.</p>
+<p>When you provide these functions, this is roughly what happens during the mutation request:</p>
+<ul>
+<li>If <code>optimisticResponse</code> is provided, Relay will use it to update the fields under the records as specified by the ids in the <code>optimisticResponse</code>.</li>
+<li>If <code>optimisticUpdater</code> is provided, Relay will execute it and update the store accordingly.</li>
+<li>After the network comes back, if any optimistic update was applied, it will be rolled back.</li>
+<li>Relay will then automatically update the fields under the record corresponding to the ids in the response payload.</li>
+<li>If an <code>updater</code> was provided, Relay will execute it and update the store accordingly. The server payload will be available to the <code>updater</code> as a root field in the store.</li>
+</ul>
+<p>Here are a quick example of adding a todo item to a Todo list using this <a href="https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql#L36">example schema</a>:</p>
+<pre><code class="hljs css languages- javascript"><span class="hljs-comment">// AddTodoMutation.js</span>
+<span class="hljs-keyword">import</span> {commitMutation, graphql} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay'</span>;
+<span class="hljs-keyword">import</span> {ConnectionHandler} <span class="hljs-keyword">from</span> <span class="hljs-string">'relay-runtime'</span>;
+
+<span class="hljs-keyword">const</span> mutation = graphql<span class="hljs-string">`
+  mutation AddTodoMutation($input: AddTodoInput!) {
+    addTodo(input:$input) {
+      todoEdge {
+        cursor
+        node {
+          complete
+          id
+          text
+        }
+      }
+      viewer {
+        id
+        totalCount
+      }
+    }
+  }
+`</span>;
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">sharedUpdater</span>(<span class="hljs-params">store, user, newEdge</span>) </span>{
+  <span class="hljs-comment">// Get the current user record from the store</span>
+  <span class="hljs-keyword">const</span> userProxy = store.get(user.id);
+
+  <span class="hljs-comment">// Get the user's Todo List using ConnectionHandler helper</span>
+  <span class="hljs-keyword">const</span> conn = ConnectionHandler.getConnection(
+    userProxy,
+    <span class="hljs-string">'TodoList_todos'</span>, <span class="hljs-comment">// This is the connection identifier, defined here: https://github.com/relayjs/relay-examples/blob/master/todo/js/components/TodoList.js#L68</span>
+  );
+
+  <span class="hljs-comment">// Insert the new todo into the Todo List connection</span>
+  ConnectionHandler.insertEdgeAfter(conn, newEdge);
+}
+
+<span class="hljs-keyword">let</span> tempID = <span class="hljs-number">0</span>;
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">commit</span>(<span class="hljs-params">
+  environment,
+  text,
+  user
+</span>) </span>{
+  <span class="hljs-keyword">return</span> commitMutation(
+    environment,
+    {
+      mutation,
+      <span class="hljs-attr">variables</span>: {
+        <span class="hljs-attr">input</span>: {
+          text,
+          <span class="hljs-attr">clientMutationId</span>: tempID++,
+        },
+      },
+      <span class="hljs-attr">updater</span>: <span class="hljs-function">(<span class="hljs-params">store</span>) =&gt;</span> {
+        <span class="hljs-comment">// Get the payload returned from the server</span>
+        <span class="hljs-keyword">const</span> payload = store.getRootField(<span class="hljs-string">'addTodo'</span>);
+
+        <span class="hljs-comment">// Get the edge of the newly created todo item</span>
+        <span class="hljs-keyword">const</span> newEdge = payload.getLinkedRecord(<span class="hljs-string">'todoEdge'</span>);
+
+        <span class="hljs-comment">// Add it to the user's todo list</span>
+        sharedUpdater(store, user, newEdge);
+      },
+      <span class="hljs-attr">optimisticUpdater</span>: <span class="hljs-function">(<span class="hljs-params">store</span>) =&gt;</span> {
+        <span class="hljs-comment">// Create a Todo Item record in our store with a tempory ID</span>
+        <span class="hljs-keyword">const</span> id = <span class="hljs-string">'client:newTodo:'</span> + tempID++;
+        <span class="hljs-keyword">const</span> node = store.create(id, <span class="hljs-string">'Todo'</span>);
+        node.setValue(text, <span class="hljs-string">'text'</span>);
+        node.setValue(id, <span class="hljs-string">'id'</span>);
+
+        <span class="hljs-comment">// Create a new edge that contains the newly created Todo Item</span>
+        <span class="hljs-keyword">const</span> newEdge = store.create(
+          <span class="hljs-string">'client:newEdge:'</span> + tempID++,
+          <span class="hljs-string">'TodoEdge'</span>,
+        );
+        newEdge.setLinkedRecord(node, <span class="hljs-string">'node'</span>);
+
+        <span class="hljs-comment">// Add it to the user's todo list</span>
+        sharedUpdater(store, user, newEdge);
+
+        <span class="hljs-comment">// Given that we don't have a server response here, we also need to update the todo item count on the user</span>
+        <span class="hljs-keyword">const</span> userRecord = store.get(user.id);
+        userRecord.setValue(
+          userRecord.getValue(<span class="hljs-string">'totalCount'</span>) + <span class="hljs-number">1</span>,
+          <span class="hljs-string">'totalCount'</span>,
+        );
+      },
+    }
+  );
+}
+</code></pre>
+<p>For details on how to interact with the Relay Store, please refer to our Relay Store <a href="./relay-store">docs</a>.</p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/relay/docs/en/v1.6.2/pagination-container.html">← Pagination Container</a><a class="docs-next button" href="/relay/docs/en/v1.6.2/subscriptions.html">Subscriptions →</a></div></div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/relay/" class="nav-home"><img src="/relay/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/relay/docs/en/introduction-to-relay.html">Introduction</a></div><div><h5>Community</h5><a href="/relay/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a class="github-button" href="https://github.com/facebook/relay" data-icon="octicon-star" data-count-href="/facebook/relay/stargazers" data-count-api="/repos/facebook/relay#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/relay/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2018 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+              var search = docsearch({
+                
+                apiKey: '3d7d5825d50ea36bca0e6ad06c926f06',
+                indexName: 'relay',
+                inputSelector: '#search_input_react'
+              });
+            </script></body></html>

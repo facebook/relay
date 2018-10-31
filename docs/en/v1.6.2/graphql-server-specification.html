@@ -1,0 +1,455 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>GraphQL Server Specification · Relay</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="The goal of this document is to specify the assumptions that Relay makes about a GraphQL server and demonstrate them through an example GraphQL schema."/><meta name="docsearch:version" content="v1.6.2"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="GraphQL Server Specification · Relay"/><meta property="og:type" content="website"/><meta property="og:url" content="https://facebook.github.io/relay/index.html"/><meta property="og:description" content="The goal of this document is to specify the assumptions that Relay makes about a GraphQL server and demonstrate them through an example GraphQL schema."/><meta name="twitter:card" content="summary"/><link rel="shortcut icon" href="/relay/img/favicon.png"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.css"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="stylesheet" href="/relay/css/main.css"/></head><body class="sideNavVisible"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/relay/en"><img class="logo" src="/relay/img/relay-white.svg" alt="Relay"/><h2 class="headerTitleWithLogo">Relay</h2></a><a href="/relay/en/versions.html"><h3>v1.6.2</h3></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/relay/docs/en/v1.6.2/introduction-to-relay.html" target="_self">Docs</a></li><li class=""><a href="/relay/en/help.html" target="_self">Support</a></li><li class=""><a href="https://github.com/facebook/relay" target="_self">GitHub</a></li><li class=""><a target="_self"></a></li><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><i></i></div><h2><i>›</i><span>Guides</span></h2></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">Introduction</h3><ul><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/introduction-to-relay.html">Introduction to Relay</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/prerequisites.html">Prerequisites</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/installation-and-setup.html">Installation and Setup</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/quick-start-guide.html">Quick Start Guide</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">API Reference</h3><ul><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/graphql-in-relay.html">GraphQL in Relay</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/relay-environment.html">Relay Environment</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/network-layer.html">Network Layer</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/query-renderer.html">&lt;QueryRenderer /&gt;</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/fragment-container.html">Fragment Container</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/refetch-container.html">Refetch Container</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/pagination-container.html">Pagination Container</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/mutations.html">Mutations</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/subscriptions.html">Subscriptions</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/relay-store.html">Relay Store</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Guides</h3><ul><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/routing.html">Routing</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/relay-debugging.html">Debugging</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/relay/docs/en/v1.6.2/graphql-server-specification.html">GraphQL Server Specification</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Migration Guides</h3><ul><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/new-in-relay-modern.html">New in Relay Modern</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/relay-compat.html">Compatibility Mode</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/migration-setup.html">Migration Setup</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/conversion-playbook.html">Conversion Playbook</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/conversion-scripts.html">Conversion Scripts</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/upgrading-setvariables.html">Upgrading setVariables</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/converting-mutations.html">Converting Mutations</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/compatibility-cheatsheet.html">Compatibility Cheatsheet</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/api-cheatsheet.html">API Cheatsheet</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Principles &amp; Architecture</h3><ul><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/thinking-in-graphql.html">Thinking in GraphQL</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/thinking-in-relay.html">Thinking In Relay</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/architecture-overview.html">Architecture Overview</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/compiler-architecture.html">Compiler Architecture</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/runtime-architecture.html">Runtime Architecture</a></li><li class="navListItem"><a class="navItem" href="/relay/docs/en/v1.6.2/videos.html">Videos</a></li></ul></div></div></section></div><script>
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              const headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                if (event.target.tagName === 'A') {
+                  document.body.classList.remove('tocActive');
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/GraphQL-ServerSpecification.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">GraphQL Server Specification</h1></header><article><div><span><p>The goal of this document is to specify the assumptions that Relay makes about a GraphQL server and demonstrate them through an example GraphQL schema.</p>
+<p>Table of Contents:</p>
+<ul>
+<li><a href="#preface">Preface</a></li>
+<li><a href="#schema">Schema</a></li>
+<li><a href="#object-identification">Object Identification</a></li>
+<li><a href="#connections">Connections</a></li>
+<li><a href="#mutations">Mutations</a></li>
+<li><a href="#further-reading">Further Reading</a></li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="preface"></a><a href="#preface" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Preface</h2>
+<p>The three core assumptions that Relay makes about a GraphQL server are that it provides:</p>
+<ol>
+<li>A mechanism for refetching an object.</li>
+<li>A description of how to page through connections.</li>
+<li>Structure around mutations to make them predictable.</li>
+</ol>
+<p>This example demonstrates all three of these assumptions. This example is not comprehensive, but it is designed to quickly introduce these core assumptions, to provide some context before diving into the more detailed specification of the library.</p>
+<p>The premise of the example is that we want to use GraphQL to query for information about ships and factions in the original Star Wars trilogy.</p>
+<p>It is assumed that the reader is already familiar with <a href="http://graphql.org/">GraphQL</a>; if not, the README for <a href="https://github.com/graphql/graphql-js">GraphQL.js</a> is a good place to start.</p>
+<p>It is also assumed that the reader is already familiar with <a href="https://en.wikipedia.org/wiki/Star_Wars">Star Wars</a>; if not, the 1977 version of Star Wars is a good place to start, though the 1997 Special Edition will serve for the purposes of this document.</p>
+<h2><a class="anchor" aria-hidden="true" id="schema"></a><a href="#schema" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Schema</h2>
+<p>The schema described below will be used to demonstrate the functionality that a GraphQL server used by Relay should implement. The two core types are a faction and a ship in the Star Wars universe, where a faction has many ships associated with it. The schema below is the output of the GraphQL.js <a href="https://github.com/graphql/graphql-js/blob/master/src/utilities/schemaPrinter.js"><code>schemaPrinter</code></a>.</p>
+<pre><code class="hljs">interface Node {
+  id: ID!
+}
+<span class="hljs-built_in">
+type </span>Faction : Node {
+  id: ID!
+  name: String
+  ships: ShipConnection
+}
+<span class="hljs-built_in">
+type </span>Ship : Node {
+  id: ID!
+  name: String
+}
+<span class="hljs-built_in">
+type </span>ShipConnection {
+  edges: [ShipEdge]
+  pageInfo: PageInfo!
+}
+<span class="hljs-built_in">
+type </span>ShipEdge {
+  cursor: String!
+  node: Ship
+}
+<span class="hljs-built_in">
+type </span>PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+<span class="hljs-built_in">
+type </span>Query {
+  rebels: Faction
+  empire: Faction
+  node(id: ID!): Node
+}
+
+input IntroduceShipInput {
+  factionId: String!
+  shipNamed: String!
+  clientMutationId: String!
+}
+<span class="hljs-built_in">
+type </span>IntroduceShipPayload {
+  faction: Faction
+  ship: Ship
+  clientMutationId: String!
+}
+<span class="hljs-built_in">
+type </span>Mutation {
+  introduceShip(input: IntroduceShipInput!): IntroduceShipPayload
+}
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="object-identification"></a><a href="#object-identification" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Object Identification</h2>
+<p>Both <code>Faction</code> and <code>Ship</code> have identifiers that we can use to refetch them. We expose this capability to Relay through the <code>Node</code> interface and the <code>node</code> field on the root query type.</p>
+<p>The <code>Node</code> interface contains a single field, <code>id</code>, which is a <code>ID!</code>. The <code>node</code> root field takes a single argument, a <code>ID!</code>, and returns a <code>Node</code>. These two work in concert to allow refetching; if we pass the <code>id</code> returned in that field to the <code>node</code> field, we get the object back.</p>
+<p>Let's see this in action, and query for the ID of the rebels:</p>
+<pre><code class="hljs"><span class="hljs-attribute">query</span> RebelsQuery {
+  <span class="hljs-section">rebels</span> {
+    <span class="hljs-attribute">id</span>
+    name
+  }
+}
+</code></pre>
+<p>returns</p>
+<pre><code class="hljs css languages- json">{
+  <span class="hljs-attr">"rebels"</span>: {
+    <span class="hljs-attr">"id"</span>: <span class="hljs-string">"RmFjdGlvbjox"</span>,
+    <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Alliance to Restore the Republic"</span>
+  }
+}
+</code></pre>
+<p>So now we know the ID of the Rebels in our system. We can now refetch them:</p>
+<pre><code class="hljs">query RebelsRefetchQuery {
+  node(<span class="hljs-built_in">id</span>: <span class="hljs-string">"RmFjdGlvbjox"</span>) {
+    <span class="hljs-built_in">id</span>
+    ... <span class="hljs-keyword">on</span> Faction {
+      <span class="hljs-built_in">name</span>
+    }
+  }
+}
+</code></pre>
+<p>returns</p>
+<pre><code class="hljs css languages- json">{
+  <span class="hljs-attr">"node"</span>: {
+    <span class="hljs-attr">"id"</span>: <span class="hljs-string">"RmFjdGlvbjox"</span>,
+    <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Alliance to Restore the Republic"</span>
+  }
+}
+</code></pre>
+<p>If we do the same thing with the Empire, we'll find that it returns a different ID, and we can refetch it as well:</p>
+<pre><code class="hljs"><span class="hljs-attribute">query</span> EmpireQuery {
+  <span class="hljs-section">empire</span> {
+    <span class="hljs-attribute">id</span>
+    name
+  }
+}
+</code></pre>
+<p>yields</p>
+<pre><code class="hljs css languages- json">{
+  <span class="hljs-attr">"empire"</span>: {
+    <span class="hljs-attr">"id"</span>: <span class="hljs-string">"RmFjdGlvbjoy"</span>,
+    <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Galactic Empire"</span>
+  }
+}
+</code></pre>
+<p>and</p>
+<pre><code class="hljs">query EmpireRefetchQuery {
+  node(<span class="hljs-built_in">id</span>: <span class="hljs-string">"RmFjdGlvbjoy"</span>) {
+    <span class="hljs-built_in">id</span>
+    ... <span class="hljs-keyword">on</span> Faction {
+      <span class="hljs-built_in">name</span>
+    }
+  }
+}
+</code></pre>
+<p>yields</p>
+<pre><code class="hljs css languages- json">{
+  <span class="hljs-attr">"node"</span>: {
+    <span class="hljs-attr">"id"</span>: <span class="hljs-string">"RmFjdGlvbjoy"</span>,
+    <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Galactic Empire"</span>
+  }
+}
+</code></pre>
+<p>The <code>Node</code> interface and <code>node</code> field assume globally unique IDs for this refetching. A system without globally unique IDs can usually synthesize them by combining the type with the type-specific ID, which is what was done in this example.</p>
+<p>The IDs we got back were base64 strings. IDs are designed to be opaque (the only thing that should be passed to the <code>id</code> argument on <code>node</code> is the unaltered result of querying <code>id</code> on some object in the system), and base64ing a string is a useful convention in GraphQL to remind viewers that the string is an opaque identifier.</p>
+<p>Complete details on how the server should behave are available in the <a href="/relay/graphql/objectidentification.htm">GraphQL Object Identification</a> spec.</p>
+<h2><a class="anchor" aria-hidden="true" id="connections"></a><a href="#connections" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Connections</h2>
+<p>A faction has many ships in the Star Wars universe. Relay contains functionality to make manipulating one-to-many relationships easy, using a standardized way of expressing these one-to-many relationships. This standard connection model offers ways of slicing and paginating through the connection.</p>
+<p>Let's take the rebels, and ask for their first ship:</p>
+<pre><code class="hljs">query RebelsShipsQuery {
+  rebels {
+    name,
+    ships(first: <span class="hljs-number">1</span>) {
+      edges {
+        node {
+          name
+        }
+      }
+    }
+  }
+}
+</code></pre>
+<p>yields</p>
+<pre><code class="hljs css languages- json">{
+  <span class="hljs-attr">"rebels"</span>: {
+    <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Alliance to Restore the Republic"</span>,
+    <span class="hljs-attr">"ships"</span>: {
+      <span class="hljs-attr">"edges"</span>: [
+        {
+          <span class="hljs-attr">"node"</span>: {
+            <span class="hljs-attr">"name"</span>: <span class="hljs-string">"X-Wing"</span>
+          }
+        }
+      ]
+    }
+  }
+}
+</code></pre>
+<p>That used the <code>first</code> argument to <code>ships</code> to slice the result set down to the first one. But what if we wanted to paginate through it? On each edge, a cursor will be exposed that we can use to paginate. Let's ask for the first two this time, and get the cursor as well:</p>
+<pre><code class="hljs">query MoreRebelShipsQuery {
+  rebels {
+    name,
+    ships(first: <span class="hljs-number">2</span>) {
+      edges {
+        cursor
+        node {
+          name
+        }
+      }
+    }
+  }
+}
+</code></pre>
+<p>and we get back</p>
+<pre><code class="hljs css languages- json">{
+  <span class="hljs-attr">"rebels"</span>: {
+    <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Alliance to Restore the Republic"</span>,
+    <span class="hljs-attr">"ships"</span>: {
+      <span class="hljs-attr">"edges"</span>: [
+        {
+          <span class="hljs-attr">"cursor"</span>: <span class="hljs-string">"YXJyYXljb25uZWN0aW9uOjA="</span>,
+          <span class="hljs-attr">"node"</span>: {
+            <span class="hljs-attr">"name"</span>: <span class="hljs-string">"X-Wing"</span>
+          }
+        },
+        {
+          <span class="hljs-attr">"cursor"</span>: <span class="hljs-string">"YXJyYXljb25uZWN0aW9uOjE="</span>,
+          <span class="hljs-attr">"node"</span>: {
+            <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Y-Wing"</span>
+          }
+        }
+      ]
+    }
+  }
+}
+</code></pre>
+<p>Notice that the cursor is a base64 string. That's the pattern from earlier: the server is reminding us that this is an opaque string. We can pass this string back to the server as the <code>after</code> argument to the <code>ships</code> field, which will let us ask for the next three ships after the last one in the previous result:</p>
+<pre><code class="hljs">query EndOfRebelShipsQuery {
+  rebels {
+    name,
+    ships(first: <span class="hljs-number">3</span> after: <span class="hljs-string">"YXJyYXljb25uZWN0aW9uOjE="</span>) {
+      edges {
+        cursor,
+        node {
+          name
+        }
+      }
+    }
+  }
+}
+</code></pre>
+<p>gives us</p>
+<pre><code class="hljs css languages- json">
+{
+  <span class="hljs-attr">"rebels"</span>: {
+    <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Alliance to Restore the Republic"</span>,
+    <span class="hljs-attr">"ships"</span>: {
+      <span class="hljs-attr">"edges"</span>: [
+        {
+          <span class="hljs-attr">"cursor"</span>: <span class="hljs-string">"YXJyYXljb25uZWN0aW9uOjI="</span>,
+          <span class="hljs-attr">"node"</span>: {
+            <span class="hljs-attr">"name"</span>: <span class="hljs-string">"A-Wing"</span>
+          }
+        },
+        {
+          <span class="hljs-attr">"cursor"</span>: <span class="hljs-string">"YXJyYXljb25uZWN0aW9uOjM="</span>,
+          <span class="hljs-attr">"node"</span>: {
+            <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Millenium Falcon"</span>
+          }
+        },
+        {
+          <span class="hljs-attr">"cursor"</span>: <span class="hljs-string">"YXJyYXljb25uZWN0aW9uOjQ="</span>,
+          <span class="hljs-attr">"node"</span>: {
+            <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Home One"</span>
+          }
+        }
+      ]
+    }
+  }
+}
+</code></pre>
+<p>Sweet! Let's keep going and get the next four!</p>
+<pre><code class="hljs">query RebelsQuery {
+  rebels {
+    name,
+    ships(first: <span class="hljs-number">4</span> after: <span class="hljs-string">"YXJyYXljb25uZWN0aW9uOjQ="</span>) {
+      edges {
+        cursor,
+        node {
+          name
+        }
+      }
+    }
+  }
+}
+</code></pre>
+<p>yields</p>
+<pre><code class="hljs css languages- json">{
+  <span class="hljs-attr">"rebels"</span>: {
+    <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Alliance to Restore the Republic"</span>,
+    <span class="hljs-attr">"ships"</span>: {
+      <span class="hljs-attr">"edges"</span>: []
+    }
+  }
+}
+</code></pre>
+<p>Hm. There were no more ships; guess there were only five in the system for the rebels. It would have been nice to know that we'd reached the end of the connection, without having to do another round trip in order to verify that. The connection model exposes this capability with a type called <code>PageInfo</code>. So let's issue the two queries that got us ships again, but this time ask for <code>hasNextPage</code>:</p>
+<pre><code class="hljs">query <span class="hljs-class">EndOfRebelShipsQuery </span>{
+  <span class="hljs-class">rebels </span>{
+    name,
+<span class="hljs-symbol">    originalShips:</span> ships(first: <span class="hljs-number">2</span>) {
+      <span class="hljs-class">edges </span>{
+        <span class="hljs-class">node </span>{
+          name
+        }
+      }
+      <span class="hljs-class">pageInfo </span>{
+        hasNextPage
+      }
+    }
+<span class="hljs-symbol">    moreShips:</span> ships(first: <span class="hljs-number">3</span> after: <span class="hljs-string">"YXJyYXljb25uZWN0aW9uOjE="</span>) {
+      <span class="hljs-class">edges </span>{
+        <span class="hljs-class">node </span>{
+          name
+        }
+      }
+      <span class="hljs-class">pageInfo </span>{
+        hasNextPage
+      }
+    }
+  }
+}
+</code></pre>
+<p>and we get back</p>
+<pre><code class="hljs css languages- json">{
+  <span class="hljs-attr">"rebels"</span>: {
+    <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Alliance to Restore the Republic"</span>,
+    <span class="hljs-attr">"originalShips"</span>: {
+      <span class="hljs-attr">"edges"</span>: [
+        {
+          <span class="hljs-attr">"node"</span>: {
+            <span class="hljs-attr">"name"</span>: <span class="hljs-string">"X-Wing"</span>
+          }
+        },
+        {
+          <span class="hljs-attr">"node"</span>: {
+            <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Y-Wing"</span>
+          }
+        }
+      ],
+      <span class="hljs-attr">"pageInfo"</span>: {
+        <span class="hljs-attr">"hasNextPage"</span>: <span class="hljs-literal">true</span>
+      }
+    },
+    <span class="hljs-attr">"moreShips"</span>: {
+      <span class="hljs-attr">"edges"</span>: [
+        {
+          <span class="hljs-attr">"node"</span>: {
+            <span class="hljs-attr">"name"</span>: <span class="hljs-string">"A-Wing"</span>
+          }
+        },
+        {
+          <span class="hljs-attr">"node"</span>: {
+            <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Millenium Falcon"</span>
+          }
+        },
+        {
+          <span class="hljs-attr">"node"</span>: {
+            <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Home One"</span>
+          }
+        }
+      ],
+      <span class="hljs-attr">"pageInfo"</span>: {
+        <span class="hljs-attr">"hasNextPage"</span>: <span class="hljs-literal">false</span>
+      }
+    }
+  }
+}
+</code></pre>
+<p>So on the first query for ships, GraphQL told us there was a next page, but on the next one, it told us we'd reached the end of the connection.</p>
+<p>Relay uses all of this functionality to build out abstractions around connections, to make these easy to work with efficiently without having to manually manage cursors on the client.</p>
+<p>Complete details on how the server should behave are available in the <a href="/relay/graphql/connections.htm">GraphQL Cursor Connections</a> spec.</p>
+<h2><a class="anchor" aria-hidden="true" id="mutations"></a><a href="#mutations" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Mutations</h2>
+<p>Relay uses a common pattern for mutations, where they are root fields on the mutation type with a single argument, <code>input</code>, and where the input and output both contain a client mutation identifier used to reconcile requests and responses.</p>
+<p>By convention, mutations are named as verbs, their inputs are the name with &quot;Input&quot; appended at the end, and they return an object that is the name with &quot;Payload&quot; appended.</p>
+<p>So for our <code>introduceShip</code> mutation, we create two types: <code>IntroduceShipInput</code> and <code>IntroduceShipPayload</code>:</p>
+<pre><code class="hljs">input IntroduceShipInput {
+  factionId: ID!
+  shipName: String!
+  clientMutationId: String!
+}
+<span class="hljs-built_in">
+type </span>IntroduceShipPayload {
+  faction: Faction
+  ship: Ship
+  clientMutationId: String!
+}
+</code></pre>
+<p>With this input and payload, we can issue the following mutation:</p>
+<pre><code class="hljs">mutation AddBWingQuery($input: IntroduceShipInput!) {
+  introduceShip(input: $input) {
+    ship {
+      id
+      name
+    }
+    faction {
+      name
+    }
+    clientMutationId
+  }
+}
+</code></pre>
+<p>with these params:</p>
+<pre><code class="hljs css languages- json">{
+  <span class="hljs-attr">"input"</span>: {
+    <span class="hljs-attr">"shipName"</span>: <span class="hljs-string">"B-Wing"</span>,
+    <span class="hljs-attr">"factionId"</span>: <span class="hljs-string">"1"</span>,
+    <span class="hljs-attr">"clientMutationId"</span>: <span class="hljs-string">"abcde"</span>
+  }
+}
+</code></pre>
+<p>and we'll get this result:</p>
+<pre><code class="hljs css languages- json">{
+  <span class="hljs-attr">"introduceShip"</span>: {
+    <span class="hljs-attr">"ship"</span>: {
+      <span class="hljs-attr">"id"</span>: <span class="hljs-string">"U2hpcDo5"</span>,
+      <span class="hljs-attr">"name"</span>: <span class="hljs-string">"B-Wing"</span>
+    },
+    <span class="hljs-attr">"faction"</span>: {
+      <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Alliance to Restore the Republic"</span>
+    },
+    <span class="hljs-attr">"clientMutationId"</span>: <span class="hljs-string">"abcde"</span>
+  }
+}
+</code></pre>
+<p>Complete details on how the server should behave are available in the <a href="/relay/graphql/mutations.htm">GraphQL Input Object Mutations</a> spec.</p>
+<h2><a class="anchor" aria-hidden="true" id="further-reading"></a><a href="#further-reading" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Further Reading</h2>
+<p>This concludes the overview of the GraphQL Server Specifications. For the detailed requirements of a Relay-compliant GraphQL server, a more formal description of the <a href="/relay/graphql/connections.htm">Relay cursor connection</a> model, the <a href="/relay/graphql/objectidentification.htm">Relay global object identification</a> model, and the <a href="/relay/graphql/mutations.htm">Relay input object mutation</a> are all available.</p>
+<p>To see code implementing the specification, the <a href="https://github.com/graphql/graphql-relay-js">GraphQL.js Relay library</a> provides helper functions for creating nodes, connections, and mutations; that repository's <a href="https://github.com/graphql/graphql-relay-js/tree/master/src/__tests__"><code>__tests__</code></a> folder contains an implementation of the above example as integration tests for the repository.</p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/relay/docs/en/v1.6.2/relay-debugging.html">← Debugging</a><a class="docs-next button" href="/relay/docs/en/v1.6.2/new-in-relay-modern.html">New in Relay Modern →</a></div></div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/relay/" class="nav-home"><img src="/relay/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/relay/docs/en/introduction-to-relay.html">Introduction</a></div><div><h5>Community</h5><a href="/relay/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a class="github-button" href="https://github.com/facebook/relay" data-icon="octicon-star" data-count-href="/facebook/relay/stargazers" data-count-api="/repos/facebook/relay#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/relay/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2018 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+              var search = docsearch({
+                
+                apiKey: '3d7d5825d50ea36bca0e6ad06c926f06',
+                indexName: 'relay',
+                inputSelector: '#search_input_react'
+              });
+            </script></body></html>

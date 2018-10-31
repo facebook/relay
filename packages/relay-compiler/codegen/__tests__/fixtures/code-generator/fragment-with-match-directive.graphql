@@ -1,0 +1,18 @@
+fragment CommentBody_comment on CommentCreateResponsePayload {
+  comment {
+    commentBody @relay(match: [
+      {
+        type: "MarkdownCommentBody"
+        fragment: "MarkdownBody_comment"
+        module: "MarkdownBodyComponent.react"
+      },
+      {
+        type: "PlainCommentBody"
+        fragment: "PlaintextBody_comment"
+        module: "PlaintextComponent.react"
+      },
+    ]) {
+      __typename
+    }
+  }
+}

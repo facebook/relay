@@ -30,6 +30,7 @@ import type {
   Field,
   Fragment,
   FragmentSpread,
+  MatchFragmentSpread,
   Node,
   Selection,
 } from 'graphql-compiler';
@@ -115,8 +116,8 @@ function transformFragmentSpread(
   context: CompilerContext,
   fragments: Map<string, ?Fragment>,
   scope: Scope,
-  spread: FragmentSpread,
-): ?FragmentSpread {
+  spread: FragmentSpread | MatchFragmentSpread,
+): ?(FragmentSpread | MatchFragmentSpread) {
   const directives = transformDirectives(scope, spread.directives);
   const fragment = context.getFragment(spread.name);
   const appliedFragment = transformFragment(
@@ -129,12 +130,25 @@ function transformFragmentSpread(
   if (!appliedFragment) {
     return null;
   }
-  return {
-    ...spread,
-    args: [],
-    directives,
-    name: appliedFragment.name,
-  };
+  if (spread.kind === 'FragmentSpread') {
+    const transformed: FragmentSpread = {
+      ...spread,
+      kind: 'FragmentSpread',
+      args: [],
+      directives,
+      name: appliedFragment.name,
+    };
+    return transformed;
+  } else {
+    const transformed: MatchFragmentSpread = {
+      ...spread,
+      kind: 'MatchFragmentSpread',
+      args: [],
+      directives,
+      name: appliedFragment.name,
+    };
+    return transformed;
+  }
 }
 
 function transformField<T: Field>(
@@ -222,7 +236,10 @@ function transformSelections(
     let nextSelection;
     if (selection.kind === 'InlineFragment') {
       nextSelection = transformNode(context, fragments, scope, selection);
-    } else if (selection.kind === 'FragmentSpread') {
+    } else if (
+      selection.kind === 'FragmentSpread' ||
+      selection.kind === 'MatchFragmentSpread'
+    ) {
       nextSelection = transformFragmentSpread(
         context,
         fragments,

@@ -31,6 +31,7 @@ const {
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
+  MATCH_FIELD,
   LINKED_HANDLE,
   SCALAR_FIELD,
   SCALAR_HANDLE,
@@ -100,6 +101,9 @@ class RelayReferenceMarker {
           } else {
             this._traverseLink(selection, record);
           }
+          break;
+        case MATCH_FIELD:
+          // TODO(T35278439) - Handle MATCH_FIELD
           break;
         case CONDITION:
           const conditionValue = this._getVariableValue(selection.condition);

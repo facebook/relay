@@ -116,7 +116,10 @@ function printSelection(
     str += parentCondition;
     str += printDirectives(selection.directives);
     str += printSelections(selection, indent + INDENT);
-  } else if (selection.kind === 'FragmentSpread') {
+  } else if (
+    selection.kind === 'FragmentSpread' ||
+    selection.kind === 'MatchFragmentSpread'
+  ) {
     str = '...' + selection.name;
     str += parentCondition;
     str += printFragmentArguments(selection.args);
@@ -137,6 +140,7 @@ function printSelection(
     );
     str = subSelections.join('\n' + INDENT);
   } else {
+    (selection: empty);
     invariant(
       false,
       'GraphQLIRPrinter: Unknown selection kind `%s`.',

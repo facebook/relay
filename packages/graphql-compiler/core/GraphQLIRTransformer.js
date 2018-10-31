@@ -26,6 +26,7 @@ import type {
   Literal,
   LocalArgumentDefinition,
   MatchField,
+  MatchFragmentSpread,
   ObjectFieldValue,
   ObjectValue,
   Request,
@@ -52,6 +53,7 @@ type NodeVisitor<S> = {
   ListValue?: NodeVisitorFunction<ListValue, S>,
   Literal?: NodeVisitorFunction<Literal, S>,
   MatchField?: NodeVisitorFunction<MatchField, S>,
+  MatchFragmentSpread?: NodeVisitorFunction<MatchFragmentSpread, S>,
   LocalArgumentDefinition?: NodeVisitorFunction<LocalArgumentDefinition, S>,
   ObjectFieldValue?: NodeVisitorFunction<ObjectFieldValue, S>,
   ObjectValue?: NodeVisitorFunction<ObjectValue, S>,
@@ -227,6 +229,7 @@ class Transformer<S> {
         nextNode = this._traverseChildren(prevNode, ['args']);
         break;
       case 'FragmentSpread':
+      case 'MatchFragmentSpread':
       case 'ScalarField':
         nextNode = this._traverseChildren(prevNode, ['args', 'directives']);
         break;
@@ -287,6 +290,7 @@ class Transformer<S> {
         nextNode = this._traverseChildren(prevNode, null, ['fragment', 'root']);
         break;
       default:
+        (prevNode: empty);
         invariant(
           false,
           'GraphQLIRTransformer: Unknown kind `%s`.',

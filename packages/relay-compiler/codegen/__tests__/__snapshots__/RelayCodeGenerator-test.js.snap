@@ -29,6 +29,85 @@ Error: RelayCodeGenerator: Complex argument values (Lists or InputObjects with n
 }\`. Source: document undefined.
 `;
 
+exports[`RelayCodeGenerator matches expected output: fragment-with-match-directive.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment CommentBody_comment on CommentCreateResponsePayload {
+  comment {
+    commentBody @relay(match: [
+      {
+        type: "MarkdownCommentBody"
+        fragment: "MarkdownBody_comment"
+        module: "MarkdownBodyComponent.react"
+      },
+      {
+        type: "PlainCommentBody"
+        fragment: "PlaintextBody_comment"
+        module: "PlaintextComponent.react"
+      },
+    ]) {
+      __typename
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "kind": "Fragment",
+  "name": "CommentBody_comment",
+  "type": "CommentCreateResponsePayload",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "LinkedField",
+      "alias": null,
+      "name": "comment",
+      "storageKey": null,
+      "args": null,
+      "concreteType": "Comment",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "MatchField",
+          "alias": null,
+          "name": "commentBody",
+          "storageKey": "commentBody(supported:[\\"MarkdownCommentBody\\",\\"PlainCommentBody\\"])",
+          "args": [
+            {
+              "kind": "Literal",
+              "name": "supported",
+              "value": [
+                "MarkdownCommentBody",
+                "PlainCommentBody"
+              ],
+              "type": "[String!]!"
+            }
+          ],
+          "matchesByType": {
+            "MarkdownCommentBody": {
+              "selection": {
+                "kind": "FragmentSpread",
+                "name": "MarkdownBody_comment",
+                "args": []
+              },
+              "module": "MarkdownBodyComponent.react"
+            },
+            "PlainCommentBody": {
+              "selection": {
+                "kind": "FragmentSpread",
+                "name": "PlaintextBody_comment",
+                "args": []
+              },
+              "module": "PlaintextComponent.react"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+`;
+
 exports[`RelayCodeGenerator matches expected output: linked-handle-field.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment LinkedHandleField on User {

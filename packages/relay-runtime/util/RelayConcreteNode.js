@@ -47,7 +47,10 @@ export type ConcreteCondition = {
   condition: string,
   selections: Array<ConcreteSelection>,
 };
-export type ConcreteField = ConcreteScalarField | ConcreteLinkedField;
+export type ConcreteField =
+  | ConcreteScalarField
+  | ConcreteLinkedField
+  | ConcreteMatchField;
 export type ConcreteFragment = {
   kind: 'Fragment',
   name: string,
@@ -81,6 +84,16 @@ export type ConcreteLinkedField = {
   concreteType: ?string,
   plural: boolean,
   selections: Array<ConcreteSelection>,
+};
+export type ConcreteMatchField = {
+  kind: 'MatchField',
+  alias: ?string,
+  name: string,
+  storageKey: ?string,
+  args: ?Array<ConcreteArgument>,
+  matchesByType: {
+    [key: string]: {selection: ConcreteFragmentSpread, module: string},
+  },
 };
 export type ConcreteLinkedHandle = {
   kind: 'LinkedHandle',
@@ -130,7 +143,8 @@ export type ConcreteSelection =
   | ConcreteField
   | ConcreteFragmentSpread
   | ConcreteHandle
-  | ConcreteInlineFragment;
+  | ConcreteInlineFragment
+  | ConcreteMatchField;
 export type ConcreteVariable = {
   kind: 'Variable',
   name: string,
@@ -150,6 +164,7 @@ const RelayConcreteNode = {
   LINKED_HANDLE: 'LinkedHandle',
   LITERAL: 'Literal',
   LOCAL_ARGUMENT: 'LocalArgument',
+  MATCH_FIELD: 'MatchField',
   OPERATION: 'Operation',
   ROOT_ARGUMENT: 'RootArgument',
   REQUEST: 'Request',

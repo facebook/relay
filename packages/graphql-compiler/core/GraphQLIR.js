@@ -12,6 +12,7 @@
 
 import type {
   GraphQLCompositeType,
+  GraphQLObjectType,
   GraphQLOutputType,
   GraphQLInputType,
   GraphQLLeafType,
@@ -73,6 +74,7 @@ export type IR =
   | Literal
   | LocalArgumentDefinition
   | MatchField
+  | MatchFragmentSpread
   | ObjectFieldValue
   | ObjectValue
   | Request
@@ -125,6 +127,15 @@ export type LocalArgumentDefinition = {
   metadata: ?{[key: string]: mixed},
   name: string,
   type: GraphQLInputType,
+};
+export type MatchFragmentSpread = {
+  kind: 'MatchFragmentSpread',
+  type: GraphQLCompositeType,
+  module: string,
+  args: Array<Argument>,
+  directives: Array<Directive>,
+  metadata: ?{[key: string]: mixed},
+  name: string,
 };
 export type MatchField = {
   alias: ?string,
@@ -194,6 +205,7 @@ export type Selection =
   | InlineFragment
   | LinkedField
   | MatchField
+  | MatchFragmentSpread
   | ScalarField;
 export type Variable = {
   kind: 'Variable',

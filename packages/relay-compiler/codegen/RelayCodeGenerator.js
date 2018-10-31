@@ -23,6 +23,7 @@ import type {
   ConcreteFragment,
   ConcreteField,
   ConcreteLinkedField,
+  ConcreteMatchField,
   ConcreteRequest,
   ConcreteSelection,
   ConcreteScalarField,
@@ -162,6 +163,46 @@ const RelayCodeGenVisitor = {
       return [field].concat(handles);
     },
 
+    MatchField(node, key, parent, ancestors): ConcreteMatchField {
+      const selections = flattenArray(node.selections);
+      const matchesByType = {};
+      selections.forEach(selection => {
+        invariant(
+          selection.kind === 'MatchFragmentSpread',
+          'RelayCodeGenerator: Expected selection for MatchField %s to be ' +
+            'a MatchFragmentSpread. Source: %s.',
+          node.alias ?? node.name,
+          getErrorMessage(ancestors[0]),
+        );
+        invariant(
+          !matchesByType.hasOwnProperty(selection.type),
+          'RelayCodeGenerator: Each "match" type has to appear at-most once. ' +
+            'Type `%s` was duplicated. Source: %s.',
+          selection.type,
+          getErrorMessage(ancestors[0]),
+        );
+        matchesByType[selection.type] = {
+          selection: {
+            kind: 'FragmentSpread',
+            name: selection.name,
+            args: [],
+          },
+          module: selection.module,
+        };
+      });
+      const field: ConcreteMatchField = {
+        kind: 'MatchField',
+        alias: node.alias,
+        name: node.name,
+        storageKey: null,
+        args: valuesOrNull(sortByName(node.args)),
+        matchesByType,
+      };
+      // Precompute storageKey if possible
+      field.storageKey = getStaticStorageKey(field);
+      return field;
+    },
+
     ScalarField(node): Array<ConcreteSelection> {
       // Note: it is important that the arguments of this field be sorted to
       // ensure stable generation of storage keys for equivalent arguments
@@ -212,7 +253,7 @@ const RelayCodeGenVisitor = {
     },
 
     Argument(node, key, parent, ancestors): ?ConcreteArgument {
-      if (['Variable', 'Literal'].indexOf(node.value.kind) < 0) {
+      if (!['Variable', 'Literal'].includes(node.value.kind)) {
         const valueString = JSON.stringify(node.value, null, 2);
         throw new Error(
           'RelayCodeGenerator: Complex argument values (Lists or ' +

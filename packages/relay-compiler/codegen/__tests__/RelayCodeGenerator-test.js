@@ -12,20 +12,30 @@
 
 const GraphQLCompilerContext = require('GraphQLCompilerContext');
 const RelayCodeGenerator = require('RelayCodeGenerator');
+const RelayMatchTransform = require('RelayMatchTransform');
+const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
 const RelayTestSchema = require('RelayTestSchema');
 
 const parseGraphQLText = require('parseGraphQLText');
 
+const {transformASTSchema} = require('ASTConvert');
 const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 
 describe('RelayCodeGenerator', () => {
+  const schema = transformASTSchema(RelayTestSchema, [
+    RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
+  ]);
+
   generateTestsFromFixtures(`${__dirname}/fixtures/code-generator`, text => {
     try {
-      const {definitions} = parseGraphQLText(RelayTestSchema, text);
-      const context = new GraphQLCompilerContext(RelayTestSchema).addAll(
-        definitions,
-      );
-      return context
+      const {definitions} = parseGraphQLText(schema, text);
+      return new GraphQLCompilerContext(RelayTestSchema, schema)
+        .addAll(definitions)
+        .applyTransforms([
+          // Requires Relay directive transform first.
+          RelayRelayDirectiveTransform.transform,
+          RelayMatchTransform.transform,
+        ])
         .documents()
         .map(doc => {
           const node =

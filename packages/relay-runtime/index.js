@@ -112,6 +112,7 @@ export type {
   ConcreteField,
   ConcreteFragment,
   ConcreteLinkedField,
+  ConcreteMatchField,
   ConcreteOperation,
   ConcreteRequest,
   ConcreteScalarField,

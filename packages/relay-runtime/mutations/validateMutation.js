@@ -70,6 +70,7 @@ if (__DEV__) {
         return;
       case 'ScalarField':
       case 'LinkedField':
+      case 'MatchField':
         return validateField(optimisticResponse, selection, context);
       case 'InlineFragment':
         const type = selection.type;
@@ -79,6 +80,15 @@ if (__DEV__) {
           }
           validateSelection(optimisticResponse, subselection, context);
         });
+        return;
+      case 'FragmentSpread':
+      case 'LinkedHandle':
+      case 'ScalarHandle': {
+        // TODO(T35864292) - Add missing validations for these types
+        return;
+      }
+      default:
+        (selection: empty);
         return;
     }
   };

@@ -37,7 +37,7 @@ function relayMatchTransform(context: CompilerContext): CompilerContext {
   });
 }
 
-function getMatchSelection(
+function getMatchSelections(
   matches: Array<DataDependencyMatch>,
 ): Array<Selection> {
   const seenTypes = new Set<GraphQLCompositeType>();
@@ -49,7 +49,9 @@ function getMatchSelection(
     );
     seenTypes.add(match.type);
     return {
-      kind: 'FragmentSpread',
+      kind: 'MatchFragmentSpread',
+      type: match.type,
+      module: match.module,
       args: [],
       directives: [],
       metadata: null,
@@ -122,16 +124,16 @@ function visitField(
     directives: transformedNode.directives.filter(
       directive => directive !== relayDirective,
     ),
-    selections: getMatchSelection(argValues.match),
+    selections: getMatchSelections(argValues.match),
     args: [
       {
         kind: 'Argument',
         name: SUPPORTED_ARGUMENT_NAME,
         type: supportedArg.type,
         value: {
-          kind: 'ListValue',
+          kind: 'Literal',
           metadata: null,
-          items: argValues.match.map(match => {
+          value: argValues.match.map(match => {
             const belongToUnion = outputType
               .getTypes()
               .some(type => type.name === match.type);
@@ -142,17 +144,14 @@ function visitField(
               match.type,
               outputType,
             );
-            return {
-              kind: 'Literal',
-              metadata: null,
-              value: match.type,
-            };
+            return match.type;
           }),
         },
         metadata: null,
       },
     ],
   };
+
   return result;
 }
 

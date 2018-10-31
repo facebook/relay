@@ -212,10 +212,14 @@ class RelayResponseNormalizer {
 
     if (selection.kind === SCALAR_FIELD) {
       RelayModernRecord.setValue(record, storageKey, fieldValue);
-    } else if (selection.plural) {
-      this._normalizePluralLink(selection, record, storageKey, fieldValue);
+    } else if (selection.kind === LINKED_FIELD) {
+      if (selection.plural) {
+        this._normalizePluralLink(selection, record, storageKey, fieldValue);
+      } else {
+        this._normalizeLink(selection, record, storageKey, fieldValue);
+      }
     } else {
-      this._normalizeLink(selection, record, storageKey, fieldValue);
+      // TODO(T35278439) - Handle MATCH_FIELD
     }
   }
 

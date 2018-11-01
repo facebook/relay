@@ -54,6 +54,67 @@ export type FetchPolicy =
   | 'store-and-network'
   | 'network-only';
 
+type ReadQueryArgs = {|
+  environment: IEnvironment,
+  query: OperationSelector,
+  fetchPolicy?: FetchPolicy,
+|};
+
+type ReadFragmentSpecArgs = {|
+  environment: IEnvironment,
+  variables: Variables,
+  fragmentNodes: {[key: string]: ConcreteFragment},
+  fragmentRefs: {[string]: mixed},
+  parentQuery: ?OperationSelector,
+|};
+
+type PreloadQueryArgs = {|
+  environment: IEnvironment,
+  query: OperationSelector,
+  fetchPolicy?: FetchPolicy,
+|};
+
+type InvalidateQueryArgs = {|
+  query: OperationSelector,
+|};
+
+type InvalidateFragmentArgs = {|
+  fragmentNode: ConcreteFragment,
+  fragmentRef: mixed,
+  variables: Variables,
+|};
+
+type InvalidateFragmentSpecArgs = {|
+  fragmentNodes: {[key: string]: ConcreteFragment},
+  fragmentRefs: {[string]: mixed},
+  variables: Variables,
+|};
+
+type SetQueryArgs = {|
+  query: OperationSelector,
+  snapshot: Snapshot,
+|};
+
+type SetFragmentArgs = {|
+  fragmentNode: ConcreteFragment,
+  fragmentRef: mixed,
+  variables: Variables,
+  snapshot: Snapshot | $ReadOnlyArray<Snapshot>,
+|};
+
+export type TDataResourceCache = {|
+  readQuery(args: ReadQueryArgs): CacheReadResult,
+  readFragmentSpec(
+    args: ReadFragmentSpecArgs,
+  ): {[string]: CacheReadResult | null},
+  preloadQuery(args: PreloadQueryArgs): Disposable,
+  invalidateQuery(args: InvalidateQueryArgs): void,
+  invalidateFragment(args: InvalidateFragmentArgs): void,
+  invalidateFragmentSpec(args: InvalidateFragmentSpecArgs): void,
+  setQuery(args: SetQueryArgs): void,
+  setFragment(args: SetFragmentArgs): void,
+|};
+
 const DATA_RETENTION_TIMEOUT = 30 * 1000;
 
 function getQueryCacheKey(query: OperationSelector): string {
@@ -87,7 +148,7 @@ function isMissingData(snapshot: Snapshot | $ReadOnlyArray<Snapshot>) {
   return snapshot.isMissingData;
 }
 
-function createCache() {
+function createCache(): TDataResourceCache {
   const cache = LRUCache.create<CachedValue>(CACHE_CAPACITY);
 
   /**
@@ -377,11 +438,7 @@ function createCache() {
      *     Promise for that request
      *   - Otherwise, return empty data.
      */
-    readQuery(args: {|
-      environment: IEnvironment,
-      query: OperationSelector,
-      fetchPolicy?: FetchPolicy,
-    |}): CacheReadResult {
+    readQuery(args: ReadQueryArgs): CacheReadResult {
       const {query} = args;
       const cacheKey = getQueryCacheKey(query);
 
@@ -420,13 +477,9 @@ function createCache() {
       );
     },
 
-    readFragmentSpec(args: {|
-      environment: IEnvironment,
-      variables: Variables,
-      fragmentNodes: {[key: string]: ConcreteFragment},
-      fragmentRefs: {[string]: mixed},
-      parentQuery: ?OperationSelector,
-    |}): {[string]: CacheReadResult | null} {
+    readFragmentSpec(
+      args: ReadFragmentSpecArgs,
+    ): {[string]: CacheReadResult | null} {
       const {
         environment,
         variables,
@@ -515,11 +568,7 @@ function createCache() {
      * store data for a query, based on the provided data access policy.
      * See: fetchAndSaveQuery.
      */
-    preloadQuery(args: {|
-      environment: IEnvironment,
-      query: OperationSelector,
-      fetchPolicy?: FetchPolicy,
-    |}): Disposable {
+    preloadQuery(args: PreloadQueryArgs): Disposable {
       const {environment, query, fetchPolicy} = args;
       const cacheKey = getQueryCacheKey(query);
       if (cache.has(cacheKey)) {
@@ -535,7 +584,7 @@ function createCache() {
     /**
      * Removes entry for query from cache
      */
-    invalidateQuery(args: {|query: OperationSelector|}) {
+    invalidateQuery(args: InvalidateQueryArgs) {
       const {query} = args;
       const cacheKey = getQueryCacheKey(query);
       cache.delete(cacheKey);
@@ -544,11 +593,7 @@ function createCache() {
     /**
      * Removes entry for fragment from cache
      */
-    invalidateFragment(args: {|
-      fragmentNode: ConcreteFragment,
-      fragmentRef: mixed,
-      variables: Variables,
-    |}): void {
+    invalidateFragment(args: InvalidateFragmentArgs): void {
       const {fragmentNode, fragmentRef, variables} = args;
       const cacheKey = getFragmentCacheKey(
         fragmentNode,
@@ -561,11 +606,7 @@ function createCache() {
     /**
      * Removes entry for each provided fragment from cache
      */
-    invalidateFragmentSpec(args: {|
-      fragmentNodes: {[key: string]: ConcreteFragment},
-      fragmentRefs: {[string]: mixed},
-      variables: Variables,
-    |}): void {
+    invalidateFragmentSpec(args: InvalidateFragmentSpecArgs): void {
       const {fragmentNodes, fragmentRefs, variables} = args;
       Object.keys(fragmentNodes).forEach(key => {
         const fragmentNode = fragmentNodes[key];
@@ -587,7 +628,7 @@ function createCache() {
     /**
      * Sets snapshot for query in cache if data in snapshot isn't empty
      */
-    setQuery(args: {|query: OperationSelector, snapshot: Snapshot|}): void {
+    setQuery(args: SetQueryArgs): void {
       const {query, snapshot} = args;
       if (!isMissingData(snapshot)) {
         const cacheKey = getQueryCacheKey(query);
@@ -599,12 +640,7 @@ function createCache() {
      * Sets snapshot in cache for provided fragment if data in snapshot
      * isn't empty
      */
-    setFragment(args: {|
-      fragmentNode: ConcreteFragment,
-      fragmentRef: mixed,
-      variables: Variables,
-      snapshot: Snapshot | $ReadOnlyArray<Snapshot>,
-    |}): void {
+    setFragment(args: SetFragmentArgs): void {
       const {fragmentNode, fragmentRef, variables, snapshot} = args;
       if (!isMissingData(snapshot)) {
         const cacheKey = getFragmentCacheKey(
@@ -629,10 +665,10 @@ function getCacheForEnvironment(environment: IEnvironment): TDataResourceCache {
   return cache;
 }
 
-export type TDataResourceCache = $Call<<R>(() => R) => R, typeof createCache>;
-
 const globalCache = createCache();
-const DataResourceContext = React.createContext(globalCache);
+const DataResourceContext = React.createContext<TDataResourceCache>(
+  globalCache,
+);
 
 module.exports = {
   createCache,

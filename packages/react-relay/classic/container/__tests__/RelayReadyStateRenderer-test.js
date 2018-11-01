@@ -36,8 +36,8 @@ describe('RelayReadyStateRenderer', () => {
    */
   const anyRecord = requirements => {
     const expected = {
-      __dataID__: jasmine.any(String),
-      __fragments__: jasmine.any(Object),
+      __dataID__: expect.any(String),
+      __fragments__: expect.any(Object),
     };
     if (requirements.hasOwnProperty('dataID')) {
       expected.__dataID__ = requirements.dataID;
@@ -45,7 +45,7 @@ describe('RelayReadyStateRenderer', () => {
     if (requirements.hasOwnProperty('fragment')) {
       const concreteFragmentID = requirements.fragment.getFragment({}).id;
       expected.__fragments__ = jasmine.objectContaining({
-        [concreteFragmentID]: [jasmine.any(Object)],
+        [concreteFragmentID]: [expect.any(Object)],
       });
     }
     return jasmine.objectContaining(expected);

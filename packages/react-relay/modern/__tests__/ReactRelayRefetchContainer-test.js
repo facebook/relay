@@ -169,8 +169,8 @@ describe('ReactRelayRefetchContainer', () => {
       bar: 1,
       foo: 'foo',
       relay: {
-        environment: jasmine.any(Object),
-        refetch: jasmine.any(Function),
+        environment: expect.any(Object),
+        refetch: expect.any(Function),
       },
       user: null,
     });
@@ -188,8 +188,8 @@ describe('ReactRelayRefetchContainer', () => {
     expect(render.mock.calls.length).toBe(1);
     expect(render.mock.calls[0][0]).toEqual({
       relay: {
-        environment: jasmine.any(Object),
-        refetch: jasmine.any(Function),
+        environment: expect.any(Object),
+        refetch: expect.any(Function),
       },
       user: null,
     });
@@ -227,8 +227,8 @@ describe('ReactRelayRefetchContainer', () => {
         name: 'Zuck',
       },
       relay: {
-        environment: jasmine.any(Object),
-        refetch: jasmine.any(Function),
+        environment: expect.any(Object),
+        refetch: expect.any(Function),
       },
     });
     // Subscribes for updates
@@ -240,7 +240,7 @@ describe('ReactRelayRefetchContainer', () => {
         name: 'Zuck',
       },
       node: UserFragment,
-      seenRecords: jasmine.any(Object),
+      seenRecords: expect.any(Object),
       variables: {cond: true},
       isMissingData: false,
     });
@@ -285,8 +285,8 @@ describe('ReactRelayRefetchContainer', () => {
         name: 'Mark',
       },
       relay: {
-        environment: jasmine.any(Object),
-        refetch: jasmine.any(Function),
+        environment: expect.any(Object),
+        refetch: expect.any(Function),
       },
     });
   });
@@ -323,8 +323,8 @@ describe('ReactRelayRefetchContainer', () => {
         name: 'Joe',
       },
       relay: {
-        environment: jasmine.any(Object),
-        refetch: jasmine.any(Function),
+        environment: expect.any(Object),
+        refetch: expect.any(Function),
       },
     });
     // Container subscribes for updates on new props
@@ -336,7 +336,7 @@ describe('ReactRelayRefetchContainer', () => {
         name: 'Joe',
       },
       node: UserFragment,
-      seenRecords: jasmine.any(Object),
+      seenRecords: expect.any(Object),
       variables: {cond: true},
       isMissingData: false,
     });
@@ -370,8 +370,8 @@ describe('ReactRelayRefetchContainer', () => {
         name: 'Zuck',
       },
       relay: {
-        environment: jasmine.any(Object),
-        refetch: jasmine.any(Function),
+        environment: expect.any(Object),
+        refetch: expect.any(Function),
       },
     });
     // Container subscribes for updates on new props
@@ -383,7 +383,7 @@ describe('ReactRelayRefetchContainer', () => {
         name: 'Zuck',
       },
       node: UserFragment,
-      seenRecords: jasmine.any(Object),
+      seenRecords: expect.any(Object),
       variables: {cond: true},
       isMissingData: false,
     });

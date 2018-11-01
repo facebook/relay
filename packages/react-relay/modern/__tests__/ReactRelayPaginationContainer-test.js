@@ -237,11 +237,11 @@ describe('ReactRelayPaginationContainer', () => {
       bar: 1,
       foo: 'foo',
       relay: {
-        environment: jasmine.any(Object),
-        hasMore: jasmine.any(Function),
-        isLoading: jasmine.any(Function),
-        loadMore: jasmine.any(Function),
-        refetchConnection: jasmine.any(Function),
+        environment: expect.any(Object),
+        hasMore: expect.any(Function),
+        isLoading: expect.any(Function),
+        loadMore: expect.any(Function),
+        refetchConnection: expect.any(Function),
       },
       user: null,
     });
@@ -259,11 +259,11 @@ describe('ReactRelayPaginationContainer', () => {
     expect(render.mock.calls.length).toBe(1);
     expect(render.mock.calls[0][0]).toEqual({
       relay: {
-        environment: jasmine.any(Object),
-        hasMore: jasmine.any(Function),
-        isLoading: jasmine.any(Function),
-        loadMore: jasmine.any(Function),
-        refetchConnection: jasmine.any(Function),
+        environment: expect.any(Object),
+        hasMore: expect.any(Function),
+        isLoading: expect.any(Function),
+        loadMore: expect.any(Function),
+        refetchConnection: expect.any(Function),
       },
       user: null,
     });
@@ -305,20 +305,20 @@ describe('ReactRelayPaginationContainer', () => {
         },
       },
       relay: {
-        environment: jasmine.any(Object),
-        hasMore: jasmine.any(Function),
-        isLoading: jasmine.any(Function),
-        loadMore: jasmine.any(Function),
-        refetchConnection: jasmine.any(Function),
+        environment: expect.any(Object),
+        hasMore: expect.any(Function),
+        isLoading: expect.any(Function),
+        loadMore: expect.any(Function),
+        refetchConnection: expect.any(Function),
       },
     });
     // Subscribes for updates
     expect(environment.subscribe.mock.calls.length).toBe(1);
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
       dataID: '4',
-      data: jasmine.any(Object),
+      data: expect.any(Object),
       node: UserFragment,
-      seenRecords: jasmine.any(Object),
+      seenRecords: expect.any(Object),
       variables: {
         after: null,
         count: 1,
@@ -368,11 +368,11 @@ describe('ReactRelayPaginationContainer', () => {
         friends: null,
       },
       relay: {
-        environment: jasmine.any(Object),
-        hasMore: jasmine.any(Function),
-        isLoading: jasmine.any(Function),
-        loadMore: jasmine.any(Function),
-        refetchConnection: jasmine.any(Function),
+        environment: expect.any(Object),
+        hasMore: expect.any(Function),
+        isLoading: expect.any(Function),
+        loadMore: expect.any(Function),
+        refetchConnection: expect.any(Function),
       },
     });
   });
@@ -418,20 +418,20 @@ describe('ReactRelayPaginationContainer', () => {
         },
       },
       relay: {
-        environment: jasmine.any(Object),
-        hasMore: jasmine.any(Function),
-        isLoading: jasmine.any(Function),
-        loadMore: jasmine.any(Function),
-        refetchConnection: jasmine.any(Function),
+        environment: expect.any(Object),
+        hasMore: expect.any(Function),
+        isLoading: expect.any(Function),
+        loadMore: expect.any(Function),
+        refetchConnection: expect.any(Function),
       },
     });
     // Container subscribes for updates on new props
     expect(environment.subscribe.mock.calls.length).toBe(1);
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
       dataID: '842472',
-      data: jasmine.any(Object),
+      data: expect.any(Object),
       node: UserFragment,
-      seenRecords: jasmine.any(Object),
+      seenRecords: expect.any(Object),
       variables: {
         after: null,
         count: 1,
@@ -485,20 +485,20 @@ describe('ReactRelayPaginationContainer', () => {
         },
       },
       relay: {
-        environment: jasmine.any(Object),
-        hasMore: jasmine.any(Function),
-        isLoading: jasmine.any(Function),
-        loadMore: jasmine.any(Function),
-        refetchConnection: jasmine.any(Function),
+        environment: expect.any(Object),
+        hasMore: expect.any(Function),
+        isLoading: expect.any(Function),
+        loadMore: expect.any(Function),
+        refetchConnection: expect.any(Function),
       },
     });
     // Subscribes for updates
     expect(environment.subscribe.mock.calls.length).toBe(1);
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
       dataID: '4',
-      data: jasmine.any(Object),
+      data: expect.any(Object),
       node: UserFragment,
-      seenRecords: jasmine.any(Object),
+      seenRecords: expect.any(Object),
       variables: {
         after: null,
         count: 1,
@@ -530,20 +530,20 @@ describe('ReactRelayPaginationContainer', () => {
         },
       },
       relay: {
-        environment: jasmine.any(Object),
-        hasMore: jasmine.any(Function),
-        isLoading: jasmine.any(Function),
-        loadMore: jasmine.any(Function),
-        refetchConnection: jasmine.any(Function),
+        environment: expect.any(Object),
+        hasMore: expect.any(Function),
+        isLoading: expect.any(Function),
+        loadMore: expect.any(Function),
+        refetchConnection: expect.any(Function),
       },
     });
     // Subscribes for updates
     expect(environment.subscribe.mock.calls.length).toBe(1);
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
       dataID: '4',
-      data: jasmine.any(Object),
+      data: expect.any(Object),
       node: UserFragment,
-      seenRecords: jasmine.any(Object),
+      seenRecords: expect.any(Object),
       variables: {
         after: null,
         count: 1,
@@ -1603,11 +1603,11 @@ describe('ReactRelayPaginationContainer', () => {
           },
         },
         relay: {
-          environment: jasmine.any(Object),
-          hasMore: jasmine.any(Function),
-          isLoading: jasmine.any(Function),
-          loadMore: jasmine.any(Function),
-          refetchConnection: jasmine.any(Function),
+          environment: expect.any(Object),
+          hasMore: expect.any(Function),
+          isLoading: expect.any(Function),
+          loadMore: expect.any(Function),
+          refetchConnection: expect.any(Function),
         },
       });
     });
@@ -1773,11 +1773,11 @@ describe('ReactRelayPaginationContainer', () => {
           },
         },
         relay: {
-          environment: jasmine.any(Object),
-          hasMore: jasmine.any(Function),
-          isLoading: jasmine.any(Function),
-          loadMore: jasmine.any(Function),
-          refetchConnection: jasmine.any(Function),
+          environment: expect.any(Object),
+          hasMore: expect.any(Function),
+          isLoading: expect.any(Function),
+          loadMore: expect.any(Function),
+          refetchConnection: expect.any(Function),
         },
       });
     });

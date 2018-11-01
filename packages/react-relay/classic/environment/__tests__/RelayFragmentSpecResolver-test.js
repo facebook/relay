@@ -469,7 +469,7 @@ describe('RelayFragmentSpecResolver', () => {
             id: '4',
             name: 'Zuck',
             profilePicture: {
-              __dataID__: jasmine.any(String),
+              __dataID__: expect.any(String),
               uri: 'https://4.jpg',
             },
           },
@@ -491,7 +491,7 @@ describe('RelayFragmentSpecResolver', () => {
             id: '4',
             name: 'Zuck',
             profilePicture: {
-              __dataID__: jasmine.any(String),
+              __dataID__: expect.any(String),
               uri: 'https://zuck.jpg',
             },
           },
@@ -820,7 +820,7 @@ describe('RelayFragmentSpecResolver', () => {
               id: '4',
               name: 'Zuck',
               profilePicture: {
-                __dataID__: jasmine.any(String),
+                __dataID__: expect.any(String),
                 uri: 'https://4.jpg',
               },
             },
@@ -844,7 +844,7 @@ describe('RelayFragmentSpecResolver', () => {
               id: '4',
               name: 'Zuck',
               profilePicture: {
-                __dataID__: jasmine.any(String),
+                __dataID__: expect.any(String),
                 uri: 'https://zuck.jpg',
               },
             },

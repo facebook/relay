@@ -594,11 +594,11 @@ describe('createQueryRenderer', () => {
         ).toThrow(MISSING_PLACEHOLDER_EXCEPTION);
         expect(environment.execute).toBeCalledTimes(2);
         expect(environment.execute.mock.calls[0][0].operation).toMatchObject({
-          fragment: jasmine.any(Object),
+          fragment: expect.any(Object),
           variables: variables1,
         });
         expect(environment.execute.mock.calls[1][0].operation).toMatchObject({
-          fragment: jasmine.any(Object),
+          fragment: expect.any(Object),
           variables: variables2,
         });
         spy.mockReset();
@@ -653,7 +653,7 @@ describe('createQueryRenderer', () => {
             expect(
               testEnvironment.execute.mock.calls[0][0].operation,
             ).toMatchObject({
-              fragment: jasmine.any(Object),
+              fragment: expect.any(Object),
               variables: testVariables,
             });
             break;

@@ -227,7 +227,7 @@ describe('ReactRelayQueryRenderer', () => {
                 __id: '4',
               },
             },
-            retry: jasmine.any(Function),
+            retry: expect.any(Function),
           }).toBeRendered();
           expect(environment.execute.mock.calls.length).toBe(1);
           render.mockClear();
@@ -248,7 +248,7 @@ describe('ReactRelayQueryRenderer', () => {
                 __id: '4',
               },
             },
-            retry: jasmine.any(Function),
+            retry: expect.any(Function),
           }).toBeRendered();
         });
       });
@@ -304,7 +304,7 @@ describe('ReactRelayQueryRenderer', () => {
                 __id: '4',
               },
             },
-            retry: jasmine.any(Function),
+            retry: expect.any(Function),
           }).toBeRendered();
           expect(fetch.mock.calls.length).toBe(1);
           render.mockClear();
@@ -325,7 +325,7 @@ describe('ReactRelayQueryRenderer', () => {
                 __id: '4',
               },
             },
-            retry: jasmine.any(Function),
+            retry: expect.any(Function),
           }).toBeRendered();
         });
       });
@@ -398,7 +398,7 @@ describe('ReactRelayQueryRenderer', () => {
             __id: '4',
           },
         },
-        retry: jasmine.any(Function),
+        retry: expect.any(Function),
       }).toBeRendered();
     });
 
@@ -429,7 +429,7 @@ describe('ReactRelayQueryRenderer', () => {
             __id: '4',
           },
         },
-        retry: jasmine.any(Function),
+        retry: expect.any(Function),
       }).toBeRendered();
     });
 
@@ -453,7 +453,7 @@ describe('ReactRelayQueryRenderer', () => {
       expect({
         error: error,
         props: null,
-        retry: jasmine.any(Function),
+        retry: expect.any(Function),
       }).toBeRendered();
     });
   });
@@ -870,7 +870,7 @@ describe('ReactRelayQueryRenderer', () => {
       expect({
         error,
         props: null,
-        retry: jasmine.any(Function),
+        retry: expect.any(Function),
       }).toBeRendered();
     });
 
@@ -903,7 +903,7 @@ describe('ReactRelayQueryRenderer', () => {
             __id: '4',
           },
         },
-        retry: jasmine.any(Function),
+        retry: expect.any(Function),
       }).toBeRendered();
     });
   });
@@ -956,7 +956,7 @@ describe('ReactRelayQueryRenderer', () => {
                   __id: '4',
                 },
               },
-              retry: jasmine.any(Function),
+              retry: expect.any(Function),
             },
           ],
         ]);
@@ -973,7 +973,7 @@ describe('ReactRelayQueryRenderer', () => {
                   __id: '4',
                 },
               },
-              retry: jasmine.any(Function),
+              retry: expect.any(Function),
             },
           ],
         ]);
@@ -1023,7 +1023,7 @@ describe('ReactRelayQueryRenderer', () => {
             __id: '4',
           },
         },
-        retry: jasmine.any(Function),
+        retry: expect.any(Function),
       }).toBeRendered();
     });
 

@@ -229,7 +229,7 @@ describe('ReactRelayFragmentContainer', () => {
         name: 'Zuck',
       },
       node: UserFragment,
-      seenRecords: jasmine.any(Object),
+      seenRecords: expect.any(Object),
       variables: {cond: true},
       isMissingData: false,
     });
@@ -323,7 +323,7 @@ describe('ReactRelayFragmentContainer', () => {
         name: 'Joe',
       },
       node: UserFragment,
-      seenRecords: jasmine.any(Object),
+      seenRecords: expect.any(Object),
       variables: {cond: true},
       isMissingData: false,
     });
@@ -366,7 +366,7 @@ describe('ReactRelayFragmentContainer', () => {
         name: 'Zuck',
       },
       node: UserFragment,
-      seenRecords: jasmine.any(Object),
+      seenRecords: expect.any(Object),
       variables: {cond: true},
       isMissingData: false,
     });

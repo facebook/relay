@@ -14,6 +14,10 @@
                 var toggler = document.querySelector(togglerSelector);
                 var target = document.querySelector(targetSelector);
 
+                if (!toggler) {
+                  return;
+                }
+
                 toggler.onclick = function(event) {
                   event.preventDefault();
 
@@ -21,7 +25,7 @@
                 };
               }
             });
-        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/GraphQL-ServerSpecification.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">GraphQL Server Specification</h1></header><article><div><span><p>The goal of this document is to specify the assumptions that Relay makes about a GraphQL server and demonstrate them through an example GraphQL schema.</p>
+        </script></nav></div><div class="container mainContainer docMainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/GraphQL-ServerSpecification.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">GraphQL Server Specification</h1></header><article><div><span><p>The goal of this document is to specify the assumptions that Relay makes about a GraphQL server and demonstrate them through an example GraphQL schema.</p>
 <p>Table of Contents:</p>
 <ul>
 <li><a href="#preface">Preface</a></li>
@@ -110,7 +114,7 @@ type </span>Mutation {
 }
 </code></pre>
 <p>returns</p>
-<pre><code class="hljs css languages- json">{
+<pre><code class="hljs css language-json">{
   <span class="hljs-attr">"rebels"</span>: {
     <span class="hljs-attr">"id"</span>: <span class="hljs-string">"RmFjdGlvbjox"</span>,
     <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Alliance to Restore the Republic"</span>
@@ -128,7 +132,7 @@ type </span>Mutation {
 }
 </code></pre>
 <p>returns</p>
-<pre><code class="hljs css languages- json">{
+<pre><code class="hljs css language-json">{
   <span class="hljs-attr">"node"</span>: {
     <span class="hljs-attr">"id"</span>: <span class="hljs-string">"RmFjdGlvbjox"</span>,
     <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Alliance to Restore the Republic"</span>
@@ -144,7 +148,7 @@ type </span>Mutation {
 }
 </code></pre>
 <p>yields</p>
-<pre><code class="hljs css languages- json">{
+<pre><code class="hljs css language-json">{
   <span class="hljs-attr">"empire"</span>: {
     <span class="hljs-attr">"id"</span>: <span class="hljs-string">"RmFjdGlvbjoy"</span>,
     <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Galactic Empire"</span>
@@ -162,7 +166,7 @@ type </span>Mutation {
 }
 </code></pre>
 <p>yields</p>
-<pre><code class="hljs css languages- json">{
+<pre><code class="hljs css language-json">{
   <span class="hljs-attr">"node"</span>: {
     <span class="hljs-attr">"id"</span>: <span class="hljs-string">"RmFjdGlvbjoy"</span>,
     <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Galactic Empire"</span>
@@ -189,7 +193,7 @@ type </span>Mutation {
 }
 </code></pre>
 <p>yields</p>
-<pre><code class="hljs css languages- json">{
+<pre><code class="hljs css language-json">{
   <span class="hljs-attr">"rebels"</span>: {
     <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Alliance to Restore the Republic"</span>,
     <span class="hljs-attr">"ships"</span>: {
@@ -220,7 +224,7 @@ type </span>Mutation {
 }
 </code></pre>
 <p>and we get back</p>
-<pre><code class="hljs css languages- json">{
+<pre><code class="hljs css language-json">{
   <span class="hljs-attr">"rebels"</span>: {
     <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Alliance to Restore the Republic"</span>,
     <span class="hljs-attr">"ships"</span>: {
@@ -258,7 +262,7 @@ type </span>Mutation {
 }
 </code></pre>
 <p>gives us</p>
-<pre><code class="hljs css languages- json">
+<pre><code class="hljs css language-json">
 {
   <span class="hljs-attr">"rebels"</span>: {
     <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Alliance to Restore the Republic"</span>,
@@ -303,7 +307,7 @@ type </span>Mutation {
 }
 </code></pre>
 <p>yields</p>
-<pre><code class="hljs css languages- json">{
+<pre><code class="hljs css language-json">{
   <span class="hljs-attr">"rebels"</span>: {
     <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Alliance to Restore the Republic"</span>,
     <span class="hljs-attr">"ships"</span>: {
@@ -340,7 +344,7 @@ type </span>Mutation {
 }
 </code></pre>
 <p>and we get back</p>
-<pre><code class="hljs css languages- json">{
+<pre><code class="hljs css language-json">{
   <span class="hljs-attr">"rebels"</span>: {
     <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Alliance to Restore the Republic"</span>,
     <span class="hljs-attr">"originalShips"</span>: {
@@ -419,7 +423,7 @@ type </span>IntroduceShipPayload {
 }
 </code></pre>
 <p>with these params:</p>
-<pre><code class="hljs css languages- json">{
+<pre><code class="hljs css language-json">{
   <span class="hljs-attr">"input"</span>: {
     <span class="hljs-attr">"shipName"</span>: <span class="hljs-string">"B-Wing"</span>,
     <span class="hljs-attr">"factionId"</span>: <span class="hljs-string">"1"</span>,
@@ -428,7 +432,7 @@ type </span>IntroduceShipPayload {
 }
 </code></pre>
 <p>and we'll get this result:</p>
-<pre><code class="hljs css languages- json">{
+<pre><code class="hljs css language-json">{
   <span class="hljs-attr">"introduceShip"</span>: {
     <span class="hljs-attr">"ship"</span>: {
       <span class="hljs-attr">"id"</span>: <span class="hljs-string">"U2hpcDo5"</span>,
@@ -445,7 +449,18 @@ type </span>IntroduceShipPayload {
 <h2><a class="anchor" aria-hidden="true" id="further-reading"></a><a href="#further-reading" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Further Reading</h2>
 <p>This concludes the overview of the GraphQL Server Specifications. For the detailed requirements of a Relay-compliant GraphQL server, a more formal description of the <a href="/relay/graphql/connections.htm">Relay cursor connection</a> model, the <a href="/relay/graphql/objectidentification.htm">Relay global object identification</a> model, and the <a href="/relay/graphql/mutations.htm">Relay input object mutation</a> are all available.</p>
 <p>To see code implementing the specification, the <a href="https://github.com/graphql/graphql-relay-js">GraphQL.js Relay library</a> provides helper functions for creating nodes, connections, and mutations; that repository's <a href="https://github.com/graphql/graphql-relay-js/tree/master/src/__tests__"><code>__tests__</code></a> folder contains an implementation of the above example as integration tests for the repository.</p>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/relay/docs/en/v1.6.1/relay-debugging.html">← Debugging</a><a class="docs-next button" href="/relay/docs/en/v1.6.1/new-in-relay-modern.html">New in Relay Modern →</a></div></div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/relay/" class="nav-home"><img src="/relay/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/relay/docs/en/introduction-to-relay.html">Introduction</a></div><div><h5>Community</h5><a href="/relay/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a class="github-button" href="https://github.com/facebook/relay" data-icon="octicon-star" data-count-href="/facebook/relay/stargazers" data-count-api="/repos/facebook/relay#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/relay/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2018 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/relay/docs/en/v1.6.1/relay-debugging.html"><span class="arrow-prev">← </span><span>Previous</span></a><a class="docs-next button" href="/relay/docs/en/v1.6.1/new-in-relay-modern.html"><span>Next</span><span class="arrow-next"> →</span></a></div></div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/relay/" class="nav-home"><img src="/relay/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/relay/docs/en/introduction-to-relay.html">Introduction</a></div><div><h5>Community</h5><a href="/relay/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a class="github-button" href="https://github.com/facebook/relay" data-icon="octicon-star" data-count-href="/facebook/relay/stargazers" data-count-api="/repos/facebook/relay#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/relay/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2018 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+                document.addEventListener('keyup', function(e) {
+                  if (e.target !== document.body) {
+                    return;
+                  }
+                  // keyCode for '/' (slash)
+                  if (e.keyCode === 191) {
+                    const search = document.getElementById('search_input_react');
+                    search && search.focus();
+                  }
+                });
+              </script><script>
               var search = docsearch({
                 
                 apiKey: '3d7d5825d50ea36bca0e6ad06c926f06',

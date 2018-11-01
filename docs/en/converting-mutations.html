@@ -14,6 +14,10 @@
                 var toggler = document.querySelector(togglerSelector);
                 var target = document.querySelector(targetSelector);
 
+                if (!toggler) {
+                  return;
+                }
+
                 toggler.onclick = function(event) {
                   event.preventDefault();
 
@@ -21,18 +25,18 @@
                 };
               }
             });
-        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/Modern-ConvertingMutations.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">Converting Mutations</h1></header><article><div><span><p>We made some changes to how mutations work in the new version of Relay in order to makes them more straight forward to use and more customizable. Mutations are currently not covered by an automatic conversion and require a manual upgrade. However, limited number of changes is needed to make your existing mutations work with both the old and new environment.</p>
+        </script></nav></div><div class="container mainContainer docMainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/Modern-ConvertingMutations.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">Converting Mutations</h1></header><article><div><span><p>We made some changes to how mutations work in the new version of Relay in order to makes them more straight forward to use and more customizable. Mutations are currently not covered by an automatic conversion and require a manual upgrade. However, limited number of changes is needed to make your existing mutations work with both the old and new environment.</p>
 <h2><a class="anchor" aria-hidden="true" id="simplifying-fatqueries-to-standard-graphql-queries"></a><a href="#simplifying-fatqueries-to-standard-graphql-queries" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Simplifying FatQueries to Standard GraphQL Queries</h2>
 <p>FatQueries in Relay Classic mutations was a concept that was confusing for a number of people. It required Relay to keep track of a significant amount of metadata regarding each record and automatically figure out the query to send to the server for the mutation. The logic to deduce the queries to send to the server was both complicated to maintain and slow to run. On top of that, we often had questions about why a particular field is included or skipped. We decided to allow people to have more control by allowing them write out exactly what data they want to update as the result of a mutation. Both individual fields and fragments can be included in these queries. Similar to container fragments, this is subjected to masking. That means only fields listed out directly will be accessible in the callbacks and the updater functions. The data fetched by in referenced fragments will still be updated in the store.</p>
 <p>Example of existing fat query:</p>
-<pre><code class="hljs css languages- javascript">  RelayClassic.QL<span class="hljs-string">`
+<pre><code class="hljs css language-javascript">  RelayClassic.QL<span class="hljs-string">`
     fragment on MarkReadNotificationResponsePayload @relay(pattern: true) {
       notification
     }
   `</span>;
 </code></pre>
 <p>Example of converted mutation query:</p>
-<pre><code class="hljs css languages- javascript">graphql<span class="hljs-string">`
+<pre><code class="hljs css language-javascript">graphql<span class="hljs-string">`
   mutation MarkReadNotificationMutation(
     $input: MarkReadNotificationData!
   ) {
@@ -58,7 +62,7 @@
 <p><code>NODE_DELETE</code> config will work as-is with the new environment. No change is needed.</p>
 <h2><a class="anchor" aria-hidden="true" id="converting-a-simple-mutation"></a><a href="#converting-a-simple-mutation" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Converting a Simple Mutation</h2>
 <p>Take this example of a simple mutation in Relay Classic:</p>
-<pre><code class="hljs css languages- javascript"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LikeStoryMutation</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">RelayClassic</span>.<span class="hljs-title">Mutation</span> </span>{
+<pre><code class="hljs css language-javascript"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LikeStoryMutation</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">RelayClassic</span>.<span class="hljs-title">Mutation</span> </span>{
   getMutation() {
     <span class="hljs-keyword">return</span> RelayClassic.QL<span class="hljs-string">`mutation {likeStory}`</span>;
   }
@@ -99,7 +103,7 @@
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="converting-getmutation-and-getfatquery"></a><a href="#converting-getmutation-and-getfatquery" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Converting <code>getMutation()</code> and <code>getFatQuery()</code></h3>
 <p>We combine these two into a regular GraphQL mutation, which list out specific fields that needs to be updated.</p>
-<pre><code class="hljs css languages- javascript"><span class="hljs-keyword">const</span> mutation = graphql<span class="hljs-string">`
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> mutation = graphql<span class="hljs-string">`
   mutation LikeStoryMutation($input: LikeStoryData!) {
     story(data: $input) {
       likers {
@@ -115,7 +119,7 @@
 <p>As specified above, <code>FIELDS_CHANGE</code> configs can be omitted.</p>
 <h3><a class="anchor" aria-hidden="true" id="converting-getvariables"></a><a href="#converting-getvariables" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Converting <code>getVariables()</code></h3>
 <p>To convert <code>getVariables()</code>, we take the return value from the original function and wrap it in an object that contains a property that matches the variable name for the mutation. In this case, the mutation has a <code>input</code> variable that is of type <code>LikeStoryData</code>.</p>
-<pre><code class="hljs css languages- javascript"><span class="hljs-keyword">const</span> variables = {
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> variables = {
   <span class="hljs-attr">input</span>: {
     <span class="hljs-attr">storyID</span>: args.storyID
   }
@@ -123,7 +127,7 @@
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="final-result"></a><a href="#final-result" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Final Result</h3>
 <p>As you can see, our resulting mutation is a lot simpler and more like regular GraphQL than the Relay Classic version we started out with.</p>
-<pre><code class="hljs css languages- javascript"><span class="hljs-keyword">const</span> mutation = graphql<span class="hljs-string">`
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> mutation = graphql<span class="hljs-string">`
   mutation LikeStoryMutation($input: LikeStoryData!) {
     story {
       likers {
@@ -150,7 +154,18 @@
 }
 </code></pre>
 <p>See <a href="mutations.html">Mutation</a> for additional options on <code>commitMutation</code> for more complex mutations.</p>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/relay/docs/en/upgrading-setvariables.html">← Upgrading setVariables</a><a class="docs-next button" href="/relay/docs/en/compatibility-cheatsheet.html">Compatibility Cheatsheet →</a></div></div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/relay/" class="nav-home"><img src="/relay/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/relay/docs/en/introduction-to-relay.html">Introduction</a></div><div><h5>Community</h5><a href="/relay/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a class="github-button" href="https://github.com/facebook/relay" data-icon="octicon-star" data-count-href="/facebook/relay/stargazers" data-count-api="/repos/facebook/relay#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/relay/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2018 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/relay/docs/en/upgrading-setvariables.html"><span class="arrow-prev">← </span><span>Previous</span></a><a class="docs-next button" href="/relay/docs/en/compatibility-cheatsheet.html"><span>Next</span><span class="arrow-next"> →</span></a></div></div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/relay/" class="nav-home"><img src="/relay/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/relay/docs/en/introduction-to-relay.html">Introduction</a></div><div><h5>Community</h5><a href="/relay/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a class="github-button" href="https://github.com/facebook/relay" data-icon="octicon-star" data-count-href="/facebook/relay/stargazers" data-count-api="/repos/facebook/relay#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/relay/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2018 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+                document.addEventListener('keyup', function(e) {
+                  if (e.target !== document.body) {
+                    return;
+                  }
+                  // keyCode for '/' (slash)
+                  if (e.keyCode === 191) {
+                    const search = document.getElementById('search_input_react');
+                    search && search.focus();
+                  }
+                });
+              </script><script>
               var search = docsearch({
                 
                 apiKey: '3d7d5825d50ea36bca0e6ad06c926f06',

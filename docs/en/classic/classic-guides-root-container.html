@@ -14,6 +14,10 @@
                 var toggler = document.querySelector(togglerSelector);
                 var target = document.querySelector(targetSelector);
 
+                if (!toggler) {
+                  return;
+                }
+
                 toggler.onclick = function(event) {
                   event.preventDefault();
 
@@ -21,7 +25,7 @@
                 };
               }
             });
-        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/Classic-Guides-RootContainer.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">Root Container</h1></header><article><div><span><p>So far, we've covered two pieces that each contribute to declaring data:</p>
+        </script></nav></div><div class="container mainContainer docMainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/Classic-Guides-RootContainer.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">Root Container</h1></header><article><div><span><p>So far, we've covered two pieces that each contribute to declaring data:</p>
 <ul>
 <li><strong>Relay.Route</strong> lets us declare query roots.</li>
 <li><strong>Relay.Container</strong> lets components declare fragments.</li>
@@ -45,7 +49,7 @@
 <p><strong>Relay.RootContainer</strong> renders the loading state whenever it cannot immediately fulfill data needed to render. This often happens on the initial render, but it can also happen if either <code>Component</code> or <code>route</code> changes.</p>
 <p>By default, nothing is rendered while loading data for the initial render. If a previous set of <code>Component</code> and <code>route</code> were fulfilled and rendered, the default behavior is to continue rendering the previous view.</p>
 <p>We can change this behavior by supplying the <code>renderLoading</code> prop:</p>
-<pre><code class="hljs css languages- {4-6}">&lt;Relay.RootContainer
+<pre><code class="hljs css language-{4-6}">&lt;Relay.RootContainer
   Component={ProfilePicture}
   route={profileRoute}
   renderLoading={<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
@@ -57,7 +61,7 @@
 <p>A <code>renderLoading</code> callback can simulate the default behavior by returning <code>undefined</code>. Notice that this is different from a <code>renderLoading</code> callback that returns <code>null</code>, which would render nothing whenever data is loading, even if there was a previous view rendered.</p>
 <h3><a class="anchor" aria-hidden="true" id="renderfetched"></a><a href="#renderfetched" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>renderFetched</code></h3>
 <p>When all data necessary to render becomes available, <strong>Relay.RootContainer</strong> will render the supplied <code>Component</code> by default. However, we can change this behavior by supplying a callback to the <code>renderFetched</code> prop:</p>
-<pre><code class="hljs css languages- {4-10}">&lt;Relay.RootContainer
+<pre><code class="hljs css language-{4-10}">&lt;Relay.RootContainer
   Component={ProfilePicture}
   route={profileRoute}
   renderFetched={<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">data</span>) </span>{
@@ -77,7 +81,7 @@
 </blockquote>
 <h3><a class="anchor" aria-hidden="true" id="renderfailure"></a><a href="#renderfailure" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>renderFailure</code></h3>
 <p>If an error occurs that prevents <strong>Relay.RootContainer</strong> from fetching the data required for rendering <code>Component</code>, nothing will be rendered by default. Error handling behavior can be configured by supplying a callback to the <code>renderFailure</code> prop:</p>
-<pre><code class="hljs css languages- {4-11}">&lt;Relay.RootContainer
+<pre><code class="hljs css language-{4-11}">&lt;Relay.RootContainer
   Component={ProfilePicture}
   route={profileRoute}
   renderFailure={<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">error, retry</span>) </span>{
@@ -93,14 +97,14 @@
 <p>The <code>renderFailure</code> callback is called with two arguments: an <code>Error</code> object and a function to retry the request. If the error was the result of a server error communicated in the server's response, the response payload is available for inspection on <code>error.source</code>.</p>
 <h2><a class="anchor" aria-hidden="true" id="force-fetching"></a><a href="#force-fetching" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Force Fetching</h2>
 <p>Like most of the Relay APIs, <strong>Relay.RootContainer</strong> attempts to resolve data using the client store before sending a request to the server. If we instead wanted to force a server request even if data is available on the client, we could use the <code>forceFetch</code> boolean prop.</p>
-<pre><code class="hljs css languages- {4}"><span class="hljs-tag">&lt;<span class="hljs-name">Relay.RootContainer</span>
+<pre><code class="hljs css language-{4}"><span class="hljs-tag">&lt;<span class="hljs-name">Relay.RootContainer</span>
   <span class="hljs-attr">Component</span>=<span class="hljs-string">{ProfilePicture}</span>
   <span class="hljs-attr">route</span>=<span class="hljs-string">{profileRoute}</span>
   <span class="hljs-attr">forceFetch</span>=<span class="hljs-string">{true}</span>
 /&gt;</span>
 </code></pre>
 <p>When <code>forceFetch</code> is true, <strong>Relay.RootContainer</strong> will always send a request to the server. However, if all the data required to render is also available on the client, <code>renderFetched</code> may still be called before the server request completes.</p>
-<pre><code class="hljs css languages- {5-6,9}"><span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">Relay.RootContainer</span>
+<pre><code class="hljs css language-{5-6,9}"><span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">Relay.RootContainer</span>
   <span class="hljs-attr">Component</span>=<span class="hljs-string">{ProfilePicture}</span>
   <span class="hljs-attr">route</span>=<span class="hljs-string">{profileRoute}</span>
   <span class="hljs-attr">forceFetch</span>=<span class="hljs-string">{true}</span>
@@ -119,7 +123,18 @@
 <h2><a class="anchor" aria-hidden="true" id="ready-state-change"></a><a href="#ready-state-change" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Ready State Change</h2>
 <p><strong>Relay.RootContainer</strong> also supports the <code>onReadyStateChange</code> prop which lets us receive fine-grained events as they occur while fulfilling the data requirements.</p>
 <p>Learn how to use <code>onReadyStateChange</code> in our next guide, <a href="guides-ready-state.html">Ready State</a>.</p>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/relay/docs/en/classic/classic-guides-routes.html">← Previous</a><a class="docs-next button" href="/relay/docs/en/classic/classic-guides-ready-state.html">Next →</a></div></div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/relay/" class="nav-home"><img src="/relay/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/relay/docs/en/introduction-to-relay.html">Introduction</a></div><div><h5>Community</h5><a href="/relay/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a class="github-button" href="https://github.com/facebook/relay" data-icon="octicon-star" data-count-href="/facebook/relay/stargazers" data-count-api="/repos/facebook/relay#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/relay/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2018 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/relay/docs/en/classic/classic-guides-routes.html"><span class="arrow-prev">← </span><span>Previous</span></a><a class="docs-next button" href="/relay/docs/en/classic/classic-guides-ready-state.html"><span>Next</span><span class="arrow-next"> →</span></a></div></div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/relay/" class="nav-home"><img src="/relay/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/relay/docs/en/introduction-to-relay.html">Introduction</a></div><div><h5>Community</h5><a href="/relay/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a class="github-button" href="https://github.com/facebook/relay" data-icon="octicon-star" data-count-href="/facebook/relay/stargazers" data-count-api="/repos/facebook/relay#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/relay/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2018 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+                document.addEventListener('keyup', function(e) {
+                  if (e.target !== document.body) {
+                    return;
+                  }
+                  // keyCode for '/' (slash)
+                  if (e.keyCode === 191) {
+                    const search = document.getElementById('search_input_react');
+                    search && search.focus();
+                  }
+                });
+              </script><script>
               var search = docsearch({
                 
                 apiKey: '3d7d5825d50ea36bca0e6ad06c926f06',

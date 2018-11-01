@@ -14,6 +14,10 @@
                 var toggler = document.querySelector(togglerSelector);
                 var target = document.querySelector(targetSelector);
 
+                if (!toggler) {
+                  return;
+                }
+
                 toggler.onclick = function(event) {
                   event.preventDefault();
 
@@ -21,11 +25,11 @@
                 };
               }
             });
-        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/PrinciplesAndArchitecture-ThinkingInGraphQL.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">Thinking in GraphQL</h1></header><article><div><span><p>GraphQL presents new ways for clients to fetch data by focusing on the needs of product developers and client applications. It provides a way for developers to specify the precise data needed for a view and enables a client to fetch that data in a single network request. Compared to traditional approaches such as REST, GraphQL helps applications to fetch data more efficiently (compared to resource-oriented REST approaches) and avoid duplication of server logic (which can occur with custom endpoints). Furthermore, GraphQL helps developers to decouple product code and server logic. For example, a product can fetch more or less information without requiring a change to every relevant server endpoint. It's a great way to fetch data.</p>
+        </script></nav></div><div class="container mainContainer docMainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/PrinciplesAndArchitecture-ThinkingInGraphQL.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">Thinking in GraphQL</h1></header><article><div><span><p>GraphQL presents new ways for clients to fetch data by focusing on the needs of product developers and client applications. It provides a way for developers to specify the precise data needed for a view and enables a client to fetch that data in a single network request. Compared to traditional approaches such as REST, GraphQL helps applications to fetch data more efficiently (compared to resource-oriented REST approaches) and avoid duplication of server logic (which can occur with custom endpoints). Furthermore, GraphQL helps developers to decouple product code and server logic. For example, a product can fetch more or less information without requiring a change to every relevant server endpoint. It's a great way to fetch data.</p>
 <p>In this article we'll explore what it means to build a GraphQL client framework and how this compares to clients for more traditional REST systems. Along the way we'll look at the design decisions behind Relay and see that it's not just a GraphQL client but also a framework for <em>declarative data-fetching</em>. Let's start at the beginning and fetch some data!</p>
 <h2><a class="anchor" aria-hidden="true" id="fetching-data"></a><a href="#fetching-data" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Fetching Data</h2>
 <p>Imagine we have a simple application that fetches a list of stories, and some details about each one. Here's how that might look in resource-oriented REST:</p>
-<pre><code class="hljs css languages- javascript"><span class="hljs-comment">// Fetch the list of story IDs but not their details:</span>
+<pre><code class="hljs css language-javascript"><span class="hljs-comment">// Fetch the list of story IDs but not their details:</span>
 rest.get(<span class="hljs-string">'/stories'</span>).then(<span class="hljs-function"><span class="hljs-params">stories</span> =&gt;</span>
   <span class="hljs-comment">// This resolves to a list of items with linked resources:</span>
   <span class="hljs-comment">// `[ { href: "http://.../story/1" }, ... ]`</span>
@@ -39,7 +43,7 @@ rest.get(<span class="hljs-string">'/stories'</span>).then(<span class="hljs-fun
 });
 </code></pre>
 <p>Note that this approach requires <em>n+1</em> requests to the server: 1 to fetch the list, and <em>n</em> to fetch each item. With GraphQL we can fetch the same data in a single network request to the server (without creating a custom endpoint that we'd then have to maintain):</p>
-<pre><code class="hljs css languages- javascript">graphql.get(<span class="hljs-string">`query { stories { id, text } }`</span>).then(
+<pre><code class="hljs css language-javascript">graphql.get(<span class="hljs-string">`query { stories { id, text } }`</span>).then(
   <span class="hljs-function"><span class="hljs-params">stories</span> =&gt;</span> {
     <span class="hljs-comment">// A list of story items:</span>
     <span class="hljs-comment">// `[ { id: "...", text: "..." } ]`</span>
@@ -56,7 +60,7 @@ rest.get(<span class="hljs-string">'/stories'</span>).then(<span class="hljs-fun
 <h2><a class="anchor" aria-hidden="true" id="client-caching"></a><a href="#client-caching" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Client Caching</h2>
 <p>Repeatedly refetching information from the server can get quite slow. For example, navigating from the list of stories, to a list item, and back to the list of stories means we have to refetch the whole list. We'll solve this with the standard solution: <em>caching</em>.</p>
 <p>In a resource-oriented REST system, we can maintain a <strong>response cache</strong> based on URIs:</p>
-<pre><code class="hljs css languages- javascript"><span class="hljs-keyword">var</span> _cache = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Map</span>();
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">var</span> _cache = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Map</span>();
 rest.get = <span class="hljs-function"><span class="hljs-params">uri</span> =&gt;</span> {
   <span class="hljs-keyword">if</span> (!_cache.has(uri)) {
     _cache.set(uri, fetch(uri));
@@ -65,7 +69,7 @@ rest.get = <span class="hljs-function"><span class="hljs-params">uri</span> =&gt
 };
 </code></pre>
 <p>Response-caching can also be applied to GraphQL. A basic approach would work similarly to the REST version. The text of the query itself can be used as a cache key:</p>
-<pre><code class="hljs css languages- javascript"><span class="hljs-keyword">var</span> _cache = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Map</span>();
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">var</span> _cache = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Map</span>();
 graphql.get = <span class="hljs-function"><span class="hljs-params">queryText</span> =&gt;</span> {
   <span class="hljs-keyword">if</span> (!_cache.has(queryText)) {
     _cache.set(queryText, fetchGraphQL(queryText));
@@ -105,7 +109,7 @@ graphql.get = <span class="hljs-function"><span class="hljs-params">queryText</s
 }
 </code></pre>
 <p>Although the response is hierarchical, we'll cache it by flattening all the records. Here is an example of how Relay would cache this query response:</p>
-<pre><code class="hljs css languages- javascript"><span class="hljs-built_in">Map</span> {
+<pre><code class="hljs css language-javascript"><span class="hljs-built_in">Map</span> {
   <span class="hljs-comment">// `story(id: "1")`</span>
   <span class="hljs-number">1</span>: <span class="hljs-built_in">Map</span> {
     <span class="hljs-attr">text</span>: <span class="hljs-string">'Relay is open-source!'</span>,
@@ -229,7 +233,18 @@ graphql.get = <span class="hljs-function"><span class="hljs-params">queryText</s
 <li>Optimistically updating the UI while waiting for the server to respond to mutations.</li>
 </ul>
 <p>We've found that typical approaches to data-fetching — with imperative APIs — force developers to deal with too much of this non-essential complexity. For example, consider <em>optimistic UI updates</em>. This is a way of giving the user feedback while waiting for a server response. The logic of <em>what</em> to do can be quite clear: when the user clicks &quot;like&quot;, mark the story as being liked and send the request to the server. But the implementation is often much more complex. Imperative approaches require us to implement all of those steps: reach into the UI and toggle the button, initiate a network request, retry it if necessary, show an error if it fails (and untoggle the button), etc. The same goes for data-fetching: specifying <em>what</em> data we need often dictates <em>how</em> and <em>when</em> it is fetched. Next, we'll explore our approach to solving these concerns with <strong>Relay</strong>.</p>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/relay/docs/en/next/api-cheatsheet.html">← API Cheatsheet</a><a class="docs-next button" href="/relay/docs/en/next/thinking-in-relay.html">Thinking In Relay →</a></div></div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/relay/" class="nav-home"><img src="/relay/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/relay/docs/en/introduction-to-relay.html">Introduction</a></div><div><h5>Community</h5><a href="/relay/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a class="github-button" href="https://github.com/facebook/relay" data-icon="octicon-star" data-count-href="/facebook/relay/stargazers" data-count-api="/repos/facebook/relay#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/relay/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2018 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/relay/docs/en/next/api-cheatsheet.html"><span class="arrow-prev">← </span><span>Previous</span></a><a class="docs-next button" href="/relay/docs/en/next/thinking-in-relay.html"><span>Next</span><span class="arrow-next"> →</span></a></div></div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/relay/" class="nav-home"><img src="/relay/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/relay/docs/en/introduction-to-relay.html">Introduction</a></div><div><h5>Community</h5><a href="/relay/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a class="github-button" href="https://github.com/facebook/relay" data-icon="octicon-star" data-count-href="/facebook/relay/stargazers" data-count-api="/repos/facebook/relay#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/relay/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2018 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+                document.addEventListener('keyup', function(e) {
+                  if (e.target !== document.body) {
+                    return;
+                  }
+                  // keyCode for '/' (slash)
+                  if (e.keyCode === 191) {
+                    const search = document.getElementById('search_input_react');
+                    search && search.focus();
+                  }
+                });
+              </script><script>
               var search = docsearch({
                 
                 apiKey: '3d7d5825d50ea36bca0e6ad06c926f06',

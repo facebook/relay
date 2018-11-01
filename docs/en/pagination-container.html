@@ -14,6 +14,10 @@
                 var toggler = document.querySelector(togglerSelector);
                 var target = document.querySelector(targetSelector);
 
+                if (!toggler) {
+                  return;
+                }
+
                 toggler.onclick = function(event) {
                   event.preventDefault();
 
@@ -21,7 +25,7 @@
                 };
               }
             });
-        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/Modern-PaginationContainer.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">Pagination Container</h1></header><article><div><span><p>Pagination Container is also a <a href="https://reactjs.org/docs/higher-order-components.html">higher-order component</a>, similar to a <a href="./fragment-container.html">Fragment Container</a>, that is designed to simplify the workflow of loading more items in a list — in many cases, we don't want to fetch all the data at once but lazily load more data. It relies on a GraphQL server exposing connections in a standardized way. For a detailed spec, please check out <a href="https://facebook.github.io/relay/graphql/connections.htm">this page</a>.</p>
+        </script></nav></div><div class="container mainContainer docMainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/Modern-PaginationContainer.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">Pagination Container</h1></header><article><div><span><p>Pagination Container is also a <a href="https://reactjs.org/docs/higher-order-components.html">higher-order component</a>, similar to a <a href="./fragment-container.html">Fragment Container</a>, that is designed to simplify the workflow of loading more items in a list — in many cases, we don't want to fetch all the data at once but lazily load more data. It relies on a GraphQL server exposing connections in a standardized way. For a detailed spec, please check out <a href="https://facebook.github.io/relay/graphql/connections.htm">this page</a>.</p>
 <p>Table of Contents:</p>
 <ul>
 <li><a href="#connection"><code>@connection</code></a></li>
@@ -36,7 +40,7 @@
 <p>Pagination Container works in a very similar way to the <a href="https://facebook.github.io/relay/docs/en/fragment-container.html">Fragment Container</a> in that you also specify the data requirements for a component via GraphQL fragments in the <code>fragmentSpec</code>.</p>
 <p>However, when <a href="#createpaginationcontainer">specifying connection fragments</a> for a Pagination Container, it is expected that at least one of the fragments contains a <a href="https://facebook.github.io/relay/graphql/connections.htm">GraphQL connection</a> to paginate over, and that the connection field is annotated with a <code>@connection</code> directive.</p>
 <p>The purpose of the <code>@connection</code> directive is to allow Relay to uniquely identify different connections under a parent type. The <code>@connection</code> directive takes 2 arguments that help identify the connection:</p>
-<pre><code class="hljs css languages- graphql"><span class="hljs-symbol">@connection</span>(key: <span class="hljs-built_in">String</span>!, filters: [<span class="hljs-built_in">String</span>])
+<pre><code class="hljs css language-graphql"><span class="hljs-symbol">@connection</span>(key: <span class="hljs-built_in">String</span>!, filters: [<span class="hljs-built_in">String</span>])
 </code></pre>
 <ul>
 <li><code>key</code>: <strong>Required</strong> String that serves as a unique identifier for the connection under the parent field type. A good practice could be <code>&lt;ComponentName&gt;_&lt;fieldName | fieldAlias&gt;</code>.</li>
@@ -44,7 +48,7 @@
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="examples"></a><a href="#examples" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Examples</h3>
 <p>Specifying just the <code>key</code>:</p>
-<pre><code class="hljs css languages- javascript">fragment Feed_user on User {
+<pre><code class="hljs css language-javascript">fragment Feed_user on User {
   # This connection, under a specific User, will be uniquely identified by
   # the key "Feed_feed" and the value of `$orderBy` (given that no `filters` were provided)
   feed(
@@ -61,7 +65,7 @@
 }
 </code></pre>
 <p>Specifying <code>key</code> and <code>filters</code>:</p>
-<pre><code class="hljs css languages- javascript">fragment Feed_user on User {
+<pre><code class="hljs css language-javascript">fragment Feed_user on User {
   # This connection, under a specific User, will be uniquely identified by
   # the key "Feed_feed" and /only/ the value of `$searchTerm`, i.e.
   # different values of `orderBy` will not distinguish connections.
@@ -81,7 +85,7 @@
 </code></pre>
 <h2><a class="anchor" aria-hidden="true" id="createpaginationcontainer"></a><a href="#createpaginationcontainer" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>createPaginationContainer</code></h2>
 <p><code>createPaginationContainer</code> has the following signature:</p>
-<pre><code class="hljs css languages- javascript">createPaginationContainer(
+<pre><code class="hljs css language-javascript">createPaginationContainer(
   component: ReactComponentClass,
   <span class="hljs-attr">fragmentSpec</span>: GraphQLTaggedNode | {[string]: GraphQLTaggedNode},
   <span class="hljs-attr">connectionConfig</span>: ConnectionConfig,
@@ -131,7 +135,7 @@ local data store <em>after</em> the new pagination <code>query</code> has been f
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="available-props"></a><a href="#available-props" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Available Props</h3>
 <p>The Component resulting from <code>createPaginationContainer</code> will receive the following <code>props</code>:</p>
-<pre><code class="hljs css languages- javascript">type Props = {
+<pre><code class="hljs css language-javascript">type Props = {
   <span class="hljs-attr">relay</span>: {
     <span class="hljs-attr">environment</span>: Environment,
     hasMore(), <span class="hljs-comment">// See #hasMore section</span>
@@ -154,15 +158,15 @@ local data store <em>after</em> the new pagination <code>query</code> has been f
 </ul>
 <h2><a class="anchor" aria-hidden="true" id="hasmore"></a><a href="#hasmore" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>hasMore()</code></h2>
 <p><code>hasMore</code> is a function available on the <code>relay</code> <a href="#available-props">prop</a>. This function indicates whether there are more pages to fetch from the server or not.</p>
-<pre><code class="hljs css languages- javascript">hasMore: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> boolean,
+<pre><code class="hljs css language-javascript">hasMore: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> boolean,
 </code></pre>
 <h2><a class="anchor" aria-hidden="true" id="isloading"></a><a href="#isloading" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>isLoading</code></h2>
 <p><code>isLoading</code> is a function available on the <code>relay</code> <a href="#available-props">prop</a>. This function indicates if a previous call to <a href="#loadmore"><code>loadMore()</code></a> is still pending. This is convenient for avoiding duplicate load calls.</p>
-<pre><code class="hljs css languages- javascript">isLoading: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> boolean,
+<pre><code class="hljs css language-javascript">isLoading: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> boolean,
 </code></pre>
 <h2><a class="anchor" aria-hidden="true" id="loadmore"></a><a href="#loadmore" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>loadMore</code></h2>
 <p><code>loadMore</code> is a function available on the <code>relay</code> <a href="#available-props">prop</a>. You can call <code>loadMore()</code> to fetch more items from the server based on the <code>connectionConfig</code> provided to the container. This will return null if there are no more items to fetch, otherwise it will fetch more items and return a Disposable that can be used to cancel the fetch.</p>
-<pre><code class="hljs css languages- javascript">loadMore(pageSize: number, <span class="hljs-attr">callback</span>: ?<span class="hljs-function">(<span class="hljs-params">error: ?<span class="hljs-built_in">Error</span></span>) =&gt;</span> <span class="hljs-keyword">void</span>): ?Disposable
+<pre><code class="hljs css language-javascript">loadMore(pageSize: number, <span class="hljs-attr">callback</span>: ?<span class="hljs-function">(<span class="hljs-params">error: ?<span class="hljs-built_in">Error</span></span>) =&gt;</span> <span class="hljs-keyword">void</span>): ?Disposable
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="arguments-1"></a><a href="#arguments-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Arguments:</h3>
 <ul>
@@ -171,7 +175,7 @@ local data store <em>after</em> the new pagination <code>query</code> has been f
 </ul>
 <h2><a class="anchor" aria-hidden="true" id="refetchconnection"></a><a href="#refetchconnection" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>refetchConnection</code></h2>
 <p><code>refetchConnection</code> is a function available on the <code>relay</code> <a href="#available-props">prop</a>. You can call <code>refetchConnection</code> to restart pagination on a connection from scratch, with optionally a completely new set of variables to pass to the pagination <code>query</code>. This is useful for example if you are paginating over a collection based on a userID and the userID changes, you'd want to start paginating over the new collection for the new user.</p>
-<pre><code class="hljs css languages- javascript">refetchConnection:(
+<pre><code class="hljs css language-javascript">refetchConnection:(
   totalCount: number,
   <span class="hljs-attr">callback</span>: <span class="hljs-function">(<span class="hljs-params">error: ?<span class="hljs-built_in">Error</span></span>) =&gt;</span> <span class="hljs-keyword">void</span>,
   <span class="hljs-attr">refetchVariables</span>: ?Variables,
@@ -184,7 +188,7 @@ local data store <em>after</em> the new pagination <code>query</code> has been f
 <li><code>refetchVariables</code>: A potentially new bag of variables to pass to the pagination <code>query</code> when fetching it from the server.</li>
 </ul>
 <h2><a class="anchor" aria-hidden="true" id="pagination-example"></a><a href="#pagination-example" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Pagination Example</h2>
-<pre><code class="hljs css languages- javascript"><span class="hljs-comment">// Feed.js</span>
+<pre><code class="hljs css language-javascript"><span class="hljs-comment">// Feed.js</span>
 <span class="hljs-keyword">import</span> {createPaginationContainer, graphql} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay'</span>;
 
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Feed</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{
@@ -279,7 +283,18 @@ module.exports = createPaginationContainer(
   }
 );
 </code></pre>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/relay/docs/en/refetch-container.html">← Refetch Container</a><a class="docs-next button" href="/relay/docs/en/mutations.html">Mutations →</a></div></div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/relay/" class="nav-home"><img src="/relay/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/relay/docs/en/introduction-to-relay.html">Introduction</a></div><div><h5>Community</h5><a href="/relay/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a class="github-button" href="https://github.com/facebook/relay" data-icon="octicon-star" data-count-href="/facebook/relay/stargazers" data-count-api="/repos/facebook/relay#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/relay/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2018 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/relay/docs/en/refetch-container.html"><span class="arrow-prev">← </span><span>Previous</span></a><a class="docs-next button" href="/relay/docs/en/mutations.html"><span>Next</span><span class="arrow-next"> →</span></a></div></div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/relay/" class="nav-home"><img src="/relay/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/relay/docs/en/introduction-to-relay.html">Introduction</a></div><div><h5>Community</h5><a href="/relay/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a class="github-button" href="https://github.com/facebook/relay" data-icon="octicon-star" data-count-href="/facebook/relay/stargazers" data-count-api="/repos/facebook/relay#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/relay/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2018 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+                document.addEventListener('keyup', function(e) {
+                  if (e.target !== document.body) {
+                    return;
+                  }
+                  // keyCode for '/' (slash)
+                  if (e.keyCode === 191) {
+                    const search = document.getElementById('search_input_react');
+                    search && search.focus();
+                  }
+                });
+              </script><script>
               var search = docsearch({
                 
                 apiKey: '3d7d5825d50ea36bca0e6ad06c926f06',

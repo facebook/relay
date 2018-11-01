@@ -36,27 +36,27 @@ export type Condition = {|
   +condition: Literal | Variable,
   +metadata: ?{[key: string]: mixed},
   +passingValue: boolean,
-  +selections: Array<Selection>,
+  +selections: $ReadOnlyArray<Selection>,
 |};
 export type Directive = {|
-  +args: Array<Argument>,
+  +args: $ReadOnlyArray<Argument>,
   +kind: 'Directive',
   +metadata: ?{[key: string]: mixed},
   +name: string,
 |};
 export type Field = LinkedField | ScalarField | MatchField;
 export type Fragment = {|
-  +argumentDefinitions: Array<ArgumentDefinition>,
-  +directives: Array<Directive>,
+  +argumentDefinitions: $ReadOnlyArray<ArgumentDefinition>,
+  +directives: $ReadOnlyArray<Directive>,
   +kind: 'Fragment',
   +metadata: ?{[key: string]: mixed},
   +name: string,
-  +selections: Array<Selection>,
+  +selections: $ReadOnlyArray<Selection>,
   +type: GraphQLCompositeType,
 |};
 export type FragmentSpread = {|
-  +args: Array<Argument>,
-  +directives: Array<Directive>,
+  +args: $ReadOnlyArray<Argument>,
+  +directives: $ReadOnlyArray<Directive>,
   +kind: 'FragmentSpread',
   +metadata: ?{[key: string]: mixed},
   +name: string,
@@ -88,31 +88,31 @@ export type RootArgumentDefinition = {|
   +type: GraphQLInputType,
 |};
 export type InlineFragment = {|
-  +directives: Array<Directive>,
+  +directives: $ReadOnlyArray<Directive>,
   +kind: 'InlineFragment',
   +metadata: ?{[key: string]: mixed},
-  +selections: Array<Selection>,
+  +selections: $ReadOnlyArray<Selection>,
   +typeCondition: GraphQLCompositeType,
 |};
 export type Handle = {|
   +name: string,
   +key: string,
-  +filters: ?Array<string>,
+  +filters: ?$ReadOnlyArray<string>,
 |};
 export type LinkedField = {|
   +alias: ?string,
-  +args: Array<Argument>,
-  +directives: Array<Directive>,
-  +handles: ?Array<Handle>,
+  +args: $ReadOnlyArray<Argument>,
+  +directives: $ReadOnlyArray<Directive>,
+  +handles: ?$ReadOnlyArray<Handle>,
   +kind: 'LinkedField',
   +metadata: ?{[key: string]: mixed},
   +name: string,
-  +selections: Array<Selection>,
+  +selections: $ReadOnlyArray<Selection>,
   +type: GraphQLOutputType,
 |};
 export type ListValue = {|
   +kind: 'ListValue',
-  +items: Array<ArgumentValue>,
+  +items: $ReadOnlyArray<ArgumentValue>,
   +metadata: ?{[key: string]: mixed},
 |};
 export type Literal = {|
@@ -131,21 +131,21 @@ export type MatchFragmentSpread = {|
   +kind: 'MatchFragmentSpread',
   +type: GraphQLCompositeType,
   +module: string,
-  +args: Array<Argument>,
-  +directives: Array<Directive>,
+  +args: $ReadOnlyArray<Argument>,
+  +directives: $ReadOnlyArray<Directive>,
   +metadata: ?{[key: string]: mixed},
   +name: string,
 |};
 export type MatchField = {|
   +alias: ?string,
-  +args: Array<Argument>,
-  +directives: Array<Directive>,
-  +handles: ?Array<Handle>,
+  +args: $ReadOnlyArray<Argument>,
+  +directives: $ReadOnlyArray<Directive>,
+  +handles: ?$ReadOnlyArray<Handle>,
   +kind: 'MatchField',
   +metadata: ?{[key: string]: mixed},
   +name: string,
   +type: GraphQLUnionType | GraphQLNonNull<GraphQLUnionType>,
-  +selections: Array<Selection>,
+  +selections: $ReadOnlyArray<Selection>,
 |};
 export type Node =
   | Condition
@@ -162,7 +162,7 @@ export type ObjectFieldValue = {|
 |};
 export type ObjectValue = {|
   +kind: 'ObjectValue',
-  +fields: Array<ObjectFieldValue>,
+  +fields: $ReadOnlyArray<ObjectFieldValue>,
   +metadata: ?{[key: string]: mixed},
 |};
 export type Request = {|
@@ -175,13 +175,13 @@ export type Request = {|
   +text: ?string,
 |};
 export type Root = {|
-  +argumentDefinitions: Array<LocalArgumentDefinition>,
-  +directives: Array<Directive>,
+  +argumentDefinitions: $ReadOnlyArray<LocalArgumentDefinition>,
+  +directives: $ReadOnlyArray<Directive>,
   +kind: 'Root',
   +metadata: ?{[key: string]: mixed},
   +name: string,
   +operation: 'query' | 'mutation' | 'subscription',
-  +selections: Array<Selection>,
+  +selections: $ReadOnlyArray<Selection>,
   +type: GraphQLCompositeType,
 |};
 export type ScalarFieldType =
@@ -190,9 +190,9 @@ export type ScalarFieldType =
   | GraphQLNonNull<GraphQLLeafType | GraphQLList<ScalarFieldType>>;
 export type ScalarField = {|
   +alias: ?string,
-  +args: Array<Argument>,
-  +directives: Array<Directive>,
-  +handles: ?Array<Handle>,
+  +args: $ReadOnlyArray<Argument>,
+  +directives: $ReadOnlyArray<Directive>,
+  +handles: ?$ReadOnlyArray<Handle>,
   +kind: 'ScalarField',
   +metadata: ?{[key: string]: mixed},
   +name: string,

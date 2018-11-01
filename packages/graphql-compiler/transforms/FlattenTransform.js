@@ -281,7 +281,7 @@ function areEqualFields(thisField: Field, thatField: Field): boolean {
 function mergeHandles<T: LinkedField | ScalarField>(
   nodeA: T,
   nodeB: T,
-): ?Array<Handle> {
+): ?$ReadOnlyArray<Handle> {
   if (!nodeA.handles) {
     return nodeB.handles;
   }

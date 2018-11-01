@@ -203,7 +203,9 @@ function transformNode<T: Node>(
 /**
  * Sort inline fragments and conditions after other selections.
  */
-function sortSelections(selections: Array<Selection>): Array<Selection> {
+function sortSelections(
+  selections: $ReadOnlyArray<Selection>,
+): $ReadOnlyArray<Selection> {
   return [...selections].sort((a, b) => {
     return a.kind === 'InlineFragment' || a.kind === 'Condition'
       ? 1

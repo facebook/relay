@@ -151,7 +151,7 @@ function printSelection(
 }
 
 function printArgumentDefinitions(
-  argumentDefinitions: Array<LocalArgumentDefinition>,
+  argumentDefinitions: $ReadOnlyArray<LocalArgumentDefinition>,
 ): string {
   const printed = argumentDefinitions.map(def => {
     let str = `$${def.name}: ${def.type.toString()}`;
@@ -164,7 +164,7 @@ function printArgumentDefinitions(
 }
 
 function printFragmentArgumentDefinitions(
-  argumentDefinitions: Array<ArgumentDefinition>,
+  argumentDefinitions: $ReadOnlyArray<ArgumentDefinition>,
 ): string {
   let printed;
   argumentDefinitions.forEach(def => {
@@ -195,20 +195,20 @@ function printHandles(field: Field): string {
     const filters =
       handle.filters == null
         ? ''
-        : `, filters: ${JSON.stringify(handle.filters.sort())}`;
+        : `, filters: ${JSON.stringify(Array.from(handle.filters).sort())}`;
     return `@__clientField(handle: "${handle.name}"${key}${filters})`;
   });
   return printed.length ? ' ' + printed.join(' ') : '';
 }
 
-function printDirectives(directives: Array<Directive>): string {
+function printDirectives(directives: $ReadOnlyArray<Directive>): string {
   const printed = directives.map(directive => {
     return '@' + directive.name + printArguments(directive.args);
   });
   return printed.length ? ' ' + printed.join(' ') : '';
 }
 
-function printFragmentArguments(args: Array<Argument>) {
+function printFragmentArguments(args: $ReadOnlyArray<Argument>) {
   const printedArgs = printArguments(args);
   if (!printedArgs.length) {
     return '';
@@ -216,7 +216,7 @@ function printFragmentArguments(args: Array<Argument>) {
   return ` @arguments${printedArgs}`;
 }
 
-function printArguments(args: Array<Argument>): string {
+function printArguments(args: $ReadOnlyArray<Argument>): string {
   const printed = [];
   args.forEach(arg => {
     const printedValue = printValue(arg.value, arg.type);

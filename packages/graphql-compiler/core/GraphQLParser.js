@@ -640,9 +640,9 @@ class GraphQLParser {
 
   _transformHandle(
     fieldName: string,
-    fieldArgs: Array<Argument>,
-    clientFieldDirectives: Array<DirectiveNode>,
-  ): ?Array<Handle> {
+    fieldArgs: $ReadOnlyArray<Argument>,
+    clientFieldDirectives: $ReadOnlyArray<DirectiveNode>,
+  ): ?$ReadOnlyArray<Handle> {
     let handles: ?Array<Handle>;
     clientFieldDirectives.forEach(clientFieldDirective => {
       const handleArgument = (clientFieldDirective.arguments || []).find(
@@ -762,8 +762,8 @@ class GraphQLParser {
   }
 
   _splitConditions(
-    mixedDirectives: Array<Directive>,
-  ): [Array<Condition>, Array<Directive>] {
+    mixedDirectives: $ReadOnlyArray<Directive>,
+  ): [$ReadOnlyArray<Condition>, $ReadOnlyArray<Directive>] {
     const conditions = [];
     const directives = [];
     mixedDirectives.forEach(directive => {
@@ -992,9 +992,9 @@ function assertScalarFieldType(type: GraphQLOutputType): ScalarFieldType {
 }
 
 function applyConditions(
-  conditions: Array<Condition>,
-  selections: Array<Selection>,
-): Array<Condition | Selection> {
+  conditions: $ReadOnlyArray<Condition>,
+  selections: $ReadOnlyArray<Selection>,
+): $ReadOnlyArray<Condition | Selection> {
   let nextSelections = selections;
   conditions.forEach(condition => {
     nextSelections = [

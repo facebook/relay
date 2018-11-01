@@ -73,7 +73,9 @@ export type Scope = {[key: string]: ArgumentValue};
  * assume that this could be overridden at runtime. The value cannot be decided
  * statically and therefore is set to a variable.
  */
-function getRootScope(definitions: Array<LocalArgumentDefinition>): Scope {
+function getRootScope(
+  definitions: $ReadOnlyArray<LocalArgumentDefinition>,
+): Scope {
   const scope = {};
   definitions.forEach(definition => {
     scope[definition.name] = {
@@ -127,8 +129,8 @@ function getRootScope(definitions: Array<LocalArgumentDefinition>): Scope {
  * }
  */
 function getFragmentScope(
-  definitions: Array<ArgumentDefinition>,
-  args: Array<Argument>,
+  definitions: $ReadOnlyArray<ArgumentDefinition>,
+  args: $ReadOnlyArray<Argument>,
   parentScope: Scope,
   fragmentName: string,
 ): Scope {

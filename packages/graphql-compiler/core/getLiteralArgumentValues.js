@@ -19,7 +19,7 @@ import type {Argument} from './GraphQLIR';
 // outside of graphql-compiler.
 type Variables = {[name: string]: $FlowFixMe};
 
-function getLiteralArgumentValues(args: Array<Argument>): Variables {
+function getLiteralArgumentValues(args: $ReadOnlyArray<Argument>): Variables {
   const values = {};
   args.forEach(arg => {
     invariant(

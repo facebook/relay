@@ -190,7 +190,7 @@ function transformCondition(
   fragments: Map<string, ?Fragment>,
   scope: Scope,
   node: Condition,
-): ?Array<Selection> {
+): ?$ReadOnlyArray<Selection> {
   const condition = transformValue(scope, node.condition);
   invariant(
     condition.kind === 'Literal' || condition.kind === 'Variable',
@@ -229,8 +229,8 @@ function transformSelections(
   context: CompilerContext,
   fragments: Map<string, ?Fragment>,
   scope: Scope,
-  selections: Array<Selection>,
-): ?Array<Selection> {
+  selections: $ReadOnlyArray<Selection>,
+): ?$ReadOnlyArray<Selection> {
   let nextSelections = null;
   selections.forEach(selection => {
     let nextSelection;
@@ -270,8 +270,8 @@ function transformSelections(
 
 function transformDirectives(
   scope: Scope,
-  directives: Array<Directive>,
-): Array<Directive> {
+  directives: $ReadOnlyArray<Directive>,
+): $ReadOnlyArray<Directive> {
   return directives.map(directive => {
     const args = transformArguments(scope, directive.args);
     return {
@@ -283,8 +283,8 @@ function transformDirectives(
 
 function transformArguments(
   scope: Scope,
-  args: Array<Argument>,
-): Array<Argument> {
+  args: $ReadOnlyArray<Argument>,
+): $ReadOnlyArray<Argument> {
   return args.map(arg => {
     const value = transformValue(scope, arg.value);
     return value === arg.value ? arg : {...arg, value};
@@ -326,7 +326,7 @@ function transformFragment(
   fragments: Map<string, ?Fragment>,
   parentScope: Scope,
   fragment: Fragment,
-  args: Array<Argument>,
+  args: $ReadOnlyArray<Argument>,
 ): ?Fragment {
   const argumentsHash = hashArguments(args, parentScope);
   const fragmentName = argumentsHash
@@ -368,7 +368,7 @@ function transformFragment(
   return transformedFragment;
 }
 
-function hashArguments(args: Array<Argument>, scope: Scope): ?string {
+function hashArguments(args: $ReadOnlyArray<Argument>, scope: Scope): ?string {
   if (!args.length) {
     return null;
   }

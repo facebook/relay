@@ -33,7 +33,7 @@ exports[`RelayCodeGenerator matches expected output: fragment-with-match-directi
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment CommentBody_comment on CommentCreateResponsePayload {
   comment {
-    commentBody @relay(match: [
+    commentBody @match(onTypes: [
       {
         type: "MarkdownCommentBody"
         fragment: "MarkdownBody_comment"

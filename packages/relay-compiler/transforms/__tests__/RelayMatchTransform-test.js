@@ -23,7 +23,7 @@ const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 
 describe('RelayMatchTransform', () => {
   const schema = transformASTSchema(RelayTestSchema, [
-    RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
+    RelayMatchTransform.SCHEMA_EXTENSION,
   ]);
 
   generateTestsFromFixtures(

@@ -23,6 +23,7 @@ const {generateTestsFromFixtures} = require('RelayModernTestUtils');
 
 describe('RelayCodeGenerator', () => {
   const schema = transformASTSchema(RelayTestSchema, [
+    RelayMatchTransform.SCHEMA_EXTENSION,
     RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
   ]);
 

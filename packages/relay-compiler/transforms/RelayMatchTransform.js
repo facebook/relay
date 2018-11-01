@@ -12,7 +12,6 @@
 
 const invariant = require('invariant');
 
-const {RELAY} = require('./RelayRelayDirectiveTransform');
 const {GraphQLObjectType, GraphQLUnionType} = require('graphql');
 const {
   CompilerContext,
@@ -23,7 +22,21 @@ const {
 import type {LinkedField, MatchField, Selection} from 'graphql-compiler';
 import type {GraphQLCompositeType} from 'graphql';
 
+const MATCH_DIRECTIVE_NAME = 'match';
 const SUPPORTED_ARGUMENT_NAME = 'supported';
+
+const SCHEMA_EXTENSION = `
+  input RelayDataDependencyMatch {
+    # Input type for items in the "match"
+    type: String!
+    fragment: String!
+    module: String!
+  }
+
+  directive @match(
+    onTypes: [RelayDataDependencyMatch!]!
+  ) on FIELD
+`;
 
 type DataDependencyMatch = {|
   +type: GraphQLCompositeType,
@@ -76,42 +89,45 @@ function visitField(
     return transformedNode;
   }
 
-  const relayDirective = transformedNode.directives.find(
-    ({name}) => name === RELAY,
+  const matchDirective = transformedNode.directives.find(
+    ({name}) => name === MATCH_DIRECTIVE_NAME,
   );
-  if (relayDirective == null) {
+  if (matchDirective == null) {
     return transformedNode;
   }
 
-  const argValues = getLiteralArgumentValues(relayDirective.args);
-  if (argValues.match == null) {
-    return transformedNode;
-  }
+  const cases = getLiteralArgumentValues(matchDirective.args).onTypes;
 
-  invariant(
-    Array.isArray(argValues.match) && argValues.match.length > 0,
-    'RelayMatchTransform: You are trying to use @relay(match) directive with an empty list of matches. @relay(match) argument should be a non-empty array of objects {type, fragment, module}.',
-  );
+  if (cases.length === 0) {
+    throw new Error(
+      `RelayMatchTransform: The @${MATCH_DIRECTIVE_NAME} directive requires ` +
+        'at least one type to match on.',
+    );
+  }
 
   const currentField = parentType.getFields()[field.name];
   const supportedArg = currentField.args.find(
     ({name}) => SUPPORTED_ARGUMENT_NAME,
   );
 
-  invariant(
-    supportedArg != null && supportedArg.type.toString() === '[String!]!',
-    'RelayMatchTransform: @relay(match) used on an incompatible field `%s`. @relay(match) may only be used with fields that can accept `%s` argument with type `[String!]!`.',
-    field.name,
-    SUPPORTED_ARGUMENT_NAME,
-  );
+  if (supportedArg == null || supportedArg.type.toString() !== '[String!]!') {
+    throw new Error(
+      `RelayMatchTransform: @${MATCH_DIRECTIVE_NAME} used on an incompatible ` +
+        `field '${field.name}'. @${MATCH_DIRECTIVE_NAME} may only be used ` +
+        `with fields that can accept '${SUPPORTED_ARGUMENT_NAME}' argument ` +
+        "with type '[String!]!'.",
+    );
+  }
 
   const outputType = transformedNode.type;
-  invariant(
-    outputType instanceof GraphQLUnionType,
-    'RelayMatchTransform: You are trying to apply @relay(match) directive to a filed "%s" that has unsupported output type. "%s" output type should be union type of object types.',
-    field.name,
-    transformedNode.name,
-  );
+  if (!(outputType instanceof GraphQLUnionType)) {
+    throw new Error(
+      `RelayMatchTransform: You are trying to apply @${MATCH_DIRECTIVE_NAME} ` +
+        `directive to a field '${field.name}' that has unsupported output ` +
+        `type. '${transformedNode.name}' output type should be union type of ` +
+        'object types.',
+    );
+  }
 
   const {alias, name, handles, metadata} = transformedNode;
   const result: MatchField = {
@@ -122,9 +138,9 @@ function visitField(
     type: outputType,
     kind: 'MatchField',
     directives: transformedNode.directives.filter(
-      directive => directive !== relayDirective,
+      directive => directive !== matchDirective,
     ),
-    selections: getMatchSelections(argValues.match),
+    selections: getMatchSelections(cases),
     args: [
       {
         kind: 'Argument',
@@ -133,17 +149,19 @@ function visitField(
         value: {
           kind: 'Literal',
           metadata: null,
-          value: argValues.match.map(match => {
-            const belongToUnion = outputType
+          value: cases.map(match => {
+            const belongsToUnion = outputType
               .getTypes()
               .some(type => type.name === match.type);
 
-            invariant(
-              belongToUnion,
-              'RelayMatchTransform: Unsupported type in the list of matches in the @relay(match). Type "%s" does not belong to the union "%s"',
-              match.type,
-              outputType,
-            );
+            if (!belongsToUnion) {
+              throw new Error(
+                `RelayMatchTransform: Unsupported type '${match.type}' in ` +
+                  `the list of matches in the @${MATCH_DIRECTIVE_NAME}. Type ` +
+                  `"${match.type}" does not belong to the union ` +
+                  `"${outputType.toString()}".`,
+              );
+            }
             return match.type;
           }),
         },
@@ -156,5 +174,6 @@ function visitField(
 }
 
 module.exports = {
+  SCHEMA_EXTENSION,
   transform: relayMatchTransform,
 };

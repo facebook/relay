@@ -1,9 +1,48 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`RelayMatchTransform matches expected output: invalid-match-type.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment CommentBody_comment on Comment {
+  commentBody @match(onTypes: [
+    {
+      type: "MarkdownCommentBody"
+      fragment: "MarkdownBody_comment"
+      module: "MarkdownBodyComponent.react"
+    },
+    {
+      type: "User"
+      fragment: "User_comment"
+      module: "User.react"
+    },
+  ]) {
+    __typename
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: RelayMatchTransform: Unsupported type 'User' in the list of matches in the @match. Type "User" does not belong to the union "CommentBody".
+`;
+
+exports[`RelayMatchTransform matches expected output: invalid-no-matches.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment CommentBody_comment on Comment {
+  commentBody @match(onTypes: []) {
+    __typename
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: RelayMatchTransform: The @match directive requires at least one type to match on.
+`;
+
 exports[`RelayMatchTransform matches expected output: relay-match-transform.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment CommentBody_comment on Comment {
-  commentBody @relay(match: [
+  commentBody @match(onTypes: [
     {
       type: "MarkdownCommentBody"
       fragment: "MarkdownBody_comment"

@@ -1,0 +1,5 @@
+fragment CommentBody_comment on Comment {
+  commentBody @match(onTypes: []) {
+    __typename
+  }
+}

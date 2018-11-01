@@ -36,6 +36,7 @@ import type {IRTransform} from 'graphql-compiler';
 // Transforms applied to the code used to process a query response.
 const relaySchemaExtensions: Array<string> = [
   RelayConnectionTransform.SCHEMA_EXTENSION,
+  RelayMatchTransform.SCHEMA_EXTENSION,
   RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
 ];
 

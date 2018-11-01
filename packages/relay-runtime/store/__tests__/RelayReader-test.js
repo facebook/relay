@@ -467,23 +467,20 @@ describe('RelayReader', () => {
 
       fragment BarFragment on User {
         id
-        nameRenderer
-          @relay(
-            match: [
-              {
-                type: "PlainUserNameRenderer"
-                fragment: "PlainUserNameRenderer_name"
-                module: "PlainUserNameRenderer.react"
-              }
-              {
-                type: "MarkdownUserNameRenderer"
-                fragment: "MarkdownUserNameRenderer_name"
-                module: "MarkdownUserNameRenderer.react"
-              }
-            ]
-          ) {
-            __typename
+        nameRenderer @match(onTypes: [
+          {
+            type: "PlainUserNameRenderer"
+            fragment: "PlainUserNameRenderer_name"
+            module: "PlainUserNameRenderer.react"
           }
+          {
+            type: "MarkdownUserNameRenderer"
+            fragment: "MarkdownUserNameRenderer_name"
+            module: "MarkdownUserNameRenderer.react"
+          }
+        ]) {
+          __typename
+        }
       }
     `);
       const {data, seenRecords} = read(source, {
@@ -538,23 +535,20 @@ describe('RelayReader', () => {
 
       fragment BarFragment on User {
         id
-        nameRenderer
-          @relay(
-            match: [
-              {
-                type: "PlainUserNameRenderer"
-                fragment: "PlainUserNameRenderer_name"
-                module: "PlainUserNameRenderer.react"
-              }
-              {
-                type: "MarkdownUserNameRenderer"
-                fragment: "MarkdownUserNameRenderer_name"
-                module: "MarkdownUserNameRenderer.react"
-              }
-            ]
-          ) {
-            __typename
+        nameRenderer @match(onTypes: [
+          {
+            type: "PlainUserNameRenderer"
+            fragment: "PlainUserNameRenderer_name"
+            module: "PlainUserNameRenderer.react"
           }
+          {
+            type: "MarkdownUserNameRenderer"
+            fragment: "MarkdownUserNameRenderer_name"
+            module: "MarkdownUserNameRenderer.react"
+          }
+        ]) {
+          __typename
+        }
       }
     `);
       const {data, seenRecords} = read(source, {
@@ -608,23 +602,20 @@ describe('RelayReader', () => {
 
       fragment BarFragment on User {
         id
-        nameRenderer
-          @relay(
-            match: [
-              {
-                type: "PlainUserNameRenderer"
-                fragment: "PlainUserNameRenderer_name"
-                module: "PlainUserNameRenderer.react"
-              }
-              {
-                type: "MarkdownUserNameRenderer"
-                fragment: "MarkdownUserNameRenderer_name"
-                module: "MarkdownUserNameRenderer.react"
-              }
-            ]
-          ) {
-            __typename
+        nameRenderer @match(onTypes: [
+          {
+            type: "PlainUserNameRenderer"
+            fragment: "PlainUserNameRenderer_name"
+            module: "PlainUserNameRenderer.react"
           }
+          {
+            type: "MarkdownUserNameRenderer"
+            fragment: "MarkdownUserNameRenderer_name"
+            module: "MarkdownUserNameRenderer.react"
+          }
+        ]) {
+          __typename
+        }
       }
     `);
       const {data, seenRecords} = read(source, {
@@ -665,23 +656,20 @@ describe('RelayReader', () => {
 
       fragment BarFragment on User {
         id
-        nameRenderer
-          @relay(
-            match: [
-              {
-                type: "PlainUserNameRenderer"
-                fragment: "PlainUserNameRenderer_name"
-                module: "PlainUserNameRenderer.react"
-              }
-              {
-                type: "MarkdownUserNameRenderer"
-                fragment: "MarkdownUserNameRenderer_name"
-                module: "MarkdownUserNameRenderer.react"
-              }
-            ]
-          ) {
-            __typename
+        nameRenderer @match(onTypes: [
+          {
+            type: "PlainUserNameRenderer"
+            fragment: "PlainUserNameRenderer_name"
+            module: "PlainUserNameRenderer.react"
           }
+          {
+            type: "MarkdownUserNameRenderer"
+            fragment: "MarkdownUserNameRenderer_name"
+            module: "MarkdownUserNameRenderer.react"
+          }
+        ]) {
+          __typename
+        }
       }
     `);
       const {data, seenRecords} = read(source, {
@@ -721,24 +709,21 @@ describe('RelayReader', () => {
 
       fragment BarFragment on User {
         id
-        nameRenderer
-          @relay(
-            match: [
-              {
-                type: "PlainUserNameRenderer"
-                fragment: "PlainUserNameRenderer_name"
-                module: "PlainUserNameRenderer.react"
-              }
-              {
-                type: "MarkdownUserNameRenderer"
-                fragment: "MarkdownUserNameRenderer_name"
-                module: "MarkdownUserNameRenderer.react"
-              }
-            ]
-          ) {
-            __typename
+        nameRenderer @match(onTypes: [
+          {
+            type: "PlainUserNameRenderer"
+            fragment: "PlainUserNameRenderer_name"
+            module: "PlainUserNameRenderer.react"
           }
-      }
+          {
+            type: "MarkdownUserNameRenderer"
+            fragment: "MarkdownUserNameRenderer_name"
+            module: "MarkdownUserNameRenderer.react"
+          }
+        ]) {
+          __typename
+        }
+    }
     `);
       const {data, seenRecords} = read(source, {
         dataID: '1',

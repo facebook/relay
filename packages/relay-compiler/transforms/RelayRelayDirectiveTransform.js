@@ -21,12 +21,7 @@ const {
 import type {Fragment, FragmentSpread} from 'graphql-compiler';
 
 const RELAY = 'relay';
-const SCHEMA_EXTENSION = `input RelayDataDependencyMatch {
-  # Input type for items in the "match"
-  type: String!
-  fragment: String!
-  module: String!
-}
+const SCHEMA_EXTENSION = `
 directive @relay(
   # Marks a connection field as containing nodes without 'id' fields.
   # This is used to silence the warning when diffing connections.
@@ -42,12 +37,10 @@ directive @relay(
   # Marks a fragment spread which should be unmasked if provided false
   mask: Boolean = true,
 
-  # Handle the list of type matches on the field
-  match: [RelayDataDependencyMatch!],
-
   # Selectively pass variables down into a fragment. Only used in Classic.
   variables: [String!],
-) on FRAGMENT_DEFINITION | FRAGMENT_SPREAD | INLINE_FRAGMENT | FIELD`;
+) on FRAGMENT_DEFINITION | FRAGMENT_SPREAD | INLINE_FRAGMENT | FIELD
+`;
 
 /**
  * A transform that extracts `@relay(plural: Boolean)` directives and converts

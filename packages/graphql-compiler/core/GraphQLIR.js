@@ -21,45 +21,45 @@ import type {
 } from 'graphql';
 
 export type Argument = {|
-  kind: 'Argument',
-  metadata: ?{[key: string]: mixed},
-  name: string,
-  type: ?GraphQLInputType,
-  value: ArgumentValue,
+  +kind: 'Argument',
+  +metadata: ?{[key: string]: mixed},
+  +name: string,
+  +type: ?GraphQLInputType,
+  +value: ArgumentValue,
 |};
 export type ArgumentDefinition =
   | LocalArgumentDefinition
   | RootArgumentDefinition;
 export type ArgumentValue = ListValue | Literal | ObjectValue | Variable;
 export type Condition = {|
-  kind: 'Condition',
-  condition: Literal | Variable,
-  metadata: ?{[key: string]: mixed},
-  passingValue: boolean,
-  selections: Array<Selection>,
+  +kind: 'Condition',
+  +condition: Literal | Variable,
+  +metadata: ?{[key: string]: mixed},
+  +passingValue: boolean,
+  +selections: Array<Selection>,
 |};
 export type Directive = {|
-  args: Array<Argument>,
-  kind: 'Directive',
-  metadata: ?{[key: string]: mixed},
-  name: string,
+  +args: Array<Argument>,
+  +kind: 'Directive',
+  +metadata: ?{[key: string]: mixed},
+  +name: string,
 |};
 export type Field = LinkedField | ScalarField | MatchField;
 export type Fragment = {|
-  argumentDefinitions: Array<ArgumentDefinition>,
-  directives: Array<Directive>,
-  kind: 'Fragment',
-  metadata: ?{[key: string]: mixed},
-  name: string,
-  selections: Array<Selection>,
-  type: GraphQLCompositeType,
+  +argumentDefinitions: Array<ArgumentDefinition>,
+  +directives: Array<Directive>,
+  +kind: 'Fragment',
+  +metadata: ?{[key: string]: mixed},
+  +name: string,
+  +selections: Array<Selection>,
+  +type: GraphQLCompositeType,
 |};
 export type FragmentSpread = {|
-  args: Array<Argument>,
-  directives: Array<Directive>,
-  kind: 'FragmentSpread',
-  metadata: ?{[key: string]: mixed},
-  name: string,
+  +args: Array<Argument>,
+  +directives: Array<Directive>,
+  +kind: 'FragmentSpread',
+  +metadata: ?{[key: string]: mixed},
+  +name: string,
 |};
 export type IR =
   | Argument
@@ -82,70 +82,70 @@ export type IR =
   | ScalarField
   | Variable;
 export type RootArgumentDefinition = {|
-  kind: 'RootArgumentDefinition',
-  metadata: ?{[key: string]: mixed},
-  name: string,
-  type: GraphQLInputType,
+  +kind: 'RootArgumentDefinition',
+  +metadata: ?{[key: string]: mixed},
+  +name: string,
+  +type: GraphQLInputType,
 |};
 export type InlineFragment = {|
-  directives: Array<Directive>,
-  kind: 'InlineFragment',
-  metadata: ?{[key: string]: mixed},
-  selections: Array<Selection>,
-  typeCondition: GraphQLCompositeType,
+  +directives: Array<Directive>,
+  +kind: 'InlineFragment',
+  +metadata: ?{[key: string]: mixed},
+  +selections: Array<Selection>,
+  +typeCondition: GraphQLCompositeType,
 |};
 export type Handle = {|
-  name: string,
-  key: string,
-  filters: ?Array<string>,
+  +name: string,
+  +key: string,
+  +filters: ?Array<string>,
 |};
 export type LinkedField = {|
-  alias: ?string,
-  args: Array<Argument>,
-  directives: Array<Directive>,
-  handles: ?Array<Handle>,
-  kind: 'LinkedField',
-  metadata: ?{[key: string]: mixed},
-  name: string,
-  selections: Array<Selection>,
-  type: GraphQLOutputType,
+  +alias: ?string,
+  +args: Array<Argument>,
+  +directives: Array<Directive>,
+  +handles: ?Array<Handle>,
+  +kind: 'LinkedField',
+  +metadata: ?{[key: string]: mixed},
+  +name: string,
+  +selections: Array<Selection>,
+  +type: GraphQLOutputType,
 |};
 export type ListValue = {|
-  kind: 'ListValue',
-  items: Array<ArgumentValue>,
-  metadata: ?{[key: string]: mixed},
+  +kind: 'ListValue',
+  +items: Array<ArgumentValue>,
+  +metadata: ?{[key: string]: mixed},
 |};
 export type Literal = {|
-  kind: 'Literal',
-  metadata: ?{[key: string]: mixed},
-  value: mixed,
+  +kind: 'Literal',
+  +metadata: ?{[key: string]: mixed},
+  +value: mixed,
 |};
 export type LocalArgumentDefinition = {|
-  defaultValue: mixed,
-  kind: 'LocalArgumentDefinition',
-  metadata: ?{[key: string]: mixed},
-  name: string,
-  type: GraphQLInputType,
+  +defaultValue: mixed,
+  +kind: 'LocalArgumentDefinition',
+  +metadata: ?{[key: string]: mixed},
+  +name: string,
+  +type: GraphQLInputType,
 |};
 export type MatchFragmentSpread = {|
-  kind: 'MatchFragmentSpread',
-  type: GraphQLCompositeType,
-  module: string,
-  args: Array<Argument>,
-  directives: Array<Directive>,
-  metadata: ?{[key: string]: mixed},
-  name: string,
+  +kind: 'MatchFragmentSpread',
+  +type: GraphQLCompositeType,
+  +module: string,
+  +args: Array<Argument>,
+  +directives: Array<Directive>,
+  +metadata: ?{[key: string]: mixed},
+  +name: string,
 |};
 export type MatchField = {|
-  alias: ?string,
-  args: Array<Argument>,
-  directives: Array<Directive>,
-  handles: ?Array<Handle>,
-  kind: 'MatchField',
-  metadata: ?{[key: string]: mixed},
-  name: string,
-  type: GraphQLUnionType | GraphQLNonNull<GraphQLUnionType>,
-  selections: Array<Selection>,
+  +alias: ?string,
+  +args: Array<Argument>,
+  +directives: Array<Directive>,
+  +handles: ?Array<Handle>,
+  +kind: 'MatchField',
+  +metadata: ?{[key: string]: mixed},
+  +name: string,
+  +type: GraphQLUnionType | GraphQLNonNull<GraphQLUnionType>,
+  +selections: Array<Selection>,
 |};
 export type Node =
   | Condition
@@ -155,48 +155,48 @@ export type Node =
   | MatchField
   | Root;
 export type ObjectFieldValue = {|
-  kind: 'ObjectFieldValue',
-  metadata: ?{[key: string]: mixed},
-  name: string,
-  value: ArgumentValue,
+  +kind: 'ObjectFieldValue',
+  +metadata: ?{[key: string]: mixed},
+  +name: string,
+  +value: ArgumentValue,
 |};
 export type ObjectValue = {|
-  kind: 'ObjectValue',
-  fields: Array<ObjectFieldValue>,
-  metadata: ?{[key: string]: mixed},
+  +kind: 'ObjectValue',
+  +fields: Array<ObjectFieldValue>,
+  +metadata: ?{[key: string]: mixed},
 |};
 export type Request = {|
-  kind: 'Request',
-  fragment: Fragment,
-  id: ?string,
-  metadata: ?{[key: string]: mixed},
-  name: string,
-  root: Root,
-  text: ?string,
+  +kind: 'Request',
+  +fragment: Fragment,
+  +id: ?string,
+  +metadata: ?{[key: string]: mixed},
+  +name: string,
+  +root: Root,
+  +text: ?string,
 |};
 export type Root = {|
-  argumentDefinitions: Array<LocalArgumentDefinition>,
-  directives: Array<Directive>,
-  kind: 'Root',
-  metadata: ?{[key: string]: mixed},
-  name: string,
-  operation: 'query' | 'mutation' | 'subscription',
-  selections: Array<Selection>,
-  type: GraphQLCompositeType,
+  +argumentDefinitions: Array<LocalArgumentDefinition>,
+  +directives: Array<Directive>,
+  +kind: 'Root',
+  +metadata: ?{[key: string]: mixed},
+  +name: string,
+  +operation: 'query' | 'mutation' | 'subscription',
+  +selections: Array<Selection>,
+  +type: GraphQLCompositeType,
 |};
 export type ScalarFieldType =
   | GraphQLLeafType
   | GraphQLList<ScalarFieldType>
   | GraphQLNonNull<GraphQLLeafType | GraphQLList<ScalarFieldType>>;
 export type ScalarField = {|
-  alias: ?string,
-  args: Array<Argument>,
-  directives: Array<Directive>,
-  handles: ?Array<Handle>,
-  kind: 'ScalarField',
-  metadata: ?{[key: string]: mixed},
-  name: string,
-  type: ScalarFieldType,
+  +alias: ?string,
+  +args: Array<Argument>,
+  +directives: Array<Directive>,
+  +handles: ?Array<Handle>,
+  +kind: 'ScalarField',
+  +metadata: ?{[key: string]: mixed},
+  +name: string,
+  +type: ScalarFieldType,
 |};
 export type Selection =
   | Condition
@@ -207,8 +207,8 @@ export type Selection =
   | MatchFragmentSpread
   | ScalarField;
 export type Variable = {|
-  kind: 'Variable',
-  metadata: ?{[key: string]: mixed},
-  variableName: string,
-  type: ?GraphQLInputType,
+  +kind: 'Variable',
+  +metadata: ?{[key: string]: mixed},
+  +variableName: string,
+  +type: ?GraphQLInputType,
 |};

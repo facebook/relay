@@ -14,13 +14,9 @@
 
 const invariant = require('invariant');
 
-const {
-  CompilerContext,
-  IRTransformer,
-  isEquivalentType,
-} = require('graphql-compiler');
+const {CompilerContext, IRTransformer} = require('graphql-compiler');
 
-const {GraphQLNonNull} = require('graphql');
+const {isTypeSubTypeOf, GraphQLSchema} = require('graphql');
 
 import type {
   Fragment,
@@ -61,6 +57,7 @@ function visitFragment(fragment: Fragment, state: State): Fragment {
   if (state.hoistedArgDefs.size === 0) {
     return result;
   }
+  const schema = this.getContext().serverSchema;
   const combinedArgDefs = new Map();
   result.argumentDefinitions.forEach(argDef => {
     combinedArgDefs.set(argDef.name, argDef);
@@ -70,9 +67,13 @@ function visitFragment(fragment: Fragment, state: State): Fragment {
     const existingArgDef = combinedArgDefs.get(argName);
     let newArgDef = hoistedArgDef.argDef;
     if (existingArgDef) {
-      newArgDef = findCompatibleArgDef(existingArgDef, hoistedArgDef.argDef);
+      newArgDef = findCompatibleArgDef(
+        existingArgDef,
+        hoistedArgDef.argDef,
+        schema,
+      );
       invariant(
-        !!newArgDef,
+        newArgDef != null,
         'RelayMaskTransform: Cannot unmask fragment spread `%s` because ' +
           'argument `%s` has been declared in `%s` and they are not the same.',
         hoistedArgDef.source,
@@ -101,7 +102,9 @@ function visitFragmentSpread(
       'arguments. Use the `ApplyFragmentArgumentTransform` before flattening',
     fragmentSpread.name,
   );
-  const fragment = this.getContext().getFragment(fragmentSpread.name);
+  const context = this.getContext();
+  const fragment = context.getFragment(fragmentSpread.name);
+  const schema = context.serverSchema;
   const result: InlineFragment = {
     kind: 'InlineFragment',
     directives: fragmentSpread.directives,
@@ -123,9 +126,9 @@ function visitFragmentSpread(
     const hoistedArgDef = state.hoistedArgDefs.get(argDef.name);
     let newArgDef = argDef;
     if (hoistedArgDef) {
-      newArgDef = findCompatibleArgDef(hoistedArgDef.argDef, argDef);
+      newArgDef = findCompatibleArgDef(hoistedArgDef.argDef, argDef, schema);
       invariant(
-        !!newArgDef,
+        newArgDef != null,
         'RelayMaskTransform: Cannot unmask fragment spread `%s` because ' +
           'argument `%s` has been declared in `%s` and they are not the same.',
         hoistedArgDef.source,
@@ -146,38 +149,25 @@ function isUnmaskedSpread(spread: FragmentSpread): boolean {
 }
 
 function findCompatibleArgDef(
-  currentArgDef: ArgumentDefinition,
-  newArgDef: ArgumentDefinition,
+  prevArgDef: ArgumentDefinition,
+  nextArgDef: ArgumentDefinition,
+  schema: GraphQLSchema,
 ): ?ArgumentDefinition {
-  let currentType = currentArgDef.type;
-  let newType = newArgDef.type;
-  let compatibleArgDef = currentArgDef;
-
   if (
-    !(currentArgDef.type instanceof GraphQLNonNull) &&
-    newArgDef.type instanceof GraphQLNonNull
-  ) {
-    // Current argDef is not compatible with new argDef
-    newType = newArgDef.type.ofType;
-    compatibleArgDef = newArgDef;
-  } else if (
-    currentArgDef.type instanceof GraphQLNonNull &&
-    !(newArgDef.type instanceof GraphQLNonNull)
-  ) {
-    currentType = currentArgDef.type.ofType;
-  }
-
-  if (
-    currentArgDef.kind === newArgDef.kind &&
-    currentArgDef.name === newArgDef.name &&
-    isEquivalentType(currentType, newType) &&
+    prevArgDef.kind !== nextArgDef.kind ||
+    prevArgDef.name !== nextArgDef.name ||
     // Only LocalArgumentDefinition defines defaultValue
-    (currentArgDef: any).defaultValue === (newArgDef: any).defaultValue
+    (prevArgDef: any).defaultValue !== (nextArgDef: any).defaultValue
   ) {
-    return compatibleArgDef;
+    return null;
+  } else if (isTypeSubTypeOf(schema, nextArgDef.type, prevArgDef.type)) {
+    // prevArgDef is less strict than nextArgDef
+    return nextArgDef;
+  } else if (isTypeSubTypeOf(schema, prevArgDef.type, nextArgDef.type)) {
+    return prevArgDef;
+  } else {
+    return null;
   }
-
-  return null;
 }
 
 module.exports = {

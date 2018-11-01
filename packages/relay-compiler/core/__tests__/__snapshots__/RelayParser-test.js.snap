@@ -65,7 +65,6 @@ type Foo {
     "operation": "query",
     "metadata": null,
     "name": "BestFriendsQuery",
-    "dependentRequests": [],
     "argumentDefinitions": [
       {
         "kind": "LocalArgumentDefinition",
@@ -429,7 +428,6 @@ query TestQuery {
     "operation": "query",
     "metadata": null,
     "name": "TestQuery",
-    "dependentRequests": [],
     "argumentDefinitions": [],
     "directives": [],
     "selections": [
@@ -1017,7 +1015,6 @@ query ListArgumentQuery($waypoint: WayPoint!) {
     "operation": "query",
     "metadata": null,
     "name": "ListArgumentQuery",
-    "dependentRequests": [],
     "argumentDefinitions": [
       {
         "kind": "LocalArgumentDefinition",
@@ -1143,7 +1140,6 @@ query LiteralListArgumentQuery {
     "operation": "query",
     "metadata": null,
     "name": "LiteralListArgumentQuery",
-    "dependentRequests": [],
     "argumentDefinitions": [],
     "directives": [],
     "selections": [
@@ -1218,7 +1214,6 @@ query LiteralObjectArgument {
     "operation": "query",
     "metadata": null,
     "name": "LiteralObjectArgument",
-    "dependentRequests": [],
     "argumentDefinitions": [],
     "directives": [],
     "selections": [
@@ -1277,7 +1272,6 @@ query NullValuesQuery {
     "operation": "query",
     "metadata": null,
     "name": "NullValuesQuery",
-    "dependentRequests": [],
     "argumentDefinitions": [],
     "directives": [],
     "selections": [
@@ -1338,7 +1332,6 @@ query ObjectArgument($text: String!) {
     "operation": "query",
     "metadata": null,
     "name": "ObjectArgument",
-    "dependentRequests": [],
     "argumentDefinitions": [
       {
         "kind": "LocalArgumentDefinition",
@@ -1487,7 +1480,6 @@ query TestQuery($id: ID!) {
     "operation": "query",
     "metadata": null,
     "name": "TestQuery",
-    "dependentRequests": [],
     "argumentDefinitions": [
       {
         "kind": "LocalArgumentDefinition",

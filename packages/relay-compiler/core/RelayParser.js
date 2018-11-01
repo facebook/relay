@@ -47,7 +47,7 @@ class RelayParser extends Parser {
     parentType: GraphQLOutputType,
     fieldName: string,
     fieldAST: FieldNode,
-  ): ?GraphQLField<*, *> {
+  ): ?GraphQLField<mixed, mixed> {
     let schemaFieldDef = super.getFieldDefinition(
       parentType,
       fieldName,
@@ -81,7 +81,7 @@ function getClassicFieldDefinition(
   type: GraphQLType,
   fieldName: string,
   fieldAST: FieldNode,
-): ?GraphQLField<*, *> {
+): ?GraphQLField<mixed, mixed> {
   if (
     isAbstractType(type) &&
     fieldAST &&

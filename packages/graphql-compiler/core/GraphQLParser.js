@@ -150,7 +150,7 @@ class GraphQLParser {
     parentType: GraphQLOutputType,
     fieldName: string,
     fieldAST: FieldNode,
-  ): ?GraphQLField<*, *> {
+  ): ?GraphQLField<mixed, mixed> {
     const type = getRawType(parentType);
     const isQueryType = type === this._schema.getQueryType();
     const hasTypeName =

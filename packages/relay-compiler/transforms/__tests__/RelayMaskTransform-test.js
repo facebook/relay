@@ -42,4 +42,25 @@ describe('RelayMaskTransform', () => {
         .join('\n');
     },
   );
+
+  generateTestsFromFixtures(
+    `${__dirname}/fixtures/relay-mask-transform-variables`,
+    text => {
+      const {definitions} = parseGraphQLText(schema, text);
+      return new GraphQLCompilerContext(RelayTestSchema, schema)
+        .addAll(definitions)
+        .applyTransforms([
+          // Requires Relay directive transform first.
+          RelayRelayDirectiveTransform.transform,
+          RelayMaskTransform.transform,
+        ])
+        .documents()
+        .map(doc => {
+          const printed = GraphQLIRPrinter.print(doc);
+          const json = JSON.stringify(doc.argumentDefinitions, null, 2);
+          return printed + json;
+        })
+        .join('\n\n');
+    },
+  );
 });

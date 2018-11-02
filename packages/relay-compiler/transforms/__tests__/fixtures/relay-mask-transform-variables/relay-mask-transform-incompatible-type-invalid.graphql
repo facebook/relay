@@ -1,0 +1,16 @@
+fragment ParentFragment on Query {
+  ...StringFragment @relay(mask: false)
+  ...NullableIDFragment @relay(mask: false)
+}
+
+fragment NullableIDFragment on Query {
+  node(id: $id) {
+    id
+  }
+}
+
+fragment StringFragment on Query {
+  task(number: $id) {
+    title
+  }
+}

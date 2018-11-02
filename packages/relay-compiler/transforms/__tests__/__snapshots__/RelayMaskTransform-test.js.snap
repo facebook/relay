@@ -65,3 +65,172 @@ fragment AnotherRecursiveFragment on Image {
 }
 
 `;
+
+exports[`RelayMaskTransform matches expected output: relay-mask-transform-incompatible-type-invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment ParentFragment on Query {
+  ...StringFragment @relay(mask: false)
+  ...NullableIDFragment @relay(mask: false)
+}
+
+fragment NullableIDFragment on Query {
+  node(id: $id) {
+    id
+  }
+}
+
+fragment StringFragment on Query {
+  task(number: $id) {
+    title
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: RelayMaskTransform: Cannot unmask one or more fragments in \`ParentFragment\`, the following variables are referenced more than once with incompatible kinds/types:
+* Variable \`$id\` in \`NullableIDFragment\`
+`;
+
+exports[`RelayMaskTransform matches expected output: relay-mask-transform-incompatible-type-invalid2.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment ParentFragment on Query {
+  ...NullableIDListFragment @relay(mask: false)
+  ...NullableIDFragment @relay(mask: false)
+}
+
+fragment NullableIDFragment on Query {
+  node(id: $id) {
+    id
+  }
+}
+
+fragment NullableIDListFragment on Query {
+  nodes(ids: $id) {
+    id
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: RelayMaskTransform: Cannot unmask one or more fragments in \`ParentFragment\`, the following variables are referenced more than once with incompatible kinds/types:
+* Variable \`$id\` in \`NullableIDFragment\`
+`;
+
+exports[`RelayMaskTransform matches expected output: relay-mask-transform-mixed-local-root-invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment ParentQuery on Query @argumentDefinitions(
+  id: {type: "ID!"}
+) {
+  ...NonNullIDFragment @relay(mask: false)
+}
+
+fragment NonNullIDFragment on Query {
+  node_id_required(id: $id) {
+    id
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: RelayMaskTransform: Cannot unmask one or more fragments in \`ParentQuery\`, the following variables are referenced more than once with incompatible kinds/types:
+* Variable \`$id\` in \`NonNullIDFragment\`
+`;
+
+exports[`RelayMaskTransform matches expected output: relay-mask-transform-mixed-null.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment NullableIDFirstFragment on Query {
+  ...NullableIDFragment @relay(mask: false)
+  ...NonNullIDFragment @relay(mask: false)
+}
+
+fragment NonNullableIDFirstFragment on Query {
+  ...NonNullIDFragment @relay(mask: false)
+  ...NullableIDFragment @relay(mask: false)
+}
+
+fragment NullableIDFragment on Query {
+  node(id: $id) {
+    id
+  }
+}
+
+fragment NonNullIDFragment on Query {
+  node_id_required(id: $id) {
+    id
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment NullableIDFirstFragment on Query {
+  ... on Query {
+    node(id: $id) {
+      id
+    }
+  }
+  ... on Query {
+    node_id_required(id: $id) {
+      id
+    }
+  }
+}
+[
+  {
+    "kind": "RootArgumentDefinition",
+    "metadata": null,
+    "name": "id",
+    "type": "ID!"
+  }
+]
+
+fragment NonNullableIDFirstFragment on Query {
+  ... on Query {
+    node_id_required(id: $id) {
+      id
+    }
+  }
+  ... on Query {
+    node(id: $id) {
+      id
+    }
+  }
+}
+[
+  {
+    "kind": "RootArgumentDefinition",
+    "metadata": null,
+    "name": "id",
+    "type": "ID!"
+  }
+]
+
+fragment NullableIDFragment on Query {
+  node(id: $id) {
+    id
+  }
+}
+[
+  {
+    "kind": "RootArgumentDefinition",
+    "metadata": null,
+    "name": "id",
+    "type": "ID"
+  }
+]
+
+fragment NonNullIDFragment on Query {
+  node_id_required(id: $id) {
+    id
+  }
+}
+[
+  {
+    "kind": "RootArgumentDefinition",
+    "metadata": null,
+    "name": "id",
+    "type": "ID!"
+  }
+]
+`;

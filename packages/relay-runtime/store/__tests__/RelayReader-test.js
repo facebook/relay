@@ -495,6 +495,7 @@ describe('RelayReader', () => {
           __fragments: {
             PlainUserNameRenderer_name: {},
           },
+          __fragmentPropName: 'name',
           __module: 'PlainUserNameRenderer.react',
         },
       });
@@ -563,6 +564,7 @@ describe('RelayReader', () => {
           __fragments: {
             MarkdownUserNameRenderer_name: {},
           },
+          __fragmentPropName: 'name',
           __module: 'MarkdownUserNameRenderer.react',
         },
       });

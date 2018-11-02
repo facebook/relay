@@ -24,6 +24,7 @@ const {
 } = require('../util/RelayConcreteNode');
 const {
   FRAGMENTS_KEY,
+  FRAGMENT_PROP_NAME_KEY,
   ID_KEY,
   MODULE_KEY,
   getArgumentValues,
@@ -301,7 +302,8 @@ class RelayReader {
 
     // Otherwise, read the fragment and module associated to the concrete
     // type, and put that data with the result:
-    // - For the matched fragment, create the relevant fragment pointer.
+    // - For the matched fragment, create the relevant fragment pointer and add
+    //   the expected fragmentPropName
     // - For the matched module, create a reference to the module
     const matchResult = {};
     this._createFragmentPointer(
@@ -310,6 +312,7 @@ class RelayReader {
       matchResult,
       this._variables,
     );
+    matchResult[FRAGMENT_PROP_NAME_KEY] = match.fragmentPropName;
     // TODO(T35275153) - Remove this once server returns SSR module response
     matchResult[MODULE_KEY] = match.module;
 

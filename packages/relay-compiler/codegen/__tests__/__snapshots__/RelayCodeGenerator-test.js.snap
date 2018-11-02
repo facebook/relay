@@ -85,6 +85,7 @@ fragment CommentBody_comment on CommentCreateResponsePayload {
           ],
           "matchesByType": {
             "MarkdownCommentBody": {
+              "fragmentPropName": "comment",
               "selection": {
                 "kind": "FragmentSpread",
                 "name": "MarkdownBody_comment",
@@ -93,6 +94,7 @@ fragment CommentBody_comment on CommentCreateResponsePayload {
               "module": "MarkdownBodyComponent.react"
             },
             "PlainCommentBody": {
+              "fragmentPropName": "comment",
               "selection": {
                 "kind": "FragmentSpread",
                 "name": "PlaintextBody_comment",

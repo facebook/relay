@@ -61,6 +61,7 @@ function getMatchSelections(
       match.type,
     );
     seenTypes.add(match.type);
+
     return {
       kind: 'MatchFragmentSpread',
       type: match.type,

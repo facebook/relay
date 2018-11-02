@@ -145,6 +145,7 @@ function getStableVariableValue(name: string, variables: Variables): mixed {
  */
 const RelayStoreUtils = {
   FRAGMENTS_KEY: '__fragments',
+  FRAGMENT_PROP_NAME_KEY: '__fragmentPropName',
   ID_KEY: '__id',
   MODULE_KEY: '__module',
   REF_KEY: '__ref',

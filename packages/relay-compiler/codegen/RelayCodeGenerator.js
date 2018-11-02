@@ -181,10 +181,24 @@ const RelayCodeGenVisitor = {
           selection.type,
           getErrorMessage(ancestors[0]),
         );
+        const fragmentName = selection.name;
+        const regExpMatch = fragmentName.match(
+          /^([a-zA-Z][a-zA-Z0-9]*)(?:_([a-zA-Z][_a-zA-Z0-9]*))?$/,
+        );
+        if (!regExpMatch) {
+          throw new Error(
+            'RelayMatchTransform: Fragments should be named ' +
+              '`FragmentName_fragmentPropName`, got `' +
+              fragmentName +
+              '`.',
+          );
+        }
+        const fragmentPropName = regExpMatch[2] ?? 'matchData';
         matchesByType[selection.type] = {
+          fragmentPropName,
           selection: {
             kind: 'FragmentSpread',
-            name: selection.name,
+            name: fragmentName,
             args: [],
           },
           module: selection.module,

@@ -67,17 +67,17 @@ import type {
   FieldNode,
   FragmentDefinitionNode,
   FragmentSpreadNode,
+  GraphQLArgument,
+  GraphQLField,
+  GraphQLInputType,
+  GraphQLOutputType,
+  GraphQLSchema,
   InlineFragmentNode,
   OperationDefinitionNode,
   SelectionSetNode,
   ValueNode,
   VariableDefinitionNode,
   VariableNode,
-  GraphQLInputType,
-  GraphQLOutputType,
-  GraphQLSchema,
-  GraphQLArgument,
-  GraphQLField,
 } from 'graphql';
 
 const ARGUMENT_DEFINITIONS = 'argumentDefinitions';
@@ -764,37 +764,35 @@ class GraphQLParser {
   _splitConditions(
     mixedDirectives: $ReadOnlyArray<Directive>,
   ): [$ReadOnlyArray<Condition>, $ReadOnlyArray<Directive>] {
-    const conditions = [];
-    const directives = [];
-    mixedDirectives.forEach(directive => {
-      if (directive.name === INCLUDE || directive.name === SKIP) {
-        const passingValue = directive.name === INCLUDE;
-        const arg = directive.args[0];
-        invariant(
-          arg && arg.name === IF,
-          'GraphQLParser: Expected an `if` argument to @%s. Source: %s.',
-          directive.name,
-          this._getErrorContext(),
-        );
-        invariant(
-          arg.value.kind === 'Variable' || arg.value.kind === 'Literal',
-          'GraphQLParser: Expected the `if` argument to @%s to be a variable. ' +
-            'Source: %s.',
-          directive.name,
-          this._getErrorContext(),
-        );
-        conditions.push({
-          kind: 'Condition',
-          condition: arg.value,
-          metadata: null,
-          passingValue,
-          selections: [],
-        });
-      } else {
-        directives.push(directive);
-      }
+    const [conditionDirectives, otherDirectives] = partitionArray(
+      mixedDirectives,
+      directive => directive.name === INCLUDE || directive.name === SKIP,
+    );
+    const conditions = conditionDirectives.map(directive => {
+      const passingValue = directive.name === INCLUDE;
+      const arg = directive.args[0];
+      invariant(
+        arg && arg.name === IF,
+        'GraphQLParser: Expected an `if` argument to @%s. Source: %s.',
+        directive.name,
+        this._getErrorContext(),
+      );
+      invariant(
+        arg.value.kind === 'Variable' || arg.value.kind === 'Literal',
+        'GraphQLParser: Expected the `if` argument to @%s to be a variable. ' +
+          'Source: %s.',
+        directive.name,
+        this._getErrorContext(),
+      );
+      return {
+        kind: 'Condition',
+        condition: arg.value,
+        metadata: null,
+        passingValue,
+        selections: [],
+      };
     });
-    const sortedConditions = [...conditions].sort((a, b) => {
+    const sortedConditions = conditions.sort((a, b) => {
       if (a.condition.kind === 'Variable' && b.condition.kind === 'Variable') {
         return a.condition.variableName < b.condition.variableName
           ? -1
@@ -810,7 +808,7 @@ class GraphQLParser {
             : 0;
       }
     });
-    return [sortedConditions, directives];
+    return [sortedConditions, otherDirectives];
   }
 
   _transformVariable(ast: VariableNode, type?: ?GraphQLInputType): Variable {
@@ -1008,7 +1006,7 @@ function applyConditions(
 }
 
 function getName(ast): string {
-  const name = ast.name ? ast.name.value : null;
+  const name = ast.name?.value;
   invariant(
     typeof name === 'string',
     'GraphQLParser: Expected ast node `%s` to have a name.',
@@ -1024,18 +1022,18 @@ function getName(ast): string {
  */
 function partitionArray<Tv>(
   array: $ReadOnlyArray<Tv>,
-  predicate: (value: Tv, index: number, array: $ReadOnlyArray<Tv>) => boolean,
-  context?: any,
+  predicate: (value: Tv) => boolean,
 ): [Array<Tv>, Array<Tv>] {
-  var first = [];
-  var second = [];
-  array.forEach((element, index) => {
-    if (predicate.call(context, element, index, array)) {
-      first.push(element);
+  const first = [];
+  const second = [];
+  for (let i = 0; i < array.length; i++) {
+    const item = array[i];
+    if (predicate(item)) {
+      first.push(item);
     } else {
-      second.push(element);
+      second.push(item);
     }
-  });
+  }
   return [first, second];
 }
 

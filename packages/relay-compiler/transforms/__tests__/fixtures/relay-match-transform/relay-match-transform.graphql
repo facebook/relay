@@ -10,7 +10,5 @@ fragment CommentBody_comment on Comment {
       fragment: "PlaintextBody_comment"
       module: "PlaintextComponent.react"
     },
-  ]) {
-    __typename
-  }
+  ])
 }

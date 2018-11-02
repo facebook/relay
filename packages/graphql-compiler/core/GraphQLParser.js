@@ -12,6 +12,7 @@
 
 const Profiler = require('./GraphQLCompilerProfiler');
 
+const getLiteralArgumentValues = require('./getLiteralArgumentValues');
 const invariant = require('invariant');
 
 const {DEFAULT_HANDLE_KEY} = require('../util/DefaultHandleKey');
@@ -56,6 +57,8 @@ import type {
   Handle,
   InlineFragment,
   LocalArgumentDefinition,
+  MatchField,
+  MatchFragmentSpread,
   Root,
   ScalarFieldType,
   Selection,
@@ -97,6 +100,8 @@ const CLIENT_FIELD_FILTERS = 'filters';
 const INCLUDE = 'include';
 const SKIP = 'skip';
 const IF = 'if';
+
+const MATCH_DIRECTIVE_NAME = 'match';
 
 class GraphQLParser {
   _definition: OperationDefinitionNode | FragmentDefinitionNode;
@@ -612,6 +617,54 @@ class GraphQLParser {
         name,
         type: assertScalarFieldType(type),
       };
+    } else if (
+      directives.find(directive => directive.name === MATCH_DIRECTIVE_NAME)
+    ) {
+      if (field.selectionSet) {
+        throw new Error(
+          `GraphQLParser: When using the @${MATCH_DIRECTIVE_NAME} directive, ` +
+            `no selections should be defined on the field '${name}'.`,
+        );
+      }
+      const [matchDirectives, nonMatchDirectives] = partitionArray(
+        directives,
+        directive => directive.name === MATCH_DIRECTIVE_NAME,
+      );
+      const matchDirective = matchDirectives[0];
+      const cases = getLiteralArgumentValues(matchDirective.args).onTypes;
+
+      if (cases.length === 0) {
+        throw new Error(
+          `RelayMatchTransform: The @${MATCH_DIRECTIVE_NAME} directive ` +
+            'requires at least one type to match on.',
+        );
+      }
+
+      const selections: $ReadOnlyArray<MatchFragmentSpread> = cases.map(
+        match => {
+          return {
+            kind: 'MatchFragmentSpread',
+            type: match.type,
+            module: match.module,
+            args: [],
+            directives: [],
+            metadata: null,
+            name: match.fragment,
+          };
+        },
+      );
+
+      return ({
+        kind: 'MatchField',
+        alias,
+        args: [],
+        directives: nonMatchDirectives,
+        handles: null,
+        metadata: null,
+        name: name,
+        type: assertGraphQLUnionType(type),
+        selections,
+      }: MatchField);
     } else {
       const selections = field.selectionSet
         ? this._transformSelections(field.selectionSet, type)
@@ -986,6 +1039,16 @@ function assertScalarFieldType(type: GraphQLOutputType): ScalarFieldType {
     'Expected %s to be a Scalar Field type.',
     type,
   );
+  return (type: any);
+}
+
+function isGraphQLUnionType(type: GraphQLOutputType): boolean {
+  const namedType = getNamedType(type);
+  return namedType instanceof GraphQLUnionType;
+}
+
+function assertGraphQLUnionType(type: GraphQLOutputType): GraphQLUnionType {
+  invariant(isGraphQLUnionType(type), 'Expected %s to be a union type.', type);
   return (type: any);
 }
 

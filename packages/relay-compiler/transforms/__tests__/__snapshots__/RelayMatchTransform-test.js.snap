@@ -14,9 +14,7 @@ fragment CommentBody_comment on Comment {
       fragment: "User_comment"
       module: "User.react"
     },
-  ]) {
-    __typename
-  }
+  ])
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
@@ -28,9 +26,7 @@ Error: RelayMatchTransform: Unsupported type 'User' in the list of matches in th
 exports[`RelayMatchTransform matches expected output: invalid-no-matches.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment CommentBody_comment on Comment {
-  commentBody @match(onTypes: []) {
-    __typename
-  }
+  commentBody @match(onTypes: [])
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
@@ -39,7 +35,7 @@ THROWN EXCEPTION:
 Error: RelayMatchTransform: The @match directive requires at least one type to match on.
 `;
 
-exports[`RelayMatchTransform matches expected output: relay-match-transform.graphql 1`] = `
+exports[`RelayMatchTransform matches expected output: invalid-non-empty-selections.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment CommentBody_comment on Comment {
   commentBody @match(onTypes: [
@@ -56,6 +52,29 @@ fragment CommentBody_comment on Comment {
   ]) {
     __typename
   }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: GraphQLParser: When using the @match directive, no selections should be defined on the field 'commentBody'.
+`;
+
+exports[`RelayMatchTransform matches expected output: relay-match-transform.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment CommentBody_comment on Comment {
+  commentBody @match(onTypes: [
+    {
+      type: "MarkdownCommentBody"
+      fragment: "MarkdownBody_comment"
+      module: "MarkdownBodyComponent.react"
+    },
+    {
+      type: "PlainCommentBody"
+      fragment: "PlaintextBody_comment"
+      module: "PlaintextComponent.react"
+    },
+  ])
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~

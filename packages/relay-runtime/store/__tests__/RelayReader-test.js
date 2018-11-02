@@ -478,9 +478,7 @@ describe('RelayReader', () => {
             fragment: "MarkdownUserNameRenderer_name"
             module: "MarkdownUserNameRenderer.react"
           }
-        ]) {
-          __typename
-        }
+        ])
       }
     `);
       const {data, seenRecords} = read(source, {
@@ -547,9 +545,7 @@ describe('RelayReader', () => {
             fragment: "MarkdownUserNameRenderer_name"
             module: "MarkdownUserNameRenderer.react"
           }
-        ]) {
-          __typename
-        }
+        ])
       }
     `);
       const {data, seenRecords} = read(source, {
@@ -615,9 +611,7 @@ describe('RelayReader', () => {
             fragment: "MarkdownUserNameRenderer_name"
             module: "MarkdownUserNameRenderer.react"
           }
-        ]) {
-          __typename
-        }
+        ])
       }
     `);
       const {data, seenRecords} = read(source, {
@@ -669,9 +663,7 @@ describe('RelayReader', () => {
             fragment: "MarkdownUserNameRenderer_name"
             module: "MarkdownUserNameRenderer.react"
           }
-        ]) {
-          __typename
-        }
+        ])
       }
     `);
       const {data, seenRecords} = read(source, {
@@ -722,9 +714,7 @@ describe('RelayReader', () => {
             fragment: "MarkdownUserNameRenderer_name"
             module: "MarkdownUserNameRenderer.react"
           }
-        ]) {
-          __typename
-        }
+        ])
     }
     `);
       const {data, seenRecords} = read(source, {

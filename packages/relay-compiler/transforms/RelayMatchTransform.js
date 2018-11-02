@@ -13,13 +13,9 @@
 const invariant = require('invariant');
 
 const {GraphQLObjectType, GraphQLUnionType} = require('graphql');
-const {
-  CompilerContext,
-  IRTransformer,
-  getLiteralArgumentValues,
-} = require('graphql-compiler');
+const {CompilerContext, IRTransformer} = require('graphql-compiler');
 
-import type {LinkedField, MatchField, Selection} from 'graphql-compiler';
+import type {MatchField} from 'graphql-compiler';
 import type {GraphQLCompositeType} from 'graphql';
 
 const MATCH_DIRECTIVE_NAME = 'match';
@@ -38,48 +34,18 @@ const SCHEMA_EXTENSION = `
   ) on FIELD
 `;
 
-type DataDependencyMatch = {|
-  +type: GraphQLCompositeType,
-  +fragment: string,
-  +module: string,
-|};
-
+/**
+ * This transform takes the raw MatchField nodes parsed by the compiler and
+ * validates the types as well as generating the supported arguments field.
+ */
 function relayMatchTransform(context: CompilerContext): CompilerContext {
   return IRTransformer.transform(context, {
-    LinkedField: visitField,
+    MatchField: visitMatchField,
   });
 }
 
-function getMatchSelections(
-  matches: Array<DataDependencyMatch>,
-): Array<Selection> {
-  const seenTypes = new Set<GraphQLCompositeType>();
-  return matches.map(match => {
-    invariant(
-      !seenTypes.has(match.type),
-      'RelayMatchTransform: Each "match" type has to appear at-most once. Type `%s` was duplicated.',
-      match.type,
-    );
-    seenTypes.add(match.type);
-
-    return {
-      kind: 'MatchFragmentSpread',
-      type: match.type,
-      module: match.module,
-      args: [],
-      directives: [],
-      metadata: null,
-      name: match.fragment,
-    };
-  });
-}
-
-function visitField(
-  field: LinkedField,
-  state,
-  parent?: mixed,
-): LinkedField | MatchField {
-  const transformedNode: LinkedField = this.traverse(field, state);
+function visitMatchField(field: MatchField, state, parent?: mixed): MatchField {
+  const transformedNode: MatchField = this.traverse(field, state);
   if (typeof parent !== 'object') {
     return transformedNode;
   }
@@ -88,22 +54,6 @@ function visitField(
   const parentType = schema.getType(parent?.type);
   if (!(parentType instanceof GraphQLObjectType)) {
     return transformedNode;
-  }
-
-  const matchDirective = transformedNode.directives.find(
-    ({name}) => name === MATCH_DIRECTIVE_NAME,
-  );
-  if (matchDirective == null) {
-    return transformedNode;
-  }
-
-  const cases = getLiteralArgumentValues(matchDirective.args).onTypes;
-
-  if (cases.length === 0) {
-    throw new Error(
-      `RelayMatchTransform: The @${MATCH_DIRECTIVE_NAME} directive requires ` +
-        'at least one type to match on.',
-    );
   }
 
   const currentField = parentType.getFields()[field.name];
@@ -130,18 +80,37 @@ function visitField(
     );
   }
 
-  const {alias, name, handles, metadata} = transformedNode;
+  const seenTypes = new Set<GraphQLCompositeType>();
+  const supportedTypes = transformedNode.selections.map(match => {
+    invariant(
+      match.kind === 'MatchFragmentSpread',
+      'RelayMatchTransform: selections on MatchField should all be ' +
+        'MatchFragmentSpread.',
+    );
+    invariant(
+      !seenTypes.has(match.type),
+      'RelayMatchTransform: Each "match" type has to appear at-most once. ' +
+        'Type `%s` was duplicated.',
+      match.type,
+    );
+    seenTypes.add(match.type);
+
+    const belongsToUnion = outputType
+      .getTypes()
+      .some(type => type.name === match.type);
+    if (!belongsToUnion) {
+      throw new Error(
+        `RelayMatchTransform: Unsupported type '${match.type.toString()}' in ` +
+          `the list of matches in the @${MATCH_DIRECTIVE_NAME}. Type ` +
+          `"${match.type.toString()}" does not belong to the union ` +
+          `"${outputType.toString()}".`,
+      );
+    }
+    return match.type;
+  });
+
   const result: MatchField = {
-    alias,
-    name,
-    handles,
-    metadata,
-    type: outputType,
-    kind: 'MatchField',
-    directives: transformedNode.directives.filter(
-      directive => directive !== matchDirective,
-    ),
-    selections: getMatchSelections(cases),
+    ...transformedNode,
     args: [
       {
         kind: 'Argument',
@@ -150,27 +119,12 @@ function visitField(
         value: {
           kind: 'Literal',
           metadata: null,
-          value: cases.map(match => {
-            const belongsToUnion = outputType
-              .getTypes()
-              .some(type => type.name === match.type);
-
-            if (!belongsToUnion) {
-              throw new Error(
-                `RelayMatchTransform: Unsupported type '${match.type}' in ` +
-                  `the list of matches in the @${MATCH_DIRECTIVE_NAME}. Type ` +
-                  `"${match.type}" does not belong to the union ` +
-                  `"${outputType.toString()}".`,
-              );
-            }
-            return match.type;
-          }),
+          value: supportedTypes,
         },
         metadata: null,
       },
     ],
   };
-
   return result;
 }
 

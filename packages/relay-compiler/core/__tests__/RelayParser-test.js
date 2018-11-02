@@ -15,11 +15,17 @@ require('configureForRelayOSS');
 const RelayParser = require('RelayParser');
 const RelayTestSchema = require('RelayTestSchema');
 const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+const RelayMatchTransform = require('../../transforms/RelayMatchTransform');
+const {ASTConvert} = require('graphql-compiler');
 
 describe('RelayParser', () => {
+  const schema = ASTConvert.transformASTSchema(RelayTestSchema, [
+    RelayMatchTransform.SCHEMA_EXTENSION,
+  ]);
+
   generateTestsFromFixtures(`${__dirname}/fixtures/parser`, text => {
     try {
-      const ir = RelayParser.parse(RelayTestSchema, text);
+      const ir = RelayParser.parse(schema, text);
       return JSON.stringify(ir, null, 2);
     } catch (e) {
       return 'ERROR:\n' + e;

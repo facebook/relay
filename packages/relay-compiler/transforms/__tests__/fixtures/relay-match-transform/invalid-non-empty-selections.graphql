@@ -6,9 +6,11 @@ fragment CommentBody_comment on Comment {
       module: "MarkdownBodyComponent.react"
     },
     {
-      type: "User"
-      fragment: "User_comment"
-      module: "User.react"
+      type: "PlainCommentBody"
+      fragment: "PlaintextBody_comment"
+      module: "PlaintextComponent.react"
     },
-  ])
+  ]) {
+    __typename
+  }
 }

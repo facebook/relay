@@ -43,13 +43,7 @@ type NodeVisitor<S> = {
   Fragment?: NodeVisitorFunction<Fragment, S>,
   FragmentSpread?: NodeVisitorFunction<FragmentSpread, S>,
   InlineFragment?: NodeVisitorFunction<InlineFragment, S>,
-  LinkedField?:
-    | NodeVisitorFunction<LinkedField, S>
-    | ((
-        node: LinkedField,
-        state: S,
-        parentNode?: mixed,
-      ) => LinkedField | MatchField),
+  LinkedField?: NodeVisitorFunction<LinkedField, S>,
   ListValue?: NodeVisitorFunction<ListValue, S>,
   Literal?: NodeVisitorFunction<Literal, S>,
   MatchField?: NodeVisitorFunction<MatchField, S>,

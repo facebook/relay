@@ -283,6 +283,16 @@ export type FragmentPointer = {
 };
 
 /**
+ * The results of reading a field that was marked with a @match directive
+ */
+export type MatchPointer = {|
+  __id: DataID,
+  __fragments: {[fragmentName: string]: Variables},
+  __fragmentPropName: string,
+  __module: string,
+|};
+
+/**
  * A callback for resolving a Selector from a source.
  */
 export type AsyncLoadCallback = (loadingState: LoadingState) => void;

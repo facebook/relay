@@ -13,9 +13,11 @@
 const createSuspenseFragmentContainer = require('./renderers/createSuspenseFragmentContainer');
 const createSuspenseQueryRenderer = require('./renderers/createSuspenseQueryRenderer');
 const fetchQuery_UNSTABLE = require('./helpers/fetchQuery_UNSTABLE');
+const lazyLoadFragmentMatch = require('./lazyLoadFragmentMatch');
 
 module.exports = {
   fetchQuery_UNSTABLE: fetchQuery_UNSTABLE,
+  lazyLoadFragmentMatch: lazyLoadFragmentMatch,
 
   createSuspenseQueryRenderer: createSuspenseQueryRenderer,
   createSuspenseFragmentContainer: createSuspenseFragmentContainer,

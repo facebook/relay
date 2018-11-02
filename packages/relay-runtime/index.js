@@ -90,6 +90,7 @@ export type {
   FragmentMap,
   FragmentReference,
   HandleFieldPayload,
+  MatchPointer,
   MissingFieldHandler,
   OperationSelector,
   OptimisticUpdate,

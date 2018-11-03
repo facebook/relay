@@ -30,6 +30,7 @@ const forEachObject = require('forEachObject');
 const invariant = require('invariant');
 const isClassicRelayContext = require('../store/isClassicRelayContext');
 const makeLegacyStringishComponentRef = require('../util/makeLegacyStringishComponentRef');
+const readContext = require('../../modern/readContext');
 const relayUnstableBatchedUpdates = require('../tools/relayUnstableBatchedUpdates');
 const shallowEqual = require('shallowEqual');
 const warning = require('warning');
@@ -1066,8 +1067,7 @@ function create(
   }
 
   function forwardRef(props, ref) {
-    // $FlowFixMe unstable_read is not yet typed
-    const context = ReactRelayContext.unstable_read();
+    const context = readContext(ReactRelayContext);
     invariant(
       context,
       `${containerName} tried to render a context that was ` +

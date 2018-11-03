@@ -22,6 +22,7 @@ const RelayStaticContainer = require('../RelayStaticContainer');
 const prettyFormat = require('pretty-format');
 const ReactTestRenderer = require('react-test-renderer');
 const ReactRelayContext = require('../../../modern/ReactRelayContext');
+const readContext = require('../../../modern/readContext');
 
 describe('RelayReadyStateRenderer', () => {
   /**
@@ -537,8 +538,7 @@ describe('RelayReadyStateRenderer', () => {
   describe('context', () => {
     it('sets environment and query config on the React context', () => {
       function TestComponent({onRenderContext}) {
-        // $FlowFixMe unstable_read is not yet typed
-        const context = ReactRelayContext.unstable_read();
+        const context = readContext(ReactRelayContext);
         onRenderContext(context);
         return null;
       }

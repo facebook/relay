@@ -17,7 +17,6 @@ const ReactTestRenderer = require('ReactTestRenderer');
 
 const createSuspenseQueryRenderer = require('../createSuspenseQueryRenderer');
 const invariant = require('invariant');
-const readContext = require('react-relay/modern/readContext');
 
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {generateAndCompile} = require('RelayModernTestUtils');
@@ -215,11 +214,12 @@ describe('createQueryRenderer', () => {
   });
 
   describe('context', () => {
-    let relayContext: $FlowFixMe;
+    let relayContext;
 
     beforeEach(() => {
       function ContextGetter() {
-        relayContext = readContext(ReactRelayContext);
+        // $FlowFixMe unstable_read is not yet typed
+        relayContext = ReactRelayContext.unstable_read();
         return null;
       }
       renderFn = jest.fn(() => <ContextGetter />);

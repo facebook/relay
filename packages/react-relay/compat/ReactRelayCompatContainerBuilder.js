@@ -17,7 +17,6 @@ const RelayGraphQLTag = require('../classic/query/RelayGraphQLTag');
 const assertFragmentMap = require('../modern/assertFragmentMap');
 const invariant = require('invariant');
 const mapObject = require('mapObject');
-const readContext = require('../modern/readContext');
 
 const {
   getComponentName,
@@ -142,7 +141,8 @@ function buildCompatContainer(
   }
 
   function forwardRef(props, ref) {
-    const context = readContext(ReactRelayContext);
+    // $FlowFixMe unstable_read is not yet typed
+    const context = ReactRelayContext.unstable_read();
     invariant(
       context,
       `${containerName} tried to render a context that was ` +

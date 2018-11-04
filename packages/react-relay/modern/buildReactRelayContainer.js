@@ -16,7 +16,6 @@ const ReactRelayContext = require('../modern/ReactRelayContext');
 const assertFragmentMap = require('./assertFragmentMap');
 const invariant = require('invariant');
 const mapObject = require('mapObject');
-const readContext = require('./readContext');
 
 const {
   getComponentName,
@@ -77,7 +76,8 @@ function buildReactRelayContainer<TBase: React$ComponentType<*>>(
   }
 
   function forwardRef(props, ref) {
-    const context = readContext(ReactRelayContext);
+    // $FlowFixMe unstable_read is not yet typed
+    const context = ReactRelayContext.unstable_read();
     invariant(
       context,
       `${containerName} tried to render a context that was ` +

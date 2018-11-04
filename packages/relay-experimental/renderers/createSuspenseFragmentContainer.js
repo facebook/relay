@@ -19,7 +19,6 @@ const forEachObject = require('forEachObject');
 const getRelayProp = require('../helpers/getRelayProp');
 const invariant = require('invariant');
 const mapObject = require('mapObject');
-const readContext = require('react-relay/modern/readContext');
 
 const {DataResourceContext} = require('./DataResource');
 const {getFragment, getDataIDsFromObject} = require('relay-runtime');
@@ -51,7 +50,6 @@ function createSuspenseFragmentContainer<
     DataResource: TDataResourceCache,
     forwardedRef: React.Ref<TComponent>,
     fragmentRefs: {[string]: mixed},
-    // $FlowFixMe
     relayContext: RelayContext & {query?: OperationSelector},
   |};
 
@@ -206,8 +204,10 @@ function createSuspenseFragmentContainer<
   }
 
   const SuspenseFragmentContainer = (props, ref) => {
-    const DataResource = readContext(DataResourceContext);
-    const relayContext = readContext(ReactRelayContext);
+    // $FlowFixMe - TODO T35024201 unstable_read is not yet typed
+    const DataResource = DataResourceContext.unstable_read();
+    // $FlowFixMe - TODO T35024201 unstable_read is not yet typed
+    const relayContext = ReactRelayContext.unstable_read();
     invariant(
       relayContext != null,
       `SuspenseFragmentContainer: ${containerName} tried to render with ` +

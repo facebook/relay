@@ -16,8 +16,6 @@ const ReactRelayRefetchContainer = require('../ReactRelayRefetchContainer');
 const ReactTestRenderer = require('ReactTestRenderer');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 
-const readContext = require('../readContext');
-
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {createOperationSelector, ROOT_ID} = require('relay-runtime');
 
@@ -103,7 +101,8 @@ describe('ReactRelayRefetchContainer', () => {
     ));
 
     function ContextGetter() {
-      relayContext = readContext(ReactRelayContext);
+      // $FlowFixMe unstable_read is not yet typed
+      relayContext = ReactRelayContext.unstable_read();
       return null;
     }
 

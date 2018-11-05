@@ -93,7 +93,7 @@ export type SubscribeFunction = (
   observer?: LegacyObserver<GraphQLResponse>,
 ) => RelayObservable<GraphQLResponse> | Disposable;
 
-// $FlowFixMe this is compatible with classic api see D4658012
+// $FlowFixMe(site=react_native_fb) this is compatible with classic api see D4658012
 export type Uploadable = File | Blob;
 // $FlowFixMe this is compatible with classic api see D4658012
 export type UploadableMap = {[key: string]: Uploadable};

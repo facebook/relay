@@ -50,7 +50,7 @@ export interface Filesystem {
  *
  * Example:
  *
- *   const dir = new CodegenDirectory('/some/path/generated');
+ *   const dir = new CodegenDirectory('/some/path/generated', {filesystem: require('fs')});
  *   // write files in case content changed (less watchman/mtime changes)
  *   dir.writeFile('OneFile.js', contents);
  *   dir.writeFile('OtherFile.js', contents);

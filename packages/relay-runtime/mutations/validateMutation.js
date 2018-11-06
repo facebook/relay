@@ -113,23 +113,45 @@ if (__DEV__) {
         }
         return;
       case 'LinkedField':
+        const selections = field.selections;
         if (optimisticResponse[fieldName] === null) {
           return;
         }
-        if (!(optimisticResponse[fieldName] instanceof Object)) {
-          warning(
-            false,
-            'validateMutation: Expected `optimisticResponse` to match structure of server response for mutation `%s`, field %s is not an object',
-            context.operationName,
-            path,
-          );
-          return;
+        if (field.plural) {
+          if (Array.isArray(optimisticResponse[fieldName])) {
+            optimisticResponse[fieldName].forEach(r =>
+              validateSelections(r, selections, {
+                ...context,
+                path,
+              }),
+            );
+            return;
+          } else {
+            warning(
+              false,
+              'validateMutation: Expected `optimisticResponse` to match structure of server response for mutation `%s`, field %s is not an array',
+              context.operationName,
+              path,
+            );
+            return;
+          }
+        } else {
+          if (optimisticResponse[fieldName] instanceof Object) {
+            validateSelections(optimisticResponse[fieldName], selections, {
+              ...context,
+              path,
+            });
+            return;
+          } else {
+            warning(
+              false,
+              'validateMutation: Expected `optimisticResponse` to match structure of server response for mutation `%s`, field %s is not an object',
+              context.operationName,
+              path,
+            );
+            return;
+          }
         }
-        validateSelections(optimisticResponse[fieldName], field.selections, {
-          ...context,
-          path,
-        });
-        return;
     }
   };
 
@@ -137,6 +159,10 @@ if (__DEV__) {
     optimisticResponse: Object,
     context: ValidationContext,
   ) => {
+    if (Array.isArray(optimisticResponse)) {
+      optimisticResponse.forEach(r => validateOptimisticResponse(r, context));
+      return;
+    }
     Object.keys(optimisticResponse).forEach((key: string) => {
       const value = optimisticResponse[key];
       const path = `${context.path}.${key}`;

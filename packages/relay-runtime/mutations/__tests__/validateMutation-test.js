@@ -36,7 +36,7 @@ describe('validateOptimisticResponse', () => {
               }
             }
           }
-          `).ChangeNameMutation,
+      `).ChangeNameMutation,
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -61,7 +61,7 @@ describe('validateOptimisticResponse', () => {
               }
             }
           }
-          `).ChangeNameMutation,
+      `).ChangeNameMutation,
       optimisticResponse: {
         actorNameChange: {
           actor: {},
@@ -82,7 +82,7 @@ describe('validateOptimisticResponse', () => {
               }
             }
           }
-          `).ChangeNameMutation,
+      `).ChangeNameMutation,
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -106,7 +106,7 @@ describe('validateOptimisticResponse', () => {
               }
             }
           }
-          `).ChangeNameMutation,
+      `).ChangeNameMutation,
       optimisticResponse: {
         actorNameChange: {},
       },
@@ -134,7 +134,7 @@ describe('validateOptimisticResponse', () => {
               }
             }
           }
-          `).ChangeNameMutation,
+      `).ChangeNameMutation,
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -168,7 +168,7 @@ describe('validateOptimisticResponse', () => {
               }
             }
           }
-          `).ChangeNameMutation,
+      `).ChangeNameMutation,
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -203,7 +203,7 @@ describe('validateOptimisticResponse', () => {
               }
             }
           }
-          `).ChangeNameMutation,
+      `).ChangeNameMutation,
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -239,7 +239,7 @@ describe('validateOptimisticResponse', () => {
               }
             }
           }
-          `).ChangeNameMutation,
+      `).ChangeNameMutation,
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -275,7 +275,7 @@ describe('validateOptimisticResponse', () => {
               }
             }
           }
-          `).ChangeNameMutation,
+      `).ChangeNameMutation,
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -312,7 +312,7 @@ describe('validateOptimisticResponse', () => {
               }
             }
           }
-          `).ChangeNameMutation,
+      `).ChangeNameMutation,
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -326,6 +326,40 @@ describe('validateOptimisticResponse', () => {
         myVar: false,
       },
       shouldWarn: true,
+    },
+    {
+      name: 'Handles Lists',
+      mutation: generateAndCompile(`
+          mutation ChangeNameMutation(
+            $input: ActorNameChangeInput!,
+            $myVar: Boolean!,
+          ) {
+            actorNameChange(input: $input) {
+              actor {
+                allPhones {
+                  isVerified
+                }
+              }
+            }
+          }
+      `).ChangeNameMutation,
+      optimisticResponse: {
+        actorNameChange: {
+          actor: {
+            id: 3,
+            __typename: 'Page',
+            allPhones: [
+              {
+                isVerified: true,
+              },
+            ],
+          },
+        },
+      },
+      variables: {
+        myVar: false,
+      },
+      shouldWarn: false,
     },
   ].forEach(({name, mutation, optimisticResponse, shouldWarn, variables}) => {
     it(name, () => {

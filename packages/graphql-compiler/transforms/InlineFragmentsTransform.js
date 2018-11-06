@@ -19,6 +19,8 @@ import type {
   InlineFragment,
   Fragment,
   FragmentSpread,
+  LinkedField,
+  MatchField,
   MatchFragmentSpread,
 } from '../core/GraphQLIR';
 
@@ -36,6 +38,7 @@ function inlineFragmentsTransform(
     {
       Fragment: visitFragment,
       FragmentSpread: visitFragmentSpread,
+      MatchField: visitMatchField,
       MatchFragmentSpread: visitFragmentSpread,
     },
     () => STATE,
@@ -44,6 +47,26 @@ function inlineFragmentsTransform(
 
 function visitFragment(fragment: Fragment, state: State): ?Fragment {
   return null;
+}
+
+/**
+ * Transform a MatchField into a LinkedField. For normalizaiton, we can treat
+ * MatchFields exactly like LinkFields
+ */
+function visitMatchField(field: MatchField, state: State): ?MatchField {
+  const linkedField: LinkedField = {
+    kind: 'LinkedField',
+    alias: field.alias,
+    name: field.name,
+    args: field.args,
+    directives: field.directives,
+    handles: field.handles,
+    metadata: field.metadata,
+    selections: field.selections,
+    type: field.type,
+  };
+
+  return this.traverse(linkedField, state);
 }
 
 function visitFragmentSpread<T: FragmentSpread | MatchFragmentSpread>(

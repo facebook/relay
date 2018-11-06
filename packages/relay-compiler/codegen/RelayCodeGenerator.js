@@ -167,11 +167,20 @@ const RelayCodeGenVisitor = {
       const selections = flattenArray(node.selections);
       const matchesByType = {};
       selections.forEach(selection => {
+        if (
+          selection.kind === 'ScalarField' &&
+          selection.name === '__typename'
+        ) {
+          // The RelayGenerateTypename transform will add a __typename selection
+          // to the selections of the match field.
+          return;
+        }
         invariant(
           selection.kind === 'MatchFragmentSpread',
           'RelayCodeGenerator: Expected selection for MatchField %s to be ' +
-            'a MatchFragmentSpread. Source: %s.',
+            'a MatchFragmentSpread, but instead got %s. Source: %s.',
           node.alias ?? node.name,
+          selection.kind,
           getErrorMessage(ancestors[0]),
         );
         invariant(

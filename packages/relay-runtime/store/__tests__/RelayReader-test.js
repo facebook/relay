@@ -432,7 +432,7 @@ describe('RelayReader', () => {
     ]);
   });
 
-  describe('when reading a MatchField from the @match directive', () => {
+  describe('when @match directive is present', () => {
     it('creates fragment and module pointers for fragment that matches resolved type (1)', () => {
       // When the type matches PlainUserNameRenderer
       const storeData = {
@@ -441,11 +441,13 @@ describe('RelayReader', () => {
           id: '1',
           __typename: 'User',
           'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref: 'client:1',
+            __ref:
+              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           },
         },
-        'client:1': {
-          __id: 'client:1',
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
+          __id:
+            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __typename: 'PlainUserNameRenderer',
           text: 'plain name',
         },
@@ -489,7 +491,8 @@ describe('RelayReader', () => {
       expect(data).toEqual({
         id: '1',
         nameRenderer: {
-          __id: 'client:1',
+          __id:
+            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __fragments: {
             PlainUserNameRenderer_name: {},
           },
@@ -497,7 +500,10 @@ describe('RelayReader', () => {
           __module: 'PlainUserNameRenderer.react',
         },
       });
-      expect(Object.keys(seenRecords)).toEqual(['1', 'client:1']);
+      expect(Object.keys(seenRecords)).toEqual([
+        '1',
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+      ]);
     });
 
     it('creates fragment and module pointers for fragment that matches resolved type (2)', () => {
@@ -508,13 +514,15 @@ describe('RelayReader', () => {
           id: '1',
           __typename: 'User',
           'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref: 'client:1',
+            __ref:
+              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           },
         },
-        'client:1': {
-          __id: 'client:1',
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
+          __id:
+            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __typename: 'MarkdownUserNameRenderer',
-          markdown: 'markdown name',
+          markdown: 'markdown payload',
         },
         'client:root': {
           __id: 'client:root',
@@ -556,7 +564,8 @@ describe('RelayReader', () => {
       expect(data).toEqual({
         id: '1',
         nameRenderer: {
-          __id: 'client:1',
+          __id:
+            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __fragments: {
             MarkdownUserNameRenderer_name: {},
           },
@@ -564,7 +573,10 @@ describe('RelayReader', () => {
           __module: 'MarkdownUserNameRenderer.react',
         },
       });
-      expect(Object.keys(seenRecords)).toEqual(['1', 'client:1']);
+      expect(Object.keys(seenRecords)).toEqual([
+        '1',
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+      ]);
     });
 
     it('reads data correctly when the resolved type does not match any of the specified cases', () => {
@@ -574,11 +586,13 @@ describe('RelayReader', () => {
           id: '1',
           __typename: 'User',
           'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref: 'client:1',
+            __ref:
+              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           },
         },
-        'client:1': {
-          __id: 'client:1',
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
+          __id:
+            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __typename: 'CustomNameRenderer',
           customField: 'custom value',
         },
@@ -623,7 +637,10 @@ describe('RelayReader', () => {
         id: '1',
         nameRenderer: null,
       });
-      expect(Object.keys(seenRecords)).toEqual(['1', 'client:1']);
+      expect(Object.keys(seenRecords)).toEqual([
+        '1',
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+      ]);
     });
 
     it('reads data correctly when the match field record is null', () => {

@@ -20,6 +20,8 @@ const RelayModernRecord = require('../RelayModernRecord');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
 
+const {IRTransforms} = require('relay-compiler');
+
 const {check} = RelayDataLoader;
 const {ROOT_ID} = RelayStoreUtils;
 
@@ -252,6 +254,351 @@ describe('RelayDataLoader', () => {
       );
       expect(status).toBe(true);
       expect(target.size()).toBe(0);
+    });
+
+    describe('when @match directive is present', () => {
+      it('reads data correctly (1)', () => {
+        // When the type matches PlainUserNameRenderer
+        const storeData = {
+          '1': {
+            __id: '1',
+            id: '1',
+            __typename: 'User',
+            'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
+              __ref:
+                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            },
+          },
+          'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
+            __id:
+              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            __typename: 'PlainUserNameRenderer',
+            text: 'plain name',
+          },
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            'node(id:"1")': {__ref: '1'},
+          },
+        };
+        const source = new RelayInMemoryRecordSource(storeData);
+        const target = new RelayInMemoryRecordSource();
+        const {BarQuery} = generateWithTransforms(
+          `
+          fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+            text
+          }
+
+          fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+            markdown
+          }
+
+          fragment BarFragment on User {
+            id
+            nameRenderer @match(onTypes: [
+              {
+                type: "PlainUserNameRenderer"
+                fragment: "PlainUserNameRenderer_name"
+                module: "PlainUserNameRenderer.react"
+              }
+              {
+                type: "MarkdownUserNameRenderer"
+                fragment: "MarkdownUserNameRenderer_name"
+                module: "MarkdownUserNameRenderer.react"
+              }
+            ])
+          }
+
+          query BarQuery($id: ID!) {
+            node(id: $id) {
+              ...BarFragment
+            }
+          }`,
+          [...IRTransforms.commonTransforms, ...IRTransforms.codegenTransforms],
+        );
+        const status = check(
+          source,
+          target,
+          {
+            dataID: 'client:root',
+            node: BarQuery.fragment,
+            variables: {id: '1'},
+          },
+          [],
+        );
+        expect(status).toBe(true);
+        expect(target.size()).toBe(0);
+      });
+
+      it('reads data correctly (2)', () => {
+        // When the type matches MarkdownUserNameRenderer
+        const storeData = {
+          '1': {
+            __id: '1',
+            id: '1',
+            __typename: 'User',
+            'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
+              __ref:
+                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            },
+          },
+          'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
+            __id:
+              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            __typename: 'MarkdownUserNameRenderer',
+            markdown: 'markdown payload',
+          },
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            'node(id:"1")': {__ref: '1'},
+          },
+        };
+        const source = new RelayInMemoryRecordSource(storeData);
+        const target = new RelayInMemoryRecordSource();
+        const {BarQuery} = generateWithTransforms(
+          `
+          fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+            text
+          }
+
+          fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+            markdown
+          }
+
+          fragment BarFragment on User {
+            id
+            nameRenderer @match(onTypes: [
+              {
+                type: "PlainUserNameRenderer"
+                fragment: "PlainUserNameRenderer_name"
+                module: "PlainUserNameRenderer.react"
+              }
+              {
+                type: "MarkdownUserNameRenderer"
+                fragment: "MarkdownUserNameRenderer_name"
+                module: "MarkdownUserNameRenderer.react"
+              }
+            ])
+          }
+
+          query BarQuery($id: ID!) {
+            node(id: $id) {
+              ...BarFragment
+            }
+          }`,
+          [...IRTransforms.commonTransforms, ...IRTransforms.codegenTransforms],
+        );
+        const status = check(
+          source,
+          target,
+          {
+            dataID: 'client:root',
+            node: BarQuery.fragment,
+            variables: {id: '1'},
+          },
+          [],
+        );
+        expect(status).toBe(true);
+        expect(target.size()).toBe(0);
+      });
+
+      it('reads data correctly when the resolved type does not match any of the specified cases', () => {
+        const storeData = {
+          '1': {
+            __id: '1',
+            id: '1',
+            __typename: 'User',
+            'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
+              __ref:
+                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            },
+          },
+          'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
+            __id:
+              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            __typename: 'CustomNameRenderer',
+            customField: 'custom value',
+          },
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            'node(id:"1")': {__ref: '1'},
+          },
+        };
+        const source = new RelayInMemoryRecordSource(storeData);
+        const target = new RelayInMemoryRecordSource();
+        const {BarQuery} = generateWithTransforms(
+          `
+          fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+            text
+          }
+
+          fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+            markdown
+          }
+
+          fragment BarFragment on User {
+            id
+            nameRenderer @match(onTypes: [
+              {
+                type: "PlainUserNameRenderer"
+                fragment: "PlainUserNameRenderer_name"
+                module: "PlainUserNameRenderer.react"
+              }
+              {
+                type: "MarkdownUserNameRenderer"
+                fragment: "MarkdownUserNameRenderer_name"
+                module: "MarkdownUserNameRenderer.react"
+              }
+            ])
+          }
+
+          query BarQuery($id: ID!) {
+            node(id: $id) {
+              ...BarFragment
+            }
+          }`,
+          [...IRTransforms.commonTransforms, ...IRTransforms.codegenTransforms],
+        );
+        const status = check(
+          source,
+          target,
+          {
+            dataID: 'client:root',
+            node: BarQuery.fragment,
+            variables: {id: '1'},
+          },
+          [],
+        );
+        expect(status).toBe(true);
+        expect(target.size()).toBe(0);
+      });
+
+      it('reads data correctly when the match field record is null', () => {
+        const storeData = {
+          '1': {
+            __id: '1',
+            id: '1',
+            __typename: 'User',
+            'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': null,
+          },
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            'node(id:"1")': {__ref: '1'},
+          },
+        };
+        const source = new RelayInMemoryRecordSource(storeData);
+        const target = new RelayInMemoryRecordSource();
+        const {BarQuery} = generateWithTransforms(
+          `
+          fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+            text
+          }
+
+          fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+            markdown
+          }
+
+          fragment BarFragment on User {
+            id
+            nameRenderer @match(onTypes: [
+              {
+                type: "PlainUserNameRenderer"
+                fragment: "PlainUserNameRenderer_name"
+                module: "PlainUserNameRenderer.react"
+              }
+              {
+                type: "MarkdownUserNameRenderer"
+                fragment: "MarkdownUserNameRenderer_name"
+                module: "MarkdownUserNameRenderer.react"
+              }
+            ])
+          }
+
+          query BarQuery($id: ID!) {
+            node(id: $id) {
+              ...BarFragment
+            }
+          }`,
+          [...IRTransforms.commonTransforms, ...IRTransforms.codegenTransforms],
+        );
+        const status = check(
+          source,
+          target,
+          {
+            dataID: 'client:root',
+            node: BarQuery.fragment,
+            variables: {id: '1'},
+          },
+          [],
+        );
+        expect(status).toBe(true);
+        expect(target.size()).toBe(0);
+      });
+
+      it('reads data correctly when the match field record is missing', () => {
+        const storeData = {
+          '1': {
+            __id: '1',
+            id: '1',
+            __typename: 'User',
+          },
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            'node(id:"1")': {__ref: '1'},
+          },
+        };
+        const source = new RelayInMemoryRecordSource(storeData);
+        const target = new RelayInMemoryRecordSource();
+        const {BarQuery} = generateWithTransforms(
+          `
+          fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+            text
+          }
+
+          fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+            markdown
+          }
+
+          fragment BarFragment on User {
+            id
+            nameRenderer @match(onTypes: [
+              {
+                type: "PlainUserNameRenderer"
+                fragment: "PlainUserNameRenderer_name"
+                module: "PlainUserNameRenderer.react"
+              }
+              {
+                type: "MarkdownUserNameRenderer"
+                fragment: "MarkdownUserNameRenderer_name"
+                module: "MarkdownUserNameRenderer.react"
+              }
+            ])
+          }
+
+          query BarQuery($id: ID!) {
+            node(id: $id) {
+              ...BarFragment
+            }
+          }`,
+          [...IRTransforms.commonTransforms, ...IRTransforms.codegenTransforms],
+        );
+        const status = check(
+          source,
+          target,
+          {
+            dataID: 'client:root',
+            node: BarQuery.fragment,
+            variables: {id: '1'},
+          },
+          [],
+        );
+        expect(status).toBe(false);
+        expect(target.size()).toBe(0);
+      });
     });
 
     describe('when the data is complete', () => {

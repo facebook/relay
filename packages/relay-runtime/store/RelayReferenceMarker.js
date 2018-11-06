@@ -102,9 +102,6 @@ class RelayReferenceMarker {
             this._traverseLink(selection, record);
           }
           break;
-        case MATCH_FIELD:
-          // TODO(T35278439) - Handle MATCH_FIELD
-          break;
         case CONDITION:
           const conditionValue = this._getVariableValue(selection.condition);
           if (conditionValue === selection.passingValue) {
@@ -147,6 +144,14 @@ class RelayReferenceMarker {
           break;
         case SCALAR_FIELD:
         case SCALAR_HANDLE:
+          break;
+        case MATCH_FIELD:
+          invariant(
+            false,
+            'RelayReferenceMarker: Unexpected MatchField node `%s`.',
+            selection.name,
+          );
+          // $FlowExpectedError - we need the break; for OSS linter
           break;
         default:
           (selection: empty);

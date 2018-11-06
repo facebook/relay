@@ -354,4 +354,283 @@ describe('RelayReferenceMarker', () => {
       'client:root',
     ]);
   });
+
+  describe('when using a @match field', () => {
+    it('marks referenced records correctly', () => {
+      const storeData = {
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
+            __ref:
+              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          },
+        },
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
+          __id:
+            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          __typename: 'MarkdownUserNameRenderer',
+          markdown: 'markdown payload',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      source = new RelayInMemoryRecordSource(storeData);
+      const {UserQuery} = generateAndCompile(
+        `
+      fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+        text
+      }
+
+      fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+        markdown
+      }
+
+      fragment FooFragment on User {
+        id
+        nameRenderer @match(onTypes: [
+          {
+            type: "PlainUserNameRenderer"
+            fragment: "PlainUserNameRenderer_name"
+            module: "PlainUserNameRenderer.react"
+          }
+          {
+            type: "MarkdownUserNameRenderer"
+            fragment: "MarkdownUserNameRenderer_name"
+            module: "MarkdownUserNameRenderer.react"
+          }
+        ])
+      }
+
+      query UserQuery($id: ID!) {
+        node(id: $id) {
+          id
+          __typename
+          ...FooFragment
+        }
+      }
+    `,
+      );
+      const references = new Set();
+      mark(
+        source,
+        {
+          dataID: ROOT_ID,
+          node: UserQuery.operation,
+          variables: {id: '1', size: 32},
+        },
+        references,
+      );
+      expect(Array.from(references).sort()).toEqual([
+        '1',
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+        'client:root',
+      ]);
+    });
+
+    it('marks referenced records correctly  when the resolved type does not match any of the specified cases', () => {
+      const storeData = {
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
+            __ref:
+              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          },
+        },
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
+          __id:
+            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          __typename: 'CustomNameRenderer',
+          customField: 'custom value',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      source = new RelayInMemoryRecordSource(storeData);
+      const {UserQuery} = generateAndCompile(
+        `
+      fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+        text
+      }
+
+      fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+        markdown
+      }
+
+      fragment FooFragment on User {
+        id
+        nameRenderer @match(onTypes: [
+          {
+            type: "PlainUserNameRenderer"
+            fragment: "PlainUserNameRenderer_name"
+            module: "PlainUserNameRenderer.react"
+          }
+          {
+            type: "MarkdownUserNameRenderer"
+            fragment: "MarkdownUserNameRenderer_name"
+            module: "MarkdownUserNameRenderer.react"
+          }
+        ])
+      }
+
+      query UserQuery($id: ID!) {
+        node(id: $id) {
+          id
+          __typename
+          ...FooFragment
+        }
+      }
+    `,
+      );
+      const references = new Set();
+      mark(
+        source,
+        {
+          dataID: ROOT_ID,
+          node: UserQuery.operation,
+          variables: {id: '1', size: 32},
+        },
+        references,
+      );
+      expect(Array.from(references).sort()).toEqual([
+        '1',
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+        'client:root',
+      ]);
+    });
+
+    it('marks referenced records correctly when @match record is null', () => {
+      const storeData = {
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': null,
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      source = new RelayInMemoryRecordSource(storeData);
+      const {UserQuery} = generateAndCompile(
+        `
+      fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+        text
+      }
+
+      fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+        markdown
+      }
+
+      fragment FooFragment on User {
+        id
+        nameRenderer @match(onTypes: [
+          {
+            type: "PlainUserNameRenderer"
+            fragment: "PlainUserNameRenderer_name"
+            module: "PlainUserNameRenderer.react"
+          }
+          {
+            type: "MarkdownUserNameRenderer"
+            fragment: "MarkdownUserNameRenderer_name"
+            module: "MarkdownUserNameRenderer.react"
+          }
+        ])
+      }
+
+      query UserQuery($id: ID!) {
+        node(id: $id) {
+          id
+          __typename
+          ...FooFragment
+        }
+      }
+    `,
+      );
+      const references = new Set();
+      mark(
+        source,
+        {
+          dataID: ROOT_ID,
+          node: UserQuery.operation,
+          variables: {id: '1', size: 32},
+        },
+        references,
+      );
+      expect(Array.from(references).sort()).toEqual(['1', 'client:root']);
+    });
+
+    it('marks referenced records correctly when @match record is missing', () => {
+      const storeData = {
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      source = new RelayInMemoryRecordSource(storeData);
+      const {UserQuery} = generateAndCompile(
+        `
+      fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+        text
+      }
+
+      fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+        markdown
+      }
+
+      fragment FooFragment on User {
+        id
+        nameRenderer @match(onTypes: [
+          {
+            type: "PlainUserNameRenderer"
+            fragment: "PlainUserNameRenderer_name"
+            module: "PlainUserNameRenderer.react"
+          }
+          {
+            type: "MarkdownUserNameRenderer"
+            fragment: "MarkdownUserNameRenderer_name"
+            module: "MarkdownUserNameRenderer.react"
+          }
+        ])
+      }
+
+      query UserQuery($id: ID!) {
+        node(id: $id) {
+          id
+          __typename
+          ...FooFragment
+        }
+      }
+    `,
+      );
+      const references = new Set();
+      mark(
+        source,
+        {
+          dataID: ROOT_ID,
+          node: UserQuery.operation,
+          variables: {id: '1', size: 32},
+        },
+        references,
+      );
+      expect(Array.from(references).sort()).toEqual(['1', 'client:root']);
+    });
+  });
 });

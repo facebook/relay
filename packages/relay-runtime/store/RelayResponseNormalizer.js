@@ -19,9 +19,12 @@ const warning = require('warning');
 
 const {
   CONDITION,
+  FRAGMENT,
+  FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
   LINKED_HANDLE,
+  MATCH_FIELD,
   SCALAR_FIELD,
   SCALAR_HANDLE,
 } = require('../util/RelayConcreteNode');
@@ -165,7 +168,18 @@ class RelayResponseNormalizer {
           handle: selection.handle,
           handleKey,
         });
+      } else if (
+        selection.kind === FRAGMENT ||
+        selection.kind === FRAGMENT_SPREAD ||
+        selection.kind === MATCH_FIELD
+      ) {
+        invariant(
+          false,
+          'RelayResponseNormalizer(): Unexpected ast kind `%s`.',
+          selection.kind,
+        );
       } else {
+        (selection: empty);
         invariant(
           false,
           'RelayResponseNormalizer(): Unexpected ast kind `%s`.',
@@ -218,8 +232,19 @@ class RelayResponseNormalizer {
       } else {
         this._normalizeLink(selection, record, storageKey, fieldValue);
       }
+    } else if (selection.kind === MATCH_FIELD) {
+      invariant(
+        false,
+        'RelayResponseNormalizer(): Unexpected ast kind `%s` during normalization.',
+        selection.kind,
+      );
     } else {
-      // TODO(T35278439) - Handle MATCH_FIELD
+      (selection: empty);
+      invariant(
+        false,
+        'RelayResponseNormalizer(): Unexpected ast kind `%s` during normalization.',
+        selection.kind,
+      );
     }
   }
 

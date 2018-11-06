@@ -92,11 +92,11 @@ export type ConcreteMatchField = {
   storageKey: ?string,
   args: ?Array<ConcreteArgument>,
   matchesByType: {
-    [key: string]: {
+    [key: string]: {|
       fragmentPropName: string,
       selection: ConcreteFragmentSpread,
       module: string,
-    },
+    |},
   },
 };
 export type ConcreteLinkedHandle = {

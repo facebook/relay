@@ -289,7 +289,7 @@ class RelayReader {
       'RelayReader(): Expected to be able to resolve concrete type for ' +
         'field `%s` on record `%s`',
       applicationName,
-      RelayModernRecord.getDataID(record),
+      RelayModernRecord.getDataID(linkedRecord),
     );
 
     const match = field.matchesByType[concreteType];

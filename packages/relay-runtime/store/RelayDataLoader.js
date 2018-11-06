@@ -38,10 +38,13 @@ import type {Record} from 'react-relay/classic/environment/RelayCombinedEnvironm
 
 const {
   CONDITION,
+  FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
   LINKED_HANDLE,
+  MATCH_FIELD,
   SCALAR_FIELD,
+  SCALAR_HANDLE,
 } = RelayConcreteNode;
 const {getStorageKey, getArgumentValues} = RelayStoreUtils;
 
@@ -225,9 +228,20 @@ class RelayDataLoader {
             this._prepareLink(handleField, dataID);
           }
           break;
-        default:
+        case MATCH_FIELD:
+        case SCALAR_HANDLE:
+        case FRAGMENT_SPREAD:
           invariant(
-            selection.kind === SCALAR_FIELD,
+            false,
+            'RelayAsyncLoader(): Unexpected ast kind `%s`.',
+            selection.kind,
+          );
+          // $FlowExpectedError - we need the break; for OSS linter
+          break;
+        default:
+          (selection: empty);
+          invariant(
+            false,
             'RelayAsyncLoader(): Unexpected ast kind `%s`.',
             selection.kind,
           );

@@ -14,7 +14,12 @@ const GraphQLCompilerContext = require('./GraphQLCompilerContext');
 
 const {visit} = require('./GraphQLIRVisitor');
 
-import type {Fragment, FragmentSpread, Root} from './GraphQLIR';
+import type {
+  Fragment,
+  FragmentSpread,
+  MatchFragmentSpread,
+  Root,
+} from './GraphQLIR';
 
 /**
  * Returns a GraphQLCompilerContext containing only the documents referenced
@@ -29,14 +34,22 @@ function filterContextForNode(
     context.serverSchema,
     context.clientSchema,
   ).add(node);
+  const visitFragmentSpread = (
+    fragmentSpread: FragmentSpread | MatchFragmentSpread,
+  ) => {
+    const {name} = fragmentSpread;
+    if (!filteredContext.get(name)) {
+      const fragment = context.getFragment(name);
+      filteredContext = filteredContext.add(fragment);
+      queue.push(fragment);
+    }
+  };
   const visitorConfig = {
     FragmentSpread: (fragmentSpread: FragmentSpread) => {
-      const {name} = fragmentSpread;
-      if (!filteredContext.get(name)) {
-        const fragment = context.getFragment(name);
-        filteredContext = filteredContext.add(fragment);
-        queue.push(fragment);
-      }
+      visitFragmentSpread(fragmentSpread);
+    },
+    MatchFragmentSpread: (fragmentSpread: MatchFragmentSpread) => {
+      visitFragmentSpread(fragmentSpread);
     },
   };
   while (queue.length) {

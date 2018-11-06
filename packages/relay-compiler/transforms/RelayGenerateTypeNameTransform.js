@@ -18,7 +18,7 @@ const {
   SchemaUtils,
 } = require('graphql-compiler');
 
-import type {LinkedField, ScalarField} from 'graphql-compiler';
+import type {LinkedField, MatchField, ScalarField} from 'graphql-compiler';
 
 const {isAbstractType} = SchemaUtils;
 
@@ -53,13 +53,17 @@ function relayGenerateTypeNameTransform(
   return IRTransformer.transform(
     context,
     {
-      LinkedField: visitLinkedField,
+      LinkedField: visitLinkedOrMatchField,
+      MatchField: visitLinkedOrMatchField,
     },
     () => state,
   );
 }
 
-function visitLinkedField(field: LinkedField, state: State): LinkedField {
+function visitLinkedOrMatchField<T: LinkedField | MatchField>(
+  field: T,
+  state: State,
+): T {
   const transformedNode = this.traverse(field, state);
   if (
     isAbstractType(transformedNode.type) &&

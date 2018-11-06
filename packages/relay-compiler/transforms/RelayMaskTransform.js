@@ -21,6 +21,7 @@ import type {
   Fragment,
   FragmentSpread,
   InlineFragment,
+  MatchFragmentSpread,
   ArgumentDefinition,
 } from 'graphql-compiler';
 
@@ -40,6 +41,7 @@ function relayMaskTransform(context: CompilerContext): CompilerContext {
     context,
     {
       FragmentSpread: visitFragmentSpread,
+      MatchFragmentSpread: visitFragmentSpread,
       Fragment: visitFragment,
     },
     () => ({
@@ -65,10 +67,10 @@ function visitFragment(fragment: Fragment, state: State): Fragment {
   };
 }
 
-function visitFragmentSpread(
-  fragmentSpread: FragmentSpread,
+function visitFragmentSpread<T: FragmentSpread | MatchFragmentSpread>(
+  fragmentSpread: T,
   state: State,
-): FragmentSpread {
+): T {
   if (!isUnmaskedSpread(fragmentSpread)) {
     return fragmentSpread;
   }
@@ -111,7 +113,9 @@ function visitFragmentSpread(
 /**
  * @private
  */
-function isUnmaskedSpread(spread: FragmentSpread): boolean {
+function isUnmaskedSpread(
+  spread: FragmentSpread | MatchFragmentSpread,
+): boolean {
   return Boolean(spread.metadata && spread.metadata.mask === false);
 }
 

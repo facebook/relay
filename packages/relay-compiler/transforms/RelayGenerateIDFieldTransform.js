@@ -22,7 +22,12 @@ const {
   IRTransformer,
 } = require('graphql-compiler');
 
-import type {InlineFragment, LinkedField, ScalarField} from 'graphql-compiler';
+import type {
+  InlineFragment,
+  LinkedField,
+  MatchField,
+  ScalarField,
+} from 'graphql-compiler';
 import type {GraphQLCompositeType} from 'graphql';
 const {
   canHaveSelections,
@@ -65,13 +70,17 @@ function relayGenerateIDFieldTransform(
   return IRTransformer.transform(
     context,
     {
-      LinkedField: visitLinkedField,
+      LinkedField: visitLinkedOrMatchField,
+      MatchField: visitLinkedOrMatchField,
     },
     () => state,
   );
 }
 
-function visitLinkedField(field: LinkedField, state: State): LinkedField {
+function visitLinkedOrMatchField<T: LinkedField | MatchField>(
+  field: T,
+  state: State,
+): T {
   const transformedNode = this.traverse(field, state);
 
   // If the field already has an unaliased `id` field, do nothing

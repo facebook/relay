@@ -30,6 +30,7 @@ import type {
   Root,
   ScalarField,
   LinkedField,
+  MatchField,
   Selection,
 } from '../core/GraphQLIR';
 import type {GraphQLType} from 'graphql';
@@ -47,7 +48,13 @@ type State = {
   parentType: ?GraphQLType,
 };
 
-type HasSelections = Root | Fragment | Condition | InlineFragment | LinkedField;
+type HasSelections =
+  | Root
+  | Fragment
+  | Condition
+  | InlineFragment
+  | LinkedField
+  | MatchField;
 
 /**
  * Transform that flattens inline fragments, fragment spreads, and conditionals.
@@ -76,6 +83,7 @@ function flattenTransformImpl(
       Condition: flattenSelections,
       InlineFragment: flattenSelections,
       LinkedField: flattenSelections,
+      MatchField: flattenSelections,
     },
     () => state,
   );

@@ -12,7 +12,7 @@
 
 const {CompilerContext, IRTransformer} = require('graphql-compiler');
 
-import type {LinkedField, ScalarField} from 'graphql-compiler';
+import type {Field} from 'graphql-compiler';
 
 /**
  * A transform that removes field `handles`. Intended for use when e.g.
@@ -23,11 +23,12 @@ function relaySkipHandleFieldTransform(
 ): CompilerContext {
   return IRTransformer.transform(context, {
     LinkedField: visitField,
+    MatchField: visitField,
     ScalarField: visitField,
   });
 }
 
-function visitField<F: LinkedField | ScalarField>(field: F): ?F {
+function visitField<F: Field>(field: F): ?F {
   const transformedNode = this.traverse(field);
   if (transformedNode.handles) {
     return {

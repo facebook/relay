@@ -20,6 +20,7 @@ import type {Field} from 'graphql-compiler';
 function relayFieldHandleTransform(context: CompilerContext): CompilerContext {
   return IRTransformer.transform(context, {
     LinkedField: visitField,
+    MatchField: visitField,
     ScalarField: visitField,
   });
 }

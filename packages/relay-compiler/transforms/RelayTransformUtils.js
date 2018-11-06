@@ -10,9 +10,12 @@
 
 'use strict';
 
-import type {LinkedField} from 'graphql-compiler';
+import type {LinkedField, MatchField} from 'graphql-compiler';
 
-function hasUnaliasedSelection(field: LinkedField, fieldName: string): boolean {
+function hasUnaliasedSelection(
+  field: LinkedField | MatchField,
+  fieldName: string,
+): boolean {
   return field.selections.some(
     selection =>
       selection.kind === 'ScalarField' &&

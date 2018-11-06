@@ -31,6 +31,7 @@ import type {
   Fragment,
   FragmentSpread,
   InlineFragment,
+  MatchFragmentSpread,
   Root,
 } from '../core/GraphQLIR';
 import type {GraphQLType} from 'graphql';
@@ -93,8 +94,10 @@ function skipClientFieldTransform(
     context,
     {
       FragmentSpread: visitFragmentSpread,
+      MatchFragmentSpread: visitFragmentSpread,
       InlineFragment: visitInlineFragment,
       LinkedField: visitField,
+      MatchField: visitField,
       ScalarField: visitField,
     },
     node => buildState(context, node),
@@ -161,10 +164,10 @@ function visitField<F: Field>(field: F, parentType: GraphQLType): ?F {
  * Skip fragment spreads where the referenced fragment is not defined in the
  * original schema.
  */
-function visitFragmentSpread(
-  spread: FragmentSpread,
+function visitFragmentSpread<T: FragmentSpread | MatchFragmentSpread>(
+  spread: T,
   parentType: GraphQLType,
-): ?FragmentSpread {
+): ?T {
   const context = this.getContext();
   const fragment = context.getFragment(spread.name);
   if (context.serverSchema.getType(fragment.type.name)) {

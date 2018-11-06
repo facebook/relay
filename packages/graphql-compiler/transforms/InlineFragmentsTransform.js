@@ -15,7 +15,12 @@ const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 
 const invariant = require('invariant');
 
-import type {InlineFragment, Fragment, FragmentSpread} from '../core/GraphQLIR';
+import type {
+  InlineFragment,
+  Fragment,
+  FragmentSpread,
+  MatchFragmentSpread,
+} from '../core/GraphQLIR';
 
 type State = {};
 const STATE = {};
@@ -31,6 +36,7 @@ function inlineFragmentsTransform(
     {
       Fragment: visitFragment,
       FragmentSpread: visitFragmentSpread,
+      MatchFragmentSpread: visitFragmentSpread,
     },
     () => STATE,
   );
@@ -40,10 +46,10 @@ function visitFragment(fragment: Fragment, state: State): ?Fragment {
   return null;
 }
 
-function visitFragmentSpread(
-  fragmentSpread: FragmentSpread,
+function visitFragmentSpread<T: FragmentSpread | MatchFragmentSpread>(
+  fragmentSpread: T,
   state: State,
-): FragmentSpread {
+): T {
   invariant(
     fragmentSpread.args.length === 0,
     'InlineFragmentsTransform: Cannot flatten fragment spread `%s` with ' +

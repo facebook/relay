@@ -497,7 +497,8 @@ describe('RelayReader', () => {
             PlainUserNameRenderer_name: {},
           },
           __fragmentPropName: 'name',
-          __module: 'PlainUserNameRenderer.react',
+          __module:
+            "@@CODE_START@@require('PlainUserNameRenderer.react')@@CODE_END@@",
         },
       });
       expect(Object.keys(seenRecords)).toEqual([
@@ -570,7 +571,8 @@ describe('RelayReader', () => {
             MarkdownUserNameRenderer_name: {},
           },
           __fragmentPropName: 'name',
-          __module: 'MarkdownUserNameRenderer.react',
+          __module:
+            "@@CODE_START@@require('MarkdownUserNameRenderer.react')@@CODE_END@@",
         },
       });
       expect(Object.keys(seenRecords)).toEqual([

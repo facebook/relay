@@ -10,6 +10,8 @@
 
 'use strict';
 
+const CodeInJSON = require('../util/CodeInJSON');
+
 const invariant = require('invariant');
 
 const {GraphQLList} = require('graphql');
@@ -210,7 +212,7 @@ const RelayCodeGenVisitor = {
             name: fragmentName,
             args: [],
           },
-          module: selection.module,
+          module: CodeInJSON.mark(`require('${selection.module}')`),
         };
       });
       const field: ConcreteMatchField = {

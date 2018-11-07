@@ -89,7 +89,7 @@ fragment CommentBody_comment on CommentCreateResponsePayload {
                 "name": "MarkdownBody_comment",
                 "args": []
               },
-              "module": "MarkdownBodyComponent.react"
+              "module": require('MarkdownBodyComponent.react')
             },
             "PlainCommentBody": {
               "fragmentPropName": "comment",
@@ -98,7 +98,7 @@ fragment CommentBody_comment on CommentCreateResponsePayload {
                 "name": "PlaintextBody_comment",
                 "args": []
               },
-              "module": "PlaintextComponent.react"
+              "module": require('PlaintextComponent.react')
             }
           }
         }

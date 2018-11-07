@@ -10,6 +10,8 @@
 
 'use strict';
 
+const CodeInJSON = require('../util/CodeInJSON');
+
 const crypto = require('crypto');
 const dedupeJSONStringify = require('../util/dedupeJSONStringify');
 const deepMergeAssignments = require('./deepMergeAssignments');
@@ -103,7 +105,7 @@ async function writeRelayGeneratedFile(
     docText,
     typeText,
     hash: hash ? `@relayHash ${hash}` : null,
-    concreteText: dedupeJSONStringify(generatedNode),
+    concreteText: CodeInJSON.postProcess(dedupeJSONStringify(generatedNode)),
     devOnlyAssignments,
     sourceHash,
   });

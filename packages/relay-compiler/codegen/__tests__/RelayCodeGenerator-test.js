@@ -10,6 +10,7 @@
 
 'use strict';
 
+const CodeInJSON = require('../../util/CodeInJSON');
 const GraphQLCompilerContext = require('GraphQLCompilerContext');
 const RelayCodeGenerator = require('RelayCodeGenerator');
 const RelayMatchTransform = require('RelayMatchTransform');
@@ -51,7 +52,9 @@ describe('RelayCodeGenerator', () => {
                   root: doc,
                   text: null,
                 };
-          return JSON.stringify(RelayCodeGenerator.generate(node), null, 2);
+          return CodeInJSON.postProcess(
+            JSON.stringify(RelayCodeGenerator.generate(node), null, 2),
+          );
         })
         .join('\n\n');
     } catch (e) {

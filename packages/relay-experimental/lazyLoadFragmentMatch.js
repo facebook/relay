@@ -81,7 +81,7 @@ function lazyLoadFragmentMatch<TProps: {}>(
   // TODO(T35918564) Should accept an opaque type
   match: mixed,
   opts: {|
-    load: (moduleName: string) => React.ComponentType<TProps>,
+    load: (module: mixed) => React.ComponentType<TProps>,
   |},
   // TODO(T35921850) Properly specify type of lazy loaded fragment container
 ): React.ComponentType<TProps> {

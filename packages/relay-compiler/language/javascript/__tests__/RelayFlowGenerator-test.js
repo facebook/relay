@@ -12,6 +12,7 @@
 
 const GraphQLCompilerContext = require('GraphQLCompilerContext');
 const RelayFlowGenerator = require('RelayFlowGenerator');
+const RelayMatchTransform = require('../../../transforms/RelayMatchTransform');
 const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
 const RelayTestSchema = require('RelayTestSchema');
 
@@ -24,6 +25,7 @@ import type {TypeGeneratorOptions} from '../../RelayLanguagePluginInterface';
 
 function generate(text, options: TypeGeneratorOptions) {
   const schema = transformASTSchema(RelayTestSchema, [
+    RelayMatchTransform.SCHEMA_EXTENSION,
     RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
     `
       scalar Color

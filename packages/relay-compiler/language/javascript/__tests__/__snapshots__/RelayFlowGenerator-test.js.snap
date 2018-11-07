@@ -282,6 +282,36 @@ export type UnionTypeTest = {|
 |};
 `;
 
+exports[`RelayFlowGenerator matches expected output: match-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment CommentBody_comment on CommentCreateResponsePayload {
+  comment {
+    commentBody @match(onTypes: [
+      {
+        type: "MarkdownCommentBody"
+        fragment: "MarkdownBody_comment"
+        module: "MarkdownBodyComponent.react"
+      }
+      {
+        type: "PlainCommentBody"
+        fragment: "PlaintextBody_comment"
+        module: "PlaintextComponent.react"
+      }
+    ])
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type CommentBody_comment$ref: FragmentReference;
+export type CommentBody_comment = {|
+  +comment: ?{|
+    +commentBody: ?{||}
+  |},
+  +$refType: CommentBody_comment$ref,
+|};
+`;
+
 exports[`RelayFlowGenerator matches expected output: mutation.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 mutation CommentCreateMutation(

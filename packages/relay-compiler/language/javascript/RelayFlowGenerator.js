@@ -120,7 +120,7 @@ function selectionsToBabel(
   flattenArray(selections).forEach(selection => {
     const {concreteType} = selection;
     if (concreteType) {
-      byConcreteType[concreteType] = byConcreteType[concreteType] || [];
+      byConcreteType[concreteType] = byConcreteType[concreteType] ?? [];
       byConcreteType[concreteType].push(selection);
     } else {
       const previousSel = baseFields.get(selection.key);
@@ -293,7 +293,6 @@ function createVisitor(options: TypeGeneratorOptions) {
           operationType,
         ]);
       },
-
       Fragment(node) {
         let selections = flattenArray(node.selections);
         const numConecreteSelections = selections.filter(s => s.concreteType)
@@ -338,7 +337,6 @@ function createVisitor(options: TypeGeneratorOptions) {
           exportType(node.name, type),
         ]);
       },
-
       InlineFragment(node) {
         const typeCondition = node.typeCondition;
         return flattenArray(node.selections).map(typeSelection => {
@@ -364,7 +362,7 @@ function createVisitor(options: TypeGeneratorOptions) {
       ScalarField(node) {
         return [
           {
-            key: node.alias || node.name,
+            key: node.alias ?? node.name,
             schemaName: node.name,
             value: transformScalarType(node.type, state),
           },
@@ -373,10 +371,20 @@ function createVisitor(options: TypeGeneratorOptions) {
       LinkedField(node) {
         return [
           {
-            key: node.alias || node.name,
+            key: node.alias ?? node.name,
             schemaName: node.name,
             nodeType: node.type,
             nodeSelections: selectionsToMap(flattenArray(node.selections)),
+          },
+        ];
+      },
+      MatchField(node) {
+        return [
+          {
+            key: node.alias ?? node.name,
+            schemaName: node.name,
+            nodeType: node.type,
+            nodeSelections: new Map(),
           },
         ];
       },
@@ -393,7 +401,7 @@ function createVisitor(options: TypeGeneratorOptions) {
   };
 }
 
-function selectionsToMap(selections: Array<Selection>): SelectionMap {
+function selectionsToMap(selections: $ReadOnlyArray<Selection>): SelectionMap {
   const map = new Map();
   selections.forEach(selection => {
     const previousSel = map.get(selection.key);
@@ -405,7 +413,9 @@ function selectionsToMap(selections: Array<Selection>): SelectionMap {
   return map;
 }
 
-function flattenArray<T>(arrayOfArrays: Array<Array<T>>): Array<T> {
+function flattenArray<T>(
+  arrayOfArrays: $ReadOnlyArray<$ReadOnlyArray<T>>,
+): $ReadOnlyArray<T> {
   const result = [];
   arrayOfArrays.forEach(array => result.push(...array));
   return result;

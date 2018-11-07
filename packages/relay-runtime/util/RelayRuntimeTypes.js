@@ -56,6 +56,8 @@ export type RerunParam = {
  * - `rerunParamExperimental`: causes the query to be run with the experimental
  *   batch API on Network interfaces and GraphQL servers that support it.
  * - `metadata`: user-supplied metadata.
+ * - `transactionId`: a user-supplied value, intended for use as a unique id for
+ *   a given instance of executing an operation.
  */
 export type CacheConfig = {
   force?: ?boolean,
@@ -63,4 +65,5 @@ export type CacheConfig = {
   liveConfigId?: ?string,
   rerunParamExperimental?: ?RerunParam,
   metadata?: {[key: string]: mixed},
+  transactionId?: ?string,
 };

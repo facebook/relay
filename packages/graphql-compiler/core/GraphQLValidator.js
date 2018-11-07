@@ -62,22 +62,21 @@ function validateOrThrow(
 module.exports = {
   GLOBAL_RULES: [
     KnownArgumentNamesRule,
-    // TODO #19327202 Relay Classic generates some fragments in runtime, so Relay
-    // Modern queries might reference fragments unknown in build time
-    // KnownFragmentNamesRule,
-    // TODO: #25618795 Because of @argumentDefinitions, this validation
-    // incorrectly flags a subset of fragments using @include/@skip as recursive.
-    // NoFragmentCyclesRule,
-    // TODO #19327144 Because of @argumentDefinitions, this validation
-    // incorrectly marks some fragment variables as undefined.
-    // NoUndefinedVariablesRule,
-    // TODO #19327202 Queries generated dynamically with Relay Classic might use
-    // unused fragments
-    // NoUnusedFragmentsRule,
+    /* Some rules are not enabled (potentially non-exhaustive)
+     *
+     * - KnownFragmentNamesRule: RelayClassic generates fragments at runtime,
+     *   so RelayCompat queries might reference fragments unknown in build time.
+     * - NoFragmentCyclesRule: Because of @argumentDefinitions, this validation
+     *   incorrectly flags a subset of fragments using @include/@skip as
+     *   recursive.
+     * - NoUndefinedVariablesRule: Because of @argumentDefinitions, this
+     *   validation incorrectly marks some fragment variables as undefined.
+     * - NoUnusedFragmentsRule: Queries generated dynamically with RelayCompat
+     *   might use unused fragments.
+     * - OverlappingFieldsCanBeMergedRule: RelayClassic auto-resolves
+     *   overlapping fields by generating aliases.
+     */
     NoUnusedVariablesRule,
-    // TODO #19327202 Relay Classic auto-resolves overlapping fields by
-    // generating aliases
-    //OverlappingFieldsCanBeMergedRule,
     UniqueArgumentNamesRule,
     UniqueFragmentNamesRule,
     UniqueInputFieldNamesRule,
@@ -85,12 +84,14 @@ module.exports = {
     UniqueVariableNamesRule,
   ],
   LOCAL_RULES: [
-    // TODO #13818691: make this aware of @fixme_fat_interface
-    // FieldsOnCorrectTypeRule,
+    /* Some rules are not enabled (potentially non-exhaustive)
+     *
+     * - FieldsOnCorrectTypeRule: is not aware of @fixme_fat_interface.
+     * - KnownDirectivesRule: doesn't pass with @arguments and other Relay
+     *   directives.
+     */
     FragmentsOnCompositeTypesRule,
     KnownTypeNamesRule,
-    // TODO #17737009: Enable this after cleaning up existing issues
-    // KnownDirectivesRule,
     LoneAnonymousOperationRule,
     PossibleFragmentSpreadsRule,
     ScalarLeafsRule,

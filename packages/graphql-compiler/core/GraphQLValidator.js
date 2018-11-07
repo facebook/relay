@@ -22,7 +22,6 @@ const {
   LoneAnonymousOperationRule,
   NoUnusedVariablesRule,
   PossibleFragmentSpreadsRule,
-  ScalarLeafsRule,
   UniqueArgumentNamesRule,
   UniqueFragmentNamesRule,
   UniqueInputFieldNamesRule,
@@ -89,12 +88,13 @@ module.exports = {
      * - FieldsOnCorrectTypeRule: is not aware of @fixme_fat_interface.
      * - KnownDirectivesRule: doesn't pass with @arguments and other Relay
      *   directives.
+     * - ScalarLeafsRule: is violated by the @match directive since these rules
+     *   run before any transform steps.
      */
     FragmentsOnCompositeTypesRule,
     KnownTypeNamesRule,
     LoneAnonymousOperationRule,
     PossibleFragmentSpreadsRule,
-    ScalarLeafsRule,
     ValuesOfCorrectTypeRule,
     VariablesAreInputTypesRule,
     VariablesInAllowedPositionRule,

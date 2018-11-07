@@ -22,12 +22,6 @@ function validateString(input) {
   };
 }
 
-test('non-scalar leaf', () => {
-  expect(
-    validateString('fragment Test on User { friends }'),
-  ).toThrowErrorMatchingSnapshot();
-});
-
 test('id alias validation', () => {
   expect(validateString('fragment Test on User { id }')).not.toThrow();
 

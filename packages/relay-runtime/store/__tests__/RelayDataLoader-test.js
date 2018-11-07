@@ -20,6 +20,7 @@ const RelayModernRecord = require('../RelayModernRecord');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
 
+// $FlowExpectedError - Added to ignore Flow error in www
 const {IRTransforms} = require('relay-compiler');
 
 const {check} = RelayDataLoader;

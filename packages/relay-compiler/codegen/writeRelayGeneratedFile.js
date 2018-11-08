@@ -10,7 +10,7 @@
 
 'use strict';
 
-const CodeInJSON = require('../util/CodeInJSON');
+const CodeMarker = require('../util/CodeMarker');
 
 const crypto = require('crypto');
 const dedupeJSONStringify = require('../util/dedupeJSONStringify');
@@ -24,6 +24,10 @@ import type {FormatModule} from '../language/RelayLanguagePluginInterface';
 import type {CodegenDirectory} from 'graphql-compiler';
 import type {GeneratedNode} from 'relay-runtime';
 
+function printRequireModuleDependency(moduleName: string): string {
+  return `require('${moduleName}')`;
+}
+
 async function writeRelayGeneratedFile(
   codegenDir: CodegenDirectory,
   generatedNode: GeneratedNode,
@@ -33,6 +37,7 @@ async function writeRelayGeneratedFile(
   platform: ?string,
   sourceHash: string,
   extension: string,
+  printModuleDependency: string => string = printRequireModuleDependency,
 ): Promise<?GeneratedNode> {
   // Copy to const so Flow can refine.
   const persistQuery = _persistQuery;
@@ -105,7 +110,10 @@ async function writeRelayGeneratedFile(
     docText,
     typeText,
     hash: hash ? `@relayHash ${hash}` : null,
-    concreteText: CodeInJSON.postProcess(dedupeJSONStringify(generatedNode)),
+    concreteText: CodeMarker.postProcess(
+      dedupeJSONStringify(generatedNode),
+      printModuleDependency,
+    ),
     devOnlyAssignments,
     sourceHash,
   });

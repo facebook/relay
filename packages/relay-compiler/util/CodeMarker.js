@@ -13,8 +13,8 @@
 /**
  * Marks a string of code as code to be replaced later.
  */
-function mark(code: string): string {
-  return `@@CODE_START@@${code}@@CODE_END@@`;
+export function module(code: string): string {
+  return `@@MODULE_START@@${code}@@MODULE_END@@`;
 }
 
 /**
@@ -22,15 +22,16 @@ function mark(code: string): string {
  * this post-processes the JSON to convert the marked code strings to raw code.
  *
  * Example:
- *   CodeInJSON.postProcess(
- *     JSON.stringify({code: CodeInJSON.mark('alert(1)')})
+ *   CodeMarker.postProcess(
+ *     JSON.stringify({code: CodeMarker.mark('alert(1)')})
  *   )
  */
-function postProcess(json: string): string {
-  return json.replace(/"@@CODE_START@@(.*?)@@CODE_END@@"/g, '$1');
+export function postProcess(
+  json: string,
+  printModule: string => string,
+): string {
+  return json.replace(
+    /"@@MODULE_START@@(.*?)@@MODULE_END@@"/g,
+    (_, moduleName) => printModule(moduleName),
+  );
 }
-
-module.exports = {
-  mark,
-  postProcess,
-};

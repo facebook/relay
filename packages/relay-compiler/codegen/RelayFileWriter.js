@@ -71,6 +71,7 @@ export type WriterConfig = {
     GLOBAL_RULES?: Array<ValidationRule>,
     LOCAL_RULES?: Array<ValidationRule>,
   },
+  printModuleDependency?: string => string,
   // EXPERIMENTAL: skips deleting extra files in the generated directories
   experimental_noDeleteExtraFiles?: boolean,
   // EXPERIMENTAL: skips deleting extra files with the supplied pattern in
@@ -329,6 +330,7 @@ function writeAll({
             writerConfig.platform,
             sourceHash,
             writerConfig.extension,
+            writerConfig.printModuleDependency,
           );
         }),
       );

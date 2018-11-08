@@ -10,7 +10,7 @@
 
 'use strict';
 
-const CodeInJSON = require('../util/CodeInJSON');
+const CodeMarker = require('../util/CodeMarker');
 
 const invariant = require('invariant');
 
@@ -212,7 +212,7 @@ const RelayCodeGenVisitor = {
             name: fragmentName,
             args: [],
           },
-          module: CodeInJSON.mark(`require('${selection.module}')`),
+          module: CodeMarker.module(selection.module),
         };
       });
       const field: ConcreteMatchField = {

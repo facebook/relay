@@ -17,6 +17,7 @@ const ReactTestRenderer = require('ReactTestRenderer');
 
 const createSuspenseQueryRenderer = require('../createSuspenseQueryRenderer');
 const invariant = require('invariant');
+const readContext = require('react-relay/modern/readContext');
 
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {generateAndCompile} = require('RelayModernTestUtils');
@@ -29,8 +30,7 @@ const {
 
 const fetchPolicy = 'store-or-network';
 
-const MISSING_PLACEHOLDER_EXCEPTION =
-  'An update was suspended, but no placeholder UI was provided.';
+const MISSING_PLACEHOLDER_EXCEPTION = /RelaySuspenseQueryRenderer\(.+?\) suspended while rendering, but no fallback UI was specified\./;
 
 class PropsSetter extends React.Component<any, any> {
   constructor() {
@@ -214,12 +214,11 @@ describe('createQueryRenderer', () => {
   });
 
   describe('context', () => {
-    let relayContext;
+    let relayContext: $FlowFixMe;
 
     beforeEach(() => {
       function ContextGetter() {
-        // $FlowFixMe unstable_read is not yet typed
-        relayContext = ReactRelayContext.unstable_read();
+        relayContext = readContext(ReactRelayContext);
         return null;
       }
       renderFn = jest.fn(() => <ContextGetter />);

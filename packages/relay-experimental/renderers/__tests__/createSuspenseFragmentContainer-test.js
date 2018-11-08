@@ -402,7 +402,9 @@ describe('createFragmentContainer', () => {
           />
         </ContextWrapper>,
       );
-    }).toThrow('An update was suspended, but no placeholder UI was provided.');
+    }).toThrow(
+      /RelaySuspenseFragmentContainer\(.+?\) suspended while rendering, but no fallback UI was specified\./,
+    );
   });
 
   it('should throw an error if data is missing and there are no pending requests', () => {

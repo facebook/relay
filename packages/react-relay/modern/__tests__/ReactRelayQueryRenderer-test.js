@@ -15,6 +15,8 @@ const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayQueryRenderer = require('../ReactRelayQueryRenderer');
 const ReactTestRenderer = require('ReactTestRenderer');
 
+const readContext = require('../readContext');
+
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
 const {
   Environment,
@@ -463,8 +465,7 @@ describe('ReactRelayQueryRenderer', () => {
 
     beforeEach(() => {
       function ContextGetter() {
-        // $FlowFixMe unstable_read is not yet typed
-        relayContext = ReactRelayContext.unstable_read();
+        relayContext = readContext(ReactRelayContext);
         return null;
       }
 

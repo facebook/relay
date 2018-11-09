@@ -53,7 +53,9 @@ class PropsSetter extends React.Component<any, any> {
 
 function expectToBeRendered(renderFn, readyState) {
   expect(renderFn).toBeCalledTimes(1);
-  expect(renderFn.mock.calls[0][0]).toEqual(readyState);
+  expect(renderFn.mock.calls[0][0]).toEqual(readyState, {
+    refetch: expect.any(Function),
+  });
 }
 
 function expectToBeFetched(environment, executeVariables) {
@@ -102,7 +104,7 @@ describe('createQueryRenderer', () => {
     QueryRenderer = createSuspenseQueryRenderer(gqlQuery, {fetchPolicy});
   });
 
-  it('should render the component if data is available without network request', () => {
+  it('should render the component without a network request if data is available', () => {
     const variables = {id: '<available-data-id>'};
     commitUserPayload(environment, gqlQuery, variables.id, 'Alice');
     ReactTestRenderer.create(
@@ -122,7 +124,7 @@ describe('createQueryRenderer', () => {
     });
   });
 
-  it('should render data for the query, even if some data is missing for full query and generate a network request for missing data', () => {
+  it('should render even if some data is missing for query, and send a network request for missing data', () => {
     const variables = {id: '<partially-available-data-id>'};
     commitUserPayload(environment, gqlQuery, variables.id, undefined);
     ReactTestRenderer.create(
@@ -142,7 +144,7 @@ describe('createQueryRenderer', () => {
     });
   });
 
-  it('should send a network request and throw a promise if data is not available for the query', () => {
+  it('should send a network request and suspend render if data is missing for the query', () => {
     // This prevents console.error output in the test, which is expected
     jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 
@@ -170,6 +172,275 @@ describe('createQueryRenderer', () => {
     ).toThrow(MISSING_PLACEHOLDER_EXCEPTION);
     expectToBeFetched(environment, {
       id: '<default-id>',
+    });
+  });
+
+  describe('refetch', () => {
+    let refetch = (_1, _2) => {};
+    const renderWithRefetch = jest.fn((data, opts) => {
+      refetch = opts.refetch;
+      return <div />;
+    });
+
+    beforeEach(() => {
+      renderWithRefetch.mockClear();
+    });
+
+    it('should rerender without network request if data is available for refetched vars', () => {
+      const variables = {id: '<available-data-id>'};
+      commitUserPayload(environment, gqlQuery, variables.id, 'Alice');
+
+      // Initial render doesn't suspend.
+      ReactTestRenderer.create(
+        <QueryRenderer environment={environment} variables={variables}>
+          {renderWithRefetch}
+        </QueryRenderer>,
+      );
+      expect(environment.execute).not.toBeCalled();
+      expectToBeRendered(renderWithRefetch, {
+        node: {
+          id: variables.id,
+          [ID_KEY]: variables.id,
+          [FRAGMENTS_KEY]: {
+            UserFragment: {},
+          },
+        },
+      });
+
+      const refetchVariables = {id: '<also-available>'};
+      commitUserPayload(
+        environment,
+        gqlQuery,
+        refetchVariables.id,
+        'Also Available',
+      );
+      renderWithRefetch.mockClear();
+      refetch(refetchVariables);
+      expect(environment.execute).not.toBeCalled();
+      expectToBeRendered(renderWithRefetch, {
+        node: {
+          id: refetchVariables.id,
+          [ID_KEY]: refetchVariables.id,
+          [FRAGMENTS_KEY]: {
+            UserFragment: {},
+          },
+        },
+      });
+    });
+
+    it('should rerender even if some data is missing for refetched vars, and send a network request for missing data', () => {
+      const variables = {id: '<available-data-id>'};
+      commitUserPayload(environment, gqlQuery, variables.id, 'Alice');
+
+      // Initial render doesn't suspend.
+      ReactTestRenderer.create(
+        <QueryRenderer environment={environment} variables={variables}>
+          {renderWithRefetch}
+        </QueryRenderer>,
+      );
+      expect(environment.execute).not.toBeCalled();
+      expectToBeRendered(renderWithRefetch, {
+        node: {
+          id: variables.id,
+          [ID_KEY]: variables.id,
+          [FRAGMENTS_KEY]: {
+            UserFragment: {},
+          },
+        },
+      });
+
+      const refetchVariables = {id: '<partially-available>'};
+      commitUserPayload(environment, gqlQuery, refetchVariables.id, undefined);
+      renderWithRefetch.mockClear();
+      refetch(refetchVariables);
+      expectToBeFetched(environment, refetchVariables);
+      expectToBeRendered(renderWithRefetch, {
+        node: {
+          id: refetchVariables.id,
+          [ID_KEY]: refetchVariables.id,
+          [FRAGMENTS_KEY]: {
+            UserFragment: {},
+          },
+        },
+      });
+    });
+
+    it('should send a network request and suspend render if data is missing for the refetched variables', () => {
+      const variables = {id: '<available-data-id>'};
+      commitUserPayload(environment, gqlQuery, variables.id, 'Alice');
+
+      // Initial render doesn't suspend.
+      const renderer = ReactTestRenderer.create(
+        // $FlowFixMe Suspense component isn't typed yet
+        <React.Suspense fallback="QUERY FALLBACK">
+          <QueryRenderer environment={environment} variables={variables}>
+            {renderWithRefetch}
+          </QueryRenderer>
+        </React.Suspense>,
+      );
+      expect(environment.execute).not.toBeCalled();
+      expectToBeRendered(renderWithRefetch, {
+        node: {
+          id: variables.id,
+          [ID_KEY]: variables.id,
+          [FRAGMENTS_KEY]: {
+            UserFragment: {},
+          },
+        },
+      });
+
+      // Refetch with missing data, assert it causes component to suspend
+      const refetchVariables = {id: '<missing-id>'};
+      refetch(refetchVariables);
+      expectToBeFetched(environment, refetchVariables);
+      expect(renderer.toJSON()).toEqual('QUERY FALLBACK');
+
+      // Resolve refetch request, assert component rerenders with new data
+      renderWithRefetch.mockClear();
+      environment.mock.nextValue(gqlQuery, {
+        data: {
+          node: {
+            __typename: 'User',
+            id: refetchVariables.id,
+            name: 'Missing one',
+          },
+        },
+      });
+      environment.mock.complete(gqlQuery);
+      jest.runAllTimers();
+      expectToBeRendered(renderWithRefetch, {
+        node: {
+          id: refetchVariables.id,
+          [ID_KEY]: refetchVariables.id,
+          [FRAGMENTS_KEY]: {
+            UserFragment: {},
+          },
+        },
+      });
+    });
+
+    it('rerenders with parent variables if parent variables change after a refetch', () => {
+      const variables = {id: '<available-data-id>'};
+      commitUserPayload(environment, gqlQuery, variables.id, 'Alice');
+
+      // Initial render doesn't suspend.
+      const renderer = ReactTestRenderer.create(
+        <PropsSetter>
+          <QueryRenderer environment={environment} variables={variables}>
+            {renderWithRefetch}
+          </QueryRenderer>
+        </PropsSetter>,
+      );
+      expect(environment.execute).not.toBeCalled();
+      expectToBeRendered(renderWithRefetch, {
+        node: {
+          id: variables.id,
+          [ID_KEY]: variables.id,
+          [FRAGMENTS_KEY]: {
+            UserFragment: {},
+          },
+        },
+      });
+
+      // Refetch doesn't suspend
+      const refetchVariables = {id: '<also-available>'};
+      commitUserPayload(
+        environment,
+        gqlQuery,
+        refetchVariables.id,
+        'Also Available',
+      );
+      renderWithRefetch.mockClear();
+      refetch(refetchVariables);
+      expect(environment.execute).not.toBeCalled();
+      expectToBeRendered(renderWithRefetch, {
+        node: {
+          id: refetchVariables.id,
+          [ID_KEY]: refetchVariables.id,
+          [FRAGMENTS_KEY]: {
+            UserFragment: {},
+          },
+        },
+      });
+
+      // QueryRenderer rerenders with new parent vars
+      const parentVariables = {id: '<available-too>'};
+      commitUserPayload(
+        environment,
+        gqlQuery,
+        parentVariables.id,
+        'Available Too',
+      );
+      renderWithRefetch.mockClear();
+      renderer.getInstance().setProps({
+        variables: parentVariables,
+      });
+      expect(environment.execute).not.toBeCalled();
+      expectToBeRendered(renderWithRefetch, {
+        node: {
+          id: parentVariables.id,
+          [ID_KEY]: parentVariables.id,
+          [FRAGMENTS_KEY]: {
+            UserFragment: {},
+          },
+        },
+      });
+    });
+
+    it('disposes refetch when QueryRenderer unmounts', () => {
+      const variables = {id: '<available-data-id>'};
+      commitUserPayload(environment, gqlQuery, variables.id, 'Alice');
+
+      // Initial render doesn't suspend.
+      const renderer = ReactTestRenderer.create(
+        // $FlowFixMe Suspense component isn't typed yet
+        <React.Suspense fallback="QUERY FALLBACK">
+          <QueryRenderer environment={environment} variables={variables}>
+            {renderWithRefetch}
+          </QueryRenderer>
+        </React.Suspense>,
+      );
+      expect(environment.execute).not.toBeCalled();
+      expectToBeRendered(renderWithRefetch, {
+        node: {
+          id: variables.id,
+          [ID_KEY]: variables.id,
+          [FRAGMENTS_KEY]: {
+            UserFragment: {},
+          },
+        },
+      });
+
+      // Start a refetch, assert component suspends
+      const release = jest.fn();
+      const refetchVariables = {id: '<missing-id>'};
+      environment.retain.mockClear();
+      jest.spyOn(environment, 'retain').mockImplementationOnce(() => ({
+        dispose: release,
+      }));
+      refetch(refetchVariables);
+      expectToBeFetched(environment, refetchVariables);
+      expect(environment.retain).toBeCalledTimes(1);
+      expect(renderer.toJSON()).toEqual('QUERY FALLBACK');
+
+      // Unmount component
+      renderer.unmount();
+
+      // Assert data is disposed of after request completes
+      environment.mock.nextValue(gqlQuery, {
+        data: {
+          node: {
+            __typename: 'User',
+            id: refetchVariables.id,
+            name: 'Missing one',
+          },
+        },
+      });
+      environment.mock.complete(gqlQuery);
+      // This prevents console.error output in the test, which is expected
+      jest.spyOn(console, 'error').mockImplementationOnce(() => {});
+      jest.runAllTimers();
+      expect(release).toBeCalledTimes(1);
     });
   });
 
@@ -517,7 +788,7 @@ describe('createQueryRenderer', () => {
           />,
         );
         expect(environment.execute).not.toBeCalled();
-        expect(renderFn1).toBeCalledWith({
+        expectToBeRendered(renderFn1, {
           node: {
             id: variables1.id,
             [ID_KEY]: variables1.id,
@@ -526,7 +797,7 @@ describe('createQueryRenderer', () => {
             },
           },
         });
-        expect(renderFn2).toBeCalledWith({
+        expectToBeRendered(renderFn2, {
           node: {
             id: variables2.id,
             [ID_KEY]: variables2.id,
@@ -557,7 +828,7 @@ describe('createQueryRenderer', () => {
           />,
         );
         expectToBeFetched(environment, variables2);
-        expect(renderFn1).toBeCalledWith({
+        expectToBeRendered(renderFn1, {
           node: {
             id: variables1.id,
             [ID_KEY]: variables1.id,
@@ -566,7 +837,7 @@ describe('createQueryRenderer', () => {
             },
           },
         });
-        expect(renderFn2).toBeCalledWith({
+        expectToBeRendered(renderFn2, {
           node: {
             id: variables2.id,
             [ID_KEY]: variables2.id,
@@ -635,7 +906,7 @@ describe('createQueryRenderer', () => {
               </TestQueryRenderer>,
             );
             expect(testRenderFn).toBeCalledTimes(1);
-            expect(testRenderFn).toBeCalledWith(expectedRenderOutput);
+            expectToBeRendered(testRenderFn, expectedRenderOutput);
             expect(testEnvironment.execute).not.toBeCalled();
             break;
           case RENDER_WITH_REQUEST:
@@ -647,7 +918,7 @@ describe('createQueryRenderer', () => {
               </TestQueryRenderer>,
             );
             expect(testRenderFn).toBeCalledTimes(1);
-            expect(testRenderFn).toBeCalledWith(expectedRenderOutput);
+            expectToBeRendered(testRenderFn, expectedRenderOutput);
             expect(testEnvironment.execute).toBeCalledTimes(1);
             expect(
               testEnvironment.execute.mock.calls[0][0].operation,

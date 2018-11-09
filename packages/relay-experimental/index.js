@@ -15,6 +15,8 @@ const createSuspenseQueryRenderer = require('./renderers/createSuspenseQueryRend
 const fetchQuery_UNSTABLE = require('./helpers/fetchQuery_UNSTABLE');
 const lazyLoadFragmentMatch = require('./lazyLoadFragmentMatch');
 
+export type {RefetchFn} from './renderers/createSuspenseQueryRenderer';
+
 module.exports = {
   fetchQuery_UNSTABLE: fetchQuery_UNSTABLE,
   lazyLoadFragmentMatch: lazyLoadFragmentMatch,

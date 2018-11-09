@@ -110,20 +110,38 @@ as is available locally for the query.
   network request completes.
 */
 
+export type RefetchFn<TQuery: OperationType> = (
+  vars: $ElementType<TQuery, 'variables'>,
+  opts?: {|
+    onRefetched?: () => void,
+  |},
+) => Disposable;
+
 function createSuspenseQueryRenderer<TQuery: OperationType>(
   gqlQuery: GraphQLTaggedNode,
   options?: {|
     fetchPolicy?: FetchPolicy,
   |},
 ): React.ComponentType<{|
-  children: (data: $ElementType<TQuery, 'response'>) => React.Node,
+  children: (
+    data: $ElementType<TQuery, 'response'>,
+    {|refetch: RefetchFn<TQuery>|},
+  ) => React.Node,
   environment: IEnvironment,
   variables: $ElementType<TQuery, 'variables'>,
 |}> {
   type Props = {|
-    children: (data: $ElementType<TQuery, 'response'>) => React.Node,
+    children: (
+      data: $ElementType<TQuery, 'response'>,
+      {|refetch: RefetchFn<TQuery>|},
+    ) => React.Node,
     environment: IEnvironment,
     variables: $ElementType<TQuery, 'variables'>,
+  |};
+
+  type State = {|
+    variablesFromProps: $ElementType<TQuery, 'variables'>,
+    variablesFromRefetch: $ElementType<TQuery, 'variables'> | null,
   |};
 
   const queryNode = getRequest(gqlQuery);
@@ -136,6 +154,10 @@ function createSuspenseQueryRenderer<TQuery: OperationType>(
       query: operationSelector,
       variables: operationSelector.variables,
     };
+  }
+
+  function getVariablesForContext(state: State) {
+    return state.variablesFromRefetch ?? state.variablesFromProps;
   }
 
   function getRelayContextMemo(
@@ -165,26 +187,58 @@ function createSuspenseQueryRenderer<TQuery: OperationType>(
     return newRelayContext;
   }
 
-  return class SuspenseQueryRenderer extends React.Component<Props> {
+  return class SuspenseQueryRenderer extends React.Component<Props, State> {
     static displayName = `RelaySuspenseQueryRenderer(${queryNode.name})`;
 
     _relayContextByEnvironment =
       typeof WeakMap === 'function' ? new WeakMap() : new Map();
     _dataSubscription: Disposable | null = null;
     _fetchDisposable: Disposable | null = null;
+    _refetchDisposable: Disposable | null = null;
     _renderedSnapshot: Snapshot | null = null;
     _retainHandle: Disposable | null = null;
+
+    static getDerivedStateFromProps(
+      nextProps: Props,
+      prevState: State,
+    ): $Shape<State> | null {
+      if (nextProps.variables !== prevState.variablesFromProps) {
+        return {
+          variablesFromProps: nextProps.variables,
+          variablesFromRefetch: null,
+        };
+      }
+      return {
+        variablesFromProps: nextProps.variables,
+      };
+    }
+
+    constructor(props: Props) {
+      super(props);
+      this.state = {
+        variablesFromProps: props.variables,
+        variablesFromRefetch: null,
+      };
+    }
 
     componentDidMount() {
       // TODO Check if data has changed between render and mount. Schedule another
       // update if so
-      const {environment, variables} = this.props;
+      const {environment} = this.props;
+      const variables = getVariablesForContext(this.state);
+
       // We dispose of the fetch that was potentially started during the render
       // phase, to release any data it was retaining. We will retain the data here
       // now that the component has mounted
       if (this._fetchDisposable) {
         this._fetchDisposable.dispose();
         this._fetchDisposable = null;
+      }
+      // We dispose of any refetch call that was started, to release data it
+      // was retaining. The data will be retained here
+      if (this._refetchDisposable) {
+        this._refetchDisposable.dispose();
+        this._refetchDisposable = null;
       }
 
       const {query} = getRelayContextMemo(
@@ -198,10 +252,12 @@ function createSuspenseQueryRenderer<TQuery: OperationType>(
       this._subscribe();
     }
 
-    componentDidUpdate(prevProps: Props) {
+    componentDidUpdate(prevProps: Props, prevState: State) {
       // TODO Check if data has changed between render and update. Schedule another
       // update if so
-      const {environment, variables} = this.props;
+      const {environment} = this.props;
+      const variables = getVariablesForContext(this.state);
+      const prevVariables = getVariablesForContext(prevState);
 
       // We dispose of the fetch that was potentially started during the render
       // phase, to release any data it was retaining. We will retain the data here
@@ -210,10 +266,17 @@ function createSuspenseQueryRenderer<TQuery: OperationType>(
         this._fetchDisposable.dispose();
         this._fetchDisposable = null;
       }
+      // We dispose of any refetch call that was started, to release data it
+      // was retaining. The data will be retained here
+      if (this._refetchDisposable) {
+        this._refetchDisposable.dispose();
+        this._refetchDisposable = null;
+      }
+
       const prevRelayContext = getRelayContextMemo(
         this._relayContextByEnvironment,
         prevProps.environment,
-        prevProps.variables,
+        prevVariables,
       );
       const currentRelayContext = getRelayContextMemo(
         this._relayContextByEnvironment,
@@ -222,20 +285,35 @@ function createSuspenseQueryRenderer<TQuery: OperationType>(
       );
       const mustResubscribe = prevRelayContext !== currentRelayContext;
       if (mustResubscribe) {
+        const {query} = currentRelayContext;
         if (this._retainHandle) {
           this._retainHandle.dispose();
         }
-        this._retainHandle = environment.retain(currentRelayContext.query.root);
+        this._retainHandle = environment.retain(query.root);
         this._unsubscribe();
         this._subscribe();
       }
     }
 
     componentWillUnmount() {
-      const {environment, variables} = this.props;
+      const {environment} = this.props;
+      const variables = getVariablesForContext(this.state);
       this._unsubscribe();
       if (this._retainHandle) {
         this._retainHandle.dispose();
+      }
+
+      // We dispose of the fetch that was potentially started during the render
+      // phase, to release any data it was retaining.
+      if (this._fetchDisposable) {
+        this._fetchDisposable.dispose();
+        this._fetchDisposable = null;
+      }
+      // We dispose of any refetch call that was started, to release any data
+      // it was retaining.
+      if (this._refetchDisposable) {
+        this._refetchDisposable.dispose();
+        this._refetchDisposable = null;
       }
 
       // We invalidate on unmount because we want to allow a component that is
@@ -253,7 +331,8 @@ function createSuspenseQueryRenderer<TQuery: OperationType>(
     }
 
     _handleDataUpdate = latestSnapshot => {
-      const {environment, variables} = this.props;
+      const {environment} = this.props;
+      const variables = getVariablesForContext(this.state);
       const DataResource = getCacheForEnvironment(environment);
       const {query} = getRelayContextMemo(
         this._relayContextByEnvironment,
@@ -266,6 +345,25 @@ function createSuspenseQueryRenderer<TQuery: OperationType>(
         snapshot: latestSnapshot,
       });
       this.forceUpdate();
+    };
+
+    _refetch: RefetchFn<TQuery> = (refetchVariables, opts) => {
+      const {environment} = this.props;
+      const DataResource = getCacheForEnvironment(environment);
+      const onRefetched = opts?.onRefetched;
+      const {query} = getRelayContextMemo(
+        this._relayContextByEnvironment,
+        environment,
+        refetchVariables,
+      );
+      const disposable = DataResource.preloadQuery({
+        environment,
+        query,
+        fetchPolicy,
+      });
+      this._refetchDisposable = disposable;
+      this.setState({variablesFromRefetch: refetchVariables}, onRefetched);
+      return disposable;
     };
 
     _subscribe() {
@@ -289,7 +387,8 @@ function createSuspenseQueryRenderer<TQuery: OperationType>(
     }
 
     render() {
-      const {children, environment, variables} = this.props;
+      const {children, environment} = this.props;
+      const variables = getVariablesForContext(this.state);
       const DataResource = getCacheForEnvironment(environment);
 
       // We memoize the ReactRelayContext so we don't pass a new object on
@@ -320,7 +419,7 @@ function createSuspenseQueryRenderer<TQuery: OperationType>(
       return (
         <ReactRelayContext.Provider value={relayContext}>
           <DataResourceContext.Provider value={DataResource}>
-            {children(data)}
+            {children(data, {refetch: this._refetch})}
           </DataResourceContext.Provider>
         </ReactRelayContext.Provider>
       );

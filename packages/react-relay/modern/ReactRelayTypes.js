@@ -16,7 +16,6 @@ import type {
   GraphQLTaggedNode,
   IEnvironment,
   Observer,
-  RerunParam,
   Variables,
 } from 'relay-runtime';
 
@@ -58,7 +57,6 @@ export type RelayRefetchProp = {|
 
 export type RefetchOptions = {|
   +force?: boolean,
-  +rerunParamExperimental?: RerunParam,
 |};
 
 /**

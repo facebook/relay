@@ -716,9 +716,6 @@ function createContainerWithFragments<
       const cacheConfig: ?CacheConfig = options
         ? {force: !!options.force}
         : undefined;
-      if (cacheConfig && options && options.rerunParamExperimental) {
-        cacheConfig.rerunParamExperimental = options.rerunParamExperimental;
-      }
       const request = getRequest(connectionConfig.query);
       const operation = createOperationSelector(request, fetchVariables);
 

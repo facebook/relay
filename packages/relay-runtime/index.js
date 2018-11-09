@@ -126,7 +126,6 @@ export type {
   DataID,
   Disposable,
   OperationType,
-  RerunParam,
   Variables,
 } from './util/RelayRuntimeTypes';
 

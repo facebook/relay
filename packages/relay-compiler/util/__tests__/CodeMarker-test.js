@@ -16,8 +16,8 @@ const CodeMarker = require('../CodeMarker');
 test('replaces code in JSON', () => {
   const json = JSON.stringify({
     kind: 'test',
-    module: CodeMarker.module('MyModule'),
-    module2: CodeMarker.module('MyOtherModule'),
+    module: CodeMarker.moduleDependency('MyModule'),
+    module2: CodeMarker.moduleDependency('MyOtherModule'),
   });
   const printRequire = moduleName => `require('${moduleName}')`;
   expect(CodeMarker.postProcess(json, printRequire)).toBe(

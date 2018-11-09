@@ -212,7 +212,7 @@ const RelayCodeGenVisitor = {
             name: fragmentName,
             args: [],
           },
-          module: CodeMarker.module(selection.module),
+          module: CodeMarker.moduleDependency(selection.module),
         };
       });
       const field: ConcreteMatchField = {

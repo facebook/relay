@@ -13,7 +13,7 @@
 /**
  * Marks a string of code as code to be replaced later.
  */
-export function module(code: string): string {
+function moduleDependency(code: string): string {
   return `@@MODULE_START@@${code}@@MODULE_END@@`;
 }
 
@@ -26,12 +26,14 @@ export function module(code: string): string {
  *     JSON.stringify({code: CodeMarker.mark('alert(1)')})
  *   )
  */
-export function postProcess(
-  json: string,
-  printModule: string => string,
-): string {
+function postProcess(json: string, printModule: string => string): string {
   return json.replace(
     /"@@MODULE_START@@(.*?)@@MODULE_END@@"/g,
     (_, moduleName) => printModule(moduleName),
   );
 }
+
+module.exports = {
+  moduleDependency,
+  postProcess,
+};

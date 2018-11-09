@@ -287,6 +287,9 @@ describe('createSuspenseFragmentContainer', () => {
     TestRenderer.create(
       <ContextWrapper>
         <Container
+          /* $FlowFixMe(>=0.86.0 site=www) This comment suppresses
+           * an error found when Flow v0.86 was deployed. To see the error,
+           * delete this comment and run Flow. */
           ref={ref}
           user={{
             [ID_KEY]: variables.id,

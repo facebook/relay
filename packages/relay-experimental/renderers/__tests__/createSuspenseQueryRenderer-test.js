@@ -53,9 +53,7 @@ class PropsSetter extends React.Component<any, any> {
 
 function expectToBeRendered(renderFn, readyState) {
   expect(renderFn).toBeCalledTimes(1);
-  expect(renderFn.mock.calls[0][0]).toEqual(readyState, {
-    refetch: expect.any(Function),
-  });
+  expect(renderFn.mock.calls[0][0]).toEqual(readyState);
 }
 
 function expectToBeFetched(environment, executeVariables) {

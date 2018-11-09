@@ -56,7 +56,7 @@ class PropsSetter extends React.Component<any, any> {
   }
 }
 
-describe('createFragmentContainer', () => {
+describe('createSuspenseFragmentContainer', () => {
   let environment;
   let gqlQuery;
   let fragment;
@@ -303,6 +303,7 @@ describe('createFragmentContainer', () => {
 
   it('should re-read and resubscribe to fragment when fragment pointers change', () => {
     expectToBeRenderedWith(UserComponent, {user: {id: '1', name: 'Alice'}});
+    query = createOperationSelector(gqlQuery, {id: '200'});
     environment.commitPayload(query, {
       node: {
         __typename: 'User',
@@ -327,6 +328,8 @@ describe('createFragmentContainer', () => {
 
   it('should re-read and resubscribe to fragment when variables change', () => {
     expectToBeRenderedWith(UserComponent, {user: {id: '1', name: 'Alice'}});
+    const nextVariables = {id: '400'};
+    query = createOperationSelector(gqlQuery, nextVariables);
     environment.commitPayload(query, {
       node: {
         __typename: 'User',
@@ -334,8 +337,6 @@ describe('createFragmentContainer', () => {
         name: 'Bar',
       },
     });
-    const nextVariables = {id: '400'};
-    query = createOperationSelector(gqlQuery, nextVariables);
     renderer.getInstance().setProps({
       value: {environment, query, variables: nextVariables},
     });
@@ -414,6 +415,8 @@ describe('createFragmentContainer', () => {
     query = createOperationSelector(gqlQuery, {
       id: '2',
     });
+
+    // Commit a payload where name is missing.
     environment.commitPayload(query, {
       node: {
         __typename: 'User',

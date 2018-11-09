@@ -77,7 +77,7 @@ function commitUserPayload(environment, gqlQuery, id, name) {
   });
 }
 
-describe('createQueryRenderer', () => {
+describe('createSuspenseQueryRenderer', () => {
   let environment;
   let gqlQuery;
   let QueryRenderer;

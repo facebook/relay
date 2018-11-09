@@ -10,6 +10,7 @@
 
 'use strict';
 
+const ReactRelayContext = require('./ReactRelayContext');
 const ReactRelayFragmentContainer = require('./ReactRelayFragmentContainer');
 const ReactRelayPaginationContainer = require('./ReactRelayPaginationContainer');
 const ReactRelayQueryRenderer = require('./ReactRelayQueryRenderer');
@@ -46,6 +47,8 @@ module.exports = {
 
   MutationTypes: RelayRuntime.MutationTypes,
   RangeOperations: RelayRuntime.RangeOperations,
+
+  ReactRelayContext,
 
   applyOptimisticMutation: RelayRuntime.applyOptimisticMutation,
   commitLocalUpdate: RelayRuntime.commitLocalUpdate,

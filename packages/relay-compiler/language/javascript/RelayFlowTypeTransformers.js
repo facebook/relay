@@ -81,6 +81,13 @@ function transformGraphQLScalarType(type: GraphQLScalarType, state: State) {
   const customType = state.customScalars[type.name];
   switch (customType || type.name) {
     case 'ID':
+      state.idFieldUsed = true;
+      if (!state.opaqueRelayIDImport) {
+        return t.stringTypeAnnotation();
+      }
+      return t.genericTypeAnnotation(
+        t.identifier(state.opaqueRelayIDImport.typeName),
+      );
     case 'String':
       return t.stringTypeAnnotation();
     case 'Float':

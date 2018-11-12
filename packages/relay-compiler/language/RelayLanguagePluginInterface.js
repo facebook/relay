@@ -188,6 +188,10 @@ export type TypeGeneratorOptions = {|
    */
   +existingFragmentNames: Set<string>,
 
+  /*
+   * if set all ID fields are set to be of the provided opaque type */
+  +opaqueRelayIDImport: ?{typeName: string, fileWithDefinition: string},
+
   /**
    * Whether or not relay-compiler will store artifacts next to the module that
    * they originate from or all together in a single directory.

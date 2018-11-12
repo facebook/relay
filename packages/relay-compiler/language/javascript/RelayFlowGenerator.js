@@ -55,6 +55,7 @@ export type State = {|
   },
   +usedEnums: {[name: string]: GraphQLEnumType},
   +usedFragments: Set<string>,
+  usedID: boolean,
 |};
 
 function generate(
@@ -260,6 +261,7 @@ function createVisitor(options: TypeGeneratorOptions) {
     useHaste: options.useHaste,
     useSingleArtifactDirectory: options.useSingleArtifactDirectory,
     noFutureProofEnums: options.noFutureProofEnums,
+    usedID: false,
   };
 
   return {
@@ -285,6 +287,7 @@ function createVisitor(options: TypeGeneratorOptions) {
           ]),
         );
         return t.program([
+          ...getIDImports(state),
           ...getFragmentImports(state),
           ...getEnumDefinitions(state),
           ...inputObjectTypes,
@@ -474,6 +477,15 @@ function groupRefs(props): Array<Selection> {
     });
   }
   return result;
+}
+
+function getIDImports(state: State) {
+  if (!state.usedID) {
+    return [];
+  }
+  const imports = [];
+  imports.push(importTypes([state.typeName]), state.modulePath);
+  return imports;
 }
 
 function getFragmentImports(state: State) {

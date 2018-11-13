@@ -335,43 +335,51 @@ describe('RelayResponseNormalizer', () => {
   });
 
   describe('when using a @match field', () => {
-    it('normalizes queries correctly', () => {
-      const {UserQuery} = generateAndCompile(
+    let BarQuery;
+
+    beforeEach(() => {
+      const nodes = generateAndCompile(
         `
-      fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
-        text
-      }
-
-      fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-        markdown
-      }
-
-      fragment FooFragment on User {
-        id
-        nameRenderer @match(onTypes: [
-          {
-            type: "PlainUserNameRenderer"
-            fragment: "PlainUserNameRenderer_name"
-            module: "PlainUserNameRenderer.react"
+          fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+            plaintext
+            data {
+              text
+            }
           }
-          {
-            type: "MarkdownUserNameRenderer"
-            fragment: "MarkdownUserNameRenderer_name"
-            module: "MarkdownUserNameRenderer.react"
-          }
-        ])
-      }
 
-      query UserQuery($id: ID!) {
-        node(id: $id) {
-          id
-          __typename
-          ...FooFragment
-        }
-      }
-    `,
+          fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+            markdown
+            data {
+              markup
+            }
+          }
+
+          fragment BarFragment on User {
+            id
+            nameRenderer @match(onTypes: [
+              {
+                type: "PlainUserNameRenderer"
+                fragment: "PlainUserNameRenderer_name"
+                module: "PlainUserNameRenderer.react"
+              }
+              {
+                type: "MarkdownUserNameRenderer"
+                fragment: "MarkdownUserNameRenderer_name"
+                module: "MarkdownUserNameRenderer.react"
+              }
+            ], experimental_skipInlineDoNotUse: true)
+          }
+
+          query BarQuery($id: ID!) {
+            node(id: $id) {
+              ...BarFragment
+            }
+          }`,
       );
+      BarQuery = nodes.BarQuery;
+    });
 
+    it('normalizes queries correctly', () => {
       const payload = {
         node: {
           id: '1',
@@ -379,17 +387,20 @@ describe('RelayResponseNormalizer', () => {
           nameRenderer: {
             __typename: 'MarkdownUserNameRenderer',
             markdown: 'markdown payload',
+            data: {
+              markup: '<markup/>',
+            },
           },
         },
       };
 
       const recordSource = new RelayInMemoryRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
-      normalize(
+      const {matchPayloads} = normalize(
         recordSource,
         {
           dataID: ROOT_ID,
-          node: UserQuery.operation,
+          node: BarQuery.operation,
           variables: {id: '1'},
         },
         payload,
@@ -408,7 +419,6 @@ describe('RelayResponseNormalizer', () => {
           __id:
             'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __typename: 'MarkdownUserNameRenderer',
-          markdown: 'markdown payload',
         },
         'client:root': {
           __id: 'client:root',
@@ -416,45 +426,25 @@ describe('RelayResponseNormalizer', () => {
           'node(id:"1")': {__ref: '1'},
         },
       });
+      expect(matchPayloads).toEqual([
+        {
+          fragmentName: 'MarkdownUserNameRenderer_name',
+          dataID:
+            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          data: {
+            __typename: 'MarkdownUserNameRenderer',
+            markdown: 'markdown payload',
+            data: {
+              markup: '<markup/>',
+            },
+          },
+          variables: {id: '1'},
+          typeName: 'MarkdownUserNameRenderer',
+        },
+      ]);
     });
 
     it('normalizes queries correctly when the resolved type does not match any of the specified cases', () => {
-      const {UserQuery} = generateAndCompile(
-        `
-      fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
-        text
-      }
-
-      fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-        markdown
-      }
-
-      fragment FooFragment on User {
-        id
-        nameRenderer @match(onTypes: [
-          {
-            type: "PlainUserNameRenderer"
-            fragment: "PlainUserNameRenderer_name"
-            module: "PlainUserNameRenderer.react"
-          }
-          {
-            type: "MarkdownUserNameRenderer"
-            fragment: "MarkdownUserNameRenderer_name"
-            module: "MarkdownUserNameRenderer.react"
-          }
-        ])
-      }
-
-      query UserQuery($id: ID!) {
-        node(id: $id) {
-          id
-          __typename
-          ...FooFragment
-        }
-      }
-    `,
-      );
-
       const payload = {
         node: {
           id: '1',
@@ -471,7 +461,7 @@ describe('RelayResponseNormalizer', () => {
         recordSource,
         {
           dataID: ROOT_ID,
-          node: UserQuery.operation,
+          node: BarQuery.operation,
           variables: {id: '1'},
         },
         payload,
@@ -481,15 +471,7 @@ describe('RelayResponseNormalizer', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-          },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-          __typename: 'CustomNameRenderer',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': null,
         },
         'client:root': {
           __id: 'client:root',
@@ -500,42 +482,6 @@ describe('RelayResponseNormalizer', () => {
     });
 
     it('normalizes queries correctly when the @match field is null', () => {
-      const {UserQuery} = generateAndCompile(
-        `
-      fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
-        text
-      }
-
-      fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-        markdown
-      }
-
-      fragment FooFragment on User {
-        id
-        nameRenderer @match(onTypes: [
-          {
-            type: "PlainUserNameRenderer"
-            fragment: "PlainUserNameRenderer_name"
-            module: "PlainUserNameRenderer.react"
-          }
-          {
-            type: "MarkdownUserNameRenderer"
-            fragment: "MarkdownUserNameRenderer_name"
-            module: "MarkdownUserNameRenderer.react"
-          }
-        ])
-      }
-
-      query UserQuery($id: ID!) {
-        node(id: $id) {
-          id
-          __typename
-          ...FooFragment
-        }
-      }
-    `,
-      );
-
       const payload = {
         node: {
           id: '1',
@@ -550,7 +496,7 @@ describe('RelayResponseNormalizer', () => {
         recordSource,
         {
           dataID: ROOT_ID,
-          node: UserQuery.operation,
+          node: BarQuery.operation,
           variables: {id: '1'},
         },
         payload,

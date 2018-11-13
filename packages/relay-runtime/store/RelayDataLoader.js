@@ -22,6 +22,7 @@ const {EXISTENT, UNKNOWN} = require('./RelayRecordState');
 
 import type {
   ConcreteLinkedField,
+  ConcreteMatchField,
   ConcreteNode,
   ConcreteScalarField,
   ConcreteSelection,
@@ -29,6 +30,7 @@ import type {
 } from '../util/RelayConcreteNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
+  FragmentLoader,
   MissingFieldHandler,
   MutableRecordSource,
   RecordSource,
@@ -63,9 +65,16 @@ function check(
   target: MutableRecordSource,
   selector: Selector,
   handlers: $ReadOnlyArray<MissingFieldHandler>,
+  fragmentLoader?: ?FragmentLoader,
 ): boolean {
   const {dataID, node, variables} = selector;
-  const loader = new RelayDataLoader(source, target, variables, handlers);
+  const loader = new RelayDataLoader(
+    source,
+    target,
+    variables,
+    handlers,
+    fragmentLoader,
+  );
   return loader.check(node, dataID);
 }
 
@@ -74,23 +83,26 @@ function check(
  */
 class RelayDataLoader {
   _done: boolean;
-  _source: RecordSource;
-  _mutator: RelayRecordSourceMutator;
-  _variables: Variables;
-  _recordWasMissing: boolean;
+  _fragmentLoader: FragmentLoader | null;
   _handlers: $ReadOnlyArray<MissingFieldHandler>;
+  _mutator: RelayRecordSourceMutator;
+  _recordWasMissing: boolean;
+  _source: RecordSource;
+  _variables: Variables;
 
   constructor(
     source: RecordSource,
     target: MutableRecordSource,
     variables: Variables,
     handlers: $ReadOnlyArray<MissingFieldHandler>,
+    fragmentLoader: ?FragmentLoader,
   ) {
-    this._source = source;
-    this._variables = variables;
-    this._recordWasMissing = false;
+    this._fragmentLoader = fragmentLoader ?? null;
     this._handlers = handlers;
     this._mutator = new RelayRecordSourceMutator(source, target);
+    this._recordWasMissing = false;
+    this._source = source;
+    this._variables = variables;
   }
 
   check(node: ConcreteNode, dataID: DataID): boolean {
@@ -229,6 +241,8 @@ class RelayDataLoader {
           }
           break;
         case MATCH_FIELD:
+          this._prepareMatch(selection, dataID);
+          break;
         case SCALAR_HANDLE:
         case FRAGMENT_SPREAD:
           invariant(
@@ -248,6 +262,35 @@ class RelayDataLoader {
       }
       return !this._done;
     });
+  }
+
+  _prepareMatch(field: ConcreteMatchField, dataID: DataID): void {
+    const storageKey = getStorageKey(field, this._variables);
+    const linkedID = this._mutator.getLinkedRecordID(dataID, storageKey);
+
+    if (linkedID === undefined) {
+      this._handleMissing();
+    } else if (linkedID !== null) {
+      const typeName = this._mutator.getType(linkedID);
+      const match = typeName != null ? field.matchesByType[typeName] : null;
+      if (match != null) {
+        const fragmentLoader = this._fragmentLoader;
+        invariant(
+          fragmentLoader !== null,
+          'RelayDataLoader: Expected a fragmentLoader to be configured when using `@match`.',
+        );
+        const fragment = fragmentLoader.get(match.selection.name);
+        if (fragment != null) {
+          this._traverse(fragment, linkedID);
+        } else {
+          // If the fragment is not available, we assume that the data cannot have been
+          // processed yet and must therefore be missing.
+          this._handleMissing();
+        }
+      } else {
+        // TODO: warn: store is corrupt: the field should be null if the typename did not match
+      }
+    }
   }
 
   _prepareScalar(field: ConcreteScalarField, dataID: DataID): void {

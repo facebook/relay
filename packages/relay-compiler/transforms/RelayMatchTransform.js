@@ -31,6 +31,7 @@ const SCHEMA_EXTENSION = `
 
   directive @match(
     onTypes: [RelayDataDependencyMatch!]!
+    experimental_skipInlineDoNotUse: Boolean
   ) on FIELD
 `;
 

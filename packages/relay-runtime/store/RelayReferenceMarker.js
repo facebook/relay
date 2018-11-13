@@ -19,11 +19,12 @@ const invariant = require('invariant');
 
 import type {
   ConcreteLinkedField,
+  ConcreteMatchField,
   ConcreteNode,
   ConcreteSelection,
 } from '../util/RelayConcreteNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
-import type {RecordSource, Selector} from './RelayStoreTypes';
+import type {FragmentLoader, RecordSource, Selector} from './RelayStoreTypes';
 import type {Record} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 const {
@@ -42,9 +43,15 @@ function mark(
   recordSource: RecordSource,
   selector: Selector,
   references: Set<DataID>,
+  fragmentLoader: ?FragmentLoader,
 ): void {
   const {dataID, node, variables} = selector;
-  const marker = new RelayReferenceMarker(recordSource, variables, references);
+  const marker = new RelayReferenceMarker(
+    recordSource,
+    variables,
+    references,
+    fragmentLoader,
+  );
   marker.mark(node, dataID);
 }
 
@@ -52,6 +59,7 @@ function mark(
  * @private
  */
 class RelayReferenceMarker {
+  _fragmentLoader: FragmentLoader | null;
   _recordSource: RecordSource;
   _references: Set<DataID>;
   _variables: Variables;
@@ -60,7 +68,9 @@ class RelayReferenceMarker {
     recordSource: RecordSource,
     variables: Variables,
     references: Set<DataID>,
+    fragmentLoader: ?FragmentLoader,
   ) {
+    this._fragmentLoader = fragmentLoader ?? null;
     this._references = references;
     this._recordSource = recordSource;
     this._variables = variables;
@@ -146,12 +156,7 @@ class RelayReferenceMarker {
         case SCALAR_HANDLE:
           break;
         case MATCH_FIELD:
-          invariant(
-            false,
-            'RelayReferenceMarker: Unexpected MatchField node `%s`.',
-            selection.name,
-          );
-          // $FlowExpectedError - we need the break; for OSS linter
+          this._traverseMatch(selection, record);
           break;
         default:
           (selection: empty);
@@ -162,6 +167,37 @@ class RelayReferenceMarker {
           );
       }
     });
+  }
+
+  _traverseMatch(field: ConcreteMatchField, record: Record): void {
+    const storageKey = getStorageKey(field, this._variables);
+    const linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
+
+    if (linkedID == null) {
+      return;
+    }
+    this._references.add(linkedID);
+    const linkedRecord = this._recordSource.get(linkedID);
+    if (linkedRecord == null) {
+      return;
+    }
+    const typeName = RelayModernRecord.getType(linkedRecord);
+    const match = field.matchesByType[typeName];
+    if (match != null) {
+      const fragmentLoader = this._fragmentLoader;
+      invariant(
+        fragmentLoader !== null,
+        'RelayReferenceMarker: Expected a fragmentLoader to be configured when using `@match`.',
+      );
+      const fragment = fragmentLoader.get(match.selection.name);
+      if (fragment != null) {
+        this._traverseSelections(fragment.selections, linkedRecord);
+      }
+      // If the fragment is not available, we assume that the data cannot have been
+      // processed yet and therefore isn't in the store to begin with.
+    } else {
+      // TODO: warn: store is corrupt: the field should be null if the typename did not match
+    }
   }
 
   _traverseLink(field: ConcreteLinkedField, record: Record): void {

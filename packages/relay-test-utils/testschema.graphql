@@ -652,11 +652,23 @@ type UnfriendResponsePayload {
 }
 
 type PlainUserNameRenderer {
+  plaintext: String
+  data: PlainUserNameData
+}
+
+type PlainUserNameData {
+  id: ID
   text: String
 }
 
 type MarkdownUserNameRenderer {
   markdown: String
+  data: MarkdownUserNameData
+}
+
+type MarkdownUserNameData {
+  id: ID
+  markup: String
 }
 
 type CustomNameRenderer {

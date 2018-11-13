@@ -449,7 +449,7 @@ describe('RelayReader', () => {
           __id:
             'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __typename: 'PlainUserNameRenderer',
-          text: 'plain name',
+          plaintext: 'plain name',
         },
         'client:root': {
           __id: 'client:root',
@@ -460,7 +460,7 @@ describe('RelayReader', () => {
       source = new RelayInMemoryRecordSource(storeData);
       const {BarFragment} = generateAndCompile(`
       fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
-        text
+        plaintext
       }
 
       fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
@@ -533,7 +533,7 @@ describe('RelayReader', () => {
       source = new RelayInMemoryRecordSource(storeData);
       const {BarFragment} = generateAndCompile(`
       fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
-        text
+        plaintext
       }
 
       fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
@@ -606,7 +606,7 @@ describe('RelayReader', () => {
       source = new RelayInMemoryRecordSource(storeData);
       const {BarFragment} = generateAndCompile(`
       fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
-        text
+        plaintext
       }
 
       fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
@@ -661,7 +661,7 @@ describe('RelayReader', () => {
       source = new RelayInMemoryRecordSource(storeData);
       const {BarFragment} = generateAndCompile(`
       fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
-        text
+        plaintext
       }
 
       fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
@@ -712,7 +712,7 @@ describe('RelayReader', () => {
       source = new RelayInMemoryRecordSource(storeData);
       const {BarFragment} = generateAndCompile(`
       fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
-        text
+        plaintext
       }
 
       fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {

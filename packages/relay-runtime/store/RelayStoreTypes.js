@@ -333,6 +333,44 @@ export type HandleFieldPayload = $Exact<{
 }>;
 
 /**
+ * A payload that represents data necessary to process the results of a `@match`
+ * directive:
+ * - data: The GraphQL response value for the @match field.
+ * - dataID: The ID of the store object linked to by the @match field.
+ * - fragmentName: The name of the fragment (module) with which to normalize
+ *   the data.
+ * - variables: Query variables.
+ * - typeName: the type that matched.
+ *
+ * The dataID, variables, and fragmentName can be used to create a Selector
+ * which can in turn be used to normalize and publish the data. The dataID and
+ * typeName can also be used to construct a root record for normalization.
+ */
+export type MatchFieldPayload = {|
+  data: PayloadData,
+  dataID: DataID,
+  fragmentName: string,
+  typeName: string,
+  variables: Variables,
+|};
+
+/**
+ * A user-supplied object to load a generated fragment ASTs by (module) name.
+ */
+export type FragmentLoader = {|
+  /**
+   * Synchronously load a fragment, returning either the fragment or null if it
+   * cannot be resolved synchronously.
+   */
+  get(fragmentModuleName: string): ?ConcreteFragment,
+
+  /**
+   * Asynchronously load a fragment.
+   */
+  load(fragmentModuleName: string): Promise<?ConcreteFragment>,
+|};
+
+/**
  * A function that receives a proxy over the store and may trigger side-effects
  * (indirectly) by calling `set*` methods on the store or its record proxies.
  */
@@ -405,6 +443,7 @@ export type MissingFieldHandler =
  */
 export type RelayResponsePayload = {|
   fieldPayloads?: ?Array<HandleFieldPayload>,
+  matchPayloads?: ?Array<MatchFieldPayload>,
   source: MutableRecordSource,
   errors: ?Array<PayloadError>,
 |};

@@ -631,7 +631,10 @@ class GraphQLParser {
         directive => directive.name === MATCH_DIRECTIVE_NAME,
       );
       const matchDirective = matchDirectives[0];
-      const cases = getLiteralArgumentValues(matchDirective.args).onTypes;
+      const matchDirectiveArgs = getLiteralArgumentValues(matchDirective.args);
+      const cases = matchDirectiveArgs.onTypes;
+      const experimental_skipInlineDoNotUse =
+        matchDirectiveArgs.experimental_skipInlineDoNotUse === true;
 
       if (cases.length === 0) {
         throw new Error(
@@ -660,7 +663,9 @@ class GraphQLParser {
         args: [],
         directives: nonMatchDirectives,
         handles: null,
-        metadata: null,
+        metadata: {
+          experimental_skipInlineDoNotUse,
+        },
         name: name,
         type: assertGraphQLUnionType(type),
         selections,

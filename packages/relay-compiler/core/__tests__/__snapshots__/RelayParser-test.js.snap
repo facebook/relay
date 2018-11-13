@@ -441,7 +441,9 @@ fragment TestFragment on Comment {
         "args": [],
         "directives": [],
         "handles": null,
-        "metadata": null,
+        "metadata": {
+          "experimental_skipInlineDoNotUse": false
+        },
         "name": "commentBody",
         "type": "CommentBody",
         "selections": [

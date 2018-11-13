@@ -288,17 +288,23 @@ fragment CommentBody_comment on CommentCreateResponsePayload {
   comment {
     commentBody @match(onTypes: [
       {
-        type: "MarkdownCommentBody"
         fragment: "MarkdownBody_comment"
         module: "MarkdownBodyComponent.react"
       }
       {
-        type: "PlainCommentBody"
         fragment: "PlaintextBody_comment"
         module: "PlaintextComponent.react"
       }
     ])
   }
+}
+
+fragment MarkdownBody_comment on MarkdownCommentBody {
+  __typename
+}
+
+fragment PlaintextBody_comment on PlainCommentBody {
+  __typename
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
@@ -309,6 +315,30 @@ export type CommentBody_comment = {|
     +commentBody: ?{||}
   |},
   +$refType: CommentBody_comment$ref,
+|};
+
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type MarkdownBody_comment$ref: FragmentReference;
+export type MarkdownBody_comment = {|
+  +__typename: "MarkdownCommentBody",
+  +$refType: MarkdownBody_comment$ref,
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: "%other",
+  +$refType: MarkdownBody_comment$ref,
+|};
+
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type PlaintextBody_comment$ref: FragmentReference;
+export type PlaintextBody_comment = {|
+  +__typename: "PlainCommentBody",
+  +$refType: PlaintextBody_comment$ref,
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: "%other",
+  +$refType: PlaintextBody_comment$ref,
 |};
 `;
 

@@ -358,12 +358,10 @@ describe('RelayResponseNormalizer', () => {
             id
             nameRenderer @match(onTypes: [
               {
-                type: "PlainUserNameRenderer"
                 fragment: "PlainUserNameRenderer_name"
                 module: "PlainUserNameRenderer.react"
               }
               {
-                type: "MarkdownUserNameRenderer"
                 fragment: "MarkdownUserNameRenderer_name"
                 module: "MarkdownUserNameRenderer.react"
               }

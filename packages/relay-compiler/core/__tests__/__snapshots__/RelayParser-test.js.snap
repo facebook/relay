@@ -414,12 +414,10 @@ fragment TestFragment on Comment {
     @match(
       onTypes: [
         {
-          type: "MarkdownCommentBody"
           fragment: "MarkdownBody_comment"
           module: "MarkdownBodyComponent.react"
         }
         {
-          type: "PlainCommentBody"
           fragment: "PlaintextBody_comment"
           module: "PlaintextComponent.react"
         }
@@ -449,7 +447,6 @@ fragment TestFragment on Comment {
         "selections": [
           {
             "kind": "MatchFragmentSpread",
-            "type": "MarkdownCommentBody",
             "module": "MarkdownBodyComponent.react",
             "args": [],
             "directives": [],
@@ -458,7 +455,6 @@ fragment TestFragment on Comment {
           },
           {
             "kind": "MatchFragmentSpread",
-            "type": "PlainCommentBody",
             "module": "PlaintextComponent.react",
             "args": [],
             "directives": [],

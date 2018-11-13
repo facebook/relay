@@ -3,12 +3,10 @@ fragment TestFragment on Comment {
     @match(
       onTypes: [
         {
-          type: "MarkdownCommentBody"
           fragment: "MarkdownBody_comment"
           module: "MarkdownBodyComponent.react"
         }
         {
-          type: "PlainCommentBody"
           fragment: "PlaintextBody_comment"
           module: "PlaintextComponent.react"
         }

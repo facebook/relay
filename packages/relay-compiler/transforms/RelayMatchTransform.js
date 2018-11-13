@@ -80,7 +80,7 @@ function visitMatchField(field: MatchField, state, parent?: mixed): MatchField {
     );
   }
 
-  const seenTypes = new Set<GraphQLCompositeType>();
+  const seenTypes: Set<GraphQLCompositeType> = new Set();
   const supportedTypes = transformedNode.selections.map(match => {
     invariant(
       match.kind === 'MatchFragmentSpread',

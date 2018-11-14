@@ -19,7 +19,9 @@ const BLACKLISTED_PATTERNS/*: Array<RegExp>*/ = [
 ];
 
 const WHITELISTED_PREFIXES/*: Array<string>*/ = [
-  'packages'
+  'packages/graphql-compiler',
+  'packages/relay-compiler',
+  'packages/relay-test-utils',
 ];
 
 const NAME_REDUCERS/*: Array<[RegExp, string]>*/ = [

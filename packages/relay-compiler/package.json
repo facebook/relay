@@ -10,7 +10,7 @@
   "homepage": "https://facebook.github.io/relay/",
   "bugs": "https://github.com/facebook/relay/issues",
   "repository": "facebook/relay",
-  "main": "lib/RelayCompilerPublic",
+  "main": "lib/RelayCompilerPublic.js",
   "bin": {
     "relay-compiler": "bin/relay-compiler"
   },

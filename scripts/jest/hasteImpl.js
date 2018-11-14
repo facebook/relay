@@ -15,7 +15,6 @@ const ROOT = path.join(__dirname, '..', '..');
 
 const BLACKLISTED_PATTERNS/*: Array<RegExp>*/ = [
   /.*\/__(mocks|tests)__\/.*/,
-  /^packages\/babel-plugin-relay\/invariant\.js/,
 ];
 
 const WHITELISTED_PREFIXES/*: Array<string>*/ = [

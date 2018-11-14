@@ -83,7 +83,7 @@ function compileRelayArtifacts(
               kind: 'Request',
               fragment: {
                 kind: 'Fragment',
-                argumentDefinitions: (node.argumentDefinitions: $FlowFixMe),
+                argumentDefinitions: node.argumentDefinitions,
                 directives: node.directives,
                 metadata: null,
                 name: node.name,

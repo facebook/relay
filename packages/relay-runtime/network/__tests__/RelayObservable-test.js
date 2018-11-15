@@ -1545,6 +1545,67 @@ describe('RelayObservable', () => {
     });
   });
 
+  describe('fromPromise', () => {
+    it('Cleans up when unsubscribed', () => {
+      let resolve;
+      const observer = {
+        complete: jest.fn(),
+        error: jest.fn(),
+        next: jest.fn(),
+        start: jest.fn(),
+        unsubscribe: jest.fn(),
+      };
+      const x = new Promise(_resolve => (resolve = _resolve));
+      const subscription = RelayObservable.from(x).subscribe(observer);
+      subscription.unsubscribe();
+      resolve();
+      jest.runAllTimers();
+      expect(observer.complete).toBeCalledTimes(0);
+      expect(observer.error).toBeCalledTimes(0);
+      expect(observer.next).toBeCalledTimes(0);
+      expect(observer.start).toBeCalledTimes(1);
+      expect(observer.unsubscribe).toBeCalledTimes(1);
+    });
+
+    it('Calls next and complete when the promise resolves', () => {
+      const observer = {
+        complete: jest.fn(),
+        error: jest.fn(),
+        next: jest.fn(),
+        start: jest.fn(),
+        unsubscribe: jest.fn(),
+      };
+      const value = {};
+      RelayObservable.from(Promise.resolve(value)).subscribe(observer);
+      jest.runAllTimers();
+      expect(observer.complete).toBeCalledTimes(1);
+      expect(observer.error).toBeCalledTimes(0);
+      expect(observer.next).toBeCalledTimes(1);
+      expect(observer.next.mock.calls[0][0]).toBe(value);
+      expect(observer.start).toBeCalledTimes(1);
+      expect(observer.unsubscribe).toBeCalledTimes(0);
+    });
+
+    it('Calls error when the promise rejects', () => {
+      const observer = {
+        complete: jest.fn(),
+        error: jest.fn(),
+        next: jest.fn(),
+        start: jest.fn(),
+        unsubscribe: jest.fn(),
+      };
+      const error = new Error();
+      RelayObservable.from(Promise.reject(error)).subscribe(observer);
+      jest.runAllTimers();
+      expect(observer.complete).toBeCalledTimes(0);
+      expect(observer.error).toBeCalledTimes(1);
+      expect(observer.error.mock.calls[0][0]).toBe(error);
+      expect(observer.next).toBeCalledTimes(0);
+      expect(observer.start).toBeCalledTimes(1);
+      expect(observer.unsubscribe).toBeCalledTimes(0);
+    });
+  });
+
   describe('fromLegacy', () => {
     it('Converts a legacy Relay observe API into an Observable', () => {
       const list = [];

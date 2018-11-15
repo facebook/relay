@@ -321,7 +321,23 @@ class RelayObservable<+T> implements Subscribable<T> {
    * the mapping function.
    */
   map<U>(fn: T => U): RelayObservable<U> {
-    return this.mergeMap(value => fromValue(fn(value)));
+    return RelayObservable.create(sink => {
+      const subscription = this.subscribe({
+        complete: sink.complete,
+        error: sink.error,
+        next: value => {
+          try {
+            const mapValue = fn(value);
+            sink.next(mapValue);
+          } catch (error) {
+            sink.error(error, true /* isUncaughtThrownError */);
+          }
+        },
+      });
+      return () => {
+        subscription.unsubscribe();
+      };
+    });
   }
 
   /**

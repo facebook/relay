@@ -15,7 +15,10 @@ const RelayCore = require('./RelayCore');
 const RelayDataLoader = require('./RelayDataLoader');
 const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
 const RelayInMemoryRecordSource = require('./RelayInMemoryRecordSource');
+const RelayObservable = require('../network/RelayObservable');
 const RelayPublishQueue = require('./RelayPublishQueue');
+const RelayModernRecord = require('./RelayModernRecord');
+const RelayResponseNormalizer = require('./RelayResponseNormalizer');
 
 const invariant = require('invariant');
 const normalizePayload = require('./normalizePayload');
@@ -23,6 +26,7 @@ const normalizeRelayPayload = require('./normalizeRelayPayload');
 const warning = require('warning');
 
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
+import type {Subscription} from '../network/RelayObservable';
 import type {
   GraphQLResponse,
   Network,
@@ -30,12 +34,14 @@ import type {
   PayloadError,
   UploadableMap,
 } from '../network/RelayNetworkTypes';
-import type RelayObservable from '../network/RelayObservable';
 import type {
   Environment,
+  FragmentLoader,
+  MatchFieldPayload,
   MissingFieldHandler,
   OperationSelector,
   OptimisticUpdate,
+  RelayResponsePayload,
   Selector,
   SelectorStoreUpdater,
   Snapshot,
@@ -48,12 +54,14 @@ import type {CacheConfig, Disposable} from '../util/RelayRuntimeTypes';
 export type EnvironmentConfig = {
   configName?: string,
   handlerProvider?: HandlerProvider,
+  fragmentLoader?: FragmentLoader,
   network: Network,
   store: Store,
   missingFieldHandlers?: $ReadOnlyArray<MissingFieldHandler>,
 };
 
 class RelayModernEnvironment implements Environment {
+  _fragmentLoader: ?FragmentLoader;
   _network: Network;
   _publishQueue: RelayPublishQueue;
   _store: Store;
@@ -66,6 +74,18 @@ class RelayModernEnvironment implements Environment {
     const handlerProvider = config.handlerProvider
       ? config.handlerProvider
       : RelayDefaultHandlerProvider;
+    const fragmentLoader = config.fragmentLoader;
+    if (__DEV__) {
+      if (fragmentLoader != null) {
+        invariant(
+          typeof fragmentLoader === 'object' &&
+            typeof fragmentLoader.get === 'function' &&
+            typeof fragmentLoader.load === 'function',
+          'RelayModernEnvironment: Expected `fragmentLoader` to be an object with get() and load() functions, got `%s`.',
+        );
+      }
+    }
+    this._fragmentLoader = fragmentLoader;
     this._network = config.network;
     this._publishQueue = new RelayPublishQueue(config.store, handlerProvider);
     this._store = config.store;
@@ -210,46 +230,104 @@ class RelayModernEnvironment implements Environment {
     cacheConfig?: ?CacheConfig,
     updater?: ?SelectorStoreUpdater,
   }): RelayObservable<GraphQLResponse> {
-    let optimisticResponse;
-    return this._network
-      .execute(operation.node, operation.variables, cacheConfig || {})
-      .do({
-        next: payload => {
-          const responsePayload = normalizePayload(operation, payload);
-          const {source, fieldPayloads} = responsePayload;
-          if (payload.extensions?.isOptimistic) {
-            invariant(
-              optimisticResponse == null,
-              'environment.execute: only support one optimistic response per ' +
-                'execute.',
-            );
-            optimisticResponse = {
-              source: source,
-              fieldPayloads: fieldPayloads,
-            };
-            this._publishQueue.applyUpdate(optimisticResponse);
-            this._publishQueue.run();
-          } else {
-            if (optimisticResponse) {
-              this._publishQueue.revertUpdate(optimisticResponse);
-              optimisticResponse = undefined;
-            }
-            this._publishQueue.commitPayload(
-              operation,
-              responsePayload,
-              updater,
-            );
-            this._publishQueue.run();
+    return RelayObservable.create(sink => {
+      let optimisticResponse = null;
+      const subscriptions: Set<Subscription> = new Set();
+
+      function start(subscription): void {
+        // NOTE: store the subscription object on the observer so that it
+        // can be cleaned up in complete() or the dispose function.
+        this._subscription = subscription;
+        subscriptions.add(subscription);
+      }
+
+      function complete(): void {
+        subscriptions.delete(this._subscription);
+        if (subscriptions.size === 0) {
+          sink.complete();
+        }
+      }
+
+      // Convert each GraphQLResponse from the network to a RelayResponsePayload
+      // and process it
+      function next(response: GraphQLResponse): void {
+        const payload = normalizePayload(operation, response);
+        const isOptimistic = response.extensions?.isOptimistic === true;
+        processRelayPayload(operation.root, payload, isOptimistic);
+        sink.next(response);
+      }
+
+      // Each RelayResponsePayload contains both data to publish to the store
+      // immediately, but may also contain matchPayloads that need to be
+      // asynchronously normalized into RelayResponsePayloads, which may
+      // themselves have matchPayloads: this function is recursive and relies
+      // on GraphQL queries *disallowing* recursion to ensure termination.
+      const processRelayPayload = (
+        selector: Selector,
+        payload: RelayResponsePayload,
+        isOptimistic: boolean = false,
+      ): void => {
+        const {matchPayloads} = payload;
+        if (matchPayloads && matchPayloads.length) {
+          const fragmentLoader = this._fragmentLoader;
+          invariant(
+            fragmentLoader,
+            'RelayModernEnvironment: Expected a fragmentLoader to be configured when using `@match`.',
+          );
+          matchPayloads.forEach(matchPayload => {
+            processMatchPayload(
+              processRelayPayload,
+              fragmentLoader,
+              matchPayload,
+            ).subscribe({
+              complete,
+              error: sink.error,
+              start,
+            });
+          });
+        }
+        if (isOptimistic) {
+          invariant(
+            optimisticResponse === null,
+            'environment.execute: only support one optimistic response per ' +
+              'execute.',
+          );
+          optimisticResponse = {
+            source: payload.source,
+            fieldPayloads: payload.fieldPayloads,
+          };
+          this._publishQueue.applyUpdate(optimisticResponse);
+          this._publishQueue.run();
+        } else {
+          if (optimisticResponse !== null) {
+            this._publishQueue.revertUpdate(optimisticResponse);
+            optimisticResponse = null;
           }
-        },
-      })
-      .finally(() => {
-        if (optimisticResponse) {
-          this._publishQueue.revertUpdate(optimisticResponse);
-          optimisticResponse = undefined;
+          this._publishQueue.commitSelectorPayload(selector, payload, updater);
           this._publishQueue.run();
         }
-      });
+      };
+
+      this._network
+        .execute(operation.node, operation.variables, cacheConfig || {})
+        .subscribe({
+          complete,
+          next,
+          error: sink.error,
+          start,
+        });
+      return () => {
+        if (subscriptions.size !== 0) {
+          subscriptions.forEach(sub => sub.unsubscribe());
+          subscriptions.clear();
+        }
+        if (optimisticResponse !== null) {
+          this._publishQueue.revertUpdate(optimisticResponse);
+          optimisticResponse = null;
+          this._publishQueue.run();
+        }
+      };
+    });
   }
 
   /**
@@ -392,6 +470,55 @@ class RelayModernEnvironment implements Environment {
       onCompleted,
     });
   }
+}
+
+/**
+ * Processes a MatchFieldPayload, asynchronously resolving the fragment,
+ * using it to normalize the field data into a RelayResponsePayload.
+ * Because @match fields may contain other @match fields, the result of
+ * normalizing `matchPayload` may contain *other* MatchFieldPayloads:
+ * the processRelayPayload() callback is responsible for publishing
+ * both the normalize payload's source as well as recursively calling
+ * this function for any matchPayloads it contains.
+ *
+ * @private
+ */
+function processMatchPayload(
+  processRelayPayload: (Selector, RelayResponsePayload) => void,
+  fragmentLoader: FragmentLoader,
+  matchPayload: MatchFieldPayload,
+): RelayObservable<void> {
+  return RelayObservable.from(
+    new Promise((resolve, reject) => {
+      fragmentLoader.load(matchPayload.fragmentName).then(resolve, reject);
+    }),
+  ).map(fragment => {
+    if (fragment == null) {
+      return;
+    }
+    const selector = {
+      dataID: matchPayload.dataID,
+      variables: matchPayload.variables,
+      node: fragment,
+    };
+    const source = new RelayInMemoryRecordSource();
+    source.set(
+      matchPayload.dataID,
+      RelayModernRecord.create(matchPayload.dataID, matchPayload.typeName),
+    );
+    const normalizeResult = RelayResponseNormalizer.normalize(
+      source,
+      selector,
+      matchPayload.data,
+    );
+    const relayPayload = {
+      errors: null, // Errors are handled as part of the parent GraphQLResponse
+      fieldPayloads: normalizeResult.fieldPayloads,
+      matchPayloads: normalizeResult.matchPayloads,
+      source: source,
+    };
+    processRelayPayload(selector, relayPayload);
+  });
 }
 
 // Add a sigil for detection by `isRelayModernEnvironment()` to avoid a

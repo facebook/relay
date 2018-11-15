@@ -27,6 +27,7 @@ import type {
   MutableRecordSource,
   OperationSelector,
   OptimisticUpdate,
+  Selector,
   SelectorStoreUpdater,
   Store,
   StoreUpdater,
@@ -37,7 +38,7 @@ import type {SelectorData} from 'react-relay/classic/environment/RelayCombinedEn
 
 type Payload = {
   fieldPayloads: ?Array<HandleFieldPayload>,
-  operation: OperationSelector,
+  selector: Selector,
   source: MutableRecordSource,
   updater: ?SelectorStoreUpdater,
 };
@@ -144,7 +145,19 @@ class RelayPublishQueue {
     this._pendingBackupRebase = true;
     this._pendingData.add({
       kind: 'payload',
-      payload: {fieldPayloads, operation, source, updater},
+      payload: {fieldPayloads, selector: operation.fragment, source, updater},
+    });
+  }
+
+  commitSelectorPayload(
+    selector: Selector,
+    {fieldPayloads, source}: RelayResponsePayload,
+    updater?: ?SelectorStoreUpdater,
+  ): void {
+    this._pendingBackupRebase = true;
+    this._pendingData.add({
+      kind: 'payload',
+      payload: {fieldPayloads, selector, source, updater},
     });
   }
 
@@ -193,16 +206,13 @@ class RelayPublishQueue {
   }
 
   _getSourceFromPayload(payload: Payload): RecordSource {
-    const {fieldPayloads, operation, source, updater} = payload;
+    const {fieldPayloads, selector, source, updater} = payload;
     const mutator = new RelayRecordSourceMutator(
       this._store.getSource(),
       source,
     );
     const store = new RelayRecordSourceProxy(mutator);
-    const selectorStore = new RelayRecordSourceSelectorProxy(
-      store,
-      operation.fragment,
-    );
+    const selectorStore = new RelayRecordSourceSelectorProxy(store, selector);
     if (fieldPayloads && fieldPayloads.length) {
       fieldPayloads.forEach(fieldPayload => {
         const handler =
@@ -217,7 +227,7 @@ class RelayPublishQueue {
       });
     }
     if (updater) {
-      const selectorData = lookupSelector(source, operation.fragment);
+      const selectorData = lookupSelector(source, selector);
       updater(selectorStore, selectorData);
     }
     return source;

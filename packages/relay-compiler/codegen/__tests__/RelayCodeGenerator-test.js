@@ -5,25 +5,25 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
+ * @flow
  * @emails oncall+relay
  */
 
 'use strict';
 
 const CodeMarker = require('../../util/CodeMarker');
-const GraphQLCompilerContext = require('GraphQLCompilerContext');
-const RelayCodeGenerator = require('RelayCodeGenerator');
-const RelayMatchTransform = require('RelayMatchTransform');
-const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
+const RelayCodeGenerator = require('../RelayCodeGenerator');
+const RelayMatchTransform = require('../../transforms/RelayMatchTransform');
+const RelayRelayDirectiveTransform = require('../../transforms/RelayRelayDirectiveTransform');
 const RelayTestSchema = require('RelayTestSchema');
 
 const parseGraphQLText = require('parseGraphQLText');
 
-const {transformASTSchema} = require('ASTConvert');
 const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+const {ASTConvert, CompilerContext} = require('graphql-compiler');
 
 describe('RelayCodeGenerator', () => {
-  const schema = transformASTSchema(RelayTestSchema, [
+  const schema = ASTConvert.transformASTSchema(RelayTestSchema, [
     RelayMatchTransform.SCHEMA_EXTENSION,
     RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
   ]);
@@ -31,7 +31,7 @@ describe('RelayCodeGenerator', () => {
   generateTestsFromFixtures(`${__dirname}/fixtures/code-generator`, text => {
     try {
       const {definitions} = parseGraphQLText(schema, text);
-      return new GraphQLCompilerContext(RelayTestSchema, schema)
+      return new CompilerContext(RelayTestSchema, schema)
         .addAll(definitions)
         .applyTransforms([
           // Requires Relay directive transform first.
@@ -45,7 +45,7 @@ describe('RelayCodeGenerator', () => {
               ? doc
               : {
                   kind: 'Request',
-                  fragment: null,
+                  fragment: (null: $FlowFixMe),
                   id: null,
                   metadata: {},
                   name: doc.name,

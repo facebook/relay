@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
+ * @flow
  * @emails oncall+relay
  */
 
@@ -16,7 +17,7 @@ const compileRelayArtifacts = require('../compileRelayArtifacts');
 
 const {ASTConvert, CompilerContext} = require('graphql-compiler');
 
-const RelayIRTransforms = require('RelayIRTransforms');
+const RelayIRTransforms = require('../../core/RelayIRTransforms');
 const RelayTestSchema = require('RelayTestSchema');
 
 const {generateTestsFromFixtures} = require('RelayModernTestUtils');
@@ -35,12 +36,15 @@ describe('compileRelayArtifacts', () => {
         relaySchema,
       ).addAll(parseGraphQLText(relaySchema, text).definitions);
       return compileRelayArtifacts(compilerContext, RelayIRTransforms)
-        .map(({text: queryText, ...ast}) => {
-          let stringified = JSON.stringify(ast, null, 2);
-          if (queryText) {
-            stringified += '\n\nQUERY:\n\n' + queryText;
+        .map(node => {
+          if (node.kind === 'Request') {
+            const {text: queryText, ...ast} = node;
+            return [JSON.stringify(ast, null, 2), 'QUERY:', queryText].join(
+              '\n\n',
+            );
+          } else {
+            return JSON.stringify(node, null, 2);
           }
-          return stringified;
         })
         .join('\n\n');
     },

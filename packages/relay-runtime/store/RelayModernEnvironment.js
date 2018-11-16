@@ -81,7 +81,9 @@ class RelayModernEnvironment implements Environment {
           typeof fragmentLoader === 'object' &&
             typeof fragmentLoader.get === 'function' &&
             typeof fragmentLoader.load === 'function',
-          'RelayModernEnvironment: Expected `fragmentLoader` to be an object with get() and load() functions, got `%s`.',
+          'RelayModernEnvironment: Expected `fragmentLoader` to be an object ' +
+            'with get() and load() functions, got `%s`.',
+          fragmentLoader,
         );
       }
     }
@@ -508,10 +510,11 @@ function processMatchPayload(
       node: fragment,
     };
     const source = new RelayInMemoryRecordSource();
-    source.set(
+    const matchRecord = RelayModernRecord.create(
       matchPayload.dataID,
-      RelayModernRecord.create(matchPayload.dataID, matchPayload.typeName),
+      matchPayload.typeName,
     );
+    source.set(matchPayload.dataID, matchRecord);
     const normalizeResult = RelayResponseNormalizer.normalize(
       source,
       selector,

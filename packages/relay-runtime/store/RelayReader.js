@@ -283,7 +283,7 @@ class RelayReader {
     // match field must be a union type (i.e. abstract type), so here we
     // read the concrete type on the record, which should be the type resolved
     // by the server in the response.
-    const concreteType = linkedRecord.__typename;
+    const concreteType = RelayModernRecord.getType(linkedRecord);
     invariant(
       typeof concreteType === 'string',
       'RelayReader(): Expected to be able to resolve concrete type for ' +

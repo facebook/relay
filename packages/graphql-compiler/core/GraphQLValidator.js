@@ -43,9 +43,7 @@ function validateOrThrow(
   const validationErrors = validate(schema, document, rules);
   if (validationErrors && validationErrors.length > 0) {
     const formattedErrors = validationErrors.map(formatError);
-    const errorMessages = validationErrors.map(
-      e => (e.source ? `${e.source.name}: ${e.message}` : e.message),
-    );
+    const errorMessages = validationErrors.map(e => e.toString());
 
     const error = new Error(
       util.format(

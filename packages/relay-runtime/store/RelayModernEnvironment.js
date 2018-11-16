@@ -15,9 +15,9 @@ const RelayCore = require('./RelayCore');
 const RelayDataLoader = require('./RelayDataLoader');
 const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
 const RelayInMemoryRecordSource = require('./RelayInMemoryRecordSource');
+const RelayModernRecord = require('./RelayModernRecord');
 const RelayObservable = require('../network/RelayObservable');
 const RelayPublishQueue = require('./RelayPublishQueue');
-const RelayModernRecord = require('./RelayModernRecord');
 const RelayResponseNormalizer = require('./RelayResponseNormalizer');
 
 const invariant = require('invariant');
@@ -26,7 +26,6 @@ const normalizeRelayPayload = require('./normalizeRelayPayload');
 const warning = require('warning');
 
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
-import type {Subscription} from '../network/RelayObservable';
 import type {
   GraphQLResponse,
   Network,
@@ -34,6 +33,7 @@ import type {
   PayloadError,
   UploadableMap,
 } from '../network/RelayNetworkTypes';
+import type {Subscription} from '../network/RelayObservable';
 import type {
   Environment,
   FragmentLoader,
@@ -51,14 +51,14 @@ import type {
 } from '../store/RelayStoreTypes';
 import type {CacheConfig, Disposable} from '../util/RelayRuntimeTypes';
 
-export type EnvironmentConfig = {
-  configName?: string,
-  handlerProvider?: HandlerProvider,
-  fragmentLoader?: FragmentLoader,
-  network: Network,
-  store: Store,
-  missingFieldHandlers?: $ReadOnlyArray<MissingFieldHandler>,
-};
+export type EnvironmentConfig = {|
+  +configName?: string,
+  +handlerProvider?: HandlerProvider,
+  +fragmentLoader?: FragmentLoader,
+  +network: Network,
+  +store: Store,
+  +missingFieldHandlers?: $ReadOnlyArray<MissingFieldHandler>,
+|};
 
 class RelayModernEnvironment implements Environment {
   _fragmentLoader: ?FragmentLoader;

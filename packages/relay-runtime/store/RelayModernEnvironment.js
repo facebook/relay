@@ -253,7 +253,7 @@ class RelayModernEnvironment implements Environment {
       function next(response: GraphQLResponse): void {
         const payload = normalizePayload(operation, response);
         const isOptimistic = response.extensions?.isOptimistic === true;
-        processRelayPayload(operation.root, payload, isOptimistic);
+        processRelayPayload(operation.fragment, payload, updater, isOptimistic);
         sink.next(response);
       }
 
@@ -265,6 +265,7 @@ class RelayModernEnvironment implements Environment {
       const processRelayPayload = (
         selector: Selector,
         payload: RelayResponsePayload,
+        payloadUpdater: SelectorStoreUpdater | null = null,
         isOptimistic: boolean = false,
       ): void => {
         const {matchPayloads} = payload;
@@ -272,7 +273,8 @@ class RelayModernEnvironment implements Environment {
           const fragmentLoader = this._fragmentLoader;
           invariant(
             fragmentLoader,
-            'RelayModernEnvironment: Expected a fragmentLoader to be configured when using `@match`.',
+            'RelayModernEnvironment: Expected a fragmentLoader to be ' +
+              'configured when using `@match`.',
           );
           matchPayloads.forEach(matchPayload => {
             processMatchPayload(
@@ -303,7 +305,11 @@ class RelayModernEnvironment implements Environment {
             this._publishQueue.revertUpdate(optimisticResponse);
             optimisticResponse = null;
           }
-          this._publishQueue.commitSelectorPayload(selector, payload, updater);
+          this._publishQueue.commitSelectorPayload(
+            selector,
+            payload,
+            payloadUpdater,
+          );
           this._publishQueue.run();
         }
       };

@@ -684,6 +684,36 @@ describe('RelayModernEnvironment', () => {
       expect(error).not.toBeCalled();
     });
 
+    it('calls next() and runs updater when payloads return', () => {
+      const updater = jest.fn();
+      environment.execute({operation, updater}).subscribe(callbacks);
+      subject.next({
+        data: {
+          me: {
+            id: '842472',
+            __typename: 'User',
+            name: 'Joe',
+          },
+        },
+      });
+      jest.runAllTimers();
+      expect(next.mock.calls.length).toBe(1);
+      subject.next({
+        data: {
+          me: {
+            id: '842472',
+            __typename: 'User',
+            name: 'Joseph',
+          },
+        },
+      });
+      jest.runAllTimers();
+      expect(next.mock.calls.length).toBe(2);
+      expect(complete).not.toBeCalled();
+      expect(error).not.toBeCalled();
+      expect(updater).toBeCalled();
+    });
+
     it('calls complete() when the network request completes', () => {
       environment.execute({operation}).subscribe(callbacks);
       subject.complete();
@@ -1854,6 +1884,89 @@ describe('RelayModernEnvironment', () => {
       expect(error).not.toBeCalled();
       // The optimistic update has already been reverted
       expect(callback.mock.calls.length).toBe(0);
+    });
+  });
+
+  // Regression test: updaters read the store using the selector used to
+  // publish, which can fail if a normalization ast was passed as the
+  // selector.
+  describe('execute() with handler and updater', () => {
+    let callbacks;
+    let environment;
+    let fetch;
+    let complete;
+    let error;
+    let next;
+    let operation;
+    let subject;
+    let query;
+
+    beforeEach(() => {
+      ({ActorQuery: query} = generateAndCompile(`
+        query ActorQuery {
+          me {
+            name @__clientField(handle: "name_handler")
+          }
+        }
+      `));
+      operation = createOperationSelector(query, {});
+
+      complete = jest.fn();
+      error = jest.fn();
+      next = jest.fn();
+      callbacks = {complete, error, next};
+      fetch = jest.fn((_query, _variables, _cacheConfig) =>
+        RelayObservable.create(sink => {
+          subject = sink;
+        }),
+      );
+      const NameHandler = {
+        update(storeProxy, payload) {
+          const record = storeProxy.get(payload.dataID);
+          if (record != null) {
+            const name = record.getValue(payload.fieldKey);
+            record.setValue(
+              typeof name === 'string' ? name.toUpperCase() : null,
+              payload.handleKey,
+            );
+          }
+        },
+      };
+
+      environment = new RelayModernEnvironment({
+        network: RelayNetwork.create((fetch: $FlowFixMe)),
+        store,
+        handlerProvider: name => {
+          switch (name) {
+            case 'name_handler':
+              return NameHandler;
+          }
+        },
+      });
+    });
+
+    it('calls next() and runs updater when payloads return', () => {
+      const updater = jest.fn();
+      environment.execute({operation, updater}).subscribe(callbacks);
+      subject.next({
+        data: {
+          me: {
+            id: '1',
+            __typename: 'User',
+            name: 'Alice',
+          },
+        },
+      });
+      jest.runAllTimers();
+      expect(next).toBeCalledTimes(1);
+      expect(complete).toBeCalledTimes(0);
+      expect(error).toBeCalledTimes(0);
+      expect(updater).toBeCalledTimes(1);
+      expect(environment.lookup(operation.fragment).data).toEqual({
+        me: {
+          name: 'ALICE',
+        },
+      });
     });
   });
 });

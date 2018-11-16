@@ -1,6 +1,7 @@
 ---
-id: relay-debugging
+id: version-v1.7.1-relay-debugging
 title: Debugging
+original_id: relay-debugging
 ---
 
 When problems arise developers would need an insight into Relay's store. Relay provides a couple of tools to inspect the store and its records.

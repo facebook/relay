@@ -199,7 +199,7 @@ class RelayDataLoader {
   }
 
   _traverseSelections(
-    selections: Array<ConcreteSelection>,
+    selections: $ReadOnlyArray<ConcreteSelection>,
     dataID: DataID,
   ): void {
     selections.every(selection => {

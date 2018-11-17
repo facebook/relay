@@ -150,7 +150,7 @@ const RelayCodeGenVisitor = {
           })) ||
         [];
       const type = getRawType(node.type);
-      const field: ConcreteLinkedField = {
+      let field: ConcreteLinkedField = {
         kind: 'LinkedField',
         alias: node.alias,
         name: node.name,
@@ -161,7 +161,10 @@ const RelayCodeGenVisitor = {
         selections: flattenArray(node.selections),
       };
       // Precompute storageKey if possible
-      field.storageKey = getStaticStorageKey(field);
+      const storageKey = getStaticStorageKey(field);
+      if (storageKey) {
+        field = {...field, storageKey};
+      }
       return [field].concat(handles);
     },
 
@@ -215,7 +218,7 @@ const RelayCodeGenVisitor = {
           module: CodeMarker.moduleDependency(selection.module),
         };
       });
-      const field: ConcreteMatchField = {
+      let field: ConcreteMatchField = {
         kind: 'MatchField',
         alias: node.alias,
         name: node.name,
@@ -224,7 +227,10 @@ const RelayCodeGenVisitor = {
         matchesByType,
       };
       // Precompute storageKey if possible
-      field.storageKey = getStaticStorageKey(field);
+      const storageKey = getStaticStorageKey(field);
+      if (storageKey) {
+        field = {...field, storageKey};
+      }
       return field;
     },
 
@@ -246,16 +252,18 @@ const RelayCodeGenVisitor = {
             };
           })) ||
         [];
-      const field: ConcreteScalarField = {
+      let field: ConcreteScalarField = {
         kind: 'ScalarField',
         alias: node.alias,
         name: node.name,
         args: valuesOrNull(sortByName(node.args)),
-        selections: valuesOrUndefined(flattenArray(node.selections)),
         storageKey: null,
       };
       // Precompute storageKey if possible
-      field.storageKey = getStaticStorageKey(field);
+      const storageKey = getStaticStorageKey(field);
+      if (storageKey) {
+        field = {...field, storageKey};
+      }
       return [field].concat(handles);
     },
 
@@ -296,21 +304,23 @@ function isPlural(type: any): boolean {
   return getNullableType(type) instanceof GraphQLList;
 }
 
-function valuesOrUndefined<T>(array: ?Array<T>): ?Array<T> {
-  return !array || array.length === 0 ? undefined : array;
-}
-
-function valuesOrNull<T>(array: ?Array<T>): ?Array<T> {
+function valuesOrNull<T>(array: ?$ReadOnlyArray<T>): ?$ReadOnlyArray<T> {
   return !array || array.length === 0 ? null : array;
 }
 
-function flattenArray<T>(array: Array<Array<T>>): Array<T> {
+function flattenArray<T>(
+  array: $ReadOnlyArray<$ReadOnlyArray<T>>,
+): $ReadOnlyArray<T> {
   return array ? Array.prototype.concat.apply([], array) : [];
 }
 
-function sortByName<T: {name: string}>(array: Array<T>): Array<T> {
+function sortByName<T: {name: string}>(
+  array: $ReadOnlyArray<T>,
+): $ReadOnlyArray<T> {
   return array instanceof Array
-    ? array.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))
+    ? array
+        .slice()
+        .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))
     : array;
 }
 

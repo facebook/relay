@@ -32,7 +32,7 @@ import type {Variables} from '../util/RelayRuntimeTypes';
  */
 function cloneRelayHandleSourceField(
   handleField: ConcreteLinkedHandle,
-  selections: Array<ConcreteSelection>,
+  selections: $ReadOnlyArray<ConcreteSelection>,
   variables: Variables,
 ): ConcreteLinkedField {
   const sourceField = selections.find(

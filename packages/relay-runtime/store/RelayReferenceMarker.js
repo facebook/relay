@@ -99,7 +99,7 @@ class RelayReferenceMarker {
   }
 
   _traverseSelections(
-    selections: Array<ConcreteSelection>,
+    selections: $ReadOnlyArray<ConcreteSelection>,
     record: Record,
   ): void {
     selections.forEach(selection => {

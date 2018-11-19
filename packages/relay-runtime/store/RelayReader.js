@@ -109,7 +109,7 @@ class RelayReader {
   }
 
   _traverseSelections(
-    selections: Array<ConcreteSelection>,
+    selections: $ReadOnlyArray<ConcreteSelection>,
     record: Record,
     data: SelectorData,
   ): void {

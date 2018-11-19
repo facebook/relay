@@ -32,7 +32,7 @@ const {VARIABLE} = RelayConcreteNode;
  * names. Guaranteed to return a result with stable ordered nested values.
  */
 function getArgumentValues(
-  args: Array<ConcreteArgument>,
+  args: $ReadOnlyArray<ConcreteArgument>,
   variables: Variables,
 ): Arguments {
   const values = {};

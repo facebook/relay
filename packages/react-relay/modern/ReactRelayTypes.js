@@ -57,6 +57,7 @@ export type RelayRefetchProp = {|
 
 export type RefetchOptions = {|
   +force?: boolean,
+  +fetchPolicy?: 'store-or-network' | 'network-only',
 |};
 
 /**

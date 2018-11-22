@@ -350,6 +350,33 @@ function createContainerWithFragments<
       // Declare refetchSubscription before assigning it in .start(), since
       // synchronous completion may call callbacks .subscribe() returns.
       let refetchSubscription;
+
+      if (options?.fetchPolicy === 'store-or-network') {
+        const storeSnapshot = this._getQueryFetcher().lookupInStore(
+          environment,
+          operation,
+        );
+        if (storeSnapshot != null) {
+          this.state.resolver.setVariables(fragmentVariables);
+          this.setState(
+            latestState => ({
+              data: latestState.resolver.resolve(),
+              contextForChildren: {
+                environment: this.props.__relayContext.environment,
+                variables: fragmentVariables,
+              },
+            }),
+            () => {
+              observer.next && observer.next();
+              observer.complete && observer.complete();
+            },
+          );
+          return {
+            dispose() {},
+          };
+        }
+      }
+
       this._getQueryFetcher()
         .execute({
           environment,
@@ -362,8 +389,8 @@ function createContainerWithFragments<
           this.state.resolver.setVariables(fragmentVariables);
           return Observable.create(sink =>
             this.setState(
-              updatedState => ({
-                data: this.state.resolver.resolve(),
+              latestState => ({
+                data: latestState.resolver.resolve(),
                 contextForChildren: {
                   environment: this.props.__relayContext.environment,
                   variables: fragmentVariables,

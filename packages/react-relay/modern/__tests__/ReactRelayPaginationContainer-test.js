@@ -1612,6 +1612,81 @@ describe('ReactRelayPaginationContainer', () => {
       });
     });
 
+    it('renders with the results of the new variables after components received updated props (not related to the connection)', () => {
+      expect.assertions(9);
+      expect(render.mock.calls.length).toBe(1);
+      // By default friends list should have 1 item
+      expect(render.mock.calls[0][0].user.friends.edges.length).toBe(1);
+      // Let's refetch with new variables
+      refetchConnection(1, jest.fn(), {
+        isViewerFriend: true,
+      });
+      expect(render.mock.calls.length).toBe(1);
+      environment.mock.resolve(UserQuery, {
+        data: {
+          node: {
+            __typename: 'User',
+            id: '4',
+            friends: {
+              edges: [],
+              pageInfo: {
+                endCursor: null,
+                hasNextPage: false,
+              },
+            },
+          },
+        },
+      });
+      expect(render.mock.calls.length).toBe(2);
+      expect(render.mock.calls[1][0].user.friends.edges.length).toBe(0);
+      expect(render.mock.calls[1][0]).toEqual({
+        user: {
+          id: '4',
+          friends: {
+            edges: [],
+            pageInfo: {
+              endCursor: null,
+              hasNextPage: false,
+            },
+          },
+        },
+        relay: {
+          environment: expect.any(Object),
+          hasMore: expect.any(Function),
+          isLoading: expect.any(Function),
+          loadMore: expect.any(Function),
+          refetchConnection: expect.any(Function),
+        },
+      });
+
+      // This should trigger cWRP in the ReactRelayPaginationContainer
+      instance.getInstance().setProps({
+        someProp: 'test',
+      });
+      expect(render.mock.calls.length).toBe(3);
+      expect(render.mock.calls[2][0].user.friends.edges.length).toBe(0);
+      expect(render.mock.calls[2][0]).toEqual({
+        user: {
+          id: '4',
+          friends: {
+            edges: [],
+            pageInfo: {
+              endCursor: null,
+              hasNextPage: false,
+            },
+          },
+        },
+        relay: {
+          environment: expect.any(Object),
+          hasMore: expect.any(Function),
+          isLoading: expect.any(Function),
+          loadMore: expect.any(Function),
+          refetchConnection: expect.any(Function),
+        },
+        someProp: 'test',
+      });
+    });
+
     it('does not update variables on failure', () => {
       expect.assertions(1);
       render.mockClear();

@@ -338,7 +338,6 @@ function createContainerWithFragments<
     static displayName = containerName;
 
     _isARequestInFlight: boolean;
-    _hasPaginated: boolean;
     _refetchSubscription: ?Subscription;
     _refetchVariables: ?Variables;
     _resolver: FragmentSpecResolver;
@@ -352,7 +351,6 @@ function createContainerWithFragments<
         createFragmentSpecResolver,
       } = relayContext.environment.unstable_internal;
       this._isARequestInFlight = false;
-      this._hasPaginated = false;
       this._refetchSubscription = null;
       this._refetchVariables = null;
       this._resolver = createFragmentSpecResolver(
@@ -409,8 +407,6 @@ function createContainerWithFragments<
           contextForChildren: relayContext,
           relayProp: this._buildRelayProp(relayContext),
         });
-      } else if (!this._hasPaginated) {
-        this._resolver.setProps(nextProps);
       }
       const data = this._resolver.resolve();
       if (data !== this.state.data) {
@@ -632,7 +628,6 @@ function createContainerWithFragments<
         cursor: cursor,
         totalCount,
       };
-      this._hasPaginated = true;
       const fetch = this._fetchPage(paginatingVariables, observer, options);
       return {dispose: fetch.unsubscribe};
     };
@@ -804,7 +799,6 @@ function createContainerWithFragments<
 
     _cleanup() {
       this._resolver.dispose();
-      this._hasPaginated = false;
       this._refetchVariables = null;
       if (this._refetchSubscription) {
         this._refetchSubscription.unsubscribe();

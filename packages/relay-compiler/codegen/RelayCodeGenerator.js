@@ -18,7 +18,7 @@ const {GraphQLList} = require('graphql');
 const {IRVisitor, SchemaUtils} = require('graphql-compiler');
 const {getStorageKey, stableCopy} = require('relay-runtime');
 
-import type {Fragment, Request} from 'graphql-compiler';
+import type {Fragment, Request, SplitOperation} from 'graphql-compiler';
 import type {
   ConcreteArgument,
   ConcreteArgumentDefinition,
@@ -29,12 +29,10 @@ import type {
   ConcreteRequest,
   ConcreteSelection,
   ConcreteScalarField,
+  ConcreteSplitOperation,
   RequestNode,
 } from 'relay-runtime';
 const {getRawType, isAbstractType, getNullableType} = SchemaUtils;
-
-declare function generate(node: Fragment): ConcreteFragment;
-declare function generate(node: Request): RequestNode;
 
 /**
  * @public
@@ -42,9 +40,12 @@ declare function generate(node: Request): RequestNode;
  * Converts a GraphQLIR node into a plain JS object representation that can be
  * used at runtime.
  */
-function generate(node: Fragment | Request): RequestNode | ConcreteFragment {
+declare function generate(node: Fragment): ConcreteFragment;
+declare function generate(node: Request): RequestNode;
+declare function generate(node: SplitOperation): ConcreteSplitOperation;
+function generate(node) {
   invariant(
-    ['Fragment', 'Request'].indexOf(node.kind) >= 0,
+    ['Fragment', 'Request', 'SplitOperation'].indexOf(node.kind) >= 0,
     'RelayCodeGenerator: Unknown AST kind `%s`. Source: %s.',
     node.kind,
     getErrorMessage(node),
@@ -265,6 +266,15 @@ const RelayCodeGenVisitor = {
         field = {...field, storageKey};
       }
       return [field].concat(handles);
+    },
+
+    SplitOperation(node, key, parent): ConcreteSplitOperation {
+      return {
+        kind: 'SplitOperation',
+        name: node.name,
+        metadata: null,
+        selections: flattenArray(node.selections),
+      };
     },
 
     Variable(node, key, parent): ConcreteArgument {

@@ -26,13 +26,12 @@ const {
   TypeNameMetaFieldDef,
 } = require('graphql');
 
+import type {CompilerContextDocument} from '../core/GraphQLCompilerContext';
 import type {
   Field,
-  Fragment,
   FragmentSpread,
   InlineFragment,
   MatchFragmentSpread,
-  Root,
 } from '../core/GraphQLIR';
 import type {GraphQLType} from 'graphql';
 
@@ -112,19 +111,29 @@ function skipClientFieldTransform(
  */
 function buildState(
   context: GraphQLCompilerContext,
-  node: Fragment | Root,
+  node: CompilerContextDocument,
 ): ?GraphQLType {
   const schema = context.serverSchema;
-  if (node.kind === 'Fragment') {
-    return schema.getType(node.type.name);
-  }
-  switch (node.operation) {
-    case 'query':
-      return schema.getQueryType();
-    case 'mutation':
-      return schema.getMutationType();
-    case 'subscription':
-      return schema.getSubscriptionType();
+  /* eslint-disable no-fallthrough */
+  switch (node.kind) {
+    case 'Fragment':
+      return schema.getType(node.type.name);
+    case 'Root':
+      switch (node.operation) {
+        case 'query':
+          return schema.getQueryType();
+        case 'mutation':
+          return schema.getMutationType();
+        case 'subscription':
+          return schema.getSubscriptionType();
+        default:
+          (node.operation: empty);
+      }
+      break;
+    case 'SplitOperation':
+      return schema.getType(node.type.name);
+    default:
+      (node: empty);
   }
   return null;
 }

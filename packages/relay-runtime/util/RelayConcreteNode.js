@@ -149,6 +149,12 @@ export type ConcreteSelection =
   | ConcreteHandle
   | ConcreteInlineFragment
   | ConcreteMatchField;
+export type ConcreteSplitOperation = {
+  +kind: 'SplitOperation',
+  +name: string,
+  +metadata: ?{[key: string]: mixed},
+  +selections: $ReadOnlyArray<ConcreteSelection>,
+};
 export type ConcreteVariable = {|
   +kind: 'Variable',
   +name: string,
@@ -157,7 +163,10 @@ export type ConcreteVariable = {|
 |};
 export type ConcreteSelectableNode = ConcreteFragment | ConcreteOperation;
 export type RequestNode = ConcreteRequest;
-export type GeneratedNode = RequestNode | ConcreteFragment;
+export type GeneratedNode =
+  | RequestNode
+  | ConcreteFragment
+  | ConcreteSplitOperation;
 
 const RelayConcreteNode = {
   CONDITION: 'Condition',
@@ -174,6 +183,7 @@ const RelayConcreteNode = {
   REQUEST: 'Request',
   SCALAR_FIELD: 'ScalarField',
   SCALAR_HANDLE: 'ScalarHandle',
+  SPLIT_OPERATION: 'SplitOperation',
   VARIABLE: 'Variable',
 };
 

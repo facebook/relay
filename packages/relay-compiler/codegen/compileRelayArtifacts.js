@@ -45,7 +45,7 @@ function compileRelayArtifacts(
   context: CompilerContext,
   transforms: RelayCompilerTransforms,
   reporter?: Reporter,
-): Array<GeneratedNode> {
+): $ReadOnlyArray<GeneratedNode> {
   return Profiler.run('GraphQLCompiler.compile', () => {
     // The fragment is used for reading data from the normalized store.
     const fragmentContext = context.applyTransforms(
@@ -75,29 +75,44 @@ function compileRelayArtifacts(
       reporter,
     );
 
-    return fragmentContext.documents().map(node =>
-      RelayCodeGenerator.generate(
-        node.kind === 'Fragment'
-          ? node
-          : {
-              kind: 'Request',
-              fragment: {
-                kind: 'Fragment',
-                argumentDefinitions: node.argumentDefinitions,
-                directives: node.directives,
-                metadata: null,
-                name: node.name,
-                selections: node.selections,
-                type: node.type,
-              },
-              id: null,
-              metadata: codeGenContext.getRoot(node.name).metadata || {},
-              name: node.name,
-              root: codeGenContext.getRoot(node.name),
-              text: printOperation(printContext, node.name),
+    const results = [];
+
+    // Add everything from codeGenContext, these are the operations as well as
+    // MatchFragmentSpreads.
+    for (const node of codeGenContext.documents()) {
+      if (node.kind === 'Root') {
+        const fragNode = fragmentContext.getRoot(node.name);
+        results.push(
+          RelayCodeGenerator.generate({
+            kind: 'Request',
+            fragment: {
+              kind: 'Fragment',
+              argumentDefinitions: fragNode.argumentDefinitions,
+              directives: fragNode.directives,
+              metadata: null,
+              name: fragNode.name,
+              selections: fragNode.selections,
+              type: fragNode.type,
             },
-      ),
-    );
+            id: null,
+            metadata: node.metadata || {},
+            name: fragNode.name,
+            root: node,
+            text: printOperation(printContext, fragNode.name),
+          }),
+        );
+      } else {
+        results.push(RelayCodeGenerator.generate(node));
+      }
+    }
+
+    // Add all the Fragments from the fragmentContext for the reader ASTs.
+    for (const node of fragmentContext.documents()) {
+      if (node.kind === 'Fragment') {
+        results.push(RelayCodeGenerator.generate(node));
+      }
+    }
+    return results;
   });
 }
 

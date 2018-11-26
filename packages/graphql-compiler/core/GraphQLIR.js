@@ -90,6 +90,7 @@ export type IR =
   | Root
   | RootArgumentDefinition
   | ScalarField
+  | SplitOperation
   | Variable;
 
 export type RootArgumentDefinition = {|
@@ -173,7 +174,8 @@ export type Node =
   | InlineFragment
   | LinkedField
   | MatchField
-  | Root;
+  | Root
+  | SplitOperation;
 
 export type ObjectFieldValue = {|
   +kind: 'ObjectFieldValue',
@@ -233,6 +235,14 @@ export type Selection =
   | MatchField
   | MatchFragmentSpread
   | ScalarField;
+
+export type SplitOperation = {|
+  +kind: 'SplitOperation',
+  +name: string,
+  +selections: $ReadOnlyArray<Selection>,
+  +metadata: Metadata,
+  +type: GraphQLCompositeType,
+|};
 
 export type Variable = {|
   +kind: 'Variable',

@@ -7,6 +7,7 @@
  * @flow
  * @format
  */
+
 'use strict';
 
 const visit = require('graphql').visit;
@@ -27,6 +28,7 @@ import type {
   Root,
   RootArgumentDefinition,
   ScalarField,
+  SplitOperation,
   Variable,
 } from './GraphQLIR';
 
@@ -46,6 +48,7 @@ const NodeKeys = {
   Root: ['argumentDefinitions', 'directives', 'selections'],
   RootArgumentDefinition: [],
   ScalarField: ['args', 'directives'],
+  SplitOperation: ['selections'],
   Variable: [],
 };
 
@@ -64,6 +67,7 @@ export type VisitNode =
   | Root
   | RootArgumentDefinition
   | ScalarField
+  | SplitOperation
   | Variable;
 
 export type VisitFn<T: VisitNode> = (

@@ -1,0 +1,50 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RelayMatchTransform matches expected output: relay-match-transform.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment CommentBody_comment on Comment {
+  commentBody @match(onTypes: [
+    {
+      fragment: "MarkdownBody_comment"
+      module: "MarkdownBodyComponent.react"
+    },
+    {
+      fragment: "PlaintextBody_comment"
+      module: "PlaintextComponent.react"
+    },
+  ])
+}
+
+fragment MarkdownBody_comment on MarkdownCommentBody {
+  __typename
+}
+
+fragment PlaintextBody_comment on PlainCommentBody {
+  __typename
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment CommentBody_comment on Comment {
+  commentBody(supported: ["MarkdownCommentBody", "PlainCommentBody"]) {
+    ...MarkdownBody_comment
+    ...PlaintextBody_comment
+  }
+}
+
+fragment MarkdownBody_comment on MarkdownCommentBody {
+  __typename
+}
+
+fragment PlaintextBody_comment on PlainCommentBody {
+  __typename
+}
+
+SplitOperation MarkdownBody_comment$normalization {
+  __typename
+}
+
+SplitOperation PlaintextBody_comment$normalization {
+  __typename
+}
+
+`;

@@ -49,7 +49,9 @@ async function writeRelayGeneratedFile(
       ? 'ConcreteFragment'
       : generatedNode.kind === RelayConcreteNode.REQUEST
         ? 'ConcreteRequest'
-        : null;
+        : generatedNode.kind === RelayConcreteNode.SPLIT_OPERATION
+          ? 'ConcreteSplitOperation'
+          : null;
   const devOnlyProperties = {};
 
   let docText;

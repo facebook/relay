@@ -118,6 +118,7 @@ export type {
   ConcreteRequest,
   ConcreteScalarField,
   ConcreteSelection,
+  ConcreteSplitOperation,
   GeneratedNode,
   RequestNode,
 } from './util/RelayConcreteNode';

@@ -12,7 +12,9 @@
 
 const invariant = require('invariant');
 
-import type GraphQLCompilerContext from './GraphQLCompilerContext';
+import type GraphQLCompilerContext, {
+  CompilerContextDocument,
+} from './GraphQLCompilerContext';
 import type {
   Argument,
   Condition,
@@ -33,6 +35,7 @@ import type {
   Root,
   RootArgumentDefinition,
   ScalarField,
+  SplitOperation,
   Variable,
 } from './GraphQLIR';
 
@@ -55,6 +58,7 @@ type NodeVisitor<S> = {
   Root?: NodeVisitorFunction<Root, S>,
   RootArgumentDefinition?: NodeVisitorFunction<RootArgumentDefinition, S>,
   ScalarField?: NodeVisitorFunction<ScalarField, S>,
+  SplitOperation?: NodeVisitorFunction<SplitOperation, S>,
   Variable?: NodeVisitorFunction<Variable, S>,
 };
 type NodeVisitorFunction<N: IR, S> = (
@@ -107,7 +111,7 @@ type NodeVisitorFunction<N: IR, S> = (
 function transform<S>(
   context: GraphQLCompilerContext,
   visitor: NodeVisitor<S>,
-  stateInitializer: void | ((Fragment | Root) => ?S),
+  stateInitializer: void | (CompilerContextDocument => ?S),
 ): GraphQLCompilerContext {
   const transformer = new Transformer(context, visitor);
   return context.withMutations(ctx => {
@@ -282,6 +286,9 @@ class Transformer<S> {
         break;
       case 'Request':
         nextNode = this._traverseChildren(prevNode, null, ['fragment', 'root']);
+        break;
+      case 'SplitOperation':
+        nextNode = this._traverseChildren(prevNode, ['selections']);
         break;
       default:
         (prevNode: empty);

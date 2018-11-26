@@ -20,16 +20,15 @@ const {
   GraphQLNonNull,
 } = require('graphql');
 
+import type {CompilerContextDocument} from './GraphQLCompilerContext';
 import type {
   Argument,
   ArgumentDefinition,
   ArgumentValue,
   Directive,
   Field,
-  Fragment,
   LocalArgumentDefinition,
   Node,
-  Root,
   Selection,
 } from './GraphQLIR';
 import type {GraphQLInputType} from 'graphql';
@@ -42,25 +41,33 @@ const INDENT = '  ';
  * variables or fragment spreads with arguments, transform the node
  * prior to printing.
  */
-function print(node: Root | Fragment): string {
-  if (node.kind === 'Fragment') {
-    return (
-      `fragment ${node.name} on ${String(node.type)}` +
-      printFragmentArgumentDefinitions(node.argumentDefinitions) +
-      printDirectives(node.directives) +
-      printSelections(node, '') +
-      '\n'
-    );
-  } else if (node.kind === 'Root') {
-    return (
-      `${node.operation} ${node.name}` +
-      printArgumentDefinitions(node.argumentDefinitions) +
-      printDirectives(node.directives) +
-      printSelections(node, '') +
-      '\n'
-    );
-  } else {
-    invariant(false, 'GraphQLIRPrinter: Unsupported IR node `%s`.', node.kind);
+function print(node: CompilerContextDocument): string {
+  switch (node.kind) {
+    case 'Fragment':
+      return (
+        `fragment ${node.name} on ${String(node.type)}` +
+        printFragmentArgumentDefinitions(node.argumentDefinitions) +
+        printDirectives(node.directives) +
+        printSelections(node, '') +
+        '\n'
+      );
+    case 'Root':
+      return (
+        `${node.operation} ${node.name}` +
+        printArgumentDefinitions(node.argumentDefinitions) +
+        printDirectives(node.directives) +
+        printSelections(node, '') +
+        '\n'
+      );
+    case 'SplitOperation':
+      return `SplitOperation ${node.name}` + printSelections(node, '') + '\n';
+    default:
+      (node: empty);
+      invariant(
+        false,
+        'GraphQLIRPrinter: Unsupported IR node `%s`.',
+        node.kind,
+      );
   }
 }
 
@@ -284,7 +291,7 @@ function printLiteral(value: mixed, type: ?GraphQLInputType): string {
     return (
       '[' + value.map(item => printLiteral(item, itemType)).join(', ') + ']'
     );
-  } else if (typeof value === 'object' && value) {
+  } else if (typeof value === 'object' && value != null) {
     const fields = [];
     invariant(
       type instanceof GraphQLInputObjectType,

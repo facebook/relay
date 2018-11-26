@@ -26,6 +26,7 @@ const {
   CompilerContext,
   Profiler,
   SchemaUtils,
+  SplitNaming,
 } = require('graphql-compiler');
 const {Map: ImmutableMap} = require('immutable');
 
@@ -217,7 +218,9 @@ function writeAll({
     });
     const definitionsMeta = new Map();
     const getDefinitionMeta = (definitionName: string) => {
-      const definitionMeta = definitionsMeta.get(definitionName);
+      const definitionMeta = definitionsMeta.get(
+        SplitNaming.getOriginalName(definitionName),
+      );
       invariant(
         definitionMeta,
         'RelayFileWriter: Could not determine source for definition: `%s`.',
@@ -301,21 +304,17 @@ function writeAll({
           }
 
           const typeNode = transformedTypeContext.get(node.name);
-          invariant(
-            typeNode,
-            'RelayFileWriter: did not compile types for: %s',
-            node.name,
-          );
-
-          const typeText = writerConfig.typeGenerator.generate(typeNode, {
-            customScalars: writerConfig.customScalars,
-            enumsHasteModule: writerConfig.enumsHasteModule,
-            existingFragmentNames,
-            optionalInputFields: writerConfig.optionalInputFieldsForFlow,
-            useHaste: writerConfig.useHaste,
-            useSingleArtifactDirectory: !!writerConfig.outputDir,
-            noFutureProofEnums: writerConfig.noFutureProofEnums,
-          });
+          const typeText = typeNode
+            ? writerConfig.typeGenerator.generate(typeNode, {
+                customScalars: writerConfig.customScalars,
+                enumsHasteModule: writerConfig.enumsHasteModule,
+                existingFragmentNames,
+                optionalInputFields: writerConfig.optionalInputFieldsForFlow,
+                useHaste: writerConfig.useHaste,
+                useSingleArtifactDirectory: !!writerConfig.outputDir,
+                noFutureProofEnums: writerConfig.noFutureProofEnums,
+              })
+            : '';
 
           const sourceHash = Profiler.run('hashGraphQL', () =>
             md5(graphql.print(getDefinitionMeta(node.name).ast)),

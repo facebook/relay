@@ -161,21 +161,34 @@ class CodegenDirectory {
     });
   }
 
+  static getAddedRemovedFiles(
+    dirs: $ReadOnlyArray<CodegenDirectory>,
+  ): {|
+    +added: $ReadOnlyArray<string>,
+    +removed: $ReadOnlyArray<string>,
+  |} {
+    const added = [];
+    const removed = [];
+    dirs.forEach(dir => {
+      dir.changes.created.forEach(name => {
+        added.push(dir.getPath(name));
+      });
+      dir.changes.deleted.forEach(name => {
+        removed.push(dir.getPath(name));
+      });
+    });
+    return {
+      added,
+      removed,
+    };
+  }
+
   static async sourceControlAddRemove(
     sourceControl: SourceControl,
     dirs: $ReadOnlyArray<CodegenDirectory>,
   ): Promise<void> {
-    const allAdded = [];
-    const allRemoved = [];
-    dirs.forEach(dir => {
-      dir.changes.created.forEach(name => {
-        allAdded.push(dir.getPath(name));
-      });
-      dir.changes.deleted.forEach(name => {
-        allRemoved.push(dir.getPath(name));
-      });
-    });
-    sourceControl.addRemove(allAdded, allRemoved);
+    const {added, removed} = CodegenDirectory.getAddedRemovedFiles(dirs);
+    sourceControl.addRemove(added, removed);
   }
 
   printChanges(): void {

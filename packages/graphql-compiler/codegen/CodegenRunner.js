@@ -71,11 +71,17 @@ export type WriteFiles = WriteFilesOptions => Promise<
   Map<string, CodegenDirectory>,
 >;
 
+type OnCompleteCallback = (
+  codegenDirs: $ReadOnlyArray<CodegenDirectory>,
+) => void;
+
 class CodegenRunner {
   parserConfigs: ParserConfigs;
   writerConfigs: WriterConfigs;
   onlyValidate: boolean;
   parsers: Parsers;
+  onComplete: ?OnCompleteCallback;
+
   // parser => writers that are affected by it
   parserWriters: {[parser: string]: Set<string>};
   _reporter: GraphQLReporter;
@@ -87,11 +93,13 @@ class CodegenRunner {
     onlyValidate: boolean,
     reporter: GraphQLReporter,
     sourceControl: ?SourceControl,
+    onComplete?: OnCompleteCallback,
   }) {
     this.parsers = {};
     this.parserConfigs = options.parserConfigs;
     this.writerConfigs = options.writerConfigs;
     this.onlyValidate = options.onlyValidate;
+    this.onComplete = options.onComplete;
     this._reporter = options.reporter;
     this._sourceControl = options.sourceControl;
 
@@ -316,6 +324,11 @@ class CodegenRunner {
               filePath,
             );
           }
+        }
+
+        const onCompleteCallback = this.onComplete;
+        if (onCompleteCallback != null) {
+          onCompleteCallback(Array.from(outputDirectories.values()));
         }
 
         const combinedChanges = CodegenDirectory.combineChanges(

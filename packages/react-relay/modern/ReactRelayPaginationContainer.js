@@ -343,6 +343,7 @@ function createContainerWithFragments<
     _resolver: FragmentSpecResolver;
     _queryFetcher: ?ReactRelayQueryFetcher;
     _isUnmounted: boolean;
+    _hasFetched: boolean;
 
     constructor(props) {
       super(props);
@@ -367,6 +368,7 @@ function createContainerWithFragments<
         relayProp: this._buildRelayProp(relayContext),
       };
       this._isUnmounted = false;
+      this._hasFetched = false;
     }
 
     /**
@@ -407,6 +409,8 @@ function createContainerWithFragments<
           contextForChildren: relayContext,
           relayProp: this._buildRelayProp(relayContext),
         });
+      } else if (!this._hasFetched) {
+        this._resolver.setProps(nextProps);
       }
       const data = this._resolver.resolve();
       if (data !== this.state.data) {
@@ -719,6 +723,7 @@ function createContainerWithFragments<
       if (this._refetchSubscription) {
         this._refetchSubscription.unsubscribe();
       }
+      this._hasFetched = true;
 
       const onNext = (payload, complete) => {
         const contextVariables = {
@@ -800,6 +805,7 @@ function createContainerWithFragments<
     _cleanup() {
       this._resolver.dispose();
       this._refetchVariables = null;
+      this._hasFetched = false;
       if (this._refetchSubscription) {
         this._refetchSubscription.unsubscribe();
         this._refetchSubscription = null;

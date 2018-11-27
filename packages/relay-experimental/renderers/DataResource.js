@@ -224,7 +224,8 @@ function createCache(): TDataResourceCache {
           break;
         }
         throw new Error(
-          'DataResource: Tried reading a query that is not available locally and is not being fetched',
+          'DataResource: Tried reading a query that is not available ' +
+            'locally and is not being fetched.',
         );
       }
       case 'store-or-network': {

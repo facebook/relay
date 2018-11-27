@@ -51,7 +51,7 @@ function createSuspenseFragmentContainer<
     DataResource: TDataResourceCache,
     forwardedRef: React.Ref<TComponent>,
     fragmentRefs: {[string]: mixed},
-    // $FlowFixMe
+    // $FlowFixMe - TODO T36619782
     relayContext: RelayContext & {query?: OperationSelector},
   |};
 

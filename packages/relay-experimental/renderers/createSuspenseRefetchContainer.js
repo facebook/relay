@@ -21,6 +21,7 @@ const readContext = require('react-relay/modern/readContext');
 const {getPromiseForRequestInFlight} = require('../utils/fetchQueryUtils');
 const {getRequest, createOperationSelector} = require('relay-runtime');
 
+import type {FetchPolicy} from './DataResource';
 import type {RefetchFn} from './createSuspenseQueryRenderer';
 import type {
   GeneratedNodeMap,
@@ -78,6 +79,7 @@ function createSuspenseRefetchContainer<
   |};
 
   type InternalState = {|
+    fetchPolicy: FetchPolicy,
     refetchVariables: $ElementType<TQuery, 'variables'> | null,
   |};
 
@@ -111,16 +113,18 @@ function createSuspenseRefetchContainer<
     InternalState,
   > {
     static displayName = containerName;
-    state = {refetchVariables: null};
+    state = {fetchPolicy: 'store-or-network', refetchVariables: null};
 
     _refetch = (refetchVariables, options) => {
+      const fetchPolicy = options?.fetchPolicy ?? 'store-or-network';
       const onRefetched = options?.onRefetched;
-      this.setState({refetchVariables}, onRefetched);
+      this.setState({fetchPolicy, refetchVariables}, onRefetched);
     };
 
     render() {
       const {forwardedRef, fragmentRefs, parentRelayContext} = this.props;
       const {environment, query} = parentRelayContext;
+      const {fetchPolicy} = this.state;
       const variables =
         this.state.refetchVariables ?? parentRelayContext.variables;
       const refetched = this.state.refetchVariables != null;
@@ -158,7 +162,10 @@ function createSuspenseRefetchContainer<
       }
 
       return (
-        <SuspenseQueryRenderer environment={environment} variables={variables}>
+        <SuspenseQueryRenderer
+          environment={environment}
+          fetchPolicy={fetchPolicy}
+          variables={variables}>
           {data => {
             const refetchFragmentRefs = getFragmentRefsFromResponse(data);
             return (

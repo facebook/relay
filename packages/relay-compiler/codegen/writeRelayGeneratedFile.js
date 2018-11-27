@@ -37,7 +37,9 @@ async function writeRelayGeneratedFile(
   platform: ?string,
   sourceHash: string,
   extension: string,
-  printModuleDependency: string => string = printRequireModuleDependency,
+  printModuleDependency: (
+    moduleName: string,
+  ) => string = printRequireModuleDependency,
 ): Promise<?GeneratedNode> {
   // Copy to const so Flow can refine.
   const persistQuery = _persistQuery;

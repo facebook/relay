@@ -13,15 +13,15 @@
 
 require('configureForRelayOSS');
 
-const compileRelayArtifacts = require('../compileRelayArtifacts');
-
-const {ASTConvert, CompilerContext} = require('graphql-compiler');
-
+const CodeMarker = require('../../util/CodeMarker');
 const RelayIRTransforms = require('../../core/RelayIRTransforms');
 const RelayTestSchema = require('RelayTestSchema');
 
-const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+const compileRelayArtifacts = require('../compileRelayArtifacts');
 const parseGraphQLText = require('parseGraphQLText');
+
+const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+const {ASTConvert, CompilerContext} = require('graphql-compiler');
 
 describe('compileRelayArtifacts', () => {
   generateTestsFromFixtures(
@@ -39,14 +39,19 @@ describe('compileRelayArtifacts', () => {
         .map(node => {
           if (node.kind === 'Request') {
             const {text: queryText, ...ast} = node;
-            return [JSON.stringify(ast, null, 2), 'QUERY:', queryText].join(
-              '\n\n',
-            );
+            return [stringifyAST(ast), 'QUERY:', queryText].join('\n\n');
           } else {
-            return JSON.stringify(node, null, 2);
+            return stringifyAST(node);
           }
         })
         .join('\n\n');
     },
   );
 });
+
+function stringifyAST(ast: mixed): string {
+  return CodeMarker.postProcess(
+    JSON.stringify(ast, null, 2),
+    moduleName => `require('${moduleName}')`,
+  );
+}

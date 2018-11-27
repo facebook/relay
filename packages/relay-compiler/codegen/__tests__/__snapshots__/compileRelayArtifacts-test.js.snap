@@ -1014,7 +1014,7 @@ fragment PlaintextBody_comment on PlainCommentBody {
                 "name": "MarkdownBody_comment",
                 "args": []
               },
-              "module": "@@MODULE_START@@MarkdownBodyComponent.react@@MODULE_END@@"
+              "module": require('MarkdownBodyComponent.react')
             },
             "PlainCommentBody": {
               "fragmentPropName": "comment",
@@ -1023,7 +1023,7 @@ fragment PlaintextBody_comment on PlainCommentBody {
                 "name": "PlaintextBody_comment",
                 "args": []
               },
-              "module": "@@MODULE_START@@PlaintextComponent.react@@MODULE_END@@"
+              "module": require('PlaintextComponent.react')
             }
           }
         }
@@ -2271,7 +2271,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
             "name": "PlainUserNameRenderer_name",
             "args": []
           },
-          "module": "@@MODULE_START@@PlainUserNameRenderer.react@@MODULE_END@@"
+          "module": require('PlainUserNameRenderer.react')
         },
         "MarkdownUserNameRenderer": {
           "fragmentPropName": "name",
@@ -2280,7 +2280,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
             "name": "MarkdownUserNameRenderer_name",
             "args": []
           },
-          "module": "@@MODULE_START@@MarkdownUserNameRenderer.react@@MODULE_END@@"
+          "module": require('MarkdownUserNameRenderer.react')
         }
       }
     }
@@ -2514,7 +2514,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                       "name": "PlainUserNameRenderer_name",
                       "args": []
                     },
-                    "module": "@@MODULE_START@@PlainUserNameRenderer.react@@MODULE_END@@"
+                    "module": require('PlainUserNameRenderer.react')
                   },
                   "MarkdownUserNameRenderer": {
                     "fragmentPropName": "name",
@@ -2523,7 +2523,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                       "name": "MarkdownUserNameRenderer_name",
                       "args": []
                     },
-                    "module": "@@MODULE_START@@MarkdownUserNameRenderer.react@@MODULE_END@@"
+                    "module": require('MarkdownUserNameRenderer.react')
                   }
                 }
               }
@@ -2691,7 +2691,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
             "name": "PlainUserNameRenderer_name",
             "args": []
           },
-          "module": "@@MODULE_START@@PlainUserNameRenderer.react@@MODULE_END@@"
+          "module": require('PlainUserNameRenderer.react')
         },
         "MarkdownUserNameRenderer": {
           "fragmentPropName": "name",
@@ -2700,7 +2700,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
             "name": "MarkdownUserNameRenderer_name",
             "args": []
           },
-          "module": "@@MODULE_START@@MarkdownUserNameRenderer.react@@MODULE_END@@"
+          "module": require('MarkdownUserNameRenderer.react')
         }
       }
     }

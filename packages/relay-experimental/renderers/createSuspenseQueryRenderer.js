@@ -112,22 +112,22 @@ as is available locally for the query.
 
 export type RefetchFn<TQuery: OperationType> = (
   vars: $ElementType<TQuery, 'variables'>,
-  opts?: {|
+  options?: {|
+    fetchPolicy?: FetchPolicy,
     onRefetched?: () => void,
   |},
 ) => Disposable;
 
 function createSuspenseQueryRenderer<TQuery: OperationType>(
   gqlQuery: GraphQLTaggedNode,
-  options?: {|
-    fetchPolicy?: FetchPolicy,
-  |},
+  options?: {||},
 ): React.ComponentType<{|
   children: (
     data: $ElementType<TQuery, 'response'>,
     {|refetch: RefetchFn<TQuery>|},
   ) => React.Node,
   environment: IEnvironment,
+  fetchPolicy?: FetchPolicy,
   variables: $ElementType<TQuery, 'variables'>,
 |}> {
   type Props = {|
@@ -136,18 +136,20 @@ function createSuspenseQueryRenderer<TQuery: OperationType>(
       {|refetch: RefetchFn<TQuery>|},
     ) => React.Node,
     environment: IEnvironment,
+    fetchPolicy?: FetchPolicy,
     variables: $ElementType<TQuery, 'variables'>,
   |};
 
   type State = {|
+    fetchPolicyFromProps: ?FetchPolicy,
+    fetchPolicyFromRefetch: ?FetchPolicy,
     variablesFromProps: $ElementType<TQuery, 'variables'>,
     variablesFromRefetch: $ElementType<TQuery, 'variables'> | null,
   |};
 
   const queryNode = getRequest(gqlQuery);
-  const fetchPolicy = options?.fetchPolicy;
 
-  function getRelayContext(environment: IEnvironment, variables: Variables) {
+  function createRelayContext(environment: IEnvironment, variables: Variables) {
     const operationSelector = createOperationSelector(queryNode, variables);
     return {
       environment,
@@ -158,6 +160,10 @@ function createSuspenseQueryRenderer<TQuery: OperationType>(
 
   function getVariablesForContext(state: State) {
     return state.variablesFromRefetch ?? state.variablesFromProps;
+  }
+
+  function getFetchPolicy(state: State): ?FetchPolicy {
+    return state.fetchPolicyFromRefetch ?? state.fetchPolicyFromProps;
   }
 
   function getRelayContextMemo(
@@ -179,7 +185,7 @@ function createSuspenseQueryRenderer<TQuery: OperationType>(
       return cachedValue.relayContext;
     }
 
-    const newRelayContext = getRelayContext(environment, variables);
+    const newRelayContext = createRelayContext(environment, variables);
     relayContextByEnvironment.set(environment, {
       relayContext: newRelayContext,
       variables,
@@ -204,11 +210,14 @@ function createSuspenseQueryRenderer<TQuery: OperationType>(
     ): $Shape<State> | null {
       if (nextProps.variables !== prevState.variablesFromProps) {
         return {
+          fetchPolicyFromProps: nextProps.fetchPolicy,
+          fetchPolicyFromRefetch: null,
           variablesFromProps: nextProps.variables,
           variablesFromRefetch: null,
         };
       }
       return {
+        fetchPolicyFromProps: nextProps.fetchPolicy,
         variablesFromProps: nextProps.variables,
       };
     }
@@ -216,6 +225,8 @@ function createSuspenseQueryRenderer<TQuery: OperationType>(
     constructor(props: Props) {
       super(props);
       this.state = {
+        fetchPolicyFromProps: props.fetchPolicy,
+        fetchPolicyFromRefetch: null,
         variablesFromProps: props.variables,
         variablesFromRefetch: null,
       };
@@ -297,6 +308,7 @@ function createSuspenseQueryRenderer<TQuery: OperationType>(
 
     componentWillUnmount() {
       const {environment} = this.props;
+      const fetchPolicy = getFetchPolicy(this.state);
       const variables = getVariablesForContext(this.state);
       this._unsubscribe();
       if (this._retainHandle) {
@@ -327,11 +339,12 @@ function createSuspenseQueryRenderer<TQuery: OperationType>(
         environment,
         variables,
       );
-      DataResource.invalidateQuery({query});
+      DataResource.invalidateQuery({query, fetchPolicy});
     }
 
     _handleDataUpdate = latestSnapshot => {
       const {environment} = this.props;
+      const fetchPolicy = getFetchPolicy(this.state);
       const variables = getVariablesForContext(this.state);
       const DataResource = getCacheForEnvironment(environment);
       const {query} = getRelayContextMemo(
@@ -343,14 +356,16 @@ function createSuspenseQueryRenderer<TQuery: OperationType>(
       DataResource.setQuery({
         query,
         snapshot: latestSnapshot,
+        fetchPolicy,
       });
       this.forceUpdate();
     };
 
-    _refetch: RefetchFn<TQuery> = (refetchVariables, opts) => {
+    _refetch: RefetchFn<TQuery> = (refetchVariables, refetchOptions) => {
       const {environment} = this.props;
       const DataResource = getCacheForEnvironment(environment);
-      const onRefetched = opts?.onRefetched;
+      const onRefetched = refetchOptions?.onRefetched;
+      const fetchPolicy = refetchOptions?.fetchPolicy;
       const {query} = getRelayContextMemo(
         this._relayContextByEnvironment,
         environment,
@@ -362,7 +377,13 @@ function createSuspenseQueryRenderer<TQuery: OperationType>(
         fetchPolicy,
       });
       this._refetchDisposable = disposable;
-      this.setState({variablesFromRefetch: refetchVariables}, onRefetched);
+      this.setState(
+        {
+          fetchPolicyFromRefetch: fetchPolicy,
+          variablesFromRefetch: refetchVariables,
+        },
+        onRefetched,
+      );
       return disposable;
     };
 
@@ -388,6 +409,7 @@ function createSuspenseQueryRenderer<TQuery: OperationType>(
 
     render() {
       const {children, environment} = this.props;
+      const fetchPolicy = getFetchPolicy(this.state);
       const variables = getVariablesForContext(this.state);
       const DataResource = getCacheForEnvironment(environment);
 

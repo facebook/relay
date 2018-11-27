@@ -99,14 +99,17 @@ describe('createSuspenseQueryRenderer', () => {
     );
     gqlQuery = generated.UserQuery;
     renderFn = jest.fn(() => <div />);
-    QueryRenderer = createSuspenseQueryRenderer(gqlQuery, {fetchPolicy});
+    QueryRenderer = createSuspenseQueryRenderer(gqlQuery);
   });
 
   it('should render the component without a network request if data is available', () => {
     const variables = {id: '<available-data-id>'};
     commitUserPayload(environment, gqlQuery, variables.id, 'Alice');
     ReactTestRenderer.create(
-      <QueryRenderer environment={environment} variables={variables}>
+      <QueryRenderer
+        environment={environment}
+        fetchPolicy={fetchPolicy}
+        variables={variables}>
         {renderFn}
       </QueryRenderer>,
     );
@@ -126,7 +129,10 @@ describe('createSuspenseQueryRenderer', () => {
     const variables = {id: '<partially-available-data-id>'};
     commitUserPayload(environment, gqlQuery, variables.id, undefined);
     ReactTestRenderer.create(
-      <QueryRenderer environment={environment} variables={variables}>
+      <QueryRenderer
+        environment={environment}
+        fetchPolicy={fetchPolicy}
+        variables={variables}>
         {renderFn}
       </QueryRenderer>,
     );
@@ -149,7 +155,10 @@ describe('createSuspenseQueryRenderer', () => {
     const variables = {id: '<missing-id>'};
     expect(() => {
       return ReactTestRenderer.create(
-        <QueryRenderer environment={environment} variables={variables}>
+        <QueryRenderer
+          environment={environment}
+          fetchPolicy={fetchPolicy}
+          variables={variables}>
           {renderFn}
         </QueryRenderer>,
       );
@@ -163,7 +172,10 @@ describe('createSuspenseQueryRenderer', () => {
     jest.spyOn(console, 'error').mockImplementationOnce(() => {});
     expect(() =>
       ReactTestRenderer.create(
-        <QueryRenderer environment={environment} variables={{}}>
+        <QueryRenderer
+          environment={environment}
+          fetchPolicy={fetchPolicy}
+          variables={{}}>
           {renderFn}
         </QueryRenderer>,
       ),
@@ -190,7 +202,10 @@ describe('createSuspenseQueryRenderer', () => {
 
       // Initial render doesn't suspend.
       ReactTestRenderer.create(
-        <QueryRenderer environment={environment} variables={variables}>
+        <QueryRenderer
+          environment={environment}
+          fetchPolicy={fetchPolicy}
+          variables={variables}>
           {renderWithRefetch}
         </QueryRenderer>,
       );
@@ -232,7 +247,10 @@ describe('createSuspenseQueryRenderer', () => {
 
       // Initial render doesn't suspend.
       ReactTestRenderer.create(
-        <QueryRenderer environment={environment} variables={variables}>
+        <QueryRenderer
+          environment={environment}
+          fetchPolicy={fetchPolicy}
+          variables={variables}>
           {renderWithRefetch}
         </QueryRenderer>,
       );
@@ -271,7 +289,10 @@ describe('createSuspenseQueryRenderer', () => {
       const renderer = ReactTestRenderer.create(
         // $FlowFixMe Suspense component isn't typed yet
         <React.Suspense fallback="QUERY FALLBACK">
-          <QueryRenderer environment={environment} variables={variables}>
+          <QueryRenderer
+            environment={environment}
+            fetchPolicy={fetchPolicy}
+            variables={variables}>
             {renderWithRefetch}
           </QueryRenderer>
         </React.Suspense>,
@@ -317,6 +338,63 @@ describe('createSuspenseQueryRenderer', () => {
       });
     });
 
+    it('should use specified fetchPolicy inside refetch', () => {
+      const variables = {id: '<available-data-id>'};
+      commitUserPayload(environment, gqlQuery, variables.id, 'Alice');
+
+      // Initial render doesn't suspend.
+      const renderer = ReactTestRenderer.create(
+        // $FlowFixMe Suspense component isn't typed yet
+        <React.Suspense fallback="QUERY FALLBACK">
+          <QueryRenderer
+            environment={environment}
+            fetchPolicy={fetchPolicy}
+            variables={variables}>
+            {renderWithRefetch}
+          </QueryRenderer>
+        </React.Suspense>,
+      );
+      expect(environment.execute).not.toBeCalled();
+      expectToBeRendered(renderWithRefetch, {
+        node: {
+          id: variables.id,
+          [ID_KEY]: variables.id,
+          [FRAGMENTS_KEY]: {
+            UserFragment: {},
+          },
+        },
+      });
+
+      // Refetch data that is already available but with new fetchPolicy
+      const refetchVariables = {...variables};
+      refetch(refetchVariables, {fetchPolicy: 'network-only'});
+      expectToBeFetched(environment, refetchVariables);
+      expect(renderer.toJSON()).toEqual('QUERY FALLBACK');
+
+      // Resolve refetch request, assert component rerenders with new data
+      renderWithRefetch.mockClear();
+      environment.mock.nextValue(gqlQuery, {
+        data: {
+          node: {
+            __typename: 'User',
+            id: refetchVariables.id,
+            name: 'Missing one',
+          },
+        },
+      });
+      environment.mock.complete(gqlQuery);
+      jest.runAllTimers();
+      expectToBeRendered(renderWithRefetch, {
+        node: {
+          id: refetchVariables.id,
+          [ID_KEY]: refetchVariables.id,
+          [FRAGMENTS_KEY]: {
+            UserFragment: {},
+          },
+        },
+      });
+    });
+
     it('rerenders with parent variables if parent variables change after a refetch', () => {
       const variables = {id: '<available-data-id>'};
       commitUserPayload(environment, gqlQuery, variables.id, 'Alice');
@@ -324,7 +402,10 @@ describe('createSuspenseQueryRenderer', () => {
       // Initial render doesn't suspend.
       const renderer = ReactTestRenderer.create(
         <PropsSetter>
-          <QueryRenderer environment={environment} variables={variables}>
+          <QueryRenderer
+            environment={environment}
+            fetchPolicy={fetchPolicy}
+            variables={variables}>
             {renderWithRefetch}
           </QueryRenderer>
         </PropsSetter>,
@@ -385,6 +466,79 @@ describe('createSuspenseQueryRenderer', () => {
       });
     });
 
+    it('rerenders with parent fetchPolicy if parent fetchPolicy changes after a refetch', () => {
+      const variables = {id: '<available-data-id>'};
+      commitUserPayload(environment, gqlQuery, variables.id, 'Alice');
+
+      const Renderer = (props: {fetchPolicy?: any, variables?: any}) => {
+        return (
+          // $FlowFixMe Suspense component isn't typed yet
+          <React.Suspense fallback="QUERY FALLBACK">
+            <QueryRenderer
+              environment={environment}
+              fetchPolicy={props.fetchPolicy ?? fetchPolicy}
+              variables={props.variables ?? variables}>
+              {renderWithRefetch}
+            </QueryRenderer>
+          </React.Suspense>
+        );
+      };
+
+      // Initial render doesn't suspend.
+      const renderer = ReactTestRenderer.create(
+        <PropsSetter>
+          <Renderer />
+        </PropsSetter>,
+      );
+      expect(environment.execute).not.toBeCalled();
+      expectToBeRendered(renderWithRefetch, {
+        node: {
+          id: variables.id,
+          [ID_KEY]: variables.id,
+          [FRAGMENTS_KEY]: {
+            UserFragment: {},
+          },
+        },
+      });
+
+      // Refetch doesn't suspend
+      const refetchVariables = {id: '<also-available>'};
+      commitUserPayload(
+        environment,
+        gqlQuery,
+        refetchVariables.id,
+        'Also Available',
+      );
+      renderWithRefetch.mockClear();
+      refetch(refetchVariables);
+      expect(environment.execute).not.toBeCalled();
+      expectToBeRendered(renderWithRefetch, {
+        node: {
+          id: refetchVariables.id,
+          [ID_KEY]: refetchVariables.id,
+          [FRAGMENTS_KEY]: {
+            UserFragment: {},
+          },
+        },
+      });
+
+      // QueryRenderer rerenders with the same parent vars but different fetchPolicy
+      const parentVariables = {...variables};
+      commitUserPayload(
+        environment,
+        gqlQuery,
+        parentVariables.id,
+        'Available Too',
+      );
+      renderWithRefetch.mockClear();
+      renderer.getInstance().setProps({
+        fetchPolicy: 'network-only',
+        variables: parentVariables,
+      });
+      expectToBeFetched(environment, parentVariables);
+      expect(renderer.toJSON()).toEqual('QUERY FALLBACK');
+    });
+
     it('disposes refetch when QueryRenderer unmounts', () => {
       const variables = {id: '<available-data-id>'};
       commitUserPayload(environment, gqlQuery, variables.id, 'Alice');
@@ -393,7 +547,10 @@ describe('createSuspenseQueryRenderer', () => {
       const renderer = ReactTestRenderer.create(
         // $FlowFixMe Suspense component isn't typed yet
         <React.Suspense fallback="QUERY FALLBACK">
-          <QueryRenderer environment={environment} variables={variables}>
+          <QueryRenderer
+            environment={environment}
+            fetchPolicy={fetchPolicy}
+            variables={variables}>
             {renderWithRefetch}
           </QueryRenderer>
         </React.Suspense>,
@@ -461,7 +618,10 @@ describe('createSuspenseQueryRenderer', () => {
       };
       commitUserPayload(environment, gqlQuery, variables.id, 'Alice');
       ReactTestRenderer.create(
-        <QueryRenderer environment={environment} variables={variables}>
+        <QueryRenderer
+          environment={environment}
+          fetchPolicy={fetchPolicy}
+          variables={variables}>
           {renderFn}
         </QueryRenderer>,
       );
@@ -499,7 +659,10 @@ describe('createSuspenseQueryRenderer', () => {
       commitUserPayload(environment, gqlQuery, variables.id, 'Alice');
 
       ReactTestRenderer.create(
-        <QueryRenderer environment={environment} variables={variables}>
+        <QueryRenderer
+          environment={environment}
+          fetchPolicy={fetchPolicy}
+          variables={variables}>
           {renderFn}
         </QueryRenderer>,
       );
@@ -514,7 +677,10 @@ describe('createSuspenseQueryRenderer', () => {
 
       const renderer = ReactTestRenderer.create(
         <PropsSetter>
-          <QueryRenderer environment={environment} variables={variables}>
+          <QueryRenderer
+            environment={environment}
+            fetchPolicy={fetchPolicy}
+            variables={variables}>
             {renderFn}
           </QueryRenderer>
         </PropsSetter>,
@@ -540,7 +706,10 @@ describe('createSuspenseQueryRenderer', () => {
 
       const renderer = ReactTestRenderer.create(
         <PropsSetter>
-          <QueryRenderer environment={environment} variables={variables1}>
+          <QueryRenderer
+            environment={environment}
+            fetchPolicy={fetchPolicy}
+            variables={variables1}>
             {renderFn}
           </QueryRenderer>
         </PropsSetter>,
@@ -560,7 +729,10 @@ describe('createSuspenseQueryRenderer', () => {
 
       const renderer = ReactTestRenderer.create(
         <PropsSetter>
-          <QueryRenderer environment={environment} variables={variables}>
+          <QueryRenderer
+            environment={environment}
+            fetchPolicy={fetchPolicy}
+            variables={variables}>
             {renderFn}
           </QueryRenderer>
         </PropsSetter>,
@@ -583,7 +755,10 @@ describe('createSuspenseQueryRenderer', () => {
 
       const renderer = ReactTestRenderer.create(
         <PropsSetter>
-          <QueryRenderer environment={environment} variables={variables1}>
+          <QueryRenderer
+            environment={environment}
+            fetchPolicy={fetchPolicy}
+            variables={variables1}>
             {renderFn}
           </QueryRenderer>
         </PropsSetter>,
@@ -624,7 +799,10 @@ describe('createSuspenseQueryRenderer', () => {
       commitUserPayload(environment, gqlQuery, variables.id, 'Alice');
       const renderer = ReactTestRenderer.create(
         <PropsSetter>
-          <QueryRenderer environment={environment} variables={variables}>
+          <QueryRenderer
+            environment={environment}
+            fetchPolicy={fetchPolicy}
+            variables={variables}>
             {renderFn}
           </QueryRenderer>
         </PropsSetter>,
@@ -668,7 +846,10 @@ describe('createSuspenseQueryRenderer', () => {
           return (
             <React.Fragment>
               <Child>A</Child>
-              <QueryRenderer environment={environment} variables={variables}>
+              <QueryRenderer
+                environment={environment}
+                fetchPolicy={fetchPolicy}
+                variables={variables}>
                 {renderFn}
               </QueryRenderer>
               <Child>B</Child>
@@ -723,10 +904,16 @@ describe('createSuspenseQueryRenderer', () => {
     }: any) => {
       return (
         <React.Fragment>
-          <QueryRenderer environment={environment} variables={variables1}>
+          <QueryRenderer
+            environment={environment}
+            fetchPolicy={fetchPolicy}
+            variables={variables1}>
             {renderFn1}
           </QueryRenderer>
-          <QueryRenderer environment={environment} variables={variables2}>
+          <QueryRenderer
+            environment={environment}
+            fetchPolicy={fetchPolicy}
+            variables={variables2}>
             {renderFn2}
           </QueryRenderer>
         </React.Fragment>
@@ -890,15 +1077,14 @@ describe('createSuspenseQueryRenderer', () => {
       expectedRenderOutput,
     ) => {
       return (testFetchPolicy, expectedBehavior) => {
-        const TestQueryRenderer = createSuspenseQueryRenderer(testGqlQuery, {
-          fetchPolicy: testFetchPolicy,
-        });
+        const TestQueryRenderer = createSuspenseQueryRenderer(testGqlQuery);
         const testRenderFn = jest.fn();
         switch (expectedBehavior) {
           case RENDER_NO_REQUEST:
             ReactTestRenderer.create(
               <TestQueryRenderer
                 environment={testEnvironment}
+                fetchPolicy={testFetchPolicy}
                 variables={testVariables}>
                 {testRenderFn}
               </TestQueryRenderer>,
@@ -911,6 +1097,7 @@ describe('createSuspenseQueryRenderer', () => {
             ReactTestRenderer.create(
               <TestQueryRenderer
                 environment={testEnvironment}
+                fetchPolicy={testFetchPolicy}
                 variables={testVariables}>
                 {testRenderFn}
               </TestQueryRenderer>,
@@ -930,6 +1117,7 @@ describe('createSuspenseQueryRenderer', () => {
               return ReactTestRenderer.create(
                 <TestQueryRenderer
                   environment={testEnvironment}
+                  fetchPolicy={testFetchPolicy}
                   variables={testVariables}>
                   {testRenderFn}
                 </TestQueryRenderer>,
@@ -941,6 +1129,7 @@ describe('createSuspenseQueryRenderer', () => {
               return ReactTestRenderer.create(
                 <TestQueryRenderer
                   environment={testEnvironment}
+                  fetchPolicy={testFetchPolicy}
                   variables={testVariables}>
                   {testRenderFn}
                 </TestQueryRenderer>,

@@ -20,6 +20,7 @@ const mapObject = require('mapObject');
 
 // TODO: This should probably be configurable based on the environment
 const CACHE_CAPACITY = 1000;
+const DEFAULT_FETCH_POLICY = 'store-or-network';
 
 const {
   fetchQuery,
@@ -57,7 +58,7 @@ export type FetchPolicy =
 type ReadQueryArgs = {|
   environment: IEnvironment,
   query: OperationSelector,
-  fetchPolicy?: FetchPolicy,
+  fetchPolicy: ?FetchPolicy,
 |};
 
 type ReadFragmentSpecArgs = {|
@@ -76,6 +77,7 @@ type PreloadQueryArgs = {|
 
 type InvalidateQueryArgs = {|
   query: OperationSelector,
+  fetchPolicy: ?FetchPolicy,
 |};
 
 type InvalidateFragmentArgs = {|
@@ -92,6 +94,7 @@ type InvalidateFragmentSpecArgs = {|
 
 type SetQueryArgs = {|
   query: OperationSelector,
+  fetchPolicy: ?FetchPolicy,
   snapshot: Snapshot,
 |};
 
@@ -117,8 +120,11 @@ export type TDataResourceCache = {|
 
 const DATA_RETENTION_TIMEOUT = 30 * 1000;
 
-function getQueryCacheKey(query: OperationSelector): string {
-  return getQueryIdentifier(query);
+function getQueryCacheKey(
+  query: OperationSelector,
+  fetchPolicy: FetchPolicy,
+): string {
+  return `${fetchPolicy}-${getQueryIdentifier(query)}`;
 }
 
 function getFragmentCacheKey(
@@ -189,11 +195,10 @@ function createCache(): TDataResourceCache {
   function fetchAndSaveQuery(args: {|
     environment: IEnvironment,
     query: OperationSelector,
-    fetchPolicy?: FetchPolicy,
+    fetchPolicy: FetchPolicy,
   |}): Disposable {
-    const {environment, query} = args;
-    const cacheKey = getQueryCacheKey(query);
-    const fetchPolicy = args.fetchPolicy ?? 'store-or-network';
+    const {environment, query, fetchPolicy} = args;
+    const cacheKey = getQueryCacheKey(query, fetchPolicy);
 
     // NOTE: Running `check` will write missing data to the store using any
     // missing data handlers specified on the environment;
@@ -218,6 +223,7 @@ function createCache(): TDataResourceCache {
         const promiseForQuery = getPromiseForQueryRequestInFlight({
           environment,
           query,
+          fetchPolicy,
         });
         if (promiseForQuery != null) {
           cache.set(cacheKey, promiseForQuery);
@@ -327,8 +333,9 @@ function createCache(): TDataResourceCache {
   function getPromiseForQueryRequestInFlight(args: {|
     environment: IEnvironment,
     query: OperationSelector,
+    fetchPolicy: FetchPolicy,
   |}): Promise<void> | null {
-    const {environment, query} = args;
+    const {environment, query, fetchPolicy} = args;
     const promise = getPromiseForRequestInFlight({
       environment,
       query,
@@ -337,7 +344,7 @@ function createCache(): TDataResourceCache {
       return null;
     }
 
-    const cacheKey = getQueryCacheKey(query);
+    const cacheKey = getQueryCacheKey(query, fetchPolicy);
     // When the Promise for the request resolves, we need to make sure to
     // update the cache with the latest data available in the store before
     // resolving the Promise
@@ -441,7 +448,8 @@ function createCache(): TDataResourceCache {
      */
     readQuery(args: ReadQueryArgs): CacheReadResult {
       const {query} = args;
-      const cacheKey = getQueryCacheKey(query);
+      const fetchPolicy = args.fetchPolicy ?? DEFAULT_FETCH_POLICY;
+      const cacheKey = getQueryCacheKey(query, fetchPolicy);
 
       // 1. Check if there's a cached value for this query
       let cachedValue = cache.get(cacheKey);
@@ -457,7 +465,11 @@ function createCache(): TDataResourceCache {
       // 2. If a cached value isn't available, try fetching the query.
       // fetchAndSaveQuery will update the cache with either a Promise, Error
       // or a Snapshot
-      const fetchDisposable = fetchAndSaveQuery(args);
+      const fetchDisposable = fetchAndSaveQuery({
+        environment: args.environment,
+        query: args.query,
+        fetchPolicy,
+      });
       cachedValue = cache.get(cacheKey);
       if (cachedValue != null) {
         if (cachedValue instanceof Promise || cachedValue instanceof Error) {
@@ -570,8 +582,9 @@ function createCache(): TDataResourceCache {
      * See: fetchAndSaveQuery.
      */
     preloadQuery(args: PreloadQueryArgs): Disposable {
-      const {environment, query, fetchPolicy} = args;
-      const cacheKey = getQueryCacheKey(query);
+      const {environment, query} = args;
+      const fetchPolicy = args.fetchPolicy ?? DEFAULT_FETCH_POLICY;
+      const cacheKey = getQueryCacheKey(query, fetchPolicy);
       if (cache.has(cacheKey)) {
         return {dispose: () => {}};
       }
@@ -587,7 +600,8 @@ function createCache(): TDataResourceCache {
      */
     invalidateQuery(args: InvalidateQueryArgs) {
       const {query} = args;
-      const cacheKey = getQueryCacheKey(query);
+      const fetchPolicy = args.fetchPolicy ?? DEFAULT_FETCH_POLICY;
+      const cacheKey = getQueryCacheKey(query, fetchPolicy);
       cache.delete(cacheKey);
     },
 
@@ -631,8 +645,9 @@ function createCache(): TDataResourceCache {
      */
     setQuery(args: SetQueryArgs): void {
       const {query, snapshot} = args;
+      const fetchPolicy = args.fetchPolicy ?? DEFAULT_FETCH_POLICY;
       if (!isMissingData(snapshot)) {
-        const cacheKey = getQueryCacheKey(query);
+        const cacheKey = getQueryCacheKey(query, fetchPolicy);
         cache.set(cacheKey, snapshot);
       }
     },

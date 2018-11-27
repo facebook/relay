@@ -15,7 +15,7 @@ const CodeMarker = require('../util/CodeMarker');
 const invariant = require('invariant');
 
 const {GraphQLList} = require('graphql');
-const {IRVisitor, SchemaUtils} = require('graphql-compiler');
+const {IRVisitor, SchemaUtils, SplitNaming} = require('graphql-compiler');
 const {getStorageKey, stableCopy} = require('relay-runtime');
 
 import type {Fragment, Request, SplitOperation} from 'graphql-compiler';
@@ -216,6 +216,10 @@ const RelayCodeGenVisitor = {
             name: fragmentName,
             args: [],
           },
+          splitOperation: CodeMarker.moduleDependency(
+            SplitNaming.getAnnotatedName(fragmentName, 'normalization') +
+              '.graphql',
+          ),
           module: CodeMarker.moduleDependency(selection.module),
         };
       });

@@ -96,6 +96,7 @@ export type ConcreteMatchField = {|
       +fragmentPropName: string,
       +selection: ConcreteFragmentSpread,
       +module: mixed,
+      +splitOperation: mixed,
     |},
   },
 |};

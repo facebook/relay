@@ -95,6 +95,7 @@ fragment PlaintextBody_comment on PlainCommentBody {
                 "name": "MarkdownBody_comment",
                 "args": []
               },
+              "splitOperation": require('MarkdownBody_comment$normalization.graphql'),
               "module": require('MarkdownBodyComponent.react')
             },
             "PlainCommentBody": {
@@ -104,6 +105,7 @@ fragment PlaintextBody_comment on PlainCommentBody {
                 "name": "PlaintextBody_comment",
                 "args": []
               },
+              "splitOperation": require('PlaintextBody_comment$normalization.graphql'),
               "module": require('PlaintextComponent.react')
             }
           }
@@ -561,6 +563,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
             "name": "PlainUserNameRenderer_name",
             "args": []
           },
+          "splitOperation": require('PlainUserNameRenderer_name$normalization.graphql'),
           "module": require('PlainUserNameRenderer.react')
         },
         "MarkdownUserNameRenderer": {
@@ -570,6 +573,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
             "name": "MarkdownUserNameRenderer_name",
             "args": []
           },
+          "splitOperation": require('MarkdownUserNameRenderer_name$normalization.graphql'),
           "module": require('MarkdownUserNameRenderer.react')
         }
       }

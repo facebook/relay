@@ -617,14 +617,13 @@ class GraphQLParser {
       const selections = field.selectionSet
         ? this._transformSelections(field.selectionSet, type)
         : null;
-      invariant(
-        selections && selections.length,
-        'GraphQLParser: Expected at least one selection for non-scalar field ' +
-          '`%s` on type `%s`. Source: %s.',
-        name,
-        type,
-        this._getErrorContext(),
-      );
+      if (selections == null || selections.length === 0) {
+        throw new Error(
+          'GraphQLParser: Expected at least one selection for non-scalar ' +
+            `field \`${name}\` on type \`${String(type)}\`. ` +
+            `Source: ${this._getErrorContext()}.`,
+        );
+      }
       return {
         kind: 'LinkedField',
         alias,

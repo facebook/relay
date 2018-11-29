@@ -32,7 +32,7 @@ fragment CommentBody_comment on Comment {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Invariant Violation: GraphQLParser: Expected at least one selection for non-scalar field \`commentBody\` on type \`CommentBody\`. Source: document \`CommentBody_comment\` file: \`GraphQL request\`.
+Error: GraphQLParser: Expected at least one selection for non-scalar field \`commentBody\` on type \`CommentBody\`. Source: document \`CommentBody_comment\` file: \`GraphQL request\`.
 `;
 
 exports[`RelayMatchTransform matches expected output: invalid-non-empty-selections.graphql 1`] = `

@@ -22,15 +22,14 @@ import type {Fragment, Request, SplitOperation} from 'graphql-compiler';
 import type {
   ConcreteArgument,
   ConcreteArgumentDefinition,
-  ConcreteFragment,
   ConcreteField,
+  ConcreteFragment,
   ConcreteLinkedField,
   ConcreteMatchField,
   ConcreteRequest,
-  ConcreteSelection,
   ConcreteScalarField,
+  ConcreteSelection,
   ConcreteSplitOperation,
-  RequestNode,
 } from 'relay-runtime';
 const {getRawType, isAbstractType, getNullableType} = SchemaUtils;
 
@@ -41,7 +40,7 @@ const {getRawType, isAbstractType, getNullableType} = SchemaUtils;
  * used at runtime.
  */
 declare function generate(node: Fragment): ConcreteFragment;
-declare function generate(node: Request): RequestNode;
+declare function generate(node: Request): ConcreteRequest;
 declare function generate(node: SplitOperation): ConcreteSplitOperation;
 function generate(node) {
   invariant(

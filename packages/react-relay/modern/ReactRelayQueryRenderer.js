@@ -21,12 +21,12 @@ const {deepFreeze} = require('relay-runtime');
 import type {RelayEnvironmentInterface as ClassicEnvironment} from '../classic/store/RelayEnvironment';
 import type {
   CacheConfig,
+  ConcreteRequest,
   GraphQLTaggedNode,
   IEnvironment,
+  RelayContext,
   Snapshot,
   Variables,
-  RelayContext,
-  RequestNode,
 } from 'relay-runtime';
 
 type RetryCallbacks = {
@@ -334,7 +334,7 @@ function getRenderProps(
 }
 
 function getRequestCacheKey(
-  request: RequestNode,
+  request: ConcreteRequest,
   variables: Variables,
 ): string {
   const requestID = request.id || request.text;

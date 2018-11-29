@@ -23,14 +23,9 @@ import type {
   ConcreteLinkedField,
   ConcreteFragment,
   ConcreteSelectableNode,
-  RequestNode,
+  ConcreteRequest,
 } from '../util/RelayConcreteNode';
-import type {
-  CacheConfig,
-  DataID,
-  Disposable,
-  Variables,
-} from '../util/RelayRuntimeTypes';
+import type {DataID, Disposable, Variables} from '../util/RelayRuntimeTypes';
 import type {RecordState} from './RelayRecordState';
 import type {
   CEnvironment,
@@ -54,7 +49,7 @@ type TFragment = ConcreteFragment;
 type TGraphQLTaggedNode = GraphQLTaggedNode;
 type TNode = ConcreteSelectableNode;
 type TPayload = GraphQLResponse;
-type TRequest = RequestNode;
+type TRequest = ConcreteRequest;
 
 export type FragmentMap = CFragmentMap<TFragment>;
 export type OperationSelector = COperationSelector<TNode, TRequest>;

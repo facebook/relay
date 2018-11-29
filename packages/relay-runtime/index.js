@@ -120,7 +120,6 @@ export type {
   ConcreteSelection,
   ConcreteSplitOperation,
   GeneratedNode,
-  RequestNode,
 } from './util/RelayConcreteNode';
 export type {
   CacheConfig,

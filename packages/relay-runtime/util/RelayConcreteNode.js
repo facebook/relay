@@ -11,6 +11,7 @@
 'use strict';
 
 export type ConcreteArgument = ConcreteLiteral | ConcreteVariable;
+
 export type ConcreteArgumentDefinition =
   | ConcreteLocalArgument
   | ConcreteRootArgument;
@@ -31,6 +32,7 @@ export type ConcreteRequest = {|
   +fragment: ConcreteFragment,
   +operation: ConcreteOperation,
 |};
+
 /**
  * Represents a single operation used to processing and normalize runtime
  * request results.
@@ -41,16 +43,19 @@ export type ConcreteOperation = {|
   +argumentDefinitions: $ReadOnlyArray<ConcreteLocalArgument>,
   +selections: $ReadOnlyArray<ConcreteSelection>,
 |};
+
 export type ConcreteCondition = {|
   +kind: 'Condition',
   +passingValue: boolean,
   +condition: string,
   +selections: $ReadOnlyArray<ConcreteSelection>,
 |};
+
 export type ConcreteField =
   | ConcreteScalarField
   | ConcreteLinkedField
   | ConcreteMatchField;
+
 export type ConcreteFragment = {|
   +kind: 'Fragment',
   +name: string,
@@ -59,22 +64,27 @@ export type ConcreteFragment = {|
   +argumentDefinitions: $ReadOnlyArray<ConcreteArgumentDefinition>,
   +selections: $ReadOnlyArray<ConcreteSelection>,
 |};
+
 export type ConcreteFragmentSpread = {|
   +kind: 'FragmentSpread',
   +name: string,
   +args: ?$ReadOnlyArray<ConcreteArgument>,
 |};
+
 export type ConcreteHandle = ConcreteScalarHandle | ConcreteLinkedHandle;
+
 export type ConcreteRootArgument = {|
   +kind: 'RootArgument',
   +name: string,
   +type: ?string,
 |};
+
 export type ConcreteInlineFragment = {|
   +kind: 'InlineFragment',
   +selections: $ReadOnlyArray<ConcreteSelection>,
   +type: string,
 |};
+
 export type ConcreteLinkedField = {|
   +kind: 'LinkedField',
   +alias: ?string,
@@ -85,6 +95,7 @@ export type ConcreteLinkedField = {|
   +plural: boolean,
   +selections: $ReadOnlyArray<ConcreteSelection>,
 |};
+
 export type ConcreteMatchField = {|
   +kind: 'MatchField',
   +alias: ?string,
@@ -100,6 +111,7 @@ export type ConcreteMatchField = {|
     |},
   },
 |};
+
 export type ConcreteLinkedHandle = {|
   +kind: 'LinkedHandle',
   +alias: ?string,
@@ -109,24 +121,28 @@ export type ConcreteLinkedHandle = {|
   +key: string,
   +filters: ?$ReadOnlyArray<string>,
 |};
+
 export type ConcreteLiteral = {|
   +kind: 'Literal',
   +name: string,
   +type: ?string,
   +value: mixed,
 |};
+
 export type ConcreteLocalArgument = {|
   +kind: 'LocalArgument',
   +name: string,
   +type: string,
   +defaultValue: mixed,
 |};
+
 export type ConcreteNode =
   | ConcreteCondition
   | ConcreteLinkedField
   | ConcreteFragment
   | ConcreteInlineFragment
   | ConcreteOperation;
+
 export type ConcreteScalarField = {|
   +kind: 'ScalarField',
   +alias: ?string,
@@ -134,6 +150,7 @@ export type ConcreteScalarField = {|
   +args: ?$ReadOnlyArray<ConcreteArgument>,
   +storageKey: ?string,
 |};
+
 export type ConcreteScalarHandle = {|
   +kind: 'ScalarHandle',
   +alias: ?string,
@@ -143,6 +160,7 @@ export type ConcreteScalarHandle = {|
   +key: string,
   +filters: ?$ReadOnlyArray<string>,
 |};
+
 export type ConcreteSelection =
   | ConcreteCondition
   | ConcreteField
@@ -150,22 +168,25 @@ export type ConcreteSelection =
   | ConcreteHandle
   | ConcreteInlineFragment
   | ConcreteMatchField;
+
 export type ConcreteSplitOperation = {
   +kind: 'SplitOperation',
   +name: string,
   +metadata: ?{[key: string]: mixed},
   +selections: $ReadOnlyArray<ConcreteSelection>,
 };
+
 export type ConcreteVariable = {|
   +kind: 'Variable',
   +name: string,
   +type: ?string,
   +variableName: string,
 |};
+
 export type ConcreteSelectableNode = ConcreteFragment | ConcreteOperation;
-export type RequestNode = ConcreteRequest;
+
 export type GeneratedNode =
-  | RequestNode
+  | ConcreteRequest
   | ConcreteFragment
   | ConcreteSplitOperation;
 

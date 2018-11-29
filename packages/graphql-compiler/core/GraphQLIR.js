@@ -148,7 +148,7 @@ export type LocalArgumentDefinition = {|
 
 export type MatchFragmentSpread = {|
   +kind: 'MatchFragmentSpread',
-  +type: ?GraphQLCompositeType,
+  +type: GraphQLCompositeType,
   +module: string,
   +args: $ReadOnlyArray<Argument>,
   +directives: $ReadOnlyArray<Directive>,

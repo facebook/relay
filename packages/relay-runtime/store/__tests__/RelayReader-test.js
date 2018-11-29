@@ -447,16 +447,12 @@ describe('RelayReader', () => {
 
         fragment BarFragment on User {
           id
-          nameRenderer @match(onTypes: [
-            {
-              fragment: "PlainUserNameRenderer_name"
-              module: "PlainUserNameRenderer.react"
-            }
-            {
-              fragment: "MarkdownUserNameRenderer_name"
-              module: "MarkdownUserNameRenderer.react"
-            }
-          ])
+          nameRenderer @match {
+            ...PlainUserNameRenderer_name
+              @module(name: "PlainUserNameRenderer.react")
+            ...MarkdownUserNameRenderer_name
+              @module(name: "MarkdownUserNameRenderer.react")
+          }
         }
       `);
       BarFragment = nodes.BarFragment;

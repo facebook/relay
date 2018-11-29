@@ -356,16 +356,12 @@ describe('RelayResponseNormalizer', () => {
 
           fragment BarFragment on User {
             id
-            nameRenderer @match(onTypes: [
-              {
-                fragment: "PlainUserNameRenderer_name"
-                module: "PlainUserNameRenderer.react"
-              }
-              {
-                fragment: "MarkdownUserNameRenderer_name"
-                module: "MarkdownUserNameRenderer.react"
-              }
-            ], experimental_skipInlineDoNotUse: true)
+            nameRenderer @match(experimental_skipInlineDoNotUse: true) {
+              ...PlainUserNameRenderer_name
+                @module(name: "PlainUserNameRenderer.react")
+              ...MarkdownUserNameRenderer_name
+                @module(name: "MarkdownUserNameRenderer.react")
+            }
           }
 
           query BarQuery($id: ID!) {

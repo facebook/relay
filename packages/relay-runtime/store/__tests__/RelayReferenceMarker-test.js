@@ -360,42 +360,37 @@ describe('RelayReferenceMarker', () => {
     let loader;
 
     beforeEach(() => {
-      const nodes = generateAndCompile(
-        `
-          fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
-            plaintext
-            data {
-              text
-            }
+      const nodes = generateAndCompile(`
+        fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+          plaintext
+          data {
+            text
           }
+        }
 
-          fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-            markdown
-            data {
-              markup
-            }
+        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+          markdown
+          data {
+            markup
           }
+        }
 
-          fragment BarFragment on User {
-            id
-            nameRenderer @match(onTypes: [
-              {
-                fragment: "PlainUserNameRenderer_name"
-                module: "PlainUserNameRenderer.react"
-              }
-              {
-                fragment: "MarkdownUserNameRenderer_name"
-                module: "MarkdownUserNameRenderer.react"
-              }
-            ], experimental_skipInlineDoNotUse: true)
+        fragment BarFragment on User {
+          id
+          nameRenderer @match(experimental_skipInlineDoNotUse: true) {
+            ...PlainUserNameRenderer_name
+              @module(name: "PlainUserNameRenderer.react")
+            ...MarkdownUserNameRenderer_name
+              @module(name: "MarkdownUserNameRenderer.react")
           }
+        }
 
-          query BarQuery($id: ID!) {
-            node(id: $id) {
-              ...BarFragment
-            }
-          }`,
-      );
+        query BarQuery($id: ID!) {
+          node(id: $id) {
+            ...BarFragment
+          }
+        }
+      `);
       BarQuery = nodes.BarQuery;
       loader = {
         get: moduleName => nodes[moduleName],

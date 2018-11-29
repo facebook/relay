@@ -1,14 +1,8 @@
 fragment CommentBody_comment on Comment {
-  commentBody @match(onTypes: [
-    {
-      fragment: "MarkdownBody_comment"
-      module: "MarkdownBodyComponent.react"
-    },
-    {
-      fragment: "User_comment"
-      module: "User.react"
-    },
-  ])
+  commentBody @match {
+    ...MarkdownBody_comment @module(name: "MarkdownBodyComponent.react")
+    ...User_comment @module(name: "User.react")
+  }
 }
 
 fragment MarkdownBody_comment on MarkdownCommentBody {

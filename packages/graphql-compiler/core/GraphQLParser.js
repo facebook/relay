@@ -57,8 +57,6 @@ import type {
   Handle,
   InlineFragment,
   LocalArgumentDefinition,
-  MatchField,
-  MatchFragmentSpread,
   Root,
   ScalarFieldType,
   Selection,
@@ -100,8 +98,6 @@ const CLIENT_FIELD_FILTERS = 'filters';
 const INCLUDE = 'include';
 const SKIP = 'skip';
 const IF = 'if';
-
-const MATCH_DIRECTIVE_NAME = 'match';
 
 class GraphQLParser {
   _definition: OperationDefinitionNode | FragmentDefinitionNode;
@@ -617,59 +613,6 @@ class GraphQLParser {
         name,
         type: assertScalarFieldType(type),
       };
-    } else if (
-      directives.find(directive => directive.name === MATCH_DIRECTIVE_NAME)
-    ) {
-      if (field.selectionSet) {
-        throw new Error(
-          `GraphQLParser: When using the @${MATCH_DIRECTIVE_NAME} directive, ` +
-            `no selections should be defined on the field '${name}'.`,
-        );
-      }
-      const [matchDirectives, nonMatchDirectives] = partitionArray(
-        directives,
-        directive => directive.name === MATCH_DIRECTIVE_NAME,
-      );
-      const matchDirective = matchDirectives[0];
-      const matchDirectiveArgs = getLiteralArgumentValues(matchDirective.args);
-      const cases = matchDirectiveArgs.onTypes;
-      const experimental_skipInlineDoNotUse =
-        matchDirectiveArgs.experimental_skipInlineDoNotUse === true;
-
-      if (cases.length === 0) {
-        throw new Error(
-          `RelayMatchTransform: The @${MATCH_DIRECTIVE_NAME} directive ` +
-            'requires at least one type to match on.',
-        );
-      }
-
-      const selections: $ReadOnlyArray<MatchFragmentSpread> = cases.map(
-        match => {
-          return {
-            kind: 'MatchFragmentSpread',
-            type: match.type,
-            module: match.module,
-            args: [],
-            directives: [],
-            metadata: null,
-            name: match.fragment,
-          };
-        },
-      );
-
-      return ({
-        kind: 'MatchField',
-        alias,
-        args: [],
-        directives: nonMatchDirectives,
-        handles: null,
-        metadata: {
-          experimental_skipInlineDoNotUse,
-        },
-        name: name,
-        type: assertGraphQLUnionType(type),
-        selections,
-      }: MatchField);
     } else {
       const selections = field.selectionSet
         ? this._transformSelections(field.selectionSet, type)

@@ -952,16 +952,10 @@ exports[`compileRelayArtifacts matches expected output: fragment-with-match-dire
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment CommentBody_comment on CommentCreateResponsePayload {
   comment {
-    commentBody @match(onTypes: [
-      {
-        fragment: "MarkdownBody_comment"
-        module: "MarkdownBodyComponent.react"
-      }
-      {
-        fragment: "PlaintextBody_comment"
-        module: "PlaintextComponent.react"
-      }
-    ])
+    commentBody @match {
+      ...MarkdownBody_comment @module(name: "MarkdownBodyComponent.react")
+      ...PlaintextBody_comment @module(name: "PlaintextComponent.react")
+    }
   }
 }
 
@@ -1884,19 +1878,11 @@ query NameRendererQuery($id: ID!) {
 
 fragment NameRendererFragment on User {
   id
-  nameRenderer
-    @match(
-      onTypes: [
-        {
-          fragment: "PlainUserNameRenderer_name"
-          module: "PlainUserNameRenderer.react"
-        }
-        {
-          fragment: "MarkdownUserNameRenderer_name"
-          module: "MarkdownUserNameRenderer.react"
-        }
-      ]
-    )
+  nameRenderer @match {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
 }
 
 fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
@@ -2372,20 +2358,11 @@ query NameRendererQuery($id: ID!) {
 
 fragment NameRendererFragment on User {
   id
-  nameRenderer
-    @match(
-      experimental_skipInlineDoNotUse: true
-      onTypes: [
-        {
-          fragment: "PlainUserNameRenderer_name"
-          module: "PlainUserNameRenderer.react"
-        }
-        {
-          fragment: "MarkdownUserNameRenderer_name"
-          module: "MarkdownUserNameRenderer.react"
-        }
-      ]
-    )
+  nameRenderer @match(experimental_skipInlineDoNotUse: true) {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
 }
 
 fragment PlainUserNameRenderer_name on PlainUserNameRenderer {

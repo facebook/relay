@@ -1,15 +1,9 @@
 fragment CommentBody_comment on CommentCreateResponsePayload {
   comment {
-    commentBody @match(onTypes: [
-      {
-        fragment: "MarkdownBody_comment"
-        module: "MarkdownBodyComponent.react"
-      }
-      {
-        fragment: "PlaintextBody_comment"
-        module: "PlaintextComponent.react"
-      }
-    ])
+    commentBody @match {
+      ...MarkdownBody_comment @module(name: "MarkdownBodyComponent.react")
+      ...PlaintextBody_comment @module(name: "PlaintextComponent.react")
+    }
   }
 }
 

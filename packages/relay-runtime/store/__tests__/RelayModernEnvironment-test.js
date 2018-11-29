@@ -55,8 +55,7 @@ describe('RelayModernEnvironment', () => {
     let operationSelector;
 
     beforeEach(() => {
-      ({ParentQuery} = generateAndCompile(
-        `
+      ({ParentQuery} = generateAndCompile(`
         query ParentQuery($size: [Int]!) {
           me {
             id
@@ -66,8 +65,7 @@ describe('RelayModernEnvironment', () => {
             }
           }
         }
-      `,
-      ));
+      `));
       environment = new RelayModernEnvironment(config);
       operationSelector = createOperationSelector(ParentQuery, {size: 32});
     });
@@ -104,8 +102,7 @@ describe('RelayModernEnvironment', () => {
     let environment;
 
     beforeEach(() => {
-      ({ParentQuery} = generateAndCompile(
-        `
+      ({ParentQuery} = generateAndCompile(`
         query ParentQuery {
           me {
             id
@@ -116,8 +113,7 @@ describe('RelayModernEnvironment', () => {
           id
           name
         }
-      `,
-      ));
+      `));
       environment = new RelayModernEnvironment(config);
       const operationSelector = createOperationSelector(ParentQuery, {});
       environment.commitPayload(operationSelector, {
@@ -160,8 +156,7 @@ describe('RelayModernEnvironment', () => {
     }
 
     beforeEach(() => {
-      ({ParentQuery} = generateAndCompile(
-        `
+      ({ParentQuery} = generateAndCompile(`
         query ParentQuery {
           me {
             id
@@ -172,8 +167,7 @@ describe('RelayModernEnvironment', () => {
           id
           name
         }
-      `,
-      ));
+      `));
       environment = new RelayModernEnvironment(config);
       const operationSelector = createOperationSelector(ParentQuery, {});
       environment.commitPayload(operationSelector, {
@@ -222,8 +216,7 @@ describe('RelayModernEnvironment', () => {
     let environment;
 
     beforeEach(() => {
-      ({ParentQuery} = generateAndCompile(
-        `
+      ({ParentQuery} = generateAndCompile(`
         query ParentQuery {
           me {
             id
@@ -234,8 +227,7 @@ describe('RelayModernEnvironment', () => {
           id
           name
         }
-      `,
-      ));
+      `));
       environment = new RelayModernEnvironment(config);
       const operationSelector = createOperationSelector(ParentQuery, {});
       environment.commitPayload(operationSelector, {
@@ -296,14 +288,12 @@ describe('RelayModernEnvironment', () => {
     let environment;
 
     beforeEach(() => {
-      ({UserFragment} = generateAndCompile(
-        `
+      ({UserFragment} = generateAndCompile(`
         fragment UserFragment on User {
           id
           name
         }
-      `,
-      ));
+      `));
       environment = new RelayModernEnvironment(config);
     });
 
@@ -395,15 +385,13 @@ describe('RelayModernEnvironment', () => {
     let operationSelector;
 
     beforeEach(() => {
-      ({ActorQuery} = generateAndCompile(
-        `
+      ({ActorQuery} = generateAndCompile(`
         query ActorQuery {
           me {
             name
           }
         }
-      `,
-      ));
+      `));
       operationSelector = createOperationSelector(ActorQuery, {});
       (store: $FlowFixMe).notify = jest.fn(store.notify.bind(store));
       (store: $FlowFixMe).publish = jest.fn(store.publish.bind(store));
@@ -1065,16 +1053,12 @@ describe('RelayModernEnvironment', () => {
           query UserQuery($id: ID!) {
             node(id: $id) {
               ... on User {
-                nameRenderer @match(onTypes: [
-                  {
-                    fragment: "PlainUserNameRenderer_name"
-                    module: "PlainUserNameRenderer.react"
-                  }
-                  {
-                    fragment: "MarkdownUserNameRenderer_name"
-                    module: "MarkdownUserNameRenderer.react"
-                  }
-                ], experimental_skipInlineDoNotUse: true)
+                nameRenderer @match(experimental_skipInlineDoNotUse: true) {
+                  ...PlainUserNameRenderer_name
+                    @module(name: "PlainUserNameRenderer.react")
+                  ...MarkdownUserNameRenderer_name
+                    @module(name: "MarkdownUserNameRenderer.react")
+                }
               }
             }
           }
@@ -1236,7 +1220,8 @@ describe('RelayModernEnvironment', () => {
             __fragments: {
               MarkdownUserNameRenderer_name: {},
             },
-            __id: 'client:1:nameRenderer',
+            __id:
+              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
             __module:
               '@@MODULE_START@@MarkdownUserNameRenderer.react@@MODULE_END@@',
           },

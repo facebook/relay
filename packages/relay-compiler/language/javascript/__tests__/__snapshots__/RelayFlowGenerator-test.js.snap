@@ -286,16 +286,10 @@ exports[`RelayFlowGenerator matches expected output: match-field.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment CommentBody_comment on CommentCreateResponsePayload {
   comment {
-    commentBody @match(onTypes: [
-      {
-        fragment: "MarkdownBody_comment"
-        module: "MarkdownBodyComponent.react"
-      }
-      {
-        fragment: "PlaintextBody_comment"
-        module: "PlaintextComponent.react"
-      }
-    ])
+    commentBody @match {
+      ...MarkdownBody_comment @module(name: "MarkdownBodyComponent.react")
+      ...PlaintextBody_comment @module(name: "PlaintextComponent.react")
+    }
   }
 }
 
@@ -308,11 +302,15 @@ fragment PlaintextBody_comment on PlainCommentBody {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+type MarkdownBody_comment$ref = any;
+type PlaintextBody_comment$ref = any;
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type CommentBody_comment$ref: FragmentReference;
 export type CommentBody_comment = {|
   +comment: ?{|
-    +commentBody: ?{||}
+    +commentBody: ?{|
+      +$fragmentRefs: MarkdownBody_comment$ref & PlaintextBody_comment$ref
+    |}
   |},
   +$refType: CommentBody_comment$ref,
 |};

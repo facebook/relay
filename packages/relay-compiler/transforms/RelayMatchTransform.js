@@ -13,26 +13,31 @@
 const invariant = require('invariant');
 
 const {GraphQLObjectType, GraphQLUnionType} = require('graphql');
-const {CompilerContext, IRTransformer} = require('graphql-compiler');
+const {
+  CompilerContext,
+  IRTransformer,
+  getLiteralArgumentValues,
+} = require('graphql-compiler');
 
-import type {MatchField, MatchFragmentSpread} from 'graphql-compiler';
+import type {
+  FragmentSpread,
+  LinkedField,
+  MatchField,
+  MatchFragmentSpread,
+} from 'graphql-compiler';
 import type {GraphQLCompositeType} from 'graphql';
 
 const MATCH_DIRECTIVE_NAME = 'match';
 const SUPPORTED_ARGUMENT_NAME = 'supported';
 
 const SCHEMA_EXTENSION = `
-  input RelayDataDependencyMatch {
-    # Name of the fragment to match
-    fragment: String!
-    # The module load in case this case matches
-    module: String!
-  }
-
   directive @match(
-    onTypes: [RelayDataDependencyMatch!]!
     experimental_skipInlineDoNotUse: Boolean
   ) on FIELD
+
+  directive @module(
+    name: String!
+  ) on FRAGMENT_SPREAD
 `;
 
 /**
@@ -41,33 +46,73 @@ const SCHEMA_EXTENSION = `
  */
 function relayMatchTransform(context: CompilerContext): CompilerContext {
   return IRTransformer.transform(context, {
-    MatchField: visitMatchField,
-    MatchFragmentSpread: visitMatchFragmentSpread,
+    // $FlowFixMe this transform intentionally changes the AST node type
+    LinkedField: visitLinkedField,
+    // $FlowFixMe this transform intentionally changes the AST node type
+    FragmentSpread: visitFragmentSpread,
   });
 }
 
-function visitMatchFragmentSpread(
-  field: MatchFragmentSpread,
-  state,
-): MatchFragmentSpread {
-  const transformedNode: MatchFragmentSpread = this.traverse(field, state);
+function visitFragmentSpread(
+  node: FragmentSpread,
+): FragmentSpread | MatchFragmentSpread {
+  const transformedNode: FragmentSpread = this.traverse(node);
 
+  const directives = transformedNode.directives;
+  const moduleDirective = directives.find(
+    directive => directive.name === 'module',
+  );
+  if (moduleDirective == null) {
+    return transformedNode;
+  }
+  if (directives.length !== 1) {
+    throw new Error(
+      'RelayMatchTransform: The @module cannot be combined with other directives.',
+    );
+  }
+  const moduleDirectiveArgs = getLiteralArgumentValues(moduleDirective.args);
   const context: CompilerContext = this.getContext();
-  const type = context.getFragment(field.name).type;
-  return {
-    ...transformedNode,
-    type,
-  };
+  return ({
+    kind: 'MatchFragmentSpread',
+    type: context.getFragment(transformedNode.name).type,
+    module: moduleDirectiveArgs.name,
+    args: [],
+    directives: [],
+    metadata: null,
+    name: transformedNode.name,
+  }: MatchFragmentSpread);
 }
 
-function visitMatchField(field: MatchField, state, parent?: mixed): MatchField {
-  const transformedNode: MatchField = this.traverse(field, state);
+function visitLinkedField(
+  node: LinkedField,
+  state: mixed,
+  parent?: mixed,
+): LinkedField | MatchField {
+  const transformedNode: LinkedField = this.traverse(node);
+
+  const matchDirective = transformedNode.directives.find(
+    directive => directive.name === 'match',
+  );
+  if (matchDirective == null) {
+    return transformedNode;
+  }
+
+  const matchDirectiveArgs = getLiteralArgumentValues(matchDirective.args);
+  const experimental_skipInlineDoNotUse =
+    matchDirectiveArgs.experimental_skipInlineDoNotUse ?? false;
+
   if (typeof parent !== 'object') {
     return transformedNode;
   }
 
-  const schema = this.getContext().serverSchema;
-  const parentType = schema.getType(parent?.type);
+  const context: CompilerContext = this.getContext();
+
+  const parentType = context.serverSchema.getType(
+    /* $FlowFixMe TODO T37368222 track the type while traversing the AST instead
+     * of trying to figure it out based on the parent.
+     */
+    parent.type ?? parent.typeCondition,
+  );
   if (!(parentType instanceof GraphQLObjectType)) {
     return transformedNode;
   }
@@ -98,16 +143,12 @@ function visitMatchField(field: MatchField, state, parent?: mixed): MatchField {
 
   const seenTypes: Set<GraphQLCompositeType> = new Set();
   const supportedTypes = transformedNode.selections.map(matchCase => {
-    invariant(
-      matchCase.kind === 'MatchFragmentSpread',
-      'RelayMatchTransform: selections on MatchField should all be ' +
-        'MatchFragmentSpread.',
-    );
-    invariant(
-      matchCase.type != null,
-      'RelayMatchTransform: When reaching this code visitMatchField should ' +
-        'have added the type.',
-    );
+    if (matchCase.kind !== 'MatchFragmentSpread') {
+      throw new Error(
+        'RelayMatchTransform: all selections in a @match field should have ' +
+          'a @module directive.',
+      );
+    }
     const matchedType = matchCase.type;
     invariant(
       !seenTypes.has(matchedType),
@@ -129,8 +170,9 @@ function visitMatchField(field: MatchField, state, parent?: mixed): MatchField {
     return matchedType.name;
   });
 
-  const result: MatchField = {
-    ...transformedNode,
+  return ({
+    kind: 'MatchField',
+    alias: transformedNode.alias,
     args: [
       {
         kind: 'Argument',
@@ -144,8 +186,15 @@ function visitMatchField(field: MatchField, state, parent?: mixed): MatchField {
         metadata: null,
       },
     ],
-  };
-  return result;
+    directives: [],
+    handles: null,
+    metadata: {
+      experimental_skipInlineDoNotUse,
+    },
+    name: transformedNode.name,
+    type: unionType,
+    selections: transformedNode.selections,
+  }: MatchField);
 }
 
 module.exports = {

@@ -63,7 +63,7 @@ function visitFragmentSpread<T: FragmentSpread | MatchFragmentSpread>(
 }
 
 /**
- * Transform a MatchField into a LinkedField. For normalizaiton, we can treat
+ * Transform a MatchField into a LinkedField. For normalization, we can treat
  * MatchFields exactly like LinkFields
  */
 function visitMatchField(field: MatchField): ?MatchField {

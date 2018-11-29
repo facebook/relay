@@ -106,6 +106,7 @@ type SetFragmentArgs = {|
 |};
 
 export type TDataResourceCache = {|
+  clear(): void,
   readQuery(args: ReadQueryArgs): CacheReadResult,
   readFragmentSpec(
     args: ReadFragmentSpecArgs,
@@ -435,6 +436,10 @@ function createCache(): TDataResourceCache {
   }
 
   return {
+    clear() {
+      cache.clear();
+    },
+
     /**
      * Attempts to read data from the render cache.
      * - When a cached value is available:
@@ -689,5 +694,6 @@ const DataResourceContext = React.createContext<TDataResourceCache>(
 module.exports = {
   createCache,
   getCacheForEnvironment,
+  globalCache,
   DataResourceContext,
 };

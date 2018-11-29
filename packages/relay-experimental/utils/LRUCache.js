@@ -73,6 +73,10 @@ class LRUCache<T> {
   capacity(): number {
     return this._capacity - this._map.size;
   }
+
+  clear(): void {
+    this._map.clear();
+  }
 }
 
 function create<T>(capacity: number): LRUCache<T> {

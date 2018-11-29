@@ -28,6 +28,7 @@ const {
 } = require('relay-runtime');
 
 const {getPromiseForRequestInFlight} = require('../../utils/fetchQueryUtils');
+const {globalCache} = require('../../renderers/DataResource');
 
 import type {RelayContext} from 'relay-runtime';
 
@@ -36,6 +37,15 @@ const UserComponent = jest.fn(({user}) => (
     Hey user, {user.name} with id {user.id}!
   </div>
 ));
+
+function expectToBeRenderedWith(renderFn, readyState) {
+  expect(renderFn).toBeCalledTimes(1);
+  expect(renderFn.mock.calls[0][0]).toEqual({
+    ...readyState,
+    relay: expect.anything(),
+  });
+  renderFn.mockClear();
+}
 
 class PropsSetter extends React.Component<any, any> {
   constructor() {
@@ -65,23 +75,13 @@ describe('createSuspenseFragmentContainer', () => {
   let ContextWrapper;
   let FragmentContainer;
   let renderer;
-  let expectToBeRenderedWith;
 
   const variables = {
     id: '1',
   };
 
   beforeEach(() => {
-    UserComponent.mockClear();
-    expectToBeRenderedWith = (renderFn, readyState) => {
-      expect(renderFn).toBeCalledTimes(1);
-      expect(renderFn.mock.calls[0][0]).toEqual({
-        ...readyState,
-        relay: expect.anything(),
-      });
-      renderFn.mockClear();
-    };
-
+    jest.resetModules();
     environment = createMockEnvironment();
     const generated = generateAndCompile(
       `
@@ -154,6 +154,7 @@ describe('createSuspenseFragmentContainer', () => {
 
   afterEach(() => {
     environment.mockClear();
+    UserComponent.mockClear();
   });
 
   it('should render without error when data is available', () => {
@@ -304,6 +305,27 @@ describe('createSuspenseFragmentContainer', () => {
     expect(ref.current).toBeInstanceOf(UserClassComponent);
   });
 
+  it('should update when fragment data changes', () => {
+    environment.commitPayload(query, {
+      node: {
+        __typename: 'User',
+        id: '1',
+        name: 'Alice',
+      },
+    });
+    expectToBeRenderedWith(UserComponent, {user: {id: '1', name: 'Alice'}});
+    environment.commitPayload(query, {
+      node: {
+        __typename: 'User',
+        id: '1',
+        name: 'Alice in Wonderland',
+      },
+    });
+    expectToBeRenderedWith(UserComponent, {
+      user: {id: '1', name: 'Alice in Wonderland'},
+    });
+  });
+
   it('should re-read and resubscribe to fragment when fragment pointers change', () => {
     expectToBeRenderedWith(UserComponent, {user: {id: '1', name: 'Alice'}});
     query = createOperationSelector(gqlQuery, {id: '200'});
@@ -325,6 +347,100 @@ describe('createSuspenseFragmentContainer', () => {
       },
     });
     expectToBeRenderedWith(UserComponent, {
+      user: {id: '200', name: 'Foo Updated'},
+    });
+  });
+
+  it('should ignore updates to old data when fragment pointers change', () => {
+    const YieldChild = props => {
+      // NOTE the unstable_yield method will move to the static renderer.
+      // When React sync runs we need to update this.
+      TestRenderer.unstable_yield(props.children);
+      return props.children;
+    };
+    const YieldyUserComponent = jest.fn(({user}) => (
+      <>
+        <YieldChild>Hey user,</YieldChild>
+        <YieldChild>{user.name}</YieldChild>
+        <YieldChild>with id {user.id}!</YieldChild>
+      </>
+    ));
+
+    // $FlowExpectedError - jest.fn type doesn't match React.Component, but its okay to use
+    FragmentContainer = createSuspenseFragmentContainer(YieldyUserComponent, {
+      user: fragment,
+    });
+
+    FragmentWrapper = ({id, value}: {id?: string, value?: RelayContext}) => (
+      <ContextWrapper value={value}>
+        <FragmentContainer
+          user={{
+            [ID_KEY]: id ?? value?.variables.id ?? variables.id,
+            [FRAGMENTS_KEY]: {
+              UserFragment: fragment,
+            },
+          }}
+        />
+      </ContextWrapper>
+    );
+
+    renderer = TestRenderer.create(
+      <PropsSetter>
+        <FragmentWrapper />
+      </PropsSetter>,
+      {unstable_isConcurrent: true},
+    );
+
+    renderer.unstable_flushAll();
+    expectToBeRenderedWith(YieldyUserComponent, {
+      user: {id: '1', name: 'Alice'},
+    });
+
+    query = createOperationSelector(gqlQuery, {id: '200'});
+    environment.commitPayload(query, {
+      node: {
+        __typename: 'User',
+        id: '200',
+        name: 'Foo',
+      },
+    });
+
+    // Pass new fragment ref
+    renderer.getInstance().setProps({id: '200'});
+
+    // Flush some of the changes, but don't commit
+    expect(renderer.unstable_flushNumberOfYields(2)).toEqual([
+      'Hey user,',
+      'Foo',
+    ]);
+    // In Concurrent mode component gets rendered even if not committed
+    YieldyUserComponent.mockClear();
+
+    // Trigger an update for old data
+    environment.commitPayload(query, {
+      node: {
+        __typename: 'User',
+        id: '1',
+        name: 'Alice in Wonderland',
+      },
+    });
+
+    // Assert it's rendered with the new data
+    renderer.unstable_flushAll();
+    expectToBeRenderedWith(YieldyUserComponent, {
+      user: {id: '200', name: 'Foo'},
+    });
+
+    // Update new data
+    environment.commitPayload(query, {
+      node: {
+        __typename: 'User',
+        id: '200',
+        name: 'Foo Updated',
+      },
+    });
+    renderer.unstable_flushAll();
+    expectToBeRenderedWith(YieldyUserComponent, {
       user: {id: '200', name: 'Foo Updated'},
     });
   });
@@ -357,15 +473,75 @@ describe('createSuspenseFragmentContainer', () => {
     });
   });
 
-  it('should change data if new data comes in', () => {
+  it('should ignore updates to old data when variables pointers change', () => {
+    const YieldChild = props => {
+      // NOTE the unstable_yield method will move to the static renderer.
+      // When React sync runs we need to update this.
+      TestRenderer.unstable_yield(props.children);
+      return props.children;
+    };
+    const YieldyUserComponent = jest.fn(({user}) => (
+      <>
+        <YieldChild>Hey user,</YieldChild>
+        <YieldChild>{user.name}</YieldChild>
+        <YieldChild>with id {user.id}!</YieldChild>
+      </>
+    ));
+
+    // $FlowExpectedError - jest.fn type doesn't match React.Component, but its okay to use
+    FragmentContainer = createSuspenseFragmentContainer(YieldyUserComponent, {
+      user: fragment,
+    });
+
+    FragmentWrapper = ({id, value}: {id?: string, value?: RelayContext}) => (
+      <ContextWrapper value={value}>
+        <FragmentContainer
+          user={{
+            [ID_KEY]: id ?? value?.variables.id ?? variables.id,
+            [FRAGMENTS_KEY]: {
+              UserFragment: fragment,
+            },
+          }}
+        />
+      </ContextWrapper>
+    );
+
+    renderer = TestRenderer.create(
+      <PropsSetter>
+        <FragmentWrapper />
+      </PropsSetter>,
+      {unstable_isConcurrent: true},
+    );
+
+    renderer.unstable_flushAll();
+    expectToBeRenderedWith(YieldyUserComponent, {
+      user: {id: '1', name: 'Alice'},
+    });
+
+    const nextVariables = {id: '400'};
+    query = createOperationSelector(gqlQuery, nextVariables);
     environment.commitPayload(query, {
       node: {
         __typename: 'User',
-        id: '1',
-        name: 'Alice',
+        id: '400',
+        name: 'Bar',
       },
     });
-    expectToBeRenderedWith(UserComponent, {user: {id: '1', name: 'Alice'}});
+
+    // Pass new variables
+    renderer.getInstance().setProps({
+      value: {environment, query, variables: nextVariables},
+    });
+
+    // Flush some of the changes, but don't commit
+    expect(renderer.unstable_flushNumberOfYields(2)).toEqual([
+      'Hey user,',
+      'Bar',
+    ]);
+    // In Concurrent mode component gets rendered even if not committed
+    YieldyUserComponent.mockClear();
+
+    // Trigger an update for old data
     environment.commitPayload(query, {
       node: {
         __typename: 'User',
@@ -373,8 +549,24 @@ describe('createSuspenseFragmentContainer', () => {
         name: 'Alice in Wonderland',
       },
     });
-    expectToBeRenderedWith(UserComponent, {
-      user: {id: '1', name: 'Alice in Wonderland'},
+
+    // Assert it's rendered with the new data
+    renderer.unstable_flushAll();
+    expectToBeRenderedWith(YieldyUserComponent, {
+      user: {id: '400', name: 'Bar'},
+    });
+
+    // Update new data
+    environment.commitPayload(query, {
+      node: {
+        __typename: 'User',
+        id: '400',
+        name: 'Bar Updated',
+      },
+    });
+    renderer.unstable_flushAll();
+    expectToBeRenderedWith(YieldyUserComponent, {
+      user: {id: '400', name: 'Bar Updated'},
     });
   });
 

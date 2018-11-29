@@ -55,6 +55,12 @@ function createSuspenseFragmentContainer<
     relayContext: RelayContext & {query?: OperationSelector},
   |};
 
+  type State = {|
+    mirroredFragmentRefs: {[string]: mixed},
+    mirroredRelayContext: RelayContext & {query?: OperationSelector},
+    mustResubscribe: boolean,
+  |};
+
   const componentName =
     // $FlowExpectedError - Supress lint: we actually want to do sketchy null check here
     Component.displayName || Component.displayName || 'Unknown';
@@ -65,11 +71,33 @@ function createSuspenseFragmentContainer<
   const fragmentSpec: GeneratedNodeMap = (fragmentSpecInput: any);
   const fragmentNodes = mapObject(fragmentSpec, getFragment);
 
-  class SuspenseFragmentRenderer extends React.Component<InternalProps> {
+  class SuspenseFragmentRenderer extends React.Component<InternalProps, State> {
     static displayName = containerName;
 
     _dataSubscriptions: Array<Disposable> | null = null;
     _renderedSnapshots: {[string]: Snapshot | $ReadOnlyArray<Snapshot>} = {};
+
+    static getDerivedStateFromProps(nextProps, prevState) {
+      return {
+        mirroredFragmentRefs: nextProps.fragmentRefs,
+        mirroredRelayContext: nextProps.relayContext,
+        mustResubscribe:
+          prevState.mirroredRelayContext !== nextProps.relayContext ||
+          !areEqual(
+            getDataIDsFromObject(fragmentNodes, prevState.mirroredFragmentRefs),
+            getDataIDsFromObject(fragmentNodes, nextProps.fragmentRefs),
+          ),
+      };
+    }
+
+    constructor(props) {
+      super(props);
+      this.state = {
+        mirroredFragmentRefs: props.fragmentRefs,
+        mirroredRelayContext: props.relayContext,
+        mustResubscribe: false,
+      };
+    }
 
     componentDidMount() {
       // TODO Check if data has changed between render and mount. Schedule another
@@ -81,14 +109,10 @@ function createSuspenseFragmentContainer<
     componentDidUpdate(prevProps: InternalProps) {
       // TODO Check if data has changed between render and update. Schedule another
       // update if so
-      const mustResubscribe =
-        prevProps.relayContext !== this.props.relayContext ||
-        !areEqual(
-          getDataIDsFromObject(fragmentNodes, prevProps.fragmentRefs),
-          getDataIDsFromObject(fragmentNodes, this.props.fragmentRefs),
-        );
-
+      const {mustResubscribe} = this.state;
       if (mustResubscribe) {
+        // eslint-disable-next-line lint/react-state-props-mutation
+        this.state.mustResubscribe = false;
         this._unsubscribe();
         this._subscribe();
       }
@@ -111,6 +135,13 @@ function createSuspenseFragmentContainer<
     }
 
     _handleDataUpdate(fragmentKey, latestSnapshot) {
+      const {mustResubscribe} = this.state;
+      if (mustResubscribe) {
+        // If we're currently reading new fragment data in this render phase and
+        // going to resubscribe to new data on the next commit phase, we should
+        // ignore updates from the store for old data.
+        return;
+      }
       const {DataResource, fragmentRefs, relayContext} = this.props;
       const {variables} = relayContext;
 

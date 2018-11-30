@@ -141,6 +141,7 @@ export type ConcreteNode =
   | ConcreteInlineFragment
   | ConcreteOperation
   | ConcreteSplitOperation;
+
 export type ConcreteScalarField = {|
   +kind: 'ScalarField',
   +alias: ?string,

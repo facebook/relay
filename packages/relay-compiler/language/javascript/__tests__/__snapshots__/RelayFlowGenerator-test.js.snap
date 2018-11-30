@@ -284,59 +284,60 @@ export type UnionTypeTest = {|
 
 exports[`RelayFlowGenerator matches expected output: match-field.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-fragment CommentBody_comment on CommentCreateResponsePayload {
-  comment {
-    commentBody @match {
-      ...MarkdownBody_comment @module(name: "MarkdownBodyComponent.react")
-      ...PlaintextBody_comment @module(name: "PlaintextComponent.react")
-    }
+fragment NameRendererFragment on User {
+  id
+  nameRenderer @match {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
   }
 }
 
-fragment MarkdownBody_comment on MarkdownCommentBody {
-  __typename
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
 }
 
-fragment PlaintextBody_comment on PlainCommentBody {
-  __typename
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-type MarkdownBody_comment$ref = any;
-type PlaintextBody_comment$ref = any;
+type MarkdownUserNameRenderer_name$ref = any;
+type PlainUserNameRenderer_name$ref = any;
 import type { FragmentReference } from "relay-runtime";
-declare export opaque type CommentBody_comment$ref: FragmentReference;
-export type CommentBody_comment = {|
-  +comment: ?{|
-    +commentBody: ?{|
-      +$fragmentRefs: MarkdownBody_comment$ref & PlaintextBody_comment$ref
-    |}
+declare export opaque type NameRendererFragment$ref: FragmentReference;
+export type NameRendererFragment = {|
+  +id: string,
+  +nameRenderer: ?{|
+    +$fragmentRefs: PlainUserNameRenderer_name$ref & MarkdownUserNameRenderer_name$ref
   |},
-  +$refType: CommentBody_comment$ref,
+  +$refType: NameRendererFragment$ref,
 |};
 
 import type { FragmentReference } from "relay-runtime";
-declare export opaque type MarkdownBody_comment$ref: FragmentReference;
-export type MarkdownBody_comment = {|
-  +__typename: "MarkdownCommentBody",
-  +$refType: MarkdownBody_comment$ref,
-|} | {|
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +__typename: "%other",
-  +$refType: MarkdownBody_comment$ref,
+declare export opaque type PlainUserNameRenderer_name$ref: FragmentReference;
+export type PlainUserNameRenderer_name = {|
+  +plaintext: ?string,
+  +data: ?{|
+    +text: ?string
+  |},
+  +$refType: PlainUserNameRenderer_name$ref,
 |};
 
 import type { FragmentReference } from "relay-runtime";
-declare export opaque type PlaintextBody_comment$ref: FragmentReference;
-export type PlaintextBody_comment = {|
-  +__typename: "PlainCommentBody",
-  +$refType: PlaintextBody_comment$ref,
-|} | {|
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +__typename: "%other",
-  +$refType: PlaintextBody_comment$ref,
+declare export opaque type MarkdownUserNameRenderer_name$ref: FragmentReference;
+export type MarkdownUserNameRenderer_name = {|
+  +markdown: ?string,
+  +data: ?{|
+    +markup: ?string
+  |},
+  +$refType: MarkdownUserNameRenderer_name$ref,
 |};
 `;
 

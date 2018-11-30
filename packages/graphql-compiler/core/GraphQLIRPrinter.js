@@ -119,7 +119,7 @@ function printSelection(
   } else if (selection.kind === 'MatchBranch') {
     str = selection.selections
       .map(matchSelection => printSelection(matchSelection, indent))
-      .join('\n');
+      .join('\n' + indent + INDENT);
   } else if (selection.kind === 'ScalarField') {
     str = printField(selection, parentCondition);
   } else if (selection.kind === 'InlineFragment') {

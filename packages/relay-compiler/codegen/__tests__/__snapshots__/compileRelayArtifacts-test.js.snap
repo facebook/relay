@@ -950,74 +950,111 @@ query NodeQuery(
 
 exports[`compileRelayArtifacts matches expected output: fragment-with-match-directive.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-fragment CommentBody_comment on CommentCreateResponsePayload {
-  comment {
-    commentBody @match {
-      ...MarkdownBody_comment @module(name: "MarkdownBodyComponent.react")
-      ...PlaintextBody_comment @module(name: "PlaintextComponent.react")
-    }
+fragment NameRendererFragment on User {
+  id
+  nameRenderer @match {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
   }
 }
 
-fragment MarkdownBody_comment on MarkdownCommentBody {
-  __typename
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
 }
 
-fragment PlaintextBody_comment on PlainCommentBody {
-  __typename
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 {
   "kind": "Fragment",
-  "name": "CommentBody_comment",
-  "type": "CommentCreateResponsePayload",
+  "name": "NameRendererFragment",
+  "type": "User",
   "metadata": null,
   "argumentDefinitions": [],
   "selections": [
     {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "id",
+      "args": null,
+      "storageKey": null
+    },
+    {
+      "kind": "MatchField",
+      "alias": null,
+      "name": "nameRenderer",
+      "storageKey": "nameRenderer(supported:[\\"PlainUserNameRenderer\\",\\"MarkdownUserNameRenderer\\"])",
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "supported",
+          "value": [
+            "PlainUserNameRenderer",
+            "MarkdownUserNameRenderer"
+          ],
+          "type": "[String!]!"
+        }
+      ],
+      "matchesByType": {
+        "PlainUserNameRenderer": {
+          "fragmentPropName": "name",
+          "fragmentName": "PlainUserNameRenderer_name",
+          "module": require('PlainUserNameRenderer.react'),
+          "moduleName": "PlainUserNameRenderer.react",
+          "operation": require('PlainUserNameRenderer_name$normalization.graphql'),
+          "operationName": "PlainUserNameRenderer_name$normalization.graphql"
+        },
+        "MarkdownUserNameRenderer": {
+          "fragmentPropName": "name",
+          "fragmentName": "MarkdownUserNameRenderer_name",
+          "module": require('MarkdownUserNameRenderer.react'),
+          "moduleName": "MarkdownUserNameRenderer.react",
+          "operation": require('MarkdownUserNameRenderer_name$normalization.graphql'),
+          "operationName": "MarkdownUserNameRenderer_name$normalization.graphql"
+        }
+      }
+    }
+  ]
+}
+
+{
+  "kind": "Fragment",
+  "name": "PlainUserNameRenderer_name",
+  "type": "PlainUserNameRenderer",
+  "metadata": null,
+  "argumentDefinitions": [],
+  "selections": [
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "plaintext",
+      "args": null,
+      "storageKey": null
+    },
+    {
       "kind": "LinkedField",
       "alias": null,
-      "name": "comment",
+      "name": "data",
       "storageKey": null,
       "args": null,
-      "concreteType": "Comment",
+      "concreteType": "PlainUserNameData",
       "plural": false,
       "selections": [
         {
-          "kind": "MatchField",
+          "kind": "ScalarField",
           "alias": null,
-          "name": "commentBody",
-          "storageKey": "commentBody(supported:[\\"MarkdownCommentBody\\",\\"PlainCommentBody\\"])",
-          "args": [
-            {
-              "kind": "Literal",
-              "name": "supported",
-              "value": [
-                "MarkdownCommentBody",
-                "PlainCommentBody"
-              ],
-              "type": "[String!]!"
-            }
-          ],
-          "matchesByType": {
-            "MarkdownCommentBody": {
-              "fragmentPropName": "comment",
-              "fragmentName": "MarkdownBody_comment",
-              "module": require('MarkdownBodyComponent.react'),
-              "moduleName": "MarkdownBodyComponent.react",
-              "operation": require('MarkdownBody_comment$normalization.graphql'),
-              "operationName": "MarkdownBody_comment$normalization.graphql"
-            },
-            "PlainCommentBody": {
-              "fragmentPropName": "comment",
-              "fragmentName": "PlaintextBody_comment",
-              "module": require('PlaintextComponent.react'),
-              "moduleName": "PlaintextComponent.react",
-              "operation": require('PlaintextBody_comment$normalization.graphql'),
-              "operationName": "PlaintextBody_comment$normalization.graphql"
-            }
-          }
+          "name": "text",
+          "args": null,
+          "storageKey": null
         }
       ]
     }
@@ -1026,34 +1063,35 @@ fragment PlaintextBody_comment on PlainCommentBody {
 
 {
   "kind": "Fragment",
-  "name": "MarkdownBody_comment",
-  "type": "MarkdownCommentBody",
+  "name": "MarkdownUserNameRenderer_name",
+  "type": "MarkdownUserNameRenderer",
   "metadata": null,
   "argumentDefinitions": [],
   "selections": [
     {
       "kind": "ScalarField",
       "alias": null,
-      "name": "__typename",
+      "name": "markdown",
       "args": null,
       "storageKey": null
-    }
-  ]
-}
-
-{
-  "kind": "Fragment",
-  "name": "PlaintextBody_comment",
-  "type": "PlainCommentBody",
-  "metadata": null,
-  "argumentDefinitions": [],
-  "selections": [
+    },
     {
-      "kind": "ScalarField",
+      "kind": "LinkedField",
       "alias": null,
-      "name": "__typename",
+      "name": "data",
+      "storageKey": null,
       "args": null,
-      "storageKey": null
+      "concreteType": "MarkdownUserNameData",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": null,
+          "name": "markup",
+          "args": null,
+          "storageKey": null
+        }
+      ]
     }
   ]
 }
@@ -1988,7 +2026,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
             "type": "User",
             "selections": [
               {
-                "kind": "LinkedField",
+                "kind": "MatchField",
                 "alias": null,
                 "name": "nameRenderer",
                 "storageKey": "nameRenderer(supported:[\\"PlainUserNameRenderer\\",\\"MarkdownUserNameRenderer\\"])",
@@ -2003,109 +2041,24 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                     "type": "[String!]!"
                   }
                 ],
-                "concreteType": null,
-                "plural": false,
-                "selections": [
-                  {
-                    "kind": "ScalarField",
-                    "alias": null,
-                    "name": "__typename",
-                    "args": null,
-                    "storageKey": null
+                "matchesByType": {
+                  "PlainUserNameRenderer": {
+                    "fragmentPropName": "name",
+                    "fragmentName": "PlainUserNameRenderer_name",
+                    "module": require('PlainUserNameRenderer.react'),
+                    "moduleName": "PlainUserNameRenderer.react",
+                    "operation": require('PlainUserNameRenderer_name$normalization.graphql'),
+                    "operationName": "PlainUserNameRenderer_name$normalization.graphql"
                   },
-                  {
-                    "kind": "MatchBranch",
-                    "module": "PlainUserNameRenderer.react",
-                    "name": "PlainUserNameRenderer_name",
-                    "selections": [
-                      {
-                        "kind": "InlineFragment",
-                        "type": "PlainUserNameRenderer",
-                        "selections": [
-                          {
-                            "kind": "ScalarField",
-                            "alias": null,
-                            "name": "plaintext",
-                            "args": null,
-                            "storageKey": null
-                          },
-                          {
-                            "kind": "LinkedField",
-                            "alias": null,
-                            "name": "data",
-                            "storageKey": null,
-                            "args": null,
-                            "concreteType": "PlainUserNameData",
-                            "plural": false,
-                            "selections": [
-                              {
-                                "kind": "ScalarField",
-                                "alias": null,
-                                "name": "text",
-                                "args": null,
-                                "storageKey": null
-                              },
-                              {
-                                "kind": "ScalarField",
-                                "alias": null,
-                                "name": "id",
-                                "args": null,
-                                "storageKey": null
-                              }
-                            ]
-                          }
-                        ]
-                      }
-                    ],
-                    "type": "PlainUserNameRenderer"
-                  },
-                  {
-                    "kind": "MatchBranch",
-                    "module": "MarkdownUserNameRenderer.react",
-                    "name": "MarkdownUserNameRenderer_name",
-                    "selections": [
-                      {
-                        "kind": "InlineFragment",
-                        "type": "MarkdownUserNameRenderer",
-                        "selections": [
-                          {
-                            "kind": "ScalarField",
-                            "alias": null,
-                            "name": "markdown",
-                            "args": null,
-                            "storageKey": null
-                          },
-                          {
-                            "kind": "LinkedField",
-                            "alias": null,
-                            "name": "data",
-                            "storageKey": null,
-                            "args": null,
-                            "concreteType": "MarkdownUserNameData",
-                            "plural": false,
-                            "selections": [
-                              {
-                                "kind": "ScalarField",
-                                "alias": null,
-                                "name": "markup",
-                                "args": null,
-                                "storageKey": null
-                              },
-                              {
-                                "kind": "ScalarField",
-                                "alias": null,
-                                "name": "id",
-                                "args": null,
-                                "storageKey": null
-                              }
-                            ]
-                          }
-                        ]
-                      }
-                    ],
-                    "type": "MarkdownUserNameRenderer"
+                  "MarkdownUserNameRenderer": {
+                    "fragmentPropName": "name",
+                    "fragmentName": "MarkdownUserNameRenderer_name",
+                    "module": require('MarkdownUserNameRenderer.react'),
+                    "moduleName": "MarkdownUserNameRenderer.react",
+                    "operation": require('MarkdownUserNameRenderer_name$normalization.graphql'),
+                    "operationName": "MarkdownUserNameRenderer_name$normalization.graphql"
                   }
-                ]
+                }
               }
             ]
           }
@@ -2132,7 +2085,15 @@ fragment NameRendererFragment on User {
   nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) {
     __typename
     ...PlainUserNameRenderer_name
+    ... on PlainUserNameRenderer {
+      __match_component: js(module: "PlainUserNameRenderer.react")
+      __match_fragment: js(module: "PlainUserNameRenderer_name$normalization.graphql")
+    }
     ...MarkdownUserNameRenderer_name
+    ... on MarkdownUserNameRenderer {
+      __match_component: js(module: "MarkdownUserNameRenderer.react")
+      __match_fragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql")
+    }
   }
 }
 
@@ -2195,6 +2156,40 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           ]
         }
       ]
+    },
+    {
+      "kind": "InlineFragment",
+      "type": "PlainUserNameRenderer",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": "__match_component",
+          "name": "js",
+          "args": [
+            {
+              "kind": "Literal",
+              "name": "module",
+              "value": "PlainUserNameRenderer.react",
+              "type": "String"
+            }
+          ],
+          "storageKey": "js(module:\\"PlainUserNameRenderer.react\\")"
+        },
+        {
+          "kind": "ScalarField",
+          "alias": "__match_fragment",
+          "name": "js",
+          "args": [
+            {
+              "kind": "Literal",
+              "name": "module",
+              "value": "PlainUserNameRenderer_name$normalization.graphql",
+              "type": "String"
+            }
+          ],
+          "storageKey": "js(module:\\"PlainUserNameRenderer_name$normalization.graphql\\")"
+        }
+      ]
     }
   ]
 }
@@ -2239,6 +2234,40 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
               "storageKey": null
             }
           ]
+        }
+      ]
+    },
+    {
+      "kind": "InlineFragment",
+      "type": "MarkdownUserNameRenderer",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": "__match_component",
+          "name": "js",
+          "args": [
+            {
+              "kind": "Literal",
+              "name": "module",
+              "value": "MarkdownUserNameRenderer.react",
+              "type": "String"
+            }
+          ],
+          "storageKey": "js(module:\\"MarkdownUserNameRenderer.react\\")"
+        },
+        {
+          "kind": "ScalarField",
+          "alias": "__match_fragment",
+          "name": "js",
+          "args": [
+            {
+              "kind": "Literal",
+              "name": "module",
+              "value": "MarkdownUserNameRenderer_name$normalization.graphql",
+              "type": "String"
+            }
+          ],
+          "storageKey": "js(module:\\"MarkdownUserNameRenderer_name$normalization.graphql\\")"
         }
       ]
     }
@@ -2378,7 +2407,7 @@ query NameRendererQuery($id: ID!) {
 
 fragment NameRendererFragment on User {
   id
-  nameRenderer @match(experimental_skipInlineDoNotUse: true) {
+  nameRenderer @match {
     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
     ...MarkdownUserNameRenderer_name
       @module(name: "MarkdownUserNameRenderer.react")
@@ -2551,7 +2580,15 @@ fragment NameRendererFragment on User {
   nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) {
     __typename
     ...PlainUserNameRenderer_name
+    ... on PlainUserNameRenderer {
+      __match_component: js(module: "PlainUserNameRenderer.react")
+      __match_fragment: js(module: "PlainUserNameRenderer_name$normalization.graphql")
+    }
     ...MarkdownUserNameRenderer_name
+    ... on MarkdownUserNameRenderer {
+      __match_component: js(module: "MarkdownUserNameRenderer.react")
+      __match_fragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql")
+    }
   }
 }
 
@@ -2614,6 +2651,40 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           ]
         }
       ]
+    },
+    {
+      "kind": "InlineFragment",
+      "type": "PlainUserNameRenderer",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": "__match_component",
+          "name": "js",
+          "args": [
+            {
+              "kind": "Literal",
+              "name": "module",
+              "value": "PlainUserNameRenderer.react",
+              "type": "String"
+            }
+          ],
+          "storageKey": "js(module:\\"PlainUserNameRenderer.react\\")"
+        },
+        {
+          "kind": "ScalarField",
+          "alias": "__match_fragment",
+          "name": "js",
+          "args": [
+            {
+              "kind": "Literal",
+              "name": "module",
+              "value": "PlainUserNameRenderer_name$normalization.graphql",
+              "type": "String"
+            }
+          ],
+          "storageKey": "js(module:\\"PlainUserNameRenderer_name$normalization.graphql\\")"
+        }
+      ]
     }
   ]
 }
@@ -2658,6 +2729,40 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
               "storageKey": null
             }
           ]
+        }
+      ]
+    },
+    {
+      "kind": "InlineFragment",
+      "type": "MarkdownUserNameRenderer",
+      "selections": [
+        {
+          "kind": "ScalarField",
+          "alias": "__match_component",
+          "name": "js",
+          "args": [
+            {
+              "kind": "Literal",
+              "name": "module",
+              "value": "MarkdownUserNameRenderer.react",
+              "type": "String"
+            }
+          ],
+          "storageKey": "js(module:\\"MarkdownUserNameRenderer.react\\")"
+        },
+        {
+          "kind": "ScalarField",
+          "alias": "__match_fragment",
+          "name": "js",
+          "args": [
+            {
+              "kind": "Literal",
+              "name": "module",
+              "value": "MarkdownUserNameRenderer_name$normalization.graphql",
+              "type": "String"
+            }
+          ],
+          "storageKey": "js(module:\\"MarkdownUserNameRenderer_name$normalization.graphql\\")"
         }
       ]
     }

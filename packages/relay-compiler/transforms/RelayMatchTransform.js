@@ -12,23 +12,30 @@
 
 const invariant = require('invariant');
 
-const {GraphQLObjectType, GraphQLUnionType} = require('graphql');
+const {
+  GraphQLObjectType,
+  GraphQLScalarType,
+  GraphQLUnionType,
+} = require('graphql');
 const {
   CompilerContext,
   IRTransformer,
   getLiteralArgumentValues,
+  SplitNaming,
 } = require('graphql-compiler');
 
-import type {LinkedField, MatchField} from 'graphql-compiler';
+import type {LinkedField, MatchField, ScalarField} from 'graphql-compiler';
 import type {GraphQLCompositeType} from 'graphql';
 
 const MATCH_DIRECTIVE_NAME = 'match';
 const SUPPORTED_ARGUMENT_NAME = 'supported';
 
+const JS_FIELD_TYPE = 'JSDependency';
+const JS_FIELD_ARG = 'module';
+const JS_FIELD_NAME = 'js';
+
 const SCHEMA_EXTENSION = `
-  directive @match(
-    experimental_skipInlineDoNotUse: Boolean
-  ) on FIELD
+  directive @match on FIELD
 
   directive @module(
     name: String!
@@ -61,12 +68,10 @@ function visitLinkedField(
   }
 
   const matchDirectiveArgs = getLiteralArgumentValues(matchDirective.args);
-  const experimental_skipInlineDoNotUse =
-    matchDirectiveArgs.experimental_skipInlineDoNotUse ?? false;
-
   const context: CompilerContext = this.getContext();
 
-  const parentType = context.serverSchema.getType(
+  const schema = this.getContext().serverSchema;
+  const parentType = schema.getType(
     /* $FlowFixMe TODO T37368222 track the type while traversing the AST instead
      * of trying to figure it out based on the parent.
      */
@@ -75,6 +80,12 @@ function visitLinkedField(
   if (!(parentType instanceof GraphQLObjectType)) {
     return transformedNode;
   }
+  const jsModuleType = schema.getType(JS_FIELD_TYPE);
+  invariant(
+    jsModuleType != null && jsModuleType instanceof GraphQLScalarType,
+    'RelayMatchTransform: Expected schema to define a scalar `%s` type.',
+    JS_FIELD_TYPE,
+  );
 
   const currentField = parentType.getFields()[transformedNode.name];
   const supportedArg = currentField.args.find(
@@ -110,6 +121,13 @@ function visitLinkedField(
       );
     }
     const fragment = context.getFragment(matchSelection.name);
+    if (!(fragment.type instanceof GraphQLObjectType)) {
+      throw new Error(
+        'RelayMatchTransform: all fragment spreads in a @match field should ' +
+          'be for fragments on an object type. Union or interface type ' +
+          `'${fragment.type.name}' for '...${fragment.name}' is not supported.`,
+      );
+    }
     const matchedType = fragment.type;
     if (seenTypes.has(matchedType)) {
       throw new Error(
@@ -130,6 +148,27 @@ function visitLinkedField(
           `"${unionType.toString()}".`,
       );
     }
+    const jsField = matchedType.getFields()[JS_FIELD_NAME];
+    const jsFieldArg = jsField
+      ? jsField.args.find(arg => arg.name === JS_FIELD_ARG)
+      : null;
+    if (jsField == null || jsFieldArg == null) {
+      throw new Error(
+        `RelayMatchTransform: expcted type '${
+          matchedType.name
+        }' to have a '${JS_FIELD_NAME}' field with a '${JS_FIELD_ARG}' argument.`,
+      );
+    }
+    const jsFieldType = jsField.type;
+    if (!(jsFieldType instanceof GraphQLScalarType)) {
+      throw new Error(
+        `RelayMatchTransform: expcted field '${
+          jsField.name
+        }' to have scalar type '${JS_FIELD_TYPE}', got type '${String(
+          jsFieldType,
+        )}'.`,
+      );
+    }
 
     const moduleDirective = matchSelection.directives.find(
       directive => directive.name === 'module',
@@ -142,6 +181,54 @@ function visitLinkedField(
       );
     }
     const moduleDirectiveArgs = getLiteralArgumentValues(moduleDirective.args);
+    const normalizationName =
+      SplitNaming.getAnnotatedName(matchSelection.name, 'normalization') +
+      '.graphql';
+    const moduleField: ScalarField = {
+      alias: '__match_component',
+      args: [
+        {
+          kind: 'Argument',
+          name: JS_FIELD_ARG,
+          type: jsFieldArg.type,
+          value: {
+            kind: 'Literal',
+            metadata: {},
+            value: moduleDirectiveArgs.name,
+          },
+          metadata: {},
+        },
+      ],
+      directives: [],
+      handles: null,
+      kind: 'ScalarField',
+      metadata: {},
+      name: JS_FIELD_NAME,
+      type: jsFieldType,
+    };
+    const fragmentField: ScalarField = {
+      alias: '__match_fragment',
+      args: [
+        {
+          kind: 'Argument',
+          name: JS_FIELD_ARG,
+          type: jsFieldArg.type,
+          value: {
+            kind: 'Literal',
+            metadata: {},
+            value: normalizationName,
+          },
+          metadata: {},
+        },
+      ],
+      directives: [],
+      handles: null,
+      kind: 'ScalarField',
+      metadata: {},
+      name: JS_FIELD_NAME,
+      type: jsFieldType,
+    };
+
     selections.push({
       kind: 'MatchBranch',
       module: moduleDirectiveArgs.name,
@@ -151,8 +238,15 @@ function visitLinkedField(
           args: [],
           directives: [],
           kind: 'FragmentSpread',
-          metadata: null,
+          metadata: {},
           name: matchSelection.name,
+        },
+        {
+          directives: [],
+          kind: 'InlineFragment',
+          metadata: {},
+          selections: [moduleField, fragmentField],
+          typeCondition: matchedType,
         },
       ],
       type: matchedType,
@@ -169,17 +263,15 @@ function visitLinkedField(
         type: supportedArg.type,
         value: {
           kind: 'Literal',
-          metadata: null,
+          metadata: {},
           value: Array.from(seenTypes.keys()).map(type => type.name),
         },
-        metadata: null,
+        metadata: {},
       },
     ],
     directives: [],
     handles: null,
-    metadata: {
-      experimental_skipInlineDoNotUse,
-    },
+    metadata: {},
     name: transformedNode.name,
     type: unionType,
     selections,

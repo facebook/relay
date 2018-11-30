@@ -40,11 +40,6 @@ function relaySplitMatchTransform(context: CompilerContext): CompilerContext {
 
 function visitMatchBranch(node: MatchBranch, state: State): MatchBranch {
   const transformedNode = this.traverse(node, state);
-  const type = transformedNode.type;
-  invariant(
-    type != null,
-    'RelaySplitMatchTransform: Expected `type` to have been set by RelayMatchTransform.',
-  );
   const splitOperation: SplitOperation = {
     kind: 'SplitOperation',
     name: SplitNaming.getAnnotatedName(transformedNode.name, 'normalization'),

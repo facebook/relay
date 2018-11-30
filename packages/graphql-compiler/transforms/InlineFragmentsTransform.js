@@ -15,13 +15,7 @@ const GraphQLIRTransformer = require('../core/GraphQLIRTransformer');
 
 const invariant = require('invariant');
 
-import type {
-  InlineFragment,
-  Fragment,
-  FragmentSpread,
-  LinkedField,
-  MatchField,
-} from '../core/GraphQLIR';
+import type {InlineFragment, Fragment, FragmentSpread} from '../core/GraphQLIR';
 
 /**
  * A transform that inlines all fragments and removes them.
@@ -32,7 +26,6 @@ function inlineFragmentsTransform(
   return GraphQLIRTransformer.transform(context, {
     Fragment: visitFragment,
     FragmentSpread: visitFragmentSpread,
-    MatchField: visitMatchField,
   });
 }
 
@@ -57,30 +50,6 @@ function visitFragmentSpread(fragmentSpread: FragmentSpread): ?FragmentSpread {
   };
 
   return this.traverse(result);
-}
-
-/**
- * Transform a MatchField into a LinkedField. For normalization, we can treat
- * MatchFields exactly like LinkFields
- */
-function visitMatchField(field: MatchField): ?MatchField {
-  // Allow opting out of inlining in order to test future runtime behavior...
-  if (field.metadata?.experimental_skipInlineDoNotUse) {
-    return this.traverse(field);
-  }
-  // ... but default to inlining MatchFields as LinkedFields
-  const linkedField: LinkedField = {
-    kind: 'LinkedField',
-    alias: field.alias,
-    name: field.name,
-    args: field.args,
-    directives: field.directives,
-    handles: field.handles,
-    metadata: field.metadata,
-    selections: field.selections,
-    type: field.type,
-  };
-  return this.traverse(linkedField);
 }
 
 module.exports = {

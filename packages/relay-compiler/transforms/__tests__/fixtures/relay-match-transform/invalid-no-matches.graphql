@@ -1,3 +1,4 @@
-fragment CommentBody_comment on Comment {
-  commentBody @match
+fragment NameRendererFragment on User {
+  id
+  nameRenderer @match
 }

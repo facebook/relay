@@ -355,7 +355,7 @@ describe('RelayResponseNormalizer', () => {
 
         fragment BarFragment on User {
           id
-          nameRenderer @match(experimental_skipInlineDoNotUse: true) {
+          nameRenderer @match {
             ...PlainUserNameRenderer_name
               @module(name: "PlainUserNameRenderer.react")
             ...MarkdownUserNameRenderer_name

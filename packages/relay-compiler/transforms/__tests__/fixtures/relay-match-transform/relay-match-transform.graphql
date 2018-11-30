@@ -1,14 +1,22 @@
-fragment CommentBody_comment on Comment {
-  commentBody @match {
-    ...MarkdownBody_comment @module(name: "MarkdownBodyComponent.react")
-    ...PlaintextBody_comment @module(name: "PlaintextComponent.react")
+fragment NameRendererFragment on User {
+  id
+  nameRenderer @match {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
   }
 }
 
-fragment MarkdownBody_comment on MarkdownCommentBody {
-  __typename
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
 }
 
-fragment PlaintextBody_comment on PlainCommentBody {
-  __typename
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
 }

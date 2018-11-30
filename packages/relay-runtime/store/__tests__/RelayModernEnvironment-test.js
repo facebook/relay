@@ -1054,7 +1054,7 @@ describe('RelayModernEnvironment', () => {
           query UserQuery($id: ID!) {
             node(id: $id) {
               ... on User {
-                nameRenderer @match(experimental_skipInlineDoNotUse: true) {
+                nameRenderer @match {
                   ...PlainUserNameRenderer_name
                     @module(name: "PlainUserNameRenderer.react")
                   ...MarkdownUserNameRenderer_name

@@ -2,43 +2,74 @@
 
 exports[`RelayMatchTransform matches expected output: relay-match-transform.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-fragment CommentBody_comment on Comment {
-  commentBody @match {
-    ...MarkdownBody_comment @module(name: "MarkdownBodyComponent.react")
-    ...PlaintextBody_comment @module(name: "PlaintextComponent.react")
+fragment NameRendererFragment on User {
+  id
+  nameRenderer @match {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
   }
 }
 
-fragment MarkdownBody_comment on MarkdownCommentBody {
-  __typename
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
 }
 
-fragment PlaintextBody_comment on PlainCommentBody {
-  __typename
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-fragment CommentBody_comment on Comment {
-  commentBody(supported: ["MarkdownCommentBody", "PlainCommentBody"]) {
-    ...MarkdownBody_comment
-    ...PlaintextBody_comment
+fragment NameRendererFragment on User {
+  id
+  nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) {
+    ...PlainUserNameRenderer_name
+    ... on PlainUserNameRenderer {
+      __match_component: js(module: "PlainUserNameRenderer.react")
+      __match_fragment: js(module: "PlainUserNameRenderer_name$normalization.graphql")
+    }
+    ...MarkdownUserNameRenderer_name
+    ... on MarkdownUserNameRenderer {
+      __match_component: js(module: "MarkdownUserNameRenderer.react")
+      __match_fragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql")
+    }
   }
 }
 
-fragment MarkdownBody_comment on MarkdownCommentBody {
-  __typename
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
 }
 
-fragment PlaintextBody_comment on PlainCommentBody {
-  __typename
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
 }
 
-SplitOperation MarkdownBody_comment$normalization {
-  ...MarkdownBody_comment
+SplitOperation PlainUserNameRenderer_name$normalization {
+  ...PlainUserNameRenderer_name
+  ... on PlainUserNameRenderer {
+    __match_component: js(module: "PlainUserNameRenderer.react")
+    __match_fragment: js(module: "PlainUserNameRenderer_name$normalization.graphql")
+  }
 }
 
-SplitOperation PlaintextBody_comment$normalization {
-  ...PlaintextBody_comment
+SplitOperation MarkdownUserNameRenderer_name$normalization {
+  ...MarkdownUserNameRenderer_name
+  ... on MarkdownUserNameRenderer {
+    __match_component: js(module: "MarkdownUserNameRenderer.react")
+    __match_fragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql")
+  }
 }
 
 `;

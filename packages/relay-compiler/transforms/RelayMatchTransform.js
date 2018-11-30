@@ -10,12 +10,14 @@
 
 'use strict';
 
-const invariant = require('invariant');
-
 const {
   GraphQLObjectType,
   GraphQLScalarType,
+  GraphQLInterfaceType,
   GraphQLUnionType,
+  GraphQLList,
+  GraphQLString,
+  getNullableType,
 } = require('graphql');
 const {
   CompilerContext,
@@ -24,10 +26,14 @@ const {
   SplitNaming,
 } = require('graphql-compiler');
 
-import type {LinkedField, MatchField, ScalarField} from 'graphql-compiler';
-import type {GraphQLCompositeType} from 'graphql';
+import type {
+  InlineFragment,
+  LinkedField,
+  MatchField,
+  ScalarField,
+} from 'graphql-compiler';
+import type {GraphQLCompositeType, GraphQLType} from 'graphql';
 
-const MATCH_DIRECTIVE_NAME = 'match';
 const SUPPORTED_ARGUMENT_NAME = 'supported';
 
 const JS_FIELD_TYPE = 'JSDependency';
@@ -47,55 +53,80 @@ const SCHEMA_EXTENSION = `
  * into MatchField nodes with a `supported` argument and MatchBranch selections.
  */
 function relayMatchTransform(context: CompilerContext): CompilerContext {
-  return IRTransformer.transform(context, {
-    // $FlowFixMe this transform intentionally changes the AST node type
-    LinkedField: visitLinkedField,
-  });
+  return IRTransformer.transform(
+    context,
+    {
+      // $FlowFixMe this transform intentionally changes the AST node type
+      LinkedField: visitLinkedField,
+      InlineFragment: visitInlineFragment,
+    },
+    node => node.type,
+  );
+}
+
+function visitInlineFragment(
+  node: InlineFragment,
+  state: GraphQLType,
+): InlineFragment {
+  return this.traverse(node, node.typeCondition);
 }
 
 function visitLinkedField(
   node: LinkedField,
-  state: mixed,
-  parent?: mixed,
+  parentType: GraphQLType,
 ): LinkedField | MatchField {
-  const transformedNode: LinkedField = this.traverse(node);
+  const transformedNode: LinkedField = this.traverse(node, node.type);
 
   const matchDirective = transformedNode.directives.find(
     directive => directive.name === 'match',
   );
-  if (matchDirective == null || typeof parent !== 'object') {
+  if (matchDirective == null) {
     return transformedNode;
   }
 
-  const matchDirectiveArgs = getLiteralArgumentValues(matchDirective.args);
+  if (
+    !(
+      parentType instanceof GraphQLInterfaceType ||
+      parentType instanceof GraphQLObjectType
+    )
+  ) {
+    throw new Error(
+      'RelayMatchTransform: @match may only be used on fields whose parent ' +
+        `type is an interface or object, field '${
+          node.name
+        }' has invalid type '${String(parentType)}'`,
+    );
+  }
+
   const context: CompilerContext = this.getContext();
-
-  const schema = this.getContext().serverSchema;
-  const parentType = schema.getType(
-    /* $FlowFixMe TODO T37368222 track the type while traversing the AST instead
-     * of trying to figure it out based on the parent.
-     */
-    parent.type ?? parent.typeCondition,
-  );
-  if (!(parentType instanceof GraphQLObjectType)) {
-    return transformedNode;
-  }
+  const schema = context.serverSchema;
   const jsModuleType = schema.getType(JS_FIELD_TYPE);
-  invariant(
-    jsModuleType != null && jsModuleType instanceof GraphQLScalarType,
-    'RelayMatchTransform: Expected schema to define a scalar `%s` type.',
-    JS_FIELD_TYPE,
-  );
+  if (jsModuleType == null || !(jsModuleType instanceof GraphQLScalarType)) {
+    throw new Error(
+      `RelayMatchTransform: Expected schema to define a scalar '${JS_FIELD_TYPE}' type.`,
+    );
+  }
 
   const currentField = parentType.getFields()[transformedNode.name];
   const supportedArg = currentField.args.find(
     ({name}) => SUPPORTED_ARGUMENT_NAME,
   );
 
-  if (supportedArg == null || supportedArg.type.toString() !== '[String!]!') {
+  const supportedArgType =
+    supportedArg != null ? getNullableType(supportedArg.type) : null;
+  const supportedArgOfType =
+    supportedArgType != null && supportedArgType instanceof GraphQLList
+      ? supportedArgType.ofType
+      : null;
+  if (
+    supportedArg == null ||
+    supportedArgType == null ||
+    supportedArgOfType == null ||
+    getNullableType(supportedArgOfType) !== GraphQLString
+  ) {
     throw new Error(
-      `RelayMatchTransform: @${MATCH_DIRECTIVE_NAME} used on an incompatible ` +
-        `field '${transformedNode.name}'. @${MATCH_DIRECTIVE_NAME} may only ` +
+      'RelayMatchTransform: @match used on an incompatible ' +
+        `field '${transformedNode.name}'. @match may only ` +
         `be used with fields that can accept '${SUPPORTED_ARGUMENT_NAME}' ` +
         "argument with type '[String!]!'.",
     );
@@ -104,7 +135,7 @@ function visitLinkedField(
   const unionType = transformedNode.type;
   if (!(unionType instanceof GraphQLUnionType)) {
     throw new Error(
-      `RelayMatchTransform: You are trying to apply @${MATCH_DIRECTIVE_NAME} ` +
+      'RelayMatchTransform: You are trying to apply @match ' +
         `directive to a field '${transformedNode.name}' that has unsupported ` +
         `output type. '${transformedNode.name}' output type should be union ` +
         'type of object types.',
@@ -143,7 +174,7 @@ function visitLinkedField(
     if (!belongsToUnion) {
       throw new Error(
         `RelayMatchTransform: Unsupported type '${matchedType.toString()}' in ` +
-          `the list of matches in the @${MATCH_DIRECTIVE_NAME}. Type ` +
+          'the list of matches in the @match. Type ' +
           `"${matchedType.toString()}" does not belong to the union ` +
           `"${unionType.toString()}".`,
       );
@@ -152,21 +183,16 @@ function visitLinkedField(
     const jsFieldArg = jsField
       ? jsField.args.find(arg => arg.name === JS_FIELD_ARG)
       : null;
-    if (jsField == null || jsFieldArg == null) {
+    if (
+      jsField == null ||
+      jsFieldArg == null ||
+      getNullableType(jsFieldArg.type) !== GraphQLString ||
+      jsField.type.name !== jsModuleType.name // object identity fails in tests
+    ) {
       throw new Error(
         `RelayMatchTransform: expcted type '${
           matchedType.name
-        }' to have a '${JS_FIELD_NAME}' field with a '${JS_FIELD_ARG}' argument.`,
-      );
-    }
-    const jsFieldType = jsField.type;
-    if (!(jsFieldType instanceof GraphQLScalarType)) {
-      throw new Error(
-        `RelayMatchTransform: expcted field '${
-          jsField.name
-        }' to have scalar type '${JS_FIELD_TYPE}', got type '${String(
-          jsFieldType,
-        )}'.`,
+        }' to have a '${JS_FIELD_NAME}(${JS_FIELD_ARG}: String!): ${JS_FIELD_TYPE}' field .`,
       );
     }
 
@@ -206,7 +232,7 @@ function visitLinkedField(
         storageKey: '__match_component',
       },
       name: JS_FIELD_NAME,
-      type: jsFieldType,
+      type: jsModuleType,
     };
     const fragmentField: ScalarField = {
       alias: '__match_fragment',
@@ -230,7 +256,7 @@ function visitLinkedField(
         storageKey: '__match_fragment',
       },
       name: JS_FIELD_NAME,
-      type: jsFieldType,
+      type: jsModuleType,
     };
 
     selections.push({

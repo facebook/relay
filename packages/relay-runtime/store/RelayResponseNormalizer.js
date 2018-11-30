@@ -260,9 +260,9 @@ class RelayResponseNormalizer {
     } else if (__DEV__) {
       this._validateRecordType(nextRecord, field, fieldValue);
     }
-    const fragmentName = match.selection.name;
+    const operationName = match.operationName;
     this._matchFieldPayloads.push({
-      fragmentName,
+      operationName,
       dataID: nextID,
       data: fieldValue,
       typeName,

@@ -12,6 +12,7 @@
 
 jest.mock('generateClientID');
 
+const {SplitNaming} = require('graphql-compiler');
 const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayModernTestUtils = require('RelayModernTestUtils');
 
@@ -393,8 +394,12 @@ describe('RelayReferenceMarker', () => {
       `);
       BarQuery = nodes.BarQuery;
       loader = {
-        get: moduleName => nodes[moduleName],
-        load: moduleName => Promise.resolve(nodes[moduleName]),
+        get: jest.fn(
+          moduleName => nodes[SplitNaming.getOriginalName(moduleName)],
+        ),
+        load: jest.fn(moduleName =>
+          Promise.resolve(nodes[SplitNaming.getOriginalName(moduleName)]),
+        ),
       };
     });
 

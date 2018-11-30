@@ -208,18 +208,16 @@ const RelayCodeGenVisitor = {
           );
         }
         const fragmentPropName = regExpMatch[2] ?? 'matchData';
+        const normalizationName =
+          SplitNaming.getAnnotatedName(fragmentName, 'normalization') +
+          '.graphql';
         matchesByType[selection.type] = {
           fragmentPropName,
-          selection: {
-            kind: 'FragmentSpread',
-            name: fragmentName,
-            args: [],
-          },
-          splitOperation: CodeMarker.moduleDependency(
-            SplitNaming.getAnnotatedName(fragmentName, 'normalization') +
-              '.graphql',
-          ),
+          fragmentName,
           module: CodeMarker.moduleDependency(selection.module),
+          moduleName: selection.module,
+          operation: CodeMarker.moduleDependency(normalizationName),
+          operationName: normalizationName,
         };
       });
       let field: ConcreteMatchField = {

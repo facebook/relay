@@ -24,6 +24,7 @@ import type {
   ConcreteFragment,
   ConcreteSelectableNode,
   ConcreteRequest,
+  ConcreteSplitOperation,
 } from '../util/RelayConcreteNode';
 import type {DataID, Disposable, Variables} from '../util/RelayRuntimeTypes';
 import type {RecordState} from './RelayRecordState';
@@ -332,8 +333,8 @@ export type HandleFieldPayload = $Exact<{
  * directive:
  * - data: The GraphQL response value for the @match field.
  * - dataID: The ID of the store object linked to by the @match field.
- * - fragmentName: The name of the fragment (module) with which to normalize
- *   the data.
+ * - operationName: The name of the generated SplitOperation module
+ *   with which to normalize `data`.
  * - variables: Query variables.
  * - typeName: the type that matched.
  *
@@ -344,25 +345,26 @@ export type HandleFieldPayload = $Exact<{
 export type MatchFieldPayload = {|
   data: PayloadData,
   dataID: DataID,
-  fragmentName: string,
+  operationName: string,
   typeName: string,
   variables: Variables,
 |};
 
 /**
- * A user-supplied object to load a generated fragment ASTs by (module) name.
+ * A user-supplied object to load a generated operation (SplitOperation) AST
+ * by its module name.
  */
-export type FragmentLoader = {|
+export type OperationLoader = {|
   /**
-   * Synchronously load a fragment, returning either the fragment or null if it
+   * Synchronously load an operation, returning either the node or null if it
    * cannot be resolved synchronously.
    */
-  get(fragmentModuleName: string): ?ConcreteFragment,
+  get(name: string): ?ConcreteSplitOperation,
 
   /**
-   * Asynchronously load a fragment.
+   * Asynchronously load an operation.
    */
-  load(fragmentModuleName: string): Promise<?ConcreteFragment>,
+  load(name: string): Promise<?ConcreteSplitOperation>,
 |};
 
 /**

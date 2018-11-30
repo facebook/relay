@@ -36,7 +36,7 @@ import type {
 import type {Subscription} from '../network/RelayObservable';
 import type {
   Environment,
-  FragmentLoader,
+  OperationLoader,
   MatchFieldPayload,
   MissingFieldHandler,
   OperationSelector,
@@ -49,19 +49,20 @@ import type {
   StoreUpdater,
   UnstableEnvironmentCore,
 } from '../store/RelayStoreTypes';
+import type {ConcreteSplitOperation} from '../util/RelayConcreteNode';
 import type {CacheConfig, Disposable} from '../util/RelayRuntimeTypes';
 
 export type EnvironmentConfig = {|
   +configName?: string,
   +handlerProvider?: HandlerProvider,
-  +fragmentLoader?: FragmentLoader,
+  +operationLoader?: OperationLoader,
   +network: Network,
   +store: Store,
   +missingFieldHandlers?: $ReadOnlyArray<MissingFieldHandler>,
 |};
 
 class RelayModernEnvironment implements Environment {
-  _fragmentLoader: ?FragmentLoader;
+  _operationLoader: ?OperationLoader;
   _network: Network;
   _publishQueue: RelayPublishQueue;
   _store: Store;
@@ -74,20 +75,20 @@ class RelayModernEnvironment implements Environment {
     const handlerProvider = config.handlerProvider
       ? config.handlerProvider
       : RelayDefaultHandlerProvider;
-    const fragmentLoader = config.fragmentLoader;
+    const operationLoader = config.operationLoader;
     if (__DEV__) {
-      if (fragmentLoader != null) {
+      if (operationLoader != null) {
         invariant(
-          typeof fragmentLoader === 'object' &&
-            typeof fragmentLoader.get === 'function' &&
-            typeof fragmentLoader.load === 'function',
-          'RelayModernEnvironment: Expected `fragmentLoader` to be an object ' +
+          typeof operationLoader === 'object' &&
+            typeof operationLoader.get === 'function' &&
+            typeof operationLoader.load === 'function',
+          'RelayModernEnvironment: Expected `operationLoader` to be an object ' +
             'with get() and load() functions, got `%s`.',
-          fragmentLoader,
+          operationLoader,
         );
       }
     }
-    this._fragmentLoader = fragmentLoader;
+    this._operationLoader = operationLoader;
     this._network = config.network;
     this._publishQueue = new RelayPublishQueue(config.store, handlerProvider);
     this._store = config.store;
@@ -255,7 +256,7 @@ class RelayModernEnvironment implements Environment {
       function next(response: GraphQLResponse): void {
         const payload = normalizePayload(operation, response);
         const isOptimistic = response.extensions?.isOptimistic === true;
-        processRelayPayload(operation.fragment, payload, updater, isOptimistic);
+        processRelayPayload(payload, operation, updater, isOptimistic);
         sink.next(response);
       }
 
@@ -265,23 +266,23 @@ class RelayModernEnvironment implements Environment {
       // themselves have matchPayloads: this function is recursive and relies
       // on GraphQL queries *disallowing* recursion to ensure termination.
       const processRelayPayload = (
-        selector: Selector,
         payload: RelayResponsePayload,
+        operationSelector: OperationSelector | null = null,
         payloadUpdater: SelectorStoreUpdater | null = null,
         isOptimistic: boolean = false,
       ): void => {
         const {matchPayloads} = payload;
         if (matchPayloads && matchPayloads.length) {
-          const fragmentLoader = this._fragmentLoader;
+          const operationLoader = this._operationLoader;
           invariant(
-            fragmentLoader,
-            'RelayModernEnvironment: Expected a fragmentLoader to be ' +
+            operationLoader,
+            'RelayModernEnvironment: Expected an operationLoader to be ' +
               'configured when using `@match`.',
           );
           matchPayloads.forEach(matchPayload => {
             processMatchPayload(
               processRelayPayload,
-              fragmentLoader,
+              operationLoader,
               matchPayload,
             ).subscribe({
               complete,
@@ -307,11 +308,15 @@ class RelayModernEnvironment implements Environment {
             this._publishQueue.revertUpdate(optimisticResponse);
             optimisticResponse = null;
           }
-          this._publishQueue.commitSelectorPayload(
-            selector,
-            payload,
-            payloadUpdater,
-          );
+          if (operationSelector && payloadUpdater) {
+            this._publishQueue.commitPayload(
+              operationSelector,
+              payload,
+              payloadUpdater,
+            );
+          } else {
+            this._publishQueue.commitRelayPayload(payload);
+          }
           this._publishQueue.run();
         }
       };
@@ -492,22 +497,22 @@ class RelayModernEnvironment implements Environment {
  * @private
  */
 function processMatchPayload(
-  processRelayPayload: (Selector, RelayResponsePayload) => void,
-  fragmentLoader: FragmentLoader,
+  processRelayPayload: RelayResponsePayload => void,
+  operationLoader: OperationLoader,
   matchPayload: MatchFieldPayload,
 ): RelayObservable<void> {
   return RelayObservable.from(
     new Promise((resolve, reject) => {
-      fragmentLoader.load(matchPayload.fragmentName).then(resolve, reject);
+      operationLoader.load(matchPayload.operationName).then(resolve, reject);
     }),
-  ).map(fragment => {
-    if (fragment == null) {
+  ).map((operation: ?ConcreteSplitOperation) => {
+    if (operation == null) {
       return;
     }
     const selector = {
       dataID: matchPayload.dataID,
       variables: matchPayload.variables,
-      node: fragment,
+      node: operation,
     };
     const source = new RelayInMemoryRecordSource();
     const matchRecord = RelayModernRecord.create(
@@ -526,7 +531,7 @@ function processMatchPayload(
       matchPayloads: normalizeResult.matchPayloads,
       source: source,
     };
-    processRelayPayload(selector, relayPayload);
+    processRelayPayload(relayPayload);
   });
 }
 

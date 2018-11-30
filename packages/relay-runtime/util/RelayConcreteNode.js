@@ -105,9 +105,11 @@ export type ConcreteMatchField = {|
   +matchesByType: {
     +[key: string]: {|
       +fragmentPropName: string,
-      +selection: ConcreteFragmentSpread,
+      +fragmentName: string,
       +module: mixed,
-      +splitOperation: mixed,
+      +moduleName: string,
+      +operation: mixed,
+      +operationName: string,
     |},
   },
 |};
@@ -141,8 +143,8 @@ export type ConcreteNode =
   | ConcreteLinkedField
   | ConcreteFragment
   | ConcreteInlineFragment
-  | ConcreteOperation;
-
+  | ConcreteOperation
+  | ConcreteSplitOperation;
 export type ConcreteScalarField = {|
   +kind: 'ScalarField',
   +alias: ?string,
@@ -183,7 +185,10 @@ export type ConcreteVariable = {|
   +variableName: string,
 |};
 
-export type ConcreteSelectableNode = ConcreteFragment | ConcreteOperation;
+export type ConcreteSelectableNode =
+  | ConcreteFragment
+  | ConcreteOperation
+  | ConcreteSplitOperation;
 
 export type GeneratedNode =
   | ConcreteRequest

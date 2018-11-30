@@ -30,7 +30,7 @@ import type {
 } from '../util/RelayConcreteNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
-  FragmentLoader,
+  OperationLoader,
   MissingFieldHandler,
   MutableRecordSource,
   RecordSource,
@@ -65,7 +65,7 @@ function check(
   target: MutableRecordSource,
   selector: Selector,
   handlers: $ReadOnlyArray<MissingFieldHandler>,
-  fragmentLoader?: ?FragmentLoader,
+  operationLoader?: ?OperationLoader,
 ): boolean {
   const {dataID, node, variables} = selector;
   const loader = new RelayDataLoader(
@@ -73,7 +73,7 @@ function check(
     target,
     variables,
     handlers,
-    fragmentLoader,
+    operationLoader,
   );
   return loader.check(node, dataID);
 }
@@ -83,7 +83,7 @@ function check(
  */
 class RelayDataLoader {
   _done: boolean;
-  _fragmentLoader: FragmentLoader | null;
+  _operationLoader: OperationLoader | null;
   _handlers: $ReadOnlyArray<MissingFieldHandler>;
   _mutator: RelayRecordSourceMutator;
   _recordWasMissing: boolean;
@@ -95,9 +95,9 @@ class RelayDataLoader {
     target: MutableRecordSource,
     variables: Variables,
     handlers: $ReadOnlyArray<MissingFieldHandler>,
-    fragmentLoader: ?FragmentLoader,
+    operationLoader: ?OperationLoader,
   ) {
-    this._fragmentLoader = fragmentLoader ?? null;
+    this._operationLoader = operationLoader ?? null;
     this._handlers = handlers;
     this._mutator = new RelayRecordSourceMutator(source, target);
     this._recordWasMissing = false;
@@ -274,14 +274,14 @@ class RelayDataLoader {
       const typeName = this._mutator.getType(linkedID);
       const match = typeName != null ? field.matchesByType[typeName] : null;
       if (match != null) {
-        const fragmentLoader = this._fragmentLoader;
+        const operationLoader = this._operationLoader;
         invariant(
-          fragmentLoader !== null,
-          'RelayDataLoader: Expected a fragmentLoader to be configured when using `@match`.',
+          operationLoader !== null,
+          'RelayDataLoader: Expected an operationLoader to be configured when using `@match`.',
         );
-        const fragment = fragmentLoader.get(match.selection.name);
-        if (fragment != null) {
-          this._traverse(fragment, linkedID);
+        const operation = operationLoader.get(match.operationName);
+        if (operation != null) {
+          this._traverse(operation, linkedID);
         } else {
           // If the fragment is not available, we assume that the data cannot have been
           // processed yet and must therefore be missing.

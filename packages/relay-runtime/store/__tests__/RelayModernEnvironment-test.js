@@ -1037,7 +1037,7 @@ describe('RelayModernEnvironment', () => {
     let error;
     let fetch;
     let resolveFragment;
-    let fragmentLoader;
+    let operationLoader;
     let markdownRendererFragment;
     let markdownRendererNormalizationFragment;
     let next;
@@ -1049,6 +1049,7 @@ describe('RelayModernEnvironment', () => {
       ({
         UserQuery: query,
         MarkdownUserNameRenderer_name: markdownRendererFragment,
+        MarkdownUserNameRenderer_name$normalization: markdownRendererNormalizationFragment,
       } = generateAndCompile(`
           query UserQuery($id: ID!) {
             node(id: $id) {
@@ -1078,65 +1079,6 @@ describe('RelayModernEnvironment', () => {
             }
           }
       `));
-      // Manually construct the normalization version of MarkdownUserNameRenderer_name
-      // TODO: T36621356: remove once the compiler generates this
-      markdownRendererNormalizationFragment = {
-        kind: 'Fragment',
-        name: 'MarkdownUserNameRenderer_name.normalization',
-        type: 'MarkdownUserNameRenderer',
-        metadata: null,
-        argumentDefinitions: [],
-        selections: [
-          {
-            kind: 'ScalarField',
-            alias: null,
-            name: '__typename',
-            args: null,
-            storageKey: null,
-          },
-          {
-            kind: 'ScalarField',
-            alias: null,
-            name: 'markdown',
-            args: null,
-            storageKey: null,
-          },
-          {
-            kind: 'LinkedField',
-            alias: null,
-            name: 'data',
-            storageKey: null,
-            args: null,
-            concreteType: 'MarkdownUserNameData',
-            plural: false,
-            selections: [
-              {
-                kind: 'ScalarField',
-                alias: null,
-                name: 'markup',
-                args: null,
-                storageKey: null,
-              },
-              {
-                kind: 'ScalarHandle',
-                alias: null,
-                name: 'markup',
-                args: null,
-                handle: 'markup_handler',
-                key: '',
-                filters: null,
-              },
-              {
-                kind: 'ScalarField',
-                alias: null,
-                name: 'id',
-                args: null,
-                storageKey: null,
-              },
-            ],
-          },
-        ],
-      };
 
       variables = {id: '1'};
       operation = createOperationSelector(query, variables);
@@ -1163,7 +1105,7 @@ describe('RelayModernEnvironment', () => {
           dataSource = sink;
         });
       };
-      fragmentLoader = {
+      operationLoader = {
         load: jest.fn(moduleName => {
           return new Promise(resolve => {
             resolveFragment = resolve;
@@ -1174,7 +1116,7 @@ describe('RelayModernEnvironment', () => {
       environment = new RelayModernEnvironment({
         network: RelayNetwork.create(fetch),
         store,
-        fragmentLoader,
+        operationLoader,
         handlerProvider: name => {
           switch (name) {
             case 'markup_handler':
@@ -1251,9 +1193,9 @@ describe('RelayModernEnvironment', () => {
       jest.runAllTimers();
       next.mockClear();
 
-      expect(fragmentLoader.load).toBeCalledTimes(1);
-      expect(fragmentLoader.load.mock.calls[0][0]).toEqual(
-        'MarkdownUserNameRenderer_name',
+      expect(operationLoader.load).toBeCalledTimes(1);
+      expect(operationLoader.load.mock.calls[0][0]).toEqual(
+        'MarkdownUserNameRenderer_name$normalization.graphql',
       );
 
       const {data} = environment.lookup(operation.fragment);
@@ -1273,6 +1215,10 @@ describe('RelayModernEnvironment', () => {
       const callback = jest.fn();
       environment.subscribe(snapshot, callback);
 
+      expect(operationLoader.load).toBeCalledTimes(1);
+      expect(operationLoader.load.mock.calls[0][0]).toBe(
+        'MarkdownUserNameRenderer_name$normalization.graphql',
+      );
       resolveFragment(markdownRendererNormalizationFragment);
       jest.runAllTimers();
       // next() should not be called when @match resolves, no new GraphQLResponse
@@ -1313,6 +1259,10 @@ describe('RelayModernEnvironment', () => {
       expect(callbacks.error).toBeCalledTimes(0);
       expect(callbacks.next).toBeCalledTimes(1);
 
+      expect(operationLoader.load).toBeCalledTimes(1);
+      expect(operationLoader.load.mock.calls[0][0]).toBe(
+        'MarkdownUserNameRenderer_name$normalization.graphql',
+      );
       resolveFragment(markdownRendererNormalizationFragment);
       jest.runAllTimers();
       expect(callbacks.complete).toBeCalledTimes(1);
@@ -1340,6 +1290,10 @@ describe('RelayModernEnvironment', () => {
       dataSource.next(payload);
       jest.runAllTimers();
 
+      expect(operationLoader.load).toBeCalledTimes(1);
+      expect(operationLoader.load.mock.calls[0][0]).toBe(
+        'MarkdownUserNameRenderer_name$normalization.graphql',
+      );
       resolveFragment(markdownRendererNormalizationFragment);
       jest.runAllTimers();
       expect(callbacks.complete).toBeCalledTimes(0);
@@ -1352,7 +1306,7 @@ describe('RelayModernEnvironment', () => {
       expect(callbacks.next).toBeCalledTimes(1);
     });
 
-    it('calls error() if the fragmentLoader function throws synchronously', () => {
+    it('calls error() if the operationLoader function throws synchronously', () => {
       environment.execute({operation}).subscribe(callbacks);
       const payload = {
         data: {
@@ -1370,7 +1324,7 @@ describe('RelayModernEnvironment', () => {
         },
       };
       const loaderError = new Error();
-      fragmentLoader.load = jest.fn(() => {
+      operationLoader.load = jest.fn(() => {
         throw loaderError;
       });
       dataSource.next(payload);
@@ -1380,7 +1334,7 @@ describe('RelayModernEnvironment', () => {
       expect(callbacks.error.mock.calls[0][0]).toBe(loaderError);
     });
 
-    it('calls error() if the fragmentLoader promise fails', () => {
+    it('calls error() if the operationLoader promise fails', () => {
       environment.execute({operation}).subscribe(callbacks);
       const payload = {
         data: {
@@ -1398,7 +1352,7 @@ describe('RelayModernEnvironment', () => {
         },
       };
       const loaderError = new Error();
-      fragmentLoader.load = jest.fn(() => {
+      operationLoader.load = jest.fn(() => {
         return Promise.reject(loaderError);
       });
       dataSource.next(payload);
@@ -1425,9 +1379,9 @@ describe('RelayModernEnvironment', () => {
           },
         },
       };
-      fragmentLoader.load = jest.fn(() => {
+      operationLoader.load = jest.fn(() => {
         // Invalid fragment node, no 'selections' field
-        // This is to make sure that users implementing fragmentLoader
+        // This is to make sure that users implementing operationLoader
         // incorrectly still get reasonable error handling
         return Promise.resolve(({}: any));
       });
@@ -1477,9 +1431,9 @@ describe('RelayModernEnvironment', () => {
       const data = (callback.mock.calls[0][0].data: any);
       callback.mockClear();
 
-      expect(fragmentLoader.load).toBeCalledTimes(1);
-      expect(fragmentLoader.load.mock.calls[0][0]).toEqual(
-        'MarkdownUserNameRenderer_name',
+      expect(operationLoader.load).toBeCalledTimes(1);
+      expect(operationLoader.load.mock.calls[0][0]).toEqual(
+        'MarkdownUserNameRenderer_name$normalization.graphql',
       );
       // Cancel before the fragment resolves; normalization should be skipped
       subscription.unsubscribe();

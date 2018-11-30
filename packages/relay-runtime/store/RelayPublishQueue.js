@@ -38,7 +38,7 @@ import type {SelectorData} from 'react-relay/classic/environment/RelayCombinedEn
 
 type Payload = {
   fieldPayloads: ?Array<HandleFieldPayload>,
-  selector: Selector,
+  selector: ?Selector,
   source: MutableRecordSource,
   updater: ?SelectorStoreUpdater,
 };
@@ -149,15 +149,11 @@ class RelayPublishQueue {
     });
   }
 
-  commitSelectorPayload(
-    selector: Selector,
-    {fieldPayloads, source}: RelayResponsePayload,
-    updater?: ?SelectorStoreUpdater,
-  ): void {
+  commitRelayPayload({fieldPayloads, source}: RelayResponsePayload): void {
     this._pendingBackupRebase = true;
     this._pendingData.add({
       kind: 'payload',
-      payload: {fieldPayloads, selector, source, updater},
+      payload: {fieldPayloads, selector: null, source, updater: null},
     });
   }
 
@@ -212,7 +208,6 @@ class RelayPublishQueue {
       source,
     );
     const store = new RelayRecordSourceProxy(mutator);
-    const selectorStore = new RelayRecordSourceSelectorProxy(store, selector);
     if (fieldPayloads && fieldPayloads.length) {
       fieldPayloads.forEach(fieldPayload => {
         const handler =
@@ -227,6 +222,11 @@ class RelayPublishQueue {
       });
     }
     if (updater) {
+      invariant(
+        selector != null,
+        'RelayModernEnvironment: Expected a selector to be provided with updater function.',
+      );
+      const selectorStore = new RelayRecordSourceSelectorProxy(store, selector);
       const selectorData = lookupSelector(source, selector);
       updater(selectorStore, selectorData);
     }
@@ -372,7 +372,10 @@ class RelayPublishQueue {
   }
 }
 
-function lookupSelector(source, selector): ?SelectorData {
+function lookupSelector(
+  source: RecordSource,
+  selector: Selector,
+): ?SelectorData {
   const selectorData = RelayReader.read(source, selector).data;
   if (__DEV__) {
     const deepFreeze = require('../util/deepFreeze');

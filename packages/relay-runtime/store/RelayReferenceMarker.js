@@ -24,7 +24,7 @@ import type {
   ConcreteSelection,
 } from '../util/RelayConcreteNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
-import type {FragmentLoader, RecordSource, Selector} from './RelayStoreTypes';
+import type {OperationLoader, RecordSource, Selector} from './RelayStoreTypes';
 import type {Record} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
 const {
@@ -43,14 +43,14 @@ function mark(
   recordSource: RecordSource,
   selector: Selector,
   references: Set<DataID>,
-  fragmentLoader: ?FragmentLoader,
+  operationLoader: ?OperationLoader,
 ): void {
   const {dataID, node, variables} = selector;
   const marker = new RelayReferenceMarker(
     recordSource,
     variables,
     references,
-    fragmentLoader,
+    operationLoader,
   );
   marker.mark(node, dataID);
 }
@@ -59,7 +59,7 @@ function mark(
  * @private
  */
 class RelayReferenceMarker {
-  _fragmentLoader: FragmentLoader | null;
+  _operationLoader: OperationLoader | null;
   _recordSource: RecordSource;
   _references: Set<DataID>;
   _variables: Variables;
@@ -68,9 +68,9 @@ class RelayReferenceMarker {
     recordSource: RecordSource,
     variables: Variables,
     references: Set<DataID>,
-    fragmentLoader: ?FragmentLoader,
+    operationLoader: ?OperationLoader,
   ) {
-    this._fragmentLoader = fragmentLoader ?? null;
+    this._operationLoader = operationLoader ?? null;
     this._references = references;
     this._recordSource = recordSource;
     this._variables = variables;
@@ -184,16 +184,16 @@ class RelayReferenceMarker {
     const typeName = RelayModernRecord.getType(linkedRecord);
     const match = field.matchesByType[typeName];
     if (match != null) {
-      const fragmentLoader = this._fragmentLoader;
+      const operationLoader = this._operationLoader;
       invariant(
-        fragmentLoader !== null,
-        'RelayReferenceMarker: Expected a fragmentLoader to be configured when using `@match`.',
+        operationLoader !== null,
+        'RelayReferenceMarker: Expected an operationLoader to be configured when using `@match`.',
       );
-      const fragment = fragmentLoader.get(match.selection.name);
-      if (fragment != null) {
-        this._traverseSelections(fragment.selections, linkedRecord);
+      const operation = operationLoader.get(match.operationName);
+      if (operation != null) {
+        this._traverseSelections(operation.selections, linkedRecord);
       }
-      // If the fragment is not available, we assume that the data cannot have been
+      // If the operation is not available, we assume that the data cannot have been
       // processed yet and therefore isn't in the store to begin with.
     } else {
       // TODO: warn: store is corrupt: the field should be null if the typename did not match

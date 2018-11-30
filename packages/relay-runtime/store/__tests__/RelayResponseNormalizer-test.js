@@ -338,38 +338,37 @@ describe('RelayResponseNormalizer', () => {
     let BarQuery;
 
     beforeEach(() => {
-      const nodes = generateAndCompile(
-        `
-          fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
-            plaintext
-            data {
-              text
-            }
+      const nodes = generateAndCompile(`
+        fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+          plaintext
+          data {
+            text
           }
+        }
 
-          fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-            markdown
-            data {
-              markup
-            }
+        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+          markdown
+          data {
+            markup
           }
+        }
 
-          fragment BarFragment on User {
-            id
-            nameRenderer @match(experimental_skipInlineDoNotUse: true) {
-              ...PlainUserNameRenderer_name
-                @module(name: "PlainUserNameRenderer.react")
-              ...MarkdownUserNameRenderer_name
-                @module(name: "MarkdownUserNameRenderer.react")
-            }
+        fragment BarFragment on User {
+          id
+          nameRenderer @match(experimental_skipInlineDoNotUse: true) {
+            ...PlainUserNameRenderer_name
+              @module(name: "PlainUserNameRenderer.react")
+            ...MarkdownUserNameRenderer_name
+              @module(name: "MarkdownUserNameRenderer.react")
           }
+        }
 
-          query BarQuery($id: ID!) {
-            node(id: $id) {
-              ...BarFragment
-            }
-          }`,
-      );
+        query BarQuery($id: ID!) {
+          node(id: $id) {
+            ...BarFragment
+          }
+        }
+      `);
       BarQuery = nodes.BarQuery;
     });
 
@@ -422,7 +421,7 @@ describe('RelayResponseNormalizer', () => {
       });
       expect(matchPayloads).toEqual([
         {
-          fragmentName: 'MarkdownUserNameRenderer_name',
+          operationName: 'MarkdownUserNameRenderer_name$normalization.graphql',
           dataID:
             'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           data: {

@@ -307,7 +307,11 @@ class RelayReader {
     // - For the matched module, create a reference to the module
     const matchResult = {};
     this._createFragmentPointer(
-      match.selection,
+      {
+        kind: 'FragmentSpread',
+        name: match.fragmentName,
+        args: null,
+      },
       linkedRecord,
       matchResult,
       this._variables,

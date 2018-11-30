@@ -84,23 +84,19 @@ fragment PlaintextBody_comment on PlainCommentBody {
           "matchesByType": {
             "MarkdownCommentBody": {
               "fragmentPropName": "comment",
-              "selection": {
-                "kind": "FragmentSpread",
-                "name": "MarkdownBody_comment",
-                "args": []
-              },
-              "splitOperation": require('MarkdownBody_comment$normalization.graphql'),
-              "module": require('MarkdownBodyComponent.react')
+              "fragmentName": "MarkdownBody_comment",
+              "module": require('MarkdownBodyComponent.react'),
+              "moduleName": "MarkdownBodyComponent.react",
+              "operation": require('MarkdownBody_comment$normalization.graphql'),
+              "operationName": "MarkdownBody_comment$normalization.graphql"
             },
             "PlainCommentBody": {
               "fragmentPropName": "comment",
-              "selection": {
-                "kind": "FragmentSpread",
-                "name": "PlaintextBody_comment",
-                "args": []
-              },
-              "splitOperation": require('PlaintextBody_comment$normalization.graphql'),
-              "module": require('PlaintextComponent.react')
+              "fragmentName": "PlaintextBody_comment",
+              "module": require('PlaintextComponent.react'),
+              "moduleName": "PlaintextComponent.react",
+              "operation": require('PlaintextBody_comment$normalization.graphql'),
+              "operationName": "PlaintextBody_comment$normalization.graphql"
             }
           }
         }
@@ -544,23 +540,19 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       "matchesByType": {
         "PlainUserNameRenderer": {
           "fragmentPropName": "name",
-          "selection": {
-            "kind": "FragmentSpread",
-            "name": "PlainUserNameRenderer_name",
-            "args": []
-          },
-          "splitOperation": require('PlainUserNameRenderer_name$normalization.graphql'),
-          "module": require('PlainUserNameRenderer.react')
+          "fragmentName": "PlainUserNameRenderer_name",
+          "module": require('PlainUserNameRenderer.react'),
+          "moduleName": "PlainUserNameRenderer.react",
+          "operation": require('PlainUserNameRenderer_name$normalization.graphql'),
+          "operationName": "PlainUserNameRenderer_name$normalization.graphql"
         },
         "MarkdownUserNameRenderer": {
           "fragmentPropName": "name",
-          "selection": {
-            "kind": "FragmentSpread",
-            "name": "MarkdownUserNameRenderer_name",
-            "args": []
-          },
-          "splitOperation": require('MarkdownUserNameRenderer_name$normalization.graphql'),
-          "module": require('MarkdownUserNameRenderer.react')
+          "fragmentName": "MarkdownUserNameRenderer_name",
+          "module": require('MarkdownUserNameRenderer.react'),
+          "moduleName": "MarkdownUserNameRenderer.react",
+          "operation": require('MarkdownUserNameRenderer_name$normalization.graphql'),
+          "operationName": "MarkdownUserNameRenderer_name$normalization.graphql"
         }
       }
     }

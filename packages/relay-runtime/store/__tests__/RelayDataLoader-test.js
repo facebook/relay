@@ -13,6 +13,7 @@
 
 jest.mock('generateClientID');
 
+const {SplitNaming} = require('graphql-compiler');
 const RelayDataLoader = require('../RelayDataLoader');
 const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayStoreUtils = require('../RelayStoreUtils');
@@ -293,8 +294,12 @@ describe('RelayDataLoader', () => {
         );
         BarQuery = nodes.BarQuery;
         loader = {
-          get: moduleName => nodes[moduleName],
-          load: moduleName => Promise.resolve(nodes[moduleName]),
+          get: jest.fn(
+            moduleName => nodes[SplitNaming.getOriginalName(moduleName)],
+          ),
+          load: jest.fn(moduleName =>
+            Promise.resolve(nodes[SplitNaming.getOriginalName(moduleName)]),
+          ),
         };
       });
 
@@ -325,6 +330,7 @@ describe('RelayDataLoader', () => {
           data: {
             __id: 'data',
             __typename: 'PlainUserNameData',
+            id: 'data',
             text: 'text',
           },
         };
@@ -340,6 +346,10 @@ describe('RelayDataLoader', () => {
           },
           [],
           loader,
+        );
+        expect(loader.get).toBeCalledTimes(1);
+        expect(loader.get.mock.calls[0][0]).toBe(
+          'PlainUserNameRenderer_name$normalization.graphql',
         );
         expect(status).toBe(true);
         expect(target.size()).toBe(0);
@@ -372,6 +382,7 @@ describe('RelayDataLoader', () => {
           data: {
             __id: 'data',
             __typename: 'MarkdownUserNameData',
+            id: 'data',
             markup: '<markup/>',
           },
         };
@@ -467,6 +478,7 @@ describe('RelayDataLoader', () => {
           data: {
             __id: 'data',
             __typename: 'MarkdownUserNameData',
+            id: 'data',
             markup: '<markup/>',
           },
         };

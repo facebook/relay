@@ -379,6 +379,9 @@ describe('RelayResponseNormalizer', () => {
           __typename: 'User',
           nameRenderer: {
             __typename: 'MarkdownUserNameRenderer',
+            __match_component: 'MarkdownUserNameRenderer.react',
+            __match_fragment:
+              'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
               markup: '<markup/>',
@@ -421,11 +424,15 @@ describe('RelayResponseNormalizer', () => {
       });
       expect(matchPayloads).toEqual([
         {
-          operationName: 'MarkdownUserNameRenderer_name$normalization.graphql',
+          operationReference:
+            'MarkdownUserNameRenderer_name$normalization.graphql',
           dataID:
             'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           data: {
             __typename: 'MarkdownUserNameRenderer',
+            __match_component: 'MarkdownUserNameRenderer.react',
+            __match_fragment:
+              'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
               markup: '<markup/>',

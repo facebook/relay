@@ -37,7 +37,7 @@ const {
   SCALAR_FIELD,
   SCALAR_HANDLE,
 } = RelayConcreteNode;
-const {getStorageKey} = RelayStoreUtils;
+const {getStorageKey, MATCH_FRAGMENT_KEY} = RelayStoreUtils;
 
 function mark(
   recordSource: RecordSource,
@@ -189,7 +189,14 @@ class RelayReferenceMarker {
         operationLoader !== null,
         'RelayReferenceMarker: Expected an operationLoader to be configured when using `@match`.',
       );
-      const operation = operationLoader.get(match.operationName);
+      const operationReference = RelayModernRecord.getValue(
+        linkedRecord,
+        MATCH_FRAGMENT_KEY,
+      );
+      if (operationReference == null) {
+        return;
+      }
+      const operation = operationLoader.get(operationReference);
       if (operation != null) {
         this._traverseSelections(operation.selections, linkedRecord);
       }

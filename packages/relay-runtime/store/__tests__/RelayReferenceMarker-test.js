@@ -419,6 +419,8 @@ describe('RelayReferenceMarker', () => {
           __id:
             'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __typename: 'PlainUserNameRenderer',
+          __match_component: 'PlainUserNameRenderer.react',
+          __match_fragment: 'PlainUserNameRenderer_name$normalization.graphql',
           plaintext: 'plain name',
           data: {__ref: 'data'},
         },
@@ -469,6 +471,9 @@ describe('RelayReferenceMarker', () => {
           __id:
             'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __typename: 'MarkdownUserNameRenderer',
+          __match_component: 'MarkdownUserNameRenderer.react',
+          __match_fragment:
+            'MarkdownUserNameRenderer_name$normalization.graphql',
           markdown: 'markdown payload',
           data: {__ref: 'data'},
         },
@@ -568,6 +573,9 @@ describe('RelayReferenceMarker', () => {
           __id:
             'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __typename: 'MarkdownUserNameRenderer',
+          __match_component: 'MarkdownUserNameRenderer.react',
+          __match_fragment:
+            'MarkdownUserNameRenderer_name$normalization.graphql',
           // NOTE: 'markdown' field missing
           data: {__ref: 'data'},
         },

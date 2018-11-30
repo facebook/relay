@@ -202,7 +202,9 @@ function visitLinkedField(
       directives: [],
       handles: null,
       kind: 'ScalarField',
-      metadata: {},
+      metadata: {
+        storageKey: '__match_component',
+      },
       name: JS_FIELD_NAME,
       type: jsFieldType,
     };
@@ -224,7 +226,9 @@ function visitLinkedField(
       directives: [],
       handles: null,
       kind: 'ScalarField',
-      metadata: {},
+      metadata: {
+        storageKey: '__match_fragment',
+      },
       name: JS_FIELD_NAME,
       type: jsFieldType,
     };

@@ -1139,6 +1139,9 @@ describe('RelayModernEnvironment', () => {
             __typename: 'User',
             nameRenderer: {
               __typename: 'MarkdownUserNameRenderer',
+              __match_component: 'MarkdownUserNameRenderer.react',
+              __match_fragment:
+                'MarkdownUserNameRenderer_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
                 markup: '<markup/>',
@@ -1157,16 +1160,7 @@ describe('RelayModernEnvironment', () => {
       const data = (callback.mock.calls[0][0].data: any);
       expect(data).toEqual({
         node: {
-          nameRenderer: {
-            __fragmentPropName: 'name',
-            __fragments: {
-              MarkdownUserNameRenderer_name: {},
-            },
-            __id:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            __module:
-              '@@MODULE_START@@MarkdownUserNameRenderer.react@@MODULE_END@@',
-          },
+          nameRenderer: null, // match field data hasn't been processed yet
         },
       });
     });
@@ -1180,6 +1174,9 @@ describe('RelayModernEnvironment', () => {
             __typename: 'User',
             nameRenderer: {
               __typename: 'MarkdownUserNameRenderer',
+              __match_component: 'MarkdownUserNameRenderer.react',
+              __match_fragment:
+                'MarkdownUserNameRenderer_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
                 // NOTE: should be uppercased when normalized (by MarkupHandler)
@@ -1198,34 +1195,45 @@ describe('RelayModernEnvironment', () => {
         'MarkdownUserNameRenderer_name$normalization.graphql',
       );
 
-      const {data} = environment.lookup(operation.fragment);
-      const fragmentSelector = nullthrows(
-        getSelector(
-          variables,
-          markdownRendererFragment,
-          (data?.node: any)?.nameRenderer,
-        ),
-      );
-      const snapshot = environment.lookup(fragmentSelector);
-      expect(snapshot.data).toEqual({
-        __typename: 'MarkdownUserNameRenderer',
-        data: undefined,
-        markdown: undefined,
+      const operationSnapshot = environment.lookup(operation.fragment);
+      expect(operationSnapshot.data).toEqual({
+        node: {
+          nameRenderer: null, // match field data hasn't been processed yet
+        },
       });
       const callback = jest.fn();
-      environment.subscribe(snapshot, callback);
+      environment.subscribe(operationSnapshot, callback);
 
-      expect(operationLoader.load).toBeCalledTimes(1);
-      expect(operationLoader.load.mock.calls[0][0]).toBe(
-        'MarkdownUserNameRenderer_name$normalization.graphql',
-      );
       resolveFragment(markdownRendererNormalizationFragment);
       jest.runAllTimers();
       // next() should not be called when @match resolves, no new GraphQLResponse
       // was received for this case
       expect(next).toBeCalledTimes(0);
       expect(callback).toBeCalledTimes(1);
-      expect(callback.mock.calls[0][0].data).toEqual({
+      const operationData = callback.mock.calls[0][0].data;
+      expect(operationData).toEqual({
+        node: {
+          nameRenderer: {
+            __id:
+              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            __fragmentPropName: 'name',
+            __fragments: {
+              MarkdownUserNameRenderer_name: {},
+            },
+            __module: 'MarkdownUserNameRenderer.react',
+          },
+        },
+      });
+
+      const fragmentSelector = nullthrows(
+        getSelector(
+          variables,
+          markdownRendererFragment,
+          (operationData?.node: any)?.nameRenderer,
+        ),
+      );
+      const snapshot = environment.lookup(fragmentSelector);
+      expect(snapshot.data).toEqual({
         __typename: 'MarkdownUserNameRenderer',
         data: {
           // NOTE: should be uppercased by the MarkupHandler
@@ -1244,6 +1252,9 @@ describe('RelayModernEnvironment', () => {
             __typename: 'User',
             nameRenderer: {
               __typename: 'MarkdownUserNameRenderer',
+              __match_component: 'MarkdownUserNameRenderer.react',
+              __match_fragment:
+                'MarkdownUserNameRenderer_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
                 markup: '<markup/>',
@@ -1279,6 +1290,9 @@ describe('RelayModernEnvironment', () => {
             __typename: 'User',
             nameRenderer: {
               __typename: 'MarkdownUserNameRenderer',
+              __match_component: 'MarkdownUserNameRenderer.react',
+              __match_fragment:
+                'MarkdownUserNameRenderer_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
                 markup: '<markup/>',
@@ -1315,6 +1329,9 @@ describe('RelayModernEnvironment', () => {
             __typename: 'User',
             nameRenderer: {
               __typename: 'MarkdownUserNameRenderer',
+              __match_component: 'MarkdownUserNameRenderer.react',
+              __match_fragment:
+                'MarkdownUserNameRenderer_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
                 markup: '<markup/>',
@@ -1343,6 +1360,9 @@ describe('RelayModernEnvironment', () => {
             __typename: 'User',
             nameRenderer: {
               __typename: 'MarkdownUserNameRenderer',
+              __match_component: 'MarkdownUserNameRenderer.react',
+              __match_fragment:
+                'MarkdownUserNameRenderer_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
                 markup: '<markup/>',
@@ -1371,6 +1391,9 @@ describe('RelayModernEnvironment', () => {
             __typename: 'User',
             nameRenderer: {
               __typename: 'MarkdownUserNameRenderer',
+              __match_component: 'MarkdownUserNameRenderer.react',
+              __match_fragment:
+                'MarkdownUserNameRenderer_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
                 markup: '<markup/>',
@@ -1414,6 +1437,9 @@ describe('RelayModernEnvironment', () => {
             __typename: 'User',
             nameRenderer: {
               __typename: 'MarkdownUserNameRenderer',
+              __match_component: 'MarkdownUserNameRenderer.react',
+              __match_fragment:
+                'MarkdownUserNameRenderer_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
                 markup: '<markup/>',
@@ -1428,7 +1454,6 @@ describe('RelayModernEnvironment', () => {
       next.mockClear();
       complete.mockClear();
       error.mockClear();
-      const data = (callback.mock.calls[0][0].data: any);
       callback.mockClear();
 
       expect(operationLoader.load).toBeCalledTimes(1);
@@ -1440,16 +1465,11 @@ describe('RelayModernEnvironment', () => {
       resolveFragment(markdownRendererNormalizationFragment);
       jest.runAllTimers();
 
-      const fragmentSelector = getSelector(
-        variables,
-        markdownRendererFragment,
-        data.node.nameRenderer,
-      );
-      expect(fragmentSelector).not.toBe(null);
-      expect(environment.lookup(nullthrows(fragmentSelector)).data).toEqual({
-        __typename: 'MarkdownUserNameRenderer',
-        data: undefined,
-        markdown: undefined,
+      expect(callback).toBeCalledTimes(0);
+      expect(environment.lookup(selector).data).toEqual({
+        node: {
+          nameRenderer: null,
+        },
       });
     });
   });

@@ -333,8 +333,8 @@ export type HandleFieldPayload = $Exact<{
  * directive:
  * - data: The GraphQL response value for the @match field.
  * - dataID: The ID of the store object linked to by the @match field.
- * - operationName: The name of the generated SplitOperation module
- *   with which to normalize `data`.
+ * - operationReference: A reference to a generated module containing the
+ *   SplitOperation with which to normalize the field's `data`.
  * - variables: Query variables.
  * - typeName: the type that matched.
  *
@@ -345,26 +345,28 @@ export type HandleFieldPayload = $Exact<{
 export type MatchFieldPayload = {|
   data: PayloadData,
   dataID: DataID,
-  operationName: string,
+  operationReference: mixed,
   typeName: string,
   variables: Variables,
 |};
 
 /**
  * A user-supplied object to load a generated operation (SplitOperation) AST
- * by its module name.
+ * by a module reference. The exact format of a module reference is left to
+ * the application, but it must be a plain JavaScript value (string, number,
+ * or object/array of same).
  */
 export type OperationLoader = {|
   /**
    * Synchronously load an operation, returning either the node or null if it
    * cannot be resolved synchronously.
    */
-  get(name: string): ?ConcreteSplitOperation,
+  get(reference: mixed): ?ConcreteSplitOperation,
 
   /**
    * Asynchronously load an operation.
    */
-  load(name: string): Promise<?ConcreteSplitOperation>,
+  load(reference: mixed): Promise<?ConcreteSplitOperation>,
 |};
 
 /**

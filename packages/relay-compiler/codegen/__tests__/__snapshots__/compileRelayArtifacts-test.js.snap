@@ -1007,19 +1007,11 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       "matchesByType": {
         "PlainUserNameRenderer": {
           "fragmentPropName": "name",
-          "fragmentName": "PlainUserNameRenderer_name",
-          "module": require('PlainUserNameRenderer.react'),
-          "moduleName": "PlainUserNameRenderer.react",
-          "operation": require('PlainUserNameRenderer_name$normalization.graphql'),
-          "operationName": "PlainUserNameRenderer_name$normalization.graphql"
+          "fragmentName": "PlainUserNameRenderer_name"
         },
         "MarkdownUserNameRenderer": {
           "fragmentPropName": "name",
-          "fragmentName": "MarkdownUserNameRenderer_name",
-          "module": require('MarkdownUserNameRenderer.react'),
-          "moduleName": "MarkdownUserNameRenderer.react",
-          "operation": require('MarkdownUserNameRenderer_name$normalization.graphql'),
-          "operationName": "MarkdownUserNameRenderer_name$normalization.graphql"
+          "fragmentName": "MarkdownUserNameRenderer_name"
         }
       }
     }
@@ -2044,19 +2036,11 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                 "matchesByType": {
                   "PlainUserNameRenderer": {
                     "fragmentPropName": "name",
-                    "fragmentName": "PlainUserNameRenderer_name",
-                    "module": require('PlainUserNameRenderer.react'),
-                    "moduleName": "PlainUserNameRenderer.react",
-                    "operation": require('PlainUserNameRenderer_name$normalization.graphql'),
-                    "operationName": "PlainUserNameRenderer_name$normalization.graphql"
+                    "fragmentName": "PlainUserNameRenderer_name"
                   },
                   "MarkdownUserNameRenderer": {
                     "fragmentPropName": "name",
-                    "fragmentName": "MarkdownUserNameRenderer_name",
-                    "module": require('MarkdownUserNameRenderer.react'),
-                    "moduleName": "MarkdownUserNameRenderer.react",
-                    "operation": require('MarkdownUserNameRenderer_name$normalization.graphql'),
-                    "operationName": "MarkdownUserNameRenderer_name$normalization.graphql"
+                    "fragmentName": "MarkdownUserNameRenderer_name"
                   }
                 }
               }
@@ -2173,7 +2157,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
               "type": "String"
             }
           ],
-          "storageKey": "js(module:\\"PlainUserNameRenderer.react\\")"
+          "storageKey": "__match_component"
         },
         {
           "kind": "ScalarField",
@@ -2187,7 +2171,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
               "type": "String"
             }
           ],
-          "storageKey": "js(module:\\"PlainUserNameRenderer_name$normalization.graphql\\")"
+          "storageKey": "__match_fragment"
         }
       ]
     }
@@ -2253,7 +2237,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
               "type": "String"
             }
           ],
-          "storageKey": "js(module:\\"MarkdownUserNameRenderer.react\\")"
+          "storageKey": "__match_component"
         },
         {
           "kind": "ScalarField",
@@ -2267,7 +2251,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
               "type": "String"
             }
           ],
-          "storageKey": "js(module:\\"MarkdownUserNameRenderer_name$normalization.graphql\\")"
+          "storageKey": "__match_fragment"
         }
       ]
     }
@@ -2307,19 +2291,11 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       "matchesByType": {
         "PlainUserNameRenderer": {
           "fragmentPropName": "name",
-          "fragmentName": "PlainUserNameRenderer_name",
-          "module": require('PlainUserNameRenderer.react'),
-          "moduleName": "PlainUserNameRenderer.react",
-          "operation": require('PlainUserNameRenderer_name$normalization.graphql'),
-          "operationName": "PlainUserNameRenderer_name$normalization.graphql"
+          "fragmentName": "PlainUserNameRenderer_name"
         },
         "MarkdownUserNameRenderer": {
           "fragmentPropName": "name",
-          "fragmentName": "MarkdownUserNameRenderer_name",
-          "module": require('MarkdownUserNameRenderer.react'),
-          "moduleName": "MarkdownUserNameRenderer.react",
-          "operation": require('MarkdownUserNameRenderer_name$normalization.graphql'),
-          "operationName": "MarkdownUserNameRenderer_name$normalization.graphql"
+          "fragmentName": "MarkdownUserNameRenderer_name"
         }
       }
     }
@@ -2539,19 +2515,11 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
                 "matchesByType": {
                   "PlainUserNameRenderer": {
                     "fragmentPropName": "name",
-                    "fragmentName": "PlainUserNameRenderer_name",
-                    "module": require('PlainUserNameRenderer.react'),
-                    "moduleName": "PlainUserNameRenderer.react",
-                    "operation": require('PlainUserNameRenderer_name$normalization.graphql'),
-                    "operationName": "PlainUserNameRenderer_name$normalization.graphql"
+                    "fragmentName": "PlainUserNameRenderer_name"
                   },
                   "MarkdownUserNameRenderer": {
                     "fragmentPropName": "name",
-                    "fragmentName": "MarkdownUserNameRenderer_name",
-                    "module": require('MarkdownUserNameRenderer.react'),
-                    "moduleName": "MarkdownUserNameRenderer.react",
-                    "operation": require('MarkdownUserNameRenderer_name$normalization.graphql'),
-                    "operationName": "MarkdownUserNameRenderer_name$normalization.graphql"
+                    "fragmentName": "MarkdownUserNameRenderer_name"
                   }
                 }
               }
@@ -2668,7 +2636,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
               "type": "String"
             }
           ],
-          "storageKey": "js(module:\\"PlainUserNameRenderer.react\\")"
+          "storageKey": "__match_component"
         },
         {
           "kind": "ScalarField",
@@ -2682,7 +2650,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
               "type": "String"
             }
           ],
-          "storageKey": "js(module:\\"PlainUserNameRenderer_name$normalization.graphql\\")"
+          "storageKey": "__match_fragment"
         }
       ]
     }
@@ -2748,7 +2716,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
               "type": "String"
             }
           ],
-          "storageKey": "js(module:\\"MarkdownUserNameRenderer.react\\")"
+          "storageKey": "__match_component"
         },
         {
           "kind": "ScalarField",
@@ -2762,7 +2730,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
               "type": "String"
             }
           ],
-          "storageKey": "js(module:\\"MarkdownUserNameRenderer_name$normalization.graphql\\")"
+          "storageKey": "__match_fragment"
         }
       ]
     }
@@ -2802,19 +2770,11 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       "matchesByType": {
         "PlainUserNameRenderer": {
           "fragmentPropName": "name",
-          "fragmentName": "PlainUserNameRenderer_name",
-          "module": require('PlainUserNameRenderer.react'),
-          "moduleName": "PlainUserNameRenderer.react",
-          "operation": require('PlainUserNameRenderer_name$normalization.graphql'),
-          "operationName": "PlainUserNameRenderer_name$normalization.graphql"
+          "fragmentName": "PlainUserNameRenderer_name"
         },
         "MarkdownUserNameRenderer": {
           "fragmentPropName": "name",
-          "fragmentName": "MarkdownUserNameRenderer_name",
-          "module": require('MarkdownUserNameRenderer.react'),
-          "moduleName": "MarkdownUserNameRenderer.react",
-          "operation": require('MarkdownUserNameRenderer_name$normalization.graphql'),
-          "operationName": "MarkdownUserNameRenderer_name$normalization.graphql"
+          "fragmentName": "MarkdownUserNameRenderer_name"
         }
       }
     }

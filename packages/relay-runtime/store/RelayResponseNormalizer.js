@@ -32,6 +32,7 @@ const {
   getArgumentValues,
   getHandleStorageKey,
   getStorageKey,
+  MATCH_FRAGMENT_KEY,
   TYPENAME_KEY,
 } = require('./RelayStoreUtils');
 
@@ -260,14 +261,16 @@ class RelayResponseNormalizer {
     } else if (__DEV__) {
       this._validateRecordType(nextRecord, field, fieldValue);
     }
-    const operationName = match.operationName;
-    this._matchFieldPayloads.push({
-      operationName,
-      dataID: nextID,
-      data: fieldValue,
-      typeName,
-      variables: this._variables,
-    });
+    const operationReference = fieldValue[MATCH_FRAGMENT_KEY];
+    if (operationReference != null) {
+      this._matchFieldPayloads.push({
+        operationReference,
+        dataID: nextID,
+        data: fieldValue,
+        typeName,
+        variables: this._variables,
+      });
+    }
   }
 
   _normalizeField(

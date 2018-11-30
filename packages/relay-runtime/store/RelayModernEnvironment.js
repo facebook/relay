@@ -503,7 +503,9 @@ function processMatchPayload(
 ): RelayObservable<void> {
   return RelayObservable.from(
     new Promise((resolve, reject) => {
-      operationLoader.load(matchPayload.operationName).then(resolve, reject);
+      operationLoader
+        .load(matchPayload.operationReference)
+        .then(resolve, reject);
     }),
   ).map((operation: ?ConcreteSplitOperation) => {
     if (operation == null) {

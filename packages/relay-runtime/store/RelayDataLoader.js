@@ -48,7 +48,7 @@ const {
   SCALAR_FIELD,
   SCALAR_HANDLE,
 } = RelayConcreteNode;
-const {getStorageKey, getArgumentValues} = RelayStoreUtils;
+const {getStorageKey, getArgumentValues, MATCH_FRAGMENT_KEY} = RelayStoreUtils;
 
 /**
  * Synchronously check whether the records required to fulfill the
@@ -271,6 +271,14 @@ class RelayDataLoader {
     if (linkedID === undefined) {
       this._handleMissing();
     } else if (linkedID !== null) {
+      const status = this._mutator.getStatus(linkedID);
+      if (status === UNKNOWN) {
+        this._handleMissing();
+        return;
+      }
+      if (status !== EXISTENT) {
+        return;
+      }
       const typeName = this._mutator.getType(linkedID);
       const match = typeName != null ? field.matchesByType[typeName] : null;
       if (match != null) {
@@ -279,7 +287,17 @@ class RelayDataLoader {
           operationLoader !== null,
           'RelayDataLoader: Expected an operationLoader to be configured when using `@match`.',
         );
-        const operation = operationLoader.get(match.operationName);
+        const operationReference = this._mutator.getValue(
+          linkedID,
+          MATCH_FRAGMENT_KEY,
+        );
+        if (operationReference === undefined) {
+          this._handleMissing();
+          return;
+        } else if (operationReference === null) {
+          return;
+        }
+        const operation = operationLoader.get(operationReference);
         if (operation != null) {
           this._traverse(operation, linkedID);
         } else {

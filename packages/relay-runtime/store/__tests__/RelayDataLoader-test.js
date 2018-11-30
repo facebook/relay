@@ -295,10 +295,13 @@ describe('RelayDataLoader', () => {
         BarQuery = nodes.BarQuery;
         loader = {
           get: jest.fn(
-            moduleName => nodes[SplitNaming.getOriginalName(moduleName)],
+            moduleName =>
+              nodes[SplitNaming.getOriginalName(String(moduleName))],
           ),
           load: jest.fn(moduleName =>
-            Promise.resolve(nodes[SplitNaming.getOriginalName(moduleName)]),
+            Promise.resolve(
+              nodes[SplitNaming.getOriginalName(String(moduleName))],
+            ),
           ),
         };
       });
@@ -319,6 +322,9 @@ describe('RelayDataLoader', () => {
             __id:
               'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
             __typename: 'PlainUserNameRenderer',
+            __match_component: 'PlainUserNameRenderer.react',
+            __match_fragment:
+              'PlainUserNameRenderer_name$normalization.graphql',
             plaintext: 'plain name',
             data: {__ref: 'data'},
           },
@@ -371,6 +377,9 @@ describe('RelayDataLoader', () => {
             __id:
               'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
             __typename: 'MarkdownUserNameRenderer',
+            __match_component: 'MarkdownUserNameRenderer.react',
+            __match_fragment:
+              'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {__ref: 'data'},
           },

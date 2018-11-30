@@ -26,6 +26,7 @@ const {
   FRAGMENTS_KEY,
   FRAGMENT_PROP_NAME_KEY,
   ID_KEY,
+  MATCH_COMPONENT_KEY,
   MODULE_KEY,
   getArgumentValues,
   getStorageKey,
@@ -292,10 +293,24 @@ class RelayReader {
       RelayModernRecord.getDataID(linkedRecord),
     );
 
-    const match = field.matchesByType[concreteType];
     // If we can't find a match provided in the directive for the concrete
     // type, return null as the result
+    const match = field.matchesByType[concreteType];
     if (match == null) {
+      data[applicationName] = null;
+      return;
+    }
+
+    // Determine the component module from the store: if the field is missing
+    // it means we don't know what component to render the match with.
+    const matchComponent = RelayModernRecord.getValue(
+      linkedRecord,
+      MATCH_COMPONENT_KEY,
+    );
+    if (matchComponent == null) {
+      if (matchComponent === undefined) {
+        this._isMissingData = true;
+      }
       data[applicationName] = null;
       return;
     }
@@ -317,8 +332,7 @@ class RelayReader {
       this._variables,
     );
     matchResult[FRAGMENT_PROP_NAME_KEY] = match.fragmentPropName;
-    // TODO(T35275153) - Remove this once server returns SSR module response
-    matchResult[MODULE_KEY] = match.module;
+    matchResult[MODULE_KEY] = matchComponent;
 
     // Attach the match result to the data being read
     data[applicationName] = matchResult;

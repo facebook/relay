@@ -18,7 +18,12 @@ const {GraphQLList} = require('graphql');
 const {IRVisitor, SchemaUtils, SplitNaming} = require('graphql-compiler');
 const {getStorageKey, stableCopy} = require('relay-runtime');
 
-import type {Fragment, Request, SplitOperation} from 'graphql-compiler';
+import type {
+  Metadata,
+  Fragment,
+  Request,
+  SplitOperation,
+} from 'graphql-compiler';
 import type {
   ConcreteArgument,
   ConcreteArgumentDefinition,
@@ -161,7 +166,7 @@ const RelayCodeGenVisitor = {
         selections: flattenArray(node.selections),
       };
       // Precompute storageKey if possible
-      const storageKey = getStaticStorageKey(field);
+      const storageKey = getStaticStorageKey(field, node.metadata);
       if (storageKey) {
         field = {...field, storageKey};
       }
@@ -214,10 +219,6 @@ const RelayCodeGenVisitor = {
         matchesByType[selection.type] = {
           fragmentPropName,
           fragmentName,
-          module: CodeMarker.moduleDependency(selection.module),
-          moduleName: selection.module,
-          operation: CodeMarker.moduleDependency(normalizationName),
-          operationName: normalizationName,
         };
       });
       let field: ConcreteMatchField = {
@@ -229,7 +230,7 @@ const RelayCodeGenVisitor = {
         matchesByType,
       };
       // Precompute storageKey if possible
-      const storageKey = getStaticStorageKey(field);
+      const storageKey = getStaticStorageKey(field, node.metadata);
       if (storageKey) {
         field = {...field, storageKey};
       }
@@ -262,7 +263,7 @@ const RelayCodeGenVisitor = {
         storageKey: null,
       };
       // Precompute storageKey if possible
-      const storageKey = getStaticStorageKey(field);
+      const storageKey = getStaticStorageKey(field, node.metadata);
       if (storageKey) {
         field = {...field, storageKey};
       }
@@ -344,7 +345,14 @@ function getErrorMessage(node: any): string {
  * generated for fields with supplied arguments that are all statically known
  * (ie. literals, no variables) at build time.
  */
-function getStaticStorageKey(field: ConcreteField): ?string {
+function getStaticStorageKey(
+  field: ConcreteField,
+  metadata: Metadata,
+): ?string {
+  const metadataStorageKey = metadata?.storageKey;
+  if (typeof metadataStorageKey === 'string') {
+    return metadataStorageKey;
+  }
   if (
     !field.args ||
     field.args.length === 0 ||

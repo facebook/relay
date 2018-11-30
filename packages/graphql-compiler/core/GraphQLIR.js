@@ -20,7 +20,7 @@ import type {
   GraphQLUnionType,
 } from 'graphql';
 
-type Metadata = ?{[key: string]: mixed};
+export type Metadata = ?{[key: string]: mixed};
 
 export type Argument = {|
   +kind: 'Argument',

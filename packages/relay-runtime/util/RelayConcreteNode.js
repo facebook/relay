@@ -106,10 +106,6 @@ export type ConcreteMatchField = {|
     +[key: string]: {|
       +fragmentPropName: string,
       +fragmentName: string,
-      +module: mixed,
-      +moduleName: string,
-      +operation: mixed,
-      +operationName: string,
     |},
   },
 |};

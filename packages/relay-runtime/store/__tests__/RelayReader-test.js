@@ -474,6 +474,8 @@ describe('RelayReader', () => {
           __id:
             'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __typename: 'PlainUserNameRenderer',
+          __match_component: 'PlainUserNameRenderer.react',
+          __match_fragment: 'PlainUserNameRenderer_name$normalization.graphql',
           plaintext: 'plain name',
         },
         'client:root': {
@@ -497,7 +499,7 @@ describe('RelayReader', () => {
             PlainUserNameRenderer_name: {},
           },
           __fragmentPropName: 'name',
-          __module: '@@MODULE_START@@PlainUserNameRenderer.react@@MODULE_END@@',
+          __module: 'PlainUserNameRenderer.react',
         },
       });
       expect(Object.keys(seenRecords)).toEqual([
@@ -523,6 +525,9 @@ describe('RelayReader', () => {
           __id:
             'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __typename: 'MarkdownUserNameRenderer',
+          __match_component: 'MarkdownUserNameRenderer.react',
+          __match_fragment:
+            'MarkdownUserNameRenderer_name$normalization.graphql',
           markdown: 'markdown payload',
         },
         'client:root': {
@@ -546,8 +551,7 @@ describe('RelayReader', () => {
             MarkdownUserNameRenderer_name: {},
           },
           __fragmentPropName: 'name',
-          __module:
-            '@@MODULE_START@@MarkdownUserNameRenderer.react@@MODULE_END@@',
+          __module: 'MarkdownUserNameRenderer.react',
         },
       });
       expect(Object.keys(seenRecords)).toEqual([

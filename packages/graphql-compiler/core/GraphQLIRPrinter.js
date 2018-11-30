@@ -106,9 +106,8 @@ function printField(field: Field, parentCondition: string = ''): string {
 function printSelection(
   selection: Selection,
   indent: string,
-  parentCondition?: string,
+  parentCondition?: string = '',
 ): string {
-  parentCondition = parentCondition || '';
   let str;
   if (selection.kind === 'LinkedField') {
     str = printField(selection, parentCondition);

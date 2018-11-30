@@ -181,9 +181,9 @@ const RelayCodeGenVisitor = {
           return;
         }
         invariant(
-          selection.kind === 'MatchFragmentSpread',
+          selection.kind === 'MatchBranch',
           'RelayCodeGenerator: Expected selection for MatchField %s to be ' +
-            'a MatchFragmentSpread, but instead got %s. Source: %s.',
+            'a `MatchBranch`, but instead got `%s`. Source: `%s`.',
           node.alias ?? node.name,
           selection.kind,
           getErrorMessage(ancestors[0]),

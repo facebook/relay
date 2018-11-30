@@ -19,12 +19,7 @@ const {
   getLiteralArgumentValues,
 } = require('graphql-compiler');
 
-import type {
-  FragmentSpread,
-  LinkedField,
-  MatchField,
-  MatchFragmentSpread,
-} from 'graphql-compiler';
+import type {LinkedField, MatchField} from 'graphql-compiler';
 import type {GraphQLCompositeType} from 'graphql';
 
 const MATCH_DIRECTIVE_NAME = 'match';
@@ -41,46 +36,14 @@ const SCHEMA_EXTENSION = `
 `;
 
 /**
- * This transform takes the raw MatchField nodes parsed by the compiler and
- * validates the types as well as generating the supported arguments field.
+ * This transform rewrites LinkedField nodes with @match and rewrites them
+ * into MatchField nodes with a `supported` argument and MatchBranch selections.
  */
 function relayMatchTransform(context: CompilerContext): CompilerContext {
   return IRTransformer.transform(context, {
     // $FlowFixMe this transform intentionally changes the AST node type
     LinkedField: visitLinkedField,
-    // $FlowFixMe this transform intentionally changes the AST node type
-    FragmentSpread: visitFragmentSpread,
   });
-}
-
-function visitFragmentSpread(
-  node: FragmentSpread,
-): FragmentSpread | MatchFragmentSpread {
-  const transformedNode: FragmentSpread = this.traverse(node);
-
-  const directives = transformedNode.directives;
-  const moduleDirective = directives.find(
-    directive => directive.name === 'module',
-  );
-  if (moduleDirective == null) {
-    return transformedNode;
-  }
-  if (directives.length !== 1) {
-    throw new Error(
-      'RelayMatchTransform: The @module cannot be combined with other directives.',
-    );
-  }
-  const moduleDirectiveArgs = getLiteralArgumentValues(moduleDirective.args);
-  const context: CompilerContext = this.getContext();
-  return ({
-    kind: 'MatchFragmentSpread',
-    type: context.getFragment(transformedNode.name).type,
-    module: moduleDirectiveArgs.name,
-    args: [],
-    directives: [],
-    metadata: null,
-    name: transformedNode.name,
-  }: MatchFragmentSpread);
 }
 
 function visitLinkedField(
@@ -93,17 +56,13 @@ function visitLinkedField(
   const matchDirective = transformedNode.directives.find(
     directive => directive.name === 'match',
   );
-  if (matchDirective == null) {
+  if (matchDirective == null || typeof parent !== 'object') {
     return transformedNode;
   }
 
   const matchDirectiveArgs = getLiteralArgumentValues(matchDirective.args);
   const experimental_skipInlineDoNotUse =
     matchDirectiveArgs.experimental_skipInlineDoNotUse ?? false;
-
-  if (typeof parent !== 'object') {
-    return transformedNode;
-  }
 
   const context: CompilerContext = this.getContext();
 
@@ -141,22 +100,26 @@ function visitLinkedField(
     );
   }
 
-  const seenTypes: Set<GraphQLCompositeType> = new Set();
-  const supportedTypes = transformedNode.selections.map(matchCase => {
-    if (matchCase.kind !== 'MatchFragmentSpread') {
+  const seenTypes: Map<GraphQLCompositeType, string> = new Map();
+  const selections = [];
+  transformedNode.selections.forEach(matchSelection => {
+    if (matchSelection.kind !== 'FragmentSpread') {
       throw new Error(
-        'RelayMatchTransform: all selections in a @match field should have ' +
-          'a @module directive.',
+        'RelayMatchTransform: all selections in a @match field should be ' +
+          `fragment spreads, got '${matchSelection.kind}'.`,
       );
     }
-    const matchedType = matchCase.type;
-    invariant(
-      !seenTypes.has(matchedType),
-      'RelayMatchTransform: Each "match" type has to appear at-most once. ' +
-        'Type `%s` was duplicated.',
-      matchedType,
-    );
-    seenTypes.add(matchedType);
+    const fragment = context.getFragment(matchSelection.name);
+    const matchedType = fragment.type;
+    if (seenTypes.has(matchedType)) {
+      throw new Error(
+        'RelayMatchTransform: Each "match" type has to appear at-most once. ' +
+          `Type '${matchedType.name}' was matched in both ` +
+          `'...${matchSelection.name}' and '...${seenTypes.get(matchedType) ||
+            '(unknown)'}'.`,
+      );
+    }
+    seenTypes.set(matchedType, matchSelection.name);
 
     const belongsToUnion = unionType.getTypes().includes(matchedType);
     if (!belongsToUnion) {
@@ -167,10 +130,36 @@ function visitLinkedField(
           `"${unionType.toString()}".`,
       );
     }
-    return matchedType.name;
+
+    const moduleDirective = matchSelection.directives.find(
+      directive => directive.name === 'module',
+    );
+    if (moduleDirective == null || matchSelection.directives.length !== 1) {
+      throw new Error(
+        'RelayMatchTransform: Fragment spreads in a @match field must have a ' +
+          "'@module' directive and no other directives, got invalid directives " +
+          `on fragment spread '...${matchSelection.name}'`,
+      );
+    }
+    const moduleDirectiveArgs = getLiteralArgumentValues(moduleDirective.args);
+    selections.push({
+      kind: 'MatchBranch',
+      module: moduleDirectiveArgs.name,
+      name: matchSelection.name,
+      selections: [
+        {
+          args: [],
+          directives: [],
+          kind: 'FragmentSpread',
+          metadata: null,
+          name: matchSelection.name,
+        },
+      ],
+      type: matchedType,
+    });
   });
 
-  return ({
+  const matchField: MatchField = {
     kind: 'MatchField',
     alias: transformedNode.alias,
     args: [
@@ -181,7 +170,7 @@ function visitLinkedField(
         value: {
           kind: 'Literal',
           metadata: null,
-          value: supportedTypes,
+          value: Array.from(seenTypes.keys()).map(type => type.name),
         },
         metadata: null,
       },
@@ -193,8 +182,10 @@ function visitLinkedField(
     },
     name: transformedNode.name,
     type: unionType,
-    selections: transformedNode.selections,
-  }: MatchField);
+    selections,
+  };
+  // $FlowFixMe intentionally changing the result type in this transform
+  return (matchField: LinkedField);
 }
 
 module.exports = {

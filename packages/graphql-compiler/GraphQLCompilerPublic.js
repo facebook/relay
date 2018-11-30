@@ -72,7 +72,7 @@ export type {
   Literal,
   LocalArgumentDefinition,
   MatchField,
-  MatchFragmentSpread,
+  MatchBranch,
   Node,
   ObjectFieldValue,
   ObjectValue,

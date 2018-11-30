@@ -10,18 +10,20 @@
 
 'use strict';
 
+const invariant = require('invariant');
+
 const {
   CompilerContext,
   IRTransformer,
   SplitNaming,
 } = require('graphql-compiler');
 
-import type {MatchFragmentSpread, SplitOperation} from 'graphql-compiler';
+import type {MatchBranch, SplitOperation} from 'graphql-compiler';
 
 type State = Map<string, SplitOperation>;
 
 /**
- * This transform finds MatchFragmentSpread nodes and adds a SplitOperation root
+ * This transform finds MatchBranch nodes and adds a SplitOperation root
  * node to the context for each of them.
  */
 function relaySplitMatchTransform(context: CompilerContext): CompilerContext {
@@ -29,26 +31,26 @@ function relaySplitMatchTransform(context: CompilerContext): CompilerContext {
   const transformedContext = IRTransformer.transform(
     context,
     {
-      MatchFragmentSpread: visitMatchFragmentSpread,
+      MatchBranch: visitMatchBranch,
     },
     () => splitOperations,
   );
   return transformedContext.addAll(Array.from(splitOperations.values()));
 }
 
-function visitMatchFragmentSpread(
-  node: MatchFragmentSpread,
-  state: State,
-): MatchFragmentSpread {
+function visitMatchBranch(node: MatchBranch, state: State): MatchBranch {
   const transformedNode = this.traverse(node, state);
-  const context: CompilerContext = this.getContext();
-  const fragment = context.getFragment(transformedNode.name);
+  const type = transformedNode.type;
+  invariant(
+    type != null,
+    'RelaySplitMatchTransform: Expected `type` to have been set by RelayMatchTransform.',
+  );
   const splitOperation: SplitOperation = {
     kind: 'SplitOperation',
     name: SplitNaming.getAnnotatedName(transformedNode.name, 'normalization'),
-    selections: fragment.selections,
+    selections: transformedNode.selections,
     metadata: null,
-    type: fragment.type,
+    type: transformedNode.type,
   };
   state.set(node.name, splitOperation);
   return transformedNode;

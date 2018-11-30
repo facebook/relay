@@ -28,7 +28,7 @@ import type {
   Literal,
   LocalArgumentDefinition,
   MatchField,
-  MatchFragmentSpread,
+  MatchBranch,
   ObjectFieldValue,
   ObjectValue,
   Request,
@@ -50,7 +50,7 @@ type NodeVisitor<S> = {
   ListValue?: NodeVisitorFunction<ListValue, S>,
   Literal?: NodeVisitorFunction<Literal, S>,
   MatchField?: NodeVisitorFunction<MatchField, S>,
-  MatchFragmentSpread?: NodeVisitorFunction<MatchFragmentSpread, S>,
+  MatchBranch?: NodeVisitorFunction<MatchBranch, S>,
   LocalArgumentDefinition?: NodeVisitorFunction<LocalArgumentDefinition, S>,
   ObjectFieldValue?: NodeVisitorFunction<ObjectFieldValue, S>,
   ObjectValue?: NodeVisitorFunction<ObjectValue, S>,
@@ -226,8 +226,13 @@ class Transformer<S> {
       case 'Directive':
         nextNode = this._traverseChildren(prevNode, ['args']);
         break;
+      case 'MatchBranch':
+        nextNode = this._traverseChildren(prevNode, ['selections']);
+        if (!nextNode.selections.length) {
+          nextNode = null;
+        }
+        break;
       case 'FragmentSpread':
-      case 'MatchFragmentSpread':
       case 'ScalarField':
         nextNode = this._traverseChildren(prevNode, ['args', 'directives']);
         break;

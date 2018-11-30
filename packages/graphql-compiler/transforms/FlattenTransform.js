@@ -170,12 +170,12 @@ function flattenSelectionsInto(
         ...flattenedSelection,
         selections: mergeSelections(flattenedSelection, selection, state, type),
       });
-    } else if (
-      flattenedSelection.kind === 'FragmentSpread' ||
-      flattenedSelection.kind === 'MatchFragmentSpread'
-    ) {
+    } else if (flattenedSelection.kind === 'FragmentSpread') {
       // Ignore duplicate fragment spreads.
-    } else if (flattenedSelection.kind === 'MatchField') {
+    } else if (
+      flattenedSelection.kind === 'MatchField' ||
+      flattenedSelection.kind === 'MatchBranch'
+    ) {
       // TODO(T35853103) Handle MatchField
     } else if (flattenedSelection.kind === 'LinkedField') {
       invariant(

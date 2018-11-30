@@ -651,9 +651,16 @@ type UnfriendResponsePayload {
   formerFriend: User
 }
 
-type PlainUserNameRenderer {
+scalar JsModule
+
+interface HasJsField {
+  js(module: String): JsModule
+}
+
+type PlainUserNameRenderer implements HasJsField {
   plaintext: String
   data: PlainUserNameData
+  js(module: String): JsModule
 }
 
 type PlainUserNameData {
@@ -661,9 +668,10 @@ type PlainUserNameData {
   text: String
 }
 
-type MarkdownUserNameRenderer {
+type MarkdownUserNameRenderer implements HasJsField {
   markdown: String
   data: MarkdownUserNameData
+  js(module: String): JsModule
 }
 
 type MarkdownUserNameData {

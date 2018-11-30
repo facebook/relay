@@ -70,7 +70,7 @@ describe('GraphQLIRVisitor', () => {
           Directive: mutateNameVisitor,
           Fragment: mutateNameVisitor,
           FragmentSpread: mutateNameVisitor,
-          MatchFragmentSpread: mutateNameVisitor,
+          MatchBranch: mutateNameVisitor,
           ImportArgumentDefinition: mutateNameVisitor,
           LinkedField: mutateNameVisitor,
           MatchField: mutateNameVisitor,

@@ -18,11 +18,7 @@ const {
   getLiteralArgumentValues,
 } = require('graphql-compiler');
 
-import type {
-  Fragment,
-  FragmentSpread,
-  MatchFragmentSpread,
-} from 'graphql-compiler';
+import type {Fragment, FragmentSpread, MatchBranch} from 'graphql-compiler';
 
 const RELAY = 'relay';
 const SCHEMA_EXTENSION = `
@@ -56,12 +52,11 @@ function relayRelayDirectiveTransform(
   return IRTransformer.transform(context, {
     Fragment: visitRelayMetadata(fragmentMetadata),
     FragmentSpread: visitRelayMetadata(fragmentSpreadMetadata),
-    MatchFragmentSpread: visitRelayMetadata(fragmentSpreadMetadata),
   });
 }
 
 type MixedObj = {[key: string]: mixed};
-function visitRelayMetadata<T: Fragment | FragmentSpread | MatchFragmentSpread>(
+function visitRelayMetadata<T: Fragment | FragmentSpread>(
   metadataFn: MixedObj => MixedObj,
 ): T => T {
   return function(node) {

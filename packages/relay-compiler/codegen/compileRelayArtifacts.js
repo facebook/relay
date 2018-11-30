@@ -78,7 +78,7 @@ function compileRelayArtifacts(
     const results = [];
 
     // Add everything from codeGenContext, these are the operations as well as
-    // MatchFragmentSpreads.
+    // SplitOperations from @match.
     for (const node of codeGenContext.documents()) {
       if (node.kind === 'Root') {
         const fragNode = fragmentContext.getRoot(node.name);

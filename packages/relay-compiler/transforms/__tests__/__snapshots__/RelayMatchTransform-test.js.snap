@@ -56,7 +56,7 @@ fragment PlaintextBody_comment on PlainCommentBody {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Error: RelayMatchTransform: all selections in a @match field should have a @module directive.
+Error: RelayMatchTransform: all selections in a @match field should be fragment spreads, got 'ScalarField'.
 `;
 
 exports[`RelayMatchTransform matches expected output: relay-match-transform.graphql 1`] = `

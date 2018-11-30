@@ -34,11 +34,11 @@ fragment PlaintextBody_comment on PlainCommentBody {
 }
 
 SplitOperation MarkdownBody_comment$normalization {
-  __typename
+  ...MarkdownBody_comment
 }
 
 SplitOperation PlaintextBody_comment$normalization {
-  __typename
+  ...PlaintextBody_comment
 }
 
 `;

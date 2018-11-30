@@ -116,6 +116,10 @@ function printSelection(
   } else if (selection.kind === 'MatchField') {
     str = printField(selection, parentCondition);
     str += printSelections(selection, indent + INDENT);
+  } else if (selection.kind === 'MatchBranch') {
+    str = selection.selections
+      .map(matchSelection => printSelection(matchSelection, indent))
+      .join('\n');
   } else if (selection.kind === 'ScalarField') {
     str = printField(selection, parentCondition);
   } else if (selection.kind === 'InlineFragment') {
@@ -123,10 +127,7 @@ function printSelection(
     str += parentCondition;
     str += printDirectives(selection.directives);
     str += printSelections(selection, indent + INDENT);
-  } else if (
-    selection.kind === 'FragmentSpread' ||
-    selection.kind === 'MatchFragmentSpread'
-  ) {
+  } else if (selection.kind === 'FragmentSpread') {
     str = '...' + selection.name;
     str += parentCondition;
     str += printFragmentArguments(selection.args);

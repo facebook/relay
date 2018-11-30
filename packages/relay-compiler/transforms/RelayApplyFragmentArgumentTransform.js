@@ -30,7 +30,6 @@ import type {
   Field,
   Fragment,
   FragmentSpread,
-  MatchFragmentSpread,
   Node,
   Selection,
 } from 'graphql-compiler';
@@ -116,8 +115,8 @@ function transformFragmentSpread(
   context: CompilerContext,
   fragments: Map<string, ?Fragment>,
   scope: Scope,
-  spread: FragmentSpread | MatchFragmentSpread,
-): ?(FragmentSpread | MatchFragmentSpread) {
+  spread: FragmentSpread,
+): ?FragmentSpread {
   const directives = transformDirectives(scope, spread.directives);
   const fragment = context.getFragment(spread.name);
   const appliedFragment = transformFragment(
@@ -130,25 +129,14 @@ function transformFragmentSpread(
   if (!appliedFragment) {
     return null;
   }
-  if (spread.kind === 'FragmentSpread') {
-    const transformed: FragmentSpread = {
-      ...spread,
-      kind: 'FragmentSpread',
-      args: [],
-      directives,
-      name: appliedFragment.name,
-    };
-    return transformed;
-  } else {
-    const transformed: MatchFragmentSpread = {
-      ...spread,
-      kind: 'MatchFragmentSpread',
-      args: [],
-      directives,
-      name: appliedFragment.name,
-    };
-    return transformed;
-  }
+  const transformed: FragmentSpread = {
+    ...spread,
+    kind: 'FragmentSpread',
+    args: [],
+    directives,
+    name: appliedFragment.name,
+  };
+  return transformed;
 }
 
 function transformField<T: Field>(
@@ -234,12 +222,12 @@ function transformSelections(
   let nextSelections = null;
   selections.forEach(selection => {
     let nextSelection;
-    if (selection.kind === 'InlineFragment') {
-      nextSelection = transformNode(context, fragments, scope, selection);
-    } else if (
-      selection.kind === 'FragmentSpread' ||
-      selection.kind === 'MatchFragmentSpread'
+    if (
+      selection.kind === 'InlineFragment' ||
+      selection.kind === 'MatchBranch'
     ) {
+      nextSelection = transformNode(context, fragments, scope, selection);
+    } else if (selection.kind === 'FragmentSpread') {
       nextSelection = transformFragmentSpread(
         context,
         fragments,

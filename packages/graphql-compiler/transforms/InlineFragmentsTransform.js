@@ -21,7 +21,6 @@ import type {
   FragmentSpread,
   LinkedField,
   MatchField,
-  MatchFragmentSpread,
 } from '../core/GraphQLIR';
 
 /**
@@ -41,9 +40,7 @@ function visitFragment(fragment: Fragment): ?Fragment {
   return null;
 }
 
-function visitFragmentSpread<T: FragmentSpread | MatchFragmentSpread>(
-  fragmentSpread: T,
-): ?T {
+function visitFragmentSpread(fragmentSpread: FragmentSpread): ?FragmentSpread {
   invariant(
     fragmentSpread.args.length === 0,
     'InlineFragmentsTransform: Cannot flatten fragment spread `%s` with ' +
@@ -71,19 +68,7 @@ function visitMatchField(field: MatchField): ?MatchField {
   if (field.metadata?.experimental_skipInlineDoNotUse) {
     return this.traverse(field);
   }
-  // ...but default to inlining MatchFragmentSpreads as InlineFragments
-  const nextSelections = [];
-  field.selections.forEach(selection => {
-    if (selection.kind === 'MatchFragmentSpread') {
-      const inlineFragment = visitFragmentSpread.call(this, selection);
-      if (inlineFragment != null) {
-        nextSelections.push(inlineFragment);
-      }
-    } else {
-      nextSelections.push(selection);
-    }
-  });
-  // and MatchFields as LinkedFields
+  // ... but default to inlining MatchFields as LinkedFields
   const linkedField: LinkedField = {
     kind: 'LinkedField',
     alias: field.alias,
@@ -92,7 +77,7 @@ function visitMatchField(field: MatchField): ?MatchField {
     directives: field.directives,
     handles: field.handles,
     metadata: field.metadata,
-    selections: nextSelections,
+    selections: field.selections,
     type: field.type,
   };
   return this.traverse(linkedField);

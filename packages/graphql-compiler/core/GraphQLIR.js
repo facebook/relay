@@ -83,7 +83,7 @@ export type IR =
   | Literal
   | LocalArgumentDefinition
   | MatchField
-  | MatchFragmentSpread
+  | MatchBranch
   | ObjectFieldValue
   | ObjectValue
   | Request
@@ -146,14 +146,13 @@ export type LocalArgumentDefinition = {|
   +type: GraphQLInputType,
 |};
 
-export type MatchFragmentSpread = {|
-  +kind: 'MatchFragmentSpread',
-  +type: GraphQLCompositeType,
+export type MatchBranch = {|
+  +kind: 'MatchBranch',
   +module: string,
-  +args: $ReadOnlyArray<Argument>,
-  +directives: $ReadOnlyArray<Directive>,
-  +metadata: Metadata,
+  // the name of the original FragmentSpread from which the branch was created
   +name: string,
+  +type: GraphQLCompositeType,
+  +selections: $ReadOnlyArray<Selection>,
 |};
 
 export type MatchField = {|
@@ -174,6 +173,7 @@ export type Node =
   | InlineFragment
   | LinkedField
   | MatchField
+  | MatchBranch
   | Root
   | SplitOperation;
 
@@ -233,7 +233,7 @@ export type Selection =
   | InlineFragment
   | LinkedField
   | MatchField
-  | MatchFragmentSpread
+  | MatchBranch
   | ScalarField;
 
 export type SplitOperation = {|

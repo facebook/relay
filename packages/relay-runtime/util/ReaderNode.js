@@ -28,7 +28,7 @@ import type {
   ConcreteVariable,
   ConcreteSelectableNode,
   GeneratedNode,
-} from './RelayConcreteNode';
+} from './RelayConcreteNodeX';
 
 export type ReaderFragmentSpread = {|
   +kind: 'FragmentSpread',

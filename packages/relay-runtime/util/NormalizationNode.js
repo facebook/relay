@@ -28,7 +28,7 @@ import type {
   ConcreteVariable,
   ConcreteSelectableNode,
   GeneratedNode,
-} from './RelayConcreteNode';
+} from './RelayConcreteNodeX';
 
 /**
  * Represents a single operation used to processing and normalize runtime

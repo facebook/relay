@@ -13,7 +13,6 @@
 import type {
   ConcreteArgument,
   ConcreteArgumentDefinition,
-  ConcreteOperation,
   ConcreteCondition,
   ConcreteField,
   ConcreteFragment,
@@ -38,7 +37,6 @@ import type {
 
 export type ReaderArgument = ConcreteArgument;
 export type ReaderArgumentDefinition = ConcreteArgumentDefinition;
-export type ReaderOperation = ConcreteOperation;
 export type ReaderCondition = ConcreteCondition;
 export type ReaderField = ConcreteField;
 export type ReaderFragment = ConcreteFragment;

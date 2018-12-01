@@ -13,7 +13,6 @@
 import type {
   ConcreteArgument,
   ConcreteArgumentDefinition,
-  ConcreteRequest,
   ConcreteOperation,
   ConcreteCondition,
   ConcreteField,
@@ -39,7 +38,6 @@ import type {
 
 export type NormalizationArgument = ConcreteArgument;
 export type NormalizationArgumentDefinition = ConcreteArgumentDefinition;
-export type NormalizationRequest = ConcreteRequest;
 export type NormalizationOperation = ConcreteOperation;
 export type NormalizationCondition = ConcreteCondition;
 export type NormalizationField = ConcreteField;

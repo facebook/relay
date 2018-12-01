@@ -10,6 +10,9 @@
 
 'use strict';
 
+import type {ReaderFragment} from './ReaderNode';
+import type {NormalizationOperation} from './NormalizationNode';
+
 export type ConcreteArgument = ConcreteLiteral | ConcreteVariable;
 
 export type ConcreteArgumentDefinition =
@@ -29,8 +32,8 @@ export type ConcreteRequest = {|
   +id: ?string,
   text: ?string,
   +metadata: {[key: string]: mixed},
-  +fragment: ConcreteFragment,
-  +operation: ConcreteOperation,
+  +fragment: ReaderFragment,
+  +operation: NormalizationOperation,
 |};
 
 /**

@@ -13,7 +13,6 @@
 import type {
   ConcreteArgument,
   ConcreteArgumentDefinition,
-  ConcreteRequest,
   ConcreteOperation,
   ConcreteCondition,
   ConcreteField,
@@ -39,7 +38,6 @@ import type {
 
 export type ReaderArgument = ConcreteArgument;
 export type ReaderArgumentDefinition = ConcreteArgumentDefinition;
-export type ReaderRequest = ConcreteRequest;
 export type ReaderOperation = ConcreteOperation;
 export type ReaderCondition = ConcreteCondition;
 export type ReaderField = ConcreteField;

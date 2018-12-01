@@ -20,6 +20,7 @@ import type {
   ConcreteFragment,
   ConcreteRequest,
   ConcreteSplitOperation,
+  ReaderFragment,
 } from 'relay-runtime';
 
 /**
@@ -28,7 +29,7 @@ import type {
  * Converts a GraphQLIR node into a plain JS object representation that can be
  * used at runtime.
  */
-declare function generate(node: Fragment): ConcreteFragment;
+declare function generate(node: Fragment): ReaderFragment;
 declare function generate(node: Request): ConcreteRequest;
 declare function generate(node: SplitOperation): ConcreteSplitOperation;
 function generate(node) {

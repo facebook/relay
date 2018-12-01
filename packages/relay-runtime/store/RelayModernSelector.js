@@ -17,7 +17,7 @@ const warning = require('warning');
 const {getFragmentVariables} = require('./RelayConcreteVariables');
 const {FRAGMENTS_KEY, ID_KEY} = require('./RelayStoreUtils');
 
-import type {ConcreteFragment} from '../util/RelayConcreteNode';
+import type {ReaderFragment} from '../util/ReaderNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {Selector} from './RelayStoreTypes';
 
@@ -52,7 +52,7 @@ import type {Selector} from './RelayStoreTypes';
  */
 function getSelector(
   operationVariables: Variables,
-  fragment: ConcreteFragment,
+  fragment: ReaderFragment,
   item: mixed,
 ): ?Selector {
   invariant(
@@ -105,7 +105,7 @@ function getSelector(
  */
 function getSelectorList(
   operationVariables: Variables,
-  fragment: ConcreteFragment,
+  fragment: ReaderFragment,
   items: Array<mixed>,
 ): ?Array<Selector> {
   let selectors = null;
@@ -132,7 +132,7 @@ function getSelectorList(
  */
 function getSelectorsFromObject(
   operationVariables: Variables,
-  fragments: {[key: string]: ConcreteFragment},
+  fragments: {[key: string]: ReaderFragment},
   object: {[key: string]: mixed},
 ): {[key: string]: ?(Selector | Array<Selector>)} {
   const selectors = {};
@@ -178,7 +178,7 @@ function getSelectorsFromObject(
  * determining the "identity" of the props passed to a component.
  */
 function getDataIDsFromObject(
-  fragments: {[key: string]: ConcreteFragment},
+  fragments: {[key: string]: ReaderFragment},
   object: {[key: string]: mixed},
 ): {[key: string]: ?(DataID | Array<DataID>)} {
   const ids = {};
@@ -218,7 +218,7 @@ function getDataIDsFromObject(
  * @internal
  */
 function getDataIDs(
-  fragment: ConcreteFragment,
+  fragment: ReaderFragment,
   items: Array<mixed>,
 ): ?Array<DataID> {
   let ids;
@@ -235,7 +235,7 @@ function getDataIDs(
 /**
  * @internal
  */
-function getDataID(fragment: ConcreteFragment, item: mixed): ?DataID {
+function getDataID(fragment: ReaderFragment, item: mixed): ?DataID {
   invariant(
     typeof item === 'object' && item !== null && !Array.isArray(item),
     'RelayModernSelector: Expected value for fragment `%s` to be an object, got ' +
@@ -271,7 +271,7 @@ function getDataID(fragment: ConcreteFragment, item: mixed): ?DataID {
  */
 function getVariablesFromObject(
   operationVariables: Variables,
-  fragments: {[key: string]: ConcreteFragment},
+  fragments: {[key: string]: ReaderFragment},
   object: {[key: string]: mixed},
 ): Variables {
   const variables = {};
@@ -326,7 +326,7 @@ function getVariablesFromObject(
  */
 function getVariables(
   operationVariables: Variables,
-  fragment: ConcreteFragment,
+  fragment: ReaderFragment,
   item: mixed,
 ): ?Variables {
   const selector = getSelector(operationVariables, fragment, item);

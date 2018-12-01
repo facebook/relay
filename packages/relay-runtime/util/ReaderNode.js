@@ -15,7 +15,6 @@ import type {
   ConcreteArgumentDefinition,
   ConcreteCondition,
   ConcreteField,
-  ConcreteFragment,
   ConcreteRootArgument,
   ConcreteInlineFragment,
   ConcreteLinkedField,
@@ -37,11 +36,19 @@ export type ReaderFragmentSpread = {|
   +args: ?$ReadOnlyArray<ConcreteArgument>,
 |};
 
+export type ReaderFragment = {|
+  +kind: 'Fragment',
+  +name: string,
+  +type: string,
+  +metadata: ?{[key: string]: mixed},
+  +argumentDefinitions: $ReadOnlyArray<ConcreteArgumentDefinition>,
+  +selections: $ReadOnlyArray<ConcreteSelection>,
+|};
+
 export type ReaderArgument = ConcreteArgument;
 export type ReaderArgumentDefinition = ConcreteArgumentDefinition;
 export type ReaderCondition = ConcreteCondition;
 export type ReaderField = ConcreteField;
-export type ReaderFragment = ConcreteFragment;
 export type ReaderRootArgument = ConcreteRootArgument;
 export type ReaderInlineFragment = ConcreteInlineFragment;
 export type ReaderLinkedField = ConcreteLinkedField;

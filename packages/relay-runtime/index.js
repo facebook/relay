@@ -112,7 +112,6 @@ export type {
   ConcreteArgument,
   ConcreteArgumentDefinition,
   ConcreteField,
-  ConcreteFragment,
   ConcreteLinkedField,
   ConcreteMatchField,
   ConcreteRequest,
@@ -121,6 +120,7 @@ export type {
   ConcreteSplitOperation,
   GeneratedNode,
 } from './util/RelayConcreteNode';
+export type {ReaderFragment} from './util/ReaderNode';
 export type {NormalizationOperation} from './util/NormalizationNode';
 export type {
   CacheConfig,

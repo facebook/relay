@@ -48,15 +48,6 @@ export type ConcreteField =
   | ConcreteLinkedField
   | ConcreteMatchField;
 
-export type ConcreteFragment = {|
-  +kind: 'Fragment',
-  +name: string,
-  +type: string,
-  +metadata: ?{[key: string]: mixed},
-  +argumentDefinitions: $ReadOnlyArray<ConcreteArgumentDefinition>,
-  +selections: $ReadOnlyArray<ConcreteSelection>,
-|};
-
 export type ConcreteHandle = ConcreteScalarHandle | ConcreteLinkedHandle;
 
 export type ConcreteRootArgument = {|
@@ -123,7 +114,7 @@ export type ConcreteLocalArgument = {|
 export type ConcreteNode =
   | ConcreteCondition
   | ConcreteLinkedField
-  | ConcreteFragment
+  | ReaderFragment
   | ConcreteInlineFragment
   | NormalizationOperation
   | ConcreteSplitOperation;
@@ -169,13 +160,13 @@ export type ConcreteVariable = {|
 |};
 
 export type ConcreteSelectableNode =
-  | ConcreteFragment
+  | ReaderFragment
   | NormalizationOperation
   | ConcreteSplitOperation;
 
 export type GeneratedNode =
   | ConcreteRequest
-  | ConcreteFragment
+  | ReaderFragment
   | ConcreteSplitOperation;
 
 const RelayConcreteNode = {

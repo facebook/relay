@@ -14,7 +14,7 @@ const invariant = require('invariant');
 const warning = require('warning');
 
 import type {NormalizationOperation} from '../util/NormalizationNode';
-import type {ConcreteFragment} from '../util/RelayConcreteNode';
+import type {ReaderFragment} from '../util/ReaderNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
 /**
@@ -25,7 +25,7 @@ import type {Variables} from '../util/RelayRuntimeTypes';
  * Note that this is analagous to determining function arguments given a function call.
  */
 function getFragmentVariables(
-  fragment: ConcreteFragment,
+  fragment: ReaderFragment,
   rootVariables: Variables,
   argumentVariables: Variables,
 ): Variables {

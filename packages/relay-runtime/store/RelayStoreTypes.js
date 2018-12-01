@@ -21,11 +21,11 @@ import type {GraphQLTaggedNode} from '../query/RelayModernGraphQLTag';
 import type {
   ConcreteScalarField,
   ConcreteLinkedField,
-  ConcreteFragment,
   ConcreteSelectableNode,
   ConcreteRequest,
   ConcreteSplitOperation,
 } from '../util/RelayConcreteNode';
+import type {ReaderFragment} from '../util/ReaderNode';
 import type {DataID, Disposable, Variables} from '../util/RelayRuntimeTypes';
 import type {RecordState} from './RelayRecordState';
 import type {
@@ -46,7 +46,7 @@ export type {
 export opaque type FragmentReference = empty;
 
 type TEnvironment = Environment;
-type TFragment = ConcreteFragment;
+type TFragment = ReaderFragment;
 type TGraphQLTaggedNode = GraphQLTaggedNode;
 type TNode = ConcreteSelectableNode;
 type TPayload = GraphQLResponse;

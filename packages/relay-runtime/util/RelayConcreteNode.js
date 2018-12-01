@@ -10,7 +10,8 @@
 
 'use strict';
 
-import type {ReaderFragment} from './ReaderNode';
+import type {ReaderFragment,
+ReaderFragmentSpread} from './ReaderNode';
 import type {NormalizationOperation} from './NormalizationNode';
 
 export type ConcreteArgument = ConcreteLiteral | ConcreteVariable;
@@ -55,12 +56,6 @@ export type ConcreteFragment = {|
   +metadata: ?{[key: string]: mixed},
   +argumentDefinitions: $ReadOnlyArray<ConcreteArgumentDefinition>,
   +selections: $ReadOnlyArray<ConcreteSelection>,
-|};
-
-export type ConcreteFragmentSpread = {|
-  +kind: 'FragmentSpread',
-  +name: string,
-  +args: ?$ReadOnlyArray<ConcreteArgument>,
 |};
 
 export type ConcreteHandle = ConcreteScalarHandle | ConcreteLinkedHandle;
@@ -155,7 +150,7 @@ export type ConcreteScalarHandle = {|
 export type ConcreteSelection =
   | ConcreteCondition
   | ConcreteField
-  | ConcreteFragmentSpread
+  | ReaderFragmentSpread
   | ConcreteHandle
   | ConcreteInlineFragment
   | ConcreteMatchField;

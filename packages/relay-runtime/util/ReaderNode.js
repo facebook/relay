@@ -16,7 +16,6 @@ import type {
   ConcreteCondition,
   ConcreteField,
   ConcreteFragment,
-  ConcreteFragmentSpread,
   ConcreteHandle,
   ConcreteRootArgument,
   ConcreteInlineFragment,
@@ -35,12 +34,17 @@ import type {
   GeneratedNode,
 } from './RelayConcreteNode';
 
+export type ReaderFragmentSpread = {|
+  +kind: 'FragmentSpread',
+  +name: string,
+  +args: ?$ReadOnlyArray<ConcreteArgument>,
+|};
+
 export type ReaderArgument = ConcreteArgument;
 export type ReaderArgumentDefinition = ConcreteArgumentDefinition;
 export type ReaderCondition = ConcreteCondition;
 export type ReaderField = ConcreteField;
 export type ReaderFragment = ConcreteFragment;
-export type ReaderFragmentSpread = ConcreteFragmentSpread;
 export type ReaderHandle = ConcreteHandle;
 export type ReaderRootArgument = ConcreteRootArgument;
 export type ReaderInlineFragment = ConcreteInlineFragment;

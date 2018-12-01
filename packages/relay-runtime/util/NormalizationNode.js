@@ -16,7 +16,6 @@ import type {
   ConcreteCondition,
   ConcreteField,
   ConcreteFragment,
-  ConcreteFragmentSpread,
   ConcreteHandle,
   ConcreteRootArgument,
   ConcreteInlineFragment,
@@ -51,7 +50,6 @@ export type NormalizationArgumentDefinition = ConcreteArgumentDefinition;
 export type NormalizationCondition = ConcreteCondition;
 export type NormalizationField = ConcreteField;
 export type NormalizationFragment = ConcreteFragment;
-export type NormalizationFragmentSpread = ConcreteFragmentSpread;
 export type NormalizationHandle = ConcreteHandle;
 export type NormalizationRootArgument = ConcreteRootArgument;
 export type NormalizationInlineFragment = ConcreteInlineFragment;

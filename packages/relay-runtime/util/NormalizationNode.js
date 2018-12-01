@@ -15,17 +15,14 @@ import type {
   ConcreteArgumentDefinition,
   ConcreteCondition,
   ConcreteField,
-  ConcreteHandle,
   ConcreteRootArgument,
   ConcreteInlineFragment,
   ConcreteLinkedField,
   ConcreteMatchField,
-  ConcreteLinkedHandle,
   ConcreteLiteral,
   ConcreteLocalArgument,
   ConcreteNode,
   ConcreteScalarField,
-  ConcreteScalarHandle,
   ConcreteSelection,
   ConcreteSplitOperation,
   ConcreteVariable,
@@ -44,21 +41,42 @@ export type NormalizationOperation = {|
   +selections: $ReadOnlyArray<ConcreteSelection>,
 |};
 
+export type NormalizationHandle =
+  | NormalizationScalarHandle
+  | NormalizationLinkedHandle;
+
+export type NormalizationLinkedHandle = {|
+  +kind: 'LinkedHandle',
+  +alias: ?string,
+  +name: string,
+  +args: ?$ReadOnlyArray<NormalizationArgument>,
+  +handle: string,
+  +key: string,
+  +filters: ?$ReadOnlyArray<string>,
+|};
+
+export type NormalizationScalarHandle = {|
+  +kind: 'ScalarHandle',
+  +alias: ?string,
+  +name: string,
+  +args: ?$ReadOnlyArray<NormalizationArgument>,
+  +handle: string,
+  +key: string,
+  +filters: ?$ReadOnlyArray<string>,
+|};
+
 export type NormalizationArgument = ConcreteArgument;
 export type NormalizationArgumentDefinition = ConcreteArgumentDefinition;
 export type NormalizationCondition = ConcreteCondition;
 export type NormalizationField = ConcreteField;
-export type NormalizationHandle = ConcreteHandle;
 export type NormalizationRootArgument = ConcreteRootArgument;
 export type NormalizationInlineFragment = ConcreteInlineFragment;
 export type NormalizationLinkedField = ConcreteLinkedField;
 export type NormalizationMatchField = ConcreteMatchField;
-export type NormalizationLinkedHandle = ConcreteLinkedHandle;
 export type NormalizationLiteral = ConcreteLiteral;
 export type NormalizationLocalArgument = ConcreteLocalArgument;
 export type NormalizationNode = ConcreteNode;
 export type NormalizationScalarField = ConcreteScalarField;
-export type NormalizationScalarHandle = ConcreteScalarHandle;
 export type NormalizationSelection = ConcreteSelection;
 export type NormalizationSplitOperation = ConcreteSplitOperation;
 export type NormalizationVariable = ConcreteVariable;

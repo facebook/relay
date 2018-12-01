@@ -11,7 +11,10 @@
 'use strict';
 
 import type {ReaderFragment, ReaderFragmentSpread} from './ReaderNode';
-import type {NormalizationOperation} from './NormalizationNode';
+import type {
+  NormalizationOperation,
+  NormalizationHandle,
+} from './NormalizationNode';
 
 export type ConcreteArgument = ConcreteLiteral | ConcreteVariable;
 
@@ -47,8 +50,6 @@ export type ConcreteField =
   | ConcreteScalarField
   | ConcreteLinkedField
   | ConcreteMatchField;
-
-export type ConcreteHandle = ConcreteScalarHandle | ConcreteLinkedHandle;
 
 export type ConcreteRootArgument = {|
   +kind: 'RootArgument',
@@ -87,16 +88,6 @@ export type ConcreteMatchField = {|
   },
 |};
 
-export type ConcreteLinkedHandle = {|
-  +kind: 'LinkedHandle',
-  +alias: ?string,
-  +name: string,
-  +args: ?$ReadOnlyArray<ConcreteArgument>,
-  +handle: string,
-  +key: string,
-  +filters: ?$ReadOnlyArray<string>,
-|};
-
 export type ConcreteLiteral = {|
   +kind: 'Literal',
   +name: string,
@@ -127,21 +118,11 @@ export type ConcreteScalarField = {|
   +storageKey: ?string,
 |};
 
-export type ConcreteScalarHandle = {|
-  +kind: 'ScalarHandle',
-  +alias: ?string,
-  +name: string,
-  +args: ?$ReadOnlyArray<ConcreteArgument>,
-  +handle: string,
-  +key: string,
-  +filters: ?$ReadOnlyArray<string>,
-|};
-
 export type ConcreteSelection =
   | ConcreteCondition
   | ConcreteField
   | ReaderFragmentSpread
-  | ConcreteHandle
+  | NormalizationHandle
   | ConcreteInlineFragment
   | ConcreteMatchField;
 

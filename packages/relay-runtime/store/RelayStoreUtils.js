@@ -16,11 +16,8 @@ const getRelayHandleKey = require('../util/getRelayHandleKey');
 const invariant = require('invariant');
 const stableCopy = require('../util/stableCopy');
 
-import type {
-  ConcreteArgument,
-  ConcreteField,
-  ConcreteHandle,
-} from '../util/RelayConcreteNode';
+import type {ConcreteArgument, ConcreteField} from '../util/RelayConcreteNode';
+import type {NormalizationHandle} from '../util/NormalizationNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
 export type Arguments = {[argName: string]: mixed};
@@ -58,7 +55,7 @@ function getArgumentValues(
  * used here for consistency.
  */
 function getHandleStorageKey(
-  handleField: ConcreteHandle,
+  handleField: NormalizationHandle,
   variables: Variables,
 ): string {
   const {handle, key, name, args, filters} = handleField;
@@ -80,7 +77,7 @@ function getHandleStorageKey(
  * used here for consistency.
  */
 function getStorageKey(
-  field: ConcreteField | ConcreteHandle,
+  field: ConcreteField | NormalizationHandle,
   variables: Variables,
 ): string {
   if (field.storageKey) {

@@ -21,13 +21,13 @@ const invariant = require('invariant');
 const {EXISTENT, UNKNOWN} = require('./RelayRecordState');
 
 import type {
-  ConcreteLinkedField,
-  ConcreteMatchField,
-  ConcreteNode,
-  ConcreteScalarField,
-  ConcreteSelection,
-  ConcreteField,
-} from '../util/RelayConcreteNode';
+  NormalizationLinkedField,
+  NormalizationMatchField,
+  NormalizationNode,
+  NormalizationScalarField,
+  NormalizationSelection,
+  NormalizationField,
+} from '../util/NormalizationNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
   OperationLoader,
@@ -105,7 +105,7 @@ class RelayDataLoader {
     this._variables = variables;
   }
 
-  check(node: ConcreteNode, dataID: DataID): boolean {
+  check(node: NormalizationNode, dataID: DataID): boolean {
     this._traverse(node, dataID);
     return !this._recordWasMissing;
   }
@@ -124,7 +124,7 @@ class RelayDataLoader {
   }
 
   _getDataForHandlers(
-    field: ConcreteField,
+    field: NormalizationField,
     dataID: DataID,
   ): {args: Variables, record: ?Record} {
     return {
@@ -139,7 +139,10 @@ class RelayDataLoader {
     };
   }
 
-  _handleMissingScalarField(field: ConcreteScalarField, dataID: DataID): mixed {
+  _handleMissingScalarField(
+    field: NormalizationScalarField,
+    dataID: DataID,
+  ): mixed {
     const {args, record} = this._getDataForHandlers(field, dataID);
     for (const handler of this._handlers) {
       if (handler.kind === 'scalar') {
@@ -152,7 +155,10 @@ class RelayDataLoader {
     this._handleMissing();
   }
 
-  _handleMissingLinkField(field: ConcreteLinkedField, dataID: DataID): ?DataID {
+  _handleMissingLinkField(
+    field: NormalizationLinkedField,
+    dataID: DataID,
+  ): ?DataID {
     const {args, record} = this._getDataForHandlers(field, dataID);
     for (const handler of this._handlers) {
       if (handler.kind === 'linked') {
@@ -169,7 +175,7 @@ class RelayDataLoader {
   }
 
   _handleMissingPluralLinkField(
-    field: ConcreteLinkedField,
+    field: NormalizationLinkedField,
     dataID: DataID,
   ): ?Array<?DataID> {
     const {args, record} = this._getDataForHandlers(field, dataID);
@@ -188,7 +194,7 @@ class RelayDataLoader {
     this._handleMissing();
   }
 
-  _traverse(node: ConcreteNode, dataID: DataID): void {
+  _traverse(node: NormalizationNode, dataID: DataID): void {
     const status = this._mutator.getStatus(dataID);
     if (status === UNKNOWN) {
       this._handleMissing();
@@ -199,7 +205,7 @@ class RelayDataLoader {
   }
 
   _traverseSelections(
-    selections: $ReadOnlyArray<ConcreteSelection>,
+    selections: $ReadOnlyArray<NormalizationSelection>,
     dataID: DataID,
   ): void {
     selections.every(selection => {
@@ -264,7 +270,7 @@ class RelayDataLoader {
     });
   }
 
-  _prepareMatch(field: ConcreteMatchField, dataID: DataID): void {
+  _prepareMatch(field: NormalizationMatchField, dataID: DataID): void {
     const storageKey = getStorageKey(field, this._variables);
     const linkedID = this._mutator.getLinkedRecordID(dataID, storageKey);
 
@@ -311,7 +317,7 @@ class RelayDataLoader {
     }
   }
 
-  _prepareScalar(field: ConcreteScalarField, dataID: DataID): void {
+  _prepareScalar(field: NormalizationScalarField, dataID: DataID): void {
     const storageKey = getStorageKey(field, this._variables);
     let fieldValue = this._mutator.getValue(dataID, storageKey);
     if (fieldValue === undefined) {
@@ -322,7 +328,7 @@ class RelayDataLoader {
     }
   }
 
-  _prepareLink(field: ConcreteLinkedField, dataID: DataID): void {
+  _prepareLink(field: NormalizationLinkedField, dataID: DataID): void {
     const storageKey = getStorageKey(field, this._variables);
     let linkedID = this._mutator.getLinkedRecordID(dataID, storageKey);
 
@@ -337,7 +343,7 @@ class RelayDataLoader {
     }
   }
 
-  _preparePluralLink(field: ConcreteLinkedField, dataID: DataID): void {
+  _preparePluralLink(field: NormalizationLinkedField, dataID: DataID): void {
     const storageKey = getStorageKey(field, this._variables);
     let linkedIDs = this._mutator.getLinkedRecordIDs(dataID, storageKey);
 

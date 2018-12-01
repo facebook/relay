@@ -10,8 +10,7 @@
 
 'use strict';
 
-import type {ReaderFragment,
-ReaderFragmentSpread} from './ReaderNode';
+import type {ReaderFragment, ReaderFragmentSpread} from './ReaderNode';
 import type {NormalizationOperation} from './NormalizationNode';
 
 export type ConcreteArgument = ConcreteLiteral | ConcreteVariable;

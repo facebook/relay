@@ -1,0 +1,63 @@
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @flow strict
+ * @format
+ */
+
+'use strict';
+
+import type {
+  ConcreteArgument,
+  ConcreteArgumentDefinition,
+  ConcreteRequest,
+  ConcreteOperation,
+  ConcreteCondition,
+  ConcreteField,
+  ConcreteFragment,
+  ConcreteFragmentSpread,
+  ConcreteHandle,
+  ConcreteRootArgument,
+  ConcreteInlineFragment,
+  ConcreteLinkedField,
+  ConcreteMatchField,
+  ConcreteLinkedHandle,
+  ConcreteLiteral,
+  ConcreteLocalArgument,
+  ConcreteNode,
+  ConcreteScalarField,
+  ConcreteScalarHandle,
+  ConcreteSelection,
+  ConcreteSplitOperation,
+  ConcreteVariable,
+  ConcreteSelectableNode,
+  GeneratedNode,
+} from './RelayConcreteNode';
+
+export type NormalizationArgument = ConcreteArgument;
+export type NormalizationArgumentDefinition = ConcreteArgumentDefinition;
+export type NormalizationRequest = ConcreteRequest;
+export type NormalizationOperation = ConcreteOperation;
+export type NormalizationCondition = ConcreteCondition;
+export type NormalizationField = ConcreteField;
+export type NormalizationFragment = ConcreteFragment;
+export type NormalizationFragmentSpread = ConcreteFragmentSpread;
+export type NormalizationHandle = ConcreteHandle;
+export type NormalizationRootArgument = ConcreteRootArgument;
+export type NormalizationInlineFragment = ConcreteInlineFragment;
+export type NormalizationLinkedField = ConcreteLinkedField;
+export type NormalizationMatchField = ConcreteMatchField;
+export type NormalizationLinkedHandle = ConcreteLinkedHandle;
+export type NormalizationLiteral = ConcreteLiteral;
+export type NormalizationLocalArgument = ConcreteLocalArgument;
+export type NormalizationNode = ConcreteNode;
+export type NormalizationScalarField = ConcreteScalarField;
+export type NormalizationScalarHandle = ConcreteScalarHandle;
+export type NormalizationSelection = ConcreteSelection;
+export type NormalizationSplitOperation = ConcreteSplitOperation;
+export type NormalizationVariable = ConcreteVariable;
+export type NormalizationSelectableNode = ConcreteSelectableNode;
+export type NormalizationGeneratedNode = GeneratedNode;

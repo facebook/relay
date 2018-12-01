@@ -115,13 +115,13 @@ export type {
   ConcreteFragment,
   ConcreteLinkedField,
   ConcreteMatchField,
-  ConcreteOperation,
   ConcreteRequest,
   ConcreteScalarField,
   ConcreteSelection,
   ConcreteSplitOperation,
   GeneratedNode,
 } from './util/RelayConcreteNode';
+export type {NormalizationOperation} from './util/NormalizationNode';
 export type {
   CacheConfig,
   DataID,

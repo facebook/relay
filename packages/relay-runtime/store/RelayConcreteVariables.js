@@ -13,10 +13,8 @@
 const invariant = require('invariant');
 const warning = require('warning');
 
-import type {
-  ConcreteOperation,
-  ConcreteFragment,
-} from '../util/RelayConcreteNode';
+import type {NormalizationOperation} from '../util/NormalizationNode';
+import type {ConcreteFragment} from '../util/RelayConcreteNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
 /**
@@ -71,7 +69,7 @@ function getFragmentVariables(
  * operation's definition).
  */
 function getOperationVariables(
-  operation: ConcreteOperation,
+  operation: NormalizationOperation,
   variables: Variables,
 ): Variables {
   const operationVariables = {};

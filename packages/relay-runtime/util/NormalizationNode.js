@@ -13,7 +13,6 @@
 import type {
   ConcreteArgument,
   ConcreteArgumentDefinition,
-  ConcreteOperation,
   ConcreteCondition,
   ConcreteField,
   ConcreteFragment,
@@ -36,9 +35,19 @@ import type {
   GeneratedNode,
 } from './RelayConcreteNode';
 
+/**
+ * Represents a single operation used to processing and normalize runtime
+ * request results.
+ */
+export type NormalizationOperation = {|
+  +kind: 'Operation',
+  +name: string,
+  +argumentDefinitions: $ReadOnlyArray<ConcreteLocalArgument>,
+  +selections: $ReadOnlyArray<ConcreteSelection>,
+|};
+
 export type NormalizationArgument = ConcreteArgument;
 export type NormalizationArgumentDefinition = ConcreteArgumentDefinition;
-export type NormalizationOperation = ConcreteOperation;
 export type NormalizationCondition = ConcreteCondition;
 export type NormalizationField = ConcreteField;
 export type NormalizationFragment = ConcreteFragment;

@@ -36,17 +36,6 @@ export type ConcreteRequest = {|
   +operation: NormalizationOperation,
 |};
 
-/**
- * Represents a single operation used to processing and normalize runtime
- * request results.
- */
-export type ConcreteOperation = {|
-  +kind: 'Operation',
-  +name: string,
-  +argumentDefinitions: $ReadOnlyArray<ConcreteLocalArgument>,
-  +selections: $ReadOnlyArray<ConcreteSelection>,
-|};
-
 export type ConcreteCondition = {|
   +kind: 'Condition',
   +passingValue: boolean,
@@ -142,7 +131,7 @@ export type ConcreteNode =
   | ConcreteLinkedField
   | ConcreteFragment
   | ConcreteInlineFragment
-  | ConcreteOperation
+  | NormalizationOperation
   | ConcreteSplitOperation;
 
 export type ConcreteScalarField = {|
@@ -187,7 +176,7 @@ export type ConcreteVariable = {|
 
 export type ConcreteSelectableNode =
   | ConcreteFragment
-  | ConcreteOperation
+  | NormalizationOperation
   | ConcreteSplitOperation;
 
 export type GeneratedNode =

@@ -34,7 +34,7 @@ import type {
   MissingFieldHandler,
   MutableRecordSource,
   RecordSource,
-  Selector,
+  NormalizationSelector,
 } from './RelayStoreTypes';
 import type {Record} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
@@ -63,7 +63,7 @@ const {getStorageKey, getArgumentValues, MATCH_FRAGMENT_KEY} = RelayStoreUtils;
 function check(
   source: RecordSource,
   target: MutableRecordSource,
-  selector: Selector,
+  selector: NormalizationSelector,
   handlers: $ReadOnlyArray<MissingFieldHandler>,
   operationLoader?: ?OperationLoader,
 ): boolean {

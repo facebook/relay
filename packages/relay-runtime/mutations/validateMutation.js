@@ -10,11 +10,11 @@
 
 'use strict';
 
+import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {
-  ConcreteRequest,
-  ConcreteSelection,
-  ConcreteField,
-} from '../util/RelayConcreteNode';
+  NormalizationSelection,
+  NormalizationField,
+} from '../util/NormalizationNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
 type ValidationContext = {
@@ -49,7 +49,7 @@ if (__DEV__) {
 
   const validateSelections = (
     optimisticResponse: Object,
-    selections: $ReadOnlyArray<ConcreteSelection>,
+    selections: $ReadOnlyArray<NormalizationSelection>,
     context: ValidationContext,
   ) => {
     selections.forEach(selection =>
@@ -59,7 +59,7 @@ if (__DEV__) {
 
   const validateSelection = (
     optimisticResponse: Object,
-    selection: ConcreteSelection,
+    selection: NormalizationSelection,
     context: ValidationContext,
   ) => {
     switch (selection.kind) {
@@ -95,7 +95,7 @@ if (__DEV__) {
 
   const validateField = (
     optimisticResponse: Object,
-    field: ConcreteField,
+    field: NormalizationField,
     context: ValidationContext,
   ) => {
     const fieldName = field.alias || field.name;

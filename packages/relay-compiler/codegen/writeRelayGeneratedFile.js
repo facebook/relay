@@ -22,7 +22,10 @@ const {RelayConcreteNode} = require('relay-runtime');
 
 import type {FormatModule} from '../language/RelayLanguagePluginInterface';
 import type {CodegenDirectory} from 'graphql-compiler';
-import type {GeneratedNode} from 'relay-runtime';
+import type {
+  NormalizationGeneratedNode,
+  ReaderGeneratedNode,
+} from 'relay-runtime';
 
 function printRequireModuleDependency(moduleName: string): string {
   return `require('${moduleName}')`;
@@ -30,7 +33,7 @@ function printRequireModuleDependency(moduleName: string): string {
 
 async function writeRelayGeneratedFile(
   codegenDir: CodegenDirectory,
-  generatedNode: GeneratedNode,
+  generatedNode: NormalizationGeneratedNode | ReaderGeneratedNode,
   formatModule: FormatModule,
   typeText: string,
   _persistQuery: ?(text: string) => Promise<string>,
@@ -40,7 +43,7 @@ async function writeRelayGeneratedFile(
   printModuleDependency: (
     moduleName: string,
   ) => string = printRequireModuleDependency,
-): Promise<?GeneratedNode> {
+): Promise<?(NormalizationGeneratedNode | ReaderGeneratedNode)> {
   // Copy to const so Flow can refine.
   const persistQuery = _persistQuery;
   const moduleName = generatedNode.name + '.graphql';

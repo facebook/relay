@@ -10,6 +10,29 @@
 
 'use strict';
 
+import type {ReaderFragment, ReaderFragmentSpread} from './ReaderNode';
+import type {
+  NormalizationOperation,
+  NormalizationHandle,
+} from './NormalizationNode';
+
+/**
+ * Represents a common GraphQL request with `text` (or persisted `id`) can be
+ * used to execute it, an `operation` containing information to normalize the
+ * results, and a `fragment` derived from that operation to read the response
+ * data (masking data from child fragments).
+ */
+export type ConcreteRequest = {|
+  +kind: 'Request',
+  +operationKind: 'mutation' | 'query' | 'subscription',
+  +name: string,
+  +id: ?string,
+  text: ?string,
+  +metadata: {[key: string]: mixed},
+  +fragment: ReaderFragment,
+  +operation: NormalizationOperation,
+|};
+
 const RelayConcreteNode = {
   CONDITION: 'Condition',
   FRAGMENT: 'Fragment',

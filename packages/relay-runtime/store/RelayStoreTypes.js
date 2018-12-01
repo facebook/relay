@@ -19,12 +19,13 @@ import type {PayloadData} from '../network/RelayNetworkTypes';
 import type RelayObservable from '../network/RelayObservable';
 import type {GraphQLTaggedNode} from '../query/RelayModernGraphQLTag';
 import type {
-  ConcreteScalarField,
-  ConcreteLinkedField,
-  ConcreteSelectableNode,
-  ConcreteRequest,
-  ConcreteSplitOperation,
-} from '../util/RelayConcreteNode';
+  NormalizationScalarField,
+  NormalizationLinkedField,
+  NormalizationSelectableNode,
+  NormalizationSplitOperation,
+} from '../util/NormalizationNode';
+import type {ReaderSelectableNode} from '../util/ReaderNode';
+import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {ReaderFragment} from '../util/ReaderNode';
 import type {DataID, Disposable, Variables} from '../util/RelayRuntimeTypes';
 import type {RecordState} from './RelayRecordState';
@@ -33,7 +34,8 @@ import type {
   CFragmentMap,
   COperationSelector,
   CRelayContext,
-  CSelector,
+  CReaderSelector,
+  CNormalizationSelector,
   CSnapshot,
   CUnstableEnvironmentCore,
   Record,
@@ -48,20 +50,27 @@ export opaque type FragmentReference = empty;
 type TEnvironment = Environment;
 type TFragment = ReaderFragment;
 type TGraphQLTaggedNode = GraphQLTaggedNode;
-type TNode = ConcreteSelectableNode;
+type TReaderNode = ReaderSelectableNode;
+type TNormalizaionNode = NormalizationSelectableNode;
 type TPayload = GraphQLResponse;
 type TRequest = ConcreteRequest;
 
 export type FragmentMap = CFragmentMap<TFragment>;
-export type OperationSelector = COperationSelector<TNode, TRequest>;
+export type OperationSelector = COperationSelector<
+  TReaderNode,
+  TNormalizaionNode,
+  TRequest,
+>;
 export type RelayContext = CRelayContext<TEnvironment>;
-export type Selector = CSelector<TNode>;
-export type Snapshot = CSnapshot<TNode>;
+export type ReaderSelector = CReaderSelector<TReaderNode>;
+export type NormalizationSelector = CNormalizationSelector<TNormalizaionNode>;
+export type Snapshot = CSnapshot<TReaderNode>;
 export type UnstableEnvironmentCore = CUnstableEnvironmentCore<
   TEnvironment,
   TFragment,
   TGraphQLTaggedNode,
-  TNode,
+  TReaderNode,
+  TNormalizaionNode,
   TRequest,
 >;
 
@@ -104,12 +113,12 @@ export interface Store {
    * Determine if the selector can be resolved with data in the store (i.e. no
    * fields are missing).
    */
-  check(selector: Selector): boolean;
+  check(selector: NormalizationSelector): boolean;
 
   /**
    * Read the results of a selector from in-memory records in the store.
    */
-  lookup(selector: Selector): Snapshot;
+  lookup(selector: ReaderSelector): Snapshot;
 
   /**
    * Notify subscribers (see `subscribe`) of any data that was published
@@ -129,7 +138,7 @@ export interface Store {
    * retained in-memory. The records will not be eligible for garbage collection
    * until the returned reference is disposed.
    */
-  retain(selector: Selector): Disposable;
+  retain(selector: NormalizationSelector): Disposable;
 
   /**
    * Subscribe to changes to the results of a selector. The callback is called
@@ -220,7 +229,8 @@ export interface Environment
     TEnvironment,
     TFragment,
     TGraphQLTaggedNode,
-    TNode,
+    TReaderNode,
+    TNormalizaionNode,
     TRequest,
     TPayload,
   > {
@@ -361,12 +371,12 @@ export type OperationLoader = {|
    * Synchronously load an operation, returning either the node or null if it
    * cannot be resolved synchronously.
    */
-  get(reference: mixed): ?ConcreteSplitOperation,
+  get(reference: mixed): ?NormalizationSplitOperation,
 
   /**
    * Asynchronously load an operation.
    */
-  load(reference: mixed): Promise<?ConcreteSplitOperation>,
+  load(reference: mixed): Promise<?NormalizationSplitOperation>,
 |};
 
 /**
@@ -415,7 +425,7 @@ export type MissingFieldHandler =
   | {
       kind: 'scalar',
       handle: (
-        field: ConcreteScalarField,
+        field: NormalizationScalarField,
         record: ?Record,
         args: Variables,
       ) => mixed,
@@ -423,7 +433,7 @@ export type MissingFieldHandler =
   | {
       kind: 'linked',
       handle: (
-        field: ConcreteLinkedField,
+        field: NormalizationLinkedField,
         record: ?Record,
         args: Variables,
       ) => ?DataID,
@@ -431,7 +441,7 @@ export type MissingFieldHandler =
   | {
       kind: 'pluralLinked',
       handle: (
-        field: ConcreteLinkedField,
+        field: NormalizationLinkedField,
         record: ?Record,
         args: Variables,
       ) => ?Array<?DataID>,

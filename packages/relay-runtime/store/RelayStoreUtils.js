@@ -16,7 +16,11 @@ const getRelayHandleKey = require('../util/getRelayHandleKey');
 const invariant = require('invariant');
 const stableCopy = require('../util/stableCopy');
 
-import type {NormalizationHandle,NormalizationArgument, NormalizationField} from '../util/NormalizationNode';
+import type {
+  NormalizationHandle,
+  NormalizationArgument,
+  NormalizationField,
+} from '../util/NormalizationNode';
 import type {ReaderArgument, ReaderField} from '../util/ReaderNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
@@ -29,7 +33,7 @@ const {VARIABLE} = RelayConcreteNode;
  * names. Guaranteed to return a result with stable ordered nested values.
  */
 function getArgumentValues(
-  args: $ReadOnlyArray<NormalizationArgument|ReaderArgument>,
+  args: $ReadOnlyArray<NormalizationArgument | ReaderArgument>,
   variables: Variables,
 ): Arguments {
   const values = {};
@@ -77,10 +81,7 @@ function getHandleStorageKey(
  * used here for consistency.
  */
 function getStorageKey(
-  field:
-  NormalizationField |
-  NormalizationHandle|
-  ReaderField ,
+  field: NormalizationField | NormalizationHandle | ReaderField,
   variables: Variables,
 ): string {
   if (field.storageKey) {

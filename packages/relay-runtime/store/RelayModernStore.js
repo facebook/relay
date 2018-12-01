@@ -28,7 +28,8 @@ import type {
   MutableRecordSource,
   RecordSource,
   Scheduler,
-  Selector,
+  ReaderSelector,
+  NormalizationSelector,
   Snapshot,
   Store,
   UpdatedRecords,
@@ -57,7 +58,7 @@ class RelayModernStore implements Store {
   _hasScheduledGC: boolean;
   _index: number;
   _recordSource: MutableRecordSource;
-  _roots: Map<number, Selector>;
+  _roots: Map<number, NormalizationSelector>;
   _subscriptions: Set<Subscription>;
   _updatedRecordIDs: UpdatedRecords;
   _gcHoldCounter: number;
@@ -93,7 +94,7 @@ class RelayModernStore implements Store {
     return this._recordSource;
   }
 
-  check(selector: Selector): boolean {
+  check(selector: NormalizationSelector): boolean {
     return RelayDataLoader.check(
       this._recordSource,
       this._recordSource,
@@ -102,7 +103,7 @@ class RelayModernStore implements Store {
     );
   }
 
-  retain(selector: Selector): Disposable {
+  retain(selector: NormalizationSelector): Disposable {
     const index = this._index++;
     const dispose = () => {
       this._roots.delete(index);
@@ -112,7 +113,7 @@ class RelayModernStore implements Store {
     return {dispose};
   }
 
-  lookup(selector: Selector): Snapshot {
+  lookup(selector: ReaderSelector): Snapshot {
     const snapshot = RelayReader.read(this._recordSource, selector);
     if (__DEV__) {
       deepFreeze(snapshot);

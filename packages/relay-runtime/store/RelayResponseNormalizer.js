@@ -48,7 +48,7 @@ import type {
   HandleFieldPayload,
   MatchFieldPayload,
   MutableRecordSource,
-  Selector,
+  NormalizationSelector,
 } from './RelayStoreTypes';
 import type {Record} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
@@ -68,7 +68,7 @@ export type NormalizedResponse = {|
  */
 function normalize(
   recordSource: MutableRecordSource,
-  selector: Selector,
+  selector: NormalizationSelector,
   response: PayloadData,
   options: NormalizationOptions = {handleStrippedNulls: false},
 ): NormalizedResponse {

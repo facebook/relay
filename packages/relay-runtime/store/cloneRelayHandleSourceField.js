@@ -17,9 +17,9 @@ const {LINKED_FIELD} = require('../util/RelayConcreteNode');
 const {getHandleStorageKey} = require('./RelayStoreUtils');
 
 import type {
-  ConcreteLinkedField,
-  ConcreteSelection,
-} from '../util/RelayConcreteNode';
+  NormalizationLinkedField,
+  NormalizationSelection,
+} from '../util/NormalizationNode';
 import type {NormalizationLinkedHandle} from '../util/NormalizationNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
@@ -32,9 +32,9 @@ import type {Variables} from '../util/RelayRuntimeTypes';
  */
 function cloneRelayHandleSourceField(
   handleField: NormalizationLinkedHandle,
-  selections: $ReadOnlyArray<ConcreteSelection>,
+  selections: $ReadOnlyArray<NormalizationSelection>,
   variables: Variables,
-): ConcreteLinkedField {
+): NormalizationLinkedField {
   const sourceField = selections.find(
     source =>
       source.kind === LINKED_FIELD &&

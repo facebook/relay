@@ -99,7 +99,8 @@ export type {
   RecordSourceProxy,
   RecordSourceSelectorProxy,
   RelayContext,
-  Selector,
+  ReaderSelector,
+  NormalizationSelector,
   SelectorData,
   SelectorStoreUpdater,
   Snapshot,
@@ -108,18 +109,29 @@ export type {
 export type {
   GraphQLSubscriptionConfig,
 } from './subscription/requestRelaySubscription';
+export type {ConcreteRequest} from './util/RelayConcreteNode';
 export type {
-  ConcreteArgument,
-  ConcreteArgumentDefinition,
-  ConcreteField,
-  ConcreteLinkedField,
-  ConcreteMatchField,
-  ConcreteRequest,
-  ConcreteScalarField,
-  ConcreteSelection,
-  ConcreteSplitOperation,
-  GeneratedNode,
-} from './util/RelayConcreteNode';
+  NormalizationArgument,
+  NormalizationArgumentDefinition,
+  NormalizationField,
+  NormalizationLinkedField,
+  NormalizationMatchField,
+  NormalizationScalarField,
+  NormalizationSelection,
+  NormalizationSplitOperation,
+  NormalizationGeneratedNode,
+} from './util/NormalizationNode';
+export type {
+  ReaderArgument,
+  ReaderArgumentDefinition,
+  ReaderField,
+  ReaderLinkedField,
+  ReaderMatchField,
+  ReaderScalarField,
+  ReaderSelection,
+  ReaderSplitOperation,
+  ReaderGeneratedNode,
+} from './util/ReaderNode';
 export type {ReaderFragment} from './util/ReaderNode';
 export type {NormalizationOperation} from './util/NormalizationNode';
 export type {

@@ -19,7 +19,7 @@ const {FRAGMENTS_KEY, ID_KEY} = require('./RelayStoreUtils');
 
 import type {ReaderFragment} from '../util/ReaderNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
-import type {Selector} from './RelayStoreTypes';
+import type {ReaderSelector} from './RelayStoreTypes';
 
 /**
  * @public
@@ -54,7 +54,7 @@ function getSelector(
   operationVariables: Variables,
   fragment: ReaderFragment,
   item: mixed,
-): ?Selector {
+): ?ReaderSelector {
   invariant(
     typeof item === 'object' && item !== null && !Array.isArray(item),
     'RelayModernSelector: Expected value for fragment `%s` to be an object, got ' +
@@ -107,7 +107,7 @@ function getSelectorList(
   operationVariables: Variables,
   fragment: ReaderFragment,
   items: Array<mixed>,
-): ?Array<Selector> {
+): ?Array<ReaderSelector> {
   let selectors = null;
   items.forEach(item => {
     const selector =
@@ -134,7 +134,7 @@ function getSelectorsFromObject(
   operationVariables: Variables,
   fragments: {[key: string]: ReaderFragment},
   object: {[key: string]: mixed},
-): {[key: string]: ?(Selector | Array<Selector>)} {
+): {[key: string]: ?(ReaderSelector | Array<ReaderSelector>)} {
   const selectors = {};
   for (const key in fragments) {
     if (fragments.hasOwnProperty(key)) {
@@ -341,8 +341,8 @@ function getVariables(
  * different objects, even if they select the same fields.
  */
 function areEqualSelectors(
-  thisSelector: Selector,
-  thatSelector: Selector,
+  thisSelector: ReaderSelector,
+  thatSelector: ReaderSelector,
 ): boolean {
   return (
     thisSelector.dataID === thatSelector.dataID &&

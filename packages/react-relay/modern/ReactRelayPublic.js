@@ -31,10 +31,11 @@ export type {
   IEnvironment as Environment,
   GraphQLTaggedNode,
   MutationType,
+  NormalizationSelector,
   OperationSelector,
   RangeOperation,
+  ReaderSelector,
   RelayContext,
-  Selector,
   Snapshot,
   Variables,
 } from 'relay-runtime';

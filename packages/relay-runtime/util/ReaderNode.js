@@ -16,17 +16,14 @@ import type {
   ConcreteCondition,
   ConcreteField,
   ConcreteFragment,
-  ConcreteHandle,
   ConcreteRootArgument,
   ConcreteInlineFragment,
   ConcreteLinkedField,
   ConcreteMatchField,
-  ConcreteLinkedHandle,
   ConcreteLiteral,
   ConcreteLocalArgument,
   ConcreteNode,
   ConcreteScalarField,
-  ConcreteScalarHandle,
   ConcreteSelection,
   ConcreteSplitOperation,
   ConcreteVariable,
@@ -45,17 +42,14 @@ export type ReaderArgumentDefinition = ConcreteArgumentDefinition;
 export type ReaderCondition = ConcreteCondition;
 export type ReaderField = ConcreteField;
 export type ReaderFragment = ConcreteFragment;
-export type ReaderHandle = ConcreteHandle;
 export type ReaderRootArgument = ConcreteRootArgument;
 export type ReaderInlineFragment = ConcreteInlineFragment;
 export type ReaderLinkedField = ConcreteLinkedField;
 export type ReaderMatchField = ConcreteMatchField;
-export type ReaderLinkedHandle = ConcreteLinkedHandle;
 export type ReaderLiteral = ConcreteLiteral;
 export type ReaderLocalArgument = ConcreteLocalArgument;
 export type ReaderNode = ConcreteNode;
 export type ReaderScalarField = ConcreteScalarField;
-export type ReaderScalarHandle = ConcreteScalarHandle;
 export type ReaderSelection = ConcreteSelection;
 export type ReaderSplitOperation = ConcreteSplitOperation;
 export type ReaderVariable = ConcreteVariable;

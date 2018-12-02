@@ -12,5 +12,5 @@ Relay DevTools is tool designed to help developers inspect their Relay state and
 ![Store Explorer](/relay/img/docs/store-explorer-updated.png)
 ![Mutations View](/relay/img/docs/mutations-view-updated.png)
 
-[extension]:https://chrome.google.com/webstore/detail/relay-developer-tools/ncedobpgnmkhcmnnkcimnobpfepidad
+[extension]:https://chrome.google.com/webstore/detail/relay-developer-tools/ncedobpgnmkhcmnnkcimnobpfepidadl
 [app]: https://www.npmjs.com/package/relay-devtools

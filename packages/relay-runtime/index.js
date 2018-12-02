@@ -109,7 +109,7 @@ export type {
 export type {
   GraphQLSubscriptionConfig,
 } from './subscription/requestRelaySubscription';
-export type {ConcreteRequest,GeneratedNode} from './util/RelayConcreteNode';
+export type {ConcreteRequest, GeneratedNode} from './util/RelayConcreteNode';
 export type {
   NormalizationArgument,
   NormalizationArgumentDefinition,

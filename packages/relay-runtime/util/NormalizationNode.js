@@ -45,7 +45,9 @@ export type NormalizationScalarHandle = {|
   +filters: ?$ReadOnlyArray<string>,
 |};
 
-export type NormalizationArgument = NormalizationLiteral | NormalizationVariable;
+export type NormalizationArgument =
+  | NormalizationLiteral
+  | NormalizationVariable;
 
 export type NormalizationArgumentDefinition =
   | NormalizationLocalArgument
@@ -107,7 +109,12 @@ export type NormalizationLiteral = {|
   +value: mixed,
 |};
 
-export type NormalizationLocalArgument = NormalizationLocalArgument;
+export type NormalizationLocalArgument = {|
+  +kind: 'LocalArgument',
+  +name: string,
+  +type: string,
+  +defaultValue: mixed,
+|};
 
 export type NormalizationNode =
   | NormalizationCondition

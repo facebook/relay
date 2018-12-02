@@ -27,9 +27,7 @@ export type ReaderFragment = {|
 
 export type ReaderArgument = ReaderLiteral | ReaderVariable;
 
-export type ReaderArgumentDefinition =
-  | ReaderLocalArgument
-  | ReaderRootArgument;
+export type ReaderArgumentDefinition = ReaderLocalArgument | ReaderRootArgument;
 
 export type ReaderCondition = {|
   +kind: 'Condition',
@@ -87,7 +85,12 @@ export type ReaderLiteral = {|
   +value: mixed,
 |};
 
-export type ReaderLocalArgument = ReaderLocalArgument;
+export type ReaderLocalArgument = {|
+  +kind: 'LocalArgument',
+  +name: string,
+  +type: string,
+  +defaultValue: mixed,
+|};
 
 export type ReaderNode =
   | ReaderCondition
@@ -125,6 +128,4 @@ export type ReaderVariable = {|
   +variableName: string,
 |};
 
-export type ReaderSelectableNode =
-  | ReaderFragment
-  | ReaderSplitOperation;
+export type ReaderSelectableNode = ReaderFragment | ReaderSplitOperation;

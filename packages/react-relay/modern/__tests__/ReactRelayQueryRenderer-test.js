@@ -18,6 +18,7 @@ const ReactTestRenderer = require('ReactTestRenderer');
 const readContext = require('../readContext');
 
 const {createMockEnvironment} = require('RelayModernMockEnvironment');
+const {Observable} = require('relay-runtime');
 const {
   Environment,
   Network,
@@ -329,6 +330,109 @@ describe('ReactRelayQueryRenderer', () => {
             },
             retry: expect.any(Function),
           }).toBeRendered();
+        });
+      });
+    });
+
+    describe('when variables change before first result has completed', () => {
+      it('correctly renders data for new variables', () => {
+        environment = createMockEnvironment();
+        let pendingRequests = [];
+        jest.spyOn(environment, 'execute').mockImplementation(request => {
+          const nextRequest = {request};
+          pendingRequests = pendingRequests.concat([nextRequest]);
+          return Observable.create(sink => {
+            nextRequest.resolve = resp => {
+              environment.commitPayload(request.operation, resp.data);
+              sink.next(resp);
+              sink.complete();
+            };
+          });
+        });
+        const renderer = ReactTestRenderer.create(
+          <PropsSetter>
+            <ReactRelayQueryRenderer
+              environment={environment}
+              query={TestQuery}
+              render={render}
+              variables={variables}
+              cacheConfig={{force: true}}
+            />
+          </PropsSetter>,
+        );
+        render.mockClear();
+        expect(environment.execute).toBeCalledTimes(1);
+        expect(pendingRequests.length).toEqual(1);
+
+        const firstRequest = pendingRequests[0];
+        firstRequest.resolve(response);
+        expect({
+          error: null,
+          props: {
+            node: {
+              id: '4',
+              __fragments: {
+                TestFragment: {},
+              },
+              __id: '4',
+            },
+          },
+          retry: expect.any(Function),
+        }).toBeRendered();
+        render.mockClear();
+
+        renderer.getInstance().setProps({
+          variables: {id: '5'},
+        });
+        expect(environment.execute).toBeCalledTimes(2);
+        expect(pendingRequests.length).toEqual(2);
+
+        renderer.getInstance().setProps({
+          variables: {id: '6'},
+        });
+        expect(environment.execute).toBeCalledTimes(3);
+        expect(pendingRequests.length).toEqual(3);
+
+        const secondRequest = pendingRequests[1];
+        const secondResponse = {
+          data: {
+            node: {
+              __typename: 'User',
+              id: '5',
+              name: 'Other',
+            },
+          },
+        };
+        const thirdRequest = pendingRequests[2];
+        const thirdResponse = {
+          data: {
+            node: {
+              __typename: 'User',
+              id: '6',
+              name: 'Third',
+            },
+          },
+        };
+
+        // Resolve the latest request first, and the earlier request last
+        // The query renderer should render the data from the latest
+        // request
+        thirdRequest.resolve(thirdResponse);
+        secondRequest.resolve(secondResponse);
+        expect(render.mock.calls.length).toEqual(3);
+        const lastRender = render.mock.calls[2][0];
+        expect(lastRender).toEqual({
+          error: null,
+          props: {
+            node: {
+              id: '6',
+              __fragments: {
+                TestFragment: {},
+              },
+              __id: '6',
+            },
+          },
+          retry: expect.any(Function),
         });
       });
     });

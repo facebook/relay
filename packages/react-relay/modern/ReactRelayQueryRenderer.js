@@ -173,6 +173,7 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
         prevQuery: nextProps.query,
         prevPropsEnvironment: nextProps.environment,
         prevPropsVariables: nextProps.variables,
+        queryFetcher: queryFetcher,
         ...fetchQueryAndComputeStateFromProps(
           nextProps,
           queryFetcher,

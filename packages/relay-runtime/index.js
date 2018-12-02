@@ -109,7 +109,7 @@ export type {
 export type {
   GraphQLSubscriptionConfig,
 } from './subscription/requestRelaySubscription';
-export type {ConcreteRequest} from './util/RelayConcreteNode';
+export type {ConcreteRequest,GeneratedNode} from './util/RelayConcreteNode';
 export type {
   NormalizationArgument,
   NormalizationArgumentDefinition,
@@ -119,7 +119,6 @@ export type {
   NormalizationScalarField,
   NormalizationSelection,
   NormalizationSplitOperation,
-  NormalizationGeneratedNode,
 } from './util/NormalizationNode';
 export type {
   ReaderArgument,
@@ -130,7 +129,6 @@ export type {
   ReaderScalarField,
   ReaderSelection,
   ReaderSplitOperation,
-  ReaderGeneratedNode,
 } from './util/ReaderNode';
 export type {ReaderFragment} from './util/ReaderNode';
 export type {NormalizationOperation} from './util/NormalizationNode';

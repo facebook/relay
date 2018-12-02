@@ -12,8 +12,9 @@
 
 import type {ReaderFragment, ReaderFragmentSpread} from './ReaderNode';
 import type {
-  NormalizationOperation,
   NormalizationHandle,
+  NormalizationOperation,
+  NormalizationSplitOperation,
 } from './NormalizationNode';
 
 /**
@@ -32,6 +33,11 @@ export type ConcreteRequest = {|
   +fragment: ReaderFragment,
   +operation: NormalizationOperation,
 |};
+
+export type GeneratedNode =
+  | ConcreteRequest
+  | ReaderFragment
+  | NormalizationSplitOperation;
 
 const RelayConcreteNode = {
   CONDITION: 'Condition',

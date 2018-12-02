@@ -10,30 +10,10 @@
 
 'use strict';
 
-import type {
-  ConcreteArgument,
-  ConcreteArgumentDefinition,
-  ConcreteCondition,
-  ConcreteField,
-  ConcreteRootArgument,
-  ConcreteInlineFragment,
-  ConcreteLinkedField,
-  ConcreteMatchField,
-  ConcreteLiteral,
-  ConcreteLocalArgument,
-  ConcreteNode,
-  ConcreteScalarField,
-  ConcreteSelection,
-  ConcreteSplitOperation,
-  ConcreteVariable,
-  ConcreteSelectableNode,
-  GeneratedNode,
-} from './RelayConcreteNodeX';
-
 export type ReaderFragmentSpread = {|
   +kind: 'FragmentSpread',
   +name: string,
-  +args: ?$ReadOnlyArray<ConcreteArgument>,
+  +args: ?$ReadOnlyArray<ReaderArgument>,
 |};
 
 export type ReaderFragment = {|
@@ -41,24 +21,110 @@ export type ReaderFragment = {|
   +name: string,
   +type: string,
   +metadata: ?{[key: string]: mixed},
-  +argumentDefinitions: $ReadOnlyArray<ConcreteArgumentDefinition>,
-  +selections: $ReadOnlyArray<ConcreteSelection>,
+  +argumentDefinitions: $ReadOnlyArray<ReaderArgumentDefinition>,
+  +selections: $ReadOnlyArray<ReaderSelection>,
 |};
 
-export type ReaderArgument = ConcreteArgument;
-export type ReaderArgumentDefinition = ConcreteArgumentDefinition;
-export type ReaderCondition = ConcreteCondition;
-export type ReaderField = ConcreteField;
-export type ReaderRootArgument = ConcreteRootArgument;
-export type ReaderInlineFragment = ConcreteInlineFragment;
-export type ReaderLinkedField = ConcreteLinkedField;
-export type ReaderMatchField = ConcreteMatchField;
-export type ReaderLiteral = ConcreteLiteral;
-export type ReaderLocalArgument = ConcreteLocalArgument;
-export type ReaderNode = ConcreteNode;
-export type ReaderScalarField = ConcreteScalarField;
-export type ReaderSelection = ConcreteSelection;
-export type ReaderSplitOperation = ConcreteSplitOperation;
-export type ReaderVariable = ConcreteVariable;
-export type ReaderSelectableNode = ConcreteSelectableNode;
-export type ReaderGeneratedNode = GeneratedNode;
+export type ReaderArgument = ReaderLiteral | ReaderVariable;
+
+export type ReaderArgumentDefinition =
+  | ReaderLocalArgument
+  | ReaderRootArgument;
+
+export type ReaderCondition = {|
+  +kind: 'Condition',
+  +passingValue: boolean,
+  +condition: string,
+  +selections: $ReadOnlyArray<ReaderSelection>,
+|};
+
+export type ReaderField =
+  | ReaderScalarField
+  | ReaderLinkedField
+  | ReaderMatchField;
+
+export type ReaderRootArgument = {|
+  +kind: 'RootArgument',
+  +name: string,
+  +type: ?string,
+|};
+
+export type ReaderInlineFragment = {|
+  +kind: 'InlineFragment',
+  +selections: $ReadOnlyArray<ReaderSelection>,
+  +type: string,
+|};
+
+export type ReaderLinkedField = {|
+  +kind: 'LinkedField',
+  +alias: ?string,
+  +name: string,
+  +storageKey: ?string,
+  +args: ?$ReadOnlyArray<ReaderArgument>,
+  +concreteType: ?string,
+  +plural: boolean,
+  +selections: $ReadOnlyArray<ReaderSelection>,
+|};
+
+export type ReaderMatchField = {|
+  +kind: 'MatchField',
+  +alias: ?string,
+  +name: string,
+  +storageKey: ?string,
+  +args: ?$ReadOnlyArray<ReaderArgument>,
+  +matchesByType: {
+    +[key: string]: {|
+      +fragmentPropName: string,
+      +fragmentName: string,
+    |},
+  },
+|};
+
+export type ReaderLiteral = {|
+  +kind: 'Literal',
+  +name: string,
+  +type: ?string,
+  +value: mixed,
+|};
+
+export type ReaderLocalArgument = ReaderLocalArgument;
+
+export type ReaderNode =
+  | ReaderCondition
+  | ReaderLinkedField
+  | ReaderFragment
+  | ReaderInlineFragment
+  | ReaderSplitOperation;
+
+export type ReaderScalarField = {|
+  +kind: 'ScalarField',
+  +alias: ?string,
+  +name: string,
+  +args: ?$ReadOnlyArray<ReaderArgument>,
+  +storageKey: ?string,
+|};
+
+export type ReaderSelection =
+  | ReaderCondition
+  | ReaderField
+  | ReaderFragmentSpread
+  | ReaderInlineFragment
+  | ReaderMatchField;
+
+export type ReaderSplitOperation = {
+  +kind: 'SplitOperation',
+  +name: string,
+  +metadata: ?{[key: string]: mixed},
+  +selections: $ReadOnlyArray<ReaderSelection>,
+};
+
+export type ReaderVariable = {|
+  +kind: 'Variable',
+  +name: string,
+  +type: ?string,
+  +variableName: string,
+|};
+
+export type ReaderSelectableNode =
+  | ReaderFragment
+  | ReaderSplitOperation;

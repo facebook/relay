@@ -10,26 +10,6 @@
 
 'use strict';
 
-import type {
-  ConcreteArgument,
-  ConcreteArgumentDefinition,
-  ConcreteCondition,
-  ConcreteField,
-  ConcreteRootArgument,
-  ConcreteInlineFragment,
-  ConcreteLinkedField,
-  ConcreteMatchField,
-  ConcreteLiteral,
-  ConcreteLocalArgument,
-  ConcreteNode,
-  ConcreteScalarField,
-  ConcreteSelection,
-  ConcreteSplitOperation,
-  ConcreteVariable,
-  ConcreteSelectableNode,
-  GeneratedNode,
-} from './RelayConcreteNodeX';
-
 /**
  * Represents a single operation used to processing and normalize runtime
  * request results.
@@ -37,8 +17,8 @@ import type {
 export type NormalizationOperation = {|
   +kind: 'Operation',
   +name: string,
-  +argumentDefinitions: $ReadOnlyArray<ConcreteLocalArgument>,
-  +selections: $ReadOnlyArray<ConcreteSelection>,
+  +argumentDefinitions: $ReadOnlyArray<NormalizationLocalArgument>,
+  +selections: $ReadOnlyArray<NormalizationSelection>,
 |};
 
 export type NormalizationHandle =
@@ -65,20 +45,106 @@ export type NormalizationScalarHandle = {|
   +filters: ?$ReadOnlyArray<string>,
 |};
 
-export type NormalizationArgument = ConcreteArgument;
-export type NormalizationArgumentDefinition = ConcreteArgumentDefinition;
-export type NormalizationCondition = ConcreteCondition;
-export type NormalizationField = ConcreteField;
-export type NormalizationRootArgument = ConcreteRootArgument;
-export type NormalizationInlineFragment = ConcreteInlineFragment;
-export type NormalizationLinkedField = ConcreteLinkedField;
-export type NormalizationMatchField = ConcreteMatchField;
-export type NormalizationLiteral = ConcreteLiteral;
-export type NormalizationLocalArgument = ConcreteLocalArgument;
-export type NormalizationNode = ConcreteNode;
-export type NormalizationScalarField = ConcreteScalarField;
-export type NormalizationSelection = ConcreteSelection;
-export type NormalizationSplitOperation = ConcreteSplitOperation;
-export type NormalizationVariable = ConcreteVariable;
-export type NormalizationSelectableNode = ConcreteSelectableNode;
-export type NormalizationGeneratedNode = GeneratedNode;
+export type NormalizationArgument = NormalizationLiteral | NormalizationVariable;
+
+export type NormalizationArgumentDefinition =
+  | NormalizationLocalArgument
+  | NormalizationRootArgument;
+
+export type NormalizationCondition = {|
+  +kind: 'Condition',
+  +passingValue: boolean,
+  +condition: string,
+  +selections: $ReadOnlyArray<NormalizationSelection>,
+|};
+
+export type NormalizationField =
+  | NormalizationScalarField
+  | NormalizationLinkedField
+  | NormalizationMatchField;
+
+export type NormalizationRootArgument = {|
+  +kind: 'RootArgument',
+  +name: string,
+  +type: ?string,
+|};
+
+export type NormalizationInlineFragment = {|
+  +kind: 'InlineFragment',
+  +selections: $ReadOnlyArray<NormalizationSelection>,
+  +type: string,
+|};
+
+export type NormalizationLinkedField = {|
+  +kind: 'LinkedField',
+  +alias: ?string,
+  +name: string,
+  +storageKey: ?string,
+  +args: ?$ReadOnlyArray<NormalizationArgument>,
+  +concreteType: ?string,
+  +plural: boolean,
+  +selections: $ReadOnlyArray<NormalizationSelection>,
+|};
+
+export type NormalizationMatchField = {|
+  +kind: 'MatchField',
+  +alias: ?string,
+  +name: string,
+  +storageKey: ?string,
+  +args: ?$ReadOnlyArray<NormalizationArgument>,
+  +matchesByType: {
+    +[key: string]: {|
+      +fragmentPropName: string,
+      +fragmentName: string,
+    |},
+  },
+|};
+
+export type NormalizationLiteral = {|
+  +kind: 'Literal',
+  +name: string,
+  +type: ?string,
+  +value: mixed,
+|};
+
+export type NormalizationLocalArgument = NormalizationLocalArgument;
+
+export type NormalizationNode =
+  | NormalizationCondition
+  | NormalizationLinkedField
+  | NormalizationInlineFragment
+  | NormalizationOperation
+  | NormalizationSplitOperation;
+
+export type NormalizationScalarField = {|
+  +kind: 'ScalarField',
+  +alias: ?string,
+  +name: string,
+  +args: ?$ReadOnlyArray<NormalizationArgument>,
+  +storageKey: ?string,
+|};
+
+export type NormalizationSelection =
+  | NormalizationCondition
+  | NormalizationField
+  | NormalizationHandle
+  | NormalizationInlineFragment
+  | NormalizationMatchField;
+
+export type NormalizationSplitOperation = {
+  +kind: 'SplitOperation',
+  +name: string,
+  +metadata: ?{[key: string]: mixed},
+  +selections: $ReadOnlyArray<NormalizationSelection>,
+};
+
+export type NormalizationVariable = {|
+  +kind: 'Variable',
+  +name: string,
+  +type: ?string,
+  +variableName: string,
+|};
+
+export type NormalizationSelectableNode =
+  | NormalizationOperation
+  | NormalizationSplitOperation;

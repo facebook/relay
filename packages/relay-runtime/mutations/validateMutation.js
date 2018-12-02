@@ -81,7 +81,6 @@ if (__DEV__) {
           validateSelection(optimisticResponse, subselection, context);
         });
         return;
-      case 'FragmentSpread':
       case 'LinkedHandle':
       case 'ScalarHandle': {
         // TODO(T35864292) - Add missing validations for these types

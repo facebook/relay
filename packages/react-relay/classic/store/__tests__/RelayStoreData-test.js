@@ -622,7 +622,7 @@ describe('RelayStoreData', () => {
     };
     storeData.handleQueryPayload(query, response);
     const stringifiedStoreData = JSON.stringify(storeData);
-    const graphQLRangeData = storeData.getNodeData()['client:1']['__range__'];
+    const graphQLRangeData = storeData.getNodeData()['client:1'].__range__;
 
     const expectedStoreData = {
       cachedRecords: {},

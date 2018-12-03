@@ -143,7 +143,7 @@ function cb(): void {}
 // $FlowExpectedError - can't pass non-user ref for user
 <SingularTest onClick={cb} string="x" user={nonUserRef} nullableUser={null} />;
 // $FlowExpectedError - `cb` prop is not a function
-<SingularTest onClick={'cb'} string="x" user={aUserRef} nullableUser={null} />;
+<SingularTest onClick="cb" string="x" user={aUserRef} nullableUser={null} />;
 // $FlowExpectedError - `string` prop is not a string
 <SingularTest onClick={cb} string={1} user={aUserRef} nullableUser={null} />;
 

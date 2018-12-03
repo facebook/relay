@@ -108,7 +108,6 @@ function buildState(
   node: CompilerContextDocument,
 ): ?GraphQLType {
   const schema = context.serverSchema;
-  /* eslint-disable no-fallthrough */
   switch (node.kind) {
     case 'Fragment':
       return schema.getType(node.type.name);

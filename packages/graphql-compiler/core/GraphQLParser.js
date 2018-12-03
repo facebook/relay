@@ -12,7 +12,6 @@
 
 const Profiler = require('./GraphQLCompilerProfiler');
 
-const getLiteralArgumentValues = require('./getLiteralArgumentValues');
 const invariant = require('invariant');
 
 const {DEFAULT_HANDLE_KEY} = require('../util/DefaultHandleKey');
@@ -986,16 +985,6 @@ function assertScalarFieldType(type: GraphQLOutputType): ScalarFieldType {
     'Expected %s to be a Scalar Field type.',
     type,
   );
-  return (type: any);
-}
-
-function isGraphQLUnionType(type: GraphQLOutputType): boolean {
-  const namedType = getNamedType(type);
-  return namedType instanceof GraphQLUnionType;
-}
-
-function assertGraphQLUnionType(type: GraphQLOutputType): GraphQLUnionType {
-  invariant(isGraphQLUnionType(type), 'Expected %s to be a union type.', type);
   return (type: any);
 }
 

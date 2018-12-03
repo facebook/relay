@@ -28,7 +28,6 @@ const {
 } = require('relay-runtime');
 
 const {getPromiseForRequestInFlight} = require('../../utils/fetchQueryUtils');
-const {globalCache} = require('../../renderers/DataResource');
 
 import type {RelayContext} from 'relay-runtime';
 

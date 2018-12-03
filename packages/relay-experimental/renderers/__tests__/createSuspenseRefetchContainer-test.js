@@ -71,7 +71,6 @@ describe('createSuspenseRefetchContainer', () => {
   let gqlRefetchQuery;
   let gqlParentQuery;
   let fragment;
-  let refetchQuery;
   let parentQuery;
   let RefetchContainerWrapper;
   let ContextWrapper;
@@ -109,7 +108,6 @@ describe('createSuspenseRefetchContainer', () => {
     gqlRefetchQuery = generated.RefetchQuery;
     gqlParentQuery = generated.ParentQuery;
     fragment = generated.UserFragment;
-    refetchQuery = createOperationSelector(gqlRefetchQuery, variables);
     parentQuery = createOperationSelector(gqlParentQuery, variables);
 
     const parentRelayContext = {
@@ -568,7 +566,6 @@ describe('createSuspenseRefetchContainer', () => {
         gqlRefetchQuery = generated.RefetchQuery;
         gqlParentQuery = generated.ParentQuery;
         fragment = generated.UserFragment;
-        refetchQuery = createOperationSelector(gqlRefetchQuery, variables);
         parentQuery = createOperationSelector(gqlParentQuery, variables);
 
         const parentRelayContext = {

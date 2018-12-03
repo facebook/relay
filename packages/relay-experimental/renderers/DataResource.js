@@ -694,6 +694,5 @@ const DataResourceContext = React.createContext<TDataResourceCache>(
 module.exports = {
   createCache,
   getCacheForEnvironment,
-  globalCache,
   DataResourceContext,
 };

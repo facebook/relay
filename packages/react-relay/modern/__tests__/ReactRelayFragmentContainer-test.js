@@ -163,7 +163,7 @@ describe('ReactRelayFragmentContainer', () => {
   it('passes non-fragment props to the component', () => {
     ReactTestRenderer.create(
       <ContextSetter environment={environment} variables={variables}>
-        <TestContainer bar={1} foo={'foo'} />
+        <TestContainer bar={1} foo="foo" />
       </ContextSetter>,
     );
     expect(render.mock.calls.length).toBe(1);

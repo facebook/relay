@@ -18,7 +18,7 @@ const {
   getLiteralArgumentValues,
 } = require('graphql-compiler');
 
-import type {Fragment, FragmentSpread, MatchBranch} from 'graphql-compiler';
+import type {Fragment, FragmentSpread} from 'graphql-compiler';
 
 const RELAY = 'relay';
 const SCHEMA_EXTENSION = `

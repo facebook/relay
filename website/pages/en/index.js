@@ -131,7 +131,7 @@ class Index extends React.Component {
           </Container>
 
           <div className="productShowcaseSection paddingBottom">
-            <h2>{"Who's Using Relay?"}</h2>
+            <h2>Who's Using Relay?</h2>
             <p>Relay is building websites for these projects</p>
             <div className="logos">{showcase}</div>
             <div className="more-users">

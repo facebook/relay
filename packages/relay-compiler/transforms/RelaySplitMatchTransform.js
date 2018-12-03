@@ -10,8 +10,6 @@
 
 'use strict';
 
-const invariant = require('invariant');
-
 const {
   CompilerContext,
   IRTransformer,

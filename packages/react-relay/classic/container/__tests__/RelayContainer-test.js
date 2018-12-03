@@ -874,7 +874,7 @@ describe('RelayContainer', function() {
 
   it('warns if a fragment prop is not an object', () => {
     RelayTestRenderer.render(
-      () => <MockContainer foo={''} />,
+      () => <MockContainer foo="" />,
       environment,
       mockRoute,
     );

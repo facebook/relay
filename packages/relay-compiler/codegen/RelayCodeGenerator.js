@@ -10,12 +10,10 @@
 
 'use strict';
 
-const CodeMarker = require('../util/CodeMarker');
-
 const invariant = require('invariant');
 
 const {GraphQLList} = require('graphql');
-const {IRVisitor, SchemaUtils, SplitNaming} = require('graphql-compiler');
+const {IRVisitor, SchemaUtils} = require('graphql-compiler');
 const {getStorageKey, stableCopy} = require('relay-runtime');
 
 import type {
@@ -213,9 +211,6 @@ const RelayCodeGenVisitor = {
           );
         }
         const fragmentPropName = regExpMatch[2] ?? 'matchData';
-        const normalizationName =
-          SplitNaming.getAnnotatedName(fragmentName, 'normalization') +
-          '.graphql';
         matchesByType[selection.type] = {
           fragmentPropName,
           fragmentName,

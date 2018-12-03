@@ -92,6 +92,7 @@ export type {
   HandleFieldPayload,
   MatchPointer,
   MissingFieldHandler,
+  OperationLoader,
   OperationSelector,
   OptimisticUpdate,
   RecordProxy,

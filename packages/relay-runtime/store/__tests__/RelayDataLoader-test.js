@@ -13,7 +13,6 @@
 
 jest.mock('generateClientID');
 
-const {SplitNaming} = require('graphql-compiler');
 const RelayDataLoader = require('../RelayDataLoader');
 const RelayInMemoryRecordSource = require('../RelayInMemoryRecordSource');
 const RelayStoreUtils = require('../RelayStoreUtils');
@@ -295,13 +294,10 @@ describe('RelayDataLoader', () => {
         BarQuery = nodes.BarQuery;
         loader = {
           get: jest.fn(
-            moduleName =>
-              nodes[SplitNaming.getOriginalName(String(moduleName))],
+            moduleName => nodes[String(moduleName).replace(/\$.*/, '')],
           ),
           load: jest.fn(moduleName =>
-            Promise.resolve(
-              nodes[SplitNaming.getOriginalName(String(moduleName))],
-            ),
+            Promise.resolve(nodes[String(moduleName).replace(/\$.*/, '')]),
           ),
         };
       });

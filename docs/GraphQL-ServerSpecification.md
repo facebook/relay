@@ -447,7 +447,7 @@ Complete details on how the server should behave are available in the [GraphQL C
 
 ## Mutations
 
-Relay uses a common pattern for mutations, where they are root fields on the mutation type with a single argument, `input`, and where the input and output both contain a client mutation identifier used to reconcile requests and responses.
+Relay uses a common pattern for mutations, where there are root fields on the mutation type with a single argument, `input`, and where the input and output both contain a client mutation identifier used to reconcile requests and responses.
 
 By convention, mutations are named as verbs, their inputs are the name with "Input" appended at the end, and they return an object that is the name with "Payload" appended.
 

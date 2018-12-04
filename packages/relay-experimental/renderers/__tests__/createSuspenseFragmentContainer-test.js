@@ -350,6 +350,40 @@ describe('createSuspenseFragmentContainer', () => {
     });
   });
 
+  it('should render correct data when changing fragment refs multiple times', () => {
+    // Render component with data for ID 1
+    expectToBeRenderedWith(UserComponent, {user: {id: '1', name: 'Alice'}});
+
+    // Update fragment refs to render data for ID 200
+    query = createOperationSelector(gqlQuery, {id: '200'});
+    environment.commitPayload(query, {
+      node: {
+        __typename: 'User',
+        id: '200',
+        name: 'Foo',
+      },
+    });
+    renderer.getInstance().setProps({id: '200'});
+    expectToBeRenderedWith(UserComponent, {user: {id: '200', name: 'Foo'}});
+
+    // Udpate data for ID 1
+    query = createOperationSelector(gqlQuery, {id: '1'});
+    environment.commitPayload(query, {
+      node: {
+        __typename: 'User',
+        id: '1',
+        name: 'Alice in Wonderland',
+      },
+    });
+
+    // Switch back to rendering data for ID 1
+    // We expect to see the latest data
+    renderer.getInstance().setProps({id: '1'});
+    expectToBeRenderedWith(UserComponent, {
+      user: {id: '1', name: 'Alice in Wonderland'},
+    });
+  });
+
   it('should ignore updates to old data when fragment pointers change', () => {
     const YieldChild = props => {
       // NOTE the unstable_yield method will move to the static renderer.

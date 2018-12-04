@@ -454,8 +454,7 @@ describe('createSuspenseRefetchContainer', () => {
       expect(UserComponent).not.toBeCalled();
       expect(environment.execute).toBeCalledTimes(1);
 
-      environment.mock.nextValue(gqlParentQuery, payload);
-      environment.mock.complete(gqlParentQuery);
+      environment.mock.resolve(gqlParentQuery, payload);
       jest.runAllTimers();
       expectToBeRenderedWith(UserComponent, {user: {id: '2', name: 'Bob'}});
 
@@ -499,8 +498,7 @@ describe('createSuspenseRefetchContainer', () => {
       expect(UserComponent).not.toBeCalled();
       expect(environment.execute).toBeCalledTimes(1);
 
-      environment.mock.nextValue(gqlParentQuery, payload);
-      environment.mock.complete(gqlParentQuery);
+      environment.mock.resolve(gqlParentQuery, payload);
       jest.runAllTimers();
       expectToBeRenderedWith(UserComponent, {user: {id: '2', name: 'Bob'}});
 
@@ -755,7 +753,7 @@ describe('createSuspenseRefetchContainer', () => {
       expect(UserComponent).not.toBeCalled();
       expect(environment.execute).toBeCalledTimes(1);
 
-      environment.mock.nextValue(gqlParentQuery, {
+      environment.mock.resolve(gqlParentQuery, {
         data: {
           node: {
             __typename: 'User',
@@ -764,7 +762,6 @@ describe('createSuspenseRefetchContainer', () => {
           },
         },
       });
-      environment.mock.complete(gqlParentQuery);
       jest.runAllTimers();
       expect(renderer.toJSON()).toEqual(
         'SuspenseRefetchContainer: Expected refetchQuery RefetchQuery to ' +
@@ -780,22 +777,21 @@ describe('createSuspenseRefetchContainer', () => {
   });
 
   describe('refetch', () => {
-    let user1Fragment;
-    let user2Fragment;
-    let gqlUser1Query;
-    let gqlBothUserQuery;
-    let bothUserQuery;
+    let userFragment;
+    let viewerFragment;
+    let gqlUserRefetchQuery;
     let refetch = (_1, _2) => {};
     let downstreamContext: RelayContext & {query: OperationSelector};
+    let releaseGC = () => {};
     const MultiFragmentComponent = jest.fn(props => {
       refetch = props.refetch;
       // $FlowExpectedError
       downstreamContext = readContext(ReactRelayContext);
-      const {user_f1, user_f2} = props;
+      const {user, viewer} = props;
       return (
         <div>
-          Hey user, {user_f1.name} with id {user_f1.id}!
-          <span>Username is: {user_f2.username}</span>
+          Hey user, {user.name} with id {user.id}!
+          <span>Viewer is: {viewer.actor.name}</span>
         </div>
       );
     });
@@ -805,47 +801,48 @@ describe('createSuspenseRefetchContainer', () => {
       environment = createMockEnvironment();
       const generated = generateAndCompile(
         `
-        fragment User1Fragment on User {
+        fragment UserFragment on User {
           id
           name
         }
 
-        fragment User2Fragment on User {
-          username
-        }
-
-        query User1Query($id: ID!) {
-          node(id: $id) {
-            ...User1Fragment
+        fragment ViewerFragment on Viewer {
+          actor {
+            ... on User {
+              name
+            }
           }
         }
 
-        query User2Query($id: ID!) {
+        query UserRefetchQuery($id: ID!) {
           node(id: $id) {
-            ...User2Fragment
+            ...UserFragment
           }
         }
 
-        query BothUserQuery($id: ID!) {
+        query ParentQuery($id: ID!) {
           node(id: $id) {
             id
-            ...User1Fragment
-            ...User2Fragment
+            ...UserFragment
+          }
+          viewer {
+            ...ViewerFragment
           }
         }
     `,
       );
-      user1Fragment = generated.User1Fragment;
-      user2Fragment = generated.User2Fragment;
-      gqlUser1Query = generated.User1Query;
-      gqlBothUserQuery = generated.BothUserQuery;
-      bothUserQuery = createOperationSelector(gqlBothUserQuery, variables);
+      userFragment = generated.UserFragment;
+      viewerFragment = generated.ViewerFragment;
+      gqlUserRefetchQuery = generated.UserRefetchQuery;
+      gqlParentQuery = generated.ParentQuery;
+      parentQuery = createOperationSelector(gqlParentQuery, variables);
 
       const parentRelayContext = {
         environment,
-        query: bothUserQuery,
+        query: parentQuery,
         variables,
       };
+      releaseGC = environment.getStore().holdGC().dispose;
 
       ContextWrapper = ({
         children,
@@ -860,19 +857,23 @@ describe('createSuspenseRefetchContainer', () => {
       );
     });
 
+    afterEach(() => {
+      releaseGC();
+    });
+
     describe('when refetchQuery renders single fragment', () => {
       beforeEach(() => {
         RefetchContainer = createSuspenseRefetchContainer(
           // $FlowExpectedError - jest.fn type doesn't match React.Component, but its okay to use
           MultiFragmentComponent,
           {
-            user_f1: user1Fragment,
-            user_f2: user2Fragment,
+            user: userFragment,
+            viewer: viewerFragment,
           },
-          gqlUser1Query,
+          gqlUserRefetchQuery,
           {
             getFragmentRefsFromResponse: data => ({
-              user_f1: data.node,
+              user: data.node,
             }),
           },
         );
@@ -884,31 +885,38 @@ describe('createSuspenseRefetchContainer', () => {
           id?: string,
           value?: RelayContext,
         }) => (
-          // This simulates the parent query being BothUserQuery
+          // This simulates the parent query being ParentQuery
           <ContextWrapper value={value}>
             <RefetchContainer
-              user_f1={{
+              user={{
                 [ID_KEY]: id ?? value?.variables.id ?? variables.id,
                 [FRAGMENTS_KEY]: {
-                  UserFragment: user1Fragment,
+                  UserFragment: {},
                 },
               }}
-              user_f2={{
-                [ID_KEY]: id ?? value?.variables.id ?? variables.id,
+              viewer={{
+                [ID_KEY]: 'client:root:viewer',
                 [FRAGMENTS_KEY]: {
-                  User2Fragment: user2Fragment,
+                  ViewerFragment: {},
                 },
               }}
             />
           </ContextWrapper>
         );
 
-        environment.commitPayload(bothUserQuery, {
+        environment.commitPayload(parentQuery, {
           node: {
             __typename: 'User',
             id: '1',
             name: 'Alice',
-            username: 'alice@facebook.com',
+          },
+          viewer: {
+            __typename: 'Viewer',
+            actor: {
+              __typename: 'User',
+              id: '3',
+              name: 'Zed',
+            },
           },
         });
       });
@@ -916,8 +924,8 @@ describe('createSuspenseRefetchContainer', () => {
       it('renders correctly ', () => {
         renderer = TestRenderer.create(<RefetchContainerWrapper />);
         expectToBeRenderedWith(MultiFragmentComponent, {
-          user_f1: {id: '1', name: 'Alice'},
-          user_f2: {username: 'alice@facebook.com'},
+          user: {id: '1', name: 'Alice'},
+          viewer: {actor: {name: 'Zed'}},
         });
       });
 
@@ -925,32 +933,39 @@ describe('createSuspenseRefetchContainer', () => {
         jest.unmock('../../utils/fetchQueryUtils');
         renderer = TestRenderer.create(<RefetchContainerWrapper />);
         expectToBeRenderedWith(MultiFragmentComponent, {
-          user_f1: {id: '1', name: 'Alice'},
-          user_f2: {username: 'alice@facebook.com'},
+          user: {id: '1', name: 'Alice'},
+          viewer: {actor: {name: 'Zed'}},
         });
 
-        parentQuery = createOperationSelector(gqlBothUserQuery, {id: '2'});
+        parentQuery = createOperationSelector(gqlParentQuery, {id: '2'});
         environment.commitPayload(parentQuery, {
           node: {
             __typename: 'User',
             id: '2',
             name: 'Bob',
-            username: 'bob@facebook.com',
+          },
+          viewer: {
+            __typename: 'Viewer',
+            actor: {
+              __typename: 'User',
+              id: '3',
+              name: 'Zed',
+            },
           },
         });
 
         refetch({id: '2'});
         expectToBeRenderedWith(MultiFragmentComponent, {
-          user_f1: {id: '2', name: 'Bob'},
+          user: {id: '2', name: 'Bob'},
           // It continues to render fragment from original fragment reference
           // (before refetch)
-          user_f2: {username: 'alice@facebook.com'},
+          viewer: {actor: {name: 'Zed'}},
         });
         expect(environment.execute).not.toBeCalled();
         expect(downstreamContext.variables).toEqual({
           id: '2',
         });
-        expect(downstreamContext.query.node.name).toEqual('User1Query');
+        expect(downstreamContext.query.node.name).toEqual('UserRefetchQuery');
 
         jest.mock('../../utils/fetchQueryUtils');
       });
@@ -968,8 +983,8 @@ describe('createSuspenseRefetchContainer', () => {
           </React.Suspense>,
         );
         expectToBeRenderedWith(MultiFragmentComponent, {
-          user_f1: {id: '1', name: 'Alice'},
-          user_f2: {username: 'alice@facebook.com'},
+          user: {id: '1', name: 'Alice'},
+          viewer: {actor: {name: 'Zed'}},
         });
 
         MultiFragmentComponent.mockClear();
@@ -977,7 +992,7 @@ describe('createSuspenseRefetchContainer', () => {
         expect(renderer.toJSON()).toEqual(['Fallback']);
         expect(environment.execute).toBeCalledTimes(1);
 
-        environment.mock.nextValue(gqlUser1Query, {
+        environment.mock.resolve(gqlUserRefetchQuery, {
           data: {
             node: {
               __typename: 'User',
@@ -986,22 +1001,21 @@ describe('createSuspenseRefetchContainer', () => {
             },
           },
         });
-        environment.mock.complete(gqlUser1Query);
         jest.runAllTimers();
         expectToBeRenderedWith(MultiFragmentComponent, {
-          user_f1: {id: '2', name: 'Bob'},
+          user: {id: '2', name: 'Bob'},
           // It continues to render fragment from original fragment reference
           // (before refetch)
-          user_f2: {username: 'alice@facebook.com'},
+          viewer: {actor: {name: 'Zed'}},
         });
         expect(downstreamContext.variables).toEqual({
           id: '2',
         });
-        expect(downstreamContext.query.node.name).toEqual('User1Query');
+        expect(downstreamContext.query.node.name).toEqual('UserRefetchQuery');
         jest.mock('../../utils/fetchQueryUtils');
       });
 
-      it('should suspend when some refetch data for fragment is missing', () => {
+      it('should suspend and send network request when some refetch data for fragment is missing', () => {
         MultiFragmentComponent.mockClear();
         // This prevents console.error output in the test, which is expected
         jest.spyOn(console, 'error').mockImplementationOnce(() => {});
@@ -1014,15 +1028,23 @@ describe('createSuspenseRefetchContainer', () => {
           </React.Suspense>,
         );
         expectToBeRenderedWith(MultiFragmentComponent, {
-          user_f1: {id: '1', name: 'Alice'},
-          user_f2: {username: 'alice@facebook.com'},
+          user: {id: '1', name: 'Alice'},
+          viewer: {actor: {name: 'Zed'}},
         });
 
-        const query = createOperationSelector(gqlBothUserQuery, {id: '2'});
-        environment.commitPayload(query, {
+        parentQuery = createOperationSelector(gqlParentQuery, {id: '2'});
+        environment.commitPayload(parentQuery, {
           node: {
             __typename: 'User',
             id: '2',
+          },
+          viewer: {
+            __typename: 'Viewer',
+            actor: {
+              __typename: 'User',
+              id: '3',
+              name: 'Zed',
+            },
           },
         });
 
@@ -1031,7 +1053,17 @@ describe('createSuspenseRefetchContainer', () => {
         expect(renderer.toJSON()).toEqual(['Fallback']);
         expect(environment.execute).toBeCalledTimes(1);
 
-        environment.mock.nextValue(gqlUser1Query, {
+        const userRefetchQuery = createOperationSelector(gqlUserRefetchQuery, {
+          id: '2',
+        });
+        environment.commitPayload(userRefetchQuery, {
+          node: {
+            __typename: 'User',
+            id: '2',
+            name: 'Bob',
+          },
+        });
+        environment.mock.resolve(gqlUserRefetchQuery, {
           data: {
             node: {
               __typename: 'User',
@@ -1040,18 +1072,17 @@ describe('createSuspenseRefetchContainer', () => {
             },
           },
         });
-        environment.mock.complete(gqlUser1Query);
         jest.runAllTimers();
         expectToBeRenderedWith(MultiFragmentComponent, {
-          user_f1: {id: '2', name: 'Bob'},
+          user: {id: '2', name: 'Bob'},
           // It continues to render fragment from original fragment reference
           // (before refetch)
-          user_f2: {username: 'alice@facebook.com'},
+          viewer: {actor: {name: 'Zed'}},
         });
         expect(downstreamContext.variables).toEqual({
           id: '2',
         });
-        expect(downstreamContext.query.node.name).toEqual('User1Query');
+        expect(downstreamContext.query.node.name).toEqual('UserRefetchQuery');
         jest.mock('../../utils/fetchQueryUtils');
       });
 
@@ -1068,17 +1099,16 @@ describe('createSuspenseRefetchContainer', () => {
           </React.Suspense>,
         );
         expectToBeRenderedWith(MultiFragmentComponent, {
-          user_f1: {id: '1', name: 'Alice'},
-          user_f2: {username: 'alice@facebook.com'},
+          user: {id: '1', name: 'Alice'},
+          viewer: {actor: {name: 'Zed'}},
         });
 
-        const query = createOperationSelector(gqlBothUserQuery, {id: '2'});
+        const query = createOperationSelector(gqlParentQuery, {id: '2'});
         environment.commitPayload(query, {
           node: {
             __typename: 'User',
             id: '2',
             name: 'Bob',
-            username: 'bob@facebook.com',
           },
         });
 
@@ -1087,28 +1117,26 @@ describe('createSuspenseRefetchContainer', () => {
         expect(renderer.toJSON()).toEqual(['Fallback']);
         expect(environment.execute).toBeCalledTimes(1);
 
-        environment.mock.nextValue(gqlUser1Query, {
+        environment.mock.resolve(gqlUserRefetchQuery, {
           data: {
             node: {
               __typename: 'User',
               id: '2',
               name: 'Bob',
-              username: 'bob@facebook.com',
             },
           },
         });
-        environment.mock.complete(gqlUser1Query);
         jest.runAllTimers();
         expectToBeRenderedWith(MultiFragmentComponent, {
-          user_f1: {id: '2', name: 'Bob'},
+          user: {id: '2', name: 'Bob'},
           // It continues to render fragment from original fragment reference
           // (before refetch)
-          user_f2: {username: 'alice@facebook.com'},
+          viewer: {actor: {name: 'Zed'}},
         });
         expect(downstreamContext.variables).toEqual({
           id: '2',
         });
-        expect(downstreamContext.query.node.name).toEqual('User1Query');
+        expect(downstreamContext.query.node.name).toEqual('UserRefetchQuery');
         jest.mock('../../utils/fetchQueryUtils');
       });
     });
@@ -1119,14 +1147,14 @@ describe('createSuspenseRefetchContainer', () => {
           // $FlowExpectedError - jest.fn type doesn't match React.Component, but its okay to use
           MultiFragmentComponent,
           {
-            user_f1: user1Fragment,
-            user_f2: user2Fragment,
+            user: userFragment,
+            viewer: viewerFragment,
           },
-          gqlBothUserQuery,
+          gqlParentQuery,
           {
             getFragmentRefsFromResponse: data => ({
-              user_f1: data.node,
-              user_f2: data.node,
+              user: data.node,
+              viewer: data.viewer,
             }),
           },
         );
@@ -1138,72 +1166,87 @@ describe('createSuspenseRefetchContainer', () => {
           id?: string,
           value?: RelayContext,
         }) => (
-          // This simulates the parent query being BothUserQuery
+          // This simulates the parent query being ParentQuery
           <ContextWrapper value={value}>
             <RefetchContainer
-              user_f1={{
+              user={{
                 [ID_KEY]: id ?? value?.variables.id ?? variables.id,
                 [FRAGMENTS_KEY]: {
-                  UserFragment: user1Fragment,
+                  UserFragment: {},
                 },
               }}
-              user_f2={{
-                [ID_KEY]: id ?? value?.variables.id ?? variables.id,
+              viewer={{
+                [ID_KEY]: 'client:root:viewer',
                 [FRAGMENTS_KEY]: {
-                  User2Fragment: user2Fragment,
+                  ViewerFragment: {},
                 },
               }}
             />
           </ContextWrapper>
         );
 
-        environment.commitPayload(bothUserQuery, {
+        environment.commitPayload(parentQuery, {
           node: {
             __typename: 'User',
             id: '1',
             name: 'Alice',
-            username: 'alice@facebook.com',
+          },
+          viewer: {
+            __typename: 'Viewer',
+            actor: {
+              __typename: 'User',
+              id: '3',
+              name: 'Zed',
+            },
           },
         });
-        renderer = TestRenderer.create(<RefetchContainerWrapper />);
       });
 
       it('renders correctly ', () => {
+        renderer = TestRenderer.create(<RefetchContainerWrapper />);
         expectToBeRenderedWith(MultiFragmentComponent, {
-          user_f1: {id: '1', name: 'Alice'},
-          user_f2: {username: 'alice@facebook.com'},
+          user: {id: '1', name: 'Alice'},
+          viewer: {actor: {name: 'Zed'}},
         });
       });
 
       it('refetches the refetchQuery correctly', () => {
+        renderer = TestRenderer.create(<RefetchContainerWrapper />);
         expectToBeRenderedWith(MultiFragmentComponent, {
-          user_f1: {id: '1', name: 'Alice'},
-          user_f2: {username: 'alice@facebook.com'},
+          user: {id: '1', name: 'Alice'},
+          viewer: {actor: {name: 'Zed'}},
         });
 
         // We're just testing the case when the data for refetch is already
         // in the store, so it skips the network request.
         // Fetching + suspending is tested in the section above
-        parentQuery = createOperationSelector(gqlBothUserQuery, {id: '2'});
+        parentQuery = createOperationSelector(gqlParentQuery, {id: '2'});
         environment.commitPayload(parentQuery, {
           node: {
             __typename: 'User',
             id: '2',
             name: 'Bob',
-            username: 'bob@facebook.com',
+          },
+          viewer: {
+            __typename: 'Viewer',
+            actor: {
+              __typename: 'User',
+              id: '3',
+              name: 'Zed',
+            },
           },
         });
 
         refetch({id: '2'});
         expectToBeRenderedWith(MultiFragmentComponent, {
           // It renderes the new refetched fragments for both fragments
-          user_f1: {id: '2', name: 'Bob'},
-          user_f2: {username: 'bob@facebook.com'},
+          user: {id: '2', name: 'Bob'},
+          viewer: {actor: {name: 'Zed'}},
         });
         expect(downstreamContext.variables).toEqual({
           id: '2',
         });
-        expect(downstreamContext.query.node.name).toEqual('BothUserQuery');
+        expect(downstreamContext.query.node.name).toEqual('ParentQuery');
       });
     });
   });

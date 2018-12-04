@@ -78,15 +78,26 @@ function createSuspenseFragmentContainer<
     _renderedSnapshots: {[string]: Snapshot | $ReadOnlyArray<Snapshot>} = {};
 
     static getDerivedStateFromProps(nextProps, prevState) {
+      const mustResubscribe =
+        prevState.mirroredRelayContext !== nextProps.relayContext ||
+        !areEqual(
+          getDataIDsFromObject(fragmentNodes, prevState.mirroredFragmentRefs),
+          getDataIDsFromObject(fragmentNodes, nextProps.fragmentRefs),
+        );
+
+      if (mustResubscribe) {
+        const {DataResource, relayContext} = nextProps;
+        const {variables} = relayContext;
+        DataResource.invalidateFragmentSpec({
+          fragmentNodes,
+          fragmentRefs: nextProps.fragmentRefs,
+          variables,
+        });
+      }
       return {
         mirroredFragmentRefs: nextProps.fragmentRefs,
         mirroredRelayContext: nextProps.relayContext,
-        mustResubscribe:
-          prevState.mirroredRelayContext !== nextProps.relayContext ||
-          !areEqual(
-            getDataIDsFromObject(fragmentNodes, prevState.mirroredFragmentRefs),
-            getDataIDsFromObject(fragmentNodes, nextProps.fragmentRefs),
-          ),
+        mustResubscribe,
       };
     }
 

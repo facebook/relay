@@ -111,6 +111,7 @@ async function writeRelayGeneratedFile(
   const moduleText = formatModule({
     moduleName,
     documentType: typeName,
+    kind: generatedNode.kind,
     docText,
     typeText,
     hash: hash ? `@relayHash ${hash}` : null,

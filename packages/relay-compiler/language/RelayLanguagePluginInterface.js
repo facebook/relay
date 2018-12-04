@@ -152,6 +152,11 @@ export type FormatModule = ({|
   hash: ?string,
 
   /**
+   * The 'kind' of the generated node.
+   */
+  kind: string,
+
+  /**
    * A hash of the document, which is used by relay-compiler to know if it needs
    * to write a new version of the artifact.
    *

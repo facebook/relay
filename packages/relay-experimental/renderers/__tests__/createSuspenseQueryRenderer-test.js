@@ -312,7 +312,7 @@ describe('createSuspenseQueryRenderer', () => {
       const refetchVariables = {id: '<missing-id>'};
       refetch(refetchVariables);
       expectToBeFetched(environment, refetchVariables);
-      expect(renderer.toJSON()).toEqual('QUERY FALLBACK');
+      expect(renderer.toJSON()).toEqual(['QUERY FALLBACK']);
 
       // Resolve refetch request, assert component rerenders with new data
       renderWithRefetch.mockClear();
@@ -369,7 +369,7 @@ describe('createSuspenseQueryRenderer', () => {
       const refetchVariables = {...variables};
       refetch(refetchVariables, {fetchPolicy: 'network-only'});
       expectToBeFetched(environment, refetchVariables);
-      expect(renderer.toJSON()).toEqual('QUERY FALLBACK');
+      expect(renderer.toJSON()).toEqual(['QUERY FALLBACK']);
 
       // Resolve refetch request, assert component rerenders with new data
       renderWithRefetch.mockClear();
@@ -536,7 +536,7 @@ describe('createSuspenseQueryRenderer', () => {
         variables: parentVariables,
       });
       expectToBeFetched(environment, parentVariables);
-      expect(renderer.toJSON()).toEqual('QUERY FALLBACK');
+      expect(renderer.toJSON()).toEqual(['QUERY FALLBACK']);
     });
 
     it('disposes refetch when QueryRenderer unmounts', () => {
@@ -576,7 +576,7 @@ describe('createSuspenseQueryRenderer', () => {
       refetch(refetchVariables);
       expectToBeFetched(environment, refetchVariables);
       expect(environment.retain).toBeCalledTimes(1);
-      expect(renderer.toJSON()).toEqual('QUERY FALLBACK');
+      expect(renderer.toJSON()).toEqual(['QUERY FALLBACK']);
 
       // Unmount component
       renderer.unmount();

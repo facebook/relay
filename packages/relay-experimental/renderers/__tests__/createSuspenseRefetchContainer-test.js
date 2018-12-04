@@ -974,7 +974,7 @@ describe('createSuspenseRefetchContainer', () => {
 
         MultiFragmentComponent.mockClear();
         refetch({id: '2'});
-        expect(renderer.toJSON()).toEqual('Fallback');
+        expect(renderer.toJSON()).toEqual(['Fallback']);
         expect(environment.execute).toBeCalledTimes(1);
 
         environment.mock.nextValue(gqlUser1Query, {
@@ -1028,7 +1028,7 @@ describe('createSuspenseRefetchContainer', () => {
 
         MultiFragmentComponent.mockClear();
         refetch({id: '2'});
-        expect(renderer.toJSON()).toEqual('Fallback');
+        expect(renderer.toJSON()).toEqual(['Fallback']);
         expect(environment.execute).toBeCalledTimes(1);
 
         environment.mock.nextValue(gqlUser1Query, {
@@ -1084,7 +1084,7 @@ describe('createSuspenseRefetchContainer', () => {
 
         MultiFragmentComponent.mockClear();
         refetch({id: '2'}, {fetchPolicy: 'network-only'});
-        expect(renderer.toJSON()).toEqual('Fallback');
+        expect(renderer.toJSON()).toEqual(['Fallback']);
         expect(environment.execute).toBeCalledTimes(1);
 
         environment.mock.nextValue(gqlUser1Query, {

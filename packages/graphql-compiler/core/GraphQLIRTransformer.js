@@ -61,11 +61,7 @@ type NodeVisitor<S> = {
   SplitOperation?: NodeVisitorFunction<SplitOperation, S>,
   Variable?: NodeVisitorFunction<Variable, S>,
 };
-type NodeVisitorFunction<N: IR, S> = (
-  node: N,
-  state: S,
-  parentNode?: mixed,
-) => ?N;
+type NodeVisitorFunction<N: IR, S> = (node: N, state: S) => ?N;
 
 /**
  * @public
@@ -193,18 +189,13 @@ class Transformer<S> {
     return nextNode;
   }
 
-  _visit<N: IR>(node: N, parentNode: ?N): ?N {
+  _visit<N: IR>(node: N): ?N {
     const nodeVisitor = this._visitor[node.kind];
     if (nodeVisitor) {
       // If a handler for the kind is defined, it is responsible for calling
       // `traverse` to transform children as necessary.
       const state = this._getState();
-      const nextNode = nodeVisitor.call(
-        this,
-        (node: $FlowIssue),
-        state,
-        parentNode,
-      );
+      const nextNode = nodeVisitor.call(this, (node: $FlowIssue), state);
       return (nextNode: $FlowIssue);
     }
     // Otherwise traverse is called automatically.
@@ -324,7 +315,7 @@ class Transformer<S> {
           key,
           prevItems,
         );
-        const nextItems = this._map(prevItems, prevNode);
+        const nextItems = this._map(prevItems);
         if (nextNode || nextItems !== prevItems) {
           nextNode = nextNode || {...prevNode};
           nextNode[key] = nextItems;
@@ -336,7 +327,7 @@ class Transformer<S> {
         if (!prevItem) {
           return;
         }
-        const nextItem = this._visit(prevItem, prevNode);
+        const nextItem = this._visit(prevItem);
         if (nextNode || nextItem !== prevItem) {
           nextNode = nextNode || {...prevNode};
           nextNode[key] = nextItem;
@@ -345,10 +336,10 @@ class Transformer<S> {
     return nextNode || prevNode;
   }
 
-  _map<N: IR>(prevItems: Array<N>, parentNode: ?N): Array<N> {
+  _map<N: IR>(prevItems: Array<N>): Array<N> {
     let nextItems;
     prevItems.forEach((prevItem, index) => {
-      const nextItem = this._visit(prevItem, parentNode);
+      const nextItem = this._visit(prevItem);
       if (nextItems || nextItem !== prevItem) {
         nextItems = nextItems || prevItems.slice(0, index);
         if (nextItem) {

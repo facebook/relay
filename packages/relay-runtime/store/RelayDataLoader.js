@@ -13,6 +13,7 @@
 
 const RelayConcreteNode = require('../util/RelayConcreteNode');
 const RelayRecordSourceMutator = require('../mutations/RelayRecordSourceMutator');
+const RelayRecordSourceProxy = require('../mutations/RelayRecordSourceProxy');
 const RelayStoreUtils = require('./RelayStoreUtils');
 
 const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
@@ -87,6 +88,7 @@ class RelayDataLoader {
   _handlers: $ReadOnlyArray<MissingFieldHandler>;
   _mutator: RelayRecordSourceMutator;
   _recordWasMissing: boolean;
+  _recordSourceProxy: RelayRecordSourceProxy;
   _source: RecordSource;
   _variables: Variables;
 
@@ -103,6 +105,7 @@ class RelayDataLoader {
     this._recordWasMissing = false;
     this._source = source;
     this._variables = variables;
+    this._recordSourceProxy = new RelayRecordSourceProxy(this._mutator);
   }
 
   check(node: ConcreteNode, dataID: DataID): boolean {
@@ -143,7 +146,12 @@ class RelayDataLoader {
     const {args, record} = this._getDataForHandlers(field, dataID);
     for (const handler of this._handlers) {
       if (handler.kind === 'scalar') {
-        const newValue = handler.handle(field, record, args);
+        const newValue = handler.handle(
+          field,
+          record,
+          args,
+          this._recordSourceProxy,
+        );
         if (newValue !== undefined) {
           return newValue;
         }
@@ -156,7 +164,12 @@ class RelayDataLoader {
     const {args, record} = this._getDataForHandlers(field, dataID);
     for (const handler of this._handlers) {
       if (handler.kind === 'linked') {
-        const newValue = handler.handle(field, record, args);
+        const newValue = handler.handle(
+          field,
+          record,
+          args,
+          this._recordSourceProxy,
+        );
         if (
           newValue != null &&
           this._mutator.getStatus(newValue) === EXISTENT
@@ -175,7 +188,12 @@ class RelayDataLoader {
     const {args, record} = this._getDataForHandlers(field, dataID);
     for (const handler of this._handlers) {
       if (handler.kind === 'pluralLinked') {
-        const newValue = handler.handle(field, record, args);
+        const newValue = handler.handle(
+          field,
+          record,
+          args,
+          this._recordSourceProxy,
+        );
         if (newValue != null) {
           return newValue.filter(
             linkedID =>

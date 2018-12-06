@@ -185,6 +185,14 @@ export interface RecordProxy {
   setValue(value: mixed, name: string, args?: ?Variables): RecordProxy;
 }
 
+export interface ReadOnlyRecordProxy {
+  getDataID(): DataID;
+  getLinkedRecord(name: string, args?: ?Variables): ?RecordProxy;
+  getLinkedRecords(name: string, args?: ?Variables): ?Array<?RecordProxy>;
+  getType(): string;
+  getValue(name: string, args?: ?Variables): mixed;
+}
+
 /**
  * An interface for imperatively getting/setting properties of a `RecordSource`. This interface
  * is designed to allow the appearance of direct RecordSource manipulation while
@@ -196,6 +204,11 @@ export interface RecordSourceProxy {
   delete(dataID: DataID): void;
   get(dataID: DataID): ?RecordProxy;
   getRoot(): RecordProxy;
+}
+
+export interface ReadOnlyRecordSourceProxy {
+  get(dataID: DataID): ?ReadOnlyRecordProxy;
+  getRoot(): ReadOnlyRecordProxy;
 }
 
 /**
@@ -418,6 +431,7 @@ export type MissingFieldHandler =
         field: ConcreteScalarField,
         record: ?Record,
         args: Variables,
+        store: ReadOnlyRecordSourceProxy,
       ) => mixed,
     }
   | {
@@ -426,6 +440,7 @@ export type MissingFieldHandler =
         field: ConcreteLinkedField,
         record: ?Record,
         args: Variables,
+        store: ReadOnlyRecordSourceProxy,
       ) => ?DataID,
     }
   | {
@@ -434,6 +449,7 @@ export type MissingFieldHandler =
         field: ConcreteLinkedField,
         record: ?Record,
         args: Variables,
+        store: ReadOnlyRecordSourceProxy,
       ) => ?Array<?DataID>,
     };
 

@@ -16,12 +16,7 @@ const {GraphQLList} = require('graphql');
 const {IRVisitor, SchemaUtils} = require('graphql-compiler');
 const {getStorageKey, stableCopy} = require('relay-runtime');
 
-import type {
-  Metadata,
-  Fragment,
-  Request,
-  SplitOperation,
-} from 'graphql-compiler';
+import type {Metadata, Fragment} from 'graphql-compiler';
 import type {
   ConcreteArgument,
   ConcreteArgumentDefinition,
@@ -29,7 +24,6 @@ import type {
   ConcreteFragment,
   ConcreteLinkedField,
   ConcreteMatchField,
-  ConcreteRequest,
   ConcreteScalarField,
   ConcreteSelection,
   ConcreteSplitOperation,
@@ -42,37 +36,14 @@ const {getRawType, isAbstractType, getNullableType} = SchemaUtils;
  * Converts a GraphQLIR node into a plain JS object representation that can be
  * used at runtime.
  */
-declare function generate(node: Fragment): ConcreteFragment;
-declare function generate(node: Request): ConcreteRequest;
-declare function generate(node: SplitOperation): ConcreteSplitOperation;
-function generate(node) {
-  invariant(
-    ['Fragment', 'Request', 'SplitOperation'].indexOf(node.kind) >= 0,
-    'RelayCodeGenerator: Unknown AST kind `%s`. Source: %s.',
-    node.kind,
-    getErrorMessage(node),
-  );
-  return IRVisitor.visit(node, RelayCodeGenVisitor);
+function generate(node: Fragment): ConcreteFragment {
+  return IRVisitor.visit(node, ReaderCodeGenVisitor);
 }
 
-const RelayCodeGenVisitor = {
+const ReaderCodeGenVisitor = {
   leave: {
-    Request(node): ConcreteRequest {
-      return {
-        kind: 'Request',
-        operationKind: node.root.operation,
-        name: node.name,
-        id: node.id,
-        text: node.text,
-        metadata: node.metadata,
-        fragment: node.fragment,
-        operation: {
-          kind: 'Operation',
-          name: node.root.name,
-          argumentDefinitions: node.root.argumentDefinitions,
-          selections: flattenArray(node.root.selections),
-        },
-      };
+    Request(node): empty {
+      throw new Error('ReaderCodeGenerator: unexpeted Request node.');
     },
 
     Fragment(node): ConcreteFragment {
@@ -82,7 +53,7 @@ const RelayCodeGenVisitor = {
         type: node.type.toString(),
         metadata: node.metadata || null,
         argumentDefinitions: node.argumentDefinitions,
-        selections: flattenArray(node.selections),
+        selections: node.selections,
       };
     },
 
@@ -114,7 +85,7 @@ const RelayCodeGenVisitor = {
         kind: 'Condition',
         passingValue: node.passingValue,
         condition: node.condition.variableName,
-        selections: flattenArray(node.selections),
+        selections: node.selections,
       };
     },
 
@@ -130,28 +101,24 @@ const RelayCodeGenVisitor = {
       return {
         kind: 'InlineFragment',
         type: node.typeCondition.toString(),
-        selections: flattenArray(node.selections),
+        selections: node.selections,
       };
     },
 
-    LinkedField(node): Array<ConcreteSelection> {
+    LinkedField(node): ConcreteSelection {
       // Note: it is important that the arguments of this field be sorted to
       // ensure stable generation of storage keys for equivalent arguments
       // which may have originally appeared in different orders across an app.
-      const handles =
-        (node.handles &&
-          node.handles.map(handle => {
-            return {
-              kind: 'LinkedHandle',
-              alias: node.alias,
-              name: node.name,
-              args: valuesOrNull(sortByName(node.args)),
-              handle: handle.name,
-              key: handle.key,
-              filters: handle.filters,
-            };
-          })) ||
-        [];
+
+      // TODO(T37646905) enable this invariant after splitting the
+      // RelayCodeGenerator-test and running the RelayFieldHandleTransform on
+      // Reader ASTs.
+      //
+      //   invariant(
+      //     node.handles == null,
+      //     'ReaderCodeGenerator: unexpected handles',
+      //   );
+
       const type = getRawType(node.type);
       let field: ConcreteLinkedField = {
         kind: 'LinkedField',
@@ -161,20 +128,19 @@ const RelayCodeGenVisitor = {
         args: valuesOrNull(sortByName(node.args)),
         concreteType: !isAbstractType(type) ? type.toString() : null,
         plural: isPlural(node.type),
-        selections: flattenArray(node.selections),
+        selections: node.selections,
       };
       // Precompute storageKey if possible
       const storageKey = getStaticStorageKey(field, node.metadata);
       if (storageKey) {
         field = {...field, storageKey};
       }
-      return [field].concat(handles);
+      return field;
     },
 
     MatchField(node, key, parent, ancestors): ConcreteMatchField {
-      const selections = flattenArray(node.selections);
       const matchesByType = {};
-      selections.forEach(selection => {
+      node.selections.forEach(selection => {
         if (
           selection.kind === 'ScalarField' &&
           selection.name === '__typename'
@@ -232,24 +198,20 @@ const RelayCodeGenVisitor = {
       return field;
     },
 
-    ScalarField(node): Array<ConcreteSelection> {
+    ScalarField(node): ConcreteSelection {
       // Note: it is important that the arguments of this field be sorted to
       // ensure stable generation of storage keys for equivalent arguments
       // which may have originally appeared in different orders across an app.
-      const handles =
-        (node.handles &&
-          node.handles.map(handle => {
-            return {
-              kind: 'ScalarHandle',
-              alias: node.alias,
-              name: node.name,
-              args: valuesOrNull(sortByName(node.args)),
-              handle: handle.name,
-              key: handle.key,
-              filters: handle.filters,
-            };
-          })) ||
-        [];
+
+      // TODO(T37646905) enable this invariant after splitting the
+      // RelayCodeGenerator-test and running the RelayFieldHandleTransform on
+      // Reader ASTs.
+      //
+      //   invariant(
+      //     node.handles == null,
+      //     'ReaderCodeGenerator: unexpected handles',
+      //   );
+
       let field: ConcreteScalarField = {
         kind: 'ScalarField',
         alias: node.alias,
@@ -262,7 +224,7 @@ const RelayCodeGenVisitor = {
       if (storageKey) {
         field = {...field, storageKey};
       }
-      return [field].concat(handles);
+      return field;
     },
 
     SplitOperation(node, key, parent): ConcreteSplitOperation {
@@ -270,7 +232,7 @@ const RelayCodeGenVisitor = {
         kind: 'SplitOperation',
         name: node.name,
         metadata: null,
-        selections: flattenArray(node.selections),
+        selections: node.selections,
       };
     },
 
@@ -313,12 +275,6 @@ function isPlural(type: any): boolean {
 
 function valuesOrNull<T>(array: ?$ReadOnlyArray<T>): ?$ReadOnlyArray<T> {
   return !array || array.length === 0 ? null : array;
-}
-
-function flattenArray<T>(
-  array: $ReadOnlyArray<$ReadOnlyArray<T>>,
-): $ReadOnlyArray<T> {
-  return array ? Array.prototype.concat.apply([], array) : [];
 }
 
 function sortByName<T: {name: string}>(

@@ -16,19 +16,14 @@ const {GraphQLList} = require('graphql');
 const {IRVisitor, SchemaUtils} = require('graphql-compiler');
 const {getStorageKey, stableCopy} = require('relay-runtime');
 
-import type {
-  Metadata,
-  Fragment,
-  Request,
-  SplitOperation,
-} from 'graphql-compiler';
+import type {Metadata, Root, SplitOperation} from 'graphql-compiler';
 import type {
   ConcreteArgument,
   ConcreteArgumentDefinition,
   ConcreteField,
-  ConcreteFragment,
   ConcreteLinkedField,
   ConcreteMatchField,
+  ConcreteOperation,
   ConcreteRequest,
   ConcreteScalarField,
   ConcreteSelection,
@@ -42,48 +37,35 @@ const {getRawType, isAbstractType, getNullableType} = SchemaUtils;
  * Converts a GraphQLIR node into a plain JS object representation that can be
  * used at runtime.
  */
-declare function generate(node: Fragment): ConcreteFragment;
-declare function generate(node: Request): ConcreteRequest;
+declare function generate(node: Root): ConcreteRequest;
 declare function generate(node: SplitOperation): ConcreteSplitOperation;
 function generate(node) {
   invariant(
-    ['Fragment', 'Request', 'SplitOperation'].indexOf(node.kind) >= 0,
+    node.kind === 'Root' || node.kind === 'SplitOperation',
     'RelayCodeGenerator: Unknown AST kind `%s`. Source: %s.',
     node.kind,
     getErrorMessage(node),
   );
-  return IRVisitor.visit(node, RelayCodeGenVisitor);
+  return IRVisitor.visit(node, NormalizationCodeGenVisitor);
 }
 
-const RelayCodeGenVisitor = {
+const NormalizationCodeGenVisitor = {
   leave: {
-    Request(node): ConcreteRequest {
+    Root(node): ConcreteOperation {
       return {
-        kind: 'Request',
-        operationKind: node.root.operation,
+        kind: 'Operation',
         name: node.name,
-        id: node.id,
-        text: node.text,
-        metadata: node.metadata,
-        fragment: node.fragment,
-        operation: {
-          kind: 'Operation',
-          name: node.root.name,
-          argumentDefinitions: node.root.argumentDefinitions,
-          selections: flattenArray(node.root.selections),
-        },
-      };
-    },
-
-    Fragment(node): ConcreteFragment {
-      return {
-        kind: 'Fragment',
-        name: node.name,
-        type: node.type.toString(),
-        metadata: node.metadata || null,
         argumentDefinitions: node.argumentDefinitions,
         selections: flattenArray(node.selections),
       };
+    },
+
+    Request(node): empty {
+      throw new Error('NormalizationCodeGenerator: unexpected Request node.');
+    },
+
+    Fragment(node): empty {
+      throw new Error('NormalizationCodeGenerator: unexpected Fragment node.');
     },
 
     LocalArgumentDefinition(node): ConcreteArgumentDefinition {
@@ -118,12 +100,15 @@ const RelayCodeGenVisitor = {
       };
     },
 
-    FragmentSpread(node): ConcreteSelection {
-      return {
-        kind: 'FragmentSpread',
-        name: node.name,
-        args: valuesOrNull(sortByName(node.args)),
-      };
+    FragmentSpread(node): Array<empty> {
+      // TODO(T37646905) enable this invariant after splitting the
+      // RelayCodeGenerator-test and running the InlineFragmentsTransform on
+      // normalization ASTs.
+      //
+      //   throw new Error(
+      //     'NormalizationCodeGenerator: unexpected FragmentSpread node.',
+      //   );
+      return [];
     },
 
     InlineFragment(node): ConcreteSelection {

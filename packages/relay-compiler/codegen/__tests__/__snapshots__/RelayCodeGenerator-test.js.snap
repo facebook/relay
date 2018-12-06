@@ -210,22 +210,6 @@ fragment LinkedHandleField on User {
           "storageKey": null
         }
       ]
-    },
-    {
-      "kind": "LinkedHandle",
-      "alias": null,
-      "name": "friends",
-      "args": [
-        {
-          "kind": "Literal",
-          "name": "first",
-          "value": 10,
-          "type": "Int"
-        }
-      ],
-      "handle": "clientFriends",
-      "key": "",
-      "filters": null
     }
   ]
 }
@@ -318,28 +302,10 @@ fragment Profile on User @argumentDefinitions(
             "storageKey": null
           },
           {
-            "kind": "FragmentSpread",
-            "name": "Profile",
-            "args": [
-              {
-                "kind": "Variable",
-                "name": "pictureSize",
-                "variableName": "pictureSize",
-                "type": null
-              }
-            ]
-          },
-          {
             "kind": "Condition",
             "passingValue": true,
             "condition": "cond",
-            "selections": [
-              {
-                "kind": "FragmentSpread",
-                "name": "ProfileFriends",
-                "args": null
-              }
-            ]
+            "selections": []
           }
         ]
       }
@@ -525,13 +491,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
         ],
         "concreteType": null,
         "plural": false,
-        "selections": [
-          {
-            "kind": "FragmentSpread",
-            "name": "NameRendererFragment",
-            "args": null
-          }
-        ]
+        "selections": []
       }
     ]
   }
@@ -672,15 +632,6 @@ fragment ScalarHandleField on User {
       "name": "name",
       "args": null,
       "storageKey": null
-    },
-    {
-      "kind": "ScalarHandle",
-      "alias": null,
-      "name": "name",
-      "args": null,
-      "handle": "clientName",
-      "key": "",
-      "filters": null
     }
   ]
 }

@@ -21,16 +21,17 @@ describe('cloneRelayHandleSourceField()', () => {
 
   beforeEach(() => {
     expect.extend(matchers);
-    const input = generateWithTransforms(
-      `
-      fragment A on User {
-        address @__clientField(handle: "test") {
-          street
+    const {TestQuery} = generateWithTransforms(`
+      query TestQuery {
+        me {
+          address @__clientField(handle: "test") {
+            street
+          }
         }
       }
-    `,
-    );
-    selections = input.A.selections;
+    `);
+    // Get the selections on `me`.
+    selections = TestQuery.operation.selections[0].selections;
   });
 
   it('returns a clone of the source, with the same name as the handle', () => {

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @noflow
+ * @flow
  * @format
  */
 
@@ -17,10 +17,9 @@ const invariant = require('invariant');
 
 import type {Fragment, Request, SplitOperation} from 'graphql-compiler';
 import type {
-  ConcreteFragment,
-  ConcreteRequest,
-  ConcreteSplitOperation,
   ReaderFragment,
+  ConcreteRequest,
+  NormalizationSplitOperation,
 } from 'relay-runtime';
 
 /**
@@ -31,7 +30,7 @@ import type {
  */
 declare function generate(node: Fragment): ReaderFragment;
 declare function generate(node: Request): ConcreteRequest;
-declare function generate(node: SplitOperation): ConcreteSplitOperation;
+declare function generate(node: SplitOperation): NormalizationSplitOperation;
 function generate(node) {
   switch (node.kind) {
     case 'Fragment':

@@ -20,6 +20,7 @@ const warning = require('warning');
 import type {
   HandleFieldPayload,
   RecordProxy,
+  ReadOnlyRecordProxy,
   RecordSourceProxy,
 } from '../../store/RelayStoreTypes';
 import type {DataID, Variables} from '../../util/RelayRuntimeTypes';
@@ -244,7 +245,7 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
  * that returns an array of the connections under the same `key` regardless of the variables.
  */
 function getConnection(
-  record: RecordProxy,
+  record: ReadOnlyRecordProxy,
   key: string,
   filters?: ?Variables,
 ): ?RecordProxy {

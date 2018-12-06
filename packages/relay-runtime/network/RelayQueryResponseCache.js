@@ -60,7 +60,16 @@ class RelayQueryResponseCache {
       }
     });
     const response = this._responses.get(cacheKey);
-    return response != null ? response.payload : null;
+    return response != null
+      ? // $FlowFixMe
+        ({
+          ...response.payload,
+          extensions: {
+            ...response.payload.extensions,
+            cacheTimestamp: response.fetchTime,
+          },
+        }: GraphQLResponse)
+      : null;
   }
 
   set(queryID: string, variables: Variables, payload: GraphQLResponse): void {

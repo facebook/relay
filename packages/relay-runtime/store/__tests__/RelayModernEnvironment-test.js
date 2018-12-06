@@ -80,7 +80,7 @@ describe('RelayModernEnvironment', () => {
           },
         },
       });
-      expect(environment.check(operationSelector.fragment)).toBe(true);
+      expect(environment.check(operationSelector.root)).toBe(true);
     });
 
     it('returns false if data is missing from the environment', () => {
@@ -93,7 +93,7 @@ describe('RelayModernEnvironment', () => {
           },
         },
       });
-      expect(environment.check(operationSelector.fragment)).toBe(false);
+      expect(environment.check(operationSelector.root)).toBe(false);
     });
   });
 

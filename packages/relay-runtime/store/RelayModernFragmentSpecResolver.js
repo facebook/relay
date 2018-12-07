@@ -23,7 +23,7 @@ import type {
   Environment,
   FragmentMap,
   RelayContext,
-  Selector,
+  ReaderSelector,
   Snapshot,
 } from './RelayStoreTypes';
 import type {
@@ -205,12 +205,12 @@ class SelectorResolver {
   _callback: () => void;
   _data: ?SelectorData;
   _environment: Environment;
-  _selector: Selector;
+  _selector: ReaderSelector;
   _subscription: ?Disposable;
 
   constructor(
     environment: Environment,
-    selector: Selector,
+    selector: ReaderSelector,
     callback: () => void,
   ) {
     const snapshot = environment.lookup(selector);
@@ -232,7 +232,7 @@ class SelectorResolver {
     return this._data;
   }
 
-  setSelector(selector: Selector): void {
+  setSelector(selector: ReaderSelector): void {
     if (
       this._subscription != null &&
       areEqualSelectors(selector, this._selector)
@@ -272,7 +272,7 @@ class SelectorListResolver {
 
   constructor(
     environment: Environment,
-    selectors: Array<Selector>,
+    selectors: Array<ReaderSelector>,
     callback: () => void,
   ) {
     this._callback = callback;
@@ -311,7 +311,7 @@ class SelectorListResolver {
     return this._data;
   }
 
-  setSelectors(selectors: Array<Selector>): void {
+  setSelectors(selectors: Array<ReaderSelector>): void {
     while (this._resolvers.length > selectors.length) {
       const resolver = this._resolvers.pop();
       resolver.dispose();

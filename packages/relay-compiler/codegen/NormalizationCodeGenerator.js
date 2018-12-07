@@ -18,16 +18,16 @@ const {getStorageKey, stableCopy} = require('relay-runtime');
 
 import type {Metadata, Root, SplitOperation} from 'graphql-compiler';
 import type {
-  ConcreteArgument,
-  ConcreteArgumentDefinition,
-  ConcreteField,
-  ConcreteLinkedField,
-  ConcreteMatchField,
-  ConcreteOperation,
+  NormalizationArgument,
+  NormalizationArgumentDefinition,
+  NormalizationField,
+  NormalizationLinkedField,
+  NormalizationMatchField,
+  NormalizationOperation,
   ConcreteRequest,
-  ConcreteScalarField,
-  ConcreteSelection,
-  ConcreteSplitOperation,
+  NormalizationScalarField,
+  NormalizationSelection,
+  NormalizationSplitOperation,
 } from 'relay-runtime';
 const {getRawType, isAbstractType, getNullableType} = SchemaUtils;
 
@@ -37,8 +37,8 @@ const {getRawType, isAbstractType, getNullableType} = SchemaUtils;
  * Converts a GraphQLIR node into a plain JS object representation that can be
  * used at runtime.
  */
-declare function generate(node: Root): ConcreteRequest;
-declare function generate(node: SplitOperation): ConcreteSplitOperation;
+declare function generate(node: Root): NormalizationOperation;
+declare function generate(node: SplitOperation): NormalizationSplitOperation;
 function generate(node) {
   invariant(
     node.kind === 'Root' || node.kind === 'SplitOperation',
@@ -51,7 +51,7 @@ function generate(node) {
 
 const NormalizationCodeGenVisitor = {
   leave: {
-    Root(node): ConcreteOperation {
+    Root(node): NormalizationOperation {
       return {
         kind: 'Operation',
         name: node.name,
@@ -68,7 +68,7 @@ const NormalizationCodeGenVisitor = {
       throw new Error('NormalizationCodeGenerator: unexpected Fragment node.');
     },
 
-    LocalArgumentDefinition(node): ConcreteArgumentDefinition {
+    LocalArgumentDefinition(node): NormalizationArgumentDefinition {
       return {
         kind: 'LocalArgument',
         name: node.name,
@@ -77,7 +77,7 @@ const NormalizationCodeGenVisitor = {
       };
     },
 
-    RootArgumentDefinition(node): ConcreteArgumentDefinition {
+    RootArgumentDefinition(node): NormalizationArgumentDefinition {
       return {
         kind: 'RootArgument',
         name: node.name,
@@ -85,7 +85,7 @@ const NormalizationCodeGenVisitor = {
       };
     },
 
-    Condition(node, key, parent, ancestors): ConcreteSelection {
+    Condition(node, key, parent, ancestors): NormalizationSelection {
       invariant(
         node.condition.kind === 'Variable',
         'RelayCodeGenerator: Expected static `Condition` node to be ' +
@@ -111,7 +111,7 @@ const NormalizationCodeGenVisitor = {
       return [];
     },
 
-    InlineFragment(node): ConcreteSelection {
+    InlineFragment(node): NormalizationSelection {
       return {
         kind: 'InlineFragment',
         type: node.typeCondition.toString(),
@@ -119,7 +119,7 @@ const NormalizationCodeGenVisitor = {
       };
     },
 
-    LinkedField(node): Array<ConcreteSelection> {
+    LinkedField(node): Array<NormalizationSelection> {
       // Note: it is important that the arguments of this field be sorted to
       // ensure stable generation of storage keys for equivalent arguments
       // which may have originally appeared in different orders across an app.
@@ -138,7 +138,7 @@ const NormalizationCodeGenVisitor = {
           })) ||
         [];
       const type = getRawType(node.type);
-      let field: ConcreteLinkedField = {
+      let field: NormalizationLinkedField = {
         kind: 'LinkedField',
         alias: node.alias,
         name: node.name,
@@ -156,7 +156,7 @@ const NormalizationCodeGenVisitor = {
       return [field].concat(handles);
     },
 
-    MatchField(node, key, parent, ancestors): ConcreteMatchField {
+    MatchField(node, key, parent, ancestors): NormalizationMatchField {
       const selections = flattenArray(node.selections);
       const matchesByType = {};
       selections.forEach(selection => {
@@ -201,7 +201,7 @@ const NormalizationCodeGenVisitor = {
           fragmentName,
         };
       });
-      let field: ConcreteMatchField = {
+      let field: NormalizationMatchField = {
         kind: 'MatchField',
         alias: node.alias,
         name: node.name,
@@ -217,7 +217,7 @@ const NormalizationCodeGenVisitor = {
       return field;
     },
 
-    ScalarField(node): Array<ConcreteSelection> {
+    ScalarField(node): Array<NormalizationSelection> {
       // Note: it is important that the arguments of this field be sorted to
       // ensure stable generation of storage keys for equivalent arguments
       // which may have originally appeared in different orders across an app.
@@ -235,7 +235,7 @@ const NormalizationCodeGenVisitor = {
             };
           })) ||
         [];
-      let field: ConcreteScalarField = {
+      let field: NormalizationScalarField = {
         kind: 'ScalarField',
         alias: node.alias,
         name: node.name,
@@ -250,7 +250,7 @@ const NormalizationCodeGenVisitor = {
       return [field].concat(handles);
     },
 
-    SplitOperation(node, key, parent): ConcreteSplitOperation {
+    SplitOperation(node, key, parent): NormalizationSplitOperation {
       return {
         kind: 'SplitOperation',
         name: node.name,
@@ -259,7 +259,7 @@ const NormalizationCodeGenVisitor = {
       };
     },
 
-    Variable(node, key, parent): ConcreteArgument {
+    Variable(node, key, parent): NormalizationArgument {
       return {
         kind: 'Variable',
         name: parent.name,
@@ -268,7 +268,7 @@ const NormalizationCodeGenVisitor = {
       };
     },
 
-    Literal(node, key, parent): ConcreteArgument {
+    Literal(node, key, parent): NormalizationArgument {
       return {
         kind: 'Literal',
         name: parent.name,
@@ -277,7 +277,7 @@ const NormalizationCodeGenVisitor = {
       };
     },
 
-    Argument(node, key, parent, ancestors): ?ConcreteArgument {
+    Argument(node, key, parent, ancestors): ?NormalizationArgument {
       if (!['Variable', 'Literal'].includes(node.value.kind)) {
         const valueString = JSON.stringify(node.value, null, 2);
         throw new Error(
@@ -326,7 +326,7 @@ function getErrorMessage(node: any): string {
  * (ie. literals, no variables) at build time.
  */
 function getStaticStorageKey(
-  field: ConcreteField,
+  field: NormalizationField,
   metadata: Metadata,
 ): ?string {
   const metadataStorageKey = metadata?.storageKey;

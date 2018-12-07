@@ -18,15 +18,15 @@ const {getStorageKey, stableCopy} = require('relay-runtime');
 
 import type {Metadata, Fragment} from 'graphql-compiler';
 import type {
-  ConcreteArgument,
-  ConcreteArgumentDefinition,
-  ConcreteField,
-  ConcreteFragment,
-  ConcreteLinkedField,
-  ConcreteMatchField,
-  ConcreteScalarField,
-  ConcreteSelection,
-  ConcreteSplitOperation,
+  ReaderArgument,
+  ReaderArgumentDefinition,
+  ReaderField,
+  ReaderFragment,
+  ReaderLinkedField,
+  ReaderMatchField,
+  ReaderScalarField,
+  ReaderSelection,
+  ReaderSplitOperation,
 } from 'relay-runtime';
 const {getRawType, isAbstractType, getNullableType} = SchemaUtils;
 
@@ -36,7 +36,7 @@ const {getRawType, isAbstractType, getNullableType} = SchemaUtils;
  * Converts a GraphQLIR node into a plain JS object representation that can be
  * used at runtime.
  */
-function generate(node: Fragment): ConcreteFragment {
+function generate(node: Fragment): ReaderFragment {
   return IRVisitor.visit(node, ReaderCodeGenVisitor);
 }
 
@@ -46,7 +46,7 @@ const ReaderCodeGenVisitor = {
       throw new Error('ReaderCodeGenerator: unexpeted Request node.');
     },
 
-    Fragment(node): ConcreteFragment {
+    Fragment(node): ReaderFragment {
       return {
         kind: 'Fragment',
         name: node.name,
@@ -57,7 +57,7 @@ const ReaderCodeGenVisitor = {
       };
     },
 
-    LocalArgumentDefinition(node): ConcreteArgumentDefinition {
+    LocalArgumentDefinition(node): ReaderArgumentDefinition {
       return {
         kind: 'LocalArgument',
         name: node.name,
@@ -66,7 +66,7 @@ const ReaderCodeGenVisitor = {
       };
     },
 
-    RootArgumentDefinition(node): ConcreteArgumentDefinition {
+    RootArgumentDefinition(node): ReaderArgumentDefinition {
       return {
         kind: 'RootArgument',
         name: node.name,
@@ -74,7 +74,7 @@ const ReaderCodeGenVisitor = {
       };
     },
 
-    Condition(node, key, parent, ancestors): ConcreteSelection {
+    Condition(node, key, parent, ancestors): ReaderSelection {
       invariant(
         node.condition.kind === 'Variable',
         'RelayCodeGenerator: Expected static `Condition` node to be ' +
@@ -89,7 +89,7 @@ const ReaderCodeGenVisitor = {
       };
     },
 
-    FragmentSpread(node): ConcreteSelection {
+    FragmentSpread(node): ReaderSelection {
       return {
         kind: 'FragmentSpread',
         name: node.name,
@@ -97,7 +97,7 @@ const ReaderCodeGenVisitor = {
       };
     },
 
-    InlineFragment(node): ConcreteSelection {
+    InlineFragment(node): ReaderSelection {
       return {
         kind: 'InlineFragment',
         type: node.typeCondition.toString(),
@@ -105,7 +105,7 @@ const ReaderCodeGenVisitor = {
       };
     },
 
-    LinkedField(node): ConcreteSelection {
+    LinkedField(node): ReaderSelection {
       // Note: it is important that the arguments of this field be sorted to
       // ensure stable generation of storage keys for equivalent arguments
       // which may have originally appeared in different orders across an app.
@@ -120,7 +120,7 @@ const ReaderCodeGenVisitor = {
       //   );
 
       const type = getRawType(node.type);
-      let field: ConcreteLinkedField = {
+      let field: ReaderLinkedField = {
         kind: 'LinkedField',
         alias: node.alias,
         name: node.name,
@@ -138,7 +138,7 @@ const ReaderCodeGenVisitor = {
       return field;
     },
 
-    MatchField(node, key, parent, ancestors): ConcreteMatchField {
+    MatchField(node, key, parent, ancestors): ReaderMatchField {
       const matchesByType = {};
       node.selections.forEach(selection => {
         if (
@@ -182,7 +182,7 @@ const ReaderCodeGenVisitor = {
           fragmentName,
         };
       });
-      let field: ConcreteMatchField = {
+      let field: ReaderMatchField = {
         kind: 'MatchField',
         alias: node.alias,
         name: node.name,
@@ -198,7 +198,7 @@ const ReaderCodeGenVisitor = {
       return field;
     },
 
-    ScalarField(node): ConcreteSelection {
+    ScalarField(node): ReaderSelection {
       // Note: it is important that the arguments of this field be sorted to
       // ensure stable generation of storage keys for equivalent arguments
       // which may have originally appeared in different orders across an app.
@@ -212,7 +212,7 @@ const ReaderCodeGenVisitor = {
       //     'ReaderCodeGenerator: unexpected handles',
       //   );
 
-      let field: ConcreteScalarField = {
+      let field: ReaderScalarField = {
         kind: 'ScalarField',
         alias: node.alias,
         name: node.name,
@@ -227,7 +227,7 @@ const ReaderCodeGenVisitor = {
       return field;
     },
 
-    SplitOperation(node, key, parent): ConcreteSplitOperation {
+    SplitOperation(node, key, parent): ReaderSplitOperation {
       return {
         kind: 'SplitOperation',
         name: node.name,
@@ -236,7 +236,7 @@ const ReaderCodeGenVisitor = {
       };
     },
 
-    Variable(node, key, parent): ConcreteArgument {
+    Variable(node, key, parent): ReaderArgument {
       return {
         kind: 'Variable',
         name: parent.name,
@@ -245,7 +245,7 @@ const ReaderCodeGenVisitor = {
       };
     },
 
-    Literal(node, key, parent): ConcreteArgument {
+    Literal(node, key, parent): ReaderArgument {
       return {
         kind: 'Literal',
         name: parent.name,
@@ -254,7 +254,7 @@ const ReaderCodeGenVisitor = {
       };
     },
 
-    Argument(node, key, parent, ancestors): ?ConcreteArgument {
+    Argument(node, key, parent, ancestors): ?ReaderArgument {
       if (!['Variable', 'Literal'].includes(node.value.kind)) {
         const valueString = JSON.stringify(node.value, null, 2);
         throw new Error(
@@ -297,7 +297,7 @@ function getErrorMessage(node: any): string {
  * (ie. literals, no variables) at build time.
  */
 function getStaticStorageKey(
-  field: ConcreteField,
+  field: ReaderField,
   metadata: Metadata,
 ): ?string {
   const metadataStorageKey = metadata?.storageKey;

@@ -18,9 +18,10 @@ import type {
 import type {
   CEnvironment,
   CFragmentMap,
+  CNormalizationSelector,
   COperationSelector,
+  CReaderSelector,
   CRelayContext,
-  CSelector,
   CSnapshot,
   CUnstableEnvironmentCore,
 } from './RelayCombinedEnvironmentTypes';
@@ -35,20 +36,27 @@ import type {
 type TEnvironment = Environment;
 type TFragment = ConcreteFragmentDefinition;
 type TGraphQLTaggedNode = GraphQLTaggedNode;
-type TNode = ConcreteFragment;
+type TReaderNode = ConcreteFragment;
+type TNormalizationNode = ConcreteFragment;
+type TPayload = ReaderSelector;
 type TRequest = ConcreteOperationDefinition;
-type TPayload = Selector;
 
 export type FragmentMap = CFragmentMap<TFragment>;
-export type OperationSelector = COperationSelector<TNode, TRequest>;
+export type OperationSelector = COperationSelector<
+  TReaderNode,
+  TNormalizationNode,
+  TRequest,
+>;
 export type RelayContext = CRelayContext<TEnvironment>;
-export type Selector = CSelector<TNode>;
-export type Snapshot = CSnapshot<TNode>;
+export type ReaderSelector = CReaderSelector<TReaderNode>;
+export type NormalizationSelector = CNormalizationSelector<TNormalizationNode>;
+export type Snapshot = CSnapshot<TReaderNode>;
 export type UnstableEnvironmentCore = CUnstableEnvironmentCore<
   TEnvironment,
   TFragment,
   TGraphQLTaggedNode,
-  TNode,
+  TReaderNode,
+  TNormalizationNode,
   TRequest,
 >;
 
@@ -61,7 +69,8 @@ export interface Environment
     TEnvironment,
     TFragment,
     TGraphQLTaggedNode,
-    TNode,
+    TReaderNode,
+    TNormalizationNode,
     TRequest,
     TPayload,
   > {

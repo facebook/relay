@@ -17,9 +17,9 @@ const invariant = require('invariant');
 
 import type {Fragment, Request, SplitOperation} from 'graphql-compiler';
 import type {
-  ConcreteFragment,
+  ReaderFragment,
   ConcreteRequest,
-  ConcreteSplitOperation,
+  NormalizationSplitOperation,
 } from 'relay-runtime';
 
 /**
@@ -28,9 +28,9 @@ import type {
  * Converts a GraphQLIR node into a plain JS object representation that can be
  * used at runtime.
  */
-declare function generate(node: Fragment): ConcreteFragment;
+declare function generate(node: Fragment): ReaderFragment;
 declare function generate(node: Request): ConcreteRequest;
-declare function generate(node: SplitOperation): ConcreteSplitOperation;
+declare function generate(node: SplitOperation): NormalizationSplitOperation;
 function generate(node) {
   switch (node.kind) {
     case 'Fragment':

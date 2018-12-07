@@ -27,7 +27,7 @@ import type {
   MutableRecordSource,
   OperationSelector,
   OptimisticUpdate,
-  Selector,
+  ReaderSelector,
   SelectorStoreUpdater,
   Store,
   StoreUpdater,
@@ -38,7 +38,7 @@ import type {SelectorData} from 'react-relay/classic/environment/RelayCombinedEn
 
 type Payload = {
   fieldPayloads: ?Array<HandleFieldPayload>,
-  selector: ?Selector,
+  selector: ?ReaderSelector,
   source: MutableRecordSource,
   updater: ?SelectorStoreUpdater,
 };
@@ -374,7 +374,7 @@ class RelayPublishQueue {
 
 function lookupSelector(
   source: RecordSource,
-  selector: Selector,
+  selector: ReaderSelector,
 ): ?SelectorData {
   const selectorData = RelayReader.read(source, selector).data;
   if (__DEV__) {

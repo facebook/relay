@@ -33,22 +33,22 @@ const {
 } = require('./RelayStoreUtils');
 
 import type {
-  ConcreteFragmentSpread,
-  ConcreteLinkedField,
-  ConcreteMatchField,
-  ConcreteNode,
-  ConcreteScalarField,
-  ConcreteSelection,
-  ConcreteSelectableNode,
-} from '../util/RelayConcreteNode';
+  ReaderFragmentSpread,
+  ReaderLinkedField,
+  ReaderMatchField,
+  ReaderNode,
+  ReaderScalarField,
+  ReaderSelection,
+  ReaderSelectableNode,
+} from '../util/ReaderNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
-import type {RecordSource, Selector, Snapshot} from './RelayStoreTypes';
+import type {RecordSource, ReaderSelector, Snapshot} from './RelayStoreTypes';
 import type {
   Record,
   SelectorData,
 } from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
-function read(recordSource: RecordSource, selector: Selector): Snapshot {
+function read(recordSource: RecordSource, selector: ReaderSelector): Snapshot {
   const {dataID, node, variables} = selector;
   const reader = new RelayReader(recordSource, variables);
   return reader.read(node, dataID);
@@ -70,7 +70,7 @@ class RelayReader {
     this._variables = variables;
   }
 
-  read(node: ConcreteSelectableNode, dataID: DataID): Snapshot {
+  read(node: ReaderSelectableNode, dataID: DataID): Snapshot {
     const data = this._traverse(node, dataID, null);
     return {
       data,
@@ -83,7 +83,7 @@ class RelayReader {
   }
 
   _traverse(
-    node: ConcreteNode,
+    node: ReaderNode,
     dataID: DataID,
     prevData: ?SelectorData,
   ): ?SelectorData {
@@ -110,7 +110,7 @@ class RelayReader {
   }
 
   _traverseSelections(
-    selections: $ReadOnlyArray<ConcreteSelection>,
+    selections: $ReadOnlyArray<ReaderSelection>,
     record: Record,
     data: SelectorData,
   ): void {
@@ -148,7 +148,7 @@ class RelayReader {
   }
 
   _readScalar(
-    field: ConcreteScalarField,
+    field: ReaderScalarField,
     record: Record,
     data: SelectorData,
   ): void {
@@ -162,7 +162,7 @@ class RelayReader {
   }
 
   _readLink(
-    field: ConcreteLinkedField,
+    field: ReaderLinkedField,
     record: Record,
     data: SelectorData,
   ): void {
@@ -190,7 +190,7 @@ class RelayReader {
   }
 
   _readPluralLink(
-    field: ConcreteLinkedField,
+    field: ReaderLinkedField,
     record: Record,
     data: SelectorData,
   ): void {
@@ -239,11 +239,11 @@ class RelayReader {
   }
 
   /**
-   * Reads a ConcreteMatchField, which was generated from using the @match
+   * Reads a ReaderMatchField, which was generated from using the @match
    * directive
    */
   _readMatchField(
-    field: ConcreteMatchField,
+    field: ReaderMatchField,
     record: Record,
     data: SelectorData,
   ): void {
@@ -339,7 +339,7 @@ class RelayReader {
   }
 
   _createFragmentPointer(
-    fragmentSpread: ConcreteFragmentSpread,
+    fragmentSpread: ReaderFragmentSpread,
     record: Record,
     data: SelectorData,
     variables: Variables,

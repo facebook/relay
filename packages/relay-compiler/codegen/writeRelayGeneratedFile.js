@@ -48,11 +48,11 @@ async function writeRelayGeneratedFile(
   const filename = platformName + '.' + extension;
   const typeName =
     generatedNode.kind === RelayConcreteNode.FRAGMENT
-      ? 'ConcreteFragment'
+      ? 'ReaderFragment'
       : generatedNode.kind === RelayConcreteNode.REQUEST
         ? 'ConcreteRequest'
         : generatedNode.kind === RelayConcreteNode.SPLIT_OPERATION
-          ? 'ConcreteSplitOperation'
+          ? 'NormalizationSplitOperation'
           : null;
   const devOnlyProperties = {};
 
@@ -67,7 +67,7 @@ async function writeRelayGeneratedFile(
       const oldContent = codegenDir.read(filename);
       // Hash the concrete node including the query text.
       const hasher = crypto.createHash('md5');
-      hasher.update('cache-breaker-8');
+      hasher.update('cache-breaker-9');
       hasher.update(JSON.stringify(generatedNode));
       hasher.update(sourceHash);
       if (typeText) {

@@ -34,7 +34,8 @@ export type {
   OperationSelector,
   RangeOperation,
   RelayContext,
-  Selector,
+  ReaderSelector,
+  NormalizationSelector,
   Snapshot,
   Variables,
 } from 'relay-runtime';

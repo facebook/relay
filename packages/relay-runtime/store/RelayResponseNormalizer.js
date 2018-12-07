@@ -38,17 +38,17 @@ const {
 
 import type {PayloadData} from '../network/RelayNetworkTypes';
 import type {
-  ConcreteField,
-  ConcreteLinkedField,
-  ConcreteMatchField,
-  ConcreteNode,
-} from '../util/RelayConcreteNode';
+  NormalizationField,
+  NormalizationLinkedField,
+  NormalizationMatchField,
+  NormalizationNode,
+} from '../util/NormalizationNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
   HandleFieldPayload,
   MatchFieldPayload,
   MutableRecordSource,
-  Selector,
+  NormalizationSelector,
 } from './RelayStoreTypes';
 import type {Record} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
 
@@ -68,7 +68,7 @@ export type NormalizedResponse = {|
  */
 function normalize(
   recordSource: MutableRecordSource,
-  selector: Selector,
+  selector: NormalizationSelector,
   response: PayloadData,
   options: NormalizationOptions = {handleStrippedNulls: false},
 ): NormalizedResponse {
@@ -106,7 +106,7 @@ class RelayResponseNormalizer {
   }
 
   normalizeResponse(
-    node: ConcreteNode,
+    node: NormalizationNode,
     dataID: DataID,
     data: PayloadData,
   ): NormalizedResponse {
@@ -143,7 +143,7 @@ class RelayResponseNormalizer {
   }
 
   _traverseSelections(
-    node: ConcreteNode,
+    node: NormalizationNode,
     record: Record,
     data: PayloadData,
   ): void {
@@ -199,8 +199,8 @@ class RelayResponseNormalizer {
   }
 
   _normalizeMatchField(
-    parent: ConcreteNode,
-    field: ConcreteMatchField,
+    parent: NormalizationNode,
+    field: NormalizationMatchField,
     record: Record,
     data: PayloadData,
   ) {
@@ -274,8 +274,8 @@ class RelayResponseNormalizer {
   }
 
   _normalizeField(
-    parent: ConcreteNode,
-    selection: ConcreteField,
+    parent: NormalizationNode,
+    selection: NormalizationField,
     record: Record,
     data: PayloadData,
   ) {
@@ -333,7 +333,7 @@ class RelayResponseNormalizer {
   }
 
   _normalizeLink(
-    field: ConcreteLinkedField,
+    field: NormalizationLinkedField,
     record: Record,
     storageKey: string,
     fieldValue: mixed,
@@ -366,7 +366,7 @@ class RelayResponseNormalizer {
   }
 
   _normalizePluralLink(
-    field: ConcreteLinkedField,
+    field: NormalizationLinkedField,
     record: Record,
     storageKey: string,
     fieldValue: mixed,
@@ -426,7 +426,7 @@ class RelayResponseNormalizer {
    */
   _validateRecordType(
     record: Record,
-    field: ConcreteLinkedField | ConcreteMatchField,
+    field: NormalizationLinkedField | NormalizationMatchField,
     payload: Object,
   ): void {
     const typeName =

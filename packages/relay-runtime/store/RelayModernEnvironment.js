@@ -42,14 +42,15 @@ import type {
   OperationSelector,
   OptimisticUpdate,
   RelayResponsePayload,
-  Selector,
+  NormalizationSelector,
+  ReaderSelector,
   SelectorStoreUpdater,
   Snapshot,
   Store,
   StoreUpdater,
   UnstableEnvironmentCore,
 } from '../store/RelayStoreTypes';
-import type {ConcreteSplitOperation} from '../util/RelayConcreteNode';
+import type {NormalizationSplitOperation} from '../util/NormalizationNode';
 import type {CacheConfig, Disposable} from '../util/RelayRuntimeTypes';
 
 export type EnvironmentConfig = {|
@@ -158,7 +159,7 @@ class RelayModernEnvironment implements Environment {
     });
   }
 
-  check(readSelector: Selector): boolean {
+  check(readSelector: NormalizationSelector): boolean {
     if (this._missingFieldHandlers == null) {
       return this._store.check(readSelector);
     }
@@ -183,7 +184,7 @@ class RelayModernEnvironment implements Environment {
     this._publishQueue.run();
   }
 
-  lookup(readSelector: Selector): Snapshot {
+  lookup(readSelector: ReaderSelector): Snapshot {
     return this._store.lookup(readSelector);
   }
 
@@ -194,12 +195,12 @@ class RelayModernEnvironment implements Environment {
     return this._store.subscribe(snapshot, callback);
   }
 
-  retain(selector: Selector): Disposable {
+  retain(selector: NormalizationSelector): Disposable {
     return this._store.retain(selector);
   }
 
   _checkSelectorAndHandleMissingFields(
-    selector: Selector,
+    selector: NormalizationSelector,
     handlers: $ReadOnlyArray<MissingFieldHandler>,
   ): boolean {
     const target = new RelayInMemoryRecordSource();
@@ -507,7 +508,7 @@ function processMatchPayload(
         .load(matchPayload.operationReference)
         .then(resolve, reject);
     }),
-  ).map((operation: ?ConcreteSplitOperation) => {
+  ).map((operation: ?NormalizationSplitOperation) => {
     if (operation == null) {
       return;
     }

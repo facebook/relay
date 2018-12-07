@@ -67,7 +67,7 @@ async function writeRelayGeneratedFile(
       const oldContent = codegenDir.read(filename);
       // Hash the concrete node including the query text.
       const hasher = crypto.createHash('md5');
-      hasher.update('cache-breaker-7');
+      hasher.update('cache-breaker-8');
       hasher.update(JSON.stringify(generatedNode));
       hasher.update(sourceHash);
       if (typeText) {

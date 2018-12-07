@@ -99,7 +99,7 @@ function dedupeJSONStringify(jsonValue: mixed): string {
           metadata.varName = 'v' + varDefs.length;
           varDefs.push(metadata.varName + ' = ' + refCode);
         }
-        return metadata.varName;
+        return '(' + metadata.varName + '/*: any*/)';
       }
     }
     let str;

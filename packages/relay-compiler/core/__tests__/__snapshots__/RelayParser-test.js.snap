@@ -11,7 +11,8 @@ fragment TestFragment on User @argumentDefinitions(
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 ERROR:
-Error: GraphQLParser: Expected definition for variable \`size\` to be an object with the following shape: \`{type: string, defaultValue?: mixed, nonNull?: boolean, list?: boolean}\`, got unknown key(s) \`defaultValu\`. Source: document \`TestFragment\` file: \`GraphQL request\`.
+Error: GraphQLParser: Encountered 1 error(s):
+- Expected definition for variable \`size\` to be an object with the following shape: \`{type: string, defaultValue?: mixed, nonNull?: boolean, list?: boolean}\`, got unknown key(s) \`defaultValu\`. Source: document \`TestFragment\` file: \`GraphQL request\`.
 `;
 
 exports[`RelayParser matches expected output: client-fields.graphql 1`] = `
@@ -538,7 +539,7 @@ query TestQuery {
 exports[`RelayParser matches expected output: fragment-with-arguments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment TestFragment on User @argumentDefinitions(
-  id: {type: "ID", nonNull: true}
+  id: {type: "ID!"}
   size: {type: "[Int]", defaultValue: [100]}
 ) {
   profilePicture(size: $PictureSize) {
@@ -548,6 +549,10 @@ fragment TestFragment on User @argumentDefinitions(
     uri
   }
   ...Foo @arguments(localId: $id)
+}
+
+fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}){
+  id
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
@@ -651,7 +656,7 @@ fragment TestFragment on User @argumentDefinitions(
         "defaultValue": null,
         "metadata": null,
         "name": "id",
-        "type": "ID"
+        "type": "ID!"
       },
       {
         "kind": "LocalArgumentDefinition",
@@ -667,6 +672,33 @@ fragment TestFragment on User @argumentDefinitions(
         "metadata": null,
         "name": "PictureSize",
         "type": "[Int]"
+      }
+    ]
+  },
+  {
+    "kind": "Fragment",
+    "directives": [],
+    "metadata": null,
+    "name": "Foo",
+    "selections": [
+      {
+        "kind": "ScalarField",
+        "alias": null,
+        "args": [],
+        "directives": [],
+        "metadata": null,
+        "name": "id",
+        "type": "ID!"
+      }
+    ],
+    "type": "User",
+    "argumentDefinitions": [
+      {
+        "kind": "LocalArgumentDefinition",
+        "defaultValue": null,
+        "metadata": null,
+        "name": "localId",
+        "type": "ID!"
       }
     ]
   }

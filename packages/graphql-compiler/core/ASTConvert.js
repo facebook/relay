@@ -34,8 +34,8 @@ import type {
 type ASTDefinitionNode = FragmentDefinitionNode | OperationDefinitionNode;
 type TransformFn = (
   schema: GraphQLSchema,
-  definition: ASTDefinitionNode,
-) => Root | Fragment;
+  definitions: $ReadOnlyArray<ASTDefinitionNode>,
+) => $ReadOnlyArray<Root | Fragment>;
 
 function convertASTDocuments(
   schema: GraphQLSchema,
@@ -153,7 +153,7 @@ function convertASTDefinitions(
   };
   // Will throw an error if there are validation issues
   GraphQLValidator.validate(validationAST, schema, validationRules);
-  return operationDefinitions.map(definition => transform(schema, definition));
+  return transform(schema, operationDefinitions);
 }
 
 function definitionsFromDocuments(

@@ -12,12 +12,12 @@
 
 const Profiler = require('./GraphQLCompilerProfiler');
 
+const defaultGetFieldDefinition = require('./defaultGetFieldDefinition');
 const invariant = require('invariant');
 
 const {DEFAULT_HANDLE_KEY} = require('../util/DefaultHandleKey');
 const {
   getNullableType,
-  getRawType,
   getTypeFromAST,
   isExecutableDefinitionAST,
 } = require('./GraphQLSchemaUtils');
@@ -29,19 +29,13 @@ const {
   getNamedType,
   GraphQLEnumType,
   GraphQLInputObjectType,
-  GraphQLInterfaceType,
   GraphQLList,
-  GraphQLObjectType,
   GraphQLScalarType,
-  GraphQLUnionType,
   isLeafType,
   isTypeSubTypeOf,
   parse,
   parseType,
-  SchemaMetaFieldDef,
   Source,
-  TypeMetaFieldDef,
-  TypeNameMetaFieldDef,
 } = require('graphql');
 
 import type {
@@ -67,6 +61,7 @@ import type {
   FieldNode,
   FragmentDefinitionNode,
   FragmentSpreadNode,
+  DefinitionNode,
   GraphQLArgument,
   GraphQLField,
   GraphQLInputType,
@@ -79,6 +74,14 @@ import type {
   VariableDefinitionNode,
   VariableNode,
 } from 'graphql';
+
+type ASTDefinitionNode = FragmentDefinitionNode | OperationDefinitionNode;
+type GetFieldDefinitionFn = (
+  schema: GraphQLSchema,
+  parentType: GraphQLOutputType,
+  fieldName: string,
+  fieldAST: FieldNode,
+) => ?GraphQLField<mixed, mixed>;
 
 const ARGUMENT_DEFINITIONS = 'argumentDefinitions';
 const ARGUMENTS = 'arguments';
@@ -99,8 +102,8 @@ const SKIP = 'skip';
 const IF = 'if';
 
 class GraphQLParser {
-  _definition: OperationDefinitionNode | FragmentDefinitionNode;
-  _referencedVariableTypesByName: {[name: string]: ?GraphQLInputType};
+  _definitions: Map<string, ASTDefinitionNode>;
+  _getFieldDefinition: GetFieldDefinitionFn;
   _schema: GraphQLSchema;
 
   static parse(
@@ -109,15 +112,10 @@ class GraphQLParser {
     filename?: string,
   ): Array<Root | Fragment> {
     const ast = parse(new Source(text, filename));
-    const nodes = [];
     // TODO T24511737 figure out if this is dangerous
     schema = extendSchema(schema, ast, {assumeValid: true});
-    ast.definitions.forEach(definition => {
-      if (isExecutableDefinitionAST(definition)) {
-        nodes.push(this.transform(schema, definition));
-      }
-    }, this);
-    return nodes;
+    const parser = new this(schema, ast.definitions);
+    return parser.transform();
   }
 
   /**
@@ -126,52 +124,123 @@ class GraphQLParser {
    */
   static transform(
     schema: GraphQLSchema,
-    definition: OperationDefinitionNode | FragmentDefinitionNode,
-  ): Root | Fragment {
+    definitions: $ReadOnlyArray<DefinitionNode>,
+  ): $ReadOnlyArray<Root | Fragment> {
     return Profiler.run('GraphQLParser.transform', () => {
-      const parser = new this(schema, definition);
+      const parser = new this(schema, definitions);
       return parser.transform();
     });
   }
 
   constructor(
     schema: GraphQLSchema,
-    definition: OperationDefinitionNode | FragmentDefinitionNode,
+    definitions: $ReadOnlyArray<DefinitionNode>,
+    getFieldDefinition?: ?GetFieldDefinitionFn,
   ) {
+    this._definitions = new Map();
+    this._getFieldDefinition = getFieldDefinition || defaultGetFieldDefinition;
+    this._schema = schema;
+
+    const duplicated = new Set();
+    definitions.forEach(def => {
+      if (isExecutableDefinitionAST(def)) {
+        const name = getName(def);
+        if (this._definitions.has(name)) {
+          duplicated.add(name);
+          return;
+        }
+        this._definitions.set(name, def);
+      }
+    });
+    if (duplicated.size) {
+      throw new Error(
+        'GraphQLParser: Encountered duplicate defintitions for one or more ' +
+          'documents: each document must have a unique name. Duplicated documents:\n' +
+          Array.from(duplicated, name => `- ${name}`).join('\n'),
+      );
+    }
+  }
+
+  transform(): Array<Root | Fragment> {
+    const errors = [];
+    const nodes = [];
+    for (const definition of this._definitions.values()) {
+      try {
+        const node = parseDefinition(
+          this._schema,
+          definition,
+          this._getFieldDefinition,
+        );
+        nodes.push(node);
+      } catch (error) {
+        errors.push(error);
+      }
+    }
+    if (errors.length !== 0) {
+      throw new Error(
+        `GraphQLParser: Encountered ${errors.length} error(s):\n` +
+          errors
+            .map(error =>
+              error.message
+                .split('\n')
+                .map((line, index) => (index === 0 ? `- ${line}` : `  ${line}`))
+                .join('\n'),
+            )
+            .join('\n'),
+      );
+    }
+    return nodes;
+  }
+}
+
+function parseDefinition(
+  schema: GraphQLSchema,
+  definition: ASTDefinitionNode,
+  getFieldDefinition: GetFieldDefinitionFn,
+): Fragment | Root {
+  const parser = new GraphQLDefinitionParser(
+    schema,
+    definition,
+    getFieldDefinition,
+  );
+  return parser.transform();
+}
+
+/**
+ * @private
+ */
+class GraphQLDefinitionParser {
+  _definition: ASTDefinitionNode;
+  _getFieldDefinition: GetFieldDefinitionFn;
+  _referencedVariableTypesByName: {[name: string]: ?GraphQLInputType};
+  _schema: GraphQLSchema;
+
+  constructor(
+    schema: GraphQLSchema,
+    definition: ASTDefinitionNode,
+    getFieldDefinition: GetFieldDefinitionFn,
+  ): void {
     this._definition = definition;
+    this._getFieldDefinition = getFieldDefinition;
     this._referencedVariableTypesByName = {};
     this._schema = schema;
   }
 
-  /**
-   * Find the definition of a field of the specified type.
-   */
-  getFieldDefinition(
-    parentType: GraphQLOutputType,
-    fieldName: string,
-    fieldAST: FieldNode,
-  ): ?GraphQLField<mixed, mixed> {
-    const type = getRawType(parentType);
-    const isQueryType = type === this._schema.getQueryType();
-    const hasTypeName =
-      type instanceof GraphQLObjectType ||
-      type instanceof GraphQLInterfaceType ||
-      type instanceof GraphQLUnionType;
-
-    let schemaFieldDef;
-    if (isQueryType && fieldName === SchemaMetaFieldDef.name) {
-      schemaFieldDef = SchemaMetaFieldDef;
-    } else if (isQueryType && fieldName === TypeMetaFieldDef.name) {
-      schemaFieldDef = TypeMetaFieldDef;
-    } else if (hasTypeName && fieldName === TypeNameMetaFieldDef.name) {
-      schemaFieldDef = TypeNameMetaFieldDef;
-    } else if (
-      type instanceof GraphQLInterfaceType ||
-      type instanceof GraphQLObjectType
-    ) {
-      schemaFieldDef = type.getFields()[fieldName];
+  transform(): Root | Fragment {
+    const definition = this._definition;
+    switch (definition.kind) {
+      case 'OperationDefinition':
+        return this._transformOperation(definition);
+      case 'FragmentDefinition':
+        return this._transformFragment(definition);
+      default:
+        invariant(
+          false,
+          'Unknown AST kind `%s`. Source: %s.',
+          definition.kind,
+          this._getErrorContext(),
+        );
     }
-    return schemaFieldDef;
   }
 
   _getErrorContext(): string {
@@ -195,7 +264,7 @@ class GraphQLParser {
       invariant(
         isTypeSubTypeOf(this._schema, usedAsType, previousType) ||
           isTypeSubTypeOf(this._schema, previousType, usedAsType),
-        'GraphQLParser: Variable `$%s` was used in locations expecting ' +
+        'Variable `$%s` was used in locations expecting ' +
           'the conflicting types `%s` and `%s`. Source: %s.',
         name,
         previousType,
@@ -212,22 +281,6 @@ class GraphQLParser {
       )
         ? usedAsType
         : previousType;
-    }
-  }
-
-  transform(): Root | Fragment {
-    switch (this._definition.kind) {
-      case 'OperationDefinition':
-        return this._transformOperation(this._definition);
-      case 'FragmentDefinition':
-        return this._transformFragment(this._definition);
-      default:
-        invariant(
-          false,
-          'GraphQLParser: Unknown AST kind `%s`. Source: %s.',
-          this._definition.kind,
-          this._getErrorContext(),
-        );
     }
   }
 
@@ -252,7 +305,7 @@ class GraphQLParser {
           invariant(
             variableType == null ||
               isTypeSubTypeOf(this._schema, localArgument.type, variableType),
-            'GraphQLParser: Variable `$%s` was defined as type `%s`, but used ' +
+            'Variable `$%s` was defined as type `%s`, but used ' +
               'in a location that expects type `%s`. Source: %s.',
             name,
             localArgument.type,
@@ -297,7 +350,7 @@ class GraphQLParser {
     }
     invariant(
       variableDirectives.length === 1,
-      'GraphQLParser: Directive %s may be defined at most once on fragment ' +
+      'Directive %s may be defined at most once on fragment ' +
         '`%s`. Source: %s.',
       ARGUMENT_DEFINITIONS,
       getName(fragment),
@@ -312,7 +365,7 @@ class GraphQLParser {
     }
     invariant(
       args.length,
-      'GraphQLParser: Directive %s requires arguments: remove the directive ' +
+      'Directive %s requires arguments: remove the directive ' +
         'to skip defining local variables for this fragment `%s`. Source: %s.',
       ARGUMENT_DEFINITIONS,
       getName(fragment),
@@ -323,7 +376,7 @@ class GraphQLParser {
       const argValue = this._transformValue(arg.value);
       invariant(
         argValue.kind === 'Literal',
-        'GraphQLParser: Expected definition for variable `%s` to be an ' +
+        'Expected definition for variable `%s` to be an ' +
           'object with the following shape: `{type: string, defaultValue?: ' +
           'mixed}`, got `%s`. Source: %s.',
         argValue,
@@ -337,7 +390,7 @@ class GraphQLParser {
         typeof value.type !== 'string'
       ) {
         throw new Error(
-          `GraphQLParser: Expected definition for variable \`${argName}\` to ` +
+          `Expected definition for variable \`${argName}\` to ` +
             'be an object with the following shape: `{type: string, ' +
             'defaultValue?: mixed, nonNull?: boolean, list?: boolean}`, got ' +
             `\`${String(argValue)}\`. Source: ${this._getErrorContext()}.`,
@@ -356,7 +409,7 @@ class GraphQLParser {
       if (unknownKeys.length !== 0) {
         const unknownKeysString = '`' + unknownKeys.join('`, `') + '`';
         throw new Error(
-          `GraphQLParser: Expected definition for variable \`${argName}\` to ` +
+          `Expected definition for variable \`${argName}\` to ` +
             'be an object with the following shape: `{type: string, ' +
             'defaultValue?: mixed, nonNull?: boolean, list?: boolean}`, got ' +
             `unknown key(s) ${unknownKeysString}. ` +
@@ -400,14 +453,14 @@ class GraphQLParser {
       default:
         invariant(
           false,
-          'GraphQLParser: Unknown AST kind `%s`. Source: %s.',
+          'Unknown AST kind `%s`. Source: %s.',
           definition.operation,
           this._getErrorContext(),
         );
     }
     invariant(
       definition.selectionSet,
-      'GraphQLParser: Expected %s `%s` to have selections. Source: %s.',
+      'Expected %s `%s` to have selections. Source: %s.',
       operation,
       name,
       this._getErrorContext(),
@@ -432,14 +485,14 @@ class GraphQLParser {
       const name = getName(def.variable);
       const type = assertInputType(getTypeFromAST(this._schema, def.type));
       const defaultLiteral = def.defaultValue
-        ? this._transformValue(def.defaultValue)
+        ? this._transformValue(def.defaultValue, type)
         : null;
       if (this._referencedVariableTypesByName.hasOwnProperty(name)) {
         const variableType = this._referencedVariableTypesByName[name];
         invariant(
           variableType == null ||
             isTypeSubTypeOf(this._schema, type, variableType),
-          'GraphQLParser: Variable `$%s` was defined as type `%s`, but used ' +
+          'Variable `$%s` was defined as type `%s`, but used ' +
             'in a location that expects type `%s`. Source: %s.',
           name,
           type,
@@ -449,8 +502,7 @@ class GraphQLParser {
       }
       invariant(
         defaultLiteral === null || defaultLiteral.kind === 'Literal',
-        'GraphQLParser: Expected null or Literal default value, got: `%s`. ' +
-          'Source: %s.',
+        'Expected null or Literal default value, got: `%s`. Source: %s.',
         defaultLiteral && defaultLiteral.kind,
         this._getErrorContext(),
       );
@@ -479,7 +531,7 @@ class GraphQLParser {
       } else {
         invariant(
           false,
-          'GraphQLParser: Unexpected AST kind `%s`. Source: %s.',
+          'Unexpected AST kind `%s`. Source: %s.',
           selection.kind,
           this._getErrorContext(),
         );
@@ -492,8 +544,7 @@ class GraphQLParser {
       );
       invariant(
         conditionalNodes.length === 1,
-        'GraphQLParser: Expected exactly one conditional node, got `%s`. ' +
-          'Source: %s.',
+        'Expected exactly one conditional node, got `%s`. Source: %s.',
         conditionalNodes.length,
         this._getErrorContext(),
       );
@@ -525,17 +576,17 @@ class GraphQLParser {
   }
 
   _transformFragmentSpread(
-    fragment: FragmentSpreadNode,
+    fragmentSpread: FragmentSpreadNode,
     parentType: GraphQLOutputType,
   ): FragmentSpread {
-    const fragmentName = getName(fragment);
+    const fragmentName = getName(fragmentSpread);
     const [otherDirectives, argumentDirectives] = partitionArray(
-      fragment.directives || [],
+      fragmentSpread.directives || [],
       directive => getName(directive) !== ARGUMENTS,
     );
     invariant(
       argumentDirectives.length <= 1,
-      'GraphQLParser: Directive %s may be used at most once in fragment ' +
+      'Directive %s may be used at most once in fragment ' +
         'spread `...%s`. Source: %s.',
       ARGUMENTS,
       fragmentName,
@@ -544,21 +595,20 @@ class GraphQLParser {
     let args;
     if (argumentDirectives.length) {
       args = (argumentDirectives[0].arguments || []).map(arg => {
+        const argName = getName(arg);
         const argValue = arg.value;
         invariant(
           argValue.kind === 'Variable',
-          'GraphQLParser: All @arguments() args must be variables, got %s. ' +
-            'Source: %s.',
+          'All @arguments() args must be variables, got %s. Source: %s.',
           argValue.kind,
           this._getErrorContext(),
         );
-
         return {
           kind: 'Argument',
           metadata: null,
-          name: getName(arg),
+          name: argName,
           value: this._transformVariable(argValue),
-          type: null, // TODO: can't get type until referenced fragment is defined
+          type: null,
         };
       });
     }
@@ -574,11 +624,16 @@ class GraphQLParser {
 
   _transformField(field: FieldNode, parentType: GraphQLOutputType): Field {
     const name = getName(field);
-    const fieldDef = this.getFieldDefinition(parentType, name, field);
+    const fieldDef = this._getFieldDefinition(
+      this._schema,
+      parentType,
+      name,
+      field,
+    );
 
     invariant(
       fieldDef,
-      'GraphQLParser: Unknown field `%s` on type `%s`. Source: %s.',
+      'Unknown field `%s` on type `%s`. Source: %s.',
       name,
       parentType,
       this._getErrorContext(),
@@ -597,7 +652,7 @@ class GraphQLParser {
         !field.selectionSet ||
           !field.selectionSet.selections ||
           !field.selectionSet.selections.length,
-        'GraphQLParser: Expected no selections for scalar field `%s` on type ' +
+        'Expected no selections for scalar field `%s` on type ' +
           '`%s`. Source: %s.',
         name,
         this._getErrorContext(),
@@ -618,9 +673,10 @@ class GraphQLParser {
         : null;
       if (selections == null || selections.length === 0) {
         throw new Error(
-          'GraphQLParser: Expected at least one selection for non-scalar ' +
-            `field \`${name}\` on type \`${String(type)}\`. ` +
-            `Source: ${this._getErrorContext()}.`,
+          'Expected at least one selection for non-scalar ' +
+            `field \`${name}\` on type \`${String(
+              type,
+            )}\`. Source: ${this._getErrorContext()}`,
         );
       }
       return {
@@ -655,7 +711,7 @@ class GraphQLParser {
         invariant(
           maybeHandle.kind === 'Literal' &&
             typeof maybeHandle.value === 'string',
-          'GraphQLParser: Expected the %s argument to @%s to be a literal ' +
+          'Expected the %s argument to @%s to be a literal ' +
             'string, got `%s` on field `%s`. Source: %s.',
           CLIENT_FIELD_HANDLE,
           CLIENT_FIELD,
@@ -672,7 +728,7 @@ class GraphQLParser {
           const maybeKey = this._transformValue(keyArgument.value);
           invariant(
             maybeKey.kind === 'Literal' && typeof maybeKey.value === 'string',
-            'GraphQLParser: Expected %s argument to @%s to be a literal ' +
+            'Expected %s argument to @%s to be a literal ' +
               'string, got `%s` on field `%s`. Source: %s.',
             CLIENT_FIELD_KEY,
             CLIENT_FIELD,
@@ -693,7 +749,7 @@ class GraphQLParser {
               maybeFilters.value.every(filter =>
                 fieldArgs.some(fieldArg => fieldArg.name === filter),
               ),
-            'GraphQLParser: Expected %s argument to @%s to be an array of ' +
+            'Expected %s argument to @%s to be an array of ' +
               'argument names on field `%s`, but get %s. Source: %s.',
             CLIENT_FIELD_FILTERS,
             CLIENT_FIELD,
@@ -719,7 +775,7 @@ class GraphQLParser {
       const directiveDef = this._schema.getDirective(name);
       invariant(
         directiveDef,
-        'GraphQLParser: Unknown directive `@%s`. Source: %s.',
+        'Unknown directive `@%s`. Source: %s.',
         name,
         this._getErrorContext(),
       );
@@ -745,7 +801,7 @@ class GraphQLParser {
       const argDef = argumentDefinitions.find(def => def.name === argName);
       invariant(
         argDef,
-        'GraphQLParser: Unknown argument `%s`. Source: %s.',
+        'Unknown argument `%s`. Source: %s.',
         argName,
         this._getErrorContext(),
       );
@@ -772,14 +828,13 @@ class GraphQLParser {
       const arg = directive.args[0];
       invariant(
         arg && arg.name === IF,
-        'GraphQLParser: Expected an `if` argument to @%s. Source: %s.',
+        'Expected an `if` argument to @%s. Source: %s.',
         directive.name,
         this._getErrorContext(),
       );
       invariant(
         arg.value.kind === 'Variable' || arg.value.kind === 'Literal',
-        'GraphQLParser: Expected the `if` argument to @%s to be a variable. ' +
-          'Source: %s.',
+        'Expected the `if` argument to @%s to be a variable. Source: %s.',
         directive.name,
         this._getErrorContext(),
       );
@@ -867,7 +922,7 @@ class GraphQLParser {
           // if `type` is a List.
           invariant(
             listType instanceof GraphQLList,
-            'GraphQLParser: Expected a value matching type `%s`, but ' +
+            'Expected a value matching type `%s`, but ' +
               'got a list value. Source: %s.',
             type,
             this._getErrorContext(),
@@ -917,7 +972,7 @@ class GraphQLParser {
             // valid if `type` is an Object.
             invariant(
               objectType instanceof GraphQLInputObjectType,
-              'GraphQLParser: Expected a value matching type `%s`, but ' +
+              'Expected a value matching type `%s`, but ' +
                 'got an object value. Source: %s.',
               type,
               this._getErrorContext(),
@@ -925,7 +980,7 @@ class GraphQLParser {
             const fieldConfig = objectType.getFields()[fieldName];
             invariant(
               fieldConfig,
-              'GraphQLParser: Unknown field `%s` on type `%s`. Source: %s.',
+              'Unknown field `%s` on type `%s`. Source: %s.',
               fieldName,
               type,
               this._getErrorContext(),
@@ -963,7 +1018,7 @@ class GraphQLParser {
       default:
         invariant(
           false,
-          'GraphQLParser: Unknown ast kind: %s. Source: %s.',
+          'Unknown ast kind: %s. Source: %s.',
           (ast.kind: empty),
           this._getErrorContext(),
         );
@@ -1008,7 +1063,7 @@ function getName(ast): string {
   const name = ast.name?.value;
   invariant(
     typeof name === 'string',
-    'GraphQLParser: Expected ast node `%s` to have a name.',
+    'Expected ast node `%s` to have a name.',
     ast,
   );
   return name;

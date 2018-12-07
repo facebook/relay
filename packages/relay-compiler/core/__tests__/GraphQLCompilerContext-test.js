@@ -28,19 +28,17 @@ describe('GraphQLCompilerContext', () => {
     RelayModernTestUtils = require('RelayModernTestUtils');
 
     expect.extend(RelayModernTestUtils.matchers);
-
-    [queryFoo, fragmentFoo, fragmentBar] = RelayParser.parse(
-      RelayTestSchema,
-      `
-      query Foo { node(id: 1) { ...Bar } }
-      fragment Foo on Node { id }
-      fragment Bar on Node { id }
-    `,
-    );
   });
 
   describe('add()', () => {
     it('adds multiple roots', () => {
+      [queryFoo, fragmentBar] = RelayParser.parse(
+        RelayTestSchema,
+        `
+          query Foo { node(id: 1) { ...Bar } }
+          fragment Bar on Node { id }
+        `,
+      );
       const context = [queryFoo, fragmentBar].reduce(
         (ctx, node) => ctx.add(node),
         new GraphQLCompilerContext(RelayTestSchema),
@@ -50,9 +48,22 @@ describe('GraphQLCompilerContext', () => {
       expect(context.getFragment('Bar')).toBe(fragmentBar);
     });
 
-    it('throws if the root names are not unique', () => {
+    it('throws if the document names are not unique', () => {
+      [queryFoo, fragmentBar] = RelayParser.parse(
+        RelayTestSchema,
+        `
+          query Foo { node(id: 1) { ...Bar } }
+          fragment Bar on Node { id }
+        `,
+      );
+      [fragmentFoo] = RelayParser.parse(
+        RelayTestSchema,
+        `
+          fragment Foo on Node { id }
+        `,
+      );
       expect(() => {
-        [queryFoo, fragmentFoo].reduce(
+        [queryFoo, fragmentBar, fragmentFoo].reduce(
           (ctx, node) => ctx.add(node),
           new GraphQLCompilerContext(RelayTestSchema),
         );

@@ -63,6 +63,10 @@ describe('GraphQLIRTransformer', () => {
    ) {
      uri
    }
+
+   fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}){
+     id
+   }
  `,
     );
     const context = new GraphQLCompilerContext(RelayTestSchema).addAll(

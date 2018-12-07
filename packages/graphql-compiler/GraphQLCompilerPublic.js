@@ -36,6 +36,7 @@ const SkipRedundantNodesTransform = require('./transforms/SkipRedundantNodesTran
 const SkipUnreachableNodeTransform = require('./transforms/SkipUnreachableNodeTransform');
 const StripUnusedVariablesTransform = require('./transforms/StripUnusedVariablesTransform');
 
+const defaultGetFieldDefinition = require('./core/defaultGetFieldDefinition');
 const filterContextForNode = require('./core/filterContextForNode');
 const getIdentifierForArgumentValue = require('./core/getIdentifierForArgumentValue');
 const getLiteralArgumentValues = require('./core/getLiteralArgumentValues');
@@ -109,6 +110,7 @@ module.exports = {
   SplitNaming: GraphQLIRSplitNaming,
   Validator: GraphQLValidator,
   WatchmanClient: GraphQLWatchmanClient,
+  defaultGetFieldDefinition,
   filterContextForNode,
   getIdentifierForArgumentValue,
   getLiteralArgumentValues,

@@ -10,12 +10,11 @@
 
 'use strict';
 
-import type {ReaderFragment, ReaderFragmentSpread} from './ReaderNode';
 import type {
-  NormalizationHandle,
   NormalizationOperation,
   NormalizationSplitOperation,
 } from './NormalizationNode';
+import type {ReaderFragment} from './ReaderNode';
 
 /**
  * Represents a common GraphQL request with `text` (or persisted `id`) can be
@@ -50,8 +49,8 @@ const RelayConcreteNode = {
   LOCAL_ARGUMENT: 'LocalArgument',
   MATCH_FIELD: 'MatchField',
   OPERATION: 'Operation',
-  ROOT_ARGUMENT: 'RootArgument',
   REQUEST: 'Request',
+  ROOT_ARGUMENT: 'RootArgument',
   SCALAR_FIELD: 'ScalarField',
   SCALAR_HANDLE: 'ScalarHandle',
   SPLIT_OPERATION: 'SplitOperation',

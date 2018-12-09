@@ -232,8 +232,8 @@ export type Selection =
   | FragmentSpread
   | InlineFragment
   | LinkedField
-  | MatchField
   | MatchBranch
+  | MatchField
   | ScalarField;
 
 export type SplitOperation = {|

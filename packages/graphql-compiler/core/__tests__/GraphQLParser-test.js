@@ -97,7 +97,12 @@ it('should error when parsing fragment that references undeclared variables are 
       title
     }
   }`;
-  expect(() => GraphQLParser.parse(RelayTestSchema, text)).not.toThrowError(
-    /Variable `\\$id` was used in locations expecting the conflicting types `ID` and `Int`/,
-  );
+  let error;
+  try {
+    GraphQLParser.parse(RelayTestSchema, text);
+  } catch (error_) {
+    error = error_;
+  }
+  expect(error).not.toBe(null);
+  expect(error?.message).toMatchSnapshot();
 });

@@ -38,7 +38,14 @@ fragment NameRendererFragment on User {
 THROWN EXCEPTION:
 
 Error: GraphQLParser: Encountered 1 error(s):
-- Expected at least one selection for non-scalar field \`nameRenderer\` on type \`UserNameRenderer\`. Source: document \`NameRendererFragment\` file: \`GraphQL request\`
+- Expected at least one selection for non-scalar field 'nameRenderer' on type 'UserNameRenderer'. Source: document \`NameRendererFragment\` file: \`GraphQL request\`.
+  
+  GraphQL request (3:3)
+  2:   id
+  3:   nameRenderer @match
+       ^
+  4: }
+  
 `;
 
 exports[`RelayMatchTransform matches expected output: invalid-non-empty-selections.graphql 1`] = `

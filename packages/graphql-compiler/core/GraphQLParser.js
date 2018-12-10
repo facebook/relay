@@ -28,6 +28,7 @@ const {
   extendSchema,
   getNamedType,
   GraphQLEnumType,
+  GraphQLError,
   GraphQLInputObjectType,
   GraphQLList,
   GraphQLScalarType,
@@ -181,7 +182,7 @@ class GraphQLParser {
         `GraphQLParser: Encountered ${errors.length} error(s):\n` +
           errors
             .map(error =>
-              error.message
+              String(error)
                 .split('\n')
                 .map((line, index) => (index === 0 ? `- ${line}` : `  ${line}`))
                 .join('\n'),
@@ -212,7 +213,9 @@ function parseDefinition(
 class GraphQLDefinitionParser {
   _definition: ASTDefinitionNode;
   _getFieldDefinition: GetFieldDefinitionFn;
-  _referencedVariableTypesByName: {[name: string]: ?GraphQLInputType};
+  _referencedVariableTypesByName: {
+    [name: string]: {ast: VariableNode, type: ?GraphQLInputType},
+  };
   _schema: GraphQLSchema;
 
   constructor(
@@ -234,11 +237,9 @@ class GraphQLDefinitionParser {
       case 'FragmentDefinition':
         return this._transformFragment(definition);
       default:
-        invariant(
-          false,
-          'Unknown AST kind `%s`. Source: %s.',
-          definition.kind,
-          this._getErrorContext(),
+        throw new GraphQLError(
+          `Unsupported definition type ${definition.kind}`,
+          [definition],
         );
     }
   }
@@ -252,35 +253,42 @@ class GraphQLDefinitionParser {
   }
 
   _recordAndVerifyVariableReference(
+    variable: VariableNode,
     name: string,
     usedAsType: ?GraphQLInputType,
   ): void {
-    const previousType = this._referencedVariableTypesByName[name];
+    const previous = this._referencedVariableTypesByName[name];
 
-    if (!previousType) {
+    if (!previous || !previous.type) {
       // No previous usage, current type is strongest
-      this._referencedVariableTypesByName[name] = usedAsType;
+      this._referencedVariableTypesByName[name] = {
+        ast: variable,
+        type: usedAsType,
+      };
     } else if (usedAsType) {
-      invariant(
-        isTypeSubTypeOf(this._schema, usedAsType, previousType) ||
-          isTypeSubTypeOf(this._schema, previousType, usedAsType),
-        'Variable `$%s` was used in locations expecting ' +
-          'the conflicting types `%s` and `%s`. Source: %s.',
-        name,
-        previousType,
-        usedAsType,
-        this._getErrorContext(),
-      );
+      const {type: previousType, ast: previousVariable} = previous;
+      if (
+        !(
+          isTypeSubTypeOf(this._schema, usedAsType, previousType) ||
+          isTypeSubTypeOf(this._schema, previousType, usedAsType)
+        )
+      ) {
+        throw new GraphQLError(
+          `Variable '\$${name}' was used in locations expecting the conflicting types '${String(
+            previousType,
+          )}' and '${String(usedAsType)}'. Source: ${this._getErrorContext()}`,
+          [previousVariable, variable],
+        );
+      }
 
       // If the new used type has stronger requirements, use that type as reference,
       // otherwise keep referencing the previous type
-      this._referencedVariableTypesByName[name] = isTypeSubTypeOf(
-        this._schema,
-        usedAsType,
-        previousType,
-      )
-        ? usedAsType
-        : previousType;
+      if (isTypeSubTypeOf(this._schema, usedAsType, previousType)) {
+        this._referencedVariableTypesByName[name] = {
+          ast: variable,
+          type: usedAsType,
+        };
+      }
     }
   }
 
@@ -297,28 +305,36 @@ class GraphQLDefinitionParser {
     const selections = this._transformSelections(fragment.selectionSet, type);
     for (const name in this._referencedVariableTypesByName) {
       if (this._referencedVariableTypesByName.hasOwnProperty(name)) {
-        const variableType = this._referencedVariableTypesByName[name];
+        const variableReference = this._referencedVariableTypesByName[name];
         const localArgument = argumentDefinitions.find(
           argDef => argDef.name === name,
         );
         if (localArgument) {
-          invariant(
-            variableType == null ||
-              isTypeSubTypeOf(this._schema, localArgument.type, variableType),
-            'Variable `$%s` was defined as type `%s`, but used ' +
-              'in a location that expects type `%s`. Source: %s.',
-            name,
-            localArgument.type,
-            variableType,
-            this._getErrorContext(),
-          );
+          if (
+            variableReference != null &&
+            variableReference.type != null &&
+            !isTypeSubTypeOf(
+              this._schema,
+              localArgument.type,
+              variableReference.type,
+            )
+          ) {
+            throw new GraphQLError(
+              `Variable '\$${name}' was defined as type '${String(
+                localArgument.type,
+              )}' but used in a location that expects type '${String(
+                variableReference.type,
+              )}'. Source: ${this._getErrorContext()}`,
+              [variableReference.ast],
+            );
+          }
         } else {
           argumentDefinitions.push({
             kind: 'RootArgumentDefinition',
             metadata: null,
             name,
             // $FlowFixMe - could be null
-            type: variableType,
+            type: variableReference ? variableReference.type : null,
           });
         }
       }
@@ -348,14 +364,13 @@ class GraphQLDefinitionParser {
     if (!variableDirectives.length) {
       return [];
     }
-    invariant(
-      variableDirectives.length === 1,
-      'Directive %s may be defined at most once on fragment ' +
-        '`%s`. Source: %s.',
-      ARGUMENT_DEFINITIONS,
-      getName(fragment),
-      this._getErrorContext(),
-    );
+    if (variableDirectives.length !== 1) {
+      throw new GraphQLError(
+        `Directive @${ARGUMENT_DEFINITIONS} may be defined at most once per ` +
+          `fragment. Source: ${this._getErrorContext()}.`,
+        variableDirectives,
+      );
+    }
     const variableDirective = variableDirectives[0];
     // $FlowIssue: refining directly on `variableDirective.arguments` doesn't
     // work, below accesses all report arguments could still be null/undefined.
@@ -363,25 +378,25 @@ class GraphQLDefinitionParser {
     if (variableDirective == null || !Array.isArray(args)) {
       return [];
     }
-    invariant(
-      args.length,
-      'Directive %s requires arguments: remove the directive ' +
-        'to skip defining local variables for this fragment `%s`. Source: %s.',
-      ARGUMENT_DEFINITIONS,
-      getName(fragment),
-      this._getErrorContext(),
-    );
+    if (!args.length) {
+      throw new GraphQLError(
+        `Directive @${ARGUMENT_DEFINITIONS} requires arguments: remove the ` +
+          'directive to skip defining local variables for this fragment. ' +
+          `Source: ${this._getErrorContext()}.`,
+        [variableDirective],
+      );
+    }
     return args.map(arg => {
       const argName = getName(arg);
       const argValue = this._transformValue(arg.value);
-      invariant(
-        argValue.kind === 'Literal',
-        'Expected definition for variable `%s` to be an ' +
-          'object with the following shape: `{type: string, defaultValue?: ' +
-          'mixed}`, got `%s`. Source: %s.',
-        argValue,
-        this._getErrorContext(),
-      );
+      if (argValue.kind !== 'Literal') {
+        throw new GraphQLError(
+          `Expected definition for variable '\$${argName}' to be an object ` +
+            "with the following shape: '{type: string, defaultValue: mixed}'. " +
+            `Source: ${this._getErrorContext()}`,
+          [arg.value],
+        );
+      }
       const value = argValue.value;
       if (
         Array.isArray(value) ||
@@ -389,11 +404,11 @@ class GraphQLDefinitionParser {
         value === null ||
         typeof value.type !== 'string'
       ) {
-        throw new Error(
-          `Expected definition for variable \`${argName}\` to ` +
-            'be an object with the following shape: `{type: string, ' +
-            'defaultValue?: mixed, nonNull?: boolean, list?: boolean}`, got ' +
-            `\`${String(argValue)}\`. Source: ${this._getErrorContext()}.`,
+        throw new GraphQLError(
+          `Expected definition for variable '\$${argName}' to be an object ` +
+            "with the shape: '{type: string, defaultValue?: mixed, nonNull?: " +
+            `boolean, list?: boolean}'. Source: ${this._getErrorContext()}.`,
+          [arg.value],
         );
       }
 
@@ -407,13 +422,13 @@ class GraphQLDefinitionParser {
           key !== 'list',
       );
       if (unknownKeys.length !== 0) {
-        const unknownKeysString = '`' + unknownKeys.join('`, `') + '`';
-        throw new Error(
-          `Expected definition for variable \`${argName}\` to ` +
-            'be an object with the following shape: `{type: string, ' +
-            'defaultValue?: mixed, nonNull?: boolean, list?: boolean}`, got ' +
-            `unknown key(s) ${unknownKeysString}. ` +
-            `Source: ${this._getErrorContext()}.`,
+        const unknownKeysString = "'" + unknownKeys.join("', '") + "'";
+        throw new GraphQLError(
+          `Expected definition for variable '\$${argName}' to be an object ` +
+            "with the following shape: '{type: string, defaultValue?: mixed, " +
+            "nonNull?: boolean, list?: boolean}', got unknown key(s) " +
+            `${unknownKeysString}. Source: ${this._getErrorContext()}.`,
+          [arg],
         );
       }
 
@@ -451,20 +466,20 @@ class GraphQLDefinitionParser {
         type = assertCompositeType(this._schema.getSubscriptionType());
         break;
       default:
-        invariant(
-          false,
-          'Unknown AST kind `%s`. Source: %s.',
-          definition.operation,
-          this._getErrorContext(),
+        (definition.operation: empty);
+        throw new GraphQLError(
+          `Unknown ast kind '${
+            definition.operation
+          }'. Source: ${this._getErrorContext()}.`,
+          [definition],
         );
     }
-    invariant(
-      definition.selectionSet,
-      'Expected %s `%s` to have selections. Source: %s.',
-      operation,
-      name,
-      this._getErrorContext(),
-    );
+    if (!definition.selectionSet) {
+      throw new GraphQLError(
+        `Expected operation to have selections. Source: ${this._getErrorContext()}`,
+        [definition],
+      );
+    }
     const selections = this._transformSelections(definition.selectionSet, type);
     return {
       kind: 'Root',
@@ -488,24 +503,29 @@ class GraphQLDefinitionParser {
         ? this._transformValue(def.defaultValue, type)
         : null;
       if (this._referencedVariableTypesByName.hasOwnProperty(name)) {
-        const variableType = this._referencedVariableTypesByName[name];
-        invariant(
-          variableType == null ||
-            isTypeSubTypeOf(this._schema, type, variableType),
-          'Variable `$%s` was defined as type `%s`, but used ' +
-            'in a location that expects type `%s`. Source: %s.',
-          name,
-          type,
-          variableType,
-          this._getErrorContext(),
+        const variableReference = this._referencedVariableTypesByName[name];
+        if (
+          variableReference != null &&
+          variableReference.type != null &&
+          !isTypeSubTypeOf(this._schema, type, variableReference.type)
+        ) {
+          throw new GraphQLError(
+            `Variable '\$${name}' was defined as type '${String(
+              type,
+            )}' but used in a location that expects type '${String(
+              variableReference.type,
+            )}'. Source: ${this._getErrorContext()}`,
+            [def, variableReference.ast],
+          );
+        }
+      }
+      if (defaultLiteral != null && defaultLiteral.kind !== 'Literal') {
+        throw new GraphQLError(
+          "Expected argument default value to be a literal or 'null'. " +
+            `Source: ${this._getErrorContext()}`,
+          [def.defaultValue ?? def],
         );
       }
-      invariant(
-        defaultLiteral === null || defaultLiteral.kind === 'Literal',
-        'Expected null or Literal default value, got: `%s`. Source: %s.',
-        defaultLiteral && defaultLiteral.kind,
-        this._getErrorContext(),
-      );
       return {
         kind: 'LocalArgumentDefinition',
         metadata: null,
@@ -529,11 +549,12 @@ class GraphQLDefinitionParser {
       } else if (selection.kind === 'InlineFragment') {
         node = this._transformInlineFragment(selection, parentType);
       } else {
-        invariant(
-          false,
-          'Unexpected AST kind `%s`. Source: %s.',
-          selection.kind,
-          this._getErrorContext(),
+        (selection.kind: empty);
+        throw new GraphQLError(
+          `Unknown ast kind '${
+            selection.kind
+          }'. Source: ${this._getErrorContext()}.`,
+          [selection],
         );
       }
       const [conditions, directives] = this._splitConditions(node.directives);
@@ -542,12 +563,12 @@ class GraphQLDefinitionParser {
         // $FlowFixMe(>=0.28.0)
         [{...node, directives}],
       );
-      invariant(
-        conditionalNodes.length === 1,
-        'Expected exactly one conditional node, got `%s`. Source: %s.',
-        conditionalNodes.length,
-        this._getErrorContext(),
-      );
+      if (conditionalNodes.length !== 1) {
+        throw new GraphQLError(
+          `Expected exactly one condition node. Source: ${this._getErrorContext()}`,
+          selection.directives,
+        );
+      }
       return conditionalNodes[0];
     });
   }
@@ -584,25 +605,24 @@ class GraphQLDefinitionParser {
       fragmentSpread.directives || [],
       directive => getName(directive) !== ARGUMENTS,
     );
-    invariant(
-      argumentDirectives.length <= 1,
-      'Directive %s may be used at most once in fragment ' +
-        'spread `...%s`. Source: %s.',
-      ARGUMENTS,
-      fragmentName,
-      this._getErrorContext(),
-    );
+    if (argumentDirectives.length > 1) {
+      throw new GraphQLError(
+        `Directive @${ARGUMENTS} may be used at most once per a fragment spread. ` +
+          `Source: ${this._getErrorContext()}`,
+        argumentDirectives,
+      );
+    }
     let args;
     if (argumentDirectives.length) {
       args = (argumentDirectives[0].arguments || []).map(arg => {
         const argName = getName(arg);
         const argValue = arg.value;
-        invariant(
-          argValue.kind === 'Variable',
-          'All @arguments() args must be variables, got %s. Source: %s.',
-          argValue.kind,
-          this._getErrorContext(),
-        );
+        if (argValue.kind !== 'Variable') {
+          throw new GraphQLError(
+            `All @${ARGUMENTS} values must be variables. Source: ${this._getErrorContext()}`,
+            [arg.value],
+          );
+        }
         return {
           kind: 'Argument',
           metadata: null,
@@ -631,13 +651,14 @@ class GraphQLDefinitionParser {
       field,
     );
 
-    invariant(
-      fieldDef,
-      'Unknown field `%s` on type `%s`. Source: %s.',
-      name,
-      parentType,
-      this._getErrorContext(),
-    );
+    if (fieldDef == null) {
+      throw new GraphQLError(
+        `Unknown field '${name}' on type '${String(
+          parentType,
+        )}'. Source: ${this._getErrorContext()}`,
+        [field],
+      );
+    }
     const alias = field.alias ? field.alias.value : null;
     const args = this._transformArguments(field.arguments || [], fieldDef.args);
     const [otherDirectives, clientFieldDirectives] = partitionArray(
@@ -648,15 +669,16 @@ class GraphQLDefinitionParser {
     const type = assertOutputType(fieldDef.type);
     const handles = this._transformHandle(name, args, clientFieldDirectives);
     if (isLeafType(getNamedType(type))) {
-      invariant(
-        !field.selectionSet ||
-          !field.selectionSet.selections ||
-          !field.selectionSet.selections.length,
-        'Expected no selections for scalar field `%s` on type ' +
-          '`%s`. Source: %s.',
-        name,
-        this._getErrorContext(),
-      );
+      if (
+        field.selectionSet &&
+        field.selectionSet.selections &&
+        field.selectionSet.selections.length
+      ) {
+        throw new GraphQLError(
+          `Expected no selections for scalar field '${name}'. Source: ${this._getErrorContext()}`,
+          [field],
+        );
+      }
       return {
         kind: 'ScalarField',
         alias,
@@ -672,11 +694,11 @@ class GraphQLDefinitionParser {
         ? this._transformSelections(field.selectionSet, type)
         : null;
       if (selections == null || selections.length === 0) {
-        throw new Error(
-          'Expected at least one selection for non-scalar ' +
-            `field \`${name}\` on type \`${String(
-              type,
-            )}\`. Source: ${this._getErrorContext()}`,
+        throw new GraphQLError(
+          `Expected at least one selection for non-scalar field '${name}' on type '${String(
+            type,
+          )}'. Source: ${this._getErrorContext()}.`,
+          [field],
         );
       }
       return {
@@ -708,17 +730,16 @@ class GraphQLDefinitionParser {
         let key = DEFAULT_HANDLE_KEY;
         let filters = null;
         const maybeHandle = this._transformValue(handleArgument.value);
-        invariant(
-          maybeHandle.kind === 'Literal' &&
-            typeof maybeHandle.value === 'string',
-          'Expected the %s argument to @%s to be a literal ' +
-            'string, got `%s` on field `%s`. Source: %s.',
-          CLIENT_FIELD_HANDLE,
-          CLIENT_FIELD,
-          maybeHandle,
-          fieldName,
-          this._getErrorContext(),
-        );
+        if (
+          maybeHandle.kind !== 'Literal' ||
+          typeof maybeHandle.value !== 'string'
+        ) {
+          throw new GraphQLError(
+            `Expected a string literal argument for the @${CLIENT_FIELD} directive. ` +
+              `Source: ${this._getErrorContext()}`,
+            [handleArgument.value],
+          );
+        }
         name = maybeHandle.value;
 
         const keyArgument = (clientFieldDirective.arguments || []).find(
@@ -726,16 +747,16 @@ class GraphQLDefinitionParser {
         );
         if (keyArgument) {
           const maybeKey = this._transformValue(keyArgument.value);
-          invariant(
-            maybeKey.kind === 'Literal' && typeof maybeKey.value === 'string',
-            'Expected %s argument to @%s to be a literal ' +
-              'string, got `%s` on field `%s`. Source: %s.',
-            CLIENT_FIELD_KEY,
-            CLIENT_FIELD,
-            maybeKey,
-            fieldName,
-            this._getErrorContext(),
-          );
+          if (
+            maybeKey.kind !== 'Literal' ||
+            typeof maybeKey.value !== 'string'
+          ) {
+            throw new GraphQLError(
+              `Expected a string literal argument for the @${CLIENT_FIELD} directive. ` +
+                `Source: ${this._getErrorContext()}`,
+              [keyArgument.value],
+            );
+          }
           key = maybeKey.value;
         }
         const filtersArgument = (clientFieldDirective.arguments || []).find(
@@ -743,20 +764,21 @@ class GraphQLDefinitionParser {
         );
         if (filtersArgument) {
           const maybeFilters = this._transformValue(filtersArgument.value);
-          invariant(
-            maybeFilters.kind === 'Literal' &&
+          if (
+            !(
+              maybeFilters.kind === 'Literal' &&
               Array.isArray(maybeFilters.value) &&
               maybeFilters.value.every(filter =>
                 fieldArgs.some(fieldArg => fieldArg.name === filter),
-              ),
-            'Expected %s argument to @%s to be an array of ' +
-              'argument names on field `%s`, but get %s. Source: %s.',
-            CLIENT_FIELD_FILTERS,
-            CLIENT_FIELD,
-            fieldName,
-            maybeFilters,
-            this._getErrorContext(),
-          );
+              )
+            )
+          ) {
+            throw new GraphQLError(
+              `Expected an array of argument names on field '${fieldName}'. ` +
+                `Source: ${this._getErrorContext()}`,
+              [filtersArgument.value],
+            );
+          }
           // $FlowFixMe
           filters = (maybeFilters.value: Array<string>);
         }
@@ -773,12 +795,12 @@ class GraphQLDefinitionParser {
     return directives.map(directive => {
       const name = getName(directive);
       const directiveDef = this._schema.getDirective(name);
-      invariant(
-        directiveDef,
-        'Unknown directive `@%s`. Source: %s.',
-        name,
-        this._getErrorContext(),
-      );
+      if (directiveDef == null) {
+        throw new GraphQLError(
+          `Unknown directive '${name}'. Source: ${this._getErrorContext()}`,
+          [directive],
+        );
+      }
       const args = this._transformArguments(
         directive.arguments || [],
         directiveDef.args,
@@ -799,12 +821,12 @@ class GraphQLDefinitionParser {
     return args.map(arg => {
       const argName = getName(arg);
       const argDef = argumentDefinitions.find(def => def.name === argName);
-      invariant(
-        argDef,
-        'Unknown argument `%s`. Source: %s.',
-        argName,
-        this._getErrorContext(),
-      );
+      if (argDef == null) {
+        throw new GraphQLError(
+          `Unknown argument '${argName}'. Source: ${this._getErrorContext()}`,
+          [arg],
+        );
+      }
       const value = this._transformValue(arg.value, argDef.type);
       return {
         kind: 'Argument',
@@ -826,18 +848,22 @@ class GraphQLDefinitionParser {
     const conditions = conditionDirectives.map(directive => {
       const passingValue = directive.name === INCLUDE;
       const arg = directive.args[0];
-      invariant(
-        arg && arg.name === IF,
-        'Expected an `if` argument to @%s. Source: %s.',
-        directive.name,
-        this._getErrorContext(),
-      );
-      invariant(
-        arg.value.kind === 'Variable' || arg.value.kind === 'Literal',
-        'Expected the `if` argument to @%s to be a variable. Source: %s.',
-        directive.name,
-        this._getErrorContext(),
-      );
+      if (arg == null || arg.name !== IF) {
+        throw new GraphQLError(
+          `Expected an 'if' argument to @${
+            directive.name
+          }. Source: ${this._getErrorContext()}`,
+          [], // TODO: get DirectiveNode
+        );
+      }
+      if (!(arg.value.kind === 'Variable' || arg.value.kind === 'Literal')) {
+        throw new GraphQLError(
+          `Expected the 'if' argument to @${
+            directive.name
+          } to be a variable or literal. Source: ${this._getErrorContext()}`,
+          [], // TODO: get DirectiveNode
+        );
+      }
       return {
         kind: 'Condition',
         condition: arg.value,
@@ -867,7 +893,7 @@ class GraphQLDefinitionParser {
 
   _transformVariable(ast: VariableNode, type?: ?GraphQLInputType): Variable {
     const variableName = getName(ast);
-    this._recordAndVerifyVariableReference(variableName, type);
+    this._recordAndVerifyVariableReference(ast, variableName, type);
     return {
       kind: 'Variable',
       metadata: null,
@@ -920,13 +946,14 @@ class GraphQLDefinitionParser {
           const listType = getNullableType(type);
           // The user entered a list, a `type` was expected; this is only valid
           // if `type` is a List.
-          invariant(
-            listType instanceof GraphQLList,
-            'Expected a value matching type `%s`, but ' +
-              'got a list value. Source: %s.',
-            type,
-            this._getErrorContext(),
-          );
+          if (!(listType instanceof GraphQLList)) {
+            throw new GraphQLError(
+              `Expected a value matching type '${String(
+                type || 'GraphQLList<_>',
+              )}'. Source: ${this._getErrorContext()}`,
+              [ast],
+            );
+          }
           itemType = assertInputType(listType.ofType);
         }
         const literalList = [];
@@ -970,21 +997,23 @@ class GraphQLDefinitionParser {
             const objectType = getNullableType(type);
             // The user entered an object, a `type` was expected; this is only
             // valid if `type` is an Object.
-            invariant(
-              objectType instanceof GraphQLInputObjectType,
-              'Expected a value matching type `%s`, but ' +
-                'got an object value. Source: %s.',
-              type,
-              this._getErrorContext(),
-            );
+            if (!(objectType instanceof GraphQLInputObjectType)) {
+              throw new GraphQLError(
+                `Expected a value matching type '${String(
+                  type || 'GraphQLInputObjectType<_>',
+                )}'. Source: ${this._getErrorContext()}`,
+                [ast],
+              );
+            }
             const fieldConfig = objectType.getFields()[fieldName];
-            invariant(
-              fieldConfig,
-              'Unknown field `%s` on type `%s`. Source: %s.',
-              fieldName,
-              type,
-              this._getErrorContext(),
-            );
+            if (fieldConfig == null) {
+              throw new GraphQLError(
+                `Uknown field '${fieldName}' on type '${String(
+                  type,
+                )}'. Source: ${this._getErrorContext()}`,
+                [field],
+              );
+            }
             fieldType = assertInputType(fieldConfig.type);
           }
           const fieldValue = this._transformValue(field.value, fieldType);
@@ -1016,11 +1045,10 @@ class GraphQLDefinitionParser {
       case 'Variable':
         return this._transformVariable(ast, type);
       default:
-        invariant(
-          false,
-          'Unknown ast kind: %s. Source: %s.',
-          (ast.kind: empty),
-          this._getErrorContext(),
+        (ast.kind: empty);
+        throw new GraphQLError(
+          `Unknown ast kind '${ast.kind}'. Source: ${this._getErrorContext()}.`,
+          [ast],
         );
     }
   }
@@ -1035,11 +1063,11 @@ function isScalarFieldType(type: GraphQLOutputType): boolean {
 }
 
 function assertScalarFieldType(type: GraphQLOutputType): ScalarFieldType {
-  invariant(
-    isScalarFieldType(type),
-    'Expected %s to be a Scalar Field type.',
-    type,
-  );
+  if (!isScalarFieldType(type)) {
+    throw new GraphQLError(
+      `Expected a scalar field type, got type '${String(type)}'.`,
+    );
+  }
   return (type: any);
 }
 
@@ -1061,11 +1089,9 @@ function applyConditions(
 
 function getName(ast): string {
   const name = ast.name?.value;
-  invariant(
-    typeof name === 'string',
-    'Expected ast node `%s` to have a name.',
-    ast,
-  );
+  if (typeof name !== 'string') {
+    throw new GraphQLError("Expected ast node to have a 'name'.", [ast]);
+  }
   return name;
 }
 

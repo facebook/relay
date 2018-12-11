@@ -65,7 +65,9 @@ function relayApplyFragmentArgumentTransform(
   const nextContext = IRTransformer.transform(context, {
     Root: node => {
       const scope = getRootScope(node.argumentDefinitions);
-      return transformNode(context, fragments, scope, node);
+      return transformNode(context, fragments, scope, node, [
+        `Query "${node.name}"`,
+      ]);
     },
     // Fragments are included below where referenced.
     // Unreferenced fragments are not included.
@@ -83,12 +85,14 @@ function transformNode<T: Node>(
   fragments: Map<string, ?Fragment>,
   scope: Scope,
   node: T,
+  errorContext: $ReadOnlyArray<string>,
 ): ?T {
   const selections = transformSelections(
     context,
     fragments,
     scope,
     node.selections,
+    errorContext,
   );
   if (!selections) {
     return null;
@@ -97,6 +101,7 @@ function transformNode<T: Node>(
     const directives = transformDirectives(
       scope,
       (node: $FlowIssue).directives,
+      errorContext,
     );
     // $FlowIssue: this is a valid `Node`:
     return ({
@@ -116,8 +121,13 @@ function transformFragmentSpread(
   fragments: Map<string, ?Fragment>,
   scope: Scope,
   spread: FragmentSpread,
+  errorContext: $ReadOnlyArray<string>,
 ): ?FragmentSpread {
-  const directives = transformDirectives(scope, spread.directives);
+  const directives = transformDirectives(
+    scope,
+    spread.directives,
+    errorContext,
+  );
   const fragment = context.getFragment(spread.name);
   const appliedFragment = transformFragment(
     context,
@@ -125,6 +135,7 @@ function transformFragmentSpread(
     scope,
     fragment,
     spread.args,
+    errorContext,
   );
   if (!appliedFragment) {
     return null;
@@ -144,15 +155,20 @@ function transformField<T: Field>(
   fragments: Map<string, ?Fragment>,
   scope: Scope,
   field: T,
+  errorContext: $ReadOnlyArray<string>,
 ): ?T {
-  const args = transformArguments(scope, field.args);
-  const directives = transformDirectives(scope, field.directives);
+  const args = transformArguments(scope, field.args, [
+    ...errorContext,
+    `Field "${field.name}"`,
+  ]);
+  const directives = transformDirectives(scope, field.directives, errorContext);
   if (field.kind === 'LinkedField' || field.kind === 'MatchField') {
     const selections = transformSelections(
       context,
       fragments,
       scope,
       field.selections,
+      errorContext,
     );
     if (!selections) {
       return null;
@@ -178,14 +194,16 @@ function transformCondition(
   fragments: Map<string, ?Fragment>,
   scope: Scope,
   node: Condition,
+  errorContext: $ReadOnlyArray<string>,
 ): ?$ReadOnlyArray<Selection> {
-  const condition = transformValue(scope, node.condition);
+  const condition = transformValue(scope, node.condition, errorContext);
   invariant(
     condition.kind === 'Literal' || condition.kind === 'Variable',
     'RelayApplyFragmentArgumentTransform: A non-scalar value was applied to ' +
       'an @include or @skip directive, the `if` argument value must be a ' +
-      'variable or a Boolean, got `%s`.',
+      'variable or a Boolean, got `%s`. %s',
     condition,
+    printErrorContext(errorContext),
   );
   if (condition.kind === 'Literal' && condition.value !== node.passingValue) {
     // Dead code, no need to traverse further.
@@ -196,6 +214,7 @@ function transformCondition(
     fragments,
     scope,
     node.selections,
+    errorContext,
   );
   if (!selections) {
     return null;
@@ -218,6 +237,7 @@ function transformSelections(
   fragments: Map<string, ?Fragment>,
   scope: Scope,
   selections: $ReadOnlyArray<Selection>,
+  errorContext: $ReadOnlyArray<string>,
 ): ?$ReadOnlyArray<Selection> {
   let nextSelections = null;
   selections.forEach(selection => {
@@ -226,13 +246,20 @@ function transformSelections(
       selection.kind === 'InlineFragment' ||
       selection.kind === 'MatchBranch'
     ) {
-      nextSelection = transformNode(context, fragments, scope, selection);
+      nextSelection = transformNode(
+        context,
+        fragments,
+        scope,
+        selection,
+        errorContext,
+      );
     } else if (selection.kind === 'FragmentSpread') {
       nextSelection = transformFragmentSpread(
         context,
         fragments,
         scope,
         selection,
+        errorContext,
       );
     } else if (selection.kind === 'Condition') {
       const conditionSelections = transformCondition(
@@ -240,13 +267,20 @@ function transformSelections(
         fragments,
         scope,
         selection,
+        errorContext,
       );
       if (conditionSelections) {
         nextSelections = nextSelections || [];
         nextSelections.push(...conditionSelections);
       }
     } else {
-      nextSelection = transformField(context, fragments, scope, selection);
+      nextSelection = transformField(
+        context,
+        fragments,
+        scope,
+        selection,
+        errorContext,
+      );
     }
     if (nextSelection) {
       nextSelections = nextSelections || [];
@@ -259,9 +293,13 @@ function transformSelections(
 function transformDirectives(
   scope: Scope,
   directives: $ReadOnlyArray<Directive>,
+  errorContext: $ReadOnlyArray<string>,
 ): $ReadOnlyArray<Directive> {
   return directives.map(directive => {
-    const args = transformArguments(scope, directive.args);
+    const args = transformArguments(scope, directive.args, [
+      ...errorContext,
+      `Directive "${directive.name}"`,
+    ]);
     return {
       ...directive,
       args,
@@ -272,33 +310,39 @@ function transformDirectives(
 function transformArguments(
   scope: Scope,
   args: $ReadOnlyArray<Argument>,
+  errorContext: $ReadOnlyArray<string>,
 ): $ReadOnlyArray<Argument> {
   return args.map(arg => {
-    const value = transformValue(scope, arg.value);
+    const value = transformValue(scope, arg.value, errorContext);
     return value === arg.value ? arg : {...arg, value};
   });
 }
 
-function transformValue(scope: Scope, value: ArgumentValue): ArgumentValue {
+function transformValue(
+  scope: Scope,
+  value: ArgumentValue,
+  errorContext: $ReadOnlyArray<string>,
+): ArgumentValue {
   if (value.kind === 'Variable') {
     const scopeValue = scope[value.variableName];
     invariant(
       scopeValue != null,
-      'RelayApplyFragmentArgumentTransform: variable `%s` is not in scope.',
+      'RelayApplyFragmentArgumentTransform: variable `%s` is not in scope. %s',
       value.variableName,
+      printErrorContext(errorContext),
     );
     return scopeValue;
   } else if (value.kind === 'ListValue') {
     return {
       ...value,
-      items: value.items.map(item => transformValue(scope, item)),
+      items: value.items.map(item => transformValue(scope, item, errorContext)),
     };
   } else if (value.kind === 'ObjectValue') {
     return {
       ...value,
       fields: value.fields.map(field => ({
         ...field,
-        value: transformValue(scope, field.value),
+        value: transformValue(scope, field.value, errorContext),
       })),
     };
   }
@@ -315,8 +359,12 @@ function transformFragment(
   parentScope: Scope,
   fragment: Fragment,
   args: $ReadOnlyArray<Argument>,
+  errorContext: $ReadOnlyArray<string>,
 ): ?Fragment {
-  const argumentsHash = hashArguments(args, parentScope);
+  const argumentsHash = hashArguments(args, parentScope, [
+    ...errorContext,
+    `Fragment "${fragment.name}"`,
+  ]);
   const fragmentName = argumentsHash
     ? `${fragment.name}_${argumentsHash}`
     : fragment.name;
@@ -333,8 +381,9 @@ function transformFragment(
   invariant(
     !fragments.has(fragmentName) || fragments.get(fragmentName) != null,
     'RelayApplyFragmentArgumentTransform: Found a circular reference from ' +
-      'fragment `%s`.',
+      'fragment `%s`. %s',
     fragment.name,
+    printErrorContext(errorContext),
   );
   fragments.set(fragmentName, undefined); // to detect circular references
   let transformedFragment = null;
@@ -343,6 +392,7 @@ function transformFragment(
     fragments,
     fragmentScope,
     fragment.selections,
+    errorContext,
   );
   if (selections) {
     transformedFragment = {
@@ -356,7 +406,11 @@ function transformFragment(
   return transformedFragment;
 }
 
-function hashArguments(args: $ReadOnlyArray<Argument>, scope: Scope): ?string {
+function hashArguments(
+  args: $ReadOnlyArray<Argument>,
+  scope: Scope,
+  errorContext: $ReadOnlyArray<string>,
+): ?string {
   if (!args.length) {
     return null;
   }
@@ -370,8 +424,9 @@ function hashArguments(args: $ReadOnlyArray<Argument>, scope: Scope): ?string {
         value = scope[arg.value.variableName];
         invariant(
           value != null,
-          'RelayApplyFragmentArgumentTransform: variable `%s` is not in scope.',
+          'RelayApplyFragmentArgumentTransform: variable `%s` is not in scope. %s',
           arg.value.variableName,
+          printErrorContext(errorContext),
         );
       } else {
         value = arg.value;
@@ -383,6 +438,12 @@ function hashArguments(args: $ReadOnlyArray<Argument>, scope: Scope): ?string {
     }),
   );
   return murmurHash(printedArgs);
+}
+
+function printErrorContext(errorContext: $ReadOnlyArray<string>) {
+  return (
+    '\nError Context: \n' + errorContext.map(item => ` - ${item}`).join('\n')
+  );
 }
 
 module.exports = {

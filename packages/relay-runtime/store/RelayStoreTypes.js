@@ -308,7 +308,7 @@ export type MatchPointer = {|
   __id: DataID,
   __fragments: {[fragmentName: string]: Variables},
   __fragmentPropName: string,
-  __module: string,
+  __module: mixed,
 |};
 
 /**

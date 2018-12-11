@@ -12,6 +12,7 @@
 
 const babelGenerator = require('@babel/generator').default;
 const RelayMaskTransform = require('../../transforms/RelayMaskTransform');
+const RelayMatchTransform = require('../../transforms/RelayMatchTransform');
 const RelayRelayDirectiveTransform = require('../../transforms/RelayRelayDirectiveTransform');
 
 const invariant = require('invariant');
@@ -261,6 +262,7 @@ function createVisitor(options: TypeGeneratorOptions) {
     useSingleArtifactDirectory: options.useSingleArtifactDirectory,
     noFutureProofEnums: options.noFutureProofEnums,
   };
+  let hasMatchField = false;
 
   return {
     leave: {
@@ -284,14 +286,23 @@ function createVisitor(options: TypeGeneratorOptions) {
             ),
           ]),
         );
-        return t.program([
-          ...getFragmentImports(state),
-          ...getEnumDefinitions(state),
-          ...inputObjectTypes,
-          inputVariablesType,
-          responseType,
-          operationType,
-        ]);
+        const importedTypes = [];
+        if (hasMatchField) {
+          importedTypes.push('MatchPointer');
+        }
+        return t.program(
+          [
+            ...getFragmentImports(state),
+            ...getEnumDefinitions(state),
+            importedTypes.length
+              ? importTypes(importedTypes, 'relay-runtime')
+              : null,
+            ...inputObjectTypes,
+            inputVariablesType,
+            responseType,
+            operationType,
+          ].filter(Boolean),
+        );
       },
       Fragment(node) {
         let selections = flattenArray(node.selections);
@@ -329,10 +340,14 @@ function createVisitor(options: TypeGeneratorOptions) {
           unmasked ? undefined : refTypeName,
         );
         const type = isPlural(node) ? readOnlyArrayOfType(baseType) : baseType;
+        const importedTypes = ['FragmentReference'];
+        if (hasMatchField) {
+          importedTypes.push('MatchPointer');
+        }
         return t.program([
           ...getFragmentImports(state),
           ...getEnumDefinitions(state),
-          importTypes(['FragmentReference'], 'relay-runtime'),
+          importTypes(importedTypes, 'relay-runtime'),
           refType,
           exportType(node.name, type),
         ]);
@@ -379,12 +394,14 @@ function createVisitor(options: TypeGeneratorOptions) {
         ];
       },
       MatchField(node) {
+        hasMatchField = true;
         return [
           {
             key: node.alias ?? node.name,
             schemaName: node.name,
-            nodeType: node.type,
-            nodeSelections: new Map(),
+            value: t.nullableTypeAnnotation(
+              t.genericTypeAnnotation(t.identifier('MatchPointer')),
+            ),
           },
         ];
       },
@@ -537,6 +554,7 @@ function getRefTypeName(name: string): string {
 const FLOW_TRANSFORMS: Array<IRTransform> = [
   RelayRelayDirectiveTransform.transform,
   RelayMaskTransform.transform,
+  RelayMatchTransform.transform,
   FlattenTransform.transformWithOptions({}),
 ];
 

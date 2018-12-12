@@ -957,6 +957,7 @@ module.exports = function(t: any, options: PrinterOptions): Function {
   }
 
   function identify(str: string): Printable {
+    // $FlowFixMe
     return str.split('.').reduce((acc, name) => {
       if (!acc) {
         return t.identifier(name);

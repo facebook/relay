@@ -98,8 +98,12 @@ function buildReactRelayContainer<TBase: React$ComponentType<*>>(
   const ForwardContainer = React.forwardRef(forwardRef);
 
   if (__DEV__) {
+    /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb) Suppressing errors
+     * found while preparing to upgrade to 0.89.0 */
     ForwardContainer.__ComponentClass = ComponentClass;
     // Classic container static methods.
+    /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb) Suppressing errors
+     * found while preparing to upgrade to 0.89.0 */
     ForwardContainer.getFragment = function getFragmentOnModernContainer() {
       throw new Error(
         `RelayModernContainer: ${containerName}.getFragment() was called on ` +
@@ -113,6 +117,8 @@ function buildReactRelayContainer<TBase: React$ComponentType<*>>(
     };
   }
 
+  /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb) Suppressing errors
+   * found while preparing to upgrade to 0.89.0 */
   return ForwardContainer;
 }
 

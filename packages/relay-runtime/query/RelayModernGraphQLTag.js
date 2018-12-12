@@ -14,8 +14,8 @@ const RelayConcreteNode = require('../util/RelayConcreteNode');
 
 const invariant = require('invariant');
 
-import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {ReaderFragment} from '../util/ReaderNode';
+import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {
   ConcreteFragmentDefinition,
   ConcreteOperationDefinition,

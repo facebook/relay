@@ -24,9 +24,9 @@ import type {
   NormalizationSelectableNode,
   NormalizationSplitOperation,
 } from '../util/NormalizationNode';
+import type {ReaderFragment} from '../util/ReaderNode';
 import type {ReaderSelectableNode} from '../util/ReaderNode';
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
-import type {ReaderFragment} from '../util/ReaderNode';
 import type {DataID, Disposable, Variables} from '../util/RelayRuntimeTypes';
 import type {RecordState} from './RelayRecordState';
 import type {

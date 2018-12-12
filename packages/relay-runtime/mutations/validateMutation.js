@@ -10,11 +10,11 @@
 
 'use strict';
 
-import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {
   NormalizationSelection,
   NormalizationField,
 } from '../util/NormalizationNode';
+import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
 type ValidationContext = {

@@ -230,9 +230,6 @@ function createContainerComponent(
           );
           const dataIDs = [];
           queryData.forEach((data, ii) => {
-            /* $FlowFixMe(>=0.36.0) Flow error detected
-             * during the deploy of Flow v0.36.0. To see the error, remove this
-             * comment and run Flow */
             const dataID = RelayRecord.getDataIDForObject(data);
             if (dataID) {
               querySet[
@@ -245,8 +242,6 @@ function createContainerComponent(
             fragmentPointer = {fragment, dataIDs};
           }
         } else {
-          /* $FlowFixMe(>=0.19.0) - queryData is mixed but getID expects Object
-           */
           const dataID = RelayRecord.getDataIDForObject(queryData);
           if (dataID) {
             fragmentPointer = {

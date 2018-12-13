@@ -135,7 +135,7 @@ function transformFragmentSpread(
     scope,
     fragment,
     spread.args,
-    errorContext,
+    [...errorContext, `Fragment ${fragment.name}`],
   );
   if (!appliedFragment) {
     return null;
@@ -157,10 +157,7 @@ function transformField<T: Field>(
   field: T,
   errorContext: $ReadOnlyArray<string>,
 ): ?T {
-  const args = transformArguments(scope, field.args, [
-    ...errorContext,
-    `Field "${field.name}"`,
-  ]);
+  const args = transformArguments(scope, field.args, errorContext);
   const directives = transformDirectives(scope, field.directives, errorContext);
   if (field.kind === 'LinkedField' || field.kind === 'MatchField') {
     const selections = transformSelections(
@@ -274,13 +271,10 @@ function transformSelections(
         nextSelections.push(...conditionSelections);
       }
     } else {
-      nextSelection = transformField(
-        context,
-        fragments,
-        scope,
-        selection,
-        errorContext,
-      );
+      nextSelection = transformField(context, fragments, scope, selection, [
+        ...errorContext,
+        `Field ${selection.name}`,
+      ]);
     }
     if (nextSelection) {
       nextSelections = nextSelections || [];
@@ -361,10 +355,7 @@ function transformFragment(
   args: $ReadOnlyArray<Argument>,
   errorContext: $ReadOnlyArray<string>,
 ): ?Fragment {
-  const argumentsHash = hashArguments(args, parentScope, [
-    ...errorContext,
-    `Fragment "${fragment.name}"`,
-  ]);
+  const argumentsHash = hashArguments(args, parentScope, errorContext);
   const fragmentName = argumentsHash
     ? `${fragment.name}_${argumentsHash}`
     : fragment.name;

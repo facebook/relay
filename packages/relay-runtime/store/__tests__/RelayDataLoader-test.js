@@ -309,14 +309,14 @@ describe('RelayDataLoader', () => {
             __id: '1',
             id: '1',
             __typename: 'User',
-            'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
+            'nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
               __ref:
-                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+                'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
             },
           },
-          'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
+          'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
             __id:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+              'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
             __typename: 'PlainUserNameRenderer',
             __match_component: 'PlainUserNameRenderer.react',
             __match_fragment:
@@ -364,14 +364,14 @@ describe('RelayDataLoader', () => {
             __id: '1',
             id: '1',
             __typename: 'User',
-            'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
+            'nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
               __ref:
-                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+                'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
             },
           },
-          'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
+          'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
             __id:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+              'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
             __typename: 'MarkdownUserNameRenderer',
             __match_component: 'MarkdownUserNameRenderer.react',
             __match_fragment:
@@ -417,14 +417,14 @@ describe('RelayDataLoader', () => {
             __id: '1',
             id: '1',
             __typename: 'User',
-            'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
+            'nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
               __ref:
-                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+                'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
             },
           },
-          'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
+          'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
             __id:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+              'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
             __typename: 'MarkdownUserNameRenderer',
             // NOTE: markdown/data fields are missing, data not processed.
           },
@@ -463,14 +463,14 @@ describe('RelayDataLoader', () => {
             __id: '1',
             id: '1',
             __typename: 'User',
-            'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
+            'nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
               __ref:
-                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+                'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
             },
           },
-          'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
+          'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
             __id:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+              'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
             __typename: 'MarkdownUserNameRenderer',
             // NOTE: 'markdown' field missing
             data: {__ref: 'data'},
@@ -512,14 +512,14 @@ describe('RelayDataLoader', () => {
             __id: '1',
             id: '1',
             __typename: 'User',
-            'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
+            'nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
               __ref:
-                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+                'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
             },
           },
-          'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
+          'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
             __id:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+              'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
             __typename: 'MarkdownUserNameRenderer',
             markdown: 'markdown text',
             // NOTE: 'data' field missing
@@ -554,14 +554,14 @@ describe('RelayDataLoader', () => {
             __id: '1',
             id: '1',
             __typename: 'User',
-            'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
+            'nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
               __ref:
-                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+                'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
             },
           },
-          'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
+          'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': {
             __id:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+              'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
             __typename: 'CustomNameRenderer',
             customField: 'custom value',
           },
@@ -594,7 +594,7 @@ describe('RelayDataLoader', () => {
             __id: '1',
             id: '1',
             __typename: 'User',
-            'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': null,
+            'nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)': null,
           },
           'client:root': {
             __id: 'client:root',

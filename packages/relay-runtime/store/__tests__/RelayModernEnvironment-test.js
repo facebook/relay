@@ -1215,7 +1215,7 @@ describe('RelayModernEnvironment', () => {
         node: {
           nameRenderer: {
             __id:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+              'client:1:nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)',
             __fragmentPropName: 'name',
             __fragments: {
               MarkdownUserNameRenderer_name: {},

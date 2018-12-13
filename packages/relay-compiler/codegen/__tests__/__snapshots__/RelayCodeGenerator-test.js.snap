@@ -73,7 +73,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       "kind": "MatchField",
       "alias": null,
       "name": "nameRenderer",
-      "storageKey": "nameRenderer(supported:[\\"PlainUserNameRenderer\\",\\"MarkdownUserNameRenderer\\"])",
+      "storageKey": "nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)",
       "args": [
         {
           "kind": "Literal",
@@ -515,7 +515,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       "kind": "MatchField",
       "alias": null,
       "name": "nameRenderer",
-      "storageKey": "nameRenderer(supported:[\\"PlainUserNameRenderer\\",\\"MarkdownUserNameRenderer\\"])",
+      "storageKey": "nameRenderer(MarkdownUserNameRenderer_name:MarkdownUserNameRenderer.react,PlainUserNameRenderer_name:PlainUserNameRenderer.react)",
       "args": [
         {
           "kind": "Literal",

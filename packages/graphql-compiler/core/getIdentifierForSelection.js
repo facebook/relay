@@ -22,11 +22,7 @@ import type {Selection} from './GraphQLIR';
  * variable and passing value for conditions.
  */
 function getIdentifierForSelection(node: Selection): string {
-  if (
-    node.kind === 'LinkedField' ||
-    node.kind === 'ScalarField' ||
-    node.kind === 'MatchField'
-  ) {
+  if (node.kind === 'LinkedField' || node.kind === 'ScalarField') {
     return node.directives.length === 0
       ? node.alias || node.name
       : (node.alias || node.name) + printDirectives(node.directives);
@@ -34,8 +30,16 @@ function getIdentifierForSelection(node: Selection): string {
     return node.args.length === 0
       ? '...' + node.name
       : '...' + node.name + printArguments(node.args);
+  } else if (node.kind === 'MatchField') {
+    const storageKey = node.metadata?.storageKey;
+    invariant(
+      typeof storageKey === 'string',
+      'getIdentifierForSelection: Expected MatchField `%s` to have a precomputed storageKey.',
+      node.name,
+    );
+    return 'M:' + storageKey;
   } else if (node.kind === 'MatchBranch') {
-    return node.name + '$' + node.module;
+    return 'B:' + node.name + '$' + node.module;
   } else if (node.kind === 'InlineFragment') {
     return 'I:' + node.typeCondition.name;
   } else if (node.kind === 'Condition') {

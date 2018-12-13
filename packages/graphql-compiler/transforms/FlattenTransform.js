@@ -176,7 +176,7 @@ function flattenSelectionsInto(
       flattenedSelection.kind === 'MatchField' ||
       flattenedSelection.kind === 'MatchBranch'
     ) {
-      // TODO(T35853103) Handle MatchField
+      // Ignore duplicate matches that select the same fragments and modules (encoded in the identifier)
     } else if (flattenedSelection.kind === 'LinkedField') {
       invariant(
         selection.kind === 'LinkedField',

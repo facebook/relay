@@ -143,6 +143,7 @@ function visitLinkedField(
   }
 
   const seenTypes: Map<GraphQLCompositeType, string> = new Map();
+  const typeToSelectionMap = {};
   const selections = [];
   transformedNode.selections.forEach(matchSelection => {
     if (matchSelection.kind !== 'FragmentSpread') {
@@ -207,6 +208,10 @@ function visitLinkedField(
       );
     }
     const moduleDirectiveArgs = getLiteralArgumentValues(moduleDirective.args);
+    typeToSelectionMap[String(matchedType)] = {
+      component: moduleDirectiveArgs.name,
+      fragment: matchSelection.name,
+    };
     const normalizationName =
       SplitNaming.getAnnotatedName(matchSelection.name, 'normalization') +
       '.graphql';
@@ -283,6 +288,17 @@ function visitLinkedField(
     });
   });
 
+  const stableArgs = [];
+  Object.keys(typeToSelectionMap)
+    .sort()
+    .forEach(typeName => {
+      const {component, fragment} = typeToSelectionMap[typeName];
+      stableArgs.push(`${fragment}:${component}`);
+    });
+  const storageKey =
+    (transformedNode.alias ?? transformedNode.name) +
+    `(${stableArgs.join(',')})`;
+
   const matchField: MatchField = {
     kind: 'MatchField',
     alias: transformedNode.alias,
@@ -301,7 +317,9 @@ function visitLinkedField(
     ],
     directives: [],
     handles: null,
-    metadata: {},
+    metadata: {
+      storageKey,
+    },
     name: transformedNode.name,
     type: unionType,
     selections,

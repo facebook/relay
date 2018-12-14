@@ -83,7 +83,6 @@ function check(
  * @private
  */
 class RelayDataLoader {
-  _done: boolean;
   _operationLoader: OperationLoader | null;
   _handlers: $ReadOnlyArray<MissingFieldHandler>;
   _mutator: RelayRecordSourceMutator;
@@ -226,7 +225,7 @@ class RelayDataLoader {
     selections: $ReadOnlyArray<NormalizationSelection>,
     dataID: DataID,
   ): void {
-    selections.every(selection => {
+    selections.forEach(selection => {
       switch (selection.kind) {
         case SCALAR_FIELD:
           this._prepareScalar(selection, dataID);
@@ -284,7 +283,6 @@ class RelayDataLoader {
             selection.kind,
           );
       }
-      return !this._done;
     });
   }
 

@@ -52,8 +52,8 @@ const {
 const {getStorageKey, getArgumentValues, MATCH_FRAGMENT_KEY} = RelayStoreUtils;
 
 /**
- * Synchronously check whether the records required to fulfill the
- * given `selector` are present in `source`.
+ * Synchronously check whether the records required to fulfill the given
+ * `selector` are present in `source`.
  *
  * If a field is missing, it uses the provided handlers to attempt to substitute
  * data. The `target` will store all records that are modified because of a
@@ -69,20 +69,20 @@ function check(
   operationLoader: ?OperationLoader,
 ): boolean {
   const {dataID, node, variables} = selector;
-  const loader = new RelayDataLoader(
+  const checker = new DataChecker(
     source,
     target,
     variables,
     handlers,
     operationLoader,
   );
-  return loader.check(node, dataID);
+  return checker.check(node, dataID);
 }
 
 /**
  * @private
  */
-class RelayDataLoader {
+class DataChecker {
   _operationLoader: OperationLoader | null;
   _handlers: $ReadOnlyArray<MissingFieldHandler>;
   _mutator: RelayRecordSourceMutator;
@@ -228,13 +228,13 @@ class RelayDataLoader {
     selections.forEach(selection => {
       switch (selection.kind) {
         case SCALAR_FIELD:
-          this._prepareScalar(selection, dataID);
+          this._checkScalar(selection, dataID);
           break;
         case LINKED_FIELD:
           if (selection.plural) {
-            this._preparePluralLink(selection, dataID);
+            this._checkPluralLink(selection, dataID);
           } else {
-            this._prepareLink(selection, dataID);
+            this._checkLink(selection, dataID);
           }
           break;
         case CONDITION:
@@ -258,13 +258,13 @@ class RelayDataLoader {
             this._variables,
           );
           if (handleField.plural) {
-            this._preparePluralLink(handleField, dataID);
+            this._checkPluralLink(handleField, dataID);
           } else {
-            this._prepareLink(handleField, dataID);
+            this._checkLink(handleField, dataID);
           }
           break;
         case MATCH_FIELD:
-          this._prepareMatch(selection, dataID);
+          this._checkMatch(selection, dataID);
           break;
         case SCALAR_HANDLE:
         case FRAGMENT_SPREAD:
@@ -286,7 +286,7 @@ class RelayDataLoader {
     });
   }
 
-  _prepareMatch(field: NormalizationMatchField, dataID: DataID): void {
+  _checkMatch(field: NormalizationMatchField, dataID: DataID): void {
     const storageKey = getStorageKey(field, this._variables);
     const linkedID = this._mutator.getLinkedRecordID(dataID, storageKey);
 
@@ -307,7 +307,7 @@ class RelayDataLoader {
         const operationLoader = this._operationLoader;
         invariant(
           operationLoader !== null,
-          'RelayDataLoader: Expected an operationLoader to be configured when using `@match`.',
+          'DataChecker: Expected an operationLoader to be configured when using `@match`.',
         );
         const operationReference = this._mutator.getValue(
           linkedID,
@@ -333,7 +333,7 @@ class RelayDataLoader {
     }
   }
 
-  _prepareScalar(field: NormalizationScalarField, dataID: DataID): void {
+  _checkScalar(field: NormalizationScalarField, dataID: DataID): void {
     const storageKey = getStorageKey(field, this._variables);
     let fieldValue = this._mutator.getValue(dataID, storageKey);
     if (fieldValue === undefined) {
@@ -344,7 +344,7 @@ class RelayDataLoader {
     }
   }
 
-  _prepareLink(field: NormalizationLinkedField, dataID: DataID): void {
+  _checkLink(field: NormalizationLinkedField, dataID: DataID): void {
     const storageKey = getStorageKey(field, this._variables);
     let linkedID = this._mutator.getLinkedRecordID(dataID, storageKey);
 
@@ -359,7 +359,7 @@ class RelayDataLoader {
     }
   }
 
-  _preparePluralLink(field: NormalizationLinkedField, dataID: DataID): void {
+  _checkPluralLink(field: NormalizationLinkedField, dataID: DataID): void {
     const storageKey = getStorageKey(field, this._variables);
     let linkedIDs = this._mutator.getLinkedRecordIDs(dataID, storageKey);
 

@@ -11,8 +11,8 @@
 
 'use strict';
 
+const DataChecker = require('./DataChecker');
 const RelayCore = require('./RelayCore');
-const RelayDataLoader = require('./RelayDataLoader');
 const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
 const RelayInMemoryRecordSource = require('./RelayInMemoryRecordSource');
 const RelayModernRecord = require('./RelayModernRecord');
@@ -204,7 +204,7 @@ class RelayModernEnvironment implements Environment {
     handlers: $ReadOnlyArray<MissingFieldHandler>,
   ): boolean {
     const target = new RelayInMemoryRecordSource();
-    const result = RelayDataLoader.check(
+    const result = DataChecker.check(
       this._store.getSource(),
       target,
       selector,

@@ -10,7 +10,7 @@
 
 'use strict';
 
-const RelayDataLoader = require('./RelayDataLoader');
+const DataChecker = require('./DataChecker');
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayProfiler = require('../util/RelayProfiler');
 const RelayReader = require('./RelayReader');
@@ -99,7 +99,7 @@ class RelayModernStore implements Store {
   }
 
   check(selector: NormalizationSelector): boolean {
-    return RelayDataLoader.check(
+    return DataChecker.check(
       this._recordSource,
       this._recordSource,
       selector,

@@ -237,22 +237,6 @@ const builds = [
     ],
   },
   {
-    package: 'graphql-compiler',
-    exports: {
-      index: 'GraphQLCompilerPublic.js',
-    },
-    bundles: [
-      {
-        entry: 'GraphQLCompilerPublic.js',
-        output: 'graphql-compiler',
-        libraryName: 'GraphQLCompiler',
-        libraryTarget: 'commonjs2',
-        target: 'node',
-        noMinify: true, // Note: uglify can't yet handle modern JS
-      },
-    ],
-  },
-  {
     package: 'relay-runtime',
     exports: {
       index: 'index.js',

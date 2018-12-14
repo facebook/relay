@@ -39,13 +39,13 @@ interface Node {
   id: ID!
 }
 
-type Faction : Node {
+type Faction implements Node {
   id: ID!
   name: String
   ships: ShipConnection
 }
 
-type Ship : Node {
+type Ship implements Node {
   id: ID!
   name: String
 }

@@ -12,9 +12,9 @@
 
 const RelayCompilerScope = require('../core/RelayCompilerScope');
 
-const invariant = require('invariant');
 const murmurHash = require('../util/murmurHash');
 
+const {GraphQLError} = require('graphql');
 const {
   getIdentifierForArgumentValue,
   IRTransformer,
@@ -66,7 +66,7 @@ function relayApplyFragmentArgumentTransform(
     Root: node => {
       const scope = getRootScope(node.argumentDefinitions);
       return transformNode(context, fragments, scope, node, [
-        `Query "${node.name}"`,
+        `Query '${node.name}'`,
       ]);
     },
     // Fragments are included below where referenced.
@@ -135,7 +135,7 @@ function transformFragmentSpread(
     scope,
     fragment,
     spread.args,
-    [...errorContext, `Fragment ${fragment.name}`],
+    [...errorContext, `Fragment '${fragment.name}'`],
   );
   if (!appliedFragment) {
     return null;
@@ -194,14 +194,15 @@ function transformCondition(
   errorContext: $ReadOnlyArray<string>,
 ): ?$ReadOnlyArray<Selection> {
   const condition = transformValue(scope, node.condition, errorContext);
-  invariant(
-    condition.kind === 'Literal' || condition.kind === 'Variable',
-    'RelayApplyFragmentArgumentTransform: A non-scalar value was applied to ' +
-      'an @include or @skip directive, the `if` argument value must be a ' +
-      'variable or a Boolean, got `%s`. %s',
-    condition,
-    printErrorContext(errorContext),
-  );
+  if (!(condition.kind === 'Literal' || condition.kind === 'Variable')) {
+    throw new GraphQLError(
+      'RelayApplyFragmentArgumentTransform: A non-scalar value was applied to ' +
+        'an @include or @skip directive, the `if` argument value must be a ' +
+        `variable or a Boolean, got '${condition.kind}'. ${printErrorContext(
+          errorContext,
+        )}`,
+    );
+  }
   if (condition.kind === 'Literal' && condition.value !== node.passingValue) {
     // Dead code, no need to traverse further.
     return null;
@@ -273,7 +274,7 @@ function transformSelections(
     } else {
       nextSelection = transformField(context, fragments, scope, selection, [
         ...errorContext,
-        `Field ${selection.name}`,
+        `Field '${selection.name}'`,
       ]);
     }
     if (nextSelection) {
@@ -319,12 +320,13 @@ function transformValue(
 ): ArgumentValue {
   if (value.kind === 'Variable') {
     const scopeValue = scope[value.variableName];
-    invariant(
-      scopeValue != null,
-      'RelayApplyFragmentArgumentTransform: variable `%s` is not in scope. %s',
-      value.variableName,
-      printErrorContext(errorContext),
-    );
+    if (scopeValue == null) {
+      throw new GraphQLError(
+        `RelayApplyFragmentArgumentTransform: variable '\$${
+          value.variableName
+        }' is not in scope. ${printErrorContext(errorContext)}`,
+      );
+    }
     return scopeValue;
   } else if (value.kind === 'ListValue') {
     return {
@@ -369,14 +371,13 @@ function transformFragment(
     parentScope,
     fragment.name,
   );
-  invariant(
-    !fragments.has(fragmentName) || fragments.get(fragmentName) != null,
-    'RelayApplyFragmentArgumentTransform: Found a circular reference from ' +
-      'fragment `%s`. %s',
-    fragment.name,
-    printErrorContext(errorContext),
-  );
-  fragments.set(fragmentName, undefined); // to detect circular references
+  if (fragments.get(fragmentName) === null) {
+    throw new GraphQLError(
+      'RelayApplyFragmentArgumentTransform: Found a circular reference from ' +
+        `fragment '${fragment.name}'. ${printErrorContext(errorContext)}`,
+    );
+  }
+  fragments.set(fragmentName, null); // to detect circular references
   let transformedFragment = null;
   const selections = transformSelections(
     context,
@@ -413,12 +414,13 @@ function hashArguments(
       let value;
       if (arg.value.kind === 'Variable') {
         value = scope[arg.value.variableName];
-        invariant(
-          value != null,
-          'RelayApplyFragmentArgumentTransform: variable `%s` is not in scope. %s',
-          arg.value.variableName,
-          printErrorContext(errorContext),
-        );
+        if (value == null) {
+          throw new GraphQLError(
+            `RelayApplyFragmentArgumentTransform: variable '\$${
+              arg.value.variableName
+            }' is not in scope. ${printErrorContext(errorContext)}`,
+          );
+        }
       } else {
         value = arg.value;
       }
@@ -432,9 +434,7 @@ function hashArguments(
 }
 
 function printErrorContext(errorContext: $ReadOnlyArray<string>) {
-  return (
-    '\nError Context: \n' + errorContext.map(item => ` - ${item}`).join('\n')
-  );
+  return 'Path:\n' + errorContext.map(item => `- ${item}`).join('\n');
 }
 
 module.exports = {

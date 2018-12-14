@@ -54,13 +54,13 @@
   id: ID!
 }
 <span class="hljs-built_in">
-type </span>Faction : Node {
+type </span>Faction implements Node {
   id: ID!
   name: String
   ships: ShipConnection
 }
 <span class="hljs-built_in">
-type </span>Ship : Node {
+type </span>Ship implements Node {
   id: ID!
   name: String
 }

@@ -209,6 +209,7 @@ class RelayModernEnvironment implements Environment {
       target,
       selector,
       handlers,
+      this._operationLoader,
     );
     if (target.size() > 0) {
       this._publishQueue.commitSource(target);

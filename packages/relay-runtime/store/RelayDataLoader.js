@@ -66,7 +66,7 @@ function check(
   target: MutableRecordSource,
   selector: NormalizationSelector,
   handlers: $ReadOnlyArray<MissingFieldHandler>,
-  operationLoader?: ?OperationLoader,
+  operationLoader: ?OperationLoader,
 ): boolean {
   const {dataID, node, variables} = selector;
   const loader = new RelayDataLoader(

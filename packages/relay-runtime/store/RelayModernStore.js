@@ -30,6 +30,7 @@ import type {
   Scheduler,
   ReaderSelector,
   NormalizationSelector,
+  OperationLoader,
   Snapshot,
   Store,
   UpdatedRecords,
@@ -57,6 +58,7 @@ class RelayModernStore implements Store {
   _gcScheduler: Scheduler;
   _hasScheduledGC: boolean;
   _index: number;
+  _operationLoader: ?OperationLoader;
   _recordSource: MutableRecordSource;
   _roots: Map<number, NormalizationSelector>;
   _subscriptions: Set<Subscription>;
@@ -67,6 +69,7 @@ class RelayModernStore implements Store {
   constructor(
     source: MutableRecordSource,
     gcScheduler: Scheduler = resolveImmediate,
+    operationLoader: ?OperationLoader = null,
   ) {
     // Prevent mutation of a record from outside the store.
     if (__DEV__) {
@@ -82,6 +85,7 @@ class RelayModernStore implements Store {
     this._gcScheduler = gcScheduler;
     this._hasScheduledGC = false;
     this._index = 0;
+    this._operationLoader = operationLoader;
     this._recordSource = source;
     this._roots = new Map();
     this._subscriptions = new Set();
@@ -100,6 +104,7 @@ class RelayModernStore implements Store {
       this._recordSource,
       selector,
       [],
+      this._operationLoader,
     );
   }
 
@@ -203,7 +208,12 @@ class RelayModernStore implements Store {
     const references = new Set();
     // Mark all records that are traversable from a root
     this._roots.forEach(selector => {
-      RelayReferenceMarker.mark(this._recordSource, selector, references);
+      RelayReferenceMarker.mark(
+        this._recordSource,
+        selector,
+        references,
+        this._operationLoader,
+      );
     });
     // Short-circuit if *nothing* is referenced
     if (!references.size) {

@@ -158,26 +158,25 @@ function buildCompatContainer(
     );
   }
   forwardRef.displayName = containerName;
-  // $FlowExpectedError See https://github.com/facebook/flow/issues/6103
   const ForwardContainer = React.forwardRef(forwardRef);
 
   // Classic container static methods
-  /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb) Suppressing errors
+  /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb,oss) Suppressing errors
    * found while preparing to upgrade to 0.89.0 */
   ForwardContainer.getFragment = getFragment;
-  /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb) Suppressing errors
+  /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb,oss) Suppressing errors
    * found while preparing to upgrade to 0.89.0 */
   ForwardContainer.getFragmentNames = () => Object.keys(fragmentSpec);
-  /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb) Suppressing errors
+  /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb,oss) Suppressing errors
    * found while preparing to upgrade to 0.89.0 */
   ForwardContainer.hasFragment = name => fragmentSpec.hasOwnProperty(name);
-  /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb) Suppressing errors
+  /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb,oss) Suppressing errors
    * found while preparing to upgrade to 0.89.0 */
   ForwardContainer.hasVariable = hasVariable;
 
   if (__DEV__) {
-    /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb) Suppressing errors
-     * found while preparing to upgrade to 0.89.0 */
+    /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb,oss) Suppressing
+     * errors found while preparing to upgrade to 0.89.0 */
     ForwardContainer.__ComponentClass = ComponentClass;
   }
 

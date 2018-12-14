@@ -1077,16 +1077,15 @@ function create(
       />
     );
   }
-  // $FlowExpectedError See https://github.com/facebook/flow/issues/6103
   const ForwardContainer = React.forwardRef(forwardRef);
 
-  /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb) Suppressing errors
+  /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb,oss) Suppressing errors
    * found while preparing to upgrade to 0.89.0 */
   ForwardContainer.getFragmentNames = () => fragmentNames;
-  /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb) Suppressing errors
+  /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb,oss) Suppressing errors
    * found while preparing to upgrade to 0.89.0 */
   ForwardContainer.hasFragment = fragmentName => !!fragments[fragmentName];
-  /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb) Suppressing errors
+  /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb,oss) Suppressing errors
    * found while preparing to upgrade to 0.89.0 */
   ForwardContainer.hasVariable = variableName =>
     Object.prototype.hasOwnProperty.call(initialVariables, variableName);
@@ -1095,7 +1094,7 @@ function create(
    * Retrieves a reference to the fragment by name. An optional second argument
    * can be supplied to override the component's default variables.
    */
-  /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb) Suppressing errors
+  /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb,oss) Suppressing errors
    * found while preparing to upgrade to 0.89.0 */
   ForwardContainer.getFragment = function(
     fragmentName: string,
@@ -1140,7 +1139,7 @@ function create(
   };
 
   ForwardContainer.displayName = containerName;
-  /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb) Suppressing errors
+  /* $FlowFixMe(>=0.89.0 site=www,mobile,react_native_fb,oss) Suppressing errors
    * found while preparing to upgrade to 0.89.0 */
   ForwardContainer.moduleName = (null: ?string);
 
